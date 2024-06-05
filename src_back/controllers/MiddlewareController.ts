@@ -43,7 +43,8 @@ export default class MiddlewareController extends AbstractController {
 			},
 			allowList: (request, key) => {
 				//Apply rate limit only to API endpoints except config and SSE
-				return request.url == "/api/configs";
+				return !/\/api\//.test(request.url)
+					|| request.url == "/api/configs";
 			},
 			onBanReach: (request, key) => {
 				this.expandCustomRateLimitDuration(request);

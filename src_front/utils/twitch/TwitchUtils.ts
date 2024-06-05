@@ -24,15 +24,36 @@ export default class TwitchUtils {
 	private static emotesCacheHashmap: { [key: string]: TwitchatDataTypes.Emote } = {};
 	private static adblockAlertSent: boolean = false;
 	private static callHistory: { date: number, path: string, params: URLSearchParams }[] = [];
+	private static uid:string = "";
+	private static scopes:string[] = [];
+	private static accessToken:string = "";
+	private static requestScopesCallback:(scopes:TwitchScopesString[])=>void;
+	private static refreshTokenCallback:()=>Promise<false | TwitchDataTypes.AuthTokenResult>;
 
 	public static get headers(): { [key: string]: string } {
 		return {
-			'Authorization': 'Bearer ' + StoreProxy.auth.twitch.access_token,
+			'Authorization': 'Bearer ' + this.accessToken,
 			'Client-Id': Config.instance.TWITCH_CLIENT_ID,
 			// 'Authorization': 'Bearer 358611f2ef5434a',//Fake IDs for twitch-cli
 			// 'Client-Id': "ad6f8026c33565d701fa315320effc",//Fake IDs for twitch-cli
 			'Content-Type': "application/json",
 		};
+	}
+
+	/**
+	 * Updates authentication info
+	 */
+	public static updateAuthInfo(
+		accessToken:string,
+		scopes:string[],
+		requestScopesCallback:(scopes:TwitchScopesString[])=>void,
+		refreshTokenCallback:()=>Promise<false | TwitchDataTypes.AuthTokenResult>,
+		uid?:string):void {
+		if(uid) this.uid = uid;
+		this.scopes = scopes;
+		this.accessToken = accessToken;
+		this.refreshTokenCallback = refreshTokenCallback;
+		this.requestScopesCallback = requestScopesCallback;
 	}
 
 	/**
@@ -131,9 +152,12 @@ export default class TwitchUtils {
 		return url.toString();
 	}
 
-	public static async validateToken(token: string): Promise<TwitchDataTypes.Token | TwitchDataTypes.Error> {
+	/**
+	 * Validates current token
+	 */
+	public static async validateToken(accessToken: string): Promise<TwitchDataTypes.Token | TwitchDataTypes.Error> {
 		const headers = {
-			"Authorization": "Bearer " + token
+			"Authorization": "Bearer " + accessToken
 		};
 		const options = {
 			method: "GET",
@@ -249,7 +273,7 @@ export default class TwitchUtils {
 			method: "POST",
 			headers: this.headers,
 			body: JSON.stringify({
-				user_id: StoreProxy.auth.twitch.user.id,
+				user_id: this.uid,
 				msg_id: messageId,
 				action: accept ? "ALLOW" : "DENY",
 			})
@@ -330,7 +354,7 @@ export default class TwitchUtils {
 			headers: this.headers,
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH + "polls");
-		url.searchParams.set("broadcaster_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.set("broadcaster_id", this.uid);
 		const res = await this.callApi(url, options);
 		const json: { data: TwitchDataTypes.Poll[] } = await res.json();
 		if (res.status == 200) {
@@ -427,7 +451,7 @@ export default class TwitchUtils {
 			headers: this.headers,
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH + "predictions");
-		url.searchParams.set("broadcaster_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.set("broadcaster_id", this.uid);
 		const res = await this.callApi(url, options);
 		const json = await res.json();
 		if (res.status == 200) {
@@ -563,7 +587,7 @@ export default class TwitchUtils {
 			// }while(sets.length > 0);
 
 			if (this.hasScopes([TwitchScopes.READ_EMOTES])) {
-				if (channelId == StoreProxy.auth.twitch.user.id) {
+				if (channelId == this.uid) {
 					let userEmotes = await this.getUserEmotes(channelId);
 					if (userEmotes) {
 						emotesTwitch = emotesTwitch.concat(userEmotes);
@@ -666,7 +690,7 @@ export default class TwitchUtils {
 		}
 		let rewards: TwitchDataTypes.Reward[] = [];
 		const url = new URL(Config.instance.TWITCH_API_PATH + "channel_points/custom_rewards");
-		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("broadcaster_id", this.uid);
 		if (onlyManageable) url.searchParams.append("only_manageable_rewards", "true");
 		const res = await this.callApi(url, options);
 		const json = await res.json();
@@ -689,9 +713,8 @@ export default class TwitchUtils {
 	public static async createReward(reward: TwitchDataTypes.RewardEdition): Promise<boolean | string> {
 		if (!this.hasScopes([TwitchScopes.MANAGE_REWARDS])) return false;
 
-		const user = StoreProxy.auth.twitch.user;
 		const url = new URL(Config.instance.TWITCH_API_PATH + "channel_points/custom_rewards");
-		url.searchParams.append("broadcaster_id", user.id);
+		url.searchParams.append("broadcaster_id", this.uid);
 
 		if (reward.cost != undefined && reward.cost) {
 			if (reward.cost < 0) reward.cost = 0;
@@ -729,9 +752,8 @@ export default class TwitchUtils {
 	public static async deleteReward(rewardId: string): Promise<boolean> {
 		if (!this.hasScopes([TwitchScopes.MANAGE_REWARDS])) return false;
 
-		const user = StoreProxy.auth.twitch.user;
 		const url = new URL(Config.instance.TWITCH_API_PATH + "channel_points/custom_rewards");
-		url.searchParams.append("broadcaster_id", user.id);
+		url.searchParams.append("broadcaster_id", this.uid);
 		url.searchParams.append("id", rewardId);
 
 		const res = await this.callApi(url, {
@@ -765,8 +787,7 @@ export default class TwitchUtils {
 		let redemptions: TwitchDataTypes.RewardRedemption[] = [];
 
 		const url = new URL(Config.instance.TWITCH_API_PATH + "channel_points/custom_rewards/redemptions");
-		const user = StoreProxy.auth.twitch.user;
-		url.searchParams.append("broadcaster_id", user.id);
+		url.searchParams.append("broadcaster_id", this.uid);
 
 		const res = await this.callApi(url, options);
 		if (res.status == 200) {
@@ -790,8 +811,7 @@ export default class TwitchUtils {
 			body: JSON.stringify({ status: "CANCELED" }),
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH + "channel_points/custom_rewards/redemptions");
-		const user = StoreProxy.auth.twitch.user;
-		url.searchParams.append("broadcaster_id", user.id);
+		url.searchParams.append("broadcaster_id", this.uid);
 		url.searchParams.append("reward_id", rewardId);
 		redemptionIds.forEach(v => {
 			url.searchParams.append("id", v);
@@ -813,8 +833,7 @@ export default class TwitchUtils {
 		if (!this.hasScopes([TwitchScopes.LIST_REWARDS])) return false;
 
 		const url = new URL(Config.instance.TWITCH_API_PATH + "channel_points/custom_rewards");
-		const user = StoreProxy.auth.twitch.user;
-		url.searchParams.append("broadcaster_id", user.id);
+		url.searchParams.append("broadcaster_id", this.uid);
 		url.searchParams.append("id", rewardId);
 		if (data.cost != undefined && data.cost) {
 			if (data.cost < 0) data.cost = 0;
@@ -847,8 +866,7 @@ export default class TwitchUtils {
 		let list: TwitchDataTypes.ModeratorUser[] = [];
 		let cursor: string | null = null;
 		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/moderators");
-		const user = StoreProxy.auth.twitch.user;
-		url.searchParams.append("broadcaster_id", user.id);
+		url.searchParams.append("broadcaster_id", this.uid);
 		url.searchParams.append("first", "100");
 
 		do {
@@ -879,8 +897,7 @@ export default class TwitchUtils {
 		let list: TwitchDataTypes.VIPUser[] = [];
 		let cursor: string | null = null;
 		const url = new URL(Config.instance.TWITCH_API_PATH + "channels/vips");
-		const user = StoreProxy.auth.twitch.user;
-		url.searchParams.append("broadcaster_id", user.id);
+		url.searchParams.append("broadcaster_id", this.uid);
 		url.searchParams.append("first", "100");
 
 		do {
@@ -908,8 +925,7 @@ export default class TwitchUtils {
 		if (!this.hasScopes([TwitchScopes.LIST_MODERATED_CHANS])) return [];
 
 		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/channels");
-		const user = StoreProxy.auth.twitch.user;
-		url.searchParams.append("user_id", user.id);
+		url.searchParams.append("user_id", this.uid);
 		url.searchParams.append("first", "100");
 
 		let list: TwitchDataTypes.ModeratedUser[] = [];
@@ -938,7 +954,7 @@ export default class TwitchUtils {
 	public static async getBannedUsers(channelId: string, uids: string[]): Promise<TwitchDataTypes.BannedUser[]> {
 		if (!this.hasScopes([TwitchScopes.READ_MODS_AND_BANNED])) return [];
 		//Can't get banned state for another channel even if we're a mod of that channel
-		if (channelId != StoreProxy.auth.twitch.user.id) return [];
+		if (channelId != this.uid) return [];
 
 		let channels: TwitchDataTypes.BannedUser[] = [];
 		let fails: string[] = [];
@@ -979,7 +995,7 @@ export default class TwitchUtils {
 		do {
 			const url = new URL(Config.instance.TWITCH_API_PATH + "streams/followed");
 			url.searchParams.set("first", "100");
-			url.searchParams.set("user_id", StoreProxy.auth.twitch.user.id);
+			url.searchParams.set("user_id", this.uid);
 			if (cursor) {
 				url.searchParams.set("after", cursor);
 			}
@@ -1034,7 +1050,7 @@ export default class TwitchUtils {
 		let cursor: string | null = null;
 		do {
 			const url = new URL(Config.instance.TWITCH_API_PATH + "channels/followers");
-			url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+			url.searchParams.append("broadcaster_id", this.uid);
 			url.searchParams.append("first", "100");
 			if (cursor) url.searchParams.append("after", cursor);
 			if (channelId) url.searchParams.append("user_id", channelId);
@@ -1096,7 +1112,7 @@ export default class TwitchUtils {
 		if (!this.hasScopes([TwitchScopes.LIST_FOLLOWERS])) return null;
 
 		const url = new URL(Config.instance.TWITCH_API_PATH + "channels/followers");
-		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("broadcaster_id", this.uid);
 		url.searchParams.append("user_id", userId);
 		const res = await this.callApi(url, {
 			method: "GET",
@@ -1156,7 +1172,7 @@ export default class TwitchUtils {
 	public static async getSubsList(totalOnly: boolean): Promise<TwitchDataTypes.Subscriber[] | { subs: number, points: number }> {
 		if (!this.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) return [];
 
-		const channelId = StoreProxy.auth.twitch.user.id;
+		const channelId = this.uid;
 		let list: TwitchDataTypes.Subscriber[] = [];
 		let cursor: string | null = null;
 		let subs = 0;
@@ -1199,7 +1215,7 @@ export default class TwitchUtils {
 		let list: TwitchDataTypes.Subscriber[] = [];
 		do {
 			const url = new URL(Config.instance.TWITCH_API_PATH + "subscriptions");
-			url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+			url.searchParams.append("broadcaster_id", this.uid);
 			userIds.splice(0, 100).forEach(v => {
 				url.searchParams.append("user_id", v);
 			})
@@ -1474,7 +1490,7 @@ export default class TwitchUtils {
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/bans");
 		url.searchParams.append("broadcaster_id", channelId);
-		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("moderator_id", this.uid);
 
 		const res = await this.callApi(url, options);
 		if (res.status == 429) {
@@ -1506,7 +1522,7 @@ export default class TwitchUtils {
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/bans");
 		url.searchParams.append("broadcaster_id", channelId);
-		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("moderator_id", this.uid);
 		url.searchParams.append("user_id", user.id);
 
 		const res = await this.callApi(url, options);
@@ -1596,7 +1612,7 @@ export default class TwitchUtils {
 	public static async createClip(): Promise<boolean> {
 		if (!this.hasScopes([TwitchScopes.CLIPS])) return false;
 
-		const channel_id = StoreProxy.auth.twitch.user.id;
+		const channel_id = this.uid;
 		let message: TwitchatDataTypes.MessageClipCreate = {
 			id: Utils.getUUID(),
 			date: Date.now(),
@@ -1728,7 +1744,7 @@ export default class TwitchUtils {
 		let cursor: string | null = null;
 		do {
 			const url = new URL(Config.instance.TWITCH_API_PATH + "users/blocks");
-			url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+			url.searchParams.append("broadcaster_id", this.uid);
 			url.searchParams.append("first", "100");
 			if (cursor) url.searchParams.append("after", cursor);
 			const res = await this.callApi(url, options);
@@ -1760,7 +1776,7 @@ export default class TwitchUtils {
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH + "chat/announcements");
 		url.searchParams.append("broadcaster_id", channelId);
-		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("moderator_id", this.uid);
 		const res = await this.callApi(url, options);
 		if (res.status == 200 || res.status == 204) {
 			return true;
@@ -1787,7 +1803,7 @@ export default class TwitchUtils {
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/chat");
 		url.searchParams.append("broadcaster_id", channelId);
-		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("moderator_id", this.uid);
 		if (messageId) url.searchParams.append("message_id", messageId);
 		const res = await this.callApi(url, options);
 		if (res.status == 200 || res.status == 204) {
@@ -1817,7 +1833,7 @@ export default class TwitchUtils {
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/shield_mode");
 		url.searchParams.append("broadcaster_id", channelId);
-		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("moderator_id", this.uid);
 		const res = await this.callApi(url, options);
 		if (res.status == 200 || res.status == 204) {
 			return true;
@@ -1840,7 +1856,7 @@ export default class TwitchUtils {
 			headers: this.headers,
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH + "chat/color");
-		url.searchParams.append("user_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("user_id", this.uid);
 		url.searchParams.append("color", color);
 		const res = await this.callApi(url, options);
 		if (res.status == 200 || res.status == 204) {
@@ -1866,7 +1882,7 @@ export default class TwitchUtils {
 
 		const url = new URL(Config.instance.TWITCH_API_PATH + "chat/settings");
 		url.searchParams.append("broadcaster_id", channelId);
-		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("moderator_id", this.uid);
 		const res = await this.callApi(url, options);
 		if (res.status == 200) {
 			const json: {
@@ -1913,7 +1929,7 @@ export default class TwitchUtils {
 		const body: any = {};
 		if (typeof settings.emotesOnly == "boolean") body.emote_mode = settings.emotesOnly;
 
-		if (typeof settings.subOnly == "boolean") body.subscriber_mode = settings.subOnly; StoreProxy.auth.twitch.user.id
+		if (typeof settings.subOnly == "boolean") body.subscriber_mode = settings.subOnly; this.uid
 
 		if (settings.followOnly === false) {
 			body.follower_mode = false;
@@ -1943,7 +1959,7 @@ export default class TwitchUtils {
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH + "chat/settings");
 		url.searchParams.append("broadcaster_id", channelId);
-		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("moderator_id", this.uid);
 		const res = await this.callApi(url, options);
 		if (res.status == 200 || res.status == 204) {
 			return true;
@@ -1969,7 +1985,7 @@ export default class TwitchUtils {
 			headers: this.headers,
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/moderators");
-		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("broadcaster_id", this.uid);
 		url.searchParams.append("user_id", user.id);
 		const res = await this.callApi(url, options);
 		if (res.status == 200 || res.status == 204) {
@@ -2019,7 +2035,7 @@ export default class TwitchUtils {
 			headers: this.headers,
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH + "channels/vips");
-		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("broadcaster_id", this.uid);
 		url.searchParams.append("user_id", user.id);
 		const res = await this.callApi(url, options);
 		if (res.status == 200 || res.status == 204) {
@@ -2083,7 +2099,7 @@ export default class TwitchUtils {
 
 		if (!user || !user.id) return false;
 
-		const storedUser = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, user.id, user.login, user.display_name);
+		const storedUser = StoreProxy.users.getUserFrom("twitch", this.uid, user.id, user.login, user.display_name);
 		storedUser.avatarPath = user.profile_image_url;
 
 		const options = {
@@ -2091,7 +2107,7 @@ export default class TwitchUtils {
 			headers: this.headers,
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH + "raids");
-		url.searchParams.append("from_broadcaster_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("from_broadcaster_id", this.uid);
 		url.searchParams.append("to_broadcaster_id", user.id);
 		const res = await this.callApi(url, options);
 		if (res.status == 200 || res.status == 204) {
@@ -2121,7 +2137,7 @@ export default class TwitchUtils {
 			headers: this.headers,
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH + "raids");
-		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("broadcaster_id", this.uid);
 		const res = await this.callApi(url, options);
 		if (res.status == 200 || res.status == 204) {
 			return true;
@@ -2158,7 +2174,7 @@ export default class TwitchUtils {
 			body: JSON.stringify({ message })
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH + "whispers");
-		url.searchParams.append("from_user_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("from_user_id", this.uid);
 		url.searchParams.append("to_user_id", toId);
 		const res = await this.callApi(url, options);
 		if (res.status == 200 || res.status == 204) {
@@ -2197,7 +2213,7 @@ export default class TwitchUtils {
 
 		const url = new URL(Config.instance.TWITCH_API_PATH + "chat/chatters");
 		url.searchParams.append("broadcaster_id", channelId);
-		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("moderator_id", this.uid);
 
 		const res = await this.callApi(url, options);
 		if (res.status == 200 || res.status == 204) {
@@ -2367,7 +2383,7 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH + "chat/shoutouts");
 		url.searchParams.append("from_broadcaster_id", channelId);
 		url.searchParams.append("to_broadcaster_id", user.id);
-		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("moderator_id", this.uid);
 
 		const res = await this.callApi(url, options);
 
@@ -2406,7 +2422,7 @@ export default class TwitchUtils {
 	 * @param channelId channelId to get followers list
 	 */
 	public static async getLastFollowers(channelId?: string | null): Promise<{ total: number, followers: TwitchDataTypes.Follower[] }> {
-		if (!channelId) channelId = StoreProxy.auth.twitch.user.id;
+		if (!channelId) channelId = this.uid;
 
 		const url = new URL(Config.instance.TWITCH_API_PATH + "channels/followers");
 		url.searchParams.append("broadcaster_id", channelId);
@@ -2432,7 +2448,7 @@ export default class TwitchUtils {
 	public static async getFakeUsers(): Promise<TwitchatDataTypes.TwitchatUser[]> {
 		if (this.fakeUsersCache.length > 0) return this.fakeUsersCache;
 
-		const channelId: string = StoreProxy.auth.twitch.user.id;
+		const channelId: string = this.uid;
 		let followers: TwitchDataTypes.Follower[] = [];
 		//If followers listing has been granted, list them
 		if (TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
@@ -2501,9 +2517,8 @@ export default class TwitchUtils {
 	public static async createStreamMarker(comment: string = ""): Promise<boolean> {
 		if (!this.hasScopes([TwitchScopes.SET_STREAM_INFOS])) return false;
 
-		const user = StoreProxy.auth.twitch.user;
 		const url = new URL(Config.instance.TWITCH_API_PATH + "streams/markers");
-		url.searchParams.append("user_id", user.id);
+		url.searchParams.append("user_id", this.uid);
 		if (comment) url.searchParams.append("description", comment);
 
 		const res = await this.callApi(url, {
@@ -2511,14 +2526,13 @@ export default class TwitchUtils {
 			headers: this.headers,
 		});
 		if (res.status == 200) {
-			const message: TwitchatDataTypes.MessageModerationAction = {
+			const message: TwitchatDataTypes.MessageNoticeData = {
 				id: Utils.getUUID(),
 				date: Date.now(),
 				platform: "twitch",
-				channel_id: user.id,
+				channel_id: this.uid,
 				type: TwitchatDataTypes.TwitchatMessageType.NOTICE,
 				noticeId: TwitchatDataTypes.TwitchatNoticeType.MARKER_CREATED,
-				user,
 				message: StoreProxy.i18n.t("chat.marker.created"),
 			};
 			StoreProxy.chat.addMessage(message);
@@ -2541,9 +2555,8 @@ export default class TwitchUtils {
 			log: "Request ad schedule"
 		});
 
-		const user = StoreProxy.auth.twitch.user;
 		const url = new URL(Config.instance.TWITCH_API_PATH + "channels/ads");
-		url.searchParams.append("broadcaster_id", user.id);
+		url.searchParams.append("broadcaster_id", this.uid);
 
 
 		const res = await this.callApi(url, {
@@ -2580,7 +2593,7 @@ export default class TwitchUtils {
 					api: json.data,
 					internal: infos,
 				});
-				StoreProxy.stream.setCommercialInfo(user.id, infos);
+				StoreProxy.stream.setCommercialInfo(this.uid, infos);
 				return data;
 			} else {
 				Logger.instance.log("ads", {
@@ -2602,13 +2615,13 @@ export default class TwitchUtils {
 				nextAdStart_at: 0,
 				nextSnooze_at: 0,
 			};
-			StoreProxy.stream.setCommercialInfo(user.id, infos);
+			StoreProxy.stream.setCommercialInfo(this.uid, infos);
 		} else if (res.status == 500) {
 			body = await res.text();
 			if (!this.adblockAlertSent && /failed.*fetch/gi.test(body)) {
 				const message: TwitchatDataTypes.MessageCustomData = {
 					id: Utils.getUUID(),
-					channel_id: user.id,
+					channel_id: this.uid,
 					date: Date.now(),
 					platform: "twitchat",
 					type: TwitchatDataTypes.TwitchatMessageType.CUSTOM,
@@ -2637,9 +2650,8 @@ export default class TwitchUtils {
 	public static async snoozeNextAd(): Promise<TwitchDataTypes.AdSnooze | null> {
 		if (!this.hasScopes([TwitchScopes.ADS_SNOOZE])) return null
 
-		const user = StoreProxy.auth.twitch.user;
 		const url = new URL(Config.instance.TWITCH_API_PATH + "channels/ads/schedule/snooze");
-		url.searchParams.append("broadcaster_id", user.id);
+		url.searchParams.append("broadcaster_id", this.uid);
 
 		const res = await this.callApi(url, {
 			method: "POST",
@@ -2649,7 +2661,7 @@ export default class TwitchUtils {
 			const json = await res.json();
 			if (json.data && json.data.length > 0) {
 				const data = json.data[0] as TwitchDataTypes.AdSnooze;
-				const prevInfo = StoreProxy.stream.getCommercialInfo(user.id);
+				const prevInfo = StoreProxy.stream.getCommercialInfo(this.uid);
 				const infos: TwitchatDataTypes.CommercialData = {
 					currentAdDuration_ms: prevInfo.currentAdDuration_ms,
 					remainingSnooze: data.snooze_count,
@@ -2657,7 +2669,7 @@ export default class TwitchUtils {
 					nextAdStart_at: new Date(typeof data.next_ad_at == "number" ? data.next_ad_at * 1000 : data.next_ad_at).getTime(),
 					nextSnooze_at: new Date(typeof data.snooze_refresh_at == "number" ? data.snooze_refresh_at * 1000 : data.snooze_refresh_at).getTime(),
 				};
-				StoreProxy.stream.setCommercialInfo(user.id, infos);
+				StoreProxy.stream.setCommercialInfo(this.uid, infos);
 				return data;
 			}
 		} else if (res.status == 429) {
@@ -2673,9 +2685,8 @@ export default class TwitchUtils {
 	public static async listExtensions<T extends boolean>(onlyActive: T): Promise<ExtensionReturnType<T> | null> {
 		if (!this.hasScopes([TwitchScopes.EXTENSIONS])) return null;
 
-		const user = StoreProxy.auth.twitch.user;
 		const url = new URL(Config.instance.TWITCH_API_PATH + (onlyActive ? "users/extensions" : "users/extensions/list"));
-		url.searchParams.append("user_id", user.id);
+		url.searchParams.append("user_id", this.uid);
 
 		const res = await this.callApi(url, {
 			method: "GET",
@@ -2790,7 +2801,7 @@ export default class TwitchUtils {
 	 */
 	public static requestScopes(scopes: TwitchScopesString[]): boolean {
 		if (this.hasScopes(scopes)) return true;
-		StoreProxy.auth.requestTwitchScopes(scopes);
+		this.requestScopesCallback(scopes);
 		return false;
 	}
 
@@ -2806,7 +2817,7 @@ export default class TwitchUtils {
 		}
 
 		for (let i = 0; i < scopes.length; i++) {
-			if (StoreProxy.auth.twitch.scopes.indexOf(scopes[i]) == -1) {
+			if (this.scopes.indexOf(scopes[i]) == -1) {
 				return false;
 			}
 		}
@@ -3300,7 +3311,7 @@ export default class TwitchUtils {
 	 * @param attemptCount
 	 */
 	private static async onRateLimit(headers: Headers, url: string, attemptCount: number = 0): Promise<void> {
-		Sentry.captureException("Twitch API quota exceeded", { attachments: [{ filename: "logs_history", data: JSON.stringify({ uid: StoreProxy.auth.twitch.user.id, history: this.callHistory }) }] });
+		Sentry.captureException("Twitch API quota exceeded", { attachments: [{ filename: "logs_history", data: JSON.stringify({ uid: this.uid, history: this.callHistory }) }] });
 		let resetDate = parseInt(headers.get("ratelimit-reset") as string ?? Math.round(Date.now() / 1000).toString()) * 1000 + 1000;
 		if (attemptCount > 0) resetDate += 1000 * Math.pow(2, attemptCount);//Scale up the time frame
 		console.log("Rate limit", attemptCount, 1000 * Math.pow(2, attemptCount));
@@ -3326,7 +3337,7 @@ export default class TwitchUtils {
 			let res: false | TwitchDataTypes.AuthTokenResult = false;
 			try {
 				//Refresh session
-				res = await StoreProxy.auth.twitch_tokenRefresh(true);
+				res = await this.refreshTokenCallback();
 			} catch (error) { }
 			if (res === false) return result;
 

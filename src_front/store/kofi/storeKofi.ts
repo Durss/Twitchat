@@ -1,14 +1,13 @@
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { UnwrapRef } from 'vue';
-import DataStore from '../DataStore';
-import type { IKofiActions, IKofiGetters, IKofiState } from '../StoreProxy';
-import ApiHelper from '@/utils/ApiHelper';
-import StoreProxy from '../StoreProxy';
+import SSEEvent from '@/events/SSEEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ApiHelper from '@/utils/ApiHelper';
+import SSEHelper from '@/utils/SSEHelper';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import SSEHelper from '@/utils/SSEHelper';
-import SSEEvent from '@/events/SSEEvent';
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { UnwrapRef } from 'vue';
+import type { IKofiActions, IKofiGetters, IKofiState } from '../StoreProxy';
+import StoreProxy from '../StoreProxy';
 
 
 export const storeKofi = defineStore('kofi', {
@@ -36,8 +35,8 @@ export const storeKofi = defineStore('kofi', {
 				}
 			});
 
-			SSEHelper.instance.addEventListener(SSEEvent.KO_FI_EVENT, (event:SSEEvent<KofiEventData>) => {
-				this.onEvent(event.data)
+			SSEHelper.instance.addEventListener(SSEEvent.KO_FI_EVENT, (event) => {
+				this.onEvent(event.data);
 			});
 		},
 
@@ -152,7 +151,8 @@ export const storeKofi = defineStore('kofi', {
 	>,
 })
 
-interface KofiEventData {
+
+export interface KofiEventData {
 	verification_token: string;
 	message_id: string;
 	timestamp: string;

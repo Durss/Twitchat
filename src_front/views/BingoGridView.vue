@@ -10,20 +10,21 @@
 		<div v-else class="grid">
 			<h1>{{ title }}</h1>
 
+			<div v-if="isModerator" class="card-item moderator">
+				<Icon name="mod" />
+				<span>{{ $t("bingo_grid.state.mod_info") }}</span>
+			</div>
+
 			<TTButton @click.capture.prevent="generateCSRF(true)"
 				v-if="!$store.public.authenticated"
-				type="link"
 				icon="twitch"
 				class="authBt"
-				:href="oAuthURL"
 				:loading="generatingCSRF"
 				v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
 				bounce twitch>{{ $t("bingo_grid.state.auth_bt") }}</TTButton>
 			
-			<div class="ctas" v-if="!$store.public.authenticated">
-				<TTButton icon="shuffle" @click="shuffle()" v-tooltip="$t('bingo_grid.form.shuffle_bt')" />
-				<TTButton icon="refresh" @click="uncheckAll()" v-tooltip="$t('bingo_grid.state.reset_bt')"></TTButton>
-			</div>
+
+			<TTButton v-else icon="offline" @click="unauth()" alert small>Disconnect</TTButton>
 
 			<div class="cells"
 			ref="cellsHolder"
@@ -35,12 +36,25 @@
 					ref="cell"
 					:key="entry.id"
 					:data-cellid="entry.id"
-					v-tooltip="cellClasses(entry).includes('disabled')? $t('bingo_grid.state.cell_disabled') : ''"
+					v-tooltip="cellClasses(entry).includes('disabled')? $t('bingo_grid.state.cell_disabled', {USER:ownerName}) : ''"
 					@click="tickCell(entry)">
 						<span class="label">{{ entry.label }}</span>
 						<Icon class="check" name="checkmark" v-show="entry.check" :ref="'check_'+entry.id" />
 					</div>
 				</TransitionGroup>
+			</div>
+		</div>
+
+		<div class="card-item additional" v-if="isModerator">
+			<strong>{{ $t("bingo_grid.state.additional_cells") }}</strong>
+			<div v-for="entry in additionalEntries" class="additionalEntry">
+				<Checkbox class="entry"
+					:key="entry.id"
+					v-model="entry.check"
+					v-tooltip="entry.label"
+					@click="tickCell(entry)">
+					<span class="label">{{ entry.label }}</span>
+				</Checkbox>
 			</div>
 		</div>
 
@@ -67,11 +81,16 @@ import { gsap } from 'gsap/gsap-core';
 import SSEEvent from '@/events/SSEEvent';
 import SSEHelper from '@/utils/SSEHelper';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import Checkbox from '@/components/Checkbox.vue';
+import { ToggleBlock } from '@/components/ToggleBlock.vue';
 
 @Component({
 	components:{
 		Icon,
+		Checkbox,
 		TTButton,
+		ToggleBlock,
 	},
 	emits:[],
 })
@@ -79,7 +98,8 @@ class BingoGridView extends Vue {
 
 	public loading = true;
 	public error = false;
-	public generatingCSRF = true;
+	public isModerator = false;
+	public generatingCSRF = false;
 	public cols:number = 0;
 	public rows:number = 0;
 	public bingoCount:number = 0;
@@ -87,24 +107,19 @@ class BingoGridView extends Vue {
 	public oAuthURL = "";
 	public CSRFToken = "";
 	public title:string = "";
+	public ownerName:string = "";
 	public entries:(TwitchatDataTypes.BingoGridConfig["entries"][number] & {enabled?:boolean})[] = [];
+	public additionalEntries:(TwitchatDataTypes.BingoGridConfig["entries"][number] & {enabled?:boolean})[] = [];
 
 	private starIndex:number = 0;
+	private moderateDebounce:number = -1;
 	private bingoCountDebounce:number = -1;
 	private notificationDebounce:number = -1;
 	private prevGridStates:boolean[] = [];
-	private sseConnectHandler!:(e:SSEEvent) => void;
-	private sseUntickAllHandler!:(e:SSEEvent) => void;
-	private sseTickCellHandler!:(e:SSEEvent<{gridId:string, states:{[cellId:string]:boolean}}>) => void;
-	private sseGridUpdateHandler!:(e:SSEEvent<{
-				force?:boolean;
-				grid:{
-					title:string;
-					cols:number;
-					rows:number;
-					entries:TwitchatDataTypes.BingoGridConfig["entries"];
-					additionalEntries?:TwitchatDataTypes.BingoGridConfig["entries"];
-				}}>) => void;
+	private sseConnectHandler!:(e:SSEEvent<"ON_CONNECT">) => void;
+	private sseUntickAllHandler!:(e:SSEEvent<"BINGO_GRID_UNTICK_ALL">) => void;
+	private sseCellStatesHandler!:(e:SSEEvent<"BINGO_GRID_CELL_STATES">) => void;
+	private sseGridUpdateHandler!:(e:SSEEvent<"BINGO_GRID_UPDATE">) => void;
 
 	public cellClasses(entry:typeof this.entries[number]):string[] {
 		let res:string[] = ["cell"];
@@ -113,18 +128,27 @@ class BingoGridView extends Vue {
 	}
 
 	public mounted():void {
-		if(!this.$store.public.authenticated) {
-			this.generateCSRF();
-		}
 		this.loadGridInfo();
 
-		this.sseConnectHandler = (e:SSEEvent) => this.onSSEConnect(e);
-		this.sseTickCellHandler = (e:SSEEvent<Parameters<typeof this.sseTickCellHandler>[0]["data"]>) => this.onTickCell(e);
-		this.sseUntickAllHandler = (e:SSEEvent) => this.onUntickAll();
-		this.sseGridUpdateHandler = (e:SSEEvent<Parameters<typeof this.sseGridUpdateHandler>[0]["data"]>) => this.onGridUpdate(e.data);
+		const uid = this.$route.params.uid as string;
+		if(this.$store.public.authenticated) {
+			this.isModerator = uid === this.$store.public.twitchUid;
+			const hasModRights = this.$store.public.grantedScopes.indexOf(TwitchScopes.LIST_MODERATED_CHANS) > -1;
+			if(!this.isModerator && hasModRights) {
+				TwitchUtils.getModeratedChannels().then(modedChans => {
+					const uid = this.$route.params.uid as string;
+					this.isModerator = modedChans.findIndex(v=>v.broadcaster_id == uid) > -1;
+				});
+			}
+		}
+
+		this.sseConnectHandler = (e:SSEEvent<"ON_CONNECT">) => this.onSSEConnect(e);
+		this.sseCellStatesHandler = (e:SSEEvent<"BINGO_GRID_CELL_STATES">) => this.onTickCell(e);
+		this.sseUntickAllHandler = (e:SSEEvent<"BINGO_GRID_UNTICK_ALL">) => this.onUntickAll(e);
+		this.sseGridUpdateHandler = (e:SSEEvent<"BINGO_GRID_UPDATE">) => this.onGridUpdate(e.data);
 		SSEHelper.instance.addEventListener(SSEEvent.ON_CONNECT, this.sseConnectHandler);
 		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_UPDATE, this.sseGridUpdateHandler);
-		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_CELL_STATES, this.sseTickCellHandler);
+		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_CELL_STATES, this.sseCellStatesHandler);
 		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_UNTICK_ALL, this.sseUntickAllHandler);
 	}
 
@@ -132,8 +156,16 @@ class BingoGridView extends Vue {
 		clearTimeout(this.checkTimeout);
 		SSEHelper.instance.removeEventListener(SSEEvent.ON_CONNECT, this.sseConnectHandler);
 		SSEHelper.instance.removeEventListener(SSEEvent.BINGO_GRID_UPDATE, this.sseGridUpdateHandler);
-		SSEHelper.instance.removeEventListener(SSEEvent.BINGO_GRID_CELL_STATES, this.sseTickCellHandler);
+		SSEHelper.instance.removeEventListener(SSEEvent.BINGO_GRID_CELL_STATES, this.sseCellStatesHandler);
 		SSEHelper.instance.removeEventListener(SSEEvent.BINGO_GRID_UNTICK_ALL, this.sseUntickAllHandler);
+	}
+
+	/**
+	 * Unauthenticate current user
+	 */
+	public async unauth():Promise<void> {
+		this.isModerator = false;
+		this.$store.public.twitchUnauth();
 	}
 
 	/**
@@ -148,7 +180,7 @@ class BingoGridView extends Vue {
 		}catch(e) {
 			this.$store.common.alert(this.$t("error.csrf_failed"));
 		}
-		this.oAuthURL = TwitchUtils.getOAuthURL(this.CSRFToken, [], "/public");
+		this.oAuthURL = TwitchUtils.getOAuthURL(this.CSRFToken, [TwitchScopes.LIST_MODERATED_CHANS], "/public");
 		if(redirect) {
 			DataStoreCommon.set(DataStoreCommon.REDIRECT, this.$route.fullPath);
 			document.location.href = this.oAuthURL;
@@ -166,12 +198,18 @@ class BingoGridView extends Vue {
 		try {
 			const infos = await ApiHelper.call("bingogrid", "GET", {uid, gridid}, false);
 			if(infos.json.data) {
+				this.ownerName	= infos.json.owner;
 				this.cols		= infos.json.data.cols;
 				this.rows		= infos.json.data.rows;
 				this.title		= infos.json.data.title;
 				this.entries	= infos.json.data.entries;
+				this.additionalEntries	= infos.json.data.additionalEntries || [];
 				this.entries.forEach(v=>{
-					v.enabled = v.check;
+					v.enabled = v.check || this.isModerator;
+					v.check = false;
+				});
+				this.additionalEntries.forEach(v=>{
+					v.enabled = v.check || this.isModerator;
 					v.check = false;
 				});
 				this.onGridUpdate({grid:infos.json.data});
@@ -187,29 +225,6 @@ class BingoGridView extends Vue {
 	}
 
 	/**
-	 * Shuffle items
-	 */
-	public shuffle():void {
-		for (let i = this.entries.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			if(this.entries[i].lock || this.entries[j].lock) continue;
-			[this.entries[i], this.entries[j]] = [this.entries[j], this.entries[i]];
-		}
-		this.prevGridStates = [];
-		clearTimeout(this.checkTimeout);
-		this.checkTimeout = setTimeout(() => {
-			this.checkBingos();
-		}, 250);
-	}
-
-	/**
-	 * Uncheck all entries
-	 */
-	public uncheckAll():void {
-		this.entries.forEach(v=>v.check = false);
-	}
-
-	/**
 	 * Uncheck all entries
 	 */
 	public tickCell(entry:typeof this.entries[number]):void {
@@ -218,6 +233,17 @@ class BingoGridView extends Vue {
 		if(authenticated && entry.enabled != true) return;
 		entry.check = !entry.check;
 		this.checkBingos();
+		if(this.isModerator) {
+			const states:{[key:string]:boolean} = {};
+			this.entries.forEach(v=> states[v.id] = v.check);
+			this.additionalEntries.forEach(v=> states[v.id] = v.check);
+			const uid = this.$route.params.uid as string;
+			const gridid = this.$route.params.gridId as string;
+			clearTimeout(this.moderateDebounce);
+			this.moderateDebounce = setTimeout(()=>{
+				ApiHelper.call("bingogrid/moderate", "POST", {states, uid, gridid});
+			}, 1000);
+		}
 	}
 
 	/**
@@ -451,7 +477,7 @@ class BingoGridView extends Vue {
 	 * disconnect was due to a server reboot
 	 * @param e 
 	 */
-	private async onSSEConnect(e:SSEEvent):Promise<void> {
+	private async onSSEConnect(e:SSEEvent<"ON_CONNECT">):Promise<void> {
 		if(this.entries.length === 0) return;
 
 		const uid = this.$route.params.uid as string;
@@ -477,8 +503,15 @@ class BingoGridView extends Vue {
 	 * Called when streamer updates grid params and on first loading
 	 * @param e 
 	 */
-	private async onUntickAll():Promise<void> {
-		this.entries.forEach(cell => cell.enabled = cell.check = false);
+	private async onUntickAll(event:SSEEvent<"BINGO_GRID_UNTICK_ALL">):Promise<void> {
+		this.entries.forEach(cell => {
+			cell.enabled = this.isModerator;
+			cell.check = false
+		});
+		this.additionalEntries.forEach(cell => {
+			cell.enabled = this.isModerator;
+			cell.check = false
+		});
 		this.checkBingos();
 	}
 
@@ -486,7 +519,7 @@ class BingoGridView extends Vue {
 	 * Called when streamer updates grid params and on first loading
 	 * @param e 
 	 */
-	private async onGridUpdate(data:Parameters<typeof this.sseGridUpdateHandler>[0]["data"]):Promise<void> {
+	private async onGridUpdate(data:SSEEvent<"BINGO_GRID_UPDATE">["data"]):Promise<void> {
 		if(!data) return;
 		if(data.force === true) {
 			this.loadGridInfo();
@@ -517,13 +550,13 @@ class BingoGridView extends Vue {
 	 * Called when streamer un/ticks a cell
 	 * @param e 
 	 */
-	private async onTickCell(e:SSEEvent<Parameters<typeof this.sseTickCellHandler>[0]["data"]>):Promise<void> {
+	private async onTickCell(e:SSEEvent<"BINGO_GRID_CELL_STATES">):Promise<void> {
 		if(!e.data) return;
 		const states = e.data.states;
 		for (const cellId in states) {
 			const cell = this.entries.find(cell => cell.id == cellId);
 			if(cell && cell.enabled != states[cellId]) {
-				cell.enabled = states[cellId];
+				cell.enabled = states[cellId] || this.isModerator;
 				if(cell.enabled) this.playNotification();
 				else cell.check = false;
 			}
@@ -549,8 +582,9 @@ export default toNative(BingoGridView);
 <style scoped lang="less">
 .bingogridview{
 	color: var(--color-text);
-	min-width: 100vw;
-	min-height: 100vh;
+	// min-width: 100vw;
+	// min-height: 100vh;
+	width: 100%;
 	gap: 1em;
 	display: flex;
 	flex-direction: column;
@@ -569,12 +603,26 @@ export default toNative(BingoGridView);
 		display: block;
 	}
 
+	.moderator {
+		width: 100%;
+		gap: 1em;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		background-color: #00a86555;
+		border-radius: 0;
+		.icon {
+			height: 1.75em;
+		}
+	}
+
 	.grid {
 		gap: 1em;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		flex-grow: 1;
+		width: 100%;
 
 		.ctas {
 			gap: .5em;
@@ -586,8 +634,8 @@ export default toNative(BingoGridView);
 		.cells {
 			display: grid;
 			grid-template-columns: repeat(5, 1fr);
-			max-width: 100vw;
-			max-height: 70vh;
+			max-width: calc(100% - 2em);
+			// max-height: 70vh;
 			// overflow: hidden;
 			.cell {
 				padding: 5px;
@@ -663,6 +711,40 @@ export default toNative(BingoGridView);
 
 	.authBt {
 		background-color: red;
+	}
+
+	.additional {
+		strong {
+			font-size: 1.15em;
+			margin-bottom: .5em;
+			display: block;
+		}
+		.additionalEntry {
+			&:not(:first-child) {
+				margin-top: .25em;
+			}
+			.label {
+				display: inline-block;
+				max-width: 200px;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				line-height: 1.25em;
+			}
+		}
+	}
+}
+
+@media only screen and (max-width: 450px) {
+	.bingogridview {
+		.grid {
+			.cells {
+				.cell {
+					min-width: unset;
+					font-size: .8em;
+				}
+			}
+		}
 	}
 }
 </style>

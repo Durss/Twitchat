@@ -381,6 +381,7 @@ import TimerCountDownInfo from './TimerCountDownInfo.vue';
 		"update:showBingoGrid",
 		"setCurrentNotification",
 		"update:showGazaFunds",
+		"update:showChatUsers",
 	],
 })
 export class ChatForm extends Vue {

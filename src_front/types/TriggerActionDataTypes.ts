@@ -1374,7 +1374,9 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 
 	map[TriggerTypes.BINGO_RESULT] = [
 		{tag:"WINNER", descKey:'triggers.placeholders.winner', pointer:"user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoData>,
-		{tag:"WIN_VALUE", descKey:'triggers.placeholders.winner', pointer:"bingoData.numberValue", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoData>,
+		{tag:"WIN_VALUE_NUM", descKey:'triggers.placeholders.bingo_number', pointer:"bingoData.numberValue", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoData>,
+		{tag:"WIN_VALUE_EMOTE", descKey:'triggers.placeholders.bingo_emote', pointer:"bingoData.emoteValue", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoData>,
+		{tag:"WIN_VALUE_TEXT", descKey:'triggers.placeholders.bingo_custom', pointer:"bingoData.customValue", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoData>,
 	];
 
 	map[TriggerTypes.RAFFLE_RESULT] = [

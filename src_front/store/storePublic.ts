@@ -8,6 +8,7 @@ import ApiHelper from '@/utils/ApiHelper';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import SSEHelper from '@/utils/SSEHelper';
 import DataStoreCommon from './DataStoreCommon';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 let refreshTokenTO:number = -1;
 
@@ -15,8 +16,10 @@ export const storePublic = defineStore('public', {
 	state: () => ({
 		initComplete:false,
 		authenticated:false,
+		twitchUid:"",
 		twitchAccessToken:"",
 		twitchRefreshToken:"",
+		grantedScopes:[],
 	} as IPublicState),
 
 
@@ -58,6 +61,12 @@ export const storePublic = defineStore('public', {
 			this.initComplete = true;
 		},
 		
+		twitchUnauth():void {
+			DataStoreCommon.remove(DataStoreCommon.TWITCH_AUTH_TOKEN);
+			this.authenticated = false;
+			clearTimeout(refreshTokenTO);
+		},
+		
 		async twitchAuth(code?:string):Promise<boolean> {
 			const storeValue = DataStoreCommon.get(DataStoreCommon.TWITCH_AUTH_TOKEN);
 			let twitchAuthResult:TwitchDataTypes.AuthTokenResult|null = storeValue? JSON.parse(storeValue) : null;
@@ -65,7 +74,8 @@ export const storePublic = defineStore('public', {
 				//Convert oAuth code to access_token
 				const res = await ApiHelper.call("auth/twitch", "GET", {code});
 				twitchAuthResult		= res.json;
-				this.twitchAccessToken	= res.json.access_token
+				this.twitchAccessToken	= res.json.access_token;
+				this.grantedScopes		= res.json.scope;
 				ApiHelper.accessToken	= this.twitchAccessToken;
 				twitchAuthResult.expires_at	= Date.now() + twitchAuthResult.expires_in * 1000;
 				DataStoreCommon.set(DataStoreCommon.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
@@ -87,6 +97,18 @@ export const storePublic = defineStore('public', {
 			if(!twitchAuthResult) {
 				console.log("Auth failed", twitchAuthResult);
 				return false;
+			}else{
+				let userRes:TwitchDataTypes.Token | TwitchDataTypes.Error | undefined;
+				try {
+					window.setInitMessage("validating Twitch auth token");
+					userRes = await TwitchUtils.validateToken(twitchAuthResult.access_token);
+				}catch(error) { /*ignore*/ }
+
+				if(!userRes || isNaN((userRes as TwitchDataTypes.Token).expires_in)
+				&& (userRes as TwitchDataTypes.Error).status != 200) throw("invalid token");
+
+				userRes = userRes as TwitchDataTypes.Token;//Just forcing typing for the rest of the code
+				this.twitchUid = userRes.user_id;
 			}
 			return true;
 		},
@@ -104,6 +126,7 @@ export const storePublic = defineStore('public', {
 				}
 				this.twitchAccessToken		= twitchAuthResult.access_token;
 				twitchAuthResult.expires_at	= Date.now() + twitchAuthResult.expires_in * 1000;
+				this.grantedScopes			= twitchAuthResult.scope;
 				ApiHelper.accessToken		= this.twitchAccessToken;
 				//Store auth data in cookies for later use
 				DataStoreCommon.set(DataStoreCommon.TWITCH_AUTH_TOKEN, twitchAuthResult, false);

@@ -22,153 +22,159 @@
 				</div>
 			</div>
 
-			<ToggleBlock v-for="bingo in $store.bingoGrid.gridList"
-			editableTitle
-			v-model:title="bingo.title"
-			:titleDefault="$t('bingo_grid.form.default_title')"
-			:titleMaxLengh="30"
-			:open="false"
-			:key="bingo.id"
-			@update:title="save(bingo, true)">
+			<VueDraggable class="gridList"
+			v-model="$store.bingoGrid.gridList"
+			:group="{name:'bingo_grids'}"
+			animation="250">
+				<ToggleBlock v-for="bingo in $store.bingoGrid.gridList"
+				editableTitle
+				v-model:title="bingo.title"
+				:titleDefault="$t('bingo_grid.form.default_title')"
+				:titleMaxLengh="30"
+				:open="false"
+				:key="bingo.id"
+				@update:title="save(bingo, true)">
 
-				<template #left_actions>
-					<div class="leftActions">
-						<ToggleButton v-model="bingo.enabled" @click.native.stop @change="save(bingo)" v-if="$store.auth.isPremium || bingo.enabled || $store.bingoGrid.gridList.filter(v=>v.enabled).length < $config.MAX_BINGO_GRIDS" />
-					</div>
-				</template>
-
-				<template #right_actions>
-					<div class="rightActions">
-						<TTButton @click.stop="duplicateGrid(bingo.id)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxGridReached" />
-						<TTButton @click.stop="$store.bingoGrid.removeGrid(bingo.id)" icon="trash" alert />
-					</div>
-				</template>
-
-				<div class="form">
-					<div class="card-item install">
-						<label><Icon name="obs" />{{$t('bingo_grid.form.install_title')}}</label>
-						<OverlayInstaller type="bingogrid" :sourceSuffix="bingo.title" :id="bingo.id" :queryParams="{bid:bingo.id}" :sourceTransform="{width:960, height:540}" />
-					</div>
-
-					<div class="card-item share">
-						<label>
-							<Icon name="share"/>
-							<span>{{ $t("bingo_grid.form.share") }}</span>
-						</label>
-						<p class="url" v-click2Select>{{ getPublicURL(bingo.id) }}</p>
-					</div>
-
-					<div class="card-item sizes">
-						<label>
-							<Icon name="scale"/>
-							<span>{{ $t("bingo_grid.form.param_size") }}</span>
-						</label>
-						<div class="forms">
-							<ParamItem :paramData="param_cols[bingo.id]" v-model="bingo.cols" @change="save(bingo, true)" noBackground />
-							<Icon name="cross"/>
-							<ParamItem :paramData="param_rows[bingo.id]" v-model="bingo.rows" @change="save(bingo, true)" noBackground />
+					<template #left_actions>
+						<div class="leftActions">
+							<ToggleButton v-model="bingo.enabled" @click.native.stop @change="save(bingo)" v-if="$store.auth.isPremium || bingo.enabled || $store.bingoGrid.gridList.filter(v=>v.enabled).length < $config.MAX_BINGO_GRIDS" />
 						</div>
-					</div>
+					</template>
 
-					<ParamItem :paramData="param_textColor[bingo.id]" v-model="bingo.textColor" @change="save(bingo)" />
-
-					<ParamItem :paramData="param_textSize[bingo.id]" v-model="bingo.textSize" @change="save(bingo)" />
-
-					<ParamItem :paramData="param_showGrid[bingo.id]" v-model="bingo.showGrid" @change="save(bingo)" />
-
-					<ParamItem :paramData="param_backgroundColor[bingo.id]" v-model="bingo.backgroundColor" @change="save(bingo)" />
-
-					<ParamItem :paramData="param_backgroundAlpha[bingo.id]" v-model="bingo.backgroundAlpha" @change="save(bingo)" />
-
-					<VueDraggable
-					class="card-item entryList"
-					v-model="bingo.entries"
-					filter=".locked"
-					@start="onSortStart(bingo)"
-					@end="onSortEnd(bingo)"
-					animation="250">
-						<TransitionGroup name="flip-list">
-							<div v-for="element in bingo.entries"
-							:key="element.id"
-							:class="getEntryClasses(element)"
-							:style="{width:'calc('+(1/bingo.cols*100)+'% - 3px)'}"
-							@click="focusLabel(element.id)">
-								<contenteditable class="cell" tag="div"
-									v-model="element.label"
-									:contenteditable="true"
-									:no-html="true"
-									:no-nl="false"
-									:ref="'label_'+element.id"
-									@blur="save(bingo, true)"
-									@input="limitLabelSize(element)" />
-
-								<ClearButton class="lockBt"
-									v-tooltip="$t('bingo_grid.form.lock_bt_tt')"
-									:icon="element.lock? 'lock' : 'unlock'"
-									@click.stop="element.lock = !element.lock"></ClearButton>
-
-								<ClearButton class="moveBt" icon="move" v-if="!element.lock"></ClearButton>
-							</div>
-						</TransitionGroup>
-
-						<div class="ctas">
-							<TTButton @click="$store.bingoGrid.shuffleGrid(bingo.id)" icon="dice">{{ $t("bingo_grid.form.shuffle_bt") }}</TTButton>
-							<TTButton @click="$store.bingoGrid.resetLabels(bingo.id)" icon="trash">{{ $t("bingo_grid.form.reset_bt") }}</TTButton>
+					<template #right_actions>
+						<div class="rightActions">
+							<TTButton @click.stop="duplicateGrid(bingo.id)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxGridReached" />
+							<TTButton @click.stop="$store.bingoGrid.removeGrid(bingo.id)" icon="trash" alert />
 						</div>
-					</VueDraggable>
+					</template>
 
-					<ParamItem :paramData="param_additional_cells[bingo.id]">
-						<template #custom><TTButton @click="$store.bingoGrid.addCustomCell(bingo.id)">{{ $t("bingo_grid.form.add_cellBt") }}</TTButton></template>
-						<div class="additionalItemList">
-							<div class="additionalItem" v-for="item in (bingo.additionalEntries || [])" :key="item.id">
-								
-								<TTButton @click="$store.bingoGrid.removeCustomCell(bingo.id, item.id)" alert icon="trash" />
-								
-								<contenteditable class="label" tag="div"
-									v-model="item.label"
-									:contenteditable="true"
-									:no-html="true"
-									:no-nl="false"
-									:ref="'additionallabel_'+item.id"
-									@blur="save(bingo, true)"
-									@input="limitLabelSize(item)" />
+					<div class="form">
+						<div class="card-item install">
+							<label><Icon name="obs" />{{$t('bingo_grid.form.install_title')}}</label>
+							<OverlayInstaller type="bingogrid" :sourceSuffix="bingo.title" :id="bingo.id" :queryParams="{bid:bingo.id}" :sourceTransform="{width:960, height:540}" />
+						</div>
+
+						<div class="card-item share">
+							<label>
+								<Icon name="share"/>
+								<span>{{ $t("bingo_grid.form.share") }}</span>
+							</label>
+							<p class="url" v-click2Select>{{ getPublicURL(bingo.id) }}</p>
+						</div>
+
+						<div class="card-item sizes">
+							<label>
+								<Icon name="scale"/>
+								<span>{{ $t("bingo_grid.form.param_size") }}</span>
+							</label>
+							<div class="forms">
+								<ParamItem :paramData="param_cols[bingo.id]" v-model="bingo.cols" @change="save(bingo, true)" noBackground />
+								<Icon name="cross"/>
+								<ParamItem :paramData="param_rows[bingo.id]" v-model="bingo.rows" @change="save(bingo, true)" noBackground />
 							</div>
 						</div>
-					</ParamItem>
 
-					<ParamItem :paramData="param_chatCmd_toggle[bingo.id]" @change="save(bingo)">
-						<div class="parameter-child">
-							<ParamItem class="cmdField" :paramData="param_chatCmd[bingo.id]" v-model="bingo.chatCmd" @change="save(bingo)" noBackground />
-							<div class="instructions">
-								<Icon name="info" />
-								<i18n-t scope="global" keypath="bingo_grid.form.chat_cmd_usage">
-									<template #CMD>
-										<mark>{{ bingo.chatCmd }} X:Y</mark>
-									</template>
-								</i18n-t>
+						<ParamItem :paramData="param_textColor[bingo.id]" v-model="bingo.textColor" @change="save(bingo)" />
+
+						<ParamItem :paramData="param_textSize[bingo.id]" v-model="bingo.textSize" @change="save(bingo)" />
+
+						<ParamItem :paramData="param_showGrid[bingo.id]" v-model="bingo.showGrid" @change="save(bingo)" />
+
+						<ParamItem :paramData="param_backgroundColor[bingo.id]" v-model="bingo.backgroundColor" @change="save(bingo)" />
+
+						<ParamItem :paramData="param_backgroundAlpha[bingo.id]" v-model="bingo.backgroundAlpha" @change="save(bingo)" />
+
+						<VueDraggable
+						class="card-item entryList"
+						v-model="bingo.entries"
+						filter=".locked"
+						@start="onSortStart(bingo)"
+						@end="onSortEnd(bingo)"
+						animation="250"
+						:group="{name:bingo.id+'_cell_entries'}">
+							<TransitionGroup name="flip-list">
+								<div v-for="element in bingo.entries"
+								:key="element.id"
+								:class="getEntryClasses(element)"
+								:style="{width:'calc('+(1/bingo.cols*100)+'% - 3px)'}"
+								@click="focusLabel(element.id)">
+									<contenteditable class="cell" tag="div"
+										v-model="element.label"
+										:contenteditable="true"
+										:no-html="true"
+										:no-nl="false"
+										:ref="'label_'+element.id"
+										@blur="save(bingo, true)"
+										@input="limitLabelSize(element)" />
+
+									<ClearButton class="lockBt"
+										v-tooltip="$t('bingo_grid.form.lock_bt_tt')"
+										:icon="element.lock? 'lock' : 'unlock'"
+										@click.stop="element.lock = !element.lock"></ClearButton>
+
+									<ClearButton class="moveBt" icon="move" v-if="!element.lock"></ClearButton>
+								</div>
+							</TransitionGroup>
+
+							<div class="ctas">
+								<TTButton @click="$store.bingoGrid.shuffleGrid(bingo.id)" icon="dice">{{ $t("bingo_grid.form.shuffle_bt") }}</TTButton>
+								<TTButton @click="$store.bingoGrid.resetLabels(bingo.id)" icon="trash">{{ $t("bingo_grid.form.reset_bt") }}</TTButton>
 							</div>
-							<ToggleBlock :icons="['lock_fit']" :title="$t('global.allowed_users')" small :open="false">
-								<PermissionsForm v-model="bingo.chatCmdPermissions"></PermissionsForm>
-							</ToggleBlock>
-						</div>
-					</ParamItem>
+						</VueDraggable>
 
-					<ParamItem :paramData="param_heat_toggle[bingo.id]" v-model="bingo.heatClick" @change="save(bingo)">
-						<div class="parameter-child">
-							<div class="instructions">
-								<Icon name="info" />
-								<span>{{ $t("bingo_grid.form.heat_usage") }}</span>
+						<ParamItem :paramData="param_additional_cells[bingo.id]">
+							<template #custom><TTButton @click="$store.bingoGrid.addCustomCell(bingo.id)">{{ $t("bingo_grid.form.add_cellBt") }}</TTButton></template>
+							<div class="additionalItemList">
+								<div class="additionalItem" v-for="item in (bingo.additionalEntries || [])" :key="item.id">
+									
+									<TTButton @click="$store.bingoGrid.removeCustomCell(bingo.id, item.id)" alert icon="trash" />
+									
+									<contenteditable class="label" tag="div"
+										v-model="item.label"
+										:contenteditable="true"
+										:no-html="true"
+										:no-nl="false"
+										:ref="'additionallabel_'+item.id"
+										@blur="save(bingo, true)"
+										@input="limitLabelSize(item)" />
+								</div>
 							</div>
+						</ParamItem>
 
-							<TTButton class="heatButton" icon="heat" @click="openHeatParams()" secondary small>{{ $t("overlay.heatDistort.install_heat_link") }}</TTButton>
+						<ParamItem :paramData="param_chatCmd_toggle[bingo.id]" @change="save(bingo)">
+							<div class="parameter-child">
+								<ParamItem class="cmdField" :paramData="param_chatCmd[bingo.id]" v-model="bingo.chatCmd" @change="save(bingo)" noBackground />
+								<div class="instructions">
+									<Icon name="info" />
+									<i18n-t scope="global" keypath="bingo_grid.form.chat_cmd_usage">
+										<template #CMD>
+											<mark>{{ bingo.chatCmd }} X:Y</mark>
+										</template>
+									</i18n-t>
+								</div>
+								<ToggleBlock :icons="['lock_fit']" :title="$t('global.allowed_users')" small :open="false">
+									<PermissionsForm v-model="bingo.chatCmdPermissions"></PermissionsForm>
+								</ToggleBlock>
+							</div>
+						</ParamItem>
 
-							<ToggleBlock :icons="['lock_fit']" :title="$t('global.allowed_users')" small :open="false">
-								<PermissionsForm v-model="bingo.heatClickPermissions"></PermissionsForm>
-							</ToggleBlock>
-						</div>
-					</ParamItem>
-				</div>
-			</ToggleBlock>
+						<ParamItem :paramData="param_heat_toggle[bingo.id]" v-model="bingo.heatClick" @change="save(bingo)">
+							<div class="parameter-child">
+								<div class="instructions">
+									<Icon name="info" />
+									<span>{{ $t("bingo_grid.form.heat_usage") }}</span>
+								</div>
+
+								<TTButton class="heatButton" icon="heat" @click="openHeatParams()" secondary small>{{ $t("overlay.heatDistort.install_heat_link") }}</TTButton>
+
+								<ToggleBlock :icons="['lock_fit']" :title="$t('global.allowed_users')" small :open="false">
+									<PermissionsForm v-model="bingo.heatClickPermissions"></PermissionsForm>
+								</ToggleBlock>
+							</div>
+						</ParamItem>
+					</div>
+				</ToggleBlock>
+			</VueDraggable>
 		</div>
 	</div>
 </template>
@@ -274,7 +280,6 @@ class BingoGridForm extends AbstractSidePanel {
 		if(this.param_chatCmd_toggle[grid.id].value && !grid.chatCmd) {
 			grid.chatCmd = "!bingo";
 		}
-		console.log("SAVE", brodacastUpdate);
 		this.$store.bingoGrid.saveData(grid.id, undefined, brodacastUpdate);
 	}
 
@@ -405,6 +410,10 @@ export default toNative(BingoGridForm);
 	.form {
 		gap: .5em;
 	}
+
+	.content {
+		gap: .5em;
+	}
 	
 	.createForm {
 		text-align: center;
@@ -416,6 +425,12 @@ export default toNative(BingoGridForm);
 				margin-top: .5em;
 			}
 		}
+	}
+
+	.gridList {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
 	}
 
 	.entryList {

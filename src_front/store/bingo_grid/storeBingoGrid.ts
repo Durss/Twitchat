@@ -122,7 +122,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			/**
 			 * Called when a user's bingo count changes on a grid
 			 */
-			SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_BINGO_COUNT, async (event:SSEEvent<{gridId:string, uid:string, login:string, count:number}>)=>{
+			SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_BINGO_COUNT, async (event)=>{
 				if(!event.data) return;
 				const user = await StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, event.data.uid, event.data.login, event.data.login);
 				if(!this.viewersBingoCount[event.data.gridId]) this.viewersBingoCount[event.data.gridId] = [];
@@ -136,6 +136,24 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				}
 
 				this.viewersBingoCount[event.data.gridId] = list.filter(v=>v.count > 0);
+			});
+
+			/**
+			 * Called when a a mod ticks cells
+			 */
+			SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_MODERATOR_TICK, async (event)=>{
+				const eventData = event.data;
+				if(!eventData) return;
+				const grid = this.gridList.find(v=>v.id == eventData.gridId);
+				if(!grid) return;
+
+				for (const cellId in eventData.states) {
+					let entry = grid.entries.find(v=>v.id==cellId);
+					if(!entry && grid.additionalEntries) entry = grid.additionalEntries.find(v=>v.id==cellId);
+					if(!entry) continue
+					entry.check = eventData.states[cellId];
+				}
+				this.saveData(grid.id);
 			});
 		},
 
@@ -479,7 +497,8 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 		toggleCell(gridId:string, cellId:string, forcedState?:boolean):void {
 			const grid = this.gridList.find(g => g.id === gridId);
 			if(!grid || !grid.enabled) return;
-			const cell = grid.entries.find(e => e.id === cellId);
+			let cell = grid.entries.find(e => e.id === cellId);
+			if(!cell && grid.additionalEntries) cell = grid.additionalEntries.find(e => e.id === cellId);
 			if(!cell) return;
 			let prevState = cell.check;
 			cell.check = forcedState == undefined? !cell.check : forcedState;

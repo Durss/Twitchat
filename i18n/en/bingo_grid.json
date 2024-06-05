@@ -39,8 +39,9 @@
 		},
 		"state": {
 			"auth_bt": "Authenticate to play",
-			"reset_bt": "Untick all",
-			"cell_disabled": "The streamer must\ntick this cell\nto enable it"
+			"cell_disabled": "{USER} must\ntick this cell\nto enable it",
+			"mod_info": "You're a moderator in this channel, the cells you tick will be enabled for everyone",
+			"additional_cells": "Additional cells other viewers may have"
 		}
 	}
 }

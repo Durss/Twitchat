@@ -24,7 +24,8 @@ export default toNative(AppPublic);
 
 <style scoped lang="less">
 .apppublic{
-	min-width: 100vw;
-	min-height: 100vh;
+	// min-width: 100vw;
+	// min-height: 100vh;
+	color: var(--color-text);
 }
 </style>

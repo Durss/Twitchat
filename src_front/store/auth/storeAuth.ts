@@ -52,7 +52,7 @@ export const storeAuth = defineStore('auth', {
 
 
 	actions: {
-		async twitch_tokenRefresh(reconnectIRC:boolean, callback?:(success:boolean)=>void) {
+		async twitch_tokenRefresh(callback?:(success:boolean)=>void) {
 			let twitchAuthResult:TwitchDataTypes.AuthTokenResult = JSON.parse(DataStore.get(DataStore.TWITCH_AUTH_TOKEN));
 			//Refresh token if it's going to expire within the next 5 minutes
 			if(twitchAuthResult && twitchAuthResult.refresh_token) {
@@ -64,17 +64,16 @@ export const storeAuth = defineStore('auth', {
 					if(callback) callback(false);
 					return false;
 				}
-				this.twitch.access_token	= twitchAuthResult.access_token;
-				this.twitch.expires_in		= twitchAuthResult.expires_in;
-				twitchAuthResult.expires_at	= Date.now() + twitchAuthResult.expires_in * 1000;
-				this.twitch.scopes			= twitchAuthResult.scope || [];
-				ApiHelper.accessToken		= this.twitch.access_token
+				this.twitch.access_token		= twitchAuthResult.access_token;
+				this.twitch.expires_in			= twitchAuthResult.expires_in;
+				twitchAuthResult.expires_at		= Date.now() + twitchAuthResult.expires_in * 1000;
+				this.twitch.scopes				= twitchAuthResult.scope || [];
+				ApiHelper.accessToken			= this.twitch.access_token;
+				ApiHelper.refreshTokenCallback	= this.twitch_tokenRefresh;
+				TwitchUtils.updateAuthInfo(this.twitch.access_token, this.twitch.scopes, this.requestTwitchScopes, this.twitch_tokenRefresh);
+				
 				//Store auth data in cookies for later use
 				DataStore.set(DataStore.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
-				//This is not necessary
-				// if(reconnectIRC) {
-				// 	TwitchMessengerClient.instance.refreshToken(twitchAuthResult.access_token);
-				// }
 
 				const expire	= this.twitch.expires_in;
 				let delay		= Math.max(0, expire * 1000 - 60000 * 5);//Refresh 5min before it actually expires
@@ -87,7 +86,7 @@ export const storeAuth = defineStore('auth', {
 
 				clearTimeout(refreshTokenTO);
 				refreshTokenTO = setTimeout(()=>{
-					this.twitch_tokenRefresh(true);
+					this.twitch_tokenRefresh();
 				}, delay);
 				if(callback) callback(true);
 				return twitchAuthResult;
@@ -112,13 +111,13 @@ export const storeAuth = defineStore('auth', {
 					clearTimeout(refreshTokenTO);
 					//Schedule refresh
 					refreshTokenTO = setTimeout(()=>{
-						this.twitch_tokenRefresh(true);
+						this.twitch_tokenRefresh();
 					}, this.twitch.expires_in*1000 - 60000 * 5);
 				}else {
 					//OAuth process already done, just request a fresh new token if it's
 					//gonna expire in less than 5 minutes
 					// if(twitchAuthResult && twitchAuthResult.expires_at < Date.now() - 60000*5) {
-						const res = await this.twitch_tokenRefresh(false);
+						const res = await this.twitch_tokenRefresh();
 						if(!res) {
 							StoreProxy.common.alert("Unable to connect with Twitch API :(.", false, true);
 							return;
@@ -142,12 +141,14 @@ export const storeAuth = defineStore('auth', {
 				if(!userRes || isNaN((userRes as TwitchDataTypes.Token).expires_in)
 				&& (userRes as TwitchDataTypes.Error).status != 200) throw("invalid token");
 
-				userRes						= userRes as TwitchDataTypes.Token;//Just forcing typing for the rest of the code
-				this.twitch.client_id		= userRes.client_id;
-				this.twitch.access_token	= twitchAuthResult.access_token;
-				this.twitch.scopes			= (userRes as TwitchDataTypes.Token).scopes || [];
-				this.twitch.expires_in		= userRes.expires_in;
-				ApiHelper.accessToken		= this.twitch.access_token;
+				userRes							= userRes as TwitchDataTypes.Token;//Just forcing typing for the rest of the code
+				this.twitch.client_id			= userRes.client_id;
+				this.twitch.access_token		= twitchAuthResult.access_token;
+				this.twitch.scopes				= (userRes as TwitchDataTypes.Token).scopes || [];
+				this.twitch.expires_in			= userRes.expires_in;
+				ApiHelper.accessToken			= this.twitch.access_token;
+				ApiHelper.refreshTokenCallback	= this.twitch_tokenRefresh;
+				TwitchUtils.updateAuthInfo(this.twitch.access_token, this.twitch.scopes, this.requestTwitchScopes, this.twitch_tokenRefresh, userRes.user_id);
 
 				if(Config.instance.BETA_MODE) {
 					window.setInitMessage("checking beta access permissions");

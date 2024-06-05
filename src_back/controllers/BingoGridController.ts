@@ -3,6 +3,7 @@ import * as fs from "fs";
 import Config from "../utils/Config";
 import AbstractController from "./AbstractController";
 import SSEController, { SSECode as SSETopic } from "./SSEController";
+import TwitchUtils from "../utils/TwitchUtils";
 
 /**
 * Created : 01/06/2024 
@@ -29,6 +30,7 @@ export default class BingoGridController extends AbstractController {
 		this.server.post('/api/bingogrid/tickStates', async (request, response) => await this.updateTickStates(request, response));
 		this.server.post('/api/bingogrid/bingo', async (request, response) => await this.sendBingoCount(request, response));
 		this.server.post('/api/bingogrid/shuffle', async (request, response) => await this.shuffleEntries(request, response));
+		this.server.post('/api/bingogrid/moderate', async (request, response) => await this.moderateEntries(request, response));
 
 		setInterval(()=>{
 			for (const gridId in this.viewerGridStates) {
@@ -59,7 +61,7 @@ export default class BingoGridController extends AbstractController {
 		const uid:string = (request.query as any).uid;
 		const gridId:string = (request.query as any).gridid;
 
-		const gridCache = this.getStreamerGrid(uid, gridId);
+		const gridCache = await this.getStreamerGrid(uid, gridId);
 		if(!gridCache) {
 			response.header('Content-Type', 'application/json');
 			response.status(404);
@@ -67,8 +69,10 @@ export default class BingoGridController extends AbstractController {
 			return;
 		}
 
-		let data = JSON.parse(JSON.stringify(gridCache.data)) as typeof gridCache.data;
+		let cache = JSON.parse(JSON.stringify(gridCache)) as typeof gridCache;
+		let data = cache.data;
 		
+		//If user is authenticated, generate a unique randomized grid for them
 		const user = await super.twitchUserGuard(request, response, false);
 		if(user) {
 			if(!this.viewerGridStates[gridId]) this.viewerGridStates[gridId] = {};
@@ -79,18 +83,21 @@ export default class BingoGridController extends AbstractController {
 				
 			}else{
 				//Generate user's cache
-				this.shuffleGridEntries(data)
+				this.shuffleGridEntries(data);
 				this.viewerGridStates[gridId][user.user_id] = {
 					data,
 					ownerId:uid,
+					ownerName:cache.ownerName,
 					date:Date.now(),
 				};
 			}
+		}else{
+			this.shuffleGridEntries(data);
 		}
 
 		response.header('Content-Type', 'application/json');
 		response.status(200);
-		response.send(JSON.stringify({success:true, data}));
+		response.send(JSON.stringify({success:true, data, owner:cache.ownerName}));
 		return;
 	}
 
@@ -116,7 +123,7 @@ export default class BingoGridController extends AbstractController {
 		if(!this.viewerGridStates[gridId][user.user_id]) {
 			//set cache only if it does not exist to prevent users
 			//from overriding the grid as they want
-			const cache = this.getStreamerGrid(uid, gridId);
+			const cache = await this.getStreamerGrid(uid, gridId);
 			if(cache) {
 				//Extract all entries that are missing from user's grid definition
 				//and push them in their additionalEntries so diff made on streamerGridUpdate()
@@ -129,6 +136,7 @@ export default class BingoGridController extends AbstractController {
 			this.viewerGridStates[gridId][user.user_id] = {
 				data:grid,
 				ownerId:uid,
+				ownerName:cache.ownerName,
 				date:Date.now(),
 			};
 		}
@@ -207,38 +215,8 @@ export default class BingoGridController extends AbstractController {
 		const body:any = request.body;
 		const gridId:string = body.gridid;
 		const states:{[cellId:string]:boolean} = body.states;
-		const cache = this.getStreamerGrid(user.user_id, gridId);
-		if(cache) {
-			//Update cache
-			for (const cellId in states) {
-				const state = states[cellId];
-				let entry = cache.data.entries.find(v=>v.id === cellId);
-				if(entry) entry.check = state;
-				if(cache.data.additionalEntries) {
-					entry = cache.data.additionalEntries.find(v=>v.id === cellId);
-					if(entry) entry.check = state;
-				}
-			}
 
-			//Update viewers caches
-			const viewers = Object.keys(this.viewerGridStates[gridId] || {});
-			viewers.forEach(uid => {
-				const cache = this.viewerGridStates[gridId][uid];
-				cache.date = Date.now();
-				const grid = cache.data;
-				for (const cellId in states) {
-					const state = states[cellId];
-					let entry = grid.entries.find(v=>v.id === cellId);
-					if(entry) entry.check = state;
-					if(grid.additionalEntries) {
-						entry = grid.additionalEntries.find(v=>v.id === cellId);
-						if(entry) entry.check = state;
-					}
-				}
-				//Send new states to viewer
-				SSEController.sendToUser(uid, SSETopic.BINGO_GRID_CELL_STATES, {gridId, states});
-			});
-		}
+		await this.setTickStates(user.user_id, gridId, states);
 
 		response.header('Content-Type', 'application/json');
 		response.status(200);
@@ -260,7 +238,7 @@ export default class BingoGridController extends AbstractController {
 		const gridId:string = body.gridid;
 		const count:number = body.count;
 		
-		const cache = this.getStreamerGrid(user.user_id, gridId);
+		const cache = await this.getStreamerGrid(user.user_id, gridId);
 		if(cache) {
 			const rows = cache.data.rows;
 			const cols = cache.data.cols;
@@ -325,6 +303,52 @@ export default class BingoGridController extends AbstractController {
 	}
 
 	/**
+	 * Called when a mod ticks cells
+	 * 
+	 * @param {*} request 
+	 * @param {*} response 
+	 */
+	private async moderateEntries(request:FastifyRequest, response:FastifyReply) {
+		const user = await super.twitchUserGuard(request, response, false);
+		if(!user) {
+			response.header('Content-Type', 'application/json');
+			response.status(401);
+			response.send({success:false, error:"iunvalid access token", errorCode:"INVALID_ACCESS_TOKEN"});
+			return;
+		}
+
+		const body:any = request.body;
+		const uid:string = body.uid;
+		const gridId:string = body.gridid;
+		const states:{[cellId:string]:boolean} = body.states;
+		const grid = await this.getStreamerGrid(uid, gridId);
+		if(!grid) {
+			response.header('Content-Type', 'application/json');
+			response.status(404);
+			response.send({success:false});
+			return;
+		}
+
+		//Check if user is a streamer's mod or the streamer themself
+		if(user.user_id != uid) {
+			const moderatedChans = await TwitchUtils.getModeratedChannels(user.user_id, request.headers.authorization!);
+			if(moderatedChans.findIndex(v=>v.broadcaster_id == uid) == -1) {
+				response.header('Content-Type', 'application/json');
+				response.status(401);
+				response.send({success:false, error:"not a mod", errorCode:"NOT_A_MODERATOR"});
+				return;
+			}
+		}
+
+		await this.setTickStates(uid, gridId, states);
+		SSEController.sendToUser(uid, SSETopic.BINGO_GRID_MODERATOR_TICK, {gridId:gridId, uid:user.user_id, states});
+
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send({success:true});
+	}
+
+	/**
 	 * Shuffles a grid items
 	 * @param grid 
 	 */
@@ -357,7 +381,7 @@ export default class BingoGridController extends AbstractController {
 	 * @param gridId 
 	 * @returns 
 	 */
-	private getStreamerGrid(uid:string, gridId:string):IGridCacheData {
+	private async getStreamerGrid(uid:string, gridId:string):Promise<IGridCacheData> {
 		const cacheKey = uid+"/"+gridId;
 		let cache = this.cachedBingoGrids[cacheKey];
 		if(!cache || Date.now() - cache.date > 5000) {
@@ -365,23 +389,67 @@ export default class BingoGridController extends AbstractController {
 			const userFilePath = Config.USER_DATA_PATH + uid+".json";
 			let found = fs.existsSync(userFilePath);
 			if(found){
+				const users = await TwitchUtils.loadUsers(undefined, [uid]);
+				const username = users && users.length > 0? users[0].display_name : "???";
 				const data = JSON.parse(fs.readFileSync(userFilePath, {encoding:"utf8"}));
 				//TODO strongly type user data for safer read here
 				const grid = data.bingoGrids.gridList.find(v=>v.id == gridId) as IGridCacheData["data"];
 				found = grid != undefined;
 				if(found) {
 					const data:IGridCacheData["data"] = {title:grid.title, entries:grid.entries, rows:grid.rows, cols:grid.cols, additionalEntries:grid.additionalEntries};
-					cache = this.cachedBingoGrids[cacheKey] = {date:Date.now(), ownerId:uid, data};
+					cache = this.cachedBingoGrids[cacheKey] = {date:Date.now(), ownerId:uid, ownerName:username, data};
 				}
 			}
 		}
 		return cache;
+	}
+	
+	/**
+	 * Updates the tick states of the given grid's cells
+	 * @param uid 
+	 * @param gridId 
+	 * @param states 
+	 */
+	private async setTickStates(uid:string, gridId:string, states:{[cellId:string]:boolean}):Promise<void> {
+		const cache = await this.getStreamerGrid(uid, gridId);
+		if(cache) {
+			//Update cache
+			for (const cellId in states) {
+				const state = states[cellId];
+				let entry = cache.data.entries.find(v=>v.id === cellId);
+				if(entry) entry.check = state;
+				if(cache.data.additionalEntries) {
+					entry = cache.data.additionalEntries.find(v=>v.id === cellId);
+					if(entry) entry.check = state;
+				}
+			}
+
+			//Update viewers caches
+			const viewers = Object.keys(this.viewerGridStates[gridId] || {});
+			viewers.forEach(uid => {
+				const cache = this.viewerGridStates[gridId][uid];
+				cache.date = Date.now();
+				const grid = cache.data;
+				for (const cellId in states) {
+					const state = states[cellId];
+					let entry = grid.entries.find(v=>v.id === cellId);
+					if(entry) entry.check = state;
+					if(grid.additionalEntries) {
+						entry = grid.additionalEntries.find(v=>v.id === cellId);
+						if(entry) entry.check = state;
+					}
+				}
+				//Send new states to viewer
+				SSEController.sendToUser(uid, SSETopic.BINGO_GRID_CELL_STATES, {gridId, states});
+			});
+		}
 	}
 }
 
 interface IGridCacheData {
 	date:number;
 	ownerId:string;
+	ownerName:string;
 	data:{
 		title:string;
 		rows:number;

@@ -1,5 +1,5 @@
 import { EventDispatcher } from "@/events/EventDispatcher";
-import SSEEvent from "@/events/SSEEvent";
+import SSEEvent, {type EventTypeMap} from "@/events/SSEEvent";
 import ApiHelper from "./ApiHelper";
 import Config from "./Config";
 
@@ -35,6 +35,10 @@ export default class SSEHelper extends EventDispatcher {
 		this.connect();
 	}
 
+	override addEventListener<T extends keyof EventTypeMap>(event:T, listenerFunc:(e:SSEEvent<T>)=>void):void {
+		super.addEventListener(event, listenerFunc);
+	}
+
 
 
 	/*******************
@@ -64,7 +68,7 @@ export default class SSEHelper extends EventDispatcher {
 				//Avoid autoreconnect
 				this._sse.close();
 			}
-			this.dispatchEvent(new SSEEvent(json.code, json.data));
+			this.dispatchEvent(new SSEEvent(json.code as keyof EventTypeMap, json.data));
 		}catch(error) {
 			//ignore
 		}

@@ -56,17 +56,17 @@ export default class SSEController extends AbstractController {
 	 * @returns 
 	 */
 	private async postRegisterSSE(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		response.sse({id:"connecting", data:JSON.stringify({"success":true, code:SSECode.CONNECTING})});
+		response.sse({id:"connecting", data:JSON.stringify({success:true, code:SSECode.CONNECTING})});
 		const queryParams = request.query as any;
 		const userInfo = await TwitchUtils.getUserFromToken(queryParams.token);
 		if(!userInfo) {
-			response.sse({id:"error", data:JSON.stringify({"success":true, code:SSECode.AUTHENTICATION_FAILED})});
+			response.sse({id:"error", data:JSON.stringify({success:true, code:SSECode.AUTHENTICATION_FAILED})});
 			return;
 		}
 
 		if(!SSEController.uidToResponse[userInfo.user_id]) SSEController.uidToResponse[userInfo.user_id] = [];
 		SSEController.uidToResponse[userInfo.user_id].push(response);
-		response.sse({id:"connect", data:JSON.stringify({"success":true, code:SSECode.CONNECTED})});
+		response.sse({id:"connect", data:JSON.stringify({success:true, code:SSECode.CONNECTED})});
 
 		request.socket.on('close', ()=>{
 			const connexions = SSEController.uidToResponse[userInfo.user_id];
@@ -93,4 +93,5 @@ export const SSECode = {
 	BINGO_GRID_BINGO_COUNT:"BINGO_GRID_BINGO_COUNT" as const,
 	BINGO_GRID_UPDATE:"BINGO_GRID_UPDATE" as const,
 	BINGO_GRID_UNTICK_ALL:"BINGO_GRID_UNTICK_ALL" as const,
+	BINGO_GRID_MODERATOR_TICK:"BINGO_GRID_MODERATOR_TICK" as const,
 }

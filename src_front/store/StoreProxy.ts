@@ -307,10 +307,9 @@ export interface IAuthGetters {
 export interface IAuthActions {
 	/**
 	 * Request a twitch token refresh
-	 * @param reconnectIRC
 	 * @param callback
 	 */
-	twitch_tokenRefresh(reconnectIRC:boolean, callback?:(success:boolean)=>void):Promise<TwitchDataTypes.AuthTokenResult|false>;
+	twitch_tokenRefresh(callback?:(success:boolean)=>void):Promise<TwitchDataTypes.AuthTokenResult|false>;
 	/**
 	 * Authenticate with twitch
 	 * @param code
@@ -2643,7 +2642,10 @@ export interface ICommonActions {
 export interface IPublicState {
 	initComplete:boolean;
 	authenticated:boolean;
+	twitchUid:string;
 	twitchAccessToken:string;
+	twitchRefreshToken:string;
+	grantedScopes:string[];
 }
 
 export interface IPublicGetters {
@@ -2664,6 +2666,10 @@ export interface IPublicActions {
 	 * @param callback
 	 */
 	twitchTokenRefresh(reconnectIRC:boolean):Promise<boolean>;
+	/**
+	 * Disconnect from twithc
+	 */
+	twitchUnauth():void;
 	/**
 	 * Reload all labels (use CTRL+Alt+M)
 	 */

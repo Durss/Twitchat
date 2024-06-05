@@ -14,6 +14,7 @@ import Utils from "./Utils";
 export default class ApiHelper {
 
 	private static _accessToken:string = "";
+	private static _refreshTokenCallback:()=>Promise<false | TwitchDataTypes.AuthTokenResult>;
 
 	constructor() {
 	}
@@ -22,6 +23,7 @@ export default class ApiHelper {
 	* GETTER / SETTERS *
 	********************/
 
+	public static set refreshTokenCallback(value:typeof this._refreshTokenCallback) { this._refreshTokenCallback = value; }
 	public static set accessToken(value:string) { this._accessToken = value; }
 	public static get accessToken():string { return this._accessToken; }
 
@@ -89,7 +91,7 @@ export default class ApiHelper {
 		if(status == 401 && attemptIndex < 2) {
 			//If it's a twitch endpoint, try to refresh session and try again
 			if(endpoint.indexOf(Config.instance.TWITCH_API_PATH) > -1) {
-				await StoreProxy.auth.twitch_tokenRefresh(true);
+				await this.refreshTokenCallback();
 				return this.call(endpoint, method, data, retryOnFail, attemptIndex+1);
 			}
 		}
@@ -826,6 +828,7 @@ type ApiEndpoints =  {
 			};
 			response: {
 				success:boolean;
+				owner:string;
 				data?:{
 					title:string;
 					cols:number;
@@ -941,6 +944,20 @@ type ApiEndpoints =  {
 						check: boolean;
 					}[];
 				};
+			};
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		}
+	};
+	"bingogrid/moderate": {
+		POST: {
+			parameters: {
+				uid:string;
+				gridid:string;
+				states:{[cellId:string]:boolean};
 			};
 			response: {
 				success:boolean;

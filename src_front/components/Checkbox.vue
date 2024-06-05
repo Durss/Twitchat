@@ -11,9 +11,12 @@
 <script lang="ts">
 import { watch } from 'vue';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import Icon from './Icon.vue';
 
 @Component({
-	components:{},
+	components:{
+		Icon,
+	},
 	emits:["update:modelValue"],
 })
 class Checkbox extends Vue {

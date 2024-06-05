@@ -49,7 +49,7 @@ export const storeDiscord = defineStore('discord', {
 				this.quickActions = data.quickActions || [];
 			}
 
-			SSEHelper.instance.addEventListener(SSEEvent.NOTIFICATION, (event:SSEEvent<{messageId:string, col:number[], message:string, quote:string, highlightColor:string, style:TwitchatDataTypes.MessageCustomData["style"], username:string, actions:TwitchatDataTypes.MessageCustomData["actions"]}>)=>{
+			SSEHelper.instance.addEventListener(SSEEvent.NOTIFICATION, (event)=>{
 				const data = event.data!;
 				const chunksMessage = TwitchUtils.parseMessageToChunks(data.message || "", undefined, true);
 				const chunksQuote = !data.quote? [] : TwitchUtils.parseMessageToChunks(data.quote, undefined, true);

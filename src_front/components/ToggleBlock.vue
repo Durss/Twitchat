@@ -52,6 +52,7 @@ import { gsap } from 'gsap/gsap-core';
 import type { StyleValue } from 'vue';
 import contenteditable from 'vue-contenteditable';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import Icon from './Icon.vue';
 
 /**
  * To add actions on the right or left of the header
@@ -65,6 +66,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 @Component({
 	name:"ToggleBlock",
 	components:{
+		Icon,
 		contenteditable,
 	},
 	emits:["startDrag", "update:title", "update:open"],

@@ -68,31 +68,6 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Checks if the given token is valid
-	 */
-	public static validateToken(token:string):Promise<boolean|any> {
-		return new Promise((resolve, reject) => {
-			let headers:any = {
-				"Authorization":"OAuth "+token
-			};
-			var options = {
-				method: "GET",
-				headers: headers,
-			};
-			fetch("https://id.twitch.tv/oauth2/validate", options)
-			.then(async(result) => {
-				if(result.status == 200) {
-					result.json().then((json)=> {
-						resolve(json)
-					});
-				}else{
-					resolve(false);
-				}
-			});
-		});
-	}
-
-	/**
 	 * Validates a token and returns the user data
 	 */
 	public static async getUserFromToken(token?:string):Promise<TwitchToken|null> {
@@ -238,6 +213,38 @@ export default class TwitchUtils {
 		return false;
 	}
 
+	/**
+	 * Get a list of channels the given user token is a moderator on.
+	 */
+	public static async getModeratedChannels(userId:string, token:string): Promise<ModeratedUser[]> {
+		const url = new URL("https://api.twitch.tv/helix/moderation/channels");
+		url.searchParams.append("user_id", userId);
+		url.searchParams.append("first", "100");
+
+		let list: ModeratedUser[] = [];
+		let cursor: string | null = null;
+		do {
+			if (cursor) url.searchParams.set("after", cursor);
+			const res = await fetch(url, {
+				method: "GET",
+				headers:{
+					"Client-ID": Config.credentials.twitch_client_id,
+					"Authorization": token,
+					"Content-Type": "application/json",
+				}
+			});
+			if (res.status == 200) {
+				const json: { data: ModeratedUser[], pagination?: { cursor?: string } } = await res.json();
+				list = list.concat(json.data);
+				cursor = null;
+				if (json.pagination?.cursor) {
+					cursor = json.pagination.cursor;
+				}
+			} else if (res.status == 500) break;
+		} while (cursor != null);
+		return list;
+	}
+
 	
 	
 	
@@ -281,4 +288,10 @@ export interface TwitchUSteamInfos {
 	thumbnail_url: string;
 	tags: string[];
 	is_mature: boolean;
+}
+
+export interface ModeratedUser {
+	broadcaster_id: string;
+	broadcaster_login: string;
+	broadcaster_name: string;
 }

@@ -85,7 +85,8 @@ export default toNative(HelpGenocideVictims);
 
 	.holder {
 		line-height: 1.2em;
-		width: 600px;
+		width: calc(100% - 2em);
+		max-width: 600px;
 		height: fit-content;
 		max-width: 600px;
 		max-height: var(--vh);

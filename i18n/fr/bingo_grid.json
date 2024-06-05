@@ -39,8 +39,9 @@
 		},
 		"state":{
 			"auth_bt": "Me connecter pour jouer",
-			"reset_bt":"Tout décocher",
-			"cell_disabled": "La/le streamer doit\ncocher cette case\npour l'activer"
+			"cell_disabled": "{USER} doit\ncocher cette case\npour l'activer",
+			"mod_info": "Vous êtes modérateur·ice de cette chaîne, les cases que vous cochez s'activeront chez tout le monde",
+			"additional_cells": "Cases additionelles que d'autres viewers peuvent avoir"
 		}
 	}
 }
