@@ -555,7 +555,7 @@ import Config from '@/utils/Config';
 	public openDataMnagerForm():void {
 		this.showDataManager = true;
 		this.auhtenticating = true;
-		this.$store.auth.twitch_tokenRefresh(false)
+		this.$store.auth.twitch_tokenRefresh()
 		.then(result => {
 			this.auhtenticated = result !== false;
 			this.auhtenticating = false;

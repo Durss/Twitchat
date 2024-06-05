@@ -218,7 +218,7 @@ export default class MessengerProxy {
 	 * Called when requesting to refresh auth token
 	 */
 	private async onRefreshToken(e:MessengerClientEvent):Promise<void> {
-		const res = await StoreProxy.auth.twitch_tokenRefresh(true);
+		const res = await StoreProxy.auth.twitch_tokenRefresh();
 		if(res !== false) {
 			TwitchMessengerClient.instance.refreshToken(res.access_token);
 		}
