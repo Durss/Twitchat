@@ -877,6 +877,8 @@ export default toNative(OverlayEndingCredits);
 	color: #fff;
 	will-change: transform;
 	will-change: margin-top;
+	//Necessary for proper gradients rendering!!
+	position: absolute;
 
 	.category {
 		font-family: "Inter";
