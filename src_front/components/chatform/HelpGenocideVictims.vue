@@ -8,13 +8,32 @@
 			</h1>
 			<div class="content">
 				<p v-for="e in $tm('gaza.description')">{{ e }}</p>
+
+				<div class="card-item t4p">
+					<i18n-t scope="global" keypath="gaza.t4p_info">
+						<template #URL>
+							<a :href="$t('gaza.t4p_doc')" target="_blank">Twitch 4 Palestine <Icon name="newtab"/></a>
+						</template>
+					</i18n-t>
+					<section>
+						<strong><Icon name="user" /> {{ $t("gaza.t4p_fundraisers") }}</strong>
+						<OverlayInstaller class="installer" url="https://twitch4palestine.com" customSourceName="Twitch 4 palestine - fundraisers" :sourceTransform="{width:1600, height:500}"/>
+					</section>
+					<section>
+						<strong><Icon name="notification" /> {{ $t("gaza.t4p_alerts") }}</strong>
+						<OverlayInstaller class="installer" url="https://twitch4palestine.com/alert" customSourceName="Twitch 4 palestine - alerts" :sourceTransform="{width:1600, height:500}"/>
+					</section>
+				</div>
+
+				<Splitter class="splitter">{{ $t("global.or") }}</Splitter>
+
 				<div class="ctas">
 					
 					<TTButton type="link"
 					icon="newtab"
 					:href="url"
 					target="_blank">{{ $t("gaza.open_bt") }}</TTButton>
-					
+
 					<TTButton icon="whispers"
 					:loading="sending"
 					v-if="!sent"
@@ -38,11 +57,17 @@ import { gsap } from 'gsap/gsap-core';
 import TTButton from '../TTButton.vue';
 import MessengerProxy from '@/messaging/MessengerProxy';
 import Utils from '@/utils/Utils';
+import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
+import Splitter from '../Splitter.vue';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
+		Icon,
 		TTButton,
+		Splitter,
 		ClearButton,
+		OverlayInstaller,
 	},
 	emits:["close"]
 })
@@ -109,6 +134,34 @@ export default toNative(HelpGenocideVictims);
 			font-weight: bold;
 			margin: auto;
 		}
+	}
+
+	.icon {
+		height: 1em;
+		vertical-align: middle;
+	}
+
+	.t4p {
+		margin-top: 1em;
+		section {
+			padding: .5em;
+			margin-top: .5em;
+			border-radius: var(--border-radius);
+			background-color: var(--grayout-fadest);
+			text-align: center;
+			@scale:2px;
+			box-shadow: inset -@scale -@scale @scale rgba(255, 255, 255, 0.1), inset @scale @scale @scale rgba(0, 0, 0, .3);
+			.icon {
+				margin-right: .5em;
+			}
+		}
+	}
+	.installer {
+		margin-top: .5em;
+	}
+
+	.splitter {
+		margin-top: 1em;
 	}
 }
 </style>
