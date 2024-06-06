@@ -122,6 +122,14 @@ export interface IMainState {
 	 * Message to be displayed by the chat alert feature
 	 */
 	chatAlert:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData|null;
+	/**
+	 * Temporary chat command to send current "Twitch 4 palestinans" fundraising
+	 */
+	t4p:string;
+	/**
+	 * Date of last t4p command exec to cooldown users
+	 */
+	t4pLastDate:number;
 }
 
 export interface IMainGetters {

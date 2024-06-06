@@ -97,6 +97,7 @@ export default class DataStoreCommon {
 	public static PINNED_CHAT_MENU_ITEM:string = "pinnedChatMenuItem";
 	public static LUMIA:string = "lumia";
 	public static BINGO_GRIDS:string = "bingoGrids";
+	public static T4P_CHAT_CMD:string = "t4p_chat_cmd";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";
@@ -130,6 +131,7 @@ export default class DataStoreCommon {
 		this.STREAMLABS,
 		this.STREAMELEMENTS,
 		this.TIPEEE,
+		this.T4P_CHAT_CMD,
 	];
 
 

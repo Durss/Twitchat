@@ -21,6 +21,7 @@ import type { JsonArray, JsonObject } from 'type-fest';
 import { reactive, watch, type UnwrapRef } from 'vue';
 import Database from '../Database';
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy';
+import MessengerProxy from '@/messaging/MessengerProxy';
 
 //Don't make this reactive, it kills performances on the long run
 let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -1343,6 +1344,17 @@ export const storeChat = defineStore('chat', {
 
 				//Handle Voicemod commands
 				await sVoice.handleChatCommand(typedMessage, cmd);
+
+				//TODO remove this once T4P ends
+				const elapsed = Date.now() - StoreProxy.main.t4pLastDate;
+				if(elapsed > 60000 && StoreProxy.main.t4p && cmd == StoreProxy.main.t4p) {
+					ApiHelper.call("t4p", "GET").then(result => {
+						if(result.status == 200 && result.json.data) {
+							const name = StoreProxy.i18n.locale == "fr"? result.json.data.campaignNameFr : result.json.data.campaignName
+							MessengerProxy.instance.sendMessage(name+": "+result.json.data.url);
+						}
+					})
+				}
 
 				//Handle bingo grid commands
 				await sBingoGrid.handleChatCommand(typedMessage, cmd);
