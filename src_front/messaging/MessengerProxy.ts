@@ -233,7 +233,7 @@ export default class MessengerProxy {
 		const isAdmin = StoreProxy.auth.twitch.user.is_admin === true;
 		const hasChannelPoints = StoreProxy.auth.twitch.user.is_affiliate || StoreProxy.auth.twitch.user.is_partner;
 		const me = StoreProxy.auth.twitch.user;
-		const chunks = TwitchUtils.parseMessageToChunks(message);
+		let chunks:TwitchatDataTypes.ParseMessageChunk[] = [];
 
 		//Check if the command matches one of the custom slash commands
 		//created on the triggers
@@ -241,6 +241,7 @@ export default class MessengerProxy {
 		for (let i = 0; i < triggerCommands.length; i++) {
 			const t = triggerCommands[i];
 			if(cmd == t.chatCommand!.toLowerCase()) {
+				if(!chunks) chunks = TwitchUtils.parseMessageToChunks(message);
 				const messageData:TwitchatDataTypes.MessageChatData = {
 					platform:"twitch",
 					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
@@ -729,10 +730,8 @@ export default class MessengerProxy {
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.REWARD
 						&& forcedType == TwitchatDataTypes.TwitchatMessageType.REWARD) {
 							const rewardId = params[1];
-							console.log(rewardId);
 							const reward = StoreProxy.rewards.rewardList.find(v=>v.id == rewardId);
 							if(reward) {
-								console.log(reward);
 								m.reward = {
 									color: reward.background_color,
 									cost: reward.cost,
