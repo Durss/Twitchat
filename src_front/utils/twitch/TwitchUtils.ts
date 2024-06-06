@@ -3089,6 +3089,7 @@ export default class TwitchUtils {
 				const res = (chunk.value || "").split(/(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi);
 				let subIndex = 0;
 				res.forEach(v => {
+					if(v == "") return;
 					//Add sub chunks to original resulting chunks
 					let islink = /(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi.test(v);
 					//Avoid floating numbers to be parsed as links
@@ -3097,6 +3098,8 @@ export default class TwitchUtils {
 						type: islink ? "url" : "text",
 						value: v,
 					};
+
+					// console.log(node);
 
 					if (islink) {
 						node.href = !/^https?/gi.test(v) ? "https://" + v : v;
@@ -3107,7 +3110,7 @@ export default class TwitchUtils {
 				})
 			}
 			if (result.length > 1000) {
-				console.log("INFINITE LOOP DETECTED !", result)
+				console.error("INFINITE LOOP DETECTED !", result);
 				break;
 			}
 		}
