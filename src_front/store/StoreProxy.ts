@@ -150,6 +150,14 @@ export interface IMainState {
 	 * requests
 	 */
 	iconCache:{[key:string]:string|Promise<void>};
+	/**
+	 * Temporary chat command to send current "Twitch 4 palestinans" fundraising
+	 */
+	t4p:string;
+	/**
+	 * Date of last t4p command exec to cooldown users
+	 */
+	t4pLastDate:number;
 }
 
 export interface IMainGetters {

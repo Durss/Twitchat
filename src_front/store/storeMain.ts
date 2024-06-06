@@ -75,6 +75,8 @@ export const storeMain = defineStore("main", {
 			},
 		},
 		chatAlert:null,
+		t4p:"",
+		t4pLastDate:0,
 	} as IMainState),
 	
 
@@ -284,6 +286,9 @@ export const storeMain = defineStore("main", {
 			const sEmergency = StoreProxy.emergency;
 			StoreProxy.discord.initialize();
 			SSEHelper.instance.initialize();
+
+			//TODO remove once T4P ends
+			this.t4p = DataStore.get(DataStore.T4P_CHAT_CMD) || "";
 
 			//Warn the user about the automatic "ad" message sent every 2h
 			if(DataStore.get(DataStore.TWITCHAT_AD_WARNED) !== "true" && !sAuth.isDonor) {
