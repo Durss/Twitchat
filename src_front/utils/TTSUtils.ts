@@ -402,16 +402,29 @@ export default class TTSUtils {
 				&& !is_restricted
 				&& !await Utils.checkPermissions(paramsTTS.ttsPerms, message.user, message.channel_id)) return "";
 
-				let mess: string = message.message;
-				if(paramsTTS.removeEmotes===true) {
-					mess = Utils.stripHTMLTags(message.message_html);
+				let mess = "";
+				let chunks = message.message_chunks;
+				if(chunks) {
+					mess = chunks.map(v=>{
+						if(v.type == "url") {
+							return paramsTTS.replaceURL || v.value
+						}
+						if(v.type == "emote" || v.type == "cheermote") {
+							return paramsTTS.removeEmotes===true? "" : v.value;
+						}
+						return v.value;
+					}).join("");
+				}else{
+					mess = message.message;
+					if(paramsTTS.removeURL) {
+						mess = Utils.parseURLs(mess, "", paramsTTS.replaceURL);
+					}
 				}
-				if(paramsTTS.removeURL) {
-					mess = Utils.parseURLs(mess, "", paramsTTS.replaceURL);
-				}
+				mess = Utils.stripHTMLTags(mess);
 				if(paramsTTS.maxLength > 0) {
-					mess = mess.substring(0, paramsTTS.maxLength);
+					mess = mess.trim().substring(0, paramsTTS.maxLength);
 				}
+				console.log("MESSAGE DONE:", mess);
 				if(mess.trim().length == 0) return "";//Avoids reading empty message
 				
 				let pattern	= paramsTTS.readMessagePatern;
