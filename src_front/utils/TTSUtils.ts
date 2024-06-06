@@ -424,7 +424,7 @@ export default class TTSUtils {
 				if(paramsTTS.maxLength > 0) {
 					mess = mess.trim().substring(0, paramsTTS.maxLength);
 				}
-				console.log("MESSAGE DONE:", mess);
+				
 				if(mess.trim().length == 0) return "";//Avoids reading empty message
 				
 				let pattern	= paramsTTS.readMessagePatern;
@@ -660,9 +660,6 @@ export default class TTSUtils {
 						let txt = paramsTTS.readStreamlabsMerchPattern.replace(/\{USER\}/gi, message.userName);
 						txt = txt.replace(/\{PRODUCT\}/gi, message.product);
 						txt = txt.replace(/\{MESSAGE\}/gi, message.message);
-
-						console.log("MERCH SL");
-						console.log(txt);
 						return txt;
 					}
 					case "patreon_pledge": {
