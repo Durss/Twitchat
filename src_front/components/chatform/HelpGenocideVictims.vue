@@ -16,11 +16,11 @@
 						</template>
 					</i18n-t>
 					<section>
-						<p>{{ $t("gaza.t4p_fundraisers") }}</p>
+						<strong><Icon name="user" /> {{ $t("gaza.t4p_fundraisers") }}</strong>
 						<OverlayInstaller class="installer" url="https://twitch4palestine.com" customSourceName="Twitch 4 palestine - fundraisers" :sourceTransform="{width:1600, height:500}"/>
 					</section>
 					<section>
-						<p>{{ $t("gaza.t4p_alerts") }}</p>
+						<strong><Icon name="notification" /> {{ $t("gaza.t4p_alerts") }}</strong>
 						<OverlayInstaller class="installer" url="https://twitch4palestine.com/alert" customSourceName="Twitch 4 palestine - alerts" :sourceTransform="{width:1600, height:500}"/>
 					</section>
 				</div>
@@ -150,10 +150,13 @@ export default toNative(HelpGenocideVictims);
 			text-align: center;
 			@scale:2px;
 			box-shadow: inset -@scale -@scale @scale rgba(255, 255, 255, 0.1), inset @scale @scale @scale rgba(0, 0, 0, .3);
+			.icon {
+				margin-right: .5em;
+			}
 		}
 	}
 	.installer {
-		margin-top: 1em;
+		margin-top: .5em;
 	}
 
 	.splitter {
