@@ -51,7 +51,7 @@ import ParamItem from '../ParamItem.vue';
 		PermissionsForm,
 	}
 })
- class ParamsSpoiler extends Vue implements IParameterContent {
+class ParamsSpoiler extends Vue implements IParameterContent {
 
 	public spoilerExample!: TwitchatDataTypes.MessageChatData;
 	public param_autospoil:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"spoiler.autospoil_new_users", icon:"firstTime"};
@@ -79,6 +79,8 @@ import ParamItem from '../ParamItem.vue';
 		if (this.$store.chat.spoilerParams.permissions) {
 			this.chatCommandPerms = this.$store.chat.spoilerParams.permissions;
 		}
+
+		this.param_autospoil.value = this.$store.chat.spoilerParams?.autoSpoilNewUsers === true;
 
 		watch(() => this.chatCommandPerms, () => this.save(), { deep: true })
 	}
