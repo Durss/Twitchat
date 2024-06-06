@@ -92,7 +92,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
 		this.param_track.placeholderList = list;
 		this.param_confirmSongRequest.placeholderList = list.concat(TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE));
-		this.param_failSongRequest.placeholderList = list.concat(TriggerActionPlaceholders(this.action.type), TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE));
+		this.param_failSongRequest.placeholderList = list.concat(TriggerActionPlaceholders(this.action.type), TriggerEventPlaceholders(TriggerTypes.TRACK_ADD_TO_QUEUE_FAILED));
 		this.param_playlist.placeholderList = list;
 	}
 
