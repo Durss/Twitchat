@@ -17,6 +17,8 @@
 		"t4p_doc":"https://twitch4palestine.com/doc",
 		"t4p_fundraisers":"Ajouter l'overlay de cagnotte",
 		"t4p_alerts":"Ajouter l'overlay d'alertes de dons",
+		"t4p_chatCmd_toggle":"Activer une commande de tchat pour envoyer le lien de la cagnotte actuelle dans le tchat",
+		"t4p_chatCmd":"Commande (1min de cooldown)",
 		"gazafunds":"https://gazafunds.com"
 	}
 }
