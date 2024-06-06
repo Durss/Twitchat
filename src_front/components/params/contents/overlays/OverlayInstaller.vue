@@ -47,7 +47,7 @@ import Utils from '@/utils/Utils';
 	},
 	emits:["obsSourceCreated"],
 })
- class OverlayInstaller extends Vue {
+class OverlayInstaller extends Vue {
 
 	@Prop({type:String, default:""})
 	public id!:string;
@@ -71,6 +71,9 @@ import Utils from '@/utils/Utils';
 	public sourceSuffix!:string;
 
 	@Prop({default:"", type:String})
+	public customSourceName!:string;
+
+	@Prop({default:"", type:String})
 	public sceneName!:string;
 
 	@Prop({default:{}, type:Object})
@@ -89,6 +92,7 @@ import Utils from '@/utils/Utils';
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; };
 	public get obsSourceName():string {
+		if(this.customSourceName) return this.customSourceName
 		let name = "Twitchat_"+this.type;
 		if(this.sourceSuffix) name += this.sourceSuffix;
 		return name;
@@ -128,9 +132,11 @@ import Utils from '@/utils/Utils';
 			this.isExistingSource = await OBSWebsocket.instance.createBrowserSource(this.localURL, this.obsSourceName, this.sourceTransform, this.sceneName, this.orderToBottom !== false, this.css);
 			this.showSuccess = true;
 		}catch(error:any) {
+			console.log(error);
 			this.error = error.message;
 			return;
 		}
+		console.log(this.isExistingSource);
 		if(!this.isExistingSource) {
 			this.successTO = setTimeout(()=> {
 				this.showSuccess = false;
