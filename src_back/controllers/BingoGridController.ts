@@ -238,7 +238,7 @@ export default class BingoGridController extends AbstractController {
 		const gridId:string = body.gridid;
 		const count:number = body.count;
 		
-		const cache = await this.getStreamerGrid(user.user_id, gridId);
+		const cache = await this.getStreamerGrid(uid, gridId);
 		if(cache) {
 			const rows = cache.data.rows;
 			const cols = cache.data.cols;
@@ -288,7 +288,7 @@ export default class BingoGridController extends AbstractController {
 		}else{
 			response.header('Content-Type', 'application/json');
 			response.status(404);
-			response.send({success:false});
+			response.send({success:false, error:"grid not found", errorCode:"GRID_NOT_FOUND"});
 		}
 	}
 
@@ -313,7 +313,7 @@ export default class BingoGridController extends AbstractController {
 		if(!user) {
 			response.header('Content-Type', 'application/json');
 			response.status(401);
-			response.send({success:false, error:"iunvalid access token", errorCode:"INVALID_ACCESS_TOKEN"});
+			response.send({success:false, error:"invalid access token", errorCode:"INVALID_ACCESS_TOKEN"});
 			return;
 		}
 

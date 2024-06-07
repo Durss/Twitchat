@@ -138,6 +138,13 @@ class BingoGridView extends Vue {
 				TwitchUtils.getModeratedChannels().then(modedChans => {
 					const uid = this.$route.params.uid as string;
 					this.isModerator = modedChans.findIndex(v=>v.broadcaster_id == uid) > -1;
+					//For mods, enable all cells and tick them if they were alreayd enabled
+					if(this.isModerator) {
+						this.entries.forEach(v=>{
+							if(v.enabled) v.check = true;
+							v.enabled = true;
+						})
+					}
 				});
 			}
 		}
@@ -153,6 +160,7 @@ class BingoGridView extends Vue {
 	}
 
 	public beforeUnmount():void {
+		gsap.killTweensOf(this.$refs.cell as HTMLDivElement[]);
 		clearTimeout(this.checkTimeout);
 		SSEHelper.instance.removeEventListener(SSEEvent.ON_CONNECT, this.sseConnectHandler);
 		SSEHelper.instance.removeEventListener(SSEEvent.BINGO_GRID_UPDATE, this.sseGridUpdateHandler);
@@ -206,11 +214,11 @@ class BingoGridView extends Vue {
 				this.additionalEntries	= infos.json.data.additionalEntries || [];
 				this.entries.forEach(v=>{
 					v.enabled = v.check || this.isModerator;
-					v.check = false;
+					v.check = this.isModerator? v.check : false;
 				});
 				this.additionalEntries.forEach(v=>{
 					v.enabled = v.check || this.isModerator;
-					v.check = false;
+					v.check = this.isModerator? v.check : false;
 				});
 				this.onGridUpdate({grid:infos.json.data});
 				this.loading = false;
@@ -554,11 +562,18 @@ class BingoGridView extends Vue {
 		if(!e.data) return;
 		const states = e.data.states;
 		for (const cellId in states) {
-			const cell = this.entries.find(cell => cell.id == cellId);
-			if(cell && cell.enabled != states[cellId]) {
-				cell.enabled = states[cellId] || this.isModerator;
-				if(cell.enabled) this.playNotification();
+			let cell = this.entries.find(cell => cell.id == cellId);
+			if(!cell && this.isModerator) cell = this.additionalEntries.find(cell => cell.id == cellId);
+			if(!cell) continue;
+
+			if(this.isModerator) {
+				cell.enabled = true;
+				cell.check = states[cellId];
+			}else{
+				//If state was disabled but is now enabled, play a sound
+				if(cell.enabled != states[cellId] && states[cellId]) this.playNotification();
 				else cell.check = false;
+				cell.enabled = states[cellId];
 			}
 		}
 		this.checkBingos();
@@ -634,8 +649,7 @@ export default toNative(BingoGridView);
 		.cells {
 			display: grid;
 			grid-template-columns: repeat(5, 1fr);
-			max-width: calc(100% - 2em);
-			// max-height: 70vh;
+			max-width: min(800px, 95%);
 			// overflow: hidden;
 			.cell {
 				padding: 5px;

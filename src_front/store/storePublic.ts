@@ -9,6 +9,7 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import SSEHelper from '@/utils/SSEHelper';
 import DataStoreCommon from './DataStoreCommon';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 
 let refreshTokenTO:number = -1;
 
@@ -109,6 +110,7 @@ export const storePublic = defineStore('public', {
 
 				userRes = userRes as TwitchDataTypes.Token;//Just forcing typing for the rest of the code
 				this.twitchUid = userRes.user_id;
+				TwitchUtils.updateAuthInfo(twitchAuthResult.access_token, twitchAuthResult.scope, (scopes:TwitchScopesString[])=>{}, async ():Promise<false | TwitchDataTypes.AuthTokenResult>=>{ return false}, this.twitchUid);
 			}
 			return true;
 		},
@@ -147,6 +149,7 @@ export const storePublic = defineStore('public', {
 					this.twitchTokenRefresh(true);
 				}, delay);
 				this.authenticated = true;
+				TwitchUtils.updateAuthInfo(twitchAuthResult.access_token, twitchAuthResult.scope, (scopes:TwitchScopesString[])=>{}, async ():Promise<false | TwitchDataTypes.AuthTokenResult>=>{ return false}, this.twitchUid);
 				return true;
 			}
 			this.authenticated = false;
