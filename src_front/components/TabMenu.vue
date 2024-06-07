@@ -8,6 +8,7 @@
 				:icon="item.icon"
 				:big="big"
 				:small="small"
+				:primary="themes && themes.length > index && themes[index] == 'primary' || primary"
 				:secondary="themes && themes.length > index && themes[index] == 'secondary' || secondary"
 				:alert="themes && themes.length > index && themes[index] == 'alert' || alert"
 				:premium="themes && themes.length > index && themes[index] == 'premium' || premium"
@@ -30,7 +31,7 @@ import TTButton from './TTButton.vue';
 	},
 	emits:["update:modelValue", "change"],
 })
- class TabMenu extends Vue {
+class TabMenu extends Vue {
 
 	@Prop({type:Boolean, default: false})
 	public big!:boolean;
@@ -40,6 +41,9 @@ import TTButton from './TTButton.vue';
 
 	@Prop({type:Boolean, default: false})
 	public secondary!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public primary!:boolean;
 
 	@Prop({type:Boolean, default: false})
 	public alert!:boolean;

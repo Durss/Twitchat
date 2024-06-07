@@ -42,6 +42,7 @@ class Checkbox extends Vue {
 	public get classes():string[] {
 		const res:string[] = ["checkbox"];
 		if(this.secondary !== false) res.push("secondary")
+		if(!this.$slots.default) res.push("noLabel")
 		return res;
 	}
 
@@ -60,7 +61,13 @@ export default toNative(Checkbox);
 	flex-direction: row;
 	align-items: center;
 	position: relative;
-	height: 1em;
+
+	&.noLabel {
+		height: 1em;
+		.checkmark {
+			height: 100%;
+		}
+	}
 
 	.checkmark {
 		color:var(--color-text);
@@ -68,8 +75,7 @@ export default toNative(Checkbox);
 		border-radius: .25em;
 		padding: 0;
 		aspect-ratio: 1;
-		height: 100%;
-		min-height: 1em;
+		height: 1em;
 		box-sizing: border-box;
 		display: flex;
 		align-items: center;
@@ -86,7 +92,7 @@ export default toNative(Checkbox);
 		margin-left: .35em;
 		justify-self: flex-start;
 		text-align: left;
-		width: max-content;
+		// width: max-content;
 		color:var(--color-text);
 	}
 

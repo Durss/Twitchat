@@ -245,18 +245,21 @@
 		<div class="card-item section tabmenus">
 			<div>
 				<TabMenu big :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
+				<TabMenu big primary :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
 				<TabMenu big secondary :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
 				<TabMenu big alert :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
 				<TabMenu big premium :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
 			</div>
 			<div>
 				<TabMenu :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
+				<TabMenu primary :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
 				<TabMenu secondary :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
 				<TabMenu alert :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
 				<TabMenu premium :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
 			</div>
 			<div>
 				<TabMenu small :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
+				<TabMenu small primary :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
 				<TabMenu small secondary :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
 				<TabMenu small alert :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
 				<TabMenu small premium :values="[0,1,2]" :labels="['item 1', 'item 2', 'item 3']" :icons="[null, 'twitchat', 'spotify']" />
