@@ -9,6 +9,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import ApiHelper from '@/utils/ApiHelper';
 import SSEHelper from '@/utils/SSEHelper';
 import SSEEvent from '@/events/SSEEvent';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 
 let saveDebounce:number = -1;
 let tickDebounce:{[key:string]:number} = {};
@@ -124,18 +125,60 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			 */
 			SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_BINGO_COUNT, async (event)=>{
 				if(!event.data) return;
+				if(event.data.count <= 0) return;
 				const user = await StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, event.data.uid, event.data.login, event.data.login);
 				if(!this.viewersBingoCount[event.data.gridId]) this.viewersBingoCount[event.data.gridId] = [];
 				const list = this.viewersBingoCount[event.data.gridId];
 				let entry = list.find(v=>v.user.id === user.id);
+				let isNewBingo = false;
 				if(!entry) {
+					// console.log("No entry for "+user.login+". Create it");
+					//User not yet registered, create it
 					entry = { count:event.data.count, user };
 					list.push(entry);
+					isNewBingo = true;
 				}else{
-					entry.count = event.data.count;
+					// console.log("Update "+user.login+" from "+entry.count+" to "+event.data.count);
+					isNewBingo = event.data.count > entry.count;
+					//Keep higher bingo count between received one and local one
+					entry.count = Math.max(entry.count, event.data.count);
 				}
 
+				//Sort viewers by bingo count
 				this.viewersBingoCount[event.data.gridId] = list.filter(v=>v.count > 0);
+
+				//If there actually is a new bingo
+				if(isNewBingo) {
+					// console.log("New bingo for "+user.login+". Count:"+entry.count);
+					//Tell the overlay someone got a bingo
+					const data = {
+						gridId:event.data.gridId,
+						user:{
+							name:user.displayNameOriginal,
+							id:user.id,
+							avatar:user.avatarPath || ""
+						},
+						count:entry.count
+					};
+					PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_OVERLAY_VIEWER_EVENT, data);
+
+					const grid = this.gridList.find(g => g.id == event.data!.gridId);
+					//Execute triggers related this this kidn of event
+					if(grid) {
+						const message:TwitchatDataTypes.MessageBingoGridViewerData = {
+							id:Utils.getUUID(),
+							date:Date.now(),
+							type:TwitchatDataTypes.TwitchatMessageType.BINGO_GRID_VIEWER,
+							platform:"twitch",
+							channel_id:StoreProxy.auth.twitch.user.id,
+							bingoGridId:grid.id,
+							bingoGridName:grid.title,
+							bingoCount:entry.count,
+							user,
+						};
+						TriggerActionHandler.instance.execute(message);
+					}
+				}
 			});
 
 			/**
@@ -219,6 +262,9 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 		shuffleGrid(id:string):void {
 			const grid = this.gridList.find(g => g.id === id);
 			if(!grid) return;
+
+			this.resetCheckStates(id);
+
 			grid.entries.forEach(v => v.check = false );
 			if(grid.additionalEntries) {
 				grid.additionalEntries.forEach(v => v.check = false );
@@ -243,7 +289,6 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				[entries[i], entries[j]] = [entries[j], entries[i]];
 			}
 			
-			prevGridStates[grid.id] = [];
 			this.saveData(id, undefined, true);
 			
 			ApiHelper.call("bingogrid/shuffle", "POST", {gridid:grid.id, grid, uid:StoreProxy.auth.twitch.user.id});
@@ -260,10 +305,13 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			this.saveData(id);
 		},
 
-		resetCheckStates(id:string, forcedState?:boolean):void {
+		resetCheckStates(id:string, forcedState?:boolean, callEndpoint:boolean = true):void {
 			const grid = this.gridList.find(g => g.id === id);
 			if(!grid) return;
+			//Reset diff array
 			prevGridStates[grid.id] = [];
+			//Reset viewers bingo counts
+			this.viewersBingoCount[grid.id] = [];
 			grid.entries.forEach(entry => entry.check = forcedState == undefined? false : forcedState);
 			if(grid.additionalEntries) grid.additionalEntries.forEach(entry => entry.check = forcedState == undefined? false : forcedState);
 			this.saveData(id);
@@ -276,8 +324,8 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				bingoGridId:grid.id,
 				bingoGridName:grid.title,
 				channel_id:StoreProxy.auth.twitch.user.id,
-				col:-1,
-				row:-1,
+				colIndex:-1,
+				rowIndex:-1,
 				diagonal:-1,
 				coords:{x:-1,y:-1},
 				complete:false,
@@ -287,7 +335,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			const states:{[cellId:string]:boolean} = {};
 			grid.entries.forEach(v=> states[v.id] = v.check);
 			if(grid.additionalEntries) grid.additionalEntries.forEach(v=> states[v.id] = v.check);
-			ApiHelper.call("bingogrid/tickStates", "POST", {states, gridid:grid.id});
+			if(callEndpoint) ApiHelper.call("bingogrid/tickStates", "POST", {states, gridid:grid.id});
 		},
 
 		duplicateGrid(id:string):void {
@@ -433,8 +481,8 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 						bingoGridId:grid.id,
 						bingoGridName:grid.title,
 						channel_id:StoreProxy.auth.twitch.user.id,
-						col:-1,
-						row:-1,
+						colIndex:-1,
+						rowIndex:-1,
 						diagonal:-1,
 						coords:{x,y},
 						complete:false,
@@ -448,7 +496,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				});
 				newHorizontalBingos.forEach(index => {
 					const message = buildMessage();
-					message.row = index;
+					message.rowIndex = index;
 					StoreProxy.chat.addMessage(message);
 				});
 				newDiagonalBingos.forEach(index => {
@@ -529,8 +577,8 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 					bingoGridId:grid.id,
 					bingoGridName:grid.title,
 					channel_id:StoreProxy.auth.twitch.user.id,
-					col:-1,
-					row:-1,
+					colIndex:-1,
+					rowIndex:-1,
 					diagonal:-1,
 					coords:{x,y},
 					complete:false,

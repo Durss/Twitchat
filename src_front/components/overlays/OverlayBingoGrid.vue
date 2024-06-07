@@ -10,24 +10,40 @@
 				<TransitionGroup name="flip-list">
 					<div v-for="entry in bingo.entries"
 						ref="cell"
-						@click="entry.check = !entry.check"
 						:class="cellClasses(entry)"
 						:data-cellid="entry.id"
 						:key="entry.id"
 						:style="{width:'100%'}">
 						<span class="label">{{ entry.label }}</span>
-						<!-- <Transition name="scale"> -->
-							<Icon class="check" name="checkmark" v-show="entry.check" :ref="'check_'+entry.id" />
-						<!-- </Transition> -->
+						<Icon class="check" name="checkmark" v-show="entry.check" :ref="'check_'+entry.id" />
 					</div>
 				</TransitionGroup>
 			</div>
+
 			<div class="grid" ref="gridHolder"
 			:style="{aspectRatio: bingo.cols/bingo.rows,
 				color:bingo.textColor,
 				gridTemplateColumns: 'repeat('+bingo.cols+', 1fr)'}">
 				<div v-for="entry in bingo.entries" :class="cellClasses(entry)"></div>
 			</div>
+
+			<div class="alerts" ref="alertsHolder"
+			:style="{aspectRatio: bingo.cols/bingo.rows}">
+				<Icon name="sub" class="star" ref="alertsBg" />
+				<template v-if="currentUserAlert">
+					<div class="user" ref="userInfo">
+						<img v-if="currentUserAlert!.user.avatar" :src="currentUserAlert!.user.avatar" alt="avatar" class="avatar">
+						<div class="username">{{ currentUserAlert!.user.name }}</div>
+					</div>
+					<div class="count" ref="userCount">{{ currentUserAlert!.displayCount }}</div>
+					<Icon name="sub" ref="userStars" class="stars" v-for="i in currentUserAlert!.count" :key="'bingo_'+i" />
+					<img ref="speedDot"
+						class="speedDot"
+						v-for="i in 10"
+						:key="'speed_'+i" src="@/assets/img/blured_line.png">
+				</template>
+			</div>
+
 			<Teleport :to="currentCell" v-if="currentCell">
 				<div class="clouds">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 454.53 357.01"
@@ -39,6 +55,7 @@
 				<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="445.2px" height="426.2px" viewBox="0 0 445.2 426.2"
 				v-for="i in 100"
 				ref="stars"
+				:key="'star_'+i"
 				class="star"><path style="fill:#FFFFFF;" d="M247.5,16l47.2,95.6c4,8.2,11.8,13.9,20.9,15.2L421,142c22.7,3.3,31.8,31.3,15.4,47.3L360,263.7
 					c-6.5,6.4-9.5,15.5-8,24.5l18,105c3.9,22.7-19.9,39.9-40.2,29.2l-94.3-49.6c-8.1-4.2-17.7-4.2-25.8,0l-94.3,49.6
 					c-20.3,10.7-44.1-6.6-40.2-29.2l18-105c1.5-9-1.4-18.2-8-24.5L8.9,189.3c-16.5-16-7.4-44,15.4-47.3l105.4-15.3
@@ -61,6 +78,7 @@ import AbstractOverlay from './AbstractOverlay';
 import { gsap } from 'gsap/gsap-core';
 import { Sine } from 'gsap/gsap-core';
 import { Elastic } from 'gsap/gsap-core';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -71,18 +89,22 @@ import { Elastic } from 'gsap/gsap-core';
 export class OverlayBingoGrid extends AbstractOverlay {
 
 	public ready:boolean = false;
+	public currentUserAlert:IUserBingoData | null = null;
 	public currentCell:HTMLElement | null = null;
 	public bingo:TwitchatDataTypes.BingoGridConfig | null = null;
+	public pendingEvents:{type:"user"|"bingo", userBingo?:IUserBingoData, bingo?:{vertical:number[], horizontal:number[], diagonal:number[]}}[] = [];
 
 	private id:string = "";
 	private starIndex:number = 0;
 	private broadcastPresenceInterval:string = "";
 	private bingoUpdateHandler!:(e:TwitchatEvent<{id:string, bingo:TwitchatDataTypes.BingoGridConfig, newVerticalBingos:number[], newHorizontalBingos:number[], newDiagonalBingos:number[]}>) => void;
+	private bingoViewerHandler!:(e:TwitchatEvent<IUserBingoData>) => void;
 	private prevCheckStates:{[key:string]:boolean} = {};
 
 	public get classes():string[] {
 		let res:string[] = ["overlaybingogrid"];
 		if(this.bingo?.showGrid === true) res.push("border");
+		type test = Parameters<typeof this.bingoViewerHandler>[0]["data"];
 		return res;
 	}
 
@@ -102,7 +124,9 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		this.id = this.$route.query.bid as string ?? "";
 
 		this.bingoUpdateHandler = (e) => this.onBingoUpdate(e);
+		this.bingoViewerHandler = (e) => this.onBingoViewer(e);
 		PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_GRID_PARAMETERS, this.bingoUpdateHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_GRID_OVERLAY_VIEWER_EVENT, this.bingoViewerHandler);
 
 		this.broadcastPresenceInterval = SetIntervalWorker.instance.create(()=>{
 			this.broadcastPresence();
@@ -114,6 +138,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	public beforeUnmount(): void {
 		SetIntervalWorker.instance.delete(this.broadcastPresenceInterval);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.BINGO_GRID_PARAMETERS, this.bingoUpdateHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.BINGO_GRID_OVERLAY_VIEWER_EVENT, this.bingoViewerHandler);
 	}
 
 	/**
@@ -148,9 +173,18 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	}
 
 	/**
+	 * Called when a user wins a bingo
+	 */
+	private async onBingoViewer(e:Parameters<typeof this.bingoViewerHandler>[0]):Promise<void> {
+		if(!e.data) return;
+		e.data.displayCount = e.data.count;
+		this.pushEvent({type:"user", userBingo:e.data});
+	}
+
+	/**
 	 * Called when bingo data are changed
 	 */
-	private async onBingoUpdate(e:TwitchatEvent<{id:string, bingo:TwitchatDataTypes.BingoGridConfig, newVerticalBingos:number[], newHorizontalBingos:number[], newDiagonalBingos:number[]}>):Promise<void> {
+	private async onBingoUpdate(e:Parameters<typeof this.bingoUpdateHandler>[0]):Promise<void> {
 		if(e.data) {
 			const data = e.data;
 			if(data.id != this.id) return;
@@ -193,57 +227,90 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				}
 
 				const cells = this.$refs.cell as HTMLElement[];
-				const stagger = 9/Math.sqrt(cells.length*2) * .05;
-				console.log(stagger);
 				gsap.from([this.$refs.cellsHolder, this.$refs.gridHolder], {scale:0, ease:Sine.easeOut, duration:.35, clearProps:"transform"});
 				//Animate items from center
 				cells.forEach((cell, index) => {
 					let distance = spiralOrder.findIndex(v=>v===index);
 					if(distance < 0) distance = spiralOrder.length;
 					// console.log(data.bingo.entries[index].label, distance);
-					gsap.from(cell, {scale:0, ease:Elastic.easeOut, duration:1.3, delay: .3 + distance*stagger});
+					gsap.from(cell, {scale:0, ease:Elastic.easeOut, duration:1.3, delay: .3 + Math.pow(distance,.8)*.05});
 				});
-				return;
-			}
+			}else{
 
-
-			if(this.bingo) {
-				//Animate new checks display
-				this.bingo.entries.forEach(entry => {
-					if(this.prevCheckStates[entry.id] != entry.check && entry.check) {
-						const checks = this.$refs["check_"+entry.id] as Vue[];
-						const cell = document.querySelector("[data-cellid=\""+entry.id+"\"]") as HTMLElement;
-						if(checks?.length > 0 && checks[0].$el.nodeName != "#comment") {
-							gsap.killTweensOf(checks[0].$el);
-							gsap.fromTo(checks[0].$el, {opacity:0}, {opacity:1, duration:.25});
-							const ease = CustomEase.create("custom", "M0,0 C0,0 0.325,0.605 0.582,0.977 0.647,0.839 0.817,0.874 0.854,0.996 0.975,0.9 1,1 1,1 ");
-							const angle = (Math.random()-Math.random()) * 25;
-							gsap.fromTo(checks[0].$el, {transform:"scale(3)", rotation:"0deg"}, {transform:"scale(1)", rotation:angle+"deg", ease, duration:.25});
-							setTimeout(() => {
-								this.popClouds(cell);
-							}, 150);
+				if(this.bingo) {
+					//Animate new checks display
+					this.bingo.entries.forEach(entry => {
+						if(this.prevCheckStates[entry.id] != entry.check && entry.check) {
+							const checks = this.$refs["check_"+entry.id] as Vue[];
+							const cell = document.querySelector("[data-cellid=\""+entry.id+"\"]") as HTMLElement;
+							if(checks?.length > 0 && checks[0].$el.nodeName != "#comment") {
+								gsap.killTweensOf(checks[0].$el);
+								gsap.fromTo(checks[0].$el, {opacity:0}, {opacity:1, duration:.25});
+								const ease = CustomEase.create("custom", "M0,0 C0,0 0.325,0.605 0.582,0.977 0.647,0.839 0.817,0.874 0.854,0.996 0.975,0.9 1,1 1,1 ");
+								const angle = (Math.random()-Math.random()) * 25;
+								gsap.fromTo(checks[0].$el, {transform:"scale(3)", rotation:"0deg"}, {transform:"scale(1)", rotation:angle+"deg", ease, duration:.25});
+								setTimeout(() => {
+									this.popClouds(cell);
+								}, 150);
+							}
 						}
+						this.prevCheckStates[entry.id] = entry.check;
+					});
+	
+					if((data.newVerticalBingos || []).length > 0
+					|| (data.newHorizontalBingos || []).length > 0
+					|| (data.newDiagonalBingos || []).length > 0) {
+						this.pushEvent({
+							type:"bingo",
+							bingo: {vertical:data.newVerticalBingos, horizontal:data.newHorizontalBingos, diagonal:data.newDiagonalBingos}
+						});
 					}
-					this.prevCheckStates[entry.id] = entry.check;
-				});
-
-				this.animateBingos(data.newVerticalBingos, data.newHorizontalBingos, data.newDiagonalBingos);
+				}
 			}
 		}
+
+		/** DEBUG USER EVENTS
+		await Utils.promisedTimeout(1000);
+
+		this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
+				"gridId": "78b997fc-b525-4423-a39a-2b31781b708d",
+				"user": {
+					"name": "DurssBot",
+					"id": "647389082",
+					"avatar": "https://static-cdn.jtvnw.net/user-default-pictures-uv/294c98b5-e34d-42cd-a8f0-140b72fba9b0-profile_image-300x300.png"
+				},
+				"count": 1
+			}));
+		this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
+				"gridId": "78b997fc-b525-4423-a39a-2b31781b708d",
+				"user": {
+					"name": "wwwwwwwwwwwwwwwwwwwwwwwww",
+					"id": "675760285",
+					"avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/8877ee31-67dc-49d8-b567-f58e3b2053f6-profile_image-300x300.png"
+				},
+				"count": 9
+			}));
+
+		this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
+				"gridId": "78b997fc-b525-4423-a39a-2b31781b708d",
+				"user": {
+					"name": "Durss",
+					"id": "29961813",
+					"avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/1835e681-7306-49b8-a1e2-2775a17424ae-profile_image-300x300.png"
+				},
+				"count": 3
+			}));
+		 //*/
 	}
 
 	/**
 	 * Animates a new bingo
 	 */
-	private animateBingos(vertical:number[], horizontal:number[], diagonal:number[]):void {
+	private async animateBingos(vertical:number[], horizontal:number[], diagonal:number[]):Promise<void> {
 		const bingo = this.bingo!;
 		let delay = .5;
 		const animateCell = (holder:HTMLElement)=>{
-			const color100 = bingo.textColor+"ff";
-			const color0 = bingo.textColor+"00";
-			gsap.fromTo(holder, {scale:2}, {scale:1, delay, duration:.5, immediateRender:false, ease:"back.out"});
-			gsap.fromTo(holder, {backgroundColor:color0},
-			{backgroundColor:color0, delay, duration:.5, immediateRender:false, ease:"sine.out", onStart:()=>{
+			gsap.fromTo(holder, {scale:2}, {scale:1, delay, duration:.5, immediateRender:false, ease:"back.out", onStart:()=>{
 				this.popStars(holder);
 			}});
 		}
@@ -280,6 +347,8 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			}
 			delay += .1;
 		});
+
+		await Utils.promisedTimeout(delay * 1000);
 	}
 
 	/**
@@ -343,7 +412,149 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		}
 	}
 
+	/**
+	 * Execute a pending event
+	 */
+	private async pushEvent(data:typeof this.pendingEvents[number]):Promise<void> {
+		if(data.type == "user") {
+			//search if that user already exists
+			const existingIndex = this.pendingEvents.findIndex(v=> v.type == "user" && v.userBingo!.user.id == data.userBingo?.user.id)
+			//If iser already exists, is not the current one playing (>0) and
+			//their new bingo count is greater than the scheduled one, replace 
+			if(existingIndex > 0 && this.pendingEvents[existingIndex].userBingo!.count < data.userBingo!.count) {
+				this.pendingEvents[existingIndex] = data;
+			}
+		}else{
+			//search if an event of the same type exists, is not the currently
+			//playing one (>0), and replace it if one exists
+			const existingIndex = this.pendingEvents.findIndex(v=> v.type == data.type);
+			if(existingIndex > 0) this.pendingEvents[existingIndex] = data;
+		}
+		this.pendingEvents.push(data);
+		if(this.pendingEvents.length == 1) this.execNextEvent();
+	}
+
+	/**
+	 * Execute a pending event
+	 */
+	private async execNextEvent():Promise<void> {
+		const item = this.pendingEvents[0];
+		switch(item.type) {
+			case "bingo": {
+				await this.animateBingos(item.bingo!.vertical, item.bingo!.horizontal, item.bingo!.diagonal);
+				break;
+			}
+			case "user": {
+				await this.animateViewer(item.userBingo!);
+				break;
+			}
+		}
+		this.pendingEvents.shift();
+		if(this.pendingEvents.length > 0) this.execNextEvent();
+	}
+
+	/**
+	 * Show a viewer info
+	 */
+	private async animateViewer(data:IUserBingoData):Promise<void> {
+		return new Promise(async (resolve)=>{
+			this.currentUserAlert = data;
+			
+			await this.$nextTick();
+	
+			const cellsHolder = this.$refs.cellsHolder as HTMLElement;
+			const userInfos = this.$refs.userInfo as HTMLElement;
+			const userCount = this.$refs.userCount as HTMLElement;
+			const userStars = this.$refs.userStars as Vue[];
+
+			const boundsHolder = cellsHolder.getBoundingClientRect();
+	
+			data.displayCount = 0;
+
+			gsap.to((this.$refs.alertsBg as Vue).$el, {rotate:"360deg", duration:1, ease:"none"});
+			gsap.to((this.$refs.alertsBg as Vue).$el, {scale:8, duration:1, ease:"circ.in"});
+			gsap.fromTo(userInfos, {top:"120%"}, {top:"-20%", duration:1.5, ease:"slow(0.5,0.8,false)", delay:.7});
+			gsap.set(userCount, {scale:0});
+			gsap.set(userStars.map(v=>v.$el), {scale:0});
+
+			const dots = this.$refs.speedDot as HTMLElement[];
+			let index = 0;
+			dots.forEach(dot => {
+				const height = ((Math.random() * boundsHolder.height) + boundsHolder.height*.1);
+				dot.style.opacity = (Math.random()*.3 + .1)+"";
+				dot.style.left = ((index/(dots.length-1) + (Math.random()-Math.random()) * .1)*80+10)+"%";
+				dot.style.top = (boundsHolder.height + Math.random()*height*5)+"px";
+				dot.style.height = height+"px";
+				dot.style.width = (Math.random()*10+5)+"px";
+				
+				// dot.style.zIndex = "1000";
+				gsap.to(dot, {
+					top:(-height)+"px",
+					duration:1.5,
+					delay:Math.random()*.5 + .5,
+					ease:"slow(0.5,0.5,false)"
+				});
+				index ++;
+			})
+
+			let delay = 2.3;
+
+			const firstStarBatch = userStars.map(v=>v.$el).slice(0, -1);
+			if(firstStarBatch.length > 0) {
+				let stagger = Math.min(.5, 3/data.count);
+				await new Promise<void>((resolveInner) => {
+					gsap.fromTo(
+						firstStarBatch,
+						{scale:8},
+						{scale:0, duration:stagger, immediateRender:false, ease:"none", stagger, delay, onComplete:() => resolveInner()}
+					);
+
+					for (let i = 0; i < data.count; i++) {
+						gsap.fromTo(userCount,
+							{transform:"translate(-50%, -50%) scale("+(3 + i * .2)+")"},
+							{transform:"translate(-50%, -50%) scale(0)",
+								immediateRender:false,
+								duration:stagger,
+								delay,
+								ease:"slow(0.5,0.8,false)", onStart:()=>{
+									data.displayCount! ++;
+								}
+							});
+						delay += stagger;
+					}
+				})
+			}else{
+				data.displayCount = 1;
+				await Utils.promisedTimeout(delay * 1000);
+			}
+
+			const duration = 1;
+			gsap.fromTo(userStars.map(v=>v.$el).pop()!,
+			{scale:8},
+			{scale:0, duration:duration, immediateRender:false, ease:"none"});
+
+			gsap.fromTo(userCount, {scale:Math.min(5, 3 + data.displayCount!*.2)}, {scale:0,
+				immediateRender:false,
+				duration:duration*.9,
+				ease:"slow(0.5,0.8,false)"
+			});
+
+			delay = duration;
+			//Close background only if next event isn't a user one
+			if(this.pendingEvents.length <= 1 || this.pendingEvents[1].type!="user"){
+				gsap.to((this.$refs.alertsBg as Vue).$el, {delay:duration*.8, rotate:"0deg", duration:.5, ease:"none"});
+				gsap.to((this.$refs.alertsBg as Vue).$el, {delay:duration*.8, scale:0, duration:.5, ease:"circ.out"});
+				// delay += duration * .8;
+			}
+
+			setTimeout(() => {
+				resolve();
+			}, delay*1000);
+		})
+	}
 }
+
+interface IUserBingoData {gridId:string, user: { name:string,id:string,avatar:string}, count:number, displayCount?:number};
 export default toNative(OverlayBingoGrid);
 </script>
 
@@ -352,7 +563,7 @@ export default toNative(OverlayBingoGrid);
 	@borderSize: 3px;
 	padding: @borderSize;
 	transform-origin: center center;
-	.cells, .grid {
+	.cells, .grid, .alerts {
 		gap: @borderSize;
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
@@ -373,20 +584,17 @@ export default toNative(OverlayBingoGrid);
 			word-wrap: break-word;
 			position: relative;
 			aspect-ratio: 1;
-			cursor: pointer;
 
 			.check {
-				pointer-events: none;
 				position: absolute;
 				top: 50%;
 				left: 50%;
 				width: 70%;
 				color: #00cc00;
-				pointer-events: none;
 				transform-origin: center center;
 				margin-left: -35%;
 				margin-top: -35%;
-				z-index: 10000;
+				z-index: 100;
 				filter: drop-shadow(2px 2px 5px rgba(0,0,0,.5));
 			}
 
@@ -399,12 +607,72 @@ export default toNative(OverlayBingoGrid);
 	}
 
 	.grid {
-		pointer-events: none;
 		display: none;
 		transform: translateY(-100%);
 		box-shadow:0 0 0 @borderSize currentColor;
 		.cell {
 			box-shadow:0 0 0 @borderSize currentColor;
+		}
+	}
+
+	.alerts {
+		z-index: 101;
+		display: block;
+		transform: translateY(-200%);
+		position: relative;
+		.star {
+			color: #ffffff;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%) scale(0, 0);
+		}
+
+		.user {
+			color: #333333;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			z-index: 1;
+			display: flex;
+			font-family: var(--font-inter);
+			font-weight: bold;
+			font-size: min(10vh, 10vw);
+			gap:.25em;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			.avatar {
+				border-radius: 50%;
+				width: 2em;
+				height: 2em;
+			}
+		}
+		.stars {
+			position: absolute;
+			color: var(--color-secondary);
+			z-index: 2;
+			width: min(50vh, 50vw);
+			height: min(50vh, 50vw);
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+		}
+		.count {
+			position: absolute;
+			color: #ffffff;
+			z-index: 3;
+			font-size: min(30vh, 30vw);
+			font-family: var(--font-azeret);
+			font-weight: bold;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+		}
+		.speedDot {
+			position: absolute;
+			z-index: 0;
 		}
 	}
 

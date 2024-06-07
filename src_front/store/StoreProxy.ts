@@ -450,8 +450,9 @@ export interface IBingoGridActions {
 	 * Resets given grid entries check states
 	 * @param id
 	 * @param forcedState
+	 * @param callEndpoint
 	 */
-	resetCheckStates(id:string, forcedState?:boolean):void;
+	resetCheckStates(id:string, forcedState?:boolean, callEndpoint?:boolean):void;
 	/**
 	 * Duplicates given grid
 	 * @param id

@@ -146,7 +146,7 @@ class BingoGridView extends Vue {
 		this.loadGridInfo();
 
 		this.sseConnectHandler = (e:SSEEvent<"ON_CONNECT">) => this.onSSEConnect(e);
-		this.sseCellStatesHandler = (e:SSEEvent<"BINGO_GRID_CELL_STATES">) => this.onTickCell(e);
+		this.sseCellStatesHandler = (e:SSEEvent<"BINGO_GRID_CELL_STATES">) => this.onCellsStates(e);
 		this.sseUntickAllHandler = (e:SSEEvent<"BINGO_GRID_UNTICK_ALL">) => this.onUntickAll(e);
 		this.sseGridUpdateHandler = (e:SSEEvent<"BINGO_GRID_UPDATE">) => this.onGridUpdate(e.data);
 		SSEHelper.instance.addEventListener(SSEEvent.ON_CONNECT, this.sseConnectHandler);
@@ -242,7 +242,7 @@ class BingoGridView extends Vue {
 			clearTimeout(this.moderateDebounce);
 			this.moderateDebounce = setTimeout(()=>{
 				ApiHelper.call("bingogrid/moderate", "POST", {states, uid:this.param_uid, gridid:this.param_gridId});
-			}, 1000);
+			}, 100);
 		}
 	}
 
@@ -546,7 +546,7 @@ class BingoGridView extends Vue {
 	 * Called when streamer un/ticks a cell
 	 * @param e 
 	 */
-	private async onTickCell(e:SSEEvent<"BINGO_GRID_CELL_STATES">):Promise<void> {
+	private async onCellsStates(e:SSEEvent<"BINGO_GRID_CELL_STATES">):Promise<void> {
 		if(!e.data) return;
 		const states = e.data.states;
 		for (const cellId in states) {
@@ -560,7 +560,7 @@ class BingoGridView extends Vue {
 			}else{
 				//If state was disabled but is now enabled, play a sound
 				if(cell.enabled != states[cellId] && states[cellId]) this.playNotification();
-				else cell.check = false;
+				else if(!states[cellId]	) cell.check = false;
 				cell.enabled = states[cellId];
 			}
 		}

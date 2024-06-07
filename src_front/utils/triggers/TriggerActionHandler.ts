@@ -560,8 +560,14 @@ export default class TriggerActionHandler {
 				let eventType:TriggerTypesValue = TriggerTypes.BINGO_GRID_CELL;
 				if(message.reset) eventType = TriggerTypes.BINGO_GRID_RESET;
 				if(message.complete) eventType = TriggerTypes.BINGO_GRID_ALL;
-				if(message.col > -1 || message.row > -1 || message.diagonal > -1) eventType = TriggerTypes.BINGO_GRID_LINE;
+				if(message.colIndex > -1 || message.rowIndex > -1 || message.diagonal > -1) eventType = TriggerTypes.BINGO_GRID_LINE;
 				if(await this.executeTriggersByType(eventType, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.BINGO_GRID_VIEWER:{
+				if(await this.executeTriggersByType(TriggerTypes.BINGO_GRID_VIEWER_LINE, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
 				}break;
 			}

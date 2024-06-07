@@ -1254,19 +1254,23 @@
 			},
 			"BINGO_GRID_LINE": {
 				"label": "Bingo grid line complete",
-				"description": "Actions to execute when a line is complete on a bingo grid"
+				"description": "Actions to execute when you fill a bingo grid's line"
 			},
 			"BINGO_GRID_ALL": {
 				"label": "Bingo grid complete",
-				"description": "Actions to execute when all cells of the grid are ticked"
+				"description": "Actions to execute when you fill an entire bingo grid"
 			},
 			"BINGO_GRID_CELL": {
 				"label": "Bingo grid cell ticked",
-				"description": "Actions to execute when a bingo grid cell is ticked"
+				"description": "Actions to execute when yiou tick a bingo grid's cell"
 			},
 			"BINGO_GRID_RESET": {
 				"label": "Bingo grid is reset",
-				"description": "Actions to execute when a bingo grid is reset (all cells unticked)"
+				"description": "Actions to execute when you reset a bingo grid"
+			},
+			"BINGO_GRID_VIEWER_LINE": {
+				"label": "A viewer completed one or more bingo grid lines",
+				"description": "Actions to execute when a user fills a bingo grid line"
 			}
 		},
 		"musicEvents": {

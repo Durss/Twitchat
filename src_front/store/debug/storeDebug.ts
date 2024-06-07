@@ -654,6 +654,47 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.BINGO_GRID: {
+					const grid = Utils.pickRand(StoreProxy.bingoGrid.gridList);
+					const m:TwitchatDataTypes.MessageBingoGridData = {
+						platform:"twitchat",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						bingoGridId: grid?.id || Utils.getUUID(),
+						bingoGridName: grid?.title || "My awesome grid",
+						channel_id:uid,
+						colIndex:Math.round(Math.random()*grid.cols),
+						rowIndex:Math.round(Math.random()*grid.rows),
+						complete:Math.random() > .5,
+						coords: {
+							x:Math.round(Math.random()*grid.cols),
+							y:Math.round(Math.random()*grid.rows),
+						},
+						diagonal:Math.random() > .5? 1 : 0,
+						reset:Math.random() > .5,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.BINGO_GRID_VIEWER: {
+					const grid = Utils.pickRand(StoreProxy.bingoGrid.gridList);
+					const m:TwitchatDataTypes.MessageBingoGridViewerData = {
+						platform:"twitchat",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						bingoGridId: grid?.id || Utils.getUUID(),
+						bingoGridName: grid?.title || "My awesome grid",
+						channel_id:uid,
+						bingoCount:Math.round(Math.random()*5+1),
+						user:fakeUser,
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.RAFFLE: {
 					const entries:TwitchatDataTypes.RaffleEntry[] = [];
 					if(fakeUser.temporary) {

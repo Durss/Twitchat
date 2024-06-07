@@ -9,8 +9,9 @@ import { gsap } from 'gsap/gsap-core';
 import { createPinia } from 'pinia';
 import { createApp } from "vue";
 import { storeCommon } from './store/common/storeCommon';
+import { SlowMo } from "gsap/all";
 
-gsap.registerPlugin(ScrollToPlugin, CustomEase, CSSPlugin);
+gsap.registerPlugin(ScrollToPlugin, CustomEase, CSSPlugin, SlowMo);
 const pinia = createPinia();
 
 /**

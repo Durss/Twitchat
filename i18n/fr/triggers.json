@@ -1253,20 +1253,24 @@
 				"description": "Actions à exécuter lorsque quelqu'un renouvelle son abonnement sur Tipeee"
 			},
 			"BINGO_GRID_LINE": {
-				"label": "Ligne d'une grille de bingo cochée",
-				"description": "Actions à exécuter lorsque quelqu'une ligne/colonne/diagonale d'une grille de bingo est entièrement cochée"
+				"label": "Ligne d'une grille de bingo remplie",
+				"description": "Actions à exécuter lorsque vous remplissez un ligne de bingo"
 			},
 			"BINGO_GRID_ALL": {
 				"label": "Grille de bingo entièrement cochée",
-				"description": "Actions à exécuter lorsque quelqu'une grille de bingo est entièrement cochée"
+				"description": "Actions à exécuter lorsque vous cochez toutes les cases d'une grille"
 			},
 			"BINGO_GRID_CELL": {
 				"label": "Case d'une grille de bingo cochée",
-				"description": "Actions à exécuter lorsque quelqu'une case est cochée dans une grille de bingo"
+				"description": "Actions à exécuter lorsque quelque vous cochez une case de bingo"
 			},
 			"BINGO_GRID_RESET": {
 				"label": "Grille de bingo réinitialisée",
-				"description": "Actions à exécuter lorsque quelqu'une grille de bingo est réinitialisée"
+				"description": "Actions à exécuter lorsque vous réinitialisez une grille de bingo"
+			},
+			"BINGO_GRID_VIEWER_LINE": {
+				"label": "Un·e viewer rempli une ou plusieurs lignes de bingo",
+				"description": "Actions à exécuter lorsque quelqu'une personne rempli une ou plusieurs lignes d'une grille de bingo"
 			}
 		},
 		"musicEvents": {

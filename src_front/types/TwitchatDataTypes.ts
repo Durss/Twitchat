@@ -1955,6 +1955,7 @@ export namespace TwitchatDataTypes {
 		OBS_START_STREAM:"obs_start_stream",
 		HYPE_TRAIN_START:"hype_train_start",
 		OBS_SCENE_CHANGE:"obs_scene_change",
+		BINGO_GRID_VIEWER:"bingo_grid_viewer",
 		AD_BREAK_COMPLETE:"ad_break_complete",
 		GOXLR_SOUND_INPUT:"goxlr_sound_input",
 		USER_WATCH_STREAK:"user_watch_streak",
@@ -2044,6 +2045,7 @@ export namespace TwitchatDataTypes {
 		hype_train_start:false,
 		obs_scene_change:false,
 		obs_start_stream:false,
+		bingo_grid_viewer:false,
 		obs_source_toggle:false,
 		ad_break_complete:false,
 		obs_filter_toggle:false,
@@ -2178,6 +2180,7 @@ export namespace TwitchatDataTypes {
 									| MessageUnbanRequestData
 									| MessageTipeeeDonationData
 									| MessageBingoGridData
+									| MessageBingoGridViewerData
 	;
 
 	/**
@@ -2224,6 +2227,7 @@ export namespace TwitchatDataTypes {
 							| typeof TwitchatMessageType.TWITCHAT_AD
 							| typeof TwitchatMessageType.WHISPER
 							| typeof TwitchatMessageType.MESSAGE;
+							
 	export const MessageListFilterTypes:{type:AllowFilterTypes, labelKey:string, icon:string, scopes:TwitchScopesString[], newFlag:number}[] = [
 		{type:TwitchatMessageType.FOLLOWING,							labelKey:"chat.filters.message_types.following",							icon:"follow",			scopes:[TwitchScopes.LIST_FOLLOWERS],	newFlag:0},
 		{type:TwitchatMessageType.SUBSCRIPTION,							labelKey:"chat.filters.message_types.subscription",							icon:"sub",				scopes:[],	newFlag:0},
@@ -4359,12 +4363,12 @@ export namespace TwitchatDataTypes {
 		 * Col index that's been filled
 		 * -1 = none
 		 */
-		col:number;
+		colIndex:number;
 		/**
 		 * Row index that's been filled
 		 * -1 = none
 		 */
-		row:number;
+		rowIndex:number;
 		/**
 		 * Diagonal that's been filled:
 		 * 1 = top left to bottom right
@@ -4380,5 +4384,28 @@ export namespace TwitchatDataTypes {
 		 * Grid has just been reset?
 		 */
 		reset:boolean;
+	}
+
+	/**
+	 * Represents a bingo grid event from a viewer
+	 */
+	export interface MessageBingoGridViewerData extends AbstractTwitchatMessage {
+		type:"bingo_grid_viewer";
+		/**
+		 * ID of the related bingo grid
+		 */
+		bingoGridId:string;
+		/**
+		 * Name of the bingo grid
+		 */
+		bingoGridName:string;
+		/**
+		 * Number of lines filled
+		 */
+		bingoCount:number;
+		/**
+		 * User that clicked.
+		 */
+		user:TwitchatDataTypes.TwitchatUser;
 	}
 }

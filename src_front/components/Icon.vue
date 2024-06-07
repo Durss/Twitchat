@@ -20,7 +20,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	components:{},
 	emits:[],
 })
- class Icon extends Vue {
+class Icon extends Vue {
 
 	@Prop
 	public name!:string;
