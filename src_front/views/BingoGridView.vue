@@ -45,16 +45,14 @@
 			</div>
 		</div>
 
-		<div class="card-item additional" v-if="isModerator">
+		<div class="card-item additional" v-if="isModerator && additionalEntries.length > 0">
 			<strong>{{ $t("bingo_grid.state.additional_cells") }}</strong>
 			<div v-for="entry in additionalEntries" class="additionalEntry">
 				<Checkbox class="entry"
 					:key="entry.id"
 					v-model="entry.check"
 					v-tooltip="entry.label"
-					@click="tickCell(entry)">
-					<span class="label">{{ entry.label }}</span>
-				</Checkbox>
+					@click="tickCell(entry)">{{ entry.label }}</Checkbox>
 			</div>
 		</div>
 
@@ -111,6 +109,8 @@ class BingoGridView extends Vue {
 	public entries:(TwitchatDataTypes.BingoGridConfig["entries"][number] & {enabled?:boolean})[] = [];
 	public additionalEntries:(TwitchatDataTypes.BingoGridConfig["entries"][number] & {enabled?:boolean})[] = [];
 
+	private param_uid:string = "";
+	private param_gridId:string = "";
 	private starIndex:number = 0;
 	private moderateDebounce:number = -1;
 	private bingoCountDebounce:number = -1;
@@ -127,27 +127,23 @@ class BingoGridView extends Vue {
 		return res;
 	}
 
-	public mounted():void {
-		this.loadGridInfo();
-
-		const uid = this.$route.params.uid as string;
+	public async mounted():Promise<void> {
+		this.param_uid = this.$route.params.uid as string;
+		this.param_gridId = this.$route.params.gridId as string;
 		if(this.$store.public.authenticated) {
-			this.isModerator = uid === this.$store.public.twitchUid;
-			const hasModRights = this.$store.public.grantedScopes.indexOf(TwitchScopes.LIST_MODERATED_CHANS) > -1;
-			if(!this.isModerator && hasModRights) {
-				TwitchUtils.getModeratedChannels().then(modedChans => {
-					const uid = this.$route.params.uid as string;
-					this.isModerator = modedChans.findIndex(v=>v.broadcaster_id == uid) > -1;
-					//For mods, enable all cells and tick them if they were alreayd enabled
-					if(this.isModerator) {
-						this.entries.forEach(v=>{
-							if(v.enabled) v.check = true;
-							v.enabled = true;
-						})
-					}
-				});
+			this.isModerator = this.param_uid === this.$store.public.twitchUid;
+			const hasModScope = this.$store.public.grantedScopes.indexOf(TwitchScopes.LIST_MODERATED_CHANS) > -1;
+			if(!this.isModerator && hasModScope) {
+				try {
+					//Check if user is a mod on this channel
+					const modedChans = await TwitchUtils.getModeratedChannels();
+					this.isModerator = modedChans.findIndex(v=>v.broadcaster_id == this.param_uid) > -1;
+				}catch(error) {
+					console.error(error);
+				}
 			}
 		}
+		this.loadGridInfo();
 
 		this.sseConnectHandler = (e:SSEEvent<"ON_CONNECT">) => this.onSSEConnect(e);
 		this.sseCellStatesHandler = (e:SSEEvent<"BINGO_GRID_CELL_STATES">) => this.onTickCell(e);
@@ -201,10 +197,8 @@ class BingoGridView extends Vue {
 	 * Load bingo infos
 	 */
 	private async loadGridInfo():Promise<void> {
-		const uid = this.$route.params.uid as string;
-		const gridid = this.$route.params.gridId as string;
 		try {
-			const infos = await ApiHelper.call("bingogrid", "GET", {uid, gridid}, false);
+			const infos = await ApiHelper.call("bingogrid", "GET", {uid:this.param_uid, gridid:this.param_gridId}, false);
 			if(infos.json.data) {
 				this.ownerName	= infos.json.owner;
 				this.cols		= infos.json.data.cols;
@@ -245,11 +239,9 @@ class BingoGridView extends Vue {
 			const states:{[key:string]:boolean} = {};
 			this.entries.forEach(v=> states[v.id] = v.check);
 			this.additionalEntries.forEach(v=> states[v.id] = v.check);
-			const uid = this.$route.params.uid as string;
-			const gridid = this.$route.params.gridId as string;
 			clearTimeout(this.moderateDebounce);
 			this.moderateDebounce = setTimeout(()=>{
-				ApiHelper.call("bingogrid/moderate", "POST", {states, uid, gridid});
+				ApiHelper.call("bingogrid/moderate", "POST", {states, uid:this.param_uid, gridid:this.param_gridId});
 			}, 1000);
 		}
 	}
@@ -384,11 +376,9 @@ class BingoGridView extends Vue {
 
 		if(this.bingoCount != bingoCount && this.$store.public.authenticated) {
 			this.bingoCount = bingoCount;
-			const uid = this.$route.params.uid as string;
-			const gridid = this.$route.params.gridId as string;
 			clearTimeout(this.bingoCountDebounce);
 			this.bingoCountDebounce = setTimeout(() => {
-				ApiHelper.call("bingogrid/bingo", "POST", {count:bingoCount, gridid, uid});
+				ApiHelper.call("bingogrid/bingo", "POST", {count:bingoCount, gridid:this.param_gridId, uid:this.param_uid});
 			}, 1000);
 		}
 	}
@@ -434,7 +424,7 @@ class BingoGridView extends Vue {
 			//Animate items from center
 			cells.forEach((cell, index) => {
 				let distance = spiralOrder.findIndex(v=>v===index);
-				gsap.fromTo(cell, {scale:0}, {scale:1, ease:"elastic.out", duration:1.3, delay: distance*.05, clearProps:"all",
+				gsap.fromTo(cell, {scale:0}, {scale:1, ease:"elastic.out", duration:1.3, delay: Math.pow(distance,.8)*.05, clearProps:"all",
 					onComplete:()=>{
 						if(distance == Math.max(0,cells.length-10)) {
 							this.checkBingos();
@@ -488,8 +478,6 @@ class BingoGridView extends Vue {
 	private async onSSEConnect(e:SSEEvent<"ON_CONNECT">):Promise<void> {
 		if(this.entries.length === 0) return;
 
-		const uid = this.$route.params.uid as string;
-		const gridid = this.$route.params.gridId as string;
 		const entries:TwitchatDataTypes.BingoGridConfig["entries"][number][] = this.entries.map(e => {
 			return  {
 				id:e.id,
@@ -504,7 +492,7 @@ class BingoGridView extends Vue {
 			title:this.title,
 			entries,
 		};
-		await ApiHelper.call("bingogrid", "POST", {gridid, grid, uid});
+		await ApiHelper.call("bingogrid", "POST", {gridid:this.param_gridId, grid, uid:this.param_uid});
 	}
 
 	/**
@@ -695,11 +683,6 @@ export default toNative(BingoGridView);
 					z-index: 101;
 					filter: drop-shadow(2px 2px 5px rgba(0,0,0,.5));
 				}
-
-				.label {
-					display: block;
-					width: 100%;
-				}
 			}
 		}
 	}
@@ -736,14 +719,6 @@ export default toNative(BingoGridView);
 		.additionalEntry {
 			&:not(:first-child) {
 				margin-top: .25em;
-			}
-			.label {
-				display: inline-block;
-				max-width: 200px;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				white-space: nowrap;
-				line-height: 1.25em;
 			}
 		}
 	}

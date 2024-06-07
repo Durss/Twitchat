@@ -77,13 +77,17 @@ export default class BingoGridController extends AbstractController {
 		if(user) {
 			if(!this.viewerGridStates[gridId]) this.viewerGridStates[gridId] = {};
 			const cached = this.viewerGridStates[gridId][user.user_id];
+			//Returned cached data
 			if(cached) {
-				//Returned cached data
 				data = cached.data;
 				
+			//Generate user's cache
 			}else{
-				//Generate user's cache
-				this.shuffleGridEntries(data);
+				if(user.user_id != uid) {
+					//Don't shuffle broadcaster so their public grid is the same
+					//as the overlay one
+					this.shuffleGridEntries(data);
+				}
 				this.viewerGridStates[gridId][user.user_id] = {
 					data,
 					ownerId:uid,
@@ -92,6 +96,7 @@ export default class BingoGridController extends AbstractController {
 				};
 			}
 		}else{
+			//user not authenticated, shuffle entries
 			this.shuffleGridEntries(data);
 		}
 
@@ -162,6 +167,7 @@ export default class BingoGridController extends AbstractController {
 		if(!this.viewerGridStates[gridid]) this.viewerGridStates[gridid] = {};
 		const uids = Object.keys(this.viewerGridStates[gridid]);
 		uids.forEach(uid => {
+			const grid:IGridCacheData["data"] = JSON.parse(JSON.stringify(body.grid));//Clone to avoid all users from having same grid ref
 			const cachedGrid = this.viewerGridStates[gridid][uid].data;
 			const sortedKeysPrev = cachedGrid.entries.map(v=> v.id).concat((cachedGrid.additionalEntries || []).map(v=>v.id))
 			.sort((a,b) => {
@@ -179,7 +185,16 @@ export default class BingoGridController extends AbstractController {
 
 			//If cells mismatch, replace the grid after shuffling entries
 			if(forceNewGridGen || sortedKeysNew.join(",") != sortedKeysPrev.join(",")) {
-				this.shuffleGridEntries(grid);
+				if(user.user_id != uid) {
+					//Don't shuffle broadcaster so their public grid is the same
+					//as the overlay one
+					this.shuffleGridEntries(grid);
+				}
+
+				//Untick all cells
+				grid.entries.forEach(v=> v.check = false);
+				(grid.additionalEntries || []).forEach(v=> v.check = false);
+
 				this.viewerGridStates[gridid][uid].data = grid;
 				this.viewerGridStates[gridid][uid].date = Date.now();
 			}else{

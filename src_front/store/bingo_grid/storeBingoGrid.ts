@@ -219,7 +219,9 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 		shuffleGrid(id:string):void {
 			const grid = this.gridList.find(g => g.id === id);
 			if(!grid) return;
+			grid.entries.forEach(v => v.check = false );
 			if(grid.additionalEntries) {
+				grid.additionalEntries.forEach(v => v.check = false );
 				//Randomly switch main entries with additional entries
 				for (let i = 0; i < grid.entries.length; i++) {
 					const entry = grid.entries[i];
@@ -229,7 +231,6 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 						const index = Math.floor(Math.random() * grid.additionalEntries.length);
 						grid.entries.splice(i, 1, grid.additionalEntries[index]);
 						grid.additionalEntries[index] = entry;
-						entry.check = false;
 					}
 				}
 			}
