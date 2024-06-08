@@ -32,7 +32,7 @@
 
 			<div class="ctas">
 				<TTButton icon="shuffle" @click="$store.bingoGrid.shuffleGrid(grid.id)" v-tooltip="$t('bingo_grid.form.shuffle_bt')"></TTButton>
-				<TTButton icon="refresh" @click="$store.bingoGrid.resetCheckStates(grid.id)" v-tooltip="$t('bingo_grid.state.reset_bt')"></TTButton>
+				<TTButton icon="refresh" @click="$store.bingoGrid.resetCheckStates(grid.id)" v-tooltip="$t('bingo_grid.form.reset_bt')"></TTButton>
 				<TTButton v-if="$store.bingoGrid.viewersBingoCount[grid.id] && $store.bingoGrid.viewersBingoCount[grid.id].length > 0"
 				icon="leaderboard"
 				small

@@ -269,7 +269,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			}
 		}
 
-		/** DEBUG USER EVENTS
+		/* DEBUG USER EVENTS
 		await Utils.promisedTimeout(1000);
 
 		this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
@@ -284,7 +284,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
 				"gridId": "78b997fc-b525-4423-a39a-2b31781b708d",
 				"user": {
-					"name": "wwwwwwwwwwwwwwwwwwwwwwwww",
+					"name": "JohanRelpek",
 					"id": "675760285",
 					"avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/8877ee31-67dc-49d8-b567-f58e3b2053f6-profile_image-300x300.png"
 				},
