@@ -630,7 +630,7 @@ export default class TwitchUtils {
 						displayName: "Global",
 						displayNameOriginal: "Global",
 						login: "Global",
-						donor: { level: 0, state: false, upgrade: false, noAd: false, earlyDonor: false, isPremiumDonor: false, isPatreonMember:false },
+						donor: { level: 0, state: false, upgrade: false, noAd: false, earlyDonor: false, isPremiumDonor: false, isPatreonMember:false, lifetimePercent:0 },
 						is_affiliate: false,
 						is_partner: false,
 						is_tracked: false,

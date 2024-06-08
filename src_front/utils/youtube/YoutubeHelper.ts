@@ -197,6 +197,7 @@ export default class YoutubeHelper {
 				state:false,
 				upgrade:false,
 				isPatreonMember:false,
+				lifetimePercent:0,
 			};
 			StoreProxy.auth.youtube.user = user as RequireField<TwitchatDataTypes.TwitchatUser, "donor">;
 		}

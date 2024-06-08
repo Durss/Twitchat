@@ -13,6 +13,14 @@
 
 		<ParamsAccountPatreon class="card-item" />
 
+		<div class="card-item premium lifetimePremiumProgress" v-if="!isPremiumDonor && lifetimePercent > 0">
+			<div class="info">Vos soutiens passés vous rapprochent du premium à vie</div>
+			<div class="card-item progressBar" :style="{backgroundSize:lifetimePercent+'% 100%'}">
+				<div class="label">{{ Math.round(lifetimePercent/100*$config.LIFETIME_DONOR_VALUE) }}€ / {{ $config.LIFETIME_DONOR_VALUE }}€</div>
+			</div>
+			<TTButton class="donateBt" @click="openDonate()" light premium icon="coin">{{ $t("params.categories.sponsor") }}</TTButton>
+		</div>
+
 		<SponsorTable />
 
 		<div class="footer">
@@ -25,19 +33,40 @@
 
 <script lang="ts">
 import Icon from '@/components/Icon.vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import ParamsAccountPatreon from './account/ParamsAccountPatreon.vue';
 import SponsorTable from '@/components/premium/SponsorTable.vue';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
+import ParamsAccountPatreon from './account/ParamsAccountPatreon.vue';
+import { gsap } from 'gsap/gsap-core';
+import { TTButton } from '@/components/TTButton.vue';
 
 @Component({
 	components:{
 		Icon,
+		TTButton,
 		SponsorTable,
 		ParamsAccountPatreon,
 	},
 	emits:[],
 })
- class ParamsPremium extends Vue {
+class ParamsPremium extends Vue {
+
+	public get lifetimePercent():number { return this.lifetimePercentEased; }
+	public get isPremiumDonor():boolean { return this.$store.auth.twitch.user.donor.isPremiumDonor === true; }
+	
+	public lifetimePercentEased:number = 0;
+
+	public async mounted():Promise<void> {
+		const lifetime = this.$store.auth.twitch.user.donor.lifetimePercent*100;
+		if(lifetime > 0) {
+			this.lifetimePercentEased = .0001;
+			gsap.to(this, {lifetimePercentEased:lifetime, duration:1, ease:"sine.out", delay:.5});
+		}
+	}
+
+	public openDonate():void {
+		this.$store.params.openParamsPage("donate");
+	}
 
 }
 export default toNative(ParamsPremium);
@@ -82,6 +111,41 @@ export default toNative(ParamsPremium);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+	}
+
+	.lifetimePremiumProgress {
+		width: 100%;
+		margin: 1em 0;
+		background-color: var(--color-premium);
+		font-weight: bold;
+		text-shadow: 1px 1px 2px #000000A0;
+		.info  {
+			text-align: center;
+			margin-bottom: .5em;
+		}
+		.progressBar {
+			position: relative;
+			margin: auto;
+			width: calc(100% - 1em);
+			padding: 1em;
+			@scale:2px;
+			box-shadow: inset -@scale -@scale @scale rgba(255, 255, 255, 0.1), inset @scale @scale @scale rgba(0, 0, 0, .3);
+			background-color: var(--color-light-fade);
+			background-image: linear-gradient(90deg, var(--color-light) 0%, var(--color-light) 100%);
+			background-repeat: no-repeat;
+			background-size: 0% 100%;
+			.label {
+				.center();
+				position: absolute;
+				font-size: 1.5em;
+				font-weight: bold;
+				font-variant-numeric: tabular-nums;
+			}
+		}
+		.donateBt {
+			display: flex;
+			margin: .5em auto 0 auto;
+		}
 	}
 }
 </style>

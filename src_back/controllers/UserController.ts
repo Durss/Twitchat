@@ -57,7 +57,10 @@ export default class UserController extends AbstractController {
 		const userInfo = await super.twitchUserGuard(request, response);
 		if(userInfo == false) return;
 
-		let isDonor:boolean = false, level:number = -1, amount:number = -1;
+		let isDonor:boolean = false
+		let level:number = -1
+		let amount:number = -1;
+		let lifetimePercent:number = 0;
 		if(fs.existsSync( Config.donorsList )) {
 			let json:{[key:string]:number} = {};
 			try {
@@ -72,6 +75,7 @@ export default class UserController extends AbstractController {
 			if(isDonor) {
 				amount = json[userInfo.user_id];
 				level = Config.donorsLevels.findIndex(v=> v > json[userInfo.user_id]) - 1;
+				lifetimePercent = amount / Config.lifetimeDonorStep;
 			}
 		}
 
@@ -103,7 +107,8 @@ export default class UserController extends AbstractController {
 					isEarlyDonor?:true,
 					isPremiumDonor?:boolean,
 					isPatreonMember?:boolean,
-					discordLinked?:boolean} = {isDonor:isDonor && level > -1, level, isPremiumDonor, isPatreonMember};
+					lifetimePercent?:number
+					discordLinked?:boolean} = {isDonor:isDonor && level > -1, level, lifetimePercent, isPremiumDonor, isPatreonMember};
 		if(Config.credentials.admin_ids.includes(userInfo.user_id)) {
 			data.isAdmin = true;
 		}

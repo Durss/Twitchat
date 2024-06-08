@@ -318,6 +318,7 @@ type ApiEndpoints =  {
 					isPatreonMember:boolean;
 					discordLinked:boolean;
 					level:number;
+					lifetimePercent:number;
 				}
 			}
 		};

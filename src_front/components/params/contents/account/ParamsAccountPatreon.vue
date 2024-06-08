@@ -67,7 +67,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import Config from '@/utils/Config';
 import PatreonHelper from '@/utils/patreon/PatreonHelper';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
 	components:{
@@ -75,7 +75,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 	},
 	emits:[],
 })
- class ParamsAccountPatreon extends Vue {
+class ParamsAccountPatreon extends Vue {
 
 	public patreonDown:boolean = false;
 	public redirecting:boolean = false;
@@ -91,7 +91,6 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 	public async mounted():Promise<void> {
 		const {json} = await ApiHelper.call("patreon/isApiDown", "GET");
 		this.patreonDown = json.data.isDown === true;
-
 
 		// PatreonHelper.instance.connect();
 		const authParams = this.$store.patreon.patreonAuthParams;
