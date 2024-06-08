@@ -16,7 +16,7 @@
 						:style="{width:'100%'}">
 						<span class="label">{{ entry.label }}</span>
 						<Icon class="check" name="checkmark" v-show="entry.check" :ref="'check_'+entry.id" />
-						<Icon name="sub" ref="userStars" class="star" />
+						<Icon name="sub" class="star" />
 					</div>
 				</TransitionGroup>
 			</div>
@@ -271,7 +271,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			}
 		}
 
-		/* DEBUG USER EVENTS
+		//* DEBUG USER EVENTS
 		await Utils.promisedTimeout(1000);
 
 		this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
