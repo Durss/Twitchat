@@ -12,7 +12,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 const TermsOfUse = () => import('@/views/TermsOfUse.vue');
 const GoXLRDebug = () => import('@/views/GoXLRDebug.vue');
 const LabelsEditor = () => import('@/views/LabelsEditor.vue');
-const BingoGridView = () => import('@/views/BingoGridView.vue');
 const PrivacyPolicy = () => import('@/views/PrivacyPolicy.vue');
 const PublicApiTest = () => import('@/views/PublicApiTest.vue');
 const ComponentList = () => import('@/views/ComponentList.vue');
