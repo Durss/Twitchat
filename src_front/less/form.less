@@ -86,9 +86,9 @@ button {
 
 .vs__dropdown-toggle {
 	.bevel();
-	background-color: var(--background-color-fader);
 	border: none;
-	border-radius: var(--border-radius);
+	background-color: var(--background-color-fader) !important;
+	border-radius: var(--border-radius) !important;
 	margin: 0;
 
 	.vs__deselect {
@@ -114,13 +114,13 @@ button {
 	}
 }
 .vs__open-indicator, .vs__clear, .vs__submit {
-	fill: var(--color-text)
+	fill: var(--color-text) !important;
 }
 .vs--single .vs__selected {
 	color: var(--color-text) !important;
 }
 .vs__dropdown-menu {
-	border-top: 1px solid rgba(0, 0, 0, .2);
+	border-top: 1px solid rgba(0, 0, 0, .2) !important;
 }
 
 .vs__selected-options > .vs__search {
