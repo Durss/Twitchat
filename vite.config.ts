@@ -40,6 +40,14 @@ export default defineConfig({
 			configureServer(server) {
 				server.middlewares.use((req, res, next) => {
 					const url = req.url;
+					if (url.startsWith('/overlay/label')) {
+						const overlayLabelHtmlPath = path.resolve(__dirname, 'overlayLabel.html');
+						if (fs.existsSync(overlayLabelHtmlPath)) {
+							res.setHeader('Content-Type', 'text/html');
+							res.end(fs.readFileSync(overlayLabelHtmlPath));
+							return;
+						}
+					}else
 					if (url.startsWith('/overlay/')) {
 						const overlayHtmlPath = path.resolve(__dirname, 'overlay.html');
 						if (fs.existsSync(overlayHtmlPath)) {
@@ -78,7 +86,8 @@ export default defineConfig({
 			input: {
 				main: resolve(__dirname, 'index.html'),
 				overlay: resolve(__dirname, 'overlay.html'),
-				public: resolve(__dirname, 'public.html')
+				public: resolve(__dirname, 'public.html'),
+				overlayLabel: resolve(__dirname, 'overlayLabel.html')
 			},
 			output: {
 				entryFileNames: "assets/[name]-[hash]-" + process.env.npm_package_version + ".js",
