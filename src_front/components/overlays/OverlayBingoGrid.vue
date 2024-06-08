@@ -16,6 +16,7 @@
 						:style="{width:'100%'}">
 						<span class="label">{{ entry.label }}</span>
 						<Icon class="check" name="checkmark" v-show="entry.check" :ref="'check_'+entry.id" />
+						<Icon name="sub" ref="userStars" class="star" />
 					</div>
 				</TransitionGroup>
 			</div>
@@ -89,6 +90,7 @@ import Utils from '@/utils/Utils';
 export class OverlayBingoGrid extends AbstractOverlay {
 
 	public ready:boolean = false;
+	public error:boolean = false;
 	public currentUserAlert:IUserBingoData | null = null;
 	public currentCell:HTMLElement | null = null;
 	public bingo:TwitchatDataTypes.BingoGridConfig | null = null;
@@ -147,7 +149,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	override requestInfo():void {
 		PublicAPI.instance.broadcast(TwitchatEvent.GET_BINGO_GRID_PARAMETERS, {bid:this.id});
 	}
-
+	
 	/**
 	 * Tell Twitchat overlay exists
 	 */
@@ -309,9 +311,18 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	private async animateBingos(vertical:number[], horizontal:number[], diagonal:number[]):Promise<void> {
 		const bingo = this.bingo!;
 		let delay = .5;
-		const animateCell = (holder:HTMLElement)=>{
-			gsap.fromTo(holder, {scale:2}, {scale:1, delay, duration:.5, immediateRender:false, ease:"back.out", onStart:()=>{
+		const animateCell = async (holder:HTMLElement)=>{
+			const bgStar = holder.querySelector(".star");
+			gsap.fromTo(bgStar, {opacity:1, scale:0, rotate:0}, {rotate:"360deg", duration:.5, delay, ease:"none"});
+			gsap.to(bgStar, {scale:6, duration:.5, delay, ease:"circ.in"});
+			await Utils.promisedTimeout(delay*1000+400);
+			// gsap.fromTo(holder, {scale:2}, {scale:1, delay, duration:.5, immediateRender:false, ease:"back.out", onStart:()=>{
 				this.popStars(holder);
+			// }});
+			// gsap.to(bgStar, {delay:1, rotate:"0deg", duration:.5, ease:"none"});
+			// gsap.to(bgStar, {delay:1, scale:0, duration:.5, ease:"circ.out"});
+			gsap.to(bgStar, {opacity:0, duration:.25, ease:"none", onComplete:()=>{
+				gsap.set(bgStar, {opacity:1, scale:0, rotate:0});
 			}});
 		}
 
@@ -322,7 +333,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				delay += .05;
 				animateCell(cell.holder);
 			}
-			delay += .1;
+			delay += .4;
 		});
 
 		vertical.forEach(x=>{
@@ -333,7 +344,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				animateCell(cell.holder);
 			}
 
-			delay += .1;
+			delay += .4;
 		});
 
 		diagonal.forEach(dir=>{
@@ -345,7 +356,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				delay += .05;
 				animateCell(cell.holder);
 			}
-			delay += .1;
+			delay += .4;
 		});
 
 		await Utils.promisedTimeout(delay * 1000);
@@ -402,13 +413,19 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			const scaleRatio = Math.random();
 			star.style.left = left+"px";
 			star.style.top = top+"px";
-			star.style.width = (bounds.width*(.1+scaleRatio*.15))+"px";
-			star.style.height = (bounds.height*(.1+scaleRatio*.15))+"px";
+			star.style.width = (bounds.width*(.2+scaleRatio*.3))+"px";
+			star.style.height = (bounds.height*(.2+scaleRatio*.3))+"px";
 			star.style.opacity = "1";
-			const x = (Math.random()-Math.random()) * bounds.width;
-			const y = (Math.random()-Math.random()) * bounds.height;
+			const direction = Math.PI * 2 * i/10;
+			const distance = Math.random() * bounds.width * .25 + bounds.width * .75;
 			gsap.killTweensOf(star);
-			gsap.to(star, {opacity:0, x:"-50%", y:"-50%", rotation:angle+"deg", left:left+x, top:top+y, duration:Math.random(), ease:"sine.out"});
+			gsap.to(star, {opacity:0, x:"-50%", y:"-50%",
+							rotation:angle+"deg",
+							left:left + Math.cos(direction) * distance,
+							top:top + Math.sin(direction) * distance,
+							duration:Math.random(),
+							ease:"sine.out"
+						});
 		}
 	}
 
@@ -602,6 +619,14 @@ export default toNative(OverlayBingoGrid);
 				display: block;
 				width: 100%;
 				// text-shadow: 5px 10px 10px rgba(0,0,0,1);
+			}
+			.star {
+				color: var(--color-secondary);
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%) scale(0, 0);
+				z-index: 101;
 			}
 		}
 	}

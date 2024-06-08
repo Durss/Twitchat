@@ -274,7 +274,7 @@ class BingoGridForm extends AbstractSidePanel {
 	}
 
 	/**
-	 * Save
+	 * Save data to storage
 	 */
 	public save(grid:TwitchatDataTypes.BingoGridConfig, brodacastUpdate:boolean = false):void {
 		if(this.param_chatCmd_toggle[grid.id].value && !grid.chatCmd) {
