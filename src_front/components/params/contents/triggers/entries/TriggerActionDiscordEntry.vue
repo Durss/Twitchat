@@ -1,7 +1,9 @@
 <template>
 	<div class="triggeractiondiscordentry triggerActionForm">
 		<ParamItem :paramData="param_message" v-model="action.discordAction.message"/>
-		<ParamItem :paramData="param_channel" v-model="action.discordAction.channelId"/>
+		<ParamItem :paramData="param_channel" v-model="action.discordAction.channelId">
+			<TTButton class="refreshBt" @click="refreshChannels()" :loading="refreshingChans" icon="refresh">{{ $t("discord.refreshChansBt") }}</TTButton>
+		</ParamItem>
 	</div>
 </template>
 
@@ -11,9 +13,12 @@ import type { ITriggerPlaceholder, TriggerActionDiscordData, TriggerData } from 
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
+import Utils from '@/utils/Utils';
+import { TTButton } from '@/components/TTButton.vue';
 
 @Component({
 	components:{
+		TTButton,
 		ParamItem,
 	},
 	emits:[],
@@ -27,6 +32,7 @@ class TriggerActionDiscordEntry extends AbstractTriggerActionEntry {
 	@Prop
 	declare triggerData:TriggerData;
 	
+	public refreshingChans:boolean = false;
 	public param_message:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:2000, labelKey:"triggers.actions.discord.param_message" };
 	public param_channel:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", icon:"discord", labelKey:"triggers.actions.discord.param_channel" };
 
@@ -50,6 +56,20 @@ class TriggerActionDiscordEntry extends AbstractTriggerActionEntry {
 		this.param_message.placeholderList = list;
 	}
 
+	/**
+	 * Unlink discord
+	 */
+	public async refreshChannels():Promise<void> {
+		this.refreshingChans = true;
+		
+		await this.$store.discord.loadChannelList();
+
+		//Make sure loader is visible and avoid spam
+		await Utils.promisedTimeout(500);
+
+		this.refreshingChans = false;
+	}
+
 }
 export default toNative(TriggerActionDiscordEntry);
 </script>
@@ -58,6 +78,11 @@ export default toNative(TriggerActionDiscordEntry);
 .triggeractiondiscordentry{
 	.loader {
 		height: 1.5em;
+	}
+
+	.refreshBt {
+		display: flex;
+		margin: .5em 0 0 auto;
 	}
 }
 </style>

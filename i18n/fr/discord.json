@@ -2,6 +2,7 @@
 	"discord":{
 		"header":"Liez Twitchat et Discord pour une communication simplifiée avec vos modos.",
 		"unkinkBt":"Délier de {GUILD}",
+		"refreshChansBt":"Rafraîchir la liste des salons",
 		"install_bt":"Installez Twitchat sur votre Discord",
 		"install_code":"Utilisez la commande {CMD} sur Discord, puis entrez le code reçu ci-dessous",
 		"install_warn":"Assurez vous que le bot Twitchat ait les droits d'écriture dans le salon dans lequel vous utilisez la commande {CMD} et tout autre salon dans lequel vous comptez l'utiliser.",

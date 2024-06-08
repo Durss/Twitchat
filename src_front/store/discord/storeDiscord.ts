@@ -51,11 +51,11 @@ export const storeDiscord = defineStore('discord', {
 			const result = await ApiHelper.call("discord/link");
 			if(result.json.linked === true) {
 				this.linkedToGuild = result.json.guildName;
-				const channels = await ApiHelper.call("discord/channels");
-				this.channelList = channels.json.channelList;
+				await this.loadChannelList();
 				this.discordLinked = true;
 			}
 		},
+
 		async validateCode(code:string):Promise<{success:boolean, errorCode?:string, guildName?:string}> {
 			try {
 				const result = await ApiHelper.call("discord/code", "GET", {code}, false);
@@ -69,6 +69,7 @@ export const storeDiscord = defineStore('discord', {
 			}catch(error){};
 			return {success:false, errorCode:"UNKNOWN"};
 		},
+
 		async submitCode(code:string):Promise<true|{code:string, channelName?:string}> {
 			try {
 				const result = await ApiHelper.call("discord/code", "POST", {code}, false);
@@ -83,6 +84,7 @@ export const storeDiscord = defineStore('discord', {
 			}catch(error){};
 			return {code:"UNKNOWN"};
 		},
+
 		async unlinkDiscord():Promise<true|string> {
 			try {
 				const result = await ApiHelper.call("discord/link", "DELETE");
@@ -98,6 +100,7 @@ export const storeDiscord = defineStore('discord', {
 			}
 			return "UNKNOWN"
 		},
+
 		addQuickAction():void {
 			this.quickActions.unshift({
 				id:Utils.getUUID(),
@@ -107,6 +110,7 @@ export const storeDiscord = defineStore('discord', {
 			});
 			this.saveParams();
 		},
+
 		delQuickAction(action:TwitchatDataTypes.DiscordQuickActionData):void{
 			StoreProxy.main.confirm(StoreProxy.i18n.t("discord.quick_delete"))
 			.then(v=> {
@@ -115,6 +119,7 @@ export const storeDiscord = defineStore('discord', {
 				this.saveParams();
 			}).catch(error=>{})
 		},
+
 		saveParams():void {
 			const data:DiscordStoreData = {
 				chatCols:this.chatCols,
@@ -127,6 +132,11 @@ export const storeDiscord = defineStore('discord', {
 				quickActions:this.quickActions,
 			};
 			DataStore.set(DataStore.DISCORD_PARAMS, data);
+		},
+
+		async loadChannelList():Promise<void> {
+			const channels = await ApiHelper.call("discord/channels");
+			this.channelList = channels.json.channelList;
 		}
 	} as IDiscordActions
 	& ThisType<IDiscordActions

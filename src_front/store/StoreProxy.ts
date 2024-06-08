@@ -2261,6 +2261,10 @@ export interface IDiscordActions {
 	 * Trigger a save of the params to server
 	 */
 	saveParams():void;
+	/**
+	 * Loads discord's channel list
+	 */
+	loadChannelList():Promise<void>
 }
 
 
