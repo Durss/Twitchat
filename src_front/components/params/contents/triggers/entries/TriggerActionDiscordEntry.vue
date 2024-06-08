@@ -37,16 +37,7 @@ class TriggerActionDiscordEntry extends AbstractTriggerActionEntry {
 	public param_channel:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", icon:"discord", labelKey:"triggers.actions.discord.param_channel" };
 
 	public beforeMount():void {
-		if(!this.action.discordAction) {
-			this.action.discordAction = {
-				action:"message",
-				channelId:"",
-				message:"",
-			}
-		}
-		this.param_channel.listValues = this.$store.discord.channelList.map(v=> {
-			return {value:v.id, label:v.name };
-		})
+		this.buildChanList();
 	}
 
 	/**
@@ -68,6 +59,20 @@ class TriggerActionDiscordEntry extends AbstractTriggerActionEntry {
 		await Utils.promisedTimeout(500);
 
 		this.refreshingChans = false;
+		this.buildChanList();
+	}
+
+	private buildChanList():void {
+		if(!this.action.discordAction) {
+			this.action.discordAction = {
+				action:"message",
+				channelId:"",
+				message:"",
+			}
+		}
+		this.param_channel.listValues = this.$store.discord.channelList.map(v=> {
+			return {value:v.id, label:v.name };
+		})
 	}
 
 }
