@@ -12,6 +12,12 @@
 			alert @click="unlink()"
 			:loading="submitting">{{ $t("discord.unkinkBt", {GUILD:$store.discord.linkedToGuild}) }}</TTButton>
 		
+		
+		<TTButton class="refreshBt" icon="cross"
+			v-if="$store.discord.discordLinked"
+			@click="refreshChannels()"
+			:loading="refreshingChans">{{ $t("discord.refreshChansBt") }}</TTButton>
+		
 		<div class="content">
 			<template v-if="$store.discord.discordLinked">
 	
@@ -162,6 +168,7 @@ class ConnectDiscord extends Vue implements IParameterContent {
 	public discordName:string = "";
 	public validateDebounce:number = -1;
 	public submitting:boolean = false;
+	public refreshingChans:boolean = false;
 	public linkLoading:boolean = false;
 	public askLinkConfirmation:boolean = false;
 	public errorCode:string = "";
@@ -303,6 +310,20 @@ class ConnectDiscord extends Vue implements IParameterContent {
 	}
 
 	/**
+	 * Unlink discord
+	 */
+	public async refreshChannels():Promise<void> {
+		this.refreshingChans = true;
+		
+		await this.$store.discord.loadChannelList();
+
+		//Make sure loader is visible and avoid spam
+		await Utils.promisedTimeout(500);
+
+		this.refreshingChans = false;
+	}
+
+	/**
 	 * Called when selecting a column
 	 */
 	public selectColumn(index:number):void {
@@ -359,7 +380,7 @@ export default toNative(ConnectDiscord);
 		display: block;
 	}
 
-	.unlinkBt {
+	.unlinkBt, .refreshBt {
 		align-self: center;
 	}
 

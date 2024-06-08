@@ -16,7 +16,6 @@ import StoreProxy from "./StoreProxy";
 export default class DataStore extends DataStoreCommon{
 
 
-
 	/********************
 	* GETTER / SETTERS *
 	********************/

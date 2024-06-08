@@ -334,7 +334,7 @@ export default class DiscordController extends AbstractController {
 		const {user, guild} = auth;
 
 		const res:GuildChannel[] = await this._rest.get(Routes.guildChannels(guild.guildID)) as GuildChannel[];
-		const channelList = res.filter(chan => chan.type == ChannelType.GuildText)
+		const channelList = res.filter(chan => chan.type == ChannelType.GuildText || chan.type == ChannelType.GuildAnnouncement)
 								.sort((a,b) => a.position - b.position )
 								.map(chan => {
 									return {

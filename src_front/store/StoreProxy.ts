@@ -124,6 +124,10 @@ export interface IMainState {
 	 */
 	chatAlert:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData|null;
 	/**
+	 * Date of last t4p command exec to cooldown users
+	 */
+	iconCache:{[key:string]:string|Promise<void>};
+	/**
 	 * Temporary chat command to send current "Twitch 4 palestinans" fundraising
 	 */
 	t4p:string;
@@ -2320,6 +2324,10 @@ export interface IDiscordActions {
 	 * Trigger a save of the params to server
 	 */
 	saveParams():void;
+	/**
+	 * Loads discord's channel list
+	 */
+	loadChannelList():Promise<void>
 }
 
 
