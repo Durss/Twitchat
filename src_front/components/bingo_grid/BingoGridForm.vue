@@ -25,6 +25,7 @@
 			<VueDraggable class="gridList"
 			v-model="$store.bingoGrid.gridList"
 			:group="{name:'bingo_grids'}"
+			handle=".header"
 			animation="250">
 				<ToggleBlock v-for="bingo in $store.bingoGrid.gridList"
 				editableTitle
@@ -276,11 +277,11 @@ class BingoGridForm extends AbstractSidePanel {
 	/**
 	 * Save data to storage
 	 */
-	public save(grid:TwitchatDataTypes.BingoGridConfig, brodacastUpdate:boolean = false):void {
+	public save(grid:TwitchatDataTypes.BingoGridConfig, broadcastUpdate:boolean = false):void {
 		if(this.param_chatCmd_toggle[grid.id].value && !grid.chatCmd) {
 			grid.chatCmd = "!bingo";
 		}
-		this.$store.bingoGrid.saveData(grid.id, undefined, brodacastUpdate);
+		this.$store.bingoGrid.saveData(grid.id, undefined, broadcastUpdate);
 	}
 
 	/**

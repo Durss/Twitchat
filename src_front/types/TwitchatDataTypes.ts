@@ -1768,6 +1768,9 @@ export namespace TwitchatDataTypes {
 		amountLabel?:string,
 	}
 
+	/**
+	 * Represents an ending credits section
+	 */
 	export interface EndingCreditsSlotParams {
 		id:string;
 		slotType:EndingCreditsSlotStringTypes;
@@ -1807,6 +1810,9 @@ export namespace TwitchatDataTypes {
 		rewardIds?:string[],
 	}
 
+	/**
+	 * Contains ending credits params
+	 */
 	export interface EndingCreditsParams {
 		scale:number;
 		padding:number;
@@ -1879,8 +1885,39 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface LabelItemData {
 		id:string;
-		html:string;
+		title:string;
+		enabled:boolean;
+		value:string;
 	}
+
+	/**
+	 * Contains definition about a LabelItemData placeholder
+	 */
+	export interface LabelItemPlaceholder {
+		tag:string;
+		type:"string"|"number"|"image";
+		descriptionKey:string;
+	}
+
+	export const LabelItemPlaceholderList:LabelItemPlaceholder[] = [
+		{tag:"SUB_COUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.SUB_COUNT"},
+		{tag:"LAST_SUB_NAME",				type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_NAME"},
+		{tag:"LAST_SUB_AVATAR",				type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_AVATAR"},
+		{tag:"LAST_SUB_TIER",				type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_TIER"},
+		{tag:"LAST_SUBGIFT_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_NAME"},
+		{tag:"LAST_SUBGIFT_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_AVATAR"},
+		{tag:"LAST_SUBGIFT_TIER",			type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_TIER"},
+		{tag:"LAST_SUBGIFT_COUNT",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_COUNT"},
+		{tag:"LAST_CHEER_NAME",				type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_CHEER_NAME"},
+		{tag:"LAST_CHEER_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_CHEER_AVATAR"},
+		{tag:"LAST_CHEER_AMOUNT",			type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_CHEER_AMOUNT"},
+		{tag:"FOLLOWER_COUNT",				type:"number",	descriptionKey:"overlay.labels.placeholders.FOLLOWER_COUNT"},
+		{tag:"LAST_FOLLOWER_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_NAME"},
+		{tag:"LAST_FOLLOWER_AVATAR",		type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_AVATAR"},
+		{tag:"LAST_REWARD_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_NAME"},
+		{tag:"LAST_REWARD_TITLE",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_REWARD_TITLE"},
+		{tag:"LAST_REWARD_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_AVATAR"},
+	]
 
 	/**
 	 * Defines the pinnable menu items

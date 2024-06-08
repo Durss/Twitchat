@@ -1633,6 +1633,27 @@ import Ajv from "ajv";
 				}
 			}
 		},
+		overlayLabels: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				labelList: {
+					type:"array",
+					minItems:0,
+					maxItems:20,
+					items:{
+						type:"object",
+						additionalProperties: false,
+						properties: {
+							id: {type:"string", maxLength:40},
+							enabled: {type:"boolean"},
+							title: {type:"string", maxLength:40},
+							value: {type:"string", maxLength:10000},
+						}
+					},
+				}
+			}
+		},
 	}
 }
 

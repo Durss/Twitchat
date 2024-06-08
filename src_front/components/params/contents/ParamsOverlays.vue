@@ -44,7 +44,7 @@
 			<button class="item" @click="subContent = 'distort'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_distort'}"><img src="@/assets/img/overlays/interractive_distortions.jpg"></button>
 			<button class="item" @click="subContent = 'adbreak'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_adbreak'}"><img src="@/assets/img/overlays/ad_break.jpg"></button>
 			<button class="item" @click="subContent = 'chathighlight'"><img src="@/assets/img/overlays/highlights.jpg"></button>
-			<!-- <button class="item" @click="subContent = 'labels'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'params_overlays_labels'}"><img src="@/assets/img/overlays/labels.jpg"></button> -->
+			<button class="item" @click="subContent = 'labels'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'params_overlays_labels'}"><img src="@/assets/img/overlays/labels.jpg"></button>
 			<button class="item" @click="subContent = 'counter'"><img src="@/assets/img/overlays/counters.jpg"></button>
 			<button class="item" @click="subContent = 'timer'"><img src="@/assets/img/overlays/timer.jpg"></button>
 			<button class="item" @click="subContent = 'ulule'"><img src="@/assets/img/overlays/ulule.jpg"></button>

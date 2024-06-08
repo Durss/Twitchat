@@ -465,7 +465,7 @@ export interface IBingoGridActions {
 	 * @param cellId [optional] cell ID that's been clicked
 	 * @param broadcastViewers [optional] tells the viewers the grid got edited. Don't set this "true" when only ticking a cell
 	 */
-	saveData(gridId:string, cellId?:string, broadcastViewers?:boolean):Promise<void>
+	saveData(gridId?:string, cellId?:string, broadcastViewers?:boolean):Promise<void>
 	/**
 	 * Inverse the check state of the given cell ID.
 	 * @param gridId
@@ -2692,6 +2692,7 @@ export interface IPublicActions {
 
 export interface ILabelsState {
 	labelList:TwitchatDataTypes.LabelItemData[];
+	placeholders:TwitchatDataTypes.LabelItemPlaceholder[];
 }
 
 export interface ILabelsGetters {
@@ -2702,4 +2703,18 @@ export interface ILabelsActions {
 	 * Populates data from storage
 	 */
 	populateData():Promise<void>;
+	/**
+	 * Add a new label
+	 */
+	addLabel():void;
+	/**
+	 * Remove a new label
+	 */
+	removeLabel(labelId:string):void;
+	/**
+	 * Saves data to storage
+	 * If given labelId the update propagates to related overlays
+	 * @param labelId 
+	 */
+	saveData(labelId?:string):void
 }

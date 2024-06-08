@@ -45,8 +45,8 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				const data = JSON.parse(json) as IStoreData;
 				this.gridList = data.gridList || [];
 
+				//Adding new prop. Can be removed after beta ends
 				this.gridList.forEach(grid => {
-					//Adding new prop. Can be removed after beta ends
 					if(!grid.chatCmdPermissions) {
 						grid.chatCmdPermissions = {
 							all:false,
@@ -258,6 +258,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			StoreProxy.main.confirm(t("bingo_grid.form.delete_confirm.title"), t("bingo_grid.form.delete_confirm.description"))
 			.then(()=>{
 				this.gridList = this.gridList.filter(g => g.id !== id);
+				this.saveData();
 			}).catch(()=>{})
 		},
 
@@ -361,190 +362,190 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			this.saveData(id);
 		},
 
-		async saveData(gridId:string, cellId?:string, broadcastToViewers:boolean = false):Promise<void> {
+		async saveData(gridId?:string, cellId?:string, broadcastToViewers:boolean = false):Promise<void> {
 			if(++saveCountPending != 20) clearTimeout(debounceSave);
 			debounceSave = setTimeout(() => {
 				saveCountPending = 0;
 				const grid = this.gridList.find(g => g.id === gridId);
-				if(!grid) return;
-
-				grid.cols = Math.min(10, Math.max(2, grid.cols))
-				grid.rows = Math.min(10, Math.max(2, grid.rows))
-
-				const count = grid.cols*grid.rows;
-				//TODO
-				// if(count < grid.entries.length) {
-				// 	try {
-				// 		await StoreProxy.main.confirm("Reduce?", "You'll lose entries!");
-				// 	}catch(error){
-				// 		return;
-				// 	}
-				// }
-				//Remove useless items
-				grid.entries = grid.entries.splice(0, count);
-
-				//Add missing items
-				while(grid.entries.length < count) {
-					grid.entries.push({
-						id:Utils.getUUID(),
-						label:"",
-						lock:false,
-						check:false,
-					})
-				}
-
-				//Replace all spaces (but line breaks) with a normal space.
-				//Necessary because contenteditable sometimes adds non-breakable
-				//spaces in place of normal spaces.
-				grid.entries.forEach(entry => {
-					entry.label = entry.label.replace(/[^\S\r\n]/g, " ");
-				});
-
-				//Check for new bingos
-				const newStates = grid.entries.map(v=>v.check);
-				const prevStates = prevGridStates[grid.id];
-				let newVerticalBingos:number[] = [];
-				let newHorizontalBingos:number[] = [];
-				let newDiagonalBingos:number[] = [];
-				if(prevStates) {
-					let prevVerticalBingos:number[] = [];
-					let prevHorizontalBingos:number[] = [];
-					let prevDiagonalBingos:number[] = [];
-					//Checking for vertical bingos
-					for (let x = 0; x < grid.cols; x++) {
-						let allTicked = true;
-						for (let y = 0; y < grid.rows; y++) {
-							allTicked &&= newStates[x + y*grid.cols];
-						}
-						if(allTicked) newVerticalBingos.push(x);
-					}
-					for (let x = 0; x < grid.cols; x++) {
-						let allTicked = true;
-						for (let y = 0; y < grid.rows; y++) {
-							allTicked &&= prevStates[x + y*grid.cols];
-						}
-						if(allTicked) prevVerticalBingos.push(x);
-					}
-					//Checking for horizontal bingos
-					for (let y = 0; y < grid.rows; y++) {
-						let allTicked = true;
-						for (let x = 0; x < grid.cols; x++) {
-							allTicked &&= newStates[x + y*grid.cols];
-						}
-						if(allTicked) newHorizontalBingos.push(y);
-					}
-					for (let y = 0; y < grid.rows; y++) {
-						let allTicked = true;
-						for (let x = 0; x < grid.cols; x++) {
-							allTicked &&= prevStates[x + y*grid.cols];
-						}
-						if(allTicked) prevHorizontalBingos.push(y);
-					}
-
-					//Checking for diagonal bingos
-					if(grid.cols == grid.rows) {
-						//Top left to bottom right
-						let allTicked = true;
-						for (let x = 0; x < grid.cols; x++) {
-							allTicked &&= newStates[x + x*grid.cols];
-						}
-						if(allTicked) newDiagonalBingos.push(0);
-						allTicked = true;
-						for (let x = 0; x < grid.cols; x++) {
-							allTicked &&= newStates[x + (grid.cols - 1 - x)*grid.cols];
-						}
-						if(allTicked) newDiagonalBingos.push(1);
-
-						//Bottom left to top right
-						allTicked = true;
-						for (let x = 0; x < grid.cols; x++) {
-							allTicked &&= prevStates[x + x*grid.cols];
-						}
-						if(allTicked) prevDiagonalBingos.push(0);
-						allTicked = true;
-						for (let x = 0; x < grid.cols; x++) {
-							allTicked &&= prevStates[x + (grid.cols - 1 - x)*grid.cols];
-						}
-						if(allTicked) prevDiagonalBingos.push(1);
-					}
-
-					newVerticalBingos = newVerticalBingos.filter(index => prevVerticalBingos.indexOf(index) == -1);
-					newHorizontalBingos = newHorizontalBingos.filter(index => prevHorizontalBingos.indexOf(index) == -1);
-					newDiagonalBingos = newDiagonalBingos.filter(index => prevDiagonalBingos.indexOf(index) == -1);
-
-					const buildMessage = ():TwitchatDataTypes.MessageBingoGridData => {
-						let x = -1;
-						let y = -1;
-						if(cellId) {
-							const index = grid.entries.findIndex(e => e.id == cellId);
-							x = index%grid.cols;
-							y = Math.floor(index/grid.cols);
-						}
-						return {
+				if(gridId && grid) {
+					grid.cols = Math.min(10, Math.max(2, grid.cols))
+					grid.rows = Math.min(10, Math.max(2, grid.rows))
+	
+					const count = grid.cols*grid.rows;
+					//TODO
+					// if(count < grid.entries.length) {
+					// 	try {
+					// 		await StoreProxy.main.confirm("Reduce?", "You'll lose entries!");
+					// 	}catch(error){
+					// 		return;
+					// 	}
+					// }
+					//Remove useless items
+					grid.entries = grid.entries.splice(0, count);
+	
+					//Add missing items
+					while(grid.entries.length < count) {
+						grid.entries.push({
 							id:Utils.getUUID(),
-							date:Date.now(),
-							type:TwitchatDataTypes.TwitchatMessageType.BINGO_GRID,
-							platform:"twitchat",
-							bingoGridId:grid.id,
-							bingoGridName:grid.title,
-							channel_id:StoreProxy.auth.twitch.user.id,
-							colIndex:-1,
-							rowIndex:-1,
-							diagonal:-1,
-							coords:{x,y},
-							complete:false,
-							reset:false,
+							label:"",
+							lock:false,
+							check:false,
+						})
+					}
+	
+					//Replace all spaces (but line breaks) with a normal space.
+					//Necessary because contenteditable sometimes adds non-breakable
+					//spaces in place of normal spaces.
+					grid.entries.forEach(entry => {
+						entry.label = entry.label.replace(/[^\S\r\n]/g, " ");
+					});
+	
+					//Check for new bingos
+					const newStates = grid.entries.map(v=>v.check);
+					const prevStates = prevGridStates[grid.id];
+					let newVerticalBingos:number[] = [];
+					let newHorizontalBingos:number[] = [];
+					let newDiagonalBingos:number[] = [];
+					if(prevStates) {
+						let prevVerticalBingos:number[] = [];
+						let prevHorizontalBingos:number[] = [];
+						let prevDiagonalBingos:number[] = [];
+						//Checking for vertical bingos
+						for (let x = 0; x < grid.cols; x++) {
+							let allTicked = true;
+							for (let y = 0; y < grid.rows; y++) {
+								allTicked &&= newStates[x + y*grid.cols];
+							}
+							if(allTicked) newVerticalBingos.push(x);
 						}
+						for (let x = 0; x < grid.cols; x++) {
+							let allTicked = true;
+							for (let y = 0; y < grid.rows; y++) {
+								allTicked &&= prevStates[x + y*grid.cols];
+							}
+							if(allTicked) prevVerticalBingos.push(x);
+						}
+						//Checking for horizontal bingos
+						for (let y = 0; y < grid.rows; y++) {
+							let allTicked = true;
+							for (let x = 0; x < grid.cols; x++) {
+								allTicked &&= newStates[x + y*grid.cols];
+							}
+							if(allTicked) newHorizontalBingos.push(y);
+						}
+						for (let y = 0; y < grid.rows; y++) {
+							let allTicked = true;
+							for (let x = 0; x < grid.cols; x++) {
+								allTicked &&= prevStates[x + y*grid.cols];
+							}
+							if(allTicked) prevHorizontalBingos.push(y);
+						}
+	
+						//Checking for diagonal bingos
+						if(grid.cols == grid.rows) {
+							//Top left to bottom right
+							let allTicked = true;
+							for (let x = 0; x < grid.cols; x++) {
+								allTicked &&= newStates[x + x*grid.cols];
+							}
+							if(allTicked) newDiagonalBingos.push(0);
+							allTicked = true;
+							for (let x = 0; x < grid.cols; x++) {
+								allTicked &&= newStates[x + (grid.cols - 1 - x)*grid.cols];
+							}
+							if(allTicked) newDiagonalBingos.push(1);
+	
+							//Bottom left to top right
+							allTicked = true;
+							for (let x = 0; x < grid.cols; x++) {
+								allTicked &&= prevStates[x + x*grid.cols];
+							}
+							if(allTicked) prevDiagonalBingos.push(0);
+							allTicked = true;
+							for (let x = 0; x < grid.cols; x++) {
+								allTicked &&= prevStates[x + (grid.cols - 1 - x)*grid.cols];
+							}
+							if(allTicked) prevDiagonalBingos.push(1);
+						}
+	
+						newVerticalBingos = newVerticalBingos.filter(index => prevVerticalBingos.indexOf(index) == -1);
+						newHorizontalBingos = newHorizontalBingos.filter(index => prevHorizontalBingos.indexOf(index) == -1);
+						newDiagonalBingos = newDiagonalBingos.filter(index => prevDiagonalBingos.indexOf(index) == -1);
+	
+						const buildMessage = ():TwitchatDataTypes.MessageBingoGridData => {
+							let x = -1;
+							let y = -1;
+							if(cellId) {
+								const index = grid.entries.findIndex(e => e.id == cellId);
+								x = index%grid.cols;
+								y = Math.floor(index/grid.cols);
+							}
+							return {
+								id:Utils.getUUID(),
+								date:Date.now(),
+								type:TwitchatDataTypes.TwitchatMessageType.BINGO_GRID,
+								platform:"twitchat",
+								bingoGridId:grid.id,
+								bingoGridName:grid.title,
+								channel_id:StoreProxy.auth.twitch.user.id,
+								colIndex:-1,
+								rowIndex:-1,
+								diagonal:-1,
+								coords:{x,y},
+								complete:false,
+								reset:false,
+							}
+						}
+						newVerticalBingos.forEach(index => {
+							const message = buildMessage();
+							message.col = index;
+							StoreProxy.chat.addMessage(message);
+						});
+						newHorizontalBingos.forEach(index => {
+							const message = buildMessage();
+							message.rowIndex = index;
+							StoreProxy.chat.addMessage(message);
+						});
+						newDiagonalBingos.forEach(index => {
+							const message = buildMessage();
+							message.diagonal = index;
+							StoreProxy.chat.addMessage(message);
+						});
+	
+						//All cells ticked?
+						if(grid.entries.filter(v=>v.check === true).length === grid.entries.length) {
+							const message = buildMessage();
+							message.complete = true;
+							StoreProxy.chat.addMessage(message);
+						}
+						PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:gridId, bingo:grid, newVerticalBingos, newHorizontalBingos,  newDiagonalBingos});
 					}
-					newVerticalBingos.forEach(index => {
-						const message = buildMessage();
-						message.col = index;
-						StoreProxy.chat.addMessage(message);
-					});
-					newHorizontalBingos.forEach(index => {
-						const message = buildMessage();
-						message.rowIndex = index;
-						StoreProxy.chat.addMessage(message);
-					});
-					newDiagonalBingos.forEach(index => {
-						const message = buildMessage();
-						message.diagonal = index;
-						StoreProxy.chat.addMessage(message);
-					});
-
-					//All cells ticked?
-					if(grid.entries.filter(v=>v.check === true).length === grid.entries.length) {
-						const message = buildMessage();
-						message.complete = true;
-						StoreProxy.chat.addMessage(message);
+	
+					prevGridStates[grid.id] = newStates;
+	
+					if(!grid.enabled) {
+						this.availableOverlayList = this.availableOverlayList.filter(v => v.id != grid.id);
 					}
-					PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:gridId, bingo:grid, newVerticalBingos, newHorizontalBingos,  newDiagonalBingos});
-				}
 
-				prevGridStates[grid.id] = newStates;
-
-				if(!grid.enabled) {
-					this.availableOverlayList = this.availableOverlayList.filter(v => v.id != grid.id);
+					if(broadcastToViewers) {
+						//Debounce this call as it will fire an event to every connected viewer
+						ApiHelper.call("bingogrid", "PUT", {
+							gridid:grid.id,
+							grid:{
+								cols:grid.cols,
+								rows:grid.rows,
+								title:grid.title,
+								entries:grid.entries,
+								additionalEntries:grid.additionalEntries,
+							}
+						});
+					}
 				}
 
 				const data:IStoreData = {
 					gridList:this.gridList,
 				};
 				DataStore.set(DataStore.BINGO_GRIDS, data);
-
-				if(broadcastToViewers) {
-					//Debounce this call as it will fire an event to every connected viewer
-					ApiHelper.call("bingogrid", "PUT", {
-						gridid:grid.id,
-						grid:{
-							cols:grid.cols,
-							rows:grid.rows,
-							title:grid.title,
-							entries:grid.entries,
-							additionalEntries:grid.additionalEntries,
-						}
-					});
-				}
 			}, 500);
 		},
 
