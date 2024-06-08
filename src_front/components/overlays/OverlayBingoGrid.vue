@@ -271,7 +271,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			}
 		}
 
-		//* DEBUG USER EVENTS
+		/* DEBUG USER EVENTS
 		await Utils.promisedTimeout(1000);
 
 		this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
