@@ -34,7 +34,7 @@ export default class MiddlewareController extends AbstractController {
 			max: 10,
 			ban: 5,
 			global: true,
-			timeWindow: 2000,
+			timeWindow: 1000,
 			addHeaders:{
 				'x-ratelimit-limit': false,
 				'x-ratelimit-remaining': false,
@@ -90,26 +90,26 @@ export default class MiddlewareController extends AbstractController {
 		this.server.addHook('onRequest', (request, response, done) => {
 			const ip = this.getIp(request);
 
+			let staticFile = "";
+
+			//Redirect /overlay/label/ route to extra light dedicated overlay's html page
+			if(/^\/overlay\/label\//gi.test(request.url)) {
+				staticFile = path.join(Config.PUBLIC_ROOT, "overlayLabel.html");
+			}else
+
 			//Redirect /overlay/ route to overlay's html page
 			if(/^\/overlay\//gi.test(request.url)) {
-				const file = path.join(Config.PUBLIC_ROOT, "overlay.html");
-				const stream = fs.createReadStream(file, 'utf8' );
-				const mimetype = mime.lookup(file);
-				if(mimetype == "text/html") {
-					response.header('Content-Type', mimetype+"; charset=utf-8");
-				}else{
-					response.header('Content-Type', mimetype);
-				}
-
-				response.send(stream);
-				return;
-			}
+				staticFile = path.join(Config.PUBLIC_ROOT, "overlay.html");
+			}else
 
 			//Redirect /public/ route to overlay's html page
 			if(/^\/public\//gi.test(request.url)) {
-				const file = path.join(Config.PUBLIC_ROOT, "public.html");
-				const stream = fs.createReadStream(file, 'utf8' );
-				const mimetype = mime.lookup(file);
+				staticFile = path.join(Config.PUBLIC_ROOT, "public.html");
+			}
+
+			if(staticFile) {
+				const stream = fs.createReadStream(staticFile, 'utf8' );
+				const mimetype = mime.lookup(staticFile);
 				if(mimetype == "text/html") {
 					response.header('Content-Type', mimetype+"; charset=utf-8");
 				}else{
