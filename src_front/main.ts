@@ -63,6 +63,7 @@ import VueSelect from "vue-select";
 import 'vue-select/dist/vue-select.css';
 import VueTippy, { setDefaultProps } from "vue-tippy";
 import { storeCommon } from './store/common/storeCommon';
+import { storeLabels } from './store/labels/storeLabels';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -261,6 +262,7 @@ function buildApp() {
 	StoreProxy.default.lumia = storeLumia();
 	StoreProxy.default.tipeee = storeTipeee();
 	StoreProxy.default.common = storeCommon();
+	StoreProxy.default.labels = storeLabels();
 
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach(k => {

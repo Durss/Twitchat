@@ -167,7 +167,6 @@ import TTButton from '../TTButton.vue';
 				pronounsLabel:false,
 				pronounsTooltip:false,
 				channelInfo:{},
-				donor:{state:false, level:0, upgrade:false, noAd:false, earlyDonor:false, isPremiumDonor:false, isPatreonMember:false},
 				is_bot:false,
 			});
 	
@@ -203,7 +202,6 @@ import TTButton from '../TTButton.vue';
 						pronounsLabel:false,
 						pronounsTooltip:false,
 						channelInfo:{},
-						donor:{state:false, level:0, upgrade:false, noAd:false, earlyDonor:false, isPremiumDonor:false, isPatreonMember:false},
 						is_bot:true,
 					},
 					emotes: BTTVUtils.instance.emotes,
@@ -228,7 +226,6 @@ import TTButton from '../TTButton.vue';
 						pronounsLabel:false,
 						pronounsTooltip:false,
 						channelInfo:{},
-						donor:{state:false, level:0, upgrade:false, noAd:false, earlyDonor:false, isPremiumDonor:false, isPatreonMember:false},
 						is_bot:true,
 					},
 					emotes: SevenTVUtils.instance.emotes,
@@ -253,7 +250,6 @@ import TTButton from '../TTButton.vue';
 						pronounsLabel:false,
 						pronounsTooltip:false,
 						channelInfo:{},
-						donor:{state:false, level:0, upgrade:false, noAd:false, earlyDonor:false, isPremiumDonor:false, isPatreonMember:false},
 						is_bot:true,
 					},
 					emotes: FFZUtils.instance.emotes,

@@ -159,6 +159,14 @@ export default class Config {
 	 * Maximum bingo grids for premium users
 	 */
 	public MAX_BINGO_GRIDS_PREMIUM = 50;
+	/**
+	 * Maximum labels
+	 */
+	public MAX_LABELS = 3;
+	/**
+	 * Maximum labels for premium users
+	 */
+	public MAX_LABELS_PREMIUM = 50;
 
 	private _serverConfig!:ServerConfig;
 

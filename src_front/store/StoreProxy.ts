@@ -61,6 +61,7 @@ export default class StoreProxy {
 	public static lumia:ILumiaState & ILumiaGetters & ILumiaActions & {$state:ILumiaState, $reset:()=>void};
 	public static tipeee:ITipeeeState & ITipeeeGetters & ITipeeeActions & {$state:ITipeeeState, $reset:()=>void};
 	public static common:ICommonState & ICommonGetters & ICommonActions & {$state:ICommonState, $reset:()=>void};
+	public static labels:ILabelsState & ILabelsGetters & ILabelsActions & {$state:ILabelsState, $reset:()=>void};
 	public static public:IPublicState & IPublicGetters & IPublicActions & {$state:IPublicState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
@@ -2683,4 +2684,22 @@ export interface IPublicActions {
 	 * Reload all labels (use CTRL+Alt+M)
 	 */
 	reloadLabels(bypassCache?:boolean):Promise<void>;
+}
+
+
+
+
+
+export interface ILabelsState {
+	labelList:TwitchatDataTypes.LabelItemData[];
+}
+
+export interface ILabelsGetters {
+}
+
+export interface ILabelsActions {
+	/**
+	 * Populates data from storage
+	 */
+	populateData():Promise<void>;
 }

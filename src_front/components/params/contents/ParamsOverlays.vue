@@ -44,6 +44,7 @@
 			<button class="item" @click="subContent = 'distort'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_distort'}"><img src="@/assets/img/overlays/interractive_distortions.jpg"></button>
 			<button class="item" @click="subContent = 'adbreak'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_adbreak'}"><img src="@/assets/img/overlays/ad_break.jpg"></button>
 			<button class="item" @click="subContent = 'chathighlight'"><img src="@/assets/img/overlays/highlights.jpg"></button>
+			<!-- <button class="item" @click="subContent = 'labels'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'params_overlays_labels'}"><img src="@/assets/img/overlays/labels.jpg"></button> -->
 			<button class="item" @click="subContent = 'counter'"><img src="@/assets/img/overlays/counters.jpg"></button>
 			<button class="item" @click="subContent = 'timer'"><img src="@/assets/img/overlays/timer.jpg"></button>
 			<button class="item" @click="subContent = 'ulule'"><img src="@/assets/img/overlays/ulule.jpg"></button>
@@ -64,6 +65,7 @@
 			<OverlayParamsPredictions class="block"	:open="subContent == 'predictions'"		v-if="subContent == 'predictions'" />
 			<OverlayParamsPolls class="block"		:open="subContent == 'polls'"			v-if="subContent == 'polls'" />
 			<OverlayParamsBingoGrid class="block"	:open="subContent == 'bingogrid'"		v-if="subContent == 'bingogrid'" />
+			<OverlayParamsLabels class="block"		:open="subContent == 'labels'"		v-if="subContent == 'labels'" />
 		</div>
 	</div>
 </template>
@@ -90,6 +92,7 @@ import OverlayParamsBitswall from './overlays/OverlayParamsBitswall.vue';
 import OverlayParamsPredictions from './overlays/OverlayParamsPredictions.vue';
 import OverlayParamsPolls from './overlays/OverlayParamsPolls.vue';
 import OverlayParamsBingoGrid from './overlays/OverlayParamsBingoGrid.vue';
+import OverlayParamsLabels from './overlays/OverlayParamsLabels.vue';
 
 @Component({
 	components:{
@@ -98,6 +101,7 @@ import OverlayParamsBingoGrid from './overlays/OverlayParamsBingoGrid.vue';
 		OverlayParamsPolls,
 		OverlayParamsUlule,
 		OverlayParamsTimer,
+		OverlayParamsLabels,
 		OverlayParamsRaffle,
 		OverlayParamsAdBreak,
 		OverlayParamsSpotify,

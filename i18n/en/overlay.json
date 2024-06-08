@@ -322,6 +322,9 @@
 		},
 		"bingo_grid":{
 			"head": "Show interactive bingo grids"
+		},
+		"labels":{
+			"head": "Show labels on your stream"
 		}
 	}
 }

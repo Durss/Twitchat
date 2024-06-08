@@ -12,7 +12,7 @@ export namespace TwitchatDataTypes {
 
 	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
 
-	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "bingogrid";
+	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "bingogrid" | "labels";
 
 	export const ParamDeepSections = {
 		AD: "ad",
@@ -1871,6 +1871,15 @@ export namespace TwitchatDataTypes {
 		name:string;
 		message?:string;
 		channelId?:string;
+	}
+
+	/**
+	 * Contains parameters about a label displayed on the
+	 * "Labels" overlay.
+	 */
+	export interface LabelItemData {
+		id:string;
+		html:string;
 	}
 
 	/**

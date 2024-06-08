@@ -93,7 +93,7 @@ export default class MiddlewareController extends AbstractController {
 			let staticFile = "";
 
 			//Redirect /overlay/label/ route to extra light dedicated overlay's html page
-			if(/^\/overlay\/label\//gi.test(request.url)) {
+			if(/^\/overlay\/label/gi.test(request.url)) {
 				staticFile = path.join(Config.PUBLIC_ROOT, "overlayLabel.html");
 			}else
 
