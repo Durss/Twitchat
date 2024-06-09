@@ -83,6 +83,8 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static BINGO_GRID_OVERLAY_PRESENCE:TwitchatEventType = "BINGO_GRID_OVERLAY_PRESENCE";
 	public static BINGO_GRID_HEAT_CLICK:TwitchatEventType = "BINGO_GRID_HEAT_CLICK";
 	public static BINGO_GRID_OVERLAY_VIEWER_EVENT:TwitchatEventType = "BINGO_GRID_OVERLAY_VIEWER_EVENT";
+	public static LABEL_OVERLAY_PARAMS:TwitchatEventType = "LABEL_OVERLAY_PARAMS";
+	public static LABEL_OVERLAY_PLACEHOLDERS:TwitchatEventType = "LABEL_OVERLAY_PLACEHOLDERS";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -159,6 +161,8 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static GET_POLLS_OVERLAY_PRESENCE:TwitchatActionType = "GET_POLLS_OVERLAY_PRESENCE";
 	public static GET_POLLS_OVERLAY_PARAMETERS:TwitchatActionType = "GET_POLLS_OVERLAY_PARAMETERS";
 	public static GET_BINGO_GRID_PARAMETERS:TwitchatActionType = "GET_BINGO_GRID_PARAMETERS";
+	public static GET_LABEL_OVERLAY_PARAMS:TwitchatActionType = "GET_LABEL_OVERLAY_PARAMS";
+	public static GET_LABEL_OVERLAY_PLACEHOLDERS:TwitchatActionType = "GET_LABEL_OVERLAY_PLACEHOLDERS";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:T) {
 		super(type);
@@ -241,6 +245,8 @@ export const TwitchatEventTypeList = [
 	"BINGO_GRID_OVERLAY_PRESENCE",
 	"BINGO_GRID_HEAT_CLICK",
 	"BINGO_GRID_OVERLAY_VIEWER_EVENT",
+	"LABEL_OVERLAY_PARAMS",
+	"LABEL_OVERLAY_PLACEHOLDERS",
 ] as const;
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
 
@@ -319,5 +325,7 @@ export const TwitchatActionTypeList = [
 	"GET_POLLS_OVERLAY_PRESENCE",
 	"GET_POLLS_OVERLAY_PARAMETERS",
 	"GET_BINGO_GRID_PARAMETERS",
+	"GET_LABEL_OVERLAY_PARAMS",
+	"GET_LABEL_OVERLAY_PLACEHOLDERS",
 ] as const;
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

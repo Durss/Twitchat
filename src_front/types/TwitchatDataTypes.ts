@@ -1894,30 +1894,30 @@ export namespace TwitchatDataTypes {
 	 * Contains definition about a LabelItemData placeholder
 	 */
 	export interface LabelItemPlaceholder {
-		tag:string;
+		tag:typeof LabelItemPlaceholderList[number]["tag"];
 		type:"string"|"number"|"image";
 		descriptionKey:string;
 	}
 
-	export const LabelItemPlaceholderList:LabelItemPlaceholder[] = [
-		{tag:"SUB_COUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.SUB_COUNT"},
-		{tag:"LAST_SUB_NAME",				type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_NAME"},
-		{tag:"LAST_SUB_AVATAR",				type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_AVATAR"},
-		{tag:"LAST_SUB_TIER",				type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_TIER"},
-		{tag:"LAST_SUBGIFT_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_NAME"},
-		{tag:"LAST_SUBGIFT_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_AVATAR"},
-		{tag:"LAST_SUBGIFT_TIER",			type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_TIER"},
-		{tag:"LAST_SUBGIFT_COUNT",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_COUNT"},
-		{tag:"LAST_CHEER_NAME",				type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_CHEER_NAME"},
-		{tag:"LAST_CHEER_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_CHEER_AVATAR"},
-		{tag:"LAST_CHEER_AMOUNT",			type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_CHEER_AMOUNT"},
-		{tag:"FOLLOWER_COUNT",				type:"number",	descriptionKey:"overlay.labels.placeholders.FOLLOWER_COUNT"},
-		{tag:"LAST_FOLLOWER_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_NAME"},
-		{tag:"LAST_FOLLOWER_AVATAR",		type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_AVATAR"},
-		{tag:"LAST_REWARD_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_NAME"},
-		{tag:"LAST_REWARD_TITLE",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_REWARD_TITLE"},
-		{tag:"LAST_REWARD_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_AVATAR"},
-	]
+	export const LabelItemPlaceholderList = [
+		{tag:"SUB_COUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.SUB_COUNT"} as const,
+		{tag:"LAST_SUB_NAME",				type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_NAME"} as const,
+		{tag:"LAST_SUB_AVATAR",				type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_AVATAR"} as const,
+		{tag:"LAST_SUB_TIER",				type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_TIER"} as const,
+		{tag:"LAST_SUBGIFT_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_NAME"} as const,
+		{tag:"LAST_SUBGIFT_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_AVATAR"} as const,
+		{tag:"LAST_SUBGIFT_TIER",			type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_TIER"} as const,
+		{tag:"LAST_SUBGIFT_COUNT",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_COUNT"} as const,
+		{tag:"LAST_CHEER_NAME",				type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_CHEER_NAME"} as const,
+		{tag:"LAST_CHEER_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_CHEER_AVATAR"} as const,
+		{tag:"LAST_CHEER_AMOUNT",			type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_CHEER_AMOUNT"} as const,
+		{tag:"FOLLOWER_COUNT",				type:"number",	descriptionKey:"overlay.labels.placeholders.FOLLOWER_COUNT"} as const,
+		{tag:"LAST_FOLLOWER_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_NAME"} as const,
+		{tag:"LAST_FOLLOWER_AVATAR",		type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_AVATAR"} as const,
+		{tag:"LAST_REWARD_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_NAME"} as const,
+		{tag:"LAST_REWARD_TITLE",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_REWARD_TITLE"} as const,
+		{tag:"LAST_REWARD_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_AVATAR"} as const,
+	] as const;
 
 	/**
 	 * Defines the pinnable menu items

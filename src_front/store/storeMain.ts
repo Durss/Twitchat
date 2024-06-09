@@ -70,6 +70,7 @@ export const storeMain = defineStore("main", {
 		chatAlert:null,
 		t4p:"",
 		t4pLastDate:0,
+		iconCache:{},
 	} as IMainState),
 
 
@@ -591,20 +592,6 @@ export const storeMain = defineStore("main", {
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent<{message:string}|undefined>)=> {
 				sChat.isChatMessageHighlighted = e.data != undefined && e.data.message != undefined;
-			});
-
-			/**
-			 * Called when bingo grid overlay request for its configs
-			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_BINGO_GRID_PARAMETERS, (e:TwitchatEvent<{bid:string}>)=> {
-				const bingo = StoreProxy.bingoGrid.gridList.find(v=>v.id == e.data!.bid);
-				if(bingo) {
-					if(!bingo.enabled) return;
-					PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:e.data!.bid, bingo:bingo as unknown as JsonObject, newVerticalBingos:[], newHorizontalBingos:[],  newDiagonalBingos:[]});
-				}else{
-					//Tell the overlay requested bingo couldn't be found
-					PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:e.data!.bid, bingo:null});
-				}
 			});
 
 			/**

@@ -243,6 +243,8 @@ export const storeAuth = defineStore('auth', {
 							const last = res.followers[0];
 							StoreProxy.users.getUserFrom("twitch", uid, last.user_id, last.user_login, last.user_name, (user)=>{
 								this.lastFollower[uid] = user;
+								StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_NAME", user.displayNameOriginal);
+								StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_AVATAR", user.avatarPath || "");
 							});
 						}
 					};
@@ -346,9 +348,9 @@ export const storeAuth = defineStore('auth', {
 
 			//Async loading of followers count to define if user is exempt
 			//from ads or not
-			TwitchUtils.getLastFollowers(this.twitch.user.id).then(res => {
-				this.twitch.user.donor.noAd = res.total < Config.instance.AD_MIN_FOLLOWERS_COUNT;
-			})
+			const followers = await TwitchUtils.getFollowersCount([this.twitch.user.id])
+			this.twitch.user.donor.noAd = followers[this.twitch.user.id] < Config.instance.AD_MIN_FOLLOWERS_COUNT;
+			StoreProxy.labels.updateLabelValue("FOLLOWER_COUNT", followers[this.twitch.user.id]);
 		}
 	} as IAuthActions
 	& ThisType<IAuthActions

@@ -2700,7 +2700,10 @@ export interface IPublicActions {
 
 export interface ILabelsState {
 	labelList:TwitchatDataTypes.LabelItemData[];
-	placeholders:TwitchatDataTypes.LabelItemPlaceholder[];
+	placeholders:Partial<{[key in typeof TwitchatDataTypes.LabelItemPlaceholderList[number]["tag"]]:{
+		value:string|number;
+		placeholder:TwitchatDataTypes.LabelItemPlaceholder
+	}}>;
 }
 
 export interface ILabelsGetters {
@@ -2724,5 +2727,22 @@ export interface ILabelsActions {
 	 * If given labelId the update propagates to related overlays
 	 * @param labelId 
 	 */
-	saveData(labelId?:string):void
+	saveData(labelId?:string):void;
+	/**
+	 * Updates given placeholder's value
+	 * 
+	 * @param key 
+	 * @param value 
+	 */
+	updateLabelValue(key:typeof TwitchatDataTypes.LabelItemPlaceholderList[number]["tag"], value:string|number):Promise<void>;
+	/**
+	 * Updates a numerci label value by adding the given value to it
+	 * @param key 
+	 * @param value 
+	 */
+	incrementLabelValue(key:typeof TwitchatDataTypes.LabelItemPlaceholderList[number]["tag"], value:number):Promise<void>;
+	/**
+	 * Broadcasts placeholders values to the overlays
+	 */
+	broadcastPlaceholders():void;
 }

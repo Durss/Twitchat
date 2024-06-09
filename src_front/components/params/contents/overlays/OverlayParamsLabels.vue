@@ -50,7 +50,7 @@
 						<OverlayInstaller type="label" :sourceSuffix="label.title" :id="label.id" :queryParams="{bid:label.id}" :sourceTransform="{width:300, height:100}" />
 					</div>
 					
-					<ParamItem :paramData="param_labelValue[label.id]" v-model="label.value"></ParamItem>
+					<ParamItem :paramData="param_labelValue[label.id]" v-model="label.value" @change="save(label)"></ParamItem>
 				</div>
 			</ToggleBlock>
 		</VueDraggable>

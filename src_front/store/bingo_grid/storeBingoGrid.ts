@@ -10,6 +10,7 @@ import ApiHelper from '@/utils/ApiHelper';
 import SSEHelper from '@/utils/SSEHelper';
 import SSEEvent from '@/events/SSEEvent';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
+import type { JsonObject } from 'type-fest';
 
 let saveCountPending:number = 0;
 let debounceSave:number = -1;
@@ -77,6 +78,20 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 					prevGridStates[grid.id] = grid.entries.map(v=>v.check);
 				})
 			}
+
+			/**
+			 * Called when bingo grid overlay request for its configs
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.GET_BINGO_GRID_PARAMETERS, (e:TwitchatEvent<{bid:string}>)=> {
+				const bingo = StoreProxy.bingoGrid.gridList.find(v=>v.id == e.data!.bid);
+				if(bingo) {
+					if(!bingo.enabled) return;
+					PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:e.data!.bid, bingo:bingo as unknown as JsonObject, newVerticalBingos:[], newHorizontalBingos:[],  newDiagonalBingos:[]});
+				}else{
+					//Tell the overlay requested bingo couldn't be found
+					PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:e.data!.bid, bingo:null});
+				}
+			});
 
 			/**
 			 * Get notified when a grid overlay exists

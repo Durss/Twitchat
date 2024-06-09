@@ -536,6 +536,8 @@ export default class EventSub {
 			this.lastRecentFollowers = [];
 		}
 
+		StoreProxy.labels.incrementLabelValue("FOLLOWER_COUNT", 1);
+
 		StoreProxy.chat.addMessage(message);
 	}
 
