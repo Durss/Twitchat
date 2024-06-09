@@ -246,6 +246,7 @@ export const storeAuth = defineStore('auth', {
 								StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_NAME", user.displayNameOriginal);
 								StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_AVATAR", user.avatarPath || "");
 							});
+							StoreProxy.labels.updateLabelValue("FOLLOWER_COUNT", res.total);
 						}
 					};
 					loadFollowers();

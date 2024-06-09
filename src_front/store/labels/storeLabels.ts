@@ -1,5 +1,5 @@
 import TwitchatEvent from '@/events/TwitchatEvent';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { LabelItemPlaceholderList, type LabelItemData } from '@/types/ILabelOverlayData';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
@@ -33,7 +33,7 @@ export const storeLabels = defineStore('labels', {
 
 	actions: {
 		async populateData():Promise<void> {
-			TwitchatDataTypes.LabelItemPlaceholderList.forEach(p => {
+			LabelItemPlaceholderList.forEach(p => {
 				this.placeholders[p.tag] = {
 					value: p.type == "number"? 0 : "",
 					placeholder:p,
@@ -89,7 +89,7 @@ export const storeLabels = defineStore('labels', {
 			DataStore.set(DataStore.OVERLAY_LABELS, data);
 		},
 
-		async updateLabelValue(key:typeof TwitchatDataTypes.LabelItemPlaceholderList[number]["tag"], value:string|number):Promise<void> {
+		async updateLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:string|number):Promise<void> {
 			if(!ready) {
 				//Store not yet ready, wiat for it to be ready
 				await readyPromise;
@@ -98,7 +98,7 @@ export const storeLabels = defineStore('labels', {
 			this.broadcastPlaceholders();
 		},
 
-		async incrementLabelValue(key:typeof TwitchatDataTypes.LabelItemPlaceholderList[number]["tag"], value:number):Promise<void> {
+		async incrementLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:number):Promise<void> {
 			if(!ready) {
 				//Store not yet ready, wiat for it to be ready
 				await readyPromise;
@@ -130,5 +130,5 @@ export const storeLabels = defineStore('labels', {
 })
 
 interface IStoreData {
-	labelList:TwitchatDataTypes.LabelItemData[];
+	labelList:LabelItemData[];
 }

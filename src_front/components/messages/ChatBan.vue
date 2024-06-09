@@ -1,8 +1,8 @@
 <template>
-	<div class="chatban chatMessage highlight alert">
+	<div :class="classes">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
-		<Icon name="timeout" class="icon" v-if="messageData.duration_s" theme="light" />
+		<Icon name="timeout" class="icon" v-if="messageData.duration_s" />
 		<Icon name="ban" class="icon" v-else theme="light" />
 		
 		<div class="content">
@@ -47,7 +47,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 	},
 	emits:["onRead"]
 })
- class ChatBan extends AbstractChatMessage {
+class ChatBan extends AbstractChatMessage {
 	
 	@Prop	
 	declare messageData:TwitchatDataTypes.MessageBanData;
@@ -57,6 +57,14 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 	public get formatedBanDuration():string{
 		return Utils.formatDuration(this.messageData.duration_s!*1000);
+	}
+
+	public get classes():string[] {
+		let res:string[] = ["chatban","chatMessage","highlight"];
+		if(this.messageData.duration_s) res.push("timeout");
+		else
+		res.push("alert");
+		return res;
 	}
 
 	public mounted():void {
@@ -104,6 +112,14 @@ export default toNative(ChatBan);
 		.textContent {
 			align-self: flex-start;
 			flex-grow: 1;
+		}
+	}
+
+	&.timeout {
+		background-color: var(--color-secondary-fader);
+		color: var(--color-text);
+		a {
+			color: var(--color-text);
 		}
 	}
 }

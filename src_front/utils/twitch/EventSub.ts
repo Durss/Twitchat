@@ -1,12 +1,12 @@
 import StoreProxy from "@/store/StoreProxy";
-import { TwitchEventSubDataTypes } from "@/types/twitch/TwitchEventSubDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { TwitchEventSubDataTypes } from "@/types/twitch/TwitchEventSubDataTypes";
 import { LoremIpsum } from "lorem-ipsum";
 import Config from "../Config";
+import Logger from "../Logger";
 import Utils from "../Utils";
 import { TwitchScopes } from "./TwitchScopes";
 import TwitchUtils from "./TwitchUtils";
-import Logger from "../Logger";
 
 /**
 * Created : 02/12/2022
@@ -535,8 +535,6 @@ export default class EventSub {
 			}
 			this.lastRecentFollowers = [];
 		}
-
-		StoreProxy.labels.incrementLabelValue("FOLLOWER_COUNT", 1);
 
 		StoreProxy.chat.addMessage(message);
 	}

@@ -333,7 +333,34 @@
 				"title":"Delete?",
 				"description":"This action cannot be undone"
 			},
-			"param_labelValue":"Text"
+			"param_customText":"Custom text (supports HTML)",
+			"param_labelValue":"Value to display",
+			"placeholders":{
+				"SUB_COUNT":"Total subscribers",
+				"LAST_SUB_NAME":"Last subscriber name",
+				"LAST_SUB_AVATAR":"Last subscriber avatar",
+				"LAST_SUB_TIER":"Last sub tier",
+				"LAST_SUBGIFT_NAME":"Last subgifter name",
+				"LAST_SUBGIFT_AVATAR":"Last subgifter avatar",
+				"LAST_SUBGIFT_TIER":"Last subgift tier",
+				"LAST_SUBGIFT_COUNT":"Last subgift count",
+				"LAST_CHEER_NAME":"Last cheerer name",
+				"LAST_CHEER_AVATAR":"Last cheerer avatar",
+				"LAST_CHEER_AMOUNT":"Last cheer amount",
+				"FOLLOWER_COUNT":"Followers count",
+				"LAST_FOLLOWER_NAME":"Last follower name",
+				"LAST_FOLLOWER_AVATAR":"Last follower avatar",
+				"LAST_REWARD_NAME":"Last reward redeem user name",
+				"LAST_REWARD_AVATAR":"Last reward redeem user avatar",
+				"LAST_REWARD_TITLE":"Last reward redeem title",
+				"LAST_REWARD_ICON":"Last reward redeem icon",
+				"LAST_RAID_NAME":"Last raider name",
+				"LAST_RAID_AVATAR":"Last raider avatar",
+				"LAST_RAID_COUNT":"Last raiders count",
+				"LAST_WATCH_STREAK_NAME":"Last watch streak user name",
+				"LAST_WATCH_STREAK_AVATAR":"Last watch streak user avatar",
+				"LAST_WATCH_STREAK_COUNT":"Last watch streak count"
+			}
 		}
 	}
 }

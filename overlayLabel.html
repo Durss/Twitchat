@@ -4,12 +4,35 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Twitchat labels</title>
+	<style>
+		body {
+			padding: 0;
+			margin: 0;
+		}
+		#error{
+			display: none;
+			background-color: var(--color-alert);
+			border-radius: var(--border-radius);
+			width: 100vw;
+			height: 100vh;
+			position: absolute;
+			top: 0;
+			left: 0;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			color: #ffffff;
+			font-weight: bold;
+			font-size: 8vw;
+		}
+	</style>
 </head>
 	<noscript>
 		<strong>We're sorry but Twitchat cannot work without JavaScript enabled. Please enable it to continue.</strong>
 	</noscript>
 
 	<div id="app"></div>
+	<div id="error" id="NOT_FOUND">LABEL NOT FOUND</div>
 
 	<script type="module" src="/src_front/overlayLabel.ts"></script>
 </body>

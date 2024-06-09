@@ -79,17 +79,17 @@
 		<Splitter>Switch buttons</Splitter>
 
 		<div class="card-item section switches">
-			<SwitchButton label1="Big"				label2="Big" big />
-			<SwitchButton label1="Big secondary"	label2="Big secondary" big secondary />
-			<SwitchButton label1="Big alert"		label2="Big alert" big alert />
+			<SwitchButton :labels="['Big', 'Big']" big />
+			<SwitchButton :labels="['Big secondary', 'Big secondary']" big secondary />
+			<SwitchButton :labels="['Big alert', 'Big alert']" big alert />
 
-			<SwitchButton label1="Normal"			label2="Normal" />
-			<SwitchButton label1="Secondary"		label2="Secondary" secondary />
-			<SwitchButton label1="Alert"			label2="Alert" alert />
+			<SwitchButton :labels="['Normal', 'Normal']" />
+			<SwitchButton :labels="['Secondary', 'Secondary']" secondary />
+			<SwitchButton :labels="['Alert', 'Alert']" alert />
 
-			<SwitchButton label1="Small"			label2="Small" small />
-			<SwitchButton label1="Small secondary"	label2="Small secondary" small secondary />
-			<SwitchButton label1="Small alert"		label2="Small alert" small alert />
+			<SwitchButton :labels="['Small', 'Small']" small />
+			<SwitchButton :labels="['Small secondary', 'Small secondary']" small secondary />
+			<SwitchButton :labels="['Small alert', 'Small alert']" small alert />
 		</div>
 
 		<Splitter>Toggle buttons</Splitter>

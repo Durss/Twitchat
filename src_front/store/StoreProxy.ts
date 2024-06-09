@@ -1,6 +1,7 @@
 import type HeatEvent from "@/events/HeatEvent";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import type { HeatScreen } from "@/types/HeatDataTypes";
+import type { LabelItemData, LabelItemPlaceholder, LabelItemPlaceholderList } from "@/types/ILabelOverlayData";
 import type { TriggerActionCountDataAction, TriggerActionTypes, TriggerData, TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/types/spotify/SpotifyDataTypes";
@@ -13,9 +14,9 @@ import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 import type { YoutubeScopesString } from "@/utils/youtube/YoutubeScopes";
 import type { Composer, VueI18n } from "vue-i18n";
 import type { Router } from "vue-router";
+import type { LumiaVoiceList } from "./lumia/storeLumia";
 import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
-import type { LumiaVoiceList } from "./lumia/storeLumia";
 
 /**
 * Created : 23/09/2022
@@ -2699,10 +2700,10 @@ export interface IPublicActions {
 
 
 export interface ILabelsState {
-	labelList:TwitchatDataTypes.LabelItemData[];
-	placeholders:Partial<{[key in typeof TwitchatDataTypes.LabelItemPlaceholderList[number]["tag"]]:{
+	labelList:LabelItemData[];
+	placeholders:Partial<{[key in typeof LabelItemPlaceholderList[number]["tag"]]:{
 		value:string|number;
-		placeholder:TwitchatDataTypes.LabelItemPlaceholder
+		placeholder:LabelItemPlaceholder
 	}}>;
 }
 
@@ -2734,13 +2735,13 @@ export interface ILabelsActions {
 	 * @param key 
 	 * @param value 
 	 */
-	updateLabelValue(key:typeof TwitchatDataTypes.LabelItemPlaceholderList[number]["tag"], value:string|number):Promise<void>;
+	updateLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:string|number):Promise<void>;
 	/**
 	 * Updates a numerci label value by adding the given value to it
 	 * @param key 
 	 * @param value 
 	 */
-	incrementLabelValue(key:typeof TwitchatDataTypes.LabelItemPlaceholderList[number]["tag"], value:number):Promise<void>;
+	incrementLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:number):Promise<void>;
 	/**
 	 * Broadcasts placeholders values to the overlays
 	 */

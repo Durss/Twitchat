@@ -1,9 +1,10 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
 import Config from "../utils/Config";
+import Logger from "../utils/Logger";
+import TwitchUtils from "../utils/TwitchUtils";
 import AbstractController from "./AbstractController";
 import SSEController, { SSECode as SSETopic } from "./SSEController";
-import TwitchUtils from "../utils/TwitchUtils";
 
 /**
 * Created : 01/06/2024 
@@ -97,7 +98,12 @@ export default class BingoGridController extends AbstractController {
 			}
 		}else{
 			//user not authenticated, shuffle entries
-			this.shuffleGridEntries(data);
+			try {
+				this.shuffleGridEntries(data);
+			}catch(error) {
+				Logger.error("CRASH");
+				console.log(error);
+			}
 		}
 
 		response.header('Content-Type', 'application/json');
@@ -163,7 +169,6 @@ export default class BingoGridController extends AbstractController {
 	
 		const body:any = request.body;
 		const gridid:string = body.gridid;
-		const grid:IGridCacheData["data"] = body.grid;
 		if(!this.viewerGridStates[gridid]) this.viewerGridStates[gridid] = {};
 		const uids = Object.keys(this.viewerGridStates[gridid]);
 		uids.forEach(uid => {
@@ -356,6 +361,7 @@ export default class BingoGridController extends AbstractController {
 		}
 
 		await this.setTickStates(uid, gridId, states);
+		console.log("SEND STATES", grid.ownerName);
 		SSEController.sendToUser(uid, SSETopic.BINGO_GRID_MODERATOR_TICK, {gridId:gridId, uid:user.user_id, states});
 
 		response.header('Content-Type', 'application/json');
@@ -368,7 +374,7 @@ export default class BingoGridController extends AbstractController {
 	 * @param grid 
 	 */
 	private shuffleGridEntries(grid:IGridCacheData["data"]):void {
-		if(grid.additionalEntries) {
+		if(grid.additionalEntries && grid.additionalEntries.length > 0) {
 			//Randomly switch main entries with additional entries
 			for (let i = 0; i < grid.entries.length; i++) {
 				const entry = grid.entries[i];
@@ -378,7 +384,6 @@ export default class BingoGridController extends AbstractController {
 					const index = Math.floor(Math.random() * grid.additionalEntries.length);
 					grid.entries.splice(i, 1, grid.additionalEntries[index]);
 					grid.additionalEntries[index] = entry;
-					// entry.check = false;
 				}
 			}
 		}

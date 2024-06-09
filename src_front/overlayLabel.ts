@@ -8,25 +8,24 @@
 import OBSWebSocket from 'obs-websocket-js';
 import type { JsonObject } from 'type-fest';
 import TwitchatEvent, { type TwitchatActionType, type TwitchatEventType } from './events/TwitchatEvent';
+import type { LabelItemData, LabelItemPlaceholder } from './types/ILabelOverlayData';
+import '@/less/index.less';
 
+
+const urlParams = new URLSearchParams(document.location.search);
+let error = false;
 let connected = false;
 let messageIdsDone:{[key:string]:boolean} = {};
 let broadcastChannelTunnel!:BroadcastChannel;
 let obsConnected = false;
 let reconnectTimeout = -1;
 let obsSocket!:OBSWebSocket;
-let parameters:{
-	id:string;
-	title:string;
-	enabled:boolean;
-	value:string;
-} | null = null;
+let parameters:LabelItemData | null = null;
 let placeholders:{[key:string]:{
 	tag:string;
 	type:"string"|"number"|"image";
 	value:string|number;
 }} = {};
-const urlParams = new URLSearchParams(document.location.search);
 
 interface IEnvelope<T = undefined> {
 	origin:"twitchat";
@@ -152,11 +151,9 @@ function requestInitialInfo():void {
  */
 function parsePlaceholders(src:string):string {
 	for (const tag in placeholders) {
-		if (Object.prototype.hasOwnProperty.call(placeholders, tag)) {
-			const placeholder = placeholders[tag];
-			const tagSafe = tag.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-			src = src.replace(new RegExp("\\{"+tagSafe+"\\}", "gi"), placeholder.value.toString() ?? "");
-		}
+		const placeholder = placeholders[tag];
+		const tagSafe = tag.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+		src = src.replace(new RegExp("\\{"+tagSafe+"\\}", "gi"), placeholder.value.toString() ?? "");
 	}
 	return src;
 }
@@ -178,7 +175,7 @@ function onMessage(message:IEnvelope<unknown>):void {
 	}else
 
 	if(message.type == TwitchatEvent.LABEL_OVERLAY_PLACEHOLDERS) {
-		const data = message.data as {[key:string]:{value:number|string, placeholder:{tag:string, type:"string"|"number"|"image", descriptionKey:string}}}
+		const data = message.data as {[key:string]:{value:number|string, placeholder:LabelItemPlaceholder}}
 		for (const tag in data) {
 			placeholders[tag] = {
 				tag,
@@ -191,7 +188,11 @@ function onMessage(message:IEnvelope<unknown>):void {
 
 	if(message.type == TwitchatEvent.LABEL_OVERLAY_PARAMS) {
 		parameters = message.data as typeof parameters;
-		renderValue();
+		if(!parameters) {
+			document.getElementById("error")!.style.display = "flex";
+		}else{
+			renderValue();
+		}
 	}
 	
 	console.log(message.type, "::", message.data);
@@ -199,7 +200,7 @@ function onMessage(message:IEnvelope<unknown>):void {
 
 function renderValue():void {
 	if(!parameters || Object.keys(placeholders).length === 0) return;
-	document.getElementById("app")!.innerHTML = parameters.value? parsePlaceholders(parameters.value) : "REQUESTED VALUE DOESN'T EXIST";
+	document.getElementById("app")!.innerHTML = parsePlaceholders(parameters.value || "");
 }
 
 

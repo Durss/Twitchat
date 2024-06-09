@@ -283,10 +283,8 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 
 			this.resetCheckStates(id, undefined, false);
 
-			grid.entries.forEach(v => v.check = false );
-			if(grid.additionalEntries) {
-				grid.additionalEntries.forEach(v => v.check = false );
-				//Randomly switch main entries with additional entries
+			//Randomly switch main entries with additional entries
+			if(grid.additionalEntries && grid.additionalEntries.length > 0) {
 				for (let i = 0; i < grid.entries.length; i++) {
 					const entry = grid.entries[i];
 					//Don't switch locked cells

@@ -801,11 +801,9 @@ export const storeChat = defineStore('chat', {
 			}
 
 			//Check if it's a greetable message
-			let isTodaysFirst = false;
 			if(TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(message.type)) {
 				const greetable = message as TwitchatDataTypes.GreetableMessage;
 				this.flagMessageAsFirstToday(greetable);
-				isTodaysFirst = greetable.todayFirst === true;
 			}
 
 			//Live translation if first message ever on the channel
@@ -1101,12 +1099,19 @@ export const storeChat = defineStore('chat', {
 						},
 					} as JsonObject;
 					PublicAPI.instance.broadcast(TwitchatEvent.REWARD_REDEEM, wsMessage);
+					StoreProxy.labels.updateLabelValue("LAST_REWARD_NAME", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("LAST_REWARD_AVATAR", message.user.avatarPath || "");
+					StoreProxy.labels.updateLabelValue("LAST_REWARD_ICON", message.reward.icon.hd || message.reward.icon.sd);
+					StoreProxy.labels.updateLabelValue("LAST_REWARD_TITLE", message.reward.title);
 					break;
 				}
 
 				//Incomming raid
 				case TwitchatDataTypes.TwitchatMessageType.RAID: {
 					sStream.lastRaider = message.user;
+					StoreProxy.labels.updateLabelValue("LAST_RAID_NAME", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("LAST_RAID_AVATAR", message.user.avatarPath || "");
+					StoreProxy.labels.updateLabelValue("LAST_RAID_COUNT", message.viewers);
 					message.user.channelInfo[message.channel_id].is_raider = true;
 					if(sParams.appearance.raidHighlightUser.value
 					&& sParams.appearance.raidHighlightUserTrack.value === true) {
@@ -1128,6 +1133,9 @@ export const storeChat = defineStore('chat', {
 				case TwitchatDataTypes.TwitchatMessageType.CHEER: {
 					message = message as TwitchatDataTypes.MessageCheerData;
 					StoreProxy.auth.lastCheer[message.channel_id] = {user:message.user, bits:message.bits};
+					StoreProxy.labels.updateLabelValue("LAST_CHEER_NAME", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("LAST_CHEER_AVATAR", message.user.avatarPath || "");
+					StoreProxy.labels.updateLabelValue("LAST_CHEER_AMOUNT", message.bits);
 					break;
 				}
 
@@ -1192,6 +1200,10 @@ export const storeChat = defineStore('chat', {
 						//for future subgift events
 						subgiftHistory.push(message);
 					}else{
+						StoreProxy.labels.updateLabelValue("LAST_SUB_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("LAST_SUB_AVATAR", message.user.avatarPath || "");
+						StoreProxy.labels.updateLabelValue("LAST_SUB_TIER", message.tier);
+						StoreProxy.labels.incrementLabelValue("SUB_COUNT", 1);
 						StoreProxy.auth.totalSubscribers[message.channel_id] ++;
 						StoreProxy.auth.lastSubscriber[message.channel_id] = {user:message.user, tier:message.tier};
 					}
@@ -1228,6 +1240,10 @@ export const storeChat = defineStore('chat', {
 					StoreProxy.auth.lastFollower[message.channel_id] = message.user;
 					StoreProxy.auth.totalFollowers[message.channel_id] ++;
 					sUsers.flagAsFollower(message.user, message.channel_id);
+					
+					StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_NAME", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_AVATAR", message.user.avatarPath || "");
+					StoreProxy.labels.incrementLabelValue("FOLLOWER_COUNT", 1);
 
 					//Merge all followbot events into one
 					if(message.followbot === true) {
@@ -1471,6 +1487,11 @@ export const storeChat = defineStore('chat', {
 					recipientCount = message.gift_recipients!.length;
 					await Utils.promisedTimeout(1000);
 				}
+				StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_NAME", message.user.displayNameOriginal);
+				StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_AVATAR", message.user.avatarPath || "");
+				StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_TIER", message.tier);
+				StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_COUNT", message.gift_count || 1);
+				StoreProxy.labels.incrementLabelValue("SUB_COUNT", message.gift_count || 1);
 				StoreProxy.auth.totalSubscribers[message.channel_id] += message.gift_count || 1;
 				StoreProxy.auth.lastSubgifter[message.channel_id] = {user:message.user, giftCount:message.gift_count || 1, tier:message.tier};
 			}

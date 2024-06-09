@@ -17,7 +17,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	components:{},
 	emits: ['update:modelValue', 'change'],
 })
- class ToggleButton extends Vue {
+class ToggleButton extends Vue {
 
 	@Prop({default:"", type:String})
 	public inputId!:string;

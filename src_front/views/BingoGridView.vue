@@ -681,6 +681,7 @@ export default toNative(BingoGridView);
 					margin-left: -35%;
 					margin-top: -35%;
 					z-index: 101;
+					opacity: 1;
 					filter: drop-shadow(2px 2px 5px rgba(0,0,0,.5));
 				}
 			}

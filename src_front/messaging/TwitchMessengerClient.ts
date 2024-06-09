@@ -999,6 +999,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						message_size,
 					};
 					this.dispatchEvent(new MessengerClientEvent("WATCH_STREAK", eventData));
+					StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_NAME", user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_AVATAR", user.avatarPath || "");
 				}
 
 				//Handle subgift summaries

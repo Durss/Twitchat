@@ -17,7 +17,6 @@
 			</div>
 		</div>
 
-
 		<VueDraggable class="labelList"
 		v-model="$store.labels.labelList"
 		:group="{name:'labels'}"
@@ -49,8 +48,12 @@
 						<label><Icon name="obs" />{{$t('bingo_grid.form.install_title')}}</label>
 						<OverlayInstaller type="label" :sourceSuffix="label.title" :id="label.id" :queryParams="{bid:label.id}" :sourceTransform="{width:300, height:100}" />
 					</div>
+
+					<SwitchButton v-model="label.mode" :values="['placeholder', 'html']" :labels="['Valeur', 'HTML']"></SwitchButton>
 					
-					<ParamItem :paramData="param_labelValue[label.id]" v-model="label.value" @change="save(label)"></ParamItem>
+					<ParamItem v-if="label.mode == 'html'" :paramData="param_customText[label.id]" v-model="label.value" @change="save(label)"></ParamItem>
+
+					<ParamItem v-if="label.mode == 'placeholder'" :paramData="param_labelValue[label.id]" v-model="label.value" @change="save(label)"></ParamItem>
 				</div>
 			</ToggleBlock>
 		</VueDraggable>
@@ -60,18 +63,21 @@
 <script lang="ts">
 import { TTButton } from '@/components/TTButton.vue';
 import { ToggleBlock } from '@/components/ToggleBlock.vue';
-import ToggleButton from '@/components/ToggleButton.vue';
+import { type LabelItemData } from '@/types/ILabelOverlayData';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { VueDraggable } from 'vue-draggable-plus';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import { ParamItem } from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
+import ToggleButton from '@/components/ToggleButton.vue';
+import SwitchButton from '@/components/SwitchButton.vue';
 
 @Component({
 	components:{
 		TTButton,
 		ParamItem,
 		ToggleBlock,
+		SwitchButton,
 		ToggleButton,
 		VueDraggable,
 		OverlayInstaller,
@@ -80,9 +86,20 @@ import OverlayInstaller from './OverlayInstaller.vue';
 })
 class OverlayParamsLabels extends Vue {
 
+	public param_customText:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_labelValue:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 
+	private placeholders:TwitchatDataTypes.PlaceholderEntry[] = [];
+
 	public beforeMount():void {
+		for (const key in this.$store.labels.placeholders) {
+			const p = this.$store.labels.placeholders[key as keyof typeof this.$store.labels.placeholders];
+			if(!p) continue;
+			this.placeholders.push({
+				descKey:p.placeholder.descriptionKey,
+				tag:p.placeholder.tag,
+			});
+		}
 		this.initParams();
 	}
 
@@ -104,7 +121,7 @@ class OverlayParamsLabels extends Vue {
 	/**
 	 * Saves given label
 	 */
-	public save(label:TwitchatDataTypes.LabelItemData):void {
+	public save(label:LabelItemData):void {
 		this.$store.labels.saveData(label.id);
 	}
 
@@ -115,8 +132,24 @@ class OverlayParamsLabels extends Vue {
 	private initParams():void {
 		this.$store.labels.labelList.forEach(entry=> {
 			const id = entry.id;
-			if(this.param_labelValue[id]) return;
-			this.param_labelValue[id] = {type:"string", value:"", labelKey:"overlay.labels.param_labelValue", icon:"font"};
+			if(this.param_customText[id]) return;
+			this.param_labelValue[id] = {type:"list", value:"", labelKey:"overlay.labels.param_labelValue", longText:true, icon:"label"};
+			this.param_customText[id] = {type:"string", value:"", labelKey:"overlay.labels.param_customText", longText:true, icon:"font", placeholderList:this.placeholders};
+
+			let values:typeof this.param_labelValue[string]["listValues"] = [];
+			this.placeholders.forEach(p=> {
+				values.push({
+					value:"{"+p.tag+"}",
+					// label:p.tag,
+					labelKey:p.descKey,
+				});
+				// values.push({
+				// 	value:p.tag,
+				// 	labelKey:p.descKey,
+				// 	disabled:true,
+				// });
+			});
+			this.param_labelValue[id].listValues = values;
 		});
 	}
 
@@ -158,7 +191,7 @@ export default toNative(OverlayParamsLabels);
 		}
 	}
 
-	.labelList {
+	.labelList, .form {
 		gap: .5em;
 		display: flex;
 		flex-direction: column;

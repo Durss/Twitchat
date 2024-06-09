@@ -1,6 +1,6 @@
 <template>
 	<div class="themeselector card-item">
-		<SwitchButton label1="🌙" label2="☀️" v-model="lightMode" @change="toggleTheme()" />
+		<SwitchButton :labels="['🌙','☀️']" v-model="lightMode" @change="toggleTheme()" />
 	</div>
 </template>
 
@@ -15,7 +15,7 @@ import Utils from '@/utils/Utils';
 	},
 	emits:[],
 })
- class ThemeSelector extends Vue {
+class ThemeSelector extends Vue {
 
 	public lightMode:boolean = false;
 
