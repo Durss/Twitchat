@@ -66,6 +66,7 @@ export const storeLabels = defineStore('labels', {
 				enabled:true,
 				title:"",
 				value:"",
+				mode:"placeholder"
 			});
 			this.saveData();
 		},
