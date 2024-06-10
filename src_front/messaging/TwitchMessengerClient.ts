@@ -67,7 +67,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		clearTimeout(this._connectTimeout);
 		this._connectTimeout = setTimeout(async ()=>{
 			Logger.instance.log("irc", {info:"Initial connect to channel "+channel});
-			const chans = await TwitchUtils.loadUserInfo(undefined, this._channelList);
+			const chans = await TwitchUtils.getUserInfo(undefined, this._channelList);
 			if(chans.length === 0) {
 				Logger.instance.log("irc", {info:"Initial connect failed for channel "+channel+". Matching user not found on Twitch.", data:chans});
 				StoreProxy.common.alert("Unable to load user info: "+ this._channelList);
@@ -266,7 +266,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				})
 				// let res:TwitchDataTypes.UserInfo[];
 				// try {
-				// 	res = await TwitchUtils.loadUserInfo(undefined, [login])
+				// 	res = await TwitchUtils.getUserInfo(undefined, [login])
 				// }catch(error) {
 				// 	StoreProxy.common.alert("User @"+login+" not found on Twitch.");
 				// 	return null;
@@ -843,9 +843,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		let uid = user.id;
 		if(user.temporary) {
 			//Safe fallback in case user info are not loaded yet.
-			uid = (await TwitchUtils.loadUserInfo(undefined, [username]))[0].id;
+			uid = (await TwitchUtils.getUserInfo(undefined, [username]))[0].id;
 		}
-		const streamInfo = await TwitchUtils.loadChannelInfo([uid]);
+		const streamInfo = await TwitchUtils.getChannelInfo([uid]);
 		const message:TwitchatDataTypes.MessageRaidData = {
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.RAID,
@@ -1000,7 +1000,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					};
 					this.dispatchEvent(new MessengerClientEvent("WATCH_STREAK", eventData));
 					StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_NAME", user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_AVATAR", user.avatarPath || "");
+					StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_AVATAR", user.avatarPath || "", user.id);
 				}
 
 				//Handle subgift summaries

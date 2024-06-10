@@ -173,7 +173,7 @@ export default class TwitchUtils {
 	 * @param logins
 	 * @returns
 	 */
-	public static async loadChannelInfo(uids: string[]): Promise<TwitchDataTypes.ChannelInfo[]> {
+	public static async getChannelInfo(uids: string[]): Promise<TwitchDataTypes.ChannelInfo[]> {
 		let channels: TwitchDataTypes.ChannelInfo[] = [];
 		let fails: string[] = [];
 		//Split by 100 max to comply with API limitations
@@ -206,7 +206,7 @@ export default class TwitchUtils {
 	 * @param logins
 	 * @returns
 	 */
-	public static async loadUserInfo(ids?: string[], logins?: string[]): Promise<TwitchDataTypes.UserInfo[]> {
+	public static async getUserInfo(ids?: string[], logins?: string[]): Promise<TwitchDataTypes.UserInfo[]> {
 		let items: string[] | undefined = ids ? ids : logins;
 		if (items == undefined) return [];
 		items = items.filter(v => v != null && v != undefined);
@@ -229,7 +229,7 @@ export default class TwitchUtils {
 			} else if (result.status == 429) {
 				//Rate limit reached, try again after it's reset to fulle
 				await this.onRateLimit(result.headers, url.pathname, 1);
-				return await this.loadUserInfo(ids, logins)
+				return await this.getUserInfo(ids, logins)
 			} else if (result.status == 500) break;
 		}
 		return users;
@@ -241,7 +241,7 @@ export default class TwitchUtils {
 	 * @param logins
 	 * @returns
 	 */
-	public static async loadCurrentStreamInfo(ids?: string[], logins?: string[]): Promise<TwitchDataTypes.StreamInfo[]> {
+	public static async getCurrentStreamInfo(ids?: string[], logins?: string[]): Promise<TwitchDataTypes.StreamInfo[]> {
 		let items: string[] | undefined = ids ? ids : logins;
 		if (items == undefined) return [];
 		items = items.filter(v => v != null && v != undefined);
@@ -1010,7 +1010,7 @@ export default class TwitchUtils {
 			list = list.concat(json.data);
 
 			const uids = json.data.map(x => x.user_id);
-			const users = await this.loadUserInfo(uids);
+			const users = await this.getUserInfo(uids);
 			users.forEach(u => {
 				for (let i = 0; i < json.data.length; i++) {
 					const s = json.data[i];
@@ -2091,7 +2091,7 @@ export default class TwitchUtils {
 
 		let user!: TwitchDataTypes.UserInfo;
 		try {
-			user = (await this.loadUserInfo(undefined, [channel]))[0];
+			user = (await this.getUserInfo(undefined, [channel]))[0];
 		} catch (error) {
 			StoreProxy.common.alert("User " + channel + " not found");
 			return false;
@@ -2159,7 +2159,7 @@ export default class TwitchUtils {
 
 		if (!toId && toLogin) {
 			try {
-				toId = (await this.loadUserInfo(undefined, [toLogin]))[0].id;
+				toId = (await this.getUserInfo(undefined, [toLogin]))[0].id;
 			} catch (error) {
 				StoreProxy.common.alert("User \"" + toLogin + "\" not found");
 				return false;
@@ -2499,7 +2499,7 @@ export default class TwitchUtils {
 
 		//Load missing avatars
 		if (missingAvatars.length > 0) {
-			const res = await TwitchUtils.loadUserInfo(missingAvatars.map(v => v.id));
+			const res = await TwitchUtils.getUserInfo(missingAvatars.map(v => v.id));
 			res.forEach(u => {
 				const user = missingAvatars.find(v => v.id === u.id);
 				if (user) user.avatarPath = u.profile_image_url;

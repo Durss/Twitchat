@@ -215,8 +215,8 @@ import StreamInfoSubForm from './StreamInfoSubForm.vue';
 	private async populate():Promise<void> {
 		this.loading = true;
 		const channelId = StoreProxy.auth.twitch.user.id;
-		let [streamInfos] = await TwitchUtils.loadCurrentStreamInfo([channelId]);
-		const [channelInfos] = await TwitchUtils.loadChannelInfo([channelId]);
+		let [streamInfos] = await TwitchUtils.getCurrentStreamInfo([channelId]);
+		const [channelInfos] = await TwitchUtils.getChannelInfo([channelId]);
 		try {
 			let title:string = "";
 			let gameId:string = "";

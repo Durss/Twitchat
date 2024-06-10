@@ -1100,7 +1100,7 @@ export const storeChat = defineStore('chat', {
 					} as JsonObject;
 					PublicAPI.instance.broadcast(TwitchatEvent.REWARD_REDEEM, wsMessage);
 					StoreProxy.labels.updateLabelValue("LAST_REWARD_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("LAST_REWARD_AVATAR", message.user.avatarPath || "");
+					StoreProxy.labels.updateLabelValue("LAST_REWARD_AVATAR", message.user.avatarPath || "", message.user.id);
 					StoreProxy.labels.updateLabelValue("LAST_REWARD_ICON", message.reward.icon.hd || message.reward.icon.sd);
 					StoreProxy.labels.updateLabelValue("LAST_REWARD_TITLE", message.reward.title);
 					break;
@@ -1110,7 +1110,7 @@ export const storeChat = defineStore('chat', {
 				case TwitchatDataTypes.TwitchatMessageType.RAID: {
 					sStream.lastRaider = message.user;
 					StoreProxy.labels.updateLabelValue("LAST_RAID_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("LAST_RAID_AVATAR", message.user.avatarPath || "");
+					StoreProxy.labels.updateLabelValue("LAST_RAID_AVATAR", message.user.avatarPath || "", message.user.id);
 					StoreProxy.labels.updateLabelValue("LAST_RAID_COUNT", message.viewers);
 					message.user.channelInfo[message.channel_id].is_raider = true;
 					if(sParams.appearance.raidHighlightUser.value
@@ -1134,7 +1134,7 @@ export const storeChat = defineStore('chat', {
 					message = message as TwitchatDataTypes.MessageCheerData;
 					StoreProxy.auth.lastCheer[message.channel_id] = {user:message.user, bits:message.bits};
 					StoreProxy.labels.updateLabelValue("LAST_CHEER_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("LAST_CHEER_AVATAR", message.user.avatarPath || "");
+					StoreProxy.labels.updateLabelValue("LAST_CHEER_AVATAR", message.user.avatarPath || "", message.user.id);
 					StoreProxy.labels.updateLabelValue("LAST_CHEER_AMOUNT", message.bits);
 					break;
 				}
@@ -1201,7 +1201,7 @@ export const storeChat = defineStore('chat', {
 						subgiftHistory.push(message);
 					}else{
 						StoreProxy.labels.updateLabelValue("LAST_SUB_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("LAST_SUB_AVATAR", message.user.avatarPath || "");
+						StoreProxy.labels.updateLabelValue("LAST_SUB_AVATAR", message.user.avatarPath || "", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_SUB_TIER", message.tier);
 						StoreProxy.labels.incrementLabelValue("SUB_COUNT", 1);
 						StoreProxy.auth.totalSubscribers[message.channel_id] ++;
@@ -1242,7 +1242,7 @@ export const storeChat = defineStore('chat', {
 					sUsers.flagAsFollower(message.user, message.channel_id);
 					
 					StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_AVATAR", message.user.avatarPath || "");
+					StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_AVATAR", message.user.avatarPath || "", message.user.id);
 					StoreProxy.labels.incrementLabelValue("FOLLOWER_COUNT", 1);
 
 					//Merge all followbot events into one
@@ -1488,7 +1488,7 @@ export const storeChat = defineStore('chat', {
 					await Utils.promisedTimeout(1000);
 				}
 				StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_NAME", message.user.displayNameOriginal);
-				StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_AVATAR", message.user.avatarPath || "");
+				StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_AVATAR", message.user.avatarPath || "", message.user.id);
 				StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_TIER", message.tier);
 				StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_COUNT", message.gift_count || 1);
 				StoreProxy.labels.incrementLabelValue("SUB_COUNT", message.gift_count || 1);
@@ -1700,7 +1700,7 @@ export const storeChat = defineStore('chat', {
 				if(message.platform == "twitch"
 				&& (!message.user.displayName || !message.user.avatarPath || !message.user.login)) {
 					//Get user info
-					const [twitchUser] = await TwitchUtils.loadUserInfo([message.user.id]);
+					const [twitchUser] = await TwitchUtils.getUserInfo([message.user.id]);
 					message.user.avatarPath = twitchUser.profile_image_url;
 					//Populate more info just in case some are missing
 					message.user.login = twitchUser.login;
@@ -1737,7 +1737,7 @@ export const storeChat = defineStore('chat', {
 				const message = list[i];
 				if(message.id == data.message_id && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 					if(data.low_trust_user.shared_ban_channel_ids?.length > 0) {
-						const users = await TwitchUtils.loadUserInfo(data.low_trust_user.shared_ban_channel_ids);
+						const users = await TwitchUtils.getUserInfo(data.low_trust_user.shared_ban_channel_ids);
 						message.twitch_sharedBanChannels = users?.map(v=> { return {id:v.id, login:v.login}}) ?? [];
 					}
 					message.twitch_isSuspicious = true;

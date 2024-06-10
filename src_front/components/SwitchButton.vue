@@ -64,8 +64,12 @@ class SwitchButton extends Vue {
 	}
 
 	public beforeMount():void {
-		this.localValue = this.modelValue;
-		this.selected = this.localValue === this.values[1];
+		if(this.modelValue != this.values[0] && this.modelValue != this.values[1]) {
+			this.setState(this.values[0])
+		}else{
+			this.localValue = this.modelValue;
+			this.selected = this.localValue === this.values[1];
+		}
 		watch(()=>this.modelValue, ()=>{
 			this.localValue = this.modelValue;
 			this.selected = this.localValue === this.values[1];
@@ -88,7 +92,6 @@ export default toNative(SwitchButton);
 	align-items: center;
 	justify-content: center;
 	color: var(--color-text);
-	cursor: pointer;
 	gap: .5em;
 
 	.toggleHolder {
@@ -120,6 +123,7 @@ export default toNative(SwitchButton);
 		opacity: .6;
 		font-weight: bold;
 		text-shadow: var(--text-shadow-contrast);
+		cursor: pointer;
 		&:first-of-type{
 			opacity: 1;
 			text-align: right;

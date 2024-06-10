@@ -2734,8 +2734,9 @@ export interface ILabelsActions {
 	 * 
 	 * @param key 
 	 * @param value 
+	 * @param userId useful for AVATAR placeholders. This forces avatar loading if necessary
 	 */
-	updateLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:string|number):Promise<void>;
+	updateLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:string|number, userId?:string):Promise<void>;
 	/**
 	 * Updates a numerci label value by adding the given value to it
 	 * @param key 

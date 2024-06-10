@@ -443,7 +443,7 @@ export default class MessengerProxy {
 			}else{
 				let username = params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim();
 				if(parseInt(username).toString() === username) {
-					const user = await TwitchUtils.loadUserInfo([username]);
+					const user = await TwitchUtils.getUserInfo([username]);
 					username = user[0].login;
 				}
 				const user = StoreProxy.users.getUserFrom("twitch", channelId, undefined, username);
@@ -453,7 +453,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/userfromid") {
-			const res = await TwitchUtils.loadUserInfo([params[0]]);
+			const res = await TwitchUtils.getUserInfo([params[0]]);
 			if(res.length === 0) {
 				StoreProxy.common.alert( StoreProxy.i18n.t("error.user_param_not_found", {USER:"<mark>"+params[0]+"</mark>"}) );
 			}else{
@@ -472,7 +472,7 @@ export default class MessengerProxy {
 		if(cmd == "/ttsoff" || cmd == "/tts") {
 			const username = params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim();
 			try {
-				const res = await TwitchUtils.loadUserInfo(undefined, [username]);
+				const res = await TwitchUtils.getUserInfo(undefined, [username]);
 				if(res.length == 0) {
 					const notice:TwitchatDataTypes.MessageNoticeData = {
 						id:Utils.getUUID(),
@@ -633,7 +633,7 @@ export default class MessengerProxy {
 			}
 			const done = params[0] === "true" || params[1] === "true";
 			if(done) user.channelInfo[channelId].lastShoutout = Date.now();
-			const userInfos = await TwitchUtils.loadUserInfo([user.id]);
+			const userInfos = await TwitchUtils.getUserInfo([user.id]);
 			user.avatarPath = userInfos[0].profile_image_url;
 			if(!StoreProxy.users.pendingShoutouts[channelId]) {
 				StoreProxy.users.pendingShoutouts[channelId] = [];
@@ -650,7 +650,7 @@ export default class MessengerProxy {
 			const fakeUsers = await TwitchUtils.getFakeUsers();
 			for (let i = 0; i < 10; i++) {
 				const user = Utils.pickRand(fakeUsers);
-				const userInfos = await TwitchUtils.loadUserInfo([user.id]);
+				const userInfos = await TwitchUtils.getUserInfo([user.id]);
 				user.avatarPath = userInfos[0].profile_image_url;
 				if(!StoreProxy.users.pendingShoutouts[channelId]) {
 					StoreProxy.users.pendingShoutouts[channelId] = [];
@@ -779,7 +779,7 @@ export default class MessengerProxy {
 			}else{
 				let users:TwitchDataTypes.UserInfo[] = [];
 				try {
-					users = await TwitchUtils.loadUserInfo(undefined, [params[0]]);
+					users = await TwitchUtils.getUserInfo(undefined, [params[0]]);
 				}catch(error) {}
 
 				if(users.length == 0) {

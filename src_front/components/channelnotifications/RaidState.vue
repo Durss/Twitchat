@@ -131,7 +131,7 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 		if(raid) {
 			this.user = raid.user;
 			this.roomSettings = await TwitchUtils.getRoomSettings(this.user.id);
-			const liveInfos = await TwitchUtils.loadCurrentStreamInfo([this.user.id]);
+			const liveInfos = await TwitchUtils.getCurrentStreamInfo([this.user.id]);
 			this.targetChannelOffline = liveInfos.length == 0;
 
 

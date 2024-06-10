@@ -434,11 +434,11 @@ export const storeDebug = defineStore('debug', {
 					const conductor_bits = Utils.pickRand(fakeUsers);
 					//Load avatars if necessary
 					if(!conductor_subs.avatarPath) {
-						const profile = await TwitchUtils.loadUserInfo([conductor_subs.id]);
+						const profile = await TwitchUtils.getUserInfo([conductor_subs.id]);
 						conductor_subs.avatarPath = profile[0].profile_image_url;
 					}
 					if(!conductor_bits.avatarPath) {
-						const profile = await TwitchUtils.loadUserInfo([conductor_bits.id]);
+						const profile = await TwitchUtils.getUserInfo([conductor_bits.id]);
 						conductor_bits.avatarPath = profile[0].profile_image_url;
 					}
 
@@ -774,7 +774,7 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT: {
-					const stream = streamInfoCache || (await TwitchUtils.loadChannelInfo([user.id]))[0];
+					const stream = streamInfoCache || (await TwitchUtils.getChannelInfo([user.id]))[0];
 					streamInfoCache = stream;
 					const m:TwitchatDataTypes.MessageShoutoutData = {
 						platform:"twitch",

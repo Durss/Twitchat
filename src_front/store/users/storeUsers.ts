@@ -318,7 +318,7 @@ export const storeUsers = defineStore('users', {
 
 					// console.log("LOAD BATCH", batchType, batchType=="id"? ids : logins);
 
-					TwitchUtils.loadUserInfo(ids, logins)
+					TwitchUtils.getUserInfo(ids, logins)
 					.then(async (res) => {
 						// console.log("Batch loaded", batchType);
 						// console.log(res);
@@ -587,7 +587,7 @@ export const storeUsers = defineStore('users', {
 				if(sDiscord.discordLinked && sDiscord.banLogTarget && bannedUser) {
 					//Get creation date of the user if not already existing
 					if(!bannedUser.created_at_ms && platform == "twitch") {
-						const res = await TwitchUtils.loadUserInfo([uid]);
+						const res = await TwitchUtils.getUserInfo([uid]);
 						if(res.length > 0) bannedUser.created_at_ms = new Date(res[0].created_at).getTime();
 					}
 
@@ -938,10 +938,10 @@ export const storeUsers = defineStore('users', {
 
 			if(sendChatSO && StoreProxy.params.features.chatShoutout.value === true){
 				if(user.platform == "twitch") {
-					const userInfos = await TwitchUtils.loadUserInfo(user.id? [user.id] : undefined, user.login? [user.login] : undefined);
+					const userInfos = await TwitchUtils.getUserInfo(user.id? [user.id] : undefined, user.login? [user.login] : undefined);
 					if(userInfos?.length > 0) {
 						const userLoc = userInfos[0];
-						const channelInfo = await TwitchUtils.loadChannelInfo([userLoc.id]);
+						const channelInfo = await TwitchUtils.getChannelInfo([userLoc.id]);
 						let message = StoreProxy.chat.botMessages.shoutout.message;
 						streamTitle = channelInfo[0].title;
 						streamCategory = channelInfo[0].game_name;

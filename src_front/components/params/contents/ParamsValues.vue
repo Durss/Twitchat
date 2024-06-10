@@ -372,7 +372,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 		//Users not loaded yet, search user from Twitch API
 		clearTimeout(this.timeoutSearch);
 		this.timeoutSearch = setTimeout(async () => {
-			const users = await TwitchUtils.loadUserInfo(undefined, [this.search[value.id]]);
+			const users = await TwitchUtils.getUserInfo(undefined, [this.search[value.id]]);
 			let found = false;
 			if(users.length > 0) {
 				const u = users[0];
@@ -400,7 +400,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 		this.idToLoading[entry.value.id] = true;
 
 		clearTimeout(this.timeoutSearch);
-		const users = await TwitchUtils.loadUserInfo(Object.keys(entry.value.users!));
+		const users = await TwitchUtils.getUserInfo(Object.keys(entry.value.users!));
 		if(users.length > 0) {
 			const channelId = this.$store.auth.twitch.user.id;
 			const ttUsers:UserEntry[] = users.map((u) => {

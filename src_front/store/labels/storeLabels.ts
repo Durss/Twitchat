@@ -8,6 +8,7 @@ import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { ILabelsActions, ILabelsGetters, ILabelsState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 let ready = false;
 let readyResolver:() => void;
@@ -90,10 +91,13 @@ export const storeLabels = defineStore('labels', {
 			DataStore.set(DataStore.OVERLAY_LABELS, data);
 		},
 
-		async updateLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:string|number):Promise<void> {
+		async updateLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:string|number, userId?:string):Promise<void> {
 			if(!ready) {
 				//Store not yet ready, wiat for it to be ready
 				await readyPromise;
+			}
+			if(userId && !value && key.indexOf("_AVATAR")) {
+				// TwitchUtils.getUserInfo
 			}
 			this.placeholders[key]!.value = value;
 			this.broadcastPlaceholders();

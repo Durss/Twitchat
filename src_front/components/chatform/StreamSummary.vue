@@ -135,7 +135,7 @@ import Icon from '../Icon.vue';
 
 	public async beforeMount():Promise<void> {
 
-		const res = await TwitchUtils.loadCurrentStreamInfo([this.$store.auth.twitch.user.id]);
+		const res = await TwitchUtils.getCurrentStreamInfo([this.$store.auth.twitch.user.id]);
 		let prevDate:number = 0;
 		let dateOffset:number|null = null;
 		if(res.length > 0) {

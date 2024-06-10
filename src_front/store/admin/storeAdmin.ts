@@ -21,7 +21,7 @@ export const storeAdmin = defineStore('Admin', {
 
 	actions: {
 		async addBetaUser(login:string):Promise<void> {
-			const users = await TwitchUtils.loadUserInfo(undefined, [login]);
+			const users = await TwitchUtils.getUserInfo(undefined, [login]);
 			if(users.length ===0 ) {
 				StoreProxy.common.alert("User "+login+" not found");
 				return;
@@ -55,7 +55,7 @@ export const storeAdmin = defineStore('Admin', {
 		},
 		
 		async removeBetaUser(login:string):Promise<void> {
-			const users = await TwitchUtils.loadUserInfo(undefined, [login]);
+			const users = await TwitchUtils.getUserInfo(undefined, [login]);
 			if(users.length ===0 ) {
 				StoreProxy.common.alert("User "+login+" not found");
 				return;
@@ -118,7 +118,7 @@ export const storeAdmin = defineStore('Admin', {
 		},
 		
 		async migrateUserDataToProd(login:string):Promise<void> {
-			const users = await TwitchUtils.loadUserInfo(undefined, [login]);
+			const users = await TwitchUtils.getUserInfo(undefined, [login]);
 			if(users.length ===0 ) {
 				StoreProxy.common.alert("User "+login+" not found");
 				return;

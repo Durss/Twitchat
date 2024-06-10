@@ -126,7 +126,7 @@ import TTButton from '../TTButton.vue';
 			//Remove users with wrong IDs (like "twitch")
 			users = users.filter(v => parseInt(v.owner!.id).toString() === v.owner!.id)
 			//Load all users details to get their names
-			const tmpList = await TwitchUtils.loadUserInfo(users.map(v => v.owner!.id));
+			const tmpList = await TwitchUtils.getUserInfo(users.map(v => v.owner!.id));
 			const userList:TwitchatDataTypes.TwitchatUser[] = [];
 			
 			for (let i = 0; i < tmpList.length; i++) {

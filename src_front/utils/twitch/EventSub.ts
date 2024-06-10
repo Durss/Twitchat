@@ -208,7 +208,7 @@ export default class EventSub {
 		let uids = [myUID];
 		if(Config.instance.debugChans.length > 0) {
 			//Subscribe to someone else's infos
-			const users = await TwitchUtils.loadUserInfo(undefined, Config.instance.debugChans.filter(v=>v.platform=="twitch").map(v=>v.login));
+			const users = await TwitchUtils.getUserInfo(undefined, Config.instance.debugChans.filter(v=>v.platform=="twitch").map(v=>v.login));
 			uids = uids.concat( users.map(v=> v.id) );
 		}
 
@@ -434,14 +434,14 @@ export default class EventSub {
 		let live:boolean = false;
 		//Loading data from channel as they're more complete than what EventSub gives us.
 		//tags and viewer count are missing from EventSub data
-		const [streamInfos] = await TwitchUtils.loadCurrentStreamInfo([event.broadcaster_user_id]);
+		const [streamInfos] = await TwitchUtils.getCurrentStreamInfo([event.broadcaster_user_id]);
 		if(streamInfos) {
 			live = true;
 			tags = streamInfos.tags;
 			started_at = new Date(streamInfos.started_at).getTime();
 			viewers = streamInfos.viewer_count;
 		}else{
-			const [chanInfo] = await TwitchUtils.loadChannelInfo([event.broadcaster_user_id])
+			const [chanInfo] = await TwitchUtils.getChannelInfo([event.broadcaster_user_id])
 			tags = chanInfo.tags;
 		}
 
@@ -633,7 +633,7 @@ export default class EventSub {
 			user.channelInfo[event.to_broadcaster_user_id].is_raider = true;
 
 			//Check current live info
-			const [currentStream] = await TwitchUtils.loadCurrentStreamInfo([event.from_broadcaster_user_id]);
+			const [currentStream] = await TwitchUtils.getCurrentStreamInfo([event.from_broadcaster_user_id]);
 			let isLive:boolean = false, title = "", category = "", duration = 0;
 			if(currentStream) {
 				isLive = true;
@@ -642,7 +642,7 @@ export default class EventSub {
 				duration = Date.now() - new Date(currentStream.started_at).getTime();
 			}else{
 				//No current live found, load channel info
-				const [chanInfo] = await TwitchUtils.loadChannelInfo([event.from_broadcaster_user_id]);
+				const [chanInfo] = await TwitchUtils.getChannelInfo([event.from_broadcaster_user_id]);
 				if(chanInfo) {
 					title = chanInfo.title;
 					category = chanInfo.game_name;
@@ -773,7 +773,7 @@ export default class EventSub {
 		//Stream online
 		}else if(topic === TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON) {
 			//Load stream info
-			const [streamInfo] = await TwitchUtils.loadCurrentStreamInfo([event.broadcaster_user_id]);
+			const [streamInfo] = await TwitchUtils.getCurrentStreamInfo([event.broadcaster_user_id]);
 			if(streamInfo) {
 				message.info.started_at = new Date(streamInfo.started_at).getTime();
 				message.info.live = true;
@@ -781,7 +781,7 @@ export default class EventSub {
 				message.info.category = streamInfo.game_name;
 			}else{
 				//Fallback to channel info if API isn't synchronized yet
-				const [chanInfo] = await TwitchUtils.loadChannelInfo([event.broadcaster_user_id]);
+				const [chanInfo] = await TwitchUtils.getChannelInfo([event.broadcaster_user_id]);
 				message.info.started_at = Date.now();
 				message.info.live = true;
 				message.info.title = chanInfo.title;
@@ -814,9 +814,9 @@ export default class EventSub {
 
 		let title:string = "";
 		let category:string = "";
-		const [stream] = await TwitchUtils.loadCurrentStreamInfo([user.id]);
+		const [stream] = await TwitchUtils.getCurrentStreamInfo([user.id]);
 		if(!stream) {
-			const [channel] = await TwitchUtils.loadChannelInfo([user.id]);
+			const [channel] = await TwitchUtils.getChannelInfo([user.id]);
 			title = channel.title;
 			category = channel.game_name;
 		}else{

@@ -354,7 +354,7 @@ export const storeRaffle = defineStore('raffle', {
 						const entries:TwitchatDataTypes.RaffleEntry[] = [];
 						const users = val.users || {};
 						const channel_id = StoreProxy.auth.twitch.user.id;
-						const userList = await TwitchUtils.loadUserInfo(Object.keys(users));
+						const userList = await TwitchUtils.getUserInfo(Object.keys(users));
 						for (const key in users) {
 							const userData = userList.find(v=>v.id == key);
 							if(!userData) continue;

@@ -98,10 +98,10 @@ export const storeStream = defineStore('stream', {
 
 			if(platform == "twitch") {
 				//Load current live infos if any
-				TwitchUtils.loadCurrentStreamInfo([channelId]).then(async v=> {
+				TwitchUtils.getCurrentStreamInfo([channelId]).then(async v=> {
 					if(v.length == 0){
 						//Fallback to channel info
-						const [chanInfos] = await TwitchUtils.loadChannelInfo([channelId])
+						const [chanInfos] = await TwitchUtils.getChannelInfo([channelId])
 						infos.live		= false;
 						infos.title		= chanInfos.title;
 						infos.tags		= chanInfos.tags;

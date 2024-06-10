@@ -445,7 +445,7 @@ import ToggleButton from '@/components/ToggleButton.vue';
 		//Users not loaded yet, search user from Twitch API
 		clearTimeout(this.timeoutSearch);
 		this.timeoutSearch = setTimeout(async () => {
-			const users = await TwitchUtils.loadUserInfo(undefined, [this.search[counter.id]]);
+			const users = await TwitchUtils.getUserInfo(undefined, [this.search[counter.id]]);
 			let found = false;
 			if(users.length > 0) {
 				const u = users[0];
@@ -473,7 +473,7 @@ import ToggleButton from '@/components/ToggleButton.vue';
 		this.idToLoading[entry.counter.id] = true;
 
 		clearTimeout(this.timeoutSearch);
-		const users = await TwitchUtils.loadUserInfo(Object.keys(entry.counter.users!));
+		const users = await TwitchUtils.getUserInfo(Object.keys(entry.counter.users!));
 		if(users.length > 0) {
 			const channelId = this.$store.auth.twitch.user.id;
 			const ttUsers:UserEntry[] = users.map((u) => {

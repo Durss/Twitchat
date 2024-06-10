@@ -1275,7 +1275,7 @@ export default class TriggerActionHandler {
 							}
 							if(!user.displayName || !user.avatarPath || !user.login) {
 								//Get user info
-								const [twitchUser] = await TwitchUtils.loadUserInfo([user.id]);
+								const [twitchUser] = await TwitchUtils.getUserInfo([user.id]);
 								user.avatarPath = twitchUser.profile_image_url;
 								//Populate more info just in case some are missing
 								user.login = twitchUser.login;

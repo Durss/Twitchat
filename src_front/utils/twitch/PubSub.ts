@@ -112,7 +112,7 @@ export default class PubSub extends EventDispatcher {
 
 			if(Config.instance.debugChans.length > 0) {
 				//Subscribe to someone else's channel pointevents
-				const users = await TwitchUtils.loadUserInfo(undefined, Config.instance.debugChans.filter(v=>v.platform=="twitch").map(v=>v.login));
+				const users = await TwitchUtils.getUserInfo(undefined, Config.instance.debugChans.filter(v=>v.platform=="twitch").map(v=>v.login));
 				const uids = users.map(v=> v.id);
 				for (let i = 0; i < uids.length; i++) {
 					const uid = uids[i];
@@ -640,7 +640,7 @@ export default class PubSub extends EventDispatcher {
 
 					//Load user's avatar if not already available
 					if(!infos.user.avatarPath) {
-						const user = (await TwitchUtils.loadUserInfo([infos.user.id]))[0];
+						const user = (await TwitchUtils.getUserInfo([infos.user.id]))[0];
 						infos.user.avatarPath = user.profile_image_url;
 					}
 					StoreProxy.stream.setRaiding(infos);
@@ -816,7 +816,7 @@ export default class PubSub extends EventDispatcher {
 				is_short:false,
 			};
 			m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
-			const users = await TwitchUtils.loadUserInfo(localObj.low_trust_user.shared_ban_channel_ids);
+			const users = await TwitchUtils.getUserInfo(localObj.low_trust_user.shared_ban_channel_ids);
 			m.twitch_sharedBanChannels = users?.map(v=> { return {id:v.id, login:v.login}}) ?? [];
 			StoreProxy.chat.addMessage(m);
 

@@ -409,7 +409,7 @@ class UserCard extends AbstractSidePanel {
 		try {
 			let user = this.user!;
 			const loadFromLogin = user.login != this.$store.users.tmpDisplayName;
-			const users = await TwitchUtils.loadUserInfo(loadFromLogin? undefined : [user.id], loadFromLogin? [user.login] : undefined);
+			const users = await TwitchUtils.getUserInfo(loadFromLogin? undefined : [user.id], loadFromLogin? [user.login] : undefined);
 			if(users.length > 0) {
 				const u = users[0];
 				user.login = u.login;
@@ -437,7 +437,7 @@ class UserCard extends AbstractSidePanel {
 				}
 				
 				//Async loading of data
-				TwitchUtils.loadCurrentStreamInfo([u.id]).then(v=> {
+				TwitchUtils.getCurrentStreamInfo([u.id]).then(v=> {
 					this.currentStream = v[0];
 				});
 				if(user.channelInfo[this.channelId]?.is_banned) {
