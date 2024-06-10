@@ -187,20 +187,28 @@ function onMessage(message:IEnvelope<unknown>):void {
 	}else
 
 	if(message.type == TwitchatEvent.LABEL_OVERLAY_PARAMS) {
-		parameters = message.data as typeof parameters;
-		if(!parameters) {
-			document.getElementById("error")!.style.display = "flex";
-		}else{
-			renderValue();
+		const json = message.data as {id:string, data:typeof parameters};
+		if(json.id == urlParams.get("twitchat_overlay_id")) {
+			parameters = json.data;
+			if(!parameters) {
+				document.getElementById("error")!.style.display = "flex";
+			}else{
+				renderValue();
+			}
+			console.log(message.type, "::", message.data);
 		}
 	}
 	
-	console.log(message.type, "::", message.data);
 }
 
 function renderValue():void {
 	if(!parameters || Object.keys(placeholders).length === 0) return;
-	document.getElementById("app")!.innerHTML = parsePlaceholders(parameters.value || "");
+	const holder = document.getElementById("app")!;
+	holder.innerHTML = parsePlaceholders(parameters.value || "");
+	if(parameters.mode == "placeholder") {
+		holder.style.fontFamily = parameters.fontFamily || "Inter";
+		holder.style.fontSize = parameters.fontSize+"px";
+	}
 }
 
 

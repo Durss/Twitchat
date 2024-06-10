@@ -8,6 +8,8 @@ export interface LabelItemData {
 	enabled:boolean;
 	value:string;
 	mode:"placeholder"|"html";
+	fontSize:number;
+	fontFamily:string;
 }
 
 /**
@@ -34,8 +36,8 @@ export const LabelItemPlaceholderList = [
 	{tag:"LAST_CHEER_AMOUNT",			type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_CHEER_AMOUNT"} as const,
 	{tag:"LAST_FOLLOWER_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_NAME"} as const,
 	{tag:"LAST_FOLLOWER_AVATAR",		type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_AVATAR"} as const,
-	{tag:"LAST_REWARD_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_NAME"} as const,
-	{tag:"LAST_REWARD_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_AVATAR"} as const,
+	{tag:"LAST_REWARD_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_REWARD_NAME"} as const,
+	{tag:"LAST_REWARD_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_REWARD_AVATAR"} as const,
 	{tag:"LAST_REWARD_ICON",			type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_REWARD_ICON"} as const,
 	{tag:"LAST_REWARD_TITLE",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_REWARD_TITLE"} as const,
 	{tag:"LAST_RAID_NAME",				type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_RAID_NAME"} as const,

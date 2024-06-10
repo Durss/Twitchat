@@ -335,6 +335,8 @@
 			},
 			"param_customText":"Custom text (supports HTML)",
 			"param_labelValue":"Value to display",
+			"param_labelValueFont":"Font family",
+			"param_labelValueSize":"Text size",
 			"placeholders":{
 				"SUB_COUNT":"Total subscribers",
 				"LAST_SUB_NAME":"Last subscriber name",

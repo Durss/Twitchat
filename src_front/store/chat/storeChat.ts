@@ -667,15 +667,25 @@ export const storeChat = defineStore('chat', {
 					if(!lastCheer && m.type === TwitchatDataTypes.TwitchatMessageType.CHEER) {
 						lastCheer = {user:m.user, bits:m.bits};
 						StoreProxy.auth.lastCheer[m.channel_id] = lastCheer;
+						StoreProxy.labels.updateLabelValue("LAST_CHEER_NAME", lastCheer.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("LAST_CHEER_AVATAR", lastCheer.user.avatarPath || "", lastCheer.user.id);
+						StoreProxy.labels.updateLabelValue("LAST_CHEER_AMOUNT", lastCheer.bits);
 					}
 					if(m.type === TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
 						if(!lastSub && !m.is_gift) {
 							lastSub = {user:m.user, tier:m.tier};
 							StoreProxy.auth.lastSubscriber[m.channel_id] = lastSub;
+							StoreProxy.labels.updateLabelValue("LAST_SUB_NAME", lastSub.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("LAST_SUB_AVATAR", lastSub.user.avatarPath || "", lastSub.user.id);
+							StoreProxy.labels.updateLabelValue("LAST_SUB_TIER", lastSub.tier);
 						}
 						if(!lastSubgift && m.is_gift) {
 							lastSubgift = {user:m.user, giftCount:m.gift_count || 1, tier:m.tier};
 							StoreProxy.auth.lastSubgifter[m.channel_id] = lastSubgift;
+							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_NAME", lastSubgift.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_AVATAR", lastSubgift.user.avatarPath || "", lastSubgift.user.id);
+							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_TIER", lastSubgift.tier);
+							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_COUNT", lastSubgift.giftCount);
 						}
 					}
 					//Force reactivity so merging feature works on old messages
@@ -1160,6 +1170,7 @@ export const storeChat = defineStore('chat', {
 						isResub:message.is_resub,
 					});
 					StoreProxy.auth.totalSubscribers[message.channel_id] ++;
+					StoreProxy.labels.incrementLabelValue("SUB_COUNT", 1);
 					//If it's a subgift, merge it with potential previous ones
 					if(message.is_gift && message.gift_recipients) {
 						// console.log("Merge attempt");

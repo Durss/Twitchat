@@ -232,12 +232,13 @@
 				</vue-select>
 			</div>
 
-			<div v-if="paramData.type == 'editablelist'" class="holder list editable">
+			<div v-if="paramData.type == 'editablelist' || paramData.type == 'font'" class="holder list editable">
 				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 
 				<label :for="'editablelist'+key" v-html="label" v-tooltip="tooltip"></label>
+				
 				<vue-select class="listField"
 					label="label"
 					ref="vueSelect"
@@ -248,6 +249,7 @@
 					@option:selected="onEdit()"
 					appendToBody
 					taggable
+					v-if="(paramData.type == 'font' && paramData.options) || paramData.type != 'font'"
 					:submitSearchOnBlur="true"
 					:multiple="paramData.options === undefined"
 					:noDrop="paramData.options === undefined"
@@ -318,6 +320,8 @@
 				<slot name="child"></slot>
 			</div>
 		</transition>
+
+		<TTButton class="moreFontsBt" icon="lock_fit" v-if="askForSystemFontAccess" @click="grantSystemFontRead()">{{$t("overlay.credits.grant_fonts_access")}}</TTButton>
 
 		<div class="card-item alert errorMessage" v-if="(error || paramData.error) && (errorMessage || paramData.errorMessage)">{{ errorMessage.length > 0? errorMessage : paramData.errorMessage }}</div>
 
@@ -412,6 +416,7 @@ export class ParamItem extends Vue {
 	public errorLocal:boolean = false;
 	public premiumOnlyLocal:boolean = false;
 	public autofocusLocal:boolean = false;
+	public askForSystemFontAccess:boolean = false;
 
 	private isLocalUpdate:boolean = false;
 	private childrenExpanded:boolean = false;
@@ -576,6 +581,29 @@ export class ParamItem extends Vue {
 				this.clampValue();
 			}
 		}
+
+		if(this.paramData.type == "font") {
+			this.paramData.value = this.modelValue;
+			if ("queryLocalFonts" in window) {
+				this.askForSystemFontAccess = false;
+				try {
+					navigator.permissions.query(
+						//@ts-ignore
+						{ name: "local-fonts" }
+					).then(granted => {
+						if(granted.state == "prompt") {
+							this.askForSystemFontAccess = true;
+							this.getLocalFonts();
+						}else
+						if(granted.state == "granted") {
+							this.grantSystemFontRead();
+						}
+					});
+				}catch(error) {}
+			}else{
+				this.getLocalFonts();
+			}
+		}
 	}
 
 	public mounted():void {
@@ -586,7 +614,9 @@ export class ParamItem extends Vue {
 			}
 		});
 
-		watch(() => this.paramData.value, () => this.onEdit());
+		watch(() => this.paramData.value, () => {
+			this.onEdit()
+		});
 
 		watch(() => this.paramData.error, ()=> this.setErrorState(this.paramData.error === true));
 
@@ -598,7 +628,6 @@ export class ParamItem extends Vue {
 
 		if(this.paramData.type == "number") {
 			watch(() => this.paramData.max, () => this.clampValue() );
-			
 			watch(() => this.paramData.min, () => this.clampValue() );
 		}
 
@@ -803,6 +832,53 @@ export class ParamItem extends Vue {
 	private updateSelectedListValue():void {
 		if((this.paramData.type == "list" || this.paramData.type == "imagelist") && this.paramData.listValues) {
 			this.paramData.selectedListValue = this.paramData.listValues.find(v=>v.value == this.paramData.value);
+		}
+	}
+
+	/**
+	 * Get local fonts
+	 */
+	public async getLocalFonts():Promise<void>{
+		Utils.listAvailableFonts().then(fonts => {
+			this.paramData.options = fonts.concat();
+			if(this.paramData.options.indexOf(this.paramData.value as string) == -1) {
+				this.paramData.options.push(this.paramData.value as string);
+			}
+			this.paramData.options = this.paramData.options.sort();
+		});
+	}
+
+	/**
+	 * Grant access to system fonts
+	 */
+	public async grantSystemFontRead():Promise<void>{
+		let f = window.queryLocalFonts!;
+		let fontList:Awaited<ReturnType<typeof f>> = [];
+		let granted = true;
+		try {
+			fontList = await window.queryLocalFonts!();
+			granted = fontList.length > 0;
+		}catch(error){
+			//Refused fonts access. Not actually called apparently...
+			granted = false;
+		}
+
+		if(granted) {
+			const fontNames:string[] = ["Inter"];
+			const done:{[key:string]:boolean} = {"Inter":true};
+			fontList.forEach(f => {
+				if(done[f.family]) return;
+				done[f.family] = true;
+				fontNames.push(f.family);
+			});
+			if(this.paramData.value && fontNames.indexOf(this.paramData.value as string) == -1) {
+				fontNames.push(this.paramData.value as string);
+			}
+			this.paramData.options = fontNames.sort();
+			this.askForSystemFontAccess = false;
+			if(!this.paramData.value) {
+				this.paramData.value = "Inter";
+			}
 		}
 	}
 }
@@ -1192,6 +1268,10 @@ export default toNative(ParamItem);
 
 	.custom {
 		justify-content: space-between;
+	}
+	.moreFontsBt {
+		display: flex;
+		margin: .5em auto 0 auto;
 	}
 }
 </style>

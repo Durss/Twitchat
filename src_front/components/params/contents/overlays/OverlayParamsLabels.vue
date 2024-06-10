@@ -53,7 +53,11 @@
 					
 					<ParamItem v-if="label.mode == 'html'" :paramData="param_customText[label.id]" v-model="label.value" @change="save(label)"></ParamItem>
 
-					<ParamItem v-if="label.mode == 'placeholder'" :paramData="param_labelValue[label.id]" v-model="label.value" @change="save(label)"></ParamItem>
+					<template v-if="label.mode == 'placeholder'">
+						<ParamItem :paramData="param_labelValue[label.id]" v-model="label.value" @change="save(label)" />
+						<ParamItem :paramData="param_labelValueFont[label.id]" v-model="label.fontFamily" @change="save(label)" />
+						<ParamItem :paramData="param_labelValueSize[label.id]" v-model="label.fontSize" @change="save(label)" />
+					</template>
 				</div>
 			</ToggleBlock>
 		</VueDraggable>
@@ -88,6 +92,8 @@ class OverlayParamsLabels extends Vue {
 
 	public param_customText:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_labelValue:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_labelValueFont:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_labelValueSize:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 
 	private placeholders:TwitchatDataTypes.PlaceholderEntry[] = [];
 
@@ -134,6 +140,8 @@ class OverlayParamsLabels extends Vue {
 			const id = entry.id;
 			if(this.param_customText[id]) return;
 			this.param_labelValue[id] = {type:"list", value:"", labelKey:"overlay.labels.param_labelValue", longText:true, icon:"label"};
+			this.param_labelValueFont[id] = {type:"font", value:"Inter", labelKey:"overlay.labels.param_labelValueFont", icon:"font"};
+			this.param_labelValueSize[id] = {type:"number", value:40, labelKey:"overlay.labels.param_labelValueSize", icon:"fontSize"};
 			this.param_customText[id] = {type:"string", value:"", labelKey:"overlay.labels.param_customText", longText:true, icon:"font", placeholderList:this.placeholders};
 
 			let values:typeof this.param_labelValue[string]["listValues"] = [];

@@ -1649,7 +1649,9 @@ import Ajv from "ajv";
 							enabled: {type:"boolean"},
 							title: {type:"string", maxLength:40},
 							value: {type:"string", maxLength:10000},
-							mdoe: {enum: ["html", "placeholder"]},
+							mode: {enum: ["html", "placeholder"]},
+							fontSize: {type:"number", minimum:0, maximum:300},
+							fontFamily: {type:"string", maxLength:200},
 						}
 					},
 				}

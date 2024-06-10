@@ -194,13 +194,9 @@
 			<ParamItem :paramData="param_fadeSize" v-model="data.fadeSize" />
 			<ParamItem :paramData="param_stickyTitle" v-model="data.stickyTitle" />
 			<ParamItem :paramData="param_titleColor" v-model="data.colorTitle" />
-			<ParamItem :paramData="param_fontTitle" v-model="data.fontTitle" v-if="fontsReady">
-				<TTButton class="moreFontsBt" icon="lock_fit" v-if="askForSystemFontAccess" @click="grantSystemFontRead()">{{$t("overlay.credits.grant_fonts_access")}}</TTButton>
-			</ParamItem>
+			<ParamItem :paramData="param_fontTitle" v-model="data.fontTitle" />
 			<ParamItem :paramData="param_entryColor" v-model="data.colorEntry" />
-			<ParamItem :paramData="param_fontEntry" v-model="data.fontEntry" v-if="fontsReady">
-				<TTButton class="moreFontsBt" icon="lock_fit" v-if="askForSystemFontAccess" @click="grantSystemFontRead()">{{$t("overlay.credits.grant_fonts_access")}}</TTButton>
-			</ParamItem>
+			<ParamItem :paramData="param_fontEntry" v-model="data.fontEntry" />
 			<ParamItem :paramData="param_textShadow" v-model="data.textShadow" />
 			<ParamItem :paramData="param_ignoreBots" v-model="data.ignoreBots">
 				<ParamItem :paramData="param_ignoreCustomBots" v-model="data.ignoreCustomBots" noBackground class="child" />
@@ -262,14 +258,14 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		OverlayInstaller,
 	}
 })
- class OverlayParamsCredits extends Vue {
+class OverlayParamsCredits extends Vue {
 
 	public param_fadeSize:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:50, min:0, max:400, labelKey:"overlay.credits.param_fadeSize", icon:"fade"};
 	public param_padding:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:100, min:0, max:1000, labelKey:"overlay.credits.param_padding", icon:"margin"};
 	public param_paddingTitle:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:100, min:0, max:1000, labelKey:"overlay.credits.param_paddingTitle", icon:"margin"};
 	public param_stickyTitle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.credits.param_stickyTitle", icon:"pin"};
-	public param_fontTitle:TwitchatDataTypes.ParameterData<string> = {type:"editablelist", value:"", labelKey:"overlay.credits.param_fontTitle", icon:"font"};
-	public param_fontEntry:TwitchatDataTypes.ParameterData<string> = {type:"editablelist", value:"", labelKey:"overlay.credits.param_fontEntry", icon:"font"};
+	public param_fontTitle:TwitchatDataTypes.ParameterData<string> = {type:"font", value:"", labelKey:"overlay.credits.param_fontTitle", icon:"font"};
+	public param_fontEntry:TwitchatDataTypes.ParameterData<string> = {type:"font", value:"", labelKey:"overlay.credits.param_fontEntry", icon:"font"};
 	public param_titleColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ffffff", labelKey:"overlay.credits.param_colorTitle", icon:"color"};
 	public param_entryColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ffffff", labelKey:"overlay.credits.param_colorEntry", icon:"color"};
 	public param_textShadow:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:1, min:0, max:100, labelKey:"overlay.credits.param_textShadow", icon:"shadow"};
@@ -315,8 +311,6 @@ import OverlayInstaller from './OverlayInstaller.vue';
 	public slotTypes = TwitchatDataTypes.EndingCreditsSlotDefinitions;
 	public overlayExists = false;
 	public sendingSummaryData = false;
-	public fontsReady:boolean = false;
-	public askForSystemFontAccess:boolean = false;
 	public showSlotOptions:boolean = false;
 	public checkingOverlayPresence:boolean = true;
 	public data:TwitchatDataTypes.EndingCreditsParams = {
@@ -363,35 +357,6 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		if(json) {
 			Utils.mergeRemoteObject(JSON.parse(json), (this.data as unknown) as JsonObject);
 		}
-
-		if ("queryLocalFonts" in window) {
-			this.askForSystemFontAccess = false;
-			try {
-				navigator.permissions.query(
-					//@ts-ignore
-					{ name: "local-fonts" }
-				).then(granted => {
-					if(granted.state == "prompt") {
-						this.askForSystemFontAccess = true;
-					}
-				});
-			}catch(error) {}
-		}
-
-		Utils.listAvailableFonts().then(fonts => {
-			this.param_fontTitle.options = fonts.concat();
-			this.param_fontEntry.options = fonts.concat();
-			if(this.param_fontEntry.options.indexOf(this.data.fontEntry) == -1) {
-				this.param_fontEntry.options.push(this.data.fontEntry);
-			}
-			if(this.param_fontTitle.options.indexOf(this.data.fontTitle) == -1) {
-				this.param_fontTitle.options.push(this.data.fontTitle);
-			}
-			this.param_fontTitle.options = this.param_fontTitle.options.sort();
-			this.param_fontEntry.options = this.param_fontEntry.options.sort();
-
-			this.fontsReady = true;
-		});
 
 		if(this.data.slots.length == 0) {
 			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "follows")!, undefined, true);
@@ -662,35 +627,6 @@ import OverlayInstaller from './OverlayInstaller.vue';
 	}
 
 	/**
-	 * Grant access to system fonts
-	 */
-	public async grantSystemFontRead():Promise<void>{
-		let f = window.queryLocalFonts!;
-		let fontList:Awaited<ReturnType<typeof f>> = [];
-		let granted = true;
-		try {
-			fontList = await window.queryLocalFonts!();
-			granted = fontList.length > 0;
-		}catch(error){
-			//Refused fonts access. Not actually called apparently...
-			granted = false;
-		}
-
-		if(granted) {
-			const fontNames:string[] = ["Inter"];
-			const done:{[key:string]:boolean} = {"Inter":true};
-			fontList.forEach(f => {
-				if(done[f.family]) return;
-				done[f.family] = true;
-				fontNames.push(f.family);
-			});
-			this.param_fontEntry.options = fontNames;
-			this.param_fontTitle.options = fontNames;
-			this.askForSystemFontAccess = false;
-		}
-	}
-
-	/**
 	 * Saves current parameters
 	 */
 	private async saveParams():Promise<void> {
@@ -726,10 +662,6 @@ export default toNative(OverlayParamsCredits);
 
 	.parameters {
 		min-width: 100%;
-		.moreFontsBt {
-			display: flex;
-			margin: .5em auto 0 auto;
-		}
 	}
 
 	section.expand {

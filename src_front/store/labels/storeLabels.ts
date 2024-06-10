@@ -51,7 +51,7 @@ export const storeLabels = defineStore('labels', {
 			});
 
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_LABEL_OVERLAY_PARAMS, (e:TwitchatEvent<{id:string}>)=> {
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, this.labelList.find(v=>v.id == e.data?.id));
+				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:e.data!.id, data:this.labelList.find(v=>v.id == e.data?.id) || null});
 			});
 
 			ready = true;
@@ -67,7 +67,9 @@ export const storeLabels = defineStore('labels', {
 				enabled:true,
 				title:"",
 				value:"",
-				mode:"placeholder"
+				mode:"placeholder",
+				fontFamily:"",
+				fontSize:20,
 			});
 			this.saveData();
 		},
@@ -83,7 +85,7 @@ export const storeLabels = defineStore('labels', {
 
 		saveData(labelId?:string):void {
 			if(labelId) {
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, this.labelList.find(v=>v.id == labelId));
+				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, data:this.labelList.find(v=>v.id == labelId) || null});
 			}
 			const data:IStoreData = {
 				labelList:this.labelList,
@@ -96,8 +98,11 @@ export const storeLabels = defineStore('labels', {
 				//Store not yet ready, wiat for it to be ready
 				await readyPromise;
 			}
+
+			//Load avatar if the one given is empty
 			if(userId && !value && key.indexOf("_AVATAR")) {
-				// TwitchUtils.getUserInfo
+				const [user] = await TwitchUtils.getUserInfo([userId]);
+				if(user) value = user.profile_image_url;
 			}
 			this.placeholders[key]!.value = value;
 			this.broadcastPlaceholders();

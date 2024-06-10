@@ -244,7 +244,7 @@ export const storeAuth = defineStore('auth', {
 							StoreProxy.users.getUserFrom("twitch", uid, last.user_id, last.user_login, last.user_name, (user)=>{
 								this.lastFollower[uid] = user;
 								StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_NAME", user.displayNameOriginal);
-								StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_AVATAR", user.avatarPath || "");
+								StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_AVATAR", user.avatarPath || "", user.id);
 							});
 							StoreProxy.labels.updateLabelValue("FOLLOWER_COUNT", res.total);
 						}
@@ -259,6 +259,7 @@ export const storeAuth = defineStore('auth', {
 						const res = await TwitchUtils.getSubsList(true);
 						this.partnerPoints[uid] = res.points;
 						this.totalSubscribers[uid] = res.subs;
+						StoreProxy.labels.updateLabelValue("SUB_COUNT", res.subs);
 					};
 					loadSubscribers();
 					SetIntervalWorker.instance.create(()=>loadSubscribers(), 5 * 60000);
