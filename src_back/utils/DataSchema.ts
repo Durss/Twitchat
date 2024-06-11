@@ -1648,13 +1648,29 @@ import Ajv from "ajv";
 							id: {type:"string", maxLength:40},
 							enabled: {type:"boolean"},
 							title: {type:"string", maxLength:40},
-							value: {type:"string", maxLength:10000},
+							placeholder: {type:"string", maxLength:100},
+							html: {type:"string", maxLength:10000},
 							mode: {enum: ["html", "placeholder"]},
 							fontSize: {type:"number", minimum:0, maximum:300},
 							fontFamily: {type:"string", maxLength:200},
+							fontColor: {type:"string", maxLength:10},
+							backgroundEnabled: {type:"boolean"},
+							backgroundColor: {type:"string", maxLength:10},
 						}
 					},
-				}
+				},
+				cachedValues: {
+					type:"object",
+					additionalProperties: true,
+					patternProperties: {
+						".*": {
+							anyOf:[
+								{type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+								{type:"string", maxLength:600},
+							]
+						},
+					}
+				},
 			}
 		},
 	}

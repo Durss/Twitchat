@@ -657,7 +657,9 @@ export const storeChat = defineStore('chat', {
 				messageList.unshift(splitter);
 
 				const uid = StoreProxy.auth.twitch.user.id;
+				let lastRaid = undefined;
 				let lastCheer = undefined;
+				let lastReward = undefined;
 				let lastSub = StoreProxy.auth.lastSubscriber[uid];
 				let lastSubgift = StoreProxy.auth.lastSubgifter[uid];
 
@@ -670,6 +672,19 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.updateLabelValue("LAST_CHEER_NAME", lastCheer.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("LAST_CHEER_AVATAR", lastCheer.user.avatarPath || "", lastCheer.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_CHEER_AMOUNT", lastCheer.bits);
+					}
+					if(!lastReward && m.type === TwitchatDataTypes.TwitchatMessageType.REWARD) {
+						lastReward = m;
+						StoreProxy.labels.updateLabelValue("LAST_REWARD_NAME", m.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("LAST_REWARD_AVATAR", m.user.avatarPath || "", m.user.id);
+						StoreProxy.labels.updateLabelValue("LAST_REWARD_ICON", m.reward.icon.hd || m.reward.icon.sd);
+						StoreProxy.labels.updateLabelValue("LAST_REWARD_TITLE", m.reward.title);
+					}
+					if(!lastRaid && m.type === TwitchatDataTypes.TwitchatMessageType.RAID) {
+						lastRaid = m;
+						StoreProxy.labels.updateLabelValue("LAST_RAID_NAME", m.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("LAST_RAID_AVATAR", m.user.avatarPath || "", m.user.id);
+						StoreProxy.labels.updateLabelValue("LAST_RAID_COUNT", m.viewers);
 					}
 					if(m.type === TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
 						if(!lastSub && !m.is_gift) {
@@ -1078,6 +1093,14 @@ export const storeChat = defineStore('chat', {
 							message.autospoiled = true;
 						}
 					}
+					break;
+				}
+
+				//Reward redeem
+				case TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK: {
+					StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_NAME", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_AVATAR", message.user.avatarPath || "", message.user.id);
+					StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_COUNT", message.streak);
 					break;
 				}
 

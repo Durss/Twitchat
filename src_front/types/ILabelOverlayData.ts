@@ -6,10 +6,14 @@ export interface LabelItemData {
 	id:string;
 	title:string;
 	enabled:boolean;
-	value:string;
+	placeholder:typeof LabelItemPlaceholderList[number]["tag"] | "";
+	html:string;
 	mode:"placeholder"|"html";
 	fontSize:number;
 	fontFamily:string;
+	fontColor:string;
+	backgroundEnabled:boolean;
+	backgroundColor:string;
 }
 
 /**
@@ -42,8 +46,8 @@ export const LabelItemPlaceholderList = [
 	{tag:"LAST_REWARD_TITLE",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_REWARD_TITLE"} as const,
 	{tag:"LAST_RAID_NAME",				type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_RAID_NAME"} as const,
 	{tag:"LAST_RAID_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_RAID_AVATAR"} as const,
-	{tag:"LAST_RAID_COUNT",				type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_RAID_COUNT"} as const,
+	{tag:"LAST_RAID_COUNT",				type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_RAID_COUNT"} as const,
 	{tag:"LAST_WATCH_STREAK_NAME",		type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_WATCH_STREAK_NAME"} as const,
 	{tag:"LAST_WATCH_STREAK_AVATAR",	type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_WATCH_STREAK_AVATAR"} as const,
-	{tag:"LAST_WATCH_STREAK_COUNT",		type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_WATCH_STREAK_COUNT"} as const,
+	{tag:"LAST_WATCH_STREAK_COUNT",		type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_WATCH_STREAK_COUNT"} as const,
 ] as const;

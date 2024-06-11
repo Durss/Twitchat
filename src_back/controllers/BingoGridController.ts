@@ -361,7 +361,6 @@ export default class BingoGridController extends AbstractController {
 		}
 
 		await this.setTickStates(uid, gridId, states);
-		console.log("SEND STATES", grid.ownerName);
 		SSEController.sendToUser(uid, SSETopic.BINGO_GRID_MODERATOR_TICK, {gridId:gridId, uid:user.user_id, states});
 
 		response.header('Content-Type', 'application/json');

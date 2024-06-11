@@ -285,9 +285,9 @@ import Config from '@/utils/Config';
 		watch(() => this.$store.params.currentPage, (value:TwitchatDataTypes.ParameterPagesStringType, oldValue:TwitchatDataTypes.ParameterPagesStringType) => {
 			if(value === this.history[this.history.length-1]) this.history.pop();
 			if(value != TwitchatDataTypes.ParameterPages.CLOSE
-			 && value != TwitchatDataTypes.ParameterPages.MAIN_MENU) {
+			&& value != TwitchatDataTypes.ParameterPages.MAIN_MENU) {
 				this.history.push(value);
-			 }
+			}
 
 			if(value == TwitchatDataTypes.ParameterPages.CLOSE) this.close();
 			else this.open();
@@ -824,10 +824,11 @@ export default toNative(Parameters);
 								max-width: unset;
 								object-fit: fill;
 								object-position: center center;
-								margin: 0 0 .5em 0;
+								margin: 0 0 .25em 0;
 							}
 							:deep(.label) {
 								white-space: normal;
+								flex-grow: 0;
 							}
 							&.beta {
 								&::before {

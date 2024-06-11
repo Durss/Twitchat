@@ -5,22 +5,23 @@
  * It's not using Vue, only vanilla JS
  */
 
+import '@/less/index.less';
 import OBSWebSocket from 'obs-websocket-js';
 import type { JsonObject } from 'type-fest';
 import TwitchatEvent, { type TwitchatActionType, type TwitchatEventType } from './events/TwitchatEvent';
 import type { LabelItemData, LabelItemPlaceholder } from './types/ILabelOverlayData';
-import '@/less/index.less';
 
 
 const urlParams = new URLSearchParams(document.location.search);
-let error = false;
 let connected = false;
 let messageIdsDone:{[key:string]:boolean} = {};
 let broadcastChannelTunnel!:BroadcastChannel;
 let obsConnected = false;
 let reconnectTimeout = -1;
+let prevValue = "";
 let obsSocket!:OBSWebSocket;
 let parameters:LabelItemData | null = null;
+let placeholderType:LabelItemPlaceholder["type"] = "string";
 let placeholders:{[key:string]:{
 	tag:string;
 	type:"string"|"number"|"image";
@@ -187,15 +188,15 @@ function onMessage(message:IEnvelope<unknown>):void {
 	}else
 
 	if(message.type == TwitchatEvent.LABEL_OVERLAY_PARAMS) {
-		const json = message.data as {id:string, data:typeof parameters};
+		const json = message.data as {id:string, data:typeof parameters, placeholderType:LabelItemPlaceholder["type"]};
 		if(json.id == urlParams.get("twitchat_overlay_id")) {
 			parameters = json.data;
+			placeholderType = json.placeholderType;
 			if(!parameters) {
 				document.getElementById("error")!.style.display = "flex";
 			}else{
 				renderValue();
 			}
-			console.log(message.type, "::", message.data);
 		}
 	}
 	
@@ -204,10 +205,30 @@ function onMessage(message:IEnvelope<unknown>):void {
 function renderValue():void {
 	if(!parameters || Object.keys(placeholders).length === 0) return;
 	const holder = document.getElementById("app")!;
-	holder.innerHTML = parsePlaceholders(parameters.value || "");
-	if(parameters.mode == "placeholder") {
-		holder.style.fontFamily = parameters.fontFamily || "Inter";
-		holder.style.fontSize = parameters.fontSize+"px";
+	holder.removeAttribute("style");
+	let value = parameters.mode == "placeholder"? parameters.placeholder : parameters.html;
+	if(value != prevValue) {
+		if(parameters.mode == "placeholder") {
+			if(placeholderType == "image"){
+				holder.innerHTML = "<img src=\""+parsePlaceholders("{"+value+"}")+"\">";
+			}else{
+				holder.innerHTML = parsePlaceholders("{"+value+"}" || "");
+			}
+		}else if(parameters.mode == "html") {
+			holder.innerHTML = parsePlaceholders(value);
+		}
+	}
+
+	prevValue = value;
+
+	holder.style.fontFamily = parameters.fontFamily || "Inter";
+	holder.style.fontSize = parameters.fontSize+"px";
+	holder.style.color = parameters.fontColor;
+
+	if(parameters.backgroundEnabled) {
+		holder.style.padding = ".5em";
+		holder.style.backgroundColor = parameters.backgroundColor;
+		holder.style.borderRadius = ".5em";
 	}
 }
 

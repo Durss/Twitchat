@@ -44,6 +44,27 @@ export const storeLabels = defineStore('labels', {
 			if(json) {
 				const data = JSON.parse(json) as IStoreData;
 				this.labelList = data.labelList;
+				
+				//Restored placeholder values from cache
+				if(data.cachedValues) {
+					for (const tag in data.cachedValues) {
+						const typedKey = tag as keyof typeof this.placeholders;
+						const placeholder = this.placeholders[typedKey]
+						const value = data.cachedValues[typedKey];
+						if(!placeholder || !value) continue;
+						placeholder.value = value;
+					}
+				}
+				
+				//Migrating data.
+				//TODO remove once beta ends
+				this.labelList.forEach(v=> {
+					//@ts-ignore
+					delete v["value"];
+					if(v.backgroundEnabled === undefined) v.backgroundEnabled = true;
+					if(v.backgroundColor === undefined) v.backgroundColor = "#ffffff";
+					if(v.fontColor === undefined) v.fontColor = "#000000";
+				});
 			}
 
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_LABEL_OVERLAY_PLACEHOLDERS, ()=>{
@@ -51,7 +72,7 @@ export const storeLabels = defineStore('labels', {
 			});
 
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_LABEL_OVERLAY_PARAMS, (e:TwitchatEvent<{id:string}>)=> {
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:e.data!.id, data:this.labelList.find(v=>v.id == e.data?.id) || null});
+				if(e.data) this.broadcastLabelParams(e.data.id);
 			});
 
 			ready = true;
@@ -66,10 +87,14 @@ export const storeLabels = defineStore('labels', {
 				id:Utils.getUUID(),
 				enabled:true,
 				title:"",
-				value:"",
+				html:"",
+				placeholder:"",
 				mode:"placeholder",
 				fontFamily:"",
 				fontSize:20,
+				backgroundColor:"#ffffff",
+				backgroundEnabled:true,
+				fontColor:"#000000"
 			});
 			this.saveData();
 		},
@@ -84,11 +109,21 @@ export const storeLabels = defineStore('labels', {
 		},
 
 		saveData(labelId?:string):void {
-			if(labelId) {
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, data:this.labelList.find(v=>v.id == labelId) || null});
+			if(labelId) this.broadcastLabelParams(labelId);
+
+			//Saves currently cached values
+			const cachedValues:IStoreData["cachedValues"] = {};
+			for (const tag in this.placeholders) {
+				const typedKey = tag as keyof typeof this.placeholders;
+				const placeholder = this.placeholders[typedKey];
+				if(placeholder) {
+					cachedValues[typedKey] = placeholder.value;
+				}
 			}
+
 			const data:IStoreData = {
 				labelList:this.labelList,
+				cachedValues,
 			}
 			DataStore.set(DataStore.OVERLAY_LABELS, data);
 		},
@@ -106,6 +141,7 @@ export const storeLabels = defineStore('labels', {
 			}
 			this.placeholders[key]!.value = value;
 			this.broadcastPlaceholders();
+			this.saveData();
 		},
 
 		async incrementLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:number):Promise<void> {
@@ -116,6 +152,7 @@ export const storeLabels = defineStore('labels', {
 			const prevValue = this.placeholders[key]!.value as number || 0;
 			this.placeholders[key]!.value = prevValue + value;
 			this.broadcastPlaceholders();
+			this.saveData();
 		},
 		
 		broadcastPlaceholders():void {
@@ -128,6 +165,17 @@ export const storeLabels = defineStore('labels', {
 				broadcastCount = 0;
 				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PLACEHOLDERS, this.placeholders as unknown as JsonObject);
 			}, 100);
+		},
+		
+		broadcastLabelParams(labelId:string):void {
+			const data = this.labelList.find(v=>v.id == labelId) || null;
+			const tag = data?.placeholder;
+			if(data && tag && this.placeholders[tag]) {
+				const placeholderType = this.placeholders[tag]!.placeholder.type;
+				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, placeholderType, data:data as unknown as JsonObject});
+				}else{
+				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, placeholderType:"string", data:null});
+			}
 		}
 
 	} as ILabelsActions
@@ -141,4 +189,5 @@ export const storeLabels = defineStore('labels', {
 
 interface IStoreData {
 	labelList:LabelItemData[];
+	cachedValues:Partial<{[key in typeof LabelItemPlaceholderList[number]["tag"]]:string|number}>;
 }

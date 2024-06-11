@@ -98,6 +98,7 @@ export default class DataStoreCommon {
 	public static LUMIA:string = "lumia";
 	public static BINGO_GRIDS:string = "bingoGrids";
 	public static OVERLAY_LABELS:string = "overlayLabels";
+	public static OVERLAY_LABELS_CACHE:string = "overlayLabelsCache";
 	public static T4P_CHAT_CMD:string = "t4p_chat_cmd";
 
 	protected static store:Storage;

@@ -337,6 +337,9 @@
 			"param_labelValue":"Value to display",
 			"param_labelValueFont":"Font family",
 			"param_labelValueSize":"Text size",
+			"param_textColor":"Text color",
+			"param_backgroundEnabled":"Background",
+			"param_backgroundColor":"Color",
 			"placeholders":{
 				"SUB_COUNT":"Total subscribers",
 				"LAST_SUB_NAME":"Last subscriber name",
@@ -356,6 +359,7 @@
 				"LAST_REWARD_AVATAR":"Last reward redeem user avatar",
 				"LAST_REWARD_TITLE":"Last reward redeem title",
 				"LAST_REWARD_ICON":"Last reward redeem icon",
+				"LAST_REWARD_MESSAGE":"Last reward redeem message",
 				"LAST_RAID_NAME":"Last raider name",
 				"LAST_RAID_AVATAR":"Last raider avatar",
 				"LAST_RAID_COUNT":"Last raiders count",

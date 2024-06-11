@@ -235,7 +235,7 @@ class OverlayPoll extends AbstractOverlay {
 		if(delay > 0) {
 			const progressBar = this.$refs.progress as HTMLElement;
 			gsap.killTweensOf(progressBar);
-			gsap.fromTo(progressBar, {width:"100%"}, {duration:delay, ease:"linear", width:"0%"});
+			gsap.fromTo(progressBar, {width:"100%"}, {duration:delay, ease:"none", width:"0%"});
 		}
 		gsap.to(this.$el, {scale:0, duration:.5, delay, ease:"back.in", onComplete:()=>{
 			this.poll = null;

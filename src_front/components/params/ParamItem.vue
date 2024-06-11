@@ -1038,10 +1038,13 @@ export default toNative(ParamItem);
 					.maxlength {
 						font-size: .7em;
 						position: absolute;
-						right: .5em;
-						bottom: .5em;
+						right: 10px;
+						bottom: 0;
 						transform: unset;
 						pointer-events: none;
+						background-color: var(--grayout);
+						padding: .5em .25em;
+						border-radius: var(--border-radius);
 					}
 					input {
 						width: 100%;

@@ -2747,4 +2747,8 @@ export interface ILabelsActions {
 	 * Broadcasts placeholders values to the overlays
 	 */
 	broadcastPlaceholders():void;
+	/**
+	 * Broadcasts given label's params
+	 */
+	broadcastLabelParams(labelId:string):void;
 }

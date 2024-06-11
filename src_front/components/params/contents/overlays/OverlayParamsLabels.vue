@@ -46,18 +46,24 @@
 				<div class="form">
 					<div class="card-item install">
 						<label><Icon name="obs" />{{$t('bingo_grid.form.install_title')}}</label>
-						<OverlayInstaller type="label" :sourceSuffix="label.title" :id="label.id" :queryParams="{bid:label.id}" :sourceTransform="{width:300, height:100}" />
+						<OverlayInstaller type="label" :sourceSuffix="label.title" :id="label.id" :sourceTransform="{width:300, height:100}" />
 					</div>
 
-					<SwitchButton v-model="label.mode" :values="['placeholder', 'html']" :labels="['Valeur', 'HTML']"></SwitchButton>
+					<SwitchButton v-model="label.mode"
+					@change="save(label)"
+					:values="['placeholder', 'html']"
+					:labels="['Valeur', 'HTML']"></SwitchButton>
 					
-					<ParamItem v-if="label.mode == 'html'" :paramData="param_customText[label.id]" v-model="label.value" @change="save(label)"></ParamItem>
+					<ParamItem v-if="label.mode == 'html'" :paramData="param_customText[label.id]" v-model="label.html" @change="save(label)"></ParamItem>
 
-					<template v-if="label.mode == 'placeholder'">
-						<ParamItem :paramData="param_labelValue[label.id]" v-model="label.value" @change="save(label)" />
-						<ParamItem :paramData="param_labelValueFont[label.id]" v-model="label.fontFamily" @change="save(label)" />
-						<ParamItem :paramData="param_labelValueSize[label.id]" v-model="label.fontSize" @change="save(label)" />
-					</template>
+					<ParamItem v-if="label.mode == 'placeholder'" :paramData="param_labelValue[label.id]" v-model="label.placeholder" @change="save(label)" />
+
+					<ParamItem :paramData="param_labelValueFont[label.id]" v-model="label.fontFamily" @change="save(label)" />
+					<ParamItem :paramData="param_labelValueSize[label.id]" v-model="label.fontSize" @change="save(label)" />
+					<ParamItem :paramData="param_textColor[label.id]" v-model="label.fontColor" @change="save(label)" />
+					<ParamItem :paramData="param_backgroundEnabled[label.id]" v-model="label.backgroundEnabled" @change="save(label)">
+						<ParamItem :childLevel="1" :paramData="param_backgroundColor[label.id]" v-model="label.backgroundColor" @change="save(label)" noBackground />
+					</ParamItem>
 				</div>
 			</ToggleBlock>
 		</VueDraggable>
@@ -94,6 +100,9 @@ class OverlayParamsLabels extends Vue {
 	public param_labelValue:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_labelValueFont:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_labelValueSize:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
+	public param_textColor:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_backgroundEnabled:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_backgroundColor:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 
 	private placeholders:TwitchatDataTypes.PlaceholderEntry[] = [];
 
@@ -139,15 +148,18 @@ class OverlayParamsLabels extends Vue {
 		this.$store.labels.labelList.forEach(entry=> {
 			const id = entry.id;
 			if(this.param_customText[id]) return;
-			this.param_labelValue[id] = {type:"list", value:"", labelKey:"overlay.labels.param_labelValue", longText:true, icon:"label"};
+			this.param_labelValue[id] = {type:"list", value:"", labelKey:"overlay.labels.param_labelValue", icon:"label"};
 			this.param_labelValueFont[id] = {type:"font", value:"Inter", labelKey:"overlay.labels.param_labelValueFont", icon:"font"};
-			this.param_labelValueSize[id] = {type:"number", value:40, labelKey:"overlay.labels.param_labelValueSize", icon:"fontSize"};
-			this.param_customText[id] = {type:"string", value:"", labelKey:"overlay.labels.param_customText", longText:true, icon:"font", placeholderList:this.placeholders};
+			this.param_labelValueSize[id] = {type:"number", value:40, labelKey:"overlay.labels.param_labelValueSize", icon:"fontSize", min:5, max:300};
+			this.param_customText[id] = {type:"string", value:"", labelKey:"overlay.labels.param_customText", maxLength:10000, longText:true, icon:"font", placeholderList:this.placeholders};
+			this.param_textColor[id] = {type:"color", value:"", labelKey:"overlay.labels.param_textColor", icon:"color"};
+			this.param_backgroundEnabled[id] = {type:"boolean", value:true, labelKey:"overlay.labels.param_backgroundEnabled", icon:"show"};
+			this.param_backgroundColor[id] = {type:"color", value:"", labelKey:"overlay.labels.param_backgroundColor", icon:"color"};
 
 			let values:typeof this.param_labelValue[string]["listValues"] = [];
 			this.placeholders.forEach(p=> {
 				values.push({
-					value:"{"+p.tag+"}",
+					value:p.tag,
 					// label:p.tag,
 					labelKey:p.descKey,
 				});
