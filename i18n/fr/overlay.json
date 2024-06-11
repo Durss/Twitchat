@@ -325,7 +325,48 @@
 		},
 		"labels":{
 			"head": "Afficher des valeurs sur votre stream",
-			"addBt": "Créer un nouveau label"
+			"addBt": "Créer un nouveau label",
+			"premium_limit": "Vous avez atteint le nombre maximum de labels que vous pouvez créer",
+			"non_premium_limit": "Vous avez atteint le nombre maximum de labels que vous pouvez créer.\nDevenez premium pour créer jusqu'à {MAX} labels.",
+			"default_title": "Mon label",
+			"delete_confirm":{
+				"title":"Supprimer?",
+				"description":"Cette action ne peut être annulée"
+			},
+			"param_customText":"Texte personnalisé (supporte le HTML)",
+			"param_labelValue":"Valeur à afficher",
+			"param_labelValueFont":"Police d'écriture",
+			"param_labelValueSize":"Taille du texte",
+			"param_textColor":"Couleur du texte",
+			"param_backgroundEnabled":"Fond",
+			"param_backgroundColor":"couleur",
+			"placeholders":{
+				"SUB_COUNT":"Nombre de subs",
+				"LAST_SUB_NAME":"Dernier sub - Pseudo",
+				"LAST_SUB_AVATAR":"Dernier sub - Avatar",
+				"LAST_SUB_TIER":"Dernier sub - Niveau",
+				"LAST_SUBGIFT_NAME":"Dernier subgift - Pseudo",
+				"LAST_SUBGIFT_AVATAR":"Dernier subgift - Avatar",
+				"LAST_SUBGIFT_TIER":"Dernier subgift - Niveau",
+				"LAST_SUBGIFT_COUNT":"Dernier subgift - Nombre",
+				"LAST_CHEER_NAME":"Derniers bits reçus - Pseudo",
+				"LAST_CHEER_AVATAR":"Derniers bits reçus - Avatar",
+				"LAST_CHEER_AMOUNT":"Derniers bits reçus - Montant",
+				"FOLLOWER_COUNT":"Nombre de followers",
+				"LAST_FOLLOWER_NAME":"Dernier follow - Pseudo",
+				"LAST_FOLLOWER_AVATAR":"Dernier follow - Avatar",
+				"LAST_REWARD_NAME":"Dernière récompense - Pseudo",
+				"LAST_REWARD_AVATAR":"Dernière récompense - Avatar",
+				"LAST_REWARD_TITLE":"Dernière récompense - Titre",
+				"LAST_REWARD_ICON":"Dernière récompense - Icone",
+				"LAST_REWARD_MESSAGE":"Dernière récompense - Message",
+				"LAST_RAID_NAME":"Dernier raid reçu - Pseudo",
+				"LAST_RAID_AVATAR":"Dernier raid reçu - Avatar",
+				"LAST_RAID_COUNT":"Dernier raid reçu - Viewers",
+				"LAST_WATCH_STREAK_NAME":"Dernier visionnage consécutif - Pseudo",
+				"LAST_WATCH_STREAK_AVATAR":"Dernier visionnage consécutif - Avatar",
+				"LAST_WATCH_STREAK_COUNT":"Dernier visionnage consécutif - Nombre"
+			}
 		}
 	}
 }
