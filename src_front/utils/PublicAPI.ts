@@ -133,7 +133,6 @@ export default class PublicAPI extends EventDispatcher {
 			if(this._idsDone[event.id] === true) return;
 			this._idsDone[event.id] = true;
 		}
-		console.log(event);
 		this.dispatchEvent(new TwitchatEvent(event.type, event.data));
 	}
 }
