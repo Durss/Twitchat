@@ -21,7 +21,7 @@
 			"param_chat_cmd_enabled": "Tick cells from chat command",
 			"param_heat_enabled": "Tick cells from Heat extension",
 			"param_additional_cells": "Additional cells\n(will be used when shuffling the grid)",
-			"param_winSoundVolume": "Sound volume when a viewer has a bingo",
+			"param_winSoundVolume": "Notification volume when a viewer has a bingo",
 			"add_cellBt": "Add cell",
 			"chat_cmd_usage": "Use command {CMD}",
 			"heat_usage": "@:heat.header",
@@ -36,7 +36,8 @@
 				"description": "Bingo grid will be deleted\nThis cannot be undone.",
 				"title": "Delete grid?"
 			},
-			"additional_cells":"Additional cells"
+			"additional_cells":"Additional cells",
+			"premium_warning":"After current beta ends, multiplayer mode will only be available to Premium members."
 		},
 		"state": {
 			"auth_bt": "Authenticate to play",

@@ -21,7 +21,7 @@
 			"param_chat_cmd_enabled":"Cocher des cases depuis le tchat",
 			"param_heat_enabled":"Cocher des cases via l'extension Heat",
 			"param_additional_cells": "Cases additionelles\n(seront utilisée lors du mélange de la grille)",
-			"param_winSoundVolume": "Volume du son lorsqu'un·e viewer a un bingo",
+			"param_winSoundVolume": "Volume de la notification lorsqu'un·e viewer remplit un bingo",
 			"add_cellBt": "Ajouter",
 			"chat_cmd_usage":"Utilisez la commande {CMD}",
 			"heat_usage":"@:heat.header",
@@ -36,7 +36,8 @@
 				"title":"Supprimer grille ?",
 				"description":"La grille de bingo sera supprimée.\nCette action est irréversible."
 			},
-			"additional_cells":"Cases additionnelles"
+			"additional_cells":"Cases additionnelles",
+			"premium_warning":"Une fois la beta terminée, le mode multijoueur sera reservé aux membres premium."
 		},
 		"state":{
 			"auth_bt": "Me connecter pour jouer",
