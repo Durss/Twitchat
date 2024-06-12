@@ -55,12 +55,13 @@
 							<OverlayInstaller type="bingogrid" :sourceSuffix="bingo.title" :id="bingo.id" :queryParams="{bid:bingo.id}" :sourceTransform="{width:960, height:540}" />
 						</div>
 
-						<div class="card-item share">
+						<div class="card-item premium share">
 							<label>
 								<Icon name="share"/>
 								<span>{{ $t("bingo_grid.form.share") }}</span>
 							</label>
 							<p class="url" v-click2Select>{{ getPublicURL(bingo.id) }}</p>
+							<div><Icon name="alert" /> {{ $t("bingo_grid.form.premium_warning") }}</div>
 						</div>
 
 						<div class="card-item sizes">
