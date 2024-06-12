@@ -1,4 +1,4 @@
-import * as JsonPatch from 'fast-json-patch';
+import JsonPatch from 'fast-json-patch';
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
 import Config from '../utils/Config.js';
