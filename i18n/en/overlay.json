@@ -334,6 +334,7 @@
 				"description":"This action cannot be undone"
 			},
 			"param_customText":"Custom text (supports HTML)",
+			"param_customCSS":"Custom CSS",
 			"param_labelValue":"Value to display",
 			"param_labelValueFont":"Font family",
 			"param_labelValueSize":"Text size",

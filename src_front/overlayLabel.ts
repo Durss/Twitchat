@@ -17,8 +17,9 @@ let connected = false;
 let messageIdsDone:{[key:string]:boolean} = {};
 let broadcastChannelTunnel!:BroadcastChannel;
 let obsConnected = false;
+let labelDisabled = false;
 let reconnectTimeout = -1;
-let prevValue = "";
+let prevHTML = "";
 let obsSocket!:OBSWebSocket;
 let parameters:LabelItemData | null = null;
 let placeholderType:LabelItemPlaceholder["type"] = "string";
@@ -188,38 +189,68 @@ function onMessage(message:IEnvelope<unknown>):void {
 	}else
 
 	if(message.type == TwitchatEvent.LABEL_OVERLAY_PARAMS) {
-		const json = message.data as {id:string, data:typeof parameters, placeholderType:LabelItemPlaceholder["type"]};
+		const json = message.data as {id:string, data:typeof parameters, disabled?:true, placeholderType:LabelItemPlaceholder["type"]};
 		if(json.id == urlParams.get("twitchat_overlay_id")) {
 			parameters = json.data;
+			labelDisabled = json.disabled === true;
 			placeholderType = json.placeholderType;
-			if(!parameters) {
+			if(!parameters && labelDisabled !== true) {
 				document.getElementById("error")!.style.display = "flex";
+			}else if(labelDisabled === true){
+				const holder = document.getElementById("app")!;
+				holder.removeAttribute("style");
+				holder.innerHTML = "";
+				prevHTML = "";
 			}else{
 				renderValue();
+			}
+
+			if(json.data?.css) {
+				setDynamicStyles(json.data.css);
 			}
 		}
 	}
 	
 }
 
+/**
+ * Dynamically apply global CSS styles
+ * @param css 
+ */
+function setDynamicStyles(css:string):void {
+    let styleElement = document.getElementById('customCSS');
+    if (!styleElement) {
+        styleElement = document.createElement('style');
+        styleElement.id = 'customCSS';
+        document.head.appendChild(styleElement);
+    }
+    styleElement.innerHTML = css;
+}
+
+/**
+ * Renders current value
+ * @returns 
+ */
 function renderValue():void {
 	if(!parameters || Object.keys(placeholders).length === 0) return;
 	const holder = document.getElementById("app")!;
 	holder.removeAttribute("style");
 	let value = parameters.mode == "placeholder"? parameters.placeholder : parameters.html;
-	if(value != prevValue) {
-		if(parameters.mode == "placeholder") {
-			if(placeholderType == "image"){
-				holder.innerHTML = "<img src=\""+parsePlaceholders("{"+value+"}")+"\">";
-			}else{
-				holder.innerHTML = parsePlaceholders("{"+value+"}" || "");
-			}
-		}else if(parameters.mode == "html") {
-			holder.innerHTML = parsePlaceholders(value);
+	let html = "";
+	if(parameters.mode == "placeholder") {
+		if(placeholderType == "image"){
+			html = "<img src=\""+parsePlaceholders("{"+value+"}")+"\">";
+		}else{
+			html = parsePlaceholders("{"+value+"}" || "");
 		}
+	}else if(parameters.mode == "html") {
+		html = parsePlaceholders(value);
 	}
 
-	prevValue = value;
+	if(html != prevHTML) {
+		holder.innerHTML = html;
+	}
+	prevHTML = holder.innerHTML;
 
 	holder.style.fontFamily = parameters.fontFamily || "Inter";
 	holder.style.fontSize = parameters.fontSize+"px";
@@ -231,7 +262,6 @@ function renderValue():void {
 		holder.style.borderRadius = ".5em";
 	}
 }
-
 
 createConnectionTunnel();
 requestInitialInfo();

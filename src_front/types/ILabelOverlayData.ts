@@ -8,6 +8,7 @@ export interface LabelItemData {
 	enabled:boolean;
 	placeholder:typeof LabelItemPlaceholderList[number]["tag"] | "";
 	html:string;
+	css:string;
 	mode:"placeholder"|"html";
 	fontSize:number;
 	fontFamily:string;

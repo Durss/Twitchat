@@ -162,7 +162,7 @@ export default class Config {
 	/**
 	 * Maximum labels
 	 */
-	public MAX_LABELS = 3;
+	public MAX_LABELS = 2;
 	/**
 	 * Maximum labels for premium users
 	 */

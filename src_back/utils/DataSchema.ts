@@ -1650,6 +1650,7 @@ const UserDataSchema = {
 							title: {type:"string", maxLength:40},
 							placeholder: {type:"string", maxLength:100},
 							html: {type:"string", maxLength:10000},
+							css: {type:"string", maxLength:10000},
 							mode: {enum: ["html", "placeholder"]},
 							fontSize: {type:"number", minimum:0, maximum:300},
 							fontFamily: {type:"string", maxLength:200},

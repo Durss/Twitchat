@@ -2751,4 +2751,9 @@ export interface ILabelsActions {
 	 * Broadcasts given label's params
 	 */
 	broadcastLabelParams(labelId:string):void;
+	/**
+	 * Duplicate given label
+	 * @param labelId 
+	 */
+	duplicateLabel(labelId:string):void;
 }

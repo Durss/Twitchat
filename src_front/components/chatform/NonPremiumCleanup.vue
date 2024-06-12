@@ -142,10 +142,10 @@
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['bingo_grid']" :title="$t('premium.cleanup.bingo_grids')" :alert="!bbingoGridsOK" :open="!bbingoGridsOK"
+				<ToggleBlock :icons="['bingo_grid']" :title="$t('premium.cleanup.bingo_grids')" :alert="!bingoGridsOK" :open="!bingoGridsOK"
 				v-if="$store.bingoGrid.gridList.length > 0">
 					<template #right_actions>
-						<Icon :name="(bbingoGridsOK? 'checkmark' : 'alert')" />
+						<Icon :name="(bingoGridsOK? 'checkmark' : 'alert')" />
 						<strong>{{$store.bingoGrid.gridList.filter(v=>v.enabled).length}}/{{ $config.MAX_BINGO_GRIDS }}</strong>
 					</template>
 					<div class="itemList">
@@ -153,6 +153,22 @@
 							<span class="label">{{ item.title }}</span>
 							<div class="toggle">
 								<ToggleButton v-model="item.enabled" @change="toggleBingoGrid(item)" />
+							</div>
+						</div>
+					</div>
+				</ToggleBlock>
+
+				<ToggleBlock :icons="['label']" :title="$t('premium.cleanup.labels')" :alert="!labelsOK" :open="!labelsOK"
+				v-if="$store.labels.labelList.length > 0">
+					<template #right_actions>
+						<Icon :name="(labelsOK? 'checkmark' : 'alert')" />
+						<strong>{{$store.labels.labelList.filter(v=>v.enabled).length}}/{{ $config.MAX_LABELS }}</strong>
+					</template>
+					<div class="itemList">
+						<div class="rowItem" v-for="item in $store.labels.labelList">
+							<span class="label">{{ item.title }}</span>
+							<div class="toggle">
+								<ToggleButton v-model="item.enabled" @change="toggleLabel(item)" />
 							</div>
 						</div>
 					</div>
@@ -167,9 +183,10 @@
 
 <script lang="ts">
 import type { HeatScreen } from '@/types/HeatDataTypes';
+import type { LabelItemData } from '@/types/ILabelOverlayData';
 import type { TriggerData, TriggerTreeItemData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
+import TriggerUtils from '@/utils/TriggerUtils';
 import { gsap } from 'gsap/all';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ClearButton from '../ClearButton.vue';
@@ -180,7 +197,6 @@ import ToggleButton from '../ToggleButton.vue';
 import HeatScreenPreview from '../params/contents/heat/areas/HeatScreenPreview.vue';
 import type { TriggerListEntry, TriggerListFolderEntry } from '../params/contents/triggers/TriggerList.vue';
 import TriggerListFolderItem from '../params/contents/triggers/TriggerListFolderItem.vue';
-import TriggerUtils from '@/utils/TriggerUtils';
 
 @Component({
 	components:{
@@ -204,7 +220,8 @@ class NonPremiumCleanup extends Vue {
 	public get badgesUserOK():boolean { return Object.keys(this.$store.users.customUserBadges).length <= this.$config.MAX_CUSTOM_BADGES_ATTRIBUTION; }
 	public get usernamesOK():boolean { return Object.keys(this.$store.users.customUsernames).length <= this.$config.MAX_CUSTOM_USERNAMES; }
 	public get distortionsOK():boolean { return this.$store.heat.distortionList.filter(v=>v.enabled).length <= this.$config.MAX_DISTORTION_OVERLAYS; }
-	public get bbingoGridsOK():boolean { return this.$store.bingoGrid.gridList.filter(v=>v.enabled).length <= this.$config.MAX_BINGO_GRIDS; }
+	public get bingoGridsOK():boolean { return this.$store.bingoGrid.gridList.filter(v=>v.enabled).length <= this.$config.MAX_BINGO_GRIDS; }
+	public get labelsOK():boolean { return this.$store.labels.labelList.filter(v=>v.enabled).length <= this.$config.MAX_LABELS; }
 	public get allOK():boolean {
 		return this.triggersOK
 			&& this.countersOK
@@ -214,7 +231,8 @@ class NonPremiumCleanup extends Vue {
 			&& this.badgesUserOK
 			&& this.usernamesOK
 			&& this.distortionsOK
-			&& this.bbingoGridsOK;
+			&& this.bingoGridsOK
+			&& this.labelsOK;
 	}
 
 	public folderTriggerList:(TriggerListEntry|TriggerListFolderEntry)[] = [];
@@ -379,6 +397,10 @@ class NonPremiumCleanup extends Vue {
 
 	public toggleBingoGrid(item:TwitchatDataTypes.BingoGridConfig):void {
 		this.$store.bingoGrid.saveData(item.id);
+	}
+
+	public toggleLabel(item:LabelItemData):void {
+		this.$store.labels.saveData(item.id);
 	}
 
 	public onToggleTrigger():void {

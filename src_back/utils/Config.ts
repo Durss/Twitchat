@@ -42,6 +42,14 @@ export default class Config {
 		return this.credentialsCache;
 	}
 
+	public static get FORCE_NON_PREMIUM(): boolean {
+		return this.getEnvData({
+			dev: false,
+			beta: false,
+			prod: false,
+		});
+	}
+
 	public static get LOCAL_TESTING(): boolean {
 		return this.getEnvData({
 			dev: true,

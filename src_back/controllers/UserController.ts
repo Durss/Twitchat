@@ -104,7 +104,7 @@ export default class UserController extends AbstractController {
 		const data:{isDonor:boolean,
 					level:number,
 					isAdmin?:true,
-					isEarlyDonor?:true,
+					isEarlyDonor?:boolean,
 					isPremiumDonor?:boolean,
 					isPatreonMember?:boolean,
 					lifetimePercent?:number
@@ -120,6 +120,12 @@ export default class UserController extends AbstractController {
 
 		if(DiscordController.isDiscordLinked(userInfo.user_id) === true) {
 			data.discordLinked = true;
+		}
+
+		if(Config.FORCE_NON_PREMIUM) {
+			data.isEarlyDonor = false;
+			data.isPatreonMember = false;
+			data.isPremiumDonor = false;
 		}
 
 		response.header('Content-Type', 'application/json');

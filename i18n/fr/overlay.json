@@ -334,6 +334,7 @@
 				"description":"Cette action ne peut être annulée"
 			},
 			"param_customText":"Texte personnalisé (supporte le HTML)",
+			"param_customCSS":"CSS personnalisé",
 			"param_labelValue":"Valeur à afficher",
 			"param_labelValueFont":"Police d'écriture",
 			"param_labelValueSize":"Taille du texte",

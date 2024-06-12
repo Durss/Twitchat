@@ -39,6 +39,7 @@
 
 				<template #right_actions>
 					<div class="rightActions">
+						<TTButton @click.stop="$store.labels.duplicateLabel(label.id)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxLabelsReached" />
 						<TTButton @click.stop="$store.labels.removeLabel(label.id)" icon="trash" alert />
 					</div>
 				</template>
@@ -55,6 +56,7 @@
 					:labels="['Valeur', 'HTML']"></SwitchButton>
 					
 					<ParamItem v-if="label.mode == 'html'" :paramData="param_customText[label.id]" v-model="label.html" @change="save(label)"></ParamItem>
+					<ParamItem v-if="label.mode == 'html'" :paramData="param_customCSS[label.id]" v-model="label.css" @change="save(label)"></ParamItem>
 
 					<ParamItem v-if="label.mode == 'placeholder'" :paramData="param_labelValue[label.id]" v-model="label.placeholder" @change="save(label)" />
 
@@ -97,6 +99,7 @@ import SwitchButton from '@/components/SwitchButton.vue';
 class OverlayParamsLabels extends Vue {
 
 	public param_customText:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_customCSS:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_labelValue:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_labelValueFont:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_labelValueSize:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
@@ -105,6 +108,14 @@ class OverlayParamsLabels extends Vue {
 	public param_backgroundColor:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 
 	private placeholders:TwitchatDataTypes.PlaceholderEntry[] = [];
+
+	public get maxLabelsReached():boolean {
+		if(this.$store.auth.isPremium) {
+			return this.$store.labels.labelList.length >= this.$config.MAX_LABELS_PREMIUM;
+		}else{
+			return this.$store.labels.labelList.length >= this.$config.MAX_LABELS;
+		}
+	}
 
 	public beforeMount():void {
 		for (const key in this.$store.labels.placeholders) {
@@ -151,7 +162,8 @@ class OverlayParamsLabels extends Vue {
 			this.param_labelValue[id] = {type:"list", value:"", labelKey:"overlay.labels.param_labelValue", icon:"label"};
 			this.param_labelValueFont[id] = {type:"font", value:"Inter", labelKey:"overlay.labels.param_labelValueFont", icon:"font"};
 			this.param_labelValueSize[id] = {type:"number", value:40, labelKey:"overlay.labels.param_labelValueSize", icon:"fontSize", min:5, max:300};
-			this.param_customText[id] = {type:"string", value:"", labelKey:"overlay.labels.param_customText", maxLength:10000, longText:true, icon:"font", placeholderList:this.placeholders};
+			this.param_customText[id] = {type:"string", value:"", labelKey:"overlay.labels.param_customText", maxLength:10000, longText:true, icon:"html", placeholderList:this.placeholders};
+			this.param_customCSS[id] = {type:"string", value:"", labelKey:"overlay.labels.param_customCSS", maxLength:10000, longText:true, icon:"css", placeholderList:this.placeholders};
 			this.param_textColor[id] = {type:"color", value:"", labelKey:"overlay.labels.param_textColor", icon:"color"};
 			this.param_backgroundEnabled[id] = {type:"boolean", value:true, labelKey:"overlay.labels.param_backgroundEnabled", icon:"show"};
 			this.param_backgroundColor[id] = {type:"color", value:"", labelKey:"overlay.labels.param_backgroundColor", icon:"color"};

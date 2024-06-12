@@ -14,6 +14,7 @@ let ready = false;
 let readyResolver:() => void;
 let readyPromise = new Promise<void>((resolve) => readyResolver = resolve);
 let broadcastCount:number = 0;
+let sabeDebounce:number = -1;
 let broadcastDebounce:number = -1;
 
 export const storeLabels = defineStore('labels', {
@@ -88,6 +89,7 @@ export const storeLabels = defineStore('labels', {
 				enabled:true,
 				title:"",
 				html:"",
+				css:"",
 				placeholder:"",
 				mode:"placeholder",
 				fontFamily:"",
@@ -109,8 +111,6 @@ export const storeLabels = defineStore('labels', {
 		},
 
 		saveData(labelId?:string):void {
-			if(labelId) this.broadcastLabelParams(labelId);
-
 			//Saves currently cached values
 			const cachedValues:IStoreData["cachedValues"] = {};
 			for (const tag in this.placeholders) {
@@ -126,6 +126,7 @@ export const storeLabels = defineStore('labels', {
 				cachedValues,
 			}
 			DataStore.set(DataStore.OVERLAY_LABELS, data);
+			if(labelId) this.broadcastLabelParams(labelId);
 		},
 
 		async updateLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:string|number, userId?:string):Promise<void> {
@@ -170,12 +171,24 @@ export const storeLabels = defineStore('labels', {
 		broadcastLabelParams(labelId:string):void {
 			const data = this.labelList.find(v=>v.id == labelId) || null;
 			const tag = data?.placeholder;
-			if(data && tag && this.placeholders[tag]) {
+			if(data && tag && this.placeholders[tag] && data.enabled === true) {
 				const placeholderType = this.placeholders[tag]!.placeholder.type;
 				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, placeholderType, data:data as unknown as JsonObject});
-				}else{
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, placeholderType:"string", data:null});
+			}else{
+				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, placeholderType:"string", data:null, disabled:data?.enabled === false});
 			}
+		},
+
+		duplicateLabel(labelId:string):void {
+			const label = this.labelList.find(v=>v.id == labelId) || null;
+			if(label) {
+				const clone = JSON.parse(JSON.stringify(label)) as typeof label;
+				clone.id = Utils.getUUID();
+				clone.title += " (copy)"
+				this.labelList.push(clone);
+				this.saveData();
+			}
+
 		}
 
 	} as ILabelsActions
