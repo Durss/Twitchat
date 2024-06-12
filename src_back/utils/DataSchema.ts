@@ -1,10 +1,10 @@
-import Ajv from "ajv";
+import {Ajv} from "ajv"
 
 
 /**
  * Data schema to make sure people don't send random or invalid data to the server
  */
- const UserDataSchema = {
+const UserDataSchema = {
 	$id: "http://twitchat.fr/schemas/defs.json",
 	definitions: {
 		permissions: {

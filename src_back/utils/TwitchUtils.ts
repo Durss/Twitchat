@@ -1,6 +1,6 @@
-import fetch from "node-fetch";
-import Config from "./Config";
-import Logger from "./Logger";
+import NodeFetch from "node-fetch";
+import Config from "./Config.js";
+import Logger from "./Logger.js";
 
 /**
 * Created : 08/07/2021 

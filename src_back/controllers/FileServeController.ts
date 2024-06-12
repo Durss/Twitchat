@@ -1,10 +1,10 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import AbstractController from "./AbstractController";
-import Config from "../utils/Config";
+import AbstractController from "./AbstractController.js";
+import Config from "../utils/Config.js";
 import * as fs from "fs";
 import * as path from "path";
-import Logger from "../utils/Logger";
-import Utils from "../utils/Utils";
+import Logger from "../utils/Logger.js";
+import Utils from "../utils/Utils.js";
 import {spawn} from "child_process";
 
 /**

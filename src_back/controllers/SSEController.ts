@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import TwitchUtils from "../utils/TwitchUtils";
-import Utils from "../utils/Utils";
-import AbstractController from "./AbstractController";
+import TwitchUtils from "../utils/TwitchUtils.js";
+import Utils from "../utils/Utils.js";
+import AbstractController from "./AbstractController.js";
 
 /**
 * Created : 23/02/2024 

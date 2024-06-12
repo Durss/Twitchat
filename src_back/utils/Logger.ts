@@ -1,4 +1,4 @@
-import Config from "./Config";
+import Config from "./Config.js";
 /**
  * Created by Durss on 16/03/2017
  */

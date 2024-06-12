@@ -1,12 +1,12 @@
 import * as JsonPatch from 'fast-json-patch';
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
-import Config from '../utils/Config';
-import { schemaValidator } from '../utils/DataSchema';
-import Logger from '../utils/Logger';
-import AbstractController from "./AbstractController";
-import DiscordController from './DiscordController';
-import { PatreonMember } from './PatreonController';
+import Config from '../utils/Config.js';
+import { schemaValidator } from '../utils/DataSchema.js';
+import Logger from '../utils/Logger.js';
+import AbstractController from "./AbstractController.js";
+import DiscordController from './DiscordController.js';
+import { PatreonMember } from './PatreonController.js';
 
 /**
 * Created : 13/03/2022

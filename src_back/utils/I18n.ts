@@ -1,9 +1,9 @@
 import { Locale, LocaleString } from "discord.js";
 import * as fs from "fs";
 import * as path from "path";
-import Config from "./Config";
+import Config from "./Config.js";
 //@ts-ignore avoid compile error I couldn't manage to fix properly
-import {type labels as Labels} from "../../static/labels.json";
+import {type labels as Labels} from "../../static/labels.json.js";
 
 /**
 * Created : 24/02/2024 

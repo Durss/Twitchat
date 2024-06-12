@@ -1,9 +1,8 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import * as fetch from "node-fetch";
-import Config from "../utils/Config";
-import Logger from "../utils/Logger";
-import TwitchUtils from "../utils/TwitchUtils";
-import AbstractController from "./AbstractController";
+import fetch from "node-fetch";;
+import Config from "../utils/Config.js";
+import Logger from "../utils/Logger.js";
+import AbstractController from "./AbstractController.js";
 
 /**
 * Created : 17/08/2023 

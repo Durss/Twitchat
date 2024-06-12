@@ -2,10 +2,10 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { readFileSync } from "fs";
 import { Auth, google, translate_v2 } from "googleapis";
 import * as jwt from 'jsonwebtoken';
-import Config from "../utils/Config";
-import Logger from "../utils/Logger";
-import TwitchUtils from "../utils/TwitchUtils";
-import AbstractController from "./AbstractController";
+import Config from "../utils/Config.js";
+import Logger from "../utils/Logger.js";
+import TwitchUtils from "../utils/TwitchUtils.js";
+import AbstractController from "./AbstractController.js";
 
 /**
 * Created : 21/11/2023 

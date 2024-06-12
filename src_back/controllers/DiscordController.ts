@@ -3,13 +3,13 @@ import { ChannelType, Guild, GuildChannel, PermissionFlagsBits, PermissionOverwr
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
 import * as path from "path";
-import Config from "../utils/Config";
-import I18n from "../utils/I18n";
-import Logger from "../utils/Logger";
-import TwitchUtils, { TwitchToken } from "../utils/TwitchUtils";
-import Utils from "../utils/Utils";
-import AbstractController from "./AbstractController";
-import SSEController, { SSECode } from "./SSEController";
+import Config from "../utils/Config.js";
+import I18n from "../utils/I18n.js";
+import Logger from "../utils/Logger.js";
+import TwitchUtils, { TwitchToken } from "../utils/TwitchUtils.js";
+import Utils from "../utils/Utils.js";
+import AbstractController from "./AbstractController.js";
+import SSEController, { SSECode } from "./SSEController.js";
 
 /**
 * Created : 23/02/2024

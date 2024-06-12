@@ -1,28 +1,32 @@
+import fastifyFormbody from '@fastify/formbody';
+import fastifyMultipart from '@fastify/multipart';
 import Fastify, { FastifyInstance } from 'fastify';
-import Config from "./utils/Config";
-import Logger from './utils/Logger';
+import fastifyRawBody from 'fastify-raw-body';
 import * as fs from "fs";
-import AuthController from './controllers/AuthController';
-import DonorController from './controllers/DonorController';
-import UserController from './controllers/UserController';
-import SpotifyController from './controllers/SpotifyController';
-import BetaController from './controllers/BetaController';
-import FileServeController from './controllers/FileServeController';
-import MiddlewareController from './controllers/MiddlewareController';
-import UluleController from './controllers/UluleController';
-import PatreonController from './controllers/PatreonController';
-import TenorController from './controllers/TenorController';
-import PaypalController from './controllers/PaypalController';
-import GoogleController from './controllers/GoogleController';
-import SSEController from './controllers/SSEController';
-import DiscordController from './controllers/DiscordController';
-import I18n from './utils/I18n';
-import ApiController from './controllers/ApiController';
-import StreamlabsController from './controllers/StreamlabsController';
-import KofiController from './controllers/KofiController';
-import StreamelementsController from './controllers/StreamelementsController';
-import TipeeeController from './controllers/TipeeeController';
-import BingoGridController from './controllers/BingoGridController';
+import ApiController from './controllers/ApiController.js';
+import AuthController from './controllers/AuthController.js';
+import BetaController from './controllers/BetaController.js';
+import BingoGridController from './controllers/BingoGridController.js';
+import DiscordController from './controllers/DiscordController.js';
+import DonorController from './controllers/DonorController.js';
+import FileServeController from './controllers/FileServeController.js';
+import GoogleController from './controllers/GoogleController.js';
+import KofiController from './controllers/KofiController.js';
+import MiddlewareController from './controllers/MiddlewareController.js';
+import PatreonController from './controllers/PatreonController.js';
+import PaypalController from './controllers/PaypalController.js';
+import SSEController from './controllers/SSEController.js';
+import SpotifyController from './controllers/SpotifyController.js';
+import StreamelementsController from './controllers/StreamelementsController.js';
+import StreamlabsController from './controllers/StreamlabsController.js';
+import TenorController from './controllers/TenorController.js';
+import TipeeeController from './controllers/TipeeeController.js';
+import UluleController from './controllers/UluleController.js';
+import UserController from './controllers/UserController.js';
+import Config from "./utils/Config.js";
+import I18n from './utils/I18n.js';
+import Logger from './utils/Logger.js';
+import {FastifySSEPlugin} from 'fastify-sse-v2';
 
 // Run the server!
 async function start():Promise<void> {
@@ -50,9 +54,9 @@ fs.mkdirSync(Config.KO_FI_DATA_FOLDER, { recursive: true });
 I18n.instance.initialize();
 
 const server:FastifyInstance = Fastify({logger: false});
-server.register(import("@fastify/formbody"))
-server.register(import("fastify-sse-v2"))
-.register(import("@fastify/multipart"),{
+server.register(fastifyFormbody)
+server.register(FastifySSEPlugin)
+.register(fastifyMultipart,{
 	attachFieldsToBody: 'keyValues',
 	limits: {
 		fileSize: 2000000,  // For multipart forms, the max file size in bytes
@@ -60,7 +64,7 @@ server.register(import("fastify-sse-v2"))
 		parts: 100         // For multipart forms, the max number of parts (fields + files)
 	}
 })
-.register(import("fastify-raw-body"), {
+.register(fastifyRawBody, {
   runFirst: true, // get the body before any preParsing hook change/uncompress it. **Default false**
 }).then(async ()=> {
 	//Create controllers

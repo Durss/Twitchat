@@ -1,10 +1,10 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
-import Config from "../utils/Config";
-import Logger from "../utils/Logger";
-import TwitchUtils from "../utils/TwitchUtils";
-import AbstractController from "./AbstractController";
-import SSEController, { SSECode as SSETopic } from "./SSEController";
+import Config from "../utils/Config.js";
+import Logger from "../utils/Logger.js";
+import TwitchUtils from "../utils/TwitchUtils.js";
+import AbstractController from "./AbstractController.js";
+import SSEController, { SSECode as SSETopic } from "./SSEController.js";
 
 /**
 * Created : 01/06/2024 

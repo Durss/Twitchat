@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import AbstractController from "./AbstractController";
-import Logger from "../utils/Logger";
-import * as fetch from "node-fetch";
+import fetch from "node-fetch";;
+import Logger from "../utils/Logger.js";
+import AbstractController from "./AbstractController.js";
 
 /**
 * Created : 10/06/2023 

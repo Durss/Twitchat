@@ -1,6 +1,9 @@
 import * as fs from "fs";
 import * as path from "path";
-import { LogStyle } from "../utils/Logger";
+import { LogStyle } from "../utils/Logger.js";
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Created by Durss

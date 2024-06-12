@@ -1,10 +1,10 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import Logger from '../utils/Logger';
+import Logger from '../utils/Logger.js';
 import * as URL from "url";
-import Config from '../utils/Config';
+import Config from '../utils/Config.js';
 import * as jwt from 'jsonwebtoken';
-import * as fetch from "node-fetch";
-import AbstractController from "./AbstractController";
+import fetch from "node-fetch";;
+import AbstractController from "./AbstractController.js";
 
 /**
 * Created : 13/03/2022 

@@ -1,8 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
-import Config from '../utils/Config';
-import TwitchUtils, { TwitchToken } from "../utils/TwitchUtils";
-import type { PatreonMember } from "./PatreonController";
+import Config from '../utils/Config.js';
+import TwitchUtils, { TwitchToken } from "../utils/TwitchUtils.js";
+import type { PatreonMember } from "./PatreonController.js";
 
 /**
 * Created : 14/12/2022

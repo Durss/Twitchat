@@ -1,7 +1,8 @@
 {
 	"compilerOptions": {
-		"target": "es6",
-		"module": "commonjs",
+		"module": "NodeNext",
+		"target": "ESNext",
+		"moduleResolution": "NodeNext",
 		"strict": true,
 		"noImplicitAny": false,
 		"noImplicitThis": false,
@@ -9,6 +10,8 @@
 		"importHelpers": false,
 		"experimentalDecorators": true,
 		"sourceMap": false,
+		"isolatedModules": true,
+		"esModuleInterop": true,
 		"baseUrl": ".",
 		"outDir": "./server",
 		"skipLibCheck": true,

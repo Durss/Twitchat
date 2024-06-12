@@ -1,10 +1,13 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import AbstractController from "./AbstractController";
-import Config from "../utils/Config";
-import Logger from "../utils/Logger";
+import AbstractController from "./AbstractController.js";
+import Config from "../utils/Config.js";
+import Logger from "../utils/Logger.js";
 import * as fs from "fs";
 import * as path from "path";
 import * as mime from "mime-types";
+import cors from '@fastify/cors'
+import fastifyStatic from "@fastify/static";
+import fastifyRateLimit from "@fastify/rate-limit";
 
 /**
 * Created : 22/02/2023
@@ -30,49 +33,44 @@ export default class MiddlewareController extends AbstractController {
 	******************/
 	public async initialize():Promise<void> {
 		//Rate limiter
-		await this.server.register(require('@fastify/rate-limit'), {
-			max: 10,
-			ban: 5,
-			global: true,
-			timeWindow: 1000,
-			addHeaders:{
-				'x-ratelimit-limit': false,
-				'x-ratelimit-remaining': false,
-				'x-ratelimit-reset': true,
-				'retry-after': false
-			},
-			allowList: (request, key) => {
-				//Apply rate limit only to API endpoints except config and SSE
-				return !/\/api\//.test(request.url)
-					|| request.url == "/api/configs";
-			},
-			onBanReach: (request, key) => {
-				this.expandCustomRateLimitDuration(request);
-			},
-			errorResponseBuilder: function (request, context) {
-				return {
-					code: 429,
-					error: 'Too Many Requests',
-					errorCode: 'RATE_LIMIT'
-				}
-			}
-		});
+		// await this.server.register(fastifyRateLimit, {
+		// 	max: 10,
+		// 	ban: 5,
+		// 	global: true,
+		// 	timeWindow: 1000,
+		// 	addHeaders:{
+		// 		'x-ratelimit-limit': false,
+		// 		'x-ratelimit-remaining': false,
+		// 		'x-ratelimit-reset': true,
+		// 		'retry-after': false
+		// 	},
+		// 	allowList: (request, key) => {
+		// 		//Apply rate limit only to API endpoints except config and SSE
+		// 		return !/\/api\//.test(request.url)
+		// 			|| request.url == "/api/configs";
+		// 	},
+		// 	onBanReach: (request, key) => {
+		// 		this.expandCustomRateLimitDuration(request);
+		// 	},
+		// 	errorResponseBuilder: (request, context) => {
+		// 		return {
+		// 			code: 429,
+		// 			error: 'Too Many Requests',
+		// 			errorCode: 'RATE_LIMIT'
+		// 		}
+		// 	}
+		// });
 
 		//CORS headers
-		await this.server.register(require('@fastify/cors'), {
+		await this.server.register(cors, {
 			origin:[/localhost/i, /twitchat\.fr/i, /192\.168\.1\.10/, /127\.0\.0\.1/],
-			// origin:(origin, cb) => {
-			// 	console.log(origin);
-			// 	cb(null, true);
-			// 	return;
-			// },
 			methods:['GET', 'PUT', 'POST', 'DELETE'],
-			decorateReply: true,
-			exposedHeaders:["x-ratelimit-reset"]
-		})
+			// decorateReply: true,
+			exposedHeaders:["x-ratelimit-reset"],
+		});
 
 		//Static files
-		await this.server.register(require('@fastify/static'), {
+		await this.server.register(fastifyStatic, {
 			root: Config.PUBLIC_ROOT,
 			prefix: '/',
 			setHeaders:(response, path)=>{

@@ -1,11 +1,11 @@
 
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import AbstractController from "./AbstractController";
-import SSEController, { SSECode } from "./SSEController";
-import Config from "../utils/Config";
+import AbstractController from "./AbstractController.js";
+import SSEController, { SSECode } from "./SSEController.js";
+import Config from "../utils/Config.js";
 import * as fs from "fs";
-import Logger from "../utils/Logger";
-import fetch from "node-fetch";
+import Logger from "../utils/Logger.js";
+import NodeFetch from "node-fetch";
 
 /**
 * Created : 04/03/2024 
