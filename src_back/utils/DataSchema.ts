@@ -1,4 +1,4 @@
-import {Ajv} from "ajv"
+import Ajv from "ajv"
 
 
 /**
@@ -1678,6 +1678,7 @@ const UserDataSchema = {
 	}
 }
 
+//@ts-ignore find a way to fix compile time error
 const ajv = new Ajv({
 	strictTuples: true,
 	verbose:true,

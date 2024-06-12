@@ -1178,6 +1178,11 @@ export const storeChat = defineStore('chat', {
 					if(message.eventType == "donation") {
 						StoreProxy.labels.updateLabelValue("LAST_KOFI_TIP_NAME", message.userName);
 						StoreProxy.labels.updateLabelValue("LAST_KOFI_TIP_AMOUNT", message.amountFormatted);
+					}else
+					if(message.eventType == "merch") {
+						StoreProxy.labels.updateLabelValue("LAST_KOFI_MERCH_USER", message.userName);
+						StoreProxy.labels.updateLabelValue("LAST_KOFI_MERCH_AMOUNT", message.amountFormatted);
+						StoreProxy.labels.updateLabelValue("LAST_KOFI_MERCH_NAME", message.products[0].name || "");
 					}
 					break;
 				}
@@ -1198,6 +1203,10 @@ export const storeChat = defineStore('chat', {
 					if(message.eventType == "donation") {
 						StoreProxy.labels.updateLabelValue("LAST_STREAMLABS_TIP_NAME", message.userName);
 						StoreProxy.labels.updateLabelValue("LAST_STREAMLABS_TIP_AMOUNT", message.amountFormatted);
+					}else
+					if(message.eventType == "merch") {
+						StoreProxy.labels.updateLabelValue("LAST_STREAMLABS_MERCH_USER", message.userName);
+						StoreProxy.labels.updateLabelValue("LAST_STREAMLABS_MERCH_NAME", message.product);
 					}
 					break;
 				}

@@ -6,7 +6,6 @@ import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
 import SetIntervalWorker from "@/utils/SetIntervalWorker";
-import Utils from "@/utils/Utils";
 import PatreonHelper from "@/utils/patreon/PatreonHelper";
 import EventSub from "@/utils/twitch/EventSub";
 import PubSub from "@/utils/twitch/PubSub";
@@ -112,7 +111,7 @@ export const storeAuth = defineStore('auth', {
 					//Schedule refresh
 					refreshTokenTO = setTimeout(()=>{
 						this.twitch_tokenRefresh();
-					}, this.twitch.expires_in*1000 - 60000 * 5);
+					}, twitchAuthResult.expires_in*1000 - 60000 * 5);
 				}else {
 					//OAuth process already done, just request a fresh new token if it's
 					//gonna expire in less than 5 minutes

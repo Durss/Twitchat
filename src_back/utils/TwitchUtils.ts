@@ -1,4 +1,4 @@
-import NodeFetch from "node-fetch";
+import fetch from "node-fetch";
 import Config from "./Config.js";
 import Logger from "./Logger.js";
 
