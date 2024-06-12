@@ -33,33 +33,37 @@ export default class MiddlewareController extends AbstractController {
 	******************/
 	public async initialize():Promise<void> {
 		//Rate limiter
-		// await this.server.register(fastifyRateLimit, {
-		// 	max: 10,
-		// 	ban: 5,
-		// 	global: true,
-		// 	timeWindow: 1000,
-		// 	addHeaders:{
-		// 		'x-ratelimit-limit': false,
-		// 		'x-ratelimit-remaining': false,
-		// 		'x-ratelimit-reset': true,
-		// 		'retry-after': false
-		// 	},
-		// 	allowList: (request, key) => {
-		// 		//Apply rate limit only to API endpoints except config and SSE
-		// 		return !/\/api\//.test(request.url)
-		// 			|| request.url == "/api/configs";
-		// 	},
-		// 	onBanReach: (request, key) => {
-		// 		this.expandCustomRateLimitDuration(request);
-		// 	},
-		// 	errorResponseBuilder: (request, context) => {
-		// 		return {
-		// 			code: 429,
-		// 			error: 'Too Many Requests',
-		// 			errorCode: 'RATE_LIMIT'
-		// 		}
-		// 	}
-		// });
+		//FIXME something's off with the libs typing for ESM project or somehting.
+		// Following line crashes at build time since I moved from CJS to ESM.
+		//Code executes properly tho
+		//@ts-ignore 
+		await this.server.register(fastifyRateLimit, {
+			max: 10,
+			ban: 5,
+			global: true,
+			timeWindow: 1000,
+			addHeaders:{
+				'x-ratelimit-limit': false,
+				'x-ratelimit-remaining': false,
+				'x-ratelimit-reset': true,
+				'retry-after': false
+			},
+			allowList: (request, key) => {
+				//Apply rate limit only to API endpoints except config and SSE
+				return !/\/api\//.test(request.url)
+					|| request.url == "/api/configs";
+			},
+			onBanReach: (request, key) => {
+				this.expandCustomRateLimitDuration(request);
+			},
+			errorResponseBuilder: (request, context) => {
+				return {
+					code: 429,
+					error: 'Too Many Requests',
+					errorCode: 'RATE_LIMIT'
+				}
+			}
+		});
 
 		//CORS headers
 		await this.server.register(cors, {

@@ -32,6 +32,9 @@ class SwitchButton extends Vue {
 	@Prop({type:Array, default:["",""]})
 	public labels!:string[];
 
+	@Prop({type:Array, default: [true, false]})
+	public values!:unknown[];
+
 	@Prop({type:Boolean, default: false})
 	public big!:boolean;
 
@@ -47,9 +50,6 @@ class SwitchButton extends Vue {
 	@Prop({default: false})
 	public modelValue!:unknown;
 
-	@Prop({type:Array, default: [true, false]})
-	public values!:unknown[];
-
 	public localValue:unknown = false;
 	public selected:boolean = false;
 
@@ -64,7 +64,7 @@ class SwitchButton extends Vue {
 	}
 
 	public beforeMount():void {
-		if(this.modelValue != this.values[0] && this.modelValue != this.values[1]) {
+		if(this.modelValue != this.values[0] && this.modelValue !== this.values[1]) {
 			this.setState(this.values[0])
 		}else{
 			this.localValue = this.modelValue;

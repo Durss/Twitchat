@@ -38,7 +38,7 @@
 
 					<template #left_actions>
 						<div class="leftActions">
-							<ToggleButton v-model="bingo.enabled" @click.native.stop @change="save(bingo)" v-if="$store.auth.isPremium || bingo.enabled || $store.bingoGrid.gridList.filter(v=>v.enabled).length < $config.MAX_BINGO_GRIDS" />
+							<ToggleButton v-model="bingo.enabled" @click.native.stop @change="save(bingo, true)" v-if="$store.auth.isPremium || bingo.enabled || $store.bingoGrid.gridList.filter(v=>v.enabled).length < $config.MAX_BINGO_GRIDS" />
 						</div>
 					</template>
 
@@ -142,6 +142,8 @@
 							</div>
 						</ParamItem>
 
+						<ParamItem :paramData="param_winSoundVolume[bingo.id]" @change="save(bingo, false, true)" v-model="bingo.winSoundVolume"></ParamItem>
+
 						<ParamItem :paramData="param_chatCmd_toggle[bingo.id]" @change="save(bingo)">
 							<div class="parameter-child">
 								<ParamItem class="cmdField" :paramData="param_chatCmd[bingo.id]" v-model="bingo.chatCmd" @change="save(bingo)" noBackground />
@@ -234,6 +236,7 @@ class BingoGridForm extends AbstractSidePanel {
 	public param_chatCmd_toggle:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_heat_toggle:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_additional_cells:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_winSoundVolume:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public isDragging:boolean = false;
 
 	private lockedItems:{[key:string]:{index:number, data:TwitchatDataTypes.BingoGridConfig["entries"][number]}[]} = {};
@@ -277,11 +280,17 @@ class BingoGridForm extends AbstractSidePanel {
 	/**
 	 * Save data to storage
 	 */
-	public save(grid:TwitchatDataTypes.BingoGridConfig, broadcastUpdate:boolean = false):void {
+	public save(grid:TwitchatDataTypes.BingoGridConfig, broadcastUpdate:boolean = false, playWinSound:boolean = false):void {
 		if(this.param_chatCmd_toggle[grid.id].value && !grid.chatCmd) {
 			grid.chatCmd = "!bingo";
 		}
 		this.$store.bingoGrid.saveData(grid.id, undefined, broadcastUpdate);
+
+		if(playWinSound && grid.winSoundVolume) {
+			const audio = new Audio(this.$image("sounds/win.mp3"));
+			audio.volume = this.param_winSoundVolume[grid.id].value/100;
+			audio.play();
+		}
 	}
 
 	/**
@@ -313,7 +322,7 @@ class BingoGridForm extends AbstractSidePanel {
 	 * @param item
 	 */
 	public async limitLabelSize(entry:TwitchatDataTypes.BingoGridConfig["entries"][0]):Promise<void> {
-		const maxLength = 60;
+		const maxLength = 60;	
 		const sel = window.getSelection();
 		if(sel && sel.rangeCount > 0) {
 			//Save caret index
@@ -398,6 +407,7 @@ class BingoGridForm extends AbstractSidePanel {
 			this.param_chatCmd_toggle[id] = {type:"boolean", value:entry.chatCmd != undefined, labelKey:"bingo_grid.form.param_chat_cmd_enabled", icon:"show"};
 			this.param_heat_toggle[id] = {type:"boolean", value:false, labelKey:"bingo_grid.form.param_heat_enabled", icon:"heat"};
 			this.param_additional_cells[id] = {type:"custom", value:true, labelKey:"bingo_grid.form.param_additional_cells", icon:"add"};
+			this.param_winSoundVolume[id] = {type:"slider", value:100, min:0, max:100, step:10, labelKey:"bingo_grid.form.param_winSoundVolume", icon:"volume"};
 		});
 	}
 }

@@ -11,7 +11,12 @@ import SSEController, { SSECode as SSETopic } from "./SSEController.js";
 */
 export default class BingoGridController extends AbstractController {
 
-	private cachedBingoGrids:{[key:string]:IGridCacheData} = {}
+	/**
+	 * Stores streamers grid cache
+	 * Key has the following format:
+	 * "[uid]/[gridId]"
+	 */
+	private cachedBingoGrids:{[uidGridId:string]:IGridCacheData} = {}
 	/**
 	 * Stores viewers grid states.
 	 */
@@ -89,6 +94,7 @@ export default class BingoGridController extends AbstractController {
 					//as the overlay one
 					this.shuffleGridEntries(data);
 				}
+
 				this.viewerGridStates[gridId][user.user_id] = {
 					data,
 					ownerId:uid,
@@ -143,6 +149,7 @@ export default class BingoGridController extends AbstractController {
 									.concat(cache.data.additionalEntries || [])
 									.filter(v=> grid.entries.findIndex(w => w.id === v.id) == -1);
 				grid.additionalEntries = (grid.additionalEntries || []).concat(missingEntries);
+				grid.enabled = cache.data.enabled;
 			}
 			this.viewerGridStates[gridId][user.user_id] = {
 				data:grid,
@@ -170,6 +177,8 @@ export default class BingoGridController extends AbstractController {
 		const body:any = request.body;
 		const gridid:string = body.gridid;
 		if(!this.viewerGridStates[gridid]) this.viewerGridStates[gridid] = {};
+		const cachedGrid = await this.getStreamerGrid(user.user_id, gridid);
+		cachedGrid.data.enabled = body.grid.enabled;
 		const uids = Object.keys(this.viewerGridStates[gridid]);
 		uids.forEach(uid => {
 			const grid:IGridCacheData["data"] = JSON.parse(JSON.stringify(body.grid));//Clone to avoid all users from having same grid ref
@@ -214,6 +223,10 @@ export default class BingoGridController extends AbstractController {
 					}
 				})
 			}
+
+			//Update enabled state to viewers cache
+			this.viewerGridStates[gridid][uid].data.enabled = grid.enabled;
+
 			SSEController.sendToUser(uid, SSETopic.BINGO_GRID_UPDATE, {grid:this.viewerGridStates[gridid][uid].data, force:forceNewGridGen});
 		})
 
@@ -415,7 +428,14 @@ export default class BingoGridController extends AbstractController {
 				const grid = data.bingoGrids.gridList.find(v=>v.id == gridId) as IGridCacheData["data"];
 				found = grid != undefined;
 				if(found) {
-					const data:IGridCacheData["data"] = {title:grid.title, entries:grid.entries, rows:grid.rows, cols:grid.cols, additionalEntries:grid.additionalEntries};
+					const data:IGridCacheData["data"] = {
+						enabled:grid.enabled,
+						title:grid.title,
+						entries:grid.entries,
+						rows:grid.rows,
+						cols:grid.cols,
+						additionalEntries:grid.additionalEntries
+					};
 					cache = this.cachedBingoGrids[cacheKey] = {date:Date.now(), ownerId:uid, ownerName:username, data};
 				}
 			}
@@ -470,6 +490,7 @@ interface IGridCacheData {
 	ownerId:string;
 	ownerName:string;
 	data:{
+		enabled:boolean;
 		title:string;
 		rows:number;
 		cols:number

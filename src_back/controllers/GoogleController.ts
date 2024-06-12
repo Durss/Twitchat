@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { readFileSync } from "fs";
 import { Auth, google, translate_v2 } from "googleapis";
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import Config from "../utils/Config.js";
 import Logger from "../utils/Logger.js";
 import TwitchUtils from "../utils/TwitchUtils.js";

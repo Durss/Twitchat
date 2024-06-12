@@ -56,6 +56,7 @@ export type EventTypeMap = {
 	BINGO_GRID_UPDATE:{
 		force?:boolean;
 		grid:{
+			enabled:boolean;
 			title:string;
 			cols:number;
 			rows:number;

@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import AbstractController from "./AbstractController.js";
-import fetch from "node-fetch";;
+import fetch from "node-fetch";
 import Config from "../utils/Config.js";
 
 /**

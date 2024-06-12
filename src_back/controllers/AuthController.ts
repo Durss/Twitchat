@@ -2,8 +2,8 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import Logger from '../utils/Logger.js';
 import * as URL from "url";
 import Config from '../utils/Config.js';
-import * as jwt from 'jsonwebtoken';
-import fetch from "node-fetch";;
+import jwt from 'jsonwebtoken';
+import fetch from "node-fetch";
 import AbstractController from "./AbstractController.js";
 
 /**

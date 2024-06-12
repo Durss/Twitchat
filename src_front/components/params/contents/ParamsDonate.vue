@@ -537,7 +537,7 @@ export default toNative(ParamsDonate);
 		margin: auto;
 		gap: 1em;
 		display: flex;
-		flex-direction: column;;
+		flex-direction: column;
 		width: 100%;
 
 		.amount {

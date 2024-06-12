@@ -158,7 +158,6 @@
 					v-model="paramData.value"
 					v-autofocus="autofocus">
 					<option v-for="a in paramData.listValues"
-						:key="a.label != undefined? a.label : a.labelKey"
 						:value="a.value"
 						:disabled="a.disabled === true">{{a.label != undefined? a.label : $t(a.labelKey!)}}</option>
 				</select>

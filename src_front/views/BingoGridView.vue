@@ -5,56 +5,61 @@
 
 		<Icon v-if="loading" name="loader" class="loader" />
 
-		<div v-else-if="error" class="card-item alert">{{ $t("error.bingo_grid_404") }}</div>
-
-		<div v-else class="grid">
-			<h1>{{ title }}</h1>
-
-			<div v-if="isModerator" class="card-item moderator">
-				<Icon name="mod" />
-				<span>{{ $t("bingo_grid.state.mod_info") }}</span>
-			</div>
-
-			<TTButton @click.capture.prevent="generateCSRF(true)"
-				v-if="!$store.public.authenticated"
-				icon="twitch"
-				class="authBt"
-				:loading="generatingCSRF"
-				v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
-				bounce twitch>{{ $t("bingo_grid.state.auth_bt") }}</TTButton>
-			
-
-			<TTButton v-else icon="offline" @click="unauth()" alert small>Disconnect</TTButton>
-
-			<div class="cells"
-			ref="cellsHolder"
-			:style="{aspectRatio: cols/rows,
-			gridTemplateColumns: 'repeat('+cols+', 1fr)'}">
-				<TransitionGroup name="flip-list">
-					<div v-for="entry in entries"
-					:class="cellClasses(entry)"
-					ref="cell"
-					:key="entry.id"
-					:data-cellid="entry.id"
-					v-tooltip="cellClasses(entry).includes('disabled')? $t('bingo_grid.state.cell_disabled', {USER:ownerName}) : ''"
-					@click="tickCell(entry)">
-						<span class="label">{{ entry.label }}</span>
-						<Icon class="check" name="checkmark" v-show="entry.check" :ref="'check_'+entry.id" />
-					</div>
-				</TransitionGroup>
-			</div>
+		<div v-else-if="error || !gridEnabled" class="error">
+			<Icon name="emote"/>
+			<div class="label">{{ $t("error.bingo_grid_404") }}</div>
 		</div>
 
-		<div class="card-item additional" v-if="isModerator && additionalEntries.length > 0">
-			<strong>{{ $t("bingo_grid.state.additional_cells") }}</strong>
-			<div v-for="entry in additionalEntries" class="additionalEntry">
-				<Checkbox class="entry"
-					:key="entry.id"
-					v-model="entry.check"
-					v-tooltip="entry.label"
-					@click="tickCell(entry)">{{ entry.label }}</Checkbox>
+		<template v-else >
+			<div class="grid">
+				<h1>{{ title }}</h1>
+	
+				<div v-if="isModerator" class="card-item moderator">
+					<Icon name="mod" />
+					<span>{{ $t("bingo_grid.state.mod_info") }}</span>
+				</div>
+	
+				<TTButton @click.capture.prevent="generateCSRF(true)"
+					v-if="!$store.public.authenticated"
+					icon="twitch"
+					class="authBt"
+					:loading="generatingCSRF"
+					v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
+					bounce twitch>{{ $t("bingo_grid.state.auth_bt") }}</TTButton>
+				
+	
+				<TTButton v-else icon="offline" @click="unauth()" alert small>Disconnect</TTButton>
+	
+				<div class="cells"
+				ref="cellsHolder"
+				:style="{aspectRatio: cols/rows,
+				gridTemplateColumns: 'repeat('+cols+', 1fr)'}">
+					<TransitionGroup name="flip-list">
+						<div v-for="entry in entries"
+						:class="cellClasses(entry)"
+						ref="cell"
+						:key="entry.id"
+						:data-cellid="entry.id"
+						v-tooltip="cellClasses(entry).includes('disabled')? $t('bingo_grid.state.cell_disabled', {USER:ownerName}) : ''"
+						@click="tickCell(entry)">
+							<span class="label">{{ entry.label }}</span>
+							<Icon class="check" name="checkmark" v-show="entry.check" :ref="'check_'+entry.id" />
+						</div>
+					</TransitionGroup>
+				</div>
 			</div>
-		</div>
+	
+			<div class="card-item additional" v-if="isModerator && additionalEntries.length > 0">
+				<strong>{{ $t("bingo_grid.state.additional_cells") }}</strong>
+				<div v-for="entry in additionalEntries" class="additionalEntry">
+					<Checkbox class="entry"
+						:key="entry.id"
+						v-model="entry.check"
+						v-tooltip="entry.label"
+						@click="tickCell(entry)">{{ entry.label }}</Checkbox>
+				</div>
+			</div>
+		</template>
 
 		<div class="stars">
 			<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="445.2px" height="426.2px" viewBox="0 0 445.2 426.2"
@@ -98,6 +103,7 @@ class BingoGridView extends Vue {
 	public error = false;
 	public isModerator = false;
 	public generatingCSRF = false;
+	public gridEnabled = false;
 	public cols:number = 0;
 	public rows:number = 0;
 	public bingoCount:number = 0;
@@ -205,6 +211,7 @@ class BingoGridView extends Vue {
 				this.rows		= infos.json.data.rows;
 				this.title		= infos.json.data.title;
 				this.entries	= infos.json.data.entries;
+				this.gridEnabled= infos.json.data.enabled === true;
 				this.additionalEntries	= infos.json.data.additionalEntries || [];
 				this.entries.forEach(v=>{
 					v.enabled = v.check || this.isModerator;
@@ -216,7 +223,7 @@ class BingoGridView extends Vue {
 				});
 				this.onGridUpdate({grid:infos.json.data});
 				this.loading = false;
-				this.animateOpen();
+				if(this.gridEnabled) this.animateOpen();
 			}else{
 				this.error = true;
 			}
@@ -345,7 +352,7 @@ class BingoGridView extends Vue {
 					delay += .05;
 					animateCell(cell);
 				}
-				delay += .1;
+				delay += .4;
 			});
 
 			newVerticalBingos.forEach(x=>{
@@ -356,7 +363,7 @@ class BingoGridView extends Vue {
 					animateCell(cell);
 				}
 
-				delay += .1;
+				delay += .4;
 			});
 
 			newDiagonalBingos.forEach(dir=>{
@@ -368,7 +375,7 @@ class BingoGridView extends Vue {
 					delay += .05;
 					animateCell(cell);
 				}
-				delay += .1;
+				delay += .4;
 			});
 		}
 
@@ -521,6 +528,7 @@ class BingoGridView extends Vue {
 			this.loadGridInfo();
 			return;
 		}
+		this.gridEnabled = data.grid.enabled === true;
 		this.rows = data.grid.rows;
 		this.cols = data.grid.cols;
 		this.title = data.grid.title;
@@ -721,6 +729,20 @@ export default toNative(BingoGridView);
 			&:not(:first-child) {
 				margin-top: .25em;
 			}
+		}
+	}
+
+	.error {
+		margin-top: 1em;
+		text-align: center;
+		.icon {
+			height: 10em;
+			opacity: .5;
+		}
+		.label {
+			font-size: 2em;
+			margin-top: .5em;
+			opacity: .5;
 		}
 	}
 }

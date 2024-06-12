@@ -35,13 +35,6 @@ export default class UserController extends AbstractController {
 		this.server.delete('/api/user/data', async (request, response) => await this.deleteUserData(request, response));
 
 		super.preloadEarlyDonors();
-
-		//Old endpoint URL.
-		//It's just here to make sure people running on the old version won't have issues
-		//while they're streaming.
-		//Remove this after a few days once nobody else runs on the old frontend
-		// this.server.post('/api/user', async (request, response) => await this.getUserData(request, response));
-		// this.server.get('/api/chatters', async (request, response) => await this.getChatters(request, response));
 	}
 
 

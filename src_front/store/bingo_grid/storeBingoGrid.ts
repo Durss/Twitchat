@@ -11,6 +11,7 @@ import SSEHelper from '@/utils/SSEHelper';
 import SSEEvent from '@/events/SSEEvent';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import type { JsonObject } from 'type-fest';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 let saveCountPending:number = 0;
 let debounceSave:number = -1;
@@ -144,6 +145,11 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				if(!event.data) return;
 				if(event.data.count <= 0) return;
 				const user = await StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, event.data.uid, event.data.login, event.data.login);
+				//Force avatar loading if not available
+				if(!user.avatarPath) {
+					const [userDetails] = await TwitchUtils.getUserInfo([user.id]);
+					if(userDetails) user.avatarPath = userDetails.profile_image_url;
+				}
 				if(!this.viewersBingoCount[event.data.gridId]) this.viewersBingoCount[event.data.gridId] = [];
 				const list = this.viewersBingoCount[event.data.gridId];
 				let entry = list.find(v=>v.user.id === user.id);
@@ -225,6 +231,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				enabled:true,
 				showGrid:true,
 				heatClick:false,
+				winSoundVolume:100,
 				textSize:20,
 				cols:5,
 				rows:5,
@@ -549,6 +556,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 								rows:grid.rows,
 								title:grid.title,
 								entries:grid.entries,
+								enabled:grid.enabled,
 								additionalEntries:grid.additionalEntries,
 							}
 						});

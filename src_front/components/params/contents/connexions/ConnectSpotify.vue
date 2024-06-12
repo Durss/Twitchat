@@ -3,8 +3,7 @@
 		<Icon name="spotify" alt="spotify icon" class="icon" />
 
 		<div class="head">
-				<div>{{ $t("connexions.spotify.usage") }}</div>
-			<div class="card-item needsPremium">{{ $t("connexions.spotify.usage_premium") }}</div>
+			<div>{{ $t("connexions.spotify.usage") }}</div>
 		</div>
 
 		<div class="content">
@@ -51,6 +50,8 @@
 			<div class="card-item alert" v-if="error" @click="error=''">{{error}}</div>
 
 			<Icon v-if="authenticating" name="loader" />
+			
+			<div class="card-item needsPremium">{{ $t("connexions.spotify.usage_premium") }}</div>
 
 		</div>
 	</div>

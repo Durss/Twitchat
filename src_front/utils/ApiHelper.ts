@@ -85,7 +85,7 @@ export default class ApiHelper {
 			}
 		}else
 		if(retryOnFail && status != 200 && status != 204 && status != 401 && attemptIndex < 5) {
-			await Utils.promisedTimeout(1000);
+			await Utils.promisedTimeout(1000 * Math.pow(attemptIndex+1,1.5));
 			return this.call(endpoint, method, data, retryOnFail, attemptIndex+1);
 		}else
 		if(status == 401 && attemptIndex < 2) {
@@ -107,10 +107,10 @@ export default class ApiHelper {
 
 
 type ApiDefinition<Endpoints, U extends keyof Endpoints, M extends HttpMethod> =
-  U extends keyof Endpoints
+	U extends keyof Endpoints
     ? M extends keyof Endpoints[U]
-      ? Endpoints[U][M]
-      : never
+		? Endpoints[U][M]
+		: never
     : never;
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
@@ -831,6 +831,7 @@ type ApiEndpoints =  {
 				success:boolean;
 				owner:string;
 				data?:{
+					enabled:boolean;
 					title:string;
 					cols:number;
 					rows:number;
@@ -875,6 +876,7 @@ type ApiEndpoints =  {
 					cols: number;
 					rows: number;
 					title: string;
+					enabled: boolean;
 					entries: {
 						id: string;
 						label: string;

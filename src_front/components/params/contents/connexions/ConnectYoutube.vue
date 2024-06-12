@@ -25,7 +25,7 @@
 						</div>
 					</div>
 				</template>
-				<template v-else-if="!refreshing">
+				<template v-else>
 					<div class="card-item secondary noLive">{{ $t("connexions.youtube.no_live") }}</div>
 				</template>
 

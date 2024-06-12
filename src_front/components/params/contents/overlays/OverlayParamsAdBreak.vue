@@ -160,7 +160,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 	private subcheckTimeout:number = -1;
 	private overlayPresenceHandler!:()=>void;
 
-	public get scopeGranted():boolean{ return TwitchUtils.hasScopes([TwitchScopes.ADS_READ, TwitchScopes.ADS_SNOOZE]);; }
+	public get scopeGranted():boolean{ return TwitchUtils.hasScopes([TwitchScopes.ADS_READ, TwitchScopes.ADS_SNOOZE]); }
 	
 	public beforeMount():void {
 		this.localData.approachingLabel = this.$t("overlay.adBreak.ad_approaching");

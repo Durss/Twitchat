@@ -476,7 +476,7 @@ const UserDataSchema = {
 									properties: {
 										grid: {type:"string", maxLength:40},
 										label: {type:"string", maxLength:60},
-										action: {enum: ["tick", "untick", "toggle", "tick_all", "untick_all"]},
+										action: {enum: ["tick", "untick", "toggle", "tick_all", "untick_all", "rename", "add_cell"]},
 										x: {type:["integer","string"], minimum:1, maximum:10, maxLength:100},
 										y: {type:["integer","string"], minimum:1, maximum:10, maxLength:100},
 									}
@@ -1595,6 +1595,7 @@ const UserDataSchema = {
 							cols:{type:"number", minimum:2, maximum:10},
 							rows:{type:"number", minimum:2, maximum:10},
 							chatCmd: {type:"string", maxLength:20},
+							winSoundVolume: {type:"number", minimum:0, maximum:100},
 							heatClick: {type:"boolean"},
 							chatCmdPermissions: { $ref: "defs.json#/definitions/permissions" },
 							heatClickPermissions: { $ref: "defs.json#/definitions/permissions" },
@@ -1667,7 +1668,7 @@ const UserDataSchema = {
 						".*": {
 							anyOf:[
 								{type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
-								{type:"string", maxLength:600},
+								{type:"string", maxLength:10000},
 							]
 						},
 					}

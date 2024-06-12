@@ -1,8 +1,7 @@
 import { InteractionResponseType, InteractionType, verifyKey } from "discord-interactions";
-import { ChannelType, Guild, GuildChannel, PermissionFlagsBits, PermissionOverwrites, PermissionsBitField, REST, Routes, SlashCommandBuilder, UserFlags } from "discord.js";
+import { ChannelType, Guild, GuildChannel, PermissionsBitField, REST, Routes, SlashCommandBuilder } from "discord.js";
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
-import * as path from "path";
 import Config from "../utils/Config.js";
 import I18n from "../utils/I18n.js";
 import Logger from "../utils/Logger.js";
@@ -614,7 +613,7 @@ export default class DiscordController extends AbstractController {
 		})
 
 
-		cmd = (appCommandMode? 'say' : 'say_guild');;
+		cmd = (appCommandMode? 'say' : 'say_guild');
 		const SAY_CMD = new SlashCommandBuilder()
 		.setName(cmd)
 		.setDescription(I18n.instance.get("en", "server.discord.commands.say.description"))

@@ -300,7 +300,7 @@ export default toNative(GoXLRUI);
 						fill:var(--color-secondary);
 						background-color:var(--color-secondary);
 						&#gender, &#echo, &#pitch, &#reverb {
-							color:var(--color-secondary);;
+							color:var(--color-secondary);
 						}
 						&:hover {
 							fill:var(--color-secondary-light);

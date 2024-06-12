@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import fetch from "node-fetch";;
+import fetch from "node-fetch";
 import Config from "../utils/Config.js";
 import AbstractController from "./AbstractController.js";
 
@@ -94,6 +94,7 @@ export default class StreamlabsController extends AbstractController {
 			.status(200)
 			.send(JSON.stringify({success:json.access_token !== undefined, accessToken:json.access_token, socketToken:socketJson.socket_token}));
 		}catch(error) {
+			console.log(error)
 			response.header('Content-Type', 'application/json')
 			.status(500)
 			.send(JSON.stringify({success:false, errorCode:"JSON_PARSING_FAILED", error:"json parsing failed"}));

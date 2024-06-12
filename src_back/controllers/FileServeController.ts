@@ -289,7 +289,7 @@ export default class FileServeController extends AbstractController {
 		try {
 			await new Promise<void>(resolve => {
 				fs.writeFileSync(path.join(Config.LABELS_ROOT, lang+"/"+section+".json"), JSON.stringify(json, null, "\t"), "utf-8");
-				const script = path.join(Config.LABELS_ROOT, "../src_labels/index.js");
+				const script = path.join(Config.LABELS_ROOT, "../src_labels/index.mjs");
 				// exec(`start /B node ${script}`, (error, stdout, stderr) => {
 				let errored = false;
 				const child = spawn('node', [script], {shell: false, windowsHide:true});
@@ -304,8 +304,8 @@ export default class FileServeController extends AbstractController {
 				});
 	
 				child.on('error', (error) => {
-				  console.error(error.message);
-				  errored = true;
+					console.error(error.message);
+					errored = true;
 				});
 				
 				child.on('close', (code) => {

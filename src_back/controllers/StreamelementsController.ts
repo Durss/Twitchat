@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import fetch from "node-fetch";;
+import fetch from "node-fetch";
 import { URLSearchParams } from "url";
 import Config from "../utils/Config.js";
 import Logger from "../utils/Logger.js";

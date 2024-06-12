@@ -80,6 +80,7 @@ import { gsap } from 'gsap/gsap-core';
 import { Sine } from 'gsap/gsap-core';
 import { Elastic } from 'gsap/gsap-core';
 import Utils from '@/utils/Utils';
+import { utils } from 'pixi.js';
 
 @Component({
 	components:{
@@ -98,10 +99,12 @@ export class OverlayBingoGrid extends AbstractOverlay {
 
 	private id:string = "";
 	private starIndex:number = 0;
+	private canPlayWinSound:boolean = true;
 	private broadcastPresenceInterval:string = "";
 	private bingoUpdateHandler!:(e:TwitchatEvent<{id:string, bingo:TwitchatDataTypes.BingoGridConfig, newVerticalBingos:number[], newHorizontalBingos:number[], newDiagonalBingos:number[]}>) => void;
 	private bingoViewerHandler!:(e:TwitchatEvent<IUserBingoData>) => void;
 	private prevCheckStates:{[key:string]:boolean} = {};
+	private winSoundVolume!:HTMLAudioElement;
 
 	public get classes():string[] {
 		let res:string[] = ["overlaybingogrid"];
@@ -124,6 +127,8 @@ export class OverlayBingoGrid extends AbstractOverlay {
 
 	public beforeMount(): void {
 		this.id = this.$route.query.bid as string ?? "";
+		
+		this.winSoundVolume = new Audio(this.$image("sounds/win.mp3"));
 
 		this.bingoUpdateHandler = (e) => this.onBingoUpdate(e);
 		this.bingoViewerHandler = (e) => this.onBingoViewer(e);
@@ -237,6 +242,12 @@ export class OverlayBingoGrid extends AbstractOverlay {
 					// console.log(data.bingo.entries[index].label, distance);
 					gsap.from(cell, {scale:0, ease:Elastic.easeOut, duration:1.3, delay: .3 + Math.pow(distance,.8)*.05});
 				});
+
+				//Init check states to avoid all existing checks from being
+				//considered as new on next update
+				this.bingo.entries.forEach(entry => {
+					this.prevCheckStates[entry.id] = entry.check;
+				});
 			}else{
 
 				if(this.bingo) {
@@ -310,28 +321,29 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	 */
 	private async animateBingos(vertical:number[], horizontal:number[], diagonal:number[]):Promise<void> {
 		const bingo = this.bingo!;
-		let delay = .5;
-		const animateCell = async (holder:HTMLElement)=>{
+		const animateCell = async (holder:HTMLElement, delay:number)=>{
 			const bgStar = holder.querySelector(".star");
+			//Grow background star
 			gsap.fromTo(bgStar, {opacity:1, scale:0, rotate:0}, {rotate:"360deg", duration:.5, delay, ease:"none"});
-			gsap.to(bgStar, {scale:6, duration:.5, delay, ease:"circ.in"});
-			await Utils.promisedTimeout(delay*1000+400);
-			// gsap.fromTo(holder, {scale:2}, {scale:1, delay, duration:.5, immediateRender:false, ease:"back.out", onStart:()=>{
+			gsap.to(bgStar, {scale:6, duration:.5, delay, ease:"circ.in", onComplete:() => {
+				//Pop stars
 				this.popStars(holder);
-			// }});
-			// gsap.to(bgStar, {delay:1, rotate:"0deg", duration:.5, ease:"none"});
-			// gsap.to(bgStar, {delay:1, scale:0, duration:.5, ease:"circ.out"});
-			gsap.to(bgStar, {opacity:0, duration:.25, ease:"none", onComplete:()=>{
-				gsap.set(bgStar, {opacity:1, scale:0, rotate:0});
+				//Fadeout background star
+				gsap.to(bgStar, {opacity:0, duration:.25, ease:"none",
+				onComplete:()=>{
+					//Reset background star
+					gsap.set(bgStar, {opacity:1, scale:0, rotate:0});
+				}});
 			}});
 		}
 
+		let delay = .5;
 		horizontal.forEach(y=>{
 			for (let x = 0; x < bingo.cols; x++) {
 				const cell = this.getCellByCoords(x, y);
 				cell.holder.classList.add("bingo");
 				delay += .05;
-				animateCell(cell.holder);
+				animateCell(cell.holder, delay);
 			}
 			delay += .4;
 		});
@@ -341,7 +353,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				const cell = this.getCellByCoords(x, y);
 				cell.holder.classList.add("bingo");
 				delay += .05;
-				animateCell(cell.holder);
+				animateCell(cell.holder, delay);
 			}
 
 			delay += .4;
@@ -354,12 +366,12 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				const cell = this.getCellByCoords(px, y);
 				cell.holder.classList.add("bingo");
 				delay += .05;
-				animateCell(cell.holder);
+				animateCell(cell.holder, delay);
 			}
 			delay += .4;
 		});
 
-		await Utils.promisedTimeout(delay * 1000);
+		await Utils.promisedTimeout(delay * 1000 + 500);
 	}
 
 	/**
@@ -475,6 +487,13 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	 */
 	private async animateViewer(data:IUserBingoData):Promise<void> {
 		return new Promise(async (resolve)=>{
+			if(this.canPlayWinSound && this.bingo!.winSoundVolume > 0) {
+				this.winSoundVolume.volume = Math.min(1, Math.max(0, (this.bingo!.winSoundVolume / 100) || .5));
+				this.winSoundVolume.play();
+				this.canPlayWinSound = false;
+				await Utils.promisedTimeout(500);
+			}
+
 			this.currentUserAlert = data;
 			
 			await this.$nextTick();
@@ -562,6 +581,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				gsap.to((this.$refs.alertsBg as Vue).$el, {delay:duration*.8, rotate:"0deg", duration:.5, ease:"none"});
 				gsap.to((this.$refs.alertsBg as Vue).$el, {delay:duration*.8, scale:0, duration:.5, ease:"circ.out"});
 				// delay += duration * .8;
+				this.canPlayWinSound = true;
 			}
 
 			setTimeout(() => {

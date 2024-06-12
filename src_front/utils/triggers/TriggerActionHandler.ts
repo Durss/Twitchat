@@ -1430,18 +1430,32 @@ export default class TriggerActionHandler {
 							case "tick":
 							case "untick":
 							case "toggle": {
-								let px = step.bingoGrid.x;
-								let py = step.bingoGrid.y;
-								if(typeof px == "string") {
-									px = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, px.toString());
+								let error = "";
+								let cell:typeof grid["entries"][number]|undefined = undefined;
+								if(step.bingoGrid.cellActionMode == "id") {
+									cell = grid.entries.find(v=>v.id == step.bingoGrid.cellId);
+									if(!cell) {
+										cell = (grid.additionalEntries || []).find(v=>v.id == step.bingoGrid.cellId);
+									}
+									error ="Invalid cell ID \""+step.bingoGrid.cellId+"\"";
+								}else{
+									let px = step.bingoGrid.x;
+									let py = step.bingoGrid.y;
+									if(typeof px == "string") {
+										px = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, px.toString());
+									}
+									if(typeof py == "string") {
+										py = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, py.toString());
+									}
+									px = parseInt(px.toString()) - 1;
+									py = parseInt(py.toString()) - 1;
+									if(!isNaN(px) && !isNaN(py) && px >= 0 && py >= 0 && px < grid.cols && py < grid.rows) {
+										cell = grid.entries[px + py*grid.cols];
+									}
+									error ="Invalid coordinates x=\""+px+"\" y=\""+py+"\"";
 								}
-								if(typeof py == "string") {
-									py = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, py.toString());
-								}
-								px = parseInt(px.toString()) - 1;
-								py = parseInt(py.toString()) - 1;
-								if(!isNaN(px) && !isNaN(py) && px >= 0 && py >= 0 && px < grid.cols && py < grid.rows) {
-									const cell = grid.entries[px + py*grid.cols];
+
+								if(cell) {
 									if(step.bingoGrid.action == "rename") {
 										const prevLabel = cell.label;
 										cell.label = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.bingoGrid.label);
@@ -1453,9 +1467,26 @@ export default class TriggerActionHandler {
 										logStep.messages.push({date:Date.now(), value:"✔ Updating cell \""+cell.label+"\" to \""+(cell.check? 'ticked' : 'unticked')+"\""});
 									}
 								}else{
-									logStep.messages.push({date:Date.now(), value:"❌ Unable to update cell. Invalid coordinates x=\""+px+"\" y=\""+py+"\""});
+									logStep.messages.push({date:Date.now(), value:"❌ Unable to update cell. "+error});
 									log.error = true;
 									logStep.error = true;
+								}
+								break;
+							}
+							case "add_cell": {
+								const label = step.bingoGrid.label.trim().substring(0, 60);
+								if(label) {
+									logStep.messages.push({date:Date.now(), value:"✔ Add additional cell \""+label+"\""});
+									if(!grid.additionalEntries) grid.additionalEntries = [];
+									grid.additionalEntries.push({
+										lock:false,
+										check:false,
+										id:Utils.getUUID(),
+										label:label,
+									})
+									StoreProxy.bingoGrid.saveData(grid.id);
+								}else{
+									logStep.messages.push({date:Date.now(), value:"❌ Cannot add additional cell because given text is empty"});
 								}
 								break;
 							}

@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import fetch from "node-fetch";;
+import fetch from "node-fetch";
 import Logger from "../utils/Logger.js";
 import AbstractController from "./AbstractController.js";
 

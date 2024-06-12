@@ -3,9 +3,19 @@
 		<template v-if="param_grid.listValues!.length > 0">
 			<ParamItem :paramData="param_grid" @change="onSelectGrid" v-model="action.bingoGrid.grid" />
 			<ParamItem :paramData="param_action" v-model="action.bingoGrid.action" />
-			<ParamItem :paramData="param_x" v-model="action.bingoGrid.x" v-if="isCellAction" />
-			<ParamItem :paramData="param_y" v-model="action.bingoGrid.y" v-if="isCellAction" />
-			<ParamItem :paramData="param_name" v-model="action.bingoGrid.label" v-if="action.bingoGrid.action == 'rename'" />
+			<ParamItem :paramData="param_name" v-model="action.bingoGrid.label" v-if="action.bingoGrid.action == 'rename' || action.bingoGrid.action == 'add_cell'" />
+			<div class="card-item subEntries" v-if="isCellAction">
+				<SwitchButton v-model="action.bingoGrid.cellActionMode"
+					:values="['id', 'coords']"
+					:labels="[$t('triggers.actions.bingoGrid.param_cell_id'),$t('triggers.actions.bingoGrid.param_cell_coordinates')]"></SwitchButton>
+				<template v-if="action.bingoGrid.cellActionMode == 'coords'">
+					<ParamItem :paramData="param_x" v-model="action.bingoGrid.x" noBackground />
+					<ParamItem :paramData="param_y" v-model="action.bingoGrid.y" noBackground />
+				</template>
+				<template v-if="action.bingoGrid.cellActionMode == 'id'">
+					<ParamItem :paramData="param_cellId" v-model="action.bingoGrid.cellId" noBackground />
+				</template>
+			</div>
 		</template>
 		<div v-else class="info alert">
 			<p>{{ $t("triggers.actions.bingoGrid.no_grid") }}</p>
@@ -21,21 +31,24 @@ import { ParamItem } from '@/components/params/ParamItem.vue';
 import type { ITriggerPlaceholder, TriggerActionBingoGridData, TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TTButton from '@/components/TTButton.vue';
+import SwitchButton from '@/components/SwitchButton.vue';
 
 @Component({
 	components:{
 		TTButton,
 		ParamItem,
+		SwitchButton,
 	},
 	emits:[],
 })
 class TriggerActionBingoGridEntry extends AbstractTriggerActionEntry {
 
 	public param_grid:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", icon:"bingo_grid", labelKey:"triggers.actions.bingoGrid.param_grid" };
-	public param_action:TwitchatDataTypes.ParameterData<TriggerActionBingoGridData["bingoGrid"]["action"]> = { type:"list", value:"tick", icon:"click", labelKey:"triggers.actions.bingoGrid.param_action" };
+	public param_action:TwitchatDataTypes.ParameterData<TriggerActionBingoGridData["bingoGrid"]["action"], TriggerActionBingoGridData["bingoGrid"]["action"]> = { type:"list", value:"tick", icon:"click", labelKey:"triggers.actions.bingoGrid.param_action" };
 	public param_x:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, min:1, max:10, icon:"coord_x", labelKey:"triggers.actions.bingoGrid.param_x" };
 	public param_y:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, min:1, max:10, icon:"coord_y", labelKey:"triggers.actions.bingoGrid.param_y" };
 	public param_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"label", labelKey:"triggers.actions.bingoGrid.param_name" };
+	public param_cellId:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", icon:"bingo_grid", labelKey:"triggers.actions.bingoGrid.param_cell" };
 
 	@Prop
 	declare action:TriggerActionBingoGridData;
@@ -54,15 +67,16 @@ class TriggerActionBingoGridEntry extends AbstractTriggerActionEntry {
 		if(!this.action.bingoGrid) {
 			this.action.bingoGrid = {
 				action:"tick",
+				cellActionMode:"id",
 				x:1,
 				y:1,
 				grid:"",
 				label:"",
+				cellId:"",
 			}
 		}
 
 		this.param_grid.listValues = this.$store.bingoGrid.gridList.map(g => {
-
 			return {
 				value:g.id,
 				label:(g.title ?? "")+" ("+g.cols+"x"+g.rows+")",
@@ -77,7 +91,12 @@ class TriggerActionBingoGridEntry extends AbstractTriggerActionEntry {
 			{value:"tick_all", labelKey:"triggers.actions.bingoGrid.param_action_tick_all"},
 			{value:"untick_all", labelKey:"triggers.actions.bingoGrid.param_action_untick_all"},
 			{value:"rename", labelKey:"triggers.actions.bingoGrid.param_action_rename"},
-		]
+			{value:"add_cell", labelKey:"triggers.actions.bingoGrid.param_action_add_cell"},
+		];
+	}
+
+	public mounted():void {
+		this.onSelectGrid();
 	}
 
 	/**
@@ -98,6 +117,12 @@ class TriggerActionBingoGridEntry extends AbstractTriggerActionEntry {
 		if(grid) {
 			this.param_x.max = grid.cols;
 			this.param_y.max = grid.rows;
+			this.param_cellId.listValues = grid.entries.concat(grid.additionalEntries || []).map(cell => {
+				return {
+					value:cell.id,
+					label:cell.label ?? ""
+				}
+			});
 		}
 	}
 
@@ -114,6 +139,10 @@ export default toNative(TriggerActionBingoGridEntry);
 
 <style scoped lang="less">
 .triggeractionbingogridentry{
-
+	.subEntries {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+	}
 }
 </style>
