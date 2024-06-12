@@ -609,7 +609,7 @@ export class ParamItem extends Vue {
 					console.log("FONT FAILLURE2");
 					console.log(error);
 				}
-				this.grantSystemFontRead();
+
 			}else{
 				this.getLocalFonts();
 			}
