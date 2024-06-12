@@ -4,6 +4,7 @@
 	"private": false,
 	"author": "Durss",
 	"description": "Full featured alternative Twitch chat",
+	"type": "module",
 	"scripts": {
 		"dev": "concurrently --kill-others \"npm run front/watch\" \"npm run server/watch\"",
 		"build": "npm run i18n && npm run front/build && npm run server/build",
@@ -16,7 +17,7 @@
 		"patch": "npm version patch -m \"Upgrade version to v%s\"",
 		"minor": "npm version minor -m \"Upgrade version to v%s\"",
 		"major": "npm version major -m \"Upgrade version to v%s\"",
-		"i18n": "node src_labels/index.js",
+		"i18n": "node src_labels/index.mjs",
 		"typecheck": "vue-tsc --noEmit",
 		"lint": "eslint . --ext .vue,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
 		"streamdeck_package": "npm run streamdeck_package_clean && DistributionTool.exe -b -i streamdeck_plugin/fr.twitchat.sdPlugin -o streamdeck_plugin",
