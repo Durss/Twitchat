@@ -1,5 +1,5 @@
 {
-	"script": "./src_labels/index.js",
+	"script": "./src_labels/index.mjs",
 	"name": "Twitchat_labels",
 	"env": {},
 	"args": "--pm2",
