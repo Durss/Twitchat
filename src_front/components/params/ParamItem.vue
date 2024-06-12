@@ -593,13 +593,22 @@ export class ParamItem extends Vue {
 					).then(granted => {
 						if(granted.state == "prompt") {
 							this.askForSystemFontAccess = true;
-							this.getLocalFonts();
 						}else
 						if(granted.state == "granted") {
 							this.grantSystemFontRead();
 						}
+						if(granted.state != "granted") {
+							this.getLocalFonts();
+						}
+					}).catch(error => {
+						console.log("FONT FAILLURE");
+						console.log(error);
+
 					});
-				}catch(error) {}
+				}catch(error) {
+					console.log("FONT FAILLURE2");
+					console.log(error);
+				}
 			}else{
 				this.getLocalFonts();
 			}
