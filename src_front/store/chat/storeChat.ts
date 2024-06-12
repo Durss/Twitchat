@@ -1172,6 +1172,46 @@ export const storeChat = defineStore('chat', {
 					break;
 				}
 
+				//New kofi event
+				case TwitchatDataTypes.TwitchatMessageType.KOFI: {
+					message = message as TwitchatDataTypes.MessageKofiData;
+					if(message.eventType == "donation") {
+						StoreProxy.labels.updateLabelValue("LAST_KOFI_TIP_NAME", message.userName);
+						StoreProxy.labels.updateLabelValue("LAST_KOFI_TIP_AMOUNT", message.amountFormatted);
+					}
+					break;
+				}
+
+				//New Streamelements event
+				case TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS: {
+					message = message as TwitchatDataTypes.MessageStreamelementsData;
+					if(message.eventType == "donation") {
+						StoreProxy.labels.updateLabelValue("LAST_STREAMELEMENTS_TIP_NAME", message.userName);
+						StoreProxy.labels.updateLabelValue("LAST_STREAMELEMENTS_TIP_AMOUNT", message.amountFormatted);
+					}
+					break;
+				}
+
+				//New Streamlabs event
+				case TwitchatDataTypes.TwitchatMessageType.STREAMLABS: {
+					message = message as TwitchatDataTypes.MessageStreamlabsData;
+					if(message.eventType == "donation") {
+						StoreProxy.labels.updateLabelValue("LAST_STREAMLABS_TIP_NAME", message.userName);
+						StoreProxy.labels.updateLabelValue("LAST_STREAMLABS_TIP_AMOUNT", message.amountFormatted);
+					}
+					break;
+				}
+
+				//New Tipeee event
+				case TwitchatDataTypes.TwitchatMessageType.TIPEEE: {
+					message = message as TwitchatDataTypes.MessageTipeeeDonationData;
+					if(message.eventType == "donation") {
+						StoreProxy.labels.updateLabelValue("LAST_TIPEEE_TIP_NAME", message.userName);
+						StoreProxy.labels.updateLabelValue("LAST_TIPEEE_TIP_AMOUNT", message.amountFormatted);
+					}
+					break;
+				}
+
 				//New sub
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
 					PublicAPI.instance.broadcast(TwitchatEvent.SUBSCRIPTION, {

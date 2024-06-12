@@ -359,14 +359,24 @@
 				"LAST_REWARD_NAME":"Dernière récompense - Pseudo",
 				"LAST_REWARD_AVATAR":"Dernière récompense - Avatar",
 				"LAST_REWARD_TITLE":"Dernière récompense - Titre",
-				"LAST_REWARD_ICON":"Dernière récompense - Icone",
+				"LAST_REWARD_ICON":"Dernière récompense - Icône",
 				"LAST_REWARD_MESSAGE":"Dernière récompense - Message",
 				"LAST_RAID_NAME":"Dernier raid reçu - Pseudo",
 				"LAST_RAID_AVATAR":"Dernier raid reçu - Avatar",
 				"LAST_RAID_COUNT":"Dernier raid reçu - Viewers",
 				"LAST_WATCH_STREAK_NAME":"Dernier visionnage consécutif - Pseudo",
 				"LAST_WATCH_STREAK_AVATAR":"Dernier visionnage consécutif - Avatar",
-				"LAST_WATCH_STREAK_COUNT":"Dernier visionnage consécutif - Nombre"
+				"LAST_WATCH_STREAK_COUNT":"Dernier visionnage consécutif - Nombre",
+				"LAST_KOFI_TIP_NAME":"Don Ko-Fi - Pseudo",
+				"LAST_KOFI_TIP_AMOUNT":"Don Ko-Fi - Montant",
+				"LAST_STREAMLABS_TIP_NAME":"Don Streamlabs - Pseudo",
+				"LAST_STREAMLABS_TIP_AMOUNT":"Don Streamlabs - Montant",
+				"LAST_STREAMELEMENTS_TIP_NAME":"Don Streamelements - Pseudo",
+				"LAST_STREAMELEMENTS_TIP_AMOUNT":"Don Streamelements - Montant",
+				"LAST_TIPEEE_TIP_NAME":"Don Tipeee - Pseudo",
+				"LAST_TIPEEE_TIP_AMOUNT":"Don Tipeee - Montant",
+				"VOICEMOD_EFFECT_TITLE":"Effet Voicemod - Nom",
+				"VOICEMOD_EFFECT_ICON":"Effet Voicemod - Icône"
 			}
 		}
 	}

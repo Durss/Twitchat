@@ -299,7 +299,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	/**
 	 * Called when a message is received from Voicemod app
 	 */
-	private onSocketMessage(event:VoicemodTypes.SocketEvent):void {
+	private async onSocketMessage(event:VoicemodTypes.SocketEvent):Promise<void> {
 		const json:VoicemodTypes.SocketData = JSON.parse(event.data);
 
 		// console.log("🎤Voicemod: received message: " + json);
@@ -323,7 +323,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 			case VoicemodWebSocket.ACTION_GET_VOICES:{
 				this._voicesList = json.actionObject.voices ?? [];
 				this._currentVoiceEffect = this._voicesList.find(v=> v.id === json.actionObject.currentVoice)!;
-				this.dispatchEvent(new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, this.currentVoiceEffect!.id || "nofx"))
+				if(this.currentVoiceEffect) this.onVoiceChange(this.currentVoiceEffect);
 				this.checkInitComplete();
 				break;
 			}
@@ -355,10 +355,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 			case VoicemodWebSocket.EVENT_VOICE_CHANGED_EVENT:{
 				const voice = this._voicesList.find(v=>v.id == json.actionObject.voiceID as string);
 				if(voice) {
-					this._currentVoiceEffect = voice;
-					StoreProxy.voice.voicemodCurrentVoice = voice;
-					PublicAPI.instance.broadcast(TwitchatEvent.VOICEMOD_CHANGE, {voice:voice.id});
-					this.dispatchEvent(new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, voice.id));
+					this.onVoiceChange(voice);
 				}
 				break;
 			}
@@ -380,6 +377,32 @@ export default class VoicemodWebSocket extends EventDispatcher {
 		if(this._voicesList.length > 0 && this._soundsboards.length > 0) {
 			this._initResolver();
 		}
+	}
+
+	/**
+	 * Populates given voice image
+	 * @param voice 
+	 */
+	private async populateImageProp(voice:VoicemodTypes.Voice):Promise<void> {
+		for (let i = 0; i < this.voices.length; i++) {
+			const v = this.voices[i];
+			if(v.id == voice.id) {
+				try {
+					const img = await this.getBitmapForVoice(v.id);
+					v.image = voice.image = img;
+				}catch(error){}
+			}
+		}
+	}
+
+	private async onVoiceChange(voice:VoicemodTypes.Voice):Promise<void> {
+		await this.populateImageProp(voice);
+		this._currentVoiceEffect = voice;
+		StoreProxy.voice.voicemodCurrentVoice = voice;
+		StoreProxy.labels.updateLabelValue("VOICEMOD_EFFECT_TITLE", voice.friendlyName);
+		StoreProxy.labels.updateLabelValue("VOICEMOD_EFFECT_ICON",  "data:image/png;base64,"+voice.image || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==");
+		PublicAPI.instance.broadcast(TwitchatEvent.VOICEMOD_CHANGE, {voice:voice.id});
+		this.dispatchEvent(new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, voice.id));
 	}
 
 }
