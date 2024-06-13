@@ -642,7 +642,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 
 		addCustomCell(gridId:string):void {
 			const grid = this.gridList.find(g => g.id === gridId);
-			if(!grid || !grid.enabled) return;
+			if(!grid) return;
 			if(!grid.additionalEntries) grid.additionalEntries = [];
 
 			grid.additionalEntries.push({
@@ -655,7 +655,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 
 		removeCustomCell(gridId:string, cellId:string):void {
 			const grid = this.gridList.find(g => g.id === gridId);
-			if(!grid || !grid.enabled || !grid.additionalEntries) return;
+			if(!grid || !grid.additionalEntries) return;
 			grid.additionalEntries = grid.additionalEntries.filter(e => e.id != cellId);
 			
 		},
