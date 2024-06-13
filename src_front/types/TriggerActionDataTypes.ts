@@ -916,6 +916,12 @@ export interface TriggerActionCounterData extends TriggerActionData{
 	 * Default action to execute if data is missing should be "add"
 	 */
 	action?:TriggerActionCountDataAction;
+	/**
+	 * Action type to perform for per-user counter entries.
+	 * update: update the entry
+	 * delete: delete the entry
+	 */
+	userAction?:{[valueId:string]:"update"|"delete"},
 }
 
 export interface TriggerActionValueData extends TriggerActionData{
@@ -935,7 +941,13 @@ export interface TriggerActionValueData extends TriggerActionData{
 	 * or if all current chatters should be updated (@see VALUE_EDIT_SOURCE_CHATTERS)
 	 * or a user whose name is stored on a placeholder (string name of the placeholder)
 	 */
-	valueUserSources:{[key:string]:string};
+	valueUserSources:{[valueId:string]:string};
+	/**
+	 * Action type to perform for per-user values entries.
+	 * update: update the entry
+	 * delete: delete the entry
+	 */
+	userAction?:{[valueId:string]:"update"|"delete"},
 }
 
 export type TriggerActionRandomDataMode = "list"|"number"|"trigger"|"value"|"counter";

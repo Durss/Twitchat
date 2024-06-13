@@ -23,10 +23,24 @@
 				<Icon name="user" class="icon" />
 				<span>{{ $tc("triggers.actions.count.user_source_title", selectedPerUserCounters.length) }}</span>
 			</div>
-			<div class="card-item primary" v-for="item in selectedPerUserCounters" :key="item.id">
+			<div class="card-item userSource" v-for="item in selectedPerUserCounters" :key="item.id">
 				<label :for="'select_'+item.id" class="name">{{ item.name }}</label>
 				<select :id="'select_'+item.id" v-model="action.counterUserSources[item.id]">
 					<option v-for="opt in userSourceOptions" :value="opt.key">{{ $t(opt.labelKey, {PLACEHOLDER:opt.key.toUpperCase()}) }}</option>
+				</select>
+			</div>
+		</div>
+		
+		<div class="card-item counterList" v-if="selectedPerUserCounters.length > 0 && userSourceOptions.length > 1">
+			<div class="head">
+				<Icon name="user" class="icon" />
+				<span>{{ $tc("triggers.actions.count.user_action_title", selectedPerUserCounters.length) }}</span>
+			</div>
+			
+			<div class="card-item userSource" v-for="item in selectedPerUserCounters" :key="item.id">
+				<label :for="'select_'+item.id" class="name">{{ item.name }}</label>
+				<select :id="'select_'+item.id" v-model="action.userAction![item.id]">
+					<option v-for="opt in param_userAction.listValues" :value="opt.value">{{ $t(opt.labelKey!) }}</option>
 				</select>
 			</div>
 		</div>
@@ -62,6 +76,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	public param_counters:TwitchatDataTypes.ParameterData<string[], string> = {type:"list", labelKey:"triggers.actions.count.select_label", value:[], listValues:[]}
 	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.count.value_label", value:"", maxLength:100, icon:"add"}
 	public param_action:TwitchatDataTypes.ParameterData<string, string> = {type:"list", labelKey:"triggers.actions.count.select_action", value:"", listValues:[]}
+	public param_userAction:TwitchatDataTypes.ParameterData<NonNullable<TriggerActionCounterData["userAction"]>[string], NonNullable<TriggerActionCounterData["userAction"]>[string]> = {type:"list", labelKey:"triggers.actions.count.param_action", value:"update"}
 
 	/**
 	 * Build user trigger source list
@@ -97,6 +112,12 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	}
 
 	public beforeMount(): void {
+		typeof this.action["userAction"]
+		this.param_userAction.listValues = [
+			{value:"update", labelKey:"triggers.actions.count.action_update"},
+			{value:"delete", labelKey:"triggers.actions.count.action_delete"},
+		];
+
 		//If trigger is related to a counter event (looped, maxed, mined) remove it
 		//from the editable counter to avoid infinite loop
 		const counters:TwitchatDataTypes.ParameterDataListValue<string>[] = this.$store.counters.counterList.map(v=>{
@@ -146,8 +167,14 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 			if(!this.action.counterUserSources) {
 				this.action.counterUserSources = {};
 			}
+			if(!this.action.userAction) {
+				this.action.userAction = {};
+			}
 			if(!this.action.counterUserSources[c.id]) {
 				this.action.counterUserSources[c.id] = COUNTER_EDIT_SOURCE_SENDER;
+			}
+			if(!this.action.userAction[c.id]) {
+				this.action.userAction[c.id] = "update";
 			}
 		}
 	}
@@ -187,6 +214,12 @@ export default toNative(TriggerActionCountEntry);
 			object-fit: fill;
 			margin-right: 0.5em;
 		}
+	}
+
+	.userSource {
+		background-color: rgba(0, 0, 0, .1);
+		@scale:2px;
+		box-shadow: inset -@scale -@scale @scale rgba(255, 255, 255, 0.1), inset @scale @scale @scale rgba(0, 0, 0, .3) !important;
 	}
 
 	.counterList {

@@ -245,6 +245,22 @@ export const storeCounters = defineStore('counters', {
 			return counterValue;
 		},
 
+		deleteCounterEntry(id:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void {
+			for (let i = 0; i < this.counterList.length; i++) {
+				if(this.counterList[i].id == id) {
+					const entry = this.counterList[i];
+					if(entry.perUser) {
+						if(!entry.users) entry.users = {};
+						const uid = (user? user.id : userId) || "";
+						delete entry.users[uid];
+					}
+					break;
+				}
+			}
+
+			this.saveCounters();
+		},
+
 		saveCounters():void {
 			DataStore.set(DataStore.COUNTERS, this.counterList);
 		}

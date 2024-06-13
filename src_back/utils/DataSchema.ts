@@ -313,6 +313,13 @@ const UserDataSchema = {
 										".{8}-.{4}-.{4}-.{4}-.{12}": {type: "string"},
 									},
 								},
+								userAction: {
+									type:"object",
+									additionalProperties: false,
+									patternProperties: {
+										".{8}-.{4}-.{4}-.{4}-.{12}": {type: "string"},
+									},
+								},
 								placeholder:{type:"string", maxLength:50},
 								outputPlaceholder:{type:"string", maxLength:20},
 								customBody:{type:"string", maxLength:5000},

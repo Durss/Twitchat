@@ -89,32 +89,48 @@ export const storeValues = defineStore('values', {
 			}
 			for (let i = 0; i < this.valueList.length; i++) {
 				if(this.valueList[i].id == id) {
-					const d = this.valueList[i];
+					const entry = this.valueList[i];
 
-					if(d.perUser) {
-						if(!d.users) d.users = {};
+					if(entry.perUser) {
+						if(!entry.users) entry.users = {};
 						const uid = (user? user.id : userId) || "";
-						prevValue = d.users![uid];
-						d.users![uid] = value;
+						prevValue = entry.users![uid];
+						entry.users![uid] = value;
 					}else{
-						prevValue = d.value;
-						d.value = value;
+						prevValue = entry.value;
+						entry.value = value;
 					}
 					//Do no execute triggers if edditing a user by it ID.
 					//If only "userId" is given, don't execute it so we can update
 					//loads of values at once without cloagging the trigger system
-					if(!userId && d.value != prevValue) {
+					if(!userId && entry.value != prevValue) {
 						const message:TwitchatDataTypes.MessageValueUpdateData = {
 							date:Date.now(),
 							type:TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE,
 							id:Utils.getUUID(),
 							platform:"twitchat",
-							value:d,
-							newValue: d.value,
+							value:entry,
+							newValue: entry.value,
 							oldValue: prevValue,
 							channel_id:StoreProxy.auth.twitch.user.id,
 						};
 						StoreProxy.chat.addMessage(message);
+					}
+					break;
+				}
+			}
+
+			this.saveValues();
+		},
+
+		deleteValueEntry(id:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void {
+			for (let i = 0; i < this.valueList.length; i++) {
+				if(this.valueList[i].id == id) {
+					const entry = this.valueList[i];
+					if(entry.perUser) {
+						if(!entry.users) entry.users = {};
+						const uid = (user? user.id : userId) || "";
+						delete entry.users[uid];
 					}
 					break;
 				}

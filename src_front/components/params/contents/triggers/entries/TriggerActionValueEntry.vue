@@ -2,7 +2,7 @@
 	<div class="triggeractionvalueentry triggerActionForm">
 		<div class="card-item list">
 			<label class="listLabel">
-				<img src="@/assets/icons/placeholder.svg" class="icon">
+				<Icon name="placeholder" />
 				<span>{{ $t(param_values.labelKey as string) }}</span>
 			</label>
 			<vue-select class="itemSelector"
@@ -23,10 +23,25 @@
 				<Icon name="user" class="icon" />
 				<span>{{ $tc("triggers.actions.value.user_source_title", selectedPerUserValue.length) }}</span>
 			</div>
-			<div class="card-item primary" v-for="item in selectedPerUserValue" :key="item.id">
+			
+			<div class="card-item userSource" v-for="item in selectedPerUserValue" :key="item.id">
 				<label :for="'select_'+item.id" class="name">{{ item.name }}</label>
 				<select :id="'select_'+item.id" v-model="action.valueUserSources[item.id]">
 					<option v-for="opt in userSourceOptions" :value="opt.key">{{ $t(opt.labelKey, {PLACEHOLDER:opt.key.toUpperCase()}) }}</option>
+				</select>
+			</div>
+		</div>
+		
+		<div class="card-item valueList" v-if="selectedPerUserValue.length > 0 && userSourceOptions.length > 1">
+			<div class="head">
+				<Icon name="user" class="icon" />
+				<span>{{ $tc("triggers.actions.value.user_action_title", selectedPerUserValue.length) }}</span>
+			</div>
+			
+			<div class="card-item userSource" v-for="item in selectedPerUserValue" :key="item.id">
+				<label :for="'select_'+item.id" class="name">{{ item.name }}</label>
+				<select :id="'select_'+item.id" v-model="action.userAction![item.id]">
+					<option v-for="opt in param_userAction.listValues" :value="opt.value">{{ $t(opt.labelKey!) }}</option>
 				</select>
 			</div>
 		</div>
@@ -36,19 +51,21 @@
 </template>
 
 <script lang="ts">
+import Icon from '@/components/Icon.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
-import { VALUE_EDIT_SOURCE_SENDER, type ITriggerPlaceholder, type TriggerActionValueData, type TriggerData, VALUE_PLACEHOLDER_PREFIX, VALUE_EDIT_SOURCE_EVERYONE, VALUE_EDIT_SOURCE_CHATTERS } from '@/types/TriggerActionDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
+import { VALUE_EDIT_SOURCE_CHATTERS, VALUE_EDIT_SOURCE_EVERYONE, VALUE_EDIT_SOURCE_SENDER, VALUE_PLACEHOLDER_PREFIX, type ITriggerPlaceholder, type TriggerActionValueData, type TriggerData } from '@/types/TriggerActionDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
+import { Component, Prop, toNative } from 'vue-facing-decorator';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 @Component({
 	components:{
+		Icon,
 		ParamItem,
 	},
 })
- class TriggerActionValueEntry extends AbstractTriggerActionEntry {
+class TriggerActionValueEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionValueData;
@@ -59,7 +76,8 @@ import { watch } from 'vue';
 	private userPLaceholders:ITriggerPlaceholder<any>[] = [];
 
 	public param_values:TwitchatDataTypes.ParameterData<string[], string> = {type:"list", labelKey:"triggers.actions.value.select_label", value:[], listValues:[]}
-	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.value.value_label", value:""}
+	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.value.value_label", value:""}
+	public param_userAction:TwitchatDataTypes.ParameterData<NonNullable<TriggerActionValueData["userAction"]>[string], NonNullable<TriggerActionValueData["userAction"]>[string]> = {type:"list", labelKey:"triggers.actions.value.param_action", value:"update"}
 
 	/**
 	 * Build user trigger source list
@@ -96,6 +114,11 @@ import { watch } from 'vue';
 
 
 	public beforeMount(): void {
+		typeof this.action["userAction"]
+		this.param_userAction.listValues = [
+			{value:"update", labelKey:"triggers.actions.value.action_update"},
+			{value:"delete", labelKey:"triggers.actions.value.action_delete"},
+		];
 		//If trigger is related to a value event (looped, maxed, mined) remove it
 		//from the editable value to avoid infinite loop
 		const values:TwitchatDataTypes.ParameterDataListValue<string>[] = this.$store.values.valueList.map(v=>{
@@ -135,8 +158,14 @@ import { watch } from 'vue';
 			if(!this.action.valueUserSources) {
 				this.action.valueUserSources = {};
 			}
+			if(!this.action.userAction) {
+				this.action.userAction = {};
+			}
 			if(!this.action.valueUserSources[c.id]) {
 				this.action.valueUserSources[c.id] = VALUE_EDIT_SOURCE_SENDER;
+			}
+			if(!this.action.userAction[c.id]) {
+				this.action.userAction[c.id] = "update";
 			}
 		}
 	}
@@ -176,6 +205,12 @@ export default toNative(TriggerActionValueEntry);
 			object-fit: fill;
 			margin-right: 0.5em;
 		}
+	}
+
+	.userSource {
+		background-color: rgba(0, 0, 0, .1);
+		@scale:2px;
+		box-shadow: inset -@scale -@scale @scale rgba(255, 255, 255, 0.1), inset @scale @scale @scale rgba(0, 0, 0, .3) !important;
 	}
 
 	.valueList {

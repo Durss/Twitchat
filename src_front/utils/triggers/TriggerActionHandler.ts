@@ -1714,7 +1714,9 @@ export default class TriggerActionHandler {
 
 					if(!isNaN(value) && value != null && value != Infinity) {
 						const ids = step.counters;
+						let action:NonNullable<TriggerActionDataTypes.TriggerActionValueData["userAction"]>[string] = "update";
 						for (const c of StoreProxy.counters.counterList) {
+							action = step.userAction? step.userAction[c.id] : "update";
 							if(ids.indexOf(c.id) > -1) {
 								//Check if we can update the counter
 								if(c.enabled == false && !isPremium) {
@@ -1737,8 +1739,12 @@ export default class TriggerActionHandler {
 									for (let i = 0; i < users.length; i++) {
 										const user = users[i];
 										if(!c.perUser || (user && !user.temporary && !user.errored && !user.anonymous)) {
-											StoreProxy.counters.increment(c.id, step.action, value, user);
-											let logMessage = "Update counter \""+c.name+"\", \""+step.action+"\" "+value+" ("+text+")";
+											if(action == "delete") {
+												StoreProxy.counters.deleteCounterEntry(c.id, user);
+											}else{
+												StoreProxy.counters.increment(c.id, step.action, value, user);
+											}
+											let logMessage = action+" counter \""+c.name+"\", \""+step.action+"\" "+value+" ("+text+")";
 											if(user) logMessage += " (for @"+user.displayNameOriginal+")";
 											logStep.messages.push({date:Date.now(), value:logMessage});
 										}else{
@@ -1757,9 +1763,13 @@ export default class TriggerActionHandler {
 								&& step.counterUserSources
 								&& step.counterUserSources[c.id]
 								&& step.counterUserSources[c.id] == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE){
-									logStep.messages.push({date:Date.now(), value:"Update all existing users, \""+step.action+"\" "+value+" ("+text+")"});
+									logStep.messages.push({date:Date.now(), value:action+" all existing users, \""+step.action+"\" "+value+" ("+text+")"});
 									for (const uid in c.users) {
-										StoreProxy.counters.increment(c.id, step.action, value, undefined, uid);
+										if(action == "delete") {
+											StoreProxy.counters.deleteCounterEntry(c.id, undefined, uid);
+										}else{
+											StoreProxy.counters.increment(c.id, step.action, value, undefined, uid);
+										}
 									}
 
 								//Check if requested to edit all current chatters of a counter
@@ -1768,14 +1778,18 @@ export default class TriggerActionHandler {
 								&& step.counterUserSources
 								&& step.counterUserSources[c.id]
 								&& step.counterUserSources[c.id] == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_CHATTERS){
-									logStep.messages.push({date:Date.now(), value:"Update all chatters, \""+step.action+"\" "+value+" ("+text+")"});
+									logStep.messages.push({date:Date.now(), value:action+" all chatters, \""+step.action+"\" "+value+" ("+text+")"});
 									const list = StoreProxy.users.users
 									for (let i = 0; i < list.length; i++) {
 										const user = list[i];
 										if(user.channelInfo[channel_id]
 										//If user is online or their last acitivity on chat was less than 10min ago
 										&& (user.channelInfo[channel_id].online || Date.now() - (user.channelInfo[channel_id].lastActivityDate || 0) < 10 * 60000)) {
-											StoreProxy.counters.increment(c.id, step.action, value, undefined, user.id);
+											if(action == "delete") {
+												StoreProxy.counters.deleteCounterEntry(c.id, undefined, user.id);
+											}else{
+												StoreProxy.counters.increment(c.id, step.action, value, undefined, user.id);
+											}
 										}
 									}
 
@@ -1783,14 +1797,20 @@ export default class TriggerActionHandler {
 								}else{
 									const user = c.perUser? this.extractUserFromTrigger(trigger, message) : undefined;
 									if(!c.perUser || (user && !user.temporary && !user.errored && !user.anonymous)) {
-										const newValue = StoreProxy.counters.increment(c.id, step.action, value, user);
-										let logMessage = "";
-										if(step.action == "ADD") logMessage = "Add "+value+" ("+text+") to \""+c.name+"\"";
-										if(step.action == "DEL") logMessage = "Substract "+value+" ("+text+") from \""+c.name+"\"";
-										if(step.action == "SET") logMessage = "Set \""+c.name+"\" value to "+value+" ("+text+")";
-										if(user) logMessage += " (for @"+user.displayNameOriginal+")";
-										logMessage += ". New value is "+newValue;
-										logStep.messages.push({date:Date.now(), value:logMessage});
+										if(action == "delete") {
+											const logMessage = "Deleting value of @"+user?.displayNameOriginal;;
+											logStep.messages.push({date:Date.now(), value:logMessage});
+											StoreProxy.counters.deleteCounterEntry(c.id, user);
+										}else{
+											const newValue = StoreProxy.counters.increment(c.id, step.action, value, user);
+											let logMessage = "";
+											if(step.action == "ADD") logMessage = "Add "+value+" ("+text+") to \""+c.name+"\"";
+											if(step.action == "DEL") logMessage = "Substract "+value+" ("+text+") from \""+c.name+"\"";
+											if(step.action == "SET") logMessage = "Set \""+c.name+"\" value to "+value+" ("+text+")";
+											if(user) logMessage += " (for @"+user.displayNameOriginal+")";
+											logMessage += ". New value is "+newValue;
+											logStep.messages.push({date:Date.now(), value:logMessage});
+										}
 									}else{
 										let reason = "";
 										if(!c.perUser && user) reason = "counter is not a per user counter";
@@ -1813,7 +1833,9 @@ export default class TriggerActionHandler {
 				if(step.type == "value") {
 					const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.newValue as string, subEvent);
 					const ids = step.values;
+					let action:NonNullable<TriggerActionDataTypes.TriggerActionValueData["userAction"]>[string] = "update";
 					for (const v of StoreProxy.values.valueList) {
+						action = step.userAction? step.userAction[v.id] : "update";
 						if(ids.indexOf(v.id) > -1) {
 							if(v.enabled == false && !isPremium) {
 								const logMessage = "❌ Not premium and value \""+v.name+"\" is disabled. Not updated to: "+text;
@@ -1835,8 +1857,12 @@ export default class TriggerActionHandler {
 								for (let i = 0; i < users.length; i++) {
 									const user = users[i];
 									if(!v.perUser || (user && !user.temporary && !user.errored && !user.anonymous)) {
-										StoreProxy.values.updateValue(v.id, text, user);
-										let logMessage = "Update value \""+v.name+"\", "+text;
+										if(action == "delete") {
+											StoreProxy.values.deleteValueEntry(v.id, user);
+										}else{
+											StoreProxy.values.updateValue(v.id, text, user);
+										}
+										let logMessage = action+" value \""+v.name+"\", "+text;
 										if(user) logMessage += " (for @"+user.displayNameOriginal+")";
 										logStep.messages.push({date:Date.now(), value:logMessage});
 									}else{
@@ -1855,9 +1881,13 @@ export default class TriggerActionHandler {
 							&& step.valueUserSources
 							&& step.valueUserSources[v.id]
 							&& step.valueUserSources[v.id] == TriggerActionDataTypes.VALUE_EDIT_SOURCE_EVERYONE){
-								logStep.messages.push({date:Date.now(), value:"Update all existing users, "+text});
+								logStep.messages.push({date:Date.now(), value:action+" all existing users, "+text});
 								for (const uid in v.users) {
-									StoreProxy.values.updateValue(v.id, text, undefined, uid);
+									if(action == "delete") {
+										StoreProxy.values.deleteValueEntry(v.id, undefined, uid);
+									}else{
+										StoreProxy.values.updateValue(v.id, text, undefined, uid);
+									}
 								}
 
 							//Check if requested to edit all current chatters of a value
@@ -1866,7 +1896,7 @@ export default class TriggerActionHandler {
 							&& step.valueUserSources
 							&& step.valueUserSources[v.id]
 							&& step.valueUserSources[v.id] == TriggerActionDataTypes.VALUE_EDIT_SOURCE_CHATTERS){
-								logStep.messages.push({date:Date.now(), value:"Update all chatters, "+text});
+								logStep.messages.push({date:Date.now(), value:action+" all chatters, "+text});
 								const list = StoreProxy.users.users
 								for (let i = 0; i < list.length; i++) {
 									const user = list[i];
@@ -1874,7 +1904,11 @@ export default class TriggerActionHandler {
 									//If user is online or their last acitivity on chat was less than 10min ago
 									&& (user.channelInfo[channel_id].online
 									|| Date.now() - (user.channelInfo[channel_id].lastActivityDate || 0) < 10 * 60000)) {
-										StoreProxy.values.updateValue(v.id, text, undefined, user.id);
+										if(action == "delete") {
+											StoreProxy.values.deleteValueEntry(v.id, undefined, user.id);
+										}else{
+											StoreProxy.values.updateValue(v.id, text, undefined, user.id);
+										}
 									}
 								}
 
@@ -1882,8 +1916,12 @@ export default class TriggerActionHandler {
 							}else {
 								const user = v.perUser? this.extractUserFromTrigger(trigger, message) : undefined;
 								if(!v.perUser || (user && !user.temporary && !user.errored && !user.anonymous)) {
-									StoreProxy.values.updateValue(v.id, text, user);
-									let logMessage = "Update \""+v.name+"\" to \""+text+"\"";
+									if(action == "delete") {
+										StoreProxy.values.deleteValueEntry(v.id, user);
+									}else{
+										StoreProxy.values.updateValue(v.id, text, user);
+									}
+									let logMessage = action+" \""+v.name+"\" to \""+text+"\"";
 									if(user) logMessage += " (for @"+user.displayNameOriginal+")";
 									logStep.messages.push({date:Date.now(), value:logMessage});
 								}else{

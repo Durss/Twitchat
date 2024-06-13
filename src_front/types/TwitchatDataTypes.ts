@@ -145,7 +145,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Users values
 		 */
-		users?:{[key:string]:string};
+		users?:{[userId:string]:string};
 		/**
 		 * Is the counter disabled ?
 		 * It can be disabled if the user has to disable counters they're not

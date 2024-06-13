@@ -2031,6 +2031,13 @@ export interface ICountersActions {
 	 */
 	increment(id:string, action:TriggerActionCountDataAction, value:number, user?:TwitchatDataTypes.TwitchatUser, userId?:string):number;
 	/**
+	 * Deletes a per-user counter entry
+	 * @param id 
+	 * @param user 
+	 * @param userId 
+	 */
+	deleteCounterEntry(id:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void;
+	/**
 	 * Saves counters to server
 	 */
 	saveCounters():void;
@@ -2172,6 +2179,13 @@ export interface IValuesActions {
 	 * @param userId
 	 */
 	updateValue(id:string, value:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void;
+	/**
+	 * Deletes a per-user value entry
+	 * @param id 
+	 * @param user 
+	 * @param userId 
+	 */
+	deleteValueEntry(id:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void;
 	/**
 	 * Delete a value
 	 * @param data
