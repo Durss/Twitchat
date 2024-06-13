@@ -88,6 +88,7 @@
 				v-model:showCredits="showCredits" @update:showCredits="(v:boolean) => showCredits = v"
 				v-model:showBingoGrid="showBingoGrid" @update:showBingoGrid="(v:boolean) => showBingoGrid = v"
 				v-model:showGazaFunds="showGazaFunds" @update:showGazaFunds="(v:boolean) => showGazaFunds = v"
+				v-model:showAntifa="showAntifa" @update:showAntifa="(v:boolean) => showAntifa = v"
 			/>
 		</div>
 
@@ -144,6 +145,8 @@
 		<ChatAlertMessage v-if="buildIndex >= 4 + $store.params.chatColumnsConfig.length" />
 
 		<HelpGenocideVictims v-if="showGazaFunds" @close="showGazaFunds = false" />
+
+		<VoteAtifa v-if="showAntifa" @close="showAntifa = false" />
 
 		<Accessibility />
 
@@ -213,6 +216,7 @@ import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
+import VoteAtifa from '@/components/chatform/VoteAtifa.vue';
 
 @Component({
 	components:{
@@ -225,6 +229,7 @@ import Login from './Login.vue';
 		UserCard,
 		HeatLogs,
 		PollForm,
+		VoteAtifa,
 		Changelog,
 		TimerForm,
 		GreetThem,
@@ -278,6 +283,7 @@ import Login from './Login.vue';
 	public showShoutout = false;
 	public showBingoGrid = false;
 	public showGazaFunds = false;
+	public showAntifa = false;
 	public showChatUsers = false;
 	public showDonorBadge = true;
 	public showBlinkLayer = false;

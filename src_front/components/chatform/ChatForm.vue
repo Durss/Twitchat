@@ -260,6 +260,11 @@
 				v-tooltip="{content:$t('gaza.tooltip'), showOnCreate:shouldShowTooltip('gaza'), onHidden:()=>onHideTooltip('gaza')}"
 				@click="$emit('update:showGazaFunds', true)">🍉</ButtonNotification>
 
+				<ButtonNotification 
+				v-if="$i18n.locale == 'fr' && !$store.main.antifaHide"
+				v-tooltip="{content:'S\'il vous plait...', showOnCreate:shouldShowTooltip('antifa'), onHidden:()=>onHideTooltip('antifa')}"
+				@click="$emit('update:showAntifa', true)">🙏</ButtonNotification>
+
 				<transition name="blink">
 					<Button class="emergency"
 						v-if="emergencyButtonEnabled"
@@ -381,6 +386,7 @@ import TimerCountDownInfo from './TimerCountDownInfo.vue';
 		"update:showBingoGrid",
 		"setCurrentNotification",
 		"update:showGazaFunds",
+		"update:showAntifa",
 		"update:showChatUsers",
 	],
 })
@@ -652,7 +658,7 @@ export class ChatForm extends Vue {
 	/**
 	 * Gets if a button tooltip should be displayed by default
 	 */
-	public shouldShowTooltip(key:TwitchatDataTypes.NotificationTypes|TwitchatDataTypes.ModalTypes|"gaza"):boolean {
+	public shouldShowTooltip(key:TwitchatDataTypes.NotificationTypes|TwitchatDataTypes.ModalTypes|"gaza"|"antifa"):boolean {
 		const json = DataStore.get(DataStore.TOOLTIP_AUTO_OPEN);
 		let values!:{[key:string]:number};
 		if(!json) values = {};
@@ -663,7 +669,7 @@ export class ChatForm extends Vue {
 	/**
 	 * Called when a tooltip is closed
 	 */
-	public onHideTooltip(key:TwitchatDataTypes.NotificationTypes|TwitchatDataTypes.ModalTypes|"gaza"):void {
+	public onHideTooltip(key:TwitchatDataTypes.NotificationTypes|TwitchatDataTypes.ModalTypes|"gaza"|"antifa"):void {
 		const json = DataStore.get(DataStore.TOOLTIP_AUTO_OPEN);
 		let values!:{[key:string]:number};
 		if(!json) values = {};
