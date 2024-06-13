@@ -86,6 +86,7 @@
 				v-model:showDevMenu="showDevMenu" @update:showDevMenu="(v:boolean) => showDevMenu = v"
 				v-model:showCredits="showCredits" @update:showCredits="(v:boolean) => showCredits = v"
 				v-model:showGazaFunds="showGazaFunds" @update:showGazaFunds="(v:boolean) => showGazaFunds = v"
+				v-model:showAntifa="showAntifa" @update:showAntifa="(v:boolean) => showAntifa = v"
 			/>
 		</div>
 
@@ -138,6 +139,8 @@
 		<ChatAlertMessage v-if="buildIndex >= 4 + $store.params.chatColumnsConfig.length" />
 
 		<HelpGenocideVictims v-if="showGazaFunds" @close="showGazaFunds = false" />
+
+		<VoteAtifa v-if="showAntifa" @close="showAntifa = false" />
 
 		<Accessibility />
 
@@ -203,6 +206,7 @@ import QnaForm from '@/components/chatform/QnaForm.vue';
 import QnaList from '@/components/chatform/QnaList.vue';
 import EndingCreditsControls from '@/components/chatform/EndingCreditsControls.vue';
 import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
+import VoteAtifa from '@/components/chatform/VoteAtifa.vue';
 import HelpGenocideVictims from '@/components/chatform/HelpGenocideVictims.vue';
 
 @Component({
@@ -216,6 +220,7 @@ import HelpGenocideVictims from '@/components/chatform/HelpGenocideVictims.vue';
 		UserCard,
 		HeatLogs,
 		PollForm,
+		VoteAtifa,
 		Changelog,
 		TimerForm,
 		GreetThem,
@@ -266,6 +271,7 @@ import HelpGenocideVictims from '@/components/chatform/HelpGenocideVictims.vue';
 	public showCommands = false;
 	public showShoutout = false;
 	public showGazaFunds = false;
+	public showAntifa = false;
 	public showChatUsers = false;
 	public showDonorBadge = true;
 	public showBlinkLayer = false;

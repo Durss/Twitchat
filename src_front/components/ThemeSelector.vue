@@ -1,6 +1,6 @@
 <template>
 	<div class="themeselector card-item">
-		<SwitchButton label1="🌙" label2="☀️" v-model="lightMode" @change="toggleTheme()" />
+		<SwitchButton :labels="['🌙','☀️']" :values="[false, true]" v-model="lightMode" @change="toggleTheme()" />
 	</div>
 </template>
 

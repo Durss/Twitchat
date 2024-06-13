@@ -1,19 +1,19 @@
 <template>
-	<div :class="classes" @click.stop="toggle()">
-		<span class="label" @click.capture.stop="setState(false)">{{ label1 }}</span>
-		
+	<div :class="classes">
+		<span class="label" @click.capture.stop="setState(values[0])">{{ labels[0] }}</span>
+
 		<div class="toggleHolder">
 			<div class="dash"></div>
-			<ToggleButton class="toggle" v-model="localValue"
+			<ToggleButton class="toggle" v-model="selected"
 			noCheckmark
 			:big="big"
 			:small="small"
 			:secondary="secondary"
-			:alert="alert" @change="setState(localValue)" />
+			:alert="alert" @change="setState(selected? values[1] : values[0])" />
 			<div class="dash"></div>
 		</div>
 
-		<span class="label" @click.capture.stop="setState(true)">{{ label2 }}</span>
+		<span class="label" @click.capture.stop="setState(values[1])">{{ labels[1] }}</span>
 	</div>
 </template>
 
@@ -28,12 +28,12 @@ import ToggleButton from './ToggleButton.vue';
 	},
 	emits: ['update:modelValue', 'change'],
 })
- class SwitchButton extends Vue {
-	@Prop
-	public label1!:string;
-	
-	@Prop
-	public label2!:string;
+class SwitchButton extends Vue {
+	@Prop({type:Array, default:["",""]})
+	public labels!:string[];
+
+	@Prop({type:Array, default: [true, false]})
+	public values!:unknown[];
 
 	@Prop({type:Boolean, default: false})
 	public big!:boolean;
@@ -47,10 +47,11 @@ import ToggleButton from './ToggleButton.vue';
 	@Prop({type:Boolean, default: false})
 	public alert!:boolean;
 
-	@Prop({type:Boolean, default: false})
-	public modelValue!:boolean;
+	@Prop({default: false})
+	public modelValue!:unknown;
 
-	public localValue:boolean = false;
+	public localValue:unknown = false;
+	public selected:boolean = false;
 
 	public get classes():string[] {
 		let res = ["switchbutton"];
@@ -58,25 +59,26 @@ import ToggleButton from './ToggleButton.vue';
 		if(this.small !== false) res.push("small");
 		if(this.secondary !== false) res.push("secondary");
 		if(this.alert !== false) res.push("alert");
-		if(this.localValue) res.push("selected");
+		if(this.localValue == this.values[1]) res.push("selected");
 		return res;
 	}
 
 	public beforeMount():void {
-		this.localValue = this.modelValue;
+		if(this.modelValue != this.values[0] && this.modelValue !== this.values[1]) {
+			this.setState(this.values[0])
+		}else{
+			this.localValue = this.modelValue;
+			this.selected = this.localValue === this.values[1];
+		}
 		watch(()=>this.modelValue, ()=>{
 			this.localValue = this.modelValue;
-		})
+			this.selected = this.localValue === this.values[1];
+		});
 	}
 
-	public setState(state:boolean):void {
-		this.localValue = state;
-		this.$emit('update:modelValue', state);
+	public setState(value:unknown):void {
+		this.$emit("update:modelValue", value);
 		this.$emit('change');
-	}
-
-	public toggle():void {
-		this.setState(!this.localValue);
 	}
 
 }
@@ -90,7 +92,6 @@ export default toNative(SwitchButton);
 	align-items: center;
 	justify-content: center;
 	color: var(--color-text);
-	cursor: pointer;
 	gap: .5em;
 
 	.toggleHolder {
@@ -122,6 +123,7 @@ export default toNative(SwitchButton);
 		opacity: .6;
 		font-weight: bold;
 		text-shadow: var(--text-shadow-contrast);
+		cursor: pointer;
 		&:first-of-type{
 			opacity: 1;
 			text-align: right;
