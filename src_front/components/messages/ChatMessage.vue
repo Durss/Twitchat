@@ -808,7 +808,7 @@ export default toNative(ChatMessage);
 
 	&.gigantifiedEmote {
 		.message {
-			:deep(.emote) {
+			:deep(.emote:last-of-type) {
 				height: 5em;
 				max-height: 5em;
 				display: block;
@@ -901,6 +901,10 @@ export default toNative(ChatMessage);
 	.message {
 		.text {
 			word-break: break-word;
+		}
+		:deep(.emote) {
+			height: 1.75em;
+			display: inline-block;
 		}
 	}
 
