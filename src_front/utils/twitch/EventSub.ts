@@ -255,11 +255,12 @@ export default class EventSub {
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
 
-				/*
 				if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM, "1");
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM_UPDATE, "1");
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMATIC_REWARD_REDEEM, "1");
+					// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM, "1");
+					// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM_UPDATE, "1");
 				}
+				/*
 				if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.POLL_START, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.POLL_PROGRESS, "1");
@@ -353,6 +354,11 @@ export default class EventSub {
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.MODERATOR_REMOVE: {
 				this.modRemoveEvent(topic, payload.event as TwitchEventSubDataTypes.ModeratorRemoveEvent);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.AUTOMATIC_REWARD_REDEEM: {
+				this.automaticRewardRedeem(topic, payload.event as TwitchEventSubDataTypes.AutomaticRewardRedeemEvent);
 				break;
 			}
 
@@ -730,6 +736,11 @@ export default class EventSub {
 		StoreProxy.chat.addMessage(m);
 	}
 
+	/**
+	 * Called when a moderator is removed
+	 * @param topic 
+	 * @param event 
+	 */
 	private modRemoveEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModeratorRemoveEvent):void {
 		const modedUser		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
 		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name);
@@ -744,6 +755,28 @@ export default class EventSub {
 			message: StoreProxy.i18n.t("global.moderation_action.unmodded_by", {USER:modedUser.displayName, MODERATOR:moderator.displayName}),
 		};
 		StoreProxy.users.flagUnmod("twitch", event.broadcaster_user_id, modedUser.id);
+		StoreProxy.chat.addMessage(m);
+	}
+	
+	/**
+	 * Called when redeeming an automatic reward (used only for "celebration" for now)
+	 * @param topic 
+	 * @param payload 
+	 */
+	private automaticRewardRedeem(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AutomaticRewardRedeemEvent):void {
+		if(event.reward.type != "celebration") return;
+
+		const user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
+		const m:TwitchatDataTypes.MessageTwitchCelebrationData = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitch",
+			channel_id:event.broadcaster_user_id,
+			type:TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION,
+			user,
+			cost:event.reward.cost!,
+			emoteID:event.reward.unlocked_emote.id!
+		};
 		StoreProxy.chat.addMessage(m);
 	}
 

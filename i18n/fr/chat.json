@@ -446,6 +446,9 @@
 			"request": "{USER} a envoyé cette demande d'unban",
 			"accepted": "{MODERATOR} a accepté la demande d'unban de {USER}",
 			"refused": "{MODERATOR} a refusé la demande d'unban de {USER}"
+		},
+		"celebration": {
+			"message":"{USER} a obtenu {EMOTE} Célébration de chaîne pour {PRICE}"
 		}
 	}
 }

@@ -15,6 +15,7 @@
 			<Button small @click="simulateEvent($event, 'twitchat_ad', 'donor_public_prompt')" icon="whispers">Donor prompt</Button>
 			<Button small @click="simulateEvent($event, 'twitchat_ad', 'update_reminder')" icon="whispers">Update reminder</Button>
 			<Button small @click="simulateEvent($event, 'twitchat_ad', 'ad_break_api')" icon="whispers">Ad break scopes</Button>
+			<Button small @click="simulateEvent($event, 'twitch_celebration')" icon="watchStreak">Twitch celebration</Button>
 			<Button small @click="$store.chat.sendRightClickHint()" icon="whispers">Right click hint</Button>
 			<Button small @click="simulateEvent($event, 'join')" icon="enter">Join</Button>
 			<Button small @click="simulateEvent($event, 'leave')" icon="leave">Leave</Button>

@@ -3,6 +3,7 @@
 	@contextmenu="onContextMenu($event, messageData, $el)"
 	@mouseover="$emit('onOverMessage', messageData, $event)"
 	>
+		<div class="gradientBg" v-if="messageData.type=='message' && messageData.twitch_animationId == 'rainbow-eclipse'"></div>
 		<div v-if="automodReasons" class="automod">
 			<img src="@/assets/icons/automod.svg">
 			<div class="header"><strong>{{ $t('chat.message.automod') }}</strong> {{automodReasons}}</div>
@@ -92,7 +93,11 @@
 
 			<span :class="getMessageClasses(messageData)">
 				<span class="text">
-					<ChatMessageChunksParser :chunks="localMessageChunks" :channel="messageData.channel_id" :platform="messageData.platform" />
+					<ChatMessageChunksParser
+					:largeEmotes="messageData.type == 'message'? messageData.twitch_gigantifiedEmote : false"
+					:chunks="localMessageChunks"
+					:channel="messageData.channel_id"
+					:platform="messageData.platform" />
 				</span>
 				<span class="deleted" v-if="getDeletedMessage(messageData)">{{getDeletedMessage(messageData)}}</span>
 				<MessageTranslation class="textTranslation" :messageData="messageData" />
@@ -237,6 +242,8 @@ import ChatModTools from './components/ChatModTools.vue';
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 			if(message.cleared)	res.push("cleared");
 			if(message.deleted)	res.push("deleted");
+			if(message.twitch_animationId)	res.push("animation_"+message.twitch_animationId);
+			if(message.twitch_gigantifiedEmote)	res.push("gigantifiedEmote");
 			if(this.childrenList && this.childrenList.length > 0)res.push("merged")
 		}
 
@@ -725,6 +732,87 @@ export default toNative(ChatMessage);
 			background-color: var(--color-primary);
 			color:#fff;
 			padding: 0 .5em;
+		}
+	}
+
+	&.animation_simmer {
+		border-radius: 0;
+		padding: 1em;
+		background: linear-gradient(90deg, #3866dd, #ff4c5b);
+		* {
+			position: relative;
+			z-index: 1;
+		}
+		&::before {
+			content: "";
+			top: .75em;
+			left: .75em;
+			z-index: 0;
+			width: calc(100% - 1.5em);
+			height: calc(100% - 1.5em);
+			position: absolute;
+			background-color: var(--color-dark);
+		}
+	}
+
+	&.animation_rainbow-eclipse {
+		border-radius: 0;
+		padding: 1em;
+		overflow: hidden;
+		* {
+			position: relative;
+			z-index: 2;
+		}
+		&::before {
+			content: "";
+			top: .75em;
+			left: .75em;
+			z-index: 1;
+			width: calc(100% - 1.5em);
+			height: calc(100% - 1.5em);
+			position: absolute;
+			background-color: var(--color-dark);
+		}
+		.gradientBg {
+			z-index: 0;
+			filter: blur(3px);
+			position: absolute;
+			overflow: hidden;
+			height: calc(100% - .5em);
+			width: calc(100% - .5em);
+			margin-left: -0.75em;
+			margin-top: -0.75em;
+			border-radius: 3px;
+			&::before {
+				animation: rotate 4s linear infinite;
+				background-image: conic-gradient(#b23ff8, #3cc890, #38a7ca, #b23ff8);
+				background-position: 0 0;
+				background-repeat: no-repeat;
+				content: "";
+				height: 99999px;
+				left: 50%;
+				position: absolute;
+				top: 50%;
+				transform: translate(-50%, -50%) rotate(0deg);
+				width: 99999px;
+				z-index: 0;
+			}
+		}
+
+		@keyframes rotate {
+			100% {
+				transform: translate(-50%, -50%) rotate(1turn);
+			}
+		}
+	}
+
+	&.gigantifiedEmote {
+		.message {
+			:deep(.emote) {
+				height: 5em;
+				max-height: 5em;
+				display: block;
+			}
 		}
 	}
 

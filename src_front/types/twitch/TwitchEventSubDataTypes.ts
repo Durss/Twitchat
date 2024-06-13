@@ -18,6 +18,7 @@ export namespace TwitchEventSubDataTypes {
 		REWARD_DELETE: "channel.channel_points_custom_reward.remove",
 		REWARD_REDEEM: "channel.channel_points_custom_reward_redemption.add",
 		REWARD_REDEEM_UPDATE: "channel.channel_points_custom_reward_redemption.update",
+		AUTOMATIC_REWARD_REDEEM: "channel.channel_points_automatic_reward_redemption.add",
 		POLL_START: "channel.poll.begin",
 		POLL_PROGRESS: "channel.poll.progress",
 		POLL_END: "channel.poll.end",
@@ -284,7 +285,7 @@ export namespace TwitchEventSubDataTypes {
 		user_id: string;
 		user_login: string;
 		user_name: string;
-		user_input: string;
+		user_input?: string;
 		status: "fulfilled" | "cancelled";
 		reward: {
 			id: string;
@@ -292,6 +293,38 @@ export namespace TwitchEventSubDataTypes {
 			cost: number;
 			prompt: string;
 		};
+		redeemed_at: string;
+	}
+
+	export interface AutomaticRewardRedeemEvent {
+		id: string;
+		broadcaster_user_id: string;
+		broadcaster_user_name: string;
+		broadcaster_user_login: string;
+		user_id: string;
+		user_name: string;
+		user_login: string;
+		user_input?: string;
+		reward: {
+			type: "single_message_bypass_sub_mode" |
+			"send_highlighted_message" |
+			"random_sub_emote_unlock" |
+			"chosen_sub_emote_unlock" |
+			"chosen_modified_sub_emote_unlock" |
+			"message_effect" |
+			"gigantify_an_emote" |
+			"celebration";
+			cost: number;
+			unlocked_emote: {id:string};//TODO confirm data format
+		}
+		message: {
+			text: string;
+			emotes: {
+				id: string;
+				begin: number;
+				end: number;
+			}[]
+		}
 		redeemed_at: string;
 	}
 

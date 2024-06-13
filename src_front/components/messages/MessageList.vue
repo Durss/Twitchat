@@ -526,6 +526,7 @@ import { Linear } from 'gsap/all';
 				return this.config.filters.subscription === true;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION: 
 			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
 				return this.config.filters.reward === true;
 			}

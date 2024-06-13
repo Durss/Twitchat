@@ -170,6 +170,10 @@
 	<ChatUnbanRequest class="message"
 		v-else-if="messageData.type == 'unban_request'"
 		:messageData="messageData" />
+
+	<ChatCelebration class="message"
+		v-else-if="messageData.type == 'twitch_celebration'"
+		:messageData="messageData" />
 </template>
 
 <script lang="ts">
@@ -218,6 +222,7 @@ import ChatKofiEvent from './ChatKofiEvent.vue';
 import ChatStreamelementsEvent from './ChatStreamelementsEvent.vue';
 import ChatUnbanRequest from './ChatUnbanRequest.vue';
 import ChatTipeeeEvent from './ChatTipeeeEvent.vue';
+import ChatCelebration from './ChatCelebration.vue';
 
 @Component({
 	components:{
@@ -241,6 +246,7 @@ import ChatTipeeeEvent from './ChatTipeeeEvent.vue';
 		ChatStreamOnOff,
 		ChatBingoResult,
 		ChatWatchStreak,
+		ChatCelebration,
 		ChatTimerResult,
 		ChatAutobanJoin,
 		ChatUnbanRequest,

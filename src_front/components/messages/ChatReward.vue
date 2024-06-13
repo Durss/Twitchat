@@ -72,7 +72,7 @@ import Database from '@/store/Database';
 	},
 	emits:["onRead"],
 })
- class ChatReward extends AbstractChatMessage {
+class ChatReward extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageRewardRedeemData;

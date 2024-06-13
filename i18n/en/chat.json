@@ -446,6 +446,9 @@
 			"request": "{USER} sent following unban request",
 			"accepted": "{MODERATOR} accepted {USER} unban request",
 			"refused": "{MODERATOR} refused {USER} unban request"
+		},
+		"celebration": {
+			"message":"{USER} redeemed {EMOTE} On-screen Celebration for {PRICE}"
 		}
 	}
 }

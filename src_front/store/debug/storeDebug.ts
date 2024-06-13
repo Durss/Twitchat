@@ -1405,6 +1405,22 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
+
+				case TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION: {
+					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const m:TwitchatDataTypes.MessageTwitchCelebrationData = {
+						platform:"twitch",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						channel_id:uid,
+						user:fakeUser,
+						cost:40,
+						emoteID:"emotesv2_aed86c1d29ef4fd0ab52b7c331fc456b",
+					};
+					data = m;
+					break;
+				}
 			}
 
 			data.fake = true;
