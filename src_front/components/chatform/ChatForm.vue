@@ -260,10 +260,10 @@
 				v-tooltip="{content:$t('gaza.tooltip'), showOnCreate:shouldShowTooltip('gaza'), onHidden:()=>onHideTooltip('gaza')}"
 				@click="$emit('update:showGazaFunds', true)">🍉</ButtonNotification>
 
-				<!-- <ButtonNotification 
+				<ButtonNotification 
 				v-if="$i18n.locale == 'fr' && !$store.main.antifaHide"
 				v-tooltip="{content:'S\'il vous plait...', showOnCreate:shouldShowTooltip('antifa'), onHidden:()=>onHideTooltip('antifa')}"
-				@click="$emit('update:showAntifa', true)">🙏</ButtonNotification> -->
+				@click="$emit('update:showAntifa', true)">🙏</ButtonNotification>
 
 				<transition name="blink">
 					<Button class="emergency"

@@ -8,14 +8,14 @@
 			</h1>
 			<div class="content">
 				<p style="text-align:center; font-style: italic; opacity: .8;">...ne laissez pas notre pays tomber sous l'extrême droite le 30 juin...</p>
-
+				
 				<div class="card-item" style="margin-bottom: 1em;">
 					<SwitchButton v-model="short" :labels="['Version courte', 'Version longue']" :values="[true, false]"></SwitchButton>
 				</div>
 
 				<Transition name="fadeScale">
 				<div v-if="short==true" class="conditionalSection">
-					<p class="card-item premium"><Icon name="info" /> Twitchat existe grâce aux aides sociales que le RN compte détruire.</p>
+					<p class="card-item premium"><Icon name="info" /> Twitchat existe grâce aux aides sociales, que le RN compte détruire</p>
 					<strong style="text-align:center; margin-top: 1em; display: block;">Voici certains votes du RN ces dernières années</strong>
 				</div>
 				</Transition>
@@ -32,7 +32,7 @@
 						<p></p>
 					</div>
 				</Transition>
-				<ToggleBlock alert :icons="['cross']" title="Votes contre (35)" :open="false">
+				<ToggleBlock alert :icons="['cross']" title="Votes contre (40)" :open="false">
 					<section>
 						<strong>Salaires/Retraites</strong>
 						<ul>
@@ -78,8 +78,13 @@
 					<section>
 						<strong>Féminisme</strong>
 						<ul>
+							<li><Icon name="cross" theme="light" />Remboursement des soins médicaux pour les cancers du sein</li>
 							<li><Icon name="cross" theme="light" />Allouer 1 millard pour lutter contre la violence faites aux femmes</li>
-							<li><Icon name="cross" theme="light" />Droit à l'IVG</li>
+							<li><Icon name="cross" theme="light" />La PMA</li>
+							<li><Icon name="cross" theme="light" />Droit à l'IVG et son inscription dans la constitution</li>
+							<li><Icon name="cross" theme="light" />La lutte contre les discours de haine envers les LGBTQ+</li>
+							<li><Icon name="cross" theme="light" />Déclarer l'UE comme zone de liberté pour les LGBTQ+</li>
+							<li><Icon name="cross" theme="light" />Le mariage homosexuel</li>
 						</ul>
 					</section>
 					<section>
@@ -131,11 +136,24 @@
 						</ul>
 					</section>
 				</ToggleBlock>
+
 				<p style="margin-top: 1em;">Pour ma part je voterai Front Populaire car il s'agit selon moi de la seule chance d'éviter le pire, tant statistiquement que socialement.</p>
+
+				<ToggleBlock :icons="['info']" small title="Ressources utiles" class="resources" :open="false">
+					<ul class="resources">
+						<li v-for="r in resources" class="resource">
+							<TTButton type="button" v-tooltip="'Envoyer dans le tchat'" small @click="sendChat(r)" :loading="sending"><Icon name="whispers" /></TTButton>
+							<TTButton icon="newtab" target="_blank" type="link" :href="r.url" small>{{ r.label }}</TTButton>
+						</li>
+					</ul>
+				</ToggleBlock>
+
 				<div class="ctas">
 					<TTButton primary icon="cross" @click="close(false)">Fermer</TTButton>
 					<TTButton alert @click="close(true)">Ne plus afficher</TTButton>
 				</div>
+				
+				<div class="card-item secondary">Très cher·e beta-testeureuse je veux bien ton avis sur la démarche et le contenu de cette fenêtre 🤍.<br>Rendez-vous dans la section beta du <a :href="$config.DISCORD_URL" target="_blank">Discord Twitchat</a> !</div>
 			</div>
 		</div>
 	</div>
@@ -150,6 +168,8 @@ import Icon from '../Icon.vue';
 import { TTButton } from '../TTButton.vue';
 import DataStore from '@/store/DataStore';
 import SwitchButton from '../SwitchButton.vue';
+import MessengerProxy from '@/messaging/MessengerProxy';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -161,9 +181,26 @@ import SwitchButton from '../SwitchButton.vue';
 	},
 	emits:["close"],
 })
-class VoteAtifa extends Vue {
+class VoteAntifa extends Vue {
 
 	public short = true;
+	public sending = false;
+	public resources = [
+		{url:"https://www.instagram.com/p/C8H_2Kcivem", label:"Pourquoi la gauche ne parle pas d'immigration et d'insécurité ?"},
+		{url:"https://actionpopulaire.fr/procuration/donner-ma-procuration/", label:"Faire une procuration"},
+		{url:"https://actionpopulaire.fr/procuration/prendre-une-procuration/", label:"Prendre une procuration"},
+		{url:"https://x.com/Rivenzi_/status/1800926126228795454", label:"\"Les nazis étaient de gauche\". Faux."},
+		{url:"https://x.com/PanettonePazzo/status/1800799615253623127", label:"La gauche n'est pas parfaite. Mais largement préférable au RN."},
+		{url:"https://x.com/rouge_vert1418/status/1800584586034081927", label:"Vote de droite = vote de riche"},
+		{url:"https://www.instagram.com/p/C8FLQKiiR67/", label:"C'est quoi les législatives"},
+		{url:"https://twitter.com/mistermv/status/1800581898558988570", label:"Infographie des votes du RN à l'assemblée nationale"},
+		{url:"https://x.com/frogashell/status/1800444233624834543/photo/1", label:"Le RN est anti-féministe"},
+		{url:"https://x.com/frogashell/status/1800444233624834543/photo/2", label:"Le RN est raciste"},
+		{url:"https://x.com/frogashell/status/1800444233624834543/photo/3", label:"Le RN est LGBTIPhobe"},
+		{url:"https://x.com/frogashell/status/1800444233624834543/photo/4", label:"Le RN est anti pauvres"},
+		{url:"https://x.com/frogashell/status/1800444243778867427/photo/1", label:"Le RN est anti écologie"},
+		{url:"https://www.instagram.com/p/C8B0zK6iucX", label:"Convaincre d'aller voter"},
+	];
 
 	public mounted():void {
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
@@ -187,8 +224,15 @@ class VoteAtifa extends Vue {
 		}});
 	}
 
+	public async sendChat(r:typeof this.resources[number]):Promise<void> {
+		this.sending = true;
+		await MessengerProxy.instance.sendMessage("\""+r.label+"\" : "+r.url);
+		await Utils.promisedTimeout(500);
+		this.sending = false;
+	}
+
 }
-export default toNative(VoteAtifa);
+export default toNative(VoteAntifa);
 </script>
 
 <style scoped lang="less">
@@ -277,6 +321,30 @@ export default toNative(VoteAtifa);
 		&.fadeScale-leave-to {
 			opacity: 0;
 			max-height: 0;
+		}
+	}
+
+	.resources {
+		gap: 2px;
+		display: flex;
+		flex-direction: column;
+		font-size: 1.2em;
+	}
+
+	.resource {
+		border-radius: 0;
+		display: flex;
+		flex-direction: row;
+		.button:first-child {
+			flex-shrink: 0;
+			border-top-right-radius: 0;
+			border-bottom-right-radius: 0;
+			margin-right: 1px;
+		}
+		.button:last-child {
+			flex-grow: 1;
+			border-top-left-radius: 0;
+			border-bottom-left-radius: 0;
 		}
 	}
 }
