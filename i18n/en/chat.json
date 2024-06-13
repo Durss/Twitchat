@@ -453,6 +453,10 @@
 		"youtube":{
 			"platform_youtube": "Message received\non Youtube",
 			"connected_to": "Now connected to live chat \"{TITLE}\""
+		},
+		"celebration": {
+			"message":"{USER} redeemed {EMOTE} On-screen Celebration for {PRICE}",
+			"message_tmp":"{USER} redeemed the Power Up \"On-screen Celebration\""
 		}
 	}
 }

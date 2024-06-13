@@ -647,12 +647,16 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			}
 		}
 
+		console.log(tags);
+		console.log(message);
 		data.twitch_isSlashMe		= tags["message-type"] === "action";
 		data.twitch_isReturning		= tags["returning-chatter"] === true;
 		data.twitch_isFirstMessage	= tags['first-msg'] === true && tags["msg-id"] != "user-intro";
 		data.twitch_isPresentation	= tags["msg-id"] == "user-intro";
 		data.twitch_isHighlighted	= tags["msg-id"] === "highlighted-message";
+		data.twitch_gigantifiedEmote= tags["msg-id"] === "gigantified-emote-message";
 		data.is_short				= tags["emote-only"] === true;
+		if(tags["msg-id"] === "animated-message") data.twitch_animationId = tags["animation-id"];
 		if(tags["msg-param-color"]) data.twitch_announcementColor= tags["msg-param-color"].toLowerCase();
 
 		//Send reward redeem message if the message comes from an "highlight my message" reward

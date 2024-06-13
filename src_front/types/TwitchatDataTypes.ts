@@ -1973,6 +1973,7 @@ export namespace TwitchatDataTypes {
 		OBS_SOURCE_TOGGLE:"obs_source_toggle",
 		OBS_FILTER_TOGGLE:"obs_filter_toggle",
 		HYPE_TRAIN_CANCEL:"hype_train_cancel",
+		TWITCH_CELEBRATION:"twitch_celebration",
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
 		AD_BREAK_START_CHAT:"ad_break_start_chat",
 		HYPE_TRAIN_PROGRESS:"hype_train_progress",
@@ -2057,6 +2058,7 @@ export namespace TwitchatDataTypes {
 		obs_scene_change:false,
 		obs_start_stream:false,
 		bingo_grid_viewer:false,
+		twitch_celebration:true,
 		obs_source_toggle:false,
 		ad_break_complete:false,
 		obs_filter_toggle:false,
@@ -2192,6 +2194,7 @@ export namespace TwitchatDataTypes {
 									| MessageTipeeeDonationData
 									| MessageBingoGridData
 									| MessageBingoGridViewerData
+									| MessageTwitchCelebrationData
 	;
 
 	/**
@@ -2575,6 +2578,14 @@ export namespace TwitchatDataTypes {
 		 * true if user used the "highlight my message" channel point reward
 		 */
 		twitch_isHighlighted?: boolean;
+		/**
+		 * Define if emote should be displayed in giant
+		 */
+		twitch_gigantifiedEmote?: boolean;
+		/**
+		 * Animation type AKA message skin
+		 */
+		twitch_animationId?: "simmer"|"rainbow-eclipse";
 		/**
 		 * Color of the announcement if this is a /announce message
 		 */
@@ -4418,5 +4429,24 @@ export namespace TwitchatDataTypes {
 		 * User that clicked.
 		 */
 		user:TwitchatDataTypes.TwitchatUser;
+	}
+
+	/**
+	 * Represents a Twitch "celebration" event
+	 */
+	export interface MessageTwitchCelebrationData extends AbstractTwitchatMessage {
+		type:"twitch_celebration";
+		/**
+		 * User that got moderated
+		 */
+		user:TwitchatUser;
+		/**
+		 * Emote ID that was used
+		 */
+		emoteID:string;
+		/**
+		 * Bits used to trigger celebration
+		 */
+		cost:number;
 	}
 }

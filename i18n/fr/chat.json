@@ -453,6 +453,10 @@
 		"youtube":{
 			"platform_youtube": "Message reçu\nsur Youtube",
 			"connected_to": "Vous êtes maintenant connecté·e au tchat du live \"{TITLE}\""
+		},
+		"celebration": {
+			"message":"{USER} a obtenu {EMOTE} Célébration de chaîne pour {PRICE}",
+			"message_tmp":"{USER} a obtenu le Power-Up \"Célébration de chaîne\""
 		}
 	}
 }
