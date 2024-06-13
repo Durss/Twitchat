@@ -448,7 +448,7 @@
 			"refused": "{MODERATOR} refused {USER} unban request"
 		},
 		"celebration": {
-			"message":"{USER} redeemed {EMOTE} On-screen Celebration for {PRICE}"
+			"message":"{USER} redeemed the Power Up \"On-screen Celebration\""
 		}
 	}
 }

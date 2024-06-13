@@ -448,7 +448,8 @@
 			"refused": "{MODERATOR} a refusé la demande d'unban de {USER}"
 		},
 		"celebration": {
-			"message":"{USER} a obtenu {EMOTE} Célébration de chaîne pour {PRICE}"
+			"message":"{USER} a obtenu {EMOTE} Célébration de chaîne pour {PRICE}",
+			"message_tmp":"{USER} a obtenu le Power-Up \"Célébration de chaîne\"."
 		}
 	}
 }

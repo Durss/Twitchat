@@ -775,7 +775,7 @@ export default class EventSub {
 			type:TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION,
 			user,
 			cost:event.reward.cost!,
-			emoteID:event.reward.unlocked_emote.id!
+			emoteID:event.reward.unlocked_emote?.id
 		};
 		StoreProxy.chat.addMessage(m);
 	}

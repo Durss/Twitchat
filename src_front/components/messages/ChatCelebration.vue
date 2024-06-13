@@ -4,7 +4,7 @@
 
 		<div class="holder">
 			<Icon name="watchStreak" />	
-			<i18n-t scope="global" keypath="chat.celebration.message">
+			<i18n-t scope="global" keypath="chat.celebration.message_tmp">
 				<template #USER>
 					<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
 				</template>
