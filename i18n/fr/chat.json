@@ -449,7 +449,7 @@
 		},
 		"celebration": {
 			"message":"{USER} a obtenu {EMOTE} Célébration de chaîne pour {PRICE}",
-			"message_tmp":"{USER} a obtenu le Power-Up \"Célébration de chaîne\"."
+			"message_tmp":"{USER} a obtenu le Power-Up \"Célébration de chaîne\""
 		}
 	}
 }
