@@ -322,6 +322,10 @@ export default class DataStore extends DataStoreCommon{
 		}
 		if(v==52) {
 			this.dedupeTriggerTree(data);
+			v = 53;
+		}
+		if(v==53) {
+			this.fixRaffleTriggerEntry(data);
 			v = latestVersion;
 		}
 
@@ -1403,6 +1407,25 @@ export default class DataStore extends DataStoreCommon{
 				}
 			}
 			data[DataStore.TRIGGERS_TREE] = tree;
+		}
+	}
+	
+	/**
+	 * Old failed trigger entry was storing full value data instead of its id
+	 * in the raffle trigger action data
+	 * @param data 
+	 */
+	public static fixRaffleTriggerEntry(data:any):void {
+		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+		if(triggers && Array.isArray(triggers)) {
+			triggers.forEach(t => {
+				t.actions.forEach(a => {
+					if(a.type == "raffle" && a.raffleData.value_id && typeof a.raffleData.value_id != "string") {
+						a.raffleData.value_id = (a.raffleData.value_id as TwitchatDataTypes.ValueData).id;
+					}
+				})
+			});
+			data[DataStore.TRIGGERS] = triggers;
 		}
 	}
 }
