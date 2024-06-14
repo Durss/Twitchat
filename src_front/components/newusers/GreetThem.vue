@@ -460,7 +460,6 @@ export default toNative(NewUsers);
 			font-family: var(--font-inter);
 			transition: background-color .25s;
 			border: 1px solid transparent;
-			padding: .2em .5em;
 			margin: 0;
 
 			&:nth-child(odd) {
