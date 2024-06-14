@@ -994,4 +994,17 @@ type ApiEndpoints =  {
 			}
 		}
 	};
+	"log": {
+		POST: {
+			parameters: {
+				log:unknown;
+				cat:string;
+			};
+			response:{
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		}
+	}
 }

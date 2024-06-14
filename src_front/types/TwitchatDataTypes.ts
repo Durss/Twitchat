@@ -379,6 +379,7 @@ export namespace TwitchatDataTypes {
 		PINNED: "pinned",
 		AUTOMOD: "automod",
 		WHISPER: "whisper",
+		POWER_UP: "powerUp",
 		CYPHERED: "cyphered",
 		NEW_USER: "new_user",
 		HYPE_CHAT: "hypeChat",

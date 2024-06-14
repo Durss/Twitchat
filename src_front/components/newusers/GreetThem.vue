@@ -71,7 +71,7 @@ import Config from '@/utils/Config';
 		MessageItem,
 	}
 })
- class NewUsers extends Vue {
+class NewUsers extends Vue {
 
 	public overIndex = -1;
 	public showList = true;

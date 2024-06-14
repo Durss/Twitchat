@@ -285,6 +285,7 @@ export default toNative(ChatAd);
 			align-items: center;
 			flex-direction: column;
 			justify-content: center;
+			color: var(--color-light);
 			.label {
 				font-size: 2em;
 				text-shadow: 1px 1px 1px var(--color-dark);

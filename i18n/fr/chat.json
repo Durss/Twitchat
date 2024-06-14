@@ -395,7 +395,8 @@
 				"new_account": "Ce compte a été créé il y a {DURATION}",
 				"new_account_day": "j",
 				"new_account_hour": "h",
-				"new_account_minute": "Min"
+				"new_account_minute": "Min",
+				"powerUp":"Power up"
 			}
 		},
 		"scope_request": {

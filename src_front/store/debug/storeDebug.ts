@@ -167,7 +167,6 @@ export const storeDebug = defineStore('debug', {
 					}while(bits === 0)
 
 					message += " "+Utils.shuffle(cheerList).join(" ");
-					message += " \"test\" coucou";
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					await TwitchUtils.parseCheermotes( chunks, uid);
 					const m:TwitchatDataTypes.MessageCheerData = {
