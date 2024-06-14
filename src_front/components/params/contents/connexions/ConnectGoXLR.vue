@@ -218,6 +218,9 @@ export default toNative(ConnectGoXLR);
 
 <style scoped lang="less">
 .paramsgoxlr{
+	.head {
+		white-space: pre-line;
+	}
 	.premium {
 		align-self: center;
 	}

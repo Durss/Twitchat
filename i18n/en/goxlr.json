@@ -1,6 +1,6 @@
 {
 	"goxlr":{
-		"header":"Control your GoXLR from Twitchat. Requires {LINK}.",
+		"header":"Control your GoXLR from Twitchat.\nRequires {LINK}.",
 		"header_link":"GoXLR-Utility",
 		"donate":"🎁 Please consider {LINK} for their massive open-source work on GoXLR-Utility",
 		"donate_link":"donating to FrostyCoolSlug",
@@ -16,10 +16,8 @@
 		"pitch_warning":"⚠️ Pitch encoder has limits that makes it not very suitable for this usage. Scrolling might be glitchy or not work depending on some settings.",
 		"goxlrmini_alert":"Chat control from encoders is not possible on GoXLR mini has it's lacking necessary inputs",
 		"infos":[
-			"Once your GoXLR is connected you can control it or automate actions when using some of its buttons thanks to the Triggers system.",
-			"For example you can allow your viewers to enable an FX preset from a channel point rewards, a chat command, a subscription, bits, ...",
-			"Or you can show an OBS source when mute or bleep button is pressed or when a fader is muted.",
-			"You can also scroll any chat column from one of the 4 encoders."
+			"Once your GoXLR is connected you'll be able to allow your viewers to enable an FX preset or play Samples from a channel point rewards, a chat command, a subscription, bits, ... or show an OBS source when mute or bleep button is pressed or when a fader is muted.",
+			"You will also be able to scroll any chat column or move the read mark from the encoders."
 		],
 		"connect_form":{
 			"title":"Credentials",

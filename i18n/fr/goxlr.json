@@ -1,6 +1,6 @@
 {
 	"goxlr":{
-		"header":"Contrôlez votre GoXLR depuis Twitchat. Nécessite {LINK}.",
+		"header":"Contrôlez votre GoXLR depuis Twitchat.\nNécessite {LINK}.",
 		"header_link":"GoXLR-Utility",
 		"donate":"🎁 {LINK} pour son énorme travail open-source sur GoXLR-Utility",
 		"donate_link":"Soutenez FrostyCoolSlug",
@@ -16,10 +16,9 @@
 		"pitch_warning":"⚠️ L'encodeur de pitch a des contraintes le rendant inadéquat pour défiler le tchat. Le défilement risque d'être saccadé ou de ne pas fonctionner selon les paramètres d'effet.",
 		"goxlrmini_alert":"Le contrôle du tchat depuis les encoders n'est pas possible depuis une GoXLR mini car elle ne possède pas les entrées nécessaires",
 		"infos":[
-			"Une fois votre GoXLR connectée vous pouvez la contrôler depuis les Triggers. Vous pouvez également effectuer des actions personnalisés lorsque vous utilisez l'un de ses boutons grâce aux évènement de Triggers dédiés.",
-			"Vous pouvez par exemple permettre à vos viewers d'activer un preset d'FX via une récompense de points de chaîne, une commande tchat, un sub, des bits, ...",
+			"Une fois votre GoXLR connectée vous pourrez par exemple permettre à vos viewers d'activer un preset d'FX ou un Sample via une récompense de points de chaîne, une commande tchat, un sub, des bits, ...",
 			"Ou encore afficher une source OBS lorsque vous appuyez sur le bouton mute ou bleep.",
-			"Vous pouvez aussi faire défiler n'importe laquelle de vos colonnes de tchat depuis l'un des 4 encodeurs."
+			"Vous pourrez aussi faire défiler vos colonnes de tchat et déplacer le marque page depuis les encodeurs."
 		],
 		"connect_form":{
 			"title":"Identifiants de connexion",
