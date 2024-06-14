@@ -15,7 +15,6 @@
 			<Button small @click="simulateEvent($event, 'twitchat_ad', 'donor_public_prompt')" icon="whispers">Donor prompt</Button>
 			<Button small @click="simulateEvent($event, 'twitchat_ad', 'update_reminder')" icon="whispers">Update reminder</Button>
 			<Button small @click="simulateEvent($event, 'twitchat_ad', 'ad_break_api')" icon="whispers">Ad break scopes</Button>
-			<Button small @click="simulateEvent($event, 'twitch_celebration')" icon="watchStreak">Twitch celebration</Button>
 			<Button small @click="$store.chat.sendRightClickHint()" icon="whispers">Right click hint</Button>
 			<Button small @click="simulateEvent($event, 'join')" icon="enter">Join</Button>
 			<Button small @click="simulateEvent($event, 'leave')" icon="leave">Leave</Button>
@@ -28,6 +27,10 @@
 			<Button small @click="simulateEvent($event, 'message', 'returning')" icon="returning">Returning user</Button>
 			<Button small @click="simulateEvent($event, 'message', 'presentation')" icon="firstTime">Presentation</Button>
 			<Button small @click="simulateEvent($event, 'message', 'recent')" icon="alert">Recent account</Button>
+			<Button small @click="simulateEvent($event, 'message', 'skin1')" icon="watchStreak">Power Up skin 1</Button>
+			<Button small @click="simulateEvent($event, 'message', 'skin2')" icon="watchStreak">Power Up skin 2</Button>
+			<Button small @click="simulateEvent($event, 'message', 'giantEmote')" icon="watchStreak">Power Up Giant emote</Button>
+			<Button small @click="simulateEvent($event, 'twitch_celebration')" icon="watchStreak">Poser Up celebration</Button>
 			<Button small @click="simulateEvent($event, 'user_watch_streak')" icon="watchStreak">Watch streak</Button>
 			<Button small @click="simulateEvent($event, 'raid', 'raidOffline')" icon="raid">Incoming raid offline</Button>
 			<Button small @click="simulateEvent($event, 'raid', 'raidOnline')" icon="raid">Incoming raid online</Button>
@@ -173,6 +176,13 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 				case "presentation":		(message as TwitchatDataTypes.MessageChatData).twitch_isPresentation = true; break;
 				case "recent":				(message as TwitchatDataTypes.MessageChatData).user.created_at_ms = Date.now() - 7 * 24 * 60 * 6000; break;
 				case "resub":				(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = true; break;
+				case "skin1":				(message as TwitchatDataTypes.MessageChatData).twitch_animationId = "simmer"; break;
+				case "skin2":				(message as TwitchatDataTypes.MessageChatData).twitch_animationId = "rainbow-eclipse"; break;
+				case "giantEmote":{
+					(message as TwitchatDataTypes.MessageChatData).message_chunks.push({type:"emote", value:"VoHiYo", emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/81274/default/light/3.0", emote:"https://static-cdn.jtvnw.net/emoticons/v2/81274/default/light/1.0"});
+					(message as TwitchatDataTypes.MessageChatData).message += "VoHiYo";
+					(message as TwitchatDataTypes.MessageChatData).twitch_gigantifiedEmote = true; break;
+				}
 				case "giftpaidupgrade":		(message as TwitchatDataTypes.MessageSubscriptionData).is_giftUpgrade = true; break;
 				case "sl_donation":			(message as TwitchatDataTypes.StreamlabsDonationData).eventType = "donation"; break;
 				case "sl_merch": {
@@ -505,7 +515,10 @@ type Subaction = "first"
 				| "se_donation"
 				| "my_stream_online"
 				| "my_stream_offline"
-				| "unban_request_solve";
+				| "unban_request_solve"
+				| "skin1"
+				| "skin2"
+				| "giantEmote";
 
 export default toNative(DevmodeMenu);
 </script>

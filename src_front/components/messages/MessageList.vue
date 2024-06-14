@@ -1642,8 +1642,12 @@ import { Linear } from 'gsap/all';
 			if(newMessage.message_size > maxSize) return false;
 			//don't merge messages with multiple occurences flag
 			if((newMessage.occurrenceCount || 0) > 0) return false;
-			//don't merge announcements
-			if(newMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && newMessage.twitch_announcementColor) return false;
+			//don't merge announcements and power ups
+			if(newMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+			&& (newMessage.twitch_announcementColor
+				|| newMessage.twitch_gigantifiedEmote
+				|| newMessage.twitch_animationId
+			)) return false;
 		}
 
 		if(!messageList) messageList = this.pendingMessages.length > 0? this.pendingMessages : this.filteredMessages;
@@ -1669,8 +1673,12 @@ import { Linear } from 'gsap/all';
 				const isMessage = prevMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE;
 				//don't merge messages with multiple occurences flag
 				if((isMessage && prevMessage.occurrenceCount || 0) > 0) return false;
-				//don't merge /announce
-				if(isMessage && prevMessage.twitch_announcementColor) return false;
+				//don't merge /announce and power ups
+				if(isMessage
+				&& (prevMessage.twitch_announcementColor
+					|| prevMessage.twitch_gigantifiedEmote
+					|| prevMessage.twitch_animationId
+				)) return false;
 				//Get date of the latest children if any, or the date of the message
 				const prevDate = this.messageIdToChildren[prevMessage.id]?.length > 0? this.messageIdToChildren[prevMessage.id][this.messageIdToChildren[prevMessage.id].length-1].date : prevMessage.date;
 				//Too much time elapsed between the 2 messages

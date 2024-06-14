@@ -739,15 +739,12 @@ export default toNative(ChatMessage);
 		border-radius: 0;
 		padding: 1em;
 		background: linear-gradient(90deg, #3866dd, #ff4c5b);
-		* {
-			position: relative;
-			z-index: 1;
-		}
+		z-index: 0;
 		&::before {
 			content: "";
 			top: .75em;
 			left: .75em;
-			z-index: 0;
+			z-index: -1;
 			width: calc(100% - 1.5em);
 			height: calc(100% - 1.5em);
 			position: absolute;
@@ -759,22 +756,19 @@ export default toNative(ChatMessage);
 		border-radius: 0;
 		padding: 1em;
 		overflow: hidden;
-		* {
-			position: relative;
-			z-index: 2;
-		}
+		z-index: 0;
 		&::before {
 			content: "";
 			top: .75em;
 			left: .75em;
-			z-index: 1;
+			z-index: -1;
 			width: calc(100% - 1.5em);
 			height: calc(100% - 1.5em);
 			position: absolute;
 			background-color: var(--color-dark);
 		}
 		.gradientBg {
-			z-index: 0;
+			z-index: -2;
 			filter: blur(3px);
 			position: absolute;
 			overflow: hidden;
@@ -807,12 +801,10 @@ export default toNative(ChatMessage);
 	}
 
 	&.gigantifiedEmote {
-		.message {
-			:deep(.emote:last-of-type) {
-				height: 5em;
-				max-height: 5em;
-				display: block;
-			}
+		:deep(.emote:last-of-type) {
+			height: 5em;
+			max-height: 5em;
+			display: block;
 		}
 	}
 
