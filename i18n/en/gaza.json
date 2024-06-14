@@ -17,6 +17,8 @@
 		"t4p_doc":"https://twitch4palestine.com/doc",
 		"t4p_fundraisers":"Add fundraisers overlay",
 		"t4p_alerts":"Add donation alerts overlay",
+		"t4p_chatCmd_toggle":"Enable chat command to send current fundraiser link on chat",
+		"t4p_chatCmd":"Command (1min cooldown)",
 		"gazafunds":"https://gazafunds.com"
 	}
 }
