@@ -3027,9 +3027,8 @@ export default class TriggerActionHandler {
 				//Some user got corrupted data where those 3 values were missing
 				//This is a fail-safe
 				if(c.operator == undefined || c.value == undefined || c.placeholder == undefined) continue;
-
 				const value = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, "{"+c.placeholder+"}", subEvent);
-				const expectation = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, c.value, subEvent);
+				const expectation = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, c.value.toString(), subEvent);
 				let valueNum = null;
 				try {
 					const num = MathJS.evaluate(expectation);
