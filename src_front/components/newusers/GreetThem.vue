@@ -7,21 +7,21 @@
 					:icon="'scroll'+(scrollDownAuto? 'Down' : 'Up')"
 					v-tooltip="$t(scrollDownAuto? 'greet.auto_scroll_down' : 'greet.auto_scroll_up')"
 					@click.stop="toggleScroll()" />
-	
+
 				<h1>{{ $t("greet.title") }} <span class="count">({{messages.length}})</span></h1>
-	
+
 				<ButtonNotification class="clearBt clearButton"
 					icon="checkmark"
 					v-tooltip="$t('greet.clearBt')"
 					@click.stop="clearAll()" />
-	
+
 				<ButtonNotification class="clearBt clearButton"
 					icon="date"
 					v-tooltip="$t('greet.resetBt')"
 					@click.stop="resetHistory()"
 					v-newflag="{date:1693519200000, id:'greetThem_clear'}" />
 			</div>
-	
+
 			<div class="topForm" v-if="showList" @click.stop>
 				<form class="row">
 					<label for="greetThem_duration"><img src="@/assets/icons/timeout.svg" alt="timer">{{ $t("greet.auto_delete") }}</label>
@@ -31,7 +31,7 @@
 				</form>
 			</div>
 		</div>
-		
+
 		<div class="messageList" v-if="showList" ref="messageList">
 			<template v-for="(m,index) in messagesFiltered" :key="m.id">
 				<MessageItem class="messageListItem"
@@ -71,7 +71,7 @@ import Config from '@/utils/Config';
 		MessageItem,
 	}
 })
- class NewUsers extends Vue {
+class NewUsers extends Vue {
 
 	public overIndex = -1;
 	public showList = true;
@@ -80,7 +80,7 @@ import Config from '@/utils/Config';
 	public deleteInterval = -1;
 	public windowHeight = .3;
 	public messages:TwitchatDataTypes.GreetableMessage[] = [];
-	
+
 	private maxItems = 50;
 	private disposed = false;
 	private resizing = false;
@@ -124,7 +124,7 @@ import Config from '@/utils/Config';
 		if(storeValue == "true") this.scrollDownAuto = true;
 		let height = DataStore.get(DataStore.GREET_AUTO_HEIGHT)
 		if(height) this.windowHeight = parseFloat(height);
-		
+
 		const autoDeleteStore = DataStore.get(DataStore.GREET_AUTO_DELETE_AFTER);
 		if(autoDeleteStore != null) {
 			this.$store.params.greetThemAutoDelete = parseInt(autoDeleteStore);
@@ -167,7 +167,7 @@ import Config from '@/utils/Config';
 		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
 		this.deleteMessageHandler = (e:GlobalEvent) => this.onDeleteMessage(e);
 		this.addMessageHandler = (e:GlobalEvent) => this.onAddMessage(e);
-		
+
 		document.addEventListener("mouseup", this.mouseUpHandler);
 		document.addEventListener("touchend", this.mouseUpHandler);
 		document.addEventListener("mousemove", this.mouseMoveHandler);
@@ -206,7 +206,7 @@ import Config from '@/utils/Config';
 	private async onAddMessage(event:GlobalEvent):Promise<void> {
 		const m = (event.data as TwitchatDataTypes.GreetableMessage);
 		if(!m.todayFirst) return;
-		
+
 		this.messages.push(m);
 		await this.$nextTick();
 		this.scrollTo();
@@ -217,7 +217,7 @@ import Config from '@/utils/Config';
 	 */
 	private onDeleteMessage(e:GlobalEvent):void {
 		const data = e.data as {message:TwitchatDataTypes.GreetableMessage, force:boolean};
-		
+
 		//remove from displayed messages
 		for (let i = this.messages.length-1; i >= 0; i--) {
 			const m = this.messages[i];
@@ -248,7 +248,7 @@ import Config from '@/utils/Config';
 				break;
 			}
 		}
-		
+
 		for (let i = 0; i < readCount; i++) {
 			if(this.messages.length === 0) break;
 			this.messages.splice(0, 1);
@@ -297,7 +297,7 @@ import Config from '@/utils/Config';
 	 */
 	public onMouseOver(e:MouseEvent, index:number):void {
 		if(this.resizing) return;
-		
+
 		this.overIndex = index;
 		let items = (this.$refs.messageList as HTMLElement).querySelectorAll<HTMLElement>(".messageListItem");
 		for (let i = 0; i <= index; i++) {
@@ -309,7 +309,7 @@ import Config from '@/utils/Config';
 			//rendering pipeline performance issue i couldn't solve
 			//by any other method.
 			items[i].style.opacity = ".3";
-			
+
 		}
 	}
 
@@ -367,7 +367,7 @@ import Config from '@/utils/Config';
 		const bounds = ((this.$el as HTMLDivElement).parentElement as HTMLDivElement).getBoundingClientRect();
 		const maxHeight = .8;
 		this.windowHeight = Math.min(maxHeight, (this.mouseY - bounds.top) / bounds.height);
-		
+
 		DataStore.set(DataStore.GREET_AUTO_HEIGHT, this.windowHeight);
 	}
 
@@ -384,7 +384,7 @@ export default toNative(NewUsers);
 	max-height: 60vh;
 	z-index: 1;
 	position: relative;
-	
+
 	.header {
 		background-color: var(--color-primary);
 		padding: .5em 0;
@@ -397,7 +397,7 @@ export default toNative(NewUsers);
 			h1 {
 				text-align: center;
 				margin: 0 10px;
-	
+
 				.count {
 					// font-style: italic;
 					font-size: .65em;
@@ -460,7 +460,6 @@ export default toNative(NewUsers);
 			font-family: var(--font-inter);
 			transition: background-color .25s;
 			border: 1px solid transparent;
-			padding: .2em .5em;
 			margin: 0;
 
 			&:nth-child(odd) {

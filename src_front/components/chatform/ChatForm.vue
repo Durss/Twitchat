@@ -252,7 +252,7 @@
 				@click="$emit('update:showGazaFunds', true)">🍉</ButtonNotification>
 
 				<!-- <ButtonNotification 
-				v-if="$i18n.locale == 'fr' && !$store.main.antifaHide"
+				v-if="showGazaBtn && $i18n.locale == 'fr' && !$store.main.antifaHide"
 				v-tooltip="{content:'S\'il vous plait...', showOnCreate:shouldShowTooltip('antifa'), onHidden:()=>onHideTooltip('antifa')}"
 				@click="$emit('update:showAntifa', true)">🙏</ButtonNotification> -->
 
