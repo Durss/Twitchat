@@ -155,7 +155,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 									const message = entry as StreamlabsDonationData | StreamlabsYoutubeSponsorData | StreamlabsYoutubeSuperchatData | StreamlabsMerchData | StreamlabsPatreonPledgeData | StreamlabsCharityDonationData;
 									switch(message.type) {
 										case "streamlabscharitydonation": {
-											ApiHelper.call("log", "POST", {cat:"streamlabs", data:message});
+											ApiHelper.call("log", "POST", {cat:"streamlabs", log:message});
 											break;
 										}
 										case "donation": {
