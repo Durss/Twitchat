@@ -261,7 +261,7 @@
 				@click="$emit('update:showGazaFunds', true)">🍉</ButtonNotification>
 
 				<ButtonNotification 
-				v-if="$i18n.locale == 'fr' && !$store.main.antifaHide"
+				v-if="showAntifaBtn && $i18n.locale == 'fr' && !$store.main.antifaHide"
 				v-tooltip="{content:'S\'il vous plait...', showOnCreate:shouldShowTooltip('antifa'), onHidden:()=>onHideTooltip('antifa')}"
 				@click="$emit('update:showAntifa', true)">🙏</ButtonNotification>
 
@@ -407,6 +407,7 @@ export class ChatForm extends Vue {
 	public error = false;
 	public loading = false;
 	public showGazaBtn = false;
+	public showAntifaBtn = false;
 	public censoredViewCount = false;
 	public autoCompleteSearch = "";
 	public autoCompleteEmotes = false;
@@ -526,6 +527,7 @@ export class ChatForm extends Vue {
 		setTimeout(()=> {
 			this.loadAnnouncements();
 			this.showGazaBtn = true;
+			this.showAntifaBtn = true;
 		}, 2000);
 		//Check for new announcements every 30min
 		this.announcementInterval = setInterval(()=> {
