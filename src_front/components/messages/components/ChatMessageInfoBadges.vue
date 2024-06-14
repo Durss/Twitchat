@@ -14,7 +14,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 @Component({
 	components:{}
 })
- class ChatMessageInfoBadges extends Vue {
+class ChatMessageInfoBadges extends Vue {
 
 	@Prop
 	public infos!:TwitchatDataTypes.MessageBadgeData[];
@@ -47,6 +47,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 			returningChatter:"returning",
 			hypeChat:"hypeChat",
 			new_account:"alert",
+			powerUp:"watchStreak",
 		};
 		if(hashmap[info.type]) {
 			return this.$image("icons/"+hashmap[info.type]+".svg");
