@@ -15,7 +15,7 @@
 
 				<Transition name="fadeScale">
 				<div v-if="short==true" class="conditionalSection">
-					<p class="card-item premium"><Icon name="info" /> Twitchat existe grâce aux aides sociales, que le RN compte détruire</p>
+					<p class="card-item"><Icon name="info" /> Twitchat existe grâce aux aides sociales, que le RN compte détruire</p>
 					<strong style="text-align:center; margin-top: 1em; display: block;">Voici certains votes du RN ces dernières années</strong>
 				</div>
 				</Transition>
@@ -321,6 +321,11 @@ export default toNative(VoteAntifa);
 		&.fadeScale-leave-to {
 			opacity: 0;
 			max-height: 0;
+		}
+		.icon {
+			height: 1.5em;
+			margin-right: .25em;
+			vertical-align: bottom;
 		}
 	}
 
