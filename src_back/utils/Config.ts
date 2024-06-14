@@ -127,6 +127,14 @@ export default class Config {
 		});
 	}
 
+	public static LOGS_PATH(category:"streamlabs"): string {
+		return this.getEnvData({
+			dev: path.join(this.LOGS_FOLDER, "/"+category+".json"),
+			beta: path.join(this.LOGS_FOLDER, "/"+category+".json"),
+			prod: path.join(this.LOGS_FOLDER, "/"+category+".json"),
+		});
+	}
+
 
 	/**
 	 * Get if SMS warning for patreon requesting authentication is enabled
@@ -206,6 +214,17 @@ export default class Config {
 			dev: path.join(this.DATA_ROOT, "/kofi/"),
 			beta: path.join(this.DATA_ROOT, "/kofi/"),
 			prod: path.join(this.DATA_ROOT, "/kofi/"),
+		});
+	}
+
+	/**
+	 * Folder containing ko-fi data
+	 */
+	public static get LOGS_FOLDER(): string {
+		return this.getEnvData({
+			dev: path.join(this.DATA_ROOT, "/logs/"),
+			beta: path.join(this.DATA_ROOT, "/logs/"),
+			prod: path.join(this.DATA_ROOT, "/logs/"),
 		});
 	}
 

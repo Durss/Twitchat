@@ -494,7 +494,7 @@ export class ChatForm extends Vue {
 
 	public get pendingShoutoutCount():number {
 		const list = this.$store.users.pendingShoutouts[this.channelId];
-		if(!list) return 0;
+		if(!list) return 0;	
 
 		return list.length;
 	}

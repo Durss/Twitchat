@@ -152,8 +152,12 @@ export const storeStreamlabs = defineStore('streamlabs', {
 								const me = StoreProxy.auth.twitch.user;
 								json.forEach(entry=>{
 									if(typeof entry == "string") return;
-									const message = entry as StreamlabsDonationData | StreamlabsYoutubeSponsorData | StreamlabsYoutubeSuperchatData | StreamlabsMerchData | StreamlabsPatreonPledgeData;
+									const message = entry as StreamlabsDonationData | StreamlabsYoutubeSponsorData | StreamlabsYoutubeSuperchatData | StreamlabsMerchData | StreamlabsPatreonPledgeData | StreamlabsCharityDonationData;
 									switch(message.type) {
+										case "streamlabscharitydonation": {
+											ApiHelper.call("log", "POST", {cat:"streamlabs", data:message});
+											break;
+										}
 										case "donation": {
 											message.message.forEach(message=> {
 												const chunks = TwitchUtils.parseMessageToChunks(message.message, undefined, true);
@@ -389,5 +393,29 @@ interface StreamlabsYoutubeSuperchatData {
 		_id:string;
 	}[];
 	for: "youtube_account";
+    event_id: string;
+}
+
+//TODO get actual data example to know what they exactly send
+interface StreamlabsCharityDonationData {
+	type: "streamlabscharitydonation";
+	message:{
+		priority: number;
+		isTest: boolean;
+		name:string;
+		amount:number;
+		formatted_amount:string;
+		message:string;
+		currency:string;
+		emotes:string;
+		iconClassName:string;
+		to:{
+			name:string;
+		};
+		from:string;
+		from_user_id:string;
+		_id:string;
+	}[];
+	for:"streamlabs";
     event_id: string;
 }

@@ -546,4 +546,11 @@ type ApiEndpoints =  {
 			errorCode?:string;
 		}
 	};
+	"log": {
+		POST: {
+			success:boolean;
+			error?:string;
+			errorCode?:string;
+		}
+	}
 }
