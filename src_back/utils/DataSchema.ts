@@ -1605,6 +1605,7 @@ const UserDataSchema = {
 							rows:{type:"number", minimum:2, maximum:10},
 							chatCmd: {type:"string", maxLength:20},
 							winSoundVolume: {type:"number", minimum:0, maximum:100},
+							autoShowHide: {type:"boolean"},
 							heatClick: {type:"boolean"},
 							chatCmdPermissions: { $ref: "defs.json#/definitions/permissions" },
 							heatClickPermissions: { $ref: "defs.json#/definitions/permissions" },

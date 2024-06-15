@@ -88,7 +88,7 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 		ToggleBlock,
 	}
 })
- class RaidState extends Vue {
+class RaidState extends Vue {
 
 	public timeLeft = "";
 	public censorCount = false;
@@ -133,8 +133,6 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 			this.roomSettings = await TwitchUtils.getRoomSettings(this.user.id);
 			const liveInfos = await TwitchUtils.getCurrentStreamInfo([this.user.id]);
 			this.targetChannelOffline = liveInfos.length == 0;
-
-
 			const latestRaid = (this.$store.stream.raidHistory || []).slice(-1)[0];
 			this.raidingLatestRaid = latestRaid && latestRaid.uid === raid.user.id;
 		}
@@ -146,20 +144,6 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 		//Check for banned and timedout users still connected to the chat
 		for (let i = 0; i < userlist.length; i++) {
 			const u = userlist[i];
-			/*
-			//Debug to add random banned users
-			//@ts-ignore
-			if(!u.channelInfo[me.id]) u.channelInfo[me.id] = {};
-			if(Math.random() > .95) {
-				u.channelInfo[me.id].online = true;
-				u.channelInfo[me.id].is_banned = true;
-				u.channelInfo[me.id].lastActivityDate = Date.now() - 1000;
-				if(Math.random() > .75) {
-					u.channelInfo[me.id].banEndDate = Date.now() + (Math.random()*20*60*1000);
-				}
-			}
-			//*/
-
 			//User online?
 			if(u.platform === "twitch") {
 				if(u.channelInfo[me.id]?.is_banned === true) {
@@ -173,6 +157,20 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 				}
 			}
 		}
+		/* Add fake banned users
+		let u = this.$store.users.getUserFrom("twitch", me.id, "2521956","marinelepen","marinelepen");
+		u.channelInfo[me.id].online = true;
+		u.channelInfo[me.id].is_banned = true;
+		u.channelInfo[me.id].lastActivityDate = Date.now();
+		u.channelInfo[me.id].banEndDate = Date.now() + (Math.random()*20*60*1000);
+		timedoutOnline.push(u);
+		u = this.$store.users.getUserFrom("twitch", me.id, "441488346","jordanbardella","jordanbardella");
+		u.channelInfo[me.id].online = true;
+		u.channelInfo[me.id].is_banned = true;
+		u.channelInfo[me.id].lastActivityDate = Date.now();
+		bannedOnline.push(u);
+		//*/
+
 		this.bannedOnline = bannedOnline;
 		this.timedoutOnline = timedoutOnline;
 	}

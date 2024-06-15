@@ -153,7 +153,7 @@
 					<TTButton alert @click="close(true)">Ne plus afficher</TTButton>
 				</div>
 				
-				<div class="card-item secondary">Très cher·e beta-testeureuse je veux bien ton avis sur la démarche et le contenu de cette fenêtre 🤍.<br>Rendez-vous dans la section beta du <a :href="$config.DISCORD_URL" target="_blank">Discord Twitchat</a> !</div>
+				<div v-if="$config.BETA_MODE" class="card-item secondary">Très cher·e beta-testeureuse je veux bien ton avis sur la démarche et le contenu de cette fenêtre 🤍.<br>Rendez-vous dans la section beta du <a :href="$config.DISCORD_URL" target="_blank">Discord Twitchat</a> !</div>
 			</div>
 		</div>
 	</div>
@@ -199,6 +199,7 @@ class VoteAntifa extends Vue {
 		{url:"https://x.com/frogashell/status/1800444233624834543/photo/3", label:"Le RN est LGBTIPhobe"},
 		{url:"https://x.com/frogashell/status/1800444233624834543/photo/4", label:"Le RN est anti pauvres"},
 		{url:"https://x.com/frogashell/status/1800444243778867427/photo/1", label:"Le RN est anti écologie"},
+		{url:"https://twitter.com/ProfToujours/status/1801498788328059026", label:"Le programme du RN est raciste"},
 		{url:"https://www.instagram.com/p/C8B0zK6iucX", label:"Convaincre d'aller voter"},
 	];
 

@@ -666,6 +666,7 @@ export namespace TwitchatDataTypes {
 		chatCmd?:string;
 		chatCmdPermissions:PermissionsData;
 		winSoundVolume:number;
+		autoShowHide:boolean;
 		heatClick:boolean;
 		heatClickPermissions:PermissionsData;
 	}

@@ -144,6 +144,8 @@
 						</ParamItem>
 
 						<ParamItem :paramData="param_winSoundVolume[bingo.id]" @change="save(bingo, false, true)" v-model="bingo.winSoundVolume"></ParamItem>
+						
+						<ParamItem :paramData="param_autoHide[bingo.id]" @change="save(bingo)" v-model="bingo.autoShowHide"></ParamItem>
 
 						<ParamItem :paramData="param_chatCmd_toggle[bingo.id]" @change="save(bingo)">
 							<div class="parameter-child">
@@ -238,6 +240,7 @@ class BingoGridForm extends AbstractSidePanel {
 	public param_heat_toggle:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_additional_cells:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_winSoundVolume:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
+	public param_autoHide:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public isDragging:boolean = false;
 
 	private lockedItems:{[key:string]:{index:number, data:TwitchatDataTypes.BingoGridConfig["entries"][number]}[]} = {};
@@ -404,6 +407,7 @@ class BingoGridForm extends AbstractSidePanel {
 			this.param_textSize[id] = {type:"number", value:30, min:2, max:100, labelKey:"bingo_grid.form.param_text_size", icon:"fontSize"};
 			this.param_textColor[id] = {type:"color", value:"#000000", labelKey:"bingo_grid.form.param_text_color", icon:"color"};
 			this.param_showGrid[id] = {type:"boolean", value:true, labelKey:"bingo_grid.form.param_show_grid", icon:"show"};
+			this.param_autoHide[id] = {type:"boolean", value:true, labelKey:"bingo_grid.form.param_autoHide", icon:"show"};
 			this.param_chatCmd[id] = {type:"string", value:"", maxLength:20, labelKey:"bingo_grid.form.param_chat_cmd", icon:"chatCommand"};
 			this.param_chatCmd_toggle[id] = {type:"boolean", value:entry.chatCmd != undefined, labelKey:"bingo_grid.form.param_chat_cmd_enabled", icon:"show"};
 			this.param_heat_toggle[id] = {type:"boolean", value:false, labelKey:"bingo_grid.form.param_heat_enabled", icon:"heat"};

@@ -409,7 +409,7 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 
 	public async startFakeRaid():Promise<void> {
 		const me = this.$store.auth.twitch.user;
-		const user = await StoreProxy.users.getUserFrom("twitch", me.id, undefined, "TwitchGaming");
+		const user = await StoreProxy.users.getUserFrom("twitch", me.id, undefined, "frontpopulaire");
 		const m:TwitchatDataTypes.RaidInfo = {
 			channel_id: me.id,
 			user,

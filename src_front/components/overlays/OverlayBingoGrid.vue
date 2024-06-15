@@ -15,7 +15,9 @@
 						:key="entry.id"
 						:style="{width:'100%'}">
 						<span class="label">{{ entry.label }}</span>
-						<Icon class="check" name="checkmark" v-show="entry.check" :ref="'check_'+entry.id" />
+						<div class="check" v-show="entry.check" :ref="'check_'+entry.id">
+							<Icon name="checkmark" />
+						</div>
 						<Icon name="sub" class="star" />
 					</div>
 				</TransitionGroup>
@@ -63,7 +65,7 @@
 					c9-1.3,16.8-7,20.9-15.2L197.8,16C207.9-4.7,237.3-4.7,247.5,16z"/></svg>
 			</div>
 		</template>
-		<div v-else-if="!bingo" class="error card-item alert"><Icon name="alert" />Requested bingo grid does not exist</div>
+		<div v-else-if="error" class="error card-item alert"><Icon name="alert" />Requested bingo grid does not exist</div>
 	</div>
 </template>
 
@@ -72,15 +74,12 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import SetIntervalWorker from '@/utils/SetIntervalWorker';
+import Utils from '@/utils/Utils';
 import { CustomEase } from 'gsap/all';
+import { gsap } from 'gsap/gsap-core';
 import { Component, toNative } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
 import AbstractOverlay from './AbstractOverlay';
-import { gsap } from 'gsap/gsap-core';
-import { Sine } from 'gsap/gsap-core';
-import { Elastic } from 'gsap/gsap-core';
-import Utils from '@/utils/Utils';
-import { utils } from 'pixi.js';
 
 @Component({
 	components:{
@@ -95,13 +94,15 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	public currentUserAlert:IUserBingoData | null = null;
 	public currentCell:HTMLElement | null = null;
 	public bingo:TwitchatDataTypes.BingoGridConfig | null = null;
-	public pendingEvents:{type:"user"|"bingo", userBingo?:IUserBingoData, bingo?:{vertical:number[], horizontal:number[], diagonal:number[]}}[] = [];
+	public pendingEvents:{type:"open"|"close"|"user"|"bingo"|"update", data?:IBingoUpdateData, userBingo?:IUserBingoData, bingo?:{vertical:number[], horizontal:number[], diagonal:number[]}}[] = [];
 
 	private id:string = "";
 	private starIndex:number = 0;
+	private gridOpened:boolean = false;
 	private canPlayWinSound:boolean = true;
+	private innactivityTimeout:number = -1;
 	private broadcastPresenceInterval:string = "";
-	private bingoUpdateHandler!:(e:TwitchatEvent<{id:string, bingo:TwitchatDataTypes.BingoGridConfig, newVerticalBingos:number[], newHorizontalBingos:number[], newDiagonalBingos:number[]}>) => void;
+	private bingoUpdateHandler!:(e:TwitchatEvent<IBingoUpdateData>) => void;
 	private bingoViewerHandler!:(e:TwitchatEvent<IUserBingoData>) => void;
 	private prevCheckStates:{[key:string]:boolean} = {};
 	private winSoundVolume!:HTMLAudioElement;
@@ -197,123 +198,233 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			if(data.id != this.id) return;
 			const animate = !this.ready;
 			this.ready = true;
-			if(data.bingo) this.bingo = data.bingo;
-			if(!this.bingo) return;
-
-			this.broadcastPresence();
-			await this.$nextTick();
-
+			if(!data.bingo) {
+				this.error = true;
+				return;
+			}
+			
 			if(animate) {
-				const spiralOrder: number[] = [];
-
-				let x = 0;
-				let y = 0;
-				let delta = [0, -1];
-				const width = data.bingo.cols;
-				const height = data.bingo.rows;
-				const cx = Math.ceil(data.bingo.cols/2)-1;
-				const cy = Math.ceil(data.bingo.rows/2)-1;
-				//Spiral algorithm from:
-				//https://stackoverflow.com/a/13413224/3813220
-				for (let i = Math.pow(Math.max(width, height), 2); i>0; i--) {
-					if ((-width/2 < x && x <= width/2)
-					&& (-height/2 < y && y <= height/2)) {
-						let index = (x+cx) + (y+cy) * data.bingo.cols;
-						spiralOrder.push(index);
-					}
-
-					if (x === y
-					|| (x < 0 && x === -y)
-					|| (x > 0 && x === 1-y)){
-						// change direction
-						delta = [-delta[1], delta[0]]
-					}
-
-					x += delta[0];
-					y += delta[1];
-				}
-
-				const cells = this.$refs.cell as HTMLElement[];
-				gsap.from([this.$refs.cellsHolder, this.$refs.gridHolder], {scale:0, ease:Sine.easeOut, duration:.35, clearProps:"transform"});
-				//Animate items from center
-				cells.forEach((cell, index) => {
-					let distance = spiralOrder.findIndex(v=>v===index);
-					if(distance < 0) distance = spiralOrder.length;
-					// console.log(data.bingo.entries[index].label, distance);
-					gsap.from(cell, {scale:0, ease:Elastic.easeOut, duration:1.3, delay: .3 + Math.pow(distance,.8)*.05});
-				});
+				this.bingo = data.bingo;
+				await this.$nextTick();
 
 				//Init check states to avoid all existing checks from being
 				//considered as new on next update
-				this.bingo.entries.forEach(entry => {
+				data.bingo.entries.forEach(entry => {
 					this.prevCheckStates[entry.id] = entry.check;
 				});
-			}else{
 
-				if(this.bingo) {
-					//Animate new checks display
-					this.bingo.entries.forEach(entry => {
-						if(this.prevCheckStates[entry.id] != entry.check && entry.check) {
-							const checks = this.$refs["check_"+entry.id] as Vue[];
-							const cell = document.querySelector("[data-cellid=\""+entry.id+"\"]") as HTMLElement;
-							if(checks?.length > 0 && checks[0].$el.nodeName != "#comment") {
-								gsap.killTweensOf(checks[0].$el);
-								gsap.fromTo(checks[0].$el, {opacity:0}, {opacity:1, duration:.25});
-								const ease = CustomEase.create("custom", "M0,0 C0,0 0.325,0.605 0.582,0.977 0.647,0.839 0.817,0.874 0.854,0.996 0.975,0.9 1,1 1,1 ");
-								const angle = (Math.random()-Math.random()) * 25;
-								gsap.fromTo(checks[0].$el, {transform:"scale(3)", rotation:"0deg"}, {transform:"scale(1)", rotation:angle+"deg", ease, duration:.25});
-								setTimeout(() => {
-									this.popClouds(cell);
-								}, 150);
-							}
-						}
-						this.prevCheckStates[entry.id] = entry.check;
-					});
-	
-					if((data.newVerticalBingos || []).length > 0
-					|| (data.newHorizontalBingos || []).length > 0
-					|| (data.newDiagonalBingos || []).length > 0) {
-						this.pushEvent({
-							type:"bingo",
-							bingo: {vertical:data.newVerticalBingos, horizontal:data.newHorizontalBingos, diagonal:data.newDiagonalBingos}
-						});
+				//Force display of already ticked entries
+				for (let i = 0; i < this.bingo.entries.length; i++) {
+					const entry = this.bingo.entries[i];
+					if(entry.check) {
+						const checks = this.$refs["check_"+entry.id] as HTMLDivElement[];
+						gsap.set(checks[0], {opacity:1});
 					}
+				}
+				this.pushEvent({type:"open"});
+
+			}else if(data.bingo) {
+				this.pushEvent({type:"update", data:data});
+			}
+
+
+			/* DEBUG USER EVENTS
+			if(animate) {
+				await Utils.promisedTimeout(1000);
+		
+				// this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
+				// 		"gridId": "78b997fc-b525-4423-a39a-2b31781b708d",
+				// 		"user": {
+				// 			"name": "DurssBot",
+				// 			"id": "647389082",
+				// 			"avatar": "https://static-cdn.jtvnw.net/user-default-pictures-uv/294c98b5-e34d-42cd-a8f0-140b72fba9b0-profile_image-300x300.png"
+				// 		},
+				// 		"count": 1
+				// 	}));
+				// this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
+				// 		"gridId": "78b997fc-b525-4423-a39a-2b31781b708d",
+				// 		"user": {
+				// 			"name": "JohanRelpek",
+				// 			"id": "675760285",
+				// 			"avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/8877ee31-67dc-49d8-b567-f58e3b2053f6-profile_image-300x300.png"
+				// 		},
+				// 		"count": 9
+				// 	}));
+		
+				this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
+						"gridId": "78b997fc-b525-4423-a39a-2b31781b708d",
+						"user": {
+							"name": "Durss",
+							"id": "29961813",
+							"avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/1835e681-7306-49b8-a1e2-2775a17424ae-profile_image-300x300.png"
+						},
+						"count": 3
+					}));
+
+				this.pushEvent({type:"update", data:{"id":"78b997fc-b525-4423-a39a-2b31781b708d","bingo":{"id":"78b997fc-b525-4423-a39a-2b31781b708d","title":"PUBG🔫","textColor":"#ffffff","enabled":true,"showGrid":true,"heatClick":false,"textSize":20,"cols":3,"rows":3,"entries":[{"id":"5d554063-b4b5-46d2-a809-a06bc5b263c0","label":"accidentally killed myself","lock":false,"check":false},{"id":"99afe58e-c39d-4259-baab-b45c28645301","label":"running after blue zone","lock":false,"check":false},{"id":"7195bf1f-20be-4f3e-b494-4af2617321a3","label":"Drive over enemy","lock":false,"check":true},{"id":"b79fb5ca-26f6-44b8-843d-eb222b94dc41","label":"first blood","lock":false,"check":true},{"id":"474ce91c-8191-4423-a288-d3f910028e86","label":"TOP 1","lock":true,"check":true},{"id":"ce668ebd-fe1b-4309-b7f9-bbe8a9d3f54c","label":"I die first","lock":false,"check":false},{"id":"1e0143cb-d325-4fae-87e4-8827c36f922f","label":"game crashes","lock":false,"check":false},{"id":"fd750556-a33a-4831-9852-ad41883d3b24","check":false,"label":"erangel","lock":false},{"id":"dcbda4a2-86af-45e7-88af-e2e1085b1460","check":false,"label":"karakin","lock":false}],"backgroundAlpha":29,"backgroundColor":"#000000","chatCmdPermissions":{"all":false,"broadcaster":true,"follower":false,"follower_duration_ms":0,"mods":true,"subs":false,"vips":false,"usersAllowed":[],"usersRefused":[]},"heatClickPermissions":{"all":false,"broadcaster":true,"follower":false,"follower_duration_ms":0,"mods":true,"subs":false,"vips":false,"usersAllowed":[],"usersRefused":[]},"additionalEntries":[{"id":"5df94fe3-829a-4c2a-822c-77374183e1f7","check":false,"label":"10+ kills","lock":false},{"id":"ff5151a7-d346-42ad-ac55-dd54fe2b05a6","check":false,"label":"sanhok","lock":false},{"id":"ef5cf01d-1362-405a-9d0c-0629d126b36c","label":"Found flare gun","lock":false,"check":false}],"winSoundVolume":30},"newVerticalBingos":[],"newHorizontalBingos":[],"newDiagonalBingos":[]}});
+				this.pushEvent({type:"update", data:{"id":"78b997fc-b525-4423-a39a-2b31781b708d","bingo":{"id":"78b997fc-b525-4423-a39a-2b31781b708d","title":"PUBG🔫","textColor":"#ffffff","enabled":true,"showGrid":true,"heatClick":false,"textSize":20,"cols":3,"rows":3,"entries":[{"id":"5d554063-b4b5-46d2-a809-a06bc5b263c0","label":"accidentally killed myself","lock":false,"check":false},{"id":"99afe58e-c39d-4259-baab-b45c28645301","label":"running after blue zone","lock":false,"check":false},{"id":"7195bf1f-20be-4f3e-b494-4af2617321a3","label":"Drive over enemy","lock":false,"check":true},{"id":"b79fb5ca-26f6-44b8-843d-eb222b94dc41","label":"first blood","lock":false,"check":true},{"id":"474ce91c-8191-4423-a288-d3f910028e86","label":"TOP 1","lock":true,"check":true},{"id":"ce668ebd-fe1b-4309-b7f9-bbe8a9d3f54c","label":"I die first","lock":false,"check":true},{"id":"1e0143cb-d325-4fae-87e4-8827c36f922f","label":"game crashes","lock":false,"check":false},{"id":"fd750556-a33a-4831-9852-ad41883d3b24","check":false,"label":"erangel","lock":false},{"id":"dcbda4a2-86af-45e7-88af-e2e1085b1460","check":false,"label":"karakin","lock":false}],"backgroundAlpha":29,"backgroundColor":"#000000","chatCmdPermissions":{"all":false,"broadcaster":true,"follower":false,"follower_duration_ms":0,"mods":true,"subs":false,"vips":false,"usersAllowed":[],"usersRefused":[]},"heatClickPermissions":{"all":false,"broadcaster":true,"follower":false,"follower_duration_ms":0,"mods":true,"subs":false,"vips":false,"usersAllowed":[],"usersRefused":[]},"additionalEntries":[{"id":"5df94fe3-829a-4c2a-822c-77374183e1f7","check":false,"label":"10+ kills","lock":false},{"id":"ff5151a7-d346-42ad-ac55-dd54fe2b05a6","check":false,"label":"sanhok","lock":false},{"id":"ef5cf01d-1362-405a-9d0c-0629d126b36c","label":"Found flare gun","lock":false,"check":false}],"winSoundVolume":30},"newVerticalBingos":[],"newHorizontalBingos":[1],"newDiagonalBingos":[]}});
+			}
+			 //*/
+		}
+	}
+
+	/**
+	 * Update current grid
+	 * @param data 
+	 */
+	public async updateGrid(data:IBingoUpdateData):Promise<void> {
+		this.bingo = data.bingo;
+			
+		this.broadcastPresence();
+
+		if(!this.gridOpened) {
+			this.pushEvent({type:"open"});
+		}
+
+		const forcedCellsState:{[key:string]:boolean} = {};
+
+		//Set initial checks alpha
+		//This allows to sequentially display new checks.
+		//Without this all new checks would be displayed by default, then
+		//their display would be animated.
+		//This makes sure new cheks are not visible before it's their turn
+		//to be animated
+		for (let i = 0; i < this.bingo.entries.length; i++) {
+			const entry = this.bingo.entries[i];
+			const checks = this.$refs["check_"+entry.id] as HTMLElement[];
+			if(this.prevCheckStates[entry.id] != entry.check) {
+				if(entry.check) {
+					gsap.set(checks[0], {opacity:0});
+				}else{
+					forcedCellsState[entry.id] = true;
+					entry.check = true;
 				}
 			}
 		}
 
-		/* DEBUG USER EVENTS
-		await Utils.promisedTimeout(1000);
+		//Leave it time to hidden cells to first be displayed back
+		//so hidden animation can be done later
+		await this.$nextTick();
 
-		this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
-				"gridId": "78b997fc-b525-4423-a39a-2b31781b708d",
-				"user": {
-					"name": "DurssBot",
-					"id": "647389082",
-					"avatar": "https://static-cdn.jtvnw.net/user-default-pictures-uv/294c98b5-e34d-42cd-a8f0-140b72fba9b0-profile_image-300x300.png"
-				},
-				"count": 1
-			}));
-		this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
-				"gridId": "78b997fc-b525-4423-a39a-2b31781b708d",
-				"user": {
-					"name": "JohanRelpek",
-					"id": "675760285",
-					"avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/8877ee31-67dc-49d8-b567-f58e3b2053f6-profile_image-300x300.png"
-				},
-				"count": 9
-			}));
+		//Animate new checks display
+		for (let i = 0; i < this.bingo.entries.length; i++) {
+			const entry = this.bingo.entries[i];
+			const checks = this.$refs["check_"+entry.id] as HTMLElement[];
+			const cell = document.querySelector("[data-cellid=\""+entry.id+"\"]") as HTMLElement;
+			if(this.prevCheckStates[entry.id] != entry.check || forcedCellsState[entry.id] === true) {
+				if(checks?.length > 0 && checks[0].nodeName != "#comment") {
+					const checkmark = checks[0];
+					const angle = (Math.random()-Math.random()) * 25;
+					if(entry.check && forcedCellsState[entry.id] !== true) {
+						//Animate checkmark display
+						gsap.killTweensOf(checks[0]);
+						gsap.fromTo(checkmark, {opacity:0}, {opacity:1, duration:.25});
+						const ease = CustomEase.create("custom", "M0,0 C0,0 0.325,0.605 0.582,0.977 0.647,0.839 0.817,0.874 0.854,0.996 0.975,0.9 1,1 1,1 ");
+						gsap.fromTo(checkmark, {transform:"scale(3)", rotation:"0deg"}, {transform:"scale(1)", rotation:angle+"deg", ease, duration:.25});
+						await Utils.promisedTimeout(150);
+						this.popClouds(cell);
+						await Utils.promisedTimeout(250);
 
-		this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
-				"gridId": "78b997fc-b525-4423-a39a-2b31781b708d",
-				"user": {
-					"name": "Durss",
-					"id": "29961813",
-					"avatar": "https://static-cdn.jtvnw.net/jtv_user_pictures/1835e681-7306-49b8-a1e2-2775a17424ae-profile_image-300x300.png"
-				},
-				"count": 3
-			}));
-		 //*/
+					}else {
+						//Animate checkmark hide
+						gsap.killTweensOf(checks[0]);
+						gsap.to(checkmark,
+							{transform:"scale(0)", rotation:angle+"deg", ease:"back.in", duration:.35});
+						await Utils.promisedTimeout(350);
+						entry.check = false;
+					}
+				}
+			}else if(entry.check) {
+				//Force display of the cell
+				gsap.set(checks[0], {opacity:1});
+			}
+			this.prevCheckStates[entry.id] = entry.check;
+		}
+
+		if((data.newVerticalBingos || []).length > 0
+		|| (data.newHorizontalBingos || []).length > 0
+		|| (data.newDiagonalBingos || []).length > 0) {
+			//Schedule bingos animations if any
+			this.pushEvent({
+				type:"bingo",
+				bingo: {vertical:data.newVerticalBingos,
+						horizontal:data.newHorizontalBingos,
+						diagonal:data.newDiagonalBingos}
+			});
+		}
+	}
+
+	/**
+	 * Animate open/close of grid
+	 */
+	private async openCloseGrid(open:boolean):Promise<void> {
+		if(!this.bingo) return Promise.resolve();
+		if(open == this.gridOpened) return Promise.resolve();
+
+		return new Promise((resolve)=>{
+			const bingo = this.bingo!
+			let x = 0;
+			let y = 0;
+			let delta = [0, -1];
+			const width = bingo.cols;
+			const height = bingo.rows;
+			const spiralOrder: number[] = [];
+			const cx = Math.ceil(bingo.cols/2)-1;
+			const cy = Math.ceil(bingo.rows/2)-1;
+			//Spiral algorithm from:
+			//https://stackoverflow.com/a/13413224/3813220
+			for (let i = Math.pow(Math.max(width, height), 2); i>0; i--) {
+				if ((-width/2 < x && x <= width/2)
+				&& (-height/2 < y && y <= height/2)) {
+					let index = (x+cx) + (y+cy) * bingo.cols;
+					spiralOrder.push(index);
+				}
+	
+				if (x === y
+				|| (x < 0 && x === -y)
+				|| (x > 0 && x === 1-y)){
+					delta = [-delta[1], delta[0]]
+				}
+	
+				x += delta[0];
+				y += delta[1];
+			}
+	
+			const cells = this.$refs.cell as HTMLElement[];
+			const scaleFrom = open? 0 : 1;
+			const scaleTo = open? 1 : 0;
+			gsap.fromTo([this.$refs.cellsHolder, this.$refs.gridHolder],
+						{scale:scaleFrom},
+						{scale:scaleTo, ease:open? "sine.out" :"sine.in", 
+							duration:.35, 
+							clearProps:open? "transform": "", 
+							delay:open? 0 : .55 + Math.pow(cells.length,.8)*.05,
+							onComplete:()=>{
+								if(!open) {
+									this.gridOpened = open;
+									resolve();
+								}
+							}});
+			
+			//Animate items from center
+			cells.forEach((cell, index) => {
+				let distance = spiralOrder.findIndex(v=>v===index);
+				if(distance < 0) distance = spiralOrder.length;
+				// console.log(data.bingo.entries[index].label, distance);
+				gsap.fromTo(cell,
+					{scale:scaleFrom},
+					{scale:scaleTo, ease:open? "elastic.out" : "back.in",
+						duration:open? 1 : .4,
+						delay: .3 + Math.pow(distance,.8)*.05,
+						onComplete:()=>{
+							if(!this.gridOpened && open && index == cells.length-2) {
+								this.gridOpened = open;
+								resolve();
+							}
+						}
+					});
+			})
+		});
 	}
 
 	/**
@@ -406,6 +517,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			cloud.style.opacity = "1";
 			const x = (Math.random()-Math.random()) * bounds.width;
 			const y = (Math.random()-Math.random()) * bounds.height;
+			gsap.killTweensOf(cloud);
 			gsap.to(cloud, {opacity:0, x:"-50%", y:"-50%", rotation:angle+"deg", left:left+x, top:top+y, duration:.5, ease:"sine.out"});
 		});
 	}
@@ -446,13 +558,23 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	 */
 	private async pushEvent(data:typeof this.pendingEvents[number]):Promise<void> {
 		if(data.type == "user") {
-			//search if that user already exists
-			const existingIndex = this.pendingEvents.findIndex(v=> v.type == "user" && v.userBingo!.user.id == data.userBingo?.user.id)
+			//search if that user is already pending for display 
+			const existingIndex = this.pendingEvents.findIndex(v=> v.type == "user" && v.userBingo!.user.id == data.userBingo?.user.id);
 			//If iser already exists, is not the current one playing (>0) and
 			//their new bingo count is greater than the scheduled one, replace 
 			if(existingIndex > 0 && this.pendingEvents[existingIndex].userBingo!.count < data.userBingo!.count) {
 				this.pendingEvents[existingIndex] = data;
 			}
+		}else if(data.type == "update") { {
+			//Remove any pending up to keep only the new one
+			for (let i = 1; i < this.pendingEvents.length; i++) {
+				const event = this.pendingEvents[i];
+				if(event.type == "update") {
+					this.pendingEvents.splice(i, 1);
+					i--;
+				}
+			}
+		}
 		}else{
 			//search if an event of the same type exists, is not the currently
 			//playing one (>0), and replace it if one exists
@@ -468,16 +590,42 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	 */
 	private async execNextEvent():Promise<void> {
 		const item = this.pendingEvents[0];
+		clearTimeout(this.innactivityTimeout);
 		switch(item.type) {
+			case "open": {
+				await this.openCloseGrid(true);
+				break;
+			}
+			case "close": {
+				await this.openCloseGrid(false);
+				break;
+			}
 			case "bingo": {
+				await this.openCloseGrid(true);
 				await this.animateBingos(item.bingo!.vertical, item.bingo!.horizontal, item.bingo!.diagonal);
 				break;
 			}
 			case "user": {
+				await this.openCloseGrid(true);
 				await this.animateViewer(item.userBingo!);
 				break;
 			}
+			case "update": {
+				await this.openCloseGrid(true);
+				await this.updateGrid(item.data!);
+				break;
+			}
 		}
+		
+		//Schedule auto close if requested
+		if(item.type != "close"){
+			if(this.bingo && this.bingo.autoShowHide === true) {
+				this.innactivityTimeout = setTimeout(()=>{
+					this.pushEvent({type:"close"});
+				}, 10 * 1000);
+			}
+		}
+
 		this.pendingEvents.shift();
 		if(this.pendingEvents.length > 0) this.execNextEvent();
 	}
@@ -580,7 +728,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			if(this.pendingEvents.length <= 1 || this.pendingEvents[1].type!="user"){
 				gsap.to((this.$refs.alertsBg as Vue).$el, {delay:duration*.8, rotate:"0deg", duration:.5, ease:"none"});
 				gsap.to((this.$refs.alertsBg as Vue).$el, {delay:duration*.8, scale:0, duration:.5, ease:"circ.out"});
-				// delay += duration * .8;
+				delay += duration * .8;
 				this.canPlayWinSound = true;
 			}
 
@@ -592,6 +740,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 }
 
 interface IUserBingoData {gridId:string, user: { name:string,id:string,avatar:string}, count:number, displayCount?:number};
+interface IBingoUpdateData {id:string, bingo:TwitchatDataTypes.BingoGridConfig, newVerticalBingos:number[], newHorizontalBingos:number[], newDiagonalBingos:number[] }
 export default toNative(OverlayBingoGrid);
 </script>
 
@@ -623,6 +772,7 @@ export default toNative(OverlayBingoGrid);
 			aspect-ratio: 1;
 
 			.check {
+				opacity: 0;
 				position: absolute;
 				top: 50%;
 				left: 50%;
@@ -633,6 +783,10 @@ export default toNative(OverlayBingoGrid);
 				margin-top: -35%;
 				z-index: 100;
 				filter: drop-shadow(2px 2px 5px rgba(0,0,0,.5));
+				.icon {
+					height: 100%;
+					width: 100%;
+				}
 			}
 
 			.label {

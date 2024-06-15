@@ -249,7 +249,7 @@ class BingoGridView extends Vue {
 			clearTimeout(this.moderateDebounce);
 			this.moderateDebounce = setTimeout(()=>{
 				ApiHelper.call("bingogrid/moderate", "POST", {states, uid:this.param_uid, gridid:this.param_gridId});
-			}, 100);
+			}, 500);
 		}
 	}
 
@@ -490,7 +490,7 @@ class BingoGridView extends Vue {
 				id:e.id,
 				lock:e.lock,
 				label:e.label,
-				check:e.enabled === true,
+				check:this.isModerator? e.check === true : e.enabled === true,
 			}
 		})
 		const grid = {

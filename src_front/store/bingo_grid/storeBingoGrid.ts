@@ -238,6 +238,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				entries:[],
 				backgroundAlpha:0,
 				backgroundColor:"#000000",
+				autoShowHide:false,
 				chatCmdPermissions:{
 					all:false,
 					broadcaster:true,
