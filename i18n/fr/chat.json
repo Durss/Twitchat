@@ -364,7 +364,8 @@
 			"translate":"Traduire le message",
 			"export_discord":"Envoyer dans Discord",
 			"discord_quick_actions":"Actions Discord",
-			"discord_ticket":"Créer un ticket"
+			"discord_ticket":"Créer un ticket",
+			"add_blocked_terms": "Ajouter ce message aux termes bloqués"
 		},
 		"custom_badge": {
 			"label": {
@@ -458,6 +459,12 @@
 		"celebration": {
 			"message":"{USER} a obtenu {EMOTE} Célébration de chaîne pour {PRICE}",
 			"message_tmp":"{USER} a obtenu le Power-Up \"Célébration de chaîne\""
+		},
+		"blocked_terms": {
+			"add_permitted":"{USER} a ajouté {TERMS} aux termes autorisés",
+			"add_blocked":"{USER} a ajouté {TERMS} aux termes bloqués",
+			"remove_permitted":"{USER} a supprimé {TERMS} des termes autorisés",
+			"remove_blocked":"{USER} a supprimé {TERMS} des termes bloqués"
 		}
 	}
 }

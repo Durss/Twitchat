@@ -178,6 +178,10 @@
 	<ChatCelebration class="message"
 		v-else-if="messageData.type == 'twitch_celebration'"
 		:messageData="messageData" />
+
+	<ChatAutomodTermsUpdate class="message"
+		v-else-if="messageData.type == 'blocked_terms'"
+		:messageData="messageData" />
 </template>
 
 <script lang="ts">
@@ -228,6 +232,7 @@ import ChatUnbanRequest from './ChatUnbanRequest.vue';
 import ChatTipeeeEvent from './ChatTipeeeEvent.vue';
 import ChatTrackStart from './ChatTrackStart.vue';
 import ChatCelebration from './ChatCelebration.vue';
+import ChatAutomodTermsUpdate from './ChatAutomodTermsUpdate.vue';
 
 @Component({
 	components:{
@@ -273,6 +278,7 @@ import ChatCelebration from './ChatCelebration.vue';
 		ChatTrackAddedToQueue,
 		ChatHypeTrainCooldown,
 		ChatLowTrustTreatment,
+		ChatAutomodTermsUpdate,
 		ChatMessageClipPending,
 		ChatStreamelementsEvent,
 		ChatCommunityChallengeContribution,

@@ -30,7 +30,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 	components:{
 		Icon,
 	},
-	emits:["close"],
+	emits:['onRead'],
 })
 class ChatCelebration extends AbstractChatMessage {
 

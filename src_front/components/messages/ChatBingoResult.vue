@@ -27,7 +27,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 	components:{},
 	emits:["onRead"]
 })
- class ChatBingoResult extends AbstractChatMessage {
+class ChatBingoResult extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageBingoData;

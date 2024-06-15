@@ -122,18 +122,21 @@ Rename the `credentials.default.json` file within the `credentials` folder to `c
 		"channel:read:hype_train",
 		"channel:edit:commercial",
 		"channel:read:subscriptions",
+		"user:read:emotes",
 		"user:read:follows",
-		"user:read:moderated_channels",
 		"moderator:read:followers",
+		"user:read:moderated_channels",
 		"user:read:blocked_users",
 		"user:manage:blocked_users",
 		"user:edit:broadcast",
 		"moderator:manage:banned_users",
 		"moderator:manage:automod",
 		"moderator:manage:shield_mode",
+		"moderator:manage:unban_requests",
 		"clips:edit",
 		"channel:read:ads",
-		"channel:manage:ads"
+		"channel:manage:ads",
+		"moderator:manage:blocked_terms"
 	],
 
 	"spotify_client_id": "",

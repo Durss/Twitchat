@@ -364,7 +364,8 @@
 			"translate": "Translate message",
 			"export_discord": "Send to Discord",
 			"discord_quick_actions": "Discord actions",
-			"discord_ticket": "Create ticket"
+			"discord_ticket": "Create ticket",
+			"add_blocked_terms": "Add this message to blocked terms"
 		},
 		"custom_badge": {
 			"label": {
@@ -458,6 +459,12 @@
 		"celebration": {
 			"message":"{USER} redeemed {EMOTE} On-screen Celebration for {PRICE}",
 			"message_tmp":"{USER} redeemed the Power Up \"On-screen Celebration\""
+		},
+		"blocked_terms": {
+			"add_permitted":"{USER} added {TERMS} to permitted terms",
+			"add_blocked":"{USER} added {TERMS} to blocked terms",
+			"remove_permitted":"{USER} removed {TERMS} from permitted terms",
+			"remove_blocked":"{USER} removed {TERMS} from blocked terms"
 		}
 	}
 }

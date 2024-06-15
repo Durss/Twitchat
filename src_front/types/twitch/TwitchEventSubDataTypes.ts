@@ -48,6 +48,7 @@ export namespace TwitchEventSubDataTypes {
 		AD_BREAK_BEGIN: "channel.ad_break.begin",
 		UNBAN_REQUEST_NEW: "channel.unban_request.create",
 		UNBAN_REQUEST_RESOLVED: "channel.unban_request.resolve",
+		AUTOMOD_TERMS_UPDATE: "automod.terms.update",
 	} as const;
 	export type SubscriptionStringTypes = typeof SubscriptionTypes[keyof typeof SubscriptionTypes];
 
@@ -586,5 +587,17 @@ export namespace TwitchEventSubDataTypes {
 		user_name: string;
 		text: string;
 		created_at: string;
+	}
+
+	export interface AutomodTermsUpdateEvent {
+		broadcaster_user_id: string;
+		broadcaster_user_name: string;
+		broadcaster_user_login: string;
+		moderator_user_id: string;
+		moderator_user_login: string;
+		moderator_user_name: string;
+		action:"add_permitted"|"remove_permitted"|"add_blocked"|"remove_blocked";
+		from_automod: boolean;
+		terms: string[];
 	}
 }

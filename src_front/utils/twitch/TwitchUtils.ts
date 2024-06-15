@@ -2785,6 +2785,34 @@ export default class TwitchUtils {
 		return list;
 	}
 
+	/**
+	 * Adds a string to twitch banwords
+	 * @param str blocked terms
+	 * @param channelID channel to add the blocked temrs on
+	 */
+	public static async addBanword(str: string, channelID?:string): Promise<boolean> {
+		if (!this.hasScopes([TwitchScopes.BLOCKED_TERMS])) return false;
+
+		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/blocked_terms");
+		url.searchParams.append("broadcaster_id", channelID ?? this.uid);
+		url.searchParams.append("moderator_id", this.uid);
+
+		const res = await this.callApi(url, {
+			method: "POST",
+			headers: this.headers,
+			body:JSON.stringify({
+				text:str.substring(0, 500),
+			})
+		});
+		if (res.status == 200) {
+			return true;
+		} else if (res.status == 429) {
+			await this.onRateLimit(res.headers, url.pathname);
+			return this.addBanword(str, channelID);
+		}
+		return false;
+	}
+
 
 
 

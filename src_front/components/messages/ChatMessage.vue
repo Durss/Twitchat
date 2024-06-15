@@ -178,7 +178,7 @@ import ChatModTools from './components/ChatModTools.vue';
 	},
 	emits:['showConversation', 'showUserMessages', 'unscheduleMessageOpen', 'onOverMessage', 'onRead'],
 })
- class ChatMessage extends AbstractChatMessage {
+class ChatMessage extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData;

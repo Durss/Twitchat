@@ -37,6 +37,7 @@ export const TwitchScopes = {
 	ADS_SNOOZE: "channel:manage:ads",
 	EXTENSIONS: "user:edit:broadcast",
 	READ_EMOTES: "user:read:emotes",
+	BLOCKED_TERMS: "moderator:manage:blocked_terms",
 } as const;
 export type TwitchScopesString = typeof TwitchScopes[keyof typeof TwitchScopes];
 

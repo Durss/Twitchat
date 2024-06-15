@@ -227,6 +227,7 @@ export default class ContextMenuHelper {
 
 			//User moderation actions
 			if(canModerateUser) {
+
 				let classesMod = "alert";
 				if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED])) classesMod += " disabled";
 				if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classesMod += " disabled";
@@ -235,6 +236,26 @@ export default class ContextMenuHelper {
 				if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BLOCKED])) classesMod += " disabled";
 				if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classesMod += " disabled";
 				if(!canModerateMessage) options[options.length-1].divided = true;
+
+				options.push({
+					label: t("chat.context_menu.add_blocked_terms"),
+					icon: this.getIcon("icons/block.svg"),
+					customClass:classesMod,
+					onClick: () => {
+						if(!TwitchUtils.requestScopes([TwitchScopes.BLOCKED_TERMS])) return;
+						const str = message.message_chunks.map(v=>{
+							if(v.type == "cheermote" || v.type == "emote" || v.type == "url") {
+								return "*";
+							}else
+							if(v.type == "text" || v.type == "user" || v.type == "highlight") {
+								return v.value.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+							}
+							return v.value.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+						}).join("");
+						
+						TwitchUtils.addBanword(str);
+					},
+				});
 
 				//Timeout
 				options.push(

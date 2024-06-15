@@ -1955,6 +1955,7 @@ export namespace TwitchatDataTypes {
 		SCOPE_REQUEST:"scope_request",
 		ROOM_SETTINGS:"room_settings",
 		STREAM_ONLINE:"stream_online",
+		BLOCKED_TERMS:"blocked_terms",
 		STREAMELEMENTS:"streamelements",
 		GOXLR_FX_STATE:"goxlr_fx_state",
 		STREAM_OFFLINE:"stream_offline",
@@ -2045,6 +2046,7 @@ export namespace TwitchatDataTypes {
 		room_settings:true,
 		stream_online:true,
 		scope_request:true,
+		blocked_terms:true,
 		followbot_list:true,
 		streamelements:true,
 		stream_offline:true,
@@ -2197,6 +2199,7 @@ export namespace TwitchatDataTypes {
 									| MessageBingoGridData
 									| MessageBingoGridViewerData
 									| MessageTwitchCelebrationData
+									| MessageBlockedTermsData
 	;
 
 	/**
@@ -4450,5 +4453,23 @@ export namespace TwitchatDataTypes {
 		 * Bits used to trigger celebration
 		 */
 		cost:number;
+	}
+
+	/**
+	 * Represents a Twitch "blocked terms" change
+	 */
+	export interface MessageBlockedTermsData extends AbstractTwitchatMessage {
+		type:"blocked_terms";
+		/**
+		 * User that added the blocked term		 */
+		user:TwitchatUser;
+		/**
+		 * Terms blocked
+		 */
+		terms:string[];
+		/**
+		 * Automod action
+		 */
+		action:"add_permitted"|"remove_permitted"|"add_blocked"|"remove_blocked";
 	}
 }

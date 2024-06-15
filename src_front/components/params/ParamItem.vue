@@ -570,6 +570,12 @@ export class ParamItem extends Vue {
 			this.paramData.value = this.modelValue;
 		}
 
+		//If it's a boolean and modelValue is undefined, force it to false
+		if(this.paramData.type == "boolean" && this.modelValue == undefined) {
+			this.paramData.value = false;
+			this.$emit("update:modelValue", false);
+		}
+
 		//Makes sure value is non-empty and within min/max.
 		//For a while some users emptied the field because i didn't block that
 		//this kinda fixes these old bad behaviors.

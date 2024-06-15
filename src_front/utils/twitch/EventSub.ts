@@ -257,6 +257,10 @@ export default class EventSub {
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
 
+				if(TwitchUtils.hasScopes([TwitchScopes.AUTOMOD])) {
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_TERMS_UPDATE, "1");
+				}
+
 				if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMATIC_REWARD_REDEEM, "1");
 					// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM, "1");
@@ -361,6 +365,11 @@ export default class EventSub {
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.AUTOMATIC_REWARD_REDEEM: {
 				this.automaticRewardRedeem(topic, payload.event as TwitchEventSubDataTypes.AutomaticRewardRedeemEvent);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_TERMS_UPDATE: {
+				this.automodTermsUpdate(topic, payload.event as TwitchEventSubDataTypes.AutomodTermsUpdateEvent);
 				break;
 			}
 
@@ -953,6 +962,25 @@ export default class EventSub {
 																		event.moderator_user_name || event.broadcaster_user_name),
 			message.message		= event.resolution_text;
 			message.accepted	= event.status != "denied";
+		}
+		StoreProxy.chat.addMessage(message);
+	}
+	
+	/**
+	 * Called when automod terms are updated
+	 * @param topic 
+	 * @param event 
+	 */
+	private async automodTermsUpdate(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AutomodTermsUpdateEvent):Promise<void> {
+		const message:TwitchatDataTypes.MessageBlockedTermsData = {
+			channel_id:event.broadcaster_user_id,
+			date:Date.now(),
+			id:Utils.getUUID(),
+			platform:"twitch",
+			type:TwitchatDataTypes.TwitchatMessageType.BLOCKED_TERMS,
+			user:await StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name),
+			action:event.action,
+			terms:event.terms,
 		}
 		StoreProxy.chat.addMessage(message);
 	}
