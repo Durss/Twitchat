@@ -2788,7 +2788,7 @@ export default class TwitchUtils {
 	/**
 	 * Adds a string to twitch banwords
 	 * @param str blocked terms
-	 * @param channelID channel to add the blocked temrs on
+	 * @param channelID channel to add the blocked terms on
 	 */
 	public static async addBanword(str: string, channelID?:string): Promise<boolean> {
 		if (!this.hasScopes([TwitchScopes.BLOCKED_TERMS])) return false;
@@ -2809,6 +2809,32 @@ export default class TwitchUtils {
 		} else if (res.status == 429) {
 			await this.onRateLimit(res.headers, url.pathname);
 			return this.addBanword(str, channelID);
+		}
+		return false;
+	}
+
+	/**
+	 * Removes a string from twitch banwords
+	 * @param str blocked terms
+	 * @param channelID channel to remove the blocked terms from
+	 */
+	public static async removeBanword(id: string, channelID?:string): Promise<boolean> {
+		if (!this.hasScopes([TwitchScopes.BLOCKED_TERMS])) return false;
+
+		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/blocked_terms");
+		url.searchParams.append("broadcaster_id", channelID ?? this.uid);
+		url.searchParams.append("moderator_id", this.uid);
+		url.searchParams.append("id", id);
+
+		const res = await this.callApi(url, {
+			method: "DELETE",
+			headers: this.headers,
+		});
+		if (res.status == 200) {
+			return true;
+		} else if (res.status == 429) {
+			await this.onRateLimit(res.headers, url.pathname);
+			return this.removeBanword(id, channelID);
 		}
 		return false;
 	}
