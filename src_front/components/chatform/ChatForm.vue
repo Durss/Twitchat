@@ -246,15 +246,15 @@
 						v-if="$store.main.devmode" />
 				</transition>
 
-				<ButtonNotification 
+				<ButtonNotification
 				v-if="showGazaBtn"
 				v-tooltip="{content:$t('gaza.tooltip'), showOnCreate:shouldShowTooltip('gaza'), onHidden:()=>onHideTooltip('gaza')}"
 				@click="$emit('update:showGazaFunds', true)">🍉</ButtonNotification>
 
-				<!-- <ButtonNotification 
-				v-if="showGazaBtn && $i18n.locale == 'fr' && !$store.main.antifaHide"
-				v-tooltip="{content:'S\'il vous plait...', showOnCreate:shouldShowTooltip('antifa'), onHidden:()=>onHideTooltip('antifa')}"
-				@click="$emit('update:showAntifa', true)">🙏</ButtonNotification> -->
+				<ButtonNotification 
+				v-if="showAntifaBtn && $i18n.locale == 'fr' && !$store.main.antifaHide"
+				v-tooltip="{content:'Votez', showOnCreate:shouldShowTooltip('antifa'), onHidden:()=>onHideTooltip('antifa')}"
+				@click="$emit('update:showAntifa', true)">🗳️</ButtonNotification>
 
 				<transition name="blink">
 					<Button class="emergency"
@@ -370,14 +370,14 @@ import TimerCountDownInfo from './TimerCountDownInfo.vue';
 	emits: [
 		"update:showEmotes",
 		"update:showCommands",
-		"update:showChatUsers",
 		"update:showRewards",
 		"update:showDevMenu",
 		"update:showShoutout",
-		"setCurrentNotification",
 		"update:showCredits",
+		"setCurrentNotification",
 		"update:showGazaFunds",
 		"update:showAntifa",
+		"update:showChatUsers",
 	],
 })
 export class ChatForm extends Vue {
@@ -397,6 +397,7 @@ export class ChatForm extends Vue {
 	public error = false;
 	public loading = false;
 	public showGazaBtn = false;
+	public showAntifaBtn = false;
 	public censoredViewCount = false;
 	public autoCompleteSearch = "";
 	public autoCompleteEmotes = false;
@@ -411,7 +412,7 @@ export class ChatForm extends Vue {
 	public announcement:TwitchatDataTypes.TwitchatAnnouncementData | null = null;
 
 	private announcementInterval:number = -1;
-	private overlayPresenceHandlerTimoute:number = -1;
+	private creditsOverlayPresenceHandlerTimeout:number = -1;
 	private updateTrackedUserListHandler!:(e:GlobalEvent)=>void;
 	private creditsOverlayPresenceHandler!:(e:TwitchatEvent)=>void;
 
@@ -494,7 +495,7 @@ export class ChatForm extends Vue {
 
 	public get pendingShoutoutCount():number {
 		const list = this.$store.users.pendingShoutouts[this.channelId];
-		if(!list) return 0;	
+		if(!list) return 0;
 
 		return list.length;
 	}
@@ -516,6 +517,7 @@ export class ChatForm extends Vue {
 		setTimeout(()=> {
 			this.loadAnnouncements();
 			this.showGazaBtn = true;
+			this.showAntifaBtn = Date.now() < new Date("07/07/2024 23:59:59").getTime();
 		}, 2000);
 		//Check for new announcements every 30min
 		this.announcementInterval = setInterval(()=> {
@@ -558,22 +560,10 @@ export class ChatForm extends Vue {
 				}
 			}
 		});
-		// try {
-		// 	await TwitchUtils.loadRewards();
-		// }catch(e) {
-		// 	//User is probably not an affiliate
-		// }
+		
 		gsap.from(this.$el, {y:50, delay:.2, duration:1, ease:"sine.out"});
 		const btns = (this.$el as HTMLDivElement).querySelectorAll(".leftForm>*,.inputForm>*");
 		gsap.from(btns, {y:50, duration:.7, delay:.5, ease:"back.out(2)", stagger:.075});
-
-		// console.log(lande("joyeux anniversaire !"));
-		// console.log(lande(" y'a rien dans le design de roucarnage qui exprime qu'il va faire un carnage non plus en soit"));
-		// const obj = {langSource:"en", langTarget:"fr", text:"this is a test !"};
-		// ApiHelper.call("google/translate", "GET", obj, false)
-		// .then(res=>{
-		// 	console.log("Translated", res.json.data.translation);
-		// });
 	}
 
 	public beforeUnmount():void {
@@ -1077,12 +1067,12 @@ export class ChatForm extends Vue {
 	}
 
 	/**
-	 * Called when updating the tracking state of a user
+	 * Called when ending credits overlay is detected
 	 */
 	private onCreditsOverlayPresence():void {
 		this.creditsOverlayRunning = true;
-		clearTimeout(this.overlayPresenceHandlerTimoute);
-		this.overlayPresenceHandlerTimoute = setTimeout(()=>{
+		clearTimeout(this.creditsOverlayPresenceHandlerTimeout);
+		this.creditsOverlayPresenceHandlerTimeout = setTimeout(()=>{
 			this.creditsOverlayRunning = false;
 		}, 25000);
 	}

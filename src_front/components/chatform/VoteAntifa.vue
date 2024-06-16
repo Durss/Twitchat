@@ -1,5 +1,5 @@
 <template>
-	<div class="voteatifa modal">
+	<div class="voteantifa modal">
 		<div class="dimmer" ref="dimmer" @click="close(false)"></div>
 		<div class="holder" ref="holder">
 			<h1 class="head">
@@ -161,7 +161,7 @@ import SwitchButton from '../SwitchButton.vue';
 	},
 	emits:["close"],
 })
-class VoteAtifa extends Vue {
+class VoteAntifa extends Vue {
 
 	public short = true;
 
@@ -188,11 +188,11 @@ class VoteAtifa extends Vue {
 	}
 
 }
-export default toNative(VoteAtifa);
+export default toNative(VoteAntifa);
 </script>
 
 <style scoped lang="less">
-.voteatifa{
+.voteantifa{
 	
 	z-index: 2;
 
