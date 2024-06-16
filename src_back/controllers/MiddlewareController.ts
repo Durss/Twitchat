@@ -31,7 +31,7 @@ export default class MiddlewareController extends AbstractController {
 	public async initialize():Promise<void> {
 		//Rate limiter
 		await this.server.register(require('@fastify/rate-limit'), {
-			max: 5,
+			max: 100,
 			ban: 5,
 			global: true,
 			timeWindow: 2000,
