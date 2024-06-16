@@ -1,5 +1,5 @@
 <template>
-	<div class="voteantifa modal">
+	<div class="voteatifa modal">
 		<div class="dimmer" ref="dimmer" @click="close(false)"></div>
 		<div class="holder" ref="holder">
 			<h1 class="head">
@@ -8,31 +8,32 @@
 			</h1>
 			<div class="content">
 				<p style="text-align:center; font-style: italic; opacity: .8;">...ne laissez pas notre pays tomber sous l'extrême droite le 30 juin...</p>
-
-				<div class="card-item" style="margin-bottom: 1em;">
+				
+				<div class="card-item">
 					<SwitchButton v-model="short" :labels="['Version courte', 'Version longue']" :values="[true, false]"></SwitchButton>
 				</div>
+				
+				<p class="card-item twitchat"><Icon name="info" /> Twitchat existe grâce aux aides sociales, que le RN compte détruire</p>
 
 				<Transition name="fadeScale">
 				<div v-if="short==true" class="conditionalSection">
-					<p class="card-item premium"><Icon name="info" /> Twitchat existe grâce aux aides sociales que le RN compte détruire.</p>
-					<strong style="text-align:center; margin-top: 1em; display: block;">Voici certains votes du RN ces dernières années</strong>
+					<strong style="text-align:center; display: block;">Voici certains votes du RN ces dernières années</strong>
 				</div>
 				</Transition>
 
 				<Transition name="fadeScale">
 					<div v-if="short==false" class="conditionalSection">
-						<div class="card-item" style="margin-bottom:1em">
-							<p class="small">Encore un message sur un sujet clivant dans Twitchat, oui.</p>
-							<p class="small">Je vous présente mes excuses pour ça.</p>
-							<p class="small">Ca ne deviendra pas une habitude je vous le promets, mais le contexte politique en France est beaucoup trop grave pour rester muet.</p>
+						<div class="card-item small">
+							<p>Encore un message sur un sujet clivant dans Twitchat, oui.</p>
+							<p>Je vous présente mes excuses pour ça.</p>
+							<p>Ca ne deviendra pas une habitude je vous le promets, mais le contexte politique en France est beaucoup trop grave pour rester muet.</p>
 						</div>
 						<p>Je ne vous dirai pas quoi voter, mais si vous pensiez voter RN, je vous en conjure prenez 2min pour lire ce pour quoi ils ont voté ces dernières années ci-dessous, résumant ainsi les combats réels de ce parti. Bien loin de ce qu'ils essaient de vendre.</p>
-						<p class="small">TLDR; à moins d'être vous-même un homme blanc hétéro non transgenre sans handicap et très riche, vous n'avez qu'à y perdre. Il en va de même pour vos proches.</p>
-						<p></p>
+						<p>Plus bas se trouvent également quelques resources, libre à vous de les partager avec vos viewers.</p>
+						<p class="small">TLDR; à moins d'être vous-même un homme blanc hétéro non transgenre sans handicap et très riche, vous n'avez qu'à y perdre. De même pour vos proches.</p>
 					</div>
 				</Transition>
-				<ToggleBlock alert :icons="['cross']" title="Votes contre (35)" :open="false">
+				<ToggleBlock alert :icons="['cross']" title="Votes contre (40)" :open="false">
 					<section>
 						<strong>Salaires/Retraites</strong>
 						<ul>
@@ -78,8 +79,13 @@
 					<section>
 						<strong>Féminisme</strong>
 						<ul>
+							<li><Icon name="cross" theme="light" />Remboursement des soins médicaux pour les cancers du sein</li>
 							<li><Icon name="cross" theme="light" />Allouer 1 millard pour lutter contre la violence faites aux femmes</li>
-							<li><Icon name="cross" theme="light" />Droit à l'IVG</li>
+							<li><Icon name="cross" theme="light" />La PMA</li>
+							<li><Icon name="cross" theme="light" />Droit à l'IVG et son inscription dans la constitution</li>
+							<li><Icon name="cross" theme="light" />La lutte contre les discours de haine envers les LGBTQ+</li>
+							<li><Icon name="cross" theme="light" />Déclarer l'UE comme zone de liberté pour les LGBTQ+</li>
+							<li><Icon name="cross" theme="light" />Le mariage homosexuel</li>
 						</ul>
 					</section>
 					<section>
@@ -131,11 +137,24 @@
 						</ul>
 					</section>
 				</ToggleBlock>
-				<p style="margin-top: 1em;">Pour ma part je voterai Front Populaire car il s'agit selon moi de la seule chance d'éviter le pire, tant statistiquement que socialement.</p>
+
+				<p class="small">Pour ma part je voterai Front Populaire, s'agissant, selon moi, de la seule chance d'éviter le pire, tant statistiquement que socialement.</p>
+
+				<ToggleBlock :icons="['info']" small title="Ressources utiles" class="resources" :open="false">
+					<ul class="list">
+						<li v-for="r in resources" class="resource">
+							<TTButton type="button" v-tooltip="'Envoyer dans le tchat'" small @click="sendChat(r)" :loading="sending"><Icon name="whispers" /></TTButton>
+							<TTButton icon="newtab" target="_blank" type="link" :href="r.url" small>{{ r.label }}</TTButton>
+						</li>
+					</ul>
+				</ToggleBlock>
+
 				<div class="ctas">
 					<TTButton primary icon="cross" @click="close(false)">Fermer</TTButton>
 					<TTButton alert @click="close(true)">Ne plus afficher</TTButton>
 				</div>
+				
+				<div v-if="$config.BETA_MODE" class="card-item secondary">Très cher·e beta-testeureuse je veux bien ton avis sur la démarche et le contenu de cette fenêtre 🤍.<br>Rendez-vous dans la section beta du <a :href="$config.DISCORD_URL" target="_blank">Discord Twitchat</a> !</div>
 			</div>
 		</div>
 	</div>
@@ -150,6 +169,8 @@ import Icon from '../Icon.vue';
 import { TTButton } from '../TTButton.vue';
 import DataStore from '@/store/DataStore';
 import SwitchButton from '../SwitchButton.vue';
+import MessengerProxy from '@/messaging/MessengerProxy';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -164,6 +185,24 @@ import SwitchButton from '../SwitchButton.vue';
 class VoteAntifa extends Vue {
 
 	public short = true;
+	public sending = false;
+	public resources = [
+		{url:"https://www.instagram.com/p/C8H_2Kcivem", label:"Pourquoi la gauche ne parle pas d'immigration et d'insécurité ?"},
+		{url:"https://actionpopulaire.fr/procuration/donner-ma-procuration/", label:"Faire une procuration"},
+		{url:"https://actionpopulaire.fr/procuration/prendre-une-procuration/", label:"Prendre une procuration"},
+		{url:"https://x.com/Rivenzi_/status/1800926126228795454", label:"\"Les nazis étaient de gauche\""},
+		{url:"https://x.com/PanettonePazzo/status/1800799615253623127", label:"La gauche n'est pas parfaite. Mais largement préférable au RN."},
+		{url:"https://x.com/rouge_vert1418/status/1800584586034081927", label:"Vote de droite = vote de riche"},
+		{url:"https://www.instagram.com/p/C8FLQKiiR67/", label:"C'est quoi les législatives"},
+		{url:"https://twitter.com/mistermv/status/1800581898558988570", label:"Infographie des votes du RN à l'assemblée nationale"},
+		{url:"https://x.com/frogashell/status/1800444233624834543/photo/1", label:"Le RN est anti-féministe"},
+		{url:"https://x.com/frogashell/status/1800444233624834543/photo/2", label:"Le RN est raciste"},
+		{url:"https://x.com/frogashell/status/1800444233624834543/photo/3", label:"Le RN est LGBTIPhobe"},
+		{url:"https://x.com/frogashell/status/1800444233624834543/photo/4", label:"Le RN est anti pauvres"},
+		{url:"https://x.com/frogashell/status/1800444243778867427/photo/1", label:"Le RN est anti écologie"},
+		{url:"https://twitter.com/ProfToujours/status/1801498788328059026", label:"Le programme du RN est raciste"},
+		{url:"https://www.instagram.com/p/C8B0zK6iucX", label:"Convaincre d'aller voter"},
+	];
 
 	public mounted():void {
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
@@ -187,24 +226,34 @@ class VoteAntifa extends Vue {
 		}});
 	}
 
+	public async sendChat(r:typeof this.resources[number]):Promise<void> {
+		this.sending = true;
+		await MessengerProxy.instance.sendMessage("\""+r.label+"\" : "+r.url);
+		await Utils.promisedTimeout(500);
+		this.sending = false;
+	}
+
 }
 export default toNative(VoteAntifa);
 </script>
 
 <style scoped lang="less">
-.voteantifa{
+.voteatifa{
 	
 	z-index: 2;
 
+	.twitchat {
+		background-color: var(--color-premium-fadest);
+	}
+
 	.holder {
-		line-height: 1.2em;
 		width: 600px;
 		height: fit-content;
 		max-width: 600px;
 		max-height: var(--vh);
 
 		.content {
-			gap: .5em;
+			gap: 1em;
 			display: flex;
 			flex-direction: column;
 			* {
@@ -215,9 +264,12 @@ export default toNative(VoteAntifa);
 		p {
 			line-height: 1.5em;
 			white-space: pre-line;
-			&.small {
-				font-size: .8em;
-			}
+		}
+		.small:not(.toggleblock):not(.button) {
+			font-size: .8em;
+			margin: 0 2em;
+			opacity: .9;
+			font-style: italic;
 		}
 
 		section {
@@ -231,6 +283,7 @@ export default toNative(VoteAntifa);
 			ul {
 				list-style: none;
 				padding-left: 1em;
+				line-height: 1.2em;
 				li + li {
 					margin-top: .25em;
 				}
@@ -264,19 +317,73 @@ export default toNative(VoteAntifa);
 
 	.icon {
 		height: 1em;
-		vertical-align: middle;
 	}
 
 	.conditionalSection {
 		transition: all .25s;
-		max-height: 300px;
+		max-height: 400px;
 		opacity: 1;
 		overflow: hidden;
+		gap: 1em;
+		display: flex;
+		flex-direction: column;
 
 		&.fadeScale-enter-from,
 		&.fadeScale-leave-to {
 			opacity: 0;
 			max-height: 0;
+		}
+		.icon {
+			height: 1.5em;
+			margin-right: .25em;
+			vertical-align: bottom;
+		}
+	}
+
+	.resources {
+		font-size: 1.2em;
+		.list {
+			gap: 2px;
+			display: flex;
+			flex-direction: column;
+
+			.resource {
+				border-radius: 0;
+				display: flex;
+				flex-direction: row;
+				.button:first-child {
+					flex-shrink: 0;
+					border-top-right-radius: 0;
+					border-bottom-right-radius: 0;
+					margin-right: 1px;
+				}
+				.button:last-child {
+					flex-grow: 1;
+					border-top-left-radius: 0;
+					border-bottom-left-radius: 0;
+				}
+			}
+		}
+	}
+
+	.toggleblock.alert:deep(.header),
+	.toggleblock.primary:deep(.header) {
+		background-color: var(--toggle-block-header-background) !important;
+		border-bottom: 2px solid var(--color-alert);
+		&>.icon {
+			background-color: var(--color-alert);
+			// margin: -.25em 0;
+			align-self: stretch;
+			flex-shrink: 0;
+			height: 100%;
+			padding: .25em;
+			border-radius: .25em;
+		}
+	}
+	.toggleblock.primary:deep(.header) {
+		border-bottom: 2px solid var(--color-primary);
+		&>.icon {
+			background-color: var(--color-primary);
 		}
 	}
 }

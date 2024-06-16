@@ -140,7 +140,7 @@
 
 		<HelpGenocideVictims v-if="showGazaFunds" @close="showGazaFunds = false" />
 
-		<VoteAtifa v-if="showAntifa" @close="showAntifa = false" />
+		<VoteAntifa v-if="showAntifa" @close="showAntifa = false" />
 
 		<Accessibility />
 
@@ -206,7 +206,7 @@ import QnaForm from '@/components/chatform/QnaForm.vue';
 import QnaList from '@/components/chatform/QnaList.vue';
 import EndingCreditsControls from '@/components/chatform/EndingCreditsControls.vue';
 import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
-import VoteAtifa from '@/components/chatform/VoteAtifa.vue';
+import VoteAntifa from '@/components/chatform/VoteAntifa.vue';
 import HelpGenocideVictims from '@/components/chatform/HelpGenocideVictims.vue';
 
 @Component({
@@ -220,7 +220,7 @@ import HelpGenocideVictims from '@/components/chatform/HelpGenocideVictims.vue';
 		UserCard,
 		HeatLogs,
 		PollForm,
-		VoteAtifa,
+		VoteAntifa,
 		Changelog,
 		TimerForm,
 		GreetThem,
