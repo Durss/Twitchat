@@ -9,25 +9,27 @@
 			<div class="content">
 				<p style="text-align:center; font-style: italic; opacity: .8;">...ne laissez pas notre pays tomber sous l'extrême droite le 30 juin...</p>
 				
-				<div class="card-item" style="margin-bottom: 1em;">
+				<div class="card-item">
 					<SwitchButton v-model="short" :labels="['Version courte', 'Version longue']" :values="[true, false]"></SwitchButton>
 				</div>
+				
+				<p class="card-item twitchat"><Icon name="info" /> Twitchat existe grâce aux aides sociales, que le RN compte détruire</p>
 
 				<Transition name="fadeScale">
 				<div v-if="short==true" class="conditionalSection">
-					<p class="card-item"><Icon name="info" /> Twitchat existe grâce aux aides sociales, que le RN compte détruire</p>
-					<strong style="text-align:center; margin-top: 1em; display: block;">Voici certains votes du RN ces dernières années</strong>
+					<strong style="text-align:center; display: block;">Voici certains votes du RN ces dernières années</strong>
 				</div>
 				</Transition>
 
 				<Transition name="fadeScale">
 					<div v-if="short==false" class="conditionalSection">
-						<div class="card-item" style="margin-bottom:1em">
-							<p class="small">Encore un message sur un sujet clivant dans Twitchat, oui.</p>
-							<p class="small">Je vous présente mes excuses pour ça.</p>
-							<p class="small">Ca ne deviendra pas une habitude je vous le promets, mais le contexte politique en France est beaucoup trop grave pour rester muet.</p>
+						<div class="card-item small">
+							<p>Encore un message sur un sujet clivant dans Twitchat, oui.</p>
+							<p>Je vous présente mes excuses pour ça.</p>
+							<p>Ca ne deviendra pas une habitude je vous le promets, mais le contexte politique en France est beaucoup trop grave pour rester muet.</p>
 						</div>
 						<p>Je ne vous dirai pas quoi voter, mais si vous pensiez voter RN, je vous en conjure prenez 2min pour lire ce pour quoi ils ont voté ces dernières années ci-dessous, résumant ainsi les combats réels de ce parti. Bien loin de ce qu'ils essaient de vendre.</p>
+						<p>Plus bas se trouvent également quelques resources, libre à vous de les partager avec vos viewers.</p>
 						<p class="small">TLDR; à moins d'être vous-même un homme blanc hétéro non transgenre sans handicap et très riche, vous n'avez qu'à y perdre. Il en va de même pour vos proches.</p>
 						<p></p>
 					</div>
@@ -140,7 +142,7 @@
 				<p style="margin-top: 1em;">Pour ma part je voterai Front Populaire car il s'agit selon moi de la seule chance d'éviter le pire, tant statistiquement que socialement.</p>
 
 				<ToggleBlock :icons="['info']" small title="Ressources utiles" class="resources" :open="false">
-					<ul class="resources">
+					<ul class="list">
 						<li v-for="r in resources" class="resource">
 							<TTButton type="button" v-tooltip="'Envoyer dans le tchat'" small @click="sendChat(r)" :loading="sending"><Icon name="whispers" /></TTButton>
 							<TTButton icon="newtab" target="_blank" type="link" :href="r.url" small>{{ r.label }}</TTButton>
@@ -189,7 +191,7 @@ class VoteAntifa extends Vue {
 		{url:"https://www.instagram.com/p/C8H_2Kcivem", label:"Pourquoi la gauche ne parle pas d'immigration et d'insécurité ?"},
 		{url:"https://actionpopulaire.fr/procuration/donner-ma-procuration/", label:"Faire une procuration"},
 		{url:"https://actionpopulaire.fr/procuration/prendre-une-procuration/", label:"Prendre une procuration"},
-		{url:"https://x.com/Rivenzi_/status/1800926126228795454", label:"\"Les nazis étaient de gauche\". Faux."},
+		{url:"https://x.com/Rivenzi_/status/1800926126228795454", label:"\"Les nazis étaient de gauche\""},
 		{url:"https://x.com/PanettonePazzo/status/1800799615253623127", label:"La gauche n'est pas parfaite. Mais largement préférable au RN."},
 		{url:"https://x.com/rouge_vert1418/status/1800584586034081927", label:"Vote de droite = vote de riche"},
 		{url:"https://www.instagram.com/p/C8FLQKiiR67/", label:"C'est quoi les législatives"},
@@ -241,15 +243,18 @@ export default toNative(VoteAntifa);
 	
 	z-index: 2;
 
+	.twitchat {
+		background-color: var(--color-premium-fadest);
+	}
+
 	.holder {
-		line-height: 1.2em;
 		width: 600px;
 		height: fit-content;
 		max-width: 600px;
 		max-height: var(--vh);
 
 		.content {
-			gap: .5em;
+			gap: 1em;
 			display: flex;
 			flex-direction: column;
 			* {
@@ -260,9 +265,12 @@ export default toNative(VoteAntifa);
 		p {
 			line-height: 1.5em;
 			white-space: pre-line;
-			&.small {
-				font-size: .8em;
-			}
+		}
+		.small:not(.toggleblock):not(.button) {
+			font-size: .8em;
+			margin: 0 2em;
+			opacity: .9;
+			font-style: italic;
 		}
 
 		section {
@@ -276,6 +284,7 @@ export default toNative(VoteAntifa);
 			ul {
 				list-style: none;
 				padding-left: 1em;
+				line-height: 1.2em;
 				li + li {
 					margin-top: .25em;
 				}
@@ -309,7 +318,6 @@ export default toNative(VoteAntifa);
 
 	.icon {
 		height: 1em;
-		vertical-align: middle;
 	}
 
 	.conditionalSection {
@@ -317,6 +325,9 @@ export default toNative(VoteAntifa);
 		max-height: 300px;
 		opacity: 1;
 		overflow: hidden;
+		gap: 1em;
+		display: flex;
+		flex-direction: column;
 
 		&.fadeScale-enter-from,
 		&.fadeScale-leave-to {
@@ -331,26 +342,49 @@ export default toNative(VoteAntifa);
 	}
 
 	.resources {
-		gap: 2px;
-		display: flex;
-		flex-direction: column;
 		font-size: 1.2em;
+		.list {
+			gap: 2px;
+			display: flex;
+			flex-direction: column;
+
+			.resource {
+				border-radius: 0;
+				display: flex;
+				flex-direction: row;
+				.button:first-child {
+					flex-shrink: 0;
+					border-top-right-radius: 0;
+					border-bottom-right-radius: 0;
+					margin-right: 1px;
+				}
+				.button:last-child {
+					flex-grow: 1;
+					border-top-left-radius: 0;
+					border-bottom-left-radius: 0;
+				}
+			}
+		}
 	}
 
-	.resource {
-		border-radius: 0;
-		display: flex;
-		flex-direction: row;
-		.button:first-child {
+	.toggleblock.alert:deep(.header),
+	.toggleblock.primary:deep(.header) {
+		background-color: var(--toggle-block-header-background) !important;
+		border-bottom: 2px solid var(--color-alert);
+		&>.icon {
+			background-color: var(--color-alert);
+			// margin: -.25em 0;
+			align-self: stretch;
 			flex-shrink: 0;
-			border-top-right-radius: 0;
-			border-bottom-right-radius: 0;
-			margin-right: 1px;
+			height: 100%;
+			padding: .25em;
+			border-radius: .25em;
 		}
-		.button:last-child {
-			flex-grow: 1;
-			border-top-left-radius: 0;
-			border-bottom-left-radius: 0;
+	}
+	.toggleblock.primary:deep(.header) {
+		border-bottom: 2px solid var(--color-primary);
+		&>.icon {
+			background-color: var(--color-primary);
 		}
 	}
 }

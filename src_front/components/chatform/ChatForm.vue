@@ -527,7 +527,7 @@ export class ChatForm extends Vue {
 		setTimeout(()=> {
 			this.loadAnnouncements();
 			this.showGazaBtn = true;
-			this.showAntifaBtn = true;
+			this.showAntifaBtn = Date.now() < new Date("07/07/2024 23:59:59").getTime();
 		}, 2000);
 		//Check for new announcements every 30min
 		this.announcementInterval = setInterval(()=> {
