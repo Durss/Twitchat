@@ -45,6 +45,9 @@ export default class MiddlewareController extends AbstractController {
 				//Apply rate limit only to API endpoints except config and SSE
 				return !/\/api\//.test(request.url) && request.url != "/api/configs" && request.url != "/api/sse/register";
 			},
+			keyGenerator: (request) => {
+				return this.getIp(request);
+			},
 			onBanReach: (request, key) => {
 				this.expandCustomRateLimitDuration(request);
 			},
@@ -154,6 +157,7 @@ export default class MiddlewareController extends AbstractController {
 	 * @param request 
 	 */
 	private getIp(request:FastifyRequest):string {
+		if(request.headers["CF-Connecting-IP"]) return request.headers["CF-Connecting-IP"] as string;
 		return request.headers['x-real-ip'] as string // nginx
 		|| request.headers['x-client-ip'] as string // apache
 		|| request.headers['x-forwarded-for'] as string // use this only if you trust the header
