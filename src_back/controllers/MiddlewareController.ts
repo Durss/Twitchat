@@ -38,7 +38,7 @@ export default class MiddlewareController extends AbstractController {
 		//Code executes properly tho
 		//@ts-ignore 
 		await this.server.register(fastifyRateLimit, {
-			max: 10,
+			max: 100,
 			ban: 5,
 			global: true,
 			timeWindow: 1000,

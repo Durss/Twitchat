@@ -30,8 +30,7 @@
 						</div>
 						<p>Je ne vous dirai pas quoi voter, mais si vous pensiez voter RN, je vous en conjure prenez 2min pour lire ce pour quoi ils ont voté ces dernières années ci-dessous, résumant ainsi les combats réels de ce parti. Bien loin de ce qu'ils essaient de vendre.</p>
 						<p>Plus bas se trouvent également quelques resources, libre à vous de les partager avec vos viewers.</p>
-						<p class="small">TLDR; à moins d'être vous-même un homme blanc hétéro non transgenre sans handicap et très riche, vous n'avez qu'à y perdre. Il en va de même pour vos proches.</p>
-						<p></p>
+						<p class="small">TLDR; à moins d'être vous-même un homme blanc hétéro non transgenre sans handicap et très riche, vous n'avez qu'à y perdre. De même pour vos proches.</p>
 					</div>
 				</Transition>
 				<ToggleBlock alert :icons="['cross']" title="Votes contre (40)" :open="false">
@@ -139,7 +138,7 @@
 					</section>
 				</ToggleBlock>
 
-				<p style="margin-top: 1em;">Pour ma part je voterai Front Populaire car il s'agit selon moi de la seule chance d'éviter le pire, tant statistiquement que socialement.</p>
+				<p class="small">Pour ma part je voterai Front Populaire, s'agissant, selon moi, de la seule chance d'éviter le pire, tant statistiquement que socialement.</p>
 
 				<ToggleBlock :icons="['info']" small title="Ressources utiles" class="resources" :open="false">
 					<ul class="list">
@@ -322,7 +321,7 @@ export default toNative(VoteAntifa);
 
 	.conditionalSection {
 		transition: all .25s;
-		max-height: 300px;
+		max-height: 400px;
 		opacity: 1;
 		overflow: hidden;
 		gap: 1em;
