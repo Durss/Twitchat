@@ -99,6 +99,48 @@
 											@change="saveData()"
 											v-model="config.messageFilters[f.storage!.type]" />
 									</div>
+
+									<template v-if="$store.users.customBadgeList.length > 0">
+										<div class="item">
+											<div class="preview"></div>
+											<ParamItem
+												key="subfilter_blockUsers"
+												v-model="config.mandatoryBadges_flag"
+												:paramData="param_showBadges"
+												@change="saveData()">
+											
+												<div class="badgeList">
+													<button v-for="badge in $store.users.customBadgeList"
+													@click="onToggleBadge(badge.id, true)"
+													:class="(config.mandatoryBadges || []).includes(badge.id)? 'selected' : ''"
+													:key="badge.id+'_show'"
+													:title="badge.name">
+														<img :src="badge.img" :alt="badge.name">
+													</button>
+												</div>
+											</ParamItem>
+										</div>
+	
+										<div class="item" v-if="$store.users.customBadgeList.length > 0">
+											<div class="preview"></div>
+											<ParamItem
+												key="subfilter_blockUsers"
+												v-model="config.forbiddenBadges_flag"
+												:paramData="param_hideBadges"
+												@change="saveData()">
+											
+												<div class="badgeList">
+													<button v-for="badge in $store.users.customBadgeList"
+													@click="onToggleBadge(badge.id, false)"
+													:class="(config.forbiddenBadges || []).includes(badge.id)? 'selected' : ''"
+													:key="badge.id+'_show'"
+													:title="badge.name">
+														<img :src="badge.img" :alt="badge.name">
+													</button>
+												</div>
+											</ParamItem>
+										</div>
+									</template>
 								</div>
 							</template>
 						</ParamItem>
@@ -186,6 +228,8 @@ export class MessageListFilter extends Vue {
 	public filters:TwitchatDataTypes.ParameterData<boolean, undefined, undefined, typeof TwitchatDataTypes.MessageListFilterTypes[number]>[] = [];
 	public messageFilters:TwitchatDataTypes.ParameterData<boolean, unknown, boolean, typeof TwitchatDataTypes.MessageListChatMessageFilterTypes[number]>[] = [];
 	public param_toggleAll:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.select_all" };
+	public param_showBadges:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.show_user_badges", icon:"show"};
+	public param_hideBadges:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.hide_user_badges", icon:"hide"};
 	public param_hideUsers:TwitchatDataTypes.ParameterData<string, string> = {type:"editablelist", value:"", labelKey:"chat.filters.hide_users", placeholderKey:"chat.filters.hide_users_placeholder", icon:"hide", maxLength:1000000};
 	public param_showPanelsHere:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.show_panels_here"};
 	public param_showGreetHere:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.show_greet_here"};
@@ -649,6 +693,26 @@ export class MessageListFilter extends Vue {
 			this.$emit("change");
 			this.$store.params.saveChatColumnConfs();
 		}, 300);
+	}
+
+	/**
+	 * Called when clicking a badge
+	 */
+	public onToggleBadge(badgeId:string, mandatory:boolean):void {
+		let list:string[] = [];
+		if(mandatory) {
+			if(!this.config.mandatoryBadges) this.config.mandatoryBadges = [];
+			list = this.config.mandatoryBadges;
+		}else{
+			if(!this.config.forbiddenBadges) this.config.forbiddenBadges = [];
+			list = this.config.forbiddenBadges;
+		}
+		if(list.includes(badgeId)) {
+			list.splice(list.findIndex(id=>id == badgeId), 1);
+		}else{
+			list.push(badgeId);
+		}
+		this.saveData();
 	}
 
 	/**
@@ -1216,6 +1280,24 @@ export default toNative(MessageListFilter);
 						flex-direction: row;
 						align-items: center;
 						margin-top: 0;
+					}
+					.badgeList {
+						margin-top: .5em;
+						gap: 2px;
+						display: flex;
+						flex-direction: row;
+						flex-wrap: wrap;
+						justify-content: center;
+						img {
+							display: block;
+						}
+						button {
+							opacity: .25;
+							&.selected {
+								opacity: 1;
+								outline: 1px solid var(--color-text);
+							}
+						}
 					}
 				}
 				&::-webkit-scrollbar-thumb {

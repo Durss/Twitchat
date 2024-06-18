@@ -200,6 +200,22 @@ export namespace TwitchatDataTypes {
 		 * This allows to accept whispers only from mods or specific users
 		 */
 		whispersPermissions:PermissionsData;
+		/**
+		 * Should filter on mandatory badges
+		 */
+		mandatoryBadges_flag?:boolean;
+		/**
+		 * Should filter on forbidden badges
+		 */
+		forbiddenBadges_flag?:boolean;
+		/**
+		 * Badges user must have
+		 */
+		mandatoryBadges?:string[];
+		/**
+		 * Badges user must not have
+		 */
+		forbiddenBadges?:string[];
 	}
 
 	/**

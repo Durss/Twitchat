@@ -74,6 +74,8 @@
 			"whispers_permissions": "Filtrer les personnes autorisées",
 			"show_panels_here": "Afficher les formulaires dans cette colonne",
 			"show_greet_here": "Afficher \" @:greet.title \" dans cette colonne",
+			"show_user_badges": "Afficher uniquement les personnes ayant le badge...",
+			"hide_user_badges": "Masquer les personnes ayant le badge...",
 			"select_all": "Tout",
 			"message_types": {
 				"twitchat_ad": "Astuces Twitchat",

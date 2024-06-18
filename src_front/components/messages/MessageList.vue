@@ -452,6 +452,27 @@ import { Linear } from 'gsap/all';
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
 				if(this.config.filters.message === false) return false;
 
+				//If requested mandatory badges, check if user has it
+				if(this.config.mandatoryBadges_flag && (this.config.mandatoryBadges || [])?.length > 0) {
+					const badges = this.$store.users.customUserBadges[m.user.id];
+					if(!badges) return false;
+					for (let i = 0; i < this.config.mandatoryBadges!.length; i++) {
+						const badge = this.config.mandatoryBadges![i];
+						if(badges.find(b => b.id == badge)) return true;
+					}
+				}
+
+				//If requested forbidden badges, check if user has it
+				if(this.config.forbiddenBadges_flag && (this.config.forbiddenBadges || [])?.length > 0) {
+					const badges = this.$store.users.customUserBadges[m.user.id];
+					if(badges) {
+						for (let i = 0; i < this.config.forbiddenBadges!.length; i++) {
+							const badge = this.config.forbiddenBadges![i];
+							if(badges.find(b => b.id == badge)) return false;
+						}
+					}
+				}
+
 				//Force tracked users if requested
 				if (m.user.is_tracked && this.config.messageFilters.tracked) {
 					return true;

@@ -15,7 +15,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	components:{},
 	emits:["select"],
 })
- class CustomUserBadges extends Vue {
+class CustomUserBadges extends Vue {
 
 	@Prop()
 	public user!:TwitchatDataTypes.TwitchatUser;
