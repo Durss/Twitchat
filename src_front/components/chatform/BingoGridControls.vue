@@ -6,29 +6,44 @@
 		:open="false"
 		:key="grid.id">
 			<h2>{{grid.title}}</h2>
-			<div class="grid" :style="{gridTemplateColumns: 'repeat('+grid.cols+', 1fr)'}">
-				<TransitionGroup name="flip-list">
-					<Checkbox v-for="entry in grid.entries"
-						class="entry"
-						:secondary="entry.lock"
-						:key="entry.id"
-						v-model="entry.check"
-						v-tooltip="entry.label"
-						@click.capture.stop="$store.bingoGrid.toggleCell(grid.id, entry.id)" />
-				</TransitionGroup>
-			</div>
+			<template v-if="search.trim().length > 0">
+				
+				<Checkbox v-for="entry in grid.entries.concat(grid.additionalEntries || [])
+					.filter(v=>new RegExp(search,'gi').test(v.label))"
+					class="entry"
+					:key="entry.id"
+					v-model="entry.check"
+					v-tooltip="entry.label"
+					@click.capture.stop="$store.bingoGrid.toggleCell(grid.id, entry.id)">
+					<span class="label">{{ entry.label }}</span>
+				</Checkbox>
+			</template>
 
-			<ToggleBlock v-if="grid.additionalEntries" small :title="$t('bingo_grid.form.additional_cells')" :open="false">
-				<div v-for="entry in grid.additionalEntries" class="additionalEntry">
-					<Checkbox class="entry"
-						:key="entry.id"
-						v-model="entry.check"
-						v-tooltip="entry.label"
-						@click.capture.stop="$store.bingoGrid.toggleCell(grid.id, entry.id)">
-						<span class="label">{{ entry.label }}</span>
-					</Checkbox>
+			<template v-else>
+				<div class="grid" :style="{gridTemplateColumns: 'repeat('+grid.cols+', 1fr)'}">
+					<TransitionGroup name="flip-list">
+						<Checkbox v-for="entry in grid.entries"
+							class="entry"
+							:secondary="entry.lock"
+							:key="entry.id"
+							v-model="entry.check"
+							v-tooltip="entry.label"
+							@click.capture.stop="$store.bingoGrid.toggleCell(grid.id, entry.id)" />
+					</TransitionGroup>
 				</div>
-			</ToggleBlock>
+	
+				<ToggleBlock v-if="grid.additionalEntries" small :title="$t('bingo_grid.form.additional_cells')" :open="false">
+					<div v-for="entry in grid.additionalEntries" class="additionalEntry">
+						<Checkbox class="entry"
+							:key="entry.id"
+							v-model="entry.check"
+							v-tooltip="entry.label"
+							@click.capture.stop="$store.bingoGrid.toggleCell(grid.id, entry.id)">
+							<span class="label">{{ entry.label }}</span>
+						</Checkbox>
+					</div>
+				</ToggleBlock>
+			</template>
 
 			<div class="ctas">
 				<TTButton icon="shuffle" @click="$store.bingoGrid.shuffleGrid(grid.id)" v-tooltip="$t('bingo_grid.form.shuffle_bt')"></TTButton>
@@ -40,6 +55,12 @@
 				@click="openLeaderBoard(grid)">{{ $tc("bingo_grid.form.leaderBoard.open_bt", Object.keys($store.bingoGrid.viewersBingoCount[grid.id]).length, {COUNT:Object.keys($store.bingoGrid.viewersBingoCount[grid.id]).length}) }}</TTButton>
 			</div>
 		</div>
+
+		<form @submit.prevent="">
+			<input type="text" v-model="search"
+			@keydown.capture="onKeyUp($event)"
+			:placeholder="$t('global.search_placeholder')">
+		</form>
 	</div>
 	<div class="bingogridcontrols blured-background-window leaderboard" v-else>
 		<Icon name="leaderboard" />
@@ -75,6 +96,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 })
 class BingoGridControls extends Vue {
 
+	public search:string = "";
 	public leaderBoardID:string = "";
 
 	private clickHandler!:(e:MouseEvent) => void;
@@ -99,6 +121,13 @@ class BingoGridControls extends Vue {
 	 */
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser, chanId?:string):void {
 		this.$store.users.openUserCard(user, chanId, "twitch");
+	}
+
+	/**
+	 * Clear search on Escape
+	 */
+	public onKeyUp(event:KeyboardEvent):void {
+		if(event.key == 'Escape') this.search = ''
 	}
 
 	/**
