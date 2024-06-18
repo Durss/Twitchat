@@ -40,7 +40,7 @@
 			<div class="pagination" v-if="pageCount > 1">
 				<TTButton v-for="i in pageCount" :selected="pageIndex == i-1" @click="pageIndex = i-1">{{ i }}</TTButton>
 			</div>
-			 
+			
 			<div class="sessionlist">
 				<div v-for="(s, index) in $store.qna.activeSessions" :key="s.id" class="user">
 					<TTButton @click="currentSessionIndex = index" :selected="currentSession.id == s.id">{{ s.command }} <i>x{{ s.messages.length }}</i></TTButton>
@@ -73,7 +73,7 @@ import ChatMessageChunksParser from '../messages/components/ChatMessageChunksPar
 	},
 	emits:["close"],
 })
- class QnaList extends AbstractSidePanel {
+class QnaList extends AbstractSidePanel {
 	
 	public overlayAvailable = false;
 	public highlightLoading = true;

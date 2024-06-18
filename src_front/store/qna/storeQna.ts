@@ -97,9 +97,9 @@ export const storeQna = defineStore('qna', {
 			cmd = cmd.toLowerCase();
 			const session = this.activeSessions.find(v=>v.command.toLowerCase() == cmd);
 			//Ignore channel point rewards that are "highlight my message" as they are also
-			//sent as standard image with the "highlight" flag
+			//sent as standard message with the "highlight" flag
 			const isHighlightReward = message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
-				&& (message as TwitchatDataTypes.MessageRewardRedeemData).reward.id == Config.instance.highlightMyMessageReward.id;
+									&& (message as TwitchatDataTypes.MessageRewardRedeemData).reward.id == Config.instance.highlightMyMessageReward.id;
 			if(session && session.open && !isHighlightReward) {
 				//Clone object
 				const clone:any = {};
@@ -112,7 +112,7 @@ export const storeQna = defineStore('qna', {
 				for (let i = 0; i < typedClone.message_chunks!.length; i++) {
 					const c = typedClone.message_chunks![i];
 					if(c.type == "text") {
-						c.value = c.value.replace(new RegExp(cmd, "i"), "").trim();
+						c.value = c.value.replace(new RegExp(cmd, "i"), "").trimStart();
 						if(c.value.length == 0) {
 							typedClone.message_chunks?.splice(i, 1);
 						}

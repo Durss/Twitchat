@@ -39,6 +39,7 @@ class Icon extends Vue {
 		if(this.theme == "secondary") res.push("secondary");
 		if(this.theme == "alert") res.push("alert");
 		if(this.theme == "premium") res.push("premium");
+		if(this.theme == "twitch") res.push("twitch");
 		return res;
 	}
 
@@ -126,6 +127,9 @@ export default toNative(Icon);
 	}
 	&.premium {
 		color: var(--color-premium) !important;
+	}
+	&.twitch {
+		color: var(--color-twitch) !important;
 	}
 }
 </style>

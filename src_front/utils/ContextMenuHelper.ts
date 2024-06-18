@@ -56,7 +56,7 @@ export default class ContextMenuHelper {
 	 */
 	public messageContextMenu(e:MouseEvent|TouchEvent, message:TwitchatDataTypes.ChatMessageTypes, canModerateMessage:boolean=false, canModerateUser:boolean=false, htmlNode:HTMLElement):void {
 		const t		= StoreProxy.i18n.t;
-		const me	= message.platform == "youtube"? StoreProxy.auth.youtube.user : StoreProxy.auth.twitch.user;
+		const myUID	= (message.platform == "youtube"? StoreProxy.auth.youtube.user?.id : StoreProxy.auth.twitch.user?.id) || "";
 		const options:MenuItem[]= [];
 		const px = e.type == "touchstart"? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).x;
 		const py = e.type == "touchstart"? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).y;
@@ -346,8 +346,8 @@ export default class ContextMenuHelper {
 				}
 
 				//Message not posted on our own channel, add a button to ban on our own channel.
-				if(message.channel_id != me.id) {
-					if(message.user.channelInfo[me.id]?.is_banned) {
+				if(message.channel_id != myUID) {
+					if(message.user.channelInfo[myUID]?.is_banned) {
 						options.push({
 								label: t("chat.context_menu.unban_myRoom"),
 								icon: this.getIcon("icons/unban.svg"),
@@ -355,7 +355,7 @@ export default class ContextMenuHelper {
 								onClick: () => {
 									if(message.platform == "twitch" && !TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
 									if(message.platform == "youtube" && !YoutubeHelper.instance.requestScopes([YoutubeScopes.CHAT_MODERATE])) return;
-									this.unbanUser(message, me.id);
+									this.unbanUser(message, myUID);
 								},
 							});
 					}else{
@@ -363,7 +363,7 @@ export default class ContextMenuHelper {
 								label: t("chat.context_menu.ban_myRoom"),
 								icon: this.getIcon("icons/ban.svg"),
 								customClass:classesMod,
-								onClick: () => this.banUser(message, me.id),
+								onClick: () => this.banUser(message, myUID),
 							});
 					}
 				}

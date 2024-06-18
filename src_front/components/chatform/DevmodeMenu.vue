@@ -7,6 +7,8 @@
 			<Button small @click="simulateEvent($event, 'ad_break_approaching')" icon="ad">Commercial approach</Button> -->
 			<Button small @click="simulateCommercialSequence()" icon="ad">Commercial sequence</Button>
 			<Button small @click="simulateCustomMessage()" icon="edit">Custom message</Button>
+			<Button small @click="simulateEvent($event, 'message', 'youtube')" icon="youtube">Youtube message</Button>
+			<Button small @click="simulateEvent($event, 'following', 'youtube')" icon="youtube">Youtube follow</Button>
 			<Button small @click="simulateEvent($event, 'message', 'clip')" icon="clip">Clip link</Button>
 			<Button small @click="simulateEvent($event, 'clip_pending_publication')" icon="clip">Clip creation</Button>
 			<Button small @click="simulateEvent($event, 'twitchat_ad', 'discord')" icon="whispers">Discord</Button>
@@ -269,6 +271,21 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 					m.gift_count = recipients.length;
 					break;
 				}
+
+				case "youtube": {
+					if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+						message.platform = "youtube";
+						message.message = "!q coucou durssSLIP";
+						
+						const chunks = TwitchUtils.parseMessageToChunks(message.message, undefined, true);
+						message.message_chunks = chunks;
+						message.message_html = TwitchUtils.messageChunksToHTML(chunks);
+						message.youtube_liveId = "xxxx";
+					}else
+					if(message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING) {
+						message.platform = "youtube";
+					}
+				}
 			}
 			if(type === TwitchatDataTypes.TwitchatMessageType.CLIP_PENDING_PUBLICATION) {
 				setTimeout(()=>{
@@ -516,6 +533,7 @@ type Subaction = "first"
 				| "my_stream_online"
 				| "my_stream_offline"
 				| "unban_request_solve"
+				| "youtube"
 				| "skin1"
 				| "skin2"
 				| "giantEmote";

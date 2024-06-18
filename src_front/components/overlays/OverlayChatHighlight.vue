@@ -5,7 +5,11 @@
 				<img :src="user.avatarPath">
 			</div>
 			<div class="infos" id="highlight_infos">
-				<div class="login" id="highlight_login" v-if="user">{{user.displayNameOriginal ?? user.displayName}}</div>
+				<div class="login" id="highlight_login" v-if="user">
+					<Icon name="youtube" v-if="user && user.platform == 'youtube'" theme="alert"/>
+					<Icon name="twitch" v-if="user && user.platform == 'twitch'" theme="twitch"/>
+					{{user.displayNameOriginal ?? user.displayName}}
+				</div>
 				<div class="message" id="highlight_message" v-html="message"></div>
 			</div>
 		</div>
@@ -39,11 +43,14 @@ import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import DOMPurify from 'isomorphic-dompurify';
+import Icon from '../Icon.vue';
 
 @Component({
-	components:{}
+	components:{
+		Icon,
+	}
 })
- class OverlayChatHighlight extends Vue {
+class OverlayChatHighlight extends Vue {
 
 	public message:string = "";
 	public clipData:TwitchatDataTypes.ClipInfo|null = null;
@@ -351,6 +358,10 @@ export default toNative(OverlayChatHighlight);
 			.login {
 				font-weight: bold;
 				margin-bottom: .25em;
+				.icon {
+					height: 1em;
+					vertical-align: middle;
+				}
 			}
 			.message {
 				color:var(--color-dark);
