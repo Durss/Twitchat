@@ -9,7 +9,12 @@
 			"add_bt": "Create new grid",
 			"lock_bt_tt": "Lock cell",
 			"shuffle_bt": "Shuffle cells",
-			"reset_bt": "Reset grid",
+			"reset_bt": "Untick all",
+			"clear_labels_bt":"Clear cells",
+			"clear_labels_confirm": {
+				"title":"Clear cells?",
+				"description":"All cells will be cleared.\nThis cannot be undone.."
+			},
 			"param_title": "Grid name",
 			"param_size": "Grid sizes",
 			"param_background_color":"Background color",

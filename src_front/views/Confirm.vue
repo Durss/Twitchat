@@ -176,6 +176,7 @@ export default toNative(Confirm);
 			line-height: 1.25em;
 			margin-top: 1em;
 			text-align: center;
+			white-space: pre-line;
 		}
 
 		.buttons {

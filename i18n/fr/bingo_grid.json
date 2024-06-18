@@ -9,7 +9,12 @@
 			"add_bt":"Créer une nouvelle grille",
 			"lock_bt_tt":"Vérouiller cette case",
 			"shuffle_bt":"Mélanger les entrées",
-			"reset_bt":"Réinitialiser la grille",
+			"reset_bt":"Tout décocher",
+			"clear_labels_bt":"Effacer les cases",
+			"clear_labels_confirm": {
+				"title":"Tout effacer ?",
+				"description":"Toutes les cases seront vidées.\nCette action est irreversible."
+			},
 			"param_title":"Nom de la grille",
 			"param_size":"Taille de la grille",
 			"param_background_color":"Couleur de fond",

@@ -38,7 +38,6 @@ export default class SSEController extends AbstractController {
 		if(!responses) return false;
 		responses.forEach(params => {
 			this.schedulePing(params);
-			console.log(params);
 			params.connection.sse({id:Utils.getUUID(), data:JSON.stringify({success:true, code, data})})
 		})
 		return true;

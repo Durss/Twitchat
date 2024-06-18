@@ -321,14 +321,19 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 		},
 
 		resetLabels(id:string):void {
-			const grid = this.gridList.find(g => g.id === id);
-			if(!grid) return;
-			const entries = grid.entries;
-			for (let i = 0; i < entries.length; i++) {
-				if(entries[i].lock) continue;
-				entries[i].label = "";
-			}
-			this.saveData(id);
+			StoreProxy.main.confirm(
+				StoreProxy.i18n.t("bingo_grid.form.clear_labels_confirm.title"),
+				StoreProxy.i18n.t("bingo_grid.form.clear_labels_confirm.description"),
+			).then(()=>{
+				const grid = this.gridList.find(g => g.id === id);
+				if(!grid) return;
+				const entries = grid.entries;
+				for (let i = 0; i < entries.length; i++) {
+					if(entries[i].lock) continue;
+					entries[i].label = "";
+				}
+				this.saveData(id);
+			}).catch(()=>{})
 		},
 
 		resetCheckStates(id:string, forcedState?:boolean, callEndpoint:boolean = true):void {
