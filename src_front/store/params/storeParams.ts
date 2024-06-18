@@ -463,6 +463,11 @@ export const storeParams = defineStore('params', {
 				}else
 				if(decrement) e.order--;
 			}
+			//Move "greet them" and "panels" to the last col if they were enabled
+			//on the deleted col
+			if(column.showPanelsHere) this.chatColumnsConfig[this.chatColumnsConfig.length-1].showPanelsHere = true;
+			if(column.showGreetHere) this.chatColumnsConfig[this.chatColumnsConfig.length-1].showGreetHere = true;
+			
 			this.saveChatColumnConfs();
 			PublicAPI.instance.broadcast(TwitchatEvent.SET_COLS_COUNT, {count:this.chatColumnsConfig.length});
 		},
