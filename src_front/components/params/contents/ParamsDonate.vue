@@ -10,8 +10,8 @@
 		</div>
 
 		<div class="paypalFormHolder" v-if="!success">
-			<div :class="formClasses">
-				<div class="amountHolder">
+			<div class="amount">
+				<div :class="formClasses">
 					<div class="form">
 						<span class="label">{{ $t("donate.amount") }}</span>
 						<input class="value" type="number" min="3" max="999999" v-model="amount" /><span class="currency">€</span>
@@ -21,9 +21,18 @@
 							<strong>{{ taxedAmount }}</strong>
 						</template>
 					</i18n-t>
+					
+					<div class="giftHolder">
+						<TTButton v-if="!giftForm" @click="giftForm = true" light :premium="premium" :secondary="!premium">{{ $t("donate.gift_bt") }}</TTButton>
+						<template v-else>
+							<SearchUserForm v-model="giftedUser" @close="giftForm = false; giftedUser = null;"></SearchUserForm>
+						</template>
+					</div>
 				</div>
-				<div class="premiumLabel" ref="premiumLabel"><Icon name="premium" theme="light" />{{ $t("donate.lifetime_premium") }}</div>
-				<div class="emoji">
+
+				<div :class="premium? 'premiumLabel premium' : 'premiumLabel'" ref="premiumLabel"><Icon name="premium" theme="light" />{{ $t("donate.lifetime_premium") }}</div>
+				
+				<div :class="premium? 'emoji premium' : 'emoji'">
 					<div class="subHolder">
 						<svg class="heart" ref="heart" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
 						x="0px" y="0px" viewBox="0 0 208.6 202.5" v-for="index in 3">
@@ -116,6 +125,7 @@
 					</div>
 				</div>
 			</div>
+
 			<div id="paypal-form-container"></div>
 		</div>
 
@@ -166,21 +176,28 @@ import { watch } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import ParamsDonorList from './ParamsDonorList.vue';
+import SearchUserForm from '@/components/params/contents/donate/SearchUserForm.vue'
+import { TTButton } from '@/components/TTButton.vue';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 
 @Component({
 	components:{
+		TTButton,
 		ParamItem,
 		DonorBadge,
 		ToggleBlock,
 		SponsorTable,
+		SearchUserForm,
 		ParamsDonorList,
 	},
 	emits:[],
 })
- class ParamsDonate extends Vue {
+class ParamsDonate extends Vue {
 
 	public loading:boolean = true;
 	public premium:boolean = false;
+	public giftedUser:TwitchDataTypes.UserInfo|null = null;
+	public giftForm:boolean = false;
 	public paypalError:boolean = false;
 	public success:boolean = false;
 	public criticalError:boolean = false;
@@ -192,7 +209,7 @@ import ParamsDonorList from './ParamsDonorList.vue';
 	private buttons:PAYPAL_BUTTON[] = [];
 
 	public get formClasses():string[] {
-		const res = ["card-item", "amount", "secondary"];
+		const res = ["card-item", "amountHolder", "secondary"];
 		if(this.premium) res.push("premium")
 		return res;
 	}
@@ -349,6 +366,7 @@ import ParamsDonorList from './ParamsDonorList.vue';
 						obj[key] = data[key as orderKeys] as string;
 					}
 					try {
+						if(this.giftedUser) obj.giftUserId = this.giftedUser.id;
 						const orderRes = await ApiHelper.call("paypal/complete_order", "POST", obj as typeof PAYPAL_ORDER);
 						if(orderRes.json.success === true) {
 							await this.$store.auth.loadUserState(this.$store.auth.twitch.user.id);
@@ -512,7 +530,7 @@ import ParamsDonorList from './ParamsDonorList.vue';
 		}
 
 		const premiumLabel = this.$refs.premiumLabel as HTMLDivElement;
-		premiumLabel.style.transform = "translate(0, calc(100% - .5em)) scaleY("+(this.premium? 1 : 0)+")"
+		premiumLabel.style.transform = "translate(.0, .75em) scaleY("+(this.premium? 1 : 0)+")"
 	}
 }
 export default toNative(ParamsDonate);
@@ -548,15 +566,16 @@ export default toNative(ParamsDonate);
 			align-items: center;
 			margin: .5em auto;
 			overflow: visible;
-			z-index: 101;//Go over paypal buttons
+			z-index: 103;//Go over paypal buttons
 			position: relative;
-			padding: .5em;
-			padding-right: 3.5em;
-			transition: background-color .5s;
 			.amountHolder {
 				gap: .25em;
 				display: flex;
 				flex-direction: column;
+				padding-right: 3em;
+				margin-right: -3em;
+				transition: background-color .5s;
+				overflow: visible;
 				// align-items: flex-end;
 				.form {
 					display: flex;
@@ -586,14 +605,17 @@ export default toNative(ParamsDonate);
 					border-radius: var(--border-radius);
 					background-color: var(--color-dark-fadest);
 				}
+				.giftHolder {
+					display: flex;
+					flex-direction: column;
+					z-index: 2;
+					font-size: 1rem;
+				}
 			}
-
 			.premiumLabel {
 				position: absolute;
 				bottom: 0;
-				background-color: inherit;
 				transform-origin: center .5em;
-				transition: transform .25s;
 				left: 0;
 				text-align: center;
 				border-radius: 1em;
@@ -603,281 +625,289 @@ export default toNative(ParamsDonate);
 				white-space: nowrap;
 				width: fit-content;
 				transform: scale(0);
+				transition: transform .25s, background-color .5s;
+				background-color: var(--color-secondary);
+				&.premium {
+					background-color: var(--color-premium);
+				}
 				.icon {
 					height: 1em;
 					margin-right: .5em;
 					vertical-align: middle;
 				}
 			}
-
-			.emoji {
-				font-size: 1.25em;
-				right: -1.5em;
-				background-color: inherit;
-				border-radius: 50%;
-				position: absolute;
-				width: 4em;
-				height: 4em;
-				padding: .5em;
+		}
+		.emoji {
+			font-size: 1.5em;
+			// right: -2em;
+			background-color: var(--color-secondary);
+			border-radius: 50%;
+			// position: absolute;
+			width: 4em;
+			height: 4em;
+			padding: .5em;
+			z-index: 102;
+			pointer-events: none;
+			transition: background-color .5s;
+			&.premium {
+				background-color: var(--color-premium);
+			}
+			.subHolder {
 				z-index: 1;
-				pointer-events: none;
-				.subHolder {
-					z-index: 1;
-					position: relative;
-					svg {
-						height: 3em;
-						width: fit-content;
-						overflow: visible;
+				position: relative;
+				svg {
+					height: 3em;
+					width: fit-content;
+					overflow: visible;
+				}
+
+				.eyeL, .eyeR {
+					width: .5em;
+					height: .5em;
+					background: #664e27;
+					border-radius: 50%;
+					position: absolute;
+					top: 1em;
+					left: .75em;
+					&.evil {
+						background-color: #ff0000;
 					}
-	
-					.eyeL, .eyeR {
-						width: .5em;
-						height: .5em;
-						background: #664e27;
-						border-radius: 50%;
-						position: absolute;
-						top: 1em;
-						left: .75em;
-						&.evil {
-							background-color: #ff0000;
-						}
+				}
+				.eyeR{
+					left:auto;
+					right: .75em;
+				}
+
+				.eyeLBg, .eyeRBg {
+					width: 1em;
+					height: 1em;
+					background: white;
+					border-radius: 50%;
+					position: absolute;
+					top: .75em;
+					left: .4em;
+					transition: all .2s;
+					transform: scale(.8);
+					transform-origin: center center;
+					background-size: 150% 100%;
+					&.eyeRBg {
+						background-position: 100%;
 					}
-					.eyeR{
-						left:auto;
-						right: .75em;
-					}
-	
-					.eyeLBg, .eyeRBg {
-						width: 1em;
-						height: 1em;
-						background: white;
-						border-radius: 50%;
-						position: absolute;
-						top: .75em;
-						left: .4em;
-						transition: all .2s;
-						transform: scale(.8);
-						transform-origin: center center;
+					&.red {
+						background: radial-gradient(circle, rgb(255, 216, 216) 30%, rgba(252,70,107,1) 100%);
 						background-size: 150% 100%;
-						&.eyeRBg {
-							background-position: 100%;
-						}
-						&.red {
-							background: radial-gradient(circle, rgb(255, 216, 216) 30%, rgba(252,70,107,1) 100%);
-							background-size: 150% 100%;
-							background-position: 100%;
-						}
-						&.eyeLBg.red {
-							background-position: 0;
-						}
-						&.evil {
-							background-color: #000;
-						}
+						background-position: 100%;
 					}
-					.eyeRBg{
-						left:auto;
-						right: .4em;
+					&.eyeLBg.red {
+						background-position: 0;
 					}
-	
-					.eyebrow {
-						transition: all .2s;
+					&.evil {
+						background-color: #000;
 					}
-	
-					.mouthBg {
-						background-color: #ffdd67;
-						// background-color: red;
-						border-radius: .5em;
-						position: absolute;
-						top: 2em;
-						left: .95em;
-						width: 1.05em;
-						height: .85em;
-						transition: all .2s;
-					}
-	
-					.mouth {
-						background: #664e27;
-						border-radius: 1em;
-						position: absolute;
-						top: 1.9em;
-						left: 1.05em;
-						width: .85em;
-						height: .85em;
-						transition: all .2s;
-					}
-	
-					.tongue {
-						background: #c00;
-						border-radius: 1em;
-						position: absolute;
-						top: 2.5em;
-						left: 1.25em;
-						width: .5em;
-						height: 0em;
-						transition: all .2s;
-						&::before {
-							content: "";
-							width: 1px;
-							border-left: 1px solid rgba(255, 255, 255, .1);
-							border-right: 1px solid rgba(0, 0, 0, .1);
-							height: calc(100% - .5em);
-							top: .25em;
-							left: .22em;
-							display: block;
-							position: relative;
-						}
-					}
-	
-					.teeth {
-						width: .65em;
-						height: .6em;
+				}
+				.eyeRBg{
+					left:auto;
+					right: .4em;
+				}
+
+				.eyebrow {
+					transition: all .2s;
+				}
+
+				.mouthBg {
+					background-color: #ffdd67;
+					// background-color: red;
+					border-radius: .5em;
+					position: absolute;
+					top: 2em;
+					left: .95em;
+					width: 1.05em;
+					height: .85em;
+					transition: all .2s;
+				}
+
+				.mouth {
+					background: #664e27;
+					border-radius: 1em;
+					position: absolute;
+					top: 1.9em;
+					left: 1.05em;
+					width: .85em;
+					height: .85em;
+					transition: all .2s;
+				}
+
+				.tongue {
+					background: #c00;
+					border-radius: 1em;
+					position: absolute;
+					top: 2.5em;
+					left: 1.25em;
+					width: .5em;
+					height: 0em;
+					transition: all .2s;
+					&::before {
+						content: "";
+						width: 1px;
+						border-left: 1px solid rgba(255, 255, 255, .1);
+						border-right: 1px solid rgba(0, 0, 0, .1);
+						height: calc(100% - .5em);
+						top: .25em;
+						left: .22em;
 						display: block;
-						background-color: white;
-						border-radius: 50%;
-						top: 2em;
-						left: 1.15em;
-						position: absolute;
-						clip-path: polygon(0% 0%, 100% 0%, 100% 30%, 0% 30%);
-						transition: all .2s;
+						position: relative;
 					}
-	
-					#heart-shape-gradient {
-						--heart-color-bot: var(--color-alert-dark);
-						--heart-color-stop: var(--color-alert-light);
+				}
+
+				.teeth {
+					width: .65em;
+					height: .6em;
+					display: block;
+					background-color: white;
+					border-radius: 50%;
+					top: 2em;
+					left: 1.15em;
+					position: absolute;
+					clip-path: polygon(0% 0%, 100% 0%, 100% 30%, 0% 30%);
+					transition: all .2s;
+				}
+
+				#heart-shape-gradient {
+					--heart-color-bot: var(--color-alert-dark);
+					--heart-color-stop: var(--color-alert-light);
+				}
+
+				.heart {
+					position: absolute;
+					fill: url(#heart-shape-gradient);
+					z-index: -1;
+					right: .5em;
+					bottom: 95%;
+					width: 2em;
+					height: 2em;
+					transition: all .2s;
+					transform-origin: bottom center;
+					transform: scale(0);
+					&:nth-of-type(1), &:nth-of-type(2) {
+						filter: brightness(.75);
 					}
-	
-					.heart {
+				}
+
+				.cloud {
+					position: absolute;
+					left: 0em;
+					bottom: 90%;
+					z-index: -1;
+					transition: all .2s;
+					transform: scale(0);
+					transform-origin: bottom center;
+					&.evil {
+						filter: brightness(0.6) contrast(400%) hue-rotate(151deg);
+					}
+				}
+
+				.flares {
+					position: absolute;
+					z-index: -2;
+					transition: all .2s;
+					width: 100%;
+					height: 100%;
+					transform: scale(0);
+					.flare {
 						position: absolute;
-						fill: url(#heart-shape-gradient);
-						z-index: -1;
-						right: .5em;
-						bottom: 95%;
-						width: 2em;
-						height: 2em;
 						transition: all .2s;
-						transform-origin: bottom center;
-						transform: scale(0);
-						&:nth-of-type(1), &:nth-of-type(2) {
-							filter: brightness(.75);
+						animation: rotate 2s infinite linear;
+						transform-origin: center;
+						// transform-origin: 1.5em 1.5em;
+						// transform-origin: 394px 388px;
+						// left: 1em;
+						@keyframes rotate {
+							0% {
+								transform: rotate(0deg) scale(1);
+							}
+							50% {
+								transform: rotate(180deg) scale(1.5);
+							}
+							100% {
+								transform: rotate(360deg) scale(1);
+							}
 						}
-					}
-	
-					.cloud {
-						position: absolute;
-						left: 0em;
-						bottom: 90%;
-						z-index: -1;
-						transition: all .2s;
-						transform: scale(0);
-						transform-origin: bottom center;
-						&.evil {
-							filter: brightness(0.6) contrast(400%) hue-rotate(151deg);
-						}
-					}
-	
-					.flares {
-						position: absolute;
-						z-index: -2;
-						transition: all .2s;
-						width: 100%;
-						height: 100%;
-						transform: scale(0);
-						.flare {
-							position: absolute;
+						* {
 							transition: all .2s;
-							animation: rotate 2s infinite linear;
-							transform-origin: center;
-							// transform-origin: 1.5em 1.5em;
-							// transform-origin: 394px 388px;
-							// left: 1em;
-							@keyframes rotate {
-								0% {
-									transform: rotate(0deg) scale(1);
-								}
-								50% {
-									transform: rotate(180deg) scale(1.5);
-								}
-								100% {
-									transform: rotate(360deg) scale(1);
-								}
-							}
-							* {
-								transition: all .2s;
-							}
-							&.big {
-								animation-duration: 3s;
-								width: 120%;
-								height: 120%;
-								left: -10%;
-								top: -10%;
-							}
-							.evil {
+						}
+						&.big {
+							animation-duration: 3s;
+							width: 120%;
+							height: 120%;
+							left: -10%;
+							top: -10%;
+						}
+						.evil {
+							opacity:0;
+						}
+					}
+					&.evil {
+						animation: none;
+						.flare {
+							*:not(.evil) {
 								opacity:0;
 							}
-						}
-						&.evil {
-							animation: none;
-							.flare {
-								*:not(.evil) {
-									opacity:0;
-								}
-								.evil {
-									opacity:1;
-								}
+							.evil {
+								opacity:1;
 							}
 						}
 					}
+				}
 
-					.question {
-						position: absolute;
-						bottom: 90%;
-						left: .2em;
-						font-weight: bold;
-						font-family: "Roboto";
-						font-size: 2em;
-						display: flex;
-						align-items: flex-end;
-						transition: all .2s;
-						transform-origin: bottom center;
-						transform: scale(0);
-						span {
-							display: inline-block;
-						}
-						span:nth-child(1) {
-							font-size: .7em;
-							transform: rotate(-25deg);
-						}
-						span:nth-child(3) {
-							font-size: .7em;
-							transform: rotate(25deg);
-						}
+				.question {
+					position: absolute;
+					bottom: 90%;
+					left: .2em;
+					font-weight: bold;
+					font-family: "Roboto";
+					font-size: 2em;
+					display: flex;
+					align-items: flex-end;
+					transition: all .2s;
+					transform-origin: bottom center;
+					transform: scale(0);
+					span {
+						display: inline-block;
 					}
+					span:nth-child(1) {
+						font-size: .7em;
+						transform: rotate(-25deg);
+					}
+					span:nth-child(3) {
+						font-size: .7em;
+						transform: rotate(25deg);
+					}
+				}
 
-					.dirtyEyes {
-						position: absolute;
-						bottom: 90%;
-						left: .4em;
-						top: 1.7em;
-						font-weight: bold;
-						font-size: .8em;
-						display: flex;
-						align-items: center;
-						transition: all .2s;
-						transform-origin: center top;
-						letter-spacing: .2em;
-						transform: scale(0);
-					}
-					.easterEgg {
-						font-size: 1em;
-						right: 55px;
-						white-space: nowrap;
-						position: absolute;
-						padding: .5em 1em;
-						transform: translateY(10px) scale(.5);
-						transform-origin: right bottom;
-						background: var(--color-alert);
-						border-radius: var(--border-radius);
-					}
+				.dirtyEyes {
+					position: absolute;
+					bottom: 90%;
+					left: .4em;
+					top: 1.7em;
+					font-weight: bold;
+					font-size: .8em;
+					display: flex;
+					align-items: center;
+					transition: all .2s;
+					transform-origin: center top;
+					letter-spacing: .2em;
+					transform: scale(0);
+				}
+				.easterEgg {
+					font-size: 1em;
+					right: 55px;
+					white-space: nowrap;
+					position: absolute;
+					padding: .5em 1em;
+					transform: translateY(10px) scale(.5);
+					transform-origin: right bottom;
+					background: var(--color-alert);
+					border-radius: var(--border-radius);
 				}
 			}
 		}

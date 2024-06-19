@@ -3,6 +3,7 @@ import fetch from "node-fetch";
 import Config from "../utils/Config.js";
 import Logger from "../utils/Logger.js";
 import AbstractController from "./AbstractController.js";
+import TwitchUtils, { TwitchUserInfos } from "../utils/TwitchUtils.js";
 
 /**
 * Created : 17/08/2023 
@@ -102,6 +103,8 @@ export default class PaypalController extends AbstractController {
 		
 		const token = await this.getToken();
 		const body:any = request.body;
+		const giftedUserId = body.giftedUser;
+		let giftedUser:TwitchUserInfos|null = null;
 		let errorMessage = "";
 
 		try {
@@ -134,7 +137,16 @@ export default class PaypalController extends AbstractController {
 			if(json.status == "COMPLETED") {
 				//Checkout succeed
 				const payment = json.purchase_units[0].payments.captures[0].seller_receivable_breakdown;
-				const params = {
+				const params:{
+					twitchUID:string,
+					twitchLogin:string,
+					gifterUID?:string,
+					gifterLogin?:string,
+					amount:number,
+					fees:number,
+					payerID:string,
+					payerEmail:string,
+				} = {
 					twitchUID:twitchUser.user_id,
 					twitchLogin:twitchUser.login,
 					amount:parseFloat(payment.gross_amount.value),
@@ -142,6 +154,22 @@ export default class PaypalController extends AbstractController {
 					payerID:json.payer.payer_id,
 					payerEmail:json.payer.email_address,
 				};
+				if(giftedUserId) {
+					const result = await TwitchUtils.getUsers(undefined, [giftedUserId]);
+					if(result && result.length > 0) {
+						giftedUser = result[0];
+						params.gifterUID	= params.twitchUID;
+						params.gifterLogin	= params.twitchLogin;
+						params.twitchUID	= giftedUser.id;
+						params.twitchLogin	= giftedUser.login;
+					}else{
+						Logger.error("Gifted user not found !")
+						response.header('Content-Type', 'application/json');
+						response.status(404);
+						response.send(JSON.stringify({success:false, error:"Gifted user ID #"+giftedUserId+" not found on Twitch", errorCode:"GIFTED_USER_NOT_FOUND"}));
+						return;
+					}
+				}
 				
 				//Add donor to donor list via remote service
 				const resRemote = await fetch(Config.DONORS_REMOTE_ENDPOINT+"api/donate", {
@@ -154,13 +182,17 @@ export default class PaypalController extends AbstractController {
 				});
 				const jsonRemote = await resRemote.json();
 				if(!jsonRemote.success) {
-					//User properly added to list
+					//Failed adding user to list :(
 					Logger.error("Failed adding user \""+twitchUser.login+"\" to remote donor list ("+params.amount+"€)");
 					console.log(params);
 					errorMessage = "Your payment has been successfully processed but somehting went wrong when registering you to the donors list. It should be done soon but feel free to ping me @durss on Twitch"
 				}else{
-					//Failed adding user to list :(
-					Logger.success("User \""+twitchUser.login+"\" added to donors ("+params.amount+"€)");
+					//User properly added to list
+					if(params.gifterLogin) {
+						Logger.success("User \""+params.gifterLogin+"\" gifted "+params.amount+"€ to "+twitchUser.login);
+					}else{
+						Logger.success("User \""+twitchUser.login+"\" added to donors ("+params.amount+"€)");
+					}
 						
 					response.header('Content-Type', 'application/json');
 					response.status(200);
@@ -173,7 +205,7 @@ export default class PaypalController extends AbstractController {
 			console.log(error);
 			response.header('Content-Type', 'application/json');
 			response.status(500);
-			response.send(JSON.stringify({message:error, success:false}));
+			response.send(JSON.stringify({success:false, error}));
 			return;
 		}
 		

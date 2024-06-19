@@ -236,6 +236,51 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Search for users
+	 *
+	 * @param logins
+	 * @returns
+	 */
+	public static async searchUser(search:string, maxLength:number = 15): Promise<TwitchDataTypes.UserInfo[]> {
+		search = search.trim().toLowerCase();
+		let users: TwitchDataTypes.UserInfo[] = [];
+		const url = new URL(Config.instance.TWITCH_API_PATH + "search/channels");
+		url.searchParams.append("query", search);
+		url.searchParams.append("first", "100");
+		//Twitch search endpoint is terribly bad.
+		//The exact mathc may not be returned because it sorts results in the
+		//most terrible way.
+		//We first search for the exact match in case it exists to return it first
+		//later
+		const bestResult = await this.getUserInfo(undefined, [search]);
+		const result = await this.callApi(url, { headers: this.headers });
+		if (result.status === 200) {
+			const json = await result.json();
+			const list = json.data as TwitchDataTypes.LiveChannelSearchResult[];
+			list.sort((a, b) => {
+				if (a.broadcaster_login.toLowerCase() == search) return -1;
+				if (b.broadcaster_login.toLowerCase() == search) return -1;
+				return a.broadcaster_login.localeCompare(b.broadcaster_login, 'en', { sensitivity: 'base' });
+			});
+			const users = (await this.getUserInfo(list.slice(0, maxLength)
+			.map(v=>v.id)) || []).sort((a, b) => {
+				if (a.login.toLowerCase() == search) return -1;
+				if (b.login.toLowerCase() == search) return -1;
+				return a.login.localeCompare(b.login, 'en', { sensitivity: 'base' });
+			});
+			if(users.findIndex(v=>v.login === search) === -1 && bestResult.length > 0) {
+				users.unshift(bestResult[0]);
+			}
+			return users.slice(0, maxLength);
+		} else if (result.status == 429) {
+			//Rate limit reached, try again after it's reset to fulle
+			await this.onRateLimit(result.headers, url.pathname, 1);
+			return await this.searchUser(search)
+		}
+		return users;
+	}
+
+	/**
 	 * Gets latest stream's info.
 	 *
 	 * @param logins

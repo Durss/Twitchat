@@ -1,0 +1,165 @@
+<template>
+	<div class="searchuserform">
+		<div class="gifed" v-if="modelValue">
+			<a :href="'https://twitch.tv/'+modelValue.login" class="user" target="_blank">
+				<span class="giftIcon">🎁</span>
+				<img :src="modelValue.profile_image_url" alt="avatar">
+				<div class="login">{{ modelValue.display_name }}</div>
+				<Icon name="newtab" />
+				<TTButton icon="cross" alert noBounce @click.capture.prevent="$emit('close');"></TTButton>
+			</a>
+		</div>
+		<template v-else>
+			<form @submit.prevent>
+				<input class="giftedInput" type="text"
+					maxlength="25"
+					:placeholder="$t('global.login_placeholder')"
+					v-model="search"
+					@input="onSearch()"
+					@keydown.stop="onKeyDown($event)"
+					v-autofocus>
+				<Icon v-if="searching" name="loader" class="loader" />
+				<TTButton v-else icon="cross" class="cancel" transparent noBounce @click="$emit('close')"></TTButton>
+			</form>
+			<div class="userList" v-if="users.length > 0">
+				<button class="user"
+				type="button"
+				v-for="user in users"
+				:key="user.id"
+				@click="selectUser(user)">
+					<img :src="user.profile_image_url" alt="avatar">
+					<div class="login">{{ user.display_name }}</div>
+				</button>
+			</div>
+		</template>
+	</div>
+</template>
+
+<script lang="ts">
+import Icon from '@/components/Icon.vue';
+import { TTButton } from '@/components/TTButton.vue';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+
+@Component({
+	components:{
+		Icon,
+		TTButton,
+	},
+	emits:["close", "update:modelValue"],
+})
+class SearchUserForm extends Vue {
+	@Prop()
+	public modelValue?:TwitchDataTypes.UserInfo;
+
+	public search:string = "";
+	public users:TwitchDataTypes.UserInfo[] = []
+	public searching:boolean = false;
+
+	private searchDebounce = -1;
+
+	public onKeyDown(event:KeyboardEvent):void {
+		if(event.key == 'Escape') this.$emit("close");
+	}
+
+	public onSearch():void {
+		this.users = [];
+		this.searching = this.search != "";
+		clearTimeout(this.searchDebounce);
+		if(this.searching) {
+			this.searchDebounce = setTimeout(async () => {
+				this.users = await TwitchUtils.searchUser(this.search) || [];
+				this.searching = false;
+			}, 500);
+		}
+	}
+
+	public selectUser(user:TwitchDataTypes.UserInfo):void {
+		this.$emit("update:modelValue", user);
+	}
+}
+export default toNative(SearchUserForm);
+</script>
+
+<style scoped lang="less">
+.searchuserform{
+	position: relative;
+	form {
+		.loader {
+			height: 1em;
+			width: 1em;
+			position: relative;
+			top: .25em;
+			margin-left: -1.25em;
+		}
+		.cancel {
+			position: relative;
+			top: .25em;
+			margin-left: -1.7em;
+		}
+		input {
+			background-color: var(--grayout-fadest);
+		}
+	}
+
+	.userList{
+		gap: 1px;
+		display: flex;
+		flex-direction: column;
+		position: absolute;
+		padding: .5em;
+		border-radius: var(--border-radius);
+		background: var(--background-color-secondary);
+		width: 100%;
+		.user:hover {
+			background-color: var(--grayout);
+		}
+	}
+	.user {
+		gap: .5em;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		color: var(--color-text);
+		.login {
+			text-overflow: ellipsis;
+			overflow: hidden;
+			flex-grow: 1;
+		}
+		img {
+			height: 2em;
+			border-radius: 50%;
+		}
+	}
+
+	.gifed {
+		background-color: var(--color-light);
+		padding: .25em;
+		border-radius: var(--border-radius);
+		overflow: hidden;
+		.user {
+			color: var(--color-text-inverse);
+			font-weight: normal;
+			text-decoration: none;
+			.icon {
+				height: 1em;
+			}
+		}
+		&:hover {
+			.login {
+				text-decoration: underline;
+			}
+		}
+		.giftIcon {
+			font-size: 1.5em;
+		}
+		.button {
+			position: relative;
+			margin: -.25em;
+			border-radius: 0;
+			align-self: stretch;
+		}
+	}
+}
+</style>

@@ -37,6 +37,7 @@
 				["OVERLAY: Grilles de bingo", "MAX_BINGO_GRIDS", "MAX_BINGO_GRIDS", "MAX_BINGO_GRIDS_PREMIUM"],
 				["OVERLAY: Distorsions intéractives", "MAX_DISTORTION_OVERLAYS", "MAX_DISTORTION_OVERLAYS", "MAX_DISTORTION_OVERLAYS_PREMIUM"],
 				["OVERLAY: Générique de fin", "~", "~", 1],
+				["Grilles de bingo pour viewers", "-", "-", 1],
 				["Support Spotify", 1, 1, 1],
 				["Plugin Stream Deck", 1, 1, 1],
 				["Support Voicemod", 1, 1, 1],

@@ -201,6 +201,8 @@ class VoteAntifa extends Vue {
 		{url:"https://x.com/frogashell/status/1800444233624834543/photo/4", label:"Le RN est anti pauvres"},
 		{url:"https://x.com/frogashell/status/1800444243778867427/photo/1", label:"Le RN est anti écologie"},
 		{url:"https://twitter.com/ProfToujours/status/1801498788328059026", label:"Le programme du RN est raciste"},
+		{url:"https://www.instagram.com/p/C8XN7KbIzPa/", label:"Condensé des mensonges de bardella"},
+		{url:"https://www.instagram.com/p/C8Z5ez8NGjG/", label:"\"On n'a jamais essay l'extrême droite\""},
 		{url:"https://www.instagram.com/p/C8B0zK6iucX", label:"Convaincre d'aller voter"},
 	];
 

@@ -108,7 +108,7 @@ export default class TwitchUtils {
 	 * @param failSafe 
 	 * @returns 
 	 */
-	public static async loadUsers(logins?:string[], ids?:string[], failSafe:boolean = true):Promise<TwitchUserInfos[]|false> {
+	public static async getUsers(logins?:string[], ids?:string[], failSafe:boolean = true):Promise<TwitchUserInfos[]|false> {
 		await this.getClientCredentialToken();//This will refresh the token if necessary
 
 		const url = new URL("https://api.twitch.tv/helix/users");
@@ -148,7 +148,7 @@ export default class TwitchUtils {
 		if(result.status == 401) {
 			this.getClientCredentialToken(true);
 			if(failSafe) {
-				return await this.loadUsers(logins, ids, false);
+				return await this.getUsers(logins, ids, false);
 			}
 		}
 		if(result.status == 200) {
