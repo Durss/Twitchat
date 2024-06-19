@@ -151,7 +151,7 @@ import { watch } from 'vue';
 
 	public async beforeMount(): Promise<void> {
 		this.buildIndex = 0;
-		await new Promise((resolve)=> {
+		new Promise((resolve)=> {
 			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 			(data)=> {
 				this.fakeMessageData = data as TwitchatDataTypes.MessageChatData;
