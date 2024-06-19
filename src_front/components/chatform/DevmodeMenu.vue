@@ -87,6 +87,7 @@
 			<Button small @click="simulateEvent($event, 'stream_offline')" icon="offline">Stream offline</Button>
 			<Button small @click="simulateEvent($event, 'stream_online', 'my_stream_online')" icon="offline">My stream started</Button>
 			<Button small @click="simulateEvent($event, 'stream_offline', 'my_stream_offline')" icon="offline">My stream stoped</Button>
+			<Button small @click="simulateHateRaid()" icon="raid">Hate raid</Button>
 			<Button small @click="openTriggersLogs()" icon="broadcast">Show triggers logs</Button>
 			<Button small @click="openOBSHeatLogs()" icon="obs">Show OBS logs</Button>
 			<Button small @click="exportPubsubHistory()" icon="download" :loading="generatingHistory" v-if="!pubsubHistoryLink">Export events history</Button>
@@ -300,6 +301,27 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 			}
 			this.$store.chat.addMessage(message);
 		}, false);
+	}
+
+	/**
+	 * Simulates a hate raid
+	 */
+	public async simulateHateRaid():Promise<void> {
+		let str = "This is a bad message LUL that should be banned https://google.fr !";
+		let chunks = TwitchUtils.parseMessageToChunks(str, undefined, true);
+		let html = TwitchUtils.messageChunksToHTML(chunks);
+		for (let i = 0; i < 10; i++) {
+			await this.$store.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, async (m)=> {
+				//This is a test to make sure that if a regular user sends the same message before
+				//the fith occurence of a 1st time chatter, it properly resets the anti hate raid counter
+				// m.twitch_isFirstMessage = i>0 && i%5 != 0;
+				m.twitch_isFirstMessage = true;
+				m.message = str;
+				m.message_chunks = chunks;
+				m.message_html = html;
+				this.$store.chat.addMessage(m);
+			}, false);
+		}
 	}
 
 	public openTriggersLogs():void {

@@ -24,6 +24,8 @@
 		"stopStreamOnRaid": "Cut OBS stream after a raid",
 		"showUserPronouns": "Show user pronouns",
 		"showUserPronouns_based_on": "based on {URL1} and {URL2}",
+		"antiHateRaid": "Anti hate raid\n(If multiple 1st time chatter send the same message, parts of this message will be added to your blocked terms to prevent more users to send it.\nDisabled for 3min after receiving an actual Twitch raid.\nDisabled if other regular viewer also send the same message.)",
+		"antiHateRaidDeleteMessage": "Delete messages that triggers the anti hate raid",
 		"chatShoutout": "Chat message shoutout",
 		"chatShoutout_info": "Send this message when doing a /shoutout",
 		"scope_missing": "Needs a missing Twitch permission",

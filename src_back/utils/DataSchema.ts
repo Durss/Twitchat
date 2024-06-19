@@ -798,6 +798,8 @@ const UserDataSchema = {
 		"p:mergeConsecutive_maxSizeTotal": {type:"integer", minimum:10, maximum:2000},
 		"p:mergeConsecutive_minDuration": {type:"integer", minimum:0, maximum:3600},
 		"p:autoTranslateFirst": {type:"boolean"},
+		"p:antiHateRaid": {type:"boolean"},
+		"p:antiHateRaidDeleteMessage": {type:"boolean"},
 		"p:autoTranslateFirstLang":{
 			type:"array",
 			minItems:0,

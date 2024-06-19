@@ -24,6 +24,8 @@
 		"stopStreamOnRaid": "Couper le stream OBS après avoir effectué un raid",
 		"showUserPronouns": "Afficher les pronoms",
 		"showUserPronouns_based_on": "basé sur {URL1} et {URL2}",
+		"antiHateRaid": "Anti raid haineux\n(Si 5 personnes parlant pour la 1ère fois dans le tchat envoient le même message, des morceaux de ce message seront ajoutés aux termes bloqués pour empêcher les envois suivants.\nNe s'applique pas durant 3min après avoir reçu un raid Twitch.\nNe s'applique pas si d'autres viewers habitué·es envoient aussi le message)",
+		"antiHateRaidDeleteMessage": "Supprimer les mesages ayant déclenché l'anti raid haineux",
 		"chatShoutout": "Message de shoutout",
 		"chatShoutout_info": "Envoyer ce message lorsque vous effectuez un /shoutout",
 		"scope_missing": "Nécessite une autorisation Twitch manquante",

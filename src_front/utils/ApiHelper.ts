@@ -81,7 +81,11 @@ export default class ApiHelper {
 			if(json.errorCode == "RATE_LIMIT_BAN") {
 				StoreProxy.common.alert( StoreProxy.i18n.t("error.rate_limit_ban", {MAIL:Config.instance.CONTACT_MAIL}), true );
 			}else{
-				StoreProxy.common.alert( StoreProxy.i18n.t("error.rate_limit") );
+				if(endpoint == "google/translate") {
+					StoreProxy.common.alert( StoreProxy.i18n.t("error.quota_translation") );
+				}else{
+					StoreProxy.common.alert( StoreProxy.i18n.t("error.rate_limit") );
+				}
 			}
 		}else
 		if(retryOnFail && status != 200 && status != 204 && status != 401 && attemptIndex < 5) {
