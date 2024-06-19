@@ -2,8 +2,7 @@
 	<div :class="classes">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
-		<img src="@/assets/icons/block.svg" alt="mod" class="icon">
-
+		<Icon name="block" />
 		
 		<div class="content">
 			<i18n-t scope="global" :keypath="'chat.blocked_terms.'+messageData.action">
@@ -22,9 +21,12 @@
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Icon from '../Icon.vue';
 
 @Component({
-	components:{},
+	components:{
+		Icon,
+	},
 	emits:['onRead'],
 })
 class ChatAutomodTermsUpdate extends AbstractChatMessage {

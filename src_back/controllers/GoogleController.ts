@@ -252,8 +252,6 @@ export default class GoogleController extends AbstractController {
 				date:dateTs,
 			}
 		}
-
-		this._userTotranslations[userInfo.user_id].count ++;
 		
 		if(this._userTotranslations[userInfo.user_id].date == dateTs
 		&& this._userTotranslations[userInfo.user_id].count >= Config.maxTranslationsPerDay) {
@@ -282,6 +280,8 @@ export default class GoogleController extends AbstractController {
 			response.send(JSON.stringify({success:true, data:{translation:""}}));
 			return;
 		}
+
+		this._userTotranslations[userInfo.user_id].count ++;
 
 		try {
 

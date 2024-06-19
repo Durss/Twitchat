@@ -84,8 +84,8 @@ export default class YoutubeHelper {
 				setTimeout(()=> {
 					//This will start automatic polling session
 					this.getCurrentLiveBroadcast();
+					this.getLastestFollowers();
 				}, 5000)
-				this.getLastestFollowers();
 				// this.getLastestSubscribers();
 			})
 		}

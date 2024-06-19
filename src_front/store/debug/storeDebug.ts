@@ -978,6 +978,21 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.BLOCKED_TERMS: {
+					const m:TwitchatDataTypes.MessageBlockedTermsData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitch",
+						channel_id:uid,
+						type,
+						user:fakeUser,
+						action:"add_blocked",
+						terms:["lorem ipsum"],
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.PINNED: {
 					const pin = await this.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false) ;
 					const m:TwitchatDataTypes.MessagePinData = {
@@ -1605,7 +1620,7 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						id:Utils.getUUID(),
 						noticeId:noticeType,
-						message:StoreProxy.i18n.t("global.moderation_action.shield_on", {USER:user.displayName}),
+						message:StoreProxy.i18n.t("global.moderation_action.shield_on", {MODERATOR:user.displayName}),
 						channel_id:uid,
 						enabled:true,
 						user,

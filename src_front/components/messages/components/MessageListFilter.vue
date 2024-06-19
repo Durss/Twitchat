@@ -467,6 +467,12 @@ export class MessageListFilter extends Vue {
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessageNoticeData>(TwitchatDataTypes.TwitchatMessageType.BLOCKED_TERMS, (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
 			this.loadingPreview = false;
 
 		}else
@@ -1331,10 +1337,11 @@ export default toNative(MessageListFilter);
 			left: 50%;
 			top: 99999px;
 			z-index: 100;
-			background-color: var(--background-color-primary);
+			padding: .5em;
+			background-color: var(--color-text);
+			filter: drop-shadow(0 0 .5em var(--color-text));
 			.preview {
 				background-color: var(--background-color-primary);
-				padding: .25em;
 				border-radius: var(--border-radius);
 				cursor: pointer;
 				.message {

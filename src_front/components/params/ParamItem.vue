@@ -308,6 +308,7 @@
 			:alert="alert || errorLocal"
 			noBackground
 			noPremiumLock
+			v-model="c.value"
 			:autoFade="autoFade"
 			:childLevel="childLevel+1" />
 

@@ -808,6 +808,7 @@ export const storeChat = defineStore('chat', {
 			const sBingoGrid = StoreProxy.bingoGrid;
 			const sAuth = StoreProxy.auth;
 			const s = Date.now();
+			const logTimings = false;//Enable to check for perf issues
 
 			message = reactive(message);
 
@@ -873,6 +874,7 @@ export const storeChat = defineStore('chat', {
 				}
 			}
 
+			if(logTimings) console.log("1", message.id, Date.now() - s);
 			switch(message.type) {
 				case TwitchatDataTypes.TwitchatMessageType.MESSAGE:
 				case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
@@ -1462,6 +1464,7 @@ export const storeChat = defineStore('chat', {
 				}
 			}
 
+			if(logTimings) console.log("2", message.id, Date.now() - s);
 
 			if(TwitchatDataTypes.TranslatableMessageTypesString.hasOwnProperty(message.type)) {
 				const typedMessage = message as TwitchatDataTypes.TranslatableMessage;
@@ -1483,19 +1486,22 @@ export const storeChat = defineStore('chat', {
 				}
 
 				//Check if it's the winning choice of a bingo
-				await sBingo.checkBingoWinner(typedMessage);
+				sBingo.checkBingoWinner(typedMessage);
 
 				//Handle OBS commands
-				await sOBS.handleChatCommand(typedMessage, cmd);
+				sOBS.handleChatCommand(typedMessage, cmd);
 
 				//Handle Emergency commands
-				await sEmergency.handleChatCommand(typedMessage, cmd);
+				sEmergency.handleChatCommand(typedMessage, cmd);
 
 				//Handle Emergency commands
-				await sQna.handleChatCommand(typedMessage, cmd);
+				sQna.handleChatCommand(typedMessage, cmd);
 
 				//Handle Voicemod commands
-				await sVoice.handleChatCommand(typedMessage, cmd);
+				sVoice.handleChatCommand(typedMessage, cmd);
+				
+				//Handle bingo grid commands
+				sBingoGrid.handleChatCommand(typedMessage, cmd);
 
 				//TODO remove this once T4P ends
 				const elapsed = Date.now() - StoreProxy.main.t4pLastDate;
@@ -1507,11 +1513,9 @@ export const storeChat = defineStore('chat', {
 						}
 					})
 				}
-
-				//Handle bingo grid commands
-				await sBingoGrid.handleChatCommand(typedMessage, cmd);
 			}
 
+			if(logTimings) console.log("3", message.id, Date.now() - s);
 
 			//Apply automod rules if requested
 			if(sAutomod.params.enabled === true) {
@@ -1578,6 +1582,7 @@ export const storeChat = defineStore('chat', {
 					}
 				}
 			}
+			if(logTimings) console.log("4", message.id, Date.now() - s);
 
 			//Only save messages to history if requested
 			if(TwitchatDataTypes.DisplayableMessageTypes[message.type] === true) {

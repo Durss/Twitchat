@@ -138,7 +138,7 @@
 				"title": "Lancer une pub ?",
 				"description": "La publicité durera {DURATION}s. Il n'est pas garanti qu'une pub soit réellement lancée."
 			},
-			"stream_title_changed": "Titre du stream mise à jour : \"{TITLE}\"",
+			"stream_title_changed": "Titre du stream mis à jour : \"{TITLE}\"",
 			"user_monitored": "{USER} a été ajouté·e aux personnes suspectes par {MODERATOR}",
 			"user_restricted": "{USER} a été ajouté·e aux personnes restreintes par {MODERATOR}",
 			"user_unflagged": "{USER} a été retiré·e des personnes surveillées par {MODERATOR}",
