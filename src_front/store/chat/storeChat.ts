@@ -15,13 +15,13 @@ import type { PubSubDataTypes } from '@/utils/twitch/PubSubDataTypes';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
-import lande from 'lande';
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonArray, JsonObject } from 'type-fest';
 import { reactive, watch, type UnwrapRef } from 'vue';
 import Database from '../Database';
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy';
 import MessengerProxy from '@/messaging/MessengerProxy';
+import LandeWorker from '@/utils/LandeWorker';
 
 //Don't make this reactive, it kills performances on the long run
 let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -844,30 +844,32 @@ export const storeChat = defineStore('chat', {
 				const translatable = message as TwitchatDataTypes.TranslatableMessage;
 				const text = translatable.message_chunks?.filter(v=>v.type == 'text').map(v=>v.value).join("").trim() || "";
 				if(text.length >= 4 && spokenLanguages.length > 0) {
-					const res = lande ( text );
-					const iso3 = res[0][0] as keyof typeof TranslatableLanguagesMap;
-					//Force to english if confidence is too low as it tends to detect weird languages for basic english messages
-					//Also force english if first returned lang is Affrikaan and second is english.
-					//It detects most english messages as Afrikaan.
-					const lang = (res[0][1] < .6 || (res[0][0] == "afr" && res[1][0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
-					if(lang && !spokenLanguages.includes(lang.iso1)) {
-						const langTarget = (sParams.features.autoTranslateFirstLang.value as string[])[0];
-						ApiHelper.call("google/translate", "GET", {langSource:lang.iso1, langTarget, text:text}, false)
-						.then(res=>{
-							if(res.json.data.translation) {
-								translatable.translation = {
-									flagISO:lang.flag,
-									languageCode:lang.iso1,
-									languageName:lang.name,
-									translation:res.json.data.translation,
+					//Check language of the message from the work
+					LandeWorker.instance.lande(text, (langs)=>{
+						const iso3 = langs[0][0] as keyof typeof TranslatableLanguagesMap;
+						//Force to english if confidence is too low as it tends to detect weird languages for basic english messages
+						//Also force english if first returned lang is Affrikaan and second is english.
+						//It detects most english messages as Afrikaan.
+						const lang = (langs[0][1] < .6 || (langs[0][0] == "afr" && langs[1][0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
+						if(lang && !spokenLanguages.includes(lang.iso1)) {
+							const langTarget = (sParams.features.autoTranslateFirstLang.value as string[])[0];
+							ApiHelper.call("google/translate", "GET", {langSource:lang.iso1, langTarget, text:text}, false)
+							.then(res=>{
+								if(res.json.data.translation) {
+									translatable.translation = {
+										flagISO:lang.flag,
+										languageCode:lang.iso1,
+										languageName:lang.name,
+										translation:res.json.data.translation,
+									}
+									Database.instance.updateMessage(message);
 								}
+							}).catch((error)=>{
+								translatable.translation_failed = true;
 								Database.instance.updateMessage(message);
-							}
-						}).catch((error)=>{
-							translatable.translation_failed = true;
-							Database.instance.updateMessage(message);
-						});
-					}
+							});
+						}
+					})
 				}
 			}
 
@@ -1007,6 +1009,14 @@ export const storeChat = defineStore('chat', {
 											TwitchUtils.addBanword(word.trim());
 											word = "";
 										}
+									}
+									//Delete previous messages if requested
+									if(sParams.features.antiHateRaidDeleteMessage.value == true){
+										antiHateRaidCounter[key].messages.forEach(v=> {
+											if(v.deleted !== true) {
+												this.deleteMessage(v);
+											}
+										})
 									}
 								}
 

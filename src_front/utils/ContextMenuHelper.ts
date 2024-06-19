@@ -20,6 +20,7 @@ import { TwitchScopes } from "./twitch/TwitchScopes";
 import TwitchUtils from "./twitch/TwitchUtils";
 import YoutubeHelper from "./youtube/YoutubeHelper";
 import { YoutubeScopes } from "./youtube/YoutubeScopes";
+import LandeWorker from "./LandeWorker";
 
 /**
 * Created : 07/04/2023
@@ -438,19 +439,20 @@ export default class ContextMenuHelper {
 			const translatable = message as TwitchatDataTypes.TranslatableMessage;
 			const text = translatable.message_chunks?.filter(v=>v.type == 'text').map(v=>v.value).join("").trim() || "";
 			if(text.length >= 4) {
-				const res = lande ( text );
-				const iso3 = res[0][0] as keyof typeof TranslatableLanguagesMap;
-				//Force to english if confidence is too low as it tends to detect weird languages for basic english messages
-				//Also force english if first returned lang is Affrikaan and second is english.
-				//It detects most inglish messages as Afrikaan.
-				const lang = (res[0][1] < .6 || (res[0][0] == "afr" && res[1][0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
-				if(lang && !spokenLanguages.includes(lang.iso1)) {
-					options.push({
-								label: t("chat.context_menu.translate"),
-								icon: this.getIcon("icons/translate.svg"),
-								onClick: () => this.translate(translatable, lang, text),
-							});
-				}
+				LandeWorker.instance.lande(text, (langs)=>{
+					const iso3 = langs[0][0] as keyof typeof TranslatableLanguagesMap;
+					//Force to english if confidence is too low as it tends to detect weird languages for basic english messages
+					//Also force english if first returned lang is Affrikaan and second is english.
+					//It detects most inglish messages as Afrikaan.
+					const lang = (langs[0][1] < .6 || (langs[0][0] == "afr" && langs[1][0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
+					if(lang && !spokenLanguages.includes(lang.iso1)) {
+						options.push({
+									label: t("chat.context_menu.translate"),
+									icon: this.getIcon("icons/translate.svg"),
+									onClick: () => this.translate(translatable, lang, text),
+								});
+					}
+				});
 			}
 		}
 

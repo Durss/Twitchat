@@ -1,0 +1,38 @@
+{
+	"compilerOptions": {
+		"target": "esnext",
+		"module": "esnext",
+		"strict": true,
+		"jsx": "preserve",
+		"moduleResolution": "node",
+		"experimentalDecorators": true,
+		"skipLibCheck": true,
+		"allowJs": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"forceConsistentCasingInFileNames": true,
+		"useDefineForClassFields": true,
+		"sourceMap": true,
+		"ignoreDeprecations": "5.0",
+		"baseUrl": ".",
+		"types": [],
+		"outDir":"./static/lande",
+		"paths": {
+			"@/*": [
+				"src_lande/*"
+			]
+		},
+		"lib": [
+			"es2015",
+			"dom",
+			"dom.iterable",
+			"scripthost"
+		]
+	},
+	"include": [
+		"src_lande/**/*.ts"
+	],
+	"exclude": [
+		"node_modules"
+	]
+}
