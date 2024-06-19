@@ -536,10 +536,6 @@ export namespace TwitchatDataTypes {
 		 */
 		fieldName?:string;
 		/**
-		 * Save configuration to storage on change?
-		 */
-		save?:boolean;
-		/**
 		 * Twitch scopes necessary for this feature. Will disable the component if scope isn't granted
 		 */
 		twitch_scopes?:TwitchScopesString[];

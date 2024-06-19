@@ -733,9 +733,6 @@ export class ParamItem extends Vue {
 			if(this.paramData.value === null) this.paramData.value = "";
 		}
 
-		if(this.paramData.save === true) {
-			this.$store.params.updateParams();
-		}
 		if(this.paramData.type != "number" || this.paramData.value !== "") {
 			const prevValue = this.modelValue;
 			this.$emit("update:modelValue", this.paramData.value);

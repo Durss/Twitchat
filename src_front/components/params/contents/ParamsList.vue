@@ -6,7 +6,7 @@
 		:ref="'entry_'+p.id"
 		v-newflag="(p.storage && (p.storage as any).vnew)? (p.storage as any).vnew : null">
 			<div :class="getClasses(p, key as string)" v-if="buildIndex > index">
-				<ParamItem :paramData="p" noBackground autoFade>
+				<ParamItem :paramData="p" noBackground autoFade v-model="p.value" @change="$store.params.updateParams();">
 					<div v-if="p.id == 212 && p.value === true && !isOBSConnected && !isMissingScope(p)" class="config">
 						<div class="card-item alert">
 							<img src="@/assets/icons/alert.svg">

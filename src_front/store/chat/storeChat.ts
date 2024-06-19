@@ -28,6 +28,8 @@ let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
 let greetedUsersExpire_at:{[key:string]:number} = {};
 let greetedUsersInitialized:boolean = false;
 let subgiftHistory:TwitchatDataTypes.MessageSubscriptionData[] = [];
+let antiHateRaidCounter:{[message:string]:{messages:TwitchatDataTypes.MessageChatData[], date:number}} = {};
+let antiHateRaidGraceEndDate = -1;
 
 export const storeChat = defineStore('chat', {
 	state: () => ({
@@ -980,6 +982,46 @@ export const storeChat = defineStore('chat', {
 							SchedulerHelper.instance.resetAdSchedule(message);
 						}
 
+						//Detect hate raid.
+						if(sParams.features.antiHateRaid.value === true && Date.now() > antiHateRaidGraceEndDate) {
+							const key = message.message_chunks.filter(v=>v.type == "text").join("").toLowerCase();
+							if(message.twitch_isFirstMessage === true) {
+								if(!antiHateRaidCounter[key]) {
+									antiHateRaidCounter[key] = {
+										date:0,
+										messages:[]
+									};
+								}
+								antiHateRaidCounter[key].date = Date.now();
+								antiHateRaidCounter[key].messages.push(message);
+
+								//It's a first time chatter, increment the counter
+								if(antiHateRaidCounter[key].messages.length == 5) {
+									//Ban groups of words to make it a little more bullet proof
+									const chunks = message.message_chunks.filter(v=>v.type == "text").map(v=>v.value).join(" ").split(" ");
+									let word = "";
+									for (let i = 0; i < chunks.length; i++) {
+										const w = chunks[i];
+										word += " "+w;
+										if(word.length > 15) {
+											TwitchUtils.addBanword(word.trim());
+											word = "";
+										}
+									}
+								}
+
+								//Cleanup old cache to free memory
+								let expiredSince = Date.now() - 5*60*1000;
+								for (const key in antiHateRaidCounter) {
+									const element = antiHateRaidCounter[key];
+									if(element.date < expiredSince) delete antiHateRaidCounter[key];
+								}
+							}else if(antiHateRaidCounter[key]) {
+								//It's not a first time reset counter
+								antiHateRaidCounter[key].messages = [];
+							}
+						}
+
 						const wsMessage = {
 							channel:message.channel_id,
 							message:message.message,
@@ -1009,7 +1051,7 @@ export const storeChat = defineStore('chat', {
 						if(message.twitch_isFirstMessage) {
 							//Flag user as new chatter
 							message.user.channelInfo[message.channel_id].is_new = true;
-							PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, wsMessage);
+							// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, wsMessage);
 						}
 
 						//Handle spoiler command
@@ -1141,6 +1183,7 @@ export const storeChat = defineStore('chat', {
 
 				//Incomming raid
 				case TwitchatDataTypes.TwitchatMessageType.RAID: {
+					antiHateRaidGraceEndDate = Date.now() + 3 * 60 * 1000;
 					sStream.lastRaider = message.user;
 					StoreProxy.labels.updateLabelValue("LAST_RAID_NAME", message.user.displayNameOriginal);
 					StoreProxy.labels.updateLabelValue("LAST_RAID_AVATAR", message.user.avatarPath || "", message.user.id);

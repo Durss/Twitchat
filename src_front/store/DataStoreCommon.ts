@@ -101,6 +101,7 @@ export default class DataStoreCommon {
 	public static OVERLAY_LABELS_CACHE:string = "overlayLabelsCache";
 	public static T4P_CHAT_CMD:string = "t4p_chat_cmd";
 	public static ANTIFA_HIDE:string = "antifa_hide";
+	public static USER_ID:string = "userId";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";
@@ -113,6 +114,7 @@ export default class DataStoreCommon {
 	 */
 	protected static UNSYNCED_DATA:string[] = [
 		"syncToserver",
+		this.USER_ID,
 		this.AB_SENTRY,
 		this.OBS_PASS,
 		this.TWITCH_AUTH_TOKEN,
@@ -179,6 +181,7 @@ export default class DataStoreCommon {
 	 * @returns
 	 */
 	public static async save(force:boolean = false, delay:number = 1500):Promise<void> {
+		//override if necessary
 	}
 
 	/**
