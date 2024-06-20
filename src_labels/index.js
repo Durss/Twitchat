@@ -33,7 +33,7 @@ const files = getLabelFilesFrom(rootDir);
 const output = {};
 for(let i=0; i < files.length; i++) {
 	const f = files[i];
-	const keys = f.replace(/\\+/g, "\\").replace(rootDir, "").replace(/\.json$/gi, "").split("\\");
+	const keys = f.replace(rootDir, "").replace(/\.json$/gi, "").split(path.sep);
 	const lang = keys[0];
 	// keys.pop()
 	let json = {};
