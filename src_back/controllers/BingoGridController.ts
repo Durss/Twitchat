@@ -421,7 +421,7 @@ export default class BingoGridController extends AbstractController {
 			const userFilePath = Config.USER_DATA_PATH + uid+".json";
 			let found = fs.existsSync(userFilePath);
 			if(found){
-				const users = await TwitchUtils.loadUsers(undefined, [uid]);
+				const users = await TwitchUtils.getUsers(undefined, [uid]);
 				const username = users && users.length > 0? users[0].display_name : "???";
 				const data = JSON.parse(fs.readFileSync(userFilePath, {encoding:"utf8"}));
 				//TODO strongly type user data for safer read here
