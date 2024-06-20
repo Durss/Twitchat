@@ -263,7 +263,7 @@ export default class UserController extends AbstractController {
 		if(!await this.adminGuard(request, response)) return;
 
 		const files = fs.readdirSync(Config.USER_DATA_PATH);
-		const list = files.filter(v => v.indexOf("_cleanup") == -1 && v.indexOf("_errors") == -1);
+		const list = files.filter(v => v.indexOf("_cleanup") == -1 && v != ".git" && v.indexOf("_errors") == -1);
 		const users:{id:string, date:number}[] = []
 		list.forEach(v => {
 			users.push({
