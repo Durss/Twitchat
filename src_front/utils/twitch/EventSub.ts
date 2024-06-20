@@ -20,6 +20,8 @@ export default class EventSub {
 	private keepalive_timeout_seconds!:number;
 	private lastRecentFollowers:TwitchatDataTypes.MessageFollowingData[] = [];
 	private connectURL:string = "";
+	private debounceAutomodTermsUpdate:number = -1;
+	private debouncedAutomodTerms:TwitchEventSubDataTypes.AutomodTermsUpdateEvent[] = [];
 
 	constructor() {
 		this.connectURL = Config.instance.TWITCH_EVENTSUB_PATH;
@@ -972,16 +974,35 @@ export default class EventSub {
 	 * @param event 
 	 */
 	private async automodTermsUpdate(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AutomodTermsUpdateEvent):Promise<void> {
-		const message:TwitchatDataTypes.MessageBlockedTermsData = {
-			channel_id:event.broadcaster_user_id,
-			date:Date.now(),
-			id:Utils.getUUID(),
-			platform:"twitch",
-			type:TwitchatDataTypes.TwitchatMessageType.BLOCKED_TERMS,
-			user:await StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name),
-			action:event.action,
-			terms:event.terms,
-		}
-		StoreProxy.chat.addMessage(message);
+		//Debounce events and merge them
+		this.debouncedAutomodTerms.push(event);
+		clearTimeout(this.debounceAutomodTermsUpdate);
+		this.debounceAutomodTermsUpdate = setTimeout(async () => {
+			//Sort events by moderators
+			const grouped:{[channelModAction:string]:TwitchEventSubDataTypes.AutomodTermsUpdateEvent[]} = {};
+			this.debouncedAutomodTerms.forEach((t)=> {
+				const key = t.broadcaster_user_id+"_"+t.moderator_user_id+"_"+t.action;
+				if(!grouped[key]) grouped[key] = [];
+				grouped[key].push(t);
+			});
+
+			this.debouncedAutomodTerms = [];
+
+			for (const key in grouped) {
+				const group = grouped[key];
+				const ref = group[0];
+				const message:TwitchatDataTypes.MessageBlockedTermsData = {
+					channel_id:ref.broadcaster_user_id,
+					date:Date.now(),
+					id:Utils.getUUID(),
+					platform:"twitch",
+					type:TwitchatDataTypes.TwitchatMessageType.BLOCKED_TERMS,
+					user:await StoreProxy.users.getUserFrom("twitch", ref.broadcaster_user_id, ref.moderator_user_id, ref.moderator_user_login, ref.moderator_user_name),
+					action:ref.action,
+					terms:group.map(v=>v.terms).flat(),
+				}
+				StoreProxy.chat.addMessage(message);
+			}
+		}, 1000);
 	}
 }

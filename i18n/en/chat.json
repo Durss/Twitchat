@@ -467,6 +467,13 @@
 			"add_blocked":"{USER} added {TERMS} to blocked terms",
 			"remove_permitted":"{USER} removed {TERMS} from permitted terms",
 			"remove_blocked":"{USER} removed {TERMS} from blocked terms"
+		},
+		"hate_raid": {
+			"title": "A hate raid has been detected.\nFollowing terms has been added to your Twitch blocked terms:",
+			"users": "Users that triggered the anti hate raid:",
+			"cancel_bt":"Unblock terms",
+			"banUsers_bt":"Ban users",
+			"footer":"Check your blocked terms and how many they've been blocked"
 		}
 	}
 }

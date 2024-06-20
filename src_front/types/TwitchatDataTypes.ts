@@ -1947,6 +1947,7 @@ export namespace TwitchatDataTypes {
 		HYPE_CHAT:"hype_chat",
 		FOLLOWING:"following",
 		COUNTDOWN:"countdown",
+		HATE_RAID:"hate_raid",
 		BINGO_GRID:"bingo_grid",
 		QNA_DELETE:"qna_delete",
 		CLEAR_CHAT:"clear_chat",
@@ -2039,6 +2040,7 @@ export namespace TwitchatDataTypes {
 		voicemod:false,
 		following:true,
 		countdown:true,
+		hate_raid:true,
 		streamlabs:true,
 		clear_chat:true,
 		disconnect:true,
@@ -2212,6 +2214,7 @@ export namespace TwitchatDataTypes {
 									| MessageBingoGridViewerData
 									| MessageTwitchCelebrationData
 									| MessageBlockedTermsData
+									| MessageHateRaidData
 	;
 
 	/**
@@ -2269,7 +2272,7 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.BAN,									labelKey:"chat.filters.message_types.ban",									icon:"ban",				scopes:[TwitchScopes.MODERATION_EVENTS],	newFlag:0},
 		{type:TwitchatMessageType.UNBAN,								labelKey:"chat.filters.message_types.unban",								icon:"unban",			scopes:[TwitchScopes.MODERATION_EVENTS],	newFlag:0},
 		{type:TwitchatMessageType.UNBAN_REQUEST,						labelKey:"chat.filters.message_types.unban_request",						icon:"unbanRequest",	scopes:[TwitchScopes.UNBAN_REQUESTS],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
-		{type:TwitchatMessageType.NOTICE,								labelKey:"chat.filters.message_types.notice",								icon:"mod",				scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.NOTICE,								labelKey:"chat.filters.message_types.notice",								icon:"mod",				scopes:[TwitchScopes.BLOCKED_TERMS],	newFlag:0},
 		{type:TwitchatMessageType.REWARD,								labelKey:"chat.filters.message_types.reward",								icon:"channelPoints",	scopes:[TwitchScopes.LIST_REWARDS],	newFlag:0},
 		{type:TwitchatMessageType.POLL,									labelKey:"chat.filters.message_types.poll",									icon:"poll",			scopes:[TwitchScopes.MANAGE_POLLS],	newFlag:0},
 		{type:TwitchatMessageType.PREDICTION,							labelKey:"chat.filters.message_types.prediction",							icon:"prediction",		scopes:[TwitchScopes.MANAGE_PREDICTIONS],	newFlag:0},
@@ -4473,7 +4476,8 @@ export namespace TwitchatDataTypes {
 	export interface MessageBlockedTermsData extends AbstractTwitchatMessage {
 		type:"blocked_terms";
 		/**
-		 * User that added the blocked term		 */
+		 * User that added the blocked term
+		 */
 		user:TwitchatUser;
 		/**
 		 * Terms blocked
@@ -4483,5 +4487,20 @@ export namespace TwitchatDataTypes {
 		 * Automod action
 		 */
 		action:"add_permitted"|"remove_permitted"|"add_blocked"|"remove_blocked";
+	}
+
+	/**
+	 * Represents a hate raid detection
+	 */
+	export interface MessageHateRaidData extends AbstractTwitchatMessage {
+		type:"hate_raid";
+		/**
+		 * Terms blocked
+		 */
+		terms:{id:string, text:string, unblocked?:true}[];
+		/**
+		 * Users that triggered the hate raid detection
+		 */
+		haters:TwitchatDataTypes.TwitchatUser[];
 	}
 }

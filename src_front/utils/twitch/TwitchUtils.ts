@@ -2831,11 +2831,43 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Gets channel's banwords
+	 * @param channelID channel to add the blocked terms on
+	 */
+	public static async getBanword(channelID?:string): Promise<TwitchDataTypes.BlockedTerm[]> {
+		if (!this.hasScopes([TwitchScopes.BLOCKED_TERMS])) return [];
+
+		let list: TwitchDataTypes.BlockedTerm[] = [];
+		let cursor: string | null = null;
+		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/blocked_terms");
+		url.searchParams.append("broadcaster_id", channelID ?? this.uid);
+		url.searchParams.append("moderator_id", this.uid);
+		url.searchParams.append("first", "100");
+
+		do {
+			if (cursor) url.searchParams.set("after", cursor);
+			const res = await this.callApi(url, {
+				method: "GET",
+				headers: this.headers,
+			});
+			if (res.status == 200) {
+				const json: { data: TwitchDataTypes.BlockedTerm[], pagination?: { cursor?: string } } = await res.json();
+				list = list.concat(json.data);
+				cursor = null;
+				if (json.pagination?.cursor) {
+					cursor = json.pagination.cursor;
+				}
+			} else if (res.status == 500) break;
+		} while (cursor != null)
+		return list;
+	}
+
+	/**
 	 * Adds a string to twitch banwords
 	 * @param str blocked terms
 	 * @param channelID channel to add the blocked terms on
 	 */
-	public static async addBanword(str: string, channelID?:string): Promise<boolean> {
+	public static async addBanword(str: string, channelID?:string): Promise<false|{id:string, text:string}> {
 		if (!this.hasScopes([TwitchScopes.BLOCKED_TERMS])) return false;
 
 		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/blocked_terms");
@@ -2850,7 +2882,8 @@ export default class TwitchUtils {
 			})
 		});
 		if (res.status == 200) {
-			return true;
+			const json = await res.json();
+			return {id:json.data[0].id, text:json.data[0].text};
 		} else if (res.status == 429) {
 			await this.onRateLimit(res.headers, url.pathname);
 			return this.addBanword(str, channelID);
@@ -2875,7 +2908,7 @@ export default class TwitchUtils {
 			method: "DELETE",
 			headers: this.headers,
 		});
-		if (res.status == 200) {
+		if (res.status == 200 || res.status == 204) {
 			return true;
 		} else if (res.status == 429) {
 			await this.onRateLimit(res.headers, url.pathname);

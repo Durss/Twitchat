@@ -701,6 +701,11 @@ import { Linear } from 'gsap/all';
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CUSTOM: {
+				//Column filter is made earlier
+				return true;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.HATE_RAID: {
 				return true;
 			}
 

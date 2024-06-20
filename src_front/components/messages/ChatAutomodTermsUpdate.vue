@@ -36,10 +36,10 @@ class ChatAutomodTermsUpdate extends AbstractChatMessage {
 
 	public get classes():string[] {
 		const res:string[] = ["chatautomodtermsupdate","chatMessage","highlight"];
-		if(this.messageData.action == "add_blocked") {
+		if(this.messageData.action == "add_blocked" || this.messageData.action == "remove_permitted") {
 			res.push("error");
 		}
-		if(this.messageData.action == "add_permitted") {
+		if(this.messageData.action == "add_permitted" || this.messageData.action == "remove_blocked") {
 			res.push("success");
 		}
 		return res;

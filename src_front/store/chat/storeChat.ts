@@ -30,6 +30,7 @@ let greetedUsersInitialized:boolean = false;
 let subgiftHistory:TwitchatDataTypes.MessageSubscriptionData[] = [];
 let antiHateRaidCounter:{[message:string]:{messages:TwitchatDataTypes.MessageChatData[], date:number}} = {};
 let antiHateRaidGraceEndDate = -1;
+let currentHateRaidAlert!:TwitchatDataTypes.MessageHateRaidData;
 
 export const storeChat = defineStore('chat', {
 	state: () => ({
@@ -989,18 +990,33 @@ export const storeChat = defineStore('chat', {
 						//Detect hate raid.
 						if(sParams.features.antiHateRaid.value === true && Date.now() > antiHateRaidGraceEndDate) {
 							const key = message.message_chunks.filter(v=>v.type == "text").join("").toLowerCase();
-							if(message.twitch_isFirstMessage === true) {
+							if(message.twitch_isFirstMessage === true || message.user.channelInfo[message.channel_id].is_new) {
+								//It's a first time chatter, log their message
 								if(!antiHateRaidCounter[key]) {
 									antiHateRaidCounter[key] = {
 										date:0,
 										messages:[]
 									};
 								}
-								antiHateRaidCounter[key].date = Date.now();
-								antiHateRaidCounter[key].messages.push(message);
 
-								//It's a first time chatter, increment the counter
+								//If user isn't already registered to the haters, add them
+								if(antiHateRaidCounter[key].messages.findIndex(v=>v.user.id == (message as TwitchatDataTypes.MessageChatData).user.id) == -1) {
+									antiHateRaidCounter[key].date = Date.now();
+									antiHateRaidCounter[key].messages.push(message);
+								}
+
+								//5 users sent the same message, strike them
 								if(antiHateRaidCounter[key].messages.length == 5) {
+									currentHateRaidAlert = reactive({
+										id:Utils.getUUID(),
+										type:TwitchatDataTypes.TwitchatMessageType.HATE_RAID,
+										channel_id:message.channel_id,
+										platform:message.platform,
+										date:Date.now(),
+										haters:antiHateRaidCounter[key].messages.map(v=>v.user),
+										terms:[],
+									});
+
 									//Ban groups of words to make it a little more bullet proof
 									const chunks = message.message_chunks.filter(v=>v.type == "text").map(v=>v.value).join(" ").split(" ");
 									let word = "";
@@ -1008,17 +1024,48 @@ export const storeChat = defineStore('chat', {
 										const w = chunks[i];
 										word += " "+w;
 										if(word.length > 15) {
-											TwitchUtils.addBanword(word.trim());
+											word = word.trim()
+											TwitchUtils.addBanword(word).then(result => {
+												if(result !== false) {
+													currentHateRaidAlert.terms.push({id:result.id, text:result.text});
+													if(saveToDB) {
+														Database.instance.updateMessage(currentHateRaidAlert);
+													}
+												}
+											});
 											word = "";
 										}
 									}
 									//Delete previous messages if requested
 									if(sParams.features.antiHateRaidDeleteMessage.value == true){
-										antiHateRaidCounter[key].messages.forEach(v=> {
+										antiHateRaidCounter[key].messages.forEach(async v=> {
 											if(v.deleted !== true) {
 												this.deleteMessage(v);
 											}
-										})
+										});
+									}
+									//Start emergency mode if requested
+									if(sParams.features.antiHateRaidEmergency.value == true){
+										sEmergency.setEmergencyMode(true);
+									}
+
+									//If another wave comes, trigger a new alert
+									setTimeout(()=>{
+										antiHateRaidCounter[key].messages = [];
+									}, 5000);
+									this.addMessage(currentHateRaidAlert);
+								}else
+								//If anti hate raid is active and new message is received (might happen
+								//as adding a banword to twitch takes a few hundred milliseconds)
+								if(antiHateRaidCounter[key].messages.length > 5) {
+									//Add user to list
+									currentHateRaidAlert.haters.push(message.user);
+									Database.instance.updateMessage(currentHateRaidAlert);
+									//Delete messages if requested
+									if(sParams.features.antiHateRaidDeleteMessage.value == true){
+										if(message.deleted !== true) {
+											this.deleteMessage(message);
+										}
 									}
 								}
 
@@ -1673,6 +1720,10 @@ export const storeChat = defineStore('chat', {
 		},
 
 		deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint = true) {
+			if(message.fake) {
+				message.deleted = true;
+				return;
+			}
 			message.deleted = true;
 			const i = messageList.findIndex(v=>v.id === message.id);
 

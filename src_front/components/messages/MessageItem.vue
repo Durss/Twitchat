@@ -182,6 +182,10 @@
 	<ChatAutomodTermsUpdate class="message"
 		v-else-if="messageData.type == 'blocked_terms'"
 		:messageData="messageData" />
+
+	<ChatHateRaid class="message"
+		v-else-if="messageData.type == 'hate_raid'"
+		:messageData="messageData" />
 </template>
 
 <script lang="ts">
@@ -233,6 +237,7 @@ import ChatTipeeeEvent from './ChatTipeeeEvent.vue';
 import ChatTrackStart from './ChatTrackStart.vue';
 import ChatCelebration from './ChatCelebration.vue';
 import ChatAutomodTermsUpdate from './ChatAutomodTermsUpdate.vue';
+import ChatHateRaid from './ChatHateRaid.vue';
 
 @Component({
 	components:{
@@ -248,6 +253,7 @@ import ChatAutomodTermsUpdate from './ChatAutomodTermsUpdate.vue';
 		ChatConnect,
 		ChatMessage,
 		ChatShoutout,
+		ChatHateRaid,
 		ChatKofiEvent,
 		ChatPinNotice,
 		ChatJoinLeave,

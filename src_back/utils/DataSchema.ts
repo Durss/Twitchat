@@ -800,6 +800,7 @@ const UserDataSchema = {
 		"p:autoTranslateFirst": {type:"boolean"},
 		"p:antiHateRaid": {type:"boolean"},
 		"p:antiHateRaidDeleteMessage": {type:"boolean"},
+		"p:antiHateRaidEmergency": {type:"boolean"},
 		"p:autoTranslateFirstLang":{
 			type:"array",
 			minItems:0,
