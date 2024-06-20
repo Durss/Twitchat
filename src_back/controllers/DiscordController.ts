@@ -747,7 +747,7 @@ export default class DiscordController extends AbstractController {
 	 */
 	private async configureTwitchChannel(request:FastifyRequest, response:FastifyReply, command:SlashCommandPayload):Promise<void> {
 		const channel = (command.data.options.find(v=>v.name == "twitch_login")?.value || "").trim();
-		const users = await TwitchUtils.loadUsers([channel]);
+		const users = await TwitchUtils.getUsers([channel]);
 		if(users == false) {
 			response.status(200).send({
 				type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
