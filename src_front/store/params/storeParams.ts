@@ -30,7 +30,7 @@ export const storeParams = defineStore('params', {
 			alertMode: 					{type:"boolean", value:true, labelKey:"params.alertMode", id:217, icon:"alert"},
 			firstMessage: 				{type:"boolean", value:true, labelKey:"params.firstMessage", id:201, icon:"hand", example:"greetThem.png"},
 			saveHistory: 				{type:"boolean", value:true, labelKey:"params.saveHistory", id:224, icon:"history", storage:{vnew:{date:1693519200000, id:'params_chathistory'}}},
-			antiHateRaid: 				{type:"boolean", value:false, labelKey:"params.antiHateRaid", id:232, icon:"block", storage:{vnew:{date:Config.instance.NEW_FLAGS_DATE_V13, id:'params_antihateraid'}}},
+			antiHateRaid: 				{type:"boolean", value:false, labelKey:"params.antiHateRaid", id:232, icon:"block", storage:{vnew:{date:Config.instance.NEW_FLAGS_DATE_V13, id:'params_antihateraid'}}, twitch_scopes:[TwitchScopes.BLOCKED_TERMS] },
 			antiHateRaidDeleteMessage: 	{type:"boolean", value:false, labelKey:"params.antiHateRaidDeleteMessage", id:234, parent:232, icon:"trash", storage:{vnew:{date:Config.instance.NEW_FLAGS_DATE_V13, id:'params_antihateraiddelete'}}},
 			autoTranslateFirst: 		{type:"boolean", value:false, labelKey:"params.autoTranslateFirst", id:229, icon:"translate", storage:{vnew:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_translate'}}, premiumOnly:true, example:"translate_messages.png"},
 			autoTranslateFirstLang:		{type:"list", value:["en"] as string[], multiple:true, maxLength:1, listValues:Object.values(TranslatableLanguagesMap).map(v=> {return {value:v.iso1, flag:v.flag, label:v.name}}), labelKey:"params.autoTranslateFirst_lang", id:231, parent:229, icon:"voice"},
