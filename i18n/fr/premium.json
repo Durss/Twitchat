@@ -1,6 +1,6 @@
 {
 	"premium":{
-		"header":"Soutenez Twitchat mensuellement et débloquez des fonctionnalités premium",
+		"header":"Soutenez Twitchat mensuellement et débloquez les fonctionnalités premium",
 		"early_donor1":"Pour vous remercier de me soutenir depuis les débuts de Twitchat, les fonctionnalités premium vous sont offertes 💝",
 		"early_donor2":"Sentez-vous libre de tout même me soutenir sur {LINK} 😊",
 		"early_donor2_link":"Patreon",
@@ -10,6 +10,7 @@
 		"features_title":"Fonctionnalités Premium",
 		"premium_only_tt":"Premium only",
 		"no_ad_info":"(ne concerne que les streamers avec +{FOLLOWERS} followers)",
+		"progress":"Vos soutiens passés vous rapprochent du premium à vie",
 		"supportTable":{
 			"headers":[
 				"Fonctionnalité",

@@ -4,8 +4,6 @@
 		
 		<div class="head">{{ $t("premium.header") }}</div>
 		
-		<!-- <div class="card-item description"><Icon name=info />{{ $t("premium.description") }}</div> -->
-		
 		<div class="card-item info">
 			<Icon name="info" class="icon" />
 			<p v-for="i in $tm('donate.infos')" v-html="i"></p>
@@ -13,10 +11,11 @@
 
 		<ParamsAccountPatreon class="card-item" />
 
-		<div class="card-item premium lifetimePremiumProgress" v-if="!isPremiumDonor && lifetimePercent > 0">
-			<div class="info">Vos soutiens passés vous rapprochent du premium à vie</div>
+		<div class="card-item premium lifetimePremiumProgress" v-if="!isPremiumDonor && lifetimePercent > 0 && lifetimePercent < 100">
+			<div class="info">{{ $t("premium.progress") }}</div>
 			<div class="card-item progressBar" :style="{backgroundSize:lifetimePercent+'% 100%'}">
 				<div class="label">{{ Math.round(lifetimePercent/100*$config.LIFETIME_DONOR_VALUE) }}€ / {{ $config.LIFETIME_DONOR_VALUE }}€</div>
+				<div class="labelOver" ref="label">{{ Math.round(lifetimePercent/100*$config.LIFETIME_DONOR_VALUE) }}€ / {{ $config.LIFETIME_DONOR_VALUE }}€</div>
 			</div>
 			<TTButton class="donateBt" @click="openDonate()" light premium icon="coin">{{ $t("params.categories.sponsor") }}</TTButton>
 		</div>
@@ -34,7 +33,6 @@
 <script lang="ts">
 import Icon from '@/components/Icon.vue';
 import SponsorTable from '@/components/premium/SponsorTable.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ParamsAccountPatreon from './account/ParamsAccountPatreon.vue';
 import { gsap } from 'gsap/gsap-core';
@@ -60,8 +58,15 @@ class ParamsPremium extends Vue {
 		const lifetime = this.$store.auth.twitch.user.donor.lifetimePercent*100;
 		if(lifetime > 0) {
 			this.lifetimePercentEased = .0001;
-			gsap.to(this, {lifetimePercentEased:lifetime, duration:1, ease:"sine.out", delay:.5});
+			gsap.to(this, {lifetimePercentEased:lifetime, duration:2, ease:"sine.out", onUpdate:()=>{
+				const label = this.$refs.label as HTMLDivElement;
+				label.style.clipPath = `polygon(0 0, ${this.lifetimePercentEased}% 0, ${this.lifetimePercentEased}% 100%, 0 100%)`;
+			}});
 		}
+	}
+
+	public beforeUnmount():void {
+		gsap.killTweensOf(this);
 	}
 
 	public openDonate():void {
@@ -118,7 +123,6 @@ export default toNative(ParamsPremium);
 		margin: 1em 0;
 		background-color: var(--color-premium);
 		font-weight: bold;
-		text-shadow: 1px 1px 2px #000000A0;
 		.info  {
 			text-align: center;
 			margin-bottom: .5em;
@@ -134,12 +138,20 @@ export default toNative(ParamsPremium);
 			background-image: linear-gradient(90deg, var(--color-light) 0%, var(--color-light) 100%);
 			background-repeat: no-repeat;
 			background-size: 0% 100%;
-			.label {
+			.label, .labelOver {
 				.center();
+				color: #ffffff;
 				position: absolute;
 				font-size: 1.5em;
 				font-weight: bold;
 				font-variant-numeric: tabular-nums;
+				width: 100%;
+				text-align: center;
+			}
+
+			.labelOver {
+				color: var(--color-premium);
+				text-shadow: 1px 1px 2px #000000A0;
 			}
 		}
 		.donateBt {

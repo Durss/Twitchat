@@ -10,6 +10,7 @@
 		"features_title":"Premium features",
 		"premium_only_tt":"Premium only",
 		"no_ad_info":"(only applies to streamers with +{FOLLOWERS} followers)",
+		"progress":"Your past donations get you closer to lifetime premium",
 		"supportTable":{
 			"headers":[
 				"Feature",
