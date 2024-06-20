@@ -128,6 +128,10 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				if(!grid || !grid.enabled || !grid.heatClick) return;
 
 				const user = await StoreProxy.users.getUserFrom("twitch", data.click.channelId, data.click.uid, data.click.login);
+				
+				//Ignore banned users
+				if(user.channelInfo[StoreProxy.auth.twitch.user.id].is_banned) return;
+
 				const allowed = await Utils.checkPermissions(grid.heatClickPermissions, user, data.click.channelId);
 				if(!allowed) {
 					console.log("User not allowed to click !");
@@ -145,6 +149,10 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				if(!event.data) return;
 				if(event.data.count <= 0) return;
 				const user = await StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, event.data.uid, event.data.login, event.data.login);
+				
+				//Ignore banned users
+				if(user.channelInfo[StoreProxy.auth.twitch.user.id].is_banned) return;
+
 				//Force avatar loading if not available
 				if(!user.avatarPath) {
 					const [userDetails] = await TwitchUtils.getUserInfo([user.id]);
