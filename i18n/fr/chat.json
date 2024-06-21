@@ -470,7 +470,7 @@
 		},
 		"hate_raid": {
 			"title": "Un raid haineux a été détecté.\nLes termes suivants ont été interdits sur votre chaîne :",
-			"users": "Personnes ayant déclenché l'anti raid haineux :",
+			"users": "Personnes ayant pris part au raid haineux :",
 			"cancel_bt":"Réautoriser les termes",
 			"banUsers_bt":"Bannir les haters",
 			"footer":"Consultez vos termes bloqués et leur nombre de blocages"

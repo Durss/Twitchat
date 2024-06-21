@@ -18,7 +18,12 @@
 				<div class="usersTitle">{{ $t("chat.hate_raid.users") }}</div>
 	
 				<ul class="users">
-					<li v-for="user in messageData.haters" :key="user.id" :class="user.channelInfo[messageData.channel_id]?.is_banned? 'strike' : ''">{{ user.displayName }}</li>
+					<li v-for="user in messageData.haters"
+					:key="user.id"
+					:class="user.channelInfo[messageData.channel_id]?.is_banned? 'strike' : ''">
+						<Icon name="ban" v-if="user.channelInfo[messageData.channel_id]?.is_banned" />
+						<span>{{ user.displayName }}</span>
+					</li>
 				</ul>
 			</template>
 
@@ -74,8 +79,6 @@ class ChatHateRaid extends AbstractChatMessage {
 		for (let i = 0; i < this.messageData.terms.length; i++) {
 			const term = this.messageData.terms[i];
 			const res = await TwitchUtils.removeBanword(term.id);
-			console.log(res);
-
 			if(res) term.unblocked = true;
 		}
 		Database.instance.updateMessage(this.messageData);
@@ -86,9 +89,9 @@ class ChatHateRaid extends AbstractChatMessage {
 		this.banning = true;
 		for (let i = 0; i < this.messageData.haters.length; i++) {
 			const user = this.messageData.haters[i];
-			if(user.channelInfo[this.messageData.channel_id].is_banned) return;
-			await Utils.promisedTimeout(500);
-			await TwitchUtils.banUser(user, this.messageData.channel_id, undefined, "You have been banned because you took part of a hate raid");
+			if(user.channelInfo[this.messageData.channel_id].is_banned) continue;
+			await Utils.promisedTimeout(100);
+			await TwitchUtils.banUser(user, this.messageData.channel_id, undefined, "You have been banned because you took part  what appears to be a hate raid");
 		}
 		Database.instance.updateMessage(this.messageData);
 		this.banning = false;
@@ -107,6 +110,11 @@ export default toNative(ChatHateRaid);
 		list-style-position: inside;
 		.strike {
 			text-decoration: line-through;
+		}
+		.icon {
+			height: 1em;
+			margin-right: .5em;
+			vertical-align: middle;
 		}
 	}
 

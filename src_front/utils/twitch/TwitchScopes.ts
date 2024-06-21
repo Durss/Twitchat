@@ -79,3 +79,4 @@ TwitchScope2Icon[TwitchScopes.ADS_READ]					= "ad";
 TwitchScope2Icon[TwitchScopes.ADS_SNOOZE]				= "ad";
 TwitchScope2Icon[TwitchScopes.READ_EMOTES]				= "emote";
 TwitchScope2Icon[TwitchScopes.UNBAN_REQUESTS]			= "unbanRequest";
+TwitchScope2Icon[TwitchScopes.BLOCKED_TERMS]			= "block";
