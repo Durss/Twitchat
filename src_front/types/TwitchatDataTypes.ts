@@ -4531,6 +4531,11 @@ export namespace TwitchatDataTypes {
 		 * Custom warn message
 		 */
 		customReason?:string;
+		/**
+		 * Abstracted reason for trigger placeholder.
+		 * Contains either the "customReason" or a concatenation of the "rules"
+		 */
+		abstractedReason:string;
 	}
 
 	/**

@@ -1478,6 +1478,36 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
+
+				case TwitchatDataTypes.TwitchatMessageType.WARN_CHATTER: {
+					const m:TwitchatDataTypes.MessageWarnUserData = {
+						platform:"twitch",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						channel_id:uid,
+						user:fakeUser,
+						moderator:user,
+						rules:[],
+						customReason:"Be respecful",
+						abstractedReason:"Be respecful",
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.WARN_ACKNOWLEDGE: {
+					const m:TwitchatDataTypes.MessageWarnAcknowledgementData = {
+						platform:"twitch",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						channel_id:uid,
+						user:fakeUser,
+					};
+					data = m;
+					break;
+				}
 			}
 
 			data.fake = true;

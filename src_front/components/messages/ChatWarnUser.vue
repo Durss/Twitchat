@@ -22,7 +22,7 @@
 
 			<div class="prompt quote" v-if="messageData.customReason">{{ messageData.customReason }}</div>
 
-			<ul class="prompt quote" v-if="messageData.rules">
+			<ul class="prompt quote" v-if="messageData.rules?.length > 0">
 				<li v-for="rule in messageData.rules">{{ rule }}</li>
 			</ul>
 		</div>

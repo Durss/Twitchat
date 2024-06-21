@@ -22,6 +22,8 @@
 			<Button small @click="simulateEvent($event, 'leave')" icon="leave">Leave</Button>
 			<Button small @click="simulateEvent($event, 'ban')" icon="ban">Ban</Button>
 			<Button small @click="simulateEvent($event, 'unban')" icon="unban">Unban</Button>
+			<Button small @click="simulateEvent($event, 'warn_chatter')" icon="alert">Warn chatter</Button>
+			<Button small @click="simulateEvent($event, 'warn_acknowledge')" icon="alert">Warn acknowledgement</Button>
 			<Button small @click="simulateEvent($event, 'unban_request')" icon="unbanRequest">Unban Request</Button>
 			<Button small @click="simulateEvent($event, 'unban_request', 'unban_request_solve')" icon="unbanRequest">Unban Request solve</Button>
 			<Button small @click="simulateEvent($event, 'message', 'first')" icon="firstTime">First message</Button>

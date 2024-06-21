@@ -1103,6 +1103,7 @@ export default class EventSub {
 					moderator,
 					rules:event.warn.chat_rules_cited,
 					customReason:event.warn.reason? event.warn.reason : undefined,
+					abstractedReason:event.warn.reason? event.warn.reason : event.warn.chat_rules_cited.join(" - "),
 				}
 				StoreProxy.chat.addMessage(message);
 				break;

@@ -340,6 +340,18 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.WARN_CHATTER:{
+				if(await this.executeTriggersByType(TriggerTypes.WARN_CHATTER, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.WARN_ACKNOWLEDGE:{
+				if(await this.executeTriggersByType(TriggerTypes.WARN_ACKNOWLEDGE, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE:{
 				const event = message.info.user.id == StoreProxy.auth.twitch.user.id? TriggerTypes.STREAM_ONLINE : TriggerTypes.FOLLOWED_STREAM_ONLINE;
 				if(await this.executeTriggersByType(event, message, testMode, undefined, undefined, forcedTriggerId)) {

@@ -777,7 +777,8 @@
 			"bingo_grid_cell_y": "Y coordinates of the ticked cell",
 			"bingo_grid_col": "Index of the filled column",
 			"bingo_grid_row": "Index of the filled row",
-			"bingo_grid_diag": "Index of the filled diagonal"
+			"bingo_grid_diag": "Index of the filled diagonal",
+			"warn_reason": "Warning reason"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1282,6 +1283,14 @@
 			"BINGO_GRID_VIEWER_LINE": {
 				"label": "A viewer completed one or more bingo grid lines",
 				"description": "Actions to execute when a user fills a bingo grid line"
+			},
+			"WARN_CHATTER": {
+				"label": "Warning sent to a viewer",
+				"description": "Actions to execute when a user is sent a warning"
+			},
+			"WARN_ACKNOWLEDGE": {
+				"label": "A user acknowledge warning reception",
+				"description": "Actions to execute when a user fills acknowledge the reception of a warning"
 			}
 		},
 		"musicEvents": {

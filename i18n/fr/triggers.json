@@ -777,7 +777,8 @@
 			"bingo_grid_cell_y": "Coordonnée Y de la case cochée",
 			"bingo_grid_col": "Index de la colonne remplie",
 			"bingo_grid_row": "Index de la ligne remplie",
-			"bingo_grid_diag": "Diagonale remplie (0=↘ 1=↙)"
+			"bingo_grid_diag": "Diagonale remplie (0=↘ 1=↙)",
+			"warn_reason": "Raison de l'avertissement"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1282,6 +1283,14 @@
 			"BINGO_GRID_VIEWER_LINE": {
 				"label": "Un·e viewer rempli une ou plusieurs lignes de bingo",
 				"description": "Actions à exécuter lorsque quelqu'une personne rempli une ou plusieurs lignes d'une grille de bingo"
+			},
+			"WARN_CHATTER": {
+				"label": "Avertissement envoyé",
+				"description": "Actions à exécuter lorsqu'un avertissement est envoyé à quelqu'un"
+			},
+			"WARN_ACKNOWLEDGE": {
+				"label": "Avertissement lu par la/le viewer",
+				"description": "Actions à exécuter lorsqu'une personne confirme la lecture d'un avertissement"
 			}
 		},
 		"musicEvents": {
