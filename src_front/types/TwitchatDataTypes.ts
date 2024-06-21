@@ -1964,6 +1964,7 @@ export namespace TwitchatDataTypes {
 		RAID_STARTED:"raid_started",
 		SUBSCRIPTION:"subscription",
 		AUTOBAN_JOIN:"autoban_join",
+		WARN_CHATTER:"warn_chatter",
 		UNBAN_REQUEST:"unban_request",
 		SCOPE_REQUEST:"scope_request",
 		ROOM_SETTINGS:"room_settings",
@@ -1977,6 +1978,7 @@ export namespace TwitchatDataTypes {
 		COUNTER_UPDATE:"counter_update",
 		AD_BREAK_START:"ad_break_start",
 		OBS_STOP_STREAM:"obs_stop_stream",
+		WARN_ACKNOWLEDGE:"warn_acknowledge",
 		CREDITS_COMPLETE:"credits_complete",
 		HISTORY_SPLITTER:"history_splitter",
 		OBS_START_STREAM:"obs_start_stream",
@@ -2036,6 +2038,7 @@ export namespace TwitchatDataTypes {
 		qna_stop:false,
 		qna_start:false,
 		qna_delete:false,
+		warn_chatter:true,
 		hype_chat:true,
 		voicemod:false,
 		following:true,
@@ -2069,6 +2072,7 @@ export namespace TwitchatDataTypes {
 		counter_update:false,
 		goxlr_fx_state:false,
 		history_splitter:true,
+		warn_acknowledge:true,
 		obs_stop_stream:false,
 		credits_complete:false,
 		user_watch_streak:true,
@@ -2215,6 +2219,8 @@ export namespace TwitchatDataTypes {
 									| MessageTwitchCelebrationData
 									| MessageBlockedTermsData
 									| MessageHateRaidData
+									| MessageWarnUserData
+									| MessageWarnAcknowledgementData
 	;
 
 	/**
@@ -4502,5 +4508,39 @@ export namespace TwitchatDataTypes {
 		 * Users that triggered the hate raid detection
 		 */
 		haters:TwitchatDataTypes.TwitchatUser[];
+	}
+
+	/**
+	 * Represents a user warning data
+	 */
+	export interface MessageWarnUserData extends AbstractTwitchatMessage {
+		type:"warn_chatter";
+		/**
+		 * User warned
+		 */
+		user:TwitchatDataTypes.TwitchatUser;
+		/**
+		 * Moderator that sent the warning
+		 */
+		moderator:TwitchatDataTypes.TwitchatUser;
+		/**
+		 * Rules the user has been warned
+		 */
+		rules:string[]
+		/**
+		 * Custom warn message
+		 */
+		customReason?:string;
+	}
+
+	/**
+	 * Represents a user warning acknowledgement data
+	 */
+	export interface MessageWarnAcknowledgementData extends AbstractTwitchatMessage {
+		type:"warn_acknowledge";
+		/**
+		 * User warned
+		 */
+		user:TwitchatDataTypes.TwitchatUser;
 	}
 }

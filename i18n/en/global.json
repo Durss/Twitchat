@@ -181,7 +181,8 @@
 			"channel:edit:commercial": "Start an ad",
 			"channel:read:goals": "Read current goals (sub/follow)",
 			"channel:read:subscriptions": "Get list of your subs",
-			"moderation:read": "List your moderators",
+			"moderator:read:moderators":"List moderators",
+			"moderator:read:vips":"List VIPs",
 			"moderator:read:blocked_terms": "Read blocked terms",
 			"moderator:read:chat_settings": "Read room settings  (follow only, sub only, etc...)",
 			"moderator:manage:automod": "Manage automoded messages",
@@ -196,7 +197,8 @@
 			"moderator:manage:unban_requests": "Receive/Edit unban requests",
 			"clips:edit": "Create clips",
 			"channel:read:ads":"Read ad break info",
-			"channel:manage:ads":"Snooze an incoming ad break"
+			"channel:manage:ads":"Snooze an incoming ad break",
+			"moderator:manage:warnings":"Send warning to users"
 		},
 		"permissions": {
 			"broadcaster": "Broadcaster",

@@ -185,6 +185,7 @@ export const storeStream = defineStore('stream', {
 			if(settings.followOnly != undefined) roomSettings.followOnly = settings.followOnly;
 			if(settings.slowMode != undefined) roomSettings.slowMode = settings.slowMode;
 			if(settings.subOnly != undefined) roomSettings.subOnly = settings.subOnly;
+			console.log("SET SETTINGS", channelId, settings);
 			this.roomSettings[channelId] = roomSettings;
 		},
 

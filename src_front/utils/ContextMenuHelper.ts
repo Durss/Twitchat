@@ -239,6 +239,16 @@ export default class ContextMenuHelper {
 				if(!canModerateMessage) options[options.length-1].divided = true;
 
 				options.push({
+					label: t("chat.context_menu.warn_user"),
+					icon: this.getIcon("icons/alert.svg"),
+					customClass:classesMod,
+					onClick: () => {
+						if(!TwitchUtils.requestScopes([TwitchScopes.CHAT_WARNING])) return;
+						TwitchUtils.sendWarning(message.user.id, t("chat.warn_chatter.default_reason"), message.channel_id);
+					},
+				});
+
+				options.push({
 					label: t("chat.context_menu.add_blocked_terms"),
 					icon: this.getIcon("icons/block.svg"),
 					customClass:classesMod,

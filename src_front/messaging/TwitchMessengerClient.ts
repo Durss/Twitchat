@@ -280,6 +280,12 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					await TwitchUtils.sendAnnouncement(channelId, chunks.splice(1).join(" "), chunks[0] as "blue"|"green"|"orange"|"purple"|"primary");
 					return true;
 				}
+				case "/warn":{
+					if(!TwitchUtils.requestScopes([TwitchScopes.CHAT_WARNING])) return false;
+					const user = await getUserFromLogin(chunks[0], channelId);
+					if(user) return await TwitchUtils.sendWarning(user.id, chunks.splice(1).join(" "), channelId);
+					return false;
+				}
 				case "/ban":{
 					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return false;
 					const user = await getUserFromLogin(chunks[0], channelId);

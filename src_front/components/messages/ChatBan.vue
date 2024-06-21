@@ -61,7 +61,7 @@ class ChatBan extends AbstractChatMessage {
 
 	public get classes():string[] {
 		let res:string[] = ["chatban","chatMessage","highlight"];
-		if(this.messageData.duration_s) res.push("timeout");
+		if(this.messageData.duration_s) res.push("error");
 		else
 		res.push("alert");
 		return res;
@@ -112,14 +112,6 @@ export default toNative(ChatBan);
 		.textContent {
 			align-self: flex-start;
 			flex-grow: 1;
-		}
-	}
-
-	&.timeout {
-		background-color: var(--color-secondary-fader);
-		color: var(--color-text);
-		a {
-			color: var(--color-text);
 		}
 	}
 }

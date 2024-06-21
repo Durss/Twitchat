@@ -186,6 +186,14 @@
 	<ChatHateRaid class="message"
 		v-else-if="messageData.type == 'hate_raid'"
 		:messageData="messageData" />
+
+	<ChatWarnUser class="message"
+		v-else-if="messageData.type == 'warn_chatter'"
+		:messageData="messageData" />
+
+	<ChatWarnAcknowledgment class="message"
+		v-else-if="messageData.type == 'warn_acknowledge'"
+		:messageData="messageData" />
 </template>
 
 <script lang="ts">
@@ -238,6 +246,8 @@ import ChatTrackStart from './ChatTrackStart.vue';
 import ChatCelebration from './ChatCelebration.vue';
 import ChatAutomodTermsUpdate from './ChatAutomodTermsUpdate.vue';
 import ChatHateRaid from './ChatHateRaid.vue';
+import ChatWarnUser from './ChatWarnUser.vue';
+import ChatWarnAcknowledgment from './ChatWarnAcknowledgment.vue';
 
 @Component({
 	components:{
@@ -252,6 +262,7 @@ import ChatHateRaid from './ChatHateRaid.vue';
 		ChatNotice,
 		ChatConnect,
 		ChatMessage,
+		ChatWarnUser,
 		ChatShoutout,
 		ChatHateRaid,
 		ChatKofiEvent,
@@ -286,12 +297,13 @@ import ChatHateRaid from './ChatHateRaid.vue';
 		ChatLowTrustTreatment,
 		ChatAutomodTermsUpdate,
 		ChatMessageClipPending,
+		ChatWarnAcknowledgment,
 		ChatStreamelementsEvent,
 		ChatCommunityChallengeContribution,
 	},
 	emits:[],
 })
- class MessageItem extends Vue {
+class MessageItem extends Vue {
 
 	@Prop
 	public messageData!:TwitchatDataTypes.ChatMessageTypes;

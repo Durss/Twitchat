@@ -398,7 +398,7 @@ export const storeChat = defineStore('chat', {
 			},
 			{
 				id:"subscribers",
-				cmd:"/subscribers {seconds}",
+				cmd:"/subscribers",
 				detailsKey:"params.commands.subscribers",
 				twitchCmd:true,
 				needModerator:true,
@@ -523,6 +523,14 @@ export const storeChat = defineStore('chat', {
 				needModerator:true,
 				twitchCmd:true,
 				twitch_scopes:[TwitchScopes.SET_STREAM_INFOS],
+			},
+			{
+				id:"warn",
+				cmd:"/warn {user} {reason}",
+				detailsKey:"params.commands.warn",
+				needModerator:true,
+				twitchCmd:true,
+				twitch_scopes:[TwitchScopes.CHAT_WARNING],
 			},
 			{
 				id:"betaadd",

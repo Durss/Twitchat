@@ -55,7 +55,7 @@ import Utils from '@/utils/Utils';
 	},
 	emits:["onRead"]
 })
- class ChatTrackAddedToQueue extends AbstractChatMessage {
+class ChatTrackAddedToQueue extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageMusicAddedToQueueData;

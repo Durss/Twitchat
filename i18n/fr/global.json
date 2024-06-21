@@ -181,7 +181,8 @@
 			"channel:edit:commercial": "Lancer une pub",
 			"channel:read:goals": "Lister les objectifs (follow/sub)",
 			"channel:read:subscriptions": "Lister vos abonné·es",
-			"moderation:read": "Lister vos modos",
+			"moderator:read:moderators": "Lister vos modos",
+			"moderator:read:vips": "Lister vos VIPs",
 			"moderator:read:blocked_terms": "Lister vos banwords",
 			"moderator:read:chat_settings": "Lire les paramètres (emote-only, follow-only, sub-only, etc...)",
 			"moderator:manage:automod": "Accepter/refuser les messages retenus par l'automod",
@@ -196,7 +197,8 @@
 			"moderator:manage:unban_requests": "Recevoir/éditer les demandes d'unban",
 			"clips:edit": "Créer des clips",
 			"channel:read:ads":"Savoir quand une publicité va être lancée",
-			"channel:manage:ads":"Reporter une publicité en appproche"
+			"channel:manage:ads":"Reporter une publicité en appproche",
+			"moderator:manage:warnings":"Envoyez des avertissements"
 		},
 		"permissions": {
 			"broadcaster": "Diffuseur",

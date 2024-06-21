@@ -87,7 +87,12 @@ export default class OBSWebsocket extends EventDispatcher {
 			this.connectInfo.ip = (ip || "").trim();
 			this.connectInfo.port = (port || "").trim();
 			this.connectInfo.pass = (pass || "").trim();
-			const protocol = (ip == "127.0.0.1" || ip == "localhost") ? "ws://" : "wss://";
+			let protocol = (ip == "127.0.0.1" || ip == "localhost") ? "ws://" : "wss://";
+			if(ip.indexOf("ws") == 0) {
+				const [_protocol, _ip] = ip.split("//");
+				ip = _ip;
+				protocol = _protocol+"//";
+			}
 			const portValue = port && port?.length > 0 && port != "0"? ":"+port : "";
 			await this.obs.connect(protocol + ip + portValue, pass, {rpcVersion: 1});
 			this.connected = true;

@@ -634,6 +634,8 @@ import { Linear } from 'gsap/all';
 				return this.config.filters.pinned === true;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.WARN_CHATTER:
+			case TwitchatDataTypes.TwitchatMessageType.WARN_ACKNOWLEDGE:
 			case TwitchatDataTypes.TwitchatMessageType.BLOCKED_TERMS:
 			case TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN:
 			case TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT:

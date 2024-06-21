@@ -25,7 +25,7 @@
 			</div>
 		</div>
 
-		<div class="card-item secondary infos" v-if="raidingLatestRaid"><Icon name="info" />{{ $t("raid.target_channel_previous_raid") }}</div>
+		<div class="card-item infos" v-if="raidingLatestRaid"><Icon name="info" />{{ $t("raid.target_channel_previous_raid") }}</div>
 
 		<div class="card-item alert infos" v-if="targetChannelOffline"><Icon name="alert" />{{ $t("raid.target_channel_offline") }}</div>
 
@@ -65,7 +65,7 @@
 			<Button light @click="openSummary()" v-newflag="{date:1693519200000, id:'raid_summary'}">{{ $t('raid.stream_summaryBt') }}</Button>
 		</div>
 
-		<Button icon="cross" alert @click="cancelRaid()" v-if="canCancel">{{ $t('global.cancel') }}</Button>
+		<Button icon="cross" alert @click="cancelRaid()" v-if="canCancel" :loading="canceling">{{ $t('global.cancel') }}</Button>
 
 		<div class="card-item infos">{{ $t("raid.cant_force", {TIMER:timeLeft}) }}</div>
 
@@ -91,6 +91,7 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 class RaidState extends Vue {
 
 	public timeLeft = "";
+	public canceling = false;
 	public censorCount = false;
 	public coolingDownSpam = false;
 	public raidingLatestRaid = false;
@@ -188,8 +189,11 @@ class RaidState extends Vue {
 		this.timeLeft = Utils.formatDuration(seconds);
 	}
 
-	public cancelRaid():void {
-		TwitchUtils.raidCancel();
+	public async cancelRaid():Promise<void> {
+		this.canceling = true;
+		await TwitchUtils.raidCancel();
+		await Utils.promisedTimeout(500);
+		this.canceling = false;
 	}
 
 	public async spamLink():Promise<void> {

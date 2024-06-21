@@ -11,6 +11,7 @@ export namespace TwitchEventSubDataTypes {
 		BITS: "channel.cheer",
 		RAID: "channel.raid",
 		BAN: "channel.ban",
+		CHANNEL_MODERATE: "channel.moderate",
 		UNBAN: "channel.unban",
 		MODERATOR_ADD: "channel.moderator.add",
 		MODERATOR_REMOVE: "channel.moderator.remove",
@@ -49,6 +50,7 @@ export namespace TwitchEventSubDataTypes {
 		UNBAN_REQUEST_NEW: "channel.unban_request.create",
 		UNBAN_REQUEST_RESOLVED: "channel.unban_request.resolve",
 		AUTOMOD_TERMS_UPDATE: "automod.terms.update",
+		CHAT_WARN_ACKNOWLEDGE: "channel.warning.acknowledge",
 	} as const;
 	export type SubscriptionStringTypes = typeof SubscriptionTypes[keyof typeof SubscriptionTypes];
 
@@ -599,5 +601,157 @@ export namespace TwitchEventSubDataTypes {
 		action:"add_permitted"|"remove_permitted"|"add_blocked"|"remove_blocked";
 		from_automod: boolean;
 		terms: string[];
+	}
+
+	export type ModerationEvent  = ModerationEvent_raid
+								| ModerationEvent_unraid
+								| ModerationEvent_mod
+								| ModerationEvent_unmod
+								| ModerationEvent_vip
+								| ModerationEvent_unvip
+								| ModerationEvent_ban
+								| ModerationEvent_unban
+								| ModerationEvent_timeout
+								| ModerationEvent_untimeout
+								| ModerationEvent_deletemessage
+								| ModerationEvent_followon
+								| ModerationEvent_followoff
+								| ModerationEvent_subson
+								| ModerationEvent_subsoff
+								| ModerationEvent_emoteson
+								| ModerationEvent_emotesoff
+								| ModerationEvent_slowon
+								| ModerationEvent_slowoff
+								| ModerationEvent_warn
+	;
+
+	export interface ModerationEvent_base {
+		broadcaster_user_id: string;
+		broadcaster_user_login: string;
+		broadcaster_user_name: string;
+		moderator_user_id: string;
+		moderator_user_login: string;
+		moderator_user_name: string;
+	}
+
+	export interface ModerationEvent_raid extends ModerationEvent_base {
+		action: "raid";
+		raid: { user_id: string; user_login: string; user_name: string; viewer_count: number; };
+	}
+
+	export interface ModerationEvent_unraid extends ModerationEvent_base {
+		action: "unraid";
+		unraid: { user_id: string; user_login: string; user_name: string; }
+	}
+
+	export interface ModerationEvent_mod extends ModerationEvent_base {
+		action: "mod";
+		mod: {user_id: string, user_login: string, user_name: string};
+	}
+
+	export interface ModerationEvent_unmod extends ModerationEvent_base {
+		action: "unmod";
+		unmod: {user_id: string, user_login: string, user_name: string};
+	}
+
+	export interface ModerationEvent_vip extends ModerationEvent_base {
+		action: "vip";
+		vip: {user_id: string, user_login: string, user_name: string};
+	}
+
+	export interface ModerationEvent_unvip extends ModerationEvent_base {
+		action: "unvip";
+		unvip: {user_id: string, user_login: string, user_name: string};
+	}
+
+	export interface ModerationEvent_ban extends ModerationEvent_base {
+		action: "ban";
+		ban: {user_id: string, user_login: string, user_name: string; reason:string};
+	}
+
+	export interface ModerationEvent_unban extends ModerationEvent_base {
+		action: "unban";
+		unban: {user_id: string, user_login: string, user_name: string};
+	}
+
+	export interface ModerationEvent_timeout extends ModerationEvent_base {
+		action: "timeout";
+		timeout: {
+			user_id: string;
+			user_login: string;
+			user_name: string;
+			reason: string;
+			expires_at: string;
+		};
+	}
+
+	export interface ModerationEvent_untimeout extends ModerationEvent_base {
+		action: "untimeout";
+		untimeout: {user_id: string, user_login: string, user_name: string};
+	}
+
+	export interface ModerationEvent_deletemessage extends ModerationEvent_base {
+		action: "delete";
+		delete:{
+			user_id: string;
+			user_login: string;
+			user_name: string;
+			message_id: string;
+			message_body: string;
+		}
+	}
+
+	export interface ModerationEvent_followon extends ModerationEvent_base {
+		action: "followers";
+		followers:{follow_duration_minutes: 50}
+	}
+
+	export interface ModerationEvent_followoff extends ModerationEvent_base {
+		action: "followersoff";
+	}
+
+	export interface ModerationEvent_subson extends ModerationEvent_base {
+		action: "subscribers";
+	}
+
+	export interface ModerationEvent_subsoff extends ModerationEvent_base {
+		action: "subscribersoff";
+	}
+
+	export interface ModerationEvent_emoteson extends ModerationEvent_base {
+		action: "emoteonly";
+	}
+
+	export interface ModerationEvent_emotesoff extends ModerationEvent_base {
+		action: "emoteonlyoff";
+	}
+
+	export interface ModerationEvent_slowon extends ModerationEvent_base {
+		action: "slow";
+		slow:{wait_time_seconds:number}
+	}
+
+	export interface ModerationEvent_slowoff extends ModerationEvent_base {
+		action: "slowoff";
+	}
+
+	export interface ModerationEvent_warn extends ModerationEvent_base {
+		action: "warn";
+		warn: {
+			user_id: string;
+			user_login: string;
+			user_name: string;
+			reason: string|null;
+			chat_rules_cited: string[];
+		}
+	}
+
+	export interface WarningAcknowledgeEvent {
+		broadcaster_user_id: string;
+		broadcaster_user_login: string;
+		broadcaster_user_name: string;
+		user_id: string;
+		user_login: string;
+		user_name: string;
 	}
 }

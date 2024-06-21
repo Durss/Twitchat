@@ -291,9 +291,9 @@ import TriggerActionList from './TriggerActionList.vue';
 		if(e.value == TriggerTypes.PREDICTION_RESULT && (!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]))) return true;
 		if(e.value == TriggerTypes.SHIELD_MODE_ON && !TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])) return true;
 		if(e.value == TriggerTypes.SHIELD_MODE_OFF && !TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])) return true;
-		if(e.value == TriggerTypes.TIMEOUT && !TwitchUtils.hasScopes([TwitchScopes.READ_MODS_AND_BANNED])) return true;
-		if(e.value == TriggerTypes.BAN && !TwitchUtils.hasScopes([TwitchScopes.READ_MODS_AND_BANNED])) return true;
-		if(e.value == TriggerTypes.UNBAN && !TwitchUtils.hasScopes([TwitchScopes.READ_MODS_AND_BANNED])) return true;
+		if(e.value == TriggerTypes.TIMEOUT && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED])) return true;
+		if(e.value == TriggerTypes.BAN && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED])) return true;
+		if(e.value == TriggerTypes.UNBAN && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED])) return true;
 		if(e.value == TriggerTypes.VIP && !TwitchUtils.hasScopes([TwitchScopes.EDIT_VIPS])) return true;
 		if(e.value == TriggerTypes.UNVIP && !TwitchUtils.hasScopes([TwitchScopes.EDIT_VIPS])) return true;
 		if(e.value == TriggerTypes.MOD && !TwitchUtils.hasScopes([TwitchScopes.EDIT_MODS])) return true;
@@ -326,9 +326,9 @@ import TriggerActionList from './TriggerActionList.vue';
 		if(e.value == TriggerTypes.PREDICTION_RESULT && this.hasChannelPoints && !TwitchUtils.requestScopes([TwitchScopes.MANAGE_PREDICTIONS])) return;
 		if(e.value == TriggerTypes.SHIELD_MODE_ON && !TwitchUtils.requestScopes([TwitchScopes.SHIELD_MODE])) return;
 		if(e.value == TriggerTypes.SHIELD_MODE_OFF && !TwitchUtils.requestScopes([TwitchScopes.SHIELD_MODE])) return;
-		if(e.value == TriggerTypes.TIMEOUT && !TwitchUtils.requestScopes([TwitchScopes.READ_MODS_AND_BANNED])) return;
-		if(e.value == TriggerTypes.BAN && !TwitchUtils.requestScopes([TwitchScopes.READ_MODS_AND_BANNED])) return;
-		if(e.value == TriggerTypes.UNBAN && !TwitchUtils.requestScopes([TwitchScopes.READ_MODS_AND_BANNED])) return;
+		if(e.value == TriggerTypes.TIMEOUT && !TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+		if(e.value == TriggerTypes.BAN && !TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+		if(e.value == TriggerTypes.UNBAN && !TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
 		if(e.value == TriggerTypes.VIP && !TwitchUtils.requestScopes([TwitchScopes.EDIT_VIPS])) return;
 		if(e.value == TriggerTypes.UNVIP && !TwitchUtils.requestScopes([TwitchScopes.EDIT_VIPS])) return;
 		if(e.value == TriggerTypes.MOD && !TwitchUtils.requestScopes([TwitchScopes.EDIT_MODS])) return;
@@ -337,8 +337,8 @@ import TriggerActionList from './TriggerActionList.vue';
 		if(e.value == TriggerTypes.FOLLOWED_STREAM_ONLINE && !TwitchUtils.requestScopes([TwitchScopes.LIST_FOLLOWINGS])) return;
 		if(e.value == TriggerTypes.FOLLOWED_STREAM_OFFLINE && !TwitchUtils.requestScopes([TwitchScopes.LIST_FOLLOWINGS])) return;
 		if((e.value == TriggerTypes.AD_APPROACHING
-		|| e.value == TriggerTypes.AD_STARTED
-		 || e.value == TriggerTypes.AD_COMPLETE) && !TwitchUtils.requestScopes([TwitchScopes.ADS_READ])) return;
+			|| e.value == TriggerTypes.AD_STARTED
+			|| e.value == TriggerTypes.AD_COMPLETE) && !TwitchUtils.requestScopes([TwitchScopes.ADS_READ])) return;
 
 		if((e.value == TriggerTypes.HYPE_TRAIN_CANCELED
 			|| e.value == TriggerTypes.HYPE_TRAIN_APPROACHING

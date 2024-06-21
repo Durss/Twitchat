@@ -906,7 +906,7 @@ export default class TwitchUtils {
 	 * Limited to our own channel
 	 */
 	public static async getModerators(): Promise<TwitchDataTypes.ModeratorUser[]> {
-		if (!this.hasScopes([TwitchScopes.READ_MODS_AND_BANNED])) return [];
+		if (!this.hasScopes([TwitchScopes.READ_MODERATORS])) return [];
 
 		let list: TwitchDataTypes.ModeratorUser[] = [];
 		let cursor: string | null = null;
@@ -997,7 +997,7 @@ export default class TwitchUtils {
 	 * Get the banned states of specified users
 	 */
 	public static async getBannedUsers(channelId: string, uids: string[]): Promise<TwitchDataTypes.BannedUser[]> {
-		if (!this.hasScopes([TwitchScopes.READ_MODS_AND_BANNED])) return [];
+		if (!this.hasScopes([TwitchScopes.EDIT_BANNED])) return [];
 		//Can't get banned state for another channel even if we're a mod of that channel
 		if (channelId != this.uid) return [];
 
@@ -2913,6 +2913,37 @@ export default class TwitchUtils {
 		} else if (res.status == 429) {
 			await this.onRateLimit(res.headers, url.pathname);
 			return this.removeBanword(id, channelID);
+		}
+		return false;
+	}
+
+	/**
+	 * Sends a warning to a user
+	 * @param uid user ID
+	 * @param reason warning message
+	 */
+	public static async sendWarning(uid: string, reason:string, channelID?:string): Promise<boolean> {
+		if (!this.hasScopes([TwitchScopes.BLOCKED_TERMS])) return false;
+
+		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/warnings");
+		url.searchParams.append("broadcaster_id", channelID ?? this.uid);
+		url.searchParams.append("moderator_id", this.uid);
+
+		const res = await this.callApi(url, {
+			method: "POST",
+			headers: this.headers,
+			body:JSON.stringify({
+				data: {
+					user_id:uid,
+					reason,
+				}
+			})
+		});
+		if (res.status == 200 || res.status == 204) {
+			return true;
+		} else if (res.status == 429) {
+			await this.onRateLimit(res.headers, url.pathname);
+			return this.sendWarning(uid, reason, channelID);
 		}
 		return false;
 	}

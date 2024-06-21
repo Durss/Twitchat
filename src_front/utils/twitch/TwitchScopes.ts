@@ -13,7 +13,6 @@ export const TwitchScopes = {
 	MANAGE_PREDICTIONS: "channel:manage:predictions",
 	SET_ROOM_SETTINGS: "moderator:manage:chat_settings",
 	MODERATION_EVENTS: "channel:moderate",
-	READ_MODS_AND_BANNED: "moderation:read",
 	EDIT_MODS: "channel:manage:moderators",
 	EDIT_VIPS: "channel:manage:vips",
 	START_RAID: "channel:manage:raids",
@@ -38,6 +37,8 @@ export const TwitchScopes = {
 	EXTENSIONS: "user:edit:broadcast",
 	READ_EMOTES: "user:read:emotes",
 	BLOCKED_TERMS: "moderator:manage:blocked_terms",
+	READ_MODERATORS: "moderator:read:moderators",
+	CHAT_WARNING: "moderator:manage:warnings",
 } as const;
 export type TwitchScopesString = typeof TwitchScopes[keyof typeof TwitchScopes];
 
@@ -71,7 +72,6 @@ TwitchScope2Icon[TwitchScopes.LIST_FOLLOWERS]			= "follow";
 TwitchScope2Icon[TwitchScopes.LIST_BLOCKED]				= "block";
 TwitchScope2Icon[TwitchScopes.EDIT_BLOCKED]				= "block";
 TwitchScope2Icon[TwitchScopes.EDIT_BANNED]				= "ban";
-TwitchScope2Icon[TwitchScopes.READ_MODS_AND_BANNED]		= "ban";
 TwitchScope2Icon[TwitchScopes.AUTOMOD]					= "automod";
 TwitchScope2Icon[TwitchScopes.SHIELD_MODE]				= "shield";
 TwitchScope2Icon[TwitchScopes.CLIPS]					= "clip";
@@ -80,3 +80,4 @@ TwitchScope2Icon[TwitchScopes.ADS_SNOOZE]				= "ad";
 TwitchScope2Icon[TwitchScopes.READ_EMOTES]				= "emote";
 TwitchScope2Icon[TwitchScopes.UNBAN_REQUESTS]			= "unbanRequest";
 TwitchScope2Icon[TwitchScopes.BLOCKED_TERMS]			= "block";
+TwitchScope2Icon[TwitchScopes.CHAT_WARNING]				= "alert";

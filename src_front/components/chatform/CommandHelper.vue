@@ -80,19 +80,19 @@
 			v-if="isAdmin" secondary>{{$t('cmdmenu.announcement')}}</TTButton>
 
 		<div class="commercial" v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">
-			<TTButton aria-label="Start a 30s ad"		v-if="adCooldown == 0" small @click.capture="startAd(30);"	:disabled="!canStartCommercial" icon="coin">{{ $t('cmdmenu.start_ad') }}</TTButton>
-			<TTButton aria-label="Start a 60s ad"		v-if="adCooldown == 0" small @click.capture="startAd(60);"	:disabled="!canStartCommercial">1'00</TTButton>
-			<TTButton aria-label="Start a 90s ad"		v-if="adCooldown == 0" small @click.capture="startAd(90);"	:disabled="!canStartCommercial">1'30</TTButton>
+			<TTButton aria-label="Start a 30s ad"	v-if="adCooldown == 0" small @click.capture="startAd(30);"	:disabled="!canStartCommercial" icon="coin">{{ $t('cmdmenu.start_ad') }}</TTButton>
+			<TTButton aria-label="Start a 60s ad"	v-if="adCooldown == 0" small @click.capture="startAd(60);"	:disabled="!canStartCommercial">1'00</TTButton>
+			<TTButton aria-label="Start a 90s ad"	v-if="adCooldown == 0" small @click.capture="startAd(90);"	:disabled="!canStartCommercial">1'30</TTButton>
 			<TTButton aria-label="Start a 120s ad"	v-if="adCooldown == 0" small @click.capture="startAd(120);"	:disabled="!canStartCommercial">2'00</TTButton>
 			<TTButton aria-label="Start a 150s ad"	v-if="adCooldown == 0" small @click.capture="startAd(150);"	:disabled="!canStartCommercial">2'30</TTButton>
 			<TTButton aria-label="Start a 180s ad"	v-if="adCooldown == 0" small @click.capture="startAd(180);"	:disabled="!canStartCommercial">3'00</TTButton>
 			<div v-if="adCooldown > 0" class="card-item alert cooldown">{{$t('cmdmenu.commercial', {DURATION:adCooldownFormated})}}</div>
 		</div>
 
-		<ParamItem class="roomParam" :paramData="param_followOnly"	@change="setFollowOnly()"	noBackground @click="requestRoomSettingsScopes()" />
-		<ParamItem class="roomParam" :paramData="param_subOnly"		@change="setSubOnly()"		noBackground @click="requestRoomSettingsScopes()" />
-		<ParamItem class="roomParam" :paramData="param_emotesOnly"	@change="setEmoteOnly()"	noBackground @click="requestRoomSettingsScopes()" />
-		<ParamItem class="roomParam" :paramData="param_slowMode"	@change="setSlowMode()"		noBackground @click="requestRoomSettingsScopes()" />
+		<ParamItem class="roomParam" :paramData="param_followOnly"	v-model="param_followOnly.value"	@change="setFollowOnly()"	@click="requestRoomSettingsScopes()"	noBackground />
+		<ParamItem class="roomParam" :paramData="param_subOnly"		v-model="param_subOnly.value"		@change="setSubOnly()"		@click="requestRoomSettingsScopes()"	noBackground />
+		<ParamItem class="roomParam" :paramData="param_emotesOnly"	v-model="param_emotesOnly.value"	@change="setEmoteOnly()"	@click="requestRoomSettingsScopes()"	noBackground />
+		<ParamItem class="roomParam" :paramData="param_slowMode"	v-model="param_slowMode.value"		@change="setSlowMode()"		@click="requestRoomSettingsScopes()"	noBackground />
 
 		<div class="card-item raid" v-if="$store.stream.currentRaid">
 			<div class="title">
@@ -133,6 +133,7 @@ import {toNative,  Component, Vue, Prop } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 import DataStore from '@/store/DataStore';
+import { watch } from 'vue';
 
 @Component({
 	components:{
@@ -215,22 +216,21 @@ import DataStore from '@/store/DataStore';
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
 
-		// watch(()=>this.$store.stream.commercial[uid].prevAdStart_at, ()=>{
-		// 	this.adCooldown = this.$store.stream.commercial[uid].prevAdStart_at - Date.now();
-		// });
+		watch(()=>this.$store.stream.commercial[uid].prevAdStart_at, ()=>{
+			this.adCooldown = this.$store.stream.commercial[uid].prevAdStart_at - Date.now();
+		});
 
-		// const channelId = this.$store.auth.twitch.user.id;
-		// watch(()=>this.$store.stream.roomSettings[channelId], ()=>{
-		// 	this.populateSettings();
-		// }, {deep:true});
+		const channelId = this.$store.auth.twitch.user.id;
+		watch(()=>this.$store.stream.roomSettings[channelId], ()=>{
+			this.populateSettings();
+		}, {deep:true});
 
-		// this.adCooldown = Math.max(0, this.$store.stream.commercial[uid].prevAdStart_at - Date.now());
-		// this.adCooldownInterval = window.setInterval(()=>{
-		// 	if(this.adCooldown === 0) return;
-		// 	this.adCooldown -= 1000;
-		// 	if(this.adCooldown < 0) this.adCooldown = 0;
-		// }, 1000);
-
+		this.adCooldown = Math.max(0, this.$store.stream.commercial[uid].prevAdStart_at - Date.now());
+		this.adCooldownInterval = window.setInterval(()=>{
+			if(this.adCooldown === 0) return;
+			this.adCooldown -= 1000;
+			if(this.adCooldown < 0) this.adCooldown = 0;
+		}, 1000);
 
 		this.populateSettings();
 	}
@@ -339,7 +339,7 @@ import DataStore from '@/store/DataStore';
 		this.param_followOnly.value	= typeof settings.followOnly == "number";
 		this.param_subOnly.value	= settings.subOnly;
 		this.param_emotesOnly.value	= settings.emotesOnly;
-		this.param_slowMode.value	= typeof settings.slowMode == "number";
+		this.param_slowMode.value	= typeof settings.slowMode == "number" && settings.slowMode > 0;
 
 		await this.$nextTick();
 		this.ignoreUpdates = false;

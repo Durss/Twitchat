@@ -202,7 +202,8 @@
 			"triggerlogs": "@:triggers.logs.title",
 			"heatlogs": "@:heat.logs.title",
 			"snooze_ad_break": "Snooze incoming ad break for 5min",
-			"discord": "Send a message to discord"
+			"discord": "Send a message to discord",
+			"warn": "Send a warning to the given user"
 		}
 	}
 }

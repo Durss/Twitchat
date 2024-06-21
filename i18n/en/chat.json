@@ -367,7 +367,8 @@
 			"export_discord": "Send to Discord",
 			"discord_quick_actions": "Discord actions",
 			"discord_ticket": "Create ticket",
-			"add_blocked_terms": "Add this message to blocked terms"
+			"add_blocked_terms": "Add this message to blocked terms",
+			"warn_user": "Warn user"
 		},
 		"custom_badge": {
 			"label": {
@@ -474,6 +475,14 @@
 			"cancel_bt":"Unblock terms",
 			"banUsers_bt":"Ban users",
 			"footer":"Check your blocked terms and how many they've been blocked"
+		},
+		"warn_chatter": {
+			"title": "{MODERATOR} sent a warning to {USER}",
+			"default_reason":"You received this warning because you had an inappropriate behavior. Please be respectful."
+		},
+		"vip": {
+			"add": "{MODERATOR} added {USER} to your VIPs",
+			"remove": "{MODERATOR} removed {USER} from your VIPs"
 		}
 	}
 }

@@ -367,7 +367,8 @@
 			"export_discord":"Envoyer dans Discord",
 			"discord_quick_actions":"Actions Discord",
 			"discord_ticket":"Créer un ticket",
-			"add_blocked_terms": "Ajouter ce message aux termes bloqués"
+			"add_blocked_terms": "Ajouter ce message aux termes bloqués",
+			"warn_user": "Envoyer un avertissement"
 		},
 		"custom_badge": {
 			"label": {
@@ -474,6 +475,13 @@
 			"cancel_bt":"Réautoriser les termes",
 			"banUsers_bt":"Bannir les haters",
 			"footer":"Consultez vos termes bloqués et leur nombre de blocages"
+		},
+		"warn_chatter": {
+			"title": "{MODERATOR} a envoyé un avertissement à {USER}",
+			"default_reason":"Tu as reçu cet avertissement car tu as eu un comportement inapproprié. Merci de rester respectueux·se."
+		},
+		"warn_acknowledge": {
+			"title": "{USER} a confirmé la reception de son avertissement"
 		}
 	}
 }

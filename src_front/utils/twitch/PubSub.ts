@@ -376,13 +376,6 @@ export default class PubSub extends EventDispatcher {
 			this.unpinMessageEvent(localObj, channelId);
 
 
-
-		//Sent when room settings are updated
-		}else if(data.type == "updated_room") {
-			this.roomSettingsUpdate(data.data as PubSubDataTypes.RoomSettingsUpdate);
-
-
-
 		//sent when a clip is sent on chat (see ChatRichEmbed JSON example).
 		}else if(data.type == "chat_rich_embed") {
 			//Warning: JSON might be mostly empty/incomplete. Example bellow:
@@ -458,23 +451,6 @@ export default class PubSub extends EventDispatcher {
 			this.communityChallengeContributionEvent(contrib);
 
 
-
-		}else if(data.type == "vip_added") {
-			const localObj = data.data as PubSubDataTypes.VIPAdded;
-			const m:TwitchatDataTypes.MessageModerationAction = {
-				id:Utils.getUUID(),
-				date:Date.now(),
-				platform:"twitch",
-				channel_id:channelId,
-				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-				user:StoreProxy.users.getUserFrom("twitch", localObj.channel_id, localObj.target_user_id, localObj.target_user_login),
-				noticeId:TwitchatDataTypes.TwitchatNoticeType.VIP,
-				message: "User "+localObj.target_user_login+" has been added to your VIPS by "+localObj.created_by,
-			};
-			StoreProxy.chat.addMessage(m);
-
-
-
 		}else if(data.type == "extension_message") {
 			//Manage extension messages
 			const mess = data.data as PubSubDataTypes.ExtensionMessage;
@@ -528,19 +504,19 @@ export default class PubSub extends EventDispatcher {
 
 
 
-		}else if(data.type == "raid_update_v2" && data.raid) {
-			const currentRaidInfo = StoreProxy.stream.currentRaid;
-			const m:TwitchatDataTypes.RaidInfo = {
-				channel_id: channelId,
-				user: currentRaidInfo?.user ?? StoreProxy.users.getUserFrom("twitch", channelId, data.raid.target_id, data.raid.target_login, data.raid.target_display_name),
-				viewerCount: data.raid.viewer_count,
-				startedAt:currentRaidInfo?.startedAt ?? Date.now(),
-				timerDuration_s:currentRaidInfo?.timerDuration_s ?? 90,
-			};
-			StoreProxy.stream.setRaiding(m);
+		// }else if(data.type == "raid_update_v2" && data.raid) {
+		// 	const currentRaidInfo = StoreProxy.stream.currentRaid;
+		// 	const m:TwitchatDataTypes.RaidInfo = {
+		// 		channel_id: channelId,
+		// 		user: currentRaidInfo?.user ?? StoreProxy.users.getUserFrom("twitch", channelId, data.raid.target_id, data.raid.target_login, data.raid.target_display_name),
+		// 		viewerCount: data.raid.viewer_count,
+		// 		startedAt:currentRaidInfo?.startedAt ?? Date.now(),
+		// 		timerDuration_s:currentRaidInfo?.timerDuration_s ?? 90,
+		// 	};
+		// 	StoreProxy.stream.setRaiding(m);
 
-		}else if(data.type == "raid_cancel_v2") { //|| data.type == "raid_go_v2" //<= removed in favor of eventsub
-			StoreProxy.stream.setRaiding();
+		// }else if(data.type == "raid_cancel_v2") { //|| data.type == "raid_go_v2" //<= removed in favor of eventsub
+		// 	StoreProxy.stream.setRaiding();
 
 
 
@@ -623,32 +599,6 @@ export default class PubSub extends EventDispatcher {
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.VIP;
 					noticeText = t("global.moderation_action.viped_by", {USER:moderatedUser.displayName, MODERATOR:localObj.created_by});
 					StoreProxy.users.flagVip("twitch", channelId, moderatedUser.id);
-					break;
-				}
-
-				case "raid": {
-					const user = await new Promise<TwitchatDataTypes.TwitchatUser>((resolve)=> {
-						StoreProxy.users.getUserFrom("twitch", channelId, undefined, localObj.args![0] as string, undefined, (u)=> resolve(u));
-					});
-					const infos:TwitchatDataTypes.RaidInfo = {
-						channel_id: channelId,
-						user,
-						viewerCount: 0,
-						startedAt:Date.now(),
-						timerDuration_s:90,
-					};
-
-					//Load user's avatar if not already available
-					if(!infos.user.avatarPath) {
-						const user = (await TwitchUtils.getUserInfo([infos.user.id]))[0];
-						infos.user.avatarPath = user.profile_image_url;
-					}
-					StoreProxy.stream.setRaiding(infos);
-					break;
-				}
-
-				case "unraid": {
-					StoreProxy.stream.setRaiding();
 					break;
 				}
 
@@ -1283,20 +1233,6 @@ export default class PubSub extends EventDispatcher {
 	private whisperRead(data:PubSubDataTypes.WhisperRead):void {
 		data;//
 		// StoreProxy.store.dispatch("closeWhispers", data.id.split("_")[1]);
-	}
-
-	/**
-	 * Called when room settings are updated
-	 * @param data
-	 */
-	private roomSettingsUpdate(data:PubSubDataTypes.RoomSettingsUpdate):void {
-		const settings:TwitchatDataTypes.IRoomSettings = {}
-		const modes = data.room.modes;
-		settings.followOnly = modes.followers_only_duration_minutes ?? false;
-		settings.emotesOnly = modes.emote_only_mode_enabled === true;
-		settings.subOnly = modes.subscribers_only_mode_enabled === true;
-		settings.slowMode = modes.slow_mode_duration_seconds ?? false;
-		StoreProxy.stream.setRoomSettings(data.room.channel_id, settings);
 	}
 
 	/**
