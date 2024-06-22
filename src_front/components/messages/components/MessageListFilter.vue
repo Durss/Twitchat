@@ -950,7 +950,6 @@ export class MessageListFilter extends Vue {
 		let missingScopes:TwitchScopesString[] = [];
 		for (let i = 0; i < this.filters.length; i++) {
 			const f = this.filters[i];
-			console.log(this.config.order, f.labelKey, f.value);
 			//Keep missing scopes
 			if(f.twitch_scopes && f.value === true) {
 				f.twitch_scopes.forEach(s => {
@@ -968,7 +967,6 @@ export class MessageListFilter extends Vue {
 		})?.value=== true) {
 			for (let i = 0; i < this.messageFilters.length; i++) {
 				const f = this.messageFilters[i];
-				console.log(this.config.order+"_", f.labelKey, f.value);
 				//Keep missing scopes
 				if(f.twitch_scopes && f.value === true) {
 					f.twitch_scopes.forEach(s => {
