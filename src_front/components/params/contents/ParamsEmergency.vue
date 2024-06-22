@@ -3,14 +3,14 @@
 		<Icon name="emergency" />
 		
 		<p class="head">{{ $t("emergency.header") }}</p>
-		<ParamItem class="enableBt" :paramData="param_enable" />
+		<ParamItem class="enableBt" :paramData="param_enable" v-model="param_enable.value" />
 
 		<div class="fadeHolder" :style="holderStyles">
 
 			<section>
 				<Splitter class="splitter">{{ $t("emergency.start.title") }}</Splitter>
-				<ParamItem :paramData="param_autoEnableOnShieldmode" />
-				<ParamItem :paramData="param_autoEnableOnFollowbot" />
+				<ParamItem :paramData="param_autoEnableOnShieldmode" v-model="param_autoEnableOnShieldmode.value" />
+				<ParamItem :paramData="param_autoEnableOnFollowbot" v-model="param_autoEnableOnFollowbot.value" />
 				<div class="card-item">
 					<ParamItem class="chatCommand" noBackground :paramData="param_chatCommand" />
 					<ToggleBlock :title="$t('emergency.start.chatCommand_users')" :open="false" small>
@@ -30,13 +30,13 @@
 
 			<section>
 				<Splitter class="splitter">{{ $t("emergency.actions.title") }}</Splitter>
-				<ParamItem :paramData="param_enableShieldMode" inverseChildrenCondition>
-					<ParamItem noBackground :paramData="param_followersOnly"	class="childItem"/>
-					<ParamItem noBackground :paramData="param_subsOnly"			class="childItem"/>
-					<ParamItem noBackground :paramData="param_emotesOnly"		class="childItem"/>
-					<ParamItem noBackground :paramData="param_slowMode"			class="childItem"/>
+				<ParamItem :paramData="param_enableShieldMode" v-model="param_enableShieldMode.value" inverseChildrenCondition>
+					<ParamItem noBackground :paramData="param_followersOnly"	v-model="param_followersOnly.value"		class="childItem"/>
+					<ParamItem noBackground :paramData="param_subsOnly"			v-model="param_subsOnly.value"			class="childItem"/>
+					<ParamItem noBackground :paramData="param_emotesOnly"		v-model="param_emotesOnly.value"		class="childItem"/>
+					<ParamItem noBackground :paramData="param_slowMode"			v-model="param_slowMode.value"			class="childItem"/>
 				</ParamItem>
-				<ParamItem :paramData="param_noTrigger" />
+				<ParamItem :paramData="param_noTrigger" v-model="param_noTrigger.value" />
 				<ParamItem :paramData="param_autoTO" />
 
 				<div v-if="!obsConnected">

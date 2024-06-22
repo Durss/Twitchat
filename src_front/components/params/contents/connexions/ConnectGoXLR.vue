@@ -11,7 +11,7 @@
 		</div>
 
 		<template v-if="$store.auth.isPremium">
-			<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
+			<ParamItem class="item enableBt" :paramData="param_enabled" v-model="param_enabled.value" @change="toggleState()" />
 	
 			<section v-if="connecting" class="card-item">
 				<Icon class="item center" name="loader" />

@@ -31,7 +31,7 @@
 			<form @submit.prevent="createCounter()">
 				<ParamItem :paramData="param_title" :errorMessage="$t('counters.form.name_conflict')" />
 				<ParamItem :paramData="param_value" />
-				<ParamItem :paramData="param_more" />
+				<ParamItem :paramData="param_more" v-model="param_more.value" />
 				<div class="ctas">
 					<Button type="button" icon="cross" alert @click="cancelForm()">{{ $t('global.cancel') }}</Button>
 					<Button type="submit" v-if="!editedCounter" icon="add" :disabled="param_title.value.length == 0 || param_title.error || param_placeholder.error">{{ $t('global.create') }}</Button>

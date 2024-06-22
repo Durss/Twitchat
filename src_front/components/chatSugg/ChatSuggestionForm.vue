@@ -25,7 +25,7 @@
 
 				<ParamItem :paramData="duration" @change="changeValue()" />
 
-				<ParamItem :paramData="multiAnswers" @change="changeValue()" />
+				<ParamItem :paramData="multiAnswers" v-model="multiAnswers.value" @change="changeValue()" />
 
 				<PostOnChatParam botMessageKey="chatSuggStart"
 					v-if="triggerMode === false"

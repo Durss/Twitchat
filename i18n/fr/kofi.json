@@ -1,11 +1,11 @@
 {
 	"kofi":{
 		"header":"Recevez les alertes {LINK} dans Twitchat",
-		"find_key_title":"Où le trouver?",
+		"open_dashboard":"Ouvrez votre dashboard",
 		"find_key":"Développez la section \"Avancé\" et trouvez votre \"Token de Vérification\"",
-		"find_key_link":"Ouvrez votre dashboard",
+		"set_url":"Spécifiez l'URL suivante dans le champ \"Webhook URL\"",
 		"set_token":"Copiez votre Token de Vérification ci-dessous",
-		"examples":"Message d'exemples",
+		"examples":"Messages d'exemple",
 		"param_key":"Token de Vérification"
 	}
 }

@@ -30,10 +30,9 @@
 			<Icon class="loader" name="loader" v-if="loading" />
 
 			<div v-else class="form">
-				{{ branded }}
 				<StreamInfoSubForm v-model:title="title" v-model:tags="tags" v-model:category="category" v-model:branded="branded" v-model:labels="labels" />
 
-				<ParamItem class="card-item save" :paramData="param_savePreset" v-if="!presetEditing" />
+				<ParamItem class="card-item save" :paramData="param_savePreset" v-model="param_savePreset.value" v-if="!presetEditing" />
 
 				<div class="actions">
 					<TTButton class="submitBt" @click="cancelPresetEdit()" :loading="saving" alert v-if="presetEditing">{{$t('global.cancel')}}</TTButton>

@@ -40,7 +40,7 @@
 			<ParamItem :paramData="param_showArtist" v-model="$store.music.musicPlayerParams.showArtist" />
 			<ParamItem :paramData="param_showTitle" v-model="$store.music.musicPlayerParams.showTitle" />
 			<ParamItem :paramData="param_showProgress" v-model="$store.music.musicPlayerParams.showProgressbar" />
-			<ParamItem :paramData="param_customTemplateToggle" />
+			<ParamItem :paramData="param_customTemplateToggle" v-model="param_customTemplateToggle.value" />
 		</section>
 	</div>
 </template>

@@ -23,8 +23,8 @@
 			<form @submit.prevent="createValue()">
 				<ParamItem :paramData="param_title" :errorMessage="$t('values.form.name_conflict')" />
 				<ParamItem :paramData="param_value" />
-				<ParamItem :paramData="param_more" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'values_form_more'}">
-					<ParamItem class="child" noBackground :paramData="param_userSpecific" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'values_form_more_peruser'}" />
+				<ParamItem :paramData="param_more" v-model="param_more.value" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'values_form_more'}">
+					<ParamItem class="child" noBackground :paramData="param_userSpecific" v-model="param_userSpecific.value" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'values_form_more_peruser'}" />
 					<ParamItem class="child" noBackground :paramData="param_placeholder" />
 				</ParamItem>
 				<div class="ctas">

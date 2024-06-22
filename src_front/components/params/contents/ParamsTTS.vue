@@ -3,7 +3,7 @@
 		<Icon name="tts" class="icon" />
 
 		<p class="head">{{ $t("tts.header") }}</p>
-		<ParamItem  class="card-item enableBt" :paramData="param_enabled" />
+		<ParamItem  class="card-item enableBt" :paramData="param_enabled" v-model="param_enabled.value" />
 
 		<div class="fadeHolder" :style="holderStyles">
 			<transition
@@ -23,43 +23,43 @@
 			<Splitter class="splitter">{{ $t("tts.messages.title") }}</Splitter>
 
 			<section>
-				<ParamItem :paramData="param_readMessages" />
-				<ParamItem :paramData="param_readWhispers" />
-				<ParamItem :paramData="param_readFollow" />
-				<ParamItem :paramData="param_readSubs" />
-				<ParamItem :paramData="param_readSubgifts" />
-				<ParamItem :paramData="param_readBits" />
-				<ParamItem :paramData="param_readRaids" />
-				<ParamItem :paramData="param_readRewards" />
-				<ParamItem :paramData="param_readPolls" />
-				<ParamItem :paramData="param_readPredictions" />
-				<ParamItem :paramData="param_readBingos" />
-				<ParamItem :paramData="param_readRaffle" />
-				<ParamItem :paramData="param_readKofiTip" />
-				<ParamItem :paramData="param_readKofiMerch" />
-				<ParamItem :paramData="param_readKofiSub" />
-				<ParamItem :paramData="param_readStreamlabsTip" />
-				<ParamItem :paramData="param_readStreamlabsMerch" />
-				<ParamItem :paramData="param_readStreamlabsPatreon" />
-				<ParamItem :paramData="param_readStreamelementsTip" />
-				<ParamItem :paramData="param_readTimeouts" />
-				<ParamItem :paramData="param_readBans" />
-				<ParamItem :paramData="param_readUnbans" />
-				<ParamItem :paramData="param_readNotices" />
-				<ParamItem :paramData="param_read1stMessageToday" />
-				<ParamItem :paramData="param_read1stTimeChatters" />
-				<ParamItem :paramData="param_readMonitored" />
-				<ParamItem :paramData="param_readRestricted" />
-				<ParamItem :paramData="param_readAutomod" />
+				<ParamItem :paramData="param_readMessages" v-model="param_readMessages.value" />
+				<ParamItem :paramData="param_readWhispers" v-model="param_readWhispers.value" />
+				<ParamItem :paramData="param_readFollow" v-model="param_readFollow.value" />
+				<ParamItem :paramData="param_readSubs" v-model="param_readSubs.value" />
+				<ParamItem :paramData="param_readSubgifts" v-model="param_readSubgifts.value" />
+				<ParamItem :paramData="param_readBits" v-model="param_readBits.value" />
+				<ParamItem :paramData="param_readRaids" v-model="param_readRaids.value" />
+				<ParamItem :paramData="param_readRewards" v-model="param_readRewards.value" />
+				<ParamItem :paramData="param_readPolls" v-model="param_readPolls.value" />
+				<ParamItem :paramData="param_readPredictions" v-model="param_readPredictions.value" />
+				<ParamItem :paramData="param_readBingos" v-model="param_readBingos.value" />
+				<ParamItem :paramData="param_readRaffle" v-model="param_readRaffle.value" />
+				<ParamItem :paramData="param_readKofiTip" v-model="param_readKofiTip.value" />
+				<ParamItem :paramData="param_readKofiMerch" v-model="param_readKofiMerch.value" />
+				<ParamItem :paramData="param_readKofiSub" v-model="param_readKofiSub.value" />
+				<ParamItem :paramData="param_readStreamlabsTip" v-model="param_readStreamlabsTip.value" />
+				<ParamItem :paramData="param_readStreamlabsMerch" v-model="param_readStreamlabsMerch.value" />
+				<ParamItem :paramData="param_readStreamlabsPatreon" v-model="param_readStreamlabsPatreon.value" />
+				<ParamItem :paramData="param_readStreamelementsTip" v-model="param_readStreamelementsTip.value" />
+				<ParamItem :paramData="param_readTimeouts" v-model="param_readTimeouts.value" />
+				<ParamItem :paramData="param_readBans" v-model="param_readBans.value" />
+				<ParamItem :paramData="param_readUnbans" v-model="param_readUnbans.value" />
+				<ParamItem :paramData="param_readNotices" v-model="param_readNotices.value" />
+				<ParamItem :paramData="param_read1stMessageToday" v-model="param_read1stMessageToday.value" />
+				<ParamItem :paramData="param_read1stTimeChatters" v-model="param_read1stTimeChatters.value" />
+				<ParamItem :paramData="param_readMonitored" v-model="param_readMonitored.value" />
+				<ParamItem :paramData="param_readRestricted" v-model="param_readRestricted.value" />
+				<ParamItem :paramData="param_readAutomod" v-model="param_readAutomod.value" />
 			</section>
 			
 			<Splitter class="splitter">{{ $t("tts.params.title") }}</Splitter>
 
 			<section class="card-item">
-				<ParamItem noBackground :paramData="param_voice" />
-				<ParamItem noBackground :paramData="param_volume" />
-				<ParamItem noBackground :paramData="param_rate" />
-				<ParamItem noBackground :paramData="param_pitch" />
+				<ParamItem noBackground :paramData="param_voice" v-model="param_voice.value" />
+				<ParamItem noBackground :paramData="param_volume" v-model="param_volume.value" />
+				<ParamItem noBackground :paramData="param_rate" v-model="param_rate.value" />
+				<ParamItem noBackground :paramData="param_pitch" v-model="param_pitch.value" />
 				<form @submit.prevent="testVoice()">
 					<input class="center" type="text" v-model="testStr" :placeholder="$t('tts.params.test_placeholder')">
 					<TTButton class="center" icon="tts" type="submit">{{ $t('tts.params.testBt') }}</TTButton>
@@ -69,12 +69,12 @@
 			<Splitter class="splitter">{{ $t("tts.filters.title") }}</Splitter>
 
 			<section>
-				<ParamItem :paramData="param_removeEmotes" />
-				<ParamItem class="shrinkInput" :paramData="param_removeURL" />
-				<ParamItem :paramData="param_maxDurationToggle" />
-				<ParamItem :paramData="param_maxLengthToggle" />
-				<ParamItem :paramData="param_timeoutToggle" />
-				<ParamItem :paramData="param_inactivityPeriodToggle" />
+				<ParamItem :paramData="param_removeEmotes" v-model="param_removeEmotes.value" />
+				<ParamItem class="shrinkInput" :paramData="param_removeURL" v-model="param_removeURL.value" />
+				<ParamItem :paramData="param_maxDurationToggle" v-model="param_maxDurationToggle.value" />
+				<ParamItem :paramData="param_maxLengthToggle" v-model="param_maxLengthToggle.value" />
+				<ParamItem :paramData="param_timeoutToggle" v-model="param_timeoutToggle.value" />
+				<ParamItem :paramData="param_inactivityPeriodToggle" v-model="param_inactivityPeriodToggle.value" />
 			</section>
 		</div>
 

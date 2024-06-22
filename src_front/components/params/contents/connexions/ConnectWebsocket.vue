@@ -8,7 +8,7 @@
 			<form class="card-item" v-if="!connected" @submit.prevent="connect()">
 				<ParamItem noBackground :paramData="param_ip" autofocus @change="onChangeValue"/>
 				<ParamItem noBackground :paramData="param_port" @change="onChangeValue"/>
-				<ParamItem noBackground :paramData="param_secured" @change="onChangeValue"/>
+				<ParamItem noBackground :paramData="param_secured" v-model="param_secured.value" @change="onChangeValue"/>
 		
 				<div class="ctas">
 					<TTButton type="reset" v-if="!connected" alert

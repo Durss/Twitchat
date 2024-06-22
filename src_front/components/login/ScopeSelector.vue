@@ -104,7 +104,6 @@ import ParamItem from '../params/ParamItem.vue';
 				});
 			}else{
 				const selected = forceSelect? true : TwitchUtils.hasScopes([s]);
-				console.log(selected);
 				if(!selected) allSelected = false;
 				this.param_items.push({
 					labelKey:"global.twitch_scopes."+s,

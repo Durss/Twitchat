@@ -1,7 +1,7 @@
 <template>
 	<div class="goxlrconnectform">
 		<form class="card-item" @submit.prevent="connect()" v-if="!connected">
-			<ParamItem :paramData="param_ip" @change="onIpChange()" />
+			<ParamItem :paramData="param_ip" v-model="param_ip.value" @change="onIpChange()" />
 			
 			<i18n-t scope="global" class="card-item secondary" tag="div" v-if="securityWarning" keypath="goxlr.connect_form.ip_security">
 				<template #LINK>
@@ -9,7 +9,7 @@
 				</template>
 			</i18n-t>
 
-			<ParamItem :paramData="param_port" />
+			<ParamItem :paramData="param_port" v-model="param_port.value" />
 
 			<Button type="submit" :loading="connecting"
 			:disabled="!isPremium"

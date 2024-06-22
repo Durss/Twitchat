@@ -33,7 +33,7 @@
 					/>
 				</div>
 				<ParamItem :paramData="param_extraVotes" @change="onValueChange()">
-					<ParamItem :paramData="param_points" @change="onValueChange()" v-if="param_extraVotes.value === true" noBackground class="child" />
+					<ParamItem :paramData="param_points" @change="onValueChange()" v-if="param_extraVotes.value === true" v-model="param_extraVotes.value" noBackground class="child" />
 				</ParamItem>
 				<ParamItem :paramData="param_duration" @change="onValueChange()" />
 				

@@ -23,11 +23,11 @@
 			<form class="form" v-if="mode=='chat'" @submit.prevent="submitForm()">
 				<div class="info">{{ $t("raffle.chat.description") }}</div>
 
-				<ParamItem :paramData="param_commandValue" :autofocus="true" v-if="triggerMode !== false" />
-				<ParamItem :paramData="param_command" :autofocus="true" @change="onValueChange()" v-else />
+				<ParamItem :paramData="param_commandValue" v-model="param_commandValue.value" :autofocus="true" v-if="triggerMode !== false" />
+				<ParamItem :paramData="param_command" v-model="param_command.value" :autofocus="true" @change="onValueChange()" v-else />
 
 				<div class="card-item" v-if="triggerMode === false">
-					<ParamItem noBackground :paramData="param_reward" :autofocus="true" @change="onValueChange()" v-if="param_rewardvalue.listValues!.length > 1" />
+					<ParamItem noBackground :paramData="param_reward" v-model="param_reward.value" :autofocus="true" @change="onValueChange()" v-if="param_rewardvalue.listValues!.length > 1" />
 					<div class="tips">
 						<img src="@/assets/icons/info.svg">
 
@@ -44,12 +44,13 @@
 				<ParamItem :paramData="param_enterDuration" @change="onValueChange()" />
 
 				<ToggleBlock class="configs" :icons="['params']" v-if="mode=='chat' && triggerMode === false" :title="$t('global.advanced_params')" :open="false">
-					<ParamItem :paramData="param_multipleJoin" @change="onValueChange()" />
-					<ParamItem :paramData="param_maxUsersToggle" @change="onValueChange()" />
-					<ParamItem :paramData="param_ponderateVotes" @change="onValueChange()" />
+					<ParamItem :paramData="param_multipleJoin" v-model="param_multipleJoin.value" @change="onValueChange()" />
+					<ParamItem :paramData="param_maxUsersToggle" v-model="param_maxUsersToggle.value" @change="onValueChange()" />
+					<ParamItem :paramData="param_ponderateVotes" v-model="param_ponderateVotes.value" @change="onValueChange()" />
 
 					<ParamItem
 					:paramData="param_showCountdownOverlay"
+					v-model="param_showCountdownOverlay.value"
 					v-if="mode=='chat'" @change="onValueChange()">
 						<i18n-t scope="global" tag="div" class="details"
 						v-if="param_showCountdownOverlay.value === true && mode=='chat'"
@@ -88,8 +89,9 @@
 
 			<form class="form" v-else-if="mode=='sub' && canListSubs" @submit.prevent="submitForm()">
 				<div class="info">{{ $t("raffle.subs.description") }}</div>
-				<ParamItem :paramData="param_subs_includeGifters" @change="onValueChange()" />
-				<ParamItem :paramData="param_subs_excludeGifted" @change="onValueChange()" />
+				
+				<ParamItem :paramData="param_subs_includeGifters" v-model="param_subs_includeGifters.value" @change="onValueChange()" />
+				<ParamItem :paramData="param_subs_excludeGifted" v-model="param_subs_excludeGifted.value" @change="onValueChange()" />
 				<div class="card-item winner" v-if="winner" ref="winnerHolder">
 					<div class="head">Winner</div>
 					<div class="user">🎉 {{winner}} 🎉</div>
@@ -123,11 +125,11 @@
 				<div class="info">{{ $t("raffle.list.description") }}</div>
 
 				<div class="card-item">
-					<ParamItem noBackground :paramData="param_customEntries" @change="onValueChange()" />
+					<ParamItem noBackground :paramData="param_customEntries" v-model="param_customEntries.value" @change="onValueChange()" />
 					<span class="instructions">{{ $t("raffle.list.instructions") }}</span>
 				</div>
 
-				<ParamItem :paramData="param_list_remove" @change="onValueChange()" v-if="!triggerMode" />
+				<ParamItem :paramData="param_list_remove" v-model="param_list_remove.value" @change="onValueChange()" v-if="!triggerMode" />
 
 				<TTButton type="submit"
 				v-if="triggerMode === false"
@@ -150,11 +152,11 @@
 					</template>
 				</i18n-t>
 
-				<ParamItem :paramData="param_values" @change="onValueChange()" />
+				<ParamItem :paramData="param_values" v-model="param_values.value" @change="onValueChange()" />
 
-				<ParamItem :paramData="param_values_remove" @change="onValueChange()" />
+				<ParamItem :paramData="param_values_remove" v-model="param_values_remove.value" @change="onValueChange()" />
 
-				<ParamItem class="splitterField" :paramData="param_values_splitter" @change="onValueChange()" v-if="param_values.selectedListValue?.value.perUser !== true" />
+				<ParamItem class="splitterField" :paramData="param_values_splitter" v-model="param_values_splitter.value" @change="onValueChange()" v-if="param_values.selectedListValue?.value.perUser !== true" />
 
 				<TTButton type="submit"
 				v-if="triggerMode === false"

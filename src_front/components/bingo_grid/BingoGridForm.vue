@@ -148,7 +148,7 @@
 						
 						<ParamItem :paramData="param_autoHide[bingo.id]" @change="save(bingo)" v-model="bingo.autoShowHide"></ParamItem>
 
-						<ParamItem :paramData="param_chatCmd_toggle[bingo.id]" @change="save(bingo)">
+						<ParamItem :paramData="param_chatCmd_toggle[bingo.id]" v-model="param_chatCmd_toggle[bingo.id].value" @change="save(bingo)">
 							<div class="parameter-child">
 								<ParamItem class="cmdField" :paramData="param_chatCmd[bingo.id]" v-model="bingo.chatCmd" @change="save(bingo)" noBackground />
 								<div class="instructions">

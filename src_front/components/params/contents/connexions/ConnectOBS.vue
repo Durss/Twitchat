@@ -13,7 +13,7 @@
 			</p>
 		</div>
 
-		<ParamItem class="item enableBt" :paramData="param_enabled" />
+		<ParamItem class="item enableBt" :paramData="param_enabled" v-model="param_enabled.value" />
 
 		<div class="fadeHolder" :style="holderStyles">
 			<ToggleBlock class="block conf"

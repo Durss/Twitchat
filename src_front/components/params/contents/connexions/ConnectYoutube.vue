@@ -35,8 +35,8 @@
 			<template v-if="!connected">
 				<div class="card-item scopes" :class="$store.auth.isPremium? '' : 'disabled'">
 					<div class=" title"><Icon name="lock_fit" />{{ $t("connexions.youtube.scopes_title") }}</div>
-					<ParamItem :paramData="param_scope_read" noBackground />
-					<ParamItem :paramData="param_scope_moderate" noBackground ref="moderateScope" />
+					<ParamItem :paramData="param_scope_read" v-model="param_scope_read.value" noBackground />
+					<ParamItem :paramData="param_scope_moderate" v-model="param_scope_moderate.value" noBackground ref="moderateScope" />
 				</div>
 				<TTButton class="connectBt" icon="youtube" @click="oauth()" :loading="loading" :disabled="!$store.auth.isPremium">{{ $t("global.connect") }}</TTButton>
 			</template>

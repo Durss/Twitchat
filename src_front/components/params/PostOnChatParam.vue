@@ -10,6 +10,7 @@
 			:secondary="secondary"
 			:alert="alert"
 			:noBackground="noBackground"
+			v-model="enabledParam.value"
 		>
 		
 			<PlaceholderSelector class="placeholders"

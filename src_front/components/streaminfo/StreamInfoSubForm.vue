@@ -29,13 +29,14 @@
 			</button>
 		</div>
 
-		<ParamItem :paramData="param_branded" @change="$emit('update:branded', param_branded.value)" />
+		<ParamItem :paramData="param_branded" v-model="param_branded.value" @change="$emit('update:branded', param_branded.value)" />
 
 		<div class="card-item labels">
 			<div>{{ $t("stream.form_labels_title") }}</div>
 			<Icon class="loader" name="loader" v-if="loadingLabels" />
 			<ParamItem class="label" v-for="label in param_labels"
 				noBackground
+				v-model="label.value"
 				:paramData="label"
 				@change="onLabelsUpdate()" />
 		</div>

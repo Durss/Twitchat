@@ -10,7 +10,7 @@
 			</i18n-t>
 		</div>
 
-		<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
+		<ParamItem class="item enableBt" :paramData="param_enabled" v-model="param_enabled.value" @change="toggleState()" />
 
 		<section v-if="connecting" class="card-item">
 			<Icon class="item center" name="loader" />
@@ -27,7 +27,7 @@
 				<Splitter>{{ $t("voicemod.params_title") }}</Splitter>
 	
 				<section>
-					<ParamItem class="item" :paramData="param_voiceIndicator" @change="saveData()" />
+					<ParamItem class="item" :paramData="param_voiceIndicator" v-model="param_voiceIndicator.value" @change="saveData()" />
 					<div class="card-item">
 						<div class="item"><strong>{{ $t("voicemod.allowed_users") }}</strong></div>
 						<PermissionsForm class="item users" v-model="permissions" @change="saveData()" />

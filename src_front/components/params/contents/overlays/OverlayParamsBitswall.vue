@@ -14,7 +14,7 @@
 			</div>
 				
 			<div class="card-item" @mouseenter="showShaderEffect=true" @mouseleave="showShaderEffect=false">
-				<ParamItem :paramData="param_cristalEffect" noBackground />
+				<ParamItem :paramData="param_cristalEffect" v-model="param_cristalEffect.value" noBackground />
 	
 				<div :class="showShaderEffect? 'demo open' : 'demo'">
 					<img src="@/assets/img/bitswall/cheermotes_render.gif" :class="param_cristalEffect.value? 'shader' : ''">
@@ -61,7 +61,7 @@
 				<ParamItem :paramData="param_break_senderOnly" v-model="parameters.break_senderOnly" class="child" noBackground />
 			</ParamItem>
 
-			<ParamItem :paramData="param_durations">
+			<ParamItem :paramData="param_durations" v-model="param_durations.value">
 				<div class="cheermotesDuration">
 					<ParamItem :paramData="param_duration_1" class="cheermote" noBackground noPremiumLock v-model="parameters.break_durations!['1']" />
 					<ParamItem :paramData="param_duration_100" class="cheermote" noBackground noPremiumLock v-model="parameters.break_durations!['100']" />
