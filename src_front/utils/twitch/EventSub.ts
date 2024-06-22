@@ -429,7 +429,7 @@ export default class EventSub {
 			}
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_SENT: {
-				this.warningSendEvent(topic, payload.event as TwitchEventSubDataTypes.WarningAcknowledgeEvent);
+				this.warningSendEvent(topic, payload.event as TwitchEventSubDataTypes.WarningSentEvent);
 				break;
 			}
 		}
