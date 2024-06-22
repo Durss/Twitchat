@@ -541,7 +541,7 @@
 		"categories": {
 			"global": "Chat - Channel points",
 			"user": "User event",
-			"subits": "Sub & bits",
+			"subits": "Sub & bits & Power UPs",
 			"mod": "Moderation actions",
 			"twitchat": "Twitchat",
 			"hypetrain": "Hype train",
@@ -778,7 +778,9 @@
 			"bingo_grid_col": "Index of the filled column",
 			"bingo_grid_row": "Index of the filled row",
 			"bingo_grid_diag": "Index of the filled diagonal",
-			"warn_reason": "Warning reason"
+			"warn_reason": "Warning reason",
+			"power_up_emote": "Gigantified emote code",
+			"power_up_message": "Effect: 'simmer' or 'rainbow-eclipse'"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1295,6 +1297,18 @@
 			"WARN_ACKNOWLEDGE": {
 				"label": "A user acknowledge warning reception",
 				"description": "Actions to execute when a user fills acknowledge the reception of a warning"
+			},
+			"POWER_UP_MESSAGE": {
+				"label": "Power UP: message effect",
+				"description": "Actions to execute when a message effect power up is sent"
+			},
+			"POWER_UP_GIANT_EMOTE": {
+				"label": "Power UP: gigantified emote",
+				"description": "Actions to execute when a giangified emote power up is sent"
+			},
+			"POWER_UP_CELEBRATION": {
+				"label": "Power UP: celebration",
+				"description": "Actions to execute when a celebration power up is sent"
 			}
 		},
 		"musicEvents": {

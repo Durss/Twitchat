@@ -600,6 +600,16 @@ import TriggerList from './triggers/TriggerList.vue';
 					} else if(triggerEvent.value == TriggerTypes.TIPEEE_RESUB) {
 						(m as TwitchatDataTypes.MessageTipeeeDonationData).recurring = true;
 						(m as TwitchatDataTypes.MessageTipeeeDonationData).recurringCount = Math.round(Math.random() * 10);
+					} else
+					
+					if(triggerEvent.value == TriggerTypes.POWER_UP_MESSAGE) {
+						(m as TwitchatDataTypes.MessageChatData).twitch_animationId = Utils.pickRand(["rainbow-eclipse", "simmer"]);
+					} else
+					
+					if(triggerEvent.value == TriggerTypes.POWER_UP_GIANT_EMOTE) {
+						(m as TwitchatDataTypes.MessageChatData).message_chunks.push({type:"emote", value:"VoHiYo", emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/81274/default/light/3.0", emote:"https://static-cdn.jtvnw.net/emoticons/v2/81274/default/light/1.0"});
+						(m as TwitchatDataTypes.MessageChatData).message += "VoHiYo";
+						(m as TwitchatDataTypes.MessageChatData).twitch_gigantifiedEmote = "VoHiYo";
 					}
 
 					TriggerActionHandler.instance.execute(m, true, trigger.id);

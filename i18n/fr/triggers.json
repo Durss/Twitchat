@@ -541,7 +541,7 @@
 		"categories": {
 			"global": "Chat - Points de chaîne",
 			"user": "Evènement utilisateur",
-			"subits": "Sub & bits",
+			"subits": "Sub & bits & Power UPs",
 			"mod": "Actions de modération",
 			"twitchat": "Twitchat",
 			"hypetrain": "Train de la hype",
@@ -778,7 +778,9 @@
 			"bingo_grid_col": "Index de la colonne remplie",
 			"bingo_grid_row": "Index de la ligne remplie",
 			"bingo_grid_diag": "Diagonale remplie (0=↘ 1=↙)",
-			"warn_reason": "Raison de l'avertissement"
+			"warn_reason": "Raison de l'avertissement",
+			"power_up_emote": "Code de l'mote géante",
+			"power_up_message": "Effet : 'simmer' ou 'rainbow-eclipse'"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1295,6 +1297,18 @@
 			"WARN_ACKNOWLEDGE": {
 				"label": "Avertissement lu par la/le viewer",
 				"description": "Actions à exécuter lorsqu'une personne confirme la lecture d'un avertissement"
+			},
+			"POWER_UP_MESSAGE": {
+				"label": "Power UP: effet de message",
+				"description": "Actions à exécuter lorsqu'un effet de message est reçu"
+			},
+			"POWER_UP_GIANT_EMOTE": {
+				"label": "Power UP: emote géante",
+				"description": "Actions à exécuter lorsqu'une emote géante est reçue"
+			},
+			"POWER_UP_CELEBRATION": {
+				"label": "Power UP: célébration",
+				"description": "Actions à exécuter lorsqu'une célébration est reçue"
 			}
 		},
 		"musicEvents": {

@@ -1233,6 +1233,9 @@ export const TriggerTypes = {
 	WARN_CHATTER:"121",
 	WARN_ACKNOWLEDGE:"122",
 	RAFFLE_PICK_WINNER:"123",
+	POWER_UP_MESSAGE:"124",
+	POWER_UP_GIANT_EMOTE:"125",
+	POWER_UP_CELEBRATION:"126",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1331,6 +1334,14 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
 		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
 		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
+	];
+	
+	map[TriggerTypes.POWER_UP_MESSAGE] = [...map[TriggerTypes.ANY_MESSAGE]!,
+		{tag:"SKIN", descKey:'triggers.placeholders.power_up_message', pointer:"twitch_animationId", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
+	];
+	
+	map[TriggerTypes.POWER_UP_GIANT_EMOTE] = [...map[TriggerTypes.ANY_MESSAGE]!,
+		{tag:"EMOTE", descKey:'triggers.placeholders.power_up_emote', pointer:"twitch_gigantifiedEmote", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
 	];
 
 
@@ -2072,6 +2083,10 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.SUBITS, icon:"sub", labelKey:"triggers.events.SUB.label", value:TriggerTypes.SUB, descriptionKey:"triggers.events.SUB.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION},
 		{category:TriggerEventTypeCategories.SUBITS, icon:"gift", labelKey:"triggers.events.SUBGIFT.label", value:TriggerTypes.SUBGIFT, descriptionKey:"triggers.events.SUBGIFT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION},
 		{category:TriggerEventTypeCategories.SUBITS, icon:"bits", labelKey:"triggers.events.CHEER.label", value:TriggerTypes.CHEER, descriptionKey:"triggers.events.CHEER.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHEER},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.SUBITS, icon:"bits", labelKey:"triggers.events.POWER_UP_MESSAGE.label", value:TriggerTypes.POWER_UP_MESSAGE, descriptionKey:"triggers.events.POWER_UP_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.SUBITS, icon:"bits", labelKey:"triggers.events.POWER_UP_GIANT_EMOTE.label", value:TriggerTypes.POWER_UP_GIANT_EMOTE, descriptionKey:"triggers.events.POWER_UP_GIANT_EMOTE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.SUBITS, icon:"bits", labelKey:"triggers.events.POWER_UP_CELEBRATION.label", value:TriggerTypes.POWER_UP_CELEBRATION, descriptionKey:"triggers.events.POWER_UP_CELEBRATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION},
+
 		// {newDate:1693519200000, category:TriggerEventTypeCategories.SUBITS, icon:"hypeChat", labelKey:"triggers.events.HYPE_CHAT.label", value:TriggerTypes.HYPE_CHAT, descriptionKey:"triggers.events.HYPE_CHAT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT},
 		{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", labelKey:"triggers.events.HYPE_TRAIN_APPROACHING.label", value:TriggerTypes.HYPE_TRAIN_APPROACHING, descriptionKey:"triggers.events.HYPE_TRAIN_APPROACHING.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING},
 		{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", labelKey:"triggers.events.HYPE_TRAIN_START.label", value:TriggerTypes.HYPE_TRAIN_START, descriptionKey:"triggers.events.HYPE_TRAIN_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_START},

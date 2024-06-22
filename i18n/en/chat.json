@@ -400,7 +400,7 @@
 				"new_account_day": "d",
 				"new_account_hour": "h",
 				"new_account_minute": "min",
-				"powerUp":"Power up"
+				"powerUp": "Power up"
 			}
 		},
 		"scope_request": {
@@ -455,34 +455,37 @@
 			"accepted": "{MODERATOR} accepted {USER} unban request",
 			"refused": "{MODERATOR} refused {USER} unban request"
 		},
-		"youtube":{
+		"youtube": {
 			"platform_youtube": "Message received\non Youtube",
 			"connected_to": "Now connected to live chat \"{TITLE}\""
 		},
 		"celebration": {
-			"message":"{USER} redeemed {EMOTE} On-screen Celebration for {PRICE}",
-			"message_tmp":"{USER} redeemed the Power Up \"On-screen Celebration\""
+			"message": "{USER} redeemed {EMOTE} On-screen Celebration for {PRICE}",
+			"message_tmp": "{USER} redeemed the Power Up \"On-screen Celebration\""
 		},
 		"blocked_terms": {
-			"add_permitted":"{USER} added {TERMS} to permitted terms",
-			"add_blocked":"{USER} added {TERMS} to blocked terms",
-			"remove_permitted":"{USER} removed {TERMS} from permitted terms",
-			"remove_blocked":"{USER} removed {TERMS} from blocked terms"
+			"add_permitted": "{USER} added {TERMS} to permitted terms",
+			"add_blocked": "{USER} added {TERMS} to blocked terms",
+			"remove_permitted": "{USER} removed {TERMS} from permitted terms",
+			"remove_blocked": "{USER} removed {TERMS} from blocked terms"
 		},
 		"hate_raid": {
 			"title": "A hate raid has been detected.\nFollowing terms has been added to your Twitch blocked terms:",
 			"users": "Users that triggered the anti hate raid:",
-			"cancel_bt":"Unblock terms",
-			"banUsers_bt":"Ban users",
-			"footer":"Check your blocked terms and how many they've been blocked"
+			"cancel_bt": "Unblock terms",
+			"banUsers_bt": "Ban users",
+			"footer": "Check your blocked terms and how many they've been blocked"
 		},
 		"warn_chatter": {
 			"title": "{MODERATOR} sent a warning to {USER}",
-			"default_reason":"You received this warning because you had an inappropriate behavior. Please be respectful."
+			"default_reason": "You received this warning because you had an inappropriate behavior. Please be respectful."
 		},
 		"vip": {
 			"add": "{MODERATOR} added {USER} to your VIPs",
 			"remove": "{MODERATOR} removed {USER} from your VIPs"
+		},
+		"warn_acknowledge": {
+			"title": "{USER} acknowledged reading their warning"
 		}
 	}
 }

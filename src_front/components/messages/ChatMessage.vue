@@ -463,7 +463,7 @@ class ChatMessage extends AbstractChatMessage {
 			if(mess.twitch_isPresentation === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.PRESENTATION});
 			if(mess.twitch_isReturning === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RETURNING_CHATTER});
 			if(mess.twitch_isFirstMessage === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.FIRST_TIME_CHATTER});
-			if(mess.twitch_gigantifiedEmote === true
+			if(mess.twitch_gigantifiedEmote
 			|| mess.twitch_animationId )				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.POWER_UP});
 
 			if(mess.todayFirst === true
@@ -1121,6 +1121,7 @@ export default toNative(ChatMessage);
 	}
 
 	&.announcement {
+		border-radius: 0;
 		border-image-slice: 1;
 		border-left: .6em solid rgba(255, 255, 255, .5);
 		border-right: .6em solid rgba(255, 255, 255, .5);

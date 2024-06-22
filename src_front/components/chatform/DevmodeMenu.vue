@@ -186,7 +186,7 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 				case "giantEmote":{
 					(message as TwitchatDataTypes.MessageChatData).message_chunks.push({type:"emote", value:"VoHiYo", emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/81274/default/light/3.0", emote:"https://static-cdn.jtvnw.net/emoticons/v2/81274/default/light/1.0"});
 					(message as TwitchatDataTypes.MessageChatData).message += "VoHiYo";
-					(message as TwitchatDataTypes.MessageChatData).twitch_gigantifiedEmote = true; break;
+					(message as TwitchatDataTypes.MessageChatData).twitch_gigantifiedEmote = "VoHiYo"; break;
 				}
 				case "giftpaidupgrade":		(message as TwitchatDataTypes.MessageSubscriptionData).is_giftUpgrade = true; break;
 				case "sl_donation":			(message as TwitchatDataTypes.StreamlabsDonationData).eventType = "donation"; break;

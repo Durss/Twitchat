@@ -658,8 +658,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		data.twitch_isFirstMessage	= tags['first-msg'] === true && tags["msg-id"] != "user-intro";
 		data.twitch_isPresentation	= tags["msg-id"] == "user-intro";
 		data.twitch_isHighlighted	= tags["msg-id"] === "highlighted-message";
-		data.twitch_gigantifiedEmote= tags["msg-id"] === "gigantified-emote-message";
 		data.is_short				= tags["emote-only"] === true;
+		if(tags["msg-id"] === "gigantified-emote-message") data.twitch_gigantifiedEmote = data.message_chunks.findLast(v=>v.type == "emote")?.value;
 		if(tags["msg-id"] === "animated-message") data.twitch_animationId = tags["animation-id"];
 		if(tags["msg-param-color"]) data.twitch_announcementColor= tags["msg-param-color"].toLowerCase();
 

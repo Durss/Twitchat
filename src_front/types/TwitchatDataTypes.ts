@@ -2610,7 +2610,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Define if emote should be displayed in giant
 		 */
-		twitch_gigantifiedEmote?: boolean;
+		twitch_gigantifiedEmote?: string;
 		/**
 		 * Animation type AKA message skin
 		 */

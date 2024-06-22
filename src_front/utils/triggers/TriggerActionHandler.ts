@@ -107,6 +107,12 @@ export default class TriggerActionHandler {
 				if(message.twitch_announcementColor) {
 					await this.executeTriggersByType(TriggerTypes.ANNOUNCEMENTS, message, testMode, undefined, undefined, forcedTriggerId);
 				}
+				if(message.twitch_animationId) {
+					await this.executeTriggersByType(TriggerTypes.POWER_UP_MESSAGE, message, testMode, undefined, undefined, forcedTriggerId);
+				}
+				if(message.twitch_gigantifiedEmote) {
+					await this.executeTriggersByType(TriggerTypes.POWER_UP_GIANT_EMOTE, message, testMode, undefined, undefined, forcedTriggerId);
+				}
 
 				if(message.message) {
 					const cmd = message.message.trim().split(" ")[0].toLowerCase();
@@ -124,6 +130,12 @@ export default class TriggerActionHandler {
 					await this.executeTriggersByType(TriggerTypes.ANY_MESSAGE, message, testMode, undefined, undefined, forcedTriggerId);
 				}
 				break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION: {
+				if(await this.executeTriggersByType(TriggerTypes.POWER_UP_CELEBRATION, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {

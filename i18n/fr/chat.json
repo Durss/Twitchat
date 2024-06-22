@@ -169,7 +169,7 @@
 			"deleted_by": "<message supprimé par {USER}>",
 			"disable_ad": "Désactiver",
 			"customize_ad": "Personnaliser",
-			"stop_autospoil":"Arrêter de spoiler les messages de cette personne automatiquement",
+			"stop_autospoil": "Arrêter de spoiler les messages de cette personne automatiquement",
 			"badges": {
 				"prediction": "Prédiction",
 				"subscriber": "Abonné·e",
@@ -296,8 +296,8 @@
 			"header": "Alertes de pubs",
 			"content": "Tu souhaites que Twitchat t'alerte quand une publicité arrive ou est en cours ?\nTwitchat nécessite de nouvelles autorisations !",
 			"grantBt": "Ouvrir les autorisations",
-			"infos":"Nécessite d'{DASHBOARD_LINK} dans votre dashboard Twitch",
-			"infos_link":"activer publicités mid-roll planifiées"
+			"infos": "Nécessite d'{DASHBOARD_LINK} dans votre dashboard Twitch",
+			"infos_link": "activer publicités mid-roll planifiées"
 		},
 		"donor": {
 			"title": "❤ Merveilleuse personne ❤",
@@ -361,12 +361,12 @@
 			"block": "Bloquer",
 			"unblock": "Débloquer",
 			"to": "Ban temporaire",
-			"export":"Télécharger une capture",
-			"export_clipboard":"Copier une capture dans le presse-papier",
-			"translate":"Traduire le message",
-			"export_discord":"Envoyer dans Discord",
-			"discord_quick_actions":"Actions Discord",
-			"discord_ticket":"Créer un ticket",
+			"export": "Télécharger une capture",
+			"export_clipboard": "Copier une capture dans le presse-papier",
+			"translate": "Traduire le message",
+			"export_discord": "Envoyer dans Discord",
+			"discord_quick_actions": "Actions Discord",
+			"discord_ticket": "Créer un ticket",
 			"add_blocked_terms": "Ajouter ce message aux termes bloqués",
 			"warn_user": "Envoyer un avertissement"
 		},
@@ -400,7 +400,7 @@
 				"new_account_day": "j",
 				"new_account_hour": "h",
 				"new_account_minute": "Min",
-				"powerUp":"Power up"
+				"powerUp": "Power up"
 			}
 		},
 		"scope_request": {
@@ -455,33 +455,37 @@
 			"accepted": "{MODERATOR} a accepté la demande d'unban de {USER}",
 			"refused": "{MODERATOR} a refusé la demande d'unban de {USER}"
 		},
-		"youtube":{
+		"youtube": {
 			"platform_youtube": "Message reçu\nsur Youtube",
 			"connected_to": "Vous êtes maintenant connecté·e au tchat du live \"{TITLE}\""
 		},
 		"celebration": {
-			"message":"{USER} a obtenu {EMOTE} Célébration de chaîne pour {PRICE}",
-			"message_tmp":"{USER} a obtenu le Power-Up \"Célébration de chaîne\""
+			"message": "{USER} a obtenu {EMOTE} Célébration de chaîne pour {PRICE}",
+			"message_tmp": "{USER} a obtenu le Power-Up \"Célébration de chaîne\""
 		},
 		"blocked_terms": {
-			"add_permitted":"{USER} a ajouté {TERMS} aux termes autorisés",
-			"add_blocked":"{USER} a ajouté {TERMS} aux termes bloqués",
-			"remove_permitted":"{USER} a supprimé {TERMS} des termes autorisés",
-			"remove_blocked":"{USER} a supprimé {TERMS} des termes bloqués"
+			"add_permitted": "{USER} a ajouté {TERMS} aux termes autorisés",
+			"add_blocked": "{USER} a ajouté {TERMS} aux termes bloqués",
+			"remove_permitted": "{USER} a supprimé {TERMS} des termes autorisés",
+			"remove_blocked": "{USER} a supprimé {TERMS} des termes bloqués"
 		},
 		"hate_raid": {
 			"title": "Un raid haineux a été détecté.\nLes termes suivants ont été interdits sur votre chaîne :",
 			"users": "Personnes ayant pris part au raid haineux :",
-			"cancel_bt":"Réautoriser les termes",
-			"banUsers_bt":"Bannir les haters",
-			"footer":"Consultez vos termes bloqués et leur nombre de blocages"
+			"cancel_bt": "Réautoriser les termes",
+			"banUsers_bt": "Bannir les haters",
+			"footer": "Consultez vos termes bloqués et leur nombre de blocages"
 		},
 		"warn_chatter": {
 			"title": "{MODERATOR} a envoyé un avertissement à {USER}",
-			"default_reason":"Tu as reçu cet avertissement car tu as eu un comportement inapproprié. Merci de rester respectueux·se."
+			"default_reason": "Tu as reçu cet avertissement car tu as eu un comportement inapproprié. Merci de rester respectueux·se."
 		},
 		"warn_acknowledge": {
 			"title": "{USER} a confirmé la reception de son avertissement"
+		},
+		"vip": {
+			"add": "{USER} a été ajouté·e aux VIPs par {USER}",
+			"remove": "{USER} a été retiré·e des VIPs par {USER}"
 		}
 	}
 }
