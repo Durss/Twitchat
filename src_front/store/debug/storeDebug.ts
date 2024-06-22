@@ -745,6 +745,18 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.RAFFLE_PICK_WINNER: {
+					const m:TwitchatDataTypes.MessageRafflePickWinnerData = {
+						id:Utils.getUUID(),
+						channel_id:StoreProxy.auth.twitch.user.id,
+						date:Date.now(),
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.RAFFLE_PICK_WINNER,
+					}
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD: {
 					const m:TwitchatDataTypes.MessageTwitchatAdData = {
 						platform:"twitchat",

@@ -859,6 +859,10 @@
 				"label": "Résultat de tirage au sort",
 				"description": "Actions à exécuter lorsqu'un tirage au sort termine"
 			},
+			"RAFFLE_PICK_WINNER": {
+				"label": "Choix d'un·e gagnant·e de tirage au sort",
+				"description": "Actions à exécuter lorsque le choix d'un·e gagnant·e du tirage au sort est lancé"
+			},
 			"BINGO_RESULT": {
 				"label": "Résultat de bingo",
 				"description": "Actions à exécuter lorsqu'un bingo se termine"

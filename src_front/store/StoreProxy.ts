@@ -1158,6 +1158,10 @@ export interface IRaffleGetters {
 
 export interface IRaffleActions {
 	/**
+	 * Populates data from data store value
+	 */
+	populateData(params?:PollOverlayParamStoreData):void;
+	/**
 	 * Start a raffle
 	 * @param payload
 	 */

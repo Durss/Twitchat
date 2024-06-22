@@ -1993,6 +1993,7 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_CANCEL:"hype_train_cancel",
 		TWITCH_CELEBRATION:"twitch_celebration",
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
+		RAFFLE_PICK_WINNER:"raffle_pick_winner",
 		AD_BREAK_START_CHAT:"ad_break_start_chat",
 		HYPE_TRAIN_PROGRESS:"hype_train_progress",
 		HYPE_TRAIN_COMPLETE:"hype_train_complete",
@@ -2087,6 +2088,7 @@ export namespace TwitchatDataTypes {
 		hype_train_cancel:false,
 		hype_train_summary:true,
 		goxlr_sound_input:false,
+		raffle_pick_winner:false,
 		low_trust_treatment:true,
 		ad_break_start_chat:true,
 		hype_train_progress:false,
@@ -2155,6 +2157,7 @@ export namespace TwitchatDataTypes {
 									| MessageModerationAction
 									| MessageClearChatData
 									| MessageRaffleData
+									| MessageRafflePickWinnerData
 									| MessageBingoData
 									| MessageCountdownData
 									| MessageAutobanJoinData
@@ -3218,6 +3221,13 @@ export namespace TwitchatDataTypes {
 		 * Winning entry of the raffle
 		 */
 		winner:RaffleEntry;
+	}
+
+	/**
+	 * Represents a raffle pick winner event
+	 */
+	export interface MessageRafflePickWinnerData extends AbstractTwitchatMessage {
+		type:"raffle_pick_winner";
 	}
 
 	/**

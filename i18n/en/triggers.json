@@ -859,6 +859,10 @@
 				"label": "Raffle result",
 				"description": "Actions to execute when a raffle completes"
 			},
+			"RAFFLE_PICK_WINNER": {
+				"label": "Starting to pick a raffle winner",
+				"description": "Actions to execute when selection of a raffle winner starts"
+			},
 			"BINGO_RESULT": {
 				"label": "Bingo result",
 				"description": "Actions to execute when a bingo completes"

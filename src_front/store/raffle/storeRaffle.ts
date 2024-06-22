@@ -2,8 +2,9 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import MessengerProxy from '@/messaging/MessengerProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
@@ -28,6 +29,15 @@ export const storeRaffle = defineStore('raffle', {
 
 
 	actions: {
+
+		populateData() {
+			/**
+			 * Called when a raffle animation (the wheel) completes
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_RESULT, (e:TwitchatEvent<{winner:TwitchatDataTypes.RaffleEntry, delay?:number}>)=> {
+				this.onRaffleComplete(e.data!.winner, false, e.data!.delay);
+			});
+		},
 
 		async startRaffle(payload:TwitchatDataTypes.RaffleData) {
 			this.data = payload;
@@ -64,13 +74,6 @@ export const storeRaffle = defineStore('raffle', {
 					break;
 				}
 			}
-
-			/**
-			 * Called when a raffle animation (the wheel) completes
-			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_RESULT, (e:TwitchatEvent<{winner:TwitchatDataTypes.RaffleEntry, delay?:number}>)=> {
-				this.onRaffleComplete(e.data!.winner, false, e.data!.delay);
-			});
 		},
 
 		stopRaffle() { this.data = null; },
@@ -219,6 +222,16 @@ export const storeRaffle = defineStore('raffle', {
 				StoreProxy.common.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_raffle"));
 				return;
 			}
+			
+			//Executes raffle pick winner related triggers
+			const message:TwitchatDataTypes.MessageRafflePickWinnerData = {
+				id:Utils.getUUID(),
+				channel_id:StoreProxy.auth.twitch.user.id,
+				date:Date.now(),
+				platform:"twitchat",
+				type:TwitchatDataTypes.TwitchatMessageType.RAFFLE_PICK_WINNER,
+			}
+			TriggerActionHandler.instance.execute(message);
 
 			const sUsers = StoreProxy.users;
 			//Compute entries scores for ponderation
