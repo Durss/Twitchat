@@ -51,6 +51,7 @@ export namespace TwitchEventSubDataTypes {
 		UNBAN_REQUEST_RESOLVED: "channel.unban_request.resolve",
 		AUTOMOD_TERMS_UPDATE: "automod.terms.update",
 		CHAT_WARN_ACKNOWLEDGE: "channel.warning.acknowledge",
+		CHAT_WARN_SENT: "channel.warning.send",
 	} as const;
 	export type SubscriptionStringTypes = typeof SubscriptionTypes[keyof typeof SubscriptionTypes];
 
@@ -744,6 +745,20 @@ export namespace TwitchEventSubDataTypes {
 			reason: string|null;
 			chat_rules_cited: string[];
 		}
+	}
+
+	export interface WarningSentEvent {
+		broadcaster_user_id: string;
+		broadcaster_user_login: string;
+		broadcaster_user_name: string;
+		user_id: string;
+		user_login: string;
+		user_name: string;
+		moderator_user_id:string;
+		moderator_user_login:string;
+		moderator_user_name:string;
+		reason:string|null;
+		chat_rules_cited:string[];
 	}
 
 	export interface WarningAcknowledgeEvent {

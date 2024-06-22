@@ -244,6 +244,9 @@ export default class EventSub {
 						TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_NEW, "1");
 						TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_RESOLVED, "1");
 					}
+					if(TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING])) {
+						TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_SENT, "beta");
+					}
 				}
 				if(TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_STOP, "1");
@@ -422,6 +425,11 @@ export default class EventSub {
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_ACKNOWLEDGE: {
 				this.warningAcknowledgeEvent(topic, payload.event as TwitchEventSubDataTypes.WarningAcknowledgeEvent);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_SENT: {
+				this.warningSendEvent(topic, payload.event as TwitchEventSubDataTypes.WarningAcknowledgeEvent);
 				break;
 			}
 		}
@@ -1093,19 +1101,19 @@ export default class EventSub {
 			}
 
 			case "warn":{
-				const message:TwitchatDataTypes.MessageWarnUserData = {
-					id:Utils.getUUID(),
-					date:Date.now(),
-					platform:"twitch",
-					type:TwitchatDataTypes.TwitchatMessageType.WARN_CHATTER,
-					channel_id:event.broadcaster_user_id,
-					user:StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.warn.user_id, event.warn.user_login, event.warn.user_name),
-					moderator,
-					rules:event.warn.chat_rules_cited,
-					customReason:event.warn.reason? event.warn.reason : undefined,
-					abstractedReason:event.warn.reason? event.warn.reason : event.warn.chat_rules_cited.join(" - "),
-				}
-				StoreProxy.chat.addMessage(message);
+				this.warningSendEvent(topic, {
+					broadcaster_user_id: event.broadcaster_user_id,
+					broadcaster_user_login: event.broadcaster_user_login,
+					broadcaster_user_name: event.broadcaster_user_name,
+					user_id: event.warn.user_id,
+					user_login: event.warn.user_login,
+					user_name: event.warn.user_name,
+					moderator_user_id: event.moderator_user_id,
+					moderator_user_login: event.moderator_user_login,
+					moderator_user_name: event.moderator_user_name,
+					reason: event.warn.reason,
+					chat_rules_cited:event.warn.chat_rules_cited,
+				});
 				break;
 			}
 
@@ -1204,6 +1212,7 @@ export default class EventSub {
 			}
 		}
 	}
+
 	/**
 	 * Called when a user acknowledged a warning
 	 * @param topic 
@@ -1217,6 +1226,28 @@ export default class EventSub {
 			type:TwitchatDataTypes.TwitchatMessageType.WARN_ACKNOWLEDGE,
 			channel_id:event.broadcaster_user_id,
 			user:StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name),
+		}
+		StoreProxy.chat.addMessage(message);
+	}
+
+	/**
+	 * Called when a user is sent a warning a warning
+	 * @param topic 
+	 * @param event 
+	 */
+	private async warningSendEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.WarningSentEvent):Promise<void> {
+		const moderator = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name)
+		const message:TwitchatDataTypes.MessageWarnUserData = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitch",
+			type:TwitchatDataTypes.TwitchatMessageType.WARN_CHATTER,
+			channel_id:event.broadcaster_user_id,
+			user:StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name),
+			moderator,
+			rules:event.chat_rules_cited,
+			customReason:event.reason? event.reason : undefined,
+			abstractedReason:event.reason? event.reason : event.chat_rules_cited.join(" - "),
 		}
 		StoreProxy.chat.addMessage(message);
 	}
