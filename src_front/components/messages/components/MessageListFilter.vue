@@ -951,9 +951,13 @@ export class MessageListFilter extends Vue {
 		for (let i = 0; i < this.filters.length; i++) {
 			const f = this.filters[i];
 			//Keep missing scopes
-			if(f.twitch_scopes && f.value === true && !TwitchUtils.hasScopes(f.twitch_scopes)) {
-				missingScopes = missingScopes.concat(f.twitch_scopes);
-				f.error = true;
+			if(f.twitch_scopes && f.value === true) {
+				f.twitch_scopes.forEach(s => {
+					if(!TwitchUtils.hasScopes([s])) {
+						missingScopes = missingScopes.concat(s);
+						f.error = true;
+					}
+				});
 			}
 		}
 
@@ -964,9 +968,13 @@ export class MessageListFilter extends Vue {
 			for (let i = 0; i < this.messageFilters.length; i++) {
 				const f = this.messageFilters[i];
 				//Keep missing scopes
-				if(f.twitch_scopes && f.value === true && !TwitchUtils.hasScopes(f.twitch_scopes)) {
-					missingScopes = missingScopes.concat(f.twitch_scopes);
-					f.error = true;
+				if(f.twitch_scopes && f.value === true) {
+					f.twitch_scopes.forEach(s => {
+						if(!TwitchUtils.hasScopes([s])) {
+							missingScopes = missingScopes.concat(s);
+							f.error = true;
+						}
+					});
 				}
 			}
 		}

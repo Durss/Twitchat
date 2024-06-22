@@ -39,6 +39,7 @@ export const TwitchScopes = {
 	BLOCKED_TERMS: "moderator:manage:blocked_terms",
 	READ_MODERATORS: "moderator:read:moderators",
 	CHAT_WARNING: "moderator:manage:warnings",
+	READ_VIPS: "moderator:read:vips",
 } as const;
 export type TwitchScopesString = typeof TwitchScopes[keyof typeof TwitchScopes];
 
@@ -81,3 +82,5 @@ TwitchScope2Icon[TwitchScopes.READ_EMOTES]				= "emote";
 TwitchScope2Icon[TwitchScopes.UNBAN_REQUESTS]			= "unbanRequest";
 TwitchScope2Icon[TwitchScopes.BLOCKED_TERMS]			= "block";
 TwitchScope2Icon[TwitchScopes.CHAT_WARNING]				= "alert";
+TwitchScope2Icon[TwitchScopes.READ_VIPS]				= "vip";
+TwitchScope2Icon[TwitchScopes.READ_MODERATORS]			= "mod";

@@ -232,8 +232,8 @@ export default class EventSub {
 					TwitchScopes.EDIT_BANNED,
 					TwitchScopes.DELETE_MESSAGES,
 					TwitchScopes.CHAT_WARNING,
-					TwitchScopes.EDIT_MODS,
-					TwitchScopes.EDIT_VIPS])) {
+					TwitchScopes.READ_MODERATORS,
+					TwitchScopes.READ_VIPS])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_MODERATE, "beta");
 				}else{
 					if(TwitchUtils.hasScopes([TwitchScopes.MODERATION_EVENTS])) {
