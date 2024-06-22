@@ -22,10 +22,11 @@
 				<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items"
 					v-model="p.value"
 					:secondary="!p.value"
-					:paramData="p" @change="onSelectionUpdate()"
+					:paramData="p"
+					@change="onSelectionUpdate()"
 					noBackground />
 			</div>
-			<ParamItem class="item all" :paramData="params_all" @change="onSelectionUpdate()" noBackground />
+			<ParamItem class="item all" :paramData="params_all" v-model="params_all.value" @change="onSelectionUpdate()" noBackground />
 		</div>
 	</div>
 </template>
@@ -33,13 +34,14 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import { type TwitchScopesString, TwitchScope2Icon } from '@/utils/twitch/TwitchScopes';
+import { TwitchScope2Icon, type TwitchScopesString } from '@/utils/twitch/TwitchScopes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { gsap } from 'gsap/gsap-core';
 import { watch } from 'vue';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
-import ParamItem from '../params/ParamItem.vue';
 import ToggleButton from '../ToggleButton.vue';
+import ParamItem from '../params/ParamItem.vue';
 
 @Component({
 	components:{
@@ -101,7 +103,8 @@ import ToggleButton from '../ToggleButton.vue';
 					storage:s,
 				});
 			}else{
-				const selected = forceSelect? true : (userScopes.findIndex(v=> v == s) > -1);
+				const selected = forceSelect? true : TwitchUtils.hasScopes([s]);
+				console.log(selected);
 				if(!selected) allSelected = false;
 				this.param_items.push({
 					labelKey:"global.twitch_scopes."+s,
