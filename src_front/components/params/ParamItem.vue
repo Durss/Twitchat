@@ -573,6 +573,7 @@ export class ParamItem extends Vue {
 
 		//If it's a boolean and modelValue is undefined, force it to false
 		if(this.paramData.type == "boolean" && this.modelValue == undefined) {
+			console.warn("PROBABLY AN ISSUE TO FIX WITH A PARAM ITEM:", this.modelValue, this.paramData.labelKey, this.paramData);
 			this.paramData.value = false;
 			this.$emit("update:modelValue", false);
 		}
