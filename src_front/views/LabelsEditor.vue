@@ -1,7 +1,7 @@
 <template>
 	<div class="labelseditor">
 		<div class="head">
-			<AppLangSelector class="langSelector" allLocales v-model:langRef="langRef" />
+			<AppLangSelector class="langSelector" allLocales v-model:langRef="langRef" showRef />
 
 			<div class="sectionList">
 				<TTButton v-for="(value, key) in labelsRef" :key="key"
@@ -135,9 +135,7 @@ import type { JsonObject } from "type-fest";
 	}
 
 	public onSelectSection(key:string, pathToSelect:string[] = [], force:boolean = false, event?:MouseEvent):void {
-		console.log(event);
 		if(event && event.ctrlKey) {
-			console.log("OKOOK");
 			this.langRef = key;
 			this.computeProgresses();
 			return;

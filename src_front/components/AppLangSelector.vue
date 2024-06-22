@@ -4,6 +4,7 @@
 			<input type="radio" name="language" :id="'lang_'+lang" :value="lang" v-model="$i18n.locale">
 			<label :for="'lang_'+lang">
 				<CountryFlag :country="$t('global.lang_flag', lang)" class="flag" /><span class="text">{{ $t('global.lang_label', lang)}}</span>
+				<Icon name="highlight" v-if="showRef !== false && langRef == lang" v-tooltip="'CTRL+click a language\nto make it the reference'" />
 			</label>
 		</div>
 	</form>
@@ -15,20 +16,25 @@ import { watch } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import CountryFlag from 'vue-country-flag-next';
 import StoreProxy from '@/store/StoreProxy';
+import Icon from './Icon.vue';
 
 @Component({
 	components:{
+		Icon,
 		CountryFlag,
 	},
 	emits:["update:langRef"],
 })
- class AppLangSelector extends Vue {
+class AppLangSelector extends Vue {
 
 	@Prop({default:false, type:Boolean})
 	public allLocales!:boolean;
 
 	@Prop({default:"en", type:String})
 	public langRef!:string;
+
+	@Prop({default:false, type:Boolean})
+	public showRef!:boolean;
 
 	public get enabledLocales():string[] {
 		if(this.allLocales !== false) return this.$i18n.availableLocales;
@@ -64,6 +70,22 @@ export default toNative(AppLangSelector);
 		display: flex;
 		position: relative;
 		justify-content: center;
+		flex-wrap: wrap;
+		align-items: flex-start;
+
+		.icon {
+			height: 1em;
+			vertical-align: top;
+			margin-left: .5em;
+		}
+
+		.reference {
+			width: 100%;
+			font-size: .8;
+			text-align: center;
+			font-family: "Inter";
+			transform: scaleX(1.5);
+		}
 
 		label {
 			text-align: center;
