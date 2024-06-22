@@ -64,11 +64,18 @@ export const storeRaffle = defineStore('raffle', {
 					break;
 				}
 			}
+
+			/**
+			 * Called when a raffle animation (the wheel) completes
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_RESULT, (e:TwitchatEvent<{winner:TwitchatDataTypes.RaffleEntry, delay?:number}>)=> {
+				this.onRaffleComplete(e.data!.winner, false, e.data!.delay);
+			});
 		},
 
 		stopRaffle() { this.data = null; },
 
-		onRaffleComplete(winner:TwitchatDataTypes.RaffleEntry, publish = false) {
+		onRaffleComplete(winner:TwitchatDataTypes.RaffleEntry, publish = false, chatMessageDelay:number = 0) {
 			// this.raffle = null;
 			let data:TwitchatDataTypes.RaffleData|null = currentRaffleData || this.data;
 			if(data) {
@@ -127,9 +134,11 @@ export const storeRaffle = defineStore('raffle', {
 
 			//Post result on chat
 			if(StoreProxy.chat.botMessages.raffle.enabled) {
-				let message = StoreProxy.chat.botMessages.raffle.message;
-				message = message.replace(/\{USER\}/gi, winner.label);
-				MessengerProxy.instance.sendMessage(message);
+				setTimeout(() => {
+					let message = StoreProxy.chat.botMessages.raffle.message;
+					message = message.replace(/\{USER\}/gi, winner.label);
+					MessengerProxy.instance.sendMessage(message);
+				}, chatMessageDelay || 0);
 			}
 
 			//Publish the result on the public API

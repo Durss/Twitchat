@@ -1170,8 +1170,9 @@ export interface IRaffleActions {
 	 * Set a raffle's winner
 	 * @param winner
 	 * @param publish
+	 * @param chatMessageDelay delay before sending message on chat
 	 */
-	onRaffleComplete(winner:TwitchatDataTypes.RaffleEntry, publish?:boolean):void;
+	onRaffleComplete(winner:TwitchatDataTypes.RaffleEntry, publish?:boolean, chatMessageDelay?:number):void;
 	/**
 	 * Check if the specified message contains the commande to join
 	 * any currently opened raffle

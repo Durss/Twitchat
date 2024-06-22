@@ -324,10 +324,8 @@ import type { StyleValue } from 'vue';
 						}});
 
 		//Tell twitchat animation completed
-		setTimeout(()=> {
-			const data = (this.winnerData as unknown) as JsonObject;
-			PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_RESULT, {winner:data});
-		}, 5000);
+		const data = (this.winnerData as unknown) as JsonObject;
+		PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_RESULT, {winner:data, delay:5000});
 	}
 
 	public burstStars(heart:HTMLDivElement):void {

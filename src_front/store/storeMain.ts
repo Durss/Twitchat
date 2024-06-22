@@ -351,13 +351,6 @@ export const storeMain = defineStore("main", {
 			});
 
 			/**
-			 * Called when a raffle animation (the wheel) completes
-			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_RESULT, (e:TwitchatEvent<{winner:TwitchatDataTypes.RaffleEntry}>)=> {
-				StoreProxy.raffle.onRaffleComplete(e.data!.winner);
-			});
-
-			/**
 			 * Called when doing a shoutout to the latest raider
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
