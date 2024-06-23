@@ -224,6 +224,9 @@ class BingoGridView extends Vue {
 				this.onGridUpdate({grid:infos.json.data});
 				this.loading = false;
 				if(this.gridEnabled) this.animateOpen();
+				if(this.$store.public.authenticated) {
+					SSEHelper.instance.initialize();
+				}
 			}else{
 				this.error = true;
 			}
