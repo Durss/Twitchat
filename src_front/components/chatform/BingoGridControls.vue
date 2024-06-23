@@ -9,7 +9,7 @@
 			<template v-if="search.trim().length > 0">
 				
 				<Checkbox v-for="entry in grid.entries.concat(grid.additionalEntries || [])
-					.filter(v=>new RegExp(search,'gi').test(v.label))"
+					.filter(v=>new RegExp(search.trim(),'gi').test(v.label))"
 					class="entry"
 					:key="entry.id"
 					v-model="entry.check"
