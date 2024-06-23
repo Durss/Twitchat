@@ -75,8 +75,8 @@ export const storePublic = defineStore('public', {
 				//Convert oAuth code to access_token
 				const res = await ApiHelper.call("auth/twitch", "GET", {code});
 				twitchAuthResult		= res.json;
-				this.twitchAccessToken	= res.json.access_token;
-				this.grantedScopes		= res.json.scope;
+				this.twitchAccessToken	= twitchAuthResult.access_token;
+				this.grantedScopes		= twitchAuthResult.scope;
 				ApiHelper.accessToken	= this.twitchAccessToken;
 				twitchAuthResult.expires_at	= Date.now() + twitchAuthResult.expires_in * 1000;
 				DataStoreCommon.set(DataStoreCommon.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
@@ -84,9 +84,8 @@ export const storePublic = defineStore('public', {
 				//Schedule refresh
 				refreshTokenTO = setTimeout(()=>{
 					this.twitchTokenRefresh(true);
-				}, (res.json.expires_in || 120) * 1000 - 60000 * 5);
+				}, (twitchAuthResult.expires_in || 120) * 1000 - 60000 * 5);
 				
-				SSEHelper.instance.initialize();
 				this.authenticated = true;
 			}else {
 				this.authenticated = await this.twitchTokenRefresh(false);
@@ -102,7 +101,7 @@ export const storePublic = defineStore('public', {
 				let userRes:TwitchDataTypes.Token | TwitchDataTypes.Error | undefined;
 				try {
 					window.setInitMessage("validating Twitch auth token");
-					userRes = await TwitchUtils.validateToken(twitchAuthResult.access_token);
+					userRes = await TwitchUtils.validateToken(this.twitchAccessToken);
 				}catch(error) { /*ignore*/ }
 
 				if(!userRes || isNaN((userRes as TwitchDataTypes.Token).expires_in)
@@ -132,11 +131,11 @@ export const storePublic = defineStore('public', {
 				ApiHelper.accessToken		= this.twitchAccessToken;
 				//Store auth data in cookies for later use
 				DataStoreCommon.set(DataStoreCommon.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
-				SSEHelper.instance.initialize();
 
 				const expire	= twitchAuthResult.expires_in;
 				let delay		= Math.max(0, expire * 1000 - 60000 * 5);//Refresh 5min before it actually expires
 				delay			= Math.min(delay, 1000 * 60 * 60 * 3);//Refresh at least every 3h
+				delay = 10000;
 				if(isNaN(delay)) {
 					//fail safe.
 					//Refresh in 1 minute if something failed when refreshing
