@@ -36,6 +36,7 @@ export default class YoutubeHelper {
 	private _emotes:{[key:string]:string} = {};
 	private _uidToBanID:{[key:string]:string} = {};
 	private _lastFollowerList:{[key:string]:boolean} = {};
+	private _consecutiveApiFails:number = 0;
 
 	constructor() {
 
@@ -335,6 +336,7 @@ export default class YoutubeHelper {
 				const res = await fetch(url, {method:"GET", headers:this.headers});
 				this._creditsUsed ++;
 				if(res.status == 200) {
+					this._consecutiveApiFails = 0;
 					//Check all message IDs
 					const idsDone:{[key:string]:boolean} = {};
 					if(!pageToken) {
@@ -423,25 +425,30 @@ export default class YoutubeHelper {
 						json = await res.json() as {error:{code:number, errors:{domain:string, message:string, reason:string}[]}};
 						Logger.instance.log("youtube", {log:"Failed polling chat messages (status: "+res.status+")", error:json, credits: this._creditsUsed, liveID:this._currentLiveIds});
 						errorCode = json.error.errors[0].reason;
-						if(errorCode == "liveChatEnded") {
-							//Live broadcast ended
-							StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_chat_ended"));
-							return;
-						}
-						if(errorCode == "liveChatNotFound") {
-							//Live broadcast deleted
-							StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_chat_not_found"));
-							return;
-						}
-						if(errorCode == "liveChatDisabled") {
-							//Chat not enabled for selected live broadcast
-							StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_chat_off"));
-							return;
-						}
-						if(errorCode == "quotaExceeded") {
-							//No more Youtube API credits :/
-							StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
-							return;
+						if(++this._consecutiveApiFails === 6) {
+							if(errorCode == "liveChatEnded") {
+								//Live broadcast ended
+								StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_chat_ended"));
+								return;
+							}
+							if(errorCode == "liveChatNotFound") {
+								//Live broadcast deleted
+								StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_chat_not_found"));
+								return;
+							}
+							if(errorCode == "liveChatDisabled") {
+								//Chat not enabled for selected live broadcast
+								StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_chat_off"));
+								return;
+							}
+							if(errorCode == "quotaExceeded") {
+								//No more Youtube API credits :/
+								StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
+								return;
+							}
+							if(errorCode == "backendError") {
+								//Just youtube failing
+							}
 						}
 					}catch(error) {
 						let text = "";
@@ -455,7 +462,6 @@ export default class YoutubeHelper {
 						if(!await this.refreshToken()) return;
 					}else {
 						StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_unknown"));
-						return;
 					}
 				}
 			}catch(error){}
