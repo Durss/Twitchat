@@ -3,7 +3,7 @@
 		<div class="timer" v-if="$store.timer.timer"
 		@mouseenter="hoverTimer = true"
 		@mouseleave="hoverTimer = false">
-			<img src="@/assets/icons/timer.svg" alt="timer">
+			<Icon name="timer" alt="timer" />
 			<div v-if="!hoverTimer">{{timer}}</div>
 			<div v-if="hoverTimer" @click="stopTimer()">{{ $t("global.stop") }}</div>
 		</div>
@@ -11,7 +11,7 @@
 		<div class="countdown" v-if="$store.timer.countdown"
 		@mouseenter="hoverCountdown = true"
 		@mouseleave="hoverCountdown = false">
-			<img src="@/assets/icons/countdown.svg" alt="countdown">
+			<Icon name="countdown" alt="countdown" />
 			<div v-if="!hoverCountdown">{{countdown}}</div>
 			<div v-if="hoverCountdown" @click="stopCountdown()">{{ $t("global.stop") }}</div>
 		</div>
@@ -22,11 +22,14 @@
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import Icon from '../Icon.vue';
 
 @Component({
-	components:{}
+	components:{
+		Icon,
+	}
 })
- class TimerCountDownInfo extends Vue {
+class TimerCountDownInfo extends Vue {
 	
 	public timer:string = "";
 	public countdown:string = "";
@@ -86,7 +89,7 @@ export default toNative(TimerCountDownInfo);
 		flex-direction: row;
 		align-items: center;
 		white-space: nowrap;
-		color: var(--color-light);
+		color: var(--color-text);
 		margin-left: 5px;
 		font-size: .9em;
 		padding: .35em;
@@ -95,7 +98,7 @@ export default toNative(TimerCountDownInfo);
 		font-family: var(--font-roboto);
 		text-transform: uppercase;
 
-		img {
+		.icon {
 			height: 1em;
 			width: 1em;
 			object-fit: fill;

@@ -306,10 +306,12 @@ export default toNative(ChatAd);
 		.header {
 			position: relative;
 			&>.title {
+				color: var(--color-light);
 				font-size: 1.5em;
 				.icon {
 					height: 1em;
 					margin-right: .5em;
+					color: var(--color-light);
 				}
 			}
 		}

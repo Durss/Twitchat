@@ -46,7 +46,8 @@ export default toNative(ClearButton);
 	padding: 1em;
 	z-index: 1;
 	cursor: pointer;
-	color: var(--color-text);
+	// color: var(--color-text);
+	color: inherit;
 	.icon {
 		height: 1em;
 		transition: transform .15s;

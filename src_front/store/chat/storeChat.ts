@@ -122,12 +122,12 @@ export const storeChat = defineStore('chat', {
 			},
 			{
 				id:"timerAdd",
-				cmd:"/timerAdd {(hh:)(mm:)ss}",
+				cmd:"/timerAdd {hh:mm:ss}",
 				detailsKey:"params.commands.timerAdd",
 			},
 			{
 				id:"timerRemove",
-				cmd:"/timerRemove {(hh:)(mm:)ss}",
+				cmd:"/timerRemove {hh:mm:ss}",
 				detailsKey:"params.commands.timerRemove",
 			},
 			{
@@ -137,17 +137,17 @@ export const storeChat = defineStore('chat', {
 			},
 			{
 				id:"countdown",
-				cmd:"/countdown {(hh:)(mm:)ss}",
+				cmd:"/countdown {hh:mm:ss}",
 				detailsKey:"params.commands.countdown",
 			},
 			{
 				id:"countdownAdd",
-				cmd:"/countdownAdd {(hh:)(mm:)ss}",
+				cmd:"/countdownAdd {hh:mm:ss}",
 				detailsKey:"params.commands.countdownAdd",
 			},
 			{
 				id:"countdownRemove",
-				cmd:"/countdownRemove {(hh:)(mm:)ss}",
+				cmd:"/countdownRemove {hh:mm:ss}",
 				detailsKey:"params.commands.countdownRemove",
 			},
 			{
