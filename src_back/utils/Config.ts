@@ -121,6 +121,14 @@ export default class Config {
 		});
 	}
 
+	public static get DATA_SHARING(): string {
+		return this.getEnvData({
+			dev: path.join(this.DATA_ROOT, "/dataSharing.json"),
+			beta: path.join(this.DATA_ROOT, "/dataSharing.json"),
+			prod: path.join(this.DATA_ROOT, "/dataSharing.json"),
+		});
+	}
+
 	public static get KO_FI_USERS(): string {
 		return this.getEnvData({
 			dev: path.join(this.KO_FI_DATA_FOLDER, "/kofi2Twitch.json"),

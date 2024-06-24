@@ -42,6 +42,15 @@
 			<ParamItem class="param" :paramData="$store.account.syncDataWithServer" v-model="syncEnabled" noBackground />
 			<TTButton class="button" v-if="!syncEnabled" @click="eraseData()" alert icon="delete">{{ $t('account.erase_dataBt') }}</TTButton>
 		</section>
+		
+		<section class="card-item dataShare">
+			<i18n-t tag="p" scope="global" keypath="account.share.info">
+				<template #USER>
+					<strong>{{ $store.auth.twitch.user.displayNameOriginal }}</strong>
+				</template>
+			</i18n-t>
+			<TTButton icon="twitch" class="button" @click="startParamsShareFlow()" :loading="connecting">{{ $t('account.share.connectBt') }}</TTButton>
+		</section>
 	</div>
 </template>
 
@@ -50,7 +59,6 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TTSUtils from '@/utils/TTSUtils';
@@ -85,6 +93,7 @@ import ApiHelper from '@/utils/ApiHelper';
 	public showObs = false;
 	public disposed = false;
 	public showCredits = true;
+	public connecting = false;
 	public syncEnabled = false;
 	public showAuthorizeBt = false;
 	public showSuggestions = false;
@@ -177,6 +186,16 @@ import ApiHelper from '@/utils/ApiHelper';
 		this.oAuthURL = TwitchUtils.getOAuthURL(this.CSRFToken, this.scopes);
 	}
 
+	public async startParamsShareFlow():Promise<void> {
+		this.connecting = true;
+		const {json} = await ApiHelper.call("auth/CSRFToken", "GET", {withRef:true});
+		this.CSRFToken = json.token;
+		document.location.href = TwitchUtils.getOAuthURL(this.CSRFToken, this.scopes);
+		setTimeout(()=>{
+			this.connecting = false;
+		}, 10000);
+	}
+
 }
 export default toNative(ParamsAccount);
 </script>
@@ -234,8 +253,11 @@ export default toNative(ParamsAccount);
 		}
 	}
 
-	.dataSync {
+	.dataSync, .dataShare {
+		line-height: 1.25em;
 		align-items: center;
+		text-align: center;
+		white-space: pre-line;
 	}
 
 }

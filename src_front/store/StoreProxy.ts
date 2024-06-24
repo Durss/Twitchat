@@ -250,6 +250,10 @@ export type IAuthState = {
 	 */
 	authenticated: boolean;
 	/**
+	 * Get a list of users we're sharing data with
+	 */
+	dataSharingUserList: string[];
+	/**
 	 * Contains the scope to request.
 	 * Use anytime the user tries to click a feature that's missing
 	 * a scope. The missing scope(s) is set here and the scope grant

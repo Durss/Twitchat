@@ -20,12 +20,14 @@ let refreshTokenTO:number = -1;
 export const storeAuth = defineStore('auth', {
 	state: () => ({
 		authenticated: false,
+		dataSharingUserList: [] as string[],
 		newScopesToRequest: [] as TwitchScopesString[],
 		twitchat:{},
 		twitch:{},
 		youtube:{},
 		tiktok:{},
 		facebook:{},
+		instagram:{},
 		twitchModeratedChannels:[] as TwitchDataTypes.ModeratedUser[],
 		lastCheer: {},//channelId => infos
 		lastFollower: {},//channelId => infos
@@ -341,6 +343,7 @@ export const storeAuth = defineStore('auth', {
 			this.twitch.user.donor.isPatreonMember	= res.json.data.isPatreonMember === true;
 			this.twitch.user.donor.lifetimePercent	= res.json.data.lifetimePercent || 0;
 			this.twitch.user.channelInfo[user.id].following_date_ms = user.created_at_ms || 0;
+			this.dataSharingUserList				= res.json.data.dataSharing || [];
 			StoreProxy.discord.discordLinked		= res.json.data.discordLinked === true;
 			//Uncomment to force non-premium for debugging
 			// if(!Config.instance.IS_PROD) {

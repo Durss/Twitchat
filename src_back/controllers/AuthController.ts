@@ -11,6 +11,7 @@ import AbstractController from "./AbstractController.js";
 */
 export default class AuthController extends AbstractController {
 
+	private pendingDataSharingAuth:{[jwt:string]:boolean} = {}
 	
 	constructor(public server:FastifyInstance) {
 		super();
@@ -27,9 +28,11 @@ export default class AuthController extends AbstractController {
 	******************/
 	public async initialize():Promise<void> {
 		this.server.get('/api/auth/twitch', async (request, response) => await this.twitchAuth(request, response));
+		this.server.get('/api/auth/twitch/refreshtoken', async (request, response) => await this.refreshToken(request, response));
 		this.server.get('/api/auth/CSRFToken', async (request, response) => await this.getCSRFToken(request, response));
 		this.server.post('/api/auth/CSRFToken', async (request, response) => await this.validateCSRFToken(request, response));
-		this.server.get('/api/auth/twitch/refreshtoken', async (request, response) => await this.refreshToken(request, response));
+		this.server.post('/api/auth/validateDataShare', async (request, response) => await this.validateDataShare(request, response));
+		this.preloadData();
 	}
 	
 	
@@ -78,16 +81,22 @@ export default class AuthController extends AbstractController {
 	 * @param {*} request 
 	 * @param {*} response 
 	 */
-	private async validateCSRFToken(request:FastifyRequest, response:FastifyReply) {
+	private async validateCSRFToken(request:FastifyRequest, response:FastifyReply, respondOnSuccess:boolean = true):Promise<false|CSRFToken> {
 		//Verifies a CSRF token
 		const params:any = request.body;
-		const result = jwt.verify(params.token, Config.credentials.csrf_key);
+		const result:CSRFToken = jwt.verify(params.token, Config.credentials.csrf_key);
 		if(result) {
 			//Token valid only for 5 minutes
-			if(result.date > Date.now() - 5*60*1000) {
+			if(result.date > Date.now() - 10*60*1000) {
+				const jsonRes:{success:boolean, uidShare?:string} = {success:true};
+				//If in the process of linking two accounts together, return ref account ID
+				if(result.uidRef && this.pendingDataSharingAuth[params.token]) {
+					jsonRes.uidShare = result.uidRef;
+				}
+				if(!respondOnSuccess) return jwt;
 				response.header('Content-Type', 'application/json');
 				response.status(200);
-				response.send(JSON.stringify({success:true}));
+				response.send(JSON.stringify(jsonRes));
 			}else{
 				//Token expired
 				response.header('Content-Type', 'application/json');
@@ -100,6 +109,8 @@ export default class AuthController extends AbstractController {
 			response.status(200);
 			response.send(JSON.stringify({success:false, message:"Invalid CSRF token"}));
 		}
+
+		return false;
 	}
 
 	/**
@@ -109,8 +120,23 @@ export default class AuthController extends AbstractController {
 	 * @param {*} response 
 	 */
 	private async getCSRFToken(request:FastifyRequest, response:FastifyReply) {
+		const params = URL.parse(request.url, true).query;
+		const tokenData:CSRFToken = {date:Date.now()};
+
+		//If asking to share data with another account, store ref account to token
+		if(params.withRef) {
+			const user = await super.twitchUserGuard(request, response);
+			if(!user) return;
+			tokenData.uidRef = user.user_id;
+		}
+
 		//Generate a token
-		const token = jwt.sign({date:Date.now()}, Config.credentials.csrf_key);
+		const token = jwt.sign(tokenData, Config.credentials.csrf_key);
+
+		//remember there's a data share flow initialized
+		if(params.withRef) {
+			this.pendingDataSharingAuth[jwt] = true;
+		}
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(JSON.stringify({token}));
@@ -159,4 +185,35 @@ export default class AuthController extends AbstractController {
 		response.status(200);
 		response.send(JSON.stringify(json));
 	}
+
+	/**
+	 * Verifies a CSRF token to secure twitch authentication
+	 * 
+	 * @param {*} request 
+	 * @param {*} response 
+	 */
+	private async validateDataShare(request:FastifyRequest, response:FastifyReply) {
+		const user = await super.twitchUserGuard(request, response);
+		if(!user) return;
+
+		//Verifies a CSRF token
+		const params:any = request.body;
+		const csrf = params.token;
+		if(this.pendingDataSharingAuth[csrf]) {
+			const token = await this.validateCSRFToken(request, response, false);
+			if(token !== false && token.uidRef) {
+				super.enableUserDataSharing(token.uidRef, user.user_id);
+				response.header('Content-Type', 'application/json');
+				response.status(200);
+				response.send(JSON.stringify({success:true, sharer:token.uidRef}));
+			}
+		}else{
+			//Invalid token
+			response.header('Content-Type', 'application/json');
+			response.status(404);
+			response.send(JSON.stringify({success:false, message:"Invalid CSRF token"}));
+		}
+	}
 }
+
+interface CSRFToken {date:number, uidRef?:string}

@@ -140,7 +140,9 @@ type ApiEndpoints =  {
 	};
 	"auth/CSRFToken": {
 		GET: {
-			parameters: void;
+			parameters: {
+				withRef?:true;
+			};
 			response: {
 				token:string;
 			}
@@ -152,6 +154,7 @@ type ApiEndpoints =  {
 			response: {
 				success:boolean;
 				message?:string;
+				uidRef?:string;
 			}
 		};
 	};
@@ -167,6 +170,18 @@ type ApiEndpoints =  {
 				scope: string[];
 				token_type: string;
 				expires_at: number;
+			}
+		};
+	};
+	"auth/validateDataShare": {
+		POST: {
+			parameters: {
+				token:string;
+			},
+			response: {
+				sharer: string;
+				success:boolean;
+				message:string;
 			}
 		};
 	};
@@ -323,6 +338,7 @@ type ApiEndpoints =  {
 					discordLinked:boolean;
 					level:number;
 					lifetimePercent:number;
+					dataSharing:string[];
 				}
 			}
 		};

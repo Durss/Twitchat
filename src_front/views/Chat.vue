@@ -142,6 +142,8 @@
 
 		<Login v-if="$store.auth.newScopesToRequest.length > 0" scopeOnly />
 
+		<ShareParams v-if="$store.params.currentModal == 'shareParams'" @close="$store.params.closeModal()" />
+
 		<ChatAlertMessage v-if="buildIndex >= 4 + $store.params.chatColumnsConfig.length" />
 
 		<HelpGenocideVictims v-if="showGazaFunds" @close="showGazaFunds = false" />
@@ -217,6 +219,7 @@ import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
 import VoteAntifa from '@/components/chatform/VoteAntifa.vue';
+import ShareParams from './ShareParams.vue';
 
 @Component({
 	components:{
@@ -243,6 +246,7 @@ import VoteAntifa from '@/components/chatform/VoteAntifa.vue';
 		MessageList,
 		DevmodeMenu,
 		RewardsList,
+		ShareParams,
 		ShoutoutList,
 		TriggersLogs,
 		TrackedUsers,
@@ -270,7 +274,7 @@ import VoteAntifa from '@/components/chatform/VoteAntifa.vue';
 		EmergencyFollowsListModal,
 	},
 })
- class Chat extends Vue {
+class Chat extends Vue {
 
 	public buildIndex = 0;
 	public showQna = false;
@@ -509,6 +513,11 @@ import VoteAntifa from '@/components/chatform/VoteAntifa.vue';
 			gsap.from(el, {bottom:"-350px", duration:2, ease:"back.out", delay:1});
 		}
 		this.computeWindowsSizes();
+
+
+		// setTimeout(() => {
+		// 	this.$store.params.openModal("shareParams");
+		// }, 1000);
 	}
 
 	public beforeUnmount():void {

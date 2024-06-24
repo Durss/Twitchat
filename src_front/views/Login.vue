@@ -1,9 +1,8 @@
 <template>
 	<div :class="classes">
-
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 
-		<div class="holder bslured-background-window" ref="holder">
+		<div class="holder" ref="holder">
 			<div class="head" v-if="!scopeOnly">
 				<img class="icon" src="@/assets/logo.svg" alt="twitch">
 				<div class="beta" v-if="isBeta === true">{{ $t("global.beta") }}</div>
@@ -102,6 +101,7 @@ import Utils from '@/utils/Utils';
 import { gsap } from 'gsap';
 import { watch } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Component({
 	components:{
@@ -111,7 +111,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	},
 	emits:["close"]
 })
- class Login extends Vue {
+class Login extends Vue {
 
 	@Prop({
 			type:Boolean,
@@ -165,16 +165,6 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 	public async mounted():Promise<void> {
 		this.isBeta = Config.instance.BETA_MODE;
-		let redirect:string = "";
-		const routeRedirect = this.$router.currentRoute.value.params?.redirect;
-		if(Array.isArray(routeRedirect)) redirect = routeRedirect[0];
-		else redirect = routeRedirect;
-
-		if(!this.scopeOnly) {
-			if(redirect && redirect != "logout") {
-				DataStore.set(DataStore.REDIRECT, redirect, false);
-			}
-		}
 
 		if(this.$route.name == "oauth") {
 			this.authenticating = true;
@@ -189,13 +179,11 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 					this.$store.auth.twitch_autenticate(code, (success:boolean, betaRefused?:boolean)=> {
 						this.authenticating = false;
 						if(success) {
-							redirect = DataStore.get(DataStore.REDIRECT);
-							DataStore.remove(DataStore.REDIRECT);
-							if(redirect) {
-								this.$router.push(redirect);
-							}else{
-								this.$router.push({name:"chat"});
+							if(res.json.uidRef) {
+								this.$store.main.tempStoreValue = {uid:res.json.uidRef, csrf:csrfToken};
+								this.$store.params.openModal("shareParams");
 							}
+							this.redirect();
 						}else{
 							if(betaRefused === true) {
 								this.closedBeta = true;
@@ -314,6 +302,29 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 				if(json.data!.betaVersion) this.migrateInfo.betaVersion = json.data!.betaVersion;
 				if(json.data!.prodVersion) this.migrateInfo.prodVersion = json.data!.prodVersion;
 			}
+		}
+	}
+
+	/**
+	 * Redirect user after auth complete
+	 */
+	private redirect():void {
+		let redirect:string = "";
+		const routeRedirect = this.$router.currentRoute.value.params?.redirect;
+		if(Array.isArray(routeRedirect)) redirect = routeRedirect[0];
+		else redirect = routeRedirect;
+
+		if(!this.scopeOnly) {
+			if(redirect && redirect != "logout") {
+				DataStore.set(DataStore.REDIRECT, redirect, false);
+			}
+		}
+		redirect = DataStore.get(DataStore.REDIRECT);
+		DataStore.remove(DataStore.REDIRECT);
+		if(redirect) {
+			this.$router.push(redirect);
+		}else{
+			this.$router.push({name:"chat"});
 		}
 	}
 

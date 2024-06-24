@@ -473,6 +473,18 @@ export class MessageListFilter extends Vue {
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessageNoticeData>(TwitchatDataTypes.TwitchatMessageType.WARN_CHATTER, (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessageNoticeData>(TwitchatDataTypes.TwitchatMessageType.WARN_ACKNOWLEDGE, (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
 			this.loadingPreview = false;
 
 		}else

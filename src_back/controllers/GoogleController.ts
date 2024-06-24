@@ -37,7 +37,7 @@ export default class GoogleController extends AbstractController {
 		this.server.post('/api/youtube/authenticate', async (request, response) => await this.postYoutubeAuthenticate(request, response));
 		this.server.post('/api/youtube/refreshtoken', async (request, response) => await this.postYoutubeRefreshToken(request, response));
 
-		this.preloadEarlyDonors();
+		this.preloadData();
 		
 		if(Config.credentials.google_key) {
 			//Authenticate with google API for translation API

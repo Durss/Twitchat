@@ -8,7 +8,7 @@ export namespace TwitchatDataTypes {
 
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
 
-	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "bingo_grid" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs";
+	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "bingo_grid" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs" | "shareParams";
 
 	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
 
@@ -2281,7 +2281,7 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.BAN,									labelKey:"chat.filters.message_types.ban",									icon:"ban",				scopes:[TwitchScopes.MODERATION_EVENTS],	newFlag:0},
 		{type:TwitchatMessageType.UNBAN,								labelKey:"chat.filters.message_types.unban",								icon:"unban",			scopes:[TwitchScopes.MODERATION_EVENTS],	newFlag:0},
 		{type:TwitchatMessageType.UNBAN_REQUEST,						labelKey:"chat.filters.message_types.unban_request",						icon:"unbanRequest",	scopes:[TwitchScopes.UNBAN_REQUESTS],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
-		{type:TwitchatMessageType.NOTICE,								labelKey:"chat.filters.message_types.notice",								icon:"mod",				scopes:[TwitchScopes.BLOCKED_TERMS, TwitchScopes.CHAT_WARNING, TwitchScopes.SET_ROOM_SETTINGS, TwitchScopes.UNBAN_REQUESTS, TwitchScopes.EDIT_BANNED, TwitchScopes.DELETE_MESSAGES, TwitchScopes.READ_MODERATORS, TwitchScopes.READ_VIPS],	newFlag:0},
+		{type:TwitchatMessageType.NOTICE,								labelKey:"chat.filters.message_types.notice",								icon:"mod",				scopes:[TwitchScopes.BLOCKED_TERMS, TwitchScopes.CHAT_WARNING, TwitchScopes.SET_ROOM_SETTINGS, TwitchScopes.UNBAN_REQUESTS, TwitchScopes.EDIT_BANNED, TwitchScopes.DELETE_MESSAGES, TwitchScopes.READ_MODERATORS, TwitchScopes.READ_VIPS],	newFlag:Config.instance.NEW_FLAGS_DATE_V13},
 		{type:TwitchatMessageType.REWARD,								labelKey:"chat.filters.message_types.reward",								icon:"channelPoints",	scopes:[TwitchScopes.LIST_REWARDS],	newFlag:0},
 		{type:TwitchatMessageType.POLL,									labelKey:"chat.filters.message_types.poll",									icon:"poll",			scopes:[TwitchScopes.MANAGE_POLLS],	newFlag:0},
 		{type:TwitchatMessageType.PREDICTION,							labelKey:"chat.filters.message_types.prediction",							icon:"prediction",		scopes:[TwitchScopes.MANAGE_PREDICTIONS],	newFlag:0},

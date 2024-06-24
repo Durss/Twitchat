@@ -48,7 +48,7 @@
 		"state": {
 			"auth_bt": "Authenticate to play",
 			"cell_disabled": "{USER} must\ntick this cell\nto enable it",
-			"mod_info": "You're a moderator in this channel, the cells you tick will be enabled for everyone",
+			"mod_info": "You're a moderator of this channel, the cells you tick will be enabled for everyone",
 			"additional_cells": "Additional cells other viewers may have"
 		}
 	}

@@ -3,13 +3,23 @@ import * as fs from "fs";
 import Config from '../utils/Config.js';
 import TwitchUtils, { TwitchToken } from "../utils/TwitchUtils.js";
 import type { PatreonMember } from "./PatreonController.js";
+import Logger from "../utils/Logger.js";
 
 /**
 * Created : 14/12/2022
 */
 export default class AbstractController {
 
-	protected earlyDonors:{[key:string]:boolean} = {};
+	protected static earlyDonors:{[key:string]:boolean} = {};
+	/**
+	 * Associate a UID to a reference UID
+	 * If user B wants to share data of user A, this dictionnary
+	 * will contain :
+	 * {
+	 * 	B:A
+	 * }
+	 */
+	protected static dataSharing:{[uid:string]:string} = {};
 
 	/**
 	 * Twitch user ID to cache expiration date.
@@ -36,14 +46,21 @@ export default class AbstractController {
 	* PRIVATE METHODS *
 	*******************/
 	/**
-	 * Preloads the early donors on a local cache
+	 * Preloads the early donors and data sharing on a local cache
 	 */
-	protected preloadEarlyDonors():void {
+	protected preloadData():void {
+		if(AbstractController.dataSharing) return;
+
 		if(fs.existsSync(Config.earlyDonors)) {
 			const uids:string[] = JSON.parse(fs.readFileSync(Config.earlyDonors, "utf-8"));
 			for (let i = 0; i < uids.length; i++) {
-				this.earlyDonors[uids[i]] = true;
+				AbstractController.earlyDonors[uids[i]] = true;
 			}
+		}
+		if(fs.existsSync(Config.DATA_SHARING)) {
+			AbstractController.dataSharing = JSON.parse(fs.readFileSync(Config.DATA_SHARING, "utf-8"));
+		}else{
+			AbstractController.dataSharing = {};
 		}
 	}
 
@@ -114,12 +131,12 @@ export default class AbstractController {
 		}
 
 		//Check if user is part of early donors with offered premium
-		if(!isPremium && this.earlyDonors[userInfo.user_id] === true) {
+		if(!isPremium && AbstractController.earlyDonors[userInfo.user_id] === true) {
 			isPremium = true;
 		}
 
 		//Check if user is part of early donors with offered premium
-		if(!isPremium && this.earlyDonors[userInfo.user_id] === true) {
+		if(!isPremium && AbstractController.earlyDonors[userInfo.user_id] === true) {
 			isPremium = true;
 		}
 
@@ -174,5 +191,57 @@ export default class AbstractController {
 			response.setHeader("Pragma", "no-cache");
 			response.setHeader("Surrogate-Control", "no-store");
 		}
+	}
+
+	/**
+	 * Enables data sharing between 2 users.
+	 * "receiver" will use data from "sharer"
+	 * @param sharer user ID
+	 * @param receiver user ID
+	 */
+	protected enableUserDataSharing(sharer:string, receiver:string):void {
+		AbstractController.dataSharing[receiver] = sharer;
+		fs.writeFileSync(Config.DATA_SHARING, JSON.stringify(AbstractController.dataSharing), "utf-8");
+		Logger.info("Enable data sharing between users "+sharer+"(main) and "+receiver);
+	}
+
+	/**
+	 * Disables data sharing between 2 users.
+	 * @param uid user ID
+	 */
+	protected disableUserDataSharing(uid:string):void {
+		delete AbstractController.dataSharing[uid];
+		fs.writeFileSync(Config.DATA_SHARING, JSON.stringify(AbstractController.dataSharing), "utf-8");
+		Logger.info("Dsiable data sharing for user "+uid);
+	}
+
+	/**
+	 * Gets the shared user ID for the given one.
+	 * If user A shares their data with user B, calling this
+	 * method with "B" will return "A".
+	 * Otherwise it will simply return the given user ID.
+	 * @param uid user ID
+	 */
+	protected getSharedUID(uid:string):string {
+		return AbstractController.dataSharing[uid] || uid;
+	}
+
+	/**
+	 * Get a list of the users "uid" is sharing data with
+	 * @param uid 
+	 */
+	protected getDataSharingList(uid:string):string[] {
+		const res:string[] = [];
+		const dict = AbstractController.dataSharing;
+		for (const sharing in dict) {
+			if(sharing == uid) {
+				res.push(dict[sharing]);
+			}
+			if(dict[sharing] === uid) {
+				res.push(sharing)
+			}
+		}
+
+		return res;
 	}
 }

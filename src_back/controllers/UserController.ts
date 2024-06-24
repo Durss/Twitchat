@@ -34,7 +34,7 @@ export default class UserController extends AbstractController {
 		this.server.post('/api/user/data/backup', async (request, response) => await this.postUserDataBackup(request, response));
 		this.server.delete('/api/user/data', async (request, response) => await this.deleteUserData(request, response));
 
-		super.preloadEarlyDonors();
+		super.preloadData();
 	}
 
 
@@ -50,6 +50,7 @@ export default class UserController extends AbstractController {
 		const userInfo = await super.twitchUserGuard(request, response);
 		if(userInfo == false) return;
 
+		const uid = userInfo.user_id;
 		let isDonor:boolean = false
 		let level:number = -1
 		let amount:number = -1;
@@ -64,54 +65,63 @@ export default class UserController extends AbstractController {
 				response.send(JSON.stringify({success:false, message:"Unable to load donors data file"}));
 				return;
 			}
-			isDonor = json.hasOwnProperty(userInfo.user_id);
+			isDonor = json.hasOwnProperty(uid);
 			if(isDonor) {
-				amount = json[userInfo.user_id];
-				level = Config.donorsLevels.findIndex(v=> v > json[userInfo.user_id]) - 1;
+				amount = json[uid];
+				level = Config.donorsLevels.findIndex(v=> v > json[uid]) - 1;
 				lifetimePercent = amount / Config.lifetimeDonorStep;
 			}
 		}
 
 		//Update user's storage file to get a little idea on how many people use twitchat
-		const userFilePath = Config.USER_DATA_PATH + userInfo.user_id+".json";
+		const userFilePath = Config.USER_DATA_PATH + uid+".json";
 		if(!fs.existsSync(userFilePath)) {
 			fs.writeFileSync(userFilePath, JSON.stringify({}), "utf8");
 		}else{
 			fs.utimes(userFilePath, new Date(), new Date(), ()=>{/*don't care*/});
 		}
 
-		let isPremiumDonor = amount >= Config.lifetimeDonorStep || Config.credentials.admin_ids.findIndex(v=>v === userInfo.user_id) > -1;
+		let isPremiumDonor = amount >= Config.lifetimeDonorStep || Config.credentials.admin_ids.findIndex(v=>v === uid) > -1;
 
 		let isPatreonMember = false;
 		if(!isPremiumDonor) {
 			if(fs.existsSync(Config.patreon2Twitch)) {
 				const jsonP2T = JSON.parse(fs.readFileSync(Config.patreon2Twitch, "utf-8") || "{}");
-				const patreonID = jsonP2T[userInfo.user_id];
+				const patreonID = jsonP2T[uid];
 				if(patreonID && fs.existsSync(Config.patreonMembers)) {
 					const jsonPMembers = JSON.parse(fs.readFileSync(Config.patreonMembers, "utf-8") || "{}") as PatreonMember[];
 					isPatreonMember = jsonPMembers.findIndex(v=>v.id === patreonID) > -1;
 				}
 			}
 		}
+		super.adminGuard
 
 		const data:{isDonor:boolean,
+					dataSharing:string[],
 					level:number,
 					isAdmin?:true,
 					isEarlyDonor?:boolean,
 					isPremiumDonor?:boolean,
 					isPatreonMember?:boolean,
 					lifetimePercent?:number
-					discordLinked?:boolean} = {isDonor:isDonor && level > -1, level, lifetimePercent, isPremiumDonor, isPatreonMember};
-		if(Config.credentials.admin_ids.includes(userInfo.user_id)) {
+					discordLinked?:boolean} = {
+												isDonor:isDonor && level > -1,
+												level,
+												lifetimePercent,
+												isPremiumDonor,
+												isPatreonMember,
+												dataSharing: super.getDataSharingList(uid)
+											};
+		if(Config.credentials.admin_ids.includes(uid)) {
 			data.isAdmin = true;
 		}
 
 		//Is user an early donor of twitchat?
-		if(this.earlyDonors[userInfo.user_id] === true) {
+		if(AbstractController.earlyDonors[uid] === true) {
 			data.isEarlyDonor = true;
 		}
 
-		if(DiscordController.isDiscordLinked(userInfo.user_id) === true) {
+		if(DiscordController.isDiscordLinked(uid) === true) {
 			data.discordLinked = true;
 		}
 
@@ -133,7 +143,7 @@ export default class UserController extends AbstractController {
 		const userInfo = await super.twitchUserGuard(request, response);
 		if(userInfo == false) return;
 
-		const uid:string = (request.query as any).uid ?? userInfo.user_id;
+		const uid:string = super.getSharedUID((request.query as any).uid ?? userInfo.user_id);
 
 		//Get users' data
 		const userFilePath = Config.USER_DATA_PATH + uid+".json";
@@ -176,7 +186,8 @@ export default class UserController extends AbstractController {
 		const body:any = request.body;
 
 		//Get users' data
-		const userFilePath = Config.USER_DATA_PATH + userInfo.user_id+".json";
+		const uid = super.getSharedUID(userInfo.user_id);
+		const userFilePath = Config.USER_DATA_PATH + uid+".json";
 		const version = request.headers["app-version"];
 
 		//avoid saving private data to server
@@ -193,7 +204,7 @@ export default class UserController extends AbstractController {
 			const clone = JSON.parse(JSON.stringify(body));
 
 			const success = schemaValidator(body);
-			const errorsFilePath = Config.USER_DATA_PATH + userInfo.user_id+"_errors.json";
+			const errorsFilePath = Config.USER_DATA_PATH + uid+"_errors.json";
 			if(!success) {
 				Logger.error(schemaValidator.errors?.length+" validation error(s) for user "+userInfo.login+"'s data (v"+version+")");
 				//Save schema errors if any
@@ -211,7 +222,7 @@ export default class UserController extends AbstractController {
 			//This is not the most efficient way to do this, but I found no better
 			//way to log these errors for now
 			const diff = JsonPatch.compare(clone, body as any, false);
-			const cleanupFilePath = Config.USER_DATA_PATH+userInfo.user_id+"_cleanup.json";
+			const cleanupFilePath = Config.USER_DATA_PATH + uid+"_cleanup.json";
 			if(diff?.length > 0) {
 				Logger.error("Invalid format, some data have been removed from "+userInfo.login+"'s data (v"+version+")");
 				console.log(diff);
@@ -222,7 +233,7 @@ export default class UserController extends AbstractController {
 			fs.writeFileSync(userFilePath, JSON.stringify(body), "utf8");
 
 			if(body.discordParams) {
-				this.discordController.updateParams(userInfo.user_id, body.discordParams);
+				this.discordController.updateParams(uid, body.discordParams);
 			}
 
 			response.header('Content-Type', 'application/json');
