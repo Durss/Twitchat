@@ -119,6 +119,8 @@ export const storeAuth = defineStore('auth', {
 						const res = await this.twitch_tokenRefresh();
 						if(!res) {
 							StoreProxy.common.alert("Unable to connect with Twitch API :(.", false, true);
+							if(cb) cb(false, true);
+							else router.push({name:"login", params:{betaReason:"true"}});
 							return;
 						}else{
 							twitchAuthResult = res;
