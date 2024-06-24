@@ -4,7 +4,7 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 
 		<div class="holder" ref="holder">
-			<div class="head" v-if="!success && !error">
+			<div class="head">
 				<span class="title">{{$t("shareParams.title")}}</span>
 				<ClearButton @click="close()" />
 			</div>
@@ -17,7 +17,17 @@
 						<strong v-else>"{{ remoteUser.display_name }}"</strong>
 					</template>
 				</i18n-t>
-				<TTButton @click="reload()" light primary>{{ $t("global.refresh") }}</TTButton>
+				<TTButton @click="reload()" icon="refresh" light primary>{{ $t("shareParams.reloadBt") }}</TTButton>
+			</div>
+
+			<div class="content error" v-else-if="wrongAccount">
+				<Icon name="alert" />
+				<i18n-t tag="div" scope="global" keypath="shareParams.wrongAccount">
+				</i18n-t>
+				<img v-if="$i18n.locale == 'fr'" src="@/assets/img/data_sharing/switchAccount_fr.png" alt="tutorial">
+				<img v-else src="@/assets/img/data_sharing/switchAccount_en.png" alt="tutorial">
+				<TTButton @click="close()" light alert>{{ $t("global.close") }}</TTButton>
+				<!-- <ClearButton @click="close()" /> -->
 			</div>
 
 			<div class="content error" v-else-if="error">
@@ -28,8 +38,8 @@
 						<strong v-else>"{{ remoteUser.display_name }}"</strong>
 					</template>
 				</i18n-t>
-				<TTButton @click="close()" light primary>{{ $t("global.close") }}</TTButton>
-				<ClearButton @click="close()" />
+				<TTButton @click="close()" light alert>{{ $t("global.close") }}</TTButton>
+				<!-- <ClearButton @click="close()" /> -->
 			</div>
 
 			<div class="content" v-else>
@@ -43,7 +53,7 @@
 					</template>
 				</i18n-t>
 				<div class="ctas">
-					<TTButton icon="cross" @click="close()" alert>{{ $t("global.cancel") }}</TTButton>
+					<TTButton icon="cross" @click="close()" :loading="confirming" alert>{{ $t("global.cancel") }}</TTButton>
 					<TTButton icon="checkmark" @click="confirm()" :loading="confirming" primary>{{ $t("shareParams.agreeBt") }}</TTButton>
 				</div>
 			</div>
@@ -77,6 +87,7 @@ class ShareParams extends Vue {
 	public error:boolean = false;
 	public success:boolean = false;
 	public confirming:boolean = false;
+	public wrongAccount:boolean = false;
 	public remoteUser:TwitchDataTypes.UserInfo|null = null;
 	
 	private csrfToken:string = "";
@@ -85,16 +96,21 @@ class ShareParams extends Vue {
 		const res:string[] = ["shareparams","modal"];
 		if(this.error) res.push("error");
 		if(this.success) res.push("success");
+		if(this.wrongAccount) res.push("secondary");
 		return res;
 	}
 
 	public async beforeMount():Promise<void> {
 		const data = this.$store.main.tempStoreValue as {uid:string, csrf:string}|undefined;
 		if(data && data.uid && data.csrf) {
-			this.csrfToken = data.csrf;
-			const res = await TwitchUtils.getUserInfo([data.uid]);
-			if(res && res.length > 0) {
-				this.remoteUser = res[0];
+			if(data.uid == this.$store.auth.twitch.user.id) {
+				this.wrongAccount = true;
+			}else{
+				this.csrfToken = data.csrf;
+				const res = await TwitchUtils.getUserInfo([data.uid]);
+				if(res && res.length > 0) {
+					this.remoteUser = res[0];
+				}
 			}
 		}
 	}
@@ -112,6 +128,7 @@ class ShareParams extends Vue {
 
 	public async close():Promise<void> {
 		if(this.success) return;
+		if(this.confirming) return;
 
 		gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:0, ease:"sine.in"});
@@ -142,13 +159,16 @@ export default toNative(ShareParams);
 <style scoped lang="less">
 .shareparams{
 
-	&.error, &.success {
+	&.error, &.success, &.secondary {
 		.holder {
 			color: var(--color-light);
 			background-color: var(--color-alert);
 			line-height: 1.5em;
 			.content {
 				align-items: center;
+				strong {
+					color: var(--color-light);
+				}
 			}
 		}
 		.clearbutton {
@@ -156,10 +176,12 @@ export default toNative(ShareParams);
 		}
 	}
 
-	&.success {
-		.holder {
-			background-color: var(--color-primary);
-		}
+	&.success .holder {
+		background-color: var(--color-primary);
+	}
+
+	&.secondary .holder {
+		background-color: var(--color-secondary-dark);
 	}
 	
 	.holder {

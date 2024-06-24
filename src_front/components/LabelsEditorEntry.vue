@@ -13,7 +13,7 @@
 				:path="[...path,key]"
 				:pathToSelect="pathToSelect"
 				:data-test="[...path,key].join('.')"
-				 />
+				/>
 		</template>
 	</div>
 	
@@ -295,6 +295,9 @@ export default toNative(LabelsEditorEntry);
 				.flag {
 					vertical-align: top !important;
 					margin-right: -.5em !important;
+				}
+				span {
+					white-space: pre-line;
 				}
 			}
 		}

@@ -90,10 +90,10 @@ export default class AuthController extends AbstractController {
 			if(result.date > Date.now() - 10*60*1000) {
 				const jsonRes:{success:boolean, uidShare?:string} = {success:true};
 				//If in the process of linking two accounts together, return ref account ID
-				if(result.uidRef && this.pendingDataSharingAuth[params.token]) {
-					jsonRes.uidShare = result.uidRef;
+				if(result.uidShare && this.pendingDataSharingAuth[params.token]) {
+					jsonRes.uidShare = result.uidShare;
 				}
-				if(!respondOnSuccess) return jwt;
+				if(!respondOnSuccess) return result;
 				response.header('Content-Type', 'application/json');
 				response.status(200);
 				response.send(JSON.stringify(jsonRes));
@@ -127,7 +127,7 @@ export default class AuthController extends AbstractController {
 		if(params.withRef) {
 			const user = await super.twitchUserGuard(request, response);
 			if(!user) return;
-			tokenData.uidRef = user.user_id;
+			tokenData.uidShare = user.user_id;
 		}
 
 		//Generate a token
@@ -135,7 +135,7 @@ export default class AuthController extends AbstractController {
 
 		//remember there's a data share flow initialized
 		if(params.withRef) {
-			this.pendingDataSharingAuth[jwt] = true;
+			this.pendingDataSharingAuth[token] = true;
 		}
 		response.header('Content-Type', 'application/json');
 		response.status(200);
@@ -201,19 +201,20 @@ export default class AuthController extends AbstractController {
 		const csrf = params.token;
 		if(this.pendingDataSharingAuth[csrf]) {
 			const token = await this.validateCSRFToken(request, response, false);
-			if(token !== false && token.uidRef) {
-				super.enableUserDataSharing(token.uidRef, user.user_id);
+			if(token !== false && token.uidShare && token.uidShare != user.user_id) {
+				super.enableUserDataSharing(token.uidShare, user.user_id);
 				response.header('Content-Type', 'application/json');
 				response.status(200);
-				response.send(JSON.stringify({success:true, sharer:token.uidRef}));
+				response.send(JSON.stringify({success:true, sharer:token.uidShare}));
+				return;
 			}
-		}else{
-			//Invalid token
-			response.header('Content-Type', 'application/json');
-			response.status(404);
-			response.send(JSON.stringify({success:false, message:"Invalid CSRF token"}));
 		}
+
+		//Invalid token or wrong user association
+		response.header('Content-Type', 'application/json');
+		response.status(404);
+		response.send(JSON.stringify({success:false, message:"Invalid CSRF token"}));
 	}
 }
 
-interface CSRFToken {date:number, uidRef?:string}
+interface CSRFToken {date:number, uidShare?:string}

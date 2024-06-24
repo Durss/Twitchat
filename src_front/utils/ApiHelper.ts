@@ -154,7 +154,7 @@ type ApiEndpoints =  {
 			response: {
 				success:boolean;
 				message?:string;
-				uidRef?:string;
+				uidShare?:string;
 			}
 		};
 	};

@@ -1,14 +1,18 @@
 {
-	"account":{
-		"connected_as":"Connecté·e en tant que {USER}",
-		"donation_public":"Rend votre pseudo visible dans la liste des donateurices dans la section {LINK}",
-		"about_link":"@:params.categories.donate",
-		"installBt":"Installer Twitchat",
-		"updatesBt":"Dernières mises à jour",
-		"erase_dataBt":"Effacer les paramètres locaux",
-		"erase_confirm_title":"Effacer vos paramètres ?",
-		"erase_confirm_description":"Cela effacera uniquement les paramètres de ce navigateur.<br>Les triggers, les commandes vocales, les paramètres automod, les paramètres du mode urgence, etc... seront réinitialisés.",
-		"authorization":"Autorisations",
-		"language":"Langue d'affichage"
+	"account": {
+		"connected_as": "Connecté·e en tant que {USER}",
+		"donation_public": "Rend votre pseudo visible dans la liste des donateurices dans la section {LINK}",
+		"about_link": "@:params.categories.donate",
+		"installBt": "Installer Twitchat",
+		"updatesBt": "Dernières mises à jour",
+		"erase_dataBt": "Effacer les paramètres locaux",
+		"erase_confirm_title": "Effacer vos paramètres ?",
+		"erase_confirm_description": "Cela effacera uniquement les paramètres de ce navigateur.<br>Les triggers, les commandes vocales, les paramètres automod, les paramètres du mode urgence, etc... seront réinitialisés.",
+		"authorization": "Autorisations",
+		"language": "Langue d'affichage",
+		"share": {
+			"info": "Si vous souhaitez partager vos paramètres entre plusieurs comptes, cliquez sur le bouton \"Connexion\" ci-dessous et connectez-vous avec votre compte secondaire\n\nLes données du compte secondaire seront alors remplacées par celles du compte actuel \"{USER}\".",
+			"connectBt": "Connexion"
+		}
 	}
 }

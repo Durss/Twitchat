@@ -830,6 +830,8 @@ export const storeUsers = defineStore('users', {
 			const uid:string = StoreProxy.auth.twitch.user.id;
 			try {
 				await TwitchUtils.getFollowers(null, 70000, async(list)=> {
+					if(list.length === 0) return;
+					
 					for (let i = parseOffset; i < list.length; i++) {
 						hashmap[list[i].user_id] = new Date(list[i].followed_at).getTime();
 					}
