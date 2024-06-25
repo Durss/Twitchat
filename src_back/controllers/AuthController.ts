@@ -210,7 +210,6 @@ export default class AuthController extends AbstractController {
 				response.header('Content-Type', 'application/json');
 				response.status(200);
 				response.send(JSON.stringify({success:true, sharer:token.uidShare}));
-				Logger.info("User "+user.login+" aneabled data sharing with user #"+token.uidShare);
 				return;
 			}
 		}

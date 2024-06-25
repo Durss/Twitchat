@@ -303,11 +303,7 @@ export default class UserController extends AbstractController {
 		const uid = params.uid;
 		const sharedUid = this.getSharedUID(uid);
 		if(uid != sharedUid) {
-			const userFilePath = Config.USER_DATA_PATH + uid+".json";
-			const sharedFilePath = Config.USER_DATA_PATH + uid+".json";
-			fs.copyFileSync(sharedFilePath, userFilePath);
 			super.disableUserDataSharing(uid);
-			Logger.info("User "+user.login+" disabled data sharing with user #"+uid);
 		}
 
 		response.header('Content-Type', 'application/json');

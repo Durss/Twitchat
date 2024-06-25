@@ -229,8 +229,9 @@ class ParamsAccount extends Vue implements IParameterContent {
 			//DO unlink
 		}).catch(()=>{});
 	}
-	
+
 	private updateSharedUserList():void {
+		this.sharedUsers = [];
 		this.$store.auth.dataSharingUserList.forEach(uid => {
 			this.sharedUsers.push( this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, uid) );
 		});

@@ -213,9 +213,16 @@ export default class AbstractController {
 	 * @param uid user ID
 	 */
 	protected disableUserDataSharing(uid:string):void {
+		const ref = AbstractController._dataSharing[uid];
 		delete AbstractController._dataSharing[uid];
 		fs.writeFileSync(Config.DATA_SHARING, JSON.stringify(AbstractController._dataSharing), "utf-8");
-		Logger.info("Dsiable data sharing for user "+uid);
+		
+		//Copy ref data to removed user
+		const refFilePath = Config.USER_DATA_PATH + ref+".json";
+		const targetFilePath = Config.USER_DATA_PATH + uid+".json";
+		fs.copyFileSync(refFilePath, targetFilePath);
+
+		Logger.info("Disable data sharing for user "+uid);
 	}
 
 	/**
