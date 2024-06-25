@@ -604,7 +604,7 @@ export class ChatForm extends Vue {
 	/**
 	 * Loads potential twitchat announcements from server
 	 */
-	 public async loadAnnouncements(onlyImportant:boolean = false):Promise<void> {
+	public async loadAnnouncements(onlyImportant:boolean = false):Promise<void> {
 		const options = {
 			method:"GET",
 			headers: {
@@ -628,7 +628,7 @@ export class ChatForm extends Vue {
 						if(Utils.compareSementicVersion(currentVersion, a.versionMax)) continue;
 					}
 					//Check donor only condition
-					if(a.donorsOnly === true && !this.$store.auth.twitch.user.donor.state) continue;
+					if(a.donorsOnly === true && this.$store.auth.donorLevel == -1) continue;
 					//Check premium only condition
 					if(a.premiumOnly === true && !this.$store.auth.isPremium) continue;
 					//Check patreon only condition

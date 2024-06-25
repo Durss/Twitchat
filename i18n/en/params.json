@@ -87,7 +87,7 @@
 		"mergeConsecutive_minDuration": "Merge only if duration between the 2 messages is lower than {VALUE}s",
 		"autoTranslateFirst": "Translate 1st message of a user when necessary",
 		"autoTranslateFirst_lang": "Language to translate to",
-		"autoTranslateFirst_spoken": "Languages you're able to read",
+		"autoTranslateFirst_spoken": "Languages you're able to read\n(these messages won't be translated)",
 		"categories": {
 			"main": "Parameters",
 			"ad": "Parameters",

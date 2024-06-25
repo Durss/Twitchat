@@ -644,7 +644,7 @@ class ChatMessage extends AbstractChatMessage {
 	 */
 	public disableAd():void{
 		//If we're a donor, just disable the ad and delete the message as a feedback
-		if(this.$store.auth.twitch.user.donor.state || this.$store.auth.isPremium) {
+		if(this.$store.auth.donorLevel > -1 || this.$store.auth.premiumType != "") {
 			this.$store.chat.updateBotMessage({
 											key:"twitchatAd",
 											enabled:false,

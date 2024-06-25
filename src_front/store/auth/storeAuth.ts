@@ -36,18 +36,18 @@ export const storeAuth = defineStore('auth', {
 		totalFollowers: {},//channelId => infos
 		totalSubscribers: {},//channelId => infos
 		partnerPoints: {},//channelId => infos
+		donorLevel:-1,
+		premiumType:"",
+		noAd:false,
+		donorLevelUpgrade:false,
+		lifetimePremiumPercent:0,
 	} as IAuthState),
 
 
 
 	getters: {
-		isPremium():boolean { return PatreonHelper.instance.isMember || this.twitch.user.donor.earlyDonor || this.twitch.user.donor.isPremiumDonor || this.twitch.user.donor.isPatreonMember; },
-
-		isRealPremium():boolean { return PatreonHelper.instance.isMember || this.twitch.user.donor.isPremiumDonor || this.twitch.user.donor.isPatreonMember; },
-
-		isDonor():boolean { return this.twitch.user.donor.state || this.isPremium; },
-
 		isAdmin():boolean { return this.twitch.user.is_admin === true; },
+		isPremium():boolean { return this.premiumType != ""; },
 	},
 
 
@@ -209,7 +209,7 @@ export const storeAuth = defineStore('auth', {
 					return;
 				}
 
-				DataStore.set(DataStore.DONOR_LEVEL, this.twitch.user.donor.level);
+				DataStore.set(DataStore.DONOR_LEVEL, this.donorLevel);
 
 				MessengerProxy.instance.connect();
 				PubSub.instance.connect();
@@ -319,32 +319,18 @@ export const storeAuth = defineStore('auth', {
 			const user = await new Promise<TwitchatDataTypes.TwitchatUser>(async (resolve)=> {
 				await StoreProxy.users.getUserFrom("twitch", uid, uid, undefined, undefined, resolve);
 			});
-			user.donor = {
-				earlyDonor:false,
-				level:-1,
-				noAd:false,
-				state:false,
-				upgrade:false,
-				isPremiumDonor:false,
-				isPatreonMember:false,
-				lifetimePercent:0,
-			}
-			const res = await ApiHelper.call("user", "GET");
-
+			const res			= await ApiHelper.call("user", "GET");
 			const storeLevel	= parseInt(DataStore.get(DataStore.DONOR_LEVEL))
 			const prevLevel		= isNaN(storeLevel)? -1 : storeLevel;
 
-			this.twitch.user						= user as Required<TwitchatDataTypes.TwitchatUser>;
-			this.twitch.user.donor.state			= res.json.data.isDonor === true;
-			this.twitch.user.donor.level			= res.json.data.level;
-			this.twitch.user.donor.upgrade			= res.json.data.level != prevLevel;
-			this.twitch.user.donor.earlyDonor		= res.json.data.isEarlyDonor === true;
-			this.twitch.user.donor.isPremiumDonor	= res.json.data.isPremiumDonor === true;
-			this.twitch.user.donor.isPatreonMember	= res.json.data.isPatreonMember === true;
-			this.twitch.user.donor.lifetimePercent	= res.json.data.lifetimePercent || 0;
+			this.twitch.user				= user as Required<TwitchatDataTypes.TwitchatUser>;
+			this.donorLevel					= res.json.data.donorLevel;
+			this.donorLevelUpgrade			= this.donorLevel > prevLevel;
+			this.premiumType				= res.json.data.premiumType;
+			this.lifetimePremiumPercent		= res.json.data.lifetimePercent || 0;
+			this.dataSharingUserList		= res.json.data.dataSharing || [];
+			StoreProxy.discord.discordLinked= res.json.data.discordLinked === true;
 			this.twitch.user.channelInfo[user.id].following_date_ms = user.created_at_ms || 0;
-			this.dataSharingUserList				= res.json.data.dataSharing || [];
-			StoreProxy.discord.discordLinked		= res.json.data.discordLinked === true;
 			//Uncomment to force non-premium for debugging
 			// if(!Config.instance.IS_PROD) {
 			// 	this.twitch.user.donor.earlyDonor =
@@ -354,8 +340,8 @@ export const storeAuth = defineStore('auth', {
 
 			//Async loading of followers count to define if user is exempt
 			//from ads or not
-			const followers = await TwitchUtils.getFollowersCount([this.twitch.user.id])
-			this.twitch.user.donor.noAd = followers[this.twitch.user.id] < Config.instance.AD_MIN_FOLLOWERS_COUNT;
+			const followers	= await TwitchUtils.getFollowersCount([this.twitch.user.id])
+			this.noAd		= followers[this.twitch.user.id] < Config.instance.AD_MIN_FOLLOWERS_COUNT;
 			StoreProxy.labels.updateLabelValue("FOLLOWER_COUNT", followers[this.twitch.user.id]);
 		}
 	} as IAuthActions

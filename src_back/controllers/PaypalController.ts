@@ -193,10 +193,11 @@ export default class PaypalController extends AbstractController {
 					}else{
 						Logger.success("User \""+twitchUser.login+"\" added to donors ("+params.amount+"€)");
 					}
-						
+					const donorLevel = Config.donorsLevels.findIndex(v=> v > params.amount) - 1;
+					
 					response.header('Content-Type', 'application/json');
 					response.status(200);
-					response.send(JSON.stringify({success:true, data:{orderId:json.id, json}}));
+					response.send(JSON.stringify({success:true, data:{orderId:json.id, donorLevel}}));
 					return;
 				}
 			}

@@ -52,8 +52,9 @@ export default class UserController extends AbstractController {
 		if(userInfo == false) return;
 
 		const uid = userInfo.user_id;
-		let isDonor:boolean = false
-		let level:number = -1
+		type PremiumStates = "earlyDonor"|"patreon"|"lifetime"|"";
+		let premiumType:PremiumStates = "";
+		let donorLevel:number = -1
 		let amount:number = -1;
 		let lifetimePercent:number = 0;
 		if(fs.existsSync( Config.donorsList )) {
@@ -66,11 +67,10 @@ export default class UserController extends AbstractController {
 				response.send(JSON.stringify({success:false, message:"Unable to load donors data file"}));
 				return;
 			}
-			isDonor = json.hasOwnProperty(uid);
-			if(isDonor) {
+			if(json.hasOwnProperty(uid)) {
 				amount = json[uid];
-				level = Config.donorsLevels.findIndex(v=> v > json[uid]) - 1;
-				lifetimePercent = amount / Config.lifetimeDonorStep;
+				donorLevel = Config.donorsLevels.findIndex(v=> v >= amount) - 1;
+				lifetimePercent = amount / Config.lifetimeDonorThreshold;
 			}
 		}
 
@@ -82,35 +82,32 @@ export default class UserController extends AbstractController {
 			fs.utimes(userFilePath, new Date(), new Date(), ()=>{/*don't care*/});
 		}
 
-		let isPremiumDonor = amount >= Config.lifetimeDonorStep || Config.credentials.admin_ids.findIndex(v=>v === uid) > -1;
+		if(amount >= Config.lifetimeDonorThreshold || Config.credentials.admin_ids.findIndex(v=>v === uid) > -1) {
+			premiumType = "lifetime";
+		}
 
-		let isPatreonMember = false;
-		if(!isPremiumDonor) {
+		if(premiumType == "") {
 			if(fs.existsSync(Config.patreon2Twitch)) {
 				const jsonP2T = JSON.parse(fs.readFileSync(Config.patreon2Twitch, "utf-8") || "{}");
 				const patreonID = jsonP2T[uid];
 				if(patreonID && fs.existsSync(Config.patreonMembers)) {
 					const jsonPMembers = JSON.parse(fs.readFileSync(Config.patreonMembers, "utf-8") || "{}") as PatreonMember[];
-					isPatreonMember = jsonPMembers.findIndex(v=>v.id === patreonID) > -1;
+					if(jsonPMembers.findIndex(v=>v.id === patreonID) > -1) {
+						premiumType = "patreon";
+					}
 				}
 			}
 		}
-		super.adminGuard
 
-		const data:{isDonor:boolean,
-					dataSharing:string[],
-					level:number,
+		const data:{dataSharing:string[],
+					donorLevel:number,
 					isAdmin?:true,
-					isEarlyDonor?:boolean,
-					isPremiumDonor?:boolean,
-					isPatreonMember?:boolean,
+					premiumType:PremiumStates,
 					lifetimePercent?:number
 					discordLinked?:boolean} = {
-												isDonor:isDonor && level > -1,
-												level,
+												donorLevel,
 												lifetimePercent,
-												isPremiumDonor,
-												isPatreonMember,
+												premiumType,
 												dataSharing: super.getDataSharingList(uid)
 											};
 		if(Config.credentials.admin_ids.includes(uid)) {
@@ -119,7 +116,7 @@ export default class UserController extends AbstractController {
 
 		//Is user an early donor of twitchat?
 		if(AbstractController._earlyDonors[uid] === true) {
-			data.isEarlyDonor = true;
+			premiumType = "earlyDonor";
 		}
 
 		if(DiscordController.isDiscordLinked(uid) === true) {
@@ -127,11 +124,9 @@ export default class UserController extends AbstractController {
 		}
 
 		if(Config.FORCE_NON_PREMIUM) {
-			data.isEarlyDonor = false;
-			data.isPatreonMember = false;
-			data.isPremiumDonor = false;
+			data.premiumType = "";
 		}
-
+		
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(JSON.stringify({success:true, data}));

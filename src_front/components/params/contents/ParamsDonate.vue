@@ -131,7 +131,7 @@
 
 		<div class="card-item success" v-else>
 			<div class="card-item primary">{{ $t("donate.success", {AMOUNT:amount}) }}</div>
-			<DonorBadge class="badge" :level="$store.auth.twitch.user.donor.level" />
+			<DonorBadge class="badge" :level="$store.auth.donorLevel > -1" />
 			<div>{{ $t("donate.success_details") }}</div>
 			<ParamItem  :paramData="param_automaticMessage" v-model="$store.chat.botMessages.twitchatAd.enabled" />
 		</div>
@@ -370,7 +370,7 @@ class ParamsDonate extends Vue {
 						const orderRes = await ApiHelper.call("paypal/complete_order", "POST", obj as typeof PAYPAL_ORDER);
 						if(orderRes.json.success === true) {
 							await this.$store.auth.loadUserState(this.$store.auth.twitch.user.id);
-							this.$store.auth.twitch.user.donor.state = true;
+							this.$store.auth.donorLevel = orderRes.json.data.donorLevel || 0;
 							//Hide all buttons
 							this.buttons.forEach(v=> v.close());
 							this.success = true;

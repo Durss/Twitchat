@@ -342,13 +342,10 @@ type ApiEndpoints =  {
 				success:boolean;
 				data:{
 					isAdmin:boolean;
-					isDonor:boolean;
-					isEarlyDonor:boolean;
-					isPremiumDonor:boolean;
-					isPatreonMember:boolean;
-					discordLinked:boolean;
-					level:number;
+					premiumType:"earlyDonor"|"patreon"|"lifetime"|"",
+					donorLevel:number;
 					lifetimePercent:number;
+					discordLinked:boolean;
 					dataSharing:string[];
 				}
 			}
@@ -502,7 +499,7 @@ type ApiEndpoints =  {
 				success:boolean;
 				error?:string;
 				errorCode?:string;
-				data: {orderId:string};
+				data: {orderId:string, donorLevel:number};
 			}
 		}
 	};

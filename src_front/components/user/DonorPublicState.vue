@@ -35,7 +35,7 @@ import Icon from '../Icon.vue';
 	public publicDonation = false;
 	public publicDonation_loaded = false;
 	
-	public get isDonor():boolean { return this.$store.auth.twitch.user.donor.state; }
+	public get isDonor():boolean { return this.$store.auth.donorLevel > -1; }
 	public get contentDonate():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE; }
 
 	public async mounted():Promise<void> {

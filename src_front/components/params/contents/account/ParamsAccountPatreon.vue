@@ -3,7 +3,7 @@
 
 		<Icon name="loader" v-if="authenticating" />
 
-		<div class="earlyDonor" v-else-if="isEarlyDonor">
+		<div class="earlyDonor" v-else-if="$store.auth.premiumType == 'earlyDonor'">
 			<div class="card-item premium large">
 				<Icon name="gift" theme="light" />
 				<div>{{ $t("premium.early_donor1") }}</div>
@@ -15,7 +15,7 @@
 			</i18n-t>
 		</div>
 
-		<div class="premiumDonor" v-else-if="isPremiumDonor">
+		<div class="premiumDonor" v-else-if="$store.auth.premiumType == 'lifetime'">
 			<div class="card-item premium large">
 				<Icon name="premium" theme="light" />
 				<div>{{ $t("premium.premium_donor1") }}</div>
@@ -27,13 +27,13 @@
 			</i18n-t>
 		</div>
 
-		<template v-else-if="connected || isPatreonMember">
+		<template v-else-if="connected || $store.auth.premiumType == 'patreon'">
 			<span>{{ $t("patreon.connected") }}</span>
-			<template v-if="isPatreonMember==true">
+			<template v-if="$store.auth.premiumType == 'patreon'">
 				<span class="card-item premium large">{{ $t("patreon.is_member") }}</span>
 				<span class="details on">{{ $t("patreon.is_member_details") }}</span>
 			</template>
-			<template v-else-if="isPatreonMember==false && !authenticating">
+			<template v-else-if="!authenticating">
 				<span class="card-item secondary">{{ $t("patreon.is_not_member") }}</span>
 				<span class="details off">{{ $t("patreon.is_not_member_details") }}</span>
 			</template>
@@ -84,9 +84,6 @@ class ParamsAccountPatreon extends Vue {
 	private csrfToken:string = "";
 
 	public get connected():boolean { return PatreonHelper.instance.connected; }
-	public get isPremiumDonor():boolean { return this.$store.auth.twitch.user.donor.isPremiumDonor === true; }
-	public get isPatreonMember():boolean { return PatreonHelper.instance.isMember || this.$store.auth.twitch.user.donor.isPatreonMember; }
-	public get isEarlyDonor():boolean { return this.$store.auth.twitch.user.donor.earlyDonor; }
 
 	public async mounted():Promise<void> {
 		const {json} = await ApiHelper.call("patreon/isApiDown", "GET");

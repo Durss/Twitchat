@@ -15,7 +15,7 @@ export default class Config {
 	private static credentialsCache:Credentials;
 
 	public static get maxTranslationsPerDay():number{ return 200; }
-	public static get lifetimeDonorStep():number{ return 89; }
+	public static get lifetimeDonorThreshold():number{ return 89; }
 	public static get donorsList(): string { return this.DONORS_DATA_FOLDER + "donors.json"; }
 	public static get earlyDonors(): string { return this.DONORS_DATA_FOLDER + "earlyDonors.json"; }
 	public static get donorsAnonStates(): string { return this.DONORS_DATA_FOLDER + "public_states.json"; }

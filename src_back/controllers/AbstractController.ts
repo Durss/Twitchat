@@ -163,7 +163,7 @@ export default class AbstractController {
 					donorAmount = json[userInfo.user_id];
 				}
 			}
-			isPremium = donorAmount >= Config.lifetimeDonorStep;
+			isPremium = donorAmount >= Config.lifetimeDonorThreshold;
 		}
 
 		if(!isPremium) {

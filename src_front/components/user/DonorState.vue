@@ -32,10 +32,10 @@ import DonorPublicState from './DonorPublicState.vue';
 	},
 	emits:[],
 })
- class DonorState extends Vue {
+class DonorState extends Vue {
 
-	public get isPremium():boolean { return this.$store.auth.isPremium; }
-	public get donorLevel():number { return this.$store.auth.twitch.user.donor.level; }
+	public get isPremium():boolean { return this.$store.auth.premiumType != ""; }
+	public get donorLevel():number { return this.$store.auth.donorLevel; }
 
 	public openPremium():void {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);

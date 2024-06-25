@@ -34,7 +34,7 @@
 				icon="twitch">{{ $t('login.authorizeBt') }}</TTButton>
 		</section>
 
-		<section v-if="isDonor" class="card-item donorState">
+		<section v-if="$store.auth.donorLevel > -1" class="card-item donorState">
 			<DonorState />
 		</section>
 		
@@ -70,7 +70,6 @@
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import DataStore from '@/store/DataStore';
-import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
@@ -121,12 +120,10 @@ class ParamsAccount extends Vue implements IParameterContent {
 	public sharedUsers:TwitchatDataTypes.TwitchatUser[] = [];
 
 	public get canInstall():boolean { return this.$store.main.ahsInstaller != null; }
-	public get userName():string { return StoreProxy.auth.twitch.user.displayName; }
-	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state || this.$store.auth.isPremium; }
-	public get donorLevel():number { return StoreProxy.auth.twitch.user.donor.level; }
+	public get userName():string { return this.$store.auth.twitch.user.displayName; }
 	public get contentAbout():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ABOUT; } 
 	public get userPP():string {
-		let pp:string|undefined = StoreProxy.auth.twitch.user.avatarPath;
+		let pp:string|undefined = this.$store.auth.twitch.user.avatarPath;
 		if(!pp) {
 			pp = this.$image("icons/user.svg");
 		}

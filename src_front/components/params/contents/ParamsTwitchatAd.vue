@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes"
 	@click="open()"
-	v-if="$store.auth.twitch.user.donor.state === true || !$store.auth.twitch.user.donor.noAd">
+	v-if="$store.auth.donorLevel > -1 || !$store.auth.noAd">
 		<ClearButton v-if="!collapse" :aria-label="$t('params.ad_collapse_aria')" @click.stop="close()" theme="light" />
 
 		<img src="@/assets/icons/twitchat.svg"
@@ -22,9 +22,11 @@
 						<div class="tipContent" v-html="$t('params.ad_bot_info_content')"></div>
 					</ToggleBlock>
 			
-					<p class="card-item alert disableinstructions" v-html="$t('params.ad_disable_info')"></p>
-					<Button @click="openDonate()" light secondary icon="coin">{{ $t('params.ad_disableBt') }}</Button>
-					<Button @click="openPremium()" premium icon="premium">{{ $t('premium.become_premiumBt') }}</Button>
+					<div class="card-item disableinstructions">
+						<p v-html="$t('params.ad_disable_info')"></p>
+						<Button @click="openDonate()" light secondary icon="coin">{{ $t('params.ad_disableBt') }}</Button>
+						<Button @click="openPremium()" premium icon="premium">{{ $t('premium.become_premiumBt') }}</Button>
+					</div>
 				</template>
 			</div>
 	</div>
@@ -51,7 +53,7 @@ import { gsap } from 'gsap';
 	},
 	emits:["collapse", "expand"],
 })
- class ParamsTwitchatAd extends Vue {
+class ParamsTwitchatAd extends Vue {
 
 	@Prop({default:false, type:Boolean})
 	public expand!:boolean;
@@ -59,7 +61,7 @@ import { gsap } from 'gsap';
 	public collapse:boolean = true;
 	public blink:boolean = false;
 	
-	public get isDonor():boolean { return this.$store.auth.twitch.user.donor.state || this.$store.auth.isPremium; }
+	public get isDonor():boolean { return this.$store.auth.donorLevel > -1 || this.$store.auth.premiumType != ""; }
 	public get adMinFollowersCount():number { return Config.instance.AD_MIN_FOLLOWERS_COUNT; }
 
 	public get classes():string[] {
@@ -183,7 +185,14 @@ export default toNative(ParamsTwitchatAd);
 	}
 	.disableinstructions {
 		text-align: center;
-		font-weight: bold;
+		line-height: 1.25em;
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		background-color: var(--grayout-fadest);
+		@scale:2px;
+		box-shadow: inset -@scale -@scale @scale rgba(255, 255, 255, 0.1), inset @scale @scale @scale rgba(0, 0, 0, .3);
 	}
 
 	.tip {

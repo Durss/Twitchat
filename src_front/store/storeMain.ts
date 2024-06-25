@@ -77,7 +77,7 @@ export const storeMain = defineStore("main", {
 
 	getters: {
 		nonPremiumLimitExceeded: ()=> {
-			if(StoreProxy.auth.isPremium) return false;
+			if(StoreProxy.auth.premiumType != "") return false;
 
 			const triggersLength = StoreProxy.triggers.triggerList
 			.filter(v=>v.enabled !== false && StoreProxy.triggers.triggerIdToFolderEnabled[v.id] !== false).length;
@@ -269,7 +269,7 @@ export const storeMain = defineStore("main", {
 			this.t4p = DataStore.get(DataStore.T4P_CHAT_CMD) || "";
 
 			//Warn the user about the automatic "ad" message sent every 2h
-			if(DataStore.get(DataStore.TWITCHAT_AD_WARNED) !== "true" && !sAuth.isDonor) {
+			if(DataStore.get(DataStore.TWITCHAT_AD_WARNED) !== "true" && sAuth.donorLevel == -1) {
 				setTimeout(()=>{
 					sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING);
 				}, 5000);
@@ -281,7 +281,7 @@ export const storeMain = defineStore("main", {
 				}, 5000);
 			}else
 			//Ask the user if they want to make their donation public
-			if(!DataStore.get(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT) && sAuth.twitch.user.donor.state) {
+			if(!DataStore.get(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT) && sAuth.donorLevel > -1) {
 				setTimeout(()=>{
 					sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT);
 				}, 5000);
@@ -398,7 +398,7 @@ export const storeMain = defineStore("main", {
 				const data = DataStore.get(DataStore.BITS_WALL_PARAMS);
 				if(!data) return;
 				const json = JSON.parse(data) as TwitchatDataTypes.BitsWallOverlayData;
-				if(!sAuth.isPremium) {
+				if(sAuth.premiumType == "") {
 					json.break_durations = {1:10, 100:20, 1000:30, 5000:40, 10000:50};
 				}
 				PublicAPI.instance.broadcast(TwitchatEvent.BITSWALL_OVERLAY_PARAMETERS, (json as unknown) as JsonObject);

@@ -313,7 +313,7 @@ class Chat extends Vue {
 
 	public get splitViewVertical():boolean { return this.$store.params.appearance.splitViewVertical.value as boolean; }
 	public get showEmergencyFollows():boolean { return this.$store.emergency.follows.length > 0 && !this.$store.emergency.emergencyStarted; }
-	public get mustDisableItems():boolean { return this.mustDisableItems_precalc && !this.$store.auth.isPremium; }
+	public get mustDisableItems():boolean { return this.mustDisableItems_precalc && this.$store.auth.premiumType == ""; }
 
 	public get classes():string[] {
 		const res = ["chat"];
@@ -349,7 +349,7 @@ class Chat extends Vue {
 	public beforeMount():void {
 
 		//Check user reached a new donor level
-		this.showDonorBadge = StoreProxy.auth.twitch.user.donor.state && StoreProxy.auth.twitch.user.donor.upgrade===true;
+		this.showDonorBadge = this.$store.auth.donorLevel > -1 && this.$store.auth.donorLevelUpgrade === true;
 
 		this.mustDisableItems_precalc = this.$store.main.nonPremiumLimitExceeded;
 

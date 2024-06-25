@@ -293,6 +293,26 @@ export type IAuthState = {
 	 * Total followers for each platforms
 	 */
 	totalFollowers:{[key in string]:number};
+	/**
+	 * Twitchat donor level of the user
+	 */
+	donorLevel:number;
+	/**
+	 * Contains the premium type of the user
+	 */
+	premiumType:"earlyDonor"|"patreon"|"lifetime"|"";
+	/**
+	 * true if user is exempt from ads (ex: if too few followers)
+	 */
+	noAd:boolean;
+	/**
+	 * true if donor level changed from last time
+	 */
+	donorLevelUpgrade:boolean;
+	/**
+	 * Percentage reached before lifetime premium
+	 */
+	lifetimePremiumPercent:number;
 } & {
 	/**
 	 * Platforms sessions
@@ -302,7 +322,7 @@ export type IAuthState = {
 		access_token:string;
 		expires_in:number;
 		scopes:string[];
-		user:RequireField<TwitchatDataTypes.TwitchatUser, "donor">;
+		user:TwitchatDataTypes.TwitchatUser;
 	};
 }
 
@@ -313,16 +333,6 @@ export interface IAuthGetters {
 	 * or because they're part of the early donors I granted lifetime premium to
 	 */
 	isPremium:boolean;
-	/**
-	 * Get if user is an actual premium member.
-	 * Same as isPremium() but excludung the "early donors".
-	 * This is used for things that cost me money like the translate feature.
-	 */
-	isRealPremium:boolean;
-	/**
-	 * Get if user donated money
-	 */
-	isDonor:boolean;
 	/**
 	 * Get if user is admin
 	 */

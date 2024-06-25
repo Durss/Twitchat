@@ -739,12 +739,12 @@ export const storeChat = defineStore('chat', {
 				//Don't send donation related messages if premium
 				if(StoreProxy.auth.isPremium) return;
 			}
-			if(adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING && StoreProxy.auth.isDonor) {
+			if(adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING && StoreProxy.auth.donorLevel > -1) {
 				return;
 			}
 			if(adType == TwitchatDataTypes.TwitchatAdTypes.NONE) {
 				const possibleAds:TwitchatDataTypes.TwitchatAdStringTypes[] = [];
-				if(!StoreProxy.auth.isDonor) {
+				if(StoreProxy.auth.donorLevel == -1) {
 					possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.DONATE);
 				}
 				//Give more chances to have anything but the "sponsor" ad

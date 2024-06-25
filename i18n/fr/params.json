@@ -87,7 +87,7 @@
 		"mergeConsecutive_minDuration": "Fusionner uniquement si moins de {VALUE}s séparent les messages",
 		"autoTranslateFirst": "Traduire le 1er message d'une personne si nécessaire",
 		"autoTranslateFirst_lang": "Langue dans laquelle traduire",
-		"autoTranslateFirst_spoken": "Langues que vous savez lire",
+		"autoTranslateFirst_spoken": "Langues que vous savez lire\n(ces messages ne seront pas traduits)",
 		"categories": {
 			"main": "Paramètres",
 			"ad": "Paramètres",

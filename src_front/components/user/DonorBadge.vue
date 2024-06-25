@@ -133,7 +133,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 		if(this.premium !== false) {
 			this.donorLevel = "premium";
 		}else{
-			this.donorLevel = this.level != -1? this.level : StoreProxy.auth.twitch.user.donor.level;
+			this.donorLevel = this.level != -1? this.level : this.$store.auth.donorLevel;
 		}
 
 		watch(()=>this.level, ()=> {

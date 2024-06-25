@@ -194,8 +194,6 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 	public get isAdBreakScopeRequest():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.AD_BREAK_SCOPE_REQUEST; }
 	
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
-	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
-
 	public get contentDonate():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE; } 
 	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM; } 
 	public get contentMainMenu():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.MAIN_MENU; } 

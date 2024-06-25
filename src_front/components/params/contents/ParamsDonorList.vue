@@ -12,8 +12,8 @@
 			</div>
 		</div>
 
-		<div class="me" v-if="isDonor && !loading && mePos > -1">
-			<DonorBadge class="badge" :level="donorLevel" light />
+		<div class="me" v-if="$store.auth.donorLevel > -1 && !loading && mePos > -1">
+			<DonorBadge class="badge" :level="$store.auth.donorLevel" light />
 			<div class="pos">#{{mePos+1}}</div>
 			<div class="label">{{userName}}</div>
 		</div>
@@ -37,14 +37,14 @@
 </template>
 
 <script lang="ts">
+import DonorPublicState from '@/components/user/DonorPublicState.vue';
 import StoreProxy from '@/store/StoreProxy';
 import ApiHelper from '@/utils/ApiHelper';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 import InfiniteList from '../../InfiniteList.vue';
 import DonorBadge from '../../user/DonorBadge.vue';
-import DonorPublicState from '@/components/user/DonorPublicState.vue';
 
 @Component({
 	components:{
@@ -67,8 +67,6 @@ import DonorPublicState from '@/components/user/DonorPublicState.vue';
 	private loadingNextPage = false;
 	private localList:{uid:string, v:number}[] = [];
 
-	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
-	public get donorLevel():number { return StoreProxy.auth.twitch.user.donor.level; }
 	public get userName():string { return StoreProxy.auth.twitch.user.displayName; }
 
 	public mounted():void {

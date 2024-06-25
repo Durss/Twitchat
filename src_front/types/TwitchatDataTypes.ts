@@ -1296,43 +1296,6 @@ export namespace TwitchatDataTypes {
 		 */
 		is_admin?:boolean;
 		/**
-		 * Twitchat donor state of the user
-		 */
-		donor?:{
-			/**
-			 * Is a donor?
-			 */
-			state:boolean,
-			/**
-			 * Donor level
-			 */
-			level:number,
-			/**
-			 * true if user is exempt from ads (ex: if too few followers)
-			 */
-			noAd:boolean,
-			/**
-			 * true if donor level changed from last time
-			 */
-			upgrade:boolean,
-			/**
-			 * true if user is part of the early twitchat donors
-			 */
-			earlyDonor:boolean,
-			/**
-			 * true if user donated enough to unlock lifetime premium
-			 */
-			isPremiumDonor:boolean,
-			/**
-			 * true if user is an active Patreon member
-			 */
-			isPatreonMember:boolean,
-			/**
-			 * Percentage reached before lifetime premium
-			 */
-			lifetimePercent:number,
-		};
-		/**
 		 * undefined=no loaded yet; false=no pronouns found; string=pronouns code
 		 */
 		pronouns:string|false|null;

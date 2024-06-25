@@ -190,17 +190,7 @@ export default class YoutubeHelper {
 			chanInfos.is_broadcaster = true;
 			chanInfos.is_moderator = true;
 			Logger.instance.log("youtube", {log:"User infos loaded successfully. "+user.displayName+" (#"+user.id+")", credits: this._creditsUsed, liveID:this._currentLiveIds});
-			user.donor = {
-				earlyDonor:false,
-				isPremiumDonor:false,
-				level:0,
-				noAd:false,
-				state:false,
-				upgrade:false,
-				isPatreonMember:false,
-				lifetimePercent:0,
-			};
-			StoreProxy.auth.youtube.user = user as RequireField<TwitchatDataTypes.TwitchatUser, "donor">;
+			StoreProxy.auth.youtube.user = user as TwitchatDataTypes.TwitchatUser;
 		}
 	}
 
