@@ -185,6 +185,17 @@ type ApiEndpoints =  {
 			}
 		};
 	};
+	"auth/dataShare": {
+		DELETE: {
+			parameters: {
+				uid:string;
+			},
+			response: {
+				success:boolean;
+				users:string[];
+			}
+		};
+	};
 	"beta/user": {
 		GET: {
 			parameters: {

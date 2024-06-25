@@ -10,7 +10,8 @@ import Logger from "../utils/Logger.js";
 */
 export default class AbstractController {
 
-	protected static earlyDonors:{[key:string]:boolean} = {};
+	protected static _dataPreloaded:boolean = false;
+	protected static _earlyDonors:{[key:string]:boolean} = {};
 	/**
 	 * Associate a UID to a reference UID
 	 * If user B wants to share data of user A, this dictionnary
@@ -19,7 +20,7 @@ export default class AbstractController {
 	 * 	B:A
 	 * }
 	 */
-	protected static dataSharing:{[uid:string]:string} = {};
+	protected static _dataSharing:{[uid:string]:string} = {};
 
 	/**
 	 * Twitch user ID to cache expiration date.
@@ -49,19 +50,21 @@ export default class AbstractController {
 	 * Preloads the early donors and data sharing on a local cache
 	 */
 	protected preloadData():void {
-		if(AbstractController.dataSharing) return;
+		if(AbstractController._dataPreloaded) return;
 
 		if(fs.existsSync(Config.earlyDonors)) {
 			const uids:string[] = JSON.parse(fs.readFileSync(Config.earlyDonors, "utf-8"));
 			for (let i = 0; i < uids.length; i++) {
-				AbstractController.earlyDonors[uids[i]] = true;
+				AbstractController._earlyDonors[uids[i]] = true;
 			}
 		}
+		
 		if(fs.existsSync(Config.DATA_SHARING)) {
-			AbstractController.dataSharing = JSON.parse(fs.readFileSync(Config.DATA_SHARING, "utf-8"));
+			AbstractController._dataSharing = JSON.parse(fs.readFileSync(Config.DATA_SHARING, "utf-8"));
 		}else{
-			AbstractController.dataSharing = {};
+			AbstractController._dataSharing = {};
 		}
+		AbstractController._dataPreloaded = true;
 	}
 
 	/**
@@ -131,12 +134,12 @@ export default class AbstractController {
 		}
 
 		//Check if user is part of early donors with offered premium
-		if(!isPremium && AbstractController.earlyDonors[userInfo.user_id] === true) {
+		if(!isPremium && AbstractController._earlyDonors[userInfo.user_id] === true) {
 			isPremium = true;
 		}
 
 		//Check if user is part of early donors with offered premium
-		if(!isPremium && AbstractController.earlyDonors[userInfo.user_id] === true) {
+		if(!isPremium && AbstractController._earlyDonors[userInfo.user_id] === true) {
 			isPremium = true;
 		}
 
@@ -200,8 +203,8 @@ export default class AbstractController {
 	 * @param receiver user ID
 	 */
 	protected enableUserDataSharing(sharer:string, receiver:string):void {
-		AbstractController.dataSharing[receiver] = sharer;
-		fs.writeFileSync(Config.DATA_SHARING, JSON.stringify(AbstractController.dataSharing), "utf-8");
+		AbstractController._dataSharing[receiver] = sharer;
+		fs.writeFileSync(Config.DATA_SHARING, JSON.stringify(AbstractController._dataSharing), "utf-8");
 		Logger.info("Enable data sharing between users "+sharer+"(main) and "+receiver);
 	}
 
@@ -210,8 +213,8 @@ export default class AbstractController {
 	 * @param uid user ID
 	 */
 	protected disableUserDataSharing(uid:string):void {
-		delete AbstractController.dataSharing[uid];
-		fs.writeFileSync(Config.DATA_SHARING, JSON.stringify(AbstractController.dataSharing), "utf-8");
+		delete AbstractController._dataSharing[uid];
+		fs.writeFileSync(Config.DATA_SHARING, JSON.stringify(AbstractController._dataSharing), "utf-8");
 		Logger.info("Dsiable data sharing for user "+uid);
 	}
 
@@ -223,7 +226,7 @@ export default class AbstractController {
 	 * @param uid user ID
 	 */
 	protected getSharedUID(uid:string):string {
-		return AbstractController.dataSharing[uid] || uid;
+		return AbstractController._dataSharing[uid] || uid;
 	}
 
 	/**
@@ -232,13 +235,13 @@ export default class AbstractController {
 	 */
 	protected getDataSharingList(uid:string):string[] {
 		const res:string[] = [];
-		const dict = AbstractController.dataSharing;
+		const dict = AbstractController._dataSharing;
 		for (const sharing in dict) {
 			if(sharing == uid) {
 				res.push(dict[sharing]);
 			}
 			if(dict[sharing] === uid) {
-				res.push(sharing)
+				res.push(sharing);
 			}
 		}
 

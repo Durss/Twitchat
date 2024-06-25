@@ -12,7 +12,14 @@
 		"language": "Langue d'affichage",
 		"share": {
 			"info": "Si vous souhaitez partager vos paramètres entre plusieurs comptes, cliquez sur le bouton \"Connexion\" ci-dessous et connectez-vous avec votre compte secondaire\n\nLes données du compte secondaire seront alors remplacées par celles du compte actuel \"{USER}\".",
-			"connectBt": "Connexion"
+			"connectBt": "Connexion",
+			"sharingList": "Partages actuels",
+			"unlinkBt": "Délier",
+			"unlink_fail": "Une erreur inconnue est survenue lors la suppression du lien :(",
+			"unlink_confirm": {
+				"title": "Délier",
+				"description": "Ce compte ne sera plus lié au vôtre.\nSes données persisteront mais ne seront plus synchronisées aux vôtres."
+			}
 		}
 	}
 }

@@ -12,7 +12,14 @@
 		"language":"Display language",
 		"share": {
 			"info":"If you want to share your parameters between multiple accounts, click the \"Connect\" button bellow and authenticate with your secondary account.\n\nThe data from the second account will be replaced by the ones of your current \"{USER}\" account.",
-			"connectBt": "Connect"
+			"connectBt": "Connect",
+			"sharingList": "Currently sharing with",
+			"unlinkBt": "Unlink",
+			"unlink_fail": "Something unknown went wrong when unlinking requested user :(",
+			"unlink_confirm": {
+				"title": "Unlink",
+				"description": "This user share your data anymore. Their data will remain but won't be synced anymore"
+			}
 		}
 	}
 }

@@ -187,7 +187,10 @@ export default class AuthController extends AbstractController {
 	}
 
 	/**
-	 * Verifies a CSRF token to secure twitch authentication
+	 * Validate data sharing between 2 users
+	 * 
+	 * This would be better placed in UserController but i need to call "validateCSRFToken"
+	 * which would be annoying to do from the other controller 😬
 	 * 
 	 * @param {*} request 
 	 * @param {*} response 
@@ -202,10 +205,12 @@ export default class AuthController extends AbstractController {
 		if(this.pendingDataSharingAuth[csrf]) {
 			const token = await this.validateCSRFToken(request, response, false);
 			if(token !== false && token.uidShare && token.uidShare != user.user_id) {
+				//Enable data sharing
 				super.enableUserDataSharing(token.uidShare, user.user_id);
 				response.header('Content-Type', 'application/json');
 				response.status(200);
 				response.send(JSON.stringify({success:true, sharer:token.uidShare}));
+				Logger.info("User "+user.login+" aneabled data sharing with user #"+token.uidShare);
 				return;
 			}
 		}

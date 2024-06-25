@@ -50,6 +50,19 @@
 				</template>
 			</i18n-t>
 			<TTButton icon="twitch" class="button" @click="startParamsShareFlow()" :loading="connecting">{{ $t('account.share.connectBt') }}</TTButton>
+
+			<template v-if="sharedUsers.length > 0">
+				<Splitter>{{ $t("account.share.sharingList") }}</Splitter>
+				<div class="card-item alert" v-if="unlinkError" @click="unlinkError = false">{{ $t("account.share.unlink_fail") }}</div>
+				<div class="card-item sharedUser" v-for="user in sharedUsers" :key="user.id">
+					<Icon name="loader" v-if="user.temporary" />
+					<template v-else>
+						<img :src="user.avatarPath" alt="avatar" class="avatar">
+						<span>{{ user.displayNameOriginal }}</span>
+						<TTButton @click="unlink(user)" icon="cross" small alert>{{ $t("account.share.unlinkBt") }}</TTButton>
+					</template>
+				</div>
+			</template>
 		</section>
 	</div>
 </template>
@@ -74,9 +87,11 @@ import type IParameterContent from './IParameterContent';
 import DonorState from '@/components/user/DonorState.vue';
 import ParamsAccountPatreon from './account/ParamsAccountPatreon.vue';
 import ApiHelper from '@/utils/ApiHelper';
+import Splitter from '@/components/Splitter.vue';
 
 @Component({
 	components:{
+		Splitter,
 		TTButton,
 		ParamItem,
 		DonorState,
@@ -87,7 +102,7 @@ import ApiHelper from '@/utils/ApiHelper';
 	},
 	emits:[],
 })
- class ParamsAccount extends Vue implements IParameterContent {
+class ParamsAccount extends Vue implements IParameterContent {
 
 	public oAuthURL = "";
 	public showObs = false;
@@ -95,6 +110,7 @@ import ApiHelper from '@/utils/ApiHelper';
 	public showCredits = true;
 	public connecting = false;
 	public syncEnabled = false;
+	public unlinkError = false;
 	public showAuthorizeBt = false;
 	public showSuggestions = false;
 	public publicDonation_loaded = false;
@@ -102,6 +118,7 @@ import ApiHelper from '@/utils/ApiHelper';
 	public generatingCSRF = false;
 	public authenticating = false;
 	public CSRFToken:string = "";
+	public sharedUsers:TwitchatDataTypes.TwitchatUser[] = [];
 
 	public get canInstall():boolean { return this.$store.main.ahsInstaller != null; }
 	public get userName():string { return StoreProxy.auth.twitch.user.displayName; }
@@ -119,6 +136,7 @@ import ApiHelper from '@/utils/ApiHelper';
 	public async mounted():Promise<void> {
 		this.syncEnabled = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false";
 		watch(()=> this.syncEnabled, ()=> DataStore.set(DataStore.SYNC_DATA_TO_SERVER, this.syncEnabled, false));
+		this.updateSharedUserList();
 	}
 
 	public beforeUnmount():void {
@@ -196,6 +214,28 @@ import ApiHelper from '@/utils/ApiHelper';
 		}, 10000);
 	}
 
+	public unlink(user:TwitchatDataTypes.TwitchatUser):void {
+		this.unlinkError = false;
+		this.$confirm(this.$t("account.share.unlink_confirm.title"),
+		this.$t("account.share.unlink_confirm.description"))
+		.then(async ()=>{
+			const res = await ApiHelper.call("auth/dataShare", "DELETE", {uid:user.id});
+			if(res.status == 200) {
+				this.$store.auth.dataSharingUserList = res.json.users || [];
+				this.updateSharedUserList();
+			}else{
+				this.unlinkError = true;
+			}
+			//DO unlink
+		}).catch(()=>{});
+	}
+	
+	private updateSharedUserList():void {
+		this.$store.auth.dataSharingUserList.forEach(uid => {
+			this.sharedUsers.push( this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, uid) );
+		});
+	}
+
 }
 export default toNative(ParamsAccount);
 </script>
@@ -258,6 +298,23 @@ export default toNative(ParamsAccount);
 		align-items: center;
 		text-align: center;
 		white-space: pre-line;
+	}
+
+	.splitter {
+		width: 100%;
+		margin-top: 1em;
+		margin-bottom: .5em;
+	}
+
+	.sharedUser {
+		gap: .5em;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		.avatar {
+			height: 2em;
+			border-radius: 50%;
+		}
 	}
 
 }

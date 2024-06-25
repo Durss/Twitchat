@@ -33,6 +33,7 @@ export default class UserController extends AbstractController {
 		this.server.post('/api/user/data', async (request, response) => await this.postUserData(request, response));
 		this.server.post('/api/user/data/backup', async (request, response) => await this.postUserDataBackup(request, response));
 		this.server.delete('/api/user/data', async (request, response) => await this.deleteUserData(request, response));
+		this.server.delete('/api/auth/dataShare', async (request, response) => await this.deleteDataShare(request, response));
 
 		super.preloadData();
 	}
@@ -117,7 +118,7 @@ export default class UserController extends AbstractController {
 		}
 
 		//Is user an early donor of twitchat?
-		if(AbstractController.earlyDonors[uid] === true) {
+		if(AbstractController._earlyDonors[uid] === true) {
 			data.isEarlyDonor = true;
 		}
 
@@ -286,5 +287,31 @@ export default class UserController extends AbstractController {
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(JSON.stringify({success:true, users}));
+	}
+
+	/**
+	 * Unlinks a user data sharing
+	 * 
+	 * @param {*} request 
+	 * @param {*} response 
+	 */
+	private async deleteDataShare(request:FastifyRequest, response:FastifyReply) {
+		const user = await super.twitchUserGuard(request, response);
+		if(!user) return;
+
+		const params:any = request.query;
+		const uid = params.uid;
+		const sharedUid = this.getSharedUID(uid);
+		if(uid != sharedUid) {
+			const userFilePath = Config.USER_DATA_PATH + uid+".json";
+			const sharedFilePath = Config.USER_DATA_PATH + uid+".json";
+			fs.copyFileSync(sharedFilePath, userFilePath);
+			super.disableUserDataSharing(uid);
+			Logger.info("User "+user.login+" disabled data sharing with user #"+uid);
+		}
+
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send(JSON.stringify({success:true, users:this.getDataSharingList(user.user_id)}));
 	}
 }
