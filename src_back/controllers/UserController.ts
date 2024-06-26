@@ -82,8 +82,13 @@ export default class UserController extends AbstractController {
 			fs.utimes(userFilePath, new Date(), new Date(), ()=>{/*don't care*/});
 		}
 
-		if(amount >= Config.lifetimeDonorThreshold || Config.credentials.admin_ids.findIndex(v=>v === uid) > -1) {
-			// premiumType = "lifetime";
+		//Is user an early donor of twitchat?
+		if(AbstractController._earlyDonors[uid] === true) {
+			premiumType = "earlyDonor";
+		}
+
+		if(premiumType == "" && amount >= Config.lifetimeDonorThreshold || Config.credentials.admin_ids.findIndex(v=>v === uid) > -1) {
+			premiumType = "lifetime";
 		}
 
 		if(premiumType == "") {
@@ -114,18 +119,15 @@ export default class UserController extends AbstractController {
 			data.isAdmin = true;
 		}
 
-		//Is user an early donor of twitchat?
-		if(AbstractController._earlyDonors[uid] === true) {
-			data.premiumType = "earlyDonor";
-		}
-
 		if(DiscordController.isDiscordLinked(uid) === true) {
 			data.discordLinked = true;
 		}
 
-		if(Config.FORCE_NON_PREMIUM) {
+		if(Config.FORCE_NON_PREMIUM && Config.LOCAL_TESTING) {
 			data.premiumType = "";
 		}
+
+		console.log(userInfo.login, data);
 
 		response.header('Content-Type', 'application/json');
 		response.status(200);
