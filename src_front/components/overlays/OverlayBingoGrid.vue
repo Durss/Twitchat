@@ -218,7 +218,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 					const entry = this.bingo.entries[i];
 					if(entry.check) {
 						const checks = this.$refs["check_"+entry.id] as HTMLDivElement[];
-						gsap.set(checks[0], {opacity:1});
+						if(checks) gsap.set(checks[0], {opacity:1});
 					}
 				}
 				this.pushEvent({type:"open"});
@@ -292,7 +292,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		for (let i = 0; i < this.bingo.entries.length; i++) {
 			const entry = this.bingo.entries[i];
 			const checks = this.$refs["check_"+entry.id] as HTMLElement[];
-			if(this.prevCheckStates[entry.id] != entry.check) {
+			if(checks && this.prevCheckStates[entry.id] != entry.check) {
 				if(entry.check) {
 					gsap.set(checks[0], {opacity:0});
 				}else{
@@ -310,6 +310,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		for (let i = 0; i < this.bingo.entries.length; i++) {
 			const entry = this.bingo.entries[i];
 			const checks = this.$refs["check_"+entry.id] as HTMLElement[];
+			if(!checks) continue;
 			const cell = document.querySelector("[data-cellid=\""+entry.id+"\"]") as HTMLElement;
 			if(this.prevCheckStates[entry.id] != entry.check || forcedCellsState[entry.id] === true) {
 				if(checks?.length > 0 && checks[0].nodeName != "#comment") {

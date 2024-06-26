@@ -874,28 +874,6 @@ type ApiEndpoints =  {
 				error?:string;
 				errorCode?:string;
 			}
-		}
-		POST: {
-			parameters: {
-				uid:string;
-				gridid:string;
-				grid:{
-					cols: number;
-					rows: number;
-					title: string;
-					entries: {
-						id: string;
-						label: string;
-						lock: boolean;
-						check: boolean;
-					}[];
-				};
-			};
-			response: {
-				success:boolean;
-				error?:string;
-				errorCode?:string;
-			}
 		},
 		PUT: {
 			parameters: {

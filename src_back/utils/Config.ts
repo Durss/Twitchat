@@ -145,11 +145,35 @@ export default class Config {
 		});
 	}
 
+	public static get BINGO_ROOT(): string {
+		return this.getEnvData({
+			dev: path.join(this.DATA_ROOT, "/bingo"),
+			beta: path.join(this.DATA_ROOT, "/bingo"),
+			prod: path.join(this.DATA_ROOT, "/bingo"),
+		});
+	}
+
 	public static LOGS_PATH(category:"streamlabs"): string {
 		return this.getEnvData({
 			dev: path.join(this.LOGS_FOLDER, "/"+category+".json"),
 			beta: path.join(this.LOGS_FOLDER, "/"+category+".json"),
 			prod: path.join(this.LOGS_FOLDER, "/"+category+".json"),
+		});
+	}
+
+	public static BINGO_VIEWER_FILE(streamerId:string, bingoId:string, viewerId:string): string {
+		return this.getEnvData({
+			dev: path.join(this.BINGO_GRID_ROOT(streamerId, bingoId)+"/"+viewerId+".json"),
+			beta: path.join(this.BINGO_GRID_ROOT(streamerId, bingoId)+"/"+viewerId+".json"),
+			prod: path.join(this.BINGO_GRID_ROOT(streamerId, bingoId)+"/"+viewerId+".json"),
+		});
+	}
+
+	public static BINGO_GRID_ROOT(streamerId:string, bingoId:string): string {
+		return this.getEnvData({
+			dev: path.join(this.BINGO_ROOT, "/"+streamerId+"/"+bingoId),
+			beta: path.join(this.BINGO_ROOT, "/"+streamerId+"/"+bingoId),
+			prod: path.join(this.BINGO_ROOT, "/"+streamerId+"/"+bingoId),
 		});
 	}
 

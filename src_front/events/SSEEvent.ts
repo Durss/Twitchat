@@ -54,7 +54,9 @@ export type EventTypeMap = {
 			actions:TwitchatDataTypes.MessageCustomData["actions"];
 		};
 	BINGO_GRID_UPDATE:{
-		force?:boolean;
+		force:true;
+	} | {
+		force:false;
 		grid:{
 			enabled:boolean;
 			title:string;
