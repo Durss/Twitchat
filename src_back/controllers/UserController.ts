@@ -83,7 +83,7 @@ export default class UserController extends AbstractController {
 		}
 
 		if(amount >= Config.lifetimeDonorThreshold || Config.credentials.admin_ids.findIndex(v=>v === uid) > -1) {
-			premiumType = "lifetime";
+			// premiumType = "lifetime";
 		}
 
 		if(premiumType == "") {
@@ -116,7 +116,7 @@ export default class UserController extends AbstractController {
 
 		//Is user an early donor of twitchat?
 		if(AbstractController._earlyDonors[uid] === true) {
-			premiumType = "earlyDonor";
+			data.premiumType = "earlyDonor";
 		}
 
 		if(DiscordController.isDiscordLinked(uid) === true) {
@@ -126,7 +126,7 @@ export default class UserController extends AbstractController {
 		if(Config.FORCE_NON_PREMIUM) {
 			data.premiumType = "";
 		}
-		
+
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(JSON.stringify({success:true, data}));
