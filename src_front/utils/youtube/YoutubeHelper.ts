@@ -390,6 +390,7 @@ export default class YoutubeHelper {
 						data.message_html = TwitchUtils.messageChunksToHTML(message_chunks);
 						data.message_size = TwitchUtils.computeMessageSize(message_chunks);
 						data.is_short = Utils.stripHTMLTags(data.message_html).length / data.message.length < .6 || data.message.length < 4;
+						data.raw_data = m;
 
 						StoreProxy.chat.addMessage(data);
 
