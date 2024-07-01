@@ -485,14 +485,17 @@ export default class PubSub extends EventDispatcher {
 
 
 
-		}else if(data.type == "POLL_CREATE" || data.type == "POLL_UPDATE" || data.type == "POLL_COMPLETE" || data.type == "POLL_TERMINATE") {
+		}else if(data.type == "POLL_CREATE" || data.type == "POLL_UPDATE" || data.type == "POLL_COMPLETE" || data.type == "POLL_TERMINATE" || data.type == "POLL_ARCHIVE") {
 			const localObj = data.data as PubSubDataTypes.PollData;
-			const isComplete = data.type == "POLL_COMPLETE" || data.type == "POLL_TERMINATE";
+			if(data.type === "POLL_ARCHIVE" && StoreProxy.poll.data?.id != localObj.poll.poll_id) {
+				return;
+			}
+			const isComplete = data.type == "POLL_COMPLETE" || data.type == "POLL_TERMINATE" || data.type == "POLL_ARCHIVE";
 			this.pollEvent(localObj, isComplete);
 
 
 
-		}else if(data.type == "POLL_ARCHIVE" || data.type == "POLL_MODERATE" || data.type == "POLL_INVALID") {
+		}else if(data.type == "POLL_MODERATE" || data.type == "POLL_INVALID") {
 			// const localObj = data.data as PubSubDataTypes.PollData;
 			// TwitchUtils.getPolls(localObj.poll.owned_by);
 
