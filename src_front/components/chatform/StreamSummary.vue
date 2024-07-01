@@ -88,6 +88,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import TTButton from '../TTButton.vue';
 import Icon from '../Icon.vue';
+import Config from '@/utils/Config';
 
 @Component({
 	components:{
@@ -424,17 +425,22 @@ import Icon from '../Icon.vue';
 				csv += user.toDuration+"\n";
 			}
 		}
-
-		//Start download session
+		
 		const blob = new Blob([csv], { type: 'application/json' });
 		const url = window.URL.createObjectURL(blob);
-		var link = document.createElement("a");
-		let filename = "export";
-		filename += globalData? "_global" : "_user";
-		filename += "_"+new Date().getDate()+"-"+(new Date().getMonth()+1)+"-"+new Date().getFullYear();
-		link.download = filename+".csv";
-		link.href = url;
-		link.click();
+		//Start download session
+		if(Config.instance.OBS_DOCK_CONTEXT) {
+			window.open(url, "_blank");
+		}else{
+			var link = document.createElement("a");
+			let filename = "export";
+			filename += globalData? "_global" : "_user";
+			filename += "_"+new Date().getDate()+"-"+(new Date().getMonth()+1)+"-"+new Date().getFullYear();
+			link.download = filename+".csv";
+			link.href = url;
+			link.click();
+		}
+		URL.revokeObjectURL(url);
 	}
 
 	private getEmptyUserActivities(user:TwitchatDataTypes.TwitchatUser):UserActivities {
