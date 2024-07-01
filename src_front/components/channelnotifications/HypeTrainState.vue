@@ -105,7 +105,7 @@ import Icon from '../Icon.vue';
 		ProgressBar,
 	}
 })
- class HypeTrainState extends Vue {
+class HypeTrainState extends Vue {
 
 	public timerPercent:number = 0;
 	public timerDuration:number = 0;
@@ -260,7 +260,7 @@ import Icon from '../Icon.vue';
 
 		this.timerDuration = this.trainData.state == "APPROACHING"? this.trainData.timeLeft_s * 1000 : 5*60*1000;
 
-		const p = Math.round(this.trainData.currentValue/this.trainData.goal * 100);
+		const p = Math.floor(this.trainData.currentValue/this.trainData.goal * 100);
 		gsap.to(this, {progressPercent:p, ease:"sine.inOut", duration:.5});
 	}
 

@@ -127,8 +127,6 @@ export default class UserController extends AbstractController {
 			data.premiumType = "";
 		}
 
-		console.log(userInfo.login, data);
-
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(JSON.stringify({success:true, data}));

@@ -99,6 +99,7 @@ export default toNative(ChannelNotifications);
 			height: 1.5em;
 			padding: 0;
 			z-index: 1;
+			color: #ffffff;
 		}
 
 		.slide-enter-from,
