@@ -80,6 +80,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 				if(result.json.success) {
 					this.accessToken = result.json.accessToken!;
 					this.socketToken = "";
+					this.saveData();
 					return await this.connect(result.json.socketToken!);
 				}
 				return false;
@@ -94,7 +95,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			//Token changed
 			if(isReconnect && token != this.socketToken) return Promise.resolve(false);
 			
-			this.disconnect();
+			this.disconnect(false);
 
 			if(!isReconnect) {
 				this.socketToken = token;
@@ -144,7 +145,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 							if(isAutoInit) {
 								StoreProxy.common.alert(StoreProxy.i18n.t("error.streamlabs_connect_failed"));
 							}
-							this.disconnect();
+							this.disconnect(false);
 							resolve(false);
 
 						}else{
@@ -260,12 +261,14 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			});
 		},
 
-		disconnect():void {
+		disconnect(clearStore:boolean = true):void {
 			autoReconnect = false;
 			this.connected = false;
-			this.socketToken = "";
-			this.accessToken = "";
-			this.saveData();
+			if(clearStore) {
+				this.socketToken = "";
+				this.accessToken = "";
+				this.saveData();
+			}
 			if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
 			clearTimeout(reconnectTimeout);
 			if(socket && !this.connected) socket.close();

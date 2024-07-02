@@ -2397,7 +2397,7 @@ export interface IStreamlabsActions {
 	/**
 	 * Disconnects from streamlabs
 	 */
-	disconnect():void;
+	disconnect(clearStore?:boolean):void;
 	/**
 	 * Saves current data to server
 	 */
