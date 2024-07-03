@@ -313,7 +313,7 @@ class Chat extends Vue {
 
 	public get splitViewVertical():boolean { return this.$store.params.appearance.splitViewVertical.value as boolean; }
 	public get showEmergencyFollows():boolean { return this.$store.emergency.follows.length > 0 && !this.$store.emergency.emergencyStarted; }
-	public get mustDisableItems():boolean { return this.mustDisableItems_precalc && this.$store.auth.premiumType == ""; }
+	public get mustDisableItems():boolean { return this.mustDisableItems_precalc && !this.$store.auth.isPremium; }
 
 	public get classes():string[] {
 		const res = ["chat"];

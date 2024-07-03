@@ -517,6 +517,16 @@ export default class MessengerProxy {
 			return true;
 		}else
 
+		if(isAdmin && cmd == "/giftpremium") {
+			StoreProxy.admin.giftPremium(params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
+			return true;
+		}else
+
+		if(isAdmin && cmd == "/ungiftpremium") {
+			StoreProxy.admin.ungiftPremium(params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
+			return true;
+		}else
+
 		if(cmd == "/streamsummary") {
 			StoreProxy.params.openModal("streamSummary");
 			return true;

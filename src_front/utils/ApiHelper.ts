@@ -342,7 +342,7 @@ type ApiEndpoints =  {
 				success:boolean;
 				data:{
 					isAdmin:boolean;
-					premiumType:"earlyDonor"|"patreon"|"lifetime"|"",
+					premiumType:"earlyDonor"|"patreon"|"lifetime"|"gifted"|"",
 					donorLevel:number;
 					lifetimePercent:number;
 					discordLinked:boolean;
@@ -1008,6 +1008,31 @@ type ApiEndpoints =  {
 			};
 			response:{
 				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		}
+	}
+	"admin/premium": {
+		POST: {
+			parameters: {
+				uid:string;
+			};
+			response:{
+				success:boolean;
+				uids?:string[];
+				error?:string;
+				errorCode?:string;
+			}
+		},
+		
+		DELETE: {
+			parameters: {
+				uid:string;
+			};
+			response:{
+				success:boolean;
+				uids?:string[];
 				error?:string;
 				errorCode?:string;
 			}

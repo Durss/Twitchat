@@ -90,12 +90,12 @@ export default class BingoGridController extends AbstractController {
 	private async getBingoGrid(request:FastifyRequest, response:FastifyReply) {
 		const uid:string = (request.query as any).uid;
 		const gridId:string = (request.query as any).gridid;
-
+		
 		const gridCache = await this.getStreamerGrid(uid, gridId);
 		if(!gridCache || !gridCache.data.enabled) {
 			response.header('Content-Type', 'application/json');
 			response.status(404);
-			response.send(JSON.stringify({success:false, error:"Grid or user not found", errorCode:"NOT_FOUND"}));
+			response.send(JSON.stringify({success:false, error:"Grid or user not found, or grid disabled, or owner not premium", errorCode:"NOT_FOUND"}));
 			return;
 		}
 
@@ -419,6 +419,10 @@ export default class BingoGridController extends AbstractController {
 	 * @returns 
 	 */
 	private async getStreamerGrid(uid:string, gridId:string):Promise<IGridCacheData|null> {
+		if(!await super.isUserPremium(uid)) {
+			return null;
+		}
+
 		const cacheKey = uid+"/"+gridId;
 		let cache = this.cachedBingoGrids[cacheKey];
 		if(!cache || Date.now() - cache.date > 5000) {

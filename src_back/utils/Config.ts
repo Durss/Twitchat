@@ -18,6 +18,7 @@ export default class Config {
 	public static get lifetimeDonorThreshold():number{ return 89; }
 	public static get donorsList(): string { return this.DONORS_DATA_FOLDER + "donors.json"; }
 	public static get earlyDonors(): string { return this.DONORS_DATA_FOLDER + "earlyDonors.json"; }
+	public static get giftedPremium(): string { return this.DONORS_DATA_FOLDER + "giftedPremiums.json"; }
 	public static get donorsAnonStates(): string { return this.DONORS_DATA_FOLDER + "public_states.json"; }
 	public static get donorsPublicList(): string { return this.DONORS_DATA_FOLDER + "public_cache.json"; }
 	public static get donorsLevels(): number[] { return [0,20,30,50,80,100,200,300,400,500,999999]; }

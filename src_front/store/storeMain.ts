@@ -77,7 +77,7 @@ export const storeMain = defineStore("main", {
 
 	getters: {
 		nonPremiumLimitExceeded: ()=> {
-			if(StoreProxy.auth.premiumType != "") return false;
+			if(StoreProxy.auth.isPremium) return false;
 
 			const triggersLength = StoreProxy.triggers.triggerList
 			.filter(v=>v.enabled !== false && StoreProxy.triggers.triggerIdToFolderEnabled[v.id] !== false).length;
@@ -398,7 +398,7 @@ export const storeMain = defineStore("main", {
 				const data = DataStore.get(DataStore.BITS_WALL_PARAMS);
 				if(!data) return;
 				const json = JSON.parse(data) as TwitchatDataTypes.BitsWallOverlayData;
-				if(sAuth.premiumType == "") {
+				if(!sAuth.isPremium) {
 					json.break_durations = {1:10, 100:20, 1000:30, 5000:40, 10000:50};
 				}
 				PublicAPI.instance.broadcast(TwitchatEvent.BITSWALL_OVERLAY_PARAMETERS, (json as unknown) as JsonObject);

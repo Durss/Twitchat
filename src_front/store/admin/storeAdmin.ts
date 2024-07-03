@@ -150,6 +150,74 @@ export const storeAdmin = defineStore('Admin', {
 			};
 			StoreProxy.chat.addMessage(message);
 		},
+		
+		async giftPremium(login:string):Promise<void> {
+			const users = await TwitchUtils.getUserInfo(undefined, [login]);
+			if(users.length ===0 ) {
+				StoreProxy.common.alert("User "+login+" not found");
+				return;
+			}
+			const res = await ApiHelper.call("admin/premium", "POST", {uid:users[0].id});
+			try {
+				if(res.status === 200 && res.json.success) {
+					const message:TwitchatDataTypes.MessageNoticeData = {
+						date:Date.now(),
+						id:Utils.getUUID(),
+						noticeId:TwitchatDataTypes.TwitchatNoticeType.GENERIC,
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+						message:login+" has been offered premium membership",
+						platform:"twitchat",
+						channel_id:StoreProxy.auth.twitch.user.id,
+					};
+					StoreProxy.chat.addMessage(message);
+					return;
+				}
+			}catch(error){}
+			const message:TwitchatDataTypes.MessageNoticeData = {
+				date:Date.now(),
+				id:Utils.getUUID(),
+				noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+				message:"An error occured when offering premium membership to "+login,
+				platform:"twitchat",
+					channel_id:StoreProxy.auth.twitch.user.id,
+			};
+			StoreProxy.chat.addMessage(message);
+		},
+		
+		async ungiftPremium(login:string):Promise<void> {
+			const users = await TwitchUtils.getUserInfo(undefined, [login]);
+			if(users.length ===0 ) {
+				StoreProxy.common.alert("User "+login+" not found");
+				return;
+			}
+			const res = await ApiHelper.call("admin/premium", "DELETE", {uid:users[0].id});
+			try {
+				if(res.status === 200 && res.json.success) {
+					const message:TwitchatDataTypes.MessageNoticeData = {
+						date:Date.now(),
+						id:Utils.getUUID(),
+						noticeId:TwitchatDataTypes.TwitchatNoticeType.GENERIC,
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+						message:login+" has been removed from gifted premium membership",
+						platform:"twitchat",
+						channel_id:StoreProxy.auth.twitch.user.id,
+					};
+					StoreProxy.chat.addMessage(message);
+					return;
+				}
+			}catch(error){}
+			const message:TwitchatDataTypes.MessageNoticeData = {
+				date:Date.now(),
+				id:Utils.getUUID(),
+				noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+				message:"An error occured when removing gifted premium membership from "+login,
+				platform:"twitchat",
+					channel_id:StoreProxy.auth.twitch.user.id,
+			};
+			StoreProxy.chat.addMessage(message);
+		},
 	} as IAdminActions
 	& ThisType<IAdminActions
 		& UnwrapRef<IAdminState>

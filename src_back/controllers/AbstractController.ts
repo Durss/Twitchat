@@ -12,6 +12,7 @@ export default class AbstractController {
 
 	protected static _dataPreloaded:boolean = false;
 	protected static _earlyDonors:{[key:string]:boolean} = {};
+	protected static _giftedPremium:{[key:string]:boolean} = {};
 	/**
 	 * Associate a UID to a reference UID
 	 * If user B wants to share data of user A, this dictionnary
@@ -56,6 +57,13 @@ export default class AbstractController {
 			const uids:string[] = JSON.parse(fs.readFileSync(Config.earlyDonors, "utf-8"));
 			for (let i = 0; i < uids.length; i++) {
 				AbstractController._earlyDonors[uids[i]] = true;
+			}
+		}
+
+		if(fs.existsSync(Config.giftedPremium)) {
+			const uids:string[] = JSON.parse(fs.readFileSync(Config.giftedPremium, "utf-8"));
+			for (let i = 0; i < uids.length; i++) {
+				AbstractController._giftedPremium[uids[i]] = true;
 			}
 		}
 		
@@ -122,49 +130,12 @@ export default class AbstractController {
 	 * @param response
 	 */
 	protected async premiumGuard(request:FastifyRequest, response:FastifyReply):Promise<false|TwitchToken> {
-		const userInfo = await this.twitchUserGuard(request, response)
+		const userInfo = await this.twitchUserGuard(request, response);
 		if(userInfo === false) return false;
+		let uid = userInfo.user_id;
 
-		const cache = this.premiumState_cache[userInfo.user_id];
-		let isPremium = cache != undefined && cache < Date.now();
-
-		//Check if user is part of admins
-		if(!isPremium && Config.credentials.admin_ids.findIndex(v=>v === userInfo.user_id) > -1) {
-			isPremium = true;
-		}
-
-		//Check if user is part of early donors with offered premium
-		if(!isPremium && AbstractController._earlyDonors[userInfo.user_id] === true) {
-			isPremium = true;
-		}
-
-		//Check if user is part of early donors with offered premium
-		if(!isPremium && AbstractController._earlyDonors[userInfo.user_id] === true) {
-			isPremium = true;
-		}
-
-		//Check if user is part of active patreon members
-		if(!isPremium && fs.existsSync(Config.patreon2Twitch)) {
-			//Get patreon member ID from twitch user ID
-			const jsonMap = JSON.parse(fs.readFileSync(Config.patreon2Twitch, "utf-8"));
-			const memberID = jsonMap[userInfo.user_id];
-			//Get if user is part of the active patreon members
-			const members = JSON.parse(fs.readFileSync(Config.patreonMembers, "utf-8")) as PatreonMember[];
-			isPremium = members.findIndex(v=>v.id === memberID) > -1;
-		}
-
-		//Check if user donated for more than the lifetime premium amount
-		if(!isPremium && fs.existsSync(Config.patreon2Twitch)) {
-			let donorAmount = -1;
-			if(fs.existsSync( Config.donorsList )) {
-				const json:{[key:string]:number} = JSON.parse(fs.readFileSync(Config.donorsList, "utf8"));
-				const isDonor = json.hasOwnProperty(userInfo.user_id);
-				if(isDonor) {
-					donorAmount = json[userInfo.user_id];
-				}
-			}
-			isPremium = donorAmount >= Config.lifetimeDonorThreshold;
-		}
+		const cache = this.premiumState_cache[uid];
+		let isPremium = this.isUserPremium(uid);
 
 		if(!isPremium) {
 			response.header('Content-Type', 'application/json');
@@ -172,8 +143,52 @@ export default class AbstractController {
 			response.send(JSON.stringify({message:"You're not allowed to call this premium-only endpoint", errorCode:"NOT_PREMIUM", success:false}));
 			return false;
 		}
-		this.premiumState_cache[userInfo.user_id] = Date.now() + 6 * 60 * 1000;
+		this.premiumState_cache[uid] = Date.now() + 6 * 60 * 1000;
 		return userInfo;
+	}
+
+	/**
+	 * Get if given user ID is premium or not
+	 * @param uid 
+	 */
+	protected isUserPremium(uid:string):boolean {
+		const cache = this.premiumState_cache[uid];
+		let isPremium = cache != undefined && cache < Date.now();
+
+		//Check if user is part of early donors with offered premium
+		if(!isPremium && AbstractController._earlyDonors[uid] === true) {
+			isPremium = true;
+		}
+
+		//Check if user has been offered premium
+		if(!isPremium && AbstractController._giftedPremium[uid] === true) {
+			isPremium = true;
+		}
+
+		//Check if user is part of active patreon members
+		if(!isPremium && fs.existsSync(Config.patreon2Twitch)) {
+			//Get patreon member ID from twitch user ID
+			const jsonMap = JSON.parse(fs.readFileSync(Config.patreon2Twitch, "utf-8"));
+			const memberID = jsonMap[uid];
+			//Get if user is part of the active patreon members
+			const members = JSON.parse(fs.readFileSync(Config.patreonMembers, "utf-8")) as PatreonMember[];
+			isPremium = members.findIndex(v=>v.id === memberID) > -1;
+		}
+
+		//Check if user donated for more than the lifetime premium amount
+		if(!isPremium && fs.existsSync(Config.donorsList)) {
+			let donorAmount = -1;
+			const json:{[key:string]:number} = JSON.parse(fs.readFileSync(Config.donorsList, "utf8"));
+			const isDonor = json.hasOwnProperty(uid);
+			if(isDonor) {
+				donorAmount = json[uid];
+			}
+			isPremium = donorAmount >= Config.lifetimeDonorThreshold;
+		}
+
+		console.log(isPremium);
+
+		return isPremium;
 	}
 
 	/**

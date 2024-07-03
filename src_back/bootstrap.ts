@@ -5,7 +5,6 @@ import fastifyRawBody from 'fastify-raw-body';
 import * as fs from "fs";
 import ApiController from './controllers/ApiController.js';
 import AuthController from './controllers/AuthController.js';
-import BetaController from './controllers/BetaController.js';
 import BingoGridController from './controllers/BingoGridController.js';
 import DiscordController from './controllers/DiscordController.js';
 import DonorController from './controllers/DonorController.js';
@@ -27,6 +26,7 @@ import Config from "./utils/Config.js";
 import I18n from './utils/I18n.js';
 import Logger from './utils/Logger.js';
 import {FastifySSEPlugin} from 'fastify-sse-v2';
+import AdminController from './controllers/AdminController.js';
 
 // Run the server!
 async function start():Promise<void> {
@@ -77,7 +77,7 @@ server.register(FastifySSEPlugin)
 	new AuthController(server).initialize();
 	new DonorController(server).initialize();
 	new SpotifyController(server).initialize();
-	new BetaController(server).initialize();
+	new AdminController(server).initialize();
 	new UluleController(server).initialize();
 	new PatreonController(server).initialize();
 	new TenorController(server).initialize();

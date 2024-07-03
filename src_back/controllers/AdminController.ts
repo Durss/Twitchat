@@ -7,7 +7,7 @@ import AbstractController from "./AbstractController.js";
 /**
 * Created : 14/12/2022 
 */
-export default class BetaController extends AbstractController {
+export default class AdminController extends AbstractController {
 	
 	constructor(public server:FastifyInstance) {
 		super();
@@ -28,6 +28,8 @@ export default class BetaController extends AbstractController {
 		this.server.post('/api/beta/user/migrateToProduction', async (request, response) => await this.migrateUser(request, response));
 		this.server.post('/api/admin/beta/user', async (request, response) => await this.addUser(request, response));
 		this.server.post('/api/admin/beta/user/migrateToProduction', async (request, response) => await this.migrateUserAdmin(request, response));
+		this.server.post('/api/admin/premium', async (request, response) => await this.postPremium(request, response));
+		this.server.delete('/api/admin/premium', async (request, response) => await this.deletePremium(request, response));
 		this.server.delete('/api/admin/beta/user', async (request, response) => await this.delUser(request, response));
 		this.server.delete('/api/admin/beta/user/all', async (request, response) => await this.removeAllUsers(request, response));
 	}
@@ -185,5 +187,47 @@ export default class BetaController extends AbstractController {
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(JSON.stringify({success:true, userList:[]}));
+	}
+
+	/**
+	 * Gifts premium to a user
+	 */
+	private async postPremium(request:FastifyRequest, response:FastifyReply) {
+		if(!await this.adminGuard(request, response)) return;
+		
+		let uids:string[] = [];
+		if(fs.existsSync(Config.giftedPremium)) {
+			uids = JSON.parse(fs.readFileSync(Config.giftedPremium, "utf-8"));
+		}
+		const params:any = request.body;
+		if(!uids.includes(params.uid)) {
+			uids.push(params.uid);
+			AbstractController._giftedPremium[params.uid] = true;
+		}
+		fs.writeFileSync(Config.giftedPremium, JSON.stringify(uids), "utf-8");
+	
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send(JSON.stringify({success:true, uids}));
+	}
+
+	/**
+	 * Remove premium gift from a user
+	 */
+	private async deletePremium(request:FastifyRequest, response:FastifyReply) {
+		if(!await this.adminGuard(request, response)) return;
+		
+		let uids:string[] = [];
+		if(fs.existsSync(Config.giftedPremium)) {
+			uids = JSON.parse(fs.readFileSync(Config.giftedPremium, "utf-8"));
+		}
+		const params = request.query as any;
+		uids = uids.filter(uid => uid != params.uid);
+		delete AbstractController._giftedPremium[params.uid];
+		fs.writeFileSync(Config.giftedPremium, JSON.stringify(uids), "utf-8");
+	
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send(JSON.stringify({success:true, uids}));
 	}
 }

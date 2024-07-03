@@ -203,7 +203,9 @@
 			"heatlogs": "@:heat.logs.title",
 			"snooze_ad_break": "Reporter une publicité en approche de 5min",
 			"discord": "Envoyer un message sur Discord",
-			"warn": "Envoyer un avertissement"
+			"warn": "Envoyer un avertissement",
+			"giftpremium": "Offrir un abonnement premium",
+			"ungiftpremium": "Retire l'abonnement premium offert"
 		}
 	}
 }

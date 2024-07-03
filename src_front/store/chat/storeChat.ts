@@ -557,6 +557,18 @@ export const storeChat = defineStore('chat', {
 				needAdmin:true,
 			},
 			{
+				id:"giftpremium",
+				cmd:"/giftpremium {user}",
+				detailsKey:"params.commands.giftpremium",
+				needAdmin:true,
+			},
+			{
+				id:"ungiftpremium",
+				cmd:"/ungiftpremium {user}",
+				detailsKey:"params.commands.ungiftpremium",
+				needAdmin:true,
+			},
+			{
 				id:"devmode",
 				cmd:"/devmode",
 				detailsKey:"params.commands.devmode",

@@ -252,7 +252,7 @@ export default class SchedulerHelper {
 			if(e.trigger.type == TriggerTypes.TWITCHAT_AD) {
 				// if(Config.instance.BETA_MODE) continue;//No ad on beta
 				//No ad for donors unless requested
-				if(StoreProxy.auth.premiumType != "" && !StoreProxy.chat.botMessages.twitchatAd.enabled) continue;
+				if(StoreProxy.auth.isPremium && !StoreProxy.chat.botMessages.twitchatAd.enabled) continue;
 				//A premium user (also a big streamer) emptied the message instead of disabling it.
 				//This condition is here to make it possible to disable the ad this way. If "twitchat.fr"
 				//isn't found on the message and the user is part of donors/premium members, don't send

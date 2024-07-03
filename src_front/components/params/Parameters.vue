@@ -201,7 +201,7 @@ import Config from '@/utils/Config';
 	private keydownCaptureTarget:Element|null = null;
 	private history:TwitchatDataTypes.ParameterPagesStringType[] = [];
 
-	public get isDonor():boolean { return this.$store.auth.donorLevel > -1 || this.$store.auth.premiumType != ""; }
+	public get isDonor():boolean { return this.$store.auth.donorLevel > -1 || this.$store.auth.isPremium; }
 	public get contentMain():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.MAIN_MENU; }
 	public get contentAd():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AD; }
 	public get contentAppearance():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.APPEARANCE; }

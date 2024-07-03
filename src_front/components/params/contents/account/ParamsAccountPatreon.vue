@@ -12,6 +12,24 @@
 				<template #LINK>
 					<a href="https://www.patreon.com/join/durss" target="_blank">{{ $t("premium.early_donor2_link") }}</a>
 				</template>
+				<template #DONATE>
+					<a href="#" @click.prevent="openDonate(false)">{{ $t("premium.early_donor2_donate") }}</a>
+				</template>
+			</i18n-t>
+		</div>
+
+		<div class="earlyDonor" v-else-if="$store.auth.premiumType == 'gifted'">
+			<div class="card-item premium large">
+				<Icon name="gift" theme="light" />
+				<div>{{ $t("premium.gifted") }}</div>
+			</div>
+			<i18n-t class="info" scope="global" tag="div" keypath="premium.early_donor2">
+				<template #LINK>
+					<a href="https://www.patreon.com/join/durss" target="_blank">{{ $t("premium.early_donor2_link") }}</a>
+				</template>
+				<template #DONATE>
+					<a href="#" @click.prevent="openDonate(false)">{{ $t("premium.early_donor2_donate") }}</a>
+				</template>
 			</i18n-t>
 		</div>
 
@@ -23,6 +41,9 @@
 			<i18n-t class="info" scope="global" tag="div" keypath="premium.early_donor2">
 				<template #LINK>
 					<a href="https://www.patreon.com/join/durss" target="_blank">{{ $t("premium.early_donor2_link") }}</a>
+				</template>
+				<template #DONATE>
+					<a href="#" @click.prevent="openDonate(false)">{{ $t("premium.early_donor2_donate") }}</a>
 				</template>
 			</i18n-t>
 		</div>
@@ -130,8 +151,12 @@ class ParamsAccountPatreon extends Vue {
 		document.location = url.href;
 	}
 
-	public openDonate():void {
-		this.$store.params.openParamsPage("donate", TwitchatDataTypes.ParamDeepSections.PREMIUM)
+	public openDonate(premiumMode:boolean = true):void {
+		if(premiumMode) {
+			this.$store.params.openParamsPage("donate", TwitchatDataTypes.ParamDeepSections.PREMIUM);
+		}else{
+			this.$store.params.openParamsPage("donate");
+		}
 	}
 }
 export default toNative(ParamsAccountPatreon);
@@ -165,6 +190,9 @@ export default toNative(ParamsAccountPatreon);
 			height: 3em;
 			min-width: 3em;
 			max-width: 3em;
+		}
+		div {
+			flex-grow: 1;
 		}
 	}
 

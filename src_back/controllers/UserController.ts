@@ -52,7 +52,7 @@ export default class UserController extends AbstractController {
 		if(userInfo == false) return;
 
 		const uid = userInfo.user_id;
-		type PremiumStates = "earlyDonor"|"patreon"|"lifetime"|"";
+		type PremiumStates = "earlyDonor"|"patreon"|"lifetime"|"gifted"|"";
 		let premiumType:PremiumStates = "";
 		let donorLevel:number = -1
 		let amount:number = -1;
@@ -82,15 +82,22 @@ export default class UserController extends AbstractController {
 			fs.utimes(userFilePath, new Date(), new Date(), ()=>{/*don't care*/});
 		}
 
+		//Is got gifted premium?
+		if(premiumType == "" && AbstractController._giftedPremium[uid] === true) {
+			premiumType = "gifted";
+		}
+
 		//Is user an early donor of twitchat?
-		if(AbstractController._earlyDonors[uid] === true) {
+		if(premiumType == "" && AbstractController._earlyDonors[uid] === true) {
 			premiumType = "earlyDonor";
 		}
 
-		if(premiumType == "" && amount >= Config.lifetimeDonorThreshold || Config.credentials.admin_ids.findIndex(v=>v === uid) > -1) {
+		//Has user donated enough to be lifetime premium?
+		if(premiumType == "" && amount >= Config.lifetimeDonorThreshold) {
 			premiumType = "lifetime";
 		}
 
+		//Is user part of Patreon donors?
 		if(premiumType == "") {
 			if(fs.existsSync(Config.patreon2Twitch)) {
 				const jsonP2T = JSON.parse(fs.readFileSync(Config.patreon2Twitch, "utf-8") || "{}");

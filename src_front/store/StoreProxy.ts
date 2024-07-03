@@ -300,7 +300,7 @@ export type IAuthState = {
 	/**
 	 * Contains the premium type of the user
 	 */
-	premiumType:"earlyDonor"|"patreon"|"lifetime"|"";
+	premiumType:"earlyDonor"|"patreon"|"lifetime"|"gifted"|"";
 	/**
 	 * true if user is exempt from ads (ex: if too few followers)
 	 */
@@ -1993,6 +1993,14 @@ export interface IAdminActions {
 	 * Clear all beta testers
 	 */
 	removeAllBetaUser():Promise<void>;
+	/**
+	 * Gift premium membership to given user
+	 */
+	giftPremium(login:string):Promise<void>;
+	/**
+	 * Removes gifted premium membership from given user
+	 */
+	ungiftPremium(login:string):Promise<void>;
 }
 
 

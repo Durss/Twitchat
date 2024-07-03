@@ -2,9 +2,11 @@
 	"premium":{
 		"header":"Support Twitchat monthly and unlock premium features",
 		"early_donor1":"As a thank you for supporting me from the early days of Twitchat, premium features are offered to you 💝",
-		"early_donor2":"Feel free to support me on {LINK} anyway 😊",
+		"early_donor2":"But feel free to support me on {LINK} or via a {DONATE} 😊",
 		"early_donor2_link":"Patreon",
+		"early_donor2_donate":"tip",
 		"premium_donor1":"You have lifetime Twitchat subscription",
+		"gifted":"You have been offered Premium membership",
 		"become_premiumBt":"Become premium",
 		"restricted_access":"This feature requires premium membership",
 		"features_title":"Premium features",

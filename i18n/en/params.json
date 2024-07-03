@@ -203,7 +203,9 @@
 			"heatlogs": "@:heat.logs.title",
 			"snooze_ad_break": "Snooze incoming ad break for 5min",
 			"discord": "Send a message to discord",
-			"warn": "Send a warning to the given user"
+			"warn": "Send a warning to the given user",
+			"giftpremium": "Gift premium membership to given user",
+			"ungiftpremium": "Removes gifted premium membership from given user"
 		}
 	}
 }

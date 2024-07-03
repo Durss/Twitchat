@@ -61,7 +61,7 @@ class ParamsTwitchatAd extends Vue {
 	public collapse:boolean = true;
 	public blink:boolean = false;
 	
-	public get isDonor():boolean { return this.$store.auth.donorLevel > -1 || this.$store.auth.premiumType != ""; }
+	public get isDonor():boolean { return this.$store.auth.donorLevel > -1 || this.$store.auth.isPremium; }
 	public get adMinFollowersCount():number { return Config.instance.AD_MIN_FOLLOWERS_COUNT; }
 
 	public get classes():string[] {
