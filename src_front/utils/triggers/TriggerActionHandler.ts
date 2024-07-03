@@ -1120,7 +1120,11 @@ export default class TriggerActionHandler {
 						if(step.filterName) {
 							try {
 								logStep.messages.push({date:Date.now(), value:"Set filter \""+step.filterName+"\" visibility to \""+(step.action == 'show'? "visible" : "hidden")+"\""});
-								await OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.action === "show");
+								if(step.action == "toggle_visibility"){
+									await OBSWebsocket.instance.toggleFilterState(step.sourceName, step.filterName);
+								}else{
+									await OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.action === "show");
+								}
 							}catch(error) {
 								console.error(error);
 							}
@@ -1137,6 +1141,7 @@ export default class TriggerActionHandler {
 								switch(action) {
 									case "hide": await OBSWebsocket.instance.setSourceState(step.sourceName, false); break;
 									case "show": await OBSWebsocket.instance.setSourceState(step.sourceName, true); break;
+									case "toggle_visibility": await OBSWebsocket.instance.toggleSourceState(step.sourceName); break;
 									case "replay": await OBSWebsocket.instance.replayMedia(step.sourceName); break;
 									case "stop": await OBSWebsocket.instance.stopMedia(step.sourceName); break;
 									case "mute": await OBSWebsocket.instance.setMuteState(step.sourceName, true); break;

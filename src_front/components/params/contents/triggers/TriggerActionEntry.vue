@@ -430,7 +430,8 @@ import TriggerActionDeleteMessageEntry from './entries/TriggerActionDeleteMessag
 			rotate:"rotate",
 			next:"next",
 			prev:"prev",
-			stop:"stop"
+			stop:"stop",
+			toggle_visibility:"show"
 		};
 
 		if(this.action.type == "obs") icons.push( action2Icon[this.action.action]+"" );

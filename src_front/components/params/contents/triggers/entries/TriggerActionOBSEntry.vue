@@ -336,6 +336,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 			if(selectedItem && selectedItem.type != "scene"){
 				values.push({labelKey:"triggers.actions.obs.param_action_show", value:"show"});
 				values.push({labelKey:"triggers.actions.obs.param_action_hide", value:"hide"});
+				values.push({labelKey:"triggers.actions.obs.param_action_toggle_visibility", value:"toggle_visibility"});
 				values.push({labelKey:"triggers.actions.obs.param_action_mute", value:"mute"});
 				values.push({labelKey:"triggers.actions.obs.param_action_unmute", value:"unmute"});
 			}
@@ -360,6 +361,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		}else{
 			values.push({labelKey:"triggers.actions.obs.param_action_show_filter", value:"show"});
 			values.push({labelKey:"triggers.actions.obs.param_action_hide_filter", value:"hide"});
+			values.push({labelKey:"triggers.actions.obs.param_action_toggle_filter", value:"toggle_visibility"});
 		}
 
 		this.action_conf.listValues	= values;

@@ -609,6 +609,24 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 
 	/**
+	 * Toggle a filter's visibility
+	 *
+	 * @param sourceName
+	 * @param filterName
+	 * @param visible
+	 */
+	public async toggleFilterState(sourceName:string, filterName:string):Promise<void> {
+		if(!this.connected) return;
+
+		const res = await this.obs.call("GetSourceFilterList", {sourceName});
+		const filter = res.filters.find(filter=> filter.filterName === filterName);
+		if(filter) {
+			await this.obs.call("SetSourceFilterEnabled", {sourceName, filterName, filterEnabled:!filter.filterEnabled});
+			await Utils.promisedTimeout(50);
+		}
+	}
+
+	/**
 	 * Set a sources's visibility on the current scene
 	 *
 	 * @param sourceName
@@ -624,6 +642,31 @@ export default class OBSWebsocket extends EventDispatcher {
 					sceneName:items[i].scene,
 					sceneItemId:items[i].source.sceneItemId,
 					sceneItemEnabled:visible
+				});
+			}
+		}
+	}
+
+	/**
+	 * Toggles a sources's visibility on the current scene
+	 *
+	 * @param sourceName
+	 * @param visible
+	 */
+	public async toggleSourceState(sourceName:string):Promise<void> {
+		if(!this.connected) return;
+
+		const items = await this.getSourceOnCurrentScene(sourceName);
+		if(items.length > 0) {
+			for (let i = 0; i < items.length; i++) {
+				const res = await this.obs.call("GetSceneItemEnabled", {
+					sceneName:items[i].scene,
+					sceneItemId:items[i].source.sceneItemId,
+				});
+				await this.obs.call("SetSceneItemEnabled", {
+					sceneName:items[i].scene,
+					sceneItemId:items[i].source.sceneItemId,
+					sceneItemEnabled:!res.sceneItemEnabled
 				});
 			}
 		}
