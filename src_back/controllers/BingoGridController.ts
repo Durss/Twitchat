@@ -157,6 +157,13 @@ export default class BingoGridController extends AbstractController {
 		const folder = Config.BINGO_GRID_ROOT(user.user_id, gridid);
 		const files = fs.readdirSync(folder)
 		const cachedGrid = await this.getStreamerGrid(user.user_id, gridid);
+		if(!cachedGrid) {
+			response.header('Content-Type', 'application/json');
+			response.status(404);
+			response.send(JSON.stringify({success:false, error:"Grid or user not found", errorCode:"NOT_FOUND"}));
+			return;
+		}
+		
 		cachedGrid.data.enabled = gridRef.enabled;
 
 		if(!gridRef.enabled || forceNewGridGen) {
@@ -411,7 +418,7 @@ export default class BingoGridController extends AbstractController {
 	 * @param gridId 
 	 * @returns 
 	 */
-	private async getStreamerGrid(uid:string, gridId:string):Promise<IGridCacheData> {
+	private async getStreamerGrid(uid:string, gridId:string):Promise<IGridCacheData|null> {
 		const cacheKey = uid+"/"+gridId;
 		let cache = this.cachedBingoGrids[cacheKey];
 		if(!cache || Date.now() - cache.date > 5000) {
@@ -422,6 +429,9 @@ export default class BingoGridController extends AbstractController {
 				const users = await TwitchUtils.getUsers(undefined, [uid]);
 				const username = users && users.length > 0? users[0].display_name : "???";
 				const data = JSON.parse(fs.readFileSync(userFilePath, {encoding:"utf8"}));
+				if(!data.bingoGrids) {
+					return null;
+				}
 				//TODO strongly type user data for safer read here
 				const grid = data.bingoGrids.gridList.find(v=>v.id == gridId) as IGridCacheData["data"];
 				found = grid != undefined;
