@@ -92,7 +92,7 @@ export default class BingoGridController extends AbstractController {
 		const gridId:string = (request.query as any).gridid;
 
 		const gridCache = await this.getStreamerGrid(uid, gridId);
-		if(!gridCache) {
+		if(!gridCache || !gridCache.data.enabled) {
 			response.header('Content-Type', 'application/json');
 			response.status(404);
 			response.send(JSON.stringify({success:false, error:"Grid or user not found", errorCode:"NOT_FOUND"}));
