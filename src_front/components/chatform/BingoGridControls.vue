@@ -127,7 +127,7 @@ class BingoGridControls extends Vue {
 	 * Clear search on Escape
 	 */
 	public onKeyUp(event:KeyboardEvent):void {
-		if(event.key == 'Escape') this.search = ''
+		if(event.key == 'Escape') this.search = "";
 	}
 
 	/**

@@ -14,7 +14,14 @@
 		<template #default>
 			<button class="tooltipOpener"><Icon name="placeholder" /></button>
 		</template>
-		<template #content="{ hide }">
+		<template #content>
+			
+			<input class="searchField" type="text"
+			v-if="localPlaceholders.length + globalPlaceholders.length + globalPlaceholderCategories.length > 5"
+			v-model="search"
+			:placeholder="$t('global.search_placeholder')"
+			@keydown.capture.stop="onKeyUp($event)">
+
 			<div :class="contentClasses">
 				<div class="list" v-if="localPlaceholders.length > 0">
 					<template v-for="(h,index) in localPlaceholders" :key="h.tag+index">
@@ -29,7 +36,7 @@
 					</template>
 				</div>
 		
-				<ToggleBlock class="global" small v-if="(globalPlaceholders.length + globalPlaceholderCategories.length) > 0" :open="false"
+				<ToggleBlock class="global" small v-if="(globalPlaceholders.length + globalPlaceholderCategories.length) > 0" :open="search.length > 0"
 				noBackground
 				:title="$t('global.placeholder_selector_global')">
 					<div class="list">
@@ -45,7 +52,7 @@
 						</template>
 					</div>
 						
-					<ToggleBlock class="global" v-for="c in globalPlaceholderCategories" :key="c.key" small :open="false"
+					<ToggleBlock class="global" v-for="c in globalPlaceholderCategories" :key="c.key" small :open="search.length > 0"
 					noBackground
 					:title="$t('global.placeholder_selector_categories.'+c.key)">
 						<div class="list">
@@ -99,6 +106,8 @@ class PlaceholderSelector extends Vue {
 	@Prop({default:false})
 	public popoutMode!:boolean;
 
+	public search:string = "";
+
 	public get classes():string[] {
 		const res:string[] = ["placeholderselector"];
 		if(this.popoutMode !== false) res.push("popoutMode");
@@ -116,17 +125,41 @@ class PlaceholderSelector extends Vue {
 	}
 
 	public get localPlaceholders():TwitchatDataTypes.PlaceholderEntry[]{
-		return this.placeholders.filter(v=>v.globalTag !== true && v.private !== true);
+		const search = this.search.toLowerCase().trim();
+		return this.placeholders.filter(v=>v.globalTag !== true
+										&& v.private !== true
+										&& (
+											!this.search
+											|| v.tag.toLowerCase().indexOf(search) > -1
+											|| this.$t(v.descKey).toLowerCase().indexOf(search) > -1
+										));
 	}
 	
 	public get globalPlaceholders():TwitchatDataTypes.PlaceholderEntry[]{
-		const list = this.placeholders.filter(v=>v.globalTag === true && !v.category && v.private !== true).sort((a,b) => a.tag.length - b.tag.length);
+		const search = this.search.toLowerCase().trim();
+		const list = this.placeholders.filter(v=>v.globalTag === true
+												&& !v.category
+												&& v.private !== true
+												&& (
+													!this.search
+													|| v.tag.toLowerCase().indexOf(search) > -1
+													|| this.$t(v.descKey).toLowerCase().indexOf(search) > -1
+												)
+											).sort((a,b) => a.tag.length - b.tag.length);
 
 		return list;
 	}
 
 	public get globalPlaceholderCategories():{key:string, entries:TwitchatDataTypes.PlaceholderEntry[]}[]{
-		const list = this.placeholders.filter(v=>v.globalTag === true && v.category && v.private !== true).sort((a,b)=> {
+		const search = this.search.toLowerCase().trim();
+		const list = this.placeholders.filter(v=>v.globalTag === true
+											&& v.category
+											&& v.private !== true
+											&& (
+												!this.search
+												|| v.tag.toLowerCase().indexOf(search) > -1
+												|| this.$t(v.descKey).toLowerCase().indexOf(search) > -1
+											)).sort((a,b)=> {
 			if((a.category || "") < (b.category || "")) return -1;
 			if((a.category || "") > (b.category || "")) return 1;
 			return 0;
@@ -178,6 +211,13 @@ class PlaceholderSelector extends Vue {
 			Utils.copyToClipboard("{"+h.tag+"}");
 		}
 		gsap.fromTo(event.target, {scaleY:1.5, filter:"brightness(5)"}, {scaleY:1, filter:"brightness(1)", duration:.25, ease:"sine.out"});
+	}
+
+	/**
+	 * Clear search on Escape
+	 */
+	public onKeyUp(event:KeyboardEvent):void {
+		if(event.key == 'Escape') this.search = "";
 	}
 }
 export default toNative(PlaceholderSelector);
@@ -255,6 +295,14 @@ export default toNative(PlaceholderSelector);
 		.icon {
 			height: 1em;
 		}
+	}
+
+	.searchField {
+		margin: 0 auto;
+		margin-bottom: .5em;
+		display: block;
+		max-width: unset;
+		min-width: unset;
 	}
 }
 </style>

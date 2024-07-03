@@ -8,6 +8,7 @@ import Logger from "../Logger";
 import Utils from "../Utils";
 import TwitchUtils from "../twitch/TwitchUtils";
 import type { YoutubeScopesString } from "./YoutubeScopes";
+import StickerList from "../../../static/youtube/sticker_list.json";
 
 /**
 * Created : 28/11/2023
@@ -37,6 +38,7 @@ export default class YoutubeHelper {
 	private _uidToBanID:{[key:string]:string} = {};
 	private _lastFollowerList:{[key:string]:boolean} = {};
 	private _consecutiveApiFails:number = 0;
+	private _giftBombs:{[giftId:string]:TwitchatDataTypes.MessageYoutubeSubgiftData} = {};
 
 	constructor() {
 
@@ -340,68 +342,11 @@ export default class YoutubeHelper {
 						const m = json.items[i];
 						//Message already registered? Skip it
 						if(idsDone[m.id]) continue;
-						//Apparently it's possible to get empty messages given a Sentry error :/
-						if(!m.snippet.displayMessage) continue;
 
-						//Create message
-						const message_chunks = this.parseMessage(m.snippet.displayMessage);
-						const user = await StoreProxy.users.getUserFrom("youtube", this.channelId, m.authorDetails.channelId, m.authorDetails.displayName, m.authorDetails.displayName);
-						const chanInfos = user.channelInfo[this.channelId];
-						chanInfos.is_broadcaster = m.authorDetails.isChatOwner;
-						chanInfos.is_moderator = m.authorDetails.isChatModerator || m.authorDetails.isChatOwner;
-						user.is_partner = m.authorDetails.isChatSponsor;
-						user.avatarPath = m.authorDetails.profileImageUrl;
-
-						//Add badge if not already specified
-						if(chanInfos.is_broadcaster && !chanInfos.badges.find(v=>v.id == "broadcaster")) {
-							chanInfos.badges.push({
-								icon:{sd:"broadcaster"},
-								id:"broadcaster",
-								title:StoreProxy.i18n.t("chat.message.badges.broadcaster"),
-							})
-						}else
-						//Add badge if not already specified
-						if(chanInfos.is_moderator && !chanInfos.badges.find(v=>v.id == "moderator")) {
-							chanInfos.badges.push({
-								icon:{sd:"mod"},
-								id:"moderator",
-								title:StoreProxy.i18n.t("chat.message.badges.moderator"),
-							})
+						const data = await this.parseMessage(m, liveId);
+						if(data) {
+							StoreProxy.chat.addMessage(data);
 						}
-
-						//Add badge if not already specified
-						if(user.is_partner && !chanInfos.badges.find(v=>v.id == "partner")) {
-							chanInfos.badges.push({
-								icon:{sd:"partner"},
-								id:"partner",
-								title:StoreProxy.i18n.t("chat.message.badges.partner"),
-							})
-						}
-
-						const data:TwitchatDataTypes.MessageChatData = {
-							// date:Date.now(),
-							date:new Date(m.snippet.publishedAt).getTime(),
-							id:m.id,
-							platform:"youtube",
-							type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-							user,
-							answers:[],
-							channel_id:this.channelId,
-							message: m.snippet.displayMessage,
-							message_chunks,
-							message_html:"",
-							message_size:0,
-							is_short:false,
-							youtube_liveId:liveId,
-						};
-
-						data.message_chunks = message_chunks;
-						data.message_html = TwitchUtils.messageChunksToHTML(message_chunks);
-						data.message_size = TwitchUtils.computeMessageSize(message_chunks);
-						data.is_short = Utils.stripHTMLTags(data.message_html).length / data.message.length < .6 || data.message.length < 4;
-						data.raw_data = m;
-
-						StoreProxy.chat.addMessage(data);
 
 						this._lastMessageDate = Date.now();
 					}
@@ -742,7 +687,7 @@ export default class YoutubeHelper {
 	 * @param src
 	 * @returns
 	 */
-	private parseMessage(src:string):TwitchatDataTypes.ParseMessageChunk[] {
+	private parseMessageChunks(src:string):TwitchatDataTypes.ParseMessageChunk[] {
 		const emoteDefs:TwitchatDataTypes.EmoteDef[] = [];
 		for (const key in this._emotes) {
 			const matches = [...src.matchAll(new RegExp(key, "gi"))];
@@ -772,5 +717,186 @@ export default class YoutubeHelper {
 			const json = await emotesQuery.json();
 			this._emotes = json;
 		}
+	}
+
+	/**
+	 * Parses a emssage
+	 */
+	private async parseMessage(m:YoutubeMessages["items"][number], liveId:string):Promise<TwitchatDataTypes.ChatMessageTypes|null> {
+
+		//Create message
+		const message =  m.snippet.displayMessage || "";
+		const message_chunks = m.snippet.displayMessage? this.parseMessageChunks(m.snippet.displayMessage) : [];
+		const message_html = TwitchUtils.messageChunksToHTML(message_chunks);
+		const user = await StoreProxy.users.getUserFrom("youtube", this.channelId, m.authorDetails.channelId, m.authorDetails.displayName, m.authorDetails.displayName);
+		const chanInfos = user.channelInfo[this.channelId];
+		chanInfos.is_broadcaster = m.authorDetails.isChatOwner;
+		chanInfos.is_moderator = m.authorDetails.isChatModerator || m.authorDetails.isChatOwner;
+		user.is_partner = m.authorDetails.isChatSponsor;
+		user.avatarPath = m.authorDetails.profileImageUrl;
+		
+
+		//Add badge if not already specified
+		if(chanInfos.is_broadcaster && !chanInfos.badges.find(v=>v.id == "broadcaster")) {
+			chanInfos.badges.push({
+				icon:{sd:"broadcaster"},
+				id:"broadcaster",
+				title:StoreProxy.i18n.t("chat.message.badges.broadcaster"),
+			})
+		}else
+		//Add badge if not already specified
+		if(chanInfos.is_moderator && !chanInfos.badges.find(v=>v.id == "moderator")) {
+			chanInfos.badges.push({
+				icon:{sd:"mod"},
+				id:"moderator",
+				title:StoreProxy.i18n.t("chat.message.badges.moderator"),
+			})
+		}
+
+		//Add badge if not already specified
+		if(user.is_partner && !chanInfos.badges.find(v=>v.id == "partner")) {
+			chanInfos.badges.push({
+				icon:{sd:"partner"},
+				id:"partner",
+				title:StoreProxy.i18n.t("chat.message.badges.partner"),
+			})
+		}
+
+		switch(m.snippet.type) {
+			case "textMessageEvent": {
+				const data:TwitchatDataTypes.MessageChatData = {
+					date:new Date(m.snippet.publishedAt).getTime(),
+					id:m.id,
+					platform:"youtube",
+					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+					user,
+					answers:[],
+					channel_id:this.channelId,
+					message,
+					message_chunks,
+					message_html,
+					message_size:TwitchUtils.computeMessageSize(message_chunks),
+					is_short:false,
+					youtube_liveId:liveId,
+				};
+		
+				data.is_short = Utils.stripHTMLTags(data.message_html).length / data.message.length < .6 || data.message.length < 4;
+				data.raw_data = m;
+				return data;
+			}
+
+			case "superChatEvent": {
+				const data:TwitchatDataTypes.MessageYoutubeSuperChatData = {
+					date:new Date(m.snippet.publishedAt).getTime(),
+					id:m.id,
+					platform:"youtube",
+					type:TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT,
+					user,
+					channel_id:this.channelId,
+					message: m.snippet.superChatDetails.userComment,
+					message_chunks: this.parseMessageChunks(m.snippet.superChatDetails.userComment),
+					message_html,
+					youtube_liveId:liveId,
+					amount:m.snippet.superChatDetails.amountMicros / 1000000,
+					amountDisplay:m.snippet.superChatDetails.amountDisplayString,
+					currency:m.snippet.superChatDetails.currency,
+					tier:m.snippet.superChatDetails.tier,
+				};
+		
+				data.message_html = TwitchUtils.messageChunksToHTML(data.message_chunks || []);
+				return data;
+			}
+
+			case "superStickerDetails": {
+				const data:TwitchatDataTypes.MessageYoutubeSuperStickerData = {
+					date:new Date(m.snippet.publishedAt).getTime(),
+					id:m.id,
+					platform:"youtube",
+					type:TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER,
+					user,
+					channel_id:this.channelId,
+					message,
+					message_chunks,
+					message_html,
+					youtube_liveId:liveId,
+					amount:m.snippet.superStickerDetails.amountMicros / 1000000,
+					amountDisplay:m.snippet.superStickerDetails.amountDisplayString,
+					currency:m.snippet.superStickerDetails.currency,
+					tier:m.snippet.superStickerDetails.tier,
+					sticker_url:StickerList[m.snippet.superStickerDetails.superStickerMetadata.stickerId as keyof typeof StickerList] || "",
+				};
+				return data;
+			}
+
+			case "memberMilestoneChatEvent": {
+				const data:TwitchatDataTypes.MessageYoutubeSubscriptionData = {
+					date:new Date(m.snippet.publishedAt).getTime(),
+					id:m.id,
+					platform:"youtube",
+					type:TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION,
+					user,
+					channel_id:this.channelId,
+					message: m.snippet.memberMilestoneChatDetails.userComment || "",
+					message_chunks: this.parseMessageChunks(m.snippet.memberMilestoneChatDetails.userComment || ""),
+					message_html,
+					youtube_liveId:liveId,
+					is_resub: false,
+					levelName: m.snippet.memberMilestoneChatDetails.memberLevelName,
+					months: m.snippet.memberMilestoneChatDetails.memberMonth
+				};
+				data.message_html = TwitchUtils.messageChunksToHTML(data.message_chunks || []);
+				return data;
+			}
+			
+			case "newSponsorEvent": {
+				const data:TwitchatDataTypes.MessageYoutubeSubscriptionData = {
+					date:new Date(m.snippet.publishedAt).getTime(),
+					id:m.id,
+					platform:"youtube",
+					type:TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION,
+					user,
+					channel_id:this.channelId,
+					message,
+					message_chunks,
+					message_html,
+					youtube_liveId:liveId,
+					is_resub: m.snippet.newSponsorDetails.isUpgrade,
+					levelName: m.snippet.newSponsorDetails.memberLevelName || "",
+					months: 1,
+				};
+		
+				return data;
+			}
+
+			case "membershipGiftingEvent": {
+				const data:TwitchatDataTypes.MessageYoutubeSubgiftData = {
+					date:new Date(m.snippet.publishedAt).getTime(),
+					id:m.id,
+					platform:"youtube",
+					type:TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBGIFT,
+					user,
+					channel_id: this.channelId,
+					youtube_liveId: liveId,
+					gift_count: m.snippet.membershipGiftingDetails.giftMembershipsCount,
+					levelName: m.snippet.membershipGiftingDetails.giftMembershipsLevelName,
+					gift_recipients: [],
+				};
+
+				this._giftBombs[m.id] = data;
+
+				setTimeout(() => {
+					StoreProxy.chat.addMessage(data);
+				}, 1000);
+
+				//Special case, return null so the message isn't sent right away to chat.
+				//Wait for "giftMembershipReceivedEvent" to be received so the data is properly populated
+				return null;
+			}
+
+			case "giftMembershipReceivedEvent": {
+			}
+		}
+
+		return null;
 	}
 }

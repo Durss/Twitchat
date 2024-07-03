@@ -163,7 +163,7 @@ class OverlayParamsLabels extends Vue {
 			this.param_labelValueFont[id] = {type:"font", value:"Inter", labelKey:"overlay.labels.param_labelValueFont", icon:"font"};
 			this.param_labelValueSize[id] = {type:"number", value:40, labelKey:"overlay.labels.param_labelValueSize", icon:"fontSize", min:5, max:300};
 			this.param_customText[id] = {type:"string", value:"", labelKey:"overlay.labels.param_customText", maxLength:10000, longText:true, icon:"html", placeholderList:this.placeholders};
-			this.param_customCSS[id] = {type:"string", value:"", labelKey:"overlay.labels.param_customCSS", maxLength:10000, longText:true, icon:"css", placeholderList:this.placeholders};
+			this.param_customCSS[id] = {type:"string", value:"", labelKey:"overlay.labels.param_customCSS", maxLength:10000, longText:true, icon:"css"};
 			this.param_textColor[id] = {type:"color", value:"", labelKey:"overlay.labels.param_textColor", icon:"color"};
 			this.param_backgroundEnabled[id] = {type:"boolean", value:true, labelKey:"overlay.labels.param_backgroundEnabled", icon:"show"};
 			this.param_backgroundColor[id] = {type:"color", value:"", labelKey:"overlay.labels.param_backgroundColor", icon:"color"};

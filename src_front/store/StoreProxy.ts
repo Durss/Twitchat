@@ -2774,7 +2774,7 @@ export interface ILabelsActions {
 	 * 
 	 * @param key 
 	 * @param value 
-	 * @param userId useful for AVATAR placeholders. This forces avatar loading if necessary
+	 * @param userId useful for AVATAR placeholders. This forces avatar loading if necessary (only for Twitch users!)
 	 */
 	updateLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:string|number, userId?:string):Promise<void>;
 	/**

@@ -704,6 +704,9 @@ export const storeChat = defineStore('chat', {
 							StoreProxy.labels.updateLabelValue("LAST_SUB_NAME", lastSub.user.displayNameOriginal);
 							StoreProxy.labels.updateLabelValue("LAST_SUB_AVATAR", lastSub.user.avatarPath || "", lastSub.user.id);
 							StoreProxy.labels.updateLabelValue("LAST_SUB_TIER", lastSub.tier);
+							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_NAME", lastSub.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", lastSub.user.avatarPath || "", lastSub.user.id);
+							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", lastSub.tier);
 						}
 						if(!lastSubgift && m.is_gift) {
 							lastSubgift = {user:m.user, giftCount:m.gift_count || 1, tier:m.tier};
@@ -712,6 +715,13 @@ export const storeChat = defineStore('chat', {
 							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_AVATAR", lastSubgift.user.avatarPath || "", lastSubgift.user.id);
 							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_TIER", lastSubgift.tier);
 							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_COUNT", lastSubgift.giftCount);
+							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_NAME", lastSubgift.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_AVATAR", lastSubgift.user.avatarPath || "", lastSubgift.user.id);
+							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_TIER", lastSubgift.tier);
+							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_COUNT", lastSubgift.giftCount);
+							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_NAME", lastSubgift.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", lastSubgift.user.avatarPath || "", lastSubgift.user.id);
+							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", lastSubgift.tier);
 						}
 					}
 					//Force reactivity so merging feature works on old messages
@@ -1332,6 +1342,25 @@ export const storeChat = defineStore('chat', {
 				}
 
 				//New sub
+				case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION: {
+					StoreProxy.labels.updateLabelValue("LAST_SUB_YOUTUBE_NAME", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("LAST_SUB_YOUTUBE_AVATAR", message.user.avatarPath || "");
+					StoreProxy.labels.updateLabelValue("LAST_SUB_YOUTUBE_TIER", message.levelName);
+					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_NAME", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", message.user.avatarPath || "");
+					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", message.levelName);
+					break;
+				}
+
+				//New sub
+				case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT: {
+					StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_NAME", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_AVATAR", message.user.avatarPath || "");
+					StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_AMOUNT", message.amountDisplay);
+					break;
+				}
+
+				//New sub
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
 					PublicAPI.instance.broadcast(TwitchatEvent.SUBSCRIPTION, {
 						tier:message.tier,
@@ -1396,6 +1425,9 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.updateLabelValue("LAST_SUB_NAME", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("LAST_SUB_AVATAR", message.user.avatarPath || "", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_SUB_TIER", message.tier);
+						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
+						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", message.tier);
 						StoreProxy.labels.incrementLabelValue("SUB_COUNT", 1);
 						StoreProxy.auth.totalSubscribers[message.channel_id] ++;
 						StoreProxy.auth.lastSubscriber[message.channel_id] = {user:message.user, tier:message.tier};
@@ -1673,7 +1705,8 @@ export const storeChat = defineStore('chat', {
 			// console.log(messageList.length, e-s);
 			if(e-s > 50) console.log("Message #"+ message.id, "took more than 50ms ("+(e-s)+") to be processed! - Type:\""+message.type+"\"", " - Sent at:"+message.date, message);
 
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION && message.is_gift) {
+			if((message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION && message.is_gift)
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBGIFT) {
 				//If it's a subgift, wait a little before proceeding as subgifts do not
 				//come all at once but sequentially.
 				//We wait a second and check if the count changed, if nothing changed after a second
@@ -1683,13 +1716,31 @@ export const storeChat = defineStore('chat', {
 					recipientCount = message.gift_recipients!.length;
 					await Utils.promisedTimeout(1000);
 				}
-				StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_NAME", message.user.displayNameOriginal);
-				StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_AVATAR", message.user.avatarPath || "", message.user.id);
-				StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_TIER", message.tier);
-				StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_COUNT", message.gift_count || 1);
-				StoreProxy.labels.incrementLabelValue("SUB_COUNT", message.gift_count || 1);
-				StoreProxy.auth.totalSubscribers[message.channel_id] += message.gift_count || 1;
-				StoreProxy.auth.lastSubgifter[message.channel_id] = {user:message.user, giftCount:message.gift_count || 1, tier:message.tier};
+				if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
+					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_NAME", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_AVATAR", message.user.avatarPath || "", message.user.id);
+					StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_COUNT", message.gift_count || 1);
+					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_TIER", message.tier);
+					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_TIER", message.tier);
+					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", message.tier);
+					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
+					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
+					StoreProxy.labels.incrementLabelValue("SUB_COUNT", message.gift_count || 1);
+					StoreProxy.auth.totalSubscribers[message.channel_id] += message.gift_count || 1;
+					StoreProxy.auth.lastSubgifter[message.channel_id] = {user:message.user, giftCount:message.gift_count || 1, tier:message.tier};
+				}else{
+					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_YOUTUBE_NAME", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_YOUTUBE_AVATAR", message.user.avatarPath || "");
+					StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_YOUTUBE_COUNT", message.gift_count || 1);
+					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_YOUTUBE_TIER", message.levelName);
+					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_TIER", message.levelName);
+					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", message.levelName);
+					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_AVATAR", message.user.avatarPath || "");
+					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", message.user.avatarPath || "");
+				}
+				StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_NAME", message.user.displayNameOriginal);
+				StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_NAME", message.user.displayNameOriginal);
+				StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_GENERIC_COUNT", message.gift_count || 1);
 			}
 
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.CHEER) {

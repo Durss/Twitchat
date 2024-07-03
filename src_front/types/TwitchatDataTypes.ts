@@ -1920,6 +1920,7 @@ export namespace TwitchatDataTypes {
 		HEAT_CLICK:"heat_click",
 		MUSIC_STOP:"music_stop",
 		STREAMLABS:"streamlabs",
+		SUPER_CHAT:"super_chat",
 		MUSIC_START:"music_start",
 		TWITCHAT_AD:"twitchat_ad",
 		VALUE_UPDATE:"value_update",
@@ -1928,6 +1929,7 @@ export namespace TwitchatDataTypes {
 		SUBSCRIPTION:"subscription",
 		AUTOBAN_JOIN:"autoban_join",
 		WARN_CHATTER:"warn_chatter",
+		SUPER_STICKER:"super_sticker",
 		UNBAN_REQUEST:"unban_request",
 		SCOPE_REQUEST:"scope_request",
 		ROOM_SETTINGS:"room_settings",
@@ -1941,6 +1943,7 @@ export namespace TwitchatDataTypes {
 		COUNTER_UPDATE:"counter_update",
 		AD_BREAK_START:"ad_break_start",
 		OBS_STOP_STREAM:"obs_stop_stream",
+		YOUTUBE_SUBGIFT:"youtube_subgift",
 		WARN_ACKNOWLEDGE:"warn_acknowledge",
 		CREDITS_COMPLETE:"credits_complete",
 		HISTORY_SPLITTER:"history_splitter",
@@ -1961,6 +1964,7 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_PROGRESS:"hype_train_progress",
 		HYPE_TRAIN_COMPLETE:"hype_train_complete",
 		LOW_TRUST_TREATMENT:"low_trust_treatment",
+		YOUTUBE_SUBSCRIPTION:"youtube_subscription",
 		AD_BREAK_APPROACHING:"ad_break_approaching",
 		MUSIC_ADDED_TO_QUEUE:"music_added_to_queue",
 		GOXLR_SAMPLE_COMPLETE:"goxlr_sample_complete",
@@ -2008,6 +2012,7 @@ export namespace TwitchatDataTypes {
 		following:true,
 		countdown:true,
 		hate_raid:true,
+		super_chat:true,
 		streamlabs:true,
 		clear_chat:true,
 		disconnect:true,
@@ -2020,6 +2025,7 @@ export namespace TwitchatDataTypes {
 		music_start:true,
 		subscription:true,
 		autoban_join:true,
+		super_sticker:true,
 		value_update:false,
 		unban_request:true,
 		goxlr_button:false,
@@ -2038,6 +2044,7 @@ export namespace TwitchatDataTypes {
 		history_splitter:true,
 		warn_acknowledge:true,
 		obs_stop_stream:false,
+		youtube_subgift:false,
 		credits_complete:false,
 		user_watch_streak:true,
 		hype_train_start:false,
@@ -2054,6 +2061,7 @@ export namespace TwitchatDataTypes {
 		raffle_pick_winner:false,
 		low_trust_treatment:true,
 		ad_break_start_chat:true,
+		youtube_subscription:true,
 		hype_train_progress:false,
 		hype_train_complete:false,
 		ad_break_approaching:false,
@@ -2187,6 +2195,10 @@ export namespace TwitchatDataTypes {
 									| MessageHateRaidData
 									| MessageWarnUserData
 									| MessageWarnAcknowledgementData
+									| MessageYoutubeSuperChatData
+									| MessageYoutubeSuperStickerData
+									| MessageYoutubeSubscriptionData
+									| MessageYoutubeSubgiftData
 	;
 
 	/**
@@ -2386,8 +2398,11 @@ export namespace TwitchatDataTypes {
 		reward:true,
 		whisper:true,
 		message:true,
+		super_chat:true,
 		subscription:true,
+		super_sticker:true,
 		user_watch_streak:true,
+		youtube_subscription:true,
 	}
 	export interface TranslatableMessage extends AbstractTwitchatMessage {
 		/**
@@ -4520,5 +4535,139 @@ export namespace TwitchatDataTypes {
 		 * User warned
 		 */
 		user:TwitchatDataTypes.TwitchatUser;
+	}
+
+	/**
+	 * Represents a super chat message on youtube
+	 */
+	export interface MessageYoutubeSuperChatData extends TranslatableMessage {
+		type:"super_chat";
+		/**
+		 * Tip amount in floating point form.
+		 * Exemple: 1.54 for "1,54€"
+		 */
+		amount:number;
+		/**
+		 * Formatted amount
+		 */
+		amountDisplay:string;
+		/**
+		 * Tip currency
+		 */
+		currency:string;
+		/**
+		 * Tier tip from 1 to 11
+		 * Here are the corresponding pin duration:
+		 * 1 = 0s
+		 * 2 = 0s
+		 * 3 = 120s
+		 * 4 = 300s
+		 * 5 = 600s
+		 * 6 = 1800s
+		 * 7 = 3600s
+		 * 8 = 7200s
+		 * 9 = 10800s
+		 * 10 = 14400s
+		 * 11 = 18000s
+		 */
+		tier:number;
+		/**
+		 * Youtube live chat ID this message has been sent to
+		 */
+		youtube_liveId: string;
+	}
+
+	/**
+	 * Represents a super chat message on youtube
+	 */
+	export interface MessageYoutubeSuperStickerData extends TranslatableMessage {
+		type:"super_sticker";
+		/**
+		 * Tip amount in floating point form.
+		 * Exemple: 1.54 for "1,54€"
+		 */
+		amount:number;
+		/**
+		 * Formatted amount
+		 */
+		amountDisplay:string;
+		/**
+		 * Tip currency
+		 */
+		currency:string;
+		/**
+		 * Tier tip from 1 to 11
+		 * Here are the corresponding pin duration:
+		 * 1 = 0s
+		 * 2 = 0s
+		 * 3 = 120s
+		 * 4 = 300s
+		 * 5 = 600s
+		 * 6 = 1800s
+		 * 7 = 3600s
+		 * 8 = 7200s
+		 * 9 = 10800s
+		 * 10 = 14400s
+		 * 11 = 18000s
+		 */
+		tier:number;
+		/**
+		 * Super sticker to be displayed
+		 */
+		sticker_url:string;
+		/**
+		 * Youtube live chat ID this message has been sent to
+		 */
+		youtube_liveId: string;
+	}
+
+	/**
+	 * Represents a subcription on youtube
+	 */
+	export interface MessageYoutubeSubscriptionData extends TranslatableMessage {
+		type:"youtube_subscription";
+		/**
+		 * Is it a resub (true) or a new sub (false)
+		 */
+		is_resub:boolean;
+		/**
+		 * Number of months the user has subscribed for
+		 */
+		months:number;
+		/**
+		 * Subscription level name
+		 */
+		levelName:string;
+		/**
+		 * Youtube live chat ID this message has been sent to
+		 */
+		youtube_liveId: string;
+	}
+
+	/**
+	 * Represents a subgift on youtube
+	 */
+	export interface MessageYoutubeSubgiftData extends AbstractTwitchatMessage {
+		type:"youtube_subgift";
+		/**
+		 * User that offered the subgifts
+		 */
+		user:TwitchatUser;
+		/**
+		 * Number of months the user has subscribed for
+		 */
+		gift_recipients:TwitchatUser[];
+		/**
+		 * Number of subgifts
+		 */
+		gift_count:number;
+		/**
+		 * Subscription level name
+		 */
+		levelName:string;
+		/**
+		 * Youtube live chat ID this message has been sent to
+		 */
+		youtube_liveId: string;
 	}
 }

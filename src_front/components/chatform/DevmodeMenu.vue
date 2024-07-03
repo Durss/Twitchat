@@ -41,6 +41,7 @@
 			<Button small @click="startFakeRaid()" icon="raid">Outgoing raid</Button>
 			<Button small @click="simulateEvent($event, 'cheer')" icon="bits">Bits</Button>
 			<Button small @click="simulateEvent($event, 'cheer', 'cheer_pin')" icon="bits">Pinned cheer</Button>
+			<Button small @click="simulateEvent($event, 'hype_chat')" icon="hypeChat">Hype chat</Button>
 			<Button small @click="simulateEvent($event, 'subscription')" icon="sub">Sub</Button>
 			<Button small @click="simulateEvent($event, 'subscription', 'resub')" icon="sub">ReSub</Button>
 			<Button small @click="simulateEvent($event, 'subscription', 'gift')" icon="gift">Subgifts</Button>
