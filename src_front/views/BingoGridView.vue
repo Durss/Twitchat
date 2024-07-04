@@ -131,7 +131,7 @@ class BingoGridView extends Vue {
 
 	public cellClasses(entry:typeof this.entries[number]):string[] {
 		let res:string[] = ["cell"];
-		if(entry.enabled !== true && this.$store.public.authenticated) res.push("disabled")
+		if(entry.enabled !== true && this.$store.public.authenticated && this.multiplayerMode) res.push("disabled")
 		return res;
 	}
 
@@ -241,7 +241,7 @@ class BingoGridView extends Vue {
 	public tickCell(entry:typeof this.entries[number]):void {
 		const authenticated = this.$store.public.authenticated;
 		//Do not allow to tick cell if logged in and not enabled
-		if(authenticated && entry.enabled != true) return;
+		if(authenticated && this.multiplayerMode && entry.enabled != true) return;
 		entry.check = !entry.check;
 		this.checkBingos();
 		if(!this.multiplayerMode) return;
