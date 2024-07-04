@@ -10,6 +10,7 @@ import { watch, type UnwrapRef, reactive } from 'vue';
 import type { IDebugActions, IDebugGetters, IDebugState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 import { GoXLRTypes } from '@/types/GoXLRTypes';
+import StickerList from "../../../static/youtube/sticker_list.json";
 
 let streamInfoCache:TwitchDataTypes.ChannelInfo|null = null;
 const ponderatedRandomList:TwitchatDataTypes.TwitchatMessageStringType[] = [];
@@ -1516,6 +1517,95 @@ export const storeDebug = defineStore('debug', {
 						id:Utils.getUUID(),
 						channel_id:uid,
 						user:fakeUser,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT: {
+					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const tier = Math.ceil(Math.random()*7);
+					const m:TwitchatDataTypes.MessageYoutubeSuperChatData = {
+						date:Date.now(),
+						id:Utils.getUUID(),
+						platform:"youtube",
+						type,
+						user,
+						channel_id:uid,
+						message,
+						message_chunks:chunks,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						youtube_liveId:Utils.getUUID(),
+						amount:[1,2,5,10,20,50,100][tier-1],
+						amountDisplay:"$"+[1,2,5,10,20,50,100][tier-1],
+						currency:"$",
+						tier,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER: {
+					type keyType = keyof typeof StickerList;
+					const keys = Object.keys(StickerList) as keyType[];
+					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const tier = Math.ceil(Math.random()*7);
+					const m:TwitchatDataTypes.MessageYoutubeSuperStickerData = {
+						date:Date.now(),
+						id:Utils.getUUID(),
+						platform:"youtube",
+						type,
+						user,
+						channel_id:uid,
+						message,
+						message_chunks:chunks,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						youtube_liveId:Utils.getUUID(),
+						amount:[1,2,5,10,20,50,100][tier-1],
+						amountDisplay:"$"+[1,2,5,10,20,50,100][tier-1],
+						currency:"$",
+						tier,
+						sticker_url:StickerList[Utils.pickRand(keys)] || "",
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION: {
+					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const months = Math.random() > .25? Math.round(Math.random()*50) : 1;
+					const m:TwitchatDataTypes.MessageYoutubeSubscriptionData = {
+						date:Date.now(),
+						id:Utils.getUUID(),
+						platform:"youtube",
+						type,
+						user,
+						channel_id:uid,
+						message,
+						message_chunks:chunks,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						youtube_liveId:Utils.getUUID(),
+						is_resub:months > 1,
+						levelName:"My amazing subscription",
+						months,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBGIFT: {
+					const gift_count = Math.floor(Math.random() * 20);
+					const m:TwitchatDataTypes.MessageYoutubeSubgiftData = {
+						date:Date.now(),
+						id:Utils.getUUID(),
+						platform:"youtube",
+						type,
+						user,
+						channel_id:uid,
+						youtube_liveId:Utils.getUUID(),
+						levelName:"My amazing subscription",
+						gift_count,
+						gift_recipients: fakeUsers.concat().splice(0, gift_count),
 					};
 					data = m;
 					break;

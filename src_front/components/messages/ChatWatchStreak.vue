@@ -40,7 +40,7 @@ import MessageTranslation from './MessageTranslation.vue';
 	},
 	emits:["onRead"]
 })
- class ChatWatchStreak extends AbstractChatMessage {
+class ChatWatchStreak extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageWatchStreakData;
@@ -56,7 +56,6 @@ export default toNative(ChatWatchStreak);
 
 <style scoped lang="less">
 .chatwatchstreak{
-
 	.holder {
 		gap: .5em;
 		display: flex;

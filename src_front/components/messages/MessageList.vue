@@ -546,6 +546,8 @@ import { Linear } from 'gsap/all';
 				return this.config.filters.message === true && this.config.messageFilters.viewers === true;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION:
+			case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBGIFT:
 			case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
 				return this.config.filters.subscription === true;
 			}
@@ -563,6 +565,8 @@ import { Linear } from 'gsap/all';
 				return this.config.filters.poll === true;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER:
+			case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT:
 			case TwitchatDataTypes.TwitchatMessageType.CHEER: {
 				return this.config.filters.cheer === true;
 			}

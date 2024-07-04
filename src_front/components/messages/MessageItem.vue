@@ -194,6 +194,14 @@
 	<ChatWarnAcknowledgment class="message"
 		v-else-if="messageData.type == 'warn_acknowledge'"
 		:messageData="messageData" />
+
+	<ChatYoutubeSuperChat class="message"
+		v-else-if="messageData.type == 'super_chat'"
+		:messageData="messageData" />
+
+	<ChatYoutubeSuperSticker class="message"
+		v-else-if="messageData.type == 'super_sticker'"
+		:messageData="messageData" />
 </template>
 
 <script lang="ts">
@@ -248,6 +256,8 @@ import ChatAutomodTermsUpdate from './ChatAutomodTermsUpdate.vue';
 import ChatHateRaid from './ChatHateRaid.vue';
 import ChatWarnUser from './ChatWarnUser.vue';
 import ChatWarnAcknowledgment from './ChatWarnAcknowledgment.vue';
+import ChatYoutubeSuperChat from './ChatYoutubeSuperChat.vue';
+import ChatYoutubeSuperSticker from './ChatYoutubeSuperSticker.vue';
 
 @Component({
 	components:{
@@ -292,6 +302,7 @@ import ChatWarnAcknowledgment from './ChatWarnAcknowledgment.vue';
 		ChatCountdownResult,
 		ChatHypeChatMessage,
 		ChatPredictionResult,
+		ChatYoutubeSuperChat,
 		ChatTrackAddedToQueue,
 		ChatHypeTrainCooldown,
 		ChatLowTrustTreatment,
@@ -299,6 +310,7 @@ import ChatWarnAcknowledgment from './ChatWarnAcknowledgment.vue';
 		ChatMessageClipPending,
 		ChatWarnAcknowledgment,
 		ChatStreamelementsEvent,
+		ChatYoutubeSuperSticker,
 		ChatCommunityChallengeContribution,
 	},
 	emits:[],

@@ -45,6 +45,10 @@
 			<Button small @click="simulateEvent($event, 'subscription')" icon="sub">Sub</Button>
 			<Button small @click="simulateEvent($event, 'subscription', 'resub')" icon="sub">ReSub</Button>
 			<Button small @click="simulateEvent($event, 'subscription', 'gift')" icon="gift">Subgifts</Button>
+			<Button small @click="simulateEvent($event, 'super_chat')" icon="youtube">Super chat</Button>
+			<Button small @click="simulateEvent($event, 'super_sticker')" icon="youtube">Super sticker</Button>
+			<Button small @click="simulateEvent($event, 'youtube_subscription')" icon="youtube">Sub</Button>
+			<Button small @click="simulateEvent($event, 'youtube_subgift')" icon="youtube">Subgift</Button>
 			<Button small @click="simulateSubgiftSpam()" icon="gift">Subgift spam</Button>
 			<Button small @click="simulateEvent($event, 'subscription', 'giftpaidupgrade')" icon="gift">Subgift upgrade</Button>
 			<Button small @click="simulateEvent($event, 'following')" icon="follow">Follow</Button>
