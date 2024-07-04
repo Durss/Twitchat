@@ -28,7 +28,7 @@ async function loadNext(page) {
 loadNext();
 ```
 
-To get an `ACCESS_TOKEN` the eisier is to connect to Youtube within Twitchat and grab the access_token from one of the queries' headers.
+To get an `ACCESS_TOKEN` the easier is to connect to Youtube within Twitchat and grab the access_token from one of the queries' headers.
 
 To get the "`LIVE_CHAT_ID`" value, call the following GET endpoint:\
 `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics,liveStreamingDetails&id={LIVE_ID]&key={API_KEY}`
