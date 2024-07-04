@@ -475,7 +475,7 @@ class BingoGridForm extends AbstractSidePanel {
 			if(this.param_cols[id]) return;
 
 			const winnersPlaceholder:TwitchatDataTypes.PlaceholderEntry[] = [
-				{tag:"WINNERS", descKey:"bingo_grid.form.woinners_placeholder", example: "Twitch x1, Durss x4, TwitchFR x2"}
+				{tag:"WINNERS", descKey:"bingo_grid.form.woinners_placeholder", example: "Twitch (x1) ▬ Durss (x4) ▬ TwitchFR (x2)"}
 			]
 
 			this.param_cols[id] = {type:"number", value:5, min:2, max:10};
