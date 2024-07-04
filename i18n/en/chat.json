@@ -486,6 +486,10 @@
 		},
 		"warn_acknowledge": {
 			"title": "{USER} acknowledged reading their warning"
+		},
+		"youtube_sub":{
+			"new": "{USER} subscribed for the first time at tier {TIER}",
+			"resub": "{USER} subscibed at {TIER} for {MONTHS} months"
 		}
 	}
 }

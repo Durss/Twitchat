@@ -202,6 +202,10 @@
 	<ChatYoutubeSuperSticker class="message"
 		v-else-if="messageData.type == 'super_sticker'"
 		:messageData="messageData" />
+
+	<ChatYoutubeSubscription class="message"
+		v-else-if="messageData.type == 'youtube_subscription'"
+		:messageData="messageData" />
 </template>
 
 <script lang="ts">
@@ -258,6 +262,7 @@ import ChatWarnUser from './ChatWarnUser.vue';
 import ChatWarnAcknowledgment from './ChatWarnAcknowledgment.vue';
 import ChatYoutubeSuperChat from './ChatYoutubeSuperChat.vue';
 import ChatYoutubeSuperSticker from './ChatYoutubeSuperSticker.vue';
+import ChatYoutubeSubscription from './ChatYoutubeSubscription.vue';
 
 @Component({
 	components:{
@@ -309,6 +314,7 @@ import ChatYoutubeSuperSticker from './ChatYoutubeSuperSticker.vue';
 		ChatAutomodTermsUpdate,
 		ChatMessageClipPending,
 		ChatWarnAcknowledgment,
+		ChatYoutubeSubscription,
 		ChatStreamelementsEvent,
 		ChatYoutubeSuperSticker,
 		ChatCommunityChallengeContribution,
