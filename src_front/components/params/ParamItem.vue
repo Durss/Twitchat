@@ -56,7 +56,8 @@
 					:max="paramData.max"
 					:step="paramData.step"
 					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
-					@blur="clampValue()"
+					@focus="$emit('focus')"
+					@blur="clampValue(); $emit('blur')"
 					@input="$emit('input')">
 			</div>
 
@@ -78,6 +79,8 @@
 						v-autofocus="autofocusLocal"
 						:maxlength="paramData.maxLength? paramData.maxLength : 524288"
 						:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
+						@focus="$emit('focus')"
+						@blur="$emit('blur')"
 						@input="$emit('input')"></textarea>
 					<input ref="input" v-else-if="!paramData.noInput"
 						:tabindex="tabindex"
@@ -91,7 +94,8 @@
 						:maxlength="paramData.maxLength? paramData.maxLength : 524288"
 						:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
 						autocomplete="new-password"
-						@blur="clampValue()"
+						@focus="$emit('focus')"
+						@blur="clampValue(); $emit('blur')"
 						@input="$emit('input')">
 					<div class="maxlength" v-if="paramData.maxLength">{{(paramData.value as string).length}}/{{paramData.maxLength}}</div>
 				</div>
@@ -355,7 +359,7 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 		PremiumLockLayer,
 		PlaceholderSelector,
 	},
-	emits: ["change", "update:modelValue", "mouseenter", "mouseleave", "input"]
+	emits: ["change", "update:modelValue", "mouseenter", "mouseleave", "input", "focus", "blur"]
 })
 export class ParamItem extends Vue {
 

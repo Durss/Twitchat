@@ -101,42 +101,50 @@ export default class BingoGridController extends AbstractController {
 
 		let originalGrid = JSON.parse(JSON.stringify(gridCache)) as typeof gridCache;
 		let data = originalGrid.data;
+		let multiplayerMode = false;
 		
-		//If user is authenticated, generate a unique randomized grid for them
-		const user = await super.twitchUserGuard(request, response, false);
-		if(user) {
-			const cached = this.getViewerGrid(uid, gridId, user.user_id);
-			//Return cached data
-			if(cached) {
-				data = cached.data;
-				
-			//Generate user's grid
-			}else{
-				if(user.user_id != uid) {
-					//Don't shuffle broadcaster so their public grid is the same
-					//as the overlay one
-					this.shuffleGridEntries(data);
-				}
+		if(await super.isUserPremium(uid)) {
+			multiplayerMode = true;
+			//If user is authenticated, generate a unique randomized grid for them
+			const user = await super.twitchUserGuard(request, response, false);
+			if(user) {
+				const cached = this.getViewerGrid(uid, gridId, user.user_id);
+				//Return cached data
+				if(cached) {
+					data = cached.data;
+					
+				//Generate user's grid
+				}else{
+					if(user.user_id != uid) {
+						//Don't shuffle broadcaster so their public grid is the same
+						//as the overlay one
+						try {
+							this.shuffleGridEntries(data);
+						}catch(error) {
+							Logger.error("Failed shuffling bingo entries for user", user.login);
+						}
+					}
 
-				this.saveViewerGrid(uid, gridId, user.user_id, {
-					data,
-					ownerId:uid,
-					ownerName:originalGrid.ownerName,
-					date:Date.now(),
-				})
+					this.saveViewerGrid(uid, gridId, user.user_id, {
+						data,
+						ownerId:uid,
+						ownerName:originalGrid.ownerName,
+						date:Date.now(),
+					});
+				}
 			}
 		}else{
 			//user not authenticated, shuffle entries
 			try {
 				this.shuffleGridEntries(data);
 			}catch(error) {
-				Logger.error("CRASH");
+				Logger.error("Failed shuffling bingo entries");
 				console.log(error);
 			}
 		}
 		response.header('Content-Type', 'application/json');
 		response.status(200);
-		response.send(JSON.stringify({success:true, data, owner:originalGrid.ownerName}));
+		response.send(JSON.stringify({success:true, data, multiplayerMode, owner:originalGrid.ownerName}));
 
 		return;
 	}
@@ -419,10 +427,6 @@ export default class BingoGridController extends AbstractController {
 	 * @returns 
 	 */
 	private async getStreamerGrid(uid:string, gridId:string):Promise<IGridCacheData|null> {
-		if(!await super.isUserPremium(uid)) {
-			return null;
-		}
-
 		const cacheKey = uid+"/"+gridId;
 		let cache = this.cachedBingoGrids[cacheKey];
 		if(!cache || Date.now() - cache.date > 5000) {

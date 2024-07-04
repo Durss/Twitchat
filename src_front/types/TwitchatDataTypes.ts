@@ -681,6 +681,10 @@ export namespace TwitchatDataTypes {
 		autoShowHide:boolean;
 		heatClick:boolean;
 		heatClickPermissions:PermissionsData;
+		chatAnnouncement:string;
+		chatAnnouncementEnabled:boolean;
+		overlayAnnouncement:boolean;
+		overlayAnnouncementPermissions:PermissionsData;
 	}
 
 	/**

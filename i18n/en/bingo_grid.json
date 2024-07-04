@@ -28,6 +28,12 @@
 			"param_additional_cells": "Additional cells\n(will be used when shuffling the grid)",
 			"param_winSoundVolume": "Notification volume when a viewer has a bingo",
 			"param_autoHide": "Automatically show/hide grid based on activities",
+			"param_overlayAnnouncement": "Announce viewers' bingo on overlay",
+			"param_overlayAnnouncement_permissions": "Viewers allowed to be displayed on overlay",
+			"param_chatAnnouncementEnabled": "Announce viewers' bingos on chat",
+			"param_chatAnnouncement": "Message to send on chat",
+			"param_chatAnnouncement_default": "FootYellow BINGO FootYellow ▬ {WINNERS}",
+			"woinners_placeholder": "Viewers that got bingos",
 			"add_cellBt": "Add cell",
 			"chat_cmd_usage": "Use command {CMD}",
 			"heat_usage": "@:heat.header",
@@ -43,7 +49,7 @@
 				"title": "Delete grid?"
 			},
 			"additional_cells":"Additional cells",
-			"premium_warning":"After current beta ends, multiplayer mode will only be available to Premium members."
+			"premium_multiplayer":"After current beta ends, multiplayer mode will only be available to Premium members."
 		},
 		"state": {
 			"auth_bt": "Authenticate to play",

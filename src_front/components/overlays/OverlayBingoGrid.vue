@@ -623,7 +623,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			if(this.bingo && this.bingo.autoShowHide === true) {
 				this.innactivityTimeout = setTimeout(()=>{
 					this.pushEvent({type:"close"});
-				}, 10 * 1000);
+				}, 5 * 1000);
 			}
 		}
 

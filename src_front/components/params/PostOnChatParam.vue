@@ -51,7 +51,7 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 		PlaceholderSelector,
 	}
 })
- class PostOnChatParam extends Vue {
+class PostOnChatParam extends Vue {
 	
 	@Prop
 	public icon!:string;

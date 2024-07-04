@@ -55,13 +55,20 @@
 							<OverlayInstaller type="bingogrid" :sourceSuffix="bingo.title" :id="bingo.id" :queryParams="{bid:bingo.id}" :sourceTransform="{width:960, height:540}" />
 						</div>
 
-						<div class="card-item premium share">
+						<div class="card-item share">
 							<label>
 								<Icon name="share"/>
 								<span>{{ $t("bingo_grid.form.share") }}</span>
 							</label>
-							<p class="url" v-click2Select>{{ getPublicURL(bingo.id) }}</p>
-							<div><Icon name="alert" /> {{ $t("bingo_grid.form.premium_warning") }}</div>
+							<div class="urlHolder">
+								<p class="url" v-click2Select>{{ getPublicURL(bingo.id) }}</p>
+								<TTButton icon="copy" transparent @click="copyPublicURL(bingo.id)"></TTButton>
+							</div>
+							<div class="info" v-if="!$store.auth.isPremium">
+								<Icon name="premium" />
+								<span>{{ $t("bingo_grid.form.premium_multiplayer") }}</span>
+								<TTButton @click="openPremium()" icon="premium" light premium>{{ $t("premium.become_premiumBt") }}</TTButton>
+							</div>
 						</div>
 
 						<div class="card-item sizes">
@@ -148,6 +155,33 @@
 						
 						<ParamItem :paramData="param_autoHide[bingo.id]" @change="save(bingo)" v-model="bingo.autoShowHide"></ParamItem>
 
+						<ParamItem :paramData="param_overlayAnnouncement[bingo.id]" v-model="bingo.overlayAnnouncement" @change="save(bingo)">
+							<div class="parameter-child">
+								<ToggleBlock :title="$t('bingo_grid.form.param_overlayAnnouncement_permissions')" small :open="false">
+									<PermissionsForm v-model="bingo.overlayAnnouncementPermissions"></PermissionsForm>
+								</ToggleBlock>
+							</div>
+						</ParamItem>
+						
+						<ParamItem :paramData="param_chatAnnouncementEnabled[bingo.id]" v-model="bingo.chatAnnouncementEnabled" @change="save(bingo)">
+							<div class="parameter-child">
+								<ParamItem :paramData="param_chatAnnouncement[bingo.id]"
+								v-model="bingo.chatAnnouncement"
+								noBackground
+								@change="save(bingo); renderPreview(bingo.id, bingo.chatAnnouncement)"
+								@focus="param_showMessage[bingo.id] = true; renderPreview(bingo.id, bingo.chatAnnouncement)"
+								@blur="param_showMessage[bingo.id] = false">
+								
+									<div class="parameter-child preview" ref="preview" v-if="param_showMessage[bingo.id]">
+										<ChatMessage class="message"
+											lightMode
+											contextMenuOff
+											:messageData="param_messagePreview[bingo.id]" />
+									</div>
+								</ParamItem>
+							</div>
+						</ParamItem>
+
 						<ParamItem :paramData="param_chatCmd_toggle[bingo.id]" v-model="param_chatCmd_toggle[bingo.id].value" @change="save(bingo)">
 							<div class="parameter-child">
 								<ParamItem class="cmdField" :paramData="param_chatCmd[bingo.id]" v-model="bingo.chatCmd" @change="save(bingo)" noBackground />
@@ -201,11 +235,16 @@ import ToggleButton from '../ToggleButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
+import Utils from '@/utils/Utils';
+import ChatMessage from '../messages/ChatMessage.vue';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import { reactive } from 'vue';
 
 @Component({
 	components:{
 		TTButton,
 		ParamItem,
+		ChatMessage,
 		ClearButton,
 		ToggleBlock,
 		VueDraggable,
@@ -242,6 +281,11 @@ class BingoGridForm extends AbstractSidePanel {
 	public param_additional_cells:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_winSoundVolume:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_autoHide:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_chatAnnouncement:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_chatAnnouncementEnabled:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_overlayAnnouncement:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showMessage:{[key:string]:boolean} = {};
+	public param_messagePreview:{[key:string]:TwitchatDataTypes.MessageChatData} = {};
 	public isDragging:boolean = false;
 
 	private lockedItems:{[key:string]:{index:number, data:TwitchatDataTypes.BingoGridConfig["entries"][number]}[]} = {};
@@ -270,6 +314,12 @@ class BingoGridForm extends AbstractSidePanel {
 		const uid = this.$store.auth.twitch.user.id;
 
 		return document.location.origin + this.$router.resolve({name:"bingo_grid_public", params:{uid, gridId}}).fullPath;
+	}
+
+	public copyPublicURL(gridId:string):void {
+		const uid = this.$store.auth.twitch.user.id;
+		const url = document.location.origin + this.$router.resolve({name:"bingo_grid_public", params:{uid, gridId}}).fullPath;
+		Utils.copyToClipboard(url);
 	}
 
 	public async beforeMount():Promise<void> {
@@ -393,6 +443,28 @@ class BingoGridForm extends AbstractSidePanel {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.HEAT);
 	}
 
+	public async renderPreview(id:string, rawMessage:string):Promise<void> {
+		const prevState = this.param_showMessage[id];
+		this.param_showMessage[id] = false;
+		await this.$nextTick();
+		let announcementColor:"primary" | "purple" | "blue" | "green" | "orange" | undefined = undefined;
+		if(rawMessage.indexOf("/announce") == 0) {
+			announcementColor = rawMessage.replace(/\/announce([a-z]+)?\s.*/i, "$1") as "primary" | "purple" | "blue" | "green" | "orange";
+			rawMessage = rawMessage.replace(/\/announce([a-z]+)?\s(.*)/i, "$2");
+		}
+
+		rawMessage = rawMessage.replace(/\{WINNERS\}/gi, this.param_chatAnnouncement[id]!.placeholderList![0].example!);
+		
+		const chunks = TwitchUtils.parseMessageToChunks(rawMessage, undefined, true);
+		const message_html = TwitchUtils.messageChunksToHTML(chunks);
+
+		this.param_messagePreview[id].message = rawMessage;
+		this.param_messagePreview[id].message_chunks = chunks;
+		this.param_messagePreview[id].message_html = message_html;
+		this.param_messagePreview[id].twitch_announcementColor = announcementColor;
+		this.param_showMessage[id] = prevState;
+	}
+
 	/**
 	 * Create parameters for a bingo entry
 	 * @param id
@@ -401,6 +473,11 @@ class BingoGridForm extends AbstractSidePanel {
 		this.$store.bingoGrid.gridList.forEach(entry=> {
 			const id = entry.id;
 			if(this.param_cols[id]) return;
+
+			const winnersPlaceholder:TwitchatDataTypes.PlaceholderEntry[] = [
+				{tag:"WINNERS", descKey:"bingo_grid.form.woinners_placeholder", example: "Twitch x1, Durss x4, TwitchFR x2"}
+			]
+
 			this.param_cols[id] = {type:"number", value:5, min:2, max:10};
 			this.param_rows[id] = {type:"number", value:5, min:2, max:10};
 			this.param_backgroundColor[id] = {type:"color", value:"#000000", labelKey:"bingo_grid.form.param_background_color", icon:"color"};
@@ -414,6 +491,25 @@ class BingoGridForm extends AbstractSidePanel {
 			this.param_heat_toggle[id] = {type:"boolean", value:false, labelKey:"bingo_grid.form.param_heat_enabled", icon:"heat"};
 			this.param_additional_cells[id] = {type:"custom", value:true, labelKey:"bingo_grid.form.param_additional_cells", icon:"add"};
 			this.param_winSoundVolume[id] = {type:"slider", value:100, min:0, max:100, step:10, labelKey:"bingo_grid.form.param_winSoundVolume", icon:"volume"};
+			this.param_chatAnnouncement[id] = {type:"string", value:"", longText:true, labelKey:"bingo_grid.form.param_chatAnnouncement", icon:"whispers", placeholderList:winnersPlaceholder};
+			this.param_chatAnnouncementEnabled[id] = {type:"boolean", value:true, labelKey:"bingo_grid.form.param_chatAnnouncementEnabled", icon:"announcement"};
+			this.param_overlayAnnouncement[id] = {type:"boolean", value:true, labelKey:"bingo_grid.form.param_overlayAnnouncement", icon:"announcement"};
+			
+			const me = this.$store.auth.twitch.user;
+			this.param_messagePreview[id] = reactive({
+				id:Utils.getUUID(),
+				date:Date.now(),
+				channel_id:me.id,
+				platform:"twitch",
+				type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				answers:[],
+				user:me,
+				is_short:false,
+				message:"",
+				message_chunks:[],
+				message_html:"",
+				message_size: 0,
+			});
 		});
 	}
 }
@@ -534,10 +630,40 @@ export default toNative(BingoGridForm);
 			flex-direction: column;
 		}
 
-		.url {
+		.info {
+			font-weight: normal;
+			padding: .5em;
+			border-radius: var(--border-radius);
+			background-color: var(--color-premium);
+			.icon {
+				margin-right: .5em;
+				vertical-align: middle;	
+			}
+			.button {
+				display: flex;
+				margin: 0 auto;
+				margin-top: .5em;
+			}
+		}
+
+		.urlHolder {
 			background-color: var(--grayout);
 			padding: .25em;
+			padding-right: 0;
 			border-radius: var(--border-radius);
+			display: flex;
+			max-width: 100%;
+			flex-direction: row;
+			align-items: center;
+			.button {
+				flex-shrink: 0;
+			}
+			.url {
+				text-wrap: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				max-width: 100%;
+			}
 		}
 	}
 
@@ -584,6 +710,12 @@ export default toNative(BingoGridForm);
 			height: 1em;
 			margin-right: .5em;
 		}
+	}
+
+	.preview {
+		background-color: var(--grayout);
+		padding: .25em;
+		border-radius: var(--border-radius);
 	}
 
 	.cmdField {

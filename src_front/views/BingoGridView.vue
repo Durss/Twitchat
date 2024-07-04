@@ -14,21 +14,23 @@
 			<div class="grid">
 				<h1>{{ title }}</h1>
 	
-				<div v-if="isModerator" class="card-item moderator">
+				<div v-if="isModerator && multiplayerMode" class="card-item moderator">
 					<Icon name="mod" />
 					<span>{{ $t("bingo_grid.state.mod_info") }}</span>
 				</div>
 	
-				<TTButton @click.capture.prevent="generateCSRF(true)"
-					v-if="!$store.public.authenticated"
-					icon="twitch"
-					class="authBt"
-					:loading="generatingCSRF"
-					v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
-					bounce twitch>{{ $t("bingo_grid.state.auth_bt") }}</TTButton>
-				
-	
-				<TTButton v-else icon="offline" @click="unauth()" alert small>Disconnect</TTButton>
+				<template v-if="multiplayerMode">
+					<TTButton @click.capture.prevent="generateCSRF(true)"
+						v-if="!$store.public.authenticated"
+						icon="twitch"
+						class="authBt"
+						:loading="generatingCSRF"
+						v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
+						bounce twitch>{{ $t("bingo_grid.state.auth_bt") }}</TTButton>
+					
+		
+					<TTButton v-else icon="offline" @click="unauth()" alert small>Disconnect</TTButton>
+				</template>
 	
 				<div class="cells"
 				ref="cellsHolder"
@@ -49,7 +51,7 @@
 				</div>
 			</div>
 	
-			<div class="card-item additional" v-if="isModerator && additionalEntries.length > 0">
+			<div class="card-item additional" v-if="isModerator && multiplayerMode && additionalEntries.length > 0">
 				<strong>{{ $t("bingo_grid.state.additional_cells") }}</strong>
 				<div v-for="entry in additionalEntries" class="additionalEntry">
 					<Checkbox class="entry"
@@ -99,18 +101,19 @@ import { Component, Vue, toNative } from 'vue-facing-decorator';
 })
 class BingoGridView extends Vue {
 
-	public loading = true;
 	public error = false;
+	public loading = true;
 	public isModerator = false;
-	public generatingCSRF = false;
 	public gridEnabled = false;
+	public generatingCSRF = false;
+	public multiplayerMode = false;
 	public cols:number = 0;
 	public rows:number = 0;
 	public bingoCount:number = 0;
 	public checkTimeout:number = -1;
-	public oAuthURL = "";
-	public CSRFToken = "";
 	public title:string = "";
+	public oAuthURL:string = "";
+	public CSRFToken:string = "";
 	public ownerName:string = "";
 	public entries:(TwitchatDataTypes.BingoGridConfig["entries"][number] & {enabled?:boolean})[] = [];
 	public additionalEntries:(TwitchatDataTypes.BingoGridConfig["entries"][number] & {enabled?:boolean})[] = [];
@@ -208,6 +211,7 @@ class BingoGridView extends Vue {
 				this.title		= infos.json.data.title;
 				this.entries	= infos.json.data.entries;
 				this.gridEnabled= infos.json.data.enabled === true;
+				this.multiplayerMode	= infos.json.multiplayerMode;
 				this.additionalEntries	= infos.json.data.additionalEntries || [];
 				this.entries.forEach(v=>{
 					v.enabled = v.check || this.isModerator;
@@ -219,7 +223,7 @@ class BingoGridView extends Vue {
 				});
 				this.loading = false;
 				if(this.gridEnabled) this.animateOpen();
-				if(this.$store.public.authenticated) {
+				if(this.$store.public.authenticated && infos.json.multiplayerMode) {
 					SSEHelper.instance.initialize();
 				}
 			}else{
@@ -240,6 +244,7 @@ class BingoGridView extends Vue {
 		if(authenticated && entry.enabled != true) return;
 		entry.check = !entry.check;
 		this.checkBingos();
+		if(!this.multiplayerMode) return;
 		if(this.isModerator) {
 			const states:{[key:string]:boolean} = {};
 			this.entries.forEach(v=> states[v.id] = v.check);
@@ -379,7 +384,10 @@ class BingoGridView extends Vue {
 
 		this.prevGridStates = newStates;
 
-		if(bingoCount > 0 && this.bingoCount != bingoCount && this.$store.public.authenticated) {
+		if(this.multiplayerMode
+		&& bingoCount > 0
+		&& this.bingoCount != bingoCount
+		&& this.$store.public.authenticated) {
 			clearTimeout(this.bingoCountDebounce);
 			this.bingoCountDebounce = setTimeout(() => {
 				ApiHelper.call("bingogrid/bingo", "POST", {count:bingoCount, gridid:this.param_gridId, uid:this.param_uid});

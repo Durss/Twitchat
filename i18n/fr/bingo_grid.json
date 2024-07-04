@@ -28,6 +28,12 @@
 			"param_additional_cells": "Cases additionelles\n(seront utilisée lors du mélange de la grille)",
 			"param_winSoundVolume": "Volume de la notification lorsqu'un·e viewer remplit un bingo",
 			"param_autoHide": "Afficher/Masquer la grille automatiquement en fonction des activités",
+			"param_overlayAnnouncement": "Annoncer les bingos de viewers dans l'overlay",
+			"param_overlayAnnouncement_permissions": "Viewers autorisés à être affiché dans l'overlay",
+			"param_chatAnnouncementEnabled": "Annoncer les bingos de viewers dans le tchat",
+			"param_chatAnnouncement": "Message à envoyer en tchat",
+			"param_chatAnnouncement_default": "FootYellow BINGO FootYellow ▬ {WINNERS}",
+			"woinners_placeholder": "Viewers ayant eu des bingos",
 			"add_cellBt": "Ajouter",
 			"chat_cmd_usage":"Utilisez la commande {CMD}",
 			"heat_usage":"@:heat.header",
@@ -43,7 +49,7 @@
 				"description":"La grille de bingo sera supprimée.\nCette action est irréversible."
 			},
 			"additional_cells":"Cases additionnelles",
-			"premium_warning":"Une fois la beta terminée, le mode multijoueur sera reservé aux membres premium."
+			"premium_multiplayer":"Devenez premium pour activer le mode multi-joueur.\nLe pseudo des viewers remportant un bingo apparaîtra dans l'overlay, vos modos pourront cocher des cases facilement, et vous pourrez automatiser des actions depuis les triggers."
 		},
 		"state":{
 			"auth_bt": "Me connecter pour jouer",

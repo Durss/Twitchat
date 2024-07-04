@@ -1624,8 +1624,12 @@ const UserDataSchema = {
 							winSoundVolume: {type:"number", minimum:0, maximum:100},
 							autoShowHide: {type:"boolean"},
 							heatClick: {type:"boolean"},
+							chatAnnouncement: {type:"string", maxLength:400},
+							chatAnnouncementEnabled: {type:"boolean"},
+							overlayAnnouncement: {type:"boolean"},
 							chatCmdPermissions: { $ref: "defs.json#/definitions/permissions" },
 							heatClickPermissions: { $ref: "defs.json#/definitions/permissions" },
+							overlayAnnouncementPermissions: { $ref: "defs.json#/definitions/permissions" },
 							entries: {
 								type:"array",
 								minItems:0,

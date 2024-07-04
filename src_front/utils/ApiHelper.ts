@@ -857,6 +857,7 @@ type ApiEndpoints =  {
 			};
 			response: {
 				success:boolean;
+				multiplayerMode:boolean;
 				owner:string;
 				data?:{
 					enabled:boolean;

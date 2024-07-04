@@ -186,8 +186,6 @@ export default class AbstractController {
 			isPremium = donorAmount >= Config.lifetimeDonorThreshold;
 		}
 
-		console.log(isPremium);
-
 		return isPremium;
 	}
 

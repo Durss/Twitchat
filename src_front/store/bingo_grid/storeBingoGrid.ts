@@ -12,11 +12,14 @@ import SSEEvent from '@/events/SSEEvent';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import type { JsonObject } from 'type-fest';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import MessengerProxy from '@/messaging/MessengerProxy';
 
 let saveCountPending:number = 0;
 let debounceSave:number = -1;
 let debounceShuffle:number = -1;
+let debounceChatAnnounce:number = -1
 let tickDebounce:{[key:string]:number} = {};
+let chatAnnounceStack:{user:TwitchatDataTypes.TwitchatUser, count:number}[] = [];
 let overlayCheckInterval:{[key:string]:number} = {};
 //Keeps old check states of grid to be able to diff on save
 let prevGridStates:{[key:string]:boolean[]} = {};
@@ -75,7 +78,32 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 							usersRefused:[],
 						};
 					}
-
+					if(!grid.overlayAnnouncementPermissions) {
+						grid.overlayAnnouncementPermissions = {
+							all:true,
+							broadcaster:true,
+							follower:true,
+							follower_duration_ms:0,
+							mods:true,
+							subs:true,
+							vips:true,
+							usersAllowed:[],
+							usersRefused:[],
+						};
+					}
+					
+					if(grid.chatAnnouncement == undefined) {
+						grid.chatAnnouncement = StoreProxy.i18n.t("bingo_grid.form.param_chatAnnouncement_default");
+					}
+					
+					if(grid.overlayAnnouncement == undefined) {
+						grid.overlayAnnouncement = true;
+					}
+					
+					if(grid.chatAnnouncementEnabled == undefined) {
+						grid.overlayAnnouncement = true;
+					}
+					
 					prevGridStates[grid.id] = grid.entries.map(v=>v.check);
 				})
 			}
@@ -149,10 +177,11 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_BINGO_COUNT, async (event)=>{
 				if(!event.data) return;
 				if(event.data.count <= 0) return;
+				const channelId = StoreProxy.auth.twitch.user.id;
 				const user = await StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, event.data.uid, event.data.login, event.data.login);
 				
 				//Ignore banned users (but not timed out ones)
-				const chanInfo = user.channelInfo[StoreProxy.auth.twitch.user.id];
+				const chanInfo = user.channelInfo[channelId];
 				if(chanInfo.is_banned && !chanInfo.banEndDate) return;
 
 				//Force avatar loading if not available
@@ -182,22 +211,59 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 
 				//If there actually is a new bingo
 				if(isNewBingo) {
-					// console.log("New bingo for "+user.login+". Count:"+entry.count);
-					//Tell the overlay someone got a bingo
-					const data = {
-						gridId:event.data.gridId,
-						user:{
-							name:user.displayNameOriginal,
-							id:user.id,
-							avatar:user.avatarPath || ""
-						},
-						count:entry.count
-					};
-					PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_OVERLAY_VIEWER_EVENT, data);
-
 					const grid = this.gridList.find(g => g.id == event.data!.gridId);
+
 					//Execute triggers related this this kidn of event
 					if(grid) {
+						//Tell the overlay someone got a bingo if allowed to be displayed on overlay
+						if(grid.overlayAnnouncement && await Utils.checkPermissions(grid.overlayAnnouncementPermissions, user, channelId)) {
+							const data = {
+								gridId:event.data.gridId,
+								user:{
+									name:user.displayNameOriginal,
+									id:user.id,
+									avatar:user.avatarPath || ""
+								},
+								count:entry.count
+							};
+							PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_OVERLAY_VIEWER_EVENT, data);
+						}
+
+						//Announce bingos on chat
+						if(grid.chatAnnouncementEnabled) {
+							chatAnnounceStack.push({
+								user,
+								count:entry.count,
+							})
+							//Stack bingos for 5s before announcing them on tchat to avoid spam
+							clearTimeout(debounceChatAnnounce);
+							debounceChatAnnounce = setTimeout(()=> {
+								//Send messages.
+								let minLength = grid.chatAnnouncement.replace(/\{WINNERS\}/gi, "").trim().length;
+								while(chatAnnounceStack.length > 0) {
+									let chunks = [];
+									let messageLength = minLength;
+									let prefix = "";
+									//Make sure to split users so messages are not longer than 500 chars
+									for (let i = 0; i < chatAnnounceStack.length; i++) {
+										let message = prefix;
+										message += chatAnnounceStack[0].user.displayNameOriginal+" (x"+chatAnnounceStack[0].count+")";
+										messageLength += message.length;
+										if(messageLength < 500) {
+											i--;
+											chunks.push(message);
+											chatAnnounceStack.shift();
+										}else{
+											break;
+										}
+										prefix = " ▬ ";
+									}
+									const message = grid.chatAnnouncement.replace(/\{WINNERS\}/gi, chunks.join(""));
+									MessengerProxy.instance.sendMessage(message);
+								}
+							}, 5000);
+						}
+
 						const message:TwitchatDataTypes.MessageBingoGridViewerData = {
 							id:Utils.getUUID(),
 							date:Date.now(),
@@ -249,6 +315,20 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				backgroundAlpha:0,
 				backgroundColor:"#000000",
 				autoShowHide:false,
+				chatAnnouncement:StoreProxy.i18n.t("bingo_grid.form.param_chatAnnouncement_default"),
+				overlayAnnouncement:true,
+				chatAnnouncementEnabled:true,
+				overlayAnnouncementPermissions:{
+					all:true,
+					broadcaster:true,
+					follower:true,
+					follower_duration_ms:0,
+					mods:true,
+					subs:true,
+					vips:true,
+					usersAllowed:[],
+					usersRefused:[],
+				},
 				chatCmdPermissions:{
 					all:false,
 					broadcaster:true,
