@@ -4,6 +4,8 @@
 	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
+		<div class="fill" ref="fill" v-if="messageData.tier > 2"></div>
+		
 		<Icon name="youtube" alt="notice" class="icon"/>
 
 		<img :src="messageData.user.avatarPath" class="avatar" alt="avatar" v-if="messageData.user.avatarPath">
@@ -43,12 +45,30 @@ class ChatYoutubeSuperChat extends AbstractChatMessage {
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageYoutubeSuperChatData;
 
+	public mounted():void {
+		const fill = this.$refs.fill as HTMLDivElement;
+		if(!fill) return;
+		
+		const duration_m = Math.min(300,[0,0,2,5,10,30,60,120,180,240,300][this.messageData.tier-1]);
+		
+		const duration_s = duration_m * 60;
+		const remainingDuration = Math.max(0, duration_s - (Date.now() - this.messageData.date)/1000);
+		fill.style.transition = "transform "+remainingDuration+"s linear";
+		fill.style.transform = "scaleX(100%)";
+		setTimeout(()=> {
+			fill.style.transform = "scaleX(0)";
+		},100);
+	}
+
 }
 export default toNative(ChatYoutubeSuperChat);
 </script>
 
 <style scoped lang="less">
 .chatyoutubesuperchat{
+	@border: .25em;
+	overflow: hidden;
+
 	.icon {
 		align-self: unset;
 	}
@@ -75,6 +95,18 @@ export default toNative(ChatYoutubeSuperChat);
 			color:inherit;
 			font-weight: bold;
 		}
+	}
+
+	.fill {
+		background-color: rgba(255, 255, 255, .9);
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		height: @border;
+		width: 100%;
+		transition: transform 10s;
+		will-change: transform;
+		transform-origin: left top;
 	}
 
 	.amount {
