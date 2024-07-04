@@ -486,6 +486,13 @@
 		"vip": {
 			"add": "{USER} a été ajouté·e aux VIPs par {USER}",
 			"remove": "{USER} a été retiré·e des VIPs par {USER}"
+		},
+		"youtube_sub": {
+			"new": "{USER} s'est abboné·e for pour la 1ère fois avec l'abonnement {TIER}",
+			"resub": "{USER} est abonné·e depuis {MONTHS} mois avec l'abonnement {TIER}"
+		},
+		"youtube_subgift": {
+			"title": "{USER} a offert {COUNT} abonnements {TIER} à {LIST}"
 		}
 	}
 }

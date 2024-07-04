@@ -532,12 +532,12 @@
 				"param_action_toggle": "Inverser une case",
 				"param_action_tick_all": "Tout cocher",
 				"param_action_untick_all": "Tout décocher",
-				"param_action_rename":"Renommer une case",
-				"param_action_add_cell":"Ajouter une case",
-				"param_cell_coordinates":"Coordonnées de case",
-				"param_cell_id":"Case spécifique",
-				"param_cell":"Case",
-				"no_grid":"Vous devez d'abord créer une grille de bingo avant de pouvoir l'éditer"
+				"param_action_rename": "Renommer une case",
+				"param_action_add_cell": "Ajouter une case",
+				"param_cell_coordinates": "Coordonnées de case",
+				"param_cell_id": "Case spécifique",
+				"param_cell": "Case",
+				"no_grid": "Vous devez d'abord créer une grille de bingo avant de pouvoir l'éditer"
 			}
 		},
 		"categories": {
@@ -557,7 +557,8 @@
 			"kofi": "Ko-fi",
 			"streamlabs": "Streamlabs",
 			"streamelements": "Streamelements",
-			"tipeee": "Tipeee"
+			"tipeee": "Tipeee",
+			"youtube": "Youtube"
 		},
 		"placeholders": {
 			"trigger_name": "Nom du trigger actuel",
@@ -782,7 +783,13 @@
 			"bingo_grid_diag": "Diagonale remplie (0=↘ 1=↙)",
 			"warn_reason": "Raison de l'avertissement",
 			"power_up_emote": "Code de l'mote géante",
-			"power_up_message": "Effet : 'simmer' ou 'rainbow-eclipse'"
+			"power_up_message": "Effet : 'simmer' ou 'rainbow-eclipse'",
+			"superchat_tier": "Superchat tier (1 => 11)",
+			"supersticker_tier": "Super sticker tier (1 => 6)",
+			"supersticker_id": "ID du sticker",
+			"supersticker_url": "URL du sticker",
+			"youtube_sub_tier": "Nom de l'abonnement",
+			"youtube_sub_months": "Durées d'abonnement en mois"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1311,6 +1318,22 @@
 			"POWER_UP_CELEBRATION": {
 				"label": "Power UP: célébration",
 				"description": "Actions à exécuter lorsqu'une célébration est reçue"
+			},
+			"YOUTUBE_SUPER_CHAT": {
+				"label": "Super chat reçu sur Youtube",
+				"description": "Actions à exécuter lorsqu'une personne envoie super chat sur Youtube"
+			},
+			"YOUTUBE_SUPER_STICKER": {
+				"label": "Super sticker reçu sur Youtube",
+				"description": "Actions à exécuter lorsqu'une personne envoie un super sticker sur Youtube"
+			},
+			"YOUTUBE_SUBSCRIPTION": {
+				"label": "Abonnement reçu sur Youtube",
+				"description": "Actions à exécuter lorsqu'une personne achète un abonnement sur Youtube"
+			},
+			"YOUTUBE_SUBGIFT": {
+				"label": "Abonnement offers sur Youtube",
+				"description": "Actions à exécuter lorsqu'une personne offre des abonnements sur Youtube"
 			}
 		},
 		"musicEvents": {
