@@ -254,4 +254,18 @@ export default class AbstractChatMessage extends Vue {
 		this.$store.chat.deleteMessage(this.messageData);
 	}
 
+	/**
+	 * Get user's profile page
+	 */
+	public getProfilePage(user:TwitchatDataTypes.TwitchatUser):string{
+		switch(this.messageData.platform) {
+			case "twitch": {
+				return "https://www.twitch.tv/"+user.login;
+			}
+			case "youtube": {
+				return "https://www.youtube.com/channel/"+user.id;
+			}
+		}
+		return "#";
+	}
 }

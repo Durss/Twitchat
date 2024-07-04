@@ -10,9 +10,9 @@
 		
 		<div class="holder">
 			<a class="userlink"
-				:href="'https://twitch.tv/'+messageData.user.login"
+				:href="getProfilePage(messageData.user)"
 				target="_blank"
-				@click.stop.prevent="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
+				@click.stop.prevent="openUserCard(messageData.user, messageData.channel_id, messageData.platform)">{{messageData.user.displayName}}</a>
 			<div class="amount">{{ messageData.amountDisplay }}</div>
 		</div>
 

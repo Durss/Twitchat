@@ -490,6 +490,9 @@
 		"youtube_sub":{
 			"new": "{USER} subscribed for the first time at tier {TIER}",
 			"resub": "{USER} subscibed at {TIER} for {MONTHS} months"
+		},
+		"youtube_subgift":{
+			"title": "{USER} offered {COUNT} memberships at tier {TIER} to {LIST}"
 		}
 	}
 }

@@ -2045,10 +2045,10 @@ export namespace TwitchatDataTypes {
 		chat_highlight:false,//Used for "highlight on overlay" events
 		counter_update:false,
 		goxlr_fx_state:false,
+		youtube_subgift:true,
 		history_splitter:true,
 		warn_acknowledge:true,
 		obs_stop_stream:false,
-		youtube_subgift:false,
 		credits_complete:false,
 		user_watch_streak:true,
 		hype_train_start:false,

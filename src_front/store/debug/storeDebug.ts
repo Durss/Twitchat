@@ -1594,7 +1594,7 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBGIFT: {
-					const gift_count = Math.floor(Math.random() * 20);
+					const gift_count = Math.floor(Math.random() * 10);
 					const m:TwitchatDataTypes.MessageYoutubeSubgiftData = {
 						date:Date.now(),
 						id:Utils.getUUID(),

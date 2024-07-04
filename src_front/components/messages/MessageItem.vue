@@ -206,6 +206,10 @@
 	<ChatYoutubeSubscription class="message"
 		v-else-if="messageData.type == 'youtube_subscription'"
 		:messageData="messageData" />
+
+	<ChatYoutubeSubgift class="message"
+		v-else-if="messageData.type == 'youtube_subgift'"
+		:messageData="messageData" />
 </template>
 
 <script lang="ts">
@@ -263,6 +267,7 @@ import ChatWarnAcknowledgment from './ChatWarnAcknowledgment.vue';
 import ChatYoutubeSuperChat from './ChatYoutubeSuperChat.vue';
 import ChatYoutubeSuperSticker from './ChatYoutubeSuperSticker.vue';
 import ChatYoutubeSubscription from './ChatYoutubeSubscription.vue';
+import ChatYoutubeSubgift from './ChatYoutubeSubgift.vue';
 
 @Component({
 	components:{
@@ -297,6 +302,7 @@ import ChatYoutubeSubscription from './ChatYoutubeSubscription.vue';
 		ChatRaffleResult,
 		ChatSubscription,
 		ChatCustomMessage,
+		ChatYoutubeSubgift,
 		ChatAdBreakStarted,
 		ChatCommunityBoost,
 		ChatScopeRequester,

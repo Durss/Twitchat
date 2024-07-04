@@ -77,7 +77,7 @@
 
 			<span v-if="messageData.user.displayName != messageData.user.displayNameOriginal">.</span>
 
-			<a :href="'https://twitch.tv/'+messageData.user.login" target="_blank"
+			<a :href="getProfilePage(messageData.user)" target="_blank"
 				@click.stop.prevent="openUserCard(messageData.user, messageData.channel_id, messageData.platform)"
 				@mouseenter="hoverNickName($event)"
 				@mouseleave="outNickName($event)"
@@ -85,7 +85,7 @@
 				class="login" :style="getLoginStyles(messageData.user)">{{messageData.user.displayName}}<i class="translation" v-if="translateUsername"> ({{messageData.user.login}})</i></a>
 			<template v-if="recipient">
 				<span> ➔ </span>
-				<a :href="'https://twitch.tv/'+recipient.login" target="_blank"
+				<a :href="getProfilePage(messageData.user)" target="_blank"
 					class="login"
 					:style="getLoginStyles(recipient)"
 					@click.stop.prevent="openUserCard(recipient!, messageData.channel_id, messageData.platform)">{{recipient.displayName}}</a>

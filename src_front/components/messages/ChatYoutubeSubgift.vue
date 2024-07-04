@@ -1,5 +1,5 @@
 <template>
-	<div class="chatyoutubesubscription chatMessage highlight"
+	<div class="chatyoutubesubgift chatMessage highlight"
 	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
@@ -8,25 +8,28 @@
 		<!-- <img :src="messageData.user.avatarPath" class="avatar" alt="avatar" v-if="messageData.user.avatarPath"> -->
 		
 		<div class="holder">
-			<i18n-t scope="global" tag="p" :keypath="messageData.months == 1? 'chat.youtube_sub.new' : 'chat.youtube_sub.resub'">
+			<i18n-t scope="global" tag="p" keypath="chat.youtube_subgift.title">
 				<template #USER>
 					<a class="userlink"
 						:href="getProfilePage(messageData.user)"
 						target="_blank"
 						@click.stop.prevent="openUserCard(messageData.user, messageData.channel_id, messageData.platform)">{{messageData.user.displayName}}</a>
 				</template>
-				<template #MONTHS>
-					<span class="months">{{ messageData.months }}</span>
+				<template #COUNT>
+					<span class="count">{{ messageData.gift_count }}</span>
 				</template>
 				<template #TIER>
 					"<span class="level">{{ messageData.levelName }}</span>"
 				</template>
+				<template #LIST>
+					<span class="user" v-if="messageData.gift_recipients.length > 0"
+						v-for="u, index in messageData.gift_recipients" :key="u.id">
+						<a class="userlink" @click.stop="openUserCard(u, messageData.channel_id, messageData.platform)">{{u.displayName}}</a>
+						<span v-if="(index == messageData.gift_recipients.length-2)">&nbsp;{{$t("global.and")}}&nbsp;</span>
+						<span v-else-if="index < messageData.gift_recipients.length-1">, </span>
+					</span>
+				</template>
 			</i18n-t>
-
-			<div class="quote">
-				<ChatMessageChunksParser :chunks="messageData.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
-			</div>
-			<MessageTranslation :messageData="messageData" />
 		</div>
 	</div>
 </template>
@@ -35,29 +38,26 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
-import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
-import MessageTranslation from './MessageTranslation.vue';
 
 @Component({
-	components:{
-		MessageTranslation,
-		ChatMessageChunksParser,
-	},
+	components:{},
 	emits:["onRead"]
 })
-class ChatYoutubeSubscription extends AbstractChatMessage {
+class ChatYoutubeSubgift extends AbstractChatMessage {
 	
 	@Prop
-	declare messageData:TwitchatDataTypes.MessageYoutubeSubscriptionData;
+	declare messageData:TwitchatDataTypes.MessageYoutubeSubgiftData;
+
+	public mounted():void {
+		console.log("OKOKOK");
+	}
 
 }
-export default toNative(ChatYoutubeSubscription);
+export default toNative(ChatYoutubeSubgift);
 </script>
 
 <style scoped lang="less">
-.chatyoutubesubscription{
-	@border: .25em;
-	overflow: hidden;
+.chatyoutubesubgift{
 	.icon {
 		align-self: unset;
 	}
@@ -73,21 +73,11 @@ export default toNative(ChatYoutubeSubscription);
 		flex-grow: 1;
 		align-items: flex-start;
 	}
-
-	.quote {
-		color:inherit;
-		:deep(a) {
-			color:inherit;
-			font-weight: bold;
-		}
-	}
-
 	.level {
 		font-weight: bold;
 		font-style: italic;
 	}
-
-	.months {
+	.count {
 		font-weight: bold;
 	}
 }
