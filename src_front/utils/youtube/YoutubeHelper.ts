@@ -762,28 +762,6 @@ export default class YoutubeHelper {
 			})
 		}
 
-
-		//TODO remove that temp debug
-		// const data:TwitchatDataTypes.MessageChatData = {
-		// 	date:new Date(m.snippet.publishedAt).getTime(),
-		// 	id:m.id,
-		// 	platform:"youtube",
-		// 	type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-		// 	user,
-		// 	answers:[],
-		// 	channel_id:this.channelId,
-		// 	message,
-		// 	message_chunks,
-		// 	message_html,
-		// 	message_size:TwitchUtils.computeMessageSize(message_chunks),
-		// 	is_short:false,
-		// 	youtube_liveId:liveId,
-		// };
-
-		// data.is_short = Utils.stripHTMLTags(data.message_html).length / data.message.length < .6 || data.message.length < 4;
-		// data.raw_data = m;
-		// return data;
-
 		switch(m.snippet.type) {
 			case "textMessageEvent": {
 				const data:TwitchatDataTypes.MessageChatData = {
@@ -837,15 +815,13 @@ export default class YoutubeHelper {
 					type:TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER,
 					user,
 					channel_id:this.channelId,
-					message,
-					message_chunks,
-					message_html,
 					youtube_liveId:liveId,
 					amount:m.snippet.superStickerDetails.amountMicros / 1000000,
 					amountDisplay:m.snippet.superStickerDetails.amountDisplayString,
 					currency:m.snippet.superStickerDetails.currency,
 					tier:m.snippet.superStickerDetails.tier,
 					sticker_url:StickerList[m.snippet.superStickerDetails.superStickerMetadata.stickerId as keyof typeof StickerList] || "",
+					sticker_id:m.snippet.superStickerDetails.superStickerMetadata.stickerId,
 				};
 				return data;
 			}

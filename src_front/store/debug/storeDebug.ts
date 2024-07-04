@@ -1548,8 +1548,8 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER: {
 					type keyType = keyof typeof StickerList;
 					const keys = Object.keys(StickerList) as keyType[];
-					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const tier = Math.ceil(Math.random()*7);
+					const stickerId = Utils.pickRand(keys);
 					const m:TwitchatDataTypes.MessageYoutubeSuperStickerData = {
 						date:Date.now(),
 						id:Utils.getUUID(),
@@ -1557,15 +1557,13 @@ export const storeDebug = defineStore('debug', {
 						type,
 						user,
 						channel_id:uid,
-						message,
-						message_chunks:chunks,
-						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						youtube_liveId:Utils.getUUID(),
 						amount:[1,2,5,10,20,50,100][tier-1],
 						amountDisplay:"$"+[1,2,5,10,20,50,100][tier-1],
 						currency:"$",
 						tier,
-						sticker_url:StickerList[Utils.pickRand(keys)] || "",
+						sticker_url:StickerList[stickerId] || "",
+						sticker_id:stickerId
 					};
 					data = m;
 					break;
@@ -1594,7 +1592,7 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBGIFT: {
-					const gift_count = Math.floor(Math.random() * 10);
+					const gift_count = Math.floor(Math.random() * 10) + 1;
 					const m:TwitchatDataTypes.MessageYoutubeSubgiftData = {
 						date:Date.now(),
 						id:Utils.getUUID(),

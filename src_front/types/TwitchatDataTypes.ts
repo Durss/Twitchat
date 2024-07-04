@@ -2404,7 +2404,6 @@ export namespace TwitchatDataTypes {
 		message:true,
 		super_chat:true,
 		subscription:true,
-		super_sticker:true,
 		user_watch_streak:true,
 		youtube_subscription:true,
 	}
@@ -4584,8 +4583,12 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a super chat message on youtube
 	 */
-	export interface MessageYoutubeSuperStickerData extends TranslatableMessage {
+	export interface MessageYoutubeSuperStickerData extends AbstractTwitchatMessage {
 		type:"super_sticker";
+		/**
+		 * User that offered the subgifts
+		 */
+		user:TwitchatUser;
 		/**
 		 * Tip amount in floating point form.
 		 * Exemple: 1.54 for "1,54€"
@@ -4619,6 +4622,10 @@ export namespace TwitchatDataTypes {
 		 * Super sticker to be displayed
 		 */
 		sticker_url:string;
+		/**
+		 * Sticker's ID
+		 */
+		sticker_id:string;
 		/**
 		 * Youtube live chat ID this message has been sent to
 		 */

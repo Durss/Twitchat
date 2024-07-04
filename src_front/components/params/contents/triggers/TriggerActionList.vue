@@ -600,12 +600,12 @@ export default toNative(TriggerActionList);
 			display: block;
 			margin: auto;
 			border-radius: 50%;
-			width: 1.25em;
-			height: 1.25em;
+			width: 2em;
+			height: 2em;
 			background-color: var(--color-primary);
 			transition: background-color .25s;
 			.icon {
-				padding: .25em;
+				padding: .35em;
 				height: 100%;
 				width: 100%;
 			}

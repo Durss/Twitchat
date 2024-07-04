@@ -557,7 +557,8 @@
 			"kofi": "Ko-fi",
 			"streamlabs": "Streamlabs",
 			"streamelements": "Streamelements",
-			"tipeee": "Tipeee"
+			"tipeee": "Tipeee",
+			"youtube": "Youtube"
 		},
 		"placeholders": {
 			"trigger_name": "Current trigger name",
@@ -782,7 +783,13 @@
 			"bingo_grid_diag": "Index of the filled diagonal",
 			"warn_reason": "Warning reason",
 			"power_up_emote": "Gigantified emote code",
-			"power_up_message": "Effect: 'simmer' or 'rainbow-eclipse'"
+			"power_up_message": "Effect: 'simmer' or 'rainbow-eclipse'",
+			"superchat_tier":"Superchat tier (1 => 11)",
+			"supersticker_tier":"Super stciker tier (1 => 6)",
+			"supersticker_id":"Sticker's ID",
+			"supersticker_url":"Sticker's URL",
+			"youtube_sub_tier":"Membership level name",
+			"youtube_sub_months":"Membership duration in months"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1311,6 +1318,22 @@
 			"POWER_UP_CELEBRATION": {
 				"label": "Power UP: celebration",
 				"description": "Actions to execute when a celebration power up is sent"
+			},
+			"YOUTUBE_SUPER_CHAT": {
+				"label": "Super chat received on Youtube",
+				"description": "Actions to execute when a user sends a Super Chat on Youtube"
+			},
+			"YOUTUBE_SUPER_STICKER": {
+				"label": "Super sticker received on Youtube",
+				"description": "Actions to execute when a user sends a Super Sticker on Youtube"
+			},
+			"YOUTUBE_SUBSCRIPTION": {
+				"label": "Subscription received on Youtube",
+				"description": "Actions to execute when a user takes a membership on youtube"
+			},
+			"YOUTUBE_SUBGIFT": {
+				"label": "subgifts received on Youtube",
+				"description": "Actions to execute when a user gifts memberships on Youtube"
 			}
 		},
 		"musicEvents": {

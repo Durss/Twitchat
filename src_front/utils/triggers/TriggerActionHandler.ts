@@ -602,6 +602,30 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT:{
+				if(await this.executeTriggersByType(TriggerTypes.YOUTUBE_SUPER_CHAT, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER:{
+				if(await this.executeTriggersByType(TriggerTypes.YOUTUBE_SUPER_STICKER, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION:{
+				if(await this.executeTriggersByType(TriggerTypes.YOUTUBE_SUBSCRIPTION, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBGIFT:{
+				if(await this.executeTriggersByType(TriggerTypes.YOUTUBE_SUBGIFT, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				switch(message.noticeId) {
 					case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE:{
