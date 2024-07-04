@@ -101,7 +101,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 					}
 					
 					if(grid.chatAnnouncementEnabled == undefined) {
-						grid.overlayAnnouncement = true;
+						grid.chatAnnouncementEnabled = true;
 					}
 					
 					prevGridStates[grid.id] = grid.entries.map(v=>v.check);
