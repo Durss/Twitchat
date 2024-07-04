@@ -762,6 +762,29 @@ export default class YoutubeHelper {
 			})
 		}
 
+
+		//TODO remove that temp debug
+		const data:TwitchatDataTypes.MessageChatData = {
+			date:new Date(m.snippet.publishedAt).getTime(),
+			id:m.id,
+			platform:"youtube",
+			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+			user,
+			answers:[],
+			channel_id:this.channelId,
+			message,
+			message_chunks,
+			message_html,
+			message_size:TwitchUtils.computeMessageSize(message_chunks),
+			is_short:false,
+			youtube_liveId:liveId,
+		};
+
+		data.is_short = Utils.stripHTMLTags(data.message_html).length / data.message.length < .6 || data.message.length < 4;
+		data.raw_data = m;
+		return data;
+
+		/*
 		switch(m.snippet.type) {
 			case "textMessageEvent": {
 				const data:TwitchatDataTypes.MessageChatData = {
@@ -898,5 +921,6 @@ export default class YoutubeHelper {
 		}
 
 		return null;
+		*/
 	}
 }
