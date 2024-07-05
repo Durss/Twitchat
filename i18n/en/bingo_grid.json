@@ -32,7 +32,7 @@
 			"param_overlayAnnouncement_permissions": "Viewers allowed to be displayed on overlay",
 			"param_chatAnnouncementEnabled": "Announce viewers' bingos on chat",
 			"param_chatAnnouncement": "Message to send on chat",
-			"param_chatAnnouncement_default": "FootYellow BINGO FootYellow ▬ {WINNERS}",
+			"param_chatAnnouncement_default": "FBtouchdown BINGO ▬ {'{'}WINNERS{'}'}",
 			"woinners_placeholder": "Viewers that got bingos",
 			"add_cellBt": "Add cell",
 			"chat_cmd_usage": "Use command {CMD}",
