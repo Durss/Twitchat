@@ -110,7 +110,7 @@
 
 		<ParamItem v-if="action.mode != 'trigger' && action.mode != 'value' && action.mode != 'counter'" :paramData="param_placeholder" v-model="action.placeholder" :error="action.placeholder && action.placeholder.length === 0" />
 
-		<i18n-t scope="global" class="card-item primary info" tag="div"
+		<i18n-t scope="global" class="card-item primary" tag="div"
 		keypath="triggers.actions.common.custom_placeholder_example"
 		v-if="param_placeholder.value.length > 0 && action.mode != 'trigger' && action.mode != 'value' && action.mode != 'counter'">
 			<template #PLACEHOLDER>

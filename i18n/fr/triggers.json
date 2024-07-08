@@ -253,7 +253,7 @@
 				"param_y": "Position Y (pixels)",
 				"param_width": "Largeur (pixels)",
 				"param_height": "Hauteur (pixels)",
-				"param_angle": "Angle de rotation (0 -> 360)",
+				"param_angle": "Angle de rotation\n(0 -> 360)",
 				"param_relative_transform_move": "Déplacement relatif (ajouter à la position actuelle)",
 				"param_relative_transform_resize": "Redimensionnement relatif (ajouter aux dimensions actuelles)",
 				"param_relative_transform_rotate": "Rotation relative (ajouter à la rotation actuelle)",

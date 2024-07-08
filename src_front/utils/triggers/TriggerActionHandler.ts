@@ -27,6 +27,7 @@ import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import YoutubeHelper from "../youtube/YoutubeHelper";
 import { gsap } from "gsap/gsap-core";
+import { RequestBatchExecutionType, type RequestBatchRequest } from "obs-websocket-js";
 
 /**
 * Created : 22/04/2022
@@ -1248,18 +1249,60 @@ export default class TriggerActionHandler {
 													for (const key in result) params[key] = result[key as keyof ReducedType]!;
 													params.duration = step.animateDuration! / 1000;
 													params.ease = step.animateEasing!;
-													const lastFrame = Date.now();
-													params.onUpdate = ()=> {
-														//Limit to 30fps to avoid destroying OBS-WS
-														if(Date.now() - lastFrame < 30/1000) return;
-														const localTransform:{[key:string]:number|string} = {};
-														//Remove invalid props
-														for (const key in params) {
-															if(["positionX", "positionY", "rotation", "scaleX", "scaleY"].includes(key)) localTransform[key] = transform[key as keyof ReducedType]!;
+													
+													//Compute animation frames
+													//from: https://gsap.com/community/forums/topic/16782-get-array-of-resulting-values/?do=findComment&comment=74424
+													function summarizeTweenValues(tween:gsap.core.Tween, fps:number = 60) {
+														let modifiers:{[key:string]:(a:number)=>number} = {},
+														results:{[key:string]:number[]} = {},
+														l = tween.duration() * fps,
+														getModifier = function(a:number[]) {
+															return function(value:number) {
+																a.push(value);
+																return a[0];
+															};
+														},
+														vars = tween.vars.css || tween.vars,
+														p, i;
+														for (p in vars) {
+															//Only keep source transform compatible keys
+															if(["positionX","positionY","rotation","scaleX","scaleY"].includes(p)) {
+																results[p] = [];
+																modifiers[p] = getModifier(results[p]);
+															}
 														}
-														OBSWebsocket.instance.setSourceTransform(item.scene, item.source.sceneItemId, localTransform);
+														vars.modifiers = modifiers;
+														vars.immediateRender = true;
+														tween.invalidate();
+														for (i = 0; i <= l; i++) {
+															tween.seek(i / fps);
+														}
+														delete tween.vars.modifiers;
+														// tween.invalidate().seek(0);
+														return results;
 													}
-													gsap.to(transform, params);
+													//Build batch queries
+													const tween = gsap.to(transform, params);
+													const values = summarizeTweenValues(tween);
+													const frames:RequestBatchRequest[] = [];
+													const keys = Object.keys(values);
+													for (let i = 0; i < values[keys[0]].length; i++) {
+														let transform:{[key:string]:number} = {};
+														for (const key in values) {
+															transform[key] = values[key][i];
+														}
+														frames.push({
+															requestType:"SetSceneItemTransform",
+															requestData: {sceneName:item.scene, sceneItemId:item.source.sceneItemId, sceneItemTransform:transform}
+														});
+														frames.push({
+															requestType:"Sleep",
+															requestData:{sleepFrames:1},
+														})
+													}
+													
+													//Make OBS execute animation frames
+													OBSWebsocket.instance.socket.callBatch(frames, {executionType:RequestBatchExecutionType.SerialFrame, haltOnFailure:false});
 												}else{
 													await OBSWebsocket.instance.setSourceTransform(item.scene, item.source.sceneItemId, result);
 												}
