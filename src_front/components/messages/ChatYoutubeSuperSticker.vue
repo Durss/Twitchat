@@ -6,7 +6,7 @@
 		
 		<Icon name="youtube" alt="notice" class="icon"/>
 
-		<img :src="messageData.user.avatarPath" class="avatar" alt="avatar" v-if="messageData.user.avatarPath">
+		<img :src="messageData.user.avatarPath" class="avatar" alt="avatar" v-if="messageData.user.avatarPath" referrerpolicy="no-referrer">
 		
 		<div class="holder">
 			<a class="userlink"

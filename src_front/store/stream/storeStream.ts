@@ -774,12 +774,16 @@ export const storeStream = defineStore('stream', {
 			return result;
 		},
 
-		async connectToExtraChan(login:string):Promise<void> {
-			TwitchMessengerClient.instance.connectToChannel(login);
+		async connectToExtraChan(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
+			const colors = ["#ff0000","#0000ff","#008000","#b22222","#ff7f50","#9acd32","#ff4500","#2e8b57","#daa520","#d2691e","#5f9ea0","#1e90ff","#ff69b4","#8a2be2","#00ff7f"];
+			this.connectedTwitchChans.push({user, color:colors[this.connectedTwitchChans.length % colors.length]});
+			TwitchMessengerClient.instance.connectToChannel(user.login);
 		},
-
-		async disconnectToExtraChan(login:string):Promise<void> {
-			TwitchMessengerClient.instance.disconnectFromChannel(login);
+		
+		async disconnectFromExtraChan(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
+			const index = this.connectedTwitchChans.findIndex(entry => entry.user.id === user.id);
+			this.connectedTwitchChans.splice(index, 1);
+			TwitchMessengerClient.instance.disconnectFromChannel(user.login);
 		}
 
 	} as IStreamActions

@@ -189,7 +189,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const index = this._channelList.findIndex(v=>v===channel);
 		if(index > -1) {
 			this._channelList.splice(index, 1);
-			this._client.part(channel);
+			this._client.part("#"+channel);
 		}
 		
 		// const params = this._client.getOptions();

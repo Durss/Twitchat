@@ -45,7 +45,10 @@ class SearchUserForm extends Vue {
 	public modelValue?:TwitchDataTypes.UserInfo;
 
 	@Prop({default:false})
-	public inline?:boolean;
+	public inline!:boolean;
+
+	@Prop({default:[]})
+	public excludedUserIds!:string[];
 
 	public search:string = "";
 	public users:TwitchDataTypes.UserInfo[] = []
@@ -65,7 +68,7 @@ class SearchUserForm extends Vue {
 		clearTimeout(this.searchDebounce);
 		if(this.searching) {
 			this.searchDebounce = setTimeout(async () => {
-				this.users = await TwitchUtils.searchUser(this.search) || [];
+				this.users = (await TwitchUtils.searchUser(this.search) || []).filter(user => (this.excludedUserIds || []).indexOf(user.id) === -1);
 				this.searching = false;
 				this.noResult = this.users.length === 0;
 			}, 500);
@@ -85,9 +88,35 @@ export default toNative(SearchUserForm);
 	position: relative;
 
 	&.inline {
+		background: unset;
+		backdrop-filter: unset;
+		box-shadow: unset;
 		.userList {
 			position: relative;
 			background: unset;
+		}
+		input {
+			background-color: var(--background-color-fader);
+		}
+
+		.userList{
+			.user:hover {
+				background-color: var(--background-color-fader);
+			}
+		}
+	}
+
+	.userList{
+		gap: 1px;
+		display: flex;
+		flex-direction: column;
+		position: absolute;
+		padding: .5em;
+		border-radius: var(--border-radius);
+		background: var(--background-color-secondary);
+		width: 100%;
+		.user:hover {
+			background-color: var(--grayout);
 		}
 	}
 
@@ -106,6 +135,9 @@ export default toNative(SearchUserForm);
 		}
 		input {
 			background-color: var(--grayout-fadest);
+			width: 100%;
+			min-width: unset;
+			max-width: unset;
 		}
 	}
 
@@ -133,6 +165,7 @@ export default toNative(SearchUserForm);
 		flex-direction: row;
 		align-items: center;
 		color: var(--color-text);
+		border-radius: 50px;
 		.login {
 			text-overflow: ellipsis;
 			overflow: hidden;

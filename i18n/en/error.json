@@ -76,6 +76,7 @@
 		"youtube_connect_expired": "Your Youtube session has expired. Please reconnect.",
 		"youtube_api_is_shit_unban": "Because youtube API is extremely poorly made, you cannot unban this user from Twitchat anymore. Go on your Youtube channel to unban them or ask one of your moderators to unban them.",
 		"youtube_message_delete": "Something went wrong when deleting the Youtube message",
+		"youtube_message_post": "Something went wrong when posting message on Youtube",
 		"youtube_no_broadcast": "Selected account is not allowed to live stream on Youtube.\nMake sure you connected with the right account!",
 		"youtube_no_credits": "All API credits allocated by Youtube have been used :(.\nYoutube will work again tomorrow.",
 		"youtube_chat_off": "Chat is not enabled on the selected youtube live broadcast",

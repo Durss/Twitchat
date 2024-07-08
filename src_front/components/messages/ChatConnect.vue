@@ -62,8 +62,9 @@ import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
 			}
 			this.$store.accessibility.setAriaPolite(this.message);
 			if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.DISCONNECT) {
+				const chanId = this.messageData.channel_id;
 				setTimeout(()=> {
-					this.showReconnectBt = !TwitchMessengerClient.instance.getIsConnectedToChannelID(this.messageData.channel_id);
+					this.showReconnectBt = !TwitchMessengerClient.instance.getIsConnectedToChannelID(chanId);
 				}, 2000);
 			}
 		}
@@ -72,8 +73,12 @@ import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
 	public async reconnectChan():Promise<void> {
 		this.showReconnectBt = false;
 		const chanId = this.messageData.channel_id;
-		const user = this.$store.users.getUserFrom(this.messageData.platform, chanId, chanId)
-		TwitchMessengerClient.instance.connectToChannel(user.login);
+		const user = this.$store.users.getUserFrom(this.messageData.platform, chanId, chanId);
+		if(chanId == this.$store.auth.twitch.user.id || chanId == this.$store.auth.youtube.user?.id) {
+			TwitchMessengerClient.instance.connectToChannel(user.login);
+		}else{
+			this.$store.stream.connectToExtraChan(user);
+		}
 		setTimeout(()=> {
 			this.showReconnectBt = !TwitchMessengerClient.instance.getIsConnectedToChannelID(this.messageData.channel_id);
 		}, 5000);

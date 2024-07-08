@@ -79,6 +79,9 @@ export default class TriggerActionHandler {
 	 * @param testMode
 	 */
 	public async execute(message:TwitchatDataTypes.ChatMessageTypes, testMode = false, forcedTriggerId?:string):Promise<void> {
+		//Allow trigger exec only for our own chan
+		if(message.channel_id != StoreProxy.auth.twitch.user.id) return;
+		if(message.channel_id != StoreProxy.auth.youtube.user?.id) return;
 
 		//Check if it's a greetable message
 		if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {

@@ -1252,7 +1252,7 @@ export interface IStreamState {
 	/**
 	 * Contains extra twitch channels to connect to
 	 */
-	connectedTwitchChans:string[];
+	connectedTwitchChans:{user:TwitchatDataTypes.TwitchatUser, color:string}[];
 }
 
 export interface IStreamGetters {
@@ -1351,6 +1351,16 @@ export interface IStreamActions {
 	 * Get all current stream data
 	 */
 	getSummary(offset?:number, includeParams?:boolean, simulate?:boolean):Promise<TwitchatDataTypes.StreamSummaryData>;
+	/**
+	 * Connects to an extra channel
+	 * @param login
+	 */
+	connectToExtraChan(user:TwitchatDataTypes.TwitchatUser):Promise<void>;
+	/**
+	 * Disconnects from an extra channel
+	 * @param login 
+	 */
+	disconnectFromExtraChan(user:TwitchatDataTypes.TwitchatUser):Promise<void>;
 }
 
 

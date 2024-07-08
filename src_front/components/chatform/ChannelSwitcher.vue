@@ -1,7 +1,11 @@
 <template>
 	<div class="channelswitcher">
-		<div class="entry current" v-if="currentChannel" @click.capture="open($event)">
-			<img class="avatar" v-if="currentChannel.user.avatarPath" :src="currentChannel.user.avatarPath" alt="avatar" referrerpolicy="no-referrer">
+		<div class="entry current" v-if="currentChannel" @click.capture="open($event)" @click.right="cycleChannel($event)">
+			<img class="avatar" v-if="currentChannel.user.avatarPath"
+				:src="currentChannel.user.avatarPath"
+				:style="{color:currentChannel.color}"
+				alt="avatar"
+				referrerpolicy="no-referrer">
 			<Icon :name="currentChannel.platform" class="platformIcon" />
 		</div>
 
@@ -10,16 +14,28 @@
 				<p><Icon name="online" />{{ $t("chat.form.connect_extra_chan") }}</p>
 				<SearchUserForm class="blured-background-window"
 					v-model="user"
+					:excludedUserIds="channels.map(v=>v.user.id)"
 					@close="showForm = false"
 					@select="onSelectUser"
 					inline />
 			</template>
 			
 			<template v-else >
-				<div class="entry" v-for="entry in channels">
-					<img class="avatar" v-if="entry.user.avatarPath" :src="entry.user.avatarPath" alt="avatar" referrerpolicy="no-referrer">
+				<div class="entry" v-for="entry in channels" @click="onSelectChannel(entry.user.id, entry.platform)">
+					<img class="avatar" v-if="entry.user.avatarPath"
+						:src="entry.user.avatarPath"
+						:style="{color:entry.color}"
+						alt="avatar"
+						referrerpolicy="no-referrer">
 					<Icon :name="entry.platform" class="platformIcon" />
 					<span class="pseudo">{{ entry.user.displayName }}</span>
+					<TTButton v-if="entry.canDisconnect"
+						class="disconnectBt"
+						icon="offline"
+						transparent
+						medium
+						v-tooltip="$t('global.disconnect')"
+						@click.capture.stop="disconnect(entry.user)" />
 				</div>
 				<TTButton class="addChanBt" icon="add" @click="showForm = true" transparent medium />
 			</template>
@@ -28,28 +44,32 @@
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import { gsap } from 'gsap/gsap-core';
 import TTButton from '@/components/TTButton.vue';
-import SearchUserForm from '../params/contents/donate/SearchUserForm.vue';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { gsap } from 'gsap/gsap-core';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import SearchUserForm from '../params/contents/donate/SearchUserForm.vue';
 
 @Component({
 	components:{
 		TTButton,
 		SearchUserForm,
 	},
-	emits:[],
+	emits:["update:modelValue", "update:platform", "change"],
 })
 class ChannelSwitcher extends Vue {
+	
+	@Prop({default:"", type:String})
+	public modelValue!:string;
+	
+	@Prop({default:"twitch", type:String})
+	public platform!:string;
 	
 	public expand:boolean = false;
 	public showForm:boolean = false;
 	public currentChannelId:string = "";
 	public user:TwitchDataTypes.UserInfo | null = null;
-	public channels:{platform:TwitchatDataTypes.ChatPlatform ,user:TwitchatDataTypes.TwitchatUser}[] = [];
 	
 	private clickHandler!:(e:MouseEvent) => void;
 
@@ -57,15 +77,33 @@ class ChannelSwitcher extends Vue {
 		return this.channels.find(v=>v.user.id == this.currentChannelId);
 	}
 
-	public beforeMount():void {
-		this.channels.push({platform:"twitch", user:this.$store.auth.twitch.user});
+	public get channels() {
+		let chans:{platform:TwitchatDataTypes.ChatPlatform, user:TwitchatDataTypes.TwitchatUser, color:string, canDisconnect:boolean}[] = [];
+		
+		chans.push({platform:"twitch", user:this.$store.auth.twitch.user, canDisconnect:false, color:"transparent"});
 		if(this.$store.auth.youtube.user) {
-			this.channels.push({platform:"youtube", user:this.$store.auth.youtube.user});
+			chans.push({platform:"youtube", user:this.$store.auth.youtube.user, canDisconnect:false, color:"transparent"});
 		}
 		
-		this.currentChannelId = this.channels[0].user.id;
+		this.$store.stream.connectedTwitchChans.forEach(entry=> {
+			chans.push({platform:"twitch", user:entry.user, canDisconnect:true, color:entry.color});
+		})
+
+		return chans;
+	}
+
+	public beforeMount():void {
+		if(this.channels.findIndex(v => v.user.id === this.modelValue) == -1) {
+			this.currentChannelId = this.channels[0].user.id;
+		}else{
+			this.currentChannelId = this.modelValue;
+		}
+
+		this.$watch(()=>this.modelValue, ()=>{
+			this.currentChannelId = this.modelValue;
+		})
 		
-		this.clickHandler = (e:MouseEvent) => this.onClose(e);
+		this.clickHandler = (e:MouseEvent) => this.onClickDOM(e);
 		document.addEventListener("click", this.clickHandler);
 	}
 	
@@ -73,11 +111,53 @@ class ChannelSwitcher extends Vue {
 		document.removeEventListener("click", this.clickHandler);
 	}
 
+	/**
+	 * Called when selecting a twitch user after searching for them
+	 */
+	public onSelectUser():void {
+		if(!this.user) return;
+		const user = this.$store.users.getUserFrom("twitch", this.user.id, this.user.id, this.user.login, this.user.display_name);
+		this.$store.stream.connectToExtraChan(user);
+		this.user = null;
+		this.showForm = false;
+	}
+
+	/**
+	 * Called when selecting a connected channel to make it the current one
+	 */
+	public onSelectChannel(channelId:string, platform:TwitchatDataTypes.ChatPlatform):void {
+		this.$emit("update:platform", platform);
+		this.$emit("update:modelValue", channelId);
+		this.$emit("change", channelId);
+		this.close();
+	}
+
+	/**
+	 * Calle dwhen right clicking button.
+	 * Cycles through connected channels for faster switch
+	 */
+	public cycleChannel(event:MouseEvent):void {
+		event.preventDefault();
+		let index = this.channels.findIndex(v=>v.user.id == this.currentChannelId);
+		index = (++index)%this.channels.length;
+		this.onSelectChannel(this.channels[index].user.id, this.channels[index].platform);
+	}
+
+	/**
+	 * Disconnect from given twitch channel
+	 */
+	public disconnect(user:TwitchatDataTypes.TwitchatUser):void {
+		this.$store.stream.disconnectFromExtraChan(user);
+	}
+
+	/**
+	 * Opens the window
+	 */
 	public async open(event:MouseEvent):Promise<void> {
 		event.stopPropagation();
 		event.preventDefault();
 		if(this.expand) {
-			this.onClose(event);
+			this.onClickDOM(event);
 			return;
 		}
 		this.expand = true;
@@ -87,27 +167,33 @@ class ChannelSwitcher extends Vue {
 		gsap.fromTo(holder, {scaleY:0}, {duration:.25, scaleY:1, ease:"back.out", delay:.05});
 	}
 
-	public onSelectUser():void {
-		if(!this.user) return;
-		TwitchMessengerClient.instance.connectToChannel(this.user?.login);
-		this.user = null;
+	/**
+	 * Closes the window
+	 */
+	public close():void {
+		const holder = this.$refs.popin as HTMLDivElement;
+		if(!holder) return;
+		gsap.killTweensOf(holder);
+		gsap.to(holder, {duration:.1, scaleY:0, clearProps:"scaleY", ease:"back.in", onComplete:() => {
+			this.expand = false;
+			this.showForm = false;
+		}});
 	}
 
-	private onClose(e:MouseEvent):void {
+	/**
+	 * Detects click outside of the window to close it
+	 */
+	private onClickDOM(e:MouseEvent):void {
 		if(!this.expand) return;
 		const holder = this.$refs.popin as HTMLDivElement;
 		if(!holder) return;
 
-		gsap.killTweensOf(holder);
 		let target = e.target as HTMLElement;
 		while(target != document.body && target != holder && target != null) {
 			target = target.parentElement as HTMLElement;
 		}
 		if(target === document.body) {
-			gsap.to(holder, {duration:.1, scaleY:0, clearProps:"scaleY", ease:"back.in", onComplete:() => {
-				this.expand = false;
-				this.showForm = false;
-			}});
+			this.close();
 		}
 	}
 
@@ -123,10 +209,12 @@ export default toNative(ChannelSwitcher);
 		display: flex;
 		flex-direction: row;
 		align-items: center;
+		cursor: pointer;
 		.avatar {
 			width: 1.5em;
 			height: 1.5em;
 			border-radius: 50%;
+			border: 2px solid currentColor;
 		}
 	
 		.platformIcon {
@@ -136,7 +224,12 @@ export default toNative(ChannelSwitcher);
 		}
 		.pseudo {
 			text-wrap: nowrap;
-			margin-right: 1em;
+		}
+		.disconnectBt {
+			flex-shrink: 0;
+		}
+		&:hover {
+			background-color: var(--background-color-fader);
 		}
 	}
 
@@ -146,6 +239,7 @@ export default toNative(ChannelSwitcher);
 		gap: .25em;
 		display: flex;
 		flex-direction: column;
+		width: max-content;
 		p>.icon {
 			height: 1em;
 			margin-right: .5em;

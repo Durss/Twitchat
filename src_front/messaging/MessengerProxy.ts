@@ -13,6 +13,7 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { LoremIpsum } from "lorem-ipsum";
 import MessengerClientEvent from "./MessengerClientEvent";
 import TwitchMessengerClient from "./TwitchMessengerClient";
+import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
 /**
 * Created : 26/09/2022
 */
@@ -69,6 +70,11 @@ export default class MessengerProxy {
 		// console.log("          on:", targetPlatforms);
 		if(!hasPlatform || targetPlatforms!.indexOf("twitch")>-1) {
 			if(!TwitchMessengerClient.instance.sendMessage(channelId, message, replyTo, noConfirm)) {
+				return false;
+			}
+		}
+		if(!hasPlatform || targetPlatforms!.indexOf("youtube")>-1) {
+			if(!YoutubeHelper.instance.sendMessage(message)) {
 				return false;
 			}
 		}

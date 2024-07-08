@@ -5,7 +5,7 @@
 		
 		<Icon name="youtube" alt="notice" class="icon"/>
 
-		<!-- <img :src="messageData.user.avatarPath" class="avatar" alt="avatar" v-if="messageData.user.avatarPath"> -->
+		<!-- <img :src="messageData.user.avatarPath" class="avatar" alt="avatar" v-if="messageData.user.avatarPath" referrerpolicy="no-referrer"> -->
 		
 		<div class="holder">
 			<i18n-t scope="global" tag="p" keypath="chat.youtube_subgift.title">

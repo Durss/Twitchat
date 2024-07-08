@@ -55,9 +55,12 @@
 					</div>
 
 					<div class="inputField">
-						<ChannelSwitcher class="chanSwitcher" />
 						<!-- using @input instead of v-model so it works properly on mobile -->
-						<input type="text"
+						<div class="noYoutubeLive" alert
+							v-if="mustConnectYoutubeChan"
+							@click="stopSpam()">{{ $t('chat.form.youtube_not_connected') }}</div>
+						<input v-else
+							type="text"
 							ref="input"
 							:value="message"
 							@input="$event => message = ($event.target as HTMLInputElement).value"
@@ -66,6 +69,7 @@
 							@keyup.capture.tab="(e)=>onTab(e)"
 							@keyup.enter="(e:Event)=>sendMessage(e)"
 							@keydown="onKeyDown">
+						<ChannelSwitcher class="chanSwitcher" v-model="currentChannelId" v-model:platform="currentChannelPlatform" />
 					</div>
 				</div>
 
@@ -366,6 +370,7 @@ import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import MessageExportIndicator from './MessageExportIndicator.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
 import ChannelSwitcher from './ChannelSwitcher.vue';
+import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 
 @Component({
 	components:{
@@ -423,7 +428,9 @@ export class ChatForm extends Vue {
 	public sendHistoryIndex = 0;
 	public sendHistory:string[] = [];
 	public channelId:string = "";
+	public currentChannelId:string = "";
 	public onlineUsersTooltip:string = "";
+	public currentChannelPlatform:TwitchatDataTypes.ChatPlatform = "twitch";
 	public announcement:TwitchatDataTypes.TwitchatAnnouncementData | null = null;
 
 	private announcementInterval:number = -1;
@@ -513,6 +520,10 @@ export class ChatForm extends Vue {
 		if(!list) return 0;
 
 		return list.length;
+	}
+
+	public get mustConnectYoutubeChan():boolean {
+		return this.currentChannelPlatform == "youtube" && YoutubeHelper.instance.currentLiveIds.length === 0;
 	}
 
 	public beforeMount(): void {
@@ -858,7 +869,7 @@ export class ChatForm extends Vue {
 				}
 				this.loading = true;
 				const replyTo = this.$store.chat.replyTo ?? undefined;
-				if(await MessengerProxy.instance.sendMessage(this.message, undefined, undefined, replyTo)) {
+				if(await MessengerProxy.instance.sendMessage(this.message, [this.currentChannelPlatform], this.currentChannelId, replyTo)) {
 					this.message = "";
 					this.$store.chat.replyTo = null;
 				}
@@ -1188,6 +1199,14 @@ export default toNative(ChatForm);
 					.chanSwitcher {
 						position: absolute;
 						margin: .15em;
+					}
+
+					.noYoutubeLive {
+						text-align: center;
+						width: 100%;
+						line-height: 1.75em;
+						background-color: var(--color-alert-fader);
+						border-radius: var(--border-radius);
 					}
 				}
 

@@ -630,6 +630,41 @@ export default class YoutubeHelper {
 		return false;
 	}
 
+	/**
+	 * Send a message to given live ID or all if omited
+	 */
+	public async sendMessage(message:string, liveId?:string):Promise<boolean> {
+		
+		const url = new URL(this.API_PATH+"liveChat/messages");
+		url.searchParams.append("part", "snippet");
+
+		let success = false;
+		const lives = liveId? [liveId] : this.currentLiveIds;
+		for (let i = 0; i < lives.length; i++) {
+			const live = lives[i];
+			const body = {
+				snippet: {
+					liveChatId:live,
+					type:"textMessageEvent",
+					textMessageDetails: {
+						messageText:message
+					}
+				}
+			}
+	
+			this._creditsUsed += 50;
+			const res = await fetch(url, {method:"POST", headers:this.headers, body:JSON.stringify(body)});
+			if(res.status == 200 || res.status == 204) {
+				Logger.instance.log("youtube", {log:"Succes post message to live "+live, credits:this._creditsUsed, liveID:this._currentLiveIds});
+				success = true;
+			}else{
+				Logger.instance.log("youtube", {log:"Cannot post message to live "+live, error:await res.text(), credits: this._creditsUsed, liveID:this._currentLiveIds});
+				StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_message_post"));
+			}
+		}
+		return success;
+	}
+
 
 
 	/*******************

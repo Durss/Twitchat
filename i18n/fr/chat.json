@@ -53,7 +53,8 @@
 			"qnaBt_aria": "FAQ",
 			"trainBt_aria": "Train de la hype",
 			"raidBt_aria": "Raiding",
-			"youtube_saving_token_aria": "Afin d'économiser les crédits d'API Youtube, le tchat a été déconnecté suite à une longue période d'inactivité.\nCliquez pour reconnecter."
+			"youtube_saving_token_aria": "Afin d'économiser les crédits d'API Youtube, le tchat a été déconnecté suite à une longue période d'inactivité.\nCliquez pour reconnecter.",
+			"connect_extra_chan": "Se connecter à une chaîne Twitch"
 		},
 		"filters": {
 			"cta": "Options importantes ici",
