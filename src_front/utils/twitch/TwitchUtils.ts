@@ -264,11 +264,11 @@ export default class TwitchUtils {
 			});
 			const users = (await this.getUserInfo(list.slice(0, maxLength)
 			.map(v=>v.id)) || []).sort((a, b) => {
-				if (a.login.toLowerCase() == search) return -1;
-				if (b.login.toLowerCase() == search) return -1;
+				if (a.login.toLowerCase().toLowerCase() == search) return -1;
+				if (b.login.toLowerCase().toLowerCase() == search) return -1;
 				return a.login.localeCompare(b.login, 'en', { sensitivity: 'base' });
 			});
-			if(users.findIndex(v=>v.login === search) === -1 && bestResult.length > 0) {
+			if(users.findIndex(v=>v.login.toLowerCase() === search) === -1 && bestResult.length > 0) {
 				users.unshift(bestResult[0]);
 			}
 			return users.slice(0, maxLength);

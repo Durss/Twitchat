@@ -45,7 +45,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 	components:{},
 	emits:["onRead"]
 })
- class ChatPredictionResult extends AbstractChatMessage {
+class ChatPredictionResult extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessagePredictionData;
@@ -106,6 +106,7 @@ export default toNative(ChatPredictionResult);
 			margin-bottom: .5em;
 
 			.outcome {
+				filter: contrast(0);
 
 				&:not(.noColorMode) {
 					&:not(:first-of-type) {
@@ -173,15 +174,7 @@ export default toNative(ChatPredictionResult);
 				}
 				&.winner {
 					font-weight: 400;
-					color: var(--color-secondary);
-					.icon {
-						color: var(--color-secondary);
-					}
-					.bar {
-						@c: var(--color-secondary-fade);
-						background-image: linear-gradient(to right, @c 100%, @c 100%);
-						background-color: var(--color-secondary-fader);
-					}
+					filter: unset;
 					.infos > .outcomeTitle > .check {
 						display: block;
 						margin-left: -1.25em;

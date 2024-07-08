@@ -186,13 +186,13 @@ export default class YoutubeHelper {
 		if(res.status == 200) {
 			const json = await res.json() as YoutubeChannelInfo;
 			this._userData = json.items[0];
-			const user = StoreProxy.users.getUserFrom("youtube", this._userData.id, this._userData.id, this._userData.snippet.title, this._userData.snippet.title);
+			const user = StoreProxy.users.getUserFrom("youtube", this._userData.id, this._userData.id, this._userData.snippet.title, this._userData.snippet.title, undefined, true, true, true);
 			user.avatarPath = this._userData.snippet.thumbnails.default.url || this._userData.snippet.thumbnails.medium.url;
 			const chanInfos = user.channelInfo[this._userData.id];
 			chanInfos.is_broadcaster = true;
 			chanInfos.is_moderator = true;
 			Logger.instance.log("youtube", {log:"User infos loaded successfully. "+user.displayName+" (#"+user.id+")", credits: this._creditsUsed, liveID:this._currentLiveIds});
-			StoreProxy.auth.youtube.user = user as TwitchatDataTypes.TwitchatUser;
+			StoreProxy.auth.youtube.user = user;
 		}
 	}
 

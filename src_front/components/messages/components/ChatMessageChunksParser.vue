@@ -12,8 +12,8 @@
 		</template>
 		
 		<tooltip :class='chunk.type' v-else-if="(chunk.type == 'emote' || chunk.type == 'cheermote') && $store.params.appearance.showEmotes.value !== false"
-		:content="chunk.emoteHD? '<center><img src='+chunk.emoteHD+' width=\'112\' class=\'emote\'><br>'+chunk.value+'</center>' : ''">
-			<img :src="largeEmotes? chunk.emoteHD : chunk.emote" :alt="chunk.value" loading="lazy">
+		:content="chunk.emoteHD? '<center><img src='+chunk.emoteHD+' width=\''+(largeEmote? 150 : 112)+'\' class=\'emote\'><br>'+chunk.value+'</center>' : ''">
+			<img :src="largeEmote? chunk.emoteHD : chunk.emote" :alt="chunk.value" loading="lazy">
 		</tooltip>
 
 		<template v-else-if="chunk.type == 'url'">
@@ -45,7 +45,7 @@ class ChatMessageChunksParser extends Vue {
 	public channel!:string;
 
 	@Prop({default:false, type:Boolean})
-	public largeEmotes!:boolean;
+	public largeEmote!:boolean;
 
 	@Prop
 	public chunks!:TwitchatDataTypes.ParseMessageChunk[];

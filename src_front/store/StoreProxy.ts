@@ -1249,6 +1249,10 @@ export interface IStreamState {
 	 * Room settings for each platforms
 	 */
 	roomSettings:{[key in string]:TwitchatDataTypes.IRoomSettings|undefined};
+	/**
+	 * Contains extra twitch channels to connect to
+	 */
+	connectedTwitchChans:string[];
 }
 
 export interface IStreamGetters {

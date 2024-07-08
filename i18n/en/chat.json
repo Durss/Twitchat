@@ -53,7 +53,8 @@
 			"trainBt_aria": "Hype train",
 			"raidBt_aria": "Raiding",
 			"youtube_saving_token_aria": "Youtube chat disconnected to reduce API usage after a long period of inactivity.\nClick to reconnect.",
-			"bingoGridBt_aria": "Bingo grids"
+			"bingoGridBt_aria": "Bingo grids",
+			"connect_extra_chan": "Connect to another Twitch channel"
 		},
 		"filters": {
 			"cta": "Important options here",

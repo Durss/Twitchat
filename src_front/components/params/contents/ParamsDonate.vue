@@ -25,7 +25,16 @@
 					<div class="giftHolder">
 						<TTButton v-if="!giftForm" @click="giftForm = true" light :premium="premium" :secondary="!premium">{{ $t("donate.gift_bt") }}</TTButton>
 						<template v-else>
-							<SearchUserForm v-model="giftedUser" @close="giftForm = false; giftedUser = null;"></SearchUserForm>
+							<div class="gifed" v-if="giftedUser">
+								<a :href="'https://twitch.tv/'+giftedUser.login" class="user" target="_blank">
+									<span class="giftIcon">🎁</span>
+									<img :src="giftedUser.profile_image_url" alt="avatar">
+									<div class="login">{{ giftedUser.display_name }}</div>
+									<Icon name="newtab" />
+									<TTButton icon="cross" alert noBounce @click.capture.prevent="giftedUser = null"></TTButton>
+								</a>
+							</div>
+							<SearchUserForm v-else v-model="giftedUser" @close="giftForm = false; giftedUser = null;"></SearchUserForm>
 						</template>
 					</div>
 				</div>
@@ -610,6 +619,51 @@ export default toNative(ParamsDonate);
 					flex-direction: column;
 					z-index: 2;
 					font-size: 1rem;
+
+					.gifed {
+						background-color: var(--color-light);
+						padding: .25em;
+						border-radius: var(--border-radius);
+						overflow: hidden;
+						.user {
+							color: var(--color-text-inverse);
+							font-weight: normal;
+							text-decoration: none;
+							.icon {
+								height: 1em;
+							}
+						}
+						&:hover {
+							.login {
+								text-decoration: underline;
+							}
+						}
+						.giftIcon {
+							font-size: 1.5em;
+						}
+						.button {
+							position: relative;
+							margin: -.25em;
+							border-radius: 0;
+							align-self: stretch;
+						}
+						.user {
+							gap: .5em;
+							display: flex;
+							flex-direction: row;
+							align-items: center;
+							.login {
+								text-overflow: ellipsis;
+								overflow: hidden;
+								flex-grow: 1;
+								color: #000;
+							}
+							img {
+								height: 2em;
+								border-radius: 50%;
+							}
+						}
+					}
 				}
 			}
 			.premiumLabel {

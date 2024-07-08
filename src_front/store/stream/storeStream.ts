@@ -13,6 +13,7 @@ import { defineStore, type PiniaCustomProperties, type _GettersTree, type _Store
 import type { JsonObject } from "type-fest";
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
+import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
 
 const commercialTimeouts:{[key:string]:number[]} = {};
 
@@ -30,34 +31,7 @@ export const storeStream = defineStore('stream', {
 		roomSettings:{},//channelId => settings
 		currentStreamInfo: {},//channelId => infos
 		raidHistory: [],
-		// raidHistory: [{
-		// 	uid:"152242149",
-		// 	date:Date.now() - 15*24*3600000
-		// },
-		// {
-		// 	uid:"43809079",
-		// 	date:Date.now() - 9*24*3600000
-		// },
-		// {
-		// 	uid:"152242149",
-		// 	date:Date.now() - 12.5*24*3600000
-		// },
-		// {
-		// 	uid:"152242149",
-		// 	date:Date.now() - 8.65*24*3600000
-		// },
-		// {
-		// 	uid:"18615783",
-		// 	date:Date.now() - 9.5*24*3600000
-		// },
-		// {
-		// 	uid:"53964156",
-		// 	date:Date.now() - 16.65*24*3600000
-		// },
-		// {
-		// 	uid:"53964156",
-		// 	date:Date.now() - 31.65*24*3600000
-		// }],
+		connectedTwitchChans:[],
 	} as IStreamState),
 
 
@@ -799,6 +773,14 @@ export const storeStream = defineStore('stream', {
 
 			return result;
 		},
+
+		async connectToExtraChan(login:string):Promise<void> {
+			TwitchMessengerClient.instance.connectToChannel(login);
+		},
+
+		async disconnectToExtraChan(login:string):Promise<void> {
+			TwitchMessengerClient.instance.disconnectFromChannel(login);
+		}
 
 	} as IStreamActions
 	& ThisType<IStreamActions

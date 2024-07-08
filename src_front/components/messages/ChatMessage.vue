@@ -94,7 +94,7 @@
 			<span :class="getMessageClasses(messageData)">
 				<span class="text">
 					<ChatMessageChunksParser
-					:largeEmotes="messageData.type == 'message'? messageData.twitch_gigantifiedEmote : false"
+					:largeEmote="messageData.type == 'message'? messageData.twitch_gigantifiedEmote != undefined : false"
 					:chunks="localMessageChunks"
 					:channel="messageData.channel_id"
 					:platform="messageData.platform" />

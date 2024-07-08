@@ -54,12 +54,12 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 */
 	public connectToChannel(channel:string):void {
 		//Already connected to IRC, just add the channel
-		if(this._client) {
-			Logger.instance.log("irc", {info:"Connect to channel "+channel});
-			this._client.join(channel);
-			this.reconnect();
-			return;
-		}
+		// if(this._client) {
+		// 	Logger.instance.log("irc", {info:"Connect to channel "+channel});
+		// 	this._client.join(channel);
+		// 	this.reconnect();
+		// 	return;
+		// }
 
 		this._channelList.push(channel);
 
@@ -161,10 +161,15 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				username: StoreProxy.auth.twitch.user.login,
 				password: "oauth:"+StoreProxy.auth.twitch.access_token,
 			};
-			this._client = new tmi.Client(options);
-			this._client.connect();
 
-			this.initialize();
+			if(!this._client) {
+				this._client = new tmi.Client(options);
+				this._client.connect();
+	
+				this.initialize();
+			}else{
+				this._client.join(channel);
+			}
 		}, 100);
 	}
 
@@ -181,13 +186,19 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 */
 	public async disconnectFromChannel(channel:string):Promise<void> {
 		Logger.instance.log("irc", {info:"Disconnect from channel "+channel});
-		const params = this._client.getOptions();
 		const index = this._channelList.findIndex(v=>v===channel);
 		if(index > -1) {
 			this._channelList.splice(index, 1);
-			params.channels = this._channelList;
-			await this.reconnect();
+			this._client.part(channel);
 		}
+		
+		// const params = this._client.getOptions();
+		// const index = this._channelList.findIndex(v=>v===channel);
+		// if(index > -1) {
+		// 	this._channelList.splice(index, 1);
+		// 	params.channels = this._channelList;
+		// 	await this.reconnect();
+		// }
 	}
 
 	/**

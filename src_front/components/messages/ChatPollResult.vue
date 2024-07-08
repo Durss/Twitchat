@@ -110,6 +110,7 @@ export default toNative(ChatPollResult);
 				flex-direction: row;
 				flex-wrap: wrap;
 				gap: 2px;
+				filter: contrast(0);
 				.infos {
 					column-gap: .5em;
 					display: flex;
@@ -144,18 +145,19 @@ export default toNative(ChatPollResult);
 				}
 				&.winner {
 					font-weight: 400;
-					color: var(--color-secondary);
-					.icon {
-						color: var(--color-secondary);
-					}
+					filter: unset;
+					// color: var(--color-secondary);
+					// .icon {
+					// 	color: var(--color-secondary);
+					// }
+					// .bar {
+					// 	@c: var(--color-secondary-fade);
+					// 	background-image: linear-gradient(to right, @c 100%, @c 100%);
+					// 	background-color: var(--color-secondary-fader);
+					// }
 					.infos > .choiceTitle > .check {
 						display: block;
 						margin-left: -1.25em;
-					}
-					.bar {
-						@c: var(--color-secondary-fade);
-						background-image: linear-gradient(to right, @c 100%, @c 100%);
-						background-color: var(--color-secondary-fader);
 					}
 				}
 			}

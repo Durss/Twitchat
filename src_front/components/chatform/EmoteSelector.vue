@@ -86,7 +86,7 @@ import TTButton from '../TTButton.vue';
 	},
 	emits:["close", "select"]
 })
- class EmoteSelector extends Vue {
+class EmoteSelector extends Vue {
 
 	public users:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[] = [];
 	public filter = "";

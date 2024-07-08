@@ -54,22 +54,25 @@
 						</div>
 					</div>
 
-					<!-- using @input instead of v-model so it works properly on mobile -->
-					<input type="text"
-						ref="input"
-						:value="message"
-						@input="$event => message = ($event.target as HTMLInputElement).value"
-						:placeholder="$t('chat.form.input_placeholder')"
-						:maxlength="maxLength"
-						@keyup.capture.tab="(e)=>onTab(e)"
-						@keyup.enter="(e:Event)=>sendMessage(e)"
-						@keydown="onKeyDown">
+					<div class="inputField">
+						<ChannelSwitcher class="chanSwitcher" />
+						<!-- using @input instead of v-model so it works properly on mobile -->
+						<input type="text"
+							ref="input"
+							:value="message"
+							@input="$event => message = ($event.target as HTMLInputElement).value"
+							:placeholder="$t('chat.form.input_placeholder')"
+							:maxlength="maxLength"
+							@keyup.capture.tab="(e)=>onTab(e)"
+							@keyup.enter="(e:Event)=>sendMessage(e)"
+							@keydown="onKeyDown">
+					</div>
 				</div>
 
-				<Button class="spam" alert
+				<TTButton class="spam" alert
 					v-if="$store.chat.spamingFakeMessages"
 					icon="cross"
-					@click="stopSpam()">{{ $t('chat.form.stop_spamBt') }}</Button>
+					@click="stopSpam()">{{ $t('chat.form.stop_spamBt') }}</TTButton>
 
 				<span @click="error=false" v-if="error" class="error">{{ $t('error.message_send') }}</span>
 			</form>
@@ -266,7 +269,7 @@
 				@click="$emit('update:showAntifa', true)">🗳️</ButtonNotification>
 
 				<transition name="blink">
-					<Button class="emergency"
+					<TTButton class="emergency"
 						v-if="emergencyButtonEnabled"
 						icon="emergency"
 						alert
@@ -280,7 +283,7 @@
 
 		<div class="floatingButtons">
 			<transition name="slide">
-				<Button class="muteBt" :aria-label="$t('chat.form.muteTTSBt_aria')"
+				<TTButton class="muteBt" :aria-label="$t('chat.form.muteTTSBt_aria')"
 					icon="mute"
 					secondary
 					v-if="$store.tts.speaking"
@@ -289,7 +292,7 @@
 			</transition>
 
 			<transition name="slide">
-				<Button class="muteBt" :aria-label="$t('chat.form.clearTTSBt_aria')"
+				<TTButton class="muteBt" :aria-label="$t('chat.form.clearTTSBt_aria')"
 					icon="muteAll"
 					secondary
 					v-if="$store.tts.speaking"
@@ -298,7 +301,7 @@
 			</transition>
 
 			<transition name="slide">
-				<Button class="voicemodBt" :aria-label="$t('chat.form.resetVoiceBt_aria')"
+				<TTButton class="voicemodBt" :aria-label="$t('chat.form.resetVoiceBt_aria')"
 				secondary
 				v-if="$store.voice.voicemodParams.voiceIndicator && $store.voice.voicemodCurrentVoice.id != 'nofx'"
 				v-tooltip="{content:$t('chat.form.resetVoiceBt_aria'), placement:'left'}"
@@ -306,7 +309,7 @@
 				<template #icon>
 					<img :src="'data:image/png;base64,' + $store.voice.voicemodCurrentVoice.image" alt="">
 					</template>
-				</Button>
+				</TTButton>
 			</transition>
 		</div>
 
@@ -362,12 +365,14 @@ import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import MessageExportIndicator from './MessageExportIndicator.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
+import ChannelSwitcher from './ChannelSwitcher.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ParamItem,
 		draggable,
+		ChannelSwitcher,
 		CommercialTimer,
 		ButtonNotification,
 		TimerCountDownInfo,
@@ -1171,6 +1176,21 @@ export default toNative(ChatForm);
 				flex-grow: 1;
 				flex-basis: 150px;
 
+				.inputField {
+					gap: 0;
+					display: flex;
+					flex-direction: row;
+					input {
+						flex-grow: 1;
+						color: var(--color-text);
+						padding-left: 2em;
+					}
+					.chanSwitcher {
+						position: absolute;
+						margin: .15em;
+					}
+				}
+
 				.replyTo, .announcement {
 					top: -.25em;
 					width:100%;
@@ -1250,10 +1270,6 @@ export default toNative(ChatForm);
 						}
 					}
 				}
-			}
-			input {
-				width: 100%;
-				color: var(--color-text);
 			}
 			.error {
 				cursor: pointer;
