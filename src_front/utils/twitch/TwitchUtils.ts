@@ -259,13 +259,13 @@ export default class TwitchUtils {
 			const list = json.data as TwitchDataTypes.LiveChannelSearchResult[];
 			list.sort((a, b) => {
 				if (a.broadcaster_login.toLowerCase() == search) return -1;
-				if (b.broadcaster_login.toLowerCase() == search) return -1;
+				if (b.broadcaster_login.toLowerCase() == search) return 1;
 				return a.broadcaster_login.localeCompare(b.broadcaster_login, 'en', { sensitivity: 'base' });
 			});
 			const users = (await this.getUserInfo(list.slice(0, maxLength)
 			.map(v=>v.id)) || []).sort((a, b) => {
 				if (a.login.toLowerCase().toLowerCase() == search) return -1;
-				if (b.login.toLowerCase().toLowerCase() == search) return -1;
+				if (b.login.toLowerCase().toLowerCase() == search) return 1;
 				return a.login.localeCompare(b.login, 'en', { sensitivity: 'base' });
 			});
 			if(users.findIndex(v=>v.login.toLowerCase() === search) === -1 && bestResult.length > 0) {
@@ -369,7 +369,7 @@ export default class TwitchUtils {
 			body: JSON.stringify({
 				broadcaster_id: channelId,
 				title: question,
-				choices: answers.map(v => { return { title: v } }),
+				choices: answers.filter(v=> v.trim().length > 0).map(v => { return { title: v } }),
 				duration,
 				channel_points_voting_enabled: pointsPerVote > 0,
 				channel_points_per_vote: pointsPerVote,
@@ -469,7 +469,7 @@ export default class TwitchUtils {
 			body: JSON.stringify({
 				broadcaster_id: channelId,
 				title: question,
-				outcomes: answers.map(v => { return { title: v } }),
+				outcomes: answers.filter(v=> v.trim().length > 0).map(v => { return { title: v } }),
 				prediction_window: duration,
 			})
 		}
