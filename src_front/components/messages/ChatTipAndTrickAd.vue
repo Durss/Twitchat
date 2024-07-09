@@ -115,7 +115,7 @@ import TTButton from '../TTButton.vue';
 	},
 	emits:["showModal"]
 })
- class ChatTipAndTrickAd extends Vue {
+class ChatTipAndTrickAd extends Vue {
 
 	public tipIndex = 0;
 	private maxIndex = 11;

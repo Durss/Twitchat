@@ -38,7 +38,7 @@
 			<Icon v-if="!disableConversation && isConversation && $store.params.features.conversationsEnabled.value && !lightMode"
 				class="icon convBt"
 				name="conversation"
-				@click.stop="$emit('showConversation', $event, messageData)" />
+				@click.stop="$emit('showConversation', messageData)" />
 
 			<Button class="noAutospoilBt" v-if="messageData.type == 'message' && messageData.autospoiled === true"
 			@click.stop="stopAutoSpoil()" alert small icon="show" v-tooltip="$t('chat.message.stop_autospoil')" />
@@ -549,7 +549,7 @@ class ChatMessage extends AbstractChatMessage {
 	public hoverNickName(event:MouseEvent):void {
 		if(this.messageData.type == "whisper") return;
 		if(this.$store.params.features.userHistoryEnabled.value) {
-			this.$emit('showUserMessages', event, this.messageData);
+			this.$emit('showUserMessages', this.messageData);
 		}
 	}
 
@@ -559,7 +559,7 @@ class ChatMessage extends AbstractChatMessage {
 	public outNickName(event:MouseEvent):void {
 		if(this.messageData.type == "whisper") return;
 		if(this.$store.params.features.userHistoryEnabled.value) {
-			this.$emit('unscheduleMessageOpen', event, this.messageData);
+			this.$emit('unscheduleMessageOpen', this.messageData);
 		}
 	}
 

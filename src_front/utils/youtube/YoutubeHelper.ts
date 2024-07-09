@@ -365,16 +365,22 @@ export default class YoutubeHelper {
 							if(errorCode == "liveChatEnded") {
 								//Live broadcast ended
 								StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_chat_ended"));
+								this.currentLiveIds.splice(i, 1);
+								i--;
 								return;
 							}
 							if(errorCode == "liveChatNotFound") {
 								//Live broadcast deleted
 								StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_chat_not_found"));
+								this.currentLiveIds.splice(i, 1);
+								i--;
 								return;
 							}
 							if(errorCode == "liveChatDisabled") {
 								//Chat not enabled for selected live broadcast
 								StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_chat_off"));
+								this.currentLiveIds.splice(i, 1);
+								i--;
 								return;
 							}
 							if(errorCode == "quotaExceeded") {

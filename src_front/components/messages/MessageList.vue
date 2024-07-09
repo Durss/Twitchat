@@ -1366,7 +1366,7 @@ import { Linear } from 'gsap/all';
 	 * Called when asking to read a conversation
 	 * Display the full conversation if any
 	 */
-	public async openConversation(event: MouseEvent, m: TwitchatDataTypes.MessageChatData): Promise<void> {
+	public async openConversation(m: TwitchatDataTypes.MessageChatData): Promise<void> {
 		if (this.lightMode || !m || (!m.answersTo && !m.answers)) return;
 
 		this.conversationMode = true;
@@ -1384,7 +1384,7 @@ import { Linear } from 'gsap/all';
 	/**
 	 * Called to open a user's messages history
 	 */
-	public async openUserHistory(event: MouseEvent, m: TwitchatDataTypes.MessageChatData): Promise<void> {
+	public async openUserHistory(m: TwitchatDataTypes.MessageChatData): Promise<void> {
 		if (this.lightMode || !m) return;
 
 		clearTimeout(this.openConvTimeout);
@@ -1412,7 +1412,7 @@ import { Linear } from 'gsap/all';
 	 * Here we kill that delay to avoid opening it even if rolloing out the username
 	 * while staying inside the message bounds
 	 */
-	public async unscheduleHistoryOpen(event: MouseEvent, m: TwitchatDataTypes.MessageChatData): Promise<void> {
+	public async unscheduleHistoryOpen(m: TwitchatDataTypes.MessageChatData): Promise<void> {
 		if (this.lightMode || !m) return;
 		clearTimeout(this.openConvTimeout);
 	}
@@ -1468,7 +1468,6 @@ import { Linear } from 'gsap/all';
 	 * Called when a message is clicked
 	 */
 	public toggleMarkRead(m: TwitchatDataTypes.ChatMessageTypes, event?: MouseEvent): void {
-
 		//Do nothing if feature isn't enabled
 		if (this.$store.params.features.markAsRead.value !== true) return;
 

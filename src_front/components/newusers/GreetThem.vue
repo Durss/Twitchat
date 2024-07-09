@@ -435,10 +435,8 @@ export default toNative(NewUsers);
 				select {
 					font-size: .8em;
 					padding: 0px 2px;
-					border-radius: 5px;
 					color: var(--color-light);
 					background-color: rgba(0,0,0,.5);
-					border-color:  rgba(0, 0, 0, .8);
 					option {
 						background-color: var(--color-dark);
 					}
@@ -459,7 +457,6 @@ export default toNative(NewUsers);
 			overflow: hidden;
 			font-family: var(--font-inter);
 			transition: background-color .25s;
-			border: 1px solid transparent;
 			margin: 0;
 
 			&:nth-child(odd) {

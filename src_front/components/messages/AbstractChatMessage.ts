@@ -84,7 +84,7 @@ export default class AbstractChatMessage extends Vue {
 				this.copyJSON();
 				e.stopPropagation();
 			}else{
-				this.$emit("onRead", this.messageData, e)
+				this.$emit("onRead", this.messageData, e);
 			}
 		}
 		this.$el.addEventListener("click", this.clickHandler);

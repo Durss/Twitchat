@@ -2316,10 +2316,14 @@ export namespace TwitchatDataTypes {
 		channel_id:string;
 		platform:ChatPlatform;
 		/**
-		 * If this is set to true the message won't be displayed on main chat columns.
-		 * But they will be displayed on search results
+		 * If set, will show a color on the left indicating which of the connected
+		 * channels this message comes from
 		 */
-		// hidden:boolean;
+		channel_color?:string;
+		/**
+		 * If set, will show the picture at left of the message
+		 */
+		channel_pic?:string;
 		/**
 		 * true if message has been deleted
 		 */

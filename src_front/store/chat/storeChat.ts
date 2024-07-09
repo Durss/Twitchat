@@ -842,6 +842,15 @@ export const storeChat = defineStore('chat', {
 			const logTimings = false;//Enable to check for perf issues
 
 			message = reactive(message);
+			
+			if(message.channel_id != sAuth.twitch.user.id
+			&& message.channel_id != sAuth.youtube.user?.id) {
+				const infos = sStream.connectedTwitchChans.find(v=>v.user.id == message.channel_id);
+				if(infos) {
+					message.channel_color = infos.color;
+					message.channel_pic = infos.user.avatarPath;
+				}
+			}
 
 			if(!greetedUsersInitialized) {
 				greetedUsersInitialized = true;

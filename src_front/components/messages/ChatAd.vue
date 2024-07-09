@@ -168,7 +168,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 	},
 	emits:["showModal", "onRead"]
 })
- class ChatAd extends Vue {
+class ChatAd extends Vue {
 
 	@Prop
 	public messageData!:TwitchatDataTypes.MessageTwitchatAdData;

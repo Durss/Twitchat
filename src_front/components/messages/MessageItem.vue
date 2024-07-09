@@ -1,215 +1,332 @@
 <template>
-	<ChatAd class="message"
-		v-if="messageData.type == 'twitchat_ad'"
-		:messageData="messageData" />
-
-	<ChatJoinLeave class="message"
-		v-else-if="(messageData.type == 'join' || messageData.type == 'leave')"
-		:messageData="messageData" />
-
-	<ChatFollow class="message"
-		v-else-if="messageData.type == 'following'"
-		:messageData="messageData" />
-
-	<ChatRaid class="message"
-		v-else-if="messageData.type == 'raid'"
-		:messageData="messageData" />
-
-	<ChatConnect class="message"
-		v-else-if="(messageData.type == 'connect' || messageData.type == 'disconnect')"
-		:messageData="messageData" />
-
-	<ChatMessage class="message"
-		v-else-if="messageData.type == 'message' || messageData.type == 'whisper'"
-		:messageData="messageData" />
-
-	<ChatNotice class="message"
-		v-else-if="messageData.type == 'notice'"
-		:messageData="messageData" />
-
-	<ChatPollResult class="message"
-		v-else-if="messageData.type == 'poll'"
-		:messageData="messageData" />
-
-	<ChatPredictionResult class="message"
-		v-else-if="messageData.type == 'prediction'"
-		:messageData="messageData" />
-
-	<ChatBingoResult class="message"
-		v-else-if="messageData.type == 'bingo'"
-		:messageData="messageData" />
-
-	<ChatRaffleResult class="message"
-		v-else-if="messageData.type == 'raffle'"
-		:messageData="messageData" />
-
-	<ChatCountdownResult class="message"
-		v-else-if="messageData.type == 'countdown'"
-		:messageData="messageData" />
-
-	<ChatTimerResult class="message"
-		v-else-if="messageData.type == 'timer'"
-		:messageData="messageData" />
-
-	<ChatHypeTrainCooldown class="message"
-		v-else-if="messageData.type == 'hype_train_cooled_down'"
-		:messageData="messageData" />
-
-	<ChatHypeTrainResult class="message"
-		v-else-if="messageData.type == 'hype_train_summary'"
-		:messageData="messageData" />
-
-	<ChatFollowbotEvents class="message"
-		v-else-if="messageData.type == 'followbot_list'"
-		:messageData="messageData" />
-
-	<ChatRoomSettings class="message"
-		v-else-if="messageData.type == 'room_settings'"
-		:messageData="messageData" />
-
-	<ChatClear class="message"
-		v-else-if="messageData.type == 'clear_chat'"
-		:messageData="messageData" />
-
-	<ChatShoutout class="message"
-		v-else-if="messageData.type == 'shoutout'"
-		:messageData="messageData" />
-
-	<ChatLowTrustTreatment class="message"
-		v-else-if="messageData.type == 'low_trust_treatment'"
-		:messageData="messageData" />
-
-	<ChatPinNotice class="message"
-		v-else-if="messageData.type == 'pinned' || messageData.type == 'unpinned'"
-		:messageData="messageData" />
-
-	<ChatBan class="message"
-		v-else-if="messageData.type == 'ban'"
-		:messageData="messageData" />
-
-	<ChatUnban class="message"
-		v-else-if="messageData.type == 'unban'"
-		:messageData="messageData" />
-
-	<ChatStreamOnOff class="message"
-		v-else-if="messageData.type == 'stream_online' || messageData.type == 'stream_offline'"
-		:messageData="messageData" />
-
-	<ChatMessageClipPending class="message"
-		v-else-if="messageData.type == 'clip_pending_publication'"
-		:messageData="messageData" />
-
-	<ChatScopeRequester class="message"
-		v-else-if="messageData.type == 'scope_request'"
-		:messageData="messageData" />
-
-	<ChatCommunityBoost class="message"
-		v-else-if="messageData.type == 'community_boost_complete'"
-		:messageData="messageData" />
-
-	<ChatBits class="message"
-		v-else-if="messageData.type == 'cheer'"
-		:messageData="messageData" />
-
-	<ChatSubscription class="message"
-		v-else-if="messageData.type == 'subscription'"
-		:messageData="messageData" />
-
-	<ChatReward class="message"
-		v-else-if="messageData.type == 'reward'"
-		:messageData="messageData" />
-
-	<ChatCommunityChallengeContribution class="message"
-		v-else-if="messageData.type == 'community_challenge_contribution'"
-		:messageData="messageData" />
-
-	<ChatAutobanJoin class="message"
-		v-else-if="messageData.type == 'autoban_join'"
-		:messageData="messageData" />
-
-	<ChatWatchStreak class="message"
-		v-else-if="messageData.type == 'user_watch_streak'"
-		:messageData="messageData" />
-
-	<ChatHypeChatMessage class="message"
-		v-else-if="messageData.type == 'hype_chat'"
-		:messageData="messageData" />
-
-	<ChatAdBreakStarted class="message"
-		v-else-if="messageData.type == 'ad_break_start_chat'"
-		:messageData="messageData" />
-
-	<ChatHistorySplitter class="message"
-		v-else-if="messageData.type == 'history_splitter'"
-		:messageData="messageData" />
-
-	<ChatTrackAddedToQueue class="message"
-		v-else-if="messageData.type == 'music_added_to_queue'"
-		:messageData="messageData" />
-
-	<ChatTrackStart class="message"
-		v-else-if="messageData.type == 'music_start'"
-		:messageData="messageData" />
-
-	<ChatCustomMessage class="message"
-		v-else-if="messageData.type == 'custom'"
-		:messageData="messageData" />
-
-	<ChatStreamlabsEvent class="message"
-		v-else-if="messageData.type == 'streamlabs'"
-		:messageData="messageData" />
-
-	<ChatStreamelementsEvent class="message"
-		v-else-if="messageData.type == 'streamelements'"
-		:messageData="messageData" />
-
-	<ChatKofiEvent class="message"
-		v-else-if="messageData.type == 'kofi'"
-		:messageData="messageData" />
-
-	<ChatTipeeeEvent class="message"
-		v-else-if="messageData.type == 'tipeee'"
-		:messageData="messageData" />
-
-	<ChatUnbanRequest class="message"
-		v-else-if="messageData.type == 'unban_request'"
-		:messageData="messageData" />
-
-	<ChatCelebration class="message"
-		v-else-if="messageData.type == 'twitch_celebration'"
-		:messageData="messageData" />
-
-	<ChatAutomodTermsUpdate class="message"
-		v-else-if="messageData.type == 'blocked_terms'"
-		:messageData="messageData" />
-
-	<ChatHateRaid class="message"
-		v-else-if="messageData.type == 'hate_raid'"
-		:messageData="messageData" />
-
-	<ChatWarnUser class="message"
-		v-else-if="messageData.type == 'warn_chatter'"
-		:messageData="messageData" />
-
-	<ChatWarnAcknowledgment class="message"
-		v-else-if="messageData.type == 'warn_acknowledge'"
-		:messageData="messageData" />
-
-	<ChatYoutubeSuperChat class="message"
-		v-else-if="messageData.type == 'super_chat'"
-		:messageData="messageData" />
-
-	<ChatYoutubeSuperSticker class="message"
-		v-else-if="messageData.type == 'super_sticker'"
-		:messageData="messageData" />
-
-	<ChatYoutubeSubscription class="message"
-		v-else-if="messageData.type == 'youtube_subscription'"
-		:messageData="messageData" />
-
-	<ChatYoutubeSubgift class="message"
-		v-else-if="messageData.type == 'youtube_subgift'"
-		:messageData="messageData" />
+	<div class="holder">
+		<img v-if="messageData.channel_pic && $store.params.appearance.multiChatAvatar.value === true" class="avatar" :src="messageData.channel_pic" />
+		<span v-else-if="messageData.channel_color" class="border" :style="{color:messageData.channel_color}"></span>
+		<ChatAd :class="classes"
+			v-if="messageData.type == 'twitchat_ad'"
+			:messageData="messageData"
+			@showModal="(v: string) => $emit('showModal', v)"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatJoinLeave :class="classes"
+			v-else-if="(messageData.type == 'join' || messageData.type == 'leave')"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatFollow :class="classes"
+			v-else-if="messageData.type == 'following'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatRaid :class="classes"
+			v-else-if="messageData.type == 'raid'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatConnect :class="classes"
+			v-else-if="(messageData.type == 'connect' || messageData.type == 'disconnect')"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatMessage :class="classes"
+			v-else-if="messageData.type == 'message' || messageData.type == 'whisper'"
+			:messageData="messageData"
+			@onOverMessage="$emit('onOverMessage', $event)"
+			@showConversation="$emit('showConversation', $event)"
+			@showUserMessages="$emit('showUserMessages', $event)"
+			@unscheduleMessageOpen="$emit('unscheduleMessageOpen', $event)"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatNotice :class="classes"
+			v-else-if="messageData.type == 'notice'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatPollResult :class="classes"
+			v-else-if="messageData.type == 'poll'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatPredictionResult :class="classes"
+			v-else-if="messageData.type == 'prediction'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatBingoResult :class="classes"
+			v-else-if="messageData.type == 'bingo'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatRaffleResult :class="classes"
+			v-else-if="messageData.type == 'raffle'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatCountdownResult :class="classes"
+			v-else-if="messageData.type == 'countdown'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatTimerResult :class="classes"
+			v-else-if="messageData.type == 'timer'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatHypeTrainCooldown :class="classes"
+			v-else-if="messageData.type == 'hype_train_cooled_down'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatHypeTrainResult :class="classes"
+			v-else-if="messageData.type == 'hype_train_summary'"
+			:messageData="messageData"
+			@setCustomActivities="$emit('setCustomActivities', $event)"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatFollowbotEvents :class="classes"
+			v-else-if="messageData.type == 'followbot_list'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatRoomSettings :class="classes"
+			v-else-if="messageData.type == 'room_settings'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatClear :class="classes"
+			v-else-if="messageData.type == 'clear_chat'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatShoutout :class="classes"
+			v-else-if="messageData.type == 'shoutout'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatLowTrustTreatment :class="classes"
+			v-else-if="messageData.type == 'low_trust_treatment'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatPinNotice :class="classes"
+			v-else-if="messageData.type == 'pinned' || messageData.type == 'unpinned'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatBan :class="classes"
+			v-else-if="messageData.type == 'ban'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatUnban :class="classes"
+			v-else-if="messageData.type == 'unban'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatStreamOnOff :class="classes"
+			v-else-if="messageData.type == 'stream_online' || messageData.type == 'stream_offline'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatMessageClipPending :class="classes"
+			v-else-if="messageData.type == 'clip_pending_publication'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatScopeRequester :class="classes"
+			v-else-if="messageData.type == 'scope_request'"
+			:messageData="messageData"
+			@openFilters="(v: string) => $emit('openFilters')"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatCommunityBoost :class="classes"
+			v-else-if="messageData.type == 'community_boost_complete'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatBits :class="classes"
+			v-else-if="messageData.type == 'cheer'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatSubscription :class="classes"
+			v-else-if="messageData.type == 'subscription'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatReward :class="classes"
+			v-else-if="messageData.type == 'reward'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatCommunityChallengeContribution :class="classes"
+			v-else-if="messageData.type == 'community_challenge_contribution'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatAutobanJoin :class="classes"
+			v-else-if="messageData.type == 'autoban_join'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatWatchStreak :class="classes"
+			v-else-if="messageData.type == 'user_watch_streak'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatHypeChatMessage :class="classes"
+			v-else-if="messageData.type == 'hype_chat'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatAdBreakStarted :class="classes"
+			v-else-if="messageData.type == 'ad_break_start_chat'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatHistorySplitter :class="classes"
+			v-else-if="messageData.type == 'history_splitter'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatTrackAddedToQueue :class="classes"
+			v-else-if="messageData.type == 'music_added_to_queue'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatTrackStart :class="classes"
+			v-else-if="messageData.type == 'music_start'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatCustomMessage :class="classes"
+			v-else-if="messageData.type == 'custom'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatStreamlabsEvent :class="classes"
+			v-else-if="messageData.type == 'streamlabs'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatStreamelementsEvent :class="classes"
+			v-else-if="messageData.type == 'streamelements'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatKofiEvent :class="classes"
+			v-else-if="messageData.type == 'kofi'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatTipeeeEvent :class="classes"
+			v-else-if="messageData.type == 'tipeee'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatUnbanRequest :class="classes"
+			v-else-if="messageData.type == 'unban_request'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatCelebration :class="classes"
+			v-else-if="messageData.type == 'twitch_celebration'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatAutomodTermsUpdate :class="classes"
+			v-else-if="messageData.type == 'blocked_terms'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatHateRaid :class="classes"
+			v-else-if="messageData.type == 'hate_raid'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatWarnUser :class="classes"
+			v-else-if="messageData.type == 'warn_chatter'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatWarnAcknowledgment :class="classes"
+			v-else-if="messageData.type == 'warn_acknowledge'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatYoutubeSuperChat :class="classes"
+			v-else-if="messageData.type == 'super_chat'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatYoutubeSuperSticker :class="classes"
+			v-else-if="messageData.type == 'super_sticker'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatYoutubeSubscription :class="classes"
+			v-else-if="messageData.type == 'youtube_subscription'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	
+		<ChatYoutubeSubgift :class="classes"
+			v-else-if="messageData.type == 'youtube_subgift'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		/>
+	</div>
 </template>
 
 <script lang="ts">
@@ -325,21 +442,47 @@ import ChatYoutubeSubgift from './ChatYoutubeSubgift.vue';
 		ChatYoutubeSuperSticker,
 		ChatCommunityChallengeContribution,
 	},
-	emits:[],
+	emits:["onRead", "showConversation", "showUserMessages", "unscheduleMessageOpen", "setCustomActivities", "showModal", "openFilters", "onOverMessage"],
 })
 class MessageItem extends Vue {
 
-	@Prop
+	@Prop()
 	public messageData!:TwitchatDataTypes.ChatMessageTypes;
 
-	@Prop
+	@Prop()
 	declare children:TwitchatDataTypes.ChatMessageTypes[];
+
+	public get classes():string[] {
+		const res:string[] = ["message"];
+		if(this.messageData.channel_color) {
+			res.push("external");
+		}
+		return res;
+	}
 
 }
 export default toNative(MessageItem);
 </script>
 <style scoped lang="less">
-.message{
+.holder{
 	position: relative;
+	display: flex;
+	flex-direction: row;
+	justify-content: stretch;
+	width: 100%;
+	.border {
+		width: 5px;
+		flex-shrink: 0;
+		flex-grow: 0;
+		background-color: currentColor;
+	}
+	.avatar {
+		border-radius: 50%;
+		height: 1.5em;
+		align-self: center;
+	}
+	.message {
+		width: 100%;
+	}
 }
 </style>

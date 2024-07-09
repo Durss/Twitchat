@@ -1,7 +1,7 @@
 {
 	"params": {
 		"sync_server": "Enregistrer les paramètres sur le serveur Twitchat",
-		"customize_sections_tt":"Personnalisez les entrées de menu",
+		"customize_sections_tt": "Personnalisez les entrées de menu",
 		"spoilersEnabled": "Activer le tag spoiler",
 		"alertMode": "Activer la fenêtre d'alerte",
 		"firstMessage": "Afficher le premier message de chaque viewer pour ne pas manquer de les saluer",
@@ -36,8 +36,8 @@
 			"stream_title": "Titre du dernier stream",
 			"stream_category": "Catégorie du dernier stream"
 		},
-		"liveMessages":"Montrer les nouveaux messages lorsque le tchat est mis en pause",
-		"liveAlerts":"Être notifié·e lorsqu'une personne que vous suivez lance ou termine un live (délais de 5min)",
+		"liveMessages": "Montrer les nouveaux messages lorsque le tchat est mis en pause",
+		"liveAlerts": "Être notifié·e lorsqu'une personne que vous suivez lance ou termine un live (délais de 5min)",
 		"censorDeletedMessages": "Censurer les messages supprimés",
 		"highlightusernames": "Rendre les {'@'}mentions cliquables",
 		"highlightMods": "Mettre en avant les Modos",
@@ -206,6 +206,7 @@
 			"warn": "Envoyer un avertissement",
 			"giftpremium": "Offrir un abonnement premium",
 			"ungiftpremium": "Retire l'abonnement premium offert"
-		}
+		},
+		"multiChatAvatar": "Afficher l'avatar de la chaîne à côté des messages d'autres chaînes\n(Si vous vous connectez à d'autres chaînes Twitch, leurs messages auront une bordure colorée distincte, à moins que cette option soit activée)"
 	}
 }

@@ -10,7 +10,7 @@
 			@change="$store.params.saveChatMenuPins()"
 			v-model="$store.params.pinnedMenuItems">
 			<template #header>
-					<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" :newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'chatform_params_2'}" />
+					<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" :newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'chatform_params_3'}" />
 					<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" icon="commands" @click="$emit('update:showCommands', true)" :newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'chatform_cmds_2'}" />
 				</template>
 				<template #item="{element, index}:{element:typeof TwitchatDataTypes.PinnableMenuItems[number]['id'], index:number}">
