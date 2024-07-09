@@ -41,6 +41,13 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Gets if emotes are loaded
+	 */
+	public static get emotesLoaded():boolean {
+		return this.emotesCache.length > 0;
+	}
+
+	/**
 	 * Updates authentication info
 	 */
 	public static updateAuthInfo(

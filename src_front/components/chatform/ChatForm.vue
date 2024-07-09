@@ -621,6 +621,14 @@ export class ChatForm extends Vue {
 	 * Loads potential twitchat announcements from server
 	 */
 	public async loadAnnouncements(onlyImportant:boolean = false):Promise<void> {
+		//Wait for emotes to be loaded
+		if(!TwitchUtils.emotesLoaded) {
+			setTimeout(()=> {
+				this.loadAnnouncements(onlyImportant);
+			}, 2000);
+			return;
+		}
+
 		const options = {
 			method:"GET",
 			headers: {
