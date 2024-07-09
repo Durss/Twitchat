@@ -34,7 +34,7 @@
 			@leave="onLeave">
 				<button class="user" type="button"
 				v-for="(user, index) in staticUserListFiltered"
-				v-if="staticUserListFiltered.length > 0 && search.length == 0"
+				v-if="staticUserListFiltered.length > 0 && search.length == 0 && showStatic"
 				:key="user.id"
 				:data-index="index"
 				@click="selectUser(user)">
@@ -81,11 +81,16 @@ class SearchUserForm extends Vue {
 	public noResult:boolean = false;
 	public searching:boolean = false;
 	public showResult:boolean = false;
+	public showStatic:boolean = false;
 
 	private searchDebounce = -1;
 
 	public get staticUserListFiltered():TwitchDataTypes.UserInfo[] {
 		return (this.staticUserList || []).filter(user => (this.excludedUserIds || []).indexOf(user.id) === -1);
+	}
+
+	public mounted():void {
+		this.showStatic = true;
 	}
 
 	public onKeyDown(event:KeyboardEvent):void {
@@ -198,6 +203,9 @@ export default toNative(SearchUserForm);
 		border-radius: var(--border-radius);
 		background: var(--background-color-secondary);
 		width: 100%;
+		&:empty  {
+			display: none;
+		}
 		&.static {
 			.user::after {
 				content:"";
