@@ -67,6 +67,7 @@
 			:colIndex="colIndex"
 			:lightMode="lightMode"
 			:childrenList="childrenList"
+			:disableConversation="disableConversation"
 		/>
 	
 		<ChatNotice class="message"
@@ -621,6 +622,9 @@ class MessageItem extends Vue {
 	
 	@Prop()
 	public lightMode!:boolean;
+	
+	@Prop()
+	public disableConversation!:boolean;
 	
 	@Prop({default:[]})
 	public childrenList!:TwitchatDataTypes.ChatMessageTypes[];
