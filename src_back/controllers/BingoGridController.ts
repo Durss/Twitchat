@@ -277,6 +277,8 @@ export default class BingoGridController extends AbstractController {
 		const uid:string = body.uid;
 		const gridId:string = body.gridid;
 		let count:number = body.count;
+
+		console.log(user.login+" has "+count+" bingos");
 		
 		const grid = await this.getViewerGrid(uid, gridId, user.user_id);
 		if(grid) {

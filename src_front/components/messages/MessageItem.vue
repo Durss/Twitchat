@@ -1,39 +1,62 @@
 <template>
 	<div class="holder">
-		<img v-if="messageData.channel_pic && $store.params.appearance.multiChatAvatar.value === true" class="avatar" :src="messageData.channel_pic" />
-		<span v-else-if="messageData.channel_color" class="border" :style="{color:messageData.channel_color}"></span>
-		<ChatAd :class="classes"
+		<img v-if="messageData.channelSource?.pic && $store.params.appearance.multiChatAvatar.value === true"
+			class="avatar"
+			v-tooltip="messageData.channelSource.name"
+			:src="messageData.channelSource.pic" />
+		
+		<span v-else-if="messageData.channelSource"
+			class="border"
+			v-tooltip="messageData.channelSource.name"
+			:style="{color:messageData.channelSource.color}"></span>
+		
+		<ChatAd class="message"
 			v-if="messageData.type == 'twitchat_ad'"
 			:messageData="messageData"
 			@showModal="(v: string) => $emit('showModal', v)"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatJoinLeave :class="classes"
+		<ChatJoinLeave class="message"
 			v-else-if="(messageData.type == 'join' || messageData.type == 'leave')"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatFollow :class="classes"
+		<ChatFollow class="message"
 			v-else-if="messageData.type == 'following'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatRaid :class="classes"
+		<ChatRaid class="message"
 			v-else-if="messageData.type == 'raid'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatConnect :class="classes"
+		<ChatConnect class="message"
 			v-else-if="(messageData.type == 'connect' || messageData.type == 'disconnect')"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatMessage :class="classes"
+		<ChatMessage class="message"
 			v-else-if="messageData.type == 'message' || messageData.type == 'whisper'"
 			:messageData="messageData"
 			@onOverMessage="$emit('onOverMessage', $event)"
@@ -41,290 +64,434 @@
 			@showUserMessages="$emit('showUserMessages', $event)"
 			@unscheduleMessageOpen="$emit('unscheduleMessageOpen', $event)"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatNotice :class="classes"
+		<ChatNotice class="message"
 			v-else-if="messageData.type == 'notice'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatPollResult :class="classes"
+		<ChatPollResult class="message"
 			v-else-if="messageData.type == 'poll'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatPredictionResult :class="classes"
+		<ChatPredictionResult class="message"
 			v-else-if="messageData.type == 'prediction'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatBingoResult :class="classes"
+		<ChatBingoResult class="message"
 			v-else-if="messageData.type == 'bingo'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatRaffleResult :class="classes"
+		<ChatRaffleResult class="message"
 			v-else-if="messageData.type == 'raffle'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatCountdownResult :class="classes"
+		<ChatCountdownResult class="message"
 			v-else-if="messageData.type == 'countdown'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatTimerResult :class="classes"
+		<ChatTimerResult class="message"
 			v-else-if="messageData.type == 'timer'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatHypeTrainCooldown :class="classes"
+		<ChatHypeTrainCooldown class="message"
 			v-else-if="messageData.type == 'hype_train_cooled_down'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatHypeTrainResult :class="classes"
+		<ChatHypeTrainResult class="message"
 			v-else-if="messageData.type == 'hype_train_summary'"
 			:messageData="messageData"
 			@setCustomActivities="$emit('setCustomActivities', $event)"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatFollowbotEvents :class="classes"
+		<ChatFollowbotEvents class="message"
 			v-else-if="messageData.type == 'followbot_list'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatRoomSettings :class="classes"
+		<ChatRoomSettings class="message"
 			v-else-if="messageData.type == 'room_settings'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatClear :class="classes"
+		<ChatClear class="message"
 			v-else-if="messageData.type == 'clear_chat'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatShoutout :class="classes"
+		<ChatShoutout class="message"
 			v-else-if="messageData.type == 'shoutout'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatLowTrustTreatment :class="classes"
+		<ChatLowTrustTreatment class="message"
 			v-else-if="messageData.type == 'low_trust_treatment'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatPinNotice :class="classes"
+		<ChatPinNotice class="message"
 			v-else-if="messageData.type == 'pinned' || messageData.type == 'unpinned'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatBan :class="classes"
+		<ChatBan class="message"
 			v-else-if="messageData.type == 'ban'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatUnban :class="classes"
+		<ChatUnban class="message"
 			v-else-if="messageData.type == 'unban'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatStreamOnOff :class="classes"
+		<ChatStreamOnOff class="message"
 			v-else-if="messageData.type == 'stream_online' || messageData.type == 'stream_offline'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatMessageClipPending :class="classes"
+		<ChatMessageClipPending class="message"
 			v-else-if="messageData.type == 'clip_pending_publication'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatScopeRequester :class="classes"
+		<ChatScopeRequester class="message"
 			v-else-if="messageData.type == 'scope_request'"
 			:messageData="messageData"
 			@openFilters="(v: string) => $emit('openFilters')"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatCommunityBoost :class="classes"
+		<ChatCommunityBoost class="message"
 			v-else-if="messageData.type == 'community_boost_complete'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatBits :class="classes"
+		<ChatBits class="message"
 			v-else-if="messageData.type == 'cheer'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatSubscription :class="classes"
+		<ChatSubscription class="message"
 			v-else-if="messageData.type == 'subscription'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatReward :class="classes"
+		<ChatReward class="message"
 			v-else-if="messageData.type == 'reward'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatCommunityChallengeContribution :class="classes"
+		<ChatCommunityChallengeContribution class="message"
 			v-else-if="messageData.type == 'community_challenge_contribution'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatAutobanJoin :class="classes"
+		<ChatAutobanJoin class="message"
 			v-else-if="messageData.type == 'autoban_join'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatWatchStreak :class="classes"
+		<ChatWatchStreak class="message"
 			v-else-if="messageData.type == 'user_watch_streak'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatHypeChatMessage :class="classes"
+		<ChatHypeChatMessage class="message"
 			v-else-if="messageData.type == 'hype_chat'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatAdBreakStarted :class="classes"
+		<ChatAdBreakStarted class="message"
 			v-else-if="messageData.type == 'ad_break_start_chat'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatHistorySplitter :class="classes"
+		<ChatHistorySplitter class="message"
 			v-else-if="messageData.type == 'history_splitter'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatTrackAddedToQueue :class="classes"
+		<ChatTrackAddedToQueue class="message"
 			v-else-if="messageData.type == 'music_added_to_queue'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatTrackStart :class="classes"
+		<ChatTrackStart class="message"
 			v-else-if="messageData.type == 'music_start'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatCustomMessage :class="classes"
+		<ChatCustomMessage class="message"
 			v-else-if="messageData.type == 'custom'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatStreamlabsEvent :class="classes"
+		<ChatStreamlabsEvent class="message"
 			v-else-if="messageData.type == 'streamlabs'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatStreamelementsEvent :class="classes"
+		<ChatStreamelementsEvent class="message"
 			v-else-if="messageData.type == 'streamelements'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatKofiEvent :class="classes"
+		<ChatKofiEvent class="message"
 			v-else-if="messageData.type == 'kofi'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatTipeeeEvent :class="classes"
+		<ChatTipeeeEvent class="message"
 			v-else-if="messageData.type == 'tipeee'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatUnbanRequest :class="classes"
+		<ChatUnbanRequest class="message"
 			v-else-if="messageData.type == 'unban_request'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatCelebration :class="classes"
+		<ChatCelebration class="message"
 			v-else-if="messageData.type == 'twitch_celebration'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatAutomodTermsUpdate :class="classes"
+		<ChatAutomodTermsUpdate class="message"
 			v-else-if="messageData.type == 'blocked_terms'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatHateRaid :class="classes"
+		<ChatHateRaid class="message"
 			v-else-if="messageData.type == 'hate_raid'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatWarnUser :class="classes"
+		<ChatWarnUser class="message"
 			v-else-if="messageData.type == 'warn_chatter'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatWarnAcknowledgment :class="classes"
+		<ChatWarnAcknowledgment class="message"
 			v-else-if="messageData.type == 'warn_acknowledge'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatYoutubeSuperChat :class="classes"
+		<ChatYoutubeSuperChat class="message"
 			v-else-if="messageData.type == 'super_chat'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatYoutubeSuperSticker :class="classes"
+		<ChatYoutubeSuperSticker class="message"
 			v-else-if="messageData.type == 'super_sticker'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatYoutubeSubscription :class="classes"
+		<ChatYoutubeSubscription class="message"
 			v-else-if="messageData.type == 'youtube_subscription'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	
-		<ChatYoutubeSubgift :class="classes"
+		<ChatYoutubeSubgift class="message"
 			v-else-if="messageData.type == 'youtube_subgift'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
 		/>
 	</div>
 </template>
@@ -448,17 +615,15 @@ class MessageItem extends Vue {
 
 	@Prop()
 	public messageData!:TwitchatDataTypes.ChatMessageTypes;
-
+	
 	@Prop()
-	declare children:TwitchatDataTypes.ChatMessageTypes[];
-
-	public get classes():string[] {
-		const res:string[] = ["message"];
-		if(this.messageData.channel_color) {
-			res.push("external");
-		}
-		return res;
-	}
+	public colIndex!:number;
+	
+	@Prop()
+	public lightMode!:boolean;
+	
+	@Prop({default:[]})
+	public childrenList!:TwitchatDataTypes.ChatMessageTypes[];
 
 }
 export default toNative(MessageItem);

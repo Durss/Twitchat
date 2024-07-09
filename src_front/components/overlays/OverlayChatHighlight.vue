@@ -275,7 +275,7 @@ export default toNative(OverlayChatHighlight);
 		border-top-right-radius: var(--border-radius);
 		border-bottom-right-radius: var(--border-radius);
 		box-shadow: 0 0 .5em rgba(0, 0, 0, 1);
-		max-width: calc(60vw - @margin);
+		max-width: calc(30vw - @margin);
 		min-width: 7em;
 	
 		&.position-tl {

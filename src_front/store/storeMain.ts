@@ -269,7 +269,7 @@ export const storeMain = defineStore("main", {
 			this.t4p = DataStore.get(DataStore.T4P_CHAT_CMD) || "";
 
 			//Warn the user about the automatic "ad" message sent every 2h
-			if(DataStore.get(DataStore.TWITCHAT_AD_WARNED) !== "true" && sAuth.donorLevel == -1) {
+			if(DataStore.get(DataStore.TWITCHAT_AD_WARNED) !== "true" && sAuth.donorLevel == -1 && !sAuth.isPremium) {
 				setTimeout(()=>{
 					sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING);
 				}, 5000);

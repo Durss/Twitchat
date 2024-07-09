@@ -1040,7 +1040,6 @@ export default class EventSub {
 	 * @param event 
 	 */
 	private async moderationEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModerationEvent):Promise<void> {
-		console.log(event);
 		const user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name);
 		const moderator = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name);
 		switch(event.action) {
@@ -1134,6 +1133,28 @@ export default class EventSub {
 					user,
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.VIP,
 					message: StoreProxy.i18n.t(event.action == "vip"? "chat.vip.add" : "chat.vip.remove", {USER:user.displayName, MODERATOR:moderator.displayName}),
+				};
+				StoreProxy.chat.addMessage(m);
+				break;
+			}
+
+			case "mod":
+			case "unmod":{
+				let user:TwitchatDataTypes.TwitchatUser;
+				if(event.action == "mod") {
+					user = StoreProxy.users.getUserFrom("twitch", event.mod.user_id, event.mod.user_id, event.mod.user_login);
+				}else{
+					user = StoreProxy.users.getUserFrom("twitch", event.unmod.user_id, event.unmod.user_id, event.unmod.user_login);
+				}
+				const m:TwitchatDataTypes.MessageModerationAction = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitch",
+					channel_id:event.broadcaster_user_id,
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					user,
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.VIP,
+					message: StoreProxy.i18n.t(event.action == "mod"? "chat.mod.add" : "chat.mod.remove", {USER:user.displayName, MODERATOR:moderator.displayName}),
 				};
 				StoreProxy.chat.addMessage(m);
 				break;

@@ -847,8 +847,11 @@ export const storeChat = defineStore('chat', {
 			&& message.channel_id != sAuth.youtube.user?.id) {
 				const infos = sStream.connectedTwitchChans.find(v=>v.user.id == message.channel_id);
 				if(infos) {
-					message.channel_color = infos.color;
-					message.channel_pic = infos.user.avatarPath;
+					message.channelSource = {
+						color: infos.color,
+						name: infos.user.displayNameOriginal,
+						pic: infos.user.avatarPath?.replace(/300x300/gi, "50x50"),
+					}
 				}
 			}
 

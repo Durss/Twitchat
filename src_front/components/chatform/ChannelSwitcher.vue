@@ -14,6 +14,7 @@
 				<p><Icon name="online" />{{ $t("chat.form.connect_extra_chan") }}</p>
 				<SearchUserForm class="blured-background-window"
 					v-model="user"
+					:staticUserList="liveFollingList"
 					:excludedUserIds="channels.map(v=>v.user.id)"
 					@close="showForm = false"
 					@select="onSelectUser"
@@ -50,6 +51,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { gsap } from 'gsap/gsap-core';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import SearchUserForm from '../params/contents/donate/SearchUserForm.vue';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Component({
 	components:{
@@ -70,6 +72,8 @@ class ChannelSwitcher extends Vue {
 	public showForm:boolean = false;
 	public currentChannelId:string = "";
 	public user:TwitchDataTypes.UserInfo | null = null;
+	public liveFollingList:TwitchDataTypes.UserInfo[] = [];
+
 	
 	private clickHandler!:(e:MouseEvent) => void;
 
@@ -101,8 +105,9 @@ class ChannelSwitcher extends Vue {
 
 		this.$watch(()=>this.modelValue, ()=>{
 			this.currentChannelId = this.modelValue;
-		})
+		});
 		
+		this.loadLiveFollowing();
 		this.clickHandler = (e:MouseEvent) => this.onClickDOM(e);
 		document.addEventListener("click", this.clickHandler);
 	}
@@ -112,12 +117,22 @@ class ChannelSwitcher extends Vue {
 	}
 
 	/**
+	 * Loads currently live following for fast channel access
+	 */
+	public async loadLiveFollowing():Promise<void> {
+		this.liveFollingList = [];
+		const list = await TwitchUtils.getActiveFollowedStreams();
+		this.liveFollingList = await TwitchUtils.getUserInfo(list.map(v=>v.user_id));
+	}
+
+	/**
 	 * Called when selecting a twitch user after searching for them
 	 */
-	public onSelectUser():void {
+	public onSelectUser(user?:TwitchDataTypes.UserInfo):void {
+		if(user) this.user = user;
 		if(!this.user) return;
-		const user = this.$store.users.getUserFrom("twitch", this.user.id, this.user.id, this.user.login, this.user.display_name);
-		this.$store.stream.connectToExtraChan(user);
+		const ttUser = this.$store.users.getUserFrom("twitch", this.user.id, this.user.id, this.user.login, this.user.display_name);
+		this.$store.stream.connectToExtraChan(ttUser);
 		this.user = null;
 		this.showForm = false;
 	}

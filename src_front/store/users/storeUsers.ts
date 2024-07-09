@@ -538,7 +538,8 @@ export const storeUsers = defineStore('users', {
 					&& StoreProxy.params.features.autoRemod.value == true) {
 						//When banned or timed out, twitch removes the moderator role
 						//This flag reminds us to flag them back as mod when timeout completes
-						u.channelInfo[channelId].autoRemod = true;
+						//Only for our own channel
+						u.channelInfo[channelId].autoRemod = (channelId == StoreProxy.auth.twitch.user.id);
 					}
 					u.channelInfo[channelId].is_moderator = false;
 					//Set ban state

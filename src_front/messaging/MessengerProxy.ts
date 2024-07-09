@@ -65,15 +65,15 @@ export default class MessengerProxy {
 
 		if(await this.handleTwitchatCommands(message, targetPlatforms, channelId)) return true;
 
-		// console.log("Send message:", message);
-		// console.log("          to:", channelId);
-		// console.log("          on:", targetPlatforms);
+		console.log("Send message:", message);
+		console.log("          to:", channelId);
+		console.log("          on:", targetPlatforms);
 		if(!hasPlatform || targetPlatforms!.indexOf("twitch")>-1) {
 			if(!TwitchMessengerClient.instance.sendMessage(channelId, message, replyTo, noConfirm)) {
 				return false;
 			}
 		}
-		if(!hasPlatform || targetPlatforms!.indexOf("youtube")>-1) {
+		if(hasPlatform && targetPlatforms!.indexOf("youtube")>-1) {
 			if(!YoutubeHelper.instance.sendMessage(message)) {
 				return false;
 			}

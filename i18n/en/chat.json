@@ -486,6 +486,10 @@
 			"add": "{MODERATOR} added {USER} to your VIPs",
 			"remove": "{MODERATOR} removed {USER} from your VIPs"
 		},
+		"mod": {
+			"add": "{MODERATOR} added {USER} to your moderatorsPs",
+			"remove": "{MODERATOR} removed {USER} from your moderator"
+		},
 		"warn_acknowledge": {
 			"title": "{USER} acknowledged reading their warning"
 		},

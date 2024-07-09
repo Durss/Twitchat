@@ -615,7 +615,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	}
 
 	private async onMessage(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean):Promise<void> {
-
 		//Ignore anything that's not a message or a /me
 		if(tags["message-type"] != "chat" && tags["message-type"] != "action" && (tags["message-type"] as string) != "announcement") return;
 

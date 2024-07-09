@@ -2316,14 +2316,14 @@ export namespace TwitchatDataTypes {
 		channel_id:string;
 		platform:ChatPlatform;
 		/**
-		 * If set, will show a color on the left indicating which of the connected
-		 * channels this message comes from
+		 * Defines infos about the channel this message comes from.
+		 * Only set for messages received from channels other than ours
 		 */
-		channel_color?:string;
-		/**
-		 * If set, will show the picture at left of the message
-		 */
-		channel_pic?:string;
+		channelSource?:{
+			color:string;
+			name:string;
+			pic?:string
+		};
 		/**
 		 * true if message has been deleted
 		 */
