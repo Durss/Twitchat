@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<div class="holder" @click="debug">
+		<div class="holder">
 			<draggable tag="div"
 			class="leftForm"
 			:animation="250"
@@ -599,16 +599,9 @@ export class ChatForm extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.CREDITS_OVERLAY_PRESENCE, this.creditsOverlayPresenceHandler);
 	}
 
-	public debug():void {
-	}
+	public openNotifications(type:TwitchatDataTypes.NotificationTypes):void { this.$emit('setCurrentNotification', type); }
 
-	public openNotifications(type:TwitchatDataTypes.NotificationTypes):void {
-		this.$emit('setCurrentNotification', type);
-	}
-
-	public openModal(modal:TwitchatDataTypes.ModalTypes):void {
-		this.$store.params.openModal(modal);
-	}
+	public openModal(modal:TwitchatDataTypes.ModalTypes):void { this.$store.params.openModal(modal); }
 
 	public async closeAnnouncement():Promise<void> {
 		let history:{[key:string]:boolean} = JSON.parse(DataStore.get(DataStore.ANNOUNCEMENTS_READ) || "{}");
