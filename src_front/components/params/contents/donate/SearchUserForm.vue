@@ -12,6 +12,9 @@
 			<TTButton v-else icon="cross" class="cancel" transparent noBounce @click="$emit('close')"></TTButton>
 		</form>
 		<div class="userList" v-if="users.length > 0">
+			<TransitionGroup name="list"
+			:css="false"
+			@enter="onEnter">
 				<button class="user" type="button"
 				v-for="(user, index) in users"
 				v-if="showResult"
@@ -21,18 +24,24 @@
 					<img :src="user.profile_image_url.replace(/300x300/gi, '50x50')" alt="avatar">
 					<div class="login">{{ user.display_name }}</div>
 				</button>
+			</TransitionGroup>
 		</div>
 
-		<div class="userList" v-if="staticUserList.length > 0">
+		<div class="userList static">
+			<TransitionGroup name="list"
+			:css="false"
+			@enter="onEnter"
+			@leave="onLeave">
 				<button class="user" type="button"
-				v-for="(user, index) in staticUserList"
-				v-if="search.length == 0"
+				v-for="(user, index) in staticUserListFiltered"
+				v-if="staticUserListFiltered.length > 0 && search.length == 0"
 				:key="user.id"
 				:data-index="index"
 				@click="selectUser(user)">
 					<img :src="user.profile_image_url.replace(/300x300/gi, '50x50')" alt="avatar">
 					<div class="login">{{ user.display_name }}</div>
 				</button>
+			</TransitionGroup>
 		</div>
 		<div class="noResult" v-if="noResult">{{ $t("global.no_result") }}</div>
 	</div>
@@ -43,8 +52,8 @@ import Icon from '@/components/Icon.vue';
 import { TTButton } from '@/components/TTButton.vue';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import { gsap } from 'gsap/gsap-core';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
 	components:{
@@ -75,15 +84,17 @@ class SearchUserForm extends Vue {
 
 	private searchDebounce = -1;
 
+	public get staticUserListFiltered():TwitchDataTypes.UserInfo[] {
+		return (this.staticUserList || []).filter(user => (this.excludedUserIds || []).indexOf(user.id) === -1);
+	}
+
 	public onKeyDown(event:KeyboardEvent):void {
 		if(event.key == 'Escape') this.$emit("close");
 	}
 
 	public onSearch():void {
-		this.users = [];
 		this.searching = this.search != "";
 		this.noResult = false;
-		this.showResult = false;
 		clearTimeout(this.searchDebounce);
 		if(this.searching) {
 			this.searchDebounce = setTimeout(async () => {
@@ -93,6 +104,9 @@ class SearchUserForm extends Vue {
 				await this.$nextTick();
 				this.showResult = true;
 			}, 500);
+		}else{
+			this.users = [];
+			this.showResult = false;
 		}
 	}
 
@@ -107,7 +121,18 @@ class SearchUserForm extends Vue {
 			y: 0,
 			opacity: 1,
 			duration:.25,
-			maxHeight: "2em",
+			// maxHeight: "2em",
+			delay: parseInt((el as HTMLElement).dataset.index!) * 0.015,
+			onComplete: done
+		})
+	}
+
+	public onLeave(el:Element, done:()=>void) {
+		gsap.to(el,
+		{
+			y: -20,
+			opacity: 0,
+			duration:.25,
 			delay: parseInt((el as HTMLElement).dataset.index!) * 0.015,
 			onComplete: done
 		})
@@ -173,6 +198,19 @@ export default toNative(SearchUserForm);
 		border-radius: var(--border-radius);
 		background: var(--background-color-secondary);
 		width: 100%;
+		&.static {
+			.user::after {
+				content:"";
+				width:7px;
+				height:7px;
+				border-radius: 50%;
+				background-color: #f00;
+				box-shadow: -2px 2px 3px #000;
+				position: absolute;
+				top: .1em;
+				left: 1.6em;
+			}
+		}
 	}
 
 
@@ -196,33 +234,6 @@ export default toNative(SearchUserForm);
 		&:hover {
 			background-color: var(--grayout);
 		}
-		&::after {
-			content:"";
-			width:7px;
-			height:7px;
-			border-radius: 50%;
-			background-color: #f00;
-			box-shadow: -2px 2px 3px #000;
-			position: absolute;
-			top: .1em;
-			left: 1.6em;
-		}
 	}
-
-	// .list-move,
-	// .list-enter-active,
-	// .list-leave-active {
-	// 	opacity: 1;
-	// 	transition: transform .5s cubic-bezier(0.680, -0.550, 0.265, 1.550), opacity .5s;
-	// }
-
-	// .list-enter-from,
-	// .list-leave-to {
-	// 	opacity: 0;
-	// 	transform: translateX(-50%);
-	// }
-	// .list-leave-active {
-	// 	position: absolute;
-	// }
 }
 </style>
