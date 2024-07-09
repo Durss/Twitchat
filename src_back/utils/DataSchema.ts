@@ -801,6 +801,7 @@ const UserDataSchema = {
 		"p:antiHateRaid": {type:"boolean"},
 		"p:antiHateRaidDeleteMessage": {type:"boolean"},
 		"p:antiHateRaidEmergency": {type:"boolean"},
+		"p:multiChatAvatar": {type:"boolean"},
 		"p:autoTranslateFirstLang":{
 			type:"array",
 			minItems:0,
