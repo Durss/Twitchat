@@ -110,7 +110,6 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	public get classes():string[] {
 		let res:string[] = ["overlaybingogrid"];
 		if(this.bingo?.showGrid === true) res.push("border");
-		type test = Parameters<typeof this.bingoViewerHandler>[0]["data"];
 		return res;
 	}
 
@@ -160,7 +159,6 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	 * Tell Twitchat overlay exists
 	 */
 	public broadcastPresence():void {
-		if(!this.bingo) return;
 		PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_OVERLAY_PRESENCE, {bid:this.id});
 	}
 
