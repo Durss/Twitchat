@@ -4,7 +4,7 @@
 			<div :class="item.holderClasses" :style="item.categoryStyles" ref="listItem" :id="'item_'+item.params.id">
 				<h1 data-title :style="item.titleStyles"><Icon :name="item.slot.icon" v-if="item.slot.id != 'text'" />{{ item.params.label }}</h1>
 
-				<div v-if="item.params.showPremiumWarning === true" data-list class="list premium" :style="item.entryStyles"><Icon name="premium" />{{ data.labels.premium_only }}</div>
+				<div v-if="data.premiumWarningSlots && data.premiumWarningSlots[item.slot.id] === true" data-list class="list premium" :style="item.entryStyles"><Icon name="premium" />{{ data.labels.premium_only }}</div>
 
 				<div v-else-if="item.entryCount == 0" data-list class="list empty" :style="item.entryStyles">{{ data.labels.no_entry }}</div>
 
@@ -981,6 +981,7 @@ export default toNative(OverlayEndingCredits);
 				font-family: var(--font-inter) !important;
 				color: var(--color-light) !important;
 				font-size: 1rem;
+				font-weight: normal;
 				.icon {
 					height:2em;
 					width:2em;

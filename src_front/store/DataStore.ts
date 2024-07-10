@@ -134,7 +134,7 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	static override async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 53;
+		const latestVersion = 55;
 
 		this.cleanupPreV7Data(data);
 
@@ -326,6 +326,10 @@ export default class DataStore extends DataStoreCommon{
 		}
 		if(v==53) {
 			this.fixRaffleTriggerEntry(data);
+			v = 54;
+		}
+		if(v==54) {
+			this.cleanPremiumWarningEndingCredits(data);
 			v = latestVersion;
 		}
 
@@ -1426,6 +1430,22 @@ export default class DataStore extends DataStoreCommon{
 				})
 			});
 			data[DataStore.TRIGGERS] = triggers;
+		}
+	}
+	
+	/**
+	 * Removes "showPremiumWarning" prop from ending credits slots
+	 * this should have never been there in the first place as it's sent to server when
+	 * it's only here to alert the user
+	 * @param data 
+	 */
+	public static cleanPremiumWarningEndingCredits(data:any):void {
+		const credits:TwitchatDataTypes.EndingCreditsParams = data[DataStore.ENDING_CREDITS_PARAMS];
+		if(credits) {
+			credits.slots.forEach(slot => {
+				delete slot.showPremiumWarning;
+			});
+			data[DataStore.ENDING_CREDITS_PARAMS] = credits;
 		}
 	}
 }

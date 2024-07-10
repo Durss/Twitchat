@@ -1622,6 +1622,7 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface StreamSummaryData {
 		streamDuration:number;
+		premiumWarningSlots?:{[slotType:string]:boolean};
 		params?:EndingCreditsParams;
 		follows:{uid:string, login:string}[];
 		raids:{uid:string, login:string, raiders:number}[];
@@ -1759,7 +1760,6 @@ export namespace TwitchatDataTypes {
 		label:string;
 		maxEntries:number;
 		enabled:boolean,
-		showPremiumWarning:boolean,
 		layout:"colLeft"|"col"|"colRight"|"left"|"center"|"right"|"2cols"|"3cols";
 		customHTML?:boolean;
 		htmlTemplate?:string;
@@ -1790,6 +1790,10 @@ export namespace TwitchatDataTypes {
 		showNormalCheers?:boolean,
 		showPinnedCheers?:boolean,
 		rewardIds?:string[],
+		/**
+		 * @deprecated only here for data migration typing
+		 */
+		showPremiumWarning?:boolean,
 	}
 
 	/**

@@ -751,16 +751,15 @@ export const storeStream = defineStore('stream', {
 				if(simulate || !startDateBackup) {
 					StoreProxy.stream.currentStreamInfo[channelId]!.started_at = dateOffset || (Date.now() - 45 * 60000);
 				}
-
+				
+				result.premiumWarningSlots = {};
 				//Parse "text" slots placeholders and remove premium-only slots
 				for (let i = 0; i < result.params.slots.length; i++) {
 					const slot = result.params.slots[i];
 					//Remove premium-only slots if not premium
 					if(!isPremium && !simulate
 					&& TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id === slot.slotType)?.premium === true) {
-						// result.params.slots.splice(i, 1);
-						slot.showPremiumWarning = true;
-						// i--;
+						result.premiumWarningSlots[slot.slotType] = true;
 					}
 					//Parse placeholders on text slots
 					if(slot.slotType !== "text") continue;
