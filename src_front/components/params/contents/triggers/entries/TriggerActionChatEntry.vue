@@ -1,6 +1,6 @@
 <template>
 	<div class="triggeractionchatentry triggerActionForm">
-		<ParamItem :paramData="message_conf" v-model="action.text"
+		<ParamItem :paramData="param_message" v-model="action.text"
 		forceChildDisplay
 		:error="cmdNameConflict"
 		:errorMessage="$t('triggers.actions.chat.loop')">
@@ -11,12 +11,14 @@
 					v-html="c.cmd.replace(/(\/\S+)/gi, '<mark>$1</mark>').replace(/(?:\{([^}]+)\}?)/gi, ' [$1]')"></div>
 			</ToggleBlock>
 		</ParamItem>
+		
+		<ParamItem v-if="canReply" :paramData="param_reply" v-model="action.sendAsReply"></ParamItem>
 	</div>
 </template>
 
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import type { ITriggerPlaceholder, TriggerActionChatData, TriggerData } from '@/types/TriggerActionDataTypes';
+import { TriggerTypes, type ITriggerPlaceholder, type TriggerActionChatData, type TriggerData, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
@@ -37,7 +39,8 @@ class TriggerActionChatEntry extends AbstractTriggerActionEntry {
 	@Prop
 	declare triggerData:TriggerData;
 	
-	public message_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:500, labelKey:"triggers.actions.chat.param_message" };
+	public param_message:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:500, labelKey:"triggers.actions.chat.param_message" };
+	public param_reply:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"reply", labelKey:"triggers.actions.chat.param_reply" };
 	
 	public get cmdNameConflict():boolean {
 		if(!this.action.text) return false;
@@ -60,8 +63,16 @@ class TriggerActionChatEntry extends AbstractTriggerActionEntry {
 		return res;
 	}
 
+	public get canReply():boolean {
+		return ([TriggerTypes.CHAT_COMMAND,
+				TriggerTypes.ANY_MESSAGE,
+				TriggerTypes.FIRST_TODAY,
+				TriggerTypes.FIRST_ALL_TIME,
+				TriggerTypes.CHEER] as TriggerTypesValue[]).includes(this.triggerData.type);
+	}
+
 	public insertCommand(cmd:TwitchatDataTypes.CommandData):void {
-		this.message_conf.value = cmd.cmd.replace(/(?:\{([^}]+)\}?)/gi, '$1') + ""+this.message_conf.value
+		this.param_message.value = cmd.cmd.replace(/(?:\{([^}]+)\}?)/gi, '$1') + ""+this.param_message.value
 	}
 
 	public beforeMount():void {
@@ -72,7 +83,7 @@ class TriggerActionChatEntry extends AbstractTriggerActionEntry {
 	 * Called when the available placeholder list is updated
 	 */
 	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
-		this.message_conf.placeholderList = list;
+		this.param_message.placeholderList = list;
 	}
 
 }

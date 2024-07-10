@@ -170,6 +170,7 @@
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
 				"param_message": "Message to send on your chat",
+				"param_reply": "Send as an answer to the original message",
 				"conflict": "A command with this name already exists",
 				"allowed_users": "Allowed users",
 				"advanced_params": "Advanced parameters",

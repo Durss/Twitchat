@@ -493,7 +493,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			(json.bots as string[][]).forEach(b => hashmap[ b[0].toLowerCase() ] = true);
 		}catch(error) {
 			//Fallback in case twitchinsights dies someday
-			["streamelements", "nightbot", "wizebot", "commanderroot", "anotherttvviewer", "streamlabs", "communityshowcase"]
+			["streamelements", "nightbot", "wizebot", "kikettebot", "commanderroot", "anotherttvviewer", "streamlabs", "communityshowcase"]
 			.forEach(b => hashmap[ b[0].toLowerCase() ] = true);
 			Logger.instance.log("irc", {info:"Failed loading bots list, using a static one"});
 		}

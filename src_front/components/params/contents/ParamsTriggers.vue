@@ -405,10 +405,6 @@ import TriggerList from './triggers/TriggerList.vue';
 								m.twitch_isReturning = true;
 								break;
 							}
-							case TriggerTypes.PRESENTATION:{
-								m.twitch_isPresentation = true;
-								break;
-							}
 						}
 					}else
 

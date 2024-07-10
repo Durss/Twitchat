@@ -460,7 +460,6 @@ class ChatMessage extends AbstractChatMessage {
 			watch(()=> mess.is_saved, () => this.updateSavedState());
 
 			if(mess.twitch_isRestricted)				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RESTRICTED_USER});
-			if(mess.twitch_isPresentation === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.PRESENTATION});
 			if(mess.twitch_isReturning === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RETURNING_CHATTER});
 			if(mess.twitch_isFirstMessage === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.FIRST_TIME_CHATTER});
 			if(mess.twitch_gigantifiedEmote
@@ -468,7 +467,7 @@ class ChatMessage extends AbstractChatMessage {
 
 			if(mess.todayFirst === true
 			&& mess.twitch_isFirstMessage !== true
-			&& mess.twitch_isPresentation !== true
+			// && mess.twitch_isPresentation !== true
 			&& mess.twitch_isReturning !== true
 			&& this.lightMode === false) infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.FIRST_MESSAGE_TODAY});
 

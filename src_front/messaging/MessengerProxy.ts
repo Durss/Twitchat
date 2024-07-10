@@ -730,7 +730,6 @@ export default class MessengerProxy {
 							m.message_chunks = TwitchUtils.parseMessageToChunks(m.message);
 							m.message_html = m.message;
 							m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
-							m.todayFirst = false;
 							m.twitch_isFirstMessage = false;
 							m.twitch_isSuspicious = false;
 						}

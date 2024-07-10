@@ -170,6 +170,7 @@
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
 				"param_message": "Message à envoyer dans le tchat",
+				"param_reply": "Envoyer en tant que réponse au message d'origine",
 				"conflict": "Une commande du même nom existe déjà",
 				"allowed_users": "Personnes autorisées",
 				"advanced_params": "Paramètres avancés",

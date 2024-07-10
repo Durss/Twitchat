@@ -2578,6 +2578,7 @@ export namespace TwitchatDataTypes {
 		twitch_isReturning?:boolean;
 		/**
 		 * true if user used the "presentation" feature
+		 * @deprecated feature removed by twitch
 		 */
 		twitch_isPresentation?:boolean;
 		/**

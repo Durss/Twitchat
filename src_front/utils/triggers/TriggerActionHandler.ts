@@ -93,16 +93,13 @@ export default class TriggerActionHandler {
 
 		switch(message.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
-				//Only trigger one of "first ever", "first today" or "returning" trigger
-				if(message.twitch_isPresentation === true) {
-					await this.executeTriggersByType(TriggerTypes.PRESENTATION, message, testMode, undefined, undefined, forcedTriggerId);
-				}else
+				//Only trigger one of "first ever", "first today" 
 				if(message.twitch_isFirstMessage === true) {
 					await this.executeTriggersByType(TriggerTypes.FIRST_ALL_TIME, message, testMode, undefined, undefined, forcedTriggerId);
 				}else
 				if(message.todayFirst === true) {
 					//Do nothing, it's already done before the switch
-					//Keep this condition to avoid aving both returning and today first triggerd
+					//Keep this condition to avoid having both "returning" and "today first" triggered
 				}else
 				if(message.twitch_isReturning === true) {
 					await this.executeTriggersByType(TriggerTypes.RETURNING_USER, message, testMode, undefined, undefined, forcedTriggerId);
@@ -1347,8 +1344,9 @@ export default class TriggerActionHandler {
 					const platforms:TwitchatDataTypes.ChatPlatform[] = [];
 					if(message.platform != "twitchat") platforms.push(message.platform);
 					// console.log(platforms, text);
-					logStep.messages.push({date:Date.now(), value:"Send Message \""+text+"\""});
-					MessengerProxy.instance.sendMessage(text, platforms, undefined, undefined, true);
+					const replyTo = (step.sendAsReply === true && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE)? message : undefined;
+					logStep.messages.push({date:Date.now(), value:"Send Message \""+text+"\""+(replyTo? " as reply to "+replyTo.id : "")});
+					MessengerProxy.instance.sendMessage(text, platforms, undefined, replyTo, true);
 					if(trigger.type == TriggerTypes.ANY_MESSAGE) {
 						this.lastAnyMessageSent = text;
 					}

@@ -353,7 +353,6 @@ import TriggerActionDeleteMessageEntry from './entries/TriggerActionDeleteMessag
 		return this.triggerData.type == TriggerTypes.ANY_MESSAGE
 			|| this.triggerData.type == TriggerTypes.CHAT_COMMAND
 			|| this.triggerData.type == TriggerTypes.CHAT_ALERT
-			|| this.triggerData.type == TriggerTypes.PRESENTATION
 			|| this.triggerData.type == TriggerTypes.PIN_MESSAGE
 			|| this.triggerData.type == TriggerTypes.UNPIN_MESSAGE;
 	}

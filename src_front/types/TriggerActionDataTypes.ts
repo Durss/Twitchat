@@ -431,6 +431,10 @@ export interface TriggerActionChatData extends TriggerActionData{
 	 * Text to send on chat
 	 */
 	text:string;
+	/**
+	 * Should message be sent as a reply?
+	 */
+	sendAsReply:boolean;
 }
 
 export interface TriggerActionCustomMessageData extends TriggerActionData{
@@ -1156,7 +1160,7 @@ export const TriggerTypes = {
 	ANY_MESSAGE:"42",
 	COMMUNITY_CHALLENGE_PROGRESS:"43",
 	COMMUNITY_CHALLENGE_COMPLETE:"44",
-	PRESENTATION:"46",
+	// PRESENTATION:"46",//Twitch removed this feature
 	SHOUTOUT_IN:"47",
 	SHOUTOUT_OUT:"48",
 	OBS_SCENE:"49",
@@ -1328,7 +1332,6 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	map[TriggerTypes.FIRST_TODAY] =
 	map[TriggerTypes.FIRST_ALL_TIME] =
 	map[TriggerTypes.RETURNING_USER] =
-	map[TriggerTypes.PRESENTATION] =
 	map[TriggerTypes.ANNOUNCEMENTS] =
 	map[TriggerTypes.CHAT_COMMAND] = [
 		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
@@ -2109,7 +2112,6 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.USER, icon:"firstTime", labelKey:"triggers.events.FIRST_ALL_TIME.label", value:TriggerTypes.FIRST_ALL_TIME, descriptionKey:"triggers.events.FIRST_ALL_TIME.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{category:TriggerEventTypeCategories.USER, icon:"firstTime", labelKey:"triggers.events.FIRST_TODAY.label", value:TriggerTypes.FIRST_TODAY, descriptionKey:"triggers.events.FIRST_TODAY.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{category:TriggerEventTypeCategories.USER, icon:"returning", labelKey:"triggers.events.RETURNING_USER.label", value:TriggerTypes.RETURNING_USER, descriptionKey:"triggers.events.RETURNING_USER.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE, disabled:true, disabledReasonLabelKey:"triggers.events.RETURNING_USER.disabled_reason"},
-		{category:TriggerEventTypeCategories.USER, icon:"presentation", labelKey:"triggers.events.PRESENTATION.label", value:TriggerTypes.PRESENTATION, descriptionKey:"triggers.events.PRESENTATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{category:TriggerEventTypeCategories.USER, icon:"follow", labelKey:"triggers.events.FOLLOW.label", value:TriggerTypes.FOLLOW, descriptionKey:"triggers.events.FOLLOW.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.FOLLOWING},
 		{category:TriggerEventTypeCategories.USER, icon:"raid", labelKey:"triggers.events.RAID.label", value:TriggerTypes.RAID, descriptionKey:"triggers.events.RAID.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAID},
 		{category:TriggerEventTypeCategories.USER, icon:"watchStreak", labelKey:"triggers.events.USER_WATCH_STREAK.label", value:TriggerTypes.USER_WATCH_STREAK, descriptionKey:"triggers.events.USER_WATCH_STREAK.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK},

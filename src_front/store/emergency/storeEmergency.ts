@@ -230,7 +230,6 @@ export const storeEmergency = defineStore('emergency', {
 					type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
 					user:StoreProxy.users.getUserFrom(platform, channel_id, entry.uid, entry.login, entry.login, undefined, true),
 					followbot:true,
-					todayFirst:false,
 				}
 			});
 		},

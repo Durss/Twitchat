@@ -255,6 +255,7 @@ const UserDataSchema = {
 								triggerId: {type:"string", maxLength:50},
 								filterName: {type:"string", maxLength:100},
 								text: {type:"string", maxLength:1000},
+								sendAsReply: {type:"boolean"},
 								url: {type:"string", maxLength:1000},
 								mediaPath: {type:"string", maxLength:1000},
 								waitMediaEnd: {type:"boolean"},
