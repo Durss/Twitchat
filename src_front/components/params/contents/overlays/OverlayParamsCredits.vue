@@ -88,8 +88,8 @@
 								</template>
 
 								<template v-if="element.slotType == 'rewards'">
-									<ParamItem :paramData="param_showRewardUsers[element.id]" v-model="element.showRewardUsers"	:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_filterRewards[element.id]"	v-model="element.filterRewards"		:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_showRewardUsers[element.id]"	v-model="element.showRewardUsers"	:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_filterRewards[element.id]"		v-model="element.filterRewards"		:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								</template>
 
 								<template v-if="element.slotType == 'subs'">
@@ -483,9 +483,9 @@ class OverlayParamsCredits extends Vue {
 		this.param_maxItems[id]		= {type:'number', icon:"max", min:1, max:1000, value:100, labelKey:'overlay.credits.param_maxItems', premiumOnly:true};
 		if(slotDef.hasAmount) {
 			if(entry.showAmounts === undefined) {
-				entry.showAmounts = this.isPremium || slotDef.premium;
+				entry.showAmounts = this.isPremium || !slotDef.premium;
 			}else
-			if(!this.isPremium || slotDef.premium) {
+			if(!this.isPremium && slotDef.premium) {
 				entry.showAmounts = false;
 			}
 			this.param_showAmounts[id] = {type:"boolean", icon:"number", value:entry.showAmounts || true, labelKey:this.getDefinitionFromSlot(slotType).amountLabel, premiumOnly:true};
