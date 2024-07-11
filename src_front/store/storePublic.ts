@@ -86,7 +86,6 @@ export const storePublic = defineStore('public', {
 					this.twitchTokenRefresh(true);
 				}, (twitchAuthResult.expires_in || 120) * 1000 - 60000 * 5);
 				
-				this.authenticated = true;
 			}else {
 				this.authenticated = await this.twitchTokenRefresh(false);
 				if(!this.authenticated) {
@@ -110,6 +109,7 @@ export const storePublic = defineStore('public', {
 				userRes = userRes as TwitchDataTypes.Token;//Just forcing typing for the rest of the code
 				this.twitchUid = userRes.user_id;
 				TwitchUtils.updateAuthInfo(twitchAuthResult.access_token, twitchAuthResult.scope, (scopes:TwitchScopesString[])=>{}, async ():Promise<false | TwitchDataTypes.AuthTokenResult>=>{ return false}, this.twitchUid);
+				this.authenticated = true;
 			}
 			return true;
 		},
@@ -146,8 +146,8 @@ export const storePublic = defineStore('public', {
 				refreshTokenTO = setTimeout(()=>{
 					this.twitchTokenRefresh(true);
 				}, delay);
-				this.authenticated = true;
 				TwitchUtils.updateAuthInfo(twitchAuthResult.access_token, twitchAuthResult.scope, (scopes:TwitchScopesString[])=>{}, async ():Promise<false | TwitchDataTypes.AuthTokenResult>=>{ return false}, this.twitchUid);
+				this.authenticated = true;
 				return true;
 			}
 			this.authenticated = false;
