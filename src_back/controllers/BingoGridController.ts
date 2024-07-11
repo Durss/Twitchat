@@ -278,8 +278,6 @@ export default class BingoGridController extends AbstractController {
 		const gridId:string = body.gridid;
 		let count:number = body.count;
 
-		console.log(user.login+" has "+count+" bingos");
-		
 		const grid = await this.getViewerGrid(uid, gridId, user.user_id);
 		if(grid) {
 			//Count actual possible number of bingo
@@ -290,7 +288,7 @@ export default class BingoGridController extends AbstractController {
 			//Check filled cols count
 			for (let x = 0; x < cols; x++) {
 				let allTicked = true;
-				for (let y = 0; y < cols; y++) {
+				for (let y = 0; y < rows; y++) {
 					if(!states[x+y*cols]) {
 						allTicked = false;
 						break;
@@ -299,7 +297,7 @@ export default class BingoGridController extends AbstractController {
 				if(allTicked) maxBingoCount ++;
 			}
 			//Check filled rows count
-			for (let y = 0; y < cols; y++) {
+			for (let y = 0; y < rows; y++) {
 				let allTicked = true;
 				for (let x = 0; x < cols; x++) {
 					if(!states[x+y*cols]) {
@@ -324,6 +322,8 @@ export default class BingoGridController extends AbstractController {
 				if(allTicked1) maxBingoCount ++;
 				if(allTicked2) maxBingoCount ++;
 			}
+			
+			console.log(user.login+" has "+count+"/"+maxBingoCount+" bingos");
 			
 			//Limit bingo count to the maximum possible so users cannot cheat
 			//by simply sending 999999 as the count.
