@@ -1,6 +1,9 @@
 <template>
 	<div class="channelswitcher">
-		<div class="entry current" v-if="currentChannel" @click.capture="open($event)" @click.right="cycleChannel($event)">
+		<div class="entry current"
+		v-if="currentChannel"
+		@click.capture="open($event)"
+		@click.right="cycleChannel($event)">
 			<img class="avatar" v-if="currentChannel.user.avatarPath"
 				:src="currentChannel.user.avatarPath"
 				:style="{color:currentChannel.color}"
@@ -22,7 +25,9 @@
 			</template>
 			
 			<template v-else >
-				<div class="entry" v-for="entry in channels" @click="onSelectChannel(entry.user.id, entry.user.login, entry.platform)">
+				<div v-for="entry in channels"
+				:class="currentChannelId == entry.user.id? 'entry selected' : 'entry'"
+				@click="onSelectChannel(entry.user.id, entry.user.login, entry.platform)">
 					<img class="avatar" v-if="entry.user.avatarPath"
 						:src="entry.user.avatarPath"
 						:style="{color:entry.color}"
@@ -234,6 +239,8 @@ export default toNative(ChannelSwitcher);
 		flex-direction: row;
 		align-items: center;
 		cursor: pointer;
+		padding: 2px 5px;
+		border-radius: var(--border-radius);
 		.avatar {
 			width: 1.5em;
 			height: 1.5em;
@@ -254,6 +261,9 @@ export default toNative(ChannelSwitcher);
 		}
 		&:hover {
 			background-color: var(--background-color-fader);
+		}
+		&.selected {
+			background-color: var(--color-primary-fader);
 		}
 	}
 
@@ -278,7 +288,7 @@ export default toNative(ChannelSwitcher);
 			position: absolute;
 			bottom: 0;
 			right: 0;
-			background-color: var(--color-dark);
+			background-color: var(--color-text-inverse);
 			padding: 2px;
 			border-radius: 50%;
 		}
