@@ -69,7 +69,7 @@
 							@keyup.capture.tab="(e)=>onTab(e)"
 							@keyup.enter="(e:Event)=>sendMessage(e)"
 							@keydown="onKeyDown">
-						<ChannelSwitcher class="chanSwitcher" v-model="currentChannelId" v-model:platform="currentChannelPlatform" />
+						<ChannelSwitcher class="chanSwitcher" v-model="$store.stream.currentChatChannel.id" v-model:platform="$store.stream.currentChatChannel.platform" />
 					</div>
 				</div>
 
@@ -428,9 +428,7 @@ export class ChatForm extends Vue {
 	public sendHistoryIndex = 0;
 	public sendHistory:string[] = [];
 	public channelId:string = "";
-	public currentChannelId:string = "";
 	public onlineUsersTooltip:string = "";
-	public currentChannelPlatform:TwitchatDataTypes.ChatPlatform = "twitch";
 	public announcement:TwitchatDataTypes.TwitchatAnnouncementData | null = null;
 
 	private announcementInterval:number = -1;
@@ -523,7 +521,7 @@ export class ChatForm extends Vue {
 	}
 
 	public get mustConnectYoutubeChan():boolean {
-		return this.currentChannelPlatform == "youtube" && YoutubeHelper.instance.currentLiveIds.length === 0;
+		return this.$store.stream.currentChatChannel.platform == "youtube" && YoutubeHelper.instance.currentLiveIds.length === 0;
 	}
 
 	public beforeMount(): void {
@@ -870,7 +868,9 @@ export class ChatForm extends Vue {
 				}
 				this.loading = true;
 				const replyTo = this.$store.chat.replyTo ?? undefined;
-				if(await MessengerProxy.instance.sendMessage(this.message, [this.currentChannelPlatform], this.currentChannelId, replyTo)) {
+				if(await MessengerProxy.instance.sendMessage(this.message,
+															[this.$store.stream.currentChatChannel.platform],
+															this.$store.stream.currentChatChannel.id, replyTo)) {
 					this.message = "";
 					this.$store.chat.replyTo = null;
 				}

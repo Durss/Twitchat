@@ -32,6 +32,10 @@ export const storeStream = defineStore('stream', {
 		currentStreamInfo: {},//channelId => infos
 		raidHistory: [],
 		connectedTwitchChans:[],
+		currentChatChannel:{
+			id:"",
+			platform:"twitch",
+		},
 	} as IStreamState),
 
 

@@ -1253,6 +1253,15 @@ export interface IStreamState {
 	 * Contains extra twitch channels to connect to
 	 */
 	connectedTwitchChans:{user:TwitchatDataTypes.TwitchatUser, color:string}[];
+	/**
+	 * Contains which channel is selected on the Channel Switcher
+	 * Basically defines on wich channel the user will send the message
+	 * when writing on the message input at the bottom of Twitchat
+	 */
+	currentChatChannel:{
+		id:string;
+		platform:TwitchatDataTypes.ChatPlatform;
+	};
 }
 
 export interface IStreamGetters {

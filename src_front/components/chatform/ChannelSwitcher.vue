@@ -162,6 +162,10 @@ class ChannelSwitcher extends Vue {
 	 * Disconnect from given twitch channel
 	 */
 	public disconnect(user:TwitchatDataTypes.TwitchatUser):void {
+		if(this.$store.stream.currentChatChannel.id === user.id) {
+			this.$store.stream.currentChatChannel.id = this.channels[0].user.id;
+			this.$store.stream.currentChatChannel.platform = this.channels[0].platform;
+		}
 		this.$store.stream.disconnectFromExtraChan(user);
 	}
 

@@ -1,11 +1,26 @@
 <template>
 	<div class="emoteselector blured-background-window">
-		<div v-if="users.length == 0" class="loader">
+		<div class="list" v-if="$store.stream.currentChatChannel.platform == 'youtube'">
+			<div class="emotes">
+				<img
+					class="emote"
+					v-for="e in youtubeEmotes"
+						:key="e.id+e.code"
+						:ref="e.id+e.code"
+						loading="lazy" 
+						:src="e.images.url_1x"
+						:alt="e.code"
+					@mouseover="openTooltip($event, e)"
+					@click="$emit('select', e.code)">
+			</div>
+		</div>
+
+		<div v-else-if="filteredUsers.length == 0" class="loader">
 			<Icon class="loader" name="loader" />
 			<p>{{ $t("global.loading") }}</p>
 		</div>
 
-		<div class="list search" v-if="users.length > 0 && filter">
+		<div class="list search" v-if="filteredUsers.length > 0 && filter">
 			<div class="item">
 				<div class="emotes">
 					<div v-if="filteredEmotes.length == 0">{{ $t("global.no_result") }}</div>
@@ -23,8 +38,8 @@
 			</div>
 		</div>
 
-		<div class="list" v-if="users.length > 0 && !filter">
-			<div class="userEtry" v-for="u, index in users" :key="u.user.id" :ref="'user_'+u.user.id">
+		<div class="list" v-if="filteredUsers.length > 0 && !filter">
+			<div class="userEtry" v-for="u, index in filteredUsers" :key="u.user.id" :ref="'user_'+u.user.id" @click.ctrlKey="logEntry(u)">
 				<div class="sticky">
 					<img class="icon" :src="u.user.avatarPath" alt="profile pic">
 					<div class="title">{{u.user.displayName}}</div>
@@ -47,21 +62,20 @@
 				</template>
 			</div>
 		</div>
- 
-		<div class="card-item userList" v-if="users.length > 0 && !filter">
-			<template v-for="u, index in users" :key="u.user.id">
-				<TTButton class="user"
-				v-tooltip="u.user.displayName"
-				@click="scrollTo(u.user)"
-				:loading="buildOffset < index">
-					<img :src="u.user.avatarPath" alt="profile pic" class="avatar">
-				</TTButton>
-			</template>
+
+		<div class="card-item userList" v-if="filteredUsers.length > 0 && !filter">
+			<TTButton class="user"
+			v-for="u, index in filteredUsers" :key="u.user.id"
+			v-tooltip="u.user.displayName"
+			@click="scrollTo(u.user)"
+			:loading="buildOffset < index">
+				<img :src="u.user.avatarPath" alt="profile pic" class="avatar">
+			</TTButton>
 		</div>
 
 		<TTButton v-if="!canListUserEmotes" secondary icon="lock_fit" @click="grantEmoteScope()">{{ $t("global.emote_scope") }}</TTButton>
 
-		<input v-if="users.length > 0" type="text" v-autofocus v-model="filter" :placeholder="$t('global.search_placeholder')" class="dark">
+		<input v-if="filteredUsers.length > 0" type="text" v-autofocus v-model="filter" :placeholder="$t('global.search_placeholder')" class="dark">
 	</div>
 </template>
 
@@ -78,6 +92,7 @@ import { useTippy } from 'vue-tippy';
 import Icon from '../Icon.vue';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TTButton from '../TTButton.vue';
+import YoutubeEmotes from '../../../static/youtube/emote_list.json';
 
 @Component({
 	components:{
@@ -100,17 +115,58 @@ class EmoteSelector extends Vue {
 		return TwitchUtils.hasScopes([TwitchScopes.READ_EMOTES]);
 	}
 
+	public get filteredUsers():typeof this.users {
+		const chanId = this.$store.stream.currentChatChannel.id;
+		const chanPlatform = this.$store.stream.currentChatChannel.platform;
+		const res = this.users.filter(u=>{
+			return u.emotes.filter(e=> {
+				if(e.platform != chanPlatform) return false;
+				return e.ownerOnly != true || e.owner!.id == chanId
+			}).length > 0;
+		});
+		res.sort((a,b)=>{
+			if(a.user.id === chanId) return -1;
+			if(b.user.id === chanId) return 1;
+			const idA = parseInt(a.user.id);
+			const idB = parseInt(b.user.id);
+			if(idA < 10) return idA;
+			if(idB < 10) return idB;
+			if(a.user.is_bot) return 1;
+			return a.user.login.localeCompare(b.user.login);
+		})
+		return res;
+	}
+
 	public get filteredEmotes():TwitchatDataTypes.Emote[] {
 		let res:TwitchatDataTypes.Emote[] = [];
 		const s = this.filter.toLowerCase();
-		for (let i = 0; i < this.users.length; i++) {
-			const u = this.users[i];
+		for (let i = 0; i < this.filteredUsers.length; i++) {
+			const u = this.filteredUsers[i];
 			for (let j = 0; j < u.emotes.length; j++) {
 				const e = u.emotes[j];
 				if(e.code.toLowerCase().indexOf(s) > -1) {
 					res.push(e);
 				}
 			}
+		}
+		return res;
+	}
+
+	public get youtubeEmotes():TwitchatDataTypes.Emote[] {
+		const res:TwitchatDataTypes.Emote[] = [];
+		for (const key in YoutubeEmotes) {
+			const name = YoutubeEmotes[key as keyof typeof YoutubeEmotes];
+			res.push({
+				code:key,
+				id:key,
+				images:{
+					url_1x:"/youtube/emotes/sd/"+name,
+					url_2x:"/youtube/emotes/sd/"+name,
+					url_4x:"/youtube/emotes/hd/"+name,
+				},
+				is_public:true,
+				platform:"youtube",
+			})
 		}
 		return res;
 	}
@@ -140,14 +196,10 @@ class EmoteSelector extends Vue {
 			userList.sort((a, b) => a.displayName > b.displayName?  1 : -1);
 			//Bring self to top
 			userList.sort(a => a.id === StoreProxy.auth.twitch.user.id?  -1 : 0);
-			//Build a fast access object to know the index of a user from its ID.
+			//Build a fast access object to know the index of a user from their ID.
 			const uidToIndex:{[key:string]:number} = {};
 			for (let i = 0; i < userList.length; i++) {
 				uidToIndex[ userList[i].id ] = i;
-				if(userList[i].login.toLowerCase() === "qa_tw_partner") {
-					userList[i].login = "unlocked";
-					userList[i].displayName = "Unlocked";
-				}
 			}
 	
 			//Add global emotes
@@ -304,6 +356,10 @@ class EmoteSelector extends Vue {
 	 */
 	public grantEmoteScope():void {
 		TwitchUtils.requestScopes([TwitchScopes.READ_EMOTES]);
+	}
+
+	public logEntry(entry:typeof this.users[number]):void {
+		console.log(entry);
 	}
 
 	private open():void {

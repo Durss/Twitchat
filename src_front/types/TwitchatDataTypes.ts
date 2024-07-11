@@ -1505,9 +1505,18 @@ export namespace TwitchatDataTypes {
 			url_4x: string;
 		};
 		platform: ChatPlatform;
-		is_public: boolean;//Defines is anyone can use it
+		/**
+		 * Defines if anyone can use it
+		 * "true" for all global emotes
+		 */
+		is_public: boolean;
 		source?: "BTTV"|"7TV"|"FFZ";
 		owner?: TwitchatUser;
+		/**
+		 * Defines if this emote can only be used if
+		 * connected to the given channel
+		 */
+		ownerOnly?: boolean;
 	}
 
 	/**

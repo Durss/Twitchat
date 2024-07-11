@@ -114,6 +114,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					}
 				}
 
+				TwitchUtils.loadEmoteSets(v.id);
 				TwitchUtils.loadUserBadges(v.id);
 				TwitchUtils.loadCheermoteList(v.id);
 				TwitchUtils.getRoomSettings(v.id, true).then(settings=> {
@@ -1037,9 +1038,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 
 			case "USERSTATE": {
-				const [channelName] = (parsed as {params:string[]}).params;
-				const channelId = this.getChannelID(channelName);
-				TwitchUtils.loadEmoteSets(channelId, ((parsed as tmi.UserNoticeState).tags["emote-sets"] ?? "").split(","));
+				// const [channelName] = (parsed as {params:string[]}).params;
+				// const channelId = this.getChannelID(channelName);
+				// TwitchUtils.loadEmoteSets(channelId, ((parsed as tmi.UserNoticeState).tags["emote-sets"] ?? "").split(","));
 				break;
 			}
 

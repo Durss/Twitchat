@@ -27,6 +27,7 @@ export default class TwitchUtils {
 	private static uid:string = "";
 	private static scopes:string[] = [];
 	private static accessToken:string = "";
+	private static loadedChannelEmotes:{[uid:string]:boolean} = {};
 	private static requestScopesCallback:(scopes:TwitchScopesString[])=>void;
 	private static refreshTokenCallback:()=>Promise<false | TwitchDataTypes.AuthTokenResult>;
 
@@ -613,37 +614,26 @@ export default class TwitchUtils {
 	/**
 	 * Loads specified emotes sets
 	 */
-	public static async loadEmoteSets(channelId: string, sets: string[], staticEmotes?: TwitchDataTypes.Emote[]): Promise<TwitchatDataTypes.Emote[]> {
-		if (this.emotesCache.length > 0) return this.emotesCache;
-		let emotes: TwitchatDataTypes.Emote[] = [];
+	public static async loadEmoteSets(channelId: string, staticEmotes?: TwitchDataTypes.Emote[]): Promise<void> {
+		if(this.loadedChannelEmotes[channelId] === true) return;
+		
 		let emotesTwitch: TwitchDataTypes.Emote[] = [];
 		if (!staticEmotes) {
-			const options = {
-				method: "GET",
-				headers: this.headers,
-			}
-			// do {
-			const url = new URL(Config.instance.TWITCH_API_PATH + "chat/emotes/set");
-			// sets.splice(0,25).forEach(set => {
-			// 	url.searchParams.append("emote_set_id", set);
-			// });
 			//Twitch global emotes
+			const url = new URL(Config.instance.TWITCH_API_PATH + "chat/emotes/set");
 			url.searchParams.append("emote_set_id", "0");
-			const res = await this.callApi(url, options);
+			const res = await this.callApi(url, { method: "GET", headers: this.headers });
 			const json = await res.json();
 			if (res.status == 200) {
 				emotesTwitch = emotesTwitch.concat(json.data);
 			} else {
 				throw (json);
 			}
-			// }while(sets.length > 0);
-
+			
 			if (this.hasScopes([TwitchScopes.READ_EMOTES])) {
-				if (channelId == this.uid) {
-					let userEmotes = await this.getUserEmotes(channelId);
-					if (userEmotes) {
-						emotesTwitch = emotesTwitch.concat(userEmotes);
-					}
+				let userEmotes = await this.getUserEmotes(channelId);
+				if (userEmotes) {
+					emotesTwitch = emotesTwitch.concat(userEmotes);
 				}
 			}
 
@@ -661,70 +651,72 @@ export default class TwitchUtils {
 			emotesTwitch.push(...staticEmotes);
 		}
 
-		const uid2User: { [key: string]: TwitchatDataTypes.TwitchatUser } = {};//Avoid spamming store
+		const uid2User: { [key: string]: TwitchatDataTypes.TwitchatUser } = {};//Avoid spamming user store
 
 		//Convert to twitchat's format
-		emotes = emotesTwitch
-			.filter(v => v.owner_id != "twitch")//remove lots of useless emotes like ":p", ":o", ":-)", etc..
-			.map((e: TwitchDataTypes.Emote): TwitchatDataTypes.Emote => {
-				//Extract latest format available.
-				//Should be aither "static" or "animated" but doing it this way will load
-				//any potential new kind of emote in the future.
-				const flag = (((e.format as unknown) as string[]).splice(-1)[0] ?? "static");
-				let owner!: TwitchatDataTypes.TwitchatUser;
-				if (e.owner_id == "0") {
-					//Create a fake user for th "global" emotes.
-					//They are linked to the twitch user "0" which does
-					//not exists.
-					owner = {
-						id: "0",
-						platform: "twitch",
-						displayName: "Global",
-						displayNameOriginal: "Global",
-						login: "Global",
-						is_affiliate: false,
-						is_partner: false,
-						is_tracked: false,
-						is_blocked: false,
-						pronouns: false,
-						is_bot: true,
-						pronounsLabel: "",
-						pronounsTooltip: "",
-						channelInfo: {},
-					}
-				} else {
-					owner = uid2User[e.owner_id] ?? StoreProxy.users.getUserFrom("twitch", channelId, e.owner_id)
-					uid2User[e.owner_id] = owner;
-				}
-				return {
-					id: e.id,
-					code: e.name,
-					is_public: e.emote_type === "globals",
-					images: {
-						// this : replace("static", flag)
-						//replaces the static flag by "animated" if available
-						url_1x: e.images.url_1x.replace("/static/", "/" + flag + "/"),
-						url_2x: e.images.url_2x.replace("/static/", "/" + flag + "/"),
-						url_4x: e.images.url_4x.replace("/static/", "/" + flag + "/"),
-					},
-					owner,
+		emotesTwitch
+		.filter(emote => emote.owner_id != "twitch")//remove lots of useless emotes like ":p", ":o", ":-)", etc..
+		.filter(emote => this.emotesCacheHashmap[emote.name] === undefined)//remove already registered emotes
+		.map((e: TwitchDataTypes.Emote): TwitchatDataTypes.Emote => {
+			//Extract latest format available.
+			//Should be aither "static" or "animated" but doing it this way will load
+			//any potential new kind of emote in the future.
+			const flag = (((e.format as unknown) as string[]).splice(-1)[0] ?? "static");
+			let owner!: TwitchatDataTypes.TwitchatUser;
+			if (e.owner_id == "0") {
+				//Create a fake user for the "global" emotes.
+				//They are linked to the twitch user "0" which does
+				//not exists.
+				owner = {
+					id: "0",
 					platform: "twitch",
+					displayName: "Global",
+					displayNameOriginal: "Global",
+					login: "Global",
+					is_affiliate: false,
+					is_partner: false,
+					is_tracked: false,
+					is_blocked: false,
+					pronouns: false,
+					is_bot: true,
+					pronounsLabel: "",
+					pronounsTooltip: "",
+					channelInfo: {},
 				}
-			});
+			} else {
+				owner = uid2User[e.owner_id] ?? StoreProxy.users.getUserFrom("twitch", channelId, e.owner_id)
+				uid2User[e.owner_id] = owner;
+			}
+			return {
+				id: e.id,
+				code: e.name,
+				is_public: e.emote_type === "globals",
+				images: {
+					// this : replace("static", flag)
+					//replaces the static flag by "animated" if available
+					url_1x: e.images.url_1x.replace("/static/", "/" + flag + "/"),
+					url_2x: e.images.url_2x.replace("/static/", "/" + flag + "/"),
+					url_4x: e.images.url_4x.replace("/static/", "/" + flag + "/"),
+				},
+				owner,
+				platform: "twitch",
+				ownerOnly: channelId != this.uid,
+			}
+		}).forEach(emote=>{
+			this.emotesCacheHashmap[emote.code] = emote;
+			this.emotesCache.push(emote);
+		});
 
 		//Sort them by name length DESC to make manual emote parsing easier.
 		//When sending a message on IRC, we don't get a clean callback
 		//message with parsed emotes (nor id, timestamp and other stuff)
 		//This means that every message sent from this interface must be
 		//parsed manually. Love it..
-		emotes.sort((a, b) => b.code.length - a.code.length);
+		this.emotesCache.sort((a, b) => b.code.length - a.code.length);
 
-		const hashmap: { [key: string]: TwitchatDataTypes.Emote } = {};
-		emotes.forEach(e => { hashmap[e.code] = e; });
-		this.emotesCacheHashmap = hashmap;
-		this.emotesCache = emotes;
-
-		return emotes;
+		this.loadedChannelEmotes[channelId] = true;
+		//Invalidate cache
+		StoreProxy.chat.setEmoteSelectorCache([]);
 	}
 
 	/**
@@ -2797,7 +2789,8 @@ export default class TwitchUtils {
 
 		do {
 			const url = new URL(Config.instance.TWITCH_API_PATH + "chat/emotes/user");
-			url.searchParams.append("user_id", uid)
+			url.searchParams.append("user_id", StoreProxy.auth.twitch.user.id);
+			url.searchParams.append("broadcaster_id", uid);
 			if (cursor) {
 				url.searchParams.append("after", cursor)
 			}
@@ -2831,7 +2824,7 @@ export default class TwitchUtils {
 			} else if (res.status == 500) break;
 			else if (res.status != 200) continue;
 			else return [];
-		} while (cursor != null)
+		} while (cursor != null);
 
 		return list;
 	}
