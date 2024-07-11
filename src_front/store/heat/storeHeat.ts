@@ -239,6 +239,7 @@ export const storeHeat = defineStore('heat', {
 				id:Utils.getUUID(),
 				text:"",
 				type:'chat',
+				sendAsReply:false,
 			}
 			const trigger:TriggerData = {
 				id:Utils.getUUID(),

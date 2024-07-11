@@ -21,7 +21,7 @@
 			"cmdsBt_aria": "Chat commands",
 			"usersBt_aria": "Users list",
 			"rewardsBt_aria": "Rewards list",
-			"input_placeholder": "message...",
+			"input_placeholder": "message to send on {CHANNEL}...",
 			"trigger_cmd_disabled": "(disabled trigger)",
 			"trigger_cmd_disabled_tt": "The trigger related to this command is disabled. Enable it back to use it.",
 			"stop_spamBt": "Stop spam",

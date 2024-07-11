@@ -462,6 +462,7 @@ export const storeMain = defineStore("main", {
 					id: Utils.getUUID(),
 					text: StoreProxy.chat.botMessages.heatSpotify.message,
 					type: 'chat',
+					sendAsReply:false
 				};
 				const trigger: TriggerData = {
 					id: "heat_spotify_click",

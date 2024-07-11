@@ -21,7 +21,7 @@
 			"cmdsBt_aria": "Commandes",
 			"usersBt_aria": "Liste des viewers",
 			"rewardsBt_aria": "Liste des récompenses",
-			"input_placeholder": "message...",
+			"input_placeholder": "message à envoyer chez {CHANNEL}...",
 			"trigger_cmd_disabled": "(trigger désactivé)",
 			"trigger_cmd_disabled_tt": "Le trigger correspondant à cette commande est désactivé. Réactivez-le pour pouvoir utiliser la commande",
 			"stop_spamBt": "Arrêter le spam",

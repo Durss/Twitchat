@@ -22,7 +22,7 @@
 			</template>
 			
 			<template v-else >
-				<div class="entry" v-for="entry in channels" @click="onSelectChannel(entry.user.id, entry.platform)">
+				<div class="entry" v-for="entry in channels" @click="onSelectChannel(entry.user.id, entry.user.login, entry.platform)">
 					<img class="avatar" v-if="entry.user.avatarPath"
 						:src="entry.user.avatarPath"
 						:style="{color:entry.color}"
@@ -58,7 +58,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 		TTButton,
 		SearchUserForm,
 	},
-	emits:["update:modelValue", "update:platform", "change"],
+	emits:["update:modelValue", "update:platform", "update:name", "change"],
 })
 class ChannelSwitcher extends Vue {
 	
@@ -67,6 +67,9 @@ class ChannelSwitcher extends Vue {
 	
 	@Prop({default:"twitch", type:String})
 	public platform!:string;
+	
+	@Prop({default:"", type:String})
+	public name!:string;
 	
 	public expand:boolean = false;
 	public showForm:boolean = false;
@@ -140,7 +143,8 @@ class ChannelSwitcher extends Vue {
 	/**
 	 * Called when selecting a connected channel to make it the current one
 	 */
-	public onSelectChannel(channelId:string, platform:TwitchatDataTypes.ChatPlatform):void {
+	public onSelectChannel(channelId:string, channelName:string, platform:TwitchatDataTypes.ChatPlatform):void {
+		this.$emit("update:name", channelName);
 		this.$emit("update:platform", platform);
 		this.$emit("update:modelValue", channelId);
 		this.$emit("change", channelId);
@@ -155,7 +159,7 @@ class ChannelSwitcher extends Vue {
 		event.preventDefault();
 		let index = this.channels.findIndex(v=>v.user.id == this.currentChannelId);
 		index = (++index)%this.channels.length;
-		this.onSelectChannel(this.channels[index].user.id, this.channels[index].platform);
+		this.onSelectChannel(this.channels[index].user.id, this.channels[index].user.login, this.channels[index].platform);
 	}
 
 	/**
@@ -164,6 +168,7 @@ class ChannelSwitcher extends Vue {
 	public disconnect(user:TwitchatDataTypes.TwitchatUser):void {
 		if(this.$store.stream.currentChatChannel.id === user.id) {
 			this.$store.stream.currentChatChannel.id = this.channels[0].user.id;
+			this.$store.stream.currentChatChannel.name = this.channels[0].user.login;
 			this.$store.stream.currentChatChannel.platform = this.channels[0].platform;
 		}
 		this.$store.stream.disconnectFromExtraChan(user);

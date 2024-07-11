@@ -1260,6 +1260,7 @@ export interface IStreamState {
 	 */
 	currentChatChannel:{
 		id:string;
+		name:string;
 		platform:TwitchatDataTypes.ChatPlatform;
 	};
 }

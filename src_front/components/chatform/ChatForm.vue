@@ -55,21 +55,26 @@
 					</div>
 
 					<div class="inputField">
-						<!-- using @input instead of v-model so it works properly on mobile -->
 						<div class="noYoutubeLive" alert
 							v-if="mustConnectYoutubeChan"
 							@click="stopSpam()">{{ $t('chat.form.youtube_not_connected') }}</div>
+							
+						<!-- using @input instead of v-model so it works properly on mobile -->
 						<input v-else
 							type="text"
 							ref="input"
 							:value="message"
-							@input="$event => message = ($event.target as HTMLInputElement).value"
-							:placeholder="$t('chat.form.input_placeholder')"
+							:placeholder="$t('chat.form.input_placeholder', {CHANNEL:$store.stream.currentChatChannel.name})"
 							:maxlength="maxLength"
+							@input="$event => message = ($event.target as HTMLInputElement).value"
 							@keyup.capture.tab="(e)=>onTab(e)"
 							@keyup.enter="(e:Event)=>sendMessage(e)"
 							@keydown="onKeyDown">
-						<ChannelSwitcher class="chanSwitcher" v-model="$store.stream.currentChatChannel.id" v-model:platform="$store.stream.currentChatChannel.platform" />
+
+						<ChannelSwitcher class="chanSwitcher"
+							v-model="$store.stream.currentChatChannel.id"
+							v-model:name="$store.stream.currentChatChannel.name"
+							v-model:platform="$store.stream.currentChatChannel.platform" />
 					</div>
 				</div>
 
