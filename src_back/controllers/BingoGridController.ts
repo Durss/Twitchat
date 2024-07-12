@@ -173,6 +173,11 @@ export default class BingoGridController extends AbstractController {
 		}
 		
 		cachedGrid.data.enabled = gridRef.enabled;
+		cachedGrid.data.entries = gridRef.entries;
+		cachedGrid.data.cols = gridRef.cols;
+		cachedGrid.data.rows = gridRef.rows;
+		cachedGrid.data.title = gridRef.title;
+		cachedGrid.data.additionalEntries = gridRef.additionalEntries;
 
 		if(!gridRef.enabled || forceNewGridGen) {
 			//Grid disabled or asking to fully rebuild them
