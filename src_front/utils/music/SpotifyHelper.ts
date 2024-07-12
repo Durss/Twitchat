@@ -322,7 +322,7 @@ export default class SpotifyHelper {
 			method:"POST",
 		}
 		const res = await fetch("https://api.spotify.com/v1/me/player/queue?uri="+encodeURIComponent(uri), options);
-		if(res.status == 204) {
+		if(res.status == 204 || res.status == 200) {
 			StoreProxy.music.spotifyConsecutiveErrors = 0;
 			return true;
 		}else
