@@ -53,6 +53,7 @@ export default class SSEHelper extends EventDispatcher {
 		if(this._sse) {
 			this._sse.onmessage = null;
 			this._sse.onopen = null;
+			this._sse.onerror = null;
 			this._sse.close();
 		}
 
@@ -65,10 +66,19 @@ export default class SSEHelper extends EventDispatcher {
 			}, Math.random()*5000);
 		}
 		this._sse.onerror = (event) => {
+			console.log("ERROR");
+			console.log(event);
 			setTimeout(() => {
 				this.connect();
 			}, 2000);
-		}
+		};
+
+		window.addEventListener("beforeunload", ()=>{
+			this._sse.onmessage = null;
+			this._sse.onopen = null;
+			this._sse.onerror = null;
+			this._sse.close();
+		})
 	}
 
 	/**
