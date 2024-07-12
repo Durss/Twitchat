@@ -183,6 +183,7 @@ class ChannelSwitcher extends Vue {
 	 * Opens the window
 	 */
 	public async open(event:MouseEvent):Promise<void> {
+		this.loadLiveFollowing();
 		event.stopPropagation();
 		event.preventDefault();
 		if(this.expand) {

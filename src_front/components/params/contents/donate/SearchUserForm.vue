@@ -11,6 +11,7 @@
 			<Icon v-if="searching" name="loader" class="loader" />
 			<TTButton v-else icon="cross" class="cancel" transparent noBounce @click="$emit('close')"></TTButton>
 		</form>
+		
 		<div class="userList" v-if="users.length > 0">
 			<TransitionGroup name="list"
 			:css="false"
@@ -18,6 +19,7 @@
 				<button class="user" type="button"
 				v-for="(user, index) in users"
 				v-if="showResult"
+				:class="liveStates[user.id]? 'live' : ''"
 				:key="user.id"
 				:data-index="index"
 				@click="selectUser(user)">
@@ -27,12 +29,12 @@
 			</TransitionGroup>
 		</div>
 
-		<div class="userList static">
+		<div class="userList">
 			<TransitionGroup name="list"
 			:css="false"
 			@enter="onEnter"
 			@leave="onLeave">
-				<button class="user" type="button"
+				<button class="user live" type="button"
 				v-for="(user, index) in staticUserListFiltered"
 				v-if="staticUserListFiltered.length > 0 && search.length == 0 && showStatic"
 				:key="user.id"
@@ -82,8 +84,9 @@ class SearchUserForm extends Vue {
 	public searching:boolean = false;
 	public showResult:boolean = false;
 	public showStatic:boolean = false;
+	public liveStates:{[uid:string]:boolean} = {}
 
-	private searchDebounce = -1;
+	private abortQuery:AbortController|null = null;
 
 	public get staticUserListFiltered():TwitchDataTypes.UserInfo[] {
 		return (this.staticUserList || []).filter(user => (this.excludedUserIds || []).indexOf(user.id) === -1);
@@ -97,18 +100,22 @@ class SearchUserForm extends Vue {
 		if(event.key == 'Escape') this.$emit("close");
 	}
 
-	public onSearch():void {
+	public async onSearch():Promise<void> {
 		this.searching = this.search != "";
 		this.noResult = false;
-		clearTimeout(this.searchDebounce);
+		if(this.abortQuery) this.abortQuery.abort("search update");
+		this.abortQuery = new AbortController();
 		if(this.searching) {
-			this.searchDebounce = setTimeout(async () => {
-				this.users = (await TwitchUtils.searchUser(this.search) || []).filter(user => (this.excludedUserIds || []).indexOf(user.id) === -1);
+			const signal = this.abortQuery!.signal;
+			const result = (await TwitchUtils.searchUser(this.search, 10, signal) || []);
+			this.liveStates = result.liveStates;
+			this.users = result.users.filter(user => (this.excludedUserIds || []).indexOf(user.id) === -1);
+			if(!signal.aborted) {
 				this.searching = false;
 				this.noResult = this.users.length === 0;
 				await this.$nextTick();
 				this.showResult = true;
-			}, 500);
+			}
 		}else{
 			this.users = [];
 			this.showResult = false;
@@ -206,18 +213,16 @@ export default toNative(SearchUserForm);
 		&:empty  {
 			display: none;
 		}
-		&.static {
-			.user::after {
-				content:"";
-				width:7px;
-				height:7px;
-				border-radius: 50%;
-				background-color: #f00;
-				box-shadow: -2px 2px 3px #000;
-				position: absolute;
-				top: .1em;
-				left: 1.6em;
-			}
+		.user.live::after {
+			content:"";
+			width:7px;
+			height:7px;
+			border-radius: 50%;
+			background-color: #f00;
+			box-shadow: -2px 2px 3px #000;
+			position: absolute;
+			top: .1em;
+			left: 1.6em;
 		}
 	}
 

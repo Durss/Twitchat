@@ -214,7 +214,7 @@ export default class TwitchUtils {
 	 * @param logins
 	 * @returns
 	 */
-	public static async getUserInfo(ids?: string[], logins?: string[]): Promise<TwitchDataTypes.UserInfo[]> {
+	public static async getUserInfo(ids?: string[], logins?: string[], signal?:AbortSignal): Promise<TwitchDataTypes.UserInfo[]> {
 		let items: string[] | undefined = ids ? ids : logins;
 		if (items == undefined) return [];
 		items = items.filter(v => v != null && v != undefined);
@@ -230,15 +230,15 @@ export default class TwitchUtils {
 				if (param == "id" && !/^[0-9]+$/.test(v)) return;
 				url.searchParams.append(param, v);
 			});
-			const result = await this.callApi(url, { headers: this.headers });
+			const result = await this.callApi(url, { headers: this.headers, signal });
 			if (result.status === 200) {
 				const json = await result.json();
 				users = users.concat(json.data);
 			} else if (result.status == 429) {
 				//Rate limit reached, try again after it's reset to fulle
 				await this.onRateLimit(result.headers, url.pathname, 1);
-				return await this.getUserInfo(ids, logins)
-			} else if (result.status == 500) break;
+				return await this.getUserInfo(ids, logins, signal)
+			} else if (result.status == 500 || result.status == 499) break;
 		}
 		return users;
 	}
@@ -249,43 +249,50 @@ export default class TwitchUtils {
 	 * @param logins
 	 * @returns
 	 */
-	public static async searchUser(search:string, maxLength:number = 15): Promise<TwitchDataTypes.UserInfo[]> {
-		search = search.trim().toLowerCase();
+	public static async searchUser(search:string, maxLength:number = 15, signal:AbortSignal): Promise<{users:TwitchDataTypes.UserInfo[], liveStates:{[uid:string]:boolean}}> {
+		search = Utils.slugify(search).replace(/-/g, "_").trim().toLowerCase();
 		let users: TwitchDataTypes.UserInfo[] = [];
+		let liveStates:{[uid:string]:boolean} = {};
+		//The exact match may not be returned because it sorts results in the
+		//most terrible way.
+		//We first search for the exact match in case it exists to return it
+		//first later
+		const [bestResult] = await this.getUserInfo(undefined, [search]);
+		// const [bestResult] = await this.getChannelInfo([bestResult[0].id]);
+		if(signal.aborted) return {users, liveStates};
+		
 		const url = new URL(Config.instance.TWITCH_API_PATH + "search/channels");
 		url.searchParams.append("query", search);
 		url.searchParams.append("first", "100");
 		//Twitch search endpoint is terribly bad.
-		//The exact mathc may not be returned because it sorts results in the
-		//most terrible way.
-		//We first search for the exact match in case it exists to return it first
-		//later
-		const bestResult = await this.getUserInfo(undefined, [search]);
-		const result = await this.callApi(url, { headers: this.headers });
+		const result = await this.callApi(url, { headers: this.headers, signal });
 		if (result.status === 200) {
 			const json = await result.json();
 			const list = json.data as TwitchDataTypes.LiveChannelSearchResult[];
+			
+			list.forEach(v=> liveStates[v.id] = v.is_live);
+
 			list.sort((a, b) => {
 				if (a.broadcaster_login.toLowerCase() == search) return -1;
 				if (b.broadcaster_login.toLowerCase() == search) return 1;
 				return a.broadcaster_login.localeCompare(b.broadcaster_login, 'en', { sensitivity: 'base' });
 			});
-			const users = (await this.getUserInfo(list.slice(0, maxLength)
-			.map(v=>v.id)) || []).sort((a, b) => {
+
+			const users = (await this.getUserInfo(list.slice(0, maxLength).map(v=>v.id), undefined, signal) || []).sort((a, b) => {
 				if (a.login.toLowerCase().toLowerCase() == search) return -1;
 				if (b.login.toLowerCase().toLowerCase() == search) return 1;
 				return a.login.localeCompare(b.login, 'en', { sensitivity: 'base' });
 			});
-			if(users.findIndex(v=>v.login.toLowerCase() === search) === -1 && bestResult.length > 0) {
-				users.unshift(bestResult[0]);
+			if(users.findIndex(v=>v.login.toLowerCase() === search) === -1 && bestResult) {
+				users.unshift(bestResult);
 			}
-			return users.slice(0, maxLength);
+			return {users:users.slice(0, maxLength), liveStates};
 		} else if (result.status == 429) {
 			//Rate limit reached, try again after it's reset to fulle
 			await this.onRateLimit(result.headers, url.pathname, 1);
-			return await this.searchUser(search)
+			return await this.searchUser(search, maxLength, signal)
 		}
-		return users;
+		return {users, liveStates};
 	}
 
 	/**
@@ -3509,9 +3516,14 @@ export default class TwitchUtils {
 			//Try to call endpoint again with fresh new token
 			return await fetch(input, init);
 		} catch (error: any) {
-			console.log(error);
-			Sentry.captureException("Twitch API call error for endpoint " + input, { originalException: error as Error });
-			return new Response(error.message, { status: 500 });
+			if(init?.signal && init.signal.aborted) {
+				console.log("ABORTED")
+				return new Response(error.message, { status: 499 });
+			}else{
+				console.log(error);
+				Sentry.captureException("Twitch API call error for endpoint " + input, { originalException: error as Error });
+				return new Response(error.message, { status: 500 });
+			}
 		}
 	}
 

@@ -81,7 +81,7 @@ export namespace TwitchDataTypes {
 		description: string;
 		profile_image_url: string;
 		offline_image_url: string;
-		view_count: number;
+		// view_count: number;
 		created_at: string;
 	}
 
