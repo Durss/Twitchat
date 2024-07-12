@@ -324,7 +324,7 @@ export default class SpotifyHelper {
 			method:"POST",
 		}
 		const res = await fetch("https://api.spotify.com/v1/me/player/queue?uri="+encodeURIComponent(track.uri), options);
-		if(res.status == 204) {
+		if(res.status == 204 || res.status == 200) {
 			if(user) {
 				this._trackIdToUser[track.id] = user;
 			}
