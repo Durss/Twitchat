@@ -351,7 +351,7 @@ export default class YoutubeHelper {
 						this._lastMessageDate = Date.now();
 					}
 
-					maxDelay = Math.max(maxDelay, json.pollingIntervalMillis);
+					maxDelay = Math.max(maxDelay, json.pollingIntervalMillis || 10000);
 
 					this._lastMessagePage[liveId] = json.nextPageToken;
 				}else {
@@ -367,26 +367,26 @@ export default class YoutubeHelper {
 								StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_chat_ended"));
 								this.currentLiveIds.splice(i, 1);
 								i--;
-								return;
+								continue;
 							}
 							if(errorCode == "liveChatNotFound") {
 								//Live broadcast deleted
 								StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_chat_not_found"));
 								this.currentLiveIds.splice(i, 1);
 								i--;
-								return;
+								continue;
 							}
 							if(errorCode == "liveChatDisabled") {
 								//Chat not enabled for selected live broadcast
 								StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_chat_off"));
 								this.currentLiveIds.splice(i, 1);
 								i--;
-								return;
+								continue;
 							}
 							if(errorCode == "quotaExceeded") {
 								//No more Youtube API credits :/
 								StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
-								return;
+								continue;
 							}
 							if(errorCode == "backendError") {
 								//Just youtube failing

@@ -179,7 +179,6 @@ class Login extends Vue {
 					this.$store.auth.twitch_autenticate(code, (success:boolean, betaRefused?:boolean)=> {
 						this.authenticating = false;
 						if(success) {
-							console.log("LOGIN>", res.json);
 							if(res.json.uidShare) {
 								this.$store.main.tempStoreValue = {uid:res.json.uidShare, csrf:csrfToken};
 								this.$store.params.openModal("shareParams");

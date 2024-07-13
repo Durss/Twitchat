@@ -16,9 +16,10 @@
 		<div class="content">
 			<form  @submit.prevent="submitForm()">
 				<div class="card-item">
-					<ParamItem noBackground :paramData="command" autofocus
-					@change="conflict = false"
-					:error="conflict" :errorMessage="$t('qna.form.conflict')" />
+					<ParamItem noBackground :paramData="param_command" autofocus
+						@change="conflict = false"
+						:error="conflict" :errorMessage="$t('qna.form.conflict')" />
+
 					<div class="example">
 						<span>{{ $t("global.example") }}</span>: 
 						<i18n-t scope="global" tag="mark" keypath="qna.form.example_command">
@@ -27,6 +28,11 @@
 						</i18n-t>
 					</div>
 				</div>
+
+				<ParamItem :paramData="param_upvote" v-model="param_upvote.value" premium />
+
+				<ParamItem :paramData="param_shareWithMods" v-model="param_shareWithMods.value" premium />
+
 				<PostOnChatParam botMessageKey="qnaStart"
 					icon="announcement"
 					:placeholderEnabled="false"
@@ -57,10 +63,12 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 	},
 	emits:["close"],
 })
- class QnaForm extends AbstractSidePanel {
+class QnaForm extends AbstractSidePanel {
 	
 	public conflict:boolean = false;
-	public command:TwitchatDataTypes.ParameterData<string>	= {type:"string", value:"!q", placeholder:"!sugg", maxLength:30, labelKey:"qna.form.param_command", icon:"commands"};
+	public param_command:TwitchatDataTypes.ParameterData<string>		= {type:"string", value:"!q", placeholder:"!sugg", maxLength:30, labelKey:"qna.form.param_command", icon:"commands"};
+	public param_upvote:TwitchatDataTypes.ParameterData<boolean>		= {type:"boolean", value:false, labelKey:"qna.form.param_upvote", icon:"add"};
+	public param_shareWithMods:TwitchatDataTypes.ParameterData<boolean>	= {type:"boolean", value:false, labelKey:"qna.form.param_shareWithMods", icon:"mod"};
 
 	public get classes():string[] {
 		const res = ["qnaform", "sidePanel"];
@@ -69,7 +77,7 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 	}
 
 	public get example():string {
-		if(this.command.value) return this.command.value;
+		if(this.param_command.value) return this.param_command.value;
 		return "!sugg";
 	}
 
@@ -77,7 +85,7 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 		return [
 			{
 				tag:"CMD", descKey:'qna.form.cmd_placeholder',
-				example:this.command.value,
+				example:this.param_command.value,
 			}
 		];
 	}
@@ -87,7 +95,7 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 	}
 	
 	public submitForm():void {
-		if(!this.$store.qna.createSession(this.command.value)) {
+		if(!this.$store.qna.createSession(this.param_command.value, this.param_upvote.value, this.param_shareWithMods.value)) {
 			this.conflict = true;
 		}else{
 			this.close();

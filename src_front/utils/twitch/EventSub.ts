@@ -220,12 +220,22 @@ export default class EventSub {
 			const uid = uids[i];
 			if(doneUids[uid] === true) continue;
 			doneUids[uid] = true;
+
+			//Subscript to broadcaster-only events
 			if(uid == myUID) {
-				//These events are available only by the broadcaster
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_UPDATE, "2");
+
+				//Don't need to listen for this event for anyone else but the broadcaster
+				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {from_broadcaster_user_id:uid});
+				
+				//Used by online/offline triggers
+				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
+				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
+
 				if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, "2");
 				}
+
 				if(TwitchUtils.hasScopes([TwitchScopes.BLOCKED_TERMS,
 					TwitchScopes.SET_ROOM_SETTINGS,
 					TwitchScopes.UNBAN_REQUESTS,
@@ -234,7 +244,7 @@ export default class EventSub {
 					TwitchScopes.CHAT_WARNING,
 					TwitchScopes.READ_MODERATORS,
 					TwitchScopes.READ_VIPS])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_MODERATE, "beta");
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_MODERATE, "2");
 				}else{
 					if(TwitchUtils.hasScopes([TwitchScopes.MODERATION_EVENTS])) {
 						TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.BAN, "1");
@@ -245,36 +255,34 @@ export default class EventSub {
 						TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_RESOLVED, "1");
 					}
 					if(TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING])) {
-						TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_SENT, "beta");
+						TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_SENT, "1");
 					}
 				}
+
 				if(TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_STOP, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_START, "1");
 				}
+
 				if(TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_IN, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_OUT, "1");
 				}
+
 				if(TwitchUtils.hasScopes([TwitchScopes.ADS_READ])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.AD_BREAK_BEGIN, "1");
 				}
-
-				//Don't need to listen for this event for anyone else but the broadcaster
-				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {from_broadcaster_user_id:uid});
 				
-				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_MESSAGES, "1");
-				
-				//Used by online/offline triggers
-				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
-				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
+				if(TwitchUtils.hasScopes([TwitchScopes.CHAT_READ_EVENTSUB])) {
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_MESSAGES, "1", {user_id:uid});
+				}
 
 				if(TwitchUtils.hasScopes([TwitchScopes.AUTOMOD])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_TERMS_UPDATE, "1");
 				}
 
 				if(TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_ACKNOWLEDGE, "beta");
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_ACKNOWLEDGE, "1");
 				}
 
 				if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {

@@ -1,5 +1,6 @@
 export const TwitchScopes = {
 	CHAT_READ: "chat:read",
+	CHAT_READ_EVENTSUB: "user:read:chat",
 	CHAT_WRITE: "chat:edit",
 	WHISPER_READ: "whispers:read",
 	WHISPER_WRITE: "user:manage:whispers",
@@ -45,6 +46,7 @@ export type TwitchScopesString = typeof TwitchScopes[keyof typeof TwitchScopes];
 
 export const TwitchScope2Icon:Partial<{[key in TwitchScopesString]:string}> = {};
 TwitchScope2Icon[TwitchScopes.CHAT_READ]				= "whispers";
+TwitchScope2Icon[TwitchScopes.CHAT_READ_EVENTSUB]		= "whispers";
 TwitchScope2Icon[TwitchScopes.CHAT_WRITE]				= "whispers";
 TwitchScope2Icon[TwitchScopes.WHISPER_READ]				= "whispers";
 TwitchScope2Icon[TwitchScopes.WHISPER_WRITE]			= "whispers";

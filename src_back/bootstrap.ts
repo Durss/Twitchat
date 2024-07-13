@@ -27,6 +27,7 @@ import I18n from './utils/I18n.js';
 import Logger from './utils/Logger.js';
 import {FastifySSEPlugin} from 'fastify-sse-v2';
 import AdminController from './controllers/AdminController.js';
+import RemoteModController from './controllers/RemoteModController.js';
 
 // Run the server!
 async function start():Promise<void> {
@@ -90,6 +91,7 @@ server.register(FastifySSEPlugin)
 	new KofiController(server).initialize();
 	new TipeeeController(server).initialize();
 	new BingoGridController(server).initialize();
+	new RemoteModController(server).initialize();
 	
 	//Start server
 	start();

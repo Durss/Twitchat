@@ -102,7 +102,7 @@ export const storeDebug = defineStore('debug', {
 						if(messageList.length > 0 && Math.random() < .1) {
 							for (let i = messageList.length-1; i > Math.max(0, messageList.length-50); i--) {
 								const om = messageList[i];
-								if(om.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+								if(om.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && Math.random() < .2) {
 									m.answersTo = om;
 									om.answers.push(m);
 									break;

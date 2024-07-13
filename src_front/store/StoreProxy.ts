@@ -2312,10 +2312,14 @@ export interface IQnaGetters {
 
 export interface IQnaActions {
 	/**
+	 * Populates data from data store value
+	 */
+	populateData():void;
+	/**
 	 * Starts a new Q&A sessions
 	 * @returns session created or false if a conflicting session exists
 	 */
-	createSession(command:string):TwitchatDataTypes.QnaSession;
+	createSession(command:string, allowUpvotes:boolean, shareWithMods:boolean):TwitchatDataTypes.QnaSession;
 	/**
 	 * Stops an existing Q&A sessions
 	 */
@@ -2336,6 +2340,10 @@ export interface IQnaActions {
 	 * @param messageID id of the message
 	 */
 	deleteMessage(messageID:string):void;
+	/**
+	 * Sends shared sessions with connected mods
+	 */
+	shareSessionsWithMods():void
 }
 
 

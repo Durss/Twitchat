@@ -15,11 +15,11 @@
 
 		<div class="content" v-if="currentSession">
 			<div class="messageList" ref="messageList">
-				<div class="noResult" v-if="currentSession.messages.length === 0">{{ $t("global.no_result") }}</div>
-				<div v-else v-for="(m, index) in currentSession.messages" :key="m.id" class="messageItem">
-					<MessageItem class="message" :messageData="m" :lightMode="true" />
+				<div class="noResult" v-if="messages.length === 0">{{ $t("global.no_result") }}</div>
+				<div v-else v-for="(m, index) in messages" :key="m.message.id" class="messageItem">
+					<MessageItem class="message" :messageData="m.message" :lightMode="true" />
 					<TTButton :aria-label="$t('pin.highlightBt_aria')"
-						@click.capture="chatHighlight(m)"
+						@click.capture="chatHighlight(m.message)"
 						class="button"
 						small
 						icon="highlight"
@@ -90,9 +90,9 @@ class QnaList extends AbstractSidePanel {
 		return Math.ceil(this.currentSession!.messages.length / this.itemsPerPage);
 	}
 
-	public get messages():TwitchatDataTypes.TranslatableMessage[] {
+	public get messages():TwitchatDataTypes.QnaSession["messages"] {
 		const start = this.pageIndex * this.itemsPerPage;
-		return this.currentSession!.messages.slice(start, this.itemsPerPage + start);
+		return this.currentSession!.messages.sort((a,b)=>b.votes-a.votes).slice(start, this.itemsPerPage + start);
 	}
 
 	public getTime(message:TwitchatDataTypes.TranslatableMessage):string {
@@ -106,6 +106,8 @@ class QnaList extends AbstractSidePanel {
 
 	public mounted():void {
 		super.open();
+
+		console.log(this.currentSession)
 
 		//Check if highlight overlay exists
 		this.getHighlightOverPresence().then(res => {

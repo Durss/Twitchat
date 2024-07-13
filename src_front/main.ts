@@ -409,23 +409,29 @@ function buildApp() {
 		//"undefined" e.key value on an up to date Edge browser
 		if(!e.key) return;
 
-		//Reload labels on CTRL+Shift+L
+		//Reload labels on CTRL+Alt+L
 		if(e.key.toLowerCase() == "l" && e.ctrlKey && e.altKey) {
 			StoreProxy.default.main.reloadLabels();
 			e.preventDefault();
 		}
 
-		//Toggle light/dark mode on CTRL+Shift+K
+		//Toggle light/dark mode on CTRL+Alt+K
 		if(e.key.toLowerCase() == "k" && e.ctrlKey && e.altKey) {
 			StoreProxy.default.main.toggleTheme();
 			e.preventDefault();
 		}
 
-		//Walk through available locales on CTRL+Shift+M
+		//Walk through available locales on CTRL+Alt+M
 		if(e.key.toLowerCase() == "m" && e.ctrlKey && e.altKey) {
 			const locales = i18n.global.availableLocales;
 			i18n.global.locale = locales[(locales.indexOf(i18n.global.locale) + 1)%locales.length];
 			DataStore.set(DataStore.LANGUAGE, i18n.global.locale);
+			e.preventDefault();
+		}
+
+		//Toggle premium/non-premium state on CTRL+Alt+P
+		if(e.key.toLowerCase() == "p" && e.ctrlKey && e.altKey && StoreProxy.default.auth.twitch.user.is_admin === true && !Config.instance.IS_PROD) {
+			StoreProxy.default.auth.premiumType = StoreProxy.default.auth.premiumType === ""? 'lifetime' : '';
 			e.preventDefault();
 		}
 	}, true);

@@ -36,7 +36,8 @@ export default class ApiController extends AbstractController {
 	*******************/
 
 	/**
-	 * Executes a an action
+	 * Executes a Twitchat action remotely
+	 * TODO
 	 * @param request 
 	 * @param response 
 	 */

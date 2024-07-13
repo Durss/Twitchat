@@ -17,7 +17,9 @@ export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 	public static AUTHENTICATION_FAILED = "AUTHENTICATION_FAILED" as const;
 	public static BINGO_GRID_UNTICK_ALL = "BINGO_GRID_UNTICK_ALL" as const;
 	public static BINGO_GRID_MODERATOR_TICK = "BINGO_GRID_MODERATOR_TICK" as const;
-	
+	public static SHARED_MOD_INFO_REQUEST = "SHARED_MOD_INFO_REQUEST" as const;
+	public static QNA_STATE = "QNA_STATE" as const;
+
 	constructor(eventType:T, public data?:EventTypeMap[T]) {
 		super(eventType);
 	}
@@ -89,4 +91,8 @@ export type EventTypeMap = {
 			uid:string;
 			states:{[cellid:string]:boolean};
 		};
+	SHARED_MOD_INFO_REQUEST: void;
+	QNA_STATE: {
+		sessions:TwitchatDataTypes.QnaSession[];
+	};
 }

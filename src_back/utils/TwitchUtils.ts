@@ -245,6 +245,37 @@ export default class TwitchUtils {
 		return list;
 	}
 
+	/**
+	 * Get a list of moderators on given channel
+	 */
+	public static async getModerators(channelId:string, token:string): Promise<ModeratorUser[]> {
+		const url = new URL("https://api.twitch.tv/helix/moderation/moderators");
+		url.searchParams.append("broadcaster_id", channelId);
+		url.searchParams.append("first", "100");
+		let list: ModeratorUser[] = [];
+		let cursor: string | null = null;
+		do {
+			if (cursor) url.searchParams.set("after", cursor);
+			const res = await fetch(url, {
+				method: "GET",
+				headers:{
+					"Client-ID": Config.credentials.twitch_client_id,
+					"Authorization": token,
+					"Content-Type": "application/json",
+				}
+			});
+			if (res.status == 200) {
+				const json: { data: ModeratorUser[], pagination?: { cursor?: string } } = await res.json();
+				list = list.concat(json.data);
+				cursor = null;
+				if (json.pagination?.cursor) {
+					cursor = json.pagination.cursor;
+				}
+			} else if (res.status == 500) break;
+		} while (cursor != null)
+		return list;
+	}
+
 	
 	
 	
@@ -294,4 +325,9 @@ export interface ModeratedUser {
 	broadcaster_id: string;
 	broadcaster_login: string;
 	broadcaster_name: string;
+}
+export interface ModeratorUser {
+	user_id: string;
+	user_login: string;
+	user_name: string;
 }

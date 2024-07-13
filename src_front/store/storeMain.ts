@@ -31,6 +31,7 @@ import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
 import Database from './Database';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
+import SSEEvent from '@/events/SSEEvent';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
@@ -258,12 +259,17 @@ export const storeMain = defineStore("main", {
 			const sAuth = StoreProxy.auth;
 			const sChat = StoreProxy.chat;
 			const sUsers = StoreProxy.users;
-			const sVoice = StoreProxy.voice;
 			const sTimer = StoreProxy.timer;
 			const sStream = StoreProxy.stream;
 			const sEmergency = StoreProxy.emergency;
 			StoreProxy.discord.initialize();
 			SSEHelper.instance.initialize();
+
+			//Once SSE is connected, request any stream we're a mod for to
+			//send any shared mode stuff (ex: q&a sessions)
+			SSEHelper.instance.addEventListener(SSEEvent.ON_CONNECT, ()=> {
+				ApiHelper.call("mod/request", "GET");
+			})
 
 			//TODO remove once T4P ends
 			this.t4p = DataStore.get(DataStore.T4P_CHAT_CMD) || "";
@@ -868,6 +874,7 @@ export const storeMain = defineStore("main", {
 			 */
 
 			StoreProxy.obs.populateData();
+			StoreProxy.qna.populateData();
 			StoreProxy.tts.populateData();
 			StoreProxy.poll.populateData();
 			StoreProxy.chat.populateData();

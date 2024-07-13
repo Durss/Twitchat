@@ -1577,7 +1577,7 @@ export const storeChat = defineStore('chat', {
 
 			if(logTimings) console.log("2", message.id, Date.now() - s);
 
-			if(TwitchatDataTypes.TranslatableMessageTypesString.hasOwnProperty(message.type)) {
+			if(TwitchatDataTypes.TranslatableMessageTypesString.hasOwnProperty(message.type) && sAuth.isPremium) {
 				const typedMessage = message as TwitchatDataTypes.TranslatableMessage;
 				const cmd = (typedMessage.message || "").trim().split(" ")[0].toLowerCase();
 

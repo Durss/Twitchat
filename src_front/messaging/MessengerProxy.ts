@@ -700,7 +700,8 @@ export default class MessengerProxy {
 
 			const incMode = params[0] == "inc";
 			let count = parseInt(params[0]);
-			const countMode = count.toString() == params[0];
+			console.log(params, count)
+			const countMode = count.toString().length == params[0].length;
 			let spamDelay = cmd == "/megaspam"? 50 : 200;
 			//Check if spamming only a specific count of messages
 			if(countMode) {
@@ -736,8 +737,10 @@ export default class MessengerProxy {
 					});
 
 				}else{
-					if(count == 1) clearInterval(this.spamInterval);
-					count --;
+					if(countMode && count == 1) {
+						clearInterval(this.spamInterval);
+						count --;
+					}
 					const lorem = new LoremIpsum({wordsPerSentence: { max: 8, min: 1 }});
 					const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
 					StoreProxy.debug.sendRandomFakeMessage<TwitchatDataTypes.ChatMessageTypes>(true, forcedMessage.replace(/\{LOREM\}/gi, message), (m)=>{

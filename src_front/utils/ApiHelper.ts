@@ -1013,7 +1013,7 @@ type ApiEndpoints =  {
 				errorCode?:string;
 			}
 		}
-	}
+	};
 	"admin/premium": {
 		POST: {
 			parameters: {
@@ -1038,5 +1038,27 @@ type ApiEndpoints =  {
 				errorCode?:string;
 			}
 		}
+	};
+	"mod/request": {
+		GET: {
+			parameters: void;
+			response:{
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		},
+	}
+	"mod/qna": {
+		POST: {
+			parameters: {
+				sessions:TwitchatDataTypes.QnaSession[];
+			};
+			response:{
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		},
 	}
 }

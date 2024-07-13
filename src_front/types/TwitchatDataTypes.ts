@@ -1715,9 +1715,23 @@ export namespace TwitchatDataTypes {
 		 */
 		command:string;
 		/**
+		 * Can chatters answer "+1" to upvote a question?
+		 */
+		allowUpvotes:boolean;
+		/**
+		 * Can mods manage the Q&A session from their own twitchat?
+		 */
+		shareWithMods:boolean;
+		/**
 		 * Submitted questions
 		 */
-		messages:TranslatableMessage[];
+		messages:{votes:number, message:TranslatableMessage}[];
+		/**
+		 * Contains owner ID.
+		 * Usefull when sharing a Q&A session with mods so they
+		 * know who actually owns the session
+		 */
+		ownerId:string;
 	}
 
 	/**
