@@ -5,7 +5,6 @@
 				<Icon name="qna" />
 				<i18n-t scope="global" tag="h1" keypath="qna.list.title"></i18n-t>
 			</div>
-			<!-- <div class="description">{{ currentSession.command }}</div> -->
 			<ClearButton @click="close()" />
 			<!-- <div class="ctas">
 				<TTButton secondary icon="cross">Close session</TTButton>
@@ -14,6 +13,14 @@
 		</div>
 
 		<div class="content" v-if="currentSession">
+			<div class="description" v-if="currentSession.ownerId != $store.auth.twitch.user.id">
+				<Icon name="mod" /> {{ $t("qna.list.owner", {USER:owner.displayNameOriginal}) }}
+			</div>
+
+			<div class="description" v-else-if="currentSession.shareWithMods">
+				<Icon name="mod" /> {{ $t("qna.list.shared") }}
+			</div>
+			
 			<div class="messageList" ref="messageList">
 				<div class="noResult" v-if="messages.length === 0">{{ $t("global.no_result") }}</div>
 				<div v-else v-for="(m, index) in messages" :key="m.message.id" class="messageItem">
@@ -44,7 +51,7 @@
 			<div class="sessionlist">
 				<div v-for="(s, index) in $store.qna.activeSessions" :key="s.id" class="user">
 					<TTButton @click="currentSessionIndex = index" :selected="currentSession.id == s.id">{{ s.command }} <i>x{{ s.messages.length }}</i></TTButton>
-					<TTButton icon="pause" @click="closeSession(s.id)" secondary v-if="s.open"></TTButton>
+					<TTButton icon="stop" @click="closeSession(s.id)" secondary v-if="s.open"></TTButton>
 					<TTButton icon="trash" @click="deleteSession(s.id)" alert></TTButton>
 				</div>
 			</div>
@@ -90,6 +97,10 @@ class QnaList extends AbstractSidePanel {
 		return Math.ceil(this.currentSession!.messages.length / this.itemsPerPage);
 	}
 
+	public get owner() {
+		return this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, this.currentSession!.ownerId);
+	}
+
 	public get messages():TwitchatDataTypes.QnaSession["messages"] {
 		const start = this.pageIndex * this.itemsPerPage;
 		return this.currentSession!.messages.sort((a,b)=>b.votes-a.votes).slice(start, this.itemsPerPage + start);
@@ -106,8 +117,6 @@ class QnaList extends AbstractSidePanel {
 
 	public mounted():void {
 		super.open();
-
-		console.log(this.currentSession)
 
 		//Check if highlight overlay exists
 		this.getHighlightOverPresence().then(res => {
@@ -195,12 +204,24 @@ export default toNative(QnaList);
 		}
 	}
 
+	.description {
+		text-align: center;
+		font-style: italic;
+		background-color: #00a86555;
+		padding: .25em;
+		border-radius: var(--border-radius);
+		.icon {
+			height: 1em;
+			vertical-align: bottom;
+		}
+	}
+
 	.messageList {
 		overflow-y: auto;
 		display: flex;
 		flex-direction: column;
 		flex-grow: 1;
-		gap: .5em;
+		gap: .25em;
 
 		.noResult {
 			text-align: center;

@@ -45,7 +45,6 @@ export default class RemoteModController extends AbstractController {
 		if(!user) return;
 
 		const channels = await TwitchUtils.getModeratedChannels(user.user_id, request.headers.authorization!);
-		console.log("Ask shared mode info to", channels.map(v=>v.broadcaster_login));
 		channels.forEach(chan => {
 			if(!this.isUserPremium(chan.broadcaster_id)) return;
 			SSEController.sendToUser(chan.broadcaster_id, SSECode.SHARED_MOD_INFO_REQUEST);
@@ -66,7 +65,6 @@ export default class RemoteModController extends AbstractController {
 		if(!user) return;
 
 		const moderators = await TwitchUtils.getModerators(user.user_id, request.headers.authorization!);
-		console.log("Send q&a params to", moderators.map(v=>v.user_login));
 		moderators.forEach(mod => {
 			SSEController.sendToUser(mod.user_id, SSECode.QNA_STATE, request.body);
 		})
