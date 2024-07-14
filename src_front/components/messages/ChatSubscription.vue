@@ -96,13 +96,13 @@
 				</i18n-t>
 	
 				<!-- Number of months they bought in advance -->
-				<i18n-t scope="global" tag="div" class="additional"
+				<!-- <i18n-t scope="global" tag="div" class="additional"
 				v-if="messageData.months > 0"
 				keypath="chat.subscription.sub_advance" :plural="messageData.months">
 					<template #COUNT>
 						<strong>{{ messageData.months }}</strong>
 					</template>
-				</i18n-t>
+				</i18n-t> -->
 	
 				<!-- Sub streak -->
 				<i18n-t scope="global" tag="div" class="additional"
@@ -129,7 +129,6 @@ import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import MessageTranslation from './MessageTranslation.vue';
-import * as Sentry from "@sentry/vue";
 
 @Component({
 	components:{
@@ -138,7 +137,7 @@ import * as Sentry from "@sentry/vue";
 	},
 	emits:["onRead"],
 })
- class ChatSubscription extends AbstractChatMessage {
+class ChatSubscription extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageSubscriptionData;
