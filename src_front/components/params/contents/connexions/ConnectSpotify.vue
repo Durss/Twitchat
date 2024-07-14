@@ -49,7 +49,7 @@
 
 			<div class="card-item alert" v-if="error" @click="error=''">{{error}}</div>
 
-			<Icon v-if="authenticating" name="loader" />
+			<Icon v-if="authenticating" name="loader" class="loader" />
 			
 			<div class="card-item needsPremium">{{ $t("connexions.spotify.usage_premium") }}</div>
 
@@ -172,6 +172,10 @@ export default toNative(ConnectSpotify);
 
 	.needsPremium {
 		background: var(--color-secondary-fader);
+	}
+
+	.loader {
+		height: 3em;
 	}
 }
 </style>

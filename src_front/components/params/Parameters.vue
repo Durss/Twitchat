@@ -14,48 +14,69 @@
 				<div class="search">
 					<input type="text" :placeholder="$t('params.search')" v-model="$store.params.currentParamSearch" v-autofocus ref="searchField">
 				</div>
-
-				<div class="editBtHolder">
-					<TTButton class="editModeBt" primary
-						v-newflag="showNewFlagOnPin? {date:$config.NEW_FLAGS_DATE_V12, id:'menu_pin_0'} : undefined"
-						@click="editPins = !editPins; hideCTA();"
-						v-tooltip="$t('params.customize_sections_tt')"
-						:icon="editPins? 'unpin' : 'pin'" />
-
-					<div class="cta" v-if="showCTA" @click="hideCTA()">
-						<img src="@/assets/icons/left.svg">
-						<span class="label">{{ $t("chat.filters.cta") }}</span>
-					</div>
-				</div>
 			</div>
 
 			<div class="scrollable">
-
-				<draggable :class="editPins? 'buttonList edit' : 'buttonList'"
-				v-model="menuEntries"
+				<draggable class="buttonList"
+				v-model="pinnedMenuEntries"
 				direction="vertical"
 				group="menu_sections"
 				item-key="page"
-				:disabled="!editPins"
 				:animation="250"
 				@sort="onEditMenu()">
 					<template #item="{element, index}:{element:MenuEntry, index:number}">
-						<div :class="element.fixed === true? 'entry fixed' : 'entry'" v-show="element.pinned || editPins">
+						<TTButton @click="openPage(element.page, true)"
+							class="menuItem"
+							v-newflag="element.newflag"
+							:class="[(element.premium ? 'premiumIndicator '+element.icon : element.icon)].filter(v=>v!='').join(' ')"
+							:icon="element.icon"
+							:primary="content==element.page"
+							:secondary="element.theme == 'secondary'"
+							:premium="element.theme == 'premium'">{{$t(element.labelKey)}}</TTButton>
+					</template>
+				</draggable>
+
+				<ToggleBlock :icons="['add']" :title="$t('params.more_params')" small :open="false">
+					<div class="dragInfo"><Icon name="hand" />{{ $t("params.customize_sections") }}</div>
+					<draggable class="buttonList"
+					v-model="unpinnedMenuEntries"
+					direction="vertical"
+					group="menu_sections"
+					item-key="page"
+					:animation="250"
+					@sort="onEditMenu()">
+						<template #item="{element, index}:{element:MenuEntry, index:number}">
 							<TTButton @click="openPage(element.page, true)"
 								class="menuItem"
 								v-newflag="element.newflag"
-								:class="[(element.premium ? 'premiumIndicator '+element.icon : element.icon), (element.pinned ? '' : 'disabled')].filter(v=>v!='').join(' ')"
-								:icon="editPins? 'dragZone' : element.icon"
+								:class="[(element.premium ? 'premiumIndicator '+element.icon : element.icon)].filter(v=>v!='').join(' ')"
+								icon="dragZone"
 								:primary="content==element.page"
 								:secondary="element.theme == 'secondary'"
 								:premium="element.theme == 'premium'">{{$t(element.labelKey)}}</TTButton>
-							<TTButton class="pinBt" icon="pin"
-							v-if="editPins && element.fixed !== true"
-							@click="element.pinned = !element.pinned;  onEditMenu();"
-							:primary="element.pinned" />
-						</div>
-					</template>
-				</draggable>
+						</template>
+					</draggable>
+				</ToggleBlock>
+
+				<div class="buttonList">
+					<TTButton @click="openPage(button_donate.page, true)"
+						class="menuItem"
+						v-newflag="button_donate.newflag"
+						:class="[(button_donate.premium ? 'premiumIndicator '+button_donate.icon : button_donate.icon)].filter(v=>v!='').join(' ')"
+						:icon="button_donate.icon"
+						:primary="content==button_donate.page"
+						:secondary="button_donate.theme == 'secondary'"
+						:premium="button_donate.theme == 'premium'">{{$t(button_donate.labelKey)}}</TTButton>
+					
+					<TTButton @click="openPage(button_premium.page, true)"
+						class="menuItem"
+						v-newflag="button_premium.newflag"
+						:class="[(button_premium.premium ? 'premiumIndicator '+button_premium.icon : button_premium.icon)].filter(v=>v!='').join(' ')"
+						:icon="button_premium.icon"
+						:primary="content==button_premium.page"
+						:secondary="button_premium.theme == 'secondary'"
+						:premium="button_premium.theme == 'premium'">{{$t(button_premium.labelKey)}}</TTButton>
+				</div>
 
 				<div class="automaticMessageHolder" v-if="isDonor && !closed">
 					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
@@ -141,6 +162,7 @@ import ParamsTriggers from './contents/ParamsTriggers.vue';
 import ParamsTwitchatAd from './contents/ParamsTwitchatAd.vue';
 import ParamsValues from './contents/ParamsValues.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
+import ToggleBlock from '../../components/ToggleBlock.vue';
 import draggable from 'vuedraggable';
 import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
@@ -152,6 +174,7 @@ import Config from '@/utils/Config';
 		ParamsTTS,
 		DonorState,
 		ParamsList,
+		ToggleBlock,
 		ClearButton,
 		ParamsAbout,
 		ParamsAlert,
@@ -176,26 +199,13 @@ import Config from '@/utils/Config';
 
 	public closed:boolean = true;
 	public showCTA:boolean = true;
-	public editPins:boolean = false;
 	public showNewFlagOnPin:boolean = false;
 	public filteredParams:TwitchatDataTypes.ParameterData<unknown>[] = [];
-	public menuEntries:MenuEntry[] = [
-		{pinned:true, icon:"params", page:TwitchatDataTypes.ParameterPages.FEATURES, labelKey:'params.categories.features', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_chatfeatures_1'}},
-		{pinned:true, icon:"show", page:TwitchatDataTypes.ParameterPages.APPEARANCE, labelKey:'params.categories.appearance', newflag:{date:Config.instance.NEW_FLAGS_DATE_V13, id:'params_chatappearance_1'}},
-		{pinned:true, icon:"overlay", page:TwitchatDataTypes.ParameterPages.OVERLAYS, labelKey:'params.categories.overlays', newflag:{date:Config.instance.NEW_FLAGS_DATE_V13, id:'params_overlays_3'}},
-		{pinned:true, icon:"offline", page:TwitchatDataTypes.ParameterPages.CONNEXIONS, labelKey:'params.categories.connexions', newflag:{date:Config.instance.NEW_FLAGS_DATE_V12, id:'params_connexion'}},
-		{pinned:false, icon:"broadcast", page:TwitchatDataTypes.ParameterPages.TRIGGERS, labelKey:'params.categories.triggers', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'paramsparams_triggers_1'}},
-		{pinned:false, icon:"placeholder", page:TwitchatDataTypes.ParameterPages.VALUES, labelKey:'params.categories.values', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'paramsparams_values'}},
-		{pinned:true, icon:"count", page:TwitchatDataTypes.ParameterPages.COUNTERS, labelKey:'params.categories.counters'},
-		{pinned:false, icon:"tts", page:TwitchatDataTypes.ParameterPages.TTS, labelKey:'params.categories.tts'},
-		{pinned:false, icon:"emergency", page:TwitchatDataTypes.ParameterPages.EMERGENCY, labelKey:'params.categories.emergency'},
-		{pinned:false, icon:"mod", page:TwitchatDataTypes.ParameterPages.AUTOMOD, labelKey:'params.categories.automod'},
-		{pinned:false, icon:"voice", page:TwitchatDataTypes.ParameterPages.VOICE, labelKey:'params.categories.voice'},
-		{pinned:true, icon:"user", page:TwitchatDataTypes.ParameterPages.ACCOUNT, labelKey:'params.categories.account'},
-		{pinned:false, icon:"info", page:TwitchatDataTypes.ParameterPages.ABOUT, labelKey:'params.categories.about', newflag:{date:1693519200000, id:'params_about'}},
-		{pinned:true, icon:"coin", page:TwitchatDataTypes.ParameterPages.DONATE, labelKey:'params.categories.donate', newflag:{date:1693519200000, id:'params_donate'}, theme:"secondary", fixed:true},
-		{pinned:true, icon:"premium", page:TwitchatDataTypes.ParameterPages.PREMIUM, labelKey:'params.categories.premium', newflag:{date:1693519200000, id:'params_premium'}, theme:"premium", fixed:true},
-	];
+	public pinnedMenuEntries:MenuEntry[] = [];
+	public unpinnedMenuEntries:MenuEntry[] = [];
+	
+	public button_donate:MenuEntry = {pinned:true, icon:"coin", page:TwitchatDataTypes.ParameterPages.DONATE, labelKey:'params.categories.donate', newflag:{date:1693519200000, id:'params_donate'}, theme:"secondary"};
+	public button_premium:MenuEntry = {pinned:true, icon:"premium", page:TwitchatDataTypes.ParameterPages.PREMIUM, labelKey:'params.categories.premium', newflag:{date:1693519200000, id:'params_premium'}, theme:"premium"};
 
 	private closing:boolean = false;
 	private keydownCaptureTarget:Element|null = null;
@@ -224,6 +234,21 @@ import Config from '@/utils/Config';
 
 	private keyDownHandler!:(e:KeyboardEvent) => void;
 	private keyDownCaptureHandler!:(e:KeyboardEvent) => void;
+	private menuEntries:MenuEntry[] = [
+		{pinned:true, icon:"params", page:TwitchatDataTypes.ParameterPages.FEATURES, labelKey:'params.categories.features', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_chatfeatures_1'}},
+		{pinned:true, icon:"show", page:TwitchatDataTypes.ParameterPages.APPEARANCE, labelKey:'params.categories.appearance', newflag:{date:Config.instance.NEW_FLAGS_DATE_V13, id:'params_chatappearance_1'}},
+		{pinned:true, icon:"overlay", page:TwitchatDataTypes.ParameterPages.OVERLAYS, labelKey:'params.categories.overlays', newflag:{date:Config.instance.NEW_FLAGS_DATE_V13, id:'params_overlays_3'}},
+		{pinned:true, icon:"offline", page:TwitchatDataTypes.ParameterPages.CONNEXIONS, labelKey:'params.categories.connexions', newflag:{date:Config.instance.NEW_FLAGS_DATE_V12, id:'params_connexion'}},
+		{pinned:false, icon:"broadcast", page:TwitchatDataTypes.ParameterPages.TRIGGERS, labelKey:'params.categories.triggers', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'paramsparams_triggers_1'}},
+		{pinned:false, icon:"placeholder", page:TwitchatDataTypes.ParameterPages.VALUES, labelKey:'params.categories.values', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'paramsparams_values'}},
+		{pinned:true, icon:"count", page:TwitchatDataTypes.ParameterPages.COUNTERS, labelKey:'params.categories.counters'},
+		{pinned:false, icon:"tts", page:TwitchatDataTypes.ParameterPages.TTS, labelKey:'params.categories.tts'},
+		{pinned:false, icon:"emergency", page:TwitchatDataTypes.ParameterPages.EMERGENCY, labelKey:'params.categories.emergency'},
+		{pinned:false, icon:"mod", page:TwitchatDataTypes.ParameterPages.AUTOMOD, labelKey:'params.categories.automod'},
+		{pinned:false, icon:"voice", page:TwitchatDataTypes.ParameterPages.VOICE, labelKey:'params.categories.voice'},
+		{pinned:true, icon:"user", page:TwitchatDataTypes.ParameterPages.ACCOUNT, labelKey:'params.categories.account'},
+		{pinned:false, icon:"info", page:TwitchatDataTypes.ParameterPages.ABOUT, labelKey:'params.categories.about', newflag:{date:1693519200000, id:'params_about'}},
+	];
 
 	/**
 	 * If true, will display a search field at the top of the view to
@@ -254,26 +279,29 @@ import Config from '@/utils/Config';
 		if(sectionsJSON) {
 			const sections = JSON.parse(sectionsJSON);
 			if(!Array.isArray(sections)) return;
-			const sortedEntries:MenuEntry[] = [];
 			//Sort entries and set pinned states
 			for (let i = 0; i < sections.length; i++) {
 				const item = sections[i];
 				const entry = this.menuEntries.find(v => v.page == item.id);
 				if(!entry) continue;
 				entry.pinned = item.pinned;
-				sortedEntries.push(entry);
+				if(entry.pinned) {
+					this.pinnedMenuEntries.push(entry)
+				}else{
+					this.unpinnedMenuEntries.push(entry)
+				}
 			}
 
 			//Check if any entry from the "menuEntries" is missing from the final
 			//list. Add them to the beginning if so.
 			for (let i = 0; i < this.menuEntries.length; i++) {
 				const item = this.menuEntries[i];
-				if(sortedEntries.findIndex(v=>v.page == item.page) > -1) continue;
+				if(this.pinnedMenuEntries.findIndex(v=>v.page == item.page) > -1) continue;
+				if(this.unpinnedMenuEntries.findIndex(v=>v.page == item.page) > -1) continue;
 				//Missing item, add it to the top
-				sortedEntries.unshift(item);
+				this.pinnedMenuEntries.unshift(item);
 				item.pinned = true;
 			}
-			this.menuEntries = sortedEntries;
 		}
 	}
 
@@ -415,9 +443,12 @@ import Config from '@/utils/Config';
 	 * Called when menu items are sorted
 	 */
 	public onEditMenu():void {
-		const sections:RawMenuEntry[] = this.menuEntries.map(v=> {
-			return {id:v.page, pinned:v.pinned};
-		});
+
+		const sections:RawMenuEntry[] = this.pinnedMenuEntries.map(v=> {
+			return {id:v.page, pinned:true};
+		}).concat(this.unpinnedMenuEntries.map(v=> {
+			return {id:v.page, pinned:false};
+		}));
 		DataStore.set(DataStore.PARAMS_SECTIONS, sections);
 	}
 
@@ -478,7 +509,6 @@ interface MenuEntry {
 	theme?:"secondary"|"premium";
 	premium?:true;
 	newflag?:{date:number, id:string};
-	fixed?:true;
 }
 
 interface RawMenuEntry {
@@ -551,49 +581,6 @@ export default toNative(Parameters);
 		display: flex;
 		flex-direction: column;
 		padding-right: 1em;
-		.editBtHolder {
-			align-self: center;
-			position: relative;
-			margin-top: .5em;
-			.editModeBt {
-				width: 2em;
-			}
-			.cta {
-				position: absolute;
-				right: -.5em;
-				top: 50%;
-				cursor: pointer;
-				transform: translate(100%, -50%);
-				background-color: var(--color-secondary);
-				padding: .25em .5em;
-				border-radius: .5em;
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-				animation: bounce 0.5s;
-				animation-direction: alternate;
-				animation-timing-function: cubic-bezier(.5, 0.05, 1, .5);
-				animation-iteration-count: infinite;
-				pointer-events: all;
-				color: var(--color-text-light);
-				.label {
-					font-size: .8em;
-					white-space: nowrap;
-				}
-				img {
-					height: .8em;
-					margin-right: .5em;
-				}
-				@keyframes bounce {
-					from {
-						right: -1em;
-					}
-					to {
-						right: 0em;
-					}
-				}
-			}
-		}
 	}
 
 	.menu {
@@ -614,75 +601,58 @@ export default toNative(Parameters);
 			overflow-x: visible;
 			overflow-y: auto;
 			padding-right: 1em;
+
+			.dragInfo {
+				width: 280px;
+				margin-bottom: .5em;
+				font-style: italic;
+				text-align: center;
+				.icon {
+					height: 1em;
+					vertical-align: bottom;
+					margin-right: .25em;
+				}
+			}
+
 			.buttonList {
 				width: 100%;
 				display: flex;
 				flex-direction: column;
 				justify-content: center;
 				gap: 10px;
-				&>.entry {
-					display: flex;
-					.button {
-						flex-wrap: nowrap;
-						transform-origin: center right;
-						&.beta {
-							overflow: hidden;
-							&::before {
-								content: "beta";
-								z-index: 1;
-								position: absolute;
-								top: 2px;
-								right: -25px;
-								background-color: var(--color-alert);
-								color: var(--color-light);
-								padding: 5px 30px;
-								text-transform: uppercase;
-								font-size: .7em;
-								font-weight: bold;
-								transform: rotate(45deg);
-							}
-						}
-						&.youtube {
-							// Youtube requires their logo to be at least 20px high.. let's fuck up UI for them \o/
-							:deep(.icon) {
-								min-height: 20px;
-								max-width: unset;
-								width: unset;
-							}
-						}
-
-						&:not(.pinBt) {
-							flex: 1;
-						}
-
-						&.pinBt {
-							transform-origin: center left;
-						}
-
-						&.premiumIndicator {
-							:deep(.background) {
-								border-left: 3px solid var(--color-premium);
-							}
+				&>.button {
+					flex: 1;
+					flex-wrap: nowrap;
+					transform-origin: center right;
+					&.beta {
+						overflow: hidden;
+						&::before {
+							content: "beta";
+							z-index: 1;
+							position: absolute;
+							top: 2px;
+							right: -25px;
+							background-color: var(--color-alert);
+							color: var(--color-light);
+							padding: 5px 30px;
+							text-transform: uppercase;
+							font-size: .7em;
+							font-weight: bold;
+							transform: rotate(45deg);
 						}
 					}
-				}
+					&.youtube {
+						// Youtube requires their logo to be at least 20px high.. let's fuck up UI for them \o/
+						:deep(.icon) {
+							min-height: 20px;
+							max-width: unset;
+							width: unset;
+						}
+					}
 
-				&.edit {
-					&>.entry:not(.fixed) {
-						display: flex;
-						.button {
-							&:first-child {
-								border-top-right-radius: 0;
-								border-bottom-right-radius: 0;
-								cursor: pointer;
-								:deep(.icon) {
-									cursor: move;
-								}
-							}
-							&:nth-child(2) {
-								border-top-left-radius: 0;
-								border-bottom-left-radius: 0;
-							}
+					&.premiumIndicator {
+						:deep(.background) {
+							border-left: 3px solid var(--color-premium);
 						}
 					}
 				}
@@ -809,47 +779,29 @@ export default toNative(Parameters);
 					gap: 4px;
 					width: 100%;
 					margin: auto;
-					&>.entry {
-						position: relative;
+					&>.button {
+						width: unset;
+						flex-direction: column;
 						border-radius: var(--border-radius);
-						overflow: hidden;
-						.button:not(.pinBt) {
-							width: 180px;
-							flex-direction: column;
-							border-radius: var(--border-radius);
-							:deep(.icon) {
-								height: 2em;
-								width: 2em;
-								max-height: unset;
-								max-width: unset;
-								object-fit: fill;
-								object-position: center center;
-								margin: 0 0 .25em 0;
-							}
-							:deep(.label) {
-								white-space: normal;
-								flex-grow: 0;
-							}
-							&.beta {
-								&::before {
-									top: 10px;
-									right: -50px;
-									padding: 5px 50px;
-									font-size: 18px;
-								}
-							}
+						:deep(.icon) {
+							height: 2em;
+							width: 2em;
+							max-height: unset;
+							max-width: unset;
+							object-fit: fill;
+							object-position: center center;
+							margin: 0 0 .25em 0;
 						}
-					}
-
-					&.edit {
-						&>.entry:not(.fixed) {
-							display: flex;
-							.button.pinBt {
-								position: absolute;
-								top:0;
-								right:0;
-								border-radius: 0;
-								border-bottom-left-radius: var(--border-radius);
+						:deep(.label) {
+							white-space: normal;
+							flex-grow: 0;
+						}
+						&.beta {
+							&::before {
+								top: 10px;
+								right: -50px;
+								padding: 5px 50px;
+								font-size: 18px;
 							}
 						}
 					}
@@ -889,45 +841,21 @@ export default toNative(Parameters);
 				.buttonList {
 					flex-direction: column;
 					flex-wrap: nowrap;
-					max-width: 250px;
-					&>.entry {
-						.button {
-							width: unset;
-							flex-direction: unset;
-							&:not(.pinBt) {
-								flex-wrap: nowrap;
-								flex-direction: row;
-								:deep(.icon) {
-									height: 1em;
-									width: 1em;
-									margin: 0;
-								}
-							}
-							&.beta {
-								&::before {
-									top: 2px;
-									right: -25px;
-									padding: 5px 30px;
-									font-size: .7em;
-								}
-							}
+					// max-width: 250px;
+					&>.button {
+						flex-wrap: nowrap;
+						flex-direction: row;
+						:deep(.icon) {
+							height: 1em;
+							width: 1em;
+							margin: 0;
 						}
-					}
-
-					&.edit {
-						&>.entry:not(.fixed) {
-							.button {
-								&:first-child {
-									border-top-right-radius: 0;
-									border-bottom-right-radius: 0;
-								}
-								&:nth-child(2) {
-									border-top-left-radius: 0;
-									border-bottom-left-radius: 0;
-								}
-								&.pinBt {
-									position: relative;
-								}
+						&.beta {
+							&::before {
+								top: 2px;
+								right: -25px;
+								padding: 5px 30px;
+								font-size: .7em;
 							}
 						}
 					}

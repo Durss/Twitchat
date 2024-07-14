@@ -46,7 +46,7 @@ import TriggerListItem from './TriggerListItem.vue';
 	},
 	emits:["select", "testTrigger","createTrigger"],
 })
- class TriggerList extends Vue {
+class TriggerList extends Vue {
 
 	@Prop({default:[]})
 	public rewards!:TwitchDataTypes.Reward[];

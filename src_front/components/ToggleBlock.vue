@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" :style="contentStyles">
+	<div :class="classes" :style="contentStyles" @dragover="toggle(true)">
 		<div class="header" @click.stop="toggle()">
 			<div class="customBg" v-if="customColor" :style="bgStyles"></div>
 			<slot name="left_actions"></slot>
@@ -207,6 +207,7 @@ export class ToggleBlock extends Vue {
 	}
 
 	public async toggle(forcedState?:boolean):Promise<void> {
+		if(forcedState === this.localOpen) return;
 		if(this.disabled !== false && (forcedState == true || !this.localOpen)) return;
 
 		const params:gsap.TweenVars = {paddingTop:0, paddingBottom:0, height:0, duration:.25, ease:"sine.inOut", clearProps:"all"};
@@ -388,13 +389,6 @@ export default toNative(ToggleBlock);
 		}
 
 	}
-	&.closed {
-		.header {
-			.arrowBt {
-				transform: rotate(0deg);
-			}
-		}
-	}
 
 	.content {
 		// .bevel();
@@ -410,6 +404,9 @@ export default toNative(ToggleBlock);
 			border-bottom: none;
 			border-bottom-left-radius: var(--border-radius);
 			border-bottom-right-radius: var(--border-radius);
+			.arrowBt {
+				transform: rotate(0deg);
+			}
 		}
 	}
 

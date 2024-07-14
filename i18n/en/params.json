@@ -1,7 +1,8 @@
 {
 	"params": {
 		"sync_server": "Save all parameters to Twitchat server",
-		"customize_sections_tt":"Customize menu entries",
+		"more_params":"More params",
+		"customize_sections":"Drag menu items in and out here",
 		"spoilersEnabled": "Enable spoiler tag",
 		"alertMode": "Enable chat alert",
 		"firstMessage": "Show the first message of every viewer on a seperate list so you don't forget to say hello",

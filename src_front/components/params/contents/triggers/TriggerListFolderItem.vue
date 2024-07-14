@@ -21,9 +21,7 @@
 			:ref="'folder_'+element.id"
 			:titleDefault="'folder'"
 			@update:open="$emit('change', $event)"
-			@update:title="$emit('change', $event)"
-			@dragover="onRollover('folder_'+element.id)"
-			@dragleave="onRollout('folder_'+element.id)">
+			@update:title="$emit('change', $event)">
 				<template #left_actions>
 					<div class="blockActions">
 						<ParamItem class="colorSelector"
@@ -133,9 +131,6 @@ class TriggerListFolderItem extends Vue {
 	public level!:number;
 
 	public localItems:(TriggerListEntry|TriggerListFolderEntry)[] = [];
-	public lastHovered:string = "";
-
-	private refToOpenTimeout:{[key:string]:number} = {};
 
 	public beforeMount():void {
 		this.localItems = this.items;
@@ -145,28 +140,6 @@ class TriggerListFolderItem extends Vue {
 	public onChange(e?:{moved:{element:TriggerListEntry|TriggerListFolderEntry}, newIndex:number, oldIndex:number}):void {
 		this.$emit('change', e);
 		this.$emit("update:items", this.localItems);
-	}
-
-	/**
-	 * Called when dragging over
-	 * @param ref
-	 */
-	public onRollover(ref:string):void {
-		if(this.lastHovered != ref) {
-			this.lastHovered = ref;
-			clearTimeout(this.refToOpenTimeout[ref]);
-			this.refToOpenTimeout[ref] = setTimeout(()=> {
-				const block = this.$refs[ref] as ToggleBlockClass;
-				if(block) block.localOpen = true;
-				else console.warn("REF not found", ref);
-
-			}, 500);
-		}
-	}
-
-	public onRollout(ref:string):void {
-		this.lastHovered = "";
-		clearTimeout(this.refToOpenTimeout[ref]);
 	}
 
 	/**
