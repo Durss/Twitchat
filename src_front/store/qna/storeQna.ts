@@ -192,18 +192,22 @@ export const storeQna = defineStore('qna', {
 			};
 			session.messages.push(qnaMessage);
 			
-			//If remotely moderating session, tell the broadcaster the message must be added
-			//to the list
-			if(session.shareWithMods && session.ownerId != StoreProxy.auth.twitch.user.id) {
-				ApiHelper.call("mod/qna/message", "PUT", {
-					entry:qnaMessage,
-					sessionId:session.id,
-					ownerId:session.ownerId,
-				}).catch(error=>{
-					StoreProxy.common.alert(StoreProxy.i18n.t("error.qna_action"));
-					const index = session.messages.findIndex(v=>v.message.id == qnaMessage.message.id);
-					session.messages.splice(index, 1);
-				})
+			if(session.shareWithMods) {
+				if(session.ownerId != StoreProxy.auth.twitch.user.id) {
+					//If remotely moderating session, tell the broadcaster the message must be
+					//added to the list
+					ApiHelper.call("mod/qna/message", "PUT", {
+						entry:qnaMessage,
+						sessionId:session.id,
+						ownerId:session.ownerId,
+					}).catch(error=>{
+						StoreProxy.common.alert(StoreProxy.i18n.t("error.qna_action"));
+						const index = session.messages.findIndex(v=>v.message.id == qnaMessage.message.id);
+						session.messages.splice(index, 1);
+					})
+				}else{
+					this.shareSessionsWithMods();
+				}
 			}
 		},
 
@@ -211,16 +215,20 @@ export const storeQna = defineStore('qna', {
 			const messageIndex = session.messages.findIndex(v=>v.message.id == message.message.id);
 			session.messages.splice(messageIndex, 1);
 
-			//If remotely moderating session, tell the broadcaster the message must be added
-			//to the list
-			if(session.shareWithMods && session.ownerId != StoreProxy.auth.twitch.user.id) {
-				ApiHelper.call("mod/qna/message", "DELETE", {
-					messageId:message.message.id,
-					sessionId:session.id,
-					ownerId:session.ownerId,
-				}).catch(error=>{
-					StoreProxy.common.alert(StoreProxy.i18n.t("error.qna_action"));
-				})
+			if(session.shareWithMods) {
+				if(session.ownerId != StoreProxy.auth.twitch.user.id) {
+					//If remotely moderating session, tell the broadcaster the message must be
+					//removed from the list
+					ApiHelper.call("mod/qna/message", "DELETE", {
+						messageId:message.message.id,
+						sessionId:session.id,
+						ownerId:session.ownerId,
+					}).catch(error=>{
+						StoreProxy.common.alert(StoreProxy.i18n.t("error.qna_action"));
+					})
+				}else{
+					this.shareSessionsWithMods();
+				}
 			}
 		},
 
