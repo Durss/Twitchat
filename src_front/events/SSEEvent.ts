@@ -8,6 +8,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 
 	public static ON_CONNECT = "ON_CONNECT" as const;
+	public static FAILED_CONNECT = "FAILED_CONNECT" as const;
 	public static KO_FI_EVENT = "KO_FI_EVENT" as const;
 	public static NOTIFICATION = "NOTIFICATION" as const;
 	public static BINGO_GRID_UPDATE = "BINGO_GRID_UPDATE" as const;
@@ -44,6 +45,7 @@ export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 
 export type EventTypeMap = {
 	ON_CONNECT: void;
+	FAILED_CONNECT: void;
 	AUTHENTICATION_FAILED: void;
 	KO_FI_EVENT: KofiEventData;
 	NOTIFICATION: {

@@ -10,6 +10,7 @@ export default class SSEHelper extends EventDispatcher {
 
 	private static _instance:SSEHelper;
 	private _sse!:EventSource;
+	private _failCount = 0;
 	private _expectedPingInterval = 110*1000;
 	private _pingFailTimeout:number = -1;
 
@@ -60,6 +61,7 @@ export default class SSEHelper extends EventDispatcher {
 		this._sse = new EventSource(Config.instance.API_PATH+"/sse/register?token=Bearer "+ApiHelper.accessToken);
 		this._sse.onmessage = (event) => this.onMessage(event);
 		this._sse.onopen = (event) => {
+			this._failCount = 0;
 			//randomize event so not everyone potentially spams server after rebooting it
 			setTimeout(() => {
 				this.dispatchEvent(new SSEEvent(SSEEvent.ON_CONNECT));
@@ -68,6 +70,9 @@ export default class SSEHelper extends EventDispatcher {
 		this._sse.onerror = (event) => {
 			console.log("ERROR");
 			console.log(event);
+			if(++this._failCount === 5) {
+				this.dispatchEvent(new SSEEvent(SSEEvent.FAILED_CONNECT));
+			}
 			setTimeout(() => {
 				this.connect();
 			}, 2000);
@@ -85,6 +90,7 @@ export default class SSEHelper extends EventDispatcher {
 	 * Called when receiving a message
 	 */
 	private onMessage(event:MessageEvent<string>):void {
+		this._failCount = 0;
 		try {
 			let json = JSON.parse(event.data) as {code:string, data:any};
 			

@@ -6,7 +6,6 @@ import Utils from '@/utils/Utils';
 import Config, { type ServerConfig } from '@/utils/Config';
 import ApiHelper from '@/utils/ApiHelper';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import SSEHelper from '@/utils/SSEHelper';
 import DataStoreCommon from './DataStoreCommon';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';

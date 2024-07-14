@@ -5,7 +5,7 @@
 
 		<Icon v-if="loading" name="loader" class="loader" />
 
-		<div v-else-if="error || !gridEnabled" class="error">
+		<div v-else-if="error || !gridEnabled" class="notFound">
 			<Icon name="emote"/>
 			<div class="label">{{ $t("error.bingo_grid_404") }}</div>
 		</div>
@@ -15,8 +15,13 @@
 				<h1>{{ title }}</h1>
 	
 				<div v-if="isModerator && multiplayerMode" class="card-item moderator">
-					<Icon name="mod" />
+					<Icon class="icon" name="mod" />
 					<span>{{ $t("bingo_grid.state.mod_info") }}</span>
+				</div>
+	
+				<div v-if="sseError" class="card-item error" @click="sseError = false">
+					<Icon class="icon" name="alert" />
+					<span>{{ $t("error.sse_error", {APP: "Bingo"}) }}</span>
 				</div>
 	
 				<template v-if="multiplayerMode">
@@ -103,6 +108,7 @@ class BingoGridView extends Vue {
 
 	public error = false;
 	public loading = true;
+	public sseError = false;
 	public isModerator = false;
 	public gridEnabled = false;
 	public generatingCSRF = false;
@@ -128,6 +134,7 @@ class BingoGridView extends Vue {
 	private sseUntickAllHandler!:(e:SSEEvent<"BINGO_GRID_UNTICK_ALL">) => void;
 	private sseCellStatesHandler!:(e:SSEEvent<"BINGO_GRID_CELL_STATES">) => void;
 	private sseGridUpdateHandler!:(e:SSEEvent<"BINGO_GRID_UPDATE">) => void;
+	private sseFailedConnectingHandler!:(e:SSEEvent<"FAILED_CONNECT">) => void;
 
 	public cellClasses(entry:typeof this.entries[number]):string[] {
 		let res:string[] = ["cell"];
@@ -153,9 +160,12 @@ class BingoGridView extends Vue {
 		}
 		this.loadGridInfo();
 
+		this.sseFailedConnectingHandler = (e:SSEEvent<"FAILED_CONNECT">) => this.onFailedConnecting();
 		this.sseCellStatesHandler = (e:SSEEvent<"BINGO_GRID_CELL_STATES">) => this.onCellsStates(e);
 		this.sseUntickAllHandler = (e:SSEEvent<"BINGO_GRID_UNTICK_ALL">) => this.onUntickAll(e);
 		this.sseGridUpdateHandler = (e:SSEEvent<"BINGO_GRID_UPDATE">) => this.onGridUpdate(e.data);
+
+		SSEHelper.instance.addEventListener(SSEEvent.FAILED_CONNECT, this.sseFailedConnectingHandler);
 		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_UPDATE, this.sseGridUpdateHandler);
 		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_CELL_STATES, this.sseCellStatesHandler);
 		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_UNTICK_ALL, this.sseUntickAllHandler);
@@ -164,6 +174,7 @@ class BingoGridView extends Vue {
 	public beforeUnmount():void {
 		gsap.killTweensOf(this.$refs.cell as HTMLDivElement[]);
 		clearTimeout(this.checkTimeout);
+		SSEHelper.instance.removeEventListener(SSEEvent.FAILED_CONNECT, this.sseFailedConnectingHandler);
 		SSEHelper.instance.removeEventListener(SSEEvent.BINGO_GRID_UPDATE, this.sseGridUpdateHandler);
 		SSEHelper.instance.removeEventListener(SSEEvent.BINGO_GRID_CELL_STATES, this.sseCellStatesHandler);
 		SSEHelper.instance.removeEventListener(SSEEvent.BINGO_GRID_UNTICK_ALL, this.sseUntickAllHandler);
@@ -568,6 +579,13 @@ class BingoGridView extends Vue {
 			audio.play();
 		}, 100);
 	}
+
+	/**
+	 * Called if connexion to SSE failed
+	 */
+	private onFailedConnecting():void {
+		this.sseError = true;
+	}
 }
 export default toNative(BingoGridView);
 </script>
@@ -596,7 +614,7 @@ export default toNative(BingoGridView);
 		display: block;
 	}
 
-	.moderator {
+	.moderator, .error {
 		width: 100%;
 		gap: 1em;
 		display: flex;
@@ -605,8 +623,16 @@ export default toNative(BingoGridView);
 		justify-content: center;
 		background-color: #00a86555;
 		border-radius: 0;
+		white-space: pre-line;
+		text-align: center;
+		line-height: 1.25em;
 		.icon {
 			height: 1.75em;
+		}
+
+		&.error {
+			background-color: var(--color-alert);
+			cursor: pointer;
 		}
 	}
 
@@ -713,7 +739,7 @@ export default toNative(BingoGridView);
 		}
 	}
 
-	.error {
+	.notFound {
 		margin-top: 1em;
 		text-align: center;
 		.icon {

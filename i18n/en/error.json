@@ -110,6 +110,7 @@
 		"streamelements_denied": "You refused access to your Streamelements profile.",
 		"bingo_grid_404": "Bingo grid not found",
 		"streamelements_connect_failed": "Streamelements authentication failed",
-		"qna_action": "Something went wrong when performing requested Q&A moderation action"
+		"qna_action": "Something went wrong when performing requested Q&A moderation action",
+		"sse_error": "Failed establishing connexion to live events, {APP} may not work properly.\nDisable all adblockers for this page and try reloading it."
 	}
 }
