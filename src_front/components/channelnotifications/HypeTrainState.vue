@@ -6,7 +6,7 @@
 			<Icon name="train" alt="train" class="icon" v-if="!boostMode" />
 			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
 			<h1 v-if="!boostMode">{{ $t("train.hype_approaching") }}</h1>
-			<h1 v-else-if="!goldenKappaMode">{{ $t("train.golden_approaching") }}</h1>
+			<h1 v-else-if="goldenKappaMode">{{ $t("train.golden_approaching") }}</h1>
 			<h1 v-else>{{ $t("train.boost_approaching") }}</h1>
 		</div>
 
@@ -25,7 +25,7 @@
 			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
 			<h1>
 				<span v-if="!boostMode">{{ $t("train.hype_complete") }}</span>
-				<span v-if="!goldenKappaMode">{{ $t("train.golden_complete") }}</span>
+				<span v-if="goldenKappaMode">{{ $t("train.golden_complete") }}</span>
 				<span v-else>{{ $t("train.boost_complete") }}</span>
 				<br />
 				<i18n-t scope="global" tag="span" class="subtitle"
@@ -39,7 +39,7 @@
 			<Icon name="train" alt="train" class="icon" v-if="!boostMode" />
 			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
 			<h1 v-if="!boostMode">{{ $t("train.boost_cancel") }}</h1>
-			<h1 v-if="!goldenKappaMode">{{ $t("train.golden_cancel") }}</h1>
+			<h1 v-if="goldenKappaMode">{{ $t("train.golden_cancel") }}</h1>
 			<h1 v-else>{{ $t("train.boost_cancel") }}</h1>
 		</div>
 
