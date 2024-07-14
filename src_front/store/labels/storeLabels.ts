@@ -35,6 +35,7 @@ export const storeLabels = defineStore('labels', {
 					placeholder:{
 						descriptionKey: "triggers.placeholders.value_global_value",
 						descriptionKeyName: v.name,
+						//@ts-ignore super dirty way of bypassing type checking on this I know...
 						tag:"VALUE_"+v.placeholderKey,
 						type:"string",
 					}

@@ -262,7 +262,8 @@ function buildApp() {
 	StoreProxy.default.lumia = storeLumia();
 	StoreProxy.default.tipeee = storeTipeee();
 	StoreProxy.default.common = storeCommon();
-	StoreProxy.default.labels = storeLabels();
+	//Dirty typing. Couldn't figure out how to properly type pinia getters
+	StoreProxy.default.labels = (storeLabels() as unknown) as StoreProxy.ILabelsState & StoreProxy.ILabelsGetters & StoreProxy.ILabelsActions & { $state: StoreProxy.ILabelsState; $reset:()=>void };
 
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach(k => {
