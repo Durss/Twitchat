@@ -2778,7 +2778,7 @@ export interface IPublicActions {
 	 * @param reconnectIRC
 	 * @param callback
 	 */
-	twitchTokenRefresh(reconnectIRC:boolean):Promise<boolean>;
+	twitchTokenRefresh(reconnectIRC:boolean):Promise<false|TwitchDataTypes.AuthTokenResult>;
 	/**
 	 * Disconnect from twithc
 	 */

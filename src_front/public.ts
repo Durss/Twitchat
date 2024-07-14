@@ -79,12 +79,6 @@ function buildApp() {
 			}
 		}
 
-		//Not admin, reroute to login
-		if(needAdmin && !StoreProxy.default.auth.isAdmin) {
-			next({name: 'home'});
-			return;
-		}
-
 		next();
 	});
 

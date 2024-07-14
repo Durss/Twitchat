@@ -57,11 +57,11 @@ export default class TwitchUtils {
 		requestScopesCallback:(scopes:TwitchScopesString[])=>void,
 		refreshTokenCallback:()=>Promise<false | TwitchDataTypes.AuthTokenResult>,
 		uid?:string):void {
-		if(uid) this.uid = uid;
-		this.scopes = scopes;
-		this.accessToken = accessToken;
-		this.refreshTokenCallback = refreshTokenCallback;
-		this.requestScopesCallback = requestScopesCallback;
+			if(uid) this.uid = uid;
+			this.scopes = scopes;
+			this.accessToken = accessToken;
+			this.refreshTokenCallback = refreshTokenCallback;
+			this.requestScopesCallback = requestScopesCallback;
 	}
 
 	/**

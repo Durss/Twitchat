@@ -80,6 +80,7 @@ export const storePublic = defineStore('public', {
 				ApiHelper.accessToken	= this.twitchAccessToken;
 				twitchAuthResult.expires_at	= Date.now() + twitchAuthResult.expires_in * 1000;
 				DataStoreCommon.set(DataStoreCommon.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
+				TwitchUtils.updateAuthInfo(twitchAuthResult.access_token, twitchAuthResult.scope, (scopes:TwitchScopesString[])=>{}, async ():Promise<false | TwitchDataTypes.AuthTokenResult>=>{ return false}, this.twitchUid);
 				clearTimeout(refreshTokenTO);
 				//Schedule refresh
 				refreshTokenTO = setTimeout(()=>{
@@ -87,14 +88,16 @@ export const storePublic = defineStore('public', {
 				}, (twitchAuthResult.expires_in || 120) * 1000 - 60000 * 5);
 				
 			}else {
-				this.authenticated = await this.twitchTokenRefresh(false);
-				if(!this.authenticated) {
+				const res = await this.twitchTokenRefresh(false);
+				this.authenticated = res != false;
+				if(res === false) {
 					StoreProxy.common.alert("Unable to connect with Twitch API :(.", false, true);
 					twitchAuthResult = null;
+				}else{
+					twitchAuthResult = res;
 				}
 			}
 			if(!twitchAuthResult) {
-				console.log("Auth failed", twitchAuthResult);
 				return false;
 			}else{
 				let userRes:TwitchDataTypes.Token | TwitchDataTypes.Error | undefined;
@@ -114,7 +117,7 @@ export const storePublic = defineStore('public', {
 			return true;
 		},
 
-		async twitchTokenRefresh():Promise<boolean> {
+		async twitchTokenRefresh():Promise<false|TwitchDataTypes.AuthTokenResult> {
 			let twitchAuthResult:TwitchDataTypes.AuthTokenResult = JSON.parse(DataStoreCommon.get(DataStoreCommon.TWITCH_AUTH_TOKEN));
 			//Refresh token if it's going to expire within the next 5 minutes
 			if(twitchAuthResult && twitchAuthResult.refresh_token) {
@@ -141,14 +144,13 @@ export const storePublic = defineStore('public', {
 					delay = 60*1000;
 				}
 
-				console.log("Refresh token in", Utils.formatDuration(delay));
+				TwitchUtils.updateAuthInfo(twitchAuthResult.access_token, twitchAuthResult.scope, (scopes:TwitchScopesString[])=>{}, async ():Promise<false | TwitchDataTypes.AuthTokenResult>=>{ return false}, this.twitchUid);
 				clearTimeout(refreshTokenTO);
 				refreshTokenTO = setTimeout(()=>{
 					this.twitchTokenRefresh(true);
 				}, delay);
-				TwitchUtils.updateAuthInfo(twitchAuthResult.access_token, twitchAuthResult.scope, (scopes:TwitchScopesString[])=>{}, async ():Promise<false | TwitchDataTypes.AuthTokenResult>=>{ return false}, this.twitchUid);
 				this.authenticated = true;
-				return true;
+				return twitchAuthResult;
 			}
 			this.authenticated = false;
 			return false;
