@@ -5,8 +5,8 @@
 			:errorMessage="$t('triggers.actions.http_ws.protocol_error')" />
 
 		<ParamItem class="row item" :paramData="param_method" v-model="action.method">
-			<ParamItem class="row child item" :paramData="param_sendAsBody" v-model="action.sendAsBody" v-if="action.method == 'POST'" noBackground />
-			<ParamItem class="row child item" :paramData="param_custom_body" v-model="action.customBody" v-if="action.method == 'POST'" noBackground />
+			<ParamItem class="row child item" :paramData="param_sendAsBody" v-model="action.sendAsBody" v-if="action.method == 'POST' || action.method == 'PATCH'" noBackground />
+			<ParamItem class="row child item" :paramData="param_custom_body" v-model="action.customBody" v-if="action.method == 'POST' || action.method == 'PATCH'" noBackground />
 		</ParamItem>
 
 		<ParamItem class="row item" :paramData="param_customHeaders" v-model="action.customHeaders">
