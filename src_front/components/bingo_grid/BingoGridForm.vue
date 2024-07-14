@@ -492,8 +492,8 @@ class BingoGridForm extends AbstractSidePanel {
 			this.param_additional_cells[id] = {type:"custom", value:true, labelKey:"bingo_grid.form.param_additional_cells", icon:"add"};
 			this.param_winSoundVolume[id] = {type:"slider", value:100, min:0, max:100, step:10, labelKey:"bingo_grid.form.param_winSoundVolume", icon:"volume"};
 			this.param_chatAnnouncement[id] = {type:"string", value:"", longText:true, labelKey:"bingo_grid.form.param_chatAnnouncement", icon:"whispers", placeholderList:winnersPlaceholder};
-			this.param_chatAnnouncementEnabled[id] = {type:"boolean", value:true, labelKey:"bingo_grid.form.param_chatAnnouncementEnabled", icon:"announcement"};
-			this.param_overlayAnnouncement[id] = {type:"boolean", value:true, labelKey:"bingo_grid.form.param_overlayAnnouncement", icon:"announcement"};
+			this.param_chatAnnouncementEnabled[id] = {type:"boolean", value:this.$store.auth.isPremium, labelKey:"bingo_grid.form.param_chatAnnouncementEnabled", icon:"announcement", premiumOnly:true};
+			this.param_overlayAnnouncement[id] = {type:"boolean", value:this.$store.auth.isPremium, labelKey:"bingo_grid.form.param_overlayAnnouncement", icon:"announcement", premiumOnly:true};
 			
 			const me = this.$store.auth.twitch.user;
 			this.param_messagePreview[id] = reactive({
@@ -628,6 +628,9 @@ export default toNative(BingoGridForm);
 		}
 		&.install, &.share {
 			flex-direction: column;
+		}
+		&.share {
+			background-color: var(--color-premium-fader);
 		}
 
 		.info {

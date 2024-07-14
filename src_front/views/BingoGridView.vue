@@ -627,7 +627,8 @@ export default toNative(BingoGridView);
 		.cells {
 			display: grid;
 			grid-template-columns: repeat(5, 1fr);
-			max-width: min(800px, 95%);
+			max-width: min(600px, 95%);
+			gap: 5px;
 			// overflow: hidden;
 			.cell {
 				padding: 5px;
@@ -642,7 +643,6 @@ export default toNative(BingoGridView);
 				position: relative;
 				aspect-ratio: 1;
 				cursor: pointer;
-				box-shadow:0 0 0 1px currentColor;
 				border-radius: var(--border-radius);
 				background-color: var(--background-color-fadest);
 				min-width: 70px;
@@ -651,7 +651,6 @@ export default toNative(BingoGridView);
 					background-color: var(--background-color-fader);
 					z-index: 1;
 					// font-size: 1.1em;
-					box-shadow:0 0 0 5px currentColor;
 				}
 
 				&.disabled {
@@ -671,7 +670,7 @@ export default toNative(BingoGridView);
 					margin-left: -35%;
 					margin-top: -35%;
 					z-index: 101;
-					opacity: 1;
+					opacity: .8;
 					filter: drop-shadow(2px 2px 5px rgba(0,0,0,.5));
 				}
 			}

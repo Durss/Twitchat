@@ -3,17 +3,16 @@
 		<template v-if="bingo && bingo.enabled">
 			<div class="cells" ref="cellsHolder"
 			:style="{aspectRatio: bingo.cols/bingo.rows,
-				fontSize:bingo.textSize+'px',
-				color:bingo.textColor,
-				backgroundColor:backgroundColor,
-				gridTemplateColumns: 'repeat('+bingo.cols+', 1fr)'}">
+			fontSize:bingo.textSize+'px',
+			color:bingo.textColor,
+			gridTemplateColumns: 'repeat('+bingo.cols+', 1fr)'}">
 				<TransitionGroup name="flip-list">
-					<div v-for="entry in bingo.entries"
+					<div v-for="(entry, index) in bingo.entries"
 						ref="cell"
-						:class="cellClasses(entry)"
+						:class="cellClasses(entry, index)"
 						:data-cellid="entry.id"
 						:key="entry.id"
-						:style="{width:'100%'}">
+						:style="{width:'100%', backgroundColor:backgroundColor}">
 						<span class="label">{{ entry.label }}</span>
 						<div class="check" v-show="entry.check" :ref="'check_'+entry.id">
 							<Icon name="checkmark" />
@@ -21,13 +20,6 @@
 						<Icon name="sub" class="star" />
 					</div>
 				</TransitionGroup>
-			</div>
-
-			<div class="grid" ref="gridHolder"
-			:style="{aspectRatio: bingo.cols/bingo.rows,
-				color:bingo.textColor,
-				gridTemplateColumns: 'repeat('+bingo.cols+', 1fr)'}">
-				<div v-for="entry in bingo.entries" :class="cellClasses(entry)"></div>
 			</div>
 
 			<div class="alerts" ref="alertsHolder"
@@ -113,9 +105,13 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		return res;
 	}
 
-	public cellClasses(entry:TwitchatDataTypes.BingoGridConfig["entries"][number]):string[] {
+	public cellClasses(entry:TwitchatDataTypes.BingoGridConfig["entries"][number], index:number):string[] {
 		let res:string[] = ["cell"];
 		if(entry.check === true) res.push("check");
+		if(index == 0) res.push("corner", "tl");
+		if(index == this.bingo!.entries.length-1) res.push("corner", "br");
+		if(index == this.bingo!.cols-1) res.push("corner", "tr");
+		if(index == (this.bingo!.rows-1)*this.bingo!.cols) res.push("corner", "bl");
 		return res;
 	}
 
@@ -317,7 +313,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 					if(entry.check && forcedCellsState[entry.id] !== true) {
 						//Animate checkmark display
 						gsap.killTweensOf(checks[0]);
-						gsap.fromTo(checkmark, {opacity:0}, {opacity:1, duration:.25});
+						gsap.fromTo(checkmark, {opacity:0}, {opacity:.8, duration:.25});
 						const ease = CustomEase.create("custom", "M0,0 C0,0 0.325,0.605 0.582,0.977 0.647,0.839 0.817,0.874 0.854,0.996 0.975,0.9 1,1 1,1 ");
 						gsap.fromTo(checkmark, {transform:"scale(3)", rotation:"0deg"}, {transform:"scale(1)", rotation:angle+"deg", ease, duration:.25});
 						await Utils.promisedTimeout(150);
@@ -745,17 +741,14 @@ export default toNative(OverlayBingoGrid);
 
 <style scoped lang="less">
 .overlaybingogrid{
-	@borderSize: 3px;
-	padding: @borderSize;
+	@borderSize: min(.75vh, .75vw);
 	transform-origin: center center;
-	.cells, .grid, .alerts {
+	.cells, .alerts {
 		gap: @borderSize;
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
 		max-width: 100vw;
-		max-height: calc(100vh - @borderSize * 2);
-		border-radius: calc(min(100vw, 100vh) / 50);
-		overflow: hidden;
+		max-height: 100vh;
 
 		.cell {
 			padding: 5px;
@@ -769,6 +762,7 @@ export default toNative(OverlayBingoGrid);
 			word-wrap: break-word;
 			position: relative;
 			aspect-ratio: 1;
+			border-radius: calc(min(100vw, 100vh) / 50);
 
 			.check {
 				opacity: 0;
@@ -801,15 +795,6 @@ export default toNative(OverlayBingoGrid);
 				transform: translate(-50%, -50%) scale(0, 0);
 				z-index: 101;
 			}
-		}
-	}
-
-	.grid {
-		display: none;
-		transform: translateY(-100%);
-		box-shadow:0 0 0 @borderSize currentColor;
-		.cell {
-			box-shadow:0 0 0 @borderSize currentColor;
 		}
 	}
 
@@ -920,8 +905,29 @@ export default toNative(OverlayBingoGrid);
 	}
 
 	&.border {
-		.grid {
-			display: grid;
+		padding: @borderSize;
+		max-height: calc(100vh - @borderSize * 2);
+		.cells {
+			border-radius: 0;
+			// box-shadow:0 0 0 @borderSize currentColor;
+			.cell {
+				border-radius: 0;
+				box-shadow:0 0 0 @borderSize currentColor;
+				&.corner {
+					&.tl {
+						border-top-left-radius: calc(min(100vw, 100vh) / 50);
+					}
+					&.tr {
+						border-top-right-radius: calc(min(100vw, 100vh) / 50);
+					}
+					&.bl {
+						border-bottom-left-radius: calc(min(100vw, 100vh) / 50);
+					}
+					&.br {
+						border-bottom-right-radius: calc(min(100vw, 100vh) / 50);
+					}
+				}
+			}
 		}
 	}
 }
