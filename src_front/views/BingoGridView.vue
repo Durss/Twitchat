@@ -627,7 +627,7 @@ export default toNative(BingoGridView);
 		.cells {
 			display: grid;
 			grid-template-columns: repeat(5, 1fr);
-			max-width: min(600px, 95%);
+			max-width: min(800px, 95%);
 			gap: 5px;
 			// overflow: hidden;
 			.cell {
