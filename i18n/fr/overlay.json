@@ -380,8 +380,6 @@
 				"LAST_STREAMELEMENTS_TIP_AMOUNT": "Don Streamelements - Montant",
 				"LAST_TIPEEE_TIP_NAME": "Don Tipeee - Pseudo",
 				"LAST_TIPEEE_TIP_AMOUNT": "Don Tipeee - Montant",
-				"VOICEMOD_EFFECT_TITLE": "Effet Voicemod - Nom",
-				"VOICEMOD_EFFECT_ICON": "Effet Voicemod - Icône",
 				"LAST_SUB_YOUTUBE_NAME": "Dernier sub Youtube - Pseudo",
 				"LAST_SUB_YOUTUBE_AVATAR": "Dernier sub Youtube - Avatar",
 				"LAST_SUB_YOUTUBE_TIER": "Dernier sub Youtube - Niveau",
@@ -398,7 +396,13 @@
 				"LAST_SUBGIFT_GENERIC_COUNT": "Dernier subgift (inclus youtube) - Nombre",
 				"LAST_SUPER_CHAT_NAME": "Dernier Super chat Youtube - Pseudo",
 				"LAST_SUPER_CHAT_AVATAR": "Dernier Super chat Youtube - Avatar",
-				"LAST_SUPER_CHAT_AMOUNT": "Dernier Super chat Youtube - Montant"
+				"LAST_SUPER_CHAT_AMOUNT": "Dernier Super chat Youtube - Montant",
+				"VOICEMOD_EFFECT_TITLE": "Effet Voicemod - Nom",
+				"VOICEMOD_EFFECT_ICON": "Effet Voicemod - Icône",
+				"MUSIC_TITLE":"Musique en cours - Titre",
+				"MUSIC_ARTIST":"Musique en cours - Artiste",
+				"MUSIC_ALBUM":"Musique en cours - Album",
+				"MUSIC_COVER":"Musique en cours - Image"
 			}
 		}
 	}

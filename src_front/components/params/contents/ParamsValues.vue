@@ -48,7 +48,8 @@
 			</template>
 
 			<div class="content">
-				<ParamItem class="value" v-if="!entry.value.perUser"
+				<ParamItem class="value"
+					v-if="!entry.value.perUser"
 					:paramData="entry.param"
 					@change="onChangeValue(entry)" />
 				
@@ -266,11 +267,10 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 		clearTimeout(this.timeoutEdit);
 		this.timeoutEdit = setTimeout(() => {
 			if(userEntry) {
-				entry.value.users![ userEntry.user.id ] = userEntry.param.value;
+				this.$store.values.updateValue(entry.value.id, userEntry.param.value, userEntry.user);
 			}else{
-				entry.value.value = entry.param.value;
+				this.$store.values.updateValue(entry.value.id, entry.param.value);
 			}
-			this.$store.values.updateValue(entry.value.id, entry.value.value);
 		}, 250);
 	}
 

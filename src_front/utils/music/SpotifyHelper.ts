@@ -435,6 +435,11 @@ export default class SpotifyHelper {
 				id:json.item.id,
 			};
 			this._isPlaying = json.is_playing && json.item != null;
+			
+			StoreProxy.labels.updateLabelValue("MUSIC_TITLE", this.currentTrack.title);
+			StoreProxy.labels.updateLabelValue("MUSIC_ARTIST", this.currentTrack.artist);
+			StoreProxy.labels.updateLabelValue("MUSIC_ALBUM", this.currentTrack.album);
+			StoreProxy.labels.updateLabelValue("MUSIC_COVER", this.currentTrack.cover);
 
 			if(this._isPlaying) {
 				//Broadcast to the triggers

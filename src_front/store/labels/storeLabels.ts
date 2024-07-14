@@ -1,5 +1,5 @@
 import TwitchatEvent from '@/events/TwitchatEvent';
-import { LabelItemPlaceholderList, type LabelItemData } from '@/types/ILabelOverlayData';
+import { LabelItemPlaceholderList, type LabelItemData, type LabelItemPlaceholder } from '@/types/ILabelOverlayData';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
@@ -14,7 +14,6 @@ let ready = false;
 let readyResolver:() => void;
 let readyPromise = new Promise<void>((resolve) => readyResolver = resolve);
 let broadcastCount:number = 0;
-let sabeDebounce:number = -1;
 let broadcastDebounce:number = -1;
 
 export const storeLabels = defineStore('labels', {
@@ -26,7 +25,24 @@ export const storeLabels = defineStore('labels', {
 
 
 	getters: {
-		
+		allPlaceholders() {
+			const placeholders = JSON.parse(JSON.stringify(this.placeholders)) as typeof this.placeholders;
+			const values = StoreProxy.values.valueList;
+			values.forEach(v=> {
+				if(v.perUser) return;
+				placeholders["VALUE_"+v.placeholderKey as "LAST_SUB_TIER"] = {
+					value:v.value,
+					placeholder:{
+						descriptionKey: "triggers.placeholders.value_global_value",
+						descriptionKeyName: v.name,
+						tag:"VALUE_"+v.placeholderKey,
+						type:"string",
+					}
+				};
+			});
+
+			return placeholders;
+		}
 	} as ILabelsGetters
 	& ThisType<UnwrapRef<ILabelsState> & _StoreWithGetters<ILabelsGetters> & PiniaCustomProperties>
 	& _GettersTree<ILabelsState>,
@@ -69,7 +85,7 @@ export const storeLabels = defineStore('labels', {
 			}
 
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_LABEL_OVERLAY_PLACEHOLDERS, ()=>{
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PLACEHOLDERS, this.placeholders as unknown as JsonObject);
+				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PLACEHOLDERS, this.allPlaceholders as unknown as JsonObject);
 			});
 
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_LABEL_OVERLAY_PARAMS, (e:TwitchatEvent<{id:string}>)=> {
@@ -79,7 +95,6 @@ export const storeLabels = defineStore('labels', {
 			ready = true;
 			readyResolver();
 
-			//TODO Init placeholders values
 			this.broadcastPlaceholders();
 		},
 		
@@ -164,15 +179,15 @@ export const storeLabels = defineStore('labels', {
 			if(++broadcastCount != 50) clearTimeout(broadcastDebounce);
 			broadcastDebounce = setTimeout(() => {
 				broadcastCount = 0;
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PLACEHOLDERS, this.placeholders as unknown as JsonObject);
+				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PLACEHOLDERS, this.allPlaceholders as unknown as JsonObject);
 			}, 100);
 		},
 		
 		broadcastLabelParams(labelId:string):void {
 			const data = this.labelList.find(v=>v.id == labelId) || null;
 			const tag = data?.placeholder;
-			if(data && tag && this.placeholders[tag] && data.enabled === true) {
-				const placeholderType = this.placeholders[tag]!.placeholder.type;
+			if(data && tag && this.allPlaceholders[tag] && data.enabled === true) {
+				const placeholderType = this.allPlaceholders[tag]!.placeholder.type;
 				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, placeholderType, data:data as unknown as JsonObject});
 			}else{
 				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, placeholderType:"string", data:null, disabled:data?.enabled === false});

@@ -118,11 +118,12 @@ class OverlayParamsLabels extends Vue {
 	}
 
 	public beforeMount():void {
-		for (const key in this.$store.labels.placeholders) {
-			const p = this.$store.labels.placeholders[key as keyof typeof this.$store.labels.placeholders];
+		for (const key in this.$store.labels.allPlaceholders) {
+			const p = this.$store.labels.allPlaceholders[key as keyof typeof this.$store.labels.allPlaceholders];
 			if(!p) continue;
 			this.placeholders.push({
 				descKey:p.placeholder.descriptionKey,
+				descReplacedValues:{"NAME":p.placeholder.descriptionKeyName || ""},
 				tag:p.placeholder.tag,
 			});
 		}
@@ -172,15 +173,11 @@ class OverlayParamsLabels extends Vue {
 			this.placeholders.forEach(p=> {
 				values.push({
 					value:p.tag,
-					// label:p.tag,
+					label:p.descReplacedValues? this.$t(p.descKey, p.descReplacedValues) : undefined,
 					labelKey:p.descKey,
 				});
-				// values.push({
-				// 	value:p.tag,
-				// 	labelKey:p.descKey,
-				// 	disabled:true,
-				// });
 			});
+			
 			this.param_labelValue[id].listValues = values;
 		});
 	}

@@ -398,7 +398,11 @@
 				"LAST_TIPEEE_TIP_NAME":"Last Tiepeee tip - User name",
 				"LAST_TIPEEE_TIP_AMOUNT":"Last Tiepeee tip - Amount",
 				"VOICEMOD_EFFECT_TITLE":"Current Voicemod effect - Name",
-				"VOICEMOD_EFFECT_ICON":"Current Voicemod effect - Image"
+				"VOICEMOD_EFFECT_ICON":"Current Voicemod effect - Image",
+				"MUSIC_TITLE":"Current music - Title",
+				"MUSIC_ARTIST":"Current music - Artist",
+				"MUSIC_ALBUM":"Current music - Album",
+				"MUSIC_COVER":"Current music - Cover"
 			}
 		}
 	}

@@ -2795,13 +2795,14 @@ export interface IPublicActions {
 
 export interface ILabelsState {
 	labelList:LabelItemData[];
-	placeholders:Partial<{[key in typeof LabelItemPlaceholderList[number]["tag"]]:{
+	placeholders:Partial<{[key in LabelItemPlaceholder["tag"]]:{
 		value:string|number;
 		placeholder:LabelItemPlaceholder
 	}}>;
 }
 
 export interface ILabelsGetters {
+	allPlaceholders:ILabelsState["placeholders"];
 }
 
 export interface ILabelsActions {

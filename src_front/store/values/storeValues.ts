@@ -100,7 +100,8 @@ export const storeValues = defineStore('values', {
 						prevValue = entry.value;
 						entry.value = value;
 					}
-					//Do no execute triggers if edditing a user by it ID.
+					
+					//Do no execute triggers if edditing a user by their ID.
 					//If only "userId" is given, don't execute it so we can update
 					//loads of values at once without cloagging the trigger system
 					if(!userId && entry.value != prevValue) {
@@ -115,6 +116,11 @@ export const storeValues = defineStore('values', {
 							channel_id:StoreProxy.auth.twitch.user.id,
 						};
 						StoreProxy.chat.addMessage(message);
+						
+						if(!entry.perUser) {
+							//Tell overlays potentially using this value to update
+							StoreProxy.labels.broadcastPlaceholders();
+						}
 					}
 					break;
 				}

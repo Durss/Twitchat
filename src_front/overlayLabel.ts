@@ -185,6 +185,7 @@ function onMessage(message:IEnvelope<unknown>):void {
 				type:data[tag].placeholder.type,
 			}
 		}
+
 		renderValue();
 	}else
 

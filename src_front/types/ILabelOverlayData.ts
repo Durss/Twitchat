@@ -22,9 +22,17 @@ export interface LabelItemData {
  */
 export interface LabelItemPlaceholder {
 	tag:typeof LabelItemPlaceholderList[number]["tag"];
-	type:"string"|"number"|"image";
+	type:typeof LabelItemPlaceholderList[number]["type"];
 	descriptionKey:string;
+	descriptionKeyName?:string;
 }
+
+type AssertExact<T, Expected> = [T] extends [Expected] ? ([Expected] extends [T] ? true : never) : never;
+type Test1 = AssertExact<LabelItemPlaceholder["type"], "string"|"number"|"image">;
+
+//If there's an error on TypeCheck var that's because one of the labels
+//bellow has an invalid "type" value
+const TypeCheck: Test1 = true;
 
 export const LabelItemPlaceholderList = [
 	{tag:"SUB_COUNT",						type:"number",	descriptionKey:"overlay.labels.placeholders.SUB_COUNT"} as const,
@@ -98,4 +106,9 @@ export const LabelItemPlaceholderList = [
 	
 	{tag:"VOICEMOD_EFFECT_TITLE",			type:"number",	descriptionKey:"overlay.labels.placeholders.VOICEMOD_EFFECT_TITLE"} as const,
 	{tag:"VOICEMOD_EFFECT_ICON",			type:"number",	descriptionKey:"overlay.labels.placeholders.VOICEMOD_EFFECT_ICON"} as const,
+	
+	{tag:"MUSIC_TITLE",						type:"string",	descriptionKey:"overlay.labels.placeholders.MUSIC_TITLE"} as const,
+	{tag:"MUSIC_ARTIST",					type:"string",	descriptionKey:"overlay.labels.placeholders.MUSIC_ARTIST"} as const,
+	{tag:"MUSIC_ALBUM",						type:"string",	descriptionKey:"overlay.labels.placeholders.MUSIC_ALBUM"} as const,
+	{tag:"MUSIC_COVER",						type:"image",	descriptionKey:"overlay.labels.placeholders.MUSIC_COVER"} as const,
 ] as const;
