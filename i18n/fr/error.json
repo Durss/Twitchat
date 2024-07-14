@@ -52,9 +52,9 @@
 		"clip_creation": "La création du clip a échoué",
 		"beta_transfer": "Le transfer des vos données vers la production a échoué",
 		"raffle": {
-			"pick_winner_no_raffle":"Vous devez d'abord lancer un tirage au sort avant de pouvoir sélectionner une personne gagnante",
-			"pick_winner_no_subs":"Vous ne pouvez lancer un tirage au sort parmi vos subs. Aucune personne n'est abonnée à votre chaîne actuellement.",
-			"pick_winner_no_entry":"Aucune personne n'a rejoint le tirage au sort"
+			"pick_winner_no_raffle": "Vous devez d'abord lancer un tirage au sort avant de pouvoir sélectionner une personne gagnante",
+			"pick_winner_no_subs": "Vous ne pouvez lancer un tirage au sort parmi vos subs. Aucune personne n'est abonnée à votre chaîne actuellement.",
+			"pick_winner_no_entry": "Aucune personne n'a rejoint le tirage au sort"
 		},
 		"youtube_denied": "Vous avez refusé l'accès à votre compte Youtube",
 		"patreon_denied": "Vous avez refusé l'accès à votre profil Patreon",
@@ -85,30 +85,31 @@
 		"youtube_unknown": "Une erreur innatendue est survenue lors de la récupération d'informations chez Youtube :(",
 		"youtube_connect": "Une erreur innatendue est survenue lors de la connexion à Youtube :(",
 		"rewards": {
-			"create_unknown":"Une erreur est survenue lors de la création de la récompense",
-			"edit_unknown":"Une erreur est survenue lors de l'édition de la récompense",
-			"CREATE_CUSTOM_REWARD_DUPLICATE_REWARD":"Une récompense du même nom est déjà existante",
+			"create_unknown": "Une erreur est survenue lors de la création de la récompense",
+			"edit_unknown": "Une erreur est survenue lors de l'édition de la récompense",
+			"CREATE_CUSTOM_REWARD_DUPLICATE_REWARD": "Une récompense du même nom est déjà existante",
 			"refund_redemption": "Une erreur est survenue lors du remboursement de la récompense.\nPeut-être a-t-elle déjà été remboursée."
 		},
-		"ad_block":"Une requête a été bloquée par votre navigateur.\nIl est très fortement conseillé de désactiver tout bloqueur de publicité pour Twitchat.\nIls sont connus pour pour casser les notifications de publicité en approche, empêcher le lancement de publicités, couper la connexion au tchat aléatoirement et dans les pires cas bloquer toutes les requêtes à l'API Twitch.\n\nTwitchat ne collecte ni donnée personnelle ni donnée analytique.",
-		"discord":{
-			"UNKNOWN":"Une erreur inconnue est survenue lors de l'envoi d'un message Discord :(",
-			"UNAUTHORIZED":"Votre session d'authentification Twitch a expiré",
-			"POST_FAILED":"L'envoi du message sur Discord a échoué",
-			"INVALID_TOKEN":"Code invalide",
-			"INVALID_USER":"Vous n'êtes pas autorisé·e à utiliser ce code",
-			"GUILD_COMMAND_CREATE_FAILED":"Une erreur est survenue lors de la création des commands Discord",
-			"MISSING_ACCESS":"Le bot Twitchat n'a pas la permission d'écrire dans le salon Discord \"{CHANNEL}\""
+		"ad_block": "Une requête a été bloquée par votre navigateur.\nIl est très fortement conseillé de désactiver tout bloqueur de publicité pour Twitchat.\nIls sont connus pour pour casser les notifications de publicité en approche, empêcher le lancement de publicités, couper la connexion au tchat aléatoirement et dans les pires cas bloquer toutes les requêtes à l'API Twitch.\n\nTwitchat ne collecte ni donnée personnelle ni donnée analytique.",
+		"discord": {
+			"UNKNOWN": "Une erreur inconnue est survenue lors de l'envoi d'un message Discord :(",
+			"UNAUTHORIZED": "Votre session d'authentification Twitch a expiré",
+			"POST_FAILED": "L'envoi du message sur Discord a échoué",
+			"INVALID_TOKEN": "Code invalide",
+			"INVALID_USER": "Vous n'êtes pas autorisé·e à utiliser ce code",
+			"GUILD_COMMAND_CREATE_FAILED": "Une erreur est survenue lors de la création des commands Discord",
+			"MISSING_ACCESS": "Le bot Twitchat n'a pas la permission d'écrire dans le salon Discord \"{CHANNEL}\""
 		},
-		"streamlabs_denied":"Vous avez refusé l'accès à votre profil Streamlabs.",
-		"streamlabs_connect_failed":"Authentification Streamlabs échouée.",
-		"tipeee_denied":"Vous avez refusé l'accès à votre profil Tipeee.",
-		"tipeee_connect_failed":"Authentification Tipeee échouée.",
-		"kofi_connect_failed":"Une erreur est survenue lors de la connexion à Ko-fi.",
-		"kofi_disconnect_failed":"Une erreur est survenue lors de la déconnexion de Ko-fi.",
-		"lumia_connect_failed":"La connexion à Lumia Stream a échouée.\nAssurez-vous que Lumia Stream est lancé et que le jeton est valide.",
-		"streamelements_denied":"Vous avez refusé l'accès à votre profil Streamelements.",
-		"streamelements_connect_failed":"Authentification Streamelements échouée.",
-		"bingo_grid_404":"Grille de bingo introuvable"
+		"streamlabs_denied": "Vous avez refusé l'accès à votre profil Streamlabs.",
+		"streamlabs_connect_failed": "Authentification Streamlabs échouée.",
+		"tipeee_denied": "Vous avez refusé l'accès à votre profil Tipeee.",
+		"tipeee_connect_failed": "Authentification Tipeee échouée.",
+		"kofi_connect_failed": "Une erreur est survenue lors de la connexion à Ko-fi.",
+		"kofi_disconnect_failed": "Une erreur est survenue lors de la déconnexion de Ko-fi.",
+		"lumia_connect_failed": "La connexion à Lumia Stream a échouée.\nAssurez-vous que Lumia Stream est lancé et que le jeton est valide.",
+		"streamelements_denied": "Vous avez refusé l'accès à votre profil Streamelements.",
+		"streamelements_connect_failed": "Authentification Streamelements échouée.",
+		"bingo_grid_404": "Grille de bingo introuvable",
+		"qna_action": "Une erreur est survenue lors de l'exécution d'une action de modération de questions/réponses"
 	}
 }

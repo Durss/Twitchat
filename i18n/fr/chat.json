@@ -55,7 +55,8 @@
 			"raidBt_aria": "Raiding",
 			"youtube_saving_token_aria": "Afin d'économiser les crédits d'API Youtube, le tchat a été déconnecté suite à une longue période d'inactivité.\nCliquez pour reconnecter.",
 			"connect_extra_chan": "Se connecter à une chaîne Twitch",
-			"youtube_not_connected": "Vous n'êtes connecté·e à aucun live Youtube"
+			"youtube_not_connected": "Vous n'êtes connecté·e à aucun live Youtube",
+			"extra_chan_tt": "Ecire chez : {USER}\n(clic droit pour changer)"
 		},
 		"filters": {
 			"cta": "Options importantes ici",
@@ -370,7 +371,8 @@
 			"discord_quick_actions": "Actions Discord",
 			"discord_ticket": "Créer un ticket",
 			"add_blocked_terms": "Ajouter ce message aux termes bloqués",
-			"warn_user": "Envoyer un avertissement"
+			"warn_user": "Envoyer un avertissement",
+			"shared_qna": "Enregister question/réponse"
 		},
 		"custom_badge": {
 			"label": {

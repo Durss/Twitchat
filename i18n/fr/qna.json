@@ -8,7 +8,9 @@
 			"param_command": "Commande",
 			"announce_start": "Annoncer le début de la session en tchat",
 			"cmd_placeholder": "Commande utiliser pour soumettre une question",
-			"conflict": "Une session de question/réponse existe déjà pour cette commande"
+			"conflict": "Une session de question/réponse existe déjà pour cette commande",
+			"param_shareWithMods": "Partager avec mes modérateur·ices\n(Les modos utilisant Twitchat pourront gérer les entrées pour vous)",
+			"param_upvote": "Faire remonter les questions recevant des réponses dans le tchat\n(les questions générant de l'engagement de la part des viewers remonteront naturellement vers le haut de la liste)"
 		},
 		"list": {
 			"title": "Sessions de questions/réponses",
@@ -21,7 +23,9 @@
 			"delete_confirm": {
 				"title": "Supprimer la session ?",
 				"description": "Toutes les entrées actuelles seront perdues."
-			}
+			},
+			"owner": "Modération de la session de Questions/réponses de {USER}",
+			"shared": "Session partagée avec vos modérateur·ices"
 		}
 	}
 }
