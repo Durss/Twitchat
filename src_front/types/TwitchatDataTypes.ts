@@ -1725,7 +1725,19 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Submitted questions
 		 */
-		messages:{votes:number, message:TranslatableMessage}[];
+		messages:{
+			votes:number;
+			channelId:string;
+			platform:ChatPlatform;
+			message:{
+				id:string;
+				chunks:ParseMessageChunk[];
+			},
+			user:{
+				id:string;
+				name:string;
+			}
+		}[];
 		/**
 		 * Contains owner ID.
 		 * Usefull when sharing a Q&A session with mods so they
@@ -2428,7 +2440,7 @@ export namespace TwitchatDataTypes {
 
 	export type TranslatableMessageTypes = Extract<ChatMessageTypes, {translation?:TranslatableMessage["translation"]}>["type"];
 	//Ensure the object contains all requested keys
-	export const TranslatableMessageTypesString:Record<TranslatableMessageTypes, boolean> = {
+	const TranslatableMessageTypesMap:Record<TranslatableMessageTypes, true> = {
 		cheer:true,
 		reward:true,
 		whisper:true,
@@ -2438,6 +2450,14 @@ export namespace TwitchatDataTypes {
 		user_watch_streak:true,
 		youtube_subscription:true,
 	}
+
+	export const IsTranslatableMessage = new Proxy<Record<string, boolean>>({}, {
+		get: (target, prop: string) => {
+			return TranslatableMessageTypesMap[prop as TranslatableMessageTypes] === true;
+		}
+	});
+
+
 	export interface TranslatableMessage extends AbstractTwitchatMessage {
 		/**
 		 * User that sent the message

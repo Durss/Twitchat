@@ -1,7 +1,8 @@
 <template>
 	<div class="channelswitcher">
-		<div class="entry current"
+		<div class="current"
 		v-if="currentChannel"
+		v-tooltip="channels.length == 1? $t('chat.form.connect_extra_chan') : $t('chat.form.extra_chan_tt', {USER:currentChannel.user.displayNameOriginal})"
 		@click.capture="open($event)"
 		@click.right="cycleChannel($event)">
 			<img class="avatar" v-if="currentChannel.user.avatarPath"
@@ -288,10 +289,24 @@ export default toNative(ChannelSwitcher);
 			height: 15px;
 			position: absolute;
 			bottom: 0;
-			right: 0;
+			right: -3px;
 			background-color: var(--color-text-inverse);
 			padding: 2px;
 			border-radius: 50%;
+		}
+		.avatar {
+			width: 1.5em;
+			height: 1.5em;
+			border-radius: 50%;
+			border: 2px solid currentColor;
+			transition: all .1s;
+		}
+
+		&:hover {
+			.avatar {
+				transform: scale(1.1);
+				filter: brightness(1.2);
+			}
 		}
 	}
 }

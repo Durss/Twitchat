@@ -55,6 +55,7 @@
 			"youtube_saving_token_aria": "Youtube chat disconnected to reduce API usage after a long period of inactivity.\nClick to reconnect.",
 			"bingoGridBt_aria": "Bingo grids",
 			"connect_extra_chan": "Connect to another Twitch channel",
+			"extra_chan_tt": "Channel to write to: {USER}\n(right click for fast switch)",
 			"youtube_not_connected": "Not connected to any youtube live"
 		},
 		"filters": {
@@ -370,7 +371,8 @@
 			"discord_quick_actions": "Discord actions",
 			"discord_ticket": "Create ticket",
 			"add_blocked_terms": "Add this message to blocked terms",
-			"warn_user": "Warn user"
+			"warn_user": "Warn user",
+			"shared_qna": "Add to Q&A session"
 		},
 		"custom_badge": {
 			"label": {

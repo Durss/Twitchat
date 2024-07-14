@@ -7,9 +7,11 @@ import Logger from "./Logger.js";
 */
 export default class TwitchUtils {
 
-	private static _token:string|null;
+	private static _credentialToken:string|null;
 	private static _token_invalidation_date:number;
-	private static _tokenToUserCache:{[key:string]:TwitchToken} = {};
+	private static _tokenToUserCache:{[token:string]:TwitchToken} = {};
+	private static _moderatorsCache:{[token:string]:ModeratorUser[]} = {};
+	private static _moderatedChansCache:{[token:string]:ModeratedUser[]} = {};
 	
 	constructor() {
 	
@@ -20,7 +22,7 @@ export default class TwitchUtils {
 	********************/
 
 	public static get ready():boolean {
-		return this._token != null && this._token != undefined;
+		return this._credentialToken != null && this._credentialToken != undefined;
 	}
 	
 	
@@ -35,9 +37,9 @@ export default class TwitchUtils {
 	 */
 	public static async getClientCredentialToken(force:boolean = false):Promise<string> {
 		//Invalidate token if expiration date is passed
-		if(Date.now() > this._token_invalidation_date || force) this._token = null;
+		if(Date.now() > this._token_invalidation_date || force) this._credentialToken = null;
 		//Avoid generating a new token if one already exists
-		if(this._token) return this._token;
+		if(this._credentialToken) return this._credentialToken;
 
 		//Generate a new token
 		let headers:any = {
@@ -54,7 +56,7 @@ export default class TwitchUtils {
 		let result = await fetch(url, options)
 		if(result.status == 200) {
 			let json =await result.json();
-			this._token = json.access_token;
+			this._credentialToken = json.access_token;
 			this._token_invalidation_date = Date.now() + (json.expires_in - 60000);
 			return json.access_token;
 		}else{
@@ -139,7 +141,7 @@ export default class TwitchUtils {
 		let result = await fetch(url, {
 			headers:{
 				"Client-ID": Config.credentials.twitch_client_id,
-				"Authorization": "Bearer "+this._token,
+				"Authorization": "Bearer "+this._credentialToken,
 				"Content-Type": "application/json",
 			}
 		});
@@ -158,65 +160,12 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Loads 1 or many steam by their IDs or logins
-	 * @param logins 
-	 * @param ids 
-	 * @param failSafe 
-	 * @returns 
-	 */
-	public static async loadStreams(logins?:string[], ids?:string[], failSafe:boolean = true):Promise<TwitchUSteamInfos[]|false> {
-		await this.getClientCredentialToken();//This will refresh the token if necessary
-
-		const url = new URL("https://api.twitch.tv/helix/streams");
-		if((logins || []).length > 100 || (ids || []).length > 100) {
-			Logger.warn("You cannot load more than 100 streams at once !");
-			throw("You cannot load more than 100 streams at once !");
-		}
-
-		if(ids) {
-			ids = ids.filter(v => v != null && v != undefined);
-			ids = ids.map(v => v.trim());
-		}
-		if(logins) {
-			logins = logins.filter(v => v != null && v != undefined);
-			logins = logins.map(v => v.trim());
-		}
-		
-		if(logins) {
-			logins.forEach(login => {
-				url.searchParams.append("user_login", login);
-			})
-		}else 
-		if(ids) {
-			ids.forEach(id => {
-				url.searchParams.append("user_id", id);
-			})
-		}
-		let result = await fetch(url, {
-			headers:{
-				"Client-ID": Config.credentials.twitch_client_id,
-				"Authorization": "Bearer "+this._token,
-				"Content-Type": "application/json",
-			}
-		});
-		//Token seem to expire before it's actual EOL date.
-		//Make sure here the next request will work.
-		if(result.status == 401) {
-			this.getClientCredentialToken(true);
-			if(failSafe) {
-				return await this.loadStreams(logins, ids, false);
-			}
-		}
-		if(result.status == 200) {
-			return (await result.json()).data;
-		}
-		return false;
-	}
-
-	/**
 	 * Get a list of channels the given user token is a moderator on.
 	 */
 	public static async getModeratedChannels(userId:string, token:string): Promise<ModeratedUser[]> {
+		if(this._moderatedChansCache[token]) {
+			return this._moderatedChansCache[token];
+		}
 		const url = new URL("https://api.twitch.tv/helix/moderation/channels");
 		url.searchParams.append("user_id", userId);
 		url.searchParams.append("first", "100");
@@ -242,6 +191,12 @@ export default class TwitchUtils {
 				}
 			} else if (res.status == 500) break;
 		} while (cursor != null);
+
+		this._moderatedChansCache[token] = list;
+		//Cleanup cache after a few minutes
+		setTimeout(()=>{
+			delete this._moderatedChansCache[token];
+		}, 60 * 60 * 1000);
 		return list;
 	}
 
@@ -249,6 +204,9 @@ export default class TwitchUtils {
 	 * Get a list of moderators on given channel
 	 */
 	public static async getModerators(channelId:string, token:string): Promise<ModeratorUser[]> {
+		if(this._moderatorsCache[token]) {
+			return this._moderatorsCache[token];
+		}
 		const url = new URL("https://api.twitch.tv/helix/moderation/moderators");
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("first", "100");
@@ -273,6 +231,10 @@ export default class TwitchUtils {
 				}
 			} else if (res.status == 500) break;
 		} while (cursor != null)
+		//Cleanup cache after a few minutes
+		setTimeout(()=>{
+			delete this._moderatorsCache[token];
+		}, 60 * 60 * 1000);
 		return list;
 	}
 

@@ -700,8 +700,7 @@ export default class MessengerProxy {
 
 			const incMode = params[0] == "inc";
 			let count = parseInt(params[0]);
-			console.log(params, count)
-			const countMode = count.toString().length == params[0].length;
+			const countMode = params.length > 0 && count.toString().length == params[0].length;
 			let spamDelay = cmd == "/megaspam"? 50 : 200;
 			//Check if spamming only a specific count of messages
 			if(countMode) {

@@ -24,9 +24,10 @@
 			<div class="messageList" ref="messageList">
 				<div class="noResult" v-if="messages.length === 0">{{ $t("global.no_result") }}</div>
 				<div v-else v-for="(m, index) in messages" :key="m.message.id" class="messageItem">
-					<MessageItem class="message" :messageData="m.message" :lightMode="true" />
+					<MessageItem class="message" :messageData="buildFakeMessage(m)" :lightMode="true" />
+					
 					<TTButton :aria-label="$t('pin.highlightBt_aria')"
-						@click.capture="chatHighlight(m.message)"
+						@click.capture="chatHighlight(buildFakeMessage(m))"
 						class="button"
 						small
 						icon="highlight"
@@ -35,7 +36,7 @@
 						:disabled="!overlayAvailable"
 						/>
 					<TTButton :aria-label="$t('pin.unpinBt_aria')"
-						@click="unpin(index)"
+						@click="unpin(m, index)"
 						class="button"
 						small
 						secondary
@@ -60,6 +61,7 @@
 </template>
 
 <script lang="ts">
+import { watch } from 'vue';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
@@ -69,14 +71,13 @@ import AbstractSidePanel from '../AbstractSidePanel';
 import ClearButton from '../ClearButton.vue';
 import TTButton from '../TTButton.vue';
 import MessageItem from '../messages/MessageItem.vue';
-import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Component({
 	components:{
 		TTButton,
 		ClearButton,
 		MessageItem,
-		ChatMessageChunksParser,
 	},
 	emits:["close"],
 })
@@ -123,6 +124,13 @@ class QnaList extends AbstractSidePanel {
 			this.overlayAvailable = res;
 			this.highlightLoading = false;
 		});
+
+		watch(()=>this.pageCount, ()=>{
+			//Make sure we remain on last available page when items get removed
+			if(this.pageIndex >= this.pageCount) {
+				this.pageIndex = this.pageCount - 1;
+			}
+		})
 	}
 
 	public closeSession(id:string):void {
@@ -145,17 +153,14 @@ class QnaList extends AbstractSidePanel {
 	 * Removes a message from pins
 	 * @param m 
 	 */
-	public async unpin(index:number):Promise<void> {
-		this.currentSession!.messages.splice(index + this.pageIndex * this.itemsPerPage, 1);
-		if(this.pageIndex >= this.pageCount) {
-			this.pageIndex = this.pageCount - 1;
-		}
+	public async unpin(message:TwitchatDataTypes.QnaSession["messages"][number], index:number):Promise<void> {
+		this.$store.qna.removeMessageFromSession(message, this.currentSession!);
 	}
 	
 	/**
 	 * Highlights a message on dedicated overlay
 	 */
-	public async chatHighlight(m:TwitchatDataTypes.TranslatableMessage):Promise<void> {
+	public async chatHighlight(m:TwitchatDataTypes.MessageChatData):Promise<void> {
 		if(!this.overlayAvailable) {
 			//Open parameters if overlay is not found
 			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HIGHLIGHT);
@@ -164,6 +169,27 @@ class QnaList extends AbstractSidePanel {
 			this.$store.chat.highlightChatMessageOverlay(m);
 			await Utils.promisedTimeout(1000);
 			this.highlightLoading = false;
+		}
+	}
+
+	/**
+	 * Builds up a fake message data to display on list
+	 * @param m 
+	 */
+	public buildFakeMessage(m:TwitchatDataTypes.QnaSession["messages"][number]):TwitchatDataTypes.MessageChatData {
+		return {
+			id: m.message.id,
+			platform: m.platform,
+			channel_id: m.channelId,
+			type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+			date: Date.now(),
+			answers: [],
+			is_short: false,
+			message: m.message.chunks.map(v=>v.value)+" ",
+			message_chunks: m.message.chunks,
+			message_html: TwitchUtils.messageChunksToHTML(m.message.chunks),
+			message_size: TwitchUtils.computeMessageSize(m.message.chunks),
+			user: this.$store.users.getUserFrom(m.platform, m.channelId, m.user.id, undefined, m.user.name),
 		}
 	}
 

@@ -225,6 +225,11 @@ export const storeAuth = defineStore('auth', {
 				StoreProxy.users.loadMyFollowings();
 				StoreProxy.users.loadMyFollowers();
 				StoreProxy.users.initBlockedUsers();
+				StoreProxy.stream.currentChatChannel = {
+					id:userRes.user_id,
+					name:userRes.login,
+					platform:"twitch",
+				}
 
 				//Use an anonymous method to avoid blocking loading while
 				//all twitch tags are loading
@@ -287,6 +292,26 @@ export const storeAuth = defineStore('auth', {
 				//Preload channels we can moderate
 				TwitchUtils.getModeratedChannels().then(async res=> {
 					this.twitchModeratedChannels = res;
+					res.forEach(chan => {
+						if(!this.twitch.user.channelInfo[chan.broadcaster_id]) {
+							this.twitch.user.channelInfo[chan.broadcaster_id] = {
+								badges:[],
+								following_date_ms: 0,
+								is_moderator:true,
+								is_banned:false,
+								is_broadcaster:false,
+								is_following:null,
+								is_gifter:false,
+								is_new:false,
+								is_raider:false,
+								is_subscriber:false,
+								is_vip:false,
+								online:false,
+							}
+						}else{
+							this.twitch.user.channelInfo[chan.broadcaster_id].is_moderator = true;
+						}
+					})
 				});
 
 				sMain.onAuthenticated();

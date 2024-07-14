@@ -41,7 +41,6 @@ export const storeQna = defineStore('qna', {
 			 * Called when receiving Q&A states from streamer
 			 */
 			SSEHelper.instance.addEventListener(SSEEvent.QNA_STATE, (event)=> {
-				console.log(event.data)
 				if(!event.data || !event.data.sessions) return;
 				event.data.sessions.forEach(session => {
 					const localSession = this.activeSessions.find(v => v.id == session.id);
@@ -51,6 +50,46 @@ export const storeQna = defineStore('qna', {
 						localSession.messages = session.messages;
 					}
 				});
+			});
+			/**
+			 * Called when a mod requests to perform an action on a Q&A session.
+			 * Could be:
+			 * - adding message
+			 * - removing a message
+			 * - closing the session
+			 */
+			SSEHelper.instance.addEventListener(SSEEvent.QNA_ACTION, async (event)=> {
+				if(!event.data || !event.data.action) return;
+				const data = event.data;
+				const me = StoreProxy.auth.twitch.user;
+				const moderator = await StoreProxy.users.getUserFrom("twitch", me.id, data.moderatorId);
+				
+				//Make sure user is a moderator
+				if(!moderator.channelInfo[me.id].is_moderator) return;
+
+				switch(data.action) {
+					case "add_message": {
+						const session = this.activeSessions.find(v=>v.id == data.sessionId);
+						//Make sure session is shared and message isn't already there
+						if(session && session.shareWithMods && session.messages.findIndex(v=>v.message.id == data.message.message.id)==-1) {
+							session.messages.push(data.message);
+							this.shareSessionsWithMods();
+						}
+						break;
+					}
+					case "del_message": {
+						const session = this.activeSessions.find(v=>v.id == data.sessionId);
+						//Make sure session is shared and message isn't already there
+						if(session && session.shareWithMods) {
+							const index = session.messages.findIndex(v=>v.message.id == data.messageId);
+							if(index > -1) {
+								session.messages.splice(index, 1);
+							}
+							this.shareSessionsWithMods();
+						}
+						break;
+					}
+				}
 			});
 		},
 		
@@ -135,10 +174,63 @@ export const storeQna = defineStore('qna', {
 			}
 		},
 
+		async addMessageToSession(message:TwitchatDataTypes.TranslatableMessage, session:TwitchatDataTypes.QnaSession):Promise<void>{
+			if(session.messages.find(v=>v.message.id === message.id)) return;//Message already added
+			
+			const qnaMessage:TwitchatDataTypes.QnaSession["messages"][number] = {
+				channelId: message.channel_id,
+				message: {
+					id: message.id, 
+					chunks: message.message_chunks || []
+				}, 
+				votes: 1, 
+				platform: message.platform,
+				user: {
+					id: message.user.id,
+					name: message.user.displayNameOriginal,
+				}
+			};
+			session.messages.push(qnaMessage);
+			
+			//If remotely moderating session, tell the broadcaster the message must be added
+			//to the list
+			if(session.shareWithMods && session.ownerId != StoreProxy.auth.twitch.user.id) {
+				ApiHelper.call("mod/qna/message", "PUT", {
+					entry:qnaMessage,
+					sessionId:session.id,
+					ownerId:session.ownerId,
+				}).catch(error=>{
+					StoreProxy.common.alert(StoreProxy.i18n.t("error.qna_action"));
+					const index = session.messages.findIndex(v=>v.message.id == qnaMessage.message.id);
+					session.messages.splice(index, 1);
+				})
+			}
+		},
+
+		async removeMessageFromSession(message:TwitchatDataTypes.QnaSession["messages"][number], session:TwitchatDataTypes.QnaSession):Promise<void>{
+			const messageIndex = session.messages.findIndex(v=>v.message.id == message.message.id);
+			session.messages.splice(messageIndex, 1);
+
+			//If remotely moderating session, tell the broadcaster the message must be added
+			//to the list
+			if(session.shareWithMods && session.ownerId != StoreProxy.auth.twitch.user.id) {
+				ApiHelper.call("mod/qna/message", "DELETE", {
+					messageId:message.message.id,
+					sessionId:session.id,
+					ownerId:session.ownerId,
+				}).catch(error=>{
+					StoreProxy.common.alert(StoreProxy.i18n.t("error.qna_action"));
+				})
+			}
+		},
+
 		async handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):Promise<void>{
 			cmd = cmd.toLowerCase();
 			let upvoteMode = false;
 			let session = this.activeSessions.find(v=>v.command.toLowerCase() == cmd);
+
+			//If message does not contain a Q&A command but is answer to another message
+			//check if the message it answers to has a command so it gets upvoted later
 			if(!session && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				const typedMessage = message as TwitchatDataTypes.MessageChatData;
 				if(!typedMessage.answersTo) return;
@@ -161,46 +253,28 @@ export const storeQna = defineStore('qna', {
 					&& (message as TwitchatDataTypes.MessageRewardRedeemData).reward.id == Config.instance.highlightMyMessageReward.id;
 					if(isHighlightReward) return;
 
-					//Clone object.
-					//The message will be modified to remove the Q&A command
-					//and we don't want to modify the original message.
-					//No need for a deep clone.
-					const clone:any = {};
-					const endlessLoopUnsafeKeys:(keyof TwitchatDataTypes.MessageChatData)[] = ["answersTo", "raw_data", "deletedData"];
-					for (const key in message) {
-						const typedKey = key as keyof TwitchatDataTypes.MessageChatData;
-						if(endlessLoopUnsafeKeys.includes(typedKey)) continue;
-						if(typedKey == "answers") {
-							clone[key] = [];
-							continue;
-						}
-						clone[key] = message[key as keyof typeof message];
-					}
-					const typedClone = clone as TwitchatDataTypes.TranslatableMessage;
-					typedClone.message_chunks = JSON.parse(JSON.stringify(typedClone.message_chunks)) || [];
-					//Remove command from messages
-					for (let i = 0; i < typedClone.message_chunks!.length; i++) {
-						const c = typedClone.message_chunks![i];
-						if(c.type == "text") {
-							c.value = c.value.replace(new RegExp(cmd, "i"), "").trimStart();
-							if(c.value.length == 0) {
-								typedClone.message_chunks?.splice(i, 1);
-							}
-							break;
-						}
-					}
-					typedClone.message = (typedClone.message || "").replace(new RegExp(cmd, "i"), "").trim();
-					typedClone.message_html = (typedClone.message_html || "").replace(new RegExp(cmd, "i"), "").trim();
-					session.messages.push({message:typedClone, votes:1});
+					session.messages.push({
+											channelId: message.channel_id,
+											message: {
+												id: message.id, 
+												chunks: message.message_chunks || []
+											}, 
+											votes: 1, 
+											platform: message.platform,
+											user: {
+												id: message.user.id,
+												name: message.user.displayNameOriginal,
+											}
+										});
 				} 
 			
-				if(session.shareWithMods) {
+				if(session.shareWithMods && session.ownerId == StoreProxy.auth.twitch.user.id) {
 					this.shareSessionsWithMods();
 				}
 			}
 		},
 
-		deleteMessage(messageID:string):void {
+		onDeleteMessage(messageID:string):void {
 			//Debounce updates to avoid lots of potential process
 			//When banning a user this method is called for all their messages
 			clearTimeout(deleteDebounce);
@@ -230,7 +304,7 @@ export const storeQna = defineStore('qna', {
 			clearTimeout(shareDebounce);
 			shareDebounce = setTimeout(() => {
 				ApiHelper.call("mod/qna", "POST", {sessions:this.activeSessions.filter(v=>v.shareWithMods==true)});
-			}, 1000);
+			}, 500);
 		}
 
 	} as IQnaActions

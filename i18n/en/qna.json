@@ -7,7 +7,7 @@
 			"example_question": "user's question",
 			"param_command": "Command",
 			"param_shareWithMods": "Share with my mods\n(mods using Twitchat will be able to manage Q&A entries for you)",
-			"param_upvote": "Allow chatters to upvote questions by answering \"+1\" to a question",
+			"param_upvote": "Allow chatters to upvote questions by answering anything to it.\n(A question generating viewers engagement will naturally be brought to top)",
 			"announce_start": "Announce Q&A session start on chat",
 			"cmd_placeholder": "Command to use to submit a question",
 			"conflict": "A Q&A session already exists for that command"

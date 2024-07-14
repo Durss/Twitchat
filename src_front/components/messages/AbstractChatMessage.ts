@@ -235,6 +235,7 @@ export default class AbstractChatMessage extends Vue {
 		}
 		if(window.getSelection()?.isCollapsed == false) return;
 		const canModerate = this.canModerateMessage && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE;
+		
 		ContextMenuHelper.instance.messageContextMenu(e, message, canModerate, this.canModerateUser_local, htmlNode);
 		e.stopPropagation();
 	}

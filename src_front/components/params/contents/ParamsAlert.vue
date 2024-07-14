@@ -18,11 +18,11 @@
 		<Splitter class="splitter">{{ $t('alert.actions') }}</Splitter>
 		<section class="card-item">
 	
-			<ParamItem :paramData="param_message" />
-			<ParamItem :paramData="param_shake" />
-			<ParamItem :paramData="param_sound" />
-			<ParamItem :paramData="param_blink" />
-			<ParamItem :paramData="param_vibrate" />
+			<ParamItem :paramData="param_message" v-model="param_message.value" />
+			<ParamItem :paramData="param_shake" v-model="param_shake.value" />
+			<ParamItem :paramData="param_sound" v-model="param_sound.value" />
+			<ParamItem :paramData="param_blink" v-model="param_blink.value" />
+			<ParamItem :paramData="param_vibrate" v-model="param_vibrate.value" />
 	
 			<i18n-t scope="global" tag="div" class="infos" keypath="alert.actions_triggers">
 				<template #LINK>

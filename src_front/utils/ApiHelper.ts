@@ -1048,7 +1048,7 @@ type ApiEndpoints =  {
 				errorCode?:string;
 			}
 		},
-	}
+	};
 	"mod/qna": {
 		POST: {
 			parameters: {
@@ -1060,5 +1060,31 @@ type ApiEndpoints =  {
 				errorCode?:string;
 			}
 		},
-	}
+	};
+	"mod/qna/message": {
+		PUT: {
+			parameters: {
+				ownerId:string;
+				sessionId:string;
+				entry:TwitchatDataTypes.QnaSession["messages"][number];
+			};
+			response:{
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		},
+		DELETE: {
+			parameters: {
+				ownerId:string;
+				sessionId:string;
+				messageId:string;
+			};
+			response:{
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		},
+	};
 }

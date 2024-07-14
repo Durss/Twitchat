@@ -2336,10 +2336,24 @@ export interface IQnaActions {
 	 */
 	handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):Promise<void>;
 	/**
+	 * Adds message to given session
+	 * Properly handles adding message to a remote session when moderating
+	 * @param message 
+	 * @param session 
+	 */
+	addMessageToSession(message:TwitchatDataTypes.TranslatableMessage, session:TwitchatDataTypes.QnaSession):Promise<void>;
+	/**
+	 * Removes message from given session
+	 * Properly handles removing message from a remote session when moderating
+	 * @param message 
+	 * @param session 
+	 */
+	removeMessageFromSession(message:TwitchatDataTypes.QnaSession["messages"][number], session:TwitchatDataTypes.QnaSession):Promise<void>;
+	/**
 	 * Deletes the given message from the sessions
 	 * @param messageID id of the message
 	 */
-	deleteMessage(messageID:string):void;
+	onDeleteMessage(messageID:string):void;
 	/**
 	 * Sends shared sessions with connected mods
 	 */

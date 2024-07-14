@@ -840,6 +840,7 @@ export const storeChat = defineStore('chat', {
 			const sAuth = StoreProxy.auth;
 			const s = Date.now();
 			const logTimings = false;//Enable to check for perf issues
+			const isFromRemoteChan = message.channel_id != sAuth.twitch.user.id && message.channel_id != sAuth.youtube.user?.id;
 
 			message = reactive(message);
 			
@@ -1167,8 +1168,9 @@ export const storeChat = defineStore('chat', {
 						if(message.message.indexOf("||") == 0 || (message.answersTo && /^@[0-9a-z]+ \|\|/gi.test(message.message))) message.spoiler = true;
 
 						//check if it's a chat alert command
-						if(sParams.features.alertMode.value === true &&
-						await Utils.checkPermissions(sMain.chatAlertParams.permissions, message.user, message.channel_id)) {
+						if(!isFromRemoteChan
+						&& sParams.features.alertMode.value === true
+						&& await Utils.checkPermissions(sMain.chatAlertParams.permissions, message.user, message.channel_id)) {
 							if(message.message.trim().toLowerCase().indexOf(sMain.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
 								//Execute alert
 								sMain.chatAlert = message;
@@ -1577,7 +1579,7 @@ export const storeChat = defineStore('chat', {
 
 			if(logTimings) console.log("2", message.id, Date.now() - s);
 
-			if(TwitchatDataTypes.TranslatableMessageTypesString.hasOwnProperty(message.type) && sAuth.isPremium) {
+			if(TwitchatDataTypes.IsTranslatableMessage[message.type] && !isFromRemoteChan) {
 				const typedMessage = message as TwitchatDataTypes.TranslatableMessage;
 				const cmd = (typedMessage.message || "").trim().split(" ")[0].toLowerCase();
 
@@ -1858,7 +1860,7 @@ export const storeChat = defineStore('chat', {
 					shouldUpdateDB = true;
 				}
 				if(shouldUpdateDB) {
-					StoreProxy.qna.deleteMessage(message.id);
+					StoreProxy.qna.onDeleteMessage(message.id);
 					Database.instance.updateMessage(message);
 				}
 			}else{
@@ -1896,7 +1898,7 @@ export const storeChat = defineStore('chat', {
 					}, Math.floor(i/5)*50)
 
 					mTyped.cleared = true;
-					StoreProxy.qna.deleteMessage(m.id);
+					StoreProxy.qna.onDeleteMessage(m.id);
 					Database.instance.updateMessage(m);
 					// mTyped.deleted = true;
 					// EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));

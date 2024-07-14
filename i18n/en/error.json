@@ -109,6 +109,7 @@
 		"lumia_connect_failed": "Connection to Lumia Stream failed.\nMake sure Lumia Stream is started and token is valid.",
 		"streamelements_denied": "You refused access to your Streamelements profile.",
 		"bingo_grid_404": "Bingo grid not found",
-		"streamelements_connect_failed": "Streamelements authentication failed"
+		"streamelements_connect_failed": "Streamelements authentication failed",
+		"qna_action": "Something went wrong when performing requested Q&A moderation action"
 	}
 }
