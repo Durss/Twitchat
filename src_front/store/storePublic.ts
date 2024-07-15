@@ -17,6 +17,7 @@ export const storePublic = defineStore('public', {
 		initComplete:false,
 		authenticated:false,
 		twitchUid:"",
+		twitchLogin:"",
 		twitchAccessToken:"",
 		twitchRefreshToken:"",
 		grantedScopes:[],
@@ -110,6 +111,7 @@ export const storePublic = defineStore('public', {
 
 				userRes = userRes as TwitchDataTypes.Token;//Just forcing typing for the rest of the code
 				this.twitchUid = userRes.user_id;
+				this.twitchLogin = userRes.login;
 				TwitchUtils.updateAuthInfo(twitchAuthResult.access_token, twitchAuthResult.scope, (scopes:TwitchScopesString[])=>{}, async ():Promise<false | TwitchDataTypes.AuthTokenResult>=>{ return false}, this.twitchUid);
 				this.authenticated = true;
 			}

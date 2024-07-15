@@ -12,17 +12,6 @@
 
 		<template v-else >
 			<div class="grid">
-				<h1>{{ title }}</h1>
-	
-				<div v-if="isModerator && multiplayerMode" class="card-item moderator">
-					<Icon class="icon" name="mod" />
-					<span>{{ $t("bingo_grid.state.mod_info") }}</span>
-				</div>
-	
-				<div v-if="sseError" class="card-item error" @click="sseError = false">
-					<Icon class="icon" name="alert" />
-					<span>{{ $t("error.sse_error", {APP: "Bingo"}) }}</span>
-				</div>
 	
 				<template v-if="multiplayerMode">
 					<TTButton @click.capture.prevent="generateCSRF(true)"
@@ -32,12 +21,28 @@
 						:loading="generatingCSRF"
 						v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
 						bounce twitch>{{ $t("bingo_grid.state.auth_bt") }}</TTButton>
-					
 		
-					<TTButton v-else icon="offline" @click="unauth()" alert small>Disconnect</TTButton>
+					<TTButton v-else icon="offline" @click="unauth()" alert small>{{ $t("global.disconnect") }} - {{ $store.public.twitchLogin }}</TTButton>
+				</template>
+				
+				<h1>{{ title }}</h1>
+	
+				<template v-if="isModerator && multiplayerMode">
+					<div class="card-item moderator">
+						<Icon class="icon" name="mod" />
+						<span>{{ $t("bingo_grid.state.mod_info") }}</span>
+					</div>
+					
+					<SwitchButton :icons="['bingo_grid', 'list']" :labels="['grille', 'list']" :values="['grid', 'list']" v-model="template" />
 				</template>
 	
+				<div v-if="sseError" class="card-item error" @click="sseError = false">
+					<Icon class="icon" name="alert" />
+					<span>{{ $t("error.sse_error", {APP: "Bingo"}) }}</span>
+				</div>
+	
 				<div class="cells"
+				v-if="template == 'grid'"
 				ref="cellsHolder"
 				:style="{aspectRatio: cols/rows,
 				gridTemplateColumns: 'repeat('+cols+', 1fr)'}">
@@ -56,13 +61,30 @@
 				</div>
 			</div>
 	
-			<div class="card-item additional" v-if="isModerator && multiplayerMode && additionalEntries.length > 0">
+			<div class="card-item additional"
+			v-if="template == 'grid' && isModerator && multiplayerMode && additionalEntries.length > 0">
 				<strong>{{ $t("bingo_grid.state.additional_cells") }}</strong>
 				<div v-for="entry in additionalEntries" class="additionalEntry">
 					<Checkbox class="entry"
 						:key="entry.id"
 						v-model="entry.check"
-						v-tooltip="entry.label"
+						@click="tickCell(entry)">{{ entry.label }}</Checkbox>
+				</div>
+			</div>
+	
+			<div class="card-item listTemplate"
+			v-if="template == 'list' && isModerator && multiplayerMode">
+				<form @submit.prevent="">
+					<input type="text" v-model="search"
+					@keydown.capture="onKeyUp($event)"
+					:placeholder="$t('global.search_placeholder')">
+				</form>
+
+				<div class="list">
+					<Checkbox class="entry" :class="entry.check? 'checked' : ''"
+						v-for="entry in [...entries, ...additionalEntries].filter(v=>new RegExp(search.trim(),'gi').test(v.label))"
+						:key="entry.id"
+						v-model="entry.check"
 						@click="tickCell(entry)">{{ entry.label }}</Checkbox>
 				</div>
 			</div>
@@ -83,6 +105,7 @@
 <script lang="ts">
 import Checkbox from '@/components/Checkbox.vue';
 import Icon from '@/components/Icon.vue';
+import SwitchButton from '@/components/SwitchButton.vue';
 import TTButton from '@/components/TTButton.vue';
 import { ToggleBlock } from '@/components/ToggleBlock.vue';
 import SSEEvent from '@/events/SSEEvent';
@@ -101,6 +124,7 @@ import { Component, Vue, toNative } from 'vue-facing-decorator';
 		Checkbox,
 		TTButton,
 		ToggleBlock,
+		SwitchButton,
 	},
 	emits:[],
 })
@@ -118,6 +142,8 @@ class BingoGridView extends Vue {
 	public bingoCount:number = 0;
 	public checkTimeout:number = -1;
 	public title:string = "";
+	public search:string = "";
+	public template:"grid"|"list" = "grid";
 	public oAuthURL:string = "";
 	public CSRFToken:string = "";
 	public ownerName:string = "";
@@ -359,38 +385,40 @@ class BingoGridView extends Vue {
 				}});
 			}
 
-			newHorizontalBingos.forEach(y=>{
-				for (let x = 0; x < this.cols; x++) {
-					const cell = this.getCellByCoords(x, y);
-					cell.holder.classList.add("bingo");
-					delay += .05;
-					animateCell(cell);
-				}
-				delay += .4;
-			});
-
-			newVerticalBingos.forEach(x=>{
-				for (let y = 0; y < this.rows; y++) {
-					const cell = this.getCellByCoords(x, y);
-					cell.holder.classList.add("bingo");
-					delay += .05;
-					animateCell(cell);
-				}
-
-				delay += .4;
-			});
-
-			newDiagonalBingos.forEach(dir=>{
-				for (let x = 0; x < this.cols; x++) {
-					const px = dir === 0? x : this.rows - 1 - x;
-					const y = x;
-					const cell = this.getCellByCoords(px, y);
-					cell.holder.classList.add("bingo");
-					delay += .05;
-					animateCell(cell);
-				}
-				delay += .4;
-			});
+			if(this.template == "grid") {
+				newHorizontalBingos.forEach(y=>{
+					for (let x = 0; x < this.cols; x++) {
+						const cell = this.getCellByCoords(x, y);
+						cell.holder.classList.add("bingo");
+						delay += .05;
+						animateCell(cell);
+					}
+					delay += .4;
+				});
+	
+				newVerticalBingos.forEach(x=>{
+					for (let y = 0; y < this.rows; y++) {
+						const cell = this.getCellByCoords(x, y);
+						cell.holder.classList.add("bingo");
+						delay += .05;
+						animateCell(cell);
+					}
+	
+					delay += .4;
+				});
+	
+				newDiagonalBingos.forEach(dir=>{
+					for (let x = 0; x < this.cols; x++) {
+						const px = dir === 0? x : this.rows - 1 - x;
+						const y = x;
+						const cell = this.getCellByCoords(px, y);
+						cell.holder.classList.add("bingo");
+						delay += .05;
+						animateCell(cell);
+					}
+					delay += .4;
+				});
+			}
 		}
 
 		this.prevGridStates = newStates;
@@ -405,6 +433,13 @@ class BingoGridView extends Vue {
 			}, 2000);
 		}
 		this.bingoCount = bingoCount;
+	}
+
+	/**
+	 * Clear search on Escape
+	 */
+	public onKeyUp(event:KeyboardEvent):void {
+		if(event.key == 'Escape') this.search = "";
 	}
 
 	/**
@@ -602,7 +637,7 @@ export default toNative(BingoGridView);
 	align-items: center;
 
 	.logo {
-		height: 5em;
+		height: 4em;
 		margin: 2em auto 0 auto;
 		display: block;
 		max-height: 10vh;
@@ -735,6 +770,33 @@ export default toNative(BingoGridView);
 		.additionalEntry {
 			&:not(:first-child) {
 				margin-top: .25em;
+			}
+		}
+	}
+
+	.listTemplate {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		input {
+			width: auto;
+			margin: auto;
+			display: block;
+		}
+		.list {
+			gap: .5em;
+			column-gap: 2em;
+			display: grid;
+			align-items: flex-start;
+			grid-template-columns: repeat(2, 1fr);
+			.entry {
+				max-width: 30vw;
+				&.checked {
+					font-weight: bold;
+				}
+				&:not(.checked) {
+					opacity: .8;
+				}
 			}
 		}
 	}

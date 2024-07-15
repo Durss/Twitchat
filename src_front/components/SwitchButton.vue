@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<span class="label" @click.capture.stop="setState(values[0])">{{ labels[0] }}</span>
+		<span class="label" @click.capture.stop="setState(values[0])"><Icon v-if="icons[0]" :name='icons[0]' />{{ labels[0] }}</span>
 
 		<div class="toggleHolder">
 			<div class="dash"></div>
@@ -13,17 +13,19 @@
 			<div class="dash"></div>
 		</div>
 
-		<span class="label" @click.capture.stop="setState(values[1])">{{ labels[1] }}</span>
+		<span class="label" @click.capture.stop="setState(values[1])">{{ labels[1] }}<Icon v-if="icons[1]" :name='icons[1]' /></span>
 	</div>
 </template>
 
 <script lang="ts">
 import { watch } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import Icon from './Icon.vue';
 import ToggleButton from './ToggleButton.vue';
 
 @Component({
 	components:{
+		Icon,
 		ToggleButton,
 	},
 	emits: ['update:modelValue', 'change'],
@@ -31,6 +33,9 @@ import ToggleButton from './ToggleButton.vue';
 class SwitchButton extends Vue {
 	@Prop({type:Array, default:["",""]})
 	public labels!:string[];
+
+	@Prop({type:Array, default:["",""]})
+	public icons!:string[];
 
 	@Prop({type:Array, default: [true, false]})
 	public values!:unknown[];
@@ -127,6 +132,15 @@ export default toNative(SwitchButton);
 		&:first-of-type{
 			opacity: 1;
 			text-align: right;
+		}
+		.icon {
+			height: 1em;
+			vertical-align: middle;
+			margin-right: .5em;
+		}
+		&:nth-of-type(2) > .icon {
+			margin-right: 0;
+			margin-left: .5em;
 		}
 	}
 

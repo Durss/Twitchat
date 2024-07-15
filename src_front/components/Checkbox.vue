@@ -30,6 +30,12 @@ class Checkbox extends Vue {
 	@Prop({type:Boolean, default: false})
 	public secondary!:boolean;
 
+	@Prop({type:Boolean, default: false})
+	public primary!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public alert!:boolean;
+
 	public checked = false;
 
 	public mounted():void {
@@ -41,7 +47,9 @@ class Checkbox extends Vue {
 
 	public get classes():string[] {
 		const res:string[] = ["checkbox"];
+		if(this.primary !== false) res.push("primary")
 		if(this.secondary !== false) res.push("secondary")
+		if(this.alert !== false) res.push("alert")
 		if(!this.$slots.default) res.push("noLabel")
 		return res;
 	}
@@ -61,6 +69,7 @@ export default toNative(Checkbox);
 	flex-direction: row;
 	align-items: center;
 	position: relative;
+	color:var(--color-text);
 
 	&.noLabel {
 		height: 1em;
@@ -70,8 +79,7 @@ export default toNative(Checkbox);
 	}
 
 	.checkmark {
-		color:var(--color-text);
-		border: 1px solid var(--color-text);
+		border: 1px solid currentColor;
 		border-radius: .25em;
 		padding: 0;
 		aspect-ratio: 1;
@@ -84,6 +92,7 @@ export default toNative(Checkbox);
 			width: 80%;
 			margin: 0;
 			padding: 0;
+			color: currentColor;
 		}
 	}
 
@@ -93,7 +102,6 @@ export default toNative(Checkbox);
 		justify-self: flex-start;
 		text-align: left;
 		// width: max-content;
-		color:var(--color-text);
 	}
 
 	&:hover {
@@ -116,18 +124,34 @@ export default toNative(Checkbox);
 		z-index: 1000;
 		cursor: pointer;
 	}
-
-	&.secondary{
-		.checkmark {
-			border-color: var(--color-secondary);
-			.icon {
-				color: var(--color-secondary);
-			}
-		}
+	&.primary{
+		color:var(--color-primary);
 
 		&:hover {
+			color:var(--color-primary-light);
 			.checkmark {
-				background-color: var(--color-secondary-fader);
+				background-color: var(--color-primary-fadest)
+			}
+		}
+	}
+
+	&.secondary{
+		color:var(--color-secondary);
+
+		&:hover {
+			color:var(--color-secondary-light);
+			.checkmark {
+				background-color: var(--color-secondary-fadest)
+			}
+		}
+	}
+	&.alert{
+		color:var(--color-alert);
+
+		&:hover {
+			color:var(--color-alert-light);
+			.checkmark {
+				background-color: var(--color-alert-fadest)
 			}
 		}
 	}

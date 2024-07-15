@@ -12,9 +12,12 @@
 <script lang="ts">
 import { watch } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import Icon from "@/components/Icon.vue"
 
 @Component({
-	components:{},
+	components:{
+		Icon,
+	},
 	emits: ['update:modelValue', 'change'],
 })
 class ToggleButton extends Vue {

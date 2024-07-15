@@ -7,7 +7,6 @@
 		:key="grid.id">
 			<h2>{{grid.title}}</h2>
 			<template v-if="search.trim().length > 0">
-				
 				<Checkbox v-for="entry in grid.entries.concat(grid.additionalEntries || [])
 					.filter(v=>new RegExp(search.trim(),'gi').test(v.label))"
 					class="entry"

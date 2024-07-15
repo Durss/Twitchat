@@ -2756,6 +2756,7 @@ export interface IPublicState {
 	initComplete:boolean;
 	authenticated:boolean;
 	twitchUid:string;
+	twitchLogin:string;
 	twitchAccessToken:string;
 	twitchRefreshToken:string;
 	grantedScopes:string[];
