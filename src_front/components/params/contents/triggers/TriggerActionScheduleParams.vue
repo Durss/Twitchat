@@ -1,12 +1,12 @@
 <template>
 	<div class="triggeractionscheduleparams">
-		<ParamItem noBackground :paramData="param_action" v-model="triggerData.scheduleParams!.type" />
+		<ParamItem noBackground :paramData="param_action" v-model="triggerData.scheduleParams!.type" :error="triggerData.scheduleParams!.type == '0'" />
 		
 		<template v-if="param_action.value == '1'">
-			<ParamItem noBackground :paramData="param_repeatDurationCondition">
+			<ParamItem noBackground :paramData="param_repeatDurationCondition" v-model="param_repeatDurationCondition.value">
 				<ParamItem class="child" noBackground :paramData="param_repeatDurationValue" v-model="triggerData.scheduleParams!.repeatDuration" />
 			</ParamItem>
-			<ParamItem noBackground :paramData="param_repeatMessageCondition">
+			<ParamItem noBackground :paramData="param_repeatMessageCondition" v-model="param_repeatMessageCondition.value">
 				<ParamItem class="child" noBackground :paramData="param_repeatMessageValue" v-model="triggerData.scheduleParams!.repeatMinMessages" />
 			</ParamItem>
 		</template>
@@ -55,7 +55,7 @@ import ParamItem from '../../ParamItem.vue';
 		PermissionsForm,
 	}
 })
- class TriggerActionScheduleParams extends Vue {
+class TriggerActionScheduleParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;
