@@ -11,15 +11,21 @@
 	</div>
 
 	<div class="TriggerActionMusicEntry triggerActionForm" v-else>
-		<ParamItem 								:paramData="param_actions"			v-model="action.musicAction" />
-		<ParamItem v-if="showTrackInput"		:paramData="param_limitDuration"	v-model="action.limitDuration">
-			<ParamItem v-if="showTrackInput"	:paramData="param_maxDuration"		v-model="action.maxDuration" class="child" noBackground />
-		</ParamItem>
-		<ParamItem v-if="showTrackInput"		:paramData="param_selection"		v-model="action.musicSelectionType" />
-		<ParamItem v-if="showTrackInput"		:paramData="param_track"			v-model="action.track" />
-		<ParamItem v-if="showTrackInput"		:paramData="param_confirmSongRequest" v-model="action.confirmMessage" />
-		<ParamItem v-if="showTrackInput"		:paramData="param_failSongRequest"	v-model="action.failMessage" />
-		<ParamItem v-if="showPlaylistInput"		:paramData="param_playlist"			v-model="action.playlist" />
+		<ParamItem 									:paramData="param_actions"				v-model="action.musicAction" />
+		<div v-if="isPlaylistEditAction && !canEditSpotifyPlaylists" class="card-item alert scopesAlert">
+			<p><Icon name="lock_fit" />{{ $t("triggers.actions.music.missing_playlist_edit_scopes") }}</p>
+			<TTButton light alert @click="spotifyAuth()">{{ $t("global.grant_scope") }}</TTButton>
+		</div>
+		<template v-else>
+			<ParamItem v-if="showPlaylistInput"			:paramData="param_playlist"				v-model="action.playlist" />
+			<ParamItem v-if="showTrackInput"			:paramData="param_limitDuration"		v-model="action.limitDuration">
+				<ParamItem v-if="showTrackInput"		:paramData="param_maxDuration"			v-model="action.maxDuration" class="child" noBackground />
+			</ParamItem>
+			<ParamItem v-if="showTrackInput"			:paramData="param_selection"			v-model="action.musicSelectionType" />
+			<ParamItem v-if="showTrackInput"			:paramData="param_track"				v-model="action.track" />
+			<ParamItem v-if="showTrackInput"			:paramData="param_confirmSongRequest"	v-model="action.confirmMessage" />
+			<ParamItem v-if="showTrackInput"			:paramData="param_failSongRequest"		v-model="action.failMessage" />
+		</template>
 	</div>
 </template>
 
@@ -30,14 +36,17 @@ import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
+import { SpotifyScopes } from '@/types/spotify/SpotifyDataTypes';
+import TTButton from '@/components/TTButton.vue';
 
 
 @Component({
 	components:{
+		TTButton,
 		ParamItem,
 	},
 })
- class TriggerActionMusicEntry extends AbstractTriggerActionEntry {
+class TriggerActionMusicEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionMusicEntryData;
@@ -55,14 +64,16 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	public param_selection:TwitchatDataTypes.ParameterData<TriggerActionMusicEntryDataSelection> = { type:"list", value:"1", icon:"search", labelKey:"triggers.actions.music.param_selection" };
 
 	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected; }
-	public get showTrackInput():boolean { return this.param_actions.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
-	public get showPlaylistInput():boolean { return this.param_actions.value == TriggerMusicTypes.START_PLAYLIST; }
-	public get contentOverlays():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OVERLAYS; } 
-	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
+	public get showTrackInput():boolean { return this.param_actions.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE || this.param_actions.value == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST; }
+	public get showPlaylistInput():boolean { return this.param_actions.value == TriggerMusicTypes.START_PLAYLIST || this.param_actions.value == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST; }
+	public get isPlaylistEditAction():boolean { return this.param_actions.value == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST; }
+	public get contentOverlays():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OVERLAYS; }
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
+	public get canEditSpotifyPlaylists():boolean { return SpotifyHelper.instance.hasScopes([SpotifyScopes.EDIT_PRIVATE_PLAYLISTS,SpotifyScopes.EDIT_PUBLIC_PLAYLISTS]); }
 
 	public beforeMount():void {
 		//List all available trigger types
-		let events:TriggerMusicEventType[] = []
+		let events:TriggerMusicEventType[] = [];
 		events.push( {labelKey:"triggers.actions.music.param_actions_default", icon:"music", value:"0", category:TriggerEventTypeCategories.MUSIC} ),
 		events = events.concat(MusicTriggerEvents());
 		
@@ -96,12 +107,29 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		this.param_playlist.placeholderList = list;
 	}
 
+	/**
+	 * Start Spotify oAuth flow with fresh new scopes
+	 */
+	public spotifyAuth():void {
+		SpotifyHelper.instance.startAuthFlow();
+	}
+
 }
 export default toNative(TriggerActionMusicEntry);
 </script>
 
 <style scoped lang="less">
 .TriggerActionMusicEntry{
-
+	.scopesAlert {
+		text-align: center;
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		.icon {
+			height: 1em;
+			margin-right: .25em;
+		}
+	}
 }
 </style>

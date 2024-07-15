@@ -4,12 +4,14 @@ import StoreProxy from "@/store/StoreProxy";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
-import {evaluate as MathEval} from 'mathjs';
+import { gsap } from "gsap/gsap-core";
+import { evaluate as MathEval } from 'mathjs';
+import { RequestBatchExecutionType, type RequestBatchRequest } from "obs-websocket-js";
 import type { JsonObject } from "type-fest";
 import TwitchatEvent from "../../events/TwitchatEvent";
 import * as TriggerActionDataTypes from "../../types/TriggerActionDataTypes";
 import { TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerMusicTypes, TriggerTypes, TriggerTypesDefinitionList, type ITriggerPlaceholder, type TriggerData, type TriggerTypesKey, type TriggerTypesValue } from "../../types/TriggerActionDataTypes";
-import type { SearchTrackItem } from "../../types/spotify/SpotifyDataTypes";
+import type { SearchPlaylistItem, SearchTrackItem,  } from "../../types/spotify/SpotifyDataTypes";
 import ApiHelper from "../ApiHelper";
 import Config from "../Config";
 import type { LogTrigger, LogTriggerStep } from "../Logger";
@@ -26,8 +28,6 @@ import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import YoutubeHelper from "../youtube/YoutubeHelper";
-import { gsap } from "gsap/gsap-core";
-import { RequestBatchExecutionType, type RequestBatchRequest } from "obs-websocket-js";
 
 /**
 * Created : 22/04/2022
@@ -2241,12 +2241,46 @@ export default class TriggerActionHandler {
 						}
 
 						//Adding a track to the queue
-						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE) {
+						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE || step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST) {
 							const maxDuration = (step.maxDuration || 0)*1000;
 							//Convert placeholders if any
 							const m = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.track, subEvent);
+							let searchTerms = "";
+							let playlistTarget:TwitchatDataTypes.MessageMusicAddedToQueueData["playlistTarget"] = undefined;
 							let trackData:TwitchatDataTypes.MusicTrackData|undefined = undefined;
 							if(SpotifyHelper.instance.connected) {
+								const playlistMode = step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST;
+								//Requested to add a track to a playlist, search for the playlost
+								if(playlistMode) {
+									let m:string = step.playlist;
+									if(message.type == "message") {
+										m = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, m, subEvent);
+									}
+									let id:string|null = null;
+									if(/open\.spotify\.com\/playlist\/.*/gi.test(m)) {
+										const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
+										id = chunks[2];
+									}
+
+									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Getting playlist by: "+(id || m)});
+									const playlist = await SpotifyHelper.instance.getUserPlaylist(id, m);
+									if(!playlist) {
+										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Playlist not found"});
+										logStep.error = true;
+										log.error = true;
+										const platforms:TwitchatDataTypes.ChatPlatform[] = [];
+										if(message.platform) platforms.push(message.platform);
+										MessengerProxy.instance.sendMessage("Playlist not found", platforms);
+									}else{
+										playlistTarget = {
+											id:playlist.id,
+											title:playlist.name,
+											url:playlist.external_urls?.spotify,
+											cover:playlist.images[0].url,
+										};
+									}
+								}
+
 								let track:SearchTrackItem|null = null;
 								if(/open\.spotify\.[a-z]{2,}\/.*track\/.*/gi.test(m)) {
 									//Full URL specified, extract the ID from it
@@ -2261,6 +2295,7 @@ export default class TriggerActionHandler {
 									failCode = "wrong_url";
 								}else{
 									//No URL given, search with API
+									searchTerms = m;
 									const tracks = await SpotifyHelper.instance.searchTrack(m);
 									if(tracks && tracks.length > 0) {
 										switch(step.musicSelectionType) {
@@ -2286,9 +2321,14 @@ export default class TriggerActionHandler {
 										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Track is longer than the allowed "+Utils.formatDuration(maxDuration)+"s"});
 										failCode = "max_duration";
 									}else {
-										const success = await SpotifyHelper.instance.addToQueue(track, false, executingUser);
+										let success:string|boolean = false;
+										if(playlistMode && playlistTarget) {
+											success = await SpotifyHelper.instance.addToPlaylist(track, playlistTarget.id+"sdsds");
+										}else{
+											success = await SpotifyHelper.instance.addToQueue(track, false, executingUser, searchTerms);
+										}
 										if(success === true) {
-											logStep.messages.push({date:Date.now(), value:"✔ [SPOTIFY] Add to queue success"});
+											logStep.messages.push({date:Date.now(), value:"✔ [SPOTIFY] Add to "+(playlistMode? "playlist": "queue")+" success"});
 											trackData = {
 												id:track.id,
 												title:track.name,
@@ -2305,14 +2345,14 @@ export default class TriggerActionHandler {
 											failCode = "no_active_device";
 
 										}else{
-											logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Add to queue failed"});
+											logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Add to "+(playlistMode? "playlist": "queue")+" failed with reason: "+success});
 											log.error = true;
 											logStep.error = true;
-											failCode = "api";
+											failCode = playlistMode? "api_playlist" : "api_queue";
 										}
 									}
 								}else{
-									logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Searching track failed, nor result found for search \""+m+"\""});
+									logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Searching track failed, no result found for search \""+m+"\""});
 									log.error = true;
 									logStep.error = true;
 									failCode = "no_result";
@@ -2325,6 +2365,7 @@ export default class TriggerActionHandler {
 								platform:"twitchat",
 								type:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
 								trackAdded:trackData,
+								playlistTarget,
 								message:m,
 								user:executingUser,
 								triggerIdSource:trigger.id,

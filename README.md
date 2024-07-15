@@ -141,7 +141,7 @@ Rename the `credentials.default.json` file within the `credentials` folder to `c
 
 	"spotify_client_id": "",
 	"spotify_client_secret": "",
-	"spotify_scopes": "user-read-currently-playing user-modify-playback-state playlist-read-private",
+	"spotify_scopes": "user-read-currently-playing user-modify-playback-state playlist-read-private playlist-modify-public playlist-modify-private",
 	"spotify_redirect_uri": "http://localhost:8080/spotify/auth",
 
 	"patreon_client_id": "",

@@ -76,7 +76,7 @@ import ParamItem from '../params/ParamItem.vue';
 	public beforeMount():void {
 		const scopes:TwitchScopesString[] = JSON.parse(JSON.stringify(Config.instance.TWITCH_APP_SCOPES));
 
-		const disabled:string[] = ["chat:read", "chat:edit", "moderator:manage:announcements"];
+		const disabled = Config.instance.MANDATORY_TWITCH_SCOPES;
 		const userScopes = this.$store.auth.twitch.scopes ?? [];
 		for (let i = 0; i < disabled.length; i++) {
 			if(userScopes.indexOf(disabled[i]) == -1) {
@@ -111,7 +111,7 @@ import ParamItem from '../params/ParamItem.vue';
 					value:selected,
 					icon:TwitchScope2Icon[s],
 					iconTheme:"light",
-					disabled:disabled.indexOf(s.toLowerCase()) > -1,
+					disabled:disabled.indexOf(s) > -1,
 					storage:s,
 				});
 			}
@@ -119,6 +119,8 @@ import ParamItem from '../params/ParamItem.vue';
 
 		//Move non-granted scopes tot he top
 		this.param_items.sort((a,b)=> {
+			if(a.disabled) return -1;
+			if(b.disabled) return 1;
 			if(a.value && !b.value) return 1;
 			if(!a.value && b.value) return -1;
 			return 0

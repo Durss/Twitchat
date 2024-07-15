@@ -602,7 +602,7 @@ export interface TriggerActionMusicEntryData extends TriggerActionData{
 	 */
 	failMessage?:string;
 	/**
-	 * Playlist to start
+	 * Playlist to start or to add a track to
 	 */
 	playlist:string;
 }
@@ -2253,6 +2253,7 @@ export const TriggerMusicTypes = {
 	RESUME_PLAYBACK:"4",
 	GET_CURRENT_TRACK:"5",
 	START_PLAYLIST:"6",
+	ADD_TRACK_TO_PLAYLIST:"7",
 } as const;
 export type TriggerMusicTypesValue = typeof TriggerMusicTypes[keyof typeof TriggerMusicTypes];
 
@@ -2266,6 +2267,7 @@ export function MusicTriggerEvents():TriggerMusicEventType[] {
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.musicEvents.PAUSE_PLAYBACK", value:TriggerMusicTypes.PAUSE_PLAYBACK},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.musicEvents.RESUME_PLAYBACK", value:TriggerMusicTypes.RESUME_PLAYBACK},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.musicEvents.START_PLAYLIST", value:TriggerMusicTypes.START_PLAYLIST},
+		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.musicEvents.ADD_TRACK_TO_PLAYLIST", value:TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST},
 	];
 	return musicCache;
 }

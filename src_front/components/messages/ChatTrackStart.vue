@@ -6,7 +6,7 @@
 		<ClearButton class="closeBt" @click.stop="deleteMessage()" small />
 
 		<div class="messageHolder">
-			<i18n-t scope="global" keypath="chat.now_playing.title">
+			<i18n-t scope="global" tag="span" keypath="chat.now_playing.title">
 				<template #TRACK>
 					<a :href="messageData.track.url" target="_blank">
 						{{ messageData.track.title }} <i>({{ messageData.track.artist }})</i>
@@ -20,16 +20,22 @@
 						@click.stop.prevent="openUserCard(messageData.userOrigin!)">{{messageData.userOrigin!.displayName}}</a>
 				</template>
 			</i18n-t>
+
+			<i18n-t scope="global" tag="div" keypath="chat.now_playing.search" v-if="messageData.searchTerms" class="searchTerms">
+				<template #TERMS>
+					<strong>{{messageData.searchTerms}}</strong>
+				</template>
+			</i18n-t>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { Component, Prop, toNative } from 'vue-facing-decorator';
 import ClearButton from '../ClearButton.vue';
 import Icon from '../Icon.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{
@@ -49,10 +55,17 @@ export default toNative(ChatTrackStart);
 
 <style scoped lang="less">
 .chattrackstart{
+	padding-right: 2em;
 	a>.icon {
 		height: 1em;
 		vertical-align: middle;
 		margin-left: .25em;
+	}
+
+	.searchTerms {
+		// display: block;
+		font-style: italic;
+		margin-top: .25em;
 	}
 }
 </style>

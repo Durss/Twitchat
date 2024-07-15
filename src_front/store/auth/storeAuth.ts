@@ -162,6 +162,12 @@ export const storeAuth = defineStore('auth', {
 						return;
 					}
 				}
+				
+				if(!TwitchUtils.hasScopes(Config.instance.MANDATORY_TWITCH_SCOPES)) {
+					if(cb) cb(false, true);
+					else router.push({name:"login", params:{betaReason:"true"}});
+					return;
+				}
 
 				// Load the current user data
 				window.setInitMessage("loading Twitch user info");

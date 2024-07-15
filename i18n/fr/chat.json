@@ -421,15 +421,20 @@
 		"splitter": {
 			"label": "Nouveaux messages"
 		},
+		"added_to_playlist": {
+			"title": "{USER} a ajouté le morceau suivant à la playlist {PLAYLIST} :"
+		},
 		"added_to_queue": {
 			"title": "{USER} a ajouté le morceau suivant à la file d'attente :",
 			"title_fail": "L'ajout d'un morceau à la file d'attente par {USER} a échoué.",
 			"open_track": "Ouvrir la page du morceau",
+			"skip_track": "Retirer le morceau.\nLe morceau sera\nautomatiquement passé",
 			"ban_user": "Retirer la possibilité à cette personne d'ajouter des morceaux",
 			"unban_user": "Accorder la possibilité à cette personne d'ajouter des morceaux à nouveau"
 		},
 		"now_playing": {
-			"title": "Lecture de {TRACK} ajouté par {USER}"
+			"title": "Lecture de {TRACK} ajouté par {USER}",
+			"search": "Recherche effectuée : {TERMS}"
 		},
 		"ad_break_start": {
 			"label": "{USER} a lancé une publicité de {DURATION}s"

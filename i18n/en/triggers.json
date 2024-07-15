@@ -206,7 +206,7 @@
 				"param_failSongRequest": "Send a message if song request failed (optional)",
 				"param_limit_duration": "Limit allowed track duration",
 				"param_max_duration": "Only allow tracks shorter than {VALUE}s",
-				"param_playlist": "Playlist (name, link or ID)",
+				"param_playlist": "Playlist\n(name, link or ID)",
 				"param_selection": "Track result to select\n(for textual searches)",
 				"param_selection_options": {
 					"1": "Most relevant",
@@ -222,12 +222,14 @@
 					"top40": "Random track among the first 40 results",
 					"top50": "Random track among the first 50 results"
 				},
+				"missing_playlist_edit_scopes":"Twitchat needs permissions to edit your playlists",
 				"spotify_only": "Only works with Spotify",
 				"fail_reasons": {
 					"spotify_not_connected": "Twitchat is not connected with Spotify",
 					"wrong_url": "The given URL isn't a valid Spotify URL",
 					"max_duration": "The given track is longer than the {DURATION} maximum allowed",
-					"api": "Something went wrong when requesting Spotify to add the track to queue.",
+					"api_queue": "Something went wrong when requesting Spotify to add the track to queue.",
+					"api_playlist": "Something went wrong when requesting Spotify to add the track to playlist.",
 					"no_active_device": "Start playback manually in Spotify first to enable control via the API.",
 					"no_result": "No track found for given search \"{SEARCH}\"."
 				}
@@ -1339,6 +1341,7 @@
 		},
 		"musicEvents": {
 			"ADD_TRACK_TO_QUEUE": "Add a track to the queue",
+			"ADD_TRACK_TO_PLAYLIST": "Add a track to a playlist",
 			"NEXT_TRACK": "Play next track",
 			"PAUSE_PLAYBACK": "Pause playback",
 			"RESUME_PLAYBACK": "Resume playback",

@@ -3493,6 +3493,10 @@ export namespace TwitchatDataTypes {
 		 * User that added the track to the queue
 		 */
 		userOrigin?:TwitchatUser;
+		/**
+		 * Search terms used to find this track
+		 */
+		searchTerms?:string;
 	}
 
 	/**
@@ -3516,6 +3520,16 @@ export namespace TwitchatDataTypes {
 		 */
 		trackAdded?:MusicTrackData;
 		/**
+		 * Playlist the track has been added to if requested to
+		 * add to a playlist instead of the current queue
+		 */
+		playlistTarget?:{
+			id:string;
+			title:string;
+			cover:string;
+			url?:string;
+		};
+		/**
 		 * User that added the track
 		 */
 		user?:TwitchatUser;
@@ -3531,7 +3545,7 @@ export namespace TwitchatDataTypes {
 		 * If set, adding to queue failed.
 		 * This contains the failure reason
 		 */
-		failCode?:undefined|"spotify_not_connected" | "wrong_url" | "max_duration" | "api" | "no_result" | "no_active_device";
+		failCode?:undefined|"spotify_not_connected" | "wrong_url" | "max_duration" | "api_queue" | "api_playlist" | "no_result" | "no_active_device";
 		/**
 		 * Textual reason for the failure
 		 */
@@ -3545,6 +3559,10 @@ export namespace TwitchatDataTypes {
 		 * Search made to add a track
 		 */
 		search?:string;
+		/**
+		 * true if requested to remove the track from queue
+		 */
+		skipped?:boolean
 	}
 
 	/**

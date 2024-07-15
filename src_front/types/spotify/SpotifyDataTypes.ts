@@ -1,3 +1,12 @@
+export const SpotifyScopes = {
+	READ_PLAYBACK: "user-read-currently-playing",
+	CONTROL_PLAYBACK: "user-modify-playback-state",
+	READ_PRIVATE_PLAYLISTS: "playlist-read-private",
+	EDIT_PUBLIC_PLAYLISTS: "playlist-modify-public",
+	EDIT_PRIVATE_PLAYLISTS: "playlist-modify-private",
+} as const;
+export type SpotifyScopesString = typeof SpotifyScopes[keyof typeof SpotifyScopes];
+
 export interface SpotifyAuthResult {
 	code:string;
 	csrf:string;

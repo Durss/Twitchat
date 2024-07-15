@@ -9,7 +9,7 @@ import Utils from "@/utils/Utils";
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
 import ApiHelper from "../ApiHelper";
-import type { PlaylistCachedIdItem, SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyTrack } from "../../types/spotify/SpotifyDataTypes";
+import type { PlaylistCachedIdItem, SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyScopesString, SpotifyTrack } from "../../types/spotify/SpotifyDataTypes";
 
 /**
 * Created : 23/05/2022
@@ -30,8 +30,8 @@ export default class SpotifyHelper {
 	private _clientID = "";
 	private _clientSecret = "";
 	private _playlistsCache:SearchPlaylistItem[] = [];
-	private _playlistsIdCache:{[key:string]:PlaylistCachedIdItem} = {};
-	private _trackIdToUser:{[key:string]:TwitchatDataTypes.TwitchatUser} = {};
+	private _playlistsIdCache:{[playlistId:string]:PlaylistCachedIdItem} = {};
+	private _trackIdToRequest:{[trackId:string]:{user:TwitchatDataTypes.TwitchatUser, search?:string, skip?:boolean}} = {};
 
 	constructor() {
 		this.initialize();
@@ -88,6 +88,38 @@ export default class SpotifyHelper {
 		rebuildPlaceholdersCache();
 	}
 
+	/**
+	 * Returns if current session includes the given scopes.
+	 * All given scopes must be granted for this function to return true
+	 *
+	 * @param scopes
+	 */
+	public hasScopes(scopes: SpotifyScopesString[]): boolean {
+		if (!Array.isArray(scopes)) {
+			scopes = [scopes];
+		}
+
+		const grantedScopes = this._token.scope.split(" ");
+		for (let i = 0; i < scopes.length; i++) {
+			if (grantedScopes.indexOf(scopes[i]) == -1) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Makes sure a track added to the queue will be skipped when it's started.
+	 * This is a workaround for the lack of "remove track from queue" API endpoint.
+	 * When the track starts it's automatically skipped
+	 * @param user 
+	 * @param trackId 
+	 */
+	public skipQueuedTrack(user:TwitchatDataTypes.TwitchatUser, trackId:string):void {
+		const entry = this._trackIdToRequest[trackId];
+		if(entry && entry.user == user) entry.skip = true;
+	}
 
 	/**
 	 * Sets spotify app credentials
@@ -315,18 +347,20 @@ export default class SpotifyHelper {
 	 * Adds a track to the queue
 	 *
 	 * @param track Spotify URI of the track to add. Get one with "searchTrack()" method
-	 * @param user User that ads the track
+	 * @param isRetry is trying again to execute the add to queue command?
+	 * @param user User that adds the track
+	 * @param searchTerms Search terms that triggered this add to queue command
 	 * @returns if a track has been added or not
 	 */
-	public async addToQueue(track:SearchTrackItem, isRetry:boolean = false, user?:TwitchatDataTypes.TwitchatUser):Promise<boolean|"NO_ACTIVE_DEVICE"> {
+	public async addToQueue(track:SearchTrackItem, isRetry:boolean = false, user?:TwitchatDataTypes.TwitchatUser, searchTerms?:string):Promise<boolean|"NO_ACTIVE_DEVICE"> {
 		const options = {
 			headers:this._headers,
 			method:"POST",
 		}
 		const res = await fetch("https://api.spotify.com/v1/me/player/queue?uri="+encodeURIComponent(track.uri), options);
-		if(res.status == 204 || res.status == 200) {
+		if(res.status < 204 && res.status >= 200) {
 			if(user) {
-				this._trackIdToUser[track.id] = user;
+				this._trackIdToRequest[track.id] = {user, search:searchTerms};
 			}
 			StoreProxy.music.spotifyConsecutiveErrors = 0;
 			return true;
@@ -334,7 +368,7 @@ export default class SpotifyHelper {
 		if(res.status == 401) {
 			await this.refreshToken();
 			//Try again
-			if(!isRetry) return await this.addToQueue(track, true);
+			if(!isRetry) return await this.addToQueue(track, true, user, searchTerms);
 			else return false;
 		}else
 		if(res.status == 409) {
@@ -354,6 +388,54 @@ export default class SpotifyHelper {
 			}catch(error) {
 				StoreProxy.music.spotifyConsecutiveErrors ++;
 				StoreProxy.common.alert( "[SPOTIFY] an unknown error occurred when adding a track to the queue. Server responded with HTTP status:"+res.status );
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Adds a track to the given playlist
+	 *
+	 * @param track Spotify URI of the track to add. Get one with "searchTrack()" method
+	 * @param isRetry is trying again to execute the add to queue command?
+	 * @returns if a track has been added or not
+	 */
+	public async addToPlaylist(track:SearchTrackItem, playlistId:string, isRetry:boolean = false):Promise<boolean|"NO_ACTIVE_DEVICE"> {
+		const options = {
+			headers:this._headers,
+			method:"POST",
+			body:JSON.stringify({
+				uris:[track.uri],
+			})
+		}
+		const res = await fetch("https://api.spotify.com/v1/playlists/"+playlistId+"/tracks", options);
+		if(res.status < 204 && res.status >= 200) {
+			StoreProxy.music.spotifyConsecutiveErrors = 0;
+			return true;
+		}else
+		if(res.status == 401) {
+			await this.refreshToken();
+			//Try again
+			if(!isRetry) return await this.addToPlaylist(track, playlistId, true);
+			else return false;
+		}else
+		if(res.status == 409) {
+			StoreProxy.common.alert( StoreProxy.i18n.t("error.spotify.api_rate") );
+		}else {
+			try {
+				const json = await res.json();
+				if(json.error.reason == "NO_ACTIVE_DEVICE") {
+					StoreProxy.common.alert( StoreProxy.i18n.t("error.spotify.no_device") );
+					return "NO_ACTIVE_DEVICE";
+
+				}else if(json.error.message) {
+					StoreProxy.common.alert( "[SPOTIFY] "+json.error.message );
+				}else {
+					throw(new Error("unknown error"))
+				}
+			}catch(error) {
+				StoreProxy.music.spotifyConsecutiveErrors ++;
+				StoreProxy.common.alert( "[SPOTIFY] an unknown error occurred when adding a track to the playlist. Server responded with HTTP status:"+res.status );
 			}
 		}
 		return false;
@@ -435,20 +517,27 @@ export default class SpotifyHelper {
 				id:json.item.id,
 			};
 			this._isPlaying = json.is_playing && json.item != null;
-			
-			StoreProxy.labels.updateLabelValue("MUSIC_TITLE", this.currentTrack.title);
-			StoreProxy.labels.updateLabelValue("MUSIC_ARTIST", this.currentTrack.artist);
-			StoreProxy.labels.updateLabelValue("MUSIC_ALBUM", this.currentTrack.album);
-			StoreProxy.labels.updateLabelValue("MUSIC_COVER", this.currentTrack.cover);
+			const request = this._trackIdToRequest[this.currentTrack.id];
+
+			//If requested to skip this track
+			if(request && request.skip === true) {
+				//Delete skip ref to avoid multiple skips.
+				//Next "getCurrentTrack" calls may return the same track due to API caching
+				//which would execute multiple nextTrack() actions until spotify returns
+				//the actual new track
+				delete this._trackIdToRequest[this.currentTrack.id];
+				await this.nextTrack();
+				this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 500);
+				return;
+			}
 
 			if(this._isPlaying) {
+
 				//Broadcast to the triggers
 				if(!this._lastTrackInfo
 				|| this._lastTrackInfo?.duration != this.currentTrack.duration
 				|| this._lastTrackInfo?.title != this.currentTrack.title
 				|| this._lastTrackInfo?.artist != this.currentTrack.artist) {
-					const userOrigin = this._trackIdToUser[this.currentTrack.id];
-					delete this._trackIdToUser[this.currentTrack.id];
 					const message:TwitchatDataTypes.MessageMusicStartData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
@@ -456,10 +545,17 @@ export default class SpotifyHelper {
 						platform:"twitchat",
 						track:this.currentTrack,
 						channel_id:StoreProxy.auth.twitch.user.id,
-						userOrigin
+						userOrigin:request?.user,
+						searchTerms:request?.search,
 					};
 					StoreProxy.chat.addMessage(message);
+					delete this._trackIdToRequest[this.currentTrack.id];
 				}
+				
+				StoreProxy.labels.updateLabelValue("MUSIC_TITLE", this.currentTrack.title);
+				StoreProxy.labels.updateLabelValue("MUSIC_ARTIST", this.currentTrack.artist);
+				StoreProxy.labels.updateLabelValue("MUSIC_ALBUM", this.currentTrack.album);
+				StoreProxy.labels.updateLabelValue("MUSIC_COVER", this.currentTrack.cover);
 
 				//Broadcast to the overlays
 				const apiData = {
@@ -483,6 +579,12 @@ export default class SpotifyHelper {
 			}else{
 				//Broadcast to the overlays
 				if(this._lastTrackInfo != null) {
+			
+					StoreProxy.labels.updateLabelValue("MUSIC_TITLE", "");
+					StoreProxy.labels.updateLabelValue("MUSIC_ARTIST", "");
+					StoreProxy.labels.updateLabelValue("MUSIC_ALBUM", "");
+					StoreProxy.labels.updateLabelValue("MUSIC_COVER", "");
+
 					PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, {
 						params: (StoreProxy.music.musicPlayerParams as unknown) as JsonObject,
 					});
@@ -671,7 +773,7 @@ export default class SpotifyHelper {
 			await this.refreshToken();
 			return false;
 		}
-		if(res.status == 204) {
+		if(res.status < 204 && res.status >= 200) {
 			StoreProxy.music.spotifyConsecutiveErrors = 0;
 			return true;
 		}

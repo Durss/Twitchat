@@ -4,6 +4,7 @@ import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { reactive } from "vue";
 import StoreProxy from '@/store/StoreProxy';
+import { TwitchScopes, type TwitchScopesString } from './twitch/TwitchScopes';
 
 /**
  * Created by Durss
@@ -48,6 +49,10 @@ export default class Config {
 	 * Get if twitchat is running on an OBS dock
 	 */
 	public OBS_DOCK_CONTEXT:boolean = window.obsstudio != undefined;
+	/**
+	 * List of twitch scopes that MUST be granted for twitchat to work
+	 */
+	public MANDATORY_TWITCH_SCOPES:TwitchScopesString[] = [TwitchScopes.CHAT_READ, TwitchScopes.CHAT_WRITE, TwitchScopes.SEND_ANNOUNCE];
 	/**
 	 * URL of twitchat's discord
 	 */

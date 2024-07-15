@@ -206,7 +206,7 @@
 				"param_failSongRequest": "Message en cas d'échec (optionnel)",
 				"param_limit_duration": "Limiter la durée maximum autorisée",
 				"param_max_duration": "N'autoriser que les morceaux de moins de {VALUE}s",
-				"param_playlist": "Playlist (nom, URL ou ID)",
+				"param_playlist": "Playlist\n(nom, URL ou ID)",
 				"param_selection": "Morceau à sélectionner\n(dans le cas d'une recherche textuelle)",
 				"param_selection_options": {
 					"1": "Le plus pertinent",
@@ -222,12 +222,14 @@
 					"top40": "Au hasard parmi les 40 premiers résultats",
 					"top50": "Au hasard parmi les 50 premiers résultats"
 				},
+				"missing_playlist_edit_scopes":"Twitchat needs permissions to edit your playlists",
 				"spotify_only": "Fonctionne uniquement avec Spotify",
 				"fail_reasons": {
 					"spotify_not_connected": "Twitchat n'est pas connecté à Spotify",
 					"wrong_url": "L'URL donnée n'est pas une URL Spotify valide",
 					"max_duration": "Le morceau est plus long que le maximum autorisé de {DURATION}",
-					"api": "Une erreur a eu lieu lors de la demande d'ajout à Spotify.",
+					"api_queue": "Une erreur a eu lieu lors de l'ajout du morceau à la file d'attente de lecture.",
+					"api_playlist": "Une erreur a eu lieu lors de l'ajout du morceau à la playlsit demandée.",
 					"no_active_device": "Lancez d'abord une lecture manuellement dans Spotify pour permettre son contrôle via l'API",
 					"no_result": "Aucun morceau trouvé pour la recherche \"{SEARCH}\"."
 				}
@@ -1339,6 +1341,7 @@
 		},
 		"musicEvents": {
 			"ADD_TRACK_TO_QUEUE": "Ajouter un morceau dans la file",
+			"ADD_TRACK_TO_PLAYLIST": "Ajouter un morceau dans une playlist",
 			"NEXT_TRACK": "Morceau suivant",
 			"PAUSE_PLAYBACK": "Mettre en pause",
 			"RESUME_PLAYBACK": "Relancer la lecture",
