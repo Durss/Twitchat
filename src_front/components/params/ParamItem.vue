@@ -314,7 +314,8 @@
 			noPremiumLock
 			v-model="c.value"
 			:autoFade="autoFade"
-			:childLevel="childLevel+1" />
+			:childLevel="childLevel+1"
+			@change="$emit('change')" />
 
 		<transition
 		@enter="onShowItem"
