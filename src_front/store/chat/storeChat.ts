@@ -755,21 +755,21 @@ export const storeChat = defineStore('chat', {
 		},
 
 		sendTwitchatAd(adType:TwitchatDataTypes.TwitchatAdStringTypes = -1) {
+			console.log("PREMIUM?",StoreProxy.auth.isPremium)
 			if(adType == TwitchatDataTypes.TwitchatAdTypes.DONATE
 			|| adType == TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER
 			|| adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING) {
 				//Don't send donation related messages if premium
 				if(StoreProxy.auth.isPremium) return;
-			}
-			if(adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING && StoreProxy.auth.donorLevel > -1) {
-				return;
+				//Don't send donation related messages if already donated
+				if(StoreProxy.auth.donorLevel > -1) return;
 			}
 			if(adType == TwitchatDataTypes.TwitchatAdTypes.NONE) {
 				const possibleAds:TwitchatDataTypes.TwitchatAdStringTypes[] = [];
-				if(StoreProxy.auth.donorLevel == -1) {
+				if(StoreProxy.auth.donorLevel == -1 && !StoreProxy.auth.isPremium) {
 					possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.DONATE);
 				}
-				//Give more chances to have anything but the "sponsor" ad
+				//Give more chances to have anything but the "donate" ad
 				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
 				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
 				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
