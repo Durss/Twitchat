@@ -475,6 +475,8 @@
 		"blocked_terms": {
 			"add_permitted": "{USER} a ajouté {TERMS} aux termes autorisés",
 			"add_blocked": "{USER} a ajouté {TERMS} aux termes bloqués",
+			"add_permitted_temp": "{USER} a temporairement ajouté {TERMS} aux termes autorisés",
+			"add_blocked_temp": "{USER} a temporairement ajouté {TERMS} aux termes bloqués",
 			"remove_permitted": "{USER} a supprimé {TERMS} des termes autorisés",
 			"remove_blocked": "{USER} a supprimé {TERMS} des termes bloqués"
 		},

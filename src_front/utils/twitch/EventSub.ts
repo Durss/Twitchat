@@ -89,7 +89,7 @@ export default class EventSub {
 					}
 					if(disconnectPrevious) {
 						this.sessionID = message.payload.session.id;
-						this.createSubscriptions( this.sessionID );
+						this.createSubscriptions();
 					}
 				}
 
@@ -174,8 +174,73 @@ export default class EventSub {
 		const me	= StoreProxy.auth.twitch.user;
 		const uid	= user.id;
 		const myUID	= me.id;
-		const isMod	= me.channelInfo[uid]?.is_moderator === true;
+		const isBroadcaster	= me.id == user.id;
+		const isMod	= me.channelInfo[uid]?.is_moderator === true || isBroadcaster;
 		this.remoteChanSubscriptions[uid] = [];
+
+		if(isBroadcaster){
+			TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_UPDATE, "2");
+
+			//Don't need to listen for this event for anyone else but the broadcaster
+			TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {from_broadcaster_user_id:uid});
+			
+			//Used by online/offline triggers
+			TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
+			TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
+
+			if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, "2");
+			}
+
+			if(TwitchUtils.hasScopes([TwitchScopes.ADS_READ])) {
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.AD_BREAK_BEGIN, "1");
+			}
+
+			if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMATIC_REWARD_REDEEM, "1");
+				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM, "1");
+				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM_UPDATE, "1");
+			}
+			/*
+			if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS])) {
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_START, "1");
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_PROGRESS, "1");
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_END, "1");
+			}
+			if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS])) {
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_START, "1");
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_PROGRESS, "1");
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_LOCK, "1");
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_END, "1");
+			}
+			if(TwitchUtils.hasScopes([TwitchScopes.READ_HYPE_TRAIN])) {
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_START, "1");
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_PROGRESS, "1");
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_END, "1");
+			}
+			//*/
+
+			//Not using those as IRC does it better
+			// if(TwitchUtils.hasScope(TwitchScopes.LIST_SUBS)) {
+				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.SUB, "1");
+				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.SUB_END, "1");
+				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.SUBGIFT, "1");
+				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.RESUB, "1");
+			// }
+
+			//Not using this as IRC does it better
+			// if(TwitchUtils.hasScope(TwitchScopes.READ_CHEER)) {
+				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.BITS, "1");
+			// }
+
+			//Don't need it
+			// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_CREATE, "1");
+			// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_UPDATE, "1");
+			// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_DELETE, "1");
+			// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_START, "1");
+			// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_PROGRESS, "1");
+			// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_END, "1");
+		}
 
 		if(isMod) {
 			if(TwitchUtils.hasScopes([TwitchScopes.BLOCKED_TERMS,
@@ -254,6 +319,20 @@ export default class EventSub {
 				.then(res => {
 					if(res !== false) this.remoteChanSubscriptions[uid].push(res)
 				});
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_MESSAGE_UPDATE, "1")
+				.then(res => {
+					if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				});
+
+				if(!isBroadcaster) {
+					//Only subbing to this as a moderator.
+					//Broadcaster ues PubSub alternative that, to dates, gives more details.
+					//Eventsub doesn't tell which part of the message triggered the automod.
+					TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_MESSAGE_HELD, "1")
+					.then(res => {
+						if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+					});
+				}
 			}
 
 			if(TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING])) {
@@ -262,6 +341,21 @@ export default class EventSub {
 					if(res !== false) this.remoteChanSubscriptions[uid].push(res)
 				});
 			}
+
+			if(TwitchUtils.hasScopes([TwitchScopes.SUSPICIOUS_USERS])) {
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.SUSPICIOUS_USER_MESSAGE, "1")
+				.then(res => {
+					if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				});
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.SUSPICIOUS_USER_UPDATE, "1")
+				.then(res => {
+					if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				});
+			}
+		}
+			
+		if(TwitchUtils.hasScopes([TwitchScopes.CHAT_READ_EVENTSUB])) {
+			TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_MESSAGES, "1", {user_id:uid});
 		}
 
 		TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {to_broadcaster_user_id:uid})
@@ -328,135 +422,9 @@ export default class EventSub {
 	/**
 	 * Create all eventsub subscriptions
 	 */
-	private async createSubscriptions(sessionId:string):Promise<void> {
+	private async createSubscriptions():Promise<void> {
 		console.log("EVENTSUB : Create subscriptions");
-		const myUID = StoreProxy.auth.twitch.user.id;
-		let uids = [myUID];
-		if(Config.instance.debugChans.length > 0) {
-			//Subscribe to someone else's infos
-			const users = await TwitchUtils.getUserInfo(undefined, Config.instance.debugChans.filter(v=>v.platform=="twitch").map(v=>v.login));
-			uids = uids.concat( users.map(v=> v.id) );
-		}
-
-		//Create new event sub subscriptions
-		const doneUids:{[key:string]:boolean} = {};
-		for (let i = 0; i < uids.length; i++) {
-			const uid = uids[i];
-			if(doneUids[uid] === true) continue;
-			doneUids[uid] = true;
-
-			//Subscript to broadcaster-only events
-			if(uid == myUID) {
-				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_UPDATE, "2");
-
-				//Don't need to listen for this event for anyone else but the broadcaster
-				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {from_broadcaster_user_id:uid});
-				
-				//Used by online/offline triggers
-				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
-				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
-
-				if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, "2");
-				}
-
-				if(TwitchUtils.hasScopes([TwitchScopes.BLOCKED_TERMS,
-					TwitchScopes.SET_ROOM_SETTINGS,
-					TwitchScopes.UNBAN_REQUESTS,
-					TwitchScopes.EDIT_BANNED,
-					TwitchScopes.DELETE_MESSAGES,
-					TwitchScopes.CHAT_WARNING,
-					TwitchScopes.READ_MODERATORS,
-					TwitchScopes.READ_VIPS])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_MODERATE, "2");
-				}else{
-					if(TwitchUtils.hasScopes([TwitchScopes.MODERATION_EVENTS])) {
-						TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.BAN, "1");
-						TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN, "1");
-					}
-					if(TwitchUtils.hasScopes([TwitchScopes.UNBAN_REQUESTS])) {
-						TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_NEW, "1");
-						TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_RESOLVED, "1");
-					}
-					if(TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING])) {
-						TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_SENT, "1");
-					}
-				}
-
-				if(TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_STOP, "1");
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_START, "1");
-				}
-
-				if(TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_IN, "1");
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_OUT, "1");
-				}
-
-				if(TwitchUtils.hasScopes([TwitchScopes.ADS_READ])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.AD_BREAK_BEGIN, "1");
-				}
-				
-				if(TwitchUtils.hasScopes([TwitchScopes.CHAT_READ_EVENTSUB])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_MESSAGES, "1", {user_id:uid});
-				}
-
-				if(TwitchUtils.hasScopes([TwitchScopes.AUTOMOD])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_TERMS_UPDATE, "1");
-				}
-
-				if(TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_ACKNOWLEDGE, "1");
-				}
-
-				if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMATIC_REWARD_REDEEM, "1");
-					// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM, "1");
-					// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM_UPDATE, "1");
-				}
-				/*
-				if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.POLL_START, "1");
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.POLL_PROGRESS, "1");
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.POLL_END, "1");
-				}
-				if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_START, "1");
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_PROGRESS, "1");
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_LOCK, "1");
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_END, "1");
-				}
-				if(TwitchUtils.hasScopes([TwitchScopes.READ_HYPE_TRAIN])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_START, "1");
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_PROGRESS, "1");
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_END, "1");
-				}
-				//*/
-
-				//Not using those as IRC does it better
-				// if(TwitchUtils.hasScope(TwitchScopes.LIST_SUBS)) {
-					// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SUB, "1");
-					// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SUB_END, "1");
-					// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SUBGIFT, "1");
-					// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.RESUB, "1");
-				// }
-
-				//Not using this as IRC does it better
-				// if(TwitchUtils.hasScope(TwitchScopes.READ_CHEER)) {
-					// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.BITS, "1");
-				// }
-
-				//Don't need it
-				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_CREATE, "1");
-				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_UPDATE, "1");
-				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_DELETE, "1");
-				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_START, "1");
-				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_PROGRESS, "1");
-				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_END, "1");
-			}
-			//Receive raid
-			TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {to_broadcaster_user_id:uid});
-		}
+		this.connectRemoteChan( StoreProxy.auth.twitch.user );
 	}
 
 	/**
@@ -518,6 +486,26 @@ export default class EventSub {
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_TERMS_UPDATE: {
 				this.automodTermsUpdate(topic, payload.event as TwitchEventSubDataTypes.AutomodTermsUpdateEvent);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_MESSAGE_HELD: {
+				this.automodMessageHeld(topic, payload.event as TwitchEventSubDataTypes.AutomodMessageHeldEvent);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_MESSAGE_UPDATE: {
+				this.automodMessageUpdate(topic, payload.event as TwitchEventSubDataTypes.AutomodMessageUpdateEvent);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.SUSPICIOUS_USER_MESSAGE: {
+				this.suspiciousUserMessage(topic, payload.event as TwitchEventSubDataTypes.SuspiciousUserMessage);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.SUSPICIOUS_USER_UPDATE: {
+				this.suspiciousUserStateUpdate(topic, payload.event as TwitchEventSubDataTypes.SuspiciousUserStateUpdate);
 				break;
 			}
 
@@ -1161,12 +1149,87 @@ export default class EventSub {
 					user:await StoreProxy.users.getUserFrom("twitch", ref.broadcaster_user_id, ref.moderator_user_id, ref.moderator_user_login, ref.moderator_user_name),
 					action:ref.action,
 					terms:group.map(v=>v.terms).flat(),
+					temporary: event.from_automod === true,
 				}
 				StoreProxy.chat.addMessage(message);
 			}
 		}, 1000);
 	}
 	
+	/**
+	 * Called when a message is held by automod
+	 * @param topic 
+	 * @param event 
+	 */
+	private async automodMessageHeld(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AutomodMessageHeldEvent):Promise<void> {
+		console.log("MESSAGE HELD", event)
+		// const reasons:string[] = [];
+		// for (let i = 0; i < event.fragments.length; i++) {
+		// 	const f = event.fragments[i];
+		// 	if(!f.automod) continue;
+		// 	for (const key in f.automod.topics) {
+		// 		if(reasons.indexOf(key) == -1) reasons.push(key);
+		// 	}
+		// }
+
+		//Build usable emotes set
+		const chunks:TwitchatDataTypes.ParseMessageChunk[] = [];
+		const words:string[] = [];
+		for (let i = 0; i < event.message.fragments.length; i++) {
+			const el = event.message.fragments[i];
+			if(el.type == "emote") {
+				chunks.push({
+					type:"emote",
+					value:el.text,
+					emote:"https://static-cdn.jtvnw.net/emoticons/v2/"+el.emote.id+"/default/light/2.0",
+					emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/"+el.emote.id+"/default/light/4.0",
+				});
+			//Not supported by eventsub :(
+			// }else if(el.automod) {
+			// 	chunks.push({
+			// 		type:"highlight",
+			// 		value:el.text,
+			// 	});
+			// 	words.push(el.text);
+			}else if(el.text) {
+				chunks.push({
+					type:"text",
+					value:el.text,
+				});
+			}
+		}
+
+		const userData = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.broadcaster_user_name);
+		const messageHtml = TwitchUtils.messageChunksToHTML(chunks);
+		const m:TwitchatDataTypes.MessageChatData = {
+			id:event.message_id,
+			channel_id:event.broadcaster_user_id,
+			date:Date.now(),
+			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+			platform:"twitch",
+			user:userData,
+			answers:[],
+			message:event.message_id,
+			message_chunks:chunks,
+			message_html:messageHtml,
+			message_size:0,
+			twitch_automod:{ reasons:[event.category], words },
+			is_short:false,
+		};
+		m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
+		StoreProxy.chat.addMessage(m);
+	}
+	
+	/**
+	 * Called when the status of a message held by automod is updated
+	 * @param topic 
+	 * @param event 
+	 */
+	private async automodMessageUpdate(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AutomodMessageUpdateEvent):Promise<void> {
+		//Delete it even if allowed as it's actually sent back via IRC
+		StoreProxy.chat.deleteMessageByID(event.message_id, undefined, false);
+	}
+
 	/**
 	 * Called when a moderation event happens
 	 * @param topic 
@@ -1405,4 +1468,59 @@ export default class EventSub {
 		}
 		StoreProxy.chat.addMessage(message);
 	}
+
+	/**
+	 * Called when a user suspicious/restricted user sends a message
+	 * @param topic 
+	 * @param event 
+	 */
+	private async suspiciousUserMessage(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.SuspiciousUserMessage):Promise<void> {
+		if(event.low_trust_status == "restricted") {
+			const channelId = event.broadcaster_user_id;
+			const userData = StoreProxy.users.getUserFrom("twitch", channelId, event.user_id, event.user_login, event.user_name);
+			const chunks = TwitchUtils.parseMessageToChunks(event.message.text);
+			const m:TwitchatDataTypes.MessageChatData = {
+				id:event.message.message_id,
+				channel_id:channelId,
+				date:Date.now(),
+				type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				platform:"twitch",
+				user:userData,
+				answers:[],
+				message:event.message.text,
+				message_chunks:chunks,
+				message_html:TwitchUtils.messageChunksToHTML(chunks),
+				message_size: TwitchUtils.computeMessageSize(chunks),
+				twitch_isRestricted:true,
+				is_short:false,
+			};
+
+			const users = await TwitchUtils.getUserInfo(event.shared_ban_channel_ids);
+			m.twitch_sharedBanChannels = users?.map(v=> { return {id:v.id, login:v.login}}) ?? [];
+			StoreProxy.chat.addMessage(m);
+		}else{
+			StoreProxy.chat.flagSuspiciousMessage(event.message.message_id, event.shared_ban_channel_ids);
+		}
+	}
+
+	/**
+	 * Called when a user suspicious/restricted user sends a message
+	 * @param topic 
+	 * @param event 
+	 */
+	private async suspiciousUserStateUpdate(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.SuspiciousUserStateUpdate):Promise<void> {
+		const m:TwitchatDataTypes.MessageLowtrustTreatmentData = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitch",
+			channel_id:event.broadcaster_user_id,
+			type:TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT,
+			user:StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name),
+			moderator:StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name),
+			restricted:event.low_trust_status == "restricted",
+			monitored:event.low_trust_status == "active_monitoring",
+		};
+		StoreProxy.chat.addMessage(m);
+	}
+
 }

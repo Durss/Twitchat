@@ -190,19 +190,6 @@ export default class Config {
 	}
 
 	/**
-	 * Add twitch logins to connect to their chats and get some
-	 * PubSub events from
-	 */
-	public get debugChans():{platform:TwitchatDataTypes.ChatPlatform, login:string}[] {
-		if(this.IS_PROD) return [];
-		return [
-			// {platform:"twitch", login:"durssbot"},
-			// {platform:"twitch", login:"chezmarino"},
-			// {platform:"twitch", login:"opcrotte"},
-		];
-	}
-
-	/**
 	 * Path to twitchat's API
 	 */
 	public get API_PATH():string {

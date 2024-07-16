@@ -108,7 +108,7 @@ export default class PubSub extends EventDispatcher {
 				// subscriptions.push("channel-chat-highlights."+myUID+"."+myUID);//Needs a twitch scope T_T. This is what allows to get "raider" message highlight
 			}
 
-
+			/*
 			if(Config.instance.debugChans.length > 0) {
 				//Subscribe to someone else's channel pointevents
 				const users = await TwitchUtils.getUserInfo(undefined, Config.instance.debugChans.filter(v=>v.platform=="twitch").map(v=>v.login));
@@ -137,6 +137,7 @@ export default class PubSub extends EventDispatcher {
 					// subscriptions.push("channel-sub-gifts-v1."+uid);
 				}
 			}
+				*/
 			this.subscribe(subscriptions);
 		};
 
@@ -372,18 +373,6 @@ export default class PubSub extends EventDispatcher {
 
 		}else if(data.type == "automod_caught_message") {
 			this.automodEvent(data.data as  PubSubDataTypes.AutomodData, channelId);
-
-
-
-		//Called when un/flagging a user as suspicious/restrcited
-		}else if(data.type == "low_trust_user_treatment_update") {
-			const localObj = data.data as PubSubDataTypes.LowTrustTreatmentUpdate;
-			this.lowTrustUserUpdate(localObj)
-
-
-
-		}else if(data.type == "low_trust_user_new_message") {
-			this.lowTrustMessage(data.data as  PubSubDataTypes.LowTrustMessage);
 
 
 
@@ -653,78 +642,6 @@ export default class PubSub extends EventDispatcher {
 					StoreProxy.chat.deleteMessage(list[i], undefined, false);
 				}
 			}
-		}
-	}
-
-	/**
-	 * Called when a low trust user is detected
-	 *
-	 * @param localObj
-	 */
-	private async lowTrustUserUpdate(localObj:PubSubDataTypes.LowTrustTreatmentUpdate):Promise<void> {
-		const m:TwitchatDataTypes.MessageLowtrustTreatmentData = {
-			id:Utils.getUUID(),
-			date:Date.now(),
-			platform:"twitch",
-			channel_id:localObj.channel_id,
-			type:TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT,
-			user:StoreProxy.users.getUserFrom("twitch", localObj.channel_id, localObj.target_user_id, localObj.target_user),
-			moderator:StoreProxy.users.getUserFrom("twitch", localObj.channel_id, localObj.updated_by.id, localObj.updated_by.login, localObj.updated_by.display_name),
-			restricted:localObj.treatment == "RESTRICTED",
-			monitored:localObj.treatment == "ACTIVE_MONITORING",
-		};
-		StoreProxy.chat.addMessage(m);
-	}
-
-	/**
-	 * Called when a low trust user is detected
-	 *
-	 * @param localObj
-	 */
-	private async lowTrustMessage(localObj:PubSubDataTypes.LowTrustMessage):Promise<void> {
-		if(localObj.low_trust_user.treatment == 'RESTRICTED') {
-			//Build usable emotes set
-			const emotes:TwitchatDataTypes.EmoteDef[] = [];
-			let offset = 0;
-			for (let i = 0; i < localObj.message_content.fragments.length; i++) {
-				const el = localObj.message_content.fragments[i];
-				if(el.emoticon) {
-					emotes.push({
-						begin:offset,
-						end:offset + el.text.length,
-						id:el.emoticon.emoticonID,
-					})
-				}
-				offset += el.text.length;
-			}
-
-			const user = localObj.low_trust_user.sender;
-			const channelId = localObj.low_trust_user.channel_id;
-			const userData = StoreProxy.users.getUserFrom("twitch", channelId, user.user_id, user.login, user.display_name);
-			userData.color = user.chat_color;
-			const chunks = TwitchUtils.parseMessageToChunks(localObj.message_content.text, emotes);
-			const m:TwitchatDataTypes.MessageChatData = {
-				id:localObj.message_id,
-				channel_id:channelId,
-				date:Date.now(),
-				type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-				platform:"twitch",
-				user:userData,
-				answers:[],
-				message:localObj.message_content.text,
-				message_chunks:chunks,
-				message_html:TwitchUtils.messageChunksToHTML(chunks),
-				message_size:0,
-				twitch_isRestricted:true,
-				is_short:false,
-			};
-			m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
-			const users = await TwitchUtils.getUserInfo(localObj.low_trust_user.shared_ban_channel_ids);
-			m.twitch_sharedBanChannels = users?.map(v=> { return {id:v.id, login:v.login}}) ?? [];
-			StoreProxy.chat.addMessage(m);
-
-		}else{
-			StoreProxy.chat.flagSuspiciousMessage(localObj);
 		}
 	}
 

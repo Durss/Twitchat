@@ -3074,7 +3074,7 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Splits the message in chunks of type emote", "text" and "url"
+	 * Splits the message in chunks of type "text", "emote", "cheermote", "url", "highlight" and "user"
 	 */
 	public static parseMessageToChunks(message: string, emotes?: string | TwitchatDataTypes.EmoteDef[], customParsing = false, platform: TwitchatDataTypes.ChatPlatform = "twitch"): TwitchatDataTypes.ParseMessageChunk[] {
 		if (!message) return [];

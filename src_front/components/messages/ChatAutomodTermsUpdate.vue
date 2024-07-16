@@ -5,7 +5,7 @@
 		<Icon name="block" />
 		
 		<div class="content">
-			<i18n-t scope="global" :keypath="'chat.blocked_terms.'+messageData.action">
+			<i18n-t scope="global" :keypath="label">
 				<template #USER>
 					<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
 				</template>
@@ -33,6 +33,14 @@ class ChatAutomodTermsUpdate extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageBlockedTermsData;
+
+	public get label():string {
+		let res = "chat.blocked_terms."+this.messageData.action;
+		if(this.messageData.temporary === true) {
+			res += "_temp";
+		}
+		return res;
+	}
 
 	public get classes():string[] {
 		const res:string[] = ["chatautomodtermsupdate","chatMessage","highlight"];

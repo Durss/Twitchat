@@ -682,17 +682,18 @@ export interface IChatActions {
 	highlightChatMessageOverlay(message?:TwitchatDataTypes.TranslatableMessage):Promise<void>;
 	/**
 	 * Flag a message as suspicious.
-	 * Called by pubsub (or eventsub if i could migrate there since then) to
-	 * flag a message. We first receive the message from IRC then pubsub sends
-	 * a message to tell us that the user is suspicious and we need to flag their message
-	 * @param data
+	 * Called by pubsub and eventsub to flag a message.
+	 * We first receive the message from IRC then pubsub/eventsub sends
+	 * a message to tell us that the user is suspicious and we need to
+	 * flag their message
+	 * @param messageId
+	 * @param flagChans
 	 * @param retryCount
 	 */
-	flagSuspiciousMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):Promise<void>;
+	flagSuspiciousMessage(messageId:string, flaggedChans:string[], retryCount?:number):Promise<void>;
 	/**
 	 * Flags a message as their first one today
 	 * @param message
-	 * @param user
 	 */
 	flagMessageAsFirstToday(message:TwitchatDataTypes.GreetableMessage):void;
 	/**

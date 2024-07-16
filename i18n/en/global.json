@@ -199,7 +199,8 @@
 			"clips:edit": "Create clips",
 			"channel:read:ads":"Read ad break info",
 			"channel:manage:ads":"Snooze an incoming ad break",
-			"moderator:manage:warnings":"Send warning to users"
+			"moderator:manage:warnings":"Send warning to users",
+			"moderator:read:suspicious_users":"Suspicious/restricted messages"
 		},
 		"permissions": {
 			"broadcaster": "Broadcaster",

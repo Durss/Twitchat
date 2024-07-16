@@ -217,6 +217,30 @@ export const storeAuth = defineStore('auth', {
 
 				DataStore.set(DataStore.DONOR_LEVEL, this.donorLevel);
 
+				//Preload channels we're a moderator of
+				const moderatedChans = await TwitchUtils.getModeratedChannels()
+				this.twitchModeratedChannels = moderatedChans;
+				moderatedChans.forEach(chan => {
+					if(!this.twitch.user.channelInfo[chan.broadcaster_id]) {
+						this.twitch.user.channelInfo[chan.broadcaster_id] = {
+							badges:[],
+							following_date_ms: 0,
+							is_banned:false,
+							is_broadcaster:false,
+							is_following:null,
+							is_gifter:false,
+							is_new:false,
+							is_raider:false,
+							is_subscriber:false,
+							is_vip:false,
+							online:false,
+							is_moderator:true,
+						}
+					}else{
+						this.twitch.user.channelInfo[chan.broadcaster_id].is_moderator = true;
+					}
+				});
+
 				MessengerProxy.instance.connect();
 				PubSub.instance.connect();
 				EventSub.instance.connect();
@@ -292,31 +316,6 @@ export const storeAuth = defineStore('auth', {
 					res.forEach(u=> {
 						const user = StoreProxy.users.getUserFrom("twitch", this.twitch.user.id, u.user_id, u.user_login, u.user_name);
 						user.channelInfo[this.twitch.user.id].is_vip = true;
-					})
-				});
-
-				//Preload channels we can moderate
-				TwitchUtils.getModeratedChannels().then(async res=> {
-					this.twitchModeratedChannels = res;
-					res.forEach(chan => {
-						if(!this.twitch.user.channelInfo[chan.broadcaster_id]) {
-							this.twitch.user.channelInfo[chan.broadcaster_id] = {
-								badges:[],
-								following_date_ms: 0,
-								is_banned:false,
-								is_broadcaster:false,
-								is_following:null,
-								is_gifter:false,
-								is_new:false,
-								is_raider:false,
-								is_subscriber:false,
-								is_vip:false,
-								online:false,
-								is_moderator:true,
-							}
-						}else{
-							this.twitch.user.channelInfo[chan.broadcaster_id].is_moderator = true;
-						}
 					})
 				});
 

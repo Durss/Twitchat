@@ -82,12 +82,7 @@ export default class MessengerProxy {
 	}
 
 	public async connect():Promise<void> {
-		const twitchChannels = Config.instance.debugChans.filter(v=>v.platform == "twitch");
-		twitchChannels.unshift({platform:"twitch", login:StoreProxy.auth.twitch.user.login})
-		for (let i = 0; i < twitchChannels.length; i++) {
-			//It's safe to spam this method as it has inner debounce
-			TwitchMessengerClient.instance.connectToChannel(twitchChannels[i].login);
-		}
+		TwitchMessengerClient.instance.connectToChannel( StoreProxy.auth.twitch.user.login );
 	}
 
 	public disconnect():void {

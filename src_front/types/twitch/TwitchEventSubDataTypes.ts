@@ -49,9 +49,13 @@ export namespace TwitchEventSubDataTypes {
 		AD_BREAK_BEGIN: "channel.ad_break.begin",
 		UNBAN_REQUEST_NEW: "channel.unban_request.create",
 		UNBAN_REQUEST_RESOLVED: "channel.unban_request.resolve",
-		AUTOMOD_TERMS_UPDATE: "automod.terms.update",
 		CHAT_WARN_ACKNOWLEDGE: "channel.warning.acknowledge",
 		CHAT_WARN_SENT: "channel.warning.send",
+		AUTOMOD_TERMS_UPDATE: "automod.terms.update",
+		AUTOMOD_MESSAGE_UPDATE: "automod.message.update",
+		AUTOMOD_MESSAGE_HELD: "automod.message.hold",
+		SUSPICIOUS_USER_MESSAGE: "channel.suspicious_user.message",
+		SUSPICIOUS_USER_UPDATE: "channel.suspicious_user.update",
 	} as const;
 	export type SubscriptionStringTypes = typeof SubscriptionTypes[keyof typeof SubscriptionTypes];
 
@@ -604,6 +608,30 @@ export namespace TwitchEventSubDataTypes {
 		terms: string[];
 	}
 
+	export interface AutomodMessageHeldEvent {
+		broadcaster_user_id: string;
+		broadcaster_user_login: string;
+		broadcaster_user_name: string;
+		user_id: string;
+		user_login: string;
+		user_name: string;
+		message_id: string;
+		message: {
+			text:string;
+			fragments:MessageFragments;
+		};
+		category: string;
+		level: number;
+		held_at: string;
+	}
+
+	export interface AutomodMessageUpdateEvent extends AutomodMessageHeldEvent {
+		moderator_user_id: string;
+		moderator_user_login: string;
+		moderator_user_name: string;
+		status: "approved"|"denied";
+	}
+
 	export type ModerationEvent  = ModerationEvent_raid
 								| ModerationEvent_unraid
 								| ModerationEvent_mod
@@ -768,5 +796,52 @@ export namespace TwitchEventSubDataTypes {
 		user_id: string;
 		user_login: string;
 		user_name: string;
+	}
+
+	export interface SuspiciousUserStateUpdate {
+		broadcaster_user_id: string;
+		broadcaster_user_name: string;
+		broadcaster_user_login: string;
+		moderator_user_id: string;
+		moderator_user_name: string;
+		moderator_user_login: string;
+		user_id: string;
+		user_name: string;
+		user_login: string;
+		low_trust_status: "active_monitoring"|"restricted";
+	}
+
+	export interface SuspiciousUserMessage {
+		broadcaster_user_id: string;
+		broadcaster_user_name: string;
+		broadcaster_user_login: string;
+		user_id: string;
+		user_name: string;
+		user_login: string;
+		low_trust_status: "active_monitoring"|"restricted";
+		shared_ban_channel_ids?: any;
+		types: ("manually_added"|string)[];
+		ban_evasion_evaluation: string;
+		message:  {
+			message_id: string;
+			text: string;
+			fragments: MessageFragments;
+		};
+	}
+
+	type MessageFragments = (MessageFragmentEmote)[];
+
+	interface MessageFragmentText {
+		type: "text",
+		text: string,
+	}
+
+	interface MessageFragmentEmote {
+		type: "emote",
+		text: string,
+		emote: {
+			id: string;
+			emote_set_id: string;
+		}
 	}
 }

@@ -2341,7 +2341,7 @@ export namespace TwitchatDataTypes {
 		{type:"deleted",		labelKey:"chat.filters.message_filters.deleted", 		icon:"delete",	hasPreview:true,	scopes:[] as TwitchScopesString[]},
 		{type:"pinned",			labelKey:"chat.filters.message_filters.pinned", 		icon:"pin",		hasPreview:false,	scopes:[] as TwitchScopesString[]},
 		{type:"automod",		labelKey:"chat.filters.message_filters.automod", 		icon:"shield",	hasPreview:true,	scopes:[TwitchScopes.AUTOMOD,TwitchScopes.MODERATION_EVENTS] as TwitchScopesString[]},
-		{type:"suspiciousUsers",labelKey:"chat.filters.message_filters.suspiciousUsers",icon:"shield",	hasPreview:true,	scopes:[TwitchScopes.AUTOMOD,TwitchScopes.MODERATION_EVENTS] as TwitchScopesString[]},
+		{type:"suspiciousUsers",labelKey:"chat.filters.message_filters.suspiciousUsers",icon:"shield",	hasPreview:true,	scopes:[TwitchScopes.AUTOMOD,TwitchScopes.MODERATION_EVENTS,TwitchScopes.SUSPICIOUS_USERS] as TwitchScopesString[]},
 		{type:"commands",		labelKey:"chat.filters.message_filters.commands", 		icon:"commands",hasPreview:false,	scopes:[] as TwitchScopesString[]},
 		{type:"short",			labelKey:"chat.filters.message_filters.short", 			icon:"",		hasPreview:false,	scopes:[] as TwitchScopesString[]},
 	] as const;
@@ -4555,6 +4555,11 @@ export namespace TwitchatDataTypes {
 		 * Automod action
 		 */
 		action:"add_permitted"|"remove_permitted"|"add_blocked"|"remove_blocked";
+		/**
+		 * true if message has been allowed only temporarily (from automod)
+		 * in such case the word is allowed for 1h
+		 */
+		temporary?:boolean;
 	}
 
 	/**

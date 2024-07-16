@@ -55,8 +55,9 @@ import AbstractChatMessage from './AbstractChatMessage';
 
 	public get classes():string[] {
 		const res:string[] = ["chatlowtrusttreatment", "chatMessage" ,"highlight"];
-		if(this.messageData.restricted
-		|| this.messageData.monitored) res.push("alert");
+		if(this.messageData.restricted) res.push("alert");
+		else if(this.messageData.monitored) res.push("error");
+		else res.push("success");
 		return res;
 	}
 }

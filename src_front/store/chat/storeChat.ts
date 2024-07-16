@@ -2008,13 +2008,13 @@ export const storeChat = defineStore('chat', {
 
 		},
 
-		async flagSuspiciousMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):Promise<void> {
+		async flagSuspiciousMessage(messageId:string, flaggedChans:string[], retryCount?:number):Promise<void> {
 			const list = this.messages;
 			for (let i = 0; i < list.length; i++) {
 				const message = list[i];
-				if(message.id == data.message_id && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-					if(data.low_trust_user.shared_ban_channel_ids?.length > 0) {
-						const users = await TwitchUtils.getUserInfo(data.low_trust_user.shared_ban_channel_ids);
+				if(message.id == messageId && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+					if(flaggedChans?.length > 0) {
+						const users = await TwitchUtils.getUserInfo(flaggedChans);
 						message.twitch_sharedBanChannels = users?.map(v=> { return {id:v.id, login:v.login}}) ?? [];
 					}
 					message.twitch_isSuspicious = true;
@@ -2030,7 +2030,7 @@ export const storeChat = defineStore('chat', {
 			if(retryCount != 20) {
 				retryCount = retryCount? retryCount++ : 1;
 				setTimeout(()=>{
-					this.flagSuspiciousMessage(data, retryCount);
+					this.flagSuspiciousMessage(messageId, flaggedChans, retryCount);
 				}, 100);
 			}
 		},
