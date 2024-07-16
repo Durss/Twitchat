@@ -484,7 +484,7 @@ class BingoGridForm extends AbstractSidePanel {
 			this.param_backgroundAlpha[id] = {type:"slider", value:0, min:0, max:100, labelKey:"bingo_grid.form.param_background_alpha", icon:"color"};
 			this.param_textSize[id] = {type:"number", value:30, min:2, max:100, labelKey:"bingo_grid.form.param_text_size", icon:"fontSize"};
 			this.param_textColor[id] = {type:"color", value:"#000000", labelKey:"bingo_grid.form.param_text_color", icon:"color"};
-			this.param_showGrid[id] = {type:"boolean", value:true, labelKey:"bingo_grid.form.param_show_grid", icon:"show"};
+			this.param_showGrid[id] = {type:"boolean", value:false, labelKey:"bingo_grid.form.param_show_grid", icon:"show"};
 			this.param_autoHide[id] = {type:"boolean", value:true, labelKey:"bingo_grid.form.param_autoHide", icon:"show"};
 			this.param_chatCmd[id] = {type:"string", value:"", maxLength:20, labelKey:"bingo_grid.form.param_chat_cmd", icon:"chatCommand"};
 			this.param_chatCmd_toggle[id] = {type:"boolean", value:entry.chatCmd != undefined, labelKey:"bingo_grid.form.param_chat_cmd_enabled", icon:"show"};

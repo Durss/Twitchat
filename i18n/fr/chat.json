@@ -56,7 +56,7 @@
 			"youtube_saving_token_aria": "Afin d'économiser les crédits d'API Youtube, le tchat a été déconnecté suite à une longue période d'inactivité.\nCliquez pour reconnecter.",
 			"connect_extra_chan": "Se connecter à une chaîne Twitch",
 			"youtube_not_connected": "Vous n'êtes connecté·e à aucun live Youtube",
-			"extra_chan_tt": "Ecire chez : {USER}\n(clic droit pour changer)"
+			"extra_chan_tt": "Ecrire chez : {USER}\n(clic droit pour changer)"
 		},
 		"filters": {
 			"cta": "Options importantes ici",
