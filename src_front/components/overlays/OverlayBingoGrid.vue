@@ -907,10 +907,9 @@ export default toNative(OverlayBingoGrid);
 
 	&.border {
 		padding: @borderSize;
-		max-height: calc(100vh - @borderSize * 2);
 		.cells {
 			border-radius: 0;
-			// box-shadow:0 0 0 @borderSize currentColor;
+			max-height: calc(100vh - @borderSize * 2);
 			.cell {
 				border-radius: 0;
 				box-shadow:0 0 0 @borderSize currentColor;
