@@ -241,7 +241,6 @@ class AutocompleteChatForm extends Vue {
 				const isBroadcaster = me.id === currentChanId;
 				const isAdmin = me.channelInfo[currentChanId]?.is_moderator === true;
 				const isMod = me.channelInfo[currentChanId]?.is_moderator === true;
-				console.log("ismod? ", isMod);
 
 				//Search in global slash commands
 				for (let j = 0; j < cmds.length; j++) {

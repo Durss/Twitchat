@@ -299,7 +299,6 @@ export const storeAuth = defineStore('auth', {
 				TwitchUtils.getModeratedChannels().then(async res=> {
 					this.twitchModeratedChannels = res;
 					res.forEach(chan => {
-						console.log("MODERATED CHAN", chan.broadcaster_login);
 						if(!this.twitch.user.channelInfo[chan.broadcaster_id]) {
 							this.twitch.user.channelInfo[chan.broadcaster_id] = {
 								badges:[],

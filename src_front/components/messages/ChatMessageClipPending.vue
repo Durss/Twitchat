@@ -69,7 +69,6 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 			if(!this.loading) {
 				clearInterval(this.interval);
 				if(this.error) {
-
 					this.$store.accessibility.setAriaPolite(this.$t("error.clip_creation"));
 				}else{
 					this.$store.accessibility.setAriaPolite(this.$t("global.moderation_action.clip_created", {LINK:""}));

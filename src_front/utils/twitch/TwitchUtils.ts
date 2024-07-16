@@ -9,6 +9,7 @@ import FFZUtils from "../emotes/FFZUtils";
 import SevenTVUtils from "../emotes/SevenTVUtils";
 import { TwitchScopes, type TwitchScopesString } from "./TwitchScopes";
 import * as Sentry from "@sentry/vue";
+import Database from "@/store/Database";
 
 /**
 * Created : 19/01/2021
@@ -1701,6 +1702,7 @@ export default class TwitchUtils {
 					};
 					message.clipData = clipData;
 					message.loading = false;
+					Database.instance.updateMessage(message);
 
 					//Send a message dedicated to the creation complete to execute related
 					//triggers once clip loading completed
@@ -2310,7 +2312,6 @@ export default class TwitchUtils {
 		const res = await this.callApi(url, options);
 		if (res.status == 202) {
 			const json: { data: TwitchDataTypes.EventsubSubscription[] } = await res.json();
-			console.log(json.data[0]);
 			return json.data[0].id;
 		} else
 			if (res.status == 429) {
