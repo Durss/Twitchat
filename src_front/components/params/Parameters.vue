@@ -195,7 +195,7 @@ import Config from '@/utils/Config';
 	}
 })
 
- class Parameters extends Vue {
+class Parameters extends Vue {
 
 	public closed:boolean = true;
 	public showCTA:boolean = true;
@@ -291,6 +291,7 @@ import Config from '@/utils/Config';
 					this.unpinnedMenuEntries.push(entry)
 				}
 			}
+		}
 
 			//Check if any entry from the "menuEntries" is missing from the final
 			//list. Add them to the beginning if so.
@@ -299,10 +300,12 @@ import Config from '@/utils/Config';
 				if(this.pinnedMenuEntries.findIndex(v=>v.page == item.page) > -1) continue;
 				if(this.unpinnedMenuEntries.findIndex(v=>v.page == item.page) > -1) continue;
 				//Missing item, add it to the top
-				this.pinnedMenuEntries.unshift(item);
-				item.pinned = true;
+				if(item.pinned) {
+					this.pinnedMenuEntries.unshift(item);
+				}else{
+					this.unpinnedMenuEntries.unshift(item);
+				}
 			}
-		}
 	}
 
 	public async mounted():Promise<void> {

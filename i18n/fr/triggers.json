@@ -78,7 +78,7 @@
 			"param_repeatDurationCondition": "Répéter dans le temps",
 			"param_repeatDurationValue": "Exécuter toutes les {VALUE}s",
 			"param_repeatMessageCondition": "Répéter après réception de messages",
-			"param_repeatMessageValue": "Exécuter après {VALUE} message reçus | Exécuter après {VALUE} messages reçus"
+			"param_repeatMessageValue": "Exécuter après {VALUE} message reçu | Exécuter après {VALUE} messages reçus"
 		},
 		"condition": {
 			"title": "Conditions d'exécution",

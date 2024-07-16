@@ -31,7 +31,7 @@
 				<a class="link" href="https://twitch.tv/durss" target="_blank"><img src="@/assets/img/twitch.png" v-tooltip="'Twitch'" alt="twitch"></a>
 				<a class="link" href="https://bsky.app/profile/durss.fr" target="_blank"><img src="@/assets/img/bluesky.svg" v-tooltip="'Bluesky'" alt="bluesky"></a>
 			</p>
-			<i18n-t tag="p" class="item" keypath="about.sentry">
+			<i18n-t scope="global" tag="p" class="item" keypath="about.sentry">
 				<template #LINK>
 					<a href="https://sentry.io" target="_blank">Sentry.io</a>
 				</template>
@@ -69,8 +69,7 @@ import ParamsSponsor from './ParamsSponsor.vue';
 		ParamsSponsor,
 	}
 })
- class ParamsAbout extends Vue implements IParameterContent {
-	
+class ParamsAbout extends Vue implements IParameterContent {
 
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 	public get apiURL():string { return "https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md"; }

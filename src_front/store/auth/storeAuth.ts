@@ -299,11 +299,11 @@ export const storeAuth = defineStore('auth', {
 				TwitchUtils.getModeratedChannels().then(async res=> {
 					this.twitchModeratedChannels = res;
 					res.forEach(chan => {
+						console.log("MODERATED CHAN", chan.broadcaster_login);
 						if(!this.twitch.user.channelInfo[chan.broadcaster_id]) {
 							this.twitch.user.channelInfo[chan.broadcaster_id] = {
 								badges:[],
 								following_date_ms: 0,
-								is_moderator:true,
 								is_banned:false,
 								is_broadcaster:false,
 								is_following:null,
@@ -313,6 +313,7 @@ export const storeAuth = defineStore('auth', {
 								is_subscriber:false,
 								is_vip:false,
 								online:false,
+								is_moderator:true,
 							}
 						}else{
 							this.twitch.user.channelInfo[chan.broadcaster_id].is_moderator = true;

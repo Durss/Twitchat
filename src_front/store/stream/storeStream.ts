@@ -14,6 +14,7 @@ import type { JsonObject } from "type-fest";
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
 import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
+import EventSub from '@/utils/twitch/EventSub';
 
 const commercialTimeouts:{[key:string]:number[]} = {};
 
@@ -782,12 +783,14 @@ export const storeStream = defineStore('stream', {
 			const colors = ["#e04e00","#e0ae00","#2eb200","#00d6d3","#0500d6","d600ab","#dc9e7d","#fddf78","#98fa76","#a5a3ff","#ff7de5"];
 			this.connectedTwitchChans.push({user, color:colors[this.connectedTwitchChans.length % colors.length]});
 			TwitchMessengerClient.instance.connectToChannel(user.login);
+			EventSub.instance.connectRemoteChan(user);
 		},
 		
 		async disconnectFromExtraChan(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
 			const index = this.connectedTwitchChans.findIndex(entry => entry.user.id === user.id);
 			this.connectedTwitchChans.splice(index, 1);
 			TwitchMessengerClient.instance.disconnectFromChannel(user.login);
+			EventSub.instance.disconnectRemoteChan(user);
 		}
 
 	} as IStreamActions

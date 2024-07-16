@@ -14,6 +14,7 @@
 		"stream_summaryBt": "Stream summary",
 		"raid_liveBt": "Live channels",
 		"raid_historyBt": "Raid history",
+		"remote_chat": "Connect to {USER}'s chat",
 		"target_channel_previous_raid": "Your last raid was on this same channel.",
 		"target_channel_offline": "The channel you're raiding is offline!"
 	}

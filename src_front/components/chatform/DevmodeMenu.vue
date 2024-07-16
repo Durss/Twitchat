@@ -115,6 +115,7 @@ import { reactive } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
+import { LoremIpsum } from "lorem-ipsum";
 
 @Component({
 	components:{
@@ -122,7 +123,7 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 	},
 	emits:["close", "triggersLogs", "obsHeatLogs"]
 })
- class DevmodeMenu extends Vue {
+class DevmodeMenu extends Vue {
 
 	public pubsubHistoryLink:string|null = null;
 	public generatingHistory = false;
@@ -352,9 +353,25 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 	public simulateFollowbotRaid():void {
 		EventSub.instance.simulateFollowbotRaid();
 	}
-
-	public simulateFollowbotItem():void {
-		PubSub.instance.simulateFollowbotItem();
+	/**
+	 * Simulate a follow bot event by sending lots of fake follow events
+	 */
+	public async simulateFollowbotItem():Promise<void> {
+		const lorem = new LoremIpsum({ wordsPerSentence: { max: 40, min: 40 } });
+		const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
+		const channelId = StoreProxy.auth.twitch.user.id;
+		const uid = Math.round(Math.random()*99999999999).toString();
+		const message:TwitchatDataTypes.MessageFollowingData = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitch",
+			channel_id: channelId,
+			type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
+			user: StoreProxy.users.getUserFrom("twitch", channelId, uid, login, login , undefined, true),
+			followed_at: Date.now(),
+			followbot:true,
+		};
+		StoreProxy.chat.addMessage(message);
 	}
 
 	public simulateHypeTrain(goldenKappa:boolean = false):void {

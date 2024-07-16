@@ -19,9 +19,11 @@ export default class EventSub {
 	private reconnectTimeout!:number;
 	private keepalive_timeout_seconds!:number;
 	private lastRecentFollowers:TwitchatDataTypes.MessageFollowingData[] = [];
-	private connectURL:string = "";
 	private debounceAutomodTermsUpdate:number = -1;
 	private debouncedAutomodTerms:TwitchEventSubDataTypes.AutomodTermsUpdateEvent[] = [];
+	private sessionID:string = "";
+	private connectURL:string = "";
+	private remoteChanSubscriptions:{[chanId:string]:string[]} = {};
 
 	constructor() {
 		this.connectURL = Config.instance.TWITCH_EVENTSUB_PATH;
@@ -86,7 +88,8 @@ export default class EventSub {
 						this.cleanupSocket(this.oldSocket);
 					}
 					if(disconnectPrevious) {
-						this.createSubscriptions( message.payload.session.id );
+						this.sessionID = message.payload.session.id;
+						this.createSubscriptions( this.sessionID );
 					}
 				}
 
@@ -115,7 +118,7 @@ export default class EventSub {
 		this.socket.onclose = (event) => {
 			console.log("EVENTSUB : OnClose");
 			//Twitch asked us to reconnect socket at a new URL, which we did
-			//but deconnection of the old socket (current one) wasn't done.
+			//but disconnection of the old socket (current one) wasn't done.
 			if(event.code == 4004) return;
 
 			//Connection was created but we subscribed to no topic, twitch
@@ -159,6 +162,127 @@ export default class EventSub {
 				await Utils.promisedTimeout(Math.random()*40);
 			}
 		}
+	}
+
+	/**
+	 * Connect to remote chan.
+	 * Will connect to appropriate topics depending on wether we're a mod
+	 * of the given channel or not (make sure user.channelInfo[uid] is properly populated)
+	 * @param user 
+	 */
+	public async connectRemoteChan(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
+		const me	= StoreProxy.auth.twitch.user;
+		const uid	= user.id;
+		const myUID	= me.id;
+		const isMod	= me.channelInfo[uid]?.is_moderator === true;
+		this.remoteChanSubscriptions[uid] = [];
+
+		if(isMod) {
+			if(TwitchUtils.hasScopes([TwitchScopes.BLOCKED_TERMS,
+			TwitchScopes.SET_ROOM_SETTINGS,
+			TwitchScopes.UNBAN_REQUESTS,
+			TwitchScopes.EDIT_BANNED,
+			TwitchScopes.DELETE_MESSAGES,
+			TwitchScopes.CHAT_WARNING,
+			TwitchScopes.READ_MODERATORS,
+			TwitchScopes.READ_VIPS])) {
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_MODERATE, "2")
+				.then(res => {
+					if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				});
+			}else{
+				if(TwitchUtils.hasScopes([TwitchScopes.MODERATION_EVENTS])) {
+					TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.BAN, "1")
+					.then(res => {
+						if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+					});
+					TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN, "1")
+					.then(res => {
+						if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+					});
+				}
+				//Doesn't support moderator token to date
+				// if(TwitchUtils.hasScopes([TwitchScopes.UNBAN_REQUESTS])) {
+				// 	TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_NEW, "1");
+				// 	TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_RESOLVED, "1");
+				// }
+				if(TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING])) {
+					TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_SENT, "1")
+					.then(res => {
+						if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+					});
+				}
+			}
+			if(TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING])) {
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_ACKNOWLEDGE, "1")
+				.then(res => {
+					if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				});
+			}
+
+			if(TwitchUtils.hasScopes([TwitchScopes.SHIELD_MODE])) {
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_STOP, "1")
+				.then(res => {
+					if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				});
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_START, "1")
+				.then(res => {
+					if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				});
+			}
+
+			if(TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_IN, "1")
+				.then(res => {
+					if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				});
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_OUT, "1")
+				.then(res => {
+					if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				});
+			}
+
+			if(TwitchUtils.hasScopes([TwitchScopes.CHAT_READ_EVENTSUB])) {
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_MESSAGES, "1", {user_id:uid})
+				.then(res => {
+					if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				});
+			}
+
+			if(TwitchUtils.hasScopes([TwitchScopes.AUTOMOD])) {
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_TERMS_UPDATE, "1")
+				.then(res => {
+					if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				});
+			}
+
+			if(TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING])) {
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_ACKNOWLEDGE, "1")
+				.then(res => {
+					if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				});
+			}
+		}
+
+		TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {to_broadcaster_user_id:uid})
+		.then(res => {
+			if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+		});
+	}
+
+	/**
+	 * Disconnect from remote chan.
+	 * Deletes all eventsub subscriptions related to given chan
+	 * @param user 
+	 */
+	public async disconnectRemoteChan(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
+		console.log(user.displayName)
+		console.log(this.remoteChanSubscriptions[user.id])
+		if(!this.remoteChanSubscriptions[user.id]) return;
+		this.remoteChanSubscriptions[user.id].forEach(id => {
+			TwitchUtils.eventsubDeleteSubscriptions(id);
+		})
+		delete this.remoteChanSubscriptions[user.id];
 	}
 
 
@@ -470,7 +594,8 @@ export default class EventSub {
 		StoreProxy.stream.shieldModeEnabled = enabled;
 
 		//Sync emergency mod if requested
-		if(StoreProxy.emergency.params.autoEnableOnShieldmode) {
+		if(StoreProxy.emergency.params.autoEnableOnShieldmode
+		&& event.broadcaster_user_id == StoreProxy.auth.twitch.user.id) {
 			StoreProxy.emergency.setEmergencyMode( enabled );
 		}
 	}

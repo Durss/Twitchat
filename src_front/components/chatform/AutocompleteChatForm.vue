@@ -48,7 +48,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
  * This component is used to select an emote by typing ":xxx" on the
  * message field.
  */
- class AutocompleteChatForm extends Vue {
+class AutocompleteChatForm extends Vue {
 
 	@Prop
 	public search!:string;
@@ -68,11 +68,12 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 	public getClasses(index:number, item:ListItem):string[] {
 		let res = ["item"];
-		if(index == this.selectedIndex)						res.push('selected');
-		if(item.type == "cmdS" && item.disabled)				res.push('disabled');
+		if(index == this.selectedIndex)				res.push('selected');
+		if(item.type == "cmdS" && item.disabled)	res.push('disabled');
 		if(item.type == "cmdS" && item.rawCmd) {
 			if(item.rawCmd.needAdmin)		res.push('admin');
 			if(item.rawCmd.needModerator)	res.push('mod');
+			if(item.rawCmd.needBroadcaster)	res.push('mod');
 		}
 		res.push(item.type);
 		return res;
@@ -229,14 +230,18 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 					}
 				}
 			}
-
+			
 			//Search for slash commands
 			if(this.commands) {
+				const currentChanId = this.$store.stream.currentChatChannel.id;
+				const me = sAuth.twitch.user;
 				const cmds = sChat.commands;
-				const hasChannelPoints = sAuth.twitch.user.is_affiliate || sAuth.twitch.user.is_partner;
+				const hasChannelPoints = me.is_affiliate || me.is_partner;
 				const hasDiscordCmd = sDiscord.discordLinked && sDiscord.chatCmdTarget;
-				const isAdmin = sAuth.twitch.user.is_admin === true;
-				const isMod = true;
+				const isBroadcaster = me.id === currentChanId;
+				const isAdmin = me.channelInfo[currentChanId]?.is_moderator === true;
+				const isMod = me.channelInfo[currentChanId]?.is_moderator === true;
+				console.log("ismod? ", isMod);
 
 				//Search in global slash commands
 				for (let j = 0; j < cmds.length; j++) {
@@ -249,6 +254,9 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 						//Remove admin specific commands if we're not an admin
 						if(e.needAdmin === true && !isAdmin) continue;
+
+						//Remove broadcaster specific commands if we're not a mod
+						if(e.needBroadcaster === true && !isBroadcaster) continue;
 
 						//Remove moderator specific commands if we're not a mod
 						if(e.needModerator === true && !isMod) continue;

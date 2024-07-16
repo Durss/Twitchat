@@ -10,10 +10,11 @@
 		"follower_only": "Follower only",
 		"last_raided_user": "Votre dernier raid",
 		"last_raid_date": "Raid il y a {DATE}",
-		"spam_linkBt": "Spam le lien vers la chaîne 10x",
+		"spam_linkBt": "Spam le lien de la chaîne 10x",
 		"stream_summaryBt": "Résumé du stream",
 		"raid_liveBt": "Chaînes en live",
 		"raid_historyBt": "Historique de raids",
+		"remote_chat": "Se connecter au tchat de {USER}",
 		"target_channel_previous_raid": "Votre dernier raid était sur cette chaîne.",
 		"target_channel_offline": "La chaîne que vous êtes sur le point de raid n'est pas en ligne !"
 	}

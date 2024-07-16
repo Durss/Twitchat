@@ -1,7 +1,7 @@
 <template>
-	<div class="raidstate gameStateWindow">
+	<div class="raidstate gameStateWindow" v-if="user">
 		<div class="head">
-			<a v-if="user && user.avatarPath" :href="'https://twitch.tv/'+user.login" target="_blank">
+			<a v-if="user.avatarPath" :href="'https://twitch.tv/'+user.login" target="_blank">
 				<img :src="user.avatarPath" alt="avatar" class="avatar">
 			</a>
 			<i18n-t scope="global" tag="span" keypath="raid.raiding">
@@ -25,11 +25,11 @@
 			</div>
 		</div>
 
-		<div class="card-item infos" v-if="raidingLatestRaid"><Icon name="info" />{{ $t("raid.target_channel_previous_raid") }}</div>
+		<div class="card-item infos" v-if="!isModeratedChan && raidingLatestRaid"><Icon name="info" />{{ $t("raid.target_channel_previous_raid") }}</div>
 
 		<div class="card-item alert infos" v-if="targetChannelOffline"><Icon name="alert" />{{ $t("raid.target_channel_offline") }}</div>
 
-		<ToggleBlock class="bannedAlert" v-if="bannedOnline.length > 0 || timedoutOnline.length > 0"
+		<ToggleBlock class="bannedAlert" v-if="isModeratedChan && bannedOnline.length > 0 || timedoutOnline.length > 0"
 		alert medium :open="false"
 		:title="$tc('raid.banned_users_title', (bannedOnline.length + timedoutOnline.length), {COUNT:(bannedOnline.length + timedoutOnline.length)})">
 			<template #left_actions>
@@ -61,13 +61,14 @@
 		</ToggleBlock>
 
 		<div class="ctas">
-			<Button light @click="spamLink()" :loading="coolingDownSpam" v-newflag="{date:1693519200000, id:'raid_spam'}">{{ $t('raid.spam_linkBt') }}</Button>
-			<Button light @click="openSummary()" v-newflag="{date:1693519200000, id:'raid_summary'}">{{ $t('raid.stream_summaryBt') }}</Button>
+			<Button light @click="remoteConnect()" v-if="canRemoteConnect" :loading="remoteConnecting" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'raid_remotechat'}" icon="online">{{ $t('raid.remote_chat', {USER:user!.displayNameOriginal}) }}</Button>
+			<Button light @click="spamLink()" v-if="!isRemoteRaid" :loading="coolingDownSpam" v-newflag="{date:1693519200000, id:'raid_spam'}">{{ $t('raid.spam_linkBt') }}</Button>
+			<Button light @click="openSummary()" v-if="!isRemoteRaid" v-newflag="{date:1693519200000, id:'raid_summary'}">{{ $t('raid.stream_summaryBt') }}</Button>
 		</div>
 
-		<Button icon="cross" alert @click="cancelRaid()" v-if="canCancel" :loading="canceling">{{ $t('global.cancel') }}</Button>
+		<Button icon="cross" alert @click="cancelRaid()" v-if="!isRemoteRaid" :loading="canceling">{{ $t('global.cancel') }}</Button>
 
-		<div class="card-item infos">{{ $t("raid.cant_force", {TIMER:timeLeft}) }}</div>
+		<div class="card-item infos" v-if="!isRemoteRaid">{{ $t("raid.cant_force", {TIMER:timeLeft}) }}</div>
 
 	</div>
 </template>
@@ -93,6 +94,8 @@ class RaidState extends Vue {
 	public timeLeft = "";
 	public canceling = false;
 	public censorCount = false;
+	public canRemoteConnect = true;
+	public remoteConnecting = false;
 	public coolingDownSpam = false;
 	public raidingLatestRaid = false;
 	public targetChannelOffline = false;
@@ -102,16 +105,15 @@ class RaidState extends Vue {
 	public roomSettings:TwitchatDataTypes.IRoomSettings|null = null;
 
 	private timerDuration = 90000;
-	private timerStart = 0;
 	private timerInterval:number = -1;
 
+	public get isRemoteRaid() { return this.raidInfo.channel_id != this.$store.auth.twitch.user.id; }
 	public get raidInfo() { return this.$store.stream.currentRaid!; }
-	public get canCancel() {
-		return true;
-		// if(!this.user) return false;
-		// const chaninfo = this.$store.auth.twitch.user.channelInfo[this.user.id];
-		// if(!chaninfo) return false;
-		// return chaninfo.is_broadcaster || chaninfo.is_moderator;
+	public get isModeratedChan() {
+		if(!this.user) return false;
+		const chaninfo = this.$store.auth.twitch.user.channelInfo[this.user.id];
+		if(!chaninfo) return false;
+		return chaninfo.is_broadcaster || chaninfo.is_moderator;
 	}
 
 	public getBanDuration(user:TwitchatDataTypes.TwitchatUser):string {
@@ -121,7 +123,7 @@ class RaidState extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		this.timerStart = Date.now();
+		this.updateTimer();
 		this.timerInterval = window.setInterval(()=> {
 			this.updateTimer();
 		}, 250);
@@ -181,7 +183,7 @@ class RaidState extends Vue {
 	}
 
 	public updateTimer():void {
-		const seconds = this.timerDuration - (Date.now() - this.timerStart);
+		const seconds = this.timerDuration - (Date.now() - this.raidInfo.startedAt);
 		if(seconds <= 0) {
 			this.$store.stream.onRaidComplete();
 			return;
@@ -221,6 +223,16 @@ class RaidState extends Vue {
 		gsap.fromTo(bt.$el, {filter:"brightness(3)"}, {filter:"brightness(1)", duration:.25});
 	}
 
+	/**
+	 * Connect to raided chat
+	 */
+	public remoteConnect():void {
+		this.remoteConnecting = true;
+		this.$store.stream.connectToExtraChan(this.user!);
+		setTimeout(()=>{
+			this.canRemoteConnect = false;
+		},500)
+	}
 }
 export default toNative(RaidState);
 </script>
@@ -267,8 +279,7 @@ export default toNative(RaidState);
 	}
 
 	.timer {
-		font-size: .8em;
-		font-family: var(--font-azeret);
+		font-variant-numeric: tabular-nums;
 	}
 
 	.startBt {

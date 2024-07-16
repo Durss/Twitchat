@@ -2,7 +2,6 @@ import Database from '@/store/Database';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { LoremIpsum } from "lorem-ipsum";
 import { EventDispatcher } from "../../events/EventDispatcher";
 import Config from '../Config';
 import Utils from "../Utils";
@@ -213,55 +212,6 @@ export default class PubSub extends EventDispatcher {
 		this.parseEvent(PubsubJSON.BoostProgress2);
 		await Utils.promisedTimeout(5000);
 		this.parseEvent(PubsubJSON.BoostComplete);
-	}
-
-	/**
-	 * Simulate a low trust user message
-	 */
-	public async simulateLowTrustUser():Promise<void> {
-		const uid = StoreProxy.auth.twitch.user.id;
-		const message = "This is a message sent by a low trusted user";
-		const m: TwitchatDataTypes.MessageChatData = {
-			id:Utils.getUUID(),
-			date:Date.now(),
-			platform:"twitch",
-			channel_id:uid,
-			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-			answers:[],
-			user: StoreProxy.users.getUserFrom("twitch", uid, uid),
-			message,
-			message_chunks: TwitchUtils.parseMessageToChunks(message),
-			message_html:message,
-			message_size:0,
-			twitch_isSuspicious:true,
-			is_short:false,
-		};
-		m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
-		StoreProxy.chat.addMessage(m)
-
-		//Flag mesage as low trust
-		this.parseEvent(m);
-	}
-
-	/**
-	 * Simulate a follow bot event by sending lots of fake follow events
-	 */
-	public async simulateFollowbotItem():Promise<void> {
-		const lorem = new LoremIpsum({ wordsPerSentence: { max: 40, min: 40 } });
-		const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
-		const channelId = StoreProxy.auth.twitch.user.id;
-		const uid = Math.round(Math.random()*99999999999).toString();
-		const message:TwitchatDataTypes.MessageFollowingData = {
-			id:Utils.getUUID(),
-			date:Date.now(),
-			platform:"twitch",
-			channel_id: channelId,
-			type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
-			user: StoreProxy.users.getUserFrom("twitch", channelId, uid, login, login , undefined, true),
-			followed_at: Date.now(),
-			followbot:true,
-		};
-		StoreProxy.chat.addMessage(message);
 	}
 
 

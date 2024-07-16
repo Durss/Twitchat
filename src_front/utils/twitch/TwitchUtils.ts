@@ -2281,7 +2281,7 @@ export default class TwitchUtils {
 	/**
 	 * Subscribe to an eventsub topic
 	 */
-	public static async eventsubSubscribe(channelId: string, userId: string, session_id: string, topic: string, version: "1" | "2" | "3" | "beta", additionalCondition?: { [key: string]: any }, attemptCount: number = 0): Promise<false | string[]> {
+	public static async eventsubSubscribe(channelId: string, userId: string, session_id: string, topic: string, version: "1" | "2" | "3" | "beta", additionalCondition?: { [key: string]: any }, attemptCount: number = 0): Promise<false | string> {
 		const body = {
 			type: topic,
 			version,
@@ -2307,11 +2307,11 @@ export default class TwitchUtils {
 			body: JSON.stringify(body)
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH + "eventsub/subscriptions");
-
 		const res = await this.callApi(url, options);
-		if (res.status == 200 || res.status == 204) {
-			const json: { data: { user_login: string }[] } = await res.json();
-			return json.data.map(v => v.user_login);
+		if (res.status == 202) {
+			const json: { data: TwitchDataTypes.EventsubSubscription[] } = await res.json();
+			console.log(json.data[0]);
+			return json.data[0].id;
 		} else
 			if (res.status == 429) {
 				//Rate limit reached, try again after it's reset to full

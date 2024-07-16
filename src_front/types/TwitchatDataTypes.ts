@@ -807,6 +807,7 @@ export namespace TwitchatDataTypes {
 		needTTS?:boolean;
 		needAdmin?:boolean;
 		needModerator?:boolean,
+		needBroadcaster?:boolean,
 		needDiscordChan?:boolean;
 		twitchCmd?:boolean,
 		twitch_scopes?:TwitchScopesString[],
