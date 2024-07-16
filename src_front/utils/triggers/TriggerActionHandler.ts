@@ -1734,13 +1734,13 @@ export default class TriggerActionHandler {
 					const url = new URL(uri);
 					for (const tag of step.queryParams) {
 						const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent);
-						if(step.method == "POST" && step.sendAsBody == true) {
+						if((step.method == "POST" || step.method == "PATCH") && step.sendAsBody == true) {
 							body[tag.toLowerCase()] = text;
 						}else{
 							url.searchParams.append(tag.toLowerCase(), text);
 						}
 					}
-					if(step.method == "POST") {
+					if(step.method == "POST" || step.method == "PATCH") {
 						if(step.sendAsBody == true) {
 							headers["Content-Type"] = "application/json";
 							options.body = JSON.stringify(body);
