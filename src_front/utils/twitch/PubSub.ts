@@ -837,7 +837,7 @@ export default class PubSub extends EventDispatcher {
 			timeLeft_s:data.events_remaining_durations[key],
 			state: "APPROACHING",
 			is_boost_train:data.is_boost_train,
-			is_golden_kappa:false,
+			is_golden_kappa:data.is_golden_kappa_train == true,
 			is_new_record:false,
 		};
 		StoreProxy.stream.setHypeTrain(train);
@@ -881,7 +881,7 @@ export default class PubSub extends EventDispatcher {
 			timeLeft_s:data.progress.remaining_seconds,
 			state: "START",
 			is_boost_train:data.is_boost_train,
-			is_golden_kappa:data.isGoldenKappaTrain ?? false,
+			is_golden_kappa:data.isGoldenKappaTrain ?? data.is_golden_kappa_train ?? false,
 			is_new_record:false,
 			conductor_bits:storeTrain?.conductor_bits,
 			conductor_subs:storeTrain?.conductor_subs,

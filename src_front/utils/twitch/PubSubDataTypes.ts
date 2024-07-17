@@ -331,6 +331,10 @@ export namespace PubSubDataTypes {
 		participants: string[];
 		approaching_hype_train_id: string;
 		is_boost_train: boolean;
+		/**
+		 * Probably doesn't exist, just here in case they add it
+		 */
+		is_golden_kappa_train?: boolean; 
 	}
 
 	export interface HypeTrainStart {
@@ -341,7 +345,6 @@ export namespace PubSubDataTypes {
 		updated_at: number;
 		ended_at?: number;
 		ending_reason?: string;
-		isGoldenKappaTrain?: boolean;
 		config: {
 			channel_id: string;
 			is_enabled: boolean;
@@ -419,6 +422,13 @@ export namespace PubSubDataTypes {
 		conductors: unknown;
 		progress: HypeProgressInfo;
 		is_boost_train: boolean;
+		isGoldenKappaTrain?: boolean;
+		/**
+		 * Probably doesn't exist, but i've had report a golden kappa train
+		 * didn't show ias such.
+		 * I suspect they renamed the flag properly so here is a blind shot
+		 */
+		is_golden_kappa_train?: boolean; 
 	}
 
 	export interface HypeTrainProgress {

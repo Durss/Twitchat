@@ -98,7 +98,6 @@ export const storeOBS = defineStore('obs', {
 						if(v.url.indexOf(document.location.origin)){
 							let url = new URL(res.inputSettings.url as string);
 							const portUrl = url.searchParams.get("obs_port");
-							const passUrl = url.searchParams.get("obs_pass");
 							const ipUrl = url.searchParams.get("obs_ip");
 							if(portUrl && ipUrl) {
 								url.searchParams.set("obs_ip", ip!);
