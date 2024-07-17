@@ -342,6 +342,7 @@ export namespace PubSubDataTypes {
 		ended_at?: number;
 		ending_reason?: string;
 		isGoldenKappaTrain?: boolean;
+		is_golden_kappa_train?: boolean;//Twitchat changed the naming
 		config: {
 			channel_id: string;
 			is_enabled: boolean;
