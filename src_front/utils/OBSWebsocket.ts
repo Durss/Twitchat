@@ -791,7 +791,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			newSettings.url = "file:///"+url;
 		}
 
-		await this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:newSettings as JsonObject});
+		await this.obs.call("SetInputSettings", {inputName:sourceName as string, overlay:true, inputSettings:newSettings as JsonObject});
 	}
 
 	/**

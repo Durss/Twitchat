@@ -1,11 +1,12 @@
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebsocket, { type OBSInputItem } from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IOBSActions, IOBSGetters, IOBSState } from '../StoreProxy';
 import type { JsonObject } from 'type-fest';
+import TwitchatEvent from '@/events/TwitchatEvent';
 
 export const storeOBS = defineStore('obs', {
 	state: () => ({
@@ -81,6 +82,34 @@ export const storeOBS = defineStore('obs', {
 				OBSWebsocket.instance.connect(port || "4455", pass || "", true, ip || "127.0.0.1");
 			}
 
+			//Updates all twitchat browser sources with current OBS credentials
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_WEBSOCKET_CONNECTED, async ()=>{
+				const res = await OBSWebsocket.instance.socket.call("GetInputList", {inputKind:"browser_source"});
+				const sources = (res.inputs as unknown) as OBSInputItem[];
+				const filteredSources = sources
+								.filter(v=> v.inputKind == "browser_source")
+								.map(v=>{
+									return {loading:false, success:false, source:v, url:"", localFile:false}
+								});
+
+				filteredSources.forEach(v=> {
+					OBSWebsocket.instance.getSourceSettings<{is_local_file:boolean, url:string, local_file:string}>(v.source.inputName)
+					.then(res => {
+						if(v.url.indexOf(document.location.origin)){
+							let url = new URL(res.inputSettings.url as string);
+							const portUrl = url.searchParams.get("obs_port");
+							const passUrl = url.searchParams.get("obs_pass");
+							const ipUrl = url.searchParams.get("obs_ip");
+							if(portUrl && ipUrl) {
+								url.searchParams.set("obs_ip", ip!);
+								url.searchParams.set("obs_port", port!);
+								if(pass) url.searchParams.set("obs_pass", pass);
+								OBSWebsocket.instance.setBrowserSourceURL(v.source.inputName, url.toString())
+							}
+						}
+					});
+				})
+			})
 		},
 		setOBSSceneCommands(value:TwitchatDataTypes.OBSSceneCommand[]) {
 			this.sceneCommands = value;
