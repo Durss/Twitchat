@@ -157,6 +157,7 @@ class BingoGridView extends Vue {
 	private bingoCountDebounce:number = -1;
 	private notificationDebounce:number = -1;
 	private prevGridStates:boolean[] = [];
+	private pageFocusHandler!:(e:Event) => void;
 	private sseUntickAllHandler!:(e:SSEEvent<"BINGO_GRID_UNTICK_ALL">) => void;
 	private sseCellStatesHandler!:(e:SSEEvent<"BINGO_GRID_CELL_STATES">) => void;
 	private sseGridUpdateHandler!:(e:SSEEvent<"BINGO_GRID_UPDATE">) => void;
@@ -190,11 +191,13 @@ class BingoGridView extends Vue {
 		this.sseCellStatesHandler = (e:SSEEvent<"BINGO_GRID_CELL_STATES">) => this.onCellsStates(e);
 		this.sseUntickAllHandler = (e:SSEEvent<"BINGO_GRID_UNTICK_ALL">) => this.onUntickAll(e);
 		this.sseGridUpdateHandler = (e:SSEEvent<"BINGO_GRID_UPDATE">) => this.onGridUpdate(e.data);
+		this.pageFocusHandler = (e:Event) => {this.notificationCount = 0;}
 
 		SSEHelper.instance.addEventListener(SSEEvent.FAILED_CONNECT, this.sseFailedConnectingHandler);
 		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_UPDATE, this.sseGridUpdateHandler);
 		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_CELL_STATES, this.sseCellStatesHandler);
 		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_UNTICK_ALL, this.sseUntickAllHandler);
+		document.addEventListener("focus", this.pageFocusHandler);
 	}
 
 	public beforeUnmount():void {
@@ -204,6 +207,7 @@ class BingoGridView extends Vue {
 		SSEHelper.instance.removeEventListener(SSEEvent.BINGO_GRID_UPDATE, this.sseGridUpdateHandler);
 		SSEHelper.instance.removeEventListener(SSEEvent.BINGO_GRID_CELL_STATES, this.sseCellStatesHandler);
 		SSEHelper.instance.removeEventListener(SSEEvent.BINGO_GRID_UNTICK_ALL, this.sseUntickAllHandler);
+		document.removeEventListener("focus", this.pageFocusHandler);
 	}
 
 	/**
@@ -270,6 +274,7 @@ class BingoGridView extends Vue {
 			this.error = true;
 		}
 		this.loading = false;
+		this.setPageTitle();
 	}
 
 	/**
@@ -291,6 +296,7 @@ class BingoGridView extends Vue {
 				ApiHelper.call("bingogrid/moderate", "POST", {states, uid:this.param_uid, gridid:this.param_gridId});
 			}, 500);
 		}
+		this.setPageTitle();
 	}
 
 	/**
@@ -433,6 +439,7 @@ class BingoGridView extends Vue {
 			}, 2000);
 		}
 		this.bingoCount = bingoCount;
+		this.setPageTitle();
 	}
 
 	/**
@@ -607,6 +614,7 @@ class BingoGridView extends Vue {
 	 * Plays a notification sound
 	 */
 	private playNotification():void {
+		this.setPageTitle();
 		clearTimeout(this.notificationDebounce);
 		this.notificationDebounce = setTimeout(() => {
 			const audio = new Audio(this.$image("sounds/notification.mp3"));
@@ -620,6 +628,22 @@ class BingoGridView extends Vue {
 	 */
 	private onFailedConnecting():void {
 		this.sseError = true;
+	}
+
+	/**
+	 * Updates page title
+	 */
+	private setPageTitle():void {
+		let title:string = "Bingo - "+this.title;
+		if(this.$store.public.authenticated && !this.isModerator) {
+			let untickedCells = 0;
+			for (let i = 0; i < this.entries.length; i++) {
+				const entry = this.entries[i];
+				if(entry.enabled && !entry.check) untickedCells ++;
+			}
+			if(untickedCells > 0) title = "("+untickedCells+") "+title;
+		}
+		document.title = title;
 	}
 }
 export default toNative(BingoGridView);
