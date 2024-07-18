@@ -76,7 +76,16 @@ export default class PubSub extends EventDispatcher {
 				"pinned-chat-updates-v1."+myUID,//when a message is un/pinned
 				"predictions-channel-v1."+myUID,
 				"polls."+myUID,
-				"hype-train-events-v1."+myUID,
+				"hype-train-events-v2."+myUID,
+				// "hype-train-events-v2.117011503",//Testing golden kappa data
+				// "hype-train-events-v2.500128827",//Testing golden kappa data
+				// "hype-train-events-v2.121652526",//Testing golden kappa data
+				// "hype-train-events-v2.133034596",//Testing golden kappa data
+				// "hype-train-events-v2.874523557",//Testing golden kappa data
+				// "hype-train-events-v2.717849140",//Testing golden kappa data
+				// "hype-train-events-v2.40729999",//Testing golden kappa data
+				// "hype-train-events-v2.47148210",//Testing golden kappa data
+				// "hype-train-events-v2.83064983",//Testing golden kappa data
 				"raid."+myUID,
 				"community-moments-channel-v1."+myUID,
 				"user-moderation-notifications."+myUID+"."+myUID,
@@ -342,10 +351,10 @@ export default class PubSub extends EventDispatcher {
 
 
 		}else if(data.type == "hype-train-approaching") {
-			this.hypeTrainApproaching(data.data as  PubSubDataTypes.HypeTrainApproaching);
+			this.hypeTrainApproaching(data.data as  PubSubDataTypes.HypeTrainApproaching, channelId);
 
 		}else if(data.type == "hype-train-start") {
-			this.hypeTrainStart(data.data as  PubSubDataTypes.HypeTrainStart);
+			this.hypeTrainStart(data.data as  PubSubDataTypes.HypeTrainStart, channelId);
 
 		}else if(data.type == "hype-train-progression") {
 			this.hypeTrainProgress(data.data as  PubSubDataTypes.HypeTrainProgress, channelId);
@@ -823,7 +832,7 @@ export default class PubSub extends EventDispatcher {
 	 * Called when a hype train approaches
 	 * @param data
 	 */
-	private hypeTrainApproaching(data:PubSubDataTypes.HypeTrainApproaching):void {
+	private hypeTrainApproaching(data:PubSubDataTypes.HypeTrainApproaching, channelId:string):void {
 		const key = Object.keys(data.events_remaining_durations)[0];
 		const wasAlreadyApproaching = StoreProxy.stream.hypeTrain != undefined;
 		const train:TwitchatDataTypes.HypeTrainStateData = {
@@ -866,21 +875,21 @@ export default class PubSub extends EventDispatcher {
 	 * Called when a hype train starts
 	 * @param data
 	 */
-	private hypeTrainStart(data:PubSubDataTypes.HypeTrainStart):void {
+	private hypeTrainStart(data:PubSubDataTypes.HypeTrainStart, channelId:string):void {
 		console.log("START", data);
 		clearTimeout(this.hypeTrainApproachingTimer);
 		const storeTrain = StoreProxy.stream.hypeTrain;
 		const train:TwitchatDataTypes.HypeTrainStateData = {
-			channel_id:data.channel_id,
+			channel_id:channelId,
 			level:data.progress.level.value,
-			currentValue:data.progress.value,
+			currentValue:data.progress.progression,
 			goal:data.progress.goal,
 			approached_at:storeTrain?.approached_at ?? Date.now(),
 			started_at:Date.now(),
 			updated_at:Date.now(),
-			timeLeft_s:data.progress.remaining_seconds,
+			timeLeft_s:new Date(data.expiresAt).getTime(),
 			state: "START",
-			is_boost_train:data.is_boost_train,
+			is_boost_train:data.is_boost_train === true,
 			is_golden_kappa:data.isGoldenKappaTrain ?? data.is_golden_kappa_train ?? false,
 			is_new_record:false,
 			conductor_bits:storeTrain?.conductor_bits,
@@ -893,7 +902,7 @@ export default class PubSub extends EventDispatcher {
 
 		StoreProxy.stream.setHypeTrain(train);
 		const message:TwitchatDataTypes.MessageHypeTrainEventData = {
-			channel_id:data.channel_id,
+			channel_id:channelId,
 			platform:"twitch",
 			date:Date.now(),
 			id:Utils.getUUID(),
@@ -981,7 +990,7 @@ export default class PubSub extends EventDispatcher {
 			timeLeft_s:data.progress.remaining_seconds,
 			state: "LEVEL_UP",
 			is_boost_train:data.is_boost_train,
-			is_golden_kappa:storeTrain?.is_golden_kappa ?? false,
+			is_golden_kappa:storeTrain?.is_golden_kappa ?? data.hype_train.isGoldenKappaTrain ?? false,
 			is_new_record:storeTrain?.is_new_record ?? false,
 			conductor_bits:storeTrain?.conductor_bits,
 			conductor_subs:storeTrain?.conductor_subs,

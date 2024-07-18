@@ -218,6 +218,9 @@ export default toNative(ChatHypeTrainResult);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		mark {
+			font-size: 1em;
+		}
 	}
 
 	.details {
