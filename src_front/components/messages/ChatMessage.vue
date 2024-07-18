@@ -616,6 +616,7 @@ class ChatMessage extends AbstractChatMessage {
 		}
 		this.clipHighlightLoading = true;
 		const data:TwitchatDataTypes.ChatHighlightInfo = {
+			message_id:this.messageData.id,
 			clip:{
 				url:this.clipInfo!.embed_url+"&autoplay=true&parent=twitchat.fr&parent=localhost",
 				mp4:this.clipInfo!.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
@@ -624,7 +625,7 @@ class ChatMessage extends AbstractChatMessage {
 			params:this.$store.chat.chatHighlightOverlayParams,
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
-		this.$store.chat.isChatMessageHighlighted = true;
+		this.$store.chat.highlightedMessageId = this.messageData.id;
 		await Utils.promisedTimeout(1000);
 		this.clipHighlightLoading = false;
 	}

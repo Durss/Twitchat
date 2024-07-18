@@ -94,10 +94,11 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 		}
 		const data:TwitchatDataTypes.ChatHighlightInfo = {
 			clip,
+			message_id:this.messageData.id,
 			params:this.$store.chat.chatHighlightOverlayParams,
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
-		this.$store.chat.isChatMessageHighlighted = true;
+		this.$store.chat.highlightedMessageId = this.messageData.id;
 	}
 
 }

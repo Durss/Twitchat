@@ -583,8 +583,8 @@ export const storeMain = defineStore("main", {
 			/**
 			 * Listen for highlighted message to show up the "close highlighted message" button
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent<{message:string}|undefined>)=> {
-				sChat.isChatMessageHighlighted = e.data != undefined && e.data.message != undefined;
+			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent<{message:string, message_id:string}|undefined>)=> {
+				sChat.highlightedMessageId = e.data?.message_id || null;
 			});
 
 			/**

@@ -1398,10 +1398,12 @@ export default class TriggerActionHandler {
 							const matches = text.match(/clips\.twitch\.[^/]{2,10}\/([^/?\s\\"<']+)/i);
 							clipId = matches? matches[1] : "";
 						}
+						let message_id = Utils.getUUID();
 						if(clipId) {
 							const clip = await TwitchUtils.getClipById(clipId);
 
 							const data:TwitchatDataTypes.ChatHighlightInfo = {
+								message_id,
 								clip:{
 									url: clip!.embed_url+"&autoplay=true&parent=twitchat.fr&parent=localhost",
 									mp4: clip!.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
@@ -1416,16 +1418,17 @@ export default class TriggerActionHandler {
 							//Highlight user message as text
 							const info:TwitchatDataTypes.ChatHighlightInfo = {
 								message:text,
+								message_id,
 								user,
 								params:StoreProxy.chat.chatHighlightOverlayParams,
 							};
 							logStep.messages.push({date:Date.now(), value:"Highlight message \""+text+"\""});
 							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (info as unknown) as JsonObject)
 						}
-						StoreProxy.chat.isChatMessageHighlighted = true;
+						StoreProxy.chat.highlightedMessageId = message_id;
 					}else{
 						PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, {})
-						StoreProxy.chat.isChatMessageHighlighted = false;
+						StoreProxy.chat.highlightedMessageId = null;
 					}
 				}else
 

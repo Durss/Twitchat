@@ -493,7 +493,7 @@ export class ChatForm extends Vue {
 	}
 
 	public get chatHighlightEnabled():boolean {
-		return this.$store.chat.isChatMessageHighlighted;
+		return this.$store.chat.highlightedMessageId != null;
 	}
 
 	public get openAutoComplete():boolean {

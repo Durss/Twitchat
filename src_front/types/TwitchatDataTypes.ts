@@ -961,7 +961,8 @@ export namespace TwitchatDataTypes {
 		message?:string,
 		user?:TwitchatUser,
 		clip?:ClipInfo,
-		params?:ChatHighlightParams,
+		params:ChatHighlightParams,
+		message_id:string;
 	}
 	export interface ChatHighlightParams {
 		position:ScreenPosition;

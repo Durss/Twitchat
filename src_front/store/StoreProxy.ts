@@ -564,9 +564,9 @@ export interface IChatState {
 	 */
 	spoilerParams:TwitchatDataTypes.SpoilerParamsData,
 	/**
-	 * Is a message highlighted on the overlay
+	 * Currently highlighted message on the overlay
 	 */
-	isChatMessageHighlighted: boolean;
+	highlightedMessageId: string|null;
 	/**
 	 * Parameters of the chat highlight overlay.
 	 * Contains the position on screen of the overlay

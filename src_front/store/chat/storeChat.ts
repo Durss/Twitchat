@@ -629,7 +629,7 @@ export const storeChat = defineStore('chat', {
 			autoSpoilNewUsers:false,
 		},
 
-		isChatMessageHighlighted: false,
+		highlightedMessageId: null,
 		chatHighlightOverlayParams: {
 			position:"bl",
 		},
@@ -1973,7 +1973,10 @@ export const storeChat = defineStore('chat', {
 		},
 
 		async highlightChatMessageOverlay(message?:TwitchatDataTypes.TranslatableMessage) {
-			if(message && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.user.id) {
+			if(message
+			&& message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+			&& message.user.id
+			&& this.highlightedMessageId != message.id) {
 				if(message.platform == "twitch"
 				&& (!message.user.displayName || !message.user.avatarPath || !message.user.login)) {
 					//Get user info
@@ -1985,11 +1988,12 @@ export const storeChat = defineStore('chat', {
 				}
 
 				const info:TwitchatDataTypes.ChatHighlightInfo = {
-					message:message.message_html,
+					message:message.message_html || message.message || "",
+					message_id:message.id,
 					user:message.user,
 					params:this.chatHighlightOverlayParams
 				};
-				this.isChatMessageHighlighted = true;
+				this.highlightedMessageId = message.id;
 
 				const m:TwitchatDataTypes.MessageChatHighlightData = {
 					id:Utils.getUUID(),
@@ -2002,7 +2006,7 @@ export const storeChat = defineStore('chat', {
 				this.addMessage(m);
 				PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (info as unknown) as JsonObject);
 			}else{
-				this.isChatMessageHighlighted = false;
+				this.highlightedMessageId = null;
 				PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE);
 			}
 
