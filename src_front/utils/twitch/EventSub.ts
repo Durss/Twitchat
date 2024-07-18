@@ -188,10 +188,6 @@ export default class EventSub {
 			TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
 			TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
 
-			if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
-				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, "2");
-			}
-
 			if(TwitchUtils.hasScopes([TwitchScopes.ADS_READ])) {
 				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.AD_BREAK_BEGIN, "1");
 			}
@@ -243,6 +239,11 @@ export default class EventSub {
 		}
 
 		if(isMod) {
+
+			if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, "2");
+			}
+			
 			if(TwitchUtils.hasScopes([TwitchScopes.BLOCKED_TERMS,
 			TwitchScopes.SET_ROOM_SETTINGS,
 			TwitchScopes.UNBAN_REQUESTS,
@@ -266,11 +267,10 @@ export default class EventSub {
 						if(res !== false) this.remoteChanSubscriptions[uid].push(res)
 					});
 				}
-				//Doesn't support moderator token to date
-				// if(TwitchUtils.hasScopes([TwitchScopes.UNBAN_REQUESTS])) {
-				// 	TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_NEW, "1");
-				// 	TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_RESOLVED, "1");
-				// }
+				if(TwitchUtils.hasScopes([TwitchScopes.UNBAN_REQUESTS])) {
+					TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_NEW, "1");
+					TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_RESOLVED, "1");
+				}
 				if(TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_SENT, "1")
 					.then(res => {
