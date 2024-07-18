@@ -1633,16 +1633,17 @@ import { Linear } from 'gsap/all';
 			let thresholdBottom = listBounds.top + listBounds.height* 3/4;
 			//If message is above 1/4 of the chat height, scroll top
 			if(messageBounds.top < thresholdTop) {
+				
 				this.lockScroll = true;
 				this.virtualScrollY -= thresholdTop - messageBounds.top;
-				// messageHolder.scrollTop = this.virtualScrollY;
+				messageHolder.scrollTop = this.virtualScrollY;
 				gsap.killTweensOf(messageHolder)
 				// gsap.to(messageHolder, {duration:.25, ease:Linear.easeNone, scrollTop:this.virtualScrollY});
-
+				
 				//If message is bellow 3/4 of the chat height, scroll down
 			}else if(messageBounds.top > thresholdBottom) {
 				this.virtualScrollY += messageBounds.top - thresholdBottom;
-				// messageHolder.scrollTop = this.virtualScrollY;
+				messageHolder.scrollTop = this.virtualScrollY;
 				gsap.killTweensOf(messageHolder)
 				// gsap.to(messageHolder, {duration:.25, ease:Linear.easeNone, scrollTop:this.virtualScrollY});
 				this.onScroll(messageBounds.height);
