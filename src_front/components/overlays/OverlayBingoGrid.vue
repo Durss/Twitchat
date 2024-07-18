@@ -743,7 +743,7 @@ export default toNative(OverlayBingoGrid);
 .overlaybingogrid{
 	@borderSize: min(.75vh, .75vw);
 	transform-origin: center center;
-	.cells, .alerts {
+	.cells {
 		gap: @borderSize;
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
@@ -801,9 +801,15 @@ export default toNative(OverlayBingoGrid);
 	.alerts {
 		z-index: 101;
 		display: block;
-		transform: translateY(-100%);
-		position: relative;
+		// transform: translateY(-100%);
+		position: absolute;
 		overflow: hidden;
+		border-radius: calc(min(100vw, 100vh) / 50);
+		top: 0;
+		left: 0;
+		width: min(100vw, 100vh);
+		max-width: 100vw;
+		max-height: 100vh;
 		.star {
 			color: #ffffff;
 			position: absolute;
