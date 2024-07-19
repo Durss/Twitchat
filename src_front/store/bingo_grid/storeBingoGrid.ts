@@ -759,12 +759,12 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			const viewers = this.viewersBingoCount[gridId];
 			if(!viewers || !viewers.length) return;
 			//Add fake users
-			for (let i = 0; i < 15; i++) {
-				viewers.push({
-					count:Math.round(Math.random()*10+1),
-					user:Utils.pickRand(StoreProxy.users.users),
-				});
-			}
+			// for (let i = 0; i < 15; i++) {
+			// 	viewers.push({
+			// 		count:Math.round(Math.random()*10+1),
+			// 		user:Utils.pickRand(StoreProxy.users.users),
+			// 	});
+			// }
 			const data = {
 				gridId,
 				scores:viewers.sort((a,b)=> {
