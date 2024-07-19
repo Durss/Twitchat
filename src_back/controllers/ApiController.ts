@@ -64,7 +64,7 @@ export default class ApiController extends AbstractController {
 		let success = true;
 		let json = {};
 		try {
-			const res = await fetch(Config.credentials.t4p_api_path);
+			const res = await fetch(Config.credentials.t4p_api_path, {});
 			json = (await res.json()).data;
 		}catch(error) {
 			success = false;

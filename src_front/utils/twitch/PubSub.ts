@@ -77,15 +77,12 @@ export default class PubSub extends EventDispatcher {
 				"predictions-channel-v1."+myUID,
 				"polls."+myUID,
 				"hype-train-events-v2."+myUID,
-				// "hype-train-events-v2.117011503",//Testing golden kappa data
-				// "hype-train-events-v2.500128827",//Testing golden kappa data
-				// "hype-train-events-v2.121652526",//Testing golden kappa data
-				// "hype-train-events-v2.133034596",//Testing golden kappa data
-				// "hype-train-events-v2.874523557",//Testing golden kappa data
-				// "hype-train-events-v2.717849140",//Testing golden kappa data
-				// "hype-train-events-v2.40729999",//Testing golden kappa data
-				// "hype-train-events-v2.47148210",//Testing golden kappa data
-				// "hype-train-events-v2.83064983",//Testing golden kappa data
+				// "hype-train-events-v2.37804856",//Testing golden kappa data
+				// "hype-train-events-v2.43809079",//Testing golden kappa data
+				// "hype-train-events-v2.153390618",//Testing golden kappa data
+				// "hype-train-events-v2.402890635",//Testing golden kappa data
+				// "hype-train-events-v2.115060112",//Testing golden kappa data
+				// "hype-train-events-v2.53964156",//Testing golden kappa data
 				"raid."+myUID,
 				"community-moments-channel-v1."+myUID,
 				"user-moderation-notifications."+myUID+"."+myUID,

@@ -753,7 +753,47 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			const grid = this.gridList.find(g => g.id === gridId);
 			if(!grid || !grid.additionalEntries) return;
 			grid.additionalEntries = grid.additionalEntries.filter(e => e.id != cellId);
-			
+		},
+
+		showLeaderboard(gridId:string):void {
+			const viewers = this.viewersBingoCount[gridId];
+			if(!viewers || !viewers.length) return;
+			//Add fake users
+			for (let i = 0; i < 15; i++) {
+				viewers.push({
+					count:Math.round(Math.random()*10+1),
+					user:Utils.pickRand(StoreProxy.users.users),
+				});
+			}
+			const data = {
+				gridId,
+				scores:viewers.sort((a,b)=> {
+					if(b.count == a.count) {
+						return a.user.displayNameOriginal.toLowerCase().localeCompare(b.user.displayNameOriginal.toLowerCase())
+					}
+					return b.count-a.count;
+				}).map(v=>{
+					return {
+						user_name:v.user.displayNameOriginal,
+						user_pic:v.user.avatarPath,
+						score:v.count,
+						pos:0,
+					}
+				})
+			}
+			let pos = -1;
+			let prevScore = -1;
+			data.scores.forEach(s=>{
+				if(prevScore != s.score) pos ++;
+				s.pos = pos;
+				prevScore = s.score;
+			})
+			PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_OVERLAY_LEADER_BOARD, data as unknown as JsonObject);
+		},
+
+		hideLeaderboard(gridId:string):void {
+			const data = {gridId};
+			PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_OVERLAY_LEADER_BOARD, data as unknown as JsonObject);
 		},
 
 	} as IBingoGridActions

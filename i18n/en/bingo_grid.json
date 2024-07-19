@@ -55,6 +55,8 @@
 			"auth_bt": "Authenticate to play",
 			"cell_disabled": "{USER} must\ntick this cell\nto enable it",
 			"mod_info": "You're a moderator of this channel, the cells you tick will be enabled for everyone",
+			"showLeaderboard_bt": "Show on overlay",
+			"hideLeaderboard_bt": "Hide from overlay",
 			"additional_cells": "Additional cells other viewers may have"
 		}
 	}

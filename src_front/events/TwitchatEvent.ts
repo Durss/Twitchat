@@ -83,6 +83,7 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static BINGO_GRID_OVERLAY_PRESENCE:TwitchatEventType = "BINGO_GRID_OVERLAY_PRESENCE";
 	public static BINGO_GRID_HEAT_CLICK:TwitchatEventType = "BINGO_GRID_HEAT_CLICK";
 	public static BINGO_GRID_OVERLAY_VIEWER_EVENT:TwitchatEventType = "BINGO_GRID_OVERLAY_VIEWER_EVENT";
+	public static BINGO_GRID_OVERLAY_LEADER_BOARD:TwitchatEventType = "BINGO_GRID_OVERLAY_LEADER_BOARD";
 	public static LABEL_OVERLAY_PARAMS:TwitchatEventType = "LABEL_OVERLAY_PARAMS";
 	public static LABEL_OVERLAY_PLACEHOLDERS:TwitchatEventType = "LABEL_OVERLAY_PLACEHOLDERS";
 
@@ -245,6 +246,7 @@ export const TwitchatEventTypeList = [
 	"BINGO_GRID_OVERLAY_PRESENCE",
 	"BINGO_GRID_HEAT_CLICK",
 	"BINGO_GRID_OVERLAY_VIEWER_EVENT",
+	"BINGO_GRID_OVERLAY_LEADER_BOARD",
 	"LABEL_OVERLAY_PARAMS",
 	"LABEL_OVERLAY_PLACEHOLDERS",
 ] as const;

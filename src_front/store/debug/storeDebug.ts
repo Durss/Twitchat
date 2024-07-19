@@ -1049,6 +1049,10 @@ export const storeDebug = defineStore('debug', {
 						info:{
 							message:message.message,
 							user:message.user,
+							message_id:message.id,
+							params:{
+								position:"bl",
+							}
 						},
 						channel_id:uid,
 					};

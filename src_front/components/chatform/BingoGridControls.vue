@@ -50,6 +50,7 @@
 				<TTButton v-if="$store.bingoGrid.viewersBingoCount[grid.id] && $store.bingoGrid.viewersBingoCount[grid.id].length > 0"
 				icon="leaderboard"
 				small
+				v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'bingogrid_leaderboard'}"
 				v-tooltip="$t('bingo_grid.form.leaderBoard.open_bt_tt')"
 				@click="openLeaderBoard(grid)">{{ $tc("bingo_grid.form.leaderBoard.open_bt", Object.keys($store.bingoGrid.viewersBingoCount[grid.id]).length, {COUNT:Object.keys($store.bingoGrid.viewersBingoCount[grid.id]).length}) }}</TTButton>
 			</div>
@@ -61,9 +62,9 @@
 			:placeholder="$t('global.search_placeholder')">
 		</form>
 	</div>
+
 	<div class="bingogridcontrols blured-background-window leaderboard" v-else>
 		<Icon name="leaderboard" />
-
 		<div class="list">
 			<div class="entry"
 			v-for="entry in $store.bingoGrid.viewersBingoCount[leaderBoardID].sort((a,b)=>b.count-a.count)"
@@ -73,6 +74,8 @@
 				<strong class="count">x{{ entry.count }}</strong>
 			</div>
 		</div>
+		<TTButton class="showBt" icon="show" @click="showLeaderboard()">{{ $t("bingo_grid.state.showLeaderboard_bt") }}</TTButton>
+		<TTButton class="showBt" icon="hide" @click="hideLeaderboard()">{{ $t("bingo_grid.state.hideLeaderboard_bt") }}</TTButton>
 		<TTButton class="backBt" icon="back" @click="leaderBoardID=''" transparent />
 	</div>
 </template>
@@ -127,6 +130,20 @@ class BingoGridControls extends Vue {
 	 */
 	public onKeyUp(event:KeyboardEvent):void {
 		if(event.key == 'Escape') this.search = "";
+	}
+
+	/**
+	 * Sends current leadeboard to the overlay
+	 */
+	public showLeaderboard():void {
+		this.$store.bingoGrid.showLeaderboard(this.leaderBoardID);
+	}
+
+	/**
+	 * Hides current leadeboard from the overlay
+	 */
+	public hideLeaderboard():void {
+		this.$store.bingoGrid.hideLeaderboard(this.leaderBoardID);
 	}
 
 	/**

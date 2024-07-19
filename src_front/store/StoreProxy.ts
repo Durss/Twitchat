@@ -513,6 +513,16 @@ export interface IBingoGridActions {
 	 * Remove given custom cell from the given grid
 	 */
 	removeCustomCell(gridId:string, cellId:string):void;
+	/**
+	 * Shows the leaderboard for the given grid on its overlay
+	 * @param gridId 
+	 */
+	showLeaderboard(gridId:string):void;
+	/**
+	 * Hides the leaderboard for the given grid on its overlay
+	 * @param gridId 
+	 */
+	hideLeaderboard(gridId:string):void;
 }
 
 

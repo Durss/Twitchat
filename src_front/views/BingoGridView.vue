@@ -157,7 +157,6 @@ class BingoGridView extends Vue {
 	private bingoCountDebounce:number = -1;
 	private notificationDebounce:number = -1;
 	private prevGridStates:boolean[] = [];
-	private pageFocusHandler!:(e:Event) => void;
 	private sseUntickAllHandler!:(e:SSEEvent<"BINGO_GRID_UNTICK_ALL">) => void;
 	private sseCellStatesHandler!:(e:SSEEvent<"BINGO_GRID_CELL_STATES">) => void;
 	private sseGridUpdateHandler!:(e:SSEEvent<"BINGO_GRID_UPDATE">) => void;
@@ -191,13 +190,11 @@ class BingoGridView extends Vue {
 		this.sseCellStatesHandler = (e:SSEEvent<"BINGO_GRID_CELL_STATES">) => this.onCellsStates(e);
 		this.sseUntickAllHandler = (e:SSEEvent<"BINGO_GRID_UNTICK_ALL">) => this.onUntickAll(e);
 		this.sseGridUpdateHandler = (e:SSEEvent<"BINGO_GRID_UPDATE">) => this.onGridUpdate(e.data);
-		this.pageFocusHandler = (e:Event) => {this.notificationCount = 0;}
 
 		SSEHelper.instance.addEventListener(SSEEvent.FAILED_CONNECT, this.sseFailedConnectingHandler);
 		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_UPDATE, this.sseGridUpdateHandler);
 		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_CELL_STATES, this.sseCellStatesHandler);
 		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_UNTICK_ALL, this.sseUntickAllHandler);
-		document.addEventListener("focus", this.pageFocusHandler);
 	}
 
 	public beforeUnmount():void {
@@ -207,7 +204,6 @@ class BingoGridView extends Vue {
 		SSEHelper.instance.removeEventListener(SSEEvent.BINGO_GRID_UPDATE, this.sseGridUpdateHandler);
 		SSEHelper.instance.removeEventListener(SSEEvent.BINGO_GRID_CELL_STATES, this.sseCellStatesHandler);
 		SSEHelper.instance.removeEventListener(SSEEvent.BINGO_GRID_UNTICK_ALL, this.sseUntickAllHandler);
-		document.removeEventListener("focus", this.pageFocusHandler);
 	}
 
 	/**

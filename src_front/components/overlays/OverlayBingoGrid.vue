@@ -39,6 +39,25 @@
 				</template>
 			</div>
 
+			<div class="leaderboard" ref="leaderboardHolder"
+			:style="{aspectRatio: bingo.cols/bingo.rows}"
+			v-if="leaderboard">
+				<Icon name="leaderboard" class="icon" />
+				<div class="scrollHolder">
+					<div class="userlist" ref="list">
+						<div v-for="entry in leaderboard.scores" class="user" :class="'pos_'+entry.pos">
+							<div class="pos">#{{ entry.pos+1 }}</div>
+							<img :src="entry.user_pic" alt="avatar" v-if="entry.user_pic">
+							<div class="username">{{ entry.user_name }}</div>
+							<div class="score">
+								<Icon name="sub" class="star" />
+								<span class="value">{{ entry.score }}</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<Teleport :to="currentCell" v-if="currentCell">
 				<div class="clouds">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 454.53 357.01"
@@ -57,7 +76,8 @@
 					c9-1.3,16.8-7,20.9-15.2L197.8,16C207.9-4.7,237.3-4.7,247.5,16z"/></svg>
 			</div>
 		</template>
-		<div v-else-if="error" class="error card-item alert"><Icon name="alert" />Requested bingo grid does not exist</div>
+		
+		<div v-else-if="error" class="error card-item alert"><Icon name="alert" />Bingo grid not found</div>
 	</div>
 </template>
 
@@ -86,6 +106,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	public currentUserAlert:IUserBingoData | null = null;
 	public currentCell:HTMLElement | null = null;
 	public bingo:TwitchatDataTypes.BingoGridConfig | null = null;
+	public leaderboard:Parameters<typeof this.leaderboardHandler>[0]["data"]|null = null;
 	public pendingEvents:{type:"open"|"close"|"user"|"bingo"|"update", data?:IBingoUpdateData, userBingo?:IUserBingoData, bingo?:{vertical:number[], horizontal:number[], diagonal:number[]}}[] = [];
 
 	private id:string = "";
@@ -96,6 +117,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	private broadcastPresenceInterval:string = "";
 	private bingoUpdateHandler!:(e:TwitchatEvent<IBingoUpdateData>) => void;
 	private bingoViewerHandler!:(e:TwitchatEvent<IUserBingoData>) => void;
+	private leaderboardHandler!:(e:TwitchatEvent<{gridId:string, scores?:{user_name:string, user_pic:string, score:number, pos:number}[]}>) => void;
 	private prevCheckStates:{[key:string]:boolean} = {};
 	private winSoundVolume!:HTMLAudioElement;
 
@@ -128,8 +150,10 @@ export class OverlayBingoGrid extends AbstractOverlay {
 
 		this.bingoUpdateHandler = (e) => this.onBingoUpdate(e);
 		this.bingoViewerHandler = (e) => this.onBingoViewer(e);
+		this.leaderboardHandler = (e) => this.onLeaderboard(e);
 		PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_GRID_PARAMETERS, this.bingoUpdateHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_GRID_OVERLAY_VIEWER_EVENT, this.bingoViewerHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_GRID_OVERLAY_LEADER_BOARD, this.leaderboardHandler);
 
 		this.broadcastPresenceInterval = SetIntervalWorker.instance.create(()=>{
 			this.broadcastPresence();
@@ -142,6 +166,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		SetIntervalWorker.instance.delete(this.broadcastPresenceInterval);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.BINGO_GRID_PARAMETERS, this.bingoUpdateHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.BINGO_GRID_OVERLAY_VIEWER_EVENT, this.bingoViewerHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.BINGO_GRID_OVERLAY_LEADER_BOARD, this.leaderboardHandler);
 	}
 
 	/**
@@ -172,6 +197,32 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_HEAT_CLICK, {gridId:this.bingo!.id, entryId:id, click:event});
 			}
 		}
+	}
+
+	/**
+	 * Called when requesting to show/hide leaderboard
+	 */
+	private async onLeaderboard(e:Parameters<typeof this.leaderboardHandler>[0]):Promise<void> {
+		if(!e.data) return;
+		if(e.data.gridId != this.bingo?.id) return;
+		
+		this.leaderboard = e.data.scores && e.data.scores.length > 0? e.data : null;
+		
+		if(!this.leaderboard) return;
+		
+		await this.$nextTick();
+
+		const mainHolder = this.$el as HTMLElement;
+		const listHolder = this.$refs.list as HTMLElement;
+		const leaderboardHolder = this.$refs.leaderboardHolder as HTMLElement;
+		const mainBounds = mainHolder.getBoundingClientRect();
+		const listBounds = listHolder.getBoundingClientRect();
+		const duration = this.leaderboard.scores!.length;
+		gsap.fromTo(leaderboardHolder, {opacity:0}, {opacity:1, duration:.75});
+		gsap.fromTo(listHolder, {y:mainBounds.height}, {y:-listBounds.height, duration, ease:"none"});
+		gsap.to(leaderboardHolder, {opacity:0, duration:.5, delay:duration-.5, onComplete:()=>{
+			this.leaderboard = null;
+		}});
 	}
 
 	/**
@@ -212,7 +263,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 					const entry = this.bingo.entries[i];
 					if(entry.check) {
 						const checks = this.$refs["check_"+entry.id] as HTMLDivElement[];
-						if(checks) gsap.set(checks[0], {opacity:1});
+						if(checks) gsap.set(checks[0], {opacity:.8});
 					}
 				}
 				this.pushEvent({type:"open"});
@@ -331,7 +382,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				}
 			}else if(entry.check) {
 				//Force display of the cell
-				gsap.set(checks[0], {opacity:1});
+				gsap.set(checks[0], {opacity:.8});
 			}
 			this.prevCheckStates[entry.id] = entry.check;
 		}
@@ -798,10 +849,102 @@ export default toNative(OverlayBingoGrid);
 		}
 	}
 
-	.alerts {
+	.leaderboard {
 		z-index: 101;
 		display: block;
-		// transform: translateY(-100%);
+		position: absolute;
+		overflow: hidden;
+		border-radius: calc(min(100vw, 100vh) / 50);
+		top: 0;
+		left: 0;
+		width: min(100vw, 100vh);
+		max-width: 100vw;
+		max-height: 100vh;
+		font-size: min(11vh, 11vw);
+		background-color: #fff;
+
+		&>.icon {
+			height: 1em;
+			margin: auto;
+			display: block;
+			margin: .25em 0;
+			color: #ffee00;
+			filter: drop-shadow(0 0 .05em #00000080)
+		}
+
+		.scrollHolder {
+			overflow: hidden;
+			position: relative;
+		}
+		.userlist {
+			gap: .15em;
+			display: flex;
+			padding: 0 .25em;
+			flex-direction: column;
+
+			.user {
+				gap: .25em;
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				border-radius: 1em;
+				padding: .15em;
+				.pos {
+					font-weight: bold;
+					font-size: .4em;
+				}
+				&>img {
+					height: 1em;
+					border-radius: 50%;
+					flex-shrink: 0;
+				}
+				.score {
+					height: 1em;
+					position: relative;
+					flex-shrink: 0;
+					.star {
+						height: 100%;
+						color: var(--color-secondary);
+					}
+					.value {
+						z-index: 1;
+						font-weight: bold;
+						font-size: .5em;
+						position: absolute;
+						color: #fff;
+						margin-top: .15em;
+						.center();
+					}
+				}
+				.username {
+					font-weight: bold;
+					flex-grow: 1;
+					max-width: calc(100% - 4em);
+					text-overflow: ellipsis;
+					overflow: hidden;
+					font-size: .6em;
+					text-align: center;
+					line-height: 1.25em;
+				}
+				&:nth-child(odd) {
+					background-color: var(--color-primary-fadest);
+				}
+				&.pos_0 {
+					background-color: #ffee00;
+				}
+				&.pos_1 {
+					background-color: #e7e7e7;
+				}
+				&.pos_2 {
+					background-color: #ffa763;
+				}
+			}
+		}
+	}
+
+	.alerts {
+		z-index: 102;
+		display: block;
 		position: absolute;
 		overflow: hidden;
 		border-radius: calc(min(100vw, 100vh) / 50);
