@@ -1637,8 +1637,8 @@ export namespace TwitchatDataTypes {
 		params?:EndingCreditsParams;
 		follows:{uid:string, login:string}[];
 		raids:{uid:string, login:string, raiders:number}[];
-		subs:{uid:string, login:string, tier:1|2|3|"prime"}[];
-		resubs:{uid:string, login:string, tier:1|2|3|"prime"}[];
+		subs:{uid:string, login:string, tier:1|2|3|"prime", subDuration:number}[];
+		resubs:{uid:string, login:string, tier:1|2|3|"prime", subDuration:number}[];
 		subgifts:{uid:string, login:string, tier:1|2|3|"prime", total:number}[];
 		bits:{uid:string, login:string, bits:number, pinned:boolean}[];
 		hypeChats:{uid:string, login:string, amount:number, currency:string}[];
@@ -1654,6 +1654,7 @@ export namespace TwitchatDataTypes {
 			no_entry:string;
 			train:string;
 			premium_only:string;
+			sub_duration:string;
 		}
 	}
 
@@ -1801,6 +1802,7 @@ export namespace TwitchatDataTypes {
 		customHTML?:boolean;
 		htmlTemplate?:string;
 		showAmounts?:boolean;
+		showSubMonths?:boolean;
 		showBadges?:boolean;
 		showMods?:boolean;
 		showVIPs?:boolean;

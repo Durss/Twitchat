@@ -755,7 +755,6 @@ export const storeChat = defineStore('chat', {
 		},
 
 		sendTwitchatAd(adType:TwitchatDataTypes.TwitchatAdStringTypes = -1) {
-			console.log("PREMIUM?",StoreProxy.auth.isPremium)
 			if(adType == TwitchatDataTypes.TwitchatAdTypes.DONATE
 			|| adType == TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER
 			|| adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING) {

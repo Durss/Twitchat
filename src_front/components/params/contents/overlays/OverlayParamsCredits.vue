@@ -96,6 +96,7 @@
 									<ParamItem :paramData="param_showSubgifts[element.id]"		v-model="element.showSubgifts" />
 									<ParamItem :paramData="param_showResubs[element.id]"		v-model="element.showResubs" />
 									<ParamItem :paramData="param_showSubs[element.id]"			v-model="element.showSubs" />
+									<ParamItem :paramData="param_showSubMonths[element.id]"		v-model="element.showSubMonths" />
 									<ParamItem :paramData="param_showBadges[element.id]"		v-model="element.showBadges" />
 									<ParamItem :paramData="param_sortByName[element.id]"		v-model="element.sortByNames" />
 									<ParamItem :paramData="param_sortBySubTypes[element.id]"	v-model="element.sortBySubTypes" />
@@ -181,8 +182,6 @@
 			<div class="center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.overlay_not_configured") }}</div>
 		</section>
 
-		<!-- <ToggleBlock :title="$t('overlay.credits.parameters')" secondary :open="false" :icons="['params']"> -->
-
 
 		<section class="card-item expand parameters">
 			<div class="header">
@@ -193,10 +192,16 @@
 			<ParamItem :paramData="param_paddingTitle" v-model="data.paddingTitle" />
 			<ParamItem :paramData="param_fadeSize" v-model="data.fadeSize" />
 			<ParamItem :paramData="param_stickyTitle" v-model="data.stickyTitle" />
-			<ParamItem :paramData="param_titleColor" v-model="data.colorTitle" />
-			<ParamItem :paramData="param_fontTitle" v-model="data.fontTitle" />
-			<ParamItem :paramData="param_entryColor" v-model="data.colorEntry" />
-			<ParamItem :paramData="param_fontEntry" v-model="data.fontEntry" />
+			<ParamItem :paramData="param_fontTitle" v-model="data.fontTitle" class="fontStyle">
+				<template #composite>
+					<ParamItem :paramData="param_entryColor" v-model="data.colorEntry" noBackground class="colorPicker" />
+				</template>
+			</ParamItem>
+			<ParamItem :paramData="param_fontEntry" v-model="data.fontEntry" class="fontStyle">
+				<template #composite>
+					<ParamItem :paramData="param_titleColor" v-model="data.colorTitle" noBackground class="colorPicker" />
+				</template>
+			</ParamItem>
 			<ParamItem :paramData="param_textShadow" v-model="data.textShadow" />
 			<ParamItem :paramData="param_ignoreBots" v-model="data.ignoreBots">
 				<ParamItem :paramData="param_ignoreCustomBots" v-model="data.ignoreCustomBots" noBackground class="child" />
@@ -266,8 +271,8 @@ class OverlayParamsCredits extends Vue {
 	public param_stickyTitle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.credits.param_stickyTitle", icon:"pin"};
 	public param_fontTitle:TwitchatDataTypes.ParameterData<string> = {type:"font", value:"", labelKey:"overlay.credits.param_fontTitle", icon:"font"};
 	public param_fontEntry:TwitchatDataTypes.ParameterData<string> = {type:"font", value:"", labelKey:"overlay.credits.param_fontEntry", icon:"font"};
-	public param_titleColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ffffff", labelKey:"overlay.credits.param_colorTitle", icon:"color"};
-	public param_entryColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ffffff", labelKey:"overlay.credits.param_colorEntry", icon:"color"};
+	public param_titleColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#cccccc"};
+	public param_entryColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ffffff"};
 	public param_textShadow:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:1, min:0, max:100, labelKey:"overlay.credits.param_textShadow", icon:"shadow"};
 	public param_timing:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"speed", labelKey:"overlay.credits.param_timing", icon:"timer", premiumOnly:true};
 	public param_duration:TwitchatDataTypes.ParameterData<number> = {type:"number", min:2, max:3600, value:60, labelKey:"overlay.credits.param_duration", icon:"timer"};
@@ -282,6 +287,7 @@ class OverlayParamsCredits extends Vue {
 	public param_maxItems:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_customHTML:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showAmounts:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showSubMonths:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_htmlTemplate:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_showBadges:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showSubs:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
@@ -565,6 +571,7 @@ class OverlayParamsCredits extends Vue {
 			if(entry.showSubs === undefined)		entry.showSubs = true;
 			if(entry.showResubs === undefined)		entry.showResubs = true;
 			if(entry.showSubgifts === undefined)	entry.showSubgifts = true;
+			if(entry.showSubMonths === undefined)	entry.showSubMonths = false;
 			if(entry.showBadges == undefined || !this.isPremium) entry.showBadges = false;
 			if(entry.sortByNames == undefined || !this.isPremium) entry.sortByNames = false;
 			if(entry.sortBySubTypes == undefined || !this.isPremium) entry.sortBySubTypes = false;
@@ -574,6 +581,7 @@ class OverlayParamsCredits extends Vue {
 			this.param_showBadges[id]		= {type:'boolean', value:entry.showBadges, icon:"badge", labelKey:'overlay.credits.param_showSubBadges', premiumOnly:true};
 			this.param_sortByName[id]		= {type:"boolean", value:entry.sortByNames, icon:"filters", labelKey:"overlay.credits.param_sortByNames", premiumOnly:true};
 			this.param_sortBySubTypes[id]	= {type:"boolean", value:entry.sortBySubTypes, icon:"filters", labelKey:"overlay.credits.param_sortBySubTypes", premiumOnly:true};
+			this.param_showSubMonths[id]	= {type:"boolean", value:entry.sortBySubTypes, icon:"number", labelKey:"overlay.credits.param_showSubMonths"};
 		}else
 
 		if(slotDef.id == "tips") {
@@ -660,6 +668,20 @@ export default toNative(OverlayParamsCredits);
 
 	.parameters {
 		min-width: 100%;
+		.fontStyle {
+			:deep(label) {
+				flex-basis: 200px;
+			}
+			.colorPicker {
+				width: 30px;
+				min-width: 30px;
+				margin-left: 5px;
+				flex: 1;
+				:deep(.inputHolder ){
+					height: 30px;
+				}
+			}
+		}
 	}
 
 	section.expand {

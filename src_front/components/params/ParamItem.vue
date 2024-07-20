@@ -35,6 +35,7 @@
 					:alert="alert || errorLocal"
 					:inputId="'toggle'+key"
 					:disabled="disabled !== false || paramData.disabled === true" />
+				<slot name="composite" />
 			</div>
 
 			<div v-if="paramData.type == 'number'" class="holder number">
@@ -59,6 +60,7 @@
 					@focus="$emit('focus')"
 					@blur="clampValue(); $emit('blur')"
 					@input="$emit('input')">
+				<slot name="composite" />
 			</div>
 
 			<div v-if="paramData.type == 'string' || paramData.type == 'password' || paramData.type == 'date' || paramData.type == 'datetime' || paramData.type == 'time'"
@@ -99,6 +101,7 @@
 						@input="$emit('input')">
 					<div class="maxlength" v-if="paramData.maxLength">{{(paramData.value as string).length}}/{{paramData.maxLength}}</div>
 				</div>
+				<slot name="composite" />
 			</div>
 
 			<div v-if="paramData.type == 'duration'" class="holder text duration">
@@ -118,6 +121,7 @@
 					:min="paramData.min"
 					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
 					@change="$emit('input')" />
+				<slot name="composite" />
 			</div>
 
 			<div v-if="paramData.type == 'color'" class="holder color">
@@ -136,6 +140,7 @@
 						:id="'text'+key"
 						type="color">
 				</div>
+				<slot name="composite" />
 			</div>
 
 			<div v-if="paramData.type == 'slider'" class="holder slider">
@@ -149,6 +154,7 @@
 				:premium="premiumOnlyLocal"
 				:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
 				:alert="alert || errorLocal" />
+				<slot name="composite" />
 			</div>
 
 			<div v-if="paramData.type == 'list' && paramData.multiple !== true" class="holder list">
@@ -165,6 +171,7 @@
 						:value="a.value"
 						:disabled="a.disabled === true">{{a.label != undefined? a.label : $t(a.labelKey!)}}</option>
 				</select>
+				<slot name="composite" />
 			</div>
 
 			<div v-if="paramData.type == 'list' && paramData.multiple === true" class="holder list">
@@ -203,6 +210,7 @@
 						<span class="text">{{option.label}}</span>
 					</template>
 				</vue-select>
+				<slot name="composite" />
 			</div>
 
 			<div v-if="paramData.type == 'imagelist'" class="holder list">
@@ -233,6 +241,7 @@
 						<Icon class="image" v-if="option.icon" :name="option.icon" />
 					</template>
 				</vue-select>
+				<slot name="composite" />
 			</div>
 
 			<div v-if="paramData.type == 'editablelist' || paramData.type == 'font'" class="holder list editable">
@@ -264,6 +273,7 @@
 						<div>{{ $t("global.empty_list2") }}</div>
 					</template>
 				</vue-select>
+				<slot name="composite" />
 			</div>
 
 			<div v-if="paramData.type == 'browse'" class="holder browse">
@@ -460,6 +470,7 @@ export class ParamItem extends Vue {
 		if(this.paramData.disabled || this.disabled == true) res.push("disabled");
 		if(this.premiumLocked) res.push("cantUse");
 		if(this.paramData.type == "time") res.push("time");
+		if(this.paramData.type == "font") res.push("font");
 		if(this.placeholdersAsPopout !== false) res.push("popoutMode")
 		if(this.premiumOnlyLocal !== false && this.noBackground === false) res.push("premium");
 		res.push("level_"+this.childLevel);
@@ -1294,6 +1305,15 @@ export default toNative(ParamItem);
 	.moreFontsBt {
 		display: flex;
 		margin: .5em auto 0 auto;
+	}
+
+	&.font {
+		.holder.list.editable  {
+			flex-direction: row;
+			.listField {
+				flex-basis: 300px;
+			}
+		}
 	}
 }
 </style>

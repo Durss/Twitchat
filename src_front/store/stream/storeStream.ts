@@ -450,6 +450,7 @@ export const storeStream = defineStore('stream', {
 					no_entry:$tm("overlay.credits.empty_slot"),
 					train:$tm("train.ending_credits"),
 					premium_only:$tm("overlay.credits.premium_only"),
+					sub_duration:$tm("overlay.credits.sub_duration"),
 				}
 			};
 
@@ -495,13 +496,13 @@ export const storeStream = defineStore('stream', {
 						message.is_giftUpgrade = false;
 					}, false));
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageSubscriptionData>(TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, (message)=>{
-						message.is_resub = false;
-						message.is_gift = true;
+						message.is_resub = true;
+						message.is_gift = false;
 						message.is_giftUpgrade = false;
 					}, false));
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageSubscriptionData>(TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, (message)=>{
-						message.is_resub = true;
-						message.is_gift = false;
+						message.is_resub = false;
+						message.is_gift = true;
 						message.is_giftUpgrade = false;
 					}, false));
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageHypeChatData>(TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT, undefined, false));
@@ -564,12 +565,36 @@ export const storeStream = defineStore('stream', {
 
 			for (let i = 0; i < messages.length; i++) {
 				const m = messages[i];
+				let userLogin:string = "";
+				let userChaninfo:TwitchatDataTypes.UserChannelInfo | null = null;
+				if(m.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
+				|| m.type == TwitchatDataTypes.TwitchatMessageType.CHEER
+				|| m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
+				|| m.type == TwitchatDataTypes.TwitchatMessageType.RAID
+				|| m.type == TwitchatDataTypes.TwitchatMessageType.REWARD
+				|| m.type == TwitchatDataTypes.TwitchatMessageType.SHOUTOUT
+				|| m.type == TwitchatDataTypes.TwitchatMessageType.BAN
+				|| m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+				) {
+					userLogin = m.user.login;
+					userChaninfo = m.user.channelInfo[channelId];
+				}
+
+				if(m.type == TwitchatDataTypes.TwitchatMessageType.KOFI
+				|| m.type == TwitchatDataTypes.TwitchatMessageType.STREAMLABS
+				|| m.type == TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS
+				|| m.type == TwitchatDataTypes.TwitchatMessageType.TIPEEE){
+					userLogin = m.userName;
+				}
+
+				//Skip banned users except for bans section
+				if(m.type != TwitchatDataTypes.TwitchatMessageType.BAN && userChaninfo?.is_banned) continue;
+				//Skip ignored users
+				if(ignoredAccounts[userLogin.toLowerCase()] === true) continue;
 
 				switch(m.type) {
 					case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
-						if(m.user.channelInfo[channelId]?.is_banned) continue;
-						if(ignoredAccounts[m.user.login.toLowerCase()] === true) continue;
-						const sub = {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier, total:m.gift_count || 1};
+						const sub = {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier, total:m.gift_count || 1, subDuration:m.totalSubDuration || 1};
 						if(m.is_resub) result.resubs.push(sub);
 						else if(m.is_gift || m.is_giftUpgrade) result.subgifts.push(sub);
 						else result.subs.push(sub);
@@ -577,8 +602,6 @@ export const storeStream = defineStore('stream', {
 					}
 
 					case TwitchatDataTypes.TwitchatMessageType.CHEER: {
-						if(m.user.channelInfo[channelId]?.is_banned) continue;
-						if(ignoredAccounts[m.user.login.toLowerCase()] === true) continue;
 						const cheer:TwitchatDataTypes.StreamSummaryData['bits'][0] = {uid:m.user.id, login:m.user.displayNameOriginal, bits:m.bits, pinned:m.pinned && m.pinDuration_ms > 0};
 						result.bits.push(cheer);
 						break;
@@ -593,24 +616,18 @@ export const storeStream = defineStore('stream', {
 					}
 
 					case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
-						if(m.user.channelInfo[channelId]?.is_banned) continue;
-						if(ignoredAccounts[m.user.login.toLowerCase()] === true) continue;
 						const follow:TwitchatDataTypes.StreamSummaryData['follows'][0] = {uid:m.user.id, login:m.user.displayNameOriginal};
 						result.follows.push(follow);
 						break;
 					}
 
 					case TwitchatDataTypes.TwitchatMessageType.RAID: {
-						if(m.user.channelInfo[channelId]?.is_banned) continue;
-						if(ignoredAccounts[m.user.login.toLowerCase()] === true) continue;
 						const raid:TwitchatDataTypes.StreamSummaryData['raids'][0] = {uid:m.user.id, login:m.user.displayNameOriginal, raiders:m.viewers};
 						result.raids.push(raid);
 						break;
 					}
 
 					case TwitchatDataTypes.TwitchatMessageType.REWARD: {
-						if(m.user.channelInfo[channelId]?.is_banned) continue;
-						if(ignoredAccounts[m.user.login.toLowerCase()] === true) continue;
 						const reward:TwitchatDataTypes.StreamSummaryData['rewards'][0] = {uid:m.user.id, login:m.user.displayNameOriginal, reward:{name:m.reward.title, id:m.reward.id, icon:m.reward.icon.hd ?? m.reward.icon.sd}};
 						result.rewards.push(reward);
 						break;
@@ -671,17 +688,15 @@ export const storeStream = defineStore('stream', {
 
 					case TwitchatDataTypes.TwitchatMessageType.BAN:
 					case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
-						if(ignoredAccounts[m.user.login.toLowerCase()] === true) continue;
-						const chanInfo = m.user.channelInfo[channelId]
-						if(!chanInfo) continue;
+						const chanInfo:TwitchatDataTypes.UserChannelInfo|undefined = m.user.channelInfo[channelId];
 						if(!chatters[m.user.id]) {
 							chatters[m.user.id] = {
 								uid: m.user.id,
 								login: m.user.displayNameOriginal,
 								count: 0,
-								vip: chanInfo.is_vip || (simulate && Math.random() > .85),
-								mod: chanInfo.is_moderator || (simulate && Math.random() > .95),
-								sub: chanInfo.is_subscriber || (simulate && Math.random() > .75),
+								vip: chanInfo?.is_vip || (simulate && Math.random() > .85),
+								mod: chanInfo?.is_moderator || (simulate && Math.random() > .95),
+								sub: chanInfo?.is_subscriber || (simulate && Math.random() > .75),
 								bans: 0,
 								tos: 0,
 								tosDuration: 0,
@@ -690,7 +705,6 @@ export const storeStream = defineStore('stream', {
 						}
 
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-							if(chanInfo.is_banned) continue;
 							chatters[m.user.id].count ++;
 						}else
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.BAN) {

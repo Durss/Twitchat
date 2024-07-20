@@ -20,6 +20,7 @@
 					<div v-if="item.params.slotType == 'subs'" v-for="entry in getSortedSubs(item.params).splice(0, item.params.maxEntries)" class="item">
 						<Icon class="badge" v-if="item.params.showBadges" :name="entry.type == 'subgift'? 'gift' : 'sub'" />
 						<span class="info">{{entry.value.login}}</span>
+						<span class="count" v-if="entry.type!='subgift' && item.params.showSubMonths === true"> − {{ getSubDurationlabel(entry.value.subDuration) }}</span>
 						<span class="count" v-if="entry.type=='subgift' && item.params.showAmounts === true"><Icon name="gift" class="giftIcon" />{{ entry.value.total }}</span>
 					</div>
 
@@ -244,21 +245,21 @@ import AbstractOverlay from './AbstractOverlay';
 			let scoreA = 0;
 			let scoreB = 0;
 			if(item.sortBySubTypes) {
-				if(a.type == "subgift") scoreA += 10;
-				else if(a.type == "resub") scoreA += 5;
-				else scoreA += 2;
+				if(a.type == "subgift") scoreA += 100000000000;
+				else scoreA += 1000000000;
 
-				if(b.type == "subgift") scoreB += 10;
-				else if(b.type == "resub") scoreB += 5;
-				else scoreB += 2;
+				if(b.type == "subgift") scoreB += 100000000000;
+				else scoreB += 1000000000;
 			}
 			if(item.sortByNames){
-				if(a.value.login.toLowerCase() > b.value.login.toLowerCase()) scoreB ++;
-				if(a.value.login.toLowerCase() < b.value.login.toLowerCase()) scoreA ++;
-			}else {
-				if(a.type === "subgift") scoreA += a.value.total;
-				if(b.type === "subgift") scoreB += b.value.total;
+				if(a.value.login.toLowerCase() > b.value.login.toLowerCase()) scoreB += 10000000;
+				if(a.value.login.toLowerCase() < b.value.login.toLowerCase()) scoreA += 10000000;
 			}
+
+			if(a.type === "subgift") scoreA += a.value.total;
+			if(b.type === "subgift") scoreB += b.value.total;
+			if(a.type != "subgift") scoreA += a.value.subDuration;
+			if(b.type != "subgift") scoreB += b.value.subDuration;
 
 			return scoreB - scoreA;
 		});
@@ -307,6 +308,13 @@ import AbstractOverlay from './AbstractOverlay';
 		if(item.showPinnedCheers !== false) res = res.concat(cheers.filter(v=> v.pinned === true));
 		if(item.showNormalCheers !== false) res = res.concat(cheers.filter(v=> v.pinned === false));
 		return this.makeUnique(item, res);
+	}
+
+	public getSubDurationlabel(duration:number):string {
+		const [singular, plural] = this.data!.labels.sub_duration.split(" | ");
+		let template = singular;
+		if(duration > 1 && plural) template = plural;
+		return template.replace(/\{MONTHS\}/gi, duration.toString());
 	}
 
 	public requestInfo():void {
