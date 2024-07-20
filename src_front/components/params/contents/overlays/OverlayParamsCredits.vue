@@ -132,10 +132,18 @@
 									<ParamItem :paramData="param_showMerchStreamlabs[element.id]"		v-model="element.showMerchStreamlabs" noPremiumLock />
 								</template>
 
+								<template v-if="element.slotType == 'powerups'">
+									<ParamItem :paramData="param_showPuSkin[element.id]"				v-model="element.showPuSkin" />
+									<ParamItem :paramData="param_showPuEmote[element.id]"				v-model="element.showPuEmote" />
+									<ParamItem :paramData="param_showPuCeleb[element.id]"				v-model="element.showPuCeleb" />
+								</template>
+
 								<ParamItem v-if="param_uniqueUsers[element.id]"
 									v-model="element.uniqueUsers"
 									:paramData="param_uniqueUsers[element.id]"
-									:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium">
+										<ParamItem v-if="element.slotType == 'powerups'" :childLevel="1" :paramData="param_sortByAmounts[element.id]" v-model="element.sortByAmounts" noBackground />
+								</ParamItem>
 
 								<ParamItem v-if="getDefinitionFromSlot(element.slotType).hasAmount"
 									class="amounts" :paramData="param_showAmounts[element.id]"
@@ -168,10 +176,11 @@
 			<div class="slotSelector" v-else>
 				<ClearButton @click="showSlotOptions = false" />
 				<TTButton class="slotBt"
-				v-for="slot in slotTypes"
-				:icon="slot.icon"
-				:premium="slot.premium"
-				@click="addSlot(slot)">{{ $t(slot.label) }}</TTButton>
+					v-for="slot in slotTypes"
+					v-newflag="slot.newFlag? {date:slot.newFlag, id:'endingcredits_slot_'+slot.id+'_1'} : null"
+					:icon="slot.icon"
+					:premium="slot.premium"
+					@click="addSlot(slot)">{{ $t(slot.label) }}</TTButton>
 			</div>
 
 			<div class="center" v-if="overlayExists">
@@ -314,6 +323,9 @@ class OverlayParamsCredits extends Vue {
 	public param_showTipsPatreon:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showTipsStreamlabs:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showTipsStreamelements:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showPuSkin:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showPuEmote:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showPuCeleb:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public slotTypes = TwitchatDataTypes.EndingCreditsSlotDefinitions;
 	public overlayExists = false;
 	public sendingSummaryData = false;
@@ -606,6 +618,17 @@ class OverlayParamsCredits extends Vue {
 			if(entry.showMerchStreamlabs === undefined)		entry.showMerchStreamlabs = true;
 			this.param_showMerchKofi[id]			= {type:'boolean', value:entry.showMerchKofi, icon:"kofi", labelKey:'overlay.credits.param_merch_kofi', premiumOnly:true};
 			this.param_showMerchStreamlabs[id]		= {type:'boolean', value:entry.showMerchStreamlabs, icon:"streamlabs", labelKey:'overlay.credits.param_merch_streamlabs', premiumOnly:true};
+		}else
+
+		if(slotDef.id == "powerups") {
+			if(entry.showPuSkin === undefined)	entry.showPuSkin = true;
+			if(entry.showPuEmote === undefined)	entry.showPuEmote = true;
+			if(entry.showPuCeleb === undefined)	entry.showPuCeleb = true;
+			if(entry.sortByAmounts == undefined)entry.sortByAmounts = true;
+			this.param_showPuSkin[id]			= {type:'boolean', value:entry.showPuSkin, icon:"whispers", labelKey:'overlay.credits.param_showPuSkin'};
+			this.param_showPuEmote[id]			= {type:'boolean', value:entry.showPuEmote, icon:"emote", labelKey:'overlay.credits.param_showPuEmote'};
+			this.param_showPuCeleb[id]			= {type:'boolean', value:entry.showPuCeleb, icon:"watchStreak", labelKey:'overlay.credits.param_showPuCeleb'};
+			this.param_sortByAmounts[id]		= {type:"boolean", value:entry.sortByAmounts!, icon:"filters", labelKey:"overlay.credits.param_sortByPuCount", premiumOnly:true};
 		}
 
 		if(slotDef.canMerge) {

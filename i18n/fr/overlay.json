@@ -125,9 +125,13 @@
 			"param_showSubgifts": "Afficher les subgifts",
 			"param_sortBySubTypes": "Trier par type de sub",
 			"param_showSubMonths":"Afficher la durée de sub actuelle",
+			"param_showPuSkin": "Afficher les effets de message",
+			"param_showPuEmote": "Afficher les emotes gigantifiées",
+			"param_showPuCeleb": "Afficher les célébrations",
 			"param_sortByNames": "Trier par ordre alphabétique",
 			"param_sortByRoles": "Trier par rôles",
 			"param_sortByAmounts": "Trier par nombre de messages",
+			"param_sortByPuCount": "Trier par nombre de power-ups",
 			"param_sortByTipAmounts": "Trier par valeur des dons",
 			"param_layout": "Disposition des entrées",
 			"param_maxItems": "Maximum d'entrées à afficher",
@@ -175,6 +179,7 @@
 				"polls": "Sondages",
 				"predictions": "Prédictions",
 				"tips": "Dons",
+				"powerups":"Power-ups",
 				"merch": "Achat de merch"
 			},
 			"labels": {
@@ -194,6 +199,7 @@
 				"polls": "SONDAGES",
 				"predictions": "PRÉDICTIONS",
 				"tips": "DONS",
+				"powerups":"POWER-UPS",
 				"merch": "MERCH ACHETÉ"
 			},
 			"amounts": {

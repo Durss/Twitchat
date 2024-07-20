@@ -15,6 +15,8 @@ import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
 import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
 import EventSub from '@/utils/twitch/EventSub';
+import staticEmotes from '@/utils/twitch/staticEmoteList.json';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 
 const commercialTimeouts:{[key:string]:number[]} = {};
 
@@ -446,6 +448,7 @@ export const storeStream = defineStore('stream', {
 				predictions:[],
 				tips:[],
 				merch:[],
+				powerups:[],
 				labels:{
 					no_entry:$tm("overlay.credits.empty_slot"),
 					train:$tm("train.ending_credits"),
@@ -476,12 +479,25 @@ export const storeStream = defineStore('stream', {
 			const chatters:{[key:string]:TwitchatDataTypes.StreamSummaryData['chatters'][0]} = {};
 
 			if(simulate) {
-				//Generate fake data
+				//Generate fake messages
 				for (let i = 0; i < 500; i++) {
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false));
 				}
+				//Generate fake power-ups
+				const emotes = staticEmotes as TwitchDataTypes.Emote[];
 				for (let i = 0; i < 20; i++) {
-					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=>{
+						const emote = Utils.pickRand(emotes);
+						message.message_chunks.push({type:"emote", value:emote.name, emoteHD:emote.images.url_4x, emote:emote.images.url_1x});
+						message.message += " "+emote.name;
+						message.twitch_gigantifiedEmote = emote.name;
+					}, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=>{
+						message.twitch_animationId = Utils.pickRand(["simmer", "rainbow-eclipse"]);
+					}, false));
+				}
+				//Generate other fake message types
+				for (let i = 0; i < 20; i++) {
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageCheerData>(TwitchatDataTypes.TwitchatMessageType.CHEER, (message)=>{
 						if(Math.random() > .5) {
 							message.pinned = true;
@@ -521,7 +537,7 @@ export const storeStream = defineStore('stream', {
 					}, false));
 				}
 
-				//Raid require API calls which are slowing down generation if we request many
+				//Raid require API calls which are slowing down generation if we request many, only request a few
 				for (let i = 0; i < 3; i++) {
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessagePollData>(TwitchatDataTypes.TwitchatMessageType.POLL, undefined, false));
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessagePredictionData>(TwitchatDataTypes.TwitchatMessageType.PREDICTION, undefined, false));
@@ -546,6 +562,8 @@ export const storeStream = defineStore('stream', {
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.StreamlabsPatreonPledgeData>(TwitchatDataTypes.TwitchatMessageType.STREAMLABS, (message)=>{
 						message.eventType = "patreon_pledge";
 					}, false));
+
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageTwitchCelebrationData>(TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION, undefined, false));
 				}
 			}else{
 				//Filter out messages based on the stream duration
@@ -575,6 +593,7 @@ export const storeStream = defineStore('stream', {
 				|| m.type == TwitchatDataTypes.TwitchatMessageType.SHOUTOUT
 				|| m.type == TwitchatDataTypes.TwitchatMessageType.BAN
 				|| m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+				|| m.type == TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION
 				) {
 					userLogin = m.user.login;
 					userChaninfo = m.user.channelInfo[channelId];
@@ -607,6 +626,7 @@ export const storeStream = defineStore('stream', {
 						break;
 					}
 
+					/*
 					case TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT: {
 						if(m.message.user.channelInfo[channelId]?.is_banned) continue;
 						if(ignoredAccounts[m.message.user.login.toLowerCase()] === true) continue;
@@ -614,6 +634,7 @@ export const storeStream = defineStore('stream', {
 						result.hypeChats.push(hypeChat);
 						break;
 					}
+					//*/
 
 					case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
 						const follow:TwitchatDataTypes.StreamSummaryData['follows'][0] = {uid:m.user.id, login:m.user.displayNameOriginal};
@@ -706,6 +727,20 @@ export const storeStream = defineStore('stream', {
 
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 							chatters[m.user.id].count ++;
+							if(m.twitch_gigantifiedEmote) {
+								result.powerups.push({
+									login:m.user.displayNameOriginal,
+									type:"gigantifiedemote",
+									emoteUrl:m.message_chunks.find(v=>v.type == "emote" && v.value == m.twitch_gigantifiedEmote)?.emoteHD,
+								})
+							}
+							if(m.twitch_animationId) {
+								result.powerups.push({
+									login:m.user.displayNameOriginal,
+									type:"animation",
+									skinID:m.twitch_animationId,
+								});
+							}
 						}else
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.BAN) {
 							if(m.duration_s !!= undefined) {
@@ -715,6 +750,14 @@ export const storeStream = defineStore('stream', {
 								chatters[m.user.id].bans ++;
 							}
 						}
+						break;
+					}
+					case TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION: {
+						result.powerups.push({
+							login:m.user.displayNameOriginal,
+							type:"celebration",
+							emoteUrl:"https://static-cdn.jtvnw.net/emoticons/v2/"+m.emoteID+"/default/light/3.0",
+						})
 						break;
 					}
 

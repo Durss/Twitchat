@@ -34,7 +34,7 @@
 			<Button small @click="simulateEvent($event, 'message', 'skin1')" icon="watchStreak">Power Up skin 1</Button>
 			<Button small @click="simulateEvent($event, 'message', 'skin2')" icon="watchStreak">Power Up skin 2</Button>
 			<Button small @click="simulateEvent($event, 'message', 'giantEmote')" icon="watchStreak">Power Up Giant emote</Button>
-			<Button small @click="simulateEvent($event, 'twitch_celebration')" icon="watchStreak">Poser Up celebration</Button>
+			<Button small @click="simulateEvent($event, 'twitch_celebration')" icon="watchStreak">Power Up celebration</Button>
 			<Button small @click="simulateEvent($event, 'user_watch_streak')" icon="watchStreak">Watch streak</Button>
 			<Button small @click="simulateEvent($event, 'raid', 'raidOffline')" icon="raid">Incoming raid offline</Button>
 			<Button small @click="simulateEvent($event, 'raid', 'raidOnline')" icon="raid">Incoming raid online</Button>
@@ -116,6 +116,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import { LoremIpsum } from "lorem-ipsum";
+import staticEmotes from '@/utils/twitch/staticEmoteList.json';
 
 @Component({
 	components:{
@@ -190,9 +191,11 @@ class DevmodeMenu extends Vue {
 				case "skin1":				(message as TwitchatDataTypes.MessageChatData).twitch_animationId = "simmer"; break;
 				case "skin2":				(message as TwitchatDataTypes.MessageChatData).twitch_animationId = "rainbow-eclipse"; break;
 				case "giantEmote":{
-					(message as TwitchatDataTypes.MessageChatData).message_chunks.push({type:"emote", value:"VoHiYo", emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/81274/default/light/3.0", emote:"https://static-cdn.jtvnw.net/emoticons/v2/81274/default/light/1.0"});
-					(message as TwitchatDataTypes.MessageChatData).message += "VoHiYo";
-					(message as TwitchatDataTypes.MessageChatData).twitch_gigantifiedEmote = "VoHiYo"; break;
+					const emote = Utils.pickRand(staticEmotes);
+					(message as TwitchatDataTypes.MessageChatData).message_chunks.push({type:"emote", value:emote.name, emoteHD:emote.images.url_4x, emote:emote.images.url_1x});
+					(message as TwitchatDataTypes.MessageChatData).message += " "+emote.name;
+					(message as TwitchatDataTypes.MessageChatData).twitch_gigantifiedEmote = emote.name;
+					break;
 				}
 				case "giftpaidupgrade":		(message as TwitchatDataTypes.MessageSubscriptionData).is_giftUpgrade = true; break;
 				case "sl_donation":			(message as TwitchatDataTypes.StreamlabsDonationData).eventType = "donation"; break;

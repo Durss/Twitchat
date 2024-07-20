@@ -127,6 +127,13 @@
 						<span class="merch">{{entry.products.join(", ")}}</span>
 						<!-- <span class="count" v-if="entry.total > -1 && entry.currency">{{ entry.total +" "+entry.currency }}</span> -->
 					</div>
+
+					<div v-if="item.params.slotType == 'powerups'" v-for="entry in getSortedPowerups(item.params)" class="item" :class="entry.skinID || ''">
+						<div class="gradientBg" v-if="entry.skinID"></div>
+						<span class="info">{{entry.login}}</span>
+						<img v-if="entry.emoteUrlList" v-for="url in entry.emoteUrlList" class="emote" :src="url" alt="emote">
+						<div class="amount" v-if="item.params.showAmounts === true">x{{ entry.count }}</div>
+					</div>
 				</div>
 			</div>
 		</template>
@@ -230,7 +237,7 @@ import AbstractOverlay from './AbstractOverlay';
 		(item.showMerchStreamlabs && v.platform == "streamlabs"));
 	}
 
-	public getSortedSubs(item:TwitchatDataTypes.EndingCreditsSlotParams) {
+	public getSortedSubs(params:TwitchatDataTypes.EndingCreditsSlotParams) {
 		const subs = this.data?.subs || [];
 		const resubs = this.data?.resubs || [];
 		const subgifts = this.data?.subgifts || [];
@@ -238,20 +245,20 @@ import AbstractOverlay from './AbstractOverlay';
 				| {type:"resub", value:TwitchatDataTypes.StreamSummaryData["resubs"][0]}
 				| {type:"subgift", value:TwitchatDataTypes.StreamSummaryData["subgifts"][0]})[] = [];
 
-		if(item.showSubs !== false)		res = res.concat(subs.map(v=>{ return {type:"sub", value:v}}));
-		if(item.showResubs !== false)	res = res.concat(resubs.map(v=>{ return {type:"resub", value:v}}));
-		if(item.showSubgifts !== false)	res = res.concat(this.makeUnique(item, subgifts).map(v=>{ return {type:"subgift", value:v}}));
+		if(params.showSubs !== false)		res = res.concat(subs.map(v=>{ return {type:"sub", value:v}}));
+		if(params.showResubs !== false)	res = res.concat(resubs.map(v=>{ return {type:"resub", value:v}}));
+		if(params.showSubgifts !== false)	res = res.concat(this.makeUnique(params, subgifts).map(v=>{ return {type:"subgift", value:v}}));
 		return res.sort((a, b)=> {
 			let scoreA = 0;
 			let scoreB = 0;
-			if(item.sortBySubTypes) {
+			if(params.sortBySubTypes) {
 				if(a.type == "subgift") scoreA += 100000000000;
 				else scoreA += 1000000000;
 
 				if(b.type == "subgift") scoreB += 100000000000;
 				else scoreB += 1000000000;
 			}
-			if(item.sortByNames){
+			if(params.sortByNames){
 				if(a.value.login.toLowerCase() > b.value.login.toLowerCase()) scoreB += 10000000;
 				if(a.value.login.toLowerCase() < b.value.login.toLowerCase()) scoreA += 10000000;
 			}
@@ -263,6 +270,55 @@ import AbstractOverlay from './AbstractOverlay';
 
 			return scoreB - scoreA;
 		});
+	}
+
+	public getSortedPowerups(params:TwitchatDataTypes.EndingCreditsSlotParams):(TwitchatDataTypes.StreamSummaryData["powerups"][number] & {emoteUrlList?:string[], count?:number})[] {
+		let anims:(TwitchatDataTypes.StreamSummaryData["powerups"][number] & {count:number})[] = [];
+		let emotes:(TwitchatDataTypes.StreamSummaryData["powerups"][number] & {emoteUrlList:string[]})[] = [];
+		let celebs:(TwitchatDataTypes.StreamSummaryData["powerups"][number] & {emoteUrlList:string[]})[] = [];
+		if(params.showPuSkin !== false)		anims	= this.data!.powerups.filter(v=>v.type == "animation")
+													.map(v => { return {...v, count:1}});
+		if(params.showPuEmote !== false)	emotes	= this.data!.powerups.filter(v=>v.type == "gigantifiedemote")
+													.map(v => { return {...v, emoteUrlList:[v.emoteUrl!]}});
+		if(params.showPuCeleb !== false)	celebs	= this.data!.powerups.filter(v=>v.type == "celebration")
+													.map(v => { return {...v, emoteUrlList:[v.emoteUrl!]}});
+
+		if(params.uniqueUsers === true) {
+			let usersDoneEmote:{[login:string]:typeof emotes[number]} = {};
+			for (let i = 0; i < emotes.length; i++) {
+				const item = emotes[i];
+				if(!usersDoneEmote[item.login]) usersDoneEmote[item.login] = item;
+				else if(item.emoteUrl) {
+					usersDoneEmote[item.login].emoteUrlList.push(item.emoteUrl);
+					emotes.splice(i,1);
+					i--;
+				}
+			}
+			
+			let usersDoneCelebs:{[login:string]:typeof celebs[number]} = {};
+			for (let i = 0; i < celebs.length; i++) {
+				const item = celebs[i];
+				if(!usersDoneCelebs[item.login]) usersDoneCelebs[item.login] = item;
+				else if(item.emoteUrl) {
+					usersDoneCelebs[item.login].emoteUrlList.push(item.emoteUrl);
+					celebs.splice(i,1);
+					i--;
+				}
+			}
+			
+			let usersDoneAnims:{[login:string]:typeof anims[number]} = {};
+			for (let i = 0; i < anims.length; i++) {
+				const item = anims[i];
+				if(!usersDoneAnims[item.login]) usersDoneAnims[item.login] = item;
+				else if(item.emoteUrl) {
+					usersDoneAnims[item.login].count ++;
+					anims.splice(i,1);
+					i--;
+				}
+			}
+		}
+
+		return [...emotes, ...celebs, ...anims].splice(0, params.maxEntries);
 	}
 
 	public getRewards(item:TwitchatDataTypes.EndingCreditsSlotParams) {
@@ -382,6 +438,7 @@ import AbstractOverlay from './AbstractOverlay';
 			case "chatters": count = this.getSortedChatters(item).length; break;
 			case "tips": count = this.getTips(item).length; break;
 			case "merch": count = this.getMerch(item).length; break;
+			case "powerups": count = this.getSortedPowerups(item).length; break;
 		}
 		count = Math.min(count, item.maxEntries);
 		this.entryCountCache[item.id] = count;
@@ -602,6 +659,7 @@ import AbstractOverlay from './AbstractOverlay';
 	private async onSummaryData(e:TwitchatEvent):Promise<void> {
 		if(e.data) {
 			this.data = (e.data as unknown) as TwitchatDataTypes.StreamSummaryData;
+			console.log(this.data);
 			this.buildSlots();
 			this.reset();
 		}
@@ -1060,6 +1118,105 @@ export default toNative(OverlayEndingCredits);
 				}
 			}
 		}
+
+		&.powerups {
+			.list {
+				.item {
+					gap: 1em;
+					align-items: center;
+					position: relative;
+					.emote {
+						height: 2em;
+					}
+					.amount {
+						font-weight: bold;
+					}
+
+					&.simmer {
+						border-radius: .5em;
+						padding: 1em;
+						z-index: 0;
+						.gradientBg {
+							z-index: -2;
+							position: absolute;
+							overflow: hidden;
+							height: calc(100% - .25em);
+							width: calc(100% - .25em);
+							border-radius: .5em;
+							left: .12em;
+							top: .12em;
+							--rect-size: 1.25em;
+							background-image: linear-gradient(90deg, #3866dd, #ff4c5b);
+							clip-path: polygon( evenodd,
+								-10% -10%,
+								110% -10%,
+								120% 120%,
+								0% 120%,
+								-10% -10%,
+								calc(var(--rect-size) / 2) calc(var(--rect-size) / 2),
+								calc(100% - var(--rect-size) / 2) calc(var(--rect-size) / 2),
+								calc(100% - var(--rect-size) / 2) calc(100% - var(--rect-size) / 2),
+								calc(var(--rect-size) / 2) calc(100% - var(--rect-size) / 2),
+								calc(var(--rect-size) / 2) calc(var(--rect-size) / 2),
+							);
+						}
+					}
+
+
+					&.rainbow-eclipse {
+						padding: 1em;
+						overflow: hidden;
+						z-index: 0;
+						.gradientBg {
+							z-index: -2;
+							filter: blur(3px);
+							position: absolute;
+							overflow: hidden;
+							height: calc(100% - .25em);
+							width: calc(100% - .25em);
+							border-radius: .5em;
+							left: .12em;
+							top: .12em;
+							--rect-size: 1.25em;
+							clip-path: polygon( evenodd,
+								-10% -10%,
+								110% -10%,
+								120% 120%,
+								0% 120%,
+								-10% -10%,
+								calc(var(--rect-size) / 2) calc(var(--rect-size) / 2),
+								calc(100% - var(--rect-size) / 2) calc(var(--rect-size) / 2),
+								calc(100% - var(--rect-size) / 2) calc(100% - var(--rect-size) / 2),
+								calc(var(--rect-size) / 2) calc(100% - var(--rect-size) / 2),
+								calc(var(--rect-size) / 2) calc(var(--rect-size) / 2),
+							);
+							&::before {
+								animation: rotate 4s linear infinite;
+								background-image: conic-gradient(#b23ff8, #3cc890, #38a7ca, #b23ff8);
+								background-position: 0 0;
+								background-repeat: no-repeat;
+								content: "";
+								height: 99999px;
+								left: 50%;
+								position: absolute;
+								top: 50%;
+								transform: translate(-50%, -50%) rotate(0deg);
+								width: 99999px;
+								z-index: 0;
+							}
+						}
+
+						@keyframes rotate {
+							100% {
+								transform: translate(-50%, -50%) rotate(1turn);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		
 		&.polls, &.predictions {
 			.list {
 				gap: 3em;

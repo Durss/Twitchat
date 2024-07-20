@@ -129,6 +129,7 @@
 			"param_sortByRoles":"Sort by roles",
 			"param_sortByAmounts":"Sort by number of messages",
 			"param_sortByTipAmounts":"Sort by tip amounts",
+			"param_sortByPuCount": "Sort by power-up count",
 			"param_layout":"Entries layout",
 			"param_maxItems":"Max entries to show",
 			"param_customHTML":"Custom HTML template",
@@ -151,6 +152,9 @@
 			"param_merch_kofi":"Ko-fi merch",
 			"param_merch_streamlabs":"Streamlabs merch",
 			"delete_confirm_title":"Delete category?",
+			"param_pu_skin": "Show message effects",
+			"param_pu_emote": "Show gigantified emotes",
+			"param_pu_celeb": "Show Celebrations",
 			"scroll_tt":"Scroll this section into view",
 			"testBt":"Start fake credits",
 			"moderators_label":"MODERATORS",
@@ -175,6 +179,7 @@
 				"polls":"Polls",
 				"predictions":"Predictions",
 				"tips":"Tips",
+				"powerups":"Power-ups",
 				"merch":"Merch"
 			},
 			"labels": {
@@ -194,6 +199,7 @@
 				"polls":"POLLS",
 				"predictions":"PREDICTIONS",
 				"tips":"TIPS",
+				"powerups":"POWER-UPS",
 				"merch":"MERCH"
 			},
 			"amounts": {

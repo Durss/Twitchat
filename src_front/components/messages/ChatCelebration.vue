@@ -4,7 +4,7 @@
 
 		<div class="holder">
 			<Icon name="watchStreak" />	
-			<i18n-t scope="global" keypath="chat.celebration.message_tmp">
+			<i18n-t scope="global" class="label" tag="span" keypath="chat.celebration.message_tmp">
 				<template #USER>
 					<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
 				</template>
@@ -16,6 +16,7 @@
 					<span>{{ messageData.cost }}</span>
 				</template>
 			</i18n-t>
+			<img v-if="messageData.emoteID" class="emote large" :src="'https://static-cdn.jtvnw.net/emoticons/v2/'+messageData.emoteID+'/default/light/3.0'" alt="emote">
 		</div>
 	</div>
 </template>
@@ -61,6 +62,20 @@ export default toNative(ChatCelebration);
 
 	.emote {
 		height: 1.5em;
+		&.large {
+			display: inline-block;
+			height: 3em;
+		}
+	}
+
+	.holder {
+		width: 100%;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		.label {
+			flex-grow: 1;
+		}
 	}
 }
 </style>
