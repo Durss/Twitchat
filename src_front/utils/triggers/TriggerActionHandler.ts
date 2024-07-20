@@ -2513,6 +2513,7 @@ export default class TriggerActionHandler {
 
 				//Handle custom chat messages
 				if(step.type == "customChat") {
+					const username = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.customMessage.user?.name || "", subEvent);
 					const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.customMessage?.message || "", subEvent);
 					const chunks = TwitchUtils.parseMessageToChunks(text, undefined, true);
 					const actions = (JSON.parse(JSON.stringify(step.customMessage?.actions)) || []) as NonNullable<typeof step.customMessage.actions>;
@@ -2538,7 +2539,10 @@ export default class TriggerActionHandler {
 						platform:"twitchat",
 						type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
 						actions,
-						user:step.customMessage.user,
+						user:{
+							name:username,
+							color:step.customMessage.user?.color,
+						},
 						icon:step.customMessage.icon,
 						highlightColor:step.customMessage.highlightColor,
 						message:text,

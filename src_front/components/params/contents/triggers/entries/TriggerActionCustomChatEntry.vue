@@ -256,6 +256,7 @@ class TriggerActionCustomChatEntry extends AbstractTriggerActionEntry {
 	 */
 	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
 		this.placeholderList = list;
+		this.param_user.placeholderList = this.placeholderList;
 		this.param_message.placeholderList = this.placeholderList;
 		for (let i = 0; i < this.actionParams.length; i++) {
 			this.actionParams[i].message.placeholderList = this.placeholderList;
@@ -266,7 +267,7 @@ class TriggerActionCustomChatEntry extends AbstractTriggerActionEntry {
 
 type keys = keyof NonNullable<TwitchatDataTypes.MessageCustomData["actions"]>[number];
 type Key2ParamMap = Omit<{
-  [K in keys]: TwitchatDataTypes.ParameterData<unknown>;
+	[K in keys]: TwitchatDataTypes.ParameterData<unknown>;
 }, "urlTarget"|"data">;
 export default toNative(TriggerActionCustomChatEntry);
 </script>
