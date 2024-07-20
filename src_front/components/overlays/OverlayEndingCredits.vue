@@ -131,8 +131,8 @@
 					<div v-if="item.params.slotType == 'powerups'" v-for="entry in getSortedPowerups(item.params)" class="item" :class="entry.skinID || ''">
 						<div class="gradientBg" v-if="entry.skinID"></div>
 						<span class="info">{{entry.login}}</span>
+						<div class="amount" v-if="(entry.count || 0) > 0 && item.params.uniqueUsers === true">x<strong>{{ entry.count }}</strong></div>
 						<img v-if="entry.emoteUrlList" v-for="url in entry.emoteUrlList" class="emote" :src="url" alt="emote">
-						<div class="amount" v-if="item.params.showAmounts === true">x{{ entry.count }}</div>
 					</div>
 				</div>
 			</div>
@@ -275,13 +275,12 @@ import AbstractOverlay from './AbstractOverlay';
 	public getSortedPowerups(params:TwitchatDataTypes.EndingCreditsSlotParams):(TwitchatDataTypes.StreamSummaryData["powerups"][number] & {emoteUrlList?:string[], count?:number})[] {
 		let anims:(TwitchatDataTypes.StreamSummaryData["powerups"][number] & {count:number})[] = [];
 		let emotes:(TwitchatDataTypes.StreamSummaryData["powerups"][number] & {emoteUrlList:string[]})[] = [];
-		let celebs:(TwitchatDataTypes.StreamSummaryData["powerups"][number] & {emoteUrlList:string[]})[] = [];
 		if(params.showPuSkin !== false)		anims	= this.data!.powerups.filter(v=>v.type == "animation")
 													.map(v => { return {...v, count:1}});
 		if(params.showPuEmote !== false)	emotes	= this.data!.powerups.filter(v=>v.type == "gigantifiedemote")
 													.map(v => { return {...v, emoteUrlList:[v.emoteUrl!]}});
-		if(params.showPuCeleb !== false)	celebs	= this.data!.powerups.filter(v=>v.type == "celebration")
-													.map(v => { return {...v, emoteUrlList:[v.emoteUrl!]}});
+		if(params.showPuCeleb !== false)	emotes	= emotes.concat(this.data!.powerups.filter(v=>v.type == "celebration")
+													.map(v => { return {...v, emoteUrlList:[v.emoteUrl!]}}));
 
 		if(params.uniqueUsers === true) {
 			let usersDoneEmote:{[login:string]:typeof emotes[number]} = {};
@@ -295,22 +294,11 @@ import AbstractOverlay from './AbstractOverlay';
 				}
 			}
 			
-			let usersDoneCelebs:{[login:string]:typeof celebs[number]} = {};
-			for (let i = 0; i < celebs.length; i++) {
-				const item = celebs[i];
-				if(!usersDoneCelebs[item.login]) usersDoneCelebs[item.login] = item;
-				else if(item.emoteUrl) {
-					usersDoneCelebs[item.login].emoteUrlList.push(item.emoteUrl);
-					celebs.splice(i,1);
-					i--;
-				}
-			}
-			
 			let usersDoneAnims:{[login:string]:typeof anims[number]} = {};
 			for (let i = 0; i < anims.length; i++) {
 				const item = anims[i];
 				if(!usersDoneAnims[item.login]) usersDoneAnims[item.login] = item;
-				else if(item.emoteUrl) {
+				else {
 					usersDoneAnims[item.login].count ++;
 					anims.splice(i,1);
 					i--;
@@ -318,7 +306,22 @@ import AbstractOverlay from './AbstractOverlay';
 			}
 		}
 
-		return [...emotes, ...celebs, ...anims].splice(0, params.maxEntries);
+		if(params.sortByAmounts) {
+			emotes.sort((a,b)=>{
+				if(a.emoteUrlList.length == b.emoteUrlList.length) {
+					return a.login.toLowerCase().localeCompare(b.login.toLowerCase());
+				}
+				return b.emoteUrlList.length - a.emoteUrlList.length;
+			});
+			anims.sort((a,b)=>{
+				if(a.count == b.count) {
+					return a.login.toLowerCase().localeCompare(b.login.toLowerCase());
+				}
+				return b.count - a.count;
+			});
+		}
+
+		return [...emotes, ...anims].splice(0, params.maxEntries);
 	}
 
 	public getRewards(item:TwitchatDataTypes.EndingCreditsSlotParams) {
@@ -1129,10 +1132,11 @@ export default toNative(OverlayEndingCredits);
 						height: 2em;
 					}
 					.amount {
-						font-weight: bold;
+						
 					}
 
 					&.simmer {
+						gap: .25em;
 						border-radius: .5em;
 						padding: 1em;
 						z-index: 0;
@@ -1164,6 +1168,7 @@ export default toNative(OverlayEndingCredits);
 
 
 					&.rainbow-eclipse {
+						gap: .25em;
 						padding: 1em;
 						overflow: hidden;
 						z-index: 0;
