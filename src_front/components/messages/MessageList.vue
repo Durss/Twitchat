@@ -4,7 +4,8 @@
 	@mouseleave="onLeaveList"
 	@wheel="onMouseWheel"
 	@touchstart="onTouchStart"
-	@touchmove="onTouchMove">
+	@touchmove="onTouchMove"
+	:style="config.backgroundColor? {backgroundColor:config.backgroundColor} : {}">
 		<MessageListFilter class="filters"
 			ref="listFilter"
 			:open="hovered"

@@ -216,6 +216,10 @@ export namespace TwitchatDataTypes {
 		 * Badges user must not have
 		 */
 		forbiddenBadges?:string[];
+		/**
+		 * Optional custom background color
+		 */
+		backgroundColor?:string;
 	}
 
 	/**
@@ -2912,6 +2916,10 @@ export namespace TwitchatDataTypes {
 		 * true if user renews their sub
 		 */
 		is_resub: boolean;
+		/**
+		 * true if user subgift was targeted
+		 */
+		is_targetedSubgift: boolean;
 		/**
 		 * User that gifted the sub to a user that renews their sub after being sub gifted
 		 */

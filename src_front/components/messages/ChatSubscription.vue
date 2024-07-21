@@ -11,7 +11,7 @@
 			<!-- Subgift -->
 			<div class="holder" v-if="messageData.is_gift">
 				<i18n-t scope="global" tag="span"
-				:keypath="giftRecipients.length > 1? 'chat.subscription.sub_gift' : 'chat.subscription.sub_gift_months'">
+				:keypath="label">
 					<template #USER>
 						<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 					</template>
@@ -129,7 +129,6 @@ import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import MessageTranslation from './MessageTranslation.vue';
-import * as Sentry from "@sentry/vue";
 
 @Component({
 	components:{
@@ -138,7 +137,7 @@ import * as Sentry from "@sentry/vue";
 	},
 	emits:["onRead"],
 })
- class ChatSubscription extends AbstractChatMessage {
+class ChatSubscription extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageSubscriptionData;
@@ -147,6 +146,13 @@ import * as Sentry from "@sentry/vue";
 		let res = ["chatsubscription", "chatMessage", "highlight"];
 		if(this.messageData.deleted === true) res.push("deleted");
 		return res;
+	}
+
+	public get label():string {
+		if(this.messageData.is_targetedSubgift) {
+			return "chat.subscription.sub_gift_months";
+		}
+		return "chat.subscription.sub_gift_community";
 	}
 
 	public get totalSubgifts():number|undefined {

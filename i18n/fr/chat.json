@@ -79,6 +79,7 @@
 			"show_greet_here": "Afficher \" @:greet.title \" dans cette colonne",
 			"show_user_badges": "Afficher uniquement les personnes ayant le badge...",
 			"hide_user_badges": "Masquer les personnes ayant le badge...",
+			"background_color": "Couleur de fond",
 			"select_all": "Tout",
 			"message_types": {
 				"twitchat_ad": "Astuces Twitchat",
@@ -205,7 +206,7 @@
 			"sub_duration": "Abonné·e depuis {COUNT} mois.",
 			"sub_streak": "{COUNT} mois d'abonnement consécutifs.",
 			"sub_advance": "A pris {COUNT} mois d'abonnement en avance",
-			"sub_gift": "{USER} a offert {COUNT} abonnement de niveau {TIER} à {LIST} | {USER} a offert {COUNT} abonnements de niveau {TIER} à {LIST}",
+			"sub_gift": "{USER} a offert {COUNT} abonnement de niveau {TIER} à la communauté : {LIST} | {USER} a offert {COUNT} abonnements de niveau {TIER} à la communauté : {LIST}",
 			"sub_gift_total": "Cette personne a offert {COUNT} abonnements sur cette chaîne.",
 			"sub_gift_months": "{USER} a offert {MONTHS} mois d'abonnement de niveau {TIER} à {LIST}",
 			"sub_gift_upgrade": "{USER} continue l'abonnement offert par {GIFTER}",

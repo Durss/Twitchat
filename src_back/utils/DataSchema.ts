@@ -1149,6 +1149,7 @@ const UserDataSchema = {
 					whispersPermissions: { $ref: "defs.json#/definitions/permissions" },
 					showPanelsHere: { type:"boolean" },
 					showGreetHere: { type:"boolean" },
+					backgroundColor: { type:"string", maxLength:10 },
 					mandatoryBadges_flag: { type:"boolean" },
 					forbiddenBadges_flag: { type:"boolean" },
 					mandatoryBadges: {

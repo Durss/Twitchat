@@ -598,6 +598,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			is_giftUpgrade: false,
 			is_resub: false,
 			is_primeUpgrade: false,
+			is_targetedSubgift:tags["msg-param-community-gift-id"] == undefined,
 			months:this.getNumValueFromTag(tags["msg-param-multimonth-duration"], -1),
 			streakMonths:this.getNumValueFromTag(tags["msg-param-streak-months"], -1),
 			totalSubDuration:this.getNumValueFromTag(tags["msg-param-cumulative-months"], -1),

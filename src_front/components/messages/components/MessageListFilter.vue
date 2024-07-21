@@ -42,13 +42,13 @@
 				<div class="paramsList">
 					
 					<div class="presets">
-						<Button @click="preset('chat')" icon="whispers" small>{{ $t('chat.filters.preset_chat') }}</Button>
-						<Button @click="preset('chatSafe')" icon="shield" small>{{ $t('chat.filters.preset_chatSafe') }}</Button>
-						<Button @click="preset('moderation')" icon="mod" small>{{ $t('chat.filters.preset_moderation') }}</Button>
-						<Button @click="preset('activities')" icon="stars" small>{{ $t('chat.filters.preset_activities') }}</Button>
-						<Button @click="preset('moderation&activities')" icon="stars" small>{{ $t('chat.filters.preset_moderation_and_activities') }}</Button>
-						<Button @click="preset('games')" icon="bingo" small>{{ $t('chat.filters.preset_games') }}</Button>
-						<Button @click="preset('revenues')" icon="coin" small>{{ $t('chat.filters.preset_revenues') }}</Button>
+						<TTButton @click="preset('chat')" icon="whispers" small>{{ $t('chat.filters.preset_chat') }}</TTButton>
+						<TTButton @click="preset('chatSafe')" icon="shield" small>{{ $t('chat.filters.preset_chatSafe') }}</TTButton>
+						<TTButton @click="preset('moderation')" icon="mod" small>{{ $t('chat.filters.preset_moderation') }}</TTButton>
+						<TTButton @click="preset('activities')" icon="stars" small>{{ $t('chat.filters.preset_activities') }}</TTButton>
+						<TTButton @click="preset('moderation&activities')" icon="stars" small>{{ $t('chat.filters.preset_moderation_and_activities') }}</TTButton>
+						<TTButton @click="preset('games')" icon="bingo" small>{{ $t('chat.filters.preset_games') }}</TTButton>
+						<TTButton @click="preset('revenues')" icon="coin" small>{{ $t('chat.filters.preset_revenues') }}</TTButton>
 					</div>
 
 					<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" v-model="param_toggleAll.value" @change="toggleAll()" />
@@ -165,6 +165,25 @@
 					v-model="config.showGreetHere"
 					v-if="$store.params.chatColumnsConfig.length > 1" />
 
+				<div class="bgColor card-item">
+					<Icon name="color" />
+					<span>{{ $t("chat.filters.background_color") }}</span>
+					<button class="colorBt tranparent"
+						:style="{color:'transparent'}"
+						@click="config.backgroundColor = ''"></button>
+					<button class="colorBt"
+						v-for="color in ['#ff00001A','#00ff001A','#0000ff1A','#ff00ff1A','#ffff001A','#00ffff1A']"
+						:style="{color:color}"
+						@click="config.backgroundColor = color"></button>
+					<ParamItem class="colorBt picker"
+						:paramData="param_backgroundColor"
+						clearToggle
+						noBackground
+						@change="saveData()"
+						v-model="config.backgroundColor"
+						v-if="$store.params.chatColumnsConfig.length > 1" />
+				</div>
+
 				<div class="previewList" ref="previewList" v-if="loadingPreview || previewData.length > 0">
 					<div class="preview" v-if="loadingPreview">
 						<Icon name="loader" class="loader" />
@@ -186,6 +205,7 @@
 <script lang="ts">
 import ClearButton from '@/components/ClearButton.vue';
 import PermissionsForm from '@/components/PermissionsForm.vue';
+import Icon from '@/components/Icon.vue';
 import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
@@ -201,7 +221,8 @@ import MessageItem from '../MessageItem.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		Icon,
+		TTButton,
 		ParamItem,
 		MessageItem,
 		ToggleBlock,
@@ -233,6 +254,7 @@ export class MessageListFilter extends Vue {
 	public param_hideUsers:TwitchatDataTypes.ParameterData<string, string> = {type:"editablelist", value:"", labelKey:"chat.filters.hide_users", placeholderKey:"chat.filters.hide_users_placeholder", icon:"hide", maxLength:1000000};
 	public param_showPanelsHere:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.show_panels_here"};
 	public param_showGreetHere:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.show_greet_here"};
+	public param_backgroundColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:""};
 	public messageKeyToScope:{[key in keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters]:TwitchScopesString[]}|null = null;
 	
 	private mouseY = 0;
@@ -1244,8 +1266,69 @@ export default toNative(MessageListFilter);
 			.info {
 				text-align: center;
 			}
-			.showPanelsHere, .showGreetHere {
+			.showPanelsHere, .showGreetHere, .bgColor {
 				font-size: .9em;
+			}
+			.bgColor {
+				gap: .5em;
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				span {
+					align-self: flex-start;
+					flex-grow: 1;
+					width: calc(100% - 1em - 30px);
+				}
+				.icon {
+					flex-grow: 0;
+					flex-shrink: 0;
+					width: 1em;
+					height: 1em;
+					vertical-align: middle;
+				}
+
+				.colorBt {
+					width: 30px;
+					height: 30px;
+					border-radius: var(--border-radius);
+					border: 1px solid var(--color-text-fade);
+					background-color: currentColor;
+					&.picker {
+						background-color: transparent;
+						border-color: var(--color-text);
+						position: relative;
+						&::before {
+							content: '';
+							position: absolute;
+							.center();
+							width: 1em;
+							height: 1em;
+							z-index: 1;
+							pointer-events: none;
+							mix-blend-mode: difference;
+							background-image: url(../../../assets/icons/pipette.svg);
+						}
+					}
+					:deep(.inputHolder ){
+						height: 28px;
+					}
+					&.tranparent {
+						overflow: hidden;
+						position: relative;
+						border: 1px solid var(--color-text);
+						&::before {
+							content: '';
+							position: absolute;
+							top: 0;
+							left: 0;
+							width: 150%;
+							height: 150%;
+							border-left: 1px solid var(--color-text);
+							transform-origin: top left;
+							transform: rotate(-45deg);
+						}
+					}
+				}
 			}
 
 			.paramsList {

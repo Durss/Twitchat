@@ -79,6 +79,7 @@
 			"show_greet_here": "Show \" @:greet.title \" on this column",
 			"show_user_badges": "Show only users with badges...",
 			"hide_user_badges": "Hide users with badges...",
+			"background_color": "Background color",
 			"select_all": "All",
 			"message_types": {
 				"twitchat_ad": "Twitchat tips & tricks",
@@ -205,7 +206,7 @@
 			"sub_duration": "Subscribed for {COUNT} month. | Subscribed for {COUNT} months.",
 			"sub_streak": "{COUNT} month streak | {COUNT} months streak",
 			"sub_advance": "Subscribed for {COUNT} months in advance.",
-			"sub_gift": "{USER} gifted {COUNT} Tier {TIER} to {LIST}",
+			"sub_gift": "{USER} gifted {COUNT} Tier {TIER} to the community: {LIST}",
 			"sub_gift_total": "They gifted {COUNT} sub on this channel. | They gifted {COUNT} subs on this channel.",
 			"sub_gift_months": "{USER} gifted {MONTHS} months of Tier {TIER} to {LIST}",
 			"sub_gift_upgrade": "{USER} is continuing the Gift Sub they got from {GIFTER}",
