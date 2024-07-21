@@ -35,15 +35,15 @@ type Test1 = AssertExact<LabelItemPlaceholder["type"], "string"|"number"|"image"
 const TypeCheck: Test1 = true;
 
 export const LabelItemPlaceholderList = [
-	{tag:"DATE",							type:"date",descriptionKey:"overlay.labels.placeholders.DATE"} as const,
-	{tag:"TIME",							type:"time",descriptionKey:"overlay.labels.placeholders.TIME"} as const,
+	{tag:"DATE",							type:"date",	descriptionKey:"overlay.labels.placeholders.DATE"} as const,
+	{tag:"TIME",							type:"time",	descriptionKey:"overlay.labels.placeholders.TIME"} as const,
 	{tag:"DATE_TIME",						type:"datetime",descriptionKey:"overlay.labels.placeholders.DATE_TIME"} as const,
 
 	{tag:"STREAM_DURATION",					type:"duration",descriptionKey:"overlay.labels.placeholders.STREAM_DURATION"} as const,
 	{tag:"STREAM_TITLE",					type:"string",	descriptionKey:"overlay.labels.placeholders.STREAM_TITLE"} as const,
 	{tag:"VIEWER_COUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.VIEWER_COUNT"} as const,
 	{tag:"STREAM_CATEGORY_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.STREAM_CATEGORY_NAME"} as const,
-	{tag:"STREAM_CATEGORY_COVER",			type:"image",	descriptionKey:"overlay.labels.placeholders.STREAM_CATEGORY_NAME"} as const,
+	{tag:"STREAM_CATEGORY_COVER",			type:"image",	descriptionKey:"overlay.labels.placeholders.STREAM_CATEGORY_COVER"} as const,
 	
 	{tag:"FOLLOWER_COUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.FOLLOWER_COUNT"} as const,
 	{tag:"SUB_COUNT",						type:"number",	descriptionKey:"overlay.labels.placeholders.SUB_COUNT"} as const,

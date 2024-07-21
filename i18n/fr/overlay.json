@@ -341,6 +341,7 @@
 			"premium_limit": "Vous avez atteint le nombre maximum de labels que vous pouvez créer",
 			"non_premium_limit": "Vous avez atteint le nombre maximum de labels que vous pouvez créer.\nDevenez premium pour créer jusqu'à {MAX} labels.",
 			"default_title": "Mon label",
+			"togle_value": "Valeur",
 			"delete_confirm": {
 				"title": "Supprimer?",
 				"description": "Cette action ne peut être annulée"
@@ -415,14 +416,14 @@
 				"MUSIC_ARTIST": "Musique en cours - Artiste",
 				"MUSIC_ALBUM": "Musique en cours - Album",
 				"MUSIC_COVER": "Musique en cours - Image",
-				"DATE": "Current date",
-				"TIME": "Current time",
-				"DATE_TIME": "Current date and time",
-				"STREAM_DURATION": "Current stream duration",
-				"STREAM_TITLE": "Stream title",
-				"VIEWER_COUNT": "Viewer count",
-				"STREAM_CATEGORY_NAME": "Stream category name",
-				"STREAM_CATEGORY_COVER": "Stream category image"
+				"DATE": "Date actuelle",
+				"TIME": "Heure actuelle",
+				"DATE_TIME": "Date et heure actuelles",
+				"STREAM_DURATION": "Durée du stream en cours",
+				"STREAM_TITLE": "Titre du stream en cours",
+				"VIEWER_COUNT": "Nombre de viewers",
+				"STREAM_CATEGORY_NAME": "Catégorie du stream",
+				"STREAM_CATEGORY_COVER": "Image de la catégorie de stream"
 			}
 		}
 	}

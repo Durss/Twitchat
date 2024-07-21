@@ -53,7 +53,7 @@
 					<SwitchButton v-model="label.mode"
 					@change="save(label)"
 					:values="['placeholder', 'html']"
-					:labels="['Valeur', 'HTML']"></SwitchButton>
+					:labels="[$t('overlay.labels.togle_value'), 'HTML']"></SwitchButton>
 					
 					<ParamItem v-if="label.mode == 'html'" :paramData="param_customText[label.id]" v-model="label.html" @change="save(label)"></ParamItem>
 					<ParamItem v-if="label.mode == 'html'" :paramData="param_customCSS[label.id]" v-model="label.css" @change="save(label)"></ParamItem>
