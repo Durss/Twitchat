@@ -60,7 +60,7 @@
 			"limit_users": "Limit users count",
 			"max_users": "Max user count",
 			"multiple_join": "Users can join multiple times",
-			"ponderate": "Weight entries (additional points given for every matching criteria)",
+			"ponderate": "Weight entries\n(additional points given for every matching criteria)",
 			"ponderate_VIP": "VIP",
 			"ponderate_sub": "Subscriber T1/prime",
 			"ponderate_subT2": "Subscriber T2",

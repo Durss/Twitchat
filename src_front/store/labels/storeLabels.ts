@@ -93,6 +93,10 @@ export const storeLabels = defineStore('labels', {
 				if(e.data) this.broadcastLabelParams(e.data.id);
 			});
 
+			this.placeholders["DATE"]		= {value:Date.now(), placeholder:LabelItemPlaceholderList.find(v=>v.tag ==  "DATE")!};
+			this.placeholders["TIME"]		= {value:Date.now(), placeholder:LabelItemPlaceholderList.find(v=>v.tag ==  "TIME")!};
+			this.placeholders["DATE_TIME"]	= {value:Date.now(), placeholder:LabelItemPlaceholderList.find(v=>v.tag ==  "DATE_TIME")!};
+
 			ready = true;
 			readyResolver();
 

@@ -60,7 +60,7 @@
 			"limit_users": "Limiter le nombre de participant·es",
 			"max_users": "Maximum",
 			"multiple_join": "Autoriser à participer plusieurs fois",
-			"ponderate": "Pondérer les participations (chaque critère rempli comptera pour X participations)",
+			"ponderate": "Pondérer les participations\n(chaque critère rempli comptera pour X participations)",
 			"ponderate_VIP": "VIP",
 			"ponderate_sub": "Sub T1/prime",
 			"ponderate_subT2": "Sub T2",

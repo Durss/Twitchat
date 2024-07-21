@@ -1328,8 +1328,9 @@ export interface IStreamActions {
 	 * Called when stream starts.
 	 * Disable emote-only if requested
 	 * @param channelId
+	 * @param startedAt
 	 */
-	setStreamStart(channelId:string):void;
+	setStreamStart(channelId:string, startedAt?:number):void;
 	/**
 	 * Called when stream ends.
 	 * Enable emote-only if requested

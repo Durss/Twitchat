@@ -633,6 +633,14 @@ export default class EventSub {
 		infos.viewers = viewers;
 		infos.live = live;
 
+		if(event.broadcaster_user_id == StoreProxy.auth.twitch.user.id) {
+			const categoryData = await TwitchUtils.getCategoryByID(event.category_id);
+			StoreProxy.labels.updateLabelValue("STREAM_TITLE", title);
+			StoreProxy.labels.updateLabelValue("STREAM_CATEGORY_NAME", category);
+			StoreProxy.labels.updateLabelValue("STREAM_CATEGORY_COVER", categoryData.box_art_url);
+			StoreProxy.labels.updateLabelValue("VIEWER_COUNT", viewers);
+		}
+
 		const message:TwitchatDataTypes.MessageStreamInfoUpdate = {
 			id:Utils.getUUID(),
 			date:Date.now(),
@@ -982,7 +990,7 @@ export default class EventSub {
 				message.info.title = chanInfo.title;
 				message.info.category = chanInfo.game_name;
 			}
-			StoreProxy.stream.setStreamStart(event.broadcaster_user_id);
+			StoreProxy.stream.setStreamStart(event.broadcaster_user_id, message.info.started_at);
 		}
 		StoreProxy.chat.addMessage(message);
 		StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id] = streamInfo;

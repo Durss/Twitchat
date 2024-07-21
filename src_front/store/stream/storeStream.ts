@@ -81,6 +81,7 @@ export const storeStream = defineStore('stream', {
 			if(platform == "twitch") {
 				//Load current live infos if any
 				TwitchUtils.getCurrentStreamInfo([channelId]).then(async v=> {
+					let categoryId = "";
 					if(v.length == 0){
 						//Fallback to channel info
 						const [chanInfos] = await TwitchUtils.getChannelInfo([channelId])
@@ -89,6 +90,7 @@ export const storeStream = defineStore('stream', {
 						infos.tags		= chanInfos.tags;
 						infos.category	= chanInfos.game_name;
 						infos.viewers	= 0;
+						categoryId		= chanInfos.game_id;
 					}else{
 						infos.live		= true;
 						infos.title		= v[0].title;
@@ -96,6 +98,14 @@ export const storeStream = defineStore('stream', {
 						infos.category	= v[0].game_name;
 						infos.viewers	= v[0].viewer_count;
 						infos.started_at= new Date(v[0].started_at).getTime();
+						categoryId		= v[0].game_id;
+					}
+					if(StoreProxy.auth.twitch.user.id == channelId) {
+						const categoryData = await TwitchUtils.getCategoryByID(categoryId);
+						StoreProxy.labels.updateLabelValue("STREAM_TITLE", infos.title);
+						StoreProxy.labels.updateLabelValue("STREAM_CATEGORY_NAME", categoryData.name);
+						StoreProxy.labels.updateLabelValue("STREAM_CATEGORY_COVER", categoryData.box_art_url);
+						StoreProxy.labels.updateLabelValue("VIEWER_COUNT", infos.viewers);
 					}
 				});
 			}
@@ -214,16 +224,19 @@ export const storeStream = defineStore('stream', {
 			}
 		},
 
-		setStreamStart(channelId:string):void{
+		setStreamStart(channelId:string, startedAt?:number):void{
 			const emoteOnly = StoreProxy.params.features.offlineEmoteOnly.value;
 			const uid = StoreProxy.auth.twitch.user.id;
-			if(emoteOnly && channelId === uid){
-				TwitchUtils.setRoomSettings(uid, {emotesOnly:false});
+			if(channelId === uid) {
+				StoreProxy.labels.updateLabelValue("STREAM_DURATION", startedAt || Date.now());
+				if(emoteOnly){
+					TwitchUtils.setRoomSettings(uid, {emotesOnly:false});
+				}
+				//Give it a minute to twitch after starting stream to schedule ads
+				setTimeout(()=> {
+					TwitchUtils.getAdSchedule();
+				}, 60000);
 			}
-			//Give it a minute to twitch after starting stream to schedule ads
-			setTimeout(()=> {
-				TwitchUtils.getAdSchedule();
-			}, 60000);
 		},
 
 		setStreamStop(channelId:string):void{

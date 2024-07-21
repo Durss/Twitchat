@@ -414,7 +414,15 @@
 				"MUSIC_TITLE": "Current music - Title",
 				"MUSIC_ARTIST": "Current music - Artist",
 				"MUSIC_ALBUM": "Current music - Album",
-				"MUSIC_COVER": "Current music - Cover"
+				"MUSIC_COVER": "Current music - Cover",
+				"DATE": "Date actuelle",
+				"TIME": "Heure actuelle",
+				"DATE_TIME": "Date et heure actuelles",
+				"STREAM_DURATION": "Durée du stream en cours",
+				"STREAM_TITLE": "Titre du stream en cours",
+				"VIEWER_COUNT": "Nombre de viewers",
+				"STREAM_CATEGORY_NAME": "Catégorie du stream",
+				"STREAM_CATEGORY_COVER": "Image de la catégorie de stream"
 			}
 		}
 	}

@@ -689,6 +689,8 @@ export const storeChat = defineStore('chat', {
 				//Parse all history
 				for (let i = res.length-1; i >= 0; i--) {
 					const m = res[i];
+					if(m.channel_id != uid) continue;
+
 					if(!lastCheer && m.type === TwitchatDataTypes.TwitchatMessageType.CHEER) {
 						lastCheer = {user:m.user, bits:m.bits};
 						StoreProxy.auth.lastCheer[m.channel_id] = lastCheer;
@@ -936,7 +938,7 @@ export const storeChat = defineStore('chat', {
 					}else {
 
 						//Check if it's an "ad" message
-						if(message.user.id == sAuth.twitch.user.id
+						if(!isFromRemoteChan
 						//Remove eventual /command from the reference message
 						&& this.botMessages.twitchatAd.message.trim().replace(/(\s)+/g, "$1").replace(/\/.*? /gi, "") == message.message.trim().replace(/(\s)+/g, "$1")) {
 							message.is_ad = true;
@@ -1022,104 +1024,106 @@ export const storeChat = defineStore('chat', {
 
 					if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 						//Reset ad schedule if necessary
-						if(!message.user.channelInfo[message.channel_id].is_broadcaster) {
-							SchedulerHelper.instance.incrementMessageCount();
-						}
-						if(/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(message.message)) {
-							SchedulerHelper.instance.resetAdSchedule(message);
-						}
-
-						//Detect hate raid.
-						if(sParams.features.antiHateRaid.value === true && Date.now() > antiHateRaidGraceEndDate) {
-							const key = message.message_chunks.filter(v=>v.type == "text").join("").toLowerCase();
-							if(message.twitch_isFirstMessage === true || message.user.channelInfo[message.channel_id].is_new) {
-								//It's a first time chatter, log their message
-								if(!antiHateRaidCounter[key]) {
-									antiHateRaidCounter[key] = {
-										date:0,
-										messages:[]
-									};
-								}
-
-								//If user isn't already registered to the haters, add them
-								if(antiHateRaidCounter[key].messages.findIndex(v=>v.user.id == (message as TwitchatDataTypes.MessageChatData).user.id) == -1) {
-									antiHateRaidCounter[key].date = Date.now();
-									antiHateRaidCounter[key].messages.push(message);
-								}
-
-								//5 users sent the same message, strike them
-								if(antiHateRaidCounter[key].messages.length == 5) {
-									currentHateRaidAlert = reactive({
-										id:Utils.getUUID(),
-										type:TwitchatDataTypes.TwitchatMessageType.HATE_RAID,
-										channel_id:message.channel_id,
-										platform:message.platform,
-										date:Date.now(),
-										haters:antiHateRaidCounter[key].messages.map(v=>v.user),
-										terms:[],
-									});
-
-									//Ban groups of words to make it a little more bullet proof
-									const chunks = message.message_chunks.filter(v=>v.type == "text").map(v=>v.value).join(" ").split(" ");
-									let word = "";
-									for (let i = 0; i < chunks.length; i++) {
-										const w = chunks[i];
-										word += " "+w;
-										if(word.length > 15) {
-											word = word.trim()
-											TwitchUtils.addBanword(word).then(result => {
-												if(result !== false) {
-													currentHateRaidAlert.terms.push({id:result.id, text:result.text});
-													if(saveToDB) {
-														Database.instance.updateMessage(currentHateRaidAlert);
+						if(!isFromRemoteChan) {
+							if(!message.user.channelInfo[message.channel_id].is_broadcaster) {
+								SchedulerHelper.instance.incrementMessageCount();
+							}
+							if(/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(message.message)) {
+								SchedulerHelper.instance.resetAdSchedule(message);
+							}
+	
+							//Detect hate raid.
+							if(sParams.features.antiHateRaid.value === true && Date.now() > antiHateRaidGraceEndDate) {
+								const key = message.message_chunks.filter(v=>v.type == "text").join("").toLowerCase();
+								if(message.twitch_isFirstMessage === true || message.user.channelInfo[message.channel_id].is_new) {
+									//It's a first time chatter, log their message
+									if(!antiHateRaidCounter[key]) {
+										antiHateRaidCounter[key] = {
+											date:0,
+											messages:[]
+										};
+									}
+	
+									//If user isn't already registered to the haters, add them
+									if(antiHateRaidCounter[key].messages.findIndex(v=>v.user.id == (message as TwitchatDataTypes.MessageChatData).user.id) == -1) {
+										antiHateRaidCounter[key].date = Date.now();
+										antiHateRaidCounter[key].messages.push(message);
+									}
+	
+									//5 users sent the same message, strike them
+									if(antiHateRaidCounter[key].messages.length == 5) {
+										currentHateRaidAlert = reactive({
+											id:Utils.getUUID(),
+											type:TwitchatDataTypes.TwitchatMessageType.HATE_RAID,
+											channel_id:message.channel_id,
+											platform:message.platform,
+											date:Date.now(),
+											haters:antiHateRaidCounter[key].messages.map(v=>v.user),
+											terms:[],
+										});
+	
+										//Ban groups of words to make it a little more bullet proof
+										const chunks = message.message_chunks.filter(v=>v.type == "text").map(v=>v.value).join(" ").split(" ");
+										let word = "";
+										for (let i = 0; i < chunks.length; i++) {
+											const w = chunks[i];
+											word += " "+w;
+											if(word.length > 15) {
+												word = word.trim()
+												TwitchUtils.addBanword(word).then(result => {
+													if(result !== false) {
+														currentHateRaidAlert.terms.push({id:result.id, text:result.text});
+														if(saveToDB) {
+															Database.instance.updateMessage(currentHateRaidAlert);
+														}
 													}
+												});
+												word = "";
+											}
+										}
+										//Delete previous messages if requested
+										if(sParams.features.antiHateRaidDeleteMessage.value == true){
+											antiHateRaidCounter[key].messages.forEach(async v=> {
+												if(v.deleted !== true) {
+													this.deleteMessage(v);
 												}
 											});
-											word = "";
 										}
-									}
-									//Delete previous messages if requested
-									if(sParams.features.antiHateRaidDeleteMessage.value == true){
-										antiHateRaidCounter[key].messages.forEach(async v=> {
-											if(v.deleted !== true) {
-												this.deleteMessage(v);
+										//Start emergency mode if requested
+										if(sParams.features.antiHateRaidEmergency.value == true){
+											sEmergency.setEmergencyMode(true);
+										}
+	
+										//If another wave comes, trigger a new alert
+										setTimeout(()=>{
+											antiHateRaidCounter[key].messages = [];
+										}, 5000);
+										this.addMessage(currentHateRaidAlert);
+									}else
+									//If anti hate raid is active and new message is received (might happen
+									//as adding a banword to twitch takes a few hundred milliseconds)
+									if(antiHateRaidCounter[key].messages.length > 5) {
+										//Add user to list
+										currentHateRaidAlert.haters.push(message.user);
+										Database.instance.updateMessage(currentHateRaidAlert);
+										//Delete messages if requested
+										if(sParams.features.antiHateRaidDeleteMessage.value == true){
+											if(message.deleted !== true) {
+												this.deleteMessage(message);
 											}
-										});
-									}
-									//Start emergency mode if requested
-									if(sParams.features.antiHateRaidEmergency.value == true){
-										sEmergency.setEmergencyMode(true);
-									}
-
-									//If another wave comes, trigger a new alert
-									setTimeout(()=>{
-										antiHateRaidCounter[key].messages = [];
-									}, 5000);
-									this.addMessage(currentHateRaidAlert);
-								}else
-								//If anti hate raid is active and new message is received (might happen
-								//as adding a banword to twitch takes a few hundred milliseconds)
-								if(antiHateRaidCounter[key].messages.length > 5) {
-									//Add user to list
-									currentHateRaidAlert.haters.push(message.user);
-									Database.instance.updateMessage(currentHateRaidAlert);
-									//Delete messages if requested
-									if(sParams.features.antiHateRaidDeleteMessage.value == true){
-										if(message.deleted !== true) {
-											this.deleteMessage(message);
 										}
 									}
+	
+									//Cleanup old cache to free memory
+									let expiredSince = Date.now() - 5*60*1000;
+									for (const key in antiHateRaidCounter) {
+										const element = antiHateRaidCounter[key];
+										if(element.date < expiredSince) delete antiHateRaidCounter[key];
+									}
+								}else if(antiHateRaidCounter[key]) {
+									//It's not a first time reset counter
+									antiHateRaidCounter[key].messages = [];
 								}
-
-								//Cleanup old cache to free memory
-								let expiredSince = Date.now() - 5*60*1000;
-								for (const key in antiHateRaidCounter) {
-									const element = antiHateRaidCounter[key];
-									if(element.date < expiredSince) delete antiHateRaidCounter[key];
-								}
-							}else if(antiHateRaidCounter[key]) {
-								//It's not a first time reset counter
-								antiHateRaidCounter[key].messages = [];
 							}
 						}
 
@@ -1242,9 +1246,11 @@ export const storeChat = defineStore('chat', {
 
 				//Reward redeem
 				case TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK: {
-					StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_AVATAR", message.user.avatarPath || "", message.user.id);
-					StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_COUNT", message.streak);
+					if(!isFromRemoteChan) {
+						StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_AVATAR", message.user.avatarPath || "", message.user.id);
+						StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_COUNT", message.streak);
+					}
 					break;
 				}
 
@@ -1256,7 +1262,8 @@ export const storeChat = defineStore('chat', {
 					if(raffle
 					&& raffle.mode == "chat"
 					&& raffle.reward_id
-					&& message.reward.id === raffle.reward_id) {
+					&& message.reward.id === raffle.reward_id
+					&& !isFromRemoteChan) {
 						sRaffle.checkRaffleJoin(message);
 					}
 
@@ -1276,20 +1283,24 @@ export const storeChat = defineStore('chat', {
 						},
 					} as JsonObject;
 					PublicAPI.instance.broadcast(TwitchatEvent.REWARD_REDEEM, wsMessage);
-					StoreProxy.labels.updateLabelValue("LAST_REWARD_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("LAST_REWARD_AVATAR", message.user.avatarPath || "", message.user.id);
-					StoreProxy.labels.updateLabelValue("LAST_REWARD_ICON", message.reward.icon.hd || message.reward.icon.sd);
-					StoreProxy.labels.updateLabelValue("LAST_REWARD_TITLE", message.reward.title);
+					if(!isFromRemoteChan) {
+						StoreProxy.labels.updateLabelValue("LAST_REWARD_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("LAST_REWARD_AVATAR", message.user.avatarPath || "", message.user.id);
+						StoreProxy.labels.updateLabelValue("LAST_REWARD_ICON", message.reward.icon.hd || message.reward.icon.sd);
+						StoreProxy.labels.updateLabelValue("LAST_REWARD_TITLE", message.reward.title);
+					}
 					break;
 				}
 
 				//Incomming raid
 				case TwitchatDataTypes.TwitchatMessageType.RAID: {
 					antiHateRaidGraceEndDate = Date.now() + 3 * 60 * 1000;
-					sStream.lastRaider = message.user;
-					StoreProxy.labels.updateLabelValue("LAST_RAID_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("LAST_RAID_AVATAR", message.user.avatarPath || "", message.user.id);
-					StoreProxy.labels.updateLabelValue("LAST_RAID_COUNT", message.viewers);
+					if(!isFromRemoteChan) {
+						sStream.lastRaider = message.user;
+						StoreProxy.labels.updateLabelValue("LAST_RAID_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("LAST_RAID_AVATAR", message.user.avatarPath || "", message.user.id);
+						StoreProxy.labels.updateLabelValue("LAST_RAID_COUNT", message.viewers);
+					}
 					message.user.channelInfo[message.channel_id].is_raider = true;
 					if(sParams.appearance.raidHighlightUser.value
 					&& sParams.appearance.raidHighlightUserTrack.value === true) {
@@ -1309,79 +1320,93 @@ export const storeChat = defineStore('chat', {
 
 				//New cheer
 				case TwitchatDataTypes.TwitchatMessageType.CHEER: {
-					message = message as TwitchatDataTypes.MessageCheerData;
-					StoreProxy.auth.lastCheer[message.channel_id] = {user:message.user, bits:message.bits};
-					StoreProxy.labels.updateLabelValue("LAST_CHEER_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("LAST_CHEER_AVATAR", message.user.avatarPath || "", message.user.id);
-					StoreProxy.labels.updateLabelValue("LAST_CHEER_AMOUNT", message.bits);
+					if(!isFromRemoteChan) {
+						message = message as TwitchatDataTypes.MessageCheerData;
+						sAuth.lastCheer[message.channel_id] = {user:message.user, bits:message.bits};
+						StoreProxy.labels.updateLabelValue("LAST_CHEER_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("LAST_CHEER_AVATAR", message.user.avatarPath || "", message.user.id);
+						StoreProxy.labels.updateLabelValue("LAST_CHEER_AMOUNT", message.bits);
+					}
 					break;
 				}
 
 				//New kofi event
 				case TwitchatDataTypes.TwitchatMessageType.KOFI: {
-					message = message as TwitchatDataTypes.MessageKofiData;
-					if(message.eventType == "donation") {
-						StoreProxy.labels.updateLabelValue("LAST_KOFI_TIP_NAME", message.userName);
-						StoreProxy.labels.updateLabelValue("LAST_KOFI_TIP_AMOUNT", message.amountFormatted);
-					}else
-					if(message.eventType == "merch") {
-						StoreProxy.labels.updateLabelValue("LAST_KOFI_MERCH_USER", message.userName);
-						StoreProxy.labels.updateLabelValue("LAST_KOFI_MERCH_AMOUNT", message.amountFormatted);
-						StoreProxy.labels.updateLabelValue("LAST_KOFI_MERCH_NAME", message.products[0].name || "");
+					if(!isFromRemoteChan) {
+						message = message as TwitchatDataTypes.MessageKofiData;
+						if(message.eventType == "donation") {
+							StoreProxy.labels.updateLabelValue("LAST_KOFI_TIP_NAME", message.userName);
+							StoreProxy.labels.updateLabelValue("LAST_KOFI_TIP_AMOUNT", message.amountFormatted);
+						}else
+						if(message.eventType == "merch") {
+							StoreProxy.labels.updateLabelValue("LAST_KOFI_MERCH_USER", message.userName);
+							StoreProxy.labels.updateLabelValue("LAST_KOFI_MERCH_AMOUNT", message.amountFormatted);
+							StoreProxy.labels.updateLabelValue("LAST_KOFI_MERCH_NAME", message.products[0].name || "");
+						}
 					}
 					break;
 				}
 
 				//New Streamelements event
 				case TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS: {
-					message = message as TwitchatDataTypes.MessageStreamelementsData;
-					if(message.eventType == "donation") {
-						StoreProxy.labels.updateLabelValue("LAST_STREAMELEMENTS_TIP_NAME", message.userName);
-						StoreProxy.labels.updateLabelValue("LAST_STREAMELEMENTS_TIP_AMOUNT", message.amountFormatted);
+					if(!isFromRemoteChan) {
+						message = message as TwitchatDataTypes.MessageStreamelementsData;
+						if(message.eventType == "donation") {
+							StoreProxy.labels.updateLabelValue("LAST_STREAMELEMENTS_TIP_NAME", message.userName);
+							StoreProxy.labels.updateLabelValue("LAST_STREAMELEMENTS_TIP_AMOUNT", message.amountFormatted);
+						}
 					}
 					break;
 				}
 
 				//New Streamlabs event
 				case TwitchatDataTypes.TwitchatMessageType.STREAMLABS: {
-					message = message as TwitchatDataTypes.MessageStreamlabsData;
-					if(message.eventType == "donation") {
-						StoreProxy.labels.updateLabelValue("LAST_STREAMLABS_TIP_NAME", message.userName);
-						StoreProxy.labels.updateLabelValue("LAST_STREAMLABS_TIP_AMOUNT", message.amountFormatted);
-					}else
-					if(message.eventType == "merch") {
-						StoreProxy.labels.updateLabelValue("LAST_STREAMLABS_MERCH_USER", message.userName);
-						StoreProxy.labels.updateLabelValue("LAST_STREAMLABS_MERCH_NAME", message.product);
+					if(!isFromRemoteChan) {
+						message = message as TwitchatDataTypes.MessageStreamlabsData;
+						if(message.eventType == "donation") {
+							StoreProxy.labels.updateLabelValue("LAST_STREAMLABS_TIP_NAME", message.userName);
+							StoreProxy.labels.updateLabelValue("LAST_STREAMLABS_TIP_AMOUNT", message.amountFormatted);
+						}else
+						if(message.eventType == "merch") {
+							StoreProxy.labels.updateLabelValue("LAST_STREAMLABS_MERCH_USER", message.userName);
+							StoreProxy.labels.updateLabelValue("LAST_STREAMLABS_MERCH_NAME", message.product);
+						}
 					}
 					break;
 				}
 
 				//New Tipeee event
 				case TwitchatDataTypes.TwitchatMessageType.TIPEEE: {
-					message = message as TwitchatDataTypes.MessageTipeeeDonationData;
-					if(message.eventType == "donation") {
-						StoreProxy.labels.updateLabelValue("LAST_TIPEEE_TIP_NAME", message.userName);
-						StoreProxy.labels.updateLabelValue("LAST_TIPEEE_TIP_AMOUNT", message.amountFormatted);
+					if(!isFromRemoteChan) {
+						message = message as TwitchatDataTypes.MessageTipeeeDonationData;
+						if(message.eventType == "donation") {
+							StoreProxy.labels.updateLabelValue("LAST_TIPEEE_TIP_NAME", message.userName);
+							StoreProxy.labels.updateLabelValue("LAST_TIPEEE_TIP_AMOUNT", message.amountFormatted);
+						}
 					}
 					break;
 				}
 
 				//New sub
 				case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION: {
-					StoreProxy.labels.updateLabelValue("LAST_SUB_YOUTUBE_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("LAST_SUB_YOUTUBE_AVATAR", message.user.avatarPath || "");
-					StoreProxy.labels.updateLabelValue("LAST_SUB_YOUTUBE_TIER", message.levelName);
-					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", message.user.avatarPath || "");
-					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", message.levelName);
+					if(!isFromRemoteChan) {
+						StoreProxy.labels.updateLabelValue("LAST_SUB_YOUTUBE_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("LAST_SUB_YOUTUBE_AVATAR", message.user.avatarPath || "");
+						StoreProxy.labels.updateLabelValue("LAST_SUB_YOUTUBE_TIER", message.levelName);
+						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", message.user.avatarPath || "");
+						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", message.levelName);
+					}
 					break;
 				}
 
 				//New sub
 				case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT: {
-					StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_AVATAR", message.user.avatarPath || "");
-					StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_AMOUNT", message.amountDisplay);
+					if(!isFromRemoteChan) {
+						StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_AVATAR", message.user.avatarPath || "");
+						StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_AMOUNT", message.amountDisplay);
+					}
 					break;
 				}
 
@@ -1405,8 +1430,10 @@ export const storeChat = defineStore('chat', {
 						isGiftUpgrade:message.is_giftUpgrade,
 						isResub:message.is_resub,
 					});
-					StoreProxy.auth.totalSubscribers[message.channel_id] ++;
-					StoreProxy.labels.incrementLabelValue("SUB_COUNT", 1);
+					if(!isFromRemoteChan) {
+						sAuth.totalSubscribers[message.channel_id] ++;
+						StoreProxy.labels.incrementLabelValue("SUB_COUNT", 1);
+					}
 					//If it's a subgift, merge it with potential previous ones
 					if(message.is_gift && message.gift_recipients) {
 						// console.log("Merge attempt");
@@ -1446,7 +1473,7 @@ export const storeChat = defineStore('chat', {
 						//Message not merged, might be the first subgift of a series, save it
 						//for future subgift events
 						subgiftHistory.push(message);
-					}else{
+					}else if(!isFromRemoteChan){
 						StoreProxy.labels.updateLabelValue("LAST_SUB_NAME", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("LAST_SUB_AVATAR", message.user.avatarPath || "", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_SUB_TIER", message.tier);
@@ -1462,24 +1489,26 @@ export const storeChat = defineStore('chat', {
 
 				//Users joined, check if any need to be autobanned
 				case TwitchatDataTypes.TwitchatMessageType.JOIN: {
-					for (let i = 0; i < message.users.length; i++) {
-						const user = message.users[i];
-						const rule = sAutomod.isMessageAutomoded(user.displayNameOriginal, user, message.channel_id);
-						if(rule != null) {
-							if(user.platform == "twitch") {
-								TwitchUtils.banUser(user, message.channel_id, undefined, `banned by Twitchat's automod because nickname matched an automod rule`);
+					if(!isFromRemoteChan) {
+						for (let i = 0; i < message.users.length; i++) {
+							const user = message.users[i];
+							const rule = sAutomod.isMessageAutomoded(user.displayNameOriginal, user, message.channel_id);
+							if(rule != null) {
+								if(user.platform == "twitch") {
+									TwitchUtils.banUser(user, message.channel_id, undefined, `banned by Twitchat's automod because nickname matched an automod rule`);
+								}
+								//Most message on chat to alert the stream
+								const mess:TwitchatDataTypes.MessageAutobanJoinData = {
+									platform:user.platform,
+									channel_id: message.channel_id,
+									type:TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN,
+									date:Date.now(),
+									id:Utils.getUUID(),
+									user,
+									rule:rule,
+								};
+								this.addMessage(mess);
 							}
-							//Most message on chat to alert the stream
-							const mess:TwitchatDataTypes.MessageAutobanJoinData = {
-								platform:user.platform,
-								channel_id: message.channel_id,
-								type:TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN,
-								date:Date.now(),
-								id:Utils.getUUID(),
-								user,
-								rule:rule,
-							};
-							this.addMessage(mess);
 						}
 					}
 					break;
@@ -1487,16 +1516,18 @@ export const storeChat = defineStore('chat', {
 
 				//New follower
 				case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
-					StoreProxy.auth.lastFollower[message.channel_id] = message.user;
-					StoreProxy.auth.totalFollowers[message.channel_id] ++;
 					sUsers.flagAsFollower(message.user, message.channel_id);
-					
-					StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_AVATAR", message.user.avatarPath || "", message.user.id);
-					StoreProxy.labels.incrementLabelValue("FOLLOWER_COUNT", 1);
+					if(!isFromRemoteChan) {
+						StoreProxy.auth.lastFollower[message.channel_id] = message.user;
+						StoreProxy.auth.totalFollowers[message.channel_id] ++;
+						
+						StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_AVATAR", message.user.avatarPath || "", message.user.id);
+						StoreProxy.labels.incrementLabelValue("FOLLOWER_COUNT", 1);
+					}
 
 					//Merge all followbot events into one
-					if(message.followbot === true) {
+					if(message.followbot === true && !isFromRemoteChan) {
 						const prevFollowbots:TwitchatDataTypes.MessageFollowingData[] = [];
 						const deletedMessages:(TwitchatDataTypes.MessageFollowingData|TwitchatDataTypes.MessageFollowbotData)[] = [];
 						let bulkMessage!:TwitchatDataTypes.MessageFollowbotData;
@@ -1630,7 +1661,7 @@ export const storeChat = defineStore('chat', {
 			if(logTimings) console.log("3", message.id, Date.now() - s);
 
 			//Apply automod rules if requested
-			if(sAutomod.params.enabled === true) {
+			if(sAutomod.params.enabled === true && !isFromRemoteChan) {
 				if( message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 				|| message.type == TwitchatDataTypes.TwitchatMessageType.CHEER
 				|| message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
@@ -1741,31 +1772,33 @@ export const storeChat = defineStore('chat', {
 					recipientCount = message.gift_recipients!.length;
 					await Utils.promisedTimeout(1000);
 				}
-				if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
-					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_AVATAR", message.user.avatarPath || "", message.user.id);
-					StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_COUNT", message.gift_count || 1);
-					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_TIER", message.tier);
-					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_TIER", message.tier);
-					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", message.tier);
-					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
-					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
-					StoreProxy.labels.incrementLabelValue("SUB_COUNT", message.gift_count || 1);
-					StoreProxy.auth.totalSubscribers[message.channel_id] += message.gift_count || 1;
-					StoreProxy.auth.lastSubgifter[message.channel_id] = {user:message.user, giftCount:message.gift_count || 1, tier:message.tier};
-				}else{
-					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_YOUTUBE_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_YOUTUBE_AVATAR", message.user.avatarPath || "");
-					StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_YOUTUBE_COUNT", message.gift_count || 1);
-					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_YOUTUBE_TIER", message.levelName);
-					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_TIER", message.levelName);
-					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", message.levelName);
-					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_AVATAR", message.user.avatarPath || "");
-					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", message.user.avatarPath || "");
+				if(!isFromRemoteChan) {
+					if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
+						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_AVATAR", message.user.avatarPath || "", message.user.id);
+						StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_COUNT", message.gift_count || 1);
+						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_TIER", message.tier);
+						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_TIER", message.tier);
+						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", message.tier);
+						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
+						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
+						StoreProxy.labels.incrementLabelValue("SUB_COUNT", message.gift_count || 1);
+						StoreProxy.auth.totalSubscribers[message.channel_id] += message.gift_count || 1;
+						StoreProxy.auth.lastSubgifter[message.channel_id] = {user:message.user, giftCount:message.gift_count || 1, tier:message.tier};
+					}else{
+						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_YOUTUBE_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_YOUTUBE_AVATAR", message.user.avatarPath || "");
+						StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_YOUTUBE_COUNT", message.gift_count || 1);
+						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_YOUTUBE_TIER", message.levelName);
+						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_TIER", message.levelName);
+						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", message.levelName);
+						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_AVATAR", message.user.avatarPath || "");
+						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", message.user.avatarPath || "");
+					}
+					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_NAME", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_NAME", message.user.displayNameOriginal);
+					StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_GENERIC_COUNT", message.gift_count || 1);
 				}
-				StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_NAME", message.user.displayNameOriginal);
-				StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_NAME", message.user.displayNameOriginal);
-				StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_GENERIC_COUNT", message.gift_count || 1);
 			}
 
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.CHEER) {
