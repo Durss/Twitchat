@@ -139,6 +139,7 @@
 			"param_showRewardUsers":"Show user list for each reward",
 			"param_ignoreBots":"Hide bot accounts",
 			"param_ignoreCustomBots":"Hide custom accounts",
+			"param_powerUpEmotes": "Make Power-up emotes fly",
 			"premium_category":"This category will NOT show up when your stream is live",
 			"param_normalCheers":"Show normal cheers",
 			"param_pinnedCheers":"Show pinned cheers",

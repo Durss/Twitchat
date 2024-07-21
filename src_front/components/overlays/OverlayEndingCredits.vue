@@ -136,6 +136,10 @@
 					</div>
 				</div>
 			</div>
+
+			<Teleport to="body">
+				<img class="powerupEmote" ref="powerupEmote" v-show="data.params?.powerUpEmotes ==  true" v-for="item in data.powerups.filter(v=>v.emoteUrl).splice(0, 20)" :src="item.emoteUrl" alt="emote">
+			</Teleport>
 		</template>
 	</div>
 </template>
@@ -158,7 +162,7 @@ import AbstractOverlay from './AbstractOverlay';
 	},
 	emits:[],
 })
- class OverlayEndingCredits extends AbstractOverlay {
+class OverlayEndingCredits extends AbstractOverlay {
 
 	public display:boolean = false;
 	public noEntry:boolean = false;
@@ -175,9 +179,11 @@ import AbstractOverlay from './AbstractOverlay';
 	private startDelayTimeout:number = -1;
 	private entryCountCache:{[key:string]:number} = {}
 	private prevTs:number = 0;
+	private prevPosY:number = 0;
 	private scrollStarted_at:number = 0;
 	private fixedScrollId:string = "";
 	private creditsComplete:boolean = false;
+	private powerUpEmoteProps:{angle:number, angleSpeed:number, speedRatio:number, scale:number}[] = [];
 
 	private keyupHandler!:(e:KeyboardEvent)=>void;
 	private controlHandler!:(e:TwitchatEvent) => void;
@@ -728,6 +734,30 @@ import AbstractOverlay from './AbstractOverlay';
 					this.scrollStarted_at = Date.now();
 				}
 				this.renderFrame(performance.now());
+	
+				const emotes = this.$refs.powerupEmote as HTMLImageElement[] || null;
+				const vw = document.body.clientWidth;
+				const vh = document.body.clientHeight;
+				let py = vh + 300;
+				emotes.forEach((img, index)=>{
+					const behind = Math.random()>.5;
+					let px = Math.random() * (vw - 112);
+					img.style.left = px + "px";
+					img.style.top = py + "px";
+					py += (Math.random()* .25 + .75) * 250;
+					this.powerUpEmoteProps.push({
+						angle:(Math.random()-Math.random()) * 360,
+						speedRatio:Math.random()*1+.75,
+						angleSpeed:(Math.random()-Math.random())*.5,
+						scale:(Math.random()*1 + 1) * (behind? .7 : 1),
+					})
+					if(behind) {
+						img.style.opacity = ".5";
+						img.style.zIndex = "-1";
+					}else{
+						img.style.zIndex = "999";
+					}
+				});
 			}
 		})
 	}
@@ -777,6 +807,35 @@ import AbstractOverlay from './AbstractOverlay';
 				document.body.style["-webkit-mask-image"] = "none";
 			}
 		})
+		
+		//Move power up emotes based on current speed
+		if(this.powerUpEmoteProps.length > 0) {
+			const emotes = this.$refs.powerupEmote as HTMLImageElement[] || null;
+			let lowestY = 0;
+			let highestY = 0;
+			const speed = this.posY - this.prevPosY;
+			emotes.forEach((img, index)=>{
+				const py = parseFloat(img.style.top);
+				lowestY = Math.max(py, lowestY);
+				highestY = Math.min(py, highestY);
+			});
+			emotes.forEach((img, index)=>{
+				const props = this.powerUpEmoteProps[index];
+				let py = (parseFloat(img.style.top) + speed * props.speedRatio);
+				if(speed < 0 && py < -500) {
+					py = Math.max(document.body.clientHeight + 300, lowestY + 300);
+					lowestY = py;
+				}
+				if(speed > 0 && py > document.body.clientHeight + 500) {
+					py = Math.min(-400, highestY - 300);
+					highestY = py;
+				}
+				img.style.top = py + "px";
+				img.style.transform = "rotate("+props.angle+"deg) scale("+props.scale+")";
+				props.angle += props.angleSpeed;
+			});
+		}
+		this.prevPosY = this.posY;
 
 		if(this.paused) return;
 		if(this.noEntry) return;
@@ -802,6 +861,7 @@ import AbstractOverlay from './AbstractOverlay';
 				this.creditsComplete = false;
 				this.scrollStarted_at = Date.now();
 				this.posY = window.innerHeight;
+				this.prevPosY = this.posY;
 			}
 			return;
 		}
@@ -823,11 +883,12 @@ import AbstractOverlay from './AbstractOverlay';
 			if(this.posY > window.innerHeight && speed < 0 && this.data?.params?.loop === true) {
 				this.scrollStarted_at = Date.now();
 				this.posY = -bounds.height;
+				this.prevPosY = this.posY;
 			}
 			//Rewrite the start scroll time depending on the scrolling percent
 			//If credits are configured to scroll completely during a specific
 			//duration, this allows to keep the credits at the same place after
-			//stoppiung speed control by simulating a start date based on the
+			//stopping speed control by simulating a start date based on the
 			//current scrolling position
 			if(this.data?.params) {
 				let s = window.innerHeight;
@@ -937,6 +998,14 @@ interface SlotItem {
 export default toNative(OverlayEndingCredits);
 </script>
 
+<style lang="less">
+.powerupEmote {
+	width: 112px;
+	height: 112px;
+	transform-origin: center;
+	position: absolute;
+}
+</style>
 <style scoped lang="less">
 .overlayendingcredits{
 	display: flex;

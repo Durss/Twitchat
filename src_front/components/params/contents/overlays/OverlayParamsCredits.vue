@@ -216,6 +216,7 @@
 				<ParamItem :paramData="param_ignoreCustomBots" v-model="data.ignoreCustomBots" noBackground class="child" />
 			</ParamItem>
 			<ParamItem :paramData="param_hideEmptySlots" v-model="data.hideEmptySlots" />
+			<ParamItem :paramData="param_powerUpEmotes" v-model="data.powerUpEmotes" />
 			<ParamItem :paramData="param_showIcons" v-model="data.showIcons" />
 			<ParamItem :paramData="param_startDelay" v-model="data.startDelay" />
 			<ParamItem :paramData="param_loop" v-model="data.loop" />
@@ -293,6 +294,7 @@ class OverlayParamsCredits extends Vue {
 	public param_ignoreBots:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_ignoreBots", icon:"bot"};
 	public param_hideEmptySlots:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_hideEmptySlots", icon:"hide"};
 	public param_ignoreCustomBots:TwitchatDataTypes.ParameterData<string[]> = {type:"editablelist", value:[], max:50, labelKey:"overlay.credits.param_ignoreCustomBots", icon:"user"};
+	public param_powerUpEmotes:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.credits.param_powerUpEmotes", icon:"watchStreak", premiumOnly:true};
 	public param_maxItems:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_customHTML:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showAmounts:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
@@ -350,6 +352,7 @@ class OverlayParamsCredits extends Vue {
 		stickyTitle:false,
 		hideEmptySlots:true,
 		ignoreBots:true,
+		powerUpEmotes:true,
 		ignoreCustomBots:[],
 		slots:[],
 	};
@@ -417,7 +420,15 @@ class OverlayParamsCredits extends Vue {
 		];
 
 		if(!this.isPremium) {
+			this.data.showIcons = true;
 			this.data.loop = true;
+			this.data.powerUpEmotes = false;
+			this.data.timing = "speed";
+			this.data.startDelay = 0;
+			this.data.duration = 60;
+			this.data.speed = 200;
+		}else{
+			if(this.data.powerUpEmotes === undefined) this.data.powerUpEmotes = true;
 		}
 
 		watch(()=>this.data, ()=>this.saveParams(), {deep:true});

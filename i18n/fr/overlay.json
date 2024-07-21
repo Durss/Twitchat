@@ -147,6 +147,7 @@
 			"delete_confirm_title": "Supprimer cette categorie ?",
 			"param_ignoreBots": "Masquer les bots",
 			"param_ignoreCustomBots": "Masquer des comptes personnalisés",
+			"param_powerUpEmotes": "Faire voler les emotes des Power-ups reçus",
 			"param_hideEmptySlots": "Masquer les sections ne contenant aucune entrée",
 			"param_tip_kofi": "Dons Ko-fi",
 			"param_tip_tipeee": "Dons Tipeee",

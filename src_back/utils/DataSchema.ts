@@ -1374,6 +1374,7 @@ const UserDataSchema = {
 				loop: {type:"boolean"},
 				showIcons: {type:"boolean"},
 				stickyTitle: {type:"boolean"},
+				powerUpEmotes: {type:"boolean"},
 				slots: {
 					type:"array",
 					minItems:0,

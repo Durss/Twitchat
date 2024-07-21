@@ -1861,6 +1861,7 @@ export namespace TwitchatDataTypes {
 		startDelay:number;
 		loop:boolean;
 		showIcons:boolean;
+		powerUpEmotes:boolean;
 		speed:number;
 		fadeSize:number;
 		slots:EndingCreditsSlotParams[];
