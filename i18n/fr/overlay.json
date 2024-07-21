@@ -124,10 +124,10 @@
 			"param_showResubs": "Afficher les resubs",
 			"param_showSubgifts": "Afficher les subgifts",
 			"param_sortBySubTypes": "Trier par type de sub",
-			"param_showSubMonths":"Afficher la durée de sub actuelle",
-			"param_showPuSkin": "Afficher les effets de message",
-			"param_showPuEmote": "Afficher les emotes gigantifiées",
-			"param_showPuCeleb": "Afficher les célébrations",
+			"param_showSubMonths": "Afficher la durée de sub actuelle",
+			"param_showPuSkin": "Effets de message",
+			"param_showPuEmote": "Emotes gigantisées",
+			"param_showPuCeleb": "Célébrations",
 			"param_sortByNames": "Trier par ordre alphabétique",
 			"param_sortByRoles": "Trier par rôles",
 			"param_sortByAmounts": "Trier par nombre de messages",
@@ -180,7 +180,7 @@
 				"polls": "Sondages",
 				"predictions": "Prédictions",
 				"tips": "Dons",
-				"powerups":"Power-ups",
+				"powerups": "Power-ups",
 				"merch": "Achat de merch"
 			},
 			"labels": {
@@ -200,7 +200,7 @@
 				"polls": "SONDAGES",
 				"predictions": "PRÉDICTIONS",
 				"tips": "DONS",
-				"powerups":"POWER-UPS",
+				"powerups": "POWER-UPS",
 				"merch": "MERCH ACHETÉ"
 			},
 			"amounts": {
@@ -218,7 +218,10 @@
 				"predictions": "Afficher le nombre de points de chaîne",
 				"tips": "Afficher le montant des dons"
 			},
-			"manual_install_instructions": "Pour un fonctionnement optimal, assurez-vous d'activer les options \"Désactiver la source quand elle n'est pas visible\" et \"Rafraîchir la source quand elle devient active\" sur la source navigateur OBS."
+			"manual_install_instructions": "Pour un fonctionnement optimal, assurez-vous d'activer les options \"Désactiver la source quand elle n'est pas visible\" et \"Rafraîchir la source quand elle devient active\" sur la source navigateur OBS.",
+			"param_pu_skin": "Effets de message",
+			"param_pu_emote": "Emotes gigantisées",
+			"param_pu_celeb": "Célébrations"
 		},
 		"heatDistort": {
 			"title": "Distorsion de source OBS",
@@ -408,10 +411,10 @@
 				"LAST_SUPER_CHAT_AMOUNT": "Dernier Super chat Youtube - Montant",
 				"VOICEMOD_EFFECT_TITLE": "Effet Voicemod - Nom",
 				"VOICEMOD_EFFECT_ICON": "Effet Voicemod - Icône",
-				"MUSIC_TITLE":"Musique en cours - Titre",
-				"MUSIC_ARTIST":"Musique en cours - Artiste",
-				"MUSIC_ALBUM":"Musique en cours - Album",
-				"MUSIC_COVER":"Musique en cours - Image"
+				"MUSIC_TITLE": "Musique en cours - Titre",
+				"MUSIC_ARTIST": "Musique en cours - Artiste",
+				"MUSIC_ALBUM": "Musique en cours - Album",
+				"MUSIC_COVER": "Musique en cours - Image"
 			}
 		}
 	}

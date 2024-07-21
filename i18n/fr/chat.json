@@ -422,7 +422,8 @@
 			"label": "Nouveaux messages"
 		},
 		"added_to_playlist": {
-			"title": "{USER} a ajouté le morceau suivant à la playlist {PLAYLIST} :"
+			"title": "{USER} a ajouté le morceau suivant à la playlist {PLAYLIST} :",
+			"title_fail": "{USER} a échoué l'ajout d'un morceau à la playlist {PLAYLIST}."
 		},
 		"added_to_queue": {
 			"title": "{USER} a ajouté le morceau suivant à la file d'attente :",

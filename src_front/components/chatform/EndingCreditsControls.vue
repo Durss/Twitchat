@@ -30,7 +30,7 @@ import { gsap } from 'gsap/gsap-core';
 	},
 	emits:["close"],
 })
- class EndingCreditsControls extends Vue {
+class EndingCreditsControls extends Vue {
 
 	public speed:number = 0;
 	public ignoreSpeedchange:boolean = false;
@@ -55,10 +55,12 @@ import { gsap } from 'gsap/gsap-core';
 			chatters:[],
 			merch:[],
 			tips:[],
+			powerups:[],
 			labels:{
 				no_entry:"",
 				premium_only:"",
 				train:"",
+				sub_duration:"",
 			}
 		}
 		PublicAPI.instance.broadcast("SUMMARY_DATA", (summary as unknown) as JsonObject);

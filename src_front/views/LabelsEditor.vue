@@ -249,6 +249,7 @@ import type { JsonObject } from "type-fest";
 						break;
 					}else if(rootLabels == undefined || (rootLabels == "" && rootRef != "")) {
 						rootLabels = null;
+						// done --;
 						break;
 					}
 				}

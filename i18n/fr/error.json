@@ -110,6 +110,7 @@
 		"streamelements_denied": "Vous avez refusé l'accès à votre profil Streamelements.",
 		"streamelements_connect_failed": "Authentification Streamelements échouée.",
 		"bingo_grid_404": "Grille de bingo introuvable",
-		"qna_action": "Une erreur est survenue lors de l'exécution d'une action de modération de questions/réponses"
+		"qna_action": "Une erreur est survenue lors de l'exécution d'une action de modération de questions/réponses",
+		"sse_error": "Une erreur est survenue lors de la connexion aux évènements temps réel.\nLe {APP} risque de ne pas fonctionner correctement.\nDésactivez vos ad-blockers pour cette page et rechargez-la."
 	}
 }
