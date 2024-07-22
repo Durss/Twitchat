@@ -52,7 +52,7 @@
 									<div style="text-align: center">
 										<div>{{ $t('usercard.edit_loginBt_tt') }}</div>
 										<div class="list" v-if="Object.keys($store.users.customUsernames).length > 0">
-											<Button light secondary small icon="edit" @click="manageUserNames = true">{{ $t("usercard.manage_usernamesBt") }}</Button>
+											<TTButton light secondary small icon="edit" @click="manageUserNames = true">{{ $t("usercard.manage_usernamesBt") }}</TTButton>
 										</div>
 									</div>
 								</template>
@@ -61,7 +61,7 @@
 						
 						<form v-else class="editLoginForm" @submit.prevent="submitCustomLogin()">
 							<input class="" type="text" :placeholder="$t('global.login_placeholder')" v-model="customLogin" ref="customUsername" maxlength="25">
-							<Button type="submit" icon="checkmark"></Button>
+							<TTButton type="submit" icon="checkmark"></TTButton>
 						</form>
 					</div>
 					<span v-if="user.displayName != user.displayNameOriginal" class="originalName">({{ user.displayNameOriginal }})</span>
@@ -102,29 +102,60 @@
 					<div class="banReason quote" v-if="banReason"><Icon name="ban" /> {{ banReason }}</div>
 					
 					<div class="ctas" v-if="isTwitchProfile">
-						<Button v-if="!is_tracked" small icon="magnet" @click="trackUser()">{{$t('usercard.trackBt')}}</Button>
-						<Button v-if="is_tracked" small icon="magnet" @click="untrackUser()">{{$t('usercard.untrackBt')}}</Button>
-						<Button v-if="$store.tts.params.enabled === true" small icon="tts" @click="toggleReadUser()">{{ ttsReadBtLabel }}</Button>
+						<TTButton v-if="!is_tracked" small icon="magnet" @click="trackUser()">{{$t('usercard.trackBt')}}</TTButton>
+						<TTButton v-if="is_tracked" small icon="magnet" @click="untrackUser()">{{$t('usercard.untrackBt')}}</TTButton>
+						<TTButton v-if="$store.tts.params.enabled === true" small icon="tts" @click="toggleReadUser()">{{ ttsReadBtLabel }}</TTButton>
 					</div>
 					
 					<div class="ctas">
-						<Button type="link" small icon="newtab" :href="profilePage" target="_blank">{{$t('usercard.profileBt')}}</Button>
+						<TTButton type="link" small icon="newtab" :href="profilePage" target="_blank">{{$t('usercard.profileBt')}}</TTButton>
 						<template v-if="isTwitchProfile">
-							<Button small
+							<TTButton small
 								type="link"
 								icon="newtab"
 								@click.stop="openUserCard($event)"
 								:href="'https://www.twitch.tv/popout/'+$store.auth.twitch.user.login+'/viewercard/'+user!.login"
-								target="_blank">{{$t('usercard.viewercardBt')}}</Button>
-							<Button v-if="!canListModeratedChans" small secondary icon="mod" @click="grantModeratedScope()">{{$t('usercard.moderator_viewercardBt')}}</Button>
-							<Button v-for="modedChan in moderatedChannelList"
-								small
-								type="link"
-								icon="newtab"
-								v-tooltip="$t('usercard.moderator_viewercardBt_tt', {CHANNEL:modedChan.broadcaster_name})"
-								@click.stop="openUserCard($event, modedChan.broadcaster_login)"
-								:href="'https://www.twitch.tv/popout/'+modedChan.broadcaster_login+'/viewercard/'+user!.login"
-								target="_blank" >{{ $t('usercard.viewercardBt') }} : {{ modedChan.broadcaster_name }}</Button>
+								target="_blank">{{$t('usercard.viewercardBt')}}</TTButton>
+							
+							<TTButton v-if="!canListModeratedChans" small secondary icon="mod" @click="grantModeratedScope()">{{$t('usercard.moderator_viewercardBt')}}</TTButton>
+							
+							<div class="modItem" v-for="modedChan of moderatedChannelList_pinned">
+								<TTButton small
+									type="link"
+									icon="newtab"
+									v-tooltip="$t('usercard.moderator_viewercardBt_tt', {CHANNEL:modedChan.broadcaster_name})"
+									@click.stop="openUserCard($event, modedChan.broadcaster_login)"
+									:href="'https://www.twitch.tv/popout/'+modedChan.broadcaster_login+'/viewercard/'+user!.login"
+									target="_blank" >{{ modedChan.broadcaster_name }}</TTButton>
+								<TTButton icon="unpin" @click="unpinModIem(modedChan)"></TTButton>
+							</div>
+							
+							<tooltip
+							:inlinePositioning='false'
+							:maxWidth="600"
+							:maxHeight="200"
+							interactive
+							:interactiveDebounce="1000"
+							:theme="$store.common.theme"
+							trigger="click">
+								<template #default>
+									<TTButton v-if="Object.keys(moderatedChannelList_pinned).length < moderatedChannelList.length"
+										icon="add"
+										secondary></TTButton>
+								</template>
+								<template #content>
+									<div class="modList">
+										<div class="modItem" v-for="modedChan in moderatedChannelList.filter(v=>moderatedChannelList_pinned.findIndex(u=>u.broadcaster_id == v.broadcaster_id) == -1)">
+											<TTButton
+												small
+												icon="mod"
+												@click.stop="openUserCard($event, modedChan.broadcaster_login)"
+												target="_blank" >{{ modedChan.broadcaster_name }}</TTButton>
+											<TTButton icon="pin" @click="pinModIem(modedChan)"></TTButton>
+										</div>
+									</div>
+								</template>
+							</tooltip>
 						</template>
 					</div>
 					
@@ -174,6 +205,7 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import DataStore from '@/store/DataStore';
 import { watch } from '@vue/runtime-core';
 import { gsap } from 'gsap/gsap-core';
 import type { Badges } from 'tmi.js';
@@ -190,7 +222,7 @@ import AbstractSidePanel from '../AbstractSidePanel';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ClearButton,
 		MessageItem,
 		ChatModTools,
@@ -225,6 +257,7 @@ class UserCard extends AbstractSidePanel {
 	public messageHistory:TwitchatDataTypes.ChatMessageTypes[] = []
 	public dateOffset:number = 0;
 	public dateOffsetTimeout:number = -1;
+	public moderatedChannelList_pinned:TwitchDataTypes.ModeratedUser[] = [];
 
 	private popup:Window|null = null;
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
@@ -340,6 +373,18 @@ class UserCard extends AbstractSidePanel {
 	}
 
 	public mounted():void {
+		let pinnedChanIds:string[] = []; 
+		try {
+			pinnedChanIds = JSON.parse(DataStore.get(DataStore.USERCARD_PINNED_CHANNEL) || "[]") as string[] || [];
+		}catch(error) {
+			pinnedChanIds = [];
+		}
+		if(!Array.isArray(pinnedChanIds)) pinnedChanIds = []
+		pinnedChanIds.forEach(id=> {
+			const chan = this.moderatedChannelList.find(v=>v.broadcaster_id == id);
+			if(!chan) return;
+			this.moderatedChannelList_pinned.push(chan);
+		})
 		watch(() => this.$store.users.userCard, async () => {
 			const card = this.$store.users.userCard;
 			if(card && card.user) {
@@ -486,6 +531,18 @@ class UserCard extends AbstractSidePanel {
 		}
 
 		this.loading = false;
+	}
+
+	public pinModIem(item:TwitchDataTypes.ModeratedUser):void {
+		this.moderatedChannelList_pinned.push(item);
+		DataStore.set(DataStore.USERCARD_PINNED_CHANNEL, this.moderatedChannelList_pinned.map(v=>v.broadcaster_id));
+	}
+
+	public unpinModIem(item:TwitchDataTypes.ModeratedUser):void {
+		const index = this.moderatedChannelList_pinned.findIndex(v => v.broadcaster_id == item.broadcaster_id);
+		if(index == -1) return;
+		this.moderatedChannelList_pinned.splice(index, 1);
+		DataStore.set(DataStore.USERCARD_PINNED_CHANNEL, this.moderatedChannelList_pinned.map(v=>v.broadcaster_id));
 	}
 
 	public openUserCard(event?:MouseEvent, channelName?:string):void {
@@ -649,6 +706,29 @@ export default toNative(UserCard);
 			display: block;
 			width: 2em;
 			height: 2em;
+		}
+
+		.modList {
+			gap: .5em;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			max-width: 400px;
+			padding: .5em;
+		}
+		.modItem {
+			gap: 1px;
+			display: flex;
+			flex-direction: row;
+			&>:first-child {
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+			}
+			&>:last-child {
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+			}
 		}
 	
 		.errorMessage, .warn {

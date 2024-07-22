@@ -102,6 +102,7 @@ export default class DataStoreCommon {
 	public static T4P_CHAT_CMD:string = "t4p_chat_cmd";
 	public static ANTIFA_HIDE:string = "antifa_hide";
 	public static USER_ID:string = "userId";
+	public static USERCARD_PINNED_CHANNEL:string = "usercardPinnedChannel";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";

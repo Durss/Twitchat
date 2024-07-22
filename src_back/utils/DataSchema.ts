@@ -849,6 +849,12 @@ const UserDataSchema = {
 		ululeTitle: {type:"string", maxLength:100},
 		ululeCurrency: {type:"string", maxLength:5},
 		heatEnabled: {type:"boolean"},
+		usercardPinnedChannel: {
+			type:"array",
+			minItems:0,
+			maxItems:50,
+			items:{ type:"string", maxLength:30},
+		},
 		customUsernames: {
 			type:"object",
 			additionalProperties: false,
