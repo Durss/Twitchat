@@ -12,7 +12,7 @@
 					<div v-if="item.params.slotType == 'hypechats'" v-for="entry in makeUnique(item.params, data.hypeChats || []).concat().sort((a,b)=>b.amount-a.amount).splice(0, item.params.maxEntries)" class="item">
 						<span class="info">{{entry.login}}</span>
 						<div class="amount" v-if="item.params.showAmounts === true">
-							<span class="currency">{{{EUR:"€",USD:"$", GBP:"£"}[entry.currency] || entry.currency}}</span>
+							<span class="currency"> − {{{EUR:"€",USD:"$", GBP:"£"}[entry.currency] || entry.currency}}</span>
 							<span class="value">{{entry.amount}}</span>
 						</div>
 					</div>
@@ -20,7 +20,7 @@
 					<div v-if="item.params.slotType == 'ytSuperchat'" v-for="entry in getSortedSuperMessages(item.params).splice(0, item.params.maxEntries)" class="item">
 						<span class="info">{{entry.login}}</span>
 						<div class="amount" v-if="item.params.showAmounts === true">
-							<span class="currency">{{{EUR:"€",USD:"$", GBP:"£"}[entry.currency] || entry.currency}}</span>
+							<span class="currency"> − {{{EUR:"€",USD:"$", GBP:"£"}[entry.currency] || entry.currency}}</span>
 							<span class="value">{{entry.amount}}</span>
 						</div>
 					</div>
@@ -99,10 +99,10 @@
 						<span class="info">{{ entry.reward.name }}</span>
 						<span class="count" v-if="item.params.showAmounts === true">x{{ entry.total }}</span>
 						<div class="userlist" v-if="item.params.showRewardUsers === true">
-							<div class="login" v-for="u in entry.users">
+							<span class="login" v-for="u in entry.users">
 								<span>{{ u.login }}</span>
 								<span v-if="item.params.showAmounts === true"> x{{ u.total }}</span>
-							</div>
+							</span>
 						</div>
 					</div>
 
@@ -150,11 +150,13 @@
 						<!-- <span class="count" v-if="entry.total > -1 && entry.currency">{{ entry.total +" "+entry.currency }}</span> -->
 					</div>
 
-					<div v-if="item.params.slotType == 'powerups'" v-for="entry in getSortedPowerups(item.params)" class="item" :class="entry.skinID || ''">
+					<div v-if="item.params.slotType == 'powerups'" v-for="entry in getSortedPowerups(item.params)" class="item" :class="entry.skinID || 'emote'">
+						<div class="emoteList">
+							<img v-if="entry.emoteUrlList" v-for="url in entry.emoteUrlList" class="emote" :src="url" alt="emote">
+						</div>
 						<div class="gradientBg" v-if="entry.skinID"></div>
 						<span class="info">{{entry.login}}</span>
 						<div class="amount" v-if="(entry.count || 0) > 0 && item.params.uniqueUsers === true">x<strong>{{ entry.count }}</strong></div>
-						<img v-if="entry.emoteUrlList" v-for="url in entry.emoteUrlList" class="emote" :src="url" alt="emote">
 					</div>
 				</div>
 			</div>
@@ -1273,18 +1275,22 @@ export default toNative(OverlayEndingCredits);
 		&.rewards {
 			.list {
 				.item {
-					flex-wrap: wrap;
+					flex-wrap: nowrap;
 					width: fit-content;
+					display: block;
+					.count {
+						display: inline;
+					}
 				}
 			}
 		}
 
 		&.hypetrains {
 			.list {
+				row-gap: 4em;
 				.item {
 					gap: .5em;
 					display: flex;
-					align-items: center;
 					flex-direction: column;
 					.conductor {
 						gap: 1em;
@@ -1318,9 +1324,30 @@ export default toNative(OverlayEndingCredits);
 					gap: 1em;
 					align-items: center;
 					position: relative;
-					.emote {
-						height: 2em;
+					&.emote {
+						gap: .5em;
+						flex-direction: column;
+						// align-items: center;
+						.emoteList {
+							display: flex;
+							flex-direction: row;
+							flex-wrap: wrap;
+							// align-items: center;
+							// justify-content: center;
+						}
+						.emote {
+							height: 3em;
+						}
+						.user {
+							display: flex;
+							flex-direction: row;
+							align-items: center;
+							.info {
+								margin-right: .25em;
+							}
+						}
 					}
+
 					&.simmer {
 						gap: .25em;
 						border-radius: .5em;
@@ -1429,6 +1456,12 @@ export default toNative(OverlayEndingCredits);
 							display: flex;
 							flex-direction: row;
 							justify-content: space-between;
+							.icon, .dot {
+								display: inline-block;
+								width: 1em;
+								margin: 0 .5em;
+								vertical-align: middle;
+							}
 						}
 					}
 				}
@@ -1501,6 +1534,10 @@ export default toNative(OverlayEndingCredits);
 				flex-wrap: wrap;
 				align-items: center;
 				justify-content: center;
+				.item {
+					align-items: center;
+					text-align: center;
+				}
 			}
 		}
 
@@ -1509,10 +1546,11 @@ export default toNative(OverlayEndingCredits);
 				column-gap: 2em;
 				flex-direction: row;
 				flex-wrap: wrap;
-				align-items: center;
+				align-items: flex-end;
 				justify-content: flex-end;
 				.item {
 					justify-content: flex-end;
+					align-items: flex-end;
 					.userlist, .stickerList {
 						align-items: flex-end;
 					}
@@ -1524,6 +1562,7 @@ export default toNative(OverlayEndingCredits);
 			.list {
 				align-items: flex-end;
 				.item {
+					align-items: flex-end;
 					justify-content: flex-end;
 					.userlist, .stickerList {
 						align-items: flex-end;
@@ -1532,13 +1571,13 @@ export default toNative(OverlayEndingCredits);
 			}
 		}
 
-		// &.layout_col {
-		// 	width: 100%;
-		// 	.list {
-		// 		width: 100%;
-		// 		align-items: center;
-		// 	}
-		// }
+		&.layout_col {
+			.list {
+				.item {
+					align-items: center;
+				}
+			}
+		}
 
 		&.layout_colLeft {
 			.list {
@@ -1561,6 +1600,7 @@ export default toNative(OverlayEndingCredits);
 					&:nth-child(2n) {
 						align-self: flex-start;
 						justify-self: start;
+						align-items: flex-start;
 						justify-content: flex-start;
 						.userlist, .stickerList {
 							align-items: flex-start;
@@ -1570,6 +1610,7 @@ export default toNative(OverlayEndingCredits);
 						align-self: flex-start;
 						justify-self: end;
 						justify-content: flex-end;
+						align-items: flex-end;
 						.userlist, .stickerList {
 							align-items: flex-end;
 						}
@@ -1593,20 +1634,26 @@ export default toNative(OverlayEndingCredits);
 					max-width: 100%;
 					&:nth-child(3n+1) {
 						justify-self: end;
+						align-items: flex-end;
 						justify-content: flex-end;
 						align-self: flex-start;
+						text-align: right;
 						.userlist, .stickerList {
 							align-items: flex-end;
 						}
 					}
 					&:nth-child(3n+2) {
 						justify-self: center;
+						align-items: center;
 						align-self: flex-start;
+						text-align: center;
 					}
 					&:nth-child(3n) {
 						justify-self: start;
+						align-items: flex-start;
 						justify-content: flex-start;
 						align-self: flex-start;
+						text-align: left;
 						.userlist, .stickerList {
 							align-items: flex-start;
 						}
