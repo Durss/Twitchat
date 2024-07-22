@@ -635,7 +635,7 @@ export default class EventSub {
 			const categoryData = await TwitchUtils.getCategoryByID(event.category_id);
 			StoreProxy.labels.updateLabelValue("STREAM_TITLE", title);
 			StoreProxy.labels.updateLabelValue("STREAM_CATEGORY_NAME", category);
-			StoreProxy.labels.updateLabelValue("STREAM_CATEGORY_COVER", categoryData.box_art_url);
+			StoreProxy.labels.updateLabelValue("STREAM_CATEGORY_COVER", categoryData.box_art_url.replace("{width}", "138").replace("{height}", "190"));
 			StoreProxy.labels.updateLabelValue("VIEWER_COUNT", viewers);
 		}
 
