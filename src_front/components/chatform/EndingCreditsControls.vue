@@ -56,6 +56,8 @@ class EndingCreditsControls extends Vue {
 			merch:[],
 			tips:[],
 			powerups:[],
+			superChats:[],
+			superStickers:[],
 			labels:{
 				no_entry:"",
 				premium_only:"",

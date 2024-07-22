@@ -333,8 +333,8 @@ class OverlayEndingCredits extends AbstractOverlay {
 			let scoreB = 0;
 
 			if(params.sortByAmounts) {
-				if(a.amount > b.amount) scoreA ++;
-				if(a.amount < b.amount) scoreB ++;
+				if(a.amount > b.amount) scoreA +=2;
+				if(a.amount < b.amount) scoreB +=2;
 			}
 
 			if(params.sortByNames) {
@@ -1227,13 +1227,13 @@ export default toNative(OverlayEndingCredits);
 			.item {
 				gap: .5em;
 				flex-direction: column;
-				align-items: center;
+				// align-items: center;
 				.stickerList {
 					display: flex;
 					flex-direction: row;
 					flex-wrap: wrap;
-					align-items: center;
-					justify-content: center;
+					// align-items: center;
+					// justify-content: center;
 				}
 				.sticker {
 					height: 5em;
@@ -1486,7 +1486,7 @@ export default toNative(OverlayEndingCredits);
 				justify-content: flex-start;
 				.item {
 					justify-content: flex-start;
-					.userlist {
+					.userlist, .stickerList {
 						align-items: flex-start;
 					}
 				}
@@ -1513,7 +1513,7 @@ export default toNative(OverlayEndingCredits);
 				justify-content: flex-end;
 				.item {
 					justify-content: flex-end;
-					.userlist {
+					.userlist, .stickerList {
 						align-items: flex-end;
 					}
 				}
@@ -1525,7 +1525,7 @@ export default toNative(OverlayEndingCredits);
 				align-items: flex-end;
 				.item {
 					justify-content: flex-end;
-					.userlist {
+					.userlist, .stickerList {
 						align-items: flex-end;
 					}
 				}
@@ -1545,7 +1545,7 @@ export default toNative(OverlayEndingCredits);
 				align-items: flex-start;
 				.item {
 					justify-content: flex-start;
-					.userlist {
+					.userlist, .stickerList {
 						align-items: flex-start;
 					}
 				}
@@ -1562,7 +1562,7 @@ export default toNative(OverlayEndingCredits);
 						align-self: flex-start;
 						justify-self: start;
 						justify-content: flex-start;
-						.userlist {
+						.userlist, .stickerList {
 							align-items: flex-start;
 						}
 					}
@@ -1570,7 +1570,7 @@ export default toNative(OverlayEndingCredits);
 						align-self: flex-start;
 						justify-self: end;
 						justify-content: flex-end;
-						.userlist {
+						.userlist, .stickerList {
 							align-items: flex-end;
 						}
 					}
@@ -1595,7 +1595,7 @@ export default toNative(OverlayEndingCredits);
 						justify-self: end;
 						justify-content: flex-end;
 						align-self: flex-start;
-						.userlist {
+						.userlist, .stickerList {
 							align-items: flex-end;
 						}
 					}
@@ -1607,7 +1607,7 @@ export default toNative(OverlayEndingCredits);
 						justify-self: start;
 						justify-content: flex-start;
 						align-self: flex-start;
-						.userlist {
+						.userlist, .stickerList {
 							align-items: flex-start;
 						}
 					}
