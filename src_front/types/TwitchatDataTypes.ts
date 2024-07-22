@@ -1781,10 +1781,10 @@ export namespace TwitchatDataTypes {
 		{id:"so_out",		premium:true,	hasAmount:true,		canMerge:false,		icon:"shoutout",		label:"overlay.credits.categories.so_out",			defaultLabel:"overlay.credits.labels.so_out",		amountLabel:"overlay.credits.amounts.so_out"},
 		{id:"polls",		premium:true,	hasAmount:true,		canMerge:false,		icon:"poll",			label:"overlay.credits.categories.polls",			defaultLabel:"overlay.credits.labels.polls",		amountLabel:"overlay.credits.amounts.polls"},
 		{id:"predictions",	premium:true,	hasAmount:true,		canMerge:false,		icon:"prediction",		label:"overlay.credits.categories.predictions",		defaultLabel:"overlay.credits.labels.predictions",	amountLabel:"overlay.credits.amounts.predictions"},
-		{id:"tips",			premium:true,	hasAmount:true,		canMerge:true,		icon:"coin",			label:"overlay.credits.categories.tips",			defaultLabel:"overlay.credits.labels.tips",			amountLabel:"overlay.credits.amounts.tips"},
-		{id:"merch",		premium:true,	hasAmount:false,	canMerge:false,		icon:"label",			label:"overlay.credits.categories.merch",			defaultLabel:"overlay.credits.labels.merch"},
-		{id:"ytSuperchat",	premium:true,	hasAmount:true,		canMerge:true,		icon:"youtube",			label:"overlay.credits.categories.ytSuperchat",		defaultLabel:"overlay.credits.labels.ytSuperchat",	amountLabel:"overlay.credits.amounts.tips"},
-		{id:"ytSuperSticker",premium:true,	hasAmount:true,		canMerge:true,		icon:"youtube",			label:"overlay.credits.categories.ytSuperSticker",	defaultLabel:"overlay.credits.labels.ytSuperSticker",	amountLabel:"overlay.credits.amounts.tips"},
+		{id:"tips",			premium:true,	hasAmount:true,		canMerge:true,		icon:"coin",			label:"overlay.credits.categories.tips",			defaultLabel:"overlay.credits.labels.tips",			amountLabel:"overlay.credits.amounts.tips",		newFlag: Config.instance.NEW_FLAGS_DATE_V13},
+		{id:"merch",		premium:true,	hasAmount:false,	canMerge:false,		icon:"label",			label:"overlay.credits.categories.merch",			defaultLabel:"overlay.credits.labels.merch",		newFlag: Config.instance.NEW_FLAGS_DATE_V13},
+		{id:"ytSuperchat",	premium:true,	hasAmount:true,		canMerge:true,		icon:"youtube",			label:"overlay.credits.categories.ytSuperchat",		defaultLabel:"overlay.credits.labels.ytSuperchat",	amountLabel:"overlay.credits.amounts.tips",		newFlag: Config.instance.NEW_FLAGS_DATE_V13},
+		{id:"ytSuperSticker",premium:true,	hasAmount:true,		canMerge:true,		icon:"youtube",			label:"overlay.credits.categories.ytSuperSticker",	defaultLabel:"overlay.credits.labels.ytSuperSticker",	amountLabel:"overlay.credits.amounts.tips",	newFlag: Config.instance.NEW_FLAGS_DATE_V13},
 		{id:"text",			premium:true,	hasAmount:false,	canMerge:false,		icon:"font",			label:"overlay.credits.categories.text",			defaultLabel:"overlay.credits.labels.text"},
 	];
 
