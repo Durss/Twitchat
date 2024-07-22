@@ -28,8 +28,8 @@
 			"no_live":"No live broadcast found.\nPlease create a live broadcast session on Youtube and hit refresh button.",
 			"scopes_title":"Autorizations",
 			"scope_read":"Read chat messages\n(mandatory)",
-			"scope_moderate":"Delete messages / ban users\n(@:connexions.youtube.scope_moderate_details )",
-			"scope_moderate_details":"This autorization also allows to delete videos from your channel, which Twitchat will obviously never do, but that's how Youtube works.",
+			"scope_moderate":"Write & delete messages / ban users\n(@:connexions.youtube.scope_moderate_details )",
+			"scope_moderate_details":"This autorization also allows to delete videos from your channel, which Twitchat will obviously never do, but Youtube leaves no choice.",
 			"terms":"Youtube Terms of Services",
 			"policy":"Google Privacy Policy"
 		}

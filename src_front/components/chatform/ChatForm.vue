@@ -55,9 +55,13 @@
 					</div>
 
 					<div class="inputField">
-						<div class="noYoutubeLive" alert
+						<button class="youtubeError"
 							v-if="mustConnectYoutubeChan"
-							@click="stopSpam()">{{ $t('chat.form.youtube_not_connected') }}</div>
+							@click="$store.params.openParamsPage('connexions', 'youtube')">{{ $t('chat.form.youtube_not_connected') }}</button>
+						
+						<button class="youtubeError"
+							v-else-if="$store.stream.currentChatChannel.platform == 'youtube' && mustGrantYoutubeScope"
+							@click="$store.params.openParamsPage('connexions', 'youtube')">{{ $t('chat.form.youtube_missing_scope') }}</button>
 							
 						<!-- using @input instead of v-model so it works properly on mobile -->
 						<input v-else
@@ -376,6 +380,7 @@ import MessageExportIndicator from './MessageExportIndicator.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
 import ChannelSwitcher from './ChannelSwitcher.vue';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
+import {YoutubeScopes} from "@/utils/youtube/YoutubeScopes";
 
 @Component({
 	components:{
@@ -527,6 +532,10 @@ export class ChatForm extends Vue {
 
 	public get mustConnectYoutubeChan():boolean {
 		return this.$store.stream.currentChatChannel.platform == "youtube" && YoutubeHelper.instance.currentLiveIds.length === 0;
+	}
+
+	public get mustGrantYoutubeScope():boolean {
+		return !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE]);
 	}
 
 	public beforeMount(): void {
@@ -1207,12 +1216,17 @@ export default toNative(ChatForm);
 						margin: .15em;
 					}
 
-					.noYoutubeLive {
+					.youtubeError {
 						text-align: center;
 						width: 100%;
 						line-height: 1.75em;
+						color: var(--color-text);
 						background-color: var(--color-alert-fader);
 						border-radius: var(--border-radius);
+						transition: background-color .1s;
+						&:hover {
+							background-color: var(--color-alert-fade);
+						}
 					}
 				}
 

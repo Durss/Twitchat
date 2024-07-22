@@ -56,7 +56,8 @@
 			"bingoGridBt_aria": "Bingo grids",
 			"connect_extra_chan": "Connect to another Twitch channel",
 			"extra_chan_tt": "Channel to write to: {USER}\n(right click for fast switch)",
-			"youtube_not_connected": "Not connected to any youtube live"
+			"youtube_not_connected": "Not connected to any youtube live",
+			"youtube_missing_scope": "Vous n'avez pas autorisé Twitchat à envoyer des messages sur Youtube"
 		},
 		"filters": {
 			"cta": "Important options here",

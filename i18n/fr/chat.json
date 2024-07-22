@@ -54,9 +54,10 @@
 			"trainBt_aria": "Train de la hype",
 			"raidBt_aria": "Raiding",
 			"youtube_saving_token_aria": "Afin d'économiser les crédits d'API Youtube, le tchat a été déconnecté suite à une longue période d'inactivité.\nCliquez pour reconnecter.",
+			"extra_chan_tt": "Ecrire chez : {USER}\n(clic droit pour changer)",
 			"connect_extra_chan": "Se connecter à une chaîne Twitch",
 			"youtube_not_connected": "Vous n'êtes connecté·e à aucun live Youtube",
-			"extra_chan_tt": "Ecrire chez : {USER}\n(clic droit pour changer)"
+			"youtube_missing_scope": "You haven't granted Twitchat permission to write on you chat"
 		},
 		"filters": {
 			"cta": "Options importantes ici",

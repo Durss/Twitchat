@@ -28,7 +28,7 @@
 			"no_live":"Aucune diffusion live trouvée.\nCréez une diffusion live dans votre interface Youtube puis cliquez sur recharger ci-dessous.",
 			"scopes_title":"Autorisations",
 			"scope_read":"Lire les messages de tchat\n(obligatoire)",
-			"scope_moderate":"Supprimer des messages / bannir des utilisateur·ices\n(@:connexions.youtube.scope_moderate_details )",
+			"scope_moderate":"Envoyer et supprimer des messages / bannir des utilisateur·ices\n(@:connexions.youtube.scope_moderate_details )",
 			"scope_moderate_details":"Cette autorisation permet aussi de supprimer des vidéos de votre chaîne, chose que Twitchat ne fera jamais, mais Youtube ne laisse pas le choix.",
 			"terms":"Conditions d'utilisation de YouTube",
 			"policy":"Politique de confidentialité de Google"

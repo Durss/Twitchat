@@ -357,41 +357,11 @@ export default class YoutubeHelper {
 				}else {
 					let json:any = {};
 					let errorCode:string = "";
+					let errorReason:string = StoreProxy.i18n.t("error.youtube_unknown");
 					try {
 						json = await res.json() as {error:{code:number, errors:{domain:string, message:string, reason:string}[]}};
 						Logger.instance.log("youtube", {log:"Failed polling chat messages (status: "+res.status+")", error:json, credits: this._creditsUsed, liveID:this._currentLiveIds});
 						errorCode = json.error.errors[0].reason;
-						if(++this._consecutiveApiFails === 6) {
-							if(errorCode == "liveChatEnded") {
-								//Live broadcast ended
-								StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_chat_ended"));
-								this.currentLiveIds.splice(i, 1);
-								i--;
-								continue;
-							}
-							if(errorCode == "liveChatNotFound") {
-								//Live broadcast deleted
-								StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_chat_not_found"));
-								this.currentLiveIds.splice(i, 1);
-								i--;
-								continue;
-							}
-							if(errorCode == "liveChatDisabled") {
-								//Chat not enabled for selected live broadcast
-								StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_chat_off"));
-								this.currentLiveIds.splice(i, 1);
-								i--;
-								continue;
-							}
-							if(errorCode == "quotaExceeded") {
-								//No more Youtube API credits :/
-								StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
-								continue;
-							}
-							if(errorCode == "backendError") {
-								//Just youtube failing
-							}
-						}
 					}catch(error) {
 						let text = "";
 						try {
@@ -403,7 +373,30 @@ export default class YoutubeHelper {
 						//Refresh auth token, stop there if refreshing failed
 						if(!await this.refreshToken()) return;
 					}else {
-						StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_unknown"));
+						if(++this._consecutiveApiFails === 11) {
+							if(errorCode == "liveChatEnded") {
+								//Live broadcast ended
+								errorReason = StoreProxy.i18n.t("error.youtube_chat_ended");
+							}
+							if(errorCode == "liveChatNotFound") {
+								//Live broadcast deleted
+								errorReason = StoreProxy.i18n.t("error.youtube_chat_not_found");
+							}
+							if(errorCode == "liveChatDisabled") {
+								//Chat not enabled for selected live broadcast
+								errorReason = StoreProxy.i18n.t("error.youtube_chat_off");
+							}
+							if(errorCode == "quotaExceeded") {
+								//No more Youtube API credits :/
+								errorReason = StoreProxy.i18n.t("error.youtube_no_credits");
+							}
+							if(errorCode == "backendError") {
+								//Just youtube failing
+							}
+							StoreProxy.common.alert(errorReason);
+							this.currentLiveIds.splice(i, 1);
+							i--;
+						}
 					}
 				}
 			}catch(error){}
