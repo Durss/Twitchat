@@ -136,6 +136,7 @@ export const storeDebug = defineStore('debug', {
 						is_giftUpgrade:false,
 						is_resub:false,
 						is_primeUpgrade:false,
+						is_targetedSubgift:false,
 						gift_upgradeSender:Utils.pickRand(fakeUsers)
 					};
 					m.message_size = TwitchUtils.computeMessageSize(chunks);
@@ -143,6 +144,7 @@ export const storeDebug = defineStore('debug', {
 						m.is_gift = true;
 						m.gift_count = Math.floor(Math.random() * 20);
 						m.gift_recipients = fakeUsers.concat().splice(0, m.gift_count);
+						m.is_targetedSubgift = m.gift_count === 1,
 						fakeUser.channelInfo[user.id].totalSubgifts = m.gift_count;
 					}else if(Math.random() > .8) {
 						m.is_giftUpgrade = true;
