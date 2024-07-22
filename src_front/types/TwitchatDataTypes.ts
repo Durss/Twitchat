@@ -1762,7 +1762,7 @@ export namespace TwitchatDataTypes {
 	type ExcludeUndefined<T> = T extends undefined ? never : T;
 	export type StreamSummaryDataListItem = UnionFromArrayProps<StreamSummaryData>;
 
-	export type EndingCreditsSlotStringTypes = "text" | "bans" | "mods" | "subs" | "vips" | "raids" | "polls" | "so_in" | "so_out" | "cheers" | "follows" | "rewards" | "chatters" | "timeouts" | "hypechats" | "hypetrains" | "predictions" | "tips" | "shoutouts" | "merch" | "powerups";
+	export type EndingCreditsSlotStringTypes = "text" | "bans" | "mods" | "subs" | "vips" | "raids" | "polls" | "so_in" | "so_out" | "cheers" | "follows" | "rewards" | "chatters" | "timeouts" | "hypechats" | "hypetrains" | "predictions" | "tips" | "shoutouts" | "merch" | "powerups" | "ytSuperchat" | "ytSuperSticker";
 	export const EndingCreditsSlotDefinitions:EndingCreditsSlotDefinition[] = [
 		{id:"cheers",		premium:false,	hasAmount:true,		canMerge:true,		icon:"bits",			label:"overlay.credits.categories.cheers",			defaultLabel:"overlay.credits.labels.cheers",		amountLabel:"overlay.credits.amounts.cheers"},
 		{id:"subs",			premium:false,	hasAmount:true,		canMerge:true,		icon:"sub",				label:"overlay.credits.categories.subs",			defaultLabel:"overlay.credits.labels.subs",			amountLabel:"overlay.credits.amounts.subs"},
@@ -1781,6 +1781,8 @@ export namespace TwitchatDataTypes {
 		{id:"predictions",	premium:true,	hasAmount:true,		canMerge:false,		icon:"prediction",		label:"overlay.credits.categories.predictions",		defaultLabel:"overlay.credits.labels.predictions",	amountLabel:"overlay.credits.amounts.predictions"},
 		{id:"tips",			premium:true,	hasAmount:true,		canMerge:true,		icon:"coin",			label:"overlay.credits.categories.tips",			defaultLabel:"overlay.credits.labels.tips",			amountLabel:"overlay.credits.amounts.tips"},
 		{id:"merch",		premium:true,	hasAmount:false,	canMerge:false,		icon:"label",			label:"overlay.credits.categories.merch",			defaultLabel:"overlay.credits.labels.merch"},
+		{id:"ytSuperchat",	premium:true,	hasAmount:true,		canMerge:true,		icon:"youtube",			label:"overlay.credits.categories.ytSuperchat",		defaultLabel:"overlay.credits.labels.ytSuperchat",	amountLabel:"overlay.credits.amounts.tips"},
+		{id:"ytSuperSticker",premium:true,	hasAmount:true,		canMerge:true,		icon:"youtube",			label:"overlay.credits.categories.ytSuperSticker",	defaultLabel:"overlay.credits.labels.ytSuperSticker",	amountLabel:"overlay.credits.amounts.tips"},
 		{id:"text",			premium:true,	hasAmount:false,	canMerge:false,		icon:"font",			label:"overlay.credits.categories.text",			defaultLabel:"overlay.credits.labels.text"},
 	];
 
@@ -1816,6 +1818,8 @@ export namespace TwitchatDataTypes {
 		showSubs?:boolean;
 		showResubs?:boolean;
 		showSubgifts?:boolean;
+		showSubsYoutube?:boolean;
+		showSubgiftsYoutube?:boolean;
 		showTipsKofi?:boolean;
 		showTipsTipeee?:boolean;
 		showTipsPatreon?:boolean;

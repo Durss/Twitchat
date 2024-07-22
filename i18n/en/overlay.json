@@ -123,6 +123,8 @@
 			"param_showChatters": "Show other chatters",
 			"param_showResubs": "Show resubs",
 			"param_showSubgifts": "Show subgifts",
+			"param_showSubsYoutube": "Show youtube subs",
+			"param_showSubgiftsYoutube": "Show youtube subgifts",
 			"param_showSubMonths": "Show current sub duration",
 			"param_sortBySubTypes": "Sort by subscription types",
 			"param_sortByNames": "Sort alphabetically",
@@ -181,7 +183,9 @@
 				"predictions": "Predictions",
 				"tips": "Tips",
 				"powerups": "Power-ups",
-				"merch": "Merch"
+				"merch": "Merch",
+				"ytSuperchat": "Youtube super chats",
+				"ytSuperSticker": "Youtube super stickers"
 			},
 			"labels": {
 				"text": "",
@@ -201,7 +205,9 @@
 				"predictions": "PREDICTIONS",
 				"tips": "TIPS",
 				"powerups": "POWER-UPS",
-				"merch": "MERCH"
+				"merch": "MERCH",
+				"ytSuperchat": "SUPER CHATS",
+				"ytSuperSticker": "SUPER STICKERS"
 			},
 			"amounts": {
 				"cheers": "Show bits count",
@@ -216,7 +222,7 @@
 				"timeouts": "Show total timeout duration",
 				"polls": "Show votes count",
 				"predictions": "Show channel points used",
-				"tips": "Show tips amounts"
+				"tips": "Show tipped amounts"
 			},
 			"manual_install_instructions": "Make sure you enable those option on OBS browser source: \"Shutdown source when not visible\" and \"Refresh browser when scene becomes active\"",
 			"param_showPuSkin": "Message effects",

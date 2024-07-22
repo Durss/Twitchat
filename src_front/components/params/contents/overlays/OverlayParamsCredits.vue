@@ -93,13 +93,15 @@
 								</template>
 
 								<template v-if="element.slotType == 'subs'">
-									<ParamItem :paramData="param_showSubgifts[element.id]"		v-model="element.showSubgifts" />
-									<ParamItem :paramData="param_showResubs[element.id]"		v-model="element.showResubs" />
-									<ParamItem :paramData="param_showSubs[element.id]"			v-model="element.showSubs" />
-									<ParamItem :paramData="param_showSubMonths[element.id]"		v-model="element.showSubMonths" />
-									<ParamItem :paramData="param_showBadges[element.id]"		v-model="element.showBadges" />
-									<ParamItem :paramData="param_sortByName[element.id]"		v-model="element.sortByNames" />
-									<ParamItem :paramData="param_sortBySubTypes[element.id]"	v-model="element.sortBySubTypes" />
+									<ParamItem :paramData="param_showSubgifts[element.id]"			v-model="element.showSubgifts" />
+									<ParamItem :paramData="param_showResubs[element.id]"			v-model="element.showResubs" />
+									<ParamItem :paramData="param_showSubs[element.id]"				v-model="element.showSubs" />
+									<ParamItem :paramData="param_showSubMonths[element.id]"			v-model="element.showSubMonths" />
+									<ParamItem :paramData="param_showSubsYoutube[element.id]"		v-model="element.showSubsYoutube" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'endingcredits_slot_ytSubgift'}" />
+									<ParamItem :paramData="param_showSubgiftsYoutube[element.id]"	v-model="element.showSubgiftsYoutube" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'endingcredits_slot_ytSub'}" />
+									<ParamItem :paramData="param_showBadges[element.id]"			v-model="element.showBadges" />
+									<ParamItem :paramData="param_sortByName[element.id]"			v-model="element.sortByNames" />
+									<ParamItem :paramData="param_sortBySubTypes[element.id]"		v-model="element.sortBySubTypes" />
 								</template>
 
 								<template v-if="element.slotType == 'chatters'">
@@ -304,6 +306,8 @@ class OverlayParamsCredits extends Vue {
 	public param_showSubs:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showResubs:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showSubgifts:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showSubsYoutube:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showSubgiftsYoutube:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showMods:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showVIPs:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showChatters:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
@@ -598,13 +602,17 @@ class OverlayParamsCredits extends Vue {
 			if(entry.showBadges == undefined || !this.isPremium) entry.showBadges = false;
 			if(entry.sortByNames == undefined || !this.isPremium) entry.sortByNames = false;
 			if(entry.sortBySubTypes == undefined || !this.isPremium) entry.sortBySubTypes = false;
-			this.param_showSubs[id]			= {type:"boolean", value:entry.showSubs, icon:"sub", labelKey:"overlay.credits.param_showSubs"};
-			this.param_showResubs[id]		= {type:"boolean", value:entry.showResubs, icon:"sub", labelKey:"overlay.credits.param_showResubs"};
-			this.param_showSubgifts[id]		= {type:"boolean", value:entry.showSubgifts, icon:"gift", labelKey:"overlay.credits.param_showSubgifts"};
-			this.param_showBadges[id]		= {type:'boolean', value:entry.showBadges, icon:"badge", labelKey:'overlay.credits.param_showSubBadges', premiumOnly:true};
-			this.param_sortByName[id]		= {type:"boolean", value:entry.sortByNames, icon:"filters", labelKey:"overlay.credits.param_sortByNames", premiumOnly:true};
-			this.param_sortBySubTypes[id]	= {type:"boolean", value:entry.sortBySubTypes, icon:"filters", labelKey:"overlay.credits.param_sortBySubTypes", premiumOnly:true};
-			this.param_showSubMonths[id]	= {type:"boolean", value:entry.sortBySubTypes, icon:"number", labelKey:"overlay.credits.param_showSubMonths"};
+			if(entry.showSubsYoutube == undefined || !this.isPremium) entry.showSubsYoutube = false;
+			if(entry.showSubgiftsYoutube == undefined || !this.isPremium) entry.showSubgiftsYoutube = false;
+			this.param_showSubs[id]				= {type:"boolean", value:entry.showSubs, icon:"sub", labelKey:"overlay.credits.param_showSubs"};
+			this.param_showResubs[id]			= {type:"boolean", value:entry.showResubs, icon:"sub", labelKey:"overlay.credits.param_showResubs"};
+			this.param_showSubgifts[id]			= {type:"boolean", value:entry.showSubgifts, icon:"gift", labelKey:"overlay.credits.param_showSubgifts"};
+			this.param_showSubsYoutube[id]		= {type:'boolean', value:entry.showSubsYoutube, icon:"youtube", labelKey:'overlay.credits.param_showSubsYoutube', premiumOnly:true};
+			this.param_showSubgiftsYoutube[id]	= {type:'boolean', value:entry.showSubgiftsYoutube, icon:"youtube", labelKey:'overlay.credits.param_showSubgiftsYoutube', premiumOnly:true};
+			this.param_showBadges[id]			= {type:'boolean', value:entry.showBadges, icon:"badge", labelKey:'overlay.credits.param_showSubBadges', premiumOnly:true};
+			this.param_sortByName[id]			= {type:"boolean", value:entry.sortByNames, icon:"filters", labelKey:"overlay.credits.param_sortByNames", premiumOnly:true};
+			this.param_sortBySubTypes[id]		= {type:"boolean", value:entry.sortBySubTypes, icon:"filters", labelKey:"overlay.credits.param_sortBySubTypes", premiumOnly:true};
+			this.param_showSubMonths[id]		= {type:"boolean", value:entry.sortBySubTypes, icon:"number", labelKey:"overlay.credits.param_showSubMonths"};
 		}else
 
 		if(slotDef.id == "tips") {
