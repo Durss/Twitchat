@@ -2457,12 +2457,23 @@ export default class TriggerActionHandler {
 
 				//Handle custom badges
 				if(step.type == "customBadges") {
-					let users:TwitchatDataTypes.TwitchatUser[] = [];
+					let users:{id:string, platform:TwitchatDataTypes.ChatPlatform|null}[] = [];
 
 					//if requested to update badges of the user executing the trigger
 					if(step.customBadgeUserSource == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_SENDER) {
 						const user = this.extractUserFromTrigger(trigger, message);
-						if(user) users.push(user);
+						if(user) users.push({id:user.id, platform:user.platform});
+					}else
+					if(step.customBadgeUserSource == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_CHATTERS) {
+						users = StoreProxy.users.users.map(user=> {
+							return {id:user.id, platform:user.platform}
+						})
+					}else
+					if(step.customBadgeUserSource == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE) {
+						const badges = StoreProxy.users.customUserBadges;
+						users = Object.keys(badges).map(uid => {
+							return {id:uid, platform:badges[uid].length > 0? badges[uid][0].platform : null};
+						}).filter(v=>v.platform != null);
 					}else{
 						users = await this.extractUserFromPlaceholder(channel_id, step.customBadgeUserSource, dynamicPlaceholders, actionPlaceholders, trigger, message, log);
 					}
@@ -2470,18 +2481,18 @@ export default class TriggerActionHandler {
 						for (let i = 0; i < users.length; i++) {
 							const user = users[i];
 
-							step.customBadgeAdd.forEach(v=> {
-								if(StoreProxy.users.giveCustomBadge(user, v, channel_id)) {
-									logStep.messages.push({date:Date.now(), value:"➕ Badge \""+v+"\" given to "+user.login});
+							step.customBadgeAdd.forEach(badgeId=> {
+								if(StoreProxy.users.giveCustomBadge(user.id, user.platform!, badgeId, channel_id)) {
+									logStep.messages.push({date:Date.now(), value:"➕ Badge \""+badgeId+"\" given to "+user.id});
 								}else{
-									logStep.messages.push({date:Date.now(), value:"❌ Failed giving badge \""+v+"\" to "+user.login+". Limit reached."});
+									logStep.messages.push({date:Date.now(), value:"❌ Failed giving badge \""+badgeId+"\" to "+user.id+". Limit reached."});
 									log.error = true;
 									logStep.error = true;
 								}
 							});
-							step.customBadgeDel.forEach(v=> {
-								StoreProxy.users.removeCustomBadge(user, v, channel_id);
-								logStep.messages.push({date:Date.now(), value:"➖ Removed badge \""+v+"\" from "+user.login});
+							step.customBadgeDel.forEach(badgeId=> {
+								StoreProxy.users.removeCustomBadge(user.id, badgeId, channel_id);
+								logStep.messages.push({date:Date.now(), value:"➖ Removed badge \""+badgeId+"\" from "+user.id});
 							});
 						}
 					}

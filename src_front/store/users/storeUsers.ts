@@ -1092,28 +1092,29 @@ export const storeUsers = defineStore('users', {
 			this.saveCustomBadges();
 		},
 
-		giveCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string, channelId:string):boolean {
-			if(!this.customUserBadges[user.id]) this.customUserBadges[user.id] = [];
+		giveCustomBadge(userId:string, platform:TwitchatDataTypes.ChatPlatform, badgeId:string, channelId:string):boolean {
+			if(!this.customUserBadges[userId]) this.customUserBadges[userId] = [];
 			//Add badge to the user if necessary
-			if(this.customUserBadges[user.id].findIndex(v => v.id == badgeId) == -1) {
+			if(this.customUserBadges[userId].findIndex(v => v.id == badgeId) == -1) {
 				//User can give badges to 30 users max if not premium
 				if(!StoreProxy.auth.isPremium && Object.keys(this.customUserBadges).length >= Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION) {
 					StoreProxy.common.alert(StoreProxy.i18n.t("error.max_custom_badges_given", {COUNT:Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION}));
 					return false;
 				}
-				this.customUserBadges[user.id].push({id:badgeId, platform:user.platform, channel:channelId!});
+				this.customUserBadges[userId].push({id:badgeId, platform:platform, channel:channelId!});
 			}
 			this.saveCustomBadges();
 			return true;
 		},
 
-		removeCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string, channelId:string):void {
-			if(!this.customUserBadges[user.id]) return;
+		removeCustomBadge(userId:string, badgeId:string, channelId:string):void {
+			if(!this.customUserBadges[userId]) return;
 
-			const index = this.customUserBadges[user.id].findIndex(v => v.id == badgeId && v.channel == channelId);
-			if(index > -1) this.customUserBadges[user.id].splice(index, 1);
-			if(this.customUserBadges[user.id].length === 0) {
-				delete this.customUserBadges[user.id];
+			const index = this.customUserBadges[userId].findIndex(badge => badge.id == badgeId && badge.channel == channelId);
+			
+			if(index > -1) this.customUserBadges[userId].splice(index, 1);
+			if(this.customUserBadges[userId].length === 0) {
+				delete this.customUserBadges[userId];
 			}
 
 			this.saveCustomBadges();

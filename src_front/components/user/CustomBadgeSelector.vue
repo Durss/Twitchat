@@ -65,7 +65,7 @@ import TTButton from '../TTButton.vue';
 		Utils.fileToBase64Img(files[0]).then(base64Img=> {
 			const badgeId = this.$store.users.createCustomBadge(base64Img);
 			if(badgeId !== false && this.user) {
-				this.$store.users.giveCustomBadge(this.user, badgeId as string, this.channelId);
+				this.$store.users.giveCustomBadge(this.user.id, this.user.platform, badgeId as string, this.channelId);
 			}
 			input.value = "";
 		});
@@ -78,7 +78,7 @@ import TTButton from '../TTButton.vue';
 	}
 
 	public addBadge(id:string):void {
-		if(!this.$store.users.giveCustomBadge(this.user!, id as string, this.channelId)) {
+		if(!this.$store.users.giveCustomBadge(this.user!.id, this.user!.platform, id as string, this.channelId)) {
 			this.$emit("limitReached");
 		}
 	}

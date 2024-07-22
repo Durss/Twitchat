@@ -79,7 +79,7 @@
 import Icon from '@/components/Icon.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import CustomBadgeSelector from '@/components/user/CustomBadgeSelector.vue';
-import { COUNTER_EDIT_SOURCE_SENDER, COUNTER_VALUE_PLACEHOLDER_PREFIX, type ITriggerPlaceholder, type TriggerCustomBadgesData, type TriggerData } from '@/types/TriggerActionDataTypes';
+import { COUNTER_EDIT_SOURCE_CHATTERS, COUNTER_EDIT_SOURCE_EVERYONE, COUNTER_EDIT_SOURCE_SENDER, COUNTER_VALUE_PLACEHOLDER_PREFIX, type ITriggerPlaceholder, type TriggerCustomBadgesData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
@@ -115,6 +115,8 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		const res:TwitchatDataTypes.ParameterDataListValue<string>[] = [
 			//Add static sources "sender" and "everyone"
 			{labelKey:"triggers.actions.count.user_source_sender", value:COUNTER_EDIT_SOURCE_SENDER},
+			{labelKey:"triggers.actions.count.user_source_chatters", value:COUNTER_EDIT_SOURCE_CHATTERS},
+			{labelKey:"triggers.actions.count.user_source_everyone", value:COUNTER_EDIT_SOURCE_EVERYONE},
 		];
 
 		//Add command's placeholders

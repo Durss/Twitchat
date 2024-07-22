@@ -1660,12 +1660,12 @@ export interface IUsersState {
 	 * Contains custom user names used for display on place of the actual username
 	 * Associates a user ID to a custom display name
 	 */
-	customUsernames:{[key:string]:{ name:string, platform:TwitchatDataTypes.ChatPlatform, channel:string}};
+	customUsernames:{[uid:string]:{ name:string, platform:TwitchatDataTypes.ChatPlatform, channel:string}};
 	/**
 	 * Contains custom user badges references.
 	 * Associates a user ID to custom badge ID from the customBadgeList array
 	 */
-	customUserBadges:{[key:string]:{id:string, platform:TwitchatDataTypes.ChatPlatform, channel:string}[]};
+	customUserBadges:{[uid:string]:{id:string, platform:TwitchatDataTypes.ChatPlatform, channel:string}[]};
 	/**
 	 * Contains custom user badges
 	 */
@@ -1906,11 +1906,11 @@ export interface IUsersActions {
 	 * Gives a custom badge to the given user
 	 * @returns false if the max users with custom badges is reached
 	 */
-	giveCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string, channelId:string):boolean;
+	giveCustomBadge(userId:string, platform:TwitchatDataTypes.ChatPlatform, badgeId:string, channelId:string):boolean;
 	/**
 	 * Removes a custom badge from the given user
 	 */
-	removeCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string, channelId:string):void;
+	removeCustomBadge(userId:string, badgeId:string, channelId:string):void;
 	/**
 	 * Saves custom badges and their attributions to users
 	 */

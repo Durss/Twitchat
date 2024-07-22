@@ -603,10 +603,10 @@ class UserCard extends AbstractSidePanel {
 
 	/**
 	 * Removes a custom badge from the user
-	 * @param id 
+	 * @param badgeId 
 	 */
-	public removeCustomBadge(id:string):void {
-		this.$store.users.removeCustomBadge(this.user!, id, this.channelId);
+	public removeCustomBadge(badgeId:string):void {
+		this.$store.users.removeCustomBadge(this.user!.id, badgeId, this.channelId);
 	}
 
 	/**

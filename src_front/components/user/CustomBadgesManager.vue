@@ -193,7 +193,7 @@ import Config from '@/utils/Config';
 	 */
 	public removeBadgeFromUser(badgeId:string, user:TwitchatDataTypes.TwitchatUser):void {
 		const channelId = this.$store.auth.twitch.user.id;
-		this.$store.users.removeCustomBadge(user, badgeId, channelId);
+		this.$store.users.removeCustomBadge(user.id, badgeId, channelId);
 	}
 
 	/**
