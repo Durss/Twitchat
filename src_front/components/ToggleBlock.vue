@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" :style="contentStyles" @dragover="toggle(true)">
+	<div :class="classes" :style="contentStyles" @dragenter="scheduleToggle()" @dragleave="cancelToggle()" @drop="toggle(true)">
 		<div class="header" @click.stop="toggle()">
 			<div class="customBg" v-if="customColor" :style="bgStyles"></div>
 			<slot name="left_actions"></slot>
@@ -138,6 +138,9 @@ export class ToggleBlock extends Vue {
 	//rolling over the title.
 	public editingTitle = false;
 
+	private dragCount:number = 0;
+	private toggleTimeout:number = -1;
+
 	public get classes():string[] {
 		let res = ["toggleblock"];
 		if(!this.localOpen || this.closing)res.push("closed");
@@ -206,6 +209,10 @@ export class ToggleBlock extends Vue {
 		})
 	}
 
+	/**
+	 * Toggles open state
+	 * @param forcedState 
+	 */
 	public async toggle(forcedState?:boolean):Promise<void> {
 		if(forcedState === this.localOpen) return;
 		if(this.disabled !== false && (forcedState == true || !this.localOpen)) return;
@@ -225,6 +232,30 @@ export class ToggleBlock extends Vue {
 			this.localOpen = true;
 			await this.$nextTick();
 			gsap.from(this.$refs.content as HTMLDivElement, params);
+		}
+	}
+
+	/**
+	 * Called when dragging something over the block.
+	 * Schedules its opening a few milliseconds after in case we
+	 * can drag something inside
+	 */
+	public scheduleToggle():void {
+		this.dragCount ++;
+		clearTimeout(this.toggleTimeout);
+		this.toggleTimeout = setTimeout(() => {
+			this.toggle(true);
+		}, 750);
+	}
+
+
+	/**
+	 * Cancel a scheduled toggle
+	 * @see scheduleToggle()
+	 */
+	public cancelToggle():void {
+		if(--this.dragCount < 1) {
+			clearTimeout(this.toggleTimeout);
 		}
 	}
 

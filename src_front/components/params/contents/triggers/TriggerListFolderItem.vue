@@ -9,6 +9,8 @@
 	:swapThreshold="10"
 	:emptyInsertThreshold="0"
 	:disabled="noEdit"
+	@start="dragging = true"
+	@end="dragging = false"
 	@sort="onChange"
 	@change="onChange">
 		<template #item="{element, index}:{element:TriggerListEntry|TriggerListFolderEntry, index:number}">
@@ -20,6 +22,10 @@
 			:customColor="element.color.value"
 			:ref="'folder_'+element.id"
 			:titleDefault="'folder'"
+			@dragstart="startDrag(element)"
+			@drop="onDrop(element)"
+			@dragenter="onDragEnter($event, element)"
+			@dragleave="onDragLeave($event, element)"
 			@update:open="$emit('change', $event)"
 			@update:title="$emit('change', $event)">
 				<template #left_actions>
@@ -69,6 +75,7 @@
 				:noEdit="noEdit"
 				:forceDisableOption="forceDisableOption"
 				:entryData="element"
+				@dragstart="startDrag(element)"
 				@changeState="onToggleTrigger(element, $event)"
 				@delete="$emit('delete', $event)"
 				@duplicate="$emit('duplicate', $event)"
@@ -130,7 +137,11 @@ class TriggerListFolderItem extends Vue {
 	@Prop({default:0})
 	public level!:number;
 
+	public dragging:boolean = false;
 	public localItems:(TriggerListEntry|TriggerListFolderEntry)[] = [];
+	
+	private draggedEntry:TriggerListEntry|TriggerListFolderEntry|null = null;
+	public dragCounter:{[id:string]:number} = {};
 
 	public beforeMount():void {
 		this.localItems = this.items;
@@ -163,6 +174,56 @@ class TriggerListFolderItem extends Vue {
 		this.onChange();
 	}
 
+	/**
+	 * Called when starting to drag an item
+	 * @param entry 
+	 */
+	public startDrag(entry:TriggerListEntry|TriggerListFolderEntry):void {
+		this.draggedEntry = entry;
+		this.dragCounter[entry.id] = 0;
+	}
+
+	/**
+	 * Called when starting to drag an item
+	 * @param entry 
+	 */
+	public onDrop(folder:TriggerListFolderEntry):void {
+		if(!this.dragging) return;
+		if(!this.draggedEntry) return;
+		if(this.draggedEntry == folder) return;
+		this.items.splice(this.items.findIndex(v=>v.id == this.draggedEntry!.id), 1);
+		folder.items.push(this.draggedEntry);
+		this.draggedEntry = null;
+	}
+
+	public onDragEnter(event:MouseEvent, entry:TriggerListFolderEntry):void {
+		if(this.draggedEntry == entry) return
+		if(!this.dragging) return
+		//Drag system is fucked up. It fires and dragenter/leave event for every
+		//single children of the holder unless we set a "pointer-events:none" to
+		//it which I can't do because ToggleBlock contains many interactive
+		//children.
+		//We keep track of the number of over/leaved child to know if we're
+		//still over the element or not
+		if(!this.dragCounter[entry.id]) this.dragCounter[entry.id] = 0;
+		this.dragCounter[entry.id] ++;
+		(event.currentTarget as HTMLElement).classList.add("over");
+	}
+	
+	public onDragLeave(event:MouseEvent, entry:TriggerListFolderEntry):void {
+		if(this.draggedEntry == entry) return;
+		if(!this.dragCounter[entry.id]) this.dragCounter[entry.id] = 0;
+		if(--this.dragCounter[entry.id] < 1) {
+			this.dragCounter[entry.id] = 0;
+			(event.currentTarget as HTMLElement).classList.remove("over");
+		}
+	}
+
+	/**
+	 * Toggles a trigger state
+	 * @param item 
+	 * @param el 
+	 */
 	public onToggleTrigger(item:TriggerListEntry, el:HTMLElement):void {
 		if(item.trigger.enabled
 		&& !this.$store.auth.isPremium
@@ -181,7 +242,7 @@ class TriggerListFolderItem extends Vue {
 	 * Adds a trigger within the folder
 	 */
 	public addTrigger(folder:TriggerListFolderEntry):void {
-			this.$emit('createTrigger', folder.id);
+		this.$emit('createTrigger', folder.id);
 	}
 
 	/**
@@ -226,6 +287,9 @@ export default toNative(TriggerListFolderItem);
 	.folder {
 		margin: .25em 0;
 		z-index: 998999;
+		&.over {
+			outline: 2px solid var(--color-secondary);
+		}
 	}
 
 	.triggerId {
