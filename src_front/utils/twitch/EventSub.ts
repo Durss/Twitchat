@@ -370,8 +370,6 @@ export default class EventSub {
 	 * @param user 
 	 */
 	public async disconnectRemoteChan(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
-		console.log(user.displayName)
-		console.log(this.remoteChanSubscriptions[user.id])
 		if(!this.remoteChanSubscriptions[user.id]) return;
 		this.remoteChanSubscriptions[user.id].forEach(id => {
 			TwitchUtils.eventsubDeleteSubscriptions(id);
@@ -743,6 +741,7 @@ export default class EventSub {
 			is_giftUpgrade: false,
 			is_resub: false,
 			is_primeUpgrade: false,
+			is_targetedSubgift:false,//no data for this??
 			months:1,
 			streakMonths:-1,
 			totalSubDuration:-1,
@@ -800,7 +799,6 @@ export default class EventSub {
 	 */
 	private async raidEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.RaidEvent):Promise<void> {
 		const me = StoreProxy.auth.twitch.user;
-		console.log("RAIDING");
 		if(event.from_broadcaster_user_id == me.id) {
 			//Raid complete
 			StoreProxy.stream.onRaidComplete();
@@ -1049,14 +1047,12 @@ export default class EventSub {
 		if(!received) {
 			StoreProxy.stream.currentStreamInfo[channel_id]!.lastSoDoneDate = Date.now();
 
-			console.log("ES : Shoutout sent");
 			let list = StoreProxy.users.pendingShoutouts[channel_id];
 			if(!list) list = [];
 			const index = list.findIndex(v=>v.user.id === user.id);
 			//Set the last SO date of the user
 			user.channelInfo[channel_id].lastShoutout = Date.now();
 			if(index > -1) {
-				console.log("ES : Remove item", list[index]);
 				//Update existing item
 				list.splice(index, 1);
 			}
@@ -1170,7 +1166,6 @@ export default class EventSub {
 	 * @param event 
 	 */
 	private async automodMessageHeld(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AutomodMessageHeldEvent):Promise<void> {
-		console.log("MESSAGE HELD", event)
 		// const reasons:string[] = [];
 		// for (let i = 0; i < event.fragments.length; i++) {
 		// 	const f = event.fragments[i];
