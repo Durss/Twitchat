@@ -17,6 +17,28 @@
 						</div>
 					</div>
 
+					<div v-if="item.params.slotType == 'ytSuperchat'" v-for="entry in getSortedSuperMessages(item.params).splice(0, item.params.maxEntries)" class="item">
+						<span class="info">{{entry.login}}</span>
+						<div class="amount" v-if="item.params.showAmounts === true">
+							<span class="currency">{{{EUR:"€",USD:"$", GBP:"£"}[entry.currency] || entry.currency}}</span>
+							<span class="value">{{entry.amount}}</span>
+						</div>
+					</div>
+
+
+					<div v-if="item.params.slotType == 'ytSuperSticker'" v-for="entry in getSortedSuperMessages(item.params).splice(0, item.params.maxEntries)" class="item">
+						<div class="stickerList">
+							<img v-for="sticker in entry.stickerUrlList" :src="sticker" class="sticker" alt="sticker" referrerpolicy="no-referrer">
+						</div>
+						<div class="user">
+							<span class="info">{{entry.login}}</span>
+							<div class="amount" v-if="item.params.showAmounts === true">
+								<span class="currency">{{{EUR:"€",USD:"$", GBP:"£"}[entry.currency] || entry.currency}}</span>
+								<span class="value">{{entry.amount}}</span>
+							</div>
+						</div>
+					</div>
+
 					<div v-if="item.params.slotType == 'subs'" v-for="entry in getSortedSubs(item.params).splice(0, item.params.maxEntries)" class="item">
 						<Icon class="badge" v-if="item.params.showBadges" :name="entry.type == 'subgift'? 'gift' : 'sub'" />
 						<span class="info">{{entry.value.login}}</span>
@@ -278,6 +300,52 @@ class OverlayEndingCredits extends AbstractOverlay {
 		});
 	}
 
+	public getSortedSuperMessages<T>(params:TwitchatDataTypes.EndingCreditsSlotParams):((TwitchatDataTypes.StreamSummaryData["superChats"][number] | TwitchatDataTypes.StreamSummaryData["superStickers"][number]) & {stickerUrlList?:string[]})[] {
+		let res:((TwitchatDataTypes.StreamSummaryData["superChats"][number] | TwitchatDataTypes.StreamSummaryData["superStickers"][number]) & {stickerUrlList?:string[]})[] = [];
+
+		if(params.slotType == "ytSuperchat") {
+			res = this.data!.superChats.concat();
+			if(params.uniqueUsers) {
+				res = this.makeUnique(params, this.data!.superChats);
+			}
+		}else
+		
+		if(params.slotType == "ytSuperSticker") {
+			let tmp = this.data!.superStickers.map(v => { return {...v, stickerUrlList:[v.stickerUrl!]}});
+			if(params.uniqueUsers === true) {
+				let usersDoneStickers:{[login:string]:typeof tmp[number]} = {};
+				for (let i = 0; i < tmp.length; i++) {
+					const item = tmp[i];
+					if(!usersDoneStickers[item.login]) usersDoneStickers[item.login] = item;
+					else if(item.stickerUrl) {
+						usersDoneStickers[item.login].amount += item.amount;
+						usersDoneStickers[item.login].stickerUrlList.push(item.stickerUrl);
+						tmp.splice(i,1);
+						i--;
+					}
+				}
+			}
+			res = tmp;
+		}
+
+		return res.sort((a, b)=> {
+			let scoreA = 0;
+			let scoreB = 0;
+
+			if(params.sortByAmounts) {
+				if(a.amount > b.amount) scoreA ++;
+				if(a.amount < b.amount) scoreB ++;
+			}
+
+			if(params.sortByNames) {
+				if(a.login.toLowerCase() > b.login.toLowerCase()) scoreB ++;
+				if(a.login.toLowerCase() < b.login.toLowerCase()) scoreA ++;
+			}
+
+			return scoreB - scoreA;
+		});
+	}
+
 	public getSortedPowerups(params:TwitchatDataTypes.EndingCreditsSlotParams):(TwitchatDataTypes.StreamSummaryData["powerups"][number] & {emoteUrlList?:string[], count?:number})[] {
 		let anims:(TwitchatDataTypes.StreamSummaryData["powerups"][number] & {count:number})[] = [];
 		let emotes:(TwitchatDataTypes.StreamSummaryData["powerups"][number] & {emoteUrlList:string[]})[] = [];
@@ -448,6 +516,9 @@ class OverlayEndingCredits extends AbstractOverlay {
 			case "tips": count = this.getTips(item).length; break;
 			case "merch": count = this.getMerch(item).length; break;
 			case "powerups": count = this.getSortedPowerups(item).length; break;
+			case "shoutouts": count = (this.data?.shoutouts || []).length; break;
+			case "ytSuperchat": count =  this.getSortedSuperMessages(item).length; break;
+			case "ytSuperSticker": count =  this.getSortedSuperMessages(item).length; break;
 		}
 		count = Math.min(count, item.maxEntries);
 		this.entryCountCache[item.id] = count;
@@ -530,6 +601,24 @@ class OverlayEndingCredits extends AbstractOverlay {
 			case "hypechats": {
 				type keyType = keyof TwitchatDataTypes.StreamSummaryData["hypeChats"][0];
 				type keyTypeNumber = KeysMatching<TwitchatDataTypes.StreamSummaryData["hypeChats"][0], number>;
+				let key:keyType = "login";
+				let val:keyTypeNumber = "amount";
+				mergeKey = key as keyof T;
+				valueKey = val as keyof T;
+				break;
+			}
+			case "ytSuperchat": {
+				type keyType = keyof TwitchatDataTypes.StreamSummaryData["superChats"][0];
+				type keyTypeNumber = KeysMatching<TwitchatDataTypes.StreamSummaryData["superChats"][0], number>;
+				let key:keyType = "login";
+				let val:keyTypeNumber = "amount";
+				mergeKey = key as keyof T;
+				valueKey = val as keyof T;
+				break;
+			}
+			case "ytSuperSticker": {
+				type keyType = keyof TwitchatDataTypes.StreamSummaryData["superStickers"][0];
+				type keyTypeNumber = KeysMatching<TwitchatDataTypes.StreamSummaryData["superStickers"][0], number>;
 				let key:keyType = "login";
 				let val:keyTypeNumber = "amount";
 				mergeKey = key as keyof T;
@@ -1128,6 +1217,38 @@ export default toNative(OverlayEndingCredits);
 			}
 		}
 
+		&.ytSuperchat {
+			.amount {
+				margin-left: .5em;
+			}
+		}
+
+		&.ytSuperSticker {
+			.item {
+				gap: .5em;
+				flex-direction: column;
+				align-items: center;
+				.stickerList {
+					display: flex;
+					flex-direction: row;
+					flex-wrap: wrap;
+					align-items: center;
+					justify-content: center;
+				}
+				.sticker {
+					height: 5em;
+				}
+				.user {
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					.info {
+						margin-right: .25em;
+					}
+				}
+			}
+		}
+
 		&.sticky {
 			h1 {
 				position: sticky;
@@ -1200,10 +1321,6 @@ export default toNative(OverlayEndingCredits);
 					.emote {
 						height: 2em;
 					}
-					.amount {
-						
-					}
-
 					&.simmer {
 						gap: .25em;
 						border-radius: .5em;
@@ -1457,6 +1574,12 @@ export default toNative(OverlayEndingCredits);
 							align-items: flex-end;
 						}
 					}
+					.info {
+						overflow: hidden;
+						text-overflow: ellipsis;
+						line-height: 1.2em;
+						max-width: 40vw;
+					}
 				}
 			}
 		}
@@ -1492,6 +1615,7 @@ export default toNative(OverlayEndingCredits);
 						overflow: hidden;
 						text-overflow: ellipsis;
 						line-height: 1.2em;
+						max-width: 25vw;
 					}
 				}
 			}

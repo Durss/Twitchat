@@ -17,7 +17,7 @@
 		</div>
 
 		<tooltip :content="'<center><img src='+messageData.sticker_url+' width=\'200\' class=\'emote\'>'">
-			<img :src="messageData.sticker_url" class="sticker" alt="sticker" v-if="messageData.sticker_url">
+			<img :src="messageData.sticker_url" class="sticker" alt="sticker" v-if="messageData.sticker_url" referrerpolicy="no-referrer">
 		</tooltip>
 	</div>
 </template>

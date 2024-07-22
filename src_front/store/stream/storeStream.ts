@@ -462,6 +462,8 @@ export const storeStream = defineStore('stream', {
 				tips:[],
 				merch:[],
 				powerups:[],
+				superChats:[],
+				superStickers:[],
 				labels:{
 					no_entry:$tm("overlay.credits.empty_slot"),
 					train:$tm("train.ending_credits"),
@@ -534,6 +536,10 @@ export const storeStream = defineStore('stream', {
 						message.is_gift = true;
 						message.is_giftUpgrade = false;
 					}, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageYoutubeSubscriptionData>(TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageYoutubeSubscriptionData>(TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBGIFT, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageYoutubeSubscriptionData>(TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageYoutubeSubscriptionData>(TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER, undefined, false));
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageHypeChatData>(TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT, undefined, false));
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageRewardRedeemData>(TwitchatDataTypes.TwitchatMessageType.REWARD, undefined, false));
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageBanData>(TwitchatDataTypes.TwitchatMessageType.BAN, (message)=>{
@@ -626,10 +632,33 @@ export const storeStream = defineStore('stream', {
 
 				switch(m.type) {
 					case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
-						const sub = {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier, total:m.gift_count || 1, subDuration:m.totalSubDuration || 1};
-						if(m.is_resub) result.resubs.push(sub);
-						else if(m.is_gift || m.is_giftUpgrade) result.subgifts.push(sub);
+						const sub:typeof result.subs[number] = {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier, subDuration:m.totalSubDuration || 1};
+						if(m.is_gift || m.is_giftUpgrade) result.subgifts.push( {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier, total:m.gift_count || 1} );
+						else if(m.is_resub) result.resubs.push(sub);
 						else result.subs.push(sub);
+						break;
+					}
+
+					case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION: {
+						const sub:typeof result.subs[number] = {uid:m.user.id, login:m.user.displayNameOriginal, tier:1, subDuration:m.months || 1};
+						if(m.is_resub) result.resubs.push(sub);
+						else result.subs.push(sub);
+						break;
+					}
+
+					case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBGIFT: {
+						const sub:typeof result.subgifts[number] = {uid:m.user.id, login:m.user.displayNameOriginal, tier:1, total:m.gift_count};
+						result.subgifts.push(sub);
+						break;
+					}
+
+					case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT: {
+						result.superChats.push( {uid:m.user.id, login:m.user.displayNameOriginal, amount: m.amount, currency:m.currency} );
+						break;
+					}
+
+					case TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER: {
+						result.superStickers.push( {uid:m.user.id, login:m.user.displayNameOriginal, amount: m.amount, currency:m.currency, stickerUrl:m.sticker_url} );
 						break;
 					}
 

@@ -140,6 +140,11 @@
 									<ParamItem :paramData="param_showPuCeleb[element.id]"				v-model="element.showPuCeleb" />
 								</template>
 
+								<template v-if="element.slotType == 'ytSuperSticker' || element.slotType == 'ytSuperchat'">
+									<ParamItem :paramData="param_sortByAmounts[element.id]"	v-model="element.sortByAmounts" />
+									<ParamItem :paramData="param_sortByName[element.id]"	v-model="element.sortByNames" />
+								</template>
+
 								<ParamItem v-if="param_uniqueUsers[element.id]"
 									v-model="element.uniqueUsers"
 									:paramData="param_uniqueUsers[element.id]"
@@ -612,7 +617,7 @@ class OverlayParamsCredits extends Vue {
 			this.param_showBadges[id]			= {type:'boolean', value:entry.showBadges, icon:"badge", labelKey:'overlay.credits.param_showSubBadges', premiumOnly:true};
 			this.param_sortByName[id]			= {type:"boolean", value:entry.sortByNames, icon:"filters", labelKey:"overlay.credits.param_sortByNames", premiumOnly:true};
 			this.param_sortBySubTypes[id]		= {type:"boolean", value:entry.sortBySubTypes, icon:"filters", labelKey:"overlay.credits.param_sortBySubTypes", premiumOnly:true};
-			this.param_showSubMonths[id]		= {type:"boolean", value:entry.sortBySubTypes, icon:"number", labelKey:"overlay.credits.param_showSubMonths"};
+			this.param_showSubMonths[id]		= {type:"boolean", value:entry.showSubMonths, icon:"number", labelKey:"overlay.credits.param_showSubMonths"};
 		}else
 
 		if(slotDef.id == "tips") {
@@ -629,7 +634,7 @@ class OverlayParamsCredits extends Vue {
 			this.param_showTipsPatreon[id]			= {type:'boolean', value:entry.showTipsPatreon, icon:"patreon", labelKey:'overlay.credits.param_tip_patreon', premiumOnly:true};
 			this.param_showTipsStreamlabs[id]		= {type:'boolean', value:entry.showTipsStreamlabs, icon:"streamlabs", labelKey:'overlay.credits.param_tip_streamlabs', premiumOnly:true};
 			this.param_showTipsStreamelements[id]	= {type:'boolean', value:entry.showTipsStreamelements, icon:"streamelements", labelKey:'overlay.credits.param_tip_streamelements', premiumOnly:true};
-			this.param_sortByAmounts[id]			= {type:"boolean", value:entry.sortByAmounts!, icon:"filters", labelKey:"overlay.credits.param_sortByTipAmounts", premiumOnly:true};
+			this.param_sortByAmounts[id]			= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:"overlay.credits.param_sortByTipAmounts", premiumOnly:true};
 		}else
 
 		if(slotDef.id == "merch") {
@@ -647,7 +652,14 @@ class OverlayParamsCredits extends Vue {
 			this.param_showPuSkin[id]			= {type:'boolean', value:entry.showPuSkin, icon:"whispers", labelKey:'overlay.credits.param_showPuSkin'};
 			this.param_showPuEmote[id]			= {type:'boolean', value:entry.showPuEmote, icon:"emote", labelKey:'overlay.credits.param_showPuEmote'};
 			this.param_showPuCeleb[id]			= {type:'boolean', value:entry.showPuCeleb, icon:"watchStreak", labelKey:'overlay.credits.param_showPuCeleb'};
-			this.param_sortByAmounts[id]		= {type:"boolean", value:entry.sortByAmounts!, icon:"filters", labelKey:"overlay.credits.param_sortByPuCount", premiumOnly:true};
+			this.param_sortByAmounts[id]		= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:"overlay.credits.param_sortByPuCount", premiumOnly:true};
+		}else
+
+		if(slotDef.id == "ytSuperSticker" || slotDef.id == "ytSuperchat") {
+			if(entry.sortByNames == undefined || !this.isPremium)	entry.sortByNames = false;
+			if(entry.sortByAmounts == undefined || !this.isPremium)	entry.sortByAmounts = false;
+			this.param_sortByName[id]	= {type:"boolean", value:entry.sortByNames, icon:"filters", labelKey:"overlay.credits.param_sortByNames", premiumOnly:true};
+			this.param_sortByAmounts[id]= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:"overlay.credits.param_sortByTipAmounts", premiumOnly:true};
 		}
 
 		if(slotDef.canMerge) {

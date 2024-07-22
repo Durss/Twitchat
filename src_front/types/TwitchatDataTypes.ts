@@ -1655,6 +1655,8 @@ export namespace TwitchatDataTypes {
 		tips:{login:string, amount:number, currency:string, platform:"kofi" | "streamlabs" | "streamelements" | "tipeee" | "patreon"}[];
 		merch:{login:string, products:string[], total:number, currency:string, platform:"kofi" | "streamlabs"}[];
 		powerups:{login:string, skinID?:TwitchatDataTypes.MessageChatData["twitch_animationId"], emoteUrl?:string, type:"animation" | "gigantifiedemote" | "celebration"}[];
+		superChats:{uid:string, login:string, amount:number, currency:string}[];
+		superStickers:{uid:string, login:string, amount:number, currency:string, stickerUrl:string}[];
 		labels:{
 			no_entry:string;
 			train:string;
