@@ -111,6 +111,7 @@
 		"bingo_grid_404": "Bingo grid not found",
 		"streamelements_connect_failed": "Streamelements authentication failed",
 		"qna_action": "Something went wrong when performing requested Q&A moderation action",
-		"sse_error": "Failed establishing connexion to live events, {APP} may not work properly.\nDisable all adblockers for this page and try reloading it."
+		"sse_error": "Failed establishing connexion to live events, {APP} may not work properly.\nDisable all adblockers for this page and try reloading it.",
+		"patreon_max_linked": "You cannot link more than 2 Twitch accounts to the same Patreon account"
 	}
 }

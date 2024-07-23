@@ -452,7 +452,8 @@ type ApiEndpoints =  {
 			response: {
 				success:boolean;
 				message?:string;
-				data: {isMember:boolean};
+				data?: {isMember:boolean};
+				errorCode?:string;
 			}
 		}
 	};
