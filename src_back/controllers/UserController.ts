@@ -13,6 +13,8 @@ import { PatreonMember } from './PatreonController.js';
 */
 export default class UserController extends AbstractController {
 
+	private _lastUserDataVersion:{[uid:string]:number} = {};
+
 	constructor(public server:FastifyInstance, private discordController:DiscordController) {
 		super();
 	}
@@ -206,6 +208,22 @@ export default class UserController extends AbstractController {
 		try {
 			const clone = JSON.parse(JSON.stringify(body));
 
+			if(!this._lastUserDataVersion[userInfo.user_id] && fs.existsSync(userFilePath)) {
+				let version = 0;
+				try {
+					const refJson = fs.readFileSync(userFilePath, "utf-8");
+					version = JSON.parse(refJson).saveVersion;
+				}catch(error){}
+				this._lastUserDataVersion[userInfo.user_id] = version || 0
+			}
+
+			if(clone.saveVersion <= this._lastUserDataVersion[userInfo.user_id]) {
+				response.header('Content-Type', 'application/json');
+				response.status(409);
+				response.send(JSON.stringify({success:false, nextVersion:this._lastUserDataVersion[userInfo.user_id], error:"outdated data version", errorCode:"OUTDATED_DATA_VERSION"}));
+				return;
+			}
+
 			const success = schemaValidator(body);
 			const errorsFilePath = Config.USER_DATA_PATH + uid+"_errors.json";
 			if(!success) {
@@ -241,7 +259,7 @@ export default class UserController extends AbstractController {
 
 			response.header('Content-Type', 'application/json');
 			response.status(200);
-			response.send(JSON.stringify({success:true}));
+			response.send(JSON.stringify({success:true, nextVersion:this._lastUserDataVersion[userInfo.user_id]}));
 		}catch(error){
 			Logger.error("User data save failed for "+userInfo.login);
 			console.log(error);
@@ -249,7 +267,7 @@ export default class UserController extends AbstractController {
 			Logger.log(message);
 			response.header('Content-Type', 'application/json');
 			response.status(500);
-			response.send(JSON.stringify({message, success:false}));
+			response.send(JSON.stringify({success:false, error:message, errorCode:"INVALID_DATA_FORMAT"}));
 		}
 	}
 

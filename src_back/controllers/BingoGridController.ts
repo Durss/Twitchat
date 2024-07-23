@@ -328,7 +328,7 @@ export default class BingoGridController extends AbstractController {
 				if(allTicked2) maxBingoCount ++;
 			}
 			
-			console.log(user.login+" has "+count+"/"+maxBingoCount+" bingos");
+			// console.log(user.login+" has "+count+"/"+maxBingoCount+" bingos");
 			
 			//Limit bingo count to the maximum possible so users cannot cheat
 			//by simply sending 999999 as the count.

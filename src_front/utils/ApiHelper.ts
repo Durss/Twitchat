@@ -385,7 +385,9 @@ type ApiEndpoints =  {
 			parameters: unknown;
 			response: {
 				success:boolean;
-				message?:string;
+				error?:string;
+				errorCode?:string;
+				nextVersion?:number;
 			};
 		};
 		DELETE: {
