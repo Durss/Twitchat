@@ -204,7 +204,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	 */
 	private async onLeaderboard(e:Parameters<typeof this.leaderboardHandler>[0]):Promise<void> {
 		if(!e.data) return;
-		if(e.data.gridId != this.bingo?.id) return;
+		if(e.data.gridId != this.id) return;
 		
 		this.leaderboard = e.data.scores && e.data.scores.length > 0? e.data : null;
 		
@@ -230,6 +230,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	 */
 	private async onBingoViewer(e:Parameters<typeof this.bingoViewerHandler>[0]):Promise<void> {
 		if(!e.data) return;
+		if(e.data.gridId != this.id) return;
 		e.data.displayCount = e.data.count;
 		this.pushEvent({type:"user", userBingo:e.data});
 	}
