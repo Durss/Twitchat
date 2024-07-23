@@ -647,8 +647,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			}
 		}
 
-		console.log(tags);
-		console.log(message);
+		// console.log(tags);
+		// console.log(message);
 		data.twitch_isSlashMe		= tags["message-type"] === "action";
 		data.twitch_isReturning		= tags["returning-chatter"] === true;
 		data.twitch_isFirstMessage	= tags['first-msg'] === true && tags["msg-id"] != "user-intro";

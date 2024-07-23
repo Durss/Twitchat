@@ -2,15 +2,15 @@ import Database from '@/store/Database';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import * as Sentry from "@sentry/vue";
 import { LoremIpsum } from "lorem-ipsum";
 import { EventDispatcher } from "../../events/EventDispatcher";
 import Config from '../Config';
+import SetIntervalWorker from '../SetIntervalWorker';
 import Utils from "../Utils";
-import TriggerActionHandler from '../triggers/TriggerActionHandler';
 import type { PubSubDataTypes } from './PubSubDataTypes';
 import { TwitchScopes } from './TwitchScopes';
-import * as Sentry from "@sentry/vue";
-import SetIntervalWorker from '../SetIntervalWorker';
+import ApiHelper from '../ApiHelper';
 
 /**
 * Created : 13/01/2022
@@ -25,6 +25,7 @@ export default class PubSub extends EventDispatcher {
 	private hypeTrainProgressTimer!:number;
 	private history:{date:string, message:PubSubDataTypes.SocketMessage}[] = [];
 	private rewardsParsed:{[key:string]:boolean} = {};
+	private hypetrainLogs:unknown[] = [];
 
 	constructor() {
 		super();
@@ -398,22 +399,30 @@ export default class PubSub extends EventDispatcher {
 
 
 		}else if(data.type == "hype-train-approaching") {
+			this.hypetrainLogs = [data.data];
 			this.hypeTrainApproaching(data.data as  PubSubDataTypes.HypeTrainApproaching);
 
 		}else if(data.type == "hype-train-start") {
+			if(this.hypetrainLogs.length > 2) this.hypetrainLogs = [];
+			this.hypetrainLogs.push(data.data);
 			this.hypeTrainStart(data.data as  PubSubDataTypes.HypeTrainStart, channelId);
 
 		}else if(data.type == "hype-train-progression") {
+			this.hypetrainLogs.push(data.data);
 			this.hypeTrainProgress(data.data as  PubSubDataTypes.HypeTrainProgress, channelId);
 
 		}else if(data.type == "hype-train-level-up") {
+			this.hypetrainLogs.push(data.data);
 			this.hypeTrainLevelUp(data.data as  PubSubDataTypes.HypeTrainLevelUp, channelId);
 
 		}else if(data.type == "hype-train-conductor-update") {
+			this.hypetrainLogs.push(data.data);
 			this.hypeTrainConductorUpdate(data.data as  PubSubDataTypes.HypeTrainConductorUpdate, channelId);
 
 		}else if(data.type == "hype-train-end") {
+			this.hypetrainLogs.push(data.data);
 			this.hypeTrainEnd(data.data as  PubSubDataTypes.HypeTrainEnd, channelId);
+			ApiHelper.call("log", "POST", {cat:"hypetrain", log:JSON.stringify(this.hypetrainLogs)});
 
 		}else if(data.type == "hype-train-cooldown-expiration") {
 			const m:TwitchatDataTypes.MessageHypeTrainCooledDownData = {

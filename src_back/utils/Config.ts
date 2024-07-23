@@ -127,7 +127,7 @@ export default class Config {
 		});
 	}
 
-	public static LOGS_PATH(category:"streamlabs"): string {
+	public static LOGS_PATH(category:"streamlabs"|"hypetrain"): string {
 		return this.getEnvData({
 			dev: path.join(this.LOGS_FOLDER, "/"+category+".json"),
 			beta: path.join(this.LOGS_FOLDER, "/"+category+".json"),
