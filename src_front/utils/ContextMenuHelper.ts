@@ -486,7 +486,8 @@ export default class ContextMenuHelper {
 					//Also force english if first returned lang is Affrikaan and second is english.
 					//It detects most inglish messages as Afrikaan.
 					const lang = (langs[0][1] < .6 || (langs[0][0] == "afr" && langs[1][0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
-					if(lang && !spokenLanguages.includes(lang.iso1)) {
+					const langTarget = (StoreProxy.params.features.autoTranslateFirstLang.value as string[])[0];
+					if(lang.iso1 != langTarget && lang && !spokenLanguages.includes(lang.iso1)) {
 						options.push({
 									label: t("chat.context_menu.translate"),
 									icon: this.getIcon("icons/translate.svg"),

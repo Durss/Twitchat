@@ -899,21 +899,23 @@ export const storeChat = defineStore('chat', {
 						const lang = (langs[0][1] < .6 || (langs[0][0] == "afr" && langs[1][0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
 						if(lang && !spokenLanguages.includes(lang.iso1)) {
 							const langTarget = (sParams.features.autoTranslateFirstLang.value as string[])[0];
-							ApiHelper.call("google/translate", "GET", {langSource:lang.iso1, langTarget, text:text}, false)
-							.then(res=>{
-								if(res.json.data.translation) {
-									translatable.translation = {
-										flagISO:lang.flag,
-										languageCode:lang.iso1,
-										languageName:lang.name,
-										translation:res.json.data.translation,
+							if(lang.iso1 != langTarget) {
+								ApiHelper.call("google/translate", "GET", {langSource:lang.iso1, langTarget, text:text}, false)
+								.then(res=>{
+									if(res.json.data.translation) {
+										translatable.translation = {
+											flagISO:lang.flag,
+											languageCode:lang.iso1,
+											languageName:lang.name,
+											translation:res.json.data.translation,
+										}
+										Database.instance.updateMessage(message);
 									}
+								}).catch((error)=>{
+									translatable.translation_failed = true;
 									Database.instance.updateMessage(message);
-								}
-							}).catch((error)=>{
-								translatable.translation_failed = true;
-								Database.instance.updateMessage(message);
-							});
+								});
+							}
 						}
 					})
 				}
