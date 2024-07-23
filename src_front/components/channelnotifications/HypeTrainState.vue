@@ -3,16 +3,16 @@
 	<div :class="classes">
 
 		<div class="content" v-if="trainData.state == 'APPROACHING'">
-			<Icon name="train" alt="train" class="icon" v-if="!boostMode" />
 			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
-			<h1 v-if="!boostMode">{{ $t("train.hype_approaching") }}</h1>
-			<h1 v-else-if="goldenKappaMode">{{ $t("train.golden_approaching") }}</h1>
-			<h1 v-else>{{ $t("train.boost_approaching") }}</h1>
+			<Icon name="train" alt="train" class="icon" v-else />
+			<h1 v-if="goldenKappaMode">{{ $t("train.golden_approaching") }}</h1>
+			<h1 v-else-if="boostMode">{{ $t("train.boost_approaching") }}</h1>
+			<h1 v-else>{{ $t("train.hype_approaching") }}</h1>
 		</div>
 
 		<div class="content" v-if="trainProgress">
-			<Icon name="train" alt="train" class="icon" v-if="!boostMode" />
 			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
+			<Icon name="train" alt="train" class="icon" v-else />
 			<i18n-t scope="global" tag="h1"
 			:keypath="boostMode?'train.boost_progress': goldenKappaMode?'train.golden_progress':'train.hype_progress'">
 				<template #LEVEL>{{ trainData.level }}</template>
@@ -21,12 +21,12 @@
 		</div>
 
 		<div class="content" v-if="trainData.state == 'COMPLETED'">
-			<Icon name="train" alt="train" class="icon" v-if="!boostMode" />
 			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
+			<Icon name="train" alt="train" class="icon" v-else />
 			<h1>
-				<span v-if="!boostMode">{{ $t("train.hype_complete") }}</span>
 				<span v-if="goldenKappaMode">{{ $t("train.golden_complete") }}</span>
-				<span v-else>{{ $t("train.boost_complete") }}</span>
+				<span v-else-if="boostMode">{{ $t("train.boost_complete") }}</span>
+				<span v-else>{{ $t("train.hype_complete") }}</span>
 				<br />
 				<i18n-t scope="global" tag="span" class="subtitle"
 				keypath="train.hype_complete_details">
@@ -36,11 +36,11 @@
 		</div>
 
 		<div class="content" v-if="trainData.state == 'EXPIRE'">
-			<Icon name="train" alt="train" class="icon" v-if="!boostMode" />
 			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
-			<h1 v-if="!boostMode">{{ $t("train.boost_cancel") }}</h1>
+			<Icon name="train" alt="train" class="icon" v-else />
 			<h1 v-if="goldenKappaMode">{{ $t("train.golden_cancel") }}</h1>
-			<h1 v-else>{{ $t("train.boost_cancel") }}</h1>
+			<h1 v-else-if="boostMode">{{ $t("train.boost_cancel") }}</h1>
+			<h1 v-else>{{ $t("train.hype_cancel") }}</h1>
 		</div>
 
 		<ProgressBar v-if="(trainProgress || trainData.state == 'APPROACHING') && trainData.state != 'COMPLETED'"

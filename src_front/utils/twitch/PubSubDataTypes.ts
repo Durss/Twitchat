@@ -326,100 +326,129 @@ export namespace PubSubDataTypes {
 			reward_level: number;
 			set_id: string;
 			token: string;
+			reward_end_date: string;
 		}[];
 		creator_color: string;
 		participants: string[];
 		approaching_hype_train_id: string;
 		is_boost_train: boolean;
+		is_golden_kappa_train: boolean;
+		expires_at: string;
 	}
 
 	export interface HypeTrainStart {
-		channel_id: string;
+		__typename: string;
 		id: string;
-		started_at: number;
-		expires_at: number;
-		updated_at: number;
-		ended_at?: number;
-		ending_reason?: string;
-		isGoldenKappaTrain?: boolean;
-		is_golden_kappa_train?: boolean;//Twitchat changed the naming
-		config: {
-			channel_id: string;
-			is_enabled: boolean;
-			islisted: boolean;
-			kickoff: {
-				num_of_events: number;
-				min_points: number;
-				duration: number;
-			};
-			cooldown_duration: number;
-			level_duration: number;
-			difficulty: string;
-			reward_end_date?: number;
-			participation_conversion_rates: HypeTrainConductorContribution;
-			notification_thresholds: HypeTrainConductorContribution;
-			difficulty_settings: {
-				MEDIUM: {
-					value: number;
-					goal: number;
-					rewards: {
-						type: string;
+		startedAt: string;
+		expiresAt: string;
+		updatedAt: string;
+		endedAt?: any;
+		endReason: string;
+		is_boost_train?: boolean;
+		isGoldenKappaTrain: boolean;
+		/**
+		 * Probably doesn't exist, but i've had report a golden kappa train
+		 * didn't show ias such.
+		 * I suspect they renamed the flag properly so here is a blind shot
+		 */
+		is_golden_kappa_train?: boolean; 
+		progress: {
+			__typename: string;
+			id: string;
+			goal: number;
+			progression: number;
+			total: number;
+			level: {
+				__typename: string;
+				id: string;
+				value: number;
+				goal: number;
+				rewards: {
+					__typename: string;
+					id: string;
+					type: string;
+					emote: {
+						__typename: string;
 						id: string;
-						group_id: string;
-						reward_level: number;
-						set_id: string;
 						token: string;
-					}[];
+					};
 				}[];
 			};
-			conductor_rewards: {
-				BITS: {
-
-					CURRENT: {
-						type: string;
-						id: string;
-						group_id: string;
-						reward_level: number;
-						badge_id: string;
-						image_url: string;
-					}[];
-					FORMER: {
-						type: string;
-						id: string;
-						group_id: string;
-						reward_level: number;
-						badge_id: string;
-						image_url: string;
-					}[];
-				};
-				SUBS: {
-					CURRENT: {
-						type: string;
-						id: string;
-						group_id: string;
-						reward_level: number;
-						badge_id: string;
-						image_url: string;
-					}[];
-					FORMER: {
-						type: string;
-						id: string;
-						group_id: string;
-						reward_level: number;
-						badge_id: string;
-						image_url: string;
-					}[];
-				};
-			};
-			callout_emote_id: string;
-			callout_emote_token: string;
-			theme_color: string;
-			has_conductor_badges: boolean;
+			allTimeHighState: string;
 		};
-		participations: HypeTrainConductorContribution;
-		conductors: unknown;
-		progress: HypeProgressInfo;
-		is_boost_train: boolean;
+		conductors: any[];
+		config: {
+			__typename: string;
+			id: string;
+			willUseCreatorColor: boolean;
+			primaryHexColor: string;
+			conductorRewards: {
+				__typename: string;
+				source: string;
+				type: string;
+				rewards: {
+					__typename: string;
+					id: string;
+					type: string;
+					badge: {
+						__typename: string;
+						id: string;
+						setID: string;
+						imageURL: string;
+					};
+				}[];
+			}[];
+			participationConversionRates: {
+				__typename: string;
+				action: string;
+				source: string;
+				value: number;
+			}[];
+			calloutEmote: {
+				__typename: string;
+				id: string;
+				token: string;
+			};
+			difficulty: string;
+			difficultySettings: {
+				__typename: string;
+				difficulty: string;
+				maxLevel: number;
+			}[];
+			potentialRewards: {
+				__typename: string;
+				id: string;
+				level: number;
+				value: {
+					__typename: string;
+					id: string;
+					type: string;
+					emote: {
+						__typename: string;
+						id: string;
+						token: string;
+					};
+				};
+			}[];
+		};
+		allTimeHigh: {
+			__typename: string;
+			goal: number;
+			progression: number;
+			total: number;
+			level: {
+				__typename: string;
+				id: string;
+				value: number;
+			};
+		};
+		isFastMode: boolean;
+		participations: {
+			__typename: string;
+			source: string;
+			action: string;
+			quantity: number;
+		}[];
 	}
 
 	export interface HypeTrainProgress {
@@ -493,6 +522,9 @@ export namespace PubSubDataTypes {
 		time_to_expire: number;
 		progress: HypeProgressInfo;
 		is_boost_train: boolean;
+		hype_train:{
+			isGoldenKappaTrain: boolean,
+		}
 	}
 
 	export interface HypeTrainEnd {

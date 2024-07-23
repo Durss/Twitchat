@@ -401,7 +401,7 @@ export default class PubSub extends EventDispatcher {
 			this.hypeTrainApproaching(data.data as  PubSubDataTypes.HypeTrainApproaching);
 
 		}else if(data.type == "hype-train-start") {
-			this.hypeTrainStart(data.data as  PubSubDataTypes.HypeTrainStart);
+			this.hypeTrainStart(data.data as  PubSubDataTypes.HypeTrainStart, channelId);
 
 		}else if(data.type == "hype-train-progression") {
 			this.hypeTrainProgress(data.data as  PubSubDataTypes.HypeTrainProgress, channelId);
@@ -1043,22 +1043,22 @@ export default class PubSub extends EventDispatcher {
 	 * Called when a hype train starts
 	 * @param data
 	 */
-	private hypeTrainStart(data:PubSubDataTypes.HypeTrainStart):void {
+	private hypeTrainStart(data:PubSubDataTypes.HypeTrainStart, channel_id:string):void {
 		console.log("START", data);
 		clearTimeout(this.hypeTrainApproachingTimer);
 		const storeTrain = StoreProxy.stream.hypeTrain;
 		const train:TwitchatDataTypes.HypeTrainStateData = {
-			channel_id:data.channel_id,
+			channel_id,
 			level:data.progress.level.value,
-			currentValue:data.progress.value,
+			currentValue:data.progress.progression,
 			goal:data.progress.goal,
 			approached_at:storeTrain?.approached_at ?? Date.now(),
 			started_at:Date.now(),
 			updated_at:Date.now(),
-			timeLeft_s:data.progress.remaining_seconds,
+			timeLeft_s:new Date(data.expiresAt).getTime() - Date.now(),
 			state: "START",
-			is_boost_train:data.is_boost_train,
-			is_golden_kappa:data.is_golden_kappa_train ?? data.isGoldenKappaTrain ?? false,
+			is_boost_train:data.is_boost_train === true,
+			is_golden_kappa:data.isGoldenKappaTrain === true || data.is_golden_kappa_train === true,
 			is_new_record:false,
 			conductor_bits:storeTrain?.conductor_bits,
 			conductor_subs:storeTrain?.conductor_subs,
@@ -1070,7 +1070,7 @@ export default class PubSub extends EventDispatcher {
 
 		StoreProxy.stream.setHypeTrain(train);
 		const message:TwitchatDataTypes.MessageHypeTrainEventData = {
-			channel_id:data.channel_id,
+			channel_id,
 			platform:"twitch",
 			date:Date.now(),
 			id:Utils.getUUID(),
@@ -1113,7 +1113,7 @@ export default class PubSub extends EventDispatcher {
 				timeLeft_s:data.progress.remaining_seconds,
 				state: "PROGRESSING",
 				is_boost_train:data.is_boost_train,
-				is_golden_kappa:storeTrain?.is_golden_kappa ?? false,
+				is_golden_kappa:storeTrain?.is_golden_kappa === true,
 				is_new_record:false,//found no way to detect new record :(. Doesn't seem avalable on pubsub
 				conductor_bits:storeTrain?.conductor_bits,
 				conductor_subs:storeTrain?.conductor_subs,
@@ -1158,7 +1158,7 @@ export default class PubSub extends EventDispatcher {
 			timeLeft_s:data.progress.remaining_seconds,
 			state: "LEVEL_UP",
 			is_boost_train:data.is_boost_train,
-			is_golden_kappa:storeTrain?.is_golden_kappa ?? false,
+			is_golden_kappa:storeTrain?.is_golden_kappa === true,
 			is_new_record:storeTrain?.is_new_record ?? false,
 			conductor_bits:storeTrain?.conductor_bits,
 			conductor_subs:storeTrain?.conductor_subs,
