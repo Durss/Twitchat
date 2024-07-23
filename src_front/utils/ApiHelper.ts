@@ -294,6 +294,7 @@ type ApiEndpoints =  {
 			success:boolean;
 			message?:string;
 			data: {isMember:boolean};
+			errorCode:string;
 		}
 	};
 	"patreon/isApiDown": {

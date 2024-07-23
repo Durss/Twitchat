@@ -169,6 +169,7 @@ export default class PatreonController extends AbstractController {
 					break;
 				}
 			}
+
 			if(isMember) {
 				//Get twitch user
 				const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization || "");
@@ -177,6 +178,23 @@ export default class PatreonController extends AbstractController {
 					if(fs.existsSync(Config.patreon2Twitch)) {
 						json = JSON.parse(fs.readFileSync(Config.patreon2Twitch, "utf-8") || "{}");
 					}
+
+					let linkedCount = 0;
+					// Count linked account
+					for (const twitchId in json) {
+						if(json[twitchId] == memberID) {
+							linkedCount ++;
+						}
+					}
+
+					//TODO block association to a new twitch channel to avoid premium sharing?
+					if(linkedCount >= 2) {
+						response.header('Content-Type', 'application/json');
+						response.status(401);
+						response.send(JSON.stringify({success:false, errorCode:"MAX_LINKED_ACCOUNTS"}));
+						return;
+					}
+
 					json[userInfo.user_id] = memberID;
 					fs.writeFileSync(Config.patreon2Twitch, JSON.stringify(json), "utf-8")
 				}

@@ -97,9 +97,15 @@ export default class PatreonHelper {
 		if(!this._token) return null;
 		
 		const res = await ApiHelper.call("patreon/isMember", "GET", {token:this._token.access_token});
-		this._isMember = res.json.data.isMember;
-		if(this._isMember) {
-			StoreProxy.chat.cleanupDonationRelatedMessages();
+		if(res.status != 200) {
+			if(res.json.errorCode == "MAX_LINKED_ACCOUNTS") {
+				StoreProxy.main.alert(StoreProxy.i18n.t('error.patreon_max_linked'))
+			}
+		}else{
+			this._isMember = res.json.data?.isMember === true;
+			if(this._isMember) {
+				StoreProxy.chat.cleanupDonationRelatedMessages();
+			}
 		}
 		return res.json;
 	}

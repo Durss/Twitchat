@@ -104,6 +104,7 @@
 		"kofi_disconnect_failed":"Une erreur est survenue lors de la déconnexion de Ko-fi.",
 		"lumia_connect_failed":"La connexion à Lumia Stream a échouée.\nAssurez-vous que Lumia Stream est lancé et que le jeton est valide.",
 		"streamelements_denied":"Vous avez refusé l'accès à votre profil Streamelements.",
-		"streamelements_connect_failed":"Authentification Streamelements échouée."
+		"streamelements_connect_failed":"Authentification Streamelements échouée.",
+		"patreon_max_linked": "Vous ne pouvez lier plus de 2 comptes Twitch au même compte Patreon."
 	}
 }

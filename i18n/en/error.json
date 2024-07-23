@@ -104,6 +104,7 @@
 		"kofi_disconnect_failed":"Something went wrong when disconnecting from Ko-fi.",
 		"lumia_connect_failed":"Connection to Lumia Stream failed.\nMake sure Lumia Stream is started and token is valid.",
 		"streamelements_denied":"You refused access to your Streamelements profile.",
-		"streamelements_connect_failed":"Streamelements authentication failed."
+		"streamelements_connect_failed":"Streamelements authentication failed.",
+		"patreon_max_linked": "You cannot link more than 2 Twitch accounts to the same Patreon account"
 	}
 }
