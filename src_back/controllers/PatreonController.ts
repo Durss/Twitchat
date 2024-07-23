@@ -183,7 +183,6 @@ export default class PatreonController extends AbstractController {
 						}
 					}
 
-					//TODO block association to a new twitch channel to avoid premium sharing?
 					if(linkedCount >= 2) {
 						response.header('Content-Type', 'application/json');
 						response.status(401);
