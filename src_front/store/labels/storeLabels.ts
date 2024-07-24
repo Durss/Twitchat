@@ -103,6 +103,10 @@ export const storeLabels = defineStore('labels', {
 			this.broadcastPlaceholders();
 		},
 		
+		getLabelByKey(key:typeof LabelItemPlaceholderList[number]["tag"]):string|number|undefined {
+			return this.placeholders[key]?.value;
+		},
+		
 		addLabel():void {
 			this.labelList.push({
 				id:Utils.getUUID(),

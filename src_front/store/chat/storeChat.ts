@@ -683,23 +683,26 @@ export const storeChat = defineStore('chat', {
 				let lastRaid = undefined;
 				let lastCheer = undefined;
 				let lastReward = undefined;
-				let lastSub = StoreProxy.auth.lastSubscriber[uid];
-				let lastSubgift = StoreProxy.auth.lastSubgifter[uid];
+				let lastSub:{user:TwitchatDataTypes.TwitchatUser, tier:1 | 2 | 3 | "prime"}|null = null;
+				let lastSubgift:{user:TwitchatDataTypes.TwitchatUser, tier:1 | 2 | 3 | "prime", giftCount:number}|null = null;
 
 				//Parse all history
 				for (let i = res.length-1; i >= 0; i--) {
 					const m = res[i];
+
+					//Filter only entries for our own channel
 					if(m.channel_id != uid) continue;
 
 					if(!lastCheer && m.type === TwitchatDataTypes.TwitchatMessageType.CHEER) {
 						lastCheer = {user:m.user, bits:m.bits};
-						StoreProxy.auth.lastCheer[m.channel_id] = lastCheer;
+						StoreProxy.labels.updateLabelValue("LAST_CHEER_ID", lastCheer.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_CHEER_NAME", lastCheer.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("LAST_CHEER_AVATAR", lastCheer.user.avatarPath || "", lastCheer.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_CHEER_AMOUNT", lastCheer.bits);
 					}
 					if(!lastReward && m.type === TwitchatDataTypes.TwitchatMessageType.REWARD) {
 						lastReward = m;
+						StoreProxy.labels.updateLabelValue("LAST_REWARD_ID", m.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_REWARD_NAME", m.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("LAST_REWARD_AVATAR", m.user.avatarPath || "", m.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_REWARD_ICON", m.reward.icon.hd || m.reward.icon.sd);
@@ -707,6 +710,7 @@ export const storeChat = defineStore('chat', {
 					}
 					if(!lastRaid && m.type === TwitchatDataTypes.TwitchatMessageType.RAID) {
 						lastRaid = m;
+						StoreProxy.labels.updateLabelValue("LAST_RAID_ID", m.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_RAID_NAME", m.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("LAST_RAID_AVATAR", m.user.avatarPath || "", m.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_RAID_COUNT", m.viewers);
@@ -714,25 +718,28 @@ export const storeChat = defineStore('chat', {
 					if(m.type === TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
 						if(!lastSub && !m.is_gift) {
 							lastSub = {user:m.user, tier:m.tier};
-							StoreProxy.auth.lastSubscriber[m.channel_id] = lastSub;
+							StoreProxy.labels.updateLabelValue("LAST_SUB_ID", lastSub.user.id);
 							StoreProxy.labels.updateLabelValue("LAST_SUB_NAME", lastSub.user.displayNameOriginal);
 							StoreProxy.labels.updateLabelValue("LAST_SUB_AVATAR", lastSub.user.avatarPath || "", lastSub.user.id);
 							StoreProxy.labels.updateLabelValue("LAST_SUB_TIER", lastSub.tier);
+							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_ID", lastSub.user.id);
 							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_NAME", lastSub.user.displayNameOriginal);
 							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", lastSub.user.avatarPath || "", lastSub.user.id);
 							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", lastSub.tier);
 						}
 						if(!lastSubgift && m.is_gift) {
 							lastSubgift = {user:m.user, giftCount:m.gift_count || 1, tier:m.tier};
-							StoreProxy.auth.lastSubgifter[m.channel_id] = lastSubgift;
+							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_ID", lastSubgift.user.id);
 							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_NAME", lastSubgift.user.displayNameOriginal);
 							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_AVATAR", lastSubgift.user.avatarPath || "", lastSubgift.user.id);
 							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_TIER", lastSubgift.tier);
 							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_COUNT", lastSubgift.giftCount);
+							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_ID", lastSubgift.user.id);
 							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_NAME", lastSubgift.user.displayNameOriginal);
 							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_AVATAR", lastSubgift.user.avatarPath || "", lastSubgift.user.id);
 							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_TIER", lastSubgift.tier);
 							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_COUNT", lastSubgift.giftCount);
+							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_ID", lastSubgift.user.id);
 							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_NAME", lastSubgift.user.displayNameOriginal);
 							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", lastSubgift.user.avatarPath || "", lastSubgift.user.id);
 							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", lastSubgift.tier);
@@ -1249,6 +1256,7 @@ export const storeChat = defineStore('chat', {
 				//Reward redeem
 				case TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK: {
 					if(!isFromRemoteChan) {
+						StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_ID", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_NAME", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_AVATAR", message.user.avatarPath || "", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_COUNT", message.streak);
@@ -1286,6 +1294,7 @@ export const storeChat = defineStore('chat', {
 					} as JsonObject;
 					PublicAPI.instance.broadcast(TwitchatEvent.REWARD_REDEEM, wsMessage);
 					if(!isFromRemoteChan) {
+						StoreProxy.labels.updateLabelValue("LAST_REWARD_ID", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_REWARD_NAME", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("LAST_REWARD_AVATAR", message.user.avatarPath || "", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_REWARD_ICON", message.reward.icon.hd || message.reward.icon.sd);
@@ -1299,6 +1308,7 @@ export const storeChat = defineStore('chat', {
 					antiHateRaidGraceEndDate = Date.now() + 3 * 60 * 1000;
 					if(!isFromRemoteChan) {
 						sStream.lastRaider = message.user;
+						StoreProxy.labels.updateLabelValue("LAST_RAID_ID", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_RAID_NAME", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("LAST_RAID_AVATAR", message.user.avatarPath || "", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_RAID_COUNT", message.viewers);
@@ -1324,7 +1334,7 @@ export const storeChat = defineStore('chat', {
 				case TwitchatDataTypes.TwitchatMessageType.CHEER: {
 					if(!isFromRemoteChan) {
 						message = message as TwitchatDataTypes.MessageCheerData;
-						sAuth.lastCheer[message.channel_id] = {user:message.user, bits:message.bits};
+						StoreProxy.labels.updateLabelValue("LAST_CHEER_ID", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_CHEER_NAME", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("LAST_CHEER_AVATAR", message.user.avatarPath || "", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_CHEER_AMOUNT", message.bits);
@@ -1392,6 +1402,7 @@ export const storeChat = defineStore('chat', {
 				//New sub
 				case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION: {
 					if(!isFromRemoteChan) {
+						StoreProxy.labels.updateLabelValue("LAST_SUB_YOUTUBE_ID", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_SUB_YOUTUBE_NAME", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("LAST_SUB_YOUTUBE_AVATAR", message.user.avatarPath || "");
 						StoreProxy.labels.updateLabelValue("LAST_SUB_YOUTUBE_TIER", message.levelName);
@@ -1405,6 +1416,7 @@ export const storeChat = defineStore('chat', {
 				//New sub
 				case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT: {
 					if(!isFromRemoteChan) {
+						StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_ID", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_NAME", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_AVATAR", message.user.avatarPath || "");
 						StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_AMOUNT", message.amountDisplay);
@@ -1433,23 +1445,22 @@ export const storeChat = defineStore('chat', {
 						isResub:message.is_resub,
 					});
 					if(!isFromRemoteChan) {
-						sAuth.totalSubscribers[message.channel_id] ++;
 						StoreProxy.labels.incrementLabelValue("SUB_COUNT", 1);
 					}
 					//If it's a subgift, merge it with potential previous ones
 					if(message.is_gift && message.gift_recipients) {
 						// console.log("Merge attempt");
 						for (let i = subgiftHistory.length-1; i >= 0; i--) {
-							const m = subgiftHistory[i];
-							if(message.channel_id != m.channel_id) {
-								if(m.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
+							const subHistoryEntry = subgiftHistory[i];
+							if(message.channel_id != subHistoryEntry.channel_id) {
+								if(subHistoryEntry.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
 									const json = {
 										isGift1:message.is_gift,
-										isGift2:m.is_gift,
+										isGift2:subHistoryEntry.is_gift,
 										ischannelID1:message.channel_id,
-										ischannelID2:m.channel_id,
+										ischannelID2:subHistoryEntry.channel_id,
 										recipients1:message.gift_recipients,
-										recipients2:m.gift_recipients,
+										recipients2:subHistoryEntry.gift_recipients,
 									}
 									console.log("[SUBSCRIPTION MERGE] cannot merge gift:", json);
 								}
@@ -1458,33 +1469,38 @@ export const storeChat = defineStore('chat', {
 							// console.log("Found sub ", m);
 							//If the message is a subgift from the same user with the same tier on
 							//the same channel and happened in the last 10s, merge it.
-							if(m.tier == message.tier && m.user.id == message.user.id
-							&& Math.abs(message.date - m.date) < 10000) {
+							if(subHistoryEntry.tier == message.tier
+							&& subHistoryEntry.user.id == message.user.id
+							&& Math.abs(message.date - subHistoryEntry.date) < 10000) {
 								// console.log("MERGE IT !");
-								if(!m.gift_recipients) m.gift_recipients = [];
-								m.date = Date.now();//Update timestamp
+								if(!subHistoryEntry.gift_recipients) subHistoryEntry.gift_recipients = [];
+								subHistoryEntry.date = Date.now();//Update timestamp
 								for (let j = 0; j < message.gift_recipients.length; j++) {
-									m.gift_recipients.push(message.gift_recipients[j]);
+									subHistoryEntry.gift_recipients.push(message.gift_recipients[j]);
 								}
-								m.gift_count = m.gift_recipients.length;
-								StoreProxy.auth.lastSubgifter[message.channel_id].giftCount = m.gift_count;
+								subHistoryEntry.gift_count = subHistoryEntry.gift_recipients.length;
+								if(!isFromRemoteChan) {
+									StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_COUNT", subHistoryEntry.gift_count);
+									StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_COUNT", subHistoryEntry.gift_count);
+								}
 								return;
 							}
-							console.log("[SUBSCRIPTION MERGE] Don't merge", m.tier == message.tier, m.user.id == message.user.id, Date.now() - m.date < 5000);
+							console.log("[SUBSCRIPTION MERGE] Don't merge", subHistoryEntry.tier == message.tier, subHistoryEntry.user.id == message.user.id, Date.now() - subHistoryEntry.date < 5000);
 						}
 						//Message not merged, might be the first subgift of a series, save it
 						//for future subgift events
 						subgiftHistory.push(message);
 					}else if(!isFromRemoteChan){
+						StoreProxy.labels.updateLabelValue("LAST_SUB_ID", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_SUB_NAME", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("LAST_SUB_AVATAR", message.user.avatarPath || "", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_SUB_TIER", message.tier);
+
+						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_ID", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_NAME", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", message.tier);
 						StoreProxy.labels.incrementLabelValue("SUB_COUNT", 1);
-						StoreProxy.auth.totalSubscribers[message.channel_id] ++;
-						StoreProxy.auth.lastSubscriber[message.channel_id] = {user:message.user, tier:message.tier};
 					}
 					break;
 				}
@@ -1520,9 +1536,7 @@ export const storeChat = defineStore('chat', {
 				case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
 					sUsers.flagAsFollower(message.user, message.channel_id);
 					if(!isFromRemoteChan) {
-						StoreProxy.auth.lastFollower[message.channel_id] = message.user;
-						StoreProxy.auth.totalFollowers[message.channel_id] ++;
-						
+						StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_ID", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_NAME", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_AVATAR", message.user.avatarPath || "", message.user.id);
 						StoreProxy.labels.incrementLabelValue("FOLLOWER_COUNT", 1);
@@ -1776,29 +1790,36 @@ export const storeChat = defineStore('chat', {
 				}
 				if(!isFromRemoteChan) {
 					if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
+						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_ID", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_NAME", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_AVATAR", message.user.avatarPath || "", message.user.id);
-						StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_COUNT", message.gift_count || 1);
 						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_TIER", message.tier);
+
 						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_TIER", message.tier);
 						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", message.tier);
-						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
+
 						StoreProxy.labels.incrementLabelValue("SUB_COUNT", message.gift_count || 1);
-						StoreProxy.auth.totalSubscribers[message.channel_id] += message.gift_count || 1;
-						StoreProxy.auth.lastSubgifter[message.channel_id] = {user:message.user, giftCount:message.gift_count || 1, tier:message.tier};
+						StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_COUNT", message.gift_count || 1);
 					}else{
+						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_YOUTUBE_ID", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_YOUTUBE_NAME", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_YOUTUBE_AVATAR", message.user.avatarPath || "");
-						StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_YOUTUBE_COUNT", message.gift_count || 1);
 						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_YOUTUBE_TIER", message.levelName);
+						
 						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_TIER", message.levelName);
 						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", message.levelName);
-						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_AVATAR", message.user.avatarPath || "");
-						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", message.user.avatarPath || "");
+
+						StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_YOUTUBE_COUNT", message.gift_count || 1);
 					}
-					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_NAME", message.user.displayNameOriginal);
+					
+					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_ID", message.user.id);
 					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_NAME", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
+
+					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_ID", message.user.id);
+					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_NAME", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
+
 					StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_GENERIC_COUNT", message.gift_count || 1);
 				}
 			}

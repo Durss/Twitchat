@@ -266,34 +266,6 @@ export type IAuthState = {
 	 */
 	twitchModeratedChannels: TwitchDataTypes.ModeratedUser[];
 	/**
-	 * Last cheer for each platforms
-	 */
-	lastCheer:{[key in string]:{user:TwitchatDataTypes.TwitchatUser, bits:number}};
-	/**
-	 * Last follower for each platforms
-	 */
-	lastFollower:{[key in string]:TwitchatDataTypes.TwitchatUser};
-	/**
-	 * Last subscriber for each platforms
-	 */
-	lastSubscriber:{[key in string]:{user:TwitchatDataTypes.TwitchatUser, tier:TwitchatDataTypes.MessageSubscriptionData["tier"]}};
-	/**
-	 * Last subsgifter for each platforms
-	 */
-	lastSubgifter:{[key in string]:{user:TwitchatDataTypes.TwitchatUser, tier:TwitchatDataTypes.MessageSubscriptionData["tier"], giftCount:number}};
-	/**
-	 * Total subscriber for each platforms
-	 */
-	totalSubscribers:{[key in string]:number};
-	/**
-	 * Total number of partner+ points for twitch
-	 */
-	partnerPoints:{[key in string]:number};
-	/**
-	 * Total followers for each platforms
-	 */
-	totalFollowers:{[key in string]:number};
-	/**
 	 * Twitchat donor level of the user
 	 */
 	donorLevel:number;
@@ -2823,6 +2795,10 @@ export interface ILabelsActions {
 	 * Populates data from storage
 	 */
 	populateData():Promise<void>;
+	/**
+	 * Get a label by its tag
+	 */
+	getLabelByKey(key:typeof LabelItemPlaceholderList[number]["tag"]):string|number|undefined;
 	/**
 	 * Add a new label
 	 */

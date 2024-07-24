@@ -3170,20 +3170,19 @@ export default class TriggerActionHandler {
 					}else if(pointer.indexOf("__twitch__") == 0) {
 						const pointerLocal = pointer.replace('__twitch__.', '');
 						switch(pointerLocal) {
-							case "lastsub_login": value = StoreProxy.auth.lastSubscriber[channelId]?.user.login || ""; break;
-							case "lastsub_id": value = StoreProxy.auth.lastSubscriber[channelId]?.user.id || ""; break;
-							case "lastsub_tier": value = StoreProxy.auth.lastSubscriber[channelId]?.tier.toString() || ""; break;
-							case "lastsubgifter_login": value = StoreProxy.auth.lastSubgifter[channelId]?.user.login || ""; break;
-							case "lastsubgifter_id": value = StoreProxy.auth.lastSubgifter[channelId]?.user.id || ""; break;
-							case "lastsubgifter_tier": value = StoreProxy.auth.lastSubgifter[channelId]?.tier.toString() || ""; break;
-							case "totalsubs": value = (StoreProxy.auth.totalSubscribers[channelId] || 0).toString(); break;
-							case "partnerpluspoints": value = (StoreProxy.auth.partnerPoints[channelId] || 0).toString(); break;
-							case "lastfollow_login": value = StoreProxy.auth.lastFollower[channelId]?.login || ""; break;
-							case "lastfollow_id": value = StoreProxy.auth.lastFollower[channelId]?.id || ""; break;
-							case "totalfollowers": value = (StoreProxy.auth.totalFollowers[channelId] || 0).toString(); break;
-							case "lastcheer_login": value = StoreProxy.auth.lastCheer[channelId]?.user.login || ""; break;
-							case "lastcheer_id": value = StoreProxy.auth.lastCheer[channelId]?.user.id || ""; break;
-							case "lastcheer_amount": value = (StoreProxy.auth.lastCheer[channelId]?.bits || 0).toString(); break;
+							case "lastsub_id": value = (StoreProxy.labels.getLabelByKey("LAST_SUB_ID") || "").toString(); break;
+							case "lastsub_login": value = (StoreProxy.labels.getLabelByKey("LAST_SUB_NAME") || "").toString(); break;
+							case "lastsub_tier": value = (StoreProxy.labels.getLabelByKey("LAST_SUB_TIER") || "").toString(); break;
+							case "lastsubgifter_id": value = (StoreProxy.labels.getLabelByKey("LAST_SUBGIFT_ID") || "").toString(); break;
+							case "lastsubgifter_login": value = (StoreProxy.labels.getLabelByKey("LAST_SUBGIFT_NAME") || "").toString(); break;
+							case "lastsubgifter_tier": value = (StoreProxy.labels.getLabelByKey("LAST_SUBGIFT_TIER") || "").toString(); break;
+							case "totalsubs": value = (StoreProxy.labels.getLabelByKey("SUB_COUNT") || "0").toString(); break;
+							case "lastfollow_id": value = (StoreProxy.labels.getLabelByKey("LAST_FOLLOWER_ID") || "").toString(); break;
+							case "lastfollow_login": value = (StoreProxy.labels.getLabelByKey("LAST_FOLLOWER_NAME") || "").toString(); break;
+							case "totalfollowers": value = (StoreProxy.labels.getLabelByKey("FOLLOWER_COUNT") || "0").toString(); break;
+							case "lastcheer_id": value = (StoreProxy.labels.getLabelByKey("LAST_CHEER_ID") || "").toString(); break;
+							case "lastcheer_login": value = (StoreProxy.labels.getLabelByKey("LAST_CHEER_NAME") || "").toString(); break;
+							case "lastcheer_amount": value = (StoreProxy.labels.getLabelByKey("LAST_CHEER_AMOUNT") || "0").toString(); break;
 						}
 					}
 				}else{

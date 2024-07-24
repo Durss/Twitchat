@@ -29,13 +29,6 @@ export const storeAuth = defineStore('auth', {
 		facebook:{},
 		instagram:{},
 		twitchModeratedChannels:[] as TwitchDataTypes.ModeratedUser[],
-		lastCheer: {},//channelId => infos
-		lastFollower: {},//channelId => infos
-		lastSubscriber: {},//channelId => infos
-		lastSubgifter: {},//channelId => infos
-		totalFollowers: {},//channelId => infos
-		totalSubscribers: {},//channelId => infos
-		partnerPoints: {},//channelId => infos
 		donorLevel:-1,
 		premiumType:"",
 		noAd:false,
@@ -276,11 +269,10 @@ export const storeAuth = defineStore('auth', {
 					//Refresh followers count and latest follower regularly
 					const loadFollowers = async ()=>{
 						const res = await TwitchUtils.getLastFollowers(uid);
-						this.totalFollowers[uid] = res.total;
 						if(res.followers.length > 0) {
 							const last = res.followers[0];
 							StoreProxy.users.getUserFrom("twitch", uid, last.user_id, last.user_login, last.user_name, (user)=>{
-								this.lastFollower[uid] = user;
+								StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_ID", user.id);
 								StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_NAME", user.displayNameOriginal);
 								StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_AVATAR", user.avatarPath || "", user.id);
 							});
@@ -295,8 +287,6 @@ export const storeAuth = defineStore('auth', {
 					//Refresh latest subscriber regularly
 					const loadSubscribers = async ()=>{
 						const res = await TwitchUtils.getSubsList(true);
-						this.partnerPoints[uid] = res.points;
-						this.totalSubscribers[uid] = res.subs;
 						StoreProxy.labels.updateLabelValue("SUB_COUNT", res.subs);
 					};
 					loadSubscribers();
