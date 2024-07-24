@@ -79,17 +79,12 @@ export default class DataStore extends DataStoreCommon{
 
 		try {
 			const res = await ApiHelper.call("user/data", "GET");
-			//Do not import remote data under ver specific data version combo as a
-			//hot fix for a massive mistake losing all users data
-			if(res.json.data["v"] < 53 && parseInt(this.get(DataStoreCommon.DATA_VERSION)) == 52) {
-				this.dataImported = true;
-				return true;
-			}
 			if(importToLS) {
 				// console.log("Import to local storage...");
 				//Import data to local storage.
 				if(res.json.success === true) {
 					await this.loadFromJSON(res.json.data);
+					DataStore.save(true);
 				}
 			}
 			return res.status != 404;
