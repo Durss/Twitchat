@@ -32,7 +32,7 @@ import { gsap } from 'gsap/gsap-core';
 		Button: TTButton,
 	}
 })
- class CommercialTimer extends Vue {
+class CommercialTimer extends Vue {
 
 	public showTimer:boolean = false;
 	public error:boolean = false;
@@ -64,7 +64,7 @@ import { gsap } from 'gsap/gsap-core';
 	}
 
 	public refreshTimer():void {
-		const maxSchedule		= 5 *60000;
+		const maxSchedule		= 10 * 60000;
 		const channelId			= this.$store.auth.twitch.user.id;
 		const infos				= this.$store.stream.getCommercialInfo(channelId);
 		this.snoozeLeft			= infos.remainingSnooze;
@@ -81,11 +81,11 @@ import { gsap } from 'gsap/gsap-core';
 			this.isAdRunning	= true;
 			startDate			= infos.nextAdStart_at + infos.currentAdDuration_ms;
 		}else
+		//Check if an ad is coming in less than "maxSchedule"" minutes
 		if(infos.nextAdStart_at > 0 && infos.nextAdStart_at - Date.now() < maxSchedule) {
 			this.isAdComing		= true;
 			startDate			= infos.nextAdStart_at;
 		}
-		//Check if an ad is coming in less than 5 minutes
 		this.timeLeft			= Math.max(0, Math.round((startDate - Date.now())/1000));
 		this.timeLeftFormated	= Utils.formatDuration(this.timeLeft * 1000);
 
