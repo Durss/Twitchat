@@ -187,10 +187,10 @@ class DevmodeMenu extends Vue {
 				case "returning":			(message as TwitchatDataTypes.MessageChatData).twitch_isReturning = true; break;
 				case "presentation":		(message as TwitchatDataTypes.MessageChatData).twitch_isPresentation = true; break;
 				case "recent":				(message as TwitchatDataTypes.MessageChatData).user.created_at_ms = Date.now() - 7 * 24 * 60 * 6000; break;
-				case "resub":				
-				case "sub":	{
-					(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = subAction == "resub";
+				case "sub":
+				case "resub":	{
 					(message as TwitchatDataTypes.MessageSubscriptionData).is_gift = false;
+					(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = subAction == "resub";
 					break;
 				}
 				case "skin1":				(message as TwitchatDataTypes.MessageChatData).twitch_animationId = "simmer"; break;

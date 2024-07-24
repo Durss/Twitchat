@@ -142,7 +142,7 @@ export const storeDebug = defineStore('debug', {
 					m.message_size = TwitchUtils.computeMessageSize(chunks);
 					if(Math.random() > .8) {
 						m.is_gift = true;
-						m.gift_count = Math.floor(Math.random() * 20);
+						m.gift_count = Math.floor(Math.random() * 20) + 1;
 						m.gift_recipients = fakeUsers.concat().splice(0, m.gift_count);
 						m.is_targetedSubgift = m.gift_count === 1,
 						fakeUser.channelInfo[user.id].totalSubgifts = m.gift_count;
