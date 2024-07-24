@@ -95,7 +95,7 @@ export default class BingoGridController extends AbstractController {
 		if(!gridCache || !gridCache.data.enabled) {
 			response.header('Content-Type', 'application/json');
 			response.status(404);
-			response.send(JSON.stringify({success:false, error:"Grid or user not found, or grid disabled, or owner not premium", errorCode:"NOT_FOUND"}));
+			response.send(JSON.stringify({success:false, error:"Grid or user not found, or grid disabled", errorCode:"NOT_FOUND"}));
 			return;
 		}
 

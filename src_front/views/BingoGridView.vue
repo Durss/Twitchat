@@ -47,7 +47,7 @@
 				:style="{aspectRatio: cols/rows,
 				gridTemplateColumns: 'repeat('+cols+', 1fr)'}">
 					<TransitionGroup name="flip-list">
-						<div v-for="entry in entries"
+						<button v-for="entry in entries"
 						:class="cellClasses(entry)"
 						ref="cell"
 						:key="entry.id"
@@ -56,7 +56,7 @@
 						@click="tickCell(entry)">
 							<span class="label">{{ entry.label }}</span>
 							<Icon class="check" name="checkmark" v-show="entry.check" :ref="'check_'+entry.id" />
-						</div>
+						</button>
 					</TransitionGroup>
 				</div>
 			</div>
@@ -724,6 +724,7 @@ export default toNative(BingoGridView);
 				position: relative;
 				aspect-ratio: 1;
 				cursor: pointer;
+				color:inherit;
 				border-radius: var(--border-radius);
 				background-color: var(--background-color-fadest);
 				min-width: 70px;
