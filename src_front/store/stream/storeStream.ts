@@ -879,7 +879,7 @@ export const storeStream = defineStore('stream', {
 		},
 
 		async connectToExtraChan(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
-			const colors = ["#e04e00","#e0ae00","#2eb200","#00d6d3","#0500d6","d600ab","#dc9e7d","#fddf78","#98fa76","#a5a3ff","#ff7de5"];
+			const colors = ["#e04e00","#2eb200","#0500d6","#d600ab","#00d6d3","#e0ae00"];
 			this.connectedTwitchChans.push({user, color:colors[this.connectedTwitchChans.length % colors.length]});
 			TwitchMessengerClient.instance.connectToChannel(user.login);
 			EventSub.instance.connectRemoteChan(user);

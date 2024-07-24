@@ -640,10 +640,15 @@ export default toNative(MessageItem);
 	justify-content: stretch;
 	width: 100%;
 	.border {
-		width: 5px;
+		position: absolute;
+		width: 50%;
+		height: 100%;
 		flex-shrink: 0;
 		flex-grow: 0;
-		background-color: currentColor;
+		opacity: .35;
+		background-image: linear-gradient(to right, currentColor 0%, transparent 100%) ;
+		// background-color: currentColor;
+		z-index: -1;
 	}
 	.avatar {
 		border-radius: 50%;
