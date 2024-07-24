@@ -175,7 +175,7 @@ function parsePlaceholders(src:string):string {
 }
 
 /**
- * Called when receiving an event from feither Obs-WS or BroadcastChannel
+ * Called when receiving an event from either Obs-WS or BroadcastChannel
  * @param message 
  */
 function onMessage(message:IEnvelope<unknown>):void {
