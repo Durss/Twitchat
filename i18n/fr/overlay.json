@@ -181,7 +181,9 @@
 				"predictions": "Prédictions",
 				"tips": "Dons",
 				"powerups": "Power-ups",
-				"merch": "Achat de merch"
+				"merch": "Achat de merch",
+				"ytSuperchat": "Afficher les Super chats",
+				"ytSuperSticker": "Afficher les Super stickers"
 			},
 			"labels": {
 				"text": "",
@@ -201,7 +203,9 @@
 				"predictions": "PRÉDICTIONS",
 				"tips": "DONS",
 				"powerups": "POWER-UPS",
-				"merch": "MERCH ACHETÉ"
+				"merch": "MERCH ACHETÉ",
+				"ytSuperchat": "SUPER CHATS",
+				"ytSuperSticker": "SUPER STICKERS"
 			},
 			"amounts": {
 				"cheers": "Afficher le nombre de bits",
@@ -221,7 +225,9 @@
 			"manual_install_instructions": "Pour un fonctionnement optimal, assurez-vous d'activer les options \"Désactiver la source quand elle n'est pas visible\" et \"Rafraîchir la source quand elle devient active\" sur la source navigateur OBS.",
 			"param_pu_skin": "Effets de message",
 			"param_pu_emote": "Emotes gigantisées",
-			"param_pu_celeb": "Célébrations"
+			"param_pu_celeb": "Célébrations",
+			"param_showSubsYoutube": "Afficher les subs Youtube",
+			"param_showSubgiftsYoutube": "Afficher les subgifts Youtube"
 		},
 		"heatDistort": {
 			"title": "Distorsion de source OBS",
