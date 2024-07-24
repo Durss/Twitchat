@@ -133,7 +133,7 @@ export default class SpotifyHelper {
 		DataStore.set(DataStore.SPOTIFY_APP_PARAMS, {
 			client:clientId,
 			secret:clientSecret,
-		});
+		}, false);
 	}
 
 	/**

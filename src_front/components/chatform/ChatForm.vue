@@ -708,8 +708,10 @@ export class ChatForm extends Vue {
 		if(values[key] === undefined) {
 			values[key] = -1;
 		}
-		if(values[key] < 2) values[key] ++;
-		DataStore.set(DataStore.TOOLTIP_AUTO_OPEN, values);
+		if(values[key] < 2) {
+			values[key] ++;
+			DataStore.set(DataStore.TOOLTIP_AUTO_OPEN, values);
+		}
 	}
 
 	/**
