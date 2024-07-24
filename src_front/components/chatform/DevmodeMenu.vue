@@ -40,7 +40,7 @@
 			<Button small @click="simulateEvent($event, 'cheer')" icon="bits">Bits</Button>
 			<Button small @click="simulateEvent($event, 'cheer', 'cheer_pin')" icon="bits">Pinned cheer</Button>
 			<Button small @click="simulateEvent($event, 'hype_chat')" icon="hypeChat">Hype chat</Button>
-			<Button small @click="simulateEvent($event, 'subscription')" icon="sub">Sub</Button>
+			<Button small @click="simulateEvent($event, 'subscription', 'sub')" icon="sub">Sub</Button>
 			<Button small @click="simulateEvent($event, 'subscription', 'resub')" icon="sub">ReSub</Button>
 			<Button small @click="simulateEvent($event, 'subscription', 'gift')" icon="gift">Subgifts</Button>
 			<Button small @click="simulateEvent($event, 'message', 'youtube')" icon="youtube">Youtube message</Button>
@@ -187,7 +187,12 @@ class DevmodeMenu extends Vue {
 				case "returning":			(message as TwitchatDataTypes.MessageChatData).twitch_isReturning = true; break;
 				case "presentation":		(message as TwitchatDataTypes.MessageChatData).twitch_isPresentation = true; break;
 				case "recent":				(message as TwitchatDataTypes.MessageChatData).user.created_at_ms = Date.now() - 7 * 24 * 60 * 6000; break;
-				case "resub":				(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = true; break;
+				case "resub":				
+				case "sub":	{
+					(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = subAction == "resub";
+					(message as TwitchatDataTypes.MessageSubscriptionData).is_gift = false;
+					break;
+				}
 				case "skin1":				(message as TwitchatDataTypes.MessageChatData).twitch_animationId = "simmer"; break;
 				case "skin2":				(message as TwitchatDataTypes.MessageChatData).twitch_animationId = "rainbow-eclipse"; break;
 				case "giantEmote":{
@@ -555,6 +560,7 @@ class DevmodeMenu extends Vue {
 type Subaction = "first"
 				| "returning"
 				| "presentation"
+				| "sub"
 				| "resub"
 				| "gift"
 				| "giftpaidupgrade"
