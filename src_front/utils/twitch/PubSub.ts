@@ -874,7 +874,6 @@ export default class PubSub extends EventDispatcher {
 	 * @param data
 	 */
 	private hypeTrainStart(data:PubSubDataTypes.HypeTrainStart, channelId:string):void {
-		console.log("START", data);
 		clearTimeout(this.hypeTrainApproachingTimer);
 		const storeTrain = StoreProxy.stream.hypeTrain;
 		const train:TwitchatDataTypes.HypeTrainStateData = {
@@ -885,7 +884,7 @@ export default class PubSub extends EventDispatcher {
 			approached_at:storeTrain?.approached_at ?? Date.now(),
 			started_at:Date.now(),
 			updated_at:Date.now(),
-			timeLeft_s:new Date(data.expiresAt).getTime(),
+			timeLeft_s:new Date(data.expiresAt).getTime() - new Date(data.startedAt).getTime(),
 			state: "START",
 			is_boost_train:data.is_boost_train === true,
 			is_golden_kappa:data.isGoldenKappaTrain ?? data.is_golden_kappa_train ?? false,
