@@ -10,8 +10,7 @@
 		<div>
 			<!-- Subgift -->
 			<div class="holder" v-if="messageData.is_gift">
-				<i18n-t scope="global" tag="span"
-				:keypath="label">
+				<i18n-t scope="global" tag="span" :keypath="messageData.is_targetedSubgift?'chat.subscription.sub_gift_months' : 'chat.subscription.sub_gift'">
 					<template #USER>
 						<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 					</template>
@@ -146,13 +145,6 @@ class ChatSubscription extends AbstractChatMessage {
 		let res = ["chatsubscription", "chatMessage", "highlight"];
 		if(this.messageData.deleted === true) res.push("deleted");
 		return res;
-	}
-
-	public get label():string {
-		if(this.messageData.is_targetedSubgift) {
-			return "chat.subscription.sub_gift_months";
-		}
-		return "chat.subscription.sub_gift_community";
 	}
 
 	public get totalSubgifts():number|undefined {
