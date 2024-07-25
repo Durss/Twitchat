@@ -399,28 +399,28 @@ export default class PubSub extends EventDispatcher {
 
 
 		}else if(data.type == "hype-train-approaching") {
-			this.hypetrainLogs = [data.data];
+			this.hypetrainLogs = [data];
 			this.hypeTrainApproaching(data.data as  PubSubDataTypes.HypeTrainApproaching);
 
 		}else if(data.type == "hype-train-start") {
 			if(this.hypetrainLogs.length > 2) this.hypetrainLogs = [];
-			this.hypetrainLogs.push(data.data);
+			this.hypetrainLogs.push(data);
 			this.hypeTrainStart(data.data as  PubSubDataTypes.HypeTrainStart, channelId);
 
 		}else if(data.type == "hype-train-progression") {
-			this.hypetrainLogs.push(data.data);
+			this.hypetrainLogs.push(data);
 			this.hypeTrainProgress(data.data as  PubSubDataTypes.HypeTrainProgress, channelId);
 
 		}else if(data.type == "hype-train-level-up") {
-			this.hypetrainLogs.push(data.data);
+			this.hypetrainLogs.push(data);
 			this.hypeTrainLevelUp(data.data as  PubSubDataTypes.HypeTrainLevelUp, channelId);
 
 		}else if(data.type == "hype-train-conductor-update") {
-			this.hypetrainLogs.push(data.data);
+			this.hypetrainLogs.push(data);
 			this.hypeTrainConductorUpdate(data.data as  PubSubDataTypes.HypeTrainConductorUpdate, channelId);
 
 		}else if(data.type == "hype-train-end") {
-			this.hypetrainLogs.push(data.data);
+			this.hypetrainLogs.push(data);
 			this.hypeTrainEnd(data.data as  PubSubDataTypes.HypeTrainEnd, channelId);
 			ApiHelper.call("log", "POST", {cat:"hypetrain", log:JSON.stringify(this.hypetrainLogs)});
 
