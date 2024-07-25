@@ -193,9 +193,9 @@ export default class PubSub extends EventDispatcher {
 			const event = PubsubJSON.RealHypeTrainData[i] as {data:{message:string}};
 			Utils.promisedTimeout((date.getTime() - dateOffset)*timeScale).then(()=> {
 				const json = JSON.parse(event.data.message);
-				if(goldenKappa && json.type === "hype-train-start") {
-					(json.data as PubSubDataTypes.HypeTrainStart).isGoldenKappaTrain = true;
-				}
+				// if(goldenKappa && json.type === "hype-train-start") {
+				// 	(json.data as PubSubDataTypes.HypeTrainStart).isGoldenKappaTrain = true;
+				// }
 				this.parseEvent( json );
 			})
 		}
@@ -1053,21 +1053,20 @@ export default class PubSub extends EventDispatcher {
 	 * @param data
 	 */
 	private hypeTrainStart(data:PubSubDataTypes.HypeTrainStart, channel_id:string):void {
-		console.log("START", data);
 		clearTimeout(this.hypeTrainApproachingTimer);
 		const storeTrain = StoreProxy.stream.hypeTrain;
 		const train:TwitchatDataTypes.HypeTrainStateData = {
 			channel_id,
 			level:data.progress.level.value,
-			currentValue:data.progress.progression,
+			currentValue:data.progress.value,
 			goal:data.progress.goal,
 			approached_at:storeTrain?.approached_at ?? Date.now(),
-			started_at:Date.now(),
-			updated_at:Date.now(),
-			timeLeft_s:new Date(data.expiresAt).getTime() - Date.now(),
+			started_at:data.started_at,
+			updated_at:data.updated_at,
+			timeLeft_s:(new Date(data.expires_at).getTime() - new Date(data.started_at).getTime()) / 1000,
 			state: "START",
 			is_boost_train:data.is_boost_train === true,
-			is_golden_kappa:data.isGoldenKappaTrain === true || data.is_golden_kappa_train === true,
+			is_golden_kappa:data.is_golden_kappa_train === true,
 			is_new_record:false,
 			conductor_bits:storeTrain?.conductor_bits,
 			conductor_subs:storeTrain?.conductor_subs,
