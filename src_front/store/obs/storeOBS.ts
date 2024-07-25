@@ -95,7 +95,7 @@ export const storeOBS = defineStore('obs', {
 				filteredSources.forEach(v=> {
 					OBSWebsocket.instance.getSourceSettings<{is_local_file:boolean, url:string, local_file:string}>(v.source.inputName)
 					.then(res => {
-						if(v.url.indexOf(document.location.origin)){
+						if(v.url.indexOf(document.location.origin) > -1){
 							let url = new URL(res.inputSettings.url as string);
 							const portUrl = url.searchParams.get("obs_port");
 							const ipUrl = url.searchParams.get("obs_ip");

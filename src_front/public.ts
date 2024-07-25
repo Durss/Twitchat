@@ -85,7 +85,7 @@ function buildApp() {
 	/**
 	 * Include an image from the asset folder
 	 */
-	const image = (path:string):string => {
+	const asset = (path:string):string => {
 		return new URL(`/src_front/assets/${path}`, import.meta.url).href;
 	}
 
@@ -97,14 +97,14 @@ function buildApp() {
 		directive: "tooltip",
 		component: "tooltip",
 	})
-	.provide("$image", image)
+	.provide("$asset", asset)
 	.provide("$store", StoreProxy.default);
 
 	StoreProxy.default.i18n = i18n.global;
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.default.public = storePublic();
 	StoreProxy.default.common = storeCommon();
-	app.config.globalProperties.$image = image;
+	app.config.globalProperties.$asset = asset;
 	app.config.globalProperties.$store = StoreProxy.default;
 	app.config.globalProperties.$config = Config.instance;
 

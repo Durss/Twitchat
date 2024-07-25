@@ -17,17 +17,17 @@ const pinia = createPinia();
 /**
  * Include an image from the asset folder
  */
-const image = (path:string):string => {
+const asset = (path:string):string => {
 	return new URL(`/src_front/assets/${path}`, import.meta.url).href;
 }
 
 const app = createApp(AppOverlay);
 app.use(pinia)
 .use(router)
-.provide("$image", image);
+.provide("$asset", asset);
 
 StoreProxy.default.common = storeCommon();
-app.config.globalProperties.$image = image;
+app.config.globalProperties.$asset = asset;
 app.config.globalProperties.$store = StoreProxy.default;
 
 StoreProxy.default.common.initialize(false).then(()=>{
