@@ -334,7 +334,13 @@ export default class VoicemodWebSocket extends EventDispatcher {
 			}
 
 			case VoicemodWebSocket.ACTION_GET_SOUNDBOARDS:{
-				this._soundsboards = json.payload.soundboards as VoicemodTypes.Soundboard[];
+				console.log(json)
+				if(json.payload) {
+					this._soundsboards = json.payload.soundboards as VoicemodTypes.Soundboard[];
+				}
+				if(json.actionObject && json.actionObject.soundboards) {
+					this._soundsboards = json.actionObject.soundboards;
+				}
 				this.checkInitComplete();
 				break;
 			}

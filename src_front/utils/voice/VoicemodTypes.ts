@@ -24,6 +24,7 @@ export namespace VoicemodTypes {
 		customVoices?: Voice[];
 		currentVoice?: string;
 		result?: Result;
+		soundboards?: Soundboard[];
 		voiceID?: string | "nofx";
 	}
 
