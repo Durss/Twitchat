@@ -92,7 +92,7 @@ import { useTippy } from 'vue-tippy';
 import Icon from '../Icon.vue';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TTButton from '../TTButton.vue';
-import YoutubeEmotes from '../../../static/youtube/emote_list.json';
+import { reactive } from 'vue';
 
 @Component({
 	components:{
@@ -106,6 +106,7 @@ class EmoteSelector extends Vue {
 	public users:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[] = [];
 	public filter = "";
 	public buildOffset = 0;
+	public youtubeEmotes:TwitchatDataTypes.Emote[] = [];
 
 	private buildTimeout = -1;
 	private tooltipCreated:{[key:string]:boolean} = {};
@@ -152,26 +153,28 @@ class EmoteSelector extends Vue {
 		return res;
 	}
 
-	public get youtubeEmotes():TwitchatDataTypes.Emote[] {
-		const res:TwitchatDataTypes.Emote[] = [];
-		for (const key in YoutubeEmotes) {
-			const name = YoutubeEmotes[key as keyof typeof YoutubeEmotes];
-			res.push({
-				code:key,
-				id:key,
-				images:{
-					url_1x:"/youtube/emotes/sd/"+name,
-					url_2x:"/youtube/emotes/sd/"+name,
-					url_4x:"/youtube/emotes/hd/"+name,
-				},
-				is_public:true,
-				platform:"youtube",
-			})
-		}
-		return res;
-	}
-
 	public async mounted():Promise<void> {
+		fetch(this.$asset("youtube/emote_list.json")).then(async query=> {
+			const youtubeEmotes:{[code:string]:string} = await query.json();
+			const res:TwitchatDataTypes.Emote[] = [];
+			for (const key in youtubeEmotes) {
+				const name = youtubeEmotes[key];
+				res.push({
+					code:key,
+					id:key,
+					images:{
+						url_1x:"/youtube/emotes/sd/"+name,
+						url_2x:"/youtube/emotes/sd/"+name,
+						url_4x:"/youtube/emotes/hd/"+name,
+					},
+					is_public:true,
+					platform:"youtube",
+				})
+			}
+			
+			this.youtubeEmotes = reactive(res);
+		})
+
 		if(Object.keys(this.$store.chat.emoteSelectorCache).length > 0) {
 			this.users = this.$store.chat.emoteSelectorCache;
 		}else{
