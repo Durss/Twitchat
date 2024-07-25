@@ -337,121 +337,119 @@ export namespace PubSubDataTypes {
 	}
 
 	export interface HypeTrainStart {
-		__typename: string;
+		channel_id: string;
 		id: string;
-		startedAt: string;
-		expiresAt: string;
-		updatedAt: string;
-		endedAt?: any;
-		endReason: string;
-		is_boost_train?: boolean;
-		isGoldenKappaTrain: boolean;
-		/**
-		 * Probably doesn't exist, but i've had report a golden kappa train
-		 * didn't show ias such.
-		 * I suspect they renamed the flag properly so here is a blind shot
-		 */
-		is_golden_kappa_train?: boolean; 
-		progress: {
-			__typename: string;
-			id: string;
-			goal: number;
-			progression: number;
-			total: number;
-			level: {
-				__typename: string;
-				id: string;
-				value: number;
-				goal: number;
-				rewards: {
-					__typename: string;
-					id: string;
-					type: string;
-					emote: {
-						__typename: string;
-						id: string;
-						token: string;
-					};
-				}[];
-			};
-			allTimeHighState: string;
-		};
-		conductors: any[];
+		started_at: number;
+		expires_at: number;
+		updated_at: number;
+		ended_at?: any;
+		ending_reason?: any;
 		config: {
-			__typename: string;
-			id: string;
-			willUseCreatorColor: boolean;
-			primaryHexColor: string;
-			conductorRewards: {
-				__typename: string;
-				source: string;
-				type: string;
-				rewards: {
-					__typename: string;
-					id: string;
-					type: string;
-					badge: {
-						__typename: string;
-						id: string;
-						setID: string;
-						imageURL: string;
-					};
-				}[];
-			}[];
-			participationConversionRates: {
-				__typename: string;
-				action: string;
-				source: string;
-				value: number;
-			}[];
-			calloutEmote: {
-				__typename: string;
-				id: string;
-				token: string;
+			channel_id: string;
+			is_enabled: boolean;
+			is_whitelisted: boolean;
+			kickoff: {
+				num_of_events: number;
+				min_points: number;
+				duration: number;
 			};
+			cooldown_duration: number;
+			level_duration: number;
 			difficulty: string;
-			difficultySettings: {
-				__typename: string;
-				difficulty: string;
-				maxLevel: number;
-			}[];
-			potentialRewards: {
-				__typename: string;
-				id: string;
-				level: number;
-				value: {
-					__typename: string;
-					id: string;
-					type: string;
-					emote: {
-						__typename: string;
-						id: string;
-						token: string;
-					};
+			reward_end_date?: any;
+			participation_conversion_rates: {
+				'BITS.CHEER': number;
+				'BITS.EXTENSION': number;
+				'BITS.POLL': number;
+				'RAID.RAID': number;
+				'SUBS.TIER_1_GIFTED_SUB': number;
+				'SUBS.TIER_1_SUB': number;
+				'SUBS.TIER_2_GIFTED_SUB': number;
+				'SUBS.TIER_2_SUB': number;
+				'SUBS.TIER_3_GIFTED_SUB': number;
+				'SUBS.TIER_3_SUB': number;
+			};
+			currency_conversion_rates: {[key:string]:number};
+			notification_thresholds:  {
+				'BITS.CHEER': number;
+				'BITS.EXTENSION': number;
+				'BITS.POLL': number;
+				'SUBS.TIER_1_GIFTED_SUB': number;
+				'SUBS.TIER_1_SUB': number;
+				'SUBS.TIER_2_GIFTED_SUB': number;
+				'SUBS.TIER_2_SUB': number;
+				'SUBS.TIER_3_GIFTED_SUB': number;
+				'SUBS.TIER_3_SUB': number;
+			};
+			difficulty_settings: {[key:string]:{value: number;goal: number;rewards: {type: string;id: string;group_id: string;reward_level: number;set_id: string;token: string;reward_end_date: string;}[];}};
+			conductor_rewards: {
+				BITS: {
+					CURRENT: {type: string;id: string;group_id: string;reward_level: number;badge_id: string;image_url: string;reward_end_date: string;}[];
+					FORMER: {type: string;id: string;group_id: string;reward_level: number;badge_id: string;image_url: string;reward_end_date: string;}[];
 				};
-			}[];
-		};
-		allTimeHigh: {
-			__typename: string;
-			goal: number;
-			progression: number;
-			total: number;
-			level: {
-				__typename: string;
-				id: string;
-				value: number;
+				EXPLICIT_PURCHASE: {
+					CURRENT: {type: string;id: string;group_id: string;reward_level: number;badge_id: string;image_url: string;reward_end_date: string;}[];
+					FORMER: {type: string;id: string;group_id: string;reward_level: number;badge_id: string;image_url: string;reward_end_date: string;}[];
+				};
+				SUBS: {
+					CURRENT: {type: string;id: string;group_id: string;reward_level: number;badge_id: string;image_url: string;reward_end_date: string;}[];
+					FORMER: {type: string;id: string;group_id: string;reward_level: number;badge_id: string;image_url: string;reward_end_date: string;}[];
+				};
+			};
+			callout_emote_id: string;
+			callout_emote_token: string;
+			use_creator_color: boolean;
+			primary_hex_color: string;
+			use_personalized_settings: boolean;
+			has_conductor_badges: boolean;
+			boost_train_config: {
+				twitch_impressions: {
+					EASY: number;
+					HARD: number;
+					INSANE: number;
+					MEDIUM: number;
+					'SUPER HARD': number;
+				};
 			};
 		};
-		isFastMode: boolean;
-		participations: {
-			__typename: string;
-			source: string;
-			action: string;
-			quantity: number;
-		}[];
+		participations: {[key:string]:number};
+		conductors: {};
+		progress: {
+			level: {value: number;goal: number;rewards: {type: string;id: string;group_id: string;reward_level: number;set_id: string;token: string;reward_end_date: string;}[];};
+			value: number;
+			goal: number;
+			total: number;
+			remaining_seconds: number;
+			all_time_high_state: string;
+		};
+		is_boost_train: boolean;
+		is_golden_kappa_train: boolean;
+		all_time_high_progress: {
+			level: {value:number; goal:number; rewards:{
+				type: string;
+				id: string;
+				group_id: string;
+				reward_level: number;
+				set_id: string;
+				token: string;
+				reward_end_date: string;
+			}[]};
+			value: number;
+			goal: number;
+			total: number;
+			remaining_seconds: number;
+			all_time_high_state: string;
+		};
 	}
 
 	export interface HypeTrainProgress {
+		id: string;
+		user_profile_image_url: string;
+		action: string;
+		initiator_currency?: any;
+		is_fast_mode: boolean;
+		expires_at: string;
+
 		user_id: string;
 		user_login: string;
 		user_display_name: string;
@@ -460,10 +458,6 @@ export namespace PubSubDataTypes {
 		 * Same value as progress.total
 		 */
 		sequence_id: number;
-		/**
-		 * Action that triggered this event
-		 */
-		action: HypeTrainActionContribution;
 		source: "SUBS" | "BITS" | "EXPLICIT_PURCHASE";
 		/**
 		 * Number of subgifts or bits that triggered this event
@@ -551,12 +545,21 @@ export namespace PubSubDataTypes {
 				reward_level: number;
 				set_id: string;
 				token: string;
+				/**
+				 * @deprecated
+				 * don't use it, always contains "0001-01-01T00:00:00Z"
+				 */
+				reward_end_date: string;
 			}[]
 		};
 		value: number;
 		goal: number;
 		total: number;
 		remaining_seconds: number;
+		all_time_high_state: string;
+		/**
+		 * not sure it still exists
+		 */
 		is_boost_train: boolean;
 	}
 
