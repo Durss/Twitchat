@@ -1,5 +1,5 @@
 import DataStore from '@/store/DataStore'
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import type VoiceAction from '@/utils/voice/VoiceAction'
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { UnwrapRef } from 'vue'
@@ -7,6 +7,9 @@ import type { IVoiceActions, IVoiceGetters, IVoiceState } from '../StoreProxy'
 import VoiceController from '@/utils/voice/VoiceController'
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket'
 import Utils from '@/utils/Utils'
+import VoicemodEvent from '@/utils/voice/VoicemodEvent'
+import StoreProxy from '../StoreProxy'
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler'
 
 export const storeVoice = defineStore('voice', {
 	state: () => ({
@@ -18,15 +21,7 @@ export const storeVoice = defineStore('voice', {
 			finalText:"",
 		},
 
-		voicemodCurrentVoice:{
-			id:"nofx",
-			friendlyName: "clean",
-			bitmapChecksum:"",
-			enabled:true,
-			favorited:false,
-			isCustom:false,
-			isNew:false,
-		},
+		voicemodCurrentVoice:null,
 
 		voicemodParams: {
 			enabled:false,
@@ -78,6 +73,23 @@ export const storeVoice = defineStore('voice', {
 					VoicemodWebSocket.instance.connect().then(()=>{}).catch(()=> {});
 				}
 			}
+
+			/**
+			 * Init voicemod voice change event handler
+			 */
+			VoicemodWebSocket.instance.addEventListener(VoicemodEvent.VOICE_CHANGE, async (e:VoicemodEvent)=> {
+				//Execute trigger
+				const trigger:TwitchatDataTypes.MessageVoicemodData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.VOICEMOD,
+					platform:"twitchat",
+					voiceID:e.voiceID,
+					voiceName:e.voiceName,
+					channel_id:StoreProxy.auth.twitch.user.id,
+				}
+				TriggerActionHandler.instance.execute(trigger);
+			});
 		},
 		setVoiceLang(value:string) {
 			this.voiceLang = value

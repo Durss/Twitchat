@@ -1245,6 +1245,7 @@ export const TriggerTypes = {
 	YOUTUBE_SUPER_STICKER:"128",
 	YOUTUBE_SUBSCRIPTION:"129",
 	YOUTUBE_SUBGIFT:"130",
+	VOICEMOD_SOUND_EFFECT:"131",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1595,6 +1596,12 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 
 	map[TriggerTypes.VOICEMOD] = [
 		{tag:"VOICE_ID", descKey:'triggers.placeholders.voicemod_voice', pointer:"voiceID", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageVoicemodData>,
+		{tag:"VOICE_NAME", descKey:'triggers.placeholders.voicemod_voice_name', pointer:"voiceName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageVoicemodData>,
+	];
+
+	map[TriggerTypes.VOICEMOD_SOUND_EFFECT] = [
+		{tag:"SOUND_ID", descKey:'triggers.placeholders.voicemod_sound', pointer:"soundID", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageVoicemodData>,
+		{tag:"SOUND_NAME", descKey:'triggers.placeholders.voicemod_sound_name', pointer:"soundName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageVoicemodData>,
 	];
 
 	map[TriggerTypes.TIMEOUT] = [
@@ -2203,6 +2210,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.OBS, icon:"graphicFiltersOff", labelKey:"triggers.events.OBS_FILTER_OFF.label", value:TriggerTypes.OBS_FILTER_OFF, descriptionKey:"triggers.events.OBS_FILTER_OFF.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_FILTER_TOGGLE},
 		
 		{category:TriggerEventTypeCategories.MISC, icon:"voicemod", labelKey:"triggers.events.VOICEMOD.label", value:TriggerTypes.VOICEMOD, descriptionKey:"triggers.events.VOICEMOD.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.VOICEMOD},
+		// {category:TriggerEventTypeCategories.MISC, icon:"voicemod", labelKey:"triggers.events.VOICEMOD_SOUND_EFFECT.label", value:TriggerTypes.VOICEMOD_SOUND_EFFECT, descriptionKey:"triggers.events.VOICEMOD_SOUND_EFFECT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.VOICEMOD},
 		{category:TriggerEventTypeCategories.MISC, icon:"online", labelKey:"triggers.events.STREAM_ONLINE.label", value:TriggerTypes.STREAM_ONLINE, descriptionKey:"triggers.events.STREAM_ONLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE},
 		{category:TriggerEventTypeCategories.MISC, icon:"offline", labelKey:"triggers.events.STREAM_OFFLINE.label", value:TriggerTypes.STREAM_OFFLINE, descriptionKey:"triggers.events.STREAM_OFFLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE},
 		{category:TriggerEventTypeCategories.MISC, icon:"online", labelKey:"triggers.events.FOLLOWED_STREAM_ONLINE.label", value:TriggerTypes.FOLLOWED_STREAM_ONLINE, descriptionKey:"triggers.events.FOLLOWED_STREAM_ONLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE, disabledReasonLabelKey:"triggers.events.FOLLOWED_STREAM_ONLINE.disabled_reason"},

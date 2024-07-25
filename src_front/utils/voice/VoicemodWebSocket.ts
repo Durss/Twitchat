@@ -167,7 +167,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 		if(!voice) {
 			console.log("🎤Voicemod: voice effect "+(id? id : name)+" not found");
 		}else{
-			this._currentVoiceEffect = voice;
+			this._currentVoiceEffect = (voice.id != "nofx" && voice.friendlyName.toLowerCase() != "clean mic")? voice : null;
 			this.send(VoicemodWebSocket.ACTION_SELECT_VOICE, {voiceID:voice.id});
 		}
 
@@ -337,7 +337,6 @@ export default class VoicemodWebSocket extends EventDispatcher {
 			}
 
 			case VoicemodWebSocket.ACTION_GET_SOUNDBOARDS:{
-				console.log(json)
 				if(json.payload) {
 					this._soundsboards = json.payload.soundboards as VoicemodTypes.Soundboard[];
 				}
@@ -407,12 +406,12 @@ export default class VoicemodWebSocket extends EventDispatcher {
 
 	private async onVoiceChange(voice:VoicemodTypes.Voice):Promise<void> {
 		await this.populateImageProp(voice);
-		this._currentVoiceEffect = voice;
-		StoreProxy.voice.voicemodCurrentVoice = voice;
+		this._currentVoiceEffect = (voice.id != "nofx" && voice.friendlyName.toLowerCase() != "clean mic")? voice : null;
+		StoreProxy.voice.voicemodCurrentVoice = this._currentVoiceEffect;
 		StoreProxy.labels.updateLabelValue("VOICEMOD_EFFECT_TITLE", voice.friendlyName);
 		StoreProxy.labels.updateLabelValue("VOICEMOD_EFFECT_ICON",  "data:image/png;base64,"+voice.image || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==");
 		PublicAPI.instance.broadcast(TwitchatEvent.VOICEMOD_CHANGE, {voice:voice.id});
-		this.dispatchEvent(new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, voice.id));
+		this.dispatchEvent(new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, voice.id, voice.friendlyName));
 	}
 
 }

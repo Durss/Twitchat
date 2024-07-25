@@ -316,7 +316,7 @@
 			<transition name="slide">
 				<TTButton class="voicemodBt" :aria-label="$t('chat.form.resetVoiceBt_aria')"
 				secondary
-				v-if="$store.voice.voicemodParams.voiceIndicator && $store.voice.voicemodCurrentVoice.id != 'nofx'"
+				v-if="$store.voice.voicemodParams.voiceIndicator && $store.voice.voicemodCurrentVoice"
 				v-tooltip="{content:$t('chat.form.resetVoiceBt_aria'), placement:'left'}"
 				@click="resetVoiceEffect()">
 				<template #icon>

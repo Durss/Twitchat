@@ -606,6 +606,16 @@ import TriggerList from './triggers/TriggerList.vue';
 						(m as TwitchatDataTypes.MessageChatData).message_chunks.push({type:"emote", value:"VoHiYo", emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/81274/default/light/3.0", emote:"https://static-cdn.jtvnw.net/emoticons/v2/81274/default/light/1.0"});
 						(m as TwitchatDataTypes.MessageChatData).message += "VoHiYo";
 						(m as TwitchatDataTypes.MessageChatData).twitch_gigantifiedEmote = "VoHiYo";
+					} else
+					
+					if(triggerEvent.value == TriggerTypes.VOICEMOD) {
+						delete (m as TwitchatDataTypes.MessageVoicemodData).soundID;
+						delete (m as TwitchatDataTypes.MessageVoicemodData).soundName;
+					} else
+					
+					if(triggerEvent.value == TriggerTypes.VOICEMOD_SOUND_EFFECT) {
+						delete (m as TwitchatDataTypes.MessageVoicemodData).voiceID;
+						delete (m as TwitchatDataTypes.MessageVoicemodData).voiceName;
 					}
 
 					TriggerActionHandler.instance.execute(m, true, trigger.id);

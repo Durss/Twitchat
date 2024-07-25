@@ -11,7 +11,7 @@ import type { JsonObject } from "type-fest";
 import TwitchatEvent from "../../events/TwitchatEvent";
 import * as TriggerActionDataTypes from "../../types/TriggerActionDataTypes";
 import { TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerMusicTypes, TriggerTypes, TriggerTypesDefinitionList, type ITriggerPlaceholder, type TriggerData, type TriggerTypesKey, type TriggerTypesValue } from "../../types/TriggerActionDataTypes";
-import type { SearchPlaylistItem, SearchTrackItem,  } from "../../types/spotify/SpotifyDataTypes";
+import type { SearchTrackItem } from "../../types/spotify/SpotifyDataTypes";
 import ApiHelper from "../ApiHelper";
 import Config from "../Config";
 import type { LogTrigger, LogTriggerStep } from "../Logger";

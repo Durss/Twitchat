@@ -3599,6 +3599,18 @@ export namespace TwitchatDataTypes {
 		 * Voice ID that got enabled
 		 */
 		voiceID?:string;
+		/**
+		 * Voice name that got enabled
+		 */
+		voiceName?:string;
+		/**
+		 * Sound ID that got enabled
+		 */
+		soundID?:string;
+		/**
+		 * Sound name that got enabled
+		 */
+		soundName?:string;
 	}
 
 	/**

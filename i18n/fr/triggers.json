@@ -650,6 +650,7 @@
 			"train_end_level": "Niveau atteint",
 			"train_end_percent": "Pourcentage atteint (0 -> 100)",
 			"voicemod_voice": "ID de la voix",
+			"voicemod_voice_name": "Nom de la voix",
 			"timeout": "Duration du ban en secondes",
 			"start_date": "Date de début formatée",
 			"timer_duration": "Durée finale du Chronomètre formatée",
@@ -1034,6 +1035,10 @@
 			"VOICEMOD": {
 				"label": "Voicemod - changement de voix",
 				"description": "Actions à exécuter lorsqu'un nouveau filtre de voix est appliqué"
+			},
+			"VOICEMOD_SOUND": {
+				"label": "Voicemod - lecture d'un son",
+				"description": "Actions à exécuter lorsqu'un son de la soundboard est joué"
 			},
 			"OBS_SCENE": {
 				"label": "Changement de scène",

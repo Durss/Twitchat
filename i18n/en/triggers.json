@@ -650,6 +650,7 @@
 			"train_end_level": "Level reached",
 			"train_end_percent": "Percent reached",
 			"voicemod_voice": "Voice's ID",
+			"voicemod_voice_name": "Voice's name",
 			"timeout": "Timeout duration in seconds",
 			"start_date": "Formated start date",
 			"timer_duration": "Formated timer's final duration",
@@ -1034,6 +1035,10 @@
 			"VOICEMOD": {
 				"label": "Voicemod - voice changed",
 				"description": "Actions to execute when changing the voice effect on voicemod"
+			},
+			"VOICEMOD_SOUND": {
+				"label": "Voicemod - sound effect",
+				"description": "Actions to execute when playing a sound from the soundboard"
 			},
 			"OBS_SCENE": {
 				"label": "Switch to scene",

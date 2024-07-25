@@ -1122,12 +1122,17 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.VOICEMOD: {
+					const voice = Utils.pickRand([{name:"Clean mic", id:"fake-id-01"}, {name:"Robot", id:"fake-id-02"}, {name:"Megaphone", id:"fake-id-03"}]);
+					const sound = Utils.pickRand([{name:"Fart", id:"fake-id-01"}, {name:"Honk", id:"fake-id-02"}, {name:"Scream", id:"fake-id-03"}]);
 					const m:TwitchatDataTypes.MessageVoicemodData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
 						platform:"twitch",
 						type,
-						voiceID:Utils.pickRand(["nofx", "robot", "baby"]),
+						voiceID:voice.id,
+						voiceName:voice.name,
+						soundID:sound.id,
+						soundName:sound.name,
 						channel_id:uid,
 					};
 					data = m;

@@ -1,5 +1,6 @@
 import GoXLRSocketEvent from '@/events/GoXLRSocketEvent';
 import HeatEvent from '@/events/HeatEvent';
+import SSEEvent from '@/events/SSEEvent';
 import TwitchatEvent, { type TwitchatEventType } from '@/events/TwitchatEvent';
 import router from '@/router';
 import { TriggerTypes, rebuildPlaceholdersCache, type SocketParams, type TriggerActionChatData, type TriggerData } from '@/types/TriggerActionDataTypes';
@@ -22,8 +23,6 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import HeatSocket from '@/utils/twitch/HeatSocket';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import VoicemodEvent from '@/utils/voice/VoicemodEvent';
-import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonObject } from 'type-fest';
@@ -31,7 +30,6 @@ import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
 import Database from './Database';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
-import SSEEvent from '@/events/SSEEvent';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
@@ -339,22 +337,6 @@ export const storeMain = defineStore("main", {
 				this.cypherKey = cypherKey;
 				ChatCypherPlugin.instance.initialize(cypherKey);
 			}
-
-			/**
-			 * Init voicemod voice change event handler
-			 */
-			VoicemodWebSocket.instance.addEventListener(VoicemodEvent.VOICE_CHANGE, async (e:VoicemodEvent)=> {
-				//Execute trigger
-				const trigger:TwitchatDataTypes.MessageVoicemodData = {
-					id:Utils.getUUID(),
-					date:Date.now(),
-					type:TwitchatDataTypes.TwitchatMessageType.VOICEMOD,
-					platform:"twitchat",
-					voiceID:e.voiceID,
-					channel_id:StoreProxy.auth.twitch.user.id,
-				}
-				TriggerActionHandler.instance.execute(trigger);
-			});
 
 			/**
 			 * Called when doing a shoutout to the latest raider

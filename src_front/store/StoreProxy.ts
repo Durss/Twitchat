@@ -1916,7 +1916,7 @@ export interface IVoiceState {
 	/**
 	 * Current voicemod voice effect
 	 */
-	voicemodCurrentVoice:VoicemodTypes.Voice,
+	voicemodCurrentVoice:VoicemodTypes.Voice|null,
 	/**
 	 * Voicemod chat command params
 	 */
