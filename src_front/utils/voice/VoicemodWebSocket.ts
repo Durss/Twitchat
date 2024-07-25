@@ -26,7 +26,9 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	private static EVENT_TOGGLE_VOICE_CHANGER: string = "toggleVoiceChanger";
 	private static EVENT_VOICE_CHANGED_EVENT: string = "voiceLoadedEvent";
 	private static EVENT_VOICE_CHANGED_EVENT_V3: string = "voiceChangedEvent";
-
+	
+	private static NO_FILTER_ID: string = "nofx";
+	private static NO_FILTER_ID_V3: string = "df6454f1-8eb2-4092-9ccc-fb51219f6291";
 
 	private static _instance:VoicemodWebSocket;
 
@@ -149,7 +151,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * @param name		the name of the voice effect to activate
 	 * @param id		(optional) The ID of the voice effect to activate
 	 */
-	public async enableVoiceEffect(name?:string, id?:string, autoRemoveDelay:number = -1):Promise<void> {
+	public async enableVoiceEffect(name?:string, id?:string|"DISABLE_EFFECT", autoRemoveDelay:number = -1):Promise<void> {
 		if(!this._voicesList || !this._voicesList.length) {
 			// console.log("🎤 VoicemodWebSocket not connected");
 			return;
@@ -161,13 +163,17 @@ export default class VoicemodWebSocket extends EventDispatcher {
 			voice = VoicemodWebSocket.instance.voices.find(v=> v.friendlyName.toLowerCase().replace(/[^\w\s]/g, '').trim() === name);
 		}
 		if(!name && id) {
-			voice = this._voicesList.find(v=>v.id == id);
+			if(id == "DISABLE_EFFECT") {
+				voice = this._voicesList.find(v=>v.id == VoicemodWebSocket.NO_FILTER_ID || v.id == VoicemodWebSocket.NO_FILTER_ID_V3);
+			}else{
+				voice = this._voicesList.find(v=>v.id == id);
+			}
 		}
 
 		if(!voice) {
 			console.log("🎤Voicemod: voice effect "+(id? id : name)+" not found");
 		}else{
-			this._currentVoiceEffect = (voice.id != "nofx" && voice.friendlyName.toLowerCase() != "clean mic")? voice : null;
+			this._currentVoiceEffect = (voice.id != VoicemodWebSocket.NO_FILTER_ID && voice.friendlyName.toLowerCase() != VoicemodWebSocket.NO_FILTER_ID_V3)? voice : null;
 			this.send(VoicemodWebSocket.ACTION_SELECT_VOICE, {voiceID:voice.id});
 		}
 
@@ -175,7 +181,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 
 		if(autoRemoveDelay > -1) {
 			this._resetVoiceTimeout = setTimeout(async ()=> {
-				this.enableVoiceEffect("clean mic", "nofx");
+				this.enableVoiceEffect(undefined, "DISABLE_EFFECT");
 			}, autoRemoveDelay);
 		}
 	}
@@ -184,7 +190,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * Disables the current voice effect
 	 */
 	public disableVoiceEffect():void {
-		this.enableVoiceEffect("clean mic", "nofx");
+		this.enableVoiceEffect(undefined, "DISABLE_EFFECT");
 		this._currentVoiceEffect = null;
 	}
 
@@ -406,7 +412,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 
 	private async onVoiceChange(voice:VoicemodTypes.Voice):Promise<void> {
 		await this.populateImageProp(voice);
-		this._currentVoiceEffect = (voice.id != "nofx" && voice.friendlyName.toLowerCase() != "clean mic")? voice : null;
+		this._currentVoiceEffect = (voice.id != VoicemodWebSocket.NO_FILTER_ID && voice.id != VoicemodWebSocket.NO_FILTER_ID_V3)? voice : null;
 		StoreProxy.voice.voicemodCurrentVoice = this._currentVoiceEffect;
 		StoreProxy.labels.updateLabelValue("VOICEMOD_EFFECT_TITLE", voice.friendlyName);
 		StoreProxy.labels.updateLabelValue("VOICEMOD_EFFECT_ICON",  "data:image/png;base64,"+voice.image || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==");
