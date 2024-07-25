@@ -80,12 +80,12 @@
 
 				<div class="content" v-if="s.image || s.video">
 					<div class="screen">
-						<video v-if="s.video" loading="lazy" :src="$image('img/homepage/'+s.video)" alt="emergency"
+						<video v-if="s.video" loading="lazy" :src="$asset('img/homepage/'+s.video)" alt="emergency"
 						autoplay loop
 						@click="toggleVideo($event as PointerEvent)"
 						@pause="onVideoStop($event)"
 						@play="onVideoStart($event)"></video>
-						<img v-if="s.image" loading="lazy" :src="$image('img/homepage/'+s.image)" :alt="s.title">
+						<img v-if="s.image" loading="lazy" :src="$asset('img/homepage/'+s.image)" :alt="s.title">
 					</div>
 					<Icon :name="s.icon" :alt="s.icon" class="icon" />
 					<div class="infos">
@@ -121,7 +121,7 @@
 			<img v-for="i of 20"
 			ref="letter"
 			:key="i"
-			:src="$image('img/homepage/letters/'+getLetter()+'.svg')">
+			:src="$asset('img/homepage/letters/'+getLetter()+'.svg')">
 		</div>
 		
 		<AnchorsMenu class="anchors" :items="anchors" @select="onSelectAnchor" openAnimaton :openDelay="1" />

@@ -342,7 +342,7 @@ class BingoGridForm extends AbstractSidePanel {
 		this.$store.bingoGrid.saveData(grid.id, undefined, broadcastUpdate);
 
 		if(playWinSound && grid.winSoundVolume) {
-			const audio = new Audio(this.$image("sounds/win.mp3"));
+			const audio = new Audio(this.$asset("sounds/win.mp3"));
 			audio.volume = this.param_winSoundVolume[grid.id].value/100;
 			audio.play();
 		}

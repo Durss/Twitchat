@@ -55,7 +55,7 @@ import { watch } from 'vue';
 		this.selectedButtons = this.modelValue;
 		
 		const name = GoXLRSocket.instance.isGoXLRMini? "goxlrMini" : "goxlr";
-		const imgRes = await fetch(this.$image("goxlr/"+name+".svg"));
+		const imgRes = await fetch(this.$asset("goxlr/"+name+".svg"));
 		if(imgRes.status <200 || imgRes.status > 204) {
 			this.error = true;
 		}else{

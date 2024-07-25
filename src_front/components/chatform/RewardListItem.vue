@@ -253,9 +253,8 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 	}
 
 	private getIcon(icon:string):VNode<RendererNode, RendererElement> {
-		const image = StoreProxy.image;
 		return h('img', {
-			src: image(icon),
+			src: StoreProxy.asset(icon),
 			style: {
 			width: '1em',
 			height: '1em',

@@ -21,7 +21,7 @@
 			<div v-for="item in logs" :key="item.id" :class="getTriggerClasses(item)">
 				<div class="head" @click="idToExpandState[item.id] = !idToExpandState[item.id]">
 					<div class="infos">
-						<img class="icon" :src="$image('icons/'+getTriggerInfo(item.trigger)?.icon+'.svg')">
+						<img class="icon" :src="$asset('icons/'+getTriggerInfo(item.trigger)?.icon+'.svg')">
 						<div class="status" v-tooltip="'error'" v-if="item.error"><img src="@/assets/icons/cross.svg"></div>
 						<div class="status" v-tooltip="'critical error'" v-else-if="item.criticalError"><img src="@/assets/icons/alert.svg"></div>
 						<div class="status" v-tooltip="'complete'" v-else-if="item.complete"><img src="@/assets/icons/checkmark.svg"></div>

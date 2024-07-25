@@ -164,7 +164,7 @@ import TriggerActionList from './TriggerActionList.vue';
 	public getTriggerIcon(e:TriggerTypeDefinition):string {
 		if(!e.icon) return "";
 		if(e.icon.indexOf("/") > -1) return e.icon as string;
-		return this.$image("icons/"+e.icon+".svg");
+		return this.$asset("icons/"+e.icon+".svg");
 	}
 
 	/**
@@ -218,7 +218,7 @@ import TriggerActionList from './TriggerActionList.vue';
 				searchTerms:locales.map(l => this.$t(v.labelKey, l)),
 				value:v.value,
 				trigger:v,
-				icon:this.$image('icons/'+v.icon+'.svg'),
+				icon:this.$asset('icons/'+v.icon+'.svg'),
 				isCategory:false,
 				newDate:v.newDate,
 			}
@@ -372,7 +372,7 @@ import TriggerActionList from './TriggerActionList.vue';
 						value:v.id,
 						background:v.background_color,
 						labelSmall:v.cost > 0? v.cost+"pts" : "",
-						icon:v.image?.url_2x ?? this.$image("icons/channelPoints.svg"),
+						icon:v.image?.url_2x ?? this.$asset("icons/channelPoints.svg"),
 					};
 				});
 				this.subtriggerList = list;

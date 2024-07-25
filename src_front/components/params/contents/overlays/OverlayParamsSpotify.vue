@@ -49,7 +49,7 @@ import OverlayParamsMusic from './OverlayParamsMusic.vue';
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
 
 	public async mounted():Promise<void> {
-		this.currentTrack.cover = this.$image("img/musicExampleCover.jpg");
+		this.currentTrack.cover = this.$asset("img/musicExampleCover.jpg");
 	}
 
 }

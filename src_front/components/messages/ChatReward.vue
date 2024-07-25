@@ -111,7 +111,7 @@ class ChatReward extends AbstractChatMessage {
 	}
 
 	public getIcon(message:TwitchatDataTypes.MessageRewardRedeemData):string {
-		let icon = this.$image('icons/channelPoints.svg');
+		let icon = this.$asset('icons/channelPoints.svg');
 		const img = message.reward.icon;
 		icon = img.hd || img.sd || icon;
 		return icon;

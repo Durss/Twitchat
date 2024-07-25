@@ -750,11 +750,11 @@ export class ChatForm extends Vue {
 			}
 		}
 
-		let res = "<img src='"+this.$image('icons/user.svg').replace(/"/g, '\\\'')+"' height='15px' style='vertical-align:middle'> "+onlineCount;
+		let res = "<img src='"+this.$asset('icons/user.svg').replace(/"/g, '\\\'')+"' height='15px' style='vertical-align:middle'> "+onlineCount;
 
 		if(this.$store.params.appearance.highlightNonFollowers.value === true) {
-			res += " / <img src='"+this.$image('icons/follow.svg').replace(/"/g, '\\\'')+"' height='15px' style='vertical-align:middle'> "+followCount;
-			res += " / <img src='"+this.$image('icons/unfollow.svg').replace(/"/g, '\\\'')+"' height='15px' style='vertical-align:middle'> "+(onlineCount - followCount);
+			res += " / <img src='"+this.$asset('icons/follow.svg').replace(/"/g, '\\\'')+"' height='15px' style='vertical-align:middle'> "+followCount;
+			res += " / <img src='"+this.$asset('icons/unfollow.svg').replace(/"/g, '\\\'')+"' height='15px' style='vertical-align:middle'> "+(onlineCount - followCount);
 		}
 		this.onlineUsersTooltip = res;
 	}

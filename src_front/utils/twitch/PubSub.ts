@@ -2,14 +2,12 @@ import Database from '@/store/Database';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import * as Sentry from "@sentry/vue";
 import { EventDispatcher } from "../../events/EventDispatcher";
-import Config from '../Config';
+import SetIntervalWorker from '../SetIntervalWorker';
 import Utils from "../Utils";
-import TriggerActionHandler from '../triggers/TriggerActionHandler';
 import type { PubSubDataTypes } from './PubSubDataTypes';
 import { TwitchScopes } from './TwitchScopes';
-import * as Sentry from "@sentry/vue";
-import SetIntervalWorker from '../SetIntervalWorker';
 
 /**
 * Created : 13/01/2022

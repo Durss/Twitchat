@@ -146,7 +146,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	public beforeMount(): void {
 		this.id = this.$route.query.bid as string ?? "";
 		
-		this.winSoundVolume = new Audio(this.$image("sounds/win.mp3"));
+		this.winSoundVolume = new Audio(this.$asset("sounds/win.mp3"));
 
 		this.bingoUpdateHandler = (e) => this.onBingoUpdate(e);
 		this.bingoViewerHandler = (e) => this.onBingoViewer(e);

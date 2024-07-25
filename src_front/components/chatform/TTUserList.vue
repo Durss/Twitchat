@@ -118,7 +118,7 @@ import Icon from '../Icon.vue';
 	}
 
 	public getProfilePicURL(u:UserData):string {
-		if(!u.user.profile_image_url) return  this.$image("icons/user.svg");
+		if(!u.user.profile_image_url) return  this.$asset("icons/user.svg");
 		return u.user.profile_image_url.replace("300x300", "70x70");
 	}
 

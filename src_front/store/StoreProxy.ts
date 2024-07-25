@@ -66,7 +66,7 @@ export default class StoreProxy {
 	public static public:IPublicState & IPublicGetters & IPublicActions & {$state:IPublicState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
-	public static image:(path: string) => string;
+	public static asset:(path: string) => string;
 }
 
 export type IStore = {

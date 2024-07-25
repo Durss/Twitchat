@@ -613,7 +613,7 @@ class BingoGridView extends Vue {
 		this.setPageTitle();
 		clearTimeout(this.notificationDebounce);
 		this.notificationDebounce = setTimeout(() => {
-			const audio = new Audio(this.$image("sounds/notification.mp3"));
+			const audio = new Audio(this.$asset("sounds/notification.mp3"));
 			audio.volume = .25;
 			audio.play();
 		}, 100);

@@ -439,7 +439,7 @@ class Chat extends Vue {
 						}});
 				}
 				if(params.sound) {
-					new Audio(this.$image("sounds/wizz.mp3")).play();
+					new Audio(this.$asset("sounds/wizz.mp3")).play();
 				}
 				if(params.vibrate) {
 					window.navigator.vibrate([200, 100, 200, 100, 200, 100, 200, 100, 1000]);

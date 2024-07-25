@@ -50,7 +50,7 @@ class ChatMessageInfoBadges extends Vue {
 			powerUp:"watchStreak",
 		};
 		if(hashmap[info.type]) {
-			return this.$image("icons/"+hashmap[info.type]+".svg");
+			return this.$asset("icons/"+hashmap[info.type]+".svg");
 		}
 		return "";
 	}

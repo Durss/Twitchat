@@ -156,7 +156,7 @@ import DOMPurify from 'isomorphic-dompurify';
 				if(this.params?.erase === true) {
 					this.artist = "no music";
 					this.title = "no music";
-					this.cover = this.$image("img/defaultCover.svg");
+					this.cover = this.$asset("img/defaultCover.svg");
 				}
 				gsap.killTweensOf(this);
 				if(this.params) {
@@ -201,7 +201,7 @@ import DOMPurify from 'isomorphic-dompurify';
 			this.title = this.staticTrackData.title;
 			this.cover = this.staticTrackData.cover;
 			if(!this.cover) {
-				this.cover = this.$image("img/default_music_cover.png");
+				this.cover = this.$asset("img/default_music_cover.png");
 			}
 			this.isPlaying = true;
 			let customTrackInfo = this.params.customInfoTemplate;

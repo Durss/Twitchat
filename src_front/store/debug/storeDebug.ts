@@ -10,7 +10,7 @@ import { watch, type UnwrapRef, reactive } from 'vue';
 import type { IDebugActions, IDebugGetters, IDebugState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 import { GoXLRTypes } from '@/types/GoXLRTypes';
-import StickerList from "../../../static/youtube/sticker_list.json";
+import StickerList from "../../utils/youtube/sticker_list.json";
 import staticEmotes from '@/utils/twitch/staticEmoteList.json';
 
 let streamInfoCache:TwitchDataTypes.ChannelInfo|null = null;

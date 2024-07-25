@@ -8,7 +8,7 @@ import Logger from "../Logger";
 import Utils from "../Utils";
 import TwitchUtils from "../twitch/TwitchUtils";
 import type { YoutubeScopesString } from "./YoutubeScopes";
-import StickerList from "../../../static/youtube/sticker_list.json";
+import StickerList from "./sticker_list.json";
 
 /**
 * Created : 28/11/2023
@@ -254,7 +254,7 @@ export default class YoutubeHelper {
 					platform:"youtube",
 					type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
 					icon:"youtube",
-					user:{name:"Youtube", color:"#ff0000"},
+					user:{name:"YouTube", color:"#ff0000"},
 					message:StoreProxy.i18n.t("chat.youtube.connected_to", {TITLE:item.snippet.title}),
 					col:0,
 				};
@@ -747,7 +747,7 @@ export default class YoutubeHelper {
 	private async loadEmotesAndUser():Promise<void> {
 		if(Object.keys(this._emotes).length == 0) {
 			await this.getUserInfo();
-			const emotesQuery = await fetch("/youtube/emote_list.json");
+			const emotesQuery = await fetch(StoreProxy.asset("youtube/emote_list.json"));
 			const json = await emotesQuery.json();
 			this._emotes = json;
 		}

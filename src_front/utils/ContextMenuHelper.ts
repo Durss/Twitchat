@@ -568,7 +568,7 @@ export default class ContextMenuHelper {
 	}
 
 	private getIcon(icon:string):VNode<RendererNode, RendererElement> {
-		const image = StoreProxy.image;
+		const image = StoreProxy.asset;
 		return h('img', {
 			src: image(icon),
 			style: {

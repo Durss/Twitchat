@@ -35,7 +35,7 @@
 			<div v-for="(d, index) in dependencyLoopInfos" :key="index" class="loopItem">
 				<div class="loopInfo">
 					<img v-if="d.iconURL" :src="d.iconURL" :alt="d.label">
-					<img v-if="d.icon" :src="$image('icons/'+d.icon+'.svg')" :alt="d.icon">
+					<img v-if="d.icon" :src="$asset('icons/'+d.icon+'.svg')" :alt="d.icon">
 					<span class="label">{{ d.label }}</span>
 				</div>
 			</div>
@@ -84,7 +84,7 @@ import TriggerList from '../TriggerList.vue';
 		if(e.icon.indexOf("/") > -1) {
 			return e.icon as string;
 		}
-		return this.$image("icons/"+e.icon+".svg");
+		return this.$asset("icons/"+e.icon+".svg");
 	}
 
 	public mounted():void {

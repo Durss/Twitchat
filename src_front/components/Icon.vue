@@ -67,7 +67,7 @@ class Icon extends Vue {
 
 		//Icon not yet loaded, load it
 		try {
-			const url = this.$image("icons/"+this.name+".svg");
+			const url = this.$asset("icons/"+this.name+".svg");
 			if(/undefined$/.test(url)) {
 				throw("icon not found");
 			}

@@ -161,7 +161,7 @@ function buildApp() {
 	/**
 	 * Include an image from the asset folder
 	 */
-	const image = (path:string):string => {
+	const asset = (path:string):string => {
 		return new URL(`/src_front/assets/${path}`, import.meta.url).href;
 	}
 
@@ -216,7 +216,7 @@ function buildApp() {
 	//router needs to access some stores
 	StoreProxy.default.router = router;
 	StoreProxy.default.i18n = i18n.global;
-	StoreProxy.default.image = image;
+	StoreProxy.default.asset = asset;
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.default.main = (storeMain() as unknown) as StoreProxy.IMainState & StoreProxy.IMainGetters & StoreProxy.IMainActions & { $state: StoreProxy.IMainState; $reset:()=>void };
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
@@ -285,7 +285,7 @@ function buildApp() {
 	.component("vue-select", VueSelect)
 	.component("Icon", Icon)
 	.provide("$config", Config.instance)
-	.provide("$image", image)
+	.provide("$asset", asset)
 	.provide("$store", StoreProxy.default)
 	.provide("$confirm", confirm)
 	.provide("$overlayURL", overlayURL)
@@ -347,7 +347,7 @@ function buildApp() {
 		beforeUnmount(el:HTMLElement, binding:unknown) {
 		}
 	});
-	app.config.globalProperties.$image = image;
+	app.config.globalProperties.$asset = asset;
 	app.config.globalProperties.$config = Config.instance;
 	app.config.globalProperties.$confirm = confirm;
 	app.config.globalProperties.$overlayURL = overlayURL;

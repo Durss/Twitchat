@@ -125,7 +125,7 @@ class ParamsAccount extends Vue implements IParameterContent {
 	public get userPP():string {
 		let pp:string|undefined = this.$store.auth.twitch.user.avatarPath;
 		if(!pp) {
-			pp = this.$image("icons/user.svg");
+			pp = this.$asset("icons/user.svg");
 		}
 		return pp;
 	}
