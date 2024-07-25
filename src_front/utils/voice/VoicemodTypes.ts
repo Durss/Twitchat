@@ -23,6 +23,7 @@ export namespace VoicemodTypes {
 		favoriteVoices?: Voice[];
 		customVoices?: Voice[];
 		currentVoice?: string;
+		soundboards?: Soundboard[];
 		result?: Result;
 		voiceID?: string | "nofx";
 	}
