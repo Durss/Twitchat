@@ -662,7 +662,7 @@ export default class EventSub {
 	private followEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.FollowEvent):void {
 		if(StoreProxy.users.isAFollower("twitch", event.user_id)) return;
 
-		const channelId = StoreProxy.auth.twitch.user.id;
+		const channelId = event.broadcaster_user_id;
 
 		const message:TwitchatDataTypes.MessageFollowingData = {
 			id:Utils.getUUID(),
