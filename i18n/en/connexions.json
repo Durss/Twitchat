@@ -22,15 +22,15 @@
 		},
 
 		"youtube":{
-			"header":"Show your Youtube's chat in Twitchat.",
-			"success":"Youtube is now connected",
+			"header":"Show your YouTube's chat in Twitchat.",
+			"success":"YouTube is now connected",
 			"current_live_title":"Select live(s) to connect to",
-			"no_live":"No live broadcast found.\nPlease create a live broadcast session on Youtube and hit refresh button.",
+			"no_live":"No live broadcast found.\nPlease create a live broadcast session on YouTube and hit refresh button.",
 			"scopes_title":"Autorizations",
 			"scope_read":"Read chat messages\n(mandatory)",
 			"scope_moderate":"Write & delete messages / ban users\n(@:connexions.youtube.scope_moderate_details )",
 			"scope_moderate_details":"This autorization also allows to delete videos from your channel, which Twitchat will obviously never do, but Youtube leaves no choice.",
-			"terms":"Youtube Terms of Services",
+			"terms":"YouTube Terms of Services",
 			"policy":"Google Privacy Policy"
 		}
 	}

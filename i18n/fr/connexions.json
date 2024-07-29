@@ -22,10 +22,10 @@
 		},
 
 		"youtube":{
-			"header":"Affichez votre tchat Youtube directement dans Twitchat.",
-			"success":"Youtube est maintenant connecté",
+			"header":"Affichez votre tchat YouTube directement dans Twitchat.",
+			"success":"YouTube est maintenant connecté",
 			"current_live_title":"Sélectionnez le ou les lives auxquels se connecter",
-			"no_live":"Aucune diffusion live trouvée.\nCréez une diffusion live dans votre interface Youtube puis cliquez sur recharger ci-dessous.",
+			"no_live":"Aucune diffusion live trouvée.\nCréez une diffusion live dans votre interface YouTube puis cliquez sur recharger ci-dessous.",
 			"scopes_title":"Autorisations",
 			"scope_read":"Lire les messages de tchat\n(obligatoire)",
 			"scope_moderate":"Envoyer et supprimer des messages / bannir des utilisateur·ices\n(@:connexions.youtube.scope_moderate_details )",

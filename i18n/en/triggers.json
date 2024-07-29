@@ -387,7 +387,7 @@
 				"number": "Number",
 				"list": "List",
 				"trigger": "Triggers",
-				"trigger_info": "Execute a random trigger amgonst the selected ones",
+				"trigger_info": "Execute a random trigger amongst the selected ones",
 				"trigger_select": "Select one or more triggers",
 				"trigger_skipDisabled": "Ignore disabled triggers during random selection",
 				"trigger_disableAfterExec": "Disable selected trigger after executing it",
@@ -561,7 +561,7 @@
 			"streamlabs": "Streamlabs",
 			"streamelements": "Streamelements",
 			"tipeee": "Tipeee",
-			"youtube": "Youtube"
+			"youtube": "YouTube"
 		},
 		"placeholders": {
 			"trigger_name": "Current trigger name",
@@ -1328,20 +1328,20 @@
 				"description": "Actions to execute when a celebration power up is sent"
 			},
 			"YOUTUBE_SUPER_CHAT": {
-				"label": "Super chat received on Youtube",
-				"description": "Actions to execute when a user sends a Super Chat on Youtube"
+				"label": "Super chat received on YouTube",
+				"description": "Actions to execute when a user sends a Super Chat on YouTube"
 			},
 			"YOUTUBE_SUPER_STICKER": {
-				"label": "Super sticker received on Youtube",
-				"description": "Actions to execute when a user sends a Super Sticker on Youtube"
+				"label": "Super sticker received on YouTube",
+				"description": "Actions to execute when a user sends a Super Sticker on YouTube"
 			},
 			"YOUTUBE_SUBSCRIPTION": {
-				"label": "Subscription received on Youtube",
-				"description": "Actions to execute when a user takes a membership on youtube"
+				"label": "Subscription received on YouTube",
+				"description": "Actions to execute when a user takes a membership on YouTube"
 			},
 			"YOUTUBE_SUBGIFT": {
-				"label": "subgifts received on Youtube",
-				"description": "Actions to execute when a user gifts memberships on Youtube"
+				"label": "subgifts received on YouTube",
+				"description": "Actions to execute when a user gifts memberships on YouTube"
 			}
 		},
 		"musicEvents": {

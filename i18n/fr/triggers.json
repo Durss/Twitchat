@@ -561,7 +561,7 @@
 			"streamlabs": "Streamlabs",
 			"streamelements": "Streamelements",
 			"tipeee": "Tipeee",
-			"youtube": "Youtube"
+			"youtube": "YouTube"
 		},
 		"placeholders": {
 			"trigger_name": "Nom du trigger actuel",
@@ -1328,20 +1328,20 @@
 				"description": "Actions à exécuter lorsqu'une célébration est reçue"
 			},
 			"YOUTUBE_SUPER_CHAT": {
-				"label": "Super chat reçu sur Youtube",
-				"description": "Actions à exécuter lorsqu'une personne envoie super chat sur Youtube"
+				"label": "Super chat reçu sur YouTube",
+				"description": "Actions à exécuter lorsqu'une personne envoie super chat sur YouTube"
 			},
 			"YOUTUBE_SUPER_STICKER": {
-				"label": "Super sticker reçu sur Youtube",
-				"description": "Actions à exécuter lorsqu'une personne envoie un super sticker sur Youtube"
+				"label": "Super sticker reçu sur YouTube",
+				"description": "Actions à exécuter lorsqu'une personne envoie un super sticker sur YouTube"
 			},
 			"YOUTUBE_SUBSCRIPTION": {
-				"label": "Abonnement reçu sur Youtube",
-				"description": "Actions à exécuter lorsqu'une personne achète un abonnement sur Youtube"
+				"label": "Abonnement reçu sur YouTube",
+				"description": "Actions à exécuter lorsqu'une personne achète un abonnement sur YouTube"
 			},
 			"YOUTUBE_SUBGIFT": {
-				"label": "Abonnement offers sur Youtube",
-				"description": "Actions à exécuter lorsqu'une personne offre des abonnements sur Youtube"
+				"label": "Abonnement offers sur YouTube",
+				"description": "Actions à exécuter lorsqu'une personne offre des abonnements sur YouTube"
 			}
 		},
 		"musicEvents": {

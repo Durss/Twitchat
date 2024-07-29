@@ -52,12 +52,12 @@
 			"qnaBt_aria": "Question & Answer",
 			"trainBt_aria": "Hype train",
 			"raidBt_aria": "Raiding",
-			"youtube_saving_token_aria": "Youtube chat disconnected to reduce API usage after a long period of inactivity.\nClick to reconnect.",
+			"youtube_saving_token_aria": "YouTube chat disconnected to reduce API usage after a long period of inactivity.\nClick to reconnect.",
 			"bingoGridBt_aria": "Bingo grids",
 			"connect_extra_chan": "Connect to another Twitch channel",
 			"extra_chan_tt": "Channel to write to: {USER}\n(right click for fast switch)",
-			"youtube_not_connected": "Not connected to any youtube live",
-			"youtube_missing_scope": "Vous n'avez pas autorisé Twitchat à envoyer des messages sur Youtube"
+			"youtube_not_connected": "Not connected to any YouTube live",
+			"youtube_missing_scope": "Vous n'avez pas autorisé Twitchat à envoyer des messages sur YouTube"
 		},
 		"filters": {
 			"cta": "Important options here",
@@ -468,7 +468,7 @@
 			"refused": "{MODERATOR} refused {USER} unban request"
 		},
 		"youtube": {
-			"platform_youtube": "Message received\non Youtube",
+			"platform_youtube": "Message received\non YouTube",
 			"connected_to": "Now connected to live chat \"{TITLE}\""
 		},
 		"celebration": {
