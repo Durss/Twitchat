@@ -506,6 +506,7 @@ export const storeStream = defineStore('stream', {
 						message.message_chunks.push({type:"emote", value:emote.name, emoteHD:emote.images.url_4x, emote:emote.images.url_1x});
 						message.message += " "+emote.name;
 						message.twitch_gigantifiedEmote = emote.name;
+						message.twitch_gigantifiedEmote_url = emote.images.url_4x || emote.images.url_2x || emote.images.url_1x;
 					}, false));
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=>{
 						message.twitch_animationId = Utils.pickRand(["simmer", "rainbow-eclipse"]);
@@ -798,7 +799,7 @@ export const storeStream = defineStore('stream', {
 						result.powerups.push({
 							login:m.user.displayNameOriginal,
 							type:"celebration",
-							emoteUrl:"https://static-cdn.jtvnw.net/emoticons/v2/"+m.emoteID+"/default/light/3.0",
+							emoteUrl:m.emoteURL,
 						})
 						break;
 					}

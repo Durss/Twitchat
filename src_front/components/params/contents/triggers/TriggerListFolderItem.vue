@@ -199,7 +199,7 @@ class TriggerListFolderItem extends Vue {
 	public onDragEnter(event:MouseEvent, entry:TriggerListFolderEntry):void {
 		if(this.draggedEntry == entry) return
 		if(!this.dragging) return
-		//Drag system is fucked up. It fires and dragenter/leave event for every
+		//Drag system is fucked up. It fires dragenter/leave event for every
 		//single children of the holder unless we set a "pointer-events:none" to
 		//it which I can't do because ToggleBlock contains many interactive
 		//children.

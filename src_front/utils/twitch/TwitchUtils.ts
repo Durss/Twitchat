@@ -3076,7 +3076,7 @@ export default class TwitchUtils {
 	/**
 	 * Splits the message in chunks of type "text", "emote", "cheermote", "url", "highlight" and "user"
 	 */
-	public static parseMessageToChunks(message: string, emotes?: string | TwitchatDataTypes.EmoteDef[], customParsing = false, platform: TwitchatDataTypes.ChatPlatform = "twitch"): TwitchatDataTypes.ParseMessageChunk[] {
+	public static parseMessageToChunks(message: string, emotes?: string | TwitchatDataTypes.EmoteDef[], customParsing = false, platform: TwitchatDataTypes.ChatPlatform = "twitch", parseLinks:boolean = true): TwitchatDataTypes.ParseMessageChunk[] {
 		if (!message) return [];
 
 		const emotesList: TwitchatDataTypes.EmoteDef[] = (!emotes || typeof emotes == "string") ? [] : emotes;
@@ -3252,36 +3252,38 @@ export default class TwitchUtils {
 		}
 
 		//Parse URL chunks
-		for (let i = 0; i < result.length; i++) {
-			const chunk = result[i];
-			if (chunk.type == "text") {
-				result.splice(i, 1);//Remove source chunk
-				const res = (chunk.value || "").split(/(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi);
-				let subIndex = 0;
-				res.forEach(v => {
-					if(v == "") return;
-					//Add sub chunks to original resulting chunks
-					let islink = /(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi.test(v);
-					//Avoid floating numbers to be parsed as links
-					if (/[0-9]+\.[0-9]+$/.test(v)) islink = false;
-					const node: TwitchatDataTypes.ParseMessageChunk = {
-						type: islink ? "url" : "text",
-						value: v,
-					};
-
-					// console.log(node);
-
-					if (islink) {
-						node.href = !/^https?/gi.test(v) ? "https://" + v : v;
-					}
-
-					result.splice(i + subIndex, 0, node);
-					subIndex++;
-				})
-			}
-			if (result.length > 1000) {
-				console.error("INFINITE LOOP DETECTED !", result);
-				break;
+		if(parseLinks) {
+			for (let i = 0; i < result.length; i++) {
+				const chunk = result[i];
+				if (chunk.type == "text") {
+					result.splice(i, 1);//Remove source chunk
+					const res = (chunk.value || "").split(/(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi);
+					let subIndex = 0;
+					res.forEach(v => {
+						if(v == "") return;
+						//Add sub chunks to original resulting chunks
+						let islink = /(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi.test(v);
+						//Avoid floating numbers to be parsed as links
+						if (/[0-9]+\.[0-9]+$/.test(v)) islink = false;
+						const node: TwitchatDataTypes.ParseMessageChunk = {
+							type: islink ? "url" : "text",
+							value: v,
+						};
+	
+						// console.log(node);
+	
+						if (islink) {
+							node.href = !/^https?/gi.test(v) ? "https://" + v : v;
+						}
+	
+						result.splice(i + subIndex, 0, node);
+						subIndex++;
+					})
+				}
+				if (result.length > 1000) {
+					console.error("INFINITE LOOP DETECTED !", result);
+					break;
+				}
 			}
 		}
 
@@ -3328,11 +3330,11 @@ export default class TwitchUtils {
 	/**
 	 * Replaces emotes by <img> tags and URL to <a> tags on the message
 	 */
-	public static messageChunksToHTML(chunks: TwitchatDataTypes.ParseMessageChunk[]): string {
+	public static messageChunksToHTML(chunks: TwitchatDataTypes.ParseMessageChunk[], cleanupHTML:boolean = true): string {
 		let message_html = "";
 		for (let i = 0; i < chunks.length; i++) {
 			const v = chunks[i];
-			const label = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
+			const label = !cleanupHTML? v.value : v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
 			if (v.type == "text") {
 				message_html += label;
 			} else if (v.type == "highlight") {

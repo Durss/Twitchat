@@ -1490,7 +1490,7 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION: {
-					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const emote = Utils.pickRand(staticEmotes);
 					const m:TwitchatDataTypes.MessageTwitchCelebrationData = {
 						platform:"twitch",
 						type,
@@ -1499,7 +1499,8 @@ export const storeDebug = defineStore('debug', {
 						channel_id:uid,
 						user:fakeUser,
 						cost:40,
-						emoteID:Utils.pickRand(staticEmotes).id,
+						emoteID:emote.id,
+						emoteURL:emote.images.url_4x || emote.images.url_2x || emote.images.url_1x,
 					};
 					data = m;
 					break;

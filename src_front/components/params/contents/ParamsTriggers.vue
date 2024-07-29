@@ -107,6 +107,7 @@ import type IParameterContent from './IParameterContent';
 import TriggerActionList from './triggers/TriggerActionList.vue';
 import TriggerCreateForm from './triggers/TriggerCreateForm.vue';
 import TriggerList from './triggers/TriggerList.vue';
+import staticEmotes from '@/utils/twitch/staticEmoteList.json';
 
 @Component({
 	components:{
@@ -603,9 +604,11 @@ import TriggerList from './triggers/TriggerList.vue';
 					} else
 					
 					if(triggerEvent.value == TriggerTypes.POWER_UP_GIANT_EMOTE) {
-						(m as TwitchatDataTypes.MessageChatData).message_chunks.push({type:"emote", value:"VoHiYo", emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/81274/default/light/3.0", emote:"https://static-cdn.jtvnw.net/emoticons/v2/81274/default/light/1.0"});
-						(m as TwitchatDataTypes.MessageChatData).message += "VoHiYo";
-						(m as TwitchatDataTypes.MessageChatData).twitch_gigantifiedEmote = "VoHiYo";
+						const emote = Utils.pickRand(staticEmotes);
+						(m as TwitchatDataTypes.MessageChatData).message_chunks.push({type:"emote", value:emote.name, emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/"+emote.id+"/default/light/3.0", emote:"https://static-cdn.jtvnw.net/emoticons/v2/"+emote.id+"/default/light/1.0"});
+						(m as TwitchatDataTypes.MessageChatData).message += " "+emote.name;
+						(m as TwitchatDataTypes.MessageChatData).twitch_gigantifiedEmote = emote.name;
+						(m as TwitchatDataTypes.MessageChatData).twitch_gigantifiedEmote_url = emote.images.url_4x || emote.images.url_2x || emote.images.url_1x;
 					} else
 					
 					if(triggerEvent.value == TriggerTypes.VOICEMOD) {

@@ -2666,6 +2666,10 @@ export namespace TwitchatDataTypes {
 		 */
 		twitch_gigantifiedEmote?: string;
 		/**
+		 * URL of the gigantified emote
+		 */
+		twitch_gigantifiedEmote_url?: string;
+		/**
 		 * Animation type AKA message skin
 		 */
 		twitch_animationId?: "simmer"|"rainbow-eclipse";
@@ -4568,6 +4572,10 @@ export namespace TwitchatDataTypes {
 		 * Emote ID that was used
 		 */
 		emoteID:string;
+		/**
+		 * Emote URL
+		 */
+		emoteURL:string;
 		/**
 		 * Bits used to trigger celebration
 		 */

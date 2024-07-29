@@ -1354,7 +1354,9 @@ export default class TriggerActionHandler {
 				//Handle highlight action
 				if(step.type == "highlight") {
 					if(step.show) {
-						const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent, true, false, false);
+						let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent, true, false, false);
+						const chunks = TwitchUtils.parseMessageToChunks(text, undefined, true, message.platform, false);
+						text = TwitchUtils.messageChunksToHTML(chunks, false);
 						let user:TwitchatDataTypes.TwitchatUser|undefined = undefined;
 						if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 						|| message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING

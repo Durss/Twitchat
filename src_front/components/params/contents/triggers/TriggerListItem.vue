@@ -41,7 +41,7 @@
 
 <script lang="ts">
 import ToggleButton from '@/components/ToggleButton.vue';
-import { TriggerTypesDefinitionList } from '@/types/TriggerActionDataTypes';
+import { TriggerSubTypeLabel, TriggerTypesDefinitionList } from '@/types/TriggerActionDataTypes';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import type { TriggerListEntry } from "./TriggerList.vue";
 
@@ -51,7 +51,7 @@ import type { TriggerListEntry } from "./TriggerList.vue";
 	},
 	emits:["changeState", "delete", "testTrigger", "select", "duplicate"],
 })
- class TriggerListItem extends Vue {
+class TriggerListItem extends Vue {
 
 	@Prop
 	public entryData!:TriggerListEntry;
@@ -68,7 +68,7 @@ import type { TriggerListEntry } from "./TriggerList.vue";
 	public getCategoryLabel(entry:TriggerListEntry):string {
 		const event = TriggerTypesDefinitionList().find(v=> v.value === entry.trigger.type);
 		if(!event) return "unknown category"
-		return this.$t(event?.labelKey);
+		return this.$t(event?.descriptionKey || event?.labelKey, {SUB_ITEM_NAME: TriggerSubTypeLabel(entry.trigger)});
 	}
 
 }

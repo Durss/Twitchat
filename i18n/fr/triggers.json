@@ -194,7 +194,7 @@
 				"header": "{LINK} de mise en avant pour utiliser cette action.",
 				"header_link": "Configurez l'overlay",
 				"param_visibility": "Visibilité de la mise en avant",
-				"param_message": "Message à mettre en avant"
+				"param_message": "Message à mettre en avant (supporte le HTML)"
 			},
 			"music": {
 				"header": "Veuillez lier Spotify dans la {LINK}",
@@ -787,6 +787,7 @@
 			"bingo_grid_diag": "Diagonale remplie (0=↘ 1=↙)",
 			"warn_reason": "Raison de l'avertissement",
 			"power_up_emote": "Code de l'mote géante",
+			"power_up_emote_url": "URL de l'mote géante",
 			"power_up_message": "Effet : 'simmer' ou 'rainbow-eclipse'",
 			"superchat_tier": "Superchat tier (1 => 11)",
 			"supersticker_tier": "Super sticker tier (1 => 6)",
@@ -1171,7 +1172,7 @@
 			},
 			"CLIP_CREATED": {
 				"label": "Clip créé depuis Twitchat",
-				"description": "Actions à exécuter lorsque quelqu'un clip est créé depuis Twitchat {INFO}",
+				"description": "Actions à exécuter lorsqu'un clip est créé depuis Twitchat {INFO}",
 				"description_info": "(appelé seulement lorsqu'un clip est créé via la commande /clip depuis Twitchat)"
 			},
 			"GOXLR_FX_ENABLED": {

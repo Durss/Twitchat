@@ -138,7 +138,7 @@
 <script lang="ts">
 import PermissionsForm from '@/components/PermissionsForm.vue';
 import TTButton from '@/components/TTButton.vue';
-import { TriggerTypes, TriggerTypesDefinitionList, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import { TriggerSubTypeLabel, TriggerTypes, TriggerTypesDefinitionList, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -275,47 +275,7 @@ import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
 	 * Get a trigger's sub type's label (reward name, counter name, ...)
 	 */
 	public get subTypeLabel():string|undefined {
-		switch(this.triggerData.type) {
-			case TriggerTypes.SLASH_COMMAND:
-			case TriggerTypes.CHAT_COMMAND:
-				return this.triggerData.chatCommand || "...";
-
-			case TriggerTypes.REWARD_REDEEM:
-				return this.rewards.find(v=>v.id == this.triggerData.rewardId)?.title ?? "REWARD NOT FOUND";
-
-			case TriggerTypes.OBS_SCENE:
-				return this.triggerData.obsScene || "...";
-
-			case TriggerTypes.OBS_SOURCE_ON:
-			case TriggerTypes.OBS_SOURCE_OFF:
-				return this.triggerData.obsSource || "...";
-
-			case TriggerTypes.OBS_PLAYBACK_STARTED:
-			case TriggerTypes.OBS_PLAYBACK_ENDED:
-			case TriggerTypes.OBS_PLAYBACK_PAUSED:
-			case TriggerTypes.OBS_PLAYBACK_RESTARTED:
-			case TriggerTypes.OBS_PLAYBACK_NEXT:
-			case TriggerTypes.OBS_PLAYBACK_PREVIOUS:
-			case TriggerTypes.OBS_INPUT_MUTE:
-			case TriggerTypes.OBS_INPUT_UNMUTE:
-				return this.triggerData.obsInput || "...";
-
-			case TriggerTypes.OBS_FILTER_ON:
-			case TriggerTypes.OBS_FILTER_OFF:
-				return this.triggerData.obsFilter + " ("+this.triggerData.obsSource+")" || "...";
-
-			case TriggerTypes.COUNTER_EDIT:
-			case TriggerTypes.COUNTER_ADD:
-			case TriggerTypes.COUNTER_DEL:
-			case TriggerTypes.COUNTER_LOOPED:
-			case TriggerTypes.COUNTER_MAXED:
-			case TriggerTypes.COUNTER_MINED:
-				return this.$store.counters.counterList.find(v=>v.id == this.triggerData.counterId)?.name ?? "COUNTER NOT FOUND";
-
-			case TriggerTypes.VALUE_UPDATE:
-				return this.$store.values.valueList.find(v=>v.id == this.triggerData.valueId)?.name ?? "VALUE NOT FOUND";
-		}
-		return "...";
+		return TriggerSubTypeLabel(this.triggerData);
 	}
 
 	public getActionClasses(action:TriggerActionTypes):string[] {

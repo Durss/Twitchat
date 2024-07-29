@@ -711,7 +711,7 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.updateLabelValue("POWER_UP_CELEBRATION_NAME", m.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("POWER_UP_CELEBRATION_AVATAR", m.user.avatarPath || "", m.user.id);
 						StoreProxy.labels.updateLabelValue("POWER_UP_CELEBRATION_CODE", m.emoteID);
-						StoreProxy.labels.updateLabelValue("POWER_UP_CELEBRATION_IMAGE", "https://static-cdn.jtvnw.net/emoticons/v2/" + m.emoteID + "/default/light/3.0");
+						StoreProxy.labels.updateLabelValue("POWER_UP_CELEBRATION_IMAGE", m.emoteURL);
 					}
 
 					if(!lastPuMessage && m.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.twitch_animationId) {

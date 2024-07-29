@@ -943,7 +943,8 @@ export default class EventSub {
 			type:TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION,
 			user,
 			cost:event.reward.cost!,
-			emoteID:event.reward.unlocked_emote?.id
+			emoteID:event.reward.unlocked_emote?.id,
+			emoteURL:"https://static-cdn.jtvnw.net/emoticons/v2/" + event.reward.unlocked_emote + "/default/light/3.0"
 		};
 		StoreProxy.chat.addMessage(m);
 	}

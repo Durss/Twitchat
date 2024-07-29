@@ -194,7 +194,7 @@
 				"header": "You need to configure the {LINK} to use this action.",
 				"header_link": "Message highlight overlay",
 				"param_visibility": "Highlight visibility",
-				"param_message": "Message to display"
+				"param_message": "Message to display (supports HTML)"
 			},
 			"music": {
 				"header": "This feature needs you to connect with Spotify under the {LINK}",
@@ -787,6 +787,7 @@
 			"bingo_grid_diag": "Index of the filled diagonal",
 			"warn_reason": "Warning reason",
 			"power_up_emote": "Gigantified emote code",
+			"power_up_emote_url": "Gigantified emote URL",
 			"power_up_message": "Effect: 'simmer' or 'rainbow-eclipse'",
 			"superchat_tier":"Superchat tier (1 => 11)",
 			"supersticker_tier":"Super stciker tier (1 => 6)",

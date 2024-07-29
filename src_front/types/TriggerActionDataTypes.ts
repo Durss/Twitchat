@@ -1351,8 +1351,13 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	
 	map[TriggerTypes.POWER_UP_GIANT_EMOTE] = [...map[TriggerTypes.ANY_MESSAGE]!,
 		{tag:"EMOTE", descKey:'triggers.placeholders.power_up_emote', pointer:"twitch_gigantifiedEmote", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
+		{tag:"EMOTE_URL", descKey:'triggers.placeholders.power_up_emote_url', pointer:"twitch_gigantifiedEmote_url", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
 	];
-
+	
+	map[TriggerTypes.POWER_UP_CELEBRATION] = [
+		{tag:"EMOTE", descKey:'triggers.placeholders.power_up_emote', pointer:"emoteID", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCelebrationData>,
+		{tag:"EMOTE_URL", descKey:'triggers.placeholders.power_up_emote_url', pointer:"emoteURL", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTwitchCelebrationData>,
+	];
 
 	map[TriggerTypes.ANNOUNCEMENTS] = JSON.parse(JSON.stringify(map[TriggerTypes.ANNOUNCEMENTS]));
 	map[TriggerTypes.ANNOUNCEMENTS]!.push(
@@ -2146,9 +2151,9 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.SUBITS, icon:"sub", labelKey:"triggers.events.SUB.label", value:TriggerTypes.SUB, descriptionKey:"triggers.events.SUB.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION},
 		{category:TriggerEventTypeCategories.SUBITS, icon:"gift", labelKey:"triggers.events.SUBGIFT.label", value:TriggerTypes.SUBGIFT, descriptionKey:"triggers.events.SUBGIFT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION},
 		{category:TriggerEventTypeCategories.SUBITS, icon:"bits", labelKey:"triggers.events.CHEER.label", value:TriggerTypes.CHEER, descriptionKey:"triggers.events.CHEER.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHEER},
-		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.SUBITS, icon:"bits", labelKey:"triggers.events.POWER_UP_MESSAGE.label", value:TriggerTypes.POWER_UP_MESSAGE, descriptionKey:"triggers.events.POWER_UP_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
-		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.SUBITS, icon:"bits", labelKey:"triggers.events.POWER_UP_GIANT_EMOTE.label", value:TriggerTypes.POWER_UP_GIANT_EMOTE, descriptionKey:"triggers.events.POWER_UP_GIANT_EMOTE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
-		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.SUBITS, icon:"bits", labelKey:"triggers.events.POWER_UP_CELEBRATION.label", value:TriggerTypes.POWER_UP_CELEBRATION, descriptionKey:"triggers.events.POWER_UP_CELEBRATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.SUBITS, icon:"watchStreak", labelKey:"triggers.events.POWER_UP_MESSAGE.label", value:TriggerTypes.POWER_UP_MESSAGE, descriptionKey:"triggers.events.POWER_UP_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.SUBITS, icon:"watchStreak", labelKey:"triggers.events.POWER_UP_GIANT_EMOTE.label", value:TriggerTypes.POWER_UP_GIANT_EMOTE, descriptionKey:"triggers.events.POWER_UP_GIANT_EMOTE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.SUBITS, icon:"watchStreak", labelKey:"triggers.events.POWER_UP_CELEBRATION.label", value:TriggerTypes.POWER_UP_CELEBRATION, descriptionKey:"triggers.events.POWER_UP_CELEBRATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION},
 
 		// {newDate:1693519200000, category:TriggerEventTypeCategories.SUBITS, icon:"hypeChat", labelKey:"triggers.events.HYPE_CHAT.label", value:TriggerTypes.HYPE_CHAT, descriptionKey:"triggers.events.HYPE_CHAT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT},
 		{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", labelKey:"triggers.events.HYPE_TRAIN_APPROACHING.label", value:TriggerTypes.HYPE_TRAIN_APPROACHING, descriptionKey:"triggers.events.HYPE_TRAIN_APPROACHING.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING},
@@ -2297,4 +2302,53 @@ export function ScheduleTriggerEvents():TriggerScheduleEventType[] {
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"date", labelKey:"triggers.scheduleEvents.SPECIFIC_DATES", value:TriggerScheduleTypes.SPECIFIC_DATES},
 	];
 	return scheduleCache;
+}
+
+
+
+/**
+ * Get a trigger's sub type's label (reward name, counter name, ...)
+ */
+export const TriggerSubTypeLabel = (triggerData:TriggerData):string|undefined => {
+	switch(triggerData.type) {
+		case TriggerTypes.SLASH_COMMAND:
+		case TriggerTypes.CHAT_COMMAND:
+			return triggerData.chatCommand || "...";
+
+		case TriggerTypes.REWARD_REDEEM:
+			return StoreProxy.rewards.rewardList.find(v=>v.id == triggerData.rewardId)?.title ?? "REWARD NOT FOUND";
+
+		case TriggerTypes.OBS_SCENE:
+			return triggerData.obsScene || "...";
+
+		case TriggerTypes.OBS_SOURCE_ON:
+		case TriggerTypes.OBS_SOURCE_OFF:
+			return triggerData.obsSource || "...";
+
+		case TriggerTypes.OBS_PLAYBACK_STARTED:
+		case TriggerTypes.OBS_PLAYBACK_ENDED:
+		case TriggerTypes.OBS_PLAYBACK_PAUSED:
+		case TriggerTypes.OBS_PLAYBACK_RESTARTED:
+		case TriggerTypes.OBS_PLAYBACK_NEXT:
+		case TriggerTypes.OBS_PLAYBACK_PREVIOUS:
+		case TriggerTypes.OBS_INPUT_MUTE:
+		case TriggerTypes.OBS_INPUT_UNMUTE:
+			return triggerData.obsInput || "...";
+
+		case TriggerTypes.OBS_FILTER_ON:
+		case TriggerTypes.OBS_FILTER_OFF:
+			return triggerData.obsFilter + " ("+triggerData.obsSource+")" || "...";
+
+		case TriggerTypes.COUNTER_EDIT:
+		case TriggerTypes.COUNTER_ADD:
+		case TriggerTypes.COUNTER_DEL:
+		case TriggerTypes.COUNTER_LOOPED:
+		case TriggerTypes.COUNTER_MAXED:
+		case TriggerTypes.COUNTER_MINED:
+			return StoreProxy.counters.counterList.find(v=>v.id == triggerData.counterId)?.name ?? "COUNTER NOT FOUND";
+
+		case TriggerTypes.VALUE_UPDATE:
+			return StoreProxy.values.valueList.find(v=>v.id == triggerData.valueId)?.name ?? "VALUE NOT FOUND";
+	}
+	return "...";
 }
