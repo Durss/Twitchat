@@ -13,19 +13,19 @@
 	@end="dragging = false"
 	@sort="onChange"
 	@change="onChange">
-		<template #item="{element, index}:{element:TriggerListEntry|TriggerListFolderEntry, index:number}">
-			<ToggleBlock class="folder" v-if="element.type == 'folder'"
+		<template #item="{element: folder, index}:{element:TriggerListEntry|TriggerListFolderEntry, index:number}">
+			<ToggleBlock class="folder" v-if="folder.type == 'folder'"
 			medium
 			:editableTitle="!noEdit"
-			v-model:title="element.label"
-			v-model:open="element.expand"
-			:customColor="element.color.value"
-			:ref="'folder_'+element.id"
+			v-model:title="folder.label"
+			v-model:open="folder.expand"
+			:customColor="folder.color.value"
+			:ref="'folder_'+folder.id"
 			:titleDefault="'folder'"
-			@dragstart="startDrag(element)"
-			@drop="onDrop(element)"
-			@dragenter="onDragEnter($event, element)"
-			@dragleave="onDragLeave($event, element)"
+			@dragstart="startDrag(folder)"
+			@drop="onDrop(folder)"
+			@dragenter="onDragEnter($event, folder)"
+			@dragleave="onDragLeave($event, folder)"
 			@update:open="$emit('change', $event)"
 			@update:title="$emit('change', $event)">
 				<template #left_actions>
@@ -34,25 +34,25 @@
 							v-if="noEdit === false"
 							@click.stop
 							v-tooltip="$t('triggers.folder_color')"
-							:paramData="element.color"
-							v-model="element.color.value"
+							:paramData="folder.color"
+							v-model="folder.color.value"
 							@change="$emit('change', $event)" />
 						<Icon name="broadcast" />
-						<div class="count">x{{ element.items.filter(v=>v.type == 'trigger').length }}</div>
+						<div class="count">x{{ folder.items.filter(v=>v.type == 'trigger').length }}</div>
 					</div>
 				</template>
 				<template #right_actions>
 					<div class="blockActions">
-						<ToggleButton class="triggerToggle" v-model="element.enabled" @click.stop @change="onToggleFolder(element)" />
-						<TTButton class="deleteBt" icon="add" @click.stop="addTrigger(element)" v-tooltip="$t('triggers.add_triggerBt')" primary></TTButton>
-						<TTButton class="deleteBt" icon="trash" v-if="noEdit === false" @click.stop="deleteFolder(element)" alert></TTButton>
+						<ToggleButton class="triggerToggle" v-model="folder.enabled" @click.stop @change="onToggleFolder(folder)" />
+						<TTButton class="deleteBt" icon="add" @click.stop="addTrigger(folder)" v-tooltip="$t('triggers.add_triggerBt')" primary></TTButton>
+						<TTButton class="deleteBt" icon="trash" v-if="noEdit === false" @click.stop="deleteFolder(folder)" alert></TTButton>
 					</div>
 				</template>
 
-				<div :class="element.enabled === false? 'childList disabled' : 'childList'">
+				<div :class="folder.enabled === false? 'childList disabled' : 'childList'">
 					<TriggerListFolderItem
-						:class="!element.items || element.items.length == 0? 'emptyChildren' : ''"
-						v-model:items="element.items"
+						:class="!folder.items || folder.items.length == 0? 'emptyChildren' : ''"
+						v-model:items="folder.items"
 						:level="level + 1"
 						:rewards="rewards"
 						:noEdit="noEdit"
@@ -61,12 +61,12 @@
 						:triggerId="triggerId"
 						@change="onChange"
 						@delete="$emit('delete', $event)"
-						@duplicate="$emit('duplicate', $event)"
+						@duplicate="$emit('duplicate', $event, folder)"
 						@testTrigger="$emit('testTrigger',$event)"
 						@createTrigger="$emit('createTrigger',$event)"
 						@select="$emit('select', $event)" />
 
-					<div v-if="!element.items || element.items.length == 0" class="emptyFolder">{{$t("global.empty")}}</div>
+					<div v-if="!folder.items || folder.items.length == 0" class="emptyFolder">{{$t("global.empty")}}</div>
 				</div>
 
 			</ToggleBlock>
@@ -74,15 +74,15 @@
 			<TriggerListItem v-else
 				:noEdit="noEdit"
 				:forceDisableOption="forceDisableOption"
-				:entryData="element"
-				@dragstart="startDrag(element)"
-				@changeState="onToggleTrigger(element, $event)"
+				:entryData="folder"
+				@dragstart="startDrag(folder)"
+				@changeState="onToggleTrigger(folder, $event)"
 				@delete="$emit('delete', $event)"
-				@duplicate="$emit('duplicate', $event)"
+				@duplicate="$emit('duplicate', $event, folder)"
 				@testTrigger="$emit('testTrigger',$event)"
 				@select="$emit('select', $event)">
 					<span class="triggerId" v-if="debugMode" v-click2Select
-					@click.stop="">{{ element.trigger.id }}</span>
+					@click.stop="">{{ folder.trigger.id }}</span>
 			</TriggerListItem>
 		</template>
 	</draggable>

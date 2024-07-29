@@ -218,8 +218,8 @@ class TriggerList extends Vue {
 	 * Duplicate a trigger
 	 * @param entry
 	 */
-	public duplicateTrigger(entry:TriggerListEntry):void {
-		this.$store.triggers.duplicateTrigger(entry.trigger.id);
+	public duplicateTrigger(entry:TriggerListEntry, parent:TriggerListFolderEntry):void {
+		this.$store.triggers.duplicateTrigger(entry.trigger.id, parent?.id);
 		this.populateTriggers();
 	}
 
