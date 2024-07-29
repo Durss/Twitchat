@@ -66,7 +66,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	},
 	emits:[]
 })
- class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
+class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionObsData;
@@ -104,7 +104,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
 	public get showPlaceholderWarning():boolean {
-		if(!this.isMediaSource || this.action_conf.value == "show") return false;
+		if(!this.isMediaSource || this.action_conf.value != "show") return false;
 		return /\{[^ }]+\}/gi.test(this.media_conf.value);
 	} 
 
