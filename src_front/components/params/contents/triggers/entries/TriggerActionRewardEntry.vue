@@ -82,7 +82,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		TwitchUtils.getRewards(false, true).then(res => {
 			this.param_reward.listValues = res.map(v => {
 				return {value:v.id, label:v.title};
-			});
+			}).sort((a,b)=> a.label.toLowerCase().localeCompare(b.label.toLowerCase()));
 			//If it's a reward trigger, make sure the reward is refundable
 			//if not, remove the refund option
 			if(this.triggerData.type == TriggerTypes.REWARD_REDEEM) {
