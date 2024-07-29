@@ -82,13 +82,19 @@ export const LabelItemPlaceholderList = [
 	{tag:"LAST_SUPER_CHAT_AVATAR",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUPER_CHAT_AVATAR"} as const,
 	{tag:"LAST_SUPER_CHAT_AMOUNT",			type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_SUPER_CHAT_AMOUNT"} as const,
 	
+	{tag:"LAST_SUPER_STICKER_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUPER_STICKER_NAME"} as const,
+	{tag:"LAST_SUPER_STICKER_ID",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUPER_STICKER_ID"} as const,
+	{tag:"LAST_SUPER_STICKER_AVATAR",		type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUPER_STICKER_AVATAR"} as const,
+	{tag:"LAST_SUPER_STICKER_AMOUNT",		type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_SUPER_STICKER_AMOUNT"} as const,
+	{tag:"LAST_SUPER_STICKER_IMAGE",		type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_SUPER_STICKER_IMAGE"} as const,
+	
 	{tag:"LAST_CHEER_NAME",					type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_CHEER_NAME"} as const,
-	{tag:"LAST_CHEER_ID",						type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_CHEER_ID"} as const,
+	{tag:"LAST_CHEER_ID",					type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_CHEER_ID"} as const,
 	{tag:"LAST_CHEER_AVATAR",				type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_CHEER_AVATAR"} as const,
 	{tag:"LAST_CHEER_AMOUNT",				type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_CHEER_AMOUNT"} as const,
 	
 	{tag:"LAST_FOLLOWER_NAME",				type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_NAME"} as const,
-	{tag:"LAST_FOLLOWER_ID",					type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_ID"} as const,
+	{tag:"LAST_FOLLOWER_ID",				type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_ID"} as const,
 	{tag:"LAST_FOLLOWER_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_FOLLOWER_AVATAR"} as const,
 	
 	{tag:"LAST_REWARD_NAME",				type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_REWARD_NAME"} as const,
@@ -98,12 +104,12 @@ export const LabelItemPlaceholderList = [
 	{tag:"LAST_REWARD_TITLE",				type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_REWARD_TITLE"} as const,
 	
 	{tag:"LAST_RAID_NAME",					type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_RAID_NAME"} as const,
-	{tag:"LAST_RAID_ID",						type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_RAID_ID"} as const,
+	{tag:"LAST_RAID_ID",					type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_RAID_ID"} as const,
 	{tag:"LAST_RAID_AVATAR",				type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_RAID_AVATAR"} as const,
 	{tag:"LAST_RAID_COUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_RAID_COUNT"} as const,
 	
 	{tag:"LAST_WATCH_STREAK_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_WATCH_STREAK_NAME"} as const,
-	{tag:"LAST_WATCH_STREAK_ID",				type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_WATCH_STREAK_ID"} as const,
+	{tag:"LAST_WATCH_STREAK_ID",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_WATCH_STREAK_ID"} as const,
 	{tag:"LAST_WATCH_STREAK_AVATAR",		type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_WATCH_STREAK_AVATAR"} as const,
 	{tag:"LAST_WATCH_STREAK_COUNT",			type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_WATCH_STREAK_COUNT"} as const,
 	
@@ -131,4 +137,20 @@ export const LabelItemPlaceholderList = [
 	{tag:"MUSIC_ARTIST",					type:"string",	descriptionKey:"overlay.labels.placeholders.MUSIC_ARTIST"} as const,
 	{tag:"MUSIC_ALBUM",						type:"string",	descriptionKey:"overlay.labels.placeholders.MUSIC_ALBUM"} as const,
 	{tag:"MUSIC_COVER",						type:"image",	descriptionKey:"overlay.labels.placeholders.MUSIC_COVER"} as const,
+	
+	{tag:"POWER_UP_GIANTIFIED_ID",			type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_GIANTIFIED_ID"} as const,
+	{tag:"POWER_UP_GIANTIFIED_NAME",		type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_GIANTIFIED_NAME"} as const,
+	{tag:"POWER_UP_GIANTIFIED_AVATAR",		type:"image",	descriptionKey:"overlay.labels.placeholders.POWER_UP_GIANTIFIED_AVATAR"} as const,
+	{tag:"POWER_UP_GIANTIFIED_CODE",		type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_GIANTIFIED_CODE"} as const,
+	{tag:"POWER_UP_GIANTIFIED_IMAGE",		type:"image",	descriptionKey:"overlay.labels.placeholders.POWER_UP_GIANTIFIED_IMAGE"} as const,
+	
+	{tag:"POWER_UP_CELEBRATION_ID",			type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_CELEBRATION_ID"} as const,
+	{tag:"POWER_UP_CELEBRATION_NAME",		type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_CELEBRATION_NAME"} as const,
+	{tag:"POWER_UP_CELEBRATION_AVATAR",		type:"image",	descriptionKey:"overlay.labels.placeholders.POWER_UP_CELEBRATION_AVATAR"} as const,
+	{tag:"POWER_UP_CELEBRATION_CODE",		type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_CELEBRATION_CODE"} as const,
+	{tag:"POWER_UP_CELEBRATION_IMAGE",		type:"image",	descriptionKey:"overlay.labels.placeholders.POWER_UP_CELEBRATION_IMAGE"} as const,
+	
+	{tag:"POWER_UP_MESSAGE_ID",				type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_MESSAGE_ID"} as const,
+	{tag:"POWER_UP_MESSAGE_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_MESSAGE_NAME"} as const,
+	{tag:"POWER_UP_MESSAGE_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.POWER_UP_MESSAGE_AVATAR"} as const,
 ] as const;
