@@ -1,8 +1,10 @@
 <template>
 	<div class="triggerActionchatcommandparams">
-		<ParamItem noBackground :paramData="param_cmd" v-model="triggerData.chatCommand"
-			:autofocus="true"
+		<ParamItem noBackground
 			@change="onUpdateCommand()"
+			v-model="param_cmd.value"
+			:paramData="param_cmd"
+			:autofocus="true"
 			:error="cmdNameConflict || slashCmdAlert"
 			:errorMessage="$t(slashCmdAlert? 'triggers.actions.chat.use_slash_cmd' : 'triggers.actions.chat.conflict')" />
 		
@@ -16,9 +18,9 @@
 			:title="$t('triggers.actions.chat.advanced_params')" primary medium>
 				<div class="advancedParams">
 					<ParamItem secondary noBackground class="aliases"
-						:paramData="param_cmdAliases"
-						v-model="triggerData.chatCommandAliases"
 						@change="onUpdateCommand()"
+						v-model="triggerData.chatCommandAliases"
+						:paramData="param_cmdAliases"
 						:error="cmdAliasConflict"
 						:errorMessage="$t('triggers.actions.chat.conflict')" />
 			
@@ -52,7 +54,7 @@ import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentPa
 		TriggerActionCommandArgumentParams,
 	}
 })
- class TriggerActionChatCommandParams extends Vue {
+class TriggerActionChatCommandParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;
@@ -90,6 +92,8 @@ import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentPa
 		if(!this.triggerData.chatCommandAliases || typeof this.triggerData.chatCommandAliases == "string") {
 			this.triggerData.chatCommandAliases = [];
 		}
+
+		this.param_cmd.value = this.triggerData.chatCommand || "";
 	}
 
 	public onUpdateCommand():void {
@@ -97,11 +101,17 @@ import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentPa
 		this.cmdAliasConflict = false;
 		this.slashCmdAlert = this.param_cmd.value.trim().charAt(0) == "/";
 
+		this.triggerData.chatCommand =
+		this.param_cmd.value = this.param_cmd.value.trim().replace(/\s+/g, '');
+
 		//Make sure no other chat command has the same name
 		const triggers = this.$store.triggers.triggerList;
 		let aliases:string[] = [];
 		if(this.triggerData.chatCommandAliases) {
-			this.triggerData.chatCommandAliases.concat().map(v=>v.toLowerCase()).filter(v=>v.length > 0);
+			for (let i = 0; i < this.triggerData.chatCommandAliases.length; i++) {
+				this.triggerData.chatCommandAliases[i] = this.triggerData.chatCommandAliases[i].trim().replace(/\s+/g, '').toLowerCase();
+			}
+			aliases = this.triggerData.chatCommandAliases.concat().filter(v=>v.length > 0);
 		}
 		const mainCmd = this.triggerData.chatCommand?.toLowerCase() || "";
 		

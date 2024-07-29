@@ -1,10 +1,11 @@
 <template>
 	<div class="triggeractionslashcommandparams">
-		<ParamItem noBackground :paramData="param_command" v-model="triggerData.chatCommand"
-			:autofocus="true"
+		<ParamItem noBackground
 			@change="onUpdateCommand()"
+			:paramData="param_command"
+			:autofocus="true"
 			:error="cmdNameConflict"
-			:errorMessage="$t('triggers.actions.chat.conflict')" />
+			:errorMessage="cmdNameConflict? $t('triggers.actions.chat.conflict') : ''" />
 		<ParamItem noBackground :paramData="param_addToContextMenu" v-model="triggerData.addToContextMenu" />
 		<ParamItem v-if="$store.discord.discordLinked" noBackground :paramData="param_addToDiscord" v-model="triggerData.addToDiscord" />
 		
@@ -26,7 +27,7 @@ import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentPa
 	},
 	emits:[],
 })
- class TriggerActionSlashCommandParams extends Vue {
+class TriggerActionSlashCommandParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;
@@ -35,8 +36,11 @@ import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentPa
 	public param_command:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"commands", labelKey:"triggers.slash_cmd.param_cmd", placeholderKey:"triggers.slash_cmd.param_cmd_placeholder" };
 	public param_addToContextMenu:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"rightClick", labelKey:"triggers.slash_cmd.param_ctx_menu" };
 	public param_addToDiscord:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"discord", labelKey:"triggers.slash_cmd.param_discord" };
-		
-
+	
+	public mounted():void {
+		this.param_command.value = this.triggerData.chatCommand || "";
+	}
+	
 	public onUpdateCommand():void {
 		this.cmdNameConflict = false;
 
@@ -66,6 +70,9 @@ import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentPa
 				break;
 			}
 		}
+
+		this.triggerData.chatCommand =
+		this.param_command.value = this.param_command.value.trim().replace(/\s+/g, '');
 	}
 }
 export default toNative(TriggerActionSlashCommandParams);
