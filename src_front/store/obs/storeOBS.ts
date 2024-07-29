@@ -92,18 +92,18 @@ export const storeOBS = defineStore('obs', {
 									return {loading:false, success:false, source:v, url:"", localFile:false}
 								});
 
-				filteredSources.forEach(v=> {
-					OBSWebsocket.instance.getSourceSettings<{is_local_file:boolean, url:string, local_file:string}>(v.source.inputName)
-					.then(res => {
-						if(v.url.indexOf(document.location.origin) > -1){
-							let url = new URL(res.inputSettings.url as string);
+				filteredSources.forEach(browserSource=> {
+					OBSWebsocket.instance.getSourceSettings<{is_local_file:boolean, url:string, local_file:string}>(browserSource.source.inputName)
+					.then(browserSourceSettings => {
+						if((browserSourceSettings.inputSettings.url as string || "").indexOf(document.location.origin) > -1){
+							let url = new URL(browserSourceSettings.inputSettings.url as string);
 							const portUrl = url.searchParams.get("obs_port");
 							const ipUrl = url.searchParams.get("obs_ip");
 							if(portUrl && ipUrl) {
 								url.searchParams.set("obs_ip", ip!);
 								url.searchParams.set("obs_port", port!);
 								if(pass) url.searchParams.set("obs_pass", pass);
-								OBSWebsocket.instance.setBrowserSourceURL(v.source.inputName, url.toString())
+								OBSWebsocket.instance.setBrowserSourceURL(browserSource.source.inputName, url.toString())
 							}
 						}
 					});
