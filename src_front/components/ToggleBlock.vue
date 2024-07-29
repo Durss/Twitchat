@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" :style="contentStyles" @dragenter="scheduleToggle()" @dragleave="cancelToggle()" @drop="toggle(true)">
+	<div :class="classes" :style="contentStyles" @dragenter="scheduleToggle()" @dragleave="cancelToggle()" @drop="">
 		<div class="header" @click.stop="toggle()">
 			<div class="customBg" v-if="customColor" :style="bgStyles"></div>
 			<slot name="left_actions"></slot>
@@ -241,6 +241,7 @@ export class ToggleBlock extends Vue {
 	 * can drag something inside
 	 */
 	public scheduleToggle():void {
+		return;
 		this.dragCount ++;
 		clearTimeout(this.toggleTimeout);
 		this.toggleTimeout = setTimeout(() => {
@@ -254,6 +255,7 @@ export class ToggleBlock extends Vue {
 	 * @see scheduleToggle()
 	 */
 	public cancelToggle():void {
+		return;
 		if(--this.dragCount < 1) {
 			clearTimeout(this.toggleTimeout);
 		}
