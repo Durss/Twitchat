@@ -18,7 +18,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	},
 	emits:[],
 })
- class TriggerActionVibratePhoneEntry extends Vue {
+class TriggerActionVibratePhoneEntry extends Vue {
 
 	@Prop
 	public action!:TriggerActionVibrateData;

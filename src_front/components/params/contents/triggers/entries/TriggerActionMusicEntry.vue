@@ -11,7 +11,7 @@
 	</div>
 
 	<div class="TriggerActionMusicEntry triggerActionForm" v-else>
-		<ParamItem 									:paramData="param_actions"				v-model="action.musicAction" />
+		<ParamItem	:paramData="param_actions"	v-model="action.musicAction" />
 		<div v-if="isPlaylistEditAction && !canEditSpotifyPlaylists" class="card-item alert scopesAlert">
 			<p><Icon name="lock_fit" />{{ $t("triggers.actions.music.missing_playlist_edit_scopes") }}</p>
 			<TTButton light alert @click="spotifyAuth()">{{ $t("global.grant_scope") }}</TTButton>

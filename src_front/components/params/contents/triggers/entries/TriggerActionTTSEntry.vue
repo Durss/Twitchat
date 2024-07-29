@@ -28,7 +28,7 @@ import type { ITriggerPlaceholder, TriggerActionChatData, TriggerData } from '@/
 	},
 	emits:["update"]
 })
- class TriggerActionTTSEntry extends AbstractTriggerActionEntry {
+class TriggerActionTTSEntry extends AbstractTriggerActionEntry {
 	
 	@Prop
 	declare action:TriggerActionChatData;
