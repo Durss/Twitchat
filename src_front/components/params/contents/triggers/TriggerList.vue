@@ -221,6 +221,7 @@ class TriggerList extends Vue {
 	public duplicateTrigger(entry:TriggerListEntry, parent:TriggerListFolderEntry):void {
 		this.$store.triggers.duplicateTrigger(entry.trigger.id, parent?.id);
 		this.populateTriggers();
+		this.onUpdateList();
 	}
 
 	/**
@@ -228,8 +229,7 @@ class TriggerList extends Vue {
 	 * @param item
 	 */
 	public onToggleTrigger(item:TriggerListEntry):void {
-
-			this.$store.triggers.saveTriggers();
+		this.$store.triggers.saveTriggers();
 	}
 
 	/**
