@@ -38,39 +38,43 @@ export const LabelItemPlaceholderList = [
 	{tag:"DATE",							type:"date",	descriptionKey:"overlay.labels.placeholders.DATE"} as const,
 	{tag:"TIME",							type:"time",	descriptionKey:"overlay.labels.placeholders.TIME"} as const,
 	{tag:"DATE_TIME",						type:"datetime",descriptionKey:"overlay.labels.placeholders.DATE_TIME"} as const,
-
-	{tag:"STREAM_DURATION",					type:"duration",descriptionKey:"overlay.labels.placeholders.STREAM_DURATION"} as const,
-	{tag:"STREAM_TITLE",					type:"string",	descriptionKey:"overlay.labels.placeholders.STREAM_TITLE"} as const,
-	{tag:"VIEWER_COUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.VIEWER_COUNT"} as const,
-	{tag:"STREAM_CATEGORY_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.STREAM_CATEGORY_NAME"} as const,
-	{tag:"STREAM_CATEGORY_COVER",			type:"image",	descriptionKey:"overlay.labels.placeholders.STREAM_CATEGORY_COVER"} as const,
 	
+	{tag:"VIEWER_COUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.VIEWER_COUNT"} as const,
 	{tag:"FOLLOWER_COUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.FOLLOWER_COUNT"} as const,
 	{tag:"SUB_COUNT",						type:"number",	descriptionKey:"overlay.labels.placeholders.SUB_COUNT"} as const,
+	
+	{tag:"STREAM_DURATION",					type:"duration",descriptionKey:"overlay.labels.placeholders.STREAM_DURATION"} as const,
+	{tag:"STREAM_TITLE",					type:"string",	descriptionKey:"overlay.labels.placeholders.STREAM_TITLE"} as const,
+	{tag:"STREAM_CATEGORY_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.STREAM_CATEGORY_NAME"} as const,
+	{tag:"STREAM_CATEGORY_COVER",			type:"image",	descriptionKey:"overlay.labels.placeholders.STREAM_CATEGORY_COVER"} as const,
 	
 	{tag:"LAST_SUB_NAME",					type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_NAME"} as const,
 	{tag:"LAST_SUB_ID",						type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_ID"} as const,
 	{tag:"LAST_SUB_AVATAR",					type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_AVATAR"} as const,
 	{tag:"LAST_SUB_TIER",					type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_TIER"} as const,
-	{tag:"LAST_SUB_YOUTUBE_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_YOUTUBE_NAME"} as const,
-	{tag:"LAST_SUB_YOUTUBE_ID",				type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_YOUTUBE_ID"} as const,
-	{tag:"LAST_SUB_YOUTUBE_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_YOUTUBE_AVATAR"} as const,
-	{tag:"LAST_SUB_YOUTUBE_TIER",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_YOUTUBE_TIER"} as const,
-	{tag:"LAST_SUB_GENERIC_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_GENERIC_NAME"} as const,
-	{tag:"LAST_SUB_GENERIC_ID",				type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_GENERIC_ID"} as const,
-	{tag:"LAST_SUB_GENERIC_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_GENERIC_AVATAR"} as const,
-	{tag:"LAST_SUB_GENERIC_TIER",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_GENERIC_TIER"} as const,
 	
 	{tag:"LAST_SUBGIFT_NAME",				type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_NAME"} as const,
 	{tag:"LAST_SUBGIFT_ID",					type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_ID"} as const,
 	{tag:"LAST_SUBGIFT_AVATAR",				type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_AVATAR"} as const,
 	{tag:"LAST_SUBGIFT_TIER",				type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_TIER"} as const,
 	{tag:"LAST_SUBGIFT_COUNT",				type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_COUNT"} as const,
+
+	{tag:"LAST_SUB_YOUTUBE_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_YOUTUBE_NAME"} as const,
+	{tag:"LAST_SUB_YOUTUBE_ID",				type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_YOUTUBE_ID"} as const,
+	{tag:"LAST_SUB_YOUTUBE_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_YOUTUBE_AVATAR"} as const,
+	{tag:"LAST_SUB_YOUTUBE_TIER",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_YOUTUBE_TIER"} as const,
+	
 	{tag:"LAST_SUBGIFT_YOUTUBE_NAME",		type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_YOUTUBE_NAME"} as const,
 	{tag:"LAST_SUBGIFT_YOUTUBE_ID",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_YOUTUBE_ID"} as const,
 	{tag:"LAST_SUBGIFT_YOUTUBE_AVATAR",		type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_YOUTUBE_AVATAR"} as const,
 	{tag:"LAST_SUBGIFT_YOUTUBE_TIER",		type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_YOUTUBE_TIER"} as const,
 	{tag:"LAST_SUBGIFT_YOUTUBE_COUNT",		type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_YOUTUBE_COUNT"} as const,
+	
+	{tag:"LAST_SUB_GENERIC_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_GENERIC_NAME"} as const,
+	{tag:"LAST_SUB_GENERIC_ID",				type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_GENERIC_ID"} as const,
+	{tag:"LAST_SUB_GENERIC_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_GENERIC_AVATAR"} as const,
+	{tag:"LAST_SUB_GENERIC_TIER",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUB_GENERIC_TIER"} as const,
+
 	{tag:"LAST_SUBGIFT_GENERIC_NAME",		type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_GENERIC_NAME"} as const,
 	{tag:"LAST_SUBGIFT_GENERIC_ID",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_GENERIC_ID"} as const,
 	{tag:"LAST_SUBGIFT_GENERIC_AVATAR",		type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_SUBGIFT_GENERIC_AVATAR"} as const,
@@ -113,6 +117,22 @@ export const LabelItemPlaceholderList = [
 	{tag:"LAST_WATCH_STREAK_AVATAR",		type:"image",	descriptionKey:"overlay.labels.placeholders.LAST_WATCH_STREAK_AVATAR"} as const,
 	{tag:"LAST_WATCH_STREAK_COUNT",			type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_WATCH_STREAK_COUNT"} as const,
 	
+	{tag:"POWER_UP_GIANTIFIED_ID",			type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_GIANTIFIED_ID"} as const,
+	{tag:"POWER_UP_GIANTIFIED_NAME",		type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_GIANTIFIED_NAME"} as const,
+	{tag:"POWER_UP_GIANTIFIED_AVATAR",		type:"image",	descriptionKey:"overlay.labels.placeholders.POWER_UP_GIANTIFIED_AVATAR"} as const,
+	{tag:"POWER_UP_GIANTIFIED_CODE",		type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_GIANTIFIED_CODE"} as const,
+	{tag:"POWER_UP_GIANTIFIED_IMAGE",		type:"image",	descriptionKey:"overlay.labels.placeholders.POWER_UP_GIANTIFIED_IMAGE"} as const,
+	
+	{tag:"POWER_UP_CELEBRATION_ID",			type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_CELEBRATION_ID"} as const,
+	{tag:"POWER_UP_CELEBRATION_NAME",		type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_CELEBRATION_NAME"} as const,
+	{tag:"POWER_UP_CELEBRATION_AVATAR",		type:"image",	descriptionKey:"overlay.labels.placeholders.POWER_UP_CELEBRATION_AVATAR"} as const,
+	{tag:"POWER_UP_CELEBRATION_CODE",		type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_CELEBRATION_CODE"} as const,
+	{tag:"POWER_UP_CELEBRATION_IMAGE",		type:"image",	descriptionKey:"overlay.labels.placeholders.POWER_UP_CELEBRATION_IMAGE"} as const,
+	
+	{tag:"POWER_UP_MESSAGE_ID",				type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_MESSAGE_ID"} as const,
+	{tag:"POWER_UP_MESSAGE_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_MESSAGE_NAME"} as const,
+	{tag:"POWER_UP_MESSAGE_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.POWER_UP_MESSAGE_AVATAR"} as const,
+	
 	{tag:"LAST_KOFI_TIP_NAME",				type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_KOFI_TIP_NAME"} as const,
 	{tag:"LAST_KOFI_TIP_AMOUNT",			type:"number",	descriptionKey:"overlay.labels.placeholders.LAST_KOFI_TIP_AMOUNT"} as const,
 	{tag:"LAST_KOFI_MERCH_USER",			type:"string",	descriptionKey:"overlay.labels.placeholders.LAST_KOFI_MERCH_USER"} as const,
@@ -137,20 +157,4 @@ export const LabelItemPlaceholderList = [
 	{tag:"MUSIC_ARTIST",					type:"string",	descriptionKey:"overlay.labels.placeholders.MUSIC_ARTIST"} as const,
 	{tag:"MUSIC_ALBUM",						type:"string",	descriptionKey:"overlay.labels.placeholders.MUSIC_ALBUM"} as const,
 	{tag:"MUSIC_COVER",						type:"image",	descriptionKey:"overlay.labels.placeholders.MUSIC_COVER"} as const,
-	
-	{tag:"POWER_UP_GIANTIFIED_ID",			type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_GIANTIFIED_ID"} as const,
-	{tag:"POWER_UP_GIANTIFIED_NAME",		type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_GIANTIFIED_NAME"} as const,
-	{tag:"POWER_UP_GIANTIFIED_AVATAR",		type:"image",	descriptionKey:"overlay.labels.placeholders.POWER_UP_GIANTIFIED_AVATAR"} as const,
-	{tag:"POWER_UP_GIANTIFIED_CODE",		type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_GIANTIFIED_CODE"} as const,
-	{tag:"POWER_UP_GIANTIFIED_IMAGE",		type:"image",	descriptionKey:"overlay.labels.placeholders.POWER_UP_GIANTIFIED_IMAGE"} as const,
-	
-	{tag:"POWER_UP_CELEBRATION_ID",			type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_CELEBRATION_ID"} as const,
-	{tag:"POWER_UP_CELEBRATION_NAME",		type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_CELEBRATION_NAME"} as const,
-	{tag:"POWER_UP_CELEBRATION_AVATAR",		type:"image",	descriptionKey:"overlay.labels.placeholders.POWER_UP_CELEBRATION_AVATAR"} as const,
-	{tag:"POWER_UP_CELEBRATION_CODE",		type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_CELEBRATION_CODE"} as const,
-	{tag:"POWER_UP_CELEBRATION_IMAGE",		type:"image",	descriptionKey:"overlay.labels.placeholders.POWER_UP_CELEBRATION_IMAGE"} as const,
-	
-	{tag:"POWER_UP_MESSAGE_ID",				type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_MESSAGE_ID"} as const,
-	{tag:"POWER_UP_MESSAGE_NAME",			type:"string",	descriptionKey:"overlay.labels.placeholders.POWER_UP_MESSAGE_NAME"} as const,
-	{tag:"POWER_UP_MESSAGE_AVATAR",			type:"image",	descriptionKey:"overlay.labels.placeholders.POWER_UP_MESSAGE_AVATAR"} as const,
 ] as const;
