@@ -17,7 +17,7 @@
 		<template #content>
 			
 			<input class="searchField" type="text"
-			v-if="localPlaceholders.length + globalPlaceholders.length + globalPlaceholderCategories.length > 5"
+			v-if="search || localPlaceholders.length + globalPlaceholders.length + globalPlaceholderCategories.length > 5"
 			v-model="search"
 			:placeholder="$t('global.search_placeholder')"
 			@keydown.capture.stop="onKeyUp($event)">
