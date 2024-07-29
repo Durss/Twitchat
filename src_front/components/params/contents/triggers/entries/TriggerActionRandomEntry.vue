@@ -85,7 +85,7 @@
 			<template v-if="(param_value.listValues || []).length > 0">
 				<ParamItem :paramData="param_value" v-model="action.valueSource" />
 			</template>
-			<div class="card-item secondary info" v-else>
+			<div class="card-item secondary info warning" v-else>
 				<p>{{ $t("triggers.actions.random.value_no_values") }}</p>
 				<TTButton secondary light small @click="createValue()">{{ $t("values.addBt") }}</TTButton>
 			</div>
@@ -95,7 +95,7 @@
 			<template v-if="(param_counter.listValues || []).length > 0">
 				<ParamItem :paramData="param_counter" v-model="action.counterSource" />
 			</template>
-			<div class="card-item secondary info" v-else>
+			<div class="card-item secondary info warning" v-else>
 				<p>{{ $t("triggers.actions.random.counter_no_values") }}</p>
 				<TTButton secondary light small @click="createCounter()">{{ $t("counters.addBt") }}</TTButton>
 			</div>
@@ -436,6 +436,11 @@ export default toNative(TriggerActionRandomEntry);
 				width: 100%;
 			}
 		}
+	}
+
+	.warning {
+		display: flex;
+		flex-direction: column;
 	}
 }
 </style>
