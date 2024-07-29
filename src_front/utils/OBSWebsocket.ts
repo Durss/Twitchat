@@ -645,6 +645,20 @@ export default class OBSWebsocket extends EventDispatcher {
 				});
 			}
 		}
+		
+		//Waiting a little to workaround an issue with OBS.
+		//Suppose a media source is set to restart playback when displayed.
+		//Now, suppose we hide the source and show it back right after
+		//to restart its playback.
+		//In this case OBS doesn't react well as it would hide/show the source
+		//but it wouldn't restart the playback properly.
+		//This delay makes sure the source is completely hidden before doing anything
+		//else to avoid such situation that would completely lock triggers under very
+		//specific conditions. If the trigger action waits for the media playback
+		//to complete, then it would show the source, but playback wouldn't be
+		//restarted, thus, we would never get the "MediaInputPlaybackEnded" event
+		//and the trigger action would be stuck waiting for it.
+		await Utils.promisedTimeout(1000);
 	}
 
 	/**

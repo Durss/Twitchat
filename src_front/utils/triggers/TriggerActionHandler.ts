@@ -1315,7 +1315,6 @@ export default class TriggerActionHandler {
 											if(d.inputName != step.sourceName) return;
 											logStep.messages.push({date:Date.now(), value:"Media \""+step.sourceName+"\" playing complete."});
 											OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, handler);
-											logStep.messages.push({date:Date.now(), value:"Resolve "+resolve});
 											resolve();
 										}
 										logStep.messages.push({date:Date.now(), value:"Handler created..."});
