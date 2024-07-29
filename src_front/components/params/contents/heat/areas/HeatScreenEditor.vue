@@ -3,7 +3,7 @@
 
 		<div class="form">
 			<Button icon="back" class="backBt" @click="$emit('close')">{{ $t("global.back") }}</Button>
-			<ParamItem :paramData="params_target" @change="onSelectOBSScene()"/>
+			<ParamItem :paramData="params_target" v-model="params_target.value" @change="onSelectOBSScene()"/>
 		</div>
 
 		<div class="scrollable" @wheel="onMouseWheel($event)">
@@ -34,7 +34,7 @@
 		</div>
 
 		<div class="form">
-			<ParamItem :paramData="params_showOBS" v-if="obsConnected" class="shrink" />
+			<ParamItem :paramData="params_showOBS" v-model="params_showOBS.value" v-if="obsConnected" class="shrink" />
 		</div>
 	</div>
 </template>
@@ -56,7 +56,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	},
 	emits:["update", "close"],
 })
- class HeatScreenEditor extends Vue {
+class HeatScreenEditor extends Vue {
 
 	@Prop
 	public screen!:HeatScreen;

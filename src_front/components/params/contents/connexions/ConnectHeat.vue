@@ -10,10 +10,10 @@
 				target="_blank">{{ $t("heat.install") }}</TTButton>
 		</div>
 
-		<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
+		<ParamItem class="item enableBt" :paramData="param_enabled" v-model="param_enabled.value" @change="toggleState()" />
 
 		<Icon name="loader" v-if="connecting" />
-		<ParamItem :paramData="param_debugChan" v-if="debugMode" @change="changeChannel" />
+		<ParamItem :paramData="param_debugChan" v-model="param_debugChan.value" v-if="debugMode" @change="changeChannel" />
 
 		<div class="fadeHolder" :style="holderStyles">
 			<HeatOverlayClick />
