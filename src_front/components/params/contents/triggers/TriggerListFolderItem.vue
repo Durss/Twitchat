@@ -10,9 +10,7 @@
 	:emptyInsertThreshold="0"
 	:disabled="noEdit"
 	@start="dragging = true"
-	@end="dragging = false"
-	@sort="onChange"
-	@change="onChange">
+	@end="dragging = false; onChange($event)">
 		<template #item="{element: folder, index}:{element:TriggerListEntry|TriggerListFolderEntry, index:number}">
 			<ToggleBlock class="folder" v-if="folder.type == 'folder'"
 			medium
