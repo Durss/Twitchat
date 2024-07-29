@@ -11,11 +11,11 @@
 		</div>
 
 		<section v-if="!showForm">
-			<Button icon="add" @click="showForm = true" v-if="canCreateValues" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'values_create'}">{{ $t('values.addBt') }}</Button>
+			<TTButton icon="add" @click="showForm = true" v-if="canCreateValues" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'values_create'}">{{ $t('values.addBt') }}</TTButton>
 			<div class="card-item secondary" v-else-if="$store.auth.isPremium">{{ $t("values.max_values_reached", {COUNT:maxValues}) }}</div>
 			<template v-else>
 				<div class="card-item secondary">{{ $t("error.max_values", {COUNT:maxValues}) }}</div>
-				<Button slot="footer" class="item" icon="premium" premium big @click="openPremium()">{{ $t("premium.become_premiumBt") }}</Button>
+				<TTButton slot="footer" class="item" icon="premium" premium big @click="openPremium()">{{ $t("premium.become_premiumBt") }}</TTButton>
 			</template>
 		</section>
 
@@ -28,84 +28,93 @@
 					<ParamItem class="child" noBackground :paramData="param_placeholder" />
 				</ParamItem>
 				<div class="ctas">
-					<Button type="button" icon="cross" alert @click="cancelForm()">{{ $t('global.cancel') }}</Button>
-					<Button type="submit" v-if="!editedValue" icon="add" :disabled="param_title.value.length == 0 || param_title.error || param_placeholder.error">{{ $t('global.create') }}</Button>
-					<Button type="submit" v-else icon="edit" :disabled="param_title.value.length == 0 || param_title.error || param_placeholder.error">{{ $t('values.editBt') }}</Button>
+					<TTButton type="button" icon="cross" alert @click="cancelForm()">{{ $t('global.cancel') }}</TTButton>
+					<TTButton type="submit" v-if="!editedValue" icon="add" :disabled="param_title.value.length == 0 || param_title.error || param_placeholder.error">{{ $t('global.create') }}</TTButton>
+					<TTButton type="submit" v-else icon="edit" :disabled="param_title.value.length == 0 || param_title.error || param_placeholder.error">{{ $t('values.editBt') }}</TTButton>
 				</div>
 			</form>
 		</section>
 
-		<ToggleBlock class="valueEntry" :open="false" noArrow
-		v-if="valueEntries.length > 0"
-		v-for="entry in valueEntries" :key="entry.value.id"
-		:title="entry.value.name">
-		
-			<template #right_actions>
-				<div class="actions">
-					<Button class="actionBt" v-tooltip="$t('values.editBt')" icon="edit" @click.stop="editValue(entry.value)" />
-					<Button class="actionBt" alert icon="trash" @click.stop="deleteValue(entry)" />
-				</div>
-			</template>
-
-			<div class="content">
-				<ParamItem class="value"
-					v-if="!entry.value.perUser"
-					:paramData="entry.param"
-					@change="onChangeValue(entry)" />
-				
-				<div class="userList" v-else>
-					<template v-if="Object.keys(entry.value.users ?? {}).length > 0">
-						<div class="search">
-							<input type="text" :placeholder="$t('values.form.search')" v-model="search[entry.value.id]" @input="searchUser(entry.value)">
-							<Icon name="loader" class="loader" v-show="idToLoading[entry.value.id] === true" />
-						</div>
-							
-						<Button class="resetBt" v-if="search[entry.value.id].length === 0"
-							secondary
-							@click="resetUsers(entry)">{{ $t('values.form.reset_all_users') }}</Button>
-						
-						<Button class="clearBt" v-if="search[entry.value.id].length === 0"
-							alert
-							@click="clearUsers(entry)">{{ $t('values.form.clear_all_users') }}</Button>
-						
-						<Button class="loadAllBt" v-if="search[entry.value.id].length === 0 && idToAllLoaded[entry.value.id] !== true"
-							@click="loadUsers(entry)"
-							:loading="idToLoading[entry.value.id]">{{ $t('values.form.load_all_users') }}</Button>
-	
-						<div class="noResult" v-if="idToNoResult[entry.value.id] === true">{{ $t("values.user_not_found") }}</div>
-					</template>
-
-					<span class="noResult" v-else>{{ $t("values.form.no_users") }}</span>
-
-					<template v-if="idToUsers[entry.value.id] && idToUsers[entry.value.id]!.length > 0">
-						<div class="sort" v-if="idToUsers[entry.value.id]!.filter(v=>v.hide !== true).length > 1">
-							<button>{{$t("values.form.username")}}</button>
-							<button>{{$t("values.form.userValue")}}</button>
-						</div>
-						<InfiniteList class="scrollableList"
-						:dataset="idToUsers[entry.value.id]!.filter(v=>v.hide !== true)"
-						:itemSize="100"
-						:itemMargin="3"
-						lockScroll
-						v-slot="{ item } : {item:UserEntry}">
-							<div class="card-item userItem">
-								<div class="infos">
-									<div class="head">
-										<img :src="item.user.avatarPath" class="avatar" v-if="item.user.avatarPath">
-										<a :href="'https://twitch.tv/'+item.user.login" class="login" target="_blank">{{ item.user.displayNameOriginal }}</a>
-									</div>
-									<ParamItem class="value" noBackground
-										:paramData="item.param"
-										@input="onChangeValue(entry, item)" />
-								</div>
-								<button class="deleteBt" @click="deleteUser(entry, item)"><Icon name="trash" theme="light" /></button>
+		<draggable class="entryList"
+			v-model="valueEntries"
+			direction="vertical"
+			group="values"
+			item-key="counter.id"
+			:animation="250"
+			@sort="onSortItems()">
+				<template #item="{element:entry, index}:{element:ValueEntry, index:number}">
+					<ToggleBlock class="valueEntry"
+					:open="false" noArrow
+					:key="entry.value.id"
+					:title="entry.value.name">
+					
+						<template #right_actions>
+							<div class="actions">
+								<TTButton class="actionBt" v-tooltip="$t('values.editBt')" icon="edit" @click.stop="editValue(entry.value)" />
+								<TTButton class="actionBt" alert icon="trash" @click.stop="deleteValue(entry)" />
 							</div>
-						</InfiniteList>
-					</template>
-				</div>
-			</div>
-		</ToggleBlock>
+						</template>
 
+						<div class="content">
+							<ParamItem class="value"
+								v-if="!entry.value.perUser"
+								:paramData="entry.param"
+								@change="onChangeValue(entry)" />
+							
+							<div class="userList" v-else>
+								<template v-if="Object.keys(entry.value.users ?? {}).length > 0">
+									<div class="search">
+										<input type="text" :placeholder="$t('values.form.search')" v-model="entry.search[entry.value.id]" @input="searchUser(entry)">
+										<Icon name="loader" class="loader" v-show="entry.idToLoading[entry.value.id] === true" />
+									</div>
+										
+									<TTButton class="resetBt" v-if="entry.search[entry.value.id].length === 0"
+										secondary
+										@click="resetUsers(entry)">{{ $t('values.form.reset_all_users') }}</TTButton>
+									
+									<TTButton class="clearBt" v-if="entry.search[entry.value.id].length === 0"
+										alert
+										@click="clearUsers(entry)">{{ $t('values.form.clear_all_users') }}</TTButton>
+									
+									<TTButton class="loadAllBt" v-if="entry.search[entry.value.id].length === 0 && entry.idToAllLoaded[entry.value.id] !== true"
+										@click="loadUsers(entry)"
+										:loading="entry.idToLoading[entry.value.id]">{{ $t('values.form.load_all_users') }}</TTButton>
+				
+									<div class="noResult" v-if="entry.idToNoResult[entry.value.id] === true">{{ $t("values.user_not_found") }}</div>
+								</template>
+
+								<span class="noResult" v-else>{{ $t("values.form.no_users") }}</span>
+
+								<template v-if="entry.idToUsers[entry.value.id] && entry.idToUsers[entry.value.id]!.length > 0">
+									<div class="sort" v-if="entry.idToUsers[entry.value.id]!.filter(v=>v.hide !== true).length > 1">
+										<button>{{$t("values.form.username")}}</button>
+										<button>{{$t("values.form.userValue")}}</button>
+									</div>
+									<InfiniteList class="scrollableList"
+									:dataset="entry.idToUsers[entry.value.id]!.filter(v=>v.hide !== true)"
+									:itemSize="100"
+									:itemMargin="3"
+									lockScroll
+									v-slot="{ item } : {item:UserEntry}">
+										<div class="card-item userItem">
+											<div class="infos">
+												<div class="head">
+													<img :src="item.user.avatarPath" class="avatar" v-if="item.user.avatarPath">
+													<a :href="'https://twitch.tv/'+item.user.login" class="login" target="_blank">{{ item.user.displayNameOriginal }}</a>
+												</div>
+												<ParamItem class="value" noBackground
+													:paramData="item.param"
+													@input="onChangeValue(entry, item)" />
+											</div>
+											<button class="deleteBt" @click="deleteUser(entry, item)"><Icon name="trash" theme="light" /></button>
+										</div>
+									</InfiniteList>
+								</template>
+							</div>
+						</div>
+					</ToggleBlock>
+				</template>
+		</draggable>
 	</div>
 </template>
 
@@ -121,27 +130,25 @@ import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import draggable from 'vuedraggable';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
+		draggable,
 		ParamItem,
 		ToggleBlock,
 		InfiniteList,
 	},
 	emits:[]
 })
- class ParamsValues extends Vue implements IParameterContent {
+class ParamsValues extends Vue implements IParameterContent {
 
 	public showForm:boolean = false;
 	public timeoutSearch:number = -1;
 	public timeoutEdit:number = -1;
 	public editedValue:TwitchatDataTypes.ValueData|null = null;
-	public idToUsers:{[key:string]:UserEntry[]|null} = {};
-	public idToNoResult:{[key:string]:boolean} = {};
-	public idToLoading:{[key:string]:boolean} = {};
-	public idToAllLoaded:{[key:string]:boolean} = {};
-	public search:{[key:string]:string} = {};
+	public valueEntries:ValueEntry[] = [];
 
 	public param_title:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:50, labelKey:"values.form.name"};
 	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", labelKey:"values.form.value"};
@@ -151,16 +158,6 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 	public get maxValues():number { return this.$store.auth.isPremium? Config.instance.MAX_VALUES_PREMIUM : Config.instance.MAX_VALUES; }
 	public get canCreateValues():boolean { return this.$store.values.valueList.length < this.maxValues; }
-
-	public get valueEntries():ValueEntry[] {
-		const list = this.$store.values.valueList;
-		return list.map((v):ValueEntry => {
-			return {
-					value:v,
-					param:reactive({type:'string', value:v.value, labelKey:'values.form.value'})
-				}
-		});
-	}
 
 	public openTriggers():void {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
@@ -175,11 +172,6 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 	}
 
 	public mounted(): void {
-		for (let i = 0; i < this.valueEntries.length; i++) {
-			const element = this.valueEntries[i];
-			this.search[element.value.id] = "";
-		}
-
 		watch(()=> this.param_title.value, ()=> {
 			const values = this.$store.values.valueList;
 			const name = this.param_title.value.toLowerCase();
@@ -215,6 +207,28 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 			this.param_placeholder.error = exists;
 			this.param_placeholder.errorMessage = exists? this.$t("values.form.placeholder_conflict") : '';
 		})
+
+		const list = this.$store.values.valueList;
+		this.valueEntries = list.map((v):ValueEntry => {
+			return {
+					value:v,
+					param:reactive({type:'string', value:v.value, labelKey:'values.form.value'}),
+					idToAllLoaded:{},
+					idToLoading:{},
+					idToNoResult:{},
+					idToUsers:{},
+					search:{},
+					sortDirection:{},
+					sortType:{},
+				}
+		});
+
+		for (let i = 0; i < this.valueEntries.length; i++) {
+			const element = this.valueEntries[i];
+			element.sortType[element.value.id] = "points";
+			element.sortDirection[element.value.id] = -1;
+			element.search[element.value.id] = "";
+		}
 	}
 
 	public onNavigateBack(): boolean { return false; }
@@ -330,7 +344,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 	public deleteUser(entry:ValueEntry, userEntry:UserEntry):void {
 		if(!entry.value.users) return;
 		delete entry.value.users[userEntry.user.id];
-		this.idToUsers[entry.value.id] = this.idToUsers[entry.value.id]!.filter(v=>v.user.id != userEntry.user.id);
+		entry.idToUsers[entry.value.id] = entry.idToUsers[entry.value.id]!.filter(v=>v.user.id != userEntry.user.id);
 		this.$store.values.updateValue(entry.value.id, entry.value.value);
 	}
 	
@@ -339,22 +353,23 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 	 * If all users are loaded, search within them.
 	 * If users are not loaded, query twitch for a user matching current search
 	 */
-	public searchUser(value:TwitchatDataTypes.ValueData):void {
-		let preloadedUsers = this.idToUsers[value.id];
-		this.idToNoResult[value.id] = false;
-		if(this.search[value.id].length == 0) {
-			if(this.idToAllLoaded[value.id] !== true) delete this.idToUsers[value.id];
+	public searchUser(entry:ValueEntry):void {
+		const value = entry.value;
+		let preloadedUsers = entry.idToUsers[value.id];
+		entry.idToNoResult[value.id] = false;
+		if(entry.search[value.id].length == 0) {
+			if(entry.idToAllLoaded[value.id] !== true) delete entry.idToUsers[value.id];
 			else if(preloadedUsers) preloadedUsers.forEach(v=> v.hide = false);
 			return;
 		}
 		//If there are more than 1 loaded users, that's because they've all been loaded
 		//In this case, just search there instead of polling from twitch API
-		if(this.idToAllLoaded[value.id] === true && preloadedUsers && preloadedUsers.length > 1) {
+		if(entry.idToAllLoaded[value.id] === true && preloadedUsers && preloadedUsers.length > 1) {
 			let hasResult = false;
 			for (let i = 0; i < preloadedUsers.length; i++) {
 				const u = preloadedUsers[i];
 				u.hide = false;
-				if(u.user.login.indexOf(this.search[value.id]) == -1 && u.user.displayNameOriginal.indexOf(this.search[value.id]) == -1) {
+				if(u.user.login.indexOf(entry.search[value.id]) == -1 && u.user.displayNameOriginal.indexOf(entry.search[value.id]) == -1) {
 					u.hide = true;
 				}else{
 					hasResult = true;
@@ -367,27 +382,27 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 			preloadedUsers.forEach(v=> v.hide = true);
 		}
 
-		this.idToLoading[value.id] = true;
+		entry.idToLoading[value.id] = true;
 
 		//Users not loaded yet, search user from Twitch API
 		clearTimeout(this.timeoutSearch);
 		this.timeoutSearch = setTimeout(async () => {
-			const users = await TwitchUtils.getUserInfo(undefined, [this.search[value.id]]);
+			const users = await TwitchUtils.getUserInfo(undefined, [entry.search[value.id]]);
 			let found = false;
 			if(users.length > 0) {
 				const u = users[0];
 				if(value.users![u.id] != undefined) {
 					found = true;
 					let v = (value.users && value.users[u.id])? value.users![u.id] : "";
-					this.idToUsers[value.id] = [{
+					entry.idToUsers[value.id] = [{
 							hide:false,
 							param:reactive({type:"string", value:v, maxLength:100000}),
 							user:this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, u.id, u.login, u.display_name),
 						}];
 				}
 			}
-			this.idToNoResult[value.id] = !found;
-			this.idToLoading[value.id] = false;
+			entry.idToNoResult[value.id] = !found;
+			entry.idToLoading[value.id] = false;
 			
 		}, 500);
 	}
@@ -397,7 +412,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 	 * @param entry 
 	 */
 	public async loadUsers(entry:ValueEntry):Promise<void> {
-		this.idToLoading[entry.value.id] = true;
+		entry.idToLoading[entry.value.id] = true;
 
 		clearTimeout(this.timeoutSearch);
 		const users = await TwitchUtils.getUserInfo(Object.keys(entry.value.users!));
@@ -411,10 +426,10 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 				const res:UserEntry = { param, user, hide:false };
 				return res;
 			});
-			this.idToAllLoaded[entry.value.id] = true;
-			this.idToUsers[entry.value.id] = ttUsers;
+			entry.idToAllLoaded[entry.value.id] = true;
+			entry.idToUsers[entry.value.id] = ttUsers;
 		}
-		this.idToLoading[entry.value.id] = false;
+		entry.idToLoading[entry.value.id] = false;
 	}
 
 	/**
@@ -430,9 +445,9 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 			}
 
 			//Reset view data
-			if(this.idToUsers[entry.value.id]) {
-				for (let i = 0; i < this.idToUsers[entry.value.id]!.length; i++) {
-					const u = this.idToUsers[entry.value.id]![i];
+			if(entry.idToUsers[entry.value.id]) {
+				for (let i = 0; i < entry.idToUsers[entry.value.id]!.length; i++) {
+					const u = entry.idToUsers[entry.value.id]![i];
 					u.param.value = "";
 				}
 			}
@@ -452,16 +467,33 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 			entry.value.users = {};
 	
 			//Reset view data
-			this.idToUsers[entry.value.id] = [];
+			entry.idToUsers[entry.value.id] = [];
 	
 			this.$store.values.updateValue(entry.value.id, entry.value.value);
 		}).catch(()=>{});
+	}
+
+	/**
+	 * Called when counters are sorted
+	 * Applies the sorting to original cata array
+	 */
+	public onSortItems():void {
+		const idToIndex:{[id:string]:number} = {};
+		this.valueEntries.forEach((entry, index)=> idToIndex[entry.value.id] = index);
+		this.$store.values.valueList.sort((a,b)=> idToIndex[a.id] - idToIndex[b.id]);
 	}
 }
 
 interface ValueEntry {
     param: TwitchatDataTypes.ParameterData<string, unknown, unknown>;
     value: TwitchatDataTypes.ValueData;
+	idToUsers:{[key:string]:UserEntry[]|null};
+	idToNoResult:{[key:string]:boolean};
+	idToLoading:{[key:string]:boolean};
+	idToAllLoaded:{[key:string]:boolean};
+	sortType:{[key:string]:"name"|"points"};
+	sortDirection:{[key:string]:1|-1};
+	search:{[key:string]:string};
 }
 
 interface UserEntry {
@@ -506,6 +538,12 @@ export default toNative(ParamsValues);
 				}
 			}
 		}
+	}
+
+	.entryList {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
 	}
 
 	.valueEntry {
