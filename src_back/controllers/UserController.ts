@@ -198,9 +198,6 @@ export default class UserController extends AbstractController {
 		//avoid saving private data to server
 		delete body.obsPass;
 		delete body.oAuthToken;
-		//Do not save this to the server to avoid config to be erased
-		//on one of the instances
-		delete body["p:hideChat"];
 
 		// body.data["p:slowMode"] = true;//Uncomment to test JSON diff
 
