@@ -13,25 +13,26 @@
 						</template>
 						<template #REWARD><mark>{{ reward.title }}</mark></template>
 						<template #RECREATE>
-							<TTButton :loading="tranfering" @click="executeTransfer()" icon="channelPoints">{{ $t("rewards.manage.transfer_step_recreateBt") }}</TTButton>
-							<div class="card-item alert error" @click="error = ''" v-if="error">{{ error }}</div>
+							<div class="transfered" v-if="recreated"><Icon name="checkmark"/>{{ $t("rewards.manage.transfer_step_recreate_done") }}</div>
+							<TTButton v-else-if="!error" :loading="tranfering" @click="executeTransfer()" icon="channelPoints">{{ $t("rewards.manage.transfer_step_recreateBt") }}</TTButton>
+							<div class="card-item alert error" @click="error = ''" v-else-if="error">{{ error }}</div>
 						</template>
 					</i18n-t>
 				</li>
 			</template>
 			<li class="card-item icons" v-if="reward.image">
 				<a v-if="reward.image?.url_1x"
-				:href="reward.image.url_1x" target="_blank" download="28px.png" v-tooltip="$t('rewards.manage.download_icon_tt')">
+				:href="reward.image.url_1x" target="_blank" :download="reward.title+'_28px.png'" v-tooltip="$t('rewards.manage.download_icon_tt')">
 					<img :src="reward.image.url_1x">
 					<span>28x28</span>
 				</a>
 				<a v-if="reward.image?.url_2x"
-				:href="reward.image.url_2x" target="_blank" download="56px.png" v-tooltip="$t('rewards.manage.download_icon_tt')">
+				:href="reward.image.url_2x" target="_blank" :download="reward.title+'_56px.png'" v-tooltip="$t('rewards.manage.download_icon_tt')">
 					<img :src="reward.image.url_2x">
 					<span>56x56</span>
 				</a>
 				<a v-if="reward.image?.url_4x"
-				:href="reward.image.url_4x" target="_blank" download="112px.png" v-tooltip="$t('rewards.manage.download_icon_tt')">
+				:href="reward.image.url_4x" target="_blank" :download="reward.title+'_112px.png'" v-tooltip="$t('rewards.manage.download_icon_tt')">
 					<img :src="reward.image.url_4x">
 					<span>112x112</span>
 				</a>
@@ -52,12 +53,13 @@ import TTButton from '../TTButton.vue';
 	},
 	emits:["complete"],
 })
- class RewardListTransferForm extends Vue {
+class RewardListTransferForm extends Vue {
 
 	@Prop
 	public reward!:TwitchDataTypes.Reward;
 
 	public error:string = "";
+	public recreated:boolean = false;
 	public tranfering:boolean = false;
 
 	public async executeTransfer():Promise<void> {
@@ -86,7 +88,8 @@ import TTButton from '../TTButton.vue';
 		}else if(res === false) {
 			this.error = this.$t("error.rewards.create_unknown");
 		}else{
-			this.$emit("complete");
+			this.recreated = true;
+			// this.$emit("complete");
 		}
 		this.tranfering = false;
 	}
@@ -121,7 +124,7 @@ export default toNative(RewardListTransferForm);
 				padding: .5em;
 				width: 2em;
 				flex-shrink: 0;
-				background-color: var(--color-text-fader);
+				background-color: var(--color-secondary);
 				display: flex;
 				align-items: center;
 				justify-content: center;
@@ -132,6 +135,12 @@ export default toNative(RewardListTransferForm);
 				.error {
 					margin-top: .5em;
 					cursor: pointer;
+				}
+			}
+			.transfered {
+				font-style: italic;
+				.icon {
+					margin-right: .5em;
 				}
 			}
 			&.icons {
