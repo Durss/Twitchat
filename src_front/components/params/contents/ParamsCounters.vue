@@ -40,9 +40,11 @@
 			</form>
 		</section>
 
-		<ToggleBlock class="counterEntry" :open="false" noArrow
+		<ToggleBlock class="counterEntry"
 		v-if="counterEntries.length > 0"
-		v-for="entry in counterEntries" :key="entry.counter.id"
+		v-for="entry in counterEntries"
+		:open="false" noArrow
+		:key="entry.counter.id"
 		:title="entry.counter.name">
 		
 			<template #right_actions>
@@ -65,12 +67,14 @@
 
 				<ParamItem class="value" v-if="!entry.counter.perUser"
 					:paramData="entry.param"
+					v-model="entry.param.value"
 					@change="onChangeValue(entry)" />
 				
 				<div class="userList" v-else>
 					<template v-if="Object.keys(entry.counter.users ?? {}).length > 0">
 						<div class="search">
-							<input type="text" :placeholder="$t('counters.form.search')" v-model="search[entry.counter.id]" @input="searchUser(entry.counter)">
+							<input type="text" :placeholder="$t('counters.form.search')"
+								v-model="search[entry.counter.id]" @input="searchUser(entry.counter)">
 							<Icon name="loader" class="loader" v-show="idToLoading[entry.counter.id] === true" />
 						</div>
 							
@@ -150,7 +154,7 @@ import ToggleButton from '@/components/ToggleButton.vue';
 	},
 	emits:[]
 })
- class ParamsCounters extends Vue implements IParameterContent {
+class ParamsCounters extends Vue implements IParameterContent {
 
 	public showForm:boolean = false;
 	public timeoutSearch:number = -1;
@@ -333,14 +337,15 @@ import ToggleButton from '@/components/ToggleButton.vue';
 	 */
 	public onChangeValue(entry:CounterEntry, userEntry?:UserEntry):void {
 		clearTimeout(this.timeoutEdit);
+		let diff = 0;
 		this.timeoutEdit = setTimeout(() => {
 			if(userEntry) {
-				entry.counter.users![ userEntry.user.id ] = userEntry.param.value;
+				diff = userEntry.param.value - entry.counter.users![ userEntry.user.id ];
 			}else{
-				entry.counter.value = entry.param.value;
+				diff = entry.param.value - entry.counter.value;
 			}
-			this.$store.counters.updateCounter(entry.counter);
-		}, 250);
+			this.$store.counters.increment(entry.counter.id, "ADD", diff, userEntry?.user);
+		}, 500);
 	}
 
 	/**
