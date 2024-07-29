@@ -141,6 +141,7 @@ export const storeDebug = defineStore('debug', {
 					};
 					m.message_size = TwitchUtils.computeMessageSize(chunks);
 					if(Math.random() > .8) {
+						m.tier = Utils.pickRand([1,2,3]),
 						m.is_gift = true;
 						m.gift_count = Math.floor(Math.random() * 20) + 1;
 						m.gift_recipients = fakeUsers.concat().splice(0, m.gift_count);
