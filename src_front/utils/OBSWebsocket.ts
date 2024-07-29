@@ -1,5 +1,5 @@
 import StoreProxy from '@/store/StoreProxy';
-import OBSWebSocket from 'obs-websocket-js';
+import OBSWebSocket, { RequestBatchExecutionType, type RequestBatchRequest } from 'obs-websocket-js';
 import type { JsonArray, JsonObject } from 'type-fest';
 import { reactive } from 'vue';
 import { EventDispatcher } from '../events/EventDispatcher';
@@ -130,6 +130,28 @@ export default class OBSWebsocket extends EventDispatcher {
 
 		// const res = await this.getSourceOnCurrentScene("TTImage");
 		// console.log(res);
+
+		const loop = async ()=>{
+			// loop();
+			const frames:RequestBatchRequest[] = [];
+			frames.push({
+				requestType:"SetSceneItemEnabled",
+				requestData: {sceneName:"Scene 2", sceneItemId:37, sceneItemEnabled:false}
+			});
+			frames.push({
+				requestType:"Sleep",
+				requestData:{sleepFrames:2},
+			})
+			frames.push({
+				requestType:"SetSceneItemEnabled",
+				requestData: {sceneName:"Scene 2", sceneItemId:37, sceneItemEnabled:true}
+			});
+			
+			await OBSWebsocket.instance.socket.callBatch(frames, {executionType:RequestBatchExecutionType.SerialFrame, haltOnFailure:false});
+			await Utils.promisedTimeout(1000);
+			loop();
+		}
+		// loop();
 
 		return true;
 	}
@@ -646,19 +668,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			}
 		}
 		
-		//Waiting a little to workaround an issue with OBS.
-		//Suppose a media source is set to restart playback when displayed.
-		//Now, suppose we hide the source and show it back right after
-		//to restart its playback.
-		//In this case OBS doesn't react well as it would hide/show the source
-		//but it wouldn't restart the playback properly.
-		//This delay makes sure the source is completely hidden before doing anything
-		//else to avoid such situation that would completely lock triggers under very
-		//specific conditions. If the trigger action waits for the media playback
-		//to complete, then it would show the source, but playback wouldn't be
-		//restarted, thus, we would never get the "MediaInputPlaybackEnded" event
-		//and the trigger action would be stuck waiting for it.
-		await Utils.promisedTimeout(1000);
+		await Utils.promisedTimeout(50);
 	}
 
 	/**
@@ -1077,6 +1087,16 @@ export default class OBSWebsocket extends EventDispatcher {
 
 		this.obs.on("MediaInputPlaybackEnded", async (e:{inputName:string}) => {
 			this.log("Media playback complete: "+e.inputName);
+			//Waiting 1s to workaround an issue with OBS.
+			//Suppose a media source is set to restart playback when displayed.
+			//Now, suppose we hide the source and show it back right after
+			//on MediaInputPlaybackEnded event.
+			//In this case OBS doesn't react well as it would hide/show the source
+			//but it wouldn't restart the playback properly.
+			//For some reason, in this very specific case we need to wait ~1s after
+			//the media completes before being able to restart its playback by
+			//showing the source
+			await Utils.promisedTimeout(1000);
 			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_PLAYBACK_ENDED, e));
 		});
 
