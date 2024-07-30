@@ -251,7 +251,7 @@
 				"param_url": "Browser URL",
 				"param_media": "Media file (optionel)",
 				"param_media_img": "Image file",
-				"param_mediaEvent": "Wait for media to end playing (trigger's execution will be paused until media playing completes)",
+				"param_mediaEvent": "Wait for media playback to complete\n(trigger's execution will be paused until media playing completes)",
 				"param_x": "Position X (pixels)",
 				"param_y": "Position Y (pixels)",
 				"param_width": "Width (pixels)",

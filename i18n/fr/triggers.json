@@ -251,7 +251,7 @@
 				"param_url": "URL de la source",
 				"param_media": "Fichier (optionel)",
 				"param_media_img": "Fichier image",
-				"param_mediaEvent": "Attendre que le media termine sa lecture (l'exécution du trigger sera mise en pause le temps que la lecture du media termine)",
+				"param_mediaEvent": "Attendre que la lecture du media termine\n(l'exécution du trigger sera mise en pause le temps que la lecture du media termine)",
 				"param_x": "Position X (pixels)",
 				"param_y": "Position Y (pixels)",
 				"param_width": "Largeur (pixels)",
