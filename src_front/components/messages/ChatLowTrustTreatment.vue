@@ -5,7 +5,7 @@
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<img v-if="messageData.restricted" src="@/assets/icons/lock_fit.svg" alt="notice" class="icon">
-		<img v-else src="@/assets/icons/shield.svg" alt="notice" class="icon">
+		<Icon v-else name="shield" alt="notice" class="icon" />
 		
 		<i18n-t scope="global" v-if="messageData.restricted"
 		keypath="global.moderation_action.user_restricted" tag="p">
@@ -43,12 +43,15 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
+import Icon from '@/components/Icon.vue';
 
 @Component({
-	components:{},
+	components:{
+		Icon,
+	},
 	emits:['onOverMessage', 'onRead'],
 })
- class ChatLowTrustTreatment extends AbstractChatMessage {
+class ChatLowTrustTreatment extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageLowtrustTreatmentData;

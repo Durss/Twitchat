@@ -104,7 +104,7 @@ export default toNative(ChatRaid);
 <style scoped lang="less">
 .chatraid{
 	&>.icon {
-		color: #;
+		color: #ebeb00;
 	}
 	.messageHolder {
 		display: flex;
