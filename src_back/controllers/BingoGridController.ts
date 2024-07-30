@@ -163,7 +163,6 @@ export default class BingoGridController extends AbstractController {
 		const gridRef:IGridCacheData["data"] = body.grid;
 		const gridid:string = body.gridid;
 		const folder = Config.BINGO_GRID_ROOT(user.user_id, gridid);
-		const files = fs.readdirSync(folder)
 		const cachedGrid = await this.getStreamerGrid(user.user_id, gridid);
 		if(!cachedGrid) {
 			response.header('Content-Type', 'application/json');
@@ -171,7 +170,14 @@ export default class BingoGridController extends AbstractController {
 			response.send(JSON.stringify({success:false, error:"Grid or user not found", errorCode:"NOT_FOUND"}));
 			return;
 		}
+		if(!fs.existsSync(folder)) {
+			response.header('Content-Type', 'application/json');
+			response.status(200);
+			response.send(JSON.stringify({success:true, error:"no cache to update", errorCode:"NO_CACHE"}));
+			return;
+		}
 		
+		const files = fs.readdirSync(folder);
 		cachedGrid.data.enabled = gridRef.enabled;
 		cachedGrid.data.entries = gridRef.entries;
 		cachedGrid.data.cols = gridRef.cols;
