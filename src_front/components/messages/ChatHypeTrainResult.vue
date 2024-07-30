@@ -107,7 +107,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 	emits:["setCustomActivities", "onRead"]
 })
 
- class ChatHypeTrainResult extends AbstractChatMessage {
+class ChatHypeTrainResult extends AbstractChatMessage {
 	
 	@Prop({
 			type:Boolean,
@@ -202,6 +202,9 @@ export default toNative(ChatHypeTrainResult);
 
 <style scoped lang="less">
 .chathypetrainresult{
+	&>.icon {
+		color: #00d6d6;
+	}
 	.highlight() {
 		color: var(--color-text-light);
 		background-color: var(--color-primary);

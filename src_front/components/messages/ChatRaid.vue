@@ -61,7 +61,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 	},
 	emits:["onRead"],
 })
- class ChatRaid extends AbstractChatMessage {
+class ChatRaid extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageRaidData;
@@ -103,6 +103,9 @@ export default toNative(ChatRaid);
 
 <style scoped lang="less">
 .chatraid{
+	&>.icon {
+		color: #;
+	}
 	.messageHolder {
 		display: flex;
 		flex-direction: column;

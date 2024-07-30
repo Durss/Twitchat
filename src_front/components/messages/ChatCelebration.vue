@@ -76,6 +76,9 @@ export default toNative(ChatCelebration);
 		.label {
 			flex-grow: 1;
 		}
+		&>.icon {
+			color: #5cffbe;
+		}
 	}
 }
 </style>

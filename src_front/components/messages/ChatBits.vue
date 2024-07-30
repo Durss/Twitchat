@@ -40,7 +40,7 @@ import MessageTranslation from './MessageTranslation.vue';
 	},
 	emits:["onRead"],
 })
- class ChatBits extends AbstractChatMessage {
+class ChatBits extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageCheerData;
@@ -118,6 +118,9 @@ export default toNative(ChatBits);
 	background-size: 200%;
 	background-position: 100% center;
 	overflow: hidden;
+	&>.icon {
+		color: #5cffbe;
+	}
 
 	&.pinned {
 		padding: .5em;

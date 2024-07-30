@@ -166,6 +166,9 @@ export default toNative(ChatSubscription);
 
 <style scoped lang="less">
 .chatsubscription{
+	&>.icon {
+		color: #1f69ff;
+	}
 	.additional {
 		opacity: .8;
 	}
