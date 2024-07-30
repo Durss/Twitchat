@@ -238,6 +238,18 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 							//Stack bingos for 5s before announcing them on tchat to avoid spam
 							clearTimeout(debounceChatAnnounce);
 							debounceChatAnnounce = setTimeout(()=> {
+								//Dedupe entries, only keep the last registered ones for each user
+								//which should be the highest one
+								const userDone:{[uid:string]:boolean} = {};
+								for (let i = chatAnnounceStack.length-1; i > -1; i--) {
+									const entry = chatAnnounceStack[i];
+									if(userDone[entry.user.id] === true) {
+										chatAnnounceStack.splice(i, 1);
+										continue;
+									}
+									userDone[entry.user.id] = true;
+								}
+
 								//Send messages.
 								let minLength = grid.chatAnnouncement.replace(/\{WINNERS\}/gi, "").trim().length;
 								while(chatAnnounceStack.length > 0) {
@@ -261,7 +273,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 									const message = grid.chatAnnouncement.replace(/\{WINNERS\}/gi, chunks.join(""));
 									MessengerProxy.instance.sendMessage(message);
 								}
-							}, 5000);
+							}, 7000);
 						}
 
 						const message:TwitchatDataTypes.MessageBingoGridViewerData = {
