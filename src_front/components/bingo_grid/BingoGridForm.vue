@@ -62,7 +62,9 @@
 							</label>
 							<div class="urlHolder">
 								<p class="url" v-click2Select>{{ getPublicURL(bingo.id) }}</p>
-								<TTButton icon="copy" transparent @click="copyPublicURL(bingo.id)"></TTButton>
+								<TTButton icon="copy" transparent @click="copyPublicURL(bingo.id)" />
+								<TTButton icon="whispers" transparent v-if="!sendingOnChat[bingo.id]" @click="sendChatURL(bingo.id)" v-tooltip="$t('bingo_grid.form.send_chat_url_tt')" />
+								<Icon name="loader" v-else class="loader" />
 							</div>
 							<div class="info" v-if="!$store.auth.isPremium">
 								<Icon name="premium" />
@@ -238,6 +240,7 @@ import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 import Utils from '@/utils/Utils';
 import ChatMessage from '../messages/ChatMessage.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import MessengerProxy from '@/messaging/MessengerProxy';
 import { reactive } from 'vue';
 
 @Component({
@@ -284,8 +287,9 @@ class BingoGridForm extends AbstractSidePanel {
 	public param_chatAnnouncement:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_chatAnnouncementEnabled:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_overlayAnnouncement:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
-	public param_showMessage:{[key:string]:boolean} = {};
 	public param_messagePreview:{[key:string]:TwitchatDataTypes.MessageChatData} = {};
+	public param_showMessage:{[key:string]:boolean} = {};
+	public sendingOnChat:{[key:string]:boolean} = {};
 	public isDragging:boolean = false;
 
 	private lockedItems:{[key:string]:{index:number, data:TwitchatDataTypes.BingoGridConfig["entries"][number]}[]} = {};
@@ -320,6 +324,15 @@ class BingoGridForm extends AbstractSidePanel {
 		const uid = this.$store.auth.twitch.user.id;
 		const url = document.location.origin + this.$router.resolve({name:"bingo_grid_public", params:{uid, gridId}}).fullPath;
 		Utils.copyToClipboard(url);
+	}
+
+	public async sendChatURL(gridId:string):Promise<void> {
+		this.sendingOnChat[gridId] = true;
+		const uid = this.$store.auth.twitch.user.id;
+		const url = document.location.origin + this.$router.resolve({name:"bingo_grid_public", params:{uid, gridId}}).fullPath;
+		await  MessengerProxy.instance.sendMessage(url, ["twitch"]);
+		await Utils.promisedTimeout(250);
+		this.sendingOnChat[gridId] = false;
 	}
 
 	public async beforeMount():Promise<void> {
@@ -475,7 +488,7 @@ class BingoGridForm extends AbstractSidePanel {
 			if(this.param_cols[id]) return;
 
 			const winnersPlaceholder:TwitchatDataTypes.PlaceholderEntry[] = [
-				{tag:"WINNERS", descKey:"bingo_grid.form.woinners_placeholder", example: "Twitch (x1) ▬ Durss (x4) ▬ TwitchFR (x2)"}
+				{tag:"WINNERS", descKey:"bingo_grid.form.winners_placeholder", example: "Twitch (x1) ▬ Durss (x4) ▬ TwitchFR (x2)"}
 			]
 
 			this.param_cols[id] = {type:"number", value:5, min:2, max:10};
@@ -666,6 +679,10 @@ export default toNative(BingoGridForm);
 				overflow: hidden;
 				text-overflow: ellipsis;
 				max-width: 100%;
+			}
+			.loader {
+				flex-shrink: 0;
+				margin: .2em;
 			}
 		}
 	}
