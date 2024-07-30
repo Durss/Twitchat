@@ -135,7 +135,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public get canWaitForMediaEnd():boolean { return this.isMediaSource && (this.action.action == "show" || this.action.action == "replay"); }
 
 	/**
-	 * Get if the "wait for media to end playing" option can be used
+	 * Get if we can modify the media path
 	 */
 	public get canSetMediaPath():boolean { return this.isMediaSource && this.filter_conf.value == "" && this.action_conf.value == "show"; }
 
