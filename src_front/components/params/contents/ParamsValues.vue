@@ -206,29 +206,9 @@ class ParamsValues extends Vue implements IParameterContent {
 			}
 			this.param_placeholder.error = exists;
 			this.param_placeholder.errorMessage = exists? this.$t("values.form.placeholder_conflict") : '';
-		})
-
-		const list = this.$store.values.valueList;
-		this.valueEntries = list.map((v):ValueEntry => {
-			return {
-					value:v,
-					param:reactive({type:'string', value:v.value, labelKey:'values.form.value'}),
-					idToAllLoaded:{},
-					idToLoading:{},
-					idToNoResult:{},
-					idToUsers:{},
-					search:{},
-					sortDirection:{},
-					sortType:{},
-				}
 		});
 
-		for (let i = 0; i < this.valueEntries.length; i++) {
-			const element = this.valueEntries[i];
-			element.sortType[element.value.id] = "points";
-			element.sortDirection[element.value.id] = -1;
-			element.search[element.value.id] = "";
-		}
+		this.buildEntries();
 	}
 
 	public onNavigateBack(): boolean { return false; }
@@ -269,6 +249,7 @@ class ParamsValues extends Vue implements IParameterContent {
 			this.$store.values.editValueParams(data.id, data);
 		}else{
 			this.$store.values.addValue(data);
+			this.buildEntries();
 		}
 		this.showForm = false;
 		this.cancelForm();
@@ -295,6 +276,7 @@ class ParamsValues extends Vue implements IParameterContent {
 	public deleteValue(entry:ValueEntry):void {
 		this.$confirm(this.$t("values.delete_confirm.title"), this.$t("values.delete_confirm.desc")).then(()=>{
 			this.$store.values.delValue(entry.value);
+			this.buildEntries();
 		}).catch(()=>{/* ignore */});
 	}
 
@@ -481,6 +463,33 @@ class ParamsValues extends Vue implements IParameterContent {
 		const idToIndex:{[id:string]:number} = {};
 		this.valueEntries.forEach((entry, index)=> idToIndex[entry.value.id] = index);
 		this.$store.values.valueList.sort((a,b)=> idToIndex[a.id] - idToIndex[b.id]);
+	}
+
+	/**
+	 * Builds up local values list
+	 */
+	private buildEntries():void{
+		const list = this.$store.values.valueList;
+		this.valueEntries = list.map((v):ValueEntry => {
+			return {
+					value:v,
+					param:reactive({type:'string', value:v.value, labelKey:'values.form.value'}),
+					idToAllLoaded:{},
+					idToLoading:{},
+					idToNoResult:{},
+					idToUsers:{},
+					search:{},
+					sortDirection:{},
+					sortType:{},
+				}
+		});
+
+		for (let i = 0; i < this.valueEntries.length; i++) {
+			const element = this.valueEntries[i];
+			element.sortType[element.value.id] = "points";
+			element.sortDirection[element.value.id] = -1;
+			element.search[element.value.id] = "";
+		}
 	}
 }
 

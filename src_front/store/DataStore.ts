@@ -59,7 +59,10 @@ export default class DataStore extends DataStoreCommon{
 					}
 				}
 
-				await ApiHelper.call("user/data", "POST", data);
+				const saveRes = await ApiHelper.call("user/data", "POST", data);
+				if(saveRes.status == 409) {
+					//TODO freeze save and alert user their data is outdated
+				}
 
 				//If we forced upload, consider data has been imported as they are
 				//the same on local and remote. This will allow later automatic saves

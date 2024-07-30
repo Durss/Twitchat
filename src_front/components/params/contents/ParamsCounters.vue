@@ -264,29 +264,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 			this.param_placeholder.errorMessage = exists? this.$t("counters.form.placholder_conflict") : '';
 		})
 
-		const list = this.$store.counters.counterList;
-		this.counterEntries = list.map((v):CounterEntry => {
-			const min = v.min == false ? Number.MIN_SAFE_INTEGER : v.min as number;
-			const max = v.min == false ? Number.MAX_SAFE_INTEGER : v.max as number;
-			return {
-					counter:v,
-					param:reactive({type:'number', value:v.value, min, max, labelKey:'counters.form.value'}),
-					idToAllLoaded:{},
-					idToLoading:{},
-					idToNoResult:{},
-					idToUsers:{},
-					search:{},
-					sortDirection:{},
-					sortType:{},
-				}
-		});
-
-		for (let i = 0; i < this.counterEntries.length; i++) {
-			const element = this.counterEntries[i];
-			element.sortType[element.counter.id] = "points";
-			element.sortDirection[element.counter.id] = -1;
-			element.search[element.counter.id] = "";
-		}
+		this.buildEntries();
 	}
 
 	public onNavigateBack(): boolean { return false; }
@@ -337,6 +315,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 			this.$store.counters.updateCounter(data);
 		}else{
 			this.$store.counters.addCounter(data);
+			this.buildEntries();	
 		}
 		this.showForm = false;
 		this.cancelForm();
@@ -365,6 +344,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 	public deleteCounter(entry:CounterEntry):void {
 		this.$confirm(this.$t("counters.delete_confirm.title"), this.$t("counters.delete_confirm.desc")).then(()=>{
 			this.$store.counters.delCounter(entry.counter);
+			this.buildEntries();
 		}).catch(()=>{/* ignore */});
 	}
 
@@ -601,6 +581,35 @@ class ParamsCounters extends Vue implements IParameterContent {
 		const idToIndex:{[id:string]:number} = {};
 		this.counterEntries.forEach((entry, index)=> idToIndex[entry.counter.id] = index);
 		this.$store.counters.counterList.sort((a,b)=> idToIndex[a.id] - idToIndex[b.id]);
+	}
+
+	/**
+	 * Builds up local counter list
+	 */
+	private buildEntries():void{
+		const list = this.$store.counters.counterList;
+		this.counterEntries = list.map((v):CounterEntry => {
+			const min = v.min == false ? Number.MIN_SAFE_INTEGER : v.min as number;
+			const max = v.min == false ? Number.MAX_SAFE_INTEGER : v.max as number;
+			return {
+					counter:v,
+					param:reactive({type:'number', value:v.value, min, max, labelKey:'counters.form.value'}),
+					idToAllLoaded:{},
+					idToLoading:{},
+					idToNoResult:{},
+					idToUsers:{},
+					search:{},
+					sortDirection:{},
+					sortType:{},
+				}
+		});
+
+		for (let i = 0; i < this.counterEntries.length; i++) {
+			const element = this.counterEntries[i];
+			element.sortType[element.counter.id] = "points";
+			element.sortDirection[element.counter.id] = -1;
+			element.search[element.counter.id] = "";
+		}
 	}
 }
 

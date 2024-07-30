@@ -214,12 +214,12 @@ export default class UserController extends AbstractController {
 				this._lastUserDataVersion[userInfo.user_id] = version || 0
 			}
 
-			if(clone.saveVersion <= this._lastUserDataVersion[userInfo.user_id]) {
-				response.header('Content-Type', 'application/json');
-				response.status(409);
-				response.send(JSON.stringify({success:false, nextVersion:this._lastUserDataVersion[userInfo.user_id], error:"outdated data version", errorCode:"OUTDATED_DATA_VERSION"}));
-				return;
-			}
+			// if(clone.saveVersion <= this._lastUserDataVersion[userInfo.user_id]) {
+			// 	response.header('Content-Type', 'application/json');
+			// 	response.status(409);
+			// 	response.send(JSON.stringify({success:false, nextVersion:this._lastUserDataVersion[userInfo.user_id], error:"outdated data version", errorCode:"OUTDATED_DATA_VERSION"}));
+			// 	return;
+			// }
 
 			const success = schemaValidator(body);
 			const errorsFilePath = Config.USER_DATA_PATH + uid+"_errors.json";
