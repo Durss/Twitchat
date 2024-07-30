@@ -42,6 +42,7 @@ export const LabelItemPlaceholderList = [
 	{tag:"VIEWER_COUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.VIEWER_COUNT"} as const,
 	{tag:"FOLLOWER_COUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.FOLLOWER_COUNT"} as const,
 	{tag:"SUB_COUNT",						type:"number",	descriptionKey:"overlay.labels.placeholders.SUB_COUNT"} as const,
+	{tag:"SUB_POINTS",						type:"number",	descriptionKey:"overlay.labels.placeholders.SUB_POINTS"} as const,
 	
 	{tag:"STREAM_DURATION",					type:"duration",descriptionKey:"overlay.labels.placeholders.STREAM_DURATION"} as const,
 	{tag:"STREAM_TITLE",					type:"string",	descriptionKey:"overlay.labels.placeholders.STREAM_TITLE"} as const,

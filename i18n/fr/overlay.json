@@ -362,6 +362,7 @@
 			"param_backgroundColor": "couleur",
 			"placeholders": {
 				"SUB_COUNT": "Subs - total",
+				"SUB_POINTS": "Subs - points (ne sont PAS les points partner+)",
 				
 				"LAST_SUB_ID": "Sub - ID utilisateur·ice",
 				"LAST_SUB_NAME": "Sub - Pseudo",

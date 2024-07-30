@@ -288,6 +288,7 @@ export const storeAuth = defineStore('auth', {
 					const loadSubscribers = async ()=>{
 						const res = await TwitchUtils.getSubsList(true);
 						StoreProxy.labels.updateLabelValue("SUB_COUNT", res.subs);
+						StoreProxy.labels.updateLabelValue("SUB_POINTS", res.points);
 					};
 					loadSubscribers();
 					SetIntervalWorker.instance.create(()=>loadSubscribers(), 5 * 60000);

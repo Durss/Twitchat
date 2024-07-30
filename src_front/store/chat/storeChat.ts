@@ -1488,6 +1488,7 @@ export const storeChat = defineStore('chat', {
 					});
 					if(!isFromRemoteChan) {
 						StoreProxy.labels.incrementLabelValue("SUB_COUNT", 1);
+						StoreProxy.labels.incrementLabelValue("SUB_POINTS", message.tier==="prime"? 1 : message.tier);
 					}
 					//If it's a subgift, merge it with potential previous ones
 					if(message.is_gift && message.gift_recipients) {
@@ -1543,6 +1544,7 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
 						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", message.tier);
 						StoreProxy.labels.incrementLabelValue("SUB_COUNT", 1);
+						StoreProxy.labels.incrementLabelValue("SUB_POINTS", message.tier==="prime"? 1 : message.tier);
 					}
 					break;
 				}
@@ -1870,6 +1872,7 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", message.tier);
 
 						StoreProxy.labels.incrementLabelValue("SUB_COUNT", message.gift_count || 1);
+						StoreProxy.labels.incrementLabelValue("SUB_POINTS", message.tier==="prime"? message.gift_count || 1 : message.tier * (message.gift_count || 1));
 						StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_COUNT", message.gift_count || 1);
 					}else{
 						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_YOUTUBE_ID", message.user.id);
