@@ -62,9 +62,9 @@
 							</label>
 							<div class="urlHolder">
 								<p class="url" v-click2Select>{{ getPublicURL(bingo.id) }}</p>
-								<TTButton icon="copy" transparent @click="copyPublicURL(bingo.id)" />
 								<TTButton icon="whispers" transparent v-if="!sendingOnChat[bingo.id]" @click="sendChatURL(bingo.id)" v-tooltip="$t('bingo_grid.form.send_chat_url_tt')" />
 								<Icon name="loader" v-else class="loader" />
+								<TTButton icon="copy" transparent @click="copyPublicURL(bingo.id)" v-tooltip="$t('global.copy')" />
 							</div>
 							<div class="info" v-if="!$store.auth.isPremium">
 								<Icon name="premium" />
