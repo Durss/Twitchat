@@ -418,7 +418,9 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			clearTimeout(debounceShuffle);
 			debounceShuffle = setTimeout(() => {
 				this.saveData(id, undefined, false);
-				ApiHelper.call("bingogrid/shuffle", "POST", {gridid:grid.id, grid, uid:StoreProxy.auth.twitch.user.id});
+				if(StoreProxy.auth.isPremium) {
+					ApiHelper.call("bingogrid/shuffle", "POST", {gridid:grid.id, grid, uid:StoreProxy.auth.twitch.user.id}, true, 2);
+				}
 			}, 600);
 		},
 
@@ -468,7 +470,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			const states:{[cellId:string]:boolean} = {};
 			grid.entries.forEach(v=> states[v.id] = v.check);
 			if(grid.additionalEntries) grid.additionalEntries.forEach(v=> states[v.id] = v.check);
-			if(callEndpoint) ApiHelper.call("bingogrid/tickStates", "POST", {states, gridid:grid.id});
+			if(StoreProxy.auth.isPremium && callEndpoint) ApiHelper.call("bingogrid/tickStates", "POST", {states, gridid:grid.id});
 		},
 
 		duplicateGrid(id:string):void {
@@ -655,7 +657,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 						this.availableOverlayList = this.availableOverlayList.filter(v => v.id != grid.id);
 					}
 
-					if(broadcastToViewers) {
+					if(StoreProxy.auth.isPremium && broadcastToViewers) {
 						//Debounce this call as it will fire an event to every connected viewer
 						ApiHelper.call("bingogrid", "PUT", {
 							gridid:grid.id,
@@ -693,7 +695,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 					const states:{[cellId:string]:boolean} = {};
 					grid.entries.forEach(v=> states[v.id] = v.check);
 					if(grid.additionalEntries) grid.additionalEntries.forEach(v=> states[v.id] = v.check);
-					ApiHelper.call("bingogrid/tickStates", "POST", {states, gridid:grid.id});
+					if(StoreProxy.auth.isPremium) ApiHelper.call("bingogrid/tickStates", "POST", {states, gridid:grid.id});
 				}, 1000);
 			}
 			if(cell.check) {
