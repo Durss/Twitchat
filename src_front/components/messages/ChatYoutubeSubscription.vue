@@ -3,7 +3,10 @@
 	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
-		<Icon name="youtube" alt="notice" class="icon"/>
+		<div class="iconList">
+			<Icon name="sub" alt="notice" class="icon subIcon"/>
+			<Icon name="youtube" alt="notice" class="icon"/>
+		</div>
 
 		<!-- <img :src="messageData.user.avatarPath" class="avatar" alt="avatar" v-if="messageData.user.avatarPath" referrerpolicy="no-referrer"> -->
 		
@@ -58,8 +61,20 @@ export default toNative(ChatYoutubeSubscription);
 .chatyoutubesubscription{
 	@border: .25em;
 	overflow: hidden;
-	.icon {
-		align-self: unset;
+	.subIcon {
+		color: #1f69ff;
+	}
+	.iconList {
+		gap: .25em;
+		display: flex;
+		flex-direction: column;
+		margin-right: 5px;
+		.icon {
+			width: 1.25em;
+			height: 1.25em;
+			min-width: 1.25em;
+			min-height: 1.25em;
+		}
 	}
 	.avatar {
 		height: 2em;

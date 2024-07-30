@@ -43,14 +43,14 @@
 			<Button small @click="simulateEvent($event, 'subscription', 'sub')" icon="sub">Sub</Button>
 			<Button small @click="simulateEvent($event, 'subscription', 'resub')" icon="sub">ReSub</Button>
 			<Button small @click="simulateEvent($event, 'subscription', 'gift')" icon="gift">Subgifts</Button>
+			<Button small @click="simulateEvent($event, 'subscription', 'giftpaidupgrade')" icon="gift">Subgift upgrade</Button>
+			<Button small @click="simulateSubgiftSpam()" icon="gift">Subgift spam</Button>
 			<Button small @click="simulateEvent($event, 'message', 'youtube')" icon="youtube">Youtube message</Button>
 			<Button small @click="simulateEvent($event, 'following', 'youtube')" icon="youtube">Youtube follow</Button>
 			<Button small @click="simulateEvent($event, 'super_chat')" icon="youtube">Youtube Super chat</Button>
 			<Button small @click="simulateEvent($event, 'super_sticker')" icon="youtube">Youtube Super sticker</Button>
 			<Button small @click="simulateEvent($event, 'youtube_subscription')" icon="youtube">Youtube Sub</Button>
 			<Button small @click="simulateEvent($event, 'youtube_subgift')" icon="youtube">Youtube Subgift</Button>
-			<Button small @click="simulateSubgiftSpam()" icon="gift">Subgift spam</Button>
-			<Button small @click="simulateEvent($event, 'subscription', 'giftpaidupgrade')" icon="gift">Subgift upgrade</Button>
 			<Button small @click="simulateEvent($event, 'following')" icon="follow">Follow</Button>
 			<Button small @click="simulateEvent($event, 'reward')" icon="channelPoints">Reward redeem</Button>
 			<Button small @click="simulateEvent($event, 'community_challenge_contribution')" icon="channelPoints">Challenge contribution</Button>

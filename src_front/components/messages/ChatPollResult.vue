@@ -40,7 +40,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 	components:{},
 	emits:["onRead"]
 })
- class ChatPollResult extends AbstractChatMessage {
+class ChatPollResult extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessagePollData;
@@ -88,6 +88,9 @@ export default toNative(ChatPollResult);
 <style scoped lang="less">
 .chatpollresult{
 	text-align: center;
+	&>.icon {
+		color: #9147ff;
+	}
 
 	.content {
 		flex-grow: 1;

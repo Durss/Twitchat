@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
-		<Icon name="follow" alt="follow" class="icon" />
+		<Icon name="follow" alt="follow" class="icon followIcon" />
 
 		<Icon name="youtube" v-if="messageData.platform == 'youtube'" v-tooltip="$t('chat.youtube.platform_youtube')" />
 
@@ -23,7 +23,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 	components:{},
 	emits:["onRead"],
 })
- class ChatFollow extends AbstractChatMessage {
+class ChatFollow extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageFollowingData;
@@ -44,5 +44,8 @@ export default toNative(ChatFollow);
 
 <style scoped lang="less">
 .chatfollow{
+	.followIcon {
+		color: #ff38db;
+	}
 }
 </style>

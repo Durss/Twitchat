@@ -50,16 +50,6 @@ export default toNative(ChatCelebration);
 		font-style: italic;
 	}
 
-	.icon {
-		border-radius: var(--border-radius);
-		padding: .25em;
-		height: 2em;
-		width: 2em;
-		flex-shrink: 0;
-		vertical-align: middle;
-		margin-right: 5px;
-	}
-
 	.emote {
 		height: 1.5em;
 		&.large {
@@ -75,6 +65,9 @@ export default toNative(ChatCelebration);
 		align-items: center;
 		.label {
 			flex-grow: 1;
+		}
+		&>.icon {
+			color: #5cffbe;
 		}
 	}
 }

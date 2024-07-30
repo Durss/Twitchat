@@ -352,6 +352,9 @@ class BingoGridForm extends AbstractSidePanel {
 		if(this.param_chatCmd_toggle[grid.id].value && !grid.chatCmd) {
 			grid.chatCmd = "!bingo";
 		}
+		if(!this.param_chatCmd_toggle[grid.id].value) {
+			delete grid.chatCmd;
+		}
 		this.$store.bingoGrid.saveData(grid.id, undefined, broadcastUpdate);
 
 		if(playWinSound && grid.winSoundVolume) {

@@ -68,7 +68,7 @@ import TTButton from '../TTButton.vue';
 	},
 	emits:["onRead"]
 })
- class ChatShoutout extends AbstractChatMessage {
+class ChatShoutout extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageShoutoutData;
@@ -108,6 +108,9 @@ export default toNative(ChatShoutout);
 		align-items: flex-start;
 		flex-grow: 1;
 		gap: .25em;
+	}
+	&>.icon {
+		color: #9147ff;
 	}
 }
 </style>

@@ -87,6 +87,9 @@ export default toNative(ChatPredictionResult);
 <style scoped lang="less">
 .chatpredictionresult{
 	text-align: center;
+	&>.icon {
+		color: #9147ff;
+	}
 
 	.content {
 		flex-grow: 1;
