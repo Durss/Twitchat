@@ -71,6 +71,7 @@ export const storeMain = defineStore("main", {
 		t4pLastDate:0,
 		iconCache:{},
 		antifaHide:false,
+		outdatedDataVersion:false,
 	} as IMainState),
 
 
@@ -994,5 +995,9 @@ export const storeMain = defineStore("main", {
 			await Utils.promisedTimeout(50);
 			this.chatAlert = null;
 		},
+
+		showOutdatedDataVersionAlert():void { this.outdatedDataVersion = true; },
+		hideOutdatedDataVersionAlert():void { this.outdatedDataVersion = false; },
+
 	} as IMainActions & ThisType<IMainActions & UnwrapRef<IMainState> & _StoreWithState<"main", IMainState, IMainGetters, IMainActions> & _StoreWithGetters<IMainGetters> & PiniaCustomProperties>
 })

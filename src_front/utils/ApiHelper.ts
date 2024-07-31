@@ -88,7 +88,7 @@ export default class ApiHelper {
 				}
 			}
 		}else
-		if(retryOnFail && status != 200 && status != 204 && status != 401 && attemptIndex < 5) {
+		if(retryOnFail && status != 200 && status != 204 && status != 401 && status != 409 && attemptIndex < 5) {
 			await Utils.promisedTimeout(1000 * Math.pow(attemptIndex+1,1.5));
 			return this.call(endpoint, method, data, retryOnFail, attemptIndex+1);
 		}else
@@ -387,7 +387,7 @@ type ApiEndpoints =  {
 				success:boolean;
 				error?:string;
 				errorCode?:string;
-				nextVersion?:number;
+				version?:number;
 			};
 		};
 		DELETE: {

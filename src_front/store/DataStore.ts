@@ -33,13 +33,15 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	static override async save(force:boolean = false, delay:number = 1500):Promise<void> {
 		clearTimeout(this.saveTO);
+
 		if(!force) {
 			if(!this.syncToServer) return;//User wants to only save data locally
 			if(!this.dataImported) return;//Don't export anything before importing data first
 			if(!StoreProxy.auth.twitch.access_token) return;
+			if(StoreProxy.main.outdatedDataVersion) return;
 		}
 
-		return new Promise((resolve) => {
+		return new Promise((resolve) => {;
 			this.saveTO = setTimeout(async () => {
 				const data = JSON.parse(JSON.stringify(this.rawStore));
 
@@ -59,9 +61,15 @@ export default class DataStore extends DataStoreCommon{
 					}
 				}
 
-				const saveRes = await ApiHelper.call("user/data", "POST", data);
+				data.saveVersion = isNaN(data.saveVersion)? 1 : data.saveVersion + 1;
+				this.set(DataStore.SAVE_VERSION, data.saveVersion, false);
+
+				const saveRes = await ApiHelper.call("user/data", "POST", {data, forced:force});
 				if(saveRes.status == 409) {
-					//TODO freeze save and alert user their data is outdated
+					StoreProxy.main.showOutdatedDataVersionAlert();
+				}
+				if(saveRes.json.success === true && force && saveRes.json.version) {
+					this.set(DataStore.SAVE_VERSION, saveRes.json.version, false);
 				}
 
 				//If we forced upload, consider data has been imported as they are
@@ -69,7 +77,7 @@ export default class DataStore extends DataStoreCommon{
 				if(force) this.dataImported = true;
 				resolve();
 			}, force? 0 : delay);
-		})
+		});
 	}
 
 	/**

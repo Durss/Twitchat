@@ -1,7 +1,5 @@
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import ApiHelper from "@/utils/ApiHelper";
 import type { JsonValue } from "type-fest";
-import StoreProxy from "./StoreProxy";
 
 /**
  * Fallback to sessionStorage if localStorage isn't available
@@ -12,6 +10,7 @@ export default class DataStoreCommon {
 	public static syncToServer:boolean = true;
 
 	public static DATA_VERSION:string = "v";
+	public static SAVE_VERSION:string = "saveVersion";
 	public static UPDATE_INDEX:string = "updateIndex";
 	public static GREET_AUTO_DELETE_AFTER:string = "greetAutoDeleteAfter";
 	public static GREET_AUTO_SCROLL_DOWN:string = "greetScrollDownAuto";

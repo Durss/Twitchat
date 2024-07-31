@@ -1,0 +1,8 @@
+{
+	"outdated_data":{
+		"title": "Données désynchronisées",
+		"description":"Les données actuelles sont plus anciennes que celles enregistrées sur le serveur, probablement parce que vous avez lancé Twitchat plusieurs fois ce qui est très FORTEMENT déconseillé.\n\nFermez cette page ou remplacez les données du serveur par celles actuelles.",
+		"erase_bt": "Remplacer par les données actuelles",
+		"confirm": "Êtes-vous sûr·e ?\n\nToute modification effectuée dans une autre instance de Twitchat sera écrasée par les paramètres de cette instance."
+	}
+}

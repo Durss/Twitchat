@@ -65,6 +65,8 @@
 		</Teleport>
 
 		<NonPremiumCleanup v-if="mustDisableItems" @close="mustDisableItems_precalc = false" />
+		
+		<OutdatedDataVersionAlert v-if="$store.main.outdatedDataVersion" />
 
 		<div class="bottom">
 			<ChatForm class="chatForm" ref="chatForm"
@@ -174,6 +176,7 @@ import HelpGenocideVictims from '@/components/chatform/HelpGenocideVictims.vue';
 import LiveFollowings from '@/components/chatform/LiveFollowings.vue';
 import MessageSearch from '@/components/chatform/MessageSearch.vue';
 import NonPremiumCleanup from '@/components/chatform/NonPremiumCleanup.vue';
+import OutdatedDataVersionAlert from '@/components/chatform/OutdatedDataVersionAlert.vue';
 import QnaForm from '@/components/chatform/QnaForm.vue';
 import QnaList from '@/components/chatform/QnaList.vue';
 import RewardsList from '@/components/chatform/RewardsList.vue';
@@ -182,6 +185,7 @@ import StreamSummary from '@/components/chatform/StreamSummary.vue';
 import TTUserList from '@/components/chatform/TTUserList.vue';
 import TwitchatAnnouncement from '@/components/chatform/TwitchatAnnouncement.vue';
 import UserList from '@/components/chatform/UserList.vue';
+import VoteAntifa from '@/components/chatform/VoteAntifa.vue';
 import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 import MessageList from '@/components/messages/MessageList.vue';
 import GreetThem from '@/components/newusers/GreetThem.vue';
@@ -197,7 +201,6 @@ import DonorBadge from '@/components/user/DonorBadge.vue';
 import WhispersState from '@/components/whispers/WhispersState.vue';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import MessengerProxy from '@/messaging/MessengerProxy';
-import StoreProxy from '@/store/StoreProxy';
 import type { TriggerActionCountDataAction } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
@@ -218,7 +221,6 @@ import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
-import VoteAntifa from '@/components/chatform/VoteAntifa.vue';
 import ShareParams from './ShareParams.vue';
 
 @Component({
@@ -271,6 +273,7 @@ import ShareParams from './ShareParams.vue';
 		TwitchatAnnouncement,
 		ChannelNotifications,
 		EndingCreditsControls,
+		OutdatedDataVersionAlert,
 		EmergencyFollowsListModal,
 	},
 })

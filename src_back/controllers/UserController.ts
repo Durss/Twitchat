@@ -188,7 +188,13 @@ export default class UserController extends AbstractController {
 	private async postUserData(request:FastifyRequest, response:FastifyReply) {
 		const userInfo = await super.twitchUserGuard(request, response);
 		if(userInfo == false) return;
-		const body:any = request.body;
+		//V13 revamped the data format of this service.
+		//Until then body contained all user data at its root.
+		//Since V13 it is now under the "data" prop.
+		//The following line acts as a temporary switch
+		const body:any = (request.body as any);
+		const data:any = body.hasOwnProperty("data")? body.data : body;
+		const forcedUpload = body.forced === true;
 
 		//Get users' data
 		const uid = super.getSharedUID(userInfo.user_id);
@@ -196,15 +202,16 @@ export default class UserController extends AbstractController {
 		const version = request.headers["app-version"];
 
 		//avoid saving private data to server
-		delete body.obsPass;
-		delete body.oAuthToken;
+		delete data.obsPass;
+		delete data.oAuthToken;
 
 		// body.data["p:slowMode"] = true;//Uncomment to test JSON diff
 
 		//Test data format
 		try {
-			const clone = JSON.parse(JSON.stringify(body));
+			const dataClone = JSON.parse(JSON.stringify(data));
 
+			//Initialize local data version for this user
 			if(!this._lastUserDataVersion[userInfo.user_id] && fs.existsSync(userFilePath)) {
 				let version = 0;
 				try {
@@ -214,14 +221,23 @@ export default class UserController extends AbstractController {
 				this._lastUserDataVersion[userInfo.user_id] = version || 0
 			}
 
-			// if(clone.saveVersion <= this._lastUserDataVersion[userInfo.user_id]) {
-			// 	response.header('Content-Type', 'application/json');
-			// 	response.status(409);
-			// 	response.send(JSON.stringify({success:false, nextVersion:this._lastUserDataVersion[userInfo.user_id], error:"outdated data version", errorCode:"OUTDATED_DATA_VERSION"}));
-			// 	return;
-			// }
+			//If forcing data upload, make its version above the minimum expected one
+			if(forcedUpload && this._lastUserDataVersion[userInfo.user_id] != undefined) {
+				data.saveVersion = dataClone.saveVersion = this._lastUserDataVersion[userInfo.user_id] + 1;
+				// console.log("FORCE", dataClone.saveVersion, this._lastUserDataVersion[userInfo.user_id]);
+			}
 
-			const success = schemaValidator(body);
+			//Data outdated?
+			if(dataClone.saveVersion <= this._lastUserDataVersion[userInfo.user_id]) {
+				response.header('Content-Type', 'application/json');
+				response.status(409);
+				response.send(JSON.stringify({success:false, error:"outdated data version. Got " + dataClone.saveVersion + " but expected > " + this._lastUserDataVersion[userInfo.user_id], errorCode:"OUTDATED_DATA_VERSION"}));
+				return;
+			}
+
+			this._lastUserDataVersion[userInfo.user_id] = dataClone.saveVersion;
+
+			const success = schemaValidator(data);
 			const errorsFilePath = Config.USER_DATA_PATH + uid+"_errors.json";
 			if(!success) {
 				Logger.error(schemaValidator.errors?.length+" validation error(s) for user "+userInfo.login+"'s data (v"+version+")");
@@ -239,7 +255,7 @@ export default class UserController extends AbstractController {
 			//the JSON before and after validation.
 			//This is not the most efficient way to do this, but I found no better
 			//way to log these errors for now
-			const diff = JsonPatch.compare(clone, body as any, false);
+			const diff = JsonPatch.compare(dataClone, data as any, false);
 			const cleanupFilePath = Config.USER_DATA_PATH + uid+"_cleanup.json";
 			if(diff?.length > 0) {
 				Logger.error("Invalid format, some data have been removed from "+userInfo.login+"'s data (v"+version+")");
@@ -248,15 +264,15 @@ export default class UserController extends AbstractController {
 			}else if(fs.existsSync(cleanupFilePath)) {
 				fs.unlinkSync(cleanupFilePath);
 			}
-			fs.writeFileSync(userFilePath, JSON.stringify(body), "utf8");
+			fs.writeFileSync(userFilePath, JSON.stringify(data), "utf8");
 
-			if(body.discordParams) {
-				this.discordController.updateParams(uid, body.discordParams);
+			if(data.discordParams) {
+				this.discordController.updateParams(uid, data.discordParams);
 			}
 
 			response.header('Content-Type', 'application/json');
 			response.status(200);
-			response.send(JSON.stringify({success:true, nextVersion:this._lastUserDataVersion[userInfo.user_id]}));
+			response.send(JSON.stringify({success:true, version:this._lastUserDataVersion[userInfo.user_id]}));
 		}catch(error){
 			Logger.error("User data save failed for "+userInfo.login);
 			console.log(error);

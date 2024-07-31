@@ -1,0 +1,8 @@
+{
+	"outdated_data":{
+		"title": "Outdated data",
+		"description":"Current data is older than that recorded on the server, most likely because you have launched Twitchat multiple times, which is highly discouraged.\n\nClose this page or replace server's data with current ones.",
+		"erase_bt": "Replace with current data",
+		"confirm": "Are you sure?\nAny changes made in another instance of Twitchat will be overwritten by the settings of this instance."
+	}
+}

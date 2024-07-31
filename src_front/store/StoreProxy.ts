@@ -143,6 +143,10 @@ export interface IMainState {
 	 * //TODO remove
 	 */
 	antifaHide:boolean;
+	/**
+	 * Shows an alert to the user when true.
+	 */
+	outdatedDataVersion:boolean;
 }
 
 export interface IMainGetters {
@@ -224,6 +228,12 @@ export interface IMainActions {
 	 * @param message
 	 */
 	executeChatAlert(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData|null):Promise<void>;
+	/**
+	 * Shows up an alert warning the user has outdated data.
+	 * This happens when they run 2 twitchat instances
+	 */
+	showOutdatedDataVersionAlert():void;
+	hideOutdatedDataVersionAlert():void;
 }
 
 
