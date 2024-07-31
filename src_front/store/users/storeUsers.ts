@@ -838,10 +838,7 @@ export const storeUsers = defineStore('users', {
 					}
 					parseOffset = list.length;
 					this.myFollowers["twitch"] = hashmap;
-					const user = await this.getUserFrom("twitch", uid, list[0].user_id, list[0].user_login, list[0].user_name, undefined, true);
-					StoreProxy.labels.updateLabelValue("FOLLOWER_ID", user.id);
-					StoreProxy.labels.updateLabelValue("FOLLOWER_NAME", user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("FOLLOWER_AVATAR", user.avatarPath || "", user.id);
+					await this.getUserFrom("twitch", uid, list[0].user_id, list[0].user_login, list[0].user_name, undefined, true);
 				})
 			}catch(error) {}
 		},
