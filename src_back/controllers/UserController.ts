@@ -7,6 +7,7 @@ import Logger from '../utils/Logger.js';
 import AbstractController from "./AbstractController.js";
 import DiscordController from './DiscordController.js';
 import { PatreonMember } from './PatreonController.js';
+import SSEController from './SSEController.js';
 
 /**
 * Created : 13/03/2022
@@ -229,6 +230,7 @@ export default class UserController extends AbstractController {
 
 			//Data outdated?
 			if(dataClone.saveVersion <= this._lastUserDataVersion[userInfo.user_id]) {
+				Logger.warn(userInfo.login+" has outdated data version. Got " + dataClone.saveVersion + " but expected > " + this._lastUserDataVersion[userInfo.user_id]+". Has "+SSEController.countUserConnexions(userInfo.user_id)+" active connexions")
 				response.header('Content-Type', 'application/json');
 				response.status(409);
 				response.send(JSON.stringify({success:false, error:"outdated data version. Got " + dataClone.saveVersion + " but expected > " + this._lastUserDataVersion[userInfo.user_id], errorCode:"OUTDATED_DATA_VERSION"}));
