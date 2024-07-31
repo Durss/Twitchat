@@ -723,54 +723,54 @@ export const storeChat = defineStore('chat', {
 
 					if(!lastCheer && m.type === TwitchatDataTypes.TwitchatMessageType.CHEER) {
 						lastCheer = true;
-						StoreProxy.labels.updateLabelValue("LAST_CHEER_ID", m.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_CHEER_NAME", m.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("LAST_CHEER_AVATAR", m.user.avatarPath || "", m.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_CHEER_AMOUNT", m.bits);
+						StoreProxy.labels.updateLabelValue("CHEER_ID", m.user.id);
+						StoreProxy.labels.updateLabelValue("CHEER_NAME", m.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("CHEER_AVATAR", m.user.avatarPath || "", m.user.id);
+						StoreProxy.labels.updateLabelValue("CHEER_AMOUNT", m.bits);
 					}
 					if(!lastReward && m.type === TwitchatDataTypes.TwitchatMessageType.REWARD) {
 						lastReward = true;
-						StoreProxy.labels.updateLabelValue("LAST_REWARD_ID", m.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_REWARD_NAME", m.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("LAST_REWARD_AVATAR", m.user.avatarPath || "", m.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_REWARD_ICON", m.reward.icon.hd || m.reward.icon.sd);
-						StoreProxy.labels.updateLabelValue("LAST_REWARD_TITLE", m.reward.title);
+						StoreProxy.labels.updateLabelValue("REWARD_ID", m.user.id);
+						StoreProxy.labels.updateLabelValue("REWARD_NAME", m.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("REWARD_AVATAR", m.user.avatarPath || "", m.user.id);
+						StoreProxy.labels.updateLabelValue("REWARD_ICON", m.reward.icon.hd || m.reward.icon.sd);
+						StoreProxy.labels.updateLabelValue("REWARD_TITLE", m.reward.title);
 					}
 					if(!lastRaid && m.type === TwitchatDataTypes.TwitchatMessageType.RAID) {
 						lastRaid = true;
-						StoreProxy.labels.updateLabelValue("LAST_RAID_ID", m.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_RAID_NAME", m.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("LAST_RAID_AVATAR", m.user.avatarPath || "", m.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_RAID_COUNT", m.viewers);
+						StoreProxy.labels.updateLabelValue("RAID_ID", m.user.id);
+						StoreProxy.labels.updateLabelValue("RAID_NAME", m.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("RAID_AVATAR", m.user.avatarPath || "", m.user.id);
+						StoreProxy.labels.updateLabelValue("RAID_COUNT", m.viewers);
 					}
 					if(m.type === TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
 						if(!lastSub && !m.is_gift) {
 							lastSub = true;
-							StoreProxy.labels.updateLabelValue("LAST_SUB_ID", m.user.id);
-							StoreProxy.labels.updateLabelValue("LAST_SUB_NAME", m.user.displayNameOriginal);
-							StoreProxy.labels.updateLabelValue("LAST_SUB_AVATAR", m.user.avatarPath || "", m.user.id);
-							StoreProxy.labels.updateLabelValue("LAST_SUB_TIER", m.tier);
-							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_ID", m.user.id);
-							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_NAME", m.user.displayNameOriginal);
-							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", m.user.avatarPath || "", m.user.id);
-							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", m.tier);
+							StoreProxy.labels.updateLabelValue("SUB_ID", m.user.id);
+							StoreProxy.labels.updateLabelValue("SUB_NAME", m.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("SUB_AVATAR", m.user.avatarPath || "", m.user.id);
+							StoreProxy.labels.updateLabelValue("SUB_TIER", m.tier);
+							StoreProxy.labels.updateLabelValue("SUB_GENERIC_ID", m.user.id);
+							StoreProxy.labels.updateLabelValue("SUB_GENERIC_NAME", m.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("SUB_GENERIC_AVATAR", m.user.avatarPath || "", m.user.id);
+							StoreProxy.labels.updateLabelValue("SUB_GENERIC_TIER", m.tier);
 						}
 						if(!lastSubgift && m.is_gift) {
 							lastSubgift = true;
-							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_ID", m.user.id);
-							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_NAME", m.user.displayNameOriginal);
-							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_AVATAR", m.user.avatarPath || "", m.user.id);
-							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_TIER", m.tier);
-							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_COUNT", m.gift_count || 1);
-							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_ID", m.user.id);
-							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_NAME", m.user.displayNameOriginal);
-							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_AVATAR", m.user.avatarPath || "", m.user.id);
-							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_TIER", m.tier);
-							StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_COUNT", m.gift_count || 1);
-							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_ID", m.user.id);
-							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_NAME", m.user.displayNameOriginal);
-							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", m.user.avatarPath || "", m.user.id);
-							StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", m.tier);
+							StoreProxy.labels.updateLabelValue("SUBGIFT_ID", m.user.id);
+							StoreProxy.labels.updateLabelValue("SUBGIFT_NAME", m.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("SUBGIFT_AVATAR", m.user.avatarPath || "", m.user.id);
+							StoreProxy.labels.updateLabelValue("SUBGIFT_TIER", m.tier);
+							StoreProxy.labels.updateLabelValue("SUBGIFT_COUNT", m.gift_count || 1);
+							StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_ID", m.user.id);
+							StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_NAME", m.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_AVATAR", m.user.avatarPath || "", m.user.id);
+							StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_TIER", m.tier);
+							StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_COUNT", m.gift_count || 1);
+							StoreProxy.labels.updateLabelValue("SUB_GENERIC_ID", m.user.id);
+							StoreProxy.labels.updateLabelValue("SUB_GENERIC_NAME", m.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("SUB_GENERIC_AVATAR", m.user.avatarPath || "", m.user.id);
+							StoreProxy.labels.updateLabelValue("SUB_GENERIC_TIER", m.tier);
 						}
 					}
 					//Force reactivity so merging feature works on old messages
@@ -1298,10 +1298,10 @@ export const storeChat = defineStore('chat', {
 				//Reward redeem
 				case TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK: {
 					if(!isFromRemoteChan) {
-						StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_ID", message.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_AVATAR", message.user.avatarPath || "", message.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_WATCH_STREAK_COUNT", message.streak);
+						StoreProxy.labels.updateLabelValue("WATCH_STREAK_ID", message.user.id);
+						StoreProxy.labels.updateLabelValue("WATCH_STREAK_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("WATCH_STREAK_AVATAR", message.user.avatarPath || "", message.user.id);
+						StoreProxy.labels.updateLabelValue("WATCH_STREAK_COUNT", message.streak);
 					}
 					break;
 				}
@@ -1336,11 +1336,11 @@ export const storeChat = defineStore('chat', {
 					} as JsonObject;
 					PublicAPI.instance.broadcast(TwitchatEvent.REWARD_REDEEM, wsMessage);
 					if(!isFromRemoteChan) {
-						StoreProxy.labels.updateLabelValue("LAST_REWARD_ID", message.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_REWARD_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("LAST_REWARD_AVATAR", message.user.avatarPath || "", message.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_REWARD_ICON", message.reward.icon.hd || message.reward.icon.sd);
-						StoreProxy.labels.updateLabelValue("LAST_REWARD_TITLE", message.reward.title);
+						StoreProxy.labels.updateLabelValue("REWARD_ID", message.user.id);
+						StoreProxy.labels.updateLabelValue("REWARD_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("REWARD_AVATAR", message.user.avatarPath || "", message.user.id);
+						StoreProxy.labels.updateLabelValue("REWARD_ICON", message.reward.icon.hd || message.reward.icon.sd);
+						StoreProxy.labels.updateLabelValue("REWARD_TITLE", message.reward.title);
 					}
 					break;
 				}
@@ -1350,10 +1350,10 @@ export const storeChat = defineStore('chat', {
 					antiHateRaidGraceEndDate = Date.now() + 3 * 60 * 1000;
 					if(!isFromRemoteChan) {
 						sStream.lastRaider = message.user;
-						StoreProxy.labels.updateLabelValue("LAST_RAID_ID", message.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_RAID_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("LAST_RAID_AVATAR", message.user.avatarPath || "", message.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_RAID_COUNT", message.viewers);
+						StoreProxy.labels.updateLabelValue("RAID_ID", message.user.id);
+						StoreProxy.labels.updateLabelValue("RAID_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("RAID_AVATAR", message.user.avatarPath || "", message.user.id);
+						StoreProxy.labels.updateLabelValue("RAID_COUNT", message.viewers);
 					}
 					message.user.channelInfo[message.channel_id].is_raider = true;
 					if(sParams.appearance.raidHighlightUser.value
@@ -1376,10 +1376,10 @@ export const storeChat = defineStore('chat', {
 				case TwitchatDataTypes.TwitchatMessageType.CHEER: {
 					if(!isFromRemoteChan) {
 						message = message as TwitchatDataTypes.MessageCheerData;
-						StoreProxy.labels.updateLabelValue("LAST_CHEER_ID", message.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_CHEER_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("LAST_CHEER_AVATAR", message.user.avatarPath || "", message.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_CHEER_AMOUNT", message.bits);
+						StoreProxy.labels.updateLabelValue("CHEER_ID", message.user.id);
+						StoreProxy.labels.updateLabelValue("CHEER_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("CHEER_AVATAR", message.user.avatarPath || "", message.user.id);
+						StoreProxy.labels.updateLabelValue("CHEER_AMOUNT", message.bits);
 					}
 					break;
 				}
@@ -1389,13 +1389,13 @@ export const storeChat = defineStore('chat', {
 					if(!isFromRemoteChan) {
 						message = message as TwitchatDataTypes.MessageKofiData;
 						if(message.eventType == "donation") {
-							StoreProxy.labels.updateLabelValue("LAST_KOFI_TIP_NAME", message.userName);
-							StoreProxy.labels.updateLabelValue("LAST_KOFI_TIP_AMOUNT", message.amountFormatted);
+							StoreProxy.labels.updateLabelValue("KOFI_TIP_NAME", message.userName);
+							StoreProxy.labels.updateLabelValue("KOFI_TIP_AMOUNT", message.amountFormatted);
 						}else
 						if(message.eventType == "merch") {
-							StoreProxy.labels.updateLabelValue("LAST_KOFI_MERCH_USER", message.userName);
-							StoreProxy.labels.updateLabelValue("LAST_KOFI_MERCH_AMOUNT", message.amountFormatted);
-							StoreProxy.labels.updateLabelValue("LAST_KOFI_MERCH_NAME", message.products[0].name || "");
+							StoreProxy.labels.updateLabelValue("KOFI_MERCH_USER", message.userName);
+							StoreProxy.labels.updateLabelValue("KOFI_MERCH_AMOUNT", message.amountFormatted);
+							StoreProxy.labels.updateLabelValue("KOFI_MERCH_NAME", message.products[0].name || "");
 						}
 					}
 					break;
@@ -1406,8 +1406,8 @@ export const storeChat = defineStore('chat', {
 					if(!isFromRemoteChan) {
 						message = message as TwitchatDataTypes.MessageStreamelementsData;
 						if(message.eventType == "donation") {
-							StoreProxy.labels.updateLabelValue("LAST_STREAMELEMENTS_TIP_NAME", message.userName);
-							StoreProxy.labels.updateLabelValue("LAST_STREAMELEMENTS_TIP_AMOUNT", message.amountFormatted);
+							StoreProxy.labels.updateLabelValue("STREAMELEMENTS_TIP_NAME", message.userName);
+							StoreProxy.labels.updateLabelValue("STREAMELEMENTS_TIP_AMOUNT", message.amountFormatted);
 						}
 					}
 					break;
@@ -1418,12 +1418,12 @@ export const storeChat = defineStore('chat', {
 					if(!isFromRemoteChan) {
 						message = message as TwitchatDataTypes.MessageStreamlabsData;
 						if(message.eventType == "donation") {
-							StoreProxy.labels.updateLabelValue("LAST_STREAMLABS_TIP_NAME", message.userName);
-							StoreProxy.labels.updateLabelValue("LAST_STREAMLABS_TIP_AMOUNT", message.amountFormatted);
+							StoreProxy.labels.updateLabelValue("STREAMLABS_TIP_NAME", message.userName);
+							StoreProxy.labels.updateLabelValue("STREAMLABS_TIP_AMOUNT", message.amountFormatted);
 						}else
 						if(message.eventType == "merch") {
-							StoreProxy.labels.updateLabelValue("LAST_STREAMLABS_MERCH_USER", message.userName);
-							StoreProxy.labels.updateLabelValue("LAST_STREAMLABS_MERCH_NAME", message.product);
+							StoreProxy.labels.updateLabelValue("STREAMLABS_MERCH_USER", message.userName);
+							StoreProxy.labels.updateLabelValue("STREAMLABS_MERCH_NAME", message.product);
 						}
 					}
 					break;
@@ -1434,8 +1434,8 @@ export const storeChat = defineStore('chat', {
 					if(!isFromRemoteChan) {
 						message = message as TwitchatDataTypes.MessageTipeeeDonationData;
 						if(message.eventType == "donation") {
-							StoreProxy.labels.updateLabelValue("LAST_TIPEEE_TIP_NAME", message.userName);
-							StoreProxy.labels.updateLabelValue("LAST_TIPEEE_TIP_AMOUNT", message.amountFormatted);
+							StoreProxy.labels.updateLabelValue("TIPEEE_TIP_NAME", message.userName);
+							StoreProxy.labels.updateLabelValue("TIPEEE_TIP_AMOUNT", message.amountFormatted);
 						}
 					}
 					break;
@@ -1444,13 +1444,13 @@ export const storeChat = defineStore('chat', {
 				//New sub
 				case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION: {
 					if(!isFromRemoteChan) {
-						StoreProxy.labels.updateLabelValue("LAST_SUB_YOUTUBE_ID", message.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_SUB_YOUTUBE_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("LAST_SUB_YOUTUBE_AVATAR", message.user.avatarPath || "");
-						StoreProxy.labels.updateLabelValue("LAST_SUB_YOUTUBE_TIER", message.levelName);
-						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", message.user.avatarPath || "");
-						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", message.levelName);
+						StoreProxy.labels.updateLabelValue("SUB_YOUTUBE_ID", message.user.id);
+						StoreProxy.labels.updateLabelValue("SUB_YOUTUBE_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("SUB_YOUTUBE_AVATAR", message.user.avatarPath || "");
+						StoreProxy.labels.updateLabelValue("SUB_YOUTUBE_TIER", message.levelName);
+						StoreProxy.labels.updateLabelValue("SUB_GENERIC_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("SUB_GENERIC_AVATAR", message.user.avatarPath || "");
+						StoreProxy.labels.updateLabelValue("SUB_GENERIC_TIER", message.levelName);
 					}
 					break;
 				}
@@ -1458,10 +1458,10 @@ export const storeChat = defineStore('chat', {
 				//New sub
 				case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT: {
 					if(!isFromRemoteChan) {
-						StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_ID", message.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_AVATAR", message.user.avatarPath || "");
-						StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_AMOUNT", message.amountDisplay);
+						StoreProxy.labels.updateLabelValue("SUPER_CHAT_ID", message.user.id);
+						StoreProxy.labels.updateLabelValue("SUPER_CHAT_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("SUPER_CHAT_AVATAR", message.user.avatarPath || "");
+						StoreProxy.labels.updateLabelValue("SUPER_CHAT_AMOUNT", message.amountDisplay);
 					}
 					break;
 				}
@@ -1523,8 +1523,8 @@ export const storeChat = defineStore('chat', {
 								}
 								subHistoryEntry.gift_count = subHistoryEntry.gift_recipients.length;
 								if(!isFromRemoteChan) {
-									StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_COUNT", subHistoryEntry.gift_count);
-									StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_COUNT", subHistoryEntry.gift_count);
+									StoreProxy.labels.updateLabelValue("SUBGIFT_COUNT", subHistoryEntry.gift_count);
+									StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_COUNT", subHistoryEntry.gift_count);
 								}
 								return;
 							}
@@ -1534,15 +1534,15 @@ export const storeChat = defineStore('chat', {
 						//for future subgift events
 						subgiftHistory.push(message);
 					}else if(!isFromRemoteChan){
-						StoreProxy.labels.updateLabelValue("LAST_SUB_ID", message.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_SUB_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("LAST_SUB_AVATAR", message.user.avatarPath || "", message.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_SUB_TIER", message.tier);
+						StoreProxy.labels.updateLabelValue("SUB_ID", message.user.id);
+						StoreProxy.labels.updateLabelValue("SUB_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("SUB_AVATAR", message.user.avatarPath || "", message.user.id);
+						StoreProxy.labels.updateLabelValue("SUB_TIER", message.tier);
 
-						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_ID", message.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", message.tier);
+						StoreProxy.labels.updateLabelValue("SUB_GENERIC_ID", message.user.id);
+						StoreProxy.labels.updateLabelValue("SUB_GENERIC_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("SUB_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
+						StoreProxy.labels.updateLabelValue("SUB_GENERIC_TIER", message.tier);
 						StoreProxy.labels.incrementLabelValue("SUB_COUNT", 1);
 						StoreProxy.labels.incrementLabelValue("SUB_POINTS", {prime:1, 1:2, 2:3, 3:6}[message.tier]);
 					}
@@ -1580,9 +1580,9 @@ export const storeChat = defineStore('chat', {
 				case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
 					sUsers.flagAsFollower(message.user, message.channel_id);
 					if(!isFromRemoteChan) {
-						StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_ID", message.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("LAST_FOLLOWER_AVATAR", message.user.avatarPath || "", message.user.id);
+						StoreProxy.labels.updateLabelValue("FOLLOWER_ID", message.user.id);
+						StoreProxy.labels.updateLabelValue("FOLLOWER_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("FOLLOWER_AVATAR", message.user.avatarPath || "", message.user.id);
 						StoreProxy.labels.incrementLabelValue("FOLLOWER_COUNT", 1);
 					}
 
@@ -1678,20 +1678,20 @@ export const storeChat = defineStore('chat', {
 
 				//YouTube Superchat
 				case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT: {
-					StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_ID", message.user.id);
-					StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_AVATAR", message.user.avatarPath || "", message.user.id);
-					StoreProxy.labels.updateLabelValue("LAST_SUPER_CHAT_AMOUNT", message.amountDisplay);
+					StoreProxy.labels.updateLabelValue("SUPER_CHAT_ID", message.user.id);
+					StoreProxy.labels.updateLabelValue("SUPER_CHAT_NAME", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("SUPER_CHAT_AVATAR", message.user.avatarPath || "", message.user.id);
+					StoreProxy.labels.updateLabelValue("SUPER_CHAT_AMOUNT", message.amountDisplay);
 					break;
 				}
 
 				//YouTube Super sticker
 				case TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER: {
-					StoreProxy.labels.updateLabelValue("LAST_SUPER_STICKER_ID", message.user.id);
-					StoreProxy.labels.updateLabelValue("LAST_SUPER_STICKER_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("LAST_SUPER_STICKER_AVATAR", message.user.avatarPath || "", message.user.id);
-					StoreProxy.labels.updateLabelValue("LAST_SUPER_STICKER_AMOUNT", message.amountDisplay);
-					StoreProxy.labels.updateLabelValue("LAST_SUPER_STICKER_IMAGE", message.sticker_url);
+					StoreProxy.labels.updateLabelValue("SUPER_STICKER_ID", message.user.id);
+					StoreProxy.labels.updateLabelValue("SUPER_STICKER_NAME", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("SUPER_STICKER_AVATAR", message.user.avatarPath || "", message.user.id);
+					StoreProxy.labels.updateLabelValue("SUPER_STICKER_AMOUNT", message.amountDisplay);
+					StoreProxy.labels.updateLabelValue("SUPER_STICKER_IMAGE", message.sticker_url);
 					break;
 				}
 			}
@@ -1863,38 +1863,38 @@ export const storeChat = defineStore('chat', {
 				}
 				if(!isFromRemoteChan) {
 					if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
-						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_ID", message.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_AVATAR", message.user.avatarPath || "", message.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_TIER", message.tier);
+						StoreProxy.labels.updateLabelValue("SUBGIFT_ID", message.user.id);
+						StoreProxy.labels.updateLabelValue("SUBGIFT_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("SUBGIFT_AVATAR", message.user.avatarPath || "", message.user.id);
+						StoreProxy.labels.updateLabelValue("SUBGIFT_TIER", message.tier);
 
-						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_TIER", message.tier);
-						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", message.tier);
+						StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_TIER", message.tier);
+						StoreProxy.labels.updateLabelValue("SUB_GENERIC_TIER", message.tier);
 
 						StoreProxy.labels.incrementLabelValue("SUB_COUNT", message.gift_count || 1);
 						StoreProxy.labels.incrementLabelValue("SUB_POINTS", {prime:1, 1:2, 2:3, 3:6}[message.tier] * (message.gift_count || 1));
-						StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_COUNT", message.gift_count || 1);
+						StoreProxy.labels.incrementLabelValue("SUBGIFT_COUNT", message.gift_count || 1);
 					}else{
-						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_YOUTUBE_ID", message.user.id);
-						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_YOUTUBE_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_YOUTUBE_AVATAR", message.user.avatarPath || "");
-						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_YOUTUBE_TIER", message.levelName);
+						StoreProxy.labels.updateLabelValue("SUBGIFT_YOUTUBE_ID", message.user.id);
+						StoreProxy.labels.updateLabelValue("SUBGIFT_YOUTUBE_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("SUBGIFT_YOUTUBE_AVATAR", message.user.avatarPath || "");
+						StoreProxy.labels.updateLabelValue("SUBGIFT_YOUTUBE_TIER", message.levelName);
 						
-						StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_TIER", message.levelName);
-						StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_TIER", message.levelName);
+						StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_TIER", message.levelName);
+						StoreProxy.labels.updateLabelValue("SUB_GENERIC_TIER", message.levelName);
 
-						StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_YOUTUBE_COUNT", message.gift_count || 1);
+						StoreProxy.labels.incrementLabelValue("SUBGIFT_YOUTUBE_COUNT", message.gift_count || 1);
 					}
 					
-					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_ID", message.user.id);
-					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("LAST_SUBGIFT_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
+					StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_ID", message.user.id);
+					StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_NAME", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
 
-					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_ID", message.user.id);
-					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("LAST_SUB_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
+					StoreProxy.labels.updateLabelValue("SUB_GENERIC_ID", message.user.id);
+					StoreProxy.labels.updateLabelValue("SUB_GENERIC_NAME", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("SUB_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
 
-					StoreProxy.labels.incrementLabelValue("LAST_SUBGIFT_GENERIC_COUNT", message.gift_count || 1);
+					StoreProxy.labels.incrementLabelValue("SUBGIFT_GENERIC_COUNT", message.gift_count || 1);
 				}
 			}
 

@@ -30,7 +30,7 @@ export const storeLabels = defineStore('labels', {
 			const values = StoreProxy.values.valueList;
 			values.forEach(v=> {
 				if(v.perUser) return;
-				placeholders["VALUE_"+v.placeholderKey as "LAST_SUB_TIER"] = {
+				placeholders["VALUE_"+v.placeholderKey as "SUB_TIER"] = {
 					value:v.value,
 					placeholder:{
 						descriptionKey: "triggers.placeholders.value_global_value",
