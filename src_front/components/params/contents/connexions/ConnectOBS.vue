@@ -16,12 +16,7 @@
 		<ParamItem class="item enableBt" :paramData="param_enabled" v-model="param_enabled.value" />
 
 		<div class="fadeHolder" :style="holderStyles">
-			<ToggleBlock class="block conf"
-			:open="openConnectForm"
-			:icons="['info']"
-			:title="$t('obs.credentials_form_title')">
-				<OBSConnectForm  class="connectForm" />
-			</ToggleBlock>
+			<OBSConnectForm class="connectForm" />
 
 			<ToggleBlock class="block permissions"
 			v-if="connected"

@@ -1,13 +1,13 @@
 <template>
-	<form @submit.prevent="connect()" class="obsconnectform">
+	<form @submit.prevent="connect()" class="obsconnectform" :class="connected? '' : 'card-item'">
 		<transition name="fade">
 			<div v-if="connectSuccess && connected" @click="connectSuccess = false" class="card-item primary success">{{ $t("obs.connection_success") }}</div>
 		</transition>
 
 		<template v-if="!connected">
-			<ParamItem :paramData="obsPort_conf" class="param" @change="paramUpdate()" />
-			<ParamItem :paramData="obsPass_conf" class="param" @change="paramUpdate()" />
-			<ParamItem :paramData="obsIP_conf" class="param" @change="paramUpdate()" />
+			<ParamItem :paramData="obsPort_conf" class="param" @change="paramUpdate()" noBackground />
+			<ParamItem :paramData="obsPass_conf" class="param" @change="paramUpdate()" noBackground />
+			<ParamItem :paramData="obsIP_conf" class="param" @change="paramUpdate()" noBackground />
 			
 			<ToggleBlock class="info" small :open="false" :title="$t('obs.how_to_title')">
 				<p>{{ $t("obs.how_to1") }}</p>
@@ -49,7 +49,7 @@ import ParamItem from '../../ParamItem.vue';
 	},
 	emits:[],
 })
- class OBSConnectForm extends Vue {
+class OBSConnectForm extends Vue {
 
 	public loading:boolean = false;
 	public connected:boolean = false;
@@ -135,6 +135,7 @@ export default toNative(OBSConnectForm);
 	.error, .success {
 		text-align: center;
 		line-height: 1.3em;
+		cursor: pointer;
 		&.success {
 			align-self: center;
 		}

@@ -57,7 +57,8 @@
 			"extra_chan_tt": "Ecrire chez : {USER}\n(clic droit pour changer)",
 			"connect_extra_chan": "Se connecter à une chaîne Twitch",
 			"youtube_not_connected": "Vous n'êtes connecté·e à aucun live YouTube",
-			"youtube_missing_scope": "You haven't granted Twitchat permission to write on you chat"
+			"youtube_missing_scope": "Vous n'avez pas autorisé Twitchat à envoyer des messages sur YouTube",
+			"obs_disconnected_tt": "Non connecté à OBS"
 		},
 		"filters": {
 			"cta": "Options importantes ici",

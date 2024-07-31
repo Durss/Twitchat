@@ -272,6 +272,12 @@
 				</transition>
 
 				<ButtonNotification
+				v-if="showObsBtn" icon="obs"
+				class="error"
+				v-tooltip="{content:$t('chat.form.obs_disconnected_tt'), showOnCreate:true}"
+				@click="openOBSParams()"></ButtonNotification>
+
+				<ButtonNotification
 				v-if="showGazaBtn"
 				v-tooltip="{content:$t('gaza.tooltip'), showOnCreate:shouldShowTooltip('gaza'), onHidden:()=>onHideTooltip('gaza')}"
 				@click="$emit('update:showGazaFunds', true)">🍉</ButtonNotification>
@@ -379,6 +385,7 @@ import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import MessageExportIndicator from './MessageExportIndicator.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
 import ChannelSwitcher from './ChannelSwitcher.vue';
+import OBSWebsocket from '@/utils/OBSWebsocket';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import {YoutubeScopes} from "@/utils/youtube/YoutubeScopes";
 
@@ -478,6 +485,8 @@ export class ChatForm extends Vue {
 		const text = this.announcement!.text[this.$i18n.locale] || this.announcement!.text["en"];
 		return TwitchUtils.parseMessageToChunks(text, undefined, true);
 	}
+
+	public get showObsBtn():boolean { return this.$store.obs.connectionEnabled === true && !OBSWebsocket.instance.connected; }
 
 	public get qnaSessionActive():boolean { return this.$store.qna.activeSessions.length > 0; }
 
@@ -614,6 +623,8 @@ export class ChatForm extends Vue {
 	public openNotifications(type:TwitchatDataTypes.NotificationTypes):void { this.$emit('setCurrentNotification', type); }
 
 	public openModal(modal:TwitchatDataTypes.ModalTypes):void { this.$store.params.openModal(modal); }
+	
+	public openOBSParams():void { this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS); }
 
 	public async closeAnnouncement():Promise<void> {
 		let history:{[key:string]:boolean} = JSON.parse(DataStore.get(DataStore.ANNOUNCEMENTS_READ) || "{}");
