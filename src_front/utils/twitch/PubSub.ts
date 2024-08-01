@@ -81,6 +81,7 @@ export default class PubSub extends EventDispatcher {
 				// "hype-train-events-v2.402890635",//Testing golden kappa data
 				// "hype-train-events-v2.115060112",//Testing golden kappa data
 				// "hype-train-events-v2.53964156",//Testing golden kappa data
+				// "hype-train-events-v2.117482317",//Testing golden kappa data
 				"raid."+myUID,
 				"community-moments-channel-v1."+myUID,
 				"user-moderation-notifications."+myUID+"."+myUID,
@@ -885,7 +886,7 @@ export default class PubSub extends EventDispatcher {
 			timeLeft_s:(new Date(data.expires_at).getTime() - new Date(data.started_at).getTime()) / 10000,
 			state: "START",
 			is_boost_train:data.is_boost_train === true,
-			is_golden_kappa:data.is_golden_kappa_train === true,
+			is_golden_kappa:storeTrain?.is_golden_kappa || data.is_golden_kappa_train === true,
 			is_new_record:false,
 			conductor_bits:storeTrain?.conductor_bits,
 			conductor_subs:storeTrain?.conductor_subs,
@@ -940,7 +941,7 @@ export default class PubSub extends EventDispatcher {
 				timeLeft_s:data.progress.remaining_seconds,
 				state: "PROGRESSING",
 				is_boost_train:data.is_boost_train,
-				is_golden_kappa:storeTrain?.is_golden_kappa ?? false,
+				is_golden_kappa:storeTrain?.is_golden_kappa || false,
 				is_new_record:false,//found no way to detect new record :(. Doesn't seem avalable on pubsub
 				conductor_bits:storeTrain?.conductor_bits,
 				conductor_subs:storeTrain?.conductor_subs,
@@ -985,7 +986,7 @@ export default class PubSub extends EventDispatcher {
 			timeLeft_s:data.progress.remaining_seconds,
 			state: "LEVEL_UP",
 			is_boost_train:data.is_boost_train,
-			is_golden_kappa:storeTrain?.is_golden_kappa ?? data.hype_train.isGoldenKappaTrain ?? false,
+			is_golden_kappa:data.hype_train.isGoldenKappaTrain || storeTrain?.is_golden_kappa || false,
 			is_new_record:storeTrain?.is_new_record ?? false,
 			conductor_bits:storeTrain?.conductor_bits,
 			conductor_subs:storeTrain?.conductor_subs,

@@ -297,6 +297,7 @@ export default toNative(HypeTrainState);
 			text-shadow: unset;
 		}
 		background-image: linear-gradient(250deg, @c 0%, #ffe64c 100%);
+		// background-image: linear-gradient(99.04deg, rgba(255, 255, 255, 0) 4.07%, rgba(255, 255, 255, 0.8) 15.55%, rgba(255, 255, 255, 0) 29.58%, rgba(255, 255, 255, 0) 39.14%, rgba(255, 255, 255, 0.77) 48.71%, rgba(255, 255, 255, 0.05) 56.36%, rgba(255, 255, 255, 0.447714) 75.49%, rgba(255, 255, 255, 0.92) 78.68%, rgba(255, 255, 255, 0.78) 82.5%, rgba(255, 255, 255, 0) 92.71%, rgba(255, 255, 255, 0.432432) 102.91%, rgba(255, 255, 255, 0.78) 107.37%), #ffdf9e;
 	}
 
 	.content {
