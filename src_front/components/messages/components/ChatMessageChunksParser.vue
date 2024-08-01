@@ -8,6 +8,7 @@
 			@click.stop="openProfile(chunk.username!)"
 			:style="getUserClasses(chunk.username!)"
 			target="_blank">{{ chunk.value }}</a>
+			<mark v-else-if="new RegExp('@?'+$store.auth.twitch.user?.login, 'gi').test(chunk.value)">{{ chunk.value }}</mark>
 			<template v-else>{{ chunk.value }}</template>
 		</template>
 		
