@@ -63,26 +63,16 @@ export const storeLabels = defineStore('labels', {
 				const data = JSON.parse(json) as IStoreData;
 				this.labelList = data.labelList;
 				
-				//Restored placeholder values from cache
+				//Restore placeholder values from cache
 				if(data.cachedValues) {
 					for (const tag in data.cachedValues) {
 						const typedKey = tag as keyof typeof this.placeholders;
-						const placeholder = this.placeholders[typedKey]
+						const placeholder = this.placeholders[typedKey];
 						const value = data.cachedValues[typedKey];
 						if(!placeholder || !value) continue;
 						placeholder.value = value;
 					}
 				}
-				
-				//Migrating data.
-				//TODO remove once beta ends
-				this.labelList.forEach(v=> {
-					//@ts-ignore
-					delete v["value"];
-					if(v.backgroundEnabled === undefined) v.backgroundEnabled = true;
-					if(v.backgroundColor === undefined) v.backgroundColor = "#ffffff";
-					if(v.fontColor === undefined) v.fontColor = "#000000";
-				});
 			}
 
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_LABEL_OVERLAY_PLACEHOLDERS, ()=>{
@@ -195,8 +185,9 @@ export const storeLabels = defineStore('labels', {
 		broadcastLabelParams(labelId:string):void {
 			const data = this.labelList.find(v=>v.id == labelId) || null;
 			const tag = data?.placeholder;
-			if(data && tag && this.allPlaceholders[tag] && data.enabled === true) {
-				const placeholderType = this.allPlaceholders[tag]!.placeholder.type;
+			const validTag = data?.mode == "placeholder" && tag && this.allPlaceholders[tag];
+			if(data && data.enabled === true && (validTag || data.mode == "html")) {
+				const placeholderType:LabelItemPlaceholder["type"] = tag? this.allPlaceholders[tag]!.placeholder.type : "string";
 				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, placeholderType, data:data as unknown as JsonObject});
 			}else{
 				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, placeholderType:"string", data:null, disabled:data?.enabled === false});

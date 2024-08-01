@@ -184,6 +184,7 @@ function onMessage(message:IEnvelope<unknown>):void {
 		if(messageIdsDone[message.id] === true) return;
 		messageIdsDone[message.id] = true;
 	}
+
 	if(message.type == TwitchatEvent.TWITCHAT_READY || message.type == TwitchatEvent.OBS_WEBSOCKET_CONNECTED) {
 		if(connected) return;
 		requestInitialInfo();
@@ -191,7 +192,7 @@ function onMessage(message:IEnvelope<unknown>):void {
 	}else
 
 	if(message.type == TwitchatEvent.LABEL_OVERLAY_PLACEHOLDERS) {
-		const data = message.data as {[key:string]:{value:number|string, placeholder:LabelItemPlaceholder}}
+		const data = message.data as {[key:string]:{value:number|string, placeholder:LabelItemPlaceholder}};
 		for (const tag in data) {
 			const ph:typeof placeholders[string] = {
 				tag,
