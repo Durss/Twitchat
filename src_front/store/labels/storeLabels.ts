@@ -187,7 +187,7 @@ export const storeLabels = defineStore('labels', {
 			const tag = data?.placeholder;
 			const validTag = data?.mode == "placeholder" && tag && this.allPlaceholders[tag];
 			if(data && data.enabled === true && (validTag || data.mode == "html")) {
-				const placeholderType:LabelItemPlaceholder["type"] = tag && this.allPlaceholders[tag]? this.allPlaceholders[tag]?.placeholder.type : "string";
+				const placeholderType:LabelItemPlaceholder["type"] = tag && this.allPlaceholders[tag]? this.allPlaceholders[tag]!.placeholder.type : "string";
 				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, placeholderType, data:data as unknown as JsonObject});
 			}else{
 				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, placeholderType:"string", data:null, disabled:data?.enabled === false});
