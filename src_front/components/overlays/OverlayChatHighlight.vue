@@ -293,7 +293,7 @@ export default toNative(OverlayChatHighlight);
 		}
 	
 		&.position-tr {
-			top: .5em;
+			top: @margin;
 			right: 0;
 			border-radius: 0;
 			border-top-left-radius: var(--border-radius);
@@ -337,7 +337,7 @@ export default toNative(OverlayChatHighlight);
 		}
 	
 		&.position-br {
-			bottom: .5em;
+			bottom: @margin;
 			right: 0;
 			border-radius: 0;
 			border-top-left-radius: var(--border-radius);
@@ -361,6 +361,7 @@ export default toNative(OverlayChatHighlight);
 				.icon {
 					height: 1em;
 					vertical-align: middle;
+					margin-right: .5em;
 				}
 			}
 			.message {

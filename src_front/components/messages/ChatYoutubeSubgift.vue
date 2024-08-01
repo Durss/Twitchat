@@ -51,10 +51,6 @@ class ChatYoutubeSubgift extends AbstractChatMessage {
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageYoutubeSubgiftData;
 
-	public mounted():void {
-		console.log("OKOKOK");
-	}
-
 }
 export default toNative(ChatYoutubeSubgift);
 </script>
