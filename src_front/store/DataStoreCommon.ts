@@ -200,7 +200,7 @@ export default class DataStoreCommon {
 		const automodRulesBackup:TwitchatDataTypes.AutomodParamsKeywordFilterData[] = [];
 		let automod:TwitchatDataTypes.AutomodParamsData = JSON.parse(this.get(DataStoreCommon.AUTOMOD_PARAMS));
 
-		this.rawStore = await this.migrateData(json);//Migrate remote data if necessary
+		json = await this.migrateData(json);//Migrate remote data if necessary
 
 		//Make sure we don't loose unsynced automod rules
 		//(should think of a generic way of doing this..)
@@ -239,6 +239,8 @@ export default class DataStoreCommon {
 			const value = json[key];
 			const str = typeof value == "string"? value : JSON.stringify(value);
 			this.store.setItem(this.dataPrefix + key, str);
+			if(key == undefined) console.log("UNDEFINED", key);
+			else this.rawStore[key] = value;
 		}
 
 		//Bring back auto mode rules backed up before
@@ -249,6 +251,8 @@ export default class DataStoreCommon {
 			}
 			this.set(DataStoreCommon.AUTOMOD_PARAMS, automod);
 		}
+
+		console.log(JSON.parse(JSON.stringify(this.rawStore)));
 
 		this.dataImported = true;
 		this.save();

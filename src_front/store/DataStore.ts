@@ -96,6 +96,7 @@ export default class DataStore extends DataStoreCommon{
 				if(res.json.success === true) {
 					await this.loadFromJSON(res.json.data);
 					DataStore.save(true);
+					console.log("Force save");
 				}
 			}
 			return res.status != 404;
