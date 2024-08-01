@@ -310,6 +310,26 @@ class DevmodeMenu extends Vue {
 				}, 2000);
 			}
 
+			if(type === TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK) {
+				message = message as TwitchatDataTypes.MessageChatData;
+				const messageData:TwitchatDataTypes.MessageChatData = {
+					channel_id: message.channel_id,
+					id:Utils.getUUID(),
+					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+					date:Date.now(),
+					platform:"twitch",
+					user:message.user,
+					message:message.message,
+					message_chunks:message.message_chunks,
+					message_html:message.message_html,
+					message_size:message.message_size,
+					answers:[],
+					twitch_watchStreak:3,
+					is_short:Utils.stripHTMLTags(message.message_html).length / message.message.length < .6 || message.message.length < 4,
+				};
+				this.$store.chat.addMessage(messageData);
+			}
+
 			//Pressing CTRL while clicking a button will force the user to self
 			if(event.ctrlKey && message.hasOwnProperty("user")) {
 				// (message as TwitchatDataTypes.MessageChatData).user = StoreProxy.auth.twitch.user;

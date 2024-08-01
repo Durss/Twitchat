@@ -1009,6 +1009,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const message_html = TwitchUtils.messageChunksToHTML(message_chunks);
 					const message_size = TwitchUtils.computeMessageSize(message_chunks);
 
+					//Add watch streak specific message
 					const eventData:TwitchatDataTypes.MessageWatchStreakData = {
 						channel_id: channelId,
 						id:Utils.getUUID(),
@@ -1023,6 +1024,24 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						message_size,
 					};
 					this.dispatchEvent(new MessengerClientEvent("WATCH_STREAK", eventData));
+
+					//Add as standard emssage
+					const messageData:TwitchatDataTypes.MessageChatData = {
+						channel_id: channelId,
+						id:Utils.getUUID(),
+						type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+						date:Date.now(),
+						platform:"twitch",
+						user,
+						message,
+						message_chunks,
+						message_html,
+						message_size,
+						answers:[],
+						twitch_watchStreak:tags["msg-param-value"] as number,
+						is_short:Utils.stripHTMLTags(message_html).length / message.length < .6 || message.length < 4,
+					};
+					this.dispatchEvent(new MessengerClientEvent("MESSAGE", messageData));
 				}
 
 				//Handle subgift summaries

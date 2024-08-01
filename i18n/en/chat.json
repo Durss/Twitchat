@@ -407,6 +407,7 @@
 				"new_account_day": "d",
 				"new_account_hour": "h",
 				"new_account_minute": "min",
+				"watchStreak": "Wath streak",
 				"powerUp": "Power up"
 			}
 		},

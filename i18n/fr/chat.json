@@ -407,6 +407,7 @@
 				"new_account_day": "j",
 				"new_account_hour": "h",
 				"new_account_minute": "Min",
+				"watchStreak": "Série de visionnages",
 				"powerUp": "Power up"
 			}
 		},

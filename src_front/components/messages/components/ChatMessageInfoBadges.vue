@@ -48,6 +48,7 @@ class ChatMessageInfoBadges extends Vue {
 			hypeChat:"hypeChat",
 			new_account:"alert",
 			powerUp:"watchStreak",
+			watchStreak:"watchStreak",
 		};
 		if(hashmap[info.type]) {
 			return this.$asset("icons/"+hashmap[info.type]+".svg");

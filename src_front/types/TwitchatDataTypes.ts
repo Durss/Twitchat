@@ -404,6 +404,7 @@ export namespace TwitchatDataTypes {
 		NEW_USER: "new_user",
 		HYPE_CHAT: "hypeChat",
 		NEW_ACCOUNT: "new_account",
+		WATCH_STREAK: "watchStreak",
 		PRESENTATION: "presentation",
 		FIRST_MESSAGE_TODAY: "firstToday",
 		SUSPICIOUS_USER: "suspiciousUser",
@@ -2640,6 +2641,10 @@ export namespace TwitchatDataTypes {
 		 * I think twitch removed it.
 		 */
 		twitch_isReturning?:boolean;
+		/**
+		 * Watch streak count
+		 */
+		twitch_watchStreak?:number;
 		/**
 		 * true if user used the "presentation" feature
 		 * @deprecated feature removed by twitch
