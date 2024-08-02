@@ -147,6 +147,7 @@ function getUUID():string {
  * Called when connection with Twitchat is established
  */
 function requestInitialInfo():void {
+	if(parameters) return;//Already initialized, no need to ask again
 	broadcast(TwitchatEvent.GET_LABEL_OVERLAY_PLACEHOLDERS);
 	broadcast(TwitchatEvent.GET_LABEL_OVERLAY_PARAMS, {id:urlParams.get("twitchat_overlay_id")});
 }
@@ -217,6 +218,9 @@ function onMessage(message:IEnvelope<unknown>):void {
 			parameters = json.data;
 			labelDisabled = json.disabled === true;
 			placeholderType = json.placeholderType;
+
+			document.getElementById("error")!.style.display = "none";
+
 			if(!parameters && labelDisabled !== true) {
 				document.getElementById("error")!.style.display = "flex";
 
@@ -353,8 +357,9 @@ function formatDate(date:Date, addTime:boolean = true, noDate:boolean = false):s
 	}
 	if(addTime) {
 		if(!noDate) res  += " "
-		res += toDigits(date.getHours()) + "h"
-			+ toDigits(date.getMinutes());
+		res += toDigits(date.getHours()) + ":"
+			+ toDigits(date.getMinutes())+ ":";
+			+ toDigits(date.getSeconds());
 	}
 	return res;
 }
