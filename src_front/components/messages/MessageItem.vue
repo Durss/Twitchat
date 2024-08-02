@@ -5,10 +5,14 @@
 			v-tooltip="messageData.channelSource.name"
 			:src="messageData.channelSource.pic" />
 		
-		<span v-else-if="messageData.channelSource"
-			class="border"
-			v-tooltip="messageData.channelSource.name"
-			:style="{color:messageData.channelSource.color}"></span>
+		<template v-else-if="messageData.channelSource">
+			<span class="border"
+				:style="{color:messageData.channelSource.color}"></span>
+			
+			<span class="side"
+				v-tooltip="messageData.channelSource.name"
+				:style="{color:messageData.channelSource.color}"></span>
+		</template>
 		
 		<ChatAd class="message"
 			v-if="messageData.type == 'twitchat_ad'"
@@ -646,9 +650,13 @@ export default toNative(MessageItem);
 		flex-shrink: 0;
 		flex-grow: 0;
 		opacity: .35;
-		background-image: linear-gradient(to right, currentColor 0%, transparent 100%) ;
-		// background-color: currentColor;
+		background-image: linear-gradient(to right, currentColor 0%, transparent 100%);
 		z-index: -1;
+	}
+	.side {
+		width: 5px;
+		opacity: .35;
+		background-color: currentColor;
 	}
 	.avatar {
 		border-radius: 50%;
