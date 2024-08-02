@@ -1,8 +1,12 @@
 {
 	"outdated_data":{
 		"title": "Outdated data",
-		"description":"Current data is older than that recorded on the server, most likely because you have launched Twitchat multiple times, which is highly discouraged.\n\nClose this page or replace server's data with current ones.",
+		"description":"Current data is older than that recorded on the server, most likely because you have launched Twitchat multiple times, which is highly discouraged {WHY}.\n\nClose this page or replace server's data with current ones.",
+		"why_description":"If Twitchat is opened multiple times, triggers, TTS, emergency mode, ..., everything will be executed as many times as Twitchat is running.\n\nTwitch as large API quota usage, but still limited, depending on you chat activity and the options you enabled, you might reach those limits, which could be source of problems.",
+		"why_bt":"why?",
 		"erase_bt": "Replace with current data",
-		"confirm": "Are you sure?\nAny changes made in another instance of Twitchat will be overwritten by the settings of this instance."
+		"readOnly_bt": "continue with read-only mode",
+		"confirm": "Are you sure?\nAny changes made in another instance of Twitchat will be overwritten by the settings of this instance.",
+		"readOnly": "No parameter/data change will be saved to server.\n"
 	}
 }

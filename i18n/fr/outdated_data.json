@@ -1,8 +1,12 @@
 {
 	"outdated_data":{
 		"title": "Données désynchronisées",
-		"description":"Les données actuelles sont plus anciennes que celles enregistrées sur le serveur, probablement parce que vous avez lancé Twitchat plusieurs fois ce qui est très FORTEMENT déconseillé.\n\nFermez cette page ou remplacez les données du serveur par celles actuelles.",
+		"description":"Les données actuelles sont plus anciennes que celles enregistrées sur le serveur, probablement parce que vous avez lancé Twitchat plusieurs fois ce qui est très FORTEMENT déconseillé {WHY}.\n\nFermez cette page ou remplacez les données du serveur par celles actuelles.",
+		"why_description":"Si Twitchat est ouvert plusieurs fois, les Triggers, le TTS, le mode d'urgence, etc., tout sera exécuté autant de fois que Twitchat est lancé.\n\nTwitch a des quotas d'API élevés, mais tout de même limités. Selon l'activité de votre chat et les options que vous avez activées, vous pourriez atteindre ces limites, ce qui pourrait être source de problèmes.",
+		"why_bt":"pourquoi ?",
 		"erase_bt": "Remplacer par les données actuelles",
-		"confirm": "Êtes-vous sûr·e ?\n\nToute modification effectuée dans une autre instance de Twitchat sera écrasée par les paramètres de cette instance."
+		"readOnly_bt": "continuer en mode lecture seule",
+		"confirm": "Êtes-vous sûr·e ?\n\nToute modification effectuée dans une autre instance de Twitchat sera écrasée par les paramètres de cette instance.",
+		"readOnly": "Aucune modification de paramètres ou de donnée ne sera sauvegardée sur le serveur.\n"
 	}
 }

@@ -5,17 +5,26 @@
 			<div class="head">
 				<h1 class="title"><Icon name="alert" /> {{ $t('outdated_data.title') }}</h1>
 			</div>
-			<div class="content" v-if="!confirm">
-				<p>{{ $t("outdated_data.description") }}</p>
-				<div class="buttonList">
+			<div class="content" v-if="!confirm && !readOnly && !why">
+				<i18n-t scope="global" tag="p" keypath="outdated_data.description">
+					<template #WHY>(<a href="#" @click.prevent="why=true">{{ $t("outdated_data.why_bt") }}</a>)</template>
+				</i18n-t>
+				<div class="buttonList vertical">
 					<TTButton class="uploadBt" icon="upload" :loading="saving" @click="confirm = true">{{ $t("outdated_data.erase_bt") }}</TTButton>
+					<a href="#" @click.prevent="readOnly = true">{{ $t("outdated_data.readOnly_bt") }}</a>
 				</div>
 			</div>
 			<div class="content" v-else>
-				<p>{{ $t("outdated_data.confirm") }}</p>
-				<div class="buttonList">
-					<TTButton icon="cross" :loading="saving" @click="confirm = false" alert>{{ $t("global.cancel") }}</TTButton>
-					<TTButton icon="upload" :loading="saving" @click="saveData()" primary>{{ $t("global.confirm") }}</TTButton>
+				<p v-if="readOnly">{{ $t("outdated_data.readOnly") }}</p>
+				<p v-else-if="why">{{ $t("outdated_data.why_description") }}</p>
+				<p v-else>{{ $t("outdated_data.confirm") }}</p>
+				<div class="buttonList" v-if="!why">
+					<TTButton icon="back" :loading="saving" @click="confirm = readOnly = why = false">{{ $t("global.back") }}</TTButton>
+					<TTButton icon="upload" v-if="!readOnly" :loading="saving" @click="saveData()" primary>{{ $t("global.confirm") }}</TTButton>
+					<TTButton icon="checkmark" v-else :loading="saving" @click="close()" primary>{{ $t("global.confirm") }}</TTButton>
+				</div>
+				<div class="buttonList" v-else>
+					<TTButton icon="back" @click="why=false">{{ $t("global.back") }}</TTButton>
 				</div>
 			</div>
 		</div>
@@ -47,8 +56,10 @@ import DataStore from '@/store/DataStore';
 })
 class OutdatedDataVersionAlert extends Vue {
 	
+	public why:boolean = false;
 	public saving:boolean = false;
 	public confirm:boolean = false;
+	public readOnly:boolean = false;
 
 	public mounted():void {
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
@@ -92,6 +103,13 @@ export default toNative(OutdatedDataVersionAlert);
 			align-items: center;
 			justify-content: center;
 			margin-top: 1em;
+			&.vertical {
+				flex-direction: column;
+			}
+			a{
+				color: var(--color-text);
+				font-style: italic;
+			}
 		}
 	}
 }
