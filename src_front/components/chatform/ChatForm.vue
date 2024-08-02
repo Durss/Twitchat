@@ -16,7 +16,10 @@
 				<template #item="{element, index}:{element:typeof TwitchatDataTypes.PinnableMenuItems[number]['id'], index:number}">
 					<ButtonNotification :key="element"
 						@mouseenter="element == 'chatters'? updateOnlineUsersTooltip($event) : ()=>{}"
-						v-tooltip="element == 'chatters' && $store.params.appearance.showViewersCount.value === true? onlineUsersTooltip : $t(getPinnedMenuItemFromid(element).labelKey)"
+						v-tooltip="{
+							touch:'hold',
+							content: element == 'chatters' && $store.params.appearance.showViewersCount.value === true? onlineUsersTooltip : $t(getPinnedMenuItemFromid(element).labelKey)
+						}"
 						:aria-label="$t(getPinnedMenuItemFromid(element).labelKey)"
 						:icon="getPinnedMenuItemFromid(element).icon"
 						@click="onClickMenuItem(getPinnedMenuItemFromid(element))" />
@@ -99,7 +102,7 @@
 					<ButtonNotification :aria-label="$t('chat.form.shoutoutBt_aria')"
 						icon="shoutout"
 						:count="pendingShoutoutCount"
-						v-tooltip="{content:$t('chat.form.shoutoutBt_aria'), showOnCreate:true, onHidden:()=>onHideTooltip('shoutout')}"
+						v-tooltip="{touch:'hold', content:$t('chat.form.shoutoutBt_aria'), showOnCreate:true, onHidden:()=>onHideTooltip('shoutout')}"
 						v-if="pendingShoutoutCount > 0"
 						@click="$emit('update:showShoutout',true);" />
 				</transition>
@@ -107,7 +110,7 @@
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.pollBt_aria')"
 						icon="poll"
-						v-tooltip="{content:$t('chat.form.pollBt_aria'), showOnCreate:shouldShowTooltip('poll'), onHidden:()=>onHideTooltip('poll')}"
+						v-tooltip="{touch:'hold', content:$t('chat.form.pollBt_aria'), showOnCreate:shouldShowTooltip('poll'), onHidden:()=>onHideTooltip('poll')}"
 						@click="openNotifications('poll')"
 						v-if="$store.poll.data?.id && $store.poll.data?.isFake != true" />
 				</transition>
@@ -115,7 +118,7 @@
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.predictionBt_aria')"
 						icon="prediction"
-						v-tooltip="{content:$t('chat.form.predictionBt_aria'), showOnCreate:shouldShowTooltip('prediction'), onHidden:()=>onHideTooltip('prediction')}"
+						v-tooltip="{touch:'hold', content:$t('chat.form.predictionBt_aria'), showOnCreate:shouldShowTooltip('prediction'), onHidden:()=>onHideTooltip('prediction')}"
 						@click="openNotifications('prediction')"
 						v-if="$store.prediction.data?.id && $store.prediction.data?.isFake != true" />
 				</transition>
@@ -123,7 +126,7 @@
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.trainBt_aria')"
 						icon="train"
-						v-tooltip="{content:$t('chat.form.trainBt_aria'), showOnCreate:shouldShowTooltip('train'), onHidden:()=>onHideTooltip('train')}"
+						v-tooltip="{touch:'hold', content:$t('chat.form.trainBt_aria'), showOnCreate:shouldShowTooltip('train'), onHidden:()=>onHideTooltip('train')}"
 						@click="openNotifications('train')"
 						v-if="$store.stream.hypeTrain" />
 				</transition>
@@ -132,7 +135,7 @@
 					<ButtonNotification :aria-label="$t('chat.form.trackedBt_aria')"
 						icon="magnet"
 						v-if="trackedUserCount > 0"
-						v-tooltip="{content:$t('chat.form.trackedBt_aria'), showOnCreate:shouldShowTooltip('tracked'), onHidden:()=>onHideTooltip('tracked')}"
+						v-tooltip="{touch:'hold', content:$t('chat.form.trackedBt_aria'), showOnCreate:shouldShowTooltip('tracked'), onHidden:()=>onHideTooltip('tracked')}"
 						@click="openModal('tracked')" />
 				</transition>
 
@@ -141,7 +144,7 @@
 						v-if="$store.raffle.data && $store.raffle.data!.mode == 'chat'"
 						icon="ticket"
 						:count="$store.raffle.data!.entries? $store.raffle.data!.entries.length : 0"
-						v-tooltip="{content:$t('chat.form.raffleBt_aria'), showOnCreate:shouldShowTooltip('raffle'), onHidden:()=>onHideTooltip('raffle')}"
+						v-tooltip="{touch:'hold', content:$t('chat.form.raffleBt_aria'), showOnCreate:shouldShowTooltip('raffle'), onHidden:()=>onHideTooltip('raffle')}"
 						@click="openNotifications('raffle')" />
 				</transition>
 
@@ -149,14 +152,14 @@
 					<ButtonNotification :aria-label="$t('chat.form.bingoBt_aria')"
 						icon="bingo"
 						v-if="$store.bingo.data"
-						v-tooltip="{content:$t('chat.form.bingoBt_aria'), showOnCreate:shouldShowTooltip('bingo'), onHidden:()=>onHideTooltip('bingo')}"
+						v-tooltip="{touch:'hold', content:$t('chat.form.bingoBt_aria'), showOnCreate:shouldShowTooltip('bingo'), onHidden:()=>onHideTooltip('bingo')}"
 						@click="openNotifications('bingo')" />
 				</transition>
 
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.suggBt_aria')"
 						icon="chatPoll"
-						v-tooltip="{content:$t('chat.form.suggBt_aria'), showOnCreate:shouldShowTooltip('chatsuggState'), onHidden:()=>onHideTooltip('chatsuggState')}"
+						v-tooltip="{touch:'hold', content:$t('chat.form.suggBt_aria'), showOnCreate:shouldShowTooltip('chatsuggState'), onHidden:()=>onHideTooltip('chatsuggState')}"
 						@click="openModal('chatsuggState')"
 						v-if="$store.chatSuggestion.data != null" />
 				</transition>
@@ -166,7 +169,7 @@
 						icon="whispers"
 						:count="$store.chat.whispersUnreadCount"
 						v-if="whispersAvailable"
-						v-tooltip="$t('chat.form.whispersBt_aria')"
+						v-tooltip="{touch:'hold', content:$t('chat.form.whispersBt_aria')}"
 						@click="openModal('whispers')" />
 				</transition>
 
@@ -174,7 +177,7 @@
 					<ButtonNotification :aria-label="$t('chat.form.raidBt_aria')"
 						icon="raid"
 						v-if="$store.stream.currentRaid != null"
-						v-tooltip="$t('chat.form.raidBt_aria')"
+						v-tooltip="{touch:'hold', content:$t('chat.form.raidBt_aria')}"
 						@click="openNotifications('raid')" />
 				</transition>
 
@@ -183,7 +186,7 @@
 						icon="save"
 						v-if="$store.chat.pinedMessages.length > 0"
 						:count="$store.chat.pinedMessages.length"
-						v-tooltip="{content:$t('chat.form.saveBt_aria'), showOnCreate:shouldShowTooltip('save'), onHidden:()=>onHideTooltip('save')}"
+						v-tooltip="{touch:'hold', content:$t('chat.form.saveBt_aria'), showOnCreate:shouldShowTooltip('save'), onHidden:()=>onHideTooltip('save')}"
 						@click="openModal('pins')" />
 				</transition>
 
@@ -200,7 +203,7 @@
 						v-if="chatHighlightEnabled"
 						class="chatHighlight"
 						icon="highlight"
-						v-tooltip="{content:$t('chat.form.highlightBt_aria'), showOnCreate:shouldShowTooltip('highlight'), onHidden:()=>onHideTooltip('highlight')}"
+						v-tooltip="{touch:'hold', content:$t('chat.form.highlightBt_aria'), showOnCreate:shouldShowTooltip('highlight'), onHidden:()=>onHideTooltip('highlight')}"
 						@click="removeChatHighlight()" />
 				</transition>
 
@@ -212,7 +215,7 @@
 
 				<div v-if="$store.params.appearance.showViewersCount.value === true
 					&& streamInfo && streamInfo.viewers > 0"
-					v-tooltip="$t('chat.form.viewer_count')"
+					v-tooltip="{touch:'hold', content:$t('chat.form.viewer_count')}"
 					class="viewCount"
 					@click="censoredViewCount = !censoredViewCount"
 				>
@@ -227,7 +230,7 @@
 						v-if="qnaSessionActive"
 						v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'chatform_qna'}"
 						:aria-label="$t('chat.form.qnaBt_aria')"
-						v-tooltip="$t('chat.form.qnaBt_aria')"
+						v-tooltip="{touch:'hold', content:$t('chat.form.qnaBt_aria')}"
 						@click="openModal('qna')" />
 				</transition>
 
@@ -237,7 +240,7 @@
 						v-if="creditsOverlayRunning"
 						v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'chatform_credits'}"
 						:aria-label="$t('chat.form.creditsBt_aria')"
-						v-tooltip="$t('chat.form.creditsBt_aria')"
+						v-tooltip="{touch:'hold', content:$t('chat.form.creditsBt_aria')}"
 						@click="$emit('update:showCredits', true)" />
 				</transition>
 
@@ -246,7 +249,7 @@
 						icon="bingo_grid"
 						v-if="$store.bingoGrid.availableOverlayList.length > 0"
 						:aria-label="$t('chat.form.bingoGridBt_aria')"
-						v-tooltip="$t('chat.form.bingoGridBt_aria')"
+						v-tooltip="{touch:'hold', content:$t('chat.form.bingoGridBt_aria')}"
 						@click="$emit('update:showBingoGrid', true)" />
 				</transition>
 
@@ -255,13 +258,13 @@
 						:icon="voiceBotStarted? 'microphone_recording' : 'microphone_mute'"
 						v-if="voiceBotConfigured"
 						:aria-label="voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')"
-						v-tooltip="voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')"
+						v-tooltip="{touch:'hold', content:voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')}"
 						@click="toggleVoiceBot()" />
 				</transition>
 
 				<transition name="blink">
 					<Icon class="error" name="spotify" v-if="$store.music.spotifyConsecutiveErrors > 5"
-					v-tooltip="{content:$t('chat.form.spotify_down'), showOnCreate:true, hideOnClick: 'toggle'}" />
+					v-tooltip="{touch:'hold', content:$t('chat.form.spotify_down'), showOnCreate:true, hideOnClick: 'toggle'}" />
 				</transition>
 
 				<transition name="blink">
@@ -274,17 +277,17 @@
 				<ButtonNotification
 				v-if="showObsBtn" icon="obs"
 				class="error"
-				v-tooltip="{content:$t('chat.form.obs_disconnected_tt'), showOnCreate:true}"
+				v-tooltip="{touch:'hold', content:$t('chat.form.obs_disconnected_tt'), showOnCreate:true}"
 				@click="openOBSParams()"></ButtonNotification>
 
 				<ButtonNotification
 				v-if="showGazaBtn"
-				v-tooltip="{content:$t('gaza.tooltip'), showOnCreate:shouldShowTooltip('gaza'), onHidden:()=>onHideTooltip('gaza')}"
+				v-tooltip="{touch:'hold', content:$t('gaza.tooltip'), showOnCreate:shouldShowTooltip('gaza'), onHidden:()=>onHideTooltip('gaza')}"
 				@click="$emit('update:showGazaFunds', true)">🍉</ButtonNotification>
 
 				<ButtonNotification 
 				v-if="showAntifaBtn && $i18n.locale == 'fr' && !$store.main.antifaHide"
-				v-tooltip="{content:'Votez', showOnCreate:shouldShowTooltip('antifa'), onHidden:()=>onHideTooltip('antifa')}"
+				v-tooltip="{touch:'hold', content:'Votez', showOnCreate:shouldShowTooltip('antifa'), onHidden:()=>onHideTooltip('antifa')}"
 				@click="$emit('update:showAntifa', true)">🗳️</ButtonNotification>
 
 				<transition name="blink">
@@ -294,7 +297,7 @@
 						alert
 						:light="$store.emergency.emergencyStarted"
 						:aria-label="$store.emergency.emergencyStarted? $t('chat.form.emergency_stopBt_aria') : $t('chat.form.emergency_startBt_aria')"
-						v-tooltip="$store.emergency.emergencyStarted? $t('chat.form.emergency_stopBt_aria') : $t('chat.form.emergency_startBt_aria')"
+						v-tooltip="{touch:'hold', content:$store.emergency.emergencyStarted? $t('chat.form.emergency_stopBt_aria') : $t('chat.form.emergency_startBt_aria')}"
 						@click="toggleEmergencyMode()" />
 				</transition>
 			</div>
@@ -306,7 +309,7 @@
 					icon="mute"
 					secondary
 					v-if="$store.tts.speaking"
-					v-tooltip="{content:$t('chat.form.muteTTSBt_aria'), placement:'left'}"
+					v-tooltip="{touch:'hold', content:$t('chat.form.muteTTSBt_aria'), placement:'left'}"
 					@click="stopTTS(false)" />
 			</transition>
 
@@ -315,7 +318,7 @@
 					icon="muteAll"
 					secondary
 					v-if="$store.tts.speaking"
-					v-tooltip="{content:$t('chat.form.clearTTSBt_aria'), placement:'left'}"
+					v-tooltip="{touch:'hold', content:$t('chat.form.clearTTSBt_aria'), placement:'left'}"
 					@click="stopTTS(true)" />
 			</transition>
 
@@ -323,7 +326,7 @@
 				<TTButton class="voicemodBt" :aria-label="$t('chat.form.resetVoiceBt_aria')"
 				secondary
 				v-if="$store.voice.voicemodParams.voiceIndicator && $store.voice.voicemodCurrentVoice"
-				v-tooltip="{content:$t('chat.form.resetVoiceBt_aria'), placement:'left'}"
+				v-tooltip="{touch:'hold', content:$t('chat.form.resetVoiceBt_aria'), placement:'left'}"
 				@click="resetVoiceEffect()">
 				<template #icon>
 					<img :src="'data:image/png;base64,' + $store.voice.voicemodCurrentVoice.image" alt="">
