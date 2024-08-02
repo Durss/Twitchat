@@ -775,36 +775,23 @@ export default toNative(Parameters);
 			}
 			.scrollable {
 				.buttonList {
-					display: flex;
-					flex-direction: row;
-					flex-wrap: wrap;
-					justify-content: center;
-					gap: 4px;
-					width: 100%;
-					margin: auto;
+					flex-direction: column;
+					flex-wrap: nowrap;
+					// max-width: 250px;
 					&>.button {
-						width: unset;
-						flex-direction: column;
-						border-radius: var(--border-radius);
+						flex-wrap: nowrap;
+						flex-direction: row;
 						:deep(.icon) {
-							height: 2em;
-							width: 2em;
-							max-height: unset;
-							max-width: unset;
-							object-fit: fill;
-							object-position: center center;
-							margin: 0 0 .25em 0;
-						}
-						:deep(.label) {
-							white-space: normal;
-							flex-grow: 0;
+							height: 1em;
+							width: 1em;
+							margin: 0;
 						}
 						&.beta {
 							&::before {
-								top: 10px;
-								right: -50px;
-								padding: 5px 50px;
-								font-size: 18px;
+								top: 2px;
+								right: -25px;
+								padding: 5px 30px;
+								font-size: .7em;
 							}
 						}
 					}
@@ -831,38 +818,6 @@ export default toNative(Parameters);
 			}
 			.contentHolder {
 				display:flex;
-			}
-		}
-	}
-}
-
-@media only screen and (max-width: 420px) {
-	.parameters {
-		.menu {
-			margin: 0 auto;
-			.scrollable {
-				.buttonList {
-					flex-direction: column;
-					flex-wrap: nowrap;
-					// max-width: 250px;
-					&>.button {
-						flex-wrap: nowrap;
-						flex-direction: row;
-						:deep(.icon) {
-							height: 1em;
-							width: 1em;
-							margin: 0;
-						}
-						&.beta {
-							&::before {
-								top: 2px;
-								right: -25px;
-								padding: 5px 30px;
-								font-size: .7em;
-							}
-						}
-					}
-				}
 			}
 		}
 	}
