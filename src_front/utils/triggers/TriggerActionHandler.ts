@@ -1580,7 +1580,8 @@ export default class TriggerActionHandler {
 								break;
 							}
 							case "add_cell": {
-								const label = step.bingoGrid.label.trim().substring(0, 60);
+								let label = step.bingoGrid.label.trim().substring(0, 60) || "";
+								label = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, label);
 								if(label) {
 									logStep.messages.push({date:Date.now(), value:"✔ Add additional cell \""+label+"\""});
 									if(!grid.additionalEntries) grid.additionalEntries = [];
