@@ -311,7 +311,7 @@ class DevmodeMenu extends Vue {
 			}
 
 			if(type === TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK) {
-				message = message as TwitchatDataTypes.MessageChatData;
+				message = message as TwitchatDataTypes.MessageWatchStreakData;
 				const messageData:TwitchatDataTypes.MessageChatData = {
 					channel_id: message.channel_id,
 					id:Utils.getUUID(),
@@ -319,13 +319,14 @@ class DevmodeMenu extends Vue {
 					date:Date.now(),
 					platform:"twitch",
 					user:message.user,
-					message:message.message,
-					message_chunks:message.message_chunks,
-					message_html:message.message_html,
-					message_size:message.message_size,
+					message:message.message!,
+					message_chunks:message.message_chunks!,
+					message_html:message.message_html!,
+					message_size:message.message_size!,
 					answers:[],
-					twitch_watchStreak:3,
-					is_short:Utils.stripHTMLTags(message.message_html).length / message.message.length < .6 || message.message.length < 4,
+					fake:true,
+					twitch_watchStreak:message.streak,
+					is_short:Utils.stripHTMLTags(message.message_html!).length / message.message!.length < .6 || message.message!.length < 4,
 				};
 				this.$store.chat.addMessage(messageData);
 			}

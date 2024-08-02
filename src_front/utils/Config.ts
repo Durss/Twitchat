@@ -1,9 +1,8 @@
-import rewardImg from '@/assets/icons/reward_highlight.svg';
 import channelPointsImg from '@/assets/icons/channelPoints.svg';
-import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import { reactive } from "vue";
+import rewardImg from '@/assets/icons/reward_highlight.svg';
 import StoreProxy from '@/store/StoreProxy';
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import { reactive } from "vue";
 import { TwitchScopes, type TwitchScopesString } from './twitch/TwitchScopes';
 
 /**

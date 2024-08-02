@@ -3445,6 +3445,8 @@ export default class TwitchUtils {
 	 * First call parseMessageToChunks() to generate compatible chunks, then call
 	 * this method with the words you want to convert to "highlight" nodes
 	 * Modifies the chunks array in place
+	 * 
+	 * //TODO allow mentions starting with "@"
 	 */
 	public static highlightChunks(chunks: TwitchatDataTypes.ParseMessageChunk[], words: string[]): TwitchatDataTypes.ParseMessageChunk[] {
 		for (let i = 0; i < words.length; i++) {

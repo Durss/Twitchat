@@ -52,7 +52,7 @@
 					<div class="form">
 						<div class="card-item install">
 							<label><Icon name="obs" />{{$t('bingo_grid.form.install_title')}}</label>
-							<OverlayInstaller type="bingogrid" :sourceSuffix="bingo.title" :id="bingo.id" :queryParams="{bid:bingo.id}" :sourceTransform="{width:960, height:540}" />
+							<OverlayInstaller type="bingogrid" :sourceSuffix="bingo.title" :id="bingo.id" :queryParams="{bid:bingo.id}" />
 						</div>
 
 						<div class="card-item share">

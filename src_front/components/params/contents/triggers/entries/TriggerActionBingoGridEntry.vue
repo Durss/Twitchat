@@ -3,11 +3,10 @@
 		<template v-if="param_grid.listValues!.length > 0">
 			<ParamItem :paramData="param_grid" @change="onSelectGrid" v-model="action.bingoGrid.grid" />
 			<ParamItem :paramData="param_action" v-model="action.bingoGrid.action" />
-			<ParamItem :paramData="param_name" v-model="action.bingoGrid.label" v-if="action.bingoGrid.action == 'rename' || action.bingoGrid.action == 'add_cell'" />
 			<div class="card-item subEntries" v-if="isCellAction">
 				<SwitchButton v-model="action.bingoGrid.cellActionMode"
-					:values="['id', 'coords']"
-					:labels="[$t('triggers.actions.bingoGrid.param_cell_id'),$t('triggers.actions.bingoGrid.param_cell_coordinates')]"></SwitchButton>
+				:values="['id', 'coords']"
+				:labels="[$t('triggers.actions.bingoGrid.param_cell_id'),$t('triggers.actions.bingoGrid.param_cell_coordinates')]"></SwitchButton>
 				<template v-if="action.bingoGrid.cellActionMode == 'coords'">
 					<ParamItem :paramData="param_x" v-model="action.bingoGrid.x" noBackground />
 					<ParamItem :paramData="param_y" v-model="action.bingoGrid.y" noBackground />
@@ -16,6 +15,7 @@
 					<ParamItem :paramData="param_cellId" v-model="action.bingoGrid.cellId" noBackground />
 				</template>
 			</div>
+			<ParamItem :paramData="param_name" v-model="action.bingoGrid.label" v-if="action.bingoGrid.action == 'rename' || action.bingoGrid.action == 'add_cell'" />
 		</template>
 		<div v-else class="info alert">
 			<p>{{ $t("triggers.actions.bingoGrid.no_grid") }}</p>
