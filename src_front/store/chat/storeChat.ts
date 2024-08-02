@@ -2103,7 +2103,6 @@ export const storeChat = defineStore('chat', {
 
 		async highlightChatMessageOverlay(message?:TwitchatDataTypes.TranslatableMessage) {
 			if(message
-			&& message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 			&& message.user.id
 			&& this.highlightedMessageId != message.id) {
 				if(message.platform == "twitch"

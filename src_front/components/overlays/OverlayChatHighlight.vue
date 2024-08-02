@@ -132,6 +132,8 @@ class OverlayChatHighlight extends Vue {
 
 		const data = (e.data as unknown) as TwitchatDataTypes.ChatHighlightInfo;
 		
+		if(!data) return;
+		
 		this.message = DOMPurify.sanitize(data.message!);
 		this.user = data.user!;
 		this.params = data.params!;
@@ -211,16 +213,16 @@ class OverlayChatHighlight extends Vue {
 		if(!holder) return;
 
 		if(this.params.position.indexOf("r") > -1){
-			gsap.to(holder, {x:"100%", duration:.5, ease:"sine.in"});
+			gsap.to(holder, {x:"105%", duration:.5, ease:"sine.in"});
 		}else
 		if(this.params.position.indexOf("l") > -1){
-			gsap.to(holder, {x:"-100%", duration:.5, ease:"sine.in"});
+			gsap.to(holder, {x:"-105%", duration:.5, ease:"sine.in"});
 		}else
 		if(this.params.position == "t"){
-			gsap.to(holder, {y:"-100%", duration:.5, ease:"sine.in"});
+			gsap.to(holder, {y:"-105%", duration:.5, ease:"sine.in"});
 		}else
 		if(this.params.position == "b"){
-			gsap.to(holder, {y:"100%", duration:.5, ease:"sine.in"});
+			gsap.to(holder, {y:"105%", duration:.5, ease:"sine.in"});
 		}else
 		if(this.params.position == "m"){
 			gsap.to(holder, {scale:0, duration:.5, ease:"back.in"});
@@ -241,16 +243,16 @@ class OverlayChatHighlight extends Vue {
 		if(!holder) return;
 
 		if(this.params.position.indexOf("r") > -1){
-			gsap.from(holder, {x:"100%", duration:.5, ease:"sine.out"});
+			gsap.from(holder, {x:"105%", duration:.5, ease:"sine.out"});
 		}else
 		if(this.params.position.indexOf("l") > -1){
-			gsap.from(holder, {x:"-100%", duration:.5, ease:"sine.out"});
+			gsap.from(holder, {x:"-105%", duration:.5, ease:"sine.out"});
 		}else
 		if(this.params.position == "t"){
-			gsap.from(holder, {y:"-100%", duration:.5, ease:"sine.out"});
+			gsap.from(holder, {y:"-105%", duration:.5, ease:"sine.out"});
 		}else
 		if(this.params.position == "b"){
-			gsap.from(holder, {y:"100%", duration:.5, ease:"sine.out"});
+			gsap.from(holder, {y:"105%", duration:.5, ease:"sine.out"});
 		}else
 		if(this.params.position == "m"){
 			gsap.from(holder, {scale:0, duration:.5, ease:"back.out"});
@@ -276,7 +278,7 @@ export default toNative(OverlayChatHighlight);
 		border-bottom-right-radius: var(--border-radius);
 		box-shadow: 0 0 .5em rgba(0, 0, 0, 1);
 		max-width: calc(30vw - @margin);
-		min-width: 7em;
+		min-width: 12em;
 	
 		&.position-tl {
 			top: @margin;
