@@ -23,27 +23,27 @@
 			</div>
 
 			<div class="alerts" ref="alertsHolder"
-			:style="{aspectRatio: bingo.cols/bingo.rows}">
-				<Icon name="sub" class="star" ref="alertsBg" />
-				<template v-if="currentUserAlert">
-					<div class="user" ref="userInfo">
+			:style="alertStyles">
+			<Icon name="sub" class="star" ref="alertsBg" />
+			<template v-if="currentUserAlert">
+				<div class="user" ref="userInfo">
 						<img v-if="currentUserAlert!.user.avatar" :src="currentUserAlert!.user.avatar" alt="avatar" class="avatar">
 						<div class="username">{{ currentUserAlert!.user.name }}</div>
 					</div>
 					<div class="count" ref="userCount">{{ currentUserAlert!.displayCount }}</div>
 					<Icon name="sub" ref="userStars" class="stars" v-for="i in currentUserAlert!.count" :key="'bingo_'+i" />
 					<img ref="speedDot"
-						class="speedDot"
+					class="speedDot"
 						v-for="i in 10"
 						:key="'speed_'+i" src="@/assets/img/blured_line.png">
 				</template>
 			</div>
 
 			<div class="leaderboard" ref="leaderboardHolder"
-			:style="{aspectRatio: bingo.cols/bingo.rows}"
+			:style="leaderboardStyles"
 			v-if="leaderboard">
 				<Icon name="leaderboard" class="icon" />
-				<div class="scrollHolder">
+				<div class="scrollHolder" ref="scrollHolder">
 					<div class="userlist" ref="list">
 						<div v-for="entry in leaderboard.scores" class="user" :class="'pos_'+entry.pos">
 							<div class="pos">#{{ entry.pos+1 }}</div>
@@ -110,10 +110,13 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	public pendingEvents:{type:"open"|"close"|"user"|"bingo"|"update", data?:IBingoUpdateData, userBingo?:IUserBingoData, bingo?:{vertical:number[], horizontal:number[], diagonal:number[]}}[] = [];
 
 	private id:string = "";
+	private width:number = 100;
+	private height:number = 100;
 	private starIndex:number = 0;
 	private gridOpened:boolean = false;
 	private canPlayWinSound:boolean = true;
 	private innactivityTimeout:number = -1;
+	private leaderBoardFontSize:string = "";
 	private broadcastPresenceInterval:string = "";
 	private bingoUpdateHandler!:(e:TwitchatEvent<IBingoUpdateData>) => void;
 	private bingoViewerHandler!:(e:TwitchatEvent<IUserBingoData>) => void;
@@ -125,6 +128,21 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		let res:string[] = ["overlaybingogrid"];
 		if(this.bingo?.showGrid === true) res.push("border");
 		return res;
+	}
+
+	public get alertStyles():{[key:string]:string} {
+		return {
+			aspectRatio: this.bingo!.cols+"/"+this.bingo!.rows,
+			width: this.width+"px",
+			height: this.height+"px",
+		};
+	}
+
+	public get leaderboardStyles():{[key:string]:string} {
+		return {
+			...this.alertStyles,
+			fontSize: this.leaderBoardFontSize,
+		};
 	}
 
 	public cellClasses(entry:TwitchatDataTypes.BingoGridConfig["entries"][number], index:number):string[] {
@@ -210,19 +228,32 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		
 		if(!this.leaderboard) return;
 		
+		const holder = this.$refs.cellsHolder as HTMLDivElement;
+		const bounds = holder.getBoundingClientRect();
+		this.width	= bounds.width;
+		this.height = bounds.height;
+		
 		await this.$nextTick();
+		// await Utils.promisedTimeout(1000);
 
-		const mainHolder = this.$el as HTMLElement;
 		const listHolder = this.$refs.list as HTMLElement;
 		const leaderboardHolder = this.$refs.leaderboardHolder as HTMLElement;
-		const mainBounds = mainHolder.getBoundingClientRect();
-		const listBounds = listHolder.getBoundingClientRect();
+		const scrollHolder = this.$refs.scrollHolder as HTMLElement;
+		const scrollHolderBounds = scrollHolder.getBoundingClientRect();
 		const duration = this.leaderboard.scores!.length;
 		gsap.fromTo(leaderboardHolder, {opacity:0}, {opacity:1, duration:.75});
-		gsap.fromTo(listHolder, {y:mainBounds.height}, {y:-listBounds.height, duration, ease:"none"});
-		gsap.to(leaderboardHolder, {opacity:0, duration:.5, delay:duration-.5, onComplete:()=>{
-			this.leaderboard = null;
-		}});
+		// gsap.to(leaderboardHolder, {opacity:0, duration:.5, delay:duration-.5, onComplete:()=>{
+		// 	this.leaderboard = null;
+		// }});
+
+		// let vertical = this.bingo!.cols <= this.bingo!.rows;
+		let fontSize = Math.min(scrollHolderBounds.height/10, this.width/10)+"px";
+		this.leaderBoardFontSize = "min(11vw, 11vh, "+fontSize+")";
+		await this.$nextTick();
+		
+		const listBounds = listHolder.getBoundingClientRect();
+		console.log(scrollHolderBounds.height, listBounds);
+		gsap.fromTo(listHolder, {y:scrollHolderBounds.height}, {y:-listBounds.height, duration, ease:"none", repeat:-1});
 	}
 
 	/**
@@ -274,12 +305,13 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			}
 
 
-			/* DEBUG USER EVENTS
+			// FAKE USER BINGOS
+			/*
 			if(animate) {
 				await Utils.promisedTimeout(1000);
 		
 				this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
-						"gridId": "78b997fc-b525-4423-a39a-2b31781b708d",
+						"gridId": this.id,
 						"user": {
 							"name": "DurssBot",
 							"id": "647389082",
@@ -288,7 +320,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 						"count": 1
 					}));
 				this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
-						"gridId": "78b997fc-b525-4423-a39a-2b31781b708d",
+						"gridId": this.id,
 						"user": {
 							"name": "JohanRelpek",
 							"id": "675760285",
@@ -298,7 +330,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 					}));
 		
 				this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
-						"gridId": "78b997fc-b525-4423-a39a-2b31781b708d",
+						"gridId": this.id,
 						"user": {
 							"name": "Durss",
 							"id": "29961813",
@@ -310,7 +342,23 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				// this.pushEvent({type:"update", data:{"id":"78b997fc-b525-4423-a39a-2b31781b708d","bingo":{"id":"78b997fc-b525-4423-a39a-2b31781b708d","title":"PUBG🔫","textColor":"#ffffff","enabled":true,"showGrid":true,"heatClick":false,"textSize":20,"cols":3,"rows":3,"entries":[{"id":"5d554063-b4b5-46d2-a809-a06bc5b263c0","label":"accidentally killed myself","lock":false,"check":false},{"id":"99afe58e-c39d-4259-baab-b45c28645301","label":"running after blue zone","lock":false,"check":false},{"id":"7195bf1f-20be-4f3e-b494-4af2617321a3","label":"Drive over enemy","lock":false,"check":true},{"id":"b79fb5ca-26f6-44b8-843d-eb222b94dc41","label":"first blood","lock":false,"check":true},{"id":"474ce91c-8191-4423-a288-d3f910028e86","label":"TOP 1","lock":true,"check":true},{"id":"ce668ebd-fe1b-4309-b7f9-bbe8a9d3f54c","label":"I die first","lock":false,"check":false},{"id":"1e0143cb-d325-4fae-87e4-8827c36f922f","label":"game crashes","lock":false,"check":false},{"id":"fd750556-a33a-4831-9852-ad41883d3b24","check":false,"label":"erangel","lock":false},{"id":"dcbda4a2-86af-45e7-88af-e2e1085b1460","check":false,"label":"karakin","lock":false}],"backgroundAlpha":29,"backgroundColor":"#000000","chatCmdPermissions":{"all":false,"broadcaster":true,"follower":false,"follower_duration_ms":0,"mods":true,"subs":false,"vips":false,"usersAllowed":[],"usersRefused":[]},"heatClickPermissions":{"all":false,"broadcaster":true,"follower":false,"follower_duration_ms":0,"mods":true,"subs":false,"vips":false,"usersAllowed":[],"usersRefused":[]},"additionalEntries":[{"id":"5df94fe3-829a-4c2a-822c-77374183e1f7","check":false,"label":"10+ kills","lock":false},{"id":"ff5151a7-d346-42ad-ac55-dd54fe2b05a6","check":false,"label":"sanhok","lock":false},{"id":"ef5cf01d-1362-405a-9d0c-0629d126b36c","label":"Found flare gun","lock":false,"check":false}],"winSoundVolume":30},"newVerticalBingos":[],"newHorizontalBingos":[],"newDiagonalBingos":[]}});
 				// this.pushEvent({type:"update", data:{"id":"78b997fc-b525-4423-a39a-2b31781b708d","bingo":{"id":"78b997fc-b525-4423-a39a-2b31781b708d","title":"PUBG🔫","textColor":"#ffffff","enabled":true,"showGrid":true,"heatClick":false,"textSize":20,"cols":3,"rows":3,"entries":[{"id":"5d554063-b4b5-46d2-a809-a06bc5b263c0","label":"accidentally killed myself","lock":false,"check":false},{"id":"99afe58e-c39d-4259-baab-b45c28645301","label":"running after blue zone","lock":false,"check":false},{"id":"7195bf1f-20be-4f3e-b494-4af2617321a3","label":"Drive over enemy","lock":false,"check":true},{"id":"b79fb5ca-26f6-44b8-843d-eb222b94dc41","label":"first blood","lock":false,"check":true},{"id":"474ce91c-8191-4423-a288-d3f910028e86","label":"TOP 1","lock":true,"check":true},{"id":"ce668ebd-fe1b-4309-b7f9-bbe8a9d3f54c","label":"I die first","lock":false,"check":true},{"id":"1e0143cb-d325-4fae-87e4-8827c36f922f","label":"game crashes","lock":false,"check":false},{"id":"fd750556-a33a-4831-9852-ad41883d3b24","check":false,"label":"erangel","lock":false},{"id":"dcbda4a2-86af-45e7-88af-e2e1085b1460","check":false,"label":"karakin","lock":false}],"backgroundAlpha":29,"backgroundColor":"#000000","chatCmdPermissions":{"all":false,"broadcaster":true,"follower":false,"follower_duration_ms":0,"mods":true,"subs":false,"vips":false,"usersAllowed":[],"usersRefused":[]},"heatClickPermissions":{"all":false,"broadcaster":true,"follower":false,"follower_duration_ms":0,"mods":true,"subs":false,"vips":false,"usersAllowed":[],"usersRefused":[]},"additionalEntries":[{"id":"5df94fe3-829a-4c2a-822c-77374183e1f7","check":false,"label":"10+ kills","lock":false},{"id":"ff5151a7-d346-42ad-ac55-dd54fe2b05a6","check":false,"label":"sanhok","lock":false},{"id":"ef5cf01d-1362-405a-9d0c-0629d126b36c","label":"Found flare gun","lock":false,"check":false}],"winSoundVolume":30},"newVerticalBingos":[],"newHorizontalBingos":[1],"newDiagonalBingos":[]}});
 			}
-			 //*/
+			//*/
+
+			// FAKE LEADERBOARD
+			/*
+			setTimeout(
+				()=>{
+					this.onLeaderboard(new TwitchatEvent("BINGO_GRID_OVERLAY_LEADER_BOARD",{
+						gridId:this.id,
+						scores:[
+							{pos:0,score:8,user_name:"Durss",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/1835e681-7306-49b8-a1e2-2775a17424ae-profile_image-300x300.png"},
+							{pos:1,score:5,user_name:"Shakawah",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/0d1eddfc-af8e-4a40-8422-38af4f947844-profile_image-300x300.png"},
+							{pos:2,score:4,user_name:"Fibertooth",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/565065ca-898d-4a9f-a3c8-50f41a41a4bf-profile_image-300x300.png"},
+						]
+					}));
+				}
+			, 2000);
+			//*/
 		}
 	}
 
@@ -445,13 +493,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 						{scale:scaleTo, ease:open? "sine.out" :"sine.in", 
 							duration:.35, 
 							clearProps:open? "transform": "", 
-							delay:open? 0 : .55 + Math.pow(cells.length,.8)*.05,
-							onComplete:()=>{
-								if(!open) {
-									this.gridOpened = open;
-									resolve();
-								}
-							}});
+							delay:open? 0 : .55 + Math.pow(cells.length,.8)*.05});
 			
 			//Animate items from center
 			cells.forEach((cell, index) => {
@@ -681,6 +723,12 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	 * Show a viewer info
 	 */
 	private async animateViewer(data:IUserBingoData):Promise<void> {
+		
+		const holder = this.$refs.cellsHolder as HTMLDivElement;
+		const bounds = holder.getBoundingClientRect();
+		this.width	= bounds.width;
+		this.height = bounds.height;
+
 		return new Promise(async (resolve)=>{
 			if(this.canPlayWinSound && this.bingo!.winSoundVolume > 0) {
 				this.winSoundVolume.volume = Math.min(1, Math.max(0, (this.bingo!.winSoundVolume / 100) || .5));
@@ -698,13 +746,20 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			const userCount = this.$refs.userCount as HTMLElement;
 			const userStars = this.$refs.userStars as Vue[];
 
+			if(!cellsHolder) {
+				resolve();
+				return;
+			}
+
 			const boundsHolder = cellsHolder.getBoundingClientRect();
 	
 			data.displayCount = 0;
 
+			const boundsUser = userInfos.getBoundingClientRect();
+
 			gsap.to((this.$refs.alertsBg as Vue).$el, {rotate:"360deg", duration:1, ease:"none"});
-			gsap.to((this.$refs.alertsBg as Vue).$el, {scale:8, duration:1, ease:"circ.in"});
-			gsap.fromTo(userInfos, {top:"120%"}, {top:"-20%", duration:1.5, ease:"slow(0.5,0.8,false)", delay:.7});
+			gsap.to((this.$refs.alertsBg as Vue).$el, {scale:10, duration:1, ease:"circ.in"});
+			gsap.fromTo(userInfos, {top:boundsHolder.height + boundsUser.height/2}, {top:-boundsUser.height, duration:1.5, ease:"slow(0.5,0.8,false)", delay:.7});
 			gsap.set(userCount, {scale:0});
 			gsap.set(userStars.map(v=>v.$el), {scale:0});
 
@@ -852,13 +907,13 @@ export default toNative(OverlayBingoGrid);
 
 	.leaderboard {
 		z-index: 101;
-		display: block;
+		display: flex;
+		flex-direction: column;
 		position: absolute;
 		overflow: hidden;
 		border-radius: calc(min(100vw, 100vh) / 50);
 		top: 0;
 		left: 0;
-		width: min(100vw, 100vh);
 		max-width: 100vw;
 		max-height: 100vh;
 		font-size: min(11vh, 11vw);
@@ -866,23 +921,26 @@ export default toNative(OverlayBingoGrid);
 
 		&>.icon {
 			height: 1em;
+			min-height: 1em;
+			max-height: 10%;
 			margin: auto;
 			display: block;
 			margin: .25em 0;
 			color: #ffee00;
-			filter: drop-shadow(0 0 .05em #00000080)
+			filter: drop-shadow(0 0 .05em #00000080);
 		}
 
 		.scrollHolder {
 			overflow: hidden;
 			position: relative;
+			height: 100%;
+			flex-grow: 1;
 		}
 		.userlist {
 			gap: .15em;
 			display: flex;
 			padding: 0 .25em;
 			flex-direction: column;
-
 			.user {
 				gap: .25em;
 				display: flex;
@@ -951,7 +1009,6 @@ export default toNative(OverlayBingoGrid);
 		border-radius: calc(min(100vw, 100vh) / 50);
 		top: 0;
 		left: 0;
-		width: min(100vw, 100vh);
 		max-width: 100vw;
 		max-height: 100vh;
 		.star {
