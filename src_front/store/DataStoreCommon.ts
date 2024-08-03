@@ -239,7 +239,7 @@ export default class DataStoreCommon {
 			const value = json[key];
 			const str = typeof value == "string"? value : JSON.stringify(value);
 			this.store.setItem(this.dataPrefix + key, str);
-			if(key == undefined) console.log("UNDEFINED", key);
+			if(key == undefined) console.log("UNDEFINED KEY", key);
 			else this.rawStore[key] = value;
 		}
 
@@ -251,8 +251,6 @@ export default class DataStoreCommon {
 			}
 			this.set(DataStoreCommon.AUTOMOD_PARAMS, automod);
 		}
-
-		console.log(JSON.parse(JSON.stringify(this.rawStore)));
 
 		this.dataImported = true;
 		this.save();
