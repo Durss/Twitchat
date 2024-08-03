@@ -154,12 +154,15 @@ export const storeLabels = defineStore('labels', {
 				const [user] = await TwitchUtils.getUserInfo([userId]);
 				if(user) value = user.profile_image_url;
 			}
-			this.placeholders[key]!.value = value;
-			this.broadcastPlaceholders();
-			this.saveData();
+			if(this.placeholders[key]!.value != value) {
+				this.placeholders[key]!.value = value;
+				this.broadcastPlaceholders();
+				this.saveData();
+			}
 		},
 
 		async incrementLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:number):Promise<void> {
+			if(value == 0) return;
 			if(!ready) {
 				//Store not yet ready, wiat for it to be ready
 				await readyPromise;
