@@ -160,11 +160,10 @@
 					</div>
 				</div>
 			</div>
-
-			<Teleport to="body">
-				<img class="powerupEmote" ref="powerupEmote" v-show="data.params?.powerUpEmotes ==  true" v-for="item in data.powerups.filter(v=>v.emoteUrl).splice(0, 20)" :src="item.emoteUrl" alt="emote">
-			</Teleport>
 		</template>
+		<Teleport to="body">
+			<img class="powerupEmote" ref="powerupEmote" v-show="data.params?.powerUpEmotes == true" v-for="item in powerUpEmoteProps" :src="item.image" alt="emote">
+		</Teleport>
 	</div>
 </template>
 
@@ -192,6 +191,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 	public noEntry:boolean = false;
 	public data:TwitchatDataTypes.StreamSummaryData|null = null;
 	public slotList:SlotItem[] = [];
+	public powerUpEmoteProps:{image:string, behind:boolean, angle:number, angleSpeed:number, speedRatio:number, scale:number}[] = [];
 
 	private posY:number = 0;
 	private animFrame:number = -1;
@@ -207,7 +207,6 @@ class OverlayEndingCredits extends AbstractOverlay {
 	private scrollStarted_at:number = 0;
 	private fixedScrollId:string = "";
 	private creditsComplete:boolean = false;
-	private powerUpEmoteProps:{angle:number, angleSpeed:number, speedRatio:number, scale:number}[] = [];
 
 	private keyupHandler!:(e:KeyboardEvent)=>void;
 	private controlHandler!:(e:TwitchatEvent) => void;
@@ -759,7 +758,6 @@ class OverlayEndingCredits extends AbstractOverlay {
 	private async onSummaryData(e:TwitchatEvent):Promise<void> {
 		if(e.data) {
 			this.data = (e.data as unknown) as TwitchatDataTypes.StreamSummaryData;
-			console.log(this.data);
 			this.buildSlots();
 			this.reset();
 		}
@@ -824,31 +822,28 @@ class OverlayEndingCredits extends AbstractOverlay {
 				if(this.data?.params?.timing == 'duration') {
 					this.scrollStarted_at = Date.now();
 				}
-				this.renderFrame(performance.now());
 	
-				const emotes = this.$refs.powerupEmote as HTMLImageElement[] || null;
+				const emotes = this.$refs.powerupEmote as HTMLImageElement[] || [];
 				const vw = document.body.clientWidth;
 				const vh = document.body.clientHeight;
 				let py = vh + 300;
-				emotes.forEach((img, index)=>{
-					const behind = Math.random()>.5;
-					let px = Math.random() * (vw - 112);
-					img.style.left = px + "px";
-					img.style.top = py + "px";
+				emotes.forEach((imgTag, index)=>{
+					const props = this.powerUpEmoteProps[index];
+					const behind = props.behind;
+					let px = Math.random() * (vw - 112*props.scale) + 112*props.scale*.5;
+					imgTag.style.left = px + "px";
+					imgTag.style.top = py + "px";
 					py += (Math.random()* .25 + .75) * 250;
-					this.powerUpEmoteProps.push({
-						angle:(Math.random()-Math.random()) * 360,
-						speedRatio:Math.random()*1+.75,
-						angleSpeed:(Math.random()-Math.random())*.5,
-						scale:(Math.random()*1 + 1) * (behind? .7 : 1),
-					})
 					if(behind) {
-						img.style.opacity = ".5";
-						img.style.zIndex = "-1";
+						imgTag.style.opacity = ".5";
+						imgTag.style.zIndex = "-1";
 					}else{
-						img.style.zIndex = "999";
+						imgTag.style.opacity = "1";
+						imgTag.style.zIndex = "999";
 					}
 				});
+				
+				this.renderFrame(performance.now());
 			}
 		})
 	}
@@ -912,6 +907,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 			});
 			emotes.forEach((img, index)=>{
 				const props = this.powerUpEmoteProps[index];
+				if(!props) return;
 				let py = (parseFloat(img.style.top) + speed * props.speedRatio);
 				if(speed < 0 && py < -500) {
 					py = Math.max(document.body.clientHeight + 300, lowestY + 300);
@@ -1027,6 +1023,31 @@ class OverlayEndingCredits extends AbstractOverlay {
 				categoryStyles:this.getCategoryStyles(slotParams),
 			})
 		});
+
+		this.powerUpEmoteProps = [];
+		
+		let powerups = this.data.powerups;
+
+		if(powerups.length > 0) {
+			//20 items min
+			while(powerups.length < 20) powerups.push(Utils.pickRand(powerups));
+			//50 items max
+			powerups = Utils.shuffle(powerups).splice(0, 50);
+			
+			for (let i = 0; i < powerups.length; i++) {
+				if(!powerups[i].emoteUrl) continue;
+				const behind = Math.random()>.5;
+				const maxSpeed = behind? .5 : 1;
+				this.powerUpEmoteProps.push({
+					image:powerups[i].emoteUrl!,
+					behind,
+					angle:(Math.random()-Math.random()) * 360,
+					speedRatio:Math.random()*maxSpeed+.75,
+					angleSpeed:(Math.random()-Math.random())*.5,
+					scale:(Math.random()*1 + 1) * (behind? Math.random()*.25 + .25 : Math.random()*.2+.8),
+				})
+			}
+		}
 
 		this.noEntry = totalEntries == 0 && this.data!.params!.hideEmptySlots !== false;
 	}
