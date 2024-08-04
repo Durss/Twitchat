@@ -68,6 +68,9 @@ export default toNative(ChatCelebration);
 		}
 		&>.icon {
 			color: #5cffbe;
+			width: 1.25em;
+			height: 1.25em;
+			margin-right: 5px;
 		}
 	}
 }
