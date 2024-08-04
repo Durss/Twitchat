@@ -66,6 +66,7 @@ async function connectToOBS():Promise<void> {
 		});
 	}
 	try {
+		if(!urlParams.get("obs_ip")) return;
 		const ip = urlParams.get("obs_ip") || "127.0.0.1";
 		const port = urlParams.get("obs_port") || "4455";
 		const pass = urlParams.get("obs_pass") || "";
@@ -230,7 +231,19 @@ function onMessage(message:IEnvelope<unknown>):void {
 				holder.innerHTML = "";
 				prevHTML = "";
 
-			}else{
+			}else if(parameters){
+				const holder = document.getElementById("app")!;
+				holder.removeAttribute("style");
+				holder.style.fontFamily = parameters.fontFamily || "Inter";
+				holder.style.fontSize = parameters.fontSize+"px";
+				holder.style.color = parameters.fontColor;
+			
+				if(parameters.backgroundEnabled) {
+					holder.style.padding = ".5em";
+					holder.style.backgroundColor = parameters.backgroundColor;
+					holder.style.borderRadius = ".5em";
+				}
+				
 				renderValue();
 			}
 
@@ -262,8 +275,6 @@ function setDynamicStyles(css:string):void {
  */
 function renderValue():void {
 	if(!parameters || Object.keys(placeholders).length === 0) return;
-	const holder = document.getElementById("app")!;
-	holder.removeAttribute("style");
 	let value = parameters.mode == "placeholder"? parameters.placeholder : parameters.html;
 	let html = "";
 	timerOffsets = {};
@@ -286,18 +297,9 @@ function renderValue():void {
 	}
 
 	if(html != prevHTML) {
+		const holder = document.getElementById("app")!;
 		holder.innerHTML = html;
-	}
-	prevHTML = holder.innerHTML;
-
-	holder.style.fontFamily = parameters.fontFamily || "Inter";
-	holder.style.fontSize = parameters.fontSize+"px";
-	holder.style.color = parameters.fontColor;
-
-	if(parameters.backgroundEnabled) {
-		holder.style.padding = ".5em";
-		holder.style.backgroundColor = parameters.backgroundColor;
-		holder.style.borderRadius = ".5em";
+		prevHTML = html;
 	}
 }
 
