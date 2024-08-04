@@ -43,7 +43,7 @@
 				</div>
 				<ParamItem :paramData="param_enterDuration" @change="onValueChange()" />
 
-				<ToggleBlock class="configs" :icons="['params']" v-if="mode=='chat' && triggerMode === false" :title="$t('global.advanced_params')" :open="false">
+				<ToggleBlock class="configs" :icons="['params']" v-if="mode=='chat'" :title="$t('global.advanced_params')" :open="false">
 					<ParamItem :paramData="param_multipleJoin" v-model="param_multipleJoin.value" @change="onValueChange()" />
 					<ParamItem :paramData="param_maxUsersToggle" v-model="param_maxUsersToggle.value" @change="onValueChange()" />
 					<ParamItem :paramData="param_ponderateVotes" v-model="param_ponderateVotes.value" @change="onValueChange()" />
