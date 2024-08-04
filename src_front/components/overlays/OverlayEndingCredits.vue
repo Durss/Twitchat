@@ -836,10 +836,10 @@ class OverlayEndingCredits extends AbstractOverlay {
 					py += (Math.random()* .25 + .75) * 250;
 					if(behind) {
 						imgTag.style.opacity = ".5";
-						imgTag.style.zIndex = "-1";
+						imgTag.style.zIndex = Math.round(-1000+props.scale*100).toString();
 					}else{
 						imgTag.style.opacity = "1";
-						imgTag.style.zIndex = "999";
+						imgTag.style.zIndex = Math.round(props.scale*100).toString();
 					}
 				});
 				
@@ -1026,7 +1026,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 
 		this.powerUpEmoteProps = [];
 		
-		let powerups = this.data.powerups;
+		let powerups = this.data.powerups.concat();
 
 		if(powerups.length > 0) {
 			//20 items min
