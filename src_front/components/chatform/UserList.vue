@@ -60,7 +60,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 	},
 	emits:["close"]
 })
- class UserList extends Vue {
+class UserList extends Vue {
 
 	public showInfo:boolean = false;
 	public myChannelId!:string;
@@ -74,8 +74,16 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 	public get userList():TwitchatDataTypes.TwitchatUser[] {
 		const list:TwitchatDataTypes.TwitchatUser[] = [];
+		const validIds = this.$store.stream.connectedTwitchChans.concat().map(v=>v.user.id);
+		if(this.$store.auth.youtube.user) validIds.push(this.$store.auth.youtube.user.id);
+		validIds.push(this.$store.auth.twitch.user.id);
+
 		for (const uid in this.channels) {
 			const chan = this.channels[uid];
+			
+			//Not connected to chan anymore? Skip entry
+			if(validIds.findIndex(v=>v == uid) == -1) continue;
+
 			list.push(this.$store.users.getUserFrom(chan.platform, chan.channelId, chan.channelId));
 		}
 		return list;
@@ -174,6 +182,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 			const channels:{[key:string]:ChannelUserList} = {};
 			for (let i = 0; i < userList.length; i++) {
 				const user = userList[i];
+			
 				for (const chan in user.channelInfo) {
 					if(user.channelInfo[chan].online && user.temporary !== true && user.errored !== true) {
 						if(!channels[chan]) {
