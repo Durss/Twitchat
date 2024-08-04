@@ -131,13 +131,12 @@
 							</div>
 							
 							<tooltip
-							:inlinePositioning='false'
-							:maxWidth="600"
-							:maxHeight="200"
 							interactive
+							trigger="click"
+							:maxWidth="600"
+							:inlinePositioning='false'
 							:interactiveDebounce="1000"
-							:theme="$store.common.theme"
-							trigger="click">
+							:theme="$store.common.theme">
 								<template #default>
 									<TTButton v-if="Object.keys(moderatedChannelList_pinned).length < moderatedChannelList.length"
 										icon="add"
