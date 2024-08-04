@@ -50,7 +50,7 @@
 				"description":"La grille de bingo sera supprimée.\nCette action est irréversible."
 			},
 			"additional_cells":"Cases additionnelles",
-			"premium_multiplayer":"Devenez premium pour activer le mode multi-joueur.\nLe pseudo des viewers remportant un bingo apparaîtra dans l'overlay, vos modos pourront cocher des cases facilement, et vous pourrez automatiser des actions depuis les triggers."
+			"premium_multiplayer":"Devenez premium pour activer le mode multi-joueur.\nLe pseudo des viewers remportant un bingo apparaîtra dans l'overlay ainsi qu'en tchat, un classement pourra y être affiché et vos modos pourront cocher les cases pour vous."
 		},
 		"state":{
 			"auth_bt": "Me connecter pour jouer",

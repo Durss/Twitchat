@@ -31,7 +31,7 @@
 					</TransitionGroup>
 				</div>
 	
-				<ToggleBlock v-if="grid.additionalEntries" small :title="$t('bingo_grid.form.additional_cells')" :open="false">
+				<ToggleBlock v-if="grid.additionalEntries && grid.additionalEntries.length > 0" small :title="$t('bingo_grid.form.additional_cells')" :open="false">
 					<div v-for="entry in grid.additionalEntries" class="additionalEntry">
 						<Checkbox class="entry"
 							:key="entry.id"

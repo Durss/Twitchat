@@ -123,6 +123,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	private leaderboardHandler!:(e:TwitchatEvent<{gridId:string, scores?:{user_name:string, user_pic:string, score:number, pos:number}[]}>) => void;
 	private prevCheckStates:{[key:string]:boolean} = {};
 	private winSoundVolume!:HTMLAudioElement;
+	private debugScale = 1;//Reduce to add margin around grid for cleaner screen capture
 
 	public get classes():string[] {
 		let res:string[] = ["overlaybingogrid"];
@@ -223,15 +224,23 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	private async onLeaderboard(e:Parameters<typeof this.leaderboardHandler>[0]):Promise<void> {
 		if(!e.data) return;
 		if(e.data.gridId != this.id) return;
+
 		
-		this.leaderboard = e.data.scores && e.data.scores.length > 0? e.data : null;
+		const newLeaderboard = e.data.scores && e.data.scores.length > 0? e.data : null;
 		
-		if(!this.leaderboard) return;
-		
+		if(newLeaderboard) this.leaderboard = newLeaderboard;
+		else{
+			const leaderboardHolder = this.$refs.leaderboardHolder as HTMLElement;
+			gsap.to(leaderboardHolder, {opacity:0, duration:.5, onComplete:()=>{
+				this.leaderboard = null;
+			}});
+			return;
+		}
+
 		const holder = this.$refs.cellsHolder as HTMLDivElement;
 		const bounds = holder.getBoundingClientRect();
-		this.width	= bounds.width;
-		this.height = bounds.height;
+		this.width	= Math.ceil(bounds.width / this.debugScale);
+		this.height = Math.ceil(bounds.height / this.debugScale);
 		
 		await this.$nextTick();
 		// await Utils.promisedTimeout(1000);
@@ -240,20 +249,16 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		const leaderboardHolder = this.$refs.leaderboardHolder as HTMLElement;
 		const scrollHolder = this.$refs.scrollHolder as HTMLElement;
 		const scrollHolderBounds = scrollHolder.getBoundingClientRect();
-		const duration = this.leaderboard.scores!.length;
+		const duration = Math.max(5,this.leaderboard.scores!.length*1.5);
 		gsap.fromTo(leaderboardHolder, {opacity:0}, {opacity:1, duration:.75});
-		// gsap.to(leaderboardHolder, {opacity:0, duration:.5, delay:duration-.5, onComplete:()=>{
-		// 	this.leaderboard = null;
-		// }});
 
 		// let vertical = this.bingo!.cols <= this.bingo!.rows;
-		let fontSize = Math.min(scrollHolderBounds.height/10, this.width/10)+"px";
+		let fontSize = Math.min(scrollHolderBounds.height/this.debugScale/10, this.width/10)+"px";
 		this.leaderBoardFontSize = "min(11vw, 11vh, "+fontSize+")";
 		await this.$nextTick();
 		
 		const listBounds = listHolder.getBoundingClientRect();
-		console.log(scrollHolderBounds.height, listBounds);
-		gsap.fromTo(listHolder, {y:scrollHolderBounds.height}, {y:-listBounds.height, duration, ease:"none", repeat:-1});
+		gsap.fromTo(listHolder, {y:scrollHolderBounds.height/this.debugScale}, {y:-listBounds.height/this.debugScale, duration, ease:"none", repeat:-1});
 	}
 
 	/**
@@ -351,14 +356,32 @@ export class OverlayBingoGrid extends AbstractOverlay {
 					this.onLeaderboard(new TwitchatEvent("BINGO_GRID_OVERLAY_LEADER_BOARD",{
 						gridId:this.id,
 						scores:[
-							{pos:0,score:8,user_name:"Durss",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/1835e681-7306-49b8-a1e2-2775a17424ae-profile_image-300x300.png"},
-							{pos:1,score:5,user_name:"Shakawah",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/0d1eddfc-af8e-4a40-8422-38af4f947844-profile_image-300x300.png"},
-							{pos:2,score:4,user_name:"Fibertooth",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/565065ca-898d-4a9f-a3c8-50f41a41a4bf-profile_image-300x300.png"},
+							{pos:0,score:8,user_name:"Cailloute",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/2335a3b2-7816-43ee-9c74-a4cd99a1c897-profile_image-50x50.png"},
+							{pos:1,score:5,user_name:"ChezMarino",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/c707c1e9-242c-4a34-84eb-46653bdbacff-profile_image-50x50.png"},
+							{pos:1,score:5,user_name:"Shakawah",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/0d1eddfc-af8e-4a40-8422-38af4f947844-profile_image-50x50.png"},
+							{pos:2,score:4,user_name:"Euphoriasis",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/87b7b0d0-73e7-4bbd-9d50-40cdcfe0c18a-profile_image-50x50.jpeg"},
+							{pos:3,score:3,user_name:"Kapacino",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/ea9b8b0b-d170-43c0-a2fa-2cd4fbdde5e2-profile_image-50x50.png"},
+							{pos:4,score:2,user_name:"Durss",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/1835e681-7306-49b8-a1e2-2775a17424ae-profile_image-50x50.png"},
 						]
 					}));
 				}
 			, 2000);
 			//*/
+
+			//@ts-ignore
+			window.classement = ()=>{
+				this.onLeaderboard(new TwitchatEvent("BINGO_GRID_OVERLAY_LEADER_BOARD",{
+						gridId:this.id,
+						scores:[
+							{pos:0,score:8,user_name:"Cailloute",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/2335a3b2-7816-43ee-9c74-a4cd99a1c897-profile_image-50x50.png"},
+							{pos:1,score:5,user_name:"ChezMarino",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/c707c1e9-242c-4a34-84eb-46653bdbacff-profile_image-50x50.png"},
+							{pos:1,score:5,user_name:"Shakawah",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/0d1eddfc-af8e-4a40-8422-38af4f947844-profile_image-50x50.png"},
+							{pos:2,score:4,user_name:"Euphoriasis",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/87b7b0d0-73e7-4bbd-9d50-40cdcfe0c18a-profile_image-50x50.jpeg"},
+							{pos:3,score:3,user_name:"Kapacino",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/ea9b8b0b-d170-43c0-a2fa-2cd4fbdde5e2-profile_image-50x50.png"},
+							{pos:4,score:2,user_name:"Durss",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/1835e681-7306-49b8-a1e2-2775a17424ae-profile_image-50x50.png"},
+						]
+					}));
+			}
 		}
 	}
 
@@ -493,7 +516,13 @@ export class OverlayBingoGrid extends AbstractOverlay {
 						{scale:scaleTo, ease:open? "sine.out" :"sine.in", 
 							duration:.35, 
 							clearProps:open? "transform": "", 
-							delay:open? 0 : .55 + Math.pow(cells.length,.8)*.05});
+							delay:open? 0 : .55 + Math.pow(cells.length,.8)*.05,
+							onComplete:()=>{
+								if(!open) {
+									this.gridOpened = open;
+									resolve();
+								}
+							}});
 			
 			//Animate items from center
 			cells.forEach((cell, index) => {
@@ -655,7 +684,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				this.pendingEvents[existingIndex] = data;
 			}
 		}else if(data.type == "update") { {
-			//Remove any pending up to keep only the new one
+			//Remove any pending updates to keep only the new one
 			for (let i = 1; i < this.pendingEvents.length; i++) {
 				const event = this.pendingEvents[i];
 				if(event.type == "update") {
@@ -726,8 +755,8 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		
 		const holder = this.$refs.cellsHolder as HTMLDivElement;
 		const bounds = holder.getBoundingClientRect();
-		this.width	= bounds.width;
-		this.height = bounds.height;
+		this.width	= Math.ceil(bounds.width / this.debugScale);
+		this.height = Math.ceil(bounds.height / this.debugScale);
 
 		return new Promise(async (resolve)=>{
 			if(this.canPlayWinSound && this.bingo!.winSoundVolume > 0) {
@@ -759,7 +788,9 @@ export class OverlayBingoGrid extends AbstractOverlay {
 
 			gsap.to((this.$refs.alertsBg as Vue).$el, {rotate:"360deg", duration:1, ease:"none"});
 			gsap.to((this.$refs.alertsBg as Vue).$el, {scale:10, duration:1, ease:"circ.in"});
-			gsap.fromTo(userInfos, {top:boundsHolder.height + boundsUser.height/2}, {top:-boundsUser.height, duration:1.5, ease:"slow(0.5,0.8,false)", delay:.7});
+			gsap.fromTo(userInfos,
+				{top:boundsHolder.height/this.debugScale + boundsUser.height/this.debugScale/2},
+				{top:-boundsUser.height/this.debugScale, duration:1.5, ease:"slow(0.5,0.8,false)", delay:.7});
 			gsap.set(userCount, {scale:0});
 			gsap.set(userStars.map(v=>v.$el), {scale:0});
 
@@ -769,7 +800,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				const height = ((Math.random() * boundsHolder.height) + boundsHolder.height*.1);
 				dot.style.opacity = (Math.random()*.3 + .1)+"";
 				dot.style.left = ((index/(dots.length-1) + (Math.random()-Math.random()) * .1)*80+10)+"%";
-				dot.style.top = (boundsHolder.height + Math.random()*height*5)+"px";
+				dot.style.top = (boundsHolder.height/this.debugScale + Math.random()*height*5)+"px";
 				dot.style.height = height+"px";
 				dot.style.width = (Math.random()*10+5)+"px";
 				
@@ -816,8 +847,8 @@ export class OverlayBingoGrid extends AbstractOverlay {
 
 			const duration = 1;
 			gsap.fromTo(userStars.map(v=>v.$el).pop()!,
-			{scale:8},
-			{scale:0, duration:duration, immediateRender:false, ease:"none"});
+				{scale:8},
+				{scale:0, duration:duration, immediateRender:false, ease:"none"});
 
 			gsap.fromTo(userCount, {scale:Math.min(5, 3 + data.displayCount!*.2)}, {scale:0,
 				immediateRender:false,
@@ -850,6 +881,7 @@ export default toNative(OverlayBingoGrid);
 .overlaybingogrid{
 	@borderSize: min(.75vh, .75vw);
 	transform-origin: center center;
+	// transform: scale(.9);//Set the same value to "debugScale" var
 	.cells {
 		gap: @borderSize;
 		display: grid;
@@ -918,6 +950,7 @@ export default toNative(OverlayBingoGrid);
 		max-height: 100vh;
 		font-size: min(11vh, 11vw);
 		background-color: #fff;
+		will-change: transform;
 
 		&>.icon {
 			height: 1em;
@@ -948,6 +981,7 @@ export default toNative(OverlayBingoGrid);
 				align-items: center;
 				border-radius: 1em;
 				padding: .15em;
+				background-color: var(--color-primary-fader);
 				.pos {
 					font-weight: bold;
 					font-size: .4em;
@@ -984,9 +1018,6 @@ export default toNative(OverlayBingoGrid);
 					font-size: .6em;
 					text-align: center;
 					line-height: 1.25em;
-				}
-				&:nth-child(odd) {
-					background-color: var(--color-primary-fadest);
 				}
 				&.pos_0 {
 					background-color: #ffee00;

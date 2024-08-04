@@ -50,7 +50,7 @@
 				"title": "Delete grid?"
 			},
 			"additional_cells":"Additional cells",
-			"premium_multiplayer":"Become premium to enable Multi player mode.\nAnytime a viewer get a bingo their name and score will show up on the overlay, your mods will be able to tick cells for you and you'll be able to automate action from the triggers."
+			"premium_multiplayer":"Become premium to enable Multi player mode.\nAnytime a viewer gets a bingo their name and score will show up on the overlay and on chat, you'll be able to show the leaderboard and your mods will be able to tick cells for you."
 		},
 		"state": {
 			"auth_bt": "Authenticate to play",
