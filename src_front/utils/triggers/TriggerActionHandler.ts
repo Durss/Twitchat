@@ -2412,7 +2412,7 @@ export default class TriggerActionHandler {
 
 						if(step.musicAction == TriggerMusicTypes.NEXT_TRACK) {
 							if(SpotifyHelper.instance.connected) {
-								SpotifyHelper.instance.nextTrack().then(res=>{
+								await SpotifyHelper.instance.nextTrack().then(res=>{
 									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Next track success: "+res});
 								});
 							}
@@ -2420,7 +2420,7 @@ export default class TriggerActionHandler {
 
 						if(step.musicAction == TriggerMusicTypes.PAUSE_PLAYBACK) {
 							if(SpotifyHelper.instance.connected) {
-								SpotifyHelper.instance.pause().then(res=> {
+								await SpotifyHelper.instance.pause().then(res=> {
 									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Pause success: "+res});
 								});
 							}
@@ -2428,7 +2428,7 @@ export default class TriggerActionHandler {
 
 						if(step.musicAction == TriggerMusicTypes.RESUME_PLAYBACK) {
 							if(SpotifyHelper.instance.connected) {
-								SpotifyHelper.instance.resume().then(res=> {
+								await SpotifyHelper.instance.resume().then(res=> {
 									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Resume success: "+res});
 								});
 							}
