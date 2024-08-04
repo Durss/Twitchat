@@ -108,6 +108,10 @@ export default class Database {
 	 */
 	public async addMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void> {
 		if(!this._db) return Promise.reject("Database not ready");
+		const sAuth = StoreProxy.auth;
+		const isFromRemoteChan = message.channel_id != sAuth.twitch.user.id && message.channel_id != sAuth.youtube.user?.id;
+		//Don't save messages from remote channels
+		if(isFromRemoteChan) return Promise.resolve();
 
 		const ignoreList:TwitchatDataTypes.TwitchatMessageStringType[] = [
 			TwitchatDataTypes.TwitchatMessageType.JOIN,
@@ -180,6 +184,10 @@ export default class Database {
 	 */
 	public async updateMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void>{
 		if(!this._db) return Promise.resolve();
+		const sAuth = StoreProxy.auth;
+		const isFromRemoteChan = message.channel_id != sAuth.twitch.user.id && message.channel_id != sAuth.youtube.user?.id;
+		//Don't save messages from remote channels
+		if(isFromRemoteChan) return Promise.resolve();
 
 		return new Promise((resolve, reject)=> {
 			this._db.transaction(Database.MESSAGES_TABLE, "readwrite")
@@ -206,6 +214,10 @@ export default class Database {
 	 */
 	public async deleteMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void>{
 		if(!this._db) return Promise.resolve();
+		const sAuth = StoreProxy.auth;
+		const isFromRemoteChan = message.channel_id != sAuth.twitch.user.id && message.channel_id != sAuth.youtube.user?.id;
+		//Don't save messages from remote channels
+		if(isFromRemoteChan) return Promise.resolve();
 
 		return new Promise((resolve, reject)=> {
 			this._db.transaction(Database.MESSAGES_TABLE, "readwrite")
