@@ -249,6 +249,26 @@ Here is the expected file structure:\
 <br>
 <br>
 
+### Run application in Docker
+After building and before running make sure you've created a local folder named `credentials` and put the `credentials.json` documented above into that folder. The command below will persist the data stored by Twitchat into the local `data` folder:
+
+```bash
+# Build the Docker image from source
+docker build -t twitchat .
+
+# Run the container with a local config and persisted data
+docker run --rm -ti \
+  -p 3018:3018 \
+  -v ./credentials:/opt/twitchat/credentials:ro \
+  -v ./data/beta:/opt/twitchat/beta \
+  -v ./data/donors:/opt/twitchat/donors \
+  -v ./data/userData:/opt/twitchat/userData \
+  twitchat
+```
+<br>
+<br>
+<br>
+
 # Localization
 # Adding new language
 Just create a new folder under the `i18n` folder with the ISO 639-1 code of the language.\
