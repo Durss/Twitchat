@@ -537,6 +537,7 @@
 				"param_action_untick_all":"Untick all cells",
 				"param_action_rename":"Rename a cell",
 				"param_action_add_cell":"Add a cell",
+				"param_action_shuffle":"Shuffle grid",
 				"param_cell_coordinates":"Cell coordinates",
 				"param_cell_id":"Specific cell",
 				"param_cell":"Cell",

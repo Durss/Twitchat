@@ -482,7 +482,7 @@ export interface TriggerActionBingoGridData extends TriggerActionData{
 		/**
 		 * Action type to perform
 		 */
-		action:"tick"|"untick"|"toggle"|"tick_all"|"untick_all"|"rename"|"add_cell";
+		action:"tick"|"untick"|"toggle"|"tick_all"|"untick_all"|"rename"|"add_cell"|"shuffle";
 		/**
 		 * Should cell related actions target a cell
 		 * by its coordinates or its ID

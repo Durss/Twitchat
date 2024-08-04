@@ -537,6 +537,7 @@
 				"param_action_untick_all": "Tout décocher",
 				"param_action_rename": "Renommer une case",
 				"param_action_add_cell": "Ajouter une case",
+				"param_action_shuffle": "Mélanger la grille",
 				"param_cell_coordinates": "Coordonnées de case",
 				"param_cell_id": "Case spécifique",
 				"param_cell": "Case",

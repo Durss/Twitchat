@@ -1603,8 +1603,13 @@ export default class TriggerActionHandler {
 								break;
 							}
 							case "untick_all": {
-								logStep.messages.push({date:Date.now(), value:"✔ Unicking all cells"});
+								logStep.messages.push({date:Date.now(), value:"✔ Unticking all cells"});
 								StoreProxy.bingoGrid.resetCheckStates(grid.id, false);
+								break;
+							}
+							case "shuffle": {
+								logStep.messages.push({date:Date.now(), value:"✔ Shuffle grid"});
+								StoreProxy.bingoGrid.shuffleGrid(grid.id);
 								break;
 							}
 						}

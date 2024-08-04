@@ -92,6 +92,7 @@ class TriggerActionBingoGridEntry extends AbstractTriggerActionEntry {
 			{value:"untick_all", labelKey:"triggers.actions.bingoGrid.param_action_untick_all"},
 			{value:"rename", labelKey:"triggers.actions.bingoGrid.param_action_rename"},
 			{value:"add_cell", labelKey:"triggers.actions.bingoGrid.param_action_add_cell"},
+			{value:"shuffle", labelKey:"triggers.actions.bingoGrid.param_action_shuffle"},
 		];
 	}
 
