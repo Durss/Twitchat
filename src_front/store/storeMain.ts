@@ -268,7 +268,11 @@ export const storeMain = defineStore("main", {
 			//send any shared mode stuff (ex: q&a sessions)
 			SSEHelper.instance.addEventListener(SSEEvent.ON_CONNECT, ()=> {
 				ApiHelper.call("mod/request", "GET");
-			})
+			});
+			//Reload labels when server tells
+			SSEHelper.instance.addEventListener(SSEEvent.LABELS_UPDATE, ()=> {
+				this.reloadLabels(true);
+			});
 
 			//TODO remove once T4P ends
 			this.t4p = DataStore.get(DataStore.T4P_CHAT_CMD) || "";

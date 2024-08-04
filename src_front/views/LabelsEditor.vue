@@ -282,7 +282,7 @@ import type { JsonObject } from "type-fest";
 					// Recursively search in nested objects
 					const nestedMatches = searchValueWithPaths(json[key], searchWord, newPath);
 					matchingPaths = matchingPaths.concat(nestedMatches);
-				} else if (typeof json[key] === 'string' && json[key].includes(searchWord)) {
+				} else if (typeof json[key] === 'string' && json[key].toLowerCase().includes(searchWord)) {
 					// Check if the string value contains the search word
 					matchingPaths.push(newPath);
 				}
@@ -292,7 +292,7 @@ import type { JsonObject } from "type-fest";
 		}
 		this.selectedSectionLabels = null;
 		this.selectedSectionKey = "";
-		this.searchKeys = searchValueWithPaths(labels, this.search);
+		this.searchKeys = searchValueWithPaths(labels, this.search.toLowerCase());
 		this.noResult = this.searchKeys.length == 0;
 		setTimeout(()=> {
 			this.noResult = false;
@@ -309,8 +309,7 @@ import type { JsonObject } from "type-fest";
 			lang:this.$i18n.locale,
 			labels:labels[section as keyof typeof labels]
 		};
-		let res = await ApiHelper.call("admin/labels", "POST", body, false);
-		PublicAPI.instance.broadcast(TwitchatEvent.LABELS_UPDATE);
+		await ApiHelper.call("admin/labels", "POST", body, false);
 	}
 
 }

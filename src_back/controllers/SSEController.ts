@@ -124,4 +124,5 @@ export const SSECode = {
 	SHARED_MOD_INFO_REQUEST:"SHARED_MOD_INFO_REQUEST" as const,
 	QNA_STATE:"QNA_STATE" as const,
 	QNA_ACTION:"QNA_ACTION" as const,
+	LABELS_UPDATE:"LABELS_UPDATE" as const,
 }

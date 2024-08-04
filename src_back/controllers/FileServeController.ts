@@ -5,6 +5,7 @@ import * as fs from "fs";
 import * as path from "path";
 import Logger from "../utils/Logger.js";
 import Utils from "../utils/Utils.js";
+import SSEController, { SSECode } from "./SSEController.js";
 import {spawn} from "child_process";
 
 /**
@@ -293,7 +294,8 @@ export default class FileServeController extends AbstractController {
 	 * @returns 
 	 */
 	public async postLabels(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		if(!this.adminGuard(request, response)) return;
+		const user = await this.adminGuard(request, response);
+		if(!user) return;
 		
 		const body:any = request.body;
 		const lang:string = body.lang;
@@ -353,6 +355,7 @@ export default class FileServeController extends AbstractController {
 					response.send(JSON.stringify({success:true}));
 					this.savingLabels = false;
 					resolve();
+					SSEController.sendToUser(user.user_id, SSECode.LABELS_UPDATE);
 				});
 			});
 

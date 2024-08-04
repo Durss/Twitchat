@@ -21,6 +21,7 @@ export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 	public static SHARED_MOD_INFO_REQUEST = "SHARED_MOD_INFO_REQUEST" as const;
 	public static QNA_STATE = "QNA_STATE" as const;
 	public static QNA_ACTION = "QNA_ACTION" as const;
+	public static LABELS_UPDATE = "LABELS_UPDATE" as const;
 
 	constructor(eventType:T, public data?:EventTypeMap[T]) {
 		super(eventType);
@@ -47,6 +48,7 @@ export type EventTypeMap = {
 	ON_CONNECT: void;
 	FAILED_CONNECT: void;
 	AUTHENTICATION_FAILED: void;
+	LABELS_UPDATE: void;
 	KO_FI_EVENT: KofiEventData;
 	NOTIFICATION: {
 			messageId:string;
