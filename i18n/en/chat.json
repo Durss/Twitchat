@@ -57,6 +57,7 @@
 			"connect_extra_chan": "Connect to another Twitch channel",
 			"extra_chan_tt": "Channel to write to: {USER}\n(right click for fast switch)",
 			"extra_chan_params_tt": "Parameters",
+			"extra_chan_info": "Les Triggers, le TTS, le mode urgence, l'automod,\netc... ne s'exécuteront que pour votre propre chaîne",
 			"youtube_not_connected": "Not connected to any YouTube live",
 			"youtube_missing_scope": "You haven't granted Twitchat permission to write on you chat",
 			"obs_disconnected_tt": "Not connected to OBS"

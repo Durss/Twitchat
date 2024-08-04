@@ -23,7 +23,7 @@
 					@close="showForm = false"
 					@select="onSelectUser"
 					inline />
-				<p class="infos"><Icon name="info" />triggers, TTS, emergency mode, automod, etc.. won't work for these chans</p>
+				<p class="infos"><Icon name="info" />{{ $t("chat.form.extra_chan_info") }}</p>
 			</template>
 			
 			<template v-else-if="userParams" >
@@ -314,6 +314,8 @@ export default toNative(ChannelSwitcher);
 			font-style: italic;
 			font-size: .85em;
 			color: var(--color-secondary);
+			white-space: pre-line;
+			font-weight: normal;
 		}
 	}
 
