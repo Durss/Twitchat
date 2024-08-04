@@ -500,27 +500,32 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				if(gridId && grid) {
 					grid.cols = Math.min(10, Math.max(2, grid.cols))
 					grid.rows = Math.min(10, Math.max(2, grid.rows))
-	
+
 					const count = grid.cols*grid.rows;
-					//TODO
-					// if(count < grid.entries.length) {
-					// 	try {
-					// 		await StoreProxy.main.confirm("Reduce?", "You'll lose entries!");
-					// 	}catch(error){
-					// 		return;
-					// 	}
-					// }
 					//Remove useless items
-					grid.entries = grid.entries.splice(0, count);
+					const newEntries = grid.entries.splice(0, count);
+					const oldEntries = grid.entries.concat().filter(v=>v.label.trim().length > 0);
+					grid.entries = newEntries;
+
+					//If entries are gonna get lost, put them in the additional cells
+					if(oldEntries.length > 0) {
+						if(!grid.additionalEntries) grid.additionalEntries = [];
+						grid.additionalEntries.push(...oldEntries);
+					}
 	
 					//Add missing items
 					while(grid.entries.length < count) {
-						grid.entries.push({
-							id:Utils.getUUID(),
-							label:"",
-							lock:false,
-							check:false,
-						})
+						//Pick from additional cells if any
+						if(grid.additionalEntries && grid.additionalEntries.length > 0) {
+							grid.entries.push(grid.additionalEntries.shift()!);
+						}else{
+							grid.entries.push({
+								id:Utils.getUUID(),
+								label:"",
+								lock:false,
+								check:false,
+							});
+						}
 					}
 	
 					//Replace all spaces (but line breaks) with a normal space.
