@@ -996,11 +996,8 @@ export const storeChat = defineStore('chat', {
 					}
 
 					//Check if the message contains a mention
-					if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-					&& StoreProxy.params.appearance.highlightMentions.value === true) {
-						const login = StoreProxy.auth.twitch.user.login;
-						message.hasMention = login != null
-											&& new RegExp("\\b"+login+"\\b", "gim")
+					if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+						message.hasMention = new RegExp("\\b"+sAuth.twitch.user.login+"\\b", "gim")
 											.test(message.message ?? "");
 					}
 
@@ -1505,7 +1502,7 @@ export const storeChat = defineStore('chat', {
 										recipients1:message.gift_recipients,
 										recipients2:subHistoryEntry.gift_recipients,
 									}
-									console.log("[SUBSCRIPTION MERGE] cannot merge gift:", json);
+									// console.log("[SUBSCRIPTION MERGE] cannot merge gift:", json);
 								}
 								continue;
 							}
@@ -1528,7 +1525,7 @@ export const storeChat = defineStore('chat', {
 								}
 								return;
 							}
-							console.log("[SUBSCRIPTION MERGE] Don't merge", subHistoryEntry.tier == message.tier, subHistoryEntry.user.id == message.user.id, Date.now() - subHistoryEntry.date < 5000);
+							// console.log("[SUBSCRIPTION MERGE] Don't merge", subHistoryEntry.tier == message.tier, subHistoryEntry.user.id == message.user.id, Date.now() - subHistoryEntry.date < 5000);
 						}
 						//Message not merged, might be the first subgift of a series, save it
 						//for future subgift events
