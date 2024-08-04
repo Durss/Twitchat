@@ -218,8 +218,12 @@ export namespace TwitchatDataTypes {
 		forbiddenBadges?:string[];
 		/**
 		 * Optional custom background color
-		 */
+		*/
 		backgroundColor?:string;
+		/**
+		 * Channel IDs to show
+		 */
+		channelIDs?:{[uid:string]:{platform:ChatPlatform, date:number}};
 	}
 
 	/**

@@ -15,7 +15,7 @@
 
 		<div class="popin blured-background-window" ref="popin" v-if="expand">
 			<template v-if="showForm && !user">
-				<p><Icon name="online" />{{ $t("chat.form.connect_extra_chan") }}</p>
+				<p class="head"><Icon name="online" />{{ $t("chat.form.connect_extra_chan") }}</p>
 				<SearchUserForm class="blured-background-window"
 					v-model="user"
 					:staticUserList="liveFollingList"
@@ -23,10 +23,14 @@
 					@close="showForm = false"
 					@select="onSelectUser"
 					inline />
+				<p class="infos"><Icon name="info" />triggers, TTS, emergency mode, automod, etc.. won't work for these chans</p>
+			</template>
+			
+			<template v-else-if="userParams" >
 			</template>
 			
 			<template v-else >
-				<div v-for="entry in channels"
+				<button v-for="entry in channels"
 				:class="currentChannelId == entry.user.id? 'entry selected' : 'entry'"
 				@click="onSelectChannel(entry.user.id, entry.user.login, entry.platform)">
 					<img class="avatar" v-if="entry.user.avatarPath"
@@ -34,17 +38,28 @@
 						:style="{color:entry.color}"
 						alt="avatar"
 						referrerpolicy="no-referrer">
+
 					<Icon :name="entry.platform" class="platformIcon" />
+
 					<span class="pseudo">{{ entry.user.displayName }}</span>
-					<TTButton v-if="entry.canDisconnect"
-						class="disconnectBt"
+
+					<TTButton v-if="entry.isRemoteChan"
+						class="actionBt"
 						icon="offline"
 						transparent
 						medium
 						v-tooltip="$t('global.disconnect')"
 						@click.capture.stop="disconnect(entry.user)" />
-				</div>
-				<TTButton class="addChanBt" icon="add" @click="showForm = true" transparent medium />
+
+					<!-- <TTButton v-if="entry.isRemoteChan"
+						class="actionBt"
+						icon="params"
+						transparent
+						medium
+						v-tooltip="$t('chat.form.extra_chan_params_tt')"
+						@click.capture.stop="openParams(entry.user)" /> -->
+				</button>
+				<TTButton class="addChanBt" icon="add" v-if="$store.stream.connectedTwitchChans.length < 6" @click="showForm = true" transparent medium />
 			</template>
 		</div>
 	</div>
@@ -81,6 +96,7 @@ class ChannelSwitcher extends Vue {
 	public showForm:boolean = false;
 	public currentChannelId:string = "";
 	public user:TwitchDataTypes.UserInfo | null = null;
+	public userParams:TwitchatDataTypes.TwitchatUser | null = null;
 	public liveFollingList:TwitchDataTypes.UserInfo[] = [];
 
 	
@@ -91,15 +107,15 @@ class ChannelSwitcher extends Vue {
 	}
 
 	public get channels() {
-		let chans:{platform:TwitchatDataTypes.ChatPlatform, user:TwitchatDataTypes.TwitchatUser, color:string, canDisconnect:boolean}[] = [];
+		let chans:{platform:TwitchatDataTypes.ChatPlatform, user:TwitchatDataTypes.TwitchatUser, color:string, isRemoteChan:boolean}[] = [];
 		
-		chans.push({platform:"twitch", user:this.$store.auth.twitch.user, canDisconnect:false, color:"transparent"});
+		chans.push({platform:"twitch", user:this.$store.auth.twitch.user, isRemoteChan:false, color:"transparent"});
 		if(this.$store.auth.youtube.user) {
-			chans.push({platform:"youtube", user:this.$store.auth.youtube.user, canDisconnect:false, color:"transparent"});
+			chans.push({platform:"youtube", user:this.$store.auth.youtube.user, isRemoteChan:false, color:"transparent"});
 		}
 		
 		this.$store.stream.connectedTwitchChans.forEach(entry=> {
-			chans.push({platform:"twitch", user:entry.user, canDisconnect:true, color:entry.color});
+			chans.push({platform:"twitch", user:entry.user, isRemoteChan:true, color:entry.color});
 		})
 
 		return chans;
@@ -181,6 +197,13 @@ class ChannelSwitcher extends Vue {
 	}
 
 	/**
+	 * Open params form for a user
+	 */
+	public openParams(user:TwitchatDataTypes.TwitchatUser):void {
+		this.userParams = user;
+	}
+
+	/**
 	 * Opens the window
 	 */
 	public async open(event:MouseEvent):Promise<void> {
@@ -241,8 +264,11 @@ export default toNative(ChannelSwitcher);
 		flex-direction: row;
 		align-items: center;
 		cursor: pointer;
-		padding: 2px 5px;
+		padding: 2px;
+		padding-right: 5px;
 		border-radius: var(--border-radius);
+		color: var(--color-text);
+		text-align: left;
 		.avatar {
 			width: 1.5em;
 			height: 1.5em;
@@ -257,9 +283,11 @@ export default toNative(ChannelSwitcher);
 		}
 		.pseudo {
 			text-wrap: nowrap;
+			flex-grow: 1;
 		}
-		.disconnectBt {
+		.actionBt {
 			flex-shrink: 0;
+			margin-right: -5px;
 		}
 		&:hover {
 			background-color: var(--background-color-fader);
@@ -280,6 +308,12 @@ export default toNative(ChannelSwitcher);
 			height: 1em;
 			margin-right: .5em;
 			vertical-align: middle;
+		}
+
+		.infos {
+			font-style: italic;
+			font-size: .85em;
+			color: var(--color-secondary);
 		}
 	}
 
@@ -308,6 +342,10 @@ export default toNative(ChannelSwitcher);
 				filter: brightness(1.2);
 			}
 		}
+	}
+
+	.head {
+		white-space: pre-line;
 	}
 }
 </style>

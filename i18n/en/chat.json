@@ -56,6 +56,7 @@
 			"bingoGridBt_aria": "Bingo grids",
 			"connect_extra_chan": "Connect to another Twitch channel",
 			"extra_chan_tt": "Channel to write to: {USER}\n(right click for fast switch)",
+			"extra_chan_params_tt": "Parameters",
 			"youtube_not_connected": "Not connected to any YouTube live",
 			"youtube_missing_scope": "You haven't granted Twitchat permission to write on you chat",
 			"obs_disconnected_tt": "Not connected to OBS"
@@ -77,11 +78,12 @@
 			"hide_users_placeholder": "type username...",
 			"scope_missing": "Needs missing authorization. Click to grant permission.",
 			"whispers_permissions": "Filter allowed users",
-			"show_panels_here": "Show forms on this column",
+			"show_panels_here": "Poll, prediction, ..., forms",
 			"show_greet_here": "Show \" @:greet.title \" on this column",
 			"show_user_badges": "Show only users with badges...",
 			"hide_user_badges": "Hide users with badges...",
 			"background_color": "Background color",
+			"channels": "Filter channels to display",
 			"select_all": "All",
 			"message_types": {
 				"twitchat_ad": "Twitchat tips & tricks",

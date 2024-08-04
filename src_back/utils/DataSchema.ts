@@ -1156,7 +1156,7 @@ const UserDataSchema = {
 					whispersPermissions: { $ref: "defs.json#/definitions/permissions" },
 					showPanelsHere: { type:"boolean" },
 					showGreetHere: { type:"boolean" },
-					backgroundColor: { type:"string", maxLength:10 },
+					backgroundColor: { type:"string", maxLength:11 },
 					mandatoryBadges_flag: { type:"boolean" },
 					forbiddenBadges_flag: { type:"boolean" },
 					mandatoryBadges: {
@@ -1184,7 +1184,22 @@ const UserDataSchema = {
 						patternProperties: {
 							".*": { type:"boolean" }
 						}
-					}
+					},
+					channelIDs: {
+						type:"object",
+						additionalProperties: true,
+						maxProperties:100,
+						patternProperties: {
+							".{1,100}": {
+								type:"object", 
+								additionalProperties: false,
+								properties: {
+									platform: { type:"string", maxLength:30 },
+									date: { type:"number", minimum:0, maximum:4121027331000 },
+								}
+							}
+						}
+					},
 				}
 			}
 		},

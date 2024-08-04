@@ -6,7 +6,7 @@
 		</div>
 
 		<transition name="fade">
-		<div class="content hoverActions" v-if="!expand">
+		<div class="hoverActions" v-if="!expand">
 			<button class="openBt" @click="openFilters(true)" v-tooltip="{content:$t('global.tooltips.column_edit'), placement:'left' }"
 			v-newflag="{id:'messagefilters_'+Math.max(...filters.map(v=>v.storage!.newFlag)), date:Math.max(...filters.map(v=>v.storage!.newFlag))}">
 				<img src="@/assets/icons/filters.svg" alt="open filters" class="icon">
@@ -30,26 +30,39 @@
 		</transition>
 
 		<transition name="fade">
-		<div class="content holder blured-background-window" v-if="expand">
+		<div class="holder blured-background-window" v-if="expand">
 			<div class="content">
+				<ClearButton class="closeBt" @click="closeFilters()" />
 				<div class="head">
 					<h1 class="title">{{ $t('chat.filters.title') }}</h1>
-					<ClearButton @click="closeFilters()" />
 				</div>
 				
 				<div class="info" v-if="expand">{{ $t('chat.filters.header') }}</div>
+
+				<tooltip interactive
+				theme="twitchat"
+				trigger="click"
+				:tag="null"
+				:inlinePositioning='false'
+				:maxWidth="'calc(100% - 10px)'"
+				:interactiveDebounce="1000">
+					<template #default>
+						<TTButton class="presetsBt" icon="params" secondary small>Presets</TTButton>
+					</template>
+					<template #content="{ hide }">
+						<div class="presets">
+							<TTButton secondary light @click="hide(); preset('chat')" icon="whispers" small>{{ $t('chat.filters.preset_chat') }}</TTButton>
+							<TTButton secondary light @click="hide(); preset('chatSafe')" icon="shield" small>{{ $t('chat.filters.preset_chatSafe') }}</TTButton>
+							<TTButton secondary light @click="hide(); preset('moderation')" icon="mod" small>{{ $t('chat.filters.preset_moderation') }}</TTButton>
+							<TTButton secondary light @click="hide(); preset('activities')" icon="stars" small>{{ $t('chat.filters.preset_activities') }}</TTButton>
+							<TTButton secondary light @click="hide(); preset('moderation&activities')" icon="stars" small>{{ $t('chat.filters.preset_moderation_and_activities') }}</TTButton>
+							<TTButton secondary light @click="hide(); preset('games')" icon="bingo" small>{{ $t('chat.filters.preset_games') }}</TTButton>
+							<TTButton secondary light @click="hide(); preset('revenues')" icon="coin" small>{{ $t('chat.filters.preset_revenues') }}</TTButton>
+						</div>
+					</template>
+				</tooltip>
 				
 				<div class="paramsList">
-					
-					<div class="presets">
-						<TTButton @click="preset('chat')" icon="whispers" small>{{ $t('chat.filters.preset_chat') }}</TTButton>
-						<TTButton @click="preset('chatSafe')" icon="shield" small>{{ $t('chat.filters.preset_chatSafe') }}</TTButton>
-						<TTButton @click="preset('moderation')" icon="mod" small>{{ $t('chat.filters.preset_moderation') }}</TTButton>
-						<TTButton @click="preset('activities')" icon="stars" small>{{ $t('chat.filters.preset_activities') }}</TTButton>
-						<TTButton @click="preset('moderation&activities')" icon="stars" small>{{ $t('chat.filters.preset_moderation_and_activities') }}</TTButton>
-						<TTButton @click="preset('games')" icon="bingo" small>{{ $t('chat.filters.preset_games') }}</TTButton>
-						<TTButton @click="preset('revenues')" icon="coin" small>{{ $t('chat.filters.preset_revenues') }}</TTButton>
-					</div>
 
 					<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" v-model="param_toggleAll.value" @change="toggleAll()" />
 
@@ -167,21 +180,60 @@
 
 				<div class="bgColor card-item">
 					<Icon name="color" />
-					<span>{{ $t("chat.filters.background_color") }}</span>
+					<span class="title">{{ $t("chat.filters.background_color") }}</span>
 					<button class="colorBt tranparent"
 						:style="{color:'transparent'}"
-						@click="config.backgroundColor = ''"></button>
+						:data-selected="'transparent' == config.backgroundColor"
+						@click="config.backgroundColor = 'transparent'"></button>
+
 					<button class="colorBt"
 						v-for="color in ['#ff00001A','#00ff001A','#0000ff1A','#ff00ff1A','#ffff001A','#00ffff1A']"
-						:style="{color:color}"
+						:style="{color:color.replace(/(#[0-9a-f]{6}).*/i, '$177')}"
+						:data-selected="color == config.backgroundColor"
 						@click="config.backgroundColor = color"></button>
+
 					<ParamItem class="colorBt picker"
 						:paramData="param_backgroundColor"
 						clearToggle
 						noBackground
-						@change="saveData()"
-						v-model="config.backgroundColor"
+						@change="config.backgroundColor = param_backgroundColor.value; saveData()"
+						@click="config.backgroundColor = param_backgroundColor.value; saveData()"
+						v-model="param_backgroundColor.value"
 						v-if="$store.params.chatColumnsConfig.length > 1" />
+				</div>
+
+				<div class="channelList card-item" v-if="channels.length > 1">
+					<Icon name="user" />
+					<span>{{ $t("chat.filters.channels") }}</span>
+					
+					<tooltip interactive
+					theme="twitchat"
+					trigger="click"
+					:tag="null"
+					:inlinePositioning='false'
+					:interactiveDebounce="1000">
+						<template #default>
+							<TTButton secondary small>{{ $t("global.select_placeholder") }}</TTButton>
+						</template>
+						<template #content="{ hide }">
+							<div class="entryList">
+								<button v-for="entry in channels"
+								class="entry"
+								:class="Object.keys(config.channelIDs || {}).includes(entry.user.id)? 'selected' : ''"
+								@click="clickChannel(entry)">
+									<img class="avatar" v-if="entry.user.avatarPath"
+										:src="entry.user.avatarPath"
+										:style="{color:entry.color}"
+										alt="avatar"
+										referrerpolicy="no-referrer">
+									<Icon :name="entry.platform" />
+									<span class="pseudo">{{ entry.user.displayName }}</span>
+									<Icon name="checkmark" v-if="Object.keys(config.channelIDs || []).includes(entry.user.id)" />
+									<Icon name="cross" v-else />
+								</button>
+							</div>
+						</template>
+					</tooltip>
 				</div>
 
 				<div class="previewList" ref="previewList" v-if="loadingPreview || previewData.length > 0">
@@ -281,8 +333,22 @@ export class MessageListFilter extends Vue {
 		return this.$store.params.chatColumnsConfig.length > 1;
 	}
 
-	public beforeMount(): void {
+	public get channels() {
+		let chans:{platform:TwitchatDataTypes.ChatPlatform, user:TwitchatDataTypes.TwitchatUser, color:string, isRemoteChan:boolean}[] = [];
+		
+		chans.push({platform:"twitch", user:this.$store.auth.twitch.user, isRemoteChan:false, color:"transparent"});
+		if(this.$store.auth.youtube.user) {
+			chans.push({platform:"youtube", user:this.$store.auth.youtube.user, isRemoteChan:false, color:"transparent"});
+		}
+		
+		this.$store.stream.connectedTwitchChans.forEach(entry=> {
+			chans.push({platform:"twitch", user:entry.user, isRemoteChan:true, color:entry.color});
+		})
 
+		return chans;
+	}
+
+	public beforeMount(): void {
 		let noConfig = true;
 		for (const key in this.config.filters) {
 			if(this.config.filters[key as typeof TwitchatDataTypes.MessageListFilterTypes[number]["type"]] === true) {
@@ -570,6 +636,67 @@ export class MessageListFilter extends Vue {
 			}, false);
 			this.loadingPreview = false;
 
+		}else
+		if(filter.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
+			await this.$store.debug.simulateMessage<TwitchatDataTypes.MessageSubscriptionData>(TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				data.is_gift = false;
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			await this.$store.debug.simulateMessage<TwitchatDataTypes.MessageSubscriptionData>(TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				data.is_gift = true;
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessageYoutubeSubscriptionData>(TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION, (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessageYoutubeSubscriptionData>(TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBGIFT, (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			this.loadingPreview = false;
+
+		}else
+		if(filter.type == TwitchatDataTypes.TwitchatMessageType.CHEER) {
+			await this.$store.debug.simulateMessage<TwitchatDataTypes.MessageCheerData>(TwitchatDataTypes.TwitchatMessageType.CHEER, (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			await this.$store.debug.simulateMessage<TwitchatDataTypes.MessageCheerData>(TwitchatDataTypes.TwitchatMessageType.CHEER, (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				data.pinned = true;
+				data.pinLevel = 6;
+				data.pinDuration_ms = 60000;
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessageYoutubeSuperChatData>(TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT, (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessageYoutubeSuperStickerData>(TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER, (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			this.loadingPreview = false;
+
 		}else{
 
 			this.$store.debug.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(filter.type, (data)=> {
@@ -684,6 +811,36 @@ export class MessageListFilter extends Vue {
 	}
 
 	/**
+	 * Called when a channel is clicked on the channel filter selector.
+	 * Only available if connected to more chans then just our Twitch channel.
+	 * Ex: Youtube channel or other external Twitch channels
+	 */
+	public clickChannel(entry:typeof this.channels[number]):void {
+		//Toggle channel's state
+		if(!this.config.channelIDs) this.config.channelIDs = {};
+		if(this.config.channelIDs[entry.user.id]) {
+			delete this.config.channelIDs[entry.user.id];
+		}else{
+			this.config.channelIDs[entry.user.id] = {platform:entry.platform, date:Date.now()};
+		}
+
+		//Limite history size
+		if(Object.keys(this.config.channelIDs).length > 100) {
+			let olderDate:number = 0;
+			let olderKey:string | null = null;
+			for (const key in this.config.channelIDs) {
+				const entry = this.config.channelIDs[key];
+				if(entry.date > olderDate) {
+					olderKey = key;
+					olderDate = entry.date;
+				}
+			}
+			if(olderKey) delete this.config.channelIDs[olderKey]
+		}
+		this.saveData();
+	}
+
+	/**
 	 * Called when submitting form.
 	 * This button is only here when creating anew column.
 	 * In such case user is prompted for filters selection and has
@@ -761,6 +918,11 @@ export class MessageListFilter extends Vue {
 	public async preset(id:"chat"|"chatSafe"|"moderation"|"activities"|"games"|"revenues"|"moderation&activities"):Promise<void> {
 		this.param_toggleAll.value = false;
 
+		//Updating the "param_toggleAll" value triggers an update on all entries.
+		//We need to wait for it to complete before selecting presets to avoid
+		//both processes from conflicting with each other
+		await this.$nextTick();
+
 		//Unselect all
 		for (let i = 0; i < this.filters.length; i++) {
 			this.filters[i].value = false;
@@ -824,12 +986,12 @@ export class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.CHEER );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.UNBAN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.BINGO );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.TIPEEE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.NOTICE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.RAFFLE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.REWARD );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.PINNED );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SHOUTOUT );
-				// ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.FOLLOWING );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.COUNTDOWN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.PREDICTION );
@@ -858,8 +1020,8 @@ export class MessageListFilter extends Vue {
 			}
 			case "revenues": {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.CHEER );
-				// ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.KOFI );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.TIPEEE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAMLABS );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS );
@@ -1063,11 +1225,9 @@ export default toNative(MessageListFilter);
 	border-bottom-left-radius: .5em;
 	transform: translateX(100%);
 	transition: transform .25s, opacity .25s;
-	position: relative;
 	pointer-events: none;
 	max-width: 400px;
 	backdrop-filter: blur(5px);
-
 
 	.content {
 		opacity: 1;
@@ -1205,7 +1365,6 @@ export default toNative(MessageListFilter);
 		left: .5em;
 		top: .5em;
 		cursor: pointer;
-		transform: translateX(calc(-100% - @actionSizes - @actionPadding * 2));
 		background-color: var(--color-secondary);
 		padding: .25em .5em;
 		border-radius: .5em;
@@ -1218,6 +1377,7 @@ export default toNative(MessageListFilter);
 		animation-iteration-count: infinite;
 		pointer-events: all;
 		color: var(--color-text-light);
+		transform: translateX(calc(-100% - @actionSizes - @actionPadding * 2));
 		.label {
 			font-size: .8em;
 		}
@@ -1240,10 +1400,14 @@ export default toNative(MessageListFilter);
 		height: 100%;
 		display: flex;
 		flex-direction: column;
-		padding: 1em;
-		padding-top: .5em;
+		padding: .5em;
 		pointer-events: all;
+		position: relative;
+		overflow-x: hidden;
 		.content {
+			.closeBt {
+				margin: -.25em;
+			}
 
 			flex-grow: 1;
 			display: flex;
@@ -1269,12 +1433,13 @@ export default toNative(MessageListFilter);
 			.showPanelsHere, .showGreetHere, .bgColor {
 				font-size: .9em;
 			}
-			.bgColor {
+			.channelList, .bgColor {
 				gap: .5em;
 				display: flex;
 				flex-direction: row;
 				flex-wrap: wrap;
-				span {
+				flex-shrink: 0;
+				.title {
 					align-self: flex-start;
 					flex-grow: 1;
 					width: calc(100% - 1em - 30px);
@@ -1286,12 +1451,68 @@ export default toNative(MessageListFilter);
 					height: 1em;
 					vertical-align: middle;
 				}
+			}
+			.channelList {
+				gap: .5em;
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				.entryList {
+					gap: .25em;
+					display: flex;
+					flex-direction: column;
+					.entry {
+						gap: .5em;
+						display: flex;
+						flex-direction: row;
+						align-items: center;
+						cursor: pointer;
+						padding: 2px;
+						padding-right: 5px;
+						border-radius: var(--border-radius);
+						color: #444;
+						background: #ccc;
+						text-align: left;
+						opacity: .8;
+						transition: all .2s;
+						filter: grayscale();
+						&.selected {
+							filter: none;
+							opacity: 1;
+							background: #fff;
+							color: var(--color-secondary);
+						}
+						.avatar {
+							width: 1.5em;
+							height: 1.5em;
+							border-radius: 50%;
+							border: 2px solid currentColor;
+						}
+					
+						.icon {
+							height: 1em;
+							max-width: 1em;
+							align-self: center;
+						}
+						.pseudo {
+							text-wrap: nowrap;
+							flex-grow: 1;
+							overflow: hidden;
+							text-overflow: ellipsis;
+						}
+						&:hover {
+							background-color: #ffffffE0;
+						}
+					}
+				}
+			}
+			.bgColor {
 
 				.colorBt {
 					width: 30px;
 					height: 30px;
 					border-radius: var(--border-radius);
-					border: 1px solid var(--color-text-fade);
+					border: 1px solid var(--color-text-fader);
 					background-color: currentColor;
 					&.picker {
 						background-color: transparent;
@@ -1312,6 +1533,7 @@ export default toNative(MessageListFilter);
 					:deep(.inputHolder ){
 						height: 28px;
 					}
+
 					&.tranparent {
 						overflow: hidden;
 						position: relative;
@@ -1328,8 +1550,24 @@ export default toNative(MessageListFilter);
 							transform: rotate(-45deg);
 						}
 					}
+
+					&[data-selected="true"] {
+						border: 2px solid var(--color-text) !important;
+					}
 				}
 			}
+				.presetsBt {
+					margin: auto;
+				}
+				.presets {
+					display: flex;
+					gap: .25em;
+					flex-direction: row;
+					justify-content: space-around;
+					flex-wrap: wrap;
+					justify-content: center;
+					padding: .25em;
+				}
 
 			.paramsList {
 				flex: 1;
@@ -1340,15 +1578,7 @@ export default toNative(MessageListFilter);
 				display: flex;
 				flex-direction: column;
 				flex-shrink: 0;
-				.presets {
-					display: flex;
-					gap: .25em;
-					flex-direction: row;
-					justify-content: space-around;
-					flex-wrap: wrap;
-					justify-content: center;
-					margin-bottom: 1em;
-				}
+				min-height: 100px;
 
 				.toggleAll {
 					padding: 0 .5em;
@@ -1447,7 +1677,8 @@ export default toNative(MessageListFilter);
 				background-color: var(--background-color-primary);
 				border-radius: var(--border-radius);
 				cursor: pointer;
-				.message {
+				&>* {
+					padding: 0;
 					pointer-events: none;
 				}
 				.loader {

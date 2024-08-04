@@ -56,6 +56,7 @@
 			"youtube_saving_token_aria": "Afin d'économiser les crédits d'API YouTube, le tchat a été déconnecté suite à une longue période d'inactivité.\nCliquez pour reconnecter.",
 			"extra_chan_tt": "Ecrire chez : {USER}\n(clic droit pour changer)",
 			"connect_extra_chan": "Se connecter à une chaîne Twitch",
+			"extra_chan_params_tt": "Paramètres",
 			"youtube_not_connected": "Vous n'êtes connecté·e à aucun live YouTube",
 			"youtube_missing_scope": "Vous n'avez pas autorisé Twitchat à envoyer des messages sur YouTube",
 			"obs_disconnected_tt": "Non connecté à OBS"
@@ -77,11 +78,12 @@
 			"hide_users_placeholder": "entrez un pseudo...",
 			"scope_missing": "Requiert une permission manquante. Cliquez pour accorder.",
 			"whispers_permissions": "Filtrer les personnes autorisées",
-			"show_panels_here": "Afficher les formulaires dans cette colonne",
+			"show_panels_here": "Formulaires de sondage, prédiction, ...",
 			"show_greet_here": "Afficher \" @:greet.title \" dans cette colonne",
 			"show_user_badges": "Afficher uniquement les personnes ayant le badge...",
 			"hide_user_badges": "Masquer les personnes ayant le badge...",
 			"background_color": "Couleur de fond",
+			"channels": "Filtrer les chaînes à afficher",
 			"select_all": "Tout",
 			"message_types": {
 				"twitchat_ad": "Astuces Twitchat",

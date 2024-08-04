@@ -181,6 +181,7 @@ import { Linear } from 'gsap/all';
 	private closeConvTimeout!: number;
 	private prevTouchMove!: TouchEvent;
 	private touchDragOffset: number = 0;
+	private filteredChanIDs: {[uid:string]:boolean}|null = null;
 	private publicApiEventHandler!: (e: TwitchatEvent<{ count?: number, scrollBy?: number, col?:number, duration?:number }>) => void;
 	private deleteMessageHandler!: (e: GlobalEvent) => void;
 	private addMessageHandler!: (e: GlobalEvent) => void;
@@ -235,6 +236,8 @@ import { Linear } from 'gsap/all';
 		watch(()=>this.$store.params.features.mergeConsecutive_maxSize.value, async () => this.fullListRefresh());
 		watch(()=>this.$store.params.features.mergeConsecutive_maxSizeTotal.value, async () => this.fullListRefresh());
 		watch(()=>this.$store.params.features.mergeConsecutive_minDuration.value, async () => this.fullListRefresh());
+		watch(()=>this.$store.stream.connectedTwitchChans, ()=> this.rebuildChannelIdsHashmap(), {deep:true});
+		watch(()=>this.config, ()=> this.rebuildChannelIdsHashmap(), {deep:true});
 
 		this.publicApiEventHandler = (e) => this.onPublicApiEvent(e);
 		this.deleteMessageHandler = (e: GlobalEvent) => this.onDeleteMessage(e);
@@ -267,6 +270,7 @@ import { Linear } from 'gsap/all';
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SELECT_ACTION_SHOUTOUT, this.publicApiEventHandler);
 
 		this.fullListRefresh();
+		this.rebuildChannelIdsHashmap();
 
 		this.prevTs = Date.now() - 1000 / 60;
 		this.renderFrame(Date.now());
@@ -423,6 +427,27 @@ import { Linear } from 'gsap/all';
 	}
 
 	/**
+	 * Rebuilds the hashmap used to quickly check if a message
+	 * should be displayed on this column or not based on its
+	 * channel source.
+	 */
+	private rebuildChannelIdsHashmap() {
+		const validIds = this.$store.stream.connectedTwitchChans.concat().map(v=>v.user.id);
+		if(this.$store.auth.youtube)validIds.push(this.$store.auth.youtube.user.id);
+		validIds.push(this.$store.auth.twitch.user.id);
+		const chanIds:{[uid:string]:boolean} = {};
+
+		Object.keys(this.config.channelIDs || {})
+		.filter(id=>validIds.includes(id))
+		.forEach(id => {
+			chanIds[id] = true;
+		});
+		
+		this.filteredChanIDs = Object.keys(chanIds).length > 0? chanIds : null;
+		this.fullListRefresh();
+	}
+		
+	/**
 	 * Returns if a message should be displayed or not
 	 * @param m
 	 */
@@ -447,6 +472,11 @@ import { Linear } from 'gsap/all';
 		//If message is deleted, keep it only if requested to show messages AND deleted messages
 		if (m.deleted) {
 			return this.config.messageFilters.deleted === true && this.config.filters.message === true;
+		}
+
+		//Filter by channel ID if necessary
+		if(this.filteredChanIDs) {
+			if(this.filteredChanIDs[m.channel_id] !== true) return false;
 		}
 
 		switch (m.type) {
@@ -673,7 +703,7 @@ import { Linear } from 'gsap/all';
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CLIP_PENDING_PUBLICATION: {
-				return this.config.order == 0;
+				return this.config.filters.message === true;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK: {
