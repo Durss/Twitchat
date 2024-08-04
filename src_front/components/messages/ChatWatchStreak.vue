@@ -18,7 +18,7 @@
 				</template>
 			</i18n-t>
 
-			<div class="quote">
+			<div class="quote" v-if="messageData.message_chunks && messageData.message_chunks.length > 0">
 				<ChatMessageChunksParser :chunks="messageData.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
 			</div>
 			<MessageTranslation :messageData="messageData" />
