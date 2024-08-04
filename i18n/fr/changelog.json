@@ -6,91 +6,15 @@
 		"heat_details_link": "Heat",
 		"highlights": [
 			{
-				"i": "offline",
-				"l": "Connexions tièrces",
-				"d": "Les paramètres suivants se trouvent désormais dans la section \"Connexions\" des paramètres."
+				"i": "bingo_grid",
+				"l": "Grilles de Bingo",
+				"v": "/update_images/bingo_grid.mp4",
+				"d": "Créez des grilles de bingo et jouez avec vos viewers.\n\nDevenez Premium pour afficher les bingos et le classement des viewers dans l'overlay"
 			},
 			{
-				"i": "kofi",
-				"l": "Alertes Ko-fi",
-				"d": "Recevez vos alertes Ko-fi dans Twitchat.\n\n<ul><li>Alertes de dons</li><li>Alertes d'achat de merch</li><li>Alertes d'abonnement mensuel</li></ul>Automatisez des actions en réponse à ces évènements grâce aux triggers dédiés.",
-				"p": true,
-				"a": {
-					"l": "Tester",
-					"param": "connexions",
-					"subparam": "kofi"
-				}
-			},
-			{
-				"i": "streamlabs",
-				"l": "Alertes Streamlabs",
-				"d": "Recevez vos alertes Streamlabs dans Twitchat\n\n<ul><li>Alertes de dons</li><li>Alertes d'achat de merch</li><li>Alertes d'abonnement à Patreon (nécessite de lier votre compte Patreon dans le dashboard Streamlabs)</li></ul>Automatisez des actions en réponse à n'importe quel évènement Streamlabs depuis les Triggers.",
-				"p": true,
-				"a": {
-					"l": "Tester",
-					"param": "connexions",
-					"subparam": "streamlabs"
-				}
-			},
-			{
-				"i": "streamelements",
-				"l": "Alertes Streamelements",
-				"d": "Recevez vos alertes Streamelements dans Twitchat.\n\nSoyez notifié·e quand vous recevez un don et automatisez des actions en réaction grâce au trigger dédié.",
-				"p": true,
-				"a": {
-					"l": "Tester",
-					"param": "connexions",
-					"subparam": "streamelements"
-				}
-			},
-			{
-				"i": "lumia",
-				"l": "Lumia Stream",
-				"d": "Connectez Twitchat à <a href='https://lumiastream.com' target='_blank'>Lumia Stream</a> et contrôlez vos lumières depuis les Triggers",
-				"p": true,
-				"a": {
-					"l": "Tester",
-					"param": "connexions",
-					"subparam": "lumia"
-				}
-			},
-			{
-				"i": "discord",
-				"l": "Connexion Discord",
-				"d": "Liez Twitchat à Discord pour rendre la communication avec vos modos plus fluide.\n\n<ul><li>Permettez à vos modos de vous contacter depuis Discord</li><li>Contactez vos modos sur Discord depuis Twitchat</li><li>Sauvegarder l'historique récent des activités d'une personne bannie</li><li>Enregistrez n'importe quel message sur Discord en un click droit</li><li>Créez des actions rapides personnalisées</li><li>Envoyez des messages sur Discord depuis les triggers</li><li>Créez des /commandes Discord depuis les triggers</li><li>Envoyez un message sur Discord lorsque vous lancez un live</li></ul>",
-				"y": "https://www.youtube.com/playlist?list=PLJsQIzUbrDiE5u6g3PlD20K_eyYX3Z3y-",
-				"a": {
-					"l": "Tester",
-					"param": "connexions",
-					"subparam": "discord"
-				}
-			},
-			{
-				"i": "overlay",
-				"l": "Overlays de sondage & prédiction",
-				"d": "Affichez la progression de vos sondages et prédictions sur votre stream grâce aux nouveaux overlays dédiés",
-				"v": "update_images/poll_pred.mp4",
-				"y": "https://www.youtube.com/watch?v=IcX-KnYJuCA",
-				"a": {
-					"l": "Tester",
-					"param": "overlays"
-				}
-			},
-			{
-				"i": "unbanRequest",
-				"l": "Demandes d'unban",
-				"d": "Recevez les alertes de demande d'unban directement dans Twitchat.\n\nSoyez notifié·e lorsqu'une personne demande à être unban ou lorsqu'une demande d'unban est acceptée ou refusée."
-			},
-			{
-				"i": "emote",
-				"l": "Emote de train de la hype",
-				"d": "Vos emotes de train de la hype sont enfin listées dans Twitchat 🥳"
-			},
-			{
-				"i": "pin",
-				"l": "Personnalisations",
-				"d": "Vous pouvez afficher la section \"Dîtes bonjour\" dans une colonne différente des formulaires (sondage, prédiction, bingo, ...)\n\nVous pouvez épingler des entrées du menu [/] dans la barre du bas.",
-				"g":"/update_images/pins.gif"
+				"i": "whispers",
+				"l": "Multi chat",
+				"d": "Recevez plusieurs tchat en un seul et même endroit pour du multi-stream facilité"
 			},
 			{
 				"l": "Mais aussi",
