@@ -433,7 +433,7 @@ import { Linear } from 'gsap/all';
 	 */
 	private rebuildChannelIdsHashmap() {
 		const validIds = this.$store.stream.connectedTwitchChans.concat().map(v=>v.user.id);
-		if(this.$store.auth.youtube)validIds.push(this.$store.auth.youtube.user.id);
+		if(this.$store.auth.youtube.user) validIds.push(this.$store.auth.youtube.user.id);
 		validIds.push(this.$store.auth.twitch.user.id);
 		const chanIds:{[uid:string]:boolean} = {};
 
