@@ -49,6 +49,7 @@ export default toNative(ChatYoutubeSuperSticker);
 .chatyoutubesupersticker{
 	.icon {
 		align-self: unset;
+		margin-left: 0;
 	}
 	.avatar {
 		height: 2em;
