@@ -4,8 +4,6 @@
 	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
-		<div class="fill" ref="fill" v-if="messageData.tier > 2"></div>
-		
 		<Icon name="youtube" alt="notice" class="icon"/>
 
 		<img :src="messageData.user.avatarPath" class="avatar" alt="avatar" v-if="messageData.user.avatarPath" referrerpolicy="no-referrer">
@@ -23,6 +21,8 @@
 		</div>
 
 		<div class="amount">{{ messageData.amountDisplay }}</div>
+		
+		<div class="fill" ref="fill" v-if="messageData.tier > 2"></div>
 	</div>
 </template>
 
@@ -68,9 +68,11 @@ export default toNative(ChatYoutubeSuperChat);
 .chatyoutubesuperchat{
 	@border: .25em;
 	overflow: hidden;
+	position: relative;
 
 	.icon {
 		align-self: unset;
+		margin-left: 0;
 	}
 	.avatar {
 		height: 2em;
