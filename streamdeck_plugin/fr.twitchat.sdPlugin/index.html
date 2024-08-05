@@ -318,7 +318,7 @@
 				//Listen for socket connection close to auto reconnect
 				websocketOBS.addListener("ConnectionClosed", (e)=> {
 					connecting = false;
-					const changed = settingsCache.OBSWS_CONNECTED != false;
+					const changed = settingsCache.OBSWS_CONNECTED == true;
 					settingsCache.OBSWS_CONNECTED = false;
 					//If state has changed, tell the property inspector
 					if(changed) actions.SetGlobalSettings(settingsCache);
