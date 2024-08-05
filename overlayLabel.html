@@ -30,6 +30,17 @@
 		#app {
 			display: inline-block;
 		}
+
+        scroll {
+            display: inline-block;
+            animation: marquee 10s linear infinite;
+			will-change: transform;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(110%); }
+            100% { transform: translateX(-110%); }
+        }
 	</style>
 </head>
 	<noscript>

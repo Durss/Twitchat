@@ -13,6 +13,7 @@ export interface LabelItemData {
 	fontSize:number;
 	fontFamily:string;
 	fontColor:string;
+	scrollContent:boolean;
 	backgroundEnabled:boolean;
 	backgroundColor:string;
 }
