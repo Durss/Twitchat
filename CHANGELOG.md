@@ -20,10 +20,13 @@
 - **Raffles:** when starting a raffle from a `List` or a `Value`, a new option allows to remove the winning entry from the List/Value.
 
 - **Ending credits:**
-	- new `Power-ups` section
-	- new option to add floating emotes for `Celebration` and `Gigantified emotes` received during the stream
+	- New option to add floating emotes for `Celebration` and `Gigantified emotes` received during the stream
 	- New option to display the `subscription duration` of users
-	- New `Super-chats` and `Super-stickers` sections for YouTube
+	- New option to display `YouTube` subscriptions
+	- New section to display`Power-ups` received
+	- New section to display `Super-chats` and `Super-stickers` received on YouTube
+	- New section to display `Merch` bought on Streamlabs and Ko-Fi
+	- New section to display `Tips` bought on Streamelements, Streamlabs, Ko-Fi and Tipeee
 
 - **Q&A moderator:** you can share a Q&A session with your mods so they can manually add messages to the list for you. You can also manually add Q&A entries by right clicking a message
 - **Q&A upvotes:** new option that brings Q&A entries to the top if the question gets multiple answers on chat. The more a question gets engagement, the closer to the top it will be
@@ -38,7 +41,7 @@
 
 - **Data sync:** you can sync your parameters and data between multiple accounts
 
-- **Mutliple Twitchat:** if you run Twitchat more than once, you'll get a warning on all but the last one started asking you to close them and why
+- **Mutliple Twitchat:** if you run Twitchat more than once, you'll get a warning asking you to close them and why
 
 - **Overlays:** massive size reduction. They are now ~85% lighter than before.
 

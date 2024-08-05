@@ -493,7 +493,7 @@
 			"users": "Users that triggered the anti hate raid:",
 			"cancel_bt": "Unblock terms",
 			"banUsers_bt": "Ban users",
-			"footer": "Check your blocked terms and how many they've been blocked"
+			"footer": "Check your blocked terms and how many times they've been blocked"
 		},
 		"warn_chatter": {
 			"title": "{MODERATOR} sent a warning to {USER}",
