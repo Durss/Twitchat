@@ -534,6 +534,7 @@ export const storeParams = defineStore('params', {
 		openModal(modal:TwitchatDataTypes.ModalTypes, noToggle:boolean = false):void {
 			if(this.currentModal == modal && !noToggle) this.closeModal();
 			else this.currentModal = modal;
+			this.currentPage = "";
 		},
 
 		closeModal():void { this.currentModal = "" },
