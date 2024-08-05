@@ -801,9 +801,11 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				})
 			}
 			let pos = -1;
+			let virtualPos = -1;
 			let prevScore = -1;
 			data.scores.forEach(s=>{
-				if(prevScore != s.score) pos ++;
+				virtualPos ++;
+				if(prevScore != s.score) pos = virtualPos;
 				s.pos = pos;
 				prevScore = s.score;
 			})
