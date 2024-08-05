@@ -73,6 +73,7 @@
 		},
 		"chat_alert_title": "{USER} dit",
 		"date_days": "j",
+		"date_ago": "Il y a {MIN} minute|Il y a {MIN} minutes",
 		"ad_default": "J'utilise GivePLZ twitchat.fr TakeNRG {USER_MESSAGE}",
 		"cmd_mod": "Commande de<br>modération",
 		"cmd_admin": "Commande<br>d'admin",

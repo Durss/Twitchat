@@ -631,6 +631,7 @@ export const storeChat = defineStore('chat', {
 		highlightedMessageId: null,
 		chatHighlightOverlayParams: {
 			position:"bl",
+			dateLabel:"",
 		},
 	} as IChatState),
 
@@ -2113,10 +2114,12 @@ export const storeChat = defineStore('chat', {
 				}
 
 				const info:TwitchatDataTypes.ChatHighlightInfo = {
+					date:message.date,
 					message:message.message_html || message.message || "",
 					message_id:message.id,
 					user:message.user,
-					params:this.chatHighlightOverlayParams
+					params:this.chatHighlightOverlayParams,
+					dateLabel:StoreProxy.i18n.tm("global.date_ago"),
 				};
 				this.highlightedMessageId = message.id;
 

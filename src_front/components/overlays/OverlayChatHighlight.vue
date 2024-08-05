@@ -8,9 +8,10 @@
 				<div class="login" id="highlight_login" v-if="user">
 					<Icon name="youtube" v-if="user && user.platform == 'youtube'" theme="alert"/>
 					<Icon name="twitch" v-if="user && user.platform == 'twitch'" theme="twitch"/>
-					{{user.displayNameOriginal ?? user.displayName}}
+					<span>{{user.displayNameOriginal ?? user.displayName}}</span>
 				</div>
 				<div class="message" id="highlight_message" v-html="message"></div>
+				<div class="date" id="highlight_date" v-if="dateLabel">{{ dateLabel }}</div>
 			</div>
 		</div>
 		
@@ -53,6 +54,7 @@ import Icon from '../Icon.vue';
 class OverlayChatHighlight extends Vue {
 
 	public message:string = "";
+	public dateLabel:string = "";
 	public clipData:TwitchatDataTypes.ClipInfo|null = null;
 	public user:TwitchatDataTypes.TwitchatUser|null = null;
 	public params:TwitchatDataTypes.ChatHighlightParams|null = null;
@@ -61,9 +63,12 @@ class OverlayChatHighlight extends Vue {
 	private showMessageHandler!:(e:TwitchatEvent)=>void;
 	private overlayPresenceHandler!:(e:TwitchatEvent)=>void;
 	private showClipHandler!:(e:TwitchatEvent)=>void;
+	private dateOffset:number = 0;
 	private clipPercent:number = 0;
+	private dateTimeout:number = -1;
 	private iFrameInitTimeout:number = -1;
 	private progressBarInterval:number = -1;
+	private dateTemplate:string = "";
 
 	public get classes():string[] {
 		return [
@@ -137,6 +142,8 @@ class OverlayChatHighlight extends Vue {
 		this.message = DOMPurify.sanitize(data.message!);
 		this.user = data.user!;
 		this.params = data.params!;
+		this.dateOffset = data.date || 0;
+		this.dateTemplate = data.dateLabel || "";
 		this.clipData = null;
 		this.loadingClip = true;
 		this.clipPercent = 0;
@@ -153,7 +160,6 @@ class OverlayChatHighlight extends Vue {
 		await this.hideCurrent();
 		this.loadingClip = true;
 
-		
 		const data = (e.data as unknown) as TwitchatDataTypes.ChatHighlightInfo;
 		this.clipData = data.clip!;
 		this.params = data.params!;
@@ -165,6 +171,7 @@ class OverlayChatHighlight extends Vue {
 	}
 
 	public onIFrameLoaded(e:unknown):void {
+		clearTimeout(this.dateTimeout);
 		clearInterval(this.iFrameInitTimeout);
 		clearInterval(this.progressBarInterval);
 
@@ -204,6 +211,7 @@ class OverlayChatHighlight extends Vue {
 	}
 
 	private async hideCurrent():Promise<void> {
+		clearTimeout(this.dateTimeout);
 		clearInterval(this.iFrameInitTimeout);
 		clearInterval(this.progressBarInterval);
 		if(!this.params) return;
@@ -257,6 +265,21 @@ class OverlayChatHighlight extends Vue {
 		if(this.params.position == "m"){
 			gsap.from(holder, {scale:0, duration:.5, ease:"back.out"});
 		}
+
+		this.updateDate();
+	}
+
+	private updateDate():void {
+		if(this.dateOffset === 0 || !this.dateTemplate) return;
+		const [singular, plural] = this.dateTemplate.split("|");
+		const minutes = Math.floor((Date.now() - this.dateOffset) / 60000);
+		if(minutes == 0) {
+			this.dateLabel = "";
+		}else{
+			let label = (minutes <= 1)? singular : plural;
+			this.dateLabel = label.replace("{MIN}", minutes.toString());
+		}
+		this.dateTimeout = setTimeout(()=>this.updateDate(), 1000);
 	}
 }
 export default toNative(OverlayChatHighlight);
@@ -278,7 +301,7 @@ export default toNative(OverlayChatHighlight);
 		border-bottom-right-radius: var(--border-radius);
 		box-shadow: 0 0 .5em rgba(0, 0, 0, 1);
 		max-width: calc(30vw - @margin);
-		min-width: 12em;
+		min-width: 20em;
 	
 		&.position-tl {
 			top: @margin;
@@ -373,6 +396,13 @@ export default toNative(OverlayChatHighlight);
 					max-height: 1.25em;
 					vertical-align: middle;
 				}
+			}
+
+			.date {
+				margin-top: .5em;
+				font-style: italic;
+				font-size: .8em;
+				opacity: .7;
 			}
 		}
 	}

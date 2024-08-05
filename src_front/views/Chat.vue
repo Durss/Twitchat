@@ -350,7 +350,6 @@ class Chat extends Vue {
 	}
 
 	public beforeMount():void {
-
 		//Check user reached a new donor level
 		this.showDonorBadge = this.$store.auth.donorLevel > -1 && this.$store.auth.donorLevelUpgrade === true;
 

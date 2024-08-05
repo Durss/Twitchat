@@ -1404,12 +1404,14 @@ export default class TriggerActionHandler {
 							const clip = await TwitchUtils.getClipById(clipId);
 
 							const data:TwitchatDataTypes.ChatHighlightInfo = {
+								date:message.date,
 								message_id,
 								clip:{
 									url: clip!.embed_url+"&autoplay=true&parent=twitchat.fr&parent=localhost",
 									mp4: clip!.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
 									duration: clip!.duration,
 								},
+								dateLabel:StoreProxy.i18n.tm("global.date_ago"),
 								params:StoreProxy.chat.chatHighlightOverlayParams,
 							}
 							logStep.messages.push({date:Date.now(), value:"Highlight clip ID \""+clipId+"\""});
@@ -1418,9 +1420,11 @@ export default class TriggerActionHandler {
 						}else{
 							//Highlight user message as text
 							const info:TwitchatDataTypes.ChatHighlightInfo = {
+								date:message.date,
 								message:text,
 								message_id,
 								user,
+								dateLabel:StoreProxy.i18n.tm("global.date_ago"),
 								params:StoreProxy.chat.chatHighlightOverlayParams,
 							};
 							logStep.messages.push({date:Date.now(), value:"Highlight message \""+text+"\""});

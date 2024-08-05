@@ -94,8 +94,10 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 		}
 		const data:TwitchatDataTypes.ChatHighlightInfo = {
 			clip,
+			date:this.messageData.date,
 			message_id:this.messageData.id,
 			params:this.$store.chat.chatHighlightOverlayParams,
+			dateLabel:this.$store.i18n.tm("global.date_ago"),
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
 		this.$store.chat.highlightedMessageId = this.messageData.id;

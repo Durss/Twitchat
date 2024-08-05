@@ -967,10 +967,12 @@ export namespace TwitchatDataTypes {
 	 * Used by the "chat highlight" overlay
 	 */
 	export interface ChatHighlightInfo {
+		date?:number,
 		message?:string,
 		user?:TwitchatUser,
 		clip?:ClipInfo,
 		params:ChatHighlightParams,
+		dateLabel:string,
 		message_id:string;
 	}
 	export interface ChatHighlightParams {
