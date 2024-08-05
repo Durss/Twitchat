@@ -586,14 +586,7 @@ class ChatMessage extends AbstractChatMessage {
 	 */
 	public async modMessage(accept:boolean):Promise<void> {
 		this.automodInProgress = true;
-		let success = await TwitchUtils.modMessage(accept, this.messageData.id);
-		if(!success) {
-			this.$store.common.alert(this.$t("error.mod_message"));
-		}else {
-			//Delete the message.
-			//If the message was allowed, twitch will send it back, no need to keep it.
-			this.$store.chat.deleteMessage(this.messageData);
-		}
+		this.$store.chat.automodAction(accept, this.messageData);
 		this.automodInProgress = false;
 	}
 

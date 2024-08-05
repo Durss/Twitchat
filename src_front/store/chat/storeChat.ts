@@ -664,6 +664,18 @@ export const storeChat = defineStore('chat', {
 				//default values on local data
 				Utils.mergeRemoteObject(JSON.parse(botMessages), (this.botMessages as unknown) as JsonObject, false);
 			}
+
+			const findAndFlagAutomod = (accept:boolean) => {
+				//Only search within ther last 1000 messages
+				for (let i = messageList.length-1; i >= Math.max(0, messageList.length - 1000); i--) {
+					const mess = messageList[i];
+					if(mess.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE || !mess.twitch_automod) continue;
+					this.automodAction(accept, mess);
+					break;
+				}
+			};
+			PublicAPI.instance.addEventListener(TwitchatEvent.AUTOMOD_ACCEPT, ()=> findAndFlagAutomod(true));
+			PublicAPI.instance.addEventListener(TwitchatEvent.AUTOMOD_REJECT, ()=> findAndFlagAutomod(false));
 		},
 
 		async preloadMessageHistory():Promise<void> {
@@ -2219,6 +2231,17 @@ export const storeChat = defineStore('chat', {
 				}
 			}
 		},
+
+		async automodAction(accept:boolean, message:TwitchatDataTypes.ChatMessageTypes):Promise<void> {
+			let success = await TwitchUtils.modMessage(accept, message.id);
+			if(!success) {
+				StoreProxy.common.alert(StoreProxy.i18n.t("error.mod_message"));
+			}else {
+				//Delete the message.
+				//If the message was allowed, twitch will send it back, no need to keep it.
+				this.deleteMessage(message);
+			}
+		}
 	} as IChatActions
 	& ThisType<IChatActions
 		& UnwrapRef<IChatState>

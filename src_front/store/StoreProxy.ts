@@ -691,11 +691,15 @@ export interface IChatActions {
 	/**
 	 * Reset the greeting history.
 	 */
-	resetGreetingHistory():void
+	resetGreetingHistory():void;
 	/**
 	 * Removes any donation request related messages
 	 */
-	cleanupDonationRelatedMessages():void
+	cleanupDonationRelatedMessages():void;
+	/**
+	 * Accepts or rejects given automoded messages
+	 */
+	automodAction(accept:boolean, message:TwitchatDataTypes.ChatMessageTypes):Promise<void> 
 }
 
 

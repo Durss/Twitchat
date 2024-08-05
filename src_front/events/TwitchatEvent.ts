@@ -164,6 +164,8 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static GET_BINGO_GRID_PARAMETERS:TwitchatActionType = "GET_BINGO_GRID_PARAMETERS";
 	public static GET_LABEL_OVERLAY_PARAMS:TwitchatActionType = "GET_LABEL_OVERLAY_PARAMS";
 	public static GET_LABEL_OVERLAY_PLACEHOLDERS:TwitchatActionType = "GET_LABEL_OVERLAY_PLACEHOLDERS";
+	public static AUTOMOD_ACCEPT:TwitchatActionType = "AUTOMOD_ACCEPT";
+	public static AUTOMOD_REJECT:TwitchatActionType = "AUTOMOD_REJECT";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:T) {
 		super(type);
@@ -329,5 +331,7 @@ export const TwitchatActionTypeList = [
 	"GET_BINGO_GRID_PARAMETERS",
 	"GET_LABEL_OVERLAY_PARAMS",
 	"GET_LABEL_OVERLAY_PLACEHOLDERS",
+	"AUTOMOD_ACCEPT",
+	"AUTOMOD_REJECT",
 ] as const;
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

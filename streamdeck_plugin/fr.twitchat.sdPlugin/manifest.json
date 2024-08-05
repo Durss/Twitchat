@@ -1,6 +1,34 @@
 {
 	"Actions": [
 		{
+			"Icon": "icons/AUTOMOD_ACCEPT_default",
+			"Name": "Accept last automod",
+			"States": [
+				{
+					"Image": "icons/AUTOMOD_ACCEPT",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.automod-accept"
+		},
+		{
+			"Icon": "icons/AUTOMOD_REJECT_default",
+			"Name": "Reject last automod",
+			"States": [
+				{
+					"Image": "icons/AUTOMOD_REJECT",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.automod-reject"
+		},
+		{
 			"Icon": "icons/GREET_FEED_READ_default",
 			"Name": "Clear 'Greet them' section",
 			"States": [
