@@ -184,7 +184,7 @@ export default class Utils {
 
 
 	/**
-	 * Returns the nomber of seconds, minutes, hours or days that past
+	 * Returns the number of seconds, minutes, hours or days that past
 	 * since the given date
 	 */
 	public static elapsedDuration(date:number, step?:number) {
