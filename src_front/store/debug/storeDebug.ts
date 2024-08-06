@@ -1056,7 +1056,8 @@ export const storeDebug = defineStore('debug', {
 							message_id:message.id,
 							params:{
 								position:"bl",
-							}
+							},
+							dateLabel:StoreProxy.i18n.tm("global.date_ago"),
 						},
 						channel_id:uid,
 					};
