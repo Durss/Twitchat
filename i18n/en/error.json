@@ -37,6 +37,7 @@
 		"trigger_socket": "Unable to connect to socket server",
 		"shoutout_offline": "You must be live to make a shoutout",
 		"shoutout_pending": "This user already has a pending shoutout",
+		"shoutout_not_mod": "You're not a moderator on this channel",
 		"spotify": {
 			"no_device": "[SPOTIFY] You must first start playing something on Spotify for Twitchat to be able to control it.",
 			"api_rate": "[SPOTIFY] API rate limits exceeded",

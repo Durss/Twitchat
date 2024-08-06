@@ -2424,7 +2424,7 @@ export default class TwitchUtils {
 	/**
 	 * Sends a whisper to someone
 	 */
-	public static async sendShoutout(channelId: string, user: TwitchatDataTypes.TwitchatUser): Promise<boolean> {
+	public static async sendShoutout(channelId: string, user: TwitchatDataTypes.TwitchatUser): Promise<boolean|"NOT_LIVE"|"NOT_MODERATOR"|"RATE_LIMIT"> {
 		if (!this.hasScopes([TwitchScopes.SHOUTOUT])) return false;
 
 		const options = {
@@ -2445,24 +2445,34 @@ export default class TwitchUtils {
 				let message = "";
 				try {
 					const json = await res.json();
-					if (json) message = json.message;
+					if (json) message = (json.message || "").toLowerCase();
 				} catch (error) {
 					StoreProxy.common.alert("Shoutout failed.");
 				}
-				if (message.indexOf("cooldown")) {
+				if (message.indexOf("cooldown") > -1) {
 					StoreProxy.common.alert(StoreProxy.i18n.t("error.shoutout_cooldown"));
-					return false;
+					return "RATE_LIMIT";
 				}
 				//Rate limit reached, try again after it's reset to full
 				await this.onRateLimit(res.headers, url.pathname);
 				return await this.sendShoutout(channelId, user);
 			} else {
+				let message = "";
 				try {
 					const json = await res.json();
-					if (json) StoreProxy.common.alert(json.message);
+					if (json) message = (json.message || "").toLowerCase();
 				} catch (error) {
 					StoreProxy.common.alert("Shoutout failed.");
 				}
+				if (message.indexOf("not streaming") > -1) {
+					StoreProxy.common.alert(StoreProxy.i18n.t("error.shoutout_offline"));
+					return "NOT_LIVE";
+				}
+				if (message.indexOf("channel moderator") > -1) {
+					StoreProxy.common.alert(StoreProxy.i18n.t("error.shoutout_not_mod"));
+					return "NOT_MODERATOR";
+				}
+				StoreProxy.common.alert(message);
 				return false;
 			}
 	}

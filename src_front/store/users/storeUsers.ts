@@ -871,12 +871,12 @@ export const storeUsers = defineStore('users', {
 			}
 
 			//Check if we're live
-			if(!StoreProxy.stream.currentStreamInfo[channelId]
-			|| !StoreProxy.stream.currentStreamInfo[channelId]?.live) {
-				StoreProxy.common.alert(StoreProxy.i18n.t("error.shoutout_offline"));
-				canExecute = false;
-				sendChatSO = false;
-			}
+			// if(!StoreProxy.stream.currentStreamInfo[channelId]
+			// || !StoreProxy.stream.currentStreamInfo[channelId]?.live) {
+			// 	StoreProxy.common.alert(StoreProxy.i18n.t("error.shoutout_offline"));
+			// 	canExecute = false;
+			// 	sendChatSO = false;
+			// }
 
 			if(user.platform == "twitch" && canExecute) {
 				//Has necessary authorization been granted?
@@ -898,9 +898,9 @@ export const storeUsers = defineStore('users', {
 							//If API call failed, add the SO to queue.
 							//It fails if an SO has been made before and Twitchat
 							//didn't know about (because not yet started)
-							if(res === false) {
+							if(res === "RATE_LIMIT") {
 								addToQueue = !fromQueue;
-							}else {
+							}else if(res === true){
 								executed = true;
 								sendChatSO = true;
 								addToQueue = false;

@@ -408,7 +408,7 @@ export default class MessengerProxy {
 		if(cmd == "/so" || cmd == "/shoutout") {
 			//Make a shoutout
 			await StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim(), undefined, async (user)=> {
-				await StoreProxy.users.shoutout(me.id, user);
+				await StoreProxy.users.shoutout(StoreProxy.stream.currentChatChannel.id, user);
 			});
 			return true;
 		}else

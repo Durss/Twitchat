@@ -54,7 +54,7 @@ import { watch } from 'vue';
 	}
 
 	public beforeMount():void {
-		this.channelId = this.$store.auth.twitch.user.id;
+		this.channelId = this.$store.stream.currentChatChannel.id;
 	}
 
 	public mounted():void {
