@@ -76,7 +76,7 @@ export const storeLabels = defineStore('labels', {
 			}
 
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_LABEL_OVERLAY_PLACEHOLDERS, ()=>{
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PLACEHOLDERS, this.allPlaceholders as unknown as JsonObject);
+				this.broadcastPlaceholders();
 			});
 
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_LABEL_OVERLAY_PARAMS, (e:TwitchatEvent<{id:string}>)=> {
@@ -182,7 +182,16 @@ export const storeLabels = defineStore('labels', {
 			if(++broadcastCount != 50) clearTimeout(broadcastDebounce);
 			broadcastDebounce = setTimeout(() => {
 				broadcastCount = 0;
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PLACEHOLDERS, this.allPlaceholders as unknown as JsonObject);
+				const list:{[tag:string]:{value:string|number, type:LabelItemPlaceholder["type"]}} = {};
+				for (const key in this.allPlaceholders) {
+					type typedKey = keyof typeof this.allPlaceholders;
+					const ph = this.allPlaceholders[key as typedKey];
+					list[key] = {
+						type:ph!.placeholder.type,
+						value:ph!.value,
+					}
+				}
+				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PLACEHOLDERS, list);
 			}, 100);
 		},
 		
@@ -191,10 +200,9 @@ export const storeLabels = defineStore('labels', {
 			const tag = data?.placeholder;
 			const validTag = data?.mode == "placeholder" && tag && this.allPlaceholders[tag];
 			if(data && data.enabled === true && (validTag || data.mode == "html")) {
-				const placeholderType:LabelItemPlaceholder["type"] = tag && this.allPlaceholders[tag]? this.allPlaceholders[tag]!.placeholder.type : "string";
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, placeholderType, data:data as unknown as JsonObject});
+				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, data:data as unknown as JsonObject});
 			}else{
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, placeholderType:"string", data:null, disabled:data?.enabled === false});
+				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, data:null, disabled:data?.enabled === false});
 			}
 		},
 

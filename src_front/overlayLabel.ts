@@ -24,13 +24,8 @@ let timerIdInc = 0;
 let scrollables:HTMLElement[] = [];
 let obsSocket!:OBSWebSocket;
 let parameters:LabelItemData | null = null;
-let placeholderType:LabelItemPlaceholder["type"] = "string";
-let placeholders:{[key:string]:{
-	tag:string;
-	type:LabelItemPlaceholder["type"];
-	value:string|number;
-}} = {};
-let timerPlaceholder:(typeof placeholders[string])[] = [];
+let placeholders:{[tag:string]:{value:string|number, type:LabelItemPlaceholder["type"]}} = {};
+let timerPlaceholder:{tag:string, params:(typeof placeholders[string])}[] = [];
 let timerOffsets:{[key:string]:{dateOffset:number, offset:number, type:LabelItemPlaceholder["type"]}} = {};
 let mustRefreshRegularly = false;
 
@@ -195,19 +190,14 @@ function onMessage(message:IEnvelope<unknown>):void {
 	}else
 
 	if(message.type == TwitchatEvent.LABEL_OVERLAY_PLACEHOLDERS) {
-		const data = message.data as {[key:string]:{value:number|string, placeholder:LabelItemPlaceholder}};
+		const data = message.data as {[tag:string]:{value:string|number, type:LabelItemPlaceholder["type"]}};
 		for (const tag in data) {
-			const ph:typeof placeholders[string] = {
-				tag,
-				value:data[tag].value,
-				type:data[tag].placeholder.type,
-			};
-			placeholders[tag] = ph;
-			if(data[tag].placeholder.type == "duration"
-			|| data[tag].placeholder.type == "date"
-			|| data[tag].placeholder.type == "time"
-			|| data[tag].placeholder.type == "datetime") {
-				timerPlaceholder.push(ph);
+			placeholders[tag] = data[tag];
+			if(data[tag].type == "duration"
+			|| data[tag].type == "date"
+			|| data[tag].type == "time"
+			|| data[tag].type == "datetime") {
+				timerPlaceholder.push({tag, params:data[tag]});
 			}
 		}
 
@@ -215,11 +205,10 @@ function onMessage(message:IEnvelope<unknown>):void {
 	}else
 
 	if(message.type == TwitchatEvent.LABEL_OVERLAY_PARAMS) {
-		const json = message.data as {id:string, data:typeof parameters, disabled?:true, placeholderType:LabelItemPlaceholder["type"]};
+		const json = message.data as {id:string, data:typeof parameters, disabled?:true};
 		if(json.id == urlParams.get("twitchat_overlay_id")) {
 			parameters = json.data;
 			labelDisabled = json.disabled === true;
-			placeholderType = json.placeholderType;
 
 			document.getElementById("error")!.style.display = "none";
 
@@ -289,7 +278,8 @@ function renderValue():void {
 	timerOffsets = {};
 	mustRefreshRegularly = false;
 	if(parameters.mode == "placeholder") {
-		if(placeholderType == "image"){
+		const phRef = placeholders[parameters.placeholder];
+		if(phRef.type == "image"){
 			html = "<img src=\""+parsePlaceholders("{"+value+"}")+"\" onload=\""+setScrollSpeed()+"\">";
 		}else{
 			html = parsePlaceholders("{"+value+"}" || "");
@@ -398,6 +388,7 @@ function toDigits(num:number, digits = 2):string {
  * Makes the label scroll horizontally
  */
 function setScrollSpeed(attempts = 0) {
+	if(!parameters) return;
 	if(scrollables.length === 0) return;
 	scrollables.forEach(node=>{
 		const parent = node.parentElement;
@@ -416,7 +407,8 @@ function setScrollSpeed(attempts = 0) {
 			//Try again
 			setTimeout(()=>setScrollSpeed(++attempts), 60);
 		}else{
-			const ratio = placeholderType == "image"? .5 : 20/parameters!.fontSize;
+			const phType:LabelItemPlaceholder["type"] = parameters!.mode == "placeholder"? placeholders[parameters!.placeholder].type : "string";
+			const ratio = phType == "image"? .5 : 20/parameters!.fontSize;
 			const duration = bounds.width/30 * ratio;
 			node.style.animationDuration = (duration/speed)+"s";
 		}
@@ -459,7 +451,6 @@ onMessage({
     "id": "cb1cb8a0-7712-46e6-a2ef-5a3798288d2a",
     "data": {
         "id": "0e83c6a3-80f6-4656-99b3-167e849404a0",
-        "placeholderType": "string",
         "data": {
             "id": "0e83c6a3-80f6-4656-99b3-167e849404a0",
             "enabled": true,

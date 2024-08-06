@@ -39,7 +39,7 @@ import { watch } from 'vue';
 	},
 	emits:["close"],
 })
- class ShoutoutList extends Vue {
+class ShoutoutList extends Vue {
 
 	public channelId:string = "";
 	public timerOffset:number = 0;
