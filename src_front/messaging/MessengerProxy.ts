@@ -443,9 +443,9 @@ export default class MessengerProxy {
 				StoreProxy.chat.addMessage(notice);
 			}else{
 				let username = params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim();
-				if(parseInt(username).toString() === username) {
-					const user = await TwitchUtils.getUserInfo([username]);
-					username = user[0].login;
+				if(params.length > 1) {
+					const channelRef = await StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[1]);
+					channelId = channelRef.id;
 				}
 				const user = StoreProxy.users.getUserFrom("twitch", channelId, undefined, username);
 				StoreProxy.users.openUserCard( user, channelId, "twitch");
