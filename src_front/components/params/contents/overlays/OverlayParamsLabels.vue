@@ -151,6 +151,9 @@ class OverlayParamsLabels extends Vue {
 	 * Saves given label
 	 */
 	public save(label:LabelItemData):void {
+		//If user clicks the "cross" to clear the "font family" field, the value
+		//becomes "null" which is not allowed by the server. Force it to empty string
+		if(!label.fontFamily) label.fontFamily = "";
 		this.$store.labels.saveData(label.id);
 	}
 
