@@ -27,15 +27,30 @@
 				<ClearButton aria-label="close" @click="closeCard()" v-show="!manageBadges && !manageUserNames" />
 				<div class="header" v-show="!manageBadges && !manageUserNames">
 					<a :href="profilePage" target="_blank">
-						<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar" referrerpolicy="no-referrer">
+						<div class="avatar">
+							<img v-if="user!.avatarPath"
+								:src="user!.avatarPath"
+								alt="avatar"
+								class="large"
+								referrerpolicy="no-referrer">
+	
+							<img v-if="!isOwnChannel && channel?.avatarPath"
+								:src="channel.avatarPath"
+								@click.capture.prevent="resetChanContext()"
+								alt="avatar"
+								class="mini"
+								v-tooltip="channel.displayName"
+								referrerpolicy="no-referrer">
+						</div>
+
 						<div class="live" v-if="currentStream">LIVE - <span class="viewers">{{ currentStream.viewer_count }}<Icon name="user" /></span></div>
 					</a>
 					<div class="title">
-						<CustomBadgeSelector class="customBadges" :user="user" @manageBadges="manageBadges = true" :channelId="channelId" @limitReached="manageBadges = true" />
+						<CustomBadgeSelector class="customBadges" :user="user" @manageBadges="manageBadges = true" :channelId="channel!.id" @limitReached="manageBadges = true" />
 						
 						<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" v-tooltip="b.title">
 
-						<CustomUserBadges :tooltip="$t('usercard.remove_badgesBt')" :user="user" @select="removeCustomBadge" :channelId="channelId" />
+						<CustomUserBadges :tooltip="$t('usercard.remove_badgesBt')" :user="user" @select="removeCustomBadge" :channelId="channel!.id" />
 						
 						<template v-if="!edittingLogin">
 							<a :href="profilePage" target="_blank">
@@ -69,39 +84,44 @@
 					<div class="userID" v-tooltip="$t('global.copy')" @click="copyID()" ref="userID">#{{user.id}}</div>
 				</div>
 				
-				<ChatModTools v-if="isTwitchProfile" class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock v-show="!manageBadges && !manageUserNames" />
+				<ChatModTools v-if="isTwitchProfile && canModerate && !isSelfProfile" class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock v-show="!manageBadges && !manageUserNames" />
 
 				<div class="scrollable" v-show="!manageBadges && !manageUserNames">
 					<div class="infoList" v-if="isTwitchProfile">
-						<div class="info" v-tooltip="$t('usercard.creation_date_tt')"><Icon name="date" alt="account creation date" class="icon"/>{{createDate}}</div>
+						<div class="info" v-tooltip="$t('usercard.creation_date_tt')+'\n'+createDate"><Icon name="date" alt="account creation date" class="icon"/>{{createDateElapsed}}</div>
 						
 						<div class="info" v-if="followersCount > -1"><Icon name="follow_outline" class="icon"/>{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
 						
-						<div class="info" v-if="subState && subStateLoaded">
-							<Icon name="gift" alt="subscribed" class="icon" v-if="subState.is_gift"/>
-							<Icon name="sub" alt="subscribed" class="icon" v-else/>
-							<i18n-t scope="global" tag="span" :keypath="subState.is_gift? 'usercard.subgifted' : 'usercard.subscribed'">
-								<template #TIER>{{ {"1000":1, "2000":2, "3000":3, prime:"prime"}[subState.tier] }}</template>
-								<template #GIFTER>{{ subState.gifter_name }}</template>
-							</i18n-t>
-						</div>
-						<div class="info" v-else-if="subStateLoaded">
-							<Icon name="sub" alt="subscribed" class="icon"/>
-							<span>{{ $t("usercard.non_subscribed") }}</span>
-						</div>
+						
+						<template v-if="isOwnChannel">
+							<div class="info" v-if="subState && subStateLoaded">
+								<Icon name="gift" alt="subscribed" class="icon" v-if="subState.is_gift"/>
+								<Icon name="sub" alt="subscribed" class="icon" v-else/>
+								<i18n-t scope="global" tag="span" :keypath="subState.is_gift? 'usercard.subgifted' : 'usercard.subscribed'">
+									<template #TIER>{{ {"1000":1, "2000":2, "3000":3, prime:"prime"}[subState.tier] }}</template>
+									<template #GIFTER>{{ subState.gifter_name }}</template>
+								</i18n-t>
+							</div>
+							<div class="info" v-else-if="subStateLoaded">
+								<Icon name="sub" alt="subscribed" class="icon"/>
+								<span>{{ $t("usercard.non_subscribed") }}</span>
+							</div>
 
-						<div class="info" v-if="canListFollowers && followDate && !is_self" v-tooltip="$t('usercard.follow_date_tt')"><Icon name="follow" alt="follow date" class="icon"/>{{followDate}}</div>
-						<div class="info" v-else-if="canListFollowers && !is_self"><Icon name="unfollow" alt="no follow" class="icon"/>{{$t('usercard.not_following')}}</div>
-						<!-- <div class="info ban card-item alert" v-for="chan in bannedChannels">
-							<Icon :name="chan.duration? 'timeout' : 'ban'" class="icon"/>
-							<span>{{ chan.user.displayName }}</span>
-							<span class="timeoutDuration" v-if="chan.duration">{{ getFormatedTimeoutDuration(chan.duration) }}</span>
-						</div> -->
+							<div class="info" v-if="canListFollowers && followDate && !is_self" v-tooltip="$t('usercard.follow_date_tt')"><Icon name="follow" alt="follow date" class="icon"/>{{followDate}}</div>
+							<div class="info" v-else-if="canListFollowers && !is_self"><Icon name="unfollow" alt="no follow" class="icon"/>{{$t('usercard.not_following')}}</div>
+							<!-- <div class="info ban card-item alert" v-for="chan in bannedChannels">
+								<Icon :name="chan.duration? 'timeout' : 'ban'" class="icon"/>
+								<span>{{ chan.user.displayName }}</span>
+								<span class="timeoutDuration" v-if="chan.duration">{{ getFormatedTimeoutDuration(chan.duration) }}</span>
+							</div> -->
+						</template>
 					</div>
 
 					<div class="banReason quote" v-if="banReason"><Icon name="ban" /> {{ banReason }}</div>
 					
 					<div class="ctas" v-if="isTwitchProfile">
+						<TTButton v-if="canModerate && canShoutout" small icon="shoutout" @click="shoutoutUser()">{{$t('usercard.shoutoutBt')}}</TTButton>
+						<TTButton v-if="canModerate && canWarn" small icon="alert" @click="shoutoutUser()">{{$t('usercard.warnBt')}}</TTButton>
 						<TTButton v-if="!is_tracked" small icon="magnet" @click="trackUser()">{{$t('usercard.trackBt')}}</TTButton>
 						<TTButton v-if="is_tracked" small icon="magnet" @click="untrackUser()">{{$t('usercard.untrackBt')}}</TTButton>
 						<TTButton v-if="$store.tts.params.enabled === true" small icon="tts" @click="toggleReadUser()">{{ ttsReadBtLabel }}</TTButton>
@@ -114,12 +134,20 @@
 								type="link"
 								icon="newtab"
 								@click.stop="openUserCard($event)"
-								:href="'https://www.twitch.tv/popout/'+$store.auth.twitch.user.login+'/viewercard/'+user!.login"
+								:href="'https://www.twitch.tv/popout/'+channel!.id+'/viewercard/'+user!.login"
 								target="_blank">{{$t('usercard.viewercardBt')}}</TTButton>
+							
+							<TTButton small
+							v-if="!isOwnChannel"
+								type="link"
+								icon="newtab"
+								@click.stop="openUserCard($event)"
+								:href="'https://www.twitch.tv/popout/'+$store.auth.twitch.user.login+'/viewercard/'+user!.login"
+								target="_blank">{{$store.auth.twitch.user.displayName}}</TTButton>
 							
 							<TTButton v-if="!canListModeratedChans" small secondary icon="mod" @click="grantModeratedScope()">{{$t('usercard.moderator_viewercardBt')}}</TTButton>
 							
-							<div class="modItem" v-for="modedChan of moderatedChannelList_pinned">
+							<div class="modItem" v-for="modedChan of moderatedChannelList_pinned.filter(v=>v.broadcaster_id != channel!.id)">
 								<TTButton small
 									type="link"
 									icon="newtab"
@@ -243,10 +271,14 @@ class UserCard extends AbstractSidePanel {
 	public banReason?:string = "";
 	public customLogin:string = "";
 	public createDate:string = "";
+	public createDateElapsed:string = "";
 	public followDate:string = "";
 	public userDescription:string = "";
-	public channelId:string = "";
+	public canModerate:boolean = false;
+	public isSelfProfile:boolean = false;
+	public isOwnChannel:boolean = false;
 	public user:TwitchatDataTypes.TwitchatUser|null = null;
+	public channel:TwitchatDataTypes.TwitchatUser|null = null;
 	public fakeModMessage:TwitchatDataTypes.MessageChatData|null = null;
 	public currentStream:TwitchDataTypes.StreamInfo|null = null;
 	public followersCount:number = -1;
@@ -298,6 +330,16 @@ class UserCard extends AbstractSidePanel {
 	 * Get if channels we moderate can be listed
 	 */
 	public get canListModeratedChans():boolean { return TwitchUtils.hasScopes([TwitchScopes.LIST_MODERATED_CHANS]); }
+
+	/**
+	 * Get if we can shoutout
+	 */
+	public get canShoutout():boolean { return TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT]); }
+
+	/**
+	 * Get if we can send warnings
+	 */
+	public get canWarn():boolean { return TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING]); }
 
 	/**
 	 * Get a list of the channels we're a moderator on
@@ -387,8 +429,12 @@ class UserCard extends AbstractSidePanel {
 		watch(() => this.$store.users.userCard, async () => {
 			const card = this.$store.users.userCard;
 			if(card && card.user) {
-				this.user = this.$store.users.getUserFrom(card.platform || "twitch", card.channelId, card.user.id);
-				this.channelId = card.channelId ?? StoreProxy.auth.twitch.user.id;
+				const chanId = card.channelId ?? StoreProxy.auth.twitch.user.id;
+				this.channel = this.$store.users.getUserFrom(card.platform || "twitch", chanId, chanId);
+				this.user = this.$store.users.getUserFrom(card.platform || "twitch", chanId, card.user.id);
+				this.isOwnChannel = chanId == StoreProxy.auth.twitch.user.id || chanId == StoreProxy.auth.youtube.user?.id;
+				this.canModerate = (this.moderatedChannelList.findIndex(v=>v.broadcaster_id === chanId) > -1 || chanId == StoreProxy.auth.twitch.user.id) && chanId != this.user.id;
+				this.isSelfProfile = this.user.id != StoreProxy.auth.twitch.user.id;
 				this.loadUserInfo();
 				this.dateOffsetTimeout = setInterval(() => {
 					this.dateOffset += 1000;
@@ -461,6 +507,7 @@ class UserCard extends AbstractSidePanel {
 				user.displayNameOriginal = u.display_name;
 				this.customLogin = this.$store.users.customUsernames[u.id]?.name || u.display_name;
 				this.createDate = Utils.formatDate(new Date(u.created_at));
+				this.createDateElapsed = Utils.elapsedDuration(new Date(u.created_at).getTime());
 				this.userDescription = u.description;
 				if(!user.avatarPath) user.avatarPath = u.profile_image_url;
 				user.id = u.id;
@@ -473,29 +520,31 @@ class UserCard extends AbstractSidePanel {
 				if(!user.displayName) user.displayName = u.display_name;
 
 				//Adding partner badge if no badge is already specified
-				if(user.channelInfo[this.channelId]?.badges?.length == 0) {
+				if(user.channelInfo[this.channel!.id]?.badges?.length == 0) {
 					const staticBadges:Badges = {};
 					staticBadges[u.broadcaster_type] = "1";
-					user.channelInfo[this.channelId].badges = TwitchUtils.getBadgesFromRawBadges(this.channelId, undefined, staticBadges);
-					this.badges = user.channelInfo[this.channelId].badges;
+					user.channelInfo[this.channel!.id].badges = TwitchUtils.getBadgesFromRawBadges(this.channel!.id, undefined, staticBadges);
 				}
+				this.badges = user.channelInfo[this.channel!.id].badges;
 				
 				//Async loading of data
 				TwitchUtils.getCurrentStreamInfo([u.id]).then(v=> {
 					this.currentStream = v[0];
 				});
-				if(user.channelInfo[this.channelId]?.is_banned) {
-					this.banReason = user.channelInfo[this.channelId]?.banReason;
+				if(user.channelInfo[this.channel!.id]?.is_banned) {
+					this.banReason = user.channelInfo[this.channel!.id]?.banReason;
 				}else{
-					TwitchUtils.getBannedUsers(this.channelId, [u.id]).then(res=> {
+					TwitchUtils.getBannedUsers(this.channel!.id, [u.id]).then(res=> {
 						if(res.length > 0) {
 							this.banReason = res[0].reason;
 						}
 					});
 				}
-				TwitchUtils.getFollowerState(u.id).then(v=> {
-					if(v) this.followDate = Utils.formatDate(new Date(v.followed_at));
-				});
+				if(this.isOwnChannel) {
+					TwitchUtils.getFollowerState(u.id).then(v=> {
+						if(v) this.followDate = Utils.formatDate(new Date(v.followed_at));
+					});
+				}
 				TwitchUtils.getLastFollowers(u.id).then(v=> {
 					this.followersCount = v.total;
 				});
@@ -512,7 +561,7 @@ class UserCard extends AbstractSidePanel {
 					date:Date.now(),
 					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 					user,
-					channel_id: this.channelId,
+					channel_id: this.channel!.id,
 					message: "",
 					message_html: "",
 					message_chunks: [],
@@ -567,12 +616,26 @@ class UserCard extends AbstractSidePanel {
 		}
 	}
 
-	public trackUser():void {
-		this.$store.users.trackUser(this.user!);
-	}
+	/**
+	 * Give a shoutout to the user
+	 */
+	public shoutoutUser():void { this.$store.users.shoutout(this.channel!.id, this.user!); }
+
+	/**
+	 * Start tracking user's messages
+	 */
+	public trackUser():void { this.$store.users.trackUser(this.user!); }
 	
-	public untrackUser():void {
-		this.$store.users.untrackUser(this.user!);
+	/**
+	 * Stop tracking user's messages
+	 */
+	public untrackUser():void { this.$store.users.untrackUser(this.user!); }
+	
+	/**
+	 * Stop tracking user's messages
+	 */
+	public resetChanContext():void {
+		this.$store.users.openUserCard(this.user);
 	}
 
 	/**
@@ -591,7 +654,7 @@ class UserCard extends AbstractSidePanel {
 	 */
 	public submitCustomLogin():void {
 		this.edittingLogin = false;
-		if(!this.$store.users.setCustomUsername(this.user!, this.customLogin, this.channelId)) {
+		if(!this.$store.users.setCustomUsername(this.user!, this.customLogin, this.channel!.id)) {
 			this.manageUserNames = true;
 		}
 		//Update customLogin from the actual displayname.
@@ -605,7 +668,7 @@ class UserCard extends AbstractSidePanel {
 	 * @param badgeId 
 	 */
 	public removeCustomBadge(badgeId:string):void {
-		this.$store.users.removeCustomBadge(this.user!.id, badgeId, this.channelId);
+		this.$store.users.removeCustomBadge(this.user!.id, badgeId, this.channel!.id);
 	}
 
 	/**
@@ -807,8 +870,17 @@ export default toNative(UserCard);
 				}
 			}
 	
-			.pronouns, .originalName {
+			.originalName {
 				font-style: italic;
+				margin-bottom: .25em;
+			}
+	
+			.pronouns {
+				border-radius: 3px;
+				color: var(--color-text);
+				border: 1px solid var(--color-text-fade);
+				padding: 0 2px;
+				font-size: .8em;
 				margin-bottom: .25em;
 			}
 	
@@ -843,16 +915,30 @@ export default toNative(UserCard);
 			}
 	
 			.avatar {
-				width: 5em;
-				height: 5em;
-				border-radius: 50%;
-				margin: auto;
-				display: block;
-				transition: width .25s, height .25s, border-radius .25s;
-				&:hover {
-					width: 10em;
-					height: 10em;
-					border-radius: 5px;
+				position: relative;
+				.large {
+					width: 5em;
+					height: 5em;
+					border-radius: 50%;
+					margin: auto;
+					display: block;
+					transition: width .25s, height .25s, border-radius .25s;
+					&:hover {
+						width: 10em;
+						height: 10em;
+						border-radius: 5px;
+					}
+				}
+				.mini {
+					cursor: not-allowed;
+					width: 2em;
+					height: 2em;
+					bottom: 0;
+					right: -.5em;
+					border: 2px solid var(--highlight-mods);
+					border-radius: 50%;
+					position: absolute;
+					box-shadow: -3px -1px 8px rgba(0, 0, 0, 1);
 				}
 			}
 		}

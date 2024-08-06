@@ -11,6 +11,8 @@
 		"viewercardBt":"Infos viewer",
 		"moderator_viewercardBt":"Plus d'infos viewer...",
 		"moderator_viewercardBt_tt":"Vous êtes modo chez {CHANNEL}.\nOuvrir les infos viewer pour cette chaîne.",
+		"warnBt":"Envoyer avertissement",
+		"shoutoutBt":"Shoutout",
 		"trackBt":"Activer le suivi",
 		"untrackBt":"Désactiver le suivi",
 		"messages":"Historique",
