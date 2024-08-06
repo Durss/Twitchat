@@ -232,6 +232,11 @@ export default toNative(ParamsOverlays);
 				filter: brightness(1.5);
 			}
 		}
+		:deep(.newFlag) {
+			img {
+				border: 4px solid var(--color-secondary);
+			}
+		}
 	}
 }
 
