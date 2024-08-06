@@ -14,7 +14,8 @@
 			{
 				"i": "whispers",
 				"l": "Multi chat",
-				"d": "Recevez plusieurs tchat en un seul et même endroit pour du multi-stream facilité"
+				"g": "/update_images/mergedchat.gif",
+				"d": "Connectez-vous à d'autres chaînes Twitch !\nRecevez les messages des chaînes avec lesquelles vous streamez pour un co-stream facilité.\n\nVos modérateurices peuvent désormais modérer depuis Twitchat grâce à ceci. Une interconnexion streamer/modo  plus poussée viendra par la suite."
 			},
 			{
 				"i": "label",

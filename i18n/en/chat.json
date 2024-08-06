@@ -489,7 +489,7 @@
 			"remove_blocked": "{USER} removed {TERMS} from blocked terms"
 		},
 		"hate_raid": {
-			"title": "A hate raid has been detected.\nFollowing terms has been added to your Twitch blocked terms:",
+			"title": "A hate raid has been detected.\nFollowing terms have been blocked:",
 			"users": "Users that triggered the anti hate raid:",
 			"cancel_bt": "Unblock terms",
 			"banUsers_bt": "Ban users",

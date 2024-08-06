@@ -69,6 +69,7 @@
 	- The `Custom badge` action now allows to edit all the entries and all the current chatters
 
  - **Raid:** you can new connect to the chat of the channel your raiding from the `Raiding` window
+ - **Blocked terms:** Get notified when a blocked or permitted term is added or removed on your channel
 
 
 ### 🔧 CHANGES 🔧
