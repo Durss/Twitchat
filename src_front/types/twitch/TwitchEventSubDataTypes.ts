@@ -818,10 +818,10 @@ export namespace TwitchEventSubDataTypes {
 		user_id: string;
 		user_name: string;
 		user_login: string;
-		low_trust_status: "active_monitoring"|"restricted";
+		low_trust_status: "none"|"active_monitoring"|"restricted";
 		shared_ban_channel_ids?: any;
-		types: ("manually_added"|string)[];
-		ban_evasion_evaluation: string;
+		types: ("manually_added"|"ban_evader_detector"|"shared_channel_ban"|string)[];
+		ban_evasion_evaluation: "unknown”"|"possible"|"likely";
 		message:  {
 			message_id: string;
 			text: string;
@@ -829,7 +829,7 @@ export namespace TwitchEventSubDataTypes {
 		};
 	}
 
-	type MessageFragments = (MessageFragmentEmote)[];
+	type MessageFragments = (MessageFragmentText|MessageFragmentEmote)[];
 
 	interface MessageFragmentText {
 		type: "text",

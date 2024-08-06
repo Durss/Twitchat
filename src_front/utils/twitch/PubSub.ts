@@ -378,6 +378,8 @@ export default class PubSub extends EventDispatcher {
 
 
 		}else if(data.type == "automod_caught_message") {
+			//Still using PubSub instead of EventSub because, to date, it gives more details.
+			//Eventsub doesn't tell which part of the message triggered the automod.
 			this.automodEvent(data.data as  PubSubDataTypes.AutomodData, channelId);
 
 

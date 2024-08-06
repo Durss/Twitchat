@@ -326,7 +326,7 @@ export default class EventSub {
 
 				if(!isBroadcaster) {
 					//Only subbing to this as a moderator.
-					//Broadcaster ues PubSub alternative that, to dates, gives more details.
+					//Broadcaster ues PubSub alternative that, to date, gives more details.
 					//Eventsub doesn't tell which part of the message triggered the automod.
 					TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_MESSAGE_HELD, "1")
 					.then(res => {
