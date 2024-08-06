@@ -3,7 +3,7 @@
 		<form @submit.prevent>
 			<input class="giftedInput" type="text"
 				maxlength="25"
-				:placeholder="$t('global.login_placeholder')"
+				:placeholder="$t('global.search_placeholder')"
 				v-model="search"
 				@input="onSearch()"
 				@keydown.stop="onKeyDown($event)"
@@ -107,7 +107,7 @@ class SearchUserForm extends Vue {
 		this.abortQuery = new AbortController();
 		if(this.searching) {
 			const signal = this.abortQuery!.signal;
-			const result = (await TwitchUtils.searchUser(this.search, 10, signal) || []);
+			const result = (await TwitchUtils.searchUser(this.search, 5, signal) || []);
 			this.liveStates = result.liveStates;
 			this.users = result.users.filter(user => (this.excludedUserIds || []).indexOf(user.id) === -1);
 			if(!signal.aborted) {
