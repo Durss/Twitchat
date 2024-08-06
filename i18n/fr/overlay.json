@@ -360,6 +360,7 @@
 			"param_textColor": "Couleur du texte",
 			"param_backgroundEnabled": "Fond",
 			"param_backgroundColor": "couleur",
+			"param_scrollable": "Faire défiler le texte",
 			"placeholders": {
 				"SUB_COUNT": "Subs - total",
 				"SUB_POINTS": "Subs - points (ne sont PAS les points partner+)",

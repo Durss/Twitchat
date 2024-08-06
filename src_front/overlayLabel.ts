@@ -240,18 +240,20 @@ function onMessage(message:IEnvelope<unknown>):void {
 				holder.style.color = parameters.fontColor;
 			
 				if(parameters.backgroundEnabled) {
-					holder.style.padding = "1.5em";
+					holder.style.padding = ".5em";
 					holder.style.backgroundColor = parameters.backgroundColor;
 					holder.style.borderRadius = ".5em";
 				}
 
 				if(parameters.mode == "placeholder") {
-					holder.style.maxWidth		= "100vw";
-					holder.style.textOverflow	= "ellipsis";
-					holder.style.overflow		= "hidden";
+					holder.style.maxWidth = "100vw";
+					if(!parameters.scrollContent) {
+						holder.style.textOverflow	= "ellipsis";
+					}
 				}
 				
 				renderValue();
+				setScrollSpeed();
 			}
 
 			if(json.data?.css) {
@@ -288,8 +290,7 @@ function renderValue():void {
 	mustRefreshRegularly = false;
 	if(parameters.mode == "placeholder") {
 		if(placeholderType == "image"){
-			console.log("OKOKOK");
-			html = "<img src=\""+parsePlaceholders("{"+value+"}")+"\">";
+			html = "<img src=\""+parsePlaceholders("{"+value+"}")+"\" onload=\""+setScrollSpeed()+"\">";
 		}else{
 			html = parsePlaceholders("{"+value+"}" || "");
 		}
@@ -304,16 +305,18 @@ function renderValue():void {
 		}
 	}
 
+	if(parameters.scrollContent && parameters.mode != "html") {
+		html = "<div style=\"overflow:hidden\"><scroll>"+html+"</scroll></div>";
+	}
+
 	if(html != prevHTML) {
 		const holder = document.getElementById("app")!;
-		if(parameters.scrollContent && parameters.mode != "html") {
-			html = "<scroll>"+html+"</scroll>";
-		}
 		holder.innerHTML = html;
 		prevHTML = html;
 	}
 
 	scrollables = [...document.querySelectorAll("scroll")] as HTMLElement[];
+	setScrollSpeed();
 }
 
 function renderTimerValue(timerId:string):string {
@@ -394,81 +397,84 @@ function toDigits(num:number, digits = 2):string {
 /**
  * Makes the label scroll horizontally
  */
-function makeScroll() {
-	if(scrollables.length === 0) {
-		requestAnimationFrame(()=>makeScroll());
-		return;
-	}
+function setScrollSpeed(attempts = 0) {
+	if(scrollables.length === 0) return;
 	scrollables.forEach(node=>{
 		const parent = node.parentElement;
 		if(!parent) return;
 
-		const nodeBounds = {width:200};//node?.getBoundingClientRect();
-		const parentBounds = {width:200};//parent?.getBoundingClientRect();
-		const computedStyles = {paddingLeft:"0", paddingRight:"0"};//getComputedStyle(parent);
-		console.log(computedStyles.paddingLeft);
-		let px = parseInt(node.style.left) || 0;
-		px -= parseFloat(node.getAttribute("speed") || "") || 1;
-		if(px < -(nodeBounds.width + parseInt(computedStyles.paddingLeft))) {
-			px = parentBounds.width - parseInt(computedStyles.paddingRight);
+		const speed = parseFloat(node.getAttribute("speed") || "") || 1;
+		const bounds = node.getBoundingClientRect();
+		if(bounds.width === 0) {
+			//If bounds are empty, it's probably because an image isn't
+			//completely rendered yet. This function is called on image
+			//loading complete, but the reflow might take a few frames
+			//before being done
+			
+			//if tried more than 100 times, give up to avoid looping for nothing
+			if(attempts > 100) return;
+			//Try again
+			setTimeout(()=>setScrollSpeed(++attempts), 60);
+		}else{
+			const ratio = placeholderType == "image"? .5 : 20/parameters!.fontSize;
+			const duration = bounds.width/30 * ratio;
+			node.style.animationDuration = (duration/speed)+"s";
 		}
-		node.style.left = px+"px";
 	});
-	requestAnimationFrame(()=>makeScroll());
 }
 
 createConnectionTunnel();
 requestInitialInfo();
-// makeScroll()
 
 
 
 
-//TODO remove
 setInterval(()=>{
 	if(mustRefreshRegularly) refreshTimerValues();
 }, 1000);
 
-// onMessage({"origin":"twitchat","type":"LABEL_OVERLAY_PLACEHOLDERS","id":"9f9d0eff-04cc-4c9e-8f47-6cb4773a6d31","data":
-// 	{
-// 		"FOLLOWER_NAME":{
-// 			"value":"OestroGothique",
-// 			"placeholder":{
-// 				"tag":"FOLLOWER_NAME",
-// 				"type":"string",
-// 			},
-// 		},
-// 		"FOLLOWER_AVATAR":{
-// 			"value":"https://static-cdn.jtvnw.net/jtv_user_pictures/06e9055c-7225-4bef-9949-2e0079a2dd9d-profile_image-300x300.png",
-// 			"placeholder":{
-// 				"tag":"FOLLOWER_AVATAR",
-// 				"type":"image",
-// 			}
-// 		}
-// 	}
-// });
+/*
+onMessage({"origin":"twitchat","type":"LABEL_OVERLAY_PLACEHOLDERS","id":"9f9d0eff-04cc-4c9e-8f47-6cb4773a6d31","data":
+	{
+		"FOLLOWER_NAME":{
+			"value":"AmazingTwitchUserName",
+			"placeholder":{
+				"tag":"FOLLOWER_NAME",
+				"type":"string",
+			},
+		},
+		"FOLLOWER_AVATAR":{
+			"value":"https://static-cdn.jtvnw.net/jtv_user_pictures/06e9055c-7225-4bef-9949-2e0079a2dd9d-profile_image-300x300.png",
+			"placeholder":{
+				"tag":"FOLLOWER_AVATAR",
+				"type":"image",
+			}
+		}
+	}
+});
 
-// onMessage({
-//     "origin": "twitchat",
-//     "type": "LABEL_OVERLAY_PARAMS",
-//     "id": "cb1cb8a0-7712-46e6-a2ef-5a3798288d2a",
-//     "data": {
-//         "id": "0e83c6a3-80f6-4656-99b3-167e849404a0",
-//         "placeholderType": "string",
-//         "data": {
-//             "id": "0e83c6a3-80f6-4656-99b3-167e849404a0",
-//             "enabled": true,
-//             "title": "last follow",
-//             "html": "<marquee scrollamount=\"3\">{FOLLOWER_NAME}</marquee>",
-//             "css": "",
-//             "placeholder": "FOLLOWER_NAME",
-//             "mode": "placeholder",
-//             "fontFamily": "Arial Rounded MT",
-//             "fontSize": 20,
-//             "backgroundColor": "#f0a9fe",
-//             "scrollContent": true,
-//             "backgroundEnabled": false,
-//             "fontColor": "#7f1494"
-//         }
-//     }
-// });
+onMessage({
+    "origin": "twitchat",
+    "type": "LABEL_OVERLAY_PARAMS",
+    "id": "cb1cb8a0-7712-46e6-a2ef-5a3798288d2a",
+    "data": {
+        "id": "0e83c6a3-80f6-4656-99b3-167e849404a0",
+        "placeholderType": "string",
+        "data": {
+            "id": "0e83c6a3-80f6-4656-99b3-167e849404a0",
+            "enabled": true,
+            "title": "last follow",
+            "html": "<marquee scrollamount=\"3\">{FOLLOWER_NAME}</marquee>",
+            "css": "",
+            "placeholder": "FOLLOWER_NAME",
+            "mode": "placeholder",
+            "fontFamily": "Arial Rounded MT",
+            "fontSize": 20,
+            "backgroundColor": "#f0a9fe",
+            "scrollContent": true,
+            "backgroundEnabled": true,
+            "fontColor": "#7f1494"
+        }
+    }
+});
+//*/

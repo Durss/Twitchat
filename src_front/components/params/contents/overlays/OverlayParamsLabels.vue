@@ -63,6 +63,7 @@
 					<ParamItem :paramData="param_labelValueFont[label.id]" v-model="label.fontFamily" @change="save(label)" />
 					<ParamItem :paramData="param_labelValueSize[label.id]" v-model="label.fontSize" @change="save(label)" />
 					<ParamItem :paramData="param_textColor[label.id]" v-model="label.fontColor" @change="save(label)" />
+					<ParamItem :paramData="param_scrollable[label.id]" v-model="label.scrollContent" @change="save(label)" />
 					<ParamItem :paramData="param_backgroundEnabled[label.id]" v-model="label.backgroundEnabled" @change="save(label)">
 						<ParamItem :childLevel="1" :paramData="param_backgroundColor[label.id]" v-model="label.backgroundColor" @change="save(label)" noBackground />
 					</ParamItem>
@@ -106,6 +107,7 @@ class OverlayParamsLabels extends Vue {
 	public param_textColor:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_backgroundEnabled:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_backgroundColor:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_scrollable:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 
 	private placeholders:TwitchatDataTypes.PlaceholderEntry[] = [];
 
@@ -174,8 +176,9 @@ class OverlayParamsLabels extends Vue {
 			this.param_customText[id]			= {type:"string", value:"", labelKey:"overlay.labels.param_customText", maxLength:10000, longText:true, icon:"html", placeholderList:this.placeholders};
 			this.param_customCSS[id]			= {type:"string", value:"", labelKey:"overlay.labels.param_customCSS", maxLength:10000, longText:true, icon:"css"};
 			this.param_textColor[id]			= {type:"color", value:"", labelKey:"overlay.labels.param_textColor", icon:"color"};
-			this.param_backgroundEnabled[id]	= {type:"boolean", value:true, labelKey:"overlay.labels.param_backgroundEnabled", icon:"show"};
+			this.param_backgroundEnabled[id]	= {type:"boolean", value:true, labelKey:"overlay.labels.param_backgroundEnabled", icon:"overlay"};
 			this.param_backgroundColor[id]		= {type:"color", value:"", labelKey:"overlay.labels.param_backgroundColor", icon:"color"};
+			this.param_scrollable[id]			= {type:"boolean", value:false, labelKey:"overlay.labels.param_scrollable", icon:"scroll_horizontal"};
 
 			let values:typeof this.param_labelValue[string]["listValues"] = [];
 			this.placeholders.forEach(p=> {

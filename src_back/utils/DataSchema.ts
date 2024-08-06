@@ -1719,6 +1719,7 @@ const UserDataSchema = {
 							fontSize: {type:"number", minimum:0, maximum:300},
 							fontFamily: {type:"string", maxLength:200},
 							fontColor: {type:"string", maxLength:10},
+							scrollContent: {type:"boolean"},
 							backgroundEnabled: {type:"boolean"},
 							backgroundColor: {type:"string", maxLength:10},
 						}

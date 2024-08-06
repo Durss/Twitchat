@@ -360,6 +360,7 @@
 			"param_textColor": "Text color",
 			"param_backgroundEnabled": "Background",
 			"param_backgroundColor": "Color",
+			"param_scrollable": "Make text scroll horizontally",
 			"placeholders": {
 				"SUB_COUNT": "Subscribers - total",
 				"SUB_POINTS": "Subscribers - points (NOT partner + points)",
