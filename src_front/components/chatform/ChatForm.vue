@@ -76,7 +76,8 @@
 							@input="$event => message = ($event.target as HTMLInputElement).value"
 							@keyup.capture.tab="(e)=>onTab(e)"
 							@keyup.enter="(e:Event)=>sendMessage(e)"
-							@keydown="onKeyDown">
+							@keydown="onKeyDown"
+							:style="inputStyles">
 
 						<ChannelSwitcher class="chanSwitcher"
 							v-model="$store.stream.currentChatChannel.id"
@@ -531,6 +532,12 @@ export class ChatForm extends Vue {
 		if(this.$store.main.cypherEnabled) res.push("cypherMode");
 		if(this.$store.emergency.emergencyStarted) res.push("emergencyMode");
 		return res;
+	}
+
+	public get inputStyles():{[key:string]:string} {
+		const currentChaninfo = this.$store.stream.connectedTwitchChans.find(v=>v.user.id == this.$store.stream.currentChatChannel.id);
+		if(!currentChaninfo) return {};
+		return {backgroundColor:currentChaninfo.color+"30"};//30 is alpha channel of the color
 	}
 
 	public get cypherConfigured():boolean { return this.$store.main.cypherKey?.length > 0; }
