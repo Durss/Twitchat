@@ -7,7 +7,7 @@
 		"install_code":"Utilisez la commande {CMD} sur Discord, puis entrez le code reçu ci-dessous",
 		"install_warn":"Assurez vous que le bot Twitchat ait les droits d'écriture dans le salon dans lequel vous utilisez la commande {CMD} et tout autre salon dans lequel vous comptez l'utiliser.",
 		"install_confirm":"Souhaitez-vous lier Twitchat avec le serveur Discord suivant?",
-		"reactions":"Permettre d'ajouter une réaction aux messages reçus",
+		"reactions":"Permettre d'ajouter une réaction aux messages reçus depuis Discord",
 		"channel_logs":"Salon Discord dans lequel enregistrer des messages de tchat",
 		"channel_logs_info":"Pour enregistrer un message sur Discord, faites click-droit dessus et cliquez sur l'option \"{OPTION}\".\nPermet de facilement conserver une trace des messages ou personnes toxiques.",
 		"channel_cmd":"Salon Discord dans lequel envoyer des messages avec la commande {CMD}",
@@ -22,7 +22,7 @@
 		"quick_delete":"Supprimer l'action ?",
 		"ticket":"Créer un fil Discord depuis un message Twitch et en envoyer le lien en réponse.",
 		"ticket_chan":"Salon Discord dans lequel créer le fil:",
-		"ticket_chan_info":"{ICON} Pour utiliser cette option, faites clique droit sur un message => \"{ACTION}\"",
+		"ticket_chan_info":"Pour utiliser cette option, faites clique droit sur un message => \"{ACTION}\"",
 		"public_triggers":"Créez des /commandes Discord pour permettre à vos modos de contrôler Twitchat.\n\n{ICON} Créez un {TRIGGER_LINK} \"{SLASH_CMD}\" et cochez l'option \"{OPTION}\"",
 		"log_pattern":{
 			"intro":"`{USER}` *(#{UID})* a été banni",

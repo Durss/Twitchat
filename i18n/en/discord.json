@@ -7,7 +7,7 @@
 		"install_code":"Use {CMD} command on Discord, and enter the given code bellow",
 		"install_warn":"Make sure Twitchat bot has write access to the chan you use {CMD} on and any other chan you'll want to use it",
 		"install_confirm":"Do you really want to link Twitchat with the following Discord server?",
-		"reactions":"Allow to react on messages received",
+		"reactions":"Allow to react on messages received from Discord",
 		"channel_logs":"Discord chan to save chat messages to",
 		"channel_logs_info":"To save a message on Discord, right click on it and click \"{OPTION}\" option.\nCan be useful to keep a trace of toxic messages or users.",
 		"channel_cmd":"Discord chan to send messages when using {CMD}",
@@ -22,7 +22,7 @@
 		"quick_delete":"Delete action?",
 		"ticket":"Create a Discord thread from a Twitch message and send its link to the viewer.",
 		"ticket_chan":"Discord chan to created the thread to:",
-		"ticket_chan_info":"{ICON} To use this feature, right click a chat message => \"{ACTION}\".",
+		"ticket_chan_info":"To use this feature, right click a chat message => \"{ACTION}\".",
 		"public_triggers":"Create custom Discord /commands to let your mods act on Twitchat.\n\n{ICON} Create a \"{SLASH_CMD}\" {TRIGGER_LINK} and tick the \"{OPTION}\" option",
 		"log_pattern":{
 			"intro":"`{USER}` *(#{UID})* got banned",
