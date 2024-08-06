@@ -181,11 +181,15 @@ export default class DiscordController extends AbstractController {
 		}
 
 		//Send to discord
+		let messageSent = false;
+		let threadCreated = false;
 		try {
 			const message = (await this._rest.post(Routes.channelMessages(params.channelId), {body:{content:params.message}})) as {id:string};
-			if(!message.id) throw(new Error("Failed posting message"));
+			if(!message.id) throw(new Error("MESSAGE_FAILED"));
+			messageSent = true;
 			const thread = (await this._rest.post(Routes.threads(params.channelId, message.id), {body})) as {id:string};
-			if(!thread.id) throw(new Error("Failed creating thread"));
+			if(!thread.id) throw(new Error("THREAD_FAILED"));
+			threadCreated = true;
 			//merge histories together until it reaches max chars count for 1 message
 			let merge = "";
 			let mergeHistory:string[] = [params.history[0]];//First message contains user info
@@ -215,7 +219,7 @@ export default class DiscordController extends AbstractController {
 			console.log(error);
 			response.header('Content-Type', 'application/json')
 			.status(401)
-			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:"POST_FAILED", channelName:channel? channel.name : "", success:false}));
+			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:messageSent && !threadCreated? "CREATE_THREAD_FAILED" : "POST_FAILED", channelName:channel? channel.name : "", success:false}));
 			return;
 		}
 	}

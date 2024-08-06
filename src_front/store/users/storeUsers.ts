@@ -683,6 +683,10 @@ export const storeUsers = defineStore('users', {
 							if(result.json.errorCode == "POST_FAILED") {
 								StoreProxy.common.alert(StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:result.json.channelName}));
 								return;
+							}else
+							if(result.json.errorCode == "CREATE_THREAD_FAILED") {
+								StoreProxy.common.alert(StoreProxy.i18n.t("error.discord.MISSING_ACCESS_THREAD", {CHANNEL:result.json.channelName}));
+								return;
 							}else{
 								StoreProxy.common.alert(StoreProxy.i18n.t("error.discord.UNKNOWN"));
 								return;
