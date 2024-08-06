@@ -25,7 +25,7 @@
 			{
 				"i": "raid",
 				"l": "Raids haineux",
-				"g": "/update_images/hate_raid.png",
+				"g": "/update_images/hate_raid_fr.png",
 				"d": "Nouvelle option pour bloquer les raids haineux.\n\nSi vous activez cette option, Twitchat ajoutera automatiquement des termes bloqués lorsque 5 personnes parlant pour la 1ère fois sur votre chaîne envoient le même message."
 			},
 			{
