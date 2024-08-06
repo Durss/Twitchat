@@ -16,7 +16,7 @@
 		<div class="popin blured-background-window" ref="popin" v-if="expand">
 			<template v-if="showForm && !user">
 				<p class="head"><Icon name="online" />{{ $t("chat.form.connect_extra_chan") }}</p>
-				<SearchUserForm class="blured-background-window"
+				<SearchUserForm
 					v-model="user"
 					:staticUserList="liveFollingList"
 					:excludedUserIds="channels.map(v=>v.user.id)"
