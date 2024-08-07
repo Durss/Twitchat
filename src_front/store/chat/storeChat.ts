@@ -1156,10 +1156,12 @@ export const storeChat = defineStore('chat', {
 											sEmergency.setEmergencyMode(true);
 										}
 	
-										//If another wave comes, trigger a new alert
+										//Reset counter 10s after hate raid detection.
+										//We shouldn't get an another wave for this message unless someone
+										//removes the blocked terms
 										setTimeout(()=>{
 											antiHateRaidCounter[key].messages = [];
-										}, 5000);
+										}, 30000);
 										this.addMessage(currentHateRaidAlert);
 									}else
 									//If anti hate raid is active and new message is received (might happen
