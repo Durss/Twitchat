@@ -488,6 +488,7 @@ class ChatMessage extends AbstractChatMessage {
 			if(this.messageData.twitch_isHighlighted)	staticClasses.push("highlighted");
 			if(this.messageData.type == "message" && this.messageData.hasMention)	{
 				highlightedWords.push(StoreProxy.auth.twitch.user.login);
+				highlightedWords.push(...(StoreProxy.params.appearance.highlightMentions_custom.value as string[] || []));
 			}
 			if(this.isAnnouncement) {
 				const color = this.messageData.twitch_announcementColor!;

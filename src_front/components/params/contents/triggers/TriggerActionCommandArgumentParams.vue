@@ -65,7 +65,7 @@ import { gsap } from 'gsap';
 	public usage:string = "";
 	public newTag:string = "";
 	public params:TriggerChatCommandParam[] = [];
-	public param_cmdParams:TwitchatDataTypes.ParameterData<string[]> = { type:"editablelist", value:[], icon:"placeholder", labelKey:"triggers.slash_cmd.param_cmd_params", placeholderKey:"triggers.slash_cmd.param_cmd_params_placeholder", tooltipKey:"triggers.slash_cmd.param_cmd_params_tt", maxLength:30 };
+	public param_cmdParams:TwitchatDataTypes.ParameterData<string[]> = { type:"editablelist", value:[], icon:"placeholder", labelKey:"triggers.slash_cmd.param_cmd_params", placeholderKey:"triggers.slash_cmd.param_cmd_params_placeholder", tooltipKey:"triggers.slash_cmd.param_cmd_params_tt", max:30, maxLength:50 };
 
 	public mounted():void {
 		this.updateUsage();

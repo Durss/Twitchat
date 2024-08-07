@@ -71,6 +71,7 @@ export const storeParams = defineStore('params', {
 			highlightPartners_color:	{type:"color", value:"#9147ff", labelKey:"params.highlightColor", id:32, parent:26},
 			highlightMentions: 			{type:"boolean", value:true, labelKey:"params.highlightMentions", id:1, icon:"broadcaster"},
 			highlightMentions_color:	{type:"color", value:"#adadb8", labelKey:"params.highlightColor", id:33, parent:1},
+			highlightMentions_custom:	{type:"editablelist", value:[], labelKey:"params.highlightCustom", id:48, parent:1, placeholderKey:"params.highlightCustom_placeholder", maxLength:20, max:10},
 			raidHighlightUser: 			{type:"boolean", value:true, labelKey:"params.raidHighlightUser", id:34, icon:"raid"},
 			raidHighlightUser_color:	{type:"color", value:"#f5f500", labelKey:"params.highlightColor", id:36, parent:34},
 			raidHighlightUserDuration:	{type:"number", value:5, labelKey:"params.raidHighlightUserDuration", id:35, icon:"timer", parent:34, min:1, max:60*24*30},

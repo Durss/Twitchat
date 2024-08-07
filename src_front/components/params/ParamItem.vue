@@ -192,7 +192,7 @@
 					:options="paramData.listValues"
 					:submitSearchOnBlur="true"
 					:multiple="true"
-					:selectable="() => (paramData.value as unknown[] || []).length < (paramData.maxLength || 999)"
+					:selectable="() => (paramData.value as unknown[] || []).length < (paramData.max || 999)"
 					:reduce="(v:TwitchatDataTypes.ParameterDataListValue<unknown>) => v.value"
 				>
 					<template #no-options="{ search, searching, loading }">
@@ -258,7 +258,6 @@
 					:placeholder="placeholder"
 					v-model="paramData.value"
 					:calculate-position="$placeDropdown"
-					@option:selected="onEdit()"
 					appendToBody
 					taggable
 					v-if="(paramData.type == 'font' && paramData.options) || paramData.type != 'font'"
@@ -647,9 +646,7 @@ export class ParamItem extends Vue {
 			}
 		});
 
-		watch(() => this.paramData.value, () => {
-			this.onEdit()
-		});
+		watch(() => this.paramData.value, () => this.onEdit(), {deep:true});
 
 		watch(() => this.paramData.error, ()=> this.setErrorState(this.paramData.error === true));
 
@@ -722,10 +719,17 @@ export class ParamItem extends Vue {
 
 		this.isLocalUpdate = true;
 		if(Array.isArray(this.paramData.value) && this.paramData.type == "editablelist") {
+			//Limite items sizes
+			const maxLength = this.paramData.maxLength || 300;
+			const list = (this.paramData.value as string[]);
+			list.forEach((v,i)=> list[i] = v.substring(0, maxLength));
+			console.log(list);
+			
 			//Limit number of items of the editablelist
-			const max = this.paramData.maxLength ?? this.paramData.max ?? Number.MAX_SAFE_INTEGER;
-			if((this.paramData.value as string[]).length > max) {
-				this.paramData.value = (this.paramData.value as string[]).slice(-max);
+			const maxItem = this.paramData.max ?? 999;
+			if(list.length > maxItem) {
+				console.log("SLICE", maxItem);
+				this.paramData.value.splice(0, Math.max(0, list.length-maxItem));
 			}
 		}
 

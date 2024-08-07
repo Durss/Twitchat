@@ -51,6 +51,8 @@
 		"highlight1stEver": "Highlight 1st message ever of a user",
 		"highlight1stToday": "Highlight 1st user's message of the day",
 		"highlightColor": "Highlight color",
+		"highlightCustom": "Highlight custom words",
+		"highlightCustom_placeholder": "custom words...",
 		"translateNames": "Translate user names",
 		"showRewardsInfos": "Show reward's details",
 		"showViewersCount": "Show viewers and chatters count",

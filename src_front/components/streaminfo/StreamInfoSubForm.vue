@@ -90,7 +90,7 @@ import Icon from '../Icon.vue';
 	public placeholderList!:ITriggerPlaceholder<any>[];
 
 	public param_title:TwitchatDataTypes.ParameterData<string>	= {value:"", type:"string", maxLength:140, labelKey:"stream.form_stream_title", placeholderKey:"stream.form_stream_title_placeholder"};
-	public param_tags:TwitchatDataTypes.ParameterData<string[]>	= {value:[], type:"editablelist", labelKey:"stream.form_stream_tags"};
+	public param_tags:TwitchatDataTypes.ParameterData<string[]>	= {value:[], type:"editablelist", labelKey:"stream.form_stream_tags", max:100, maxLength:25};
 	public param_branded:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", labelKey:"stream.form_branded"};
 	public param_labels:TwitchatDataTypes.ParameterData<boolean>[]	= [];
 

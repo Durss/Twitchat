@@ -198,7 +198,7 @@ import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
 	public matchingCondition:boolean = true;
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:true, icon:"disable", labelKey:"global.enabled" };
 	public param_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"label", placeholder:"...", labelKey:"triggers.trigger_name" };
-	public param_queue:TwitchatDataTypes.ParameterData<string> = {type:"editablelist", value:"", max:1, placeholderKey:"triggers.trigger_queue_input_placeholder"}
+	public param_queue:TwitchatDataTypes.ParameterData<string> = {type:"editablelist", value:"", maxLength:100, max:1, placeholderKey:"triggers.trigger_queue_input_placeholder"}
 
 	private selectOffset = {x:0, y:0};
 	private scrollDir:number = 0;

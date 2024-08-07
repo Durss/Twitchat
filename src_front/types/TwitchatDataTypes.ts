@@ -472,7 +472,7 @@ export namespace TwitchatDataTypes {
 		 */
 		min?:number;
 		/**
-		 * Max value for "number" type
+		 * Max value for "number" type or max number of items for "editablelist" type
 		 */
 		max?:number;
 		/**

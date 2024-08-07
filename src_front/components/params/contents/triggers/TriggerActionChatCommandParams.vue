@@ -62,8 +62,8 @@ class TriggerActionChatCommandParams extends Vue {
 	public slashCmdAlert = false;
 	public cmdNameConflict = false;
 	public cmdAliasConflict = false;
-	public param_cmd:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"chatCommand", placeholder:"!command", labelKey:"triggers.actions.chat.param_cmd" };
-	public param_cmdAliases:TwitchatDataTypes.ParameterData<string, string> = { type:"editablelist", value:"", icon:"commands", placeholder:"!alias", labelKey:"triggers.actions.chat.param_cmd_alias", tooltipKey:"triggers.actions.chat.param_cmd_alias_tt", maxLength:10 };
+	public param_cmd:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"chatCommand", placeholder:"!command", labelKey:"triggers.actions.chat.param_cmd", maxLength:100 };
+	public param_cmdAliases:TwitchatDataTypes.ParameterData<string, string> = { type:"editablelist", value:"", icon:"commands", placeholder:"!alias", labelKey:"triggers.actions.chat.param_cmd_alias", tooltipKey:"triggers.actions.chat.param_cmd_alias_tt", max:10, maxLength:100 };
 	public param_globalCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_globalCD" };
 	public param_userCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_userCD" };
 	public param_alertCD:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:true, icon:"whispers", labelKey:"triggers.actions.chat.param_alertCD" };

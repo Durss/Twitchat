@@ -1010,7 +1010,8 @@ export const storeChat = defineStore('chat', {
 
 					//Check if the message contains a mention
 					if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-						message.hasMention = new RegExp("\\b"+sAuth.twitch.user.login+"\\b", "gim")
+						let words = [sAuth.twitch.user.login, ...(sParams.appearance.highlightMentions_custom.value as string[] || [])];
+						message.hasMention = new RegExp(words.map(word=> "\\b"+word+"\\b").join("|"), "gim")
 											.test(message.message ?? "");
 					}
 

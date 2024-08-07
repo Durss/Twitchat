@@ -767,6 +767,12 @@ const UserDataSchema = {
 		"p:raidHighlightUser_color": {type:"string", maxLength:7, minLength:7},
 		"p:raffleHighlightUser": {type:"boolean"},
 		"p:raffleHighlightUserDuration": {type:"integer"},
+		"p:highlightMentions_custom": {
+			type:"array",
+			minItems:0,
+			maxItems:10,
+			items:{type:"string", maxLength:100},
+		},
 		"p:lockAutoScroll": {type:"boolean"},
 		"p:liveMessages": {type:"boolean"},
 		"p:liveAlerts": {type:"boolean"},

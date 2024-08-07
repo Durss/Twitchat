@@ -49,6 +49,8 @@
 		"highlight1stEver": "Mettre en avant le 1er message d'une personne sur votre chaîne",
 		"highlight1stToday": "Mettre en avant le 1er message du jour d'une personne",
 		"highlightColor": "Couleur de la mise en avant",
+		"highlightCustom": "Mettre en avant des mots personnalisés",
+		"highlightCustom_placeholder": "mots à mettre en avant...",
 		"highlightNonFollowers": "Indiquer les non-followers",
 		"translateNames": "Traduire les pseudos",
 		"showRewardsInfos": "Afficher la description des récompenses",

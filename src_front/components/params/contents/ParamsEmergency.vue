@@ -117,7 +117,7 @@ import type IParameterContent from './IParameterContent';
 	public param_followersOnlyDuration:TwitchatDataTypes.ParameterData<number>			= {type:"number", value:30, max:129600, min:1, labelKey:"emergency.params.followersOnlyDuration"};
 	public param_subsOnly:TwitchatDataTypes.ParameterData<boolean>						= {type:"boolean", value:false,	icon:"sub", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS], labelKey:"emergency.params.subsOnly"};
 	public param_emotesOnly:TwitchatDataTypes.ParameterData<boolean>					= {type:"boolean", value:false,	icon:"emote", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS], labelKey:"emergency.params.emotesOnly"};
-	public param_autoTO:TwitchatDataTypes.ParameterData<string[], string>				= {type:"editablelist", value:[], longText:true, icon:"timeout", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS], labelKey:"emergency.params.autoTO", placeholderKey:"emergency.params.autoTO_placeholder"};
+	public param_autoTO:TwitchatDataTypes.ParameterData<string[], string>				= {type:"editablelist", value:[], longText:true, icon:"timeout", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS], labelKey:"emergency.params.autoTO", placeholderKey:"emergency.params.autoTO_placeholder", max:100, maxLength:25};
 	public param_noTrigger:TwitchatDataTypes.ParameterData<boolean>						= {type:"boolean", value:true, icon:"broadcast", labelKey:"emergency.params.noTrigger"};
 	public obsSources:OBSSourceItem[] = [];	
 	public selectedOBSSources:OBSSourceItem[] = [];

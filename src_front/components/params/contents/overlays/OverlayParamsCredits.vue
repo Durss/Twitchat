@@ -300,7 +300,7 @@ class OverlayParamsCredits extends Vue {
 	public param_startDelay:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:0, max:30, value:0, labelKey:"overlay.credits.param_startDelay", icon:"countdown", premiumOnly:true};
 	public param_ignoreBots:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_ignoreBots", icon:"bot"};
 	public param_hideEmptySlots:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_hideEmptySlots", icon:"hide"};
-	public param_ignoreCustomBots:TwitchatDataTypes.ParameterData<string[]> = {type:"editablelist", value:[], max:50, labelKey:"overlay.credits.param_ignoreCustomBots", icon:"user"};
+	public param_ignoreCustomBots:TwitchatDataTypes.ParameterData<string[]> = {type:"editablelist", value:[], max:50, maxLength:25, labelKey:"overlay.credits.param_ignoreCustomBots", icon:"user"};
 	public param_powerUpEmotes:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.credits.param_powerUpEmotes", icon:"watchStreak", premiumOnly:true};
 	public param_maxItems:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_customHTML:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
