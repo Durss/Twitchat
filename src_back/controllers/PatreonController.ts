@@ -445,7 +445,7 @@ export default class PatreonController extends AbstractController {
 				const member:PatreonMember = {
 					id:v.id,
 					name:v.attributes.full_name,
-					total:v.attributes.lifetime_support_cents/100,
+					total:Math.max(v.attributes.lifetime_support_cents, v.attributes.currently_entitled_amount_cents)/100,
 				};
 				return member;
 			});
