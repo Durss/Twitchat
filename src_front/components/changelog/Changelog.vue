@@ -62,7 +62,7 @@
 								:premium="item.p === true"
 								@click="$store.params.openParamsPage(item.a.param as TwitchatDataTypes.ParameterPagesStringType, item.a.subparam)">{{ item.a.l }}</TTButton>
 
-							<div class="demo" v-if="item.v || item.g">
+							<div class="demo" v-if="(item.v || item.g) && currentSlide == index">
 								<img v-if="item.g" :src="item.g" lazy>
 								<div v-if="item.v" class="placeholder"><Icon name="play" /></div>
 								<video @click="$event => ($event.target as HTMLVideoElement).play()" v-if="item.v" lazy :src="item.v" autoplay loop></video>
