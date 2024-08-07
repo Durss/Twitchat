@@ -233,7 +233,6 @@ class Changelog extends Vue {
 		const didntReadAll = [...this.slideCountRead].length < this.items.length - 1; //don't care about last slide
 		this.readAtSpeedOfLight = Date.now() - this.openedAt < this.items.length * 2000 && !didntReadAll;
 		if(!forceClose && (didntReadAll || this.readAtSpeedOfLight)) {
-			console.log("oKOKOKO");
 			this.showReadAlert = true;
 			await this.$nextTick();
 			const placeholder = (this.$refs.noCarePlaceholder as TTButtonClass).$el;
@@ -324,9 +323,9 @@ class Changelog extends Vue {
 
 		const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
 
-		if (distance < Math.max(buttonRect.width/2, buttonRect.height) + 50) {
-			const moveX = (offsetX / distance) * 5;
-			const moveY = (offsetY / distance) * 5;
+		if (distance < Math.max(buttonRect.width/2, buttonRect.height)) {
+			const moveX = (offsetX / distance) * 10;
+			const moveY = (offsetY / distance) * 10;
 			this.showMrBean = true;
 
 			this.buttonPos.x -= moveX;
