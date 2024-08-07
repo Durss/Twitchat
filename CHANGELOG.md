@@ -70,6 +70,7 @@
 
  - **Raid:** you can new connect to the chat of the channel your raiding from the `Raiding` window
  - **Blocked terms:** Get notified when a blocked or permitted term is added or removed on your channel
+ - **Chat highlights:** You can now define custom words to highlight on messages under `params` => `chat appearance` => `Highlight messages mentioning me`
 
 
 ### 🔧 CHANGES 🔧
