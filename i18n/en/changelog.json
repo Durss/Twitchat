@@ -20,12 +20,12 @@
 				"i": "whispers",
 				"l": "Multi chat",
 				"g": "/update_images/mergedchat.gif",
-				"d": "Connect to other Twitch channels!\nIf you stream with other people, you can now read their chat directly from Twitcaht.\n\nYou moderators can also use it to moderate multiple channels in one place.\n\nDeeper streamer/moderator interactions will come later."
+				"d": "Connect to other Twitch channels!\nIf you stream with other people, you can now read their chat directly from Twitchat.\n\nYour moderators can also use it to moderate multiple channels in one place.\n\nDeeper streamer/moderator interactions will come later."
 			},
 			{
 				"i": "label",
 				"l": "Labels",
-				"d": "A new extra light overlay allows to show realtime values.\n\nYou your sub, followers or viewers count, the last power-up received, the last Ko-Fi, Streamlabs, Streamelements or Tipeee tip, the last raider or current Voicemod effect thanks to the +100 labels available.",
+				"d": "A new extra light overlay allows to show realtime values.\n\nYou can display your sub, follower or viewer count, the last power-up received, the last Ko-Fi, Streamlabs, Streamelements or Tipeee tip, the last raider or current Voicemod effect thanks to the +100 labels available.",
 				"a": {
 					"l": "Try",
 					"param": "overlays",
@@ -36,7 +36,7 @@
 				"i": "raid",
 				"l": "Raids haineux",
 				"g": "/update_images/hate_raid_en.png",
-				"d": "New option to block Hate raids.\n\nIf you enable this option, Twitchat will automatically add blocked terms after 5 first time chatters send the same message on your chat.",
+				"d": "New option to block Hate raids.\n\nIf you enable this option, Twitchat will automatically add blocked terms if 5 first time chatters send the same message on your chat. This way next messages from other users will get blocked.",
 				"a": {
 					"l": "Try",
 					"param": "features",

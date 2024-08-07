@@ -6,6 +6,6 @@
 		"success": "Vous partagez désormais vos paramètres avec le compte {USER}\nModifier des paramètres sur un compte impactera l'autre.\n\nRechargez Twitchat pour finaliser la synchronisation.",
 		"error": "Une erreur a eu lieu lors de la finalisation du partage.\nVous données actuelles n'ont pas été impactées.",
 		"wrongAccount": "Vous devez vous reconnecter avec votre compte secondaire.\nPour cela, une fois redirigé sur Twitch, changez de compte en cliquant le lien en haut de page comme indiqué ci-dessous :",
-		"reloadBt": "Recharger Twitcaht"
+		"reloadBt": "Recharger Twitchat"
 	}
 }
