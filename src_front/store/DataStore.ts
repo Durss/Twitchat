@@ -69,7 +69,7 @@ export default class DataStore extends DataStoreCommon{
 					StoreProxy.main.showOutdatedDataVersionAlert();
 				}
 				if(saveRes.json.success === true && force && saveRes.json.version) {
-					this.set(DataStore.SAVE_VERSION, saveRes.json.version, false);
+					this.set(DataStore.SAVE_VERSION, Math.max(data.saveVersion, saveRes.json.version), false);
 				}
 
 				//If we forced upload, consider data has been imported as they are

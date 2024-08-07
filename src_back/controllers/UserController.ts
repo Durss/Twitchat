@@ -213,28 +213,35 @@ export default class UserController extends AbstractController {
 			const dataClone = JSON.parse(JSON.stringify(data));
 
 			//Initialize local data version for this user
-			if(!this._lastUserDataVersion[userInfo.user_id] && fs.existsSync(userFilePath)) {
+			if(!this._lastUserDataVersion.hasOwnProperty(userInfo.user_id) && fs.existsSync(userFilePath)) {
 				let version = 0;
 				try {
 					const refJson = fs.readFileSync(userFilePath, "utf-8");
 					version = JSON.parse(refJson).saveVersion;
 				}catch(error){}
-				this._lastUserDataVersion[userInfo.user_id] = version || 0
+				this._lastUserDataVersion[userInfo.user_id] = version || 0;
+				Logger.info("[DATA] Init local cache:",userInfo.login, dataClone.saveVersion, this._lastUserDataVersion[userInfo.user_id]);
 			}
 
 			//If forcing data upload, make its version above the minimum expected one
 			if(forcedUpload && this._lastUserDataVersion[userInfo.user_id] != undefined) {
+				Logger.info("[DATA] Force data upload:",userInfo.login, dataClone.saveVersion, this._lastUserDataVersion[userInfo.user_id]);
 				data.saveVersion = dataClone.saveVersion = this._lastUserDataVersion[userInfo.user_id] + 1;
-				// console.log("FORCE", dataClone.saveVersion, this._lastUserDataVersion[userInfo.user_id]);
+				Logger.info("                 :", dataClone.saveVersion, this._lastUserDataVersion[userInfo.user_id]);
+
 			}
 
 			//Data outdated?
 			if(dataClone.saveVersion <= this._lastUserDataVersion[userInfo.user_id]) {
-				Logger.warn(userInfo.login+" has outdated data version. Got " + dataClone.saveVersion + " but expected > " + this._lastUserDataVersion[userInfo.user_id]+". Has "+SSEController.countUserConnexions(userInfo.user_id)+" active connexions")
-				response.header('Content-Type', 'application/json');
-				response.status(409);
-				response.send(JSON.stringify({success:false, error:"outdated data version. Got " + dataClone.saveVersion + " but expected > " + this._lastUserDataVersion[userInfo.user_id], errorCode:"OUTDATED_DATA_VERSION"}));
-				return;
+				Logger.warn("[DATA]",userInfo.login+" has outdated data version. Got " + dataClone.saveVersion + " but expected > " + this._lastUserDataVersion[userInfo.user_id]+". Has "+SSEController.countUserConnexions(userInfo.user_id)+" active connexions")
+				if(SSEController.countUserConnexions(userInfo.user_id) > 1) {
+					//Stop saving if there are more than 1 active connections until I figure out why
+					//someone got warned with only 1 active connection
+					response.header('Content-Type', 'application/json');
+					response.status(409);
+					response.send(JSON.stringify({success:false, error:"outdated data version. Got " + dataClone.saveVersion + " but expected > " + this._lastUserDataVersion[userInfo.user_id], errorCode:"OUTDATED_DATA_VERSION"}));
+					return;
+				}
 			}
 
 			this._lastUserDataVersion[userInfo.user_id] = dataClone.saveVersion;
