@@ -39,6 +39,7 @@
 								@click.capture.prevent="resetChanContext()"
 								alt="avatar"
 								class="mini"
+								:style="{borderColor:channelColor}"
 								v-tooltip="channel.displayName"
 								referrerpolicy="no-referrer">
 						</div>
@@ -273,6 +274,7 @@ class UserCard extends AbstractSidePanel {
 	public createDate:string = "";
 	public createDateElapsed:string = "";
 	public followDate:string = "";
+	public channelColor:string = "";
 	public userDescription:string = "";
 	public canModerate:boolean = false;
 	public isSelfProfile:boolean = false;
@@ -435,6 +437,9 @@ class UserCard extends AbstractSidePanel {
 				this.isOwnChannel = chanId == StoreProxy.auth.twitch.user.id || chanId == StoreProxy.auth.youtube.user?.id;
 				this.canModerate = (this.moderatedChannelList.findIndex(v=>v.broadcaster_id === chanId) > -1 || chanId == StoreProxy.auth.twitch.user.id) && chanId != this.user.id;
 				this.isSelfProfile = this.user.id != StoreProxy.auth.twitch.user.id;
+				if(!this.isOwnChannel) {
+					this.channelColor = this.$store.stream.connectedTwitchChans.find(v=>v.user.id === chanId)?.color || "#ffffff";
+				}
 				this.loadUserInfo();
 				this.dateOffsetTimeout = setInterval(() => {
 					this.dateOffset += 1000;
@@ -935,7 +940,7 @@ export default toNative(UserCard);
 					height: 2em;
 					bottom: 0;
 					right: -.5em;
-					border: 2px solid var(--highlight-mods);
+					border: 2px solid transparent;
 					border-radius: 50%;
 					position: absolute;
 					box-shadow: -3px -1px 8px rgba(0, 0, 0, 1);
