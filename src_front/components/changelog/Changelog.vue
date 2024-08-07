@@ -2,6 +2,12 @@
 	<div :class="classes">
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
+			<template v-if="showReadAlert">
+				<img src="@/assets/img/mrbean.png" class="mrbean" :class="showMrBean? 'show': ''">
+				<Teleport to="body">
+					<TTButton style="position:absolute; z-index: 9;" ref="noCareFloating" big alert @click="close(true)">{{ $t("changelog.forceRead.fuBt") }}</TTButton>
+				</Teleport>
+			</template>
 			<ClearButton @click="close()" v-if="!showReadAlert && !showFu" />
 			<ClearButton icon="back" class="backBt" @click="currentSlide = 0" v-if="currentSlide != 0 && !showReadAlert && !showFu" />
 
@@ -9,13 +15,13 @@
 				<div v-if="showReadAlert" class="forceRead">
 					<div class="image">
 						<div class="smirk" ref="smirk">😏</div>
-						<img src="@/assets/img/barracuda.png" class="barracuda">
+						<img src="@/assets/img/barracuda.png" class="barracuda" width="315" height="255">
 					</div>
 					<h2>{{ $t("changelog.forceRead.title") }}</h2>
 					<p v-if="readAtSpeedOfLight" class="description">{{ $t("changelog.forceRead.readAtSpeedOfLight") }}</p>
 					<p class="description">{{ $t("changelog.forceRead.description") }}</p>
 					<TTButton big @click="cancelClose()">{{ $t("changelog.forceRead.sorryBt") }}</TTButton>
-					<TTButton ref="noCare" big alert @click="close(true)">{{ $t("changelog.forceRead.fuBt") }}</TTButton>
+					<TTButton class="noCareBt placeholder" ref="noCarePlaceholder" big alert @click="close(true)">{{ $t("changelog.forceRead.fuBt") }}</TTButton>
 				</div>
 
 				<div v-else-if="showFu" class="fu" ref="fu">🤬</div>
@@ -138,6 +144,7 @@ const Changelog3rdPartyAnim = defineAsyncComponent({loader: () => import('@/comp
 class Changelog extends Vue {
 
 	public showFu:boolean = false;
+	public showMrBean:boolean = false;
 	public showReadAlert:boolean = false;
 	public showPremiumFeatures:boolean = false;
 	public readAtSpeedOfLight:boolean = false;
@@ -145,6 +152,7 @@ class Changelog extends Vue {
 	public buildIndex:number = 0;
 	
 	private openedAt = 0;
+	private buttonPos = {x:0, y:0};
 	private closing:boolean = false;
 	private slideCountRead = new Map();
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
@@ -213,6 +221,7 @@ class Changelog extends Vue {
 	}
 
 	public async cancelClose():Promise<void> {
+		this.showMrBean = false;
 		this.showReadAlert = false;
 		this.skinPagination();
 	}
@@ -224,7 +233,16 @@ class Changelog extends Vue {
 		const didntReadAll = [...this.slideCountRead].length < this.items.length - 1; //don't care about last slide
 		this.readAtSpeedOfLight = Date.now() - this.openedAt < this.items.length * 2000 && !didntReadAll;
 		if(!forceClose && (didntReadAll || this.readAtSpeedOfLight)) {
+			console.log("oKOKOKO");
 			this.showReadAlert = true;
+			await this.$nextTick();
+			const placeholder = (this.$refs.noCarePlaceholder as TTButtonClass).$el;
+			const button = (this.$refs.noCareFloating as TTButtonClass).$el;
+			const phBounds = placeholder.getBoundingClientRect();
+			this.buttonPos.x = phBounds.x;
+			this.buttonPos.y = phBounds.y;
+			button.style.left = this.buttonPos.x+"px";
+			button.style.top = this.buttonPos.y+"px";
 			return;
 		}
 
@@ -291,14 +309,37 @@ class Changelog extends Vue {
 	 * @param e 
 	 */
 	private onMouseMove(e:MouseEvent):void {
-		const bt = (this.$refs.noCare as TTButtonClass);
-		if(!bt) return;
-		const bounds = bt.$el.getBoundingClientRect();
-		const dist = Math.sqrt(Math.pow(bounds.x + bounds.width * .5 - e.clientX, 2) + Math.pow(bounds.y + bounds.height * .5 - e.clientY, 2));
-		let size = Math.max(.25, Math.min(1, 1 - (100 - dist)/100));
-		bt.$el.style.transform = "scale("+size+")";
+		const button = (this.$refs.noCareFloating as TTButtonClass);
+		if(!button) return;
+		const buttonEl = button.$el;
+		const mouseX = e.clientX;
+		const mouseY = e.clientY;
 
-		(this.$refs.smirk as HTMLElement).style.opacity = size < .75? "1" : "0";
+		const buttonRect = buttonEl.getBoundingClientRect();
+		const buttonX = buttonRect.left + buttonRect.width / 2;
+		const buttonY = buttonRect.top + buttonRect.height / 2;
+
+		const offsetX = mouseX - buttonX;
+		const offsetY = mouseY - buttonY;
+
+		const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+
+		if (distance < Math.max(buttonRect.width/2, buttonRect.height) + 50) {
+			const moveX = (offsetX / distance) * 5;
+			const moveY = (offsetY / distance) * 5;
+			this.showMrBean = true;
+
+			this.buttonPos.x -= moveX;
+			this.buttonPos.y -= moveY;
+			
+			if (this.buttonPos.x < 0) this.buttonPos.x = 0;
+			if (this.buttonPos.y < 0) this.buttonPos.y = 0;
+			if (this.buttonPos.x > window.innerWidth - buttonRect.width) this.buttonPos.x = this.$el.clientWidth - buttonRect.width;
+			if (this.buttonPos.y > window.innerHeight - buttonRect.height) this.buttonPos.y = this.$el.clientHeight - buttonRect.height;
+
+			buttonEl.style.left = `${this.buttonPos.x}px`;
+			buttonEl.style.top = `${this.buttonPos.y}px`;
+		}
 	}
 
 	/**
@@ -368,6 +409,7 @@ export default toNative(Changelog);
 		margin-top: calc(0px - var(--chat-form-height) / 2) !important;
 		max-height: calc(var(--vh) - var(--chat-form-height));
 		padding-top: 2.5em;
+		overflow: hidden;
 
 		.backBt {
 			left: 0;
@@ -396,6 +438,17 @@ export default toNative(Changelog);
 			font-style: italic;
 			font-size: .8em;
 			opacity: .5;
+		}
+		.mrbean {
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			z-index: 1;
+			transition: all 2s;
+			transform: translate(0, 100%);
+			&.show {
+				transform: translate(0, 0);
+			}
 		}
 	}
 
@@ -618,6 +671,8 @@ export default toNative(Changelog);
 		justify-content: center;
 		align-items: center;
 		padding: 1em;
+		position: relative;
+		overflow: hidden;
 		.image {
 			position: relative;
 			img {
@@ -649,6 +704,10 @@ export default toNative(Changelog);
 			white-space: pre-line;
 			text-align: justify;
 		}
+		.noCareBt.placeholder {
+			opacity: 0;
+			pointer-events: none;
+		}
 	}
 
 	.fu {
@@ -679,6 +738,7 @@ export default toNative(Changelog);
 			background-color: #ee0000;
 		}
 	}
+
 }
 @media only screen and (max-width: 600px) {
 	.changelog {
