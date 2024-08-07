@@ -6,95 +6,69 @@
 		"heat_details_link": "Heat",
 		"highlights": [
 			{
-				"i": "offline",
-				"l": "3rd party Connections",
-				"d": "Following parameters can now be found under the \"Connections\" section of the parameters window."
-			},
-			{
-				"p": true,
-				"i": "kofi",
-				"l": "Ko-fi alerts",
-				"d": "Receive Ko-fi alertes on Twitchat.\n\nGet notified when receiving a donation, when someone buys merch or when someone subscribes monthly.\n\nAutomate action on any Ko-fi event with the dedicated trigger events.",
+				"i": "bingo_grid",
+				"l": "Bingo Grids",
+				"v": "/update_images/bingo_grid.mp4",
+				"d": "Create bingo grids and let your Viewers play with you.\n\nBecome Premium to make the overlay display when a viewer gets a Bingo and show the Leaderboard.",
 				"a": {
 					"l": "Try",
-					"param": "connexions",
-					"subparam": "kofi"
+					"param": "overlays",
+					"subparam": "bingogrid"
 				}
 			},
 			{
-				"p": true,
-				"i": "streamlabs",
-				"l": "Streamlabs alerts",
-				"d": "Receive Streamlabs alerts on Twitchat.\n\nGet notified when receiving a tip, when someone buys merch or when someone subscribes on your Patreon (needs you to link Streamlabs with Patreon on your dashboard).\n\nAutomate action on any Streamlabs event with the dedicated trigger events.",
+				"i": "whispers",
+				"l": "Multi chat",
+				"g": "/update_images/mergedchat.gif",
+				"d": "Connect to other Twitch channels!\nIf you stream with other people, you can now read their chat directly from Twitcaht.\n\nYou moderators can also use it to moderate multiple channels in one place.\n\nDeeper streamer/moderator interactions will come later."
+			},
+			{
+				"i": "label",
+				"l": "Labels",
+				"d": "A new extra light overlay allows to show realtime values.\n\nYou your sub, followers or viewers count, the last power-up received, the last Ko-Fi, Streamlabs, Streamelements or Tipeee tip, the last raider or current Voicemod effect thanks to the +100 labels available.",
 				"a": {
 					"l": "Try",
-					"param": "connexions",
-					"subparam": "streamlabs"
+					"param": "overlays",
+					"subparam": "labels"
 				}
 			},
 			{
-				"p": true,
-				"i": "streamelements",
-				"l": "Streamelements alerts",
-				"d": "Receive Streamelements alerts on Twitchat.\n\nGet notified when receiving a tip and automate actions with the dedicated trigger event.",
+				"i": "raid",
+				"l": "Raids haineux",
+				"g": "/update_images/hate_raid_en.png",
+				"d": "New option to block Hate raids.\n\nIf you enable this option, Twitchat will automatically add blocked terms after 5 first time chatters send the same message on your chat.",
 				"a": {
 					"l": "Try",
-					"param": "connexions",
-					"subparam": "streamelements"
+					"param": "features",
+					"subparam": "232"
 				}
 			},
 			{
-				"p": true,
-				"i": "lumia",
-				"l": "Lumia Stream",
-				"d": "Connect Twitchat with <a href='https://lumiastream.com' target='_blank'>Lumia Stream</a> and control your lights from the Triggers",
-				"a": {
-					"l": "Try",
-					"param": "connexions",
-					"subparam": "lumia"
-				}
+				"i": "youtube",
+				"l": "YouTube",
+				"g": "/update_images/youtube_tips.png",
+				"d": "You can now connect with up to 3 YouTube live sessions. Useful if you run 1 horizontal and 1 vertical stream.\n\nYou'll now be notified when receiving Super Chats, Super Stickers, memberships and gifted memberships."
 			},
 			{
-				"i": "discord",
-				"l": "Discord connection",
-				"d": "Link Twitchat with Discord to make communication with your mods easier.\n\n<ul><li>Let your mods contact you from Discord</li><li>Contact your mods on Discord from Twitchat</li><li>Log info about banned users on Discord</li><li>Save any chat message to Discord</li><li>Create custom quick actions</li><li>Send messages on Discord from triggers</li><li>Create Discord custom /commands from triggers</li><li>Post a message on Discord when you go live</li></ul>",
-				"y": "https://www.youtube.com/playlist?list=PLJsQIzUbrDiE5u6g3PlD20K_eyYX3Z3y-",
-				"a": {
-					"l": "Try",
-					"param": "connexions",
-					"subparam": "discord"
-				}
+				"i": "credits",
+				"l": "Générique de fin",
+				"v": "/update_images/ending_credits.mp4",
+				"d": "New sections to display Power-ups, Merch and Tips received on Ko-Fi, Streamlabs (...), Super Chats and Super Stickers received on YouTube.\n\nThe \"Subcribers\" section now allows to show memberships received on YouTube.\n\nShow floating emotes for Celebration and Gigantified emote power-ups received during yout stream."
 			},
 			{
-				"i": "overlay",
-				"l": "Polls and Prediction overlays",
-				"d": "Display any currently running poll or prediction on your stream thanks to the new dedicated overlays",
-				"v": "update_images/poll_pred.mp4",
-				"y": "https://www.youtube.com/watch?v=IcX-KnYJuCA",
-				"a": {
-					"l": "Try",
-					"param": "overlays"
-				}
+				"i": "qna",
+				"l": "Q&A",
+				"g": "/update_images/qna_en.png",
+				"d": "Allow your mods to manage your Q&A entries remotely.\n\nAllow viewers to upvote questions by answering to them on Twitch."
 			},
 			{
-				"i": "unbanRequest",
-				"l": "Unban request alerts",
-				"d": "Get unban request alerts directly on Twitchat.\n\nGet an alert when someone requests to be unbaned or when an unban requests is accepted or refused."
-			},
-			{
-				"i": "emote",
-				"l": "Hype train emotes",
-				"d": "Hype train emotes are finally listed on your emote list!"
-			},
-			{
-				"i": "pin",
-				"l": "Customize interface",
-				"d": "You can now display the \"Greet them\" in a different column than the forms (poll, prediction, raffle, ...)\n\nYou can pin items from the [/] menu to the bottom bar.",
-				"g":"/update_images/pins.gif"
+				"i": "broadcast",
+				"l": "Triggers",
+				"d": "10 new Trigger events:<ul><li>Warning sent</li><li>Warning acknowledged</li><li>Raffle wheel started</li><li>Power-up: animated message</li><li>Power-up: gigantified emote</li><li>Power-up: Celebration</li><li>YouTube: Super chat</li><li>YouTube: Super sticker</li><li>YouTube: sub</li><li>YouTube: subgift</li></ul>new trigger action to delete a chat message.<br>Delete Counters/Values entries.<br>Edit custom badges by batch"
 			},
 			{
 				"l": "And more",
-				"d": "<ul><li>Hype train window can be minimized</li><li>9 new trigger events:<ul><li>Poll started</li><li>Prediction started</li><li>Streamlabs donation received</li><li>Streamlabs merch bought</li><li>Patron pledge received from Streamlabs</li><li>Ko-fi donation received</li><li>Ko-fi merch bought</li><li>Ko-fi monthly subscriber</li><li>Streamelements donation received</li></ul><li>2 new global placeholders for triggers:<ul><li>{MY_ID}</li><li>{MY_LOGIN}</li></ul></li><li>5 new placeholders for Sub trigger:<ul><li>{IS_RESUB}</li><li>{IS_PRIME_UPGRADE}</li><li>{IS_GIFT_UPGRADE}</li><li>{GIFT_UPGRADTE_GIFTER_ID}</li><li>{GIFT_UPGRADE_SENDER_NAME}</li></ul></li><li>Major fix of the window asking you to disable triggers if you stopped being premium and had more triggers than allowed. Your triggers ended up being duplicated potentially multiple times.</li></ul>"
+				"d": "Many other things have been added or modified.<br><a href=\"https://github.com/Durss/Twitchat/releases/latest\" target=\"_blank\">Read complete changelog here</a>"
 			},
 			{
 				"i": "donate",

@@ -48,7 +48,13 @@
 
 							<p class="title" v-html="item.l"></p>
 							
-							<div class="description" v-html="parseCommonPLaceholders(item.d|| '')"></div>
+							<div class="description" v-html="parseCommonPlaceholders(item.d|| '')"></div>
+							
+							<TTButton v-if="item.a"
+								icon="test"
+								:light="item.p === true"
+								:premium="item.p === true"
+								@click="$store.params.openParamsPage(item.a.param as TwitchatDataTypes.ParameterPagesStringType, item.a.subparam)">{{ item.a.l }}</TTButton>
 
 							<div class="demo" v-if="item.v || item.g">
 								<img v-if="item.g" :src="item.g" lazy>
@@ -65,19 +71,8 @@
 								</i18n-t>
 							</div>
 							
-							<TTButton v-if="item.i=='emote' && !hasEmoteScope" secondary icon="lock_fit" @click="grantEmoteScope()">{{ $t("global.emote_scope") }}</TTButton>
-							
-							<template v-if="item.i=='unbanRequest'">
-								<TTButton v-if="!hasUnbanRequestScope" secondary icon="lock_fit" @click="grantUnbanRequestScope()">{{ $t("global.grant_scope") }}</TTButton>
-								<MessageItem class="messagePreview" v-for="message in unbanRequestPreview" :messageData="message" lightMode></MessageItem>
-							</template>
-							
+							<ChangelogLabels v-if="item.i=='label' && currentSlide == index" />
 							<Changelog3rdPartyAnim v-if="item.i=='offline' && currentSlide == index" />
-
-							<TTButton v-if="item.a" icon="test"
-							:light="item.p === true"
-							:premium="item.p === true"
-							@click="$store.params.openParamsPage(item.a.param as TwitchatDataTypes.ParameterPagesStringType, item.a.subparam)">{{ item.a.l }}</TTButton>
 							
 							<template v-if="item.p === true || item.i == 'donate'">
 								<TTButton secondary icon="coin" @click="$store.params.openParamsPage(contentDonate)" v-if="item.i == 'donate'">{{ $t("params.categories.donate") }}</TTButton>
@@ -115,10 +110,12 @@ import ThemeSelector from '../ThemeSelector.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import OverlayCounter from '../overlays/OverlayCounter.vue';
 import SponsorTable from '../premium/SponsorTable.vue';
-import Changelog3rdPartyAnim from './Changelog3rdPartyAnim.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import MessageItem from '../messages/MessageItem.vue';
+import { defineAsyncComponent } from 'vue';
+const ChangelogLabels = defineAsyncComponent({loader: () => import('@/components/changelog/ChangelogLabels.vue')})
+const Changelog3rdPartyAnim = defineAsyncComponent({loader: () => import('@/components/changelog/Changelog3rdPartyAnim.vue')})
 
 @Component({
 	components:{
@@ -131,13 +128,14 @@ import MessageItem from '../messages/MessageItem.vue';
 		SponsorTable,
 		ThemeSelector,
 		OverlayCounter,
+		ChangelogLabels,
 		Changelog3rdPartyAnim,
 		Pagination,
 		Navigation,
 	},
 	emits:["close"]
 })
- class Changelog extends Vue {
+class Changelog extends Vue {
 
 	public showFu:boolean = false;
 	public showReadAlert:boolean = false;
@@ -145,7 +143,6 @@ import MessageItem from '../messages/MessageItem.vue';
 	public readAtSpeedOfLight:boolean = false;
 	public currentSlide:number = 0;
 	public buildIndex:number = 0;
-	public unbanRequestPreview:TwitchatDataTypes.MessageUnbanRequestData[] = [];
 	
 	private openedAt = 0;
 	private closing:boolean = false;
@@ -208,22 +205,6 @@ import MessageItem from '../messages/MessageItem.vue';
 				clearInterval(interval);
 			}
 		}, 200);
-
-		//Create unban request previews	
-		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageUnbanRequestData>(TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST, (data)=> {
-			data.isResolve = false;
-			this.unbanRequestPreview.push(data);
-		}, false);
-		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageUnbanRequestData>(TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST, (data)=> {
-			data.isResolve = true;
-			data.accepted = false;
-			this.unbanRequestPreview.push(data);
-		}, false);
-		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageUnbanRequestData>(TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST, (data)=> {
-			data.isResolve = true;
-			data.accepted = true;
-			this.unbanRequestPreview.push(data);
-		}, false);
 	}
 	
 	public beforeUnmount():void {
@@ -285,7 +266,7 @@ import MessageItem from '../messages/MessageItem.vue';
 	 * Parses common placeholders like {HEAT} or {SHADERTASTIC}
 	 * @param str 
 	 */
-	public parseCommonPLaceholders(str:string):string {
+	public parseCommonPlaceholders(str:string):string {
 		str = str.replace(/\{HEAT\}/gi, `<a href="${this.$config.HEAT_EXTENSION}" target="_blank">Heat</a>`);
 		str = str.replace(/\{SHADERTASTIC\}/gi, `<a href="https://shadertastic.com" target="_blank">Shadertastic</a>`);
 		return str;
@@ -306,7 +287,7 @@ import MessageItem from '../messages/MessageItem.vue';
 	}
 
 	/**
-	 * Called when mouse moves
+	 * Called when mouse moves to reducse "close" button when approaching it
 	 * @param e 
 	 */
 	private onMouseMove(e:MouseEvent):void {

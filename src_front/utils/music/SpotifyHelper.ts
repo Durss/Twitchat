@@ -17,7 +17,7 @@ import type { PlaylistCachedIdItem, SearchPlaylistItem, SearchPlaylistResult, Se
 export default class SpotifyHelper {
 
 	public connected:boolean = false;
-	public currentTrack!:TwitchatDataTypes.MusicTrackData;
+	public currentTrack:TwitchatDataTypes.MusicTrackData|null = null;
 	public currentPlaylist:PlaylistCachedIdItem|null = null;
 
 	private static _instance:SpotifyHelper;

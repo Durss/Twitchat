@@ -9,7 +9,12 @@
 				"i": "bingo_grid",
 				"l": "Grilles de Bingo",
 				"v": "/update_images/bingo_grid.mp4",
-				"d": "Créez des grilles de bingo et jouez avec vos viewers.\n\nDevenez Premium pour afficher les bingos et le classement des viewers dans l'overlay"
+				"d": "Créez des grilles de bingo et jouez avec vos viewers.\n\nDevenez Premium pour afficher les bingos et le classement des viewers dans l'overlay",
+				"a": {
+					"l": "Essayer",
+					"param": "overlays",
+					"subparam": "bingogrid"
+				}
 			},
 			{
 				"i": "whispers",
@@ -20,13 +25,23 @@
 			{
 				"i": "label",
 				"l": "Labels",
-				"d": "Un nouvel overlay de Label permet d'afficher des valeurs en temps réel de manière simple.\n\nAffichez votre nombre de subs, followers ou viewers, le dernier power-up reçu, votre dernier don Ko-Fi, Streamlabs Streamelements ou Tipeee, le dernier raid reçu ou encore l'effet Voicemod actif grâce aux +100 labels déjà disponibles."
+				"d": "Un nouvel overlay de Label permet d'afficher des valeurs en temps réel de manière simple.\n\nAffichez votre nombre de subs, followers ou viewers, le dernier power-up reçu, votre dernier don Ko-Fi, Streamlabs Streamelements ou Tipeee, le dernier raid reçu ou encore l'effet Voicemod actif grâce aux +100 labels déjà disponibles.",
+				"a": {
+					"l": "Essayer",
+					"param": "overlays",
+					"subparam": "labels"
+				}
 			},
 			{
 				"i": "raid",
 				"l": "Raids haineux",
 				"g": "/update_images/hate_raid_fr.png",
-				"d": "Nouvelle option pour bloquer les raids haineux.\n\nSi vous activez cette option, Twitchat ajoutera automatiquement des termes bloqués lorsque 5 personnes parlant pour la 1ère fois sur votre chaîne envoient le même message."
+				"d": "Nouvelle option pour bloquer les raids haineux.\n\nSi vous activez cette option, Twitchat ajoutera automatiquement des termes bloqués lorsque 5 personnes parlant pour la 1ère fois sur votre chaîne envoient le même message.",
+				"a": {
+					"l": "Essayer",
+					"param": "features",
+					"subparam": "232"
+				}
 			},
 			{
 				"i": "youtube",
@@ -38,7 +53,7 @@
 				"i": "credits",
 				"l": "Générique de fin",
 				"v": "/update_images/ending_credits.mp4",
-				"d": "Nouvelles sections pour afficher les Power-ups, les achats de merch, les tips reçus sur Streamlabs, Ko-Fi, ... ainsi que les Super Chats et Super stickers reçus sur YouTube.\nLa section pour afficher les subs permet également d'afficher les subs et subgifts reçus sur YouTube.\n\nAffichez des emotes flotantes pour chaque Power-Ups reçus durant le live."
+				"d": "Nouvelles sections pour afficher les Power-ups, les achats de merch, les tips reçus sur Streamlabs, Ko-Fi, ... ainsi que les Super Chats et Super stickers reçus sur YouTube.\n\nLa section pour afficher les subs permet également d'afficher les subs et subgifts reçus sur YouTube.\n\nAffichez des emotes flotantes pour chaque Power-Ups reçus durant le live."
 			},
 			{
 				"i": "qna",
@@ -47,12 +62,17 @@
 				"d": "Permettez à vos modérateurices de gérer les entrées de question/réponse à distance.\n\nPermettez au viewers de faire remonter des questions dans la file d'attente en y répondant dans le tchat."
 			},
 			{
+				"i": "broadcast",
+				"l": "Triggers",
+				"d": "10 nouveaux évènement de triggers:<ul><li>Avertissement envoyé</li><li>Accusé de réception d'un avertissement</li><li>Lancement d'une roue de tirage au sort</li><li>Power-up: message animé</li><li>Power-up: emote gigantisée</li><li>Power-up: Célébration</li><li>YouTube: Super chat</li><li>YouTube: Super sticker</li><li>YouTube: sub</li><li>YouTube: subgift</li></ul>Nouvelle action de trigger pour supprimer un message de tchat.<br>Possibilité de supprimer des entrées de Compteurs/Valeurs.<br>Possiblité d'éditer les badges personnalisés par paquets"
+			},
+			{
 				"l": "Mais aussi",
-				"d": "Beaucoup d'autres choses"
+				"d": "Plein d'autres choses ont été ajoutées ou modifiées.<br><a href=\"https://github.com/Durss/Twitchat/releases/latest\" target=\"_blank\">Voir la liste complète ici</a>"
 			},
 			{
 				"i": "donate",
-				"d": "Twitchat est mon activité principale depuis maintenant presque 2 ans <b>sans aucune autre source de revenus</b>.\n\nCe que me rapporte Twitchat est hélas encore très loin de me permettre d'éventuellement en vivre convenablement.\n\nSi vous pouvez vous le permettre, un don libre ou un soutient mensuel sur Patreon m'aiderait énormément ❤️",
+				"d": "Twitchat est mon activité principale depuis maintenant +2 ans <b>sans aucune autre source de revenus</b>.\n\nSi vous pouvez vous le permettre, un don libre ou un soutient mensuel sur Patreon m'aidera énormément ❤️",
 				"l": ""
 			}
 		],

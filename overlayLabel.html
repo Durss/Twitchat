@@ -35,13 +35,15 @@
         scroll {
             display: inline-block;
             animation: marquee 0s linear infinite;
-			will-change: transform;
-			transform: translateX(min(100vw,100%));
+			will-change: transform, left;
+			transform: translateX(0);
+			left: 100%;
+			position: relative;
         }
 
         @keyframes marquee {
-            0% { transform: translateX(min(100vw,100%)); }
-            100% { transform: translateX(-100%); }
+			0% { transform: translateX(0); left:100%; }
+			100% { transform: translateX(-100%); left:0; }
         }
 	</style>
 </head>
