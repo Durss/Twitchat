@@ -1136,6 +1136,8 @@ export default toNative(OverlayEndingCredits);
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
+		width: 100%;
+		padding: 0 20px;
 		h1 {
 			font-size: 2.5em;
 			text-align: center;
@@ -1532,12 +1534,16 @@ export default toNative(OverlayEndingCredits);
 		}
 
 		&.layout_left {
+			h1 {
+				align-self: flex-start;
+			}
 			.list {
 				column-gap: 2em;
 				flex-direction: row;
 				flex-wrap: wrap;
 				align-items: center;
 				justify-content: flex-start;
+				align-self: flex-start;
 				.item {
 					justify-content: flex-start;
 					.userlist, .stickerList {
@@ -1563,12 +1569,16 @@ export default toNative(OverlayEndingCredits);
 		}
 
 		&.layout_right {
+			h1 {
+				align-self: flex-end;
+			}
 			.list {
 				column-gap: 2em;
 				flex-direction: row;
 				flex-wrap: wrap;
 				align-items: flex-end;
 				justify-content: flex-end;
+				align-self: flex-end;
 				.item {
 					justify-content: flex-end;
 					align-items: flex-end;
@@ -1580,8 +1590,12 @@ export default toNative(OverlayEndingCredits);
 		}
 
 		&.layout_colRight {
+			h1 {
+				align-self: flex-end;
+			}
 			.list {
 				align-items: flex-end;
+				align-self: flex-end;
 				.item {
 					align-items: flex-end;
 					justify-content: flex-end;
@@ -1601,8 +1615,12 @@ export default toNative(OverlayEndingCredits);
 		}
 
 		&.layout_colLeft {
+			h1 {
+				align-self: flex-start;
+			}
 			.list {
 				align-items: flex-start;
+				align-self: flex-start;	
 				.item {
 					justify-content: flex-start;
 					.userlist, .stickerList {
