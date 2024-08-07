@@ -242,7 +242,8 @@
 						v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'chatform_credits'}"
 						:aria-label="$t('chat.form.creditsBt_aria')"
 						v-tooltip="{touch:'hold', content:$t('chat.form.creditsBt_aria')}"
-						@click="$emit('update:showCredits', true)" />
+						@click="$emit('update:showCredits', true)"
+						@click.ctrl="creditsOverlayRunning = false" />
 				</transition>
 
 				<transition name="blink">
@@ -1358,7 +1359,8 @@ export default toNative(ChatForm);
 			}
 
 			.blink-enter-active {
-				transition: all 1s;
+				transition: background-color .7s linear;
+				animation: fadeInOut 4s ease-in-out;
 			}
 
 			.blink-leave-active {
@@ -1368,10 +1370,19 @@ export default toNative(ChatForm);
 			.blink-enter-from {
 				opacity: 1;
 				background: #ffffff !important;
-				transform: scale(1.5);
+				transform: scale(2);
 			}
 			.blink-leave-to {
 				opacity: 0;
+			}
+
+			@keyframes fadeInOut {
+				0%, 10%, 20%, 30%, 40%, 50%, 60%, 70%, 80%, 90%, 100% {
+					transform: scale(1);
+				}
+				5%, 15%, 25%, 35%, 45%, 55%, 65%, 75%, 85%, 95% {
+					transform: scale(2);
+				}
 			}
 
 			.viewCount {
