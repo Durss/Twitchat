@@ -27,7 +27,7 @@ let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
 let greetedUsersExpire_at:{[key:string]:number} = {};
 let greetedUsersInitialized:boolean = false;
 let subgiftHistory:TwitchatDataTypes.MessageSubscriptionData[] = [];
-let antiHateRaidCounter:{[message:string]:{messages:TwitchatDataTypes.MessageChatData[], date:number}} = {};
+let antiHateRaidCounter:{[message:string]:{messages:TwitchatDataTypes.MessageChatData[], date:number, ignore:boolean}} = {};
 let antiHateRaidGraceEndDate = -1;
 let currentHateRaidAlert!:TwitchatDataTypes.MessageHateRaidData;
 
@@ -1102,7 +1102,8 @@ export const storeChat = defineStore('chat', {
 									if(!antiHateRaidCounter[key]) {
 										antiHateRaidCounter[key] = {
 											date:0,
-											messages:[]
+											messages:[],
+											ignore:false,
 										};
 									}
 	
@@ -1112,8 +1113,8 @@ export const storeChat = defineStore('chat', {
 										antiHateRaidCounter[key].messages.push(message);
 									}
 	
-									//5 users sent the same message, strike them
-									if(antiHateRaidCounter[key].messages.length == 5) {
+									//5 users sent the same message, strike them if no other legit user sent the same
+									if(antiHateRaidCounter[key].ignore != true && antiHateRaidCounter[key].messages.length == 5) {
 										currentHateRaidAlert = reactive({
 											id:Utils.getUUID(),
 											type:TwitchatDataTypes.TwitchatMessageType.HATE_RAID,
@@ -1161,6 +1162,7 @@ export const storeChat = defineStore('chat', {
 										//removes the blocked terms
 										setTimeout(()=>{
 											antiHateRaidCounter[key].messages = [];
+											antiHateRaidCounter[key].ignore = false;
 										}, 30000);
 										this.addMessage(currentHateRaidAlert);
 									}else
@@ -1186,7 +1188,7 @@ export const storeChat = defineStore('chat', {
 									}
 								}else if(antiHateRaidCounter[key]) {
 									//It's not a first time reset counter
-									antiHateRaidCounter[key].messages = [];
+									antiHateRaidCounter[key].ignore = true;
 								}
 							}
 						}
