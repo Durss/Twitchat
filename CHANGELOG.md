@@ -59,7 +59,7 @@
 		- /warn reception acknowledged
 		- raffle winner selection started _(when wheel shows up)_
 		- Power-up: Styled message
-		- Power-up: Gigantifed emote
+		- Power-up: Gigantified emote
 		- Power-up: Celebration
 		- YouTube: Super chat
 		- YouTube: Super sticker
@@ -85,6 +85,7 @@
 - **Counter/values:** You can reorder your Values and Counters
 - **Placeholders:** If a placeholder list is more than 5 items long, you'll get a search field to make it easier to find what you want
 - **Triggers UX:** moving triggers to folders made a little easier. Also you can now create a new triggers directly within a folder.
+- **Unban requests:** The message of an unban request will be blurred by default. If automod detects content is hateful, a warning is also displayed
 
 ### 🐛 BUG FIXES 🐛
 - The `Wait for media to end playing` option of the `OBS` trigger action was sometimes indefinitely blocking a trigger due to [an OBS issue](https://github.com/obsproject/obs-studio/issues/11040). I added a patch that should avoid that

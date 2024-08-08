@@ -4463,6 +4463,10 @@ export namespace TwitchatDataTypes {
 		 */
 		isResolve:boolean;
 		/**
+		 * Define if the message content is flagged by automod
+		 */
+		isFlagByAutomod:boolean;
+		/**
 		 * Define if unban request has been accepted (true) or refused (false)
 		 */
 		accepted?:boolean;

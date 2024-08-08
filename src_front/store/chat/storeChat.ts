@@ -2238,7 +2238,7 @@ export const storeChat = defineStore('chat', {
 		},
 
 		async automodAction(accept:boolean, message:TwitchatDataTypes.ChatMessageTypes):Promise<void> {
-			let success = await TwitchUtils.modMessage(accept, message.id);
+			let success = await TwitchUtils.automodAction(accept, message.id);
 			if(!success) {
 				StoreProxy.common.alert(StoreProxy.i18n.t("error.mod_message"));
 			}else {

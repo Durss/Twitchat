@@ -326,10 +326,10 @@ export default class TwitchUtils {
 		return streams;
 	}
 
-	/***
+	/**
 	 * Allow or reject an automoded message
 	 */
-	public static async modMessage(accept: boolean, messageId: string): Promise<boolean> {
+	public static async automodAction(accept: boolean, messageId: string): Promise<boolean> {
 		const options = {
 			method: "POST",
 			headers: this.headers,
@@ -342,6 +342,28 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/automod/message");
 		const res = await this.callApi(url, options);
 		return res.status <= 400;
+	}
+
+	/**
+	 * Checks if given message would be flagged by automod or not
+	 */
+	public static async checkAutomodFlag(message: string): Promise<boolean> {
+		const options = {
+			method: "POST",
+			headers: this.headers,
+			body: JSON.stringify({
+				data:[
+					{
+						msg_id: Utils.getUUID(),
+						msg_text: message,
+					}
+				]
+			})
+		}
+		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/enforcements/status");
+		const res = await this.callApi(url, options);
+		const json = await res.json();
+		return res.status == 200 && json.data[0].is_permitted === true;
 	}
 
 	/**
