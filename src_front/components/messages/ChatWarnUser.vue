@@ -10,13 +10,13 @@
 					<a class="userlink"
 						:href="'https://twitch.tv/'+messageData.user.login"
 						target="_blank"
-						@click.stop.prevent="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
+						@click.stop.prevent="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 				</template>
 				<template #MODERATOR>
 					<a class="userlink"
 						:href="'https://twitch.tv/'+messageData.moderator.login"
 						target="_blank"
-						@click.stop.prevent="openUserCard(messageData.moderator)">{{messageData.moderator.displayName}}</a>
+						@click.stop.prevent="openUserCard(messageData.moderator, messageData.channel_id)">{{messageData.moderator.displayName}}</a>
 				</template>
 			</i18n-t>
 

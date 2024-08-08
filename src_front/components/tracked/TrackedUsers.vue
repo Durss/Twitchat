@@ -53,7 +53,7 @@ import MessageItem from '../messages/MessageItem.vue';
 	},
 	emits:["close"]
 })
- class TrackedUsers extends AbstractSidePanel {
+class TrackedUsers extends AbstractSidePanel {
 
 	public refreshing:boolean = false;
 	public selectedUser:TwitchatDataTypes.TwitchatUser | null = null;
@@ -138,10 +138,6 @@ import MessageItem from '../messages/MessageItem.vue';
 		if(res.length == 0) {
 			super.close();
 		}
-	}
-
-	public openUserCard():void {
-		this.$store.users.openUserCard(this.selectedUser);
 	}
 
 	private scrollToBottom():void {

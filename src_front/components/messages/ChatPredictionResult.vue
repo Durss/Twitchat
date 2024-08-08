@@ -8,7 +8,7 @@
 			<i18n-t class="creator" scope="global" tag="div" keypath="poll.form.created_by"
 			v-if="messageData.creator && messageData.creator.id != me.id">
 				<template #USER>
-					<a class="userlink" @click.stop="openUserCard()">{{messageData.creator.displayName}}</a>
+					<a class="userlink" @click.stop="openUserCard(messageData.creator!, messageData.channel_id)">{{messageData.creator.displayName}}</a>
 				</template>
 			</i18n-t>
 
@@ -74,10 +74,6 @@ class ChatPredictionResult extends AbstractChatMessage {
 		return {
 			backgroundSize: `${percent}% 100%`,
 		};
-	}
-
-	public openUserCard():void {
-		this.$store.users.openUserCard(this.messageData.creator!);
 	}
 
 }

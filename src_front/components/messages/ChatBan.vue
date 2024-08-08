@@ -9,7 +9,7 @@
 			<div class="textContent">
 				<i18n-t scope="global" class="label" v-if="messageData.duration_s" tag="span" :keypath="messageData.moderator? 'global.moderation_action.timeout_by': 'global.moderation_action.timeout'">
 					<template #USER>
-						<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
+						<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 					</template>
 					<template #MODERATOR>
 						<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!, messageData.channel_id)">{{messageData.moderator.displayName}}</a>
@@ -20,7 +20,7 @@
 				</i18n-t>
 				<i18n-t scope="global" class="label" v-else tag="span" :keypath="messageData.moderator? 'global.moderation_action.banned_by': 'global.moderation_action.banned'">
 					<template #USER>
-						<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
+						<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 					</template>
 					<template #MODERATOR>
 						<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!, messageData.channel_id)">{{messageData.moderator.displayName}}</a>

@@ -60,7 +60,7 @@ class ChatMessageChunksParser extends Vue {
 	public openProfile(username:string):void {
 		const channelId = this.channel || this.$store.auth.twitch.user.id;
 		const user = this.$store.users.getUserFrom(this.platform || "twitch", channelId, undefined, username);
-		this.$store.users.openUserCard(user);
+		this.$store.users.openUserCard(user, channelId, this.platform);
 	}
 
 	public getUserClasses(username:string):StyleValue {

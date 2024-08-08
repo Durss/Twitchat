@@ -7,7 +7,7 @@
 			<span class="label">{{  $t("chat.followbot.title", {COUNT:messageData?.users.length}) }}</span>
 		</div>
 		<div v-if="expand" class="userList">
-			<div class="user" v-for="u, index in messageData?.users" :key="u.id" @click.stop="openUserCard(u)">
+			<div class="user" v-for="u, index in messageData?.users" :key="u.id" @click.stop="openUserCard(u, messageData.channel_id)">
 				<span class="login">{{u.displayName}}</span>
 				<span v-if="index < messageData?.users.length-1">, </span>
 			</div>
@@ -25,7 +25,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 	},
 	emits:["onRead"]
 })
- class ChatFollowbotEvents extends AbstractChatMessage {
+class ChatFollowbotEvents extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageFollowbotData;

@@ -10,7 +10,7 @@
 		<div class="holder">
 			<i18n-t scope="global" tag="span" keypath="chat.bits" :plural="totalBits">
 				<template #USER>
-					<a class="userlink" @click.stop="openUserCard()">{{messageData.user.displayName}}</a>
+					<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 				</template>
 				<template #BITS>
 					<strong>{{ totalBits }}</strong>
@@ -74,10 +74,6 @@ class ChatBits extends AbstractChatMessage {
 		this.$store.accessibility.setAriaPolite(reason+" "+this.messageData.message);
 		this.computeState();
 		watch(()=>this.messageData.pinned, ()=> this.computeState() );
-	}
-
-	public openUserCard():void {
-		this.$store.users.openUserCard(this.messageData.user, this.messageData.channel_id);
 	}
 
 	private computeClasses():void {

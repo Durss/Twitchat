@@ -10,30 +10,30 @@
 		<i18n-t scope="global" v-if="messageData.restricted"
 		keypath="global.moderation_action.user_restricted" tag="p">
 			<template #USER>
-				<a class="userlink" @click="openUserCard(messageData.user)">{{ messageData.user.displayName }}</a>
+				<a class="userlink" @click="openUserCard(messageData.user, messageData.channel_id)">{{ messageData.user.displayName }}</a>
 			</template>
 			<template #MODERATOR>
-				<a class="userlink" @click="openUserCard(messageData.moderator)">{{ messageData.moderator.displayName }}</a>
+				<a class="userlink" @click="openUserCard(messageData.moderator, messageData.channel_id)">{{ messageData.moderator.displayName }}</a>
 			</template>
 		</i18n-t>
 		
 		<i18n-t scope="global" v-else-if="messageData.monitored"
 		keypath="global.moderation_action.user_monitored" tag="p">
 			<template #USER>
-				<a class="userlink" @click="openUserCard(messageData.user)">{{ messageData.user.displayName }}</a>
+				<a class="userlink" @click="openUserCard(messageData.user, messageData.channel_id)">{{ messageData.user.displayName }}</a>
 			</template>
 			<template #MODERATOR>
-				<a class="userlink" @click="openUserCard(messageData.moderator)">{{ messageData.moderator.displayName }}</a>
+				<a class="userlink" @click="openUserCard(messageData.moderator, messageData.channel_id)">{{ messageData.moderator.displayName }}</a>
 			</template>
 		</i18n-t>
 		
 		<i18n-t scope="global" v-else
 		keypath="global.moderation_action.user_unflagged" tag="p">
 			<template #USER>
-				<a class="userlink" @click="openUserCard(messageData.user)">{{ messageData.user.displayName }}</a>
+				<a class="userlink" @click="openUserCard(messageData.user, messageData.channel_id)">{{ messageData.user.displayName }}</a>
 			</template>
 			<template #MODERATOR>
-				<a class="userlink" @click="openUserCard(messageData.moderator)">{{ messageData.moderator.displayName }}</a>
+				<a class="userlink" @click="openUserCard(messageData.moderator, messageData.channel_id)">{{ messageData.moderator.displayName }}</a>
 			</template>
 		</i18n-t>
 	</div>

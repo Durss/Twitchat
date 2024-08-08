@@ -7,7 +7,7 @@
 			<template #WINNER>
 				<a class="userlink"
 				v-if="messageData.bingoData.winners![0]"
-				@click.stop="openUserCard(messageData.bingoData.winners![0])">{{messageData.bingoData.winners![0].displayName}}</a>
+				@click.stop="openUserCard(messageData.bingoData.winners![0], messageData.channel_id)">{{messageData.bingoData.winners![0].displayName}}</a>
 			</template>
 			<template #ANSWER>
 				<img class="answer emote" :src="messageData.bingoData.emoteValue?.twitch?.image.hd" v-if="messageData.bingoData.guessEmote">

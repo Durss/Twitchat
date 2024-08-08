@@ -18,7 +18,7 @@
 	
 				<i18n-t scope="global" tag="span" keypath="chat.reward.message">
 					<template #USER>
-						<a class="userlink" @click.stop="openUserCard()">{{entry.vo.user.displayName}}</a>
+						<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{entry.vo.user.displayName}}</a>
 					</template>
 					<template #REWARD>
 						<strong>{{ entry.vo.reward.title }}</strong>
@@ -133,10 +133,6 @@ class ChatReward extends AbstractChatMessage {
 				res.forEach(v=> this.refundableIds[v.id] = true)
 			})
 		}
-	}
-
-	public openUserCard():void {
-		this.$store.users.openUserCard(this.messageData.user, this.messageData.channel_id);
 	}
 
 	public async refund(message?:TwitchatDataTypes.MessageRewardRedeemData):Promise<void> {

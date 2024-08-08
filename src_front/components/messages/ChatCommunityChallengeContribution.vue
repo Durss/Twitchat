@@ -7,7 +7,7 @@
 		<div class="holder">
 			<i18n-t scope="global" tag="span" keypath="chat.community_challenge" class="label">
 				<template #USER>
-					<a class="userlink" @click.stop="openUserCard()">{{messageData.user.displayName}}</a>
+					<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 				</template>
 				<template #TITLE>
 					<strong>{{ messageData.challenge.title }}</strong>
@@ -44,14 +44,10 @@ import AbstractChatMessage from './AbstractChatMessage';
 	components:{},
 	emits:["onRead"],
 })
- class ChatCommunityChallengeContribution extends AbstractChatMessage {
+class ChatCommunityChallengeContribution extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageCommunityChallengeContributionData;
-
-	public openUserCard():void {
-		this.$store.users.openUserCard(this.messageData.user, this.messageData.channel_id);
-	}
 
 	public get percent():number {
 		return Math.floor(this.messageData.challenge.progress / this.messageData.challenge.goal * 100);

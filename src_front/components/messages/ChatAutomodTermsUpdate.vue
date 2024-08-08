@@ -7,7 +7,7 @@
 		<div class="content">
 			<i18n-t scope="global" :keypath="label">
 				<template #USER>
-					<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
+					<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 				</template>
 				<template #TERMS>
 					<strong>"{{ messageData.terms.join("\", \"") }}"</strong>

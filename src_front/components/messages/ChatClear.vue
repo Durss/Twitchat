@@ -7,7 +7,7 @@
 			<template #USER>
 				<i18n-t scope="global" tag="span" v-if="!messageData.fromAutomod && messageData.user" keypath="chat.clear.title_by">
 					<template #USER>
-						<a class="userlink" @click.stop="openUserCard()">{{messageData.user.displayName}}</a>
+						<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 					</template>
 				</i18n-t>
 				<i18n-t scope="global" tag="span" v-else-if="messageData.fromAutomod" keypath="chat.clear.title_by">
@@ -27,7 +27,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 	components:{},
 	emits:["onRead"]
 })
- class ChatClear extends AbstractChatMessage {
+class ChatClear extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageClearChatData;
@@ -36,10 +36,6 @@ import AbstractChatMessage from './AbstractChatMessage';
 
 	public mounted():void {
 		this.room = this.$store.users.getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id).login;
-	}
-
-	public openUserCard():void {
-		this.$store.users.openUserCard(this.messageData.user!);
 	}
 
 }

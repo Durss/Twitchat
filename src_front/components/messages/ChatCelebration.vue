@@ -6,7 +6,7 @@
 			<Icon name="watchStreak" />	
 			<i18n-t scope="global" class="label" tag="span" keypath="chat.celebration.message_tmp">
 				<template #USER>
-					<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
+					<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 				</template>
 				<template #EMOTE>
 					<img class="emote" :src="'https://static-cdn.jtvnw.net/emoticons/v2/'+messageData.emoteID+'/default/light/3.0'" alt="emote">

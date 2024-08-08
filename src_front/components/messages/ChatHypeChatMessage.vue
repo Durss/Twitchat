@@ -33,7 +33,7 @@ import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 	},
 	emits:["onRead"]
 })
- class ChatHypeChatMessage extends AbstractChatMessage {
+class ChatHypeChatMessage extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageHypeChatData;

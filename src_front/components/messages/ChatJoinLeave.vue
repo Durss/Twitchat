@@ -38,7 +38,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 	components:{},
 	emits:["onRead"]
 })
- class ChatJoinLeave extends AbstractChatMessage {
+class ChatJoinLeave extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageJoinData|TwitchatDataTypes.MessageLeaveData;

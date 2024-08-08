@@ -8,7 +8,7 @@
 		<div class="messageHolder">
 			<i18n-t scope="global" class="message" tag="span" keypath="chat.raid.text" :plural="showCount? messageData.viewers : 2">
 				<template #USER>
-					<a class="userlink" @click.stop="openUserCard()">{{messageData.user.displayName}}</a>
+					<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 				</template>
 				<template #COUNT>
 					<strong @click.stop="showCount = !showCount" v-if="showCount">{{ messageData.viewers }}</strong>
@@ -81,10 +81,6 @@ class ChatRaid extends AbstractChatMessage {
 	public beforeMount():void {
 		this.showCount = this.$store.params.appearance.showRaidViewersCount.value !== false;
 		this.formatedDuration = Utils.formatDuration(this.messageData.stream.duration);
-	}
-
-	public openUserCard():void {
-		this.$store.users.openUserCard(this.messageData.user, this.messageData.channel_id);
 	}
 
 	public async shoutout():Promise<void> {

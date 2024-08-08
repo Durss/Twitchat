@@ -8,7 +8,7 @@
 
 		<i18n-t scope="global" tag="span" keypath="chat.follow">
 			<template #USER>
-				<a class="userlink" @click.stop="openUserCard()">{{messageData.user.displayName}}</a>
+				<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 			</template>
 		</i18n-t>
 	</div>
@@ -32,10 +32,6 @@ class ChatFollow extends AbstractChatMessage {
 		let res = ["chatfollow", "chatMessage", "highlight"];
 		if(this.messageData.deleted === true) res.push("deleted");
 		return res;
-	}
-
-	public openUserCard():void {
-		this.$store.users.openUserCard(this.messageData.user, this.messageData.channel_id);
 	}
 
 }

@@ -13,7 +13,7 @@
 						<a class="userlink"
 							:href="'https://twitch.tv/'+messageData.user.login"
 							target="_blank"
-							@click.stop.prevent="openUserCard(messageData.user!)">{{messageData.user.displayName}}</a>
+							@click.stop.prevent="openUserCard(messageData.user!, messageData.channel_id)">{{messageData.user.displayName}}</a>
 					</template>
 					<template v-else><strong>???</strong></template>
 				</template>

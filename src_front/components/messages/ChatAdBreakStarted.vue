@@ -6,7 +6,7 @@
 
 		<i18n-t scope="global" tag="span" keypath="chat.ad_break_start.label">
 			<template #USER>
-				<a v-if="messageData.startedBy" class="userlink" @click.stop="openUserCard(messageData.startedBy!)">{{messageData.startedBy!.displayName}}</a>
+				<a v-if="messageData.startedBy" class="userlink" @click.stop="openUserCard(messageData.startedBy!, messageData.channel_id)">{{messageData.startedBy!.displayName}}</a>
 				<strong v-else>???</strong>
 			</template>
 			<template #DURATION>
@@ -29,16 +29,12 @@ import Icon from '../Icon.vue';
 	},
 	emits:["onRead"],
 })
- class ChatAdBreakStarted extends AbstractChatMessage {
+class ChatAdBreakStarted extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageAdBreakStartData;
 
 	public duration:string = "";
-
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store.users.openUserCard(user);
-	}
 
 	public beforeMount(): void {
 		this.duration = Utils.formatDuration(this.messageData.duration_s * 1000);

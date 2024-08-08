@@ -8,10 +8,10 @@
 			<i18n-t scope="global" tag="span"
 			v-if="messageData.received" keypath="chat.shoutout.received">
 				<template #CHANNEL>
-					<a class="userlink" @click.stop="openUserCard(channel)">{{channel.displayName}}</a>
+					<a class="userlink" @click.stop="openUserCard(channel, messageData.channel_id)">{{channel.displayName}}</a>
 				</template>
 				<template #USER>
-					<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
+					<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 				</template>
 				<template #VIEWERS>
 					<strong>{{messageData.viewerCount}}</strong>
@@ -21,13 +21,13 @@
 			<i18n-t scope="global" tag="span" v-else
 			keypath="chat.shoutout.given">
 				<template #MODERATOR>
-					<a class="userlink" @click.stop="openUserCard(messageData.moderator)">{{messageData.moderator.displayName}}</a>
+					<a class="userlink" @click.stop="openUserCard(messageData.moderator, messageData.channel_id)">{{messageData.moderator.displayName}}</a>
 				</template>
 				<template #CHANNEL>
 					<strong>#{{channel.displayName}}</strong>
 				</template>
 				<template #USER>
-					<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
+					<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 				</template>
 				<template #VIEWERS>
 					<strong>{{messageData.viewerCount}}</strong>
@@ -77,10 +77,6 @@ class ChatShoutout extends AbstractChatMessage {
 
 	public get channel():TwitchatDataTypes.TwitchatUser {
 		return this.$store.users.getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id);
-	}
-
-	public mounted():void {
-		
 	}
 
 	public async shoutout():Promise<void> {

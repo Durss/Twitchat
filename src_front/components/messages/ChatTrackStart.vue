@@ -17,7 +17,7 @@
 					<a class="userlink"
 						:href="'https://twitch.tv/'+messageData.userOrigin!.login"
 						target="_blank"
-						@click.stop.prevent="openUserCard(messageData.userOrigin!)">{{messageData.userOrigin!.displayName}}</a>
+						@click.stop.prevent="openUserCard(messageData.userOrigin!, messageData.channel_id)">{{messageData.userOrigin!.displayName}}</a>
 				</template>
 			</i18n-t>
 

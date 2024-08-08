@@ -9,7 +9,7 @@
 				<template #MODERATOR>
 					<a class="userlink"
 					v-if="messageData.moderator"
-					@click.stop="openUserCard(messageData.moderator!)">{{messageData.moderator!.displayName}}</a>
+					@click.stop="openUserCard(messageData.moderator!, messageData.channel_id)">{{messageData.moderator!.displayName}}</a>
 				</template>
 			</i18n-t>
 	
@@ -30,7 +30,7 @@ import ChatMessage from './ChatMessage.vue';
 	},
 	emits:["onRead"]
 })
- class ChatPinNotice extends AbstractChatMessage {
+class ChatPinNotice extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessagePinData|TwitchatDataTypes.MessageUnpinData;

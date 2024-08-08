@@ -22,7 +22,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 	components:{},
 	emits:["onRead"]
 })
- class ChatRaffleResult extends AbstractChatMessage {
+class ChatRaffleResult extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageRaffleData;
