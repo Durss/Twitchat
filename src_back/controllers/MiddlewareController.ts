@@ -124,14 +124,15 @@ export default class MiddlewareController extends AbstractController {
 			}
 
 			//Apply rate limits
+			/*
 			if(/^\/api/gi.test(request.url) && request.url != "/api/configs") {
 				//Check if user has a custom rate limit duration
 				if(Date.now() < this.customRateLimit[ip]) {
 					clearTimeout(this.customRateLimitTimeouts[ip]);
-					this.customRateLimitTimeouts[ip] = setTimeout(()=> {
-						Logger.warn("IP "+ip+" banned after x"+this.customRateLimitAttempts[ip]+" 404 calls until "+new Date(date).toISOString());
-					}, 5000)
 					const date = this.expandCustomRateLimitDuration(request);
+					this.customRateLimitTimeouts[ip] = setTimeout(()=> {
+						Logger.warn("IP "+ip+" banned after x"+this.customRateLimitAttempts[ip]+" 404 calls until "+new Date(date).toISOString()+" for calling "+request.url);
+					}, 5000)
 					response.status(429);
 					response.send({success:false, errorCode:"RATE_LIMIT_BAN", error:"Banned until "+new Date(date).toISOString()+" after suspicious activity"});
 					return;
@@ -143,6 +144,7 @@ export default class MiddlewareController extends AbstractController {
 					}
 				}
 			}
+			*/
 			done();
 		})
 
