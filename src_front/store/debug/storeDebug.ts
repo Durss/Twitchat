@@ -1197,6 +1197,7 @@ export const storeDebug = defineStore('debug', {
 						channel_id:uid,
 						moderator:user,
 						isResolve:false,
+						isFlagByAutomod:false,
 						message,
 					};
 					data = m;

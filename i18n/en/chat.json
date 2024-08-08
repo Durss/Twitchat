@@ -470,7 +470,8 @@
 		"unban_request": {
 			"request": "{USER} sent following unban request",
 			"accepted": "{MODERATOR} accepted {USER} unban request",
-			"refused": "{MODERATOR} refused {USER} unban request"
+			"refused": "{MODERATOR} refused {USER} unban request",
+			"automod": "Message contains terms that are flagged by automod"
 		},
 		"youtube": {
 			"platform_youtube": "Message received\non YouTube",
