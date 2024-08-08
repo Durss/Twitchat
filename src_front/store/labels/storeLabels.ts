@@ -185,10 +185,19 @@ export const storeLabels = defineStore('labels', {
 				const list:{[tag:string]:{value:string|number, type:LabelItemPlaceholder["type"]}} = {};
 				for (const key in this.allPlaceholders) {
 					type typedKey = keyof typeof this.allPlaceholders;
-					const ph = this.allPlaceholders[key as typedKey];
+					const ph = this.allPlaceholders[key as typedKey]!;
 					list[key] = {
-						type:ph!.placeholder.type,
-						value:ph!.value,
+						type:ph.placeholder.type,
+						value:ph.value,
+					}
+					if(list[key].value === undefined) {
+						if(ph.placeholder.type == "date", ph.placeholder.type == "datetime" || ph.placeholder.type == "time") {
+							list[key].value = Date.now();
+						}else if(ph.placeholder.type == "image" || ph.placeholder.type == "string") {
+							list[key].value = "";
+						}else if(ph.placeholder.type == "number" || ph.placeholder.type == "duration") {
+							list[key].value = 0;
+						}
 					}
 				}
 				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PLACEHOLDERS, list);

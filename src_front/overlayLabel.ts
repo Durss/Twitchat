@@ -157,7 +157,7 @@ function parsePlaceholders(src:string):string {
 	for (const tag in placeholders) {
 		const placeholder = placeholders[tag];
 		const tagSafe = tag.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-		let replacement = placeholder.value.toString() ?? "";
+		let replacement = placeholder.value?.toString() ?? "";
 		if(placeholder.type == "duration"
 		|| placeholder.type == "date"
 		|| placeholder.type == "time"
@@ -366,7 +366,7 @@ function formatDate(date:Date, addTime:boolean = true, noDate:boolean = false):s
 	if(addTime) {
 		if(!noDate) res  += " "
 		res += toDigits(date.getHours()) + ":"
-			+ toDigits(date.getMinutes())+ ":";
+			+ toDigits(date.getMinutes())+ ":"
 			+ toDigits(date.getSeconds());
 	}
 	return res;
