@@ -34,7 +34,7 @@
 			},
 			{
 				"i": "raid",
-				"l": "Raids haineux",
+				"l": "Hate raids",
 				"g": "/update_images/hate_raid_en.png",
 				"d": "New option to block Hate raids.\n\nIf you enable this option, Twitchat will automatically add blocked terms if 5 first time chatters send the same message on your chat. This way next messages from other users will get blocked.",
 				"a": {
@@ -51,7 +51,7 @@
 			},
 			{
 				"i": "credits",
-				"l": "Générique de fin",
+				"l": "Ending credits",
 				"v": "/update_images/ending_credits.mp4",
 				"d": "New sections to display Power-ups, Merch and Tips received on Ko-Fi, Streamlabs (...), Super Chats and Super Stickers received on YouTube.\n\nThe \"Subcribers\" section now allows to show memberships received on YouTube.\n\nShow floating emotes for Celebration and Gigantified emote power-ups received during yout stream."
 			},
