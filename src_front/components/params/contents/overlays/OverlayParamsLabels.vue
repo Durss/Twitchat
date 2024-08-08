@@ -63,7 +63,7 @@
 					<ParamItem :paramData="param_labelValueFont[label.id]" v-model="label.fontFamily" @change="save(label)" />
 					<ParamItem :paramData="param_labelValueSize[label.id]" v-model="label.fontSize" @change="save(label)" />
 					<ParamItem :paramData="param_textColor[label.id]" v-model="label.fontColor" @change="save(label)" />
-					<ParamItem :paramData="param_scrollable[label.id]" v-model="label.scrollContent" @change="save(label)" />
+					<ParamItem :paramData="param_scrollable[label.id]" v-model="label.scrollContent" @change="save(label)" v-if="label.mode == 'placeholder'" />
 					<ParamItem :paramData="param_backgroundEnabled[label.id]" v-model="label.backgroundEnabled" @change="save(label)">
 						<ParamItem :childLevel="1" :paramData="param_backgroundColor[label.id]" v-model="label.backgroundColor" @change="save(label)" noBackground />
 					</ParamItem>
