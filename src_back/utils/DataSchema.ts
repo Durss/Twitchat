@@ -734,6 +734,7 @@ const UserDataSchema = {
 				}
 			}
 		},
+		"p:hideChat": {type:"boolean"},
 		"p:bttvEmotes": {type:"boolean"},
 		"p:ffzEmotes": {type:"boolean"},
 		"p:sevenTVEmotes": {type:"boolean"},

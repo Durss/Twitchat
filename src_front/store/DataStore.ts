@@ -340,6 +340,7 @@ export default class DataStore extends DataStoreCommon{
 			v = latestVersion;
 		}
 
+		delete data["p:hideChat"];//TODO remove in a few months (added 08/08/204)
 		data[this.DATA_VERSION] = v;
 		return data;
 	}
@@ -435,6 +436,7 @@ export default class DataStore extends DataStoreCommon{
 		delete data["tmiToken"];
 		delete data["authToken"];
 		delete data["p:hideBadges"];
+		delete data["p:hideBot"];
 		delete data["p:hideBot"];
 	}
 
