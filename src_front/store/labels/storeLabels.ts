@@ -131,7 +131,7 @@ export const storeLabels = defineStore('labels', {
 			for (const tag in this.placeholders) {
 				const typedKey = tag as keyof typeof this.placeholders;
 				const placeholder = this.placeholders[typedKey];
-				if(placeholder) {
+				if(placeholder && LabelItemPlaceholderList.find(v=>v.tag == typedKey)?.backup !== false) {
 					cachedValues[typedKey] = placeholder.value;
 				}
 			}
