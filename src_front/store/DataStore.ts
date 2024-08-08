@@ -1431,7 +1431,7 @@ export default class DataStore extends DataStoreCommon{
 		if(triggers && Array.isArray(triggers)) {
 			triggers.forEach(t => {
 				t.actions.forEach(a => {
-					if(a.type == "raffle" && a.raffleData.value_id && typeof a.raffleData.value_id != "string") {
+					if(a.type == "raffle" && a.raffleData && a.raffleData.value_id && typeof a.raffleData.value_id != "string") {
 						a.raffleData.value_id = (a.raffleData.value_id as TwitchatDataTypes.ValueData).id;
 					}
 				})
