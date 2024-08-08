@@ -2,7 +2,7 @@
 	"chat": {
 		"closeBt_aria": "Close message",
 		"delete_col_confirm_title": "Delete column?",
-		"delete_col_confirm_desc": "Do you want to delete this column? This cannot be undone.",
+		"delete_col_confirm_desc": "Some message types may not be displayed!\nUpdate column filters to choose which message types it should display.",
 		"paused": "Chat paused",
 		"no_message": "- no message -",
 		"conversation": "Conversation",
