@@ -49,7 +49,6 @@ class ChatUnbanRequest extends AbstractChatMessage {
 	}
 	
 	public mounted():void {
-		this.messageData.isFlagByAutomod = true;
 		if(this.messageData.isResolve) {
 			this.label = this.messageData.accepted? "chat.unban_request.accepted" : "chat.unban_request.refused";
 		}else{
