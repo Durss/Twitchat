@@ -44,7 +44,7 @@
 									<TTButton :icon="item.i" :premium="item.p" @click="currentSlide = index + 1">{{ item.l }}</TTButton>
 								</li>
 								<li>
-									<TTButton secondary @click="currentSlide = items.length - 1">🫶🥺🫶</TTButton>
+									<TTButton secondary @click="currentSlide = items.length - 1">🫶 🥺 🫶</TTButton>
 								</li>
 							</ul>
 						</div>
