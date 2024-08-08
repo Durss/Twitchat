@@ -44,7 +44,7 @@ export default class SSEController extends AbstractController {
 	}
 
 	public static countUserConnexions(uid:string):number {
-		return this.uidToResponse[uid].length;
+		return this.uidToResponse[uid]? this.uidToResponse[uid].length : 0;
 	}
 	
 	
