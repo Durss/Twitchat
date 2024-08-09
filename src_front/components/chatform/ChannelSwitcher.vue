@@ -2,7 +2,10 @@
 	<div class="channelswitcher">
 		<div class="current"
 		v-if="currentChannel"
-		v-tooltip="channels.length == 1? $t('chat.form.connect_extra_chan') : $t('chat.form.extra_chan_tt', {USER:currentChannel.user.displayNameOriginal})"
+		v-tooltip="{
+			touch:'hold',
+			content:channels.length == 1? $t('chat.form.connect_extra_chan') : $t('chat.form.extra_chan_tt', {USER:currentChannel.user.displayNameOriginal})
+		}"
 		@click.capture="open($event)"
 		@click.right="cycleChannel($event)">
 			<img class="avatar" v-if="currentChannel.user.avatarPath"
