@@ -6,7 +6,6 @@ import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
 import SetIntervalWorker from "@/utils/SetIntervalWorker";
-import PatreonHelper from "@/utils/patreon/PatreonHelper";
 import EventSub from "@/utils/twitch/EventSub";
 import PubSub from "@/utils/twitch/PubSub";
 import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScopes";
