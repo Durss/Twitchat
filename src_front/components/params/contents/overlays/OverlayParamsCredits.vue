@@ -210,12 +210,12 @@
 			<ParamItem :paramData="param_stickyTitle" v-model="data.stickyTitle" />
 			<ParamItem :paramData="param_fontTitle" v-model="data.fontTitle" class="fontStyle">
 				<template #composite>
-					<ParamItem :paramData="param_entryColor" v-model="data.colorEntry" noBackground class="colorPicker" />
+					<ParamItem :paramData="param_titleColor" v-model="data.colorTitle" noBackground class="colorPicker" />
 				</template>
 			</ParamItem>
 			<ParamItem :paramData="param_fontEntry" v-model="data.fontEntry" class="fontStyle">
 				<template #composite>
-					<ParamItem :paramData="param_titleColor" v-model="data.colorTitle" noBackground class="colorPicker" />
+					<ParamItem :paramData="param_entryColor" v-model="data.colorEntry" noBackground class="colorPicker" />
 				</template>
 			</ParamItem>
 			<ParamItem :paramData="param_textShadow" v-model="data.textShadow" />
