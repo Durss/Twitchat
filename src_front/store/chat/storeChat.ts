@@ -1087,11 +1087,11 @@ export const storeChat = defineStore('chat', {
 						}
 						//Reset ad schedule if necessary
 						if(!isFromRemoteChan) {
-							if(!message.user.channelInfo[message.channel_id].is_broadcaster) {
-								SchedulerHelper.instance.incrementMessageCount();
-							}
 							if(/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(message.message)) {
 								SchedulerHelper.instance.resetAdSchedule(message);
+							}
+							if(!message.user.channelInfo[message.channel_id].is_broadcaster) {
+								SchedulerHelper.instance.incrementMessageCount();
 							}
 	
 							//Detect hate raid.

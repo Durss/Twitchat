@@ -168,7 +168,7 @@ export default class SchedulerHelper {
 				this._adScheduleTimeout = setTimeout(()=> {
 					// console.log("Do reset. Deleted?"+message.deleted, "date:"+(Date.now() + this._adSchedule!.repeatDuration! * 1000 - waitFor) );
 					if(message.deleted === true) return;
-					e.date = Date.now() + this._adSchedule.scheduleParams!.repeatDuration! * 1000 - waitFor;
+					e.date = Date.now() + this._adSchedule.scheduleParams!.repeatDuration! * 1000;
 					e.messageCount = 0;
 					DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, e.date);
 				}, waitFor);
@@ -257,7 +257,7 @@ export default class SchedulerHelper {
 				//This condition is here to make it possible to disable the ad this way. If "twitchat.fr"
 				//isn't found on the message and the user is part of donors/premium members, don't send
 				//the ad on chat.
-				if(StoreProxy.auth.donorLevel > -1
+				if((StoreProxy.auth.isPremium || StoreProxy.auth.donorLevel > -1)
 				&& !/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(StoreProxy.chat.botMessages.twitchatAd.message)) continue;
 				//Special case for users that have to few followers
 				if(StoreProxy.auth.noAd) continue;
