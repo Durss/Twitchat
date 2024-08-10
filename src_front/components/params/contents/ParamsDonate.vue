@@ -149,7 +149,7 @@
 
 		<div class="card-item alert error critical" v-if="criticalError">
 			<Icon name="alert" />
-			<i18n-t scope="global" keypath="error.paypal_order_failure">
+			<i18n-t scope="global" keypath="error.paypal.paypal_order_failure">
 				<template #EMAIL>
 					<a :href="'mailto:'+$config.CONTACT_MAIL">{{ $config.CONTACT_MAIL }}</a>
 				</template>
@@ -286,7 +286,7 @@ class ParamsDonate extends Vue {
 				this.buildPaypalForm();
 			}else{
 				this.paypalError = true;
-				this.$store.common.alert(this.$t("error.paypal_sdk_init_failed"))
+				this.$store.common.alert(this.$t("error.paypal.paypal_sdk_init_failed"))
 			}
 		}else{
 			this.buildPaypalForm();
@@ -346,11 +346,11 @@ class ParamsDonate extends Vue {
 						if(res.json.success) {
 							return res.json.data.orderId;
 						}else{
-							this.error = res.json.error! || this.$t("error.paypal_create_order_failure");
+							this.error = res.json.error! || this.$t("error.paypal.paypal_create_order_failure");
 						}
 					} catch (error) {
 						console.error(error);
-						this.error = this.$t("error.paypal_create_order_failure");
+						this.error = this.$t("error.paypal.paypal_create_order_failure");
 					}
 					this.loading = false;
 					return "";

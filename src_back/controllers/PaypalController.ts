@@ -185,7 +185,7 @@ export default class PaypalController extends AbstractController {
 					//Failed adding user to list :(
 					Logger.error("Failed adding user \""+twitchUser.login+"\" to remote donor list ("+params.amount+"€)");
 					console.log(params);
-					errorMessage = "Your payment has been successfully processed but somehting went wrong when registering you to the donors list. It should be done soon but feel free to ping me @durss on Twitch"
+					errorMessage = "Your payment has been successfully processed but something went wrong when registering you to the donors list. It should be done soon but feel free to ping me at twitchatofficial@gmail.com"
 				}else{
 					//User properly added to list
 					if(params.gifterLogin) {
@@ -210,7 +210,6 @@ export default class PaypalController extends AbstractController {
 			return;
 		}
 		
-						
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(JSON.stringify({success:false, error:errorMessage || "an unknown error has occured"}));

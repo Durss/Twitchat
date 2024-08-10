@@ -66,9 +66,12 @@
 		"max_custom_badges_given": "Vous avez atteint le maximum de {COUNT} utilisateurices avec un badge personnalisé. Devenez premium pour attribuer des badges personnalisés jusqu'à 10000 utilisateurices.",
 		"max_custom_heat_screen": "Vous avez atteint le maximum de {COUNT} écrans heat personnalisés. Devenez premium pour en créer jusqu'à 100.",
 		"max_values": "Vous avez atteint le maximum de {COUNT} valeurs. Devenez premium pour en créer jusqu'à 100.",
-		"paypal_sdk_init_failed": "L'initialization du SDK Paypal a échouée.",
-		"paypal_create_order_failure": "Une erreur est survenue lors de la création de la commande PayPal",
-		"paypal_order_failure": "Une erreur est survenue lors du traitement de votre don ou lors de votre ajout à la liste des donateurices. Contactez-moi à l'adresse {EMAIL} pour que l'on règle ce souci.",
+		"paypal": {
+			"GIFTED_USER_NOT_FOUND": "Le profile Twitch auquel vous souhaitez faire un cadeau est introuvable.",
+			"paypal_sdk_init_failed": "L'initialization du SDK Paypal a échouée.",
+			"paypal_create_order_failure": "Une erreur est survenue lors de la création de la commande PayPal",
+			"paypal_order_failure": "Une erreur est survenue lors du traitement de votre don ou lors de votre ajout à la liste des donateurices. Contactez-moi à l'adresse {EMAIL} pour que l'on règle ce souci."
+		},
 		"heat_areas_limit": "Vous avez atteint le maximum de 100 groupes",
 		"rate_limit": "Suite à un trop grand nombre de requêtes votre accès est retreint. Attendez une minute puis essayez à nouveau.",
 		"rate_limit_ban": "Vous avez été banni·e suite à une activité suspecte. Revenez plus tard ou contactez moi à cette adresse {MAIL}.",
