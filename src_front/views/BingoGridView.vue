@@ -33,7 +33,7 @@
 						<span>{{ $t("bingo_grid.state.mod_info") }}</span>
 					</div>
 					
-					<SwitchButton :icons="['bingo_grid', 'list']" :labels="['grille', 'list']" :values="['grid', 'list']" v-model="template" />
+					<SwitchButton :icons="['bingo_grid', 'list']" :labels="[$t('bingo_grid.public.grid'), $t('bingo_grid.public.list')]" :values="['grid', 'list']" v-model="template" />
 				</template>
 	
 				<div v-if="sseError" class="card-item error" @click="sseError = false">

@@ -59,6 +59,10 @@
 			"showLeaderboard_bt": "Afficher sur l'overlay",
 			"hideLeaderboard_bt": "Masquer de l'overlay",
 			"additional_cells": "Cases additionelles que d'autres viewers peuvent avoir"
+		},
+		"public": {
+			"grid": "grille",
+			"list": "liste"
 		}
 	}
 }
