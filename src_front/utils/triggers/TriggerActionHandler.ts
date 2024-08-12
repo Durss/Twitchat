@@ -2337,7 +2337,7 @@ export default class TriggerActionHandler {
 									}else {
 										let success:string|boolean = false;
 										if(playlistMode && playlistTarget) {
-											success = await SpotifyHelper.instance.addToPlaylist(track, playlistTarget.id+"sdsds");
+											success = await SpotifyHelper.instance.addToPlaylist(track, playlistTarget.id);
 										}else{
 											success = await SpotifyHelper.instance.addToQueue(track, false, executingUser, searchTerms);
 										}
