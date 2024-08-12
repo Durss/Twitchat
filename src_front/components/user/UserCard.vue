@@ -135,7 +135,7 @@
 								type="link"
 								icon="newtab"
 								@click.stop="openUserCard($event)"
-								:href="'https://www.twitch.tv/popout/'+channel!.id+'/viewercard/'+user!.login"
+								:href="'https://www.twitch.tv/popout/'+channel!.login+'/viewercard/'+user!.login"
 								target="_blank">{{$t('usercard.viewercardBt')}}</TTButton>
 							
 							<TTButton small
