@@ -36,7 +36,7 @@
 					</div>
 				</div>
 				<TTButton class="cta" small icon="newtab" type="link" :href="messageData.trackAdded.url" target="_blank" v-tooltip="$t('chat.added_to_queue.open_track')" />
-				<TTButton class="cta" small icon="delete" v-if="messageData.skipped !== true" @click.stop="removeTrack()" alert v-tooltip="$t('chat.added_to_queue.skip_track')" />
+				<TTButton class="cta" small icon="delete" v-if="messageData.skipped !== true && !messageData.playlistTarget" @click.stop="removeTrack()" alert v-tooltip="$t('chat.added_to_queue.skip_track')" />
 				<TTButton class="cta" small icon="ban" v-if="canBanFromSR && !isBanned" @click.stop="banFromSR()" secondary v-tooltip="$t('chat.added_to_queue.ban_user')" />
 				<TTButton class="cta" small icon="unban" v-if="canBanFromSR && isBanned" @click.stop="unBanFromSR()" alert v-tooltip="$t('chat.added_to_queue.unban_user')" />
 			</div>
