@@ -2290,8 +2290,10 @@ export default class TriggerActionHandler {
 											id:playlist.id,
 											title:playlist.name,
 											url:playlist.external_urls?.spotify,
-											cover:playlist.images[0].url,
+											cover:playlist.images && playlist.images.length > 0? playlist.images[0].url : "",
 										};
+
+										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Playlist found: "+(playlistTarget.title)+" : ID "+playlistTarget.id});
 									}
 								}
 
