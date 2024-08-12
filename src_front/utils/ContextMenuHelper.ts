@@ -8,10 +8,10 @@ import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ContextMenu, { type MenuItem } from "@imengyu/vue3-context-menu";
 import domtoimage from 'dom-to-image-more';
-import lande from "lande";
 import { h, reactive, type RendererElement, type RendererNode, type VNode } from "vue";
 import ApiHelper from "./ApiHelper";
 import Config from "./Config";
+import LandeWorker from "./LandeWorker";
 import PublicAPI from "./PublicAPI";
 import TriggerUtils from "./TriggerUtils";
 import Utils from "./Utils";
@@ -20,7 +20,6 @@ import { TwitchScopes } from "./twitch/TwitchScopes";
 import TwitchUtils from "./twitch/TwitchUtils";
 import YoutubeHelper from "./youtube/YoutubeHelper";
 import { YoutubeScopes } from "./youtube/YoutubeScopes";
-import LandeWorker from "./LandeWorker";
 
 /**
 * Created : 07/04/2023
@@ -61,6 +60,7 @@ export default class ContextMenuHelper {
 		const options:MenuItem[]= [];
 		const px = e.type == "touchstart"? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).x;
 		const py = e.type == "touchstart"? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).y;
+		let highlightIndex = -1;
 		const menu	= reactive({
 			theme: 'mac '+StoreProxy.common.theme,
 			x: px,
@@ -75,7 +75,6 @@ export default class ContextMenuHelper {
 			//Make sure the hint message is not sent anymore
 			DataStore.set(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT, true);
 		}
-
 
 		if(TwitchatDataTypes.IsTranslatableMessage[message.type] === true){
 			const tMessage = message as TwitchatDataTypes.TranslatableMessage;
@@ -127,7 +126,7 @@ export default class ContextMenuHelper {
 			}
 
 			//Chat highlight
-			const highlightIndex = options.length;
+			highlightIndex = options.length;
 			options.push({
 				label: t("chat.context_menu.highlight_loading"),
 				icon: this.getIcon("icons/highlight.svg"),
@@ -458,15 +457,71 @@ export default class ContextMenuHelper {
 			}
 
 			this.addCustomTriggerEntries(options, tMessage);
+		}else
 
-			//Update "highlight message" state according to overlay presence
-			this.getHighlightOverPresence().then(res => {
-				const item = menu.items[highlightIndex] as MenuItem;
-				item.label = t("chat.context_menu.highlight");
-				item.disabled = false;
-				if(!res) item.customClass = "no_overlay";//Dirty way of knowing if overlay exists on the click handler of the item
+		if(message.type == TwitchatDataTypes.TwitchatMessageType.CUSTOM) {
+			//Chat highlight
+			highlightIndex = options.length;
+			options.push({
+				label: t("chat.context_menu.highlight_loading"),
+				icon: this.getIcon("icons/highlight.svg"),
+				disabled:true,
 			});
+			options[highlightIndex].onClick = () => {
+				if(options[highlightIndex].customClass == "no_overlay") {
+					//Open parameters if overlay is not found
+					StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HIGHLIGHT);
+				}else{
+					const iconToPlatform:{[icon:string]:TwitchatDataTypes.ChatPlatform} = {
+						kick:"kick",
+						youtube:"youtube",
+						tiktok:"tiktok",
+						twitch:"twitch",
+						instagram:"instagram",
+					};
+					const highlightMessage:TwitchatDataTypes.MessageChatData = {
+						id:Utils.getUUID(),
+						answers:[],
+						channel_id:"",
+						date:message.date,
+						message:message.message || "",
+						message_html:message.message_html || "",
+						message_chunks:message.message_chunks || [],
+						is_short:false,
+						message_size:(message.message || "").length,
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+						user:{
+							channelInfo:{},
+							login:message.user?.name || "",
+							displayName:message.user?.name || "",
+							displayNameOriginal:message.user?.name || "",
+							color:message.user?.color || "",
+							id:Utils.getUUID(),
+							platform:iconToPlatform[message.icon || ""] || "twitchat",
+							pronouns: null,
+							is_affiliate:false,
+							is_blocked:false,
+							is_bot:false,
+							is_partner:false,
+							is_tracked:false,
+							pronounsLabel:"",
+							pronounsTooltip:"",
+						},
+					}
+					StoreProxy.chat.highlightChatMessageOverlay(highlightMessage);
+				}
+			};
 		}
+		
+
+		//Update "highlight message" state according to overlay presence
+		this.getHighlightOverPresence().then(res => {
+			const item = menu.items[highlightIndex] as MenuItem;
+			item.label = t("chat.context_menu.highlight");
+			item.disabled = false;
+			if(!res) item.customClass = "no_overlay";//Dirty way of knowing if overlay exists on the click handler of the item
+		});
 
 		const spokenLanguages = StoreProxy.params.features.autoTranslateFirstSpoken.value as string[] || [];
 		const langTarget = (StoreProxy.params.features.autoTranslateFirstLang.value as string[] || [])[0];

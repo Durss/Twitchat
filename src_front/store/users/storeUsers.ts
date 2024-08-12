@@ -55,6 +55,7 @@ export const storeUsers = defineStore('users', {
 			youtube:{},
 			tiktok:{},
 			facebook:{},
+			kick:{},
 		},
 		myFollowings:{
 			twitchat:{},
@@ -63,6 +64,7 @@ export const storeUsers = defineStore('users', {
 			youtube:{},
 			tiktok:{},
 			facebook:{},
+			kick:{},
 		},
 		myFollowers:{
 			twitchat:{},
@@ -71,6 +73,7 @@ export const storeUsers = defineStore('users', {
 			youtube:{},
 			tiktok:{},
 			facebook:{},
+			kick:{},
 		},
 		knownBots: {
 			twitchat:{},
@@ -79,6 +82,7 @@ export const storeUsers = defineStore('users', {
 			youtube:{},
 			tiktok:{},
 			facebook:{},
+			kick:{},
 		}
 	} as IUsersState),
 

@@ -1,5 +1,6 @@
 <template>
-	<div :class="classes" :style="styles">
+	<div :class="classes" :style="styles"
+	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 
 		<div class="messageHolder">
