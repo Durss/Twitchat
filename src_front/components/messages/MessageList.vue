@@ -469,14 +469,14 @@ import { Linear } from 'gsap/all';
 		const colValid = Array.isArray(m.col)? m.col.length == 0 || m.col.includes(this.config.order) : m.col == undefined || m.col == this.config.order;
 		if(!colValid) return false;
 
-		//If message is deleted, keep it only if requested to show messages AND deleted messages
-		if (m.deleted) {
-			return this.config.messageFilters.deleted === true && this.config.filters.message === true;
-		}
-
 		//Filter by channel ID if necessary
 		if(this.filteredChanIDs) {
 			if(this.filteredChanIDs[m.channel_id] !== true) return false;
+		}
+
+		//If message is deleted, keep it only if requested to show messages AND deleted messages
+		if (m.deleted) {
+			return this.config.messageFilters.deleted === true && this.config.filters.message === true;
 		}
 
 		switch (m.type) {
