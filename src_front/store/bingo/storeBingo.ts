@@ -29,7 +29,7 @@ export const storeBingo = defineStore('bingo', {
 				emoteCount = emotes.length;
 				emotes = emotes.filter(v => v.is_public === true);
 				const twitch = Utils.pickRand(emotes);
-				data.emoteValue={twitch:undefined, facebook:undefined, youtube:undefined, instagram:undefined, tiktok:undefined, twitchat:undefined}
+				data.emoteValue={twitch:undefined, facebook:undefined, youtube:undefined, instagram:undefined, tiktok:undefined, twitchat:undefined, kick:undefined}
 				data.emoteValue.twitch = {
 					code:twitch.code,
 					image:{
