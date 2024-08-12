@@ -225,14 +225,19 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		if(!e.data) return;
 		if(e.data.gridId != this.id) return;
 
-		
+		await this.openCloseGrid(true);
+
 		const newLeaderboard = e.data.scores && e.data.scores.length > 0? e.data : null;
 		
 		if(newLeaderboard) this.leaderboard = newLeaderboard;
 		else{
+			//Close leaderboard
 			const leaderboardHolder = this.$refs.leaderboardHolder as HTMLElement;
 			gsap.to(leaderboardHolder, {opacity:0, duration:.5, onComplete:()=>{
 				this.leaderboard = null;
+				if(this.pendingEvents.length === 0) {
+					this.openCloseGrid(false);
+				}
 			}});
 			return;
 		}
