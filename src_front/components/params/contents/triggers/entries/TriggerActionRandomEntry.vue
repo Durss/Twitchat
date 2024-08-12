@@ -25,7 +25,7 @@
 			</div>
 
 			<div class="listItem list">
-				<div v-for="item, index in action.list" :key="item" class="entry"
+				<div v-for="item, index in action.list" :key="'entry_'+index" class="entry"
 				@click="indexToEditState[index] = true">
 
 					<button class="action button"
@@ -42,7 +42,7 @@
 						<textarea v-if="indexToEditState[index]"
 							maxlength="500"
 							rows="4" v-autofocus
-							@focusout="indexToEditState[index] = false"
+							@focusout="indexToEditState[index] = false; onChangeListItem(index)"
 							v-model="action.list[index]">{{ item }}</textarea>
 					</div>
 				</div>
@@ -149,7 +149,7 @@ import TriggerUtils from '@/utils/TriggerUtils';
 		ChatMessageChunksParser,
 	},
 })
- class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
+class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionRandomData;
@@ -296,6 +296,10 @@ import TriggerUtils from '@/utils/TriggerUtils';
 	 */
 	public createCounter():void {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
+	}
+
+	public onChangeListItem(index:number):void {
+		this.itemChunks[index] = TwitchUtils.parseMessageToChunks(this.action.list[index], undefined, true);
 	}
 
 }

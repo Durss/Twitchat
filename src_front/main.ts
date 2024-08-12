@@ -300,6 +300,10 @@ function buildApp() {
 				//lots of space under the chat and activities.
 				//The "preventScroll" flag avoids this.
 				el.focus({preventScroll:true});
+				if(el.tagName.toLowerCase() == "input" || el.tagName.toLowerCase() == "textarea") {
+					const typedEl = el as HTMLInputElement;
+					typedEl.setSelectionRange(typedEl.value.length, typedEl.value.length);
+				}
 			}
 		}
 	})
