@@ -230,7 +230,7 @@
 					"max_duration": "Le morceau est plus long que le maximum autorisé de {DURATION}",
 					"api_queue": "Une erreur a eu lieu lors de l'ajout du morceau à la file d'attente de lecture.",
 					"api_playlist": "Une erreur a eu lieu lors de l'ajout du morceau à la playlsit demandée.",
-					"no_active_device": "Lancez d'abord une lecture manuellement dans Spotify pour permettre son contrôle via l'API",
+					"no_active_device": "Lancez d'abord une lecture manuellement dans Spotify pour permettre son contrôle via Twitchat",
 					"no_result": "Aucun morceau trouvé pour la recherche \"{SEARCH}\"."
 				}
 			},

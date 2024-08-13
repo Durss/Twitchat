@@ -230,7 +230,7 @@
 					"max_duration": "The given track is longer than the {DURATION} maximum allowed",
 					"api_queue": "Something went wrong when requesting Spotify to add the track to queue.",
 					"api_playlist": "Something went wrong when requesting Spotify to add the track to playlist.",
-					"no_active_device": "Start playback manually in Spotify first to enable control via the API.",
+					"no_active_device": "Start playback manually in Spotify first to enable control via Twitchat.",
 					"no_result": "No track found for given search \"{SEARCH}\"."
 				}
 			},

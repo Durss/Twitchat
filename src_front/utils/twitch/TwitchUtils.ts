@@ -2974,7 +2974,7 @@ export default class TwitchUtils {
 			body:JSON.stringify({
 				data: {
 					user_id:uid,
-					reason,
+					reason: reason.substring(0, 500),
 				}
 			})
 		});

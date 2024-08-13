@@ -121,11 +121,18 @@
 					<div class="banReason quote" v-if="banReason"><Icon name="ban" /> {{ banReason }}</div>
 					
 					<div class="ctas" v-if="isTwitchProfile">
-						<TTButton v-if="canModerate && canShoutout" small icon="shoutout" @click="shoutoutUser()">{{$t('usercard.shoutoutBt')}}</TTButton>
-						<TTButton v-if="canModerate && canWarn" small icon="alert" @click="shoutoutUser()">{{$t('usercard.warnBt')}}</TTButton>
-						<TTButton v-if="!is_tracked" small icon="magnet" @click="trackUser()">{{$t('usercard.trackBt')}}</TTButton>
-						<TTButton v-if="is_tracked" small icon="magnet" @click="untrackUser()">{{$t('usercard.untrackBt')}}</TTButton>
-						<TTButton v-if="$store.tts.params.enabled === true" small icon="tts" @click="toggleReadUser()">{{ ttsReadBtLabel }}</TTButton>
+						<form class="warnForm" @submit.prevent="warnUser()" v-if="showWarningForm">
+							<TTButton type="button" icon="back" @click="showWarningForm = false" alert></TTButton>
+							<input type="text" v-model="warningMessage" :placeholder="$t('usercard.warn_placeholder')" maxlength="500" v-autofocus>
+							<TTButton type="submit" icon="checkmark" :disabled="warningMessage.length == 0" :loading="sendingWarning"></TTButton>
+						</form>
+						<template v-else>
+							<TTButton v-if="canModerate && canShoutout" small icon="shoutout" @click="shoutoutUser()">{{$t('usercard.shoutoutBt')}}</TTButton>
+							<TTButton v-if="canModerate && canWarn" small icon="alert" @click="showWarningForm = true">{{$t('usercard.warnBt')}}</TTButton>
+							<TTButton v-if="!is_tracked" small icon="magnet" @click="trackUser()">{{$t('usercard.trackBt')}}</TTButton>
+							<TTButton v-if="is_tracked" small icon="magnet" @click="untrackUser()">{{$t('usercard.untrackBt')}}</TTButton>
+							<TTButton v-if="$store.tts.params.enabled === true" small icon="tts" @click="toggleReadUser()">{{ ttsReadBtLabel }}</TTButton>
+						</template>
 					</div>
 					
 					<div class="ctas">
@@ -265,11 +272,14 @@ class UserCard extends AbstractSidePanel {
 
 	public error:boolean = false;
 	public loading:boolean = true;
-	public isTwitchProfile:boolean = false;
 	public edittingLogin:boolean = true;
 	public manageBadges:boolean = false;
+	public sendingWarning:boolean = false;
+	public showWarningForm:boolean = false;
 	public manageUserNames:boolean = false;
-	public banReason?:string = "";
+	public isTwitchProfile:boolean = false;
+	public banReason:string = "";
+	public warningMessage:string = "";
 	public customLogin:string = "";
 	public createDate:string = "";
 	public createDateElapsed:string = "";
@@ -277,8 +287,8 @@ class UserCard extends AbstractSidePanel {
 	public channelColor:string = "";
 	public userDescription:string = "";
 	public canModerate:boolean = false;
-	public isSelfProfile:boolean = false;
 	public isOwnChannel:boolean = false;
+	public isSelfProfile:boolean = false;
 	public user:TwitchatDataTypes.TwitchatUser|null = null;
 	public channel:TwitchatDataTypes.TwitchatUser|null = null;
 	public fakeModMessage:TwitchatDataTypes.MessageChatData|null = null;
@@ -537,7 +547,7 @@ class UserCard extends AbstractSidePanel {
 					this.currentStream = v[0];
 				});
 				if(user.channelInfo[this.channel!.id]?.is_banned) {
-					this.banReason = user.channelInfo[this.channel!.id]?.banReason;
+					this.banReason = user.channelInfo[this.channel!.id]?.banReason || "";
 				}else{
 					TwitchUtils.getBannedUsers(this.channel!.id, [u.id]).then(res=> {
 						if(res.length > 0) {
@@ -637,10 +647,20 @@ class UserCard extends AbstractSidePanel {
 	public untrackUser():void { this.$store.users.untrackUser(this.user!); }
 	
 	/**
-	 * Stop tracking user's messages
+	 * View the user card from our own chan
 	 */
-	public resetChanContext():void {
-		this.$store.users.openUserCard(this.user);
+	public resetChanContext():void { this.$store.users.openUserCard(this.user); }
+
+	/**
+	 * Send a warning to the user
+	 */
+	public async warnUser():Promise<void> {
+		if(this.warningMessage.length === 0) return;
+		this.sendingWarning = true;
+		await TwitchUtils.sendWarning(this.user!.id, this.warningMessage, this.channel!.id);
+		await Utils.promisedTimeout(250);
+		this.sendingWarning = false;
+		this.showWarningForm = false;
 	}
 
 	/**
@@ -1006,6 +1026,27 @@ export default toNative(UserCard);
 			flex-wrap: wrap;
 			gap: .5em;
 			flex-shrink: 0;//necessery for shit old safari -_-
+
+			.warnForm {
+				gap: 0;
+				display: flex;
+				flex-direction: row;
+				* {
+					border-radius: 0;
+					&:first-child {
+						border-top-left-radius: var(--border-radius);
+						border-bottom-left-radius: var(--border-radius);
+					}
+					&:last-child {
+						border-top-right-radius: var(--border-radius);
+						border-bottom-right-radius: var(--border-radius);
+					}
+				}
+				.button {
+					flex-shrink: 0;
+					flex-basis: 1.5em;
+				}
+			}
 		}
 	
 		.description {

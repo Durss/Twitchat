@@ -335,13 +335,6 @@ export default class EventSub {
 				}
 			}
 
-			if(TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING])) {
-				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_ACKNOWLEDGE, "1")
-				.then(res => {
-					if(res !== false) this.remoteChanSubscriptions[uid].push(res)
-				});
-			}
-
 			if(TwitchUtils.hasScopes([TwitchScopes.SUSPICIOUS_USERS])) {
 				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.SUSPICIOUS_USER_MESSAGE, "1")
 				.then(res => {
@@ -1443,6 +1436,7 @@ export default class EventSub {
 	 * @param event 
 	 */
 	private async warningAcknowledgeEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.WarningAcknowledgeEvent):Promise<void> {
+		console.log("ACKNOWLEDGED");
 		const message:TwitchatDataTypes.MessageWarnAcknowledgementData = {
 			id:Utils.getUUID(),
 			date:Date.now(),
