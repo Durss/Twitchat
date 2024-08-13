@@ -569,6 +569,8 @@
 			"trigger_id": "Current trigger ID",
 			"user": "User name",
 			"user_id": "User ID",
+			"user_color": "User color",
+			"user_badges": "User badges as JSON",
 			"my_user": "My user name",
 			"my_user_id": "My user ID",
 			"user_avatar": "User avatar URL",

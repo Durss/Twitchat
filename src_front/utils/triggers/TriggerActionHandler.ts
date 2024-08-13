@@ -5,7 +5,7 @@ import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { gsap } from "gsap/gsap-core";
-import { evaluate as MathEval } from 'mathjs';
+import { evaluate as MathEval, typed } from 'mathjs';
 import { RequestBatchExecutionType, type RequestBatchRequest } from "obs-websocket-js";
 import type { JsonObject } from "type-fest";
 import TwitchatEvent from "../../events/TwitchatEvent";
@@ -3197,6 +3197,9 @@ export default class TriggerActionHandler {
 							case "lastcheer_login": value = (StoreProxy.labels.getLabelByKey("CHEER_NAME") || "").toString(); break;
 							case "lastcheer_amount": value = (StoreProxy.labels.getLabelByKey("CHEER_AMOUNT") || "0").toString(); break;
 						}
+					}else if(pointer.indexOf("__user_badges__") == 0 && Object.hasOwn(message, "user")) {
+						const typedMessage = message as TwitchatDataTypes.MessageChatData;
+						value = JSON.stringify(typedMessage.user.channelInfo[typedMessage.channel_id]?.badges || []);
 					}
 				}else{
 					const chunks:string[] = placeholder.pointer.split(".");
@@ -3268,7 +3271,7 @@ export default class TriggerActionHandler {
 			}
 
 			if(removeRemainingTags) {
-				res = res.replace(/\{[^ }]+\}/g, "");
+				res = res.replace(/\{[a-z0-9]+\}/gi, "");
 			}
 
 			// console.log("RESULT = ",res);

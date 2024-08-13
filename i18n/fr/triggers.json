@@ -569,6 +569,8 @@
 			"trigger_id": "ID du trigger actuel",
 			"user": "Pseudo",
 			"user_id": "ID utilisateur",
+			"user_color": "Couleur du pseudo",
+			"user_badges": "Badges au format JSON",
 			"my_user": "Mon pseudo",
 			"my_user_id": "Mon ID utilisateur",
 			"user_avatar": "URL de l'avatar",
