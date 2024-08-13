@@ -141,7 +141,7 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	static override async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 55;
+		const latestVersion = 56;
 
 		this.cleanupPreV7Data(data);
 
@@ -337,6 +337,10 @@ export default class DataStore extends DataStoreCommon{
 		}
 		if(v==54) {
 			this.cleanPremiumWarningEndingCredits(data);
+			v = 55;
+		}
+		if(v==55) {
+			this.fixUserErrors(data);
 			v = latestVersion;
 		}
 
@@ -1455,6 +1459,46 @@ export default class DataStore extends DataStoreCommon{
 				delete slot.showPremiumWarning;
 			});
 			data[DataStore.ENDING_CREDITS_PARAMS] = credits;
+		}
+	}
+	
+	/**
+	 * Fixing errors from users that managed to get invalid data
+	 * @param data 
+	 */
+	public static fixUserErrors(data:any):void {
+		//Limiting to max 1 language source
+		if(data["p:autoTranslateFirstLang"] && data["p:autoTranslateFirstLang"].length > 1) {
+			data["p:autoTranslateFirstLang"] = data["p:autoTranslateFirstLang"][0];
+		}
+
+		//Limit stream info preset name
+		const presets = data[DataStore.STREAM_INFO_PRESETS] as TwitchatDataTypes.StreamInfoPreset[];
+		if(presets && Array.isArray(presets)) {
+			presets.forEach(v=> {
+				v.name = (v.name || "").substring(0, 50);
+			})
+		}
+
+		//Someone entered many coma seperated IPs.
+		//Keeping only the first one here
+		if(data[DataStore.OBS_IP] && data[DataStore.OBS_IP].length > 100) {
+			data[DataStore.OBS_IP] = data[DataStore.OBS_IP].split(",")[0].trim();
+		}
+		//Someone cleared the field and got an empty string as port before I
+		//changed the component behavior so it doesn't returns an empty string
+		if(data[DataStore.OBS_PORT] && isNaN(data[DataStore.OBS_PORT])) {
+			data[DataStore.OBS_PORT] = 4455;
+		}
+
+		//Someone got a giant repeat duration value
+		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+		if(triggers && Array.isArray(triggers)) {
+			triggers.forEach(t => {
+				if(t.scheduleParams && t.scheduleParams.repeatDuration && t.scheduleParams.repeatDuration > 999999999999999999) {
+					t.scheduleParams.repeatDuration =  30 * 60;
+				}
+			});
 		}
 	}
 }
