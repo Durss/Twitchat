@@ -34,7 +34,7 @@ export const storeParams = defineStore('params', {
 			antiHateRaidDeleteMessage: 	{type:"boolean", value:false, labelKey:"params.antiHateRaidDeleteMessage", id:234, parent:232, icon:"trash", storage:{vnew:{date:Config.instance.NEW_FLAGS_DATE_V13, id:'params_antihateraiddelete'}}},
 			antiHateRaidEmergency:	 	{type:"boolean", value:false, labelKey:"params.antiHateRaidEmergency", id:235, parent:232, icon:"emergency", storage:{vnew:{date:Config.instance.NEW_FLAGS_DATE_V13, id:'params_antihateraidemergency'}}},
 			autoTranslateFirst: 		{type:"boolean", value:false, labelKey:"params.autoTranslateFirst", id:229, icon:"translate", storage:{vnew:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_translate'}}, premiumOnly:true, example:"translate_messages.png"},
-			autoTranslateFirstLang:		{type:"list", value:["en"] as string[], multiple:true, maxLength:1, listValues:Object.values(TranslatableLanguagesMap).map(v=> {return {value:v.iso1, flag:v.flag, label:v.name}}), labelKey:"params.autoTranslateFirst_lang", id:231, parent:229, icon:"voice"},
+			autoTranslateFirstLang:		{type:"list", value:["en"] as string[], multiple:true, max:1, listValues:Object.values(TranslatableLanguagesMap).map(v=> {return {value:v.iso1, flag:v.flag, label:v.name}}), labelKey:"params.autoTranslateFirst_lang", id:231, parent:229, icon:"voice"},
 			autoTranslateFirstSpoken:	{type:"list", value:["en"] as string[], multiple:true, listValues:Object.values(TranslatableLanguagesMap).map(v=> {return {value:v.iso1, flag:v.flag, label:v.name}}), labelKey:"params.autoTranslateFirst_spoken", id:230, parent:229, icon:"voice"},
 			mergeConsecutive:	 		{type:"boolean", value:true, labelKey:"params.mergeConsecutive", id:225, icon:"merge", example:"merge_messages.gif", storage:{vnew:{date:1693519200000, id:'params_chatmerge'}}},
 			mergeConsecutive_maxSize:	{type:"number", value:100, labelKey:"params.mergeConsecutive_maxSize", id:226, parent:225, min:1, max:500},
@@ -286,7 +286,11 @@ export const storeParams = defineStore('params', {
 						if(typeof pointer.value === 'number') {
 							pointer.value = parseFloat(v);
 						}else{
-							pointer.value = JSON.parse(v);
+							try {
+								pointer.value = JSON.parse(v);
+							}catch(error) {
+								console.log("[STORE:PARAMS]Cannot JSON parse value:", v);
+							} 
 						}
 					}
 				}
