@@ -18,7 +18,7 @@
 			"unlink_fail": "Something unknown went wrong when unlinking requested user :(",
 			"unlink_confirm": {
 				"title": "Unlink",
-				"description": "This user share your data anymore. Their data will remain but won't be synced anymore"
+				"description": "This user won't share your data anymore. Their data will remain but won't be synced anymore"
 			}
 		}
 	}
