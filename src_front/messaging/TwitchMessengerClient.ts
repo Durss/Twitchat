@@ -419,6 +419,18 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 				case "/raid":  {
 					if(!TwitchUtils.requestScopes([TwitchScopes.START_RAID])) return false;
+					//First check for channel.moderate v1 scope
+					if(!TwitchUtils.hasScopes([TwitchScopes.MODERATION_EVENTS])
+					//Alternatively check for all permissions required by channel.moderate v2
+					&& !TwitchUtils.hasScopes([TwitchScopes.START_RAID,
+											TwitchScopes.BLOCKED_TERMS,
+											TwitchScopes.SET_ROOM_SETTINGS,
+											TwitchScopes.UNBAN_REQUESTS,
+											TwitchScopes.EDIT_BANNED,
+											TwitchScopes.DELETE_MESSAGES,
+											TwitchScopes.CHAT_WARNING,
+											TwitchScopes.READ_MODERATORS,
+											TwitchScopes.READ_VIPS])) return false;
 					return await TwitchUtils.raidChannel(chunks[0].replace(/^@/, "").toLowerCase());
 				}
 				case "/unraid":  {

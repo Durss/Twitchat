@@ -353,7 +353,15 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/raid" && (!params[0] || params[0] == "user")) {
-			if(TwitchUtils.requestScopes([TwitchScopes.START_RAID])) {
+			if(TwitchUtils.requestScopes([TwitchScopes.START_RAID,
+			TwitchScopes.BLOCKED_TERMS,
+			TwitchScopes.SET_ROOM_SETTINGS,
+			TwitchScopes.UNBAN_REQUESTS,
+			TwitchScopes.EDIT_BANNED,
+			TwitchScopes.DELETE_MESSAGES,
+			TwitchScopes.CHAT_WARNING,
+			TwitchScopes.READ_MODERATORS,
+			TwitchScopes.READ_VIPS])) {
 				//If starting a raid with /raid without specifying a user
 				//open live followings list
 				StoreProxy.params.openModal("liveStreams")

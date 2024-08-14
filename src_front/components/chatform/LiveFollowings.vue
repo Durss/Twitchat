@@ -1,5 +1,5 @@
 <template>
-	<div class="livefollowings sidePanel">
+	<div class="livefollowings sidePanel" :class="{needPermission:!canRaid}">
 		
 		<div class="head">
 			<h1 v-if="showRaidHistory" ><Icon name="user" class="icon" />{{$t('raid.raid_historyBt')}}</h1>
@@ -57,9 +57,14 @@
 								{{computeDuration(s.started_at)}}</span>
 						</div>
 
-						<div class="raidBt">
+						<div class="raidBt" v-if="canRaid">
 							<Icon name="raid" />
 							Raid
+						</div>
+
+						<div class="permissionBt" v-if="!canRaid">
+							<Icon name="lock_fit" />
+							<p>{{ $t('cmdmenu.scope_grant') }}</p>
 						</div>
 					</div>
 				</a>
@@ -87,7 +92,7 @@ import ClearButton from '../ClearButton.vue';
 	},
 	emits:["close"]
 })
- class LiveFollowings extends AbstractSidePanel {
+class LiveFollowings extends AbstractSidePanel {
 
 	public streams:TwitchDataTypes.StreamInfo[] = [];
 	public roomSettings:{[key:string]:TwitchatDataTypes.IRoomSettings} = {};
@@ -112,6 +117,20 @@ import ClearButton from '../ClearButton.vue';
 				user:this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, v.uid, undefined, undefined, undefined, false)
 			}
 		});
+	}
+
+	public get canRaid():boolean {
+		//Check for all permissions required by channel.moderate v2
+		return TwitchUtils.hasScopes([TwitchScopes.START_RAID,
+								TwitchScopes.BLOCKED_TERMS,
+								TwitchScopes.SET_ROOM_SETTINGS,
+								TwitchScopes.UNBAN_REQUESTS,
+								TwitchScopes.EDIT_BANNED,
+								TwitchScopes.DELETE_MESSAGES,
+								TwitchScopes.CHAT_WARNING,
+								TwitchScopes.READ_MODERATORS,
+								TwitchScopes.READ_VIPS
+		]);
 	}
 
 	public getLastRaidElapsedDuration(uid:string):string {
@@ -184,10 +203,23 @@ import ClearButton from '../ClearButton.vue';
 	}
 
 	public raid(login:string):void {
-		this.$confirm(this.$t("liveusers.raid_confirm_title"), this.$t('liveusers.raid_confirm_desc', {USER:login})).then(async () => {
-			TwitchUtils.raidChannel(login);
-			this.close();
-		}).catch(()=> { });
+		if(this.canRaid) {
+			this.$confirm(this.$t("liveusers.raid_confirm_title"), this.$t('liveusers.raid_confirm_desc', {USER:login})).then(async () => {
+				TwitchUtils.raidChannel(login);
+				this.close();
+			}).catch(()=> { });
+		}else{
+			TwitchUtils.requestScopes([TwitchScopes.START_RAID,
+										TwitchScopes.BLOCKED_TERMS,
+										TwitchScopes.SET_ROOM_SETTINGS,
+										TwitchScopes.UNBAN_REQUESTS,
+										TwitchScopes.EDIT_BANNED,
+										TwitchScopes.DELETE_MESSAGES,
+										TwitchScopes.CHAT_WARNING,
+										TwitchScopes.READ_MODERATORS,
+										TwitchScopes.READ_VIPS
+			]);
+		}
 	}
 }
 export default toNative(LiveFollowings);
@@ -213,6 +245,16 @@ export default toNative(LiveFollowings);
 		display: flex;
 		flex-direction: column;
 		gap: .5em;
+	}
+
+	&.needPermission {
+		.content>.list>.stream:hover {
+			
+			background-color: var(--color-alert);
+			.header {
+				background-color: var(--color-alert-light);
+			}
+		}
 	}
 
 	.content {
@@ -273,6 +315,11 @@ export default toNative(LiveFollowings);
 						.raidBt {
 							opacity: 1;
 							font-size: 2em;
+							color: var(--color-light);
+						}
+						.permissionBt {
+							opacity: 1;
+							font-size: 1em;
 							color: var(--color-light);
 						}
 					}
@@ -336,7 +383,7 @@ export default toNative(LiveFollowings);
 						}
 					}
 		
-					.raidBt{
+					.raidBt, .permissionBt{
 						.center();
 						position: absolute;
 						opacity: 0;
@@ -344,8 +391,12 @@ export default toNative(LiveFollowings);
 						display:flex;
 						flex-direction: row;
 						align-items: center;
+						&.permissionBt {
+							width: 90%;
+						}
 						.icon {
 							width: 40px;
+							flex-shrink: 0;
 							vertical-align: middle;
 							margin-right: .5em;
 						}

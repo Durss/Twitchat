@@ -37,7 +37,7 @@ class ChatMessageInfoBadges extends Vue {
 			raider:"raid",
 			automod:"shield",
 			cyphered:"lock_fit",
-			new_user:"sub",
+			new_user:"firstTime",
 			restrictedUser:"shield",
 			suspiciousUser:"shield",
 			emergencyBlocked:"emergency",

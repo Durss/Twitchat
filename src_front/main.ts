@@ -209,6 +209,8 @@ function buildApp() {
 		return () => popper.destroy()
 	}
 
+	window.setInitMessage("Building stores");
+
 	const app = createApp(App)
 	.use(pinia);
 
@@ -274,6 +276,7 @@ function buildApp() {
 		}
 	})
 
+	window.setInitMessage("Building interface");
 	app.use(router)
 	.use(i18n)
 	.use(ContextMenu)
@@ -407,6 +410,7 @@ function buildApp() {
 		});
 	}
 
+	window.setInitMessage("Mounting interface");
 	app.mount('#app');
 
 	document.addEventListener("keyup", (e:KeyboardEvent)=> {

@@ -344,6 +344,9 @@ export default class DataStore extends DataStoreCommon{
 			v = latestVersion;
 		}
 
+		if(typeof data["p:autoTranslateFirstLang"] == "string") {
+			data["p:autoTranslateFirstLang"] = [data["p:autoTranslateFirstLang"][0]];
+		}
 		delete data["p:hideChat"];//TODO remove in a few months (added 08/08/204)
 		data[this.DATA_VERSION] = v;
 		return data;
@@ -1469,7 +1472,7 @@ export default class DataStore extends DataStoreCommon{
 	public static fixUserErrors(data:any):void {
 		//Limiting to max 1 language source
 		if(data["p:autoTranslateFirstLang"] && data["p:autoTranslateFirstLang"].length > 1) {
-			data["p:autoTranslateFirstLang"] = data["p:autoTranslateFirstLang"][0];
+			data["p:autoTranslateFirstLang"] = [data["p:autoTranslateFirstLang"][0]];
 		}
 
 		//Limit stream info preset name

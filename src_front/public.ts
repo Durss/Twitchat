@@ -89,6 +89,7 @@ function buildApp() {
 		return new URL(`/src_front/assets/${path}`, import.meta.url).href;
 	}
 
+	window.setInitMessage("Building interface");
 	const app = createApp(AppPublic);
 	app.use(pinia)
 	.use(router)

@@ -51,7 +51,7 @@ import ParamItem from '../params/ParamItem.vue';
 	},
 	emits:["update"]
 })
- class ScopeSelector extends Vue {
+class ScopeSelector extends Vue {
 	@Prop({
 			type:Array,
 			default:[],

@@ -146,7 +146,7 @@ import { watch } from 'vue';
 		"update:showRewards",
 	]
 })
- class CommandHelper extends Vue {
+class CommandHelper extends Vue {
 
 	@Prop()
 	public showChatUsers!:boolean;
@@ -179,7 +179,22 @@ import { watch } from 'vue';
 	public get canEditStreamInfos():boolean { return TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]); }
 	public get canStartCommercial():boolean { return TwitchUtils.hasScopes([TwitchScopes.START_COMMERCIAL]) && this.hasChannelPoints; }
 	public get canClearChat():boolean { return TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES]); }
-	public get canRaid():boolean { return TwitchUtils.hasScopes([TwitchScopes.START_RAID]); }
+	public get canRaid():boolean {
+		//First check for channel.moderate v1 scope
+		// TwitchUtils.hasScopes([TwitchScopes.START_RAID, TwitchScopes.MODERATION_EVENTS])
+		//Alternatively check for all permissions required by channel.moderate v2
+		// ||
+		return TwitchUtils.hasScopes([TwitchScopes.START_RAID,
+								TwitchScopes.BLOCKED_TERMS,
+								TwitchScopes.SET_ROOM_SETTINGS,
+								TwitchScopes.UNBAN_REQUESTS,
+								TwitchScopes.EDIT_BANNED,
+								TwitchScopes.DELETE_MESSAGES,
+								TwitchScopes.CHAT_WARNING,
+								TwitchScopes.READ_MODERATORS,
+								TwitchScopes.READ_VIPS
+		]);
+	}
 	public get isAdmin():boolean { return this.$store.auth.twitch.user.is_admin === true; }
 
 	public get canCreatePrediction():boolean {
@@ -416,8 +431,17 @@ import { watch } from 'vue';
 	}
 
 	public requestRaidScopes():void {
-		if(TwitchUtils.hasScopes([TwitchScopes.START_RAID])) return;
-		this.$store.auth.requestTwitchScopes([TwitchScopes.START_RAID]);
+		const scopes = [TwitchScopes.START_RAID,
+						TwitchScopes.BLOCKED_TERMS,
+						TwitchScopes.SET_ROOM_SETTINGS,
+						TwitchScopes.UNBAN_REQUESTS,
+						TwitchScopes.EDIT_BANNED,
+						TwitchScopes.DELETE_MESSAGES,
+						TwitchScopes.CHAT_WARNING,
+						TwitchScopes.READ_MODERATORS,
+						TwitchScopes.READ_VIPS]
+		if(TwitchUtils.hasScopes(scopes)) return;
+		this.$store.auth.requestTwitchScopes(scopes);
 	}
 
 	public onTogglePin(pinId:typeof TwitchatDataTypes.PinnableMenuItems[number]["id"]):void {
