@@ -267,7 +267,7 @@ export default class SpotifyHelper {
 			if(!isRetry) return await this.getTrackByID(id, true);
 			else return null;
 		}
-		if(res.status < 204 && res.status >= 200) {
+		if(res.status <= 204 && res.status >= 200) {
 			try {
 				StoreProxy.music.spotifyConsecutiveErrors = 0;
 				return await res.json();
@@ -358,7 +358,7 @@ export default class SpotifyHelper {
 			method:"POST",
 		}
 		const res = await fetch("https://api.spotify.com/v1/me/player/queue?uri="+encodeURIComponent(track.uri), options);
-		if(res.status < 204 && res.status >= 200) {
+		if(res.status <= 204 && res.status >= 200) {
 			if(user) {
 				this._trackIdToRequest[track.id] = {user, search:searchTerms};
 			}
@@ -409,7 +409,7 @@ export default class SpotifyHelper {
 			})
 		}
 		const res = await fetch("https://api.spotify.com/v1/playlists/"+playlistId+"/tracks", options);
-		if(res.status < 204 && res.status >= 200) {
+		if(res.status <= 204 && res.status >= 200) {
 			StoreProxy.music.spotifyConsecutiveErrors = 0;
 			return true;
 		}else
@@ -773,7 +773,7 @@ export default class SpotifyHelper {
 			await this.refreshToken();
 			return false;
 		}
-		if(res.status < 204 && res.status >= 200) {
+		if(res.status <= 204 && res.status >= 200) {
 			StoreProxy.music.spotifyConsecutiveErrors = 0;
 			return true;
 		}
