@@ -72,6 +72,7 @@ export const storeMain = defineStore("main", {
 		iconCache:{},
 		antifaHide:false,
 		outdatedDataVersion:false,
+		offlineMode:false,
 	} as IMainState),
 
 
@@ -1001,7 +1002,10 @@ export const storeMain = defineStore("main", {
 		},
 
 		showOutdatedDataVersionAlert():void { this.outdatedDataVersion = true; },
-		hideOutdatedDataVersionAlert():void { this.outdatedDataVersion = false; },
+		hideOutdatedDataVersionAlert(offlineMode:boolean):void {
+			this.outdatedDataVersion = false;
+			this.offlineMode = offlineMode;
+		},
 
 	} as IMainActions & ThisType<IMainActions & UnwrapRef<IMainState> & _StoreWithState<"main", IMainState, IMainGetters, IMainActions> & _StoreWithGetters<IMainGetters> & PiniaCustomProperties>
 })

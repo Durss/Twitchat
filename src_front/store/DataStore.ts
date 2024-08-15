@@ -33,12 +33,13 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	static override async save(force:boolean = false, delay:number = 1500):Promise<void> {
 		clearTimeout(this.saveTO);
-
+		
 		if(!force) {
 			if(!this.syncToServer) return;//User wants to only save data locally
 			if(!this.dataImported) return;//Don't export anything before importing data first
 			if(!StoreProxy.auth.twitch.access_token) return;
 			if(StoreProxy.main.outdatedDataVersion) return;
+			if(StoreProxy.main.offlineMode) return;
 		}
 
 		return new Promise((resolve) => {;
@@ -344,9 +345,6 @@ export default class DataStore extends DataStoreCommon{
 			v = latestVersion;
 		}
 
-		if(typeof data["p:autoTranslateFirstLang"] == "string") {
-			data["p:autoTranslateFirstLang"] = [data["p:autoTranslateFirstLang"][0]];
-		}
 		delete data["p:hideChat"];//TODO remove in a few months (added 08/08/204)
 		data[this.DATA_VERSION] = v;
 		return data;

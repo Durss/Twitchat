@@ -21,7 +21,7 @@
 				<div class="buttonList" v-if="!why">
 					<TTButton icon="back" :loading="saving" @click="confirm = readOnly = why = false">{{ $t("global.back") }}</TTButton>
 					<TTButton icon="upload" v-if="!readOnly" :loading="saving" @click="saveData()" primary>{{ $t("global.confirm") }}</TTButton>
-					<TTButton icon="checkmark" v-else :loading="saving" @click="close()" primary>{{ $t("global.confirm") }}</TTButton>
+					<TTButton icon="checkmark" v-else @click="close()" primary>{{ $t("global.confirm") }}</TTButton>
 				</div>
 				<div class="buttonList" v-else>
 					<TTButton icon="back" @click="why=false">{{ $t("global.back") }}</TTButton>
@@ -71,7 +71,7 @@ class OutdatedDataVersionAlert extends Vue {
 		gsap.killTweensOf([this.$refs.holder, this.$refs.dimmer]);
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:0, ease:"sine.in"});
 		gsap.to(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.in", onComplete:()=> {
-			this.$store.main.hideOutdatedDataVersionAlert();
+			this.$store.main.hideOutdatedDataVersionAlert(this.readOnly===true);
 		}});
 	}
 

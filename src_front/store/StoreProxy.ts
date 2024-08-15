@@ -147,6 +147,10 @@ export interface IMainState {
 	 * Shows an alert to the user when true.
 	 */
 	outdatedDataVersion:boolean;
+	/**
+	 * "true" if user choose to continue offline
+	 */
+	offlineMode:boolean;
 }
 
 export interface IMainGetters {
@@ -233,7 +237,7 @@ export interface IMainActions {
 	 * This happens when they run 2 twitchat instances
 	 */
 	showOutdatedDataVersionAlert():void;
-	hideOutdatedDataVersionAlert():void;
+	hideOutdatedDataVersionAlert(offlineMode:boolean):void;
 }
 
 
