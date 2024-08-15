@@ -1408,7 +1408,7 @@ const UserDataSchema = {
 				slots: {
 					type:"array",
 					minItems:0,
-					maxItems:20,
+					maxItems:100,
 					items:{
 						type:"object",
 						additionalProperties: false,
