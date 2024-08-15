@@ -9,7 +9,7 @@
 		@click.capture="open($event)"
 		@click.right="cycleChannel($event)">
 			<img class="avatar" v-if="currentChannel.user.avatarPath"
-				:src="currentChannel.user.avatarPath"
+				:src="currentChannel.user.avatarPath.replace(/300x300/gi, '50x50')"
 				:style="{color:currentChannel.color}"
 				alt="avatar"
 				referrerpolicy="no-referrer">
@@ -37,7 +37,7 @@
 				:class="currentChannelId == entry.user.id? 'entry selected' : 'entry'"
 				@click="onSelectChannel(entry.user.id, entry.user.login, entry.platform)">
 					<img class="avatar" v-if="entry.user.avatarPath"
-						:src="entry.user.avatarPath"
+						:src="entry.user.avatarPath.replace(/300x300/gi, '50x50')"
 						:style="{color:entry.color}"
 						alt="avatar"
 						referrerpolicy="no-referrer">
