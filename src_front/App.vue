@@ -36,7 +36,7 @@ class App extends Vue {
 
 	public get demoMode() { return Config.instance.DEMO_MODE && this.$route.name !="overlay"; }
 
-	private dispose = false;
+	private requestAnimID = -1;
 	private resizeHandler!:() => void;
 	private dragStartHandler!:(e:MouseEvent) => boolean;
 	private mouseDownHandler!:(e:MouseEvent) => boolean;
@@ -61,33 +61,33 @@ class App extends Vue {
 		watch(()=> this.$store.main.initComplete, ()=> this.hideMainLoader())
 		this.hideMainLoader();
 
-		if(this.demoMode) {
-			// document.addEventListener("keydown", (e)=>{
-			// 	if(e.ctrlKey) {
-			// 		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageSubscriptionData>(TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, (m)=>{
-			// 			m.user = this.$store.auth.twitch.user;
-			// 			m.is_gift = false;
-			// 			m.is_resub = false;
-			// 			m.is_giftUpgrade = false;
-			// 		})
-			// 	}
-			// })
-			document.body.classList.add("demoMode");
-			this.renderFrame();
-			this.mouseMoveHandler = (e) => this.onMouseMove(e);
-			this.dragStartHandler = (e) => this.onDragStart(e);
-			this.mouseDownHandler = (e) => this.onMouseDown(e);
-			this.keyDownHandler = (e) => this.onKeyDown(e);
-			window.addEventListener("mousedown", this.mouseDownHandler);
-			window.addEventListener("mousemove", this.mouseMoveHandler, true);
-			window.addEventListener("dragover", this.mouseMoveHandler);
-			window.addEventListener("dragstart", this.dragStartHandler);
-			window.addEventListener("keydown", this.keyDownHandler);
-		}
+		watch(()=> Config.instance.DEMO_MODE, () => {
+			if(this.demoMode) {
+				document.body.classList.add("demoMode");
+				this.renderFrame();
+				this.mouseMoveHandler = (e) => this.onMouseMove(e);
+				this.dragStartHandler = (e) => this.onDragStart(e);
+				this.mouseDownHandler = (e) => this.onMouseDown(e);
+				this.keyDownHandler = (e) => this.onKeyDown(e);
+				window.addEventListener("mousedown", this.mouseDownHandler);
+				window.addEventListener("mousemove", this.mouseMoveHandler, true);
+				window.addEventListener("dragover", this.mouseMoveHandler);
+				window.addEventListener("dragstart", this.dragStartHandler);
+				window.addEventListener("keydown", this.keyDownHandler);
+			}else{
+				document.body.classList.remove("demoMode");
+				cancelAnimationFrame(this.requestAnimID);
+				window.removeEventListener("mousedown", this.mouseDownHandler);
+				window.removeEventListener("mousemove", this.mouseMoveHandler, true);
+				window.removeEventListener("dragover", this.mouseMoveHandler);
+				window.removeEventListener("dragstart", this.dragStartHandler);
+				window.removeEventListener("keydown", this.keyDownHandler);
+			}
+		})
 	}
 
 	public beforeUnmount():void {
-		this.dispose = true;
+		cancelAnimationFrame(this.requestAnimID);
 		window.removeEventListener("resize", this.resizeHandler);
 		if(this.demoMode) {
 			window.removeEventListener("mousedown", this.mouseDownHandler);
@@ -189,8 +189,7 @@ class App extends Vue {
 	}
 
 	private renderFrame():void {
-		if(this.dispose) return;
-		requestAnimationFrame(()=>this.renderFrame());
+		this.requestAnimID = requestAnimationFrame(()=>this.renderFrame());
 		this.cursorProps.left = (this.mousePos.x+this.cursorOffset.x)+'px';
 		this.cursorProps.top = (this.mousePos.y-2)+'px';
 	}

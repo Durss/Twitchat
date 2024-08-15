@@ -242,6 +242,7 @@ import ChatMessage from '../messages/ChatMessage.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import MessengerProxy from '@/messaging/MessengerProxy';
 import { reactive } from 'vue';
+import Config from "@/utils/Config";
 
 @Component({
 	components:{
@@ -316,14 +317,12 @@ class BingoGridForm extends AbstractSidePanel {
 
 	public getPublicURL(gridId:string):string {
 		const uid = this.$store.auth.twitch.user.id;
-
-		return document.location.origin + this.$router.resolve({name:"bingo_grid_public", params:{uid, gridId}}).fullPath;
+		const baseURL = Config.instance.DEMO_MODE? "https://twitchat.fr" : document.location.origin;
+		return baseURL + this.$router.resolve({name:"bingo_grid_public", params:{uid, gridId}}).fullPath;
 	}
 
 	public copyPublicURL(gridId:string):void {
-		const uid = this.$store.auth.twitch.user.id;
-		const url = document.location.origin + this.$router.resolve({name:"bingo_grid_public", params:{uid, gridId}}).fullPath;
-		Utils.copyToClipboard(url);
+		Utils.copyToClipboard(this.getPublicURL(gridId));
 	}
 
 	public async sendChatURL(gridId:string):Promise<void> {

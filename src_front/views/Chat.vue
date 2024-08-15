@@ -222,6 +222,7 @@ import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
 import ShareParams from './ShareParams.vue';
+import Config from '@/utils/Config';
 
 @Component({
 	components:{
@@ -320,7 +321,8 @@ class Chat extends Vue {
 
 	public get classes():string[] {
 		const res = ["chat"];
-		if(this.splitViewVertical) res.push("splitVertical")
+		if(this.splitViewVertical) res.push("splitVertical");
+		if(Config.instance.DEMO_MODE) res.push("demo");
 		return res;
 	}
 
@@ -1181,7 +1183,7 @@ export default toNative(Chat);
 			}
 		}
 
-		.contentWindows:not(.credits) {
+		&:not(.demo)>.contentWindows:not(.credits) {
 			left: 0;
 			top: 0;
 			width: 100%;

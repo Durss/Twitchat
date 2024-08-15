@@ -860,6 +860,11 @@ export class ChatForm extends Vue {
 			this.message = "";
 		}else
 
+		if(cmd == "/__demo_mode__") {
+			Config.instance.DEMO_MODE = !Config.instance.DEMO_MODE;
+			this.message = "";
+		}else
+
 		if(cmd == "/__sentry_on__" || cmd == "/__sentry_off__") {
 			let sentryParamSrc = DataStore.get(DataStore.AB_SENTRY);
 			let sentryParam = sentryParamSrc? JSON.parse(sentryParamSrc) : {v:1, date:Date.now(), enabled:true};

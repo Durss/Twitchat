@@ -197,10 +197,12 @@ export default toNative(BingoGridControls);
 	margin-left: auto;
 	transform-origin: bottom right;
 	color:var(--color-light);
+	align-items: center;
 
 	.entry{
+		width: 100%;
 		h2 {
-			text-align: center;
+			margin: auto;
 			margin-bottom: .5em;
 			max-width: min(100vw, 300px);
 			word-wrap: break-word;
@@ -219,11 +221,11 @@ export default toNative(BingoGridControls);
 	}
 
 	.ctas {
-		gap: .25em;
+		gap: .5em;
 		margin-top: .5em;
 		display: flex;
 		flex-direction: row;
-		justify-content: space-evenly;
+		justify-content: center;
 	}
 
 	.flip-list-move {

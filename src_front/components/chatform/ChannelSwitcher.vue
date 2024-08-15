@@ -326,11 +326,12 @@ export default toNative(ChannelSwitcher);
 		cursor: pointer;
 		.platformIcon {
 			height: 15px;
+			max-width: 15px;
 			position: absolute;
 			bottom: 0;
 			right: -3px;
 			background-color: var(--color-text-inverse);
-			padding: 2px;
+			padding: 2px;// 2px 2px 3px;
 			border-radius: 50%;
 		}
 		.avatar {
