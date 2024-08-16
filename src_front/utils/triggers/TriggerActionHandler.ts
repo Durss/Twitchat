@@ -2284,7 +2284,7 @@ export default class TriggerActionHandler {
 										log.error = true;
 										const platforms:TwitchatDataTypes.ChatPlatform[] = [];
 										if(message.platform) platforms.push(message.platform);
-										MessengerProxy.instance.sendMessage("Playlist not found", platforms);
+										// MessengerProxy.instance.sendMessage("Playlist not found", platforms);
 									}else{
 										playlistTarget = {
 											id:playlist.id,
@@ -2456,7 +2456,7 @@ export default class TriggerActionHandler {
 								if(!success) {
 									const platforms:TwitchatDataTypes.ChatPlatform[] = [];
 									if(message.platform) platforms.push(message.platform);
-									MessengerProxy.instance.sendMessage("Playlist not found", platforms);
+									// MessengerProxy.instance.sendMessage("Playlist not found", platforms);
 								}
 							}
 						}
