@@ -399,6 +399,7 @@
 			"tooltip": {
 				"raider": "Raider",
 				"pinned": "Epinglé",
+				"saved": "Enregistré",
 				"new_user": "1er jour sur cette chaîne",
 				"restrictedUser": "Message visible uniquement par vous et vos modérateur·ices",
 				"suspiciousUser": "Personne marquée comme suspecte",

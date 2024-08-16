@@ -398,6 +398,7 @@
 			},
 			"tooltip": {
 				"raider": "Raider",
+				"saved": "Saved",
 				"pinned": "Pinned",
 				"new_user": "First day on this channel",
 				"restrictedUser": "Message only visible by you and your mods",

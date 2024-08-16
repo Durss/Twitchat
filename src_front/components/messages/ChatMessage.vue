@@ -94,6 +94,8 @@
 			<span :class="getMessageClasses(messageData)">
 				<span class="text">
 					<ChatMessageChunksParser
+					:forceSpoiler="messageData.type == 'message' && messageData.spoiler == true"
+					:containsSpoiler="messageData.type == 'message' && messageData.containsSpoiler == true"
 					:largeEmote="messageData.type == 'message'? messageData.twitch_gigantifiedEmote != undefined : false"
 					:chunks="localMessageChunks"
 					:channel="messageData.channel_id"
@@ -109,7 +111,13 @@
 			:id="'message_' + m.id + '_' + colIndex"
 			@contextmenu.capture="onContextMenu($event, m, $el)">
 				<span class="text">
-					<ChatMessageChunksParser :chunks="m.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
+					<ChatMessageChunksParser
+					:forceSpoiler="m.type == 'message' && m.spoiler == true"
+					:containsSpoiler="m.type == 'message' && m.containsSpoiler == true"
+					:largeEmote="m.type == 'message'? m.twitch_gigantifiedEmote != undefined : false"
+					:chunks="m.message_chunks"
+					:channel="m.channel_id"
+					:platform="m.platform" />
 				</span>
 				<span class="deleted" v-if="getDeletedMessage(m)">{{getDeletedMessage(m)}}</span>
 			</span>
@@ -678,6 +686,9 @@ class ChatMessage extends AbstractChatMessage {
 		m.spoiler = false;
 		m.autospoiled = false;
 		m.user.noAutospoil = true;
+		if(this.childrenList) {
+			this.childrenList.forEach(m=>m.spoiler = false);
+		}
 	}
 
 	/**
@@ -708,11 +719,11 @@ class ChatMessage extends AbstractChatMessage {
 	 */
 	private updateSavedState():void{
 		const m = this.messageData as TwitchatDataTypes.MessageChatData;
-		const badgeIndex = this.infoBadges.findIndex(v=> v.type == TwitchatDataTypes.MessageBadgeDataType.PINNED);
+		const badgeIndex = this.infoBadges.findIndex(v=> v.type == TwitchatDataTypes.MessageBadgeDataType.SAVED);
 
 		if(m.is_saved) {
 			if(badgeIndex == -1) {
-				this.infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.PINNED});
+				this.infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.SAVED});
 			}
 		}else{
 			if(badgeIndex > -1) {

@@ -21,25 +21,31 @@
 	// 	}
 	// }
 
-	.spoiler {
-		.text {
-			color: rgba(0, 0, 0, 0);
-			@c1: var(--background-color-fadest);
-			@c2: var(--background-color-fader);
-			background-color: var(--background-color-fader);
-			background-image: repeating-linear-gradient(-45deg, @c1, @c1 7px, @c2 7px, @c2 15px);
-			.emote, a, .icon {
-				opacity: 0;
-			}
-			&:hover {
-				color:unset;
-				-webkit-text-fill-color: unset;
-				background-color: transparent;
-				background-image: unset;
-				.emote, a, .icon {
-					opacity: 1;
-				}
-			}
+	.spoilerFrag,
+	.spoiler .messagetranslation .text {
+		color: transparent;
+		@c1: rgba(128, 128, 128, .5);
+		@c2: rgba(128, 128, 128, .25);
+		background-color: @c1;
+		background-image: repeating-linear-gradient(-45deg, @c1, @c1 7px, @c2 7px, @c2 15px);
+		transition: color .3s, background .3s;
+		.emote, a, .icon {
+			opacity: 0;
+			transition: opacity .3s;
+		}
+	}
+	.spoilerTag {
+		display: none;
+	}
+	&:hover .spoilerFrag,
+	&:hover .spoiler .messagetranslation .text {
+		color: unset;
+		background-color: transparent;
+		@c1: rgba(128, 128, 128, 0);
+		@c2: rgba(128, 128, 128, 0);
+		background-image: repeating-linear-gradient(-45deg, @c1, @c1 7px, @c2 7px, @c2 15px);
+		.emote, a, .icon {
+			opacity: 1;
 		}
 	}
 

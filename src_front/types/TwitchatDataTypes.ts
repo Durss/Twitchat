@@ -287,6 +287,8 @@ export namespace TwitchatDataTypes {
 		emoteHD?: string;
 		href?: string;
 		username?: string;
+		spoiler?: boolean;
+		spoilerTag?: boolean;
 	}
 
 	/**
@@ -399,6 +401,7 @@ export namespace TwitchatDataTypes {
 	 * to indicate things like "whisper" or "automod" info
 	 */
 	export const MessageBadgeDataType = {
+		SAVED: "saved",
 		RAIDER: "raider",
 		PINNED: "pinned",
 		AUTOMOD: "automod",
@@ -2614,6 +2617,10 @@ export namespace TwitchatDataTypes {
 		 * true if should be displayed as a spoiler
 		 */
 		spoiler?: boolean;
+		/**
+		 * true if parts of the message should be displayed as spoiler
+		 */
+		containsSpoiler?: boolean;
 		/**
 		 * true if message has been automatically set as spoiler
 		 * e.g: when "auto spoil 1st time chatters" option is enabled

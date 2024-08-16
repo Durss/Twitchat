@@ -2,7 +2,7 @@
 	<div class="messagetranslation quote primary" v-if="messageData.translation">
 		<!-- <CountryFlag v-if="messageData.translation.flagISO" :country="messageData.translation.flagISO" class="flag" v-tooltip="messageData.translation.languageName" /> -->
 		<Icon name="translate" class="flagIcon" v-tooltip="$t('global.translation')" />
-		<span>{{ messageData.translation.translation }}</span>
+		<span class="text">{{ messageData.translation.translation }}</span>
 	</div>
 </template>
 

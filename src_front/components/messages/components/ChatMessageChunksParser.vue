@@ -1,6 +1,6 @@
 
 <template>
-	<template v-for="chunk in chunks">
+	<span v-for="chunk in spoiledChunks" :class="{chunk:true, spoilerFrag:chunk.spoiler===true, spoilerTag:chunk.spoilerTag===true}">
 		<template v-if="chunk.type == 'text'">{{ chunk.value }}</template>
 
 		<template v-if="chunk.type == 'user'">
@@ -23,7 +23,7 @@
 		</template>
 
 		<mark v-else-if="chunk.type == 'highlight'">{{ chunk.value }}</mark>
-	</template>
+	</span>
 </template>
 
 <script lang="ts">
@@ -48,8 +48,50 @@ class ChatMessageChunksParser extends Vue {
 	@Prop({default:false, type:Boolean})
 	public largeEmote!:boolean;
 
+	@Prop({default:false, type:Boolean})
+	public forceSpoiler!:boolean;
+
+	@Prop({default:false, type:Boolean})
+	public containsSpoiler!:boolean;
+
 	@Prop
 	public chunks!:TwitchatDataTypes.ParseMessageChunk[];
+
+	public get spoiledChunks():TwitchatDataTypes.ParseMessageChunk[] {
+		if((!this.forceSpoiler && !this.containsSpoiler) || this.$store.params.features.spoilersEnabled.value !== true) return this.chunks;
+		
+		const chunks:TwitchatDataTypes.ParseMessageChunk[] = [];
+
+		for (let i = 0; i < this.chunks.length; i++) {
+			const chunk = JSON.parse(JSON.stringify(this.chunks[i]));
+			if(chunk.type == "text" && chunk.value.indexOf("||") > -1) {
+				const spoilChunks = chunk.value.split("||");
+				for (let j = 0; j < spoilChunks.length; j++) {
+					const spoilChunk = spoilChunks[j];
+					if(spoilChunk != "") chunks.push({type:"text", value:spoilChunk});
+					if(j < spoilChunks.length-1) {
+						chunks.push({type:"text", value:"||"})
+					}
+				}
+			}else{
+				chunks.push(chunk);
+			}
+		}
+
+		let isSpoiler = false;
+		for (let i = 0; i < chunks.length; i++) {
+			const chunk = chunks[i];
+			if(chunk.type == "text" && chunk.value == "||") {
+				isSpoiler = !isSpoiler;
+				chunk.spoilerTag = true;
+			}else if(isSpoiler) {
+				chunk.spoiler = true;
+			}
+			if(this.forceSpoiler === true) chunk.spoiler = true;
+		}
+
+		return chunks;
+	}
 
 	public copyLink(e:MouseEvent, chunk:TwitchatDataTypes.ParseMessageChunk):void {
 		Utils.copyToClipboard(chunk.value);
