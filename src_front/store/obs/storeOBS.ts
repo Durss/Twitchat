@@ -86,26 +86,41 @@ export const storeOBS = defineStore('obs', {
 			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_WEBSOCKET_CONNECTED, async ()=>{
 				const res = await OBSWebsocket.instance.socket.call("GetInputList", {inputKind:"browser_source"});
 				const sources = (res.inputs as unknown) as OBSInputItem[];
-				const filteredSources = sources
-								.filter(v=> v.inputKind == "browser_source")
-								.map(v=>{
-									return {loading:false, success:false, source:v, url:"", localFile:false}
-								});
+				const filteredSources = sources.filter(v=> v.inputKind == "browser_source");
 
 				filteredSources.forEach(browserSource=> {
-					OBSWebsocket.instance.getSourceSettings<{is_local_file:boolean, url:string, local_file:string}>(browserSource.source.inputName)
+					OBSWebsocket.instance.getSourceSettings<{is_local_file:boolean, url:string, local_file:string}>(browserSource.inputName)
 					.then(browserSourceSettings => {
-						if((browserSourceSettings.inputSettings.url as string || "").indexOf(document.location.origin) > -1){
-							let url = new URL(browserSourceSettings.inputSettings.url as string);
-							const portUrl = url.searchParams.get("obs_port");
-							const ipUrl = url.searchParams.get("obs_ip");
-							if(portUrl && ipUrl) {
-								url.searchParams.set("obs_ip", ip!);
-								url.searchParams.set("obs_port", port!);
-								if(pass) url.searchParams.set("obs_pass", pass);
-								OBSWebsocket.instance.setBrowserSourceURL(browserSource.source.inputName, url.toString())
+						const urlRaw = (browserSourceSettings.inputSettings.url as string || "").trim();
+						if(!urlRaw) return;
+
+						try {
+							const url = new URL(urlRaw);
+							let prevURL = url.toString();
+							//Check if overlay's URL is a twitchat domain
+							if(/.*twitchat.fr$/gi.test(url.hostname)
+							|| (/^\/overlay\/.+$/gi.test(url.pathname) && url.port == "8080" && url.hostname == "localhost")) {
+
+								//Update OBS-websocket credentials if necessary
+								const portUrl = url.searchParams.get("obs_port");
+								const ipUrl = url.searchParams.get("obs_ip");
+								if(portUrl && ipUrl) {
+									url.searchParams.set("obs_ip", ip!);
+									url.searchParams.set("obs_port", port!);
+									if(pass) url.searchParams.set("obs_pass", pass);
+								}
+
+								//Update host so it automatically migrates between local <=> beta <=> prod
+								url.host = document.location.host;
+
+								if(url.toString() != prevURL) {
+									url.port = document.location.port;
+									url.protocol = document.location.protocol;
+									console.log("ℹ️ Updating browser source URL from \""+prevURL+"\" to \""+url.toString()+"\"");
+									OBSWebsocket.instance.setBrowserSourceURL(browserSource.inputName, url.toString())
+								}
 							}
-						}
+						}catch(error){}
 					});
 				})
 			})
