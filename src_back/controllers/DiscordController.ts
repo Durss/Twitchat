@@ -235,9 +235,16 @@ export default class DiscordController extends AbstractController {
 		try {
 			const body = request.body as  {commands:{name:string, params:{name:string}[]}[]}
 			let commandList:SlashCommandBuilder[] = [];
+			let cmdsDone:{[key:string]:boolean} = {};
 			body.commands.forEach(cmdDef => {
+				//Avoid duplicates
+				const name = cmdDef.name.toLowerCase();
+				if(cmdsDone[name] == true) return;
+				cmdsDone[name] = true;
+
+				//Create commands definition
 				const cmd = new SlashCommandBuilder()
-				.setName(cmdDef.name.toLowerCase())
+				.setName(name)
 				.setDescription(cmdDef.name)
 				.setDefaultMemberPermissions(PermissionsBitField.Flags.BanMembers);
 
