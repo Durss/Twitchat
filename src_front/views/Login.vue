@@ -12,7 +12,7 @@
 	
 			<div class="content betaWarn" v-if="closedBeta === true && !scopeOnly">
 				<div class="head">
-					<img src="@/assets/icons/lock.svg">
+					<Icon name="lock" />
 					<p>{{ $t("login.closed_beta") }}</p>
 				</div>
 				<TTButton type="link" href="https://twitchat.fr" class="link" target="_self" icon="twitchat">{{ $t("login.prodBt") }}</TTButton>
@@ -42,7 +42,7 @@
 					<TTButton class="tranferBt" icon="download"
 					@click="transferData"
 					:loading="transferingData"
-					alert>{{ $t("login.transfer_datatBt") }}</TTButton>
+					light secondary>{{ $t("login.transfer_datatBt") }}</TTButton>
 				</div>
 
 				<div class="migrate" v-if="transferComplete">
@@ -89,6 +89,7 @@
 </template>
 
 <script lang="ts">
+import Icon from '@/components/Icon.vue';
 import TTButton from '@/components/TTButton.vue';
 import ClearButton from '@/components/ClearButton.vue';
 import ScopeSelector from '@/components/login/ScopeSelector.vue';
@@ -101,10 +102,10 @@ import Utils from '@/utils/Utils';
 import { gsap } from 'gsap';
 import { watch } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Component({
 	components:{
+		Icon,
 		TTButton,
 		ClearButton,
 		ScopeSelector,
@@ -406,8 +407,8 @@ export default toNative(Login);
 			&.betaWarn {
 				.head {
 					border-radius: var(--border-radius);
-					color: var(--color-light);
-					img {
+					color: var(--color-text);
+					.icon {
 						height: 2em;
 						margin-bottom: .5em;
 					}
@@ -419,6 +420,7 @@ export default toNative(Login);
 					padding: 1em;
 					background-color: var(--color-secondary);
 					border-radius: var(--border-radius);
+					color: var(--color-light);
 					.icon {
 						height: 2em;
 					}
