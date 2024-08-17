@@ -38,12 +38,12 @@
 				<slot name="composite" />
 			</div>
 
-			<div v-if="paramData.type == 'number'" class="holder number">
+			<div v-if="paramData.type == 'number' || paramData.type == 'integer'" class="holder number">
 				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$asset('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 
-				<label :for="'number'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
+				<label :for="paramData.type+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 
 				<TTButton v-if="typeof paramData.value == 'string'" @click="paramData.value = 0; clampValue();" icon="trash" secondary>{{ paramData.value }}</TTButton>
 				
@@ -52,7 +52,7 @@
 					type="number"
 					v-model.number="paramData.value"
 					v-autofocus="autofocus"
-					:id="'number'+key"
+					:id="paramData.type+key"
 					:min="paramData.min"
 					:max="paramData.max"
 					:step="paramData.step"
@@ -482,7 +482,7 @@ export class ParamItem extends Vue {
 
 		let count = 0;
 		let v = this.paramData.value as number | string;
-		if(this.paramData.type == "number" || this.paramData.type == "slider") {
+		if(this.paramData.type == "number" || this.paramData.type == "integer" || this.paramData.type == "slider") {
 			count = parseFloat(this.paramData.value as string) ?? 0;
 			if(isNaN(count)) count = 0;
 			v = count.toString();
@@ -598,7 +598,7 @@ export class ParamItem extends Vue {
 		//this kinda fixes these old bad behaviors.
 		//also if min/max values are changed this will make sure the value
 		//respects the new limits.
-		if(this.paramData.type == "number") {
+		if(this.paramData.type == "number" || this.paramData.type == "integer") {
 			if(typeof this.paramData.value == 'number') {
 				this.clampValue();
 			}
@@ -755,7 +755,7 @@ export class ParamItem extends Vue {
 			if(this.paramData.value === null) this.paramData.value = "";
 		}
 
-		if(this.paramData.type != "number" || this.paramData.value !== "") {
+		if((this.paramData.type != "number" && this.paramData.type != "integer") || this.paramData.value !== "") {
 			const prevValue = this.modelValue;
 			this.$emit("update:modelValue", this.paramData.value);
 			this.$emit("change", prevValue, this.paramData.value);
@@ -825,8 +825,12 @@ export class ParamItem extends Vue {
 
 	public clampValue():void {
 		if(this.paramData.value === ""
-		&& this.paramData.type == "number") {
+		&& (this.paramData.type == "number" || this.paramData.type == "integer")) {
 			this.paramData.value = 0;
+		}
+		
+		if(this.paramData.type == "integer") {
+			this.paramData.value = Math.round(this.paramData.value as number);
 		}
 
 		if(this.paramData.max != undefined && this.paramData.value as number > this.paramData.max) this.paramData.value = this.paramData.max;
@@ -838,7 +842,7 @@ export class ParamItem extends Vue {
 	public insertPlaceholder(tag:string):void {
 		if(this.paramData.type == "editablelist") {
 			(this.paramData.value as string[]).push(tag);
-		}else if(this.paramData.type == "number") {
+		}else if(this.paramData.type == "number" || this.paramData.type == "integer") {
 			this.paramData.value = tag;
 		}
 	}
