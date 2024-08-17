@@ -36,6 +36,7 @@
 						editableTitle
 						v-model:title="element.label"
 						:open="false"
+						:titleMaxLengh="100"
 						:key="'item_'+element.id"
 						:titleDefault="$t(getDefinitionFromSlot(element.slotType).label)"
 						:premium="getDefinitionFromSlot(element.slotType).premium">

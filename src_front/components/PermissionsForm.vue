@@ -34,7 +34,7 @@ import ParamItem from './params/ParamItem.vue';
 	public param_mods:TwitchatDataTypes.ParameterData<boolean>				= { type:"boolean", labelKey:"global.permissions.mods", value:true, icon:"mod" };
 	public param_vips:TwitchatDataTypes.ParameterData<boolean>				= { type:"boolean", labelKey:"global.permissions.vips", value:false, icon:"vip" };
 	public param_subs:TwitchatDataTypes.ParameterData<boolean>				= { type:"boolean", labelKey:"global.permissions.subs", value:false, icon:"sub" };
-	public param_followers_ms:TwitchatDataTypes.ParameterData<number>		= { type:"number", labelKey:"global.permissions.follow_duration", value:0, min:0, max:50000, icon:"timer" };
+	public param_followers_ms:TwitchatDataTypes.ParameterData<number>		= { type:"integer", labelKey:"global.permissions.follow_duration", value:0, min:0, max:50000, icon:"timer" };
 	public param_all:TwitchatDataTypes.ParameterData<boolean>				= { type:"boolean", labelKey:"global.permissions.all", value:false, icon:"user" };
 	public param_allowed:TwitchatDataTypes.ParameterData<string, string>	= { type:"editablelist", labelKey:"global.permissions.users_allowed", placeholderKey:"global.permissions.users_placeholder", value:"", icon:"checkmark" };
 	public param_refused:TwitchatDataTypes.ParameterData<string, string>	= { type:"editablelist", labelKey:"global.permissions.users_refused", placeholderKey:"global.permissions.users_placeholder", value:"", icon:"cross" };
