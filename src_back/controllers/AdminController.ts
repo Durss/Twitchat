@@ -3,6 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import Config from '../utils/Config.js';
 import AbstractController from "./AbstractController.js";
+import Logger from "../utils/Logger.js";
 
 /**
 * Created : 14/12/2022 
@@ -120,10 +121,14 @@ export default class AdminController extends AbstractController {
 	private async migrateUser(request:FastifyRequest, response:FastifyReply) {
 		const userInfo = await super.twitchUserGuard(request, response);
 		if(userInfo == false) return;
+		
+		Logger.info("Migrate",userInfo.login,"data from beta to production.");
 
 		const prodFile = path.join(Config.PRODUCTION_USER_DATA_PATH_FROM_BETA, userInfo.user_id+".json");
 		const betaFile = path.join(Config.USER_DATA_PATH, userInfo.user_id+".json");
 		
+		console.log("Source:", betaFile);
+		console.log("  Dest:", prodFile);
 		if(fs.existsSync(betaFile)) {
 			fs.copyFileSync(betaFile, prodFile);
 		}

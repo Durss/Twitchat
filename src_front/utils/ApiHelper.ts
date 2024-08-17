@@ -46,9 +46,6 @@ export default class ApiHelper {
 		:Promise<{status:number; json:ApiDefinition<ApiEndpoints, U, M>["response"]}> {
 			
 		const url = new URL(Config.instance.API_PATH+"/"+endpoint);
-		if(!headers["Content-Type"] && !(data instanceof FormData)) {
-			headers["Content-Type"] = "application/json";
-		}
 		headers["App-Version"] = import.meta.env.PACKAGE_VERSION;
 		if(this._accessToken) {
 			headers["Authorization"] = "Bearer "+this._accessToken;
@@ -62,6 +59,9 @@ export default class ApiHelper {
 				options.body = data;
 			}else
 			if(method === "POST" || method === "PUT") {
+				if(!headers["Content-Type"]) {
+					headers["Content-Type"] = "application/json";
+				}
 				options.body = JSON.stringify(data);
 			}else{
 				for (const key in data) {
