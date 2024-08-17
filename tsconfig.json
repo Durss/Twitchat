@@ -6,6 +6,7 @@
 		"strict": true,
 		"jsx": "preserve",
 		"moduleResolution": "node",
+		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"skipLibCheck": true,
 		"allowJs": true,
