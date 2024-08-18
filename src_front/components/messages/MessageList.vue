@@ -1734,6 +1734,11 @@ import { Linear } from 'gsap/all';
 			//Not the same user don't merge
 			if(prevCast.user.id !== newCast.user.id) return false;
 			if(prevCast.channel_id !== newCast.channel_id) return false;
+				
+			//Get date of the latest children if any, or the date of the message itself
+			const prevDate = this.messageIdToChildren[prevMessage.id]?.length > 0? this.messageIdToChildren[prevMessage.id][this.messageIdToChildren[prevMessage.id].length-1].date : prevMessage.date;
+			//Too much time elapsed between the 2 messages
+			if(newMessage.date - prevDate > minDuration * 1000) return false;
 
 			//Merging 2 chat messages from the same user...
 			if(prevMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
@@ -1747,10 +1752,6 @@ import { Linear } from 'gsap/all';
 					|| prevMessage.twitch_gigantifiedEmote
 					|| prevMessage.twitch_animationId
 				)) return false;
-				//Get date of the latest children if any, or the date of the message
-				const prevDate = this.messageIdToChildren[prevMessage.id]?.length > 0? this.messageIdToChildren[prevMessage.id][this.messageIdToChildren[prevMessage.id].length-1].date : prevMessage.date;
-				//Too much time elapsed between the 2 messages
-				if(newMessage.date - prevDate > minDuration * 1000) return false;
 
 				//If message is too big, don't merge
 				//Check forward for when doing a full chat refresh
@@ -1777,9 +1778,11 @@ import { Linear } from 'gsap/all';
 				if(newMessage.message_html && !prevMessage.message_html) return false;
 				if(!newMessage.message_html && prevMessage.message_html) return false;
 			}else
+
+			//Merge cheers
 			if(newMessage.type == TwitchatDataTypes.TwitchatMessageType.CHEER
 			&& prevMessage.type == TwitchatDataTypes.TwitchatMessageType.CHEER) {
-				//Dont merge rewards with prompts unless they're the same reward type
+				//Dont merge pinned cheers
 				if(newMessage.pinned || prevMessage.pinned) return false;
 			}
 
