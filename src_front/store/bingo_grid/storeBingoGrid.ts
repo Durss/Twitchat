@@ -207,7 +207,15 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				}
 
 				//Sort viewers by bingo count
+				const prevCount = this.viewersBingoCount[event.data.gridId].length;
 				this.viewersBingoCount[event.data.gridId] = list.filter(v=>v.count > 0);
+				//Force leaderboard close if there were bingos before and there are none now
+				//In this case the "hide leaderboard" button is not accessible anymore on the
+				//UI because the "leader board" section is only there when there is at least
+				//one person on the leaderboar.
+				if(this.viewersBingoCount[event.data.gridId].length == 0 && prevCount > 0) {
+					this.hideLeaderboard(event.data.gridId);
+				}
 
 				//If there actually is a new bingo
 				if(isNewBingo) {
