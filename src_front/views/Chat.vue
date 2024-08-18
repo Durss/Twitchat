@@ -90,7 +90,6 @@
 				v-model:showCredits="showCredits" @update:showCredits="(v:boolean) => showCredits = v"
 				v-model:showBingoGrid="showBingoGrid" @update:showBingoGrid="(v:boolean) => showBingoGrid = v"
 				v-model:showGazaFunds="showGazaFunds" @update:showGazaFunds="(v:boolean) => showGazaFunds = v"
-				v-model:showAntifa="showAntifa" @update:showAntifa="(v:boolean) => showAntifa = v"
 			/>
 		</div>
 
@@ -150,8 +149,6 @@
 
 		<HelpGenocideVictims v-if="showGazaFunds" @close="showGazaFunds = false" />
 
-		<VoteAntifa v-if="showAntifa" @close="showAntifa = false" />
-
 		<Accessibility />
 
 		<div class="blinkLayer" ref="blinkLayer" v-if="showBlinkLayer" @click="showBlinkLayer=false"></div>
@@ -185,7 +182,6 @@ import StreamSummary from '@/components/chatform/StreamSummary.vue';
 import TTUserList from '@/components/chatform/TTUserList.vue';
 import TwitchatAnnouncement from '@/components/chatform/TwitchatAnnouncement.vue';
 import UserList from '@/components/chatform/UserList.vue';
-import VoteAntifa from '@/components/chatform/VoteAntifa.vue';
 import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 import MessageList from '@/components/messages/MessageList.vue';
 import GreetThem from '@/components/newusers/GreetThem.vue';
@@ -239,7 +235,6 @@ import Config from '@/utils/Config';
 		TimerForm,
 		GreetThem,
 		BingoForm,
-		VoteAntifa,
 		Extensions,
 		DonorBadge,
 		Parameters,
@@ -291,7 +286,6 @@ class Chat extends Vue {
 	public showShoutout = false;
 	public showBingoGrid = false;
 	public showGazaFunds = false;
-	public showAntifa = false;
 	public showChatUsers = false;
 	public showDonorBadge = true;
 	public showBlinkLayer = false;

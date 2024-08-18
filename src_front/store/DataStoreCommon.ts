@@ -99,7 +99,6 @@ export default class DataStoreCommon {
 	public static OVERLAY_LABELS:string = "overlayLabels";
 	public static OVERLAY_LABELS_CACHE:string = "overlayLabelsCache";
 	public static T4P_CHAT_CMD:string = "t4p_chat_cmd";
-	public static ANTIFA_HIDE:string = "antifa_hide";
 	public static USER_ID:string = "userId";
 	public static USERCARD_PINNED_CHANNEL:string = "usercardPinnedChannel";
 
@@ -137,7 +136,6 @@ export default class DataStoreCommon {
 		this.STREAMELEMENTS,
 		this.TIPEEE,
 		this.T4P_CHAT_CMD,
-		this.ANTIFA_HIDE,
 	];
 
 

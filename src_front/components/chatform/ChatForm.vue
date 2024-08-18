@@ -287,11 +287,6 @@
 				v-tooltip="{touch:'hold', content:$t('gaza.tooltip'), showOnCreate:shouldShowTooltip('gaza'), onHidden:()=>onHideTooltip('gaza')}"
 				@click="$emit('update:showGazaFunds', true)">🍉</ButtonNotification>
 
-				<ButtonNotification 
-				v-if="showAntifaBtn && $i18n.locale == 'fr' && !$store.main.antifaHide"
-				v-tooltip="{touch:'hold', content:'Votez', showOnCreate:shouldShowTooltip('antifa'), onHidden:()=>onHideTooltip('antifa')}"
-				@click="$emit('update:showAntifa', true)">🗳️</ButtonNotification>
-
 				<transition name="blink">
 					<TTButton class="emergency"
 						v-if="emergencyButtonEnabled"
@@ -418,7 +413,6 @@ import {YoutubeScopes} from "@/utils/youtube/YoutubeScopes";
 		"update:showBingoGrid",
 		"setCurrentNotification",
 		"update:showGazaFunds",
-		"update:showAntifa",
 		"update:showChatUsers",
 	],
 })
@@ -439,7 +433,6 @@ export class ChatForm extends Vue {
 	public error = false;
 	public loading = false;
 	public showGazaBtn = false;
-	public showAntifaBtn = false;
 	public censoredViewCount = false;
 	public autoCompleteSearch = "";
 	public autoCompleteEmotes = false;
@@ -575,7 +568,6 @@ export class ChatForm extends Vue {
 		setTimeout(()=> {
 			this.loadAnnouncements();
 			this.showGazaBtn = true;
-			this.showAntifaBtn = Date.now() < new Date("07/07/2024 23:59:59").getTime();
 		}, 2000);
 		//Check for new announcements every 30min
 		this.announcementInterval = setInterval(()=> {
@@ -711,7 +703,7 @@ export class ChatForm extends Vue {
 	/**
 	 * Gets if a button tooltip should be displayed by default
 	 */
-	public shouldShowTooltip(key:TwitchatDataTypes.NotificationTypes|TwitchatDataTypes.ModalTypes|"gaza"|"antifa"):boolean {
+	public shouldShowTooltip(key:TwitchatDataTypes.NotificationTypes|TwitchatDataTypes.ModalTypes|"gaza"):boolean {
 		const json = DataStore.get(DataStore.TOOLTIP_AUTO_OPEN);
 		let values!:{[key:string]:number};
 		if(!json) values = {};
@@ -722,7 +714,7 @@ export class ChatForm extends Vue {
 	/**
 	 * Called when a tooltip is closed
 	 */
-	public onHideTooltip(key:TwitchatDataTypes.NotificationTypes|TwitchatDataTypes.ModalTypes|"gaza"|"antifa"):void {
+	public onHideTooltip(key:TwitchatDataTypes.NotificationTypes|TwitchatDataTypes.ModalTypes|"gaza"):void {
 		const json = DataStore.get(DataStore.TOOLTIP_AUTO_OPEN);
 		let values!:{[key:string]:number};
 		if(!json) values = {};

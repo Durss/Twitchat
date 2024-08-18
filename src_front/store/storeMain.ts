@@ -70,7 +70,6 @@ export const storeMain = defineStore("main", {
 		t4p:"",
 		t4pLastDate:0,
 		iconCache:{},
-		antifaHide:false,
 		outdatedDataVersion:false,
 		offlineMode:false,
 	} as IMainState),
@@ -149,8 +148,6 @@ export const storeMain = defineStore("main", {
 			const sAuth = StoreProxy.auth;
 			const sVoice = StoreProxy.voice;
 			const sParams = StoreProxy.params;
-
-			this.antifaHide = DataStore.get(DataStore.ANTIFA_HIDE) === "true";
 
 			//Load app configs (cliend ID, scopes, ...)
 			window.setInitMessage("loading configs");
