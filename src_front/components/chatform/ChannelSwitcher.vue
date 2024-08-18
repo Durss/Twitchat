@@ -13,6 +13,7 @@
 				:style="{color:currentChannel.color}"
 				alt="avatar"
 				referrerpolicy="no-referrer">
+			<div class="avatar" :style="{color:currentChannel.color}" v-else></div>
 			<Icon :name="currentChannel.platform" class="platformIcon" />
 		</div>
 
@@ -41,6 +42,7 @@
 						:style="{color:entry.color}"
 						alt="avatar"
 						referrerpolicy="no-referrer">
+					<div class="avatar" :style="{color:entry.color}" v-else></div>
 
 					<Icon :name="entry.platform" class="platformIcon" />
 
@@ -53,6 +55,13 @@
 						medium
 						v-tooltip="$t('global.disconnect')"
 						@click.capture.stop="disconnect(entry.user)" />
+
+					<TTButton v-if="entry.isRemoteChan && (canPinChans || $store.stream.autoconnectChans.find(v=>v.id == entry.user.id && v.platform == entry.user.platform))"
+						class="actionBt"
+						transparent
+						medium
+						:icon="$store.stream.autoconnectChans.find(v=>v.id == entry.user.id && v.platform == entry.user.platform)? 'pin':'unpin'"
+						@click.capture.stop="togglePinState(entry)" />
 
 					<!-- <TTButton v-if="entry.isRemoteChan"
 						class="actionBt"
@@ -73,6 +82,7 @@ import TTButton from '@/components/TTButton.vue';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { gsap } from 'gsap/gsap-core';
+import { reactive } from 'vue';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import SearchUserForm from '../params/contents/donate/SearchUserForm.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -105,12 +115,16 @@ class ChannelSwitcher extends Vue {
 	
 	private clickHandler!:(e:MouseEvent) => void;
 
+	public get canPinChans():boolean {
+		return this.$store.stream.autoconnectChans.length < 6;
+	}
+
 	public get currentChannel():typeof this.channels[number]|undefined {
 		return this.channels.find(v=>v.user.id == this.currentChannelId);
 	}
 
-	public get channels() {
-		let chans:{platform:TwitchatDataTypes.ChatPlatform, user:TwitchatDataTypes.TwitchatUser, color:string, isRemoteChan:boolean}[] = [];
+	public get channels():ChannelEntry[] {
+		let chans:ChannelEntry[] = reactive([]);
 		
 		chans.push({platform:"twitch", user:this.$store.auth.twitch.user, isRemoteChan:false, color:"transparent"});
 		if(this.$store.auth.youtube.user) {
@@ -156,10 +170,10 @@ class ChannelSwitcher extends Vue {
 	/**
 	 * Called when selecting a twitch user after searching for them
 	 */
-	public onSelectUser(user?:TwitchDataTypes.UserInfo):void {
+	public async onSelectUser(user?:TwitchDataTypes.UserInfo):Promise<void> {
 		if(user) this.user = user;
 		if(!this.user) return;
-		const ttUser = this.$store.users.getUserFrom("twitch", this.user.id, this.user.id, this.user.login, this.user.display_name);
+		const ttUser = await this.$store.users.getUserFrom("twitch", this.user.id, this.user.id, this.user.login, this.user.display_name);
 		this.$store.stream.connectToExtraChan(ttUser);
 		this.user = null;
 		this.showForm = false;
@@ -197,6 +211,14 @@ class ChannelSwitcher extends Vue {
 			this.$store.stream.currentChatChannel.platform = this.channels[0].platform;
 		}
 		this.$store.stream.disconnectFromExtraChan(user);
+	}
+
+	/**
+	 * Toggle pin states of an entry
+	 */
+	public togglePinState(entry:ChannelEntry):void {
+		const pinned = this.$store.stream.autoconnectChans.findIndex(v=>v.id == entry.user.id && v.platform == entry.user.platform) == -1;
+		this.$store.stream.setExtraChanAutoconnectState(entry.user, pinned);
 	}
 
 	/**
@@ -256,6 +278,13 @@ class ChannelSwitcher extends Vue {
 
 }
 export default toNative(ChannelSwitcher);
+
+interface ChannelEntry {
+	platform:TwitchatDataTypes.ChatPlatform;
+	user:TwitchatDataTypes.TwitchatUser;
+	color:string;
+	isRemoteChan:boolean;
+};
 </script>
 
 <style scoped lang="less">

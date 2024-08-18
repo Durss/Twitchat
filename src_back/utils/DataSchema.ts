@@ -1746,6 +1746,19 @@ const UserDataSchema = {
 				},
 			}
 		},
+		autoconnectChans: {
+			type:"array",
+			minItems:0,
+			maxItems:6,
+			items:{
+				type:"object",
+				additionalProperties: false,
+				properties: {
+					id: {type:"string", maxLength:40},
+					platform: {type:"string", maxLength:40},
+				}
+			},
+		}
 	}
 }
 

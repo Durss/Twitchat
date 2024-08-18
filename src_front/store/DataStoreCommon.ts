@@ -101,6 +101,7 @@ export default class DataStoreCommon {
 	public static T4P_CHAT_CMD:string = "t4p_chat_cmd";
 	public static USER_ID:string = "userId";
 	public static USERCARD_PINNED_CHANNEL:string = "usercardPinnedChannel";
+	public static AUTOCONNECT_CHANS:string = "autoconnectChans";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";

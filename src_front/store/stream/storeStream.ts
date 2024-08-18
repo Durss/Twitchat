@@ -40,6 +40,7 @@ export const storeStream = defineStore('stream', {
 			name:"",
 			platform:"twitch",
 		},
+		autoconnectChans:[],
 	} as IStreamState),
 
 
@@ -64,6 +65,18 @@ export const storeStream = defineStore('stream', {
 			if(raidHistoryParams) {
 				this.raidHistory = JSON.parse(raidHistoryParams);
 			}
+
+			try {
+				const list = JSON.parse(DataStore.get(DataStore.AUTOCONNECT_CHANS) || "[]");
+				if(Array.isArray(list)) {
+					this.autoconnectChans.push(...list);
+					this.autoconnectChans.forEach(async chan => {
+						StoreProxy.users.getUserFrom(chan.platform, chan.id, chan.id, undefined, undefined, (user)=>{
+							this.connectToExtraChan(user);
+						})
+					})
+				}
+			}catch(error) {}
 		},
 
 		async loadStreamInfo(platform:TwitchatDataTypes.ChatPlatform, channelId:string):Promise<void> {
@@ -892,6 +905,13 @@ export const storeStream = defineStore('stream', {
 			this.connectedTwitchChans.splice(index, 1);
 			TwitchMessengerClient.instance.disconnectFromChannel(user.login);
 			EventSub.instance.disconnectRemoteChan(user);
+		},
+		
+		setExtraChanAutoconnectState(user:TwitchatDataTypes.TwitchatUser, pinned:boolean):void {
+			const index = this.autoconnectChans.findIndex(v=>v.id == user.id && v.platform == user.platform);
+			if(index > -1) this.autoconnectChans.splice(index, 1);
+			else this.autoconnectChans.push({id:user.id, platform:user.platform});
+			DataStore.set(DataStore.AUTOCONNECT_CHANS, this.autoconnectChans);
 		}
 
 	} as IStreamActions
