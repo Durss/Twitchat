@@ -141,7 +141,7 @@
 							<TTButton small
 								type="link"
 								icon="newtab"
-								@click.stop="openUserCard($event)"
+								@click.stop="openUserCard($event, channel!.login)"
 								:href="'https://www.twitch.tv/popout/'+channel!.login+'/viewercard/'+user!.login"
 								target="_blank">{{$t('usercard.viewercardBt')}}</TTButton>
 							
@@ -151,7 +151,7 @@
 								icon="newtab"
 								@click.stop="openUserCard($event)"
 								:href="'https://www.twitch.tv/popout/'+$store.auth.twitch.user.login+'/viewercard/'+user!.login"
-								target="_blank">{{$store.auth.twitch.user.displayName}}</TTButton>
+								target="_blank">{{$store.auth.twitch.user.displayName, $store.auth.twitch.user.login}}</TTButton>
 							
 							<TTButton v-if="!canListModeratedChans" small secondary icon="mod" @click="grantModeratedScope()">{{$t('usercard.moderator_viewercardBt')}}</TTButton>
 							
