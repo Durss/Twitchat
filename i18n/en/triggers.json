@@ -157,7 +157,7 @@
 				"action_stream_infos": "Set stream infos",
 				"action_stream_infos_tt": "You need to allow Twitchat to update your stream info",
 				"action_vibrate": "Vibrate phone",
-				"custom_placeholder_example": "Use {PLACEHOLDER} key in any field of the actions after this one to get the placeholder's value.",
+				"custom_placeholder_example": "Use {PLACEHOLDER} keyword in any field of the actions bellow to get the placeholder's value.",
 				"action_goxlr": "Control GoXLR",
 				"action_goxlr_tt": "You need to connect your GoXLR",
 				"action_customBadges": "Custom user badges",

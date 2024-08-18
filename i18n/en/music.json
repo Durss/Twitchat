@@ -1,6 +1,6 @@
 {
 	"music": {
-		"spotify_play": "Spotify requires you to first play some music before trying to use it from Twitchat",
+		"spotify_play": "Spotify requires you to first play some music before trying to control it from Twitchat",
 		"spotify_refused": "You refused to grant access to your Spotify account",
 		"search_track": "search track...",
 		"playBt": "Play",
