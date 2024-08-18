@@ -2434,6 +2434,10 @@ export namespace TwitchatDataTypes {
 		 * Size of the message in chars (emotes/cheermotes count as 2 chars)
 		 */
 		message_size:number;
+		/**
+		 * Channel ID the message has been sent to
+		 */
+		channel_id:string;
 	}
 
 	export type GreetableMessageTypes = Extract<ChatMessageTypes, {is_greetable_message?:boolean}>["type"];

@@ -28,6 +28,7 @@ export default class RemoteModController extends AbstractController {
 		this.server.get('/api/mod/request', async (request, response) => await this.getModParams(request, response));
 		this.server.post('/api/mod/qna', async (request, response) => await this.postQnaParams(request, response));
 		this.server.put('/api/mod/qna/message', async (request, response) => await this.putQnaMessage(request, response));
+		this.server.put('/api/mod/spoil/message', async (request, response) => await this.putSpoilMessage(request, response));
 		this.server.delete('/api/mod/qna/message', async (request, response) => await this.deleteQnaMessage(request, response));
 	}
 	
@@ -103,11 +104,12 @@ export default class RemoteModController extends AbstractController {
 			return
 		}
 
+		//Make sure user is a mod and broadcaster is premium
 		const channels = await TwitchUtils.getModeratedChannels(user.user_id, request.headers.authorization!);
 		if(channels.findIndex(v=>v.broadcaster_id == body.ownerId) == -1 || !this.isUserPremium(body.ownerId)) {
 			response.header('Content-Type', 'application/json');
 			response.status(400);
-			response.send(JSON.stringify({success:false, error:"invalid parameters", errorCode:"INVALID_PARAMETERS_2"}));
+			response.send(JSON.stringify({success:false, error:"cannot remotely add a message to a private Q&A session", errorCode:"PRIVATE_QNA_SESSION"}));
 			return
 		}
 
@@ -115,6 +117,45 @@ export default class RemoteModController extends AbstractController {
 			action:"add_message",
 			message:body.entry,
 			sessionId:body.sessionId,
+			moderatorId:user.user_id,
+		});
+
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send(JSON.stringify({success:true}));
+	}
+
+	/**
+	 * Called when a mod requests to flag a message as a spoiler
+	 * @param request 
+	 * @param response 
+	 * @returns 
+	 */
+	private async putSpoilMessage(request:FastifyRequest, response:FastifyReply) {
+		const user = await this.twitchUserGuard(request, response);
+		if(!user) return;
+
+		const body:any = request.body;
+		if(!body.messageId || !body.ownerId) {
+			response.header('Content-Type', 'application/json');
+			response.status(400);
+			response.send(JSON.stringify({success:false, error:"invalid parameters", errorCode:"INVALID_PARAMETERS"}));
+			return
+		}
+
+		//Make sure user is a mod
+		const channels = await TwitchUtils.getModeratedChannels(user.user_id, request.headers.authorization!);
+		if(channels.findIndex(v=>v.broadcaster_id == body.ownerId) == -1
+		// || !this.isUserPremium(body.ownerId)
+		) {
+			response.header('Content-Type', 'application/json');
+			response.status(400);
+			response.send(JSON.stringify({success:false, error:"you are not allowed to remotely spoil messages on this channel", errorCode:"SPOIL_NOT_ALLOWED"}));
+			return
+		}
+
+		SSEController.sendToUser(body.ownerId, SSECode.SPOIL_MESSAGE, {
+			messageId:body.messageId,
 			moderatorId:user.user_id,
 		});
 

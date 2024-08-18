@@ -125,4 +125,5 @@ export const SSECode = {
 	QNA_STATE:"QNA_STATE" as const,
 	QNA_ACTION:"QNA_ACTION" as const,
 	LABELS_UPDATE:"LABELS_UPDATE" as const,
+	SPOIL_MESSAGE:"SPOIL_MESSAGE" as const,
 }

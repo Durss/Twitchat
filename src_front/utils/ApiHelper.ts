@@ -1090,4 +1090,17 @@ type ApiEndpoints =  {
 			}
 		},
 	};
+	"mod/spoil/message": {
+		PUT: {
+			parameters: {
+				ownerId:string;
+				messageId:string;
+			};
+			response:{
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		},
+	};
 }

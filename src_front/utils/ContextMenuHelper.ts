@@ -234,13 +234,20 @@ export default class ContextMenuHelper {
 
 			//Moderation actions
 			if(canModerateMessage) {
+				const m:TwitchatDataTypes.MessageChatData = message as TwitchatDataTypes.MessageChatData;
+				
+				options.push({
+					label: t("chat.context_menu.spoil"),
+					icon: this.getIcon("icons/spoiler.svg"),
+					onClick: () => StoreProxy.chat.flagAsSpoiler(m),
+				});
+
 				//Add splitter after previous item
 				options[options.length-1].divided = true;
-				const m:TwitchatDataTypes.MessageChatData = message as TwitchatDataTypes.MessageChatData;
 
 				//Delete message
-				let classes = "alert";
-				if(m.deleted!== true) {
+				if(m.deleted !== true) {
+					let classes = "alert";
 					if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) classes += " disabled";
 					if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classes += " disabled";
 					options.push({

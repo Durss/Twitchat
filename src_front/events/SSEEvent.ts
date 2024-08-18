@@ -22,6 +22,7 @@ export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 	public static QNA_STATE = "QNA_STATE" as const;
 	public static QNA_ACTION = "QNA_ACTION" as const;
 	public static LABELS_UPDATE = "LABELS_UPDATE" as const;
+	public static SPOIL_MESSAGE = "SPOIL_MESSAGE" as const;
 
 	constructor(eventType:T, public data?:EventTypeMap[T]) {
 		super(eventType);
@@ -105,6 +106,10 @@ export type EventTypeMap = {
 			| IQnaCloseAction
 			| IQnaDeleteAction
 			| IQnaHighlightMessageAction;
+	SPOIL_MESSAGE: {
+		messageId:string;
+		moderatorId:string;
+	};
 }
 
 interface AbstractQnaAciton {

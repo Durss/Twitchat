@@ -139,11 +139,6 @@ export interface IMainState {
 	 */
 	t4pLastDate:number;
 	/**
-	 * Should hide a temporary button related to french election
-	 * //TODO remove
-	 */
-	antifaHide:boolean;
-	/**
 	 * Shows an alert to the user when true.
 	 */
 	outdatedDataVersion:boolean;
@@ -704,6 +699,11 @@ export interface IChatActions {
 	 * Accepts or rejects given automoded messages
 	 */
 	automodAction(accept:boolean, message:TwitchatDataTypes.ChatMessageTypes):Promise<void> 
+	/**
+	 * Flag a message as a spoiler
+	 * @param message 
+	 */
+	flagAsSpoiler(message:TwitchatDataTypes.MessageChatData):Promise<void>
 }
 
 
@@ -1264,6 +1264,10 @@ export interface IStreamState {
 		name:string;
 		platform:TwitchatDataTypes.ChatPlatform;
 	};
+	/**
+	 * Channels to autoconnect to on twitchat loading
+	 */
+	autoconnectChans:{id:string, platform:TwitchatDataTypes.ChatPlatform}[],
 }
 
 export interface IStreamGetters {
@@ -1373,6 +1377,12 @@ export interface IStreamActions {
 	 * @param login 
 	 */
 	disconnectFromExtraChan(user:TwitchatDataTypes.TwitchatUser):Promise<void>;
+	/**
+	 * Define autoconnect state of given channel.
+	 * @param user 
+	 * @param pinned 
+	 */
+	setExtraChanAutoconnectState(user:TwitchatDataTypes.TwitchatUser, pinned:boolean):void;
 }
 
 

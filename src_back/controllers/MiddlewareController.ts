@@ -165,7 +165,7 @@ export default class MiddlewareController extends AbstractController {
 		if(/^\/api/gi.test(request.url) || /^\/assets/gi.test(request.url)) {
 			if(!/^(\/assets|.*\.js\.map)/gi.test(request.url)) {
 				const ip = this.getIp(request);
-				Logger.warn("404: "+ request.url+" - From IP: "+ip);
+				Logger.warn("404: ("+request.method+")"+ request.url+" - From IP: "+ip);
 			}
 			response.code(404).send({success:false, error:"Not found"});
 			return;

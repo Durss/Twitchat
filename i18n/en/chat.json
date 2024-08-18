@@ -378,7 +378,8 @@
 			"discord_ticket": "Create ticket",
 			"add_blocked_terms": "Add this message to blocked terms",
 			"warn_user": "Warn user",
-			"shared_qna": "Add to Q&A session"
+			"shared_qna": "Add to Q&A session",
+			"spoil": "Flag as spoiler"
 		},
 		"custom_badge": {
 			"label": {

@@ -21,6 +21,8 @@ import type { JsonArray, JsonObject } from 'type-fest';
 import { reactive, watch, type UnwrapRef } from 'vue';
 import Database from '../Database';
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy';
+import SSEHelper from '@/utils/SSEHelper';
+import SSEEvent from '@/events/SSEEvent';
 
 //Don't make this reactive, it kills performances on the long run
 let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -674,7 +676,7 @@ export const storeChat = defineStore('chat', {
 			}
 
 			const findAndFlagAutomod = (accept:boolean) => {
-				//Only search within ther last 1000 messages
+				//Only search within the last 1000 messages
 				for (let i = messageList.length-1; i >= Math.max(0, messageList.length - 1000); i--) {
 					const mess = messageList[i];
 					if(mess.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE || !mess.twitch_automod) continue;
@@ -684,6 +686,18 @@ export const storeChat = defineStore('chat', {
 			};
 			PublicAPI.instance.addEventListener(TwitchatEvent.AUTOMOD_ACCEPT, ()=> findAndFlagAutomod(true));
 			PublicAPI.instance.addEventListener(TwitchatEvent.AUTOMOD_REJECT, ()=> findAndFlagAutomod(false));
+
+			//Listen for moderator event spoiling messages remotely
+			SSEHelper.instance.addEventListener(SSEEvent.SPOIL_MESSAGE, (event)=>{
+				//Only search within the last 1000 messages
+				for (let i = messageList.length-1; i >= Math.max(0, messageList.length - 1000); i--) {
+					const mess = messageList[i];
+					if(mess.id == event.data?.messageId && mess.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+						mess.spoiler = true;
+					}
+					break;
+				}
+			})
 		},
 
 		async preloadMessageHistory():Promise<void> {
@@ -2253,6 +2267,21 @@ export const storeChat = defineStore('chat', {
 				//Delete the message.
 				//If the message was allowed, twitch will send it back, no need to keep it.
 				this.deleteMessage(message);
+			}
+		},
+
+		async flagAsSpoiler(message:TwitchatDataTypes.MessageChatData):Promise<void>{
+			message.spoiler = true;
+			
+			if(message.channel_id != StoreProxy.auth.twitch.user.id) {
+				//If remotely moderating session, tell the broadcaster the message must be
+				//added to the list
+				ApiHelper.call("mod/spoil/message", "PUT", {
+					ownerId:message.channel_id,
+					messageId:message.id,
+				}).catch(error=>{
+					StoreProxy.common.alert(StoreProxy.i18n.t("error.spoil_action"));
+				})
 			}
 		}
 	} as IChatActions

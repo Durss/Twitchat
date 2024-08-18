@@ -1,10 +1,12 @@
 <template>
 	<div class="paramsspoiler parameterContent">
-		<Icon name="show" class="icon" />
+		<Icon name="spoiler" class="icon" />
 
-		<i18n-t scope="global" tag="p" class="head" keypath="spoiler.header">
-			<template #TAG><mark>||</mark></template>
-		</i18n-t>
+		<div class="head">
+			<i18n-t scope="global" tag="p" class="head" keypath="spoiler.header">
+				<template #TAG><mark>||</mark></template>
+			</i18n-t>
+		</div>
 
 		<section class="card-item">
 			<p>{{ $t('spoiler.message_example') }}</p>

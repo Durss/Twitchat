@@ -26,7 +26,7 @@ export const storeParams = defineStore('params', {
 		greetThemAutoDelete: 600,
 		pinnedMenuItems:["chatters", "rewards"],
 		features: {
-			spoilersEnabled: 			{type:"boolean", value:true, labelKey:"params.spoilersEnabled", id:216, icon:"show", storage:{vnew:{date:1693519200000, id:'params_chatspoiler'}}},
+			spoilersEnabled: 			{type:"boolean", value:true, labelKey:"params.spoilersEnabled", id:216, icon:"spoiler", storage:{vnew:{date:1693519200000, id:'params_chatspoiler'}}},
 			alertMode: 					{type:"boolean", value:true, labelKey:"params.alertMode", id:217, icon:"alert"},
 			firstMessage: 				{type:"boolean", value:true, labelKey:"params.firstMessage", id:201, icon:"hand", example:"greetThem.png"},
 			saveHistory: 				{type:"boolean", value:true, labelKey:"params.saveHistory", id:224, icon:"history", storage:{vnew:{date:1693519200000, id:'params_chathistory'}}},
