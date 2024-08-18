@@ -316,9 +316,8 @@ export class OverlayBingoGrid extends AbstractOverlay {
 
 
 			// FAKE USER BINGOS
-			/*
-			if(animate) {
-				await Utils.promisedTimeout(1000);
+			//@ts-ignore
+			window.fakeUserEvents = ()=>{
 		
 				this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
 						"gridId": this.id,
@@ -352,29 +351,10 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				// this.pushEvent({type:"update", data:{"id":"78b997fc-b525-4423-a39a-2b31781b708d","bingo":{"id":"78b997fc-b525-4423-a39a-2b31781b708d","title":"PUBG🔫","textColor":"#ffffff","enabled":true,"showGrid":true,"heatClick":false,"textSize":20,"cols":3,"rows":3,"entries":[{"id":"5d554063-b4b5-46d2-a809-a06bc5b263c0","label":"accidentally killed myself","lock":false,"check":false},{"id":"99afe58e-c39d-4259-baab-b45c28645301","label":"running after blue zone","lock":false,"check":false},{"id":"7195bf1f-20be-4f3e-b494-4af2617321a3","label":"Drive over enemy","lock":false,"check":true},{"id":"b79fb5ca-26f6-44b8-843d-eb222b94dc41","label":"first blood","lock":false,"check":true},{"id":"474ce91c-8191-4423-a288-d3f910028e86","label":"TOP 1","lock":true,"check":true},{"id":"ce668ebd-fe1b-4309-b7f9-bbe8a9d3f54c","label":"I die first","lock":false,"check":false},{"id":"1e0143cb-d325-4fae-87e4-8827c36f922f","label":"game crashes","lock":false,"check":false},{"id":"fd750556-a33a-4831-9852-ad41883d3b24","check":false,"label":"erangel","lock":false},{"id":"dcbda4a2-86af-45e7-88af-e2e1085b1460","check":false,"label":"karakin","lock":false}],"backgroundAlpha":29,"backgroundColor":"#000000","chatCmdPermissions":{"all":false,"broadcaster":true,"follower":false,"follower_duration_ms":0,"mods":true,"subs":false,"vips":false,"usersAllowed":[],"usersRefused":[]},"heatClickPermissions":{"all":false,"broadcaster":true,"follower":false,"follower_duration_ms":0,"mods":true,"subs":false,"vips":false,"usersAllowed":[],"usersRefused":[]},"additionalEntries":[{"id":"5df94fe3-829a-4c2a-822c-77374183e1f7","check":false,"label":"10+ kills","lock":false},{"id":"ff5151a7-d346-42ad-ac55-dd54fe2b05a6","check":false,"label":"sanhok","lock":false},{"id":"ef5cf01d-1362-405a-9d0c-0629d126b36c","label":"Found flare gun","lock":false,"check":false}],"winSoundVolume":30},"newVerticalBingos":[],"newHorizontalBingos":[],"newDiagonalBingos":[]}});
 				// this.pushEvent({type:"update", data:{"id":"78b997fc-b525-4423-a39a-2b31781b708d","bingo":{"id":"78b997fc-b525-4423-a39a-2b31781b708d","title":"PUBG🔫","textColor":"#ffffff","enabled":true,"showGrid":true,"heatClick":false,"textSize":20,"cols":3,"rows":3,"entries":[{"id":"5d554063-b4b5-46d2-a809-a06bc5b263c0","label":"accidentally killed myself","lock":false,"check":false},{"id":"99afe58e-c39d-4259-baab-b45c28645301","label":"running after blue zone","lock":false,"check":false},{"id":"7195bf1f-20be-4f3e-b494-4af2617321a3","label":"Drive over enemy","lock":false,"check":true},{"id":"b79fb5ca-26f6-44b8-843d-eb222b94dc41","label":"first blood","lock":false,"check":true},{"id":"474ce91c-8191-4423-a288-d3f910028e86","label":"TOP 1","lock":true,"check":true},{"id":"ce668ebd-fe1b-4309-b7f9-bbe8a9d3f54c","label":"I die first","lock":false,"check":true},{"id":"1e0143cb-d325-4fae-87e4-8827c36f922f","label":"game crashes","lock":false,"check":false},{"id":"fd750556-a33a-4831-9852-ad41883d3b24","check":false,"label":"erangel","lock":false},{"id":"dcbda4a2-86af-45e7-88af-e2e1085b1460","check":false,"label":"karakin","lock":false}],"backgroundAlpha":29,"backgroundColor":"#000000","chatCmdPermissions":{"all":false,"broadcaster":true,"follower":false,"follower_duration_ms":0,"mods":true,"subs":false,"vips":false,"usersAllowed":[],"usersRefused":[]},"heatClickPermissions":{"all":false,"broadcaster":true,"follower":false,"follower_duration_ms":0,"mods":true,"subs":false,"vips":false,"usersAllowed":[],"usersRefused":[]},"additionalEntries":[{"id":"5df94fe3-829a-4c2a-822c-77374183e1f7","check":false,"label":"10+ kills","lock":false},{"id":"ff5151a7-d346-42ad-ac55-dd54fe2b05a6","check":false,"label":"sanhok","lock":false},{"id":"ef5cf01d-1362-405a-9d0c-0629d126b36c","label":"Found flare gun","lock":false,"check":false}],"winSoundVolume":30},"newVerticalBingos":[],"newHorizontalBingos":[1],"newDiagonalBingos":[]}});
 			}
-			//*/
 
 			// FAKE LEADERBOARD
-			/*
-			setTimeout(
-				()=>{
-					this.onLeaderboard(new TwitchatEvent("BINGO_GRID_OVERLAY_LEADER_BOARD",{
-						gridId:this.id,
-						scores:[
-							{pos:0,score:8,user_name:"Cailloute",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/2335a3b2-7816-43ee-9c74-a4cd99a1c897-profile_image-50x50.png"},
-							{pos:1,score:5,user_name:"ChezMarino",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/c707c1e9-242c-4a34-84eb-46653bdbacff-profile_image-50x50.png"},
-							{pos:1,score:5,user_name:"Shakawah",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/0d1eddfc-af8e-4a40-8422-38af4f947844-profile_image-50x50.png"},
-							{pos:2,score:4,user_name:"Euphoriasis",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/87b7b0d0-73e7-4bbd-9d50-40cdcfe0c18a-profile_image-50x50.jpeg"},
-							{pos:3,score:3,user_name:"Kapacino",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/ea9b8b0b-d170-43c0-a2fa-2cd4fbdde5e2-profile_image-50x50.png"},
-							{pos:4,score:2,user_name:"Durss",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/1835e681-7306-49b8-a1e2-2775a17424ae-profile_image-50x50.png"},
-						]
-					}));
-				}
-			, 2000);
-			//*/
-
 			//@ts-ignore
-			window.classement = ()=>{
+			window.fakeLeaderboard = ()=>{
 				this.onLeaderboard(new TwitchatEvent("BINGO_GRID_OVERLAY_LEADER_BOARD",{
 						gridId:this.id,
 						scores:[
@@ -1150,12 +1130,16 @@ export default toNative(OverlayBingoGrid);
 
 	&.border {
 		padding: @borderSize;
+		.alerts, .leaderboard {
+			left: @borderSize;
+			top: @borderSize;
+		}
 		.cells {
 			border-radius: 0;
 			max-height: calc(100vh - @borderSize * 2);
 			.cell {
+				outline: currentColor @borderSize solid;
 				border-radius: 0;
-				box-shadow:0 0 0 @borderSize currentColor;
 				&.corner {
 					&.tl {
 						border-top-left-radius: calc(min(100vw, 100vh) / 50);
