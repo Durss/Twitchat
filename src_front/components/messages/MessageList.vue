@@ -1733,6 +1733,7 @@ import { Linear } from 'gsap/all';
 			const prevCast = prevMessage as TwitchatDataTypes.MergeableMessage;
 			//Not the same user don't merge
 			if(prevCast.user.id !== newCast.user.id) return false;
+			if(prevCast.channel_id !== newCast.channel_id) return false;
 
 			//Merging 2 chat messages from the same user...
 			if(prevMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
