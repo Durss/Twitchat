@@ -783,6 +783,7 @@
 			"tipeee_resub_months": "Nombre de mois",
 			"bingo_grid_id": "ID de la grille",
 			"bingo_grid_name": "Nom de la grille",
+			"bingo_grid_count": "Nombre de bingos",
 			"bingo_grid_cell_x": "Coordonnée X de la case cochée",
 			"bingo_grid_cell_y": "Coordonnée Y de la case cochée",
 			"bingo_grid_col": "Index de la colonne remplie",

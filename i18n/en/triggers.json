@@ -783,6 +783,7 @@
 			"last_subgifter_tier": "Last subgifted tier",
 			"bingo_grid_id": "Grid ID",
 			"bingo_grid_name": "Grid name",
+			"bingo_grid_count": "Bingo count",
 			"bingo_grid_cell_x": "X coordinates of the ticked cell",
 			"bingo_grid_cell_y": "Y coordinates of the ticked cell",
 			"bingo_grid_col": "Index of the filled column",
