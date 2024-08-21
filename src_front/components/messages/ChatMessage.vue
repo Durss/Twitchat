@@ -4,6 +4,11 @@
 	@mouseover="$emit('onOverMessage', messageData, $event)"
 	>
 		<div class="gradientBg" v-if="messageData.type=='message' && messageData.twitch_animationId == 'rainbow-eclipse'"></div>
+		<div class="noiseBg" v-if="messageData.type=='message' && messageData.twitch_animationId == 'cosmic-abyss'">
+			<img src="@/assets/img/chat_animation/cosmic-abyss_1.jpg" alt="cosmic abyss background 1">
+			<img src="@/assets/img/chat_animation/cosmic-abyss_2.jpg" alt="cosmic abyss background 2">
+		</div>
+		
 		<div v-if="automodReasons" class="automod">
 			<img src="@/assets/icons/automod.svg">
 			<div class="header"><strong>{{ $t('chat.message.automod') }}</strong> {{automodReasons}}</div>
@@ -806,6 +811,48 @@ export default toNative(ChatMessage);
 		@keyframes rotate {
 			100% {
 				transform: translate(-50%, -50%) rotate(1turn);
+			}
+		}
+	}
+
+	&.animation_cosmic-abyss {
+		border-radius: 0;
+		padding: 1em;
+		z-index: 0;
+		&::before {
+			content: "";
+			top: .75em;
+			left: .75em;
+			z-index: -1;
+			width: calc(100% - 1.5em);
+			height: calc(100% - 1.5em);
+			position: absolute;
+			background-color: var(--color-dark);
+		}
+
+		.noiseBg {
+			z-index: -2;
+			position: absolute;
+			overflow: hidden;
+			height: 100%;
+			width: 100%;
+			margin-left: -1em;
+			margin-top: -1em;
+			border-radius: 3px;
+			img{
+				width: 100%;
+				object-fit: cover;
+				position: absolute;
+				top: 0;
+				left: 0;
+				&:nth-child(2) {
+					opacity: 0;
+					animation: fadeInOut 3s infinite linear;
+				}
+			}
+			@keyframes fadeInOut {
+				0%, 100% { opacity: 0; }
+				50% { opacity: 1; }
 			}
 		}
 	}

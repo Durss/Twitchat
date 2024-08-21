@@ -2694,7 +2694,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Animation type AKA message skin
 		 */
-		twitch_animationId?: "simmer"|"rainbow-eclipse";
+		twitch_animationId?: "simmer"|"rainbow-eclipse"|"cosmic-abyss";
 		/**
 		 * Color of the announcement if this is a /announce message
 		 */

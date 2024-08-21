@@ -31,6 +31,7 @@
 			<Button small @click="simulateEvent($event, 'message', 'recent')" icon="alert">Recent account</Button>
 			<Button small @click="simulateEvent($event, 'message', 'skin1')" icon="watchStreak">Power Up skin 1</Button>
 			<Button small @click="simulateEvent($event, 'message', 'skin2')" icon="watchStreak">Power Up skin 2</Button>
+			<Button small @click="simulateEvent($event, 'message', 'skin3')" icon="watchStreak">Power Up skin 3</Button>
 			<Button small @click="simulateEvent($event, 'message', 'giantEmote')" icon="watchStreak">Power Up Giant emote</Button>
 			<Button small @click="simulateEvent($event, 'twitch_celebration')" icon="watchStreak">Power Up celebration</Button>
 			<Button small @click="simulateEvent($event, 'user_watch_streak')" icon="watchStreak">Watch streak</Button>
@@ -195,6 +196,7 @@ class DevmodeMenu extends Vue {
 				}
 				case "skin1":				(message as TwitchatDataTypes.MessageChatData).twitch_animationId = "simmer"; break;
 				case "skin2":				(message as TwitchatDataTypes.MessageChatData).twitch_animationId = "rainbow-eclipse"; break;
+				case "skin3":				(message as TwitchatDataTypes.MessageChatData).twitch_animationId = "cosmic-abyss"; break;
 				case "giantEmote":{
 					const emote = Utils.pickRand(staticEmotes);
 					(message as TwitchatDataTypes.MessageChatData).message_chunks.push({type:"emote", value:emote.name, emoteHD:emote.images.url_4x, emote:emote.images.url_1x});
@@ -612,6 +614,7 @@ type Subaction = "first"
 				| "youtube"
 				| "skin1"
 				| "skin2"
+				| "skin3"
 				| "giantEmote";
 
 export default toNative(DevmodeMenu);
