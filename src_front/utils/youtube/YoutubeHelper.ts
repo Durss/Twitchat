@@ -17,7 +17,6 @@ export default class YoutubeHelper {
 
 	public connected:boolean = false;
 	public liveFound:boolean = false;
-	public channelId:string = "";
 	public availableLiveBroadcasts:YoutubeLiveBroadcast["items"] = [];
 
 	private static _instance:YoutubeHelper;
@@ -37,6 +36,7 @@ export default class YoutubeHelper {
 	private _emotes:{[key:string]:string} = {};
 	private _uidToBanID:{[key:string]:string} = {};
 	private _lastFollowerList:{[key:string]:boolean} = {};
+	private _liveIdToChanId:{[liveId:string]:string} = {};
 	private _consecutiveApiFails:number = 0;
 	private _giftBombs:{[giftId:string]:TwitchatDataTypes.MessageYoutubeSubgiftData} = {};
 
@@ -243,7 +243,7 @@ export default class YoutubeHelper {
 			if(item) {
 				const liveId = item.snippet.liveChatId;
 				this.liveFound = true;
-				this.channelId = item.snippet.channelId;
+				this._liveIdToChanId[liveId] = item.snippet.channelId;
 				this._currentLiveIds[0] = liveId;
 				this.availableLiveBroadcasts = items;
 				this._lastMessageDate = Date.now();
@@ -307,7 +307,7 @@ export default class YoutubeHelper {
 	 */
 	public async getMessages():Promise<void> {
 		clearTimeout(this._pollMessageTimeout);
-		let maxDelay = 500;
+		let maxDelay = 1000;
 		for (let i = 0; i < this._currentLiveIds.length; i++) {
 			const liveId = this._currentLiveIds[i];
 			const pageToken = this._lastMessagePage[liveId];
@@ -343,7 +343,7 @@ export default class YoutubeHelper {
 						//Message already registered? Skip it
 						if(idsDone[m.id]) continue;
 
-						const data = await this.parseMessage(m, liveId);
+						const data = await this.parseMessage(m, this._liveIdToChanId[liveId], liveId);
 						if(data) {
 							StoreProxy.chat.addMessage(data);
 						}
@@ -399,7 +399,9 @@ export default class YoutubeHelper {
 						}
 					}
 				}
-			}catch(error){}
+			}catch(error){
+				console.log(error)
+			}
 		}
 
 		//Expand next message check depending on the last chat activity
@@ -540,11 +542,11 @@ export default class YoutubeHelper {
 	 * @param duration_s
 	 * @returns
 	 */
-	public async banUser(userId:string, liveChatId:string, duration_s:number = 0):Promise<string> {
+	public async banUser(userId:string, liveId:string, duration_s:number = 0):Promise<string> {
 		this._creditsUsed += 50;
 		const params:{snippet:{liveChatId:string, type:string, bannedUserDetails:{channelId:string}, banDurationSeconds?:number}} = {
 			snippet: {
-				liveChatId,
+				liveChatId: liveId,
 				type:duration_s > 0? "temporary" : "permanent",
 				bannedUserDetails: {
 					channelId:userId,
@@ -564,7 +566,7 @@ export default class YoutubeHelper {
 
 		const res = await fetch(url, {method:"POST", headers:this.headers, body});
 		if(res.status == 200) {
-			StoreProxy.users.flagBanned("youtube", this.channelId, userId, duration_s);
+			StoreProxy.users.flagBanned("youtube", this._liveIdToChanId[liveId], userId, duration_s);
 			const json = await res.json();
 			this._uidToBanID[userId] = json.id
 			return json.id;
@@ -578,7 +580,7 @@ export default class YoutubeHelper {
 	 * @param userId
 	 * @returns
 	 */
-	public async unbanUser(userId:string):Promise<void> {
+	public async unbanUser(userId:string, liveId:string):Promise<void> {
 		this._creditsUsed += 50;
 		Logger.instance.log("youtube", {log:"Unban user ID #"+userId, credits: this._creditsUsed, liveID:this._currentLiveIds});
 
@@ -601,7 +603,7 @@ export default class YoutubeHelper {
 		const res = await fetch(url, {method:"DELETE", headers:this.headers});
 		if(res.status == 200 || res.status == 204) {
 			Logger.instance.log("youtube", {log:"User unbaned successfully", credits: this._creditsUsed, liveID:this._currentLiveIds});
-			StoreProxy.users.flagUnbanned("youtube", this.channelId, userId);
+			StoreProxy.users.flagUnbanned("youtube", liveId, userId);
 		}else{
 			Logger.instance.log("youtube", {log:"An error occured when trying to unban the user", error:await res.text(), credits: this._creditsUsed, liveID:this._currentLiveIds});
 			StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_api_is_shit_unban"));
@@ -633,7 +635,6 @@ export default class YoutubeHelper {
 	 * Send a message to given live ID or all if omited
 	 */
 	public async sendMessage(message:string, liveId?:string):Promise<boolean> {
-		
 		const url = new URL(this.API_PATH+"liveChat/messages");
 		url.searchParams.append("part", "snippet");
 
@@ -654,7 +655,7 @@ export default class YoutubeHelper {
 			this._creditsUsed += 50;
 			const res = await fetch(url, {method:"POST", headers:this.headers, body:JSON.stringify(body)});
 			if(res.status == 200 || res.status == 204) {
-				Logger.instance.log("youtube", {log:"Succes post message to live "+live, credits:this._creditsUsed, liveID:this._currentLiveIds});
+				Logger.instance.log("youtube", {log:"Success post message to live "+live, credits:this._creditsUsed, liveID:this._currentLiveIds});
 				success = true;
 			}else{
 				Logger.instance.log("youtube", {log:"Cannot post message to live "+live, error:await res.text(), credits: this._creditsUsed, liveID:this._currentLiveIds});
@@ -662,6 +663,47 @@ export default class YoutubeHelper {
 			}
 		}
 		return success;
+	}
+
+	/**
+	 * Connects to a live by its URL
+	 * @param url 
+	 */
+	public async connectToLiveByURL(videoUrl:string):Promise<boolean> {
+		const extractID = (url:string):string|false => {
+			let regExp = /(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*)/g;
+			let matches = [...url.matchAll(regExp)];
+			return (matches.length > 0 && matches[0].length > 0 && matches[0][1].length==11)? matches[0][1].toString() : false;
+		}
+		const videoID = extractID(videoUrl);
+		if(!videoID) return false;
+
+		const url = new URL(this.API_PATH+"videos");
+		url.searchParams.append("part", "snippet,contentDetails,statistics,liveStreamingDetails");
+		url.searchParams.append("id", videoID);
+
+		const res = await fetch(url, {method:"GET", headers:this.headers});
+		if(res.status == 200 || res.status == 204) {
+			const json = await res.json();
+			if(json.items?.length > 0) {
+				const liveID = json.items[0].liveStreamingDetails?.activeLiveChatId || "";
+				if(liveID) {
+					this._currentLiveIds.push(liveID);
+					this._lastMessageDate = Date.now();
+					this._liveIdToChanId[liveID] = json.items[0].snippet.channelId;
+					this.getMessages();
+					Logger.instance.log("youtube", {log:"Success connecting to live "+liveID, credits:this._creditsUsed, liveID:this._currentLiveIds});
+					return true;
+				}else{
+					Logger.instance.log("youtube", {log:"Failed getting livechat ID from video ID "+videoID, credits:this._creditsUsed, liveID:this._currentLiveIds});
+				}
+			}else{
+				Logger.instance.log("youtube", {log:"Failed getting video info from ID "+videoID, credits:this._creditsUsed, liveID:this._currentLiveIds});
+			}
+		}else{
+			Logger.instance.log("youtube", {log:"Failed getting video info from ID "+videoID+". Status:"+ res.status, credits:this._creditsUsed, liveID:this._currentLiveIds});
+		}
+		return false;
 	}
 
 
@@ -756,14 +798,15 @@ export default class YoutubeHelper {
 	/**
 	 * Parses a emssage
 	 */
-	private async parseMessage(m:YoutubeMessages["items"][number], liveId:string):Promise<TwitchatDataTypes.ChatMessageTypes|null> {
+	private async parseMessage(m:YoutubeMessages["items"][number], channelId:string, liveId:string):Promise<TwitchatDataTypes.ChatMessageTypes|null> {
 
 		//Create message
 		const message =  m.snippet.displayMessage || "";
 		const message_chunks = m.snippet.displayMessage? this.parseMessageChunks(m.snippet.displayMessage) : [];
 		const message_html = TwitchUtils.messageChunksToHTML(message_chunks);
-		const user = await StoreProxy.users.getUserFrom("youtube", this.channelId, m.authorDetails.channelId, m.authorDetails.displayName, m.authorDetails.displayName);
-		const chanInfos = user.channelInfo[this.channelId];
+		m.snippet.authorChannelId
+		const user = await StoreProxy.users.getUserFrom("youtube", channelId, m.authorDetails.channelId, m.authorDetails.displayName, m.authorDetails.displayName);
+		const chanInfos = user.channelInfo[channelId];
 		chanInfos.is_broadcaster = m.authorDetails.isChatOwner;
 		chanInfos.is_moderator = m.authorDetails.isChatModerator || m.authorDetails.isChatOwner;
 		user.is_partner = m.authorDetails.isChatSponsor;
@@ -805,7 +848,7 @@ export default class YoutubeHelper {
 					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 					user,
 					answers:[],
-					channel_id:this.channelId,
+					channel_id:channelId,
 					message,
 					message_chunks,
 					message_html,
@@ -826,7 +869,7 @@ export default class YoutubeHelper {
 					platform:"youtube",
 					type:TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT,
 					user,
-					channel_id:this.channelId,
+					channel_id:channelId,
 					message: m.snippet.superChatDetails.userComment,
 					message_chunks: this.parseMessageChunks(m.snippet.superChatDetails.userComment),
 					message_html,
@@ -848,7 +891,7 @@ export default class YoutubeHelper {
 					platform:"youtube",
 					type:TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER,
 					user,
-					channel_id:this.channelId,
+					channel_id:channelId,
 					youtube_liveId:liveId,
 					amount:m.snippet.superStickerDetails.amountMicros / 1000000,
 					amountDisplay:m.snippet.superStickerDetails.amountDisplayString,
@@ -867,7 +910,7 @@ export default class YoutubeHelper {
 					platform:"youtube",
 					type:TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION,
 					user,
-					channel_id:this.channelId,
+					channel_id:channelId,
 					message: m.snippet.memberMilestoneChatDetails.userComment || "",
 					message_chunks: this.parseMessageChunks(m.snippet.memberMilestoneChatDetails.userComment || ""),
 					message_html,
@@ -887,7 +930,7 @@ export default class YoutubeHelper {
 					platform:"youtube",
 					type:TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION,
 					user,
-					channel_id:this.channelId,
+					channel_id:channelId,
 					message,
 					message_chunks,
 					message_html,
@@ -907,7 +950,7 @@ export default class YoutubeHelper {
 					platform:"youtube",
 					type:TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBGIFT,
 					user,
-					channel_id: this.channelId,
+					channel_id: channelId,
 					youtube_liveId: liveId,
 					gift_count: m.snippet.membershipGiftingDetails.giftMembershipsCount,
 					levelName: m.snippet.membershipGiftingDetails.giftMembershipsLevelName,

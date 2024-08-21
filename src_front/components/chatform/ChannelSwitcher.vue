@@ -27,6 +27,7 @@
 					@close="showForm = false"
 					@select="onSelectUser"
 					inline />
+				<!-- <input type="text" v-model="youtubeUrl" @keyup.enter="connectYoutube"> -->
 				<p class="infos"><Icon name="info" />{{ $t("chat.form.extra_chan_info") }}</p>
 			</template>
 			
@@ -86,6 +87,7 @@ import { reactive } from 'vue';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import SearchUserForm from '../params/contents/donate/SearchUserForm.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 
 @Component({
 	components:{
@@ -107,12 +109,12 @@ class ChannelSwitcher extends Vue {
 	
 	public expand:boolean = false;
 	public showForm:boolean = false;
+	public youtubeUrl:string = "";
 	public currentChannelId:string = "";
 	public user:TwitchDataTypes.UserInfo | null = null;
 	public userParams:TwitchatDataTypes.TwitchatUser | null = null;
 	public liveFollingList:TwitchDataTypes.UserInfo[] = [];
 
-	
 	private clickHandler!:(e:MouseEvent) => void;
 
 	public get canPinChans():boolean {
@@ -257,6 +259,10 @@ class ChannelSwitcher extends Vue {
 			this.expand = false;
 			this.showForm = false;
 		}});
+	}
+
+	public connectYoutube():void {
+		YoutubeHelper.instance.connectToLiveByURL(this.youtubeUrl);
 	}
 
 	/**

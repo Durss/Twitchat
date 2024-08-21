@@ -381,7 +381,7 @@ export default class ContextMenuHelper {
 								onClick: () => {
 									if(message.platform == "twitch" && !TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
 									if(message.platform == "youtube" && !YoutubeHelper.instance.requestScopes([YoutubeScopes.CHAT_MODERATE])) return;
-									this.unbanUser(tMessage, message.channel_id);
+									this.unbanUser(tMessage, message.platform == "youtube"? tMessage.channel_id : message.channel_id);
 								},
 							});
 				}else{
@@ -702,7 +702,7 @@ export default class ContextMenuHelper {
 					TwitchUtils.unbanUser(message.user, channelId);
 					break;
 				case "youtube":
-					YoutubeHelper.instance.unbanUser(message.user.id);
+					YoutubeHelper.instance.unbanUser(message.user.id, channelId);
 					break;
 			}
 		}
