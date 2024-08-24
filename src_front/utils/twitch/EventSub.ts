@@ -179,69 +179,159 @@ export default class EventSub {
 		this.remoteChanSubscriptions[uid] = [];
 
 		if(isBroadcaster){
-			TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_UPDATE, "2");
+			TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_UPDATE, "2")
+			.then(res => {
+				if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+			});
 
 			//Don't need to listen for this event for anyone else but the broadcaster
-			TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {from_broadcaster_user_id:uid});
+			TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {from_broadcaster_user_id:uid})
+			.then(res => {
+				if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+			});
 			
 			//Used by online/offline triggers
-			TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
-			TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
+			TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1")
+			.then(res => {
+				if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+			});
+			TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1")
+			.then(res => {
+				if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+			});
 
 			if(TwitchUtils.hasScopes([TwitchScopes.ADS_READ])) {
-				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.AD_BREAK_BEGIN, "1");
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.AD_BREAK_BEGIN, "1")
+			.then(res => {
+				if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+			});
 			}
 
 			if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
-				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMATIC_REWARD_REDEEM, "1");
-				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM, "1");
-				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM_UPDATE, "1");
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMATIC_REWARD_REDEEM, "1")
+			.then(res => {
+				if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+			});
+				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
+				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM_UPDATE, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
 			}
 			/*
 			if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS])) {
-				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_START, "1");
-				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_PROGRESS, "1");
-				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_END, "1");
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_START, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_PROGRESS, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_END, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
 			}
 			if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS])) {
-				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_START, "1");
-				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_PROGRESS, "1");
-				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_LOCK, "1");
-				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_END, "1");
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_START, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_PROGRESS, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_LOCK, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_END, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
 			}
 			if(TwitchUtils.hasScopes([TwitchScopes.READ_HYPE_TRAIN])) {
-				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_START, "1");
-				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_PROGRESS, "1");
-				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_END, "1");
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_START, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_PROGRESS, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_END, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
 			}
 			//*/
 
 			//Not using those as IRC does it better
 			// if(TwitchUtils.hasScope(TwitchScopes.LIST_SUBS)) {
-				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.SUB, "1");
-				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.SUB_END, "1");
-				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.SUBGIFT, "1");
-				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.RESUB, "1");
+				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.SUB, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
+				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.SUB_END, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
+				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.SUBGIFT, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
+				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.RESUB, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
 			// }
 
 			//Not using this as IRC does it better
 			// if(TwitchUtils.hasScope(TwitchScopes.READ_CHEER)) {
-				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.BITS, "1");
+				// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.BITS, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
 			// }
 
 			//Don't need it
-			// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_CREATE, "1");
-			// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_UPDATE, "1");
-			// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_DELETE, "1");
-			// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_START, "1");
-			// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_PROGRESS, "1");
-			// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_END, "1");
+			// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_CREATE, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
+			// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_UPDATE, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
+			// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_DELETE, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
+			// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_START, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
+			// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_PROGRESS, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
+			// TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.GOAL_END, "1")
+				// .then(res => {
+				// 	if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				// });
 		}
 
 		if(isMod) {
 
 			if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
-				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, "2");
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, "2")
+				.then(res => {
+					if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				});
 			}
 			
 			if(TwitchUtils.hasScopes([TwitchScopes.BLOCKED_TERMS,
@@ -258,18 +348,20 @@ export default class EventSub {
 				});
 			}else{
 				if(TwitchUtils.hasScopes([TwitchScopes.MODERATION_EVENTS])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.BAN, "1")
-					.then(res => {
-						if(res !== false) this.remoteChanSubscriptions[uid].push(res)
-					});
 					TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN, "1")
 					.then(res => {
 						if(res !== false) this.remoteChanSubscriptions[uid].push(res)
 					});
 				}
 				if(TwitchUtils.hasScopes([TwitchScopes.UNBAN_REQUESTS])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_NEW, "1");
-					TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_RESOLVED, "1");
+					TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_NEW, "1")
+					.then(res => {
+						if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+					});
+								TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_RESOLVED, "1")
+					.then(res => {
+						if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+					});
 				}
 				if(TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_SENT, "1")
@@ -277,6 +369,15 @@ export default class EventSub {
 						if(res !== false) this.remoteChanSubscriptions[uid].push(res)
 					});
 				}
+			}
+			if(TwitchUtils.hasScopes([TwitchScopes.MODERATION_EVENTS])) {
+				//Using channel.ban event even if subscribing to channel.moderate V2.
+				//The later does not allow to compute an accurate timeout duration.
+				//This topic gives more accurate data in this case
+				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.BAN, "1")
+				.then(res => {
+					if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+				});
 			}
 			if(TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING])) {
 				TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_ACKNOWLEDGE, "1")
@@ -326,7 +427,7 @@ export default class EventSub {
 
 				if(!isBroadcaster) {
 					//Only subbing to this as a moderator.
-					//Broadcaster ues PubSub alternative that, to date, gives more details.
+					//Broadcaster uses PubSub alternative that, to date, gives more details.
 					//Eventsub doesn't tell which part of the message triggered the automod.
 					TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_MESSAGE_HELD, "1")
 					.then(res => {
@@ -348,7 +449,10 @@ export default class EventSub {
 		}
 			
 		if(TwitchUtils.hasScopes([TwitchScopes.CHAT_READ_EVENTSUB])) {
-			TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_MESSAGES, "1", {user_id:uid});
+			TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_MESSAGES, "1", {user_id:uid})
+			.then(res => {
+				if(res !== false) this.remoteChanSubscriptions[uid].push(res)
+			});
 		}
 
 		TwitchUtils.eventsubSubscribe(uid, myUID, this.sessionID, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {to_broadcaster_user_id:uid})
@@ -1357,6 +1461,13 @@ export default class EventSub {
 			}
 
 			case "ban":{
+				//Stop there if the "channel:moderate" scope has been granted.
+				//In this case we subscribed to channel.ban topic that gives a
+				//more accurate event data to compute timeout duration.
+				//No need to parse this event as it would be a sort of duplicate
+				//of the channel.ban event
+				if(TwitchUtils.hasScopes([TwitchScopes.MODERATION_EVENTS])) return;
+
 				this.banEvent(topic, {
 					banned_at:new Date().toString(),
 					broadcaster_user_id:event.broadcaster_user_id,
@@ -1391,6 +1502,13 @@ export default class EventSub {
 			}
 
 			case "timeout":{
+				//Stop there if the "channel:moderate" scope has been granted.
+				//In this case we subscribed to channel.ban topic that gives a
+				//more accurate event data to compute timeout duration.
+				//No need to parse this event as it would be a sort of duplicate
+				//of the channel.ban event
+				if(TwitchUtils.hasScopes([TwitchScopes.MODERATION_EVENTS])) return;
+
 				this.banEvent(topic, {
 					banned_at:new Date().toString(),
 					broadcaster_user_id:event.broadcaster_user_id,
