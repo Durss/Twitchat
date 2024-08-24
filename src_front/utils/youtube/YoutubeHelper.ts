@@ -603,7 +603,7 @@ export default class YoutubeHelper {
 		const res = await fetch(url, {method:"DELETE", headers:this.headers});
 		if(res.status == 200 || res.status == 204) {
 			Logger.instance.log("youtube", {log:"User unbaned successfully", credits: this._creditsUsed, liveID:this._currentLiveIds});
-			StoreProxy.users.flagUnbanned("youtube", liveId, userId);
+			StoreProxy.users.flagUnbanned("youtube", this._liveIdToChanId[liveId], userId);
 		}else{
 			Logger.instance.log("youtube", {log:"An error occured when trying to unban the user", error:await res.text(), credits: this._creditsUsed, liveID:this._currentLiveIds});
 			StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_api_is_shit_unban"));
