@@ -419,8 +419,11 @@ class ChatMessage extends AbstractChatMessage {
 		//Creation date is loaded asynchronously, watch for it if requested
 		if(this.$store.params.appearance.recentAccountUserBadge.value === true) {
 			const setRecentBadge = (list:TwitchatDataTypes.MessageBadgeData[]) => {
+				//Don't show the warning for ourself
+				if(mess.user.id == this.$store.auth.twitch.user.id) return;
+
 				const age = Date.now() - (mess.user.created_at_ms || 0);
-				if(age < 7 * 24 * 60 * 60000) {
+				if(age < 14 * 24 * 60 * 60000) {
 					let label = "";
 					if(age > 24 * 60 * 60000)	label = Math.round(age/(24*60*60000)) + this.$t("chat.custom_badge.tooltip.new_account_day");
 					else if(age > 60 * 60000)	label = Math.round(age/(60 * 60000)) + this.$t("chat.custom_badge.tooltip.new_account_hour");
