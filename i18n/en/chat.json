@@ -507,7 +507,7 @@
 			"remove": "{MODERATOR} removed {USER} from your VIPs"
 		},
 		"mod": {
-			"add": "{MODERATOR} added {USER} to your moderatorsPs",
+			"add": "{MODERATOR} added {USER} to your moderators",
 			"remove": "{MODERATOR} removed {USER} from your moderator"
 		},
 		"warn_acknowledge": {
