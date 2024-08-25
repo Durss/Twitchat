@@ -103,7 +103,7 @@
 			"INVALID_USER": "Vous n'êtes pas autorisé·e à utiliser ce code",
 			"GUILD_COMMAND_CREATE_FAILED": "Une erreur est survenue lors de la création des commands Discord",
 			"MISSING_ACCESS": "Le bot Twitchat n'a pas la permission d'écrire dans le salon Discord \"{CHANNEL}\"",
-			"MISSING_ACCESS_THREAD": "Le bot Twitchat n'a pas la permission de créer de threads dans le salon Discord \"{CHANNEL}\""
+			"MISSING_ACCESS_THREAD": "Le bot Twitchat n'a pas la permission de créer de threads dans le salon Discord \"{CHANNEL}\".\nAssurez-vous que le bot possède également la permission \"Voir les anciens messages\"."
 		},
 		"streamlabs_denied": "Vous avez refusé l'accès à votre profil Streamlabs.",
 		"streamlabs_connect_failed": "Authentification Streamlabs échouée.",

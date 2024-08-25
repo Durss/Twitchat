@@ -158,6 +158,7 @@ export default class DiscordController extends AbstractController {
 		}catch(error) {
 			const channels = await this._rest.get(Routes.guildChannels(guard.guild.guildID)) as {id:string, name:string}[];
 			const channel = channels.find(v=>v.id == params.channelId);
+			console.log(error);
 			response.header('Content-Type', 'application/json')
 			.status(401)
 			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:"POST_FAILED", channelName:channel? channel.name : "", success:false}));
@@ -207,7 +208,7 @@ export default class DiscordController extends AbstractController {
 			//Limit to 10 messages
 			mergeHistory.slice(0,10).forEach(async entry=> {
 				(await this._rest.post(Routes.channelMessages(thread.id), {body:{content:entry}})) as {id:string};
-			})
+			});
 
 			response.header('Content-Type', 'application/json')
 			.status(200)

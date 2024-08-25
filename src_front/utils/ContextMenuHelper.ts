@@ -1050,7 +1050,29 @@ export default class ContextMenuHelper {
 	private async discordQuickAction(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData, action:TwitchatDataTypes.DiscordQuickActionData):Promise<void> {
 		const text = await TriggerUtils.parseGlobalPlaceholders(action.message || "", false, message);
 		const channelId = action.channelId || "";
-		await ApiHelper.call("discord/message", "POST", {message:text, channelId});
+		const res = await ApiHelper.call("discord/message", "POST", {message:text, channelId});
+		if(res.status != 200) {
+			let error = "";
+			switch(res.json.errorCode) {
+				case "POST_FAILED":
+					error = StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:res.json.channelName});
+					break;
+				default:
+					error = StoreProxy.i18n.t("error.discord.UNKNOWN");
+					break;
+			}
+			const message:TwitchatDataTypes.MessageCustomData = {
+				date:Date.now(),
+				id:Utils.getUUID(),
+				channel_id:channelId,
+				platform:"twitchat",
+				type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+				message: error,
+				style: "error",
+				icon: "alert",
+			};
+			StoreProxy.chat.addMessage(message);
+		}
 	}
 
 	/**

@@ -666,6 +666,7 @@ export const storeUsers = defineStore('users', {
 					const followDate = bannedUser.channelInfo[channelId].following_date_ms;
 					const followDateStr = followDate? Utils.formatDate(new Date(followDate), true) : t('discord.log_pattern.not_following');
 					const createDateStr = bannedUser.created_at_ms? Utils.formatDate(new Date(bannedUser.created_at_ms!)) : "-";
+					let error = "";
 					history.unshift(`**${t('discord.log_pattern.uid')}**: \`${bannedUser.id}\`
 **${t('discord.log_pattern.login')}**: \`${bannedUser.login}\`
 **${t('discord.log_pattern.displayname')}**: \`${bannedUser.displayName}\`
@@ -685,15 +686,12 @@ export const storeUsers = defineStore('users', {
 
 						if(!result.json.success) {
 							if(result.json.errorCode == "POST_FAILED") {
-								StoreProxy.common.alert(StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:result.json.channelName}));
-								return;
+								error = StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:result.json.channelName});
 							}else
 							if(result.json.errorCode == "CREATE_THREAD_FAILED") {
-								StoreProxy.common.alert(StoreProxy.i18n.t("error.discord.MISSING_ACCESS_THREAD", {CHANNEL:result.json.channelName}));
-								return;
+								error = StoreProxy.i18n.t("error.discord.MISSING_ACCESS_THREAD", {CHANNEL:result.json.channelName});
 							}else{
-								StoreProxy.common.alert(StoreProxy.i18n.t("error.discord.UNKNOWN"));
-								return;
+								error = StoreProxy.i18n.t("error.discord.UNKNOWN");
 							}
 						}
 					}else{
@@ -704,20 +702,34 @@ export const storeUsers = defineStore('users', {
 						});
 						if(!result.json.success) {
 							if(result.json.errorCode == "POST_FAILED") {
-								StoreProxy.common.alert(StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:result.json.channelName}));
-								return;
+								error = StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:result.json.channelName});
 							}else{
-								StoreProxy.common.alert(StoreProxy.i18n.t("error.discord.UNKNOWN"));
-								return;
+								error = StoreProxy.i18n.t("error.discord.UNKNOWN");
 							}
 						}
 
-						history.forEach(async message=> {
-							await ApiHelper.call("discord/message", "POST", {
-								message,
-								channelId:sDiscord.banLogTarget,
+						if(!error) {
+							history.forEach(async message=> {
+								await ApiHelper.call("discord/message", "POST", {
+									message,
+									channelId:sDiscord.banLogTarget,
+								});
 							});
-						})
+						}
+					}
+
+					if(error) {
+						const message:TwitchatDataTypes.MessageCustomData = {
+							date:Date.now(),
+							id:Utils.getUUID(),
+							channel_id:channelId,
+							platform,
+							type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+							message: error,
+							style: "error",
+							icon: "alert",
+						};
+						StoreProxy.chat.addMessage(message);
 					}
 				}
 			}
