@@ -1036,7 +1036,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 			
 			for (let i = 0; i < powerups.length; i++) {
 				if(!powerups[i].emoteUrl) continue;
-				const behind = Math.random()>.5;
+				const behind = Math.random()>.2;
 				const maxSpeed = behind? .5 : 1;
 				this.powerUpEmoteProps.push({
 					image:powerups[i].emoteUrl!,
@@ -1713,6 +1713,10 @@ export default toNative(OverlayEndingCredits);
 					display: none;
 				}
 			}
+		}
+
+		.powerupEmote  {
+			will-change: transform;
 		}
 	}
 }
