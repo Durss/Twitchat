@@ -266,7 +266,7 @@ export interface TriggerEventTypeCategory {
 }
 //Main trigger categories displayed on the parameter "Triggers" section
 export const TriggerEventTypeCategories = {
-	GLOBAL:			{id:1, labelKey:"triggers.categories.global", icons:["whispers"]} as TriggerEventTypeCategory,
+	CHAT_REWARDS:	{id:1, labelKey:"triggers.categories.global", icons:["whispers"]} as TriggerEventTypeCategory,
 	TIMER:			{id:2, labelKey:"triggers.categories.timer", icons:["timer"]} as TriggerEventTypeCategory,
 	TWITCHAT:		{id:3, labelKey:"triggers.categories.twitchat", icons:["twitchat"]} as TriggerEventTypeCategory,
 	USER:			{id:4, labelKey:"triggers.categories.user", icons:["user"]} as TriggerEventTypeCategory,
@@ -689,6 +689,10 @@ export interface TriggerActionWSData extends TriggerActionData{
 	 * Custom topic param to send to websocket
 	 */
 	topic:string;
+	/**
+	 * Custom payload to send to websocket
+	 */
+	payload:string;
 	/**
 	 * Placeholder to send to websocket
 	 */
@@ -1251,6 +1255,7 @@ export const TriggerTypes = {
 	YOUTUBE_SUBSCRIPTION:"129",
 	YOUTUBE_SUBGIFT:"130",
 	VOICEMOD_SOUND_EFFECT:"131",
+	WEBSOCKET_TOPIC:"132",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1942,6 +1947,11 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"RECIPIENTS_ID", descKey:'triggers.placeholders.sub_gift_recipient_id', pointer:"gift_recipients.0.id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubgiftData>,
 	];
 
+	map[TriggerTypes.WEBSOCKET_TOPIC] = [
+		{tag:"TOPIC", descKey:'triggers.placeholders.ws_topic', pointer:"topic", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageWebsocketTopicData>,
+		{tag:"MESSAGE", descKey:'triggers.placeholders.ws_topic', pointer:"message", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageWebsocketTopicData>,
+	];
+
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder<any>[] = [];
 	for (let i = 0; i < counters.length; i++) {
@@ -2124,12 +2134,13 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"highlight", labelKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE.label", value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, descriptionKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"alert", labelKey:"triggers.events.CHAT_ALERT.label", value:TriggerTypes.CHAT_ALERT, descriptionKey:"triggers.events.CHAT_ALERT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"commands", labelKey:"triggers.events.SLASH_COMMAND.label", value:TriggerTypes.SLASH_COMMAND, descriptionKey:"triggers.events.SLASH_COMMAND.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V13_1, category:TriggerEventTypeCategories.TWITCHAT, icon:"broadcast", labelKey:"triggers.events.WEBSOCKET_TOPIC.label", value:TriggerTypes.WEBSOCKET_TOPIC, descriptionKey:"triggers.events.WEBSOCKET_TOPIC.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.WEBSOCKET_TOPIC},
 		
-		{category:TriggerEventTypeCategories.GLOBAL, icon:"chatCommand", labelKey:"triggers.events.CHAT_COMMAND.label", value:TriggerTypes.CHAT_COMMAND, isCategory:true, descriptionKey:"triggers.events.CHAT_COMMAND.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE, noToggle:true},
-		{category:TriggerEventTypeCategories.GLOBAL, icon:"whispers", labelKey:"triggers.events.ANY_MESSAGE.label", value:TriggerTypes.ANY_MESSAGE, descriptionKey:"triggers.events.ANY_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
-		{category:TriggerEventTypeCategories.GLOBAL, icon:"channelPoints", labelKey:"triggers.events.REWARD_REDEEM.label", value:TriggerTypes.REWARD_REDEEM, isCategory:true, descriptionKey:"triggers.events.REWARD_REDEEM.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.REWARD, noToggle:true},
-		{category:TriggerEventTypeCategories.GLOBAL, icon:"channelPoints", labelKey:"triggers.events.COMMUNITY_CHALLENGE_PROGRESS.label", value:TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS, descriptionKey:"triggers.events.COMMUNITY_CHALLENGE_PROGRESS.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION},
-		{category:TriggerEventTypeCategories.GLOBAL, icon:"channelPoints", labelKey:"triggers.events.COMMUNITY_CHALLENGE_COMPLETE.label", value:TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE, descriptionKey:"triggers.events.COMMUNITY_CHALLENGE_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION},
+		{category:TriggerEventTypeCategories.CHAT_REWARDS, icon:"chatCommand", labelKey:"triggers.events.CHAT_COMMAND.label", value:TriggerTypes.CHAT_COMMAND, isCategory:true, descriptionKey:"triggers.events.CHAT_COMMAND.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE, noToggle:true},
+		{category:TriggerEventTypeCategories.CHAT_REWARDS, icon:"whispers", labelKey:"triggers.events.ANY_MESSAGE.label", value:TriggerTypes.ANY_MESSAGE, descriptionKey:"triggers.events.ANY_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
+		{category:TriggerEventTypeCategories.CHAT_REWARDS, icon:"channelPoints", labelKey:"triggers.events.REWARD_REDEEM.label", value:TriggerTypes.REWARD_REDEEM, isCategory:true, descriptionKey:"triggers.events.REWARD_REDEEM.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.REWARD, noToggle:true},
+		{category:TriggerEventTypeCategories.CHAT_REWARDS, icon:"channelPoints", labelKey:"triggers.events.COMMUNITY_CHALLENGE_PROGRESS.label", value:TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS, descriptionKey:"triggers.events.COMMUNITY_CHALLENGE_PROGRESS.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION},
+		{category:TriggerEventTypeCategories.CHAT_REWARDS, icon:"channelPoints", labelKey:"triggers.events.COMMUNITY_CHALLENGE_COMPLETE.label", value:TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE, descriptionKey:"triggers.events.COMMUNITY_CHALLENGE_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION},
 		
 		{category:TriggerEventTypeCategories.USER, icon:"firstTime", labelKey:"triggers.events.FIRST_ALL_TIME.label", value:TriggerTypes.FIRST_ALL_TIME, descriptionKey:"triggers.events.FIRST_ALL_TIME.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{category:TriggerEventTypeCategories.USER, icon:"firstTime", labelKey:"triggers.events.FIRST_TODAY.label", value:TriggerTypes.FIRST_TODAY, descriptionKey:"triggers.events.FIRST_TODAY.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},

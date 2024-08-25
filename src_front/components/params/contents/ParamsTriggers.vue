@@ -394,10 +394,12 @@ import staticEmotes from '@/utils/twitch/staticEmoteList.json';
 				this.$store.debug.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(triggerEvent.testMessageType, (data)=> {
 					let m = data
 
+					//Slash commands simulation
 					if(trigger.type == TriggerTypes.SLASH_COMMAND) {
 						const typedMessage = m as TwitchatDataTypes.MessageChatData;
 						TriggerActionHandler.instance.executeTrigger(trigger, typedMessage, false, trigger.chatCommand);
 					}else
+					
 					//Chat message simulation
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 						switch(triggerEvent.value) {

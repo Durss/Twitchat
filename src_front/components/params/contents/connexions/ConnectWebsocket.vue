@@ -54,7 +54,7 @@ import ParamItem from '../../ParamItem.vue';
 	},
 	emits:[],
 })
- class ConnectWebsocket extends Vue {
+class ConnectWebsocket extends Vue {
 
 	public error = false;
 	public showSuccess = false;

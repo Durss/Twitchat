@@ -13,7 +13,7 @@
 			<p class="title" v-if="parameters.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
 			
 			<div class="params">
-				<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" @change="toggleAll()" v-if="parameters.length > 3" />
+				<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" v-model="param_toggleAll.value" @change="toggleAll()" v-if="parameters.length > 3" />
 				
 				<div class="card-item">
 					<label for="ws_action_topic" class="taginfo">
@@ -21,7 +21,28 @@
 						<span>{{ $t("triggers.actions.http_ws.topic_description") }}</span>
 					</label>
 					<input id="ws_action_topic" type="text" v-model="action.topic"
-					:placeholder="$t('triggers.actions.http_ws.topic_placeholder')" maxlength="255">
+					:placeholder="$t('triggers.actions.http_ws.topic_placeholder')" maxlength="255" ref="topic">
+					<PlaceholderSelector class="placeholders" v-if="placeholderList"
+						:target="$refs.topic"
+						:placeholders="placeholderList"
+						v-model="action.topic"
+						:popoutMode="true"
+					/>
+				</div>
+				
+				<div class="card-item column">
+					<label for="ws_action_payload" class="taginfo">
+						<div class="tag"><mark>PAYLOAD</mark></div>
+						<span>{{ $t("triggers.actions.http_ws.topic_description") }}</span>
+					</label>
+					<textarea id="ws_action_payload" type="text" v-model="action.payload"
+					:placeholder="$t('triggers.actions.http_ws.topic_placeholder')" maxlength="10000" ref="payload"></textarea>
+					<PlaceholderSelector class="placeholders" v-if="placeholderList"
+						:target="$refs.payload"
+						:placeholders="placeholderList"
+						v-model="action.payload"
+						:popoutMode="false"
+					/>
 				</div>
 
 				<div class="card-item" v-for="p in parameters" :key="p.placeholder.tag" @click="p.enabled = !p.enabled; onToggleParam()">
@@ -44,15 +65,17 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
+import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
 
 @Component({
 	components:{
 		ParamItem,
 		ToggleButton,
+		PlaceholderSelector,
 	},
 	emits:["update"]
 })
- class TriggerActionWSEntry extends AbstractTriggerActionEntry {
+class TriggerActionWSEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionWSData;
@@ -60,8 +83,10 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	@Prop
 	declare triggerData:TriggerData;
 
+	public placeholderList:ITriggerPlaceholder<any>[] = [];
 	public parameters:{placeholder:ITriggerPlaceholder<any>, enabled:boolean}[] = [];
 	public param_toggleAll:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.select_all" };
+	public param_payload:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, maxLength:10000, labelKey:"triggers.actions.http_ws.payload_description" };
 
 	public get websocketConnected():boolean { return WebsocketTrigger.instance.connected; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
@@ -89,6 +114,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	 * Called when the available placeholder list is updated
 	 */
 	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
+		this.placeholderList = list;
 		this.parameters = list.map(v=> {
 			return  {
 				placeholder:v,
@@ -120,8 +146,9 @@ export default toNative(TriggerActionWSEntry);
 			flex-direction: row;
 			align-items: center;
 			cursor: pointer;
+			transition: background-color .2s;
 			&:hover {
-				background-color: var(--color-light-fade);
+				background-color: var(--color-light-fader);
 			}
 			.taginfo {
 				gap: .5em;
@@ -132,6 +159,9 @@ export default toNative(TriggerActionWSEntry);
 
 				.tag {
 					word-break: break-all;
+				}
+				span {
+					font-style: italic;
 				}
 			}
 			input {
@@ -147,6 +177,11 @@ export default toNative(TriggerActionWSEntry);
 			margin-right: .5em;
 			margin-bottom: .5em;
 		}
+	}
+
+	.card-item.column {
+		flex-direction: column;
+		align-items: stretch;
 	}
 }
 </style>

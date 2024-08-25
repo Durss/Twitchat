@@ -953,6 +953,7 @@ export default toNative(ParamItem);
 
 	&.longText {
 		.content {
+			width: 100%;
 			.text {
 				flex-grow: 1;
 				display: flex;

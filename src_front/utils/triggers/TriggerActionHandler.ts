@@ -626,6 +626,12 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.WEBSOCKET_TOPIC:{
+				if(await this.executeTriggersByType(TriggerTypes.WEBSOCKET_TOPIC, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				switch(message.noticeId) {
 					case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE:{
@@ -1795,7 +1801,10 @@ export default class TriggerActionHandler {
 						json[tag.toLowerCase()] = value;
 					}
 					if(step.topic) {
-						json.topic = step.topic;
+						json.topic = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.topic, subEvent);
+					}
+					if(step.payload) {
+						json.payload = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.payload, subEvent);
 					}
 					try {
 						if(WebsocketTrigger.instance.connected) {

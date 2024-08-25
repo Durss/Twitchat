@@ -345,7 +345,8 @@
 				"add_headerBt": "Add header",
 				"need_to_connect": "This action requires you to {LINK}",
 				"need_to_connect_link": "connect to a websocket server",
-				"topic_description": "Custom value"
+				"topic_description": "Custom value",
+				"payload_description": "Custom data"
 			},
 			"count": {
 				"value_label": "Value",
@@ -799,7 +800,9 @@
 			"supersticker_id":"Sticker's ID",
 			"supersticker_url":"Sticker's URL",
 			"youtube_sub_tier":"Membership level name",
-			"youtube_sub_months":"Membership duration in months"
+			"youtube_sub_months":"Membership duration in months",
+			"ws_topic":"Websocket topic",
+			"ws_message":"All message data"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1346,8 +1349,13 @@
 				"description": "Actions to execute when a user takes a membership on YouTube"
 			},
 			"YOUTUBE_SUBGIFT": {
-				"label": "subgifts received on YouTube",
+				"label": "Subgifts received on YouTube",
 				"description": "Actions to execute when a user gifts memberships on YouTube"
+			},
+			"WEBSOCKET_TOPIC": {
+				"label": "Event received from websocket",
+				"description": "Actions to execute when receiving an event from the Websocket {INFO}",
+				"description_info": "(NOT OBS-Websocket! Socket message MUST be a JSON with a \"topic\" property)"
 			}
 		},
 		"musicEvents": {

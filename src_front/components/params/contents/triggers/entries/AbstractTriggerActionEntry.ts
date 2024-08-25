@@ -14,7 +14,7 @@ export default class AbstractTriggerActionEntry extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 
-	protected placeholders:ITriggerPlaceholder<any>[] = [];
+	protected placeholderList:ITriggerPlaceholder<any>[] = [];
 
 	private placeholderIdCache:string[] = [];
 
@@ -132,9 +132,9 @@ export default class AbstractTriggerActionEntry extends Vue {
 		//Check if the placeholder list has changed since last time.
 		//If so, call onPlaceholderUpdate to notify parent class
 		if(placeholderIds.join(",") != this.placeholderIdCache.join(",")) {
-			this.placeholders = placeholdersList;
-			this.placeholderIdCache = this.placeholders.map(v=>v.tag.toLowerCase()).sort();
-			this.onPlaceholderUpdate(this.placeholders);
+			this.placeholderList = placeholdersList;
+			this.placeholderIdCache = this.placeholderList.map(v=>v.tag.toLowerCase()).sort();
+			this.onPlaceholderUpdate(this.placeholderList);
 		}
 	}
 

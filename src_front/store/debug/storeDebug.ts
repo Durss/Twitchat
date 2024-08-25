@@ -1624,6 +1624,21 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
+
+				case TwitchatDataTypes.TwitchatMessageType.WEBSOCKET_TOPIC: {
+					const topic = Utils.pickRand(["topic1","topic2","topic3"]);
+					const m:TwitchatDataTypes.MessageWebsocketTopicData = {
+						date:Date.now(),
+						id:Utils.getUUID(),
+						platform:"youtube",
+						type,
+						channel_id:uid,
+						topic,
+						message:"{\"topic\":\""+topic+"\"}"
+					};
+					data = m;
+					break;
+				}
 			}
 
 			data.fake = true;

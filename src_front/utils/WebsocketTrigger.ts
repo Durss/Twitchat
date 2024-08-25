@@ -1,4 +1,8 @@
 import { reactive } from "vue";
+import TriggerActionHandler from "./triggers/TriggerActionHandler";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import StoreProxy from "@/store/StoreProxy";
+import Utils from "./Utils";
 
 /**
 * Created : 15/03/2023 
@@ -60,7 +64,24 @@ export default class WebsocketTrigger {
 				keepTringToConnect = false;
 			};
 			
-			this.socket.onmessage = (event:unknown) => { };
+			this.socket.onmessage = (event:MessageEvent) => {
+				try {
+					//If message is a JSON with a "topic" prop, call related triggers
+					const json = JSON.parse(event.data);
+					if(json && json.topic) {
+						const m:TwitchatDataTypes.MessageWebsocketTopicData = {
+							date:Date.now(),
+							id:Utils.getUUID(),
+							type:TwitchatDataTypes.TwitchatMessageType.WEBSOCKET_TOPIC,
+							channel_id:StoreProxy.auth.twitch.user.id,
+							message:event.data,
+							topic:json.topic,
+							platform:"twitchat",
+						}
+						TriggerActionHandler.instance.execute(m);
+					}
+				}catch(err){}
+			};
 			
 			this.socket.onclose = (event) => {
 				if(!this.autoReconnect && !keepTringToConnect) return;

@@ -345,7 +345,8 @@
 				"add_headerBt": "Ajouter un header",
 				"need_to_connect": "Cette action nécessite de vous {LINK}",
 				"need_to_connect_link": "connecter à un serveur websocket",
-				"topic_description": "Valeur personnalisée"
+				"topic_description": "Valeur personnalisée",
+				"payload_description": "Données personnalisées"
 			},
 			"count": {
 				"value_label": "Valeur",
@@ -799,7 +800,9 @@
 			"supersticker_id": "ID du sticker",
 			"supersticker_url": "URL du sticker",
 			"youtube_sub_tier": "Nom de l'abonnement",
-			"youtube_sub_months": "Durées d'abonnement en mois"
+			"youtube_sub_months": "Durées d'abonnement en mois",
+			"ws_topic":"Topic du message",
+			"ws_message":"Données reçues"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1348,6 +1351,11 @@
 			"YOUTUBE_SUBGIFT": {
 				"label": "Abonnement offers sur YouTube",
 				"description": "Actions à exécuter lorsqu'une personne offre des abonnements sur YouTube"
+			},
+			"WEBSOCKET_TOPIC": {
+				"label": "Évènement websocket reçu",
+				"description": "Actions à exécuter lorsqu'un évènement est reçu sur le Websocket {INFO}",
+				"description_info": "(ne concerne PAS OBS-websocket ! Le message socket DOIT être un JSON avec une propriété \"topic\")"
 			}
 		},
 		"musicEvents": {

@@ -2016,6 +2016,7 @@ export namespace TwitchatDataTypes {
 		FOLLOWBOT_LIST:"followbot_list",
 		COUNTER_UPDATE:"counter_update",
 		AD_BREAK_START:"ad_break_start",
+		WEBSOCKET_TOPIC:"websocket_topic",
 		OBS_STOP_STREAM:"obs_stop_stream",
 		YOUTUBE_SUBGIFT:"youtube_subgift",
 		WARN_ACKNOWLEDGE:"warn_acknowledge",
@@ -2119,6 +2120,7 @@ export namespace TwitchatDataTypes {
 		history_splitter:true,
 		warn_acknowledge:true,
 		obs_stop_stream:false,
+		websocket_topic:false,
 		credits_complete:false,
 		user_watch_streak:true,
 		hype_train_start:false,
@@ -2273,6 +2275,7 @@ export namespace TwitchatDataTypes {
 									| MessageYoutubeSuperStickerData
 									| MessageYoutubeSubscriptionData
 									| MessageYoutubeSubgiftData
+									| MessageWebsocketTopicData
 	;
 
 	/**
@@ -4826,5 +4829,20 @@ export namespace TwitchatDataTypes {
 		 * Youtube live chat ID this message has been sent to
 		 */
 		youtube_liveId: string;
+	}
+
+	/**
+	 * Represents an incoming websocket message with a "topic" param
+	 */
+	export interface MessageWebsocketTopicData extends AbstractTwitchatMessage {
+		type:"websocket_topic";
+		/**
+		 * Topic called
+		 */
+		topic:string;
+		/**
+		 * Message received
+		 */
+		message:string;
 	}
 }

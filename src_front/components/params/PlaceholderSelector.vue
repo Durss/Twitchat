@@ -204,6 +204,7 @@ class PlaceholderSelector extends Vue {
 			const text = target.value.substring(0, carretPos) + tag + target.value.substring(carretPos);
 			this.$emit("update:modelValue", text);
 		}else{
+			this.$emit("update:modelValue", "{"+h.tag+"}");
 			this.$emit("insert", "{"+h.tag+"}");
 		}
 

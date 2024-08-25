@@ -44,6 +44,7 @@ export default class Config {
 	public NEW_FLAGS_DATE_V11 = new Date("01 01 2024 01:00:00").getTime();
 	public NEW_FLAGS_DATE_V12 = new Date("02 24 2024 01:00:00").getTime()
 	public NEW_FLAGS_DATE_V13 = new Date("08 30 2024 01:00:00").getTime()
+	public NEW_FLAGS_DATE_V13_1 = new Date("09 30 2024 01:00:00").getTime()
 	/**
 	 * Get if twitchat is running on an OBS dock
 	 */
