@@ -7,7 +7,7 @@
 		
 		<template v-else-if="messageData.channelSource">
 			<span class="border"
-				:style="{color:messageData.channelSource.color}"></span>
+				:style="{color:messageData.channelSource.color+'99'}"></span>
 			
 			<span class="side"
 				v-tooltip="messageData.channelSource.name"
@@ -645,7 +645,7 @@ export default toNative(MessageItem);
 	width: 100%;
 	.border {
 		position: absolute;
-		width: 50%;
+		width: 65%;
 		height: 100%;
 		flex-shrink: 0;
 		flex-grow: 0;
