@@ -8,6 +8,7 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import type { GoXLRTypes } from "./GoXLRTypes";
 import { TwitchatDataTypes } from "./TwitchatDataTypes";
 import type { TwitchDataTypes } from "./twitch/TwitchDataTypes";
+import Utils from "@/utils/Utils";
 
 /**
  * Util to strongly type string object paths.
@@ -1970,6 +1971,9 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		}
 		if(entry.findIndex(v=>v.tag == "NOW") == -1) {
 			entry.push({tag:"NOW", descKey:'triggers.placeholders.now', pointer:"__date__.now", numberParsable:true, isUserID:false, globalTag:true, example:Date.now().toString()});
+			entry.push({tag:"DATE", descKey:'triggers.placeholders.date', pointer:"__date__.date", numberParsable:false, isUserID:false, globalTag:true, example:Utils.formatDate(new Date(), false)});
+			entry.push({tag:"TIME", descKey:'triggers.placeholders.time', pointer:"__date__.time", numberParsable:false, isUserID:false, globalTag:true, example:Utils.formatDate(new Date(), true, true)});
+			entry.push({tag:"DATETIME", descKey:'triggers.placeholders.datetile', pointer:"__date__.datetime", numberParsable:false, isUserID:false, globalTag:true, example:Utils.formatDate(new Date(), true)});
 		}
 		if(entry.findIndex(v=>v.tag == "MY_STREAM_TITLE") == -1) {
 			entry.push({category:"stream", tag:"MY_STREAM_TITLE", descKey:'triggers.placeholders.my_stream_title', pointer:"__my_stream__.title", numberParsable:false, isUserID:false, globalTag:true, example:"Talking about stuff"} as ITriggerPlaceholder<TwitchatDataTypes.StreamInfo, string, "__my_stream__">);

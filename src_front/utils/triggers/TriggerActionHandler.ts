@@ -3183,6 +3183,9 @@ export default class TriggerActionHandler {
 						const pointerLocal = pointer.replace('__date__.', '');
 						switch(pointerLocal) {
 							case "now": value = Date.now().toString(); break;
+							case "date": value = Utils.formatDate(new Date(), false); break;
+							case "time": value = Utils.formatDate(new Date(), true, true); break;
+							case "datetime": value = Utils.formatDate(new Date(), true); break;
 						}
 
 					/**
