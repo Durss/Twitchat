@@ -394,6 +394,7 @@
 				"list_label": "Choisir une entrée aléatoirement parmi les suivantes:",
 				"list_entry_placeholder": "ajouter une entrée...",
 				"value": "Valeur",
+				"value_splitter": "Séparateur d'entrées\n(caractère séparant les entrées)",
 				"value_id": "Valeur dans laquelle tirer une entrée",
 				"value_no_values": "Il n'est possible de tirer une entrée aléatoire d'une Valeur que pour les Valeur par utilisateur.\nCréez une Valeur avec l'option \" @:values.form.value_user \" activée.",
 				"counter": "Compteur",
@@ -403,7 +404,7 @@
 				"placeholder_tuto": "Définissez le nom des placeholders dans lesquels extraire les données correspondantes:",
 				"placeholder_user_id": "ID de la personne",
 				"placeholder_user_name": "Pseudo de la personne (Twitch only)",
-				"placeholder_value": "Valeur de la personne"
+				"placeholder_value": "Valeur"
 			},
 			"raffle_enter": {
 				"info": "La personne déclenchant l'évènement actuel participera au tirage au sort en cours. Cette action n'aura aucun effet si aucun tirage au sort n'a été démarré avant ça."

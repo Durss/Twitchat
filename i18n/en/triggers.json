@@ -395,6 +395,7 @@
 				"list_entry_placeholder": "add entry...",
 				"placeholder_label": "Placeholder name",
 				"value": "Value",
+				"value_splitter": "Entries separator\n(char that seperates entries)",
 				"value_id": "Value to pick an entry from",
 				"value_no_values": "It's only possible to pick a random entry from a per-user Value.\nCreate a value with \" @:values.form.value_user \" option enabled.",
 				"counter": "Counter",
@@ -403,7 +404,7 @@
 				"placeholder_tuto": "Define placeholders names to which extract corresponding data:",
 				"placeholder_user_id": "User ID",
 				"placeholder_user_name": "User name (Twitch only)",
-				"placeholder_value": "User value"
+				"placeholder_value": "Value"
 			},
 			"raffle_enter": {
 				"info": "The user triggering the current event will enter any currently running raffle. It will do nothing if no raffle has been created first."

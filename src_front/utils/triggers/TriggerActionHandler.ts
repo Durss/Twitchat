@@ -2146,12 +2146,20 @@ export default class TriggerActionHandler {
 								dynamicPlaceholders[step.valueCounterPlaceholders.value]	= value;
 								logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.valueCounterPlaceholders.value+"}\" with value \""+value+"\""});
 							}
+						}else if(source && !source.perUser && step.valueSplitter && step.valueCounterPlaceholders) {
+							let entries = (source.value || "").toString().split(new RegExp(step.valueSplitter, ""));
+							entries = entries.map(v=> v.trim());
+							const value = Utils.pickRand(entries);
+							dynamicPlaceholders[step.valueCounterPlaceholders.value] = value;
+							logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.valueCounterPlaceholders.value+"}\" with value \""+value+"\""});
 						}else{
 							let logMessage = "❌ Cannot pick random entry from given source \""+step.mode+"\".";
 							if(!source) {
 								logMessage += " Cannot find requested source from ID \""+sourceID+"\".";
-							}else if(!source.users) {
+							}else if(!source.users && source.perUser) {
 								logMessage += " Requested source has no user entry.";
+							}else if(!source.perUser && !step.valueSplitter) {
+								logMessage += " You haven't defined any splitter value on your trigger.";
 							}else if(!step.valueCounterPlaceholders) {
 								logMessage += " Missing placeholder names.";
 							}
@@ -3224,7 +3232,6 @@ export default class TriggerActionHandler {
 						|| placeholder.tag == TriggerActionDataTypes.USER_FOLLOWAGE_MS) {
 							let user = root as TwitchatDataTypes.TwitchatUser;
 							let chanInfos = user.channelInfo[message.channel_id] as TwitchatDataTypes.UserChannelInfo;
-							console.log(chanInfos.following_date_ms);
 							//Follow date not loaded yet for this user, asynchronously load it
 							if(chanInfos.following_date_ms == 0 && message.platform == "twitch")  {
 								let res = await TwitchUtils.getFollowerState(user.id);

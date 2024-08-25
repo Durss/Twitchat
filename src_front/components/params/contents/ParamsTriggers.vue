@@ -366,6 +366,14 @@ import staticEmotes from '@/utils/twitch/staticEmoteList.json';
 				TriggerActionHandler.instance.parseScheduleTrigger(trigger, true);
 			}else
 
+			//If it's s slash command
+			// if(trigger.type === TriggerTypes.SLASH_COMMAND) {
+				// this.$store.debug.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(triggerEvent.testMessageType, (data)=> {
+				// 	let m = data
+				// 	TriggerActionHandler.instance.execute(m, true, trigger.id);
+				// }, false);
+			// }else
+
 			//If it's a notice type
 			if(triggerEvent.testMessageType == TwitchatDataTypes.TwitchatMessageType.NOTICE) {
 				this.$store.debug.simulateNotice<TwitchatDataTypes.MessageNoticeData>(triggerEvent.testNoticeType, (data)=> {
@@ -385,6 +393,11 @@ import staticEmotes from '@/utils/twitch/staticEmoteList.json';
 			}else{
 				this.$store.debug.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(triggerEvent.testMessageType, (data)=> {
 					let m = data
+
+					if(trigger.type == TriggerTypes.SLASH_COMMAND) {
+						const typedMessage = m as TwitchatDataTypes.MessageChatData;
+						TriggerActionHandler.instance.executeTrigger(trigger, typedMessage, false, trigger.chatCommand);
+					}else
 					//Chat message simulation
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 						switch(triggerEvent.value) {

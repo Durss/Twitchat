@@ -337,6 +337,7 @@ const UserDataSchema = {
 								pattern: {type:"string", maxLength:15},
 								counterSource: {type:"string", maxLength:40},
 								valueSource: {type:"string", maxLength:40},
+								valueSplitter: {type:"string", maxLength:5},
 								branded:{type:"boolean"},
 								fxPresetIndex:{type:"integer", minimum:-1, maximum:5},
 								sampleIndex:{

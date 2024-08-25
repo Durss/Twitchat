@@ -101,11 +101,25 @@
 			</div>
 		</template>
 
+		<ParamItem v-if="action.mode == 'value' && valueIdToValue[param_value.value]?.perUser !== true"
+			:paramData="param_valueSplitter"
+			:error="(action.valueSplitter || '').trim().length == 0"
+			v-model="action.valueSplitter" nobackground />
+
 		<div v-if="(action.mode=='value' && (param_value.listValues || []).length > 0) || (action.mode=='counter' && (param_counter.listValues || []).length > 0)" class="card-item listItem">
 			<p>{{ $t("triggers.actions.random.placeholder_tuto") }}</p>
-			<ParamItem class="forsceWrap" :paramData="param_placeholderUserId" v-model="action.valueCounterPlaceholders!.userId" nobackground />
-			<ParamItem class="forcseWrap" :paramData="param_placeholderUserName" v-model="action.valueCounterPlaceholders!.userName" nobackground />
-			<ParamItem class="forcseWrap" :paramData="param_placeholderValue" v-model="action.valueCounterPlaceholders!.value" nobackground />
+			<template v-if="action.mode=='counter' || valueIdToValue[param_value.value]?.perUser === true">
+				<ParamItem :paramData="param_placeholderUserId"
+				:error="(action.valueCounterPlaceholders!.userId || '').trim().length == 0"
+				v-model="action.valueCounterPlaceholders!.userId" nobackground />
+				<ParamItem :paramData="param_placeholderUserName"
+				:error="(action.valueCounterPlaceholders!.userName || '').trim().length == 0"
+				v-model="action.valueCounterPlaceholders!.userName" nobackground />
+			</template>
+
+			<ParamItem :paramData="param_placeholderValue"
+				:error="(action.valueCounterPlaceholders!.value || '').trim().length == 0"
+			v-model="action.valueCounterPlaceholders!.value" nobackground />
 		</div>
 
 		<ParamItem v-if="action.mode != 'trigger' && action.mode != 'value' && action.mode != 'counter'" :paramData="param_placeholder" v-model="action.placeholder" :error="action.placeholder && action.placeholder.length === 0" />
@@ -129,7 +143,6 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import type { TriggerActionRandomData, TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';
@@ -166,6 +179,7 @@ class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
 	public disposed:boolean = false;
 	public openTriggerList:boolean = false;
 	public indexToEditState:{[key:string]:boolean} = {};
+	public valueIdToValue:{[key:string]:TwitchatDataTypes.ValueData} = {};
 
 	public param_min:TwitchatDataTypes.ParameterData<number> = {type:"number", labelKey:"triggers.actions.random.min_label", value:0, min:Number.MIN_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"min"};
 	public param_max:TwitchatDataTypes.ParameterData<number> = {type:"number", labelKey:"triggers.actions.random.max_label", value:10, min:Number.MIN_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"max"};
@@ -175,6 +189,7 @@ class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
 	public param_disableAfterExec:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"triggers.actions.random.trigger_disableAfterExec", value:false, icon:"disable"};
 	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"list", labelKey:"triggers.actions.random.value_id", value:"", icon:"placeholder"};
 	public param_counter:TwitchatDataTypes.ParameterData<string> = {type:"list", labelKey:"triggers.actions.random.counter_id", value:"", icon:"placeholder"};
+	public param_valueSplitter:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.value_splitter", value:",", icon:"split", maxLength:5};
 	public param_placeholderUserId:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.placeholder_user_id", value:"", icon:"label"};
 	public param_placeholderUserName:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.placeholder_user_name", value:"", icon:"user"};
 	public param_placeholderValue:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.placeholder_value", value:"", icon:"number"};
@@ -195,12 +210,20 @@ class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
 		if(!this.action.list) this.action.list = [];
 		this.buildIndex = 0;
 
-		this.param_value.listValues = this.$store.values.valueList.filter(v=>v.perUser === true).map(v=>{
+		this.valueIdToValue = {};
+
+		this.param_value.listValues = this.$store.values.valueList
+		// .filter(v=>v.perUser === true)
+		.map(v=>{
 			return {
 				value:v.id,
 				label:v.name,
+
 			}
 		});
+		this.$store.values.valueList.forEach(v=>{
+			this.valueIdToValue[v.id] = v;
+		})
 
 		this.param_counter.listValues = this.$store.counters.counterList.filter(v=>v.perUser === true).map(v=>{
 			return {
@@ -432,16 +455,6 @@ export default toNative(TriggerActionRandomEntry);
 			margin-top: .5em;
 		}
 	}
-
-	.forceWrap {
-		:deep(.holder) {
-			flex-direction: column;
-			.inputHolder{
-				width: 100%;
-			}
-		}
-	}
-
 	.warning {
 		display: flex;
 		flex-direction: column;

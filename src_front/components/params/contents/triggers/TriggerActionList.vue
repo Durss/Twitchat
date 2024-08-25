@@ -177,7 +177,7 @@ import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
 	},
 	emits:[],
 })
- class TriggerActionList extends Vue {
+class TriggerActionList extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;

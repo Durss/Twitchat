@@ -1,3 +1,4 @@
+import StoreProxy from '@/store/StoreProxy';
 import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { watch } from 'vue';
 import { ComponentBase, Prop, Vue } from 'vue-facing-decorator';
@@ -95,10 +96,15 @@ export default class AbstractTriggerActionEntry extends Vue {
 			}
 			if((a.mode == "counter" || a.mode === "value") && a.valueCounterPlaceholders) {
 				const placeholders = [
-					a.valueCounterPlaceholders!.userId,
-					a.valueCounterPlaceholders!.userName,
 					a.valueCounterPlaceholders!.value,
 				];
+				if(a.mode == "counter"
+				|| (a.mode == "value" && StoreProxy.values.valueList.find(v=>v.id == a.valueSource)?.perUser === true) ) {
+					placeholders.unshift(
+						a.valueCounterPlaceholders!.userId,
+						a.valueCounterPlaceholders!.userName
+					)
+				}
 				
 				for (let i = 0; i < placeholders.length; i++) {
 					const ph = placeholders[i];
