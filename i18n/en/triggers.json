@@ -1330,7 +1330,7 @@
 			},
 			"POWER_UP_GIANT_EMOTE": {
 				"label": "Power UP: gigantified emote",
-				"description": "Actions to execute when a giangified emote power up is sent"
+				"description": "Actions to execute when a gigantified emote power up is sent"
 			},
 			"POWER_UP_CELEBRATION": {
 				"label": "Power UP: celebration",
