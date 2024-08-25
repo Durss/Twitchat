@@ -847,6 +847,7 @@ export default class PubSub extends EventDispatcher {
 			is_boost_train:data.is_boost_train,
 			is_golden_kappa:data.is_golden_kappa_train == true,
 			is_new_record:false,
+			rawData:data,
 		};
 		StoreProxy.stream.setHypeTrain(train);
 
@@ -892,6 +893,7 @@ export default class PubSub extends EventDispatcher {
 			is_new_record:false,
 			conductor_bits:storeTrain?.conductor_bits,
 			conductor_subs:storeTrain?.conductor_subs,
+			rawData:data,
 		};
 
 		//This line makes debug easier if I wanna start the train at any
@@ -947,6 +949,7 @@ export default class PubSub extends EventDispatcher {
 				is_new_record:false,//found no way to detect new record :(. Doesn't seem avalable on pubsub
 				conductor_bits:storeTrain?.conductor_bits,
 				conductor_subs:storeTrain?.conductor_subs,
+				rawData:data,
 			};
 
 			//This line makes debug easier if I wanna start the train at any
@@ -992,6 +995,7 @@ export default class PubSub extends EventDispatcher {
 			is_new_record:storeTrain?.is_new_record ?? false,
 			conductor_bits:storeTrain?.conductor_bits,
 			conductor_subs:storeTrain?.conductor_subs,
+			rawData:data,
 		};
 
 		//This line makes debug easier if I wanna start the train at any
@@ -1076,6 +1080,7 @@ export default class PubSub extends EventDispatcher {
 			is_new_record:storeTrain.is_new_record,
 			conductor_bits:storeTrain.conductor_bits,
 			conductor_subs:storeTrain.conductor_subs,
+			rawData:data,
 		};
 		StoreProxy.stream.setHypeTrain(train);
 

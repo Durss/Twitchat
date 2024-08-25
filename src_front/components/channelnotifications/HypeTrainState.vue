@@ -99,6 +99,7 @@ import type { StyleValue } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ProgressBar from '../ProgressBar.vue';
 import Icon from '../Icon.vue';
+import ApiHelper from '@/utils/ApiHelper';
 
 @Component({
 	components:{
@@ -261,6 +262,10 @@ class HypeTrainState extends Vue {
 		this.timerDuration = this.trainData.state == "APPROACHING"? this.trainData.timeLeft_s * 1000 : 5*60*1000;
 
 		const p = Math.floor(this.trainData.currentValue/this.trainData.goal * 100);
+		//Log data to understand where a "NaN%" is coming from on some users
+		if(isNaN(p) || this.trainData.goal == undefined || this.trainData.currentValue == undefined) {
+			ApiHelper.call("log", "POST", {cat:"hypetrain", log:this.trainData});
+		}
 		gsap.to(this, {progressPercent:p, ease:"sine.inOut", duration:.5});
 	}
 
