@@ -66,43 +66,44 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//Debounce connection calls if calling it for multiple channels at once
 		clearTimeout(this._connectTimeout);
 		this._connectTimeout = setTimeout(async ()=>{
-			Logger.instance.log("irc", {info:"Initial connect to channel "+channel});
+			Logger.instance.log("irc", {info:"Initial connect to channel(s) "+this._channelList.join(", ")});
 			const chans = await TwitchUtils.getUserInfo(undefined, this._channelList);
 			if(chans.length === 0) {
-				Logger.instance.log("irc", {info:"Initial connect failed for channel "+channel+". Matching user not found on Twitch.", data:chans});
+				Logger.instance.log("irc", {info:"Initial connect failed for channel(s) "+this._channelList.join(", ")+". Matching user not found on Twitch.", data:chans});
 				StoreProxy.common.alert("Unable to load user info: "+ this._channelList);
 				return;
 			}
 
 			const meObj = StoreProxy.auth.twitch.user;
 
-			chans.forEach(async v=> {
+			chans.forEach(async channel=> {
+				console.log("IRC CONNECT TO ",channel.login, this._connectedChans[channel.id])
 				//Skip it if already connected
-				if(this._connectedChans[v.id] === true) return;
+				if(this._connectedChans[channel.id] === true) return;
 
-				this._channelIdToLogin[v.id] = v.login;
-				this._channelLoginToId[v.login] = v.id;
+				this._channelIdToLogin[channel.id] = channel.login;
+				this._channelLoginToId[channel.login] = channel.id;
 
 				//Check if we're a mod on this channel by testing if the get chatters endpoint
 				//returns something or not (no dedicated API for this ATM)
-				TwitchUtils.getChatters(v.id).then(result => {
+				TwitchUtils.getChatters(channel.id).then(result => {
 					const amIModThere = result !== false;
 					if(amIModThere) {
 						//Go through getUserFrom() that will init the channelInfo property for later use
-						const me = StoreProxy.users.getUserFrom("twitch", v.id, meObj.id, meObj.login, meObj.displayNameOriginal)
+						const me = StoreProxy.users.getUserFrom("twitch", channel.id, meObj.id, meObj.login, meObj.displayNameOriginal)
 						//Flag self as mod of that channel
-						me.channelInfo[v.id].is_moderator = true;
+						me.channelInfo[channel.id].is_moderator = true;
 					}
 				})
-				const u = StoreProxy.users.getUserFrom("twitch", v.id, v.id, v.login, v.display_name);//Preload user to storage
-				u.channelInfo[v.id].online = true;
-				u.channelInfo[v.id].is_broadcaster = true;
+				const u = StoreProxy.users.getUserFrom("twitch", channel.id, channel.id, channel.login, channel.display_name);//Preload user to storage
+				u.channelInfo[channel.id].online = true;
+				u.channelInfo[channel.id].is_broadcaster = true;
 
 				//Init stream info
-				if(!StoreProxy.stream.currentStreamInfo[v.id]) {
+				if(!StoreProxy.stream.currentStreamInfo[channel.id]) {
 					//Don't init if already existing. Authenticated user's stream info
 					//are loaded during auth process
-					StoreProxy.stream.currentStreamInfo[v.id] = {
+					StoreProxy.stream.currentStreamInfo[channel.id] = {
 						title:"",
 						category:"",
 						live:false,
@@ -114,12 +115,12 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					}
 				}
 
-				TwitchUtils.loadEmoteSets(v.id);
-				TwitchUtils.loadUserBadges(v.id);
-				TwitchUtils.loadCheermoteList(v.id);
-				TwitchUtils.getRoomSettings(v.id, true).then(settings=> {
+				TwitchUtils.loadEmoteSets(channel.id);
+				TwitchUtils.loadUserBadges(channel.id);
+				TwitchUtils.loadCheermoteList(channel.id);
+				TwitchUtils.getRoomSettings(channel.id, true).then(settings=> {
 					if(settings) {
-						StoreProxy.stream.setRoomSettings(v.id, settings);
+						StoreProxy.stream.setRoomSettings(channel.id, settings);
 						if(settings.chatDelay || settings.emotesOnly || settings.subOnly || typeof settings.followOnly === "number") {
 
 							const message:TwitchatDataTypes.MessageRoomSettingsData = {
@@ -127,8 +128,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 								date:Date.now(),
 								type:"room_settings",
 								platform:"twitch",
-								channel_id:v.id,
-								channel_name:v.login,
+								channel_id:channel.id,
+								channel_name:channel.login,
 								settings
 							}
 							StoreProxy.chat.addMessage(message);
@@ -136,21 +137,26 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					}
 				});
 				//Load chatters list if we have necessary rights
-				TwitchUtils.getChatters(v.id, v.login).then(res => {
+				TwitchUtils.getChatters(channel.id, channel.login).then(res => {
 					(res || []).forEach((login) => {
 						//Don't notify when joining our own room.
 						//There's a "connect" notification for that
-						if(v.login != login || v.id != meObj.id) {
-							this.onJoin(v.login, login, login == meObj.login, true);
+						if(channel.login != login || channel.id != meObj.id) {
+							this.onJoin(channel.login, login, login == meObj.login, true);
 						}
 					});
 				});
-				BTTVUtils.instance.addChannel(v.id);
-				FFZUtils.instance.addChannel(v.id);
-				SevenTVUtils.instance.addChannel(v.id);
+				BTTVUtils.instance.addChannel(channel.id);
+				FFZUtils.instance.addChannel(channel.id);
+				SevenTVUtils.instance.addChannel(channel.id);
+				
+
+				if(this._client) {
+					Logger.instance.log("irc", {info:"Join channel "+ channel.login});
+					this._client.join(channel.login);
+				}
 			});
 
-			Logger.instance.log("irc", {info:"Create IRC client"});
 			//Not yet connected to IRC, create client and connect to specified
 			//channels with specified credentials
 			const options:tmi.Options = {
@@ -164,14 +170,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			};
 
 			if(!this._client) {
+				Logger.instance.log("irc", {info:"Create IRC client"});
 				this._client = new tmi.Client(options);
 				this._client.connect();
-	
+				
 				this.initialize();
-			}else{
-				this._client.join(channel);
 			}
-		}, 100);
+		}, 1000);
 	}
 
 	/**
