@@ -1793,9 +1793,9 @@ export default class TriggerActionHandler {
 					for (const tag of step.params) {
 						const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent, false, false, false);
 						json[tag.toLowerCase()] = value;
-						if(step.topic) {
-							json.topic = step.topic;
-						}
+					}
+					if(step.topic) {
+						json.topic = step.topic;
 					}
 					try {
 						if(WebsocketTrigger.instance.connected) {
