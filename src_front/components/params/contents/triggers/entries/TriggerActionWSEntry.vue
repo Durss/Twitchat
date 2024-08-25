@@ -80,7 +80,9 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	 * Called when clicking "all" toggle
 	 */
 	public toggleAll():void {
+		console.log("VALUE", this.param_toggleAll.value)
 		this.parameters.forEach(v=> v.enabled = this.param_toggleAll.value);
+		this.onToggleParam();
 	}
 
 	/**
