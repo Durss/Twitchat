@@ -114,7 +114,6 @@ class TriggerActionCustomChatEntry extends AbstractTriggerActionEntry {
 	private iconList:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
 	private buttonThemes:TwitchatDataTypes.ParameterDataListValue<NonNullable<TwitchatDataTypes.MessageCustomData["actions"]>[number]["theme"]>[] = [];
 	private actionTypes:TwitchatDataTypes.ParameterDataListValue<NonNullable<TwitchatDataTypes.MessageCustomData["actions"]>[number]["actionType"]>[] = [];
-	private placeholderList:ITriggerPlaceholder<any>[] = [];
 
 	public get messageData():TwitchatDataTypes.MessageCustomData {
 		const chunks = TwitchUtils.parseMessageToChunks(this.action.customMessage.message || "", undefined, true);
@@ -255,11 +254,10 @@ class TriggerActionCustomChatEntry extends AbstractTriggerActionEntry {
 	 * Called when the available placeholder list is updated
 	 */
 	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
-		this.placeholderList = list;
-		this.param_user.placeholderList = this.placeholderList;
-		this.param_message.placeholderList = this.placeholderList;
+		this.param_user.placeholderList = list;
+		this.param_message.placeholderList = list;
 		for (let i = 0; i < this.actionParams.length; i++) {
-			this.actionParams[i].message.placeholderList = this.placeholderList;
+			this.actionParams[i].message.placeholderList = list;
 		}
 	}
 

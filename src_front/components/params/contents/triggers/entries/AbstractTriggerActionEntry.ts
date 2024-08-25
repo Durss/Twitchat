@@ -14,7 +14,7 @@ export default class AbstractTriggerActionEntry extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 
-	protected placeholderList:ITriggerPlaceholder<any>[] = [];
+	public placeholderList:ITriggerPlaceholder<any>[] = [];
 
 	private placeholderIdCache:string[] = [];
 

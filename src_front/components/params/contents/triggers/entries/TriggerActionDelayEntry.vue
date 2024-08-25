@@ -22,14 +22,13 @@
 </template>
 
 <script lang="ts">
+import DurationForm from '@/components/DurationForm.vue';
 import TTButton from '@/components/TTButton.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
-import type { ITriggerPlaceholder, TriggerActionTypes, TriggerData } from '@/types/TriggerActionDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
+import type { TriggerActionTypes, TriggerData } from '@/types/TriggerActionDataTypes';
+import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
-import DurationForm from '@/components/DurationForm.vue';
 
 @Component({
 	components:{
@@ -40,15 +39,13 @@ import DurationForm from '@/components/DurationForm.vue';
 	},
 	emits:["delete"],
 })
- class TriggerActionDelayEntry extends AbstractTriggerActionEntry {
+class TriggerActionDelayEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionTypes;
 	
 	@Prop
 	declare triggerData:TriggerData;
-	
-	public placeholderList:TwitchatDataTypes.PlaceholderEntry[] = [];
 
 	public get isNumericValue():boolean {
 		return typeof(this.action.delay) != 'string';
@@ -64,13 +61,6 @@ import DurationForm from '@/components/DurationForm.vue';
 	 */
 	public insertTag(tag:string):void {
 		this.action.delay = tag;
-	}
-
-	/**
-	 * Called when the available placeholder list is updated
-	 */
-	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
-		this.placeholderList = list.filter(v=>v.numberParsable == true);
 	}
 	
 }
