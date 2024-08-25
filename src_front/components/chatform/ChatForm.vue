@@ -442,7 +442,6 @@ export class ChatForm extends Vue {
 	public trackedUserCount = 0;
 	public sendHistoryIndex = 0;
 	public sendHistory:string[] = [];
-	public channelId:string = "";
 	public onlineUsersTooltip:string = "";
 	public announcement:TwitchatDataTypes.TwitchatAnnouncementData | null = null;
 
@@ -537,7 +536,7 @@ export class ChatForm extends Vue {
 	public get cypherConfigured():boolean { return this.$store.main.cypherKey?.length > 0; }
 
 	public get pendingShoutoutCount():number {
-		const list = this.$store.users.pendingShoutouts[this.channelId];
+		const list = this.$store.users.pendingShoutouts[this.$store.stream.currentChatChannel.id];
 		if(!list) return 0;
 
 		return list.length;
@@ -562,7 +561,6 @@ export class ChatForm extends Vue {
 		EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 		EventBus.instance.addEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CREDITS_OVERLAY_PRESENCE, this.creditsOverlayPresenceHandler);
-		this.channelId = StoreProxy.auth.twitch.user.id;
 		this.onUpdateTrackedUserList();
 		//Leave some time to open transition to complete before showing announcements
 		setTimeout(()=> {
@@ -753,14 +751,15 @@ export class ChatForm extends Vue {
 
 		let followCount = 0;
 		let onlineCount = 0;
+		const chanId = this.$store.stream.currentChatChannel.id;
 		const users = this.$store.users.users;
 		for (let i = 0; i < users.length; i++) {
 			const u = users[i];
 
-			if(!u.channelInfo[this.channelId]) continue;
-			if(u.channelInfo[this.channelId].online === true) {
+			if(!u.channelInfo[this.$store.stream.currentChatChannel.id]) continue;
+			if(u.channelInfo[this.$store.stream.currentChatChannel.id].online === true) {
 				onlineCount ++;
-				if(u.channelInfo[this.channelId].is_following === true) followCount ++;
+				if(u.channelInfo[this.$store.stream.currentChatChannel.id].is_following === true) followCount ++;
 			}
 		}
 
@@ -924,7 +923,7 @@ export class ChatForm extends Vue {
 				platform:"twitchat",
 				noticeId:noticeId,
 				message:noticeMessage,
-				channel_id:this.channelId,
+				channel_id:this.$store.stream.currentChatChannel.id,
 			}
 			sChat.addMessage(notice);
 		}
