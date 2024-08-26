@@ -881,7 +881,7 @@ export default class PubSub extends EventDispatcher {
 		const train:TwitchatDataTypes.HypeTrainStateData = {
 			channel_id:channelId,
 			level:data.progress.level.value,
-			currentValue:data.progress.value || data.progress.progression,
+			currentValue:data.progress.value ?? data.progress.progression,
 			goal:data.progress.goal,
 			approached_at:storeTrain?.approached_at ?? Date.now(),
 			started_at:data.started_at,
@@ -937,7 +937,7 @@ export default class PubSub extends EventDispatcher {
 			const train:TwitchatDataTypes.HypeTrainStateData = {
 				channel_id:channelId ?? storeTrain?.channel_id ?? StoreProxy.auth.twitch.user.id,
 				level:data.progress.level.value,
-				currentValue:data.progress.value || data.progress.progression,
+				currentValue:data.progress.value ?? data.progress.progression,
 				goal:data.progress.goal,
 				approached_at:storeTrain?.approached_at ?? Date.now(),
 				started_at:storeTrain?.started_at ?? Date.now(),
@@ -983,7 +983,7 @@ export default class PubSub extends EventDispatcher {
 		const train:TwitchatDataTypes.HypeTrainStateData = {
 			channel_id:channelId ?? storeTrain?.channel_id ?? StoreProxy.auth.twitch.user.id,
 			level:data.progress.level.value,
-			currentValue:data.progress.value || data.progress.progression,
+			currentValue:data.progress.value ?? data.progress.progression,
 			goal:data.progress.goal,
 			approached_at:storeTrain?.approached_at ?? Date.now(),
 			started_at:storeTrain?.started_at ?? Date.now(),
