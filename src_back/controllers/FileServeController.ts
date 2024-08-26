@@ -156,7 +156,7 @@ export default class FileServeController extends AbstractController {
 		type logsCategories = Parameters<typeof Config.LOGS_PATH>[0] | "";
 		const logType:logsCategories = (body.cat as string || "").toLowerCase() as logsCategories;
 		const logData:string = JSON.stringify(body.log) || "";
-		const allowedCategories:logsCategories[] = ["streamlabs"];
+		const allowedCategories:logsCategories[] = ["streamlabs", "hypetrain"];
 
 		if(logType == "" || allowedCategories.indexOf(logType) == -1) {
 			response.header('Content-Type', 'application/json');
