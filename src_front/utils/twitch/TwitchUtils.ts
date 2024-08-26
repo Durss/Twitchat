@@ -2131,30 +2131,33 @@ export default class TwitchUtils {
 			}
 			return true;
 		} else
-			if (res.status == 400) {
-				const json = await res.json();
-				StoreProxy.common.alert(json.message);
-				return false
-			} else
-				if (res.status == 422) {
-					const json = await res.json();
-					const mess = json.message as string;
-					if (removeVip) {
-						StoreProxy.common.alert("User " + user.login + " is not a VIP of this channel");//TODO translate
-					} else if (/.*is.*moderator.*/gi.test(mess)) {
-						StoreProxy.common.alert("User " + user.login + " is a moderator of this channel. You first need to remove them from your mods");//TODO translate
-					} else if (/.*is.*vip.*/gi.test(mess)) {
-						StoreProxy.common.alert("User " + user.login + " is already a VIP on this channel.");//TODO translate
-					}
-					return false
-				} else
-					if (res.status == 429) {
-						//Rate limit reached, try again after it's reset to full
-						await this.onRateLimit(res.headers, url.pathname);
-						return await this.addRemoveVIP(removeVip, channelId, user);
-					} else {
-						return false;
-					}
+
+		if (res.status == 400) {
+			const json = await res.json();
+			StoreProxy.common.alert(json.message);
+			return false
+		} else
+
+		if (res.status == 422) {
+			const json = await res.json();
+			const mess = json.message as string;
+			if (removeVip) {
+				StoreProxy.common.alert("User " + user.login + " is not a VIP of this channel");//TODO translate
+			} else if (/.*is.*moderator.*/gi.test(mess)) {
+				StoreProxy.common.alert("User " + user.login + " is a moderator of this channel. You first need to remove them from your mods");//TODO translate
+			} else if (/.*is.*vip.*/gi.test(mess)) {
+				StoreProxy.common.alert("User " + user.login + " is already a VIP on this channel.");//TODO translate
+			}
+			return false
+		} else
+
+		if (res.status == 429) {
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers, url.pathname);
+			return await this.addRemoveVIP(removeVip, channelId, user);
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -2187,19 +2190,21 @@ export default class TwitchUtils {
 		if (res.status == 200 || res.status == 204) {
 			return true;
 		} else
-			if (res.status == 429) {
-				//Rate limit reached, try again after it's reset to full
-				await this.onRateLimit(res.headers, url.pathname);
-				return await this.raidChannel(channel);
-			} else {
-				let message = "Unable to raid " + channel + "."
-				try {
-					const json = await res.json();
-					if (json.message) message = json.message;
-				} catch (error) { }
-				StoreProxy.common.alert(message);
-				return false;
-			}
+
+		if (res.status == 429) {
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers, url.pathname);
+			return await this.raidChannel(channel);
+		} else {
+			
+			let message = "Unable to raid " + channel + "."
+			try {
+				const json = await res.json();
+				if (json.message) message = json.message;
+			} catch (error) { }
+			StoreProxy.common.alert(message);
+			return false;
+		}
 	}
 
 	/**
@@ -2216,13 +2221,14 @@ export default class TwitchUtils {
 		if (res.status == 200 || res.status == 204) {
 			return true;
 		} else
-			if (res.status == 429) {
-				//Rate limit reached, try again after it's reset to full
-				await this.onRateLimit(res.headers, url.pathname);
-				return await this.raidCancel();
-			} else {
-				return false;
-			}
+
+		if (res.status == 429) {
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers, url.pathname);
+			return await this.raidCancel();
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -2254,19 +2260,19 @@ export default class TwitchUtils {
 		if (res.status == 200 || res.status == 204) {
 			return true;
 		} else
-			if (res.status == 429) {
-				//Rate limit reached, try again after it's reset to full
-				await this.onRateLimit(res.headers, url.pathname);
-				return await this.whisper(message, toLogin, toId);
-			} else {
-				try {
-					const json = await res.json();
-					if (json) StoreProxy.common.alert(json.message);
-				} catch (error) {
-					StoreProxy.common.alert("You are not allowed to send whispers from Twitchat.");
-				}
-				return false;
+		if (res.status == 429) {
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers, url.pathname);
+			return await this.whisper(message, toLogin, toId);
+		} else {
+			try {
+				const json = await res.json();
+				if (json) StoreProxy.common.alert(json.message);
+			} catch (error) {
+				StoreProxy.common.alert("You are not allowed to send whispers from Twitchat.");
 			}
+			return false;
+		}
 	}
 
 	/**
@@ -2294,11 +2300,11 @@ export default class TwitchUtils {
 			const json: { data: { user_id: string, user_login: string, user_name: string }[] } = await res.json();
 			return json.data.map(v => v.user_login);
 		} else
-			if (res.status == 429) {
-				//Rate limit reached, try again after it's reset to full
-				await this.onRateLimit(res.headers, url.pathname);
-				return await this.getChatters(channelId, channelName);
-			}
+		if (res.status == 429) {
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers, url.pathname);
+			return await this.getChatters(channelId, channelName);
+		}
 		return false;
 	}
 
@@ -2336,14 +2342,14 @@ export default class TwitchUtils {
 			const json: { data: TwitchDataTypes.EventsubSubscription[] } = await res.json();
 			return json.data[0].id;
 		} else
-			if (res.status == 429) {
-				//Rate limit reached, try again after it's reset to full
-				await this.onRateLimit(res.headers, url.pathname, attemptCount);
-				if (attemptCount < 8) {
-					attemptCount++;
-					return await this.eventsubSubscribe(channelId, userId, session_id, topic, version, additionalCondition, attemptCount);
-				}
+		if (res.status == 429) {
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers, url.pathname, attemptCount);
+			if (attemptCount < 8) {
+				attemptCount++;
+				return await this.eventsubSubscribe(channelId, userId, session_id, topic, version, additionalCondition, attemptCount);
 			}
+		}
 		return false;
 	}
 
