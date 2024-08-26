@@ -781,6 +781,7 @@ export namespace TwitchatDataTypes {
 		is_new_record:boolean;
 		conductor_subs?:HypeTrainConductorData;
 		conductor_bits?:HypeTrainConductorData;
+		rawData:any;
 	}
 
 	/**

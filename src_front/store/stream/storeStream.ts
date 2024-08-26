@@ -897,7 +897,7 @@ export const storeStream = defineStore('stream', {
 							.filter(color=> !this.connectedTwitchChans.map(channel=>channel.color).includes(color));
 			this.connectedTwitchChans.push({user, color:colors[0]});
 			TwitchMessengerClient.instance.connectToChannel(user.login);
-			EventSub.instance.connectRemoteChan(user);
+			EventSub.instance.connectToChannel(user);
 		},
 		
 		async disconnectFromExtraChan(user:TwitchatDataTypes.TwitchatUser):Promise<void> {

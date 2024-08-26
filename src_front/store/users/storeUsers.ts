@@ -12,6 +12,7 @@ import DataStore from '../DataStore';
 import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 import ApiHelper from '@/utils/ApiHelper';
+import EventSub from '@/utils/twitch/EventSub';
 
 interface BatchItem {
 	channelId?:string;
@@ -570,23 +571,36 @@ export const storeUsers = defineStore('users', {
 			if(duration_s != undefined) {
 				//Auto unflag the user once timeout expires
 				unbanFlagTimeouts[uid] = setTimeout(()=> {
-					StoreProxy.users.flagUnbanned("twitch", channelId, uid);
-					//If requested to re grant mod role after a moderator timeout completes, do it
-					if(StoreProxy.params.features.autoRemod.value == true) {
-						for (let i = 0; i < userList.length; i++) {
-							const u = userList[i];
-							if(u.id === uid
-							&& platform == u.platform
-							&& platform == "twitch"
-							&& u.channelInfo[channelId].autoRemod === true) {
-								u.channelInfo[channelId].autoRemod = false;
-								TwitchUtils.addRemoveModerator(false, channelId, u);
-								break;
+					StoreProxy.users.flagUnbanned(platform, channelId, uid);
+					if(platform == "twitch") {
+						//If requested to re grant mod role after a moderator timeout completes, do it
+						if(StoreProxy.params.features.autoRemod.value == true) {
+							for (let i = 0; i < userList.length; i++) {
+								const u = userList[i];
+								if(u.id === uid
+								&& platform == u.platform
+								&& platform == "twitch"
+								&& u.channelInfo[channelId].autoRemod === true) {
+									u.channelInfo[channelId].autoRemod = false;
+									TwitchUtils.addRemoveModerator(false, channelId, u);
+									break;
+								}
 							}
+						}
+
+						//If we got banned from a remote chan reconnect to eventsub topics.
+						//When getting banned, twitch revokes all eventsub topics.
+						//We then need to resubscribe to those topics once unbaned
+						if(uid == StoreProxy.auth.twitch.user.id) {
+							StoreProxy.users.getUserFrom("twitch", channelId, channelId, undefined, undefined, (user => {
+								EventSub.instance.connectToChannel(user);
+							}))
 						}
 					}
 				}, duration_s*1000);
+			
 			}else{
+
 				//Send logs to discord if requested
 				const sDiscord = StoreProxy.discord;
 				if(sDiscord.discordLinked && sDiscord.banLogTarget && bannedUser) {

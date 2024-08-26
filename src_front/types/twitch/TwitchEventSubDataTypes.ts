@@ -59,6 +59,53 @@ export namespace TwitchEventSubDataTypes {
 	} as const;
 	export type SubscriptionStringTypes = typeof SubscriptionTypes[keyof typeof SubscriptionTypes];
 
+	export interface EventSubMessage {
+		metadata: {
+			message_id: string;
+			message_type: "session_welcome" | "session_keepalive" | "session_reconnect" | "notification" | "revocation";
+			message_timestamp: string;
+			subscription_type: SubscriptionStringTypes;
+			subscription_version: string;
+		};
+		payload: Payload | WelcomePayload | ReconnectPayload | RevocationPayload;
+	}
+
+	export interface WelcomePayload {
+		session: {
+			id: string;
+			status: string;
+			connected_at: string;
+			keepalive_timeout_seconds: number;
+			reconnect_url: string | null;
+			recovery_url: string | null;
+		}
+	}
+
+	export interface ReconnectPayload {
+		session: {
+			reconnect_url: string;
+		}
+	}
+
+	export interface RevocationPayload {
+		subscription: {
+			id: string;
+			status: string;
+			type: SubscriptionStringTypes;
+			version: string;
+			condition: {
+				broadcaster_user_id: string;
+				moderator_user_id: string;
+			};
+			transport: {
+				method: string;
+				session_id: string;
+			};
+			created_at: string;
+			cost: number;
+		};
+	}
+
 	export interface Payload {
 		subscription: {
 			id: string;
@@ -76,40 +123,40 @@ export namespace TwitchEventSubDataTypes {
 			};
 			created_at: string;
 		},
-		event: ChannelUpdateEvent |
-		FollowEvent |
-		SubEvent |
-		SubgiftEvent |
-		SubRenewEvent |
-		BitsEvent |
-		RaidEvent |
-		BanEvent |
-		UnbanEvent |
-		ModeratorAddEvent |
-		ModeratorRemoveEvent |
-		RewardCreateEvent |
-		RewardUpdateEvent |
-		RewardRemoveEvent |
-		RewardRedeemEvent |
-		RewardRedeemUpdateEvent |
-		PollStartEvent |
-		PollProgressEvent |
-		PollEndEvent |
-		PredictionStartEvent |
-		PredictionProgressEvent |
-		PredictionLockEvent |
-		PredictionEndEvent |
-		HypeTrainStartEvent |
-		HypeTrainProgressEvent |
-		ShieldModeStartEvent |
-		ShieldModeStopEvent |
-		BitsExtensionEvent |
-		GoalStartEvent |
-		GoalProgressEvent |
-		GoalEndEvent |
-		StreamOnlineEvent |
-		StreamOfflineEvent;
-
+		event: ChannelUpdateEvent
+		| FollowEvent
+		| SubEvent
+		| SubgiftEvent
+		| SubRenewEvent
+		| BitsEvent
+		| RaidEvent
+		| BanEvent
+		| UnbanEvent
+		| ModeratorAddEvent
+		| ModeratorRemoveEvent
+		| RewardCreateEvent
+		| RewardUpdateEvent
+		| RewardRemoveEvent
+		| RewardRedeemEvent
+		| RewardRedeemUpdateEvent
+		| PollStartEvent
+		| PollProgressEvent
+		| PollEndEvent
+		| PredictionStartEvent
+		| PredictionProgressEvent
+		| PredictionLockEvent
+		| PredictionEndEvent
+		| HypeTrainStartEvent
+		| HypeTrainProgressEvent
+		| ShieldModeStartEvent
+		| ShieldModeStopEvent
+		| BitsExtensionEvent
+		| GoalStartEvent
+		| GoalProgressEvent
+		| GoalEndEvent
+		| StreamOnlineEvent
+		| StreamOfflineEvent
+		;
 	}
 
 
