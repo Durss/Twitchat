@@ -336,6 +336,7 @@ export const storeDebug = defineStore('debug', {
 						is_boost_train:false,
 						is_golden_kappa:false,
 						is_new_record:false,
+						rawData:{},
 					};
 					const m:TwitchatDataTypes.MessageHypeTrainEventData = {
 						id:Utils.getUUID(),
@@ -476,6 +477,7 @@ export const storeDebug = defineStore('debug', {
 								user:conductor_bits,
 								contributions:[{bits:Math.round(Math.random()*10000)}]
 							},
+							rawData:{},
 						},
 						activities,
 					};

@@ -416,7 +416,11 @@ export namespace PubSubDataTypes {
 		conductors: {};
 		progress: {
 			level: {value: number;goal: number;rewards: {type: string;id: string;group_id: string;reward_level: number;set_id: string;token: string;reward_end_date: string;}[];};
+			/**
+			 * @deprecated twitch seems to have changed this for "progression"
+			 */
 			value: number;
+			progression: number;
 			goal: number;
 			total: number;
 			remaining_seconds: number;
@@ -552,7 +556,11 @@ export namespace PubSubDataTypes {
 				reward_end_date: string;
 			}[]
 		};
+		/**
+		 * @deprecated twitch MAY have changed this for "progression".
+		 */
 		value: number;
+		progression: number;
 		goal: number;
 		total: number;
 		remaining_seconds: number;
