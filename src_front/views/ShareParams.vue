@@ -30,14 +30,10 @@
 				<!-- <ClearButton @click="close()" /> -->
 			</div>
 
-			<div class="content error" v-else-if="error">
+			<div class="content error" v-if="error">
 				<Icon name="alert" />
-				<i18n-t tag="div" scope="global" keypath="shareParams.error">
-					<template #USER>
-						<Icon name="loader" v-if="!remoteUser" />
-						<strong v-else>"{{ remoteUser.display_name }}"</strong>
-					</template>
-				</i18n-t>
+				<div v-if="errorDetails">{{ errorDetails }}</div>
+				<div v-else>{{ $t("shareParams.error") }}</div>
 				<TTButton @click="close()" light alert>{{ $t("global.close") }}</TTButton>
 				<!-- <ClearButton @click="close()" /> -->
 			</div>
@@ -84,8 +80,9 @@ import { Component, Vue, toNative } from 'vue-facing-decorator';
 })
 class ShareParams extends Vue {
 
-	public error:boolean = false;
+	public error:boolean = true;
 	public success:boolean = false;
+	public errorDetails:string = "Vous avez mis trop de temps à finaliser le lien.\nVeuillez recommencer la prodécdure.";
 	public confirming:boolean = false;
 	public wrongAccount:boolean = false;
 	public remoteUser:TwitchDataTypes.UserInfo|null = null;
@@ -138,11 +135,21 @@ class ShareParams extends Vue {
 	}
 
 	public async confirm():Promise<void> {
+		this.error = false;
 		this.confirming = true;
+		this.errorDetails = "";
 		const res = await ApiHelper.call("auth/validateDataShare", "POST", {token:this.csrfToken});
 		if(res.status == 200 && res.json.success === true) {
 			this.success = true;
 		}else{
+			switch(res.json.errorCode) {
+				case "CROSS_LINK":
+					this.errorDetails = this.$t("shareParams.error_cross_link");
+					break;
+				case "INVALID_CSRF":
+					this.errorDetails = this.$t("shareParams.error_csrf");
+					break;
+			}
 			this.error = true;
 		}
 		this.confirming = false;

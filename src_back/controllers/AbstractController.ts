@@ -221,10 +221,12 @@ export default class AbstractController {
 	 * @param sharer user ID
 	 * @param receiver user ID
 	 */
-	protected enableUserDataSharing(sharer:string, receiver:string):void {
+	protected enableUserDataSharing(sharer:string, receiver:string):boolean {
+		if(AbstractController._dataSharing[sharer] === receiver) return false;
 		AbstractController._dataSharing[receiver] = sharer;
 		fs.writeFileSync(Config.DATA_SHARING, JSON.stringify(AbstractController._dataSharing), "utf-8");
 		Logger.info("Enable data sharing between users "+sharer+"(main) and "+receiver);
+		return true;
 	}
 
 	/**

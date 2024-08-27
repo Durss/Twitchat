@@ -5,6 +5,8 @@
 		"agreeBt": "Accepter",
 		"success": "Vous partagez désormais vos paramètres avec le compte {USER}\nModifier des paramètres sur un compte impactera l'autre.\n\nRechargez Twitchat pour finaliser la synchronisation.",
 		"error": "Une erreur a eu lieu lors de la finalisation du partage.\nVous données actuelles n'ont pas été impactées.",
+		"error_cross_link": "Ces 2 comptes sont déjà liés entre eux dans l'autre sens, il n'est pas nécessaire d'effectuer la liaison demandée",
+		"error_csrf": "Vous avez mis trop de temps à finaliser le lien.\nVeuillez recommencer la prodécdure.",
 		"wrongAccount": "Vous devez vous reconnecter avec votre compte secondaire.\nPour cela, une fois redirigé sur Twitch, changez de compte en cliquant le lien en haut de page comme indiqué ci-dessous :",
 		"reloadBt": "Recharger Twitchat"
 	}

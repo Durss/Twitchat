@@ -181,7 +181,8 @@ type ApiEndpoints =  {
 			response: {
 				sharer: string;
 				success:boolean;
-				message:string;
+				error:string;
+				errorCode:string;
 			}
 		};
 	};

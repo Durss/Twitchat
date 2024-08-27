@@ -206,18 +206,25 @@ export default class AuthController extends AbstractController {
 			const token = await this.validateCSRFToken(request, response, false);
 			if(token !== false && token.uidShare && token.uidShare != user.user_id) {
 				//Enable data sharing
-				super.enableUserDataSharing(token.uidShare, user.user_id);
-				response.header('Content-Type', 'application/json');
-				response.status(200);
-				response.send(JSON.stringify({success:true, sharer:token.uidShare}));
-				return;
+				const result = super.enableUserDataSharing(token.uidShare, user.user_id);
+				if(result === true) {
+					response.header('Content-Type', 'application/json');
+					response.status(200);
+					response.send(JSON.stringify({success:true, sharer:token.uidShare}));
+					return;
+				}else{
+					response.header('Content-Type', 'application/json');
+					response.status(409);
+					response.send(JSON.stringify({success:false, errorCode:"CROSS_LINK", error:"Cannot cross link 2 accounts"}));
+					return;
+				}
 			}
 		}
 
 		//Invalid token or wrong user association
 		response.header('Content-Type', 'application/json');
 		response.status(404);
-		response.send(JSON.stringify({success:false, message:"Invalid CSRF token"}));
+		response.send(JSON.stringify({success:false, errorCode:"INVALID_CSRF", error:"Invalid CSRF token"}));
 	}
 }
 
