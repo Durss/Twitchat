@@ -84,7 +84,7 @@
 
 				<ThemeSelector class="themeSelector" />
 
-				<mark class="version">v {{appVersion}}</mark>
+				<mark class="version">v {{appVersion}}{{ $config.BETA_MODE? '_beta': '' }}</mark>
 
 				<TTButton :href="$config.DISCORD_URL" type="link" target="_blank" class="discordBt" transparent big icon="discord" />
 			</div>

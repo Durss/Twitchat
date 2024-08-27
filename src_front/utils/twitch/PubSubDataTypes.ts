@@ -337,113 +337,120 @@ export namespace PubSubDataTypes {
 	}
 
 	export interface HypeTrainStart {
-		channel_id: string;
+		__typename: string;
 		id: string;
-		started_at: number;
-		expires_at: number;
-		updated_at: number;
-		ended_at?: any;
-		ending_reason?: any;
-		config: {
-			channel_id: string;
-			is_enabled: boolean;
-			is_whitelisted: boolean;
-			kickoff: {
-				num_of_events: number;
-				min_points: number;
-				duration: number;
-			};
-			cooldown_duration: number;
-			level_duration: number;
-			difficulty: string;
-			reward_end_date?: any;
-			participation_conversion_rates: {
-				'BITS.CHEER': number;
-				'BITS.EXTENSION': number;
-				'BITS.POLL': number;
-				'RAID.RAID': number;
-				'SUBS.TIER_1_GIFTED_SUB': number;
-				'SUBS.TIER_1_SUB': number;
-				'SUBS.TIER_2_GIFTED_SUB': number;
-				'SUBS.TIER_2_SUB': number;
-				'SUBS.TIER_3_GIFTED_SUB': number;
-				'SUBS.TIER_3_SUB': number;
-			};
-			currency_conversion_rates: {[key:string]:number};
-			notification_thresholds:  {
-				'BITS.CHEER': number;
-				'BITS.EXTENSION': number;
-				'BITS.POLL': number;
-				'SUBS.TIER_1_GIFTED_SUB': number;
-				'SUBS.TIER_1_SUB': number;
-				'SUBS.TIER_2_GIFTED_SUB': number;
-				'SUBS.TIER_2_SUB': number;
-				'SUBS.TIER_3_GIFTED_SUB': number;
-				'SUBS.TIER_3_SUB': number;
-			};
-			difficulty_settings: {[key:string]:{value: number;goal: number;rewards: {type: string;id: string;group_id: string;reward_level: number;set_id: string;token: string;reward_end_date: string;}[];}};
-			conductor_rewards: {
-				BITS: {
-					CURRENT: {type: string;id: string;group_id: string;reward_level: number;badge_id: string;image_url: string;reward_end_date: string;}[];
-					FORMER: {type: string;id: string;group_id: string;reward_level: number;badge_id: string;image_url: string;reward_end_date: string;}[];
-				};
-				EXPLICIT_PURCHASE: {
-					CURRENT: {type: string;id: string;group_id: string;reward_level: number;badge_id: string;image_url: string;reward_end_date: string;}[];
-					FORMER: {type: string;id: string;group_id: string;reward_level: number;badge_id: string;image_url: string;reward_end_date: string;}[];
-				};
-				SUBS: {
-					CURRENT: {type: string;id: string;group_id: string;reward_level: number;badge_id: string;image_url: string;reward_end_date: string;}[];
-					FORMER: {type: string;id: string;group_id: string;reward_level: number;badge_id: string;image_url: string;reward_end_date: string;}[];
-				};
-			};
-			callout_emote_id: string;
-			callout_emote_token: string;
-			use_creator_color: boolean;
-			primary_hex_color: string;
-			use_personalized_settings: boolean;
-			has_conductor_badges: boolean;
-			boost_train_config: {
-				twitch_impressions: {
-					EASY: number;
-					HARD: number;
-					INSANE: number;
-					MEDIUM: number;
-					'SUPER HARD': number;
-				};
-			};
-		};
-		participations: {[key:string]:number};
-		conductors: {};
-		progress: {
-			level: {value: number;goal: number;rewards: {type: string;id: string;group_id: string;reward_level: number;set_id: string;token: string;reward_end_date: string;}[];};
-			/**
-			 * @deprecated twitch seems to have changed this for "progression"
-			 */
-			value: number;
-			progression: number;
-			goal: number;
-			total: number;
-			remaining_seconds: number;
-			all_time_high_state: string;
-		};
-		is_boost_train: boolean;
+		startedAt: string;
+		expiresAt: string;
+		updatedAt: string;
+		endedAt?: any;
+		endReason: string;
+		isGoldenKappaTrain: boolean;
+		/**
+		 * @deprecated doesn't exist anymore, replaced by isGoldenKappaTrain
+		 */
 		is_golden_kappa_train: boolean;
-		all_time_high_progress: {
-			level: {value:number; goal:number; rewards:{
-				type: string;
-				id: string;
-				group_id: string;
-				reward_level: number;
-				set_id: string;
-				token: string;
-				reward_end_date: string;
-			}[]};
-			value: number;
+		progress: {
+			__typename: string;
+			id: string;
 			goal: number;
+			progression: number;
 			total: number;
-			remaining_seconds: number;
-			all_time_high_state: string;
+			level: {
+				__typename: string;
+				id: string;
+				value: number;
+				goal: number;
+				rewards: {
+					__typename: string;
+					id: string;
+					type: string;
+					emote: {
+						__typename: string;
+						id: string;
+						token: string;
+					};
+				}[];
+			};
+			allTimeHighState: string;
 		};
+		conductors: any[];
+		config:  {
+			__typename: string;
+			id: string;
+			willUseCreatorColor: boolean;
+			primaryHexColor?: any;
+			conductorRewards: {
+				__typename: string;
+				source: string;
+				type: string;
+				rewards: {
+					__typename: string;
+					id: string;
+					type: string;
+					badge: {
+						__typename: string;
+						id: string;
+						setID: string;
+						imageURL: string;
+					};
+				}[];
+			}[];
+			participationConversionRates: {
+				__typename: string;
+				action: string;
+				source: string;
+				value: number;
+			}[];
+			calloutEmote: {
+				__typename: string;
+				id: string;
+				token: string;
+			};
+			difficulty: string;
+			difficultySettings: {
+				__typename: string;
+				difficulty: string;
+				maxLevel: number;
+			}[];
+			potentialRewards: {
+				__typename: string;
+				id: string;
+				level: number;
+				value: {
+					__typename: string;
+					id: string;
+					type: string;
+					badge: {
+						__typename: string;
+						id: string;
+						setID: string;
+						imageURL: string;
+					};
+				};
+			}[];
+			kickoff: {
+				__typename: string;
+				minPoints: number;
+			};
+		};
+		allTimeHigh: {
+			__typename: string;
+			goal: number;
+			progression: number;
+			total: number;
+			level: {
+				__typename: string;
+				id: string;
+				value: number;
+			};
+		};
+		isFastMode: boolean;
+		participations: {
+			__typename: string;
+			source: string;
+			action: string;
+			quantity: number;
+		}[];
 	}
 
 	export interface HypeTrainProgress {

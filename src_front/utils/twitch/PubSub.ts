@@ -8,6 +8,7 @@ import SetIntervalWorker from '../SetIntervalWorker';
 import Utils from "../Utils";
 import type { PubSubDataTypes } from './PubSubDataTypes';
 import { TwitchScopes } from './TwitchScopes';
+import ApiHelper from '../ApiHelper';
 
 /**
 * Created : 13/01/2022
@@ -881,15 +882,15 @@ export default class PubSub extends EventDispatcher {
 		const train:TwitchatDataTypes.HypeTrainStateData = {
 			channel_id:channelId,
 			level:data.progress.level.value,
-			currentValue:data.progress.value ?? data.progress.progression,
+			currentValue:data.progress.progression,
 			goal:data.progress.goal,
 			approached_at:storeTrain?.approached_at ?? Date.now(),
-			started_at:data.started_at,
-			updated_at:data.updated_at,
-			timeLeft_s:(new Date(data.expires_at).getTime() - new Date(data.started_at).getTime()) / 10000,
+			started_at:Date.now(),
+			updated_at:Date.now(),
+			timeLeft_s:5 * 60 * 1000,//Need to hardcode it, not sent from pubsub anymore -_-
 			state: "START",
-			is_boost_train:data.is_boost_train === true,
-			is_golden_kappa:storeTrain?.is_golden_kappa || data.is_golden_kappa_train === true,
+			is_boost_train:false,
+			is_golden_kappa:storeTrain?.is_golden_kappa || data.isGoldenKappaTrain === true || data.is_golden_kappa_train === true,
 			is_new_record:false,
 			conductor_bits:storeTrain?.conductor_bits,
 			conductor_subs:storeTrain?.conductor_subs,
@@ -946,7 +947,7 @@ export default class PubSub extends EventDispatcher {
 				state: "PROGRESSING",
 				is_boost_train:data.is_boost_train,
 				is_golden_kappa:storeTrain?.is_golden_kappa || false,
-				is_new_record:false,//found no way to detect new record :(. Doesn't seem avalable on pubsub
+				is_new_record:false,
 				conductor_bits:storeTrain?.conductor_bits,
 				conductor_subs:storeTrain?.conductor_subs,
 				rawData:data,
@@ -1086,6 +1087,12 @@ export default class PubSub extends EventDispatcher {
 
 
 		setTimeout(()=> {
+			if(Math.random() > .5) {
+				//Randomly log hype trains to help me debugging constantly changing data
+				const version = import.meta.env.PACKAGE_VERSION;
+				ApiHelper.call("log", "POST", {cat:"hypetrain", log:{reason:"TRAIN END", tt_v:version, data:train}});
+			}
+			
 			//Hide hype train popin
 			StoreProxy.stream.setHypeTrain(undefined);
 		}, 5000)
