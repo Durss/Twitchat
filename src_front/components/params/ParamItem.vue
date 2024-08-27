@@ -981,10 +981,17 @@ export default toNative(ParamItem);
 	}
 
 	&.disabled:not(.error) {
-		filter: saturate(50%);
+		filter: saturate(30%);
 		cursor: unset;
+		@c1: var(--background-color-fadest);
+		@c2: transparent;
+		background-color: @c1;
+		background-image: repeating-linear-gradient(-45deg, @c1, @c1 7px, @c2 7px, @c2 15px);
 		.toggleButton, input, textarea, label {
 			pointer-events: none;
+		}
+		label, .icon {
+			opacity: .75;
 		}
 	}
 
