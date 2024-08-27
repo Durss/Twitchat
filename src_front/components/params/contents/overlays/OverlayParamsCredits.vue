@@ -138,7 +138,7 @@
 								<template v-if="element.slotType == 'powerups'">
 									<ParamItem :paramData="param_showPuSkin[element.id]"				v-model="element.showPuSkin" />
 									<ParamItem :paramData="param_showPuEmote[element.id]"				v-model="element.showPuEmote" />
-									<ParamItem :paramData="param_showPuCeleb[element.id]"				v-model="element.showPuCeleb" />
+									<ParamItem :paramData="param_showPuCeleb[element.id]"				v-model="element.showPuCeleb" disabled v-tooltip="$t('overlay.credits.param_pu_celeb_tt')" />
 								</template>
 
 								<template v-if="element.slotType == 'ytSuperSticker' || element.slotType == 'ytSuperchat'">

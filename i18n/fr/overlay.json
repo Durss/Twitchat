@@ -128,6 +128,7 @@
 			"param_showPuSkin": "Effets de message",
 			"param_showPuEmote": "Emotes gigantisées",
 			"param_showPuCeleb": "Célébrations",
+			"param_pu_celeb_tt": "Ne peut fonctionner tant que Twitch ne corrige pas leur API",
 			"param_sortByNames": "Trier par ordre alphabétique",
 			"param_sortByRoles": "Trier par rôles",
 			"param_sortByAmounts": "Trier par nombre de messages",

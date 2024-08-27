@@ -158,7 +158,7 @@ export const storeStream = defineStore('stream', {
 		},
 
 		onRaidComplete() {
-			if(this.currentRaid) {
+			if(this.currentRaid && this.currentRaid.channel_id == StoreProxy.auth.twitch.user.id) {
 				this.raidHistory.push({
 					uid:this.currentRaid.user.id,
 					date:Date.now(),
@@ -168,17 +168,18 @@ export const storeStream = defineStore('stream', {
 					this.raidHistory.shift();
 				}
 				DataStore.set(DataStore.RAID_HISTORY, this.raidHistory);
-			}
-			//Send donation reminder if requested
-			if(StoreProxy.params.donationReminderEnabled) {
-				StoreProxy.params.donationReminderEnabled = false;
-				StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER);
-			}
-			//Cut OBS stream if requested
-			if(StoreProxy.params.features.stopStreamOnRaid.value === true) {
-				setTimeout(() => {
-					OBSWebsocket.instance.stopStreaming();
-				}, 2000);
+				
+				//Send donation reminder if requested
+				if(StoreProxy.params.donationReminderEnabled) {
+					StoreProxy.params.donationReminderEnabled = false;
+					StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER);
+				}
+				//Cut OBS stream if requested
+				if(StoreProxy.params.features.stopStreamOnRaid.value === true) {
+					setTimeout(() => {
+						OBSWebsocket.instance.stopStreaming();
+					}, 2000);
+				}
 			}
 			this.currentRaid = undefined;
 		},
@@ -809,11 +810,18 @@ export const storeStream = defineStore('stream', {
 						break;
 					}
 					case TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION: {
-						result.powerups.push({
-							login:m.user.displayNameOriginal,
-							type:"celebration",
-							emoteUrl:m.emoteURL,
-						})
+						//Twitch API is broken for now, they don't send the emote used for
+						//the celebration.
+						//Still, I put things in place in anticipation for this fix, so the
+						//emote URL is there but invalid for now. It contains "/null/".
+						//This condition is here to ignore celebrations until they fix that.
+						if(m.emoteURL.indexOf("/null/") === -1) {
+							result.powerups.push({
+								login:m.user.displayNameOriginal,
+								type:"celebration",
+								emoteUrl:m.emoteURL,
+							});
+						}
 						break;
 					}
 

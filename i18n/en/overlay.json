@@ -158,6 +158,7 @@
 			"param_pu_skin": "Show message effects",
 			"param_pu_emote": "Show gigantified emotes",
 			"param_pu_celeb": "Show Celebrations",
+			"param_pu_celeb_tt": "Won't work until Twitch fixes their API",
 			"scroll_tt": "Scroll this section into view",
 			"testBt": "Start fake credits",
 			"moderators_label": "MODERATORS",

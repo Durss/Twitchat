@@ -1,8 +1,15 @@
 <template>
 	<div class="raidstate gameStateWindow" v-if="user">
 		<div class="head">
-			<a v-if="user.avatarPath" :href="'https://twitch.tv/'+user.login" target="_blank">
+			<a v-if="user.avatarPath" :href="'https://twitch.tv/'+user.login" target="_blank" class="link">
 				<img :src="user.avatarPath" alt="avatar" class="avatar">
+
+				<img v-if="!isOwnRaid && remoteChan && !remoteChan.temporary"
+					:src="remoteChan.avatarPath"
+					alt="avatar"
+					class="avatar mini"
+					v-tooltip="remoteChan.displayName"
+					referrerpolicy="no-referrer">
 			</a>
 			<i18n-t scope="global" tag="span" keypath="raid.raiding">
 				<template #USER>
@@ -13,7 +20,7 @@
 				</template>
 				<template #VIEWERS>
 					<strong @click="censorCount = true" class="viewerCount" v-if="!censorCount">{{raidInfo.viewerCount}}</strong>
-					<strong @click="censorCount = false" class="viewerCount censored" v-else>x</strong>
+					<strong @click="censorCount = false" class="viewerCount censored" v-else>{{raidInfo.viewerCount}}</strong>
 				</template>
 				<template #TIMER><span class="timer">{{timeLeft}}s</span></template>
 			</i18n-t>
@@ -62,13 +69,13 @@
 
 		<div class="ctas">
 			<Button light @click="remoteConnect()" v-if="canRemoteConnect" :loading="remoteConnecting" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'raid_remotechat'}" icon="online">{{ $t('raid.remote_chat', {USER:user!.displayNameOriginal}) }}</Button>
-			<Button light @click="spamLink()" v-if="!isRemoteRaid" :loading="coolingDownSpam" v-newflag="{date:1693519200000, id:'raid_spam'}">{{ $t('raid.spam_linkBt') }}</Button>
-			<Button light @click="openSummary()" v-if="!isRemoteRaid" v-newflag="{date:1693519200000, id:'raid_summary'}">{{ $t('raid.stream_summaryBt') }}</Button>
+			<Button light @click="spamLink()" v-if="isOwnRaid" :loading="coolingDownSpam" v-newflag="{date:1693519200000, id:'raid_spam'}">{{ $t('raid.spam_linkBt') }}</Button>
+			<Button light @click="openSummary()" v-if="isOwnRaid" v-newflag="{date:1693519200000, id:'raid_summary'}">{{ $t('raid.stream_summaryBt') }}</Button>
 		</div>
 
-		<Button icon="cross" alert @click="cancelRaid()" v-if="!isRemoteRaid" :loading="canceling">{{ $t('global.cancel') }}</Button>
+		<Button icon="cross" alert @click="cancelRaid()" v-if="isOwnRaid" :loading="canceling">{{ $t('global.cancel') }}</Button>
 
-		<div class="card-item infos" v-if="!isRemoteRaid">{{ $t("raid.cant_force", {TIMER:timeLeft}) }}</div>
+		<div class="card-item infos" v-if="isOwnRaid">{{ $t("raid.cant_force", {TIMER:timeLeft}) }}</div>
 
 	</div>
 </template>
@@ -92,6 +99,7 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 class RaidState extends Vue {
 
 	public timeLeft = "";
+	public isOwnRaid = false;
 	public canceling = false;
 	public censorCount = false;
 	public canRemoteConnect = true;
@@ -100,14 +108,13 @@ class RaidState extends Vue {
 	public raidingLatestRaid = false;
 	public targetChannelOffline = false;
 	public user:TwitchatDataTypes.TwitchatUser|null = null;
+	public remoteChan:TwitchatDataTypes.TwitchatUser|null = null;
 	public bannedOnline:TwitchatDataTypes.TwitchatUser[] = [];
 	public timedoutOnline:TwitchatDataTypes.TwitchatUser[] = [];
 	public roomSettings:TwitchatDataTypes.IRoomSettings|null = null;
 
-	private timerDuration = 90000;
 	private timerInterval:number = -1;
 
-	public get isRemoteRaid() { return this.raidInfo.channel_id != this.$store.auth.twitch.user.id; }
 	public get raidInfo() { return this.$store.stream.currentRaid!; }
 	public get isModeratedChan() {
 		if(!this.user) return false;
@@ -138,6 +145,10 @@ class RaidState extends Vue {
 			this.targetChannelOffline = liveInfos.length == 0;
 			const latestRaid = (this.$store.stream.raidHistory || []).slice(-1)[0];
 			this.raidingLatestRaid = latestRaid && latestRaid.uid === raid.user.id;
+			this.isOwnRaid = this.$store.auth.twitch.user.id == raid.channel_id;
+			if(!this.isOwnRaid) {
+				this.remoteChan = await this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, raid.channel_id);
+			}
 		}
 
 		const userlist = this.$store.users.users;
@@ -183,7 +194,7 @@ class RaidState extends Vue {
 	}
 
 	public updateTimer():void {
-		const seconds = this.timerDuration - (Date.now() - this.raidInfo.startedAt);
+		const seconds = this.raidInfo.timerDuration_s * 1000 - (Date.now() - this.raidInfo.startedAt);
 		if(seconds <= 0) {
 			this.$store.stream.onRaidComplete();
 			return;
@@ -244,10 +255,23 @@ export default toNative(RaidState);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		.avatar {
-			width: 3em;
-			border-radius: 50%;
-			margin: auto;
+		.link {
+			position: relative;
+			margin-bottom: .5em;
+			.avatar {
+				width: 3em;
+				border-radius: 50%;
+				margin: auto;
+	
+				&.mini {
+					width: 1.5em;
+					height: 1.5em;
+					position: absolute;
+					bottom: 0;
+					right: -.5em;
+					box-shadow: -1px -1px 3px rgba(0, 0, 0, .5);
+				}
+			}
 		}
 
 		.userLink {
@@ -262,12 +286,13 @@ export default toNative(RaidState);
 		.viewerCount {
 			cursor: pointer;
 			&.censored {
-				padding: 0 .25em;
-				border-radius: var(--border-radius);
-				background-color: var(--background-color-fader);
-				&:hover {
-					background-color: var(--background-color-fadest);
-				}
+				// padding: 0 .25em;
+				// border-radius: var(--border-radius);
+				// background-color: var(--background-color-fader);
+				// &:hover {
+				// 	background-color: var(--background-color-fadest);
+				// }
+				filter: blur(5px);
 			}
 		}
 	}
