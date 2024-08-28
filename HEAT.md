@@ -100,7 +100,7 @@ event.detail.twitchatOverlayID//Optional overlay ID sent for some specific overl
 ### Side note:
 The hash received is the hash of what's written on the URL field of the browser source. If the protocol *(http(s)://)* is missing, the hash will be computed without it which will differ from the one computed locally.\
 Also, if the browser source URL redirects to another URL, the hash won't match the new URL.\
-There's sadly no way to know the actual URL of a browser source, only the one configured on the its parameters.
+There's sadly no way to know the actual URL of a browser source, only the one configured on its parameters.
 
 ### Why that hash stuff?
 Simmply to avoid leaking URLs to other browser sources.\
