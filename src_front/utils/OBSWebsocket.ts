@@ -964,28 +964,33 @@ export default class OBSWebsocket extends EventDispatcher {
 			const inputConf = await this.obs.call("GetInputSettings", {inputName:input.inputName as string});
 			//Ignore local file sources
 			if(inputConf.inputSettings.is_local_file === true || !inputConf.inputSettings.url) continue;
-			const urlParsed = new URL(inputConf.inputSettings.url as string);
-			//If source URL contains both expected path and hostname, consider it's what's we're searching for
-			if(urlParsed.pathname == pathToFind && urlParsed.hostname == hostToFind) {
-				//If a twitchat overlay ID is expected check if it exists
-				if(idToFind && urlParsed.searchParams.get("twitchat_overlay_id") != idToFind) {
-					continue;
+			try {
+				const urlParsed = new URL(inputConf.inputSettings.url as string);
+				//If source URL contains both expected path and hostname, consider it's what's we're searching for
+				if(urlParsed.pathname == pathToFind && urlParsed.hostname == hostToFind) {
+					//If a twitchat overlay ID is expected check if it exists
+					if(idToFind && urlParsed.searchParams.get("twitchat_overlay_id") != idToFind) {
+						continue;
+					}
+					existingSource = input as {inputKind:string, inputName:string, unversionedInputKind:string};
+					//Update OBS websocket params on URL if necessary
+					const port = this.connectInfo.port;
+					const pass = this.connectInfo.pass;
+					const ip = this.connectInfo.ip;
+					if(urlParsed.searchParams.get("obs_port") != port
+					|| urlParsed.searchParams.get("obs_ip") != ip
+					|| ((urlParsed.searchParams.get("obs_pass") || "") != pass && pass)) {
+						urlParsed.searchParams.set("obs_port", port || "4455");
+						urlParsed.searchParams.set("obs_ip", ip || "127.0.0.1");
+						if(pass) urlParsed.searchParams.set("obs_pass", pass);
+						const inputSettings = { url: urlParsed.href };
+						const res = await this.obs.call('SetInputSettings', {inputName:sourceName, inputSettings});
+					}
+					break;
 				}
-				existingSource = input as {inputKind:string, inputName:string, unversionedInputKind:string};
-				//Update OBS websocket params on URL if necessary
-				const port = this.connectInfo.port;
-				const pass = this.connectInfo.pass;
-				const ip = this.connectInfo.ip;
-				if(urlParsed.searchParams.get("obs_port") != port
-				|| urlParsed.searchParams.get("obs_ip") != ip
-				|| ((urlParsed.searchParams.get("obs_pass") || "") != pass && pass)) {
-					urlParsed.searchParams.set("obs_port", port || "4455");
-					urlParsed.searchParams.set("obs_ip", ip || "127.0.0.1");
-					if(pass) urlParsed.searchParams.set("obs_pass", pass);
-					const inputSettings = { url: urlParsed.href };
-					const res = await this.obs.call('SetInputSettings', {inputName:sourceName, inputSettings});
-				}
-				break;
+			}catch(error) {
+				//Probably an OBS source with an invalid URL that makes the
+				//new URL(...) throw an error
 			}
 		}
 
