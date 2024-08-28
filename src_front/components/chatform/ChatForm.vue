@@ -756,10 +756,10 @@ export class ChatForm extends Vue {
 		for (let i = 0; i < users.length; i++) {
 			const u = users[i];
 
-			if(!u.channelInfo[this.$store.stream.currentChatChannel.id]) continue;
-			if(u.channelInfo[this.$store.stream.currentChatChannel.id].online === true) {
+			if(!u.channelInfo[chanId]) continue;
+			if(u.channelInfo[chanId].online === true) {
 				onlineCount ++;
-				if(u.channelInfo[this.$store.stream.currentChatChannel.id].is_following === true) followCount ++;
+				if(u.channelInfo[chanId].is_following === true) followCount ++;
 			}
 		}
 
