@@ -6,7 +6,7 @@
 					<span class="index">{{ index+1 }}</span>
 					<i18n-t class="details" scope="global" tag="div" :keypath="'rewards.manage.transfer_steps['+index+']'">
 						<template #DASHBOARD>
-							<TTButton type="link"
+							<TTButton primary type="link"
 							href="https://dashboard.twitch.tv/viewer-rewards/channel-points/rewards"
 							target="_blank"
 							icon="newtab">{{ $t("rewards.manage.transfer_step_dashboardBt") }}</TTButton>
@@ -14,7 +14,7 @@
 						<template #REWARD><mark>{{ reward.title }}</mark></template>
 						<template #RECREATE>
 							<div class="transfered" v-if="recreated"><Icon name="checkmark"/>{{ $t("rewards.manage.transfer_step_recreate_done") }}</div>
-							<TTButton v-else-if="!error" :loading="tranfering" @click="executeTransfer()" icon="channelPoints">{{ $t("rewards.manage.transfer_step_recreateBt") }}</TTButton>
+							<TTButton primary v-else-if="!error" :loading="tranfering" @click="executeTransfer()" icon="channelPoints">{{ $t("rewards.manage.transfer_step_recreateBt") }}</TTButton>
 							<div class="card-item alert error" @click="error = ''" v-else-if="error">{{ error }}</div>
 						</template>
 					</i18n-t>

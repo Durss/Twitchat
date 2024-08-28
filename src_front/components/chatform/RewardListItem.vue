@@ -17,16 +17,18 @@
 			</div>
 		</div>
 
-		<contenteditable class="title" tag="p"
-			:no-nl="true"
-			:no-html="true"
-			v-model="localTitle"
-			:contenteditable="manageable !== false"
-			@blur="updateTitle()" />
-
+		<div class="ctas">
+			<contenteditable class="title" tag="p"
+				:no-nl="true"
+				:no-html="true"
+				v-model="localTitle"
+				:contenteditable="manageable !== false"
+				@blur="updateTitle()" />
+	
+			<TTButton v-if="manageable === true" class="settingsBt" small transparent @click="openMenu($event)" icon="settings" />
+		</div>
 		<TTButton v-if="manageable === false" icon="twitchat" @click="$emit('transfer', reward)" small secondary>{{$t("rewards.manage.transferBt")}}</TTButton>
 
-		<button v-if="manageable === true" class="moreBt" @click="openMenu($event)"><Icon name="down" /></button>
 	</div>
 </template>
 
@@ -353,28 +355,30 @@ export default toNative(RewardListItem);
 		}
 	}
 
-	.title {
-		font-size: .8em;
-		text-align: center;
-		flex-grow: 1;
-		border-radius: 5px;
-		padding: .5em;
-	}
-
 	.cost:focus, .title:focus {
 		.bevel();
 	}
 
-	.moreBt {
-		// position: absolute;
-		// bottom: .25em;
-		// right: .25em;
-		color: var(--color-text);
-		font-weight: bold;
+	.ctas {
+		display: flex;
+		flex-direction: row;
 		width: 100%;
-	}
-	.icon {
-		height: 1em;
+		align-items: center;
+		justify-content: center;
+		flex-grow: 1;
+
+		.title {
+			font-size: .8em;
+			text-align: center;
+			flex-grow: 1;
+			border-radius: 5px;
+			padding: .5em;
+			max-width: calc(100% - 1em);
+		}
+		.settingsBt {
+			width: 1.5em;
+			flex-shrink: 0;
+		}
 	}
 }
 </style>
