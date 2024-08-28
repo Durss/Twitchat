@@ -31,7 +31,7 @@ window.addEventListener("heat-click", event => {
 ```
 
 ### 🚨 IMPORTANT 🚨
-This event is emitted to the page thanks to OBS-websocket but it comes with a limitation. OBS-websocket doesn't allow to send this ot only one specif browser source. It sends this to ALL available browser sources.\
+This event is emitted to the page thanks to OBS-websocket but it comes with a limitation. OBS-websocket doesn't allow to send this to only one specific browser source. It sends this to ALL available browser sources.\
 This means that if another browser source is clicked, yours will also received the event.
 
 To check if the event received is for your specific page, a hash of the URL of the clicked browser source is given in parameters of the event.\
