@@ -142,7 +142,7 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	static override async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 56;
+		const latestVersion = 57;
 
 		this.cleanupPreV7Data(data);
 
@@ -342,6 +342,10 @@ export default class DataStore extends DataStoreCommon{
 		}
 		if(v==55) {
 			this.fixUserErrors(data);
+			v = 56;
+		}
+		if(v==56) {
+			this.clearGhostValueEntry(data);
 			v = latestVersion;
 		}
 
@@ -1097,7 +1101,7 @@ export default class DataStore extends DataStoreCommon{
 	/**
 	 * Enable the "watch streak" notifications on all columns
 	 */
-	public static addWatchStreakFilter(data:any):void {
+	private static addWatchStreakFilter(data:any):void {
 		const cols:TwitchatDataTypes.ChatColumnsConfig[] = data[DataStore.CHAT_COLUMNS_CONF];
 
 		if(!cols) return;
@@ -1367,7 +1371,7 @@ export default class DataStore extends DataStoreCommon{
 	 * Migrate polls and predictions durations to seconds instead of minutes
 	 * @param data
 	 */
-	public static migratePollPredDurations(data:any):void {
+	private static migratePollPredDurations(data:any):void {
 		//Migrate default poll duration
 		let d = parseInt(data[DataStore.POLL_DEFAULT_DURATION]);
 		if(!isNaN(d)) data[DataStore.POLL_DEFAULT_DURATION] = d * 60;
@@ -1399,7 +1403,7 @@ export default class DataStore extends DataStoreCommon{
 	 * root of the tree
 	 * @param data
 	 */
-	public static dedupeTriggerTree(data:any):void {
+	private static dedupeTriggerTree(data:any):void {
 
 		const tree:TriggerActionDataTypes.TriggerTreeItemData[] = data[DataStore.TRIGGERS_TREE];
 		if(tree && Array.isArray(tree)) {
@@ -1438,7 +1442,7 @@ export default class DataStore extends DataStoreCommon{
 	 * in the raffle trigger action data
 	 * @param data 
 	 */
-	public static fixRaffleTriggerEntry(data:any):void {
+	private static fixRaffleTriggerEntry(data:any):void {
 		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
 		if(triggers && Array.isArray(triggers)) {
 			triggers.forEach(t => {
@@ -1458,7 +1462,7 @@ export default class DataStore extends DataStoreCommon{
 	 * it's only here to alert the user
 	 * @param data 
 	 */
-	public static cleanPremiumWarningEndingCredits(data:any):void {
+	private static cleanPremiumWarningEndingCredits(data:any):void {
 		const credits:TwitchatDataTypes.EndingCreditsParams = data[DataStore.ENDING_CREDITS_PARAMS];
 		if(credits) {
 			credits.slots.forEach(slot => {
@@ -1472,7 +1476,7 @@ export default class DataStore extends DataStoreCommon{
 	 * Fixing errors from users that managed to get invalid data
 	 * @param data 
 	 */
-	public static fixUserErrors(data:any):void {
+	private static fixUserErrors(data:any):void {
 		//Limiting to max 1 language source
 		if(data["p:autoTranslateFirstLang"] && data["p:autoTranslateFirstLang"].length > 1) {
 			data["p:autoTranslateFirstLang"] = [data["p:autoTranslateFirstLang"][0]];
@@ -1505,6 +1509,22 @@ export default class DataStore extends DataStoreCommon{
 					t.scheduleParams.repeatDuration =  30 * 60;
 				}
 			});
+		}
+	}
+	
+	/**
+	 * Due to a mistake of mine, ghost values where added to per-user
+	 * values when clearing them.
+	 * @param data 
+	 */
+	private static clearGhostValueEntry(data:any):void {
+		const values = data[DataStore.VALUES] as TwitchatDataTypes.ValueData[];
+		if(values && Array.isArray(values)) {
+			values.forEach(v=> {
+				if(v.perUser !== true) return;
+				if(!v.users) return;
+				delete v.users[""];
+			})
 		}
 	}
 }
