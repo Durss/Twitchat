@@ -1353,7 +1353,7 @@ export default class TriggerActionHandler {
 					logStep.messages.push({date:Date.now(), value:"Send Message \""+text+"\""+(replyTo? " as reply to "+replyTo.id : "")});
 					const success = await MessengerProxy.instance.sendMessage(text, platforms, undefined, replyTo, true);
 					if(!success) {
-						logStep.messages.push({date:Date.now(), value:"❌ An error occured sending the given message (if message contains a command, the command execution might have failed)"});
+						logStep.messages.push({date:Date.now(), value:"❌ An error occured sending the given message. If message is a /command, the error might be due to commande execution failing."});
 						log.error = true;
 						logStep.error = true;
 					}

@@ -239,7 +239,7 @@ class AutocompleteChatForm extends Vue {
 				const hasChannelPoints = me.is_affiliate || me.is_partner;
 				const hasDiscordCmd = sDiscord.discordLinked && sDiscord.chatCmdTarget;
 				const isBroadcaster = me.id === currentChanId;
-				const isAdmin = me.channelInfo[currentChanId]?.is_moderator === true;
+				const isAdmin = this.$store.auth.twitch.user.is_admin === true;
 				const isMod = me.channelInfo[currentChanId]?.is_moderator === true;
 
 				//Search in global slash commands
