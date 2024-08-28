@@ -875,7 +875,7 @@ export default class TwitchUtils {
 	/**
 	 * Refund a redemption
 	 */
-	public static async refundRedemptions(redemptionIds: string[], rewardId: string): Promise<boolean> {
+	public static async refundRedemptions(redemptionIds: string[], rewardId: string): Promise<boolean|string> {
 		if (!this.hasScopes([TwitchScopes.LIST_REWARDS])) return false;
 
 		const options = {
@@ -894,7 +894,8 @@ export default class TwitchUtils {
 		if (res.status == 200) {
 			return true;
 		}
-		return false;
+		const json = await res.json();
+		return json.message || false;
 	}
 
 	/**

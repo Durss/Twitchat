@@ -142,7 +142,7 @@ class ChatReward extends AbstractChatMessage {
 			message = list.find(v=>v.refund !== true);
 		}
 		if(!message || !message.redeemId) return;
-		if(!await TwitchUtils.refundRedemptions([message.redeemId], message.reward.id)) {
+		if(await TwitchUtils.refundRedemptions([message.redeemId], message.reward.id) != true) {
 			this.$store.common.alert(this.$t("error.rewards.refund_redemption"));
 		}
 		message.refund = true;

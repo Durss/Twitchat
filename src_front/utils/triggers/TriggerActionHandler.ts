@@ -2771,8 +2771,8 @@ export default class TriggerActionHandler {
 						case "refund": {
 							if(message.type == TwitchatDataTypes.TwitchatMessageType.REWARD && message.redeemId) {
 								const res = await TwitchUtils.refundRedemptions([message.redeemId], message.reward.id);
-								if(!res) {
-									logStep.messages.push({date:Date.now(), value:"❌ An error occured when refunding the redeem ID \""+message.redeemId+"\""});
+								if(res != true) {
+									logStep.messages.push({date:Date.now(), value:"❌ An error occured when refunding the redeem ID \""+message.redeemId+"\" with error: "+res});
 									const manageableList = await TwitchUtils.getRewards(false, true);
 									if(manageableList.findIndex(v=>v.id == message.reward.id) == -1) {
 										logStep.messages.push({date:Date.now(), value:"❌ Reward \""+message.reward.title+"\" has not been created by Twitchat. Redeem cannot be refund."});
