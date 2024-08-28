@@ -2114,17 +2114,6 @@ export default class TwitchUtils {
 		const res = await this.callApi(url, options);
 		if (res.status == 200 || res.status == 204) {
 			if (removeVip) {
-				const m: TwitchatDataTypes.MessageModerationAction = {
-					id: Utils.getUUID(),
-					date: Date.now(),
-					platform: "twitch",
-					channel_id: channelId,
-					type: TwitchatDataTypes.TwitchatMessageType.NOTICE,
-					noticeId: TwitchatDataTypes.TwitchatNoticeType.UNVIP,
-					user,
-					message: "User " + user.login + " has been removed from VIPs",//TODO translate
-				};
-				StoreProxy.chat.addMessage(m);
 				StoreProxy.users.flagUnvip("twitch", channelId, user.id);
 			} else {
 				StoreProxy.users.flagVip("twitch", channelId, user.id);

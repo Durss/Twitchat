@@ -506,12 +506,12 @@
 			"title": "{USER} a confirmé la reception de son avertissement"
 		},
 		"vip": {
-			"add": "{USER} a été ajouté·e aux VIPs par {USER}",
-			"remove": "{USER} a été retiré·e des VIPs par {USER}"
+			"add": "{USER} a été ajouté·e aux VIPs par {MODERATOR}",
+			"remove": "{USER} a été retiré·e des VIPs par {MODERATOR}"
 		},
 		"mod": {
-			"add": "{USER} a été ajouté·e aux modos par {USER}",
-			"remove": "{USER} a été retiré·e des modos par {USER}"
+			"add": "{USER} a été ajouté·e aux modos par {MODERATOR}",
+			"remove": "{USER} a été retiré·e des modos par {MODERATOR}"
 		},
 		"youtube_sub": {
 			"new": "{USER} s'est abboné·e for pour la 1ère fois avec l'abonnement {TIER}",
