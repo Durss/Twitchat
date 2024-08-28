@@ -69,7 +69,7 @@ export default class MessengerProxy {
 		// console.log("          to:", channelId);
 		// console.log("          on:", targetPlatforms);
 		if(!hasPlatform || targetPlatforms!.indexOf("twitch")>-1) {
-			if(!TwitchMessengerClient.instance.sendMessage(channelId, message, replyTo, noConfirm)) {
+			if(await TwitchMessengerClient.instance.sendMessage(channelId, message, replyTo, noConfirm) === false) {
 				return false;
 			}
 		}

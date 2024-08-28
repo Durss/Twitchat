@@ -1351,7 +1351,12 @@ export default class TriggerActionHandler {
 					// console.log(platforms, text);
 					const replyTo = (step.sendAsReply === true && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE)? message : undefined;
 					logStep.messages.push({date:Date.now(), value:"Send Message \""+text+"\""+(replyTo? " as reply to "+replyTo.id : "")});
-					MessengerProxy.instance.sendMessage(text, platforms, undefined, replyTo, true);
+					const success = await MessengerProxy.instance.sendMessage(text, platforms, undefined, replyTo, true);
+					if(!success) {
+						logStep.messages.push({date:Date.now(), value:"❌ An error occured sending the given message (if message contains a command, the command execution might have failed)"});
+						log.error = true;
+						logStep.error = true;
+					}
 					if(trigger.type == TriggerTypes.ANY_MESSAGE) {
 						this.lastAnyMessageSent = text;
 					}
