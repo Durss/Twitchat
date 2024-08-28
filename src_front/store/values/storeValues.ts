@@ -94,26 +94,28 @@ export const storeValues = defineStore('values', {
 					if(entry.perUser) {
 						if(!entry.users) entry.users = {};
 						const uid = (user? user.id : userId) || "";
-						prevValue = entry.users![uid];
-						entry.users![uid] = value;
+						if(uid) {
+							prevValue = entry.users![uid];
+							entry.users![uid] = value;
+						}
 					}else{
 						prevValue = entry.value;
 						entry.value = value;
 					}
 					
-					//Do no execute triggers if edditing a user by their ID.
+					//Do not execute triggers if editing a user by their ID.
 					//If only "userId" is given, don't execute it so we can update
 					//loads of values at once without cloagging the trigger system
-					if(!userId && entry.value != prevValue) {
+					if(!userId && value != prevValue) {
 						const message:TwitchatDataTypes.MessageValueUpdateData = {
-							date:Date.now(),
-							type:TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE,
-							id:Utils.getUUID(),
-							platform:"twitchat",
-							value:entry,
-							newValue: entry.value,
+							date: Date.now(),
+							type: TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE,
+							id: Utils.getUUID(),
+							platform: "twitchat",
+							value: entry,
+							newValue: value,
 							oldValue: prevValue,
-							channel_id:StoreProxy.auth.twitch.user.id,
+							channel_id: StoreProxy.auth.twitch.user.id,
 						};
 						StoreProxy.chat.addMessage(message);
 						
