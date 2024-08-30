@@ -2322,10 +2322,20 @@ export default class TriggerActionHandler {
 								let track:SearchTrackItem|null = null;
 								if(/open\.spotify\.[a-z]{2,}\/.*track\/.*/gi.test(m)) {
 									//Full URL specified, extract the ID from it
-									const chunks = new URL(m).pathname.split(/\//gi);
-									const id = chunks.pop()!;
-									track = await SpotifyHelper.instance.getTrackByID(id);
-									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Get track by ID success: "+(track != null)+" : TRACK ID "+id});
+									let url = m;
+									//Add protocol if missing
+									if(!/https?:\/\//.test(url)) url = "https://"+url;
+									try {
+										const chunks = new URL(url).pathname.split(/\//gi);
+										const id = chunks.pop()!;
+										track = await SpotifyHelper.instance.getTrackByID(id);
+										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Get track by ID success: "+(track != null)+" : TRACK ID "+id});
+									}catch(error) {
+										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Unsupported track URL : "+m});
+										log.error = true;
+										logStep.error = true;
+										failCode = "wrong_url";
+									}
 								}else if(/spotify\..[a-z]{2,}\/.*/gi.test(m)) {
 									logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Unsupported track URL : "+m});
 									log.error = true;
