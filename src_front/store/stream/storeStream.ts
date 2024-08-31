@@ -604,6 +604,8 @@ export const storeStream = defineStore('stream', {
 				for (let i = StoreProxy.chat.messages.length-1; i >= 0; i--) {
 					const m = StoreProxy.chat.messages[i];
 					if(dateOffset && m.date < dateOffset) break;
+					//Ignore messages not from our own chan
+					if(m.channel_id != channelId) continue;
 
 					//If more than 4h past between the 2 messages, consider it's a different stream and stop there
 					if(!dateOffset && prevDate > 0 && prevDate - m.date > 4 * 60 * 60000) {
