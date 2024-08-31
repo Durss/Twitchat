@@ -25,7 +25,7 @@
 		"ticket_chan_info":"Pour utiliser cette option, faites clique droit sur un message => \"{ACTION}\"",
 		"public_triggers":"Créez des /commandes Discord pour permettre à vos modos de contrôler Twitchat.\n\n{ICON} Créez un {TRIGGER_LINK} \"{SLASH_CMD}\" et cochez l'option \"{OPTION}\"",
 		"log_pattern":{
-			"intro":"`{USER}` *(#{UID})* a été banni",
+			"intro":"`{USER}` *(#{UID})* a été banni de chez `{CHANNEL_NAME}` *(#{CHANNEL_ID})*",
 			"reason":"Raison du ban",
 			"uid":"ID",
 			"login":"Login",

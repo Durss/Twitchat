@@ -25,7 +25,7 @@
 		"ticket_chan_info":"To use this feature, right click a chat message => \"{ACTION}\".",
 		"public_triggers":"Create custom Discord /commands to let your mods act on Twitchat.\n\n{ICON} Create a \"{SLASH_CMD}\" {TRIGGER_LINK} and tick the \"{OPTION}\" option",
 		"log_pattern":{
-			"intro":"`{USER}` *(#{UID})* got banned",
+			"intro":"`{USER}` *(#{UID})* got banned from `{CHANNEL_NAME}` *(#{CHANNEL_ID})*",
 			"reason":"Ban reason",
 			"uid":"User ID",
 			"login":"User login",

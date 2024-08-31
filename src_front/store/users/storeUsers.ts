@@ -686,7 +686,12 @@ export const storeUsers = defineStore('users', {
 **${t('discord.log_pattern.displayname')}**: \`${bannedUser.displayName}\`
 **${t('discord.log_pattern.created_at')}**: \`${createDateStr}\`
 **${t('discord.log_pattern.followed_at')}**: \`${followDateStr}\``);
-					let messageStr = t("discord.log_pattern.intro", {USER:bannedUser.login, UID:bannedUser.id});
+					const channel = await new Promise<TwitchatDataTypes.TwitchatUser>((resolve)=>{
+						this.getUserFrom(platform, channelId, channelId, undefined, undefined, (user)=>{
+							resolve(user);
+						});
+					})
+					let messageStr = t("discord.log_pattern.intro", {USER:bannedUser.login, UID:bannedUser.id, CHANNEL_NAME:channel.displayName, CHANNEL_ID:channelId});
 					if(bannedUser.channelInfo[channelId].banReason) messageStr += "\n**"+t("discord.log_pattern.reason")+"**: `"+bannedUser.channelInfo[channelId].banReason+"`";
 
 					if(sDiscord.banLogThread == true) {
