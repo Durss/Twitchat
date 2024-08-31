@@ -1171,8 +1171,10 @@ export default toNative(OverlayEndingCredits);
 					margin-left: .5em;
 					font-weight: bold;
 					display: flex;
-					flex-direction: raw;
+					flex-direction: row;
 					align-items: center;
+					flex-wrap: nowrap;
+					flex-shrink: 0;
 					.icon {
 						margin-right: .25em;
 						height: 1em;
@@ -1183,8 +1185,9 @@ export default toNative(OverlayEndingCredits);
 					margin-left: .5em;
 					font-weight: bold;
 					display: flex;
-					flex-direction: raw;
+					flex-direction: row;
 					align-items: center;
+					flex-wrap: nowrap;
 					.icon {
 						margin-right: .25em;
 						height: 1em;
@@ -1639,9 +1642,8 @@ export default toNative(OverlayEndingCredits);
 					&:nth-child(2n) {
 						align-self: flex-start;
 						justify-self: start;
-						align-items: flex-start;
 						justify-content: flex-start;
-						.userlist, .stickerList {
+						.userlist, .stickerList, &.emote  {
 							align-items: flex-start;
 						}
 					}
@@ -1649,8 +1651,7 @@ export default toNative(OverlayEndingCredits);
 						align-self: flex-start;
 						justify-self: end;
 						justify-content: flex-end;
-						align-items: flex-end;
-						.userlist, .stickerList {
+						.userlist, .stickerList, &.emote  {
 							align-items: flex-end;
 						}
 					}
@@ -1673,28 +1674,31 @@ export default toNative(OverlayEndingCredits);
 					max-width: 100%;
 					&:nth-child(3n+1) {
 						justify-self: end;
-						align-items: flex-end;
 						justify-content: flex-end;
 						align-self: flex-start;
 						text-align: right;
-						.userlist, .stickerList {
+						.userlist, .stickerList, &.emote {
 							align-items: flex-end;
+							align-self: flex-end;
 						}
 					}
 					&:nth-child(3n+2) {
 						justify-self: center;
-						align-items: center;
 						align-self: flex-start;
 						text-align: center;
+						.userlist, .stickerList, &.emote {
+							align-items: center;
+							align-self: center;
+						}
 					}
 					&:nth-child(3n) {
 						justify-self: start;
-						align-items: flex-start;
 						justify-content: flex-start;
 						align-self: flex-start;
 						text-align: left;
-						.userlist, .stickerList {
+						.userlist, .stickerList, &.emote {
 							align-items: flex-start;
+							align-self: flex-start;
 						}
 					}
 					.info {
