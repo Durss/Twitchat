@@ -367,7 +367,7 @@
 				"action_del": "Soustraire",
 				"action_set": "Remplacer la valeur",
 				"user_source_title": "Sélectionnez l'utilisateur à mettre à jour pour ce compteur par-utilisateur : | Sélectionnez l'utilisateur à mettre à jour pour ces compteurs par-utilisateur :",
-				"user_action_title": "Sélectionnez l'action à effectuer pour ce compteur par-utilisateur : | Sélectionnez l'action à effectuer pour ces compteurs par-utilisateur :",
+				"user_action_title": "Sélectionnez l'action à effectuer pour cette personne : | Sélectionnez l'action à effectuer pour ces personnes :",
 				"user_source_sender": "Personne déclenchant le trigger",
 				"user_source_everyone": "Toutes les personnes de ce compteur",
 				"user_source_chatters": "Toutes les personnes connectées au tchat",
@@ -381,7 +381,7 @@
 				"action_update": "Modifier la valeur",
 				"action_delete": "Supprimer l'entrée",
 				"user_source_title": "Sélectionnez l'utilisateur à mettre à jour pour cette valeur par-utilisateur : | Sélectionnez l'utilisateur à mettre à jour pour ces valeurs par-utilisateur :",
-				"user_action_title": "Sélectionnez l'action à effectuer pour la valeur par-utilisateur : | Sélectionnez l'action à effectuer pour ces valeurs par-utilisateur :",
+				"user_action_title": "Sélectionnez l'action à effectuer pour cette personne : | Sélectionnez l'action à effectuer pour ces personnes :",
 				"user_source_sender": "Personne déclenchant le trigger",
 				"user_source_everyone": "Toutes les Valeurs existantes",
 				"user_source_chatters": "Toutes les personnes connectées au tchat",
@@ -1316,7 +1316,7 @@
 			},
 			"BINGO_GRID_CELL": {
 				"label": "Case d'une grille de bingo cochée",
-				"description": "Actions à exécuter lorsque quelque vous cochez une case de bingo"
+				"description": "Actions à exécuter lorsque vous cochez une case de bingo"
 			},
 			"BINGO_GRID_RESET": {
 				"label": "Grille de bingo réinitialisée",
