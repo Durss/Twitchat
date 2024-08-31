@@ -4564,6 +4564,10 @@ export namespace TwitchatDataTypes {
 		 * Grid has just been reset?
 		 */
 		reset:boolean;
+		/**
+		 * User that clicked.
+		 */
+		user:TwitchatDataTypes.TwitchatUser;
 	}
 
 	/**

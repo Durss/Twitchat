@@ -467,6 +467,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				bingoGridId:grid.id,
 				bingoGridName:grid.title,
 				channel_id:StoreProxy.auth.twitch.user.id,
+				user:StoreProxy.auth.twitch.user,
 				colIndex:-1,
 				rowIndex:-1,
 				diagonal:-1,
@@ -637,6 +638,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 								coords:{x,y},
 								complete:false,
 								reset:false,
+								user:StoreProxy.auth.twitch.user,
 							}
 						}
 						newVerticalBingos.forEach(index => {
@@ -733,6 +735,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 					coords:{x,y},
 					complete:false,
 					reset:false,
+					user:StoreProxy.auth.twitch.user,
 				}
 				StoreProxy.chat.addMessage(message);
 			}

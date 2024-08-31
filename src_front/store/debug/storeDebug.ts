@@ -673,6 +673,7 @@ export const storeDebug = defineStore('debug', {
 						colIndex:Math.round(Math.random()*grid.cols),
 						rowIndex:Math.round(Math.random()*grid.rows),
 						complete:Math.random() > .5,
+						user,
 						coords: {
 							x:Math.round(Math.random()*grid.cols),
 							y:Math.round(Math.random()*grid.rows),
