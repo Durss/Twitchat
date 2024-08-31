@@ -886,6 +886,9 @@ export const storeDebug = defineStore('debug', {
 							offset_ms:0,
 							endAt:Utils.formatDate(new Date()),
 							endAt_ms:Date.now(),
+							labels: {
+								days:StoreProxy.i18n.t("global.date_days"),
+							}
 						},
 						channel_id:uid,
 					};
@@ -913,6 +916,9 @@ export const storeDebug = defineStore('debug', {
 							aborted:false,
 							finalDuration:Utils.formatDuration(duration, true),
 							finalDuration_ms:duration,
+							labels: {
+								days:StoreProxy.i18n.t("global.date_days"),
+							}
 						},
 						channel_id:uid,
 					};

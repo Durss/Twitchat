@@ -940,6 +940,9 @@ export namespace TwitchatDataTypes {
 		finalDuration?:string;
 		finalDuration_ms?:number;
 		timeoutRef:number;
+		labels:{
+			days:string;
+		}
 	}
 
 	/**
@@ -955,6 +958,9 @@ export namespace TwitchatDataTypes {
 		endAt_ms?:number;
 		duration?:string;
 		duration_ms?:number;
+		labels:{
+			days:string;
+		}
 	}
 
 	/**

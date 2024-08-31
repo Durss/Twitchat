@@ -27,7 +27,7 @@ import Icon from '../Icon.vue';
 		Icon,
 	}
 })
- class OverlayTimer extends AbstractOverlay {
+class OverlayTimer extends AbstractOverlay {
 
 	public timerValue:string = "";
 	public countdownValue:string = "";
@@ -109,7 +109,7 @@ import Icon from '../Icon.vue';
 			}
 			elapsed -= this.countdownData.pausedDuration;
 			const remaining = Math.round((this.countdownData.duration_ms - elapsed)/1000)*1000;
-			this.countdownValue = Utils.formatDuration(remaining);
+			this.countdownValue = Utils.formatDuration(remaining, false, this.countdownData.labels.days);
 		}else{
 			this.countdownValue = "";
 		}
@@ -118,7 +118,7 @@ import Icon from '../Icon.vue';
 			if(this.timerData.paused) {
 				elapsed -= Date.now() - this.timerData.pausedAt!;
 			}
-			this.timerValue = Utils.formatDuration(elapsed);
+			this.timerValue = Utils.formatDuration(elapsed, false, this.timerData.labels.days);
 		}else{
 			this.timerValue = "";
 		}

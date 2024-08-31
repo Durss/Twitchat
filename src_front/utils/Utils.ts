@@ -145,7 +145,7 @@ export default class Utils {
 	 * @param millis
 	 * @returns
 	 */
-	public static formatDuration(millis: number, forceMinutes:boolean = false): string {
+	public static formatDuration(millis: number, forceMinutes:boolean = false, daysLabel?:string): string {
 		const d_ms = 24 * 3600 * 1000;
 		const h_ms = 3600 * 1000;
 		const m_ms = 60 * 1000;
@@ -156,7 +156,7 @@ export default class Utils {
 		let res = this.toDigits(s);
 		if(m > 0 || h > 0 || forceMinutes) res = this.toDigits(m) + ":" + res;
 		if(h > 0) res = this.toDigits(h) + ":" + res;
-		if(d > 0) res = d+StoreProxy.i18n.t("global.date_days")+" "+res;
+		if(d > 0) res = d + (daysLabel || StoreProxy.i18n.t("global.date_days")) + " " + res;
 		return res;
 	}
 
@@ -187,7 +187,7 @@ export default class Utils {
 	 * Returns the number of seconds, minutes, hours or days that past
 	 * since the given date
 	 */
-	public static elapsedDuration(date:number, step?:number) {
+	public static elapsedDuration(date:number, step?:number, daysLabel?:string) {
 		let elapsed = Date.now() - date;
 		const duration = step? step : elapsed < 60000? 1000 : elapsed < 60000*5? 5000 : elapsed < 60000*10? 10000 : 60000;
 
@@ -209,7 +209,7 @@ export default class Utils {
 			time += Utils.toDigits( Math.round((elapsed - hours*(60 * 60000))/60000) );
 		}else{
 			const days = Math.floor(elapsed/(24 * 60 * 60000));
-			time = days + StoreProxy.i18n.t("global.date_days");
+			time = days + (daysLabel || StoreProxy.i18n.t("global.date_days"))
 		}
 		return time;
 	}

@@ -52,6 +52,9 @@ export const storeTimer = defineStore('timer', {
 				startAt:Utils.formatDate(new Date()),
 				startAt_ms:Date.now(),
 				offset_ms:0,
+				labels:{
+					days:StoreProxy.i18n.t("global.date_days")
+				}
 			};
 			
 			const message:TwitchatDataTypes.MessageTimerData = {
@@ -137,6 +140,9 @@ export const storeTimer = defineStore('timer', {
 				duration:Utils.formatDuration(duration_ms, true),
 				duration_ms:duration_ms,
 				pausedDuration:0,
+				labels:{
+					days:StoreProxy.i18n.t("global.date_days")
+				}
 			};
 
 			const message:TwitchatDataTypes.MessageCountdownData = {
