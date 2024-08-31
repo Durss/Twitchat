@@ -39,6 +39,7 @@
 		"missing_reward": "RÉCOMPENSE SUPPRIMÉE",
 		"missing_reward_scope": "CHARGEMENT DE LA RECOMPENSE IMPOSSIBLE",
 		"random_placeholder": "Placeholder de valeur aléatoire {NAME}",
+		"http_placeholder": "Placeholder HTTP {NAME}",
 		"premium_limit": "Vous avez créé le maximum de {MAX} triggers actifs. Devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} triggers. Ou désactivez / supprimez des triggers pour en créer de nouveaux.",
 		"delete_folder_confirm": {
 			"title": "Supprimer le dossier ?",
@@ -346,7 +347,13 @@
 				"need_to_connect": "Cette action nécessite de vous {LINK}",
 				"need_to_connect_link": "connecter à un serveur websocket",
 				"topic_description": "Valeur personnalisée",
-				"payload_description": "Données personnalisées"
+				"payload_description": "Données personnalisées",
+				"extract_data": "Extraire des données du résultat de la requête dans des placeholders",
+				"extract_data_type_text": "Texte",
+				"extract_data_type_json": "JSON",
+				"extract_data_jsonpath": "JSON path (ex: $)",
+				"extract_data_placeholder": "Placeholder...",
+				"add_placeholder_bt": "Ajouter un palceholder"
 			},
 			"count": {
 				"value_label": "Valeur",
@@ -740,6 +747,9 @@
 			"announcement_color": "Couleur de l'annonce",
 			"track_add_fail_reason": "Raison de l'échec d'ajout du morceau",
 			"now": "Date en millisecondes",
+			"date":"Date formatée",
+			"time":"Heure formatée",
+			"datetime":"Date et heure formatées",
 			"last_sub": "Nom du dernier sub",
 			"last_sub_id": "ID du dernier sub",
 			"last_sub_tier": "Tier du dernier sub",

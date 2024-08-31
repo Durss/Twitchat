@@ -48,7 +48,7 @@
 				<div class="card-item" v-for="p in parameters" :key="p.placeholder.tag" @click="p.enabled = !p.enabled; onToggleParam()">
 					<div class="taginfo">
 						<div class="tag"><mark>{{ p.placeholder.tag }}</mark></div>
-						<span>{{ $t(p.placeholder.descKey) }}</span>
+						<span>{{ $t(p.placeholder.descKey, p.placeholder.descReplacedValues || {}) }}</span>
 					</div>
 					<ToggleButton v-model="p.enabled" @change="onToggleParam()" />
 				</div>

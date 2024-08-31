@@ -73,58 +73,90 @@ export default class AbstractTriggerActionEntry extends Vue {
 			if(a.condition !== this.action.condition
 			&& (a.condition !== undefined || this.action.condition === false)
 			&& (a.condition === false || this.action.condition !== undefined)) continue;
-			//If its anything but a "random" action, skip it (only this one creates custom placeholders for now)
-			if(a.type != "random") continue;
-			//If it's not a list or number random value mode, ignore it (onlye these have a custom placeholder)
-			if(a.mode == "trigger") continue;
-			//If custom placeholder isn't defined, ignore it
-			if((a.mode == "number" || a.mode === "list") && a.placeholder) {
-				//If a static placeholder already exists with the same name, remove it.
-				//Dynamic placeholder have priority over them.
-				const existingIndex = placeholdersList.findIndex(u=>u.tag.toLowerCase() == a.placeholder.toLowerCase());
-				if(existingIndex > -1) placeholdersList.splice(existingIndex, 1);
+			//If its anything but a "random" or "http" action, skip it (only these ones create custom placeholders for now)
+			if(a.type != "random" && a.type != "http") continue;
 
-				placeholdersList.push({
-									tag:a.placeholder.toUpperCase(),
-									pointer:"",
-									isUserID:false,
-									customTag:true,
-									numberParsable:true,
-									descKey:'triggers.random_placeholder',
-									descReplacedValues:{NAME:"{"+a.placeholder.toUpperCase()+"}"},
-								});
-			}
-			if((a.mode == "counter" || a.mode === "value") && a.valueCounterPlaceholders) {
-				const placeholders = [
-					a.valueCounterPlaceholders!.value,
-				];
-				if(a.mode == "counter"
-				|| (a.mode == "value" && StoreProxy.values.valueList.find(v=>v.id == a.valueSource)?.perUser === true) ) {
-					placeholders.unshift(
-						a.valueCounterPlaceholders!.userId,
-						a.valueCounterPlaceholders!.userName
-					)
-				}
-				
-				for (let i = 0; i < placeholders.length; i++) {
-					const ph = placeholders[i];
+			if(a.type == "random"){
+				//If it's not a list or number random value mode, ignore it (onlye these have a custom placeholder)
+				if(a.mode == "trigger") continue;
+				//If custom placeholder isn't defined, ignore it
+				if((a.mode == "number" || a.mode === "list") && a.placeholder) {
 					//If a static placeholder already exists with the same name, remove it.
 					//Dynamic placeholder have priority over them.
-					const existingIndex = placeholdersList.findIndex(u=>u.tag.toLowerCase() == ph.toLowerCase());
+					const existingIndex = placeholdersList.findIndex(u=>u.tag.toLowerCase() == a.placeholder.toLowerCase());
 					if(existingIndex > -1) placeholdersList.splice(existingIndex, 1);
 	
 					placeholdersList.push({
-										tag:ph.toUpperCase(),
+										tag:a.placeholder.toUpperCase(),
 										pointer:"",
-										isUserID:ph === a.valueCounterPlaceholders!.userId,
+										isUserID:false,
 										customTag:true,
-										numberParsable:ph === a.valueCounterPlaceholders!.value,
+										numberParsable:true,
 										descKey:'triggers.random_placeholder',
-										descReplacedValues:{NAME:"{"+ph.toUpperCase()+"}"},
+										descReplacedValues:{NAME:"{"+a.placeholder.toUpperCase()+"}"},
 									});
 				}
+				if((a.mode == "counter" || a.mode === "value") && a.valueCounterPlaceholders) {
+					const placeholders = [
+						a.valueCounterPlaceholders!.value,
+					];
+					if(a.mode == "counter"
+					|| (a.mode == "value" && StoreProxy.values.valueList.find(v=>v.id == a.valueSource)?.perUser === true) ) {
+						placeholders.unshift(
+							a.valueCounterPlaceholders!.userId,
+							a.valueCounterPlaceholders!.userName
+						)
+					}
+					
+					for (let i = 0; i < placeholders.length; i++) {
+						const ph = placeholders[i];
+						//If a static placeholder already exists with the same name, remove it.
+						//Dynamic placeholder have priority over them.
+						const existingIndex = placeholdersList.findIndex(u=>u.tag.toLowerCase() == ph.toLowerCase());
+						if(existingIndex > -1) placeholdersList.splice(existingIndex, 1);
+		
+						placeholdersList.push({
+											tag:ph.toUpperCase(),
+											pointer:"",
+											isUserID:ph === a.valueCounterPlaceholders!.userId,
+											customTag:true,
+											numberParsable:ph === a.valueCounterPlaceholders!.value,
+											descKey:'triggers.random_placeholder',
+											descReplacedValues:{NAME:"{"+ph.toUpperCase()+"}"},
+										});
+					}
+				}
+			}else
+			
+			if(a.type == "http") {
+				if(a.outputPlaceholders && a.outputPlaceholders.length > 0) {
+					for (let i = 0; i < a.outputPlaceholders.length; i++) {
+						const ph = a.outputPlaceholders[i];
+						if(!ph.placeholder || ph.placeholder.length === 0) continue;
+						placeholdersList.push({
+							tag:ph.placeholder.toUpperCase(),
+							pointer:"",
+							isUserID:false,
+							customTag:true,
+							numberParsable:true,
+							descKey:'triggers.http_placeholder',
+							descReplacedValues:{NAME:"{"+ph.placeholder.toUpperCase()+"}"},
+						});
+					}
 
-			}
+				}else
+				if(a.outputPlaceholder) {
+					placeholdersList.push({
+						tag:a.outputPlaceholder.toUpperCase(),
+						pointer:"",
+						isUserID:false,
+						customTag:true,
+						numberParsable:true,
+						descKey:'triggers.http_placeholder',
+						descReplacedValues:{NAME:"{"+a.outputPlaceholder.toUpperCase()+"}"},
+					});
+				}
+				}
 		}
 
 		const placeholderIds:string[] = placeholdersList.map(v=>v.tag.toLowerCase()).sort();

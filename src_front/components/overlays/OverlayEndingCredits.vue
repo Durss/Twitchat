@@ -43,7 +43,7 @@
 						<Icon class="badge" v-if="item.params.showBadges" :name="entry.type == 'subgift'? 'gift' : 'sub'" />
 						<span class="info">{{entry.value.login}}</span>
 						<span class="count" v-if="entry.type!='subgift' && item.params.showSubMonths === true"> − {{ getSubDurationlabel(entry.value.subDuration) }}</span>
-						<span class="count" v-if="entry.type=='subgift' && item.params.showAmounts === true"><Icon name="gift" class="giftIcon" />{{ entry.value.total }}</span>
+						<span class="count" v-if="entry.type=='subgift' && item.params.showAmounts === true"> − {{ entry.value.total }}</span>
 					</div>
 
 					<div v-if="item.params.slotType == 'cheers'" v-for="entry in getCheers(item.params).concat().splice(0, item.params.maxEntries)" class="item">
@@ -275,7 +275,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 				| {type:"subgift", value:TwitchatDataTypes.StreamSummaryData["subgifts"][0]})[] = [];
 
 		if(params.showSubs !== false)		res = res.concat(subs.map(v=>{ return {type:"sub", value:v}}));
-		if(params.showResubs !== false)	res = res.concat(resubs.map(v=>{ return {type:"resub", value:v}}));
+		if(params.showResubs !== false)		res = res.concat(resubs.map(v=>{ return {type:"resub", value:v}}));
 		if(params.showSubgifts !== false)	res = res.concat(this.makeUnique(params, subgifts).map(v=>{ return {type:"subgift", value:v}}));
 		return res.sort((a, b)=> {
 			let scoreA = 0;

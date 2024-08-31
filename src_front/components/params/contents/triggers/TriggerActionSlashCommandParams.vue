@@ -43,6 +43,9 @@ class TriggerActionSlashCommandParams extends Vue {
 	
 	public onUpdateCommand():void {
 		this.cmdNameConflict = false;
+		
+		this.triggerData.chatCommand =
+		this.param_command.value = this.param_command.value.trim().replace(/\s+/g, '');
 
 		//Make sure no other chat command has the same name
 		const triggers = this.$store.triggers.triggerList;
@@ -71,8 +74,6 @@ class TriggerActionSlashCommandParams extends Vue {
 			}
 		}
 
-		this.triggerData.chatCommand =
-		this.param_command.value = this.param_command.value.trim().replace(/\s+/g, '');
 	}
 }
 export default toNative(TriggerActionSlashCommandParams);

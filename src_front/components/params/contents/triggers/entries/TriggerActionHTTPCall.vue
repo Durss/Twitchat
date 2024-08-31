@@ -18,9 +18,9 @@
 				<div v-for="(a, index) in action.headers" class="header">
 					<input type="text" v-model="action.headers![index].key">
 					<ParamItem :paramData="getParamHeaderValue(index)" placeholdersAsPopout v-model="action.headers![index].value" noBackground />
-					<Button class="deleteBt" icon="trash" @click="delHeader(index)" alert />
+					<TTButton class="deleteBt" icon="trash" @click="delHeader(index)" alert />
 				</div>
-				<Button class="addBt" icon="add" v-if="(action.headers || []).length < 20" @click="addHeader()">{{ $t("triggers.actions.http_ws.add_headerBt") }}</Button>
+				<TTButton class="addBt" icon="add" v-if="(action.headers || []).length < 20" @click="addHeader()">{{ $t("triggers.actions.http_ws.add_headerBt") }}</TTButton>
 			</div>
 		</ParamItem>
 
@@ -28,25 +28,52 @@
 			<p class="title" v-if="parameters.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
 
 			<div class="params">
-				<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" @click.native="toggleAll()" v-if="parameters.length > 3" />
+				<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" v-model="param_toggleAll.value" @click.native="toggleAll()" v-if="parameters.length > 3" />
 
 				<div class="card-item" v-for="p in parameters" :key="p.placeholder.tag" @click="p.enabled = !p.enabled; onToggleParam()">
 					<div class="taginfo">
 						<div class="tag"><mark>{{ p.placeholder.tag }}</mark></div>
-						<span>{{ $t(p.placeholder.descKey) }}</span>
+						<span>{{ $t(p.placeholder.descKey, p.placeholder.descReplacedValues || {}) }}</span>
 					</div>
 					<ToggleButton v-model="p.enabled" @change="onToggleParam()" />
 				</div>
 			</div>
 		</div>
 
-		<ParamItem :paramData="param_outputPlaceholder" v-model="action.outputPlaceholder" />
+		<div class="card-item placeholderList">
+			<p icon="add">{{ $t("triggers.actions.http_ws.extract_data") }}</p>
+			<div v-for="(item, index) in action.outputPlaceholders" class="item">
+				<select v-model="item.type">
+					<option value="text">{{ $t("triggers.actions.http_ws.extract_data_type_text") }}</option>
+					<option value="json">{{ $t("triggers.actions.http_ws.extract_data_type_json") }}</option>
+				</select>
+				<div class="jsonpath" v-if="item.type == 'json'">
+					<input type="text" maxlength="500" v-model="item.path" :placeholder="$t('triggers.actions.http_ws.extract_data_jsonpath')">
+					<TTButton class="helpBt" icon="help" secondary type="link" target="_blank" href="https://wikipedia.org/wiki/JSONPath" />
+				</div>
+				<div class="placeholder">
+					<span>{</span>
+					<contenteditable tag="span" :class="{input:true, empty:item.placeholder.length === 0}"
+						v-model="item.placeholder"
+						:contenteditable="true"
+						:no-nl="true"
+						:no-html="true"
+						@click.stop
+						@input="limitPlaceholderSize(item)" />
+					<span>}</span>
+				</div>
+				<TTButton class="deleteBt" icon="trash" alert @click="removeOutputPlacholder(index)" />
+			</div>
+			<TTButton icon="add" @click="addOutputPlaceholder" v-if="(action.outputPlaceholders || []).length < 50">{{ $t("triggers.actions.http_ws.add_placeholder_bt") }}</TTButton>
+		</div>
+
+		<!-- <ParamItem :paramData="param_outputPlaceholder" v-model="action.outputPlaceholder" /> -->
 
 		<i18n-t scope="global" class="card-item info" tag="div"
 		keypath="triggers.actions.common.custom_placeholder_example"
-		v-if="param_outputPlaceholder.value.length > 0">
+		v-if="action.outputPlaceholders && action.outputPlaceholders.length > 0">
 			<template #PLACEHOLDER>
-				<mark v-click2Select>{{"{"}}{{param_outputPlaceholder.value.toUpperCase()}}{{"}"}}</mark>
+				<mark v-click2Select v-for="p in action.outputPlaceholders">{{"{" + p.placeholder.toUpperCase() + "}"}}</mark>
 			</template>
 		</i18n-t>
 	</div>
@@ -61,16 +88,18 @@ import { watch } from 'vue';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import TTButton from '@/components/TTButton.vue';
+import contenteditable from 'vue-contenteditable';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ParamItem,
 		ToggleButton,
+		contenteditable,
 	},
 	emits:["update"]
 })
- class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
+class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionHTTPCallData;
@@ -98,6 +127,7 @@ import TTButton from '@/components/TTButton.vue';
 	}
 
 	public beforeMount():void {
+		if(!this.action.outputPlaceholders) this.action.outputPlaceholders = [];
 		this.param_method.listValues	= (["GET","PUT","POST","PATCH","DELETE"] as TriggerActionHTTPCallDataAction[]).map(v=> {return {value:v, label:v}});
 
 		watch(()=>this.action.url, ()=> {
@@ -164,6 +194,46 @@ import TTButton from '@/components/TTButton.vue';
 	 */
 	public delHeader(index:number):void {
 		this.action.headers?.splice(index, 1);
+	}
+
+	/**
+	 * Creates an output placeholder
+	 */
+	public addOutputPlaceholder():void {
+		this.action.outputPlaceholders!.push({
+			type:"text",
+			path:"",
+			placeholder:"",
+		})
+	}
+
+	/**
+	 * Deletes an output placeholder
+	 */
+	public removeOutputPlacholder(index:number):void {
+		this.action.outputPlaceholders!.splice(index, 1);
+	}
+
+	/**
+	 * Limit the size of the label.
+	 * Can't use maxLength because it's a content-editable tag.
+	 * @param item
+	 */
+	public async limitPlaceholderSize(item:Required<typeof this.action>["outputPlaceholders"][number]):Promise<void> {
+		const sel = window.getSelection();
+		if(sel && sel.rangeCount > 0) {
+			//Save caret index
+			var range = sel.getRangeAt(0);
+			let caretIndex = range.startOffset;
+			await this.$nextTick();
+			//Limit label's size
+			item.placeholder = item.placeholder.substring(0, 30);
+			await this.$nextTick();
+			//Reset caret to previous position
+			if(range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.min(item.placeholder.length, caretIndex-1));
+		}else{
+			item.placeholder = item.placeholder.substring(0, 30);
+		}
 	}
 
 }
@@ -257,6 +327,80 @@ export default toNative(TriggerActionHTTPCall);
 		}
 		.addBt {
 			align-self: center;
+		}
+	}
+
+	.placeholderList {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		.item {
+			gap: .5em;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			padding: .25em;
+			border-radius: var(--border-radius);
+			&:hover {
+				background-color: var(--background-color-fadest);
+			}
+			&>*:nth-child(2) {
+				flex: 1;
+			}
+			.jsonpath {
+				display: flex;
+				flex-direction: row;
+				// flex-grow: 1;
+				// flex-shrink: 1;
+				* {
+					border-radius: 0;
+					&:first-child {
+						border-top-left-radius: var(--border-radius);
+						border-bottom-left-radius: var(--border-radius);
+					}
+					&:last-child {
+						border-top-right-radius: var(--border-radius);
+						border-bottom-right-radius: var(--border-radius);
+					}
+				}
+				.helpBt {
+					flex-shrink: 0;
+				}
+			}
+			.placeholder {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				justify-content: center;
+				background: var(--background-color-fader);
+				border-radius: var(--border-radius);
+				text-transform: uppercase;
+				.input {
+					margin: 0 .25em;
+					min-width: 1em;
+					text-align: center;
+					cursor: text;
+					&.empty::before {
+						content: "...";
+					}
+				}
+				span:first-child,
+				span:last-child {
+					font-size: 1.5em;
+				}
+			}
+			.deleteBt {
+				flex-shrink: 0;
+				flex-basis: 1.5em;
+			}
+			input {
+				flex-grow: 1;
+				flex-shrink: 1;
+				display:inline-block;
+				min-width:0;
+				width: 100%;
+				min-width: 8em;
+			}
 		}
 	}
 }

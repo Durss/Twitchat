@@ -28,6 +28,7 @@ import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import YoutubeHelper from "../youtube/YoutubeHelper";
+import jsonpath from "jsonpath";
 
 /**
 * Created : 22/04/2022
@@ -1784,9 +1785,42 @@ export default class TriggerActionHandler {
 						logStep.messages.push({date:Date.now(), value:"Calling HTTP: "+url});
 						const res = await fetch(url, options);
 						if(res.status >= 200 && res.status <= 208) {
+							const text = await res.text();
+							let json:any|null = null;
+							try {
+								json = JSON.parse(text);
+							}catch(error){
+								json = null;
+							}
+
+							console.log("LIST", step.outputPlaceholders, json);
+							if(step.outputPlaceholders && step.outputPlaceholders.length > 0) {
+								for (let i = 0; i < step.outputPlaceholders.length; i++) {
+									const ph = step.outputPlaceholders[i];
+									if(!ph.placeholder || ph.placeholder.length === 0) continue;
+									console.log(ph);
+
+									if(ph.type == "text") {
+										logStep.messages.push({date:Date.now(), value:"Store full query result to placeholder {"+ph.placeholder+"}"});
+										dynamicPlaceholders[ph.placeholder] = text;
+									}else
+									if(ph.type == "json" && json) {
+										const results = jsonpath.query(json, ph.path);
+										if(results.length == 0) {
+											logStep.messages.push({date:Date.now(), value:"JSONPath expression did not return any result: "+ph.path});
+											log.error = true;
+											logStep.error = true;
+										}else{
+											console.log(results);
+											logStep.messages.push({date:Date.now(), value:"Store JSONPath result to placeholder {"+ph.placeholder+"}: "+results[0]});
+											dynamicPlaceholders[ph.placeholder] = results.length == 1 && typeof results[0] === "string"? results[0] : results.join(", ");
+										}
+									}
+								}
+							}else
 							if(step.outputPlaceholder) {
 								logStep.messages.push({date:Date.now(), value:"Store result to placeholder: "+step.outputPlaceholder});
-								dynamicPlaceholders[step.outputPlaceholder] = await res.text();
+								dynamicPlaceholders[step.outputPlaceholder] = text;
 							}
 						}else{
 							log.error = true;

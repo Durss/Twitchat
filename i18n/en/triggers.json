@@ -39,6 +39,7 @@
 		"missing_reward": "DELETED REWARD",
 		"missing_reward_scope": "CANNOT LOAD REWARD INFO",
 		"random_placeholder": "Random value placeholder {NAME}",
+		"http_placeholder": "HTTP placeholder {NAME}",
 		"premium_limit": "You created the maximum number of {MAX} triggers. Become premium to create up to {MAX_PREMIUM} triggers. Or disable / delete some triggers to create new ones.",
 		"delete_folder_confirm": {
 			"title": "Delete folder?",
@@ -346,7 +347,13 @@
 				"need_to_connect": "This action requires you to {LINK}",
 				"need_to_connect_link": "connect to a websocket server",
 				"topic_description": "Custom value",
-				"payload_description": "Custom data"
+				"payload_description": "Custom data",
+				"extract_data": "Extract query result data to placeholders",
+				"extract_data_type_text": "Text",
+				"extract_data_type_json": "JSON",
+				"extract_data_jsonpath": "JSON path (ex: $)",
+				"extract_data_placeholder": "Placeholder name...",
+				"add_placeholder_bt": "Add placeholder"
 			},
 			"count": {
 				"value_label": "Value",
@@ -740,6 +747,9 @@
 			"announcement_color": "Couleur de l'annonce",
 			"track_add_fail_reason": "Track add fail reason",
 			"now": "Date in milliseconds",
+			"date":"Current date formatted",
+			"time":"Current time formatted",
+			"datetime":"Current date and time formatted",
 			"last_sub": "Last subscriber",
 			"last_sub_id": "Last subscriber ID",
 			"last_subgifter": "Last subgifter",

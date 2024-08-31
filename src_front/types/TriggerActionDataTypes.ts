@@ -678,6 +678,14 @@ export interface TriggerActionHTTPCallData extends TriggerActionData{
 	 */
 	outputPlaceholder?:string;
 	/**
+	 * Extract placeholders with JSONPath
+	 */
+	outputPlaceholders?:{
+		type:"text"|"json",
+		path:string;
+		placeholder:string;
+	}[];
+	/**
 	 * Custom body value
 	 */
 	customBody?:string;
@@ -1983,7 +1991,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 			entry.push({tag:"NOW", descKey:'triggers.placeholders.now', pointer:"__date__.now", numberParsable:true, isUserID:false, globalTag:true, example:Date.now().toString()});
 			entry.push({tag:"DATE", descKey:'triggers.placeholders.date', pointer:"__date__.date", numberParsable:false, isUserID:false, globalTag:true, example:Utils.formatDate(new Date(), false)});
 			entry.push({tag:"TIME", descKey:'triggers.placeholders.time', pointer:"__date__.time", numberParsable:false, isUserID:false, globalTag:true, example:Utils.formatDate(new Date(), true, true)});
-			entry.push({tag:"DATETIME", descKey:'triggers.placeholders.datetile', pointer:"__date__.datetime", numberParsable:false, isUserID:false, globalTag:true, example:Utils.formatDate(new Date(), true)});
+			entry.push({tag:"DATETIME", descKey:'triggers.placeholders.datetime', pointer:"__date__.datetime", numberParsable:false, isUserID:false, globalTag:true, example:Utils.formatDate(new Date(), true)});
 		}
 		if(entry.findIndex(v=>v.tag == "MY_STREAM_TITLE") == -1) {
 			entry.push({category:"stream", tag:"MY_STREAM_TITLE", descKey:'triggers.placeholders.my_stream_title', pointer:"__my_stream__.title", numberParsable:false, isUserID:false, globalTag:true, example:"Talking about stuff"} as ITriggerPlaceholder<TwitchatDataTypes.StreamInfo, string, "__my_stream__">);

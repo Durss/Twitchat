@@ -474,6 +474,9 @@ export default class DiscordController extends AbstractController {
 					errorCode = "MISSING_ACCESS";
 					token.expires_at += 5 * 60000;
 				}
+				if(status == 404) {
+					errorCode = "UNKNOWN_CHANNEL";
+				}
 			}
 		}else{
 			//Add 1 minute to the expiration date

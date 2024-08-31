@@ -861,7 +861,7 @@ export default toNative(ChatMessage);
 	}
 
 	&.gigantifiedEmote {
-		:deep(.emote:last-of-type) {
+		:deep(.chunk:last-child .emote) {
 			height: 5em;
 			max-height: 5em;
 			display: block;
