@@ -44,6 +44,7 @@
 			<Button small @click="simulateEvent($event, 'subscription', 'sub')" icon="sub">Sub</Button>
 			<Button small @click="simulateEvent($event, 'subscription', 'resub')" icon="sub">ReSub</Button>
 			<Button small @click="simulateEvent($event, 'subscription', 'gift')" icon="gift">Subgifts</Button>
+			<Button small @click="simulateMultichanGifts()" icon="gift">Subgifts multichan</Button>
 			<Button small @click="simulateEvent($event, 'subscription', 'giftpaidupgrade')" icon="gift">Subgift upgrade</Button>
 			<Button small @click="simulateSubgiftSpam()" icon="gift">Subgift spam</Button>
 			<Button small @click="simulateEvent($event, 'message', 'youtube')" icon="youtube">Youtube message</Button>
@@ -411,6 +412,73 @@ class DevmodeMenu extends Vue {
 
 	public simulateComunityBoost():void {
 		PubSub.instance.simulateCommunityBoost();
+	}
+
+	/**
+	 * Spams subgifts on 2 different account from the same user to test
+	 * subgifts concurrency and make sure they're properly grouped by
+	 * channel.
+	 */
+	public async simulateMultichanGifts():Promise<void> {
+		const secondaryChan = await this.$store.users.getUserFrom("twitch", "647389082", "647389082", "durssbot", "DurssBot");
+		const sender = await this.$store.users.getUserFrom("twitch", secondaryChan.id, StoreProxy.auth.twitch.user.id, StoreProxy.auth.twitch.user.login, StoreProxy.auth.twitch.user.displayNameOriginal);
+		let mainCount = 0;
+		let secondaryCount = 0;
+		let mainDebounce = -1;
+		let secondaryDebounce = -1;
+		for (let i = 0; i < 10; i++) {
+			//Send on main chan
+			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, (message)=> {
+				const recipients:TwitchatDataTypes.TwitchatUser[] = reactive([]);
+				const count = Math.round(Math.random() * 2) + 1;
+				const m = (message as TwitchatDataTypes.MessageSubscriptionData);
+				m.user = StoreProxy.auth.twitch.user;
+				m.channel_id = StoreProxy.auth.twitch.user.id;
+				m.gift_recipients = recipients;
+				m.is_gift = true;
+				m.tier = 1;
+				m.user.channelInfo[m.channel_id].totalSubgifts = Math.round(Math.random()*100);
+				for (let i = 0; i < count; i++) {
+					recipients.push(Utils.pickRand(StoreProxy.users.users.filter(v=>v.errored !== true)));
+				}
+				m.gift_count = recipients.length;
+				this.$store.chat.addMessage(message);
+				mainCount += count;
+				clearTimeout(mainDebounce);
+				mainDebounce = setTimeout(() => {
+					console.log("Main subgifts:", mainCount);
+				}, 500);
+			}, false);
+
+			//Send on secondary chan
+			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, async (message)=> {
+				const recipients:TwitchatDataTypes.TwitchatUser[] = reactive([]);
+				const count = Math.round(Math.random() * 2) + 1;
+				const m = (message as TwitchatDataTypes.MessageSubscriptionData);
+				m.user = sender;
+				m.channel_id = secondaryChan.id;
+				m.channelSource = {
+					color:"#008667",
+					name:secondaryChan.displayNameOriginal,
+				}
+				m.gift_recipients = recipients;
+				m.is_gift = true;
+				m.tier = 1;
+				m.user.channelInfo[m.channel_id].totalSubgifts = Math.round(Math.random()*100);
+				for (let i = 0; i < count; i++) {
+					const user = Utils.pickRand(StoreProxy.users.users.filter(v=>v.errored !== true))
+					let newUser = await this.$store.users.getUserFrom("twitch", secondaryChan.id, user.id, user.login, user.displayNameOriginal);
+					recipients.push(newUser);
+				}
+				m.gift_count = recipients.length;
+				this.$store.chat.addMessage(message);
+				secondaryCount += count;
+				clearTimeout(secondaryDebounce);
+				secondaryDebounce = setTimeout(() => {
+					console.log("Secondary subgifts:", secondaryCount);
+				}, 500);
+			}, false);
+		}
 	}
 
 	public simulateAutomod():void {
