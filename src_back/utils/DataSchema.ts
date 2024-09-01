@@ -323,7 +323,7 @@ const UserDataSchema = {
 								},
 								placeholder:{type:"string", maxLength:50},
 								outputPlaceholder:{type:"string", maxLength:30},
-								outputPlaceholders:{
+								outputPlaceholderList:{
 									type:"array",
 									minItems:0,
 									maxItems:50,

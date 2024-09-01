@@ -42,7 +42,7 @@
 
 		<div class="card-item placeholderList">
 			<p icon="add">{{ $t("triggers.actions.http_ws.extract_data") }}</p>
-			<div v-for="(item, index) in action.outputPlaceholders" class="item">
+			<div v-for="(item, index) in action.outputPlaceholderList" class="item">
 				<select v-model="item.type">
 					<option value="text">{{ $t("triggers.actions.http_ws.extract_data_type_text") }}</option>
 					<option value="json">{{ $t("triggers.actions.http_ws.extract_data_type_json") }}</option>
@@ -51,9 +51,10 @@
 					<input type="text" maxlength="500" v-model="item.path" :placeholder="$t('triggers.actions.http_ws.extract_data_jsonpath')">
 					<TTButton class="helpBt" icon="help" secondary type="link" target="_blank" href="https://wikipedia.org/wiki/JSONPath" />
 				</div>
-				<div class="placeholder">
+				<div class="placeholder" :class="{error:isDuplicate(item)}">
 					<span>{</span>
-					<contenteditable tag="span" :class="{input:true, empty:item.placeholder.length === 0}"
+					<contenteditable tag="span"
+						:class="{input:true, empty:item.placeholder.length === 0}"
 						v-model="item.placeholder"
 						:contenteditable="true"
 						:no-nl="true"
@@ -64,16 +65,19 @@
 				</div>
 				<TTButton class="deleteBt" icon="trash" alert @click="removeOutputPlacholder(index)" />
 			</div>
-			<TTButton icon="add" @click="addOutputPlaceholder" v-if="(action.outputPlaceholders || []).length < 50">{{ $t("triggers.actions.http_ws.add_placeholder_bt") }}</TTButton>
+			<TTButton icon="add" @click="addOutputPlaceholder" v-if="(action.outputPlaceholderList || []).length < 50">{{ $t("triggers.actions.http_ws.add_placeholder_bt") }}</TTButton>
 		</div>
 
 		<!-- <ParamItem :paramData="param_outputPlaceholder" v-model="action.outputPlaceholder" /> -->
 
 		<i18n-t scope="global" class="card-item info" tag="div"
 		keypath="triggers.actions.common.custom_placeholder_example"
-		v-if="action.outputPlaceholders && action.outputPlaceholders.length > 0">
+		v-if="action.outputPlaceholderList && action.outputPlaceholderList.length > 0">
 			<template #PLACEHOLDER>
-				<mark v-click2Select v-for="p in action.outputPlaceholders">{{"{" + p.placeholder.toUpperCase() + "}"}}</mark>
+				<template v-for="(p, index) in action.outputPlaceholderList">
+					<mark v-click2Select>{{"{" + p.placeholder.toUpperCase() + "}"}}</mark>
+					<template v-if="index < action.outputPlaceholderList.length-1">{{ $t("global.or") }}</template>
+				</template>
 			</template>
 		</i18n-t>
 	</div>
@@ -127,7 +131,7 @@ class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 	}
 
 	public beforeMount():void {
-		if(!this.action.outputPlaceholders) this.action.outputPlaceholders = [];
+		if(!this.action.outputPlaceholderList) this.action.outputPlaceholderList = [];
 		this.param_method.listValues	= (["GET","PUT","POST","PATCH","DELETE"] as TriggerActionHTTPCallDataAction[]).map(v=> {return {value:v, label:v}});
 
 		watch(()=>this.action.url, ()=> {
@@ -200,7 +204,7 @@ class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 	 * Creates an output placeholder
 	 */
 	public addOutputPlaceholder():void {
-		this.action.outputPlaceholders!.push({
+		this.action.outputPlaceholderList!.push({
 			type:"text",
 			path:"",
 			placeholder:"",
@@ -211,7 +215,7 @@ class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 	 * Deletes an output placeholder
 	 */
 	public removeOutputPlacholder(index:number):void {
-		this.action.outputPlaceholders!.splice(index, 1);
+		this.action.outputPlaceholderList!.splice(index, 1);
 	}
 
 	/**
@@ -219,21 +223,35 @@ class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 	 * Can't use maxLength because it's a content-editable tag.
 	 * @param item
 	 */
-	public async limitPlaceholderSize(item:Required<typeof this.action>["outputPlaceholders"][number]):Promise<void> {
+	public async limitPlaceholderSize(item:Required<typeof this.action>["outputPlaceholderList"][number]):Promise<void> {
 		const sel = window.getSelection();
 		if(sel && sel.rangeCount > 0) {
 			//Save caret index
 			var range = sel.getRangeAt(0);
 			let caretIndex = range.startOffset;
 			await this.$nextTick();
-			//Limit label's size
-			item.placeholder = item.placeholder.substring(0, 30);
+			//Normalize label and limit its size
+			item.placeholder = item.placeholder.toUpperCase().trim().replace(/\W/gi, "").substring(0, 30);
 			await this.$nextTick();
 			//Reset caret to previous position
-			if(range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.min(item.placeholder.length, caretIndex-1));
+			if(range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.min(item.placeholder.length, caretIndex));
 		}else{
-			item.placeholder = item.placeholder.substring(0, 30);
+			item.placeholder = item.placeholder.toUpperCase().trim().replace(/\W/gi, "").substring(0, 30);
 		}
+	}
+
+	/**
+	 * Check if given item has a duplicate placeholder
+	 * @param item 
+	 */
+	public isDuplicate(item:Required<typeof this.action>["outputPlaceholderList"][number]):boolean {
+		for (let i = 0; i < this.action.outputPlaceholderList!.length; i++) {
+			const entry = this.action.outputPlaceholderList![i];
+			if(entry === item) continue;
+			if(entry.placeholder.toUpperCase().trim() === item.placeholder.toUpperCase().trim()) return true;
+		}
+
+		return false;
 	}
 
 }
@@ -387,6 +405,9 @@ export default toNative(TriggerActionHTTPCall);
 				span:first-child,
 				span:last-child {
 					font-size: 1.5em;
+				}
+				&.error {
+					background-color: var(--color-alert-fader);
 				}
 			}
 			.deleteBt {

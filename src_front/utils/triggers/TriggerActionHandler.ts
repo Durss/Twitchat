@@ -1793,10 +1793,10 @@ export default class TriggerActionHandler {
 								json = null;
 							}
 
-							console.log("LIST", step.outputPlaceholders, json);
-							if(step.outputPlaceholders && step.outputPlaceholders.length > 0) {
-								for (let i = 0; i < step.outputPlaceholders.length; i++) {
-									const ph = step.outputPlaceholders[i];
+							console.log("LIST", step.outputPlaceholderList, json);
+							if(step.outputPlaceholderList && step.outputPlaceholderList.length > 0) {
+								for (let i = 0; i < step.outputPlaceholderList.length; i++) {
+									const ph = step.outputPlaceholderList[i];
 									if(!ph.placeholder || ph.placeholder.length === 0) continue;
 									console.log(ph);
 

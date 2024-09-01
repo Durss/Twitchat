@@ -675,12 +675,13 @@ export interface TriggerActionHTTPCallData extends TriggerActionData{
 	headers?:{key:string, value:string}[];
 	/**
 	 * Placeholder containing the request result
+	 * @deprecated replaced with outputPlaceholderList
 	 */
 	outputPlaceholder?:string;
 	/**
 	 * Extract placeholders with JSONPath
 	 */
-	outputPlaceholders?:{
+	outputPlaceholderList?:{
 		type:"text"|"json",
 		path:string;
 		placeholder:string;

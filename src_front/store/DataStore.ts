@@ -142,7 +142,7 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	static override async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 57;
+		const latestVersion = 58;
 
 		this.cleanupPreV7Data(data);
 
@@ -346,6 +346,10 @@ export default class DataStore extends DataStoreCommon{
 		}
 		if(v==56) {
 			this.clearGhostValueEntry(data);
+			v = 57;
+		}
+		if(v==57) {
+			this.migrateHTTPTriggerOutputPlaceholer(data);
 			v = latestVersion;
 		}
 
@@ -1525,6 +1529,32 @@ export default class DataStore extends DataStoreCommon{
 				if(!v.users) return;
 				delete v.users[""];
 			})
+		}
+	}
+	
+	/**
+	 * The HTTP trigger action only allowed to set the full result
+	 * of the query inside a placeholder.
+	 * Now any number of placeholders can be added with JSONPath
+	 * capabilities.
+	 * @param data 
+	 */
+	private static migrateHTTPTriggerOutputPlaceholer(data:any):void {
+		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+		if(triggers && Array.isArray(triggers)) {
+			triggers.forEach(t => {
+				t.actions.forEach(a => {
+					if(a.type == "http" && a.outputPlaceholder) {
+						a.outputPlaceholderList = [
+							{
+								type:"text",
+								path:"",
+								placeholder:a.outputPlaceholder,
+							}
+						]
+					}
+				})
+			});
 		}
 	}
 }

@@ -129,9 +129,9 @@ export default class AbstractTriggerActionEntry extends Vue {
 			}else
 			
 			if(a.type == "http") {
-				if(a.outputPlaceholders && a.outputPlaceholders.length > 0) {
-					for (let i = 0; i < a.outputPlaceholders.length; i++) {
-						const ph = a.outputPlaceholders[i];
+				if(a.outputPlaceholderList && a.outputPlaceholderList.length > 0) {
+					for (let i = 0; i < a.outputPlaceholderList.length; i++) {
+						const ph = a.outputPlaceholderList[i];
 						if(!ph.placeholder || ph.placeholder.length === 0) continue;
 						placeholdersList.push({
 							tag:ph.placeholder.toUpperCase(),
