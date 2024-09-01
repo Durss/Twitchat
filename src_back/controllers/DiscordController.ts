@@ -52,9 +52,11 @@ export default class DiscordController extends AbstractController {
 		this.server.post('/api/discord/ticket', async (request, response) => await this.postTicket(request, response));
 		this.server.delete('/api/discord/link', async (request, response) => await this.deleteLinkState(request, response));
 
-		this.initDatabase();
-		this.createCommands();
-		this.buildTwitchHashmap();
+		if(Config.credentials.discord_bot_token && Config.credentials.discord_client_id) {
+			this.initDatabase();
+			this.createCommands();
+			this.buildTwitchHashmap();
+		}
 
 		//Cleanup expired tokens every 5s
 		setInterval(()=> {
