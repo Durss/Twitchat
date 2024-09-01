@@ -60,7 +60,9 @@ export default class PatreonController extends AbstractController {
 		this.server.post('/api/patreon/authenticate', async (request, response) => await this.postAuthenticate(request, response));
 		this.server.post('/api/patreon/refresh_token', async (request, response) => await this.postRefreshToken(request, response));
 
-		await this.authenticateLocal();
+		if(Config.credentials.patreon_client_id_server && Config.credentials.patreon_client_secret_server) {
+			await this.authenticateLocal();
+		}
 	}
 
 
