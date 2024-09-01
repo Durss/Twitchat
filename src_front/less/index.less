@@ -469,6 +469,27 @@ mark {
 	}
 }
 
+.tippy-box[data-theme~='alert'] {
+	@color: var(--color-alert);
+	color:var(--color-text-light);
+    background-color: @color;
+	font-size: 1rem;
+	word-wrap: break-word;
+	white-space: pre-line;
+	&[data-placement^='top']  > .tippy-arrow::before {
+		border-top-color: @color;
+	}
+	&[data-placement^='left']  > .tippy-arrow::before {
+		border-left-color: @color;
+	}
+	&[data-placement^='bottom']  > .tippy-arrow::before {
+		border-bottom-color: @color;
+	}
+	&[data-placement^='right']  > .tippy-arrow::before {
+		border-right-color: @color;
+	}
+}
+
 .newFlag {
 	position: relative;
 	&::before {

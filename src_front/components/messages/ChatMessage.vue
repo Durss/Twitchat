@@ -142,7 +142,8 @@
 						v-tooltip="$t('chat.message.highlightBt_tt')"
 						:loading="clipHighlightLoading"
 						@click.stop="clipHighlight()"
-					/>
+					>{{ $t('chat.message.highlightBt_aria') }}</Button>
+					<Icon class="alertIcon" name="alert" theme="alert" v-tooltip="{theme:'alert', content:$t('chat.message.highlightBt_alert_tt')}" />
 				</div>
 			</div>
 		</template>
@@ -631,7 +632,7 @@ class ChatMessage extends AbstractChatMessage {
 			message_id:this.messageData.id,
 			clip:{
 				url:this.clipInfo!.embed_url+"&autoplay=true&parent=twitchat.fr&parent=localhost",
-				mp4:this.clipInfo!.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
+				// mp4:this.clipInfo!.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
 				duration:this.clipInfo!.duration,
 			},
 			params:this.$store.chat.chatHighlightOverlayParams,
@@ -1104,6 +1105,10 @@ export default toNative(ChatMessage);
 			}
 			.highlightBt {
 				font-size: 1.25em;
+			}
+			.alertIcon {
+				height: 1.5em;
+				margin: 0 0 .5em .5em;
 			}
 		}
 	}

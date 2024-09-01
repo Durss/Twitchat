@@ -991,7 +991,7 @@ export namespace TwitchatDataTypes {
 	export interface ClipInfo {
 		duration:number;
 		url:string;
-		mp4:string;
+		mp4?:string;
 	}
 
 	/**
