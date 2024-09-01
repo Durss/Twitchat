@@ -1523,27 +1523,23 @@ export const storeChat = defineStore('chat', {
 						isGiftUpgrade:message.is_giftUpgrade,
 						isResub:message.is_resub,
 					});
-					if(!isFromRemoteChan) {
-						StoreProxy.labels.incrementLabelValue("SUB_COUNT", 1);
-						StoreProxy.labels.incrementLabelValue("SUB_POINTS", {prime:1, 1:2, 2:3, 3:6}[message.tier]);
-					}
 					//If it's a subgift, merge it with potential previous ones
 					if(message.is_gift && message.gift_recipients) {
 						// console.log("Merge attempt");
 						for (let i = subgiftHistory.length-1; i >= 0; i--) {
 							const subHistoryEntry = subgiftHistory[i];
 							if(message.channel_id != subHistoryEntry.channel_id) {
-								if(subHistoryEntry.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
-									const json = {
-										isGift1:message.is_gift,
-										isGift2:subHistoryEntry.is_gift,
-										ischannelID1:message.channel_id,
-										ischannelID2:subHistoryEntry.channel_id,
-										recipients1:message.gift_recipients,
-										recipients2:subHistoryEntry.gift_recipients,
-									}
+								// if(subHistoryEntry.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
+									// const json = {
+									// 	isGift1:message.is_gift,
+									// 	isGift2:subHistoryEntry.is_gift,
+									// 	ischannelID1:message.channel_id,
+									// 	ischannelID2:subHistoryEntry.channel_id,
+									// 	recipients1:message.gift_recipients,
+									// 	recipients2:subHistoryEntry.gift_recipients,
+									// }
 									// console.log("[SUBSCRIPTION MERGE] cannot merge gift:", json);
-								}
+								// }
 								continue;
 							}
 							// console.log("Found sub ", m);
@@ -1560,6 +1556,8 @@ export const storeChat = defineStore('chat', {
 								}
 								subHistoryEntry.gift_count = subHistoryEntry.gift_recipients.length;
 								if(!isFromRemoteChan) {
+									//DO NOT INCREMENT "SUB_COUNT" AND "SUB_POINTS" HERE !
+									//It is done later once gift bomb completes
 									StoreProxy.labels.updateLabelValue("SUBGIFT_COUNT", subHistoryEntry.gift_count);
 									StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_COUNT", subHistoryEntry.gift_count);
 								}
@@ -1580,6 +1578,7 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.updateLabelValue("SUB_GENERIC_NAME", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("SUB_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
 						StoreProxy.labels.updateLabelValue("SUB_GENERIC_TIER", message.tier);
+
 						StoreProxy.labels.incrementLabelValue("SUB_COUNT", 1);
 						StoreProxy.labels.incrementLabelValue("SUB_POINTS", {prime:1, 1:2, 2:3, 3:6}[message.tier]);
 					}
