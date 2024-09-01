@@ -114,7 +114,6 @@ Rename the `credentials.default.json` file within the `credentials` folder to `c
 		"channel:manage:predictions",
 		"moderator:manage:chat_settings",
 		"channel:moderate",
-		"moderation:read",
 		"channel:manage:moderators",
 		"channel:manage:vips",
 		"channel:manage:raids",
@@ -136,7 +135,11 @@ Rename the `credentials.default.json` file within the `credentials` folder to `c
 		"clips:edit",
 		"channel:read:ads",
 		"channel:manage:ads",
-		"moderator:manage:blocked_terms"
+		"moderator:manage:blocked_terms",
+		"moderator:manage:warnings",
+		"moderator:read:moderators",
+		"moderator:read:vips",
+		"moderator:read:suspicious_users"
 	],
 
 	"spotify_client_id": "",
@@ -197,7 +200,7 @@ By default the server listens on port 3018, you can change it on `credentials.js
 # Environment setup
 This project has been coded with VSCode.\
 It is recommended to install these plugins:\
-TypeScript Vue Plugin: https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin
+Vue Plugin: https://marketplace.visualstudio.com/items?itemName=Vue.volar
 
 I18n-ally Plugin: https://marketplace.visualstudio.com/items?itemName=lokalise.i18n-ally
 
