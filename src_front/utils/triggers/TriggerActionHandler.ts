@@ -688,6 +688,26 @@ export default class TriggerActionHandler {
 		return await this.executeTrigger(trigger, fakeMessage, testMode, undefined, "schedule");
 	}
 
+	/**
+	 * Resets global cooldown for given trigger ID
+	 */
+	public resetGlobalCooldown(triggerId:string):void {
+		this.globalCooldowns[triggerId] = 0;
+	}
+
+	/**
+	 * Resets user cooldown for given trigger ID
+	 */
+	public resetUsersCooldown(triggerId:string):void {
+		const keyBase = triggerId+this.HASHMAP_KEY_SPLITTER;
+		const keys = Object.keys(this.userCooldowns);
+		keys.forEach(key => {
+			if(key.indexOf(keyBase) == 0) {
+				delete this.userCooldowns[key];
+			}
+		})
+	}
+
 
 
 	/*******************

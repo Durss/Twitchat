@@ -24,8 +24,24 @@
 						:error="cmdAliasConflict"
 						:errorMessage="$t('triggers.actions.chat.conflict')" />
 			
-					<ParamItem secondary noBackground class="cooldown" :paramData="param_globalCD" v-model="triggerData.cooldown!.global" />
-					<ParamItem secondary noBackground class="cooldown" :paramData="param_userCD" v-model="triggerData.cooldown!.user" />
+					<ParamItem secondary noBackground class="cooldown" :paramData="param_globalCD" v-model="triggerData.cooldown!.global">
+						<template #composite>
+							<TTButton class="resetBt"
+								icon="refresh"
+								v-tooltip="$t('triggers.actions.chat.reset_cooldown_tt')"
+								@click="resetCooldowns(true)"
+								transparent light></TTButton>
+						</template>
+					</ParamItem>
+					<ParamItem secondary noBackground class="cooldown" :paramData="param_userCD" v-model="triggerData.cooldown!.user">
+						<template #composite>
+							<TTButton class="resetBt"
+								icon="refresh"
+								v-tooltip="$t('triggers.actions.chat.reset_cooldown_tt')"
+								@click="resetCooldowns(false)"
+								transparent light></TTButton>
+						</template>
+					</ParamItem>
 					<ParamItem secondary noBackground class="cooldown" :paramData="param_alertCD" v-model="triggerData.cooldown!.alert" />
 					
 					<TriggerActionCommandArgumentParams :triggerData="triggerData" />
@@ -44,10 +60,11 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import PermissionsForm from '../../../PermissionsForm.vue';
 import ParamItem from '../../ParamItem.vue';
 import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentParams.vue';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ParamItem,
 		ToggleBlock,
 		PermissionsForm,
@@ -148,6 +165,14 @@ class TriggerActionChatCommandParams extends Vue {
 		}
 	}
 
+	public resetCooldowns(global:boolean):void {
+		if(global) {
+			TriggerActionHandler.instance.resetGlobalCooldown(this.triggerData.id);
+		}else{
+			TriggerActionHandler.instance.resetUsersCooldown(this.triggerData.id);
+		}
+	}
+
 }
 export default toNative(TriggerActionChatCommandParams);
 </script>
@@ -192,6 +217,11 @@ export default toNative(TriggerActionChatCommandParams);
 		gap: .5em;
 		display: flex;
 		flex-direction: column;
+	}
+
+	.resetBt {
+		flex-grow: 0;
+		flex-shrink: 0;
 	}
 }
 </style>

@@ -182,7 +182,8 @@
 				"param_userCD": "User cooldown ({VALUE}s)",
 				"param_alertCD": "Tell users if they're cooled down",
 				"commands_list": "Chat commands",
-				"use_slash_cmd": "Use trigger \" @:triggers.events.SLASH_COMMAND.label \" for this kind of command"
+				"use_slash_cmd": "Use trigger \" @:triggers.events.SLASH_COMMAND.label \" for this kind of command",
+				"reset_cooldown_tt": "Reset current cooldowns"
 			},
 			"delete_message": {
 				"info": "Delete the chat message that started this trigger."

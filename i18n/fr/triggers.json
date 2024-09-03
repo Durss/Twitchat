@@ -182,7 +182,8 @@
 				"param_userCD": "Cooldown utilisateur ({VALUE}s)",
 				"param_alertCD": "Prévenir la personne si un cooldown est en cours",
 				"commands_list": "Commandes de tchat",
-				"use_slash_cmd": "Utilisez le trigger \" @:triggers.events.SLASH_COMMAND.label \" pour ce type de commande"
+				"use_slash_cmd": "Utilisez le trigger \" @:triggers.events.SLASH_COMMAND.label \" pour ce type de commande",
+				"reset_cooldown_tt": "Réinitialiser\nles cooldowns\nen cours"
 			},
 			"delete_message": {
 				"info": "Supprimer le message de tchat ayant déclenché ce trigger"
