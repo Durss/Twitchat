@@ -24,7 +24,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 		socketToken:"",
 		connected:false,
 		authResult:{code:"", csrf:""},
-		charityTeam:"",
+		charityTeam:null,
 	} as IStreamlabsState),
 
 
@@ -39,10 +39,15 @@ export const storeStreamlabs = defineStore('streamlabs', {
 
 	actions: {
 		async populateData():Promise<void> {
-			const data = DataStore.get(DataStore.STREAMLABS);
-			if(data) {
-				const json = JSON.parse(data) as SreamlabsStoreData;
+			const sessionJSON = DataStore.get(DataStore.STREAMLABS);
+			if(sessionJSON) {
+				const json = JSON.parse(sessionJSON) as SreamlabsStoreData;
 				this.accessToken = json.accessToken;
+				this.charityTeam = json.charityTeam as typeof this.charityTeam || null;
+				if(this.charityTeam) {
+					//Get fresh new data
+					this.connectToCharityCampaign(this.charityTeam.teamURL);
+				}
 				if(this.accessToken) {
 					isAutoInit = true;
 					const result = await ApiHelper.call("streamlabs/socketToken", "GET", {accessToken:this.accessToken}, false);
@@ -150,17 +155,56 @@ export const storeStreamlabs = defineStore('streamlabs', {
 							resolve(false);
 
 						}else{
+							const isPremium = StoreProxy.auth.isPremium;
 							if(Array.isArray(json)) {
 								const me = StoreProxy.auth.twitch.user;
-								json.forEach(entry=>{
+								json.forEach(async entry=>{
 									if(typeof entry == "string") return;
 									const message = entry as StreamlabsDonationData | StreamlabsYoutubeSponsorData | StreamlabsYoutubeSuperchatData | StreamlabsMerchData | StreamlabsPatreonPledgeData | StreamlabsCharityDonationData;
 									switch(message.type) {
 										case "streamlabscharitydonation": {
 											ApiHelper.call("log", "POST", {cat:"streamlabs", log:message});
+											if(!this.charityTeam) break;
+											//Load fresh new charity data
+											await this.connectToCharityCampaign(this.charityTeam!.teamURL);
+											console.log(message);
+											message.message.forEach(message=> {
+												//Parse all donations
+												const chunks = TwitchUtils.parseMessageToChunks(message.message, undefined, true);
+												const to = message.to?.name || me.login;
+												const data:TwitchatDataTypes.StreamlabsCharityData = {
+													id:Utils.getUUID(),
+													eventType:"charity",
+													platform:"twitchat",
+													channel_id:me.id,
+													type:TwitchatDataTypes.TwitchatMessageType.STREAMLABS,
+													date:Date.now(),
+													amount:parseFloat(message.amount),
+													amountFormatted:message.formatted_amount || message.formattedAmount,
+													goal:this.charityTeam!.amountGoal_cents/100,
+													goalFormatted:this.charityTeam!.amountGoal_cents/100 + this.charityTeam!.currency,
+													totalRaised:this.charityTeam!.amountRaised_cents/100,
+													totalRaisedFormatted:this.charityTeam!.amountRaised_cents/100 + this.charityTeam!.currency,
+													campaign:{
+														id:this.charityTeam!.cause.id,
+														title:this.charityTeam!.cause.title,
+														url:this.charityTeam!.cause.website,
+													},
+													to,
+													currency:message.currency ?? "",
+													message:message.message,
+													message_chunks:chunks,
+													message_html:TwitchUtils.messageChunksToHTML(chunks),
+													userName:message.from,
+													isToSelf:to.toLowerCase() == me.login.toLowerCase() || to.toLowerCase() == me.displayNameOriginal.toLowerCase(),
+												}
+												StoreProxy.chat.addMessage(data);
+											});
 											break;
 										}
 										case "donation": {
+											//Reject if not premium
+											if(!isPremium) return;
 											message.message.forEach(message=> {
 												const chunks = TwitchUtils.parseMessageToChunks(message.message, undefined, true);
 												const data:TwitchatDataTypes.StreamlabsDonationData = {
@@ -183,6 +227,8 @@ export const storeStreamlabs = defineStore('streamlabs', {
 											break;
 										}
 										case "merch": {
+											//Reject if not premium
+											if(!isPremium) return;
 											message.message.forEach(message=> {
 												const chunks = TwitchUtils.parseMessageToChunks(message.message, undefined, true);
 												const data:TwitchatDataTypes.StreamlabsMerchData = {
@@ -203,6 +249,8 @@ export const storeStreamlabs = defineStore('streamlabs', {
 											break;
 										}
 										case "pledge": {
+											//Reject if not premium
+											if(!isPremium) return;
 											message.message.forEach(message=> {
 												const data:TwitchatDataTypes.StreamlabsPatreonPledgeData = {
 													id:Utils.getUUID(),
@@ -279,8 +327,38 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			const data:SreamlabsStoreData = {
 				accessToken:this.accessToken,
 				socketToken:this.socketToken,
+				charityTeam:this.charityTeam,
 			}
 			DataStore.set(DataStore.STREAMLABS, data);
+		},
+
+		async connectToCharityCampaign(url:string):Promise<boolean> {
+			const teamRes = await fetch("https://streamlabscharity.com/api/v1/teams/@"+url.split("@").pop());
+			if(teamRes.status != 200) return false;
+			const teamJSON = await teamRes.json() as StreamlabsCharityTeamData;
+			this.charityTeam = {
+				teamURL:url,
+				title:teamJSON.display_name,
+				amountGoal_cents:teamJSON.goal.amount,
+				amountRaised_cents:teamJSON.amount_raised,
+				currency:teamJSON.goal.currency,
+				pageUrl:`https://streamlabscharity.com/teams/@${teamJSON.slug}/${teamJSON.campaign.slug}?member=695641406655567174`,
+				cause:{
+					id:teamJSON.campaign.causable.id,
+					title:teamJSON.campaign.causable.display_name,
+					description:teamJSON.campaign.causable.description,
+					website:teamJSON.campaign.causable.page_settings.website_url,
+				}
+			};
+
+			this.saveData();
+
+			return true;
+		},
+
+		disconnectCharityCampaign():void {
+			this.charityTeam = null;
+			this.saveData();
 		}
 	
 	} as IStreamlabsActions
@@ -295,6 +373,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 export interface SreamlabsStoreData {
 	accessToken:string;
 	socketToken:string;
+	charityTeam:typeof StoreProxy.streamlabs.charityTeam;
 }
 
 interface StreamlabsWelcomeData {
@@ -400,26 +479,187 @@ interface StreamlabsYoutubeSuperchatData {
     event_id: string;
 }
 
-//TODO get actual data example to know what they exactly send
 interface StreamlabsCharityDonationData {
 	type: "streamlabscharitydonation";
-	message:{
-		priority: number;
-		isTest: boolean;
-		name:string;
-		amount:number;
-		formatted_amount:string;
-		message:string;
-		currency:string;
-		emotes:string;
-		iconClassName:string;
-		to:{
-			name:string;
-		};
-		from:string;
-		from_user_id:string;
-		_id:string;
-	}[];
 	for:"streamlabs";
+	message: {
+		charityDonationId: string;
+		formattedAmount: string;
+		formatted_amount: string;
+		currency: string;
+		amount: string;
+		message: string;
+		to?: {
+			name: string;
+		};
+		memberId: string;
+		from: string;
+		id: number;
+		userId: string;
+		campaignId: string;
+		createdAt: string;
+		custom: any[];
+		_id: string;
+		priority: number;
+	}[];
     event_id: string;
+}
+
+export interface StreamlabsCharityTeamData {
+	id: string;
+	display_name: string;
+	slug: string;
+	public: boolean;
+	amount_raised: number;
+	amount_raised_usd: number;
+	campaign: {
+		id: string;
+		display_name: string;
+		slug: string;
+		starts_at: string;
+		ends_at: string;
+		currency: string;
+		amount_raised: number;
+		amount_raised_usd: number;
+		active_milestone_widget: boolean;
+		creator: {
+			id: string;
+			display_name: string;
+			slug: string;
+			is_live: boolean;
+			currency: string;
+			avatar: {
+				url: string;
+			};
+		};
+		causable: {
+			id: string;
+			display_name: string;
+			slug: string;
+			description: string;
+			enable_fundraising: boolean;
+			rank: number;
+			amount_raised: number;
+			has_paypal: boolean;
+			has_stripe: boolean;
+			external_platforms: {
+				ppgf: boolean;
+				benevity: boolean;
+				platform_id?: any;
+			};
+			avatar: {
+				url: string;
+			};
+			page_settings: {
+				header_url: string;
+				website_url: string;
+				video_url?: any;
+				donation_box_settings: {
+					opt_in: boolean;
+					options: {
+						option_1: {
+							value: number;
+							description: string;
+						};
+						option_2: {
+							value: number;
+							description: string;
+						};
+						option_3: {
+							value: number;
+							description: string;
+						};
+						option_4: {
+							value: number;
+							description: string;
+						};
+						description: string;
+					};
+					custom_donation_checkbox: boolean;
+					custom_donation_checkbox_value: boolean;
+					custom_donation_checkbox_display_name: string;
+				};
+				min_don_amount: number;
+				twitter: string;
+				facebook: string;
+				twitch?: any;
+				instagram: string;
+				youtube: string;
+				discord?: any;
+				misc_url?: any;
+				misc_url_2?: any;
+				misc_url_3?: any;
+				extras: {
+					title_font: {
+						kind: string;
+						files: {
+							'300': string;
+							'600': string;
+							'700': string;
+							'800': string;
+							italic: string;
+							regular: string;
+							'300italic': string;
+							'600italic': string;
+							'700italic': string;
+							'800italic': string;
+						};
+						family: string;
+						subsets: string[];
+						version: string;
+						category: string;
+						variants: string[];
+						lastModified: string;
+					};
+					title_weight: string;
+					primary_button_color: string;
+					secondary_button_color: string;
+					primary_button_text_color: string;
+					secondary_button_text_color: string;
+				};
+				toolkit_url?: any;
+			};
+			details: {
+				country: string;
+				currency: string;
+			};
+			tags: {
+				id: string;
+				name: string;
+			}[];
+			rating?: any;
+		};
+		goal: {
+			id: string;
+			amount: number;
+			completed: boolean;
+		};
+		page_settings: {
+			description: string;
+			header_url: string;
+		};
+		active_giveaway?: any;
+		rewards: any[];
+	};
+	rewards: any[];
+	members:  {
+		id: string;
+		team_alerts: boolean;
+		team_donation_goal: boolean;
+		user: {
+			id: string;
+			display_name: string;
+			slug: string;
+			is_live: boolean;
+			currency: string;
+			avatar: {
+				url: string;
+			};
+		};
+	}[];
+	goal:  {
+		id: string;
+		amount: number;
+		currency: string;
+	};
 }

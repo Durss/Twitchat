@@ -17,6 +17,7 @@ import type { Router } from "vue-router";
 import type { LumiaVoiceList } from "./lumia/storeLumia";
 import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
+import type { StreamlabsCharityTeamData } from "./streamlabs/storeStreamlabs";
 
 /**
 * Created : 23/09/2022
@@ -2447,11 +2448,22 @@ export interface IStreamlabsState {
 	connected:boolean;
 	authResult:{code:string, csrf:string};
 	/**
-	 * SL Charity team page URL.
-	 * Used to extract necessary IDs to then get team and personnal details about
-	 * a fundraising
+	 * SL Charity team info.
 	 */
-	charityTeam:string;
+	charityTeam:{
+		teamURL:string;
+		title:string;
+		amountRaised_cents:number;
+		amountGoal_cents:number;
+		currency:string;
+		pageUrl:string;
+		cause:{
+			id:string;
+			title:string;
+			description:string;
+			website:string;
+		}
+	} | null;
 }
 
 export interface IStreamlabsGetters {
@@ -2487,6 +2499,14 @@ export interface IStreamlabsActions {
 	 * Authenticate to streamlabs after getting oAuth code
 	 */
 	getAccessToken():Promise<boolean>;
+	/**
+	 * Connects to given streamlabs charity campaign
+	 */
+	connectToCharityCampaign(url:string):Promise<boolean>;
+	/**
+	 * Disconnects from current campaign
+	 */
+	disconnectCharityCampaign():void;
 }
 
 

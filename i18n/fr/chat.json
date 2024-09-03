@@ -453,7 +453,8 @@
 		"streamlabs": {
 			"donation": "{USER} a fait un don de {AMOUNT} sur Streamlabs",
 			"merch": "{USER} a acheté {PRODUCT} sur Streamlabs",
-			"patreon_pledge": "{USER} s'est abonné sur Patreon pour {AMOUNT}"
+			"patreon_pledge": "{USER} s'est abonné sur Patreon pour {AMOUNT}",
+			"charity": "{USER} a donné {AMOUNT} pour {CAMPAIGN}"
 		},
 		"streamelements": {
 			"donation": "{USER} a fait un don de {AMOUNT} sur Streamelements"

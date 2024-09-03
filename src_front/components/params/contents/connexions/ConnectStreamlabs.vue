@@ -7,32 +7,61 @@ C<template>
 				<template #LINK>
 					<a href="https://streamlabs.com/" target="_blank">Streamlabs</a>
 				</template>
+				<template #CHARITY_LINK>
+					<a href="https://streamlabscharity.com" target="_blank">Streamlabs Charity</a>
+				</template>
 			</i18n-t>
 		</div>
 
-		<section v-if="!$store.auth.isPremium">
-			<TTButton icon="premium" @click="openPremium()" premium big>{{ $t('premium.become_premiumBt')  }}</TTButton>
-		</section>
-
-		<section v-else-if="!$store.streamlabs.connected">
+		<section v-if="!$store.streamlabs.connected">
 			<TTButton type="link" :href="oAuthURL" target="_self" :loading="loading">{{ $t("global.connect") }}</TTButton>
 			<div class="card-item alert error" v-if="error" @click="error = false">{{ $t("error.streamlabs_connect_failed") }}</div>
 		</section>
 
-		<section v-else>
-			<TTButton alert @click="disconnect()">{{ $t("global.disconnect") }}</TTButton>
-		</section>
-
-		<div class="card-item charity">
-			<ParamItem class="param" :paramData="param_charityTeam" noBackground v-model="$store.streamlabs.charityTeam"></ParamItem>
-			<ul>
-				<li><a class="teamLink" href="https://streamlabscharity.com/profile/user/teams" target="_blank"><Icon name="newtab" />{{ $t("streamlabs.step1") }}</a></li>
-				<li>{{ $t("streamlabs.step2") }}</li>
-				<li>{{ $t("streamlabs.step3") }}</li>
-				<li>{{ $t("streamlabs.step4") }}</li>
-				<li>{{ $t("streamlabs.step5") }}</li>
-			</ul>
-		</div>
+		<template v-else>
+			<section>
+				<TTButton alert @click="disconnect()">{{ $t("global.disconnect") }}</TTButton>
+			</section>
+	
+			<section class="card-item charity">
+				<div class="header">
+					<span class="title"><Icon name="notification" />{{ $t("streamlabs.charity_title") }}</span>
+				</div>
+				<template v-if="$store.streamlabs.charityTeam">
+					<i18n-t scope="global" keypath="streamlabs.charity_connected" class="info" tag="div">
+						<template #NAME>
+							<a :href="$store.streamlabs.charityTeam.pageUrl" target="_blank"><Icon name="newtab"/>{{ $store.streamlabs.charityTeam.title }}</a>
+						</template>
+					</i18n-t>
+					<TTButton alert @click="disconnectCharityCampaign()">{{ $t("global.disconnect") }}</TTButton>
+				</template>
+				<template v-else>
+					<div class="info"><Icon name="info" />{{ $t("streamlabs.charity_header") }}</div>
+					<ul>
+						<li><a class="teamLink" href="https://streamlabscharity.com/profile/user/teams" target="_blank"><Icon name="newtab" />{{ $t("streamlabs.step1") }}</a></li>
+						<li>{{ $t("streamlabs.step2") }}</li>
+						<li>{{ $t("streamlabs.step3") }}</li>
+						<li>{{ $t("streamlabs.step4") }}</li>
+						<li>
+							<form @submit.prevent="submitCharity()">
+								<label for="charityTeamURL">{{ $t("streamlabs.step5") }}</label>
+								<input id="charityTeamURL" type="text" v-model="charityURL" pattern="https://streamlabscharity.com/teams.*" placeholder="https://streamlabscharity.com/teams/@...">
+								<TTButton type="submit" icon="checkmark" :loading="connectingCharity" :disabled="charityURL.trim().length == 0" primary>{{ $t("global.submit") }}</TTButton>
+								<div class="card-item alert error" @click="charityError=false" v-if="charityError">{{ $t("streamlabs.charity_error") }}</div>
+							</form>
+						</li>
+					</ul>
+				</template>
+			</section>
+	
+			<section v-if="!$store.auth.isPremium" class="card-item premium">
+				<div class="header">
+					<span class="title"><Icon name="notification" />{{ $t("streamlabs.personnal_title") }}</span>
+				</div>
+				<div class="info">{{ $t("streamlabs.personnal_header") }}</div>
+				<TTButton icon="premium" @click="openPremium()" premium light>{{ $t('premium.become_premiumBt')  }}</TTButton>
+			</section>
+		</template>
 
 		<section class="examples">
 			<h2><Icon name="whispers"/>{{$t("streamlabs.examples")}}</h2>
@@ -44,16 +73,14 @@ C<template>
 </template>
 
 <script lang="ts">
-import { TTButton } from '@/components/TTButton.vue';
 import MessageItem from '@/components/messages/MessageItem.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
-import ParamItem from '../../ParamItem.vue';
+import TTButton from '@/components/TTButton.vue';
 
 @Component({
 	components:{
 		TTButton,
-		ParamItem,
 		MessageItem,
 	},
 	emits:[],
@@ -61,9 +88,11 @@ import ParamItem from '../../ParamItem.vue';
 class ConnectStreamlabs extends Vue {
 
 	public error = false;
+	public charityError = false;
 	public loading = false;
+	public connectingCharity = false;
 	public oAuthURL = "";
-	public param_charityTeam:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", icon:"team", labelKey:"streamlabs.charity_page", placeholder:"https://streamlabscharity.com/teams/@..."};
+	public charityURL = "";
 	public fakeDonation:TwitchatDataTypes.StreamlabsDonationData|undefined = undefined;
 	public fakeMerch:TwitchatDataTypes.StreamlabsMerchData|undefined = undefined;
 	public fakePatreon:TwitchatDataTypes.StreamlabsPatreonPledgeData|undefined = undefined;
@@ -108,10 +137,27 @@ class ConnectStreamlabs extends Vue {
 	}
 
 	/**
+	 * Disconnects from streamlabs charity campaign only
+	 */
+	public disconnectCharityCampaign():void{
+		this.$store.streamlabs.disconnectCharityCampaign();
+	}
+
+	/**
 	 * Opens the premium param page
 	 */
 	public openPremium():void{
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+	}
+
+	/**
+	 * Submit streamlabs charity campaign url
+	 */
+	public async submitCharity():Promise<void>{
+		this.connectingCharity = true;
+		const result = await this.$store.streamlabs.connectToCharityCampaign(this.charityURL);
+		this.charityError = !result;
+		this.connectingCharity = false;
 	}
 
 	/**
@@ -149,14 +195,24 @@ export default toNative(ConnectStreamlabs);
 		}
 	}
 
+	.info {
+		.icon {
+			height: 1em;
+			margin-right: .25em;
+			vertical-align: middle;
+		}
+	}
+
 	.charity {
 		gap: .5em;
 		display: flex;
 		flex-direction: column;
-		.param {
-			:deep(.holder){
-				flex-direction: column;
-				align-items: stretch
+		form {
+			gap: .5em;
+			display: flex;
+			flex-direction: column;
+			.button {
+				align-self: center;
 			}
 		}
 		ul {

@@ -15,12 +15,6 @@
 				<p>GoXLR</p>
 			</button>
 
-			<button class="card-item premium" @click="subContent='streamlabs'">
-				<Icon name="streamlabs" />
-				<p>Streamlabs</p>
-				<!-- <div class="soon">coming soon</div> -->
-			</button>
-
 			<button class="card-item premium" @click="subContent='streamelements'">
 				<Icon name="streamelements" />
 				<p>Streamelements</p>
@@ -39,6 +33,11 @@
 			<button class="card-item premium" @click="subContent='lumia'">
 				<Icon name="lumia" />
 				<p>Lumia Stream</p>
+			</button>
+
+			<button class="card-item premium half" @click="subContent='streamlabs'">
+				<Icon name="streamlabs" />
+				<p>Streamlabs</p>
 			</button>
 
 			<button class="card-item" @click="subContent='voicemod'">
@@ -186,9 +185,17 @@ export default toNative(ParamsConnections);
 			width: 250px;
 			text-align: center;
 			margin: unset;
-			transition: background-color .25s;
+			transition: background-color .2s;
 			&.premium {
 				background-color: var(--color-premium-fadest);
+				
+				&.half {
+					background-color: transparent;
+					background-image: linear-gradient(162deg, var(--color-premium-fadest) 30%, var(--background-color-fadest) 60%);
+					&:hover {
+						background-color: #ffffff20;
+					}
+				}
 			}
 			&>.icon {
 				height: 2em;

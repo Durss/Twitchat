@@ -10,14 +10,17 @@
 				<template #USER>
 					<strong>{{ messageData.userName }}</strong>
 				</template>
-				<template #AMOUNT v-if="messageData.eventType == 'donation' || messageData.eventType == 'patreon_pledge'">
+				<template #AMOUNT v-if="messageData.eventType == 'donation' || messageData.eventType == 'patreon_pledge' || messageData.eventType == 'charity'">
 					<strong>{{ messageData.amountFormatted }}</strong>
 				</template>
 				<template #PRODUCT v-if="messageData.eventType == 'merch'">
 					<strong>{{ messageData.product }}</strong>
 				</template>
+				<template #CAMPAIGN v-if="messageData.eventType == 'charity'">
+					<a :href="messageData.campaign.url" target="_blank"><strong>{{ messageData.campaign.title }}</strong></a>
+				</template>
 			</i18n-t>
-			<div class="quote" v-if="messageData.eventType == 'donation' || messageData.eventType == 'merch' && messageData.message">
+			<div class="quote" v-if="(messageData.eventType == 'donation' || messageData.eventType == 'merch'  || messageData.eventType == 'charity') && messageData.message">
 				<ChatMessageChunksParser :chunks="messageData.message_chunks"></ChatMessageChunksParser>
 			</div>
 		</div>
@@ -46,6 +49,7 @@ class ChatStreamlabsEvent extends AbstractChatMessage {
 			case "merch": return "chat.streamlabs.merch";
 			case "donation": return "chat.streamlabs.donation";
 			case "patreon_pledge": return "chat.streamlabs.patreon_pledge";
+			case "charity": return "chat.streamlabs.charity";
 		}
 		return "";
 	}

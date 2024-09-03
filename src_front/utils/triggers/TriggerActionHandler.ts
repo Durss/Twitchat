@@ -552,6 +552,7 @@ export default class TriggerActionHandler {
 						"donation":TriggerTypes.STREAMLABS_DONATION,
 						"merch":TriggerTypes.STREAMLABS_MERCH,
 						"patreon_pledge":TriggerTypes.STREAMLABS_PATREON_PLEDGE,
+						"charity":TriggerTypes.STREAMLABS_CHARITY,
 					} as const;
 				if(await this.executeTriggersByType(eventType[message.eventType], message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;

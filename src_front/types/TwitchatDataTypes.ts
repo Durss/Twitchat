@@ -4364,10 +4364,10 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a streamlabs event
 	 */
-	export type MessageStreamlabsData = StreamlabsDonationData | StreamlabsMerchData | StreamlabsPatreonPledgeData;
+	export type MessageStreamlabsData = StreamlabsDonationData | StreamlabsMerchData | StreamlabsPatreonPledgeData | StreamlabsCharityData;
 		interface StreamlabsDonationBaseData extends AbstractTwitchatMessage{
 			type:"streamlabs";
-			eventType:"donation" | "merch" | "patreon_pledge";
+			eventType:"donation" | "merch" | "patreon_pledge" | "charity";
 		}
 		export interface StreamlabsDonationData extends StreamlabsDonationBaseData{
 			eventType:"donation";
@@ -4401,6 +4401,52 @@ export namespace TwitchatDataTypes {
 			amountFormatted:string;
 			userName:string;
 			currency:string;
+		}
+
+		/**
+		 * Represents a streamlabs charity event
+		 */
+		export interface StreamlabsCharityData extends StreamlabsDonationBaseData {
+			eventType:"charity";
+			/**
+			 * Amount donated
+			 */
+			amount:number;
+			amountFormatted:string;
+			/**
+			 * Total raised for the campaign
+			 */
+			totalRaised:number;
+			totalRaisedFormatted:string;
+			/**
+			 * Goal amount to be raised
+			 */
+			goal:number;
+			goalFormatted:string;
+			/**
+			 * user that made the donation
+			 */
+			userName:string;
+			/**
+			 * Name of the channel donation has been made from
+			 */
+			to:string;
+			currency:string;
+			message:string;
+			message_chunks:ParseMessageChunk[];
+			message_html:string;
+			/**
+			 * Donation made to ourself or someone else?
+			 */
+			isToSelf:boolean;
+			/**
+			 * Campaign details
+			 */
+			campaign:{
+				id:string;
+				title:string;
+				url:string;
+			}
 		}
 
 	/**

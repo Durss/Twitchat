@@ -5,7 +5,6 @@
 		"find_key":"Développez la section \"Avancé\" et trouvez votre \"Token de Vérification\"",
 		"set_url":"Spécifiez l'URL suivante dans le champ \"Webhook URL\"",
 		"set_token":"Copiez votre Token de Vérification ci-dessous",
-		"examples":"Messages d'exemple",
-		"param_key":"Token de Vérification"
+		"examples":"Messages d'exemple"
 	}
 }
