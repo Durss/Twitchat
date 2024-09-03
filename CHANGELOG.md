@@ -41,7 +41,7 @@
 
 - **Data sync:** you can sync your parameters and data between multiple accounts
 
-- **Mutliple Twitchat:** if you run Twitchat more than once, you'll get a warning asking you to close them and why
+- **Muliple Twitchat:** if you run Twitchat more than once, you'll get a warning asking you to close them and why
 
 - **Overlays:** massive size reduction. They are now ~85% lighter than before.
 
