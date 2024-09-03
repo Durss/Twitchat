@@ -40,6 +40,7 @@ class TriggerActionSlashCommandParams extends Vue {
 	
 	public beforeMount():void {
 		if(!this.triggerData.chatCommand) this.triggerData.chatCommand = "";
+		this.param_command.value = this.triggerData.chatCommand;
 		if(!this.triggerData.addToDiscord) this.triggerData.addToDiscord = false;
 		if(!this.triggerData.addToContextMenu) this.triggerData.addToContextMenu = false;
 	}
