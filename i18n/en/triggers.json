@@ -115,7 +115,8 @@
 			"param_cmd_params_placeholder": "add a parameter...",
 			"param_cmd_params_example": "Command usage example:",
 			"param_cmd_params_example_result": "Result:",
-			"param_cmd_params_type_tt": "Data type. Select \"User\" to make twitchat load user's data"
+			"param_cmd_params_type_tt": "Data type. Select \"User\" to make twitchat load user's data",
+			"format_error": "Command must start with a \" / \""
 		},
 		"actions": {
 			"common": {
@@ -813,7 +814,8 @@
 			"youtube_sub_tier":"Membership level name",
 			"youtube_sub_months":"Membership duration in months",
 			"ws_topic":"Websocket topic",
-			"ws_message":"All message data"
+			"ws_message":"All message data",
+			"platform":"Platform that started the trigger\n(twitch, youtube, ...)"
 		},
 		"events": {
 			"CHAT_COMMAND": {

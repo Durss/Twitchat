@@ -115,7 +115,8 @@
 			"param_cmd_params_placeholder": "ajouter un paramètre...",
 			"param_cmd_params_example": "Exemple d'utilisation de la commande :",
 			"param_cmd_params_example_result": "Resultat :",
-			"param_cmd_params_type_tt": "Type de donnée. Sélectionnez \"User\" pour que Twitchat charge les données de la personne"
+			"param_cmd_params_type_tt": "Type de donnée. Sélectionnez \"User\" pour que Twitchat charge les données de la personne",
+			"format_error": "La commande doit commencer par un \" / \""
 		},
 		"actions": {
 			"common": {
@@ -813,7 +814,8 @@
 			"youtube_sub_tier": "Nom de l'abonnement",
 			"youtube_sub_months": "Durées d'abonnement en mois",
 			"ws_topic":"Topic du message",
-			"ws_message":"Données reçues"
+			"ws_message":"Données reçues",
+			"platform":"Platforme ayant déclenché le trigger\n(twitch, youtube, ...)"
 		},
 		"events": {
 			"CHAT_COMMAND": {

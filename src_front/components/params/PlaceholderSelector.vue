@@ -270,6 +270,10 @@ export default toNative(PlaceholderSelector);
 				background-color: var(--color-primary-light);
 			}
 		}
+		span {
+			white-space: pre-line;
+			line-height: 1.25em;
+		}
 	}
 }
 </style>

@@ -4,8 +4,8 @@
 			@change="onUpdateCommand()"
 			:paramData="param_command"
 			:autofocus="true"
-			:error="cmdNameConflict"
-			:errorMessage="cmdNameConflict? $t('triggers.actions.chat.conflict') : ''" />
+			:error="cmdNameConflict || formatError"
+			:errorMessage="cmdNameConflict? $t('triggers.actions.chat.conflict') : formatError? $t('triggers.slash_cmd.format_error') : ''" />
 		<ParamItem noBackground :paramData="param_addToContextMenu" v-model="triggerData.addToContextMenu" />
 		<ParamItem v-if="$store.discord.discordLinked" noBackground :paramData="param_addToDiscord" v-model="triggerData.addToDiscord" />
 		
@@ -32,13 +32,16 @@ class TriggerActionSlashCommandParams extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 	
+	public formatError = false;
 	public cmdNameConflict = false;
 	public param_command:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"commands", labelKey:"triggers.slash_cmd.param_cmd", placeholderKey:"triggers.slash_cmd.param_cmd_placeholder" };
 	public param_addToContextMenu:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"rightClick", labelKey:"triggers.slash_cmd.param_ctx_menu" };
 	public param_addToDiscord:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"discord", labelKey:"triggers.slash_cmd.param_discord" };
 	
-	public mounted():void {
-		this.param_command.value = this.triggerData.chatCommand || "";
+	public beforeMount():void {
+		if(!this.triggerData.chatCommand) this.triggerData.chatCommand = "";
+		if(!this.triggerData.addToDiscord) this.triggerData.addToDiscord = false;
+		if(!this.triggerData.addToContextMenu) this.triggerData.addToContextMenu = false;
 	}
 	
 	public onUpdateCommand():void {
@@ -50,6 +53,9 @@ class TriggerActionSlashCommandParams extends Vue {
 		//Make sure no other chat command has the same name
 		const triggers = this.$store.triggers.triggerList;
 		const mainCmd = this.triggerData.chatCommand?.toLowerCase() || "";
+		
+
+		this.formatError = mainCmd.indexOf("/") != 0;
 		
 		//Check if any other trigger contain the same command
 		for (let i = 0; i < triggers.length; i++) {
