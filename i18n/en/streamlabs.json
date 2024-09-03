@@ -2,6 +2,12 @@
 	"streamlabs":{
 		"header":"Receive {LINK} alerts on Twitchat",
 		"examples":"Message examples",
-		"param_key":"Socket API Token"
+		"param_key":"Socket API Token",
+		"charity_page": "Streamlabs Charity Team Page\n(necessary to use triggers and overlay related to fund raising)",
+		"step1": "Open your Streamlabs Charity teams",
+		"step2": "Click \"View Team\" on the team to connect to",
+		"step3": "On the \"Charity Stream Alerts\" select \"Alerts\" to only get donation events made through your channel",
+		"step4": "Click \"Copy Link\" on at the top of the page. The link should look like this: \"https://streamlabscharity.com/teams/@...\"",
+		"step5": "Paste the link in the field above"
 	}
 }

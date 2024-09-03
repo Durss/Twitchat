@@ -2446,6 +2446,12 @@ export interface IStreamlabsState {
 	socketToken:string;
 	connected:boolean;
 	authResult:{code:string, csrf:string};
+	/**
+	 * SL Charity team page URL.
+	 * Used to extract necessary IDs to then get team and personnal details about
+	 * a fundraising
+	 */
+	charityTeam:string;
 }
 
 export interface IStreamlabsGetters {

@@ -24,6 +24,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 		socketToken:"",
 		connected:false,
 		authResult:{code:"", csrf:""},
+		charityTeam:"",
 	} as IStreamlabsState),
 
 

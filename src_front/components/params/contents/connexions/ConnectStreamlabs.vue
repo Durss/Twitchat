@@ -23,6 +23,17 @@ C<template>
 			<TTButton alert @click="disconnect()">{{ $t("global.disconnect") }}</TTButton>
 		</section>
 
+		<div class="card-item charity">
+			<ParamItem class="param" :paramData="param_charityTeam" noBackground v-model="$store.streamlabs.charityTeam"></ParamItem>
+			<ul>
+				<li><a class="teamLink" href="https://streamlabscharity.com/profile/user/teams" target="_blank"><Icon name="newtab" />{{ $t("streamlabs.step1") }}</a></li>
+				<li>{{ $t("streamlabs.step2") }}</li>
+				<li>{{ $t("streamlabs.step3") }}</li>
+				<li>{{ $t("streamlabs.step4") }}</li>
+				<li>{{ $t("streamlabs.step5") }}</li>
+			</ul>
+		</div>
+
 		<section class="examples">
 			<h2><Icon name="whispers"/>{{$t("streamlabs.examples")}}</h2>
 			<MessageItem v-if="fakeDonation" :messageData="fakeDonation" />
@@ -37,10 +48,12 @@ import { TTButton } from '@/components/TTButton.vue';
 import MessageItem from '@/components/messages/MessageItem.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
+import ParamItem from '../../ParamItem.vue';
 
 @Component({
 	components:{
 		TTButton,
+		ParamItem,
 		MessageItem,
 	},
 	emits:[],
@@ -50,6 +63,7 @@ class ConnectStreamlabs extends Vue {
 	public error = false;
 	public loading = false;
 	public oAuthURL = "";
+	public param_charityTeam:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", icon:"team", labelKey:"streamlabs.charity_page", placeholder:"https://streamlabscharity.com/teams/@..."};
 	public fakeDonation:TwitchatDataTypes.StreamlabsDonationData|undefined = undefined;
 	public fakeMerch:TwitchatDataTypes.StreamlabsMerchData|undefined = undefined;
 	public fakePatreon:TwitchatDataTypes.StreamlabsPatreonPledgeData|undefined = undefined;
@@ -132,6 +146,34 @@ export default toNative(ConnectStreamlabs);
 		}
 		.chatMessage  {
 			font-size: 1em;
+		}
+	}
+
+	.charity {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		.param {
+			:deep(.holder){
+				flex-direction: column;
+				align-items: stretch
+			}
+		}
+		ul {
+			list-style: decimal;
+			margin-left: 3em;
+			margin-top: .5em;
+			li {
+				margin-bottom: 1em;
+				line-height: 1.25em;
+			}
+		}
+		.teamLink {
+			.icon {
+				height: 1em;
+				vertical-align: middle;
+				margin-right: .25em;
+			}
 		}
 	}
 }
