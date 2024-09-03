@@ -791,6 +791,7 @@ export default class ContextMenuHelper {
 			children.push({
 				label: trigger.name || trigger.chatCommand,
 				icon: this.getIcon("icons/commands.svg"),
+				customClass:"noWrap",
 				onClick: () => {
 					TriggerActionHandler.instance.executeTrigger(trigger, message as TwitchatDataTypes.ChatMessageTypes, false, trigger.chatCommand);
 				},
