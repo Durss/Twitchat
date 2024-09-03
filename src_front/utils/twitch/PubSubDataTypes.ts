@@ -353,6 +353,7 @@ export namespace PubSubDataTypes {
 			__typename: string;
 			id: string;
 			goal: number;
+			value: number;
 			progression: number;
 			total: number;
 			level: {

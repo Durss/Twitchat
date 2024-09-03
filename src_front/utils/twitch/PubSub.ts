@@ -882,7 +882,7 @@ export default class PubSub extends EventDispatcher {
 		const train:TwitchatDataTypes.HypeTrainStateData = {
 			channel_id:channelId,
 			level:data.progress.level.value,
-			currentValue:data.progress.progression,
+			currentValue:data.progress.value || data.progress.progression,//Pubsub sometimes uses "value", sometimes "progression"
 			goal:data.progress.goal,
 			approached_at:storeTrain?.approached_at ?? Date.now(),
 			started_at:Date.now(),
