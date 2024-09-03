@@ -431,7 +431,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Data that populates ParamItem components
 	 */
-	export interface ParameterData<T, U = unknown, V = unknown, W = any> {
+	export interface ParameterData<ValueType, ListType = unknown, ChildValueType = unknown, StorageType = any> {
 		id?:number;
 		/**
 		 * Parameter type
@@ -440,15 +440,15 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Parameter value
 		 */
-		value:T;
+		value:ValueType;
 		/**
 		 * List values for the "list" type
 		 */
-		listValues?:TwitchatDataTypes.ParameterDataListValue<U>[];
+		listValues?:TwitchatDataTypes.ParameterDataListValue<ListType>[];
 		/**
 		 * Contains the raw selected list item
 		 */
-		selectedListValue?:ParameterDataListValue<U>;
+		selectedListValue?:ParameterDataListValue<ListType>;
 		/**
 		 * List values for the "editablelist" type
 		 */
@@ -534,11 +534,11 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Just a field to allow storage of random data if necessary
 		 */
-		storage?:W;
+		storage?:StorageType;
 		/**
 		 * Children parameters
 		 */
-		children?:ParameterData<V>[];
+		children?:ParameterData<ChildValueType>[];
 		/**
 		 * File types for browse inputs
 		 */
@@ -582,7 +582,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Callback called when value is changed (if v-model can't be used)
 		 */
-		editCallback?:(data:ParameterData<T, U, V, W>) => void;
+		editCallback?:(data:ParameterData<ValueType, ListType, ChildValueType, StorageType>) => void;
 	}
 	export interface ParameterDataListValue<T> {
 		/**
@@ -1658,9 +1658,9 @@ export namespace TwitchatDataTypes {
 		params?:EndingCreditsParams;
 		follows:{uid:string, login:string}[];
 		raids:{uid:string, login:string, raiders:number}[];
-		subs:{uid:string, login:string, tier:1|2|3|"prime", subDuration:number}[];
-		resubs:{uid:string, login:string, tier:1|2|3|"prime", subDuration:number}[];
-		subgifts:{uid:string, login:string, tier:1|2|3|"prime", total:number}[];
+		subs:{uid:string, login:string, tier:1|2|3|"prime", subDuration?:number, fromActiveSubs?:true}[];
+		resubs:{uid:string, login:string, tier:1|2|3|"prime", subDuration?:number, fromActiveSubs?:true}[];
+		subgifts:{uid:string, login:string, tier:1|2|3|"prime", total:number, fromActiveSubs?:true}[];
 		bits:{uid:string, login:string, bits:number, pinned:boolean}[];
 		hypeChats:{uid:string, login:string, amount:number, currency:string}[];
 		rewards:{uid:string, login:string, reward:{name:string, id:string, icon:string}}[];
@@ -1784,7 +1784,7 @@ export namespace TwitchatDataTypes {
 	export type EndingCreditsSlotStringTypes = "text" | "bans" | "mods" | "subs" | "vips" | "raids" | "polls" | "so_in" | "so_out" | "cheers" | "follows" | "rewards" | "chatters" | "timeouts" | "hypechats" | "hypetrains" | "predictions" | "tips" | "shoutouts" | "merch" | "powerups" | "ytSuperchat" | "ytSuperSticker";
 	export const EndingCreditsSlotDefinitions:EndingCreditsSlotDefinition[] = [
 		{id:"cheers",		premium:false,	hasAmount:true,		canMerge:true,		icon:"bits",			label:"overlay.credits.categories.cheers",			defaultLabel:"overlay.credits.labels.cheers",		amountLabel:"overlay.credits.amounts.cheers"},
-		{id:"subs",			premium:false,	hasAmount:true,		canMerge:true,		icon:"sub",				label:"overlay.credits.categories.subs",			defaultLabel:"overlay.credits.labels.subs",			amountLabel:"overlay.credits.amounts.subs"},
+		{id:"subs",			premium:false,	hasAmount:true,		canMerge:true,		icon:"sub",				label:"overlay.credits.categories.subs",			defaultLabel:"overlay.credits.labels.subs",			amountLabel:"overlay.credits.amounts.subs",		newFlag: Config.instance.NEW_FLAGS_DATE_V13_4},
 		{id:"follows",		premium:false,	hasAmount:false,	canMerge:false,		icon:"follow",			label:"overlay.credits.categories.follows",			defaultLabel:"overlay.credits.labels.follows"},
 		{id:"raids",		premium:false,	hasAmount:true,		canMerge:true,		icon:"raid",			label:"overlay.credits.categories.raids",			defaultLabel:"overlay.credits.labels.raids",		amountLabel:"overlay.credits.amounts.raids"},
 		{id:"chatters",		premium:false,	hasAmount:true,		canMerge:false,		icon:"user",			label:"overlay.credits.categories.chatters",		defaultLabel:"overlay.credits.labels.chatters", 	amountLabel:"overlay.credits.amounts.chatters"},
@@ -1837,6 +1837,12 @@ export namespace TwitchatDataTypes {
 		showSubs?:boolean;
 		showResubs?:boolean;
 		showSubgifts?:boolean;
+		showSubsPrime?:boolean;
+		showSubsT1?:boolean;
+		showSubsT2?:boolean;
+		showSubsT3?:boolean;
+		showAllSubs?:boolean;
+		showAllSubgifters?:boolean;
 		showSubsYoutube?:boolean;
 		showSubgiftsYoutube?:boolean;
 		showTipsKofi?:boolean;

@@ -72,13 +72,13 @@
 										<label>{{ $t("overlay.credits.param_layout") }}</label>
 										<div class="layoutBtns">
 											<TTButton icon="layout_left"		:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'left'"		:selected="element.layout == 'left'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
-											<TTButton icon="layout_center"		:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'center'"		:selected="element.layout == 'center'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
-											<TTButton icon="layout_right"		:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'right'"		:selected="element.layout == 'right'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
-											<TTButton icon="layout_colLeft" 	:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'colLeft'"		:selected="element.layout == 'colLeft'" />
-											<TTButton icon="layout_col" 		:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'col'"			:selected="element.layout == 'col'" />
+											<TTButton icon="layout_center"		:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'center'"	:selected="element.layout == 'center'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<TTButton icon="layout_right"		:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'right'"	:selected="element.layout == 'right'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<TTButton icon="layout_colLeft" 	:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'colLeft'"	:selected="element.layout == 'colLeft'" />
+											<TTButton icon="layout_col" 		:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'col'"		:selected="element.layout == 'col'" />
 											<TTButton icon="layout_colRight" 	:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'colRight'"	:selected="element.layout == 'colRight'" />
-											<TTButton icon="layout_2cols"		:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '2cols'"		:selected="element.layout == '2cols'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
-											<TTButton icon="layout_3cols"		:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '3cols'"		:selected="element.layout == '3cols'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<TTButton icon="layout_2cols"		:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '2cols'"	:selected="element.layout == '2cols'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<TTButton icon="layout_3cols"		:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '3cols'"	:selected="element.layout == '3cols'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
 										</div>
 									</div>
 								</div>
@@ -94,13 +94,23 @@
 								</template>
 
 								<template v-if="element.slotType == 'subs'">
-									<ParamItem :paramData="param_showSubgifts[element.id]"			v-model="element.showSubgifts" />
-									<ParamItem :paramData="param_showResubs[element.id]"			v-model="element.showResubs" />
-									<ParamItem :paramData="param_showSubs[element.id]"				v-model="element.showSubs" />
-									<ParamItem :paramData="param_showSubMonths[element.id]"			v-model="element.showSubMonths" />
-									<ParamItem :paramData="param_showSubsYoutube[element.id]"		v-model="element.showSubsYoutube" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'endingcredits_slot_ytSubgift'}" />
-									<ParamItem :paramData="param_showSubgiftsYoutube[element.id]"	v-model="element.showSubgiftsYoutube" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'endingcredits_slot_ytSub'}" />
-									<ParamItem :paramData="param_showBadges[element.id]"			v-model="element.showBadges" />
+									<div class="card-item tierList" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_4, id:'endingcredits_slot_sub_tiers'}">
+										<ParamItem :paramData="param_showSubsPrime[element.id]"	v-model="element.showSubsPrime" noBackground />
+										<ParamItem :paramData="param_showSubsT1[element.id]"	v-model="element.showSubsT1" noBackground />
+										<ParamItem :paramData="param_showSubsT2[element.id]"	v-model="element.showSubsT2" noBackground />
+										<ParamItem :paramData="param_showSubsT3[element.id]"	v-model="element.showSubsT3" noBackground />
+									</div>
+									<ParamItem :paramData="param_showAllActiveSubs[element.id]"			v-model="element.showAllSubs" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_4, id:'endingcredits_slot_sub_tiers'}" />
+									<ParamItem :paramData="param_showAllActiveSubgifters[element.id]"	v-model="element.showAllSubgifters" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_4, id:'endingcredits_slot_sub_tiers'}" />
+									<template v-if="param_showAllActiveSubs[element.id].value !== true && param_showAllActiveSubgifters[element.id].value !== true">
+										<ParamItem :paramData="param_showSubs[element.id]"				v-model="element.showSubs" />
+										<ParamItem :paramData="param_showResubs[element.id]"			v-model="element.showResubs" />
+										<ParamItem :paramData="param_showSubgifts[element.id]"			v-model="element.showSubgifts" />
+										<ParamItem :paramData="param_showSubMonths[element.id]"			v-model="element.showSubMonths" />
+										<ParamItem :paramData="param_showSubsYoutube[element.id]"		v-model="element.showSubsYoutube" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'endingcredits_slot_ytSubgift'}" />
+										<ParamItem :paramData="param_showSubgiftsYoutube[element.id]"	v-model="element.showSubgiftsYoutube" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'endingcredits_slot_ytSub'}" />
+										<ParamItem :paramData="param_showBadges[element.id]"			v-model="element.showBadges" />
+									</template>
 									<ParamItem :paramData="param_sortByName[element.id]"			v-model="element.sortByNames" />
 									<ParamItem :paramData="param_sortBySubTypes[element.id]"		v-model="element.sortBySubTypes" />
 								</template>
@@ -153,7 +163,7 @@
 										<ParamItem v-if="element.slotType == 'powerups'" :childLevel="1" :paramData="param_sortByAmounts[element.id]" v-model="element.sortByAmounts" noBackground />
 								</ParamItem>
 
-								<ParamItem v-if="getDefinitionFromSlot(element.slotType).hasAmount"
+								<ParamItem v-if="getDefinitionFromSlot(element.slotType).hasAmount && (element.slotType != 'subs' || param_showAllActiveSubs[element.id].value !== true)"
 									class="amounts" :paramData="param_showAmounts[element.id]"
 									v-model="element.showAmounts"
 									:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
@@ -312,6 +322,12 @@ class OverlayParamsCredits extends Vue {
 	public param_showSubs:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showResubs:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showSubgifts:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showAllActiveSubs:{[key:string]:TwitchatDataTypes.ParameterData<boolean, undefined, boolean>} = {};
+	public param_showSubsPrime:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showSubsT1:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showSubsT2:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showSubsT3:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showAllActiveSubgifters:{[key:string]:TwitchatDataTypes.ParameterData<boolean, undefined, boolean>} = {};
 	public param_showSubsYoutube:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showSubgiftsYoutube:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showMods:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
@@ -601,6 +617,10 @@ class OverlayParamsCredits extends Vue {
 		}else
 
 		if(slotDef.id == "subs") {
+			if(entry.showSubsPrime === undefined)	entry.showSubsPrime = true;
+			if(entry.showSubsT1 === undefined)		entry.showSubsT1 = true;
+			if(entry.showSubsT2 === undefined)		entry.showSubsT2 = true;
+			if(entry.showSubsT3 === undefined)		entry.showSubsT3 = true;
 			if(entry.showSubs === undefined)		entry.showSubs = true;
 			if(entry.showResubs === undefined)		entry.showResubs = true;
 			if(entry.showSubgifts === undefined)	entry.showSubgifts = true;
@@ -615,6 +635,12 @@ class OverlayParamsCredits extends Vue {
 			this.param_showSubgifts[id]			= {type:"boolean", value:entry.showSubgifts, icon:"gift", labelKey:"overlay.credits.param_showSubgifts"};
 			this.param_showSubsYoutube[id]		= {type:'boolean', value:entry.showSubsYoutube, icon:"youtube", labelKey:'overlay.credits.param_showSubsYoutube', premiumOnly:true};
 			this.param_showSubgiftsYoutube[id]	= {type:'boolean', value:entry.showSubgiftsYoutube, icon:"youtube", labelKey:'overlay.credits.param_showSubgiftsYoutube', premiumOnly:true};
+			this.param_showAllActiveSubs[id]	= {type:'boolean', value:entry.showAllSubs===true, icon:"date", labelKey:'overlay.credits.param_showAllActiveSubs'};
+			this.param_showSubsPrime[id]		= {type:'boolean', value:entry.showSubsPrime===true, labelKey:'overlay.credits.param_showSubsPrime'};
+			this.param_showSubsT1[id]			= {type:'boolean', value:entry.showSubsT1===true, labelKey:'overlay.credits.param_showSubsT1'};
+			this.param_showSubsT2[id]			= {type:'boolean', value:entry.showSubsT2===true, labelKey:'overlay.credits.param_showSubsT2'};
+			this.param_showSubsT3[id]			= {type:'boolean', value:entry.showSubsT3===true, labelKey:'overlay.credits.param_showSubsT3'};
+			this.param_showAllActiveSubgifters[id]		= {type:'boolean', value:entry.showAllSubgifters===true, icon:"date", labelKey:'overlay.credits.param_showAllActiveSubgifters'};
 			this.param_showBadges[id]			= {type:'boolean', value:entry.showBadges, icon:"badge", labelKey:'overlay.credits.param_showSubBadges', premiumOnly:true};
 			this.param_sortByName[id]			= {type:"boolean", value:entry.sortByNames, icon:"filters", labelKey:"overlay.credits.param_sortByNames", premiumOnly:true};
 			this.param_sortBySubTypes[id]		= {type:"boolean", value:entry.sortBySubTypes, icon:"filters", labelKey:"overlay.credits.param_sortBySubTypes", premiumOnly:true};
@@ -900,6 +926,17 @@ export default toNative(OverlayParamsCredits);
 					:deep(input):not([type="checkbox"]), :deep(textarea) {
 						opacity: 1;//Do not fade when disabled as its holder will already be faded
 					}
+				}
+
+				.tierList {
+					row-gap: .5em;
+					column-gap: 2em;
+					display: flex;
+					flex-direction: row;
+					flex-wrap: wrap;
+					align-items: center;
+					justify-content: center;
+					overflow: visible;
 				}
 			}
 			&.premium {

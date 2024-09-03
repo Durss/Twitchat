@@ -42,7 +42,7 @@
 					<div v-if="item.params.slotType == 'subs'" v-for="entry in getSortedSubs(item.params).splice(0, item.params.maxEntries)" class="item">
 						<Icon class="badge" v-if="item.params.showBadges" :name="entry.type == 'subgift'? 'gift' : 'sub'" />
 						<span class="info">{{entry.value.login}}</span>
-						<span class="count" v-if="entry.type!='subgift' && item.params.showSubMonths === true"> − {{ getSubDurationlabel(entry.value.subDuration) }}</span>
+						<span class="count" v-if="entry.type!='subgift' && item.params.showSubMonths === true && entry.value.subDuration"> − {{ getSubDurationlabel(entry.value.subDuration) }}</span>
 						<span class="count" v-if="entry.type=='subgift' && item.params.showAmounts === true"> − {{ entry.value.total }}</span>
 					</div>
 
@@ -162,7 +162,11 @@
 			</div>
 		</template>
 		<Teleport to="body">
-			<img class="powerupEmote" ref="powerupEmote" v-show="data.params?.powerUpEmotes == true" v-for="item in powerUpEmoteProps" :src="item.image" alt="emote">
+			<img class="ending_credits_powerupEmote" alt="emote"
+			ref="powerupEmote"
+			v-for="item in powerUpEmoteProps"
+			v-show="data.params?.powerUpEmotes == true"
+			:src="item.image">
 		</Teleport>
 	</div>
 </template>
@@ -270,13 +274,25 @@ class OverlayEndingCredits extends AbstractOverlay {
 		const subs = this.data?.subs || [];
 		const resubs = this.data?.resubs || [];
 		const subgifts = this.data?.subgifts || [];
+		const tierToShow = {"prime":params.showSubsPrime!==false, 1:params.showSubsT1!==false, 2:params.showSubsT2!==false, 3:params.showSubsT3!==false}
 		let res: ({type:"sub", value:TwitchatDataTypes.StreamSummaryData["subs"][0]}
 				| {type:"resub", value:TwitchatDataTypes.StreamSummaryData["resubs"][0]}
 				| {type:"subgift", value:TwitchatDataTypes.StreamSummaryData["subgifts"][0]})[] = [];
 
-		if(params.showSubs !== false)		res = res.concat(subs.map(v=>{ return {type:"sub", value:v}}));
-		if(params.showResubs !== false)		res = res.concat(resubs.map(v=>{ return {type:"resub", value:v}}));
-		if(params.showSubgifts !== false)	res = res.concat(this.makeUnique(params, subgifts).map(v=>{ return {type:"subgift", value:v}}));
+		if(params.showAllSubs === true) {
+			res = res.concat(subs.filter(v=>v.fromActiveSubs === true && tierToShow[v.tier]).map(v=>{ return {type:"sub", value:v}}));
+			res = res.concat(resubs.filter(v=>v.fromActiveSubs === true && tierToShow[v.tier]).map(v=>{ return {type:"resub", value:v}}));
+		}
+
+		if(params.showAllSubgifters === true) {
+			res = res.concat(subgifts.filter(v=>v.fromActiveSubs === true && tierToShow[v.tier]).map(v=>{ return {type:"subgift", value:v}}));
+		}
+		
+		if(params.showAllSubs !== true && params.showAllSubgifters !== true){
+			if(params.showSubs !== false)		res = res.concat(subs.filter(v=>v.fromActiveSubs !== true && tierToShow[v.tier]).map(v=>{ return {type:"sub", value:v}}));
+			if(params.showResubs !== false)		res = res.concat(resubs.filter(v=>v.fromActiveSubs !== true && tierToShow[v.tier]).map(v=>{ return {type:"resub", value:v}}));
+			if(params.showSubgifts !== false)	res = res.concat(this.makeUnique(params, subgifts.filter(v=>v.fromActiveSubs !== true && tierToShow[v.tier])).map(v=>{ return {type:"subgift", value:v}}));
+		}
 		return res.sort((a, b)=> {
 			let scoreA = 0;
 			let scoreB = 0;
@@ -294,8 +310,8 @@ class OverlayEndingCredits extends AbstractOverlay {
 
 			if(a.type === "subgift") scoreA += a.value.total;
 			if(b.type === "subgift") scoreB += b.value.total;
-			if(a.type != "subgift") scoreA += a.value.subDuration;
-			if(b.type != "subgift") scoreB += b.value.subDuration;
+			if(a.type != "subgift" && a.value.subDuration) scoreA += a.value.subDuration;
+			if(b.type != "subgift" && b.value.subDuration) scoreB += b.value.subDuration;
 
 			return scoreB - scoreA;
 		});
@@ -895,7 +911,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 		})
 		
 		//Move power up emotes based on current speed
-		if(this.powerUpEmoteProps.length > 0) {
+		if(this.powerUpEmoteProps.length > 0 && !this.creditsComplete) {
 			const emotes = this.$refs.powerupEmote as HTMLImageElement[] || null;
 			let lowestY = 0;
 			let highestY = 0;
@@ -943,6 +959,11 @@ class OverlayEndingCredits extends AbstractOverlay {
 			if(!this.creditsComplete) {
 				this.creditsComplete = true;
 				PublicAPI.instance.broadcast(TwitchatEvent.ENDING_CREDITS_COMPLETE);
+				if(this.data?.params?.loop !== true){
+					const speed = ((this.data?.params?.speed || 2) + this.speedScale) / 1000 * fps;
+					const emotes = this.$refs.powerupEmote as HTMLImageElement[] || null;
+					gsap.to(emotes, {opacity:0, duration:.5, y:-speed*30, scale:0, ease:"none", clearProps:"y"});
+				}
 			}
 			if(this.data?.params?.loop === true) {
 				this.creditsComplete = false;
@@ -1002,6 +1023,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 		this.entryCountCache = {};
 		let slots = this.data.params.slots;
 		let totalEntries = 0;
+		this.creditsComplete = false;
 
 		slots.forEach(slotParams => {
 			const slot = TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == slotParams.slotType)!;
@@ -1111,11 +1133,12 @@ export default toNative(OverlayEndingCredits);
 </script>
 
 <style lang="less">
-.powerupEmote {
+.ending_credits_powerupEmote {
 	width: 112px;
 	height: 112px;
 	transform-origin: center;
 	position: absolute;
+	will-change: transform;
 }
 </style>
 <style scoped lang="less">
@@ -1717,10 +1740,6 @@ export default toNative(OverlayEndingCredits);
 					display: none;
 				}
 			}
-		}
-
-		.powerupEmote  {
-			will-change: transform;
 		}
 	}
 }

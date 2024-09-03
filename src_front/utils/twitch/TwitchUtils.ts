@@ -1244,7 +1244,7 @@ export default class TwitchUtils {
 	public static async getSubsList(totalOnly: true): Promise<{ subs: number, points: number }>;
 	public static async getSubsList(totalOnly: false): Promise<TwitchDataTypes.Subscriber[]>;
 	public static async getSubsList(totalOnly: boolean): Promise<TwitchDataTypes.Subscriber[] | { subs: number, points: number }> {
-		if (!this.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) return [];
+		if (!this.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) return totalOnly?  {subs:0, points:0} : [];
 
 		const channelId = this.uid;
 		let list: TwitchDataTypes.Subscriber[] = [];

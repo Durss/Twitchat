@@ -599,6 +599,30 @@ export const storeStream = defineStore('stream', {
 
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageTwitchCelebrationData>(TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION, undefined, false));
 				}
+					
+
+				//Fake "show all current subs" content
+				const fakeUsers = await TwitchUtils.getFakeUsers();
+				for (let i = 0; i < Math.min(fakeUsers.length, 20); i++) {
+					const user = fakeUsers[i];
+					const subData:TwitchatDataTypes.StreamSummaryData["subgifts"][number] | TwitchatDataTypes.StreamSummaryData["subs"][number] = {
+						uid:user.id,
+						login:user.displayNameOriginal,
+						tier:Utils.pickRand([1,2,3,"prime"]),
+						fromActiveSubs:true,
+					};
+					if(i%3 == 0) {
+						result.subs.push(subData)
+					}else
+					if(i%2 == 0) {
+						result.resubs.push(subData)
+					}else{
+						const subgiftData = subData as TwitchatDataTypes.StreamSummaryData["subgifts"][number];
+						subgiftData.total = Math.round(Math.random()*100 + 1);
+						subgiftData.tier = Utils.pickRand([1,2,3]),
+						result.subgifts.push(subgiftData)
+					}
+				}
 			}else{
 				//Filter out messages based on the stream duration
 				for (let i = StoreProxy.chat.messages.length-1; i >= 0; i--) {
@@ -615,6 +639,43 @@ export const storeStream = defineStore('stream', {
 					messages.push(m);
 					prevDate = m.date;
 				}
+				
+
+			//Load all current subs
+			const shouldLoadAllsubs = parameters && parameters.slots.filter(v=>v.slotType == "subs")
+									.findIndex(v=>v.enabled === true && v.showAllSubs === true) > -1;
+			const shouldLoadAllsubgifters = parameters && parameters.slots.filter(v=>v.slotType == "subs")
+									.findIndex(v=>v.enabled === true && v.showAllSubgifters === true) > -1;
+			if(shouldLoadAllsubs || shouldLoadAllsubgifters) {
+				const res = await TwitchUtils.getSubsList(false);
+				if(res && res.length) {
+					const uidToSubgift:{[uid:string]:TwitchatDataTypes.StreamSummaryData["subgifts"][number]} = {};
+					res.forEach(sub=>{
+						const subData:TwitchatDataTypes.StreamSummaryData["subs"][number] = {
+							uid:sub.user_id,
+							login:sub.user_name,
+							tier:{1000:1, 2000:2, 3000:3, prime:"prime"}[sub.tier] as typeof result.subs[number]["tier"],
+							fromActiveSubs:true,
+						};
+						result.subs.push(subData);
+						if(sub.is_gift){
+							const subgiftData:TwitchatDataTypes.StreamSummaryData["subgifts"][number] = uidToSubgift[sub.gifter_id] || {
+								uid:sub.gifter_id,
+								login:sub.gifter_name,
+								tier:{1000:1, 2000:2, 3000:3, prime:"prime"}[sub.tier] as typeof result.subs[number]["tier"],
+								fromActiveSubs:true,
+								total:0,
+							};
+							subgiftData.total ++;
+							if(!uidToSubgift[subgiftData.uid]) {
+								subgiftData.total = 1;
+								uidToSubgift[subgiftData.uid] = subgiftData;
+								result.subgifts.push(subgiftData);
+							}
+						}
+					})
+				}
+			}
 			}
 
 			for (let i = 0; i < messages.length; i++) {
