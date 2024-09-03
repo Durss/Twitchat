@@ -242,7 +242,7 @@ export default class MessengerProxy {
 		for (let i = 0; i < triggerCommands.length; i++) {
 			const t = triggerCommands[i];
 			if(cmd == t.chatCommand!.toLowerCase()) {
-				if(!chunks) chunks = TwitchUtils.parseMessageToChunks(message);
+				if(!chunks) chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 				const messageData:TwitchatDataTypes.MessageChatData = {
 					platform:"twitch",
 					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
@@ -781,6 +781,40 @@ export default class MessengerProxy {
 				}
 			}, spamDelay);
 			return true;
+		}else
+
+		if(cmd == "/alertstreamer") {
+			//Execute alert
+			message = message.replace(/\/alertstreamer\s*/gi, "");
+			const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+			console.log(chunks);
+			const messageData:TwitchatDataTypes.MessageChatData = {
+				platform:"twitchat",
+				type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				channel_id:me.id,
+				date:Date.now(),
+				id:Utils.getUUID(),
+				message:message,
+				message_chunks:chunks,
+				message_html:TwitchUtils.messageChunksToHTML(chunks),
+				user:me,
+				is_short:false,
+				answers:[],
+				message_size:0,
+			}
+			console.log(messageData)
+			StoreProxy.main.chatAlert = messageData;
+
+			//Execute trigger
+			const trigger:TwitchatDataTypes.MessageChatAlertData = {
+				date:Date.now(),
+				id:Utils.getUUID(),
+				platform:"twitchat",
+				type:TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT,
+				message:messageData,
+				channel_id:messageData.channel_id,
+			}
+			TriggerActionHandler.instance.execute(trigger);
 		}else
 
 		if(isAdmin && cmd == "/fakewhisper" || cmd == "/fakewhispers") {

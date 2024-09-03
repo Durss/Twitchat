@@ -18,7 +18,7 @@ import ChatMessageChunksParser from '../messages/components/ChatMessageChunksPar
 		ChatMessageChunksParser,
 	}
 })
- class ChatAlertMessage extends Vue {
+class ChatAlertMessage extends Vue {
 
 	public message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData | null = null;
 

@@ -1047,7 +1047,7 @@ export interface IParamsActions {
 	 */
 	closeModal():void;
 	/**
-	 * Set if Tiwtchat should automatically connect to GoXLR on startup
+	 * Set if Twitchat should automatically connect to GoXLR on startup
 	 * @param enabled
 	 */
 	setGoXLREnabled(enabled:boolean):void;

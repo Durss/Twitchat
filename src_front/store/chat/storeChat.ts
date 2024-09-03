@@ -269,6 +269,11 @@ export const storeChat = defineStore('chat', {
 				detailsKey:"params.commands.simulatechat",
 			},
 			{
+				id:"alertStreamer",
+				cmd:"/alertStreamer {message}",
+				detailsKey:"params.commands.alertStreamer",
+			},
+			{
 				id:"announce",
 				cmd:"/announce {message}",
 				detailsKey:"params.commands.announce",

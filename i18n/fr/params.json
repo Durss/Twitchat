@@ -159,6 +159,7 @@
 			"chatsugg": "Demander des suggestions",
 			"prediction": "Créer une prédiction",
 			"simulatechat": "Simuler une activité de tchat",
+			"alertStreamer": "Déclenche la fonctionnalité \"!alert\" de Tiwtchat. Fait pour être utilisée dans les triggers.",
 			"announce": "Faire une annonce",
 			"announceblue": "Faire une annonce",
 			"announcegreen": "Faire une annonce",

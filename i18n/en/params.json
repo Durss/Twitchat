@@ -160,6 +160,7 @@
 			"chatsugg": "Start a chat suggestion",
 			"prediction": "Start a prediction",
 			"simulatechat": "Simulate fake chat activity",
+			"alertStreamer": "Triggers Twitchat's \"!alert\" feature. Made for use within the triggers.",
 			"announce": "Make an announcement",
 			"announceblue": "Make an announcement",
 			"announcegreen": "Make an announcement",
