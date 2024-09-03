@@ -965,27 +965,37 @@ export default class TriggerActionHandler {
 					const key = triggerId+this.HASHMAP_KEY_SPLITTER+message.user.id;
 					if(this.userCooldowns[key] > 0 && this.userCooldowns[key] > now) {
 						const remaining_s = Utils.formatDuration(this.userCooldowns[key] - now + 1000) + "s";
-						canExecute = false;
-						if(trigger.cooldown.alert !== false) {
-							const text = StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s});
-							MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id);
+						if(message.user.id == message.channel_id) {
+							log.entries.push({date:Date.now(), type:"message", value:"ℹ️ You're on cooldown for "+remaining_s+" but because you're the streamer, cooldown does not apply"});
+						}else{
+							canExecute = false;
+							if(trigger.cooldown.alert !== false) {
+								const text = StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s});
+								MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id);
+							}
+							log.entries.push({date:Date.now(), type:"message", value:"❌ User "+message.user.login+" is on cooldown for "+remaining_s});
+							log.error = true;
 						}
-						log.entries.push({date:Date.now(), type:"message", value:"❌ User "+message.user.login+" is on cooldown for "+remaining_s});
-						log.error = true;
 					}
 					else if(canExecute && trigger.cooldown.user > 0) this.userCooldowns[key] = now + trigger.cooldown.user * 1000;
 				}
 
 				//Global cooldown
-				if(canExecute && trigger.cooldown && this.globalCooldowns[triggerId] > 0 && this.globalCooldowns[triggerId] > now) {
-					canExecute = false;
+				if(canExecute && trigger.cooldown
+				&& this.globalCooldowns[triggerId] > 0
+				&& this.globalCooldowns[triggerId] > now) {
 					const remaining_s = Utils.formatDuration(this.globalCooldowns[triggerId] - now + 1000) + "s";
-					if(trigger.cooldown.alert !== false) {
-						const text = StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s});
-						MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id);
+					if(message.user.id == message.channel_id) {
+						log.entries.push({date:Date.now(), type:"message", value:"ℹ️ Trigger is on global cooldown for "+remaining_s+" but because you're the streamer, cooldown does not apply"});
+					}else{
+						canExecute = false;
+						if(trigger.cooldown.alert !== false) {
+							const text = StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s});
+							MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id);
+						}
+						log.entries.push({date:Date.now(), type:"message", value:"❌ Trigger is on global cooldown for "+remaining_s});
+						log.error = true;
 					}
-					log.entries.push({date:Date.now(), type:"message", value:"❌ Trigger is on global cooldown for "+remaining_s});
-					log.error = true;
 				}
 				else if(trigger.cooldown && trigger.cooldown.global > 0) this.globalCooldowns[triggerId] = now + trigger.cooldown.global * 1000;
 			}
