@@ -63,6 +63,7 @@ import MessageTranslation from './MessageTranslation.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import TTButton from '../TTButton.vue';
 import Database from '@/store/Database';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 
 @Component({
 	components:{
@@ -80,7 +81,7 @@ class ChatReward extends AbstractChatMessage {
 	@Prop
 	declare childrenList:TwitchatDataTypes.MessageRewardRedeemData[];
 
-	private refundableIds:{[key:string]:boolean} = {}
+	private refundableIds:{[key:string]:TwitchDataTypes.Reward} = {}
 
 	public get rewardList():{count:number, vo:TwitchatDataTypes.MessageRewardRedeemData}[] {
 		const res = [this.messageData];
@@ -124,13 +125,16 @@ class ChatReward extends AbstractChatMessage {
 			message = list.find(v=>v.refund !== true);
 		}
 		if(!message) return false;
-		return this.refundableIds[message.reward.id] === true && message.redeemId != undefined && message.refund !== true;
+		return this.refundableIds[message.reward.id] != undefined
+			&& !this.refundableIds[message.reward.id].should_redemptions_skip_request_queue
+			&& message.redeemId != undefined
+			&& message.refund !== true;
 	}
 
 	public mounted():void {
 		if(this.messageData.channel_id == this.$store.auth.twitch.user.id) {
 			TwitchUtils.getRewards(false, true).then(res => {
-				res.forEach(v=> this.refundableIds[v.id] = true)
+				res.forEach(v=> this.refundableIds[v.id] = v)
 			})
 		}
 	}

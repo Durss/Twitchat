@@ -86,7 +86,8 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 			//If it's a reward trigger, make sure the reward is refundable
 			//if not, remove the refund option
 			if(this.triggerData.type == TriggerTypes.REWARD_REDEEM) {
-				if(res.findIndex(v=>v.id == this.triggerData.rewardId) == -1) {
+				const reward = res.find(v=>v.id == this.triggerData.rewardId);
+				if(!reward || reward.should_redemptions_skip_request_queue) {
 					this.param_action.listValues = this.param_action.listValues?.filter(v=>v.value!='refund')
 				}
 			}
