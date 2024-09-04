@@ -215,7 +215,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 													type:TwitchatDataTypes.TwitchatMessageType.STREAMLABS,
 													date:Date.now(),
 													amount:message.amount,
-													amountFormatted:message.formatted_amount+(message.currency ?? ""),
+													amountFormatted:message.formatted_amount || message.formattedAmount,
 													currency:message.currency ?? "",
 													message:message.message,
 													message_chunks:chunks,
@@ -261,7 +261,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 													date:Date.now(),
 													userName:message.from,
 													amount:message.amount,
-													amountFormatted:message.formatted_amount+(message.currency ?? ""),
+													amountFormatted:message.formatted_amount || message.formattedAmount,
 													currency:message.currency ?? "",
 												}
 												StoreProxy.chat.addMessage(data);
@@ -391,6 +391,10 @@ interface StreamlabsDonationData {
 		isTest: boolean;
 		name:string;
 		amount:number;
+		formattedAmount:string;
+		/**
+		 * @deprecated apparently they changed for "formattedAmount"
+		 */
 		formatted_amount:string;
 		message:string;
 		currency:string;
@@ -432,6 +436,10 @@ interface StreamlabsPatreonPledgeData {
     message: {
 		name:string;
 		isTest: boolean;
+		formattedAmount:string;
+		/**
+		 * @deprecated apparently they changed for "formattedAmount"
+		 */
 		formatted_amount:string;
 		amount: 22;
 		currency:string;
@@ -485,6 +493,9 @@ interface StreamlabsCharityDonationData {
 	message: {
 		charityDonationId: string;
 		formattedAmount: string;
+		/**
+		 * @deprecated apparently they changed for "formattedAmount"
+		 */
 		formatted_amount: string;
 		currency: string;
 		amount: string;
