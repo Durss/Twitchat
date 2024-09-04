@@ -15,6 +15,7 @@ let socket:WebSocket|undefined = undefined;
 let pingInterval:string = "";
 let reconnectTimeout:number = -1;
 let reconnectAttempts:number = 0;
+let charityRefreshTimeout:number = -1;
 let isAutoInit:boolean = false;
 let autoReconnect:boolean = false;
 
@@ -46,7 +47,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 				this.charityTeam = json.charityTeam as typeof this.charityTeam || null;
 				if(this.charityTeam) {
 					//Get fresh new data
-					this.connectToCharityCampaign(this.charityTeam.teamURL);
+					this.loadCharityCampaignInfo(this.charityTeam.teamURL);
 				}
 				if(this.accessToken) {
 					isAutoInit = true;
@@ -165,11 +166,10 @@ export const storeStreamlabs = defineStore('streamlabs', {
 										case "streamlabscharitydonation": {
 											ApiHelper.call("log", "POST", {cat:"streamlabs", log:message});
 											if(!this.charityTeam) break;
-											//Load fresh new charity data
-											await this.connectToCharityCampaign(this.charityTeam!.teamURL);
-											console.log(message);
 											message.message.forEach(message=> {
 												//Parse all donations
+												this.charityTeam!.amountRaised_cents += parseFloat(message.amount);
+
 												const chunks = TwitchUtils.parseMessageToChunks(message.message, undefined, true);
 												const to = message.to?.name || me.login;
 												const data:TwitchatDataTypes.StreamlabsCharityData = {
@@ -188,7 +188,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 													campaign:{
 														id:this.charityTeam!.cause.id,
 														title:this.charityTeam!.cause.title,
-														url:this.charityTeam!.cause.website,
+														url:this.charityTeam!.teamURL,
 													},
 													to,
 													currency:message.currency ?? "",
@@ -199,7 +199,16 @@ export const storeStreamlabs = defineStore('streamlabs', {
 													isToSelf:to.toLowerCase() == me.login.toLowerCase() || to.toLowerCase() == me.displayNameOriginal.toLowerCase(),
 												}
 												StoreProxy.chat.addMessage(data);
+
+												StoreProxy.labels.incrementLabelValue("STREAMLABS_CHARITY_RAISED", data.amount);
+												StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_AMOUNT", data.amount);
+												StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_USER", data.userName);
 											});
+											clearTimeout(charityRefreshTimeout);
+											charityRefreshTimeout = setTimeout(()=>{
+												//Load fresh new charity data
+												this.loadCharityCampaignInfo();
+											}, 2000);
 											break;
 										}
 										case "donation": {
@@ -332,14 +341,17 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			DataStore.set(DataStore.STREAMLABS, data);
 		},
 
-		async connectToCharityCampaign(url:string):Promise<boolean> {
+		async loadCharityCampaignInfo(url?:string):Promise<boolean> {
+			if(!url && this.charityTeam) url = this.charityTeam.teamURL;
+			if(!url) return false;
+
 			const teamRes = await fetch("https://streamlabscharity.com/api/v1/teams/@"+url.split("@").pop());
 			if(teamRes.status != 200) return false;
 			const teamJSON = await teamRes.json() as StreamlabsCharityTeamData;
 			this.charityTeam = {
 				teamURL:url,
 				title:teamJSON.display_name,
-				amountGoal_cents:teamJSON.goal.amount,
+				amountGoal_cents:teamJSON.campaign.goal.amount,
 				amountRaised_cents:teamJSON.amount_raised,
 				currency:teamJSON.goal.currency,
 				pageUrl:`https://streamlabscharity.com/teams/@${teamJSON.slug}/${teamJSON.campaign.slug}?member=695641406655567174`,
@@ -350,6 +362,11 @@ export const storeStreamlabs = defineStore('streamlabs', {
 					website:teamJSON.campaign.causable.page_settings.website_url,
 				}
 			};
+
+			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_GOAL", this.charityTeam.amountGoal_cents/100);
+			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED", this.charityTeam.amountRaised_cents/100);
+			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_IMAGE", teamJSON.campaign.causable.avatar.url);
+			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_NAME", this.charityTeam.title);
 
 			this.saveData();
 

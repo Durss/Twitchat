@@ -1265,7 +1265,7 @@ export const TriggerTypes = {
 	YOUTUBE_SUBGIFT:"130",
 	VOICEMOD_SOUND_EFFECT:"131",
 	WEBSOCKET_TOPIC:"132",
-	STREAMLABS_CHARITY:"133",
+	STREAMLABS_CHARITY_TIP:"133",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1967,6 +1967,21 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"MESSAGE", descKey:'triggers.placeholders.ws_topic', pointer:"message", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageWebsocketTopicData>,
 	];
 
+	map[TriggerTypes.STREAMLABS_CHARITY_TIP] = [
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"userName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
+		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
+		{tag:"CURRENCY", descKey:'triggers.placeholders.currency', pointer:"currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
+		{tag:"AMOUNT_NUMERIC", descKey:'triggers.placeholders.donation_amount', pointer:"amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
+		{tag:"AMOUNT_FORMATTED", descKey:'triggers.placeholders.donation_amount_formatted', pointer:"amountFormatted", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
+		{tag:"RAISED_TOTAL_NUMERIC", descKey:'triggers.placeholders.sl_raised', pointer:"totalRaised", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
+		{tag:"RAISED_TOTAL_FORMATTED", descKey:'triggers.placeholders.sl_raised_formatted', pointer:"totalRaisedFormatted", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
+		{tag:"GOAL_NUMERIC", descKey:'triggers.placeholders.sl_goal', pointer:"goal", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
+		{tag:"GOAL_FORMATTED", descKey:'triggers.placeholders.sl_goal_formatted', pointer:"goalFormatted", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
+		{tag:"CAMPAIGN_ID", descKey:'triggers.placeholders.sl_campaign_id', pointer:"campaign.id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
+		{tag:"CAMPAIGN_NAME", descKey:'triggers.placeholders.sl_campaign_title', pointer:"campaign.title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
+		{tag:"CAMPAIGN_PAGE", descKey:'triggers.placeholders.sl_campaign_url', pointer:"campaign.url", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
+	];
+
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder<any>[] = [];
 	for (let i = 0; i < counters.length; i++) {
@@ -2276,6 +2291,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.STREAMLABS, icon:"streamlabs", labelKey:"triggers.events.STREAMLABS_DONATION.label", value:TriggerTypes.STREAMLABS_DONATION, descriptionKey:"triggers.events.STREAMLABS_DONATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAMLABS},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.STREAMLABS, icon:"streamlabs", labelKey:"triggers.events.STREAMLABS_MERCH.label", value:TriggerTypes.STREAMLABS_MERCH, descriptionKey:"triggers.events.STREAMLABS_MERCH.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAMLABS},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.STREAMLABS, icon:"streamlabs", labelKey:"triggers.events.STREAMLABS_PATREON_PLEDGE.label", value:TriggerTypes.STREAMLABS_PATREON_PLEDGE, descriptionKey:"triggers.events.STREAMLABS_PATREON_PLEDGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAMLABS},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V13_4, category:TriggerEventTypeCategories.STREAMLABS, icon:"streamlabs", labelKey:"triggers.events.STREAMLABS_CHARITY_TIP.label", value:TriggerTypes.STREAMLABS_CHARITY_TIP, descriptionKey:"triggers.events.STREAMLABS_CHARITY_TIP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAMLABS},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.KOFI, icon:"kofi", labelKey:"triggers.events.KOFI_DONATION.label", value:TriggerTypes.KOFI_DONATION, descriptionKey:"triggers.events.KOFI_DONATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.KOFI},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.KOFI, icon:"kofi", labelKey:"triggers.events.KOFI_MERCH.label", value:TriggerTypes.KOFI_MERCH, descriptionKey:"triggers.events.KOFI_MERCH.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.KOFI},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.KOFI, icon:"kofi", labelKey:"triggers.events.KOFI_SUBSCRIPTION.label", value:TriggerTypes.KOFI_SUBSCRIPTION, descriptionKey:"triggers.events.KOFI_SUBSCRIPTION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.KOFI},

@@ -2501,8 +2501,9 @@ export interface IStreamlabsActions {
 	getAccessToken():Promise<boolean>;
 	/**
 	 * Connects to given streamlabs charity campaign
+	 * if url is omitted, reloads current campaign info
 	 */
-	connectToCharityCampaign(url:string):Promise<boolean>;
+	loadCharityCampaignInfo(url?:string):Promise<boolean>;
 	/**
 	 * Disconnects from current campaign
 	 */

@@ -155,7 +155,7 @@ class ConnectStreamlabs extends Vue {
 	 */
 	public async submitCharity():Promise<void>{
 		this.connectingCharity = true;
-		const result = await this.$store.streamlabs.connectToCharityCampaign(this.charityURL);
+		const result = await this.$store.streamlabs.loadCharityCampaignInfo(this.charityURL);
 		this.charityError = !result;
 		this.connectingCharity = false;
 	}

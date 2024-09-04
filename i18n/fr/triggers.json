@@ -794,6 +794,13 @@
 			"sl_tipMonthlyTopDonation_username": "Pseudo du top don ce mois",
 			"sl_tipAlltimeTopDonation_amount": "Top don depuis toujours",
 			"sl_tipAlltimeTopDonation_username": "Pseudo du top don depuis toujours",
+			"sl_raised": "Montant récolté",
+			"sl_raised_formatted": "Montant récolté formaté",
+			"sl_goal": "Objectif de dons",
+			"sl_goal_formatted": "Objectif de dons formaté",
+			"sl_campaign_id": "ID de la campagne de don",
+			"sl_campaign_title": "Nomm de la campagne de don",
+			"sl_campaign_url": "Page de la campagne de don",
 			"tipeee_resub_months": "Nombre de mois",
 			"bingo_grid_id": "ID de la grille",
 			"bingo_grid_name": "Nom de la grille",
@@ -1280,6 +1287,10 @@
 				"label": "Nouvel abonné sur Patreon",
 				"description": "Actions à exécuter lorsqu'une personne s'abonne à votre Patreon {INFO}",
 				"description_info": "(Nécessite de lier votre compte Patreon sur Streamlabs)"
+			},
+			"STREAMLABS_CHARITY_TIP": {
+				"label": "Don reçu sur la campagne Streamlabs Charity",
+				"description": "Actions à exécuter lorsqu'un don est reçu pour la cagnotte Streamlabs Charity"
 			},
 			"KOFI_DONATION": {
 				"label": "Don reçu sur on Ko-fi",

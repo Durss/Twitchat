@@ -792,6 +792,13 @@
 			"sl_tipMonthlyTopDonation_username": "Name of top donation this month",
 			"sl_tipAlltimeTopDonation_amount": "Top donation amount all time",
 			"sl_tipAlltimeTopDonation_username": "Name of top donation all time",
+			"sl_raised": "Amount raised",
+			"sl_raised_formatted": "Amount raiised formatted",
+			"sl_goal": "Goal amount",
+			"sl_goal_formatted": "Goal amount formatted",
+			"sl_campaign_id": "Campaign ID",
+			"sl_campaign_title": "Campaign name",
+			"sl_campaign_url": "Campaign page",
 			"tipeee_resub_months": "Number of months",
 			"last_sub_tier": "Last subscription tier",
 			"last_subgifter_tier": "Last subgifted tier",
@@ -1278,8 +1285,12 @@
 			},
 			"STREAMLABS_PATREON_PLEDGE": {
 				"label": "Patreon subscriber",
-				"description": "Actions to execute when a someone subscribes on Patreon {INFO}",
+				"description": "Actions to execute when someone subscribes on Patreon {INFO}",
 				"description_info": "(You must link your Patreon account on Streamlabs)"
+			},
+			"STREAMLABS_CHARITY_TIP": {
+				"label": "Received donation on a Streamlabs Charity campaign",
+				"description": "Actions to execute when someone makes a donation on Streamlabs Charity campaign"
 			},
 			"KOFI_DONATION": {
 				"label": "Received a donation on Ko-fi",
