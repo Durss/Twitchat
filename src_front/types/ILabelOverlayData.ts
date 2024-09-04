@@ -148,6 +148,7 @@ export const LabelItemPlaceholderList = [
 	{tag:"STREAMLABS_CHARITY_NAME",				type:"string",	descriptionKey:"overlay.labels.placeholders.STREAMLABS_CHARITY_NAME", backup:true} as const,
 	{tag:"STREAMLABS_CHARITY_IMAGE",			type:"image",	descriptionKey:"overlay.labels.placeholders.STREAMLABS_CHARITY_IMAGE", backup:true} as const,
 	{tag:"STREAMLABS_CHARITY_RAISED",			type:"number",	descriptionKey:"overlay.labels.placeholders.STREAMLABS_CHARITY_RAISED", backup:true} as const,
+	{tag:"STREAMLABS_CHARITY_RAISED_PERSONNAL",	type:"number",	descriptionKey:"overlay.labels.placeholders.STREAMLABS_CHARITY_RAISED_PERSONNAL", backup:true} as const,
 	{tag:"STREAMLABS_CHARITY_GOAL",				type:"number",	descriptionKey:"overlay.labels.placeholders.STREAMLABS_CHARITY_GOAL", backup:true} as const,
 	{tag:"STREAMLABS_CHARITY_LAST_TIP_USER",	type:"string",	descriptionKey:"overlay.labels.placeholders.STREAMLABS_CHARITY_LAST_TIP_USER", backup:true} as const,
 	{tag:"STREAMLABS_CHARITY_LAST_TIP_AMOUNT",	type:"number",	descriptionKey:"overlay.labels.placeholders.STREAMLABS_CHARITY_LAST_TIP_AMOUNT", backup:true} as const,

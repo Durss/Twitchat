@@ -425,10 +425,11 @@
 				"STREAMELEMENTS_TIP_AMOUNT": "Streamelements don - Montant",
 				"STREAMLABS_CHARITY_NAME": "Campagne SL Charity - nom",
 				"STREAMLABS_CHARITY_IMAGE": "Campagne SL Charity - image",
-				"STREAMLABS_CHARITY_RAISED": "Campagne SL Charity - récolté",
+				"STREAMLABS_CHARITY_RAISED": "Campagne SL Charity - montant récolté global",
 				"STREAMLABS_CHARITY_GOAL": "Campagne SL Charity - objectif",
 				"STREAMLABS_CHARITY_LAST_TIP_USER": "Campagne SL Charity - Dernier·e donnateurice",
 				"STREAMLABS_CHARITY_LAST_TIP_AMOUNT": "Campagne SL Charity - Dernier tip",
+				"STREAMLABS_CHARITY_RAISED_PERSONNAL": "Campagne SL Charity - montant récolté perso",
 				
 				"TIPEEE_TIP_NAME": "Tipeee don - Pseudo",
 				"TIPEEE_TIP_AMOUNT": "Tipeee don - Montant",

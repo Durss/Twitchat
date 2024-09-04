@@ -2451,10 +2451,12 @@ export interface IStreamlabsState {
 	 * SL Charity team info.
 	 */
 	charityTeam:{
+		id:string;
 		teamURL:string;
 		title:string;
-		amountRaised_cents:number;
 		amountGoal_cents:number;
+		amountRaised_cents:number;
+		amountRaisedPersonnal_cents:number;
 		currency:string;
 		pageUrl:string;
 		cause:{

@@ -97,7 +97,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 		},
 
 		async connect(token:string, isReconnect:boolean = false):Promise<boolean> {
-			if(!StoreProxy.auth.isPremium) return Promise.resolve(false);
+			// if(!StoreProxy.auth.isPremium) return Promise.resolve(false);
 
 			//Token changed
 			if(isReconnect && token != this.socketToken) return Promise.resolve(false);
@@ -345,16 +345,25 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			if(!url && this.charityTeam) url = this.charityTeam.teamURL;
 			if(!url) return false;
 
+			let memberId = "";
+			try {
+				const parsedUrl = new URL(url);
+				memberId = parsedUrl.searchParams.get("member") || "";
+			}catch(error) {}
+			// https://streamlabscharity.com/teams/@testing-4-twitchat/just-a-test?member=695641406655567174
+
 			const teamRes = await fetch("https://streamlabscharity.com/api/v1/teams/@"+url.split("@").pop());
 			if(teamRes.status != 200) return false;
 			const teamJSON = await teamRes.json() as StreamlabsCharityTeamData;
 			this.charityTeam = {
+				id:teamJSON.id,
 				teamURL:url,
 				title:teamJSON.display_name,
 				amountGoal_cents:teamJSON.campaign.goal.amount,
 				amountRaised_cents:teamJSON.amount_raised,
+				amountRaisedPersonnal_cents:0,
 				currency:teamJSON.goal.currency,
-				pageUrl:`https://streamlabscharity.com/teams/@${teamJSON.slug}/${teamJSON.campaign.slug}?member=695641406655567174`,
+				pageUrl:`https://streamlabscharity.com/teams/@${teamJSON.slug}/${teamJSON.campaign.slug}?member=`+memberId,
 				cause:{
 					id:teamJSON.campaign.causable.id,
 					title:teamJSON.campaign.causable.display_name,
@@ -367,6 +376,15 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED", this.charityTeam.amountRaised_cents/100);
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_IMAGE", teamJSON.campaign.causable.avatar.url);
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_NAME", this.charityTeam.title);
+
+			const leaderBoardRes = await fetch("https://streamlabscharity.com/api/v1/teams/"+this.charityTeam.id+"/leaderboards");
+			if(teamRes.status == 200) {
+				const leaderboardJSON = await leaderBoardRes.json() as StreamlabsCharityLeaderboardData;
+				const myName = StoreProxy.auth.twitch.user.displayNameOriginal.toLowerCase();
+				this.charityTeam.amountRaisedPersonnal_cents = parseFloat(leaderboardJSON.top_streamers.find(v=>v.display_name.toLowerCase() == myName)?.amount || "0");
+				StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED_PERSONNAL", this.charityTeam.amountRaisedPersonnal_cents/100);
+			}
+
 
 			this.saveData();
 
@@ -690,4 +708,19 @@ export interface StreamlabsCharityTeamData {
 		amount: number;
 		currency: string;
 	};
+}
+
+export interface StreamlabsCharityLeaderboardData {
+	top_streamers: {
+		amount: string;
+		display_name: string;
+	}[];
+	top_donators: {
+		display_name: string;
+		amount: number;
+		comment: {
+			id: string;
+			text: string;
+		};
+	}[];
 }
