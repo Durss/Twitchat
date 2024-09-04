@@ -13,7 +13,7 @@
 			:loading="submitting">{{ $t("discord.unkinkBt", {GUILD:$store.discord.linkedToGuild}) }}</TTButton>
 		
 		
-		<TTButton class="refreshBt" icon="cross"
+		<TTButton class="refreshBt" icon="refresh"
 			v-if="$store.discord.discordLinked"
 			@click="refreshChannels()"
 			:loading="refreshingChans">{{ $t("discord.refreshChansBt") }}</TTButton>
