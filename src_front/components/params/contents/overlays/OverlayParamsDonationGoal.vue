@@ -54,8 +54,8 @@
 					</div>
 
 					<ParamItem :paramData="param_color[overlay.id]" v-model="overlay.color" @change="save(overlay.id)" />
-					<ParamItem :paramData="param_notifyTips[overlay.id]" v-model="overlay.notifyTips" @change="save(overlay.id)" />
-					<ParamItem :paramData="param_autoDisplay[overlay.id]" v-model="overlay.autoDisplay" @change="save(overlay.id)" />
+					<ParamItem :paramData="param_notifyTips[overlay.id]" v-model="overlay.notifyTips" @change="save(overlay.id)" disabled v-tooltip="'Coming soon'" />
+					<ParamItem :paramData="param_autoDisplay[overlay.id]" v-model="overlay.autoDisplay" @change="save(overlay.id)" disabled v-tooltip="'Coming soon'" />
 					<ParamItem :paramData="param_limitEntryCount[overlay.id]" v-model="overlay.limitEntryCount" @change="save(overlay.id)">
 						<ParamItem :paramData="param_maxDisplayedEntries[overlay.id]" v-model="overlay.maxDisplayedEntries" @change="save(overlay.id)" :childLevel="1" noBackground />
 					</ParamItem>

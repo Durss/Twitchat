@@ -216,7 +216,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 											charityRefreshTimeout = setTimeout(()=>{
 												//Load fresh new charity data
 												this.loadCharityCampaignInfo();
-											}, 100000);
+											}, 15000);
 											break;
 										}
 										case "donation": {

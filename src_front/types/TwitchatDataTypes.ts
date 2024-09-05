@@ -721,6 +721,17 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
+	 * Data about donation goal overlay item
+	 */
+	export interface DonationGoalOverlayItem {
+		percent:number;
+		hidePercent:number;
+		visible:boolean;
+		distanceToCurrentIndex:number;
+		goalItem:DonationGoalOverlayConfig["goalList"][number];
+	}
+
+	/**
 	 * Config for a raffle game
 	 */
 	export interface RaffleData {

@@ -50,9 +50,9 @@ export const storeDonationGoals = defineStore('donationGoals', {
 				title:"",
 				enabled:true,
 				autoDisplay:false,
-				maxDisplayedEntries:0,
 				notifyTips:true,
 				limitEntryCount:false,
+				maxDisplayedEntries:0,
 				goalList:[],
 				color:"#e04e00",
 			}
