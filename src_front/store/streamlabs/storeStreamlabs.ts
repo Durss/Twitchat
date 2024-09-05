@@ -168,10 +168,15 @@ export const storeStreamlabs = defineStore('streamlabs', {
 											if(!this.charityTeam) break;
 											message.message.forEach(message=> {
 												//Parse all donations
-												this.charityTeam!.amountRaised_cents += parseFloat(message.amount);
 
 												const chunks = TwitchUtils.parseMessageToChunks(message.message, undefined, true);
 												const to = message.to?.name || me.login;
+												const isToSelf = to.toLowerCase() == me.login.toLowerCase() || to.toLowerCase() == me.displayNameOriginal.toLowerCase();
+												const amount = parseFloat(message.amount);
+												this.charityTeam!.amountRaised_cents += amount * 100;
+												if(isToSelf) {
+													this.charityTeam!.amountRaisedPersonnal_cents += amount * 100;
+												}
 												const data:TwitchatDataTypes.StreamlabsCharityData = {
 													id:Utils.getUUID(),
 													eventType:"charity",
@@ -179,7 +184,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 													channel_id:me.id,
 													type:TwitchatDataTypes.TwitchatMessageType.STREAMLABS,
 													date:Date.now(),
-													amount:parseFloat(message.amount),
+													amount,
 													amountFormatted:message.formatted_amount || message.formattedAmount,
 													goal:this.charityTeam!.amountGoal_cents/100,
 													goalFormatted:this.charityTeam!.amountGoal_cents/100 + this.charityTeam!.currency,
@@ -196,19 +201,22 @@ export const storeStreamlabs = defineStore('streamlabs', {
 													message_chunks:chunks,
 													message_html:TwitchUtils.messageChunksToHTML(chunks),
 													userName:message.from,
-													isToSelf:to.toLowerCase() == me.login.toLowerCase() || to.toLowerCase() == me.displayNameOriginal.toLowerCase(),
+													isToSelf,
 												}
 												StoreProxy.chat.addMessage(data);
 
 												StoreProxy.labels.incrementLabelValue("STREAMLABS_CHARITY_RAISED", data.amount);
 												StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_AMOUNT", data.amount);
 												StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_USER", data.userName);
+												StoreProxy.donationGoals.onDonation(data.userName, data.amount, "streamlabs_charity");
+												StoreProxy.donationGoals.onSLCharityUpdate();
 											});
+
 											clearTimeout(charityRefreshTimeout);
 											charityRefreshTimeout = setTimeout(()=>{
 												//Load fresh new charity data
 												this.loadCharityCampaignInfo();
-											}, 2000);
+											}, 100000);
 											break;
 										}
 										case "donation": {
@@ -350,10 +358,16 @@ export const storeStreamlabs = defineStore('streamlabs', {
 				const parsedUrl = new URL(url);
 				memberId = parsedUrl.searchParams.get("member") || "";
 			}catch(error) {}
-			// https://streamlabscharity.com/teams/@testing-4-twitchat/just-a-test?member=695641406655567174
 
 			const teamRes = await fetch("https://streamlabscharity.com/api/v1/teams/@"+url.split("@").pop());
 			if(teamRes.status != 200) return false;
+			const prevValues = [];
+			if(this.charityTeam) {
+				prevValues.push(this.charityTeam.currency);
+				prevValues.push(this.charityTeam.amountRaised_cents);
+				prevValues.push(this.charityTeam.amountRaisedPersonnal_cents);
+			}
+
 			const teamJSON = await teamRes.json() as StreamlabsCharityTeamData;
 			this.charityTeam = {
 				id:teamJSON.id,
@@ -377,6 +391,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_IMAGE", teamJSON.campaign.causable.avatar.url);
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_NAME", this.charityTeam.title);
 
+			//Get personnal raised amoun
 			const leaderBoardRes = await fetch("https://streamlabscharity.com/api/v1/teams/"+this.charityTeam.id+"/leaderboards");
 			if(teamRes.status == 200) {
 				const leaderboardJSON = await leaderBoardRes.json() as StreamlabsCharityLeaderboardData;
@@ -384,9 +399,19 @@ export const storeStreamlabs = defineStore('streamlabs', {
 				this.charityTeam.amountRaisedPersonnal_cents = parseFloat(leaderboardJSON.top_streamers.find(v=>v.display_name.toLowerCase() == myName)?.amount || "0");
 				StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED_PERSONNAL", this.charityTeam.amountRaisedPersonnal_cents/100);
 			}
+			
+			const newValues = [];
+			if(this.charityTeam) {
+				newValues.push(this.charityTeam.currency);
+				newValues.push(this.charityTeam.amountRaised_cents);
+				newValues.push(this.charityTeam.amountRaisedPersonnal_cents);
+			}
 
-
-			this.saveData();
+			//Check if a value changed
+			if(prevValues.join(",") != newValues.join(",")) {
+				this.saveData();
+				StoreProxy.donationGoals.onSLCharityUpdate();
+			}
 
 			return true;
 		},

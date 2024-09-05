@@ -54,7 +54,7 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
-import type { StyleValue } from 'vue';
+import type { CSSProperties } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import Splitter from '../../../Splitter.vue';
 import ParamItem from '../../ParamItem.vue';
@@ -99,7 +99,7 @@ import type IParameterContent from '../IParameterContent';
 	
 	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; } 
 
-	public get holderStyles():StyleValue {
+	public get holderStyles():CSSProperties {
 		return {
 			opacity:this.param_enabled.value === true && !this.connecting? 1 : .5,
 			pointerEvents:this.param_enabled.value === true && !this.connecting? "all" : "none",

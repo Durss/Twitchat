@@ -1,0 +1,21 @@
+{
+	"donation_goals": {
+		"install_title": "Install overlay",
+		"create_bt": "New donation goal",
+		"add_goal_bt": "Add goal",
+		"premium_limit": "You reached the maximum donation goals you can create.",
+		"non_premium_limit": "@:donation_goals.premium_limit \nBecome a premium member to create up to {MAX} donation goals.",
+		"default_title": "Donation goal",
+		"goal_list": "Goal list",
+		"param_color": "Color theme",
+		"param_notifyTips": "Notify donations on currently active goal",
+		"param_currency": "Currency",
+		"param_showCurrency": "Show currency",
+		"param_autoDisplay": "Show donation goals only after receiving a donation",
+		"param_limitEntryCount": "Only show current donation goal",
+		"param_maxDisplayedEntries": "Also show the next {VALUE} goal | Also show the next {VALUE} goal | Also show the next {VALUE} goals",
+		"param_goal_title": "Goal title",
+		"param_goal_amount": "Amount",
+		"param_goal_secret": "Secret goal (text revealed only when amount is reached)"
+	}
+}

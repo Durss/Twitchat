@@ -12,7 +12,7 @@ export namespace TwitchatDataTypes {
 
 	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
 
-	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "bingogrid" | "labels";
+	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "bingogrid" | "labels" | 'donationgoals';
 
 	export const ParamDeepSections = {
 		AD: "ad",
@@ -697,6 +697,27 @@ export namespace TwitchatDataTypes {
 		chatAnnouncementEnabled:boolean;
 		overlayAnnouncement:boolean;
 		overlayAnnouncementPermissions:PermissionsData;
+	}
+
+	/**
+	 * Donation goal overlay params
+	 */
+	export interface DonationGoalOverlayConfig {
+		id:string;
+		title:string;
+		enabled:boolean;
+		notifyTips:boolean
+		autoDisplay:boolean;
+		limitEntryCount:boolean;
+		maxDisplayedEntries:number;
+		dataSource:"streamlabs_charity";
+		color:string;
+		goalList:{
+			id:string;
+			title:string;
+			amount:number;
+			secret:boolean;
+		}[];
 	}
 
 	/**

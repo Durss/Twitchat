@@ -30,7 +30,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap';
-import type { StyleValue } from 'vue';
+import type { CSSProperties } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -105,7 +105,7 @@ class ChatMessageChunksParser extends Vue {
 		this.$store.users.openUserCard(user, channelId, this.platform);
 	}
 
-	public getUserClasses(username:string):StyleValue {
+	public getUserClasses(username:string):CSSProperties {
 		const channelId = this.channel || this.$store.auth.twitch.user.id;
 		if(!this.$store.auth.twitch.user) return {color:"#c400da"};
 		const user = this.$store.users.getUserFrom(this.platform || "twitch", channelId, undefined, username);

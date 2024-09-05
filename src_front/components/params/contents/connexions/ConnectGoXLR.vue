@@ -89,7 +89,7 @@ import GoXLRUI from '@/components/goxlr/GoXLRUI.vue';
 import type { GoXLRTypes } from '@/types/GoXLRTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
-import type { StyleValue } from 'vue';
+import type { CSSProperties } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import Splitter from '../../../Splitter.vue';
 import ParamItem from '../../ParamItem.vue';
@@ -122,14 +122,14 @@ import GoXLRConnectForm from '../goxlr/GoXLRConnectForm.vue';
 	public get noDevice():boolean { return GoXLRSocket.instance.status == null; }
 	public get isGoXLRMini():boolean { return GoXLRSocket.instance.isGoXLRMini; }
 
-	public get holderStyles():StyleValue {
+	public get holderStyles():CSSProperties {
 		return {
 			opacity:this.param_enabled.value === true && !this.connecting? 1 : .5,
 			pointerEvents:this.param_enabled.value === true && !this.connecting? "all" : "none",
 		};
 	}
 
-	public get subholderStyles():StyleValue {
+	public get subholderStyles():CSSProperties {
 		return {
 			opacity:this.connected === true && !this.connecting && !this.isGoXLRMini? 1 : .35,
 			pointerEvents:this.connected === true && !this.connecting? "all" : "none",

@@ -46,7 +46,7 @@ import type { HeatArea, HeatScreen } from '@/types/HeatDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
-import { watch, type StyleValue } from 'vue';
+import { watch, type CSSProperties } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -83,8 +83,8 @@ class HeatScreenEditor extends Vue {
 		return res;
 	}
 
-	public get editorStyles():StyleValue {
-		const res:StyleValue = {};
+	public get editorStyles():CSSProperties {
+		const res:CSSProperties = {};
 		res.transform = "scale("+this.editorScale+")";
 		res.width = (this.editorScale * 100)+"%";
 		return res;

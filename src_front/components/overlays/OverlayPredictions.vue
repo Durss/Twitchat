@@ -43,7 +43,7 @@ import type { PredictionOverlayParamStoreData } from '@/store/prediction/storePr
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import type { StyleValue } from 'vue';
+import type { CSSProperties } from 'vue';
 import { Component, toNative } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
 import AbstractOverlay from './AbstractOverlay';
@@ -104,7 +104,7 @@ class OverlayPredictions extends AbstractOverlay {
 		return res;
 	}
 
-	public getAnswerStyles(c:TwitchatDataTypes.MessagePredictionDataOutcome):StyleValue {
+	public getAnswerStyles(c:TwitchatDataTypes.MessagePredictionDataOutcome):CSSProperties {
 		return {
 			backgroundSize: `${this.getPercent(c, true)}% 100%`,
 		}

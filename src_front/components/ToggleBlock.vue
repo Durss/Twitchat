@@ -49,7 +49,7 @@
 <script lang="ts">
 import { watch } from '@vue/runtime-core';
 import { gsap } from 'gsap/gsap-core';
-import type { StyleValue } from 'vue';
+import type { CSSProperties } from 'vue';
 import contenteditable from 'vue-contenteditable';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import Icon from './Icon.vue';
@@ -155,16 +155,16 @@ export class ToggleBlock extends Vue {
 		return res;
 	}
 
-	public get bgStyles():StyleValue {
-		const res:StyleValue = {};
+	public get bgStyles():CSSProperties {
+		const res:CSSProperties = {};
 		if(this.customColor) {
 			res.backgroundColor = this.customColor;
 		}
 		return res;
 	}
 
-	public get contentStyles():StyleValue {
-		const res:StyleValue = {};
+	public get contentStyles():CSSProperties {
+		const res:CSSProperties = {};
 		if(this.customColor) {
 			// const hsl = Utils.rgb2hsl(parseInt(this.customColor.replace("#", ""), 16));
 			// const maxL = .4;

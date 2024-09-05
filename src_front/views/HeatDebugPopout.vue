@@ -17,7 +17,7 @@
 import DataStore from '@/store/DataStore';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import HeatSocket from '@/utils/twitch/HeatSocket';
-import { watch, type StyleValue } from 'vue';
+import { watch, type CSSProperties } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -52,9 +52,9 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 		document.removeEventListener("keydown", this.keyupHandler);
 	}
 
-	public getClickStyles(data:ClickData):StyleValue {
+	public getClickStyles(data:ClickData):CSSProperties {
 		const bounds = (this.$refs.areaHolder as HTMLDivElement).getBoundingClientRect();
-		let res:StyleValue = {};
+		let res:CSSProperties = {};
 		res.left = (data.px - bounds.left)+"px";
 		res.top = (data.py - bounds.top)+"px";
 		res.borderColor = data.color;

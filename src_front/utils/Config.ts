@@ -173,6 +173,14 @@ export default class Config {
 	 * Maximum labels for premium users
 	 */
 	public MAX_LABELS_PREMIUM = 50;
+	/**
+	 * Maximum bingo grids
+	 */
+	public MAX_DONATION_GOALS = 2;
+	/**
+	 * Maximum bingo grids for premium users
+	 */
+	public MAX_DONATION_GOALS_PREMIUM = 50;
 
 	private _serverConfig!:ServerConfig;
 

@@ -164,14 +164,33 @@ class ParamsAccount extends Vue implements IParameterContent {
 		this.$store.main.confirm(this.$t('account.erase_confirm_title'), this.$t('account.erase_confirm_description'))
 		.then(()=>{
 			DataStore.clear(true);
-			this.$store.params.$reset();
-			this.$store.automod.$reset();
-			this.$store.emergency.$reset();
-			this.$store.music.$reset();
 			this.$store.obs.$reset();
-			this.$store.triggers.$reset();
+			this.$store.qna.$reset();
 			this.$store.tts.$reset();
+			this.$store.poll.$reset();
+			this.$store.chat.$reset();
+			this.$store.heat.$reset();
+			this.$store.kofi.$reset();
 			this.$store.voice.$reset();
+			this.$store.music.$reset();
+			this.$store.lumia.$reset();
+			this.$store.users.$reset();
+			this.$store.raffle.$reset();
+			this.$store.labels.$reset();
+			this.$store.stream.$reset();
+			this.$store.params.$reset();
+			this.$store.values.$reset();
+			this.$store.tipeee.$reset();
+			this.$store.discord.$reset();
+			this.$store.automod.$reset();
+			this.$store.triggers.$reset();
+			this.$store.counters.$reset();
+			this.$store.bingoGrid.$reset();
+			this.$store.emergency.$reset();
+			this.$store.streamlabs.$reset();
+			this.$store.prediction.$reset();
+			this.$store.donationGoals.$reset();
+			this.$store.streamelements.$reset();
 			OBSWebsocket.instance.disconnect();
 			VoicemodWebSocket.instance.disconnect();
 			TTSUtils.instance.enabled = false;

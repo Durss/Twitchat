@@ -7,7 +7,7 @@
 
 <script lang="ts">
 import Utils from '@/utils/Utils';
-import type { StyleValue } from 'vue';
+import type { CSSProperties } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -46,7 +46,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 		return list;
 	}
 
-	public get barStyles():StyleValue {
+	public get barStyles():CSSProperties {
 		return {
 			width: (this.elapsedPercent*100)+"%",
 			//Using a transform causes a weird glitch with the box-shadow.
@@ -55,7 +55,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 		}
 	}
 
-	public get timerStyles():StyleValue {
+	public get timerStyles():CSSProperties {
 		if(this.$refs.timer) {
 			let parent = (this.$el as HTMLElement).getBoundingClientRect();
 			let bounds = (this.$refs.timer as HTMLElement).getBoundingClientRect();

@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts">
-import { watch, type StyleValue } from 'vue';
+import { watch, type CSSProperties } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -64,7 +64,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 		return res;
 	}
 
-	public get fillStyles():StyleValue {
+	public get fillStyles():CSSProperties {
 		if(this.dotMode !== false) {
 			return {
 				left: (this.fillPercent * 100)+"%"
@@ -76,7 +76,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 		}
 	}
 
-	public get gratuationsStyles():StyleValue {
+	public get gratuationsStyles():CSSProperties {
 		const ratio = Math.abs(this.max - this.min) / this.step;
 		if(ratio > 50) return {backgroundSize:"110%, 50%"};
 		return {

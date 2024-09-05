@@ -1780,6 +1780,48 @@ const UserDataSchema = {
 					platform: {type:"string", maxLength:40},
 				}
 			},
+		},
+
+		donationGoals: {
+			type:"object",
+			additionalProperties: false,
+				properties: {
+				overlayList: {
+					type:"array",
+					minItems:0,
+					maxItems:50,
+					items:{
+						type:"object",
+						additionalProperties: false,
+						properties: {
+							id: {type:"string", maxLength:40},
+							color: {type:"string", maxLength:10},
+							title: {type:"string", maxLength:40},
+							dataSource: {enum: ["streamlabs_charity"]},
+							enabled: {type:"boolean"},
+							notifyTips: {type:"boolean"},
+							autoDisplay: {type:"boolean"},
+							limitEntryCount: {type:"boolean"},
+							maxDisplayedEntries: {type:"number", minimum:0, maximum:40},
+							goalList: {
+								type:"array",
+								minItems:0,
+								maxItems:100,
+								items:{
+									type:"object",
+									additionalProperties: false,
+									properties: {
+										id: {type:"string", maxLength:40},
+										title: {type:"string", maxLength:100},
+										secret: {type:"boolean"},
+										amount: {type:"number", minimum:0, maximum:1000000000},
+									}
+								},
+							}
+						},
+					},
+				},
+			},
 		}
 	}
 }

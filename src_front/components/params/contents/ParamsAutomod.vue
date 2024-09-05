@@ -78,7 +78,7 @@ import Splitter from '@/components/Splitter.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import UnicodeUtils from '@/utils/UnicodeUtils';
 import Utils from '@/utils/Utils';
-import { reactive, watch, type StyleValue } from 'vue';
+import { reactive, watch, type CSSProperties } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../../TTButton.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
@@ -149,7 +149,7 @@ import Icon from '@/components/Icon.vue';
 	/**
 	 * Fade content when automod is disabled
 	 */
-	public get holderStyles():StyleValue {
+	public get holderStyles():CSSProperties {
 		return {
 			opacity:this.param_enabled.value === true? 1 : .5,
 			pointerEvents:this.param_enabled.value === true? "all" : "none",

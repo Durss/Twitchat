@@ -46,7 +46,7 @@ import ApiHelper from '@/utils/ApiHelper';
 import TriggerUtils from '@/utils/TriggerUtils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import { gsap } from 'gsap/gsap-core';
-import type { StyleValue } from 'vue';
+import type { CSSProperties } from 'vue';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import ClearButton from '../ClearButton.vue';
 import Icon from '../Icon.vue';
@@ -83,8 +83,8 @@ import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 		return res;
 	}
 
-	public get styles():StyleValue {
-		const res:StyleValue = {};
+	public get styles():CSSProperties {
+		const res:CSSProperties = {};
 		if(this.messageData.highlightColor
 		&& this.messageData.style == "highlight"
 		&& this.messageData.highlightColor != "default"
@@ -96,8 +96,8 @@ import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 		return res;
 	}
 
-	public get userStyles():StyleValue {
-		const res:StyleValue = {};
+	public get userStyles():CSSProperties {
+		const res:CSSProperties = {};
 		if(this.messageData.user?.color
 		&& this.messageData.user.color != "default"
 		&& this.messageData.user.color.length > 0) {

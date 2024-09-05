@@ -87,7 +87,7 @@ import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { gsap } from 'gsap/gsap-core';
-import { watch, type StyleValue } from 'vue';
+import { watch, type CSSProperties } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
@@ -134,7 +134,7 @@ import type IParameterContent from './IParameterContent';
 		usersRefused:[],
 	};
 
-	public get holderStyles():StyleValue {
+	public get holderStyles():CSSProperties {
 		return {
 			opacity:this.param_enable.value === true? 1 : .5,
 			pointerEvents:this.param_enable.value === true? "all" : "none",

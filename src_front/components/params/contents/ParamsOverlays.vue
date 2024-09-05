@@ -34,6 +34,7 @@
 		</div> -->
 
 		<div class="list" v-if="subContent == null">
+			<button class="item" @click="subContent = 'donationgoals'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_4, id:'params_overlays_donationgoals'}"><img src="@/assets/img/overlays/donation_goals.jpg"></button>
 			<button class="item" @click="subContent = 'bingogrid'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'params_overlays_bingogrid'}"><img src="@/assets/img/overlays/bingo_grids.jpg"></button>
 			<button class="item" @click="subContent = 'polls'" v-if="isAffiliate" v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_overlays_poll'}"><img src="@/assets/img/overlays/polls.jpg"></button>
 			<button class="item" @click="subContent = 'predictions'" v-if="isAffiliate" v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_overlays_prediction'}"><img src="@/assets/img/overlays/predictions.jpg"></button>
@@ -51,21 +52,22 @@
 		</div>
 
 		<div class="form">
-			<OverlayParamsCredits class="block"		:open="subContent == 'credits'"			v-if="subContent == 'credits'" />
-			<OverlayParamsBitswall class="block"	:open="subContent == 'bitswall'"		v-if="subContent == 'bitswall'" />
-			<OverlayParamsHeatDistort class="block"	:open="subContent == 'distort'"			v-if="subContent == 'distort'" />
-			<OverlayParamsRaffle class="block"		:open="subContent == 'wheel'"			v-if="subContent == 'wheel'" />
-			<OverlayParamsHighlight class="block"	:open="subContent == 'chathighlight'"	v-if="subContent == 'chathighlight'" />
-			<OverlayParamsSpotify class="block"		:open="subContent == 'music'"			v-if="subContent == 'music'" />
-			<OverlayParamsTimer class="block"		:open="subContent == 'timer'"			v-if="subContent == 'timer'" />
-			<OverlayParamsCounter class="block"		:open="subContent == 'counter'"			v-if="subContent == 'counter'" />
-			<!-- <OverlayParamsTTS class="block"			:open="subContent == 'tts'"				v-if="subContent == 'tts'" /> -->
-			<OverlayParamsAdBreak class="block"		:open="subContent == 'adbreak'"			v-if="subContent == 'adbreak'" />
-			<OverlayParamsUlule class="block"		:open="subContent == 'ulule'"			v-if="subContent == 'ulule'" />
-			<OverlayParamsPredictions class="block"	:open="subContent == 'predictions'"		v-if="subContent == 'predictions'" />
-			<OverlayParamsPolls class="block"		:open="subContent == 'polls'"			v-if="subContent == 'polls'" />
-			<OverlayParamsBingoGrid class="block"	:open="subContent == 'bingogrid'"		v-if="subContent == 'bingogrid'" />
-			<OverlayParamsLabels class="block"		:open="subContent == 'labels'"		v-if="subContent == 'labels'" />
+			<OverlayParamsCredits class="block"			:open="subContent == 'credits'"			v-if="subContent == 'credits'" />
+			<OverlayParamsBitswall class="block"		:open="subContent == 'bitswall'"		v-if="subContent == 'bitswall'" />
+			<OverlayParamsHeatDistort class="block"		:open="subContent == 'distort'"			v-if="subContent == 'distort'" />
+			<OverlayParamsRaffle class="block"			:open="subContent == 'wheel'"			v-if="subContent == 'wheel'" />
+			<OverlayParamsHighlight class="block"		:open="subContent == 'chathighlight'"	v-if="subContent == 'chathighlight'" />
+			<OverlayParamsSpotify class="block"			:open="subContent == 'music'"			v-if="subContent == 'music'" />
+			<OverlayParamsTimer class="block"			:open="subContent == 'timer'"			v-if="subContent == 'timer'" />
+			<OverlayParamsCounter class="block"			:open="subContent == 'counter'"			v-if="subContent == 'counter'" />
+			<!-- <OverlayParamsTTS class="block"				:open="subContent == 'tts'"				v-if="subContent == 'tts'" /> -->
+			<OverlayParamsAdBreak class="block"			:open="subContent == 'adbreak'"			v-if="subContent == 'adbreak'" />
+			<OverlayParamsUlule class="block"			:open="subContent == 'ulule'"			v-if="subContent == 'ulule'" />
+			<OverlayParamsPredictions class="block"		:open="subContent == 'predictions'"		v-if="subContent == 'predictions'" />
+			<OverlayParamsPolls class="block"			:open="subContent == 'polls'"			v-if="subContent == 'polls'" />
+			<OverlayParamsBingoGrid class="block"		:open="subContent == 'bingogrid'"		v-if="subContent == 'bingogrid'" />
+			<OverlayParamsLabels class="block"			:open="subContent == 'labels'"			v-if="subContent == 'labels'" />
+			<OverlayParamsDonationGoal class="block"	:open="subContent == 'donationgoals'"	v-if="subContent == 'donationgoals'" />
 		</div>
 	</div>
 </template>
@@ -93,6 +95,7 @@ import OverlayParamsPredictions from './overlays/OverlayParamsPredictions.vue';
 import OverlayParamsPolls from './overlays/OverlayParamsPolls.vue';
 import OverlayParamsBingoGrid from './overlays/OverlayParamsBingoGrid.vue';
 import OverlayParamsLabels from './overlays/OverlayParamsLabels.vue';
+import OverlayParamsDonationGoal from './overlays/OverlayParamsDonationGoal.vue';
 
 @Component({
 	components:{
@@ -112,10 +115,11 @@ import OverlayParamsLabels from './overlays/OverlayParamsLabels.vue';
 		OverlayParamsHighlight,
 		OverlayParamsPredictions,
 		OverlayParamsHeatDistort,
+		OverlayParamsDonationGoal,
 	},
 	emits:[]
 })
- class ParamsOverlays extends Vue implements IParameterContent {
+class ParamsOverlays extends Vue implements IParameterContent {
 
 	public debugMode:boolean = false;
 	public showDockTutorial:boolean = false;

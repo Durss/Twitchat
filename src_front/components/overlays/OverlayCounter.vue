@@ -41,14 +41,14 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import { gsap } from 'gsap/gsap-core';
-import { watch, type StyleValue } from 'vue';
+import { watch, type CSSProperties } from 'vue';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
 
 @Component({
 	components:{}
 })
- class OverlayCounter extends AbstractOverlay {
+class OverlayCounter extends AbstractOverlay {
 
 	@Prop({type: Boolean, default: false})
 	public embed!:boolean;
@@ -72,8 +72,8 @@ import AbstractOverlay from './AbstractOverlay';
 		return value.toLocaleString("fr-FR", {minimumFractionDigits: decimals, maximumFractionDigits: decimals});
 	}
 
-	public get progressStyles():StyleValue {
-		let res:StyleValue = {};
+	public get progressStyles():CSSProperties {
+		let res:CSSProperties = {};
 		res.width = this.fillWidth+"%";
 		return res;
 	}
@@ -92,9 +92,7 @@ import AbstractOverlay from './AbstractOverlay';
 		}else{
 			this.id = this.$route.query.cid as string ?? "";
 			if(this.id) {
-
 				this.counterUpdateHandler = (e:TwitchatEvent) => this.onCounterUpdate(e);
-
 				PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_UPDATE, this.counterUpdateHandler);
 			}
 		}
@@ -105,7 +103,6 @@ import AbstractOverlay from './AbstractOverlay';
 	}
 
 	public requestInfo():void {
-
 		PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_GET, {cid:this.id});
 	}
 

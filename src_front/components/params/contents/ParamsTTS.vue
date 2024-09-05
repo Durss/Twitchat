@@ -87,7 +87,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/gsap-core';
-import { watch, type StyleValue } from 'vue';
+import { watch, type CSSProperties } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../../TTButton.vue';
 import Splitter from '../../Splitter.vue';
@@ -201,7 +201,7 @@ import Icon from '@/components/Icon.vue';
 		usersRefused:[],
 	};
 
-	public get holderStyles():StyleValue {
+	public get holderStyles():CSSProperties {
 		return {
 			opacity:this.param_enabled.value === true? 1 : .5,
 			pointerEvents:this.param_enabled.value === true? "all" : "none",

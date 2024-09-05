@@ -853,6 +853,7 @@ export const storeMain = defineStore("main", {
 
 		loadDataFromStorage() {
 			window.setInitMessage("load user data to memory");
+			
 			/**
 			 * CAREFUL THIS METHOD CAN BE CALLED MULTIPLE TIMES
 			 * Don't do anything that could break if called multiple times!
@@ -883,6 +884,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.emergency.populateData();
 			StoreProxy.streamlabs.populateData();
 			StoreProxy.prediction.populateData();
+			StoreProxy.donationGoals.populateData();
 			StoreProxy.streamelements.populateData();
 
 			const theme = DataStore.get(DataStore.THEME);

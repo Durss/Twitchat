@@ -46,7 +46,7 @@ import TTButton from '@/components/TTButton.vue';
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import HeatSocket from '@/utils/twitch/HeatSocket';
-import type { StyleValue } from 'vue';
+import type { CSSProperties } from 'vue';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import HeatDebug from './../heat/HeatDebug.vue';
@@ -77,7 +77,7 @@ import Icon from '@/components/Icon.vue';
 
 	public get subContent() { return this.$store.params.currentPageSubContent; }
 
-	public get holderStyles():StyleValue {
+	public get holderStyles():CSSProperties {
 		return {
 			opacity:this.param_enabled.value === true? 1 : .5,
 			pointerEvents:this.param_enabled.value === true? "all" : "none",

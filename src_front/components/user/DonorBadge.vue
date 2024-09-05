@@ -91,7 +91,7 @@ C62.5,8,58.7,17.2,64.8,19.2L64.8,19.2z"/>
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
 import { gsap } from 'gsap/gsap-core';
-import { watch, type StyleValue } from 'vue';
+import { watch, type CSSProperties } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -122,7 +122,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 		return res;
 	}
 	
-	public getStarStyles(s:StarData):StyleValue {
+	public getStarStyles(s:StarData):CSSProperties {
 		return {
 			opacity: s.a.toString(),
 			transform: "translate("+s.x+"px, "+s.y+"px) rotate("+s.r+"deg) scale("+s.s+")",

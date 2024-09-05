@@ -178,7 +178,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/gsap-core';
 import DOMPurify from 'isomorphic-dompurify';
-import { watch, type StyleValue } from 'vue';
+import { watch, type CSSProperties } from 'vue';
 import { Component, toNative } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
 import AbstractOverlay from './AbstractOverlay';
@@ -218,8 +218,8 @@ class OverlayEndingCredits extends AbstractOverlay {
 	private paramsDataHandler!:(e:TwitchatEvent) => void;
 	private overlayPresenceHandler!:(e:TwitchatEvent)=>void;
 
-	public get styles():StyleValue {
-		const res:StyleValue = {
+	public get styles():CSSProperties {
+		const res:CSSProperties = {
 			opacity: this.display? 1 : 0,
 		}
 		if(this.data?.params){
@@ -1091,8 +1091,8 @@ class OverlayEndingCredits extends AbstractOverlay {
 		return res;
 	}
 
-	private getTitleStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):StyleValue {
-		const res:StyleValue = {
+	private getTitleStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):CSSProperties {
+		const res:CSSProperties = {
 			color: this.data?.params?.colorTitle,
 			fontFamily: "\""+this.data?.params?.fontTitle+"\", \"Inter\"",
 			filter: "drop-shadow(2px 2px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
@@ -1101,8 +1101,8 @@ class OverlayEndingCredits extends AbstractOverlay {
 		return res;
 	}
 
-	private getEntryStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):StyleValue {
-		const res:StyleValue = {
+	private getEntryStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):CSSProperties {
+		const res:CSSProperties = {
 			color: this.data?.params?.colorEntry,
 			fontFamily: "\""+this.data?.params?.fontEntry+"\", \"Inter\"",
 			filter: "drop-shadow(1px 1px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
@@ -1111,8 +1111,8 @@ class OverlayEndingCredits extends AbstractOverlay {
 		return res;
 	}
 
-	private getCategoryStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):StyleValue {
-		const res:StyleValue = {
+	private getCategoryStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):CSSProperties {
+		const res:CSSProperties = {
 			marginBottom: ((this.data?.params?.padding||0)/100*7)+"em",
 		}
 		return res;
@@ -1123,9 +1123,9 @@ interface SlotItem {
 	slot:TwitchatDataTypes.EndingCreditsSlotDefinition;
 	params:TwitchatDataTypes.EndingCreditsSlotParams;
 	holderClasses:string[];
-	titleStyles:StyleValue;
-	entryStyles:StyleValue;
-	categoryStyles:StyleValue;
+	titleStyles:CSSProperties;
+	entryStyles:CSSProperties;
+	categoryStyles:CSSProperties;
 	entryCount:number;
 }
 

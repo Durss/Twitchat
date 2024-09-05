@@ -14,6 +14,7 @@
 		<OverlayPredictions v-if="overlay=='predictions'" />
 		<OverlayPoll v-if="overlay=='polls'" />
 		<OverlayBingoGrid v-if="overlay=='bingogrid'" ref="bingoGrid" />
+		<OverlayDonationGoals v-if="overlay=='donationgoals'" />
 	</div>
 </template>
 
@@ -39,6 +40,7 @@ const OverlayDistort = defineAsyncComponent({loader: () => import('@/components/
 const OverlayPredictions = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayPredictions.vue')});
 const OverlayPoll = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayPoll.vue')});
 const OverlayBingoGrid = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayBingoGrid.vue')});
+const OverlayDonationGoals = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayDonationGoals.vue')});
 
 @Component({
 	components:{
@@ -54,11 +56,12 @@ const OverlayBingoGrid = defineAsyncComponent({loader: () => import('@/component
 		OverlayPredictions,
 		OverlayMusicPlayer,
 		OverlaysRaffleWheel,
+		OverlayDonationGoals,
 		OverlayEndingCredits,
 		OverlayChatHighlight,
 	}
 })
- class Overlay extends Vue {
+class Overlay extends Vue {
 
 	public overlay:TwitchatDataTypes.OverlayTypes|"" = "";
 

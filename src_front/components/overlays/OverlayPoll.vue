@@ -40,7 +40,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import type { PollOverlayParamStoreData } from '@/store/poll/storePoll';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import type { StyleValue } from 'vue';
+import type { CSSProperties } from 'vue';
 import { Component, toNative } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
 import AbstractOverlay from './AbstractOverlay';
@@ -99,7 +99,7 @@ class OverlayPoll extends AbstractOverlay {
 		return res;
 	}
 
-	public getAnswerStyles(c:TwitchatDataTypes.MessagePollDataChoice):StyleValue {
+	public getAnswerStyles(c:TwitchatDataTypes.MessagePollDataChoice):CSSProperties {
 		return {
 			backgroundSize: `${this.getPercent(c, true)}% 100%`,
 		}

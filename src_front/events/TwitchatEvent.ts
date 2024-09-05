@@ -86,6 +86,7 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static BINGO_GRID_OVERLAY_LEADER_BOARD:TwitchatEventType = "BINGO_GRID_OVERLAY_LEADER_BOARD";
 	public static LABEL_OVERLAY_PARAMS:TwitchatEventType = "LABEL_OVERLAY_PARAMS";
 	public static LABEL_OVERLAY_PLACEHOLDERS:TwitchatEventType = "LABEL_OVERLAY_PLACEHOLDERS";
+	public static DONATION_GOALS_OVERLAY_PARAMS:TwitchatEventType = "DONATION_GOALS_OVERLAY_PARAMS";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -166,6 +167,7 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static GET_LABEL_OVERLAY_PLACEHOLDERS:TwitchatActionType = "GET_LABEL_OVERLAY_PLACEHOLDERS";
 	public static AUTOMOD_ACCEPT:TwitchatActionType = "AUTOMOD_ACCEPT";
 	public static AUTOMOD_REJECT:TwitchatActionType = "AUTOMOD_REJECT";
+	public static GET_DONATION_GOALS_OVERLAY_PARAMS:TwitchatActionType = "GET_DONATION_GOALS_OVERLAY_PARAMS";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:T) {
 		super(type);
@@ -251,6 +253,7 @@ export const TwitchatEventTypeList = [
 	"BINGO_GRID_OVERLAY_LEADER_BOARD",
 	"LABEL_OVERLAY_PARAMS",
 	"LABEL_OVERLAY_PLACEHOLDERS",
+	"DONATION_GOALS_OVERLAY_PARAMS",
 ] as const;
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
 
@@ -333,5 +336,6 @@ export const TwitchatActionTypeList = [
 	"GET_LABEL_OVERLAY_PLACEHOLDERS",
 	"AUTOMOD_ACCEPT",
 	"AUTOMOD_REJECT",
+	"GET_DONATION_GOALS_OVERLAY_PARAMS",
 ] as const;
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

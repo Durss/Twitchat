@@ -102,6 +102,7 @@ export default class DataStoreCommon {
 	public static USER_ID:string = "userId";
 	public static USERCARD_PINNED_CHANNEL:string = "usercardPinnedChannel";
 	public static AUTOCONNECT_CHANS:string = "autoconnectChans";
+	public static DONATION_GOALS:string = "donationGoals";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";

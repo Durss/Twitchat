@@ -17,7 +17,6 @@ import type { Router } from "vue-router";
 import type { LumiaVoiceList } from "./lumia/storeLumia";
 import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
-import type { StreamlabsCharityTeamData } from "./streamlabs/storeStreamlabs";
 
 /**
 * Created : 23/09/2022
@@ -64,6 +63,7 @@ export default class StoreProxy {
 	public static tipeee:ITipeeeState & ITipeeeGetters & ITipeeeActions & {$state:ITipeeeState, $reset:()=>void};
 	public static common:ICommonState & ICommonGetters & ICommonActions & {$state:ICommonState, $reset:()=>void};
 	public static labels:ILabelsState & ILabelsGetters & ILabelsActions & {$state:ILabelsState, $reset:()=>void};
+	public static donationGoals:IDonationGoalState & IDonationGoalGetters & IDonationGoalActions & {$state:IDonationGoalState, $reset:()=>void};
 	public static public:IPublicState & IPublicGetters & IPublicActions & {$state:IPublicState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
@@ -2898,4 +2898,53 @@ export interface ILabelsActions {
 	 * @param labelId 
 	 */
 	duplicateLabel(labelId:string):void;
+}
+
+
+
+
+
+export interface IDonationGoalState {
+	overlayList:TwitchatDataTypes.DonationGoalOverlayConfig[];
+}
+
+export interface IDonationGoalGetters {
+}
+
+export interface IDonationGoalActions {
+	/**
+	 * Populates data from storage
+	 */
+	populateData():void;
+	/**
+	 * Create a new overlay
+	 */
+	addOverlay():TwitchatDataTypes.DonationGoalOverlayConfig;
+	/**
+	 * Delete an overlay
+	 * @param id 
+	 */
+	removeOverlay(id:string):void;
+	/**
+	 * Duplicate an overlay
+	 * @param id 
+	 */
+	duplicateOverlay(id:string):void;
+	/**
+	 * Save current data
+	 */
+	saveData(updatedOverlayId?:string):void;
+	/**
+	 * Broadcasts data of given overlay ID
+	 * @param overlayId 
+	 */
+	broadcastData(overlayId:string):void;
+	/**
+	 * Called when streamlabs charity campaign got updated
+	 */
+	onSLCharityUpdate():void;
+	/**
+	 * Called when a new donation is received
+	 */
+	onDonation(username:string, amount:number, platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"]):void;
 }

@@ -50,60 +50,8 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				const data = JSON.parse(json) as IStoreData;
 				this.gridList = data.gridList || [];
 
-				//Adding new prop. Can be removed after beta ends
+				//Caching cells states
 				this.gridList.forEach(grid => {
-					if(!grid.chatCmdPermissions) {
-						grid.chatCmdPermissions = {
-							all:false,
-							broadcaster:true,
-							follower:false,
-							follower_duration_ms:0,
-							mods:true,
-							subs:false,
-							vips:false,
-							usersAllowed:[],
-							usersRefused:[],
-						};
-					}
-					if(!grid.heatClickPermissions) {
-						grid.heatClickPermissions = {
-							all:false,
-							broadcaster:true,
-							follower:false,
-							follower_duration_ms:0,
-							mods:true,
-							subs:false,
-							vips:false,
-							usersAllowed:[],
-							usersRefused:[],
-						};
-					}
-					if(!grid.overlayAnnouncementPermissions) {
-						grid.overlayAnnouncementPermissions = {
-							all:true,
-							broadcaster:true,
-							follower:true,
-							follower_duration_ms:0,
-							mods:true,
-							subs:true,
-							vips:true,
-							usersAllowed:[],
-							usersRefused:[],
-						};
-					}
-					
-					if(grid.chatAnnouncement == undefined) {
-						grid.chatAnnouncement = StoreProxy.i18n.t("bingo_grid.form.param_chatAnnouncement_default");
-					}
-					
-					if(grid.overlayAnnouncement == undefined) {
-						grid.overlayAnnouncement = true;
-					}
-					
-					if(grid.chatAnnouncementEnabled == undefined) {
-						grid.chatAnnouncementEnabled = true;
-					}
-					
 					prevGridStates[grid.id] = grid.entries.map(v=>v.check);
 				})
 			}

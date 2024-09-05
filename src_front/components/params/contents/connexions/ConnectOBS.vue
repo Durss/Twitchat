@@ -61,7 +61,7 @@ import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { watch } from '@vue/runtime-core';
-import type { StyleValue } from 'vue';
+import type { CSSProperties } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import PermissionsForm from '../../../PermissionsForm.vue';
 import ParamItem from '../../ParamItem.vue';
@@ -105,7 +105,7 @@ import type IParameterContent from '../IParameterContent';
 		usersRefused:[],
 	}
 
-	public get holderStyles():StyleValue {
+	public get holderStyles():CSSProperties {
 		return {
 			opacity:this.param_enabled.value === true? 1 : .5,
 			pointerEvents:this.param_enabled.value === true? "all" : "none",

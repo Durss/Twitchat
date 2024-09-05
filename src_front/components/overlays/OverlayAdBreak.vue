@@ -31,7 +31,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import type { StyleValue } from 'vue';
+import type { CSSProperties } from 'vue';
 import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
 import DOMPurify from 'isomorphic-dompurify';
@@ -66,11 +66,11 @@ class OverlayAdBreak extends AbstractOverlay {
 		return res;
 	}
 
-	public get progressStyles():StyleValue {
+	public get progressStyles():CSSProperties {
 		const placement	= this.adType == "approaching"? this.parameters?.approachingPlacement : this.parameters?.runningPlacement;
 		const thickness	= (this.adType == "approaching"? this.parameters?.approachingThickness : this.parameters?.runningThickness) || 20;
 		const color		= this.adType == "approaching"? this.parameters?.approachingColor : this.parameters?.runningColor;
-		const res:StyleValue = {};
+		const res:CSSProperties = {};
 		res.backgroundColor = color;
 		if(this.component === "bar") {
 			switch(placement) {
@@ -99,11 +99,11 @@ class OverlayAdBreak extends AbstractOverlay {
 		return res;
 	}
 
-	public get labelStyles():StyleValue {
+	public get labelStyles():CSSProperties {
 		const placement	= this.adType == "approaching"? this.parameters?.approachingPlacement : this.parameters?.runningPlacement;
 		const fontSize	= (this.adType == "approaching"? this.parameters?.approachingSize : this.parameters?.runningSize) || 20;
 		const color		= this.adType == "approaching"? this.parameters?.approachingColor : this.parameters?.runningColor;
-		const res:StyleValue = {};
+		const res:CSSProperties = {};
 		res.fontSize = fontSize+"px";
 		if(this.component === "bar") {
 			switch(placement) {

@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import type { StyleValue } from 'vue';
+import type { CSSProperties } from 'vue';
 import { watch } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
@@ -96,7 +96,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	private dragStopHandler!:(e:MouseEvent|TouchEvent) => void;
 	private dragStartListHandler!:(e:TouchEvent) => void;
 
-	public getStyles(i:number):(StyleValue | undefined){
+	public getStyles(i:number):(CSSProperties | undefined){
 		return {
 			height: this.itemSize + "px",
 			top: this.items[i].py + "px",
@@ -109,7 +109,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 		return res;
 	}
 
-	public get holderStyles():StyleValue {
+	public get holderStyles():CSSProperties {
 		if(this.fillWithDuplicates === false) {
 			return {
 				height:this.dataset.length * (this.itemSize + this.itemMargin) + 1 + "px",
@@ -118,7 +118,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 		return {};
 	}
 
-	public get cursorStyles():StyleValue {
+	public get cursorStyles():CSSProperties {
 		return {
 			top:this.cursorY+"px",
 			height:this.cursorSize+"px",

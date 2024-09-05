@@ -41,7 +41,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import InfiniteList from '../InfiniteList.vue';
 import type { JsonObject } from "type-fest";
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { StyleValue } from 'vue';
+import type { CSSProperties } from 'vue';
 
 @Component({
 	components:{
@@ -77,7 +77,7 @@ import type { StyleValue } from 'vue';
 		}
 	}
 
-	public getStarStyles(s:StarData):StyleValue {
+	public getStarStyles(s:StarData):CSSProperties {
 		return {
 			opacity: s.a.toString(),
 			transform: "translate("+s.x+"px, "+s.y+"px) rotate("+s.r+"deg) scale("+s.s+")",

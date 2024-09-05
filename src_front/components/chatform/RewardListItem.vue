@@ -39,7 +39,7 @@ import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import type * as CMTypes from "@imengyu/vue3-context-menu";
 import ContextMenu from '@imengyu/vue3-context-menu';
-import { h, type RendererElement, type RendererNode, type StyleValue, type VNode } from 'vue';
+import { h, type RendererElement, type RendererNode, type CSSProperties, type VNode } from 'vue';
 import contenteditable from 'vue-contenteditable';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
@@ -85,7 +85,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 		return res;
 	}
 
-	public get styles():StyleValue {
+	public get styles():CSSProperties {
 		const res = {
 			backgroundColor:this.reward.background_color,
 		};
