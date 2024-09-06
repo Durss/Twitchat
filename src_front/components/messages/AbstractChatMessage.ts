@@ -194,7 +194,7 @@ export default class AbstractChatMessage extends Vue {
 			color = params.highlightSubs_color.value as string;
 		}
 		if(color) {
-			holder.style.border = "1px solid "+color;
+			holder.style.border = "1px solid "+color+"90";
 			// holder.style.borderLeftWidth = "10px";
 			holder.style.backgroundColor = color+"10";
 		}else{
