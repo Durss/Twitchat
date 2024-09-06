@@ -15,16 +15,16 @@
 							<a :href="$t('gaza.t4p_doc')" target="_blank">Twitch 4 Palestine <Icon name="newtab"/></a>
 						</template>
 					</i18n-t>
-					<section>
+					<section class="card-item dark">
 						<strong><Icon name="user" /> {{ $t("gaza.t4p_fundraisers") }}</strong>
 						<OverlayInstaller class="installer" url="https://twitch4palestine.com" customSourceName="Twitch 4 palestine - fundraisers" :sourceTransform="{width:1600, height:500}"/>
 					</section>
-					<section>
+					<section class="card-item dark">
 						<strong><Icon name="notification" /> {{ $t("gaza.t4p_alerts") }}</strong>
 						<OverlayInstaller class="installer" url="https://twitch4palestine.com/alert" customSourceName="Twitch 4 palestine - alerts" :sourceTransform="{width:1600, height:500}"/>
 					</section>
 
-					<section>
+					<section class="card-item dark">
 						<ParamItem :paramData="param_chatCmd_enabled" noBackground @change="onCmdStateChange">
 							<ParamItem class="t4pcmd child" :paramData="param_chatCmd" noBackground v-model="$store.main.t4p"></ParamItem>
 						</ParamItem>
@@ -171,9 +171,6 @@ export default toNative(HelpGenocideVictims);
 			padding: .5em;
 			margin-top: .5em;
 			border-radius: var(--border-radius);
-			background-color: var(--grayout-fadest);
-			@scale:2px;
-			box-shadow: inset -@scale -@scale @scale rgba(255, 255, 255, 0.1), inset @scale @scale @scale rgba(0, 0, 0, .3);
 			.icon {
 				margin-right: .5em;
 			}

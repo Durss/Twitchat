@@ -138,7 +138,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 			raisedPersonnal += amount;
 			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, {params:overlay, goal, raisedTotal, raisedPersonnal});
 			
-			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_EVENT, {username:Utils.pickRand(users).displayName, amount});
+			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_EVENT, {username:Utils.pickRand(users).displayName, amount:"$"+amount});
 		}
 
 

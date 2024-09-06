@@ -7,7 +7,12 @@
 			<Icon name="newtab" theme="light" />
 		</a> -->
 
-		<div class="createForm">
+		<div v-if="!isCharityAvailable" class="card-item alert missingCharity">
+			<span>{{ $t("donation_goals.configure_charity") }}</span>
+			<TTButton @click="openStreamlabs" icon="streamlabs" light alert>{{ $t("donation_goals.configure_charity_bt") }}</TTButton>
+		</div>
+
+		<div v-else class="createForm">
 			<TTButton class="addBt"
 			v-if="$store.auth.isPremium || $store.donationGoals.overlayList.length < $config.MAX_DONATION_GOALS"
 			@click="addGrid()" icon="add">{{ $t("donation_goals.create_bt") }}</TTButton>
@@ -53,10 +58,10 @@
 						<OverlayInstaller type="donationgoals" :sourceSuffix="overlay.title" :id="overlay.id" :queryParams="{bid:overlay.id}" />
 					</div>
 
-					<form class="card-item simulate" @submit.prevent="$store.donationGoals.simulateDonation(overlay.id, simulateAmount)">
+					<form class="card-item dark simulate" @submit.prevent="$store.donationGoals.simulateDonation(overlay.id, simulateAmount)">
 						<input type="number" step="any" v-model="simulateAmount" />
 						<span class="currency">{{ getCurrency(overlay) }}</span>
-						<TTButton icon="coin" type="submit">{{ $t("donation_goals.simulate_bt") }}</TTButton>
+						<TTButton icon="test" type="submit">{{ $t("donation_goals.simulate_bt") }}</TTButton>
 					</form>
 
 					<ParamItem :paramData="param_color[overlay.id]" v-model="overlay.color" @change="save(overlay.id)" />
@@ -73,10 +78,8 @@
 						<div class="card-item goalItem" v-for="goal in (overlay.goalList || [])" :key="goal.id">
 							<input class="amount" type="number" v-model="goal.amount" min="0" max="1000000000" @change="save(overlay.id)" step="any">
 							<span class="currency">{{ getCurrency(overlay) }}</span>
-							<textarea class="title" type="text" v-model="goal.title" @change="save(overlay.id)" rows="1" maxlength="100"></textarea>
+							<textarea class="title" type="text" v-model="goal.title" @change="save(overlay.id)" rows="1" maxlength="100" :placeholder="$t('donation_goals.param_goal_title_placeholder')"></textarea>
 							<TTButton @click="removeGoal(overlay, goal.id)" icon="trash" alert />
-							<!-- <ParamItem :paramData="param_goal_title[goal.id]" v-model="goal.title" @change="save(overlay.id)" noBackground />
-							<ParamItem :paramData="param_goal_amount[goal.id]" v-model="goal.amount" @change="save(overlay.id)" noBackground /> -->
 							<ParamItem class="secret" :paramData="param_goal_secret[goal.id]" v-model="goal.secret" @change="save(overlay.id)" noBackground />
 						</div>
 					</div>
@@ -89,6 +92,7 @@
 </template>
 
 <script lang="ts">
+import Splitter from '@/components/Splitter.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import TTButton from '@/components/TTButton.vue';
@@ -98,10 +102,6 @@ import { VueDraggable } from 'vue-draggable-plus';
 import { Component, toNative, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
-import Splitter from '@/components/Splitter.vue';
-import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/events/TwitchatEvent';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Component({
 	components:{
@@ -127,8 +127,6 @@ class OverlayParamsDonationGoal extends Vue {
 	public param_hideDone:{[overlayId:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_limitEntryCount:{[overlayId:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_maxDisplayedEntries:{[overlayId:string]:TwitchatDataTypes.ParameterData<number>} = {};
-	public param_goal_title:{[overlayId:string]:TwitchatDataTypes.ParameterData<string>} = {};
-	public param_goal_amount:{[overlayId:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_goal_secret:{[overlayId:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 
 	public get maxOverlaysReached():boolean {
@@ -137,6 +135,10 @@ class OverlayParamsDonationGoal extends Vue {
 		}else{
 			return this.$store.donationGoals.overlayList.length >= this.$config.MAX_DONATION_GOALS;
 		}
+	}
+
+	public get isCharityAvailable():boolean {
+		return this.$store.streamlabs.charityTeam != null;
 	}
 
 	public getCurrency(overlay:TwitchatDataTypes.DonationGoalOverlayConfig):string {
@@ -152,6 +154,13 @@ class OverlayParamsDonationGoal extends Vue {
 	 */
 	public beforeMount():void {
 		this.initParams();
+	}
+
+	/**
+	 * Opens Streamlabs parameters
+	 */
+	public openStreamlabs():void {
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.STREAMLABS);
 	}
 
 	/**
@@ -195,9 +204,7 @@ class OverlayParamsDonationGoal extends Vue {
 			title:"",
 		};
 
-		this.param_goal_title[goal.id]	= {type:"string", value:"", labelKey:"donation_goals.param_goal_title", icon:"font"};
 		this.param_goal_secret[goal.id]	= {type:"boolean", value:false, labelKey:"donation_goals.param_goal_secret", icon:"anon"};
-		this.param_goal_amount[goal.id]	= {type:"number", value:0, min:0, max:1000000000, labelKey:"donation_goals.param_goal_amount", icon:"coin"};
 		
 		this.param_maxDisplayedEntries[overlay.id].max = overlay.goalList.length;
 
@@ -234,15 +241,13 @@ class OverlayParamsDonationGoal extends Vue {
 			this.param_showCurrency[id]			= {type:"boolean", value:"", labelKey:"donation_goals.param_showCurrency", icon:"coin"};
 			this.param_currency[id]				= {type:"string", value:"", labelKey:"donation_goals.param_currency", icon:"coin"};
 			this.param_notifyTips[id]			= {type:"boolean", value:overlay.notifyTips, labelKey:"donation_goals.param_notifyTips", icon:"notification"};
-			this.param_autoDisplay[id]			= {type:"boolean", value:overlay.autoDisplay, labelKey:"donation_goals.param_autoDisplay", icon:"show"};
+			this.param_autoDisplay[id]			= {type:"boolean", value:overlay.autoDisplay, labelKey:"donation_goals.param_autoDisplay", icon:"hide"};
 			this.param_hideDone[id]				= {type:"boolean", value:overlay.hideDone, labelKey:"donation_goals.param_hideDone", icon:"timer"};
 			this.param_limitEntryCount[id]		= {type:"boolean", value:overlay.limitEntryCount, labelKey:"donation_goals.param_limitEntryCount", icon:"number"};
 			this.param_maxDisplayedEntries[id]	= {type:"number", value:overlay.maxDisplayedEntries, min:0, max:overlay.goalList.length, labelKey:"donation_goals.param_maxDisplayedEntries", icon:"number"};
 
 			overlay.goalList.sort((a,b)=>a.amount-b.amount).forEach(goal=>{
-				this.param_goal_title[goal.id]	= {type:"string", value:goal.title, labelKey:"donation_goals.param_goal_title", icon:"font"};
 				this.param_goal_secret[goal.id]	= {type:"boolean", value:goal.secret, labelKey:"donation_goals.param_goal_secret", icon:"anon"};
-				this.param_goal_amount[goal.id]	= {type:"number", value:goal.amount, min:0, max:1000000000, labelKey:"donation_goals.param_goal_amount", icon:"coin"};
 			})
 		});
 	}
@@ -259,6 +264,13 @@ export default toNative(OverlayParamsDonationGoal);
 	display: flex;
 	flex-direction: column;
 	justify-content: stretch;
+
+	.missingCharity {
+		gap: 1em;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
 
 	.createForm {
 		text-align: center;
@@ -296,6 +308,8 @@ export default toNative(OverlayParamsDonationGoal);
 		}
 		input {
 			text-align: right;
+			width: 0;
+			flex-basis: 100px;
 		}
 	}
 

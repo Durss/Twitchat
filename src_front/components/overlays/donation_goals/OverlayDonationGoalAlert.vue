@@ -1,5 +1,5 @@
 <template>
-	<div class="overlaydonationgoalalert">
+	<div class="overlaydonationgoalalert" v-if="active">
 		<div class="holder" ref="holder" v-if="currentEvent">
 			<span class="amount">+{{ currentEvent.amount }}</span>
 			<span class="username">{{ currentEvent.username }}</span>
@@ -20,6 +20,7 @@
 <script lang="ts">
 import Icon from '@/components/Icon.vue';
 import { gsap } from 'gsap/gsap-core';
+import { watch } from 'vue';
 import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -30,10 +31,14 @@ import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 })
 class OverlayDonationGoalAlert extends Vue {
 
+	@Prop({default:false})
+	public active!:boolean;
+
 	@Prop()
 	public colors!:{base:string, fill:string, background:string};
 
 	public pool:IItem[] = []
+	public disposed:boolean = false;
 	public currentEvent:IItem|null = null;
 
 	public get color():string { return this.colors.base; }
@@ -41,6 +46,13 @@ class OverlayDonationGoalAlert extends Vue {
 	public get color_background():string { return this.colors.background; }
 
 	public mounted():void {
+		watch(()=>this.active, ()=>{
+			if(this.active && this.pool.length > 0) this.showNext();
+		})
+	}
+
+	public beforeUnmount():void {
+		this.disposed = true;
 	}
 
 	/**
@@ -50,14 +62,14 @@ class OverlayDonationGoalAlert extends Vue {
 	 */
 	public onEvent(username:string, amount:string):void {
 		this.pool.push({username, amount});
-		if(this.pool.length == 1) this.showNext();
+		if(this.pool.length == 1 && this.active) this.showNext();
 	}
 
 	/**
 	 * Show next event
 	 */
 	public async showNext():Promise<void> {
-		if(this.pool.length === 0) return;
+		if(this.pool.length === 0 || this.disposed || !this.active) return;
 
 		this.$emit("activity");
 		

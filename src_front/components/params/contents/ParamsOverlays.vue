@@ -34,7 +34,7 @@
 		</div> -->
 
 		<div class="list" v-if="subContent == null">
-			<button class="item" @click="subContent = 'donationgoals'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_4, id:'params_overlays_donationgoals'}" v-if="showDonationgoals"><img src="@/assets/img/overlays/donation_goals.jpg"></button>
+			<button class="item" @click="subContent = 'donationgoals'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_4, id:'params_overlays_donationgoals'}"><img src="@/assets/img/overlays/donation_goals.jpg"></button>
 			<button class="item" @click="subContent = 'bingogrid'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'params_overlays_bingogrid'}"><img src="@/assets/img/overlays/bingo_grids.jpg"></button>
 			<button class="item" @click="subContent = 'polls'" v-if="isAffiliate" v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_overlays_poll'}"><img src="@/assets/img/overlays/polls.jpg"></button>
 			<button class="item" @click="subContent = 'predictions'" v-if="isAffiliate" v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_overlays_prediction'}"><img src="@/assets/img/overlays/predictions.jpg"></button>
@@ -123,7 +123,6 @@ class ParamsOverlays extends Vue implements IParameterContent {
 
 	public debugMode:boolean = false;
 	public showDockTutorial:boolean = false;
-	public showDonationgoals:boolean = false;
 	public subContent:TwitchatDataTypes.OverlayTypes|null = null;
 
 	private keyupHandler!:(e:KeyboardEvent) => void;
@@ -144,7 +143,6 @@ class ParamsOverlays extends Vue implements IParameterContent {
 	}
 
 	public mounted():void {
-		this.showDonationgoals = ["durss", "recalbox"].includes(this.$store.auth.twitch.user.login.toLowerCase());
 		if(this.$store.params.currentPageSubContent) {
 			this.subContent = this.$store.params.currentPageSubContent as TwitchatDataTypes.OverlayTypes;
 		}

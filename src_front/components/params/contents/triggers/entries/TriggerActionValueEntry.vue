@@ -24,7 +24,7 @@
 				<span>{{ $tc("triggers.actions.value.user_source_title", selectedPerUserValue.length) }}</span>
 			</div>
 			
-			<div class="card-item userSource" v-for="item in selectedPerUserValue" :key="item.id">
+			<div class="card-item dark" v-for="item in selectedPerUserValue" :key="item.id">
 				<label :for="'select_'+item.id" class="name">{{ item.name }}</label>
 				<select :id="'select_'+item.id" v-model="action.valueUserSources[item.id]">
 					<option v-for="opt in userSourceOptions" :value="opt.key">{{ $t(opt.labelKey, {PLACEHOLDER:opt.key.toUpperCase()}) }}</option>
@@ -38,7 +38,7 @@
 				<span>{{ $tc("triggers.actions.value.user_action_title", selectedPerUserValue.length) }}</span>
 			</div>
 			
-			<div class="card-item userSource" v-for="item in selectedPerUserValue" :key="item.id">
+			<div class="card-item dark" v-for="item in selectedPerUserValue" :key="item.id">
 				<label :for="'select_'+item.id" class="name">{{ item.name }}</label>
 				<select :id="'select_'+item.id" v-model="action.userAction![item.id]">
 					<option v-for="opt in param_userAction.listValues" :value="opt.value">{{ $t(opt.labelKey!) }}</option>
@@ -205,12 +205,6 @@ export default toNative(TriggerActionValueEntry);
 			object-fit: fill;
 			margin-right: 0.5em;
 		}
-	}
-
-	.userSource {
-		background-color: rgba(0, 0, 0, .1);
-		@scale:2px;
-		box-shadow: inset -@scale -@scale @scale rgba(255, 255, 255, 0.1), inset @scale @scale @scale rgba(0, 0, 0, .3) !important;
 	}
 
 	.valueList {

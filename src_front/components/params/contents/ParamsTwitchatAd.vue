@@ -22,7 +22,7 @@
 						<div class="tipContent" v-html="$t('params.ad_bot_info_content')"></div>
 					</ToggleBlock>
 			
-					<div class="card-item disableinstructions">
+					<div class="card-item dark disableinstructions">
 						<p v-html="$t('params.ad_disable_info')"></p>
 						<Button @click="openDonate()" light secondary icon="coin">{{ $t('params.ad_disableBt') }}</Button>
 						<Button @click="openPremium()" premium icon="premium">{{ $t('premium.become_premiumBt') }}</Button>
@@ -190,9 +190,6 @@ export default toNative(ParamsTwitchatAd);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		background-color: var(--grayout-fadest);
-		@scale:2px;
-		box-shadow: inset -@scale -@scale @scale rgba(255, 255, 255, 0.1), inset @scale @scale @scale rgba(0, 0, 0, .3);
 	}
 
 	.tip {

@@ -12,7 +12,7 @@
 					<OverlayDonationGoalAlert
 					ref="notifications"
 					@activity="onActivity"
-					v-show="currentIndex == index"
+					:active="currentIndex == index"
 					:colors="{base:color, fill:color_fill, background:color_background}"
 					/>
 				</OverlayDonationGoalItem>
@@ -111,6 +111,8 @@ class OverlayDonationGoals extends AbstractOverlay {
 	public async onOverlayParams(e:Parameters<typeof this.overlayParamsHandler>[0]):Promise<void> {
 		const state = e.data;
 		if(!state) return;
+		//Don't an event for this overlay, ignore it
+		if(state.params.id != this.id) return;
 		
 		//Show list if necessary
 		if(state!.params.autoDisplay && !this.show) {

@@ -1,0 +1,24 @@
+{
+	"donation_goals": {
+		"configure_charity": "Veuillez d'abord configurer une campagne Streamlabs Charity !",
+		"configure_charity_bt": "Configurer une campagne",
+		"install_title": "Installer l'overlay",
+		"create_bt": "Créer des donation goals",
+		"add_goal_bt": "Ajouter un objectif",
+		"simulate_bt": "Simuler montant récolté",
+		"premium_limit": "Vous avez atteint le maxium de donation goals que vous pouvez créer.",
+		"non_premium_limit": "@:donation_goals.premium_limit \nDevenez membre premium pour créer jusqu'à {MAX} donation goals.",
+		"default_title": "Donation goal",
+		"goal_list": "Objectifs",
+		"param_color": "Thème de couleur",
+		"param_hideDone": "Masquer les objectifs remplis après 10 secondes",
+		"param_notifyTips": "Notifier des dons sur l'objectif en cours",
+		"param_currency": "Devise",
+		"param_showCurrency": "Afficher la devise",
+		"param_autoDisplay": "Masquer les objectifs automatiquement après 10 secondes d'inactivité",
+		"param_limitEntryCount": "Afficher uniquement l'objectif en cours",
+		"param_maxDisplayedEntries": "Afficher également {VALUE} objectif suivant | Afficher également {VALUE} objectif suivant | Afficher également les {VALUE} objectifs suivants",
+		"param_goal_title_placeholder": "Objectif...",
+		"param_goal_secret": "Secret goal (text revealed only when amount is reached)"
+	}
+}
