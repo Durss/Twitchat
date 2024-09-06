@@ -455,7 +455,7 @@
 				"action_sample_play": "Play sample",
 				"action_set_fader": "Set a volume",
 				"action_profile": "Switch profile",
-				"select_sampler": "Select the sampler button to play bellow"
+				"select_sampler": "Select the sample bank and button on the interface bellow"
 			},
 			"customBadge": {
 				"param_user": "Select user to edit tags of",

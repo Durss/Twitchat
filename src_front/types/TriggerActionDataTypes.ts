@@ -892,6 +892,7 @@ export interface TriggerActionGoXLRData extends TriggerActionData{
 	fxPresetIndex?:number;
 	/**
 	 * Value to move the fader to
+	 * It's not a number but a string so we can use placeholders as value
 	 */
 	faderValue?:string;
 	/**

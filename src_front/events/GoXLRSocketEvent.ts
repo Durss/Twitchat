@@ -14,6 +14,7 @@ export default class GoXLRSocketEvent extends Event {
 	public static SAMPLE_PLAYBACK_COMPLETE:"SAMPLE_PLAYBACK_COMPLETE" = "SAMPLE_PLAYBACK_COMPLETE";
 	public static FADER_MUTE:"FADER_MUTE" = "FADER_MUTE";
 	public static FADER_UNMUTE:"FADER_UNMUTE" = "FADER_UNMUTE";
+	public static FADER_VOLUME:"FADER_VOLUME" = "FADER_VOLUME";
 
 	/**
 	 * ID of the button pressed/released
@@ -66,21 +67,39 @@ export default class GoXLRSocketEvent extends Event {
 	 * SAMPLE_PLAYBACK_COMPLETE
 	 */
 	public samplerButtonId?:Extract<GoXLRTypes.ButtonTypesData, "SamplerTopLeft"|"SamplerTopRight"|"SamplerBottomLeft"|"SamplerBottomRight">;
+
+	/**
+	 * Contains the fader channel
+	 * Only for those events:
+	 * FADER_VOLUME
+	 */
+	public faderChannel?:GoXLRTypes.InputTypesData;
+
+	/**
+	 * Contains the fader value
+	 * Only for those events:
+	 * FADER_VOLUME
+	 */
+	public faderVolume?:number;
 	
 	constructor(eventType:"ENCODER", encoderId:GoXLRTypes.ButtonTypesData, encoderValue:number, prevEncoderValue:number, fxIndex:number);
+	constructor(eventType:"FADER_VOLUME", channel:GoXLRTypes.InputTypesData, value:number);
 	constructor(eventType:"SAMPLE_PLAYBACK_COMPLETE", bankId:Extract<GoXLRTypes.ButtonTypesData, "SamplerSelectA"|"SamplerSelectB"|"SamplerSelectC">, buttonId:Extract<GoXLRTypes.ButtonTypesData, "SamplerTopLeft"|"SamplerTopRight"|"SamplerBottomLeft"|"SamplerBottomRight">);
 	constructor(eventType:"FX_ENABLED"|"FX_DISABLED", fxIndex:number);
 	constructor(eventType:"FADER_MUTE"|"FADER_UNMUTE", faderIndex:1|2|3|4);
 	constructor(eventType:"BUTTON_PRESSED"|"BUTTON_RELEASED", button?:GoXLRTypes.ButtonTypesData);
 	constructor(...params:any[]) {
-		const event = params[0];
-		super(event);
+		type EventTypes = (typeof GoXLRSocketEvent)[keyof typeof GoXLRSocketEvent];
+		const event = params[0] as EventTypes;
+		super(event as string);
 
-		if(["FX_ENABLED","FX_DISABLED"].indexOf(event) > -1) {
+		let fxList:EventTypes[] = ["FX_ENABLED","FX_DISABLED"];
+		if(fxList.indexOf(event) > -1) {
 			this.fxIndex = params[1];
 		}
 
-		if(["BUTTON_PRESSED","BUTTON_RELEASED"].indexOf(event) > -1) {
+		let btActionList:EventTypes[] = ["BUTTON_PRESSED","BUTTON_RELEASED"];
+		if(btActionList.indexOf(event) > -1) {
 			this.buttonId = params[1];
 		}
 
@@ -98,6 +117,11 @@ export default class GoXLRSocketEvent extends Event {
 
 		if(event == "FADER_MUTE" || event == "FADER_UNMUTE") {
 			this.faderIndex = params[1];
+		}
+
+		if(event == "FADER_VOLUME") {
+			this.faderChannel = params[1];
+			this.faderVolume = params[2];
 		}
 	}
 	
