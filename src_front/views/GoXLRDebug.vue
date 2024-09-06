@@ -46,7 +46,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 	},
 	emits:[],
 })
- class GoXLRDebug extends Vue {
+class GoXLRDebug extends Vue {
 
 	public error:boolean = false;
 	public fxEnabled:boolean = false;

@@ -307,7 +307,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 	},
 	emits:[],
 })
- class TermsOfUse extends Vue {
+class TermsOfUse extends Vue {
 
 	public mounted():void {
 		//Force scroll to hash if any

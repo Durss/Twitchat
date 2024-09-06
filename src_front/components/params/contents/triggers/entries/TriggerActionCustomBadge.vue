@@ -94,7 +94,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	},
 	emits:[],
 })
- class TriggerActionCustomBadge extends AbstractTriggerActionEntry {
+class TriggerActionCustomBadge extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerCustomBadgesData;

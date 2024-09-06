@@ -103,7 +103,7 @@ import type IParameterContent from './IParameterContent';
 		PermissionsForm,
 	}
 })
- class ParamsEmergency extends Vue implements IParameterContent {
+class ParamsEmergency extends Vue implements IParameterContent {
 
 	public param_obsScene:TwitchatDataTypes.ParameterData<string, string>				= {type:"list", value:""};
 	public param_enable:TwitchatDataTypes.ParameterData<boolean>						= {type:"boolean", value:false, labelKey:"global.enable"};

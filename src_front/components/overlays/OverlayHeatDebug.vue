@@ -13,7 +13,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 	components:{},
 	emits:[],
 })
- class OverlayHeatDebug extends Vue {
+class OverlayHeatDebug extends Vue {
 
 	public mounted():void {
 		const canvas = this.$refs.canvas as HTMLCanvasElement;

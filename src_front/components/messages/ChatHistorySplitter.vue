@@ -18,7 +18,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:["onRead"],
 })
- class ChatHistorySplitter extends AbstractChatMessage {
+class ChatHistorySplitter extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageHistorySplitterData;

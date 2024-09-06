@@ -17,7 +17,7 @@ import Utils from '@/utils/Utils';
 	},
 	emits:[],
 })
- class TriggerAdApproachParams extends Vue {
+class TriggerAdApproachParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;

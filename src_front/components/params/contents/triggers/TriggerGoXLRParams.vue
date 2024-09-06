@@ -18,7 +18,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	},
 	emits:[],
 })
- class TriggerGoXLRParams extends Vue {
+class TriggerGoXLRParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;

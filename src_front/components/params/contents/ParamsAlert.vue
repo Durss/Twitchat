@@ -58,7 +58,7 @@ import type IParameterContent from './IParameterContent';
 		PermissionsForm,
 	}
 })
- class ParamsAlert extends Vue implements IParameterContent {
+class ParamsAlert extends Vue implements IParameterContent {
 	
 	public param_chatCommand:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"alert.command", value:"!alert"};
 	public param_message:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_popin", value:true};

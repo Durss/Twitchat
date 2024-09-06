@@ -84,7 +84,7 @@ import RewardListTransferForm from './RewardListTransferForm.vue';
 /**
  * This displays all the user's rewards.
  */
- class RewardsList extends Vue {
+class RewardsList extends Vue {
 
 	public loading:boolean = true;
 	public createReward:boolean = false;

@@ -65,7 +65,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:["update:title", "update:tags", "update:category", "update:branded", "update:labels"]
 })
- class StreamInfoSubForm extends Vue {
+class StreamInfoSubForm extends Vue {
 
 	@Prop({type:String, default:""})
 	public title!:string;

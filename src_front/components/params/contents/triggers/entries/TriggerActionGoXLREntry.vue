@@ -23,6 +23,7 @@ import ParamItem from '../../../ParamItem.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import GoXLRUI from '@/components/goxlr/GoXLRUI.vue';
 import { GoXLRTypes } from '@/types/GoXLRTypes';
+import GoXLRSocketEvent from '@/events/GoXLRSocketEvent';
 
 @Component({
 	components:{
@@ -32,7 +33,7 @@ import { GoXLRTypes } from '@/types/GoXLRTypes';
 	},
 	emits:[],
 })
- class TriggerActionGoXLREntry extends AbstractTriggerActionEntry {
+class TriggerActionGoXLREntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionGoXLRData;
@@ -43,6 +44,9 @@ import { GoXLRTypes } from '@/types/GoXLRTypes';
 	public param_faderId:TwitchatDataTypes.ParameterData<GoXLRTypes.InputTypesData> = {type:"list", value:"Mic", labelKey:"triggers.actions.goxlr.param_faderIndex"};
 	public param_profile:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"Mc", labelKey:"triggers.actions.goxlr.param_profile"};
 	public param_faderValue:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"128", labelKey:"triggers.actions.goxlr.param_faderValue"};
+
+	private goxlrFaderHandler!:(e:GoXLRSocketEvent) =>void;
+	private goxlrButtonHandler!:(e:GoXLRSocketEvent) =>void;
 
 	public beforeMount():void {
 		this.param_action.listValues = TriggerActionGoXLRDataActionList
@@ -75,6 +79,16 @@ import { GoXLRTypes } from '@/types/GoXLRTypes';
 		}
 		this.param_faderId.listValues = list;
 
+		this.goxlrFaderHandler = (e:GoXLRSocketEvent) => this.onFaderHandler(e)
+		this.goxlrButtonHandler = (e:GoXLRSocketEvent) => this.onGoxlrButton(e)
+		GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.FADER_VOLUME, this.goxlrFaderHandler);
+		GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_PRESSED, this.goxlrButtonHandler);
+
+	}
+
+	public beforeUnmount():void {
+		GoXLRSocket.instance.removeEventListener(GoXLRSocketEvent.FADER_VOLUME, this.goxlrFaderHandler);
+		GoXLRSocket.instance.removeEventListener(GoXLRSocketEvent.BUTTON_PRESSED, this.goxlrButtonHandler);
 	}
 
 	public samplerTargetChange():void {
@@ -94,6 +108,50 @@ import { GoXLRTypes } from '@/types/GoXLRTypes';
 	 */
 	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
 		this.param_faderValue.placeholderList = list.filter(v=>v.numberParsable == true);
+	}
+
+	/**
+	 * Called when a button is pressed
+	 * @param e 
+	 */
+	private onGoxlrButton(e:GoXLRSocketEvent):void {
+		switch(this.action.action) {
+			case "sample_play": {
+				if(!this.action.sampleIndex) this.action.sampleIndex = ["A", "TopLeft"];
+				if(e.buttonId == "SamplerSelectA") this.action.sampleIndex![0] = "A";
+				if(e.buttonId == "SamplerSelectB") this.action.sampleIndex![0] = "B";
+				if(e.buttonId == "SamplerSelectC") this.action.sampleIndex![0] = "C";
+
+				if(e.buttonId == "SamplerTopLeft"
+				|| e.buttonId == "SamplerTopRight"
+				|| e.buttonId == "SamplerBottomLeft"
+				|| e.buttonId == "SamplerBottomRight") {
+					if(GoXLRSocket.instance.getButtonState("SamplerSelectA")) this.action.sampleIndex![0] = "A";
+					if(GoXLRSocket.instance.getButtonState("SamplerSelectB")) this.action.sampleIndex![0] = "B";
+					if(GoXLRSocket.instance.getButtonState("SamplerSelectC")) this.action.sampleIndex![0] = "C";
+					if(e.buttonId == "SamplerTopLeft") this.action.sampleIndex![1] = "TopLeft";
+					if(e.buttonId == "SamplerTopRight") this.action.sampleIndex![1] = "TopRight";
+					if(e.buttonId == "SamplerBottomLeft") this.action.sampleIndex![1] = "BottomLeft";
+					if(e.buttonId == "SamplerBottomRight") this.action.sampleIndex![1] = "BottomRight";
+				}
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Called when a fader is used
+	 * @param e 
+	 */
+	private onFaderHandler(e:GoXLRSocketEvent):void {
+		switch(this.action.action) {
+			case "set_fader": {
+				//Don't do this or the value would get erased after testing the trigger
+				// this.action.faderId = e.faderChannel!
+				// this.action.faderValue = e.faderVolume!.toString();
+				break;
+			}
+		}
 	}
 
 }

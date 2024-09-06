@@ -33,7 +33,7 @@ import ToggleBlock from '../ToggleBlock.vue';
 	},
 	emits:["close"]
 })
- class Gngngn extends Vue {
+class Gngngn extends Vue {
 
 	public get discordPath():string { return Config.instance.DISCORD_URL; }
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }

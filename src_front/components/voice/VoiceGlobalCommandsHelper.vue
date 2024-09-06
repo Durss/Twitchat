@@ -18,7 +18,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 @Component({
 	components:{}
 })
- class VoiceGlobalCommandsHelper extends Vue {
+class VoiceGlobalCommandsHelper extends Vue {
 
 	@Prop({
 			type: Boolean,

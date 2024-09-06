@@ -13,7 +13,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 	},
 	emits:[],
 })
- class OverlayParamsTTS extends Vue {
+class OverlayParamsTTS extends Vue {
 
 }
 export default toNative(OverlayParamsTTS);

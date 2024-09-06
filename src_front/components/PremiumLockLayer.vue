@@ -18,7 +18,7 @@ import Icon from './Icon.vue';
 	},
 	emits:[],
 })
- class PremiumLockLayer extends Vue {
+class PremiumLockLayer extends Vue {
 
 	/**
 	 * Open premium section

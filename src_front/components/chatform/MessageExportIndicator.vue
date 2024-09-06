@@ -30,7 +30,7 @@ import { watch } from 'vue';
 	},
 	emits:[],
 })
- class MessageExportIndicator extends Vue {
+class MessageExportIndicator extends Vue {
 
 	private closeTimeout:number = -1;
 

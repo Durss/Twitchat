@@ -72,7 +72,7 @@ import DataStore from '@/store/DataStore';
 	},
 	emits:['close']
 })
- class PollForm extends AbstractSidePanel {
+class PollForm extends AbstractSidePanel {
 
 	@Prop({type: Boolean, default: false})
 	public voiceControl!:boolean;

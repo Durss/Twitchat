@@ -18,7 +18,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 @Component({
 	components:{}
 })
- class CommunityBoostInfo extends Vue {
+class CommunityBoostInfo extends Vue {
 
 	public interpolatedPercent = 0;
 	public interpolatedProgress = 0;

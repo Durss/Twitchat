@@ -34,7 +34,7 @@ import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 	},
 	emits:["update"]
 })
- class TriggerActionVoicemodEntry extends AbstractTriggerActionEntry {
+class TriggerActionVoicemodEntry extends AbstractTriggerActionEntry {
 	
 	@Prop
 	declare action:TriggerActionVoicemodData;

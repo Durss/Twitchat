@@ -109,7 +109,7 @@ import Icon from '@/components/Icon.vue';
 	}
 })
 //TODO replace all the hardcoded message types and build them dynamically
- class ParamsTTS extends Vue implements IParameterContent {
+class ParamsTTS extends Vue implements IParameterContent {
 
 	public testStr:string = "";
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", label:"", value:false};

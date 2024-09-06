@@ -26,7 +26,7 @@ import ParamItem from './params/ParamItem.vue';
 	},
 	emits:["update:modelValue"],
 })
- class PermissionsForm extends Vue {
+class PermissionsForm extends Vue {
 	@Prop
 	public modelValue!:TwitchatDataTypes.PermissionsData;
 	

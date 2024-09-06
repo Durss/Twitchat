@@ -39,7 +39,7 @@ import CountryFlag from 'vue-country-flag-next';
 	},
 	emits:["update:lang"]
 })
- class LangSelector extends Vue {
+class LangSelector extends Vue {
 
 	@Prop
 	public lang!:string;

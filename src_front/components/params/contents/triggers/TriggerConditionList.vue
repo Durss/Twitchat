@@ -27,7 +27,7 @@ import TriggerConditionListGroupItem from './TriggerConditionListGroupItem.vue';
 	},
 	emits:[],
 })
- class TriggerConditionList extends Vue {
+class TriggerConditionList extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;

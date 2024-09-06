@@ -34,7 +34,7 @@ import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
 	},
 	emits:["onRead"]
 })
- class ChatConnect extends AbstractChatMessage {
+class ChatConnect extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageConnectData | TwitchatDataTypes.MessageDisconnectData;

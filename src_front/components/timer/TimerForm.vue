@@ -58,7 +58,7 @@ import ParamItem from '../params/ParamItem.vue';
 	},
 	emits:["close"]
 })
- class TimerForm extends AbstractSidePanel {
+class TimerForm extends AbstractSidePanel {
 
 	public mode:"timer"|"countdown" = "timer";
 	

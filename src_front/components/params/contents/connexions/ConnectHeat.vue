@@ -65,7 +65,7 @@ import Icon from '@/components/Icon.vue';
 	},
 	emits:[],
 })
- class ConnectHeat extends Vue {
+class ConnectHeat extends Vue {
 
 	public param_debugChan:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", label:"Channel ID", icon:"debug"};
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enable"};

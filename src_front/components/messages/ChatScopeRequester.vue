@@ -37,7 +37,7 @@ import ClearButton from '../ClearButton.vue';
 	},
 	emits:["onRead", "openFilters"]
 })
- class ChatScopeRequester extends AbstractChatMessage {
+class ChatScopeRequester extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageScopeRequestData;

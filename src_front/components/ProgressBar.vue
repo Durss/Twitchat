@@ -13,7 +13,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 @Component({
 	components:{}
 })
- class ProgressBar extends Vue {
+class ProgressBar extends Vue {
 
 	@Prop({type:Number,default:0})
 	public percent!:number;

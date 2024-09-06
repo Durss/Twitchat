@@ -135,7 +135,7 @@ import { Linear } from 'gsap/all';
 	},
 	emits: ["showModal", 'addColumn']
 })
- class MessageList extends Vue {
+class MessageList extends Vue {
 
 	@Prop({
 			type: Boolean,

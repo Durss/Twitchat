@@ -38,7 +38,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 	},
 	emits:["onRead"]
 })
- class ChatMessageClipPending extends AbstractChatMessage {
+class ChatMessageClipPending extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageClipCreate;

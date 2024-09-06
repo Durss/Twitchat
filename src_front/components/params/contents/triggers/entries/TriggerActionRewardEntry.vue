@@ -42,7 +42,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	},
 	emits:[],
 })
- class TriggerActionRewardEntry extends AbstractTriggerActionEntry {
+class TriggerActionRewardEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionRewardData;

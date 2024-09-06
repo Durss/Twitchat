@@ -37,7 +37,7 @@ import SimpleTriggerList from '../SimpleTriggerList.vue';
 	},
 	emits:[],
 })
- class TriggerActionTriggerToggleEntry extends Vue {
+class TriggerActionTriggerToggleEntry extends Vue {
 	
 	@Prop
 	public action!:TriggerActionTriggerToggleData;

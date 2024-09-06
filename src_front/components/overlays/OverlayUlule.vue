@@ -24,7 +24,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 	components:{},
 	emits:[],
 })
- class OverlayUlule extends Vue {
+class OverlayUlule extends Vue {
 
 	public title:string = "";
 	public currentGoal:number = 0;

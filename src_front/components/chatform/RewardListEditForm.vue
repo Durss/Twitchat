@@ -39,7 +39,7 @@ import type { ITriggerPlaceholder } from '@/types/TriggerActionDataTypes';
 	},
 	emits:["update:modelValue"],
 })
- class RewardListEditForm extends Vue {
+class RewardListEditForm extends Vue {
 
 	@Prop
 	public reward!:TwitchDataTypes.Reward;

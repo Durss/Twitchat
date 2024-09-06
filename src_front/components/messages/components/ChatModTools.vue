@@ -36,7 +36,7 @@ import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 /**
  * TODO replace <Button> to simplement native <button> elements
  */
- class ChatModTools extends Vue {
+class ChatModTools extends Vue {
 
 	@Prop
 	public canDelete!:boolean;

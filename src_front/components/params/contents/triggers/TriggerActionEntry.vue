@@ -312,7 +312,7 @@ import TriggerActionDeleteMessageEntry from './entries/TriggerActionDeleteMessag
 	},
 	emits:["delete", "duplicate"]
 })
- class TriggerActionEntry extends Vue {
+class TriggerActionEntry extends Vue {
 
 	@Prop
 	public action!:TriggerActionTypes;

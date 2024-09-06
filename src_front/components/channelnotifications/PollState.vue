@@ -44,7 +44,7 @@ import ProgressBar from '../ProgressBar.vue';
 		ProgressBar,
 	}
 })
- class PollState extends Vue {
+class PollState extends Vue {
 
 	public loading = false;
 	public progressPercent = 0;

@@ -57,7 +57,7 @@ import { gsap } from 'gsap';
 	},
 	emits:[],
 })
- class TriggerActionCommandArgumentParams extends Vue {
+class TriggerActionCommandArgumentParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;

@@ -98,7 +98,7 @@ import Config from '@/utils/Config';
 	},
 	emits:["close"],
 })
- class StreamSummary extends AbstractSidePanel {
+class StreamSummary extends AbstractSidePanel {
 
 	public loading:boolean = true;
 	public noData:boolean = false;

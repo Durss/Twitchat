@@ -30,7 +30,7 @@ import ParamItem from '../../ParamItem.vue';
 		ParamItem,
 	}
 })
- class OBSAudioSourceForm extends Vue {
+class OBSAudioSourceForm extends Vue {
 
 	public noAudioSource = false;
 	public loadingAudioSources = false;

@@ -26,7 +26,7 @@ import ParamItem from '../../ParamItem.vue';
 		ParamItem,
 	}
 })
- class OBSScenes extends Vue {
+class OBSScenes extends Vue {
 
 	public sceneParams:TwitchatDataTypes.ParameterData<string>[] = [];
 

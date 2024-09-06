@@ -83,7 +83,7 @@ import TTButton from '../TTButton.vue';
 	},
 	emits:["close"]
 })
- class TriggersLogs extends AbstractSidePanel {
+class TriggersLogs extends AbstractSidePanel {
 
 	public reloading:boolean = false;
 

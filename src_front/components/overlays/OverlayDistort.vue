@@ -31,7 +31,7 @@ import DistortionHeart from './distortions/DistortionHeart.vue';
 	},
 	emits:[],
 })
- class OverlayDistort extends AbstractOverlay {
+class OverlayDistort extends AbstractOverlay {
 
 	public distortionData:TwitchatDataTypes.HeatDistortionData|null = null;
 

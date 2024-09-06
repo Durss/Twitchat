@@ -75,7 +75,7 @@ import { watch } from 'vue';
 	},
 	emits:[],
 })
- class TriggerActionHeatParams extends Vue {
+class TriggerActionHeatParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;

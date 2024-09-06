@@ -88,7 +88,7 @@ import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 	},
 	emits:["close"]
 })
- class RaffleState extends Vue {
+class RaffleState extends Vue {
 
 	public picking:boolean = false;
 	public disposed:boolean = false;

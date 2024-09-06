@@ -35,7 +35,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	components:{},
 	emits:["search", "update:modelValue"]
 })
- class AutoCompleteForm extends Vue {
+class AutoCompleteForm extends Vue {
 
 	@Prop({
 			type:String,

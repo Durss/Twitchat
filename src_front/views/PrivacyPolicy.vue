@@ -530,7 +530,7 @@ import Config from '@/utils/Config';
 	},
 	emits:[],
 })
- class PrivacyPolicy extends Vue {
+class PrivacyPolicy extends Vue {
 
 	public confirmation:string = "";
 	public showDeleteInput:boolean = false;

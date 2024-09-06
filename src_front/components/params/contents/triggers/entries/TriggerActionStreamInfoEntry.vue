@@ -31,7 +31,7 @@ import type { ITriggerPlaceholder, TriggerActionStreamInfoData, TriggerData } fr
 	},
 	emits:["update"]
 })
- class TriggerActionStreamInfoEntry extends AbstractTriggerActionEntry {
+class TriggerActionStreamInfoEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionStreamInfoData;

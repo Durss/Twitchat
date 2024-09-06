@@ -27,7 +27,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 	components:{},
 	emits:["onRead"]
 })
- class ChatCountdownResult extends AbstractChatMessage {
+class ChatCountdownResult extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageCountdownData;

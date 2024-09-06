@@ -57,7 +57,7 @@ import ChatMessage from '../messages/ChatMessage.vue';
 	},
 	emits:["close"]
 })
- class PinedMessages extends AbstractSidePanel {
+class PinedMessages extends AbstractSidePanel {
 	
 	public overlayAvailable = false;
 	public highlightLoading = true;

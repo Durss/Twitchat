@@ -63,7 +63,7 @@ import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 	},
 	emits:["onRead"]
 })
- class ChatCustomMessage extends AbstractChatMessage {
+class ChatCustomMessage extends AbstractChatMessage {
 
 	public loading:boolean = false;
 

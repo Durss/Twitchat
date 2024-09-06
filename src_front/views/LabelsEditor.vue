@@ -90,7 +90,7 @@ import type { JsonObject } from "type-fest";
 	},
 	emits:[],
 })
- class LabelsEditor extends Vue {
+class LabelsEditor extends Vue {
 
 	public selectedSectionKey:string = "";
 	public selectedSectionLabels:RemoveIndexSignature<{[x: string]:LocaleMessageValue<VueMessageType>}>|null = null;

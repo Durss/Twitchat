@@ -208,7 +208,7 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 	},
 	emits:["close"]
 })
- class RaffleForm extends AbstractSidePanel {
+class RaffleForm extends AbstractSidePanel {
 
 	@Prop({type: Boolean, default: false})
 	public voiceControl!:boolean;

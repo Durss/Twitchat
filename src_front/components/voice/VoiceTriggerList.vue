@@ -58,7 +58,7 @@
 							:calculate-position="$placeDropdown"
 						>
 							<template v-slot:option="option">
-								<Icon v-if="option.icon" :name="option.icon" class="listIcon" theme="dark" style="{background-color: red;}" />
+								<Icon v-if="option.icon" :name="option.icon" class="listIcon" theme="dark" :style="{backgroundColor: 'red'}" />
 								<span>{{ option.label }}</span>
 							</template>
 						</vue-select>
@@ -94,7 +94,7 @@ import VoiceGlobalCommands from './VoiceGlobalCommands.vue';
 		VoiceGlobalCommands,
 	}
 })
- class VoiceTriggerList extends Vue {
+class VoiceTriggerList extends Vue {
 
 	public actions:VoiceAction[] = [];
 	public globalCommands:VoiceAction[] = [];

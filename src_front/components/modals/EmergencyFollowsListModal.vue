@@ -104,7 +104,7 @@ import { useTippy } from 'vue-tippy';
 	},
 	emits:["close"]
 })
- class EmergencyFollowsListModal extends Vue {
+class EmergencyFollowsListModal extends Vue {
 
 	public search:string = "";
 	public scrollOffset:number = 0;

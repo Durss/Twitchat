@@ -22,7 +22,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 	},
 	emits:[],
 })
- class HeatDebug extends Vue {
+class HeatDebug extends Vue {
 
 }
 export default toNative(HeatDebug);

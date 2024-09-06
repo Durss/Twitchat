@@ -21,7 +21,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	components:{},
 	emits:[],
 })
- class ContextMenuTimeoutDuration extends Vue {
+class ContextMenuTimeoutDuration extends Vue {
 
 	@Prop
 	public user!:TwitchatDataTypes.TwitchatUser;

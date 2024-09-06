@@ -33,7 +33,7 @@ import ParamsSponsor from '../components/params/contents/ParamsSponsor.vue';
 		ParamsSponsor,
 	}
 })
- class Sponsor extends Vue {
+class Sponsor extends Vue {
 
 	public get enabledLocales():string[] {
 		return this.$i18n.availableLocales.filter(v=> {

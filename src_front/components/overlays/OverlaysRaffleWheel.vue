@@ -48,7 +48,7 @@ import type { CSSProperties } from 'vue';
 		InfiniteList,
 	}
 })
- class OverlaysRaffleWheel extends Vue {
+class OverlaysRaffleWheel extends Vue {
 
 	public itemList:TwitchatDataTypes.EntryItem[] = [];
 	public itemSize = 50;

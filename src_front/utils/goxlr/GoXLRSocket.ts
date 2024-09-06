@@ -3,7 +3,6 @@ import GoXLRSocketEvent from "@/events/GoXLRSocketEvent";
 import StoreProxy from "@/store/StoreProxy";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { reactive } from "vue";
 
 /**
@@ -546,8 +545,9 @@ export default class GoXLRSocket extends EventDispatcher {
 
 					//Handle fader value update
 					if(c == "levels" && chunks[j+1] === "volumes") {
-						type test = keyof GoXLRTypes.Volumes;
-						this.status!.levels.volumes[chunks[j+2] as test] = patch.value;
+						const input = chunks[j+2] as GoXLRTypes.InputTypesData
+						this.status!.levels.volumes[input] = patch.value;
+						this.dispatchEvent(new GoXLRSocketEvent(GoXLRSocketEvent.FADER_VOLUME, input, patch.value));
 					}else
 
 					//Handle button press/release

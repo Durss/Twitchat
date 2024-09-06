@@ -52,7 +52,7 @@ import DOMPurify from 'isomorphic-dompurify';
 	},
 	emits:["seek"]
 })
- class OverlayMusicPlayer extends AbstractOverlay {
+class OverlayMusicPlayer extends AbstractOverlay {
 
 	@Prop({
 			type: Boolean,

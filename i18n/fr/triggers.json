@@ -455,7 +455,7 @@
 				"action_sample_play": "Jouer un sample",
 				"action_set_fader": "Modifier un volume",
 				"action_profile": "Changer de profile",
-				"select_sampler": "Sélectionnez le sample à jouer dans l'interface"
+				"select_sampler": "Sélectionnez le a banque et le sample à jouer dans l'interface ci-dessous"
 			},
 			"customBadge": {
 				"param_user": "Sélectionnez la personne dont éditer les tags",

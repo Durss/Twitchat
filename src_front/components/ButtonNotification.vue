@@ -14,7 +14,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	components:{},
 	emits:[],
 })
- class ButtonNotification extends Vue {
+class ButtonNotification extends Vue {
 
 	@Prop()
 	public icon!:string;

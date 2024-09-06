@@ -155,7 +155,7 @@ import StoreProxy from '@/store/StoreProxy';
 		ThemeSelector,
 	}
 })
- class Home extends Vue {
+class Home extends Vue {
 
 	public showLogin = false;
 	public anchors:TwitchatDataTypes.AnchorData[] = [];

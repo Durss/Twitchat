@@ -132,7 +132,7 @@ import ConnectTipeee from './connexions/ConnectTipeee.vue';
 	},
 	emits:[],
 })
- class ParamsConnections extends Vue implements IParameterContent {
+class ParamsConnections extends Vue implements IParameterContent {
 
 	public allowHighlight:boolean = true;
 	public subContent:TwitchatDataTypes.ParamDeepSectionsStringType|"" = "";

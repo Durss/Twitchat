@@ -72,7 +72,7 @@ import Config from '@/utils/Config';
 	},
 	emits:["close"],
 })
- class CustomBadgesManager extends Vue {
+class CustomBadgesManager extends Vue {
 
 	public loading:boolean = true;
 	public badgeName:string = "";

@@ -19,7 +19,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:[],
 })
- class MessageTranslation extends Vue {
+class MessageTranslation extends Vue {
 
 	@Prop
 	public messageData!:TwitchatDataTypes.TranslatableMessage;

@@ -15,7 +15,7 @@ import { gsap } from 'gsap/gsap-core';
 	components:{},
 	emits:[],
 })
- class DistortionHeart extends AbstractDistortion {
+class DistortionHeart extends AbstractDistortion {
 
 	@Prop()
 	declare params:TwitchatDataTypes.HeatDistortionData;

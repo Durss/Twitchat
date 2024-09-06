@@ -43,7 +43,7 @@ import VoiceTriggerList from './VoiceTriggerList.vue';
 		VoiceTriggerList,
 	}
 })
- class VoiceControlForm extends Vue {
+class VoiceControlForm extends Vue {
 
 	@Prop({type: Boolean, default: false})
 	public sttOnly!:boolean;

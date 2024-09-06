@@ -40,7 +40,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	components:{},
 	emits: ['update:modelValue', 'change'],
 })
- class OBSSceneItemSelector extends Vue {
+class OBSSceneItemSelector extends Vue {
 
 	@Prop({default:[]})
 	public modelValue!:OBSItemPath;

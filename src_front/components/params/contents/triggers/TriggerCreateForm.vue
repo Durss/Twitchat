@@ -125,7 +125,7 @@ import TriggerActionList from './TriggerActionList.vue';
 	},
 	emits:["selectTrigger", "updateHeader"],
 })
- class TriggerCreateForm extends Vue {
+class TriggerCreateForm extends Vue {
 
 	@Prop({default:""})
 	public folderTarget!:string;

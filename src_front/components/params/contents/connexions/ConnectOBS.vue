@@ -84,7 +84,7 @@ import type IParameterContent from '../IParameterContent';
 	},
 	emits:[]
 })
- class ConnectOBS extends Vue implements IParameterContent {
+class ConnectOBS extends Vue implements IParameterContent {
 
 	public loading = false;
 	public connected = false;

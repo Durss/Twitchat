@@ -20,7 +20,7 @@ import { watch } from 'vue';
 	},
 	emits:["click", "change", "update:modelValue"],
 })
- class GoXLRUI extends Vue {
+class GoXLRUI extends Vue {
 
 	@Prop({default: []})
 	public modelValue!:GoXLRTypes.ButtonTypesData[];

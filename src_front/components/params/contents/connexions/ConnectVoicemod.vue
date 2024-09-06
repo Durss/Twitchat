@@ -72,7 +72,7 @@ import type IParameterContent from '../IParameterContent';
 	},
 	emits:[]
 })
- class ConnectVoicemod extends Vue implements IParameterContent {
+class ConnectVoicemod extends Vue implements IParameterContent {
 
 	public connected:boolean = false;
 	public connecting:boolean = false;

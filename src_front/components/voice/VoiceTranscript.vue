@@ -17,7 +17,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 @Component({
 	components:{}
 })
- class VoiceTranscript extends Vue {
+class VoiceTranscript extends Vue {
 
 	public show:boolean = false;
 

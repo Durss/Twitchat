@@ -60,7 +60,7 @@ import TTButton from './TTButton.vue';
 	},
 	emits:["change", "delete"]
 })
- class LabelsEditorEntry extends Vue {
+class LabelsEditorEntry extends Vue {
 
 	@Prop
 	public value!:RemoveIndexSignature<{[x: string]:LocaleMessageValue<VueMessageType>}> | string;

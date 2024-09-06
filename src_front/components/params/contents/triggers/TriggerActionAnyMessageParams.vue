@@ -20,7 +20,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	},
 	emits:[],
 })
- class TriggerActionAnyMessageParams extends Vue {
+class TriggerActionAnyMessageParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;

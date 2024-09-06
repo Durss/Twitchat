@@ -118,7 +118,7 @@ import staticEmotes from '@/utils/twitch/staticEmoteList.json';
 	},
 	emits:[],
 })
- class ParamsTriggers extends Vue implements IParameterContent {
+class ParamsTriggers extends Vue implements IParameterContent {
 
 	public eventsCount:number = 0;
 	public showForm:boolean = false;

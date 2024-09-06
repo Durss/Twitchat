@@ -24,7 +24,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	},
 	emits:[],
 })
- class TriggerActionCustomUsername extends AbstractTriggerActionEntry {
+class TriggerActionCustomUsername extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerCustomUsernameData;

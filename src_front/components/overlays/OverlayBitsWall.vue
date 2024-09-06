@@ -43,7 +43,7 @@ let bodyId2Data:{[key:string]:CheermoteData} = {}
 	components:{},
 	emits:[],
 })
- class OverlayBitsWall extends AbstractOverlay {
+class OverlayBitsWall extends AbstractOverlay {
 
 	public shaderMode:boolean = false;
 	public engineReady:boolean = false;
