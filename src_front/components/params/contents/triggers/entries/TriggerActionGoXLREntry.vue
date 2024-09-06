@@ -121,10 +121,19 @@ class TriggerActionGoXLREntry extends AbstractTriggerActionEntry {
 				if(e.buttonId == "SamplerSelectA") this.action.sampleIndex![0] = "A";
 				if(e.buttonId == "SamplerSelectB") this.action.sampleIndex![0] = "B";
 				if(e.buttonId == "SamplerSelectC") this.action.sampleIndex![0] = "C";
-				if(e.buttonId == "SamplerTopLeft") this.action.sampleIndex![1] = "TopLeft";
-				if(e.buttonId == "SamplerTopRight") this.action.sampleIndex![1] = "TopRight";
-				if(e.buttonId == "SamplerBottomLeft") this.action.sampleIndex![1] = "BottomLeft";
-				if(e.buttonId == "SamplerBottomRight") this.action.sampleIndex![1] = "BottomRight";
+
+				if(e.buttonId == "SamplerTopLeft"
+				|| e.buttonId == "SamplerTopRight"
+				|| e.buttonId == "SamplerBottomLeft"
+				|| e.buttonId == "SamplerBottomRight") {
+					if(GoXLRSocket.instance.getButtonState("SamplerSelectA")) this.action.sampleIndex![0] = "A";
+					if(GoXLRSocket.instance.getButtonState("SamplerSelectB")) this.action.sampleIndex![0] = "B";
+					if(GoXLRSocket.instance.getButtonState("SamplerSelectC")) this.action.sampleIndex![0] = "C";
+					if(e.buttonId == "SamplerTopLeft") this.action.sampleIndex![1] = "TopLeft";
+					if(e.buttonId == "SamplerTopRight") this.action.sampleIndex![1] = "TopRight";
+					if(e.buttonId == "SamplerBottomLeft") this.action.sampleIndex![1] = "BottomLeft";
+					if(e.buttonId == "SamplerBottomRight") this.action.sampleIndex![1] = "BottomRight";
+				}
 				break;
 			}
 		}
@@ -137,8 +146,9 @@ class TriggerActionGoXLREntry extends AbstractTriggerActionEntry {
 	private onFaderHandler(e:GoXLRSocketEvent):void {
 		switch(this.action.action) {
 			case "set_fader": {
-				this.action.faderId = e.faderChannel!
-				this.action.faderValue = e.faderVolume!.toString();
+				//Don't do this or the value would get erased after testing the trigger
+				// this.action.faderId = e.faderChannel!
+				// this.action.faderValue = e.faderVolume!.toString();
 				break;
 			}
 		}
