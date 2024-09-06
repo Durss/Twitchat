@@ -1802,6 +1802,7 @@ const UserDataSchema = {
 							ideDone: {type:"boolean"},
 							notifyTips: {type:"boolean"},
 							autoDisplay: {type:"boolean"},
+							hideDone: {type:"boolean"},
 							limitEntryCount: {type:"boolean"},
 							maxDisplayedEntries: {type:"number", minimum:0, maximum:40},
 							goalList: {
