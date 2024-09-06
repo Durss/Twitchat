@@ -22,7 +22,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	components:{},
 	emits:["select"],
 })
- class AnchorsMenu extends Vue {
+class AnchorsMenu extends Vue {
 
 	@Prop({type:Array, default:[]})
 	public items!:TwitchatDataTypes.AnchorData[];

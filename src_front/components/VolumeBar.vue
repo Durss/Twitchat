@@ -18,7 +18,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	components:{},
 	emits:["update:modelValue"]
 })
- class VolumeBar extends Vue {
+class VolumeBar extends Vue {
 
 	@Prop({
 			type:Number,

@@ -120,7 +120,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 	},
 	emits:[],
 })
- class OverlayParamsBitswall extends Vue {
+class OverlayParamsBitswall extends Vue {
 
 	public loading = false;
 	public overlayExists = false;

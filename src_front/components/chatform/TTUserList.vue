@@ -79,7 +79,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:["close"]
 })
- class TTUserList extends AbstractSidePanel {
+class TTUserList extends AbstractSidePanel {
 
 	public users:UserData[] = [];
 	public usersSpool:UserData[] = [];

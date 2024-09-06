@@ -27,7 +27,7 @@ import ParamItem from '../params/ParamItem.vue';
 	},
 	emits:["update:modelValue", "update:complete"]
 })
- class VoiceGlobalCommands extends Vue {
+class VoiceGlobalCommands extends Vue {
 
 	@Prop()
 	public modelValue:VoiceAction[] = [];

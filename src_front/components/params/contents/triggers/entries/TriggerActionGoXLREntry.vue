@@ -32,7 +32,7 @@ import { GoXLRTypes } from '@/types/GoXLRTypes';
 	},
 	emits:[],
 })
- class TriggerActionGoXLREntry extends AbstractTriggerActionEntry {
+class TriggerActionGoXLREntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionGoXLRData;

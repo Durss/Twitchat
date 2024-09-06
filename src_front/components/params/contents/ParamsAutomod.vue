@@ -99,7 +99,7 @@ import Icon from '@/components/Icon.vue';
 		PermissionsForm,
 	}
 })
- class ParamsAutomod extends Vue implements IParameterContent {
+class ParamsAutomod extends Vue implements IParameterContent {
 
 	public testStr:string = "";//ⓣ🅗ｉ⒮ 𝖎𝓼 𝕒 𝙩🄴🆂𝔱 - ǝsɹǝʌǝɹ
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enable"};

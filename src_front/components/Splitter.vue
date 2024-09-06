@@ -12,7 +12,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 @Component({
 	components:{}
 })
- class Splitter extends Vue {
+class Splitter extends Vue {
 
 	@Prop({type:String, default:""})
 	public theme!:string;

@@ -59,7 +59,7 @@ import draggable from 'vuedraggable';
 	},
 	emits:[],
 })
- class HeatScreenList extends Vue {
+class HeatScreenList extends Vue {
 
 	public currentScreen:HeatScreen|null = null;
 

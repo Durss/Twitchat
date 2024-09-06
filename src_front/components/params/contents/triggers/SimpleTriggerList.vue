@@ -29,7 +29,7 @@ import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 	components:{},
 	emits:["select"],
 })
- class SimpleTriggerList extends Vue {
+class SimpleTriggerList extends Vue {
 
 	@Prop({type:String, default:""})
 	public filteredItemId!:string;

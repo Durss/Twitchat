@@ -46,7 +46,7 @@ import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 	},
 	emits:["onRead"],
 })
- class ChatAutobanJoin extends AbstractChatMessage {
+class ChatAutobanJoin extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageAutobanJoinData;

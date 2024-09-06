@@ -3,7 +3,6 @@ import GoXLRSocketEvent from "@/events/GoXLRSocketEvent";
 import StoreProxy from "@/store/StoreProxy";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { reactive } from "vue";
 
 /**

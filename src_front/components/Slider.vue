@@ -14,7 +14,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	components:{},
 	emits:["update:modelValue", "stop", "start", "change"],
 })
- class Slider extends Vue {
+class Slider extends Vue {
 
 	@Prop({type:Boolean, default: false})
 	public secondary!:boolean;

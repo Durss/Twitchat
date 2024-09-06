@@ -107,7 +107,7 @@ import GoXLRConnectForm from '../goxlr/GoXLRConnectForm.vue';
 	},
 	emits:[],
 })
- class ConnectGoXLR extends Vue {
+class ConnectGoXLR extends Vue {
 
 	public connecting:boolean = false;
 	public showEncoderWarning:boolean = false;

@@ -97,7 +97,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 @Component({
 	components:{}
 })
- class DonorBadge extends Vue {
+class DonorBadge extends Vue {
 
 	@Prop({type:Boolean, default:false})
 	public light!:boolean;

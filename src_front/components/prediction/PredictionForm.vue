@@ -89,7 +89,7 @@ import DataStore from '@/store/DataStore';
 	},
 	emits:['close']
 })
- class PredictionForm extends AbstractSidePanel {
+class PredictionForm extends AbstractSidePanel {
 	
 	@Prop({type: Boolean, default: false})
 	public voiceControl!:boolean;

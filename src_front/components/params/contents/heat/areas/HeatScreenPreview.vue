@@ -31,7 +31,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	},
 	emits:["delete", "duplicate", "update", "select"],
 })
- class HeatScreenPreview extends Vue {
+class HeatScreenPreview extends Vue {
 
 	@Prop
 	public screen!:HeatScreen;

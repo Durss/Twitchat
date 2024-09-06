@@ -24,7 +24,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	},
 	emits:["update"]
 })
- class TriggerActionHighlightEntry extends AbstractTriggerActionEntry {
+class TriggerActionHighlightEntry extends AbstractTriggerActionEntry {
 	
 	@Prop
 	declare action:TriggerActionHighlightData;

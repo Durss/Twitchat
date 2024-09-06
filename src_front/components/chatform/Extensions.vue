@@ -74,7 +74,7 @@ import ParamItem from '../params/ParamItem.vue';
 	},
 	emits:["close"],
 })
- class Extensions extends AbstractSidePanel {
+class Extensions extends AbstractSidePanel {
 
 	public error:boolean = false;
 	public loading:boolean = true;

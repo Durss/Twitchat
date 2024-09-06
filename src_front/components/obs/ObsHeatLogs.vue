@@ -54,7 +54,7 @@ import ParamItem from '../params/ParamItem.vue';
 	},
 	emits:["close"]
 })
- class ObsHeatLogs extends AbstractSidePanel {
+class ObsHeatLogs extends AbstractSidePanel {
 
 	public search:string = "";
 	public searching:boolean = false;

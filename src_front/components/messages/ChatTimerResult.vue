@@ -22,7 +22,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 	components:{},
 	emits:["onRead"]
 })
- class ChatTimerResult extends AbstractChatMessage {
+class ChatTimerResult extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageTimerData;

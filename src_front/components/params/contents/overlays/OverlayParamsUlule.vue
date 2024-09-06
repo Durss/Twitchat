@@ -63,7 +63,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 	},
 	emits:[],
 })
- class OverlayParamsUlule extends Vue {
+class OverlayParamsUlule extends Vue {
 
 	public param_project:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:200, labelKey:"overlay.ulule.project_name", placeholder:"https://ulule.com/your-project..."}
 	public param_goals:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:200, labelKey:"overlay.ulule.project_goals", placeholder:"10000,25000,50000,100000,...", tooltipKey:"overlay.ulule.project_goals_tt"}

@@ -27,7 +27,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:["close"],
 })
- class CustomUserNameManager extends Vue {
+class CustomUserNameManager extends Vue {
 
 	public async mounted():Promise<void> {
 		const customUsernames = this.$store.users.customUsernames;

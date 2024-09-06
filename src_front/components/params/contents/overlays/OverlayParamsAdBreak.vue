@@ -116,7 +116,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 	},
 	emits:[],
 })
- class OverlayParamsAdBreak extends Vue {
+class OverlayParamsAdBreak extends Vue {
 
 	public overlayExists = false;
 	public testingRunning = false;

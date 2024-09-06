@@ -55,7 +55,7 @@ import ProgressBar from '../ProgressBar.vue';
 		ProgressBar,
 	}
 })
- class PredictionState extends Vue {
+class PredictionState extends Vue {
 
 	public loading = false;
 	public progressPercent = 0;

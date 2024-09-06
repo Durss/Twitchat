@@ -15,7 +15,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 		MessageList,
 	}
 })
- class ChatLight extends Vue {
+class ChatLight extends Vue {
 
 	public maxSize = 50;
 

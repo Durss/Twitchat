@@ -170,7 +170,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 													type:TwitchatDataTypes.TwitchatMessageType.STREAMLABS,
 													date:Date.now(),
 													amount:message.amount,
-													amountFormatted:message.formatted_amount+(message.currency ?? ""),
+													amountFormatted:message.formatted_amount || message.formattedAmount,
 													currency:message.currency ?? "",
 													message:message.message,
 													message_chunks:chunks,
@@ -212,7 +212,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 													date:Date.now(),
 													userName:message.from,
 													amount:message.amount,
-													amountFormatted:message.formatted_amount+(message.currency ?? ""),
+													amountFormatted:message.formatted_amount || message.formattedAmount,
 													currency:message.currency ?? "",
 												}
 												StoreProxy.chat.addMessage(data);
@@ -311,6 +311,10 @@ interface StreamlabsDonationData {
 		isTest: boolean;
 		name:string;
 		amount:number;
+		formattedAmount:string;
+		/**
+		 * @deprecated apparently they changed for "formattedAmount"
+		 */
 		formatted_amount:string;
 		message:string;
 		currency:string;
@@ -352,6 +356,10 @@ interface StreamlabsPatreonPledgeData {
     message: {
 		name:string;
 		isTest: boolean;
+		formattedAmount:string;
+		/**
+		 * @deprecated apparently they changed for "formattedAmount"
+		 */
 		formatted_amount:string;
 		amount: 22;
 		currency:string;
@@ -399,26 +407,205 @@ interface StreamlabsYoutubeSuperchatData {
     event_id: string;
 }
 
-//TODO get actual data example to know what they exactly send
 interface StreamlabsCharityDonationData {
 	type: "streamlabscharitydonation";
-	message:{
-		priority: number;
-		isTest: boolean;
-		name:string;
-		amount:number;
-		formatted_amount:string;
-		message:string;
-		currency:string;
-		emotes:string;
-		iconClassName:string;
-		to:{
-			name:string;
-		};
-		from:string;
-		from_user_id:string;
-		_id:string;
-	}[];
 	for:"streamlabs";
+	message: {
+		charityDonationId: string;
+		formattedAmount: string;
+		/**
+		 * @deprecated apparently they changed for "formattedAmount"
+		 */
+		formatted_amount: string;
+		currency: string;
+		amount: string;
+		message: string;
+		to?: {
+			name: string;
+		};
+		memberId: string;
+		from: string;
+		id: number;
+		userId: string;
+		campaignId: string;
+		createdAt: string;
+		custom: any[];
+		_id: string;
+		priority: number;
+	}[];
     event_id: string;
+}
+
+export interface StreamlabsCharityTeamData {
+	id: string;
+	display_name: string;
+	slug: string;
+	public: boolean;
+	amount_raised: number;
+	amount_raised_usd: number;
+	campaign: {
+		id: string;
+		display_name: string;
+		slug: string;
+		starts_at: string;
+		ends_at: string;
+		currency: string;
+		amount_raised: number;
+		amount_raised_usd: number;
+		active_milestone_widget: boolean;
+		creator: {
+			id: string;
+			display_name: string;
+			slug: string;
+			is_live: boolean;
+			currency: string;
+			avatar: {
+				url: string;
+			};
+		};
+		causable: {
+			id: string;
+			display_name: string;
+			slug: string;
+			description: string;
+			enable_fundraising: boolean;
+			rank: number;
+			amount_raised: number;
+			has_paypal: boolean;
+			has_stripe: boolean;
+			external_platforms: {
+				ppgf: boolean;
+				benevity: boolean;
+				platform_id?: any;
+			};
+			avatar: {
+				url: string;
+			};
+			page_settings: {
+				header_url: string;
+				website_url: string;
+				video_url?: any;
+				donation_box_settings: {
+					opt_in: boolean;
+					options: {
+						option_1: {
+							value: number;
+							description: string;
+						};
+						option_2: {
+							value: number;
+							description: string;
+						};
+						option_3: {
+							value: number;
+							description: string;
+						};
+						option_4: {
+							value: number;
+							description: string;
+						};
+						description: string;
+					};
+					custom_donation_checkbox: boolean;
+					custom_donation_checkbox_value: boolean;
+					custom_donation_checkbox_display_name: string;
+				};
+				min_don_amount: number;
+				twitter: string;
+				facebook: string;
+				twitch?: any;
+				instagram: string;
+				youtube: string;
+				discord?: any;
+				misc_url?: any;
+				misc_url_2?: any;
+				misc_url_3?: any;
+				extras: {
+					title_font: {
+						kind: string;
+						files: {
+							'300': string;
+							'600': string;
+							'700': string;
+							'800': string;
+							italic: string;
+							regular: string;
+							'300italic': string;
+							'600italic': string;
+							'700italic': string;
+							'800italic': string;
+						};
+						family: string;
+						subsets: string[];
+						version: string;
+						category: string;
+						variants: string[];
+						lastModified: string;
+					};
+					title_weight: string;
+					primary_button_color: string;
+					secondary_button_color: string;
+					primary_button_text_color: string;
+					secondary_button_text_color: string;
+				};
+				toolkit_url?: any;
+			};
+			details: {
+				country: string;
+				currency: string;
+			};
+			tags: {
+				id: string;
+				name: string;
+			}[];
+			rating?: any;
+		};
+		goal: {
+			id: string;
+			amount: number;
+			completed: boolean;
+		};
+		page_settings: {
+			description: string;
+			header_url: string;
+		};
+		active_giveaway?: any;
+		rewards: any[];
+	};
+	rewards: any[];
+	members:  {
+		id: string;
+		team_alerts: boolean;
+		team_donation_goal: boolean;
+		user: {
+			id: string;
+			display_name: string;
+			slug: string;
+			is_live: boolean;
+			currency: string;
+			avatar: {
+				url: string;
+			};
+		};
+	}[];
+	goal:  {
+		id: string;
+		amount: number;
+		currency: string;
+	};
+}
+
+export interface StreamlabsCharityLeaderboardData {
+	top_streamers: {
+		amount: string;
+		display_name: string;
+	}[];
+	top_donators: {
+		display_name: string;
+		amount: number;
+		comment: {
+			id: string;
+			text: string;
+		};
+	}[];
 }

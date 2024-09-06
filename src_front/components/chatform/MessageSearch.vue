@@ -54,7 +54,7 @@ import ChatMessage from '../messages/ChatMessage.vue';
 	},
 	emits:["close"]
 })
- class MessageSearch extends AbstractSidePanel {
+class MessageSearch extends AbstractSidePanel {
 
 	public search = "";
 	public messages:TwitchatDataTypes.ChatMessageTypes[] = [];

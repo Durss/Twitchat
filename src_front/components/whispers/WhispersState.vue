@@ -64,7 +64,7 @@ import ChatMessageChunksParser from '../messages/components/ChatMessageChunksPar
 	},
 	emits:["close"]
 })
- class WhispersState extends AbstractSidePanel {
+class WhispersState extends AbstractSidePanel {
 
 	public error = false;
 	public whisper:string | null = null;

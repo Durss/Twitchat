@@ -65,7 +65,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:["close"]
 })
- class ChatSuggestionState extends AbstractSidePanel {
+class ChatSuggestionState extends AbstractSidePanel {
 
 	public loading = false;
 	public disposed = false;

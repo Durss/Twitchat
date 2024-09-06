@@ -40,7 +40,7 @@ import type IParameterContent from './IParameterContent';
 	},
 	emits:[]
 })
- class ParamsVoiceBot extends Vue implements IParameterContent {
+class ParamsVoiceBot extends Vue implements IParameterContent {
 	
 	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }

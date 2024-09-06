@@ -17,7 +17,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 	components:{},
 	emits:["onRead"],
 })
- class ChatHypeTrainCooldown extends AbstractChatMessage {
+class ChatHypeTrainCooldown extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageHypeTrainCooledDownData;

@@ -44,7 +44,7 @@ import { VueDraggable } from 'vue-draggable-plus';
 	},
 	emits: ["delete"],
 })
- class TriggerConditionListGroupItem extends Vue {
+class TriggerConditionListGroupItem extends Vue {
 
 	@Prop
 	public triggerData!: TriggerData;

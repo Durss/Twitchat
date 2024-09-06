@@ -71,7 +71,7 @@ import StreamInfoSubForm from './StreamInfoSubForm.vue';
 	},
 	emits:["close"]
 })
- class StreamInfoForm extends AbstractSidePanel {
+class StreamInfoForm extends AbstractSidePanel {
 
 	public param_savePreset:TwitchatDataTypes.ParameterData<boolean, unknown, string>	= {value:false, type:"boolean", labelKey:"stream.form_save_preset"};
 	public param_namePreset:TwitchatDataTypes.ParameterData<string>						= {value:"", type:"string", maxLength:50, labelKey:"stream.form_save_preset_name", placeholderKey:"stream.form_save_preset_name_placeholder"};

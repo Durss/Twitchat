@@ -62,7 +62,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		OverlayInstaller,
 	}
 })
- class OverlayParamsMusic extends Vue {
+class OverlayParamsMusic extends Vue {
 
 	public param_noScroll:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:false, labelKey:"overlay.music_common.no_scroll"};
 	public param_openFromLeft:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:false, labelKey:"overlay.music_common.open_from_left"};

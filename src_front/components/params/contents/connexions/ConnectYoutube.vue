@@ -74,7 +74,7 @@ import ParamItem from '../../ParamItem.vue';
 	},
 	emits:[],
 })
- class ConnectYoutube extends Vue {
+class ConnectYoutube extends Vue {
 
 	/**
 	 * Used as a temporary solution.

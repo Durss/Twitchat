@@ -122,7 +122,7 @@ import Icon from '@/components/Icon.vue';
 		PlacementSelector,
 	}
 })
- class OverlayParamsHighlight extends Vue {
+class OverlayParamsHighlight extends Vue {
 
 	public overlayExists = false;
 	public checkingOverlayPresence = false;

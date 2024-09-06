@@ -87,7 +87,7 @@ import OverlayInstaller from '../OverlayInstaller.vue';
 	},
 	emits:["delete", "created"],
 })
- class HeatDistortParams extends Vue {
+class HeatDistortParams extends Vue {
 	
 	@Prop
 	public modelValue!:TwitchatDataTypes.HeatDistortionData;

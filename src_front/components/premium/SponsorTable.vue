@@ -55,7 +55,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	components:{},
 	emits:["scrollBy"]
 })
- class SponsorTable extends Vue {
+class SponsorTable extends Vue {
 
 	@Prop({default:false, type:Boolean})
 	public expand!:boolean;

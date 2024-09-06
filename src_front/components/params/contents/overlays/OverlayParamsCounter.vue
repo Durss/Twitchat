@@ -106,7 +106,7 @@ import type { SourceTransform } from '@/utils/OBSWebsocket';
 	},
 	emits:[]
 })
- class OverlayParamsCounter extends Vue {
+class OverlayParamsCounter extends Vue {
 	
 	public counterExample:TwitchatDataTypes.CounterData = {
 		id:Utils.getUUID(),

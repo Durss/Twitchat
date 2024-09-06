@@ -86,7 +86,7 @@ import ParamItem from '../params/ParamItem.vue';
 	},
 	emits:["close"],
 })
- class TwitchatAnnouncement extends AbstractSidePanel {
+class TwitchatAnnouncement extends AbstractSidePanel {
 
 	public error:boolean = false;
 	public success:boolean = false;

@@ -52,7 +52,7 @@ import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 	},
 	emits:["onRead"]
 })
- class ChatRoomSettings extends AbstractChatMessage {
+class ChatRoomSettings extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageRoomSettingsData;

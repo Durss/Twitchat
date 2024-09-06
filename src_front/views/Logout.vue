@@ -41,7 +41,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 		Button: TTButton,
 	}
 })
- class Logout extends Vue {
+class Logout extends Vue {
 	public showDetails = false;
 }
 export default toNative(Logout);

@@ -53,7 +53,7 @@ import DonorBadge from '../../user/DonorBadge.vue';
 		DonorPublicState,
 	}
 })
- class ParamsDonorList extends Vue {
+class ParamsDonorList extends Vue {
 
 	public badges:{level:number, count:number}[] = [];
 	public itemList:{uid:string, v:number, login:string, index:number}[] = [];

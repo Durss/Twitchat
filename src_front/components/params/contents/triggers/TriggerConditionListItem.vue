@@ -36,7 +36,7 @@ import ParamItem from '../../ParamItem.vue';
 	},
 	emits:[],
 })
- class TriggerConditionListItem extends Vue {
+class TriggerConditionListItem extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;

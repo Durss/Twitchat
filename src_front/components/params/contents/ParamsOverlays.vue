@@ -115,7 +115,7 @@ import OverlayParamsLabels from './overlays/OverlayParamsLabels.vue';
 	},
 	emits:[]
 })
- class ParamsOverlays extends Vue implements IParameterContent {
+class ParamsOverlays extends Vue implements IParameterContent {
 
 	public debugMode:boolean = false;
 	public showDockTutorial:boolean = false;

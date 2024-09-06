@@ -27,7 +27,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	components:{},
 	emits:['update:scrollOffset'],
 })
- class InfiniteList extends Vue {
+class InfiniteList extends Vue {
 
 	@Prop({
 			type:String,

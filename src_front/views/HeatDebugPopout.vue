@@ -24,7 +24,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 	components:{},
 	emits:[],
 })
- class HeatDebugPopout extends Vue {
+class HeatDebugPopout extends Vue {
 
 	public isPopout:boolean = false;
 	public clicks:ClickData[] = [];

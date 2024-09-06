@@ -40,7 +40,7 @@ import ParamItem from '../../ParamItem.vue';
 	},
 	emits:[],
 })
- class GoXLRConnectForm extends Vue {
+class GoXLRConnectForm extends Vue {
 
 	public error:boolean = false;
 	public opened:boolean = true;

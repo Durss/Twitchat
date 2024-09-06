@@ -59,7 +59,7 @@ import { Component, Vue, toNative } from 'vue-facing-decorator';
 		ToggleBlock,
 	}
 })
- class PublicApiTest extends Vue {
+class PublicApiTest extends Vue {
 
 	public eventList:{key:TwitchatEventType, active:boolean, data:any|null}[] = [];
 	public actionList:{key:TwitchatActionType}[] = [];

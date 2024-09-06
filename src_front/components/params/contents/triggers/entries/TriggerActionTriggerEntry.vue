@@ -63,7 +63,7 @@ import TriggerList from '../TriggerList.vue';
 		SimpleTriggerList,
 	}
 })
- class TriggerActionTriggerEntry extends Vue {
+class TriggerActionTriggerEntry extends Vue {
 
 	@Prop()
 	public action!:TriggerActionTriggerData;

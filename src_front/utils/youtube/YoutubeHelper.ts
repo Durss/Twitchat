@@ -965,10 +965,16 @@ export default class YoutubeHelper {
 
 				//Special case, return null so the message isn't sent right away to chat.
 				//Wait for "giftMembershipReceivedEvent" to be received so the data is properly populated
+				//EDIT - me a month later: WTF is that comment?! See you in another month
 				return null;
 			}
 
 			case "giftMembershipReceivedEvent": {
+				break;
+			}
+
+			case "messageDeletedEvent": {
+				StoreProxy.chat.deleteMessageByID(m.snippet.messageDeletedDetails.deletedMessageId);
 			}
 		}
 

@@ -48,7 +48,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 	},
 	emits:["onRead"]
 })
- class ChatStreamOnOff extends AbstractChatMessage {
+class ChatStreamOnOff extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageStreamOnlineData | TwitchatDataTypes.MessageStreamOfflineData;

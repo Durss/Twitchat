@@ -22,7 +22,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 		ClearButton,
 	},
 })
- class AlertView extends Vue {
+class AlertView extends Vue {
 	public message = "";
 	public timeout!:number;
 	public locked:boolean = false;

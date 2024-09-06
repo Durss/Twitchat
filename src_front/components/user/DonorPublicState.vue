@@ -27,7 +27,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:["change"],
 })
- class DonorPublicState extends Vue {
+class DonorPublicState extends Vue {
 
 	@Prop({type:Boolean, default:false})
 	public noInfos!:boolean;

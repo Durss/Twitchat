@@ -44,7 +44,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:["close"]
 })
- class BingoState extends Vue {
+class BingoState extends Vue {
 
 	public winnerPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [];
 

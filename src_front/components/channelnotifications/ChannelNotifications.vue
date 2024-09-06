@@ -41,7 +41,7 @@ import RaidState from './RaidState.vue';
 	},
 	emits:['close'],
 })
- class ChannelNotifications extends AbstractSidePanel {
+class ChannelNotifications extends AbstractSidePanel {
 
 	@Prop
 	public currentContent!:TwitchatDataTypes.NotificationTypes;

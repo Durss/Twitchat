@@ -67,7 +67,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		OverlayInstaller,
 	}
 })
- class OverlayParamsRaffle extends Vue {
+class OverlayParamsRaffle extends Vue {
 
 	public loading = false;
 	public overlayExists = false;

@@ -36,7 +36,7 @@ import VoiceControlForm from '../components/voice/VoiceControlForm.vue';
 		VoiceControlForm,
 	}
 })
- class RemoteVoiceControl extends Vue {
+class RemoteVoiceControl extends Vue {
 
 	public loading:boolean = false;
 	public connectError:boolean = false;

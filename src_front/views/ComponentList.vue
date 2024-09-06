@@ -340,7 +340,7 @@ import DurationForm from '@/components/DurationForm.vue';
 	},
 	emits:[],
 })
- class ComponentList extends Vue {
+class ComponentList extends Vue {
 
 	public type:"button"|"link" = "button";
 	public time:number = 0;

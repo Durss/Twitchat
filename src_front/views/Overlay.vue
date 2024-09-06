@@ -58,7 +58,7 @@ const OverlayBingoGrid = defineAsyncComponent({loader: () => import('@/component
 		OverlayChatHighlight,
 	}
 })
- class Overlay extends Vue {
+class Overlay extends Vue {
 
 	public overlay:TwitchatDataTypes.OverlayTypes|"" = "";
 

@@ -10,7 +10,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 @Component({
 	components:{}
 })
- class Accessibility extends Vue {
+class Accessibility extends Vue {
 
 }
 export default toNative(Accessibility);

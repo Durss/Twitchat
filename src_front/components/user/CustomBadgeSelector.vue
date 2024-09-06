@@ -41,7 +41,7 @@ import TTButton from '../TTButton.vue';
 	},
 	emits:["manageBadges", "limitReached"],
 })
- class CustomBadgeSelector extends Vue {
+class CustomBadgeSelector extends Vue {
 
 	@Prop
 	public user!:TwitchatDataTypes.TwitchatUser;

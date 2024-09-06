@@ -36,7 +36,7 @@ import TTButton from '@/components/TTButton.vue';
 	},
 	emits:[],
 })
- class TriggerActionExtensionEntry extends AbstractTriggerActionEntry {
+class TriggerActionExtensionEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionExtensionData;

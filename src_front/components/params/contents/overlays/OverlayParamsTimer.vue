@@ -63,7 +63,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		OverlayInstaller,
 	}
 })
- class OverlayParamsTimer extends Vue {
+class OverlayParamsTimer extends Vue {
 	
 	public startTimer():void { this.$store.timer.timerStart(); }
 	public startCountdown():void { this.$store.timer.countdownStart(2 * 60 * 1000); }

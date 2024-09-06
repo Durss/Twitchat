@@ -21,7 +21,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 	components:{},
 	emits:["onRead"],
 })
- class ChatCommunityBoost extends AbstractChatMessage {
+class ChatCommunityBoost extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageCommunityBoostData

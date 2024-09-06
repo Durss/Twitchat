@@ -48,7 +48,7 @@ import AbstractOverlay from './AbstractOverlay';
 @Component({
 	components:{}
 })
- class OverlayCounter extends AbstractOverlay {
+class OverlayCounter extends AbstractOverlay {
 
 	@Prop({type: Boolean, default: false})
 	public embed!:boolean;

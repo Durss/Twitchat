@@ -48,7 +48,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	components:{},
 	emits:["update:modelValue", "change"],
 })
- class PlacementSelector extends Vue {
+class PlacementSelector extends Vue {
 
 	@Prop
 	public modelValue!:TwitchatDataTypes.ScreenPosition;

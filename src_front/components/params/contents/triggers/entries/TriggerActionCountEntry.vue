@@ -63,7 +63,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		ParamItem,
 	},
 })
- class TriggerActionCountEntry extends AbstractTriggerActionEntry {
+class TriggerActionCountEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionCounterData;

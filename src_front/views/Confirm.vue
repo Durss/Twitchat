@@ -31,7 +31,7 @@ import VoiceGlobalCommandsHelper from '../components/voice/VoiceGlobalCommandsHe
 		VoiceGlobalCommandsHelper,
 	}
 })
- class Confirm extends Vue {
+class Confirm extends Vue {
 	
 	public confirmData:TwitchatDataTypes.ConfirmData|null = null;
 	public submitPressed = false;

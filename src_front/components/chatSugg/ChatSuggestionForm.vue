@@ -76,7 +76,7 @@ import type { TriggerActionChatSuggestionsData, TriggerData } from '@/types/Trig
 	},
 	emits:["close"]
 })
- class ChatSuggestionForm extends AbstractSidePanel {
+class ChatSuggestionForm extends AbstractSidePanel {
 
 	@Prop({type: Boolean, default: false})
 	public triggerMode!:boolean;

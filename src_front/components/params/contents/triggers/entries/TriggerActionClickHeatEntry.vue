@@ -27,7 +27,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	},
 	emits:[],
 })
- class TriggerActionClickHeatEntry extends AbstractTriggerActionEntry {
+class TriggerActionClickHeatEntry extends AbstractTriggerActionEntry {
 	
 	@Prop
 	declare action:TriggerActionHeatClickData;

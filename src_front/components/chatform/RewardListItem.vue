@@ -57,7 +57,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 	},
 	emits:["transfer", "edit", "delete"],
 })
- class RewardListItem extends Vue {
+class RewardListItem extends Vue {
 
 	@Prop
 	public reward!:TwitchDataTypes.Reward;
