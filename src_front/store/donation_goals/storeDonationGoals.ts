@@ -6,6 +6,7 @@ import DataStore from '../DataStore';
 import StoreProxy, { type IDonationGoalActions, type IDonationGoalGetters, type IDonationGoalState } from '../StoreProxy';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 
 export const storeDonationGoals = defineStore('donationGoals', {
@@ -49,6 +50,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 				dataSource:"streamlabs_charity",
 				title:"",
 				enabled:true,
+				hideDone:true,
 				autoDisplay:false,
 				notifyTips:true,
 				limitEntryCount:false,
@@ -113,9 +115,31 @@ export const storeDonationGoals = defineStore('donationGoals', {
 			}
 		},
 
-		onDonation(username:string, amount:number, platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"]):void {
-
+		onDonation(username:string, amount:string, platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"]):void {
+			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_EVENT, {username, amount});
 		},
+
+		async simulateDonation(overlayId:string, amount:number):Promise<void> {
+			const overlay = this.overlayList.find(v=>v.id == overlayId);
+			if(!overlay) return;
+
+			const users = await TwitchUtils.getFakeUsers();
+			
+			let goal = 0;
+			let raisedTotal = 0;
+			let raisedPersonnal = 0;
+			if(overlay.dataSource == "streamlabs_charity") {
+				if(!StoreProxy.streamlabs.charityTeam) return;
+				goal = StoreProxy.streamlabs.charityTeam.amountGoal_cents/100;
+				raisedTotal = StoreProxy.streamlabs.charityTeam.amountRaised_cents/100;
+				raisedPersonnal = StoreProxy.streamlabs.charityTeam.amountRaisedPersonnal_cents/100;
+			}
+			raisedTotal += amount;
+			raisedPersonnal += amount;
+			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, {params:overlay, goal, raisedTotal, raisedPersonnal});
+			
+			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_EVENT, {username:Utils.pickRand(users).displayName, amount});
+		}
 
 
 	} as IDonationGoalActions

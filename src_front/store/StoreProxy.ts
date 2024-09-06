@@ -2946,5 +2946,11 @@ export interface IDonationGoalActions {
 	/**
 	 * Called when a new donation is received
 	 */
-	onDonation(username:string, amount:number, platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"]):void;
+	onDonation(username:string, amount:string, platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"]):void;
+	/**
+	 * Simulates a donation for given overlay with given fake amount
+	 * @param overlayId 
+	 * @param amount 
+	 */
+	simulateDonation(overlayId:string, amount:number):Promise<void>
 }

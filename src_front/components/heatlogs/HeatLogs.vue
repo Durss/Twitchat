@@ -85,7 +85,7 @@ import HeatScreenPreview from '../params/contents/heat/areas/HeatScreenPreview.v
 	},
 	emits:["close"]
 })
- class HeatLogs extends AbstractSidePanel {
+class HeatLogs extends AbstractSidePanel {
 
 	public reloading = false;
 

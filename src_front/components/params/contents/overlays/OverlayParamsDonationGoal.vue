@@ -53,9 +53,16 @@
 						<OverlayInstaller type="donationgoals" :sourceSuffix="overlay.title" :id="overlay.id" :queryParams="{bid:overlay.id}" />
 					</div>
 
+					<form class="card-item simulate" @submit.prevent="$store.donationGoals.simulateDonation(overlay.id, simulateAmount)">
+						<input type="number" step="any" v-model="simulateAmount" />
+						<span class="currency">{{ getCurrency(overlay) }}</span>
+						<TTButton icon="coin" type="submit">{{ $t("donation_goals.simulate_bt") }}</TTButton>
+					</form>
+
 					<ParamItem :paramData="param_color[overlay.id]" v-model="overlay.color" @change="save(overlay.id)" />
-					<ParamItem :paramData="param_notifyTips[overlay.id]" v-model="overlay.notifyTips" @change="save(overlay.id)" disabled v-tooltip="'Coming soon'" />
-					<ParamItem :paramData="param_autoDisplay[overlay.id]" v-model="overlay.autoDisplay" @change="save(overlay.id)" disabled v-tooltip="'Coming soon'" />
+					<ParamItem :paramData="param_notifyTips[overlay.id]" v-model="overlay.notifyTips" @change="save(overlay.id)" />
+					<ParamItem :paramData="param_autoDisplay[overlay.id]" v-model="overlay.autoDisplay" @change="save(overlay.id)" />
+					<ParamItem :paramData="param_hideDone[overlay.id]" v-model="overlay.hideDone" @change="save(overlay.id)" />
 					<ParamItem :paramData="param_limitEntryCount[overlay.id]" v-model="overlay.limitEntryCount" @change="save(overlay.id)">
 						<ParamItem :paramData="param_maxDisplayedEntries[overlay.id]" v-model="overlay.maxDisplayedEntries" @change="save(overlay.id)" :childLevel="1" noBackground />
 					</ParamItem>
@@ -65,7 +72,7 @@
 					<div class="goalItemList" v-if="overlay.goalList.length > 0">
 						<div class="card-item goalItem" v-for="goal in (overlay.goalList || [])" :key="goal.id">
 							<input class="amount" type="number" v-model="goal.amount" min="0" max="1000000000" @change="save(overlay.id)" step="any">
-							<span class="currency">{{ $store.streamlabs.charityTeam?.currency }}</span>
+							<span class="currency">{{ getCurrency(overlay) }}</span>
 							<textarea class="title" type="text" v-model="goal.title" @change="save(overlay.id)" rows="1" maxlength="100"></textarea>
 							<TTButton @click="removeGoal(overlay, goal.id)" icon="trash" alert />
 							<!-- <ParamItem :paramData="param_goal_title[goal.id]" v-model="goal.title" @change="save(overlay.id)" noBackground />
@@ -92,6 +99,9 @@ import { Component, toNative, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
 import Splitter from '@/components/Splitter.vue';
+import PublicAPI from '@/utils/PublicAPI';
+import TwitchatEvent from '@/events/TwitchatEvent';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Component({
 	components:{
@@ -106,12 +116,15 @@ import Splitter from '@/components/Splitter.vue';
 	emits:[],
 })
 class OverlayParamsDonationGoal extends Vue {
+
+	public simulateAmount:number = 10;
 	
 	public param_color:{[overlayId:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_showCurrency:{[overlayId:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_currency:{[overlayId:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_notifyTips:{[overlayId:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_autoDisplay:{[overlayId:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_hideDone:{[overlayId:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_limitEntryCount:{[overlayId:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_maxDisplayedEntries:{[overlayId:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_goal_title:{[overlayId:string]:TwitchatDataTypes.ParameterData<string>} = {};
@@ -123,6 +136,14 @@ class OverlayParamsDonationGoal extends Vue {
 			return this.$store.donationGoals.overlayList.length >= this.$config.MAX_DONATION_GOALS_PREMIUM;
 		}else{
 			return this.$store.donationGoals.overlayList.length >= this.$config.MAX_DONATION_GOALS;
+		}
+	}
+
+	public getCurrency(overlay:TwitchatDataTypes.DonationGoalOverlayConfig):string {
+		if(overlay.dataSource == "streamlabs_charity") {
+			return this.$store.streamlabs.charityTeam?.currency || "$";
+		}else{
+			return "$";
 		}
 	}
 
@@ -214,6 +235,7 @@ class OverlayParamsDonationGoal extends Vue {
 			this.param_currency[id]				= {type:"string", value:"", labelKey:"donation_goals.param_currency", icon:"coin"};
 			this.param_notifyTips[id]			= {type:"boolean", value:overlay.notifyTips, labelKey:"donation_goals.param_notifyTips", icon:"notification"};
 			this.param_autoDisplay[id]			= {type:"boolean", value:overlay.autoDisplay, labelKey:"donation_goals.param_autoDisplay", icon:"show"};
+			this.param_hideDone[id]				= {type:"boolean", value:overlay.hideDone, labelKey:"donation_goals.param_hideDone", icon:"timer"};
 			this.param_limitEntryCount[id]		= {type:"boolean", value:overlay.limitEntryCount, labelKey:"donation_goals.param_limitEntryCount", icon:"number"};
 			this.param_maxDisplayedEntries[id]	= {type:"number", value:overlay.maxDisplayedEntries, min:0, max:overlay.goalList.length, labelKey:"donation_goals.param_maxDisplayedEntries", icon:"number"};
 
@@ -256,6 +278,27 @@ export default toNative(OverlayParamsDonationGoal);
 		flex-direction: column;
 	}
 
+	.simulate {
+		gap: 1px;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		*{
+			border-radius: 0;
+		}
+		*:first-child {
+			border-top-left-radius: var(--border-radius);
+			border-bottom-left-radius: var(--border-radius);
+		}
+		*:last-child {
+			border-top-right-radius: var(--border-radius);
+			border-bottom-right-radius: var(--border-radius);
+		}
+		input {
+			text-align: right;
+		}
+	}
+
 	.overlayList {
 		display: flex;
 		flex-direction: column;
@@ -277,9 +320,6 @@ export default toNative(OverlayParamsDonationGoal);
 				flex-direction: row;
 				align-items: center;
 			}
-		}
-		.flip-list-leave-to {
-			display: none !important;
 		}
 
 		.leftActions {
@@ -324,14 +364,6 @@ export default toNative(OverlayParamsDonationGoal);
 				text-align: right;
 				field-sizing: content;
 			}
-			.currency {
-				background-color: var(--background-color-fader);
-				margin-left: -1px;
-				display: flex;
-				align-items: center;
-				padding-right: .5em;
-				font-size: .7em;
-			}
 			.title {
 				flex-grow: 1;
 				width: 0;
@@ -350,6 +382,14 @@ export default toNative(OverlayParamsDonationGoal);
 
 		.addGoalBt {
 			align-self: center;
+		}
+		.currency {
+			background-color: var(--background-color-fader);
+			margin-left: -1px;
+			display: flex;
+			align-items: center;
+			padding-right: .5em;
+			font-size: .7em;
 		}
 	}
 }

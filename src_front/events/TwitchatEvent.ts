@@ -87,6 +87,7 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static LABEL_OVERLAY_PARAMS:TwitchatEventType = "LABEL_OVERLAY_PARAMS";
 	public static LABEL_OVERLAY_PLACEHOLDERS:TwitchatEventType = "LABEL_OVERLAY_PLACEHOLDERS";
 	public static DONATION_GOALS_OVERLAY_PARAMS:TwitchatEventType = "DONATION_GOALS_OVERLAY_PARAMS";
+	public static DONATION_EVENT:TwitchatEventType = "DONATION_EVENT";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -254,6 +255,7 @@ export const TwitchatEventTypeList = [
 	"LABEL_OVERLAY_PARAMS",
 	"LABEL_OVERLAY_PLACEHOLDERS",
 	"DONATION_GOALS_OVERLAY_PARAMS",
+	"DONATION_EVENT",
 ] as const;
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
 

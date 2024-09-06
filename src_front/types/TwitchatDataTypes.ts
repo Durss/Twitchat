@@ -708,6 +708,7 @@ export namespace TwitchatDataTypes {
 		enabled:boolean;
 		notifyTips:boolean
 		autoDisplay:boolean;
+		hideDone:boolean;
 		limitEntryCount:boolean;
 		maxDisplayedEntries:number;
 		dataSource:"streamlabs_charity";
@@ -727,7 +728,9 @@ export namespace TwitchatDataTypes {
 		percent:number;
 		hidePercent:number;
 		visible:boolean;
+		closing:boolean;
 		distanceToCurrentIndex:number;
+		completed_at:number;
 		goalItem:DonationGoalOverlayConfig["goalList"][number];
 	}
 

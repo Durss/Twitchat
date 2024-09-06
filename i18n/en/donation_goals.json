@@ -1,13 +1,15 @@
 {
 	"donation_goals": {
 		"install_title": "Install overlay",
-		"create_bt": "New donation goal",
+		"create_bt": "New donation goals",
 		"add_goal_bt": "Add goal",
+		"simulate_bt": "Simulate donation",
 		"premium_limit": "You reached the maximum donation goals you can create.",
 		"non_premium_limit": "@:donation_goals.premium_limit \nBecome a premium member to create up to {MAX} donation goals.",
 		"default_title": "Donation goal",
 		"goal_list": "Goal list",
 		"param_color": "Color theme",
+		"param_hideDone": "Automatically hide completed donation goals after 10s",
 		"param_notifyTips": "Notify donations on currently active goal",
 		"param_currency": "Currency",
 		"param_showCurrency": "Show currency",

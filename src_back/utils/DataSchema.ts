@@ -1799,6 +1799,7 @@ const UserDataSchema = {
 							title: {type:"string", maxLength:40},
 							dataSource: {enum: ["streamlabs_charity"]},
 							enabled: {type:"boolean"},
+							ideDone: {type:"boolean"},
 							notifyTips: {type:"boolean"},
 							autoDisplay: {type:"boolean"},
 							limitEntryCount: {type:"boolean"},

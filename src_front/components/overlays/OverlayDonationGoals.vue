@@ -1,40 +1,23 @@
 <template>
-	<div class="overlaydonationgoals" v-if="state">
-		<div class="list">
-			<!-- <div class="entry" :ref="'goal_'+goal.id"
-			v-for="goal in state.params.goalList"
-			:style="goalToParams[goal.id].styles"
-			:key="goal.id"
-			:class="{secret:goal.secret && goalToParams[goal.id].currentPercent < 1}">
-				<span class="amount">{{ goal.amount }}€</span>
-				<span class="title">{{ goal.title }}</span>
-				<div class="hideTimer" v-if="goalToParams[goal.id].hidePercent > 0" :style="{width:goalToParams[goal.id].hidePercent+'%'}"></div>
-			</div> -->
+	<div :class="{overlaydonationgoals:true, show:show}" v-if="state">
+		<div class="list" ref="list">
 			<template v-for="(goal, index) in state.params.goalList" :key="goal.id">
 				<OverlayDonationGoalItem class="entry"
-					:ref="'goal_'+goal.id"
-					:overlayParams="state.params"
-					:color="color"
-					:index="index"
-					:data="goalToParams[goal.id]"
-					@complete="burstParticles(goal.id)" />
+				:ref="'goal_'+goal.id"
+				:overlayParams="state.params"
+				:colors="{base:color, fill:color_fill, background:color_background}"
+				:index="index"
+				:data="goalToParams[goal.id]"
+				:id="currentIndex == index? 'current_donation_goal' : ''">
+					<OverlayDonationGoalAlert
+					ref="notifications"
+					@activity="onActivity"
+					v-show="currentIndex == index"
+					:colors="{base:color, fill:color_fill, background:color_background}"
+					/>
+				</OverlayDonationGoalItem>
 			</template>
 		</div>
-		
-		<template v-for="(p, i) in particles">
-			<svg v-if="i%2==0" :key="'star_'+i" ref="particle"
-			class="particle"
-			xmlns="http://www.w3.org/2000/svg"
-			viewBox="0 0 67.79 64.47">
-				<polygon points="33.9 64.47 44.8 43.84 67.79 39.85 51.54 23.1 54.84 0 33.9 10.28 12.95 0 16.25 23.1 0 39.85 22.99 43.84 33.9 64.47"/>
-			</svg>
-			<svg v-if="i%2==1" :key="'heart_'+i" ref="particle"
-			class="particle"
-			xmlns="http://www.w3.org/2000/svg"
-			viewBox="0 0 62.69 59.22">
-				<path d="M44.46,0c-5.15,0-9.79,2.14-13.11,5.57-3.32-3.43-7.96-5.57-13.11-5.57C8.16,0,0,8.16,0,18.24c0,17.84,31.35,40.98,31.35,40.98,0,0,31.35-22.75,31.35-40.98C62.69,8.16,54.53,0,44.46,0Z"/>
-			</svg>
-		</template>
 	</div>
 </template>
 
@@ -42,41 +25,76 @@
 import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import { gsap } from 'gsap/gsap-core';
+import Utils from '@/utils/Utils';
 import { Component, toNative } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
+import OverlayDonationGoalAlert from './donation_goals/OverlayDonationGoalAlert.vue';
+import {type OverlayDonationGoalAlertClass} from './donation_goals/OverlayDonationGoalAlert.vue';
 import OverlayDonationGoalItem from './donation_goals/OverlayDonationGoalItem.vue';
+import { gsap } from 'gsap/gsap-core';
 
 @Component({
 	components:{
 		OverlayDonationGoalItem,
+		OverlayDonationGoalAlert,
 	},
 	emits:[],
 })
 class OverlayDonationGoals extends AbstractOverlay {
 	
+	public show = false;
 	public localRaised:number = 0;
+	public currentIndex:number = -1;
 	public state:Parameters<typeof this.overlayParamsHandler>[0]["data"]|null = null;
 	public goalToParams:{[goalId:string]:TwitchatDataTypes.DonationGoalOverlayItem} = {};
-	public particles:{x:number, y:number, r:number, s:number, a:number, v:number}[] = [];
 	
 	private id:string = "";
-	private particlePointer:number = 0;
+	private scrollTimeout:number = -1;
+	private autoHideTimeout:number = -1;
 	
-	public get color():string { return this.state?.params.color || "#000000"; }
-
 	private overlayParamsHandler!:(e:TwitchatEvent<{params:TwitchatDataTypes.DonationGoalOverlayConfig, goal:number, raisedTotal:number, raisedPersonnal:number}>) => void;
+	private donationHandler!:(e:TwitchatEvent<{username:string, amount:string}>) => void;
+	
+	public get color():string { return this.state!.params.color || "#000000"; }
+	
+	public get color_fill():string { return this.color+"30"; }
+
+	public get color_background():string {
+		const hsl = Utils.rgb2hsl(parseInt(this.color.replace("#", ""), 16));
+		hsl.s *= .6;
+		if(hsl.l > .75) hsl.l -= .6;
+		else hsl.l += .6;
+		hsl.l = Math.max(.1, Math.min(.9, hsl.l));
+		hsl.s = Math.max(0, Math.min(1, hsl.s));
+		const color = Utils.hsl2rgb(hsl.h, hsl.s, hsl.l).toString(16);
+		return "#"+color.padStart(6, "0");
+	}
 
 	public beforeMount():void{
 		this.id = this.$route.query.twitchat_overlay_id as string ?? "";
 		if(this.id) {
 			this.overlayParamsHandler = (e) => this.onOverlayParams(e);
+			this.donationHandler = (e) => this.onDonation(e);
+			PublicAPI.instance.addEventListener(TwitchatEvent.DONATION_EVENT, this.donationHandler);
 			PublicAPI.instance.addEventListener(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, this.overlayParamsHandler);
 		}
-		this.initParticles();
+
+		//@ts-ignore
+		window.raise = (amount:number)=>{
+			this.onOverlayParams(new TwitchatEvent("DONATION_GOALS_OVERLAY_PARAMS", {
+				...this.state!,
+				raisedPersonnal:this.state!.raisedPersonnal + amount,
+			}));
+		}
+		
+		//@ts-ignore
+		window.donationEvent = (amount:string, username:string)=>{
+			this.onDonation(new TwitchatEvent("DONATION_EVENT", {amount, username}));
+		}
 	}
 
 	public beforeUnmount():void {
+		PublicAPI.instance.removeEventListener(TwitchatEvent.DONATION_EVENT, this.donationHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, this.overlayParamsHandler);
 	}
 
@@ -94,6 +112,14 @@ class OverlayDonationGoals extends AbstractOverlay {
 		const state = e.data;
 		if(!state) return;
 		
+		//Show list if necessary
+		if(state!.params.autoDisplay && !this.show) {
+			this.show = true;
+			await Utils.promisedTimeout(500);
+		}else{
+			this.show = true;
+		}
+		
 		this.state = state;
 		this.localRaised = state.raisedPersonnal;
 		state.params.goalList.sort((a,b)=>a.amount-b.amount);
@@ -109,6 +135,73 @@ class OverlayDonationGoals extends AbstractOverlay {
 		this.buildLocalParams();
 		
 		await this.$nextTick();
+
+		this.onActivity();
+	}
+
+	/**
+	 * Called when receiving a donation
+	 */
+	public async onDonation(e:Parameters<typeof this.donationHandler>[0]):Promise<void> {
+		if(!e.data) return;
+		
+		//Show list if necessary
+		if(this.state!.params.autoDisplay && !this.show) {
+			this.show = true;
+			await Utils.promisedTimeout(500);
+		}else{
+			this.show = true;
+		}
+
+		if(this.state!.params.notifyTips) {
+			const components = this.$refs.notifications as OverlayDonationGoalAlertClass[];
+			components.forEach(c => {
+				c.onEvent(e.data!.username, e.data!.amount);
+			});
+		}
+		
+		this.onActivity();
+	}
+
+	/**
+	 * Called when an activty occurs.
+	 */
+	public onActivity():void {
+		this.show = true;
+
+		if(!this.state) return;
+		
+		if(this.state!.params.autoDisplay === true) {
+			//Schedule hide
+			clearTimeout(this.autoHideTimeout);
+			this.autoHideTimeout = setTimeout(() => this.show = false , 10000);
+		}
+
+		if(this.state.params.hideDone === true) return;
+		if(this.state.params.limitEntryCount === true) return;
+
+		//If showing the full list, scroll to the currently active goal
+		clearTimeout(this.scrollTimeout);
+		this.scrollTimeout = setTimeout(()=>{
+			const list = this.$refs.list as HTMLDivElement;
+			const boundsRef = list.getBoundingClientRect();
+			const item = document.querySelector("#current_donation_goal");
+			if(!item) {
+				setTimeout(() => {
+					this.onActivity();
+				}, 100);
+				return;
+			}
+			const bounds = item?.getBoundingClientRect();
+			const maxPos = document.body.clientHeight * .5;
+			let y = bounds.y - boundsRef.y;
+			
+			if(y > maxPos) {
+				gsap.to(list, {y:-y+maxPos, duration:1});
+			}else{
+				gsap.set(list, {y:0});
+			}
+		}, 500);
 	}
 
 	/**
@@ -126,88 +219,34 @@ class OverlayDonationGoals extends AbstractOverlay {
 				this.goalToParams[g.id] = {
 					percent:target,
 					hidePercent:0,
+					completed_at:0,
 					visible:true,
 					goalItem:g,
 					distanceToCurrentIndex:0,
+					closing:false,
 				}
 			}
 			offset = g.amount;
 		}
 
 		//Find current goal
-		let currentIndex = 0;
+		this.currentIndex = -1;
 		for (let i = 0; i < this.state!.params.goalList.length; i++) {
 			const g = this.state!.params.goalList[i];
 			const p = this.goalToParams[g.id];
-			if(p.percent > 0 && p.percent < 1) {
-				currentIndex = i;
-				break;
-			}
+			if(p.percent >= 1) continue;
+			this.currentIndex = i;
+			break;
 		}
 		
 		//Compute distances to current goal
 		//Used to only show the N next items to current goal
-		if(this.state?.params.limitEntryCount) {
-			for (let i = 0; i < this.state!.params.goalList.length; i++) {
-				const g = this.state!.params.goalList[i];
-				const p = this.goalToParams[g.id];
-				p.distanceToCurrentIndex = i - currentIndex;
-			}
+		for (let i = 0; i < this.state!.params.goalList.length; i++) {
+			const g = this.state!.params.goalList[i];
+			const p = this.goalToParams[g.id];
+			p.distanceToCurrentIndex = i - this.currentIndex;
 		}
 	}
-
-	/**
-	 * Initializes particles
-	 */
-	private initParticles():void {
-		for (let i = 0; i < 50; i++) {
-			this.particles.push({
-				a:Math.random() * Math.PI * 2,
-				r:Math.random() * Math.PI * 2,
-				v:Math.random() * .25 + .05,
-				s:(Math.random()-Math.random())*.5 + 1,
-				x:0,
-				y:0,
-			})
-		}
-	}
-
-	/**
-	 * Burst particles
-	 */
-	public burstParticles(goalId:string):void {
-		// const goal = this.state?.params.goalList.find(v=>v.id == goalId);
-		const holder = (this.$refs["goal_"+goalId] as Vue[])[0].$el;
-		const bounds = holder.getBoundingClientRect();
-		const count = 15;
-		
-		gsap.killTweensOf(holder);
-		gsap.fromTo(holder, {scaleX:1.15}, {scaleX:1, ease:"elastic.out", duration:1, clearProps:"scaleX"});
-		gsap.fromTo(holder, {scaleY:1.25}, {scaleY:1, ease:"elastic.out", duration:1, clearProps:"scaleY", delay:.07});
-
-		for (let i = this.particlePointer; i < this.particlePointer + count; i++) {
-			const index = i%this.particles.length;
-			const percent = (i-this.particlePointer)/count;
-			const params = this.particles[index];
-			const particle = (this.$refs.particle as HTMLOrSVGElement[])[index];
-			gsap.killTweensOf(particle);
-			
-			params.a = percent*Math.PI*2;
-			params.x = bounds.x + bounds.width * .5 + Math.cos(params.a) * bounds.width * .5 * Math.random();
-			params.y = bounds.y + bounds.height * .5 + Math.sin(params.a) * bounds.height * .5 * Math.random();
-			
-			const endX = params.x + Math.cos(params.a) * params.v * bounds.width * .44;
-			const endY = params.y + Math.sin(params.a) * params.v * bounds.height * .4;
-			const endR = params.r + (Math.random()-Math.random()) * Math.PI;
-			const delay = Math.random() * .1;
-			const duration = Math.random() * .5 + .75;
-			
-			gsap.fromTo(particle, {left:params.x, top:params.y, scale:params.s}, {left:endX, top:endY, ease:"sine.out", duration, delay});
-			gsap.fromTo(particle, {rotate:params.r+"rad", opacity:1}, {rotate:endR+"rad", ease:"none", duration, opacity:0, delay});
-		}
-		this.particlePointer += count;
-	}
-
 }
 export default toNative(OverlayDonationGoals);
 </script>
@@ -215,29 +254,21 @@ export default toNative(OverlayDonationGoals);
 <style scoped lang="less">
 .overlaydonationgoals{
 	.list {
+		opacity: 0;
+		height: 100vh;
 		display: flex;
 		flex-direction: column;
-		padding: 100px 0;
-		padding: 30px;
+		padding-left: 20px;
+		align-items: flex-start;
+		transition: opacity .5s;
 		.entry:not(:last-child) {
 			margin-bottom: .5em;
 		}
 	}
 
-	.particle {
-		top: 200%;
-		left: 200%;
-		width: 2em;
-		height: 2em;
-		position: absolute;
-		color: v-bind(color);
-		transform-origin: center;
-		transform: translate(-50%, -50%);
-		&:nth-child(odd) {
-			// color: v-bind(color_background);
-		}
-		path, polygon {
-			fill:currentColor;
+	&.show {
+		.list {
+			opacity: 1;
 		}
 	}
 }

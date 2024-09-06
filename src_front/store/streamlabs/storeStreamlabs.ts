@@ -208,7 +208,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 												StoreProxy.labels.incrementLabelValue("STREAMLABS_CHARITY_RAISED", data.amount);
 												StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_AMOUNT", data.amount);
 												StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_USER", data.userName);
-												StoreProxy.donationGoals.onDonation(data.userName, data.amount, "streamlabs_charity");
+												StoreProxy.donationGoals.onDonation(data.userName, data.amountFormatted, "streamlabs_charity");
 												StoreProxy.donationGoals.onSLCharityUpdate();
 											});
 
@@ -216,7 +216,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 											charityRefreshTimeout = setTimeout(()=>{
 												//Load fresh new charity data
 												this.loadCharityCampaignInfo();
-											}, 15000);
+											}, 5000);
 											break;
 										}
 										case "donation": {
