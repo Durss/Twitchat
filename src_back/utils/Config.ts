@@ -414,4 +414,9 @@ interface Credentials {
 
 	//TODO remove this when T4P ends
 	t4p_api_path:string;
+
+	tiltify_client_id:string;
+	tiltify_client_secret:string;
+	tiltify_api_token:string;
+	tiltify_webhook_verify:string;
 }

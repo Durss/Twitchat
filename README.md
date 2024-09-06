@@ -177,7 +177,15 @@ Rename the `credentials.default.json` file within the `credentials` folder to `c
 	"streamlabs_redirect_uri":"",
 
 	"streamelements_client_id":"",
-	"streamelements_client_secret":""
+	"streamelements_client_secret":"",
+	
+	"tipeee_client_id":"",
+	"tipeee_client_secret":"",
+	"tipeee_redirect_uri":"http://localhost:8080/tipeee/auth",
+
+	"tiltify_client_id":"",
+	"tiltify_client_secret":"",
+	"tiltify_api_token":""
 }
 ```
 Create a [twitch application](https://dev.twitch.tv/console) and fill in the `client_id` and `client_secret` values.\

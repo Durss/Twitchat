@@ -28,6 +28,7 @@ import Logger from './utils/Logger.js';
 import {FastifySSEPlugin} from 'fastify-sse-v2';
 import AdminController from './controllers/AdminController.js';
 import RemoteModController from './controllers/RemoteModController.js';
+import TiltifyController from './controllers/TiltifyController.js';
 
 // Run the server!
 async function start():Promise<void> {
@@ -92,6 +93,7 @@ server.register(FastifySSEPlugin)
 	new TipeeeController(server).initialize();
 	new BingoGridController(server).initialize();
 	new RemoteModController(server).initialize();
+	new TiltifyController(server).initialize();
 	
 	//Start server
 	start();

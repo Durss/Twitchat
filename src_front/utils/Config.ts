@@ -397,4 +397,5 @@ export interface ServerConfig {
 	streamelements_client_id:string;
 	tipeee_client_id:string;
 	tipeee_redirect_uri:string;
+	tiltify_client_id:string;
 }
