@@ -1,5 +1,5 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IQnaActions, IQnaGetters, IQnaState } from '../StoreProxy';
 import Utils from '@/utils/Utils';
@@ -323,3 +323,8 @@ export const storeQna = defineStore('qna', {
 		& PiniaCustomProperties
 	>,
 })
+
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeQna, import.meta.hot))
+}

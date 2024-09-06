@@ -1,4 +1,4 @@
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { UnwrapRef } from 'vue'
 import type { ILumiaActions, ILumiaGetters, ILumiaState } from '../StoreProxy'
 import StoreProxy from '../StoreProxy';
@@ -144,6 +144,10 @@ export const storeLumia = defineStore('lumia', {
 		& PiniaCustomProperties
 	>,
 })
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeLumia, import.meta.hot))
+}
 
 export interface LumiaStoreData {
 	token:string;

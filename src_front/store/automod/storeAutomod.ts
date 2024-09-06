@@ -1,7 +1,7 @@
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonObject } from "type-fest";
 import type { UnwrapRef } from 'vue';
 import type { IAutomodActions, IAutomodGetters, IAutomodState } from '../StoreProxy';
@@ -98,3 +98,7 @@ export const storeAutomod = defineStore('automod', {
 		& PiniaCustomProperties
 	>,
 })
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeAutomod, import.meta.hot))
+}

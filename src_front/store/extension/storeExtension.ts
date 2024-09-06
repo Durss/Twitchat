@@ -1,4 +1,4 @@
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { UnwrapRef } from 'vue'
 import type { IExtensionActions, IExtensionGetters, IExtensionState } from '../StoreProxy'
 import TwitchUtils from '@/utils/twitch/TwitchUtils'
@@ -39,3 +39,7 @@ export const storeExtension = defineStore('Extension', {
 		& PiniaCustomProperties
 	>,
 })
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeExtension, import.meta.hot))
+}

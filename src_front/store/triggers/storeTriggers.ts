@@ -6,7 +6,7 @@ import SchedulerHelper from '@/utils/SchedulerHelper';
 import TriggerUtils from '@/utils/TriggerUtils';
 import Utils from '@/utils/Utils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
-import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonObject } from "type-fest";
 import type { UnwrapRef } from 'vue';
 import type { ITriggersActions, ITriggersGetters, ITriggersState } from '../StoreProxy';
@@ -393,3 +393,8 @@ export const storeTriggers = defineStore('triggers', {
 		& PiniaCustomProperties
 	>,
 })
+
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeTriggers, import.meta.hot))
+}

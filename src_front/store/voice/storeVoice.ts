@@ -1,7 +1,7 @@
 import DataStore from '@/store/DataStore'
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import type VoiceAction from '@/utils/voice/VoiceAction'
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { UnwrapRef } from 'vue'
 import type { IVoiceActions, IVoiceGetters, IVoiceState } from '../StoreProxy'
 import VoiceController from '@/utils/voice/VoiceController'
@@ -122,3 +122,8 @@ export const storeVoice = defineStore('voice', {
 		& PiniaCustomProperties
 	>,
 })
+
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeVoice, import.meta.hot))
+}

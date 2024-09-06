@@ -7,7 +7,7 @@ import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
 import PublicAPI from '@/utils/PublicAPI';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import Utils from '@/utils/Utils';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IParamsActions, IParamsGetters, IParamsState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
@@ -590,3 +590,8 @@ export const storeParams = defineStore('params', {
 		& PiniaCustomProperties
 	>,
 })
+
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeParams, import.meta.hot))
+}

@@ -1,7 +1,7 @@
 import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IPollActions, type IPollGetters, type IPollState } from '../StoreProxy';
@@ -96,6 +96,10 @@ export const storePoll = defineStore('poll', {
 		& PiniaCustomProperties
 	>,
 })
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storePoll, import.meta.hot))
+}
 
 export interface PollOverlayParamStoreData {
 	listMode:boolean;

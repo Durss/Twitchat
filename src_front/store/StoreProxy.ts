@@ -64,6 +64,7 @@ export default class StoreProxy {
 	public static common:ICommonState & ICommonGetters & ICommonActions & {$state:ICommonState, $reset:()=>void};
 	public static labels:ILabelsState & ILabelsGetters & ILabelsActions & {$state:ILabelsState, $reset:()=>void};
 	public static donationGoals:IDonationGoalState & IDonationGoalGetters & IDonationGoalActions & {$state:IDonationGoalState, $reset:()=>void};
+	public static tiltify:ITiltifyState & ITiltifyGetters & ITiltifyActions & {$state:ITiltifyState, $reset:()=>void};
 	public static public:IPublicState & IPublicGetters & IPublicActions & {$state:IPublicState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
@@ -2629,7 +2630,7 @@ export interface IKofiActions {
 	/**
 	 * Populates the store
 	 */
-	populateData():void;
+	populateData():Promise<void>;
 	/**
 	 * Connects to Ko-fi
 	 */
@@ -2953,4 +2954,50 @@ export interface IDonationGoalActions {
 	 * @param amount 
 	 */
 	simulateDonation(overlayId:string, amount:number):Promise<void>
+}
+
+
+
+
+
+export interface ITiltifyState {
+	connected:boolean;
+	accessToken:string;
+	refreshToken:string;
+	authResult:{code:string, csrf:string};
+}
+
+export interface ITiltifyGetters {
+}
+
+export interface ITiltifyActions {
+	/**
+	 * Populates the store
+	 */
+	populateData():Promise<void>;
+	/**
+	 * Get the oAuth URL for streamlabs
+	 */
+	getOAuthURL():Promise<string>;
+	/**
+	 * Called after authenticating with Streamlabs
+	 */
+	setAuthResult(code:string, csrf:string):void;
+	/**
+	 * Authenticate to streamlabs after getting oAuth code
+	 */
+	getAccessToken():Promise<boolean>;
+	/**
+	 * Connects to Tiltify
+	 */
+	connect():Promise<boolean>
+	/**
+	 * Disconnects from Tiltify
+	 */
+	disconnect():Promise<boolean>;
+	/**
+	 * Called when receiving a tiltify event
+	 * @param data
+	 */
+	onEvent(data:any):void
 }

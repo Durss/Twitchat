@@ -4,7 +4,7 @@ import ApiHelper from '@/utils/ApiHelper';
 import SSEHelper from '@/utils/SSEHelper';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IKofiActions, IKofiGetters, IKofiState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
@@ -151,6 +151,9 @@ export const storeKofi = defineStore('kofi', {
 	>,
 })
 
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeKofi, import.meta.hot))
+}
 
 export interface KofiEventData {
 	verification_token: string;

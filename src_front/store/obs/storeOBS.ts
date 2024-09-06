@@ -2,7 +2,7 @@ import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket, { type OBSInputItem } from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IOBSActions, IOBSGetters, IOBSState } from '../StoreProxy';
 import type { JsonObject } from 'type-fest';
@@ -174,3 +174,7 @@ export const storeOBS = defineStore('obs', {
 		& PiniaCustomProperties
 	>,
 })
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeOBS, import.meta.hot))
+}

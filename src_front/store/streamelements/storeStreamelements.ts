@@ -1,7 +1,7 @@
 import ApiHelper from '@/utils/ApiHelper';
 import Config from '@/utils/Config';
 import SetIntervalWorker from '@/utils/SetIntervalWorker';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { IStreamelementsActions, IStreamelementsGetters, IStreamelementsState } from '../StoreProxy';
@@ -473,6 +473,11 @@ export const storeStreamelements = defineStore('streamelements', {
 	>,
 })
 
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeStreamelements, import.meta.hot))
+}
+
 export interface StreamelementsStoreData {
 	accessToken:string;
 	refreshToken:string;
@@ -500,7 +505,7 @@ interface StreamelementsTokenValidate {
 	client_id: string;
 	expires_in: number;
 	scopes: string[];
-  }
+}
 
 interface StreamelementsWelcomeData {
     sid:string;

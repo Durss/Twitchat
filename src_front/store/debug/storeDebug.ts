@@ -5,7 +5,7 @@ import Config from '@/utils/Config';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { LoremIpsum } from 'lorem-ipsum';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import { watch, type UnwrapRef, reactive } from 'vue';
 import type { IDebugActions, IDebugGetters, IDebugState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
@@ -1936,3 +1936,8 @@ export const storeDebug = defineStore('debug', {
 		& PiniaCustomProperties
 	>,
 })
+
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeDebug, import.meta.hot))
+}

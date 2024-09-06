@@ -6,7 +6,7 @@ import OBSWebsocket from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { IHeatActions, IHeatGetters, IHeatState } from '../StoreProxy';
@@ -542,3 +542,7 @@ export const storeHeat = defineStore('heat', {
 		& PiniaCustomProperties
 	>,
 })
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeHeat, import.meta.hot))
+}

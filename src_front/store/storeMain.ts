@@ -24,7 +24,7 @@ import HeatSocket from '@/utils/twitch/HeatSocket';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
-import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
@@ -1008,3 +1008,8 @@ export const storeMain = defineStore("main", {
 
 	} as IMainActions & ThisType<IMainActions & UnwrapRef<IMainState> & _StoreWithState<"main", IMainState, IMainGetters, IMainActions> & _StoreWithGetters<IMainGetters> & PiniaCustomProperties>
 })
+
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeMain, import.meta.hot))
+}

@@ -1,7 +1,7 @@
 import MessengerProxy from '@/messaging/MessengerProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IChatSuggestionActions, IChatSuggestionGetters, IChatSuggestionState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
@@ -64,3 +64,7 @@ export const storeChatSuggestion = defineStore('chatSuggestion', {
 		& PiniaCustomProperties
 	>,
 })
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeChatSuggestion, import.meta.hot))
+}

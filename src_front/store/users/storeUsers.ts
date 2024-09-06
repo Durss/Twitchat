@@ -6,7 +6,7 @@ import Config from '@/utils/Config';
 import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import { reactive, type UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
@@ -1174,3 +1174,8 @@ export const storeUsers = defineStore('users', {
 		& PiniaCustomProperties
 	>,
 })
+
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeUsers, import.meta.hot))
+}

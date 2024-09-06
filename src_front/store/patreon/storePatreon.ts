@@ -1,4 +1,4 @@
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IPatreonActions, IPatreonGetters, IPatreonState } from '../StoreProxy';
 
@@ -27,3 +27,7 @@ export const storePatreon = defineStore('patreon', {
 		& PiniaCustomProperties
 	>,
 })
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storePatreon, import.meta.hot))
+}

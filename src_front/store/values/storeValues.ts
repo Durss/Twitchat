@@ -1,6 +1,6 @@
 import { rebuildPlaceholdersCache } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { IValuesActions, IValuesGetters, IValuesState } from '../StoreProxy';
@@ -180,3 +180,8 @@ export const storeValues = defineStore('values', {
 		& PiniaCustomProperties
 	>,
 })
+
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeValues, import.meta.hot))
+}

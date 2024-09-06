@@ -2,7 +2,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import { LabelItemPlaceholderList, type LabelItemData, type LabelItemPlaceholder } from '@/types/ILabelOverlayData';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
@@ -235,6 +235,10 @@ export const storeLabels = defineStore('labels', {
 		& PiniaCustomProperties
 	>,
 })
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeLabels, import.meta.hot))
+}
 
 interface IStoreData {
 	labelList:LabelItemData[];

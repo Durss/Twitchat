@@ -4,7 +4,7 @@ import Config from '@/utils/Config';
 import SetIntervalWorker from '@/utils/SetIntervalWorker';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { IStreamlabsActions, IStreamlabsGetters, IStreamlabsState } from '../StoreProxy';
@@ -429,6 +429,10 @@ export const storeStreamlabs = defineStore('streamlabs', {
 		& PiniaCustomProperties
 	>,
 })
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeStreamlabs, import.meta.hot))
+}
 
 export interface SreamlabsStoreData {
 	accessToken:string;

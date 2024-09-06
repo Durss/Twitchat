@@ -2,7 +2,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import ApiHelper from '@/utils/ApiHelper'
 import Utils from '@/utils/Utils'
 import TwitchUtils from '@/utils/twitch/TwitchUtils'
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { UnwrapRef } from 'vue'
 import StoreProxy, { type IAdminActions, type IAdminGetters, type IAdminState } from '../StoreProxy'
 
@@ -226,3 +226,7 @@ export const storeAdmin = defineStore('Admin', {
 		& PiniaCustomProperties
 	>,
 })
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeAdmin, import.meta.hot))
+}

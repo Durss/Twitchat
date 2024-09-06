@@ -1,4 +1,4 @@
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { ITipeeeActions, ITipeeeGetters, ITipeeeState } from '../StoreProxy';
@@ -292,7 +292,11 @@ export const storeTipeee = defineStore('tipeee', {
 		& _StoreWithGetters<ITipeeeGetters>
 		& PiniaCustomProperties
 	>,
-})
+});
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeTipeee, import.meta.hot))
+}
 
 interface TipeeStoreData {
 	accessToken:string;

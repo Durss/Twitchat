@@ -2,7 +2,7 @@ import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { UnwrapRef } from 'vue';
 import type { ITTSActions, ITTSGetters, ITTSState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
@@ -164,3 +164,7 @@ export const storeTTS = defineStore('tts', {
 		& PiniaCustomProperties
 	>,
 })
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeTTS, import.meta.hot))
+}

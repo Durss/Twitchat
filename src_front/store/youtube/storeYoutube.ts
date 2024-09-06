@@ -1,4 +1,4 @@
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IYoutubeActions, IYoutubeGetters, IYoutubeState } from '../StoreProxy';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
@@ -37,3 +37,7 @@ export const storeYoutube = defineStore('youtube', {
 		& PiniaCustomProperties
 	>,
 })
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeYoutube, import.meta.hot))
+}

@@ -1,5 +1,5 @@
 import Utils from '@/utils/Utils';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { UnwrapRef } from 'vue'
 import type { IAccessibilityActions, IAccessibilityGetters, IAccessibilityState } from '../StoreProxy'
 
@@ -36,3 +36,7 @@ export const storeAccessibility = defineStore('Accessibility', {
 		& PiniaCustomProperties
 	>,
 })
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeAccessibility, import.meta.hot))
+}

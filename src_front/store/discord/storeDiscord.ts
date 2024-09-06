@@ -1,5 +1,5 @@
 import ApiHelper from '@/utils/ApiHelper';
-import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { IDiscordActions, IDiscordGetters, IDiscordState } from '../StoreProxy';
@@ -177,6 +177,10 @@ export const storeDiscord = defineStore('discord', {
 		& PiniaCustomProperties
 	>,
 })
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeDiscord, import.meta.hot))
+}
 
 export interface DiscordStoreData {
 	chatCols:number[];

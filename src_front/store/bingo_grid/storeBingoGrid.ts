@@ -1,5 +1,5 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IBingoGridActions, type IBingoGridGetters, type IBingoGridState, type IStore } from '../StoreProxy';
 import Utils from '@/utils/Utils';
@@ -784,6 +784,10 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 		& PiniaCustomProperties
 	>,
 })
+
+if(import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(storeBingoGrid, import.meta.hot))
+}
 
 interface IStoreData {
 	gridList:TwitchatDataTypes.BingoGridConfig[];
