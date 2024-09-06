@@ -11,7 +11,7 @@
 
 		<ParamsAccountPatreon class="card-item" />
 
-		<div class="card-item premium lifetimePremiumProgress" v-if="$store.auth.premiumType != 'lifetime' && lifetimePercent > 0 && lifetimePercent < 100">
+		<div class="card-item premium lifetimePremiumProgress" v-if="$store.auth.premiumType != 'lifetime' && $store.auth.premiumType != 'gifted' && lifetimePercent > 0 && lifetimePercent < 100">
 			<div class="info">{{ $t("premium.progress") }}</div>
 			<div class="card-item progressBar" :style="{backgroundSize:lifetimePercent+'% 100%'}">
 				<div class="label">{{ Math.round(lifetimePercent/100*$config.LIFETIME_DONOR_VALUE) }}€ / {{ $config.LIFETIME_DONOR_VALUE }}€</div>
