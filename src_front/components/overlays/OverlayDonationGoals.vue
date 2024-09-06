@@ -173,14 +173,17 @@ class OverlayDonationGoals extends AbstractOverlay {
 
 		if(!this.state) return;
 		
+		clearTimeout(this.autoHideTimeout);
 		if(this.state!.params.autoDisplay === true) {
 			//Schedule hide
-			clearTimeout(this.autoHideTimeout);
 			this.autoHideTimeout = setTimeout(() => this.show = false , 10000);
 		}
 
-		if(this.state.params.hideDone === true) return;
-		if(this.state.params.limitEntryCount === true) return;
+		if(this.state.params.hideDone === true || this.state.params.limitEntryCount === true) {
+			const list = this.$refs.list as HTMLDivElement;
+			gsap.set(list, {y:0});
+			return;
+		}
 
 		//If showing the full list, scroll to the currently active goal
 		clearTimeout(this.scrollTimeout);
@@ -255,6 +258,7 @@ export default toNative(OverlayDonationGoals);
 
 <style scoped lang="less">
 .overlaydonationgoals{
+	padding-top: 1em;
 	.list {
 		opacity: 0;
 		height: 100vh;

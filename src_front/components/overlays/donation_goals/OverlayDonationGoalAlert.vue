@@ -48,6 +48,7 @@ class OverlayDonationGoalAlert extends Vue {
 	public mounted():void {
 		watch(()=>this.active, ()=>{
 			if(this.active && this.pool.length > 0) this.showNext();
+			else this.pool = [];
 		})
 	}
 

@@ -79,7 +79,7 @@ class OverlayDonationGoalItem extends Vue {
 
 		watch(()=>this.data.percent, async ()=>{
 			gsap.to(this, {localPercent:this.data.percent, duration:.5, ease:"sine.inOut", onComplete:()=>{
-				if(this.data.percent >= 1 && !this.overlayParams.limitEntryCount) {
+				if(this.data.percent >= 1 && !this.overlayParams.hideDone) {
 					this.burstParticles();
 				}
 			}});
@@ -155,7 +155,7 @@ class OverlayDonationGoalItem extends Vue {
 			await new Promise<void>((resolve)=>{
 				this.burstParticles();
 				this.data.hidePercent = 0;
-				if(this.data.percent >= 1 && this.overlayParams.hideDone === true) {
+				if(this.data.percent >= 1) {
 					//Show hide timer
 					gsap.fromTo(this.data, {hidePercent:100}, {hidePercent:0, duration:10, ease:"none", onComplete:() => {
 						resolve();
@@ -177,7 +177,7 @@ class OverlayDonationGoalItem extends Vue {
 
 		let showAll = !this.overlayParams.limitEntryCount;
 		let shouldHide = this.overlayParams.hideDone && this.data.percent >= 1;
-		let isWithinRange = showAll || Math.abs(this.data.distanceToCurrentIndex) <= maxDist;
+		let isWithinRange = showAll || (Math.abs(this.data.distanceToCurrentIndex) <= maxDist && this.data.distanceToCurrentIndex >= 0);
 
 		let newState:typeof this.state = "";
 		// if(shouldHide) newState = "closed";
