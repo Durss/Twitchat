@@ -740,6 +740,10 @@ class MessageList extends Vue {
 				return this.config.filters.tipeee !== false;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.TILTIFY: {
+				return this.config.filters.tiltify !== false;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.CUSTOM: {
 				//Column filter is made earlier
 				return true;

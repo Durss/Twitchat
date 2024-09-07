@@ -120,7 +120,8 @@
 				"streamlabs": "Streamlabs alerts",
 				"streamelements": "Streamelements alerts",
 				"kofi": "Ko-fi alerts",
-				"tipeee": "Tipeee alerts"
+				"tipeee": "Tipeee alerts",
+				"tiltify": "Tiltify alerts"
 			},
 			"message_filters": {
 				"viewers": "Sent by viewers",
@@ -470,6 +471,9 @@
 			"donation": "{USER} made a {AMOUNT} donation on Tipeee",
 			"donation_recurring": "{USER} donated {AMOUNT} for {MONTHS} months on Tipeee",
 			"monthly": "{USER} donates {AMOUNT} per month on Tipeee"
+		},
+		"tiltify": {
+			"charity": "{USER} donated {AMOUNT} to {CAMPAIGN}"
 		},
 		"unban_request": {
 			"request": "{USER} sent following unban request",

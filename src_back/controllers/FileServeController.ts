@@ -130,6 +130,7 @@ export default class FileServeController extends AbstractController {
 				tipeee_redirect_uri:Config.credentials.tipeee_redirect_uri,
 
 				tiltify_client_id:Config.credentials.tiltify_client_id,
+				tiltify_scopes:Config.credentials.tiltify_scopes,
 			};
 				
 			const youtubeCredentials = Config.YOUTUBE_CREDENTIALS;

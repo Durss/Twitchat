@@ -46,6 +46,7 @@ export default class Config {
 	public NEW_FLAGS_DATE_V13 = new Date("08 30 2024 01:00:00").getTime()
 	public NEW_FLAGS_DATE_V13_1 = new Date("08 30 2024 01:00:00").getTime()
 	public NEW_FLAGS_DATE_V13_4 = new Date("09 01 2024 01:00:00").getTime()
+	public NEW_FLAGS_DATE_V13_7 = new Date("09 10 2024 01:00:00").getTime()
 	/**
 	 * Get if twitchat is running on an OBS dock
 	 */
@@ -271,6 +272,14 @@ export default class Config {
 	 * Tipeee client ID
 	 */
 	public get TIPEEE_CLIENT_ID():string { return this._serverConfig.tipeee_client_id; }
+	/**
+	 * Tiltify client ID
+	 */
+	public get TILTIFY_CLIENT_ID():string { return this._serverConfig.tiltify_client_id; }
+	/**
+	 * Tiltify scopes
+	 */
+	public get TILTIFY_SCOPES():string { return this._serverConfig.tiltify_scopes; }
 
 	/**
 	 * Fake Twitch "highlight my message" reward
@@ -398,4 +407,5 @@ export interface ServerConfig {
 	tipeee_client_id:string;
 	tipeee_redirect_uri:string;
 	tiltify_client_id:string;
+	tiltify_scopes:string;
 }

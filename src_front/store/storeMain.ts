@@ -876,6 +876,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.params.populateData();
 			StoreProxy.values.populateData();
 			StoreProxy.tipeee.populateData();
+			StoreProxy.tiltify.populateData();
 			StoreProxy.discord.populateData();
 			StoreProxy.automod.populateData();
 			StoreProxy.triggers.populateData();

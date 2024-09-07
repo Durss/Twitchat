@@ -120,7 +120,8 @@
 				"streamlabs": "Alertes Streamlabs",
 				"streamelements": "Alertes Streamelements",
 				"kofi": "Alertes Ko-fi",
-				"tipeee": "Alertes Tipeee"
+				"tipeee": "Alertes Tipeee",
+				"tiltify": "Alertes Tiltify"
 			},
 			"message_filters": {
 				"viewers": "Envoyé par des viewers",
@@ -470,6 +471,9 @@
 			"donation": "{USER} a fait un don de {AMOUNT} sur Tipeee",
 			"donation_recurring": "{USER} a fait un don de {AMOUNT} pour {MONTHS} mois sur Tipeee",
 			"monthly": "{USER} s'est abonné pour {AMOUNT} par mois sur Tipeee"
+		},
+		"tiltify": {
+			"charity": "{USER} a donné {AMOUNT} pour {CAMPAIGN}"
 		},
 		"unban_request": {
 			"request": "{USER} a envoyé cette demande d'unban",

@@ -1,6 +1,7 @@
 import type { KofiEventData } from '@/store/kofi/storeKofi';
 import { Event } from './EventDispatcher';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TiltifyEventData } from '@/store/tiltify/storeTiltify';
 
 /**
 * Created : 21/06/2023 
@@ -10,6 +11,7 @@ export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 	public static ON_CONNECT = "ON_CONNECT" as const;
 	public static FAILED_CONNECT = "FAILED_CONNECT" as const;
 	public static KO_FI_EVENT = "KO_FI_EVENT" as const;
+	public static TILTIFY_EVENT = "TILTIFY_EVENT" as const;
 	public static NOTIFICATION = "NOTIFICATION" as const;
 	public static BINGO_GRID_UPDATE = "BINGO_GRID_UPDATE" as const;
 	public static BINGO_GRID_BINGO_COUNT = "BINGO_GRID_BINGO_COUNT" as const;
@@ -51,6 +53,7 @@ export type EventTypeMap = {
 	AUTHENTICATION_FAILED: void;
 	LABELS_UPDATE: void;
 	KO_FI_EVENT: KofiEventData;
+	TILTIFY_EVENT: TiltifyEventData;
 	NOTIFICATION: {
 			messageId:string;
 			col:number[];

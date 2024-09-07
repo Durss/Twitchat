@@ -1,7 +1,8 @@
 {
 	"donation_goals": {
-		"configure_charity": "Veuillez d'abord configurer une campagne Streamlabs Charity !",
-		"configure_charity_bt": "Configurer une campagne",
+		"configure_charity": "Veuillez d'abord configurer une campagne Streamlabs Charity ou Tiltify !",
+		"configure_streamlabs_bt": "Configurer Streamlabs Charity",
+		"configure_tiltify_bt": "Configurer Tiltify",
 		"install_title": "Installer l'overlay",
 		"create_bt": "Créer des donation goals",
 		"add_goal_bt": "Ajouter un objectif",
@@ -9,6 +10,7 @@
 		"premium_limit": "Vous avez atteint le maxium de donation goals que vous pouvez créer.",
 		"non_premium_limit": "@:donation_goals.premium_limit \nDevenez membre premium pour créer jusqu'à {MAX} donation goals.",
 		"default_title": "Donation goal",
+		"streamlabs_charity_not_connected": "Veuillez configurer une campagne Streamlabs Charity",
 		"goal_list": "Objectifs",
 		"param_color": "Thème de couleur",
 		"param_hideDone": "Masquer les objectifs remplis après 10 secondes",
@@ -19,6 +21,8 @@
 		"param_limitEntryCount": "Afficher uniquement l'objectif en cours",
 		"param_maxDisplayedEntries": "Afficher également {VALUE} objectif suivant | Afficher également {VALUE} objectif suivant | Afficher également les {VALUE} objectifs suivants",
 		"param_goal_title_placeholder": "Objectif...",
-		"param_goal_secret": "Secret goal (text revealed only when amount is reached)"
+		"param_goal_secret": "Secret goal (text revealed only when amount is reached)",
+		"param_dataSource": "Platforme de dons",
+		"param_campaignId": "Campagne de dons"
 	}
 }

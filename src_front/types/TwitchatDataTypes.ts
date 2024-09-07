@@ -25,6 +25,7 @@ export namespace TwitchatDataTypes {
 		TIPEEE: "tipeee",
 		SPOTIFY: "spotify",
 		PATREON: "patreon",
+		TILTIFY: "tiltify",
 		PREMIUM: "premium",
 		YOUTUBE: "youtube",
 		DISCORD: "discord",
@@ -706,17 +707,48 @@ export namespace TwitchatDataTypes {
 		id:string;
 		title:string;
 		enabled:boolean;
+		/**
+		 * Notify donations on current goal
+		 */
 		notifyTips:boolean
+		/**
+		 * Automatically show/hide all goals depending on activities
+		 */
 		autoDisplay:boolean;
+		/**
+		 * Close completed goals
+		 */
 		hideDone:boolean;
+		/**
+		 * Number of items to display after the current goal
+		 */
 		limitEntryCount:boolean;
+		/**
+		 * Maximum donation goals to display
+		 */
 		maxDisplayedEntries:number;
-		dataSource:"streamlabs_charity";
+		/**
+		 * Source to link this donation goal to
+		 */
+		dataSource:"streamlabs_charity"|"tiltify";
+		/**
+		 * Optional campaign ID.
+		 * Not used by "streamlabs_charity" as the campaign
+		 * is defined globaly and only one can be active
+		 */
+		campaignId?:string;
 		color:string;
+		/**
+		 * List of donation goal entries
+		 */
 		goalList:{
 			id:string;
 			title:string;
 			amount:number;
+			/**
+			 * If true, the goal's title will be censored until
+			 * the goal is completed
+			 */
 			secret:boolean;
 		}[];
 	}
@@ -2023,6 +2055,7 @@ export namespace TwitchatDataTypes {
 		TIPEEE:"tipeee",
 		MESSAGE:"message",
 		WHISPER:"whisper",
+		TILTIFY:"tiltify",
 		CONNECT:"connect",
 		UNPINNED:"unpinned",
 		SHOUTOUT:"shoutout",
@@ -2121,6 +2154,7 @@ export namespace TwitchatDataTypes {
 		reward:true,
 		notice:true,
 		pinned:true,//Don't set it to false! we need to find it back when unpinning a message
+		tiltify:true,
 		message:true,
 		whisper:true,
 		connect:true,
@@ -2324,6 +2358,7 @@ export namespace TwitchatDataTypes {
 									| MessageYoutubeSubscriptionData
 									| MessageYoutubeSubgiftData
 									| MessageWebsocketTopicData
+									| MessageTiltifyData
 	;
 
 	/**
@@ -2359,6 +2394,7 @@ export namespace TwitchatDataTypes {
 							| typeof TwitchatMessageType.STREAMLABS
 							| typeof TwitchatMessageType.STREAMELEMENTS
 							| typeof TwitchatMessageType.TIPEEE
+							| typeof TwitchatMessageType.TILTIFY
 							| typeof TwitchatMessageType.COUNTDOWN
 							| typeof TwitchatMessageType.STREAM_ONLINE
 							| typeof TwitchatMessageType.MUSIC_ADDED_TO_QUEUE
@@ -2395,6 +2431,7 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.STREAMLABS,							labelKey:"chat.filters.message_types.streamlabs",							icon:"streamlabs",		scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
 		{type:TwitchatMessageType.STREAMELEMENTS,						labelKey:"chat.filters.message_types.streamelements",						icon:"streamelements",	scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
 		{type:TwitchatMessageType.TIPEEE,								labelKey:"chat.filters.message_types.tipeee",								icon:"tipeee",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
+		{type:TwitchatMessageType.TILTIFY,								labelKey:"chat.filters.message_types.tiltify",								icon:"tiltify",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V13_7},
 		{type:TwitchatMessageType.COUNTDOWN,							labelKey:"chat.filters.message_types.countdown",							icon:"countdown",		scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.STREAM_ONLINE,						labelKey:"chat.filters.message_types.stream_online",						icon:"online",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,					labelKey:"chat.filters.message_types.music_added_to_queue",					icon:"music",			scopes:[],	newFlag:0},
@@ -4943,4 +4980,27 @@ export namespace TwitchatDataTypes {
 		 */
 		message:string;
 	}
+
+	/**
+	 * Represents a tiltify event
+	 */
+	export type MessageTiltifyData = TiltifyDonationData;
+		interface TiltifyDonationBaseData extends AbstractTwitchatMessage{
+			type:"tiltify";
+			eventType:"charity";
+		}
+		export interface TiltifyDonationData extends TiltifyDonationBaseData{
+			eventType:"charity";
+			amount:number;
+			amountFormatted:string;
+			message:string;
+			message_chunks:ParseMessageChunk[];
+			message_html:string;
+			userName:string;
+			currency:string;
+			campaign:{
+				url:string;
+				title:string;
+			};
+		}
 }

@@ -80,6 +80,7 @@
 			<Button small @click="simulateEvent($event, 'kofi', 'kofi_merch')" icon="kofi">Kofi merch</Button>
 			<Button small @click="simulateEvent($event, 'kofi', 'kofi_sub')" icon="kofi">Kofi Sub</Button>
 			<Button small @click="simulateEvent($event, 'tipeee')" icon="tipeee">Tipeee donation</Button>
+			<Button small @click="simulateEvent($event, 'tiltify')" icon="tiltify">Tiltify donation</Button>
 			<Button small @click="simulateBlockedUser()" icon="block">Blocked user</Button>
 			<Button small @click="simulateSuspicious()" icon="shield">Suspicious user</Button>
 			<Button small @click="simulateRestricted()" icon="shield">Restricted user</Button>

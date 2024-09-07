@@ -1,0 +1,8 @@
+{
+	"tiltify": {
+		"header":"Receive {LINK} alerts on Twitchat",
+		"examples":"Message examples",
+		"create_donation_goals":"Create interactive donation goals with the dedicated overlay",
+		"no_team":"You are not part of any Tiltify Team"
+	}
+}

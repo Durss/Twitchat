@@ -7,6 +7,7 @@ import type { YoutubeAuthToken } from "@/types/youtube/YoutubeDataTypes";
 import type { ServerConfig } from "./Config";
 import Config from "./Config";
 import Utils from "./Utils";
+import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "@/store/tiltify/storeTiltify";
 
 /**
 * Created : 13/07/2023
@@ -1103,5 +1104,52 @@ type ApiEndpoints =  {
 				errorCode?:string;
 			}
 		},
+	};
+	"tiltify/info": {
+		GET: {
+			parameters: void;
+			response: {
+				success:boolean;
+				user:TiltifyUser;
+				campaigns:TiltifyCampaign[];
+				error?:string;
+				errorCode?:string;
+			}
+		},
+	};
+	"tiltify/auth": {
+		POST: {
+			parameters: {
+				code: string;
+				csrf: string;
+			};
+			response: {
+				success:boolean;
+				token:TiltifyToken;
+				error?:string;
+				errorCode?:string;
+			}
+		},
+		DELETE : {
+			parameters: void;
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		}
+	};
+	"tiltify/token/refresh": {
+		POST: {
+			parameters: {
+				refreshToken:string;
+			},
+			response: {
+				success:boolean;
+				token?:TiltifyToken;
+				error?:string;
+				errorCode?:string;
+			}
+		}
 	};
 }

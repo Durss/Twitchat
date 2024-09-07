@@ -17,6 +17,7 @@ import type { Router } from "vue-router";
 import type { LumiaVoiceList } from "./lumia/storeLumia";
 import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
+import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/storeTiltify";
 
 /**
 * Created : 23/09/2022
@@ -2961,9 +2962,10 @@ export interface IDonationGoalActions {
 
 
 export interface ITiltifyState {
+	user:TiltifyUser|null;
+	campaigns:TiltifyCampaign[];
 	connected:boolean;
-	accessToken:string;
-	refreshToken:string;
+	token:TiltifyToken|null;
 	authResult:{code:string, csrf:string};
 }
 
@@ -2988,9 +2990,9 @@ export interface ITiltifyActions {
 	 */
 	getAccessToken():Promise<boolean>;
 	/**
-	 * Connects to Tiltify
+	 * Called when authentication completes
 	 */
-	connect():Promise<boolean>
+	onAuthenticated():Promise<void>;
 	/**
 	 * Disconnects from Tiltify
 	 */
@@ -2999,5 +3001,9 @@ export interface ITiltifyActions {
 	 * Called when receiving a tiltify event
 	 * @param data
 	 */
-	onEvent(data:any):void
+	onEvent(data:any):void;
+	/**
+	 * Loads info about the user and their campaigns
+	 */
+	loadInfos():Promise<{user:TiltifyUser, campaigns:TiltifyCampaign[]}>
 }

@@ -42,7 +42,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 		async populateData():Promise<void> {
 			const sessionJSON = DataStore.get(DataStore.STREAMLABS);
 			if(sessionJSON) {
-				const json = JSON.parse(sessionJSON) as SreamlabsStoreData;
+				const json = JSON.parse(sessionJSON) as StreamlabsStoreData;
 				this.accessToken = json.accessToken;
 				this.charityTeam = json.charityTeam as typeof this.charityTeam || null;
 				if(this.charityTeam) {
@@ -341,7 +341,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 		},
 
 		saveData():void {
-			const data:SreamlabsStoreData = {
+			const data:StreamlabsStoreData = {
 				accessToken:this.accessToken,
 				socketToken:this.socketToken,
 				charityTeam:this.charityTeam,
@@ -434,7 +434,7 @@ if(import.meta.hot) {
 	import.meta.hot.accept(acceptHMRUpdate(storeStreamlabs, import.meta.hot))
 }
 
-export interface SreamlabsStoreData {
+export interface StreamlabsStoreData {
 	accessToken:string;
 	socketToken:string;
 	charityTeam:typeof StoreProxy.streamlabs.charityTeam;

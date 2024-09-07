@@ -417,6 +417,7 @@ interface Credentials {
 
 	tiltify_client_id:string;
 	tiltify_client_secret:string;
-	tiltify_api_token:string;
 	tiltify_webhook_verify:string;
+	tiltify_redirect_uri:string;
+	tiltify_scopes:string;
 }

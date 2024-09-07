@@ -109,6 +109,8 @@
 		"streamlabs_connect_failed": "Streamlabs authentication failed.",
 		"tipeee_denied": "You refused access to your Tipeee profile.",
 		"tipeee_connect_failed": "Tipeee authentication failed.",
+		"tiltify_denied": "You refused access to your Tiltify profile.",
+		"tiltify_connect_failed": "Tiltify authentication failed.",
 		"kofi_connect_failed": "Something went wrong when connecting to Ko-fi.",
 		"kofi_disconnect_failed": "Something went wrong when disconnecting from Ko-fi.",
 		"lumia_connect_failed": "Connection to Lumia Stream failed.\nMake sure Lumia Stream is started and token is valid.",

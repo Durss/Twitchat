@@ -388,6 +388,11 @@ export class MessageListFilter extends Vue {
 								storage:f,
 							};
 
+			//Force new filter to true
+			if(this.config.filters[f.type] == undefined) {
+				this.config.filters[f.type] = true;
+			}
+			
 			this.filters.push(paramData);
 
 			//Add sub-filters to the message types so we can filter mods, new users, automod, etc...

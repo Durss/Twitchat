@@ -409,6 +409,15 @@
 			:childrenList="childrenList"
 		/>
 	
+		<ChatTiltifyEvent class="message"
+			v-else-if="messageData.type == 'tiltify'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
+		/>
+	
 		<ChatUnbanRequest class="message"
 			v-else-if="messageData.type == 'unban_request'"
 			:messageData="messageData"
@@ -557,6 +566,7 @@ import ChatYoutubeSuperChat from './ChatYoutubeSuperChat.vue';
 import ChatYoutubeSuperSticker from './ChatYoutubeSuperSticker.vue';
 import ChatYoutubeSubscription from './ChatYoutubeSubscription.vue';
 import ChatYoutubeSubgift from './ChatYoutubeSubgift.vue';
+import ChatTiltifyEvent from './ChatTiltifyEvent.vue';
 
 @Component({
 	components:{
@@ -586,6 +596,7 @@ import ChatYoutubeSubgift from './ChatYoutubeSubgift.vue';
 		ChatCelebration,
 		ChatTimerResult,
 		ChatAutobanJoin,
+		ChatTiltifyEvent,
 		ChatUnbanRequest,
 		ChatRoomSettings,
 		ChatRaffleResult,

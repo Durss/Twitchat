@@ -72,7 +72,7 @@
 								<TTButton @click="openPremium()" icon="premium" light premium>{{ $t("premium.become_premiumBt") }}</TTButton>
 							</div>
 							
-							<div v-else-if="viewerCount > -1000" class="perfAlert">
+							<div v-else-if="viewerCount > 1000" class="perfAlert">
 								<img class="icon" src="@/assets/img/worried_face.svg" alt="worried face">
 								<p>{{ $t("bingo_grid.form.perf_alert") }}</p>
 							</div>

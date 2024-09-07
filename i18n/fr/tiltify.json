@@ -1,0 +1,8 @@
+{
+	"tiltify": {
+		"header":"Recevez vos alertes {LINK} dans Twitchat",
+		"examples":"Example de message",
+		"create_donation_goals":"Créez des donation goals interactifs avec l'overlay dédié",
+		"no_team":"Vous ne faites partie d'aucune team sur Tiltify"
+	}
+}

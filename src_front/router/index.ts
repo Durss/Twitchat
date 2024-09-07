@@ -242,7 +242,6 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/streamelements/auth',
 		name: 'streamelements/auth',
 		redirect:() => {
-			const sMain = StoreProxy.main;
 			const sParams = StoreProxy.params;
 			const sStreamelements = StoreProxy.streamelements;
 			if(Utils.getQueryParameterByName("code")) {
@@ -278,6 +277,28 @@ const routes: Array<RouteRecordRaw> = [
 				}
 			}else{
 				StoreProxy.common.alert( StoreProxy.i18n.t("error.streamelements_denied") );
+			}
+			return {name:"chat", query:{}};
+		},
+		meta: {
+			needAuth:true,
+		}
+	},
+	{
+		path: '/tiltify/auth',
+		name: 'tiltify/auth',
+		redirect:() => {
+			const sParams = StoreProxy.params;
+			const sTiltify = StoreProxy.tiltify;
+			if(Utils.getQueryParameterByName("code")) {
+				const params = {
+					code:Utils.getQueryParameterByName("code") as string,
+					csrf:Utils.getQueryParameterByName("state") as string,
+				}
+				sTiltify.setAuthResult(params.code, params.csrf);
+				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.TILTIFY);
+			}else{
+				StoreProxy.common.alert( StoreProxy.i18n.t("error.tiltify_denied") );
 			}
 			return {name:"chat", query:{}};
 		},

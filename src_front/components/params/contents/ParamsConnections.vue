@@ -40,6 +40,11 @@
 				<p>Streamlabs</p>
 			</button>
 
+			<button class="card-item" @click="subContent='tiltify'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_7, id:'params_connect.tiltify'}">
+				<Icon name="tiltify" />
+				<p>Tiltify</p>
+			</button>
+
 			<button class="card-item" @click="subContent='voicemod'">
 				<Icon name="voicemod" />
 				<p>Voicemod</p>
@@ -89,6 +94,7 @@
 	<ConnectKofi v-else-if="subContent == 'kofi'" />
 	<ConnectLumia v-else-if="subContent == 'lumia'" />
 	<ConnectStreamelements v-else-if="subContent == 'streamelements'" />
+	<ConnectTiltify v-else-if="subContent == 'tiltify'" />
 	<ConnectTipeee v-else-if="subContent == 'tipeee'" />
 </template>
 
@@ -112,6 +118,7 @@ import ConnectKofi from './connexions/ConnectKofi.vue';
 import ConnectLumia from './connexions/ConnectLumia.vue';
 import ConnectStreamelements from './connexions/ConnectStreamelements.vue';
 import ConnectTipeee from './connexions/ConnectTipeee.vue';
+import ConnectTiltify from './connexions/ConnectTiltify.vue';
 
 @Component({
 	components:{
@@ -122,6 +129,7 @@ import ConnectTipeee from './connexions/ConnectTipeee.vue';
 		ConnectLumia,
 		ConnectTipeee,
 		ConnectDiscord,
+		ConnectTiltify,
 		ConnectSpotify,
 		ConnectYoutube,
 		ConnectVoicemod,
@@ -176,16 +184,16 @@ export default toNative(ParamsConnections);
 		align-items: center;
 		// align-items: flex-start;
 		button {
-			padding: 1em;
 			gap:.5em;
 			display: flex;
-			flex-direction: column;
+			flex-direction: row;
 			align-items: center;
 			color: var(--color-text);
 			width: 250px;
 			text-align: center;
 			margin: unset;
 			transition: background-color .2s;
+			overflow: visible;
 			&.premium {
 				background-color: var(--color-premium-fadest);
 				
@@ -199,6 +207,7 @@ export default toNative(ParamsConnections);
 			}
 			&>.icon {
 				height: 2em;
+				max-width: 2em;
 				margin-right: 0;
 			}
 			&:hover {
@@ -224,7 +233,13 @@ export default toNative(ParamsConnections);
 					padding: .25em;
 				}
 			}
+			p {
+				flex-grow: 1;
+			}
 		}
+		:deep(.newFlag) {
+			border: 1px solid var(--color-secondary);
+	}
 	}
 }
 

@@ -1500,6 +1500,32 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.TILTIFY: {
+					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const amount = Math.round(Math.random()*50);
+					const m:TwitchatDataTypes.TiltifyDonationData = {
+						platform:"twitch",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						channel_id:uid,
+						amount,
+						amountFormatted:amount+"€",
+						currency:"EUR",
+						eventType:"charity",
+						message,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						message_chunks:chunks,
+						userName:fakeUser.displayNameOriginal,
+						campaign: {
+							title:"My awesome campaign",
+							url:"https://google.fr"
+						}
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION: {
 					const emote = Utils.pickRand(staticEmotes);
 					const m:TwitchatDataTypes.MessageTwitchCelebrationData = {

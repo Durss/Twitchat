@@ -65,6 +65,7 @@ import VueTippy, { setDefaultProps } from "vue-tippy";
 import { storeCommon } from './store/common/storeCommon';
 import { storeLabels } from './store/labels/storeLabels';
 import { storeDonationGoals } from './store/donation_goals/storeDonationGoals';
+import { storeTiltify } from './store/tiltify/storeTiltify';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -266,6 +267,7 @@ function buildApp() {
 	StoreProxy.default.tipeee = storeTipeee();
 	StoreProxy.default.common = storeCommon();
 	StoreProxy.default.donationGoals = storeDonationGoals();
+	StoreProxy.default.tiltify = storeTiltify();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.default.labels = (storeLabels() as unknown) as StoreProxy.ILabelsState & StoreProxy.ILabelsGetters & StoreProxy.ILabelsActions & { $state: StoreProxy.ILabelsState; $reset:()=>void };
 

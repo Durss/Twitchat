@@ -723,12 +723,10 @@ export class ParamItem extends Vue {
 			const maxLength = this.paramData.maxLength || 300;
 			const list = (this.paramData.value as string[]);
 			list.forEach((v,i)=> list[i] = v.substring(0, maxLength));
-			console.log(list);
 			
 			//Limit number of items of the editablelist
 			const maxItem = this.paramData.max ?? 999;
 			if(list.length > maxItem) {
-				console.log("SLICE", maxItem);
 				this.paramData.value.splice(0, Math.max(0, list.length-maxItem));
 			}
 		}

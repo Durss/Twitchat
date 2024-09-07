@@ -1,26 +1,23 @@
 <template>
-	<div class="chatstreamlabsevent chatMessage highlight"
+	<div class="chattiltifyevent chatMessage highlight"
 	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 
-		<Icon name="streamlabs" alt="streamlabs" class="icon"/>
+		<Icon name="tiltify" alt="tiltify" class="icon"/>
 
 		<div class="messageHolder">
 			<i18n-t scope="global" tag="span" :keypath="labelKey">
 				<template #USER>
 					<strong>{{ messageData.userName }}</strong>
 				</template>
-				<template #AMOUNT v-if="messageData.eventType == 'donation' || messageData.eventType == 'patreon_pledge' || messageData.eventType == 'charity'">
+				<template #AMOUNT v-if="messageData.eventType == 'charity'">
 					<strong>{{ messageData.amountFormatted }}</strong>
-				</template>
-				<template #PRODUCT v-if="messageData.eventType == 'merch'">
-					<strong>{{ messageData.product }}</strong>
 				</template>
 				<template #CAMPAIGN v-if="messageData.eventType == 'charity'">
 					<a :href="messageData.campaign.url" target="_blank"><strong>{{ messageData.campaign.title }}</strong></a>
 				</template>
 			</i18n-t>
-			<div class="quote" v-if="(messageData.eventType == 'donation' || messageData.eventType == 'merch'  || messageData.eventType == 'charity') && messageData.message">
+			<div class="quote" v-if="(messageData.eventType == 'charity') && messageData.message">
 				<ChatMessageChunksParser :chunks="messageData.message_chunks"></ChatMessageChunksParser>
 			</div>
 		</div>
@@ -39,27 +36,24 @@ import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 	},
 	emits:["onRead"],
 })
-class ChatStreamlabsEvent extends AbstractChatMessage {
+class ChatTiltifyEvent extends AbstractChatMessage {
 	
 	@Prop
-	declare messageData:TwitchatDataTypes.MessageStreamlabsData;
+	declare messageData:TwitchatDataTypes.MessageTiltifyData;
 
 	public get labelKey():string {
 		switch (this.messageData.eventType) {
-			case "merch": return "chat.streamlabs.merch";
-			case "donation": return "chat.streamlabs.donation";
-			case "patreon_pledge": return "chat.streamlabs.patreon_pledge";
-			case "charity": return "chat.streamlabs.charity";
+			case "charity": return "chat.tiltify.charity";
 		}
 		return "";
 	}
 
 }
-export default toNative(ChatStreamlabsEvent);
+export default toNative(ChatTiltifyEvent);
 </script>
 
 <style scoped lang="less">
-.chatstreamlabsevent{
+.chattiltifyevent{
 	.quote {
 		margin-top: .5em;
 	}

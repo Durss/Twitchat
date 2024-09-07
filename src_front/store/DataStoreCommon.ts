@@ -103,6 +103,8 @@ export default class DataStoreCommon {
 	public static USERCARD_PINNED_CHANNEL:string = "usercardPinnedChannel";
 	public static AUTOCONNECT_CHANS:string = "autoconnectChans";
 	public static DONATION_GOALS:string = "donationGoals";
+	public static TILTIFY:string = "tiltify";
+	public static TILTIFY_TOKEN:string = "tiltifyToken";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";
@@ -138,6 +140,7 @@ export default class DataStoreCommon {
 		this.STREAMELEMENTS,
 		this.TIPEEE,
 		this.T4P_CHAT_CMD,
+		this.TILTIFY_TOKEN,
 	];
 
 
