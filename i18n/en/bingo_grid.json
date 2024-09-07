@@ -50,7 +50,8 @@
 				"title": "Delete grid?"
 			},
 			"additional_cells":"Additional cells",
-			"premium_multiplayer":"Become premium to enable Multi player mode.\nAnytime a viewer gets a bingo their name and score will show up on the overlay and on chat, you'll be able to show the leaderboard and your mods will be able to tick cells for you."
+			"premium_multiplayer":"Become premium to enable Multi player mode.\nAnytime a viewer gets a bingo their name and score will show up on the overlay and on chat, you'll be able to show the leaderboard and your mods will be able to tick cells for you.",
+			"perf_alert": "Looks like you have quite a lot of viewers on your stream.\nI can't guarantee my server will survive that, please make a little prayer before sharing the link with your viewers 🙏."
 		},
 		"state": {
 			"auth_bt": "Authenticate to play",

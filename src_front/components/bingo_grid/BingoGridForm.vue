@@ -71,6 +71,11 @@
 								<span>{{ $t("bingo_grid.form.premium_multiplayer") }}</span>
 								<TTButton @click="openPremium()" icon="premium" light premium>{{ $t("premium.become_premiumBt") }}</TTButton>
 							</div>
+							
+							<div v-else-if="viewerCount > -1000" class="perfAlert">
+								<img class="icon" src="@/assets/img/worried_face.svg" alt="worried face">
+								<p>{{ $t("bingo_grid.form.perf_alert") }}</p>
+							</div>
 						</div>
 
 						<div class="card-item sizes">
@@ -294,6 +299,10 @@ class BingoGridForm extends AbstractSidePanel {
 	public isDragging:boolean = false;
 
 	private lockedItems:{[key:string]:{index:number, data:TwitchatDataTypes.BingoGridConfig["entries"][number]}[]} = {};
+	
+	public get viewerCount():number {
+		return this.$store.stream.currentStreamInfo[this.$store.auth.twitch.user.id]?.viewers || 0;
+	}
 
 	public getEntryClasses(col:TwitchatDataTypes.BingoGridConfig["entries"][number]) {
 		let res:string[] = ["entry"];
@@ -646,6 +655,29 @@ export default toNative(BingoGridForm);
 		}
 		&.share {
 			background-color: var(--color-premium-fader);
+			.perfAlert {
+				gap: 1em;
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				// background: white;
+				// color: var(--color-premium);
+				// font-weight: normal;
+				font-weight: bold;
+				line-height: 1.2em;
+				font-size: .9em;
+				white-space: pre-line;
+				.icon {
+					transform-origin: center;
+					font-size: 4em;
+					animation: scaleInOut .15s infinite ease-in-out;
+				}
+
+				@keyframes scaleInOut {
+					0%, 100% { transform: scale(1) rotate(0); }
+					50% { transform: scale(1.1) rotate(5deg); }
+				}
+			}
 		}
 
 		.info {
