@@ -178,6 +178,17 @@ export default class Config {
 		});
 	}
 
+	/**
+	 * File containing association between Tiltify campaign IDs and Twitch user IDs
+	 */
+	public static get TILTIFY_CAMPAIGN_2_UID_MAP(): string {
+		return this.getEnvData({
+			dev: path.join(this.TILTIFY_DATA_FOLDER, "/causeIdToUid.json"),
+			beta: path.join(this.TILTIFY_DATA_FOLDER, "/causeIdToUid.json"),
+			prod: path.join(this.TILTIFY_DATA_FOLDER, "/causeIdToUid.json"),
+		});
+	}
+
 
 	/**
 	 * Get if SMS warning for patreon requesting authentication is enabled
@@ -257,6 +268,17 @@ export default class Config {
 			dev: path.join(this.DATA_ROOT, "/kofi/"),
 			beta: path.join(this.DATA_ROOT, "/kofi/"),
 			prod: path.join(this.DATA_ROOT, "/kofi/"),
+		});
+	}
+
+	/**
+	 * Folder containing Tiltify data
+	 */
+	public static get TILTIFY_DATA_FOLDER(): string {
+		return this.getEnvData({
+			dev: path.join(this.DATA_ROOT, "/tiltify/"),
+			beta: path.join(this.DATA_ROOT, "/tiltify/"),
+			prod: path.join(this.DATA_ROOT, "/tiltify/"),
 		});
 	}
 
@@ -418,6 +440,7 @@ interface Credentials {
 	tiltify_client_id:string;
 	tiltify_client_secret:string;
 	tiltify_webhook_verify:string;
+	tiltify_webhook_id:string;
 	tiltify_redirect_uri:string;
 	tiltify_scopes:string;
 }

@@ -359,6 +359,7 @@ export default class DataStore extends DataStoreCommon{
 		if(typeof data["p:autoTranslateFirstLang"] == "string") {
 			data["p:autoTranslateFirstLang"] = [data["p:autoTranslateFirstLang"]];
 		}
+		delete data["YOUTUBE_AUTH_TOKEN"];//Probably some old beta data added by mistake that remains on few people
 		data[this.DATA_VERSION] = v;
 		return data;
 	}

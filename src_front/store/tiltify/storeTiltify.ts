@@ -113,10 +113,10 @@ export const storeTiltify = defineStore('tiltify', {
 			return false;
 		},
 
-		onEvent(data:TiltifyEventData):void {
+		onEvent(data:TiltifyDonationEventData | TiltifyCauseEventData):void {
 			const me = StoreProxy.auth.twitch.user;
 			switch(data.type) {
-				case "Donation": {
+				case "donation": {
 					const chunks = TwitchUtils.parseMessageToChunks(data.message || "", undefined, true);
 					// const message:TwitchatDataTypes.TiltifyDonationData = {
 					// 	id:Utils.getUUID(),
@@ -173,19 +173,23 @@ export interface TiltifyToken {
 	token_type: string;
 }
 
-export interface TiltifyEventData {
-	message_id: string;
-	timestamp: string;
-	type: "Donation";
-	is_public: boolean;
-	from_name: string;
-	message: string;
-	amount: string;
-	url: string;
-	email: string;
-	currency: string;
-	is_subscription_payment: boolean;
-	is_first_subscription_payment: boolean;
+export interface TiltifyDonationEventData{
+	type:"donation";
+	amount:number;
+	currency:string;
+	message:string;
+	username:string;
+	campaignId:string;
+}
+
+export interface TiltifyCauseEventData{
+	type:"cause_update";
+	amount_raised:number;
+	amount_goal:number;
+	currency:string;
+	donateUrl:string;
+	title:string;
+	description:string;
 }
 
 export interface TiltifyUser {

@@ -53,7 +53,7 @@ export type EventTypeMap = {
 	AUTHENTICATION_FAILED: void;
 	LABELS_UPDATE: void;
 	KO_FI_EVENT: KofiEventData;
-	TILTIFY_EVENT: TiltifyEventData;
+	TILTIFY_EVENT: TiltifyDonationEventData | TiltifyCauseEventData;
 	NOTIFICATION: {
 			messageId:string;
 			col:number[];

@@ -3,6 +3,8 @@ import AbstractController from "./AbstractController.js";
 import Config from "../utils/Config.js";
 import * as crypto from "crypto";
 import Logger from "../utils/Logger.js";
+import * as fs from "fs";
+import SSEController, { SSECode } from "./SSEController.js";
 
 /**
 * Created : 06/09/2024 
@@ -10,6 +12,7 @@ import Logger from "../utils/Logger.js";
 export default class TiltifyController extends AbstractController {
 
 	private credentialToken:AuthToken | null = null;
+	private campaign2UidMap:CampaignIdToUsers = {};
 	
 	constructor(public server:FastifyInstance) {
 		super();
@@ -31,7 +34,14 @@ export default class TiltifyController extends AbstractController {
 		this.server.post('/api/tiltify/token/refresh', async (request, response) => await this.postRefreshToken(request, response));
 		this.server.post('/api/tiltify/webhook', async (request, response) => await this.postWebhook(request, response));
 
-		this.generateCredentialToken();
+		await this.generateCredentialToken();
+		await this.enableWebhook();
+
+		if(fs.existsSync(Config.TILTIFY_CAMPAIGN_2_UID_MAP)) {
+			this.campaign2UidMap = JSON.parse(fs.readFileSync(Config.TILTIFY_CAMPAIGN_2_UID_MAP, "utf-8") || "{}");
+		}else{
+			
+		}
 	}
 	
 	
@@ -47,11 +57,11 @@ export default class TiltifyController extends AbstractController {
 	 * @returns 
 	 */
 	private async postWebhook(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const body = request.body as any;
-		const bodyStr = JSON.stringify(body);
+
+		//Verify signature
 		const signature = request.headers["x-tiltify-signature"];
 		const timestamp = request.headers["x-tiltify-timestamp"];
-		const key = timestamp+"."+bodyStr;
+		const key = timestamp+"."+JSON.stringify(request.body);
 		const hash = crypto.createHmac('sha256', Config.credentials.tiltify_webhook_verify)
 		.update(key)
 		.digest('base64');
@@ -63,8 +73,40 @@ export default class TiltifyController extends AbstractController {
 			return;
 		}
 
-		console.log(body);
-		
+		const body = request.body as WebhookDonationEvent|WebhookCampaignEvent;
+		if(body.meta.event_type == "public:direct:donation_updated") {
+			const typedBody = body as WebhookDonationEvent;
+			const users = this.campaign2UidMap[typedBody.data.cause_id];
+			const data:SSETiltifyDonationEventData = {
+				type: "donation",
+				amount: parseFloat(typedBody.data.amount.value),
+				currency: typedBody.data.amount.currency,
+				campaignId: typedBody.data.cause_id,
+				message: typedBody.data.donor_comment,
+				username: typedBody.data.donor_name,
+			};
+
+			(users || []).forEach(uid=>{
+				SSEController.sendToUser(uid, SSECode.TILTIFY_EVENT, data);
+			})
+		}else
+		if(body.meta.event_type == "public:direct:fact_updated") {
+			const typedBody = body as WebhookCampaignEvent;
+			const users = this.campaign2UidMap[typedBody.data.cause_id];
+			const data:SSETiltifyCauseEventData = {
+				type: "cause_update",
+				amount_goal: parseFloat(typedBody.data.goal.value),
+				currency: typedBody.data.goal.currency,
+				amount_raised: parseFloat(typedBody.data.amount_raised.value),
+				title: typedBody.data.name,
+				description: typedBody.data.description,
+				donateUrl: typedBody.data.donate_url,
+			};
+			(users || []).forEach(uid=>{
+				SSEController.sendToUser(uid, SSECode.TILTIFY_EVENT, data);
+			})
+		}
+
 		response.status(200);
 		response.send("OK");
 	}
@@ -76,6 +118,9 @@ export default class TiltifyController extends AbstractController {
 	 * @returns 
 	 */
 	private async getInfo(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		const user = await super.twitchUserGuard(request, response);
+		if(user == false) return;
+
 		const accessToken = request.headers["tiltify-access_token"] as string;
 		if(!accessToken) {
 			response.header('Content-Type', 'application/json')
@@ -98,18 +143,29 @@ export default class TiltifyController extends AbstractController {
 		
 		const campaignsRes = await fetch(`https://v5api.tiltify.com/api/public/users/${userJSON.id}/integration_events?limit=100`, options);
 		if(campaignsRes.status != 200) throw("Failed loading user's teams and campaigns with status "+userRes.status);
-		let campaignsJSON:{id:string}[] = [];
+		let campaignsJSON:IntegrationList = [];
 		try {
-			campaignsJSON = (await campaignsRes.json() as {data:any}).data;
+			campaignsJSON = (await campaignsRes.json() as {data:IntegrationList}).data;
 		}catch(error) {
 			Logger.error("Failed loading Tiltify campaigns");
 			console.log(error);
 			console.log(await campaignsRes.text());
 		}
 
+		let mapUpdated = false;
 		campaignsJSON.forEach(c => {
-			this.subscribeToCampaign(c.id);
-		})
+			
+			this.subscribeToCampaign(c.cause_id);
+			if(!this.campaign2UidMap[c.cause_id]) this.campaign2UidMap[c.cause_id] = [];
+			if(!this.campaign2UidMap[c.cause_id].includes(user.user_id)) {
+				this.campaign2UidMap[c.cause_id].push(user.user_id);
+				mapUpdated = true;
+			}
+		});
+
+		if(mapUpdated) {
+			fs.writeFileSync(Config.TILTIFY_CAMPAIGN_2_UID_MAP, JSON.stringify(this.campaign2UidMap), "utf-8");
+		}
 
 		response.header('Content-Type', 'application/json')
 		.status(200)
@@ -270,6 +326,28 @@ export default class TiltifyController extends AbstractController {
 			console.log(text);
 		}
 	}
+
+	/**
+	 * Enables the webhook
+	 */
+	private async enableWebhook():Promise<void> {
+		const headers = {
+			"content-type":"application/json",
+			"Authorization": "Bearer "+this.credentialToken!.access_token,
+		};
+		
+		const webhookId = Config.credentials.tiltify_webhook_id;
+		const res = await fetch(`https://v5api.tiltify.com/api/private/webhook_endpoints/${webhookId}/activate`, {method:"POST", headers});
+		if(res.status == 200) {
+			const json = await res.json() as {data:WebhookEnableResult};
+			Logger.info("[TILTIFY] Webhook enabled: "+json.data.description);
+		}else{
+			const text = await res.text();
+			Logger.error("[TILTIFY] Failed enabling webhook!");
+			console.log(text);
+		}
+	}
+
 }
 
 interface AuthToken {
@@ -279,4 +357,259 @@ interface AuthToken {
 	refresh_token: string;
 	scope: string;
 	token_type: string;
+}
+
+interface WebhookEnableResult {
+	id: string;
+	status: string;
+	description: string;
+	url: string;
+	inserted_at: string;
+	updated_at: string;
+	deactivated_at?: any;
+	activated_at: string;
+}
+
+interface WebhookDonationEvent {
+	data: {
+		amount: {
+			currency: string;
+			value: string;
+		};
+		campaign_id: string;
+		cause_id: string;
+		completed_at: string;
+		created_at: string;
+		donor_comment: string;
+		donor_name: string;
+		fundraising_event_id: string;
+		id: string;
+		legacy_id: number;
+		poll_id?: any;
+		poll_option_id?: any;
+		reward_claims?: any;
+		reward_id?: any;
+		sustained: boolean;
+		target_id?: any;
+		team_event_id?: any;
+	};
+	meta: {
+		id: string;
+		attempted_at: string;
+		event_type: "public:direct:donation_updated";
+		generated_at: string;
+		subscription_source_id: string;
+		subscription_source_type: string;
+	};
+}
+
+interface WebhookCampaignEvent {
+	data: {
+		amount_raised: {
+			currency: string;
+			value: string;
+		};
+		avatar: {
+			alt: string;
+			height: number;
+			src: string;
+			width: number;
+		};
+		cause_id: string;
+		description: string;
+		donate_url: string;
+		fundraising_event_id?: any;
+		goal: {
+			currency: string;
+			value: string;
+		};
+		has_schedule: boolean;
+		id: string;
+		inserted_at: string;
+		legacy_id: number;
+		livestream?: any;
+		name: string;
+		original_goal: {
+			currency: string;
+			value: string;
+		};
+		published_at: string;
+		retired_at?: any;
+		slug: string;
+		status: string;
+		supporting_type: string;
+		total_amount_raised: {
+			currency: string;
+			value: string;
+		};
+		updated_at: string;
+		url: string;
+		user: {
+			avatar: {
+				alt: string;
+				height: number;
+				src: string;
+				width: number;
+			};
+			description: string;
+			id: string;
+			legacy_id: number;
+			slug: string;
+			social: {
+				discord: string;
+				facebook: string;
+				instagram: string;
+				snapchat: string;
+				tiktok: string;
+				twitch: string;
+				twitter: string;
+				website: string;
+				youtube: string;
+			};
+			total_amount_raised: {
+				currency: string;
+				value: string;
+			};
+			url: string;
+			username: string;
+		};
+		user_id: string;
+	};
+	meta: {
+		id: string;
+		attempted_at: string;
+		event_type: "public:direct:fact_updated";
+		generated_at: string;
+		subscription_source_id: string;
+		subscription_source_type: string;
+	};
+}
+
+type IntegrationList = {
+	id: string;
+	name: string;
+	status: string;
+	user?: {
+		id: string;
+		description: string;
+		url: string;
+		username: string;
+		slug: string;
+		avatar: {
+			width: number;
+			alt: string;
+			src: string;
+			height: number;
+		};
+		social: {
+			twitch?: any;
+			twitter?: any;
+			facebook?: any;
+			discord?: any;
+			website?: any;
+			snapchat?: any;
+			instagram?: any;
+			youtube?: any;
+			tiktok?: any;
+		};
+		total_amount_raised: {
+			value: string;
+			currency: string;
+		};
+		legacy_id: number;
+	};
+	description: string;
+	url: string;
+	cause_id: string;
+	slug: string;
+	inserted_at: string;
+	updated_at: string;
+	currency_code?: string;
+	user_id?: string;
+	fundraising_event_id?: any;
+	team?: {
+		id: string;
+		name: string;
+		description: string;
+		url: string;
+		slug: string;
+		avatar: {
+			width: number;
+			alt: string;
+			src: string;
+			height: number;
+		};
+		social: {
+			twitch?: any;
+			twitter?: any;
+			facebook?: any;
+			discord?: any;
+			website?: any;
+			snapchat?: any;
+			instagram?: any;
+			youtube?: any;
+			tiktok?: any;
+		};
+		total_amount_raised: {
+			value: string;
+			currency: string;
+		};
+		legacy_id: number;
+	};
+	team_id?: string;
+	avatar: {
+		width: number;
+		alt: string;
+		src: string;
+		height: number;
+	};
+	amount_raised: {
+		value: string;
+		currency: string;
+	};
+	published_at: string;
+	retired_at?: any;
+	supportable?: string;
+	goal: {
+		value: string;
+		currency: string;
+	};
+	livestream?: any;
+	total_amount_raised: {
+		value: string;
+		currency: string;
+	};
+	original_goal: {
+		value: string;
+		currency: string;
+	};
+	supporting_amount_raised?: {
+		value: string;
+		currency: string;
+	};
+	legacy_id: number;
+	donate_url: string;
+	has_schedule: boolean;
+	supporting_type?: string;
+}[]
+
+type CampaignIdToUsers = {[campaignId:string]:string[]}
+
+export interface SSETiltifyDonationEventData{
+	type:"donation";
+	amount:number;
+	currency:string;
+	message:string;
+	username:string;
+	campaignId:string;
+}
+
+export interface SSETiltifyCauseEventData{
+	type:"cause_update";
+	amount_raised:number;
+	amount_goal:number;
+	currency:string;
+	donateUrl:string;
+	title:string;
+	description:string;
 }
