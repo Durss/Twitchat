@@ -17,6 +17,9 @@
 					<template #DURATION>
 						<strong>{{ formatedBanDuration }}</strong>
 					</template>
+					<template #PLATFORM>
+						<strong>{{ messageData.platform }}</strong>
+					</template>
 				</i18n-t>
 				<i18n-t scope="global" class="label" v-else tag="span" :keypath="messageData.moderator? 'global.moderation_action.banned_by': 'global.moderation_action.banned'">
 					<template #USER>
@@ -24,6 +27,9 @@
 					</template>
 					<template #MODERATOR>
 						<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!, messageData.channel_id)">{{messageData.moderator.displayName}}</a>
+					</template>
+					<template #PLATFORM>
+						<strong>{{ messageData.platform }}</strong>
 					</template>
 				</i18n-t>
 				<div class="quote reason" v-if="messageData.reason">{{ messageData.reason }}</div>
@@ -85,6 +91,7 @@ class ChatBan extends AbstractChatMessage {
 		this.$store.accessibility.setAriaPolite(aria);
 
 		this.showUnbanBt = this.messageData.user.channelInfo[this.messageData.channel_id].is_banned
+						&& this.messageData.platform != "youtube"
 						&& super.canModerateUser(this.messageData.user, this.messageData.channel_id);
 	}
 

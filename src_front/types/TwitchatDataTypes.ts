@@ -2036,7 +2036,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Available message types
 	 */
-	export const TwitchatMessageType = {
+	export const TwitchatMessageType:{  [K in Uppercase<ChatMessageTypes["type"]>]: Extract<ChatMessageTypes["type"], Lowercase<K>>} = {
 		BAN:"ban",
 		RAID:"raid",
 		POLL:"poll",
@@ -2078,6 +2078,7 @@ export namespace TwitchatDataTypes {
 		SUPER_CHAT:"super_chat",
 		MUSIC_START:"music_start",
 		TWITCHAT_AD:"twitchat_ad",
+		YOUTUBE_BAN:"youtube_ban",
 		VALUE_UPDATE:"value_update",
 		GOXLR_BUTTON:"goxlr_button",
 		RAID_STARTED:"raid_started",
@@ -2137,7 +2138,7 @@ export namespace TwitchatDataTypes {
 	//Dynamically type TwitchatMessageStringType from TwitchatMessageType values
 	export type TwitchatMessageStringType = typeof TwitchatMessageType[keyof typeof TwitchatMessageType];
 
-	export const DisplayableMessageTypes:{[key in TwitchatMessageStringType]:boolean} = {
+	export const DisplayableMessageTypes:{[key in ChatMessageTypes["type"]]:boolean} = {
 		ban:true,
 		raid:true,
 		unban:true,
@@ -2174,6 +2175,7 @@ export namespace TwitchatDataTypes {
 		clear_chat:true,
 		disconnect:true,
 		prediction:true,
+		youtube_ban:true,
 		bingo_grid:false,
 		heat_click:false,
 		chat_alert:false,
@@ -2357,6 +2359,7 @@ export namespace TwitchatDataTypes {
 									| MessageYoutubeSuperStickerData
 									| MessageYoutubeSubscriptionData
 									| MessageYoutubeSubgiftData
+									| MessageYoutubeBanData
 									| MessageWebsocketTopicData
 									| MessageTiltifyData
 	;
@@ -4964,6 +4967,25 @@ export namespace TwitchatDataTypes {
 		 * Youtube live chat ID this message has been sent to
 		 */
 		youtube_liveId: string;
+	}
+
+	/**
+	 * Represents a ban on youtube
+	 */
+	export interface MessageYoutubeBanData extends AbstractTwitchatMessage {
+		type:"youtube_ban";
+		/**
+		 * User that got banned
+		 */
+		user:TwitchatUser;
+		/**
+		 * User that executed the ban action
+		 */
+		moderator:TwitchatUser;
+		/**
+		 * Ban duration if temporary, undefined if permanent
+		 */
+		duration_s?:number;
 	}
 
 	/**

@@ -975,6 +975,24 @@ export default class YoutubeHelper {
 
 			case "messageDeletedEvent": {
 				StoreProxy.chat.deleteMessageByID(m.snippet.messageDeletedDetails.deletedMessageId);
+				break;
+			}
+
+			case "userBannedEvent": {
+				const bannedUser = await StoreProxy.users.getUserFrom("youtube", channelId, m.snippet.userBannedDetails.bannedUserDetails.channelId, m.snippet.userBannedDetails.bannedUserDetails.displayName, m.snippet.userBannedDetails.bannedUserDetails.displayName);
+				const data:TwitchatDataTypes.MessageYoutubeBanData = {
+					id:Utils.getUUID(),
+					channel_id:channelId,
+					date:Date.now(),
+					platform:"youtube",
+					type:TwitchatDataTypes.TwitchatMessageType.YOUTUBE_BAN,
+					user:bannedUser,
+					moderator:user,
+					duration_s:m.snippet.userBannedDetails.banDurationSeconds,
+				};
+				StoreProxy.chat.addMessage(data);
+				StoreProxy.users.flagBanned("youtube", channelId, bannedUser.id, data.duration_s);
+				break;
 			}
 		}
 

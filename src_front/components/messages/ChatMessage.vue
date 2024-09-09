@@ -631,7 +631,7 @@ class ChatMessage extends AbstractChatMessage {
 			date:this.messageData.date,
 			message_id:this.messageData.id,
 			clip:{
-				url:this.clipInfo!.embed_url+"&autoplay=true&parent=twitchat.fr&parent=localhost",
+				url:this.clipInfo!.embed_url,
 				// mp4:this.clipInfo!.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
 				duration:this.clipInfo!.duration,
 			},

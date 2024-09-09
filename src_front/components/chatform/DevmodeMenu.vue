@@ -19,6 +19,7 @@
 			<Button small @click="simulateEvent($event, 'join')" icon="enter">Join</Button>
 			<Button small @click="simulateEvent($event, 'leave')" icon="leave">Leave</Button>
 			<Button small @click="simulateEvent($event, 'ban')" icon="ban">Ban</Button>
+			<Button small @click="simulateEvent($event, 'youtube_ban')" icon="ban">Ban Youtube</Button>
 			<Button small @click="simulateEvent($event, 'unban')" icon="unban">Unban</Button>
 			<Button small @click="simulateEvent($event, 'warn_chatter')" icon="alert">Warn chatter</Button>
 			<Button small @click="simulateEvent($event, 'warn_acknowledge')" icon="alert">Warn acknowledgement</Button>

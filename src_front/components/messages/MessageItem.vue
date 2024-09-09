@@ -211,7 +211,7 @@
 		/>
 	
 		<ChatBan class="message"
-			v-else-if="messageData.type == 'ban'"
+			v-else-if="messageData.type == 'ban' || messageData.type == 'youtube_ban'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
 			:colIndex="colIndex"

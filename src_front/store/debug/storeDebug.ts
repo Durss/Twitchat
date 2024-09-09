@@ -1150,14 +1150,15 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
-				case TwitchatDataTypes.TwitchatMessageType.BAN: {
+				case TwitchatDataTypes.TwitchatMessageType.BAN:
+				case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_BAN: {
 					if(fakeUser.temporary) {
 						await new Promise((resolve)=> {
 							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
 						})
 					}
-					const m:TwitchatDataTypes.MessageBanData = {
-						platform:"twitch",
+					const m:TwitchatDataTypes.MessageBanData|TwitchatDataTypes.MessageYoutubeBanData = {
+						platform:type == TwitchatDataTypes.TwitchatMessageType.BAN? "twitch" : "youtube",
 						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
@@ -1673,6 +1674,23 @@ export const storeDebug = defineStore('debug', {
 					};
 					data = m;
 					break;
+				}
+
+				default: {
+					let message = "The request message type \""+type+"\" is lacking implementation on storeDebug."
+					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const m:TwitchatDataTypes.MessageCustomData = {
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						channel_id:uid,
+						style: "error",
+						message,
+						message_chunks:chunks,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+					};
+					data = m;
 				}
 			}
 

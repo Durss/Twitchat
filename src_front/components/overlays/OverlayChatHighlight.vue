@@ -27,7 +27,7 @@
 		v-else-if="clipData" v-show="!loadingClip">
 			<iframe 
 				id="clip_player"
-				:src="clipData.url"
+				:src="clipData.url+'&autoplay=true&parent=twitchat.fr&parent=localhost&parent=beta.twitchat.fr'"
 				width="990"
 				height="557"
 				allowfullscreen

@@ -1719,7 +1719,7 @@ export default class TwitchUtils {
 				if (clip) {
 					clearInterval(interval);
 					const clipData = {
-						url: clip.embed_url + "&autoplay=true&parent=twitchat.fr&parent=localhost",
+						url: clip.embed_url,
 						mp4: clip.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
 						duration: clip.duration,
 					};

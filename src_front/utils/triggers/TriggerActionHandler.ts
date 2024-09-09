@@ -1450,7 +1450,7 @@ export default class TriggerActionHandler {
 								date:message.date,
 								message_id,
 								clip:{
-									url: clip!.embed_url+"&autoplay=true&parent=twitchat.fr&parent=localhost",
+									url: clip!.embed_url,
 									mp4: clip!.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
 									duration: clip!.duration,
 								},

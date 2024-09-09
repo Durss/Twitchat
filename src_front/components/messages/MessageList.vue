@@ -655,7 +655,8 @@ class MessageList extends Vue {
 				return this.config.filters.leave === true;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.BAN: {
+			case TwitchatDataTypes.TwitchatMessageType.BAN:
+			case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_BAN: {
 				return this.config.filters.ban === true;
 			}
 
