@@ -115,7 +115,9 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	 */
 	public get isTextSource():boolean {
 		const input = this.obsSources.find(v=>"source_"+v.sourceName == this.source_conf.value);
-		return (input?.inputKind == 'text_gdiplus_v2' || input?.inputKind == 'text_ft2_source_v2')
+		if(!input || !input.inputKind) return false;
+
+		return (input.inputKind.indexOf("text_") > -1)
 				&& this.filter_conf.value == ""
 				&& this.action_conf.value == "show";
 	}
