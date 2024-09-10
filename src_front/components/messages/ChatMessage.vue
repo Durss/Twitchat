@@ -759,6 +759,7 @@ export default toNative(ChatMessage);
 		padding: 1em;
 		background: linear-gradient(90deg, #3866dd, #ff4c5b);
 		z-index: 0;
+		color: #fff;
 		&::before {
 			content: "";
 			top: .75em;
@@ -776,6 +777,7 @@ export default toNative(ChatMessage);
 		padding: 1em;
 		overflow: hidden;
 		z-index: 0;
+		color: #fff;
 		&::before {
 			content: "";
 			top: .75em;
@@ -823,6 +825,7 @@ export default toNative(ChatMessage);
 		border-radius: 0;
 		padding: 1em;
 		z-index: 0;
+		color: #fff;
 		&::before {
 			content: "";
 			top: .75em;
