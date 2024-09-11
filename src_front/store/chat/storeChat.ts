@@ -1001,9 +1001,10 @@ export const storeChat = defineStore('chat', {
 				case TwitchatDataTypes.TwitchatMessageType.MESSAGE:
 				case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
 					if(message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
-						const correspondantId = message.user.id == sAuth.twitch.user.id? message.to.id : message.user.id
-						if(!this.whispers[correspondantId]) this.whispers[correspondantId] = [];
-						this.whispers[correspondantId].push(message);
+						const to = message.user.id == sAuth.twitch.user.id? message.to : message.user;
+						const from = message.user.id == sAuth.twitch.user.id? message.user : message.to;
+						if(!this.whispers[to.id]) this.whispers[to.id] = {from, to, messages:[]};
+						this.whispers[to.id].messages.push(message);
 						this.whispersUnreadCount ++;
 						const wsUser = {
 							id:message.user.id,
@@ -2103,6 +2104,14 @@ export const storeChat = defineStore('chat', {
 		},
 
 		setEmoteSelectorCache(payload:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[]) { this.emoteSelectorCache = payload; },
+
+		openWhisperWithUser(user:TwitchatDataTypes.TwitchatUser):void {
+			if(!TwitchUtils.requestScopes([TwitchScopes.WHISPER_READ && TwitchScopes.WHISPER_WRITE])) return;
+			
+			const from = StoreProxy.auth.twitch.user;
+			StoreProxy.chat.whispers[user.id] = {to:user, from, messages:[]};
+			StoreProxy.params.openModal("whispers", true);
+		},
 
 		closeWhispers( userID:string) {
 			delete this.whispers[userID];

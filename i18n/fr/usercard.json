@@ -13,6 +13,7 @@
 		"moderator_viewercardBt_tt":"Vous êtes modo chez {CHANNEL}.\nOuvrir les infos viewer pour cette chaîne.",
 		"warnBt":"Envoyer avertissement",
 		"warn_placeholder":"avertissement...",
+		"whisperBt":"Chuchoter",
 		"shoutoutBt":"Shoutout",
 		"trackBt":"Activer le suivi",
 		"untrackBt":"Désactiver le suivi",

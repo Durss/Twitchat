@@ -381,7 +381,8 @@
 			"add_blocked_terms": "Ajouter ce message aux termes bloqués",
 			"warn_user": "Envoyer un avertissement",
 			"shared_qna": "Enregister question/réponse",
-			"spoil": "Marquer comme spoiler"
+			"spoil": "Marquer comme spoiler",
+			"whisper": "Message privé"
 		},
 		"custom_badge": {
 			"label": {

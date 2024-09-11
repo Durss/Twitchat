@@ -109,6 +109,15 @@ export default class ContextMenuHelper {
 							}
 						});
 			}
+			
+			//Whisper
+			if(user.id != myUID) {
+				options.push({
+							label: t("chat.context_menu.whisper"),
+							icon: this.getIcon("icons/whispers.svg"),
+							onClick: () => StoreProxy.chat.openWhisperWithUser(user),
+						});
+			}
 
 			//Track/untrack user
 			if(user.is_tracked) {

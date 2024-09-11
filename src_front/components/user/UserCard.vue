@@ -127,6 +127,7 @@
 							<TTButton type="submit" icon="checkmark" :disabled="warningMessage.length == 0" :loading="sendingWarning"></TTButton>
 						</form>
 						<template v-else>
+							<TTButton v-if="canWhisper" small icon="whispers" @click="openWhispers()">{{$t('usercard.whisperBt')}}</TTButton>
 							<TTButton v-if="canModerate && canShoutout" small icon="shoutout" @click="shoutoutUser()">{{$t('usercard.shoutoutBt')}}</TTButton>
 							<TTButton v-if="canModerate && canWarn" small icon="alert" @click="showWarningForm = true">{{$t('usercard.warnBt')}}</TTButton>
 							<TTButton v-if="!is_tracked" small icon="magnet" @click="trackUser()">{{$t('usercard.trackBt')}}</TTButton>
@@ -342,6 +343,11 @@ class UserCard extends AbstractSidePanel {
 	 * Get if channels we moderate can be listed
 	 */
 	public get canListModeratedChans():boolean { return TwitchUtils.hasScopes([TwitchScopes.LIST_MODERATED_CHANS]); }
+
+	/**
+	 * Get if we can whisper
+	 */
+	public get canWhisper():boolean { return this.user!.id != this.$store.auth.twitch.user.id &&  TwitchUtils.hasScopes([TwitchScopes.WHISPER_READ && TwitchScopes.WHISPER_WRITE]); }
 
 	/**
 	 * Get if we can shoutout
@@ -630,6 +636,11 @@ class UserCard extends AbstractSidePanel {
 			event.stopPropagation();
 		}
 	}
+
+	/**
+	 * Open whispers with the user
+	 */
+	public openWhispers():void { this.$store.chat.openWhisperWithUser(this.user!); this.closeCard(); }
 
 	/**
 	 * Give a shoutout to the user

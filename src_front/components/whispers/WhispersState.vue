@@ -2,14 +2,12 @@
 	<div class="whispersstate sidePanel">
 		<div class="head">
 			<ClearButton @click="close" />
-			
-			<h1 class="title"><Icon name="whispers" class="icon"/>{{ $t('whispers.title') }}</h1>
-			<div class="description" v-if="isConversation">{{ getCorrespondant(selectedUserId).displayName }}</div>
+			<h1 class="title" v-if="isConversation"><img :src="getCorrespondant(selectedUserId).avatarPath" v-if="getCorrespondant(selectedUserId).avatarPath" class="icon">{{ $t('whispers.title') }} - {{ getCorrespondant(selectedUserId).displayName }}</h1>
 		</div>
 	
 		<div class="content" v-if="isConversation">
 			<div class="messageList" ref="messageList">
-				<div v-for="m in $store.chat.whispers[selectedUserId]" :key="m.id" :class="messageClasses(m)">
+				<div v-for="m in $store.chat.whispers[selectedUserId].messages" :key="m.id" :class="messageClasses(m)">
 					<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{getTime(m)}}</span>
 					<div class="text">
 						<ChatMessageChunksParser :chunks="m.message_chunks" :channel="m.channel_id" :platform="m.platform" />
@@ -24,7 +22,7 @@
 			</div>
 
 			<form @submit.prevent="sendWhisper()" v-if="canAnswer">
-				<input type="text" :placeholder="$t('whispers.input_placeholder')" class="dark" v-model="whisper" maxlength="500">
+				<input type="text" :placeholder="$t('whispers.input_placeholder')" class="dark" v-model="whisper" maxlength="500" v-autofocus>
 				<TTButton class="submit" type="submit" icon="checkmark" :disabled="!whisper" />
 			</form>
 			<TTButton v-else small highlight icon="unlock" @click="requestTwitchScope()">{{ $t('whispers.add_scope_bt') }}</TTButton>
@@ -79,15 +77,16 @@ class WhispersState extends AbstractSidePanel {
 	}
 
 	public get currentUser():TwitchatDataTypes.TwitchatUser {
-		return this.$store.chat.whispers[this.selectedUserId].find(v=> v.user.id == this.selectedUserId)!.user;
+		//TODO Is this thing necessary?
+		return this.$store.chat.whispers[this.selectedUserId].messages.find(v=> v.user.id == this.selectedUserId)!.user;
 	}
 
 	public getCorrespondant(uid:string):TwitchatDataTypes.TwitchatUser {
 		const whispers = this.$store.chat.whispers[uid];
 		const me = this.$store.auth.twitch.user.id;
-		return whispers[0].to.id == me? whispers[0].user : whispers[0].to;
+		return whispers.to.id == me? whispers.from : whispers.to;
 	}
- 
+
 	public beforeMount():void {
 		this.selectedUserId = Object.keys(this.$store.chat.whispers)[0];
 		this.$store.chat.whispersUnreadCount = 0;
@@ -138,6 +137,9 @@ class WhispersState extends AbstractSidePanel {
 
 	public deleteWhispers(uid:string):void {
 		this.$store.chat.closeWhispers(uid);
+		if(this.selectedUserId == uid && this.isConversation) {
+			this.selectedUserId = Object.keys(this.$store.chat.whispers)[0];
+		}
 		if(!this.isConversation) this.close();
 	}
 
@@ -152,6 +154,9 @@ export default toNative(WhispersState);
 
 <style scoped lang="less">
 .whispersstate{
+	.head>.title>.icon {
+		border-radius: 50%;
+	}
 	.content {
 		padding-right: 5px;
 		display: flex;

@@ -514,7 +514,7 @@ export class ChatForm extends Vue {
 	public get whispersAvailable():boolean {
 		const whispers = this.$store.chat.whispers;
 		for (const key in whispers) {
-			if (whispers[key].length > 0) return true;
+			if (whispers[key].messages.length > 0) return true;
 		}
 		return false;
 	}

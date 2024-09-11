@@ -1164,7 +1164,7 @@ export const storeUsers = defineStore('users', {
 
 		saveCustomUsername():void {
 			DataStore.set(DataStore.CUSTOM_USERNAMES, this.customUsernames);
-		}
+		},
 
 	} as IUsersActions
 	& ThisType<IUsersActions
