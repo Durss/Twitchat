@@ -891,12 +891,14 @@ export default class TriggerActionHandler {
 			return false;
 		}
 
-		//Do not execute triggers for ko-fi events if users made their donation private
+		//If Ko-fi user requested to make their comment private, remove it so
+		//triggers cannot use it
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.KOFI && message.isPublic !== true) {
-			log.entries.push({date:Date.now(), type:"message", value:"❌ User made their Ko-fi transaction private. Don't execute the related triggers to respect their choice."});
-			log.error = true;
-			Logger.instance.log("triggers", log);
-			return false;
+			log.entries.push({date:Date.now(), type:"message", value:"🫥 Ko-Fi user requested their message to be private. Removing it before executing triggers."});
+			message = JSON.parse(JSON.stringify(message)) as TwitchatDataTypes.MessageKofiData;
+			message.message = "";
+			message.message_chunks = [];
+			message.message_html = "";
 		}
 
 		const isPremium = StoreProxy.auth.isPremium;
@@ -1787,79 +1789,89 @@ export default class TriggerActionHandler {
 					}
 
 					let uri = step.url;
-					if(!/https?:\/\//gi.test(uri) && !/.*:\/\/.*/gi.test(uri)) uri = "https://"+uri;
-					const url = new URL(uri);
-					for (const tag of step.queryParams) {
-						const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent);
-						if((step.method == "POST" || step.method == "PATCH") && step.sendAsBody == true) {
-							body[tag.toLowerCase()] = text;
-						}else{
-							url.searchParams.append(tag.toLowerCase(), text);
-						}
-					}
-					if(step.method == "POST" || step.method == "PATCH") {
-						if(step.sendAsBody == true) {
-							headers["Content-Type"] = "application/json";
-							options.body = JSON.stringify(body);
-						}else if(customBody) {
-							options.body = customBody;
-						}
-					}
-					if(step.customHeaders === true) {
-						for (let i = 0; i < (step.headers || []).length; i++) {
-							const h = step.headers![i];
-							const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, h.value, subEvent);
-							headers[h.key] = value;
-						}
-					}
-					try {
-						logStep.messages.push({date:Date.now(), value:"Calling HTTP: "+url});
-						const res = await fetch(url, options);
-						if(res.status >= 200 && res.status <= 208) {
-							const text = await res.text();
-							let json:any|null = null;
-							try {
-								json = JSON.parse(text);
-							}catch(error){
-								json = null;
+					if((uri||"").trim().length <= 2) {
+						log.error = true;
+						logStep.error = true;
+						logStep.messages.push({date:Date.now(), value:"HTTP call failed because URI is empty or too short (less than 3 chars)"});
+					}else{
+						try {
+							//Add protocol if missing
+							if(!/https?:\/\//gi.test(uri) && !/.*:\/\/.*/gi.test(uri)) uri = "https://"+uri;
+							const url = new URL(uri);
+							for (const tag of step.queryParams) {
+								const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent);
+								if((step.method == "POST" || step.method == "PATCH") && step.sendAsBody == true) {
+									body[tag.toLowerCase()] = text;
+								}else{
+									url.searchParams.append(tag.toLowerCase(), text);
+								}
 							}
-
-							console.log("LIST", step.outputPlaceholderList, json);
-							if(step.outputPlaceholderList && step.outputPlaceholderList.length > 0) {
-								for (let i = 0; i < step.outputPlaceholderList.length; i++) {
-									const ph = step.outputPlaceholderList[i];
-									if(!ph.placeholder || ph.placeholder.length === 0) continue;
-									console.log(ph);
-
-									if(ph.type == "text") {
-										logStep.messages.push({date:Date.now(), value:"Store full query result to placeholder {"+ph.placeholder+"}"});
-										dynamicPlaceholders[ph.placeholder] = text;
-									}else
-									if(ph.type == "json" && json) {
-										const results = jsonpath.query(json, ph.path);
-										if(results.length == 0) {
-											logStep.messages.push({date:Date.now(), value:"JSONPath expression did not return any result: "+ph.path});
-											log.error = true;
-											logStep.error = true;
-										}else{
-											console.log(results);
-											logStep.messages.push({date:Date.now(), value:"Store JSONPath result to placeholder {"+ph.placeholder+"}: "+results[0]});
-											dynamicPlaceholders[ph.placeholder] = results.length == 1 && typeof results[0] === "string"? results[0] : results.join(", ");
+							if(step.method == "POST" || step.method == "PATCH") {
+								if(step.sendAsBody == true) {
+									headers["Content-Type"] = "application/json";
+									options.body = JSON.stringify(body);
+								}else if(customBody) {
+									options.body = customBody;
+								}
+							}
+							if(step.customHeaders === true) {
+								for (let i = 0; i < (step.headers || []).length; i++) {
+									const h = step.headers![i];
+									const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, h.value, subEvent);
+									headers[h.key] = value;
+								}
+							}
+							logStep.messages.push({date:Date.now(), value:"Calling HTTP: "+url});
+							const res = await fetch(url, options);
+							if(res.status >= 200 && res.status <= 208) {
+								const text = await res.text();
+								let json:any|null = null;
+								try {
+									json = JSON.parse(text);
+								}catch(error){
+									json = null;
+								}
+	
+								console.log("LIST", step.outputPlaceholderList, json);
+								if(step.outputPlaceholderList && step.outputPlaceholderList.length > 0) {
+									for (let i = 0; i < step.outputPlaceholderList.length; i++) {
+										const ph = step.outputPlaceholderList[i];
+										if(!ph.placeholder || ph.placeholder.length === 0) continue;
+										console.log(ph);
+	
+										if(ph.type == "text") {
+											logStep.messages.push({date:Date.now(), value:"Store full query result to placeholder {"+ph.placeholder+"}"});
+											dynamicPlaceholders[ph.placeholder] = text;
+										}else
+										if(ph.type == "json" && json) {
+											const results = jsonpath.query(json, ph.path);
+											if(results.length == 0) {
+												logStep.messages.push({date:Date.now(), value:"JSONPath expression did not return any result: "+ph.path});
+												log.error = true;
+												logStep.error = true;
+											}else{
+												console.log(results);
+												logStep.messages.push({date:Date.now(), value:"Store JSONPath result to placeholder {"+ph.placeholder+"}: "+results[0]});
+												dynamicPlaceholders[ph.placeholder] = results.length == 1 && typeof results[0] === "string"? results[0] : results.join(", ");
+											}
 										}
 									}
+								}else
+								if(step.outputPlaceholder) {
+									logStep.messages.push({date:Date.now(), value:"Store result to placeholder: "+step.outputPlaceholder});
+									dynamicPlaceholders[step.outputPlaceholder] = text;
 								}
-							}else
-							if(step.outputPlaceholder) {
-								logStep.messages.push({date:Date.now(), value:"Store result to placeholder: "+step.outputPlaceholder});
-								dynamicPlaceholders[step.outputPlaceholder] = text;
+							}else{
+								log.error = true;
+								logStep.error = true;
+								logStep.messages.push({date:Date.now(), value:"HTTP call failed with status "+res.status+": "+await res.text()});
 							}
-						}else{
+						}catch(error) {
+							console.error(error);
 							log.error = true;
 							logStep.error = true;
-							logStep.messages.push({date:Date.now(), value:"HTTP call failed with status "+res.status+": "+await res.text()});
+							logStep.messages.push({date:Date.now(), value:"HTTP call failed. URI might be invalid: "+uri});
 						}
-					}catch(error) {
-						console.error(error);
 					}
 				}else
 
@@ -2886,17 +2898,23 @@ export default class TriggerActionHandler {
 				//Handle Discord action
 				if(step.type == "discord") {
 					logStep.messages.push({date:Date.now(), value:"Execute discord action \""+step.discordAction.action+"\""});
-					const messageText = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.discordAction.message, subEvent, false, false, false);
+					const messageText = (await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.discordAction.message, subEvent, false, false, false)).trim();
 					logStep.messages.push({date:Date.now(), value:"Sending message: "+messageText});
-					try {
-						const res = await ApiHelper.call("discord/message", "POST", {message:messageText, channelId:step.discordAction.channelId});
-						if(res.json.success) {
-							logStep.messages.push({date:Date.now(), value:"✔ Message posted to discord"});
-						}else{
-							throw (new Error("posting failed"));
+					if(messageText.length > 0) {
+						try {
+							const res = await ApiHelper.call("discord/message", "POST", {message:messageText, channelId:step.discordAction.channelId});
+							if(res.json.success) {
+								logStep.messages.push({date:Date.now(), value:"✔ Message posted to discord"});
+							}else{
+								throw (new Error("posting failed"));
+							}
+						}catch(error) {
+							logStep.messages.push({date:Date.now(), value:"❌ Posting message to Discord failed. Make sure Twitchat bot has permissions to write on the given channel"});
+							log.error = true;
+							logStep.error = true;
 						}
-					}catch(error) {
-						logStep.messages.push({date:Date.now(), value:"❌ Posting message to Discord failed. Make sure Twitchat bot has permissions to write on the given channel"});
+					}else{
+						logStep.messages.push({date:Date.now(), value:"❌ Posting message to Discord failed. Message cannot be empty"});
 						log.error = true;
 						logStep.error = true;
 					}

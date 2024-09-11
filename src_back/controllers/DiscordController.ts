@@ -147,6 +147,13 @@ export default class DiscordController extends AbstractController {
 		const params = request.body as {message:string, channelId:string};
 		const body = { content:params.message }
 
+		if((params.message || "").trim().length === 0) {
+			response.header('Content-Type', 'application/json')
+			.status(401)
+			.send(JSON.stringify({message:"Message cannot be empty", errorCode:"EMPTY_MESSAGE", success:false}));
+			return;
+		}
+
 		//Send to discord
 		try {
 			const message = (await this._rest.post(Routes.channelMessages(params.channelId), {body})) as {id:string};

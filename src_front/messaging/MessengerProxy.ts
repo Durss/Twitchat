@@ -628,17 +628,24 @@ export default class MessengerProxy {
 		if(cmd == "/discord") {
 			const discordChan = StoreProxy.discord.chatCmdTarget;
 			if(discordChan) {
-				const res = await ApiHelper.call("discord/message", "POST", {message:params.join(" "), channelId:discordChan});
-				if(res.status != 200) {
-					let error = "";
-					switch(res.json.errorCode) {
-						case "POST_FAILED":
-							error = StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:res.json.channelName});
-							break;
-						default:
-							error = StoreProxy.i18n.t("error.discord.UNKNOWN");
-							break;
+				let error = "";
+				const messageToSend = params.join(" ").trim();
+				if(messageToSend.length == 0) {
+					error = StoreProxy.i18n.t("error.discord.EMPTY_MESSAGE");
+				}else{
+					const res = await ApiHelper.call("discord/message", "POST", {message:messageToSend, channelId:discordChan});
+					if(res.status != 200) {
+						switch(res.json.errorCode) {
+							case "POST_FAILED":
+								error = StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:res.json.channelName});
+								break;
+							default:
+								error = StoreProxy.i18n.t("error.discord.UNKNOWN");
+								break;
+						}
 					}
+				}
+				if(error) {
 					const message:TwitchatDataTypes.MessageCustomData = {
 						date:Date.now(),
 						id:Utils.getUUID(),
