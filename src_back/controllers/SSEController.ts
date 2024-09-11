@@ -8,7 +8,7 @@ import AbstractController from "./AbstractController.js";
 */
 export default class SSEController extends AbstractController {
 
-	private static uidToResponse:{[key:string]:{mainApp:boolean, pingTimeout?:NodeJS.Timeout, connection:FastifyReply}[]} = {};
+	private static uidToResponse:{[key:string]:{pingTimeout?:NodeJS.Timeout, connection:FastifyReply}[]} = {};
 
 	constructor(public server:FastifyInstance) {
 		super();
@@ -69,8 +69,7 @@ export default class SSEController extends AbstractController {
 		}
 
 		if(!SSEController.uidToResponse[userInfo.user_id]) SSEController.uidToResponse[userInfo.user_id] = [];
-		//TODO implement "mainApp" properly to warn users when multiple main app are running
-		const params:typeof SSEController.uidToResponse["string"][number] = {mainApp:true, connection:response};
+		const params:typeof SSEController.uidToResponse["string"][number] = {connection:response};
 		SSEController.uidToResponse[userInfo.user_id].push(params);
 		SSEController.schedulePing(params);
 
