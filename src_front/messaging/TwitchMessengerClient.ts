@@ -28,6 +28,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private _connectedChannelCount:number = 0;
 	private _channelIdToLogin:{[key:string]:string} = {};
 	private _channelLoginToId:{[key:string]:string} = {};
+	private _remoteChanColorPointer:number = 0;
+	private _remoteChanColors:string[] = ["#d08a64","#85c56e","#8180d3","#d578c2","#7bd0cf","#dcc87d"];
+	private _remoteChanToColor:{[chanId:string]:string} = {};
+	private _remoteIdToUser:{[chanId:string]:TwitchatDataTypes.TwitchatUser} = {};
+	private _remoteIdToPromise:{[chanId:string]:Promise<TwitchatDataTypes.TwitchatUser>} = {}
 
 	constructor() {
 		super();
@@ -642,6 +647,15 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 		const channel_id = this.getChannelID(channel);
 		const user = this.getUserFromTags(tags, channel_id);
+		const isSharedChatMessage = tags["source-room-id"] && tags["source-room-id"] != tags["room-id"];
+
+		//Message comming from a shared chat session
+		//If Twitchat is already connected to the given channel, ignore the message
+		//as it will be received via the dedicated IRC connection
+		if(isSharedChatMessage
+		&& StoreProxy.stream.connectedTwitchChans.findIndex(v=>v.user.id === tags["source-room-id"]) > -1) {
+			return;
+		}
 
 		const data:TwitchatDataTypes.MessageChatData = {
 			id:tags.id!,
@@ -658,6 +672,37 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			is_short:false,
 			raw_data:{tags, message}
 		};
+
+		if(isSharedChatMessage) {
+			const chanId=  tags["source-room-id"];
+			//Initialize remote data if not ready
+			if(!this._remoteIdToUser[chanId]) {
+				//Create promise if not existing
+				if(!this._remoteIdToPromise[chanId]) {
+					this._remoteIdToPromise[chanId] = new Promise<TwitchatDataTypes.TwitchatUser>((resolve)=>{
+						StoreProxy.users.getUserFrom("twitch", chanId, chanId, undefined, undefined, (user)=>{
+							return user
+						})
+					});
+				}
+
+				//Wait for promise to resolve. This will be the case for the first message but
+				//also for any other message received while the user's data are being resolved
+				//to make sure no message is displayed before the channel info get loaded.
+				const user = await this._remoteIdToPromise[chanId];
+
+				this._remoteIdToUser[chanId] = user;
+				this._remoteChanToColor[chanId] = this._remoteChanColors[this._remoteChanColorPointer];
+				this._remoteChanColorPointer ++;
+			}
+			
+			//Define remote channel info
+			data.channelSource = {
+				color:this._remoteChanToColor[chanId],
+				pic:this._remoteIdToUser[chanId].avatarPath,
+				name:this._remoteIdToUser[chanId].login,
+			}
+		}
 
 		data.message_chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"], tags.sentLocally == true);
 		data.message_html = TwitchUtils.messageChunksToHTML(data.message_chunks);
