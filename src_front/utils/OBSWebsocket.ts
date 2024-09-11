@@ -1329,7 +1329,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 }
 
-export type OBSInputKind = "image_source" | "color_source_v3" | "slideshow" | "browser_source" | "ffmpeg_source" | "text_gdiplus_v2" | "text_ft2_source_v2" | "vlc_source" | "monitor_capture" | "window_capture" | "game_capture" | "dshow_input" | "wasapi_input_capture" | "wasapi_output_capture" | "wasapi_process_output_capture" | null;
+export type OBSInputKind = "image_source" | "color_source_v3" | "slideshow" | "browser_source" | "ffmpeg_source" | "text_gdiplus_v2" | "text_ft2_source_v2" | "text_ft2_source_v3" | "vlc_source" | "monitor_capture" | "window_capture" | "game_capture" | "dshow_input" | "wasapi_input_capture" | "wasapi_output_capture" | "wasapi_process_output_capture" | null;
 export type OBSSourceType = "OBS_SOURCE_TYPE_INPUT" | "OBS_SOURCE_TYPE_SCENE";
 
 export interface OBSAudioSource {inputKind:OBSInputKind, inputName:string, unversionedInputKind:string}
