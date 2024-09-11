@@ -77,6 +77,7 @@
 			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_donation')" icon="streamlabs">Streamlabs donation</Button>
 			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_merch')" icon="streamlabs">Streamlabs merch</Button>
 			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_patreon')" icon="streamlabs">Streamlabs Patreon</Button>
+			<Button small @click="simulateEvent($event, 'streamlabs', 'charity')" icon="streamlabs">Streamlabs Charity events</Button>
 			<Button small @click="simulateEvent($event, 'kofi', 'kofi_donation')" icon="kofi">Kofi donation</Button>
 			<Button small @click="simulateEvent($event, 'kofi', 'kofi_merch')" icon="kofi">Kofi merch</Button>
 			<Button small @click="simulateEvent($event, 'kofi', 'kofi_sub')" icon="kofi">Kofi Sub</Button>
@@ -176,6 +177,10 @@ class DevmodeMenu extends Vue {
 
 	public async simulateEvent(event:MouseEvent, type:TwitchatDataTypes.TwitchatMessageStringType, subAction?:Subaction):Promise<void> {
 		const me = StoreProxy.auth.twitch.user;
+		if(type == "streamlabs" && subAction == "charity") {
+			this.$store.streamlabs.simulateEvents();
+			return;
+		}
 		this.$store.debug.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(type, async (message)=> {
 			switch(subAction) {
 				case "raidOffline":			(message as TwitchatDataTypes.MessageRaidData).stream.wasLive = false;break;
@@ -685,6 +690,7 @@ type Subaction = "first"
 				| "skin1"
 				| "skin2"
 				| "skin3"
+				| "charity"
 				| "giantEmote";
 
 export default toNative(DevmodeMenu);
