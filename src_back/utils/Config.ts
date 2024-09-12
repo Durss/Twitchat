@@ -443,4 +443,5 @@ interface Credentials {
 	tiltify_webhook_id:string;
 	tiltify_redirect_uri:string;
 	tiltify_scopes:string;
+	tiltify_api_path:string;
 }

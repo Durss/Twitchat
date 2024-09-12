@@ -15,6 +15,7 @@ export default class TiltifyController extends AbstractController {
 	private credentialToken:AuthToken | null = null;
 	private fact2UidMap:FactIdToUsers = {};
 	private parsedEvents:{[id:string]:boolean} = {};
+	private apiPath:string = ""
 	
 	constructor(public server:FastifyInstance) {
 		super();
@@ -35,6 +36,8 @@ export default class TiltifyController extends AbstractController {
 		this.server.delete('/api/tiltify/auth', async (request, response) => await this.deleteAuth(request, response));
 		this.server.post('/api/tiltify/token/refresh', async (request, response) => await this.postRefreshToken(request, response));
 		this.server.post('/api/tiltify/webhook', async (request, response) => await this.postWebhook(request, response));
+
+		this.apiPath = Config.credentials.tiltify_api_path;
 
 		await this.generateCredentialToken();
 		await this.enableWebhook();
@@ -162,7 +165,8 @@ export default class TiltifyController extends AbstractController {
 		const user = await super.twitchUserGuard(request, response);
 		if(user == false) return;
 
-		const accessToken = request.headers["tiltify-access_token"] as string;
+		const params = request.query as any;
+		const accessToken = params.token as string;
 		if(!accessToken) {
 			response.header('Content-Type', 'application/json')
 			.status(401)
@@ -178,11 +182,11 @@ export default class TiltifyController extends AbstractController {
 			},
 		}
 
-		const userRes = await fetch("https://v5api.tiltify.com/api/public/current-user", options);
+		const userRes = await fetch(this.apiPath+"/api/public/current-user", options);
 		if(userRes.status != 200) throw("Failed loading user info with status "+userRes.status);
 		const userJSON = (await userRes.json() as {data:any}).data;
 		
-		const campaignsRes = await fetch(`https://v5api.tiltify.com/api/public/users/${userJSON.id}/integration_events?limit=100`, options);
+		const campaignsRes = await fetch(this.apiPath+`/api/public/users/${userJSON.id}/integration_events?limit=100`, options);
 		if(campaignsRes.status != 200) throw("Failed loading user's teams and campaigns with status "+userRes.status);
 		let campaignsJSON:IntegrationList = [];
 		try {
@@ -235,7 +239,7 @@ export default class TiltifyController extends AbstractController {
 			"content-type":"application/json",
 		};
 
-		const url = new URL("https://v5api.tiltify.com/oauth/token");
+		const url = new URL(this.apiPath+"/oauth/token");
 		url.searchParams.set("grant_type", "authorization_code");
 		url.searchParams.set("client_id", Config.credentials.tiltify_client_id);
 		url.searchParams.set("client_secret", Config.credentials.tiltify_client_secret);
@@ -291,7 +295,7 @@ export default class TiltifyController extends AbstractController {
 
 		let text = "";
 		try {
-			const slRes = await fetch("https://v5api.tiltify.com/oauth/token", {method:"POST", headers, body:JSON.stringify(body)});
+			const slRes = await fetch(this.apiPath+"/oauth/token", {method:"POST", headers, body:JSON.stringify(body)});
 			text = await slRes.text();
 			const token = JSON.parse(text);
 
@@ -327,7 +331,7 @@ export default class TiltifyController extends AbstractController {
 		}
 
 		const webhookId = "ca592f9c-40c7-48db-9bd5-2d198db32a16";
-		const url = `https://v5api.tiltify.com/api/private/webhook_endpoints/${webhookId}/webhook_subscriptions/${campaignId}`;
+		const url = this.apiPath+`/api/private/webhook_endpoints/${webhookId}/webhook_subscriptions/${campaignId}`;
 		const headers = {
 			"content-type":"application/json",
 			"Authorization": "Bearer "+this.credentialToken.access_token,
@@ -362,7 +366,7 @@ export default class TiltifyController extends AbstractController {
 			"scope": "webhooks:write"
 		}
 		
-		const res = await fetch("https://v5api.tiltify.com/oauth/token", {method:"POST", headers, body:JSON.stringify(body)});
+		const res = await fetch(this.apiPath+"/oauth/token", {method:"POST", headers, body:JSON.stringify(body)});
 		if(res.status == 200) {
 			const json = await res.json() as AuthToken;
 			this.credentialToken = json;
@@ -386,7 +390,7 @@ export default class TiltifyController extends AbstractController {
 		};
 		
 		const webhookId = Config.credentials.tiltify_webhook_id;
-		const res = await fetch(`https://v5api.tiltify.com/api/private/webhook_endpoints/${webhookId}/activate`, {method:"POST", headers});
+		const res = await fetch(this.apiPath+`/api/private/webhook_endpoints/${webhookId}/activate`, {method:"POST", headers});
 		if(res.status == 200) {
 			const json = await res.json() as {data:WebhookEnableResult};
 			Logger.info("[TILTIFY] Webhook enabled: "+json.data.description);

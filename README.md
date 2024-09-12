@@ -185,8 +185,11 @@ Rename the `credentials.default.json` file within the `credentials` folder to `c
 
 	"tiltify_client_id":"",
 	"tiltify_client_secret":"",
+	"tiltify_webhook_verify":"",
+	"tiltify_webhook_id":"",
 	"tiltify_redirect_uri":"http://localhost:8080/tiltify/auth",
-	"tiltify_scopes":"public webhooks:write"
+	"tiltify_scopes":"public webhooks:write",
+	"tiltify_api_path":"https://v5api.tiltify.com"
 }
 ```
 Create a [twitch application](https://dev.twitch.tv/console) and fill in the `client_id` and `client_secret` values.\

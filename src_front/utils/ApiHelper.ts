@@ -1107,7 +1107,9 @@ type ApiEndpoints =  {
 	};
 	"tiltify/info": {
 		GET: {
-			parameters: void;
+			parameters: {
+				token:string;
+			};
 			response: {
 				success:boolean;
 				user:TiltifyUser;

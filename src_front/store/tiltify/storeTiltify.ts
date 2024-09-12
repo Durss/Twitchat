@@ -163,7 +163,7 @@ export const storeTiltify = defineStore('tiltify', {
 		},
 
 		async loadInfos():Promise<{user:TiltifyUser, campaigns:TiltifyCampaign[]}> {
-			const infos = await ApiHelper.call("tiltify/info", "GET", undefined, false, 0, {"tiltify-access_token":this.token!.access_token});
+			const infos = await ApiHelper.call("tiltify/info", "GET", {token:this.token!.access_token}, false, 0);
 			this.campaigns = infos.json.campaigns;
 			this.user = infos.json.user;
 			return {user:this.user, campaigns:this.campaigns};
