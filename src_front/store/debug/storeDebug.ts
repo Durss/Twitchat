@@ -1513,14 +1513,15 @@ export const storeDebug = defineStore('debug', {
 						amount,
 						amountFormatted:amount+"€",
 						currency:"EUR",
-						eventType:"charity",
+						eventType:"donation",
 						message,
 						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						message_chunks:chunks,
 						userName:fakeUser.displayNameOriginal,
 						campaign: {
+							id:"xxx",
 							title:"My awesome campaign",
-							url:"https://google.fr"
+							url:"https://tiltify.com"
 						}
 					};
 					data = m;

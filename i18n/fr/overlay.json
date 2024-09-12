@@ -431,6 +431,14 @@
 				"STREAMLABS_CHARITY_LAST_TIP_AMOUNT": "Campagne SL Charity - Dernier tip",
 				"STREAMLABS_CHARITY_RAISED_PERSONNAL": "Campagne SL Charity - montant récolté perso",
 				
+				"TILTIFY_NAME": "Campagne Tiltify - nom",
+				"TILTIFY_IMAGE": "Campagne Tiltify - image",
+				"TILTIFY_RAISED": "Campagne Tiltify - montant récolté global",
+				"TILTIFY_GOAL": "Campagne Tiltify - objectif",
+				"TILTIFY_LAST_TIP_USER": "Campagne Tiltify - Dernier·e donnateurice",
+				"TILTIFY_LAST_TIP_AMOUNT": "Campagne Tiltify - Dernier tip",
+				"TILTIFY_RAISED_PERSONNAL": "Campagne Tiltify - montant récolté perso",
+				
 				"TIPEEE_TIP_NAME": "Tipeee don - Pseudo",
 				"TIPEEE_TIP_AMOUNT": "Tipeee don - Montant",
 				

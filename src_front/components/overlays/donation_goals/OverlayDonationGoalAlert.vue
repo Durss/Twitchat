@@ -1,8 +1,8 @@
 <template>
-	<div class="overlaydonationgoalalert" v-if="active">
-		<div class="holder" ref="holder" v-if="currentEvent">
-			<span class="amount">+{{ currentEvent.amount }}</span>
-			<span class="username">{{ currentEvent.username }}</span>
+	<div class="overlaydonationgoalalert">
+		<div class="holder" ref="holder">
+			<span class="amount">+{{ amount }}</span>
+			<span class="username">{{ username }}</span>
 		</div>
 
 		<svg class="star" ref="stars" v-for="i in 15"
@@ -27,103 +27,45 @@ import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 	components:{
 		Icon,
 	},
-	emits:["activity"],
+	emits:[],
 })
 class OverlayDonationGoalAlert extends Vue {
-
-	@Prop({default:false})
-	public active!:boolean;
 
 	@Prop()
 	public colors!:{base:string, fill:string, background:string};
 
-	public pool:IItem[] = []
-	public disposed:boolean = false;
-	public currentEvent:IItem|null = null;
+	@Prop()
+	public amount!:number;
+
+	@Prop()
+	public username!:string;
 
 	public get color():string { return this.colors.base; }
 	public get color_fill():string { return this.colors.fill; }
 	public get color_background():string { return this.colors.background; }
 
-	public mounted():void {
-		watch(()=>this.active, ()=>{
-			if(this.active && this.pool.length > 0) this.showNext();
-			else this.pool = [];
-		})
-	}
-
-	public beforeUnmount():void {
-		this.disposed = true;
-	}
-
-	/**
-	 * Called when an event occurs
-	 * @param username 
-	 * @param amount 
-	 */
-	public onEvent(username:string, amount:string):void {
-		this.pool.push({username, amount});
-		if(this.pool.length == 1 && this.active) this.showNext();
-	}
-
-	/**
-	 * Show next event
-	 */
-	public async showNext():Promise<void> {
-		if(this.pool.length === 0 || this.disposed || !this.active) return;
-
-		this.$emit("activity");
-		
-		this.currentEvent = this.pool[0]!;
-
-		await this.$nextTick();
-
+	public mounted():void{
 		const holder = this.$refs.holder as HTMLDivElement;
 		const stars = this.$refs.stars as SVGElement[];
 		const bounds = holder.getBoundingClientRect();
 
 		stars.forEach((star)=>{
-			gsap.set(star, {x:bounds.x + Math.random()*bounds.width})
+			gsap.set(star, {x:Math.random()*bounds.width})
 			let delay = Math.random()*1;
 			gsap.fromTo(star, {y:bounds.height, rotate:0}, {y:-bounds.height*(.5+Math.random()), rotate:(Math.random()-Math.random())*180+"deg", duration:.5, delay, ease:"sine.out", repeat:-1, repeatDelay:.5});
-			gsap.fromTo(star, {scale:Math.random()*2+2}, {scale:0, duration:.5, delay:.1+delay, ease:"sine.out", repeat:-1, repeatDelay:.5});
-		})
-		
-		//Show notification
-		gsap.to(holder, {y:"0%", duration:.15, ease:"sine.out", onComplete:()=>{
-			let showDuration = Math.max(.15, 3 - Math.pow(this.pool.length, .5));
-			//Hide notification
-			gsap.to(holder, {y:"100%", duration:.15, delay:showDuration, ease:"sine.out",
-			onStart:()=>{
-
-				stars.forEach((star)=>{
-					gsap.killTweensOf(star);
-					gsap.to(star, {scale:0, y:"+50", duration:.35, ease:"sine.out"});
-				})
-			},
-			onComplete:()=>{
-				this.pool.shift();
-				this.showNext();
-			}});
-		}});
+			gsap.fromTo(star, {scale:Math.random()*3+2}, {scale:0, duration:.5, delay:.1+delay, ease:"sine.out", repeat:-1, repeatDelay:.5});
+		});
 	}
 
 }
 export default toNative(OverlayDonationGoalAlert);
 export type OverlayDonationGoalAlertClass = OverlayDonationGoalAlert;
 
-interface IItem {
-	username:string;
-	amount:string;
-}
 </script>
 
 <style scoped lang="less">
 .overlaydonationgoalalert{
 	.holder {
-		position: absolute;
-		bottom: 0;
-		right: 0;
 		color: v-bind(color_background);
 		background: v-bind(color);
 		padding: .25em .5em;
@@ -131,7 +73,7 @@ interface IItem {
 		gap: .5em;
 		display: flex;
 		align-items: center;
-		transform: translate(0, 100%);
+		position: relative;
 		z-index: 1;
 		.amount {
 			font-weight: bold;

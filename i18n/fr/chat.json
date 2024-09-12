@@ -474,7 +474,7 @@
 			"monthly": "{USER} s'est abonné pour {AMOUNT} par mois sur Tipeee"
 		},
 		"tiltify": {
-			"charity": "{USER} a donné {AMOUNT} pour {CAMPAIGN}"
+			"donation": "{USER} a donné {AMOUNT} pour {CAMPAIGN}"
 		},
 		"unban_request": {
 			"request": "{USER} a envoyé cette demande d'unban",

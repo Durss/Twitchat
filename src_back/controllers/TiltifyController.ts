@@ -5,6 +5,7 @@ import * as crypto from "crypto";
 import Logger from "../utils/Logger.js";
 import * as fs from "fs";
 import SSEController, { SSECode } from "./SSEController.js";
+import fetch from "node-fetch";
 
 /**
 * Created : 06/09/2024 
@@ -12,7 +13,8 @@ import SSEController, { SSECode } from "./SSEController.js";
 export default class TiltifyController extends AbstractController {
 
 	private credentialToken:AuthToken | null = null;
-	private campaign2UidMap:CampaignIdToUsers = {};
+	private fact2UidMap:FactIdToUsers = {};
+	private parsedEvents:{[id:string]:boolean} = {};
 	
 	constructor(public server:FastifyInstance) {
 		super();
@@ -37,10 +39,8 @@ export default class TiltifyController extends AbstractController {
 		await this.generateCredentialToken();
 		await this.enableWebhook();
 
-		if(fs.existsSync(Config.TILTIFY_CAMPAIGN_2_UID_MAP)) {
-			this.campaign2UidMap = JSON.parse(fs.readFileSync(Config.TILTIFY_CAMPAIGN_2_UID_MAP, "utf-8") || "{}");
-		}else{
-			
+		if(fs.existsSync(Config.TILTIFY_FACT_2_UID_MAP)) {
+			this.fact2UidMap = JSON.parse(fs.readFileSync(Config.TILTIFY_FACT_2_UID_MAP, "utf-8") || "{}");
 		}
 	}
 	
@@ -57,6 +57,14 @@ export default class TiltifyController extends AbstractController {
 	 * @returns 
 	 */
 	private async postWebhook(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		const body = request.body as WebhookDonationEvent|WebhookCampaignEvent;
+		
+		//If that event has already been parsed, ignore it
+		if(this.parsedEvents[body.meta.id] === true) {
+			response.status(200);
+			response.send("OK");
+			return;
+		}
 
 		//Verify signature
 		const signature = request.headers["x-tiltify-signature"];
@@ -73,39 +81,72 @@ export default class TiltifyController extends AbstractController {
 			return;
 		}
 
-		const body = request.body as WebhookDonationEvent|WebhookCampaignEvent;
-		if(body.meta.event_type == "public:direct:donation_updated") {
-			const typedBody = body as WebhookDonationEvent;
-			const users = this.campaign2UidMap[typedBody.data.cause_id];
-			const data:SSETiltifyDonationEventData = {
-				type: "donation",
-				amount: parseFloat(typedBody.data.amount.value),
-				currency: typedBody.data.amount.currency,
-				campaignId: typedBody.data.cause_id,
-				message: typedBody.data.donor_comment,
-				username: typedBody.data.donor_name,
-			};
+		try{
 
-			(users || []).forEach(uid=>{
-				SSEController.sendToUser(uid, SSECode.TILTIFY_EVENT, data);
-			})
-		}else
-		if(body.meta.event_type == "public:direct:fact_updated") {
-			const typedBody = body as WebhookCampaignEvent;
-			const users = this.campaign2UidMap[typedBody.data.cause_id];
-			const data:SSETiltifyCauseEventData = {
-				type: "cause_update",
-				amount_goal: parseFloat(typedBody.data.goal.value),
-				currency: typedBody.data.goal.currency,
-				amount_raised: parseFloat(typedBody.data.amount_raised.value),
-				title: typedBody.data.name,
-				description: typedBody.data.description,
-				donateUrl: typedBody.data.donate_url,
-			};
-			(users || []).forEach(uid=>{
-				SSEController.sendToUser(uid, SSECode.TILTIFY_EVENT, data);
-			})
+			if(body.meta.event_type == "public:direct:donation_updated") {
+				const typedBody = body as WebhookDonationEvent;
+				const data:SSETiltifyDonationEventData = {
+					type: "donation",
+					amount: parseFloat(typedBody.data.amount.value),
+					currency: typedBody.data.amount.currency,
+					message: typedBody.data.donor_comment,
+					username: typedBody.data.donor_name,
+					campaignId:typedBody.data.campaign_id,
+				};
+
+				if(typedBody.meta.subscription_source_type == "test") {
+					//Force existing cause ID if testing so it actually
+					//does something on Twitchat
+					for (const id in this.fact2UidMap) {
+						if(this.fact2UidMap[id].type != "campaign") continue;
+						data.campaignId = id;
+						break;
+					}
+				}
+	
+				//Send info to connected users
+				const fact = this.fact2UidMap[data.campaignId];
+				(fact.users || []).forEach(uid=>{
+					SSEController.sendToUser(uid, SSECode.TILTIFY_EVENT, data);
+				})
+	
+			}else
+			if(body.meta.event_type == "public:direct:fact_updated") {
+				const typedBody = body as WebhookCampaignEvent;
+				const data:SSETiltifyCauseEventData = {
+					type: "cause_update",
+					amount_goal: parseFloat(typedBody.data.goal.value),
+					currency: typedBody.data.goal.currency,
+					amount_raised: parseFloat(typedBody.data.amount_raised.value),
+					total_amount_raised: parseFloat(typedBody.data.total_amount_raised.value),
+					title: typedBody.data.name,
+					description: typedBody.data.description,
+					donateUrl: typedBody.data.donate_url,
+					causeId:typedBody.data.cause_id,
+				};
+
+				if(typedBody.meta.subscription_source_type == "test") {
+					//Force existing cause ID if testing so it actually
+					//does something on Twitchat
+					for (const id in this.fact2UidMap) {
+						if(this.fact2UidMap[id].type != "cause") continue;
+						data.causeId = id;
+						break;
+					}
+				}
+
+				//Send info to connected users
+				const fact = this.fact2UidMap[data.causeId];
+				(fact.users || []).forEach(uid=>{
+					SSEController.sendToUser(uid, SSECode.TILTIFY_EVENT, data);
+				});
+			}
+	
+		}catch(error) {
+			Logger.error("[TILTIFY] Webhook pasring error");
+			console.log(error);
 		}
+		this.parsedEvents[body.meta.id] = true;
 
 		response.status(200);
 		response.send("OK");
@@ -154,17 +195,25 @@ export default class TiltifyController extends AbstractController {
 
 		let mapUpdated = false;
 		campaignsJSON.forEach(c => {
-			
-			this.subscribeToCampaign(c.cause_id);
-			if(!this.campaign2UidMap[c.cause_id]) this.campaign2UidMap[c.cause_id] = [];
-			if(!this.campaign2UidMap[c.cause_id].includes(user.user_id)) {
-				this.campaign2UidMap[c.cause_id].push(user.user_id);
+			this.subscribeToCampaign(c.id);
+			//Register campaign
+			if(!this.fact2UidMap[c.id]) this.fact2UidMap[c.id] = {type:"campaign", users:[]};
+			if(!this.fact2UidMap[c.id].users.includes(user.user_id)) {
+				this.fact2UidMap[c.id].users.push(user.user_id);
+				mapUpdated = true;
+			}
+			//Register cause
+			//"public:direct:fact_updated" webhook event only gives a cause ID, not
+			//a campaign ID, that's why we need this association
+			if(!this.fact2UidMap[c.cause_id]) this.fact2UidMap[c.cause_id] = {type:"cause", users:[]};
+			if(!this.fact2UidMap[c.cause_id].users.includes(user.user_id)) {
+				this.fact2UidMap[c.cause_id].users.push(user.user_id);
 				mapUpdated = true;
 			}
 		});
 
 		if(mapUpdated) {
-			fs.writeFileSync(Config.TILTIFY_CAMPAIGN_2_UID_MAP, JSON.stringify(this.campaign2UidMap), "utf-8");
+			fs.writeFileSync(Config.TILTIFY_FACT_2_UID_MAP, JSON.stringify(this.fact2UidMap), "utf-8");
 		}
 
 		response.header('Content-Type', 'application/json')
@@ -399,7 +448,7 @@ interface WebhookDonationEvent {
 		event_type: "public:direct:donation_updated";
 		generated_at: string;
 		subscription_source_id: string;
-		subscription_source_type: string;
+		subscription_source_type: "test" | string;
 	};
 }
 
@@ -481,7 +530,7 @@ interface WebhookCampaignEvent {
 		event_type: "public:direct:fact_updated";
 		generated_at: string;
 		subscription_source_id: string;
-		subscription_source_type: string;
+		subscription_source_type: "test" | string;
 	};
 }
 
@@ -593,7 +642,7 @@ type IntegrationList = {
 	supporting_type?: string;
 }[]
 
-type CampaignIdToUsers = {[campaignId:string]:string[]}
+type FactIdToUsers = {[campaignId:string]:{type:"cause"|"campaign", users:string[]}}
 
 export interface SSETiltifyDonationEventData{
 	type:"donation";
@@ -607,9 +656,11 @@ export interface SSETiltifyDonationEventData{
 export interface SSETiltifyCauseEventData{
 	type:"cause_update";
 	amount_raised:number;
+	total_amount_raised:number;
 	amount_goal:number;
 	currency:string;
 	donateUrl:string;
 	title:string;
 	description:string;
+	causeId:string;
 }

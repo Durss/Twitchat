@@ -3,6 +3,8 @@
 		"header":"Receive {LINK} alerts on Twitchat",
 		"examples":"Message examples",
 		"create_donation_goals":"Create interactive donation goals with the dedicated overlay",
-		"no_team":"You are not part of any Tiltify Team"
+		"campaign_list":"Your Tiltify campaign | Your Tiltify campaigns",
+		"no_campaign":"Your Tiltify profile is not associated with any fundraising campaign",
+		"copy_id_tt":"Copy campaign ID"
 	}
 }

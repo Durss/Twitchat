@@ -634,6 +634,15 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.TILTIFY:{
+				const eventType:{[key in TwitchatDataTypes.MessageTiltifyData["eventType"]]:TriggerTypesValue} = {
+						"donation":TriggerTypes.TILTIFY_TIP,
+					} as const;
+				if(await this.executeTriggersByType(eventType[message.eventType], message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				switch(message.noticeId) {
 					case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE:{

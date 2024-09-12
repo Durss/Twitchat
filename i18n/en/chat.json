@@ -474,7 +474,7 @@
 			"monthly": "{USER} donates {AMOUNT} per month on Tipeee"
 		},
 		"tiltify": {
-			"charity": "{USER} donated {AMOUNT} to {CAMPAIGN}"
+			"donation": "{USER} donated {AMOUNT} to {CAMPAIGN}"
 		},
 		"unban_request": {
 			"request": "{USER} sent following unban request",

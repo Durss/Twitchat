@@ -1380,6 +1380,10 @@
 				"label": "Évènement websocket reçu",
 				"description": "Actions à exécuter lorsqu'un évènement est reçu sur le Websocket {INFO}",
 				"description_info": "(ne concerne PAS OBS-websocket ! Le message socket DOIT être un JSON avec une propriété \"topic\")"
+			},
+			"TILTIFY_TIP": {
+				"label": "Nouveau don sur une campagne Tiltify",
+				"description": "Actions à exécuter lorsqu'un nouveau don est reçu pour une campagne Tiltify"
 			}
 		},
 		"musicEvents": {

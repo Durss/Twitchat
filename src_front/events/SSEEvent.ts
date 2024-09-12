@@ -1,7 +1,7 @@
 import type { KofiEventData } from '@/store/kofi/storeKofi';
-import { Event } from './EventDispatcher';
+import type { TiltifyCauseEventData, TiltifyDonationEventData } from '@/store/tiltify/storeTiltify';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { TiltifyEventData } from '@/store/tiltify/storeTiltify';
+import { Event } from './EventDispatcher';
 
 /**
 * Created : 21/06/2023 

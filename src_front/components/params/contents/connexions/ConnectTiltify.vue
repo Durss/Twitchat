@@ -28,13 +28,22 @@
 	
 			<section class="card-item secondary noCampaign" v-if="$store.tiltify.campaigns.length == 0">
 				<Icon name="alert" />
-				<span>{{ $t("tiltify.no_team") }}</span>
+				<span>{{ $t("tiltify.no_campaign") }}</span>
 				<TTButton type="link" href="https://tiltify.com/start" target="_blank" icon="newtab" light secondary>{{ $t("global.start") }}</TTButton>
 			</section>
-			<section class="card-item create" v-else>
-				<span>{{ $t("tiltify.create_donation_goals") }}</span>
-				<TTButton @click="openOverlay()" icon="add">{{ $t("global.create") }}</TTButton>
-			</section>
+			<template v-else>
+				<section class="card-item infos">
+					<strong>{{ $tc("tiltify.campaign_list", $store.tiltify.campaigns.length) }}</strong>
+					<div class="campaignList">
+						<div v-for="campaign in $store.tiltify.campaigns" class="campaign">
+							<a :href="campaign.donate_url" target="_blank"><Icon name="newtab" />{{campaign.name}}</a>
+							<TTButton clear icon="copy" v-tooltip="$t('tiltify.copy_id_tt')" @click="copyId(campaign.id)">#ID</TTButton>
+						</div>
+					</div>
+					<span class="spaceAbove">{{ $t("tiltify.create_donation_goals") }}</span>
+					<TTButton @click="openOverlay()" icon="add">{{ $t("global.create") }}</TTButton>
+				</section>
+			</template>
 		</template>
 
 		<section class="examples">
@@ -48,6 +57,7 @@
 import MessageItem from '@/components/messages/MessageItem.vue';
 import TTButton from '@/components/TTButton.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Utils from '@/utils/Utils';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -73,7 +83,9 @@ class ConnectTiltify extends Vue {
 				.then(success => {
 					this.error = !success;
 					this.loading = false;
-					this.loadAuthURL();
+					if(this.error) {
+						this.loadAuthURL();
+					}
 				})
 			}else{
 				//Preload oAuth URL
@@ -81,7 +93,7 @@ class ConnectTiltify extends Vue {
 			}
 		}
 		this.$store.debug.simulateMessage<TwitchatDataTypes.TiltifyDonationData>(TwitchatDataTypes.TwitchatMessageType.TILTIFY, (mess) => {
-			mess.eventType = "charity";
+			mess.eventType = "donation";
 			this.fakeDonation = mess;
 		}, false);
 				// this.$store.tiltify.connect()
@@ -103,6 +115,13 @@ class ConnectTiltify extends Vue {
 	 */
 	public openOverlay():void{
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "donationgoals")
+	}
+
+	/**
+	 * Copies ID to clipboard
+	 */
+	public copyId(id:string):void{
+		Utils.copyToClipboard(id);
 	}
 
 	/**
@@ -131,6 +150,38 @@ export default toNative(ConnectTiltify);
 		img {
 			border-radius: 50%;
 			height: 2em;
+		}
+	}
+
+	.infos{
+		gap:.5em;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		.icon {
+			height: 1em;
+			vertical-align: middle;
+			margin-right: .25em;
+		}
+		.campaignList{
+			align-self: stretch;
+			gap: .25em;
+			display: flex;
+			flex-direction: column;
+			.campaign {
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
+				align-items: center;
+				padding-left: .5em;
+				border-radius: var(--border-radius);
+				&:hover {
+					background-color: var(--background-color-fadest)
+				}
+			}
+		}
+		.spaceAbove {
+			margin-top: .5em
 		}
 	}
 

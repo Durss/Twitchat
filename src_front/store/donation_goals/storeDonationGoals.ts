@@ -103,20 +103,37 @@ export const storeDonationGoals = defineStore('donationGoals', {
 				raisedTotal = StoreProxy.streamlabs.charityTeam.amountRaised_cents/100;
 				raisedPersonnal = StoreProxy.streamlabs.charityTeam.amountRaisedPersonnal_cents/100;
 			}
+
+			if(overlay.dataSource == "tiltify") {
+				if(!StoreProxy.tiltify.campaigns) return;
+				const campaign = StoreProxy.tiltify.campaigns.find(v=>v.id == overlay.campaignId);
+				if(!campaign) return;
+
+				goal = parseFloat(campaign.goal.value);
+				raisedTotal = parseFloat(campaign.total_amount_raised.value);
+				raisedPersonnal = parseFloat(campaign.amount_raised.value);
+			}
 			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, {params:overlay, goal, raisedTotal, raisedPersonnal});
 		},
 
-		onSLCharityUpdate():void {
+		onCampaignUpdate(platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"], campaignId?:string):void {
 			for (let i = 0; i < this.overlayList.length; i++) {
 				const overlay = this.overlayList[i];
-				if(overlay.dataSource == "streamlabs_charity") {
+				if(overlay.dataSource == platform
+				&& (!overlay.campaignId || overlay.campaignId == campaignId)) {
 					this.broadcastData(overlay.id);
 				}
 			}
 		},
 
-		onDonation(username:string, amount:string, platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"]):void {
-			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_EVENT, {username, amount});
+		onDonation(username:string, amount:string, platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"], campaignId?:string):void {
+			for (let i = 0; i < this.overlayList.length; i++) {
+				const overlay = this.overlayList[i];
+				if(overlay.dataSource == platform
+				&& (!overlay.campaignId || overlay.campaignId == campaignId)) {
+					PublicAPI.instance.broadcast(TwitchatEvent.DONATION_EVENT, {username, amount, overlayId:overlay.id});
+				}
+			}
 		},
 
 		async simulateDonation(overlayId:string, amount:number):Promise<void> {

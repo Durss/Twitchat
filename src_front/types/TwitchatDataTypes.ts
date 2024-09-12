@@ -283,12 +283,44 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface ParseMessageChunk {
 		type: "text" | "emote" | "cheermote" | "url" | "highlight" | "user";
+		/**
+		 * Possible values for each chunk types:
+		 * text: text content
+		 * emote: emote name
+		 * cheermote: cheermote name
+		 * url: url with protocole striped out
+		 * highlight: highlighted text
+		 * user: user name
+		 */
 		value: string;
+		/**
+		 * Emote or cheermote URL (low res) for "emote" and "cheermote" chunks
+		 */
 		emote?: string;
+		/**
+		 * Emote or cheermote URL (high def) for "emote" and "cheermote" chunks
+		 */
 		emoteHD?: string;
+		/**
+		 * Url of a "url" chunk
+		 */
 		href?: string;
+		/**
+		 * User login with potential "@" striped out
+		 * if "@durss" is on the message, "value" will contain "@durss"
+		 * but "username" will only contain "durss"
+		 */
 		username?: string;
+		
+		/**
+		 * Only declared by the ChatMessageChunkParser component to define if
+		 * the chunk sshould be displayed as spoiler
+		 */
 		spoiler?: boolean;
+		/**
+		 * Only declared by the ChatMessageChunkParser component to define if
+		 * the chunk is a spoiler tag (||)
+		 */
 		spoilerTag?: boolean;
 	}
 
@@ -5009,10 +5041,10 @@ export namespace TwitchatDataTypes {
 	export type MessageTiltifyData = TiltifyDonationData;
 		interface TiltifyDonationBaseData extends AbstractTwitchatMessage{
 			type:"tiltify";
-			eventType:"charity";
+			eventType:"donation";
 		}
 		export interface TiltifyDonationData extends TiltifyDonationBaseData{
-			eventType:"charity";
+			eventType:"donation";
 			amount:number;
 			amountFormatted:string;
 			message:string;
@@ -5021,6 +5053,7 @@ export namespace TwitchatDataTypes {
 			userName:string;
 			currency:string;
 			campaign:{
+				id:string;
 				url:string;
 				title:string;
 			};

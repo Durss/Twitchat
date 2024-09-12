@@ -8,6 +8,8 @@ import type { UnwrapRef } from 'vue';
 import type { ITiltifyActions, ITiltifyGetters, ITiltifyState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 import DataStore from '../DataStore';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Utils from '@/utils/Utils';
 
 
 export const storeTiltify = defineStore('tiltify', {
@@ -49,6 +51,8 @@ export const storeTiltify = defineStore('tiltify', {
 			}
 
 			SSEHelper.instance.addEventListener(SSEEvent.TILTIFY_EVENT, (event) => {
+				const data = event.data;
+				if(!data) return;
 				this.onEvent(event.data);
 			});
 		},
@@ -78,7 +82,7 @@ export const storeTiltify = defineStore('tiltify', {
 				const result = await ApiHelper.call("tiltify/auth", "POST", this.authResult, false)
 				if(result.json.success) {
 					this.token = result.json.token;
-					this.onAuthenticated();
+					await this.onAuthenticated();
 					return true;
 				}
 				return false;
@@ -118,23 +122,41 @@ export const storeTiltify = defineStore('tiltify', {
 			switch(data.type) {
 				case "donation": {
 					const chunks = TwitchUtils.parseMessageToChunks(data.message || "", undefined, true);
-					// const message:TwitchatDataTypes.TiltifyDonationData = {
-					// 	id:Utils.getUUID(),
-					// 	eventType:"donation",
-					// 	platform:"twitchat",
-					// 	channel_id:me.id,
-					// 	isPublic:data.is_public == true,
-					// 	type:TwitchatDataTypes.TwitchatMessageType.KOFI,
-					// 	date:Date.now(),
-					// 	userName:data.from_name,
-					// 	amount:parseFloat(data.amount),
-					// 	amountFormatted:data.amount,
-					// 	currency:data.currency,
-					// 	message:data.message,
-					// 	message_chunks: chunks,
-					// 	message_html:TwitchUtils.messageChunksToHTML(chunks),
-					// }
-					// StoreProxy.chat.addMessage(message);
+					const campaign = this.campaigns.find(v=>v.id === data.campaignId);
+					const message:TwitchatDataTypes.TiltifyDonationData = {
+						id:Utils.getUUID(),
+						eventType:"donation",
+						platform:"twitchat",
+						channel_id:me.id,
+						type:TwitchatDataTypes.TwitchatMessageType.TILTIFY,
+						date:Date.now(),
+						userName:data.username,
+						amount:data.amount,
+						amountFormatted:data.amount+""+data.currency,
+						currency:data.currency,
+						message:data.message,
+						message_chunks: chunks,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						campaign:{
+							id:data.campaignId,
+							title:campaign?.name || "CAMPAIGN_NOT_FOUND",
+							url:campaign?.url || "https://tiltify.com",
+						}
+					}
+					StoreProxy.chat.addMessage(message);
+					StoreProxy.donationGoals.onDonation(message.userName, message.amountFormatted, "tiltify", message.campaign.id);
+					break;
+				}
+
+				case "cause_update": {
+					const campaign = this.campaigns.find(v=>v.cause_id === data.causeId);
+					if(!campaign) break;
+					
+					campaign.amount_raised.value = data.amount_raised.toString();
+					campaign.total_amount_raised.value = data.total_amount_raised.toString();
+					campaign.goal.value = data.amount_goal.toString();
+
+					StoreProxy.donationGoals.onCampaignUpdate("tiltify", campaign.id);
 					break;
 				}
 			}
@@ -185,11 +207,13 @@ export interface TiltifyDonationEventData{
 export interface TiltifyCauseEventData{
 	type:"cause_update";
 	amount_raised:number;
+	total_amount_raised:number;
 	amount_goal:number;
 	currency:string;
 	donateUrl:string;
 	title:string;
 	description:string;
+	causeId:string;
 }
 
 export interface TiltifyUser {

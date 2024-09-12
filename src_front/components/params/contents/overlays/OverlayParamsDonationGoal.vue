@@ -71,7 +71,22 @@
 							<div>{{ $t("donation_goals.streamlabs_charity_not_connected") }}</div>
 							<TTButton icon="streamlabs" @click="openStreamlabs" light alert>{{ $t("global.configure") }}</TTButton>
 						</div>
+						<div class="card-item alert missingCharity"
+						v-if="overlay.dataSource == 'tiltify' && !$store.tiltify.connected">
+							<div>{{ $t("donation_goals.tiltify_not_connected") }}</div>
+							<TTButton icon="tiltify" @click="openTiltify" light alert>{{ $t("global.configure") }}</TTButton>
+						</div>
+						<div class="card-item alert missingCharity"
+						v-else-if="overlay.dataSource == 'tiltify' && $store.tiltify.campaigns.length == 0">
+							<div>{{ $t("donation_goals.tiltify_not_campaign") }}</div>
+						</div>
 						<ParamItem :paramData="param_campaignId[overlay.id]" v-model="overlay.campaignId" @change="save(overlay.id)" v-if="(param_campaignId[overlay.id].listValues || []).length > 0" :childLevel="1" noBackground />
+						<div class="parameter-child charityDetails" v-if="overlay.dataSource == 'streamlabs_charity'">
+							<div class="holder">
+								<span>{{ $t("donation_goals.param_campaignId") }}:</span>
+								<a :href="$store.streamlabs.charityTeam?.pageUrl" target="_blank"><Icon name="newtab"/>{{ $store.streamlabs.charityTeam?.title }}</a>
+							</div>
+						</div>
 					</ParamItem>
 					<ParamItem :paramData="param_color[overlay.id]" v-model="overlay.color" @change="save(overlay.id)" />
 					<ParamItem :paramData="param_notifyTips[overlay.id]" v-model="overlay.notifyTips" @change="save(overlay.id)" />
@@ -156,7 +171,7 @@ class OverlayParamsDonationGoal extends Vue {
 		if(overlay.dataSource == "streamlabs_charity") {
 			return this.$store.streamlabs.charityTeam?.currency || "$";
 		}else if(overlay.dataSource == "tiltify") {
-			return this.$store.tiltify.campaigns[0].currency_code || "$";//TODO
+			return this.$store.tiltify.campaigns[0]?.currency_code || "$";//TODO
 		}
 		return "$"
 	}
@@ -265,7 +280,7 @@ class OverlayParamsDonationGoal extends Vue {
 			this.param_limitEntryCount[id]		= {type:"boolean", value:overlay.limitEntryCount, labelKey:"donation_goals.param_limitEntryCount", icon:"number"};
 			this.param_maxDisplayedEntries[id]	= {type:"number", value:overlay.maxDisplayedEntries, min:0, max:overlay.goalList.length, labelKey:"donation_goals.param_maxDisplayedEntries", icon:"number"};
 			this.param_campaignId[id]			= {type:"list", value:"", labelKey:"donation_goals.param_campaignId"};
-			this.param_dataSource[id]			= {type:"list", value:overlay.dataSource, labelKey:"donation_goals.param_dataSource", icon:"refundPoints", editCallback:(data)=> {
+			this.param_dataSource[id]			= {type:"list", value:overlay.dataSource, labelKey:"donation_goals.param_dataSource", icon:"charity", editCallback:(data)=> {
 				if(data.value == "streamlabs_charity") {
 					this.param_campaignId[id].listValues = [];
 				}else
@@ -313,6 +328,20 @@ export default toNative(OverlayParamsDonationGoal);
 		flex-direction: column;
 		align-items: center;
 		margin-top: .5em;
+	}
+	.charityDetails {
+		.icon {
+			height: 1em;
+			margin-right: .25em;
+		}
+		.holder {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			a {
+				flex-basis: 300px;
+			}
+		}
 	}
 
 	.createForm {

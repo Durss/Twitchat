@@ -691,7 +691,7 @@ export const storeUsers = defineStore('users', {
 							resolve(user);
 						});
 					})
-					let messageStr = t("discord.log_pattern.intro", {USER:bannedUser.login, UID:bannedUser.id, CHANNEL_NAME:channel.displayName, CHANNEL_ID:channelId});
+					let messageStr = t("discord.log_pattern.intro", {USER:bannedUser.login, UID:bannedUser.id, CHANNEL_NAME:channel.displayNameOriginal, CHANNEL_ID:channelId});
 					if(bannedUser.channelInfo[channelId].banReason) messageStr += "\n**"+t("discord.log_pattern.reason")+"**: `"+bannedUser.channelInfo[channelId].banReason+"`";
 
 					if(sDiscord.banLogThread == true) {

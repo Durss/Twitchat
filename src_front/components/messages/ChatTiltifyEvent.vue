@@ -10,14 +10,14 @@
 				<template #USER>
 					<strong>{{ messageData.userName }}</strong>
 				</template>
-				<template #AMOUNT v-if="messageData.eventType == 'charity'">
+				<template #AMOUNT v-if="messageData.eventType == 'donation'">
 					<strong>{{ messageData.amountFormatted }}</strong>
 				</template>
-				<template #CAMPAIGN v-if="messageData.eventType == 'charity'">
+				<template #CAMPAIGN v-if="messageData.eventType == 'donation'">
 					<a :href="messageData.campaign.url" target="_blank"><strong>{{ messageData.campaign.title }}</strong></a>
 				</template>
 			</i18n-t>
-			<div class="quote" v-if="(messageData.eventType == 'charity') && messageData.message">
+			<div class="quote" v-if="(messageData.eventType == 'donation') && messageData.message">
 				<ChatMessageChunksParser :chunks="messageData.message_chunks"></ChatMessageChunksParser>
 			</div>
 		</div>
@@ -43,7 +43,7 @@ class ChatTiltifyEvent extends AbstractChatMessage {
 
 	public get labelKey():string {
 		switch (this.messageData.eventType) {
-			case "charity": return "chat.tiltify.charity";
+			case "donation": return "chat.tiltify.donation";
 		}
 		return "";
 	}

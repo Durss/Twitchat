@@ -204,7 +204,7 @@ export default class YoutubeHelper {
 
 		this._creditsUsed ++;
 		Logger.instance.log("youtube", {log:"Loading current live broadcast", credits: this._creditsUsed, liveID:this._currentLiveIds});
-		const url = new URL("https://www.googleapis.com/youtube/v3/liveBroadcasts");
+		const url = new URL(this.API_PATH+"liveBroadcasts");
 		url.searchParams.append("mine", "true");
 		url.searchParams.append("part", "id");
 		url.searchParams.append("part", "status");
@@ -434,7 +434,7 @@ export default class YoutubeHelper {
 	public async getLastestFollowers(isInit:boolean = true):Promise<YoutubeFollowerResult["items"]> {
 		this._creditsUsed ++;
 		clearTimeout(this._pollFollowersTimeout);
-		const url = new URL("https://www.googleapis.com/youtube/v3/subscriptions");
+		const url = new URL(this.API_PATH+"subscriptions");
 		url.searchParams.append("part", "id");
 		url.searchParams.append("part", "subscriberSnippet");
 		url.searchParams.append("maxResults", "50");
@@ -493,7 +493,7 @@ export default class YoutubeHelper {
 	public async getLastestSubscribers(isInit:boolean = true):Promise<YoutubeFollowerResult["items"]> {
 		this._creditsUsed ++;
 		clearTimeout(this._pollSubscribersTimeout);
-		const url = new URL("https://www.googleapis.com/youtube/v3/members");
+		const url = new URL(this.API_PATH+"members");
 		url.searchParams.append("part", "snippet");
 		url.searchParams.append("maxResults", "50");
 		url.searchParams.append("mode", "updates");

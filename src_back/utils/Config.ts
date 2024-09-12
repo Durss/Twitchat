@@ -181,11 +181,11 @@ export default class Config {
 	/**
 	 * File containing association between Tiltify campaign IDs and Twitch user IDs
 	 */
-	public static get TILTIFY_CAMPAIGN_2_UID_MAP(): string {
+	public static get TILTIFY_FACT_2_UID_MAP(): string {
 		return this.getEnvData({
-			dev: path.join(this.TILTIFY_DATA_FOLDER, "/causeIdToUid.json"),
-			beta: path.join(this.TILTIFY_DATA_FOLDER, "/causeIdToUid.json"),
-			prod: path.join(this.TILTIFY_DATA_FOLDER, "/causeIdToUid.json"),
+			dev: path.join(this.TILTIFY_DATA_FOLDER, "/factIdToUid.json"),
+			beta: path.join(this.TILTIFY_DATA_FOLDER, "/factIdToUid.json"),
+			prod: path.join(this.TILTIFY_DATA_FOLDER, "/factIdToUid.json"),
 		});
 	}
 

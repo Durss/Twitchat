@@ -543,7 +543,7 @@ export interface IChatState {
 	/**
 	 * Received whispers
 	 */
-	whispers:{[key:string]:TwitchatDataTypes.MessageWhisperData[]};
+	whispers:{[uid:string]:{to:TwitchatDataTypes.TwitchatUser, from:TwitchatDataTypes.TwitchatUser, messages:TwitchatDataTypes.MessageWhisperData[]}};
 	/**
 	 * List of message templates sent by some feature.
 	 * Ex: ad, bingo, raffle, .., messages
@@ -633,6 +633,13 @@ export interface IChatActions {
 	 * @param payload
 	 */
 	setEmoteSelectorCache(payload:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[]):void;
+	/**
+	 * Opens up the whispers list for the given user.
+	 * Initializes a fake conversation with the user to allow for the window
+	 * to be displayed
+	 * @param user 
+	 */
+	openWhisperWithUser(user:TwitchatDataTypes.TwitchatUser):void;
 	/**
 	 * Close whispers window
 	 * @param userID
@@ -2460,6 +2467,7 @@ export interface IStreamlabsState {
 		amountRaised_cents:number;
 		amountRaisedPersonnal_cents:number;
 		currency:string;
+		campaignId:string;
 		pageUrl:string;
 		cause:{
 			id:string;
@@ -2512,6 +2520,10 @@ export interface IStreamlabsActions {
 	 * Disconnects from current campaign
 	 */
 	disconnectCharityCampaign():void;
+	/**
+	 * Simulate SL Charity events
+	 */
+	simulateEvents():Promise<void>;
 }
 
 
@@ -2944,11 +2956,11 @@ export interface IDonationGoalActions {
 	/**
 	 * Called when streamlabs charity campaign got updated
 	 */
-	onSLCharityUpdate():void;
+	onCampaignUpdate(platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"], campaignId?:string):void;
 	/**
 	 * Called when a new donation is received
 	 */
-	onDonation(username:string, amount:string, platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"]):void;
+	onDonation(username:string, amount:string, platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"], campaignId?:string):void;
 	/**
 	 * Simulates a donation for given overlay with given fake amount
 	 * @param overlayId 

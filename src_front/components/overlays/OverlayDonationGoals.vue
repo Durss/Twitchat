@@ -10,9 +10,11 @@
 				:data="goalToParams[goal.id]"
 				:id="currentIndex == index? 'current_donation_goal' : ''">
 					<OverlayDonationGoalAlert
-					ref="notifications"
-					@activity="onActivity"
-					:active="currentIndex == index"
+					class="notification"
+					ref="notification"
+					v-if="currentIndex == index && currentAlert"
+					:amount="currentAlert?.amount"
+					:username="currentAlert?.username"
 					:colors="{base:color, fill:color_fill, background:color_background}"
 					/>
 				</OverlayDonationGoalItem>
@@ -26,12 +28,11 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
+import { gsap } from 'gsap/gsap-core';
 import { Component, toNative } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
 import OverlayDonationGoalAlert from './donation_goals/OverlayDonationGoalAlert.vue';
-import {type OverlayDonationGoalAlertClass} from './donation_goals/OverlayDonationGoalAlert.vue';
 import OverlayDonationGoalItem from './donation_goals/OverlayDonationGoalItem.vue';
-import { gsap } from 'gsap/gsap-core';
 
 @Component({
 	components:{
@@ -47,13 +48,15 @@ class OverlayDonationGoals extends AbstractOverlay {
 	public currentIndex:number = -1;
 	public state:Parameters<typeof this.overlayParamsHandler>[0]["data"]|null = null;
 	public goalToParams:{[goalId:string]:TwitchatDataTypes.DonationGoalOverlayItem} = {};
+	public currentAlert:IAlertItem | null = null;
 	
 	private id:string = "";
 	private scrollTimeout:number = -1;
 	private autoHideTimeout:number = -1;
+	private poolAlerts:IAlertItem[] = []
 	
 	private overlayParamsHandler!:(e:TwitchatEvent<{params:TwitchatDataTypes.DonationGoalOverlayConfig, goal:number, raisedTotal:number, raisedPersonnal:number}>) => void;
-	private donationHandler!:(e:TwitchatEvent<{username:string, amount:string}>) => void;
+	private donationHandler!:(e:TwitchatEvent<{overlayId:string, username:string, amount:string}>) => void;
 	
 	public get color():string { return this.state!.params.color || "#000000"; }
 	
@@ -89,7 +92,7 @@ class OverlayDonationGoals extends AbstractOverlay {
 		
 		//@ts-ignore
 		window.donationEvent = (amount:string, username:string)=>{
-			this.onDonation(new TwitchatEvent("DONATION_EVENT", {amount, username}));
+			this.onDonation(new TwitchatEvent("DONATION_EVENT", {amount, username, overlayId:this.id}));
 		}
 	}
 
@@ -111,8 +114,9 @@ class OverlayDonationGoals extends AbstractOverlay {
 	public async onOverlayParams(e:Parameters<typeof this.overlayParamsHandler>[0]):Promise<void> {
 		const state = e.data;
 		if(!state) return;
-		//Don't an event for this overlay, ignore it
+		//Not an event for this overlay, ignore it
 		if(state.params.id != this.id) return;
+		console.log("OKOKOK", state.raisedPersonnal, state.raisedTotal)
 		
 		//Show list if necessary
 		if(state!.params.autoDisplay && !this.show) {
@@ -146,6 +150,7 @@ class OverlayDonationGoals extends AbstractOverlay {
 	 */
 	public async onDonation(e:Parameters<typeof this.donationHandler>[0]):Promise<void> {
 		if(!e.data) return;
+		if(e.data.overlayId != this.id) return;//Not for this overlay
 		
 		//Show list if necessary
 		if(this.state!.params.autoDisplay && !this.show) {
@@ -156,10 +161,8 @@ class OverlayDonationGoals extends AbstractOverlay {
 		}
 
 		if(this.state!.params.notifyTips) {
-			const components = this.$refs.notifications as OverlayDonationGoalAlertClass[];
-			components.forEach(c => {
-				c.onEvent(e.data!.username, e.data!.amount);
-			});
+			this.poolAlerts.push({username:e.data!.username, amount:e.data!.amount});
+			if(this.poolAlerts.length == 1) this.showNextAlert();
 		}
 		
 		this.onActivity();
@@ -252,8 +255,39 @@ class OverlayDonationGoals extends AbstractOverlay {
 			p.distanceToCurrentIndex = i - this.currentIndex;
 		}
 	}
+
+	/**
+	 * Show next event
+	 */
+	private async showNextAlert():Promise<void> {
+		if(this.poolAlerts.length === 0) return;
+
+		this.currentAlert = this.poolAlerts[0]!;
+		await this.$nextTick();
+		let holder = this.$refs.notification as HTMLElement | Vue[];
+		if(Array.isArray(holder)) holder = holder[0].$el as HTMLElement;
+		
+		//Show notification
+		gsap.fromTo(holder, {y:"100%"}, {y:"0%", duration:.15, ease:"sine.out", onComplete:()=>{
+			let showDuration = Math.max(.15, 3 - Math.pow(this.poolAlerts.length, .5));
+			//Holder might have changed between show and hide
+			let holder = this.$refs.notification as HTMLElement | Vue[];
+			if(Array.isArray(holder)) holder = holder[0].$el as HTMLElement;
+			//Hide notification
+			gsap.fromTo(holder, {y:"0%"}, {y:"100%", duration:.15, delay:showDuration, ease:"sine.out",
+			onComplete:()=>{
+				this.currentAlert = null;
+				this.poolAlerts.shift();
+				this.showNextAlert();
+			}});
+		}});
+	}
 }
 export default toNative(OverlayDonationGoals);
+interface IAlertItem {
+	username:string;
+	amount:string;
+}
 </script>
 
 <style scoped lang="less">
@@ -276,6 +310,14 @@ export default toNative(OverlayDonationGoals);
 		.list {
 			opacity: 1;
 		}
+	}
+
+	.notification {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		transform: translate(0, 0%);
+		z-index: 1;
 	}
 }
 </style>

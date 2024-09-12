@@ -153,6 +153,13 @@ export const LabelItemPlaceholderList = [
 	{tag:"STREAMLABS_CHARITY_LAST_TIP_USER",	type:"string",	descriptionKey:"overlay.labels.placeholders.STREAMLABS_CHARITY_LAST_TIP_USER", backup:true} as const,
 	{tag:"STREAMLABS_CHARITY_LAST_TIP_AMOUNT",	type:"number",	descriptionKey:"overlay.labels.placeholders.STREAMLABS_CHARITY_LAST_TIP_AMOUNT", backup:true} as const,
 
+	// {tag:"TILTIFY_NAME",						type:"string",	descriptionKey:"overlay.labels.placeholders.TILTIFY_NAME", backup:true} as const,
+	// {tag:"TILTIFY_IMAGE",						type:"image",	descriptionKey:"overlay.labels.placeholders.TILTIFY_IMAGE", backup:true} as const,
+	// {tag:"TILTIFY_RAISED",						type:"number",	descriptionKey:"overlay.labels.placeholders.TILTIFY_RAISED", backup:true} as const,
+	// {tag:"TILTIFY_GOAL",						type:"number",	descriptionKey:"overlay.labels.placeholders.TILTIFY_GOAL", backup:true} as const,
+	{tag:"TILTIFY_LAST_TIP_USER",				type:"string",	descriptionKey:"overlay.labels.placeholders.TILTIFY_LAST_TIP_USER", backup:true} as const,
+	{tag:"TILTIFY_LAST_TIP_AMOUNT",				type:"number",	descriptionKey:"overlay.labels.placeholders.TILTIFY_LAST_TIP_AMOUNT", backup:true} as const,
+
 	{tag:"STREAMELEMENTS_TIP_NAME",				type:"string",	descriptionKey:"overlay.labels.placeholders.STREAMELEMENTS_TIP_NAME", backup:true} as const,
 	{tag:"STREAMELEMENTS_TIP_AMOUNT",			type:"number",	descriptionKey:"overlay.labels.placeholders.STREAMELEMENTS_TIP_AMOUNT", backup:true} as const,
 
