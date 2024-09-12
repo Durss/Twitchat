@@ -416,6 +416,8 @@ export const storeStreamlabs = defineStore('streamlabs', {
 				this.saveData();
 				StoreProxy.donationGoals.onCampaignUpdate("streamlabs_charity");
 			}
+			
+			StoreProxy.donationGoals.broadcastData();
 
 			return true;
 		},

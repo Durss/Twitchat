@@ -166,6 +166,7 @@ export const storeTiltify = defineStore('tiltify', {
 			const infos = await ApiHelper.call("tiltify/info", "GET", {token:this.token!.access_token}, false, 0);
 			this.campaigns = infos.json.campaigns;
 			this.user = infos.json.user;
+			StoreProxy.donationGoals.broadcastData();
 			return {user:this.user, campaigns:this.campaigns};
 		}
 	

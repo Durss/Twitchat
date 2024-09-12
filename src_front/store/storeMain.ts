@@ -244,7 +244,9 @@ export const storeMain = defineStore("main", {
 				sVoice.voiceText.finalText = e.data!.text;
 			});
 
-			StoreProxy.common.initialize(authenticate);
+			if(!authenticate) {
+				StoreProxy.common.initialize(authenticate);
+			}
 
 			callback(null);
 		},
@@ -917,12 +919,18 @@ export const storeMain = defineStore("main", {
 				this.toggleDevMode( DataStore.get(DataStore.DEVMODE) === "true" );
 			});
 
+			/**
+			 * Start triggers scheduler
+			 */
 			SchedulerHelper.instance.start();
-
 			/**
 			 * Connect to Youtube (won't do anything if no credentials are available)
 			 */
 			YoutubeHelper.instance.connect();
+			/**
+			 * Tell overlays twitchat is ready
+			 */
+			StoreProxy.common.initialize(true);
 		},
 
 		confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string, STTOrigin?:boolean): Promise<T|undefined> {

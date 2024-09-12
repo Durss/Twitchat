@@ -91,29 +91,31 @@ export const storeDonationGoals = defineStore('donationGoals', {
 			DataStore.set(DataStore.DONATION_GOALS, data);
 		},
 
-		broadcastData(overlayId:string):void {
-			const overlay = this.overlayList.find(v=>v.id == overlayId);
-			if(!overlay) return;
-			let goal = 0;
-			let raisedTotal = 0;
-			let raisedPersonnal = 0;
-			if(overlay.dataSource == "streamlabs_charity") {
-				if(!StoreProxy.streamlabs.charityTeam) return;
-				goal = StoreProxy.streamlabs.charityTeam.amountGoal_cents/100;
-				raisedTotal = StoreProxy.streamlabs.charityTeam.amountRaised_cents/100;
-				raisedPersonnal = StoreProxy.streamlabs.charityTeam.amountRaisedPersonnal_cents/100;
+		broadcastData(overlayId?:string):void {
+			for (let i = 0; i < this.overlayList.length; i++) {
+				const overlay = this.overlayList[i];
+				if(overlayId && overlay.id != overlayId) continue;
+				let goal = 0;
+				let raisedTotal = 0;
+				let raisedPersonnal = 0;
+				if(overlay.dataSource == "streamlabs_charity") {
+					if(!StoreProxy.streamlabs.charityTeam) continue;
+					goal = StoreProxy.streamlabs.charityTeam.amountGoal_cents/100;
+					raisedTotal = StoreProxy.streamlabs.charityTeam.amountRaised_cents/100;
+					raisedPersonnal = StoreProxy.streamlabs.charityTeam.amountRaisedPersonnal_cents/100;
+				}
+	
+				if(overlay.dataSource == "tiltify") {
+					if(!StoreProxy.tiltify.campaigns) continue;
+					const campaign = StoreProxy.tiltify.campaigns.find(v=>v.id == overlay.campaignId);
+					if(!campaign) continue;
+	
+					goal = parseFloat(campaign.goal.value);
+					raisedTotal = parseFloat(campaign.total_amount_raised.value);
+					raisedPersonnal = parseFloat(campaign.amount_raised.value);
+				}
+				PublicAPI.instance.broadcast(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, {params:overlay, goal, raisedTotal, raisedPersonnal});
 			}
-
-			if(overlay.dataSource == "tiltify") {
-				if(!StoreProxy.tiltify.campaigns) return;
-				const campaign = StoreProxy.tiltify.campaigns.find(v=>v.id == overlay.campaignId);
-				if(!campaign) return;
-
-				goal = parseFloat(campaign.goal.value);
-				raisedTotal = parseFloat(campaign.total_amount_raised.value);
-				raisedPersonnal = parseFloat(campaign.amount_raised.value);
-			}
-			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, {params:overlay, goal, raisedTotal, raisedPersonnal});
 		},
 
 		onCampaignUpdate(platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"], campaignId?:string):void {
@@ -155,7 +157,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 			raisedPersonnal += amount;
 			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, {params:overlay, goal, raisedTotal, raisedPersonnal});
 			
-			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_EVENT, {username:Utils.pickRand(users).displayName, amount:"$"+amount});
+			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_EVENT, {username:Utils.pickRand(users).displayName, amount:"$"+amount, overlayId:overlay.id});
 		}
 
 

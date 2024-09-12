@@ -782,6 +782,12 @@ export namespace TwitchatDataTypes {
 			 * the goal is completed
 			 */
 			secret:boolean;
+			/**
+			 * Defines the secret type.
+			 * blur (default): blurs the whole text and shows it only on complete
+			 * progressive: shows random letter progressively
+			 */
+			secret_type?:"blur"|"progressive";
 		}[];
 	}
 

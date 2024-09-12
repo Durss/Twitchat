@@ -23,7 +23,9 @@
 		"param_limitEntryCount": "Only show current donation goal",
 		"param_maxDisplayedEntries": "Also show the next {VALUE} goal | Also show the next {VALUE} goal | Also show the next {VALUE} goals",
 		"param_goal_title_placeholder": "Goal...",
-		"param_goal_secret": "Secret goal (text revealed only when amount is reached)",
+		"param_goal_secret": "Mystery goal",
+		"param_goal_secret_blur": "Text unblurred only when goal is completed",
+		"param_goal_secret_progressive": "Letters are unblurred individually according to progression",
 		"param_dataSource": "Fundraising platform",
 		"param_campaignId": "Fundraising campaign"
 	}

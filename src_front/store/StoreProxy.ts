@@ -2952,7 +2952,7 @@ export interface IDonationGoalActions {
 	 * Broadcasts data of given overlay ID
 	 * @param overlayId 
 	 */
-	broadcastData(overlayId:string):void;
+	broadcastData(overlayId?:string):void;
 	/**
 	 * Called when streamlabs charity campaign got updated
 	 */

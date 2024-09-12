@@ -104,7 +104,30 @@
 							<span class="currency">{{ getCurrency(overlay) }}</span>
 							<textarea class="title" type="text" v-model="goal.title" @change="save(overlay.id)" rows="1" maxlength="100" :placeholder="$t('donation_goals.param_goal_title_placeholder')"></textarea>
 							<TTButton @click="removeGoal(overlay, goal.id)" icon="trash" alert />
-							<ParamItem class="secret" :paramData="param_goal_secret[goal.id]" v-model="goal.secret" @change="save(overlay.id)" noBackground />
+							<ParamItem class="secret" :paramData="param_goal_secret[goal.id]" v-model="goal.secret" @change="save(overlay.id)" noBackground>
+								<div class="parameter-child secretOptions">
+									<div class="holder option">
+										<label :for="'secret_blur_'+goal.id">{{  $t('donation_goals.param_goal_secret_blur') }}</label>
+										<input type="radio"
+											v-model="goal.secret_type"
+											:name="'secret_type-'+goal.id"
+											value="blur"
+											:id="'secret_blur_'+goal.id"
+											@change="save(overlay.id)">
+									</div>
+								</div>
+								<div class="parameter-child secretOptions">
+									<div class="holder option">
+										<label :for="'secret_preogressive_'+goal.id">{{  $t('donation_goals.param_goal_secret_progressive') }}</label>
+										<input type="radio"
+											v-model="goal.secret_type"
+											:name="'secret_type-'+goal.id"
+											value="progressive"
+											:id="'secret_preogressive_'+goal.id"
+											@change="save(overlay.id)">
+										</div>
+								</div>
+							</ParamItem>
 						</div>
 					</div>
 
@@ -152,6 +175,7 @@ class OverlayParamsDonationGoal extends Vue {
 	public param_limitEntryCount:{[overlayId:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_maxDisplayedEntries:{[overlayId:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_goal_secret:{[overlayId:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_goal_secret_type:{[overlayId:string]:TwitchatDataTypes.ParameterData<TwitchatDataTypes.DonationGoalOverlayConfig["goalList"][number]["secret_type"]>} = {};
 	public param_dataSource:{[overlayId:string]:TwitchatDataTypes.ParameterData<TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"], TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"]>} = {};
 	public param_campaignId:{[overlayId:string]:TwitchatDataTypes.ParameterData<string, string>} = {};
 
@@ -236,6 +260,7 @@ class OverlayParamsDonationGoal extends Vue {
 			amount:0,
 			secret:false,
 			title:"",
+			secret_type: "blur",
 		};
 
 		this.param_goal_secret[goal.id]	= {type:"boolean", value:false, labelKey:"donation_goals.param_goal_secret", icon:"anon"};
@@ -304,7 +329,8 @@ class OverlayParamsDonationGoal extends Vue {
 			]
 
 			overlay.goalList.sort((a,b)=>a.amount-b.amount).forEach(goal=>{
-				this.param_goal_secret[goal.id]	= {type:"boolean", value:goal.secret, labelKey:"donation_goals.param_goal_secret", icon:"anon"};
+				this.param_goal_secret[goal.id]			= {type:"boolean", value:goal.secret, labelKey:"donation_goals.param_goal_secret", icon:"anon"};
+				this.param_goal_secret_type[goal.id]	= {type:"string", value:"blur", labelKey:"donation_goals.param_goal_secret", icon:"anon"};
 			})
 		});
 	}
@@ -470,6 +496,19 @@ export default toNative(OverlayParamsDonationGoal);
 			}
 			.secret {
 				flex-basis: 100%;
+				.secretOptions {
+					gap: .5em;
+					display: flex;
+					flex-direction: column;
+					.option {
+						display: flex;
+						flex-direction: row;
+						justify-content: space-between;
+						label {
+							flex-grow: 1;
+						}
+					}
+				}
 			}
 		}
 

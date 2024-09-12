@@ -116,7 +116,6 @@ class OverlayDonationGoals extends AbstractOverlay {
 		if(!state) return;
 		//Not an event for this overlay, ignore it
 		if(state.params.id != this.id) return;
-		console.log("OKOKOK", state.raisedPersonnal, state.raisedTotal)
 		
 		//Show list if necessary
 		if(state!.params.autoDisplay && !this.show) {
@@ -129,7 +128,7 @@ class OverlayDonationGoals extends AbstractOverlay {
 		this.state = state;
 		this.localRaised = state.raisedPersonnal;
 		state.params.goalList.sort((a,b)=>a.amount-b.amount);
-		
+
 		//Cleanup old percent caches
 		const validIds = state.params.goalList.map(v=>v.id);
 		const existingIds = Object.keys(this.goalToParams);

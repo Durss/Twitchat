@@ -3,11 +3,19 @@
 	v-if="data.visible">
 		<div ref="holder"
 		:style="styles"
-		:class="{holder:true, current:data.distanceToCurrentIndex === 0 || state == 'closing', active:data.distanceToCurrentIndex <= 0, secret:data.goalItem.secret && data.percent < 1}">
+		:class="{
+			holder:true, current:data.distanceToCurrentIndex === 0 || state == 'closing',
+			active:data.distanceToCurrentIndex <= 0,
+			secret:data.goalItem.secret && data.percent < 1,
+			blur: data.goalItem.secret_type != 'progressive',
+			progressive: data.goalItem.secret_type == 'progressive',
+			questionMarks: data.percent < .1
+		}">
 			<div class="content" ref="content">
 				<span class="amount">{{ data.goalItem.amount }}€</span>
 				<div class="label">
-					<span class="title">{{ data.goalItem.title }}</span>
+					<span class="title" v-if="data.goalItem.secret !== true || data.goalItem.secret_type !== 'progressive'">{{ data.goalItem.title }}</span>
+					<TextSplitter class="title" ref="textSplitter" v-else>{{ data.goalItem.title }}</TextSplitter>
 					<div class="mystery">???</div>
 				</div>
 				<div class="hideTimer" v-if="data.hidePercent > 0" :style="{width:data.hidePercent+'%'}"></div>
@@ -34,13 +42,17 @@
 </template>
 
 <script lang="ts">
+import TextSplitter from '@/components/chatform/TextSplitter.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/gsap-core';
 import { watch, type CSSProperties } from 'vue';
 import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 
 @Component({
-	components:{},
+	components:{
+		TextSplitter,
+	},
 	emits:[],
 })
 class OverlayDonationGoalItem extends Vue {
@@ -60,7 +72,9 @@ class OverlayDonationGoalItem extends Vue {
 	public localPercent:number = 0;
 	public state:""|"opened"|"opening"|"closed"|"closing" = "";
 	public particles:{x:number, y:number, r:number, s:number, a:number, v:number}[] = [];
-	
+
+	private prngSeed:number = Math.random()*99999;
+
 	public get color():string { return this.colors.base; }
 	public get color_fill():string { return this.colors.fill; }
 	public get color_background():string { return this.colors.background; }
@@ -77,14 +91,9 @@ class OverlayDonationGoalItem extends Vue {
 			this.data.visible = false;
 		}
 
-		watch(()=>this.data.percent, async ()=>{
-			gsap.to(this, {localPercent:this.data.percent, duration:.5, ease:"sine.inOut", onComplete:()=>{
-				if(this.data.percent >= 1 && !this.overlayParams.hideDone) {
-					this.burstParticles();
-				}
-			}});
-		});
-
+		watch(()=>this.data.percent, async () => this.onPercentUpdate());
+		watch(()=>this.data.goalItem.secret, async () => this.onPercentUpdate());
+		watch(()=>this.data.goalItem.secret_type, async () => this.onPercentUpdate());
 		watch(()=>this.data.distanceToCurrentIndex, ()=> this.onRender());
 		watch(()=>this.overlayParams.limitEntryCount, ()=> this.onRender());
 		watch(()=>this.overlayParams.maxDisplayedEntries, ()=> this.onRender());
@@ -98,6 +107,7 @@ class OverlayDonationGoalItem extends Vue {
 		this.data.visible = false;
 		this.state = "closed";
 		this.onRender();
+		this.onPercentUpdate();
 	}
 
 	/**
@@ -116,6 +126,9 @@ class OverlayDonationGoalItem extends Vue {
 		}
 	}
 
+	/**
+	 * Makes opening animation
+	 */
 	private async open():Promise<void> {
 		if(this.state == "opened") return Promise.resolve();
 		if(this.state == "opening") return Promise.resolve();
@@ -134,6 +147,9 @@ class OverlayDonationGoalItem extends Vue {
 		})
 	}
 
+	/**
+	 * Close the item when complete
+	 */
 	private async close():Promise<void> {
 		//First show item if hidden
 		//Necessary if next items are hidden and we get a donation that
@@ -239,6 +255,36 @@ class OverlayDonationGoalItem extends Vue {
 		}
 	}
 
+	private async onPercentUpdate():Promise<void> {
+		
+		gsap.to(this, {localPercent:this.data.percent, duration:.5, ease:"sine.inOut", onComplete:()=>{
+			if(this.data.percent >= 1 && !this.overlayParams.hideDone) {
+				this.burstParticles();
+			}
+		}});
+		if(this.data.goalItem.secret && this.data.goalItem.secret_type == "progressive") {
+			await this.$nextTick();
+
+			const prng = Utils.seededRandom(this.prngSeed);
+			console.log((this.$refs.textSplitter as Vue))
+			let letters = [...(this.$refs.textSplitter as Vue).$el.querySelectorAll(".letter")];
+			for (let i = letters.length - 1; i > 0; i--) {
+				const j = Math.floor(prng() * (i + 1));
+				[letters[i], letters[j]] = [letters[j], letters[i]];
+			}
+
+			const revealedCount = Math.floor(this.data.percent * letters.length);
+			for (let i = 0; i < letters.length; i++) {
+				const node = letters[i];
+				if(i < revealedCount) {
+					node.classList.remove("blur");
+				}else{
+					node.classList.add("blur");
+				}
+			}
+		}
+	}
+
 }
 export default toNative(OverlayDonationGoalItem);
 </script>
@@ -328,10 +374,30 @@ export default toNative(OverlayDonationGoalItem);
 			.label {
 				.title {
 					display: inline;
-					filter: blur(8px);
+					:deep(.letter) {
+						transition: filter 1s;
+						&.blur {
+							transition: filter 0s;
+							filter: blur(8px);
+						}
+					}
 				}
 				.mystery {
 					opacity: 1;
+				}
+			}
+			&.progressive {
+				&:not(.questionMarks) {
+					.mystery{
+						opacity: 0;
+					}
+				}
+			}
+			&.blur {
+				.label {
+					.title {
+						filter: blur(8px);
+					}
 				}
 			}
 		}

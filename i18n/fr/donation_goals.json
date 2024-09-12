@@ -23,7 +23,9 @@
 		"param_limitEntryCount": "Afficher uniquement l'objectif en cours",
 		"param_maxDisplayedEntries": "Afficher également {VALUE} objectif suivant | Afficher également {VALUE} objectif suivant | Afficher également les {VALUE} objectifs suivants",
 		"param_goal_title_placeholder": "Objectif...",
-		"param_goal_secret": "Secret goal (text revealed only when amount is reached)",
+		"param_goal_secret": "Objectif mystère",
+		"param_goal_secret_blur": "Texte flouté jusqu'à ce que l'objectif soit remplit",
+		"param_goal_secret_progressive": "Lettres défloutées individuellement au fur et à mesure de la progression",
 		"param_dataSource": "Platforme de dons",
 		"param_campaignId": "Campagne de dons"
 	}
