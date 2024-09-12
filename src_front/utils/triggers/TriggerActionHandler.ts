@@ -1360,7 +1360,6 @@ export default class TriggerActionHandler {
 									await new Promise<void>((resolve, reject)=> {
 										const handler = (e:TwitchatEvent) => {
 											const d = e.data as {inputName:string};
-											logStep.messages.push({date:Date.now(), value:"Playback complete "+d.inputName});
 											if(d.inputName != step.sourceName) return;
 											logStep.messages.push({date:Date.now(), value:"Media \""+step.sourceName+"\" playing complete."});
 											OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, handler);

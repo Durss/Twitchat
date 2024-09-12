@@ -1092,16 +1092,16 @@ export default class OBSWebsocket extends EventDispatcher {
 
 		this.obs.on("MediaInputPlaybackEnded", async (e:{inputName:string}) => {
 			this.log("Media playback complete: "+e.inputName);
-			//Waiting 1s to workaround an issue with OBS.
+			//Waiting 1.5s to workaround an issue with OBS.
 			//Suppose a media source is set to restart playback when displayed.
 			//Now, suppose we hide the source and show it back right after
 			//on MediaInputPlaybackEnded event.
 			//In this case OBS doesn't react well as it would hide/show the source
 			//but it wouldn't restart the playback properly.
-			//For some reason, in this very specific case we need to wait ~1s after
+			//For some reason, in this very specific case we need to wait +1s after
 			//the media completes before being able to restart its playback by
 			//showing the source
-			await Utils.promisedTimeout(1000);
+			await Utils.promisedTimeout(1500);
 			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_PLAYBACK_ENDED, e));
 		});
 
