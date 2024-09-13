@@ -240,7 +240,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 	public getTips(item:TwitchatDataTypes.EndingCreditsSlotParams) {
 		const tips = this.makeUnique(item, (this.data?.tips || [])
 			.filter(tip =>
-				(tip.platform == "kofi" && item.showTipsKofi)
+				(tip.platform == "kofi" && (item.showTipsKofi || item.showSubsKofi != false))//checking for "!= false" so this new props defaults to true if not specified
 				|| (tip.platform == "tipeee" && item.showTipsTipeee)
 				|| (tip.platform == "patreon" && item.showTipsPatreon)
 				|| (tip.platform == "streamlabs" && item.showTipsStreamlabs)

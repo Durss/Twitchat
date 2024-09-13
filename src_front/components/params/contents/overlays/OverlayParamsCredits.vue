@@ -107,8 +107,8 @@
 										<ParamItem :paramData="param_showResubs[element.id]"			v-model="element.showResubs" />
 										<ParamItem :paramData="param_showSubgifts[element.id]"			v-model="element.showSubgifts" />
 										<ParamItem :paramData="param_showSubMonths[element.id]"			v-model="element.showSubMonths" />
-										<ParamItem :paramData="param_showSubsYoutube[element.id]"		v-model="element.showSubsYoutube" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'endingcredits_slot_ytSubgift'}" />
-										<ParamItem :paramData="param_showSubgiftsYoutube[element.id]"	v-model="element.showSubgiftsYoutube" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'endingcredits_slot_ytSub'}" />
+										<ParamItem :paramData="param_showSubsYoutube[element.id]"		v-model="element.showSubsYoutube" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'endingcredits_slot_ytSub'}" />
+										<ParamItem :paramData="param_showSubgiftsYoutube[element.id]"	v-model="element.showSubgiftsYoutube" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'endingcredits_slot_ytSubgift'}" />
 										<ParamItem :paramData="param_showBadges[element.id]"			v-model="element.showBadges" />
 									</template>
 									<ParamItem :paramData="param_sortByName[element.id]"			v-model="element.sortByNames" />
@@ -132,6 +132,7 @@
 
 								<template v-if="element.slotType == 'tips'">
 									<ParamItem :paramData="param_showTipsKofi[element.id]"				v-model="element.showTipsKofi" noPremiumLock />
+									<ParamItem :paramData="param_showSubsKofi[element.id]"				v-model="element.showSubsYoutube" noPremiumLock v-newflag="{date:$config.NEW_FLAGS_DATE_V13_6, id:'endingcredits_slot_kofiSub'}" />
 									<ParamItem :paramData="param_showTipsTipeee[element.id]"			v-model="element.showTipsTipeee" noPremiumLock />
 									<ParamItem :paramData="param_showTipsStreamlabs[element.id]"		v-model="element.showTipsStreamlabs" noPremiumLock />
 									<ParamItem :paramData="param_showTipsPatreon[element.id]"			v-model="element.showTipsPatreon" noPremiumLock />
@@ -330,6 +331,7 @@ class OverlayParamsCredits extends Vue {
 	public param_showAllActiveSubgifters:{[key:string]:TwitchatDataTypes.ParameterData<boolean, undefined, boolean>} = {};
 	public param_showSubsYoutube:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showSubgiftsYoutube:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showSubsKofi:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showMods:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showVIPs:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showChatters:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
@@ -635,8 +637,8 @@ class OverlayParamsCredits extends Vue {
 			this.param_showSubgifts[id]			= {type:"boolean", value:entry.showSubgifts, icon:"gift", labelKey:"overlay.credits.param_showSubgifts"};
 			this.param_showSubsYoutube[id]		= {type:'boolean', value:entry.showSubsYoutube, icon:"youtube", labelKey:'overlay.credits.param_showSubsYoutube', premiumOnly:true};
 			this.param_showSubgiftsYoutube[id]	= {type:'boolean', value:entry.showSubgiftsYoutube, icon:"youtube", labelKey:'overlay.credits.param_showSubgiftsYoutube', premiumOnly:true};
-			this.param_showAllActiveSubs[id]	= {type:'boolean', value:entry.showAllSubs===true, icon:"date", labelKey:'overlay.credits.param_showAllActiveSubs'};
 			this.param_showSubsPrime[id]		= {type:'boolean', value:entry.showSubsPrime===true, labelKey:'overlay.credits.param_showSubsPrime'};
+			this.param_showAllActiveSubs[id]	= {type:'boolean', value:entry.showAllSubs===true, icon:"date", labelKey:'overlay.credits.param_showAllActiveSubs'};
 			this.param_showSubsT1[id]			= {type:'boolean', value:entry.showSubsT1===true, labelKey:'overlay.credits.param_showSubsT1'};
 			this.param_showSubsT2[id]			= {type:'boolean', value:entry.showSubsT2===true, labelKey:'overlay.credits.param_showSubsT2'};
 			this.param_showSubsT3[id]			= {type:'boolean', value:entry.showSubsT3===true, labelKey:'overlay.credits.param_showSubsT3'};
@@ -651,6 +653,7 @@ class OverlayParamsCredits extends Vue {
 			if(entry.sortByNames == undefined) 				entry.sortByNames = false;
 			if(entry.sortByAmounts == undefined) 			entry.sortByAmounts = false;
 			if(entry.showTipsKofi === undefined)			entry.showTipsKofi = true;
+			if(entry.showSubsKofi === undefined)			entry.showTipsKofi = true;
 			if(entry.showTipsTipeee === undefined)			entry.showTipsTipeee = true;
 			if(entry.showTipsPatreon === undefined)			entry.showTipsPatreon = true;
 			if(entry.showTipsStreamlabs === undefined)		entry.showTipsStreamlabs = true;
@@ -662,6 +665,7 @@ class OverlayParamsCredits extends Vue {
 			this.param_showTipsStreamlabs[id]		= {type:'boolean', value:entry.showTipsStreamlabs, icon:"streamlabs", labelKey:'overlay.credits.param_tip_streamlabs', premiumOnly:true};
 			this.param_showTipsStreamelements[id]	= {type:'boolean', value:entry.showTipsStreamelements, icon:"streamelements", labelKey:'overlay.credits.param_tip_streamelements', premiumOnly:true};
 			this.param_sortByAmounts[id]			= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:"overlay.credits.param_sortByTipAmounts", premiumOnly:true};
+			this.param_showSubsKofi[id]				= {type:'boolean', value:entry.showSubsKofi===true, icon:"kofi", labelKey:'overlay.credits.param_showSubsKofi', premiumOnly:true};
 		}else
 
 		if(slotDef.id == "merch") {

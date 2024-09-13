@@ -587,6 +587,10 @@ export const storeStream = defineStore('stream', {
 						message.eventType = "merch";
 						message.products = [{id:"123456", name:Utils.pickRand(["T-shirt", "Hoodie", "Hat", "Mug", "Stickers", "Pins"]), quantity:1}, {id:"234561", name:Utils.pickRand(["T-shirt", "Hoodie", "Hat", "Mug", "Stickers", "Pins"]), quantity:1}];
 					}, false));
+					
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageKofiData>(TwitchatDataTypes.TwitchatMessageType.KOFI, (message)=>{
+						message.eventType = "subscription";
+					}, false));
 
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.StreamlabsMerchData>(TwitchatDataTypes.TwitchatMessageType.STREAMLABS, (message)=>{
 						message.eventType = "merch";
@@ -889,7 +893,11 @@ export const storeStream = defineStore('stream', {
 					}
 
 					case TwitchatDataTypes.TwitchatMessageType.KOFI: {
-						if(m.eventType == "donation" || m.eventType == "subscription") {
+						if(m.eventType == "donation") {
+							const tip:TwitchatDataTypes.StreamSummaryData['tips'][number] = {login:m.userName, amount:m.amount, currency:m.currency, platform:"kofi"};
+							result.tips.push(tip);
+						}
+						if(m.eventType == "subscription") {
 							const tip:TwitchatDataTypes.StreamSummaryData['tips'][number] = {login:m.userName, amount:m.amount, currency:m.currency, platform:"kofi"};
 							result.tips.push(tip);
 						}
