@@ -29,7 +29,7 @@
 		"param_goal_secret": "Objectif mystère",
 		"param_goal_secret_blur": "Texte flouté jusqu'à ce que l'objectif soit remplit",
 		"param_goal_secret_progressive": "Lettres défloutées individuellement au fur et à mesure de la progression",
-		"param_dataSource": "Platforme de dons",
+		"param_dataSource": "Source de données",
 		"param_campaignId": "Campagne de dons",
 		"param_counterId": "Compteur source"
 	}
