@@ -1447,6 +1447,7 @@ const UserDataSchema = {
 							showSubgifts: {type:"boolean"},
 							showSubsYoutube: {type:"boolean"},
 							showSubgiftsYoutube: {type:"boolean"},
+							showSubsKofi: {type:"boolean"},
 							showResubs: {type:"boolean"},
 							showTipsKofi: {type:"boolean"},
 							showTipsTipeee: {type:"boolean"},

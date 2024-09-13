@@ -1846,6 +1846,7 @@ export namespace TwitchatDataTypes {
 		showSubsYoutube?:boolean;
 		showSubgiftsYoutube?:boolean;
 		showTipsKofi?:boolean;
+		showSubsKofi?:boolean;
 		showTipsTipeee?:boolean;
 		showTipsPatreon?:boolean;
 		showTipsStreamlabs?:boolean;
