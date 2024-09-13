@@ -1799,6 +1799,7 @@ const UserDataSchema = {
 							color: {type:"string", maxLength:10},
 							title: {type:"string", maxLength:40},
 							campaignId: {type:"string", maxLength:100},
+							counterId: {type:"string", maxLength:40},
 							dataSource: {enum: ["streamlabs_charity","tiltify"]},
 							enabled: {type:"boolean"},
 							ideDone: {type:"boolean"},

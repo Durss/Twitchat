@@ -84,6 +84,25 @@ button {
 	cursor: pointer;
 }
 
+@supports(-webkit-appearance: none) or (-moz-appearance: none) {
+	input[type='radio'] {
+		--border-hover: #275EFE;
+		appearance: none;
+		height: 1.25em;
+		width: 1.25em;
+		outline: none;
+		display: inline-block;
+		margin: 0;
+		cursor: pointer;
+		background: #fff;
+		transition: background .3s;
+		border-radius: 50%;
+		&:checked {
+			background: var(--color-primary);
+		}
+	}
+}
+
 .vs__dropdown-toggle {
 	.bevel();
 	border: none;

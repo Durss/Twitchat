@@ -2956,7 +2956,7 @@ export interface IDonationGoalActions {
 	/**
 	 * Called when streamlabs charity campaign got updated
 	 */
-	onCampaignUpdate(platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"], campaignId?:string):void;
+	onSourceValueUpdate(platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"], sourceId?:string):void;
 	/**
 	 * Called when a new donation is received
 	 */

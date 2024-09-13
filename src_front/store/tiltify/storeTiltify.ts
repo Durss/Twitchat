@@ -156,7 +156,7 @@ export const storeTiltify = defineStore('tiltify', {
 					campaign.total_amount_raised.value = data.total_amount_raised.toString();
 					campaign.goal.value = data.amount_goal.toString();
 
-					StoreProxy.donationGoals.onCampaignUpdate("tiltify", campaign.id);
+					StoreProxy.donationGoals.onSourceValueUpdate("tiltify", campaign.id);
 					break;
 				}
 			}

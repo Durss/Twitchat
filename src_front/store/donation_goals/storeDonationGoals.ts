@@ -114,16 +114,27 @@ export const storeDonationGoals = defineStore('donationGoals', {
 					raisedTotal = parseFloat(campaign.total_amount_raised.value);
 					raisedPersonnal = parseFloat(campaign.amount_raised.value);
 				}
+
+				if(overlay.dataSource == "counter") {
+					const counter = StoreProxy.counters.counterList.find(v=>v.id == overlay.counterId);
+					if(!counter) continue;
+					goal = counter.max || 0;
+					raisedTotal = counter.value;
+					raisedPersonnal = counter.value;
+				}
+
 				PublicAPI.instance.broadcast(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, {params:overlay, goal, raisedTotal, raisedPersonnal});
 			}
 		},
 
-		onCampaignUpdate(platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"], campaignId?:string):void {
+		onSourceValueUpdate(platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"], sourceId?:string):void {
 			for (let i = 0; i < this.overlayList.length; i++) {
 				const overlay = this.overlayList[i];
-				if(overlay.dataSource == platform
-				&& (!overlay.campaignId || overlay.campaignId == campaignId)) {
-					this.broadcastData(overlay.id);
+				if(overlay.dataSource == platform) {
+					if(overlay.campaignId == sourceId
+					|| overlay.counterId == sourceId) {
+						this.broadcastData(overlay.id);
+					}
 				}
 			}
 		},

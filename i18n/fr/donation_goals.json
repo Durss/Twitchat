@@ -12,6 +12,9 @@
 		"default_title": "Donation goal",
 		"tiltify_not_connected": "Veuillez connecter Twitchat à Tiltify",
 		"tiltify_not_campaign": "Votre compte Tiltify n'est lié à aucune campagne de récolte de dons",
+		"counter_entry": "Compteur Twitchat",
+		"counter_empty": "Vous n'avez créé aucun compteur",
+		"counter_createBt": "Créer un compteur",
 		"streamlabs_charity_not_connected": "Veuillez connecter Twitchat à Streamlabs et configurer une campagne Streamlabs Charity",
 		"goal_list": "Objectifs",
 		"param_color": "Thème de couleur",
@@ -27,6 +30,7 @@
 		"param_goal_secret_blur": "Texte flouté jusqu'à ce que l'objectif soit remplit",
 		"param_goal_secret_progressive": "Lettres défloutées individuellement au fur et à mesure de la progression",
 		"param_dataSource": "Platforme de dons",
-		"param_campaignId": "Campagne de dons"
+		"param_campaignId": "Campagne de dons",
+		"param_counterId": "Compteur source"
 	}
 }

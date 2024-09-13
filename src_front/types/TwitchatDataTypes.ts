@@ -762,13 +762,20 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Source to link this donation goal to
 		 */
-		dataSource:"streamlabs_charity"|"tiltify";
+		dataSource:"streamlabs_charity"|"tiltify"|"counter";
 		/**
 		 * Optional campaign ID.
 		 * Not used by "streamlabs_charity" as the campaign
 		 * is defined globaly and only one can be active
 		 */
 		campaignId?:string;
+		/**
+		 * Counter ID if "dataSource" is set to "counter" 
+		 */
+		counterId?:string;
+		/**
+		 * Theme color
+		 */
 		color:string;
 		/**
 		 * List of donation goal entries

@@ -80,7 +80,18 @@
 						v-else-if="overlay.dataSource == 'tiltify' && $store.tiltify.campaigns.length == 0">
 							<div>{{ $t("donation_goals.tiltify_not_campaign") }}</div>
 						</div>
-						<ParamItem :paramData="param_campaignId[overlay.id]" v-model="overlay.campaignId" @change="save(overlay.id)" v-if="(param_campaignId[overlay.id].listValues || []).length > 0" :childLevel="1" noBackground />
+						<div class="card-item alert missingCharity"
+						v-else-if="overlay.dataSource == 'counter' && $store.counters.counterList.length == 0">
+							<div>{{ $t("donation_goals.counter_empty") }}</div>
+							<TTButton icon="counter" @click="openCounters" light alert>{{ $t("donation_goals.counter_createBt") }}</TTButton>
+						</div>
+
+						<ParamItem :paramData="param_campaignId[overlay.id]" v-model="overlay.campaignId" @change="save(overlay.id)"
+							v-if="overlay.dataSource != 'counter' && (param_campaignId[overlay.id].listValues || []).length > 0" :childLevel="1" noBackground />
+
+						<ParamItem :paramData="param_counterId[overlay.id]" v-model="overlay.counterId" @change="save(overlay.id)"
+							v-if="overlay.dataSource == 'counter' && (param_counterId[overlay.id].listValues || []).length > 0" :childLevel="1" noBackground />
+
 						<div class="parameter-child charityDetails" v-if="overlay.dataSource == 'streamlabs_charity'">
 							<div class="holder">
 								<span>{{ $t("donation_goals.param_campaignId") }}:</span>
@@ -178,6 +189,7 @@ class OverlayParamsDonationGoal extends Vue {
 	public param_goal_secret_type:{[overlayId:string]:TwitchatDataTypes.ParameterData<TwitchatDataTypes.DonationGoalOverlayConfig["goalList"][number]["secret_type"]>} = {};
 	public param_dataSource:{[overlayId:string]:TwitchatDataTypes.ParameterData<TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"], TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"]>} = {};
 	public param_campaignId:{[overlayId:string]:TwitchatDataTypes.ParameterData<string, string>} = {};
+	public param_counterId:{[overlayId:string]:TwitchatDataTypes.ParameterData<string, string>} = {};
 
 	public get maxOverlaysReached():boolean {
 		if(this.$store.auth.isPremium) {
@@ -222,6 +234,13 @@ class OverlayParamsDonationGoal extends Vue {
 	}
 
 	/**
+	 * Opens Counters parameters
+	 */
+	public openCounters():void {
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
+	}
+
+	/**
 	 * Save data to storage
 	 */
 	public save(overlayId:string):void {
@@ -258,8 +277,8 @@ class OverlayParamsDonationGoal extends Vue {
 		const goal:TwitchatDataTypes.DonationGoalOverlayConfig["goalList"][number] = {
 			id:Utils.getUUID(),
 			amount:0,
-			secret:false,
 			title:"",
+			secret:false,
 			secret_type: "blur",
 		};
 
@@ -304,20 +323,41 @@ class OverlayParamsDonationGoal extends Vue {
 			this.param_hideDone[id]				= {type:"boolean", value:overlay.hideDone, labelKey:"donation_goals.param_hideDone", icon:"timer"};
 			this.param_limitEntryCount[id]		= {type:"boolean", value:overlay.limitEntryCount, labelKey:"donation_goals.param_limitEntryCount", icon:"number"};
 			this.param_maxDisplayedEntries[id]	= {type:"number", value:overlay.maxDisplayedEntries, min:0, max:overlay.goalList.length, labelKey:"donation_goals.param_maxDisplayedEntries", icon:"number"};
-			this.param_campaignId[id]			= {type:"list", value:"", labelKey:"donation_goals.param_campaignId"};
+			this.param_campaignId[id]			= {type:"list", value:"", labelKey:"donation_goals.param_campaignId", icon:"charity"};
+			this.param_counterId[id]			= {type:"list", value:"", labelKey:"donation_goals.param_counterId", icon:"count"};
 			this.param_dataSource[id]			= {type:"list", value:overlay.dataSource, labelKey:"donation_goals.param_dataSource", icon:"charity", editCallback:(data)=> {
-				if(data.value == "streamlabs_charity") {
-					this.param_campaignId[id].listValues = [];
-				}else
-				if(data.value == "tiltify") {
-					const list:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
-					this.$store.tiltify.campaigns.forEach(c=>{
-						list.push({
-							value:c.id,
-							label:c.name,
+				switch(data.value) {
+					case "streamlabs_charity": {
+						this.param_campaignId[id].listValues = [];
+						this.param_campaignId[id].icon = "streamlabs";
+						break;
+					}
+					
+					case "tiltify": {
+						const list:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
+						this.$store.tiltify.campaigns.forEach(c=>{
+							list.push({
+								value:c.id,
+								label:c.name,
+							});
 						})
-					})
-					this.param_campaignId[id].listValues = list;
+						this.param_campaignId[id].listValues = list;
+						this.param_campaignId[id].icon = "tiltify";
+						break;
+					}
+					
+					case "counter": {
+						const list:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
+						this.$store.counters.counterList
+						.filter(c=>c.perUser !== true)
+						.forEach(c=>{
+							list.push({
+								value:c.id,
+								label:c.name,
+							});
+						})
+						this.param_counterId[id].listValues = list;
+					}
 				}
 			}};
 			//Make sure the campaign list is up to date on init
@@ -326,6 +366,7 @@ class OverlayParamsDonationGoal extends Vue {
 			this.param_dataSource[id].listValues = [
 				{value:"tiltify", label:"Tiltify"},
 				{value:"streamlabs_charity", label:"Streamlabs Charity"},
+				{value:"counter", labelKey:"donation_goals.counter_entry"},
 			]
 
 			overlay.goalList.sort((a,b)=>a.amount-b.amount).forEach(goal=>{
@@ -506,6 +547,7 @@ export default toNative(OverlayParamsDonationGoal);
 						justify-content: space-between;
 						label {
 							flex-grow: 1;
+							cursor: pointer;
 						}
 					}
 				}
