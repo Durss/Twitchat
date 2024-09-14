@@ -115,10 +115,12 @@ export const storeStream = defineStore('stream', {
 					}
 					if(StoreProxy.auth.twitch.user.id == channelId) {
 						const categoryData = await TwitchUtils.getCategoryByID(categoryId);
-						StoreProxy.labels.updateLabelValue("STREAM_TITLE", infos.title);
-						StoreProxy.labels.updateLabelValue("STREAM_CATEGORY_NAME", categoryData.name);
-						StoreProxy.labels.updateLabelValue("STREAM_CATEGORY_COVER", categoryData.box_art_url.replace("{width}", "138").replace("{height}", "190"));
-						StoreProxy.labels.updateLabelValue("VIEWER_COUNT", infos.viewers);
+						if(categoryData) {
+							StoreProxy.labels.updateLabelValue("STREAM_TITLE", infos.title);
+							StoreProxy.labels.updateLabelValue("STREAM_CATEGORY_NAME", categoryData.name);
+							StoreProxy.labels.updateLabelValue("STREAM_CATEGORY_COVER", categoryData.box_art_url.replace("{width}", "138").replace("{height}", "190"));
+							StoreProxy.labels.updateLabelValue("VIEWER_COUNT", infos.viewers);
+						}
 					}
 				});
 			}

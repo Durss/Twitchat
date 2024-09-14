@@ -1101,7 +1101,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						message_size,
 						answers:[],
 						twitch_watchStreak:tags["msg-param-value"] as number,
-						is_short:Utils.stripHTMLTags(message_html).length / message.length < .6 || message.length < 4,
+						is_short:Utils.stripHTMLTags(message_html || "").length / (message?.length||1) < .6 || message?.length < 4,
 					};
 					this.dispatchEvent(new MessengerClientEvent("MESSAGE", messageData));
 				}
