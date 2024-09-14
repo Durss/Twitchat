@@ -12,6 +12,7 @@
 		"default_title": "Donation goal",
 		"tiltify_not_connected": "Veuillez connecter Twitchat à Tiltify",
 		"tiltify_not_campaign": "Votre compte Tiltify n'est lié à aucune campagne de récolte de dons",
+		"twitch_subs_entry": "Nombre d'abonnements Twitch",
 		"counter_entry": "Compteur Twitchat",
 		"counter_empty": "Vous n'avez créé aucun compteur",
 		"counter_createBt": "Créer un compteur",

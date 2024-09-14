@@ -266,7 +266,6 @@ class OverlayDonationGoalItem extends Vue {
 			await this.$nextTick();
 
 			const prng = Utils.seededRandom(this.prngSeed);
-			console.log((this.$refs.textSplitter as Vue))
 			let letters = [...(this.$refs.textSplitter as Vue).$el.querySelectorAll(".letter")];
 			for (let i = letters.length - 1; i > 0; i--) {
 				const j = Math.floor(prng() * (i + 1));

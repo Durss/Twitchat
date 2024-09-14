@@ -1587,6 +1587,9 @@ export const storeChat = defineStore('chat', {
 
 						StoreProxy.labels.incrementLabelValue("SUB_COUNT", 1);
 						StoreProxy.labels.incrementLabelValue("SUB_POINTS", {prime:1, 1:2, 2:3, 3:6}[message.tier]);
+						StoreProxy.donationGoals.onSourceValueUpdate("twitch_subs");
+						const tierLabel = {prime:"prime", 1:"tier 1", 2:"tier 2", 3:"tier 3"}[message.tier];
+						StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, tierLabel, "twitch_subs");
 					}
 					break;
 				}
@@ -1916,6 +1919,10 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.incrementLabelValue("SUB_COUNT", message.gift_count || 1);
 						StoreProxy.labels.incrementLabelValue("SUB_POINTS", {prime:1, 1:2, 2:3, 3:6}[message.tier] * (message.gift_count || 1));
 						StoreProxy.labels.incrementLabelValue("SUBGIFT_COUNT", message.gift_count || 1);
+						
+						StoreProxy.donationGoals.onSourceValueUpdate("twitch_subs");
+						const tierLabel = {prime:"prime", 1:"tier 1", 2:"tier 2", 3:"tier 3"}[message.tier];
+						StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, message.gift_count+" "+tierLabel, "twitch_subs");
 					}else{
 						StoreProxy.labels.updateLabelValue("SUBGIFT_YOUTUBE_ID", message.user.id);
 						StoreProxy.labels.updateLabelValue("SUBGIFT_YOUTUBE_NAME", message.user.displayNameOriginal);
@@ -1925,7 +1932,8 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_TIER", message.levelName);
 						StoreProxy.labels.updateLabelValue("SUB_GENERIC_TIER", message.levelName);
 
-						StoreProxy.labels.incrementLabelValue("SUBGIFT_YOUTUBE_COUNT", message.gift_count || 1);
+						// StoreProxy.labels.incrementLabelValue("SUBGIFT_YOUTUBE_COUNT", message.gift_count || 1);
+						// StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, message.gift_count+" "+message.levelName, "twitch_subs");
 					}
 					
 					StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_ID", message.user.id);

@@ -86,8 +86,8 @@
 							<TTButton icon="counter" @click="openCounters" light alert>{{ $t("donation_goals.counter_createBt") }}</TTButton>
 						</div>
 
-						<ParamItem :paramData="param_campaignId[overlay.id]" v-model="overlay.campaignId" @change="save(overlay.id)"
-							v-if="overlay.dataSource != 'counter' && (param_campaignId[overlay.id].listValues || []).length > 0" :childLevel="1" noBackground />
+						<ParamItem  :paramData="param_campaignId[overlay.id]" v-model="overlay.campaignId" @change="save(overlay.id)"
+							v-if="(overlay.dataSource == 'streamlabs_charity' || overlay.dataSource == 'tiltify') && (param_campaignId[overlay.id].listValues || []).length > 0" :childLevel="1" noBackground />
 
 						<ParamItem :paramData="param_counterId[overlay.id]" v-model="overlay.counterId" @change="save(overlay.id)"
 							v-if="overlay.dataSource == 'counter' && (param_counterId[overlay.id].listValues || []).length > 0" :childLevel="1" noBackground />
@@ -367,6 +367,7 @@ class OverlayParamsDonationGoal extends Vue {
 				{value:"tiltify", label:"Tiltify"},
 				{value:"streamlabs_charity", label:"Streamlabs Charity"},
 				{value:"counter", labelKey:"donation_goals.counter_entry"},
+				{value:"twitch_subs", labelKey:"donation_goals.twitch_subs_entry"},
 			]
 
 			overlay.goalList.sort((a,b)=>a.amount-b.amount).forEach(goal=>{
