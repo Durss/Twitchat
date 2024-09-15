@@ -1720,7 +1720,7 @@ export default class TwitchUtils {
 					clearInterval(interval);
 					const clipData = {
 						url: clip.embed_url,
-						mp4: clip.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
+						// mp4: clip.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
 						duration: clip.duration,
 					};
 					message.clipData = clipData;

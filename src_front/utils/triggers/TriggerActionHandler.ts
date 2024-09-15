@@ -1461,7 +1461,7 @@ export default class TriggerActionHandler {
 								message_id,
 								clip:{
 									url: clip!.embed_url,
-									mp4: clip!.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
+									// mp4: clip!.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
 									duration: clip!.duration,
 								},
 								dateLabel:StoreProxy.i18n.tm("global.date_ago"),

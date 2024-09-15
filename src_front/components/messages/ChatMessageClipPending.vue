@@ -89,7 +89,7 @@ class ChatMessageClipPending extends AbstractChatMessage {
 			clip = {
 				duration:infos.duration,
 				url:infos.embed_url,
-				mp4:infos.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
+				// mp4:infos.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
 			}
 		}
 		const data:TwitchatDataTypes.ChatHighlightInfo = {

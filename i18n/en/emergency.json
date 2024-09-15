@@ -25,7 +25,7 @@
 			"shieldmode": "Enable Twitch shield mode",
 			"chatCommand":"Chat command",
 			"autoEnableOnFollowbot":"Automatically start on followbot raid",
-			"autoEnableOnFollowbot_tt":"A raid is detected when receiving 30 follow events with less than 0,5s between each follow",
+			"autoEnableOnFollowbot_tt":"A raid is detected when receiving 20 follow events with less than 0,5s between each follow",
 			"autoEnableOnShieldmode":"Sync with Twitch's shield mode",
 			"autoEnableOnShieldmode_tt":"Start / Stop emergency mode from Twitch's shield mode",
 			"slowMode": "Slow mode",
