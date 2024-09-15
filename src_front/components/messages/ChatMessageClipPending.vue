@@ -88,8 +88,8 @@ class ChatMessageClipPending extends AbstractChatMessage {
 		if(infos) {
 			clip = {
 				duration:infos.duration,
-				url:infos.embed_url+"&autoplay=true&parent=twitchat.fr&parent=localhost",
-				mp4:infos.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
+				url:infos.embed_url,
+				// mp4:infos.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
 			}
 		}
 		const data:TwitchatDataTypes.ChatHighlightInfo = {
