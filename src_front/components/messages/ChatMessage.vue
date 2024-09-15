@@ -171,7 +171,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import { gsap } from 'gsap/gsap-core';
 import type { JsonObject } from 'type-fest';
-import type { StyleValue } from 'vue';
+import type { CSSProperties } from 'vue';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import CustomUserBadges from '../user/CustomUserBadges.vue';
@@ -379,7 +379,7 @@ class ChatMessage extends AbstractChatMessage {
 	/**
 	 * Set login color
 	 */
-	public getLoginStyles(user:TwitchatDataTypes.TwitchatUser):StyleValue {
+	public getLoginStyles(user:TwitchatDataTypes.TwitchatUser):CSSProperties {
 		let res = {
 			color: Utils.getUserColor(user),
 		};
@@ -759,6 +759,7 @@ export default toNative(ChatMessage);
 		padding: 1em;
 		background: linear-gradient(90deg, #3866dd, #ff4c5b);
 		z-index: 0;
+		color: #fff;
 		&::before {
 			content: "";
 			top: .75em;
@@ -776,6 +777,7 @@ export default toNative(ChatMessage);
 		padding: 1em;
 		overflow: hidden;
 		z-index: 0;
+		color: #fff;
 		&::before {
 			content: "";
 			top: .75em;
@@ -823,6 +825,7 @@ export default toNative(ChatMessage);
 		border-radius: 0;
 		padding: 1em;
 		z-index: 0;
+		color: #fff;
 		&::before {
 			content: "";
 			top: .75em;
