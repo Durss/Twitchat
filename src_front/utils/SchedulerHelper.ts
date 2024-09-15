@@ -253,14 +253,21 @@ export default class SchedulerHelper {
 				// if(Config.instance.BETA_MODE) continue;//No ad on beta
 				//No ad for donors unless requested
 				if((StoreProxy.auth.isPremium || StoreProxy.auth.donorLevel > -1) && !StoreProxy.chat.botMessages.twitchatAd.enabled) continue;
+				
 				//A premium user (also a big streamer) emptied the message instead of disabling it.
 				//This condition is here to make it possible to disable the ad this way. If "twitchat.fr"
 				//isn't found on the message and the user is part of donors/premium members, don't send
 				//the ad on chat.
 				if((StoreProxy.auth.isPremium || StoreProxy.auth.donorLevel > -1)
 				&& !/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(StoreProxy.chat.botMessages.twitchatAd.message)) continue;
+				
 				//Special case for users that have to few followers
 				if(StoreProxy.auth.noAd) continue;
+				
+				//Disable for EtTaCause members
+				//TODO remove after event
+				if(StoreProxy.streamlabs.charityTeam
+				&& StoreProxy.streamlabs.charityTeam.id === "717041490483876892") return;
 			}
 
 			let execute = true;

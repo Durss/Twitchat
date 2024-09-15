@@ -762,7 +762,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Source to link this donation goal to
 		 */
-		dataSource:"streamlabs_charity"|"tiltify"|"counter"|"twitch_subs";
+		dataSource:"streamlabs_charity"|"tiltify"|"counter"|"twitch_subs"|"twitch_followers";
 		/**
 		 * Optional campaign ID.
 		 * Not used by "streamlabs_charity" as the campaign

@@ -1629,6 +1629,7 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.updateLabelValue("FOLLOWER_NAME", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("FOLLOWER_AVATAR", message.user.avatarPath || "", message.user.id);
 						StoreProxy.labels.incrementLabelValue("FOLLOWER_COUNT", 1);
+						StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, "1", "twitch_followers");
 					}
 
 					//Merge all followbot events into one

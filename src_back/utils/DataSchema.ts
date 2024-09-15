@@ -1800,7 +1800,7 @@ const UserDataSchema = {
 							title: {type:"string", maxLength:40},
 							campaignId: {type:"string", maxLength:100},
 							counterId: {type:"string", maxLength:40},
-							dataSource: {enum: ["streamlabs_charity","tiltify","counter","twitch_subs"]},
+							dataSource: {enum: ["streamlabs_charity","tiltify","counter","twitch_subs","twitch_followers"]},
 							enabled: {type:"boolean"},
 							ideDone: {type:"boolean"},
 							notifyTips: {type:"boolean"},

@@ -368,6 +368,7 @@ class OverlayParamsDonationGoal extends Vue {
 				{value:"streamlabs_charity", label:"Streamlabs Charity"},
 				{value:"counter", labelKey:"donation_goals.counter_entry"},
 				{value:"twitch_subs", labelKey:"donation_goals.twitch_subs_entry"},
+				{value:"twitch_followers", labelKey:"donation_goals.twitch_followers_entry"},
 			]
 
 			overlay.goalList.sort((a,b)=>a.amount-b.amount).forEach(goal=>{

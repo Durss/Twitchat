@@ -131,6 +131,14 @@ export const storeDonationGoals = defineStore('donationGoals', {
 					raisedPersonnal = subs;
 				}
 
+				if(overlay.dataSource == "twitch_followers") {
+					const followers = StoreProxy.labels.getLabelByKey("FOLLOWER_COUNT") as number || 0;
+					if(isNaN(followers)) continue;
+					goal = followers;
+					raisedTotal = followers;
+					raisedPersonnal = followers;
+				}
+
 				PublicAPI.instance.broadcast(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, {params:overlay, goal, raisedTotal, raisedPersonnal});
 			}
 		},
@@ -141,7 +149,8 @@ export const storeDonationGoals = defineStore('donationGoals', {
 				if(overlay.dataSource == platform) {
 					if(overlay.campaignId == sourceId
 					|| overlay.counterId == sourceId
-					|| platform == "twitch_subs") {
+					|| platform == "twitch_subs"
+					|| platform == "twitch_followers") {
 						this.broadcastData(overlay.id);
 					}
 				}

@@ -143,6 +143,8 @@ export const storeTiltify = defineStore('tiltify', {
 							url:campaign?.url || "https://tiltify.com",
 						}
 					}
+					StoreProxy.labels.updateLabelValue("TILTIFY_LAST_TIP_USER", message.userName);
+					StoreProxy.labels.updateLabelValue("TILTIFY_LAST_TIP_AMOUNT", message.amount);
 					StoreProxy.chat.addMessage(message);
 					StoreProxy.donationGoals.onDonation(message.userName, message.amountFormatted, "tiltify", message.campaign.id);
 					break;
