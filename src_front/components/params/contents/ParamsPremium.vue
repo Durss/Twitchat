@@ -11,7 +11,7 @@
 
 		<ParamsAccountPatreon class="card-item" />
 
-		<div class="card-item premium lifetimePremiumProgress" v-if="$store.auth.premiumType != 'lifetime' && $store.auth.premiumType != 'gifted' && lifetimePercent > 0 && lifetimePercent < 100">
+		<div class="card-item premium lifetimePremiumProgress" v-if="showProgress">
 			<div class="info">{{ $t("premium.progress") }}</div>
 			<div class="card-item progressBar" :style="{backgroundSize:lifetimePercent+'% 100%'}">
 				<div class="label">{{ Math.round(lifetimePercent/100*$config.LIFETIME_DONOR_VALUE) }}€ / {{ $config.LIFETIME_DONOR_VALUE }}€</div>
@@ -50,12 +50,13 @@ import { TTButton } from '@/components/TTButton.vue';
 class ParamsPremium extends Vue {
 
 	public get lifetimePercent():number { return this.lifetimePercentEased; }
+	public get showProgress():boolean { return this.$store.auth.premiumType != 'lifetime' && this.$store.auth.premiumType != 'gifted' && this.lifetimePercent > 0 && this.lifetimePercent < 100; }
 	
 	public lifetimePercentEased:number = 0;
 
 	public async mounted():Promise<void> {
 		const lifetime = this.$store.auth.lifetimePremiumPercent * 100;
-		if(lifetime > 0) {
+		if(this.showProgress) {
 			this.lifetimePercentEased = .0001;
 			gsap.to(this, {lifetimePercentEased:lifetime, duration:2, ease:"sine.out", onUpdate:()=>{
 				const label = this.$refs.label as HTMLDivElement;
