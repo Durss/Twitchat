@@ -64,7 +64,7 @@
 			</div>
 
 			<div v-if="paramData.type == 'string' || paramData.type == 'password' || paramData.type == 'date' || paramData.type == 'datetime' || paramData.type == 'time'"
-			:class="paramData.type == 'time'? 'holder text time' : 'holder text'">
+			:class="{holder:true, text:true, time:paramData.type == 'time'}">
 				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$asset('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
@@ -84,6 +84,7 @@
 						@focus="$emit('focus')"
 						@blur="$emit('blur')"
 						@input="$emit('input')"></textarea>
+
 					<input ref="input" v-else-if="!paramData.noInput"
 						:tabindex="tabindex"
 						v-model="textValue"
@@ -99,6 +100,7 @@
 						@focus="$emit('focus')"
 						@blur="clampValue(); $emit('blur')"
 						@input="$emit('input')">
+						
 					<div class="maxlength" v-if="paramData.maxLength">{{(paramData.value as string).length}}/{{paramData.maxLength}}</div>
 				</div>
 				<slot name="composite" />
@@ -952,7 +954,7 @@ export default toNative(ParamItem);
 	&.longText {
 		.content {
 			width: 100%;
-			.text {
+			.holder.text {
 				flex-grow: 1;
 				display: flex;
 				flex-direction: column;
@@ -960,6 +962,9 @@ export default toNative(ParamItem);
 				.inputHolder {
 					width: 100%;
 					flex-basis: unset;
+					.maxlength {
+						right: 10px;
+					}
 				}
 				label {
 					flex-basis: unset;
@@ -1082,13 +1087,13 @@ export default toNative(ParamItem);
 					.maxlength {
 						font-size: .7em;
 						position: absolute;
-						right: 10px;
+						right: 0;
 						bottom: 0;
 						transform: unset;
 						pointer-events: none;
 						background-color: var(--grayout);
-						padding: .5em .25em;
-						border-radius: var(--border-radius);
+						padding: .25em;
+						border-radius: 4px;
 					}
 					input {
 						width: 100%;
@@ -1278,7 +1283,7 @@ export default toNative(ParamItem);
 	}
 
 	&.hasIcon {
-		.placeholders {
+		&>.placeholders {
 			margin-left:1.5em;
 		}
 	}

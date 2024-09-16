@@ -217,7 +217,7 @@ export default toNative(TTUserList);
 				display: grid;
 				grid-template-columns: auto auto;
 				padding: 0 1em;
-				color: var(--color-light);
+				color: var(--color-text);
 				p:nth-child(odd) {
 					text-align: right;
 					margin-right: .5em;
@@ -235,7 +235,7 @@ export default toNative(TTUserList);
 
 				.partners {
 					display: flex;
-					color: var(--color-light);
+					color: var(--color-text);
 					label {
 						cursor: pointer;
 						margin-right: .5em;
@@ -252,7 +252,7 @@ export default toNative(TTUserList);
 
 			.user {
 				text-decoration: none;
-				color: var(--color-light);
+				color: var(--color-text);
 
 				&:hover {
 						background-color: var(--color-primary);

@@ -261,7 +261,7 @@ export default class SchedulerHelper {
 				if((StoreProxy.auth.isPremium || StoreProxy.auth.donorLevel > -1)
 				&& !/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(StoreProxy.chat.botMessages.twitchatAd.message)) continue;
 				
-				//Special case for users that have to few followers
+				//Special case for users that have too few followers
 				if(StoreProxy.auth.noAd) continue;
 				
 				//Disable for EtTaCause members

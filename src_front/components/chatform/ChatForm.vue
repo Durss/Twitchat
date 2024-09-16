@@ -1414,6 +1414,7 @@ export default toNative(ChatForm);
 				:deep(.icon) {
 					vertical-align: middle;
 					width: unset;
+					color:#fff;
 				}
 			}
 		}

@@ -84,9 +84,9 @@
 
 				<ThemeSelector class="themeSelector" />
 
-				<mark class="version">v {{appVersion}}</mark>
-
 				<TTButton :href="$config.DISCORD_URL" type="link" target="_blank" class="discordBt" transparent big icon="discord" />
+
+				<mark class="version">v {{appVersion}}</mark>
 			</div>
 		</div>
 
@@ -604,6 +604,7 @@ export default toNative(Parameters);
 			overflow-x: visible;
 			overflow-y: auto;
 			padding-right: 1em;
+			height: 100%;
 
 			.dragInfo {
 				width: 280px;
@@ -667,23 +668,24 @@ export default toNative(Parameters);
 				flex-shrink: 0;
 			}
 
+			.discordBt {
+				height: 2em;
+				max-height: unset;
+				min-height: unset;
+				margin: 0 auto;
+				:deep(.icon) {
+					height: 100%;
+					max-width: unset;
+				}
+			}
+
 			.version {
 				display: block;
 				margin: 0 auto;
 				padding: .5em;
 				font-style: italic;
 				font-size: .8em;
-			}
-
-			.discordBt {
-				height: 2em;
-				max-height: unset;
-				min-height: unset;
-				margin: auto;
-				:deep(.icon) {
-					height: 100%;
-					max-width: unset;
-				}
+				margin-top: auto
 			}
 		}
 	}

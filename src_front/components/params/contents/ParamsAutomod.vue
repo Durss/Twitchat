@@ -19,16 +19,20 @@
 
 			<Splitter class="splitter">{{ $t("automod.rule.title") }}</Splitter>
 
-			<section class="card-item">
+			<section class="">
 				<div class="ruleList" v-if="automodData.keywordsFilters.length > 0">
-					<ToggleBlock class="rule" medium
+					<ToggleBlock class="rule"
 					v-for="f in automodData.keywordsFilters"
 					:key="f.id"
 					:title="f.label.length > 0? f.label : $t('automod.rule.new')"
 					:open="keywordToOpen[f.id]">
-						<template #right_actions>
+						<template #left_actions>
 							<div class="actions">
 								<ToggleButton class="toggleButton" v-model="f.enabled" @click.stop="" clear v-tooltip="$t('automod.rule.toggle_tt')" />
+							</div>
+						</template>
+						<template #right_actions>
+							<div class="actions">
 								<TTButton icon="trash" alert class="deleteBt" @click.stop="deleteRule(f)" />
 							</div>
 						</template>
@@ -319,14 +323,15 @@ export default toNative(ParamsAutomod);
 			.ruleList {
 				display: flex;
 				flex-direction: row;
-				flex-wrap: wrap;
+				flex-direction: column;
+				// flex-wrap: wrap;
 				justify-content: center;
 				gap: .5em;
 
 				.rule {
 					width: 100%;
 					&.closed {
-						width: fit-content;
+						// width: fit-content;
 					}
 					.actions {
 						gap: .5em;
