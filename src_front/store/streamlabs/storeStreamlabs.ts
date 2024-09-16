@@ -165,12 +165,14 @@ export const storeStreamlabs = defineStore('streamlabs', {
 									switch(message.type) {
 										case "streamlabscharitydonation": {
 											ApiHelper.call("log", "POST", {cat:"streamlabs", log:message});
+											console.log("team:", this.charityTeam);
 											if(!this.charityTeam) break;
 											message.message.forEach(message=> {
 												//Parse all donations
-												
+												console.log(message, this.charityTeam);
+
 												//Ignore if not for currently configure campaign ID
-												if(message.campaignId != this.charityTeam?.campaignId) return;
+												if(message.campaignId != this.charityTeam?.campaignId && !message.isTest) return;
 
 												const chunks = TwitchUtils.parseMessageToChunks(message.message, undefined, true);
 												const to = message.to?.name || me.login;
@@ -206,12 +208,13 @@ export const storeStreamlabs = defineStore('streamlabs', {
 													userName:message.from,
 													isToSelf,
 												}
+												console.log("MESSAAAAAAAAAAGE", message)
 												StoreProxy.chat.addMessage(data);
 
 												StoreProxy.labels.incrementLabelValue("STREAMLABS_CHARITY_RAISED", data.amount);
 												StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_AMOUNT", data.amount);
 												StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_USER", data.userName);
-												StoreProxy.donationGoals.onDonation(data.userName, data.amountFormatted, "streamlabs_charity");
+												StoreProxy.donationGoals.onDonation(data.userName, data.amount.toString(), "streamlabs_charity");
 												StoreProxy.donationGoals.onSourceValueUpdate("streamlabs_charity");
 											});
 
@@ -552,7 +555,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 				StoreProxy.labels.incrementLabelValue("STREAMLABS_CHARITY_RAISED", data.amount);
 				StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_AMOUNT", data.amount);
 				StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_USER", data.userName);
-				StoreProxy.donationGoals.onDonation(data.userName, data.amountFormatted, "streamlabs_charity");
+				StoreProxy.donationGoals.onDonation(data.userName, data.amount.toString(), "streamlabs_charity");
 				StoreProxy.donationGoals.onSourceValueUpdate("streamlabs_charity");
 				await Utils.promisedTimeout(Math.random() * 5000);
 			}
@@ -713,6 +716,10 @@ interface StreamlabsCharityDonationData {
 		custom: unknown;
 		_id: string;
 		priority: number;
+		senderId?: number;
+		isTest?: boolean;
+		isPreview?: boolean;
+		unsavedSettings?: any[];
 	}[];
     event_id: string;
 }

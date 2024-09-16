@@ -1154,9 +1154,7 @@ export default class TwitchUtils {
 	 *
 	 * @param userUds user IDs to get followers count of
 	 */
-	public static async getFollowersCount(userIds: string[], bypassScopeCheck:boolean = false): Promise<{[key:string]:number}> {
-		if (!this.hasScopes([TwitchScopes.LIST_FOLLOWERS]) && !bypassScopeCheck) return {};
-
+	public static async getFollowersCount(userIds: string[]): Promise<{[key:string]:number}> {
 		let list:{[key:string]:number} = {};
 		do {
 			const uid = userIds.shift()!;

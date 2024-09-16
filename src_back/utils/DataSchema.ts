@@ -1797,6 +1797,7 @@ const UserDataSchema = {
 						properties: {
 							id: {type:"string", maxLength:40},
 							color: {type:"string", maxLength:10},
+							currency: {type:"string", maxLength:5},
 							title: {type:"string", maxLength:40},
 							campaignId: {type:"string", maxLength:100},
 							counterId: {type:"string", maxLength:40},

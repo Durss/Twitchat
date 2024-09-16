@@ -57,6 +57,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 				maxDisplayedEntries:0,
 				goalList:[],
 				color:"#e04e00",
+				currency:"",
 			}
 			this.overlayList.push(data);
 			this.saveData();
@@ -177,7 +178,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 			let raisedTotal = amount;
 			let raisedPersonnal = amount;
 			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, {params:overlay, goal, raisedTotal, raisedPersonnal});
-			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_EVENT, {username:Utils.pickRand(users).displayName, amount:"$"+amount, overlayId:overlay.id});
+			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_EVENT, {username:Utils.pickRand(users).displayName, amount:amount.toString(), overlayId:overlay.id});
 		}
 
 

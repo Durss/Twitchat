@@ -1,7 +1,7 @@
 <template>
 	<div class="overlaydonationgoalalert">
 		<div class="holder" ref="holder">
-			<span class="amount">+{{ amount }}</span>
+			<span class="amount">+{{ amount }}<span class="currency" v-if="currency">{{ currency }}</span></span>
 			<span class="username">{{ username }}</span>
 		</div>
 
@@ -20,7 +20,6 @@
 <script lang="ts">
 import Icon from '@/components/Icon.vue';
 import { gsap } from 'gsap/gsap-core';
-import { watch } from 'vue';
 import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -39,6 +38,9 @@ class OverlayDonationGoalAlert extends Vue {
 
 	@Prop()
 	public username!:string;
+
+	@Prop()
+	public currency!:string;
 
 	public get color():string { return this.colors.base; }
 	public get color_fill():string { return this.colors.fill; }

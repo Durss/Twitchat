@@ -82,7 +82,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			const meObj = StoreProxy.auth.twitch.user;
 
 			chans.forEach(async channel=> {
-				console.log("IRC CONNECT TO ",channel.login, this._connectedChans[channel.id])
 				//Skip it if already connected
 				if(this._connectedChans[channel.id] === true) return;
 

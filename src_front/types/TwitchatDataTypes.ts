@@ -778,6 +778,10 @@ export namespace TwitchatDataTypes {
 		 */
 		color:string;
 		/**
+		 * Currency value
+		 */
+		currency:string;
+		/**
 		 * List of donation goal entries
 		 */
 		goalList:{

@@ -12,7 +12,7 @@
 			questionMarks: data.percent < .1
 		}">
 			<div class="content" ref="content">
-				<span class="amount">{{ data.goalItem.amount }}€</span>
+				<span class="amount">{{ data.goalItem.amount }}<span class="currency" v-if="overlayParams.currency">{{ overlayParams.currency }}</span></span>
 				<div class="label">
 					<span class="title" v-if="data.goalItem.secret !== true || data.goalItem.secret_type !== 'progressive'">{{ data.goalItem.title }}</span>
 					<TextSplitter class="title" ref="textSplitter" v-else>{{ data.goalItem.title }}</TextSplitter>
@@ -140,7 +140,8 @@ class OverlayDonationGoalItem extends Vue {
 			const content = this.$refs.content as HTMLDivElement;
 			gsap.killTweensOf(this.data);
 			gsap.killTweensOf(content);
-			gsap.from(content, {scaleY:0, padding:0, height:0, delay:this.index*.05, duration:.5, ease:"back.out", clearProps:"scaleY,height,padding", onComplete:()=>{
+			gsap.from(this.$refs.holder as HTMLElement, {padding:0, delay:this.index*.03, borderBottom:0, duration:.5, ease:"back.out", clearProps:"padding,borderBottom"});
+			gsap.from(content, {scaleY:0, height:0, delay:this.index*.03, duration:.5, ease:"back.out", clearProps:"scaleY,height", onComplete:()=>{
 				this.state = "opened";
 				resolve();
 			}});
@@ -299,7 +300,8 @@ export default toNative(OverlayDonationGoalItem);
 		border-radius: var(--border-radius);
 		border-bottom: .3em solid v-bind(color);
 		padding: .5em;
-		width: 520px;
+		width: 100vw;
+		max-width: 520px;
 		position: relative;
 		overflow: hidden;
 		opacity: .6;
@@ -318,6 +320,10 @@ export default toNative(OverlayDonationGoalItem);
 				font-size: 2.5em;
 				// flex-basis: 2em;
 				flex-shrink: 0;
+				.currency {
+					font-size: .6em;
+					font-weight: normal;
+				}
 			}
 			.label {
 				position: relative;
@@ -329,9 +335,6 @@ export default toNative(OverlayDonationGoalItem);
 					font-size: 1.5em;
 					font-weight: bold;
 					transition: filter 2s, background-color 2s;
-					span {
-						background-color: transparent;
-					}
 				}
 
 				.mystery {

@@ -1069,14 +1069,19 @@ export default class TriggerActionHandler {
 		//If trigger has conditions, check if the condition passes or not
 		if(trigger.conditions && trigger.conditions.conditions.length > 0) {
 			log.entries.push({date:Date.now(), type:"message", value:"Checking if conditions are fulfilled or not"});
-			if(!testMode
-			&& !await this.checkConditions(trigger.conditions!.operator, [trigger.conditions!], trigger, message, log, dynamicPlaceholders, subEvent)) {
-				log.entries.push({date:Date.now(), type:"message", value:"❌ Conditions not fulfilled"});
-				passesCondition = false;
-			}else if(testMode){
-				log.entries.push({date:Date.now(), type:"message", value:"✔ Trigger is being tested, force condition to pass"});
-			}else{
-				log.entries.push({date:Date.now(), type:"message", value:"✔ Conditions fulfilled"});
+			try {
+				if(!testMode
+				&& !await this.checkConditions(trigger.conditions!.operator, [trigger.conditions!], trigger, message, log, dynamicPlaceholders, subEvent)) {
+					log.entries.push({date:Date.now(), type:"message", value:"❌ Conditions not fulfilled"});
+					passesCondition = false;
+				}else if(testMode){
+					log.entries.push({date:Date.now(), type:"message", value:"✔ Trigger is being tested, force condition to pass"});
+				}else{
+					log.entries.push({date:Date.now(), type:"message", value:"✔ Conditions fulfilled"});
+				}
+			}catch(error) {
+				log.entries.push({date:Date.now(), type:"message", value:"❌[EXCEPTION] An error occured when checking trigger's conditions:"+error});
+				log.error = true;
 			}
 
 			//Filter actions to execute based on whether the condition is matched or not

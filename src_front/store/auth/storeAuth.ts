@@ -361,7 +361,7 @@ export const storeAuth = defineStore('auth', {
 
 			//Async loading of followers count to define if user is exempt
 			//from ads or not
-			const followers	= await TwitchUtils.getFollowersCount([this.twitch.user.id], true);
+			const followers	= await TwitchUtils.getFollowersCount([this.twitch.user.id]);
 			this.noAd		= followers[this.twitch.user.id] < Config.instance.AD_MIN_FOLLOWERS_COUNT;
 			StoreProxy.labels.updateLabelValue("FOLLOWER_COUNT", followers[this.twitch.user.id]);
 		}

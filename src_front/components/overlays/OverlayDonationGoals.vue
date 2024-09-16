@@ -15,6 +15,7 @@
 					v-if="currentIndex == index && currentAlert"
 					:amount="currentAlert?.amount"
 					:username="currentAlert?.username"
+					:currency="state.params.currency"
 					:colors="{base:color, fill:color_fill, background:color_background}"
 					/>
 				</OverlayDonationGoalItem>
@@ -53,7 +54,7 @@ class OverlayDonationGoals extends AbstractOverlay {
 	private id:string = "";
 	private scrollTimeout:number = -1;
 	private autoHideTimeout:number = -1;
-	private poolAlerts:IAlertItem[] = []
+	private poolAlerts:IAlertItem[] = [];
 	
 	private overlayParamsHandler!:(e:TwitchatEvent<{params:TwitchatDataTypes.DonationGoalOverlayConfig, goal:number, raisedTotal:number, raisedPersonnal:number}>) => void;
 	private donationHandler!:(e:TwitchatEvent<{overlayId:string, username:string, amount:string}>) => void;
@@ -297,7 +298,6 @@ interface IAlertItem {
 		height: 100vh;
 		display: flex;
 		flex-direction: column;
-		padding-left: 20px;
 		align-items: flex-start;
 		transition: opacity .5s;
 		.entry:not(:last-child) {

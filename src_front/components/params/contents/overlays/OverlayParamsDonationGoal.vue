@@ -1,5 +1,6 @@
 <template>
 	<div class="overlayparamsdonationgoal overlayParamsSection">
+		<div class="header">{{ $t("donation_goals.header") }}</div>
 		
 		<!-- <a href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiEDuQ66YhtM6C8D3hZKL629" target="_blank" class="youtubeTutorialBt">
 			<Icon name="youtube" theme="light" />
@@ -61,7 +62,7 @@
 
 					<form class="card-item dark simulate" @submit.prevent="$store.donationGoals.simulateDonation(overlay.id, simulateAmount)">
 						<input type="number" step="any" v-model="simulateAmount" />
-						<span class="currency">{{ getCurrency(overlay) }}</span>
+						<span class="currency" v-if="overlay.currency">{{ overlay.currency }}</span>
 						<TTButton icon="test" type="submit">{{ $t("donation_goals.simulate_bt") }}</TTButton>
 					</form>
 					
@@ -94,11 +95,12 @@
 
 						<div class="parameter-child charityDetails" v-if="overlay.dataSource == 'streamlabs_charity'">
 							<div class="holder">
-								<span>{{ $t("donation_goals.param_campaignId") }}:</span>
+								<span><Icon name="streamlabs"/>{{ $t("donation_goals.param_campaignId") }}:</span>
 								<a :href="$store.streamlabs.charityTeam?.pageUrl" target="_blank"><Icon name="newtab"/>{{ $store.streamlabs.charityTeam?.title }}</a>
 							</div>
 						</div>
 					</ParamItem>
+					<ParamItem :paramData="param_currency[overlay.id]" v-model="overlay.currency" @change="save(overlay.id)" class="currencyField" />
 					<ParamItem :paramData="param_color[overlay.id]" v-model="overlay.color" @change="save(overlay.id)" />
 					<ParamItem :paramData="param_notifyTips[overlay.id]" v-model="overlay.notifyTips" @change="save(overlay.id)" />
 					<ParamItem :paramData="param_autoDisplay[overlay.id]" v-model="overlay.autoDisplay" @change="save(overlay.id)" />
@@ -112,7 +114,7 @@
 					<div class="goalItemList" v-if="overlay.goalList.length > 0">
 						<div class="card-item goalItem" v-for="goal in (overlay.goalList || [])" :key="goal.id">
 							<input class="amount" type="number" v-model="goal.amount" min="0" max="1000000000" @change="save(overlay.id)" step="any">
-							<span class="currency">{{ getCurrency(overlay) }}</span>
+							<span class="currency" v-if="overlay.currency">{{ overlay.currency }}</span>
 							<textarea class="title" type="text" v-model="goal.title" @change="save(overlay.id)" rows="1" maxlength="100" :placeholder="$t('donation_goals.param_goal_title_placeholder')"></textarea>
 							<TTButton @click="removeGoal(overlay, goal.id)" icon="trash" alert />
 							<ParamItem class="secret" :paramData="param_goal_secret[goal.id]" v-model="goal.secret" @change="save(overlay.id)" noBackground>
@@ -201,15 +203,6 @@ class OverlayParamsDonationGoal extends Vue {
 
 	public get isCharityAvailable():boolean {
 		return this.$store.streamlabs.charityTeam != null || this.$store.tiltify.campaigns.length > 0;
-	}
-
-	public getCurrency(overlay:TwitchatDataTypes.DonationGoalOverlayConfig):string {
-		if(overlay.dataSource == "streamlabs_charity") {
-			return this.$store.streamlabs.charityTeam?.currency || "$";
-		}else if(overlay.dataSource == "tiltify") {
-			return this.$store.tiltify.campaigns[0]?.currency_code || "$";//TODO
-		}
-		return "$"
 	}
 
 	/**
@@ -317,7 +310,7 @@ class OverlayParamsDonationGoal extends Vue {
 
 			this.param_color[id]				= {type:"color", value:"", labelKey:"donation_goals.param_color", icon:"color"};
 			this.param_showCurrency[id]			= {type:"boolean", value:"", labelKey:"donation_goals.param_showCurrency", icon:"coin"};
-			this.param_currency[id]				= {type:"string", value:"", labelKey:"donation_goals.param_currency", icon:"coin"};
+			this.param_currency[id]				= {type:"string", value:"", maxLength:5, labelKey:"donation_goals.param_currency", icon:"font"};
 			this.param_notifyTips[id]			= {type:"boolean", value:overlay.notifyTips, labelKey:"donation_goals.param_notifyTips", icon:"notification"};
 			this.param_autoDisplay[id]			= {type:"boolean", value:overlay.autoDisplay, labelKey:"donation_goals.param_autoDisplay", icon:"hide"};
 			this.param_hideDone[id]				= {type:"boolean", value:overlay.hideDone, labelKey:"donation_goals.param_hideDone", icon:"timer"};
@@ -401,7 +394,7 @@ export default toNative(OverlayParamsDonationGoal);
 	.charityDetails {
 		.icon {
 			height: 1em;
-			margin-right: .25em;
+			margin-right: .5em;
 		}
 		.holder {
 			display: flex;
@@ -500,6 +493,12 @@ export default toNative(OverlayParamsDonationGoal);
 				border-radius: 0;
 				flex-shrink: 0;
 				padding: 0 .5em;
+			}
+		}
+
+		.currencyField {
+			:deep(.inputHolder) {
+				max-width: 135px;
 			}
 		}
 
