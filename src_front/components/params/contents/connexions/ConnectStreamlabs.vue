@@ -36,21 +36,38 @@ C<template>
 					<TTButton alert @click="disconnectCharityCampaign()">{{ $t("global.disconnect") }}</TTButton>
 				</template>
 				<template v-else>
-					<div class="info"><Icon name="info" />{{ $t("streamlabs.charity_header") }}</div>
-					<ul>
-						<li><a class="teamLink" href="https://streamlabscharity.com/profile/user/teams" target="_blank"><Icon name="newtab" />{{ $t("streamlabs.step1") }}</a></li>
-						<li>{{ $t("streamlabs.step2") }}</li>
-						<li>{{ $t("streamlabs.step3") }}</li>
-						<li>{{ $t("streamlabs.step4") }}</li>
-						<li>
-							<form @submit.prevent="submitCharity()">
+					<div class="info">
+						<Icon name="info" />
+						<i18n-t scope="global" keypath="streamlabs.charity_header">
+							<template #OVERLAY>
+								<a @click.stop="openGoalsOverlay()">{{ $t("streamlabs.charity_header_overlayBt") }}</a>
+							</template>
+						</i18n-t>
+					</div>
+					<form @submit.prevent="submitCharity()">
+						<ul>
+							<li><a href="https://streamlabscharity.com/profile/user/teams" target="_blank"><Icon name="newtab" />{{ $t("streamlabs.step1") }}</a></li>
+							<li>{{ $t("streamlabs.step2") }}</li>
+							<li>{{ $t("streamlabs.step3") }}</li>
+							<li>{{ $t("streamlabs.step4") }}</li>
+							<li class="input">
 								<label for="charityTeamURL">{{ $t("streamlabs.step5") }}</label>
 								<input id="charityTeamURL" type="text" v-model="charityURL" pattern="https://streamlabscharity.com/teams.*" placeholder="https://streamlabscharity.com/teams/@...">
-								<TTButton type="submit" icon="checkmark" :loading="connectingCharity" :disabled="charityURL.trim().length == 0" primary>{{ $t("global.submit") }}</TTButton>
-								<div class="card-item alert error" @click="charityError=false" v-if="charityError">{{ $t("streamlabs.charity_error") }}</div>
-							</form>
-						</li>
-					</ul>
+							</li>
+							<li>
+								<Icon name="alert" theme="secondary"/>
+								<Icon name="alert" theme="secondary"/>
+								<Icon name="alert" theme="secondary"/>
+								<i18n-t scope="global" keypath="streamlabs.step6">
+									<template #LINK>
+										<a :href="$t('streamlabs.step6_url')" target="_blank"><Icon name="newtab"/>{{ $t("streamlabs.step6_link") }}</a>
+									</template>
+								</i18n-t>
+							</li>
+						</ul>
+						<TTButton type="submit" icon="checkmark" :loading="connectingCharity" :disabled="charityURL.trim().length == 0" primary>{{ $t("global.submit") }}</TTButton>
+						<div class="card-item alert error" @click="charityError=false" v-if="charityError">{{ $t("streamlabs.charity_error") }}</div>
+					</form>
 				</template>
 			</section>
 	
@@ -163,6 +180,13 @@ class ConnectStreamlabs extends Vue {
 	}
 
 	/**
+	 * Opens the Goals overlay
+	 */
+	public openGoalsOverlay():void{
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "donationgoals");
+	}
+
+	/**
 	 * Submit streamlabs charity campaign url
 	 */
 	public async submitCharity():Promise<void>{
@@ -234,14 +258,22 @@ export default toNative(ConnectStreamlabs);
 			li {
 				margin-bottom: 1em;
 				line-height: 1.25em;
+				.icon {
+					height: 1em;
+					margin-right: .25em;
+				}
 			}
 		}
-		.teamLink {
+		a {
 			.icon {
 				height: 1em;
 				vertical-align: middle;
 				margin-right: .25em;
 			}
+		}
+
+		.input input {
+			width: 100%;
 		}
 	}
 }

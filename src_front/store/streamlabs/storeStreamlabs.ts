@@ -45,10 +45,6 @@ export const storeStreamlabs = defineStore('streamlabs', {
 				const json = JSON.parse(sessionJSON) as StreamlabsStoreData;
 				this.accessToken = json.accessToken;
 				this.charityTeam = json.charityTeam as typeof this.charityTeam || null;
-				if(this.charityTeam) {
-					//Get fresh new data
-					this.loadCharityCampaignInfo(this.charityTeam.teamURL);
-				}
 				if(this.accessToken) {
 					isAutoInit = true;
 					const result = await ApiHelper.call("streamlabs/socketToken", "GET", {accessToken:this.accessToken}, false);
@@ -58,6 +54,10 @@ export const storeStreamlabs = defineStore('streamlabs', {
 					}else{
 						StoreProxy.common.alert(StoreProxy.i18n.t("error.streamlabs_connect_failed"));
 					}
+				}
+				if(this.charityTeam) {
+					//Get fresh new data
+					this.loadCharityCampaignInfo(this.charityTeam.teamURL);
 				}
 			}
 		},
@@ -179,6 +179,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 												const isToSelf = to.toLowerCase() == me.login.toLowerCase() || to.toLowerCase() == me.displayNameOriginal.toLowerCase();
 												const amount = parseFloat(message.amount);
 												this.charityTeam!.amountRaised_cents += amount * 100;
+												console.log("To self?", isToSelf)
 												if(isToSelf) {
 													this.charityTeam!.amountRaisedPersonnal_cents += amount * 100;
 												}

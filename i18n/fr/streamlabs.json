@@ -5,12 +5,16 @@
 		"personnal_title": "Notifications personnelles",
 		"personnal_header": "Les notifications de dons et d'achat de merch faits sur votre compte personnel sont réservées aux membres premium",
 		"charity_title": "Campagne Streamlabs Charity",
-		"charity_header": "Connecter une campagne Streamlabs Charity permet d'utiliser l'overlay interactif de donation goals mais permt aussi d'automatiser des choses en réaction aux dons reçus grâce aux Triggers.",
+		"charity_header": "Connecter une campagne Streamlabs Charity permet d'utiliser {OVERLAY} mais aussi d'automatiser des choses en réaction aux dons reçus grâce aux Triggers.",
+		"charity_header_overlayBt": "l'overlay d'objectifs",
 		"step1": "Ouvrez vos teams Streamlabs Charity",
 		"step2": "Cliquez \"Afficher l'équipe\" sur la team à laquelle se connecter",
 		"step3": "Dans la section \"Alertes caritatives pour votre stream\" selectionnez \"Alerts\" pour ne recevoir que les alertes de dons faits via votre chaîne",
 		"step4": "Cliquez \"Copier le lien\" en haut de la page",
 		"step5": "Collez le lien dans le champs ci-dessous:",
+		"step6": "Définissez la campagne active sur {LINK}",
+		"step6_link": "cette page",
+		"step6_url": "https://streamlabs.com/dashboard#/settings/integrations",
 		"charity_error": "Impossible de récupérer les infos de la campagne.\nAssurez-vous que vous avez spécifié la bonne URL.\nL'URL doit avoir ce format \"https://streamlabscharity.com/teams/{'@'}...\"",
 		"charity_connected": "Vous êtes connecté·e à la campagne {NAME}"
 	}
