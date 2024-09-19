@@ -28,6 +28,10 @@
 				<div v-if="obsIP_conf.value != '127.0.0.1'">{{ $t("obs.ip_advice") }}</div>
 			</div>
 		</transition>
+
+		<transition name="fade">
+			<div class="card-item alert error" v-if="connectError && isBraveBrowser" @click="connectError = false"><Icon name="brave" /> {{$t("obs.disable_brave")}}</div>
+		</transition>
 	</form>
 </template>
 
@@ -55,12 +59,12 @@ class OBSConnectForm extends Vue {
 	public connected:boolean = false;
 	public connectError:boolean = false;
 	public connectSuccess:boolean = false;
+	public isBraveBrowser:boolean = false;
 	public obsPort_conf:TwitchatDataTypes.ParameterData<number>	= { type:"number", value:4455, min:0, max:65535, step:1, labelKey:"obs.form_port" };
 	public obsPass_conf:TwitchatDataTypes.ParameterData<string>	= { type:"password", value:"", labelKey:"obs.form_pass" };
 	public obsIP_conf:TwitchatDataTypes.ParameterData<string>	= { type:"string", value:"127.0.0.1", maxLength:100, labelKey:"obs.form_ip" };
 
-
-	public beforeMount():void {
+	public async beforeMount():Promise<void> {
 		const port = DataStore.get(DataStore.OBS_PORT);
 		const pass = DataStore.get(DataStore.OBS_PASS);
 		const ip = DataStore.get(DataStore.OBS_IP);
@@ -75,6 +79,9 @@ class OBSConnectForm extends Vue {
 		watch(()=> OBSWebsocket.instance.connected, () => { 
 			this.connected = OBSWebsocket.instance.connected;
 		});
+		
+		//@ts-ignore
+		this.isBraveBrowser = (navigator.brave && await navigator.brave.isBrave() || false);
 	}
 
 	/**
@@ -136,8 +143,14 @@ export default toNative(OBSConnectForm);
 		text-align: center;
 		line-height: 1.3em;
 		cursor: pointer;
+		white-space: pre-line;
 		&.success {
 			align-self: center;
+		}
+		.icon {
+			height: 2em;
+			vertical-align: middle;
+			margin-right: .5em;
 		}
 	}
 	.info {

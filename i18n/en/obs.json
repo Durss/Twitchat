@@ -9,6 +9,7 @@
 		"form_pass":"OBS websocket password",
 		"form_ip":"OBS websocket IP",
 		"credentials_form_title":"OBS credentials",
+		"disable_brave":"Brave users\nYou need to disable Brave Shields for the connection to work",
 
 		"scenes": "Scenes",
 		"sources": "Sources",
