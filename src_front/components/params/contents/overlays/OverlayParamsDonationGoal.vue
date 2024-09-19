@@ -8,7 +8,7 @@
 			<Icon name="newtab" theme="light" />
 		</a> -->
 
-		<div v-else class="createForm">
+		<div class="createForm">
 			<TTButton class="addBt"
 			v-if="$store.auth.isPremium || $store.donationGoals.overlayList.length < $config.MAX_DONATION_GOALS"
 			@click="addGrid()" icon="add">{{ $t("donation_goals.create_bt") }}</TTButton>
