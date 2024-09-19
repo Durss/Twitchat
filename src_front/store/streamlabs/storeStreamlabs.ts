@@ -339,6 +339,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			if(clearStore) {
 				this.socketToken = "";
 				this.accessToken = "";
+				this.charityTeam = null;
 				this.saveData();
 			}
 			if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);

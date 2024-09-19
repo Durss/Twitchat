@@ -1,9 +1,6 @@
 {
 	"donation_goals": {
 		"header": "Créez des objectifs de dons, followers ou subs",
-		"configure_charity": "Veuillez d'abord configurer une campagne Streamlabs Charity ou Tiltify !",
-		"configure_streamlabs_bt": "Configurer Streamlabs Charity",
-		"configure_tiltify_bt": "Configurer Tiltify",
 		"install_title": "Installer l'overlay",
 		"create_bt": "Créer des objectifs",
 		"add_goal_bt": "Ajouter un objectif",

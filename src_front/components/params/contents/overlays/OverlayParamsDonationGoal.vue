@@ -8,12 +8,6 @@
 			<Icon name="newtab" theme="light" />
 		</a> -->
 
-		<div v-if="!isCharityAvailable" class="card-item alert missingCharity">
-			<span>{{ $t("donation_goals.configure_charity") }}</span>
-			<TTButton @click="openTiltify" icon="tiltify" light alert>{{ $t("donation_goals.configure_tiltify_bt") }}</TTButton>
-			<TTButton @click="openStreamlabs" icon="streamlabs" light alert>{{ $t("donation_goals.configure_streamlabs_bt") }}</TTButton>
-		</div>
-
 		<div v-else class="createForm">
 			<TTButton class="addBt"
 			v-if="$store.auth.isPremium || $store.donationGoals.overlayList.length < $config.MAX_DONATION_GOALS"
@@ -199,10 +193,6 @@ class OverlayParamsDonationGoal extends Vue {
 		}else{
 			return this.$store.donationGoals.overlayList.length >= this.$config.MAX_DONATION_GOALS;
 		}
-	}
-
-	public get isCharityAvailable():boolean {
-		return this.$store.streamlabs.charityTeam != null || this.$store.tiltify.campaigns.length > 0;
 	}
 
 	/**
