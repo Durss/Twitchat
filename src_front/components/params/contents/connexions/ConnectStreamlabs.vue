@@ -68,6 +68,7 @@ C<template>
 			<MessageItem v-if="fakeDonation" :messageData="fakeDonation" />
 			<MessageItem v-if="fakeMerch" :messageData="fakeMerch" />
 			<MessageItem v-if="fakePatreon" :messageData="fakePatreon" />
+			<MessageItem v-if="fakeCharity" :messageData="fakeCharity" />
 		</section>
 	</div>
 </template>
@@ -77,6 +78,7 @@ import MessageItem from '@/components/messages/MessageItem.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import TTButton from '@/components/TTButton.vue';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -96,6 +98,7 @@ class ConnectStreamlabs extends Vue {
 	public fakeDonation:TwitchatDataTypes.StreamlabsDonationData|undefined = undefined;
 	public fakeMerch:TwitchatDataTypes.StreamlabsMerchData|undefined = undefined;
 	public fakePatreon:TwitchatDataTypes.StreamlabsPatreonPledgeData|undefined = undefined;
+	public fakeCharity:TwitchatDataTypes.StreamlabsCharityData|undefined = undefined;
 
 	public beforeMount():void {
 		if(!this.$store.streamlabs.connected) {
@@ -125,6 +128,15 @@ class ConnectStreamlabs extends Vue {
 		this.$store.debug.simulateMessage<TwitchatDataTypes.StreamlabsPatreonPledgeData>(TwitchatDataTypes.TwitchatMessageType.STREAMLABS, (mess) => {
 			mess.eventType = "patreon_pledge";
 			this.fakePatreon = mess;
+		}, false);
+		this.$store.debug.simulateMessage<TwitchatDataTypes.StreamlabsCharityData>(TwitchatDataTypes.TwitchatMessageType.STREAMLABS, (mess) => {
+			mess.eventType = "charity";
+			mess.campaign = {
+				id:Utils.getUUID(),
+				title:"Awesome charity campaign",
+				url:"https://streamlabscharity.com"
+			}
+			this.fakeCharity = mess;
 		}, false);
 	}
 
