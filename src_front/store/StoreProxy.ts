@@ -1214,6 +1214,10 @@ export interface IRaffleActions {
 	 * @param forcedWinner
 	 */
 	pickWinner(sessionId:string, forcedData?:TwitchatDataTypes.RaffleData, forcedWinner?:TwitchatDataTypes.RaffleEntry):Promise<void>;
+	/**
+	 * Saves current raffle data to store
+	 */
+	saveData():void;
 }
 
 

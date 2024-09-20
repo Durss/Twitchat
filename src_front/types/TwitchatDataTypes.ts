@@ -843,15 +843,6 @@ export namespace TwitchatDataTypes {
 		customEntries:string;
 		winners?:RaffleEntry[];
 		/**
-		 * Only used by raffle form to show winner within the form
-		 * when raffle completes
-		 */
-		resultCallback?:()=>void;
-		/**
-		 * @deprecated use duration_s instead. Only hear for typing on data migration
-		 */
-		duration?:number;
-		/**
 		 * Messages to send on chat
 		 */
 		messages?: {
@@ -876,7 +867,16 @@ export namespace TwitchatDataTypes {
 				enabled:boolean;
 				message:string;
 			},
-		}
+		};
+		/**
+		 * Only used by raffle form to show winner within the form
+		 * when raffle completes
+		 */
+		resultCallback?:()=>void;
+		/**
+		 * @deprecated use duration_s instead. Only hear for typing on data migration
+		 */
+		duration?:number;
 	}
 	export interface RaffleEntry extends EntryItem {
 		score:number;

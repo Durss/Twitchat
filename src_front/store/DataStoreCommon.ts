@@ -105,6 +105,7 @@ export default class DataStoreCommon {
 	public static DONATION_GOALS:string = "donationGoals";
 	public static TILTIFY:string = "tiltify";
 	public static TILTIFY_TOKEN:string = "tiltifyToken";
+	public static RAFFLES_RUNNING:string = "rafflesRunning";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";

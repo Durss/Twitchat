@@ -3,7 +3,10 @@
 		<h1 class="title">
 			<img src="@/assets/icons/ticket.svg">
 			<span>{{ $t('raffle.state_title') }}</span>
-			<mark class="cmd" v-if="raffleData.command" ref="cmd">{{raffleData.command}}</mark>
+			<div class="methods" ref="methods">
+				<mark class="cmd" v-if="raffleData.command">{{raffleData.command}}</mark>
+				<mark class="cmd" v-if="raffleData.reward_id"><Icon name="channelPoints" />{{rewardName}}</mark>
+			</div>
 		</h1>
 		<div class="content" ref="content">
 			<ProgressBar class="progress" secondary v-if="timerPercent < 1"
@@ -125,6 +128,12 @@ class RaffleState extends Vue {
 		return count;
 	}
 
+	public get rewardName():string {
+		if(!this.raffleData || !this.raffleData.reward_id) return "";
+		const reward = this.$store.rewards.rewardList.find(v=>v.id == this.raffleData!.reward_id);
+		return reward?.title || "";
+	}
+
 	public getUserFromEntry(entry:TwitchatDataTypes.RaffleEntry):TwitchatDataTypes.TwitchatUser|null {
 		if(!entry.user) return null;
 		return this.$store.users.getUserFrom(entry.user.platform, entry.user.channel_id, entry.user.id);
@@ -233,12 +242,12 @@ class RaffleState extends Vue {
 		if(!this.raffleData) return;
 
 		const holder = this.$refs.content as HTMLDivElement;
-		const cmdHolder = this.$refs.cmd as HTMLElement;
+		const cmdHolder = this.$refs.methods as HTMLElement;
 		gsap.to([holder,cmdHolder], {opacity:0, x:-10, duration:.1, onComplete:()=>{
 			let index = this.$store.raffle.raffleList.findIndex(v=>v.sessionId! == this.raffleData!.sessionId!);
 			let newIndex = (++index) % this.$store.raffle.raffleList.length;
 			this.raffleData = this.$store.raffle.raffleList[newIndex];
-			gsap.fromTo([holder,cmdHolder], {x:10}, {opacity:1, x:0, duration:.1});
+			gsap.fromTo([holder,cmdHolder], {x:10, opacity:0}, {opacity:1, x:0, duration:.1});
 		}});
 	}
 
@@ -246,13 +255,13 @@ class RaffleState extends Vue {
 		if(!this.raffleData) return;
 
 		const holder = this.$refs.content as HTMLDivElement;
-		const cmdHolder = this.$refs.cmd as HTMLElement;
+		const cmdHolder = this.$refs.methods as HTMLElement;
 		gsap.to([holder,cmdHolder], {opacity:0, x:10, duration:.1, onComplete:()=>{
 			let index = this.$store.raffle.raffleList.findIndex(v=>v.sessionId! == this.raffleData!.sessionId!);
 			let newIndex = index - 1;
 			if(newIndex < 0) newIndex = this.$store.raffle.raffleList.length -1;
 			this.raffleData = this.$store.raffle.raffleList[newIndex];
-			gsap.fromTo([holder,cmdHolder], {x:-10}, {opacity:1, x:0, duration:.1});
+			gsap.fromTo([holder,cmdHolder], {x:-10, opacity:0}, {opacity:1, x:0, duration:.1});
 		}});
 	}
 
@@ -271,9 +280,29 @@ export default toNative(RaffleState);
 
 <style scoped lang="less">
 .rafflestate{
+	gap: .5em;
 
-	.cmd {
-		margin-left: .5em;
+	.title {
+		width: 100%;
+		row-gap: .25em;
+		flex-wrap: wrap;
+		gap: .5em;
+		.methods {
+			gap: .5em;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			.icon {
+				height: 1em;
+				margin-right: .5em;
+				vertical-align: bottom;
+			}
+
+			.cmd {
+				font-size: .75em;
+			}
+		}
 	}
 
 	.entries {
@@ -328,6 +357,7 @@ export default toNative(RaffleState);
 		flex-direction: column;
 		gap: 1em;
 		align-items: center;
+		width: 100%;
 	}
 }
 </style>

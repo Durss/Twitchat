@@ -9,6 +9,7 @@ import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _Getters
 import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IRaffleActions, type IRaffleGetters, type IRaffleState } from '../StoreProxy';
+import DataStore from '../DataStore';
 
 /**
  * This stores temporary raffles.
@@ -37,6 +38,11 @@ export const storeRaffle = defineStore('raffle', {
 	actions: {
 
 		populateData() {
+			const rafflesRunning = JSON.parse(DataStore.get(DataStore.RAFFLES_RUNNING) || "[]");
+			if(rafflesRunning) {
+				this.raffleList = rafflesRunning;
+			}
+
 			/**
 			 * Called when a raffle animation (the wheel) completes
 			 */
@@ -89,11 +95,15 @@ export const storeRaffle = defineStore('raffle', {
 					break;
 				}
 			}
+
+			this.saveData();
 		},
 
 		stopRaffle(sessionId:string) {
 			const index = this.raffleList.findIndex(v=>v.sessionId === sessionId);
-			if(index > -1) this.raffleList.splice(index, 1)
+			if(index > -1) this.raffleList.splice(index, 1);
+
+			this.saveData();
 		},
 
 		onRaffleComplete(sessionId:string, winner:TwitchatDataTypes.RaffleEntry, publish = false, chatMessageDelay:number = 0) {
@@ -173,6 +183,8 @@ export const storeRaffle = defineStore('raffle', {
 			//Remove ghost session if any
 			const index = ghostEntries.findIndex(v=>v.sessionId === sessionId)
 			if(index > -1) ghostEntries.splice(index, 1);
+
+			this.saveData();
 		},
 
 		checkRaffleJoin(message:TwitchatDataTypes.TranslatableMessage):boolean {
@@ -248,7 +260,10 @@ export const storeRaffle = defineStore('raffle', {
 					}
 					joined = true;
 				}
-			})
+			});
+			
+
+			this.saveData();
 			
 			return joined;
 		},
@@ -546,6 +561,11 @@ export const storeRaffle = defineStore('raffle', {
 				}
 			}
 
+			this.saveData();
+		},
+
+		saveData():void {
+			DataStore.set(DataStore.RAFFLES_RUNNING, this.raffleList);
 		}
 	} as IRaffleActions
 	& ThisType<IRaffleActions

@@ -1859,6 +1859,108 @@ const UserDataSchema = {
 					},
 				},
 			},
+		},
+
+		rafflesRunning:{
+			type:"array",
+			minItems:0,
+			maxItems:50,
+			items:{
+				type: "object",
+				properties: {
+					sessionId: { type: "string" },
+					mode: { enum: ["chat", "sub", "manual", "values"] },
+					command: { type: "string", maxLength:100 },
+					reward_id: { type: "string", maxLength:100 },
+					value_id: { type: "string", maxLength:100 },
+					value_splitter: { type: "string", maxLength:10 },
+					removeWinningEntry: { type: "boolean" },
+					duration_s: { type: "number" },
+					maxEntries: { type: "number" },
+					multipleJoin: { type: "boolean" },
+					created_at: { type: "number" },
+					entries: {
+						type:"array",
+						minItems:0,
+						maxItems:1000,
+						items:{
+							type: "object",
+							properties: {
+								id: { type: "string" },
+								label: { type: "string", maxLength:300 },
+								score: { type: "number" },
+								joinCount: { type: "number" },
+								user: {
+									type: "object",
+									properties: {
+										id: { type: "string", maxLength:100 },
+										channel_id: { type: "string", maxLength:100 },
+										platform: { type: "string", maxLength:20 }
+									},
+								}
+							},
+						},
+					},
+					vipRatio: { type: "number" },
+					followRatio: { type: "number" },
+					subRatio: { type: "number" },
+					subT2Ratio: { type: "number" },
+					subT3Ratio: { type: "number" },
+					subgiftRatio: { type: "number" },
+					subMode_includeGifters: { type: "boolean" },
+					subMode_excludeGifted: { type: "boolean" },
+					showCountdownOverlay: { type: "boolean" },
+					customEntries: { type: "string", maxLength:10000 },
+					winners: {
+						type:"array",
+						minItems:0,
+						maxItems:1000,
+						items:{
+							type: "object",
+							properties: {
+								id: { type: "string" },
+								label: { type: "string", maxLength:300 },
+								score: { type: "number" },
+								joinCount: { type: "number" },
+								user: {
+									type: "object",
+									properties: {
+										id: { type: "string", maxLength:100 },
+										channel_id: { type: "string", maxLength:100 },
+										platform: { type: "string", maxLength:20 }
+									},
+								}
+							},
+						},
+					},
+					messages: {
+						type: "object",
+						properties: {
+							raffleStart: {
+								type: "object",
+								properties: {
+									enabled: { type: "boolean" },
+									message: { type: "string", maxLength:500 }
+								},
+							},
+							raffleJoin: {
+								type: "object",
+								properties: {
+									enabled: { type: "boolean" },
+									message: { type: "string", maxLength:500 }
+								},
+							},
+							raffleWinner: {
+								type: "object",
+								properties: {
+									enabled: { type: "boolean" },
+									message: { type: "string", maxLength:500 }
+								},
+							}
+						},
+					}
+				}
+			}
 		}
 	}
 }

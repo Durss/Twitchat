@@ -299,16 +299,16 @@ class RaffleForm extends AbstractSidePanel {
 		messages: {
 			raffleStart:{
 				enabled:false,
-				message:StoreProxy.i18n.t("params.botMessages.raffleStart")
+				message:StoreProxy.i18n.tm("params.botMessages.raffleStart"),
 			},
 			raffleJoin:{
 				enabled:false,
-				message:StoreProxy.i18n.t("params.botMessages.raffleJoin")
+				message:StoreProxy.i18n.tm("params.botMessages.raffleJoin"),
 			},
 			raffleWinner:{
 				enabled:false,
-				message:StoreProxy.i18n.t("params.botMessages.raffle")
-			}
+				message:StoreProxy.i18n.tm("params.botMessages.raffle"),
+			},
 		},
 	}
 
@@ -463,7 +463,7 @@ class RaffleForm extends AbstractSidePanel {
 	public async submitForm():Promise<void> {
 		if(this.triggerMode) return;
 
-		const payload:TwitchatDataTypes.RaffleData = this.localData;
+		const payload:TwitchatDataTypes.RaffleData = JSON.parse(JSON.stringify(this.localData)) as typeof this.localData;
 		payload.messages = undefined;
 
 		//Sub mode specifics
