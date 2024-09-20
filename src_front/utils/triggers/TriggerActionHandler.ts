@@ -1562,7 +1562,7 @@ export default class TriggerActionHandler {
 
 				//Handle raffle enter action
 				if(step.type == "raffle_enter") {
-					if(TwitchatDataTypes.IsTranslatableMessage[message.type] && StoreProxy.raffle.checkRaffleJoin(message as TwitchatDataTypes.TranslatableMessage)) {
+					if(TwitchatDataTypes.IsTranslatableMessage[message.type] && StoreProxy.raffle.checkRaffleJoin(message as TwitchatDataTypes.TranslatableMessage, true)) {
 						logStep.messages.push({date:Date.now(), value:"❌ Cannot join raffle. Either user already entered or no raffle has been started, or raffle entries are closed"});
 						log.error = true;
 						logStep.error = true;

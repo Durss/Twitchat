@@ -187,20 +187,20 @@ export const storeRaffle = defineStore('raffle', {
 			this.saveData();
 		},
 
-		checkRaffleJoin(message:TwitchatDataTypes.TranslatableMessage):boolean {
+		checkRaffleJoin(message:TwitchatDataTypes.TranslatableMessage, forceEnter:boolean = false):boolean {
 			let joined = false;
 			this.raffleList.forEach(raffle => {
 				if(raffle.mode != "chat") return;
 
-				let canJoin = false;
+				let canJoin = forceEnter;
 				//Check if can join from reward
-				if(raffle.reward_id && message.type == TwitchatDataTypes.TwitchatMessageType.REWARD) {
+				if(!canJoin && raffle.reward_id && message.type == TwitchatDataTypes.TwitchatMessageType.REWARD) {
 					const messageReward = message as TwitchatDataTypes.MessageRewardRedeemData;
 					if(messageReward.reward.id == raffle.reward_id) canJoin = true;
 				}
 	
 				//Check if can join from chat command
-				if(raffle.command) {
+				if(!canJoin && raffle.command) {
 					const cmd = (message.message || "").trim().split(" ")[0].toLowerCase();
 					if(cmd == raffle.command.trim().toLowerCase()) canJoin = true;
 				}

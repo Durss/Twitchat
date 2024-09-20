@@ -1207,7 +1207,7 @@ export interface IRaffleActions {
 	 * any currently opened raffle
 	 * @param message
 	 */
-	checkRaffleJoin(message:TwitchatDataTypes.TranslatableMessage):boolean;
+	checkRaffleJoin(message:TwitchatDataTypes.TranslatableMessage, forceEnter?:boolean):boolean;
 	/**
 	 * Pick a random winner amongst the users that joined the raffmle
 	 * @param forcedData
