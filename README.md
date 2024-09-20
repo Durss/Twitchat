@@ -89,7 +89,7 @@ For developpers, **Twitchat exposes an API** to receive events and control some 
 <br>
 
 # Project setup
-Rename the `credentials.default.json` file within the `credentials` folder to `credentials.json` and fill in these values :
+Create a `data/credentials/credentials.json` file and set the following content after filling values :
 ```json
 {
 	"server_port": 3018,
