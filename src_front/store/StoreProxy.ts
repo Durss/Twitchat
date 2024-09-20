@@ -1175,7 +1175,7 @@ export interface IRaffleState {
 	/**
 	 * Current raffle data
 	 */
-	data:TwitchatDataTypes.RaffleData|null;
+	raffleList:TwitchatDataTypes.RaffleData[];
 }
 
 export interface IRaffleGetters {
@@ -1194,14 +1194,14 @@ export interface IRaffleActions {
 	/**
 	 * Close a raffle
 	 */
-	stopRaffle():void;
+	stopRaffle(sessionId:string):void;
 	/**
 	 * Set a raffle's winner
 	 * @param winner
 	 * @param publish
 	 * @param chatMessageDelay delay before sending message on chat
 	 */
-	onRaffleComplete(winner:TwitchatDataTypes.RaffleEntry, publish?:boolean, chatMessageDelay?:number):void;
+	onRaffleComplete(sessionId:string, winner:TwitchatDataTypes.RaffleEntry, publish?:boolean, chatMessageDelay?:number):void;
 	/**
 	 * Check if the specified message contains the commande to join
 	 * any currently opened raffle
@@ -1213,7 +1213,7 @@ export interface IRaffleActions {
 	 * @param forcedData
 	 * @param forcedWinner
 	 */
-	pickWinner(forcedData?:TwitchatDataTypes.RaffleData, forcedWinner?:TwitchatDataTypes.RaffleEntry):Promise<void>;
+	pickWinner(sessionId:string, forcedData?:TwitchatDataTypes.RaffleData, forcedWinner?:TwitchatDataTypes.RaffleEntry):Promise<void>;
 }
 
 

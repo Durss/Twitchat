@@ -367,10 +367,14 @@ export const storeMain = defineStore("main", {
 			});
 
 			/**
-			 * Called when asking to pick a raffle winner
+			 * Called when asking to pick a raffle winner from stream deck
+			 * //TODO see if I can adapt the SD button to the new system allowing
+			 * to create multiple raffles in parallel
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_PICK_WINNER, (e:TwitchatEvent)=> {
-				StoreProxy.raffle.pickWinner();
+				const list = StoreProxy.raffle.raffleList;
+				if(list.length == 0) return true;
+				StoreProxy.raffle.pickWinner(list[0].sessionId || "");
 			});
 
 			/**

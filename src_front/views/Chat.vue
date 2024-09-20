@@ -387,10 +387,18 @@ class Chat extends Vue {
 		});
 
 		//Auto opens the raffle status when created
-		watch(() => this.$store.raffle.data, () => {
-			let raffle = this.$store.raffle.data;
-			if(raffle && (raffle.command || raffle.reward_id)) this.setCurrentNotification("raffle");
-		});
+		watch(() => this.$store.raffle.raffleList, (newValue, oldValue) => {
+			if(newValue.length <= oldValue.length) return;
+
+			let raffleliost = this.$store.raffle.raffleList;
+			for (let i = 0; i < raffleliost.length; i++) {
+				const raffle = raffleliost[i];
+				if(raffle && (raffle.command || raffle.reward_id)) {
+					this.setCurrentNotification("raffle");
+					break;
+				}
+			}
+		}, {deep:true});
 
 		//Auto opens the train status when created
 		watch(() => this.$store.stream.hypeTrain, (newValue, oldValue) => {
@@ -627,7 +635,7 @@ class Chat extends Vue {
 			}
 
 			case TwitchatEvent.RAFFLE_START:{
-				this.$store.params.openModal('raffle')
+				this.$store.params.openModal('raffle');
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
@@ -635,7 +643,12 @@ class Chat extends Vue {
 			case TwitchatEvent.RAFFLE_END:{
 				this.$confirm(this.$t("raffle.delete_confirm.title"), this.$t("raffle.delete_confirm.description"), undefined, undefined, undefined, true)
 				.then(async ()=> {
-					this.$store.raffle.stopRaffle();
+					//TODO see if i can adapt this to the new system allowing to create
+					//multiple raffles in parallel. This is called when using a voice
+					//command to stop current raffle
+					const list = this.$store.raffle.raffleList;
+					if(list.length == 0) return true;
+					this.$store.raffle.stopRaffle(list[0].sessionId || "");
 				}).catch(()=>{});
 				break;
 			}

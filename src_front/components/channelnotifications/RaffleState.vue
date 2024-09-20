@@ -1,71 +1,75 @@
 <template>
-	<div class="rafflestate gameStateWindow">
+	<div class="rafflestate gameStateWindow" v-if="raffleData">
 		<h1 class="title">
 			<img src="@/assets/icons/ticket.svg">
 			<span>{{ $t('raffle.state_title') }}</span>
-			<mark class="cmd" v-if="raffleData.command">{{raffleData.command}}</mark>
+			<mark class="cmd" v-if="raffleData.command" ref="cmd">{{raffleData.command}}</mark>
 		</h1>
-
-		<ProgressBar class="progress" secondary v-if="timerPercent < 1"
-			:percent="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  1 : timerPercent"
-			:duration="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  0 : raffleData.duration_s * 1000"
-		/>
-
-		<div class="item entries">
-			<img src="@/assets/icons/user.svg" alt="user">
-			<i18n-t scope="global" tag="p" keypath="raffle.state_users" :plural="raffleData.entries?.length">
-				<template #COUNT>
-					<span>{{raffleData.entries?.length}}</span>
-					<span v-if="raffleData.maxEntries">/{{raffleData.maxEntries}}</span>
-				</template>
-			</i18n-t>
-		</div>
-
-		<div class="item entries" v-if="cumulatedEntryCount != raffleData.entries?.length">
-			<img src="@/assets/icons/ticket.svg" alt="ticket">
-			<i18n-t scope="global" tag="p" keypath="raffle.state_users_cumulated" :plural="cumulatedEntryCount"
-			v-if="cumulatedEntryCount != raffleData.maxEntries">
-				<template #COUNT>
-					<span>{{cumulatedEntryCount}}</span>
-				</template>
-			</i18n-t>
-		</div>
-
-		<div class="item card-item winners" v-if="raffleData.winners && raffleData.winners.length > 0">
+		<div class="content" ref="content">
+			<ProgressBar class="progress" secondary v-if="timerPercent < 1"
+				:percent="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  1 : timerPercent"
+				:duration="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  0 : raffleData.duration_s * 1000"
+			/>
+	
 			<div class="entries">
-				<template v-for="w in raffleData.winners" :key="w.label">
-					<TTButton v-if="w.user" small light
-					icon="sub"
-					type="link"
-					target="_blank"
-					:href="'https://twitch.tv/'+getUserFromEntry(w)?.login"
-					@click.prevent="openUserCard(getUserFromEntry(w))">{{ w.label }}</TTButton>
-					<div class="entry" v-else>{{ w.label }}</div>
-				</template>
+				<img src="@/assets/icons/user.svg" alt="user">
+				<i18n-t scope="global" tag="p" keypath="raffle.state_users" :plural="raffleData.entries?.length">
+					<template #COUNT>
+						<span>{{raffleData.entries?.length}}</span>
+						<span v-if="raffleData.maxEntries">/{{raffleData.maxEntries}}</span>
+					</template>
+				</i18n-t>
+			</div>
+	
+			<div class="entries" v-if="cumulatedEntryCount != raffleData.entries?.length">
+				<img src="@/assets/icons/ticket.svg" alt="ticket">
+				<i18n-t scope="global" tag="p" keypath="raffle.state_users_cumulated" :plural="cumulatedEntryCount"
+				v-if="cumulatedEntryCount != raffleData.maxEntries">
+					<template #COUNT>
+						<span>{{cumulatedEntryCount}}</span>
+					</template>
+				</i18n-t>
+			</div>
+	
+			<div class="card-item winners" v-if="raffleData.winners && raffleData.winners.length > 0">
+				<div class="entries">
+					<template v-for="w in raffleData.winners" :key="w.label">
+						<TTButton v-if="w.user" small light
+						icon="sub"
+						type="link"
+						target="_blank"
+						:href="'https://twitch.tv/'+getUserFromEntry(w)?.login"
+						@click.prevent="openUserCard(getUserFromEntry(w))">{{ w.label }}</TTButton>
+						<div class="entry" v-else>{{ w.label }}</div>
+					</template>
+				</div>
+			</div>
+	
+			<div class="ctas">
+				<TTButton icon="cross"
+					highlight
+					alert
+					@click="closeRaffle()">{{ $t('raffle.state_stopBt') }}</TTButton>
+				<TTButton icon="ticket"
+					@click="pickWinner()"
+					light
+					:loading="picking"
+					:disabled="!canPick">{{ $t('raffle.state_pickBt') }}</TTButton>
+			</div>
+	
+			<div class="card-item overlayStatus" v-if="obsConnected && !checkingOverlay && !overlayFound">
+				<div>{{ $t("raffle.state_overlay_not_found") }}</div>
+				<OverlayInstaller type="wheel" @obsSourceCreated="checkOverlay()" light />
+			</div>
+	
+			<div class="card-item overlayStatus" v-else-if="obsConnected && !checkingOverlay && !sourceVisible">
+				<div>{{ $t("raffle.state_overlay_not_visible") }}</div>
+				<TTButton icon="show" @click="showOverlay()">{{$t("global.show")}}</TTButton>
 			</div>
 		</div>
 
-		<div class="ctas">
-			<TTButton icon="cross"
-				highlight
-				alert
-				@click="closeRaffle()">{{ $t('raffle.state_stopBt') }}</TTButton>
-			<TTButton icon="ticket"
-				@click="pickWinner()"
-				light
-				:loading="picking"
-				:disabled="!canPick">{{ $t('raffle.state_pickBt') }}</TTButton>
-		</div>
-
-		<div class="card-item overlayStatus" v-if="obsConnected && !checkingOverlay && !overlayFound">
-			<div>{{ $t("raffle.state_overlay_not_found") }}</div>
-			<OverlayInstaller type="wheel" @obsSourceCreated="checkOverlay()" light />
-		</div>
-
-		<div class="card-item overlayStatus" v-else-if="obsConnected && !checkingOverlay && !sourceVisible">
-			<div>{{ $t("raffle.state_overlay_not_visible") }}</div>
-			<TTButton icon="show" @click="showOverlay()">{{$t("global.show")}}</TTButton>
-		</div>
+		<TTButton transparent icon="left" v-if="$store.raffle.raffleList.length > 1" class="prevRaffleBt" @click="prevRaffle()" />
+		<TTButton transparent icon="right" v-if="$store.raffle.raffleList.length > 1" class="nextRaffleBt" @click="nextRaffle()" />
 	</div>
 </template>
 
@@ -78,6 +82,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ProgressBar from '../ProgressBar.vue';
 import TTButton from '../TTButton.vue';
 import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
+import { gsap } from 'gsap/gsap-core';
 
 
 @Component({
@@ -95,8 +100,9 @@ class RaffleState extends Vue {
 	public overlayFound:boolean = false;
 	public sourceVisible:boolean = false;
 	public checkingOverlay:boolean = false;
+	public transitionDirection:"left"|"right" = "right";
 	public timerPercent:number = 0;
-	public raffleData!:TwitchatDataTypes.RaffleData;
+	public raffleData:TwitchatDataTypes.RaffleData | null = null;
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 
 	private overlaySource:OBSSourceItem|null = null;
@@ -104,12 +110,14 @@ class RaffleState extends Vue {
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 
 	public get canPick():boolean {
+		if(!this.raffleData) return false;
 		return (this.raffleData.entries && this.raffleData.entries.length > 0)
 			&& (this.raffleData.winners == undefined
 			|| this.raffleData.winners?.length < this.raffleData.entries.length)
 	}
 
 	public get cumulatedEntryCount():number {
+		if(!this.raffleData) return 0;
 		let count = 0;
 		this.raffleData.entries.forEach(v=> {
 			count += v.joinCount;
@@ -124,7 +132,7 @@ class RaffleState extends Vue {
 
 	public beforeMount():void {
 		this.winnerPlaceholders	= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store.auth.twitch.user.displayName}];
-		this.raffleData			= this.$store.raffle.data!;
+		this.raffleData			= this.$store.raffle.raffleList![0];
 
 		//Check if wheel's overlay exists
 		PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
@@ -140,9 +148,18 @@ class RaffleState extends Vue {
 	}
 
 	public closeRaffle():void {
+		if(!this.raffleData) return;
 		this.$confirm(this.$t('raffle.delete_confirm.title'), this.$t('raffle.delete_confirm.description'))
 		.then(async ()=> {
-			this.$store.raffle.stopRaffle();
+			let index = this.$store.raffle.raffleList.findIndex(v=>v.sessionId! == this.raffleData!.sessionId!);
+			this.$store.raffle.stopRaffle(this.raffleData!.sessionId!);
+			//If there are other raffles, switch to previous one
+			if(this.$store.raffle.raffleList.length > 0) {
+				if(--index < 0) index = this.$store.raffle.raffleList.length-1;
+				this.raffleData = this.$store.raffle.raffleList[index];
+			}else{
+				this.raffleData = null;
+			}
 			this.$emit("close");
 		}).catch(()=> {
 			//ignore
@@ -155,9 +172,11 @@ class RaffleState extends Vue {
 	}
 
 	public async pickWinner():Promise<void> {
+		if(!this.raffleData) return;
+
 		this.picking = true;
 
-		await this.$store.raffle.pickWinner();
+		await this.$store.raffle.pickWinner(this.raffleData.sessionId!);
 
 		this.picking = false;
 	}
@@ -210,8 +229,37 @@ class RaffleState extends Vue {
 		})
 	}
 
+	public async nextRaffle():Promise<void> {
+		if(!this.raffleData) return;
+
+		const holder = this.$refs.content as HTMLDivElement;
+		const cmdHolder = this.$refs.cmd as HTMLElement;
+		gsap.to([holder,cmdHolder], {opacity:0, x:-10, duration:.1, onComplete:()=>{
+			let index = this.$store.raffle.raffleList.findIndex(v=>v.sessionId! == this.raffleData!.sessionId!);
+			let newIndex = (++index) % this.$store.raffle.raffleList.length;
+			this.raffleData = this.$store.raffle.raffleList[newIndex];
+			gsap.fromTo([holder,cmdHolder], {x:10}, {opacity:1, x:0, duration:.1});
+		}});
+	}
+
+	public async prevRaffle():Promise<void> {
+		if(!this.raffleData) return;
+
+		const holder = this.$refs.content as HTMLDivElement;
+		const cmdHolder = this.$refs.cmd as HTMLElement;
+		gsap.to([holder,cmdHolder], {opacity:0, x:10, duration:.1, onComplete:()=>{
+			let index = this.$store.raffle.raffleList.findIndex(v=>v.sessionId! == this.raffleData!.sessionId!);
+			let newIndex = index - 1;
+			if(newIndex < 0) newIndex = this.$store.raffle.raffleList.length -1;
+			this.raffleData = this.$store.raffle.raffleList[newIndex];
+			gsap.fromTo([holder,cmdHolder], {x:-10}, {opacity:1, x:0, duration:.1});
+		}});
+	}
+
 	private renderFrame():void {
 		if(this.disposed) return;
+		if(!this.raffleData) return;
+
 		requestAnimationFrame(()=>this.renderFrame());
 		const elapsed	= Date.now() - new Date(this.raffleData.created_at).getTime();
 		const duration	= this.raffleData.duration_s * 1000;
@@ -228,7 +276,7 @@ export default toNative(RaffleState);
 		margin-left: .5em;
 	}
 
-	&>.entries {
+	.entries {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
@@ -261,6 +309,24 @@ export default toNative(RaffleState);
 		padding: .5em;
 		display: flex;
 		flex-direction: column;
+		align-items: center;
+	}
+
+	.nextRaffleBt, .prevRaffleBt {
+		position: absolute;
+		top: 0;
+		right: 0;
+		height: 100%;
+		&.prevRaffleBt {
+			right:unset;
+			left: 0;
+		}
+	}
+
+	.content {
+		display: flex;
+		flex-direction: column;
+		gap: 1em;
 		align-items: center;
 	}
 }

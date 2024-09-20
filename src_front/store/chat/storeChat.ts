@@ -1352,13 +1352,8 @@ export const storeChat = defineStore('chat', {
 				//Reward redeem
 				case TwitchatDataTypes.TwitchatMessageType.REWARD: {
 
-					//If a raffle is in progress, check if the user can enter
-					const raffle = sRaffle.data;
-					if(raffle
-					&& raffle.mode == "chat"
-					&& raffle.reward_id
-					&& message.reward.id === raffle.reward_id
-					&& !isFromRemoteChan) {
+					//Check if the user can enter a raffle
+					if(!isFromRemoteChan) {
 						sRaffle.checkRaffleJoin(message);
 					}
 
@@ -1749,13 +1744,7 @@ export const storeChat = defineStore('chat', {
 				const cmd = (typedMessage.message || "").trim().split(" ")[0].toLowerCase();
 
 				//If a raffle is in progress, check if the user can enter
-				const raffle = sRaffle.data;
-				if(raffle
-				&& raffle.mode == "chat"
-				&& raffle.command
-				&& cmd == raffle.command.trim().toLowerCase()) {
-					sRaffle.checkRaffleJoin(typedMessage);
-				}
+				sRaffle.checkRaffleJoin(typedMessage);
 
 				//If there's a suggestion poll and the timer isn't over
 				const suggestionPoll = sChatSuggestion.data;

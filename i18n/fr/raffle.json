@@ -44,7 +44,8 @@
 			"postOnChat_join": "Confirmer l'entrée dans le tirage",
 			"postOnChat_winner": "Annoncer gagnant·e dans le tchat",
 			"countdown": "Afficher le compte à rebours",
-			"message_cmd_placeholder": "Commande pour rejoindre le tirage"
+			"message_cmd_placeholder": "Commande pour rejoindre le tirage",
+			"message_reward_placeholder": "Récompense à acheter pour rejoindre le tirage"
 		},
 		"delete_confirm": {
 			"title": "Fermer le tirage ?",

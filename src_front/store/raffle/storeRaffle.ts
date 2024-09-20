@@ -10,13 +10,19 @@ import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IRaffleActions, type IRaffleGetters, type IRaffleState } from '../StoreProxy';
 
-let currentRaffleData:TwitchatDataTypes.RaffleData | null = null;
+/**
+ * This stores temporary raffles.
+ * Used when starting a raffle from a "chat suggestion" session.
+ * There's no point in creating an actual session in this case
+ * as it's a "create/dispose" session flow.
+ */
+let ghostEntries:TwitchatDataTypes.RaffleData[] = [];
 let confirmSpool:TwitchatDataTypes.TwitchatUser[] = [];
 let debounceConfirm:number = -1;
 
 export const storeRaffle = defineStore('raffle', {
 	state: () => ({
-		data: null,
+		raffleList: [],
 	} as IRaffleState),
 
 
@@ -34,15 +40,17 @@ export const storeRaffle = defineStore('raffle', {
 			/**
 			 * Called when a raffle animation (the wheel) completes
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_RESULT, (e:TwitchatEvent<{winner:TwitchatDataTypes.RaffleEntry, delay?:number}>)=> {
-				this.onRaffleComplete(e.data!.winner, false, e.data!.delay);
+			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_RESULT, (e:TwitchatEvent<{winner:TwitchatDataTypes.RaffleEntry, sessionId:string, delay?:number}>)=> {
+				if(!e.data) return;
+				this.onRaffleComplete(e.data.sessionId, e.data.winner, false, e.data.delay);
 			});
 		},
 
 		async startRaffle(payload:TwitchatDataTypes.RaffleData) {
-			this.data = payload;
-
+			this.raffleList.push(payload);
+			
 			payload.created_at = Date.now();
+			payload.sessionId = Utils.getUUID();
 
 			switch(payload.mode) {
 				case "chat": {
@@ -51,36 +59,46 @@ export const storeRaffle = defineStore('raffle', {
 						StoreProxy.timer.countdownStart(payload.duration_s * 1000);
 					}
 					//Announce start on chat
-					if(StoreProxy.chat.botMessages.raffleStart.enabled && payload.command) {
-						let message = StoreProxy.chat.botMessages.raffleStart.message;
-						message = message.replace(/\{CMD\}/gi, payload.command);
+					const messageParams = payload.messages?.raffleStart || StoreProxy.chat.botMessages.raffleStart;
+					if(messageParams.enabled) {
+						let message = messageParams.message;
+						if(payload.command) {
+							message = message.replace(/\{CMD\}/gi, payload.command);
+						}
+						if(payload.reward_id) {
+							const reward = StoreProxy.rewards.rewardList.find(v=>v.id == payload.reward_id);
+							if(reward) message = message.replace(/\{REWARD\}/gi, reward.title);
+						}
 						MessengerProxy.instance.sendMessage(message);
 					}
 					break;
 				}
 
 				case "sub": {
-					this.pickWinner(payload);
+					this.pickWinner(payload.sessionId, payload);
 					break;
 				}
 
 				case "manual": {
-					this.pickWinner(payload);
+					this.pickWinner(payload.sessionId, payload);
 					break;
 				}
 
 				case "values": {
-					this.pickWinner(payload);
+					this.pickWinner(payload.sessionId, payload);
 					break;
 				}
 			}
 		},
 
-		stopRaffle() { this.data = null; },
+		stopRaffle(sessionId:string) {
+			const index = this.raffleList.findIndex(v=>v.sessionId === sessionId);
+			if(index > -1) this.raffleList.splice(index, 1)
+		},
 
-		onRaffleComplete(winner:TwitchatDataTypes.RaffleEntry, publish = false, chatMessageDelay:number = 0) {
-			// this.raffle = null;
-			let data:TwitchatDataTypes.RaffleData|null = currentRaffleData || this.data;
+		onRaffleComplete(sessionId:string, winner:TwitchatDataTypes.RaffleEntry, publish = false, chatMessageDelay:number = 0) {
+			let data = this.raffleList.find(v=>v.sessionId === sessionId);
+			if(!data) data = ghostEntries.find(v=>v.sessionId === sessionId);
 			if(data) {
 				const winnerLoc = data.entries.find(v=> v.id == winner.id);
 				if(winnerLoc) {
@@ -136,9 +154,10 @@ export const storeRaffle = defineStore('raffle', {
 			StoreProxy.chat.addMessage(message);
 
 			//Post result on chat
-			if(StoreProxy.chat.botMessages.raffle.enabled) {
+			const messageParams = data.messages?.raffleWinner || StoreProxy.chat.botMessages.raffle;
+			if(messageParams.enabled) {
 				setTimeout(() => {
-					let message = StoreProxy.chat.botMessages.raffle.message;
+					let message = messageParams.message;
 					message = message.replace(/\{USER\}/gi, winner.label);
 					MessengerProxy.instance.sendMessage(message);
 				}, chatMessageDelay || 0);
@@ -151,76 +170,100 @@ export const storeRaffle = defineStore('raffle', {
 
 			if(data.resultCallback) data.resultCallback();
 
-			currentRaffleData = null;
+			//Remove ghost session if any
+			const index = ghostEntries.findIndex(v=>v.sessionId === sessionId)
+			if(index > -1) ghostEntries.splice(index, 1);
 		},
 
 		checkRaffleJoin(message:TwitchatDataTypes.TranslatableMessage):boolean {
-			if(!this.data || this.data.mode != "chat") return false;
+			let joined = false;
+			this.raffleList.forEach(raffle => {
+				if(raffle.mode != "chat") return;
 
-			const messageCast = message as TwitchatDataTypes.GreetableMessage;
+				let canJoin = false;
+				//Check if can join from reward
+				if(raffle.reward_id && message.type == TwitchatDataTypes.TwitchatMessageType.REWARD) {
+					const messageReward = message as TwitchatDataTypes.MessageRewardRedeemData;
+					if(messageReward.reward.id == raffle.reward_id) canJoin = true;
+				}
+	
+				//Check if can join from chat command
+				if(raffle.command) {
+					const cmd = (message.message || "").trim().split(" ")[0].toLowerCase();
+					if(cmd == raffle.command.trim().toLowerCase()) canJoin = true;
+				}
 
-			const sChat = StoreProxy.chat;
-			const raffle = this.data;
-			const elapsed = Date.now() - new Date(raffle.created_at).getTime();
-
-			//Check if within time frame and max users count isn't reached
-			if(elapsed <= raffle.duration_s * 1000
-			&& (raffle.maxEntries <= 0 || raffle.entries.length < raffle.maxEntries)) {
-				const user = messageCast.user;
-				const existingEntry = raffle.entries.find(v=>v.id == user.id);
-				if(existingEntry) {
-					//User already entered, increment their score or stop there
-					//depending on the raffle's param
-					if(this.data.multipleJoin !== true) return false;
-					existingEntry.joinCount ++;
-				}else{
-					//User is not already on the list, create it
-					raffle.entries.push( {
-						score:0,
-						joinCount:1,
-						label:user.displayNameOriginal,
-						id:user.id,
-						user:{
-							id:messageCast.user.id,
-							platform:messageCast.platform,
-							channel_id:messageCast.channel_id,
+				if(!canJoin) return;
+	
+				const messageCast = message as TwitchatDataTypes.GreetableMessage;
+				const elapsed = Date.now() - new Date(raffle.created_at).getTime();
+	
+				//Check if within time frame and max users count isn't reached
+				if(elapsed <= raffle.duration_s * 1000
+				&& (raffle.maxEntries <= 0 || raffle.entries.length < raffle.maxEntries)) {
+					const user = messageCast.user;
+					const existingEntry = raffle.entries.find(v=>v.id == user.id);
+					if(existingEntry) {
+						//User already entered, increment their score or stop there
+						//depending on the raffle's param
+						if(raffle.multipleJoin !== true) return;
+						existingEntry.joinCount ++;
+					}else{
+						//User is not already on the list, create it
+						raffle.entries.push( {
+							score:0,
+							joinCount:1,
+							label:user.displayNameOriginal,
+							id:user.id,
+							user:{
+								id:messageCast.user.id,
+								platform:messageCast.platform,
+								channel_id:messageCast.channel_id,
+							}
+						} );
+					}
+	
+					const messageParams = raffle.messages?.raffleJoin || StoreProxy.chat.botMessages.raffleJoin;
+					if(messageParams.enabled) {
+						clearTimeout(debounceConfirm);
+						confirmSpool.push(user);
+						let message = "";
+						let userCount = 0;
+						while(message.length < 500 && userCount < confirmSpool.length) {
+							userCount ++;
+							message = messageParams.message;
+							message = message.replace(/\{USER\}/gi, confirmSpool.concat().splice(0, userCount).map(v=> v.displayNameOriginal).join(", @"));
 						}
-					} );
-				}
-
-				if(sChat.botMessages.raffleJoin.enabled) {
-					clearTimeout(debounceConfirm);
-					confirmSpool.push(user);
-					let message = "";
-					let userCount = 0;
-					while(message.length < 500 && userCount < confirmSpool.length) {
-						userCount ++;
-						message = sChat.botMessages.raffleJoin.message;
-						message = message.replace(/\{USER\}/gi, confirmSpool.concat().splice(0, userCount).map(v=> v.displayNameOriginal).join(", @"));
-					}
-
-					if(message.length >= 500) {
-						message = sChat.botMessages.raffleJoin.message;
-						message = message.replace(/\{USER\}/gi, confirmSpool.splice(0, userCount-1).map(v=> v.displayNameOriginal).join(", @"));
-						MessengerProxy.instance.sendMessage(message, [user.platform]);
-					}else if(message) {
-						debounceConfirm = setTimeout(() => {
-							confirmSpool = [];
+	
+						if(message.length >= 500) {
+							message = messageParams.message;
+							message = message.replace(/\{USER\}/gi, confirmSpool.splice(0, userCount-1).map(v=> v.displayNameOriginal).join(", @"));
 							MessengerProxy.instance.sendMessage(message, [user.platform]);
-						}, 500);
+						}else if(message) {
+							debounceConfirm = setTimeout(() => {
+								confirmSpool = [];
+								MessengerProxy.instance.sendMessage(message, [user.platform]);
+							}, 500);
+						}
 					}
+					joined = true;
 				}
-				return true;
-			}
-			return false;
+			})
+			
+			return joined;
 		},
 
-		async pickWinner(forcedData?:TwitchatDataTypes.RaffleData, forcedWinner?:TwitchatDataTypes.RaffleEntry):Promise<void> {
-			const data = forcedData ?? this.data;
-			currentRaffleData = data;
+		async pickWinner(sessionId:string, forcedData?:TwitchatDataTypes.RaffleData, forcedWinner?:TwitchatDataTypes.RaffleEntry):Promise<void> {
+			const data = forcedData ?? this.raffleList.find(v=>v.sessionId === sessionId);
 			if(!data) {
 				StoreProxy.common.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_raffle"));
 				return;
+			}
+
+			if(!data.sessionId) data.sessionId = Utils.getUUID();
+
+			if(forcedData && this.raffleList.findIndex(v=>v.sessionId === sessionId) == -1) {
+				ghostEntries.push(forcedData);
 			}
 			
 			//Executes raffle pick winner related triggers
@@ -467,7 +510,7 @@ export const storeRaffle = defineStore('raffle', {
 			}else{
 
 				//no wheel overlay found, just announce the winner
-				this.onRaffleComplete(winner);
+				this.onRaffleComplete(sessionId, winner);
 			}
 
 			//If requesting to automatically remove winning entry from source

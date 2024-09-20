@@ -49,7 +49,8 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 		ParamItem,
 		ChatMessage,
 		PlaceholderSelector,
-	}
+	},
+	emits:["change", "update:text", "update:enabled"]
 })
 class PostOnChatParam extends Vue {
 	
@@ -80,6 +81,12 @@ class PostOnChatParam extends Vue {
 	@Prop
 	public placeholders!:TwitchatDataTypes.PlaceholderEntry[];
 	
+	@Prop({type:String, default: ""})
+	public text!:string;
+	
+	@Prop({type:Boolean, default: false})
+	public enabled!:boolean;
+	
 	public adPreview:TwitchatDataTypes.MessageChatData | null = null;
 
 	public error:string = "";
@@ -92,11 +99,17 @@ class PostOnChatParam extends Vue {
 	private isFirstRender:boolean = true;
 	private focusHandler!:(e:FocusEvent) => void;
 
-	public async mounted():Promise<void> {
-		const data					= this.$store.chat.botMessages[ this.botMessageKey ];
-		this.textParam.value		= data.message;
+	public async beforeMount():Promise<void> {
+		if(this.botMessageKey) {
+			const data					= this.$store.chat.botMessages[ this.botMessageKey ];
+			this.textParam.value		= data.message;
+			this.enabledParam.value		= data.enabled || this.noToggle !== false;
+		}else{
+			this.textParam.value		= this.text;
+			this.enabledParam.value		= this.enabled || this.noToggle !== false;
+		}
+
 		this.enabledParam.labelKey	= this.titleKey;
-		this.enabledParam.value		= data.enabled || this.noToggle !== false;
 		this.enabledParam.children	= [this.textParam];
 		this.enabledParam.noInput	= this.noToggle;
 		if(this.icon) {
@@ -131,20 +144,26 @@ class PostOnChatParam extends Vue {
 	}
 	
 	public async saveParams(saveToStore = true):Promise<void> {
-		//Avoid useless save on mount
-		if(saveToStore){
-			this.$store.chat.updateBotMessage({
-											key:this.botMessageKey,
-											enabled:this.enabledParam.value,
-											message:this.textParam.value
-										});
-		}
-
-		this.error = ""
-		if(this.botMessageKey == "twitchatAd") {
-			if(!/(^|\s|\.|,|!|\:|;|\*|https?:\/\/)twitchat\.fr($|\s|\.|,|!|\:|;|\*)/gi.test(this.textParam.value)) {
-				this.error = this.$t("error.ad_url_required");
+		if(this.botMessageKey) {
+			//Avoid useless save on mount
+			if(saveToStore){
+				this.$store.chat.updateBotMessage({
+												key:this.botMessageKey,
+												enabled:this.enabledParam.value,
+												message:this.textParam.value
+											});
 			}
+	
+			this.error = ""
+			if(this.botMessageKey == "twitchatAd") {
+				if(!/(^|\s|\.|,|!|\:|;|\*|https?:\/\/)twitchat\.fr($|\s|\.|,|!|\:|;|\*)/gi.test(this.textParam.value)) {
+					this.error = this.$t("error.ad_url_required");
+				}
+			}
+		}else if(saveToStore){
+			this.$emit("update:text", this.textParam.value);
+			this.$emit("update:enabled", this.enabledParam.value);
+			this.$emit("change");
 		}
 
 		if(this.enabledParam.value && this.isFirstRender) {

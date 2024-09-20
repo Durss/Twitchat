@@ -36,7 +36,7 @@
 			<div class="rightSlot">
 				<slot name="right_actions"></slot>
 
-				<button class="arrowBt" v-if="noArrow === false"><Icon name="arrowRight" /></button>
+				<button type="button" class="arrowBt" v-if="noArrow === false"><Icon name="arrowRight" /></button>
 			</div>
 		</div>
 		<div class="content" v-if="localOpen" ref="content">

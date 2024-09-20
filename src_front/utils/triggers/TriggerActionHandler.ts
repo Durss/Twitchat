@@ -3024,7 +3024,7 @@ export default class TriggerActionHandler {
 		//Here we use that value
 		for (const key in dynamicPlaceholders) {
 			const keySafe = key.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-			res = res.replace(new RegExp("\\{"+keySafe+"\\}", "gi"), dynamicPlaceholders[key].toString() ?? "");
+			res = res.replace(new RegExp("\\{"+keySafe+"\\}", "gi"), (dynamicPlaceholders[key] || "").toString() ?? "");
 		}
 
 		try {

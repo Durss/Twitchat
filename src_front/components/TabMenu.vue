@@ -113,8 +113,9 @@ export default toNative(TabMenu);
 	flex-direction: row;
 	// flex-wrap: wrap;
 	row-gap: 5px;
-	overflow-x: auto;
-	overflow-y: hidden;
+	//overflow-x: auto;
+	//overflow-y: hidden;
+	overflow: hidden;
 
 	.tabItem {
 		flex-grow: 1;

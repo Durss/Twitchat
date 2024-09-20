@@ -479,6 +479,36 @@ const UserDataSchema = {
 										showCountdownOverlay: {type:"boolean"},
 										removeWinningEntry: {type:"boolean"},
 										customEntries: {type:"string", maxLength:1000000},
+										messages: {
+											type: "object",
+											additionalProperties: false,
+											properties: {
+												raffleStart:{
+													type: "object",
+													additionalProperties: false,
+													properties: {
+														message: {type:"string", maxLength:500},
+														enabled: {type:"boolean"},
+													}
+												},
+												raffleJoin:{
+													type: "object",
+													additionalProperties: false,
+													properties: {
+														message: {type:"string", maxLength:500},
+														enabled: {type:"boolean"},
+													}
+												},
+												raffleWinner:{
+													type: "object",
+													additionalProperties: false,
+													properties: {
+														message: {type:"string", maxLength:500},
+														enabled: {type:"boolean"},
+													}
+												},
+											},
+										},
 									},
 								},
 								bingoData: {

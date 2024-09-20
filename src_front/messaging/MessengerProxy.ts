@@ -548,7 +548,9 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/startraffle") {
-			await StoreProxy.raffle.pickWinner();
+			const list = StoreProxy.raffle.raffleList;
+			if(list.length == 0) return true;
+			await StoreProxy.raffle.pickWinner(list[0].sessionId || "");
 			return true;
 		}else
 

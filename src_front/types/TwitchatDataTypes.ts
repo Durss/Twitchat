@@ -819,6 +819,7 @@ export namespace TwitchatDataTypes {
 	 * Config for a raffle game
 	 */
 	export interface RaffleData {
+		sessionId?:string;
 		mode:"chat"|"sub"|"manual"|"values";
 		command?:string;
 		reward_id?:string;
@@ -850,6 +851,32 @@ export namespace TwitchatDataTypes {
 		 * @deprecated use duration_s instead. Only hear for typing on data migration
 		 */
 		duration?:number;
+		/**
+		 * Messages to send on chat
+		 */
+		messages?: {
+			/**
+			 * Message when the raffle starts
+			 */
+			raffleStart?: {
+				enabled:boolean;
+				message:string;
+			},
+			/**
+			 * Message when someone joins the raffle
+			 */
+			raffleJoin?: {
+				enabled:boolean;
+				message:string;
+			},
+			/**
+			 * Message when a winner is selected
+			 */
+			raffleWinner?: {
+				enabled:boolean;
+				message:string;
+			},
+		}
 	}
 	export interface RaffleEntry extends EntryItem {
 		score:number;

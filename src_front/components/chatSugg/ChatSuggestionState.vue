@@ -131,7 +131,7 @@ class ChatSuggestionState extends AbstractSidePanel {
 				}
 			}
 		}
-		this.$store.raffle.pickWinner(data);
+		this.$store.raffle.pickWinner("", data);
 	}
 
 	public closePoll():void {

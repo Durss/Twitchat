@@ -8,52 +8,50 @@
 			<div class="description">{{ $t("raffle.description") }}</div>
 		</div>
 
-		<TabMenu class="menu" v-model="mode"
+		<TabMenu class="menu" v-model="localData.mode"
 			:values="['chat','sub','manual','values']"
 			:labels="[$t('raffle.chat.title'), $t('raffle.subs.title'), $t('raffle.list.title'), $t('raffle.values.title')]"
 			:icons="['commands', 'sub', 'list', 'placeholder']" />
 
 		<div class="content">
-			<ToggleBlock class="legal tips" v-if="triggerMode === false && mode!='manual' && mode!='values'" :icons="['info']" small :title="$t('raffle.legal.title')" :open="false">
+			<ToggleBlock class="legal tips" v-if="triggerMode === false && localData.mode!='manual' && localData.mode!='values'" :icons="['info']" small :title="$t('raffle.legal.title')" :open="false">
 				<p v-for="l in $tm('raffle.legal.contents')">{{l}}</p>
 			</ToggleBlock>
 
 			<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
 
-			<form class="form" v-if="mode=='chat'" @submit.prevent="submitForm()">
-				<div class="info">{{ $t("raffle.chat.description") }}</div>
+			<form class="form" v-if="localData.mode=='chat'" @submit.prevent="submitForm()">
+				<div class="card-item info">{{ $t("raffle.chat.description") }}</div>
 
-				<ParamItem :paramData="param_commandValue" v-model="param_commandValue.value" :autofocus="true" v-if="triggerMode !== false" />
-				<ParamItem :paramData="param_command" v-model="param_command.value" :autofocus="true" @change="onValueChange()" v-else />
+				<ParamItem :paramData="param_command" v-model="param_command.value" :autofocus="true" @change="onValueChange()">
+					<ParamItem class="child" noBackground :paramData="param_commandValue" v-model="localData.command" :autofocus="true" />
+				</ParamItem>
+				<ParamItem :paramData="param_reward" v-model="param_reward.value" @change="onValueChange()" v-if="param_rewardvalue.listValues!.length > 1">
+					<ParamItem class="child" noBackground :paramData="param_rewardvalue" v-model="localData.reward_id" />
+				</ParamItem>
 
-				<div class="card-item" v-if="triggerMode === false">
-					<ParamItem noBackground :paramData="param_reward" v-model="param_reward.value" :autofocus="true" @change="onValueChange()" v-if="param_rewardvalue.listValues!.length > 1" />
-					<div class="tips">
-						<img src="@/assets/icons/info.svg">
+				<ParamItem :paramData="param_enterDuration" v-model="localData.duration_s" />
 
-						<i18n-t scope="global" tag="span" keypath="raffle.chat.triggers">
-							<template #LINK>
-								<a @click="openParam('triggers')">{{ $t("raffle.chat.triggers_link") }}</a>
-							</template>
-							<template #ACTION>
-								<strong>{{ $t("triggers.actions.common.action_raffle_enter") }}</strong>
-							</template>
-						</i18n-t>
-					</div>
-				</div>
-				<ParamItem :paramData="param_enterDuration" @change="onValueChange()" />
-
-				<ToggleBlock class="configs" :icons="['params']" v-if="mode=='chat'" :title="$t('global.advanced_params')" :open="false">
-					<ParamItem :paramData="param_multipleJoin" v-model="param_multipleJoin.value" @change="onValueChange()" />
-					<ParamItem :paramData="param_maxUsersToggle" v-model="param_maxUsersToggle.value" @change="onValueChange()" />
-					<ParamItem :paramData="param_ponderateVotes" v-model="param_ponderateVotes.value" @change="onValueChange()" />
+				<ToggleBlock class="configs" :icons="['params']" v-if="localData.mode=='chat'" :title="$t('global.advanced_params')" :open="false">
+					<ParamItem :paramData="param_multipleJoin"  v-model="localData.multipleJoin" />
+					<ParamItem :paramData="param_maxUsersToggle"  v-model="param_maxUsersToggle.value" @change="onValueChange()">
+						<ParamItem class="child" noBackground :paramData="param_maxEntries" v-model="localData.maxEntries" />
+					</ParamItem>
+					<ParamItem :paramData="param_ponderateVotes" v-model="param_ponderateVotes.value" @change="onValueChange()">
+						<ParamItem class="child" noBackground :paramData="param_ponderateVotes_vip" v-model="localData.vipRatio" />
+						<ParamItem class="child" noBackground :paramData="param_ponderateVotes_follower" v-model="localData.followRatio" />
+						<ParamItem class="child" noBackground :paramData="param_ponderateVotes_sub" v-model="localData.subRatio" />
+						<ParamItem class="child" noBackground :paramData="param_ponderateVotes_subT2" v-model="localData.subT2Ratio" />
+						<ParamItem class="child" noBackground :paramData="param_ponderateVotes_subT3" v-model="localData.subT3Ratio" />
+						<ParamItem class="child" noBackground :paramData="param_ponderateVotes_subgift" v-model="localData.subgiftRatio" />
+					</ParamItem>
 
 					<ParamItem
 					:paramData="param_showCountdownOverlay"
-					v-model="param_showCountdownOverlay.value"
-					v-if="mode=='chat'" @change="onValueChange()">
+					v-model="localData.showCountdownOverlay"
+					v-if="localData.mode=='chat'">
 						<i18n-t scope="global" tag="div" class="details"
-						v-if="param_showCountdownOverlay.value === true && mode=='chat'"
+						v-if="localData.showCountdownOverlay === true && localData.mode=='chat'"
 						keypath="raffle.configs.timer_overlay_add">
 							<template #LINK>
 								<a @click="openParam('overlays')">{{ $t("raffle.configs.timer_overlay_add_link") }}</a>
@@ -61,23 +59,28 @@
 						</i18n-t>
 					</ParamItem>
 
-					<PostOnChatParam botMessageKey="raffleStart"
-						v-if="mode=='chat' && triggerMode === false"
+					<PostOnChatParam :botMessageKey="triggerMode? '' : 'raffleStart'"
+						v-if="localData.mode=='chat'"
 						:placeholders="startPlaceholders"
+						v-model:text="localData.messages!.raffleStart!.message"
+						v-model:enabled="localData.messages!.raffleStart!.enabled"
 						icon="announcement"
 						titleKey="raffle.configs.postOnChat_start"
 					/>
-					<PostOnChatParam botMessageKey="raffle"
-						v-if="triggerMode === false"
-						:placeholders="winnerPlaceholders"
-						icon="announcement"
-						titleKey="raffle.configs.postOnChat_winner"
-					/>
-					<PostOnChatParam botMessageKey="raffleJoin"
-						v-if="mode=='chat' && triggerMode === false"
+					<PostOnChatParam :botMessageKey="triggerMode? '' : 'raffleJoin'"
+						v-if="localData.mode=='chat'"
 						:placeholders="joinPlaceholders"
+						v-model:text="localData.messages!.raffleJoin!.message"
+						v-model:enabled="localData.messages!.raffleJoin!.enabled"
 						icon="announcement"
 						titleKey="raffle.configs.postOnChat_join"
+					/>
+					<PostOnChatParam :botMessageKey="triggerMode? '' : 'raffle'"
+						:placeholders="winnerPlaceholders"
+						v-model:text="localData.messages!.raffleWinner!.message"
+						v-model:enabled="localData.messages!.raffleWinner!.enabled"
+						icon="announcement"
+						titleKey="raffle.configs.postOnChat_winner"
 					/>
 				</ToggleBlock>
 
@@ -85,13 +88,26 @@
 					v-if="triggerMode === false"
 					:aria-label="$t('raffle.chat.startBt_aria')"
 					icon="ticket">{{ $t('global.start') }}</TTButton>
+					
+				<div class="card-item triggerInfo" v-if="triggerMode === false">
+					<Icon name="info" />
+
+					<i18n-t scope="global" tag="span" keypath="raffle.chat.triggers">
+						<template #LINK>
+							<a @click="openParam('triggers')">{{ $t("raffle.chat.triggers_link") }}</a>
+						</template>
+						<template #ACTION>
+							<strong>{{ $t("triggers.actions.common.action_raffle_enter") }}</strong>
+						</template>
+					</i18n-t>
+				</div>
 			</form>
 
-			<form class="form" v-else-if="mode=='sub' && canListSubs" @submit.prevent="submitForm()">
-				<div class="info">{{ $t("raffle.subs.description") }}</div>
+			<form class="form" v-else-if="localData.mode=='sub' && canListSubs" @submit.prevent="submitForm()">
+				<div class="card-item info">{{ $t("raffle.subs.description") }}</div>
 				
-				<ParamItem :paramData="param_subs_includeGifters" v-model="param_subs_includeGifters.value" @change="onValueChange()" />
-				<ParamItem :paramData="param_subs_excludeGifted" v-model="param_subs_excludeGifted.value" @change="onValueChange()" />
+				<ParamItem :paramData="param_subs_includeGifters" v-model="localData.subMode_includeGifters" />
+				<ParamItem :paramData="param_subs_excludeGifted" v-model="localData.subMode_excludeGifted" />
 				<div class="card-item winner" v-if="winner" ref="winnerHolder">
 					<div class="head">Winner</div>
 					<div class="user">🎉 {{winner}} 🎉</div>
@@ -112,8 +128,8 @@
 				</TTButton>
 			</form>
 
-			<form class="card-item secondary form scope" v-else-if="mode=='sub' && !canListSubs" @submit.prevent="submitForm()">
-				<img src="@/assets/icons/lock_fit.svg">
+			<form class="card-item secondary form scope" v-else-if="localData.mode=='sub' && !canListSubs" @submit.prevent="submitForm()">
+				<Icon nam="lock_fit" />
 				<p class="label">{{ $t("params.scope_missing") }}</p>
 				<TTButton alert small
 					class="grantBt"
@@ -121,15 +137,15 @@
 					@click="requestSubPermission()">{{ $t('global.grant_scope') }}</TTButton>
 			</form>
 
-			<form class="form" v-else-if="mode=='manual'" @submit.prevent="submitForm()">
-				<div class="info">{{ $t("raffle.list.description") }}</div>
+			<form class="form" v-else-if="localData.mode=='manual'" @submit.prevent="submitForm()">
+				<div class="card-item info">{{ $t("raffle.list.description") }}</div>
 
 				<div class="card-item">
-					<ParamItem noBackground :paramData="param_customEntries" v-model="param_customEntries.value" @change="onValueChange()" />
+					<ParamItem noBackground :paramData="param_customEntries" v-model="localData.customEntries" />
 					<span class="instructions">{{ $t("raffle.list.instructions") }}</span>
 				</div>
 
-				<ParamItem :paramData="param_list_remove" v-model="param_list_remove.value" @change="onValueChange()" v-if="!triggerMode" />
+				<ParamItem :paramData="param_list_remove" v-model="localData.removeWinningEntry" v-if="!triggerMode" />
 
 				<TTButton type="submit"
 				v-if="triggerMode === false"
@@ -145,18 +161,22 @@
 				</TTButton>
 			</form>
 
-			<form class="form" v-else-if="mode=='values'" @submit.prevent="submitForm()">
-				<i18n-t scope="global" tag="div" class="info" keypath="raffle.values.description">
+			<form class="form" v-else-if="localData.mode=='values'" @submit.prevent="submitForm()">
+				<i18n-t scope="global" tag="div" class="card-item info" keypath="raffle.values.description">
 					<template #VALUE>
 						<a @click="openValues()">{{ $t("raffle.values.description_value") }}</a>
 					</template>
 				</i18n-t>
 
-				<ParamItem :paramData="param_values" v-model="param_values.value" @change="onValueChange()" />
+				<ParamItem :paramData="param_values" v-model="param_values.value"
+					@change="onValueChange()" />
 
-				<ParamItem :paramData="param_values_remove" v-model="param_values_remove.value" @change="onValueChange()" />
+				<ParamItem :paramData="param_values_remove" v-model="localData.removeWinningEntry" />
 
-				<ParamItem class="splitterField" :paramData="param_values_splitter" v-model="param_values_splitter.value" @change="onValueChange()" v-if="param_values.selectedListValue?.value.perUser !== true" />
+				<ParamItem class="splitterField"
+					v-if="param_values.selectedListValue?.value.perUser !== true"
+					:paramData="param_values_splitter"
+					v-model="localData.value_splitter" />
 
 				<TTButton type="submit"
 				v-if="triggerMode === false"
@@ -184,7 +204,7 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { watch } from 'vue';
+import { reactive, watch } from 'vue';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
@@ -227,13 +247,11 @@ class RaffleForm extends AbstractSidePanel {
 	public winner:string|null = null;
 	public winnerTmp:string|null = null;
 
-	public mode:TwitchatDataTypes.RaffleData["mode"] = "chat";
-
 	public param_command:TwitchatDataTypes.ParameterData<boolean, any, any>		= {value:true, type:"boolean", labelKey:"raffle.params.command_join", icon:"commands"};
 	public param_commandValue:TwitchatDataTypes.ParameterData<string>			= {value:"", type:"string", labelKey:"raffle.params.command", placeholderKey:"raffle.params.command_placeholder"};
 	public param_reward:TwitchatDataTypes.ParameterData<boolean, any, any>		= {value:false, type:"boolean", labelKey:"raffle.params.reward_join", icon:"channelPoints"};
 	public param_rewardvalue:TwitchatDataTypes.ParameterData<string>			= {value:"", type:"list", listValues:[], labelKey:"raffle.params.reward", placeholderKey:"raffle.params.command_placeholder"};
-	public param_enterDuration:TwitchatDataTypes.ParameterData<number>			= {value:10, type:"number", min:1, max:1440, labelKey:"raffle.params.duration", icon:"timer"};
+	public param_enterDuration:TwitchatDataTypes.ParameterData<number>			= {value:600, type:"duration", min:1, max:24*60*60, labelKey:"raffle.params.duration", icon:"timer"};
 	public param_maxUsersToggle:TwitchatDataTypes.ParameterData<boolean, any, any>= {value:false, type:"boolean", labelKey:"raffle.params.limit_users", icon:"user"};
 	public param_maxEntries:TwitchatDataTypes.ParameterData<number>				= {value:10, type:"number", min:0, max:1000000, labelKey:"raffle.params.max_users", icon:"user"};
 	public param_multipleJoin:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.multiple_join", icon:"user"};
@@ -255,6 +273,44 @@ class RaffleForm extends AbstractSidePanel {
 
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	public joinPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
+
+	public localData:TwitchatDataTypes.RaffleData = {
+		mode:"chat",
+		command:"!raffle",
+		reward_id:undefined,
+		duration_s:600,
+		maxEntries:0,
+		multipleJoin:false,
+		created_at:Date.now(),
+		entries:[],
+		followRatio: 1,
+		vipRatio: 1,
+		subRatio: 1,
+		subT2Ratio: 1,
+		subT3Ratio: 1,
+		subgiftRatio: 1,
+		subMode_includeGifters: false,
+		subMode_excludeGifted: false,
+		showCountdownOverlay: false,
+		customEntries: "",
+		value_id: undefined,
+		value_splitter: undefined,
+		removeWinningEntry: false,
+		messages: {
+			raffleStart:{
+				enabled:false,
+				message:StoreProxy.i18n.t("params.botMessages.raffleStart")
+			},
+			raffleJoin:{
+				enabled:false,
+				message:StoreProxy.i18n.t("params.botMessages.raffleJoin")
+			},
+			raffleWinner:{
+				enabled:false,
+				message:StoreProxy.i18n.t("params.botMessages.raffle")
+			}
+		},
+	}
 
 	private subs:TwitchDataTypes.Subscriber[] = [];
 	private voiceController!:FormVoiceControllHelper;
@@ -292,7 +348,7 @@ class RaffleForm extends AbstractSidePanel {
 			const val = this.param_values.selectedListValue?.value;
 			if(!val) return 0;
 			if(val.perUser) return Object.keys(val.users || {}).length;
-			const splitter = this.finalData.value_splitter || new RegExp(val.value.split(/\r|\n/).length > 1? "\r|\n" : ",");
+			const splitter = this.localData.value_splitter || new RegExp(val.value.split(/\r|\n/).length > 1? "\r|\n" : ",");
 			return val.value.split(splitter)
 					.filter((v)=>v.length > 0).length;
 		}else{
@@ -300,39 +356,13 @@ class RaffleForm extends AbstractSidePanel {
 		}
 	}
 
-	public get finalData():TwitchatDataTypes.RaffleData {
-		let cmd = "";
-		if(this.param_command.value === true) {
-			cmd = this.param_commandValue.value? this.param_commandValue.value : this.$t("raffle.params.command_placeholder");
-		}
-
-		return  {
-			mode:this.mode,
-			command:cmd,
-			reward_id:this.param_rewardvalue.value,
-			duration_s:this.param_enterDuration.value * 60,
-			maxEntries:this.param_maxUsersToggle.value ? this.param_maxEntries.value : 0,
-			multipleJoin:this.param_multipleJoin.value,
-			created_at:Date.now(),
-			entries:[],
-			followRatio: this.param_ponderateVotes_follower.value,
-			vipRatio: this.param_ponderateVotes_vip.value,
-			subRatio: this.param_ponderateVotes_sub.value,
-			subT2Ratio: this.param_ponderateVotes_subT2.value,
-			subT3Ratio: this.param_ponderateVotes_subT3.value,
-			subgiftRatio: this.param_ponderateVotes_subgift.value,
-			subMode_includeGifters: this.param_subs_includeGifters.value,
-			subMode_excludeGifted: this.param_subs_excludeGifted.value,
-			showCountdownOverlay: this.param_showCountdownOverlay.value,
-			customEntries: this.param_customEntries.value,
-			value_id: this.param_values.value?.id,
-			value_splitter: this.param_values_splitter.value,
-			removeWinningEntry: this.mode == "values"? this.param_values_remove.value : this.mode == "manual"? this.param_list_remove.value : false,
-		}
-	}
-
 	public get startPlaceholders():TwitchatDataTypes.PlaceholderEntry[] {
-		return [{tag:"CMD", descKey:"raffle.configs.message_cmd_placeholder", example:this.finalData.command}];
+		const reward = StoreProxy.rewards.rewardList.find(v=>v.id == this.localData.reward_id);
+		const rewardName = reward?.title || "My awesome reward";
+		return [
+			{tag:"CMD", descKey:"raffle.configs.message_cmd_placeholder", example:this.localData.command},
+			{tag:"REWARD", descKey:"raffle.configs.message_reward_placeholder", example:rewardName},
+		];
 	}
 
 	public get canListSubs():boolean { return TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS]); }
@@ -340,10 +370,8 @@ class RaffleForm extends AbstractSidePanel {
 	public beforeMount(): void {
 		this.winnerPlaceholders			= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store.auth.twitch.user.displayNameOriginal}];
 		this.joinPlaceholders			= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store.auth.twitch.user.displayNameOriginal+", @Twitch, @Durss"}];
-		this.param_command.children		= [this.param_commandValue];
-		this.param_reward.children		= [this.param_rewardvalue];
 
-		this.param_rewardvalue.listValues = [{value:undefined, labelKey:"global.select_placeholder"}]
+		this.param_rewardvalue.listValues = [{value:undefined, labelKey:"global.select_placeholder"}];
 
 		if(this.isAffiliate) {
 			TwitchUtils.getRewards().then(list => {
@@ -363,33 +391,29 @@ class RaffleForm extends AbstractSidePanel {
 
 		if(this.triggerMode !== false) {
 			if(this.action.raffleData) {
-				this.mode = this.action.raffleData.mode;
+				this.localData = this.action.raffleData;
 				this.param_command.value = this.action.raffleData.command != undefined;
-				this.param_commandValue.value = this.action.raffleData.command || "";
-				this.param_enterDuration.value = this.action.raffleData.duration_s/60;
-				this.param_maxUsersToggle.value = this.param_maxEntries.value > 0;
-				this.param_maxEntries.value = this.action.raffleData.maxEntries ?? 0;
-				this.param_multipleJoin.value = this.action.raffleData.multipleJoin === true;
+				this.param_maxUsersToggle.value = this.action.raffleData.maxEntries > 0;
 				this.param_reward.value = this.action.raffleData.reward_id != undefined;
-				this.param_rewardvalue.value = this.action.raffleData.reward_id || "";
-				this.param_ponderateVotes_follower.value = this.action.raffleData.followRatio ?? 0;
-				this.param_ponderateVotes_vip.value = this.action.raffleData.vipRatio ?? 0;
-				this.param_ponderateVotes_sub.value = this.action.raffleData.subRatio ?? 0;
-				this.param_ponderateVotes_subT2.value = this.action.raffleData.subT2Ratio ?? 0;
-				this.param_ponderateVotes_subT3.value = this.action.raffleData.subT3Ratio ?? 0;
-				this.param_ponderateVotes_subgift.value = this.action.raffleData.subgiftRatio ?? 0;
-				this.param_ponderateVotes.value = this.param_ponderateVotes_vip.value > 0 ||
-											this.param_ponderateVotes_sub.value > 0 ||
-											this.param_ponderateVotes_subT2.value > 0 ||
-											this.param_ponderateVotes_subT3.value > 0 ||
-											this.param_ponderateVotes_subgift.value > 0;
-				this.param_subs_includeGifters.value = this.action.raffleData.subMode_includeGifters ?? false;
-				this.param_subs_excludeGifted.value = this.action.raffleData.subMode_excludeGifted ?? false;
-				this.param_showCountdownOverlay.value = this.action.raffleData.showCountdownOverlay;
-				this.param_customEntries.value = this.action.raffleData.customEntries;
-				this.param_values.value = this.param_values.listValues.find(v => v.value.id === this.action.raffleData.value_id)?.value || this.param_values.listValues[0].value;
-				this.param_values_remove.value = this.action.raffleData.mode == "values"? this.action.raffleData.removeWinningEntry === true : false;
-				this.param_list_remove.value = this.action.raffleData.mode == "manual"? this.action.raffleData.removeWinningEntry === true : false;
+				
+				if(this.triggerMode && this.action) {
+					if(!this.action.raffleData.messages) {
+						this.action.raffleData.messages = reactive({
+							raffleStart:{
+								enabled:false,
+								message:this.$store.i18n.t("params.botMessages.raffleStart")
+							},
+							raffleJoin:{
+								enabled:false,
+								message:this.$store.i18n.t("params.botMessages.raffleJoin")
+							},
+							raffleWinner:{
+								enabled:false,
+								message:this.$store.i18n.t("params.botMessages.raffle")
+							}
+						});
+					}
+				}
 			}
 
 			this.param_customEntries.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
@@ -397,15 +421,7 @@ class RaffleForm extends AbstractSidePanel {
 			this.param_showCountdownOverlay.value = DataStore.get(DataStore.RAFFLE_OVERLAY_COUNTDOWN) === "true";
 		}
 
-		this.param_maxUsersToggle.children = [this.param_maxEntries];
-		this.param_ponderateVotes.children = [
-											this.param_ponderateVotes_vip,
-											this.param_ponderateVotes_follower,
-											this.param_ponderateVotes_sub,
-											this.param_ponderateVotes_subT2,
-											this.param_ponderateVotes_subT3,
-											this.param_ponderateVotes_subgift,
-										];
+		watch(()=>this.localData, ()=>this.onValueChange(), {deep:true});
 	}
 
 	public async mounted():Promise<void> {
@@ -426,16 +442,7 @@ class RaffleForm extends AbstractSidePanel {
 			DataStore.set(DataStore.RAFFLE_OVERLAY_COUNTDOWN, this.param_showCountdownOverlay.value)
 		})
 
-		watch(()=>this.mode, () => this.onValueChange());
-		watch(()=>this.param_commandValue.value, () => this.onValueChange());
-		watch(()=>this.param_rewardvalue.value, () => this.onValueChange());
-		watch(()=>this.param_ponderateVotes_vip.value, () => this.onValueChange());
-		watch(()=>this.param_ponderateVotes_follower.value, () => this.onValueChange());
-		watch(()=>this.param_ponderateVotes_sub.value, () => this.onValueChange());
-		watch(()=>this.param_ponderateVotes_subT2.value, () => this.onValueChange());
-		watch(()=>this.param_ponderateVotes_subT3.value, () => this.onValueChange());
-		watch(()=>this.param_ponderateVotes_subgift.value, () => this.onValueChange());
-		watch(()=>this.param_maxEntries.value, () => this.onValueChange());
+		watch(()=>this.localData.mode, () => this.onValueChange());
 
 		this.onValueChange();
 
@@ -454,9 +461,13 @@ class RaffleForm extends AbstractSidePanel {
 	 * Create a raffle
 	 */
 	public async submitForm():Promise<void> {
-		const payload:TwitchatDataTypes.RaffleData = this.finalData;
+		if(this.triggerMode) return;
+
+		const payload:TwitchatDataTypes.RaffleData = this.localData;
+		payload.messages = undefined;
+
 		//Sub mode specifics
-		if(this.mode == "sub") {
+		if(this.localData.mode == "sub") {
 			let subs = Utils.shuffle(await TwitchUtils.getSubsList(false));
 			let interval = setInterval(()=> {
 				this.winnerTmp = Utils.pickRand(subs).user_name;
@@ -477,7 +488,7 @@ class RaffleForm extends AbstractSidePanel {
 
 		this.pickingEntry = true;
 		await this.$store.raffle.startRaffle(payload);
-		if(this.mode == "chat") {
+		if(this.localData.mode == "chat") {
 			this.close();
 		}else{
 			await Utils.promisedTimeout(500);
@@ -485,7 +496,7 @@ class RaffleForm extends AbstractSidePanel {
 		this.pickingEntry = false;
 
 
-		if(!this.triggerMode && this.finalData.mode == "manual") {
+		if(!this.triggerMode && this.localData.mode == "manual") {
 			this.param_customEntries.value = payload.customEntries;
 		}
 	}
@@ -499,10 +510,44 @@ class RaffleForm extends AbstractSidePanel {
 	}
 
 	public onValueChange():void {
-		if(this.action) {
-			if(this.triggerMode !== false) this.param_command.value = true;
-			this.action.raffleData = this.finalData;
+		let cmd = "";
+		if(this.param_command.value === true) {
+			cmd = this.param_commandValue.value || this.$t("raffle.params.command_placeholder");
 		}
+		
+		if(this.param_ponderateVotes.value == false) {
+			this.localData.vipRatio = 0;
+			this.localData.followRatio = 0;
+			this.localData.subRatio = 0;
+			this.localData.subT2Ratio = 0;
+			this.localData.subT3Ratio = 0;
+			this.localData.subgiftRatio = 0;
+		}else{
+			this.localData.vipRatio = this.localData.vipRatio || 1;
+			this.localData.followRatio = this.localData.followRatio || 1;
+			this.localData.subRatio = this.localData.subRatio || 1;
+			this.localData.subT2Ratio = this.localData.subT2Ratio || 1;
+			this.localData.subT3Ratio = this.localData.subT3Ratio || 1;
+			this.localData.subgiftRatio = this.localData.subgiftRatio || 1;
+		}
+		
+		if(this.param_maxUsersToggle.value == false) {
+			this.localData.maxEntries = 0;
+		}else{
+			this.localData.maxEntries = this.localData.maxEntries || 100;
+		}
+		
+		if(this.param_reward.value == false) {
+			this.localData.reward_id = "";
+		}
+
+		this.localData.command = cmd;
+		if(this.action) {
+			// this.param_rewardvalue.value = this.action.raffleData.reward_id || "";
+			this.action.raffleData = this.localData;
+		}
+		
+		this.localData.value_id = this.param_values.selectedListValue?.value.id;
 	}
 
 	public requestSubPermission():void {
@@ -526,9 +571,23 @@ export default toNative(RaffleForm);
 		max-width: 600px;
 	}
 
+	.triggerInfo {
+		font-size: .8em;
+		line-height: 1.4em;
+		.icon {
+			height: 1em;
+			margin-right: .25em;
+		}
+	}
+
 	.content {
 		.voiceHelper {
 			margin: auto;
+		}
+
+		.info {
+			font-size: .9em;
+			background-color: var(--color-primary-fader);
 		}
 
 		.form {
