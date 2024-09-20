@@ -73,7 +73,10 @@ export const storeRaffle = defineStore('raffle', {
 						}
 						if(payload.reward_id) {
 							const reward = StoreProxy.rewards.rewardList.find(v=>v.id == payload.reward_id);
-							if(reward) message = message.replace(/\{REWARD\}/gi, reward.title);
+							if(reward) {
+								message = message.replace(/\{REWARD\}/gi, reward.title);
+								message = message.replace(/\{CMD\}/gi, reward.title);
+							}
 						}
 						MessengerProxy.instance.sendMessage(message);
 					}
