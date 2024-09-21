@@ -647,7 +647,7 @@ export default class YoutubeHelper {
 					liveChatId:live,
 					type:"textMessageEvent",
 					textMessageDetails: {
-						messageText:message
+						messageText:message.substring(0, 200)//TODO split into multiple messages instead of just truncating
 					}
 				}
 			}
