@@ -50,7 +50,7 @@ class ChannelNotifications extends AbstractSidePanel {
 	public get showHypeTrain():boolean { return this.currentContent == 'train' && this.$store.stream.hypeTrain != undefined; }
 	public get showPoll():boolean { return this.currentContent == 'poll' && this.$store.poll.data?.id != null && this.$store.poll.data?.isFake != true; }
 	public get showPrediction():boolean { return this.currentContent == 'prediction' && this.$store.prediction.data?.id != null && this.$store.prediction.data?.isFake != true; }
-	public get showRaffle():boolean { return this.currentContent == 'raffle' && this.$store.raffle.raffleList != null && this.$store.raffle.raffleList.filter(v=>v.mode === "chat").length > 0; }
+	public get showRaffle():boolean { return this.currentContent == 'raffle' && this.$store.raffle.raffleList != null && this.$store.raffle.raffleList.filter(v=>v.mode === "chat" || v.mode === "tips").length > 0; }
 	public get showBingo():boolean { return this.currentContent == 'bingo' && this.$store.bingo.data != null; }
 
 	public get showClose():boolean {

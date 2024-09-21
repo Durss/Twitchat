@@ -82,7 +82,8 @@
 						</div>
 
 						<ParamItem  :paramData="param_campaignId[overlay.id]" v-model="overlay.campaignId" @change="save(overlay.id)"
-							v-if="(overlay.dataSource == 'streamlabs_charity' || overlay.dataSource == 'tiltify') && (param_campaignId[overlay.id].listValues || []).length > 0" :childLevel="1" noBackground />
+							v-if="(overlay.dataSource == 'streamlabs_charity' || overlay.dataSource == 'tiltify') && (param_campaignId[overlay.id].listValues || []).length > 0"
+							:childLevel="1" noBackground />
 
 						<ParamItem :paramData="param_counterId[overlay.id]" v-model="overlay.counterId" @change="save(overlay.id)"
 							v-if="overlay.dataSource == 'counter' && (param_counterId[overlay.id].listValues || []).length > 0" :childLevel="1" noBackground />
@@ -91,6 +92,27 @@
 							<div class="holder">
 								<span><Icon name="streamlabs"/>{{ $t("donation_goals.param_campaignId") }}:</span>
 								<a :href="$store.streamlabs.charityTeam?.pageUrl" target="_blank"><Icon name="newtab"/>{{ $store.streamlabs.charityTeam?.title }}</a>
+							</div>
+							<TTButton icon="download" v-if="!showSLCGoalImport" @click="showSLCGoalImport = true">{{ $t("donation_goals.import_streamlabs_goals") }}</TTButton>
+							<ul v-else-if="!showSLCGoalSuccess">
+								<i18n-t scope="global" keypath="donation_goals.import_streamlabs_step1" tag="li">
+									<template #LINK>
+										<a :href="$t('donation_goals.import_streamlabs_step1_url')" target="_blank"><Icon name="newtab" />{{ $t("donation_goals.import_streamlabs_step1_link") }}</a>
+									</template>
+								</i18n-t>
+								<li>
+									<label for="slc_dg_import_url">{{ $t("donation_goals.import_streamlabs_step2") }}</label>
+									<form @submit.prevent="importDonationGoalsFromSLC(overlay)">
+										<input type="text" id="slc_dg_import_url" v-model="slcGoalImportURL" placeholder="https://streamlabscharity.com/widgets/milestone/...">
+										<TTButton type="submit" :loading="importingSLCGoals" icon="download" primary>{{$t("global.import")}}</TTButton>
+									</form>
+								</li>
+							</ul>
+							<div class="card-item primary"
+							@click="showSLCGoalSuccess = showSLCGoalImport = false;"
+							v-if="showSLCGoalSuccess">
+								<Icon name="checkmark"/>
+								{{$t("donation_goals.import_streamlabs_complete")}}
 							</div>
 						</div>
 					</ParamItem>
@@ -172,6 +194,10 @@ import OverlayInstaller from './OverlayInstaller.vue';
 class OverlayParamsDonationGoal extends Vue {
 
 	public simulateAmount:number = 10;
+	public slcGoalImportURL:string = "";
+	public importingSLCGoals:boolean = false;
+	public showSLCGoalImport:boolean = false;
+	public showSLCGoalSuccess:boolean = false;
 	
 	public param_color:{[overlayId:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_showCurrency:{[overlayId:string]:TwitchatDataTypes.ParameterData<string>} = {};
@@ -256,11 +282,11 @@ class OverlayParamsDonationGoal extends Vue {
 	/**
 	 * Opens the premium section
 	 */
-	public addGoal(overlay:TwitchatDataTypes.DonationGoalOverlayConfig):void {
+	public addGoal(overlay:TwitchatDataTypes.DonationGoalOverlayConfig, title:string = "", amount:number = 0):void {
 		const goal:TwitchatDataTypes.DonationGoalOverlayConfig["goalList"][number] = {
 			id:Utils.getUUID(),
-			amount:0,
-			title:"",
+			amount,
+			title,
 			secret:false,
 			secret_type: "blur",
 		};
@@ -285,6 +311,24 @@ class OverlayParamsDonationGoal extends Vue {
 			i--;
 		}
 		this.save(overlay.id);
+	}
+
+	/**
+	 * Import donation goals from streamlabs charity
+	 * @param id
+	 */
+	public async importDonationGoalsFromSLC(overlay:TwitchatDataTypes.DonationGoalOverlayConfig):Promise<void> {
+		this.importingSLCGoals = true;
+		const token = this.slcGoalImportURL.split("/").pop();
+		const goalRes = await fetch("https://streamlabscharity.com/api/v1/widgets/milestones/"+token);
+		if(goalRes) {
+			const goalJSON = await goalRes.json() as {campaign:{milestones:{display_name:string, amount:number}[]}};
+			goalJSON.campaign.milestones.forEach(v=> {
+				this.addGoal(overlay, v.display_name, v.amount/100);
+			});
+			this.showSLCGoalSuccess = true;
+		}
+		this.importingSLCGoals = false;
 	}
 
 	/**
@@ -382,9 +426,13 @@ export default toNative(OverlayParamsDonationGoal);
 		margin-top: .5em;
 	}
 	.charityDetails {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
 		.icon {
 			height: 1em;
-			margin-right: .5em;
+			margin-right: .25em;
+			vertical-align: middle;
 		}
 		.holder {
 			display: flex;
@@ -392,6 +440,35 @@ export default toNative(OverlayParamsDonationGoal);
 			justify-content: space-between;
 			a {
 				flex-basis: 300px;
+			}
+		}
+
+		ul {
+			list-style-position: inside;
+			li:not(last-child) {
+				margin-bottom: .5em;
+			}
+			form {
+				display: flex;
+				flex-direction: row;
+				flex-grow: 1;
+				margin-top: .25em;
+				
+				input {
+					width: 0;
+					flex-grow: 1;
+				}
+				&>* {
+					border-radius: 0;
+				}
+				&>:first-child {
+					border-top-left-radius: var(--border-radius);
+					border-bottom-left-radius: var(--border-radius);
+				}
+				&>:last-child {
+					border-top-right-radius: var(--border-radius);
+					border-bottom-right-radius: var(--border-radius);
+				}
 			}
 		}
 	}

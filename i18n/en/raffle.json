@@ -6,7 +6,7 @@
 		"chat": {
 			"title": "Chat",
 			"startBt_aria": "Start raffle",
-			"description": "Randomly pick someone amongst users that sent a chat command",
+			"description": "Let your viewers enter the raffle from a chat command or a channel point reward",
 			"triggers":"Allow viewers to enter raffle by subscribing, following, raiding and more from {LINK} thanks to the {ACTION} trigger action",
 			"triggers_link":"the triggers"
 		},
@@ -15,6 +15,11 @@
 			"description": "Randomly pick someone amongst all your current subscribers",
 			"startBt_aria": "Pick a sub",
 			"startBt": "Pick a sub {COUNT}"
+		},
+		"tips": {
+			"title": "Tips",
+			"description": "Let users enter raffle by making a donation",
+			"minAmount_suffix": "min"
 		},
 		"list": {
 			"title": "List",
@@ -41,7 +46,7 @@
 			"timer_overlay_add": "{LINK} on your OBS scenes to display the remaining time on your stream",
 			"timer_overlay_add_link": "Add a timer overlay",
 			"postOnChat_start": "Announce raffle start on chat",
-			"postOnChat_join": "Confirm when joining the raffle",
+			"postOnChat_join": "Confirm when entering the raffle",
 			"postOnChat_winner": "Post raffle winner on chat",
 			"countdown": "Show countdown overlay",
 			"message_cmd_placeholder": "Command users have to send",
@@ -52,15 +57,23 @@
 			"description": "All raffle entries will be lost"
 		},
 		"params": {
-			"command_join": "Join with a chat command",
+			"command_join": "Enter with a chat command",
 			"command": "Command",
 			"command_placeholder": "!raffle",
-			"reward_join": "Join with a channel points reward",
+			"reward_join": "Enter with a channel points reward",
 			"reward": "Reward",
+			"tip_join": "Enter with a tip",
+			"tip_kofi":"Ko-fi",
+			"tip_streamlabs":"Streamlabs",
+			"tip_streamlabsCharity":"Streamlabs Charity",
+			"tip_streamelements":"Streamelements",
+			"tip_tipeee":"Tipeee",
+			"tip_tiltify":"Tiltify",
+			"tip_minAmount":"Min tip amount",
 			"duration": "Raffle duration ({VALUE} minutes)",
 			"limit_users": "Limit users count",
 			"max_users": "Max user count",
-			"multiple_join": "Users can join multiple times",
+			"multiple_join": "Users can enter multiple times",
 			"ponderate": "Weight entries\n(additional points given for every matching criteria)",
 			"ponderate_VIP": "VIP",
 			"ponderate_sub": "Subscriber T1/prime",

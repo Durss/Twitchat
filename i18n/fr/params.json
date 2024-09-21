@@ -122,8 +122,11 @@
 		},
 		"botMessages": {
 			"raffleStart": "/announce 🎉🎉🎉 Le tirage au sort a commencé 🎉🎉🎉 Rejoignez le tirage avec la commande {CMD} ?",
-			"raffle": "/announce 🎉🎉🎉 {USER} a remporté le tirage au sort 🎉🎉🎉",
+			"raffleTipsStart": "/announce 🎉🎉🎉 Le tirage au sort a commencé 🎉🎉🎉 Rejoignez le tirage en faisant un don sur {PLATFORMS} ?",
 			"raffleJoin": "VoteYea {USER} tu as rejoint le tirage au sort.",
+			"raffleTipsJoin": "VoteYea {USER} a rejoint le tirage au sort en donnant {AMOUNT} sur {PLATFORM}.",
+			"raffle": "/announce 🎉🎉🎉 {USER} a remporté le tirage au sort 🎉🎉🎉",
+			"raffleTipsWinner": "/announce 🎉🎉🎉 {USER} a remporté le tirage au sort en donnant {AMOUNT} sur {PLATFORM} 🎉🎉🎉",
 			"bingoStart": "/announce 🎉🎉🎉 Un bingo a débuté 🎉🎉🎉 {GOAL}",
 			"bingo": "/announce 🎉🎉🎉 {USER} remporte le bingo 🎉🎉🎉",
 			"shoutout": "/announce Allez voir {USER} {URL} . Son dernier stream était \"{TITLE}\" dans la catégorie \"{CATEGORY}\".",

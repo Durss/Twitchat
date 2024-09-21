@@ -9,9 +9,9 @@
 		</div>
 
 		<TabMenu class="menu" v-model="localData.mode"
-			:values="['chat','sub','manual','values']"
-			:labels="[$t('raffle.chat.title'), $t('raffle.subs.title'), $t('raffle.list.title'), $t('raffle.values.title')]"
-			:icons="['commands', 'sub', 'list', 'placeholder']" />
+			:values="['chat','sub','tips','manual','values']"
+			:labels="[$t('raffle.chat.title'), $t('raffle.subs.title'), $t('raffle.tips.title'), $t('raffle.list.title'), $t('raffle.values.title')]"
+			:icons="['whispers', 'sub', 'coin', 'list', 'placeholder']" />
 
 		<div class="content">
 			<ToggleBlock class="legal tips" v-if="triggerMode === false && localData.mode!='manual' && localData.mode!='values'" :icons="['info']" small :title="$t('raffle.legal.title')" :open="false">
@@ -26,13 +26,14 @@
 				<ParamItem :paramData="param_command" v-model="param_command.value" :autofocus="true" @change="onValueChange()">
 					<ParamItem class="child" noBackground :paramData="param_commandValue" v-model="localData.command" :autofocus="true" />
 				</ParamItem>
+				
 				<ParamItem :paramData="param_reward" v-model="param_reward.value" @change="onValueChange()" v-if="param_rewardvalue.listValues!.length > 1">
 					<ParamItem class="child" noBackground :paramData="param_rewardvalue" v-model="localData.reward_id" />
 				</ParamItem>
 
 				<ParamItem :paramData="param_enterDuration" v-model="localData.duration_s" />
 
-				<ToggleBlock class="configs" :icons="['params']" v-if="localData.mode=='chat'" :title="$t('global.advanced_params')" :open="false">
+				<ToggleBlock class="configs" :icons="['params']" :title="$t('global.advanced_params')" :open="false">
 					<ParamItem :paramData="param_multipleJoin"  v-model="localData.multipleJoin" />
 					<ParamItem :paramData="param_maxUsersToggle"  v-model="param_maxUsersToggle.value" @change="onValueChange()">
 						<ParamItem class="child" noBackground :paramData="param_maxEntries" v-model="localData.maxEntries" />
@@ -48,8 +49,7 @@
 
 					<ParamItem
 					:paramData="param_showCountdownOverlay"
-					v-model="localData.showCountdownOverlay"
-					v-if="localData.mode=='chat'">
+					v-model="localData.showCountdownOverlay">
 						<i18n-t scope="global" tag="div" class="details"
 						v-if="localData.showCountdownOverlay === true && localData.mode=='chat'"
 						keypath="raffle.configs.timer_overlay_add">
@@ -60,7 +60,6 @@
 					</ParamItem>
 
 					<PostOnChatParam :botMessageKey="triggerMode? '' : 'raffleStart'"
-						v-if="localData.mode=='chat'"
 						:placeholders="startPlaceholders"
 						v-model:text="localData.messages!.raffleStart!.message"
 						v-model:enabled="localData.messages!.raffleStart!.enabled"
@@ -68,7 +67,6 @@
 						titleKey="raffle.configs.postOnChat_start"
 					/>
 					<PostOnChatParam :botMessageKey="triggerMode? '' : 'raffleJoin'"
-						v-if="localData.mode=='chat'"
 						:placeholders="joinPlaceholders"
 						v-model:text="localData.messages!.raffleJoin!.message"
 						v-model:enabled="localData.messages!.raffleJoin!.enabled"
@@ -101,6 +99,80 @@
 						</template>
 					</i18n-t>
 				</div>
+			</form>
+
+			<form class="form" v-else-if="localData.mode=='tips' && canListSubs" @submit.prevent="submitForm()">
+				<div class="card-item info">{{ $t("raffle.tips.description") }}</div>
+				<ParamItem :paramData="param_tip_kofi" v-model="localData.tip_kofi">
+					<ParamItem class="child" noBackground :paramData="param_tip_kofi_minAmount" v-model="localData.tip_kofi_minAmount" />
+				</ParamItem>
+				<ParamItem :paramData="param_tip_streamlabs" v-model="localData.tip_streamlabs">
+					<ParamItem class="child" noBackground :paramData="param_tip_streamlabs_minAmount" v-model="localData.tip_streamlabs_minAmount" />
+				</ParamItem>
+				<ParamItem :paramData="param_tip_streamlabsCharity" v-model="localData.tip_streamlabsCharity">
+					<ParamItem class="child" noBackground :paramData="param_tip_streamlabsCharity_minAmount" v-model="localData.tip_streamlabsCharity_minAmount" />
+				</ParamItem>
+				<ParamItem :paramData="param_tip_streamlements" v-model="localData.tip_streamelements">
+					<ParamItem class="child" noBackground :paramData="param_tip_streamlements_minAmount" v-model="localData.tip_streamelements_minAmount" />
+				</ParamItem>
+				<ParamItem :paramData="param_tip_tipeee" v-model="localData.tip_tipeee">
+					<ParamItem class="child" noBackground :paramData="param_tip_tipeee_minAmount" v-model="localData.tip_tipeee_minAmount" />
+				</ParamItem>
+				<ParamItem :paramData="param_tip_tiltify" v-model="localData.tip_tiltify">
+					<ParamItem class="child" noBackground :paramData="param_tip_tiltify_minAmount" v-model="localData.tip_tiltify_minAmount" />
+				</ParamItem>
+
+				<ParamItem :paramData="param_enterDuration" v-model="localData.duration_s" />
+
+				<ToggleBlock class="configs" :icons="['params']" :title="$t('global.advanced_params')" :open="false">
+					<ParamItem :paramData="param_maxUsersToggle"  v-model="param_maxUsersToggle.value" @change="onValueChange()">
+						<ParamItem class="child" noBackground :paramData="param_maxEntries" v-model="localData.maxEntries" />
+					</ParamItem>
+
+					<ParamItem
+					:paramData="param_showCountdownOverlay"
+					v-model="localData.showCountdownOverlay">
+						<i18n-t scope="global" tag="div" class="details"
+						v-if="localData.showCountdownOverlay === true"
+						keypath="raffle.configs.timer_overlay_add">
+							<template #LINK>
+								<a @click="openParam('overlays')">{{ $t("raffle.configs.timer_overlay_add_link") }}</a>
+							</template>
+						</i18n-t>
+					</ParamItem>
+
+					<PostOnChatParam :botMessageKey="triggerMode? '' : 'raffleTipsStart'"
+						:placeholders="startTipsPlaceholders"
+						v-model:text="localData.messages!.raffleStart!.message"
+						v-model:enabled="localData.messages!.raffleStart!.enabled"
+						icon="announcement"
+						titleKey="raffle.configs.postOnChat_start"
+					/>
+					<PostOnChatParam :botMessageKey="triggerMode? '' : 'raffleTipsJoin'"
+						:placeholders="joinTipsPlaceholders"
+						v-model:text="localData.messages!.raffleJoin!.message"
+						v-model:enabled="localData.messages!.raffleJoin!.enabled"
+						icon="announcement"
+						titleKey="raffle.configs.postOnChat_join"
+					/>
+					<PostOnChatParam :botMessageKey="triggerMode? '' : 'raffleTipsWinner'"
+						:placeholders="winnerTipsPlaceholders"
+						v-model:text="localData.messages!.raffleWinner!.message"
+						v-model:enabled="localData.messages!.raffleWinner!.enabled"
+						icon="announcement"
+						titleKey="raffle.configs.postOnChat_winner"
+					/>
+				</ToggleBlock>
+
+				<TTButton type="submit" icon="ticket"
+					v-if="triggerMode === false"
+					:aria-label="$t('raffle.chat.startBt_aria')"
+					:disabled="localData.tip_kofi!==true
+							&& localData.tip_streamlabs!==true
+							&& localData.tip_streamlabsCharity!==true
+							&& localData.tip_streamelements!==true
+							&& localData.tip_tipeee!==true
+							&& localData.tip_tiltify!==true">{{ $t('global.start') }}</TTButton>
 			</form>
 
 			<form class="form" v-else-if="localData.mode=='sub' && canListSubs" @submit.prevent="submitForm()">
@@ -247,32 +319,46 @@ class RaffleForm extends AbstractSidePanel {
 	public winner:string|null = null;
 	public winnerTmp:string|null = null;
 
-	public param_command:TwitchatDataTypes.ParameterData<boolean, any, any>		= {value:true, type:"boolean", labelKey:"raffle.params.command_join", icon:"commands"};
-	public param_commandValue:TwitchatDataTypes.ParameterData<string>			= {value:"", type:"string", labelKey:"raffle.params.command", placeholderKey:"raffle.params.command_placeholder"};
-	public param_reward:TwitchatDataTypes.ParameterData<boolean, any, any>		= {value:false, type:"boolean", labelKey:"raffle.params.reward_join", icon:"channelPoints"};
-	public param_rewardvalue:TwitchatDataTypes.ParameterData<string>			= {value:"", type:"list", listValues:[], labelKey:"raffle.params.reward", placeholderKey:"raffle.params.command_placeholder"};
-	public param_enterDuration:TwitchatDataTypes.ParameterData<number>			= {value:600, type:"duration", min:1, max:24*60*60, labelKey:"raffle.params.duration", icon:"timer"};
-	public param_maxUsersToggle:TwitchatDataTypes.ParameterData<boolean, any, any>= {value:false, type:"boolean", labelKey:"raffle.params.limit_users", icon:"user"};
-	public param_maxEntries:TwitchatDataTypes.ParameterData<number>				= {value:10, type:"number", min:0, max:1000000, labelKey:"raffle.params.max_users", icon:"user"};
-	public param_multipleJoin:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.multiple_join", icon:"user"};
-	public param_ponderateVotes:TwitchatDataTypes.ParameterData<boolean, any, any>= {value:false, type:"boolean", labelKey:"raffle.params.ponderate"};
-	public param_ponderateVotes_vip:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"vip", labelKey:"raffle.params.ponderate_VIP"};
-	public param_ponderateVotes_sub:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"sub", labelKey:"raffle.params.ponderate_sub"};
-	public param_ponderateVotes_subT2:TwitchatDataTypes.ParameterData<number>	= {value:0, type:"number", min:0, max:100, icon:"sub", labelKey:"raffle.params.ponderate_subT2", twitch_scopes:[TwitchScopes.LIST_SUBSCRIBERS]};
-	public param_ponderateVotes_subT3:TwitchatDataTypes.ParameterData<number>	= {value:0, type:"number", min:0, max:100, icon:"sub", labelKey:"raffle.params.ponderate_subT3", twitch_scopes:[TwitchScopes.LIST_SUBSCRIBERS]};
-	public param_ponderateVotes_subgift:TwitchatDataTypes.ParameterData<number>	= {value:0, type:"number", min:0, max:100, icon:"gift", labelKey:"raffle.params.ponderate_subgifter"};
-	public param_ponderateVotes_follower:TwitchatDataTypes.ParameterData<number>= {value:0, type:"number", min:0, max:100, icon:"follow", labelKey:"raffle.params.ponderate_follower", twitch_scopes:[TwitchScopes.LIST_FOLLOWERS]};
-	public param_subs_includeGifters:TwitchatDataTypes.ParameterData<boolean>	= {value:true, type:"boolean", icon:"gift", labelKey:"raffle.params.ponderate_include_gifter"};
-	public param_subs_excludeGifted:TwitchatDataTypes.ParameterData<boolean>	= {value:true, type:"boolean", icon:"sub", labelKey:"raffle.params.ponderate_exclude_gifted"};
-	public param_showCountdownOverlay:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", icon:"countdown", labelKey:"raffle.configs.countdown"};
-	public param_customEntries:TwitchatDataTypes.ParameterData<string>			= {value:"", type:"string", longText:true, maxLength:10000, placeholderKey:"raffle.params.list_placeholder"};
+	public param_command:TwitchatDataTypes.ParameterData<boolean, any, any>				= {value:true, type:"boolean", labelKey:"raffle.params.command_join", icon:"commands"};
+	public param_commandValue:TwitchatDataTypes.ParameterData<string>					= {value:"", type:"string", labelKey:"raffle.params.command", placeholderKey:"raffle.params.command_placeholder"};
+	public param_reward:TwitchatDataTypes.ParameterData<boolean, any, any>				= {value:false, type:"boolean", labelKey:"raffle.params.reward_join", icon:"channelPoints"};
+	public param_rewardvalue:TwitchatDataTypes.ParameterData<string>					= {value:"", type:"list", listValues:[], labelKey:"raffle.params.reward", placeholderKey:"raffle.params.command_placeholder"};
+	public param_tip_kofi:TwitchatDataTypes.ParameterData<boolean>						= {value:false, type:"boolean", labelKey:"raffle.params.tip_kofi", icon:"kofi"};
+	public param_tip_streamlabs:TwitchatDataTypes.ParameterData<boolean>				= {value:false, type:"boolean", labelKey:"raffle.params.tip_streamlabs", icon:"streamlabs"};
+	public param_tip_streamlabsCharity:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.tip_streamlabsCharity", icon:"charity"};
+	public param_tip_streamlements:TwitchatDataTypes.ParameterData<boolean>				= {value:false, type:"boolean", labelKey:"raffle.params.tip_streamelements", icon:"streamelements"};
+	public param_tip_tipeee:TwitchatDataTypes.ParameterData<boolean>					= {value:false, type:"boolean", labelKey:"raffle.params.tip_tipeee", icon:"tipeee"};
+	public param_tip_tiltify:TwitchatDataTypes.ParameterData<boolean>					= {value:false, type:"boolean", labelKey:"raffle.params.tip_tiltify", icon:"tiltify"};
+	public param_tip_kofi_minAmount:TwitchatDataTypes.ParameterData<number>				= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
+	public param_tip_streamlabs_minAmount:TwitchatDataTypes.ParameterData<number>		= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
+	public param_tip_streamlabsCharity_minAmount:TwitchatDataTypes.ParameterData<number>= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
+	public param_tip_streamlements_minAmount:TwitchatDataTypes.ParameterData<number>	= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
+	public param_tip_tipeee_minAmount:TwitchatDataTypes.ParameterData<number>			= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
+	public param_tip_tiltify_minAmount:TwitchatDataTypes.ParameterData<number>			= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
+	public param_enterDuration:TwitchatDataTypes.ParameterData<number>					= {value:600, type:"duration", min:1, max:24*60*60, labelKey:"raffle.params.duration", icon:"timer"};
+	public param_maxUsersToggle:TwitchatDataTypes.ParameterData<boolean, any, any>		= {value:false, type:"boolean", labelKey:"raffle.params.limit_users", icon:"user"};
+	public param_maxEntries:TwitchatDataTypes.ParameterData<number>						= {value:10, type:"number", min:0, max:1000000, labelKey:"raffle.params.max_users", icon:"user"};
+	public param_multipleJoin:TwitchatDataTypes.ParameterData<boolean>					= {value:false, type:"boolean", labelKey:"raffle.params.multiple_join", icon:"user"};
+	public param_ponderateVotes:TwitchatDataTypes.ParameterData<boolean, any, any>		= {value:false, type:"boolean", labelKey:"raffle.params.ponderate"};
+	public param_ponderateVotes_vip:TwitchatDataTypes.ParameterData<number>				= {value:0, type:"number", min:0, max:100, icon:"vip", labelKey:"raffle.params.ponderate_VIP"};
+	public param_ponderateVotes_sub:TwitchatDataTypes.ParameterData<number>				= {value:0, type:"number", min:0, max:100, icon:"sub", labelKey:"raffle.params.ponderate_sub"};
+	public param_ponderateVotes_subT2:TwitchatDataTypes.ParameterData<number>			= {value:0, type:"number", min:0, max:100, icon:"sub", labelKey:"raffle.params.ponderate_subT2", twitch_scopes:[TwitchScopes.LIST_SUBSCRIBERS]};
+	public param_ponderateVotes_subT3:TwitchatDataTypes.ParameterData<number>			= {value:0, type:"number", min:0, max:100, icon:"sub", labelKey:"raffle.params.ponderate_subT3", twitch_scopes:[TwitchScopes.LIST_SUBSCRIBERS]};
+	public param_ponderateVotes_subgift:TwitchatDataTypes.ParameterData<number>			= {value:0, type:"number", min:0, max:100, icon:"gift", labelKey:"raffle.params.ponderate_subgifter"};
+	public param_ponderateVotes_follower:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"follow", labelKey:"raffle.params.ponderate_follower", twitch_scopes:[TwitchScopes.LIST_FOLLOWERS]};
+	public param_subs_includeGifters:TwitchatDataTypes.ParameterData<boolean>			= {value:true, type:"boolean", icon:"gift", labelKey:"raffle.params.ponderate_include_gifter"};
+	public param_subs_excludeGifted:TwitchatDataTypes.ParameterData<boolean>			= {value:true, type:"boolean", icon:"sub", labelKey:"raffle.params.ponderate_exclude_gifted"};
+	public param_showCountdownOverlay:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", icon:"countdown", labelKey:"raffle.configs.countdown"};
+	public param_customEntries:TwitchatDataTypes.ParameterData<string>					= {value:"", type:"string", longText:true, maxLength:10000, placeholderKey:"raffle.params.list_placeholder"};
 	public param_values:TwitchatDataTypes.ParameterData<TwitchatDataTypes.ValueData|null, TwitchatDataTypes.ValueData, undefined, TwitchatDataTypes.ValueData>	= {value:null, type:"list", labelKey:"raffle.params.value_placeholder", icon:"placeholder"};
-	public param_values_splitter:TwitchatDataTypes.ParameterData<string>		= {value:",", type:"string", maxLength:5, labelKey:"raffle.params.value_splitter", icon:"splitter"};
-	public param_values_remove:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.value_remove", icon:"trash"};
-	public param_list_remove:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.list_remove", icon:"trash"};
+	public param_values_splitter:TwitchatDataTypes.ParameterData<string>				= {value:",", type:"string", maxLength:5, labelKey:"raffle.params.value_splitter", icon:"splitter"};
+	public param_values_remove:TwitchatDataTypes.ParameterData<boolean>					= {value:false, type:"boolean", labelKey:"raffle.params.value_remove", icon:"trash"};
+	public param_list_remove:TwitchatDataTypes.ParameterData<boolean>					= {value:false, type:"boolean", labelKey:"raffle.params.list_remove", icon:"trash"};
 
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
+	public winnerTipsPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	public joinPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
+	public joinTipsPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 
 	public localData:TwitchatDataTypes.RaffleData = {
 		mode:"chat",
@@ -296,6 +382,18 @@ class RaffleForm extends AbstractSidePanel {
 		value_id: undefined,
 		value_splitter: undefined,
 		removeWinningEntry: false,
+		tip_kofi:false,
+		tip_streamlabs:false,
+		tip_streamlabsCharity:false,
+		tip_streamelements:false,
+		tip_tipeee:false,
+		tip_tiltify:false,
+		tip_kofi_minAmount:1,
+		tip_streamlabs_minAmount:1,
+		tip_streamlabsCharity_minAmount:1,
+		tip_streamelements_minAmount:1,
+		tip_tipeee_minAmount:1,
+		tip_tiltify_minAmount:1,
 		messages: {
 			raffleStart:{
 				enabled:false,
@@ -365,11 +463,72 @@ class RaffleForm extends AbstractSidePanel {
 		];
 	}
 
+	public get startTipsPlaceholders():TwitchatDataTypes.PlaceholderEntry[] {
+		const platforms:string[] = [];
+		const minSuffix = this.$t("raffle.tips.minAmount_suffix");
+		if(this.localData.tip_kofi){
+			let label = "Ko-Fi";
+			if((this.localData.tip_kofi_minAmount || 0) > 0) {
+				label += " ("+this.localData.tip_kofi_minAmount+"🪙"+minSuffix+")";
+			}
+			platforms.push(label);
+		}
+		if(this.localData.tip_streamlabs){
+			let label = "Streamlabs";
+			if((this.localData.tip_streamlabs_minAmount || 0) > 0) {
+				label += " ("+this.localData.tip_streamlabs_minAmount+"🪙"+minSuffix+")";
+			}
+			platforms.push(label);
+		}
+		if(this.localData.tip_streamlabsCharity){
+			let label = "Streamlabs Charity";
+			if((this.localData.tip_streamlabsCharity_minAmount || 0) > 0) {
+				label += " ("+this.localData.tip_streamlabsCharity_minAmount+"🪙"+minSuffix+")";
+			}
+			platforms.push(label);
+		}
+		if(this.localData.tip_streamelements){
+			let label = "Streamelements";
+			if((this.localData.tip_streamelements_minAmount || 0) > 0) {
+				label += " ("+this.localData.tip_streamelements_minAmount+"🪙"+minSuffix+")";
+			}
+			platforms.push(label);
+		}
+		if(this.localData.tip_tipeee){
+			let label = "Tipeee";
+			if((this.localData.tip_tipeee_minAmount || 0) > 0) {
+				label += " ("+this.localData.tip_tipeee_minAmount+"🪙"+minSuffix+")";
+			}
+			platforms.push(label);
+		}
+		if(this.localData.tip_tiltify){
+			let label = "Tiltify";
+			if((this.localData.tip_tiltify_minAmount || 0) > 0) {
+				label += " ("+this.localData.tip_tiltify_minAmount+"🪙"+minSuffix+")";
+			}
+			platforms.push(label);
+		}
+		
+		return [
+			{tag:"PLATFORMS", descKey:"raffle.configs.message_cmd_placeholder", example:platforms.join(", ")},
+		];
+	}
+
 	public get canListSubs():boolean { return TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS]); }
 
 	public beforeMount(): void {
 		this.winnerPlaceholders			= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store.auth.twitch.user.displayNameOriginal}];
 		this.joinPlaceholders			= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store.auth.twitch.user.displayNameOriginal+", @Twitch, @Durss"}];
+		this.winnerTipsPlaceholders		= [
+			{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store.auth.twitch.user.displayNameOriginal},
+			{tag:"AMOUNT", descKey:"raffle.params.amount_placeholder", example:"$25"},
+			{tag:"PLATFORM", descKey:"raffle.params.amount_placeholder", example:"Streamlabs"},
+		];
+		this.joinTipsPlaceholders		= [
+			{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store.auth.twitch.user.displayNameOriginal+", Twitch, Durss"},
+			{tag:"AMOUNT", descKey:"raffle.params.amount_placeholder", example:"$25"},
+			{tag:"PLATFORM", descKey:"raffle.params.amount_placeholder", example:"Streamlabs"},
+		];
 
 		this.param_rewardvalue.listValues = [{value:undefined, labelKey:"global.select_placeholder"}];
 
@@ -488,7 +647,7 @@ class RaffleForm extends AbstractSidePanel {
 
 		this.pickingEntry = true;
 		await this.$store.raffle.startRaffle(payload);
-		if(this.localData.mode == "chat") {
+		if(this.localData.mode == "chat" || this.localData.mode == "tips") {
 			this.close();
 		}else{
 			await Utils.promisedTimeout(500);

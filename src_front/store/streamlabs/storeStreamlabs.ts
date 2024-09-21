@@ -165,11 +165,10 @@ export const storeStreamlabs = defineStore('streamlabs', {
 									switch(message.type) {
 										case "streamlabscharitydonation": {
 											ApiHelper.call("log", "POST", {cat:"streamlabs", log:message});
-											console.log("team:", this.charityTeam);
 											if(!this.charityTeam) break;
+											//Parse all donations
 											message.message.forEach(message=> {
-												//Parse all donations
-												console.log(message, this.charityTeam);
+												// console.log(message, this.charityTeam);
 
 												//Ignore if not for currently configure campaign ID
 												if(message.campaignId != this.charityTeam?.campaignId && !message.isTest) return;
@@ -179,7 +178,6 @@ export const storeStreamlabs = defineStore('streamlabs', {
 												const isToSelf = to.toLowerCase() == me.login.toLowerCase() || to.toLowerCase() == me.displayNameOriginal.toLowerCase();
 												const amount = parseFloat(message.amount);
 												this.charityTeam!.amountRaised_cents += amount * 100;
-												console.log("To self?", isToSelf)
 												if(isToSelf) {
 													this.charityTeam!.amountRaisedPersonnal_cents += amount * 100;
 												}
@@ -209,14 +207,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 													userName:message.from,
 													isToSelf,
 												}
-												console.log("MESSAAAAAAAAAAGE", message)
 												StoreProxy.chat.addMessage(data);
-
-												StoreProxy.labels.incrementLabelValue("STREAMLABS_CHARITY_RAISED", data.amount);
-												StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_AMOUNT", data.amount);
-												StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_USER", data.userName);
-												StoreProxy.donationGoals.onDonation(data.userName, data.amount.toString(), "streamlabs_charity");
-												StoreProxy.donationGoals.onSourceValueUpdate("streamlabs_charity");
 											});
 
 											clearTimeout(charityRefreshTimeout);
@@ -400,14 +391,30 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_IMAGE", teamJSON.campaign.causable.avatar.url);
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_NAME", this.charityTeam.title);
 
-			//Get personnal raised amoun
+			let historyAmountCents = 0;
+			let leaderboardAmountCents = 0;
+
+			//Get personnal raised amount from leaderboard
 			const leaderBoardRes = await fetch("https://streamlabscharity.com/api/v1/teams/"+this.charityTeam.id+"/leaderboards");
 			if(teamRes.status == 200) {
 				const leaderboardJSON = await leaderBoardRes.json() as StreamlabsCharityLeaderboardData;
 				const myName = StoreProxy.auth.twitch.user.displayNameOriginal.toLowerCase();
-				this.charityTeam.amountRaisedPersonnal_cents = parseFloat(leaderboardJSON.top_streamers.find(v=>v.display_name.toLowerCase() == myName)?.amount || "0");
-				StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED_PERSONNAL", this.charityTeam.amountRaisedPersonnal_cents/100);
+				leaderboardAmountCents = parseFloat(leaderboardJSON.top_streamers.find(v=>v.display_name.toLowerCase() == myName)?.amount || "0");
 			}
+
+			//Get personal raised amount from donation history
+			const donationsRes = await fetch("https://streamlabscharity.com/api/v1/teams/"+this.charityTeam.id+"/donations");
+			if(donationsRes.status == 200) {
+				const donationsJSON = await donationsRes.json() as StreamlabsCharityDonationHistoryEntry[];
+				const me = StoreProxy.auth.twitch.user;
+				donationsJSON
+				.filter(v => v.member.user.display_name.toLowerCase() === me.login.toLowerCase() || v.member.user.display_name.toLowerCase() === me.displayNameOriginal.toLowerCase())
+				.forEach(v => historyAmountCents += v.donation.converted_amount);
+			}
+
+			//Keep only the highest value between current, history and loeadeboard amounts
+			this.charityTeam.amountRaisedPersonnal_cents = Math.max(this.charityTeam.amountRaisedPersonnal_cents, historyAmountCents, leaderboardAmountCents);
+			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED_PERSONNAL", this.charityTeam.amountRaisedPersonnal_cents/100);
 			
 			const newValues = [];
 			if(this.charityTeam) {
@@ -898,4 +905,39 @@ export interface StreamlabsCharityLeaderboardData {
 			text: string;
 		};
 	}[];
+}
+
+export interface StreamlabsCharityDonationHistoryEntry {
+	id: string;
+	donation: {
+		id: string;
+		display_name: string;
+		amount_usd: number;
+		converted_currency: string;
+		converted_amount: number;
+		original_currency: string;
+		original_amount: number;
+		team_currency: string;
+		team_amount: number;
+		member_currency: string;
+		member_amount: number;
+		country: string;
+		created_at: string;
+		team_member_id: string;
+		comment: {
+			id: string;
+			text: string;
+		};
+		extra_information: any;
+	};
+	member: {
+		id: string;
+		user: {
+			id: string;
+			display_name: string;
+			slug: string;
+			is_live: boolean;
+			currency: string;
+		}
+	}
 }

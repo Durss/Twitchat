@@ -142,7 +142,7 @@
 
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.raffleBt_aria')"
-						v-if="$store.raffle.raffleList && $store.raffle.raffleList.filter(v=>v.mode == 'chat').length > 0"
+						v-if="$store.raffle.raffleList && $store.raffle.raffleList.filter(v=>v.mode == 'chat' || v.mode == 'tips').length > 0"
 						icon="ticket"
 						:count="raffleEntryCount"
 						v-tooltip="{touch:'hold', content:$t('chat.form.raffleBt_aria'), showOnCreate:shouldShowTooltip('raffle'), onHidden:()=>onHideTooltip('raffle')}"
@@ -552,7 +552,7 @@ export class ChatForm extends Vue {
 
 	public get raffleEntryCount():number {
 		let total = 0;
-		this.$store.raffle.raffleList.filter(v=>v.mode == 'chat').forEach(v=> total += v.entries.length);
+		this.$store.raffle.raffleList.filter(v=>v.mode == 'chat' || v.mode == 'tips').forEach(v=> total += v.entries.length);
 		return total;
 	}
 

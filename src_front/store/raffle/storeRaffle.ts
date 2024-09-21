@@ -18,7 +18,7 @@ import DataStore from '../DataStore';
  * as it's a "create/dispose" session flow.
  */
 let ghostEntries:TwitchatDataTypes.RaffleData[] = [];
-let confirmSpool:TwitchatDataTypes.TwitchatUser[] = [];
+let confirmSpool:string[] = [];
 let debounceConfirm:number = -1;
 
 export const storeRaffle = defineStore('raffle', {
@@ -78,6 +78,48 @@ export const storeRaffle = defineStore('raffle', {
 								message = message.replace(/\{CMD\}/gi, reward.title);
 							}
 						}
+						MessengerProxy.instance.sendMessage(message);
+					}
+					break;
+				}
+
+				case "tips": {
+					//Announce start on chat
+					const messageParams = payload.messages?.raffleStart || StoreProxy.chat.botMessages.raffleTipsStart;
+					if(messageParams.enabled) {
+						const platforms:string[] = [];
+						const minSuffix = StoreProxy.i18n.t("raffle.tips.minAmount_suffix");
+						if(payload.tip_kofi){
+							let label = "Ko-Fi";
+							if((payload.tip_kofi_minAmount || 0) > 0)  label += " ("+payload.tip_kofi_minAmount+"🪙"+minSuffix+")";
+							platforms.push(label);
+						}
+						if(payload.tip_streamlabs){
+							let label = "Streamlabs";
+							if((payload.tip_streamlabs_minAmount || 0) > 0)  label += " ("+payload.tip_streamlabs_minAmount+"🪙"+minSuffix+")";
+							platforms.push(label);
+						}
+						if(payload.tip_streamlabsCharity){
+							let label = "Streamlabs Charity";
+							if((payload.tip_streamlabsCharity_minAmount || 0) > 0)  label += " ("+payload.tip_streamlabsCharity_minAmount+"🪙"+minSuffix+")";
+							platforms.push(label);
+						}
+						if(payload.tip_streamelements){
+							let label = "Streamelements";
+							if((payload.tip_streamelements_minAmount || 0) > 0)  label += " ("+payload.tip_streamelements_minAmount+"🪙"+minSuffix+")";
+							platforms.push(label);
+						}
+						if(payload.tip_tipeee){
+							let label = "Tipeee";
+							if((payload.tip_tipeee_minAmount || 0) > 0)  label += " ("+payload.tip_tipeee_minAmount+"🪙"+minSuffix+")";
+							platforms.push(label);
+						}
+						if(payload.tip_tiltify){
+							let label = "Tiltify";
+							if((payload.tip_tiltify_minAmount || 0) > 0)  label += " ("+payload.tip_tiltify_minAmount+"🪙"+minSuffix+")";
+							platforms.push(label);
+						}
+						let message = messageParams.message.replace(/\{PLATFORMS\}/gi, platforms.join(", "));
 						MessengerProxy.instance.sendMessage(message);
 					}
 					break;
@@ -167,11 +209,26 @@ export const storeRaffle = defineStore('raffle', {
 			StoreProxy.chat.addMessage(message);
 
 			//Post result on chat
-			const messageParams = data.messages?.raffleWinner || StoreProxy.chat.botMessages.raffle;
+			const defaultMessage = data.mode == "tips"? StoreProxy.chat.botMessages.raffleTipsWinner : StoreProxy.chat.botMessages.raffle;
+			const messageParams = data.messages?.raffleWinner || defaultMessage;
 			if(messageParams.enabled) {
 				setTimeout(() => {
 					let message = messageParams.message;
 					message = message.replace(/\{USER\}/gi, winner.label);
+					if(winner.tip) {
+						let platform = "";
+						switch(winner.tip?.source) {
+							case "kofi": platform = "Ko-Fi"; break;
+							case "streamlabs": platform = "Streamlabs"; break;
+							case "streamlabs_charity": platform = "Streamlabs Charity"; break;
+							case "streamlements": platform = "Streamlements"; break;
+							case "tipeee": platform = "Tipeee"; break;
+							case "tiltify": platform = "Tiltify"; break;
+							default: platform = "Unknown platform";
+						}
+						message = message.replace(/\{AMOUNT\}/gi, winner.tip.amount);
+						message = message.replace(/\{PLATFORM\}/gi, platform);
+					}
 					MessengerProxy.instance.sendMessage(message);
 				}, chatMessageDelay || 0);
 			}
@@ -183,6 +240,11 @@ export const storeRaffle = defineStore('raffle', {
 
 			if(data.resultCallback) data.resultCallback();
 
+			//Remove raffle entry
+			//EDIT: Do not remove it! User may want to pick multiple winners
+			// let index = this.raffleList.findIndex(v=>v.sessionId === sessionId)
+			// if(index > -1) this.raffleList.splice(index, 1);
+
 			//Remove ghost session if any
 			const index = ghostEntries.findIndex(v=>v.sessionId === sessionId)
 			if(index > -1) ghostEntries.splice(index, 1);
@@ -190,34 +252,64 @@ export const storeRaffle = defineStore('raffle', {
 			this.saveData();
 		},
 
-		checkRaffleJoin(message:TwitchatDataTypes.TranslatableMessage, forceEnter:boolean = false):boolean {
+		checkRaffleJoin(message:TwitchatDataTypes.ChatMessageTypes, forceEnter:boolean = false):boolean {
 			let joined = false;
 			this.raffleList.forEach(raffle => {
-				if(raffle.mode != "chat") return;
-
 				let canJoin = forceEnter;
-				//Check if can join from reward
-				if(!canJoin && raffle.reward_id && message.type == TwitchatDataTypes.TwitchatMessageType.REWARD) {
-					const messageReward = message as TwitchatDataTypes.MessageRewardRedeemData;
-					if(messageReward.reward.id == raffle.reward_id) canJoin = true;
-				}
-	
-				//Check if can join from chat command
-				if(!canJoin && raffle.command) {
-					const cmd = (message.message || "").trim().split(" ")[0].toLowerCase();
-					if(cmd == raffle.command.trim().toLowerCase()) canJoin = true;
+				let username = "";
+				let tipInfo:typeof raffle.entries[number]["tip"] = undefined;
+
+				if(raffle.mode == "chat") {
+					//Check if can join from reward
+					if(!canJoin && raffle.reward_id && message.type == TwitchatDataTypes.TwitchatMessageType.REWARD) {
+						const messageReward = message as TwitchatDataTypes.MessageRewardRedeemData;
+						if(messageReward.reward.id == raffle.reward_id) canJoin = true;
+					}
+		
+					//Check if can join from chat command
+					if(!canJoin && raffle.command && TwitchatDataTypes.IsTranslatableMessage[message.type]) {
+						const typedMessage = message as TwitchatDataTypes.TranslatableMessage;
+						const cmd = (typedMessage.message || "").trim().split(" ")[0].toLowerCase();
+						if(cmd == raffle.command.trim().toLowerCase()) canJoin = true;
+					}
+				}else
+
+				//Check if can join from tip
+				if(raffle.mode == "tips" && (
+					(raffle.tip_kofi === true && message.type == TwitchatDataTypes.TwitchatMessageType.KOFI && message.eventType == "donation" && message.amount >= (raffle.tip_kofi_minAmount || 0)) ||
+					(raffle.tip_streamlabs === true && message.type == TwitchatDataTypes.TwitchatMessageType.STREAMLABS && message.eventType == "donation" && message.amount >= (raffle.tip_streamlabs_minAmount || 0)) ||
+					(raffle.tip_streamlabsCharity === true && message.type == TwitchatDataTypes.TwitchatMessageType.STREAMLABS && message.eventType == "charity" && message.amount >= (raffle.tip_streamlabsCharity_minAmount || 0)) ||
+					(raffle.tip_streamelements === true && message.type == TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS && message.eventType == "donation" && message.amount >= (raffle.tip_streamelements_minAmount || 0)) ||
+					(raffle.tip_tipeee === true && message.type == TwitchatDataTypes.TwitchatMessageType.TIPEEE && message.eventType == "donation" && message.amount >= (raffle.tip_tipeee_minAmount || 0)) ||
+					(raffle.tip_tiltify === true && message.type == TwitchatDataTypes.TwitchatMessageType.TILTIFY && message.eventType == "donation" && message.amount  >= (raffle.tip_tiltify_minAmount || 0))
+				)) {
+					canJoin = true;
+					username = message.userName;
+					let tipPlatform:NonNullable<typeof raffle.entries[number]["tip"]>["source"] = "kofi";
+					//Define tip source
+					switch(message.type) {
+						case TwitchatDataTypes.TwitchatMessageType.KOFI:			tipPlatform = "kofi"; break;
+						case TwitchatDataTypes.TwitchatMessageType.STREAMLABS:		tipPlatform = message.eventType == "charity"? "streamlabs_charity" :"streamlabs"; break;
+						case TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS:	tipPlatform = "streamlements"; break;
+						case TwitchatDataTypes.TwitchatMessageType.TIPEEE:			tipPlatform = "tipeee"; break;
+						case TwitchatDataTypes.TwitchatMessageType.TILTIFY:			tipPlatform = "tiltify"; break;
+					}
+					tipInfo = {
+						amount:message.amountFormatted,
+						source:tipPlatform,
+					}
 				}
 
 				if(!canJoin) return;
 	
-				const messageCast = message as TwitchatDataTypes.GreetableMessage;
+				const messageCast = message;// as TwitchatDataTypes.GreetableMessage;
 				const elapsed = Date.now() - new Date(raffle.created_at).getTime();
 	
 				//Check if within time frame and max users count isn't reached
 				if(elapsed <= raffle.duration_s * 1000
 				&& (raffle.maxEntries <= 0 || raffle.entries.length < raffle.maxEntries)) {
-					const user = messageCast.user;
-					const existingEntry = raffle.entries.find(v=>v.id == user.id);
+					const user = TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true? (message as TwitchatDataTypes.GreetableMessage).user : null;
+					const existingEntry = user? raffle.entries.find(v=>v.id == user.id) : false;
 					if(existingEntry) {
 						//User already entered, increment their score or stop there
 						//depending on the raffle's param
@@ -225,39 +317,50 @@ export const storeRaffle = defineStore('raffle', {
 						existingEntry.joinCount ++;
 					}else{
 						//User is not already on the list, create it
-						raffle.entries.push( {
+						const entry:typeof raffle.entries[number] = {
 							score:0,
 							joinCount:1,
-							label:user.displayNameOriginal,
-							id:user.id,
-							user:{
-								id:messageCast.user.id,
+							label:user? user.displayNameOriginal : username,
+							id:user? user.id : Utils.getUUID(),
+							tip:tipInfo,
+						};
+
+						//if the message contains an actual user ref, save it for future use
+						if(user) {
+							username = user.displayNameOriginal;
+							entry.user = {
+								id:user.id,
 								platform:messageCast.platform,
 								channel_id:messageCast.channel_id,
-							}
-						} );
+							};
+						}
+						raffle.entries.push(entry);
 					}
 	
 					const messageParams = raffle.messages?.raffleJoin || StoreProxy.chat.botMessages.raffleJoin;
+					//Confirm join if requested.
+					//Confirmation is debounced to avoid spamming chat. Join events are
+					//sent by batches
 					if(messageParams.enabled) {
 						clearTimeout(debounceConfirm);
-						confirmSpool.push(user);
-						let message = "";
+						confirmSpool.push(username);
+						let joinMessage = "";
 						let userCount = 0;
-						while(message.length < 500 && userCount < confirmSpool.length) {
+						while(joinMessage.length < 500 && userCount < confirmSpool.length) {
 							userCount ++;
-							message = messageParams.message;
-							message = message.replace(/\{USER\}/gi, confirmSpool.concat().splice(0, userCount).map(v=> v.displayNameOriginal).join(", @"));
+							joinMessage = messageParams.message;
+							joinMessage = joinMessage.replace(/\{USER\}/gi, confirmSpool.concat().splice(0, userCount).join(", @"));
 						}
 	
-						if(message.length >= 500) {
-							message = messageParams.message;
-							message = message.replace(/\{USER\}/gi, confirmSpool.splice(0, userCount-1).map(v=> v.displayNameOriginal).join(", @"));
-							MessengerProxy.instance.sendMessage(message, [user.platform]);
-						}else if(message) {
+						if(joinMessage.length >= 500) {
+							joinMessage = messageParams.message;
+							joinMessage = joinMessage.replace(/\{USER\}/gi, confirmSpool.splice(0, userCount-1).join(", @"));
+							MessengerProxy.instance.sendMessage(joinMessage, [message.platform]);
+
+						}else if(joinMessage) {
 							debounceConfirm = setTimeout(() => {
 								confirmSpool = [];
-								MessengerProxy.instance.sendMessage(message, [user.platform]);
+								MessengerProxy.instance.sendMessage(joinMessage, [message.platform]);
 							}, 500);
 						}
 					}
@@ -522,6 +625,7 @@ export const storeRaffle = defineStore('raffle', {
 				const apiData:TwitchatDataTypes.WheelData = {
 					items:list,
 					winner:winner.id,
+					sessionId:data.sessionId,
 				}
 				PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (apiData as unknown) as JsonObject);
 

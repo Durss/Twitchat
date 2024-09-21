@@ -64,6 +64,7 @@ class OverlaysRaffleWheel extends Vue {
 	private frameIndex = 0;
 	private itemsCount = 15;
 	private selectedItemIndex = 0;
+	private sessionId = "";
 	private winnerData!:TwitchatDataTypes.EntryItem;
 	private resizeDebounce!:number;
 	private prevBiggestItem!:HTMLDivElement;
@@ -287,6 +288,7 @@ class OverlaysRaffleWheel extends Vue {
 			return;
 		}
 
+		this.sessionId = data.sessionId;
 		this.winnerData = winner;
 		this.itemList = [];
 		await this.$nextTick();//Let vue unmount the component
@@ -325,7 +327,7 @@ class OverlaysRaffleWheel extends Vue {
 
 		//Tell twitchat animation completed
 		const data = (this.winnerData as unknown) as JsonObject;
-		PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_RESULT, {winner:data, delay:5000});
+		PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_RESULT, {winner:data, sessionId:this.sessionId, delay:5000});
 	}
 
 	public burstStars(heart:HTMLDivElement):void {

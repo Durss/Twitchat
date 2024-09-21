@@ -123,8 +123,11 @@
 		},
 		"botMessages": {
 			"raffleStart": "/announce 🎉🎉🎉 Raffle has started 🎉🎉🎉 Use {CMD} command to enter!",
-			"raffle": "/announce 🎉🎉🎉 Congrats @{USER} you won the raffle 🎉🎉🎉",
+			"raffleTipsStart": "/announce 🎉🎉🎉 Raffle has started 🎉🎉🎉 Enter by donating on {PLATFORMS}!",
 			"raffleJoin": "VoteYea @{USER} you entered the raffle.",
+			"raffleTipsJoin": "VoteYea {USER} entered the raffle by donating {AMOUNT} on {PLATFORM}.",
+			"raffle": "/announce 🎉🎉🎉 {USER} you won the raffle 🎉🎉🎉",
+			"raffleTipsWinner": "/announce 🎉🎉🎉 {USER} you won the raffle by donating {AMOUNT} on {PLATFORM} 🎉🎉🎉",
 			"bingoStart": "/announce 🎉🎉🎉 Bingo has started 🎉🎉🎉 {GOAL}",
 			"bingo": "/announce 🎉🎉🎉 Congrats @{USER} you won the bingo 🎉🎉🎉",
 			"shoutout": "/announce Go checkout {USER} {URL} . Their last stream title was \"{TITLE}\" in category \"{CATEGORY}\".",

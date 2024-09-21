@@ -31,6 +31,12 @@
 		"param_goal_secret_progressive": "Lettres défloutées individuellement au fur et à mesure de la progression",
 		"param_dataSource": "Source de données",
 		"param_campaignId": "Campagne de dons",
-		"param_counterId": "Compteur source"
+		"param_counterId": "Compteur source",
+		"import_streamlabs_goals": "Importer les donation goals créés dans Streamlabs Charity",
+		"import_streamlabs_step1": "Copiez l'URL de votre overlay de \"Milestones\" de {LINK}.",
+		"import_streamlabs_step1_link": "cette page",
+		"import_streamlabs_step1_url": "https://streamlabscharity.com/profile/user/milestones",
+		"import_streamlabs_step2": "Collez l'URL ci-dessous puis importez les objectifs de dons",
+		"import_streamlabs_complete": "Les objectifs ont été importé depuis Streamlabs Charity et ajoutés à la liste de vos objectifs"
 	}
 }

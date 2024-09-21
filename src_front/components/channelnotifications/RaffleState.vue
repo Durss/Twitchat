@@ -4,12 +4,13 @@
 			<img src="@/assets/icons/ticket.svg">
 			<span>{{ $t('raffle.state_title') }}</span>
 			<div class="methods" ref="methods">
-				<mark class="cmd" v-if="raffleData.command">{{raffleData.command}}</mark>
-				<mark class="cmd" v-if="raffleData.reward_id"><Icon name="channelPoints" />{{rewardName}}</mark>
+				<mark v-if="raffleData.mode == 'chat' && raffleData.command">{{raffleData.command}}</mark>
+				<mark v-if="raffleData.mode == 'chat' && raffleData.reward_id"><Icon name="channelPoints" />{{rewardName}}</mark>
+				<mark v-if="raffleData.mode == 'tips'"><Icon name="coin" />{{tipPlatforms.join(" ")}}</mark>
 			</div>
 		</h1>
 		<div class="content" ref="content">
-			<ProgressBar class="progress" secondary v-if="timerPercent < 1"
+			<ProgressBar class="progress" secondary
 				:percent="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  1 : timerPercent"
 				:duration="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  0 : raffleData.duration_s * 1000"
 			/>
@@ -34,11 +35,10 @@
 				</i18n-t>
 			</div>
 	
-			<div class="card-item winners" v-if="raffleData.winners && raffleData.winners.length > 0">
+			<div class="winners" v-if="raffleData.winners && raffleData.winners.length > 0">
 				<div class="entries">
 					<template v-for="w in raffleData.winners" :key="w.label">
 						<TTButton v-if="w.user" small light
-						icon="sub"
 						type="link"
 						target="_blank"
 						:href="'https://twitch.tv/'+getUserFromEntry(w)?.login"
@@ -53,6 +53,13 @@
 					highlight
 					alert
 					@click="closeRaffle()">{{ $t('raffle.state_stopBt') }}</TTButton>
+
+				<TTButton icon="timer"
+					highlight
+					light
+					v-if="(raffleData.duration_s || 0) > 0"
+					@click="expandDurationBy(60)">+1'</TTButton>
+
 				<TTButton icon="ticket"
 					@click="pickWinner()"
 					light
@@ -71,8 +78,8 @@
 			</div>
 		</div>
 
-		<TTButton transparent icon="left" v-if="$store.raffle.raffleList.length > 1" class="prevRaffleBt" @click="prevRaffle()" />
-		<TTButton transparent icon="right" v-if="$store.raffle.raffleList.length > 1" class="nextRaffleBt" @click="nextRaffle()" />
+		<TTButton transparent icon="left" v-if="availableRaffleList.length > 1" class="prevRaffleBt" @click="prevRaffle()" />
+		<TTButton transparent icon="right" v-if="availableRaffleList.length > 1" class="nextRaffleBt" @click="nextRaffle()" />
 	</div>
 </template>
 
@@ -108,6 +115,7 @@ class RaffleState extends Vue {
 	public raffleData:TwitchatDataTypes.RaffleData | null = null;
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 
+	private validRaffleTypes:TwitchatDataTypes.RaffleData["mode"][] = ["chat", "tips"];
 	private overlaySource:OBSSourceItem|null = null;
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
@@ -134,6 +142,46 @@ class RaffleState extends Vue {
 		return reward?.title || "";
 	}
 
+	public get availableRaffleList():TwitchatDataTypes.RaffleData[] {
+		return this.$store.raffle.raffleList.filter(v=> this.validRaffleTypes.includes(v.mode));
+	}
+
+	public get tipPlatforms():string[] {
+		if(!this.raffleData) return [];
+		let platforms:string[] = [];
+		if(this.raffleData.tip_kofi){
+			let label = "Ko-Fi";
+			if((this.raffleData.tip_kofi_minAmount || 0) > 0)  label += " ("+this.raffleData.tip_kofi_minAmount+"🪙)";
+			platforms.push(label);
+		}
+		if(this.raffleData.tip_streamlabs){
+			let label = "Streamlabs";
+			if((this.raffleData.tip_streamlabs_minAmount || 0) > 0)  label += " ("+this.raffleData.tip_streamlabs_minAmount+"🪙)";
+			platforms.push(label);
+		}
+		if(this.raffleData.tip_streamlabsCharity){
+			let label = "Streamlabs Charity";
+			if((this.raffleData.tip_streamlabsCharity_minAmount || 0) > 0)  label += " ("+this.raffleData.tip_streamlabsCharity_minAmount+"🪙)";
+			platforms.push(label);
+		}
+		if(this.raffleData.tip_streamelements){
+			let label = "Streamelements";
+			if((this.raffleData.tip_streamelements_minAmount || 0) > 0)  label += " ("+this.raffleData.tip_streamelements_minAmount+"🪙)";
+			platforms.push(label);
+		}
+		if(this.raffleData.tip_tipeee){
+			let label = "Tipeee";
+			if((this.raffleData.tip_tipeee_minAmount || 0) > 0)  label += " ("+this.raffleData.tip_tipeee_minAmount+"🪙)";
+			platforms.push(label);
+		}
+		if(this.raffleData.tip_tiltify){
+			let label = "Tiltify";
+			if((this.raffleData.tip_tiltify_minAmount || 0) > 0)  label += " ("+this.raffleData.tip_tiltify_minAmount+"🪙)";
+			platforms.push(label);
+		}
+		return platforms;
+	}
+
 	public getUserFromEntry(entry:TwitchatDataTypes.RaffleEntry):TwitchatDataTypes.TwitchatUser|null {
 		if(!entry.user) return null;
 		return this.$store.users.getUserFrom(entry.user.platform, entry.user.channel_id, entry.user.id);
@@ -141,8 +189,7 @@ class RaffleState extends Vue {
 
 	public beforeMount():void {
 		this.winnerPlaceholders	= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store.auth.twitch.user.displayName}];
-		this.raffleData			= this.$store.raffle.raffleList![0];
-
+		this.raffleData			= this.availableRaffleList.length > 0? this.availableRaffleList[0] : null;
 		//Check if wheel's overlay exists
 		PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
 	}
@@ -160,12 +207,12 @@ class RaffleState extends Vue {
 		if(!this.raffleData) return;
 		this.$confirm(this.$t('raffle.delete_confirm.title'), this.$t('raffle.delete_confirm.description'))
 		.then(async ()=> {
-			let index = this.$store.raffle.raffleList.findIndex(v=>v.sessionId! == this.raffleData!.sessionId!);
+			let index = this.availableRaffleList.findIndex(v=>v.sessionId! == this.raffleData!.sessionId!);
 			this.$store.raffle.stopRaffle(this.raffleData!.sessionId!);
 			//If there are other raffles, switch to previous one
-			if(this.$store.raffle.raffleList.length > 0) {
-				if(--index < 0) index = this.$store.raffle.raffleList.length-1;
-				this.raffleData = this.$store.raffle.raffleList[index];
+			if(this.availableRaffleList.length > 0) {
+				if(--index < 0) index = this.availableRaffleList.length-1;
+				this.raffleData = this.availableRaffleList[index];
 			}else{
 				this.raffleData = null;
 			}
@@ -178,6 +225,15 @@ class RaffleState extends Vue {
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser | null):void {
 		if(!user) return;
 		this.$store.users.openUserCard(user);
+	}
+
+	public expandDurationBy(duration_s:number):void {
+		if(this.timerPercent >= 1) {
+			this.raffleData!.duration_s = duration_s;
+			this.raffleData!.created_at = Date.now();
+		}else{
+			this.raffleData!.duration_s += duration_s;
+		}
 	}
 
 	public async pickWinner():Promise<void> {
@@ -244,9 +300,9 @@ class RaffleState extends Vue {
 		const holder = this.$refs.content as HTMLDivElement;
 		const cmdHolder = this.$refs.methods as HTMLElement;
 		gsap.to([holder,cmdHolder], {opacity:0, x:-10, duration:.1, onComplete:()=>{
-			let index = this.$store.raffle.raffleList.findIndex(v=>v.sessionId! == this.raffleData!.sessionId!);
-			let newIndex = (++index) % this.$store.raffle.raffleList.length;
-			this.raffleData = this.$store.raffle.raffleList[newIndex];
+			let index = this.availableRaffleList.findIndex(v=>v.sessionId! == this.raffleData!.sessionId!);
+			let newIndex = (++index) % this.availableRaffleList.length;
+			this.raffleData = this.availableRaffleList[newIndex];
 			gsap.fromTo([holder,cmdHolder], {x:10, opacity:0}, {opacity:1, x:0, duration:.1});
 		}});
 	}
@@ -257,10 +313,10 @@ class RaffleState extends Vue {
 		const holder = this.$refs.content as HTMLDivElement;
 		const cmdHolder = this.$refs.methods as HTMLElement;
 		gsap.to([holder,cmdHolder], {opacity:0, x:10, duration:.1, onComplete:()=>{
-			let index = this.$store.raffle.raffleList.findIndex(v=>v.sessionId! == this.raffleData!.sessionId!);
+			let index = this.availableRaffleList.findIndex(v=>v.sessionId! == this.raffleData!.sessionId!);
 			let newIndex = index - 1;
-			if(newIndex < 0) newIndex = this.$store.raffle.raffleList.length -1;
-			this.raffleData = this.$store.raffle.raffleList[newIndex];
+			if(newIndex < 0) newIndex = this.availableRaffleList.length -1;
+			this.raffleData = this.availableRaffleList[newIndex];
 			gsap.fromTo([holder,cmdHolder], {x:-10, opacity:0}, {opacity:1, x:0, duration:.1});
 		}});
 	}
@@ -284,9 +340,9 @@ export default toNative(RaffleState);
 
 	.title {
 		width: 100%;
-		row-gap: .25em;
 		flex-wrap: wrap;
 		gap: .5em;
+		row-gap: .25em;
 		.methods {
 			gap: .5em;
 			display: flex;
@@ -299,13 +355,13 @@ export default toNative(RaffleState);
 				vertical-align: bottom;
 			}
 
-			.cmd {
-				font-size: .75em;
+			mark {
+				font-size: .7em;
 			}
 		}
 	}
 
-	.entries {
+	.content>.entries {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
@@ -320,6 +376,17 @@ export default toNative(RaffleState);
 
 	.winners {
 		flex-shrink: 0;
+
+		.entries {
+			.entry {
+				padding: .5em;
+				color: var(--color-primary);
+				background-color: var(--color-light);
+				border-radius: var(--border-radius);
+				font-weight: normal;
+				font-size: .8rem;
+			}
+		}
 	}
 
 	.ctas {

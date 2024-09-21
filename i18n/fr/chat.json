@@ -157,7 +157,8 @@
 			"unsetBt": "retirer"
 		},
 		"raffle": {
-			"title": "{USER} a remporté le tirage au sort"
+			"title": "{USER} a remporté le tirage au sort",
+			"title_tip": "{USER} a remporté le tirage au sort en donnant {AMOUNT} sur {PLATFORM}"
 		},
 		"message": {
 			"automod": "Automod:",

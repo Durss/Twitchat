@@ -252,9 +252,12 @@ export namespace TwitchatDataTypes {
 	export interface IBotMessage {
 		bingo:BotMessageEntry;
 		bingoStart:BotMessageEntry;
-		raffle:BotMessageEntry;
 		raffleJoin:BotMessageEntry;
+		raffleTipsJoin:BotMessageEntry;
 		raffleStart:BotMessageEntry;
+		raffleTipsStart:BotMessageEntry;
+		raffle:BotMessageEntry;
+		raffleTipsWinner:BotMessageEntry;
 		shoutout:BotMessageEntry;
 		twitchatAd:BotMessageEntry;
 		chatSuggStart:BotMessageEntry;
@@ -268,7 +271,7 @@ export namespace TwitchatDataTypes {
 		cooldown?:number;
 		/**
 		 * Used for Heat interactions.
-		 * Specifies weither anonymous users are allowed to interact with it or not
+		 * Specifies wether anonymous users are allowed to interact with it or not
 		 */
 		allowAnon?:boolean;
 	}
@@ -651,6 +654,7 @@ export namespace TwitchatDataTypes {
 	export interface WheelData {
 		items:EntryItem[];
 		winner:string;
+		sessionId:string;
 	}
 
 	/**
@@ -820,9 +824,21 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface RaffleData {
 		sessionId?:string;
-		mode:"chat"|"sub"|"manual"|"values";
+		mode:"chat"|"sub"|"manual"|"values"|"tips";
 		command?:string;
 		reward_id?:string;
+		tip_kofi?:boolean;
+		tip_streamlabs?:boolean;
+		tip_streamlabsCharity?:boolean;
+		tip_streamelements?:boolean;
+		tip_tipeee?:boolean;
+		tip_tiltify?:boolean;
+		tip_kofi_minAmount?:number;
+		tip_streamlabs_minAmount?:number;
+		tip_streamlabsCharity_minAmount?:number;
+		tip_streamelements_minAmount?:number;
+		tip_tipeee_minAmount?:number;
+		tip_tiltify_minAmount?:number;
 		value_id?:string;
 		value_splitter?:string;
 		removeWinningEntry?:boolean;
@@ -881,6 +897,10 @@ export namespace TwitchatDataTypes {
 	export interface RaffleEntry extends EntryItem {
 		score:number;
 		joinCount:number;
+		tip?:{
+			amount:string;
+			source:"kofi"|"streamlabs"|"streamlabs_charity"|"streamlements"|"tipeee"|"tiltify";
+		};
 		user?:{
 			id:string;
 			channel_id:string;

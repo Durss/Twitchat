@@ -719,8 +719,11 @@ const UserDataSchema = {
 			additionalProperties: false,
 			properties: {
 				raffleStart: { $ref: "#/definitions/botMessage" },
+				raffleTipsStart: { $ref: "#/definitions/botMessage" },
 				raffleJoin: { $ref: "#/definitions/botMessage" },
+				raffleTipsJoin: { $ref: "#/definitions/botMessage" },
 				raffle: { $ref: "#/definitions/botMessage" },
+				raffleTipsWInner: { $ref: "#/definitions/botMessage" },
 				bingoStart: { $ref: "#/definitions/botMessage" },
 				bingo: { $ref: "#/definitions/botMessage" },
 				shoutout: { $ref: "#/definitions/botMessage" },
@@ -1869,7 +1872,7 @@ const UserDataSchema = {
 				type: "object",
 				properties: {
 					sessionId: { type: "string" },
-					mode: { enum: ["chat", "sub", "manual", "values"] },
+					mode: { enum: ["chat", "sub", "manual", "values", "tips"] },
 					command: { type: "string", maxLength:100 },
 					reward_id: { type: "string", maxLength:100 },
 					value_id: { type: "string", maxLength:100 },
@@ -1897,7 +1900,14 @@ const UserDataSchema = {
 										channel_id: { type: "string", maxLength:100 },
 										platform: { type: "string", maxLength:20 }
 									},
-								}
+								},
+								tip: {
+									type: "object",
+									properties: {
+										amount: { type: "number", minimum:0, maximum:999999999999999 },
+										source: { type: "string", maxLength:20 }
+									},
+								},
 							},
 						},
 					},
@@ -1911,6 +1921,18 @@ const UserDataSchema = {
 					subMode_excludeGifted: { type: "boolean" },
 					showCountdownOverlay: { type: "boolean" },
 					customEntries: { type: "string", maxLength:10000 },
+					tip_kofi: { type: "boolean" },
+					tip_streamlabs: { type: "boolean" },
+					tip_streamlabsCharity: { type: "boolean" },
+					tip_streamelements: { type: "boolean" },
+					tip_tipeee: { type: "boolean" },
+					tip_tiltify: { type: "boolean" },
+					tip_kofi_minAmount: { type: "number", minimum:0, maximum:999999 },
+					tip_streamlabs_minAmount: { type: "number", minimum:0, maximum:999999 },
+					tip_streamlabsCharity_minAmount: { type: "number", minimum:0, maximum:999999 },
+					tip_streamlements_minAmount: { type: "number", minimum:0, maximum:999999 },
+					tip_tipeee_minAmount: { type: "number", minimum:0, maximum:999999 },
+					tip_tiltify_minAmount: { type: "number", minimum:0, maximum:999999 },
 					winners: {
 						type:"array",
 						minItems:0,
@@ -1929,7 +1951,14 @@ const UserDataSchema = {
 										channel_id: { type: "string", maxLength:100 },
 										platform: { type: "string", maxLength:20 }
 									},
-								}
+								},
+								tip: {
+									type: "object",
+									properties: {
+										amount: { type: "number", minimum:0, maximum:999999999999999 },
+										source: { type: "string", maxLength:20 }
+									},
+								},
 							},
 						},
 					},

@@ -6,15 +6,20 @@
 		"chat": {
 			"title": "Chat",
 			"startBt_aria": "Lancer le tirage au sort",
-			"description": "Sélectionner une personne au hasard parmi celles ayant envoyé une commande dans le tchat ou acheté une récompense de points de chaîne",
+			"description": "Permettez à vos viewers de participer au tirage au sort via une commande de tchat ou une récompense de points de chaîne",
 			"triggers":"Permettez à vos viewers de rejoindre le tirage au sort avec un sub, un follow, un raid et plus encore depuis {LINK} avec l'action de trigger {ACTION}",
 			"triggers_link":"les triggers"
 		},
 		"subs": {
 			"title": "Subs",
-			"description": "Sélectionner une personne parmi vos abonné·es",
+			"description": "Sélectionner une personne parmi vos abonné·es en cours",
 			"startBt_aria": "Lancer le tirage au sort",
 			"startBt": "Lancer {COUNT}"
+		},
+		"tips": {
+			"title": "Dons",
+			"description": "Permettez à vos viewers d'entrer dans le tirage au sort en faisant un don",
+			"minAmount_suffix": "min"
 		},
 		"list": {
 			"title": "Liste",
@@ -57,6 +62,14 @@
 			"command_placeholder": "!raffle",
 			"reward_join": "Participer via une récompense de points de chaîne",
 			"reward": "Récompense",
+			"tip_join": "Pariciper via un don",
+			"tip_kofi":"Ko-fi",
+			"tip_streamlabs":"Streamlabs",
+			"tip_streamlabsCharity":"Streamlabs Charity",
+			"tip_streamelements":"Streamelements",
+			"tip_tipeee":"Tipeee",
+			"tip_tiltify":"Tiltify",
+			"tip_minAmount":"Don minimum pour participer",
 			"duration": "Durée du tirage ({VALUE} minutes)",
 			"limit_users": "Limiter le nombre de participant·es",
 			"max_users": "Maximum",

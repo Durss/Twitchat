@@ -57,6 +57,18 @@ export const storeChat = defineStore('chat', {
 				enabled:true,
 				message:StoreProxy.i18n.tm("params.botMessages.raffleJoin"),
 			},
+			raffleTipsStart: {
+				enabled:true,
+				message:StoreProxy.i18n.tm("params.botMessages.raffleTipsStart"),
+			},
+			raffleTipsJoin: {
+				enabled:true,
+				message:StoreProxy.i18n.tm("params.botMessages.raffleTipsJoin"),
+			},
+			raffleTipsWinner: {
+				enabled:true,
+				message:StoreProxy.i18n.tm("params.botMessages.raffleTipsWinner"),
+			},
 			bingoStart: {
 				enabled:true,
 				message:StoreProxy.i18n.tm("params.botMessages.bingoStart"),
@@ -1429,6 +1441,7 @@ export const storeChat = defineStore('chat', {
 						if(message.eventType == "donation") {
 							StoreProxy.labels.updateLabelValue("KOFI_TIP_NAME", message.userName);
 							StoreProxy.labels.updateLabelValue("KOFI_TIP_AMOUNT", message.amountFormatted);
+							sRaffle.checkRaffleJoin(message);
 						}else
 						if(message.eventType == "merch") {
 							StoreProxy.labels.updateLabelValue("KOFI_MERCH_USER", message.userName);
@@ -1446,6 +1459,7 @@ export const storeChat = defineStore('chat', {
 						if(message.eventType == "donation") {
 							StoreProxy.labels.updateLabelValue("STREAMELEMENTS_TIP_NAME", message.userName);
 							StoreProxy.labels.updateLabelValue("STREAMELEMENTS_TIP_AMOUNT", message.amountFormatted);
+							sRaffle.checkRaffleJoin(message);
 						}
 					}
 					break;
@@ -1458,10 +1472,19 @@ export const storeChat = defineStore('chat', {
 						if(message.eventType == "donation") {
 							StoreProxy.labels.updateLabelValue("STREAMLABS_TIP_NAME", message.userName);
 							StoreProxy.labels.updateLabelValue("STREAMLABS_TIP_AMOUNT", message.amountFormatted);
+							sRaffle.checkRaffleJoin(message);
 						}else
 						if(message.eventType == "merch") {
 							StoreProxy.labels.updateLabelValue("STREAMLABS_MERCH_USER", message.userName);
 							StoreProxy.labels.updateLabelValue("STREAMLABS_MERCH_NAME", message.product);
+						}else
+						if(message.eventType == "charity") {
+							StoreProxy.labels.incrementLabelValue("STREAMLABS_CHARITY_RAISED", message.amount);
+							StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_AMOUNT", message.amount);
+							StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_USER", message.userName);
+							StoreProxy.donationGoals.onDonation(message.userName, message.amount.toString(), "streamlabs_charity");
+							StoreProxy.donationGoals.onSourceValueUpdate("streamlabs_charity");
+							sRaffle.checkRaffleJoin(message);
 						}
 					}
 					break;
@@ -1474,6 +1497,7 @@ export const storeChat = defineStore('chat', {
 						if(message.eventType == "donation") {
 							StoreProxy.labels.updateLabelValue("TIPEEE_TIP_NAME", message.userName);
 							StoreProxy.labels.updateLabelValue("TIPEEE_TIP_AMOUNT", message.amountFormatted);
+							sRaffle.checkRaffleJoin(message);
 						}
 					}
 					break;
@@ -1744,7 +1768,7 @@ export const storeChat = defineStore('chat', {
 				const cmd = (typedMessage.message || "").trim().split(" ")[0].toLowerCase();
 
 				//If a raffle is in progress, check if the user can enter
-				sRaffle.checkRaffleJoin(typedMessage);
+				sRaffle.checkRaffleJoin(typedMessage as TwitchatDataTypes.ChatMessageTypes);
 
 				//If there's a suggestion poll and the timer isn't over
 				const suggestionPoll = sChatSuggestion.data;

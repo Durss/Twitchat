@@ -31,6 +31,12 @@
 		"param_goal_secret_progressive": "Letters are unblurred individually according to progression",
 		"param_dataSource": "Data source",
 		"param_campaignId": "Fundraising campaign",
-		"param_counterId": "Counter source"
+		"param_counterId": "Counter source",
+		"import_streamlabs_goals": "Import donation goals created on Streamlabs Charity",
+		"import_streamlabs_step1": "Copy your \"Milestones\" overlay URL from {LINK}.",
+		"import_streamlabs_step1_link": "this page",
+		"import_streamlabs_step1_url": "https://streamlabscharity.com/profile/user/milestones",
+		"import_streamlabs_step2": "Paste the URL bellow and import your milestones",
+		"import_streamlabs_complete": "Donation goals imported from Streamlabs Charity and added to your Goal list"
 	}
 }

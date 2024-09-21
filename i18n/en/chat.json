@@ -157,7 +157,8 @@
 			"unsetBt": "unset"
 		},
 		"raffle": {
-			"title": "{USER} won the raffle"
+			"title": "{USER} won the raffle",
+			"title_tip": "{USER} won the raffle by donating {AMOUNT} on {PLATFORM}"
 		},
 		"message": {
 			"automod": "Automod:",

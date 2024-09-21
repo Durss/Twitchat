@@ -77,7 +77,8 @@
 			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_donation')" icon="streamlabs">Streamlabs donation</Button>
 			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_merch')" icon="streamlabs">Streamlabs merch</Button>
 			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_patreon')" icon="streamlabs">Streamlabs Patreon</Button>
-			<Button small @click="simulateEvent($event, 'streamlabs', 'charity')" icon="streamlabs">Streamlabs Charity events</Button>
+			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_charity')" icon="streamlabs">Streamlabs Charity</Button>
+			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_charity_spam')" icon="streamlabs">Streamlabs Charity spam</Button>
 			<Button small @click="simulateEvent($event, 'kofi', 'kofi_donation')" icon="kofi">Kofi donation</Button>
 			<Button small @click="simulateEvent($event, 'kofi', 'kofi_merch')" icon="kofi">Kofi merch</Button>
 			<Button small @click="simulateEvent($event, 'kofi', 'kofi_sub')" icon="kofi">Kofi Sub</Button>
@@ -177,7 +178,7 @@ class DevmodeMenu extends Vue {
 
 	public async simulateEvent(event:MouseEvent, type:TwitchatDataTypes.TwitchatMessageStringType, subAction?:Subaction):Promise<void> {
 		const me = StoreProxy.auth.twitch.user;
-		if(type == "streamlabs" && subAction == "charity") {
+		if(type == "streamlabs" && subAction == "sl_charity_spam") {
 			this.$store.streamlabs.simulateEvents();
 			return;
 		}
@@ -221,6 +222,21 @@ class DevmodeMenu extends Vue {
 				case "sl_patreon":{
 					(message as TwitchatDataTypes.StreamlabsPatreonPledgeData).eventType = "patreon_pledge";
 					(message as TwitchatDataTypes.StreamlabsPatreonPledgeData).amountFormatted = "$13"; break;
+				}
+				case "sl_charity":{
+					(message as TwitchatDataTypes.StreamlabsCharityData).eventType = "charity";
+					(message as TwitchatDataTypes.StreamlabsCharityData).amount = 13;
+					(message as TwitchatDataTypes.StreamlabsCharityData).totalRaised = 13;
+					(message as TwitchatDataTypes.StreamlabsCharityData).totalRaisedFormatted = "$13";
+					(message as TwitchatDataTypes.StreamlabsCharityData).goal = 100;
+					(message as TwitchatDataTypes.StreamlabsCharityData).isToSelf = true;
+					(message as TwitchatDataTypes.StreamlabsCharityData).campaign = {
+						id:Utils.getUUID(),
+						title:"My campaign",
+						url:"https://streamlabscharity.com",
+					};
+					(message as TwitchatDataTypes.StreamlabsCharityData).goalFormatted = "$100";
+					(message as TwitchatDataTypes.StreamlabsCharityData).amountFormatted = "$13"; break;
 				}
 				case "kofi_donation":			(message as TwitchatDataTypes.KofiDonationData).eventType = "donation"; break;
 				case "kofi_merch": {
@@ -679,6 +695,8 @@ type Subaction = "first"
 				| "sl_donation"
 				| "sl_merch"
 				| "sl_patreon"
+				| "sl_charity"
+				| "sl_charity_spam"
 				| "kofi_donation"
 				| "kofi_merch"
 				| "kofi_sub"
@@ -690,7 +708,6 @@ type Subaction = "first"
 				| "skin1"
 				| "skin2"
 				| "skin3"
-				| "charity"
 				| "giantEmote";
 
 export default toNative(DevmodeMenu);
