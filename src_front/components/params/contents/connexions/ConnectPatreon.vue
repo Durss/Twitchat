@@ -68,12 +68,6 @@ class ConnectPatreon extends Vue {
 		}, false);
 	}
 
-	public async createWebhook():Promise<void> {
-		this.loading = true;
-		await this.$store.patreon.createWebhook();
-		this.loading = false;
-	}
-
 	/**
 	 * Disconnects from patreon
 	 */

@@ -150,6 +150,8 @@ export const storePatreon = defineStore('patreon', {
 					StoreProxy.chat.cleanupDonationRelatedMessages();
 				}
 			}
+
+			await this.createWebhook();
 			
 			const webhookRes = await ApiHelper.call("patreon/user/webhook", "GET", {token:this.token!.access_token});
 			this.webhookExists = webhookRes.json.success===true && webhookRes.json.webhookExists===true;

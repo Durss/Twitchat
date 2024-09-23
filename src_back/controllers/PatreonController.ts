@@ -197,6 +197,8 @@ export default class PatreonController extends AbstractController {
 			const json = JSON.parse(fs.existsSync(filePath)? fs.readFileSync(filePath, "utf8") : "{}");
 			json[webhookRes.campaignID] = {twitchId:webhookRes.user.user_id, secret:jsonWebhook.data.attributes.secret};
 			fs.writeFileSync(filePath, JSON.stringify(json), "utf8");
+			
+			Logger.info("[PATREON] Create user webhook for", webhookRes.user.login);
 
 			response.header('Content-Type', 'application/json');
 			response.status(200);
@@ -284,6 +286,8 @@ export default class PatreonController extends AbstractController {
 			"Authorization":"Bearer "+token,
 			"User-Agent":this.userAgent,
 		};
+
+		Logger.info("[PATREON] Delete user webhook for", webhookRes.user.login);
 		
 		const deleteRes = await fetch("https://www.patreon.com/api/oauth2/v2/webhooks/"+webhookRes.webhookID, {method:"DELETE", headers});
 		console.log(deleteRes.status);
