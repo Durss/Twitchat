@@ -342,13 +342,20 @@ export interface TriggerActionDelayData extends TriggerActionData{
 	delay:number;
 }
 
-export type TriggerActionObsDataAction = "show"|"hide"|"mute"|"unmute"|"replay"|"stop"|"next"|"prev"|"switch_to"|"move"|"rotate"|"resize"|"toggle_visibility";//|"startstream"|"stopstream"|"startrecord"|"pauserecord"|"stoprecord";
+export type TriggerActionObsDataAction = "sources"|"startstream"|"stopstream"|"startrecord"|"pauserecord"|"resumerecord"|"stoprecord"|"emitevent";
+export type TriggerActionObsSourceDataAction = "show"|"hide"|"mute"|"unmute"|"replay"|"stop"|"next"|"prev"|"switch_to"|"move"|"rotate"|"resize"|"toggle_visibility";//|"startstream"|"stopstream"|"startrecord"|"pauserecord"|"stoprecord";
 export interface TriggerActionObsData extends TriggerActionData{
 	type:"obs";
 	/**
-	 * Type of OBS action to perform on th egiven source or filter
+	 * Type of OBS action to perform 
 	 */
-	action:TriggerActionObsDataAction;
+	obsAction:TriggerActionObsDataAction;
+	/**
+	 * Type of action to perform on the given source or filter
+	 * Note: would make much more sense to call it "sourceAction", but,
+	 * you know, technical debt combo lazyness to make amigration script...
+	 */
+	action:TriggerActionObsSourceDataAction;
 	/**
 	 * Source name to control
 	 */
@@ -421,6 +428,14 @@ export interface TriggerActionObsData extends TriggerActionData{
 	 * Should we wait for the media to complete before processing the rest of the trigger?
 	 */
 	waitMediaEnd?:boolean;
+	/**
+	 * Name of the event to broadacast to browser sources
+	 */
+	browserEventName?:string;
+	/**
+	 * Parameter of the event to broadacast to browser sources
+	 */
+	browserEventParams?:string;
 	/**
 	 * @deprecated replaced by "action" prop
 	 */

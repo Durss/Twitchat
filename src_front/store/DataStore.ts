@@ -1,5 +1,5 @@
 import * as TriggerActionDataTypes from "@/types/TriggerActionDataTypes";
-import { TriggerTypes, TriggerTypesDefinitionList, type TriggerActionDelayData, type TriggerActionObsDataAction, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from "@/types/TriggerActionDataTypes";
+import { TriggerTypes, TriggerTypesDefinitionList, type TriggerActionDelayData, type TriggerActionObsSourceDataAction, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import TriggerUtils from "@/utils/TriggerUtils";
@@ -890,7 +890,7 @@ export default class DataStore extends DataStoreCommon{
 			for (let i = 0; i < triggers[key].actions.length; i++) {
 				const a = triggers[key].actions[i];
 				if(a.type == "obs" && a.show) {
-					const action:TriggerActionObsDataAction = a.show == "replay"? "replay" : a.show === true? "show" : "hide";
+					const action:TriggerActionObsSourceDataAction = a.show == "replay"? "replay" : a.show === true? "show" : "hide";
 					a.action = action;
 					delete a.show;
 				}

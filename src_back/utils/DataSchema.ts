@@ -252,6 +252,7 @@ const UserDataSchema = {
 									]
 								},
 								action: {type:"string", maxLength:20},
+								obsAction: {enum:["sources","startstream","stopstream","startrecord","pauserecord","resumerecord","stoprecord","emitevent"]},
 								triggerId: {type:"string", maxLength:50},
 								filterName: {type:"string", maxLength:100},
 								text: {type:"string", maxLength:1000},
@@ -281,6 +282,8 @@ const UserDataSchema = {
 								soundID: {type:"string", maxLength:100},
 								triggerKey: {type:"string", maxLength:100},
 								method: {type:"string", maxLength:10},
+								browserEventName: {type:"string", maxLength:100},
+								browserEventParams: {type:"string", maxLength:10000},
 								sendAsBody: {type:"boolean"},
 								customHeaders: {type:"boolean"},
 								headers:{

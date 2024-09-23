@@ -230,7 +230,7 @@ import ChatSuggestionForm from '@/components/chatSugg/ChatSuggestionForm.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
-import { TriggerEventPlaceholders, TriggerTypes, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, TriggerTypes, type TriggerActionObsData, type TriggerActionObsSourceDataAction, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -417,7 +417,7 @@ class TriggerActionEntry extends Vue {
 	 */
 	public get icons():string[] {
 		const icons = [];
-		const action2Icon:{[key in TriggerActionObsDataAction]:string} = {
+		const action2Icon:{[key in TriggerActionObsSourceDataAction]:string} = {
 			hide:"hide",
 			show:"show",
 			mute:"mute",

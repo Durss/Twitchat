@@ -1145,248 +1145,279 @@ export default class TriggerActionHandler {
 
 				//Handle OBS action
 				if(step.type == "obs") {
-					//Wait for potential OBS action in progress for the exact same source
-					//to complete its execution
-					const sourceBusy = this.obsSourceNameToQueue[step.sourceName] != undefined;
-					if(sourceBusy) {
-						logStep.messages.push({date:Date.now(), value:"OBS source \""+step.sourceName+"\" is busy, wait for its release"});
-					}
-					const prom = this.obsSourceNameToQueue[step.sourceName] ?? Promise.resolve();
-					let resolverOBS!: ()=>void;
-					this.obsSourceNameToQueue[step.sourceName] = new Promise<void>(async (resolve, reject)=> { resolverOBS = resolve });
-					await prom;
-					if(sourceBusy) {
-						logStep.messages.push({date:Date.now(), value:"OBS source \""+step.sourceName+"\" has been released, continue process"});
-					}
-
-					logStep.messages.push({date:Date.now(), value:"Execute OBS action \""+step.action+"\" on source \""+step.sourceName+"\""});
-
-					if(!OBSWebsocket.instance.connected) {
-						logStep.messages.push({date:Date.now(), value:"❌ OBS-Websocket NOT CONNECTED! Cannot execute requested action."});
-						log.error = true;
-						logStep.error = true;
-					}else{
-
-						if(step.text) {
-							try {
-								const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent);
-								logStep.messages.push({date:Date.now(), value:"Update text to \""+text+"\""});
-								await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
-							}catch(error) {
-								console.error(error);
-							}
+					if(step.obsAction == "sources" || !step.obsAction) {
+						//Wait for potential OBS action in progress for the exact same source
+						//to complete its execution
+						const sourceBusy = this.obsSourceNameToQueue[step.sourceName] != undefined;
+						if(sourceBusy) {
+							logStep.messages.push({date:Date.now(), value:"OBS source \""+step.sourceName+"\" is busy, wait for its release"});
 						}
-						if(step.url) {
-							try {
-								const url = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.url as string, subEvent);
-								logStep.messages.push({date:Date.now(), value:"Update browser source URL to \""+url+"\""});
-								await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
-							}catch(error) {
-								console.error(error);
-							}
+						const prom = this.obsSourceNameToQueue[step.sourceName] ?? Promise.resolve();
+						let resolverOBS!: ()=>void;
+						this.obsSourceNameToQueue[step.sourceName] = new Promise<void>(async (resolve, reject)=> { resolverOBS = resolve });
+						await prom;
+						if(sourceBusy) {
+							logStep.messages.push({date:Date.now(), value:"OBS source \""+step.sourceName+"\" has been released, continue process"});
 						}
-						if(step.mediaPath) {
-							try {
-								const url = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.mediaPath as string, subEvent, true, true);
-								logStep.messages.push({date:Date.now(), value:"Update Media source url to \""+url+"\""});
-								await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, url);
-							}catch(error) {
-								console.error(error);
-							}
-						}
-
-						if(step.filterName) {
-							try {
-								logStep.messages.push({date:Date.now(), value:"Set filter \""+step.filterName+"\" visibility to \""+(step.action == 'show'? "visible" : "hidden")+"\""});
-								if(step.action == "toggle_visibility"){
-									await OBSWebsocket.instance.toggleFilterState(step.sourceName, step.filterName);
-								}else{
-									await OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.action === "show");
-								}
-							}catch(error) {
-								console.error(error);
-							}
+	
+						logStep.messages.push({date:Date.now(), value:"Execute OBS action \""+step.action+"\" on source \""+step.sourceName+"\""});
+	
+						if(!OBSWebsocket.instance.connected) {
+							logStep.messages.push({date:Date.now(), value:"❌ OBS-Websocket NOT CONNECTED! Cannot execute requested action."});
+							log.error = true;
+							logStep.error = true;
 						}else{
-							let action = step.action;
-							//If requesting to show an highlighted message but the message
-							//is empty, force source to hide
-							if(trigger.type == TriggerTypes.HIGHLIGHT_CHAT_MESSAGE
-							&& message.type == "chat_highlight"
-							&& (!message.info.message || message.info.message.length===0)) {
-								action = "hide";
+	
+							if(step.text) {
+								try {
+									const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent);
+									logStep.messages.push({date:Date.now(), value:"Update text to \""+text+"\""});
+									await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
+								}catch(error) {
+									console.error(error);
+								}
 							}
-							try {
-								switch(action) {
-									case "hide": await OBSWebsocket.instance.setSourceState(step.sourceName, false); break;
-									case "show": await OBSWebsocket.instance.setSourceState(step.sourceName, true); break;
-									case "toggle_visibility": await OBSWebsocket.instance.toggleSourceState(step.sourceName); break;
-									case "replay": await OBSWebsocket.instance.replayMedia(step.sourceName); break;
-									case "stop": await OBSWebsocket.instance.stopMedia(step.sourceName); break;
-									case "mute": await OBSWebsocket.instance.setMuteState(step.sourceName, true); break;
-									case "next": await OBSWebsocket.instance.nextMedia(step.sourceName); break;
-									case "prev": await OBSWebsocket.instance.prevMedia(step.sourceName); break;
-									case "unmute": await OBSWebsocket.instance.setMuteState(step.sourceName, false); break;
-									case "switch_to": await OBSWebsocket.instance.setCurrentScene(step.sourceName); break;
-									case "move":
-									case "rotate":
-									case "resize": {
-										const items = await OBSWebsocket.instance.getSourceOnCurrentScene(step.sourceName);
-										if(!items || items.length == 0) {
-											logStep.messages.push({date:Date.now(), value:"❌ source \""+step.sourceName+"\" not found"});
-											log.error = true;
-											logStep.error = true;
-										}else{
-											for (let i = 0; i < items.length; i++) {
-												const item = items[i];
-												const transform = await OBSWebsocket.instance.getSceneItemTransform(item.scene, item.source.sceneItemId);
-												type ReducedType = Partial<Pick<SourceTransform, "positionX" | "positionY" | "width" | "height" | "rotation" | "scaleX" | "scaleY">>;
-												const result:ReducedType = {};
-												if(action == "move") {
-													//Move source
-													if(step.pos_x) {
-														let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pos_x, subEvent);
-														text = text.replace(/,/gi, ".");
-														result.positionX = MathEval(text);
+							if(step.url) {
+								try {
+									const url = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.url as string, subEvent);
+									logStep.messages.push({date:Date.now(), value:"Update browser source URL to \""+url+"\""});
+									await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
+								}catch(error) {
+									console.error(error);
+								}
+							}
+							if(step.mediaPath) {
+								try {
+									const url = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.mediaPath as string, subEvent, true, true);
+									logStep.messages.push({date:Date.now(), value:"Update Media source url to \""+url+"\""});
+									await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, url);
+								}catch(error) {
+									console.error(error);
+								}
+							}
+	
+							if(step.filterName) {
+								try {
+									logStep.messages.push({date:Date.now(), value:"Set filter \""+step.filterName+"\" visibility to \""+(step.action == 'show'? "visible" : "hidden")+"\""});
+									if(step.action == "toggle_visibility"){
+										await OBSWebsocket.instance.toggleFilterState(step.sourceName, step.filterName);
+									}else{
+										await OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.action === "show");
+									}
+								}catch(error) {
+									console.error(error);
+								}
+							}else{
+								let action = step.action;
+								//If requesting to show an highlighted message but the message
+								//is empty, force source to hide
+								if(trigger.type == TriggerTypes.HIGHLIGHT_CHAT_MESSAGE
+								&& message.type == "chat_highlight"
+								&& (!message.info.message || message.info.message.length===0)) {
+									action = "hide";
+								}
+								try {
+									switch(action) {
+										case "hide": await OBSWebsocket.instance.setSourceState(step.sourceName, false); break;
+										case "show": await OBSWebsocket.instance.setSourceState(step.sourceName, true); break;
+										case "toggle_visibility": await OBSWebsocket.instance.toggleSourceState(step.sourceName); break;
+										case "replay": await OBSWebsocket.instance.replayMedia(step.sourceName); break;
+										case "stop": await OBSWebsocket.instance.stopMedia(step.sourceName); break;
+										case "mute": await OBSWebsocket.instance.setMuteState(step.sourceName, true); break;
+										case "next": await OBSWebsocket.instance.nextMedia(step.sourceName); break;
+										case "prev": await OBSWebsocket.instance.prevMedia(step.sourceName); break;
+										case "unmute": await OBSWebsocket.instance.setMuteState(step.sourceName, false); break;
+										case "switch_to": await OBSWebsocket.instance.setCurrentScene(step.sourceName); break;
+										case "move":
+										case "rotate":
+										case "resize": {
+											const items = await OBSWebsocket.instance.getSourceOnCurrentScene(step.sourceName);
+											if(!items || items.length == 0) {
+												logStep.messages.push({date:Date.now(), value:"❌ source \""+step.sourceName+"\" not found"});
+												log.error = true;
+												logStep.error = true;
+											}else{
+												for (let i = 0; i < items.length; i++) {
+													const item = items[i];
+													const transform = await OBSWebsocket.instance.getSceneItemTransform(item.scene, item.source.sceneItemId);
+													type ReducedType = Partial<Pick<SourceTransform, "positionX" | "positionY" | "width" | "height" | "rotation" | "scaleX" | "scaleY">>;
+													const result:ReducedType = {};
+													if(action == "move") {
+														//Move source
+														if(step.pos_x) {
+															let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pos_x, subEvent);
+															text = text.replace(/,/gi, ".");
+															result.positionX = MathEval(text);
+														}
+														if(step.pos_y) {
+															let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pos_y, subEvent);
+															text = text.replace(/,/gi, ".");
+															result.positionY = MathEval(text);
+														}
+													}else if(action == "resize") {
+														//Resize source
+														if(step.width) {
+															let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.width, subEvent);
+															text = text.replace(/,/gi, ".");
+															result.width = MathEval(text);
+														}
+														if(step.height) {
+															let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.height, subEvent);
+															text = text.replace(/,/gi, ".");
+															result.height = MathEval(text);
+														}
+													}else if(action == "rotate" && step.angle) {
+														//Rotate source
+															let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.angle, subEvent);
+															text = text.replace(/,/gi, ".");
+															result.rotation = MathEval(text);
 													}
-													if(step.pos_y) {
-														let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pos_y, subEvent);
-														text = text.replace(/,/gi, ".");
-														result.positionY = MathEval(text);
+	
+													//Handle relative transform mode
+													if(step.relativeTransform === true) {
+														if(result.positionX) result.positionX += transform.positionX;
+														if(result.positionY) result.positionY += transform.positionY;
+														if(result.width) result.width += transform.width;
+														if(result.height) result.height += transform.height;
+														if(result.rotation) result.rotation += transform.rotation;
 													}
-												}else if(action == "resize") {
-													//Resize source
-													if(step.width) {
-														let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.width, subEvent);
-														text = text.replace(/,/gi, ".");
-														result.width = MathEval(text);
+	
+													//OBS-WS does not allow to change the source's sizes.
+													//Instead we compute the equivalent scale values.
+													if(result.width) {
+														result.scaleX = result.width/transform.sourceWidth;
+														delete result.width;
 													}
-													if(step.height) {
-														let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.height, subEvent);
-														text = text.replace(/,/gi, ".");
-														result.height = MathEval(text);
+													if(result.height) {
+														result.scaleY = result.height/transform.sourceHeight;
+														delete result.height;
 													}
-												}else if(action == "rotate" && step.angle) {
-													//Rotate source
-														let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.angle, subEvent);
-														text = text.replace(/,/gi, ".");
-														result.rotation = MathEval(text);
-												}
-
-												//Handle relative transform mode
-												if(step.relativeTransform === true) {
-													if(result.positionX) result.positionX += transform.positionX;
-													if(result.positionY) result.positionY += transform.positionY;
-													if(result.width) result.width += transform.width;
-													if(result.height) result.height += transform.height;
-													if(result.rotation) result.rotation += transform.rotation;
-												}
-
-												//OBS-WS does not allow to change the source's sizes.
-												//Instead we compute the equivalent scale values.
-												if(result.width) {
-													result.scaleX = result.width/transform.sourceWidth;
-													delete result.width;
-												}
-												if(result.height) {
-													result.scaleY = result.height/transform.sourceHeight;
-													delete result.height;
-												}
-												logStep.messages.push({date:Date.now(), value:"Set source transform to "+JSON.stringify(result)});
-
-												if(step.animate === true) {
-													logStep.messages.push({date:Date.now(), value:"Animate transformation. Duration: "+step.animateDuration+". Easing: "+step.animateEasing});
-													const params:{[key:string]:number|string|(()=>void)} = {};
-													for (const key in result) params[key] = result[key as keyof ReducedType]!;
-													params.duration = step.animateDuration! / 1000;
-													params.ease = step.animateEasing!;
-													
-													//Compute animation frames
-													//from: https://gsap.com/community/forums/topic/16782-get-array-of-resulting-values/?do=findComment&comment=74424
-													function summarizeTweenValues(tween:gsap.core.Tween, fps:number = 60) {
-														let modifiers:{[key:string]:(a:number)=>number} = {},
-														results:{[key:string]:number[]} = {},
-														l = tween.duration() * fps,
-														getModifier = function(a:number[]) {
-															return function(value:number) {
-																a.push(value);
-																return a[0];
-															};
-														},
-														vars = tween.vars.css || tween.vars,
-														p, i;
-														for (p in vars) {
-															//Only keep source transform compatible keys
-															if(["positionX","positionY","rotation","scaleX","scaleY"].includes(p)) {
-																results[p] = [];
-																modifiers[p] = getModifier(results[p]);
+													logStep.messages.push({date:Date.now(), value:"Set source transform to "+JSON.stringify(result)});
+	
+													if(step.animate === true) {
+														logStep.messages.push({date:Date.now(), value:"Animate transformation. Duration: "+step.animateDuration+". Easing: "+step.animateEasing});
+														const params:{[key:string]:number|string|(()=>void)} = {};
+														for (const key in result) params[key] = result[key as keyof ReducedType]!;
+														params.duration = step.animateDuration! / 1000;
+														params.ease = step.animateEasing!;
+														
+														//Compute animation frames
+														//from: https://gsap.com/community/forums/topic/16782-get-array-of-resulting-values/?do=findComment&comment=74424
+														function summarizeTweenValues(tween:gsap.core.Tween, fps:number = 60) {
+															let modifiers:{[key:string]:(a:number)=>number} = {},
+															results:{[key:string]:number[]} = {},
+															l = tween.duration() * fps,
+															getModifier = function(a:number[]) {
+																return function(value:number) {
+																	a.push(value);
+																	return a[0];
+																};
+															},
+															vars = tween.vars.css || tween.vars,
+															p, i;
+															for (p in vars) {
+																//Only keep source transform compatible keys
+																if(["positionX","positionY","rotation","scaleX","scaleY"].includes(p)) {
+																	results[p] = [];
+																	modifiers[p] = getModifier(results[p]);
+																}
 															}
+															vars.modifiers = modifiers;
+															vars.immediateRender = true;
+															tween.invalidate();
+															for (i = 0; i <= l; i++) {
+																tween.seek(i / fps);
+															}
+															delete tween.vars.modifiers;
+															// tween.invalidate().seek(0);
+															return results;
 														}
-														vars.modifiers = modifiers;
-														vars.immediateRender = true;
-														tween.invalidate();
-														for (i = 0; i <= l; i++) {
-															tween.seek(i / fps);
+														//Build batch queries
+														const tween = gsap.to(transform, params);
+														const values = summarizeTweenValues(tween);
+														const frames:RequestBatchRequest[] = [];
+														const keys = Object.keys(values);
+														for (let i = 0; i < values[keys[0]].length; i++) {
+															let transform:{[key:string]:number} = {};
+															for (const key in values) {
+																transform[key] = values[key][i];
+															}
+															frames.push({
+																requestType:"SetSceneItemTransform",
+																requestData: {sceneName:item.scene, sceneItemId:item.source.sceneItemId, sceneItemTransform:transform}
+															});
+															frames.push({
+																requestType:"Sleep",
+																requestData:{sleepFrames:1},
+															})
 														}
-														delete tween.vars.modifiers;
-														// tween.invalidate().seek(0);
-														return results;
+														
+														//Make OBS execute animation frames
+														OBSWebsocket.instance.socket.callBatch(frames, {executionType:RequestBatchExecutionType.SerialFrame, haltOnFailure:false});
+													}else{
+														await OBSWebsocket.instance.setSourceTransform(item.scene, item.source.sceneItemId, result);
 													}
-													//Build batch queries
-													const tween = gsap.to(transform, params);
-													const values = summarizeTweenValues(tween);
-													const frames:RequestBatchRequest[] = [];
-													const keys = Object.keys(values);
-													for (let i = 0; i < values[keys[0]].length; i++) {
-														let transform:{[key:string]:number} = {};
-														for (const key in values) {
-															transform[key] = values[key][i];
-														}
-														frames.push({
-															requestType:"SetSceneItemTransform",
-															requestData: {sceneName:item.scene, sceneItemId:item.source.sceneItemId, sceneItemTransform:transform}
-														});
-														frames.push({
-															requestType:"Sleep",
-															requestData:{sleepFrames:1},
-														})
-													}
-													
-													//Make OBS execute animation frames
-													OBSWebsocket.instance.socket.callBatch(frames, {executionType:RequestBatchExecutionType.SerialFrame, haltOnFailure:false});
-												}else{
-													await OBSWebsocket.instance.setSourceTransform(item.scene, item.source.sceneItemId, result);
 												}
 											}
 										}
 									}
+									if(step.waitMediaEnd === true && (action == "show" || action == "replay")) {
+										logStep.messages.push({date:Date.now(), value:"Wait for media \""+step.sourceName+"\" to complete playing..."});
+										await new Promise<void>((resolve, reject)=> {
+											const handler = (e:TwitchatEvent) => {
+												const d = e.data as {inputName:string};
+												if(d.inputName != step.sourceName) return;
+												logStep.messages.push({date:Date.now(), value:"Media \""+step.sourceName+"\" playing complete."});
+												OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, handler);
+												resolve();
+											}
+											logStep.messages.push({date:Date.now(), value:"Handler created..."});
+											OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, handler);
+										})
+									}
+								}catch(error:any) {
+									console.error(error);
+									log.criticalError = true;
+									logStep.error = true;
+									logStep.messages.push({date:Date.now(), value:"❌ [EXCEPTION] OBS step execution thrown an error: "+(error.message || JSON.stringify(error))});
 								}
-								if(step.waitMediaEnd === true && (action == "show" || action == "replay")) {
-									logStep.messages.push({date:Date.now(), value:"Wait for media \""+step.sourceName+"\" to complete playing..."});
-									await new Promise<void>((resolve, reject)=> {
-										const handler = (e:TwitchatEvent) => {
-											const d = e.data as {inputName:string};
-											if(d.inputName != step.sourceName) return;
-											logStep.messages.push({date:Date.now(), value:"Media \""+step.sourceName+"\" playing complete."});
-											OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, handler);
-											resolve();
-										}
-										logStep.messages.push({date:Date.now(), value:"Handler created..."});
-										OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, handler);
-									})
-								}
-							}catch(error:any) {
-								console.error(error);
-								log.criticalError = true;
-								logStep.error = true;
-								logStep.messages.push({date:Date.now(), value:"❌ [EXCEPTION] OBS step execution thrown an error: "+(error.message || JSON.stringify(error))});
 							}
+	
+							logStep.messages.push({date:Date.now(), value:"OBS action executed on source \""+step.sourceName+"\""});
 						}
-
-						logStep.messages.push({date:Date.now(), value:"OBS action executed on source \""+step.sourceName+"\""});
+	
+						resolverOBS();
+						delete this.obsSourceNameToQueue[step.sourceName];
+					}else
+					if(step.obsAction == "startstream") {
+						OBSWebsocket.instance.startStreaming();
+					}else
+					if(step.obsAction == "stopstream") {
+						OBSWebsocket.instance.stopStreaming();
+					}else
+					if(step.obsAction == "startrecord") {
+						await OBSWebsocket.instance.socket.call("StartRecord");
+					}else
+					if(step.obsAction == "pauserecord") {
+						await OBSWebsocket.instance.socket.call("PauseRecord");
+					}else
+					if(step.obsAction == "resumerecord") {
+						await OBSWebsocket.instance.socket.call("ResumeRecord");
+					}else
+					if(step.obsAction == "stoprecord") {
+						await OBSWebsocket.instance.socket.call("StopRecord");
+					}else
+					if(step.obsAction == "emitevent") {
+						const event:{requestType:string, vendorName:string, requestData:{event_name:string, event_data:{data:string}}} = {
+							requestType:"emit_event",
+							vendorName:"obs-browser",
+							requestData:{
+								event_name:step.browserEventName || "",
+								event_data:{data:step.browserEventParams || ""},
+							}
+						};
+						OBSWebsocket.instance.socket.call("CallVendorRequest", event);
 					}
-
-					resolverOBS();
-					delete this.obsSourceNameToQueue[step.sourceName];
 				}else
 
 				//Handle Chat action
