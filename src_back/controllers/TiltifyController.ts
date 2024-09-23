@@ -84,6 +84,9 @@ export default class TiltifyController extends AbstractController {
 			return;
 		}
 
+		console.log("TILTIFY WEBHOOK EVENT");
+		console.log(JSON.stringify(body));
+
 		try{
 
 			if(body.meta.event_type == "public:direct:donation_updated") {
@@ -330,7 +333,7 @@ export default class TiltifyController extends AbstractController {
 			return;
 		}
 
-		const webhookId = "ca592f9c-40c7-48db-9bd5-2d198db32a16";
+		const webhookId = Config.credentials.tiltify_webhook_id;
 		const url = this.apiPath+`/api/private/webhook_endpoints/${webhookId}/webhook_subscriptions/${campaignId}`;
 		const headers = {
 			"content-type":"application/json",
@@ -345,7 +348,7 @@ export default class TiltifyController extends AbstractController {
 
 		const res = await fetch(url, {method:"PUT", headers, body:JSON.stringify(body)});
 		if(res.status == 200) {
-			const json = await res.json();
+			// const json = await res.json();
 			Logger.info("[TILTIFY] Webhook created for \""+campaignId+"\"");
 		}else{
 			Logger.error("[TILTIFY] Failed subscribing to campaign");
