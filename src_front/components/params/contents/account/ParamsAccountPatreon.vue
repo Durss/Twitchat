@@ -86,8 +86,6 @@
 import TTButton from '@/components/TTButton.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
-import Config from '@/utils/Config';
-import PatreonHelper from '@/utils/patreon/PatreonHelper';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
@@ -102,53 +100,24 @@ class ParamsAccountPatreon extends Vue {
 	public redirecting:boolean = false;
 	public authenticating:boolean = false;
 
-	private csrfToken:string = "";
-
-	public get connected():boolean { return PatreonHelper.instance.connected; }
+	public get connected():boolean { return this.$store.patreon.connected; }
 
 	public async mounted():Promise<void> {
 		const {json} = await ApiHelper.call("patreon/isApiDown", "GET");
 		this.patreonDown = json.data.isDown === true;
 
-		// PatreonHelper.instance.connect();
-		const authParams = this.$store.patreon.patreonAuthParams;
-		if(authParams) {
-			this.authenticating = true;
-
-			const {json:csrf} = await ApiHelper.call("auth/CSRFToken", "POST", {token:authParams.csrf});
-			if(!csrf.success) {
-				this.$store.common.alert(csrf.message || "Patreon authentication failed");
-			}else{
-				try {
-					await PatreonHelper.instance.authenticate(authParams.code);
-				}catch(e:unknown) {
-					console.log(e);
-					this.$store.common.alert("Oops... something went wrong");
-				}
-			}
-
-			this.authenticating = false;
-			this.$store.patreon.setPatreonAuthResult(null);
-		}
-
+		this.authenticating = true;
+		await this.$store.patreon.completeOAuthFlow(true);
+		this.authenticating = false;
 	}
 
 	public async disconnect():Promise<void> {
-		PatreonHelper.instance.disconnect();
+		this.$store.patreon.disconnect();
 	}
 
 	public async authenticate():Promise<void> {
 		this.redirecting = true;
-
-		const {json} = await ApiHelper.call("auth/CSRFToken", "GET");
-		this.csrfToken = json.token;
-		const url = new URL("https://www.patreon.com/oauth2/authorize");
-		url.searchParams.append("response_type", "code");
-		url.searchParams.append("client_id", Config.instance.PATREON_CLIENT_ID);
-		url.searchParams.append("redirect_uri", PatreonHelper.instance.redirectURI);
-		url.searchParams.append("scope", Config.instance.PATREON_SCOPES);
-		url.searchParams.append("state", this.csrfToken);
-		document.location = url.href;
+		document.location = await this.$store.patreon.getOAuthURL(true);
 	}
 
 	public openDonate(premiumMode:boolean = true):void {

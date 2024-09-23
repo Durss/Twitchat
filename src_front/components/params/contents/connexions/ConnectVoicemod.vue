@@ -5,7 +5,7 @@
 		<div class="head">
 			<i18n-t scope="global" tag="div" keypath="voicemod.header">
 				<template #LINK>
-					<a href="https://www.voicemod.net" target="_blank">{{ $t("voicemod.header_link") }}</a>
+					<a href="https://www.voicemod.net" target="_blank"><Icon name="newtab" />{{ $t("voicemod.header_link") }}</a>
 				</template>
 			</i18n-t>
 		</div>

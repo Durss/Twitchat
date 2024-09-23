@@ -179,9 +179,6 @@ export const storeAuth = defineStore('auth', {
 				const sRewards = StoreProxy.rewards;
 				const sExtension = StoreProxy.extension;
 
-				//[EDIT] removed in favor of membership check on api/user endpoint
-				// await PatreonHelper.instance.connect();//Wait for result to make sure a patreon user doesn't get the TWITCHAT_AD_WARNED message
-
 				try {
 					window.setInitMessage("migrating local parameter data");
 					await DataStore.emergencyBackupStorage();

@@ -5,7 +5,7 @@
 		<div class="head">
 			<i18n-t scope="global" tag="span" keypath="tiltify.header">
 				<template #LINK>
-					<a href="https://tiltify.com/" target="_blank">Tiltify</a>
+					<a href="https://tiltify.com/" target="_blank"><Icon name="newtab" />Tiltify</a>
 				</template>
 			</i18n-t>
 		</div>

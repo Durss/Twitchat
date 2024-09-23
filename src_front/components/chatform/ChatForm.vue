@@ -363,7 +363,6 @@ import Logger from '@/utils/Logger';
 import PublicAPI from '@/utils/PublicAPI';
 import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
-import PatreonHelper from '@/utils/patreon/PatreonHelper';
 import HeatSocket from '@/utils/twitch/HeatSocket';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -375,7 +374,6 @@ import { gsap } from 'gsap/gsap-core';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ButtonNotification from '../ButtonNotification.vue';
-import Icon from '../Icon.vue';
 import TTButton from '../TTButton.vue';
 import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
 import ParamItem from '../params/ParamItem.vue';
@@ -679,7 +677,7 @@ export class ChatForm extends Vue {
 					//Check premium only condition
 					if(a.premiumOnly === true && !this.$store.auth.isPremium) continue;
 					//Check patreon only condition
-					if(a.patreonOnly === true && !PatreonHelper.instance.isMember) continue;
+					if(a.patreonOnly === true && !this.$store.patreon.isMember) continue;
 					//Check patreon only condition
 					if(a.heatOnly === true && !HeatSocket.instance.connected) continue;
 					//Check if within date frame

@@ -1432,6 +1432,25 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.PATREON: {
+					const amount = Math.round(Math.random()*50);
+					const m:TwitchatDataTypes.PatreonNewMemberData = {
+						platform:"twitch",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						channel_id:uid,
+						amount,
+						amountFormatted:amount+"€",
+						currency:"EUR",
+						eventType:"new_member",
+						userName:fakeUser.displayNameOriginal,
+						pledge:"",
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS: {
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const amount = Math.round(Math.random()*50);

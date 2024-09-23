@@ -35,6 +35,11 @@
 				<p>Lumia Stream</p>
 			</button>
 
+			<button class="card-item premium" @click="subContent='patreon'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_7, id:'params_connect.patreon'}">
+				<Icon name="patreon" />
+				<p>Patreon</p>
+			</button>
+
 			<button class="card-item premium half" @click="subContent='streamlabs'">
 				<Icon name="streamlabs" />
 				<p>Streamlabs</p>
@@ -96,6 +101,7 @@
 	<ConnectStreamelements v-else-if="subContent == 'streamelements'" />
 	<ConnectTiltify v-else-if="subContent == 'tiltify'" />
 	<ConnectTipeee v-else-if="subContent == 'tipeee'" />
+	<ConnectPatreon v-else-if="subContent == 'patreon'" />
 </template>
 
 <script lang="ts">
@@ -119,6 +125,7 @@ import ConnectLumia from './connexions/ConnectLumia.vue';
 import ConnectStreamelements from './connexions/ConnectStreamelements.vue';
 import ConnectTipeee from './connexions/ConnectTipeee.vue';
 import ConnectTiltify from './connexions/ConnectTiltify.vue';
+import ConnectPatreon from './connexions/ConnectPatreon.vue';
 
 @Component({
 	components:{
@@ -128,6 +135,7 @@ import ConnectTiltify from './connexions/ConnectTiltify.vue';
 		ConnectGoXLR,
 		ConnectLumia,
 		ConnectTipeee,
+		ConnectPatreon,
 		ConnectDiscord,
 		ConnectTiltify,
 		ConnectSpotify,

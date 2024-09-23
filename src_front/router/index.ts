@@ -127,7 +127,6 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/spotify/auth',
 		name: 'spotify/auth',
 		redirect:() => {
-			const sMain = StoreProxy.main;
 			const sParams = StoreProxy.params;
 			const sMusic = StoreProxy.music;
 			if(!Utils.getQueryParameterByName("error")) {
@@ -148,9 +147,9 @@ const routes: Array<RouteRecordRaw> = [
 	},
 	{
 		path: '/patreon/auth',
+		alias: '/patreon/auth/premium',
 		name: 'patreon/auth',
-		redirect:() => {
-			const sMain = StoreProxy.main;
+		redirect:(to) => {
 			const sParams = StoreProxy.params;
 			const sPatreon = StoreProxy.patreon;
 			if(Utils.getQueryParameterByName("code")) {
@@ -158,7 +157,12 @@ const routes: Array<RouteRecordRaw> = [
 					code:Utils.getQueryParameterByName("code") as string,
 					csrf:Utils.getQueryParameterByName("state") as string,
 				}
-				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+
+				if(to.fullPath.indexOf("/premium") > -1) {
+					sParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+				}else{
+					sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, "patreon");
+				}
 				sPatreon.setPatreonAuthResult(params);
 			}else{
 				StoreProxy.common.alert( StoreProxy.i18n.t("error.patreon_denied") );
@@ -173,7 +177,6 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/youtube/auth',
 		name: 'youtube/auth',
 		redirect:() => {
-			const sMain = StoreProxy.main;
 			const sParams = StoreProxy.params;
 			const sYoutube = StoreProxy.youtube;
 			if(Utils.getQueryParameterByName("code")) {
@@ -196,7 +199,6 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/streamlabs/auth',
 		name: 'streamlabs/auth',
 		redirect:() => {
-			const sMain = StoreProxy.main;
 			const sParams = StoreProxy.params;
 			const sStreamlabs = StoreProxy.streamlabs;
 			if(Utils.getQueryParameterByName("code")) {
@@ -219,7 +221,6 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/tipeee/auth',
 		name: 'tipeee/auth',
 		redirect:() => {
-			const sMain = StoreProxy.main;
 			const sParams = StoreProxy.params;
 			const sTipeee = StoreProxy.tipeee;
 			if(Utils.getQueryParameterByName("code")) {

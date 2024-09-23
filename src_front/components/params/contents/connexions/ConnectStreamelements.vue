@@ -5,7 +5,7 @@
 		<div class="head">
 			<i18n-t scope="global" tag="span" keypath="streamelements.header">
 				<template #LINK>
-					<a href="https://streamelements.com/" target="_blank">Streamelements</a>
+					<a href="https://streamelements.com/" target="_blank"><Icon name="newtab" />Streamelements</a>
 				</template>
 			</i18n-t>
 		</div>

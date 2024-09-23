@@ -5,7 +5,7 @@
 		<div class="head">
 			<i18n-t scope="global" tag="span" keypath="tipeee.header">
 				<template #LINK>
-					<a href="https://www.tipeeestream.com/" target="_blank">Tipeee Stream</a>
+					<a href="https://www.tipeeestream.com/" target="_blank"><Icon name="newtab" />Tipeee Stream</a>
 				</template>
 			</i18n-t>
 		</div>

@@ -4,7 +4,7 @@ import * as fs from "fs";
 import fetch from "node-fetch";
 import Config from "../utils/Config.js";
 import Logger from "../utils/Logger.js";
-import TwitchUtils from "../utils/TwitchUtils.js";
+import TwitchUtils, { TwitchToken } from "../utils/TwitchUtils.js";
 import AbstractController from "./AbstractController.js";
 
 /**
@@ -56,9 +56,13 @@ export default class PatreonController extends AbstractController {
 		this.server.get('/api/patreon/isMember', async (request, response) => await this.getIsMember(request, response));
 		this.server.get('/api/patreon/serverauth', async (request, response) => await this.getServerAuth(request, response));
 		this.server.get('/api/patreon/isApiDown', async (request, response) => await this.getApiDown(request, response));
+		this.server.get('/api/patreon/user/webhook', async (request, response) => await this.getUserWebhook(request, response));
 		this.server.post('/api/patreon/webhook', async (request, response) => await this.postWebhookTrigger(request, response));
+		this.server.post('/api/patreon/user/webhook/:uid', async (request, response) => await this.postWebhookUserTrigger(request, response));
 		this.server.post('/api/patreon/authenticate', async (request, response) => await this.postAuthenticate(request, response));
 		this.server.post('/api/patreon/refresh_token', async (request, response) => await this.postRefreshToken(request, response));
+		this.server.post('/api/patreon/user/webhook', async (request, response) => await this.postUserWebhook(request, response));
+		this.server.delete('/api/patreon/user/webhook', async (request, response) => await this.deleteUserWebhook(request, response));
 
 		if(Config.credentials.patreon_client_id_server && Config.credentials.patreon_client_secret_server) {
 			await this.authenticateLocal();
@@ -87,16 +91,24 @@ export default class PatreonController extends AbstractController {
 		url.searchParams.append("client_secret", Config.credentials.patreon_client_secret);
 
 		const result = await fetch(url, {method:"POST", headers:{"User-Agent":this.userAgent}});
-		const json = await result.json();
-
-		if(json.error) {
+		if(result.status == 200) {
+			const json = await result.json();
+			
+			if(json.error) {
+				response.header('Content-Type', 'application/json');
+				response.status(500);
+				response.send({success:false, message:json.error});
+			}else{
+				response.header('Content-Type', 'application/json');
+				response.status(200);
+				response.send(JSON.stringify({success:true, data:json}));
+			}
+		}else{
+			Logger.error("Failed authenticating with Patreon with status:", result.status);
+			console.log(await result.text());
 			response.header('Content-Type', 'application/json');
 			response.status(500);
-			response.send({success:false, message:json.error});
-		}else{
-			response.header('Content-Type', 'application/json');
-			response.status(200);
-			response.send(JSON.stringify({success:true, data:json}));
+			response.send({success:false, message:"Authentication failed"});
 		}
 	}
 
@@ -127,6 +139,159 @@ export default class PatreonController extends AbstractController {
 			response.status(200);
 			response.send(JSON.stringify({success:true, data:json}));
 		}
+	}
+
+	/**
+	 * Create a webhook on the user's account to get notified about donations
+	 * @param request
+	 * @param response
+	 */
+	public async postUserWebhook(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		const webhookRes = await this.getUserWebhook(request, response, false);
+		if(!webhookRes) return;
+		
+		//Webhook already exists, no need to create it, stop there
+		if(webhookRes.webhookExists) {
+			response.header('Content-Type', 'application/json');
+			response.status(200);
+			response.send(JSON.stringify({success:true, message:"webhook already exists"}));
+			return;
+		}
+		const token:string = (request.body as any).token;
+		const headers = {
+			'Content-Type': 'application/json',
+			"Authorization":"Bearer "+token,
+			"User-Agent":this.userAgent,
+		};
+
+		//Create new webhook
+		const options = {
+			method:"POST",
+			headers,
+			body:JSON.stringify({
+				"data": {
+					"type": "webhook",
+					"attributes": {
+						"triggers": ["members:create", "members:update", "members:delete"],
+						"uri": webhookRes.webhookURL,
+					},
+					"relationships": {
+						"campaign": {
+							"data": {"type": "campaign", "id": webhookRes.campaignID},
+						},
+					},
+				},
+			})
+		}
+		const resultWebhook = await fetch("https://www.patreon.com/api/oauth2/v2/webhooks", options);
+		const jsonWebhook = await resultWebhook.json() as {data:WebhookEntry, errors?:unknown[]};
+		if(jsonWebhook.errors) {
+			Logger.error("Patreon creating webhook failed");
+			console.log(jsonWebhook);
+			response.header('Content-Type', 'application/json');
+			response.status(500);
+			response.send({success:false, message:jsonWebhook.errors});
+		}else{
+			//Save webhook secret
+			const filePath = Config.patreonUid2WebhookSecret;
+			const json = JSON.parse(fs.existsSync(filePath)? fs.readFileSync(filePath, "utf8") : "{}");
+			json[webhookRes.campaignID] = {twitchId:webhookRes.user.user_id, secret:jsonWebhook.data.attributes.secret};
+			fs.writeFileSync(filePath, JSON.stringify(json), "utf8");
+
+			response.header('Content-Type', 'application/json');
+			response.status(200);
+			response.send(JSON.stringify({success:true}));
+		}
+	}
+
+	/**
+	 * Get if user has created the webhook
+	 * @param request
+	 * @param response
+	 */
+	public async getUserWebhook(request:FastifyRequest, response:FastifyReply, answerToQuery:boolean = true):Promise<{webhookURL:string, campaignID:string, user:TwitchToken, webhookID:string, webhookExists:boolean}|false|void> {
+		const user = await this.twitchUserGuard(request, response);
+		if(!user) return false;
+
+		const token:string = (request.body || request.query as any).token;
+		const headers = {
+			'Content-Type': 'application/json',
+			"Authorization":"Bearer "+token,
+			"User-Agent":this.userAgent,
+		};
+
+		//Get campaign details
+		const url = new URL("https://www.patreon.com/api/oauth2/v2/campaigns");
+		url.searchParams.append("fields[campaign]", "created_at,summary,image_url,creation_name,patron_count,pledge_url");
+		const campaignRes = await fetch(url, {method:"GET", headers});
+		if(campaignRes.status < 200 || campaignRes.status > 204) {
+			//Couldn't load campaign
+			Logger.error("Patreon campaigns loading failed");
+			console.log(await campaignRes.text());
+			response.header('Content-Type', 'application/json');
+			response.status(500);
+			response.send({success:false, message:"couldn't load campaigns"});
+			return false;
+		}
+		
+		let webhookExists = false;
+		let campaignID:string = "";
+		let webhookURL:string = "";
+		let webhookID:string = "";
+		const campaigns = await campaignRes.json();
+		if(campaigns.data && campaigns.data.length > 0) {
+			//Campaigns is an array but, to date, Patreon only allows one campaign per account
+			//no need to check for other entries but the first
+			campaignID = campaigns.data[0].id;
+			webhookURL = Config.credentials.patreon_webhook_url.replace("{ID}", campaignID)
+			
+			//Check if webhook already exists and cleanup any duplicate
+			const result = await fetch("https://www.patreon.com/api/oauth2/v2/webhooks", {method:"GET", headers});
+			const json = await result.json() as {data?:WebhookEntry[]};
+			(json.data || []).forEach(entry => {
+				if(entry.attributes.uri == webhookURL) {
+					if(webhookExists) {
+						//If exist flag is already raised, delete the webhook as it's most probably a duplicate
+						fetch("https://www.patreon.com/api/oauth2/v2/webhooks/"+entry.id, {method:"DELETE", headers});
+					}else{
+						webhookExists = true;
+						webhookID = entry.id;
+					}
+				}
+			});
+		}
+
+		if(answerToQuery) {
+			response.header('Content-Type', 'application/json');
+			response.status(200);
+			response.send(JSON.stringify({success:true, webhookExists}));
+		}
+		return {campaignID, webhookURL, user, webhookExists, webhookID};
+	}
+
+	/**
+	 * Delete a user's webhook
+	 * @param request
+	 * @param response
+	 */
+	public async deleteUserWebhook(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		const webhookRes = await this.getUserWebhook(request, response, false);
+		if(!webhookRes) return;
+
+		const token:string = (request.body || request.query as any).token;
+		const headers = {
+			'Content-Type': 'application/json',
+			"Authorization":"Bearer "+token,
+			"User-Agent":this.userAgent,
+		};
+		
+		const deleteRes = await fetch("https://www.patreon.com/api/oauth2/v2/webhooks/"+webhookRes.webhookID, {method:"DELETE", headers});
+		console.log(deleteRes.status);
+		console.log(await deleteRes.text());
+
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send(JSON.stringify({success:true}));
 	}
 
 	/**
@@ -202,9 +367,6 @@ export default class PatreonController extends AbstractController {
 			response.send(JSON.stringify({success:true, data:{isMember}}));
 		}
 	}
-
-
-
 
 	/**
 	 * Reset authentication
@@ -366,29 +528,67 @@ export default class PatreonController extends AbstractController {
 		Logger.success("Patreon: received webhook event \""+event+"\"");
 		response.status(200);
 		response.send("OK");
-		try {
-			//Patreon sometimes sends double create webhook events.
-			//Debounce it to avoid concurrent patrons updates
-			if(this.webhookDebounce)clearTimeout(this.webhookDebounce);
-			this.webhookDebounce = setTimeout(() => {
-				this.refreshPatrons(event != "members:create");
-			}, 2000);
-			this.patreonApiDown = false;
-		}catch(error) {
-			this.patreonApiDown = true;
-		}
 
-		if(event == "members:create") {
-			//Force a second refresh 10s after an account creation
-			//I've had a case of user not being counted as member right after donating, I'm suspecting
-			//that's because I requested too quick but I'm not sure at all.
-			//Although new members are not yet approved as patreon members, they usually have the
-			//given amount returned. That time it apparently didn't.
-			//This second call is here in case I called Patreon too early after member's creation.
-			setTimeout(()=>{
-				this.refreshPatrons(true);
-			}, 10000);
+		//Patreon sometimes sends double create webhook events.
+		//Debounce it to avoid concurrent patrons updates
+		if(this.webhookDebounce)clearTimeout(this.webhookDebounce);
+		this.webhookDebounce = setTimeout(() => {
+			this.refreshPatrons(event != "members:create");
+
+			if(event == "members:create") {
+				//Force a second refresh 10s after an account creation
+				//I've had a case of user not being counted as member right after donating, I'm suspecting
+				//that's because I requested too quick but I'm not sure at all.
+				//Although new members are not yet approved as patreon members, they usually have the
+				//given amount returned. That time it apparently didn't.
+				//This second call is here in case I called Patreon too early after member's creation.
+				setTimeout(()=>{
+					this.refreshPatrons(true);
+				}, 10000);
+			}
+		}, 2000);
+		this.patreonApiDown = false;
+	}
+
+	/**
+	 * Called by patreon when a there's a patron update on user's campaign
+	 * NOT used for my own updates, fors this: @see postWebhookTrigger()
+	 * @param request
+	 * @param response
+	 */
+	public async postWebhookUserTrigger(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		//Retreive user ID from query path
+		const { uid } = request.params as any;
+
+		//Get webhook secret
+		const filePath = Config.patreonUid2WebhookSecret;
+		const json = JSON.parse(fs.existsSync(filePath)? fs.readFileSync(filePath, "utf8") : "{}");
+		const {twitchId, secret} = json[uid];
+
+		//Verify signature
+		const event = request.headers["x-patreon-event"];
+		const signature = request.headers["x-patreon-signature"];
+		const hash = crypto.createHmac('md5', secret)
+		//@ts-ignore no typings for "rowBody" that is added by fastify-raw-body
+		.update(request.rawBody)
+		.digest('hex');
+		
+		Logger.success("Patreon: received webhook event \""+event+"\" for user ", uid, "(twitch:"+twitchId+")");
+		console.log(JSON.stringify(request.body));
+
+		if(signature != hash) {
+			Logger.warn("Patreon: Invalid webhook signature for user", uid, "(twitch:"+twitchId+")");
+			//TODO broadcast event over SSE
+			response.status(401);
+			response.send("Unauthorized");
+			return;
 		}
+		
+		Logger.success("Patreon: received webhook event \""+event+"\" for user ", uid, "(twitch:"+twitchId+")");
+		console.log(JSON.stringify(request.body));
+
+		response.status(200);
+		response.send("OK");
 	}
 
 	/**
@@ -586,4 +786,17 @@ interface PatreonMemberships {
 			total: number
 		}
 	}
+}
+
+interface WebhookEntry {
+	attributes: {
+		last_attempted_at: any
+		num_consecutive_times_failed: number
+		paused: boolean
+		secret: string
+		triggers: string[]
+		uri: string
+	}
+	id: string
+	type: string
 }

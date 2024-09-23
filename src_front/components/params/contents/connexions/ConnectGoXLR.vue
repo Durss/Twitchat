@@ -5,7 +5,7 @@
 		<div class="head">
 			<i18n-t scope="global" tag="span" keypath="goxlr.header">
 				<template #LINK>
-					<a href="https://github.com/GoXLR-on-Linux/goxlr-utility/releases/latest" target="_blank">{{ $t("goxlr.header_link") }}</a>
+					<a href="https://github.com/GoXLR-on-Linux/goxlr-utility/releases/latest" target="_blank"><Icon name="newtab" />{{ $t("goxlr.header_link") }}</a>
 				</template>
 			</i18n-t>
 		</div>

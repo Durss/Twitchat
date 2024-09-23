@@ -477,6 +477,9 @@
 		"tiltify": {
 			"donation": "{USER} a donné {AMOUNT} pour {CAMPAIGN}"
 		},
+		"patreon": {
+			"new_member": "{USER} s'est abonné sur Patreon pour {AMOUNT}"
+		},
 		"unban_request": {
 			"request": "{USER} a envoyé cette demande d'unban",
 			"accepted": "{MODERATOR} a accepté la demande d'unban de {USER}",

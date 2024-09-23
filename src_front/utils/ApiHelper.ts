@@ -471,6 +471,35 @@ type ApiEndpoints =  {
 			}
 		}
 	};
+	"patreon/user/webhook": {
+		GET: {
+			parameters: {
+				token:string;
+			},
+			response: {
+				success:boolean;
+				webhookExists:boolean;
+			}
+		}
+		POST: {
+			parameters: {
+				token:string;
+			},
+			response: {
+				success:boolean;
+				message?:string;
+			}
+		}
+		DELETE: {
+			parameters: {
+				token:string;
+			},
+			response: {
+				success:boolean;
+				message?:string;
+			}
+		}
+	};
 	"tenor/search": {
 		GET: {
 			parameters: {

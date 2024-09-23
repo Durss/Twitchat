@@ -8,7 +8,7 @@
 			v-model:items="folderTriggerList"
 			:rewards="rewards"
 			:noEdit="noEdit"
-			:debugMode="debugMode"
+			:debugMode="$store.main.devmode"
 			:triggerId="triggerId"
 			@change="onUpdateList"
 			@changeState="onToggleTrigger"
@@ -57,7 +57,6 @@ class TriggerList extends Vue {
 	@Prop({default:null})
 	public triggerId!:string|null;
 
-	public debugMode:boolean = false;
 	public triggerTypeToInfo:Partial<{[key in TriggerTypesValue]:TriggerTypeDefinition}> = {};
 	public buildIndex = 0;
 	public buildInterval = -1;
@@ -68,7 +67,6 @@ class TriggerList extends Vue {
 	 */
 	public buildBatchSize = 25;
 
-	private keyupHandler!:(e:KeyboardEvent) => void;
 
 	public get classes():string[] {
 		const res = ["triggerslist"];
@@ -105,14 +103,10 @@ class TriggerList extends Vue {
 		})
 
 		this.startSequentialBuild();
-
-		this.keyupHandler = (e:KeyboardEvent) => this.onKeyUp(e);
-		document.addEventListener("keyup", this.keyupHandler);
 	}
 
 	public beforeUnmount():void {
 		clearInterval(this.buildInterval);
-		document.removeEventListener("keyup", this.keyupHandler);
 	}
 
 	private startSequentialBuild():void {
@@ -259,17 +253,6 @@ class TriggerList extends Vue {
 
 		const tree = this.folderTriggerList.map(v => buildItem(v));
 		this.$store.triggers.updateTriggerTree(tree);
-	}
-
-	/**
-	 * Show a debug field on CTRL+ALT+D
-	 * @param e
-	 */
-	public onKeyUp(e:KeyboardEvent):void {
-		if(e.key.toUpperCase() == "D" && e.ctrlKey && e.altKey) {
-			this.debugMode = !this.debugMode;
-			e.preventDefault();
-		}
 	}
 
 	/**

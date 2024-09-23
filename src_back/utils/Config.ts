@@ -32,6 +32,10 @@ export default class Config {
 	 */
 	public static get patreon2Twitch(): string { return this.PATREON_DATA_FOLDER + "patreon2Twitch.json"; }
 	/**
+	 * Links a patreon user ID to their webhook secret
+	 */
+	public static get patreonUid2WebhookSecret(): string { return this.PATREON_DATA_FOLDER + "uid2webhookSecret.json"; }
+	/**
 	 * Links a twitch user ID to a discord guildID
 	 */
 	public static get discord2Twitch(): string { return this.DISCORD_DATA_FOLDER + "discord2Twitch.json"; }
@@ -404,6 +408,7 @@ interface Credentials {
 	patreon_client_id_server:string;
 	patreon_client_secret_server:string;
 	patreon_redirect_uri_server:string;
+	patreon_webhook_url:string;
 	patreon_webhook_secret:string;
 
 	tenor_secret:string;

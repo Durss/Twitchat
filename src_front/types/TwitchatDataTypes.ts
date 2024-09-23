@@ -2154,6 +2154,7 @@ export namespace TwitchatDataTypes {
 		WHISPER:"whisper",
 		TILTIFY:"tiltify",
 		CONNECT:"connect",
+		PATREON:"patreon",
 		UNPINNED:"unpinned",
 		SHOUTOUT:"shoutout",
 		VOICEMOD:"voicemod",
@@ -2256,6 +2257,7 @@ export namespace TwitchatDataTypes {
 		message:true,
 		whisper:true,
 		connect:true,
+		patreon:true,
 		shoutout:true,
 		unpinned:true,
 		qna_stop:false,
@@ -2443,6 +2445,7 @@ export namespace TwitchatDataTypes {
 									| MessageStreamlabsData
 									| MessageStreamelementsData
 									| MessageKofiData
+									| MessagePatreonData
 									| MessageUnbanRequestData
 									| MessageTipeeeDonationData
 									| MessageBingoGridData
@@ -4695,6 +4698,26 @@ export namespace TwitchatDataTypes {
 			message_html:string;
 			tier?:string;
 			firstTimeSub:boolean;
+		}
+
+	/**
+	 * Represents a Patreon event
+	 */
+	export type MessagePatreonData = PatreonNewMemberData;
+		interface MessagePatreonBaseData extends AbstractTwitchatMessage {
+			type:"patreon";
+			eventType:"new_member";
+		}
+		/**
+		 * Represents a streamelements donation event
+		 */
+		export interface PatreonNewMemberData extends MessagePatreonBaseData {
+			eventType:"new_member";
+			amount:number;
+			amountFormatted:string;
+			userName:string;
+			pledge:string;
+			currency:string;
 		}
 
 	/**

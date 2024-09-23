@@ -6,7 +6,7 @@
 		<div class="head">
 			<i18n-t scope="global" tag="span" keypath="lumia.header">
 				<template #LINK>
-					<a href="https://lumiastream.com/" target="_blank">Lumia Stream</a>
+					<a href="https://lumiastream.com/" target="_blank"><Icon name="newtab" />Lumia Stream</a>
 				</template>
 			</i18n-t>
 		</div>

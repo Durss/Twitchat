@@ -418,6 +418,15 @@
 			:childrenList="childrenList"
 		/>
 	
+		<ChatPatreonEvent class="message"
+			v-else-if="messageData.type == 'patreon'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
+		/>
+	
 		<ChatUnbanRequest class="message"
 			v-else-if="messageData.type == 'unban_request'"
 			:messageData="messageData"
@@ -567,6 +576,7 @@ import ChatYoutubeSuperSticker from './ChatYoutubeSuperSticker.vue';
 import ChatYoutubeSubscription from './ChatYoutubeSubscription.vue';
 import ChatYoutubeSubgift from './ChatYoutubeSubgift.vue';
 import ChatTiltifyEvent from './ChatTiltifyEvent.vue';
+import ChatPatreonEvent from './ChatPatreonEvent.vue';
 
 @Component({
 	components:{
@@ -599,6 +609,7 @@ import ChatTiltifyEvent from './ChatTiltifyEvent.vue';
 		ChatTiltifyEvent,
 		ChatUnbanRequest,
 		ChatRoomSettings,
+		ChatPatreonEvent,
 		ChatRaffleResult,
 		ChatSubscription,
 		ChatCustomMessage,

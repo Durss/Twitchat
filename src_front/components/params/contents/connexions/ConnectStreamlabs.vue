@@ -5,10 +5,10 @@ C<template>
 		<div class="head">
 			<i18n-t scope="global" tag="span" keypath="streamlabs.header">
 				<template #LINK>
-					<a href="https://streamlabs.com/" target="_blank">Streamlabs</a>
+					<a href="https://streamlabs.com/" target="_blank"><Icon name="newtab" />Streamlabs</a>
 				</template>
 				<template #CHARITY_LINK>
-					<a href="https://streamlabscharity.com" target="_blank">Streamlabs Charity</a>
+					<a href="https://streamlabscharity.com" target="_blank"><Icon name="newtab" />Streamlabs Charity</a>
 				</template>
 			</i18n-t>
 		</div>

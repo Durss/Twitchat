@@ -1,4 +1,4 @@
-export namespace PatreonData {
+export namespace PatreonDataTypes {
 	export interface UserData {
 		data: ProfileData
 		included: Included[]
@@ -222,5 +222,12 @@ export namespace PatreonData {
 			id: string
 			type: string
 		}[]
+	}
+
+	export interface AuthTokenInfo {
+		access_token:string;
+		refresh_token:string;
+		expires_at:number;
+		scopes:("identity"|"identity[email]"|"identity.memberships"|"campaign"|"w:campaigns.webhook"|"campaigns.members"|"campaigns.members[email]"|"campaigns.members.address"|"campaigns.posts")[];
 	}
 }	

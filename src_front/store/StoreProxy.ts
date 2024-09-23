@@ -18,6 +18,7 @@ import type { LumiaVoiceList } from "./lumia/storeLumia";
 import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/storeTiltify";
+import type { PatreonDataTypes } from "@/utils/patreon/PatreonDataTypes";
 
 /**
 * Created : 23/09/2022
@@ -2203,21 +2204,70 @@ export interface IHeatActions {
 
 
 export interface IPatreonState {
+	token: PatreonDataTypes.AuthTokenInfo | null,
+	isMember: boolean;
+	connected: boolean;
+	webhookExists: boolean;
+	webhookScopesGranted:boolean;
 	/**
-	 * Spotify app params
+	 * Patreon auth flow params
 	 */
-	patreonAuthParams: SpotifyAuthResult|null;
-	/**
-	 * Current Spotify auth token
-	 */
-	patreonAuthToken: SpotifyAuthToken|null;
+	oauthFlowParams: {
+		code:string;
+		csrf:string;
+	} | null;
 }
 
 export interface IPatreonGetters {
 }
 
 export interface IPatreonActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
+	/**
+	 * Sets oAuth code to then complete oAuth flow
+	 * @param value 
+	 */
 	setPatreonAuthResult(value:{code:string,csrf:string}|null):void;
+	/**
+	 * Get oAuth URL to redirect to to start oauth flow
+	 * @param premiumContext 
+	 */
+	getOAuthURL(premiumContext?:boolean):Promise<string>;
+	/**
+	 * Disconnects the user
+	 */
+	disconnect():void;
+	/**
+	 * Get redirect URI
+	 * @param premiumContext 
+	 * @returns 
+	 */
+	getRedirectURI(premiumContext?:boolean):string;
+	/**
+	 * Completes oauth flow
+	 * @returns 
+	 */
+	completeOAuthFlow(premiumContext?:boolean):Promise<boolean>;
+	/**
+	 * Generate an auth token from a auth code 
+	 * @param code 
+	 */
+	authenticate(code:string, premiumContext?:boolean):Promise<void>;
+	/**
+	 * Get the user's data
+	 */
+	loadMemberState():Promise<void>;
+	/**
+	 * Create a webhook
+	 */
+	createWebhook():Promise<void>;
+	/**
+	 * Refreshes access token
+	 */
+	refreshToken():Promise<void>;
 }
 
 
