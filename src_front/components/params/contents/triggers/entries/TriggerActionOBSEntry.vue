@@ -233,8 +233,8 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_startstream", value:"startstream"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_stopstream", value:"stopstream"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_startrecord", value:"startrecord"});
-		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_resumerecord", value:"resumerecord"});
-		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_pauserecord", value:"pauserecord"});
+		// actionList.push({labelKey:"triggers.actions.obs.param_obs_action_pauserecord", value:"pauserecord"});
+		// actionList.push({labelKey:"triggers.actions.obs.param_obs_action_resumerecord", value:"resumerecord"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_stoprecord", value:"stoprecord"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_emitevent", value:"emitevent"});
 		this.param_obsAction_conf.listValues	= actionList;
