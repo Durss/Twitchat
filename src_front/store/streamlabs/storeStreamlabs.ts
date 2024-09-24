@@ -571,7 +571,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 		},
 
 		async resyncFromDonationList():Promise<void> {
-			if(resyncInProgress) return;
+			if(resyncInProgress || !this.charityTeam) return;
 			resyncInProgress = true;
 
 			const me = StoreProxy.auth.twitch.user;
