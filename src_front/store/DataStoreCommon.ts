@@ -89,6 +89,7 @@ export default class DataStoreCommon {
 	public static AB_SENTRY:string = "ab_sentry";
 	public static DISCORD_PARAMS:string = "discordParams";
 	public static STREAMLABS:string = "streamlabs";
+	public static STREAMLABS_CHARITY_CACHE:string = "streamlabsCharityCache";
 	public static STREAMELEMENTS:string = "streamelements";
 	public static PREDICTION_OVERLAY_PARAMS:string = "predictionOverlayParams";
 	public static POLL_OVERLAY_PARAMS:string = "pollOverlayParams";
@@ -142,6 +143,7 @@ export default class DataStoreCommon {
 		this.TIPEEE,
 		this.T4P_CHAT_CMD,
 		this.TILTIFY_TOKEN,
+		this.STREAMLABS_CHARITY_CACHE,
 	];
 
 

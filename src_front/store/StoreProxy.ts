@@ -2578,6 +2578,10 @@ export interface IStreamlabsActions {
 	 * Simulate SL Charity events
 	 */
 	simulateEvents():Promise<void>;
+	/**
+	 * Resync personnal tips based on donation history
+	 */
+	resyncFromDonationList():Promise<void>;
 }
 
 

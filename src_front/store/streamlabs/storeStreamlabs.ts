@@ -18,6 +18,9 @@ let reconnectAttempts:number = 0;
 let charityRefreshTimeout:number = -1;
 let isAutoInit:boolean = false;
 let autoReconnect:boolean = false;
+let resyncInProgress:boolean = false;
+let donationPageIndex:number = 840;
+let donationPrevPagesTotal:number = 0;
 
 export const storeStreamlabs = defineStore('streamlabs', {
 	state: () => ({
@@ -59,6 +62,11 @@ export const storeStreamlabs = defineStore('streamlabs', {
 					//Get fresh new data
 					this.loadCharityCampaignInfo(this.charityTeam.teamURL);
 				}
+			}
+			let cache = DataStore.get<{page:number, amount:number} | undefined>(DataStore.STREAMLABS_CHARITY_CACHE);
+			if(cache) {
+				donationPageIndex = cache.page;
+				donationPrevPagesTotal = cache.amount;
 			}
 		},
 
@@ -391,7 +399,6 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_IMAGE", teamJSON.campaign.causable.avatar.url);
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_NAME", this.charityTeam.title);
 
-			let historyAmountCents = 0;
 			let leaderboardAmountCents = 0;
 
 			//Get personnal raised amount from leaderboard
@@ -402,20 +409,13 @@ export const storeStreamlabs = defineStore('streamlabs', {
 				leaderboardAmountCents = parseFloat(leaderboardJSON.top_streamers.find(v=>v.display_name.toLowerCase() == myName)?.amount || "0");
 			}
 
-			//Get personal raised amount from donation history
-			const donationsRes = await fetch("https://streamlabscharity.com/api/v1/teams/"+this.charityTeam.id+"/donations");
-			if(donationsRes.status == 200) {
-				const donationsJSON = await donationsRes.json() as StreamlabsCharityDonationHistoryEntry[];
-				const me = StoreProxy.auth.twitch.user;
-				donationsJSON
-				.filter(v => v.member.user.display_name.toLowerCase() === me.login.toLowerCase() || v.member.user.display_name.toLowerCase() === me.displayNameOriginal.toLowerCase())
-				.forEach(v => historyAmountCents += v.donation.converted_amount);
-			}
-
-			//Keep only the highest value between current, history and loeadeboard amounts
-			this.charityTeam.amountRaisedPersonnal_cents = Math.max(this.charityTeam.amountRaisedPersonnal_cents, historyAmountCents, leaderboardAmountCents);
+			//Keep only the highest value between current and leadeboard amounts
+			this.charityTeam.amountRaisedPersonnal_cents = Math.max(this.charityTeam.amountRaisedPersonnal_cents, leaderboardAmountCents);
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED_PERSONNAL", this.charityTeam.amountRaisedPersonnal_cents/100);
 			
+			//Start full resync
+			this.resyncFromDonationList();
+
 			const newValues = [];
 			if(this.charityTeam) {
 				newValues.push(this.charityTeam.currency);
@@ -568,6 +568,54 @@ export const storeStreamlabs = defineStore('streamlabs', {
 				StoreProxy.donationGoals.onSourceValueUpdate("streamlabs_charity");
 				await Utils.promisedTimeout(Math.random() * 5000);
 			}
+		},
+
+		async resyncFromDonationList():Promise<void> {
+			if(resyncInProgress) return;
+			resyncInProgress = true;
+
+			const me = StoreProxy.auth.twitch.user;
+			let pageIndex = donationPageIndex;
+			let hasResults = false;
+			let total = donationPrevPagesTotal;
+			let lastPageTotal = 0;
+			let lastTip:StreamlabsCharityDonationHistoryEntry|undefined = undefined;
+			do {
+				hasResults = false;
+				const donationsRes = await fetch("https://streamlabscharity.com/api/v1/teams/"+this.charityTeam.id+"/donations?page="+pageIndex);
+				if(donationsRes.status == 200) {
+					const donationsJSON = await donationsRes.json() as StreamlabsCharityDonationHistoryEntry[];
+					hasResults = donationsJSON.length > 0;
+					lastPageTotal = 0;
+					let filtered = donationsJSON.filter(v => v.member && (
+						v.member.user.display_name.toLowerCase() === me.login.toLowerCase()
+						|| v.member.user.display_name.toLowerCase() === me.displayNameOriginal.toLowerCase()
+					));
+					filtered.forEach(v => {
+						total += v.donation.converted_amount;
+						lastPageTotal += v.donation.converted_amount;
+					});
+					if(filtered.length > 0) {
+						lastTip = filtered.pop();
+					}
+				}
+				pageIndex ++;
+			}while(hasResults);
+
+			//Cache all previous pages result (last one excluded) to avoid calling them all again 
+			donationPageIndex = pageIndex - 1;
+			donationPrevPagesTotal = total - lastPageTotal;
+
+			DataStore.set(DataStore.STREAMLABS_CHARITY_CACHE, {page:donationPageIndex, amount:donationPrevPagesTotal});
+
+			let currentValue = StoreProxy.labels.getLabelByKey("STREAMLABS_CHARITY_RAISED_PERSONNAL") as number || 0;
+			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED_PERSONNAL", Math.max(currentValue, total/100));
+			if(lastTip) {
+				StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_AMOUNT", lastTip.donation.converted_amount/100);
+				StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_USER", lastTip.member.user.display_name);
+			}
+
+			resyncInProgress = false;
 		}
 	
 	} as IStreamlabsActions

@@ -380,6 +380,9 @@ export default class TiltifyController extends AbstractController {
 			const text = await res.text();
 			Logger.error("[TILTIFY] Failed generating credential token!");
 			console.log(text);
+			setTimeout(()=>{
+				this.generateCredentialToken();
+			}, 5000);
 		}
 	}
 

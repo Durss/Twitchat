@@ -88,10 +88,10 @@
 						<ParamItem :paramData="param_counterId[overlay.id]" v-model="overlay.counterId" @change="save(overlay.id)"
 							v-if="overlay.dataSource == 'counter' && (param_counterId[overlay.id].listValues || []).length > 0" :childLevel="1" noBackground />
 
-						<div class="parameter-child charityDetails" v-if="overlay.dataSource == 'streamlabs_charity'">
+						<div class="parameter-child charityDetails" v-if="overlay.dataSource == 'streamlabs_charity' && $store.streamlabs.charityTeam != null">
 							<div class="holder">
 								<span><Icon name="streamlabs"/>{{ $t("donation_goals.param_campaignId") }}:</span>
-								<a :href="$store.streamlabs.charityTeam?.pageUrl" target="_blank"><Icon name="newtab"/>{{ $store.streamlabs.charityTeam?.title }}</a>
+								<a :href="$store.streamlabs.charityTeam.pageUrl" target="_blank"><Icon name="newtab"/>{{ $store.streamlabs.charityTeam.title }}</a>
 							</div>
 							<TTButton icon="download" v-if="!showSLCGoalImport" @click="showSLCGoalImport = true">{{ $t("donation_goals.import_streamlabs_goals") }}</TTButton>
 							<ul v-else-if="!showSLCGoalSuccess">
