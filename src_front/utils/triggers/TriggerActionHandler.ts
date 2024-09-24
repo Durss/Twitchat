@@ -320,6 +320,24 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.OBS_RECORDING_START: {
+				if(await this.executeTriggersByType(TriggerTypes.OBS_RECORDING_START, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.OBS_RECORDING_STOP: {
+				if(await this.executeTriggersByType(TriggerTypes.OBS_RECORDING_STOP, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.TWITCHAT_STARTED: {
+				if(await this.executeTriggersByType(TriggerTypes.TWITCHAT_STARTED, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE: {
 				const stateToType:{[key in TwitchatDataTypes.MessageOBSPlaybackStateValue]:TriggerTypesValue} = {
 					"complete": TriggerTypes.OBS_PLAYBACK_ENDED,

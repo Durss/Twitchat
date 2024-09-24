@@ -936,6 +936,17 @@ export const storeMain = defineStore("main", {
 			 * Tell overlays twitchat is ready
 			 */
 			StoreProxy.common.initialize(true);
+
+			/**
+			 * Execute twitchat start trigger
+			 */
+			TriggerActionHandler.instance.execute({
+								id:Utils.getUUID(),
+								channel_id:StoreProxy.auth.twitch.user.id,
+								date:Date.now(),
+								platform:"twitchat",
+								type:TwitchatDataTypes.TwitchatMessageType.TWITCHAT_STARTED
+							}, false);
 		},
 
 		confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string, STTOrigin?:boolean): Promise<T|undefined> {

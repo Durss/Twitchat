@@ -1146,6 +1146,18 @@
 				"label": "Arrêt du stream",
 				"description": "Actions à executer lorsque vous arrêtez le stream"
 			},
+			"OBS_RECORDING_START": {
+				"label": "Lancement d'enregistrement",
+				"description": "Actions à executer lorsque vous lancez un enregistrement"
+			},
+			"OBS_RECORDING_STOP": {
+				"label": "Arrêt d'enregistrement",
+				"description": "Actions à executer lorsque vous arrêtez un enregistrement en cours"
+			},
+			"TWITCHAT_STARTED": {
+				"label": "Twitchat prêt",
+				"description": "Actions à executer lorsque le chargement de Twitchat est terminé"
+			},
 			"STREAM_ONLINE": {
 				"label": "Début de stream",
 				"description": "Actions à exécuter lorsque le stream débute {INFO}",

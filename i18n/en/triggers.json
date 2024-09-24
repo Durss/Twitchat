@@ -1146,6 +1146,18 @@
 				"label": "Stop streaming (OBS)",
 				"description": "Actions to execute when stoping stream"
 			},
+			"OBS_RECORDING_START": {
+				"label": "Start recording",
+				"description": "Actions to execute when starting recording"
+			},
+			"OBS_RECORDING_STOP": {
+				"label": "Stop recording",
+				"description": "Actions to execute when stoping recording"
+			},
+			"TWITCHAT_STARTED": {
+				"label": "Twitchat ready",
+				"description": "Actions to execute after Twitchat loading completes"
+			},
 			"STREAM_ONLINE": {
 				"label": "Stream start",
 				"description": "Actions to execute when stream starts {INFO}",

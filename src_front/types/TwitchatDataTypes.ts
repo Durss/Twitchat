@@ -2202,6 +2202,7 @@ export namespace TwitchatDataTypes {
 		WARN_ACKNOWLEDGE:"warn_acknowledge",
 		CREDITS_COMPLETE:"credits_complete",
 		HISTORY_SPLITTER:"history_splitter",
+		TWITCHAT_STARTED:"twitchat_started",
 		OBS_START_STREAM:"obs_start_stream",
 		HYPE_TRAIN_START:"hype_train_start",
 		OBS_SCENE_CHANGE:"obs_scene_change",
@@ -2215,6 +2216,8 @@ export namespace TwitchatDataTypes {
 		TWITCH_CELEBRATION:"twitch_celebration",
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
 		RAFFLE_PICK_WINNER:"raffle_pick_winner",
+		OBS_RECORDING_STOP:"obs_recording_stop",
+		OBS_RECORDING_START:"obs_recording_start",
 		AD_BREAK_START_CHAT:"ad_break_start_chat",
 		HYPE_TRAIN_PROGRESS:"hype_train_progress",
 		HYPE_TRAIN_COMPLETE:"hype_train_complete",
@@ -2304,6 +2307,7 @@ export namespace TwitchatDataTypes {
 		warn_acknowledge:true,
 		obs_stop_stream:false,
 		websocket_topic:false,
+		twitchat_started:false,
 		credits_complete:false,
 		user_watch_streak:true,
 		hype_train_start:false,
@@ -2320,6 +2324,8 @@ export namespace TwitchatDataTypes {
 		raffle_pick_winner:false,
 		low_trust_treatment:true,
 		ad_break_start_chat:true,
+		obs_recording_stop:false,
+		obs_recording_start:false,
 		youtube_subscription:true,
 		hype_train_progress:false,
 		hype_train_complete:false,
@@ -2415,6 +2421,8 @@ export namespace TwitchatDataTypes {
 									| MessageOBSFilterToggleData
 									| MessageOBSInputMuteToggleData
 									| MessageOBSPlaybackStateUpdateData
+									| MessageOBSRecordingStartData
+									| MessageOBSRecordingStopData
 									| MessageRoomSettingsData
 									| MessageStreamOnlineData
 									| MessageStreamOfflineData
@@ -2462,6 +2470,7 @@ export namespace TwitchatDataTypes {
 									| MessageYoutubeBanData
 									| MessageWebsocketTopicData
 									| MessageTiltifyData
+									| MessageTwitchatStartedData
 	;
 
 	/**
@@ -4020,6 +4029,20 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
+	 * Represents an OBS recording started
+	 */
+	export interface MessageOBSRecordingStartData extends AbstractTwitchatMessage {
+		type:"obs_recording_start";
+	}
+
+	/**
+	 * Represents an OBS recording started
+	 */
+	export interface MessageOBSRecordingStopData extends AbstractTwitchatMessage {
+		type:"obs_recording_stop";
+	}
+
+	/**
 	 * Represents an OBS media playback change event
 	 */
 	export interface MessageOBSPlaybackStateUpdateData extends AbstractTwitchatMessage {
@@ -5146,4 +5169,11 @@ export namespace TwitchatDataTypes {
 				title:string;
 			};
 		}
+
+	/**
+	 * Called when twitchat starts
+	 */
+	export interface MessageTwitchatStartedData extends AbstractTwitchatMessage {
+		type:"twitchat_started";
+	}
 }
