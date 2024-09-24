@@ -13,7 +13,9 @@
 	<div class="triggeractionobsentry triggerActionForm" v-else>
 		<ParamItem :paramData="param_obsAction_conf" v-model="action.obsAction" />
 
-		<template v-if="action.obsAction === 'emitevent'">
+		<div class="info secondary" v-if="action.obsAction === 'pauserecord' || action.obsAction === 'resumerecord'">{{$t("triggers.actions.obs.param_obs_action_pauserecord_alert")}}</div>
+
+		<template v-else-if="action.obsAction === 'emitevent'">
 			<div class="info">{{ $t("triggers.actions.obs.param_browser_info") }}</div>
 			<ParamItem :paramData="param_browserEvent_name" v-model="action.browserEventName" />
 			<ParamItem :paramData="param_browserEvent_param" v-model="action.browserEventParams" />
@@ -26,11 +28,13 @@
 				</div>
 			</div>
 		</template>
-		<template v-if="action.obsAction === 'sources'">
+		
+		<template v-else-if="action.obsAction === 'sources'">
 			<ParamItem :paramData="param_source_conf" v-model="selectedSourceName" />
 			<ParamItem :paramData="param_sourceAction_conf" v-model="action.action" v-if="selectedSourceName" />
 			<ParamItem :paramData="param_text_conf" v-model="action.text" v-if="isTextSource" />
 			<ParamItem :paramData="param_url_conf" v-model="action.url" v-if="isBrowserSource" />
+			<ParamItem :paramData="param_css_conf" v-model="action.browserSourceCss" v-if="isBrowserSource" />
 			<ParamItem :paramData="param_x_conf" v-model="action.pos_x" v-if="action.action == 'move'" />
 			<ParamItem :paramData="param_y_conf" v-model="action.pos_y" v-if="action.action == 'move'" />
 			<ParamItem :paramData="param_width_conf" v-model="action.width" v-if="action.action == 'resize'" />
@@ -105,6 +109,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public param_filter_conf:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", listValues:[], labelKey:"triggers.actions.obs.param_filter" };
 	public param_text_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:500, labelKey:"triggers.actions.obs.param_text" };
 	public param_url_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url", placeholder:"http://...", labelKey:"triggers.actions.obs.param_url" };
+	public param_css_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", longText:true, maxLength:10000, icon:"color", placeholder:"", labelKey:"triggers.actions.obs.param_css" };
 	public param_media_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url", placeholder:"C:/...", labelKey:"triggers.actions.obs.param_media" };
 	public param_mediaEndEvent_conf:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"countdown", labelKey:"triggers.actions.obs.param_mediaEvent" };
 	public param_x_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"coord_x", maxLength:500, labelKey:"triggers.actions.obs.param_x" };
@@ -233,9 +238,11 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_startstream", value:"startstream"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_stopstream", value:"stopstream"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_startrecord", value:"startrecord"});
-		// actionList.push({labelKey:"triggers.actions.obs.param_obs_action_pauserecord", value:"pauserecord"});
-		// actionList.push({labelKey:"triggers.actions.obs.param_obs_action_resumerecord", value:"resumerecord"});
+		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_pauserecord", value:"pauserecord"});
+		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_resumerecord", value:"resumerecord"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_stoprecord", value:"stoprecord"});
+		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_startvirtualcam", value:"startvirtualcam"});
+		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_stopvirtualcam", value:"stopvirtualcam"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_emitevent", value:"emitevent"});
 		this.param_obsAction_conf.listValues	= actionList;
 		
@@ -258,14 +265,16 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	 * Called when the available placeholder list is updated
 	 */
 	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
-		this.param_text_conf.placeholderList	= list;
-		this.param_url_conf.placeholderList	= list;
-		this.param_media_conf.placeholderList	= list;
+		this.param_text_conf.placeholderList	= 
+		this.param_url_conf.placeholderList		= 
+		this.param_media_conf.placeholderList	= 
+		this.param_css_conf.placeholderList		= 
+		this.param_browserEvent_param.placeholderList = list;
+
 		this.param_x_conf.placeholderList		= 
 		this.param_y_conf.placeholderList		= 
 		this.param_angle_conf.placeholderList	= 
 		this.param_width_conf.placeholderList	= 
-		this.param_browserEvent_param.placeholderList = 
 		this.param_height_conf.placeholderList= list.filter(v=> v.numberParsable === true);
 	}
 
@@ -435,7 +444,9 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		}
 		if(!this.isBrowserSource) {
 			this.param_url_conf.value = "";
+			this.param_css_conf.value = "";
 			delete this.action.url;
+			delete this.action.browserSourceCss;
 		}
 
 		if(this.action.action == "move" || this.action.action == "resize" || this.action.action == "rotate") {

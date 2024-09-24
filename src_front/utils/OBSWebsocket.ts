@@ -114,9 +114,9 @@ export default class OBSWebsocket extends EventDispatcher {
 		// LIST ALL INPUT KINDS
 		//console.log(await this.obs.call("GetInputKindList"));
 
-		/* GET A SOURCE SETTINGS
-		const settings = await this.obs.call("GetInputSettings", {inputName: "TTBrowerSourceTest"});
-		console.log(settings);
+		//* GET A SOURCE SETTINGS
+		// const settings = await this.obs.call("GetInputSettings", {inputName: "BrowserSOUUURCE"});
+		// console.log(settings);
 		//*/
 
 		/* GET ALL SOURCES OF A SCENE
@@ -818,7 +818,6 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async setBrowserSourceURL(sourceName:string, url:string):Promise<void> {
 		if(!this.connected) return;
 
-		// const settings = await this.obs.call("GetInputSettings", {inputName: sourceName});
 		const newSettings:BrowserSourceSettings = {shutdown:true, is_local_file:false, url}
 		if(!/https?:\/\.*/i?.test(url) && !/.*:\/\/.*/gi.test(url)) {
 			//If using a local file, do not use "local_file" param as it does not
@@ -826,6 +825,19 @@ export default class OBSWebsocket extends EventDispatcher {
 			newSettings.url = "file:///"+url;
 		}
 
+		await this.obs.call("SetInputSettings", {inputName:sourceName as string, overlay:true, inputSettings:newSettings as JsonObject});
+	}
+
+	/**
+	 * Change the URL of a browser source
+	 *
+	 * @param sourceName
+	 * @param url
+	 */
+	public async setBrowserSourceCSS(sourceName:string, css:string):Promise<void> {
+		if(!this.connected) return;
+
+		const newSettings:BrowserSourceSettings = {shutdown:true, is_local_file:false, css}
 		await this.obs.call("SetInputSettings", {inputName:sourceName as string, overlay:true, inputSettings:newSettings as JsonObject});
 	}
 
@@ -1388,6 +1400,7 @@ export interface BrowserSourceSettings {
 	local_file?: string;
 	shutdown?: boolean;
 	url?: string;
+	css?: string;
 	width?: number;
 }
 

@@ -1186,6 +1186,15 @@ export default class TriggerActionHandler {
 									console.error(error);
 								}
 							}
+							if(step.browserSourceCss) {
+								try {
+									const css = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.browserSourceCss as string, subEvent);
+									logStep.messages.push({date:Date.now(), value:"Update browser source CSS"});
+									await OBSWebsocket.instance.setBrowserSourceCSS(step.sourceName, css);
+								}catch(error) {
+									console.error(error);
+								}
+							}
 							if(step.mediaPath) {
 								try {
 									const url = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.mediaPath as string, subEvent, true, true);
@@ -1407,13 +1416,20 @@ export default class TriggerActionHandler {
 					if(step.obsAction == "stoprecord") {
 						await OBSWebsocket.instance.socket.call("StopRecord");
 					}else
+					if(step.obsAction == "startvirtualcam") {
+						await OBSWebsocket.instance.socket.call("StartVirtualCam");
+					}else
+					if(step.obsAction == "stopvirtualcam") {
+						await OBSWebsocket.instance.socket.call("StopVirtualCam");
+					}else
 					if(step.obsAction == "emitevent") {
+						const params = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.browserEventParams || "", subEvent);
 						const event:{requestType:string, vendorName:string, requestData:{event_name:string, event_data:{data:string}}} = {
 							requestType:"emit_event",
 							vendorName:"obs-browser",
 							requestData:{
 								event_name:step.browserEventName || "",
-								event_data:{data:step.browserEventParams || ""},
+								event_data:{data:params},
 							}
 						};
 						OBSWebsocket.instance.socket.call("CallVendorRequest", event);
