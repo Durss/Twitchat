@@ -534,6 +534,7 @@ export default class ContextMenuHelper {
 		//Update "highlight message" state according to overlay presence
 		this.getHighlightOverPresence().then(res => {
 			const item = menu.items[highlightIndex] as MenuItem;
+			if(!item) return;
 			item.label = t("chat.context_menu.highlight");
 			item.disabled = false;
 			if(!res) item.customClass = "no_overlay";//Dirty way of knowing if overlay exists on the click handler of the item
