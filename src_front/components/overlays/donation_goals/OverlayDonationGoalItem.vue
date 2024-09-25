@@ -138,6 +138,7 @@ class OverlayDonationGoalItem extends Vue {
 		await this.$nextTick();
 		return new Promise<void>((resolve)=>{
 			const content = this.$refs.content as HTMLDivElement;
+			this.data.hidePercent = 0;
 			gsap.killTweensOf(this.data);
 			gsap.killTweensOf(content);
 			gsap.from(this.$refs.holder as HTMLElement, {padding:0, delay:this.index*.03, borderBottom:0, duration:.5, ease:"back.out", clearProps:"padding,borderBottom"});
