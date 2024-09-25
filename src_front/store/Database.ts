@@ -18,6 +18,7 @@ export default class Database {
 	private _db!:IDBDatabase;
 	private _cleanTimeout:number = -1;
 	private _maxRecords:number = 20000;
+	private _ready:boolean = true;
 	private _quotaWarned:boolean = false;
 	private _versionUpgraded:boolean = false;
 
@@ -67,12 +68,14 @@ export default class Database {
 				resolve();
 			}
 			this._dbConnection.onupgradeneeded = (event) => {
+				this._ready = false;
 				this._db = (event.target as any)?.result;
 				
 				if(!this._db.objectStoreNames.contains(Database.MESSAGES_TABLE)) {
 					this._messageStore = this._db.createObjectStore(Database.MESSAGES_TABLE, {autoIncrement: true});
 					this._messageStore.createIndex("id", "id", { unique: true });
-						this._messageStore.transaction.oncomplete = (event) => {
+					this._messageStore.transaction.oncomplete = (event) => {
+						this._ready = true;
 					}
 				}
 				this._versionUpgraded = (event.newVersion || 0) > event.oldVersion;
@@ -84,7 +87,7 @@ export default class Database {
 	 * Get all chat messages from the DB
 	 */
 	public async getMessageList():Promise<TwitchatDataTypes.ChatMessageTypes[]> {
-		if(!this._db) return Promise.resolve([]);
+		if(!this._db || !this._ready) return Promise.resolve([]);
 		return new Promise((resolve, reject)=> {
 			const query = this._db.transaction(Database.MESSAGES_TABLE, "readonly")
 			.objectStore(Database.MESSAGES_TABLE)
@@ -107,7 +110,7 @@ export default class Database {
 	 * @param message 
 	 */
 	public async addMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void> {
-		if(!this._db) return Promise.reject("Database not ready");
+		if(!this._db || !this._ready) return Promise.reject("Database not ready");
 		const sAuth = StoreProxy.auth;
 		const isFromRemoteChan = message.channel_id != sAuth.twitch.user.id && message.channel_id != sAuth.youtube.user?.id;
 		//Don't save messages from remote channels
@@ -183,7 +186,7 @@ export default class Database {
 	 * @param message 
 	 */
 	public async updateMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void>{
-		if(!this._db) return Promise.resolve();
+		if(!this._db || !this._ready) return Promise.resolve();
 		const sAuth = StoreProxy.auth;
 		const isFromRemoteChan = message.channel_id != sAuth.twitch.user.id && message.channel_id != sAuth.youtube.user?.id;
 		//Don't save messages from remote channels
@@ -213,7 +216,7 @@ export default class Database {
 	 * @param message 
 	 */
 	public async deleteMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void>{
-		if(!this._db) return Promise.resolve();
+		if(!this._db || !this._ready) return Promise.resolve();
 		const sAuth = StoreProxy.auth;
 		const isFromRemoteChan = message.channel_id != sAuth.twitch.user.id && message.channel_id != sAuth.youtube.user?.id;
 		//Don't save messages from remote channels
@@ -241,7 +244,7 @@ export default class Database {
 	 * Clears database content
 	 */
 	public async clear():Promise<void>{
-		if(!this._db) return Promise.resolve();
+		if(!this._db || !this._ready) return Promise.resolve();
 
 		return new Promise((resolve, reject)=> {
 			this._db.transaction(Database.MESSAGES_TABLE, "readwrite")
