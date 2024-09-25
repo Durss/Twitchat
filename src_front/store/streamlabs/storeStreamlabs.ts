@@ -590,16 +590,18 @@ export const storeStreamlabs = defineStore('streamlabs', {
 					const donationsJSON = await donationsRes.json() as StreamlabsCharityDonationHistoryEntry[];
 					hasResults = donationsJSON.length > 0;
 					lastPageTotal = 0;
-					let filtered = donationsJSON.filter(v => v.member && (
-						v.member.user.display_name.toLowerCase() === me.login.toLowerCase()
-						|| v.member.user.display_name.toLowerCase() === me.displayNameOriginal.toLowerCase()
-					));
-					filtered.forEach(v => {
-						total += v.donation.converted_amount;
-						lastPageTotal += v.donation.converted_amount;
-					});
-					if(filtered.length > 0) {
-						lastTip = filtered.pop();
+					if(hasResults) {
+						let filtered = donationsJSON.filter(v => v.member && (
+							v.member.user.display_name.toLowerCase() === me.login.toLowerCase()
+							|| v.member.user.display_name.toLowerCase() === me.displayNameOriginal.toLowerCase()
+						));
+						filtered.forEach(v => {
+							total += v.donation.converted_amount;
+							lastPageTotal += v.donation.converted_amount;
+						});
+						if(filtered.length > 0) {
+							lastTip = filtered.pop();
+						}
 					}
 				}
 				pageIndex ++;
@@ -659,11 +661,8 @@ interface StreamlabsDonationData {
 		isTest: boolean;
 		name:string;
 		amount:number;
-		formattedAmount:string;
-		/**
-		 * @deprecated apparently they changed for "formattedAmount"
-		 */
 		formatted_amount:string;
+		formattedAmount:string;
 		message:string;
 		currency:string;
 		emotes:string;
