@@ -138,8 +138,6 @@ class OverlayDonationGoals extends AbstractOverlay {
 			delete this.goalToParams[id];
 		})
 
-		console.log(state.raisedPersonnal);
-		
 		this.buildLocalParams();
 		
 		await this.$nextTick();

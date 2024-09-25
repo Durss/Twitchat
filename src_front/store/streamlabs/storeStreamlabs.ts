@@ -611,7 +611,6 @@ export const storeStreamlabs = defineStore('streamlabs', {
 
 			let currentValue = StoreProxy.labels.getLabelByKey("STREAMLABS_CHARITY_RAISED_PERSONNAL") as number || 0;
 			this.charityTeam.amountRaisedPersonnal_cents = Math.max(currentValue*100, total);
-			console.log(this.charityTeam.amountRaisedPersonnal_cents);
 
 			DataStore.set(DataStore.STREAMLABS_CHARITY_CACHE, {page:donationPageIndex, amount:donationPrevPagesTotal});
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED_PERSONNAL", this.charityTeam.amountRaisedPersonnal_cents/100);
