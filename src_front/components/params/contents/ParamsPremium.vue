@@ -57,6 +57,7 @@ class ParamsPremium extends Vue {
 	public async mounted():Promise<void> {
 		const lifetime = this.$store.auth.lifetimePremiumPercent * 100;
 		if(this.showProgress) {
+			await this.$nextTick();//wait for the progress bar to build
 			this.lifetimePercentEased = .0001;
 			gsap.to(this, {lifetimePercentEased:lifetime, duration:2, ease:"sine.out", onUpdate:()=>{
 				const label = this.$refs.label as HTMLDivElement;
