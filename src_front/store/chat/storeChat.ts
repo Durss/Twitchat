@@ -1202,14 +1202,13 @@ export const storeChat = defineStore('chat', {
 										//We shouldn't get an another wave for this message unless someone
 										//removes the blocked terms
 										setTimeout(()=>{
-											antiHateRaidCounter[key].messages = [];
-											antiHateRaidCounter[key].ignore = false;
-										}, 30000);
+											delete antiHateRaidCounter[key];
+										}, 10000);
 										this.addMessage(currentHateRaidAlert);
 									}else
 									//If anti hate raid is active and new message is received (might happen
 									//as adding a banword to twitch takes a few hundred milliseconds)
-									if(antiHateRaidCounter[key].messages.length > 5) {
+									if(antiHateRaidCounter[key].ignore != true && antiHateRaidCounter[key].messages.length > 5) {
 										//Add user to list
 										currentHateRaidAlert.haters.push(message.user);
 										Database.instance.updateMessage(currentHateRaidAlert);
@@ -1228,7 +1227,7 @@ export const storeChat = defineStore('chat', {
 										if(element.date < expiredSince) delete antiHateRaidCounter[key];
 									}
 								}else if(antiHateRaidCounter[key]) {
-									//It's not a first time reset counter
+									//It's not a first time chatter ignore this message
 									antiHateRaidCounter[key].ignore = true;
 								}
 							}
