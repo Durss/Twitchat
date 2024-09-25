@@ -1,5 +1,6 @@
 <template>
 	<div class="overlaydonationgoalitem"
+	:data-index="index"
 	v-if="data.visible">
 		<div ref="holder"
 		:style="styles"
@@ -12,12 +13,13 @@
 			questionMarks: data.percent < .1
 		}">
 			<div class="content" ref="content">
-				<span class="amount">{{ data.goalItem.amount }}<span class="currency" v-if="overlayParams.currency">{{ overlayParams.currency }}</span></span>
+				<span class="amount">{{ getFormattedNumber(data.goalItem.amount) }}<span class="currency" v-if="overlayParams.currency">{{ overlayParams.currency }}</span></span>
 				<div class="label">
 					<span class="title" v-if="data.goalItem.secret !== true || data.goalItem.secret_type !== 'progressive'">{{ data.goalItem.title }}</span>
 					<TextSplitter class="title" ref="textSplitter" v-else>{{ data.goalItem.title }}</TextSplitter>
 					<div class="mystery">???</div>
 				</div>
+				<span class="amount goal" v-if="data.distanceToCurrentIndex === 0">{{ getFormattedNumber(data.goalItem.amount - currentValue) }}<span class="currency" v-if="overlayParams.currency">{{ overlayParams.currency }}</span></span>
 				<div class="hideTimer" v-if="data.hidePercent > 0" :style="{width:data.hidePercent+'%'}"></div>
 				<div class="shine" ref="shines" v-for="i in 2"></div>
 			</div>
@@ -67,6 +69,9 @@ class OverlayDonationGoalItem extends Vue {
 	public index!:number;
 
 	@Prop()
+	public currentValue!:number;
+
+	@Prop()
 	public colors!:{base:string, fill:string, background:string};
 	
 	public localPercent:number = 0;
@@ -83,6 +88,10 @@ class OverlayDonationGoalItem extends Vue {
 		return {
 			backgroundPositionX: (1 - this.localPercent)*100+"%",
 		}
+	}
+
+	public getFormattedNumber(num:number):number {
+		return Math.round(num*100)/100;
 	}
 
 	public beforeMount():void {
@@ -325,11 +334,15 @@ export default toNative(OverlayDonationGoalItem);
 					font-size: .6em;
 					font-weight: normal;
 				}
+				&.goal {
+					font-size: 1.1em;
+				}
 			}
 			.label {
 				position: relative;
 				text-align: center;
 				flex-grow: 1;
+				margin-right: 1.25em;
 
 				.title {
 					white-space: pre-line;

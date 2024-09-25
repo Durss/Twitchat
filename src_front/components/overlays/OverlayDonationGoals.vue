@@ -7,6 +7,7 @@
 				:overlayParams="state.params"
 				:colors="{base:color, fill:color_fill, background:color_background}"
 				:index="index"
+				:currentValue="localRaised"
 				:data="goalToParams[goal.id]"
 				:id="currentIndex == index? 'current_donation_goal' : ''">
 					<OverlayDonationGoalAlert

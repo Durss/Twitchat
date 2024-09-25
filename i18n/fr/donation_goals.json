@@ -19,7 +19,7 @@
 		"goal_list": "Objectifs",
 		"param_color": "Thème de couleur",
 		"param_hideDone": "Masquer les objectifs remplis après 10 secondes",
-		"param_notifyTips": "Afficher une notification avec le détail de chaque don reçu",
+		"param_notifyTips": "Afficher une notification avec le pseudo de la personne ayant augmenté l'objectif",
 		"param_currency": "Suffix de la valeur des objectifs (ex: devise)",
 		"param_showCurrency": "Afficher la devise",
 		"param_autoDisplay": "Masquer la liste des objectifs automatiquement après 10 secondes d'inactivité",

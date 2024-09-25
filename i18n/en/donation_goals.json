@@ -19,7 +19,7 @@
 		"goal_list": "Goal list",
 		"param_color": "Color theme",
 		"param_hideDone": "Automatically hide completed donation goals after 10s",
-		"param_notifyTips": "Notify details of every donations received",
+		"param_notifyTips": "Notify with user's name who raised the goal",
 		"param_currency": "Goals amount suffix (ex: currency)",
 		"param_showCurrency": "Show currency",
 		"param_autoDisplay": "Hide donation goal list after 10 seconds of inativity",

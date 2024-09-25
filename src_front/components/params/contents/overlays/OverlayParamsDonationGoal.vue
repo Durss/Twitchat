@@ -118,7 +118,7 @@
 					</ParamItem>
 					<ParamItem :paramData="param_currency[overlay.id]" v-model="overlay.currency" @change="save(overlay.id)" class="currencyField" />
 					<ParamItem :paramData="param_color[overlay.id]" v-model="overlay.color" @change="save(overlay.id)" />
-					<ParamItem :paramData="param_notifyTips[overlay.id]" v-model="overlay.notifyTips" @change="save(overlay.id)" />
+					<ParamItem :paramData="param_notifyTips[overlay.id]" v-model="overlay.notifyTips" @change="save(overlay.id)" v-if="overlay.dataSource != 'counter'" />
 					<ParamItem :paramData="param_autoDisplay[overlay.id]" v-model="overlay.autoDisplay" @change="save(overlay.id)" />
 					<ParamItem :paramData="param_hideDone[overlay.id]" v-model="overlay.hideDone" @change="save(overlay.id)" />
 					<ParamItem :paramData="param_limitEntryCount[overlay.id]" v-model="overlay.limitEntryCount" @change="save(overlay.id)">
