@@ -2368,7 +2368,7 @@ export default class TriggerActionHandler {
 					if(step.pattern) {
 						const pattern:number[] = TriggerActionDataTypes.VIBRATION_PATTERNS.find(v=>v.id == step.pattern)?.pattern || [];
 						logStep.messages.push({date:Date.now(), value:"Vibrate device with pattern \""+step.pattern+"\" => \"["+pattern+"]\""});
-						window.navigator.vibrate(pattern);
+						if(window.navigator.vibrate) window.navigator.vibrate(pattern);
 					}
 				}else
 
