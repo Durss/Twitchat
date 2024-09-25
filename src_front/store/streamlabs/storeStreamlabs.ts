@@ -19,7 +19,7 @@ let charityRefreshTimeout:number = -1;
 let isAutoInit:boolean = false;
 let autoReconnect:boolean = false;
 let resyncInProgress:boolean = false;
-let donationPageIndex:number = 840;
+let donationPageIndex:number = 0;
 let donationPrevPagesTotal:number = 0;
 
 export const storeStreamlabs = defineStore('streamlabs', {
@@ -63,10 +63,13 @@ export const storeStreamlabs = defineStore('streamlabs', {
 					this.loadCharityCampaignInfo(this.charityTeam.teamURL);
 				}
 			}
-			let cache = DataStore.get<{page:number, amount:number} | undefined>(DataStore.STREAMLABS_CHARITY_CACHE);
+			let cache = DataStore.get(DataStore.STREAMLABS_CHARITY_CACHE);
 			if(cache) {
-				donationPageIndex = cache.page;
-				donationPrevPagesTotal = cache.amount;
+				const json = JSON.parse(cache) as {page:number, amount:number};
+				if(donationPageIndex > 0) {
+					donationPageIndex = json.page;
+					donationPrevPagesTotal = json.amount;
+				}
 			}
 		},
 
@@ -412,9 +415,6 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			//Keep only the highest value between current and leadeboard amounts
 			this.charityTeam.amountRaisedPersonnal_cents = Math.max(this.charityTeam.amountRaisedPersonnal_cents, leaderboardAmountCents);
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED_PERSONNAL", this.charityTeam.amountRaisedPersonnal_cents/100);
-			
-			//Start full resync
-			this.resyncFromDonationList();
 
 			const newValues = [];
 			if(this.charityTeam) {
@@ -430,6 +430,9 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			}
 			
 			StoreProxy.donationGoals.broadcastData();
+			
+			//Start full resync
+			this.resyncFromDonationList();
 
 			return true;
 		},
@@ -606,14 +609,19 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			donationPageIndex = pageIndex - 1;
 			donationPrevPagesTotal = total - lastPageTotal;
 
-			DataStore.set(DataStore.STREAMLABS_CHARITY_CACHE, {page:donationPageIndex, amount:donationPrevPagesTotal});
-
 			let currentValue = StoreProxy.labels.getLabelByKey("STREAMLABS_CHARITY_RAISED_PERSONNAL") as number || 0;
-			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED_PERSONNAL", Math.max(currentValue, total/100));
+			this.charityTeam.amountRaisedPersonnal_cents = Math.max(currentValue*100, total);
+			console.log(this.charityTeam.amountRaisedPersonnal_cents);
+
+			DataStore.set(DataStore.STREAMLABS_CHARITY_CACHE, {page:donationPageIndex, amount:donationPrevPagesTotal});
+			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED_PERSONNAL", this.charityTeam.amountRaisedPersonnal_cents/100);
 			if(lastTip) {
 				StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_AMOUNT", lastTip.donation.converted_amount/100);
 				StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_USER", lastTip.member.user.display_name);
 			}
+
+			StoreProxy.donationGoals.onSourceValueUpdate("streamlabs_charity");
+			StoreProxy.donationGoals.broadcastData();
 
 			resyncInProgress = false;
 		}

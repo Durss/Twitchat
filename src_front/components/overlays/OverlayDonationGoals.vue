@@ -137,6 +137,8 @@ class OverlayDonationGoals extends AbstractOverlay {
 			if(validIds.includes(id)) return;
 			delete this.goalToParams[id];
 		})
+
+		console.log(state.raisedPersonnal);
 		
 		this.buildLocalParams();
 		
