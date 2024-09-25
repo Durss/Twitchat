@@ -932,7 +932,8 @@ export const storeChat = defineStore('chat', {
 
 			message = reactive(message);
 			
-			if(message.channel_id != sAuth.twitch.user.id
+			if(!message.channelSource
+			&& message.channel_id != sAuth.twitch.user.id
 			&& message.channel_id != sAuth.youtube.user?.id) {
 				const infos = sStream.connectedTwitchChans.find(v=>v.user.id == message.channel_id);
 				if(infos) {

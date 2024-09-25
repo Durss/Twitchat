@@ -367,9 +367,9 @@ export default class ContextMenuHelper {
 									onClick: () => this.timeoutUser(tMessage, 60 * 60 * 24 * 7),
 								},
 								{
-									label: "4w",
+									label: "2w",
 									customClass:classesMod,
-									onClick: () => this.timeoutUser(tMessage, 60 * 60 * 24 * 7 * 4),
+									onClick: () => this.timeoutUser(tMessage, 60 * 60 * 24 * 7 * 2),
 								},
 								{
 									label: "1w",

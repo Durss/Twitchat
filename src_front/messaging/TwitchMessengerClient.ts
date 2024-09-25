@@ -639,7 +639,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	private async onMessage(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean):Promise<void> {
 		//Ignore anything that's not a message or a /me
-		if(tags["message-type"] != "chat" && tags["message-type"] != "action" && (tags["message-type"] as string) != "announcement") return;
+		if(tags["message-type"] != "chat" && tags["message-type"] != "action" && (tags["message-tlocype"] as string) != "announcement") return;
 
 		//Ignore rewards with text, they are also sent to PubSub with more info
 		if(tags["custom-reward-id"]) return;
@@ -680,7 +680,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				if(!this._remoteIdToPromise[chanId]) {
 					this._remoteIdToPromise[chanId] = new Promise<TwitchatDataTypes.TwitchatUser>((resolve)=>{
 						StoreProxy.users.getUserFrom("twitch", chanId, chanId, undefined, undefined, (user)=>{
-							return user
+							resolve(user);
 						})
 					});
 				}
