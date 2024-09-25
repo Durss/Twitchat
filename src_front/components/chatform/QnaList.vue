@@ -95,7 +95,8 @@ class QnaList extends AbstractSidePanel {
 	}
 
 	public get pageCount():number {
-		return Math.ceil(this.currentSession!.messages.length / this.itemsPerPage);
+		if(!this.currentSession) return 0;
+		return Math.ceil(this.currentSession.messages.length / this.itemsPerPage);
 	}
 
 	public get owner() {
@@ -103,8 +104,9 @@ class QnaList extends AbstractSidePanel {
 	}
 
 	public get messages():TwitchatDataTypes.QnaSession["messages"] {
+		if(!this.currentSession) return [];
 		const start = this.pageIndex * this.itemsPerPage;
-		return this.currentSession!.messages.sort((a,b)=>b.votes-a.votes).slice(start, this.itemsPerPage + start);
+		return this.currentSession.messages.sort((a,b)=>b.votes-a.votes).slice(start, this.itemsPerPage + start);
 	}
 
 	public getTime(message:TwitchatDataTypes.TranslatableMessage):string {
