@@ -612,7 +612,11 @@ export default class EventSub {
 			const categoryData = await TwitchUtils.getCategoryByID(event.category_id);
 			StoreProxy.labels.updateLabelValue("STREAM_TITLE", title);
 			StoreProxy.labels.updateLabelValue("STREAM_CATEGORY_NAME", category);
-			StoreProxy.labels.updateLabelValue("STREAM_CATEGORY_COVER", categoryData.box_art_url.replace("{width}", "138").replace("{height}", "190"));
+			if(categoryData) {
+				StoreProxy.labels.updateLabelValue("STREAM_CATEGORY_COVER", categoryData.box_art_url.replace("{width}", "138").replace("{height}", "190"));
+			}else{
+				StoreProxy.labels.updateLabelValue("STREAM_CATEGORY_COVER", "https://static-cdn.jtvnw.net/ttv-boxart/498566-138x190.jpg");
+			}
 			StoreProxy.labels.updateLabelValue("VIEWER_COUNT", viewers);
 		}
 
