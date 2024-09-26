@@ -188,6 +188,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	}
 
 	public async beforeMount():Promise<void> {
+		if(this.action.obsAction == undefined) this.action.obsAction = "sources";
 		if(this.action.action == undefined) this.action.action = "show";
 	}
 
