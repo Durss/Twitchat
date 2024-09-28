@@ -41,6 +41,20 @@ export const storeLabels = defineStore('labels', {
 					}
 				};
 			});
+			const counters = StoreProxy.counters.counterList;
+			counters.forEach(v=> {
+				if(v.perUser) return;
+				placeholders["COUNTER_"+v.placeholderKey as "SUB_TIER"] = {
+					value:v.value,
+					placeholder:{
+						descriptionKey: "triggers.placeholders.counter_global_value",
+						descriptionKeyName: v.name,
+						//@ts-ignore super dirty way of bypassing type checking on this I know...
+						tag:"COUNTER_"+v.placeholderKey,
+						type:"string",
+					}
+				};
+			});
 
 			return placeholders;
 		}
