@@ -15,7 +15,7 @@
 		</div>
 
 		<div class="card-item field" v-else>
-			<img src="@/assets/icons/broadcast.svg" class="icon">
+			<Icon name="broadcast" class="icon"/>
 			<div class="item title">{{$t('triggers.actions.trigger.selected')}}</div>
 			<SimpleTriggerList :filteredItemId="action.triggerId" @click="action.triggerId = ''" primary />
 			<button class="openTriggerBt" @click="openTrigger()"><Icon name="newtab" /></button>
