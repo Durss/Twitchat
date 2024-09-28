@@ -1503,7 +1503,7 @@ export const storeChat = defineStore('chat', {
 					break;
 				}
 
-				//New sub
+				//New YouTube sub
 				case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION: {
 					if(!isFromRemoteChan) {
 						StoreProxy.labels.updateLabelValue("SUB_YOUTUBE_ID", message.user.id);
@@ -1517,7 +1517,7 @@ export const storeChat = defineStore('chat', {
 					break;
 				}
 
-				//New sub
+				//New superchat 
 				case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT: {
 					if(!isFromRemoteChan) {
 						StoreProxy.labels.updateLabelValue("SUPER_CHAT_ID", message.user.id);
@@ -1525,6 +1525,15 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.updateLabelValue("SUPER_CHAT_AVATAR", message.user.avatarPath || "");
 						StoreProxy.labels.updateLabelValue("SUPER_CHAT_AMOUNT", message.amountDisplay);
 					}
+					break;
+				}
+
+				//New patreon member
+				case TwitchatDataTypes.TwitchatMessageType.PATREON: {
+						StoreProxy.labels.updateLabelValue("PATREON_USER", message.user.username);
+						StoreProxy.labels.updateLabelValue("PATREON_AVATAR", message.user.avatar);
+						StoreProxy.labels.updateLabelValue("PATREON_TITLE", message.tier.title);
+						StoreProxy.labels.updateLabelValue("PATREON_AMOUNT", message.tier.amount);
 					break;
 				}
 

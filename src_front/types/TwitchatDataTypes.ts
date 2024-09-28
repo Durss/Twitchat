@@ -2507,6 +2507,7 @@ export namespace TwitchatDataTypes {
 							| typeof TwitchatMessageType.STREAMELEMENTS
 							| typeof TwitchatMessageType.TIPEEE
 							| typeof TwitchatMessageType.TILTIFY
+							| typeof TwitchatMessageType.PATREON
 							| typeof TwitchatMessageType.COUNTDOWN
 							| typeof TwitchatMessageType.STREAM_ONLINE
 							| typeof TwitchatMessageType.MUSIC_ADDED_TO_QUEUE
@@ -2544,6 +2545,7 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.STREAMELEMENTS,						labelKey:"chat.filters.message_types.streamelements",						icon:"streamelements",	scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
 		{type:TwitchatMessageType.TIPEEE,								labelKey:"chat.filters.message_types.tipeee",								icon:"tipeee",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
 		{type:TwitchatMessageType.TILTIFY,								labelKey:"chat.filters.message_types.tiltify",								icon:"tiltify",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V13_7},
+		{type:TwitchatMessageType.PATREON,								labelKey:"chat.filters.message_types.patreon",								icon:"patreon",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V13_7},
 		{type:TwitchatMessageType.COUNTDOWN,							labelKey:"chat.filters.message_types.countdown",							icon:"countdown",		scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.STREAM_ONLINE,						labelKey:"chat.filters.message_types.stream_online",						icon:"online",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,					labelKey:"chat.filters.message_types.music_added_to_queue",					icon:"music",			scopes:[],	newFlag:0},
@@ -4736,11 +4738,16 @@ export namespace TwitchatDataTypes {
 		 */
 		export interface PatreonNewMemberData extends MessagePatreonBaseData {
 			eventType:"new_member";
-			amount:number;
-			amountFormatted:string;
-			userName:string;
-			pledge:string;
-			currency:string;
+			user: {
+				username: string;
+				avatar: string;
+				url: string;
+			},
+			tier: {
+				amount: number;
+				title: string;
+				description: string;
+			}
 		}
 
 	/**

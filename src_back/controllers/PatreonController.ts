@@ -6,21 +6,22 @@ import Config from "../utils/Config.js";
 import Logger from "../utils/Logger.js";
 import TwitchUtils, { TwitchToken } from "../utils/TwitchUtils.js";
 import AbstractController from "./AbstractController.js";
+import SSEController from "./SSEController.js";
 
 /**
 * Created : 13/07/2023
 */
 export default class PatreonController extends AbstractController {
 
-	private localScopes:string = "w:campaigns.webhook campaigns.members";
+	private localScopes:string = "identity campaigns campaigns.members w:campaigns.webhook";
 	private isFirstAuth:boolean = true;
 	private campaignId:string = "";
-	private members:PatreonMember[] = [];
 	private tokenRefresh!:NodeJS.Timeout;
 	private smsWarned:boolean = false;
 	private patreonApiDown:boolean = false;
 	private webhookDebounce:NodeJS.Timeout|null = null;
 	private userAgent = "Twitchat.fr server service";
+	private uidToFirstPayment:{[uid:string]:boolean} = {};
 
 	//If a user chooses to make a "custom pledge", they're not attributed to any
 	//actual tier. This represents the minimum amount (in cents) they should give
@@ -67,6 +68,9 @@ export default class PatreonController extends AbstractController {
 		if(Config.credentials.patreon_client_id_server && Config.credentials.patreon_client_secret_server) {
 			await this.authenticateLocal();
 		}
+
+		// const res = await this.loadCampaign("9093199");
+		// console.log(JSON.stringify(res))
 	}
 
 
@@ -415,7 +419,7 @@ export default class PatreonController extends AbstractController {
 				fs.writeFileSync(Config.patreonToken, JSON.stringify(token), "utf-8");
 				try {
 					await this.getCampaignID();
-					await this.refreshPatrons(this.isFirstAuth);
+					await this.refreshPatrons(this.campaignId, this.isFirstAuth);
 					this.patreonApiDown = false;
 				}catch(error) {
 					this.patreonApiDown = true;
@@ -494,7 +498,7 @@ export default class PatreonController extends AbstractController {
 			if(await this.authenticateLocal()) {
 				response.header('Content-Type', 'text/html; charset=UTF-8');
 				response.status(200);
-				response.send("Patreon connection Done! You can close this page.");
+				response.send("<div style=\"text-align:center; font-size:3em; width:100%;\">Patreon connection Done!<br>You can close this page.</div>");
 				Logger.success("Patreon: Server auth complete");
 			}else{
 				response.header('Content-Type', 'text/html; charset=UTF-8');
@@ -537,7 +541,7 @@ export default class PatreonController extends AbstractController {
 		//Debounce it to avoid concurrent patrons updates
 		if(this.webhookDebounce)clearTimeout(this.webhookDebounce);
 		this.webhookDebounce = setTimeout(() => {
-			this.refreshPatrons(event != "members:create");
+			this.refreshPatrons(this.campaignId, event != "members:create");
 
 			if(event == "members:create") {
 				//Force a second refresh 10s after an account creation
@@ -547,7 +551,7 @@ export default class PatreonController extends AbstractController {
 				//given amount returned. That time it apparently didn't.
 				//This second call is here in case I called Patreon too early after member's creation.
 				setTimeout(()=>{
-					this.refreshPatrons(true);
+					this.refreshPatrons(this.campaignId, true);
 				}, 10000);
 			}
 		}, 2000);
@@ -582,14 +586,38 @@ export default class PatreonController extends AbstractController {
 
 		if(signature != hash) {
 			Logger.warn("Patreon: Invalid webhook signature for user", uid, "(twitch:"+twitchId+")");
-			//TODO broadcast event over SSE
 			response.status(401);
 			response.send("Unauthorized");
 			return;
 		}
-		
-		Logger.success("Patreon: received webhook event \""+event+"\" for user ", uid, "(twitch:"+twitchId+")");
-		console.log(JSON.stringify(request.body));
+
+
+		if(event === "members:create") {
+			this.uidToFirstPayment[uid] = true;
+		}else
+		if(event === "members:update") {
+			const message = request.body as WebhookMemberCreateEvent;
+			const membershipDuration = Math.abs(new Date(message.data.attributes.pledge_relationship_start).getTime() - new Date(message.data.attributes.last_charge_date).getTime());
+			if(membershipDuration < 20*24*60*60*1000 || this.uidToFirstPayment[uid] === true) {
+				delete this.uidToFirstPayment[uid];
+				const user = message.included.find(v=>v.type == "user");
+				const tier = message.included.find(v=>v.type == "tier");
+				//Broadcast to client
+				SSEController.sendToUser(twitchId, "PATREON_MEMBER_CREATE", {
+					uid,
+					user: {
+						username: user?.attributes.full_name || message.data.attributes.full_name,
+						avatar: user?.attributes.image_small_url || user?.attributes.image_url || user?.attributes.thumb_url,
+						url: user?.attributes.url,
+					},
+					tier: {
+						amount:(tier?.attributes.amount_cents || message.data.attributes.currently_entitled_amount_cents || 0)/100,
+						title:tier?.attributes.title || "",
+						description:tier?.attributes.description || "",
+					}
+				})
+			}
+		}
 
 		response.status(200);
 		response.send("OK");
@@ -600,48 +628,22 @@ export default class PatreonController extends AbstractController {
 	 * @param request
 	 * @param response
 	 */
-	public async refreshPatrons(verbose:boolean = true, offset?:string):Promise<void> {
-		if(!offset) this.members = [];
-
-		const url = new URL("https://www.patreon.com/api/oauth2/v2/campaigns/"+this.campaignId+"/members");
-		url.searchParams.append("include", "currently_entitled_tiers");
-		url.searchParams.append("fields[member]", "full_name,is_follower,last_charge_date,last_charge_status,lifetime_support_cents,currently_entitled_amount_cents,patron_status");
-		url.searchParams.append("fields[tier]", "amount_cents,created_at,description,discord_role_ids,edited_at,patron_count,published,published_at,requires_shipping,title,url");
-		url.searchParams.append("fields[address]", "addressee,city,line_1,line_2,phone_number,postal_code,state");
-		url.searchParams.append("page[size]", "1000");
-		if(offset) url.searchParams.append("page[cursor]", offset);
-
-		const token = JSON.parse(fs.readFileSync(Config.patreonToken, "utf-8")) as PatreonToken;
-		const options = {
-			method:"GET",
-			headers:{
-				authorization:"Bearer "+token.access_token,
-				"User-Agent":this.userAgent,
+	public async refreshPatrons(campaignId:string, verbose:boolean = true):Promise<void> {
+		const {members, success, error} = await this.loadCampaignMembers(campaignId);
+		if(success === false) {
+			if(verbose) {
+				Logger.error("Patreon: Refreshing member list failed");
+				if(error) console.log(error);
 			}
-		};
-
-		const result = await fetch(url, options);
-		if(result.status != 200) {
-			Logger.error("Patreon: Refreshing member list failed");
-			console.log(await result.text());
 			this.logout();
 			throw("Error");
 		}
-		const json:PatreonMemberships = await result.json();
-		// fs.writeFileSync("/patreon_memberships.json", JSON.stringify(json), "utf-8");
-		if(json.errors) {
-			Logger.error("Patreon: members list failed");
-			console.log(json.errors[0].detail);
-			console.log(json);
-			this.logout();
-		}else{
-			if(verbose)Logger.info("Patreon: "+json.data.length+" members loaded");
-			// console.log(json);
-			const next = json.meta.pagination?.cursors?.next;
-			// fs.writeFileSync("/patrons.json", JSON.stringify(json), "utf-8");
 
+		if(members) {
+			if(verbose) Logger.info("Patreon: "+members.length+" members loaded");
+	
 			//Only keep active patrons
-			const members = json.data.filter(v=>v.attributes.patron_status === "active_patron")
+			const filteredMembers = members.filter(v=>v.attributes.patron_status === "active_patron")
 			.filter(v=>v.relationships.currently_entitled_tiers.data.length > 0
 				//If current tier value is greater than the minimum (to refuse custom amounts lower than that)
 				|| v.attributes.currently_entitled_amount_cents > this.MIN_AMOUNT
@@ -655,17 +657,10 @@ export default class PatreonController extends AbstractController {
 				};
 				return member;
 			});
-
-			this.members = this.members.concat(members);
-			if(verbose)Logger.info("Patreon: "+this.members.length+" active members");
+	
+			if(verbose) Logger.info("Patreon: "+filteredMembers.length+" active members");
 			// fs.writeFileSync(Config.patreonMembers.replace(".json", "_src.json"), JSON.stringify(json.data), "utf-8");
-			fs.writeFileSync(Config.patreonMembers, JSON.stringify(this.members), "utf-8");
-			if(next) {
-				//load next page
-				this.refreshPatrons(verbose, next);
-			}else if(verbose) {
-				Logger.success("Patreon: members list loading complete");
-			}
+			fs.writeFileSync(Config.patreonMembers, JSON.stringify(filteredMembers), "utf-8");
 		}
 	}
 
@@ -674,7 +669,7 @@ export default class PatreonController extends AbstractController {
 	 * @param request
 	 * @param response
 	 */
-	public async getCampaignID():Promise<void> {
+	private async getCampaignID():Promise<void> {
 		const url = new URL("https://www.patreon.com/api/oauth2/v2/campaigns");
 		const token = JSON.parse(fs.readFileSync(Config.patreonToken, "utf-8")) as PatreonToken;
 		const options = {
@@ -721,6 +716,86 @@ export default class PatreonController extends AbstractController {
 			this.smsWarned = true;
 			this.patreonApiDown = true;
 		}
+	}
+
+	/**
+	 * Load all users for given campaign ID
+	 * @param campaignId 
+	 * @param offset 
+	 * @param memberList 
+	 * @returns 
+	 */
+	private async loadCampaignMembers(campaignId:string, offset?:string, memberList:any[] = []):Promise<{success:boolean, error?:string[], members?:PatreonMemberships["data"][0][]}> {
+		const url = new URL("https://www.patreon.com/api/oauth2/v2/campaigns/"+campaignId+"/members");
+		url.searchParams.append("include", "currently_entitled_tiers");
+		url.searchParams.append("fields[member]", "full_name,is_follower,last_charge_date,last_charge_status,lifetime_support_cents,currently_entitled_amount_cents,patron_status");
+		url.searchParams.append("fields[tier]", "amount_cents,created_at,description,discord_role_ids,edited_at,patron_count,published,published_at,requires_shipping,title,url");
+		url.searchParams.append("fields[address]", "addressee,city,line_1,line_2,phone_number,postal_code,state");
+		url.searchParams.append("page[size]", "1000");
+
+		if(offset) url.searchParams.append("page[cursor]", offset);
+
+		const token = JSON.parse(fs.readFileSync(Config.patreonToken, "utf-8")) as PatreonToken;
+		const options = {
+			method:"GET",
+			headers:{
+				authorization:"Bearer "+token.access_token,
+				"User-Agent":this.userAgent,
+			}
+		};
+
+		const result = await fetch(url, options);
+		if(result.status != 200) {
+			return {success:false};
+		}
+		const json:PatreonMemberships = await result.json();
+		if(json.errors) {
+			return {success:false, error:json.errors.map(v=>v.detail)};
+		}else{
+			memberList.push(...json.data);
+
+			const next = json.meta.pagination?.cursors?.next;
+			if(next) {
+				//load next page
+				this.loadCampaignMembers(campaignId, next, memberList);
+			}else {
+				return {success:true, members:memberList};
+			}
+		}
+		return {success:false};
+	}
+
+	/**
+	 * Load campaign ID details
+	 * @param campaignId 
+	 * @param offset 
+	 * @param memberList 
+	 * @returns 
+	 */
+	private async loadCampaign(campaignId:string,):Promise<{success:boolean, error?:string[], campaign?:unknown}> {
+		const url = new URL("https://www.patreon.com/api/oauth2/v2/campaigns/"+campaignId);
+		url.searchParams.append("fields[campaign]", "created_at,creation_name,discord_server_id,image_small_url,image_url,is_charged_immediately,is_monthly,main_video_embed,main_video_url,one_liner,one_liner,patron_count,pay_per_name,pledge_url,published_at,summary,thanks_embed,thanks_msg,thanks_video_url");
+
+		const token = JSON.parse(fs.readFileSync(Config.patreonToken, "utf-8")) as PatreonToken;
+		const options = {
+			method:"GET",
+			headers:{
+				authorization:"Bearer "+token.access_token,
+				"User-Agent":this.userAgent,
+			}
+		};
+
+		const result = await fetch(url, options);
+		if(result.status != 200) {
+			return {success:false};
+		}
+		const json:PatreonMemberships = await result.json();
+		if(json.errors) {
+			return {success:false, error:json.errors.map(v=>v.detail)};
+		}else{
+			return {success:true, campaign:json};
+		}
+		return {success:false};
 	}
 
 }
@@ -803,4 +878,126 @@ interface WebhookEntry {
 	}
 	id: string
 	type: string
+}
+
+interface WebhookMemberCreateEvent {
+	data: {
+		attributes: {
+			campaign_lifetime_support_cents: number;
+			currently_entitled_amount_cents: number;
+			email: string;
+			full_name: string;
+			is_follower: boolean;
+			is_free_trial: boolean;
+			last_charge_date: string;
+			last_charge_status: string;
+			lifetime_support_cents: number;
+			next_charge_date: string;
+			note: string;
+			patron_status: string;
+			pledge_cadence: number;
+			pledge_relationship_start: string;
+			will_pay_amount_cents: number;
+		};
+		id: string;
+		relationships: {
+			address: {
+				data: any;
+			};
+			campaign: {
+				data: {
+					id: string;
+					type: string;
+				};
+				links: {
+					related: string;
+				};
+			};
+			currently_entitled_tiers: {
+				data: any[];
+			};
+			user: {
+				data: {
+					id: string;
+					type: string;
+				};
+				links: {
+					related: string;
+				};
+			};
+		};
+		type: string;
+	};
+	included: {
+		attributes: {
+			created_at?: string;
+			creation_name?: string;
+			discord_server_id?: string;
+			google_analytics_id: any;
+			has_rss?: boolean;
+			has_sent_rss_notify?: boolean;
+			image_small_url?: string;
+			image_url: string;
+			is_charged_immediately?: boolean;
+			is_monthly?: boolean;
+			is_nsfw?: boolean;
+			main_video_embed: any;
+			main_video_url: any;
+			one_liner: any;
+			patron_count?: number;
+			pay_per_name?: string;
+			pledge_url?: string;
+			published_at?: string;
+			rss_artwork_url: any;
+			rss_feed_title: any;
+			summary?: string;
+			thanks_embed?: string;
+			thanks_msg?: string;
+			thanks_video_url: any;
+			url: string;
+			vanity?: string;
+			about?: string;
+			created?: string;
+			first_name?: string;
+			full_name?: string;
+			hide_pledges?: boolean;
+			is_creator?: boolean;
+			last_name?: string;
+			like_count?: number;
+			title?: string;
+			amount_cents?: number;
+			description?: string;
+			discord_role_ids?: unknown[]
+			edited_at?: string;
+			post_count?: number;
+			published?: true;
+			remaining?: null;
+			requires_shipping?: false;
+			unpublished_at?: null;
+			user_limit?: unknown;
+			social_connections?: {
+				discord: {
+					user_id: string;
+				};
+				facebook: any;
+				google: any;
+				instagram: any;
+				reddit: any;
+				spotify: any;
+				spotify_open_access: any;
+				tiktok: any;
+				twitch: any;
+				twitter: any;
+				twitter2: any;
+				vimeo: any;
+				youtube: any;
+			};
+			thumb_url?: string;
+		};
+		id: string;
+		type: "campaign" | "user" | "tier";
+	}[];
+	links: {
+		self: string;
+	};
 }

@@ -25,6 +25,7 @@ export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 	public static QNA_ACTION = "QNA_ACTION" as const;
 	public static LABELS_UPDATE = "LABELS_UPDATE" as const;
 	public static SPOIL_MESSAGE = "SPOIL_MESSAGE" as const;
+	public static PATREON_MEMBER_CREATE = "PATREON_MEMBER_CREATE" as const;
 
 	constructor(eventType:T, public data?:EventTypeMap[T]) {
 		super(eventType);
@@ -113,6 +114,19 @@ export type EventTypeMap = {
 		messageId:string;
 		moderatorId:string;
 	};
+	PATREON_MEMBER_CREATE: {
+		uid:string;
+		user: {
+			username: string;
+			avatar: string;
+			url: string;
+		},
+		tier: {
+			amount: number;
+			title: string;
+			description: string;
+		}
+	}
 }
 
 interface AbstractQnaAciton {

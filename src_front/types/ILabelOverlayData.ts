@@ -159,6 +159,11 @@ export const LabelItemPlaceholderList = [
 	// {tag:"TILTIFY_GOAL",						type:"number",	descriptionKey:"overlay.labels.placeholders.TILTIFY_GOAL", backup:true} as const,
 	{tag:"TILTIFY_LAST_TIP_USER",				type:"string",	descriptionKey:"overlay.labels.placeholders.TILTIFY_LAST_TIP_USER", backup:true} as const,
 	{tag:"TILTIFY_LAST_TIP_AMOUNT",				type:"number",	descriptionKey:"overlay.labels.placeholders.TILTIFY_LAST_TIP_AMOUNT", backup:true} as const,
+	
+	{tag:"PATREON_USER",						type:"string",	descriptionKey:"overlay.labels.placeholders.PATREON_USER", backup:true} as const,
+	{tag:"PATREON_AMOUNT",						type:"number",	descriptionKey:"overlay.labels.placeholders.PATREON_AMOUNT", backup:true} as const,
+	{tag:"PATREON_TITLE",						type:"string",	descriptionKey:"overlay.labels.placeholders.PATREON_TITLE", backup:true} as const,
+	{tag:"PATREON_AVATAR",						type:"image",	descriptionKey:"overlay.labels.placeholders.PATREON_AVATAR", backup:true} as const,
 
 	{tag:"STREAMELEMENTS_TIP_NAME",				type:"string",	descriptionKey:"overlay.labels.placeholders.STREAMELEMENTS_TIP_NAME", backup:true} as const,
 	{tag:"STREAMELEMENTS_TIP_AMOUNT",			type:"number",	descriptionKey:"overlay.labels.placeholders.STREAMELEMENTS_TIP_AMOUNT", backup:true} as const,

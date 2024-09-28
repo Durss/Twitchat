@@ -1440,12 +1440,17 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						id:Utils.getUUID(),
 						channel_id:uid,
-						amount,
-						amountFormatted:amount+"€",
-						currency:"EUR",
 						eventType:"new_member",
-						userName:fakeUser.displayNameOriginal,
-						pledge:"",
+						tier: {
+							amount:amount,
+							description:"My amazing pledge description",
+							title:"My amazing pledge"
+						},
+						user: {
+							username:fakeUser.displayNameOriginal,
+							avatar:fakeUser.avatarPath || "",
+							url:"https://www.patreon.com/user/creators?u=78146260"
+						}
 					};
 					data = m;
 					break;

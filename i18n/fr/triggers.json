@@ -590,7 +590,9 @@
 			"streamlabs": "Streamlabs",
 			"streamelements": "Streamelements",
 			"tipeee": "Tipeee",
-			"youtube": "YouTube"
+			"youtube": "YouTube",
+			"tiltify": "Titlitfy",
+			"patreon": "Patreon"
 		},
 		"placeholders": {
 			"trigger_name": "Nom du trigger actuel",
@@ -602,6 +604,7 @@
 			"my_user": "Mon pseudo",
 			"my_user_id": "Mon ID utilisateur",
 			"user_avatar": "URL de l'avatar",
+			"user_url": "URL du profil",
 			"user_list_name": "Pseudos",
 			"user_list_id": "IDs utilisateur",
 			"chatter": "Pseudo",
@@ -1413,6 +1416,10 @@
 			"TILTIFY_TIP": {
 				"label": "Nouveau don sur une campagne Tiltify",
 				"description": "Actions à exécuter lorsqu'un nouveau don est reçu pour une campagne Tiltify"
+			},
+			"PATREON_NEW_MEMBER": {
+				"label": "Nouveau membre sur Patreon",
+				"description": "Actions à exécuter lorsqu'un nouveau membre s'abonne sur Patreon"
 			}
 		},
 		"musicEvents": {

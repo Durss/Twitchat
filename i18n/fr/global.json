@@ -117,7 +117,7 @@
 		"moderation_action": {
 			"blocked": "{USER} a été bloqué",
 			"unblocked": "{USER} a été débloqué",
-			"timeout": "{USER} banni·e pour {DURATION}s sur {PLATFORM}",
+			"timeout": "{USER} banni·e temporairement pour {DURATION}s sur {PLATFORM}",
 			"timeout_by": "{MODERATOR} a banni {USER} pour {DURATION}s sur {PLATFORM}",
 			"banned": "{USER} a été banni·e sur {PLATFORM}",
 			"banned_by": "{MODERATOR} a banni {USER} sur {PLATFORM}",

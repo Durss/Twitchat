@@ -121,7 +121,8 @@
 				"streamelements": "Alertes Streamelements",
 				"kofi": "Alertes Ko-fi",
 				"tipeee": "Alertes Tipeee",
-				"tiltify": "Alertes Tiltify"
+				"tiltify": "Alertes Tiltify",
+				"patreon": "Alertes Patreon"
 			},
 			"message_filters": {
 				"viewers": "Envoyé par des viewers",
@@ -478,7 +479,7 @@
 			"donation": "{USER} a donné {AMOUNT} pour {CAMPAIGN}"
 		},
 		"patreon": {
-			"new_member": "{USER} s'est abonné sur Patreon pour {AMOUNT}"
+			"new_member": "{USER} a pris l'abonnement {TIER} sur Patreon"
 		},
 		"unban_request": {
 			"request": "{USER} a envoyé cette demande d'unban",

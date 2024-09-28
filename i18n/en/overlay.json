@@ -483,7 +483,11 @@
 				"POWER_UP_CELEBRATION_IMAGE": "Power-up Celebration - Image",
 				"POWER_UP_MESSAGE_ID": "Power-up Message - User ID",
 				"POWER_UP_MESSAGE_NAME": "Power-up Message - User name",
-				"POWER_UP_MESSAGE_AVATAR": "Power-up Message - User avatar"
+				"POWER_UP_MESSAGE_AVATAR": "Power-up Message - User avatar",
+				"PATREON_USER": "Patreon - User name",
+				"PATREON_TITLE": "Patreon - Pledge title",
+				"PATREON_AMOUNT": "Patreon - Pledge amount",
+				"PATREON_AVATAR": "Patreon - User avatar"
 			}
 		}
 	}

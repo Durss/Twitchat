@@ -745,6 +745,10 @@ class MessageList extends Vue {
 				return this.config.filters.tiltify !== false;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.PATREON: {
+				return this.config.filters.patreon !== false;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.CUSTOM: {
 				//Column filter is made earlier
 				return true;

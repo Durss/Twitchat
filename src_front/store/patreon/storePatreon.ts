@@ -6,6 +6,9 @@ import DataStore from '../DataStore';
 import type { IPatreonActions, IPatreonGetters, IPatreonState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 import type { PatreonDataTypes } from '@/utils/patreon/PatreonDataTypes';
+import SSEHelper from '@/utils/SSEHelper';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Utils from '@/utils/Utils';
 
 let refreshTimeout:number = 0;
 
@@ -40,6 +43,22 @@ export const storePatreon = defineStore('patreon', {
 				}
 			}
 			
+			SSEHelper.instance.addEventListener("PATREON_MEMBER_CREATE", (event) =>{
+				const data = event.data;
+				if(!data) return;
+
+				const message:TwitchatDataTypes.MessagePatreonData = {
+					channel_id:StoreProxy.auth.twitch.user.id,
+					date:Date.now(),
+					eventType:"new_member",
+					id:Utils.getUUID(),
+					platform:"twitchat",
+					type:TwitchatDataTypes.TwitchatMessageType.PATREON,
+					tier: data.tier,
+					user:data.user,
+				}
+				StoreProxy.chat.addMessage(message);
+			})
 		},
 		
 		setPatreonAuthResult(value):void { this.oauthFlowParams = value; },

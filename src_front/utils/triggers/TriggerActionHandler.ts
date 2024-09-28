@@ -654,8 +654,17 @@ export default class TriggerActionHandler {
 
 			case TwitchatDataTypes.TwitchatMessageType.TILTIFY:{
 				const eventType:{[key in TwitchatDataTypes.MessageTiltifyData["eventType"]]:TriggerTypesValue} = {
-						"donation":TriggerTypes.TILTIFY_TIP,
-					} as const;
+					"donation":TriggerTypes.TILTIFY_TIP,
+				} as const;
+				if(await this.executeTriggersByType(eventType[message.eventType], message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.PATREON:{
+				const eventType:{[key in TwitchatDataTypes.MessagePatreonData["eventType"]]:TriggerTypesValue} = {
+					"new_member":TriggerTypes.PATREON_NEW_MEMBER,
+				} as const;
 				if(await this.executeTriggersByType(eventType[message.eventType], message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
 				}break;
@@ -994,7 +1003,8 @@ export default class TriggerActionHandler {
 			//Channel ID is necessary for follower check and chat message feedback is user is cooling down
 			if("user" in message && message.user
 			&& "channel_id" in message && message.channel_id
-			&& message.type !== TwitchatDataTypes.TwitchatMessageType.CUSTOM) {
+			&& message.type !== TwitchatDataTypes.TwitchatMessageType.CUSTOM
+			&& message.type !== TwitchatDataTypes.TwitchatMessageType.PATREON) {
 				if(message.type == TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK) {
 					//Heat click messages have a limited type definition.
 					//Get the full user from those limited data

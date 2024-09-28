@@ -284,7 +284,8 @@ export const TriggerEventTypeCategories = {
 	STREAMELEMENTS:	{id:16, labelKey:"triggers.categories.streamelements", icons:["streamelements"]} as TriggerEventTypeCategory,
 	TIPEEE:			{id:17, labelKey:"triggers.categories.tipeee", icons:["tipeee"]} as TriggerEventTypeCategory,
 	TILTIFY:		{id:18, labelKey:"triggers.categories.tiltify", icons:["tiltify"]} as TriggerEventTypeCategory,
-	YOUTUBE:		{id:19, labelKey:"triggers.categories.youtube", icons:["youtube"]} as TriggerEventTypeCategory,
+	PATREON:		{id:19, labelKey:"triggers.categories.patreon", icons:["patreon"]} as TriggerEventTypeCategory,
+	YOUTUBE:		{id:20, labelKey:"triggers.categories.youtube", icons:["youtube"]} as TriggerEventTypeCategory,
 };
 export type TriggerEventTypeCategoryID = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories]['id'];
 
@@ -1290,6 +1291,7 @@ export const TriggerTypes = {
 	OBS_RECORDING_START:"135",
 	OBS_RECORDING_STOP:"136",
 	TWITCHAT_STARTED:"137",
+	PATREON_NEW_MEMBER:"138",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -2020,6 +2022,14 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"CAMPAIGN_PAGE", descKey:'triggers.placeholders.sl_campaign_url', pointer:"campaign.url", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.TiltifyDonationData>,
 	];
 
+	map[TriggerTypes.PATREON_NEW_MEMBER] = [
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.username", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessagePatreonData>,
+		{tag:USER_AVATAR, descKey:'triggers.placeholders.user_avatar', pointer:"user.avatar", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessagePatreonData>,
+		{tag:"USER_URL", descKey:'triggers.placeholders.user_url', pointer:"user.avatar", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessagePatreonData>,
+		{tag:"AMOUNT", descKey:'triggers.placeholders.subscription_amount', pointer:"tier.amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessagePatreonData>,
+		{tag:"TIER_TITLE", descKey:'triggers.placeholders.user_url', pointer:"tier.title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessagePatreonData>,
+	];
+
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder<any>[] = [];
 	for (let i = 0; i < counters.length; i++) {
@@ -2341,6 +2351,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.TIPEEE, icon:"tipeee", labelKey:"triggers.events.TIPEEE_SUB.label", value:TriggerTypes.TIPEEE_SUB, descriptionKey:"triggers.events.TIPEEE_SUB.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIPEEE},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.TIPEEE, icon:"tipeee", labelKey:"triggers.events.TIPEEE_RESUB.label", value:TriggerTypes.TIPEEE_RESUB, descriptionKey:"triggers.events.TIPEEE_RESUB.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIPEEE},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13_7, category:TriggerEventTypeCategories.TILTIFY, icon:"tiltify", labelKey:"triggers.events.TILTIFY_TIP.label", value:TriggerTypes.TILTIFY_TIP, descriptionKey:"triggers.events.TILTIFY_TIP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TILTIFY},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V13_7, category:TriggerEventTypeCategories.PATREON, icon:"patreon", labelKey:"triggers.events.PATREON_NEW_MEMBER.label", value:TriggerTypes.PATREON_NEW_MEMBER, descriptionKey:"triggers.events.PATREON_NEW_MEMBER.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.PATREON},
 		
 		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_FX_ENABLED.label", value:TriggerTypes.GOXLR_FX_ENABLED, descriptionKey:"triggers.events.GOXLR_FX_ENABLED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE, goxlrMiniCompatible:false},
 		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_FX_DISABLED.label", value:TriggerTypes.GOXLR_FX_DISABLED, descriptionKey:"triggers.events.GOXLR_FX_DISABLED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE, goxlrMiniCompatible:false},
