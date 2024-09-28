@@ -639,7 +639,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	private async onMessage(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean):Promise<void> {
 		//Ignore anything that's not a message or a /me
-		if(tags["message-type"] != "chat" && tags["message-type"] != "action" && (tags["message-tlocype"] as string) != "announcement") return;
+		if(tags["message-type"] != "chat" && tags["message-type"] != "action" && (tags["message-type"] as string) != "announcement") return;
 
 		//Ignore rewards with text, they are also sent to PubSub with more info
 		if(tags["custom-reward-id"]) return;
@@ -686,7 +686,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 
 				//Wait for promise to resolve. This will be the case for the first message but
-				//also for any other message received while the user's data are being resolved
+				//also for any other message received while the user's data is being resolved
 				//to make sure no message is displayed before the channel info get loaded.
 				const user = await this._remoteIdToPromise[chanId];
 
@@ -739,6 +739,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		}
 		if(tags["msg-id"] === "animated-message") data.twitch_animationId = tags["animation-id"];
 		if(tags["msg-param-color"]) data.twitch_announcementColor= tags["msg-param-color"].toLowerCase();
+
+		console.log(data)
 
 		//Send reward redeem message if the message comes from an "highlight my message" reward
 		if(data.twitch_isHighlighted) {
