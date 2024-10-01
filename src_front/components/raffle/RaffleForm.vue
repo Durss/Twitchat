@@ -554,6 +554,10 @@ class RaffleForm extends AbstractSidePanel {
 				this.param_command.value = this.action.raffleData.command != undefined;
 				this.param_maxUsersToggle.value = this.action.raffleData.maxEntries > 0;
 				this.param_reward.value = this.action.raffleData.reward_id != undefined;
+				const preselectedValue = this.param_values.listValues.find(v=>v.value.id === this.action.raffleData.value_id)?.value;
+				if(preselectedValue) {
+					this.param_values.value = preselectedValue;
+				}
 				
 				if(this.triggerMode && this.action) {
 					if(!this.action.raffleData.messages) {
