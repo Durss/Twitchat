@@ -148,6 +148,7 @@ class OverlayDonationGoalItem extends Vue {
 		return new Promise<void>((resolve)=>{
 			const content = this.$refs.content as HTMLDivElement;
 			this.data.hidePercent = 0;
+			this.onPercentUpdate();
 			gsap.killTweensOf(this.data);
 			gsap.killTweensOf(content);
 			gsap.from(this.$refs.holder as HTMLElement, {padding:0, delay:this.index*.03, borderBottom:0, duration:.5, ease:"back.out", clearProps:"padding,borderBottom"});
@@ -273,7 +274,9 @@ class OverlayDonationGoalItem extends Vue {
 				this.burstParticles();
 			}
 		}});
-		if(this.data.goalItem.secret && this.data.goalItem.secret_type == "progressive") {
+
+		//Unblur mystery goals if needed
+		if(this.data.visible && this.data.goalItem.secret && this.data.goalItem.secret_type == "progressive") {
 			await this.$nextTick();
 
 			const prng = Utils.seededRandom(this.prngSeed);
@@ -307,11 +310,11 @@ export default toNative(OverlayDonationGoalItem);
 		background-image: linear-gradient(90deg, v-bind(color_fill) 50%, transparent 50%);
 		background-position-x: 100%;
 		background-size: 200%;
-		border-radius: var(--border-radius);
+		border-radius: .5em;
 		border-bottom: .3em solid v-bind(color);
 		padding: .5em;
 		width: 100vw;
-		max-width: 520px;
+		max-width: 33em;
 		position: relative;
 		overflow: hidden;
 		opacity: .6;
@@ -368,7 +371,7 @@ export default toNative(OverlayDonationGoalItem);
 				position: absolute;
 				bottom: 0;
 				left: 0;
-				height: 3px;
+				height: .2em;
 				background: v-bind(color);
 				opacity: .5;
 				width: 50%;
