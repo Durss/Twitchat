@@ -176,7 +176,7 @@ export default class PatreonController extends AbstractController {
 				"data": {
 					"type": "webhook",
 					"attributes": {
-						"triggers": ["members:create", "members:update", "members:delete"],
+						"triggers": ["members:create", "members:update", "members:delete", "members:pledge:create", "members:pledge:update", "members:pledge:delete"],
 						"uri": webhookRes.webhookURL,
 					},
 					"relationships": {
@@ -249,7 +249,7 @@ export default class PatreonController extends AbstractController {
 			//Campaigns is an array but, to date, Patreon only allows one campaign per account
 			//no need to check for other entries but the first
 			campaignID = campaigns.data[0].id;
-			webhookURL = Config.credentials.patreon_webhook_url.replace("{ID}", campaignID)
+			webhookURL = Config.credentials.patreon_webhook_url.replace("{ID}", campaignID);
 			
 			//Check if webhook already exists and cleanup any duplicate
 			const result = await fetch("https://www.patreon.com/api/oauth2/v2/webhooks", {method:"GET", headers});
@@ -293,9 +293,7 @@ export default class PatreonController extends AbstractController {
 
 		Logger.info("[PATREON] Delete user webhook for", webhookRes.user.login);
 		
-		const deleteRes = await fetch("https://www.patreon.com/api/oauth2/v2/webhooks/"+webhookRes.webhookID, {method:"DELETE", headers});
-		console.log(deleteRes.status);
-		console.log(await deleteRes.text());
+		await fetch("https://www.patreon.com/api/oauth2/v2/webhooks/"+webhookRes.webhookID, {method:"DELETE", headers});
 
 		response.header('Content-Type', 'application/json');
 		response.status(200);
@@ -582,7 +580,7 @@ export default class PatreonController extends AbstractController {
 		.digest('hex');
 		
 		Logger.success("Patreon: received webhook event \""+event+"\" for user ", uid, "(twitch:"+twitchId+")");
-		console.log(JSON.stringify(request.body));
+		// console.log(JSON.stringify(request.body));
 
 		if(signature != hash) {
 			Logger.warn("Patreon: Invalid webhook signature for user", uid, "(twitch:"+twitchId+")");
