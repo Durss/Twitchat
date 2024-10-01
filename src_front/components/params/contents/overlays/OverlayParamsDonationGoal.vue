@@ -620,6 +620,10 @@ export default toNative(OverlayParamsDonationGoal);
 					}
 				}
 			}
+
+			&:hover {
+				background-color: var(--background-color-fader);
+			}
 		}
 
 		.addGoalBt {

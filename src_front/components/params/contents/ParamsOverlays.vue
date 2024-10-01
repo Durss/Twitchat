@@ -4,25 +4,23 @@
 		<div class="head" v-if="subContent == null">{{ $t("overlay.header") }}</div>
 
 		<div class="card-item alert connectObs" v-if="!exchangeChannelAvailable">
-			<i18n-t scope="global" keypath="overlay.connection.title">
+			<i18n-t scope="global" keypath="overlay.connection.title" v-if="!showDockTutorial">
 				<template #OBS>
-					<TTButton class="button"
-						icon="obs"
-						light alert
+					<TTButton icon="obs"
+						light alert small
 						@click="$store.params.openParamsPage(contentConnexions, subcontentObs)">{{ $t('overlay.connection.obsBt') }}</TTButton>
 				</template>
 				<template #DOCK>
-					<TTButton class="button"
-						icon="twitchat"
-						light alert
+					<TTButton icon="twitchat"
+						light alert small
 						@click="showDockTutorial = true" v-if="!showDockTutorial">{{ $t('overlay.connection.dockBt') }}</TTButton>
-					<TTButton class="button"
-						icon="cross"
-						light alert
-						@click="showDockTutorial = false" v-if="showDockTutorial">{{ $t('overlay.connection.closeBt') }}</TTButton>
 				</template>
 			</i18n-t>
 			<div v-if="showDockTutorial" class="dockTuto">
+				<TTButton class="backBt"
+					icon="back"
+					light alert small
+					@click="showDockTutorial = false" v-if="showDockTutorial">{{ $t('global.back') }}</TTButton>
 				<div class="row" v-html="$t('overlay.connection.dock_tutorial')"></div>
 				<img class="row" src="@/assets/img/obs_dock.png" alt="obs dock screen">
 			</div>
@@ -190,15 +188,20 @@ export default toNative(ParamsOverlays);
 
 	.connectObs {
 		display: flex;
-		flex-direction: column;
-		gap: .5em;
-		align-items: center;
+		flex-direction: row;
+		align-items: flex;
+		flex-wrap: wrap;
 		margin: auto;
+		gap: .5em;
 		.dockTuto {
+			flex-grow: 1;
 			text-align: center;
 			img {
 				margin-top: .5em;
 				max-width: 100%;
+			}
+			.backBt {
+				margin-bottom: .5em;
 			}
 		}
 	}
