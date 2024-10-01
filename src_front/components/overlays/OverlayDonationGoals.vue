@@ -203,7 +203,7 @@ class OverlayDonationGoals extends AbstractOverlay {
 			}
 			const bounds = item?.getBoundingClientRect();
 			const maxPos = document.body.clientHeight * .5;
-			let y = bounds.y - boundsRef.y;
+			let y = bounds.y + bounds.height/2 - boundsRef.y;
 			
 			if(y > maxPos) {
 				gsap.to(list, {y:-y+maxPos, duration:1});

@@ -397,7 +397,7 @@ export default toNative(OverlayDonationGoalItem);
 						transition: filter 1s;
 						&.blur {
 							transition: filter 0s;
-							filter: blur(8px);
+							filter: blur(.25em);
 						}
 					}
 				}
@@ -415,7 +415,7 @@ export default toNative(OverlayDonationGoalItem);
 			&.blur {
 				.label {
 					.title {
-						filter: blur(8px);
+						filter: blur(.25em);
 					}
 				}
 			}

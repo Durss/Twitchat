@@ -228,6 +228,8 @@ class OverlayParamsDonationGoal extends Vue {
 	 */
 	public beforeMount():void {
 		this.initParams();
+		//@ts-ignore
+		window.simulateDonation = (amount:number) => this.simulateAmount("ea8509b0-0649-4937-aac8-1b983167d43c", amount);
 	}
 
 	/**
@@ -336,7 +338,8 @@ class OverlayParamsDonationGoal extends Vue {
 	/**
 	 * Simulates a new amount
 	 */
-	public simulateAmount(overlayId:string):void {
+	public simulateAmount(overlayId:string, forcedAmount?:number):void {
+		if(forcedAmount != undefined) this.simulatedAmount = forcedAmount;
 		this.$store.donationGoals.simulateDonation(overlayId, this.simulatedAmount, this.simulatedAmount - this.prevSimulatedAmount);
 		this.prevSimulatedAmount = this.simulatedAmount;
 	}
