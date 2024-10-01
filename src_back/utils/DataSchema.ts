@@ -472,6 +472,18 @@ const UserDataSchema = {
 												}
 											}
 										},
+										tip_kofi: {type:"boolean"},
+										tip_streamlabs: {type:"boolean"},
+										tip_streamlabsCharity: {type:"boolean"},
+										tip_streamelements: {type:"boolean"},
+										tip_tipeee: {type:"boolean"},
+										tip_tiltify: {type:"boolean"},
+										tip_kofi_minAmount: {type:"integer", minimum:0, maximum:999999},
+										tip_streamlabs_minAmount: {type:"integer", minimum:0, maximum:999999},
+										tip_streamlabsCharity_minAmount: {type:"integer", minimum:0, maximum:999999},
+										tip_streamelements_minAmount: {type:"integer", minimum:0, maximum:999999},
+										tip_tipeee_minAmount: {type:"integer", minimum:0, maximum:999999},
+										tip_tiltify_minAmount: {type:"integer", minimum:0, maximum:999999},
 										followRatio: {type:"integer", minimum:0, maximum:100},
 										vipRatio: {type:"integer", minimum:0, maximum:100},
 										subRatio: {type:"integer", minimum:0, maximum:100},
