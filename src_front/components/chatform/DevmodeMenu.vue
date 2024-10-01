@@ -40,6 +40,7 @@
 			<Button small @click="simulateEvent($event, 'raid', 'raidOnline')" icon="raid">Incoming raid online</Button>
 			<Button small @click="startFakeRaid()" icon="raid">Outgoing raid</Button>
 			<Button small @click="simulateEvent($event, 'cheer')" icon="bits">Bits</Button>
+			<Button small @click="simulateEvent($event, 'cheer', 'no_message')" icon="bits">Bits (no mess)</Button>
 			<Button small @click="simulateEvent($event, 'cheer', 'cheer_pin')" icon="bits">Pinned cheer</Button>
 			<Button small @click="simulateEvent($event, 'hype_chat')" icon="hypeChat">Hype chat</Button>
 			<Button small @click="simulateEvent($event, 'subscription', 'sub')" icon="sub">Sub</Button>
@@ -198,8 +199,16 @@ class DevmodeMenu extends Vue {
 				case "returning":			(message as TwitchatDataTypes.MessageChatData).twitch_isReturning = true; break;
 				case "presentation":		(message as TwitchatDataTypes.MessageChatData).twitch_isPresentation = true; break;
 				case "recent":				(message as TwitchatDataTypes.MessageChatData).user.created_at_ms = Date.now() - 7 * 24 * 60 * 6000; break;
+				case "no_message": {
+					console.log("OKOKO");
+					(message as TwitchatDataTypes.MessageCheerData).message = "";
+					(message as TwitchatDataTypes.MessageCheerData).message_size = 0;
+					(message as TwitchatDataTypes.MessageCheerData).message_html = "";
+					(message as TwitchatDataTypes.MessageCheerData).message_chunks = [];
+					break;
+				}
 				case "sub":
-				case "resub":	{
+				case "resub": {
 					(message as TwitchatDataTypes.MessageSubscriptionData).is_gift = false;
 					(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = subAction == "resub";
 					break;
@@ -709,6 +718,7 @@ type Subaction = "first"
 				| "skin1"
 				| "skin2"
 				| "skin3"
+				| "no_message"
 				| "giantEmote";
 
 export default toNative(DevmodeMenu);

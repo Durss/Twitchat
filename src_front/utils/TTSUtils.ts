@@ -534,11 +534,11 @@ export default class TTSUtils {
 				//Has enough bits been sent ?
 				if(bits < paramsTTS.readBitsMinAmount) return "";
 				
-				let mess: string = message.message;
+				let mess: string = message.message || "";
 				if(paramsTTS.removeEmotes===true) {
 					mess = Utils.stripHTMLTags(message.message_html);
 				}
-				if(mess.trim().length == 0) return "";//Avoids reading empty message
+				// if(mess.trim().length == 0) return "";//Avoids reading empty message
 				let txt = paramsTTS.readBitsPattern.replace(/\{USER\}/gi, message.user.displayName);
 				txt = txt.replace(/\{BITS\}/gi, bits.toString());
 				txt = txt.replace(/\{MESSAGE\}/gi, mess);
