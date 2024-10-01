@@ -3,7 +3,7 @@
 		"header":"Recevez des alertes {LINK} et {CHARITY_LINK} dans Twitchat",
 		"examples":"Examples de messages",
 		"personnal_title": "Notifications personnelles",
-		"personnal_header": "Les notifications de dons et d'achat de merch faits sur votre compte personnel sont réservées aux membres premium",
+		"personnal_header": "Les notifications de dons et d'achat de merch faits sur votre compte personnel sont réservées aux membres premium. Les notifcations Streamlabs Charity ne nécessitent PAS d'être premium.",
 		"charity_title": "Campagne Streamlabs Charity",
 		"charity_header": "Connecter une campagne Streamlabs Charity permet d'utiliser {OVERLAY} mais aussi d'automatiser des choses en réaction aux dons reçus grâce aux Triggers.",
 		"charity_header_overlayBt": "l'overlay d'objectifs",
