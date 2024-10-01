@@ -1,5 +1,5 @@
 <template>
-	<div class="connectpatreon parameterContent">
+	<div class="connectpatreon parameterContent beta">
 		<Icon name="patreon" alt="patreon icon" class="icon" />
 
 		<div class="head">
@@ -8,9 +8,12 @@
 					<a href="https://patreon.com/" target="_blank"><Icon name="newtab" />Patreon</a>
 				</template>
 			</i18n-t>
+			<div class="card-item secondary beta">
+				<Icon name="alert" />
+				{{ $t("patreon.beta") }}<br>
+				<TTButton :href="$config.DISCORD_URL" type="link" target="_blank" class="discordBt" secondary light icon="discord">Discord</TTButton>
+			</div>
 		</div>
-
-		<div class="card-item secondary" style="text-align: center"><Icon name="info" style="height: 1em; margin-right: .25em; vertical-align: bottom;" />This is a work in progress ! You won't get notified on chat yet !</div>
 
 		<section v-if="!$store.auth.isPremium">
 			<TTButton icon="premium" @click="openPremium()" premium big>{{ $t('premium.become_premiumBt')  }}</TTButton>
@@ -27,7 +30,8 @@
 
 		<section class="examples">
 			<h2><Icon name="whispers"/>{{$t("streamelements.examples")}}</h2>
-			<MessageItem v-if="fakeMember" :messageData="fakeMember" />
+			<Icon name="loader" v-if="!fakeMember" />
+			<MessageItem v-else="fakeMember" :messageData="fakeMember" />
 		</section>
 
 	</div>
@@ -58,9 +62,11 @@ class ConnectPatreon extends Vue {
 	public async mounted():Promise<void> {
 		if(!this.connected) {
 			this.loading = true;
-			this.loadAuthURL();
-			await this.$store.patreon.completeOAuthFlow();
-			this.loading = false;
+			if(!await this.$store.patreon.completeOAuthFlow()) {
+				await this.loadAuthURL();
+			}else{
+				this.loading = false;
+			}
 		}
 		this.$store.debug.simulateMessage<TwitchatDataTypes.PatreonNewMemberData>(TwitchatDataTypes.TwitchatMessageType.PATREON, (mess) => {
 			mess.eventType = "new_member";
@@ -73,6 +79,7 @@ class ConnectPatreon extends Vue {
 	 */
 	public disconnect():void{
 		this.$store.patreon.disconnect();
+		this.loadAuthURL();
 	}
 
 	/**
@@ -120,6 +127,13 @@ export default toNative(ConnectPatreon);
 		}
 		.chatMessage  {
 			font-size: 1em;
+		}
+	}
+
+	.beta {
+		white-space: pre-line;
+		.button {
+			margin-top: .5em;
 		}
 	}
 }

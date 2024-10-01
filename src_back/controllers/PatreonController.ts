@@ -232,7 +232,7 @@ export default class PatreonController extends AbstractController {
 		const campaignRes = await fetch(url, {method:"GET", headers});
 		if(campaignRes.status < 200 || campaignRes.status > 204) {
 			//Couldn't load campaign
-			Logger.error("Patreon campaigns loading failed");
+			Logger.error("Patreon campaigns loading failed for ", user.login);
 			console.log(await campaignRes.text());
 			response.header('Content-Type', 'application/json');
 			response.status(500);
@@ -615,7 +615,7 @@ export default class PatreonController extends AbstractController {
 						title:tier?.attributes.title || "",
 						description:tier?.attributes.description || "",
 					}
-				})
+				});
 			}
 		}
 

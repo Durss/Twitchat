@@ -170,10 +170,17 @@ export const storePatreon = defineStore('patreon', {
 				}
 			}
 
-			await this.createWebhook();
 			
-			const webhookRes = await ApiHelper.call("patreon/user/webhook", "GET", {token:this.token!.access_token});
-			this.webhookExists = webhookRes.json.success===true && webhookRes.json.webhookExists===true;
+			//Check if webhook exists in case user granted the necessary scope
+			//If it does not, create it.
+			if(this.token.scopes.includes("w:campaigns.webhook")) {
+				const webhookRes = await ApiHelper.call("patreon/user/webhook", "GET", {token:this.token!.access_token});
+				this.webhookExists = webhookRes.json.success===true && webhookRes.json.webhookExists===true;
+				
+				if(!this.webhookExists) {
+					await this.createWebhook();
+				}
+			}
 		},
 
 		/**
@@ -185,6 +192,7 @@ export const storePatreon = defineStore('patreon', {
 			const res = await ApiHelper.call("patreon/user/webhook", "POST", {token:this.token.access_token}, false);
 			if(res.status != 200) {
 			}else{
+				this.webhookExists = true;
 			}
 		},
 
@@ -217,16 +225,6 @@ export const storePatreon = defineStore('patreon', {
 				StoreProxy.common.alert(StoreProxy.i18n.t("error.patreon_disconected"));
 			}
 		},
-
-		/**
-		 * Get if user has already created the webhook
-		 */
-		async isWebhookCrated():Promise<boolean> {
-			return false;
-			// const url = new URL("https://www.patreon.com/api/oauth2/v2/campaigns");
-			// url.searchParams.append("fields[campaign]", "created_at,summary,image_url,creation_name,patron_count,pledge_url");
-			// const campaignRes = await fetch(url, {method:"GET", headers});
-		}
 
 	} as IPatreonActions
 	& ThisType<IPatreonActions

@@ -67,6 +67,26 @@
 	.splitter {
 		margin: 2em 0 1em 0;
 	}
+
+	&.beta{
+		overflow: hidden;
+		&::after {
+			z-index: -1;
+			pointer-events: none;
+			content: "BETA";
+			position: absolute;
+			text-align: center;
+			top: 48px;
+			right: -60px;
+			transform: rotate(45deg);
+			color: var(--color-light);
+			background-color: var(--color-secondary);
+			width: 250px;
+			padding: .25em;
+			font-size: 2em;
+			font-weight: bold;
+		}
+	}
 }
 
 // body.light .parameterContent {

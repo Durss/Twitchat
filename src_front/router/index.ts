@@ -157,13 +157,14 @@ const routes: Array<RouteRecordRaw> = [
 					code:Utils.getQueryParameterByName("code") as string,
 					csrf:Utils.getQueryParameterByName("state") as string,
 				}
+				
+				sPatreon.setPatreonAuthResult(params);
 
 				if(to.fullPath.indexOf("/premium") > -1) {
 					sParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 				}else{
 					sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, "patreon");
 				}
-				sPatreon.setPatreonAuthResult(params);
 			}else{
 				StoreProxy.common.alert( StoreProxy.i18n.t("error.patreon_denied") );
 			}

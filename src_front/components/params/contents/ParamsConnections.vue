@@ -35,7 +35,7 @@
 				<p>Lumia Stream</p>
 			</button>
 
-			<button class="card-item premium" @click="subContent='patreon'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_7, id:'params_connect.patreon'}">
+			<button class="card-item premium beta" @click="subContent='patreon'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_7, id:'params_connect.patreon'}">
 				<Icon name="patreon" />
 				<p>Patreon</p>
 			</button>
@@ -225,20 +225,21 @@ export default toNative(ParamsConnections);
 				}
 			}
 
-			&.soon{
+			&.beta{
 				position: relative;
 				overflow: hidden;
-				pointer-events: none;
-				filter: contrast(.5);
-				.soon {
+				&::after {
+					content: "BETA";
 					position: absolute;
-					top: 19px;
-					right: -35px;
-					transform: rotate(40deg);
-					color: var(--color-dark);
-					background-color: var(--color-light);
-					width: 150px;
+					top: 10px;
+					right: -25px;
+					transform: rotate(45deg);
+					color: var(--color-light);
+					background-color: var(--color-secondary);
+					width: 85px;
 					padding: .25em;
+					font-weight: bold;
+					font-size: .85em;
 				}
 			}
 			p {
