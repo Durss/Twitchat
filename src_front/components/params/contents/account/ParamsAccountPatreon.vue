@@ -57,6 +57,11 @@
 			<template v-else-if="!authenticating">
 				<span class="card-item secondary">{{ $t("patreon.is_not_member") }}</span>
 				<span class="details off">{{ $t("patreon.is_not_member_details") }}</span>
+				<i18n-t scope="global" tag="div" keypath="patreon.info">
+					<template #LINK>
+						<a href="https://www.patreon.com/join/durss" target="_blank">{{ $t("patreon.info_link") }}</a>
+					</template>
+				</i18n-t>
 			</template>
 
 			<Button @click="disconnect()" alert icon="cross">{{ $t("global.disconnect") }}</Button>
