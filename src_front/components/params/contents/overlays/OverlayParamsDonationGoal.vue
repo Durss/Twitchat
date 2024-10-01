@@ -54,8 +54,8 @@
 						<OverlayInstaller type="donationgoals" :sourceSuffix="overlay.title" :id="overlay.id" :queryParams="{bid:overlay.id}" />
 					</div>
 
-					<form class="card-item dark simulate" @submit.prevent="$store.donationGoals.simulateDonation(overlay.id, simulateAmount)">
-						<input type="number" step="any" v-model="simulateAmount" />
+					<form class="card-item dark simulate" @submit.prevent="simulateAmount(overlay.id)">
+						<input type="number" step="any" v-model="simulatedAmount" />
 						<span class="currency" v-if="overlay.currency">{{ overlay.currency }}</span>
 						<TTButton icon="test" type="submit">{{ $t("donation_goals.simulate_bt") }}</TTButton>
 					</form>
@@ -133,7 +133,7 @@
 							<span class="currency" v-if="overlay.currency">{{ overlay.currency }}</span>
 							<textarea class="title" type="text" v-model="goal.title" @change="save(overlay.id)" rows="1" maxlength="100" :placeholder="$t('donation_goals.param_goal_title_placeholder')"></textarea>
 							<TTButton @click="removeGoal(overlay, goal.id)" icon="trash" alert />
-							<ParamItem class="secret" :paramData="param_goal_secret[goal.id]" v-model="goal.secret" @change="save(overlay.id)" noBackground>
+							<ParamItem class="secret" :paramData="param_goal_secret[goal.id]" v-model="goal.secret" @change="onSecretChange(goal); save(overlay.id)" noBackground>
 								<div class="parameter-child secretOptions">
 									<div class="holder option">
 										<label :for="'secret_blur_'+goal.id">{{  $t('donation_goals.param_goal_secret_blur') }}</label>
@@ -193,7 +193,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 })
 class OverlayParamsDonationGoal extends Vue {
 
-	public simulateAmount:number = 10;
+	public simulatedAmount:number = 10;
 	public slcGoalImportURL:string = "";
 	public importingSLCGoals:boolean = false;
 	public showSLCGoalImport:boolean = false;
@@ -212,6 +212,8 @@ class OverlayParamsDonationGoal extends Vue {
 	public param_dataSource:{[overlayId:string]:TwitchatDataTypes.ParameterData<TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"], TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"]>} = {};
 	public param_campaignId:{[overlayId:string]:TwitchatDataTypes.ParameterData<string, string>} = {};
 	public param_counterId:{[overlayId:string]:TwitchatDataTypes.ParameterData<string, string>} = {};
+
+	private prevSimulatedAmount = 0;
 
 	public get maxOverlaysReached():boolean {
 		if(this.$store.auth.isPremium) {
@@ -329,6 +331,24 @@ class OverlayParamsDonationGoal extends Vue {
 			this.showSLCGoalSuccess = true;
 		}
 		this.importingSLCGoals = false;
+	}
+
+	/**
+	 * Simulates a new amount
+	 */
+	public simulateAmount(overlayId:string):void {
+		this.$store.donationGoals.simulateDonation(overlayId, this.simulatedAmount, this.simulatedAmount - this.prevSimulatedAmount);
+		this.prevSimulatedAmount = this.simulatedAmount;
+	}
+
+	/**
+	 * Called when secret state of a goal is changed.
+	 * Initialize the default secret style
+	 */
+	public onSecretChange(goal:TwitchatDataTypes.DonationGoalOverlayConfig["goalList"][0]):void {
+		if(goal.secret && !goal.secret_type) {
+			goal.secret_type = "blur";
+		}
 	}
 
 	/**

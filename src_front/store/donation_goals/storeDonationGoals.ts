@@ -168,17 +168,17 @@ export const storeDonationGoals = defineStore('donationGoals', {
 			}
 		},
 
-		async simulateDonation(overlayId:string, amount:number):Promise<void> {
+		async simulateDonation(overlayId:string, newAmount:number, addedAmount:number):Promise<void> {
 			const overlay = this.overlayList.find(v=>v.id == overlayId);
 			if(!overlay) return;
 
 			const users = await TwitchUtils.getFakeUsers();
 			
 			let goal = 0;
-			let raisedTotal = amount;
-			let raisedPersonnal = amount;
+			let raisedTotal = newAmount;
+			let raisedPersonnal = newAmount;
 			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, {params:overlay, goal, raisedTotal, raisedPersonnal});
-			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_EVENT, {username:Utils.pickRand(users).displayName, amount:amount.toString(), overlayId:overlay.id});
+			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_EVENT, {username:Utils.pickRand(users).displayName, amount:addedAmount.toString(), overlayId:overlay.id});
 		}
 
 

@@ -3022,9 +3022,10 @@ export interface IDonationGoalActions {
 	/**
 	 * Simulates a donation for given overlay with given fake amount
 	 * @param overlayId 
-	 * @param amount 
+	 * @param newAmount 
+	 * @param addedAmount 
 	 */
-	simulateDonation(overlayId:string, amount:number):Promise<void>
+	simulateDonation(overlayId:string, newAmount:number, addedAmount:number):Promise<void>
 }
 
 
