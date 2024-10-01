@@ -60,10 +60,10 @@ class ChatBits extends AbstractChatMessage {
 
 	public get messages():TwitchatDataTypes.MessageCheerData[] {
 		let res:TwitchatDataTypes.MessageCheerData[] =  [];
-		if(this.messageData.message_chunks) res.push(this.messageData);
+		if(this.messageData.message_chunks && this.messageData.message_chunks.length > 0) res.push(this.messageData);
 		if(this.childrenList) {
 			this.childrenList.forEach(m => {
-				if(m.message_chunks) res.push(m);
+				if(m.message_chunks && m.message_chunks.length > 0) res.push(m);
 			});
 		}
 		return res;
