@@ -6,26 +6,60 @@
 		"heat_details_link": "Heat",
 		"highlights": [
 			{
-				"i": "bingo_grid",
-				"l": "Bingo Grids",
+				"i": "goal",
+				"l": "Goals",
 				"v": "/update_images/bingo_grid.mp4",
-				"d": "Create bingo grids and let your Viewers play with you.\n\nBecome Premium to make the overlay display when a viewer gets a Bingo and show the Leaderboard.",
+				"d": "Create donation goals, sub goals, follower goals, or any kind of custom goals and show them on your stream thanks to the new dedicated overlay.",
 				"a": {
 					"l": "Try",
 					"param": "overlays",
-					"subparam": "bingogrid"
+					"subparam": "donationgoals"
 				}
 			},
 			{
+				"i": "patreon",
+				"l": "Patreon alerts",
+				"d": "Connect Twitchat with Patreon and get notified when a new member subscribes to your Patreon.",
+				"a": {
+					"l": "Connect",
+					"param": "connexions",
+					"subparam": "patreon"
+				}
+			},
+			{
+				"i": "charity",
+				"l": "Streamlabs Charity",
+				"d": "Connect Twitchat with Streamlabs and configure a Streamlabs Charity campaign to get notified when receiving a donation.\n\nAutomate anything you want when a donation occurs thanks to the new dedicated Trigger.",
+				"a": {
+					"l": "Try",
+					"param": "connexions",
+					"subparam": "streamlabs"
+				}
+			},
+			{
+				"i": "tiltify",
+				"l": "Tiltify",
+				"d": "Connect Twitchat with Tiltify to get notified when receiving a donation.\n\nAutomate anything you want when a donation occurs thanks to the new dedicated Trigger.",
+				"a": {
+					"l": "Try",
+					"param": "connexions",
+					"subparam": "tiltify"
+				}
+			},
+			{
+				"i": "ticket",
+				"l": "Raffles",
+				"d": "You can now run any number of raffles simultaneously\n\nCurrently runnning raffles are not lost anymore after reloading Twitchat\n\nNew raffle option allows users to enter by making a tip or donation on any external platform\n\nYou add more time to a running raffle. This also allows to reopen a closed raffle.\n\nWhen starting a raffle from the triggers, you can now define custom start/join/win chat messages different than the global ones"
+			},
+			{
 				"i": "whispers",
-				"l": "Multi chat",
-				"g": "/update_images/mergedchat.gif",
-				"d": "Connect to other Twitch channels!\nIf you stream with other people, you can now read their chat directly from Twitchat.\n\nYour moderators can also use it to moderate multiple channels in one place.\n\nDeeper streamer/moderator interactions will come later."
+				"l": "Shared chat",
+				"d": "When using the native Shared Chat feature from Twitch's \"Stream Together\" system, Twitchat will now properly differentiate messages by their origin the same way it did when using the merge chat feature from Twitchat"
 			},
 			{
 				"i": "label",
 				"l": "Labels",
-				"d": "A new extra light overlay allows to show realtime values.\n\nYou can display your sub, follower or viewer count, the last power-up received, the last Ko-Fi, Streamlabs, Streamelements or Tipeee tip, the last raider or current Voicemod effect thanks to the +100 labels available.",
+				"d": "New labels available on the Labels overlay.<ul><li>{STREAMLABS_CHARITY_NAME}: Streamlabs Charity campaign - name</li><li>{STREAMLABS_CHARITY_IMAGE}: Streamlabs Charity campaign - image</li><li>{STREAMLABS_CHARITY_RAISED}: Streamlabs Charity campaign - raised global</li><li>{STREAMLABS_CHARITY_RAISED_PERSONNAL}: Streamlabs Charity campaign - raised personnal</li><li>{STREAMLABS_CHARITY_GOAL}: Streamlabs Charity campaign - goal</li><li>{STREAMLABS_CHARITY_LAST_TIP_USER}: Streamlabs Charity campaign - last tipper</li><li>{STREAMLABS_CHARITY_LAST_TIP_AMOUNT}: Streamlabs Charity campaign - last tip</li><li>{PATREON_USER}: user name that subscribe</li><li>{PATREON_AVATAR}: user's profile pic</li><li>{PATREON_AMOUNT}: amount of the membership</li><li>{PATREON_TITLE}: title of the membership</li><li>{TILTIFY_LAST_TIP_USER}: user name that tipped</li><li>{TILTIFY_LAST_TIP_AMOUNT}: tip amount</li></ul>",
 				"a": {
 					"l": "Try",
 					"param": "overlays",
@@ -33,38 +67,9 @@
 				}
 			},
 			{
-				"i": "raid",
-				"l": "Hate raids",
-				"g": "/update_images/hate_raid_en.png",
-				"d": "New option to block Hate raids.\n\nIf you enable this option, Twitchat will automatically add blocked terms if 5 first time chatters send the same message on your chat. This way next messages from other users will get blocked.",
-				"a": {
-					"l": "Try",
-					"param": "features",
-					"subparam": "232"
-				}
-			},
-			{
-				"i": "youtube",
-				"l": "YouTube",
-				"g": "/update_images/youtube_tips.png",
-				"d": "You can now connect with up to 3 YouTube live sessions. Useful if you run 1 horizontal and 1 vertical stream.\n\nYou'll now be notified when receiving Super Chats, Super Stickers, memberships and gifted memberships."
-			},
-			{
-				"i": "credits",
-				"l": "Ending credits",
-				"v": "/update_images/ending_credits.mp4",
-				"d": "New sections to display Power-ups, Merch and Tips received on Ko-Fi, Streamlabs (...), Super Chats and Super Stickers received on YouTube.\n\nThe \"Subcribers\" section now allows to show memberships received on YouTube.\n\nShow floating emotes for Celebration and Gigantified emote power-ups received during yout stream."
-			},
-			{
-				"i": "qna",
-				"l": "Q&A",
-				"g": "/update_images/qna_en.png",
-				"d": "Allow your mods to manage your Q&A entries remotely.\n\nAllow viewers to upvote questions by answering to them on Twitch."
-			},
-			{
 				"i": "broadcast",
 				"l": "Triggers",
-				"d": "10 new Trigger events:<ul><li>Warning sent</li><li>Warning acknowledged</li><li>Raffle wheel started</li><li>Power-up: animated message</li><li>Power-up: gigantified emote</li><li>Power-up: Celebration</li><li>YouTube: Super chat</li><li>YouTube: Super sticker</li><li>YouTube: sub</li><li>YouTube: subgift</li></ul>new trigger action to delete a chat message.<br>Delete Counters/Values entries.<br>Edit custom badges by batch"
+				"d": "6 new Trigger events:<ul><li>New Patreon member</li><li>Streamlabs Charity donation</li><li>Tiltify Donation</li><li>Twitchat finished loading</li><li>OBS recording started</li><li>OBS recording stopped</li></ul>OBS trigger action now allows to:\n<ul><li>Start stream</li><li>Stop stream</li><li>Start recording</li><li>Pause recording</li><li>Resume record</li><li>Stop recording</li><li>Emit a javascript event on all browser sources</li><li>Start virtual cam</li><li>Stop virtual cam</li><li>Update custom CSS of a browser source</li></ul>"
 			},
 			{
 				"l": "And more",

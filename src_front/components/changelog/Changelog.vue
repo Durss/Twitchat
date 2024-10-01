@@ -77,7 +77,7 @@
 								</i18n-t>
 							</div>
 							
-							<ChangelogLabels v-if="item.i=='label' && currentSlide == index" />
+							<!-- <ChangelogLabels v-if="item.i=='label' && currentSlide == index" /> -->
 							<Changelog3rdPartyAnim v-if="item.i=='offline' && currentSlide == index" />
 							
 							<template v-if="item.p === true || item.i == 'donate'">
@@ -486,7 +486,7 @@ export default toNative(Changelog);
 					text-align: center;
 				}
 				.description {
-					text-align: justify;
+					text-align: left;
 					font-size: 1em;
 					line-height: 1.5em;
 					white-space: pre-line;
@@ -701,7 +701,7 @@ export default toNative(Changelog);
 			font-size: 1.3em;
 			line-height: 1.3em;
 			white-space: pre-line;
-			text-align: justify;
+			text-align: left;
 		}
 		.noCareBt.placeholder {
 			opacity: 0;

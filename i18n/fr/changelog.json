@@ -6,26 +6,60 @@
 		"heat_details_link": "Heat",
 		"highlights": [
 			{
-				"i": "bingo_grid",
-				"l": "Grilles de Bingo",
+				"i": "goal",
+				"l": "Objectifs",
 				"v": "/update_images/bingo_grid.mp4",
-				"d": "Créez des grilles de bingo et jouez avec vos viewers.\n\nDevenez Premium pour afficher les bingos et le classement des viewers dans l'overlay",
+				"d": "Créez des objectifs de dons, d'abonnés, de followers ou tout autre type d'objectifs personnalisés et affichez-les sur votre stream grâce au nouvel overlay dédié.",
 				"a": {
 					"l": "Essayer",
 					"param": "overlays",
-					"subparam": "bingogrid"
+					"subparam": "donationgoals"
 				}
 			},
 			{
+				"i": "patreon",
+				"l": "Alertes Patreon",
+				"d": "Connectez Twitchat à Patreon et recevez une notification lorsqu'un nouveau membre s'abonne à votre Patreon.",
+				"a": {
+					"l": "Connecter",
+					"param": "connexions",
+					"subparam": "patreon"
+				}
+			},
+			{
+				"i": "charity",
+				"l": "Streamlabs Charity",
+				"d": "Connectez Twitchat à Streamlabs puis configurez une campagne Streamlabs Charity pour recevoir des notifications pour chaque dons reçus.\n\nAutomatisez ce que vous souhaitez lorsqu'un don est reçu grâce au nouveau Trigger dédié.",
+				"a": {
+					"l": "Essayer",
+					"param": "connexions",
+					"subparam": "streamlabs"
+				}
+			},
+			{
+				"i": "tiltify",
+				"l": "Tiltify",
+				"d": "Connectez Twitchat à Tiltify pour être notifié lors de la réception d'un don.\n\nAutomatisez ce que vous voulez lorsqu'un don est reçu grâce au nouveau Trigger dédié.",
+				"a": {
+					"l": "Essayer",
+					"param": "connexions",
+					"subparam": "tiltify"
+				}
+			},
+			{
+				"i": "ticket",
+				"l": "Tirages au sort",
+				"d": "Vous pouvez maintenant gérer plusieurs tirages au sort simultanément.\n\nLes tirages au sort en cours ne sont plus perdus après le rechargement de Twitchat.\n\nUne nouvelle option de tirage au sort permet aux utilisateurices de participer en effectuant un don sur une plateforme externe.\n\nVous pouvez ajouter du temps à un tirage au sort en cours. Cela permet également de rouvrir un tirage au sort fermée.\n\nEn démarrant un tirage au sort via les triggers, vous pouvez désormais définir des messages de démarrage, de participation et de victoire personnalisés, différents des messages globaux."
+			},
+			{
 				"i": "whispers",
-				"l": "Multi chat",
-				"g": "/update_images/mergedchat.gif",
-				"d": "Connectez-vous à d'autres chaînes Twitch !\nRecevez les messages des chaînes avec lesquelles vous streamez pour un co-stream facilité.\n\nVos modérateurices peuvent désormais modérer depuis Twitchat grâce à ceci. Une interconnexion streamer/modo  plus poussée viendra par la suite."
+				"l": "Tchat partagé",
+				"d": "Si vous utilisez la fonctionnalité native de Tchat Partagé du système \"Stream Together\" de Twitch, Twitchat différenciera désormais correctement les messages selon leur origine, comme cela était déjà le cas lors de l'utilisation de la fonctionnalité de tchats fusionnés de Twitchat."
 			},
 			{
 				"i": "label",
 				"l": "Labels",
-				"d": "Un nouvel overlay de Label permet d'afficher des valeurs en temps réel de manière simple.\n\nAffichez votre nombre de subs, followers ou viewers, le dernier power-up reçu, votre dernier don Ko-Fi, Streamlabs Streamelements ou Tipeee, le dernier raid reçu ou encore l'effet Voicemod actif grâce aux +100 labels déjà disponibles.",
+				"d": "Nouveaux labels disponibles sur l'overlay de Labels.<ul><li>{STREAMLABS_CHARITY_NAME} : nom de la campagne Streamlabs Charity</li><li>{STREAMLABS_CHARITY_IMAGE} : image de la campagne Streamlabs Charity</li><li>{STREAMLABS_CHARITY_RAISED} : montant global collecté</li><li>{STREAMLABS_CHARITY_RAISED_PERSONNAL} : montant personnel collecté</li><li>{STREAMLABS_CHARITY_GOAL} : objectif de la campagne</li><li>{STREAMLABS_CHARITY_LAST_TIP_USER} : dernier donateur</li><li>{STREAMLABS_CHARITY_LAST_TIP_AMOUNT} : dernier montant donné</li><li>{PATREON_USER} : nom de l'abonné</li><li>{PATREON_AVATAR} : photo de profil de l'abonné</li><li>{PATREON_AMOUNT} : montant de l'abonnement</li><li>{PATREON_TITLE} : titre de l'abonnement</li><li>{TILTIFY_LAST_TIP_USER} : nom du dernier donateur</li><li>{TILTIFY_LAST_TIP_AMOUNT} : montant du don</li></ul>",
 				"a": {
 					"l": "Essayer",
 					"param": "overlays",
@@ -33,38 +67,9 @@
 				}
 			},
 			{
-				"i": "raid",
-				"l": "Raids haineux",
-				"g": "/update_images/hate_raid_fr.png",
-				"d": "Nouvelle option pour bloquer les raids haineux.\n\nSi vous activez cette option, Twitchat ajoutera automatiquement des termes bloqués lorsque 5 personnes parlant pour la 1ère fois sur votre chaîne envoient le même message.",
-				"a": {
-					"l": "Essayer",
-					"param": "features",
-					"subparam": "232"
-				}
-			},
-			{
-				"i": "youtube",
-				"l": "YouTube",
-				"g": "/update_images/youtube_tips.png",
-				"d": "Vous pouvez maintenant connecter jusqu'à 3 lives YouTube. Utile si vous lancez 1 stream vertical et 1 autre horizontal.\n\nVous serez maintenant notifié·e de la réception de Super Chats, Super Stickers, abonnements et abonnements offerts sur YouTube."
-			},
-			{
-				"i": "credits",
-				"l": "Générique de fin",
-				"v": "/update_images/ending_credits.mp4",
-				"d": "Nouvelles sections pour afficher les Power-ups, les achats de merch, les tips reçus sur Streamlabs, Ko-Fi, ... ainsi que les Super Chats et Super stickers reçus sur YouTube.\n\nLa section pour afficher les subs permet également d'afficher les subs et subgifts reçus sur YouTube.\n\nAffichez des emotes flotantes pour chaque Power-Ups reçus durant le live."
-			},
-			{
-				"i": "qna",
-				"l": "Questions/Réponses",
-				"g": "/update_images/qna_fr.png",
-				"d": "Permettez à vos modérateurices de gérer les entrées de question/réponse à distance.\n\nPermettez au viewers de faire remonter des questions dans la file d'attente en y répondant dans le tchat."
-			},
-			{
 				"i": "broadcast",
 				"l": "Triggers",
-				"d": "10 nouveaux évènement de triggers:<ul><li>Avertissement envoyé</li><li>Accusé de réception d'un avertissement</li><li>Lancement d'une roue de tirage au sort</li><li>Power-up: message animé</li><li>Power-up: emote gigantisée</li><li>Power-up: Célébration</li><li>YouTube: Super chat</li><li>YouTube: Super sticker</li><li>YouTube: sub</li><li>YouTube: subgift</li></ul>Nouvelle action de trigger pour supprimer un message de tchat.<br>Possibilité de supprimer des entrées de Compteurs/Valeurs.<br>Possiblité d'éditer les badges personnalisés par paquets"
+				"d": "6 nouveaux événements de triggers :<ul><li>Nouveau membre Patreon</li><li>Don Streamlabs Charity</li><li>Don Tiltify</li><li>Chargement de Twitchat terminé</li><li>Enregistrement OBS démarré</li><li>Enregistrement OBS arrêté</li></ul>L'action de trigger OBS permet désormais de :<ul><li>Démarrer le stream</li><li>Arrêter le stream</li><li>Démarrer l'enregistrement</li><li>Mettre en pause l'enregistrement</li><li>Reprendre l'enregistrement</li><li>Arrêter l'enregistrement</li><li>Émettre un événement JavaScript sur toutes les sources de navigateur</li><li>Démarrer la caméra virtuelle</li><li>Arrêter la caméra virtuelle</li><li>Mettre à jour le CSS personnalisé d'une source navigateur</li></ul>"
 			},
 			{
 				"l": "Mais aussi",
@@ -72,8 +77,7 @@
 			},
 			{
 				"i": "donate",
-				"d": "Twitchat est mon activité principale depuis maintenant +2 ans <b>sans aucune autre source de revenus</b>.\n\nSi vous pouvez vous le permettre, un don libre ou un soutient mensuel sur Patreon m'aidera énormément ❤️",
-				"l": ""
+				"d": "Twitchat est mon activité principale depuis maintenant +2 ans <b>sans aucune autre source de revenus</b>.\n\nSi vous pouvez vous le permettre, un don libre ou un soutient mensuel sur Patreon m'aidera énormément ❤️"
 			}
 		],
 		"forceRead": {
