@@ -739,7 +739,7 @@ const UserDataSchema = {
 				raffleJoin: { $ref: "#/definitions/botMessage" },
 				raffleTipsJoin: { $ref: "#/definitions/botMessage" },
 				raffle: { $ref: "#/definitions/botMessage" },
-				raffleTipsWInner: { $ref: "#/definitions/botMessage" },
+				raffleTipsWinner: { $ref: "#/definitions/botMessage" },
 				bingoStart: { $ref: "#/definitions/botMessage" },
 				bingo: { $ref: "#/definitions/botMessage" },
 				shoutout: { $ref: "#/definitions/botMessage" },
