@@ -740,8 +740,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		if(tags["msg-id"] === "animated-message") data.twitch_animationId = tags["animation-id"];
 		if(tags["msg-param-color"]) data.twitch_announcementColor= tags["msg-param-color"].toLowerCase();
 
-		console.log(data)
-
 		//Send reward redeem message if the message comes from an "highlight my message" reward
 		if(data.twitch_isHighlighted) {
 			const reward:TwitchatDataTypes.MessageRewardRedeemData = {
