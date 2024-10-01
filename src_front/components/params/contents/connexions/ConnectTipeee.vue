@@ -25,9 +25,12 @@
 
 		<section class="examples">
 			<h2><Icon name="whispers"/>{{$t("tipeee.examples")}}</h2>
-			<MessageItem v-if="fakeDonation" :messageData="fakeDonation" />
-			<MessageItem v-if="fakeSub" :messageData="fakeSub" />
-			<MessageItem v-if="fakeResub" :messageData="fakeResub" />
+			<Icon name="loader" v-if="!fakeDonation || !fakeSub || !fakeResub" />
+			<template v-else>
+				<MessageItem :messageData="fakeDonation" />
+				<MessageItem :messageData="fakeSub" />
+				<MessageItem :messageData="fakeResub" />
+			</template>
 		</section>
 	</div>
 </template>

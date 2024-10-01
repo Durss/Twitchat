@@ -25,7 +25,10 @@
 
 		<section class="examples">
 			<h2><Icon name="whispers"/>{{$t("streamelements.examples")}}</h2>
-			<MessageItem v-if="fakeDonation" :messageData="fakeDonation" />
+			<Icon name="loader" v-if="!fakeDonation" />
+			<template v-else>
+				<MessageItem v-if="fakeDonation" :messageData="fakeDonation" />
+			</template>
 		</section>
 	</div>
 </template>

@@ -82,10 +82,13 @@ C<template>
 
 		<section class="examples">
 			<h2><Icon name="whispers"/>{{$t("streamlabs.examples")}}</h2>
-			<MessageItem v-if="fakeDonation" :messageData="fakeDonation" />
-			<MessageItem v-if="fakeMerch" :messageData="fakeMerch" />
-			<MessageItem v-if="fakePatreon" :messageData="fakePatreon" />
-			<MessageItem v-if="fakeCharity" :messageData="fakeCharity" />
+			<Icon name="loader" v-if="!fakeDonation || !fakeMerch || !fakePatreon || !fakeCharity" />
+			<template v-else>
+				<MessageItem :messageData="fakeDonation" />
+				<MessageItem :messageData="fakeMerch" />
+				<MessageItem :messageData="fakePatreon" />
+				<MessageItem :messageData="fakeCharity" />
+			</template>
 		</section>
 	</div>
 </template>

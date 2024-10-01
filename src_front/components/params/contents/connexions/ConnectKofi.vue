@@ -54,9 +54,12 @@
 
 		<section class="examples">
 			<h2><Icon name="whispers"/>{{$t("kofi.examples")}}</h2>
-			<MessageItem v-if="fakeDonation" :messageData="fakeDonation" />
-			<MessageItem v-if="fakeMerch" :messageData="fakeMerch" />
-			<MessageItem v-if="fakeSubscription" :messageData="fakeSubscription" />
+			<Icon name="loader" v-if="!fakeDonation || !fakeMerch || !fakeSubscription" />
+			<template v-else>
+				<MessageItem :messageData="fakeDonation" />
+				<MessageItem :messageData="fakeMerch" />
+				<MessageItem :messageData="fakeSubscription" />
+			</template>
 		</section>
 	</div>
 </template>
