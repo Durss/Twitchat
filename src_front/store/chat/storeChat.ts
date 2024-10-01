@@ -1530,10 +1530,17 @@ export const storeChat = defineStore('chat', {
 
 				//New patreon member
 				case TwitchatDataTypes.TwitchatMessageType.PATREON: {
-						StoreProxy.labels.updateLabelValue("PATREON_USER", message.user.username);
-						StoreProxy.labels.updateLabelValue("PATREON_AVATAR", message.user.avatar);
-						StoreProxy.labels.updateLabelValue("PATREON_TITLE", message.tier.title);
-						StoreProxy.labels.updateLabelValue("PATREON_AMOUNT", message.tier.amount);
+					StoreProxy.labels.updateLabelValue("PATREON_USER", message.user.username);
+					StoreProxy.labels.updateLabelValue("PATREON_AVATAR", message.user.avatar);
+					StoreProxy.labels.updateLabelValue("PATREON_TITLE", message.tier.title);
+					StoreProxy.labels.updateLabelValue("PATREON_AMOUNT", message.tier.amount);
+					break;
+				}
+
+				//New donation on Tiltify
+				case TwitchatDataTypes.TwitchatMessageType.TILTIFY: {
+					StoreProxy.labels.updateLabelValue("TILTIFY_LAST_TIP_USER", message.userName);
+					StoreProxy.labels.updateLabelValue("TILTIFY_LAST_TIP_AMOUNT", message.amount);
 					break;
 				}
 
