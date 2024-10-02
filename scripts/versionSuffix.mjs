@@ -8,24 +8,27 @@ const __dirname = path.dirname(__filename);
 
 const args = process.argv.slice(2);
 
+const branch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+const suffix = branch == "beta"? "-beta" : "";
+
 //Version upgrade type major, minor or patch
 const upgradeType = args[0] || "minor";
 
 // Load the package.json file
 const packageJsonPath = path.join(__dirname, '..', 'package.json');
 
-//Remove "-beta" suffix
+//Remove suffix
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-packageJson.version = packageJson.version.replace("-beta", "");
+packageJson.version = packageJson.version.replace(suffix, "");
 fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, undefined, "	"));
 
 console.log("Update", upgradeType);
 execSync("npm version "+upgradeType+" --no-git-tag-version", { stdio: "inherit" });
 console.log("Update done", packageJson.version);
 
-//Add "-beta" suffix
+//Add suffix
 const packageJsonNew = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-packageJsonNew.version = `${packageJsonNew.version}-beta`;
+packageJsonNew.version = packageJsonNew.version + suffix;
 fs.writeFileSync(packageJsonPath, JSON.stringify(packageJsonNew, undefined, "	"));
 
 console.info(`Version bumped to ${packageJsonNew.version}`);
