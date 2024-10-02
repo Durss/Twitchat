@@ -285,6 +285,9 @@ export const storeRaffle = defineStore('raffle', {
 				)) {
 					canJoin = true;
 					username = message.userName;
+					const existingEntry = username? raffle.entries.find(v=>v.label.toLowerCase().trim() == username.toLowerCase().trim()) : false;
+					//Refuse if username is already registered
+					if(existingEntry && raffle.multipleJoin !== true) return;
 					let tipPlatform:NonNullable<typeof raffle.entries[number]["tip"]>["source"] = "kofi";
 					//Define tip source
 					switch(message.type) {

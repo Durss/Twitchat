@@ -123,6 +123,7 @@
 				</ParamItem>
 
 				<ParamItem :paramData="param_enterDuration" v-model="localData.duration_s" />
+				<ParamItem :paramData="param_multipleJoin"  v-model="localData.multipleJoin" />
 
 				<ToggleBlock class="configs" :icons="['params']" :title="$t('global.advanced_params')" :open="false">
 					<ParamItem :paramData="param_maxUsersToggle"  v-model="param_maxUsersToggle.value" @change="onValueChange()">
