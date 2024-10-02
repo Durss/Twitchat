@@ -12,27 +12,30 @@
 			progressive: data.goalItem.secret_type == 'progressive',
 			questionMarks: data.percent < .1
 		}">
-			<div class="content" ref="content">
-				<span class="amount">{{ getFormattedNumber(data.goalItem.amount) }}<span class="currency" v-if="overlayParams.currency">{{ overlayParams.currency }}</span></span>
-				<div class="label">
+			<div class="content" id="content" ref="content">
+				<span class="amount" id="amount">{{ getFormattedNumber(data.goalItem.amount) }}<span class="currency" v-if="overlayParams.currency">{{ overlayParams.currency }}</span></span>
+				<div class="label" id="title">
 					<span class="title" v-if="data.goalItem.secret !== true || data.goalItem.secret_type !== 'progressive'">{{ data.goalItem.title }}</span>
 					<TextSplitter class="title" ref="textSplitter" v-else>{{ data.goalItem.title }}</TextSplitter>
 					<div class="mystery">???</div>
 				</div>
-				<span class="amount goal" v-if="data.distanceToCurrentIndex === 0">{{ getFormattedNumber(data.goalItem.amount - currentValue) }}<span class="currency" v-if="overlayParams.currency">{{ overlayParams.currency }}</span></span>
-				<div class="hideTimer" v-if="data.hidePercent > 0" :style="{width:data.hidePercent+'%'}"></div>
+				<span class="amount goal" id="amount" v-if="data.distanceToCurrentIndex === 0">{{ getFormattedNumber(data.goalItem.amount - currentValue) }}<span class="currency" v-if="overlayParams.currency">{{ overlayParams.currency }}</span></span>
+				<div class="hideTimer" id="timer" v-if="data.hidePercent > 0" :style="{width:data.hidePercent+'%'}"></div>
 				<div class="shine" ref="shines" v-for="i in 2"></div>
 			</div>
 		
 			<template v-for="(p, i) in particles">
 				<svg v-if="i%2==0" :key="'star_'+i" ref="particle"
 				class="particle"
+				id="particle"
 				xmlns="http://www.w3.org/2000/svg"
 				viewBox="0 0 67.79 64.47">
 					<polygon points="33.9 64.47 44.8 43.84 67.79 39.85 51.54 23.1 54.84 0 33.9 10.28 12.95 0 16.25 23.1 0 39.85 22.99 43.84 33.9 64.47"/>
 				</svg>
+
 				<svg v-if="i%2==1" :key="'heart_'+i" ref="particle"
 				class="particle"
+				id="particle"
 				xmlns="http://www.w3.org/2000/svg"
 				viewBox="0 0 62.69 59.22">
 					<path d="M44.46,0c-5.15,0-9.79,2.14-13.11,5.57-3.32-3.43-7.96-5.57-13.11-5.57C8.16,0,0,8.16,0,18.24c0,17.84,31.35,40.98,31.35,40.98,0,0,31.35-22.75,31.35-40.98C62.69,8.16,54.53,0,44.46,0Z"/>

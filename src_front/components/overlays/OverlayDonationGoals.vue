@@ -9,9 +9,10 @@
 				:index="index"
 				:currentValue="localRaised"
 				:data="goalToParams[goal.id]"
-				:id="currentIndex == index? 'current_donation_goal' : ''">
+				:id="currentIndex == index? 'item current_donation_goal' : 'item '">
 					<OverlayDonationGoalAlert
 					class="notification"
+					id="notification"
 					ref="notification"
 					v-if="currentIndex == index && currentAlert"
 					:amount="currentAlert?.amount"
