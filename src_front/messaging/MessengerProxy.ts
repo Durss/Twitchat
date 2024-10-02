@@ -731,18 +731,36 @@ export default class MessengerProxy {
 				params.splice(0, 1);
 				spamDelay = 300;
 			}
-			const forcedMessage = params.join(" ");
+			const channelSources:TwitchatDataTypes.AbstractTwitchatMessage["channelSource"][] = [];
 
 			//Check if forcing a specific reward redeem
 			let forcedType:TwitchatDataTypes.TwitchatMessageStringType|undefined = countMode? TwitchatDataTypes.TwitchatMessageType.MESSAGE : undefined;
 			if(params[0] === "reward") {
 				forcedType = TwitchatDataTypes.TwitchatMessageType.REWARD;
 				spamDelay = 500;
+				params.shift();
 			}
 			if(params[0] === "follow") {
 				forcedType = TwitchatDataTypes.TwitchatMessageType.FOLLOWING;
 				spamDelay = 500;
+				params.shift();
 			}
+			if(params[0] === "shared") {
+				const users = await TwitchUtils.getFakeUsers();
+				channelSources.push({
+					color:"#e04e00",
+					name:users[0].displayName,
+					pic:users[0].avatarPath,
+				});
+				channelSources.push({
+					color:"#2eb200",
+					name:users[1].displayName,
+					pic:users[1].avatarPath,
+				});
+				params.shift();
+			}
+			
+			const forcedMessage = params.join(" ");
 			let inc = 0;
 			StoreProxy.chat.spamingFakeMessages = !countMode;
 
@@ -785,6 +803,9 @@ export default class MessengerProxy {
 									title: reward.title
 								}
 							}
+						}
+						if(channelSources.length> 0) {
+							m.channelSource = Utils.pickRand(channelSources);
 						}
 					}, forcedType);
 				}
