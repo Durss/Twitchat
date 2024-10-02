@@ -16,7 +16,7 @@
 				<span class="amount" id="amount">{{ getFormattedNumber(data.goalItem.amount) }}<span class="currency" v-if="overlayParams.currency">{{ overlayParams.currency }}</span></span>
 				<div class="label" id="title">
 					<span class="title" v-if="data.goalItem.secret !== true || data.goalItem.secret_type !== 'progressive'">{{ data.goalItem.title }}</span>
-					<TextSplitter class="title" ref="textSplitter" v-else>{{ data.goalItem.title }}</TextSplitter>
+					<TextSplitter class="title" ref="textSplitter" :message="data.goalItem.title" v-else></TextSplitter>
 					<div class="mystery">???</div>
 				</div>
 				<span class="amount goal" id="amount" v-if="data.distanceToCurrentIndex === 0">{{ getFormattedNumber(data.goalItem.amount - currentValue) }}<span class="currency" v-if="overlayParams.currency">{{ overlayParams.currency }}</span></span>
@@ -104,6 +104,7 @@ class OverlayDonationGoalItem extends Vue {
 		}
 
 		watch(()=>this.data.percent, async () => this.onPercentUpdate());
+		watch(()=>this.data.goalItem.title, async () => this.onPercentUpdate());
 		watch(()=>this.data.goalItem.secret, async () => this.onPercentUpdate());
 		watch(()=>this.data.goalItem.secret_type, async () => this.onPercentUpdate());
 		watch(()=>this.data.distanceToCurrentIndex, ()=> this.onRender());
@@ -271,7 +272,6 @@ class OverlayDonationGoalItem extends Vue {
 	}
 
 	private async onPercentUpdate():Promise<void> {
-		
 		gsap.to(this, {localPercent:this.data.percent, duration:.5, ease:"sine.inOut", onComplete:()=>{
 			if(this.data.percent >= 1 && !this.overlayParams.hideDone) {
 				this.burstParticles();

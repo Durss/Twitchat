@@ -7,7 +7,8 @@
 </template>
 
 <script lang="ts">
-import { toNative, Component, Vue } from 'vue-facing-decorator';
+import { watch } from 'vue';
+import { toNative, Component, Vue, Prop } from 'vue-facing-decorator';
 
 @Component({
 	components: {},
@@ -15,10 +16,18 @@ import { toNative, Component, Vue } from 'vue-facing-decorator';
 })
 class TextSplitter extends Vue {
 
+	@Prop({default:"", type:String})
+	public message!:string;
+
 	public chunks:string[][] = [];
 
 	public mounted(): void {
-		const slotText = this.$slots.default ? this.$slots.default()[0].children?.toString() || "" : "";
+		this.renderText();
+		watch(()=>this.message, ()=>this.renderText());
+	}
+	
+	private renderText():void{
+		const slotText = this.message || "";
 		const wordList = slotText.split(" ");
 		const words = wordList.map((word, wordIndex) => {
 			const letterList = Array.from(word).map((letter, letterIndex) => {

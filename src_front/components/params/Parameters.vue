@@ -607,7 +607,7 @@ export default toNative(Parameters);
 			height: 100%;
 
 			.dragInfo {
-				width: 280px;
+				// width: 280px;
 				margin-bottom: .5em;
 				font-style: italic;
 				text-align: center;
