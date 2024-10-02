@@ -149,7 +149,7 @@ Create a `data/credentials/credentials.json` file and set the following content 
 
 	"patreon_client_id": "",
 	"patreon_client_secret": "",
-	"patreon_scopes": "identity identity.memberships",
+	"patreon_scopes": "identity campaigns campaigns.members w:campaigns.webhook",
 	"patreon_redirect_uri": "http://localhost:8080/patreon/auth",
 
 	"patreon_client_id_server": "",
