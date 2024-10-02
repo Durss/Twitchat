@@ -893,7 +893,12 @@ const UserDataSchema = {
 		lang: {type:"string", maxLength:4},
 		theme: {type:"string", maxLength:10},
 		obsIP: {type:"string", maxLength:100},
-		obsPort: {type:"integer", minimum:0, maximum:65535},
+		obsPort: {
+			anyOf: [
+				{ type: "integer", minimum: 0, maximum: 65535 },
+				{ type: "string",  minLength: 0, maxLength: 5 }
+			]
+		},
 		updateIndex: {type:"integer"},
 		raffle_message: {type:"string", maxLength:500},
 		raffle_messageEnabled: {type:"boolean"},
