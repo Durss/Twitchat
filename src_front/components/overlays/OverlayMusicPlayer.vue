@@ -163,6 +163,9 @@ class OverlayMusicPlayer extends AbstractOverlay {
 					this.params.showProgressbar = false;
 				}
 			}
+			if(!/http?s:\/\/.{5,}/.test(this.cover)) {
+				this.cover = this.$asset("img/defaultCover.svg");
+			}
 		};
 
 		if(!this.staticTrackData) {
@@ -289,7 +292,7 @@ export default toNative(OverlayMusicPlayer);
 			width: @maxHeight;
 			height: @maxHeight;
 			object-fit: cover;
-    		overflow:hidden;
+			overflow:hidden;
 			img {
 				width: 100%;
 				height: 100%;
