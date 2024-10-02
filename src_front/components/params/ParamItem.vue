@@ -1163,6 +1163,7 @@ export default toNative(ParamItem);
 				height: 1.25em;
 				cursor: pointer;
 				position: relative;
+				outline: 1px solid var(--color-text);
 				input {
 					position: absolute;
 					top: 0;
