@@ -19,7 +19,7 @@
 			{
 				"i": "patreon",
 				"l": "Alertes Patreon",
-				"d": "Connectez Twitchat à Patreon et recevez une notification lorsqu'un nouveau membre s'abonne à votre Patreon.",
+				"d": "Connectez Twitchat à Patreon et recevez une notification lorsqu'une nouvelle personne s'abonne à votre Patreon.",
 				"a": {
 					"l": "Connecter",
 					"param": "connexions",
@@ -53,8 +53,8 @@
 			},
 			{
 				"i": "whispers",
-				"l": "Tchat partagé",
-				"d": "Si vous utilisez la fonctionnalité native de Tchat Partagé du système \"Stream Together\" de Twitch, Twitchat différenciera désormais correctement les messages selon leur origine, comme cela était déjà le cas lors de l'utilisation de la fonctionnalité de tchats fusionnés de Twitchat."
+				"l": "Tchats partagés",
+				"d": "Si vous utilisez la fonctionnalité native de Tchats Partagés du système \"Stream Together\" de Twitch, Twitchat différenciera désormais correctement les messages selon leur origine, comme cela était déjà le cas lors de l'utilisation de la fonctionnalité de tchats fusionnés de Twitchat."
 			},
 			{
 				"i": "label",
@@ -73,7 +73,7 @@
 			},
 			{
 				"l": "Mais aussi",
-				"d": "Plein d'autres choses ont été ajoutées ou modifiées.<br><a href=\"https://github.com/Durss/Twitchat/releases/latest\" target=\"_blank\">Voir la liste complète ici</a>"
+				"d": "Plein d'autres choses ont été ajoutées ou modifiées.<br><a href=\"https://github.com/Durss/Twitchat/releases/latest/#french\" target=\"_blank\">Voir la liste complète ici</a>"
 			},
 			{
 				"i": "donate",

@@ -479,7 +479,7 @@
 			"donation": "{USER} donated {AMOUNT} to {CAMPAIGN}"
 		},
 		"patreon": {
-			"new_member": "{USER} subscribed on Patreon with membertship {TIER}"
+			"new_member": "{USER} subscribed on Patreon with membership {TIER}"
 		},
 		"unban_request": {
 			"request": "{USER} sent following unban request",
