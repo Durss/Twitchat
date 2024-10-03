@@ -8,7 +8,6 @@
 			v-model:items="folderTriggerList"
 			:rewards="rewards"
 			:noEdit="noEdit"
-			:debugMode="$store.main.devmode"
 			:triggerId="triggerId"
 			@change="onUpdateList"
 			@changeState="onToggleTrigger"

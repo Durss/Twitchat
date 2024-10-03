@@ -55,7 +55,6 @@
 						:rewards="rewards"
 						:noEdit="noEdit"
 						:forceDisableOption="forceDisableOption"
-						:debugMode="debugMode"
 						:triggerId="triggerId"
 						@change="onChange"
 						@delete="$emit('delete', $event)"
@@ -79,8 +78,6 @@
 				@duplicate="$emit('duplicate', $event, folder)"
 				@testTrigger="$emit('testTrigger',$event)"
 				@select="$emit('select', $event)">
-					<span class="triggerId" v-if="debugMode" v-click2Select
-					@click.stop="">{{ folder.trigger.id }}</span>
 			</TriggerListItem>
 		</template>
 	</draggable>
@@ -122,9 +119,6 @@ class TriggerListFolderItem extends Vue {
 
 	@Prop({default:false})
 	public forceDisableOption!:boolean;
-
-	@Prop({default:false})
-	public debugMode!:boolean;
 
 	@Prop({default:null})
 	public triggerId!:string|null;
@@ -287,20 +281,6 @@ export default toNative(TriggerListFolderItem);
 		z-index: 998999;
 		&.over {
 			outline: 2px solid var(--color-secondary);
-		}
-	}
-
-	.triggerId {
-		.bevel();
-		cursor: help !important;
-		font-size: .8em;
-		font-family: 'Courier New', Courier, monospace;
-		opacity: .75;
-		padding: 2px 5px;
-		&::before {
-			content: "ID: ";
-			font-family: Inter;
-			font-weight: bold;
 		}
 	}
 

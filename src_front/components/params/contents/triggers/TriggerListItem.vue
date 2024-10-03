@@ -1,5 +1,7 @@
 <template>
-	<div class="triggerlistitem" v-newflag="{date:(entryData.trigger.created_at || 0), duration:2 * 60000, id:'trigger_'+entryData.trigger.id}">
+	<div class="triggerlistitem"
+	@mouseenter="over=true" @mouseleave="over=false"
+	v-newflag="{date:(entryData.trigger.created_at || 0), duration:2 * 60000, id:'trigger_'+entryData.trigger.id}">
 		<button class="button"
 		@click="$emit('select', entryData.trigger)"
 		v-tooltip="{content:getCategoryLabel(entryData),placement:'left'}">
@@ -8,6 +10,10 @@
 			<div class="label">
 				<span>{{entryData.label}}</span>
 				<slot></slot>
+				<span class="triggerId"
+					v-click2Select
+					v-if="$store.main.devmode && over"
+					@click.stop="">{{ entryData.trigger.id }}</span>
 			</div>
 		</button>
 
@@ -36,6 +42,7 @@
 		v-tooltip="$t('triggers.deleteBt')">
 			<Icon name="trash" class="icon" />
 		</button>
+		
 	</div>
 </template>
 
@@ -64,6 +71,8 @@ class TriggerListItem extends Vue {
 
 	@Prop({default:false})
 	public toggleMode!:boolean;
+
+	public over:boolean = false;
 
 	public getCategoryLabel(entry:TriggerListEntry):string {
 		const event = TriggerTypesDefinitionList().find(v=> v.value === entry.trigger.type);
@@ -134,6 +143,21 @@ export default toNative(TriggerListItem);
 			.icon {
 				opacity: .35;
 			}
+		}
+	}
+	
+
+	.triggerId {
+		.bevel();
+		cursor: help !important;
+		font-size: .8em;
+		font-family: 'Courier New', Courier, monospace;
+		opacity: .75;
+		padding: 2px 5px;
+		&::before {
+			content: "ID: ";
+			font-family: Inter;
+			font-weight: bold;
 		}
 	}
 }
