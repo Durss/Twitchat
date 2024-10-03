@@ -131,7 +131,13 @@
 						<div class="card-item goalItem" v-for="goal in (overlay.goalList || [])" :key="goal.id">
 							<input class="amount" type="number" v-model="goal.amount" min="0" max="1000000000" @change="save(overlay.id)" step="any">
 							<span class="currency" v-if="overlay.currency">{{ overlay.currency }}</span>
-							<textarea class="title" type="text" v-model="goal.title" @change="save(overlay.id)" rows="1" maxlength="100" :placeholder="$t('donation_goals.param_goal_title_placeholder')"></textarea>
+							<textarea class="title"
+								rows="1"
+								maxlength="150"
+								v-model="goal.title"
+								:placeholder="$t('donation_goals.param_goal_title_placeholder')"
+								@change="save(overlay.id)"
+								@blur="goal.title = goal.title.substring(0,150)"></textarea>
 							<TTButton @click="removeGoal(overlay, goal.id)" icon="trash" alert />
 							<ParamItem class="secret" :paramData="param_goal_secret[goal.id]" v-model="goal.secret" @change="onSecretChange(goal); save(overlay.id)" noBackground>
 								<div class="parameter-child secretOptions">

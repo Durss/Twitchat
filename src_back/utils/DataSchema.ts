@@ -1872,7 +1872,7 @@ const UserDataSchema = {
 									additionalProperties: false,
 									properties: {
 										id: {type:"string", maxLength:40},
-										title: {type:"string", maxLength:100},
+										title: {type:"string", maxLength:150},
 										secret: {type:"boolean"},
 										secret_type: {enum: ["blur","progressive"]},
 										amount: {type:"number", minimum:0, maximum:1000000000},
