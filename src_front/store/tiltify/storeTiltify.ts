@@ -110,7 +110,7 @@ export const storeTiltify = defineStore('tiltify', {
 		async disconnect():Promise<boolean> {
 			this.connected = false;
 			DataStore.remove(DataStore.TILTIFY_TOKEN);
-			const result = await ApiHelper.call("tiltify/auth", "DELETE", undefined, false);
+			const result = await ApiHelper.call("tiltify/auth", "DELETE", {token:this.token!.access_token}, false);
 			if(result.json.success) {
 				return true
 			}

@@ -78,7 +78,7 @@ export default class TiltifyController extends AbstractController {
 		.digest('base64');
 
 		if(hash !== signature) {
-			Logger.warn("Tiltify: Invalid webhook signature");
+			Logger.warn("[TILTIFY] Invalid webhook signature");
 			response.status(401);
 			response.send("Unauthorized");
 			return;
@@ -165,8 +165,8 @@ export default class TiltifyController extends AbstractController {
 	 * @returns 
 	 */
 	private async getInfo(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const user = await super.twitchUserGuard(request, response);
-		if(user == false) return;
+		const twitchUser = await super.twitchUserGuard(request, response);
+		if(twitchUser == false) return;
 
 		const params = request.query as any;
 		const accessToken = params.token as string;
@@ -195,7 +195,7 @@ export default class TiltifyController extends AbstractController {
 		try {
 			campaignsJSON = (await campaignsRes.json() as {data:IntegrationList}).data;
 		}catch(error) {
-			Logger.error("Failed loading Tiltify campaigns");
+			Logger.error("[TILTIFY] Failed loading Tiltify campaigns");
 			console.log(error);
 			console.log(await campaignsRes.text());
 		}
@@ -205,16 +205,16 @@ export default class TiltifyController extends AbstractController {
 			this.subscribeToCampaign(c.id);
 			//Register campaign
 			if(!this.fact2UidMap[c.id]) this.fact2UidMap[c.id] = {type:"campaign", users:[]};
-			if(!this.fact2UidMap[c.id].users.includes(user.user_id)) {
-				this.fact2UidMap[c.id].users.push(user.user_id);
+			if(!this.fact2UidMap[c.id].users.includes(twitchUser.user_id)) {
+				this.fact2UidMap[c.id].users.push(twitchUser.user_id);
 				mapUpdated = true;
 			}
 			//Register cause
 			//"public:direct:fact_updated" webhook event only gives a cause ID, not
 			//a campaign ID, that's why we need this association
 			if(!this.fact2UidMap[c.cause_id]) this.fact2UidMap[c.cause_id] = {type:"cause", users:[]};
-			if(!this.fact2UidMap[c.cause_id].users.includes(user.user_id)) {
-				this.fact2UidMap[c.cause_id].users.push(user.user_id);
+			if(!this.fact2UidMap[c.cause_id].users.includes(twitchUser.user_id)) {
+				this.fact2UidMap[c.cause_id].users.push(twitchUser.user_id);
 				mapUpdated = true;
 			}
 		});
@@ -271,9 +271,67 @@ export default class TiltifyController extends AbstractController {
 	 * @returns 
 	 */
 	private async deleteAuth(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		const twitchUser = await super.twitchUserGuard(request, response);
+		if(twitchUser == false) return;
+
+		const params = request.query as any;
+		const accessToken = params.token as string;
+		const options = {
+			method:"GET",
+			headers:{
+				"content-type":"application/json",
+				"Authorization":"Bearer "+accessToken,
+			},
+		}
+
+		try {
+			const userRes = await fetch(this.apiPath+"/api/public/current-user", options);
+			if(userRes.status != 200) throw("Failed loading user info with status "+userRes.status);
+			const userJSON = (await userRes.json() as {data:any}).data;
+			
+			const campaignsRes = await fetch(this.apiPath+`/api/public/users/${userJSON.id}/integration_events?limit=100`, options);
+			if(campaignsRes.status != 200) throw("Failed loading user's teams and campaigns with status "+userRes.status);
+			let campaignsJSON:IntegrationList = [];
+			try {
+				campaignsJSON = (await campaignsRes.json() as {data:IntegrationList}).data;
+			}catch(error) {
+				Logger.error("[TILTIFY][DISCONNECT] Failed loading Tiltify campaigns");
+				console.log(error);
+				console.log(await campaignsRes.text());
+			}
+	
+			let mapUpdated = false;
+			campaignsJSON.forEach(c => {
+				this.unsubscribeFromCampaign(c.id);
+				//Register campaign
+				if(!this.fact2UidMap[c.id]) this.fact2UidMap[c.id] = {type:"campaign", users:[]};
+				const factIndex = this.fact2UidMap[c.id].users.findIndex(v=>v === twitchUser.user_id);
+				if(factIndex > -1) {
+					this.fact2UidMap[c.id].users.splice(factIndex, 1);
+					mapUpdated = true;
+				}
+				//Unregister cause
+				//"public:direct:fact_updated" webhook event only gives a cause ID, not
+				//a campaign ID, that's why we need this association
+				if(!this.fact2UidMap[c.cause_id]) this.fact2UidMap[c.cause_id] = {type:"cause", users:[]};
+				const causeIndex = this.fact2UidMap[c.cause_id].users.findIndex(v=>v === twitchUser.user_id);
+				if(causeIndex > -1) {
+					this.fact2UidMap[c.cause_id].users.splice(causeIndex, 1);
+					mapUpdated = true;
+				}
+			});
+	
+			if(mapUpdated) {
+				fs.writeFileSync(Config.TILTIFY_FACT_2_UID_MAP, JSON.stringify(this.fact2UidMap), "utf-8");
+			}
+			Logger.success("[TILTIFY][DISCONNECT] Disconnected "+twitchUser.user_id+"'s webhooks");
+		}catch(error) {
+			console.log(error);
+		}
 		
-		response.status(200);
-		response.send("OK");
+		response.header('Content-Type', 'application/json')
+		.status(200)
+		.send(JSON.stringify({success:true}));
 	}
 
 	/**
@@ -303,7 +361,7 @@ export default class TiltifyController extends AbstractController {
 			const token = JSON.parse(text);
 
 			if(!token.access_token) {
-				Logger.error("Unable to refresh tiltify token");
+				Logger.error("[TILTIFY] Unable to refresh tiltify token");
 				console.log(text);
 				response.header('Content-Type', 'application/json')
 				.status(500)
@@ -315,7 +373,7 @@ export default class TiltifyController extends AbstractController {
 			}
 
 		}catch(error) {
-			Logger.error("Unable to refresh tiltify token");
+			Logger.error("[TILTIFY] Unable to refresh tiltify token");
 			console.log(error);
 			response.header('Content-Type', 'application/json')
 			.status(500)
@@ -352,6 +410,34 @@ export default class TiltifyController extends AbstractController {
 			Logger.info("[TILTIFY] Webhook created for \""+campaignId+"\"");
 		}else{
 			Logger.error("[TILTIFY] Failed subscribing to campaign");
+			const text = await res.text();
+			console.log(text);
+		}
+	}
+
+	/**
+	 * Unsubscribes from a user's campaign
+	 * @returns 
+	 */
+	private async unsubscribeFromCampaign(campaignId:string):Promise<void> {
+		if(!this.credentialToken) {
+			Logger.error("[TILTIFY] Cannot delete webhook because credential token is missing");
+			return;
+		}
+
+		const webhookId = Config.credentials.tiltify_webhook_id;
+		const url = this.apiPath+`/api/private/webhook_endpoints/${webhookId}/webhook_subscriptions/${campaignId}`;
+		const headers = {
+			"content-type":"application/json",
+			"Authorization": "Bearer "+this.credentialToken.access_token,
+		};
+
+		const res = await fetch(url, {method:"DELETE", headers});
+		if(res.status == 200) {
+			// const json = await res.json();
+			Logger.info("[TILTIFY] Webhook deleted for \""+campaignId+"\"");
+		}else{
+			Logger.error("[TILTIFY] Failed unsubscribing from campaign \""+campaignId+"\"");
 			const text = await res.text();
 			console.log(text);
 		}

@@ -1162,7 +1162,9 @@ type ApiEndpoints =  {
 			}
 		},
 		DELETE : {
-			parameters: void;
+			parameters: {
+				token:string;
+			};
 			response: {
 				success:boolean;
 				error?:string;
