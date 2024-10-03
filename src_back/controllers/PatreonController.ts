@@ -7,6 +7,7 @@ import Logger from "../utils/Logger.js";
 import TwitchUtils, { TwitchToken } from "../utils/TwitchUtils.js";
 import AbstractController from "./AbstractController.js";
 import SSEController from "./SSEController.js";
+import Utils from "../utils/Utils.js";
 
 /**
 * Created : 13/07/2023
@@ -122,6 +123,9 @@ export default class PatreonController extends AbstractController {
 	 * @param response
 	 */
 	public async postRefreshToken(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		const user = await this.twitchUserGuard(request, response);
+		if(!user) return;
+
 		const body:any = request.body;
 		const url = new URL("https://www.patreon.com/api/oauth2/token");
 		url.searchParams.append("grant_type", "refresh_token");
@@ -133,7 +137,7 @@ export default class PatreonController extends AbstractController {
 		const json = await result.json();
 
 		if(json.error) {
-			Logger.error("Patreon refresh token failed");
+			Logger.error("[PATREON] refresh token failed for "+user.user_id);
 			console.log(json);
 			response.header('Content-Type', 'application/json');
 			response.status(500);
@@ -190,7 +194,7 @@ export default class PatreonController extends AbstractController {
 		const resultWebhook = await fetch("https://www.patreon.com/api/oauth2/v2/webhooks", options);
 		const jsonWebhook = await resultWebhook.json() as {data:WebhookEntry, errors?:unknown[]};
 		if(jsonWebhook.errors) {
-			Logger.error("Patreon creating webhook failed");
+			Logger.error("[PATREON] creating webhook failed");
 			console.log(jsonWebhook);
 			response.header('Content-Type', 'application/json');
 			response.status(500);
@@ -232,7 +236,7 @@ export default class PatreonController extends AbstractController {
 		const campaignRes = await fetch(url, {method:"GET", headers});
 		if(campaignRes.status < 200 || campaignRes.status > 204) {
 			//Couldn't load campaign
-			Logger.error("Patreon campaigns loading failed for ", user.login);
+			Logger.error("[PATREON] campaigns loading failed for ", user.login);
 			console.log(await campaignRes.text());
 			response.header('Content-Type', 'application/json');
 			response.status(500);
@@ -405,14 +409,14 @@ export default class PatreonController extends AbstractController {
 			const json = await result.json();
 
 			if(json.error) {
-				Logger.error("Patreon: authentication failed [invalid refresh token]");
+				Logger.error("[PATREON] authentication failed [invalid refresh token]");
 				console.log(json.error);
 				this.logout();
 				return false;
 			}else{
 				token = json as PatreonToken;
 				if(this.isFirstAuth){
-					Logger.success("Patreon: API ready");
+					Logger.success("[PATREON] API ready");
 				}
 				fs.writeFileSync(Config.patreonToken, JSON.stringify(token), "utf-8");
 				try {
@@ -437,7 +441,7 @@ export default class PatreonController extends AbstractController {
 		}
 
 		if(!token){
-			Logger.warn("Please connect to patreon !", this.authURL);
+			Logger.warn("[PATREON] Please connect to patreon !", this.authURL);
 			this.sendSMSAlert("Patreon authentication is down server-side! Click to auth "+this.authURL);
 		}
 
@@ -472,7 +476,7 @@ export default class PatreonController extends AbstractController {
 		const result = await fetch(url, {method:"POST", headers:{"User-Agent":this.userAgent}});
 
 		if(result.status != 200) {
-			Logger.error("Patreon: Server auth failed: "+result.status);
+			Logger.error("[PATREON] Server auth failed: "+result.status);
 			const reason = await result.text();
 			response.status(500);
 			response.header('Content-Type', 'text/html; charset=UTF-8');
@@ -497,13 +501,13 @@ export default class PatreonController extends AbstractController {
 				response.header('Content-Type', 'text/html; charset=UTF-8');
 				response.status(200);
 				response.send("<div style=\"text-align:center; font-size:3em; width:100%;\">Patreon connection Done!<br>You can close this page.</div>");
-				Logger.success("Patreon: Server auth complete");
+				Logger.success("[PATREON] Server auth complete");
 			}else{
 				response.header('Content-Type', 'text/html; charset=UTF-8');
 				response.status(500);
 				response.send("Patreon authentication failed. <a href=\""+this.authURL+"\">Try again</a>");
 				response.send({success:false, message:"Authentication failed"});
-				Logger.success("Patreon: Server auth failed");
+				Logger.success("[PATREON] Server auth failed");
 			}
 		}
 	}
@@ -523,7 +527,7 @@ export default class PatreonController extends AbstractController {
 		.digest('hex');
 
 		if(signature != hash) {
-			Logger.warn("Patreon: Invalid webhook signature");
+			Logger.warn("[PATREON] Invalid webhook signature");
 			response.status(401);
 			response.send("Unauthorized");
 			this.patreonApiDown = true;
@@ -531,7 +535,7 @@ export default class PatreonController extends AbstractController {
 			return;
 		}
 
-		Logger.success("Patreon: received webhook event \""+event+"\"");
+		Logger.success("[PATREON] received webhook event \""+event+"\"");
 		response.status(200);
 		response.send("OK");
 
@@ -579,15 +583,16 @@ export default class PatreonController extends AbstractController {
 		.update(request.rawBody)
 		.digest('hex');
 		
-		Logger.success("Patreon: received webhook event \""+event+"\" for user ", uid, "(twitch:"+twitchId+")");
+		Logger.success("[PATREON] received webhook event \""+event+"\" for user ", uid, "(twitch:"+twitchId+")");
 
 		if(signature != hash) {
-			Logger.warn("Patreon: Invalid webhook signature for user", uid, "(twitch:"+twitchId+")");
+			Logger.warn("[PATREON] Invalid webhook signature for user", uid, "(twitch:"+twitchId+")");
 			response.status(401);
 			response.send("Unauthorized");
 			return;
 		}
 
+		Utils.logToFile("patreon", JSON.stringify({type:event, data:request.body}));
 
 		if(event === "members:create") {
 			this.uidToFirstPayment[uid] = true;
@@ -595,8 +600,8 @@ export default class PatreonController extends AbstractController {
 		if(event === "members:update") {
 			const message = request.body as WebhookMemberCreateEvent;
 			const membershipDuration = Math.abs(new Date(message.data.attributes.pledge_relationship_start).getTime() - new Date(message.data.attributes.last_charge_date).getTime());
-			if(membershipDuration < 20*24*60*60*1000 || this.uidToFirstPayment[uid] === true) {
-				delete this.uidToFirstPayment[uid];
+			if((membershipDuration < 20*24*60*60*1000 && this.uidToFirstPayment[uid] !== false) || this.uidToFirstPayment[uid] === true) {
+				this.uidToFirstPayment[uid] = false;
 				const user = message.included.find(v=>v.type == "user");
 				const tier = message.included.find(v=>v.type == "tier");
 				//Broadcast to client
@@ -614,8 +619,6 @@ export default class PatreonController extends AbstractController {
 					}
 				});
 			}
-		}else{
-			console.log(JSON.stringify(request.body));
 		}
 
 		response.status(200);
@@ -631,7 +634,7 @@ export default class PatreonController extends AbstractController {
 		const {members, success, error} = await this.loadCampaignMembers(campaignId);
 		if(success === false) {
 			if(verbose) {
-				Logger.error("Patreon: Refreshing member list failed");
+				Logger.error("[PATREON] Refreshing member list failed");
 				if(error) console.log(error);
 			}
 			this.logout();
@@ -639,7 +642,7 @@ export default class PatreonController extends AbstractController {
 		}
 
 		if(members) {
-			if(verbose) Logger.info("Patreon: "+members.length+" members loaded");
+			if(verbose) Logger.info("[PATREON] "+members.length+" members loaded");
 	
 			//Only keep active patrons
 			const filteredMembers = members.filter(v=>v.attributes.patron_status === "active_patron")
@@ -681,19 +684,19 @@ export default class PatreonController extends AbstractController {
 
 		const result = await fetch(url, options);
 		if(result.status != 200) {
-			Logger.error("Patreon: campaign list failed");
+			Logger.error("[PATREON] campaign list failed");
 			console.log(await result.text());
 			throw("Error");
 
 		}else{
 			const json = await result.json();
 			if(json.errors) {
-				Logger.error("Patreon: campaign list failed");
+				Logger.error("[PATREON] campaign list failed");
 				console.log(json.errors[0].detail);
 				this.logout();
 			}else{
 				if(json.data?.length === 0) {
-					Logger.error("Patreon: no campaign found");
+					Logger.error("[PATREON] no campaign found");
 				}else{
 					this.campaignId = json.data[0].id;
 				}

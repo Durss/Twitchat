@@ -167,18 +167,17 @@ export const storePatreon = defineStore('patreon', {
 				this.isMember = res.json.data?.isMember === true;
 				if(this.isMember) {
 					StoreProxy.chat.cleanupDonationRelatedMessages();
-				}
-			}
-
 			
-			//Check if webhook exists in case user granted the necessary scope
-			//If it does not, create it.
-			if(this.token.scopes.includes("w:campaigns.webhook")) {
-				const webhookRes = await ApiHelper.call("patreon/user/webhook", "GET", {token:this.token!.access_token});
-				this.webhookExists = webhookRes.json.success===true && webhookRes.json.webhookExists===true;
-				
-				if(!this.webhookExists) {
-					await this.createWebhook();
+					//Check if webhook exists in case user granted the necessary scope
+					//If it does not, create it.
+					if(this.token.scopes.includes("w:campaigns.webhook")) {
+						const webhookRes = await ApiHelper.call("patreon/user/webhook", "GET", {token:this.token!.access_token});
+						this.webhookExists = webhookRes.json.success===true && webhookRes.json.webhookExists===true;
+						
+						if(!this.webhookExists) {
+							await this.createWebhook();
+						}
+					}
 				}
 			}
 		},

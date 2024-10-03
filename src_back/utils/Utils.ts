@@ -1,3 +1,6 @@
+import Config from "./Config.js";
+import * as fs from "fs";
+
 /**
 * Created : 20/07/2023 
 */
@@ -26,5 +29,28 @@ export default class Utils {
 			code += characters[randomIndex];
 		}
 		return code;
+	}
+
+	/**
+	 * Saves a log
+	 * @param logType 
+	 * @param logData 
+	 * @returns 
+	 */
+	public static logToFile(logType:Parameters<typeof Config.LOGS_PATH>[0] | "", logData:string):boolean {
+		
+		const allowedCategories:Parameters<typeof Config.LOGS_PATH>[0][] = ["streamlabs", "hypetrain", "tiltify", "kofi", "patreon"];
+
+		if(logType == "" || allowedCategories.indexOf(logType) == -1) {
+			return false;
+		}
+
+		const logPath = Config.LOGS_PATH(logType);
+		if(!fs.existsSync(logPath)) {
+			fs.writeFileSync(logPath, "", "utf-8");
+		}
+		
+		fs.appendFileSync(logPath, "\r\n"+logData);
+		return true;
 	}
 }

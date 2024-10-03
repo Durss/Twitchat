@@ -6,6 +6,7 @@ import Logger from "../utils/Logger.js";
 import AbstractController from "./AbstractController.js";
 import SSEController, { SSECode } from "./SSEController.js";
 import fetch from "node-fetch";
+import Utils from "../utils/Utils.js";
 
 /**
 * Created : 04/03/2024 
@@ -137,6 +138,10 @@ export default class KofiController extends AbstractController {
 				}
 			}
 
+			if(data.type == "Commission") {
+				Utils.logToFile("kofi", JSON.stringify({type:"commission", data}));
+			}
+
 			SSEController.sendToUser(user.twitch, SSECode.KO_FI_EVENT, data);
 		}catch(error) {
 			Logger.error("Failed parsing kofi event");
@@ -237,7 +242,7 @@ interface KofiData {
 	verification_token: string;
 	message_id: string;
 	timestamp: string;
-	type: "Donation" | "Subscription" | "Shop Order";
+	type: "Donation" | "Subscription" | "Shop Order" | "Commission";
 	is_public: boolean;
 	from_name: string;
 	message: string;

@@ -6,6 +6,7 @@ import Logger from "../utils/Logger.js";
 import * as fs from "fs";
 import SSEController, { SSECode } from "./SSEController.js";
 import fetch from "node-fetch";
+import Utils from "../utils/Utils.js";
 
 /**
 * Created : 06/09/2024 
@@ -84,8 +85,7 @@ export default class TiltifyController extends AbstractController {
 			return;
 		}
 
-		console.log("TILTIFY WEBHOOK EVENT");
-		console.log(JSON.stringify(body));
+		Utils.logToFile("tiltify", JSON.stringify({type:body.meta.event_type, data:body}));
 
 		try{
 

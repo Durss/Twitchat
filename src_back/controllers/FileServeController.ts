@@ -156,24 +156,17 @@ export default class FileServeController extends AbstractController {
 		if(!super.twitchUserGuard(request, response)) return;
 
 		const body:any = request.body;
-		type logsCategories = Parameters<typeof Config.LOGS_PATH>[0] | "";
+		type logsCategories = Parameters<typeof Config.LOGS_PATH>[0];
 		const logType:logsCategories = (body.cat as string || "").toLowerCase() as logsCategories;
 		const logData:string = JSON.stringify(body.log) || "";
-		const allowedCategories:logsCategories[] = ["streamlabs", "hypetrain"];
 
-		if(logType == "" || allowedCategories.indexOf(logType) == -1) {
+		if(!Utils.logToFile(logType, logData)) {
 			response.header('Content-Type', 'application/json');
 			response.status(404);
 			response.send(JSON.stringify({success:false, error:"invalid category", errorCode:"INVALID_CATEGORY"}));
 			return;
 		}
 
-		const logPath = Config.LOGS_PATH(logType);
-		if(!fs.existsSync(logPath)) {
-			fs.writeFileSync(logPath, "", "utf-8");
-		}
-		
-		fs.appendFileSync(logPath, "\r\n"+logData);
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send({success:true});
