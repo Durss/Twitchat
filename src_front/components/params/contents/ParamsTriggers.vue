@@ -393,6 +393,8 @@ class ParamsTriggers extends Vue implements IParameterContent {
 			}else{
 				this.$store.debug.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(triggerEvent.testMessageType, (data)=> {
 					let m = data
+					let amount = Math.round(Math.random() * 100 + 1);
+					let amountFormatted = "$"+amount;
 
 					//Slash commands simulation
 					if(trigger.type == TriggerTypes.SLASH_COMMAND) {
@@ -574,8 +576,8 @@ class ParamsTriggers extends Vue implements IParameterContent {
 
 					if(triggerEvent.value == TriggerTypes.STREAMLABS_DONATION) {
 						(m as TwitchatDataTypes.StreamlabsDonationData).eventType = "donation";
-						(m as TwitchatDataTypes.StreamlabsDonationData).amount = 123;
-						(m as TwitchatDataTypes.StreamlabsDonationData).amountFormatted = "$123";
+						(m as TwitchatDataTypes.StreamlabsDonationData).amount = amount;
+						(m as TwitchatDataTypes.StreamlabsDonationData).amountFormatted = amountFormatted;
 					}else
 
 					if(triggerEvent.value == TriggerTypes.STREAMLABS_MERCH) {
@@ -585,14 +587,20 @@ class ParamsTriggers extends Vue implements IParameterContent {
 
 					if(triggerEvent.value == TriggerTypes.STREAMLABS_PATREON_PLEDGE) {
 						(m as TwitchatDataTypes.StreamlabsPatreonPledgeData).eventType = "patreon_pledge";
-						(m as TwitchatDataTypes.StreamlabsPatreonPledgeData).amount = 123;
-						(m as TwitchatDataTypes.StreamlabsPatreonPledgeData).amountFormatted = "$123";
+						(m as TwitchatDataTypes.StreamlabsPatreonPledgeData).amount = amount;
+						(m as TwitchatDataTypes.StreamlabsPatreonPledgeData).amountFormatted = amountFormatted;
+					}else
+
+					if(triggerEvent.value == TriggerTypes.STREAMLABS_CHARITY_TIP) {
+						(m as TwitchatDataTypes.StreamlabsCharityData).eventType = "charity";
+						(m as TwitchatDataTypes.StreamlabsCharityData).amount = amount;
+						(m as TwitchatDataTypes.StreamlabsCharityData).amountFormatted = amountFormatted;
 					}else
 
 					if(triggerEvent.value == TriggerTypes.KOFI_DONATION) {
 						(m as TwitchatDataTypes.KofiDonationData).eventType = "donation";
-						(m as TwitchatDataTypes.KofiDonationData).amount = 123;
-						(m as TwitchatDataTypes.KofiDonationData).amountFormatted = "123";
+						(m as TwitchatDataTypes.KofiDonationData).amount = amount;
+						(m as TwitchatDataTypes.KofiDonationData).amountFormatted = amountFormatted;
 					}else
 
 					if(triggerEvent.value == TriggerTypes.KOFI_MERCH) {
@@ -602,8 +610,8 @@ class ParamsTriggers extends Vue implements IParameterContent {
 
 					if(triggerEvent.value == TriggerTypes.KOFI_SUBSCRIPTION) {
 						(m as TwitchatDataTypes.KofiSubscriptionData).eventType = "subscription";
-						(m as TwitchatDataTypes.KofiSubscriptionData).amount = 123;
-						(m as TwitchatDataTypes.KofiSubscriptionData).amountFormatted = "123";
+						(m as TwitchatDataTypes.KofiSubscriptionData).amount = amount;
+						(m as TwitchatDataTypes.KofiSubscriptionData).amountFormatted = amountFormatted;
 						(m as TwitchatDataTypes.KofiSubscriptionData).tier = Utils.pickRand(["Gold", "Bronze", "Silver", "Poop"]);
 					}else
 
