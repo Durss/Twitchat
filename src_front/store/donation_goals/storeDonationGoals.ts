@@ -66,7 +66,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 
 		removeOverlay(id:string):void {
 			const t = StoreProxy.i18n.t;
-			StoreProxy.main.confirm(t("bingo_grid.form.delete_confirm.title"), t("bingo_grid.form.delete_confirm.description"))
+			StoreProxy.main.confirm(t("donation_goals.delete_confirm.title"), t("donation_goals.delete_confirm.description"))
 			.then(()=>{
 				this.overlayList = this.overlayList.filter(g => g.id !== id);
 				this.saveData();
@@ -99,8 +99,12 @@ export const storeDonationGoals = defineStore('donationGoals', {
 				let goal = 0;
 				let raisedTotal = 0;
 				let raisedPersonnal = 0;
+				let skin = "default"
 				if(overlay.dataSource == "streamlabs_charity") {
 					if(!StoreProxy.streamlabs.charityTeam) continue;
+					if(StoreProxy.streamlabs.charityTeam.id === "717041490483876892") {
+						skin = "etc";
+					}
 					goal = StoreProxy.streamlabs.charityTeam.amountGoal_cents/100;
 					raisedTotal = StoreProxy.streamlabs.charityTeam.amountRaised_cents/100;
 					raisedPersonnal = StoreProxy.streamlabs.charityTeam.amountRaisedPersonnal_cents/100;
@@ -140,7 +144,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 					raisedPersonnal = followers;
 				}
 
-				PublicAPI.instance.broadcast(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, {params:overlay, goal, raisedTotal, raisedPersonnal});
+				PublicAPI.instance.broadcast(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, {params:overlay, goal, raisedTotal, raisedPersonnal, skin});
 			}
 		},
 
@@ -177,7 +181,12 @@ export const storeDonationGoals = defineStore('donationGoals', {
 			let goal = 0;
 			let raisedTotal = newAmount;
 			let raisedPersonnal = newAmount;
-			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, {params:overlay, goal, raisedTotal, raisedPersonnal});
+			let skin = "default"
+			if(StoreProxy.streamlabs.charityTeam
+			&& StoreProxy.streamlabs.charityTeam.id === "717041490483876892") {
+				skin = "etc";
+			}
+			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, {params:overlay, goal, raisedTotal, raisedPersonnal, skin});
 			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_EVENT, {username:Utils.pickRand(users).displayName, amount:addedAmount.toString(), overlayId:overlay.id});
 		}
 

@@ -1,5 +1,5 @@
 <template>
-	<div class="overlaydonationgoalitem"
+	<div :class="['overlaydonationgoalitem', skin]"
 	:data-index="index"
 	v-if="data.visible">
 		<div ref="holder"
@@ -73,6 +73,9 @@ class OverlayDonationGoalItem extends Vue {
 
 	@Prop()
 	public currentValue!:number;
+
+	@Prop()
+	public skin!:string;
 
 	@Prop()
 	public colors!:{base:string, fill:string, background:string};
@@ -452,6 +455,24 @@ export default toNative(OverlayDonationGoalItem);
 		}
 		path, polygon {
 			fill:currentColor;
+		}
+	}
+
+	&.etc {
+		.holder{
+			color: white;
+			border: 2px solid #92ffff;
+			background-color: #020617;
+			&.active {
+				background-image: linear-gradient(90deg, #92ffff50 50%, transparent 50%);
+			}
+			.amount {
+				font-size: 1.5em;
+			}
+		
+			.hideTimer {
+				background: #92ffff;
+			}
 		}
 	}
 }

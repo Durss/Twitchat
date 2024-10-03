@@ -37,6 +37,10 @@
 		"import_streamlabs_step1_link": "cette page",
 		"import_streamlabs_step1_url": "https://streamlabscharity.com/profile/user/milestones",
 		"import_streamlabs_step2": "Collez l'URL ci-dessous puis importez les objectifs de dons",
-		"import_streamlabs_complete": "Les objectifs ont été importé depuis Streamlabs Charity et ajoutés à la liste de vos objectifs"
+		"import_streamlabs_complete": "Les objectifs ont été importé depuis Streamlabs Charity et ajoutés à la liste de vos objectifs",
+		"delete_confirm": {
+			"description": "L'overlay d'objectifs sera supprimé\nThis cannot be undone.",
+			"title": "Supprimer les objectifs ?"
+		}
 	}
 }

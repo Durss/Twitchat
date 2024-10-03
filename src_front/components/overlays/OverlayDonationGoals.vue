@@ -6,6 +6,7 @@
 				:ref="'goal_'+goal.id"
 				:overlayParams="state.params"
 				:colors="{base:color, fill:color_fill, background:color_background}"
+				:skin="state.skin"
 				:index="index"
 				:currentValue="localRaised"
 				:data="goalToParams[goal.id]"
@@ -15,6 +16,7 @@
 					id="notification"
 					ref="notification"
 					v-if="currentIndex == index && currentAlert"
+					:skin="state.skin"
 					:amount="currentAlert?.amount"
 					:username="currentAlert?.username"
 					:currency="state.params.currency"
@@ -58,7 +60,7 @@ class OverlayDonationGoals extends AbstractOverlay {
 	private autoHideTimeout:number = -1;
 	private poolAlerts:IAlertItem[] = [];
 	
-	private overlayParamsHandler!:(e:TwitchatEvent<{params:TwitchatDataTypes.DonationGoalOverlayConfig, goal:number, raisedTotal:number, raisedPersonnal:number}>) => void;
+	private overlayParamsHandler!:(e:TwitchatEvent<{params:TwitchatDataTypes.DonationGoalOverlayConfig, goal:number, raisedTotal:number, raisedPersonnal:number, skin:"default"|string}>) => void;
 	private donationHandler!:(e:TwitchatEvent<{overlayId:string, username:string, amount:string}>) => void;
 	
 	public get color():string { return this.state!.params.color || "#000000"; }
@@ -274,7 +276,8 @@ class OverlayDonationGoals extends AbstractOverlay {
 			let showDuration = Math.max(.15, 3 - Math.pow(this.poolAlerts.length, .5));
 			//Holder might have changed between show and hide
 			let holder = this.$refs.notification as HTMLElement | Vue[];
-			if(Array.isArray(holder)) holder = holder[0].$el as HTMLElement;
+			if(Array.isArray(holder) && holder.length > 0) holder = holder[0].$el as HTMLElement;
+			if(!holder) return;
 			//Hide notification
 			gsap.fromTo(holder, {y:"0%"}, {y:"100%", duration:.15, delay:showDuration, ease:"sine.out",
 			onComplete:()=>{

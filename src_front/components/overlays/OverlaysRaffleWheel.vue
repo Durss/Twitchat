@@ -1,5 +1,5 @@
 <template>
-	<div class="overlaysrafflewheel">
+	<div :class="['overlaysrafflewheel', skin]">
 		<InfiniteList class="list"
 		v-if="itemList.length > 0"
 		ref="listHolder"
@@ -50,12 +50,13 @@ import type { CSSProperties } from 'vue';
 })
 class OverlaysRaffleWheel extends Vue {
 
-	public itemList:TwitchatDataTypes.EntryItem[] = [];
+	public skin:string = "";
 	public itemSize = 50;
 	public scrollOffset = 0;
 	public listHeight = 100;
 	public listDisplayed = false;
 	public stars:StarData[] = [];
+	public itemList:TwitchatDataTypes.EntryItem[] = [];
 
 	private rafID = 0;
 	private prevTs = 0;
@@ -291,6 +292,7 @@ class OverlaysRaffleWheel extends Vue {
 		this.sessionId = data.sessionId;
 		this.winnerData = winner;
 		this.itemList = [];
+		this.skin = data.skin || "";
 		await this.$nextTick();//Let vue unmount the component
 		this.itemList = data.items;
 		this.listDisplayed = false;
@@ -442,6 +444,24 @@ export default toNative(OverlaysRaffleWheel);
 				fill:#fff;
 			}
 		}
+	}
+
+	&.etc {
+		:deep(.list-item) {
+			.wheel-item {
+				color: white;
+				border: 2px solid #92ffff;
+				background-color: #020617;
+				border-left-width: 0;
+			}
+			&.selected {
+				&>.wheel-item {
+					color: #020617;
+					background-color: #92ffff;
+				}
+			}
+		}
+		
 	}
 }
 </style>

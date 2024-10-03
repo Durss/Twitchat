@@ -655,6 +655,7 @@ export namespace TwitchatDataTypes {
 		items:EntryItem[];
 		winner:string;
 		sessionId:string;
+		skin?:string;
 	}
 
 	/**

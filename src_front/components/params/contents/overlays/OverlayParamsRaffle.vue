@@ -53,11 +53,12 @@ import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import type { JsonArray } from "type-fest";
+import type { JsonObject } from "type-fest";
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
+import StoreProxy from '@/store/StoreProxy';
 
 @Component({
 	components:{
@@ -124,11 +125,13 @@ class OverlayParamsRaffle extends Vue {
 				
 			}
 		}
-		const data = {
-			items:((items as unknown) as JsonArray),
+		const data:TwitchatDataTypes.WheelData = {
+			items,
+			sessionId:Utils.getUUID(),
 			winner: Utils.pickRand(items).id,
+			skin: StoreProxy.streamlabs.charityTeam?.id === "717041490483876892"? "etc" : "default",
 		}
-		PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, data)
+		PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
 		await Utils.promisedTimeout(100);
 		this.loading = false;
 	}
