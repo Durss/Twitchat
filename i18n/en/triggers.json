@@ -704,7 +704,7 @@
 			"counter_update_abs": "Value added (absolute value)",
 			"counter_username": "User name (for user specific counters)",
 			"counter_userid": "User ID (for user specific counters)",
-			"counter_global_value": "{NAME} counter value",
+			"counter_global_value": "Counter {NAME}",
 			"value_global_value": "Value {NAME}",
 			"value_name": "Name of the Value",
 			"new_value": "New value",
