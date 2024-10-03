@@ -1875,7 +1875,9 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"USER_NAME", descKey:'triggers.placeholders.user', pointer:"userName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
 		{tag:"PRODUCT_IDS", descKey:'triggers.placeholders.kofi_product_ids', pointer:"products.0.id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
 		{tag:"PRODUCT_NAMES", descKey:'triggers.placeholders.kofi_product_names', pointer:"products.0.name", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
-		{tag:"AMOUNT", descKey:'triggers.placeholders.amount', pointer:"amount", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
+		{tag:"AMOUNT", descKey:'triggers.placeholders.merch_amount', pointer:"amount", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
+		{tag:"CURRENCY", descKey:'triggers.placeholders.currency', pointer:"currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
+		{tag:"AMOUNT_FORMATTED", descKey:'triggers.placeholders.merch_amount_formatted', pointer:"amountFormatted", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
 		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
 		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
@@ -1885,8 +1887,8 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"USER_NAME", descKey:'triggers.placeholders.user', pointer:"userName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 		{tag:"AMOUNT", descKey:'triggers.placeholders.subscription_amount', pointer:"amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 		{tag:"CURRENCY", descKey:'triggers.placeholders.currency', pointer:"currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
-		{tag:"TIER", descKey:'triggers.placeholders.kofi_tier', pointer:"firstTimeSub", numberParsable:true, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
-		{tag:"FIRST_TIME_SUB", descKey:'triggers.placeholders.kofi_first_time_sub', pointer:"tier", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
+		{tag:"TIER", descKey:'triggers.placeholders.kofi_tier', pointer:"tier", numberParsable:true, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
+		{tag:"FIRST_TIME_SUB", descKey:'triggers.placeholders.kofi_first_time_sub', pointer:"firstTimeSub", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
@@ -1992,8 +1994,8 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	];
 
 	map[TriggerTypes.WEBSOCKET_TOPIC] = [
-		{tag:"TOPIC", descKey:'triggers.placeholders.ws_topic', pointer:"topic", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageWebsocketTopicData>,
-		{tag:"MESSAGE", descKey:'triggers.placeholders.ws_topic', pointer:"message", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageWebsocketTopicData>,
+		{tag:"TOPIC", descKey:'triggers.placeholders.ws_topic', pointer:"topic", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageWebsocketTopicData>,
+		{tag:"MESSAGE", descKey:'triggers.placeholders.ws_message', pointer:"message", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageWebsocketTopicData>,
 	];
 
 	map[TriggerTypes.STREAMLABS_CHARITY_TIP] = [

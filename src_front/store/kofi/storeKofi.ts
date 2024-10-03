@@ -123,7 +123,7 @@ export const storeKofi = defineStore('kofi', {
 						date:Date.now(),
 						userName:data.from_name,
 						amount:parseFloat(data.amount),
-						amountFormatted:data.amount,
+						amountFormatted:data.amount+data.currency,
 						currency:data.currency,
 						message:data.message,
 						message_chunks: chunks,
