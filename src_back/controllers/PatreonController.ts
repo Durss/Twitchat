@@ -580,7 +580,6 @@ export default class PatreonController extends AbstractController {
 		.digest('hex');
 		
 		Logger.success("Patreon: received webhook event \""+event+"\" for user ", uid, "(twitch:"+twitchId+")");
-		// console.log(JSON.stringify(request.body));
 
 		if(signature != hash) {
 			Logger.warn("Patreon: Invalid webhook signature for user", uid, "(twitch:"+twitchId+")");
@@ -615,6 +614,8 @@ export default class PatreonController extends AbstractController {
 					}
 				});
 			}
+		}else{
+			console.log(JSON.stringify(request.body));
 		}
 
 		response.status(200);
