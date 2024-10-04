@@ -39,7 +39,7 @@ export default class Utils {
 	 */
 	public static logToFile(logType:Parameters<typeof Config.LOGS_PATH>[0] | "", logData:string):boolean {
 		
-		const allowedCategories:Parameters<typeof Config.LOGS_PATH>[0][] = ["streamlabs", "hypetrain", "tiltify", "kofi", "patreon"];
+		const allowedCategories:Parameters<typeof Config.LOGS_PATH>[0][] = ["streamlabs", "hypetrain", "tiltify", "kofi", "patreon", "random"];
 
 		if(logType == "" || allowedCategories.indexOf(logType) == -1) {
 			return false;

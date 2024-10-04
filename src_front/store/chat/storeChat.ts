@@ -1483,7 +1483,7 @@ export const storeChat = defineStore('chat', {
 							StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_AMOUNT", message.amount);
 							StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_USER", message.userName);
 							StoreProxy.donationGoals.onDonation(message.userName, message.amount.toString(), "streamlabs_charity");
-							StoreProxy.donationGoals.onSourceValueUpdate("streamlabs_charity");
+							StoreProxy.donationGoals.onSourceValueUpdate("streamlabs_charity", message.campaign.id);
 							sRaffle.checkRaffleJoin(message);
 						}
 					}

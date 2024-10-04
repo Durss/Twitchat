@@ -1228,7 +1228,7 @@ export default class EventSub {
 	private async moderationEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModerationEvent):Promise<void> {
 		const user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name);
 		const moderator = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name);
-		const isBraodcasterToken = user.id == moderator.id;
+		const isBroadcasterToken = user.id == moderator.id;
 		switch(event.action) {
 			case "raid":{
 				const raidedUSer = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.raid.user_id, event.raid.user_login, event.raid.user_login)
@@ -1354,7 +1354,7 @@ export default class EventSub {
 				//more accurate event data to compute timeout duration.
 				//No need to parse this event as it would be a sort of duplicate
 				//of the channel.ban event
-				if(isBraodcasterToken && TwitchUtils.hasScopes([TwitchScopes.MODERATION_EVENTS])) return;
+				if(isBroadcasterToken && TwitchUtils.hasScopes([TwitchScopes.MODERATION_EVENTS])) return;
 
 				this.banEvent(topic, {
 					banned_at:new Date().toString(),
@@ -1396,7 +1396,7 @@ export default class EventSub {
 				//more accurate event data to compute timeout duration.
 				//No need to parse this event as it would be a sort of duplicate
 				//of the channel.ban event
-				if(isBraodcasterToken && TwitchUtils.hasScopes([TwitchScopes.MODERATION_EVENTS])) return;
+				if(isBroadcasterToken && TwitchUtils.hasScopes([TwitchScopes.MODERATION_EVENTS])) return;
 
 				this.banEvent(topic, {
 					banned_at:new Date().toString(),

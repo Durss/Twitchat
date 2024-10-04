@@ -85,7 +85,10 @@ export default class TiltifyController extends AbstractController {
 			return;
 		}
 
-		Utils.logToFile("tiltify", JSON.stringify({type:body.meta.event_type, data:body}));
+		if(body.meta.event_type != "public:direct:fact_updated" || (body.meta.event_type == "public:direct:fact_updated"
+		&& (body as WebhookCampaignEvent).data.livestream)) {
+			Utils.logToFile("tiltify", JSON.stringify({type:body.meta.event_type, data:body}));
+		}
 
 		try{
 
@@ -101,7 +104,7 @@ export default class TiltifyController extends AbstractController {
 				};
 
 				if(typedBody.meta.subscription_source_type == "test") {
-					//Force existing cause ID if testing so it actually
+					//Force existing campaign ID if testing so it actually
 					//does something on Twitchat
 					for (const id in this.fact2UidMap) {
 						if(this.fact2UidMap[id].type != "campaign") continue;

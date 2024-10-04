@@ -1228,7 +1228,7 @@
 				"description": "Actions à exécuter lorsque quelqu'un paye pour un Hype Chat"
 			},
 			"HEAT_CLICK": {
-				"label": "Interraction Heat",
+				"label": "Interaction Heat",
 				"description": "Actions à exécuter lorsque quelqu'un clique sur le stream {INFO}",
 				"description_info": "(Requiert l'extension Twitch \"Heat\". Consultez la section Heat pour l'installer)"
 			},

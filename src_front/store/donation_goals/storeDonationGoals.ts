@@ -7,6 +7,7 @@ import StoreProxy, { type IDonationGoalActions, type IDonationGoalGetters, type 
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import ApiHelper from '@/utils/ApiHelper';
 
 
 export const storeDonationGoals = defineStore('donationGoals', {
@@ -149,15 +150,31 @@ export const storeDonationGoals = defineStore('donationGoals', {
 		},
 
 		onSourceValueUpdate(platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"], sourceId?:string):void {
+			const login = StoreProxy.auth.twitch.user.login.toLowerCase();
+			if(login === "loxetv"
+			|| login === "m0uftchup"
+			|| login === "chezmarino"
+			|| login === "shakawah") {
+				ApiHelper.call("log", "POST", {cat:"random", log:{
+						type:"goal_update", platform, sourceId, overlays:(this.overlayList || []).map(v=>{
+							return {
+								source:v.dataSource,
+								campaign:v.campaignId,
+							};
+						})
+					}
+				});
+			}
 			for (let i = 0; i < this.overlayList.length; i++) {
 				const overlay = this.overlayList[i];
 				if(overlay.dataSource == platform) {
-					if(overlay.campaignId == sourceId
-					|| overlay.counterId == sourceId
-					|| platform == "twitch_subs"
-					|| platform == "twitch_followers") {
+					console.log(platform, sourceId, overlay.campaignId);
+					// if(overlay.campaignId == sourceId
+					// || overlay.counterId == sourceId
+					// || platform == "twitch_subs"
+					// || platform == "twitch_followers") {
 						this.broadcastData(overlay.id);
-					}
+					// }
 				}
 			}
 		},

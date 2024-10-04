@@ -153,6 +153,7 @@ export const storeTiltify = defineStore('tiltify', {
 
 				case "cause_update": {
 					const campaign = this.campaigns.find(v=>v.cause_id === data.causeId);
+					console.log("CAUSE", campaign);
 					if(!campaign) break;
 					
 					campaign.amount_raised.value = data.amount_raised.toString();
