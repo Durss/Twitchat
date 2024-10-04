@@ -150,25 +150,26 @@ export const storeDonationGoals = defineStore('donationGoals', {
 		},
 
 		onSourceValueUpdate(platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"], sourceId?:string):void {
-			const login = StoreProxy.auth.twitch.user.login.toLowerCase();
-			if(login === "loxetv"
-			|| login === "m0uftchup"
-			|| login === "chezmarino"
-			|| login === "shakawah") {
-				ApiHelper.call("log", "POST", {cat:"random", log:{
-						type:"goal_update", platform, sourceId, overlays:(this.overlayList || []).map(v=>{
-							return {
-								source:v.dataSource,
-								campaign:v.campaignId,
-							};
-						})
-					}
-				});
+			if(platform === "tiltify" || platform === "streamlabs_charity") {
+				const login = StoreProxy.auth.twitch.user.login.toLowerCase();
+				if(login === "loxetv"
+				|| login === "m0uftchup"
+				|| login === "chezmarino"
+				|| login === "shakawah") {
+					ApiHelper.call("log", "POST", {cat:"random", log:{
+							type:"goal_update", login, platform, sourceId, overlays:(this.overlayList || []).map(v=>{
+								return {
+									source:v.dataSource,
+									campaign:v.campaignId,
+								};
+							})
+						}
+					});
+				}
 			}
 			for (let i = 0; i < this.overlayList.length; i++) {
 				const overlay = this.overlayList[i];
 				if(overlay.dataSource == platform) {
-					console.log(platform, sourceId, overlay.campaignId);
 					// if(overlay.campaignId == sourceId
 					// || overlay.counterId == sourceId
 					// || platform == "twitch_subs"

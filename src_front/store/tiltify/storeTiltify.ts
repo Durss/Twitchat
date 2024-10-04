@@ -152,9 +152,11 @@ export const storeTiltify = defineStore('tiltify', {
 				}
 
 				case "cause_update": {
-					const campaign = this.campaigns.find(v=>v.cause_id === data.causeId);
-					console.log("CAUSE", campaign);
-					if(!campaign) break;
+					let campaign = this.campaigns.find(v=>v.id === data.campaignId);
+					if(!campaign) {
+						campaign = this.campaigns.find(v=>v.cause_id === data.causeId);
+						break;
+					}
 					
 					campaign.amount_raised.value = data.amount_raised.toString();
 					campaign.total_amount_raised.value = data.total_amount_raised.toString();
@@ -169,6 +171,25 @@ export const storeTiltify = defineStore('tiltify', {
 		async loadInfos():Promise<{user:TiltifyUser, campaigns:TiltifyCampaign[]}> {
 			const infos = await ApiHelper.call("tiltify/info", "GET", {token:this.token!.access_token}, false, 0);
 			this.campaigns = infos.json.campaigns;
+			const login = StoreProxy.auth.twitch.user.login.toLowerCase();
+			if(login === "loxetv"
+			|| login === "m0uftchup"
+			|| login === "chezmarino"
+			|| login === "shakawah") {
+				ApiHelper.call("log", "POST", {cat:"random", log:{
+						type:"tiltify_campaigns", login, user:{id:infos.json.user.id, name:infos.json.user.username}, campaigns:(this.campaigns || []).map(v=>{
+							return {
+								name:v.name,
+								id:v.id,
+								uid:v.user_id,
+								legacy_id:v.legacy_id,
+								team_id:v.team_id,
+								cause_id:v.cause_id,
+							};
+						})
+					}
+				});
+			}
 			this.user = infos.json.user;
 			StoreProxy.donationGoals.broadcastData();
 			return {user:this.user, campaigns:this.campaigns};
@@ -219,6 +240,7 @@ export interface TiltifyCauseEventData{
 	title:string;
 	description:string;
 	causeId:string;
+	campaignId:string;
 }
 
 export interface TiltifyUser {

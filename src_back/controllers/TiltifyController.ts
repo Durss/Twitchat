@@ -131,7 +131,8 @@ export default class TiltifyController extends AbstractController {
 					title: typedBody.data.name,
 					description: typedBody.data.description,
 					donateUrl: typedBody.data.donate_url,
-					causeId:typedBody.data.cause_id,
+					causeId: typedBody.data.cause_id,
+					campaignId: typedBody.data.id,
 				};
 
 				if(typedBody.meta.subscription_source_type == "test") {
@@ -762,4 +763,5 @@ export interface SSETiltifyCauseEventData{
 	title:string;
 	description:string;
 	causeId:string;
+	campaignId:string;
 }

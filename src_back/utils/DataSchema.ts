@@ -412,7 +412,7 @@ const UserDataSchema = {
 								queryParams: {
 									type:"array",
 									minItems:0,
-									maxItems:100,
+									maxItems:10000,
 									items:{type:"string", maxLength:50},
 								},
 								params: {
