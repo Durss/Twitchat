@@ -195,7 +195,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 												const data:TwitchatDataTypes.StreamlabsCharityData = {
 													id:Utils.getUUID(),
 													eventType:"charity",
-													platform:"twitchat",
+													platform:"twitch",
 													channel_id:me.id,
 													type:TwitchatDataTypes.TwitchatMessageType.STREAMLABS,
 													date:Date.now(),
@@ -236,7 +236,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 												const data:TwitchatDataTypes.StreamlabsDonationData = {
 													id:Utils.getUUID(),
 													eventType:"donation",
-													platform:"twitchat",
+													platform:"twitch",
 													channel_id:me.id,
 													type:TwitchatDataTypes.TwitchatMessageType.STREAMLABS,
 													date:Date.now(),
@@ -260,7 +260,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 												const data:TwitchatDataTypes.StreamlabsMerchData = {
 													id:Utils.getUUID(),
 													eventType:"merch",
-													platform:"twitchat",
+													platform:"twitch",
 													channel_id:me.id,
 													type:TwitchatDataTypes.TwitchatMessageType.STREAMLABS,
 													date:Date.now(),
@@ -281,7 +281,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 												const data:TwitchatDataTypes.StreamlabsPatreonPledgeData = {
 													id:Utils.getUUID(),
 													eventType:"patreon_pledge",
-													platform:"twitchat",
+													platform:"twitch",
 													channel_id:me.id,
 													type:TwitchatDataTypes.TwitchatMessageType.STREAMLABS,
 													date:Date.now(),

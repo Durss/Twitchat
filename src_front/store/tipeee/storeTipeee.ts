@@ -203,7 +203,7 @@ export const storeTipeee = defineStore('tipeee', {
 											const data:TwitchatDataTypes.MessageTipeeeDonationData = {
 												id:Utils.getUUID(),
 												eventType:"donation",
-												platform:"twitchat",
+												platform:"twitch",
 												channel_id:me.id,
 												type:TwitchatDataTypes.TwitchatMessageType.TIPEEE,
 												date:Date.now(),

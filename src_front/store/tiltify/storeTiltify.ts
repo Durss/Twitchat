@@ -126,7 +126,7 @@ export const storeTiltify = defineStore('tiltify', {
 					const message:TwitchatDataTypes.TiltifyDonationData = {
 						id:Utils.getUUID(),
 						eventType:"donation",
-						platform:"twitchat",
+						platform:"twitch",
 						channel_id:me.id,
 						type:TwitchatDataTypes.TwitchatMessageType.TILTIFY,
 						date:Date.now(),

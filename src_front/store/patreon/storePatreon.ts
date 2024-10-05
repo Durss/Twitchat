@@ -52,7 +52,7 @@ export const storePatreon = defineStore('patreon', {
 					date:Date.now(),
 					eventType:"new_member",
 					id:Utils.getUUID(),
-					platform:"twitchat",
+					platform:"twitch",
 					type:TwitchatDataTypes.TwitchatMessageType.PATREON,
 					tier: data.tier,
 					user:data.user,

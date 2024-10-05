@@ -271,7 +271,7 @@ export const storeStreamelements = defineStore('streamelements', {
 													message:value.data.message,
 													message_chunks:chunks,
 													message_html:TwitchUtils.messageChunksToHTML(chunks),
-													platform:"twitchat",
+													platform:"twitch",
 													userName:value.data.username,
 												}
 												StoreProxy.chat.addMessage(message);

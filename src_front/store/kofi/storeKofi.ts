@@ -70,7 +70,7 @@ export const storeKofi = defineStore('kofi', {
 					const message:TwitchatDataTypes.KofiDonationData = {
 						id:Utils.getUUID(),
 						eventType:"donation",
-						platform:"twitchat",
+						platform:"twitch",
 						channel_id:me.id,
 						isPublic:data.is_public == true,
 						type:TwitchatDataTypes.TwitchatMessageType.KOFI,
@@ -92,7 +92,7 @@ export const storeKofi = defineStore('kofi', {
 					const message:TwitchatDataTypes.KofiSubscriptionData = {
 						id:Utils.getUUID(),
 						eventType:"subscription",
-						platform:"twitchat",
+						platform:"twitch",
 						channel_id:me.id,
 						isPublic:data.is_public == true,
 						type:TwitchatDataTypes.TwitchatMessageType.KOFI,
@@ -116,7 +116,7 @@ export const storeKofi = defineStore('kofi', {
 					const message:TwitchatDataTypes.KofiMerchData = {
 						id:Utils.getUUID(),
 						eventType:"merch",
-						platform:"twitchat",
+						platform:"twitch",
 						channel_id:me.id,
 						isPublic:data.is_public == true,
 						type:TwitchatDataTypes.TwitchatMessageType.KOFI,
