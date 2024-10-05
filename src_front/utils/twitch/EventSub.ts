@@ -830,9 +830,15 @@ export default class EventSub {
 	 * @param event
 	 */
 	private async banEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.BanEvent):Promise<void> {
-		console.log("BAN EVENT");
-		const broadcasterUser= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name);
 		const bannedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
+		if(bannedUser.channelInfo[event.broadcaster_user_id].is_banned) {
+			// Ignore if user is already banned.
+			// As we listen from 2 sources of bans to get more accurate timeout
+			// info missing from the main source of moderation info, we can get
+			// double ban events
+			return;
+		}
+		const broadcasterUser= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name);
 		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name);
 		const m:TwitchatDataTypes.MessageBanData = {
 			id:Utils.getUUID(),
