@@ -40,11 +40,13 @@ export default class TiltifyController extends AbstractController {
 
 		this.apiPath = Config.credentials.tiltify_api_path;
 
-		await this.generateCredentialToken();
-		await this.enableWebhook();
-
-		if(fs.existsSync(Config.TILTIFY_FACT_2_UID_MAP)) {
-			this.fact2UidMap = JSON.parse(fs.readFileSync(Config.TILTIFY_FACT_2_UID_MAP, "utf-8") || "{}");
+		if(Config.credentials.tiltify_client_id && Config.credentials.tiltify_client_secret && this.apiPath) {
+			await this.generateCredentialToken();
+			await this.enableWebhook();
+	
+			if(fs.existsSync(Config.TILTIFY_FACT_2_UID_MAP)) {
+				this.fact2UidMap = JSON.parse(fs.readFileSync(Config.TILTIFY_FACT_2_UID_MAP, "utf-8") || "{}");
+			}
 		}
 	}
 	
