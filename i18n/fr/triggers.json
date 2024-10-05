@@ -101,7 +101,11 @@
 				"ends_with": "Termine par",
 				"not_ends_with": "Ne termine pas par",
 				"AND": "ET",
-				"OR": "OU"
+				"OR": "OU",
+				"empty": "est vide",
+				"not_empty": "n'est pas vide",
+				"longer_than": "plus long que",
+				"shorter_than": "plus court que"
 			},
 			"custom_value": "Valeur personnalisée..."
 		},

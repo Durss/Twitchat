@@ -6,8 +6,8 @@
 
 		<ParamItem class="operator" noBackground :paramData="param_operator" v-model="condition.operator" :key="'op_'+condition.id" />
 
-		<ParamItem class="value" v-if="forceCustom !== true && param_value_list.listValues" noBackground :paramData="param_value_list" v-model="condition.value" :key="'vl_'+condition.id" @change="onSelectFixedValue()" />
-		<ParamItem class="value" v-else noBackground :paramData="param_value" v-model="condition.value" :key="'v_'+condition.id" placeholdersAsPopout />
+		<ParamItem class="value" v-if="needsValue && forceCustom !== true && param_value_list.listValues" noBackground :paramData="param_value_list" v-model="condition.value" :key="'vl_'+condition.id" @change="onSelectFixedValue()" />
+		<ParamItem class="value" v-else-if="needsValue" noBackground :paramData="param_value" v-model="condition.value" :key="'v_'+condition.id" placeholdersAsPopout />
 
 		<div class="ctas">
 			<Button small icon="group"
@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
-import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerConditionOperatorList, TriggerEventPlaceholders, type TriggerCondition, type TriggerConditionGroup, type TriggerData, VALUE_PLACEHOLDER_PREFIX } from '@/types/TriggerActionDataTypes';
+import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerConditionOperatorList, TriggerEventPlaceholders, type TriggerCondition, type TriggerConditionGroup, type TriggerData, VALUE_PLACEHOLDER_PREFIX, type TriggerConditionOperator } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
@@ -49,12 +49,16 @@ class TriggerConditionListItem extends Vue {
 
 	public forceCustom:boolean = false;
 	public param_placeholder:TwitchatDataTypes.ParameterData<string, string> = {type:"list", value:""}
-	public param_operator:TwitchatDataTypes.ParameterData<string, string> = {type:"list", value:""}
+	public param_operator:TwitchatDataTypes.ParameterData<TriggerConditionOperator, TriggerConditionOperator> = {type:"list", value:">"}
 	public param_value:TwitchatDataTypes.ParameterData<string, string> = {type:"string", value:""}
 	public param_value_list:TwitchatDataTypes.ParameterData<string, unknown> = {type:"list", value:""}
 
 	private firstRender:boolean = true;
 	private CUSTOM:string = "@___CUSTOM_VALUE___@";
+
+	public get needsValue():boolean {
+		return this.param_operator.value != "empty" && this.param_operator.value != "not_empty";
+	}
 
 	public beforeMount():void {
 		if(this.condition.placeholder) this.condition.placeholder = this.condition.placeholder.toUpperCase();

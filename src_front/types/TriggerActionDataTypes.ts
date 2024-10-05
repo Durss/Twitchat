@@ -234,7 +234,7 @@ export interface TriggerCondition {
 	value:string;
 }
 
-export const TriggerConditionOperatorList = [">","<",">=","<=","=","!=","contains","not_contains","starts_with","not_starts_with","ends_with","not_ends_with"] as const;
+export const TriggerConditionOperatorList = [">","<",">=","<=","=","!=","contains","not_contains","starts_with","not_starts_with","ends_with","not_ends_with","empty","not_empty","longer_than","shorter_than"] as const;
 export type TriggerConditionOperator = typeof TriggerConditionOperatorList[keyof typeof TriggerConditionOperatorList];
 
 export interface TriggerCooldownData {

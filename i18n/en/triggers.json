@@ -101,7 +101,11 @@
 				"ends_with": "Ends with",
 				"not_ends_with": "Not ending with",
 				"AND": "AND",
-				"OR": "OR"
+				"OR": "OR",
+				"empty": "is empty",
+				"not_empty": "not empty",
+				"longer_than": "longer than",
+				"shorter_than": "shorter than"
 			},
 			"custom_value": "Custom value..."
 		},
