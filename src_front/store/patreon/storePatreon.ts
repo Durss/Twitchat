@@ -167,7 +167,8 @@ export const storePatreon = defineStore('patreon', {
 				this.isMember = res.json.data?.isMember === true;
 				if(this.isMember) {
 					StoreProxy.chat.cleanupDonationRelatedMessages();
-			
+				}
+				if(StoreProxy.auth.isPremium) {
 					//Check if webhook exists in case user granted the necessary scope
 					//If it does not, create it.
 					if(this.token.scopes.includes("w:campaigns.webhook")) {
