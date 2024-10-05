@@ -379,23 +379,28 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			}
 
 			const teamJSON = await teamRes.json() as StreamlabsCharityTeamData;
-			this.charityTeam = {
-				id:teamJSON.id,
-				teamURL:url,
-				title:teamJSON.display_name,
-				amountGoal_cents:teamJSON.campaign.goal.amount,
-				amountRaised_cents:teamJSON.amount_raised,
-				amountRaisedPersonnal_cents:0,
-				currency:teamJSON.goal.currency,
-				campaignId:teamJSON.campaign.id,
-				pageUrl:`https://streamlabscharity.com/teams/@${teamJSON.slug}/${teamJSON.campaign.slug}?member=`+memberId,
-				cause:{
-					id:teamJSON.campaign.causable.id,
-					title:teamJSON.campaign.causable.display_name,
-					description:teamJSON.campaign.causable.description,
-					website:teamJSON.campaign.causable.page_settings.website_url,
-				}
-			};
+			if(!this.charityTeam) {
+				this.charityTeam = {
+					id:teamJSON.id,
+					teamURL:url,
+					title:teamJSON.display_name,
+					amountGoal_cents:teamJSON.campaign.goal.amount,
+					amountRaised_cents:teamJSON.amount_raised,
+					amountRaisedPersonnal_cents:0,
+					currency:teamJSON.goal.currency,
+					campaignId:teamJSON.campaign.id,
+					pageUrl:`https://streamlabscharity.com/teams/@${teamJSON.slug}/${teamJSON.campaign.slug}?member=`+memberId,
+					cause:{
+						id:teamJSON.campaign.causable.id,
+						title:teamJSON.campaign.causable.display_name,
+						description:teamJSON.campaign.causable.description,
+						website:teamJSON.campaign.causable.page_settings.website_url,
+					}
+				};
+			}else{
+				this.charityTeam.amountGoal_cents = teamJSON.campaign.goal.amount;
+				this.charityTeam.amountRaised_cents = teamJSON.amount_raised;
+			}
 
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_GOAL", this.charityTeam.amountGoal_cents/100);
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED", this.charityTeam.amountRaised_cents/100);
@@ -577,6 +582,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			let hasResults = false;
 			let total = donationPrevPagesTotal;
 			let lastPageTotal = 0;
+			let prevValue = this.charityTeam.amountRaisedPersonnal_cents;
 			let lastTip:StreamlabsCharityDonationHistoryEntry|undefined = undefined;
 			do {
 				hasResults = false;
@@ -616,8 +622,11 @@ export const storeStreamlabs = defineStore('streamlabs', {
 				StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_USER", lastTip.member.user.display_name);
 			}
 
-			StoreProxy.donationGoals.onSourceValueUpdate("streamlabs_charity", this.charityTeam.campaignId);
-			StoreProxy.donationGoals.broadcastData();
+			if(this.charityTeam.amountRaisedPersonnal_cents != prevValue) {
+				StoreProxy.donationGoals.onSourceValueUpdate("streamlabs_charity", this.charityTeam.campaignId);
+				StoreProxy.donationGoals.broadcastData();
+				this.saveData();
+			}
 
 			resyncInProgress = false;
 		}

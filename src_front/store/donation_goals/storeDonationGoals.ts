@@ -170,12 +170,12 @@ export const storeDonationGoals = defineStore('donationGoals', {
 			for (let i = 0; i < this.overlayList.length; i++) {
 				const overlay = this.overlayList[i];
 				if(overlay.dataSource == platform) {
-					// if(overlay.campaignId == sourceId
-					// || overlay.counterId == sourceId
-					// || platform == "twitch_subs"
-					// || platform == "twitch_followers") {
+					if( (platform == "streamlabs_charity" && overlay.campaignId == StoreProxy.streamlabs.charityTeam?.id)
+					|| overlay.campaignId == sourceId
+					|| overlay.counterId == sourceId
+					|| !sourceId) {
 						this.broadcastData(overlay.id);
-					// }
+					}
 				}
 			}
 		},
