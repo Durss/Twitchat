@@ -34,10 +34,11 @@
 					icon="shoutout"
 					:loading="shoutoutLoading"
 					class="soButton"
-				>{{ $t('chat.soBt') }}</Button>
+					v-if="showSOButton"
+					>{{ $t('chat.soBt') }}</Button>
 			</div>
-
-			<Button v-else
+				
+			<Button v-else-if="showSOButton"
 				@click.stop="shoutout()"
 				small
 				icon="shoutout"
@@ -49,6 +50,7 @@
 </template>
 
 <script lang="ts">
+//TODO make sure the "canModerate" works
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';
@@ -68,6 +70,7 @@ class ChatRaid extends AbstractChatMessage {
 
 	public shoutoutLoading = false;
 	public showCount = false;
+	public showSOButton = false;
 	public formatedDuration = "";
 
 	public get classes():string[] {
@@ -81,6 +84,7 @@ class ChatRaid extends AbstractChatMessage {
 	public beforeMount():void {
 		this.showCount = this.$store.params.appearance.showRaidViewersCount.value !== false;
 		this.formatedDuration = Utils.formatDuration(this.messageData.stream.duration);
+		this.showSOButton = this.$store.auth.twitch.user.channelInfo[this.messageData.channel_id]?.is_moderator === true;
 	}
 
 	public async shoutout():Promise<void> {
