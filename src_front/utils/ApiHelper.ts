@@ -80,12 +80,13 @@ export default class ApiHelper {
 		const status = res? res.status : 500;
 		if(status == 429) {
 			if(json.errorCode == "RATE_LIMIT_BAN") {
-				StoreProxy.common.alert( StoreProxy.i18n.t("error.rate_limit_ban", {MAIL:Config.instance.CONTACT_MAIL}), true );
+				// StoreProxy.common.alert( StoreProxy.i18n.t("error.rate_limit_ban", {MAIL:Config.instance.CONTACT_MAIL}), true );
 			}else{
 				if(endpoint == "google/translate") {
 					StoreProxy.common.alert( StoreProxy.i18n.t("error.quota_translation") );
 				}else{
-					StoreProxy.common.alert( StoreProxy.i18n.t("error.rate_limit") );
+					//TODO enable back once i know why it's spamming some calls
+					// StoreProxy.common.alert( StoreProxy.i18n.t("error.rate_limit") );
 				}
 			}
 		}else
