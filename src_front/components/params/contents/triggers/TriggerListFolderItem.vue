@@ -57,6 +57,7 @@
 						:forceDisableOption="forceDisableOption"
 						:triggerId="triggerId"
 						@change="onChange"
+						@changeState="onToggleTrigger(folder, $event)"
 						@delete="$emit('delete', $event)"
 						@duplicate="$emit('duplicate', $event, folder)"
 						@testTrigger="$emit('testTrigger',$event)"
@@ -216,8 +217,8 @@ class TriggerListFolderItem extends Vue {
 	 * @param item 
 	 * @param el 
 	 */
-	public onToggleTrigger(item:TriggerListEntry, el:HTMLElement):void {
-		if(item.trigger.enabled
+	public onToggleTrigger(item:TriggerListEntry | TriggerListFolderEntry, el:HTMLElement):void {
+		if(item.type == "trigger" && item.trigger.enabled
 		&& !this.$store.auth.isPremium
 		&& this.$store.triggers.triggerList.filter(v=>v.enabled !== false && this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false).length > this.$config.MAX_TRIGGERS) {
 			setTimeout(()=>{
@@ -226,7 +227,7 @@ class TriggerListFolderItem extends Vue {
 			this.vibrate(el);
 		}else{
 			this.$emit('change');
-			this.$emit('changeState');
+			this.$emit('changeState', item);
 		}
 	}
 
