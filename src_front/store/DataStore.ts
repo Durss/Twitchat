@@ -15,6 +15,9 @@ import StoreProxy from "./StoreProxy";
  */
 export default class DataStore extends DataStoreCommon{
 
+	protected static saveTO:number = -1;
+	private static abortQuery:AbortController|null = null;
+
 
 	/********************
 	* GETTER / SETTERS *
@@ -32,8 +35,6 @@ export default class DataStore extends DataStoreCommon{
 	 * @returns
 	 */
 	static override async save(force:boolean = false, delay:number = 1500):Promise<void> {
-		clearTimeout(this.saveTO);
-		
 		if(!force) {
 			if(!this.syncToServer) return;//User wants to only save data locally
 			if(!this.dataImported) return;//Don't export anything before importing data first
@@ -41,6 +42,10 @@ export default class DataStore extends DataStoreCommon{
 			if(StoreProxy.main.outdatedDataVersion) return;
 			if(StoreProxy.main.offlineMode) return;
 		}
+		
+		clearTimeout(this.saveTO);
+		//Abort current save if any
+		if(this.abortQuery && !this.abortQuery.signal.aborted) this.abortQuery.abort("search update");
 
 		return new Promise((resolve) => {;
 			this.saveTO = setTimeout(async () => {
@@ -63,14 +68,16 @@ export default class DataStore extends DataStoreCommon{
 				}
 
 				data.saveVersion = isNaN(data.saveVersion)? 1 : data.saveVersion + 1;
-				this.set(DataStore.SAVE_VERSION, data.saveVersion, false);
+				this.set(this.SAVE_VERSION, data.saveVersion, false);
 
-				const saveRes = await ApiHelper.call("user/data", "POST", {data, forced:force});
+				this.abortQuery = new AbortController();
+				const signal = this.abortQuery!.signal;
+				const saveRes = await ApiHelper.call("user/data", "POST", {data, forced:force}, false, undefined, undefined, signal);
 				if(saveRes.status == 409) {
 					StoreProxy.main.showOutdatedDataVersionAlert();
 				}
 				if(saveRes.json.success === true && force && saveRes.json.version) {
-					this.set(DataStore.SAVE_VERSION, Math.max(data.saveVersion, saveRes.json.version), false);
+					this.set(this.SAVE_VERSION, Math.max(data.saveVersion, saveRes.json.version), false);
 				}
 
 				//If we forced upload, consider data has been imported as they are
@@ -96,8 +103,7 @@ export default class DataStore extends DataStoreCommon{
 				//Import data to local storage.
 				if(res.json.success === true) {
 					await this.loadFromJSON(res.json.data);
-					DataStore.save(true);
-					console.log("Force save");
+					this.save(true);
 				}
 			}
 			return res.status != 404;
@@ -302,9 +308,9 @@ export default class DataStore extends DataStoreCommon{
 		if(v==48) {
 			//Some users still have an old trigger data format :/
 			//THey have an empty(?) object instead of an array
-			const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+			const triggers:TriggerData[] = data[this.TRIGGERS];
 			if(triggers && !Array.isArray(triggers)) {
-				data[DataStore.TRIGGERS] = [];
+				data[this.TRIGGERS] = [];
 			}
 			if(data[this.ENDING_CREDITS_PARAMS]?.scale) {
 				data[this.ENDING_CREDITS_PARAMS].scale = 30;

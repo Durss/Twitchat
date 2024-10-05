@@ -43,7 +43,7 @@ export default class ApiHelper {
 		U extends keyof ApiEndpoints,
 		M extends AvailableMethods<U>,
 		P extends ApiDefinition<ApiEndpoints, U, M>["parameters"]>
-		(endpoint:U, method:M, data?:P, retryOnFail:boolean = true, attemptIndex:number = 0, headers:{[key:string]:string} = {})
+		(endpoint:U, method:M, data?:P, retryOnFail:boolean = true, attemptIndex:number = 0, headers:{[key:string]:string} = {}, abortSignal?:AbortSignal)
 		:Promise<{status:number; json:ApiDefinition<ApiEndpoints, U, M>["response"]}> {
 			
 		const url = new URL(Config.instance.API_PATH+"/"+endpoint);
@@ -54,6 +54,9 @@ export default class ApiHelper {
 		const options:RequestInit = {
 			method: method || "GET",
 			headers,
+		}
+		if(abortSignal) {
+			options.signal = abortSignal;
 		}
 		if(data) {
 			if(data instanceof FormData) {

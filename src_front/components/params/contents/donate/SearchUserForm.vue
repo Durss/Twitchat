@@ -103,7 +103,7 @@ class SearchUserForm extends Vue {
 	public async onSearch():Promise<void> {
 		this.searching = this.search != "";
 		this.noResult = false;
-		if(this.abortQuery) this.abortQuery.abort("search update");
+		if(this.abortQuery && !this.abortQuery.signal.aborted) this.abortQuery.abort("search update");
 		this.abortQuery = new AbortController();
 		if(this.searching) {
 			const signal = this.abortQuery!.signal;

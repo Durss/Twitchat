@@ -56,6 +56,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 				notifyTips:true,
 				limitEntryCount:false,
 				maxDisplayedEntries:0,
+				hideDelay:30,
 				goalList:[],
 				color:"#e04e00",
 				currency:"",

@@ -110,7 +110,6 @@ export default class DataStoreCommon {
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";
-	protected static saveTO:number = -1;
 	protected static dataImported:boolean = false;
 	protected static rawStore:{[key:string]:(JsonValue|unknown)} = {};
 
