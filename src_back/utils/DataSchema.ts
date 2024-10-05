@@ -1925,7 +1925,12 @@ const UserDataSchema = {
 								tip: {
 									type: "object",
 									properties: {
-										amount: { type: "number", minimum:0, maximum:999999999999999 },
+										amount: {
+											anyOf:[
+												{type:"string", maxLength:50},
+												{type:"number", minimum:0 , maximum:99999}
+											]
+										},
 										source: { type: "string", maxLength:20 }
 									},
 								},
