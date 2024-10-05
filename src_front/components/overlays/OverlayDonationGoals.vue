@@ -273,7 +273,7 @@ class OverlayDonationGoals extends AbstractOverlay {
 		
 		//Show notification
 		gsap.fromTo(holder, {y:"100%"}, {y:"0%", duration:.15, ease:"sine.out", onComplete:()=>{
-			let showDuration = Math.max(.15, 3 - Math.pow(this.poolAlerts.length, .5));
+			let showDuration = Math.max(.15, 10 - Math.pow(this.poolAlerts.length, .75));
 			//Holder might have changed between show and hide
 			let holder = this.$refs.notification as HTMLElement | Vue[];
 			if(Array.isArray(holder) && holder.length > 0) holder = holder[0].$el as HTMLElement;

@@ -120,7 +120,9 @@
 					<ParamItem :paramData="param_color[overlay.id]" v-model="overlay.color" @change="save(overlay.id)" />
 					<ParamItem :paramData="param_notifyTips[overlay.id]" v-model="overlay.notifyTips" @change="save(overlay.id)" v-if="overlay.dataSource != 'counter'" />
 					<ParamItem :paramData="param_autoDisplay[overlay.id]" v-model="overlay.autoDisplay" @change="save(overlay.id)" />
-					<ParamItem :paramData="param_hideDone[overlay.id]" v-model="overlay.hideDone" @change="save(overlay.id)" />
+					<ParamItem :paramData="param_hideDone[overlay.id]" v-model="overlay.hideDone" @change="save(overlay.id)">
+						<ParamItem :paramData="param_hideDelay[overlay.id]" v-model="overlay.hideDelay" @change="save(overlay.id)" :childLevel="1" noBackground />
+					</ParamItem>
 					<ParamItem :paramData="param_limitEntryCount[overlay.id]" v-model="overlay.limitEntryCount" @change="save(overlay.id)">
 						<ParamItem :paramData="param_maxDisplayedEntries[overlay.id]" v-model="overlay.maxDisplayedEntries" @change="save(overlay.id)" :childLevel="1" noBackground />
 					</ParamItem>
@@ -184,6 +186,7 @@ import { VueDraggable } from 'vue-draggable-plus';
 import { Component, toNative, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
+import DurationForm from '@/components/DurationForm.vue';
 
 @Component({
 	components:{
@@ -192,6 +195,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		ParamItem,
 		ToggleBlock,
 		ToggleButton,
+		DurationForm,
 		VueDraggable,
 		OverlayInstaller,
 	},
@@ -211,6 +215,7 @@ class OverlayParamsDonationGoal extends Vue {
 	public param_notifyTips:{[overlayId:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_autoDisplay:{[overlayId:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_hideDone:{[overlayId:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_hideDelay:{[overlayId:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_limitEntryCount:{[overlayId:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_maxDisplayedEntries:{[overlayId:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_goal_secret:{[overlayId:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
@@ -370,6 +375,7 @@ class OverlayParamsDonationGoal extends Vue {
 
 			//Ignore if already initialized
 			if(this.param_notifyTips[id]) return;
+			if(overlay.hideDelay === undefined) overlay.hideDelay = 10;
 
 			this.param_color[id]				= {type:"color", value:"", labelKey:"donation_goals.param_color", icon:"color"};
 			this.param_showCurrency[id]			= {type:"boolean", value:"", labelKey:"donation_goals.param_showCurrency", icon:"coin"};
@@ -377,6 +383,7 @@ class OverlayParamsDonationGoal extends Vue {
 			this.param_notifyTips[id]			= {type:"boolean", value:overlay.notifyTips, labelKey:"donation_goals.param_notifyTips", icon:"notification"};
 			this.param_autoDisplay[id]			= {type:"boolean", value:overlay.autoDisplay, labelKey:"donation_goals.param_autoDisplay", icon:"hide"};
 			this.param_hideDone[id]				= {type:"boolean", value:overlay.hideDone, labelKey:"donation_goals.param_hideDone", icon:"timer"};
+			this.param_hideDelay[id]			= {type:"duration", value:overlay.hideDelay || 10, max:600, labelKey:"donation_goals.param_hideDelay", icon:"timer"};
 			this.param_limitEntryCount[id]		= {type:"boolean", value:overlay.limitEntryCount, labelKey:"donation_goals.param_limitEntryCount", icon:"number"};
 			this.param_maxDisplayedEntries[id]	= {type:"number", value:overlay.maxDisplayedEntries, min:0, max:overlay.goalList.length, labelKey:"donation_goals.param_maxDisplayedEntries", icon:"number"};
 			this.param_campaignId[id]			= {type:"list", value:"", labelKey:"donation_goals.param_campaignId", icon:"charity"};

@@ -3676,6 +3676,10 @@ export default class TriggerActionHandler {
 					case "not_ends_with": localRes = !value.toLowerCase().endsWith(expectation.toLowerCase()); break;
 					case "starts_with": localRes = value.toLowerCase().startsWith(expectation.toLowerCase()); break;
 					case "not_starts_with": localRes = !value.toLowerCase().startsWith(expectation.toLowerCase()); break;
+					case "empty": localRes = value.toString().trim().length === 0; break;
+					case "not_empty": localRes = value.toString().trim().length > 0; break;
+					case "longer_than": localRes = value.toString().trim().length > valueNum; break;
+					case "shorter_than": localRes = value.toString().trim().length < valueNum; break;
 					default: localRes = false;
 				}
 				log.entries.push({date:Date.now(), type:"message", value:"Executing operator \""+c.operator+"\" between \""+value+"\" and \""+expectation+"\" => "+localRes.toString()});

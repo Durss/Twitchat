@@ -757,6 +757,10 @@ export namespace TwitchatDataTypes {
 		 */
 		hideDone:boolean;
 		/**
+		 * Delay after which hide the goal
+		 */
+		hideDelay:number;
+		/**
 		 * Number of items to display after the current goal
 		 */
 		limitEntryCount:boolean;

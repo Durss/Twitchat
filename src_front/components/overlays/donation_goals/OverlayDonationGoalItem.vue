@@ -13,13 +13,13 @@
 			questionMarks: data.percent < .1
 		}">
 			<div class="content" id="content" ref="content">
-				<span class="amount" id="amount">{{ getFormattedNumber(data.goalItem.amount) }}<span class="currency" v-if="overlayParams.currency">{{ overlayParams.currency }}</span></span>
+				<span class="amount goal" id="amount" v-if="data.distanceToCurrentIndex === 0">{{ getFormattedNumber(currentValue) }}<span class="currency" v-if="overlayParams.currency">{{ overlayParams.currency }}</span></span>
 				<div class="label" id="title">
 					<span class="title" v-if="data.goalItem.secret !== true || data.goalItem.secret_type !== 'progressive'">{{ data.goalItem.title }}</span>
 					<TextSplitter class="title" ref="textSplitter" :message="data.goalItem.title" v-else></TextSplitter>
 					<div class="mystery">???</div>
 				</div>
-				<span class="amount goal" id="amount" v-if="data.distanceToCurrentIndex === 0">{{ getFormattedNumber(data.goalItem.amount - currentValue) }}<span class="currency" v-if="overlayParams.currency">{{ overlayParams.currency }}</span></span>
+				<span class="amount" id="amount">{{ getFormattedNumber(data.goalItem.amount) }}<span class="currency" v-if="overlayParams.currency">{{ overlayParams.currency }}</span></span>
 				<div class="hideTimer" id="timer" v-if="data.hidePercent > 0" :style="{width:data.hidePercent+'%'}"></div>
 				<div class="shine" ref="shines" v-for="i in 2"></div>
 			</div>
@@ -146,9 +146,10 @@ class OverlayDonationGoalItem extends Vue {
 	 * Makes opening animation
 	 */
 	private async open():Promise<void> {
+		this.stopParticles();
 		if(this.state == "opened") return Promise.resolve();
 		if(this.state == "opening") return Promise.resolve();
-
+		
 		this.state = "opening";
 		this.data.visible = true;
 		await this.$nextTick();
@@ -158,8 +159,8 @@ class OverlayDonationGoalItem extends Vue {
 			this.onPercentUpdate();
 			gsap.killTweensOf(this.data);
 			gsap.killTweensOf(content);
-			gsap.from(this.$refs.holder as HTMLElement, {padding:0, delay:this.index*.03, borderBottom:0, duration:.5, ease:"back.out", clearProps:"padding,borderBottom"});
-			gsap.from(content, {scaleY:0, height:0, delay:this.index*.03, duration:.5, ease:"back.out", clearProps:"scaleY,height", onComplete:()=>{
+			gsap.from(this.$refs.holder as HTMLElement, {delay:this.index*.03, borderBottom:0, duration:.25, ease:"quad.out", clearProps:"padding,borderBottom"});
+			gsap.from(content, {padding:0, scaleY:0, height:0, delay:this.index*.03, duration:.25, ease:"quad.out", clearProps:"scaleY,height", onComplete:()=>{
 				this.state = "opened";
 				resolve();
 			}});
@@ -170,13 +171,15 @@ class OverlayDonationGoalItem extends Vue {
 	 * Close the item when complete
 	 */
 	private async close():Promise<void> {
-		//First show item if hidden
+		const hideDelay = this.overlayParams.hideDelay ?? 10;
+
+		//First show item if hidden in case it's goal is filled
 		//Necessary if next items are hidden and we get a donation that
 		//validates multiple goals at once
-		if(this.localPercent === 0 && this.data.percent >= 1) {
+		if(hideDelay && this.localPercent === 0 && this.data.percent >= 1) {
 			await this.open();
 		}
-		
+
 		const content = this.$refs.content as HTMLDivElement
 		if(!content) return;
 		if(this.state == "closed") return;
@@ -184,27 +187,38 @@ class OverlayDonationGoalItem extends Vue {
 		gsap.killTweensOf(this.data);
 		gsap.killTweensOf(content);
 
-		if(this.data.percent >= 1) {
+		if(this.data.percent >= 1 && this.overlayParams.hideDone === true) {
 			this.state = "closing";
-			//First show hide timer
-			await new Promise<void>((resolve)=>{
-				this.burstParticles();
-				this.data.hidePercent = 0;
-				if(this.data.percent >= 1) {
+			if(hideDelay > 0) {
+				//if goal reached burst particles and show autohide timer if requested
+				await new Promise<void>((resolve)=>{
+					this.burstParticles();
+					this.data.hidePercent = 0;
 					//Show hide timer
-					gsap.fromTo(this.data, {hidePercent:100}, {hidePercent:0, duration:10, ease:"none", onComplete:() => {
-						resolve();
-					}});
-				}else{
-					resolve();
-				}
-			})
-		}
+						gsap.fromTo(this.data, {hidePercent:100}, {hidePercent:0, duration:hideDelay, ease:"none", onComplete:() => {
+							this.state = "closed";
+							this.stopParticles();
+							resolve();
+						}});
+				});
 
-		gsap.to(content, {scaleY:0, height:0, padding:0, duration:.35, ease:"back.in", clearProps:"scaleY,height,padding", onComplete:()=>{
-			this.data.visible = false;
-			this.state = "closed";
-		}});
+			// }else{
+			// 	this.data.visible = false;
+			// 	this.state = "closed";
+			// 	this.stopParticles();
+			}
+			gsap.to(this.$refs.holder as HTMLElement, {delay:this.index*.03, borderBottom:0, duration:.25, ease:"quad.out", clearProps:"padding,borderBottom"});
+			gsap.to(content, {scaleY:0, height:0, padding:0, duration:.25, ease:"quad.in", clearProps:"scaleY,height,padding", onComplete:()=>{
+				this.data.visible = false;
+				this.state = "closed";
+			}});
+		}else{
+			gsap.to(this.$refs.holder as HTMLElement, {delay:this.index*.03, borderBottom:0, duration:.25, ease:"quad.out", clearProps:"padding,borderBottom"});
+			gsap.to(content, {scaleY:0, height:0, padding:0, duration:.25, ease:"quad.in", clearProps:"scaleY,height,padding", onComplete:()=>{
+				this.data.visible = false;
+				this.state = "closed";
+			}});
+		}
 	}
 
 	private async onRender():Promise<void> {
@@ -237,10 +251,24 @@ class OverlayDonationGoalItem extends Vue {
 	/**
 	 * Burst particles
 	 */
+	public async stopParticles():Promise<void> {
+		await this.$nextTick();
+		for (let i = 0; i < this.particles.length; i++) {
+			const index = i%this.particles.length;
+			const particle = (this.$refs.particle as HTMLOrSVGElement[])[index];
+			gsap.killTweensOf(particle);
+			gsap.set(particle, {opacity:0});
+		}
+	}
+
+	/**
+	 * Burst particles
+	 */
 	public burstParticles():void {
 		const holder = this.$el;
 		if(!holder || !holder.getBoundingClientRect) return;
 		const bounds = holder.getBoundingClientRect();
+		const hideDelay = this.overlayParams.hideDelay ?? 10;
 
 		const shines = this.$refs.shines as HTMLDivElement[];
 		for (let i = 0; i < shines.length; i++) {
@@ -259,18 +287,37 @@ class OverlayDonationGoalItem extends Vue {
 			const particle = (this.$refs.particle as HTMLOrSVGElement[])[index];
 			gsap.killTweensOf(particle);
 			
+			// params.a = percent*Math.PI*2;
+			// params.x = bounds.width * .5 + Math.cos(params.a) * bounds.width * .25 * Math.random();
+			// params.y = bounds.height * .5 + Math.sin(params.a) * bounds.height * .25 * Math.random();
+			
+			// const endX = params.x + Math.cos(params.a) * params.v * bounds.width * .75;
+			// const endY = params.y + Math.sin(params.a) * params.v * bounds.height;
+			// const endR = params.r + (Math.random()-Math.random()) * Math.PI;
+			// const delay = Math.random() * .1;
+			// const duration = Math.random() * .5 + .75;
+			
 			params.a = percent*Math.PI*2;
-			params.x = bounds.width * .5 + Math.cos(params.a) * bounds.width * .25 * Math.random();
-			params.y = bounds.height * .5 + Math.sin(params.a) * bounds.height * .25 * Math.random();
+			params.x = -bounds.width * .25;
+			params.y = (Math.random()-Math.random()) * bounds.height + bounds.height*.5;
 			
-			const endX = params.x + Math.cos(params.a) * params.v * bounds.width * .75;
-			const endY = params.y + Math.sin(params.a) * params.v * bounds.height;
+			// const endX = params.x + Math.cos(params.a) * params.v * bounds.width * .75;
+			// const endY = params.y + Math.sin(params.a) * params.v * bounds.height;
+			const endX = params.x + bounds.width * 2;
+			const endY = (Math.random()-Math.random()) * bounds.height + bounds.height*.5;
 			const endR = params.r + (Math.random()-Math.random()) * Math.PI;
-			const delay = Math.random() * .1;
-			const duration = Math.random() * .5 + .75;
+			const duration = Math.random()*2 + 1;
+			const delay = i/this.particles.length * 5;
+			const opacity = Math.random()*.8 + .2;
+
 			
-			gsap.fromTo(particle, {left:params.x, top:params.y, scale:params.s}, {left:endX, top:endY, ease:"sine.out", duration, delay});
-			gsap.fromTo(particle, {rotate:params.r+"rad", opacity:1}, {rotate:endR+"rad", ease:"none", duration, opacity:0, delay});
+			gsap.fromTo(particle,
+						{left:params.x, top:params.y, scale:params.s, opacity},
+						{left:endX, top:endY, ease:"none", duration, delay, repeat:Math.max(2, hideDelay)});
+
+			gsap.fromTo(particle,
+						{rotate:params.r+"rad"},
+						{rotate:endR+"rad", ease:"none", duration, delay, repeat:Math.max(2, hideDelay)});
 		}
 	}
 
@@ -318,7 +365,6 @@ export default toNative(OverlayDonationGoalItem);
 		background-size: 200%;
 		border-radius: .5em;
 		border-bottom: .3em solid v-bind(color);
-		padding: .5em;
 		width: 100vw;
 		max-width: 33em;
 		position: relative;
@@ -333,6 +379,9 @@ export default toNative(OverlayDonationGoalItem);
 			display: flex;
 			flex-direction: row;
 			align-items: center;
+			position: relative;
+			z-index: 1;
+			padding: .5em;
 
 			.amount {
 				font-weight: bold;
@@ -367,7 +416,7 @@ export default toNative(OverlayDonationGoalItem);
 					transform: translate(-50%, -50%);
 					font-weight: bold;
 					font-size: 3em;
-					z-index: 1;
+					z-index: 2;
 					opacity: 0;
 					transition: opacity 1s;
 				}
@@ -389,7 +438,7 @@ export default toNative(OverlayDonationGoalItem);
 				left: -100%;
 				width: 100%;
 				height: 100%;
-				z-index: 2;
+				z-index: 3;
 				// background-color: red;	
 				background-image: linear-gradient(120deg, transparent 0, transparent 17%, #ffffffA0 20%, #ffffffA0 30%, transparent 100%);
 			}
@@ -446,12 +495,12 @@ export default toNative(OverlayDonationGoalItem);
 		width: 2em;
 		height: 2em;
 		position: absolute;
-		z-index: 1;
 		color: v-bind(color);
 		transform-origin: center;
 		transform: translate(-50%, -50%);
 		&:nth-child(odd) {
-			color: v-bind(color_background);
+			filter: brightness(2);
+			// color: v-bind(color_background);
 		}
 		path, polygon {
 			fill:currentColor;
@@ -472,6 +521,16 @@ export default toNative(OverlayDonationGoalItem);
 		
 			.hideTimer {
 				background: #92ffff;
+			}
+			.particle {
+				color: #a26cf3;
+				
+				&:nth-child(odd) {
+					color: white;
+				}
+				path, polygon {
+					fill: currentColor;
+				}
 			}
 		}
 	}
