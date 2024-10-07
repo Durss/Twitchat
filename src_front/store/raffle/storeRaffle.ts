@@ -346,7 +346,6 @@ export const storeRaffle = defineStore('raffle', {
 					//sent by batches
 					if(messageParams.enabled) {
 						clearTimeout(debounceConfirm);
-						confirmSpool.push(username);
 						let joinMessage = "";
 						let userCount = 0;
 						while(joinMessage.length < 500 && userCount < confirmSpool.length) {

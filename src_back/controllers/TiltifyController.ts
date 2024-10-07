@@ -117,9 +117,13 @@ export default class TiltifyController extends AbstractController {
 	
 				//Send info to connected users
 				const fact = this.fact2UidMap[data.campaignId];
-				(fact.users || []).forEach(uid=>{
-					SSEController.sendToUser(uid, SSECode.TILTIFY_EVENT, data);
-				})
+				if(fact) {
+					(fact.users || []).forEach(uid=>{
+						SSEController.sendToUser(uid, SSECode.TILTIFY_EVENT, data);
+					})
+				}else{
+					Logger.warn("[TILTIFY] Campaign not found:", data.campaignId);
+				}
 	
 			}else
 			if(body.meta.event_type == "public:direct:fact_updated") {
