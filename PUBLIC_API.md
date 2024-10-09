@@ -717,29 +717,29 @@ ad add alert animate announcement anon api automod badge ban bingo bits block bo
 ```typescript
 {
 	//Message to display
-    message?: string;
+	message?: string;
 	//Defines if the close button should be disaplay
 	//defaults to "true" if omitted
 	canClose?:boolean;
 	//Defines if the message should be displayed on the "greet them" section
 	todayFirst?:boolean;
 	//User info
-    user?: {
-        name: string;
-        color?: string;
-    };
+	user?: {
+		name: string;
+		color?: string;
+	};
 	//Column index to display the message to
-    col?: number;
+	col?: number;
 	//Button icon see list of values above
-    icon?: string;
+	icon?: string;
 	//Color of the message for "highlight" style
-    highlightColor?: string;
+	highlightColor?: string;
 	//Message style
-    style?: "message"|"highlight"|"error";
+	style?: "message"|"highlight"|"error";
 	//Option quote displayed in a dedicated holder
 	quote?:string;
 	//buttons to add
-    actions?: {
+	actions?: {
 		//Button icon see list of values above
 		icon?:string;
 		//Button label
@@ -757,6 +757,6 @@ ad add alert animate announcement anon api automod badge ban bingo bits block bo
 		message?:string;
 		//Button style
 		theme?:"default"|"primary"|"secondary"|"alert";
-    }[];
+	}[];
 }
 ```
