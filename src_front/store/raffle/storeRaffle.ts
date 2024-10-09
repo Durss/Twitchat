@@ -357,7 +357,6 @@ export const storeRaffle = defineStore('raffle', {
 							id:user? user.id : Utils.getUUID(),
 							tip:tipInfo,
 						};
-						console.log(entry)
 
 						//if the message contains an actual user ref, save it for future use
 						if(user) {
