@@ -256,6 +256,7 @@ export const storeRaffle = defineStore('raffle', {
 			let joined = false;
 			this.raffleList.forEach(raffle => {
 				let canJoin = forceEnter;
+				let joinCount = 1;
 				let username = "";
 				let tipInfo:typeof raffle.entries[number]["tip"] = undefined;
 
@@ -289,17 +290,46 @@ export const storeRaffle = defineStore('raffle', {
 					//Refuse if username is already registered
 					if(existingEntry && raffle.multipleJoin !== true) return;
 					let tipPlatform:NonNullable<typeof raffle.entries[number]["tip"]>["source"] = "kofi";
+					let joinRatio:number = 0;
 					//Define tip source
 					switch(message.type) {
-						case TwitchatDataTypes.TwitchatMessageType.KOFI:			tipPlatform = "kofi"; break;
-						case TwitchatDataTypes.TwitchatMessageType.STREAMLABS:		tipPlatform = message.eventType == "charity"? "streamlabs_charity" :"streamlabs"; break;
-						case TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS:	tipPlatform = "streamlements"; break;
-						case TwitchatDataTypes.TwitchatMessageType.TIPEEE:			tipPlatform = "tipeee"; break;
-						case TwitchatDataTypes.TwitchatMessageType.TILTIFY:			tipPlatform = "tiltify"; break;
+						case TwitchatDataTypes.TwitchatMessageType.KOFI:{
+							tipPlatform = "kofi";
+							joinRatio = raffle.tip_kofi_ponderate || 0;
+							break;
+						}
+						case TwitchatDataTypes.TwitchatMessageType.STREAMLABS:{
+							if(message.eventType == "charity") {
+								tipPlatform = "streamlabs_charity";
+								joinRatio = raffle.tip_streamlabsCharity_ponderate || 0;
+							}else{
+								tipPlatform = "streamlabs";
+								joinRatio = raffle.tip_streamlabs_ponderate || 0;
+							}
+							break;
+						}
+						case TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS:{
+							tipPlatform = "streamlements";
+							joinRatio = raffle.tip_streamelements_ponderate || 0;
+							break;
+						}
+						case TwitchatDataTypes.TwitchatMessageType.TIPEEE:{
+							tipPlatform = "tipeee";
+							joinRatio = raffle.tip_tipeee_ponderate || 0;
+							break;
+						}
+						case TwitchatDataTypes.TwitchatMessageType.TILTIFY:{
+							tipPlatform = "tiltify";
+							joinRatio = raffle.tip_tiltify_ponderate || 0;
+							break;
+						}
 					}
 					tipInfo = {
 						amount:message.amountFormatted,
 						source:tipPlatform,
+					}
+					if(joinRatio > 0) {
+						joinCount = Math.floor(message.amount/joinRatio);
 					}
 				}
 
@@ -322,11 +352,12 @@ export const storeRaffle = defineStore('raffle', {
 						//User is not already on the list, create it
 						const entry:typeof raffle.entries[number] = {
 							score:0,
-							joinCount:1,
+							joinCount,
 							label:user? user.displayNameOriginal : username,
 							id:user? user.id : Utils.getUUID(),
 							tip:tipInfo,
 						};
+						console.log(entry)
 
 						//if the message contains an actual user ref, save it for future use
 						if(user) {

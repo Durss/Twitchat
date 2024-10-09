@@ -70,6 +70,7 @@
 			"tip_tipeee":"Tipeee",
 			"tip_tiltify":"Tiltify",
 			"tip_minAmount":"Min tip amount",
+			"tip_ponderate":"Tickets per tip amount | 1($,€,£…) = 1 ticket\n(leave 0 to only give 1 ticket per tip) | {VALUE}($,€,£…) = 1 ticket\n(leave 0 to only give 1 ticket per tip)",
 			"duration": "Raffle duration ({VALUE} minutes)",
 			"limit_users": "Limit users count",
 			"max_users": "Max user count",

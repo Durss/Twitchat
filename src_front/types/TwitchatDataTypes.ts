@@ -844,6 +844,12 @@ export namespace TwitchatDataTypes {
 		tip_streamelements_minAmount?:number;
 		tip_tipeee_minAmount?:number;
 		tip_tiltify_minAmount?:number;
+		tip_kofi_ponderate?:number;
+		tip_streamlabs_ponderate?:number;
+		tip_streamlabsCharity_ponderate?:number;
+		tip_streamelements_ponderate?:number;
+		tip_tipeee_ponderate?:number;
+		tip_tiltify_ponderate?:number;
 		value_id?:string;
 		value_splitter?:string;
 		removeWinningEntry?:boolean;
