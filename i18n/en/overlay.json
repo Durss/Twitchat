@@ -364,7 +364,7 @@
 			"param_customText": "Custom text (supports HTML)",
 			"param_customCSS": "Custom CSS",
 			"param_labelValue": "Value to display",
-			"param_labelValueFont": "Font family",
+			"param_labelValueFont": "Font style",
 			"param_labelValueSize": "Text size",
 			"param_textColor": "Text color",
 			"param_backgroundEnabled": "Background",

@@ -363,7 +363,7 @@
 			"param_customText": "Texte personnalisé (supporte le HTML)",
 			"param_customCSS": "CSS personnalisé",
 			"param_labelValue": "Valeur à afficher",
-			"param_labelValueFont": "Police d'écriture",
+			"param_labelValueFont": "Style du texte",
 			"param_labelValueSize": "Taille du texte",
 			"param_textColor": "Couleur du texte",
 			"param_backgroundEnabled": "Fond",
