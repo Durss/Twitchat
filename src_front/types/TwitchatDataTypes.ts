@@ -4443,6 +4443,15 @@ export namespace TwitchatDataTypes {
 		 */
 		message?:string;
 		/**
+		 * Define if the close button should be disaplay
+		 * defaults to "true" if omitted
+		 */
+		canClose?:boolean;
+		/**
+		 * Defines if the message should be displayed on the "greet them" section
+		 */
+		todayFirst?:boolean;
+		/**
 		 * Option quote displayed in a dedicated holder
 		 */
 		quote?:string;

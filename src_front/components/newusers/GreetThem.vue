@@ -79,7 +79,7 @@ class NewUsers extends Vue {
 	public indexOffset = 0;
 	public deleteInterval = -1;
 	public windowHeight = .3;
-	public messages:TwitchatDataTypes.GreetableMessage[] = [];
+	public messages:(TwitchatDataTypes.GreetableMessage | TwitchatDataTypes.MessageCustomData)[] = [];
 
 	private maxItems = 50;
 	private disposed = false;
@@ -92,7 +92,7 @@ class NewUsers extends Vue {
 	private deleteMessageHandler!:(e:GlobalEvent)=> void;
 	private addMessageHandler!:(e:GlobalEvent)=> void;
 
-	public get messagesFiltered():TwitchatDataTypes.GreetableMessage[] {
+	public get messagesFiltered():(TwitchatDataTypes.GreetableMessage | TwitchatDataTypes.MessageCustomData)[] {
 		return this.messages.concat().splice(0,this.maxItems);
 	}
 
@@ -204,7 +204,7 @@ class NewUsers extends Vue {
 	 * Called when a new message is received
 	 */
 	private async onAddMessage(event:GlobalEvent):Promise<void> {
-		const m = (event.data as TwitchatDataTypes.GreetableMessage);
+		const m = (event.data as (TwitchatDataTypes.GreetableMessage | TwitchatDataTypes.MessageCustomData));
 		if(!m.todayFirst) return;
 
 		this.messages.push(m);
@@ -216,7 +216,7 @@ class NewUsers extends Vue {
 	 * Called when a message is deleted
 	 */
 	private onDeleteMessage(e:GlobalEvent):void {
-		const data = e.data as {message:TwitchatDataTypes.GreetableMessage, force:boolean};
+		const data = e.data as {message:(TwitchatDataTypes.GreetableMessage | TwitchatDataTypes.MessageCustomData), force:boolean};
 
 		//remove from displayed messages
 		for (let i = this.messages.length-1; i >= 0; i--) {
@@ -259,7 +259,7 @@ class NewUsers extends Vue {
 	 * Called when clicking a message
 	 * Either removes a streak of messages or one single message
 	 */
-	public deleteMessage(m:TwitchatDataTypes.GreetableMessage, index:number, singleMode = false):void {
+	public deleteMessage(m:TwitchatDataTypes.GreetableMessage | TwitchatDataTypes.MessageCustomData, index:number, singleMode = false):void {
 		if(singleMode) {
 			let el = (this.$refs["message"] as Vue[])[index];
 			this.indexOffset = parseInt((el.$el as HTMLElement).dataset.index as string);

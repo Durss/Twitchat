@@ -718,6 +718,11 @@ ad add alert animate announcement anon api automod badge ban bingo bits block bo
 {
 	//Message to display
     message?: string;
+	//Defines if the close button should be disaplay
+	//defaults to "true" if omitted
+	canClose?:boolean;
+	//Defines if the message should be displayed on the "greet them" section
+	todayFirst?:boolean;
 	//User info
     user?: {
         name: string;

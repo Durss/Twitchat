@@ -34,7 +34,7 @@
 			</div>
 		</div>
 
-		<ClearButton class="closeBt" @click.stop="deleteMessage()" small />
+		<ClearButton class="closeBt" @click.stop="deleteMessage()" small v-if="messageData.canClose !== false" />
 	</div>
 </template>
 
