@@ -94,6 +94,7 @@ export default toNative(TimerCountDownInfo);
 		font-size: .9em;
 		padding: .35em;
 		border-radius: var(--border-radius);
+		color: var(--color-light);
 		background-color: var(--color-secondary);
 		font-family: var(--font-roboto);
 		text-transform: uppercase;

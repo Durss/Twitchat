@@ -21,7 +21,7 @@
 			<TTButton class="draggable" draggable="true" type="link" :href="localURLOBS" :light="light === true" @click.prevent @dragstart="onDragButtonStart($event)">{{$t("overlay.drag_installBt")}}</TTButton>
 			<span>{{$t("global.or")}}</span>
 			<input class="primary" type="text" v-model="localURL" v-click2Select readonly :disabled="disabled">
-			<button class="copyBt" @click="copyUrl()" ref="copyButton"><Icon :name="confirmCopy? 'checkmark' : 'copy'" /></button>
+			<button class="copyBt" @click="copyUrl()" ref="copyButton"><Icon :name="confirmCopy? 'checkmark' : 'copy'" theme="light" /></button>
 		</div>
 
 		<div v-if="error" class="card-item alert error" @click="error=''">{{ $t("overlay.install_error", {ERROR:error}) }}</div>
