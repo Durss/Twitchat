@@ -26,7 +26,7 @@ let obsSocket!:OBSWebSocket;
 let parameters:LabelItemData | null = null;
 let placeholders:{[tag:string]:{value:string|number, type:LabelItemPlaceholder["type"]}} = {};
 let timerPlaceholder:{tag:string, params:(typeof placeholders[string])}[] = [];
-let timerOffsets:{[key:string]:{dateOffset:number, offset:number, type:LabelItemPlaceholder["type"]}} = {};
+let timerOffsets:{[key:string]:{dateOffset:number, type:LabelItemPlaceholder["type"]}} = {};
 let mustRefreshRegularly = false;
 
 interface IEnvelope<T = undefined> {
@@ -159,12 +159,18 @@ function parsePlaceholders(src:string):string {
 		const tagSafe = tag.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 		let replacement = placeholder.value?.toString() ?? "";
 		if(placeholder.type == "duration"
+		|| placeholder.type == "day"
+		|| placeholder.type == "month"
+		|| placeholder.type == "year"
+		|| placeholder.type == "hours"
+		|| placeholder.type == "minutes"
+		|| placeholder.type == "seconds"
 		|| placeholder.type == "date"
 		|| placeholder.type == "time"
 		|| placeholder.type == "datetime") {
 			if(!replacement) replacement = "0";
 			const id = (++timerIdInc).toString();
-			timerOffsets[id] = {dateOffset:Date.now(), offset:parseInt(replacement), type:placeholder.type};
+			timerOffsets[id] = {dateOffset:placeholder.value as number || Date.now(), type:placeholder.type};
 			replacement = "<span data-timerid=\""+id+"\">"+renderTimerValue(id)+"</span>";
 		}
 		src = src.replace(new RegExp("\\{"+tagSafe+"\\}", "gi"), replacement);
@@ -196,6 +202,12 @@ function onMessage(message:IEnvelope<unknown>):void {
 			if(data[tag].type == "duration"
 			|| data[tag].type == "date"
 			|| data[tag].type == "time"
+			|| data[tag].type == "hours"
+			|| data[tag].type == "minutes"
+			|| data[tag].type == "seconds"
+			|| data[tag].type == "day"
+			|| data[tag].type == "month"
+			|| data[tag].type == "year"
 			|| data[tag].type == "datetime") {
 				timerPlaceholder.push({tag, params:data[tag]});
 			}
@@ -312,12 +324,18 @@ function renderValue():void {
 function renderTimerValue(timerId:string):string {
 	const timer = timerOffsets[timerId];
 	if(!timer) return "";
-	const elapsed = Date.now() - timer.dateOffset;
 	let result = "";
-	if(timer.type == "date") result = formatDate(new Date(), false);
-	if(timer.type == "time") result = formatDate(new Date(), true, true);
-	if(timer.type == "datetime") result = formatDate(new Date(), true);
-	if(timer.type == "duration") result = formatDuration(timer.offset + elapsed, true);
+	let now = new Date();
+	if(timer.type == "date") result = formatDate(now, false);
+	if(timer.type == "time") result = formatDate(now, true, true);
+	if(timer.type == "datetime") result = formatDate(now, true);
+	if(timer.type == "duration") result = formatDuration(Date.now() - timer.dateOffset, true);
+	if(timer.type == "hours") result = now.getHours().toString().padStart(2, "0");
+	if(timer.type == "minutes") result = now.getMinutes().toString().padStart(2, "0");
+	if(timer.type == "seconds") result = now.getSeconds().toString().padStart(2, "0");
+	if(timer.type == "day") result = now.getDate().toString();
+	if(timer.type == "month") result = (now.getMonth()+1).toString();
+	if(timer.type == "year") result = now.getFullYear().toString();
 	return result;
 }
 

@@ -29,7 +29,7 @@ export interface LabelItemPlaceholder {
 }
 
 type AssertExact<T, Expected> = [T] extends [Expected] ? ([Expected] extends [T] ? true : never) : never;
-type Test1 = AssertExact<LabelItemPlaceholder["type"], "string"|"number"|"image"|"duration"|"date"|"time"|"datetime">;
+type Test1 = AssertExact<LabelItemPlaceholder["type"], "string"|"number"|"image"|"duration"|"date"|"time"|"datetime"|"hours"|"minutes"|"seconds"|"day"|"month"|"year">;
 
 //If there's an error on TypeCheck var that's because one of the labels
 //bellow has an invalid "type" value
@@ -39,6 +39,12 @@ export const LabelItemPlaceholderList = [
 	{tag:"DATE",								type:"date",	descriptionKey:"overlay.labels.placeholders.DATE", backup:true} as const,
 	{tag:"TIME",								type:"time",	descriptionKey:"overlay.labels.placeholders.TIME", backup:true} as const,
 	{tag:"DATE_TIME",							type:"datetime",descriptionKey:"overlay.labels.placeholders.DATE_TIME", backup:true} as const,
+	{tag:"DAY",									type:"day",		descriptionKey:"overlay.labels.placeholders.DAY", backup:true} as const,
+	{tag:"MONTH",								type:"month",	descriptionKey:"overlay.labels.placeholders.MONTH", backup:true} as const,
+	{tag:"YEAR",								type:"year",	descriptionKey:"overlay.labels.placeholders.YEAR", backup:true} as const,
+	{tag:"HOURS",								type:"hours",	descriptionKey:"overlay.labels.placeholders.HOURS", backup:true} as const,
+	{tag:"MINUTES",								type:"minutes",	descriptionKey:"overlay.labels.placeholders.MINUTES", backup:true} as const,
+	{tag:"SECONDS",								type:"seconds",	descriptionKey:"overlay.labels.placeholders.SECONDS", backup:true} as const,
 
 	{tag:"VIEWER_COUNT",						type:"number",	descriptionKey:"overlay.labels.placeholders.VIEWER_COUNT", backup:true} as const,
 	{tag:"FOLLOWER_COUNT",						type:"number",	descriptionKey:"overlay.labels.placeholders.FOLLOWER_COUNT", backup:true} as const,

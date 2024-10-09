@@ -944,7 +944,7 @@ export default class EventSub {
 	 * @param event
 	 */
 	private async streamStartStopEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.StreamOnlineEvent | TwitchEventSubDataTypes.StreamOfflineEvent):Promise<void> {
-		const streamInfo = StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id]!;
+		let streamInfo = StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id]!;//Data is loaded at app load for currently authenticated chan
 		streamInfo.live = topic === TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON;
 		const message:TwitchatDataTypes.MessageStreamOnlineData | TwitchatDataTypes.MessageStreamOfflineData = {
 			date:Date.now(),

@@ -485,8 +485,16 @@
 				"MUSIC_COVER": "Musique en cours - Image",
 				
 				"DATE": "Date actuelle",
-				"TIME": "Heure actuelle",
-				"DATE_TIME": "Date et heure actuelles",
+				"TIME": "Heure actuelle formatted",
+				"DATE_TIME": "Date et heure actuelles formattées",
+
+				"DAY": "Jour actuel",
+				"MONTH": "Mois actuel",
+				"YEAR": "Année actuelle",
+				
+				"HOURS": "Heure actuelle",
+				"MINUTES": "Minute actuelle",
+				"SECONDS": "Seconde actuelle",
 
 				"STREAM_DURATION": "Durée du stream en cours",
 				"STREAM_TITLE": "Titre du stream en cours",
