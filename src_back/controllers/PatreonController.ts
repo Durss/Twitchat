@@ -599,25 +599,28 @@ export default class PatreonController extends AbstractController {
 		}else
 		if(event === "members:update") {
 			const message = request.body as WebhookMemberCreateEvent;
-			const membershipDuration = Math.abs(new Date(message.data.attributes.pledge_relationship_start).getTime() - new Date(message.data.attributes.last_charge_date).getTime());
-			if((membershipDuration < 20*24*60*60*1000 && this.uidToFirstPayment[uid] !== false) || this.uidToFirstPayment[uid] === true) {
-				this.uidToFirstPayment[uid] = false;
-				const user = message.included.find(v=>v.type == "user");
-				const tier = message.included.find(v=>v.type == "tier");
-				//Broadcast to client
-				SSEController.sendToUser(twitchId, "PATREON_MEMBER_CREATE", {
-					uid,
-					user: {
-						username: user?.attributes.full_name || message.data.attributes.full_name,
-						avatar: user?.attributes.image_small_url || user?.attributes.image_url || user?.attributes.thumb_url,
-						url: user?.attributes.url,
-					},
-					tier: {
-						amount:(tier?.attributes.amount_cents || message.data.attributes.currently_entitled_amount_cents || 0)/100,
-						title:tier?.attributes.title || "",
-						description:tier?.attributes.description || "",
-					}
-				});
+			//Only accept "paid" status
+			if(message.data.attributes.last_charge_status == "paid") {
+				const membershipDuration = Math.abs(new Date(message.data.attributes.pledge_relationship_start).getTime() - new Date(message.data.attributes.last_charge_date).getTime());
+				if((membershipDuration < 20*24*60*60*1000 && this.uidToFirstPayment[uid] !== false) || this.uidToFirstPayment[uid] === true) {
+					this.uidToFirstPayment[uid] = false;
+					const user = message.included.find(v=>v.type == "user");
+					const tier = message.included.find(v=>v.type == "tier");
+					//Broadcast to client
+					SSEController.sendToUser(twitchId, "PATREON_MEMBER_CREATE", {
+						uid,
+						user: {
+							username: user?.attributes.full_name || message.data.attributes.full_name,
+							avatar: user?.attributes.image_small_url || user?.attributes.image_url || user?.attributes.thumb_url,
+							url: user?.attributes.url,
+						},
+						tier: {
+							amount:(tier?.attributes.amount_cents || message.data.attributes.currently_entitled_amount_cents || 0)/100,
+							title:tier?.attributes.title || "",
+							description:tier?.attributes.description || "",
+						}
+					});
+				}
 			}
 		}
 
