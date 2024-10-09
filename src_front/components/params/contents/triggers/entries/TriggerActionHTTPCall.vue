@@ -179,6 +179,7 @@ class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 			}
 		});
 
+		this.param_url.placeholderList = list;
 		this.param_custom_body.placeholderList = list;
 	}
 

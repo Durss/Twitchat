@@ -1876,16 +1876,17 @@ export default class TriggerActionHandler {
 						}
 					}
 
-					let uri = step.url;
-					if((uri||"").trim().length <= 2) {
+					let urlSrc = step.url;
+					if((urlSrc||"").trim().length <= 2) {
 						log.error = true;
 						logStep.error = true;
 						logStep.messages.push({date:Date.now(), value:"HTTP call failed because URI is empty or too short (less than 3 chars)"});
 					}else{
 						try {
 							//Add protocol if missing
-							if(!/https?:\/\//gi.test(uri) && !/.*:\/\/.*/gi.test(uri)) uri = "https://"+uri;
-							const url = new URL(uri);
+							if(!/https?:\/\//gi.test(urlSrc) && !/.*:\/\/.*/gi.test(urlSrc)) urlSrc = "https://"+urlSrc;
+							urlSrc = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, urlSrc, subEvent, false);
+							const url = new URL(urlSrc);
 							for (const tag of step.queryParams) {
 								const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent);
 								if((step.method == "POST" || step.method == "PATCH") && step.sendAsBody == true) {
@@ -1958,7 +1959,7 @@ export default class TriggerActionHandler {
 							console.error(error);
 							log.error = true;
 							logStep.error = true;
-							logStep.messages.push({date:Date.now(), value:"HTTP call failed. URI might be invalid: "+uri});
+							logStep.messages.push({date:Date.now(), value:"HTTP call failed. URI might be invalid: "+urlSrc});
 						}
 					}
 				}else
