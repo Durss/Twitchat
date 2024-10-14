@@ -83,6 +83,7 @@
 			<Button small @click="simulateEvent($event, 'kofi', 'kofi_donation')" icon="kofi">Kofi donation</Button>
 			<Button small @click="simulateEvent($event, 'kofi', 'kofi_merch')" icon="kofi">Kofi merch</Button>
 			<Button small @click="simulateEvent($event, 'kofi', 'kofi_sub')" icon="kofi">Kofi Sub</Button>
+			<Button small @click="simulateEvent($event, 'kofi', 'kofi_commission')" icon="kofi">Kofi Commission</Button>
 			<Button small @click="simulateEvent($event, 'tipeee')" icon="tipeee">Tipeee donation</Button>
 			<Button small @click="simulateEvent($event, 'tiltify')" icon="tiltify">Tiltify donation</Button>
 			<Button small @click="simulateEvent($event, 'patreon')" icon="patreon">Patreon new member</Button>
@@ -256,6 +257,10 @@ class DevmodeMenu extends Vue {
 				case "kofi_sub":{
 					(message as TwitchatDataTypes.KofiSubscriptionData).eventType = "subscription";
 					(message as TwitchatDataTypes.KofiSubscriptionData).tier = "My amazing subscription"; break;
+				}
+				case "kofi_commission":{
+					(message as TwitchatDataTypes.KofiCommissionData).eventType = "commission";
+					(message as TwitchatDataTypes.KofiCommissionData).url = "https://ko-fi.com";break;
 				}
 				case "se_donation":			(message as TwitchatDataTypes.StreamelementsDonationData).eventType = "donation"; break;
 				case "unban_request_solve":	{
@@ -710,6 +715,7 @@ type Subaction = "first"
 				| "kofi_donation"
 				| "kofi_merch"
 				| "kofi_sub"
+				| "kofi_commission"
 				| "se_donation"
 				| "my_stream_online"
 				| "my_stream_offline"

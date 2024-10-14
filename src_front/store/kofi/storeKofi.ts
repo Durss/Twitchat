@@ -139,6 +139,29 @@ export const storeKofi = defineStore('kofi', {
 					StoreProxy.chat.addMessage(message);
 					break;
 				}
+				
+				case "Commission": {
+					const chunks = TwitchUtils.parseMessageToChunks(data.message || "", undefined, true);
+					const message:TwitchatDataTypes.KofiCommissionData = {
+						id:Utils.getUUID(),
+						eventType:"commission",
+						platform:"twitch",
+						channel_id:me.id,
+						isPublic:data.is_public == true,
+						type:TwitchatDataTypes.TwitchatMessageType.KOFI,
+						date:Date.now(),
+						userName:data.from_name,
+						amount:parseFloat(data.amount),
+						amountFormatted:data.amount+data.currency,
+						currency:data.currency,
+						message:data.message,
+						message_chunks: chunks,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						url:data.url,
+					}
+					StoreProxy.chat.addMessage(message);
+					break;
+				}
 			}
 		}
 	
@@ -159,7 +182,7 @@ export interface KofiEventData {
 	verification_token: string;
 	message_id: string;
 	timestamp: string;
-	type: "Donation" | "Subscription" | "Shop Order";
+	type: "Donation" | "Subscription" | "Shop Order" | "Commission";
 	is_public: boolean;
 	from_name: string;
 	message: string;

@@ -547,6 +547,8 @@ export const storeMain = defineStore("main", {
 					user: data.user,
 					channel_id:StoreProxy.auth.twitch.user.id,
 				};
+				if(data.canClose === false) message.canClose = false;
+				if(data.todayFirst === true) message.todayFirst = true;
 				StoreProxy.chat.addMessage(message);
 			});
 

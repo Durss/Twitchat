@@ -419,9 +419,9 @@ export default class TiltifyController extends AbstractController {
 			// const json = await res.json();
 			Logger.info("[TILTIFY] Webhook created for \""+campaignId+"\"");
 		}else{
-			Logger.error("[TILTIFY] Failed subscribing to campaign");
-			const text = await res.text();
-			console.log(text);
+			// Logger.error("[TILTIFY] Failed subscribing to campaign");
+			// const text = await res.text();
+			// console.log(text);
 		}
 	}
 

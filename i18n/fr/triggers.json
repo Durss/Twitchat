@@ -1344,6 +1344,10 @@
 				"label": "Nouvel abonné sur Ko-fi",
 				"description": "Actions à exécuter lorsqu'une personne s'abonne mensuellement à votre Ko-fi"
 			},
+			"KOFI_COMMISSION": {
+				"label": "Commande reçue sur Ko-Fi",
+				"description": "Actions à exécuter lorsqu'une personne effectue une commande (commission) sur Ko-fi"
+			},
 			"STREAMELEMENTS_DONATION": {
 				"label": "Don reçu sur Streamelements",
 				"description": "Actions à exécuter lorsque vous recevez un don sur Streamelements"

@@ -591,6 +591,7 @@ export default class TriggerActionHandler {
 						"donation":TriggerTypes.KOFI_DONATION,
 						"merch":TriggerTypes.KOFI_MERCH,
 						"subscription":TriggerTypes.KOFI_SUBSCRIPTION,
+						"commission":TriggerTypes.KOFI_COMMISSION,
 					} as const;
 				if(await this.executeTriggersByType(eventType[message.eventType], message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
@@ -1880,7 +1881,7 @@ export default class TriggerActionHandler {
 					if((urlSrc||"").trim().length <= 2) {
 						log.error = true;
 						logStep.error = true;
-						logStep.messages.push({date:Date.now(), value:"HTTP call failed because URI is empty or too short (less than 3 chars)"});
+						logStep.messages.push({date:Date.now(), value:"HTTP call failed because URL is empty or too short (less than 3 chars)"});
 					}else{
 						try {
 							//Add protocol if missing
@@ -1959,7 +1960,7 @@ export default class TriggerActionHandler {
 							console.error(error);
 							log.error = true;
 							logStep.error = true;
-							logStep.messages.push({date:Date.now(), value:"HTTP call failed. URI might be invalid: "+urlSrc});
+							logStep.messages.push({date:Date.now(), value:"HTTP call failed. URL might be invalid: "+urlSrc});
 						}
 					}
 				}else
@@ -3677,10 +3678,10 @@ export default class TriggerActionHandler {
 					case "not_ends_with": localRes = !value.toLowerCase().endsWith(expectation.toLowerCase()); break;
 					case "starts_with": localRes = value.toLowerCase().startsWith(expectation.toLowerCase()); break;
 					case "not_starts_with": localRes = !value.toLowerCase().startsWith(expectation.toLowerCase()); break;
-					case "empty": localRes = value.toString().trim().length === 0; break;
-					case "not_empty": localRes = value.toString().trim().length > 0; break;
-					case "longer_than": localRes = value.toString().trim().length > valueNum; break;
-					case "shorter_than": localRes = value.toString().trim().length < valueNum; break;
+					case "empty": localRes = value == null || value == undefined || value.toString().trim().length === 0; break;
+					case "not_empty": localRes = value != null && value != undefined && value.toString().trim().length > 0; break;
+					case "longer_than": localRes = value == null || value == undefined? false : value.toString().trim().length > valueNum; break;
+					case "shorter_than": localRes = value == null || value == undefined? true : value.toString().trim().length < valueNum; break;
 					default: localRes = false;
 				}
 				log.entries.push({date:Date.now(), type:"message", value:"Executing operator \""+c.operator+"\" between \""+value+"\" and \""+expectation+"\" => "+localRes.toString()});

@@ -1342,7 +1342,11 @@
 			},
 			"KOFI_SUBSCRIPTION": {
 				"label": "Someone subscribed on Ko-fi",
-				"description": "Actions to execute when a someone subscribes (monthly) on Ko-fi"
+				"description": "Actions to execute when someone subscribes (monthly) on Ko-fi"
+			},
+			"KOFI_COMMISSION": {
+				"label": "Someone requested a commission on Ko-fi",
+				"description": "Actions to execute when somone requestes for a commission on Ko-fi"
 			},
 			"STREAMELEMENTS_DONATION": {
 				"label": "Received a donation on Streamelements",

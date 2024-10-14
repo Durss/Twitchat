@@ -81,65 +81,106 @@ export default class KofiController extends AbstractController {
 			const user = this.hashmapCache[data.verification_token];
 			if(!user) return;
 
+			//If there are shop items, attempt to load their details
+			//EDIT: disabled, ko-fi enhanced their anti-scrape protection, I couldn't
+			//find a way to bypass it without using puppeteer which i want to avoid
 			if(data.shop_items) {
-				let updateCache = false;
-				//Ko-fi has no API to get a product name from its ID.
-				//Only "solution" is to scrape it from the HTML page -_-...
-				for (let i = 0; i < data.shop_items.length; i++) {
-					const item = data.shop_items[i];
+				Utils.logToFile("kofi", JSON.stringify({type:"shop", data}));
+				// let updateCache = false;
+				// //Ko-fi has no API to get a product name from its ID.
+				// //Only "solution" is to scrape it from the HTML page -_-...
+				// for (let i = 0; i < data.shop_items.length; i++) {
+				// 	const item = data.shop_items[i];
 
-					//TODO remove that debug
-					// if(i==0) item.direct_link_code = "07c48c41e7";
-					// if(i==1) item.direct_link_code = "c0065f0775";
+				// 	//TODO remove that debug
+				// 	// if(i==0) item.direct_link_code = "07c48c41e7";
+				// 	// if(i==1) item.direct_link_code = "c0065f0775";
 
-					//Product name already cached, load it from there
-					if(this.merchIdToNameCache[item.direct_link_code] != undefined) {
-						item.product_name = this.merchIdToNameCache[item.direct_link_code] || "";
-					}else{
-						//Attempt to load product name from page
-						//These headers are necessary to bypass clouflare filtres
-						const headers = {
-							"Referrer": "https://ko-fi.com/keepitsimpelle/shop?ref=explore",
-							"Host": "ko-fi.com",
-							"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:98.0) Gecko/20100101 Firefox/98.0",
-							"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-							"Accept-Language": "en-US,en;q=0.5",
-							"Accept-Encoding": "gzip, deflate",
-							"Connection": "keep-alive",
-							"Upgrade-Insecure-Requests": "1",
-							"Sec-Fetch-Dest": "document",
-							"Sec-Fetch-Mode": "navigate",
-							"Sec-Fetch-Site": "none",
-							"Sec-Fetch-User": "?1",
-							"Cache-Control": "max-age=0",
-						};
-						const result = await fetch("https://ko-fi.com/s/"+item.direct_link_code, {method:"GET", headers});
+				// 	//Product name already cached, load it from there
+				// 	if(this.merchIdToNameCache[item.direct_link_code] != undefined) {
+				// 		item.product_name = this.merchIdToNameCache[item.direct_link_code] || "";
+				// 	}else{
+				// 		//Attempt to load product name from page
+				// 		//These headers are necessary to bypass clouflare filtres
+				// 		const headers = {
+				// 			"Referrer": "https://ko-fi.com/durss/shop?ref=explore",
+				// 			"Host": "ko-fi.com",
+				// 			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:98.0) Gecko/20100101 Firefox/98.0",
+				// 			"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp;q=0.8",
+				// 			"Accept-Language": "en-US,en;q=0.5",
+				// 			"Accept-Encoding": "gzip, deflate",
+				// 			"Connection": "keep-alive",
+				// 			"Upgrade-Insecure-Requests": "1",
+				// 			"Sec-Fetch-Dest": "document",
+				// 			"Sec-Fetch-Mode": "navigate",
+				// 			"Sec-Fetch-Site": "none",
+				// 			"Sec-Fetch-User": "?1",
+				// 			"Cache-Control": "max-age=0",
+				// 		};
+				// 		const result = await fetch("https://ko-fi.com/s/"+item.direct_link_code, {method:"GET", headers});
 						
-						if(result.status == 200) {
-							const html = await result.text();
-							const productName = html.replace(/.*shop-item-title.*?>(.*?)<\/.*/gis, "$1");
-							if(productName && productName.length > 0 && productName.length < 128) {
-								Logger.info("Loaded ko-fi product #"+item.direct_link_code+":", productName);
-								this.merchIdToNameCache[item.direct_link_code] = productName;
-								item.product_name = productName;
-							}else{
-								//Flag cache as failed. Avoids to keep requesting for it later
-								this.merchIdToNameCache[item.direct_link_code] = false;
-							}
-						}else{
-							//Flag cache as failed. Avoids to keep requesting for it later
-							this.merchIdToNameCache[item.direct_link_code] = false;
-						}
-						updateCache = true;
-					}
-				}
-				if(updateCache) {
-					fs.writeFileSync(Config.KO_FI_PRODUCT_CACHE, JSON.stringify(this.merchIdToNameCache), "utf-8");
-				}
+				// 		if(result.status == 200) {
+				// 			const html = await result.text();
+				// 			const productName = html.replace(/.*shop-item-title.*?>(.*?)<\/.*/gis, "$1");
+				// 			if(productName && productName.length > 0 && productName.length < 128) {
+				// 				Logger.info("Loaded ko-fi product #"+item.direct_link_code+":", productName);
+				// 				this.merchIdToNameCache[item.direct_link_code] = productName;
+				// 				item.product_name = productName;
+				// 			}else{
+				// 				//Flag cache as failed. Avoids to keep requesting for it later
+				// 				this.merchIdToNameCache[item.direct_link_code] = false;
+				// 			}
+				// 		}else{
+				// 			//Flag cache as failed. Avoids to keep requesting for it later
+				// 			this.merchIdToNameCache[item.direct_link_code] = false;
+				// 		}
+				// 		updateCache = true;
+				// 	}
+				// }
+				// if(updateCache) {
+				// 	fs.writeFileSync(Config.KO_FI_PRODUCT_CACHE, JSON.stringify(this.merchIdToNameCache), "utf-8");
+				// }
 			}
 
+			//If it's a commission, attempt to load its details
+			//EDIT: disabled, ko-fi enhanced their anti-scrape protection, I couldn't
+			//find a way to bypass it without using puppeteer which i want to avoid
 			if(data.type == "Commission") {
 				Utils.logToFile("kofi", JSON.stringify({type:"commission", data}));
+				/*
+				//Attempt to load commission info from page
+				//These headers are necessary to bypass clouflare filtres
+				const headers = {
+					"Referrer": "https://ko-fi.com",
+					"Host": "ko-fi.com",
+					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:98.0) Gecko/20100101 Firefox/98.0",
+					"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp;q=0.8",
+					"Accept-Language": "en-US,en;q=0.5",
+					"Accept-Encoding": "gzip, deflate",
+					"Connection": "keep-alive",
+					"Upgrade-Insecure-Requests": "1",
+					"Sec-Fetch-Dest": "document",
+					"Sec-Fetch-Mode": "navigate",
+					"Sec-Fetch-Site": "none",
+					"Sec-Fetch-User": "?1",
+					"Cache-Control": "max-age=0",
+				};
+				const result = await fetch(data.url, {method:"GET", headers});
+				let title:string = "";
+				let message:string = "";
+				const lines = (await result.text()).split(/\r|\n/);
+				for (let i = 0; i < lines.length; i++) {
+					const line = lines[i];
+					if(line.indexOf("Commission")) {
+						title = lines[i+1].match(/<span.*?>(.*)<\/span>/i)[1];
+						// message.
+					}
+					if(line.indexOf("Additional Details")) {
+						message = lines[i+1].match(/<span.*?>(.*)<\/span>/i)[1];
+					}
+				}
+				console.log(title, message)
+				//*/
 			}
 
 			SSEController.sendToUser(user.twitch, SSECode.KO_FI_EVENT, data);

@@ -1292,6 +1292,7 @@ export const TriggerTypes = {
 	OBS_RECORDING_STOP:"136",
 	TWITCHAT_STARTED:"137",
 	PATREON_NEW_MEMBER:"138",
+	KOFI_COMMISSION:"139",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1920,6 +1921,12 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 		{tag:"IS_PUBLIC", descKey:'triggers.placeholders.kofi_public', pointer:"isPublic", numberParsable:true, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 	];
+	map[TriggerTypes.KOFI_COMMISSION] = [
+		{tag:"USER_NAME", descKey:'triggers.placeholders.user', pointer:"userName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
+		{tag:"AMOUNT", descKey:'triggers.placeholders.subscription_amount', pointer:"amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
+		{tag:"CURRENCY", descKey:'triggers.placeholders.currency', pointer:"currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
+		{tag:"IS_PUBLIC", descKey:'triggers.placeholders.kofi_public', pointer:"isPublic", numberParsable:true, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
+	];
 
 	map[TriggerTypes.STREAMELEMENTS_DONATION] = [
 		{tag:"USER_NAME", descKey:'triggers.placeholders.user', pointer:"userName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamelementsDonationData>,
@@ -2380,6 +2387,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.KOFI, icon:"kofi", labelKey:"triggers.events.KOFI_DONATION.label", value:TriggerTypes.KOFI_DONATION, descriptionKey:"triggers.events.KOFI_DONATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.KOFI},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.KOFI, icon:"kofi", labelKey:"triggers.events.KOFI_MERCH.label", value:TriggerTypes.KOFI_MERCH, descriptionKey:"triggers.events.KOFI_MERCH.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.KOFI},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.KOFI, icon:"kofi", labelKey:"triggers.events.KOFI_SUBSCRIPTION.label", value:TriggerTypes.KOFI_SUBSCRIPTION, descriptionKey:"triggers.events.KOFI_SUBSCRIPTION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.KOFI},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V14_2, premium:true, category:TriggerEventTypeCategories.KOFI, icon:"kofi", labelKey:"triggers.events.KOFI_COMMISSION.label", value:TriggerTypes.KOFI_COMMISSION, descriptionKey:"triggers.events.KOFI_COMMISSION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.KOFI},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.STREAMELEMENTS, icon:"streamelements", labelKey:"triggers.events.STREAMELEMENTS_DONATION.label", value:TriggerTypes.STREAMELEMENTS_DONATION, descriptionKey:"triggers.events.STREAMELEMENTS_DONATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.TIPEEE, icon:"tipeee", labelKey:"triggers.events.TIPEEE_DONATION.label", value:TriggerTypes.TIPEEE_DONATION, descriptionKey:"triggers.events.TIPEEE_DONATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIPEEE},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.TIPEEE, icon:"tipeee", labelKey:"triggers.events.TIPEEE_SUB.label", value:TriggerTypes.TIPEEE_SUB, descriptionKey:"triggers.events.TIPEEE_SUB.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIPEEE},

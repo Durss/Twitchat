@@ -4537,7 +4537,7 @@ export namespace TwitchatDataTypes {
 		}[];
 	}
 
-	export type MessageCustomDataAPI = Pick<TwitchatDataTypes.MessageCustomData, "actions" | "col" | "style" | "highlightColor" | "icon" | "message" | "user" | "quote">
+	export type MessageCustomDataAPI = Pick<TwitchatDataTypes.MessageCustomData, "actions" | "col" | "style" | "highlightColor" | "icon" | "message" | "user" | "quote" | "canClose" | "todayFirst">
 
 	/**
 	 * Represents a Q&A session start
@@ -4694,11 +4694,11 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a kofi event
 	 */
-	export type MessageKofiData = KofiDonationData | KofiMerchData | KofiSubscriptionData;
+	export type MessageKofiData = KofiDonationData | KofiMerchData | KofiSubscriptionData | KofiCommissionData;
 		interface KofiDonationBaseData extends AbstractTwitchatMessage{
 			type:"kofi";
 			isPublic:boolean;
-			eventType:"donation" | "merch" | "subscription";
+			eventType:"donation" | "merch" | "subscription" | "commission";
 		}
 		/**
 		 * Represents a kofi donation
@@ -4743,6 +4743,21 @@ export namespace TwitchatDataTypes {
 			message_html:string;
 			tier?:string;
 			firstTimeSub:boolean;
+		}
+
+		/**
+		 * Represents a kofi commision event
+		 */
+		export interface KofiCommissionData extends KofiDonationBaseData {
+			eventType:"commission";
+			message:string;
+			message_chunks:ParseMessageChunk[];
+			message_html:string;
+			userName:string;
+			url:string;
+			amount:number;
+			amountFormatted:string;
+			currency:string;
 		}
 
 	/**

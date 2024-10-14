@@ -468,7 +468,9 @@
 			"donation": "{USER} a fait un don de {AMOUNT} sur Ko-fi",
 			"merch": "{USER} a acheté {PRODUCT} pour {AMOUNT} sur Ko-fi",
 			"subscription": "{USER} s'est abonné pour {AMOUNT} sur Ko-fi",
-			"subscription_tier": "{USER} a pris l'abonnement {TIER} pour {AMOUNT} sur Ko-fi"
+			"subscription_tier": "{USER} a pris l'abonnement {TIER} pour {AMOUNT} sur Ko-fi",
+			"commission": "{USER} a passé {COMMISSION_LINK} de {AMOUNT} sur Ko-fi",
+			"commission_link": "une commande"
 		},
 		"tipeee": {
 			"donation": "{USER} a fait un don de {AMOUNT} sur Tipeee",
