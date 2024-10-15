@@ -88,6 +88,7 @@
 			"list_remove": "Supprimer l'entrée gagnante de la liste",
 			"value_placeholder": "Valeur source",
 			"username_placeholder": "Pseudo",
+			"entry_placeholder": "Entrée gagnante",
 			"value_splitter": "Séparateur d'entrées\n(caractère séparant les entrées)",
 			"value_remove": "Supprimer l'entrée gagnante de la Valeur\n(L'entrée sera définitivement supprimée de la Valeur !)"
 		},

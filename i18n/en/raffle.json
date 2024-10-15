@@ -87,6 +87,7 @@
 			"list_placeholder": "entry 1, entry 2, entry 3, ...",
 			"list_remove": "Remove winning entry from list",
 			"username_placeholder": "User name",
+			"entry_placeholder": "Winning entry",
 			"value_placeholder": "Select source Value",
 			"value_splitter": "Entries separator\n(char that seperates entries)",
 			"value_remove": "Remove winning entry from Value\n(the entry will be lost!)"

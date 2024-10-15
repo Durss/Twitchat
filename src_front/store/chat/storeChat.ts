@@ -69,6 +69,18 @@ export const storeChat = defineStore('chat', {
 				enabled:true,
 				message:StoreProxy.i18n.tm("params.botMessages.raffleTipsWinner"),
 			},
+			raffleSubsWinner: {
+				enabled:true,
+				message:StoreProxy.i18n.tm("params.botMessages.raffleSubsWinner"),
+			},
+			raffleListWinner: {
+				enabled:true,
+				message:StoreProxy.i18n.tm("params.botMessages.raffleListWinner"),
+			},
+			raffleValuesWinner: {
+				enabled:true,
+				message:StoreProxy.i18n.tm("params.botMessages.raffleValuesWinner"),
+			},
 			bingoStart: {
 				enabled:true,
 				message:StoreProxy.i18n.tm("params.botMessages.bingoStart"),

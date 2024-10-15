@@ -258,6 +258,9 @@ export namespace TwitchatDataTypes {
 		raffleTipsStart:BotMessageEntry;
 		raffle:BotMessageEntry;
 		raffleTipsWinner:BotMessageEntry;
+		raffleSubsWinner:BotMessageEntry;
+		raffleListWinner:BotMessageEntry;
+		raffleValuesWinner:BotMessageEntry;
 		shoutout:BotMessageEntry;
 		twitchatAd:BotMessageEntry;
 		chatSuggStart:BotMessageEntry;

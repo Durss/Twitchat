@@ -209,12 +209,19 @@ export const storeRaffle = defineStore('raffle', {
 			StoreProxy.chat.addMessage(message);
 
 			//Post result on chat
-			const defaultMessage = data.mode == "tips"? StoreProxy.chat.botMessages.raffleTipsWinner : StoreProxy.chat.botMessages.raffle;
-			const messageParams = data.messages?.raffleWinner || defaultMessage;
+			const map:{[key in typeof data.mode]:TwitchatDataTypes.BotMessageEntry} = {
+				chat:StoreProxy.chat.botMessages.raffle,
+				sub:StoreProxy.chat.botMessages.raffleSubsWinner,
+				tips:StoreProxy.chat.botMessages.raffleTipsWinner,
+				manual:StoreProxy.chat.botMessages.raffleListWinner,
+				values:StoreProxy.chat.botMessages.raffleValuesWinner,
+			}
+			const messageParams = data.messages?.raffleWinner || map[data.mode];
 			if(messageParams.enabled) {
 				setTimeout(() => {
 					let message = messageParams.message;
 					message = message.replace(/\{USER\}/gi, winner.label);
+					message = message.replace(/\{ENTRY\}/gi, winner.label);
 					if(winner.tip) {
 						let platform = "";
 						switch(winner.tip?.source) {

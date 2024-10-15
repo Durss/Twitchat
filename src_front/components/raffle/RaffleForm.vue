@@ -194,6 +194,15 @@
 				<div class="card-item winner" v-if="winnerTmp">
 					<div class="user">{{winnerTmp}}</div>
 				</div>
+
+				<PostOnChatParam :botMessageKey="triggerMode? '' : 'raffleSubsWinner'"
+					:placeholders="winnerSubsPlaceholders"
+					v-model:text="localData.messages!.raffleWinner!.message"
+					v-model:enabled="localData.messages!.raffleWinner!.enabled"
+					icon="announcement"
+					titleKey="raffle.configs.postOnChat_winner"
+				/>
+
 				<TTButton type="submit"
 				:aria-label="$t('raffle.subs.startBt_aria')"
 				icon="sub"
@@ -226,6 +235,14 @@
 
 				<ParamItem :paramData="param_list_remove" v-model="localData.removeWinningEntry" v-if="!triggerMode" />
 
+				<PostOnChatParam :botMessageKey="triggerMode? '' : 'raffleListWinner'"
+					:placeholders="winnerListPlaceholders"
+					v-model:text="localData.messages!.raffleWinner!.message"
+					v-model:enabled="localData.messages!.raffleWinner!.enabled"
+					icon="announcement"
+					titleKey="raffle.configs.postOnChat_winner"
+				/>
+
 				<TTButton type="submit"
 				v-if="triggerMode === false"
 				:loading="pickingEntry"
@@ -256,6 +273,15 @@
 					v-if="param_values.selectedListValue?.value.perUser !== true"
 					:paramData="param_values_splitter"
 					v-model="localData.value_splitter" />
+
+				<PostOnChatParam :botMessageKey="triggerMode? '' : 'raffleValuesWinner'"
+					:placeholders="winnerValuesPlaceholders"
+					v-model:text="localData.messages!.raffleWinner!.message"
+					v-model:enabled="localData.messages!.raffleWinner!.enabled"
+					icon="announcement"
+					titleKey="raffle.configs.postOnChat_winner"
+				/>
+				
 
 				<TTButton type="submit"
 				v-if="triggerMode === false"
@@ -372,6 +398,9 @@ class RaffleForm extends AbstractSidePanel {
 	public winnerTipsPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	public joinPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	public joinTipsPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
+	public winnerSubsPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
+	public winnerListPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
+	public winnerValuesPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 
 	public localData:TwitchatDataTypes.RaffleData = {
 		mode:"chat",
@@ -547,6 +576,13 @@ class RaffleForm extends AbstractSidePanel {
 			{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store.auth.twitch.user.displayNameOriginal+", Twitch, Durss"},
 			{tag:"AMOUNT", descKey:"raffle.params.amount_placeholder", example:"$25"},
 			{tag:"PLATFORM", descKey:"raffle.params.amount_placeholder", example:"Streamlabs"},
+		];
+		this.winnerSubsPlaceholders		= [
+			{tag:"USER", descKey:"raffle.params.usernames_placeholder", example:this.$store.auth.twitch.user.displayNameOriginal},
+		];
+		this.winnerListPlaceholders		= 
+		this.winnerValuesPlaceholders	= [
+			{tag:"ENTRY", descKey:"raffle.params.entry_placeholder", example:"My Awesome Entry"},
 		];
 
 		this.param_rewardvalue.listValues = [{value:undefined, labelKey:"global.select_placeholder"}];
