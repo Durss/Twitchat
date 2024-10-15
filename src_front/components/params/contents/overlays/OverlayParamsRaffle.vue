@@ -129,7 +129,7 @@ class OverlayParamsRaffle extends Vue {
 			items,
 			sessionId:Utils.getUUID(),
 			winner: Utils.pickRand(items).id,
-			skin: StoreProxy.streamlabs.charityTeam?.id === "717041490483876892"? "etc" : "default",
+			skin: "default",
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
 		await Utils.promisedTimeout(100);

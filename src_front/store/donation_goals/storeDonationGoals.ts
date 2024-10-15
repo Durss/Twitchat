@@ -104,9 +104,6 @@ export const storeDonationGoals = defineStore('donationGoals', {
 				let skin = "default"
 				if(overlay.dataSource == "streamlabs_charity") {
 					if(!StoreProxy.streamlabs.charityTeam) continue;
-					if(StoreProxy.streamlabs.charityTeam.id === "717041490483876892") {
-						skin = "etc";
-					}
 					goal = StoreProxy.streamlabs.charityTeam.amountGoal_cents/100;
 					raisedTotal = StoreProxy.streamlabs.charityTeam.amountRaised_cents/100;
 					raisedPersonnal = StoreProxy.streamlabs.charityTeam.amountRaisedPersonnal_cents/100;
@@ -201,10 +198,6 @@ export const storeDonationGoals = defineStore('donationGoals', {
 			let raisedTotal = newAmount;
 			let raisedPersonnal = newAmount;
 			let skin = "default"
-			if(StoreProxy.streamlabs.charityTeam
-			&& StoreProxy.streamlabs.charityTeam.id === "717041490483876892") {
-				skin = "etc";
-			}
 			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, {params:overlay, goal, raisedTotal, raisedPersonnal, skin});
 			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_EVENT, {username:Utils.pickRand(users).displayName, amount:addedAmount.toString(), overlayId:overlay.id});
 		}

@@ -263,11 +263,6 @@ export default class SchedulerHelper {
 				
 				//Special case for users that have too few followers
 				if(StoreProxy.auth.noAd) continue;
-				
-				//Disable for EtTaCause members
-				//TODO remove after event
-				if(StoreProxy.streamlabs.charityTeam
-				&& StoreProxy.streamlabs.charityTeam.id === "717041490483876892") return;
 			}
 
 			let execute = true;

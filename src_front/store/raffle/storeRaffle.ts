@@ -665,7 +665,7 @@ export const storeRaffle = defineStore('raffle', {
 					items:list,
 					winner:winner.id,
 					sessionId:data.sessionId,
-					skin: StoreProxy.streamlabs.charityTeam?.id === "717041490483876892"? "etc" : "default",
+					skin: "default",
 				}
 				PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (apiData as unknown) as JsonObject);
 
