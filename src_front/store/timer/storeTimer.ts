@@ -102,6 +102,7 @@ export const storeTimer = defineStore('timer', {
 
 		timerStop() {
 			if(!this.timer) return;
+			if(this.timer.paused) this.timerUnpause();
 			this.timer.endAt = Utils.formatDate(new Date());
 			this.timer.endAt_ms = Date.now();
 			this.timer.duration_ms = Date.now() - this.timer.startAt_ms + this.timer.offset_ms;
