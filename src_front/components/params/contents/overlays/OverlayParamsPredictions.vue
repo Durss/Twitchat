@@ -78,30 +78,30 @@
 				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
 			</div>
 
-			<Icon class="center loader card-item" name="loader" v-if="checkingOverlayPresence" />
+			<ParamItem :paramData="param_listMode" v-model="params.listMode" @change="onChangeParam()">
+				<ParamItem :paramData="param_listModeOnlyMore2" class="child" noBackground v-model="params.listModeOnlyMore2" @change="onChangeParam()" />
+			</ParamItem>
+			<ParamItem :paramData="param_showTitle" v-model="params.showTitle" @change="onChangeParam()" />
+			<ParamItem :paramData="param_showLabels" v-model="params.showLabels" @change="onChangeParam()" />
+			<ParamItem :paramData="param_showVotes" v-model="params.showVotes" @change="onChangeParam()" />
+			<ParamItem :paramData="param_showVoters" v-model="params.showVoters" @change="onChangeParam()" />
+			<ParamItem :paramData="param_showPercent" v-model="params.showPercent" @change="onChangeParam()" />
+			<ParamItem :paramData="param_showProgress" v-model="params.showTimer" @change="onChangeParam()" />
+			<ParamItem :paramData="param_hideUntilResolved" v-model="params.hideUntilResolved" @change="onChangeParam()" />
+			<ParamItem :paramData="param_showOnlyResult" v-model="params.showOnlyResult" @change="onChangeParam()" />
+			<ParamItem :paramData="param_resultDuration" v-model="params.resultDuration_s" @change="onChangeParam()" />
 
-			<template v-else-if="overlayExists">
-				<ParamItem :paramData="param_listMode" v-model="params.listMode" @change="onChangeParam()">
-					<ParamItem :paramData="param_listModeOnlyMore2" class="child" noBackground v-model="params.listModeOnlyMore2" @change="onChangeParam()" />
-				</ParamItem>
-				<ParamItem :paramData="param_showTitle" v-model="params.showTitle" @change="onChangeParam()" />
-				<ParamItem :paramData="param_showLabels" v-model="params.showLabels" @change="onChangeParam()" />
-				<ParamItem :paramData="param_showVotes" v-model="params.showVotes" @change="onChangeParam()" />
-				<ParamItem :paramData="param_showVoters" v-model="params.showVoters" @change="onChangeParam()" />
-				<ParamItem :paramData="param_showPercent" v-model="params.showPercent" @change="onChangeParam()" />
-				<ParamItem :paramData="param_showProgress" v-model="params.showTimer" @change="onChangeParam()" />
-				<ParamItem :paramData="param_hideUntilResolved" v-model="params.hideUntilResolved" @change="onChangeParam()" />
-				<ParamItem :paramData="param_showOnlyResult" v-model="params.showOnlyResult" @change="onChangeParam()" />
-				<ParamItem :paramData="param_resultDuration" v-model="params.resultDuration_s" @change="onChangeParam()" />
+			<div class="card-item placement">
+				<p>{{ $t("overlay.predictions.param_placement") }}</p>
+				<PlacementSelector v-model="params.placement" @change="onChangeParam()" />
+			</div>
+			<TTButton class="center"
+				v-if="overlayExists || checkingOverlayPresence"
+				:loading="loading || checkingOverlayPresence"
+				@click="testOverlay()" icon="test">{{ $t('overlay.predictions.testBt') }}</TTButton>
 
-				<div class="card-item placement">
-					<p>{{ $t("overlay.predictions.param_placement") }}</p>
-					<PlacementSelector v-model="params.placement" @change="onChangeParam()" />
-				</div>
-				<TTButton class="center" :loading="loading" @click="testOverlay()" icon="test">{{ $t('overlay.predictions.testBt') }}</TTButton>
-			</template>
+			<div class="center card-item alert" v-else>{{ $t("overlay.overlay_not_configured") }}</div>
 
-			<div class="center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.overlay_not_configured") }}</div>
 		</section>
 	</div>
 </template>

@@ -3,7 +3,7 @@
 		<h1 class="title"><img src="@/assets/icons/prediction.svg">{{prediction.title}}</h1>
 		
 		<ProgressBar class="progress"
-		secondary
+			secondary
 			:percent="progressPercent"
 			:duration="prediction.duration_s*1000"
 			v-if="!prediction.pendingAnswer" />

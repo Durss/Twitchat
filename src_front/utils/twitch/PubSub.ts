@@ -73,7 +73,7 @@ export default class PubSub extends EventDispatcher {
 				"community-boost-events-v1."+myUID,//Boost after a boost train complete
 				"chatrooms-user-v1."+myUID,//Host events (RIP)
 				"pinned-chat-updates-v1."+myUID,//when a message is un/pinned
-				"predictions-channel-v1."+myUID,
+				// "predictions-channel-v1."+myUID,
 				"polls."+myUID,
 				"hype-train-events-v2."+myUID,
 				// "hype-train-events-v2.37804856",//Testing golden kappa data

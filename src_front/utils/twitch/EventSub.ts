@@ -217,17 +217,17 @@ export default class EventSub {
 				// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM, "1");
 				// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM_UPDATE, "1");
 			}
-			/*
-			if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS])) {
-				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_START, "1");
-				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_PROGRESS, "1");
-				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_END, "1");
-			}
 			if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS])) {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_START, "1");
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_PROGRESS, "1");
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_LOCK, "1");
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_END, "1");
+			}
+			/*
+			if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS])) {
+				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_START, "1");
+				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_PROGRESS, "1");
+				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_END, "1");
 			}
 			if(TwitchUtils.hasScopes([TwitchScopes.READ_HYPE_TRAIN])) {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_START, "1");
@@ -525,6 +525,14 @@ export default class EventSub {
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_SENT: {
 				this.warningSendEvent(topic, payload.event as TwitchEventSubDataTypes.WarningSentEvent);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_START:
+			case TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_PROGRESS:
+			case TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_END:
+			case TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_LOCK: {
+				this.predictionEvent(topic, payload.event as TwitchEventSubDataTypes.PredictionStartEvent | TwitchEventSubDataTypes.PredictionProgressEvent | TwitchEventSubDataTypes.PredictionEndEvent | TwitchEventSubDataTypes.PredictionLockEvent);
 				break;
 			}
 		}
@@ -1535,6 +1543,91 @@ export default class EventSub {
 			monitored:event.low_trust_status == "active_monitoring",
 		};
 		StoreProxy.chat.addMessage(m);
+	}
+
+	/**
+	 * Called when a prediction event is received
+	 * @param topic 
+	 * @param event 
+	 */
+	private async predictionEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.PredictionStartEvent | TwitchEventSubDataTypes.PredictionProgressEvent | TwitchEventSubDataTypes.PredictionEndEvent | TwitchEventSubDataTypes.PredictionLockEvent):Promise<void> {
+		if(topic === "channel.prediction.end" && (event as TwitchEventSubDataTypes.PredictionEndEvent).status == "canceled") {
+			StoreProxy.prediction.setPrediction(null);
+			return;
+		}
+		let totalPoints = 0;
+		let totalUsers = 0;
+		const currentPrediction = StoreProxy.prediction.data;
+		const isComplete = topic === "channel.prediction.end" && (event as TwitchEventSubDataTypes.PredictionEndEvent).status == "resolved";
+		const outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = currentPrediction?.outcomes || [];
+		//Merge outcomes with current data.
+		//Eventsub "end" doesn't send back the vote/user count with the outcome. 
+		//because of this, we need to keep the local outcomes with their current
+		//votes instead of simply using what EventSub gives us.
+		if(topic == "channel.prediction.progress") {
+			const typedEvent = event as TwitchEventSubDataTypes.PredictionProgressEvent;
+			for (let i = 0; i < typedEvent.outcomes.length; i++) {
+				const c = typedEvent.outcomes[i];
+				totalPoints += c.channel_points;
+				totalUsers += c.users;
+				let outcome = outcomes.find(v=>v.id === c.id);
+				if(outcome) {
+					outcome.votes = c.channel_points;
+					outcome.voters = c.users;
+				}else{
+					outcomes.push({
+						id: c.id,
+						label: c.title,
+						votes: c.channel_points,
+						voters: c.users,
+					})
+				}
+			}
+		}else{
+			for (let i = 0; i < event.outcomes.length; i++) {
+				const c = event.outcomes[i];
+				if(outcomes.findIndex(v=>v.id === c.id) > -1) continue;
+				outcomes.push({
+					id: c.id,
+					label: c.title,
+					votes: 0,
+					voters: 0,
+				})
+			}
+		}
+		let duration = currentPrediction?.duration_s || 30;
+		if(topic === "channel.prediction.begin") {
+			let typedEvent = event as TwitchEventSubDataTypes.PredictionStartEvent;
+			duration = (new Date(typedEvent.locks_at).getTime() - new Date(event.started_at).getTime())/1000;
+		}
+		const me = StoreProxy.auth.twitch.user;
+		const prediction:TwitchatDataTypes.MessagePredictionData = {
+			date:Date.now(),
+			id:event.id,
+			// creator: StoreProxy.users.getUserFrom("twitch", me.id, event.created_by.user_id, event.created_by.user_display_name.toLowerCase(), event.created_by.user_display_name),
+			platform:"twitch",
+			channel_id: event.broadcaster_user_id,
+			type:TwitchatDataTypes.TwitchatMessageType.PREDICTION,
+			title: event.title,
+			outcomes,
+			pendingAnswer: topic === "channel.prediction.lock",
+			started_at: currentPrediction?.started_at || new Date(event.started_at).getTime() - 1000,
+			duration_s: duration,
+			totalPoints,
+			totalUsers,
+		};
+		if(topic === "channel.prediction.end") {
+			prediction.ended_at = new Date((event as TwitchEventSubDataTypes.PredictionEndEvent).ended_at).getTime()
+		}
+		if(topic === "channel.prediction.end") {
+			prediction.winner = outcomes.find(v => v.id == (event as TwitchEventSubDataTypes.PredictionEndEvent).winning_outcome_id);
+		}
+
+		StoreProxy.prediction.setPrediction(prediction, isComplete);
+		if(isComplete) {
+			//Clear prediction
+			StoreProxy.prediction.setPrediction(null);
+		}
 	}
 
 }

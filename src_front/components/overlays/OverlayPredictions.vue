@@ -159,13 +159,13 @@ class OverlayPredictions extends AbstractOverlay {
 			return;
 		}
 
-		const prediction = ((e.data as unknown) as {prediction:TwitchatDataTypes.MessagePredictionData}).prediction;
-		//Debounce updates as twitch is a little spammy whenr esolving a prediction
-		if(!prediction) return;
-		clearTimeout(this.updateDebounce);
+		//Debounce updates as twitch is a little spammy when resolving a prediction
+		// clearTimeout(this.updateDebounce);
 
-		this.updateDebounce = setTimeout(async ()=>{
-			if(prediction.winner){
+		// this.updateDebounce = setTimeout(async ()=>{
+			const prediction = ((e.data as unknown) as {prediction:TwitchatDataTypes.MessagePredictionData}).prediction;
+			
+			if(prediction && prediction.winner){
 				this.prediction = prediction;
 				this.showWinner = true;
 				if(!this.show) await this.open();
@@ -176,12 +176,15 @@ class OverlayPredictions extends AbstractOverlay {
 						this.close();
 					}});
 				}
+			}else if(!prediction) {
+				if(!this.showWinner) this.close();
 			}else{
 				const opening	= this.prediction == null || this.prediction.id != prediction.id;
-				this.show		= this.parameters.showOnlyResult !== true && (!prediction.pendingAnswer || (prediction.pendingAnswer && this.parameters.hideUntilResolved === false));
+				const show		= this.parameters.showOnlyResult !== true && (!prediction.pendingAnswer || (prediction.pendingAnswer && this.parameters.hideUntilResolved === false));
 				this.showWinner	= false;
 				this.prediction	= prediction;
-				if(this.show) {
+				if(show) {
+					this.show = true;
 					if(opening) {
 						this.open();
 						await this.$nextTick();
@@ -198,9 +201,11 @@ class OverlayPredictions extends AbstractOverlay {
 							if(this.parameters.hideUntilResolved !== false) this.close(true);
 						}});
 					}
+				}else{
+					this.close();
 				}
 			}
-		}, 500);
+		// }, 500);
 	}
 
 	public async onUpdateParams(e:TwitchatEvent):Promise<void> {
@@ -266,6 +271,7 @@ class OverlayPredictions extends AbstractOverlay {
 		gsap.killTweensOf(this.$el);
 		gsap.to(this.$el, {scale:0, duration:.5, ease:"back.in", onComplete:()=>{
 			this.show = false;
+			this.showWinner = false;
 			this.prediction = null;
 		}});
 	}

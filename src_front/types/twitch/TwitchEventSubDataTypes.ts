@@ -461,6 +461,7 @@ export namespace TwitchEventSubDataTypes {
 	export interface PredictionEndEvent extends PredictionProgressEvent {
 		status: "resolved" | "canceled";
 		ended_at: string;
+		winning_outcome_id: string;
 	}
 
 	export interface HypeTrainStartEvent {

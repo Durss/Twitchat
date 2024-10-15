@@ -567,7 +567,7 @@ export default class TwitchUtils {
 						pendingAnswer: src.status == "LOCKED",
 						totalPoints,
 						totalUsers,
-					}
+					};
 					StoreProxy.prediction.setPrediction(prediction);
 				} else {
 					StoreProxy.prediction.setPrediction(null);
