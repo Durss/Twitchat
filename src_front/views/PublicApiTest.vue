@@ -2,26 +2,17 @@
 	<div class="publicapitest">
 		<div class="connectForm blured-background-window">
 			<form @submit.prevent="connect()" v-if="!connected">
-				<ParamItem :paramData="obsPort_conf" class="row" />
-				<ParamItem :paramData="obsPass_conf" class="row" />
-				<ParamItem :paramData="obsIP_conf" class="row" />
-				
-				<ToggleBlock class="info" small :open="false" title="Where can i find these values?">
-					After you installed OBS-Websocket, open OBS, go on "Tools => obs-websocket Settings".
-					<br>
-					<br>This window will open with the credentials:
-					<br><span class="warn">You'll probably want to leave the IP to <strong>127.0.0.1</strong>!</span>
-					<img src="@/assets/img/obs-ws_credentials.png" alt="credentials">
-				</ToggleBlock>
-
-				<Button title="Connect" type="submit" class="connectBt" :loading="loading" />
+				<ParamItem :paramData="obsPort_conf" class="param" />
+				<ParamItem :paramData="obsPass_conf" class="param" />
+				<ParamItem :paramData="obsIP_conf" class="param" />
+				<TTButton type="submit" class="connectBt" :loading="loading">Connect</TTButton>
 			</form>
-			<Button v-else @click="disconnect()" class="connectBt" :loading="loading" alert icon="cross">Disconnect</Button>
+			<TTButton v-else @click="disconnect()" class="connectBt" :loading="loading" alert icon="cross">Disconnect</TTButton>
 		</div>
 
 		<div class="lists">
 			<div class="list events">
-				<div class="head">Events</div>
+				<div class="head">Events received</div>
 				<transition-group name="list" tag="p">
 					<ToggleBlock v-for="e in eventList" :class="e.active? 'event active' : 'event'"
 					:key="e.key"
@@ -35,7 +26,7 @@
 			</div>
 			<div class="list actions">
 				<div class="head">Actions</div>
-				<Button class="action" v-for="a in actionList" small @click="executeAction(a)" :key="a.key">{{ a.key }}</Button>
+				<TTButton class="action" v-for="a in actionList" small @click="executeAction(a)" :key="a.key">{{ a.key }}</TTButton>
 			</div>
 		</div>
 	</div>
@@ -54,7 +45,7 @@ import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ParamItem,
 		ToggleBlock,
 	}
@@ -148,21 +139,24 @@ class PublicApiTest extends Vue {
 
 	private initAPI():void {
 		//@ts-ignore
-		OBSWebsocket.instance.socket.on("CustomEvent", (e:{origin:"twitchat", type:TwitchatEventType, data:JsonObject | JsonArray | JsonValue}) => {
+		OBSWebsocket.instance.socket.on("CustomEvent", (e:{origin:"twitchat", id:string, type:TwitchatEventType, data:JsonObject | JsonArray | JsonValue}) => {
 			if(e.type == undefined) return;
 			if(e.origin != "twitchat") return;
-			const data = e.data as {id:string};
-			if(data.id){
-				if(this.idsDone[data.id] === true) return;
-				this.idsDone[data.id] = true;
-				const index = this.eventList.findIndex(v=>v.key === e.type);
-				if(index == -1) return;
-				const obj = this.eventList.splice(index, 1)[0];
-				if(obj) {
-					obj.active = true;
-					obj.data = data;
+			if(e.id){
+				try {
+					if(this.idsDone[e.id] === true) return;
+					this.idsDone[e.id] = true;
+					const index = this.eventList.findIndex(v=>v.key === e.type);
+					if(index == -1) return;
+					const obj = this.eventList.splice(index, 1)[0];
+					if(obj) {
+						obj.active = true;
+						obj.data = e.data;
+					}
+					this.eventList.unshift(obj);//Bring to top
+				}catch(error) {
+					console.log(error)
 				}
-				this.eventList.unshift(obj);//Bring to top
 			}
 		})
 	}
@@ -173,28 +167,20 @@ export default toNative(PublicApiTest);
 
 <style scoped lang="less">
 .publicapitest{
+	color: var(--color-text);
 	padding: 1em;
-	.connectForm {
+	.connectForm, .connectForm>form {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
 		max-width: fit-content;
+		justify-content: center;
 		margin: auto;
 		//background: var(--color-light);
-
-		text-align: center;
-
-		:deep(input) {
-			min-width: 100px;
-			//These lines seems stupide AF but they allow the input
-			//to autosize to it's min length
-			width: 0%;
-			flex-grow: 1;
-			max-width: 100px;
-
-			text-align: center;
-			
-			//Hide +/- arrows
-			&::-webkit-outer-spin-button,
-			&::-webkit-inner-spin-button {
-				display: none;
+		.param {
+			:deep(.inputHolder) {
+				flex-basis: 200px;
+				flex-grow: 0 !important;
 			}
 		}
 	}
@@ -218,7 +204,6 @@ export default toNative(PublicApiTest);
 			.head {
 				font-size: 1.5em;
 				text-align: center;
-				color: var(--color-light);
 				margin-bottom: 5px;
 			}
 
