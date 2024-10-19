@@ -561,7 +561,7 @@ export default class PubSub extends EventDispatcher {
 				}
 
 				default:
-					console.log("Unhandled event type: "+localObj.moderation_action);
+					// console.log("Unhandled event type: "+localObj.moderation_action);
 					break;
 			}
 

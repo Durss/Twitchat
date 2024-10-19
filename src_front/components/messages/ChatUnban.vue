@@ -27,7 +27,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 class ChatBan extends AbstractChatMessage {
 	
 	@Prop
-	declare messageData:TwitchatDataTypes.MessageBanData;
+	declare messageData:TwitchatDataTypes.MessageUnbanData;
 	
 	public mounted():void {
 		let aria = "";

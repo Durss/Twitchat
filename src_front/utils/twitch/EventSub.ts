@@ -838,50 +838,14 @@ export default class EventSub {
 	 * @param event
 	 */
 	private async banEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.BanEvent):Promise<void> {
-		const bannedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
-		if(bannedUser.channelInfo[event.broadcaster_user_id].is_banned) {
-			// Ignore if user is already banned.
-			// As we listen from 2 sources of bans to get more accurate timeout
-			// info missing from the main source of moderation info, we can get
-			// double ban events
-			return;
-		}
-		const broadcasterUser= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name);
-		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name);
-		const m:TwitchatDataTypes.MessageBanData = {
-			id:Utils.getUUID(),
-			date:Date.now(),
-			platform:"twitch",
-			channel_id:event.broadcaster_user_id,
-			type:TwitchatDataTypes.TwitchatMessageType.BAN,
-			user:bannedUser,
-			moderator,
-			reason: event.reason ?? bannedUser.channelInfo[event.broadcaster_user_id].banReason,
-		};
-
-		if(!event.is_permanent) {
-			m.duration_s = Math.round((new Date(event.ends_at).getTime() - new Date(event.banned_at).getTime()) / 1000);
-		}
-
-		await StoreProxy.users.flagBanned("twitch", event.broadcaster_user_id, event.user_id, m.duration_s);
-		StoreProxy.chat.addMessage(m);
+		const moderator	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name);
+		const duration	= event.is_permanent? undefined : Math.round((new Date(event.ends_at).getTime() - new Date(event.banned_at).getTime()) / 1000)
+		await StoreProxy.users.flagBanned("twitch", event.broadcaster_user_id, event.user_id, duration, moderator);
 	}
 
 	private unbanEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.UnbanEvent):void {
-		const unbannedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
-		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name);
-		const m:TwitchatDataTypes.MessageUnbanData = {
-			id:Utils.getUUID(),
-			date:Date.now(),
-			platform:"twitch",
-			channel_id:event.broadcaster_user_id,
-			type:TwitchatDataTypes.TwitchatMessageType.UNBAN,
-			user:unbannedUser,
-			moderator,
-		};
-
-		StoreProxy.users.flagUnbanned("twitch", event.broadcaster_user_id, event.user_id);
-		StoreProxy.chat.addMessage(m);
+		const moderator = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name);
+		StoreProxy.users.flagUnbanned("twitch", event.broadcaster_user_id, event.user_id, moderator);
 	}
 
 	private modAddEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModeratorAddEvent):void {

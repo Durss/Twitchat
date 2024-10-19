@@ -3717,7 +3717,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * User that made the moderation action
 		 */
-		moderator:TwitchatUser;
+		moderator?:TwitchatUser;
 		/**
 		 * Unbaned user
 		 */
@@ -5169,7 +5169,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * User that executed the ban action
 		 */
-		moderator:TwitchatUser;
+		moderator?:TwitchatUser;
 		/**
 		 * Ban duration if temporary, undefined if permanent
 		 */

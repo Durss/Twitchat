@@ -1810,14 +1810,14 @@ export interface IUsersActions {
 	 * @param uid
 	 * @param duration_s
 	 */
-	flagBanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, duration_s?:number):Promise<void>;
+	flagBanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, duration_s?:number, moderator?:TwitchatDataTypes.TwitchatUser):Promise<void>;
 	/**
 	 * Flag a user as not banned
 	 * @param platform
 	 * @param channelId
 	 * @param uid
 	 */
-	flagUnbanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void;
+	flagUnbanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, moderator?:TwitchatDataTypes.TwitchatUser, silentUnban?:boolean):Promise<void>;
 	/**
 	 * Flag users as online
 	 * @param platform

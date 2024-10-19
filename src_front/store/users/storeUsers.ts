@@ -523,42 +523,60 @@ export const storeUsers = defineStore('users', {
 			StoreProxy.chat.addMessage(m);
 		},
 
-		async flagBanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, duration_s?:number):Promise<void> {
+		async flagBanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, duration_s?:number, moderator?:TwitchatDataTypes.TwitchatUser):Promise<void> {
 			let bannedUser:TwitchatDataTypes.TwitchatUser|null = null;
 			//Search user
 			for (let i = 0; i < userList.length; i++) {
 				const u = userList[i];
 				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
-					const banEndDate = Date.now() + (duration_s || 0) * 1000;
-					//User already perma banned, stop there
-					if(u.channelInfo[channelId].is_banned && !duration_s) return;
-					//If already temporary banned and ban end is less than 2s
-					//away from thje expected one, stop there
-					if(u.channelInfo[channelId].is_banned
-						&& u.channelInfo[channelId].banEndDate
-						&& Math.abs(banEndDate - u.channelInfo[channelId].banEndDate!) < 2) return;
-
-					u.channelInfo[channelId].is_banned = true;
-					if(u.channelInfo[channelId].is_moderator === true
-					&& StoreProxy.params.features.autoRemod.value == true) {
-						//When banned or timed out, twitch removes the moderator role
-						//This flag reminds us to flag them back as mod when timeout completes
-						//Only for our own channel
-						u.channelInfo[channelId].autoRemod = (channelId == StoreProxy.auth.twitch.user.id);
-					}
-					u.channelInfo[channelId].is_moderator = false;
-					//Set ban state
-					if(duration_s) {
-						u.channelInfo[channelId].banEndDate = banEndDate;
-					}else{
-						delete u.channelInfo[channelId].banEndDate;
-					}
 					bannedUser = u;
 					break;
 				}
 			}
+			if(!bannedUser) {
+				bannedUser = await new Promise((resolve)=>{
+					StoreProxy.users.getUserFrom(platform, channelId, uid, undefined, undefined,(user=>{
+						resolve(user);
+					}));
+				})
+			}
+
+			//Check if user is already banned
+			if(!bannedUser || bannedUser.channelInfo[channelId].is_banned) {
+				// Ignore if user is already banned.
+				// As we listen from 2 sources of bans on Eventsub to get more accurate timeout
+				// info missing from the main source of moderation info, we can get
+				// double ban events
+				return;
+			}
+
+			const banEndDate = Date.now() + (duration_s || 0) * 1000;
+			//User already perma banned, stop there
+			if(bannedUser.channelInfo[channelId].is_banned && !duration_s) return;
+			//If already temporary banned and ban end is less than 2s
+			//away from the expected one, stop there
+			if(bannedUser.channelInfo[channelId].is_banned
+				&& bannedUser.channelInfo[channelId].banEndDate
+				&& Math.abs(banEndDate - bannedUser.channelInfo[channelId].banEndDate!) < 2) return;
+
+			bannedUser.channelInfo[channelId].is_banned = true;
+			if(bannedUser.channelInfo[channelId].is_moderator === true
+			&& StoreProxy.params.features.autoRemod.value == true) {
+				//When banned or timed out, twitch removes the moderator role
+				//This flag reminds us to flag them back as mod when timeout completes
+				//Only for our own channel
+				bannedUser.channelInfo[channelId].autoRemod = (channelId == StoreProxy.auth.twitch.user.id);
+			}
+			bannedUser.channelInfo[channelId].is_moderator = false;
+			//Set ban state
+			if(duration_s) {
+				bannedUser.channelInfo[channelId].banEndDate = banEndDate;
+			}else{
+				delete bannedUser.channelInfo[channelId].banEndDate;
+			}
+
 			//Get ban reason from twitch
-			if(bannedUser && platform == "twitch") {
+			if(platform == "twitch") {
 				const res = await TwitchUtils.getBannedUsers(channelId, [bannedUser.id]);
 				if(res.length > 0) {
 					bannedUser.channelInfo[channelId].banReason = res[0].reason;
@@ -571,7 +589,7 @@ export const storeUsers = defineStore('users', {
 			if(duration_s != undefined) {
 				//Auto unflag the user once timeout expires
 				unbanFlagTimeouts[uid] = setTimeout(()=> {
-					StoreProxy.users.flagUnbanned(platform, channelId, uid);
+					StoreProxy.users.flagUnbanned(platform, channelId, uid, undefined, true);
 					if(platform == "twitch") {
 						//If requested to re grant mod role after a moderator timeout completes, do it
 						if(StoreProxy.params.features.autoRemod.value == true) {
@@ -752,20 +770,65 @@ export const storeUsers = defineStore('users', {
 					}
 				}
 			}
+
+			//Delete all previous messages of the user
 			StoreProxy.chat.delUserMessages(uid, channelId);
+			
+			//Send notification on chat
+			if(bannedUser) {
+				const m:TwitchatDataTypes.MessageBanData|TwitchatDataTypes.MessageYoutubeBanData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform,
+					channel_id:channelId,
+					type:platform === "twitch"? TwitchatDataTypes.TwitchatMessageType.BAN : TwitchatDataTypes.TwitchatMessageType.YOUTUBE_BAN,
+					user:bannedUser,
+					moderator,
+					reason: bannedUser.channelInfo[channelId].banReason,
+				};
+				if(duration_s) m.duration_s = duration_s;
+				StoreProxy.chat.addMessage(m);
+			}
 		},
 
-		flagUnbanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
+		async flagUnbanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, moderator?:TwitchatDataTypes.TwitchatUser, silentUnban:boolean = false):Promise<void> {
+			let unbannedUser:TwitchatDataTypes.TwitchatUser|undefined;
 			for (let i = 0; i < userList.length; i++) {
 				const u = userList[i];
 				if(u.id === uid && platform == u.platform && userList[i].channelInfo[channelId]) {
-					userList[i].channelInfo[channelId].is_banned = false;
-					delete userList[i].channelInfo[channelId].banEndDate;
+					unbannedUser = u;
 					break;
 				}
 			}
+			if(!unbannedUser) {
+				unbannedUser = await new Promise((resolve)=>{
+					StoreProxy.users.getUserFrom(platform, channelId, uid, undefined, undefined,(user=>{
+						resolve(user);
+					}));
+				})
+			}
+			
+			//Already unbanned or user not found, ignore
+			if(!unbannedUser || !unbannedUser.channelInfo[channelId].is_banned) return;
+
+			unbannedUser.channelInfo[channelId].is_banned = false;
+			delete unbannedUser.channelInfo[channelId].banEndDate;
+
 			if(unbanFlagTimeouts[uid]) {
 				clearTimeout(unbanFlagTimeouts[uid]);
+			}
+
+			if(!silentUnban && unbannedUser) {
+				const m:TwitchatDataTypes.MessageUnbanData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform,
+					channel_id:channelId,
+					type:TwitchatDataTypes.TwitchatMessageType.UNBAN,
+					user:unbannedUser,
+					moderator,
+				};
+				StoreProxy.chat.addMessage(m);
 			}
 		},
 
