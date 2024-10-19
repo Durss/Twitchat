@@ -220,8 +220,11 @@ export const storeRaffle = defineStore('raffle', {
 			if(messageParams.enabled) {
 				setTimeout(() => {
 					let message = messageParams.message;
-					message = message.replace(/\{USER\}/gi, winner.label);
-					message = message.replace(/\{ENTRY\}/gi, winner.label);
+					if(data.mode == "chat" || data.mode == "sub" || data.mode == "tips") {
+						message = message.replace(/\{USER\}/gi, winner.label);
+					}else{
+						message = message.replace(/\{ENTRY\}/gi, winner.label);
+					}
 					if(winner.tip) {
 						let platform = "";
 						switch(winner.tip?.source) {
