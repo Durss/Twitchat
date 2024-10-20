@@ -122,7 +122,7 @@
 			"banned": "{USER} a été banni·e sur {PLATFORM}",
 			"banned_by": "{MODERATOR} a banni {USER} sur {PLATFORM}",
 			"unbanBt": "Unban",
-			"unbanned": "Le bannissmenet de {USER} a été levé",
+			"unbanned": "Le bannissement de {USER} a été levé",
 			"unbanned_by": "{MODERATOR} a levé le bannissement de {USER}",
 			"mod": "{USER} ajouté comme modérateur·ice de cette chaîne",
 			"modded_by": "{USER} a été ajouté·e comme modérateur·ice de cette chaîne par {MODERATOR}",
