@@ -40,7 +40,7 @@
 					</div>
 
 					<div v-if="item.params.slotType == 'subs'" v-for="entry in getSortedSubs(item.params).splice(0, item.params.maxEntries)" class="item">
-						<Icon class="badge" v-if="item.params.showBadges" :name="entry.type == 'subgift'? 'gift' : 'sub'" />
+						<Icon class="badge" v-if="item.params.showBadges && entry.value.fromActiveSubs !== true" :name="entry.type == 'subgift'? 'gift' : 'sub'" />
 						<span class="info">{{entry.value.login}}</span>
 						<span class="count" v-if="entry.type!='subgift' && item.params.showSubMonths === true && entry.value.subDuration"> − {{ getSubDurationlabel(entry.value.subDuration) }}</span>
 						<span class="count" v-if="entry.type=='subgift' && item.params.showAmounts === true"> − {{ entry.value.total }}</span>
