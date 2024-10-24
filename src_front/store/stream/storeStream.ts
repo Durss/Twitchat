@@ -659,6 +659,8 @@ export const storeStream = defineStore('stream', {
 						res.forEach(sub=>{
 							//Skip ignored users
 							if(ignoredAccounts[sub.user_login.toLowerCase()] === true) return;
+							//Ignore self
+							if(sub.user_id == channelId) return;
 							
 							const subData:TwitchatDataTypes.StreamSummaryData["subs"][number] = {
 								uid:sub.user_id,
