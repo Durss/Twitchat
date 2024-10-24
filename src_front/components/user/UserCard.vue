@@ -85,11 +85,15 @@
 					<div class="userID" v-tooltip="$t('global.copy')" @click="copyID()" ref="userID">#{{user.id}}</div>
 				</div>
 				
-				<ChatModTools v-if="isTwitchProfile && canModerate && !isSelfProfile" class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock v-show="!manageBadges && !manageUserNames" />
+				<ChatModTools v-if="isTwitchProfile && canModerate" class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock v-show="!manageBadges && !manageUserNames" />
 
 				<div class="scrollable" v-show="!manageBadges && !manageUserNames">
 					<div class="infoList" v-if="isTwitchProfile">
-						<div class="info" v-tooltip="$t('usercard.creation_date_tt')+'\n'+createDate"><Icon name="date" alt="account creation date" class="icon"/>{{createDateElapsed}}</div>
+						<div :class="{info:true, recent:(Date.now() - (user.created_at_ms || 0)) < 14 * 24 * 60 * 60 * 10000}" v-tooltip="$t('usercard.creation_date_tt')+'\n'+createDate">
+							<Icon name="alert" alt="recent account" class="icon"/>
+							<Icon name="date" alt="account creation date" class="icon"/>
+							{{createDateElapsed}}
+						</div>
 						
 						<div class="info" v-if="followersCount > -1"><Icon name="follow_outline" class="icon"/>{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
 						
@@ -451,8 +455,10 @@ class UserCard extends AbstractSidePanel {
 				this.channel = this.$store.users.getUserFrom(card.platform || "twitch", chanId, chanId);
 				this.user = this.$store.users.getUserFrom(card.platform || "twitch", chanId, card.user.id);
 				this.isOwnChannel = chanId == StoreProxy.auth.twitch.user.id || chanId == StoreProxy.auth.youtube.user?.id;
-				this.canModerate = (this.moderatedChannelList.findIndex(v=>v.broadcaster_id === chanId) > -1 || chanId == StoreProxy.auth.twitch.user.id) && chanId != this.user.id;
-				this.isSelfProfile = this.user.id != StoreProxy.auth.twitch.user.id;
+				this.isSelfProfile = this.user.id == StoreProxy.auth.twitch.user.id;
+				//Check if message is from our chan or one we can moderate, and that this chan is not the current user
+				this.canModerate = (this.moderatedChannelList.findIndex(v=>v.broadcaster_id === chanId) > -1 || chanId == StoreProxy.auth.twitch.user.id)
+									&& chanId != this.user.id;
 				if(!this.isOwnChannel) {
 					this.channelColor = this.$store.stream.connectedTwitchChans.find(v=>v.user.id === chanId)?.color || "#ffffff";
 				}
@@ -1005,6 +1011,11 @@ export default toNative(UserCard);
 						font-size: .8em;
 						font-variant-numeric: tabular-nums;
 					}
+				}
+				&.recent {
+					border-width: 0;
+					color: var(--color-light);
+					background-color: var(--color-secondary);
 				}
 			}
 		}
