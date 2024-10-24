@@ -647,41 +647,44 @@ export const storeStream = defineStore('stream', {
 				}
 				
 
-			//Load all current subs
-			const shouldLoadAllsubs = parameters && parameters.slots.filter(v=>v.slotType == "subs")
-									.findIndex(v=>v.enabled === true && v.showAllSubs === true) > -1;
-			const shouldLoadAllsubgifters = parameters && parameters.slots.filter(v=>v.slotType == "subs")
-									.findIndex(v=>v.enabled === true && v.showAllSubgifters === true) > -1;
-			if(shouldLoadAllsubs || shouldLoadAllsubgifters) {
-				const res = await TwitchUtils.getSubsList(false);
-				if(res && res.length) {
-					const uidToSubgift:{[uid:string]:TwitchatDataTypes.StreamSummaryData["subgifts"][number]} = {};
-					res.forEach(sub=>{
-						const subData:TwitchatDataTypes.StreamSummaryData["subs"][number] = {
-							uid:sub.user_id,
-							login:sub.user_name,
-							tier:{1000:1, 2000:2, 3000:3, prime:"prime"}[sub.tier] as typeof result.subs[number]["tier"],
-							fromActiveSubs:true,
-						};
-						result.subs.push(subData);
-						if(sub.is_gift){
-							const subgiftData:TwitchatDataTypes.StreamSummaryData["subgifts"][number] = uidToSubgift[sub.gifter_id] || {
-								uid:sub.gifter_id,
-								login:sub.gifter_name,
+				//Load all current subs
+				const shouldLoadAllsubs = parameters && parameters.slots.filter(v=>v.slotType == "subs")
+										.findIndex(v=>v.enabled === true && v.showAllSubs === true) > -1;
+				const shouldLoadAllsubgifters = parameters && parameters.slots.filter(v=>v.slotType == "subs")
+										.findIndex(v=>v.enabled === true && v.showAllSubgifters === true) > -1;
+				if(shouldLoadAllsubs || shouldLoadAllsubgifters) {
+					const res = await TwitchUtils.getSubsList(false);
+					if(res && res.length) {
+						const uidToSubgift:{[uid:string]:TwitchatDataTypes.StreamSummaryData["subgifts"][number]} = {};
+						res.forEach(sub=>{
+							//Skip ignored users
+							if(ignoredAccounts[sub.user_login.toLowerCase()] === true) return;
+							
+							const subData:TwitchatDataTypes.StreamSummaryData["subs"][number] = {
+								uid:sub.user_id,
+								login:sub.user_name,
 								tier:{1000:1, 2000:2, 3000:3, prime:"prime"}[sub.tier] as typeof result.subs[number]["tier"],
 								fromActiveSubs:true,
-								total:0,
 							};
-							subgiftData.total ++;
-							if(!uidToSubgift[subgiftData.uid]) {
-								subgiftData.total = 1;
-								uidToSubgift[subgiftData.uid] = subgiftData;
-								result.subgifts.push(subgiftData);
+							result.subs.push(subData);
+							if(sub.is_gift){
+								const subgiftData:TwitchatDataTypes.StreamSummaryData["subgifts"][number] = uidToSubgift[sub.gifter_id] || {
+									uid:sub.gifter_id,
+									login:sub.gifter_name,
+									tier:{1000:1, 2000:2, 3000:3, prime:"prime"}[sub.tier] as typeof result.subs[number]["tier"],
+									fromActiveSubs:true,
+									total:0,
+								};
+								subgiftData.total ++;
+								if(!uidToSubgift[subgiftData.uid]) {
+									subgiftData.total = 1;
+									uidToSubgift[subgiftData.uid] = subgiftData;
+									result.subgifts.push(subgiftData);
+								}
 							}
-						}
-					})
+						})
+					}
 				}
-			}
 			}
 
 			for (let i = 0; i < messages.length; i++) {
