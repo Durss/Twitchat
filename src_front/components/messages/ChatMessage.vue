@@ -425,10 +425,7 @@ class ChatMessage extends AbstractChatMessage {
 
 				const age = Date.now() - (mess.user.created_at_ms || 0);
 				if(age < 14 * 24 * 60 * 60000) {
-					let label = "";
-					if(age > 24 * 60 * 60000)	label = Math.round(age/(24*60*60000)) + this.$t("chat.custom_badge.tooltip.new_account_day");
-					else if(age > 60 * 60000)	label = Math.round(age/(60 * 60000)) + this.$t("chat.custom_badge.tooltip.new_account_hour");
-					else						label = Math.round(age/60000) + this.$t("chat.custom_badge.tooltip.new_account_minute");
+					let label = Utils.elapsedDuration(mess.user.created_at_ms || 0);
 					list.push({type:TwitchatDataTypes.MessageBadgeDataType.NEW_ACCOUNT, label, tooltipLabelParams:{DURATION:label}});
 				}
 			}
