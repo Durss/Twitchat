@@ -24,6 +24,7 @@
 				:data-index="index"
 				@click="selectUser(user)">
 					<img :src="user.profile_image_url.replace(/300x300/gi, '50x50')" alt="avatar">
+					<Icon name="mod" class="icon" v-if="moderatedChanIds.includes(user.id)" />
 					<div class="login">{{ user.display_name }}</div>
 				</button>
 			</TransitionGroup>
@@ -41,6 +42,7 @@
 				:data-index="index"
 				@click="selectUser(user)">
 					<img :src="user.profile_image_url.replace(/300x300/gi, '50x50')" alt="avatar">
+					<Icon name="mod" class="icon" v-if="moderatedChanIds.includes(user.id)" />
 					<div class="login">{{ user.display_name }}</div>
 				</button>
 			</TransitionGroup>
@@ -85,15 +87,23 @@ class SearchUserForm extends Vue {
 	public showResult:boolean = false;
 	public showStatic:boolean = false;
 	public liveStates:{[uid:string]:boolean} = {}
+	public moderatedChanIds:string[] = [];
 
 	private abortQuery:AbortController|null = null;
 
 	public get staticUserListFiltered():TwitchDataTypes.UserInfo[] {
-		return (this.staticUserList || []).filter(user => (this.excludedUserIds || []).indexOf(user.id) === -1);
+		return (this.staticUserList || [])
+		.filter(user => (this.excludedUserIds || []).indexOf(user.id) === -1)
+		.sort((a,b) => {
+			if(this.moderatedChanIds.includes(a.id) && !this.moderatedChanIds.includes(b.id)) return -1;
+			if(!this.moderatedChanIds.includes(a.id) && this.moderatedChanIds.includes(b.id)) return 1;
+			return a.login.toLowerCase().localeCompare(b.login.toLowerCase());
+		})
 	}
 
 	public mounted():void {
 		this.showStatic = true;
+		this.moderatedChanIds = this.$store.auth.twitchModeratedChannels.map(u=>u.broadcaster_id);
 	}
 
 	public onKeyDown(event:KeyboardEvent):void {
@@ -109,7 +119,12 @@ class SearchUserForm extends Vue {
 			const signal = this.abortQuery!.signal;
 			const result = (await TwitchUtils.searchUser(this.search, 5, signal) || []);
 			this.liveStates = result.liveStates;
-			this.users = result.users.filter(user => (this.excludedUserIds || []).indexOf(user.id) === -1);
+			this.users = result.users.filter(user => (this.excludedUserIds || []).indexOf(user.id) === -1)
+						.sort((a,b) => {
+							if(this.moderatedChanIds.includes(a.id) && !this.moderatedChanIds.includes(b.id)) return -1;
+							if(!this.moderatedChanIds.includes(a.id) && this.moderatedChanIds.includes(b.id)) return 1;
+							return a.login.toLowerCase().localeCompare(b.login.toLowerCase())
+						});
 			if(!signal.aborted) {
 				this.searching = false;
 				this.noResult = this.users.length === 0;
@@ -242,6 +257,10 @@ export default toNative(SearchUserForm);
 		}
 		img {
 			height: 2em;
+			border-radius: 50%;
+		}
+		.icon {
+			height: 1em;
 			border-radius: 50%;
 		}
 		&:hover {
