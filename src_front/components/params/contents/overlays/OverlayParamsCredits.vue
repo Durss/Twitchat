@@ -95,7 +95,7 @@
 
 								<template v-if="element.slotType == 'subs'">
 									<div class="card-item tierList" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_4, id:'endingcredits_slot_sub_tiers'}">
-										<ParamItem :paramData="param_showSubsPrime[element.id]"	v-model="element.showSubsPrime" noBackground />
+										<ParamItem :paramData="param_showSubsPrime[element.id]"	v-model="element.showSubsPrime" noBackground v-if="param_showAllActiveSubs[element.id].value != true && param_showAllActiveSubgifters[element.id].value != true" />
 										<ParamItem :paramData="param_showSubsT1[element.id]"	v-model="element.showSubsT1" noBackground />
 										<ParamItem :paramData="param_showSubsT2[element.id]"	v-model="element.showSubsT2" noBackground />
 										<ParamItem :paramData="param_showSubsT3[element.id]"	v-model="element.showSubsT3" noBackground />
