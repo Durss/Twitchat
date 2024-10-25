@@ -883,6 +883,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.stream.populateData();
 			StoreProxy.params.populateData();
 			StoreProxy.values.populateData();
+			StoreProxy.tiktok.populateData();
 			StoreProxy.tipeee.populateData();
 			StoreProxy.patreon.populateData();
 			StoreProxy.tiltify.populateData();

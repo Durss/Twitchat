@@ -5,6 +5,7 @@
 		<Icon name="follow" alt="follow" class="icon followIcon" />
 
 		<Icon name="youtube" v-if="messageData.platform == 'youtube'" v-tooltip="$t('chat.youtube.platform_youtube')" />
+		<Icon name="tiktok" v-if="messageData.platform == 'tiktok'" v-tooltip="$t('chat.tiktok.platform_tiktok')" />
 
 		<i18n-t scope="global" tag="span" keypath="chat.follow">
 			<template #USER>

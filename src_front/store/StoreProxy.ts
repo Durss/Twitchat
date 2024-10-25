@@ -67,6 +67,7 @@ export default class StoreProxy {
 	public static labels:ILabelsState & ILabelsGetters & ILabelsActions & {$state:ILabelsState, $reset:()=>void};
 	public static donationGoals:IDonationGoalState & IDonationGoalGetters & IDonationGoalActions & {$state:IDonationGoalState, $reset:()=>void};
 	public static tiltify:ITiltifyState & ITiltifyGetters & ITiltifyActions & {$state:ITiltifyState, $reset:()=>void};
+	public static tiktok:ITiktokState & ITiktokGetters & ITiktokActions & {$state:ITiktokState, $reset:()=>void};
 	public static public:IPublicState & IPublicGetters & IPublicActions & {$state:IPublicState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
@@ -3077,4 +3078,41 @@ export interface ITiltifyActions {
 	 * Loads info about the user and their campaigns
 	 */
 	loadInfos():Promise<{user:TiltifyUser, campaigns:TiltifyCampaign[]}>
+}
+
+
+
+
+
+export interface ITiktokState {
+	connected:boolean;
+	ip:string;
+	port:number;
+}
+
+export interface ITiktokGetters {
+}
+
+export interface ITiktokActions {
+	/**
+	 * Populates the store
+	 */
+	populateData():Promise<void>;
+	/**
+	 * Initiate connection to tikfinity socket
+	 */
+	connect():Promise<boolean>
+	/**
+	 * Closes connection with tikfinity socket
+	 */
+	disconnect():void
+	/**
+	 * Called on a TikTok event (message, gift, like,...)
+	 * @param data 
+	 */
+	onEvent(data:unknown):void;
+	/**
+	 * Saves current configs to store
+	 */
+	saveConfigs():void;
 }

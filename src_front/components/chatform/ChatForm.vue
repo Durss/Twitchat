@@ -58,6 +58,11 @@
 					</div>
 
 					<div class="inputField">
+						<ChannelSwitcher class="chanSwitcher"
+							v-model="$store.stream.currentChatChannel.id"
+							v-model:name="$store.stream.currentChatChannel.name"
+							v-model:platform="$store.stream.currentChatChannel.platform" />
+							
 						<button class="youtubeError"
 							v-if="mustConnectYoutubeChan"
 							@click="$store.params.openParamsPage('connexions', 'youtube')">{{ $t('chat.form.youtube_not_connected') }}</button>
@@ -78,11 +83,6 @@
 							@keyup.enter="(e:Event)=>sendMessage(e)"
 							@keydown="onKeyDown"
 							:style="inputStyles">
-
-						<ChannelSwitcher class="chanSwitcher"
-							v-model="$store.stream.currentChatChannel.id"
-							v-model:name="$store.stream.currentChatChannel.name"
-							v-model:platform="$store.stream.currentChatChannel.platform" />
 					</div>
 				</div>
 
@@ -223,6 +223,19 @@
 					<p v-if="censoredViewCount">x</p>
 					<p v-if="!censoredViewCount">{{streamInfo.viewers}}</p>
 					<Icon class="icon" name="user"/>
+					<Icon class="twitch" name="twitch"/>
+				</div>
+
+				<div v-if="$store.params.appearance.showViewersCount.value === true
+					&& $store.stream.currentStreamInfo['tiktok'] && $store.stream.currentStreamInfo['tiktok'].viewers > 0"
+					v-tooltip="{touch:'hold', content:$t('chat.form.viewer_count')}"
+					class="viewCount"
+					@click="censoredViewCount = !censoredViewCount"
+				>
+					<p v-if="censoredViewCount">x</p>
+					<p v-if="!censoredViewCount">{{$store.stream.currentStreamInfo['tiktok'].viewers}}</p>
+					<Icon class="icon" name="user"/>
+					<Icon class="tiktok" name="tiktok"/>
 				</div>
 
 				<transition name="blink">

@@ -379,6 +379,9 @@ class UserCard extends AbstractSidePanel {
 			case "youtube": {
 				return "https://www.youtube.com/channel/"+this.user!.id;
 			}
+			case "tiktok": {
+				return "https://www.tiktok.com/@"+this.user!.login;
+			}
 		}
 		return "#";
 	}

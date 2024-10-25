@@ -107,6 +107,7 @@ export default class DataStoreCommon {
 	public static TILTIFY:string = "tiltify";
 	public static TILTIFY_TOKEN:string = "tiltifyToken";
 	public static RAFFLES_RUNNING:string = "rafflesRunning";
+	public static TIKTOK_CONFIGS:string = "tiktokConfigs";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";

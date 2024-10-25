@@ -135,9 +135,9 @@ class ChannelSwitcher extends Vue {
 		
 		this.$store.stream.connectedTwitchChans.forEach(entry=> {
 			chans.push({platform:"twitch", user:entry.user, isRemoteChan:true, color:entry.color});
-		})
+		});
 
-		return chans;
+		return chans
 	}
 
 	public beforeMount():void {

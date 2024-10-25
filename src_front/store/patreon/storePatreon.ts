@@ -73,7 +73,7 @@ export const storePatreon = defineStore('patreon', {
 			const url = new URL("https://www.patreon.com/oauth2/authorize");
 			url.searchParams.append("response_type", "code");
 			url.searchParams.append("client_id", Config.instance.PATREON_CLIENT_ID);
-			url.searchParams.append("redirect_uri", StoreProxy.patreon.getRedirectURI(premiumContext));
+			url.searchParams.append("redirect_uri", this.getRedirectURI(premiumContext));
 			url.searchParams.append("scope", premiumContext? "identity" : Config.instance.PATREON_SCOPES);
 			url.searchParams.append("state", json.token);
 
@@ -107,7 +107,7 @@ export const storePatreon = defineStore('patreon', {
 		 * @returns 
 		 */
 		async completeOAuthFlow(premiumContext:boolean = false):Promise<boolean> {
-			const authParams = StoreProxy.patreon.oauthFlowParams;
+			const authParams = this.oauthFlowParams;
 			if(!authParams) return false;
 			const {json:csrf} = await ApiHelper.call("auth/CSRFToken", "POST", {token:authParams.csrf}, false);
 			if(!csrf.success) {
@@ -115,7 +115,7 @@ export const storePatreon = defineStore('patreon', {
 			}else{
 				try {
 					await this.authenticate(authParams.code, premiumContext);
-					StoreProxy.patreon.setPatreonAuthResult(null);
+					this.setPatreonAuthResult(null);
 					return true;
 				}catch(e:unknown) {
 					console.log(e);

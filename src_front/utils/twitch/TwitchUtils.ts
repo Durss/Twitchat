@@ -3283,12 +3283,12 @@ export default class TwitchUtils {
 				const chunk = result[i];
 				if (chunk.type == "text") {
 					result.splice(i, 1);//Remove source chunk
-					const res = (chunk.value || "").split(/(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi);
+					const res = (chunk.value || "").split(/(?:^|\s)((?:(?:http|ftp|https):\/\/)?(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi);
 					let subIndex = 0;
 					res.forEach(v => {
 						if(v == "") return;
 						//Add sub chunks to original resulting chunks
-						let islink = /(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi.test(v);
+						let islink = /(?:^|\s)((?:(?:http|ftp|https):\/\/)?(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi.test(v);
 						//Avoid floating numbers to be parsed as links
 						if (/[0-9]+\.[0-9]+$/.test(v)) islink = false;
 						const node: TwitchatDataTypes.ParseMessageChunk = {
@@ -3314,25 +3314,28 @@ export default class TwitchUtils {
 		}
 
 		//Parse username chunks
-		for (let i = 0; i < result.length; i++) {
-			const chunk = result[i];
-			if (chunk.type == "text") {
-				result.splice(i, 1);//Remove source chunk
-				const res = (chunk.value || "").split(/(@[a-z0-9_]{3,25})/gi);
-				let subIndex = 0;
-				res.forEach(v => {
-					//Add sub chunks to original resulting chunks
-					const isUsername = /(@[a-z0-9_]{3,25})/gi.test(v)
-					const node: TwitchatDataTypes.ParseMessageChunk = {
-						type: isUsername ? "user" : "text",
-						value: v,
-					};
-					if (isUsername) {
-						node.username = v.substring(1);//Remove "@"
-					}
-					result.splice(i + subIndex, 0, node);
-					subIndex++;
-				})
+		//only for twitch ash we cannot retrive the actual user profile for other platforms
+		if(platform == "twitch") {
+			for (let i = 0; i < result.length; i++) {
+				const chunk = result[i];
+				if (chunk.type == "text") {
+					result.splice(i, 1);//Remove source chunk
+					const res = (chunk.value || "").split(/(@[a-z0-9_]{3,25})/gi);
+					let subIndex = 0;
+					res.forEach(v => {
+						//Add sub chunks to original resulting chunks
+						const isUsername = /(@[a-z0-9_]{3,25})/gi.test(v)
+						const node: TwitchatDataTypes.ParseMessageChunk = {
+							type: isUsername ? "user" : "text",
+							value: v,
+						};
+						if (isUsername) {
+							node.username = v.substring(1);//Remove "@"
+						}
+						result.splice(i + subIndex, 0, node);
+						subIndex++;
+					})
+				}
 			}
 		}
 

@@ -45,6 +45,14 @@
 				<p>Streamlabs</p>
 			</button>
 
+			<button class="card-item" @click="subContent='tiktok'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.patreon'}">
+				<Icon name="tiktok" />
+				<p>
+					<span>TikTok</span>
+					<small>via TikFinity</small>
+				</p>
+			</button>
+
 			<button class="card-item" @click="subContent='tiltify'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_7, id:'params_connect.tiltify'}">
 				<Icon name="tiltify" />
 				<p>Tiltify</p>
@@ -102,6 +110,7 @@
 	<ConnectTiltify v-else-if="subContent == 'tiltify'" />
 	<ConnectTipeee v-else-if="subContent == 'tipeee'" />
 	<ConnectPatreon v-else-if="subContent == 'patreon'" />
+	<ConnectTiktok v-else-if="subContent == 'tiktok'" />
 </template>
 
 <script lang="ts">
@@ -126,6 +135,7 @@ import ConnectStreamelements from './connexions/ConnectStreamelements.vue';
 import ConnectTipeee from './connexions/ConnectTipeee.vue';
 import ConnectTiltify from './connexions/ConnectTiltify.vue';
 import ConnectPatreon from './connexions/ConnectPatreon.vue';
+import ConnectTiktok from './connexions/ConnectTiktok.vue';
 
 @Component({
 	components:{
@@ -134,6 +144,7 @@ import ConnectPatreon from './connexions/ConnectPatreon.vue';
 		ConnectHeat,
 		ConnectGoXLR,
 		ConnectLumia,
+		ConnectTiktok,
 		ConnectTipeee,
 		ConnectPatreon,
 		ConnectDiscord,
@@ -244,11 +255,18 @@ export default toNative(ParamsConnections);
 			}
 			p {
 				flex-grow: 1;
+				display: flex;
+				flex-direction: column;
+				small {
+					font-size: .8em;
+					font-style: italic;
+					opacity: .75;
+				}
 			}
 		}
 		:deep(.newFlag) {
 			border: 1px solid var(--color-secondary);
-	}
+		}
 	}
 }
 

@@ -23,6 +23,7 @@ export namespace TwitchatDataTypes {
 		GOXLR: "goxlr",
 		LUMIA: "lumia",
 		TIPEEE: "tipeee",
+		TIKTOK: "tiktok",
 		SPOTIFY: "spotify",
 		PATREON: "patreon",
 		TILTIFY: "tiltify",
@@ -1064,7 +1065,7 @@ export namespace TwitchatDataTypes {
 	 * Contains info about a stream
 	 */
 	export interface StreamInfo {
-		user:TwitchatUser;
+		user?:TwitchatUser;
 		title:string;
 		category:string;
 		tags:string[];
@@ -2191,6 +2192,10 @@ export namespace TwitchatDataTypes {
 		MUSIC_START:"music_start",
 		TWITCHAT_AD:"twitchat_ad",
 		YOUTUBE_BAN:"youtube_ban",
+		TIKTOK_SUB:"tiktok_sub",
+		TIKTOK_GIFT:"tiktok_gift",
+		TIKTOK_LIKE:"tiktok_like",
+		TIKTOK_SHARE:"tiktok_share",
 		VALUE_UPDATE:"value_update",
 		GOXLR_BUTTON:"goxlr_button",
 		RAID_STARTED:"raid_started",
@@ -2300,6 +2305,10 @@ export namespace TwitchatDataTypes {
 		music_start:true,
 		subscription:true,
 		autoban_join:true,
+		tiktok_sub:true,
+		tiktok_gift:true,
+		tiktok_like:true,
+		tiktok_share:true,
 		super_sticker:true,
 		value_update:false,
 		unban_request:true,
@@ -2485,6 +2494,10 @@ export namespace TwitchatDataTypes {
 									| MessageWebsocketTopicData
 									| MessageTiltifyData
 									| MessageTwitchatStartedData
+									| MessageTikTokSubData
+									| MessageTikTokGiftData
+									| MessageTikTokLikeData
+									| MessageTikTokShareData
 	;
 
 	/**
@@ -5220,5 +5233,65 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageTwitchatStartedData extends AbstractTwitchatMessage {
 		type:"twitchat_started";
+	}
+
+	/**
+	 * Represents a subscription on TikTok
+	 */
+	export interface MessageTikTokSubData extends AbstractTwitchatMessage {
+		type:"tiktok_sub";
+		/**
+		 * User that sent the gift
+		 */
+		user:TwitchatUser;
+	}
+
+	/**
+	 * Represents a gift on TikTok
+	 */
+	export interface MessageTikTokGiftData extends AbstractTwitchatMessage {
+		type:"tiktok_gift";
+		/**
+		 * User that sent the gift
+		 */
+		user:TwitchatUser;
+		/**
+		 * Gift image
+		 */
+		image:string;
+		/**
+		 * Number of gifts
+		 */
+		count:number;
+	}
+
+	/**
+	 * Represents a like on TikTok
+	 */
+	export interface MessageTikTokLikeData extends AbstractTwitchatMessage {
+		type:"tiktok_like";
+		/**
+		 * User that sent the gift
+		 */
+		user:TwitchatUser;
+		/**
+		 * Number of likes (sent by batch)
+		 */
+		count:number;
+		/**
+		 * Total number of likes received on this stream
+		 */
+		streamLikes:number;
+	}
+
+	/**
+	 * Represents a share on TikTok
+	 */
+	export interface MessageTikTokShareData extends AbstractTwitchatMessage {
+		type:"tiktok_share";
+		/**
+		 * User that sent the gift
+		 */
+		user:TwitchatUser;
 	}
 }
