@@ -1006,6 +1006,7 @@ export default toNative(ChatMessage);
 		cursor: pointer;
 		font-weight: bold;
 		text-decoration: none;
+		text-wrap: nowrap;
 		// -webkit-text-stroke: fade(#000, 50%) .25px;
 		&:hover {
 			background-color: var(--background-color-fader);

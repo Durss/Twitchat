@@ -54,7 +54,7 @@
 						<CustomUserBadges :tooltip="$t('usercard.remove_badgesBt')" :user="user" @select="removeCustomBadge" :channelId="channel!.id" />
 						
 						<template v-if="!edittingLogin">
-							<a :href="profilePage" target="_blank">
+							<a :href="profilePage" target="_blank" class="nickname">
 								<span class="label">{{user.displayName}}</span>
 								<span class="translation" v-if="translateUsername">({{user.login}})</span>
 							</a>
@@ -892,18 +892,25 @@ export default toNative(UserCard);
 					margin-right: .25em;
 					z-index: 2;
 				}
-	
-				.label {
-					text-overflow: ellipsis;
-					overflow: hidden;
-					line-height: 1.2em;
+
+				.nickname {
+					max-width: 80%;
+					display: inline-block;
+
+					.label {
+						text-overflow: ellipsis;
+						overflow: hidden;
+						line-height: 1.2em;
+						text-wrap: nowrap
+					}
+		
+					.translation {
+						font-style: italic;
+						font-size: .8em;
+						margin-left: .25em;
+					}
 				}
 	
-				.translation {
-					font-style: italic;
-					font-size: .8em;
-					margin-left: .25em;
-				}
 	
 				.badge, :deep(.customUserBadge) {
 					height: .8em;
@@ -916,6 +923,7 @@ export default toNative(UserCard);
 				.editLoginBt {
 					height: .7em;
 					margin-left: .25em;
+					flex-shrink: 0;
 					.icon {
 						height: 100%;
 						display: block;
