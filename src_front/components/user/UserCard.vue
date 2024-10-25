@@ -896,12 +896,14 @@ export default toNative(UserCard);
 				.nickname {
 					max-width: 80%;
 					display: inline-block;
-
+					
 					.label {
 						text-overflow: ellipsis;
 						overflow: hidden;
 						line-height: 1.2em;
-						text-wrap: nowrap
+						text-wrap: nowrap;
+						width:100%;
+						display: inline-block;
 					}
 		
 					.translation {
