@@ -45,7 +45,7 @@
 						<div class="user">
 							<span class="info">{{entry.login}}</span>
 							<div class="amount" v-if="item.params.showAmounts === true">
-								<span class="value">{{entry.amount}}</span>
+								<span class="value"><img src="@/assets/icons/tiktok_diamond.svg">{{entry.cumulatedAmount || entry.amount}}</span>
 							</div>
 						</div>
 					</div>
@@ -389,7 +389,6 @@ class OverlayEndingCredits extends AbstractOverlay {
 				else if(item.imageUrl) {
 					usersDoneGifts[item.login].count += item.count;
 					usersDoneGifts[item.login].amount += item.amount;
-					usersDoneGifts[item.login].cumulatedAmount += item.amount * item.count;
 					//Only show the same gift once for the same user if merging gifts by users
 					if(imageDoneGifts[dedupeKey] != true) {
 						usersDoneGifts[item.login].imageUrlList.push(item.imageUrl);
@@ -398,6 +397,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 					i--;
 				}
 				imageDoneGifts[dedupeKey] = true;
+				usersDoneGifts[item.login].cumulatedAmount += item.amount * item.count;
 			}
 		}
 		res = tmp;
@@ -1329,12 +1329,6 @@ export default toNative(OverlayEndingCredits);
 			}
 		}
 
-		&.ytSuperchat {
-			.amount {
-				margin-left: .5em;
-			}
-		}
-
 		&.ytSuperSticker,
 		&.tiktokGifts {
 			.item {
@@ -1358,6 +1352,24 @@ export default toNative(OverlayEndingCredits);
 					.info {
 						margin-right: .25em;
 					}
+				}
+			}
+		}
+
+		&.ytSuperchat {
+			.amount {
+				margin-left: .5em;
+			}
+		}
+
+		&.tiktokGifts {
+			.amount>.value {
+				gap: .15em;
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				img {
+					height: 1em;
 				}
 			}
 		}

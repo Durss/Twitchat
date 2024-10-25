@@ -565,7 +565,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/setstreamcategory") {
-			const categories = await TwitchUtils.searchCategory(params[0]);
+			const categories = await TwitchUtils.searchCategory(params.join(" "));
 			if(categories.length > 0) {
 				await TwitchUtils.setStreamInfos(channelId, undefined, categories[0].id);
 			}

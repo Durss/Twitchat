@@ -237,7 +237,7 @@
 				"predictions": "Afficher le nombre de points de chaîne",
 				"tips": "Afficher le montant des dons",
 				"tiktokLikes": "Afficher le nombre de likes",
-				"tiktokGifts": "Afficher le nombre de cadeaux"
+				"tiktokGifts": "Afficher le nombre de diamants reçus"
 			},
 			"manual_install_instructions": "Pour un fonctionnement optimal, assurez-vous d'activer les options \"Désactiver la source quand elle n'est pas visible\" et \"Rafraîchir la source quand elle devient active\" sur la source navigateur OBS.",
 			"param_pu_skin": "Effets de message",

@@ -241,7 +241,7 @@
 				"predictions": "Show channel points used",
 				"tips": "Show tipped amounts",
 				"tiktokLikes": "Show likes count",
-				"tiktokGifts": "Show gifts count"
+				"tiktokGifts": "Show diamonds amount received"
 			},
 			"manual_install_instructions": "Make sure you enable those option on OBS browser source: \"Shutdown source when not visible\" and \"Refresh browser when scene becomes active\"",
 			"param_showPuSkin": "Message effects",
