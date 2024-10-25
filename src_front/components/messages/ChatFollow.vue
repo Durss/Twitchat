@@ -9,7 +9,7 @@
 
 		<i18n-t scope="global" tag="span" keypath="chat.follow">
 			<template #USER>
-				<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
+				<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id, messageData.platform)">{{messageData.user.displayName}}</a>
 			</template>
 		</i18n-t>
 	</div>
