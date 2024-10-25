@@ -118,6 +118,24 @@ export const storeTiktok = defineStore('tiktok', {
 				try {
 					user = StoreProxy.users.getUserFrom("tiktok", json.data.tikfinityUserId.toString(), json.data.userId, json.data.uniqueId, json.data.nickname, undefined, json.data.followInfo?.followStatus === 1, false, json.data.isSubscriber);
 					user.avatarPath = json.data.profilePictureUrl || json.data.userDetails.profilePictureUrls[ json.data.userDetails.profilePictureUrls.length-1 ];
+					if(json.data.userBadges?.length > 0) {
+						user.channelInfo[json.data.tikfinityUserId.toString()].badges = json.data.userBadges
+						.filter(b=>b.url != undefined)
+						.map(b => {
+							return {
+								id:"subscriber",
+								icon:{ sd:b.url! },
+								title:b.name || "",
+							}
+						})
+						if(json.data.userBadges.find(b=>b.type == "pm_mt_moderator_im")) {
+							user.channelInfo[json.data.tikfinityUserId.toString()].badges.push({
+								icon:{sd:"mod"},
+								id:"moderator",
+							});
+							console.log("IS MOOOOOOODDD", user.displayName);
+						}
+					} 
 				}catch(error) {
 					console.log(error);
 					console.log(json);
@@ -408,7 +426,7 @@ interface TikTokSub {
 		nickname: string;
 		profilePictureUrl: string;
 		followRole: number;
-		userBadges: any[];
+		userBadges: TikTokUserBadge[];
 		userDetails: TikTokUserDetails;
 		followInfo: TikTokFollowInfos;
 		isModerator: boolean;
@@ -497,7 +515,7 @@ interface TikTokRoomStats {
 				uniqueId?: string;
 				nickname?: string;
 				profilePictureUrl?: string;
-				userBadges: any[];
+				userBadges: TikTokUserBadge[];
 				userSceneTypes: any[];
 				userDetails: TikTokUserDetails;
 				isModerator: boolean;
@@ -521,7 +539,7 @@ interface TikTokShare {
 		nickname: string;
 		profilePictureUrl: string;
 		followRole: number;
-		userBadges: any[];
+		userBadges: TikTokUserBadge[];
 		userSceneTypes: any[];
 		userDetails: TikTokUserDetails;
 		followInfo: TikTokFollowInfos;
