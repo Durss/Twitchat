@@ -458,6 +458,8 @@ export const storeStream = defineStore('stream', {
 		async getSummary(offset:number = 0, includeParams:boolean = false, simulate:boolean = false):Promise<TwitchatDataTypes.StreamSummaryData> {
 			const channelId = StoreProxy.auth.twitch.user.id;
 			const isPremium = StoreProxy.auth.isPremium;
+			const uid2TikTokShare:{[uid:string]:TwitchatDataTypes.StreamSummaryData["tiktokShares"][number]} = {};
+			const uid2TikTokLikes:{[uid:string]:TwitchatDataTypes.StreamSummaryData["tiktokLikes"][number]} = {};
 			let prevDate = 0;
 			const $tm = StoreProxy.i18n.tm;
 			const result:TwitchatDataTypes.StreamSummaryData = {
@@ -482,7 +484,7 @@ export const storeStream = defineStore('stream', {
 				superStickers:[],
 				tiktokGifts:[],
 				tiktokLikes:[],
-				tiktokSubShares:[],
+				tiktokShares:[],
 				labels:{
 					no_entry:$tm("overlay.credits.empty_slot"),
 					train:$tm("train.ending_credits"),
@@ -956,12 +958,22 @@ export const storeStream = defineStore('stream', {
 					}
 
 					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE: {
-						result.tiktokLikes.push( {uid:m.user.id, login:m.user.displayNameOriginal, count: m.count} );
+						let like = uid2TikTokLikes[m.user.id] || {uid:m.user.id, login:m.user.displayNameOriginal, count: 0};
+						uid2TikTokLikes[m.user.id] = like;
+						if(like.count == 0) {
+							result.tiktokLikes.push( like );
+						}
+						like.count += m.count;
 						break;
 					}
 
 					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE: {
-						result.tiktokSubShares.push( {uid:m.user.id, login:m.user.displayNameOriginal, count: 1} );
+						let share = uid2TikTokShare[m.user.id] || {uid:m.user.id, login:m.user.displayNameOriginal, count: 0};
+						uid2TikTokShare[m.user.id] = share;
+						if(share.count == 0) {
+							result.tiktokShares.push( share );
+						}
+						share.count ++;
 						break;
 					}
 				}

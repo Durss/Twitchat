@@ -153,7 +153,11 @@
 									<ParamItem :paramData="param_showPuCeleb[element.id]"				v-model="element.showPuCeleb" disabled v-tooltip="$t('overlay.credits.param_pu_celeb_tt')" />
 								</template>
 
-								<template v-if="element.slotType == 'ytSuperSticker' || element.slotType == 'ytSuperchat' || element.slotType == 'tiktokGifts'">
+								<template v-if="element.slotType == 'ytSuperSticker'
+								|| element.slotType == 'ytSuperchat'
+								|| element.slotType == 'tiktokGifts'
+								|| element.slotType == 'tiktokShares'
+								|| element.slotType == 'tiktokLikes'">
 									<ParamItem :paramData="param_sortByAmounts[element.id]"	v-model="element.sortByAmounts" />
 									<ParamItem :paramData="param_sortByName[element.id]"	v-model="element.sortByNames" />
 								</template>
@@ -667,7 +671,7 @@ class OverlayParamsCredits extends Vue {
 			this.param_showTipsPatreon[id]			= {type:'boolean', value:entry.showTipsPatreon, icon:"patreon", labelKey:'overlay.credits.param_tip_patreon', premiumOnly:true};
 			this.param_showTipsStreamlabs[id]		= {type:'boolean', value:entry.showTipsStreamlabs, icon:"streamlabs", labelKey:'overlay.credits.param_tip_streamlabs', premiumOnly:true};
 			this.param_showTipsStreamelements[id]	= {type:'boolean', value:entry.showTipsStreamelements, icon:"streamelements", labelKey:'overlay.credits.param_tip_streamelements', premiumOnly:true};
-			this.param_sortByAmounts[id]			= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:"overlay.credits.param_sortByTipAmounts", premiumOnly:true};
+			this.param_sortByAmounts[id]			= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:"overlay.credits.param_sortByTipAmount", premiumOnly:true};
 			this.param_showSubsKofi[id]				= {type:'boolean', value:entry.showSubsKofi===true, icon:"kofi", labelKey:'overlay.credits.param_showSubsKofi', premiumOnly:true};
 		}else
 
@@ -689,11 +693,22 @@ class OverlayParamsCredits extends Vue {
 			this.param_sortByAmounts[id]		= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:"overlay.credits.param_sortByPuCount", premiumOnly:true};
 		}else
 
-		if(slotDef.id == "ytSuperSticker" || slotDef.id == "ytSuperchat" || slotDef.id == "tiktokGifts") {
+		if(slotDef.id == "ytSuperSticker"
+		|| slotDef.id == "ytSuperchat"
+		|| slotDef.id == "tiktokGifts"
+		|| slotDef.id == "tiktokLikes"
+		|| slotDef.id == "tiktokShares") {
 			if(entry.sortByNames == undefined || !this.isPremium)	entry.sortByNames = false;
 			if(entry.sortByAmounts == undefined || !this.isPremium)	entry.sortByAmounts = false;
 			this.param_sortByName[id]	= {type:"boolean", value:entry.sortByNames, icon:"filters", labelKey:"overlay.credits.param_sortByNames", premiumOnly:true};
-			this.param_sortByAmounts[id]= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:slotDef.id == "tiktokGifts"? "overlay.credits.param_sortByGiftAmount" : "overlay.credits.param_sortByTipAmounts", premiumOnly:true};
+			const labelKey = {
+				"tiktokGifts": "param_sortByGiftAmount", 
+				"tiktokLikes": "param_sortByLikeCount", 
+				"tiktokShares": "param_sortByShareCount", 
+				"ytSuperSticker": "param_sortByTipAmount", 
+				"ytSuperchat": "param_sortByTipAmouns"
+			}[slotDef.id];
+			this.param_sortByAmounts[id]= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:"overlay.credits."+labelKey, premiumOnly:true};
 		}
 
 		if(slotDef.canMerge) {

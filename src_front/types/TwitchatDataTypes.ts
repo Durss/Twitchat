@@ -1854,7 +1854,7 @@ export namespace TwitchatDataTypes {
 		superStickers:{uid:string, login:string, amount:number, currency:string, stickerUrl:string}[];
 		tiktokGifts:{uid:string, login:string, count:number, amount:number, imageUrl:string}[];
 		tiktokLikes:{uid:string, login:string, count:number}[];
-		tiktokSubShares:{uid:string, login:string, count:number}[];
+		tiktokShares:{uid:string, login:string, count:number}[];
 		labels:{
 			no_entry:string;
 			train:string;
@@ -1995,8 +1995,8 @@ export namespace TwitchatDataTypes {
 		{id:"raids",		premium:false,	hasAmount:true,		canMerge:true,		icon:"raid",			label:"overlay.credits.categories.raids",			defaultLabel:"overlay.credits.labels.raids",			amountLabel:"overlay.credits.amounts.raids"},
 		{id:"chatters",		premium:false,	hasAmount:true,		canMerge:false,		icon:"user",			label:"overlay.credits.categories.chatters",		defaultLabel:"overlay.credits.labels.chatters", 		amountLabel:"overlay.credits.amounts.chatters"},
 		{id:"powerups",		premium:false,	hasAmount:false,	canMerge:true,		icon:"watchStreak",		label:"overlay.credits.categories.powerups",		defaultLabel:"overlay.credits.labels.powerups",			newFlag: Config.instance.NEW_FLAGS_DATE_V13},
-		{id:"tiktokLikes",	premium:false,	hasAmount:true,		canMerge:true,		icon:"tiktok",			label:"overlay.credits.categories.tiktokLikes",		defaultLabel:"overlay.credits.labels.tiktokLikes",		amountLabel:"overlay.credits.amounts.tiktokLikes",	newFlag: Config.instance.NEW_FLAGS_DATE_V15},
-		{id:"tiktokShares",	premium:false,	hasAmount:false,	canMerge:true,		icon:"tiktok",			label:"overlay.credits.categories.tiktokShares",	defaultLabel:"overlay.credits.labels.tiktokShares",		newFlag: Config.instance.NEW_FLAGS_DATE_V15},
+		{id:"tiktokLikes",	premium:false,	hasAmount:true,		canMerge:false,		icon:"tiktok",			label:"overlay.credits.categories.tiktokLikes",		defaultLabel:"overlay.credits.labels.tiktokLikes",		amountLabel:"overlay.credits.amounts.tiktokLikes",	newFlag: Config.instance.NEW_FLAGS_DATE_V15},
+		{id:"tiktokShares",	premium:false,	hasAmount:true,		canMerge:false,		icon:"tiktok",			label:"overlay.credits.categories.tiktokShares",	defaultLabel:"overlay.credits.labels.tiktokShares",		amountLabel:"overlay.credits.amounts.tiktokShares",	newFlag: Config.instance.NEW_FLAGS_DATE_V15},
 		{id:"tiktokGifts",	premium:false,	hasAmount:true,		canMerge:true,		icon:"tiktok",			label:"overlay.credits.categories.tiktokGifts",		defaultLabel:"overlay.credits.labels.tiktokGifts",		amountLabel:"overlay.credits.amounts.tiktokGifts",	newFlag: Config.instance.NEW_FLAGS_DATE_V15},
 		// {id:"hypechats",	premium:true,	hasAmount:true,		canMerge:true,		icon:"hypeChat",		label:"overlay.credits.categories.hypechats",		defaultLabel:"overlay.credits.labels.hypechats",		amountLabel:"overlay.credits.amounts.hypechats"},
 		{id:"hypetrains",	premium:true,	hasAmount:false,	canMerge:false,		icon:"train",			label:"overlay.credits.categories.hypetrains",		defaultLabel:"overlay.credits.labels.hypetrains"},

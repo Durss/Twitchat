@@ -50,6 +50,16 @@
 						</div>
 					</div>
 
+					<div v-if="item.params.slotType == 'tiktokLikes'" v-for="entry in getSortedTikTokLikes(item.params).splice(0, item.params.maxEntries)" class="item">
+						<span class="info">{{entry.login}}</span>
+						<span class="count" v-if="item.params.showAmounts === true"><Icon name="follow" class="userIcon" />{{ entry.count }}</span>
+					</div>
+
+					<div v-if="item.params.slotType == 'tiktokShares'" v-for="entry in getSortedTikTokShares(item.params).splice(0, item.params.maxEntries)" class="item">
+						<span class="info">{{entry.login}}</span>
+						<span class="count" v-if="item.params.showAmounts === true"><Icon name="share" class="userIcon" />{{ entry.count }}</span>
+					</div>
+
 					<div v-if="item.params.slotType == 'subs'" v-for="entry in getSortedSubs(item.params).splice(0, item.params.maxEntries)" class="item">
 						<Icon class="badge" v-if="item.params.showBadges && entry.value.fromActiveSubs !== true" :name="entry.type == 'subgift'? 'gift' : 'sub'" />
 						<span class="info">{{entry.value.login}}</span>
@@ -422,6 +432,44 @@ class OverlayEndingCredits extends AbstractOverlay {
 		});
 	}
 
+	public getSortedTikTokLikes<T>(params:TwitchatDataTypes.EndingCreditsSlotParams):TwitchatDataTypes.StreamSummaryData["tiktokLikes"][number][] {
+		return this.data!.tiktokLikes.concat().sort((a, b)=> {
+			let scoreA = 0;
+			let scoreB = 0;
+
+			if(params.sortByAmounts) {
+				if(a.count > b.count) scoreA += 2;
+				if(a.count < b.count) scoreB += 2;
+			}
+
+			if(params.sortByNames) {
+				if(a.login.toLowerCase() > b.login.toLowerCase()) scoreB ++;
+				if(a.login.toLowerCase() < b.login.toLowerCase()) scoreA ++;
+			}
+
+			return scoreB - scoreA;
+		});
+	}
+
+	public getSortedTikTokShares<T>(params:TwitchatDataTypes.EndingCreditsSlotParams):TwitchatDataTypes.StreamSummaryData["tiktokShares"][number][] {
+		return this.data!.tiktokShares.concat().sort((a, b)=> {
+			let scoreA = 0;
+			let scoreB = 0;
+
+			if(params.sortByAmounts) {
+				if(a.count > b.count) scoreA += 2;
+				if(a.count < b.count) scoreB += 2;
+			}
+
+			if(params.sortByNames) {
+				if(a.login.toLowerCase() > b.login.toLowerCase()) scoreB ++;
+				if(a.login.toLowerCase() < b.login.toLowerCase()) scoreA ++;
+			}
+
+			return scoreB - scoreA;
+		});
+	}
+
 	public getSortedPowerups(params:TwitchatDataTypes.EndingCreditsSlotParams):(TwitchatDataTypes.StreamSummaryData["powerups"][number] & {emoteUrlList?:string[], count?:number})[] {
 		let anims:(TwitchatDataTypes.StreamSummaryData["powerups"][number] & {count:number})[] = [];
 		let emotes:(TwitchatDataTypes.StreamSummaryData["powerups"][number] & {emoteUrlList:string[]})[] = [];
@@ -572,10 +620,10 @@ class OverlayEndingCredits extends AbstractOverlay {
 		if(this.entryCountCache[item.id] != undefined) return this.entryCountCache[item.id];
 		let count = 0;
 		switch(item.slotType) {
-			case "hypechats": count =  this.makeUnique(item, (this.data?.hypeChats || [])).length; break;
+			case "hypechats": count = this.makeUnique(item, (this.data?.hypeChats || [])).length; break;
 			case "subs": count = this.getSortedSubs(item).length; break;
 			case "cheers": count = this.getCheers(item).length; break;
-			case "raids": count =  this.makeUnique(item, (this.data?.raids || [])).length; break;
+			case "raids": count = this.makeUnique(item, (this.data?.raids || [])).length; break;
 			case "follows": count = (this.data?.follows || []).length; break;
 			case "hypetrains": count = (this.data?.hypeTrains || []).length; break;
 			case "so_in": count = (this.data?.shoutouts || []).filter(v=>v.received === true).length; break;
@@ -593,9 +641,11 @@ class OverlayEndingCredits extends AbstractOverlay {
 			case "merch": count = this.getMerch(item).length; break;
 			case "powerups": count = this.getSortedPowerups(item).length; break;
 			case "shoutouts": count = (this.data?.shoutouts || []).length; break;
-			case "ytSuperchat": count =  this.getSortedSuperMessages(item).length; break;
-			case "ytSuperSticker": count =  this.getSortedSuperMessages(item).length; break;
-			case "tiktokGifts": count =  this.getSortedTikTokGift(item).length; break;
+			case "ytSuperchat": count = this.getSortedSuperMessages(item).length; break;
+			case "ytSuperSticker": count = this.getSortedSuperMessages(item).length; break;
+			case "tiktokGifts": count = this.getSortedTikTokGift(item).length; break;
+			case "tiktokLikes": count = (this.data?.tiktokLikes || []).length; break;
+			case "tiktokShares": count = (this.data?.tiktokShares || []).length; break;
 		}
 		count = Math.min(count, item.maxEntries);
 		this.entryCountCache[item.id] = count;
@@ -734,6 +784,24 @@ class OverlayEndingCredits extends AbstractOverlay {
 				type keyTypeNumber = KeysMatching<TwitchatDataTypes.StreamSummaryData["tips"][0], number>;
 				let key:keyType = "login";
 				let val:keyTypeNumber = "amount";
+				mergeKey = key as keyof T;
+				valueKey = val as keyof T;
+				break;
+			}
+			case "tiktokLikes": {
+				type keyType = keyof TwitchatDataTypes.StreamSummaryData["tiktokLikes"][0];
+				type keyTypeNumber = KeysMatching<TwitchatDataTypes.StreamSummaryData["tiktokLikes"][0], number>;
+				let key:keyType = "login";
+				let val:keyTypeNumber = "count";
+				mergeKey = key as keyof T;
+				valueKey = val as keyof T;
+				break;
+			}
+			case "tiktokShares": {
+				type keyType = keyof TwitchatDataTypes.StreamSummaryData["tiktokShares"][0];
+				type keyTypeNumber = KeysMatching<TwitchatDataTypes.StreamSummaryData["tiktokShares"][0], number>;
+				let key:keyType = "login";
+				let val:keyTypeNumber = "count";
 				mergeKey = key as keyof T;
 				valueKey = val as keyof T;
 				break;

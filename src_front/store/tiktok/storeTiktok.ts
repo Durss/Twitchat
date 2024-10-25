@@ -148,6 +148,35 @@ export const storeTiktok = defineStore('tiktok', {
 					//parses emotes.
 					//But it might also make sens to just parse the message then push the emotes at the end, so far
 					//I haven't observed a message with emotes in the middle of a message
+					//Example message, the result should be:
+					// 🖼️‼️🖼️‼️🖼️‼️🖼️‼️
+					/*
+{
+	"emotes": [
+		{
+		"emoteId": "7349208530156604202",
+		"emoteImageUrl": "https://p16-webcast.tiktokcdn-us.com/webcast-oci-tx/sub_7cb85750f4599563d6bc0662b4e8215017a767c7f409ca8588a546e29442d3da~tplv-eppxg646nu-webp.webp",
+		"placeInComment": 0
+		},
+		{
+		"emoteId": "7349208530156604202",
+		"emoteImageUrl": "https://p19-webcast.tiktokcdn-us.com/webcast-oci-tx/sub_7cb85750f4599563d6bc0662b4e8215017a767c7f409ca8588a546e29442d3da~tplv-eppxg646nu-webp.webp",
+		"placeInComment": 2
+		},
+		{
+		"emoteId": "7349208530156604202",
+		"emoteImageUrl": "https://p19-webcast.tiktokcdn-us.com/webcast-oci-tx/sub_7cb85750f4599563d6bc0662b4e8215017a767c7f409ca8588a546e29442d3da~tplv-eppxg646nu-webp.webp",
+		"placeInComment": 4
+		},
+		{
+		"emoteId": "7349208530156604202",
+		"emoteImageUrl": "https://p19-webcast.tiktokcdn-us.com/webcast-oci-tx/sub_7cb85750f4599563d6bc0662b4e8215017a767c7f409ca8588a546e29442d3da~tplv-eppxg646nu-webp.webp",
+		"placeInComment": 6
+		}
+	],
+	"comment": "‼️‼️‼️‼️"
+}
+*/
 					let messageChunks:TwitchatDataTypes.ParseMessageChunk[] = [];//TwitchUtils.parseMessageToChunks(messageStr, [], false, "tiktok", true);
 					
 					// const parsedEmotes = TwitchUtils.parsedEmoteDataToRawEmoteData(json.data.emotes.map(e=>{
