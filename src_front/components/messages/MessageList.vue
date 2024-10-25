@@ -577,6 +577,7 @@ class MessageList extends Vue {
 				return this.config.filters.message === true && this.config.messageFilters.viewers === true;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB:
 			case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION:
 			case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBGIFT:
 			case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
@@ -756,6 +757,18 @@ class MessageList extends Vue {
 
 			case TwitchatDataTypes.TwitchatMessageType.HATE_RAID: {
 				return true;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT: {
+				return this.config.filters.tiktok_gift !== false;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE: {
+				return this.config.filters.tiktok_like !== false;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE: {
+				return this.config.filters.tiktok_share !== false;
 			}
 
 			default: return false;

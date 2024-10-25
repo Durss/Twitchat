@@ -1014,31 +1014,6 @@ type ApiEndpoints =  {
 			}
 		}
 	};
-	"t4p": {
-		GET: {
-			parameters: void;
-			response:{
-				data?:{
-					raisedAmount: number
-					goalAmount: number
-					percentage: number
-					campaignName: string
-					campaignNameFr: string
-					url: string
-					completed: boolean
-					raisedCurrency: string
-					goalCurrency: string
-					code: string
-					qrCodeUrl: string
-					totalCampaigns: number
-					completedCampaigns: number
-				};
-				success:boolean;
-				error?:string;
-				errorCode?:string;
-			}
-		}
-	};
 	"log": {
 		POST: {
 			parameters: {

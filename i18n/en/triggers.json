@@ -596,7 +596,8 @@
 			"tipeee": "Tipeee",
 			"youtube": "YouTube",
 			"tiltify": "Titlitfy",
-			"patreon": "Patreon"
+			"patreon": "Patreon",
+			"tiktok": "TikTok"
 		},
 		"placeholders": {
 			"trigger_name": "Current trigger name",
@@ -850,7 +851,12 @@
 			"youtube_sub_months":"Membership duration in months",
 			"ws_topic":"Websocket topic",
 			"ws_message":"All message data",
-			"platform":"Platform that started the trigger\n(twitch, youtube, ...)"
+			"platform":"Platform that started the trigger\n(twitch, youtube, ...)",
+			"tiktok_gift_count":"Number of gifts",
+			"tiktok_like_count":"Number of likes",
+			"tiktok_like_total":"Total likes received during current stream",
+			"tiktok_diamonds":"Diamonds received",
+			"tiktok_sub_month":"Sub months"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1432,6 +1438,22 @@
 			"PATREON_NEW_MEMBER": {
 				"label": "New member on Patreon",
 				"description": "Actions to execute when a new member subscribes on Patreon"
+			},
+			"TIKTOK_SUB": {
+				"label":"TikTok subscriber",
+				"description":"A member subscribed on TikTok"
+			},
+			"TIKTOK_GIFT": {
+				"label":"TikTok gift",
+				"description":"A viewer sent a gift on TikTok"
+			},
+			"TIKTOK_LIKE": {
+				"label":"Tiktok like",
+				"description":"A viewer sent a like on TikTok"
+			},
+			"TIKTOK_SHARE": {
+				"label":"Tiktok share",
+				"description":"A viewer shared your TikTok stream"
 			}
 		},
 		"musicEvents": {

@@ -122,7 +122,10 @@
 				"kofi": "Ko-fi alerts",
 				"tipeee": "Tipeee alerts",
 				"tiltify": "Tiltify alerts",
-				"patreon": "Patreon alerts"
+				"patreon": "Patreon alerts",
+				"tiktok_like": "Tiktok likes",
+				"tiktok_gift": "Tiktok gifts",
+				"tiktok_share": "Tiktok sharse"
 			},
 			"message_filters": {
 				"viewers": "Sent by viewers",
@@ -536,6 +539,18 @@
 		},
 		"youtube_subgift":{
 			"title": "{USER} offered {COUNT} memberships at tier {TIER} to {LIST}"
+		},
+		"tiktok_sub":{
+			"new": "{USER} subscribed"
+		},
+		"tiktok_like":{
+			"new": "{USER} liked {COUNT} times"
+		},
+		"tiktok_gift":{
+			"new": "{USER} sent x{COUNT} {IMAGE}"
+		},
+		"tiktok_share":{
+			"new": "{USER} shared the stream"
 		}
 	}
 }

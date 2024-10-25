@@ -439,9 +439,6 @@ interface Credentials {
 	tipeee_client_secret:string;
 	tipeee_redirect_uri:string;
 
-	//TODO remove this when T4P ends
-	t4p_api_path:string;
-
 	tiltify_client_id:string;
 	tiltify_client_secret:string;
 	tiltify_webhook_verify:string;

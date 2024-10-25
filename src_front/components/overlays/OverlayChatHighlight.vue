@@ -8,6 +8,7 @@
 				<div class="login" id="highlight_login" v-if="user">
 					<Icon name="youtube" v-if="user && user.platform == 'youtube'" theme="alert"/>
 					<Icon name="twitch" v-if="user && user.platform == 'twitch'" theme="twitch"/>
+					<Icon name="tiktok" v-if="user && user.platform == 'tiktok'" style="color:#000000"/>
 					<Icon name="kick" v-if="user && user.platform == 'kick'" style="color:#50f918"/>
 					<Icon name="instagram" v-if="user && user.platform == 'instagram'" style="color:#d34a65"/>
 					<span>{{user.displayNameOriginal ?? user.displayName}}</span>

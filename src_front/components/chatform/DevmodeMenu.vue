@@ -55,6 +55,11 @@
 			<Button small @click="simulateEvent($event, 'super_sticker')" icon="youtube">Youtube Super sticker</Button>
 			<Button small @click="simulateEvent($event, 'youtube_subscription')" icon="youtube">Youtube Sub</Button>
 			<Button small @click="simulateEvent($event, 'youtube_subgift')" icon="youtube">Youtube Subgift</Button>
+			<Button small @click="simulateEvent($event, 'message', 'tiktok')" icon="tiktok">TikTok message</Button>
+			<Button small @click="simulateEvent($event, 'tiktok_sub')" icon="tiktok">TikTok Sub</Button>
+			<Button small @click="simulateEvent($event, 'tiktok_gift')" icon="tiktok">TikTok Gift</Button>
+			<Button small @click="simulateEvent($event, 'tiktok_like')" icon="tiktok">TikTok Like</Button>
+			<Button small @click="simulateEvent($event, 'tiktok_share')" icon="tiktok">TikTok Share</Button>
 			<Button small @click="simulateEvent($event, 'following')" icon="follow">Follow</Button>
 			<Button small @click="simulateEvent($event, 'reward')" icon="channelPoints">Reward redeem</Button>
 			<Button small @click="simulateEvent($event, 'community_challenge_contribution')" icon="channelPoints">Challenge contribution</Button>
@@ -333,15 +338,21 @@ class DevmodeMenu extends Vue {
 				case "youtube": {
 					if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 						message.platform = "youtube";
-						message.message = "!q coucou durssSLIP";
+						// message.message = "!q coucou durssSLIP";
 						
-						const chunks = TwitchUtils.parseMessageToChunks(message.message, undefined, true);
-						message.message_chunks = chunks;
-						message.message_html = TwitchUtils.messageChunksToHTML(chunks);
+						// const chunks = TwitchUtils.parseMessageToChunks(message.message, undefined, true);
+						// message.message_chunks = chunks;
+						// message.message_html = TwitchUtils.messageChunksToHTML(chunks);
 						message.youtube_liveId = "xxxx";
 					}else
 					if(message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING) {
 						message.platform = "youtube";
+					}
+				}
+
+				case "tiktok": {
+					if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+						message.platform = "tiktok";
 					}
 				}
 			}
@@ -721,6 +732,7 @@ type Subaction = "first"
 				| "my_stream_offline"
 				| "unban_request_solve"
 				| "youtube"
+				| "tiktok"
 				| "skin1"
 				| "skin2"
 				| "skin3"

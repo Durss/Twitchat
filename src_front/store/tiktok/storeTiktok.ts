@@ -63,7 +63,7 @@ export const storeTiktok = defineStore('tiktok', {
 						try {
 							reconnectTimeout = setTimeout(()=> {
 								this.connect();
-							}, 1000)
+							}, 10000)
 						}catch(error) {
 							console.log(error);
 							reject();
@@ -117,7 +117,7 @@ export const storeTiktok = defineStore('tiktok', {
 			) {
 				try {
 					user = StoreProxy.users.getUserFrom("tiktok", json.data.tikfinityUserId.toString(), json.data.userId, json.data.uniqueId, json.data.nickname, undefined, json.data.followInfo?.followStatus === 1, false, json.data.isSubscriber);
-					user.avatarPath = json.data.profilePictureUrl || json.data.userDetails.profilePictureUrls[ json.data.userDetails.profilePictureUrls.length-1 ];
+					user.avatarPath = json.data.profilePictureUrl || (json.data.userDetails.profilePictureUrls? json.data.userDetails.profilePictureUrls[ json.data.userDetails.profilePictureUrls.length-1 ] : "");
 					if(json.data.userBadges?.length > 0) {
 						user.channelInfo[json.data.tikfinityUserId.toString()].badges = json.data.userBadges
 						.filter(b=>b.url != undefined)
@@ -133,7 +133,6 @@ export const storeTiktok = defineStore('tiktok', {
 								icon:{sd:"mod"},
 								id:"moderator",
 							});
-							console.log("IS MOOOOOOODDD", user.displayName);
 						}
 					} 
 				}catch(error) {
@@ -147,6 +146,8 @@ export const storeTiktok = defineStore('tiktok', {
 					//TODO find a way to use TwitchUtils.parseMessageToChunks() so links and mentions are also parsed
 					//But so far it's super tricky as the way tiktok emotes work isn't compatible with how the method
 					//parses emotes.
+					//But it might also make sens to just parse the message then push the emotes at the end, so far
+					//I haven't observed a message with emotes in the middle of a message
 					let messageChunks:TwitchatDataTypes.ParseMessageChunk[] = [];//TwitchUtils.parseMessageToChunks(messageStr, [], false, "tiktok", true);
 					
 					// const parsedEmotes = TwitchUtils.parsedEmoteDataToRawEmoteData(json.data.emotes.map(e=>{
@@ -223,6 +224,8 @@ export const storeTiktok = defineStore('tiktok', {
 							type:TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT,
 							count:json.data.repeatCount,
 							image:json.data.giftPictureUrl,
+							diamonds:json.data.diamondCount * json.data.repeatCount,
+							raw_data:json.data,
 						}
 						StoreProxy.chat.addMessage(message);
 					}
@@ -237,6 +240,7 @@ export const storeTiktok = defineStore('tiktok', {
 						channel_id:json.data.tikfinityUserId.toString(),
 						user:user!,
 						type:TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB,
+						months:json.data.subMonth,
 					}
 					StoreProxy.chat.addMessage(message);
 					return;
@@ -265,7 +269,7 @@ export const storeTiktok = defineStore('tiktok', {
 						type:TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE,
 						user:user!,
 						count:json.data.likeCount,
-						streamLikes:json.data.totalLikeCount,
+						streamLikeCount:json.data.totalLikeCount,
 					};
 					StoreProxy.chat.addMessage(message);
 					return;
@@ -298,6 +302,7 @@ export const storeTiktok = defineStore('tiktok', {
 						title:"",
 						viewers:json.data.viewerCount,
 					}
+					StoreProxy.labels.updateLabelValue("TIKTOK_VIEWER_COUNT", json.data.viewerCount);
 					return;
 				}
 

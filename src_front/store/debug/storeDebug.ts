@@ -1701,6 +1701,66 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT: {
+					const count = Math.round(Math.random()*100);
+					const m:TwitchatDataTypes.MessageTikTokGiftData = {
+						date:Date.now(),
+						id:Utils.getUUID(),
+						platform:"youtube",
+						type,
+						channel_id:uid,
+						image:"https://p19-webcast.tiktokcdn.com/img/maliva/webcast-va/eba3a9bb85c33e017f3648eaf88d7189~tplv-obj.png",
+						user,
+						count,
+						diamonds:count,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE: {
+					const count = Math.round(Math.random()*20);
+					const m:TwitchatDataTypes.MessageTikTokLikeData = {
+						date:Date.now(),
+						id:Utils.getUUID(),
+						platform:"youtube",
+						type,
+						channel_id:uid,
+						user,
+						count,
+						streamLikeCount:Math.round(Math.random()*100000)+1234,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE: {
+					const m:TwitchatDataTypes.MessageTikTokShareData = {
+						date:Date.now(),
+						id:Utils.getUUID(),
+						platform:"youtube",
+						type,
+						channel_id:uid,
+						user,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB: {
+					const m:TwitchatDataTypes.MessageTikTokSubData = {
+						date:Date.now(),
+						id:Utils.getUUID(),
+						platform:"youtube",
+						type,
+						channel_id:uid,
+						user,
+						months:1,
+					};
+					data = m;
+					break;
+				}
+
 				default: {
 					let message = "The request message type \""+type+"\" is lacking implementation on storeDebug."
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);

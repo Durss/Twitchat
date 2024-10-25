@@ -521,7 +521,22 @@
 				"PATREON_USER": "Patreon - Pseudo",
 				"PATREON_TITLE": "Patreon - Titre de l'abonnement",
 				"PATREON_AMOUNT": "Patreon - Montant de l'abonnement",
-				"PATREON_AVATAR": "Patreon - Avatar"
+				"PATREON_AVATAR": "Patreon - Avatar",
+				
+				"TIKTOK_VIEWER_COUNT": "TikTok - Viewers",
+				"TIKTOK_LIKE_TOTAL": "TikTok Like - Likes total du stream",
+				"TIKTOK_LIKE_USER": "TikTok Like - Pseudo",
+				"TIKTOK_LIKE_AVATAR": "TikTok Like - Avatar",
+				"TIKTOK_LIKE_COUNT": "TikTok Like - Likes envoyés",
+				"TIKTOK_SUB_USER": "TikTok Sub - Pseudo",
+				"TIKTOK_SUB_AVATAR": "TikTok Sub - Avatar",
+				"TIKTOK_SHARE_USER": "TikTok Share - Pseudo",
+				"TIKTOK_SHARE_AVATAR": "TikTok Share - Avatar",
+				"TIKTOK_GIFT_USER": "TikTok Cadeau - Pseudo",
+				"TIKTOK_GIFT_AVATAR": "TikTok Cadeau - Avatar",
+				"TIKTOK_GIFT_IMAGE": "TikTok Cadeau - Image",
+				"TIKTOK_GIFT_COUNT": "TikTok Cadeau - Nombre de cadeaux",
+				"TIKTOK_GIFT_DIAMONDS": "TikTok Cadeau - Dimants reçus"
 			}
 		}
 	}

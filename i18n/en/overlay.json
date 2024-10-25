@@ -493,7 +493,21 @@
 				"PATREON_USER": "Patreon - User name",
 				"PATREON_TITLE": "Patreon - Pledge title",
 				"PATREON_AMOUNT": "Patreon - Pledge amount",
-				"PATREON_AVATAR": "Patreon - User avatar"
+				"PATREON_AVATAR": "Patreon - User avatar",
+				"TIKTOK_VIEWER_COUNT": "TikTok - Viewers",
+				"TIKTOK_LIKE_TOTAL": "TikTok Like - Stream total",
+				"TIKTOK_LIKE_USER": "TikTok Like - User name",
+				"TIKTOK_LIKE_AVATAR": "TikTok Like - User avatar",
+				"TIKTOK_LIKE_COUNT": "TikTok Like - User like count",
+				"TIKTOK_SUB_USER": "TikTok Sub - User name",
+				"TIKTOK_SUB_AVATAR": "TikTok Sub - User avatar",
+				"TIKTOK_SHARE_USER": "TikTok Share - User name",
+				"TIKTOK_SHARE_AVATAR": "TikTok Share - User avatar",
+				"TIKTOK_GIFT_USER": "TikTok Gift - User name",
+				"TIKTOK_GIFT_AVATAR": "TikTok Gift - User avatar",
+				"TIKTOK_GIFT_IMAGE": "TikTok Gift - Gift image",
+				"TIKTOK_GIFT_COUNT": "TikTok Gift - Gift count",
+				"TIKTOK_GIFT_DIAMONDS": "TikTok Gift - Diamonds received"
 			}
 		}
 	}

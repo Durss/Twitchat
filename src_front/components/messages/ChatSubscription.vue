@@ -128,9 +128,11 @@ import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import MessageTranslation from './MessageTranslation.vue';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
+		Icon,
 		MessageTranslation,
 		ChatMessageChunksParser,
 	},

@@ -516,6 +516,42 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
+	
+		<ChatTikTokSub class="message"
+			v-else-if="messageData.type == 'tiktok_sub'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
+		/>
+	
+		<ChatTikTokGift class="message"
+			v-else-if="messageData.type == 'tiktok_gift'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
+		/>
+	
+		<ChatTikTokLike class="message"
+			v-else-if="messageData.type == 'tiktok_like'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
+		/>
+	
+	<ChatTikTokShare class="message"
+		v-else-if="messageData.type == 'tiktok_share'"
+		:messageData="messageData"
+		@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+		:colIndex="colIndex"
+		:lightMode="lightMode"
+		:childrenList="childrenList"
+	/>
 	</div>
 </template>
 
@@ -577,6 +613,10 @@ import ChatYoutubeSubscription from './ChatYoutubeSubscription.vue';
 import ChatYoutubeSubgift from './ChatYoutubeSubgift.vue';
 import ChatTiltifyEvent from './ChatTiltifyEvent.vue';
 import ChatPatreonEvent from './ChatPatreonEvent.vue';
+import ChatTikTokSub from './ChatTikTokSub.vue';
+import ChatTikTokGift from './ChatTikTokGift.vue';
+import ChatTikTokLike from './ChatTikTokLike.vue';
+import ChatTikTokShare from './ChatTikTokShare.vue';
 
 @Component({
 	components:{
@@ -595,6 +635,10 @@ import ChatPatreonEvent from './ChatPatreonEvent.vue';
 		ChatShoutout,
 		ChatHateRaid,
 		ChatKofiEvent,
+		ChatTikTokSub,
+		ChatTikTokGift,
+		ChatTikTokLike,
+		ChatTikTokShare,
 		ChatPinNotice,
 		ChatJoinLeave,
 		ChatTrackStart,

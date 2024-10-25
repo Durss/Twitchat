@@ -90,7 +90,7 @@
 				<div class="scrollable" v-show="!manageBadges && !manageUserNames">
 					<div class="infoList" v-if="isTwitchProfile">
 						<div :class="{info:true, recent:(Date.now() - (user.created_at_ms || 0)) < 14 * 24 * 60 * 60 * 10000}" v-tooltip="$t('usercard.creation_date_tt')+'\n'+createDate">
-							<Icon name="alert" alt="recent account" class="icon"/>
+							<Icon name="alert" alt="recent account" class="icon recent"/>
 							<Icon name="date" alt="account creation date" class="icon"/>
 							{{createDateElapsed}}
 						</div>
@@ -759,10 +759,27 @@ class UserCard extends AbstractSidePanel {
 	 */
 	private loadHistory(uid:string):void {
 		const messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
-		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = ["following", "message", "reward", "subscription", "shoutout", "whisper", "ban", "unban", "cheer", "user_watch_streak"]
+		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = [
+			"following", 
+			"message", 
+			"reward", 
+			"subscription", 
+			"shoutout", 
+			"whisper", 
+			"ban", 
+			"unban", 
+			"cheer", 
+			"user_watch_streak",
+			"youtube_subgift",
+			"youtube_subscription",
+			"tiktok_like",
+			"tiktok_gift",
+			"tiktok_sub",
+		]
 		for (let i = this.$store.chat.messages.length-1; i > 0; i--) {
 			const mess = this.$store.chat.messages[i];
 			if(!allowedTypes.includes(mess.type)) continue;
+
 			if(mess.type == "shoutout" && mess.user.id == uid) {
 				messageList.unshift(mess);
 			}else if(mess.type == "following" && mess.user.id == uid) {
@@ -778,6 +795,16 @@ class UserCard extends AbstractSidePanel {
 			}else if(mess.type == "reward" && mess.user.id == uid) {
 				messageList.unshift(mess);
 			}else if(mess.type == "user_watch_streak" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if(mess.type == "youtube_subgift" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if(mess.type == "youtube_subscription" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if(mess.type == "tiktok_like" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if(mess.type == "tiktok_gift" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if(mess.type == "tiktok_sub" && mess.user.id == uid) {
 				messageList.unshift(mess);
 			}
 			if (messageList.length > 100) break;//Limit message count for perf reasons
@@ -1019,6 +1046,11 @@ export default toNative(UserCard);
 					border-width: 0;
 					color: var(--color-light);
 					background-color: var(--color-secondary);
+				}
+				&:not(.recent) {
+					.icon.recent {
+						display: none;
+					}
 				}
 			}
 		}

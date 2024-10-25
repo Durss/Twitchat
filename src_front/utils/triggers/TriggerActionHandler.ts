@@ -81,8 +81,10 @@ export default class TriggerActionHandler {
 	 * @param testMode
 	 */
 	public async execute(message:TwitchatDataTypes.ChatMessageTypes, testMode = false, forcedTriggerId?:string):Promise<void> {
-		//Allow trigger exec only for our own chan
-		if(message.channel_id != StoreProxy.auth.twitch.user.id && message.channel_id != StoreProxy.auth.youtube.user?.id) return;
+		//Allow trigger exec only for our own chan or from tiktok
+		if(message.channel_id != StoreProxy.auth.twitch.user.id
+		&& message.channel_id != StoreProxy.auth.youtube.user?.id
+		&& message.platform != "tiktok") return;
 
 		//Check if it's a greetable message
 		if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
@@ -390,6 +392,7 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE:{
+				if(!message.info.user) return;
 				const event = message.info.user.id == StoreProxy.auth.twitch.user.id? TriggerTypes.STREAM_ONLINE : TriggerTypes.FOLLOWED_STREAM_ONLINE;
 				if(await this.executeTriggersByType(event, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
@@ -397,6 +400,7 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE:{
+				if(!message.info.user) return;
 				const event = message.info.user.id == StoreProxy.auth.twitch.user.id? TriggerTypes.STREAM_OFFLINE : TriggerTypes.FOLLOWED_STREAM_OFFLINE;
 				if(await this.executeTriggersByType(event, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
@@ -667,6 +671,30 @@ export default class TriggerActionHandler {
 					"new_member":TriggerTypes.PATREON_NEW_MEMBER,
 				} as const;
 				if(await this.executeTriggersByType(eventType[message.eventType], message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT:{
+				if(await this.executeTriggersByType(TriggerTypes.TIKTOK_GIFT, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB:{
+				if(await this.executeTriggersByType(TriggerTypes.TIKTOK_SUB, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE:{
+				if(await this.executeTriggersByType(TriggerTypes.TIKTOK_LIKE, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE:{
+				if(await this.executeTriggersByType(TriggerTypes.TIKTOK_SHARE, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
 				}break;
 			}

@@ -1773,7 +1773,7 @@ export const storeChat = defineStore('chat', {
 				case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT: {
 					StoreProxy.labels.updateLabelValue("SUPER_CHAT_ID", message.user.id);
 					StoreProxy.labels.updateLabelValue("SUPER_CHAT_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("SUPER_CHAT_AVATAR", message.user.avatarPath || "", message.user.id);
+					StoreProxy.labels.updateLabelValue("SUPER_CHAT_AVATAR", message.user.avatarPath || "");
 					StoreProxy.labels.updateLabelValue("SUPER_CHAT_AMOUNT", message.amountDisplay);
 					break;
 				}
@@ -1782,9 +1782,42 @@ export const storeChat = defineStore('chat', {
 				case TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER: {
 					StoreProxy.labels.updateLabelValue("SUPER_STICKER_ID", message.user.id);
 					StoreProxy.labels.updateLabelValue("SUPER_STICKER_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("SUPER_STICKER_AVATAR", message.user.avatarPath || "", message.user.id);
+					StoreProxy.labels.updateLabelValue("SUPER_STICKER_AVATAR", message.user.avatarPath || "");
 					StoreProxy.labels.updateLabelValue("SUPER_STICKER_AMOUNT", message.amountDisplay);
 					StoreProxy.labels.updateLabelValue("SUPER_STICKER_IMAGE", message.sticker_url);
+					break;
+				}
+
+				//TikTok gift
+				case TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT: {
+					StoreProxy.labels.updateLabelValue("TIKTOK_GIFT_USER", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("TIKTOK_GIFT_AVATAR", message.user.avatarPath || "");
+					StoreProxy.labels.updateLabelValue("TIKTOK_GIFT_IMAGE", message.image);
+					StoreProxy.labels.updateLabelValue("TIKTOK_GIFT_COUNT", message.count);
+					StoreProxy.labels.updateLabelValue("TIKTOK_GIFT_DIAMONDS", message.diamonds);
+					break;
+				}
+
+				//TikTok sub
+				case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB: {
+					StoreProxy.labels.updateLabelValue("TIKTOK_SUB_USER", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("TIKTOK_SUB_AVATAR", message.user.avatarPath || "");
+					break;
+				}
+
+				//TikTok Share
+				case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE: {
+					StoreProxy.labels.updateLabelValue("TIKTOK_SHARE_USER", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("TIKTOK_SHARE_AVATAR", message.user.avatarPath || "");
+					break;
+				}
+
+				//TikTok like
+				case TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE: {
+					StoreProxy.labels.updateLabelValue("TIKTOK_LIKE_USER", message.user.displayNameOriginal);
+					StoreProxy.labels.updateLabelValue("TIKTOK_LIKE_AVATAR", message.user.avatarPath || "");
+					StoreProxy.labels.updateLabelValue("TIKTOK_LIKE_TOTAL", message.streamLikeCount);
+					StoreProxy.labels.updateLabelValue("TIKTOK_LIKE_COUNT", message.count);
 					break;
 				}
 			}
@@ -1821,17 +1854,6 @@ export const storeChat = defineStore('chat', {
 				
 				//Handle bingo grid commands
 				sBingoGrid.handleChatCommand(typedMessage, cmd);
-
-				//TODO remove this once T4P ends
-				const elapsed = Date.now() - StoreProxy.main.t4pLastDate;
-				if(elapsed > 60000 && StoreProxy.main.t4p && cmd == StoreProxy.main.t4p) {
-					ApiHelper.call("t4p", "GET").then(result => {
-						if(result.status == 200 && result.json.data) {
-							const name = StoreProxy.i18n.locale == "fr"? result.json.data.campaignNameFr : result.json.data.campaignName
-							MessengerProxy.instance.sendMessage(name+": "+result.json.data.url);
-						}
-					})
-				}
 			}
 
 			if(logTimings) console.log("3", message.id, Date.now() - s);

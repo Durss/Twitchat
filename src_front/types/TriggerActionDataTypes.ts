@@ -286,6 +286,7 @@ export const TriggerEventTypeCategories = {
 	TILTIFY:		{id:18, labelKey:"triggers.categories.tiltify", icons:["tiltify"]} as TriggerEventTypeCategory,
 	PATREON:		{id:19, labelKey:"triggers.categories.patreon", icons:["patreon"]} as TriggerEventTypeCategory,
 	YOUTUBE:		{id:20, labelKey:"triggers.categories.youtube", icons:["youtube"]} as TriggerEventTypeCategory,
+	TIKTOK:			{id:21, labelKey:"triggers.categories.tiktok", icons:["tiktok"]} as TriggerEventTypeCategory,
 };
 export type TriggerEventTypeCategoryID = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories]['id'];
 
@@ -1293,6 +1294,10 @@ export const TriggerTypes = {
 	TWITCHAT_STARTED:"137",
 	PATREON_NEW_MEMBER:"138",
 	KOFI_COMMISSION:"139",
+	TIKTOK_SUB:"140",
+	TIKTOK_GIFT:"141",
+	TIKTOK_LIKE:"142",
+	TIKTOK_SHARE:"143",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -2071,6 +2076,39 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"TIER_TITLE", descKey:'triggers.placeholders.user_url', pointer:"tier.title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessagePatreonData>,
 	];
 
+	map[TriggerTypes.TIKTOK_GIFT] = [
+		{tag:USER_NAME, descKey:'triggers.placeholders.user', pointer:"user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
+		{tag:USER_DISPLAY_NAME, descKey:'triggers.placeholders.user_customName', pointer:"user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
+		{tag:USER_ID, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
+		{tag:USER_AVATAR, descKey:'triggers.placeholders.user_avatar', pointer:"user.avatarPath", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
+		{tag:"GIFT_COUNT", descKey:'triggers.placeholders.tiktok_gift_count', pointer:"count", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
+		{tag:"DIAMONDS", descKey:'triggers.placeholders.tiktok_diamonds', pointer:"diamonds", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
+	];
+
+	map[TriggerTypes.TIKTOK_SUB] = [
+		{tag:USER_NAME, descKey:'triggers.placeholders.user', pointer:"user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokSubData>,
+		{tag:USER_DISPLAY_NAME, descKey:'triggers.placeholders.user_customName', pointer:"user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokSubData>,
+		{tag:USER_ID, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokSubData>,
+		{tag:USER_AVATAR, descKey:'triggers.placeholders.user_avatar', pointer:"user.avatarPath", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokSubData>,
+		{tag:"MONTH", descKey:'triggers.placeholders.tiktok_sub_month', pointer:"months", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokSubData>,
+	];
+
+	map[TriggerTypes.TIKTOK_LIKE] = [
+		{tag:USER_NAME, descKey:'triggers.placeholders.user', pointer:"user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokLikeData>,
+		{tag:USER_DISPLAY_NAME, descKey:'triggers.placeholders.user_customName', pointer:"user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokLikeData>,
+		{tag:USER_ID, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokLikeData>,
+		{tag:USER_AVATAR, descKey:'triggers.placeholders.user_avatar', pointer:"user.avatarPath", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokLikeData>,
+		{tag:"LIKE_COUNT", descKey:'triggers.placeholders.tiktok_like_count', pointer:"count", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokLikeData>,
+		{tag:"STREAM_LIKE_COUNT", descKey:'triggers.placeholders.tiktok_like_total', pointer:"count", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokLikeData>,
+	];
+
+	map[TriggerTypes.TIKTOK_SHARE] = [
+		{tag:USER_NAME, descKey:'triggers.placeholders.user', pointer:"user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokShareData>,
+		{tag:USER_DISPLAY_NAME, descKey:'triggers.placeholders.user_customName', pointer:"user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokShareData>,
+		{tag:USER_ID, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokShareData>,
+		{tag:USER_AVATAR, descKey:'triggers.placeholders.user_avatar', pointer:"user.avatarPath", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokShareData>,
+	];
+
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder<any>[] = [];
 	for (let i = 0; i < counters.length; i++) {
@@ -2276,6 +2314,11 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13, premium:true, category:TriggerEventTypeCategories.YOUTUBE, icon:"youtube", labelKey:"triggers.events.YOUTUBE_SUPER_STICKER.label", value:TriggerTypes.YOUTUBE_SUPER_STICKER, descriptionKey:"triggers.events.YOUTUBE_SUPER_STICKER.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13, premium:true, category:TriggerEventTypeCategories.YOUTUBE, icon:"youtube", labelKey:"triggers.events.YOUTUBE_SUBSCRIPTION.label", value:TriggerTypes.YOUTUBE_SUBSCRIPTION, descriptionKey:"triggers.events.YOUTUBE_SUBSCRIPTION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13, premium:true, category:TriggerEventTypeCategories.YOUTUBE, icon:"youtube", labelKey:"triggers.events.YOUTUBE_SUBGIFT.label", value:TriggerTypes.YOUTUBE_SUBGIFT, descriptionKey:"triggers.events.YOUTUBE_SUBGIFT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBGIFT},
+		
+		{newDate:Config.instance.NEW_FLAGS_DATE_V15, category:TriggerEventTypeCategories.TIKTOK, icon:"tiktok", labelKey:"triggers.events.TIKTOK_SUB.label", value:TriggerTypes.TIKTOK_SUB, descriptionKey:"triggers.events.TIKTOK_SUB.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V15, category:TriggerEventTypeCategories.TIKTOK, icon:"tiktok", labelKey:"triggers.events.TIKTOK_GIFT.label", value:TriggerTypes.TIKTOK_GIFT, descriptionKey:"triggers.events.TIKTOK_GIFT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V15, category:TriggerEventTypeCategories.TIKTOK, icon:"tiktok", labelKey:"triggers.events.TIKTOK_LIKE.label", value:TriggerTypes.TIKTOK_LIKE, descriptionKey:"triggers.events.TIKTOK_LIKE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V15, category:TriggerEventTypeCategories.TIKTOK, icon:"tiktok", labelKey:"triggers.events.TIKTOK_SHARE.label", value:TriggerTypes.TIKTOK_SHARE, descriptionKey:"triggers.events.TIKTOK_SHARE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE},
 
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, category:TriggerEventTypeCategories.GAMES, icon:"poll", labelKey:"triggers.events.POLL_START.label", value:TriggerTypes.POLL_START, descriptionKey:"triggers.events.POLL_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.POLL},
 		{category:TriggerEventTypeCategories.GAMES, icon:"poll", labelKey:"triggers.events.POLL_RESULT.label", value:TriggerTypes.POLL_RESULT, descriptionKey:"triggers.events.POLL_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.POLL},

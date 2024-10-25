@@ -184,4 +184,22 @@ export const LabelItemPlaceholderList = [
 	{tag:"MUSIC_ARTIST",						type:"string",	descriptionKey:"overlay.labels.placeholders.MUSIC_ARTIST", backup:true} as const,
 	{tag:"MUSIC_ALBUM",							type:"string",	descriptionKey:"overlay.labels.placeholders.MUSIC_ALBUM", backup:true} as const,
 	{tag:"MUSIC_COVER",							type:"image",	descriptionKey:"overlay.labels.placeholders.MUSIC_COVER", backup:true} as const,
+	
+	{tag:"TIKTOK_VIEWER_COUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.TIKTOK_VIEWER_COUNT", backup:true} as const,
+	{tag:"TIKTOK_LIKE_TOTAL",					type:"number",	descriptionKey:"overlay.labels.placeholders.TIKTOK_LIKE_TOTAL", backup:true} as const,
+	{tag:"TIKTOK_LIKE_USER",					type:"string",	descriptionKey:"overlay.labels.placeholders.TIKTOK_LIKE_USER", backup:true} as const,
+	{tag:"TIKTOK_LIKE_AVATAR",					type:"image",	descriptionKey:"overlay.labels.placeholders.TIKTOK_LIKE_AVATAR", backup:true} as const,
+	{tag:"TIKTOK_LIKE_COUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.TIKTOK_LIKE_COUNT", backup:true} as const,
+	
+	{tag:"TIKTOK_SUB_USER",						type:"string",	descriptionKey:"overlay.labels.placeholders.TIKTOK_SUB_USER", backup:true} as const,
+	{tag:"TIKTOK_SUB_AVATAR",					type:"image",	descriptionKey:"overlay.labels.placeholders.TIKTOK_SUB_AVATAR", backup:true} as const,
+	
+	{tag:"TIKTOK_SHARE_USER",					type:"string",	descriptionKey:"overlay.labels.placeholders.TIKTOK_SHARE_USER", backup:true} as const,
+	{tag:"TIKTOK_SHARE_AVATAR",					type:"image",	descriptionKey:"overlay.labels.placeholders.TIKTOK_SHARE_AVATAR", backup:true} as const,
+	
+	{tag:"TIKTOK_GIFT_USER",					type:"string",	descriptionKey:"overlay.labels.placeholders.TIKTOK_GIFT_USER", backup:true} as const,
+	{tag:"TIKTOK_GIFT_AVATAR",					type:"image",	descriptionKey:"overlay.labels.placeholders.TIKTOK_GIFT_AVATAR", backup:true} as const,
+	{tag:"TIKTOK_GIFT_IMAGE",					type:"image",	descriptionKey:"overlay.labels.placeholders.TIKTOK_GIFT_IMAGE", backup:true} as const,
+	{tag:"TIKTOK_GIFT_COUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.TIKTOK_GIFT_COUNT", backup:true} as const,
+	{tag:"TIKTOK_GIFT_DIAMONDS",				type:"number",	descriptionKey:"overlay.labels.placeholders.TIKTOK_GIFT_DIAMONDS", backup:true} as const,
 ] as const;

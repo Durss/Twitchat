@@ -2536,6 +2536,9 @@ export namespace TwitchatDataTypes {
 							| typeof TwitchatMessageType.TILTIFY
 							| typeof TwitchatMessageType.PATREON
 							| typeof TwitchatMessageType.COUNTDOWN
+							| typeof TwitchatMessageType.TIKTOK_LIKE
+							| typeof TwitchatMessageType.TIKTOK_GIFT
+							| typeof TwitchatMessageType.TIKTOK_SHARE
 							| typeof TwitchatMessageType.STREAM_ONLINE
 							| typeof TwitchatMessageType.MUSIC_ADDED_TO_QUEUE
 							| typeof TwitchatMessageType.AD_BREAK_START_CHAT
@@ -2551,6 +2554,9 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.FOLLOWING,							labelKey:"chat.filters.message_types.following",							icon:"follow",			scopes:[TwitchScopes.LIST_FOLLOWERS],	newFlag:0},
 		{type:TwitchatMessageType.SUBSCRIPTION,							labelKey:"chat.filters.message_types.subscription",							icon:"sub",				scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.CHEER,								labelKey:"chat.filters.message_types.cheer",								icon:"bits",			scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.TIKTOK_LIKE,							labelKey:"chat.filters.message_types.tiktok_like",							icon:"follow",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V15},
+		{type:TwitchatMessageType.TIKTOK_GIFT,							labelKey:"chat.filters.message_types.tiktok_gift",							icon:"gift",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V15},
+		{type:TwitchatMessageType.TIKTOK_SHARE,							labelKey:"chat.filters.message_types.tiktok_share",							icon:"share",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V15},
 		{type:TwitchatMessageType.RAID,									labelKey:"chat.filters.message_types.raid",									icon:"raid",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.PINNED,								labelKey:"chat.filters.message_types.pinned",								icon:"pin",				scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.SHOUTOUT,								labelKey:"chat.filters.message_types.shoutout",								icon:"shoutout",		scopes:[],	newFlag:0},
@@ -5244,6 +5250,11 @@ export namespace TwitchatDataTypes {
 		 * User that sent the gift
 		 */
 		user:TwitchatUser;
+		/**
+		 * Number of months the user subscribed for
+		 * /!\ not exactly sure about the meaning of this value!
+		 */
+		months:number;
 	}
 
 	/**
@@ -5263,6 +5274,14 @@ export namespace TwitchatDataTypes {
 		 * Number of gifts
 		 */
 		count:number;
+		/**
+		 * Number of diamonds the streamer earns
+		 */
+		diamonds:number;
+		/**
+		 * Raw data of the original message
+		 */
+		raw_data?:any;
 	}
 
 	/**
@@ -5281,7 +5300,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Total number of likes received on this stream
 		 */
-		streamLikes:number;
+		streamLikeCount:number;
 	}
 
 	/**

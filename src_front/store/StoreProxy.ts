@@ -130,19 +130,9 @@ export interface IMainState {
 	 */
 	chatAlert:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData|null;
 	/**
-	 * Date of last t4p command exec to cooldown users
+	 * Icons cache for faster load
 	 */
 	iconCache:{[key:string]:string|Promise<void>};
-	/**
-	 * Temporary chat command to send current "Twitch 4 palestinans" fundraising
-	 * //TODO remove
-	 */
-	t4p:string;
-	/**
-	 * Date of last t4p command exec to cooldown users
-	 * //TODO remove
-	 */
-	t4pLastDate:number;
 	/**
 	 * Shows an alert to the user when true.
 	 */

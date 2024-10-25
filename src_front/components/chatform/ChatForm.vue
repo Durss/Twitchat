@@ -215,27 +215,23 @@
 				<CommercialTimer />
 
 				<div v-if="$store.params.appearance.showViewersCount.value === true
-					&& streamInfo && streamInfo.viewers > 0"
+					&& (twitchViewerCount > 0 || tiktokViewerCount > 0)"
 					v-tooltip="{touch:'hold', content:$t('chat.form.viewer_count')}"
 					class="viewCount"
 					@click="censoredViewCount = !censoredViewCount"
 				>
-					<p v-if="censoredViewCount">x</p>
-					<p v-if="!censoredViewCount">{{streamInfo.viewers}}</p>
-					<Icon class="icon" name="user"/>
-					<Icon class="twitch" name="twitch"/>
-				</div>
+					<Icon class="icon" name="show"/>
+					<div v-if="twitchViewerCount > 0" class="platform">
+						<Icon name="twitch" v-if="tiktokViewerCount > 0" />
+						<p v-if="censoredViewCount" class="censor">xx</p>
+						<p v-if="!censoredViewCount">{{twitchViewerCount}}</p>
+					</div>
 
-				<div v-if="$store.params.appearance.showViewersCount.value === true
-					&& $store.stream.currentStreamInfo['tiktok'] && $store.stream.currentStreamInfo['tiktok'].viewers > 0"
-					v-tooltip="{touch:'hold', content:$t('chat.form.viewer_count')}"
-					class="viewCount"
-					@click="censoredViewCount = !censoredViewCount"
-				>
-					<p v-if="censoredViewCount">x</p>
-					<p v-if="!censoredViewCount">{{$store.stream.currentStreamInfo['tiktok'].viewers}}</p>
-					<Icon class="icon" name="user"/>
-					<Icon class="tiktok" name="tiktok"/>
+					<div v-if="tiktokViewerCount > 0" class="platform">
+						<Icon name="tiktok" />
+						<p v-if="censoredViewCount" class="censor">xx</p>
+						<p v-if="!censoredViewCount">{{tiktokViewerCount}}</p>
+					</div>
 				</div>
 
 				<transition name="blink">
@@ -477,8 +473,16 @@ export class ChatForm extends Vue {
 		return this.$store.emergency.params.enabled === true;
 	}
 
-	public get streamInfo():TwitchatDataTypes.StreamInfo | undefined {
-		return this.$store.stream.currentStreamInfo[this.$store.auth.twitch.user.id];
+	public get twitchViewerCount():number {
+		const infos = this.$store.stream.currentStreamInfo[this.$store.auth.twitch.user.id];
+		if(infos) return infos.viewers;
+		return 0;
+	}
+
+	public get tiktokViewerCount():number {
+		const infos = this.$store.stream.currentStreamInfo["tiktok"];
+		if(infos) return infos.viewers;
+		return 0;
 	}
 	public get hasChannelPoints():boolean {
 		return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner;
@@ -1414,7 +1418,17 @@ export default toNative(ChatForm);
 				padding: .35em;
 				.icon {
 					height: 1em;
-					margin-left: .1em;
+					margin-right: .25em;
+				}
+				.platform {
+					display: flex;
+					flex-direction: row;
+					.icon {
+						margin-right: .15em;
+					}
+				}
+				.censor {
+					filter: blur(3px)
 				}
 			}
 
