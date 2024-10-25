@@ -45,7 +45,7 @@
 						<div class="user">
 							<span class="info">{{entry.login}}</span>
 							<div class="amount" v-if="item.params.showAmounts === true">
-								<span class="value">{{entry.count}}</span>
+								<span class="value">{{entry.amount}}</span>
 							</div>
 						</div>
 					</div>
@@ -374,21 +374,30 @@ class OverlayEndingCredits extends AbstractOverlay {
 		});
 	}
 
-	public getSortedTikTokGift<T>(params:TwitchatDataTypes.EndingCreditsSlotParams):((TwitchatDataTypes.StreamSummaryData["tiktokGifts"][number]) & {imageUrlList?:string[]})[] {
-		let res:((TwitchatDataTypes.StreamSummaryData["tiktokGifts"][number]) & {imageUrlList?:string[]})[] = [];
+	public getSortedTikTokGift<T>(params:TwitchatDataTypes.EndingCreditsSlotParams):((TwitchatDataTypes.StreamSummaryData["tiktokGifts"][number]) & {cumulatedAmount?:number, imageUrlList?:string[]})[] {
+		let res:((TwitchatDataTypes.StreamSummaryData["tiktokGifts"][number]) & {cumulatedAmount?:number, imageUrlList?:string[]})[] = [];
 
-		let tmp = this.data!.tiktokGifts.map(v => { return {...v, imageUrlList:[v.imageUrl!]}});
+		let tmp = this.data!.tiktokGifts.map(v => { return {...v, cumulatedAmount:0, imageUrlList:[v.imageUrl!]}});
 		if(params.uniqueUsers === true) {
 			let usersDoneGifts:{[login:string]:typeof tmp[number]} = {};
+			let imageDoneGifts:{[key:string]:true} = {};
 			for (let i = 0; i < tmp.length; i++) {
 				const item = tmp[i];
+				const dedupeKey = item.imageUrl+"____"+item.uid;
+
 				if(!usersDoneGifts[item.login]) usersDoneGifts[item.login] = item;
 				else if(item.imageUrl) {
 					usersDoneGifts[item.login].count += item.count;
-					usersDoneGifts[item.login].imageUrlList.push(item.imageUrl);
+					usersDoneGifts[item.login].amount += item.amount;
+					usersDoneGifts[item.login].cumulatedAmount += item.amount * item.count;
+					//Only show the same gift once for the same user if merging gifts by users
+					if(imageDoneGifts[dedupeKey] != true) {
+						usersDoneGifts[item.login].imageUrlList.push(item.imageUrl);
+					}
 					tmp.splice(i,1);
 					i--;
 				}
+				imageDoneGifts[dedupeKey] = true;
 			}
 		}
 		res = tmp;
@@ -398,8 +407,8 @@ class OverlayEndingCredits extends AbstractOverlay {
 			let scoreB = 0;
 
 			if(params.sortByAmounts) {
-				if(a.count > b.count) scoreA += 10;
-				if(a.count < b.count) scoreB += 10;
+				if(a.count > b.count) scoreA += 2;
+				if(a.count < b.count) scoreB += 2;
 				if(a.amount > b.amount) scoreA += 10;
 				if(a.amount < b.amount) scoreB += 10;
 			}

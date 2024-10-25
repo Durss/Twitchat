@@ -951,7 +951,7 @@ export const storeStream = defineStore('stream', {
 					}
 
 					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT: {
-						result.tiktokGifts.push( {uid:m.user.id, login:m.user.displayNameOriginal, count: m.count, amount: m.diamonds, imageUrl: m.image} );
+						result.tiktokGifts.push( {uid:m.user.id, login:m.user.displayNameOriginal, count: m.count, amount: m.diamonds/m.count, imageUrl: m.image} );
 						break;
 					}
 
