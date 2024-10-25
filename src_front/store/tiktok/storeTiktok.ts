@@ -225,6 +225,7 @@ export const storeTiktok = defineStore('tiktok', {
 							count:json.data.repeatCount,
 							image:json.data.giftPictureUrl,
 							diamonds:json.data.diamondCount * json.data.repeatCount,
+							giftId:json.data.giftId.toString(),
 							raw_data:json.data,
 						}
 						StoreProxy.chat.addMessage(message);
@@ -240,7 +241,7 @@ export const storeTiktok = defineStore('tiktok', {
 						channel_id:json.data.tikfinityUserId.toString(),
 						user:user!,
 						type:TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB,
-						months:json.data.subMonth,
+						months:json.data.subMonth || 1,
 					}
 					StoreProxy.chat.addMessage(message);
 					return;

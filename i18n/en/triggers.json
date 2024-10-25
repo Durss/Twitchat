@@ -853,6 +853,7 @@
 			"ws_message":"All message data",
 			"platform":"Platform that started the trigger\n(twitch, youtube, ...)",
 			"tiktok_gift_count":"Number of gifts",
+			"tiktok_gift_id":"ID of the gift",
 			"tiktok_like_count":"Number of likes",
 			"tiktok_like_total":"Total likes received during current stream",
 			"tiktok_diamonds":"Diamonds received",

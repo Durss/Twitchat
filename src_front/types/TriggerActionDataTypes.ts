@@ -2082,6 +2082,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:USER_ID, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 		{tag:USER_AVATAR, descKey:'triggers.placeholders.user_avatar', pointer:"user.avatarPath", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 		{tag:"GIFT_COUNT", descKey:'triggers.placeholders.tiktok_gift_count', pointer:"count", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
+		{tag:"GIFT_ID", descKey:'triggers.placeholders.tiktok_gift_id', pointer:"giftId", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 		{tag:"DIAMONDS", descKey:'triggers.placeholders.tiktok_diamonds', pointer:"diamonds", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 	];
 
@@ -2141,7 +2142,13 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 			entry.push({tag:"DATE", descKey:'triggers.placeholders.date', pointer:"__date__.date", numberParsable:false, isUserID:false, globalTag:true, example:Utils.formatDate(new Date(), false)});
 			entry.push({tag:"TIME", descKey:'triggers.placeholders.time', pointer:"__date__.time", numberParsable:false, isUserID:false, globalTag:true, example:Utils.formatDate(new Date(), true, true)});
 			entry.push({tag:"DATETIME", descKey:'triggers.placeholders.datetime', pointer:"__date__.datetime", numberParsable:false, isUserID:false, globalTag:true, example:Utils.formatDate(new Date(), true)});
-			entry.push({tag:"PLATFORM", descKey:'triggers.placeholders.platform', pointer:"platform", numberParsable:false, isUserID:false, globalTag:true, example:"twitch"} as ITriggerPlaceholder<TwitchatDataTypes.AbstractTwitchatMessage>);
+			entry.push({tag:"PLATFORM", descKey:'triggers.placeholders.platform', pointer:"platform", numberParsable:false, isUserID:false, globalTag:true, example:"twitch",
+				values:[
+					{label:"Twitch", value:"twitch"},
+					{label:"YouTube", value:"youtube"},
+					{label:"TikTok", value:"tiktok"},
+				]
+			} as ITriggerPlaceholder<TwitchatDataTypes.AbstractTwitchatMessage>);
 		}
 		if(entry.findIndex(v=>v.tag == "MY_STREAM_TITLE") == -1) {
 			entry.push({category:"stream", tag:"MY_STREAM_TITLE", descKey:'triggers.placeholders.my_stream_title', pointer:"__my_stream__.title", numberParsable:false, isUserID:false, globalTag:true, example:"Talking about stuff"} as ITriggerPlaceholder<TwitchatDataTypes.StreamInfo, string, "__my_stream__">);

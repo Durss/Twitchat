@@ -107,6 +107,7 @@
 										<ParamItem :paramData="param_showResubs[element.id]"			v-model="element.showResubs" />
 										<ParamItem :paramData="param_showSubgifts[element.id]"			v-model="element.showSubgifts" />
 										<ParamItem :paramData="param_showSubMonths[element.id]"			v-model="element.showSubMonths" />
+										<ParamItem :paramData="param_showSubsTiktok[element.id]"		v-model="element.showSubsTiktok" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'endingcredits_slot_tiktokSub'}" />
 										<ParamItem :paramData="param_showSubsYoutube[element.id]"		v-model="element.showSubsYoutube" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'endingcredits_slot_ytSub'}" />
 										<ParamItem :paramData="param_showSubgiftsYoutube[element.id]"	v-model="element.showSubgiftsYoutube" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'endingcredits_slot_ytSubgift'}" />
 										<ParamItem :paramData="param_showBadges[element.id]"			v-model="element.showBadges" />
@@ -152,7 +153,7 @@
 									<ParamItem :paramData="param_showPuCeleb[element.id]"				v-model="element.showPuCeleb" disabled v-tooltip="$t('overlay.credits.param_pu_celeb_tt')" />
 								</template>
 
-								<template v-if="element.slotType == 'ytSuperSticker' || element.slotType == 'ytSuperchat'">
+								<template v-if="element.slotType == 'ytSuperSticker' || element.slotType == 'ytSuperchat' || element.slotType == 'tiktokGifts'">
 									<ParamItem :paramData="param_sortByAmounts[element.id]"	v-model="element.sortByAmounts" />
 									<ParamItem :paramData="param_sortByName[element.id]"	v-model="element.sortByNames" />
 								</template>
@@ -330,6 +331,7 @@ class OverlayParamsCredits extends Vue {
 	public param_showSubsT3:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showAllActiveSubgifters:{[key:string]:TwitchatDataTypes.ParameterData<boolean, undefined, boolean>} = {};
 	public param_showSubsYoutube:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showSubsTiktok:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showSubgiftsYoutube:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showSubsKofi:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showMods:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
@@ -636,6 +638,7 @@ class OverlayParamsCredits extends Vue {
 			this.param_showResubs[id]			= {type:"boolean", value:entry.showResubs, icon:"sub", labelKey:"overlay.credits.param_showResubs"};
 			this.param_showSubgifts[id]			= {type:"boolean", value:entry.showSubgifts, icon:"gift", labelKey:"overlay.credits.param_showSubgifts"};
 			this.param_showSubsYoutube[id]		= {type:'boolean', value:entry.showSubsYoutube, icon:"youtube", labelKey:'overlay.credits.param_showSubsYoutube', premiumOnly:true};
+			this.param_showSubsTiktok[id]		= {type:'boolean', value:entry.showSubsTiktok===true, icon:"tiktok", labelKey:'overlay.credits.param_showSubsTiktok'};
 			this.param_showSubgiftsYoutube[id]	= {type:'boolean', value:entry.showSubgiftsYoutube, icon:"youtube", labelKey:'overlay.credits.param_showSubgiftsYoutube', premiumOnly:true};
 			this.param_showSubsPrime[id]		= {type:'boolean', value:entry.showSubsPrime===true, labelKey:'overlay.credits.param_showSubsPrime'};
 			this.param_showAllActiveSubs[id]	= {type:'boolean', value:entry.showAllSubs===true, icon:"date", labelKey:'overlay.credits.param_showAllActiveSubs'};
@@ -686,11 +689,11 @@ class OverlayParamsCredits extends Vue {
 			this.param_sortByAmounts[id]		= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:"overlay.credits.param_sortByPuCount", premiumOnly:true};
 		}else
 
-		if(slotDef.id == "ytSuperSticker" || slotDef.id == "ytSuperchat") {
+		if(slotDef.id == "ytSuperSticker" || slotDef.id == "ytSuperchat" || slotDef.id == "tiktokGifts") {
 			if(entry.sortByNames == undefined || !this.isPremium)	entry.sortByNames = false;
 			if(entry.sortByAmounts == undefined || !this.isPremium)	entry.sortByAmounts = false;
 			this.param_sortByName[id]	= {type:"boolean", value:entry.sortByNames, icon:"filters", labelKey:"overlay.credits.param_sortByNames", premiumOnly:true};
-			this.param_sortByAmounts[id]= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:"overlay.credits.param_sortByTipAmounts", premiumOnly:true};
+			this.param_sortByAmounts[id]= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:slotDef.id == "tiktokGifts"? "overlay.credits.param_sortByGiftAmount" : "overlay.credits.param_sortByTipAmounts", premiumOnly:true};
 		}
 
 		if(slotDef.canMerge) {

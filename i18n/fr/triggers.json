@@ -853,6 +853,7 @@
 			"ws_message":"Données reçues",
 			"platform":"Platforme ayant déclenché le trigger\n(twitch, youtube, ...)",
 			"tiktok_gift_count":"Nombre de cadeaux",
+			"tiktok_gift_id":"ID du cadeau",
 			"tiktok_like_count":"Nombre de likes",
 			"tiktok_like_total":"Nombtre de likes reçus durant ce stream",
 			"tiktok_diamonds":"Diamants reçus",

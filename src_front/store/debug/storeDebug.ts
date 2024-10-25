@@ -1713,6 +1713,7 @@ export const storeDebug = defineStore('debug', {
 						user,
 						count,
 						diamonds:count,
+						giftId:"123456",
 					};
 					data = m;
 					break;

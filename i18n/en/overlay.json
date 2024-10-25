@@ -130,6 +130,7 @@
 			"param_showResubs": "Show resubs",
 			"param_showSubgifts": "Show subgifts",
 			"param_showSubsYoutube": "Show YouTube subs",
+			"param_showSubsTiktok": "Show Tiktok subs",
 			"param_showSubgiftsYoutube": "Show YouTube subgifts",
 			"param_showSubsKofi": "Ko-Fi monthly subscriptions",
 			"param_showSubMonths": "Show current sub duration",
@@ -138,6 +139,7 @@
 			"param_sortByRoles": "Sort by roles",
 			"param_sortByAmounts": "Sort by number of messages",
 			"param_sortByTipAmounts": "Sort by tip amounts",
+			"param_sortByGiftAmount": "Sort by gift amount",
 			"param_sortByPuCount": "Sort by power-up count",
 			"param_layout": "Entries layout",
 			"param_maxItems": "Max entries to show",
@@ -194,7 +196,10 @@
 				"powerups": "Power-ups",
 				"merch": "Merch",
 				"ytSuperchat": "YouTube super chats",
-				"ytSuperSticker": "YouTube super stickers"
+				"ytSuperSticker": "YouTube super stickers",
+				"tiktokLikes": "Tiktok likes",
+				"tiktokShares": "Tiktok shares",
+				"tiktokGifts": "Tiktok gifts"
 			},
 			"labels": {
 				"text": "",
@@ -216,7 +221,10 @@
 				"powerups": "POWER-UPS",
 				"merch": "MERCH",
 				"ytSuperchat": "SUPER CHATS",
-				"ytSuperSticker": "SUPER STICKERS"
+				"ytSuperSticker": "SUPER STICKERS",
+				"tiktokLikes": "TIKTOK LIKES",
+				"tiktokShares": "TIKTOK SHARES",
+				"tiktokGifts": "TIKTOK GIFTS"
 			},
 			"amounts": {
 				"cheers": "Show bits count",
@@ -231,7 +239,9 @@
 				"timeouts": "Show total timeout duration",
 				"polls": "Show votes count",
 				"predictions": "Show channel points used",
-				"tips": "Show tipped amounts"
+				"tips": "Show tipped amounts",
+				"tiktokLikes": "Show likes count",
+				"tiktokGifts": "Show gifts count"
 			},
 			"manual_install_instructions": "Make sure you enable those option on OBS browser source: \"Shutdown source when not visible\" and \"Refresh browser when scene becomes active\"",
 			"param_showPuSkin": "Message effects",

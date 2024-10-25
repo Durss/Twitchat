@@ -480,6 +480,9 @@ export const storeStream = defineStore('stream', {
 				powerups:[],
 				superChats:[],
 				superStickers:[],
+				tiktokGifts:[],
+				tiktokLikes:[],
+				tiktokSubShares:[],
 				labels:{
 					no_entry:$tm("overlay.credits.empty_slot"),
 					train:$tm("train.ending_credits"),
@@ -635,7 +638,7 @@ export const storeStream = defineStore('stream', {
 					const m = StoreProxy.chat.messages[i];
 					if(dateOffset && m.date < dateOffset) break;
 					//Ignore messages not from our own chan
-					if(m.channel_id != channelId) continue;
+					if(m.channel_id != channelId && m.platform != "tiktok") continue;
 
 					//If more than 4h past between the 2 messages, consider it's a different stream and stop there
 					if(!dateOffset && prevDate > 0 && prevDate - m.date > 4 * 60 * 60000) {
@@ -944,6 +947,21 @@ export const storeStream = defineStore('stream', {
 							const tip:TwitchatDataTypes.StreamSummaryData['tips'][number] = {login:m.userName, amount:m.amount, currency:m.currency, platform:"tipeee"};
 							result.tips.push(tip);
 						}
+						break;
+					}
+
+					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT: {
+						result.tiktokGifts.push( {uid:m.user.id, login:m.user.displayNameOriginal, count: m.count, amount: m.diamonds, imageUrl: m.image} );
+						break;
+					}
+
+					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE: {
+						result.tiktokLikes.push( {uid:m.user.id, login:m.user.displayNameOriginal, count: m.count} );
+						break;
+					}
+
+					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE: {
+						result.tiktokSubShares.push( {uid:m.user.id, login:m.user.displayNameOriginal, count: 1} );
 						break;
 					}
 				}

@@ -141,6 +141,7 @@
 			"param_sortByAmounts": "Trier par nombre de messages",
 			"param_sortByPuCount": "Trier par nombre de power-ups",
 			"param_sortByTipAmounts": "Trier par valeur des dons",
+			"param_sortByGiftAmount": "Trier par valeur des cadeaux",
 			"param_layout": "Disposition des entrées",
 			"param_maxItems": "Maximum d'entrées à afficher",
 			"param_customHTML": "Template HTML personnalisé",
@@ -191,7 +192,10 @@
 				"powerups": "Power-ups",
 				"merch": "Achat de merch",
 				"ytSuperchat": "Afficher les Super chats",
-				"ytSuperSticker": "Afficher les Super stickers"
+				"ytSuperSticker": "Afficher les Super stickers",
+				"tiktokLikes": "Likes tiktok",
+				"tiktokShares": "Partages tiktok",
+				"tiktokGifts": "Cadeaux tiktok"
 			},
 			"labels": {
 				"text": "",
@@ -213,7 +217,10 @@
 				"powerups": "POWER-UPS",
 				"merch": "MERCH ACHETÉ",
 				"ytSuperchat": "SUPER CHATS",
-				"ytSuperSticker": "SUPER STICKERS"
+				"ytSuperSticker": "SUPER STICKERS",
+				"tiktokLikes": "LIKES TIKTOK",
+				"tiktokShares": "PARTAGES TIKTOK",
+				"tiktokGifts": "CADEAUX TIKTOK"
 			},
 			"amounts": {
 				"cheers": "Afficher le nombre de bits",
@@ -228,14 +235,17 @@
 				"timeouts": "Afficher la durée totale de timeout pour chaque personne",
 				"polls": "Afficher le nombre de votes",
 				"predictions": "Afficher le nombre de points de chaîne",
-				"tips": "Afficher le montant des dons"
+				"tips": "Afficher le montant des dons",
+				"tiktokLikes": "Afficher le nombre de likes",
+				"tiktokGifts": "Afficher le nombre de cadeaux"
 			},
 			"manual_install_instructions": "Pour un fonctionnement optimal, assurez-vous d'activer les options \"Désactiver la source quand elle n'est pas visible\" et \"Rafraîchir la source quand elle devient active\" sur la source navigateur OBS.",
 			"param_pu_skin": "Effets de message",
 			"param_pu_emote": "Emotes gigantisées",
 			"param_pu_celeb": "Célébrations",
 			"param_showSubsYoutube": "Afficher les subs YouTube",
-			"param_showSubgiftsYoutube": "Afficher les subgifts YouTube"
+			"param_showSubgiftsYoutube": "Afficher les subgifts YouTube",
+			"param_showSubsTiktok": "Show Tiktok subs"
 		},
 		"heatDistort": {
 			"title": "Distorsion de source OBS",

@@ -25,7 +25,6 @@
 						</div>
 					</div>
 
-
 					<div v-if="item.params.slotType == 'ytSuperSticker'" v-for="entry in getSortedSuperMessages(item.params).splice(0, item.params.maxEntries)" class="item">
 						<div class="stickerList">
 							<img v-for="sticker in entry.stickerUrlList" :src="sticker" class="sticker" alt="sticker" referrerpolicy="no-referrer">
@@ -35,6 +34,18 @@
 							<div class="amount" v-if="item.params.showAmounts === true">
 								<span class="currency">{{{EUR:"€",USD:"$", GBP:"£"}[entry.currency] || entry.currency}}</span>
 								<span class="value">{{entry.amount}}</span>
+							</div>
+						</div>
+					</div>
+
+					<div v-if="item.params.slotType == 'tiktokGifts'" v-for="entry in getSortedTikTokGift(item.params).splice(0, item.params.maxEntries)" class="item">
+						<div class="stickerList">
+							<img v-for="sticker in entry.imageUrlList" :src="sticker" class="sticker" alt="sticker" referrerpolicy="no-referrer">
+						</div>
+						<div class="user">
+							<span class="info">{{entry.login}}</span>
+							<div class="amount" v-if="item.params.showAmounts === true">
+								<span class="value">{{entry.count}}</span>
 							</div>
 						</div>
 					</div>
@@ -363,6 +374,45 @@ class OverlayEndingCredits extends AbstractOverlay {
 		});
 	}
 
+	public getSortedTikTokGift<T>(params:TwitchatDataTypes.EndingCreditsSlotParams):((TwitchatDataTypes.StreamSummaryData["tiktokGifts"][number]) & {imageUrlList?:string[]})[] {
+		let res:((TwitchatDataTypes.StreamSummaryData["tiktokGifts"][number]) & {imageUrlList?:string[]})[] = [];
+
+		let tmp = this.data!.tiktokGifts.map(v => { return {...v, imageUrlList:[v.imageUrl!]}});
+		if(params.uniqueUsers === true) {
+			let usersDoneGifts:{[login:string]:typeof tmp[number]} = {};
+			for (let i = 0; i < tmp.length; i++) {
+				const item = tmp[i];
+				if(!usersDoneGifts[item.login]) usersDoneGifts[item.login] = item;
+				else if(item.imageUrl) {
+					usersDoneGifts[item.login].count += item.count;
+					usersDoneGifts[item.login].imageUrlList.push(item.imageUrl);
+					tmp.splice(i,1);
+					i--;
+				}
+			}
+		}
+		res = tmp;
+
+		return res.sort((a, b)=> {
+			let scoreA = 0;
+			let scoreB = 0;
+
+			if(params.sortByAmounts) {
+				if(a.count > b.count) scoreA += 10;
+				if(a.count < b.count) scoreB += 10;
+				if(a.amount > b.amount) scoreA += 10;
+				if(a.amount < b.amount) scoreB += 10;
+			}
+
+			if(params.sortByNames) {
+				if(a.login.toLowerCase() > b.login.toLowerCase()) scoreB ++;
+				if(a.login.toLowerCase() < b.login.toLowerCase()) scoreA ++;
+			}
+
+			return scoreB - scoreA;
+		});
+	}
+
 	public getSortedPowerups(params:TwitchatDataTypes.EndingCreditsSlotParams):(TwitchatDataTypes.StreamSummaryData["powerups"][number] & {emoteUrlList?:string[], count?:number})[] {
 		let anims:(TwitchatDataTypes.StreamSummaryData["powerups"][number] & {count:number})[] = [];
 		let emotes:(TwitchatDataTypes.StreamSummaryData["powerups"][number] & {emoteUrlList:string[]})[] = [];
@@ -536,6 +586,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 			case "shoutouts": count = (this.data?.shoutouts || []).length; break;
 			case "ytSuperchat": count =  this.getSortedSuperMessages(item).length; break;
 			case "ytSuperSticker": count =  this.getSortedSuperMessages(item).length; break;
+			case "tiktokGifts": count =  this.getSortedTikTokGift(item).length; break;
 		}
 		count = Math.min(count, item.maxEntries);
 		this.entryCountCache[item.id] = count;
@@ -773,6 +824,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 	 */
 	private async onSummaryData(e:TwitchatEvent):Promise<void> {
 		if(e.data) {
+			this.fixedScrollId = "";
 			this.data = (e.data as unknown) as TwitchatDataTypes.StreamSummaryData;
 			this.buildSlots();
 			this.reset();
@@ -1274,7 +1326,8 @@ export default toNative(OverlayEndingCredits);
 			}
 		}
 
-		&.ytSuperSticker {
+		&.ytSuperSticker,
+		&.tiktokGifts {
 			.item {
 				gap: .5em;
 				flex-direction: column;

@@ -1852,6 +1852,9 @@ export namespace TwitchatDataTypes {
 		powerups:{login:string, skinID?:TwitchatDataTypes.MessageChatData["twitch_animationId"], emoteUrl?:string, type:"animation" | "gigantifiedemote" | "celebration"}[];
 		superChats:{uid:string, login:string, amount:number, currency:string}[];
 		superStickers:{uid:string, login:string, amount:number, currency:string, stickerUrl:string}[];
+		tiktokGifts:{uid:string, login:string, count:number, amount:number, imageUrl:string}[];
+		tiktokLikes:{uid:string, login:string, count:number}[];
+		tiktokSubShares:{uid:string, login:string, count:number}[];
 		labels:{
 			no_entry:string;
 			train:string;
@@ -1959,26 +1962,54 @@ export namespace TwitchatDataTypes {
 	type ExcludeUndefined<T> = T extends undefined ? never : T;
 	export type StreamSummaryDataListItem = UnionFromArrayProps<StreamSummaryData>;
 
-	export type EndingCreditsSlotStringTypes = "text" | "bans" | "mods" | "subs" | "vips" | "raids" | "polls" | "so_in" | "so_out" | "cheers" | "follows" | "rewards" | "chatters" | "timeouts" | "hypechats" | "hypetrains" | "predictions" | "tips" | "shoutouts" | "merch" | "powerups" | "ytSuperchat" | "ytSuperSticker";
+	export type EndingCreditsSlotStringTypes = "text" 
+											| "bans" 
+											| "mods" 
+											| "subs" 
+											| "vips" 
+											| "raids" 
+											| "polls" 
+											| "so_in" 
+											| "so_out" 
+											| "cheers" 
+											| "follows" 
+											| "rewards" 
+											| "chatters" 
+											| "timeouts" 
+											| "hypechats" 
+											| "hypetrains" 
+											| "predictions" 
+											| "tips" 
+											| "shoutouts" 
+											| "merch" 
+											| "powerups" 
+											| "ytSuperchat" 
+											| "ytSuperSticker"
+											| "tiktokLikes"
+											| "tiktokShares"
+											| "tiktokGifts";
 	export const EndingCreditsSlotDefinitions:EndingCreditsSlotDefinition[] = [
-		{id:"cheers",		premium:false,	hasAmount:true,		canMerge:true,		icon:"bits",			label:"overlay.credits.categories.cheers",			defaultLabel:"overlay.credits.labels.cheers",		amountLabel:"overlay.credits.amounts.cheers"},
-		{id:"subs",			premium:false,	hasAmount:true,		canMerge:true,		icon:"sub",				label:"overlay.credits.categories.subs",			defaultLabel:"overlay.credits.labels.subs",			amountLabel:"overlay.credits.amounts.subs",		newFlag: Config.instance.NEW_FLAGS_DATE_V13_4},
+		{id:"cheers",		premium:false,	hasAmount:true,		canMerge:true,		icon:"bits",			label:"overlay.credits.categories.cheers",			defaultLabel:"overlay.credits.labels.cheers",			amountLabel:"overlay.credits.amounts.cheers"},
+		{id:"subs",			premium:false,	hasAmount:true,		canMerge:true,		icon:"sub",				label:"overlay.credits.categories.subs",			defaultLabel:"overlay.credits.labels.subs",				amountLabel:"overlay.credits.amounts.subs",		newFlag: Config.instance.NEW_FLAGS_DATE_V13_4},
 		{id:"follows",		premium:false,	hasAmount:false,	canMerge:false,		icon:"follow",			label:"overlay.credits.categories.follows",			defaultLabel:"overlay.credits.labels.follows"},
-		{id:"raids",		premium:false,	hasAmount:true,		canMerge:true,		icon:"raid",			label:"overlay.credits.categories.raids",			defaultLabel:"overlay.credits.labels.raids",		amountLabel:"overlay.credits.amounts.raids"},
-		{id:"chatters",		premium:false,	hasAmount:true,		canMerge:false,		icon:"user",			label:"overlay.credits.categories.chatters",		defaultLabel:"overlay.credits.labels.chatters", 	amountLabel:"overlay.credits.amounts.chatters"},
-		{id:"powerups",		premium:false,	hasAmount:false,	canMerge:true,		icon:"watchStreak",		label:"overlay.credits.categories.powerups",		defaultLabel:"overlay.credits.labels.powerups",		newFlag: Config.instance.NEW_FLAGS_DATE_V13},
-		// {id:"hypechats",	premium:true,	hasAmount:true,		canMerge:true,		icon:"hypeChat",		label:"overlay.credits.categories.hypechats",		defaultLabel:"overlay.credits.labels.hypechats",	amountLabel:"overlay.credits.amounts.hypechats"},
+		{id:"raids",		premium:false,	hasAmount:true,		canMerge:true,		icon:"raid",			label:"overlay.credits.categories.raids",			defaultLabel:"overlay.credits.labels.raids",			amountLabel:"overlay.credits.amounts.raids"},
+		{id:"chatters",		premium:false,	hasAmount:true,		canMerge:false,		icon:"user",			label:"overlay.credits.categories.chatters",		defaultLabel:"overlay.credits.labels.chatters", 		amountLabel:"overlay.credits.amounts.chatters"},
+		{id:"powerups",		premium:false,	hasAmount:false,	canMerge:true,		icon:"watchStreak",		label:"overlay.credits.categories.powerups",		defaultLabel:"overlay.credits.labels.powerups",			newFlag: Config.instance.NEW_FLAGS_DATE_V13},
+		{id:"tiktokLikes",	premium:false,	hasAmount:true,		canMerge:true,		icon:"tiktok",			label:"overlay.credits.categories.tiktokLikes",		defaultLabel:"overlay.credits.labels.tiktokLikes",		amountLabel:"overlay.credits.amounts.tiktokLikes",	newFlag: Config.instance.NEW_FLAGS_DATE_V15},
+		{id:"tiktokShares",	premium:false,	hasAmount:false,	canMerge:true,		icon:"tiktok",			label:"overlay.credits.categories.tiktokShares",	defaultLabel:"overlay.credits.labels.tiktokShares",		newFlag: Config.instance.NEW_FLAGS_DATE_V15},
+		{id:"tiktokGifts",	premium:false,	hasAmount:true,		canMerge:true,		icon:"tiktok",			label:"overlay.credits.categories.tiktokGifts",		defaultLabel:"overlay.credits.labels.tiktokGifts",		amountLabel:"overlay.credits.amounts.tiktokGifts",	newFlag: Config.instance.NEW_FLAGS_DATE_V15},
+		// {id:"hypechats",	premium:true,	hasAmount:true,		canMerge:true,		icon:"hypeChat",		label:"overlay.credits.categories.hypechats",		defaultLabel:"overlay.credits.labels.hypechats",		amountLabel:"overlay.credits.amounts.hypechats"},
 		{id:"hypetrains",	premium:true,	hasAmount:false,	canMerge:false,		icon:"train",			label:"overlay.credits.categories.hypetrains",		defaultLabel:"overlay.credits.labels.hypetrains"},
-		{id:"rewards",		premium:true,	hasAmount:true,		canMerge:false,		icon:"channelPoints",	label:"overlay.credits.categories.rewards",			defaultLabel:"overlay.credits.labels.rewards",		amountLabel:"overlay.credits.amounts.rewards"},
-		{id:"bans",			premium:true,	hasAmount:true,		canMerge:false,		icon:"ban",				label:"overlay.credits.categories.bans",			defaultLabel:"overlay.credits.labels.bans",			amountLabel:"overlay.credits.amounts.bans"},
-		{id:"timeouts",		premium:true,	hasAmount:true,		canMerge:false,		icon:"timeout",			label:"overlay.credits.categories.timeouts",		defaultLabel:"overlay.credits.labels.timeouts",		amountLabel:"overlay.credits.amounts.timeouts"},
-		{id:"so_in",		premium:true,	hasAmount:true,		canMerge:false,		icon:"shoutout",		label:"overlay.credits.categories.so_in",			defaultLabel:"overlay.credits.labels.so_in",		amountLabel:"overlay.credits.amounts.so_in"},
-		{id:"so_out",		premium:true,	hasAmount:true,		canMerge:false,		icon:"shoutout",		label:"overlay.credits.categories.so_out",			defaultLabel:"overlay.credits.labels.so_out",		amountLabel:"overlay.credits.amounts.so_out"},
-		{id:"polls",		premium:true,	hasAmount:true,		canMerge:false,		icon:"poll",			label:"overlay.credits.categories.polls",			defaultLabel:"overlay.credits.labels.polls",		amountLabel:"overlay.credits.amounts.polls"},
-		{id:"predictions",	premium:true,	hasAmount:true,		canMerge:false,		icon:"prediction",		label:"overlay.credits.categories.predictions",		defaultLabel:"overlay.credits.labels.predictions",	amountLabel:"overlay.credits.amounts.predictions"},
-		{id:"tips",			premium:true,	hasAmount:true,		canMerge:true,		icon:"coin",			label:"overlay.credits.categories.tips",			defaultLabel:"overlay.credits.labels.tips",			amountLabel:"overlay.credits.amounts.tips",		newFlag: Config.instance.NEW_FLAGS_DATE_V13},
-		{id:"merch",		premium:true,	hasAmount:false,	canMerge:false,		icon:"label",			label:"overlay.credits.categories.merch",			defaultLabel:"overlay.credits.labels.merch",		newFlag: Config.instance.NEW_FLAGS_DATE_V13},
-		{id:"ytSuperchat",	premium:true,	hasAmount:true,		canMerge:true,		icon:"youtube",			label:"overlay.credits.categories.ytSuperchat",		defaultLabel:"overlay.credits.labels.ytSuperchat",	amountLabel:"overlay.credits.amounts.tips",		newFlag: Config.instance.NEW_FLAGS_DATE_V13},
+		{id:"rewards",		premium:true,	hasAmount:true,		canMerge:false,		icon:"channelPoints",	label:"overlay.credits.categories.rewards",			defaultLabel:"overlay.credits.labels.rewards",			amountLabel:"overlay.credits.amounts.rewards"},
+		{id:"bans",			premium:true,	hasAmount:true,		canMerge:false,		icon:"ban",				label:"overlay.credits.categories.bans",			defaultLabel:"overlay.credits.labels.bans",				amountLabel:"overlay.credits.amounts.bans"},
+		{id:"timeouts",		premium:true,	hasAmount:true,		canMerge:false,		icon:"timeout",			label:"overlay.credits.categories.timeouts",		defaultLabel:"overlay.credits.labels.timeouts",			amountLabel:"overlay.credits.amounts.timeouts"},
+		{id:"so_in",		premium:true,	hasAmount:true,		canMerge:false,		icon:"shoutout",		label:"overlay.credits.categories.so_in",			defaultLabel:"overlay.credits.labels.so_in",			amountLabel:"overlay.credits.amounts.so_in"},
+		{id:"so_out",		premium:true,	hasAmount:true,		canMerge:false,		icon:"shoutout",		label:"overlay.credits.categories.so_out",			defaultLabel:"overlay.credits.labels.so_out",			amountLabel:"overlay.credits.amounts.so_out"},
+		{id:"polls",		premium:true,	hasAmount:true,		canMerge:false,		icon:"poll",			label:"overlay.credits.categories.polls",			defaultLabel:"overlay.credits.labels.polls",			amountLabel:"overlay.credits.amounts.polls"},
+		{id:"predictions",	premium:true,	hasAmount:true,		canMerge:false,		icon:"prediction",		label:"overlay.credits.categories.predictions",		defaultLabel:"overlay.credits.labels.predictions",		amountLabel:"overlay.credits.amounts.predictions"},
+		{id:"tips",			premium:true,	hasAmount:true,		canMerge:true,		icon:"coin",			label:"overlay.credits.categories.tips",			defaultLabel:"overlay.credits.labels.tips",				amountLabel:"overlay.credits.amounts.tips",		newFlag: Config.instance.NEW_FLAGS_DATE_V13},
+		{id:"merch",		premium:true,	hasAmount:false,	canMerge:false,		icon:"label",			label:"overlay.credits.categories.merch",			defaultLabel:"overlay.credits.labels.merch",			newFlag: Config.instance.NEW_FLAGS_DATE_V13},
+		{id:"ytSuperchat",	premium:true,	hasAmount:true,		canMerge:true,		icon:"youtube",			label:"overlay.credits.categories.ytSuperchat",		defaultLabel:"overlay.credits.labels.ytSuperchat",		amountLabel:"overlay.credits.amounts.tips",		newFlag: Config.instance.NEW_FLAGS_DATE_V13},
 		{id:"ytSuperSticker",premium:true,	hasAmount:true,		canMerge:true,		icon:"youtube",			label:"overlay.credits.categories.ytSuperSticker",	defaultLabel:"overlay.credits.labels.ytSuperSticker",	amountLabel:"overlay.credits.amounts.tips",	newFlag: Config.instance.NEW_FLAGS_DATE_V13},
 		{id:"text",			premium:true,	hasAmount:false,	canMerge:false,		icon:"font",			label:"overlay.credits.categories.text",			defaultLabel:"overlay.credits.labels.text"},
 	];
@@ -2022,6 +2053,7 @@ export namespace TwitchatDataTypes {
 		showAllSubs?:boolean;
 		showAllSubgifters?:boolean;
 		showSubsYoutube?:boolean;
+		showSubsTiktok?:boolean;
 		showSubgiftsYoutube?:boolean;
 		showTipsKofi?:boolean;
 		showSubsKofi?:boolean;
@@ -5278,6 +5310,10 @@ export namespace TwitchatDataTypes {
 		 * Number of diamonds the streamer earns
 		 */
 		diamonds:number;
+		/**
+		 * ID of the gift
+		 */
+		giftId:string;
 		/**
 		 * Raw data of the original message
 		 */
