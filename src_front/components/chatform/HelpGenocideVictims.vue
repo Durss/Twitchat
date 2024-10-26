@@ -9,8 +9,6 @@
 			<div class="content">
 				<p v-for="e in $tm('gaza.description')">{{ e }}</p>
 
-				<Splitter class="splitter">{{ $t("global.or") }}</Splitter>
-
 				<div class="ctas">
 					
 					<TTButton type="link"

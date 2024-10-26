@@ -361,6 +361,7 @@ export default class DataStore extends DataStoreCommon{
 
 		delete data["p:hideChat"];//TODO remove in a few months (added 08/08/204)
 		delete data["antifa_hide"];//TODO remove in a few months (added 08/08/204)
+		delete data["t4p_chat_cmd"];//TODO remove in a few months (added 26/10/204)
 		//TODO remove in a few months (added 08/08/204)
 		if(typeof data["p:autoTranslateFirstLang"] == "string") {
 			data["p:autoTranslateFirstLang"] = [data["p:autoTranslateFirstLang"]];
