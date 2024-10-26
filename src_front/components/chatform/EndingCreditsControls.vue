@@ -58,6 +58,9 @@ class EndingCreditsControls extends Vue {
 			powerups:[],
 			superChats:[],
 			superStickers:[],
+			tiktokGifts:[],
+			tiktokLikes:[],
+			tiktokShares:[],
 			labels:{
 				no_entry:"",
 				premium_only:"",
