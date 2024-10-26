@@ -1001,6 +1001,9 @@ export class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.COUNTDOWN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.PREDICTION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAMLABS );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE );
@@ -1028,6 +1031,7 @@ export class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.KOFI );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.TIPEEE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAMLABS );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY );
