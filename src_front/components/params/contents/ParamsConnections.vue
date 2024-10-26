@@ -45,7 +45,7 @@
 				<p>Streamlabs</p>
 			</button>
 
-			<button class="card-item" @click="subContent='tiktok'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.patreon'}">
+			<button class="card-item" @click="subContent='tiktok'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.tiktok'}">
 				<Icon name="tiktok" />
 				<p>
 					<span>TikTok</span>
