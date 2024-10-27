@@ -1,5 +1,6 @@
 <template>
-	<div class="chatcommunitychallengecontribution chatMessage highlight">
+	<div class="chatcommunitychallengecontribution chatMessage highlight"
+	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="channelPoints" alt="reward" class="icon"/>

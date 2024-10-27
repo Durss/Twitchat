@@ -1,5 +1,6 @@
 <template>
-	<div class="chattiktokshare chatMessage highlight">
+	<div class="chattiktokshare chatMessage highlight"
+	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="share" alt="share" class="icon"/>

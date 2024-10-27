@@ -260,6 +260,8 @@
 				"param_obs_action_emitevent": "Émettre un évènement navigateur",
 				"param_obs_action_startvirtualcam": "Lancer cam virtuelle",
 				"param_obs_action_stopvirtualcam": "Arrêter cam virtuelle",
+				"param_obs_action_createchapter": "Ajouter un chapitre à l'enregistrement en cours",
+				"param_record_chapter_name":"Nom du chapitre",
 				"param_browser_info": "Cette fonctionnalité est à destination des développeur·euses et permet de déclencher des évènement javascript directement dans les sources navigateur pour leur transmettre des données.",
 				"param_browser_usage": "Ajoutez ceci dans votre source navigateur pour recevoir l'évènement:",
 				"param_browserEvent_name": "Nom de l'évènement",
@@ -1455,6 +1457,54 @@
 			"TIKTOK_SHARE": {
 				"label":"Partage TikTok",
 				"description":"Une personne partage votre stream"
+			},
+			"CLEAR_CHAT": {
+				"label":"Chat effacé",
+				"description": "Actions à exécuter lorsque tout le tchat est effacé"
+			},
+			"SUB_ONLY_ON": {
+				"label":"Sub-only activé",
+				"description": "Actions à exécuter lorsque le tchat passe en sub-only"
+			},
+			"SUB_ONLY_OFF": {
+				"label":"Sub-only désactivé",
+				"description": "Actions à exécuter lorsque le tchat n'est plus en sub-only"
+			},
+			"FOLLOW_ONLY_ON": {
+				"label":"Follow-only activé",
+				"description": "Actions à exécuter lorsque le tchat passe en follow-only"
+			},
+			"FOLLOW_ONLY_OFF": {
+				"label":"Follow-only désactivé",
+				"description": "Actions à exécuter lorsque le tchat n'est plus en follow-only"
+			},
+			"EMOTE_ONLY_ON": {
+				"label":"Emote-only activé",
+				"description": "Actions à exécuter lorsque le tchat passe en emote-only"
+			},
+			"EMOTE_ONLY_OFF": {
+				"label":"Emote-only désactivé",
+				"description": "Actions à exécuter lorsque le tchat n'est plus en emote-only"
+			},
+			"SLOW_MODE_ON": {
+				"label":"Mode lent activé",
+				"description": "Actions à exécuter lorsque le mode lent est activé"
+			},
+			"SLOW_MODE_OFF": {
+				"label":"Mode lent désactivé",
+				"description": "Actions à exécuter lorsque le mode lent est désactivé"
+			},
+			"MONITOR_ON": {
+				"label":"Personne surveillée",
+				"description": "Actions à exécuter lorsqu'une personne n'est plus surveillée"
+			},
+			"RESTRICT_ON": {
+				"label":"Personne restreinte",
+				"description": "Actions à exécuter lorsqu'une personne est restreinte"
+			},
+			"MONITOR_RESTRICT_OFF": {
+				"label":"Personne plus surveillée ou restrainte",
+				"description": "Actions à exécuter lorsqu'une personne n'est plus surveillée ou restreinte"
 			}
 		},
 		"musicEvents": {

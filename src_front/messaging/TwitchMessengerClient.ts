@@ -1134,7 +1134,17 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			case "NOTICE": {
 				let [msgid, url, cmd, channel, message] = (parsed.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");
 				console.log("NOTICE::", msgid, message);
-				let noticeId:TwitchatDataTypes.TwitchatNoticeStringType = TwitchatDataTypes.TwitchatNoticeType.GENERIC;
+				const msgIdToNoticeId:{[msgId:string]:TwitchatDataTypes.TwitchatNoticeStringType} = {
+					"subs_on": TwitchatDataTypes.TwitchatNoticeType.SUB_ONLY_ON,
+					"subs_off": TwitchatDataTypes.TwitchatNoticeType.SUB_ONLY_OFF,
+					"followers_on": TwitchatDataTypes.TwitchatNoticeType.FOLLOW_ONLY_ON,
+					"followers_off": TwitchatDataTypes.TwitchatNoticeType.FOLLOW_ONLY_OFF,
+					"emote_only_on": TwitchatDataTypes.TwitchatNoticeType.EMOTE_ONLY_ON,
+					"emote_only_off": TwitchatDataTypes.TwitchatNoticeType.EMOTE_ONLY_OFF,
+					"slow_on": TwitchatDataTypes.TwitchatNoticeType.SLOW_MODE_ON,
+					"slow_off": TwitchatDataTypes.TwitchatNoticeType.SLOW_MODE_OFF,
+				}
+				let noticeId:TwitchatDataTypes.TwitchatNoticeStringType = msgIdToNoticeId[msgid] || TwitchatDataTypes.TwitchatNoticeType.GENERIC;
 				if(!message) {
 					if(msgid.indexOf("bad_delete_message_error") > -1) {
 						message = StoreProxy.i18n.t("error.delete_message")

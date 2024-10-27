@@ -1,5 +1,6 @@
 <template>
-	<div :class="classes">
+	<div :class="classes"
+	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="timeout" class="icon" v-if="messageData.duration_s" />

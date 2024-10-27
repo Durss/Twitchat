@@ -699,6 +699,19 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT: {
+				if(await this.executeTriggersByType(TriggerTypes.CLEAR_CHAT, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT: {
+				const event = message.monitored? TriggerTypes.MONITOR_ON : message.restricted? TriggerTypes.RESTRICT_ON : TriggerTypes.MONITOR_RESTRICT_OFF;
+				if(await this.executeTriggersByType(event, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				switch(message.noticeId) {
 					case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE:{
@@ -737,6 +750,46 @@ export default class TriggerActionHandler {
 						const m = message as TwitchatDataTypes.MessageShieldMode;
 						const event = m.enabled? TriggerTypes.SHIELD_MODE_ON : TriggerTypes.SHIELD_MODE_OFF;
 						if(await this.executeTriggersByType(event, message, testMode, undefined, undefined, forcedTriggerId)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.SUB_ONLY_ON:{
+						if(await this.executeTriggersByType(TriggerTypes.SUB_ONLY_ON, message, testMode, undefined, undefined, forcedTriggerId)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.SUB_ONLY_OFF:{
+						if(await this.executeTriggersByType(TriggerTypes.SUB_ONLY_OFF, message, testMode, undefined, undefined, forcedTriggerId)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.FOLLOW_ONLY_ON:{
+						if(await this.executeTriggersByType(TriggerTypes.FOLLOW_ONLY_ON, message, testMode, undefined, undefined, forcedTriggerId)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.FOLLOW_ONLY_OFF:{
+						if(await this.executeTriggersByType(TriggerTypes.FOLLOW_ONLY_OFF, message, testMode, undefined, undefined, forcedTriggerId)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.EMOTE_ONLY_ON:{
+						if(await this.executeTriggersByType(TriggerTypes.EMOTE_ONLY_ON, message, testMode, undefined, undefined, forcedTriggerId)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.EMOTE_ONLY_OFF:{
+						if(await this.executeTriggersByType(TriggerTypes.EMOTE_ONLY_OFF, message, testMode, undefined, undefined, forcedTriggerId)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.SLOW_MODE_ON:{
+						if(await this.executeTriggersByType(TriggerTypes.SLOW_MODE_ON, message, testMode, undefined, undefined, forcedTriggerId)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.SLOW_MODE_OFF:{
+						if(await this.executeTriggersByType(TriggerTypes.SLOW_MODE_OFF, message, testMode, undefined, undefined, forcedTriggerId)) {
 							return;
 						}break;
 					}
@@ -1478,6 +1531,9 @@ export default class TriggerActionHandler {
 					}else
 					if(step.obsAction == "stopvirtualcam") {
 						await OBSWebsocket.instance.socket.call("StopVirtualCam");
+					}else
+					if(step.obsAction == "createchapter") {
+						await OBSWebsocket.instance.socket.call("CreateRecordChapter", {chapterName:step.recordChapterName});
 					}else
 					if(step.obsAction == "emitevent") {
 						const params = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.browserEventParams || "", subEvent);

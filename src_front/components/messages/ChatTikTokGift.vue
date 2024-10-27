@@ -5,7 +5,8 @@
 		<Icon name="gift" alt="gift" class="icon"/>
 		<Icon name="tiktok" alt="tiktok" class="icon"/>
 
-		<i18n-t scope="global" keypath="chat.tiktok_gift.new" tag="span" class="holder">
+		<i18n-t scope="global" keypath="chat.tiktok_gift.new" tag="span" class="holder"
+	@contextmenu="onContextMenu($event, messageData, $el)">
 			<template #USER>
 				<a class="userlink"
 					:href="getProfilePage(messageData.user)"

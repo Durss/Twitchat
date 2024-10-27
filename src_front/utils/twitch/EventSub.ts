@@ -1506,6 +1506,7 @@ export default class EventSub {
 			restricted:event.low_trust_status == "restricted",
 			monitored:event.low_trust_status == "active_monitoring",
 		};
+		console.log(event)
 		StoreProxy.chat.addMessage(m);
 	}
 

@@ -1,5 +1,6 @@
 <template>
-	<div :class="classes" @contextmenu="onContextMenu($event, messageData, $el)">
+	<div :class="classes"
+	@contextmenu="onContextMenu($event, messageData, $el)">
 		<div class="fader" ref="fader" v-if="messageData.pinned"></div>
 		<div class="fill" ref="fill" v-if="messageData.pinned"></div>
 		

@@ -260,6 +260,8 @@
 				"param_obs_action_emitevent": "Emit browser event",
 				"param_obs_action_startvirtualcam": "Start virtual cam",
 				"param_obs_action_stopvirtualcam": "Stop virtual cam",
+				"param_obs_action_createchapter": "Add chapter marker to current record",
+				"param_record_chapter_name":"Chapter name",
 				"param_browser_info": "This feature is for developpers. It allows to emit a javascript event on all browsser sources to send them data.",
 				"param_browser_usage": "Add this to your browser source to receive the data:",
 				"param_browserEvent_name": "Event name",
@@ -1455,6 +1457,54 @@
 			"TIKTOK_SHARE": {
 				"label":"Tiktok share",
 				"description":"A viewer shared your TikTok stream"
+			},
+			"CLEAR_CHAT": {
+				"label":"Chat cleared",
+				"description": "Actions to execute when the chat is cleared"
+			},
+			"SUB_ONLY_ON": {
+				"label":"Sub-only enabled",
+				"description": "Actions to execute when sub-only mode is enabled"
+			},
+			"SUB_ONLY_OFF": {
+				"label":"Sub-only disabled",
+				"description": "Actions to execute when sub-only mode is disabled"
+			},
+			"FOLLOW_ONLY_ON": {
+				"label":"Follow-only enabled",
+				"description": "Actions to execute when follow-only mode is enabled"
+			},
+			"FOLLOW_ONLY_OFF": {
+				"label":"Follow-only disabled",
+				"description": "Actions to execute when follow-only mode is disabled"
+			},
+			"EMOTE_ONLY_ON": {
+				"label":"Emote-only enabled",
+				"description": "Actions to execute when emote-only mode is enabled"
+			},
+			"EMOTE_ONLY_OFF": {
+				"label":"Emote-only disabled",
+				"description": "Actions to execute when emote-only mode is disabled"
+			},
+			"SLOW_MODE_ON": {
+				"label":"Slow mode enabled",
+				"description": "Actions to execute when slow mode is enabled"
+			},
+			"SLOW_MODE_OFF": {
+				"label":"Slow mode disabled",
+				"description": "Actions to execute when slow mode is disabled"
+			},
+			"MONITOR_ON": {
+				"label":"User monitored",
+				"description": "Actions to execute when a user is monitored"
+			},
+			"RESTRICT_ON": {
+				"label":"User restricted",
+				"description": "Actions to execute when a user is restricted from chatting"
+			},
+			"MONITOR_RESTRICT_OFF": {
+				"label":"User not monitored or restricted anymore",
+				"description": "Actions to execute when a user stops being monitored or restricted from chatting"
 			}
 		},
 		"musicEvents": {

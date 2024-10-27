@@ -2422,6 +2422,14 @@ export namespace TwitchatDataTypes {
 		DEVMODE:"devMode",//When enabling/disabling devmode via "/devmode" command
 		BLOCKED:"blocked",//When a user is blocked
 		UNBLOCKED:"unblocked",//When a user is unblocked
+		SUB_ONLY_ON:"subs_on",
+		SUB_ONLY_OFF:"subs_off",
+		FOLLOW_ONLY_ON:"followers_on",
+		FOLLOW_ONLY_OFF:"followers_off",
+		EMOTE_ONLY_ON:"emote_only_on",
+		EMOTE_ONLY_OFF:"emote_only_off",
+		SLOW_MODE_ON:"slow_on",
+		SLOW_MODE_OFF:"slow_off",
 	} as const;
 	export type TwitchatNoticeStringType = typeof TwitchatNoticeType[keyof typeof TwitchatNoticeType]|null;
 

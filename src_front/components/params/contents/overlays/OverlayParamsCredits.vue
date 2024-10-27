@@ -611,7 +611,7 @@ class OverlayParamsCredits extends Vue {
 			this.param_showBadges[id]	= {type:'boolean', value:entry.showBadges!, icon:"badge", labelKey:'overlay.credits.param_showBadges', premiumOnly:true};
 			this.param_sortByName[id]	= {type:"boolean", value:entry.sortByNames!, icon:"filters", labelKey:"overlay.credits.param_sortByNames", premiumOnly:true};
 			this.param_sortByRoles[id]	= {type:"boolean", value:entry.sortByRoles!, icon:"filters", labelKey:"overlay.credits.param_sortByRoles", premiumOnly:true};
-			this.param_sortByAmounts[id]= {type:"boolean", value:entry.sortByAmounts!, icon:"filters", labelKey:"overlay.credits.param_sortByAmounts", premiumOnly:true};
+			this.param_sortByAmounts[id]= {type:"boolean", value:entry.sortByAmounts!, icon:"filters", labelKey:"overlay.credits.param_sortByAmount", premiumOnly:true};
 		}else
 
 		if(slotDef.id == "text") {

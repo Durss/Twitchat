@@ -343,7 +343,7 @@ export interface TriggerActionDelayData extends TriggerActionData{
 	delay:number;
 }
 
-export type TriggerActionObsDataAction = "sources"|"startstream"|"stopstream"|"startrecord"|"pauserecord"|"resumerecord"|"stoprecord"|"emitevent"|"startvirtualcam"|"stopvirtualcam";
+export type TriggerActionObsDataAction = "sources"|"startstream"|"stopstream"|"startrecord"|"pauserecord"|"resumerecord"|"stoprecord"|"emitevent"|"startvirtualcam"|"stopvirtualcam"|"createchapter";
 export type TriggerActionObsSourceDataAction = "show"|"hide"|"mute"|"unmute"|"replay"|"stop"|"next"|"prev"|"switch_to"|"move"|"rotate"|"resize"|"toggle_visibility";//|"startstream"|"stopstream"|"startrecord"|"pauserecord"|"stoprecord";
 export interface TriggerActionObsData extends TriggerActionData{
 	type:"obs";
@@ -441,6 +441,10 @@ export interface TriggerActionObsData extends TriggerActionData{
 	 * Parameter of the event to broadacast to browser sources
 	 */
 	browserEventParams?:string;
+	/**
+	 * Name of the record chapter to create
+	 */
+	recordChapterName?:string;
 	/**
 	 * @deprecated replaced by "action" prop
 	 */
@@ -1254,8 +1258,8 @@ export const TriggerTypes = {
 	QNA_START:"97",
 	QNA_DELETE:"98",
 	QNA_STOP:"99",
-	USER_JOIN:"100",//private undocument trigger type
-	USER_LEAVE:"101",//private undocument trigger type
+	USER_JOIN:"100",//private undocumented trigger type
+	USER_LEAVE:"101",//private undocumented trigger type
 	CREDITS_COMPLETE:"102",
 	STREAMLABS_DONATION:"103",
 	STREAMLABS_MERCH:"104",
@@ -1298,6 +1302,18 @@ export const TriggerTypes = {
 	TIKTOK_GIFT:"141",
 	TIKTOK_LIKE:"142",
 	TIKTOK_SHARE:"143",
+	CLEAR_CHAT:"144",
+	SUB_ONLY_ON:"145",
+	SUB_ONLY_OFF:"146",
+	FOLLOW_ONLY_ON:"147",
+	FOLLOW_ONLY_OFF:"148",
+	EMOTE_ONLY_ON:"149",
+	EMOTE_ONLY_OFF:"150",
+	SLOW_MODE_ON:"151",
+	SLOW_MODE_OFF:"152",
+	MONITOR_ON:"153",
+	RESTRICT_ON:"154",
+	MONITOR_RESTRICT_OFF:"155",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -2371,6 +2387,18 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.MOD, icon:"unvip", labelKey:"triggers.events.UNVIP.label", value:TriggerTypes.UNVIP, descriptionKey:"triggers.events.UNVIP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.UNVIP},
 		{category:TriggerEventTypeCategories.MOD, icon:"mod", labelKey:"triggers.events.MOD.label", value:TriggerTypes.MOD, descriptionKey:"triggers.events.MOD.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.MOD},
 		{category:TriggerEventTypeCategories.MOD, icon:"unmod", labelKey:"triggers.events.UNMOD.label", value:TriggerTypes.UNMOD, descriptionKey:"triggers.events.UNMOD.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.UNMOD},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V15, category:TriggerEventTypeCategories.MOD, icon:"clearChat", labelKey:"triggers.events.CLEAR_CHAT.label", value:TriggerTypes.CLEAR_CHAT, descriptionKey:"triggers.events.UNMOD.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V15, category:TriggerEventTypeCategories.MOD, icon:"sub", labelKey:"triggers.events.SUB_ONLY_ON.label", value:TriggerTypes.SUB_ONLY_ON, descriptionKey:"triggers.events.SUB_ONLY_ON.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.MOD},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V15, category:TriggerEventTypeCategories.MOD, icon:"sub", labelKey:"triggers.events.SUB_ONLY_OFF.label", value:TriggerTypes.SUB_ONLY_OFF, descriptionKey:"triggers.events.SUB_ONLY_OFF.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.MOD},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V15, category:TriggerEventTypeCategories.MOD, icon:"follow", labelKey:"triggers.events.FOLLOW_ONLY_ON.label", value:TriggerTypes.FOLLOW_ONLY_ON, descriptionKey:"triggers.events.FOLLOW_ONLY_ON.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.MOD},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V15, category:TriggerEventTypeCategories.MOD, icon:"follow", labelKey:"triggers.events.FOLLOW_ONLY_OFF.label", value:TriggerTypes.FOLLOW_ONLY_OFF, descriptionKey:"triggers.events.FOLLOW_ONLY_OFF.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.MOD},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V15, category:TriggerEventTypeCategories.MOD, icon:"emote", labelKey:"triggers.events.EMOTE_ONLY_ON.label", value:TriggerTypes.EMOTE_ONLY_ON, descriptionKey:"triggers.events.EMOTE_ONLY_ON.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.MOD},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V15, category:TriggerEventTypeCategories.MOD, icon:"emote", labelKey:"triggers.events.EMOTE_ONLY_OFF.label", value:TriggerTypes.EMOTE_ONLY_OFF, descriptionKey:"triggers.events.EMOTE_ONLY_OFF.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.MOD},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V15, category:TriggerEventTypeCategories.MOD, icon:"slow", labelKey:"triggers.events.SLOW_MODE_ON.label", value:TriggerTypes.SLOW_MODE_ON, descriptionKey:"triggers.events.SLOW_MODE_ON.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.MOD},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V15, category:TriggerEventTypeCategories.MOD, icon:"slow", labelKey:"triggers.events.SLOW_MODE_OFF.label", value:TriggerTypes.SLOW_MODE_OFF, descriptionKey:"triggers.events.SLOW_MODE_OFF.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.MOD},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V15, category:TriggerEventTypeCategories.MOD, icon:"shield", labelKey:"triggers.events.MONITOR_ON.label", value:TriggerTypes.MONITOR_ON, descriptionKey:"triggers.events.MONITOR_ON.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V15, category:TriggerEventTypeCategories.MOD, icon:"lock_fit", labelKey:"triggers.events.RESTRICT_ON.label", value:TriggerTypes.RESTRICT_ON, descriptionKey:"triggers.events.RESTRICT_ON.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V15, category:TriggerEventTypeCategories.MOD, icon:"lock_fit", labelKey:"triggers.events.MONITOR_RESTRICT_OFF.label", value:TriggerTypes.MONITOR_RESTRICT_OFF, descriptionKey:"triggers.events.MONITOR_RESTRICT_OFF.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT},
 		{category:TriggerEventTypeCategories.MOD, icon:"raid", labelKey:"triggers.events.RAID_STARTED.label", value:TriggerTypes.RAID_STARTED, descriptionKey:"triggers.events.RAID_STARTED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAID_STARTED},
 		{category:TriggerEventTypeCategories.MOD, icon:"clip", labelKey:"triggers.events.CLIP_CREATED.label", value:TriggerTypes.CLIP_CREATED, descriptionKey:"triggers.events.CLIP_CREATED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE},
 		{category:TriggerEventTypeCategories.MOD, icon:"announcement", labelKey:"triggers.events.ANNOUNCEMENTS.label", value:TriggerTypes.ANNOUNCEMENTS, descriptionKey:"triggers.events.ANNOUNCEMENTS.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
