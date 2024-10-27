@@ -217,7 +217,9 @@ export default class OBSWebsocket extends EventDispatcher {
 
 		const res = await this.obs.call("GetSceneList") as {
 			currentProgramSceneName: string;
+			currentProgramSceneUuid: string;
 			currentPreviewSceneName: string;
+			currentPreviewSceneUuid: string;
 			scenes: {sceneIndex:number, sceneName:string}[];
 		};
 		res.scenes.sort((a,b)=> b.sceneIndex - a.sceneIndex)
