@@ -11,6 +11,7 @@ let autoreconnect:boolean = false;
 let initResolver!:(value: boolean) => void;
 let socket!:WebSocket;
 let reconnectTimeout:number = -1;
+let debouncedLikes:{[uid:string]:{count:number, to:number}} = {}
 
 export const storeTiktok = defineStore('tiktok', {
 	state: () => ({
@@ -291,17 +292,27 @@ export const storeTiktok = defineStore('tiktok', {
 				}
 
 				case "like": {
-					const message:TwitchatDataTypes.MessageTikTokLikeData = {
-						channel_id:json.data.tikfinityUserId.toString(),
-						platform:"tiktok",
-						id:Utils.getUUID(),
-						date:Date.now(),
-						type:TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE,
-						user:user!,
-						count:json.data.likeCount,
-						streamLikeCount:json.data.totalLikeCount,
-					};
-					StoreProxy.chat.addMessage(message);
+					if(debouncedLikes[user!.id]) {
+						clearTimeout(debouncedLikes[user!.id].to);
+					}else{
+						debouncedLikes[user!.id] = {count:0, to:-1}
+					}
+					const to = setTimeout(()=> {
+						const message:TwitchatDataTypes.MessageTikTokLikeData = {
+							channel_id:json.data.tikfinityUserId.toString(),
+							platform:"tiktok",
+							id:Utils.getUUID(),
+							date:Date.now(),
+							type:TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE,
+							user:user!,
+							count:debouncedLikes[user!.id].count,
+							streamLikeCount:json.data.totalLikeCount,
+						};
+						StoreProxy.chat.addMessage(message);
+						delete debouncedLikes[user!.id];
+					}, 5000);
+					debouncedLikes[user!.id].count += json.data.likeCount;
+					debouncedLikes[user!.id].to = to;
 					return;
 				}
 
