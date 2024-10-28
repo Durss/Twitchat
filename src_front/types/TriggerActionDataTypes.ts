@@ -720,17 +720,18 @@ export interface TriggerActionHTTPCallData extends TriggerActionData{
 export interface TriggerActionWSData extends TriggerActionData{
 	type:"ws";
 	/**
-	 * Custom topic param to send to websocket
-	 */
-	topic:string;
-	/**
 	 * Custom payload to send to websocket
-	 */
+	*/
 	payload:string;
 	/**
 	 * Placeholder to send to websocket
-	 */
+	*/
 	params:string[];
+	/**
+	 * Custom topic param to send to websocket
+	 * @deprecated removed in favor of only the "payload" prop that now defines the whole body
+	 */
+	topic?:string;
 }
 
 export interface TriggerActionPollData extends TriggerActionData{

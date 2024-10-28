@@ -148,7 +148,7 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	static override async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 58;
+		const latestVersion = 59;
 
 		this.cleanupPreV7Data(data);
 
@@ -356,6 +356,10 @@ export default class DataStore extends DataStoreCommon{
 		}
 		if(v==57) {
 			this.migrateHTTPTriggerOutputPlaceholer(data);
+			v = 58;
+		}
+		if(v==58) {
+			this.migrateWSTriggerActions(data);
 			v = latestVersion;
 		}
 
@@ -1560,6 +1564,35 @@ export default class DataStore extends DataStoreCommon{
 								placeholder:a.outputPlaceholder,
 							}
 						]
+					}
+				})
+			});
+		}
+	}
+	
+	/**
+	 * Migrate WS trigger actions.
+	 * Until then there was a "topic" and "payload" options
+	 * but they were both sent as a prop of the body with no
+	 * way to specify the actual body which was blocking to
+	 * properly interface with third party apps.
+	 * Now there's only a "payload" property.
+	 * This method migrates previous format to new one
+	 * @param data 
+	 */
+	private static migrateWSTriggerActions(data:any):void {
+		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+		if(triggers && Array.isArray(triggers)) {
+			triggers.forEach(t => {
+				t.actions.forEach(a => {
+					if(a.type == "ws") {
+						let payload:{payload?:string, topic?:string} = {};
+						if(a.payload) payload.payload = a.payload;
+						if(a.topic) payload.topic = a.topic;
+
+						delete a.topic;
+
+						a.payload = JSON.stringify(payload);
 					}
 				})
 			});

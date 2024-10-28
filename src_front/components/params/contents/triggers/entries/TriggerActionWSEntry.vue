@@ -9,42 +9,14 @@
 			</i18n-t>
 		</div>
 
-		<div class="card-item tags">
-			<p class="title" v-if="parameters.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
-			
-			<div class="params">
-				<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" v-model="param_toggleAll.value" @change="toggleAll()" v-if="parameters.length > 3" />
-				
-				<div class="card-item">
-					<label for="ws_action_topic" class="taginfo">
-						<div class="tag"><mark>TOPIC</mark></div>
-						<span>{{ $t("triggers.actions.http_ws.topic_description") }}</span>
-					</label>
-					<input id="ws_action_topic" type="text" v-model="action.topic"
-					:placeholder="$t('triggers.actions.http_ws.topic_placeholder')" maxlength="255" ref="topic">
-					<PlaceholderSelector class="placeholders" v-if="placeholderList"
-						:target="$refs.topic"
-						:placeholders="placeholderList"
-						v-model="action.topic"
-						:popoutMode="true"
-					/>
-				</div>
-				
-				<div class="card-item column">
-					<label for="ws_action_payload" class="taginfo">
-						<div class="tag"><mark>PAYLOAD</mark></div>
-						<span>{{ $t("triggers.actions.http_ws.topic_description") }}</span>
-					</label>
-					<textarea id="ws_action_payload" type="text" v-model="action.payload"
-					:placeholder="$t('triggers.actions.http_ws.topic_placeholder')" maxlength="10000" ref="payload"></textarea>
-					<PlaceholderSelector class="placeholders" v-if="placeholderList"
-						:target="$refs.payload"
-						:placeholders="placeholderList"
-						v-model="action.payload"
-						:popoutMode="false"
-					/>
-				</div>
+		<ParamItem :paramData="param_payload" v-model="action.payload" />
 
+		<div class="card-item tags">
+			<div class="head">
+				<p class="title" v-if="parameters.length > 0">{{ $t("triggers.actions.http_ws.select_param_ws") }}</p>
+				<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" v-model="param_toggleAll.value" @change="toggleAll()" v-if="parameters.length > 3" />
+			</div>
+			<div class="params">
 				<div class="card-item" v-for="p in parameters" :key="p.placeholder.tag" @click="p.enabled = !p.enabled; onToggleParam()">
 					<div class="taginfo">
 						<div class="tag"><mark>{{ p.placeholder.tag }}</mark></div>
@@ -59,13 +31,13 @@
 
 <script lang="ts">
 import ToggleButton from '@/components/ToggleButton.vue';
-import ParamItem from '@/components/params/ParamItem.vue';
 import type { ITriggerPlaceholder, TriggerActionWSData, TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
+import ParamItem from '@/components/params/ParamItem.vue';
 
 @Component({
 	components:{
@@ -105,7 +77,6 @@ class TriggerActionWSEntry extends AbstractTriggerActionEntry {
 	 * Called when clicking "all" toggle
 	 */
 	public toggleAll():void {
-		console.log("VALUE", this.param_toggleAll.value)
 		this.parameters.forEach(v=> v.enabled = this.param_toggleAll.value);
 		this.onToggleParam();
 	}
@@ -121,6 +92,7 @@ class TriggerActionWSEntry extends AbstractTriggerActionEntry {
 				enabled:!this.action.params || this.action.params.includes(v.tag),
 			}
 		});
+		this.param_payload.placeholderList = list;
 	}
 
 }
@@ -168,6 +140,12 @@ export default toNative(TriggerActionWSEntry);
 				font-size: 1rem;
 			}
 		}
+	}
+
+	.head {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
 		.toggleAll {
 			justify-self: flex-end;
 			align-self: flex-end;
@@ -176,8 +154,10 @@ export default toNative(TriggerActionWSEntry);
 			width: fit-content;
 			margin-right: .5em;
 			margin-bottom: .5em;
+			font-size: .8em;
 		}
 	}
+
 
 	.card-item.column {
 		flex-direction: column;

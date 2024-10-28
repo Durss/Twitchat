@@ -2051,23 +2051,31 @@ export default class TriggerActionHandler {
 
 				//Handle WS message trigger action
 				if(step.type == "ws") {
-					const json:{[key:string]:number|string|boolean} = {};
+					let jsonSrc = step.payload || "{}";
+					let json:{[key:string]:number|string|boolean} = {};
+					try {
+						jsonSrc = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, jsonSrc, subEvent, false, false, false, true);
+						json = JSON.parse(jsonSrc);
+					}catch(error) {
+						json = {
+							twitchat_error:"Invalid JSON structure",
+						};
+						logStep.messages.push({date:Date.now(), value:"❌ Failed parsing JSON: "+error});
+						logStep.messages.push({date:Date.now(), value:"❌ Given JSON after replacing placeholders: "+jsonSrc});
+						logStep.messages.push({date:Date.now(), value:"❌ Using empty JSON as body instead of custom one"});
+						log.error = true;
+						logStep.error = true;
+					}
 					for (const tag of step.params) {
 						const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent, false, false, false);
 						json[tag.toLowerCase()] = value;
 					}
-					if(step.topic) {
-						json.topic = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.topic, subEvent);
-					}
-					if(step.payload) {
-						json.payload = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.payload, subEvent);
-					}
 					try {
 						if(WebsocketTrigger.instance.connected) {
-							logStep.messages.push({date:Date.now(), value:"Sending WS message: "+json});
+							logStep.messages.push({date:Date.now(), value:"Sending WS message: "+JSON.stringify(json)});
 							WebsocketTrigger.instance.sendMessage(json);
 						}else{
-							logStep.messages.push({date:Date.now(), value:"❌ Websocket not connected. Cannot send data: "+json});
+							logStep.messages.push({date:Date.now(), value:"❌ Websocket not connected. Cannot send data: "+JSON.stringify(json)});
 							log.error = true;
 							logStep.error = true;
 						}
