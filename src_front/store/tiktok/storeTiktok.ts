@@ -11,7 +11,8 @@ let autoreconnect:boolean = false;
 let initResolver!:(value: boolean) => void;
 let socket!:WebSocket;
 let reconnectTimeout:number = -1;
-let debouncedLikes:{[uid:string]:{count:number, to:number}} = {}
+let debouncedLikes:{[uid:string]:{count:number, to:number}} = {};
+let processedEvents:{[id:string]:true} = {};
 
 export const storeTiktok = defineStore('tiktok', {
 	state: () => ({
@@ -116,6 +117,11 @@ export const storeTiktok = defineStore('tiktok', {
 			|| json.event == "member"
 			|| json.event == "subscribe"
 			) {
+
+				//Message already processed, ignore it
+				if(processedEvents[json.data.msgId] === true) return;
+				processedEvents[json.data.msgId] = true;
+
 				try {
 					user = StoreProxy.users.getUserFrom("tiktok", json.data.tikfinityUserId.toString(), json.data.userId, json.data.uniqueId, json.data.nickname, undefined, json.data.followInfo?.followStatus === 1, false, json.data.isSubscriber, false);
 					user.avatarPath = json.data.profilePictureUrl || (json.data.userDetails.profilePictureUrls? json.data.userDetails.profilePictureUrls[ json.data.userDetails.profilePictureUrls.length-1 ] : "");
