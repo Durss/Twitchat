@@ -110,7 +110,7 @@
 											:key="'subfilter_'+messageFilter.storage"
 											:paramData="messageFilter"
 											@change="saveData()"
-											v-model="config.messageFilters[messageFilter.storage!]" />
+											v-model="config.messageFilters[messageFilter.storage!.type]" />
 									</div>
 
 									<template v-if="$store.users.customBadgeList.length > 0">
@@ -299,7 +299,7 @@ export class MessageListFilter extends Vue {
 	public mouseOverToggle:boolean = false;
 	public previewData:TwitchatDataTypes.ChatMessageTypes[] = [];
 	public filters:TwitchatDataTypes.ParameterData<boolean, undefined, undefined, typeof TwitchatDataTypes.MessageListFilterTypes[number]>[] = [];
-	public messageFilters:TwitchatDataTypes.ParameterData<boolean, unknown, boolean, keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters>[] = [];
+	public messageFilters:TwitchatDataTypes.ParameterData<boolean, unknown, boolean, typeof TwitchatDataTypes.MessageListChatMessageFilterTypes[number]>[] = [];
 	public param_toggleAll:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.select_all" };
 	public param_showBadges:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.show_user_badges", icon:"show"};
 	public param_hideBadges:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.hide_user_badges", icon:"hide"};
