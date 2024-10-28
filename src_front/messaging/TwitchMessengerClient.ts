@@ -94,12 +94,12 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const amIModThere = result !== false;
 					if(amIModThere) {
 						//Go through getUserFrom() that will init the channelInfo property for later use
-						const me = StoreProxy.users.getUserFrom("twitch", channel.id, meObj.id, meObj.login, meObj.displayNameOriginal)
+						const me = StoreProxy.users.getUserFrom("twitch", channel.id, meObj.id, meObj.login, meObj.displayNameOriginal, undefined, undefined, false, undefined, false)
 						//Flag self as mod of that channel
 						me.channelInfo[channel.id].is_moderator = true;
 					}
 				})
-				const u = StoreProxy.users.getUserFrom("twitch", channel.id, channel.id, channel.login, channel.display_name);//Preload user to storage
+				const u = StoreProxy.users.getUserFrom("twitch", channel.id, channel.id, channel.login, channel.display_name, undefined, undefined, false, undefined, false);//Preload user to storage
 				u.channelInfo[channel.id].online = true;
 				u.channelInfo[channel.id].is_broadcaster = true;
 
@@ -283,7 +283,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 							StoreProxy.common.alert("User <strong>\""+login+"\"</strong> does not exists");
 						}
 						resolve(user);
-					})
+					}, undefined, undefined, undefined, false)
 				})
 				// let res:TwitchDataTypes.UserInfo[];
 				// try {
@@ -681,7 +681,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					this._remoteIdToPromise[chanId] = new Promise<TwitchatDataTypes.TwitchatUser>((resolve)=>{
 						StoreProxy.users.getUserFrom("twitch", chanId, chanId, undefined, undefined, (user)=>{
 							resolve(user);
-						})
+						}, undefined, undefined, undefined, false)
 					});
 				}
 
@@ -888,7 +888,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const recipientLogin = tags["msg-param-recipient-user-name"] ?? recipient;
 		const recipientName = tags["msg-param-recipient-display-name"] ?? recipient;
 		const recipientId = tags["msg-param-recipient-id"];
-		const user = StoreProxy.users.getUserFrom("twitch", data.channel_id, recipientId, recipientLogin, recipientName);
+		const user = StoreProxy.users.getUserFrom("twitch", data.channel_id, recipientId, recipientLogin, recipientName, undefined, undefined, false, undefined, false);
 		data.gift_recipients = [user];
 		data.gift_count = 1;
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
@@ -902,7 +902,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const recipientLogin = tags["msg-param-recipient-user-name"] ?? recipient;
 		const recipientName = tags["msg-param-recipient-display-name"] ?? recipient;
 		const recipientId = tags["msg-param-recipient-id"];
-		const user = StoreProxy.users.getUserFrom("twitch", data.channel_id, recipientId, recipientLogin, recipientName);
+		const user = StoreProxy.users.getUserFrom("twitch", data.channel_id, recipientId, recipientLogin, recipientName, undefined, undefined, false, undefined, false);
 		data.gift_recipients = [user];
 		data.gift_count = 1;
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));

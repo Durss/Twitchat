@@ -1345,7 +1345,9 @@ export default class TwitchUtils {
 	/**
 	 * Get pronouns of a user
 	 */
-	public static async getPronouns(uid: string, username: string): Promise<TwitchatDataTypes.Pronoun | null> {
+	public static async getPronouns(uid: string, username: string, platform:TwitchatDataTypes.ChatPlatform): Promise<TwitchatDataTypes.Pronoun | null> {
+		if(platform != "twitch") return null;//No platform support anything else but twitch so far
+
 		const getPronounAlejo = async (): Promise<TwitchatDataTypes.Pronoun | null> => {
 			const url = new URL("https://pronouns.alejo.io/api/users/" + username);
 			const res = await this.callApi(url);
@@ -1362,7 +1364,7 @@ export default class TwitchUtils {
 
 		const getPronounPronounDb = async (): Promise<TwitchatDataTypes.Pronoun | null> => {
 			const url = new URL("https://pronoundb.org/api/v2/lookup")
-			url.searchParams.set("platform", "twitch");
+			url.searchParams.set("platform", platform);
 			url.searchParams.set("ids", uid);
 			const res = await this.callApi(url);
 			const data = await res.json();
@@ -1377,10 +1379,12 @@ export default class TwitchUtils {
 		}
 
 		let pronoun: TwitchatDataTypes.Pronoun | null = null;
-		try {
-			pronoun = await getPronounAlejo();
-		} catch (error) {
-			/*ignore*/
+		if(platform === "twitch") {
+			try {
+				pronoun = await getPronounAlejo();
+			} catch (error) {
+				/*ignore*/
+			}
 		}
 		if (pronoun == null) {
 			try {

@@ -125,7 +125,7 @@ export const storeEmergency = defineStore('emergency', {
 						StoreProxy.users.getUserFrom("twitch", channelId, undefined, usersNames[i], undefined, (u)=> {
 							userToPrevModState[channelId][u.id] = u.channelInfo[channelId].is_moderator === true;
 							TwitchUtils.banUser(u, channelId, 30 * 60, "Timed out because the emergency mode has been triggered on Twitchat");
-						});
+						}, undefined, undefined, undefined, false);
 					}
 				}
 				if(this.params.noTriggers) TriggerActionHandler.instance.emergencyMode = true;
@@ -161,7 +161,7 @@ export const storeEmergency = defineStore('emergency', {
 								delete userToPrevModState[channelId];
 								TwitchUtils.addRemoveModerator(false, channelId, u);
 							}
-						});
+						}, undefined, undefined, undefined, false);
 					}
 				}
 				if(this.params.obsSources) {
@@ -228,7 +228,7 @@ export const storeEmergency = defineStore('emergency', {
 					platform,
 					followed_at:date,
 					type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
-					user:StoreProxy.users.getUserFrom(platform, channel_id, entry.uid, entry.login, entry.login, undefined, true),
+					user:StoreProxy.users.getUserFrom(platform, channel_id, entry.uid, entry.login, entry.login, undefined, true, false, undefined, false),
 					followbot:true,
 				}
 			});

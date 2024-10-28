@@ -434,6 +434,7 @@ class MessageList extends Vue {
 	private rebuildChannelIdsHashmap() {
 		const validIds = this.$store.stream.connectedTwitchChans.concat().map(v=>v.user.id);
 		if(this.$store.auth.youtube.user) validIds.push(this.$store.auth.youtube.user.id);
+		if(this.$store.tiktok.connected) validIds.push("tiktok");
 		validIds.push(this.$store.auth.twitch.user.id);
 		const chanIds:{[uid:string]:boolean} = {};
 
@@ -471,7 +472,8 @@ class MessageList extends Vue {
 
 		//Filter by channel ID if necessary
 		if(this.filteredChanIDs) {
-			if(this.filteredChanIDs[m.channel_id] !== true) return false;
+			const chanId = m.platform == "tiktok"? "tiktok" : m.channel_id;
+			if(this.filteredChanIDs[chanId] !== true) return false;
 		}
 
 		//If message is deleted, keep it only if requested to show messages AND deleted messages

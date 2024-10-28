@@ -153,7 +153,7 @@ export const storeUsers = defineStore('users', {
 		 * @param displayName
 		 * @returns
 		 */
-		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState:boolean = false, getPronouns:boolean = false, forcedSubscriberState:boolean = false):TwitchatDataTypes.TwitchatUser {
+		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState:boolean = false, getPronouns:boolean = false, forcedSubscriberState:boolean = false, loadExtras:boolean = true):TwitchatDataTypes.TwitchatUser {
 			// const s = Date.now();
 			let user:TwitchatDataTypes.TwitchatUser|undefined;
 			//Search for the requested user via hashmaps for fast accesses
@@ -279,7 +279,7 @@ export const storeUsers = defineStore('users', {
 				}
 			}
 
-			if(!user.temporary && user.platform == "twitch") {
+			if(loadExtras && !user.temporary && user.platform == "twitch") {
 				if(getPronouns && user.id && user.login && user.pronouns == null) this.loadUserPronouns(user);
 				if(channelId && user.id && user.channelInfo[channelId].is_following == null) this.checkFollowerState(user, channelId);
 			}
@@ -419,6 +419,14 @@ export const storeUsers = defineStore('users', {
 			return user;
 		},
 
+		getUserColorFromLogin(login:string, platform:TwitchatDataTypes.ChatPlatform):string|null {
+			const hashmap = userMaps[platform];
+			if(!hashmap) return null;
+			let u = hashmap.loginToUser[login] || hashmap.displayNameToUser[login];
+			if(u) return u.color || null;
+			return null;
+		},
+
 		async initBlockedUsers():Promise<void> {
 			if(!TwitchUtils.hasScopes([TwitchScopes.LIST_BLOCKED])) return;
 
@@ -537,7 +545,7 @@ export const storeUsers = defineStore('users', {
 				bannedUser = await new Promise((resolve)=>{
 					StoreProxy.users.getUserFrom(platform, channelId, uid, undefined, undefined,(user=>{
 						resolve(user);
-					}));
+					}), undefined, undefined, undefined, false);
 				})
 			}
 
@@ -612,7 +620,7 @@ export const storeUsers = defineStore('users', {
 						if(uid == StoreProxy.auth.twitch.user.id) {
 							StoreProxy.users.getUserFrom("twitch", channelId, channelId, undefined, undefined, (user => {
 								EventSub.instance.connectToChannel(user);
-							}))
+							}), undefined, undefined, undefined, false)
 						}
 					}
 				}, duration_s*1000);
@@ -707,7 +715,7 @@ export const storeUsers = defineStore('users', {
 					const channel = await new Promise<TwitchatDataTypes.TwitchatUser>((resolve)=>{
 						this.getUserFrom(platform, channelId, channelId, undefined, undefined, (user)=>{
 							resolve(user);
-						});
+						}, undefined, undefined, undefined, false);
 					})
 					let messageStr = t("discord.log_pattern.intro", {USER:bannedUser.login, UID:bannedUser.id, CHANNEL_NAME:channel.displayNameOriginal, CHANNEL_ID:channelId});
 					if(bannedUser.channelInfo[channelId].banReason) messageStr += "\n**"+t("discord.log_pattern.reason")+"**: `"+bannedUser.channelInfo[channelId].banReason+"`";
@@ -804,7 +812,7 @@ export const storeUsers = defineStore('users', {
 				unbannedUser = await new Promise((resolve)=>{
 					StoreProxy.users.getUserFrom(platform, channelId, uid, undefined, undefined,(user=>{
 						resolve(user);
-					}));
+					}), undefined, undefined, undefined, false);
 				})
 			}
 			
@@ -885,7 +893,7 @@ export const storeUsers = defineStore('users', {
 
 			// console.log("Load pronouns !", user.login);
 			return new Promise((resolve, reject)=> {
-				TwitchUtils.getPronouns(user.id, user.login).then((res: TwitchatDataTypes.Pronoun | null) => {
+				TwitchUtils.getPronouns(user.id, user.login, user.platform).then((res: TwitchatDataTypes.Pronoun | null) => {
 					if (res !== null) {
 						user.pronouns = res.pronoun_id;
 						user.pronounsLabel = StoreProxy.i18n.tm("pronouns")[user.pronouns] ?? user.pronouns;
@@ -940,7 +948,7 @@ export const storeUsers = defineStore('users', {
 					}
 					parseOffset = list.length;
 					this.myFollowers["twitch"] = hashmap;
-					await this.getUserFrom("twitch", uid, list[0].user_id, list[0].user_login, list[0].user_name, undefined, true);
+					await this.getUserFrom("twitch", uid, list[0].user_id, list[0].user_login, list[0].user_name, undefined, true, undefined, undefined, false);
 				})
 			}catch(error) {}
 		},

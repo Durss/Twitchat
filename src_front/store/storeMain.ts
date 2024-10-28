@@ -474,7 +474,7 @@ export const storeMain = defineStore("main", {
 					user = await new Promise((resolve) => {
 						StoreProxy.users.getUserFrom("twitch", channelId, data.uid, undefined, undefined, (user) => {
 							resolve(user);
-						});
+						}, undefined, undefined, undefined, false);
 					});
 				} else {
 					//Create a fake partial user with only ID set so the trigger's cooldowns

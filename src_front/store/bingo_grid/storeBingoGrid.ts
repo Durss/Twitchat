@@ -103,7 +103,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				//Ignore heat click if grid is disabled or heat interaction is disabled
 				if(!grid || !grid.enabled || !grid.heatClick) return;
 
-				const user = await StoreProxy.users.getUserFrom("twitch", data.click.channelId, data.click.uid, data.click.login);
+				const user = await StoreProxy.users.getUserFrom("twitch", data.click.channelId, data.click.uid, data.click.login, undefined, undefined, undefined, false, undefined, false);
 				
 				//Ignore banned users (but not timed out ones)
 				const chanInfo = user.channelInfo[StoreProxy.auth.twitch.user.id];
@@ -126,7 +126,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				if(!event.data) return;
 				if(event.data.count <= 0) return;
 				const channelId = StoreProxy.auth.twitch.user.id;
-				const user = await StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, event.data.uid, event.data.login, event.data.login);
+				const user = await StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, event.data.uid, event.data.login, event.data.login, undefined, undefined, false, undefined, false);
 				
 				//Ignore banned users (but not timed out ones)
 				const chanInfo = user.channelInfo[channelId];

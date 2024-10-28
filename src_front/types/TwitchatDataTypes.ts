@@ -229,25 +229,6 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Contains chat message sub filters
-	 */
-	export interface ChatColumnsConfigMessageFilters {
-		automod:boolean;
-		suspiciousUsers:boolean;
-		deleted:boolean;
-		bots:boolean;
-		commands:boolean;
-		viewers:boolean;
-		moderators:boolean;
-		vips:boolean;
-		subs:boolean;
-		partners:boolean;
-		short:boolean;
-		tracked:boolean;
-		pinned:boolean;
-	}
-
-	/**
 	 * Bot messages types
 	 */
 	export interface IBotMessage {
@@ -2650,6 +2631,11 @@ export namespace TwitchatDataTypes {
 		{type:"commands",		labelKey:"chat.filters.message_filters.commands", 		icon:"commands",hasPreview:false,	scopes:[] as TwitchScopesString[]},
 		{type:"short",			labelKey:"chat.filters.message_filters.short", 			icon:"",		hasPreview:false,	scopes:[] as TwitchScopesString[]},
 	] as const;
+
+	/**
+	 * Contains chat message sub filters
+	 */
+	export type ChatColumnsConfigMessageFilters = { [key in typeof MessageListChatMessageFilterTypes[number]["type"]]:boolean};
 
 	/**
 	 * Common props for all message types

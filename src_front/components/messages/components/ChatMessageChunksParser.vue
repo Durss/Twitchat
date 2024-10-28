@@ -106,12 +106,11 @@ class ChatMessageChunksParser extends Vue {
 	}
 
 	public getUserClasses(username:string):CSSProperties {
-		const channelId = this.channel || this.$store.auth.twitch.user.id;
 		if(!this.$store.auth.twitch.user) return {color:"#c400da"};
-		const user = this.$store.users.getUserFrom(this.platform || "twitch", channelId, undefined, username);
-		if(user.color) {
+		const color = this.$store.users.getUserColorFromLogin(username, this.platform || "twitch");
+		if(color) {
 			return {
-				color: Utils.getUserColor(user),
+				color: color,
 			};
 		}
 		return {};

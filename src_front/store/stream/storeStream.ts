@@ -73,7 +73,7 @@ export const storeStream = defineStore('stream', {
 					this.autoconnectChans.forEach(async chan => {
 						StoreProxy.users.getUserFrom(chan.platform, chan.id, chan.id, undefined, undefined, (user)=>{
 							this.connectToExtraChan(user);
-						})
+						}, undefined, undefined, undefined, false);
 					})
 				}
 			}catch(error) {}
@@ -88,7 +88,7 @@ export const storeStream = defineStore('stream', {
 				live:false,
 				viewers:0,
 				lastSoDoneDate:0,
-				user:StoreProxy.users.getUserFrom(platform, channelId, channelId),
+				user:StoreProxy.users.getUserFrom(platform, channelId, channelId, undefined, undefined, undefined, undefined, false, undefined, false),
 			};
 
 			if(platform == "twitch") {
@@ -357,7 +357,7 @@ export const storeStream = defineStore('stream', {
 				commercialTimeouts[channelId].push(to);
 			});
 
-			//Force ad start a liuttle before the timer completes
+			//Force ad start a little before the timer completes
 			//This is a workaround Twitch not starting ad at the given date but only
 			//a few seconds to a minute or more after that.
 			if(remainingTime > 0) {

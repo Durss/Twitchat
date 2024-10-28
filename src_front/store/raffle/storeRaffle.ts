@@ -164,7 +164,7 @@ export const storeRaffle = defineStore('raffle', {
 
 					if(winnerLoc.user) {
 						if(StoreProxy.params.features.raffleHighlightUser.value) {
-							const user = StoreProxy.users.getUserFrom(winnerLoc.user.platform, winnerLoc.user.channel_id, winnerLoc.user.id);
+							const user = StoreProxy.users.getUserFrom(winnerLoc.user.platform, winnerLoc.user.channel_id, winnerLoc.user.id, undefined, undefined, undefined, undefined, false, undefined, false);
 							StoreProxy.users.trackUser(user);
 							setTimeout(()=> {
 								StoreProxy.users.untrackUser(user);
@@ -445,7 +445,7 @@ export const storeRaffle = defineStore('raffle', {
 			data.entries.forEach(v=> {
 				//Skip if it's not a user or if the score has already been computed
 				if(!v.user || v.score > 0) return;
-				const user = sUsers.getUserFrom(v.user.platform, v.user.channel_id, v.user.id);
+				const user = sUsers.getUserFrom(v.user.platform, v.user.channel_id, v.user.id, undefined, undefined, undefined, undefined, false, undefined, false);
 				userList.push({user, channel_id:v.user.channel_id, entry:v});
 			});
 
@@ -492,7 +492,7 @@ export const storeRaffle = defineStore('raffle', {
 				//Apply other ratios
 				for (const v of userList) {
 					const channel_id	= v.channel_id;
-					const user			= sUsers.getUserFrom(v.user.platform, channel_id, v.user.id);
+					const user			= sUsers.getUserFrom(v.user.platform, channel_id, v.user.id, undefined, undefined, undefined, undefined, false, undefined, false);
 					//Apply VIP ratio
 					if(data.vipRatio > 0 && user.channelInfo[channel_id].is_vip)		v.entry.score += data.vipRatio;
 					//Apply sub gifter ratio

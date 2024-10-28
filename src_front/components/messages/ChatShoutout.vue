@@ -76,8 +76,10 @@ class ChatShoutout extends AbstractChatMessage {
 
 	public shoutoutLoading = false;
 
-	public get channel():TwitchatDataTypes.TwitchatUser {
-		return this.$store.users.getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id);
+	public channel!:TwitchatDataTypes.TwitchatUser;
+
+	public beforeMount(): void {
+		this.channel = this.$store.users.getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id)
 	}
 
 	public async shoutout():Promise<void> {

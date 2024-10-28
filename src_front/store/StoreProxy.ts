@@ -1749,7 +1749,12 @@ export interface IUsersActions {
 	 * @param forcedFollowState
 	 * @param getPronouns
 	 */
-	getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState?:boolean, getPronouns?:boolean, forcedSubscriberState?:boolean):TwitchatDataTypes.TwitchatUser;
+	getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState?:boolean, getPronouns?:boolean, forcedSubscriberState?:boolean, loadExtras?:boolean):TwitchatDataTypes.TwitchatUser;
+	/**
+	 * Get given user's color 
+	 * @param login 
+	 */
+	getUserColorFromLogin(login:string, platform:TwitchatDataTypes.ChatPlatform):string|null;
 	/**
 	 * Load a list of the blocked users
 	 */

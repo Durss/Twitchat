@@ -117,7 +117,7 @@ export const storeTiktok = defineStore('tiktok', {
 			|| json.event == "subscribe"
 			) {
 				try {
-					user = StoreProxy.users.getUserFrom("tiktok", json.data.tikfinityUserId.toString(), json.data.userId, json.data.uniqueId, json.data.nickname, undefined, json.data.followInfo?.followStatus === 1, false, json.data.isSubscriber);
+					user = StoreProxy.users.getUserFrom("tiktok", json.data.tikfinityUserId.toString(), json.data.userId, json.data.uniqueId, json.data.nickname, undefined, json.data.followInfo?.followStatus === 1, false, json.data.isSubscriber, false);
 					user.avatarPath = json.data.profilePictureUrl || (json.data.userDetails.profilePictureUrls? json.data.userDetails.profilePictureUrls[ json.data.userDetails.profilePictureUrls.length-1 ] : "");
 					if(json.data.userBadges?.length > 0) {
 						user.channelInfo[json.data.tikfinityUserId.toString()].badges = json.data.userBadges

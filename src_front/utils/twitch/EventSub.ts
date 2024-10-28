@@ -556,7 +556,7 @@ export default class EventSub {
 			platform:"twitch",
 			channel_id:event.broadcaster_user_id,
 			type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-			user:StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name),
+			user:StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name, undefined, undefined, false, undefined, false),
 			noticeId:TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE,
 			message,
 			enabled,
@@ -606,7 +606,7 @@ export default class EventSub {
 				started_at,
 				viewers,
 				live,
-				user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
+				user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name, undefined, undefined, false, undefined, false),
 				lastSoDoneDate:0,
 			}
 		}
@@ -659,7 +659,7 @@ export default class EventSub {
 			platform:"twitch",
 			channel_id: channelId,
 			type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
-			user: StoreProxy.users.getUserFrom("twitch", channelId, event.user_id, event.user_login, event.user_name, undefined, true),
+			user: StoreProxy.users.getUserFrom("twitch", channelId, event.user_id, event.user_login, event.user_name, undefined, true, false, undefined, false),
 			followed_at: Date.now(),
 		};
 		// message.user.channelInfo[channelId].online = true;
@@ -724,7 +724,7 @@ export default class EventSub {
 			id:Utils.getUUID(),
 			channel_id,
 			date:Date.now(),
-			user:StoreProxy.users.getUserFrom("twitch", channel_id, event.user_id, event.user_login, event.user_name),
+			user:StoreProxy.users.getUserFrom("twitch", channel_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false),
 			tier: isNaN(tier_n)? "prime" : tier_n/1000 as 1|2|3,
 			is_gift: sub.is_gift,
 			is_giftUpgrade: false,
@@ -760,7 +760,7 @@ export default class EventSub {
 		const channel_id = event.broadcaster_user_id;
 		const chunks = TwitchUtils.parseMessageToChunks(event.message, undefined, true);
 		await TwitchUtils.parseCheermotes(chunks, channel_id);
-		const user = StoreProxy.users.getUserFrom("twitch", channel_id, event.user_id, event.user_login, event.user_name);
+		const user = StoreProxy.users.getUserFrom("twitch", channel_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false);
 		const message:TwitchatDataTypes.MessageCheerData = {
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.CHEER,
@@ -793,7 +793,7 @@ export default class EventSub {
 			StoreProxy.stream.onRaidComplete();
 		}else{
 			//Raided by someone
-			const user = StoreProxy.users.getUserFrom("twitch", event.to_broadcaster_user_id, event.from_broadcaster_user_id, event.from_broadcaster_user_login, event.from_broadcaster_user_name);
+			const user = StoreProxy.users.getUserFrom("twitch", event.to_broadcaster_user_id, event.from_broadcaster_user_id, event.from_broadcaster_user_login, event.from_broadcaster_user_name, undefined, undefined, false, undefined, false);
 			user.channelInfo[event.to_broadcaster_user_id].is_raider = true;
 
 			//Check current live info
@@ -838,19 +838,19 @@ export default class EventSub {
 	 * @param event
 	 */
 	private async banEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.BanEvent):Promise<void> {
-		const moderator	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name);
+		const moderator	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name, undefined, undefined, false, undefined, false);
 		const duration	= event.is_permanent? undefined : Math.round((new Date(event.ends_at).getTime() - new Date(event.banned_at).getTime()) / 1000)
 		await StoreProxy.users.flagBanned("twitch", event.broadcaster_user_id, event.user_id, duration, moderator);
 	}
 
 	private unbanEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.UnbanEvent):void {
-		const moderator = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name);
+		const moderator = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name, undefined, undefined, false, undefined, false);
 		StoreProxy.users.flagUnbanned("twitch", event.broadcaster_user_id, event.user_id, moderator);
 	}
 
 	private modAddEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModeratorAddEvent):void {
-		const modedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
-		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name);
+		const modedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false);
+		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name, undefined, undefined, false, undefined, false);
 		const m:TwitchatDataTypes.MessageModerationAction = {
 			id:Utils.getUUID(),
 			date:Date.now(),
@@ -871,8 +871,8 @@ export default class EventSub {
 	 * @param event 
 	 */
 	private modRemoveEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModeratorRemoveEvent):void {
-		const modedUser		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
-		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name);
+		const modedUser		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false);
+		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name, undefined, undefined, false, undefined, false);
 		const m:TwitchatDataTypes.MessageModerationAction = {
 			id:Utils.getUUID(),
 			date:Date.now(),
@@ -895,7 +895,7 @@ export default class EventSub {
 	private automaticRewardRedeem(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AutomaticRewardRedeemEvent):void {
 		if(event.reward.type != "celebration") return;
 
-		const user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
+		const user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false);
 		const m:TwitchatDataTypes.MessageTwitchCelebrationData = {
 			id:Utils.getUUID(),
 			date:Date.now(),
@@ -969,10 +969,10 @@ export default class EventSub {
 		let user!:TwitchatDataTypes.TwitchatUser;
 		let moderator = user;
 		if(received) {
-			user		= StoreProxy.users.getUserFrom("twitch", so_in.broadcaster_user_id, so_in.from_broadcaster_user_id, so_in.from_broadcaster_user_login, so_in.from_broadcaster_user_name);
+			user		= StoreProxy.users.getUserFrom("twitch", so_in.broadcaster_user_id, so_in.from_broadcaster_user_id, so_in.from_broadcaster_user_login, so_in.from_broadcaster_user_name, undefined, undefined, false, undefined, false);
 		}else{
-			user		= StoreProxy.users.getUserFrom("twitch", so_out.broadcaster_user_id, so_out.to_broadcaster_user_id, so_out.to_broadcaster_user_login, so_out.to_broadcaster_user_name);
-			moderator	= StoreProxy.users.getUserFrom("twitch", so_out.broadcaster_user_id, so_out.moderator_user_id, so_out.moderator_user_login, so_out.moderator_user_name);
+			user		= StoreProxy.users.getUserFrom("twitch", so_out.broadcaster_user_id, so_out.to_broadcaster_user_id, so_out.to_broadcaster_user_login, so_out.to_broadcaster_user_name, undefined, undefined, false, undefined, false);
+			moderator	= StoreProxy.users.getUserFrom("twitch", so_out.broadcaster_user_id, so_out.moderator_user_id, so_out.moderator_user_login, so_out.moderator_user_name, undefined, undefined, false, undefined, false);
 		}
 
 		let title:string = "";
@@ -1035,7 +1035,7 @@ export default class EventSub {
 		let starter:TwitchatDataTypes.TwitchatUser | undefined = undefined;
 		//Don't show notification if ad started by ourself or automatically
 		if(!event.is_automatic && event.broadcaster_user_id != event.requester_user_id) {
-			starter = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.requester_user_id, event.requester_user_login);
+			starter = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.requester_user_id, event.requester_user_login, undefined, undefined, undefined, false, undefined, false);
 		}
 		Logger.instance.log("ads", {
 			es:event,
@@ -1060,7 +1060,7 @@ export default class EventSub {
 			id:Utils.getUUID(),
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST,
-			user:await StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name),
+			user:await StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false),
 			isResolve:false,
 			isFlagByAutomod:false,
 			message:"",
@@ -1078,7 +1078,8 @@ export default class EventSub {
 																		//(Until Twitch fixes it, "accept" event is broken for now and misses moderator info.)
 																		event.moderator_user_id || event.broadcaster_user_id,
 																		event.moderator_user_login || event.broadcaster_user_login,
-																		event.moderator_user_name || event.broadcaster_user_name),
+																		event.moderator_user_name || event.broadcaster_user_name,
+																		undefined, undefined, false, undefined, false),
 			message.message		= event.resolution_text;
 			message.accepted	= event.status != "denied";
 		}
@@ -1115,7 +1116,7 @@ export default class EventSub {
 					id:Utils.getUUID(),
 					platform:"twitch",
 					type:TwitchatDataTypes.TwitchatMessageType.BLOCKED_TERMS,
-					user:await StoreProxy.users.getUserFrom("twitch", ref.broadcaster_user_id, ref.moderator_user_id, ref.moderator_user_login, ref.moderator_user_name),
+					user:await StoreProxy.users.getUserFrom("twitch", ref.broadcaster_user_id, ref.moderator_user_id, ref.moderator_user_login, ref.moderator_user_name, undefined, undefined, false, undefined, false),
 					action:ref.action,
 					terms:group.map(v=>v.terms).flat(),
 					temporary: event.from_automod === true,
@@ -1167,7 +1168,7 @@ export default class EventSub {
 			}
 		}
 
-		const userData = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.broadcaster_user_name);
+		const userData = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.broadcaster_user_name, undefined, undefined, false, undefined, false);
 		const messageHtml = TwitchUtils.messageChunksToHTML(chunks);
 		const m:TwitchatDataTypes.MessageChatData = {
 			id:event.message_id,
@@ -1204,12 +1205,12 @@ export default class EventSub {
 	 * @param event 
 	 */
 	private async moderationEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModerationEvent):Promise<void> {
-		const user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name);
-		const moderator = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name);
+		const user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name, undefined, undefined, false, undefined, false);
+		const moderator = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name, undefined, undefined, false, undefined, false);
 		const isBroadcasterToken = user.id == moderator.id;
 		switch(event.action) {
 			case "raid":{
-				const raidedUSer = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.raid.user_id, event.raid.user_login, event.raid.user_login)
+				const raidedUSer = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.raid.user_id, event.raid.user_login, event.raid.user_login, undefined, undefined, false, undefined, false)
 
 				//Load user's avatar if not already available
 				if(!raidedUSer.avatarPath) {
@@ -1219,7 +1220,7 @@ export default class EventSub {
 
 				const m:TwitchatDataTypes.RaidInfo = {
 					channel_id: event.broadcaster_user_id,
-					user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.raid.user_id, event.raid.user_login, event.raid.user_login),
+					user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.raid.user_id, event.raid.user_login, event.raid.user_login, undefined, undefined, false, undefined, false),
 					viewerCount: event.raid.viewer_count,
 					startedAt: Date.now(),
 					timerDuration_s: 90,
@@ -1285,9 +1286,9 @@ export default class EventSub {
 			case "unvip":{
 				let user:TwitchatDataTypes.TwitchatUser;
 				if(event.action == "vip") {
-					user = StoreProxy.users.getUserFrom("twitch", event.vip.user_id, event.vip.user_id, event.vip.user_login);
+					user = StoreProxy.users.getUserFrom("twitch", event.vip.user_id, event.vip.user_id, event.vip.user_login, undefined, undefined, undefined, false, undefined, false);
 				}else{
-					user = StoreProxy.users.getUserFrom("twitch", event.unvip.user_id, event.unvip.user_id, event.unvip.user_login);
+					user = StoreProxy.users.getUserFrom("twitch", event.unvip.user_id, event.unvip.user_id, event.unvip.user_login, undefined, undefined, undefined, false, undefined, false);
 				}
 				const m:TwitchatDataTypes.MessageModerationAction = {
 					id:Utils.getUUID(),
@@ -1307,9 +1308,9 @@ export default class EventSub {
 			case "unmod":{
 				let user:TwitchatDataTypes.TwitchatUser;
 				if(event.action == "mod") {
-					user = StoreProxy.users.getUserFrom("twitch", event.mod.user_id, event.mod.user_id, event.mod.user_login);
+					user = StoreProxy.users.getUserFrom("twitch", event.mod.user_id, event.mod.user_id, event.mod.user_login, undefined, undefined, undefined, false, undefined, false);
 				}else{
-					user = StoreProxy.users.getUserFrom("twitch", event.unmod.user_id, event.unmod.user_id, event.unmod.user_login);
+					user = StoreProxy.users.getUserFrom("twitch", event.unmod.user_id, event.unmod.user_id, event.unmod.user_login, undefined, undefined, undefined, false, undefined, false);
 				}
 				const m:TwitchatDataTypes.MessageModerationAction = {
 					id:Utils.getUUID(),
@@ -1428,7 +1429,7 @@ export default class EventSub {
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.WARN_ACKNOWLEDGE,
 			channel_id:event.broadcaster_user_id,
-			user:StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name),
+			user:StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false),
 		}
 		StoreProxy.chat.addMessage(message);
 	}
@@ -1446,7 +1447,7 @@ export default class EventSub {
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.WARN_CHATTER,
 			channel_id:event.broadcaster_user_id,
-			user:StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name),
+			user:StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false),
 			moderator,
 			rules:event.chat_rules_cited,
 			customReason:event.reason? event.reason : undefined,
@@ -1463,7 +1464,7 @@ export default class EventSub {
 	private async suspiciousUserMessage(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.SuspiciousUserMessage):Promise<void> {
 		if(event.low_trust_status == "restricted") {
 			const channelId = event.broadcaster_user_id;
-			const userData = StoreProxy.users.getUserFrom("twitch", channelId, event.user_id, event.user_login, event.user_name);
+			const userData = StoreProxy.users.getUserFrom("twitch", channelId, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false);
 			const chunks = TwitchUtils.parseMessageToChunks(event.message.text);
 			const m:TwitchatDataTypes.MessageChatData = {
 				id:event.message.message_id,
@@ -1502,7 +1503,7 @@ export default class EventSub {
 			channel_id:event.broadcaster_user_id,
 			type:TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT,
 			user:StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name),
-			moderator:StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name),
+			moderator:StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name, undefined, undefined, false, undefined, false),
 			restricted:event.low_trust_status == "restricted",
 			monitored:event.low_trust_status == "active_monitoring",
 		};

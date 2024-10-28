@@ -494,7 +494,7 @@ export default class MessengerProxy {
 					}
 					StoreProxy.chat.addMessage(notice);
 				}else{
-					const user = StoreProxy.users.getUserFrom("twitch", channelId, res[0].id, res[0].login, res[0].display_name);
+					const user = StoreProxy.users.getUserFrom("twitch", channelId, res[0].id, res[0].login, res[0].display_name, undefined, undefined, false, undefined, false);
 					StoreProxy.tts.ttsReadUser(user, cmd == "/tts");
 				}
 			}catch(error) {}

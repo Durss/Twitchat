@@ -62,7 +62,7 @@ export const storeQna = defineStore('qna', {
 				if(!event.data || !event.data.action) return;
 				const data = event.data;
 				const me = StoreProxy.auth.twitch.user;
-				const moderator = await StoreProxy.users.getUserFrom("twitch", me.id, data.moderatorId);
+				const moderator = await StoreProxy.users.getUserFrom("twitch", me.id, data.moderatorId, undefined, undefined, undefined, undefined, false, undefined, false);
 				
 				//Make sure user is a moderator
 				if(!moderator.channelInfo[me.id].is_moderator) return;

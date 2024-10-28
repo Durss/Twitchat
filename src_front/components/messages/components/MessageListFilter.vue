@@ -66,18 +66,18 @@
 
 					<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" v-model="param_toggleAll.value" @change="toggleAll()" />
 
-					<div class="item" v-for="f in filters"
-					:key="'filter_'+f.storage">
+					<div class="item" v-for="filter in filters"
+					:key="'filter_'+filter.storage">
 						<Icon name="show" class="preview"
-							v-if="f.storage!.type != 'message'"
+							v-if="filter.storage!.type != 'message'"
 							@mouseleave="mouseLeaveItem()"
-							@mouseenter="mouseEnterItem(f.storage!)" />
+							@mouseenter="mouseEnterItem(filter.storage!)" />
 
-						<ParamItem :paramData="f" autoFade
+						<ParamItem :paramData="filter" autoFade
 						@change="saveData()"
-						v-model="config.filters[f.storage!.type as 'message']"
-						v-newflag="f.storage!.newFlag > 0? {date:f.storage!.newFlag, id:'messagefilters_'+f.storage!.type} : undefined">
-							<template #child v-if="f.storage?.type == whisperType && config.filters.whisper === true">
+						v-model="config.filters[filter.storage!.type as 'message']"
+						v-newflag="filter.storage!.newFlag > 0? {date:filter.storage!.newFlag, id:'messagefilters_'+filter.storage!.type} : undefined">
+							<template #child v-if="filter.storage?.type == whisperType && config.filters.whisper === true">
 								<ToggleBlock class="whispersPermissions"
 								:title="$t('chat.filters.whispers_permissions')"
 								small
@@ -85,7 +85,7 @@
 									<PermissionsForm v-model="config.whispersPermissions" @update:modelValue="saveData()" />
 								</ToggleBlock>
 							</template>
-							<template #child v-if="f.storage?.type == messageType && config.filters.message === true">
+							<template #child v-if="filter.storage?.type == messageType && config.filters.message === true">
 								<div class="subFilters">
 									<div class="item">
 										<div class="preview"></div>
@@ -98,19 +98,19 @@
 											v-model="config.userBlockList" />
 									</div>
 									
-									<div class="item" v-for="f in messageFilters">
+									<div class="item" v-for="messageFilter in messageFilters">
 										<Icon name="show" class="preview"
-											v-if="f.storage!.hasPreview"
+											v-if="messageFilter.storage!.hasPreview"
 											@mouseleave="mouseLeaveItem()"
-											@mouseenter="previewSubMessage(f.storage!)" />
+											@mouseenter="previewSubMessage(messageFilter.storage!)" />
 										<div v-else class="preview"></div>
 											
 										<ParamItem autoFade
 											v-if="config.filters.message === true"
-											:key="'subfilter_'+f.storage"
-											:paramData="f"
+											:key="'subfilter_'+messageFilter.storage"
+											:paramData="messageFilter"
 											@change="saveData()"
-											v-model="config.messageFilters[f.storage!.type]" />
+											v-model="config.messageFilters[messageFilter.storage!]" />
 									</div>
 
 									<template v-if="$store.users.customBadgeList.length > 0">
@@ -299,7 +299,7 @@ export class MessageListFilter extends Vue {
 	public mouseOverToggle:boolean = false;
 	public previewData:TwitchatDataTypes.ChatMessageTypes[] = [];
 	public filters:TwitchatDataTypes.ParameterData<boolean, undefined, undefined, typeof TwitchatDataTypes.MessageListFilterTypes[number]>[] = [];
-	public messageFilters:TwitchatDataTypes.ParameterData<boolean, unknown, boolean, typeof TwitchatDataTypes.MessageListChatMessageFilterTypes[number]>[] = [];
+	public messageFilters:TwitchatDataTypes.ParameterData<boolean, unknown, boolean, keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters>[] = [];
 	public param_toggleAll:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.select_all" };
 	public param_showBadges:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.show_user_badges", icon:"show"};
 	public param_hideBadges:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.hide_user_badges", icon:"hide"};
@@ -339,6 +339,12 @@ export class MessageListFilter extends Vue {
 		chans.push({platform:"twitch", user:this.$store.auth.twitch.user, isRemoteChan:false, color:"transparent"});
 		if(this.$store.auth.youtube.user) {
 			chans.push({platform:"youtube", user:this.$store.auth.youtube.user, isRemoteChan:false, color:"transparent"});
+		}
+		
+		if(this.$store.tiktok.connected) {
+			const user:TwitchatDataTypes.TwitchatUser = JSON.parse(JSON.stringify(this.$store.auth.twitch.user));
+			user.id = "tiktok";
+			chans.push({platform:"tiktok", user, isRemoteChan:false, color:"transparent"});
 		}
 		
 		this.$store.stream.connectedTwitchChans.forEach(entry=> {
@@ -829,7 +835,7 @@ export class MessageListFilter extends Vue {
 			this.config.channelIDs[entry.user.id] = {platform:entry.platform, date:Date.now()};
 		}
 
-		//Limite history size
+		//Limit history size
 		if(Object.keys(this.config.channelIDs).length > 100) {
 			let olderDate:number = 0;
 			let olderKey:string | null = null;

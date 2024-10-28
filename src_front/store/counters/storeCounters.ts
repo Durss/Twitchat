@@ -123,7 +123,7 @@ export const storeCounters = defineStore('counters', {
 									})
 									PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter} as unknown as JsonObject);
 								}
-							});
+							}, undefined, undefined, undefined, false);
 						})
 					}
 				}else{

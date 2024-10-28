@@ -1090,7 +1090,7 @@ export default class TriggerActionHandler {
 				if(message.type == TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK) {
 					//Heat click messages have a limited type definition.
 					//Get the full user from those limited data
-					executingUser = await StoreProxy.users.getUserFrom(message.platform, message.channel_id, message.user.id, message.user.login);
+					executingUser = await StoreProxy.users.getUserFrom(message.platform, message.channel_id, message.user.id, message.user.login, undefined, undefined, undefined, false, undefined, false);
 				}else{
 					executingUser = message.user;
 				}
@@ -2389,7 +2389,7 @@ export default class TriggerActionHandler {
 									login = user.login;
 									resolved = true;
 									resolve();
-								});
+								}, undefined, undefined, undefined, false);
 								//Timeout request to avoid blocking trigger
 								setTimeout(()=>{
 									if(!resolved) {
@@ -3628,7 +3628,7 @@ export default class TriggerActionHandler {
 						log.entries.push({date:Date.now(), type:"message", value:"✔ Custom user loading complete: "+user.displayName+"(#"+user.id+")"});
 					}
 					resolve(user);
-				});
+				}, undefined, undefined, undefined, false);
 			});
 			if(user) result.push(user);
 		}
@@ -3652,7 +3652,7 @@ export default class TriggerActionHandler {
 			for (let i = 0; i < channels.length; i++) {
 				const c = channels[i];
 				liveChannels[c.user_id] = {
-					user:StoreProxy.users.getUserFrom("twitch", channel_id, c.user_id, c.user_login, c.user_name),
+					user:StoreProxy.users.getUserFrom("twitch", channel_id, c.user_id, c.user_login, c.user_name, undefined, undefined, false, undefined, false),
 					category:c.game_name,
 					title:c.title,
 					tags: c.tags,
