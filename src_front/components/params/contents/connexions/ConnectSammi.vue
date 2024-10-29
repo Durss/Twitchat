@@ -1,32 +1,32 @@
 <template>
-	<div class="connectstreamerbot parameterContent">
-		<Icon name="streamerbot" alt="streamerbot icon" class="icon" />
+	<div class="connectsammi parameterContent">
+		<Icon name="sammi" alt="sammi icon" class="icon" />
 
 		<div class="head">
-			<i18n-t scope="global" tag="span" keypath="streamerbot.header">
+			<i18n-t scope="global" tag="span" keypath="sammi.header">
 				<template #LINK>
-					<a href="https://streamer.bot/" target="_blank"><Icon name="newtab" />Streamer.bot</a>
+					<a href="https://sammi.solutions" target="_blank"><Icon name="newtab" />SAMMI</a>
 				</template>
 			</i18n-t>
 			<div class="card-item secondary infos">
 				<span>
 					<Icon name="info" />
-					<span>{{$t("streamerbot.instructions")}}</span>
+					<span>{{$t("sammi.instructions")}}</span>
 				</span>
 				<TTButton class="installBt"
-					href="https://streamer.bot"
+					href="https://sammi.solutions"
 					type="link"
 					icon="newtab"
 					target="_blank"
-					light secondary>{{ $t("streamerbot.install") }}</TTButton>
+					light secondary>{{ $t("sammi.install") }}</TTButton>
 			</div>
 		</div>
 
 		<div class="content">
-			<form class="card-item" v-if="!$store.streamerbot.connected" @submit.prevent="connect()">
-				<ParamItem noBackground :paramData="param_ip" v-model="$store.streamerbot.ip" autofocus/>
-				<ParamItem noBackground :paramData="param_port" v-model="$store.streamerbot.port"/>
-				<ParamItem noBackground :paramData="param_pass" v-model="$store.streamerbot.password"/>
+			<form class="card-item" v-if="!$store.sammi.connected" @submit.prevent="connect()">
+				<ParamItem noBackground :paramData="param_ip" v-model="$store.sammi.ip" autofocus/>
+				<ParamItem noBackground :paramData="param_port" v-model="$store.sammi.port"/>
+				<ParamItem noBackground :paramData="param_pass" v-model="$store.sammi.password"/>
 
 				<div class="ctas">
 					<TTButton type="reset" alert
@@ -38,14 +38,14 @@
 						:disabled="!canConnect">{{ $t('global.connect') }}</TTButton>
 				</div>
 			</form>
-			<div class="card-item alert error" v-if="error" @click="error=false">{{$t("streamerbot.connect_error")}}</div>
+			<div class="card-item alert error" v-if="error" @click="error=false">{{$t("sammi.connect_error")}}</div>
 	
-			<template v-if="$store.streamerbot.connected">
+			<template v-if="$store.sammi.connected">
 				<div class="card-item primary" v-if="showSuccess">{{ $t("connexions.triggerSocket.success") }}</div>
 
 				<div class="card-item infos">
-					<div><strong>{{ $t(param_ip.labelKey!) }}</strong>: {{$store.streamerbot.ip}}</div>
-					<div><strong>{{ $t(param_port.labelKey!) }}</strong>: {{$store.streamerbot.port}}</div>
+					<div><strong>{{ $t(param_ip.labelKey!) }}</strong>: {{$store.sammi.ip}}</div>
+					<div><strong>{{ $t(param_port.labelKey!) }}</strong>: {{$store.sammi.port}}</div>
 				</div>
 	
 				<TTButton class="connectBt" alert @click="disconnect()">{{ $t('global.disconnect') }}</TTButton>
@@ -68,15 +68,15 @@ import TTButton from '@/components/TTButton.vue';
 	},
 	emits:[],
 })
-class ConnectStreamerBot extends Vue {
+class ConnectSammi extends Vue {
 
 	public error = false;
 	public showSuccess = false;
 	public connecting = false;
 
-	public param_ip:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"streamerbot.ip", maxLength:100};
-	public param_port:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", labelKey:"streamerbot.port", min:0, max:65535};
-	public param_pass:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"streamerbot.pass", maxLength:100};
+	public param_ip:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"sammi.ip", maxLength:100};
+	public param_port:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", labelKey:"sammi.port", min:0, max:65535};
+	public param_pass:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"sammi.pass", maxLength:100};
 		
 	public get canConnect():boolean {
 		return this.param_ip.value.length >= 7;// && this.param_port.value > 0;
@@ -89,20 +89,20 @@ class ConnectStreamerBot extends Vue {
 	public async connect():Promise<void> {
 		this.error = false;
 		this.connecting = true;
-		const res = await this.$store.streamerbot.connect();
+		const res = await this.$store.sammi.connect();
 		this.error = !res;
 		this.connecting = false;
 	}
 
 	public disconnect():void {
-		this.$store.streamerbot.disconnect();
+		this.$store.sammi.disconnect();
 	}
 }
-export default toNative(ConnectStreamerBot);
+export default toNative(ConnectSammi);
 </script>
 
 <style scoped lang="less">
-.connectstreamerbot{
+.connectsammi{
 	.content {
 		display: flex;
 		flex-direction: column;

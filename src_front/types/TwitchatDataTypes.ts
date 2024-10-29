@@ -22,6 +22,7 @@ export namespace TwitchatDataTypes {
 		KO_FI: "kofi",
 		GOXLR: "goxlr",
 		LUMIA: "lumia",
+		SAMMI: "sammi",
 		TIPEEE: "tipeee",
 		TIKTOK: "tiktok",
 		SPOTIFY: "spotify",

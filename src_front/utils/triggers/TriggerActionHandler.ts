@@ -3148,19 +3148,35 @@ export default class TriggerActionHandler {
 					}
 				}else
 
-				//Handle Delete chat message action
+				//Handle Streamer.bot action
 				if(step.type == "streamerbot") {
 					if(!StoreProxy.streamerbot.connected) {
 						logStep.messages.push({date:Date.now(), value:"❌ Streamer.bot not connect, cannot execute requested action"});
 						log.error = true;
 						logStep.error = true;
 					}else if(!step.streamerbotData) {
-						logStep.messages.push({date:Date.now(), value:"❌ Missing streamer.bot related trigger action data"});
+						logStep.messages.push({date:Date.now(), value:"❌ Missing Streamer.bot related trigger action data"});
 						log.error = true;
 						logStep.error = true;
 					}else{
 						logStep.messages.push({date:Date.now(), value:"✔ Execute Streamer.bot action ID: "+step.streamerbotData.actionId});
 						StoreProxy.streamerbot.doAction(step.streamerbotData.actionId);
+					}
+				}else
+
+				//Handle SAMMI action
+				if(step.type == "sammi") {
+					if(!StoreProxy.sammi.connected) {
+						logStep.messages.push({date:Date.now(), value:"❌ SAMMI not connect, cannot execute requested button"});
+						log.error = true;
+						logStep.error = true;
+					}else if(!step.sammiData) {
+						logStep.messages.push({date:Date.now(), value:"❌ Missing SAMMI related trigger action data"});
+						log.error = true;
+						logStep.error = true;
+					}else{
+						logStep.messages.push({date:Date.now(), value:"✔ Execute SAMMI button ID: "+step.sammiData.buttonId});
+						StoreProxy.sammi.triggerButton(step.sammiData.buttonId);
 					}
 				}
 

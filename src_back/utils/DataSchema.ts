@@ -736,6 +736,13 @@ const UserDataSchema = {
 										actionId: {type:"string", maxLength:100},
 									}
 								},
+								sammiData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										buttonId: {type:"string", maxLength:40},
+									}
+								},
 							}
 						},
 					}
@@ -2047,6 +2054,14 @@ const UserDataSchema = {
 		},
 
 		streamerbotConfigs:{
+			type: "object",
+			properties: {
+				ip: {type:"string", maxLength:100},
+				port: {type:"integer", minimum:0, maximum:65535},
+			}
+		},
+
+		sammiConfigs:{
 			type: "object",
 			properties: {
 				ip: {type:"string", maxLength:100},

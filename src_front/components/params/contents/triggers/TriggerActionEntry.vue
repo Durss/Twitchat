@@ -162,6 +162,12 @@
 					v-tooltip="heatClickEnabled? '' : $t('triggers.actions.common.action_streamerbot_tt')"
 					icon="streamerbot">{{ $t('triggers.actions.common.action_streamerbot') }}</TTButton>
 
+				<TTButton class="button" @click.capture="selectActionType('sammi')"
+					:disabled="!$store.sammi.connected"
+					v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_triggerAction_sammi'}"
+					v-tooltip="heatClickEnabled? '' : $t('triggers.actions.common.action_sammi_tt')"
+					icon="sammi">{{ $t('triggers.actions.common.action_sammi') }}</TTButton>
+
 				<TTButton class="button" @click.capture="selectActionType('customBadges')"
 					v-newflag="{date:1693519200000, id:'params_triggerAction_custombadges'}"
 					icon="badge">{{ $t('triggers.actions.common.action_customBadges') }}</TTButton>
@@ -220,6 +226,7 @@
 		<TriggerActionDiscordEntry v-else-if="action.type=='discord'" :action="action" :triggerData="triggerData" />
 		<TriggerActionLumiaEntry v-else-if="action.type=='lumia'" :action="action" :triggerData="triggerData" />
 		<TriggerActionStreamerbotEntry v-else-if="action.type=='streamerbot'" :action="action" :triggerData="triggerData" />
+		<TriggerActionSammiEntry v-else-if="action.type=='sammi'" :action="action" :triggerData="triggerData" />
 		<RaffleForm v-else-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 		<BingoForm v-else-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 		<PollForm v-else-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -279,6 +286,7 @@ import TriggerActionLumiaEntry from './entries/TriggerActionLumiaEntry.vue';
 import TriggerActionBingoGridEntry from './entries/TriggerActionBingoGridEntry.vue';
 import TriggerActionDeleteMessageEntry from './entries/TriggerActionDeleteMessageEntry.vue';
 import TriggerActionStreamerbotEntry from './entries/TriggerActionStreamerbotEntry.vue';
+import TriggerActionSammiEntry from './entries/TriggerActionSammiEntry.vue';
 
 @Component({
 	components:{
@@ -300,6 +308,7 @@ import TriggerActionStreamerbotEntry from './entries/TriggerActionStreamerbotEnt
 		TriggerActionValueEntry,
 		TriggerActionCountEntry,
 		TriggerActionMusicEntry,
+		TriggerActionSammiEntry,
 		TriggerActionGoXLREntry,
 		TriggerActionRewardEntry,
 		TriggerActionCustomBadge,

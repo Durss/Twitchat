@@ -93,12 +93,18 @@
 				<p>Streamer.bot</p>
 			</button>
 
+			<button class="card-item" @click="subContent='sammi'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.sammi'}">
+				<Icon name="sammi" />
+				<p>SAMMI</p>
+			</button>
+
 			<button class="card-item" @click="subContent='websocket'">
 				<Icon name="broadcast" />
 				<p>Websocket</p>
 			</button>
 		</div>
 	</div>
+	
 	<ConnectVoicemod v-else-if="subContent == 'voicemod'" />
 	<ConnectYoutube v-else-if="subContent == 'youtube'" />
 	<ConnectGoXLR v-else-if="subContent == 'goxlr'" />
@@ -117,6 +123,8 @@
 	<ConnectPatreon v-else-if="subContent == 'patreon'" />
 	<ConnectTiktok v-else-if="subContent == 'tiktok'" />
 	<ConnectStreamerBot v-else-if="subContent == 'streamerbot'" />
+	<ConnectSammi v-else-if="subContent == 'sammi'" />
+
 </template>
 
 <script lang="ts">
@@ -125,24 +133,25 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import type IParameterContent from './IParameterContent';
-import ConnectYoutube from './connexions/ConnectYoutube.vue';
-import ConnectVoicemod from './connexions/ConnectVoicemod.vue';
-import ConnectGoXLR from './connexions/ConnectGoXLR.vue';
-import ConnectStreamdeck from './connexions/ConnectStreamdeck.vue';
 import ConnectDiscord from './connexions/ConnectDiscord.vue';
-import ConnectSpotify from './connexions/ConnectSpotify.vue';
-import ConnectOBS from './connexions/ConnectOBS.vue';
+import ConnectGoXLR from './connexions/ConnectGoXLR.vue';
 import ConnectHeat from './connexions/ConnectHeat.vue';
-import ConnectWebsocket from './connexions/ConnectWebsocket.vue';
-import ConnectStreamlabs from './connexions/ConnectStreamlabs.vue';
 import ConnectKofi from './connexions/ConnectKofi.vue';
 import ConnectLumia from './connexions/ConnectLumia.vue';
-import ConnectStreamelements from './connexions/ConnectStreamelements.vue';
-import ConnectTipeee from './connexions/ConnectTipeee.vue';
-import ConnectTiltify from './connexions/ConnectTiltify.vue';
+import ConnectOBS from './connexions/ConnectOBS.vue';
 import ConnectPatreon from './connexions/ConnectPatreon.vue';
-import ConnectTiktok from './connexions/ConnectTiktok.vue';
+import ConnectSammi from './connexions/ConnectSammi.vue';
+import ConnectSpotify from './connexions/ConnectSpotify.vue';
+import ConnectStreamdeck from './connexions/ConnectStreamdeck.vue';
+import ConnectStreamelements from './connexions/ConnectStreamelements.vue';
 import ConnectStreamerBot from './connexions/ConnectStreamerBot.vue';
+import ConnectStreamlabs from './connexions/ConnectStreamlabs.vue';
+import ConnectTiktok from './connexions/ConnectTiktok.vue';
+import ConnectTiltify from './connexions/ConnectTiltify.vue';
+import ConnectTipeee from './connexions/ConnectTipeee.vue';
+import ConnectVoicemod from './connexions/ConnectVoicemod.vue';
+import ConnectWebsocket from './connexions/ConnectWebsocket.vue';
+import ConnectYoutube from './connexions/ConnectYoutube.vue';
 
 @Component({
 	components:{
@@ -151,6 +160,7 @@ import ConnectStreamerBot from './connexions/ConnectStreamerBot.vue';
 		ConnectHeat,
 		ConnectGoXLR,
 		ConnectLumia,
+		ConnectSammi,
 		ConnectTiktok,
 		ConnectTipeee,
 		ConnectPatreon,

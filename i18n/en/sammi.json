@@ -1,0 +1,11 @@
+{
+	"sammi":{
+		"header":"Connect Twitchat with {LINK} and control it from the Triggers",
+		"instructions":"In SAMMI, go under \"Settings\" => \"Connections\" and make sure \"Open Local API Server\" is enabled",
+		"install":"Install SAMMI",
+		"connect_error":"Unable to connect with SAMMI.",
+		"ip":"IP",
+		"port":"Port",
+		"pass":"Password (optionnel)"
+	}
+}

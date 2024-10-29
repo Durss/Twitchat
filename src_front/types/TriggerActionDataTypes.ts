@@ -79,6 +79,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionBingoGridData
 								| TriggerActionDeleteMessageData
 								| TriggerActionStreamerbotData
+								| TriggerActionSammiData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -507,6 +508,16 @@ export interface TriggerActionStreamerbotData extends TriggerActionData{
 	 */
 	streamerbotData?:{
 		actionId:string;
+	};
+}
+
+export interface TriggerActionSammiData extends TriggerActionData{
+	type:"sammi";
+	/**
+	 * SAMMI params
+	 */
+	sammiData?:{
+		buttonId:string;
 	};
 }
 

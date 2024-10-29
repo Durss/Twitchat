@@ -67,7 +67,8 @@ import { storeLabels } from './store/labels/storeLabels';
 import { storeDonationGoals } from './store/donation_goals/storeDonationGoals';
 import { storeTiltify } from './store/tiltify/storeTiltify';
 import { storeTiktok } from './store/tiktok/storeTiktok';
-import { storeStreamerbot } from './store/storeStreamerbot/storeStreamerbot';
+import { storeStreamerbot } from './store/streamerbot/storeStreamerbot';
+import { storeSammi } from './store/sammi/storeSammi';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -272,6 +273,7 @@ function buildApp() {
 	StoreProxy.default.tiltify = storeTiltify();
 	StoreProxy.default.tiktok = storeTiktok();
 	StoreProxy.default.streamerbot = storeStreamerbot();
+	StoreProxy.default.sammi = storeSammi();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.default.labels = (storeLabels() as unknown) as StoreProxy.ILabelsState & StoreProxy.ILabelsGetters & StoreProxy.ILabelsActions & { $state: StoreProxy.ILabelsState; $reset:()=>void };
 

@@ -173,7 +173,9 @@
 				"action_lumia": "Control Lumia Stream",
 				"action_lumia_tt": "You first need to connect with Lumia Stream",
 				"action_streamerbot": "Streamer.bot action",
-				"action_streamerbot_tt": "You first need to connect Twitchat with Streamer.bot to use this action"
+				"action_streamerbot_tt": "You first need to connect Twitchat with Streamer.bot to use this action",
+				"action_sammi": "SAMMI action",
+				"action_sammi_tt": "You first need to connect Twitchat with SAMMI to use this action"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -584,6 +586,11 @@
 				"param_action":"Action to execute",
 				"need_to_connect": "This action requires you to {LINK}",
 				"need_to_connect_link": "connect with Streamer.bot"
+			},
+			"sammi":{
+				"param_buttonId":"Button ID to trigger",
+				"need_to_connect": "This action requires you to {LINK}",
+				"need_to_connect_link": "connect with SAMMI"
 			}
 		},
 		"categories": {

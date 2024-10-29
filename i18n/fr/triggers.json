@@ -173,7 +173,9 @@
 				"action_lumia_tt": "Vous devez connecter Lumia Stream",
 				"action_bingoGrid": "Grille de bingo",
 				"action_streamerbot": "Action Streamer.bot",
-				"action_streamerbot_tt": "Vous devez connecter Twitchat à Streamer.bot pour utiliser cette action"
+				"action_streamerbot_tt": "Vous devez connecter Twitchat à Streamer.bot pour utiliser cette action",
+				"action_sammi": "Action SAMMI",
+				"action_sammi_tt": "Vous devez connecter Twitchat à SAMMI pour utiliser cette action"
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
@@ -584,6 +586,11 @@
 				"param_action":"Action à executer",
 				"need_to_connect": "Cette action nécessite de {LINK}",
 				"need_to_connect_link": "connecter Streamer.bot"
+			},
+			"sammi":{
+				"param_buttonId":"ID du boutton à déclencher",
+				"need_to_connect": "Cette action nécessite de {LINK}",
+				"need_to_connect_link": "connecter SAMMI"
 			}
 		},
 		"categories": {

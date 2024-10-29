@@ -46,11 +46,6 @@ export const storeStreamerbot = defineStore('streamerbot', {
 				if(socket) {
 					socket.disconnect();
 				}
-				console.log({
-					port:this.port,
-					host:this.ip,
-					password:this.password,
-				})
 				socket = new StreamerbotClient({
 					port:this.port,
 					host:this.ip,
