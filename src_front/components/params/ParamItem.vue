@@ -303,7 +303,6 @@
 		</div>
 
 		<PlaceholderSelector class="placeholders" v-if="paramData.placeholderList"
-			:target="placeholderTarget"
 			:placeholders="paramData.placeholderList"
 			v-model="paramData.value"
 			:secondary="secondary"
@@ -844,7 +843,11 @@ export class ParamItem extends Vue {
 			(this.paramData.value as string[]).push(tag);
 		}else if(this.paramData.type == "number" || this.paramData.type == "integer") {
 			this.paramData.value = tag;
+		}else {
+			// console.log(this.textValue, tag)
+			// this.textValue += tag;
 		}
+		this.onEdit();
 	}
 
 	private setErrorState(state:boolean) {
@@ -1303,6 +1306,10 @@ export default toNative(ParamItem);
 			input {
 				padding-right: 1.5em !important;
 			}
+		}
+		.maxlength {
+			margin-right: 2.15em !important;
+			right: 0 !important;
 		}
 	}
 

@@ -734,6 +734,19 @@ const UserDataSchema = {
 									additionalProperties: false,
 									properties: {
 										actionId: {type:"string", maxLength:100},
+										params: {
+											type:"array",
+											minItems:0,
+											maxItems:20,
+											items: {
+												type: "object",
+												additionalProperties: false,
+												properties: {
+													key: {type:"string", maxLength:50},
+													value: {type:"string", maxLength:1000},
+												}
+											}
+										}
 									}
 								},
 								sammiData: {

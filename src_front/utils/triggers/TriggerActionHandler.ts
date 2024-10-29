@@ -3159,8 +3159,17 @@ export default class TriggerActionHandler {
 						log.error = true;
 						logStep.error = true;
 					}else{
-						logStep.messages.push({date:Date.now(), value:"✔ Execute Streamer.bot action ID: "+step.streamerbotData.actionId});
-						StoreProxy.streamerbot.doAction(step.streamerbotData.actionId);
+						const args:{[key:string]:string} = {};
+						if(step.streamerbotData.params) {
+							for (let i = 0; i < step.streamerbotData.params.length; i++) {
+								const param = step.streamerbotData.params[i];
+								let key = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, param.key || "", subEvent)
+								let value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, param.value || "", subEvent)
+								args[key] = value;
+							}
+						}
+						logStep.messages.push({date:Date.now(), value:"✔ Execute Streamer.bot action ID: "+step.streamerbotData.actionId+" with arguments: "+JSON.stringify(args)});
+						StoreProxy.streamerbot.doAction(step.streamerbotData.actionId, args);
 					}
 				}else
 
@@ -3209,6 +3218,8 @@ export default class TriggerActionHandler {
 	public async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false, removeHTMLtags:boolean = true, escapeDoubleQuotes:boolean = false):Promise<string> {
 		let res = src.toString();
 		if(!res) return "";
+		//If there are no placeholder, ignore
+		if(res.indexOf("{") == -1 || res.indexOf("}") == -1) return res;
 		let subEvent_regSafe = "";
 		if(subEvent) subEvent_regSafe = subEvent.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 

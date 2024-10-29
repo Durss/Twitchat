@@ -585,7 +585,8 @@
 			"streamerbot":{
 				"param_action":"Action to execute",
 				"need_to_connect": "This action requires you to {LINK}",
-				"need_to_connect_link": "connect with Streamer.bot"
+				"need_to_connect_link": "connect with Streamer.bot",
+				"add_arg_bt":"Add parameter"
 			},
 			"sammi":{
 				"param_buttonId":"Button ID to trigger",

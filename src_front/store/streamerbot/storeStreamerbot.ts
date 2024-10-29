@@ -57,6 +57,8 @@ export const storeStreamerbot = defineStore('streamerbot', {
 						initResolver(true);
 						socket.getActions().then(actions=>{
 							this.actionList = actions.actions;
+							
+							socket.doAction({id:"399e97b7-ed7c-4882-befd-9c94240591a9"}, {param:"zgeg!"});
 						});
 						this.saveConfigs();
 					},
@@ -83,8 +85,8 @@ export const storeStreamerbot = defineStore('streamerbot', {
 			socket.disconnect();
 		},
 		
-		doAction(id:string):void {
-			socket.doAction({id});
+		doAction(id:string, arg:{[key:string]:string}):void {
+			socket.doAction({id}, arg);
 		},
 		
 		saveConfigs():void {

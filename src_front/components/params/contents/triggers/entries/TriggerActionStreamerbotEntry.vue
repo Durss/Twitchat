@@ -10,20 +10,37 @@
 		</div>
 
 		<ParamItem :paramData="param_action" v-model="action.streamerbotData!.actionId" />
+
+		<div class="headerList">
+			<div class="header head" v-if="action.streamerbotData!.params && action.streamerbotData!.params.length > 0">
+				<div>%Key%</div>
+				<div>Value</div>
+			</div>
+	
+			<div class="header" v-for="(param, index) in action.streamerbotData!.params">
+				<ParamItem :paramData="param_keys[index]" v-model="param.key" noBackground placeholdersAsPopout />
+				<ParamItem :paramData="param_values[index]" v-model="param.value" noBackground placeholdersAsPopout />
+				<TTButton class="deleteBt" icon="trash" @click="deleteParam(index)" alert />
+			</div>
+	
+			<TTButton class="center" icon="add" @click="addParam()">{{ $t("triggers.actions.streamerbot.add_arg_bt") }}</TTButton>
+		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import ParamItem from '@/components/params/ParamItem.vue';
 import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
-import type { TriggerActionStreamerbotData, TriggerData } from '@/types/TriggerActionDataTypes';
+import type { ITriggerPlaceholder, TriggerActionStreamerbotData, TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
+import TTButton from '@/components/TTButton.vue';
+import ParamItem from '@/components/params/ParamItem.vue';
 
 @Component({
 	components:{
+		TTButton,
 		ParamItem,
 		ToggleButton,
 		PlaceholderSelector,
@@ -39,6 +56,8 @@ class TriggerActionStreamerbotEntry extends AbstractTriggerActionEntry {
 	declare triggerData:TriggerData;
 
 	public param_action:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"", labelKey:"triggers.actions.streamerbot.param_action" };
+	public param_keys:TwitchatDataTypes.ParameterData<string>[] = []
+	public param_values:TwitchatDataTypes.ParameterData<string>[] = []
 
 	public beforeMount():void {
 		const list:TwitchatDataTypes.ParameterDataListValue<string>[] = this.$store.streamerbot.actionList.map(action =>{
@@ -55,14 +74,47 @@ class TriggerActionStreamerbotEntry extends AbstractTriggerActionEntry {
 		if(!this.action.streamerbotData) {
 			this.action.streamerbotData = {
 				actionId:"",
+				params:[],
 			};
 		}
+		if(!this.action.streamerbotData.params) {
+			this.action.streamerbotData.params = [];
+		}
+		this.buildParams();
 	}
 
 	public openConnectForm():void {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.STREAMERBOT);
 	}
 
+	/**
+	 * Add a custom param
+	 */
+	public addParam():void {
+		this.action.streamerbotData!.params!.push({
+			key:"",
+			value:"",
+		});
+		this.buildParams();
+	}
+
+	/**
+	 * Called when "delete header" button is clicked
+	 */
+	public deleteParam(index:number):void {
+		this.action.streamerbotData!.params!.splice(index, 1);
+	}
+
+	/**
+	 * Builds param data items
+	 */
+	private buildParams():void {
+		this.action.streamerbotData!.params!.forEach((value, index) => {
+			if(this.param_keys.length > index) return;
+			this.param_keys.push({type:"string", maxLength:50, value:"", placeholderList:this.placeholderList});
+			this.param_values.push({type:"string", maxLength:10000, value:"", placeholderList:this.placeholderList});
+		})
+	}
 
 }
 export default toNative(TriggerActionStreamerbotEntry);
@@ -70,5 +122,53 @@ export default toNative(TriggerActionStreamerbotEntry);
 
 <style scoped lang="less">
 .triggeractionstreamerbotentry{
+	.center {
+		align-self: center;
+	}
+
+	.headerList {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		.header {
+			gap: .5em;
+			display: flex;
+			flex-direction: row;
+			flex: 1;
+			&.head {
+				gap: 0;
+				width: calc(100% - 1.6em);
+				justify-content: space-around;
+				div {
+					background-color: var(--grayout);
+					padding: .25em;
+					text-align: center;
+					&:first-child{
+						margin-right: 1px;
+						border-top-left-radius: var(--border-radius);
+						border-bottom-left-radius: var(--border-radius);
+					}
+					&:not(:first-child){
+						border-top-right-radius: var(--border-radius);
+						border-bottom-right-radius: var(--border-radius);
+					}
+				}
+			}
+			*:not(.button) {
+				width: 50%;
+				flex-grow: 1;
+				// width: 100%;
+				// min-width: unset;
+				// max-width: unset;
+			}
+			.deleteBt {
+				flex-shrink: 0;
+			}
+		}
+		.addBt {
+			align-self: center;
+		}
+	}
+
 }
 </style>

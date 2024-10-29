@@ -508,6 +508,10 @@ export interface TriggerActionStreamerbotData extends TriggerActionData{
 	 */
 	streamerbotData?:{
 		actionId:string;
+		params?:{
+			key:string;
+			value:string;
+		}[];
 	};
 }
 

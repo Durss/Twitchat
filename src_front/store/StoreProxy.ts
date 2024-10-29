@@ -3146,7 +3146,7 @@ export interface IStreamerbotActions {
 	/**
 	 * Execute an action by its ID
 	 */
-	doAction(id:string):void;
+	doAction(id:string, args:{[key:string]:string}):void;
 	/**
 	 * Saves current configs to store
 	 */
