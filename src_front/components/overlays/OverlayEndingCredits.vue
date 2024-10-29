@@ -598,7 +598,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 			(this.$refs.holder as HTMLDivElement).style.marginTop = this.posY+"px";
 		});
 
-		setInterval(()=> {
+		window.setInterval(()=> {
 			PublicAPI.instance.broadcast(TwitchatEvent.CREDITS_OVERLAY_PRESENCE);
 		}, 20000);
 	}

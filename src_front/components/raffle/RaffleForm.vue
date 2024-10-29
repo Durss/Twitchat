@@ -687,7 +687,7 @@ class RaffleForm extends AbstractSidePanel {
 		//Sub mode specifics
 		if(this.localData.mode == "sub") {
 			let subs = Utils.shuffle(await TwitchUtils.getSubsList(false));
-			let interval = setInterval(()=> {
+			let interval = window.setInterval(()=> {
 				this.winnerTmp = Utils.pickRand(subs).user_name;
 			}, 70)
 			this.winner = null;

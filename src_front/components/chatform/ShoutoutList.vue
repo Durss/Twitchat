@@ -68,7 +68,7 @@ class ShoutoutList extends Vue {
 		//by the SchedulerHelper that executes only every 5s.
 		//This local timer offset is here to get the view updating every
 		//seconds even though the data entries are updated every 5s.
-		this.refreshInterval = setInterval(()=> {
+		this.refreshInterval = window.setInterval(()=> {
 			this.timerOffset ++;
 		}, 1000);
 

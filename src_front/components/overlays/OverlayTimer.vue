@@ -51,7 +51,7 @@ class OverlayTimer extends AbstractOverlay {
 		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTDOWN_COMPLETE, this.countdownEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GET_TIMER_OVERLAY_PRESENCE, this.timerPresenceHandler);
 
-		this.intervalUpdate = setInterval(()=>{ this.computeValues() }, 1000)
+		this.intervalUpdate = window.setInterval(()=>{ this.computeValues() }, 1000)
 	}
 
 	public beforeUnmount():void {

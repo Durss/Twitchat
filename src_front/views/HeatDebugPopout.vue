@@ -127,7 +127,7 @@ class HeatDebugPopout extends Vue {
 		clearInterval(this.debugInterval);
 		if(e.key.toUpperCase() == "D" && e.ctrlKey && e.altKey) {
 			const bounds = (this.$refs.area as HTMLDivElement).getBoundingClientRect();
-			this.debugInterval = setInterval(()=>{
+			this.debugInterval = window.setInterval(()=>{
 				this.clearOBSCache();
 				this.onClickArea(new MouseEvent("click", {
 					clientX:bounds.left,

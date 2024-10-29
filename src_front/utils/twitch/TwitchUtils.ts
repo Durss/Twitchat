@@ -1716,7 +1716,7 @@ export default class TwitchUtils {
 			message.clipID = json.data[0].id;
 
 			const createdDate = Date.now();
-			const interval = setInterval(async () => {
+			const interval = window.setInterval(async () => {
 				const clip = await TwitchUtils.getClipById(message.clipID);
 				if (clip) {
 					clearInterval(interval);

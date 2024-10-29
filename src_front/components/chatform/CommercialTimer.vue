@@ -55,7 +55,7 @@ class CommercialTimer extends Vue {
 
 	public mounted():void {
 		this.refreshTimer();
-		this.interval = setInterval(()=> this.refreshTimer(), 1000);
+		this.interval = window.setInterval(()=> this.refreshTimer(), 1000);
 		this.canSnooze = TwitchUtils.hasScopes([TwitchScopes.ADS_SNOOZE]);
 	}
 

@@ -525,7 +525,7 @@ export default class TTSUtils {
 							resolve(txt);
 						}
 		
-						const checkCompleteInterval = setInterval(()=>checkComplete(), 500);
+						const checkCompleteInterval = window.setInterval(()=>checkComplete(), 500);
 					})
 				}
 			}

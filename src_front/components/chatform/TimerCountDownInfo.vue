@@ -39,7 +39,7 @@ class TimerCountDownInfo extends Vue {
 	private interval:number = -1;
 
 	public mounted():void {
-		this.interval = setInterval(()=> {
+		this.interval = window.setInterval(()=> {
 			this.computeValues();
 		}, 1000);
 		this.computeValues();

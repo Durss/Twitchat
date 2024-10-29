@@ -439,7 +439,7 @@ requestInitialInfo();
 
 
 
-setInterval(()=>{
+window.setInterval(()=>{
 	if(mustRefreshRegularly) refreshTimerValues();
 }, 1000);
 

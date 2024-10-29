@@ -649,6 +649,7 @@ export const storeDebug = defineStore('debug', {
 							guessEmote:false,
 							guessNumber:true,
 							guessCustom:false,
+							genericValue:"",
 							min:0,
 							max:1000,
 							numberValue:Math.round(Math.random()*999),

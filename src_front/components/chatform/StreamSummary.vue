@@ -142,7 +142,7 @@ class StreamSummary extends AbstractSidePanel {
 		if(res.length > 0) {
 			dateOffset = new Date(res[0].started_at).getTime();
 			
-			this.durationInterval = setInterval(()=> {
+			this.durationInterval = window.setInterval(()=> {
 				this.streamDuration = Utils.formatDuration(Date.now() - dateOffset!);
 			})
 		// }else{
@@ -340,7 +340,7 @@ class StreamSummary extends AbstractSidePanel {
 
 		//Add users sequentially to avoid huge lag if rendering 1000 users at once
 		window.setTimeout(()=> {
-			const renderInterval = setInterval(()=> {
+			const renderInterval = window.setInterval(()=> {
 				if(list.length > 0) {
 					this.userList.push(...list.splice(0, 10)!);
 				}else{

@@ -111,7 +111,7 @@ class TriggerList extends Vue {
 	private startSequentialBuild():void {
 		this.buildIndex = -1;
 		clearInterval(this.buildInterval);
-		this.buildInterval = setInterval(()=> {
+		this.buildInterval = window.setInterval(()=> {
 			this.buildIndex ++;
 			if(this.buildIndex > Math.floor(this.folderTriggerList.length/this.buildBatchSize)) {
 				clearInterval(this.buildInterval);

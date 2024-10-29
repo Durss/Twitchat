@@ -589,7 +589,7 @@ export class ChatForm extends Vue {
 			this.showGazaBtn = true;
 		}, 2000);
 		//Check for new announcements every 30min
-		this.announcementInterval = setInterval(()=> {
+		this.announcementInterval = window.setInterval(()=> {
 			this.loadAnnouncements(true);
 		}, 10 * 60 * 1000);
 	}

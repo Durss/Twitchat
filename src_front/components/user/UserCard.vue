@@ -466,7 +466,7 @@ class UserCard extends AbstractSidePanel {
 					this.channelColor = this.$store.stream.connectedTwitchChans.find(v=>v.user.id === chanId)?.color || "#ffffff";
 				}
 				this.loadUserInfo();
-				this.dateOffsetTimeout = setInterval(() => {
+				this.dateOffsetTimeout = window.setInterval(() => {
 					this.dateOffset += 1000;
 				}, 1000);
 				this.$nextTick(()=>{
@@ -813,7 +813,7 @@ class UserCard extends AbstractSidePanel {
 		//Build messages by batch to avoid lag on open
 		this.messageHistory = messageList.splice(-20);
 		clearInterval(this.messageBuildInterval);
-		this.messageBuildInterval = setInterval(()=> {
+		this.messageBuildInterval = window.setInterval(()=> {
 			if(messageList.length == 0) clearInterval(this.messageBuildInterval);
 
 			this.messageHistory.unshift(...messageList.splice(-5));

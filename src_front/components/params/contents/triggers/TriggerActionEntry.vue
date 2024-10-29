@@ -159,13 +159,13 @@
 				<TTButton class="button" @click.capture="selectActionType('streamerbot')"
 					:disabled="!$store.streamerbot.connected"
 					v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_triggerAction_streamerbot'}"
-					v-tooltip="heatClickEnabled? '' : $t('triggers.actions.common.action_streamerbot_tt')"
+					v-tooltip="$store.streamerbot.connected? '' : $t('triggers.actions.common.action_streamerbot_tt')"
 					icon="streamerbot">{{ $t('triggers.actions.common.action_streamerbot') }}</TTButton>
 
 				<TTButton class="button" @click.capture="selectActionType('sammi')"
 					:disabled="!$store.sammi.connected"
 					v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_triggerAction_sammi'}"
-					v-tooltip="heatClickEnabled? '' : $t('triggers.actions.common.action_sammi_tt')"
+					v-tooltip="$store.sammi.connected? '' : $t('triggers.actions.common.action_sammi_tt')"
 					icon="sammi">{{ $t('triggers.actions.common.action_sammi') }}</TTButton>
 
 				<TTButton class="button" @click.capture="selectActionType('customBadges')"

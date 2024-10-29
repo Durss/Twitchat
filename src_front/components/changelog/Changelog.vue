@@ -207,7 +207,7 @@ class Changelog extends Vue {
 		this.skinPagination();
 
 		//Stagger items build ot avoid lag on open
-		let interval = setInterval(()=> {
+		let interval = window.setInterval(()=> {
 			this.buildIndex += 2;
 			if(this.buildIndex >= this.items.length) {
 				clearInterval(interval);
