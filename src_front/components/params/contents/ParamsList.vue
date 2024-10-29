@@ -245,7 +245,7 @@ class ParamsList extends Vue implements IParameterContent {
 								const interval = setInterval(()=>{
 									holder.scrollIntoView();
 								},30);
-								setTimeout(() => {
+								window.setTimeout(() => {
 									clearInterval(interval);
 								}, 1000);
 							}

@@ -113,7 +113,7 @@ class RewardListItem extends Vue {
 
 		this.loading = true;
 		clearTimeout(this.updateDebounce);
-		this.updateDebounce = setTimeout(async ()=> {
+		this.updateDebounce = window.setTimeout(async ()=> {
 			await TwitchUtils.updateReward(this.reward.id, {cost: this.reward.cost});
 			await Utils.promisedTimeout(250);
 			this.loading = false;

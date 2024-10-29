@@ -80,7 +80,7 @@ class OverlayUlule extends Vue {
 			console.log(error);
 		}
 
-		this.timeout = setTimeout(()=>{
+		this.timeout = window.setTimeout(()=>{
 			this.refreshData();
 		}, 3000);
 	}

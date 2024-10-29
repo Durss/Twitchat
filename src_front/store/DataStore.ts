@@ -48,7 +48,7 @@ export default class DataStore extends DataStoreCommon{
 		if(this.abortQuery && !this.abortQuery.signal.aborted) this.abortQuery.abort("search update");
 
 		return new Promise((resolve) => {;
-			this.saveTO = setTimeout(async () => {
+			this.saveTO = window.setTimeout(async () => {
 				const data = JSON.parse(JSON.stringify(this.rawStore));
 
 				//Do not save sensitive and useless data to server

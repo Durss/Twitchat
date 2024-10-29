@@ -88,6 +88,11 @@
 				<p>Heat</p>
 			</button>
 
+			<button class="card-item" @click="subContent='streamerbot'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.stramerbot'}">
+				<Icon name="streamerbot" />
+				<p>Streamer.bot</p>
+			</button>
+
 			<button class="card-item" @click="subContent='websocket'">
 				<Icon name="broadcast" />
 				<p>Websocket</p>
@@ -111,6 +116,7 @@
 	<ConnectTipeee v-else-if="subContent == 'tipeee'" />
 	<ConnectPatreon v-else-if="subContent == 'patreon'" />
 	<ConnectTiktok v-else-if="subContent == 'tiktok'" />
+	<ConnectStreamerBot v-else-if="subContent == 'streamerbot'" />
 </template>
 
 <script lang="ts">
@@ -136,6 +142,7 @@ import ConnectTipeee from './connexions/ConnectTipeee.vue';
 import ConnectTiltify from './connexions/ConnectTiltify.vue';
 import ConnectPatreon from './connexions/ConnectPatreon.vue';
 import ConnectTiktok from './connexions/ConnectTiktok.vue';
+import ConnectStreamerBot from './connexions/ConnectStreamerBot.vue';
 
 @Component({
 	components:{
@@ -155,6 +162,7 @@ import ConnectTiktok from './connexions/ConnectTiktok.vue';
 		ConnectWebsocket,
 		ConnectStreamdeck,
 		ConnectStreamlabs,
+		ConnectStreamerBot,
 		ConnectStreamelements,
 	},
 	emits:[],

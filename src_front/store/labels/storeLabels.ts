@@ -159,7 +159,7 @@ export const storeLabels = defineStore('labels', {
 
 			let elapsedSinceLastSave = Date.now() - lastSaveDate;
 			clearTimeout(saveDebounce);
-			saveDebounce = setTimeout(() => {
+			saveDebounce = window.setTimeout(() => {
 				lastSaveDate = Date.now();
 				DataStore.set(DataStore.OVERLAY_LABELS, data);
 			}, 30000);
@@ -207,7 +207,7 @@ export const storeLabels = defineStore('labels', {
 			//every few events get actually fired without clogging the
 			//communication channel
 			if(++broadcastCount != 50) clearTimeout(broadcastDebounce);
-			broadcastDebounce = setTimeout(() => {
+			broadcastDebounce = window.setTimeout(() => {
 				broadcastCount = 0;
 				const list:{[tag:string]:{value:string|number, type:LabelItemPlaceholder["type"]}} = {};
 				for (const key in this.allPlaceholders) {

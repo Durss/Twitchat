@@ -178,7 +178,7 @@ class OverlayChatHighlight extends Vue {
 		clearInterval(this.iFrameInitTimeout);
 		clearInterval(this.progressBarInterval);
 
-		this.iFrameInitTimeout = setTimeout(async ()=> {
+		this.iFrameInitTimeout = window.setTimeout(async ()=> {
 			this.loadingClip = false;
 			await this.$nextTick();
 			this.showCurrent();
@@ -282,7 +282,7 @@ class OverlayChatHighlight extends Vue {
 			let label = (minutes <= 1)? singular : plural;
 			this.dateLabel = label.replace("{MIN}", minutes.toString());
 		}
-		this.dateTimeout = setTimeout(()=>this.updateDate(), 1000);
+		this.dateTimeout = window.setTimeout(()=>this.updateDate(), 1000);
 	}
 }
 export default toNative(OverlayChatHighlight);

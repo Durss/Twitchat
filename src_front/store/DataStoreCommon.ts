@@ -107,6 +107,8 @@ export default class DataStoreCommon {
 	public static TILTIFY_TOKEN:string = "tiltifyToken";
 	public static RAFFLES_RUNNING:string = "rafflesRunning";
 	public static TIKTOK_CONFIGS:string = "tiktokConfigs";
+	public static STREAMERBOT_CONFIGS:string = "streamerbotConfigs";
+	public static STREAMERBOT_WS_PASSWORD:string = "streamerbotWsPassword";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";
@@ -142,6 +144,7 @@ export default class DataStoreCommon {
 		this.TIPEEE,
 		this.TILTIFY_TOKEN,
 		this.STREAMLABS_CHARITY_CACHE,
+		this.STREAMERBOT_WS_PASSWORD,
 	];
 
 

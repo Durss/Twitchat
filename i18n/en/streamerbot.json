@@ -1,0 +1,11 @@
+{
+	"streamerbot": {
+		"header":"Connect with {LINK} to trigger its actions from Twitchat's Triggers",
+		"install":"Install Streamer.bot",
+		"instructions":"In Streamer.bot, go under \"Servers/Clients\" => \"WebSocket server\", tick the \"Auto Start WebSockets server\" option and click \"Start server\"",
+		"connect_error":"Connection to Streamber.bot failed.\nMake sure Streamer.bot is started and HTTP server enabled.",
+		"ip":"IP",
+		"port":"Port",
+		"pass":"Password (optional)"
+	}
+}

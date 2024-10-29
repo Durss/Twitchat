@@ -53,7 +53,7 @@ class AlertView extends Vue {
 				this.locked = true;
 			}else if(!this.showContact){
 				const autoHideDuration = (this.message.length*80 + 2000) * 4;
-				this.timeout = setTimeout(()=> this.close(), autoHideDuration);
+				this.timeout = window.setTimeout(()=> this.close(), autoHideDuration);
 			}
 		}else if(this.message) {
 			gsap.to(this.$el, {duration:.3, height:0, paddingTop:0, paddingBottom:0, ease:"back.in", onComplete:()=> {

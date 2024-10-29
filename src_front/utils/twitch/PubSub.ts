@@ -177,7 +177,7 @@ export default class PubSub extends EventDispatcher {
 			// 	alert('[close] Connection died');
 			// }
 			clearTimeout(this.reconnectTimeout)
-			this.reconnectTimeout = setTimeout(()=>{
+			this.reconnectTimeout = window.setTimeout(()=>{
 				this.connect();
 			}, 1000);
 		};
@@ -488,7 +488,7 @@ export default class PubSub extends EventDispatcher {
 			StoreProxy.stream.setCommunityBoost(m);
 
 			if(data.type == "community-boost-end") {
-				setTimeout(()=> {
+				window.setTimeout(()=> {
 					//Automatically hide the boost after a few seconds
 					StoreProxy.stream.setCommunityBoost(undefined);
 				}, 15000);
@@ -853,7 +853,7 @@ export default class PubSub extends EventDispatcher {
 		StoreProxy.stream.setHypeTrain(train);
 
 		//Hide "hypetrain approaching" notification if expired
-		this.hypeTrainApproachingTimer = setTimeout(()=> {
+		this.hypeTrainApproachingTimer = window.setTimeout(()=> {
 			StoreProxy.stream.setHypeTrain(undefined);
 		}, train.timeLeft_s * 1000);
 
@@ -924,13 +924,13 @@ export default class PubSub extends EventDispatcher {
 		clearTimeout(this.hypeTrainProgressTimer);
 		//postepone the progress event in case it's followed by a LEVEL UP event to avoid
 		//having kind of two similar events
-		this.hypeTrainProgressTimer = setTimeout(()=> {
+		this.hypeTrainProgressTimer = window.setTimeout(()=> {
 			const storeTrain = StoreProxy.stream.hypeTrain;
 			const prevLevel = storeTrain?.level ?? 0;
 			const prevValue = storeTrain?.currentValue ?? 0;
 			//Makes sure that if a progress event follows the LEVEL UP event, only
 			//the LEVEL UP event is handled.
-			//ame goal as the setTimeout() above but if the events order is reversed
+			//ame goal as the window.setTimeout() above but if the events order is reversed
 			if(data.progress.value == prevLevel && data.progress.level.value == prevValue) {
 				//Make sure 2 identical progress events are not processed
 				return;
@@ -1086,7 +1086,7 @@ export default class PubSub extends EventDispatcher {
 		StoreProxy.stream.setHypeTrain(train);
 
 
-		setTimeout(()=> {
+		window.setTimeout(()=> {
 			if(Math.random() > .5) {
 				//Randomly log hype trains to help me debugging constantly changing data
 				const version = import.meta.env.PACKAGE_VERSION;
@@ -1172,7 +1172,7 @@ export default class PubSub extends EventDispatcher {
 				let timeoutRef = -1;
 				if(data.message.ends_at*1000 > Date.now()) {
 					//Schedule automatic unpin
-					timeoutRef = setTimeout(()=> {
+					timeoutRef = window.setTimeout(()=> {
 						this.unpinMessageEvent(m, channel_id);
 					}, data.message.ends_at*1000 - Date.now());
 
@@ -1198,7 +1198,7 @@ export default class PubSub extends EventDispatcher {
 			clearTimeout(message.timeoutRef);
 			if(message.unpinAt_ms > Date.now()) {
 				//Schedule automatic unpin
-				message.timeoutRef = setTimeout(()=> {
+				message.timeoutRef = window.setTimeout(()=> {
 					if(message!.chatMessage){
 						this.unpinMessageEvent(data, channel_id);
 					}

@@ -128,7 +128,7 @@ class RewardListEditForm extends Vue {
 
 		// if(this.triggerMode === false && this.reward) {
 		// 	clearTimeout(this.changeDebounce);
-		// 	this.changeDebounce = setTimeout(async ()=> {
+		// 	this.changeDebounce = window.setTimeout(async ()=> {
 		// 		if(this.reward) {
 		// 			await TwitchUtils.updateReward(this.reward.id, this.localValue);
 		// 		}

@@ -296,7 +296,7 @@ class ParamsDonate extends Vue {
 		//Debug to automatically increment amount
 		/*
 		this.amount = 1
-		setTimeout(async() => {
+		window.setTimeout(async() => {
 			let i = 2;
 			for (; i <= 20; i++) {
 				this.amount = i;

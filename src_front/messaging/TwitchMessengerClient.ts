@@ -70,7 +70,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 		//Debounce connection calls if calling it for multiple channels at once
 		clearTimeout(this._connectTimeout);
-		this._connectTimeout = setTimeout(async ()=>{
+		this._connectTimeout = window.setTimeout(async ()=>{
 			Logger.instance.log("irc", {info:"Initial connect to channel(s) "+this._channelList.join(", ")});
 			const chans = await TwitchUtils.getUserInfo(undefined, this._channelList);
 			if(chans.length === 0) {
@@ -1013,7 +1013,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//can then ignore the event. Otherwise, we send the notificaiton.
 		//We don't wait 1s or more, otherwise if TO for 1s the user would be unbanned
 		//before the setTimeout completes
-		setTimeout(async ()=> {
+		window.setTimeout(async ()=> {
 			const channel_id = this.getChannelID(channel);
 			const user = this.getUserStateFromLogin(username, channel_id).user;
 			const isTO = !isNaN(duration as number);

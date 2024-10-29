@@ -388,7 +388,7 @@ export const storeDebug = defineStore('debug', {
 					if(type == TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE) {
 						fillClipInfo(m);
 					}else{
-						setTimeout(()=>{
+						window.setTimeout(()=>{
 							fillClipInfo(m);
 						}, 2000);
 					}

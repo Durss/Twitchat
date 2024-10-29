@@ -1,35 +1,32 @@
 <template>
-	<div class="connecttiktok parameterContent">
-		<Icon name="tiktok" class="icon" />
-		
+	<div class="connectstreamerbot parameterContent">
+		<Icon name="streamerbot" alt="streamerbot icon" class="icon" />
+
 		<div class="head">
-			<i18n-t scope="global" tag="span" keypath="tiktok.header">
+			<i18n-t scope="global" tag="span" keypath="streamerbot.header">
 				<template #LINK>
-					<a href="https://tiktok.com/" target="_blank"><Icon name="newtab" />TikTok</a>
+					<a href="https://streamer.bot/" target="_blank"><Icon name="newtab" />Streamer.bot</a>
 				</template>
 			</i18n-t>
 			<div class="card-item secondary infos">
 				<span>
 					<Icon name="info" />
-					<i18n-t scope="global" keypath="tiktok.requirement">
-						<template #LINK>
-							<a href="https://tikfinity.zerody.one/app/" target="_blank"><Icon name="newtab" />TikFinity</a>
-						</template>
-					</i18n-t>
+					<span>{{$t("streamerbot.instructions")}}</span>
 				</span>
 				<TTButton class="installBt"
-					href="https://tikfinity.zerody.one/app"
+					href="https://streamer.bot"
 					type="link"
 					icon="newtab"
 					target="_blank"
-					light secondary>{{ $t("tiktok.install") }}</TTButton>
+					light secondary>{{ $t("streamerbot.install") }}</TTButton>
 			</div>
 		</div>
 
 		<div class="content">
-			<form class="card-item" v-if="!$store.tiktok.connected" @submit.prevent="connect()">
-				<ParamItem noBackground :paramData="param_ip" v-model="$store.tiktok.ip" autofocus/>
-				<ParamItem noBackground :paramData="param_port" v-model="$store.tiktok.port"/>
+			<form class="card-item" v-if="!$store.streamerbot.connected" @submit.prevent="connect()">
+				<ParamItem noBackground :paramData="param_ip" v-model="$store.streamerbot.ip" autofocus/>
+				<ParamItem noBackground :paramData="param_port" v-model="$store.streamerbot.port"/>
+				<ParamItem noBackground :paramData="param_pass" v-model="$store.streamerbot.password"/>
 
 				<div class="ctas">
 					<TTButton type="reset" alert
@@ -41,20 +38,20 @@
 						:disabled="!canConnect">{{ $t('global.connect') }}</TTButton>
 				</div>
 			</form>
-			
-			<div class="card-item alert error" v-if="error" @click="error=false">{{$t("tiktok.connect_error")}}</div>
+			<div class="card-item alert error" v-if="error" @click="error=false">{{$t("streamerbot.connect_error")}}</div>
 	
-			<template v-if="$store.tiktok.connected">
+			<template v-if="$store.streamerbot.connected">
 				<div class="card-item primary" v-if="showSuccess">{{ $t("connexions.triggerSocket.success") }}</div>
 
 				<div class="card-item infos">
-					<div><strong>{{ $t(param_ip.labelKey!) }}</strong>: {{$store.tiktok.ip}}</div>
-					<div><strong>{{ $t(param_port.labelKey!) }}</strong>: {{$store.tiktok.port}}</div>
+					<div><strong>{{ $t(param_ip.labelKey!) }}</strong>: {{$store.streamerbot.ip}}</div>
+					<div><strong>{{ $t(param_port.labelKey!) }}</strong>: {{$store.streamerbot.port}}</div>
 				</div>
 	
 				<TTButton class="connectBt" alert @click="disconnect()">{{ $t('global.disconnect') }}</TTButton>
 			</template>
 		</div>
+
 	</div>
 </template>
 
@@ -63,24 +60,23 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import TTButton from '@/components/TTButton.vue';
-import Icon from '@/components/Icon.vue';
 
 @Component({
 	components:{
-		Icon,
 		TTButton,
 		ParamItem,
 	},
 	emits:[],
 })
-class ConnectTiktok extends Vue {
+class ConnectStreamerBot extends Vue {
 
 	public error = false;
 	public showSuccess = false;
 	public connecting = false;
 
-	public param_ip:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"connexions.triggerSocket.ip", maxLength:100};
-	public param_port:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", labelKey:"connexions.triggerSocket.port", min:0, max:65535};
+	public param_ip:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"streamerbot.ip", maxLength:100};
+	public param_port:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", labelKey:"streamerbot.port", min:0, max:65535};
+	public param_pass:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"streamerbot.pass", maxLength:100};
 		
 	public get canConnect():boolean {
 		return this.param_ip.value.length >= 7;// && this.param_port.value > 0;
@@ -91,21 +87,23 @@ class ConnectTiktok extends Vue {
 	}
 
 	public async connect():Promise<void> {
+		this.error = false;
 		this.connecting = true;
-		this.error = !await this.$store.tiktok.connect();
+		const res = await this.$store.streamerbot.connect();
+		this.error = !res;
+		console.log("RESULT??", res);
 		this.connecting = false;
 	}
 
 	public disconnect():void {
-		this.$store.tiktok.disconnect();
+		this.$store.streamerbot.disconnect();
 	}
-
 }
-export default toNative(ConnectTiktok);
+export default toNative(ConnectStreamerBot);
 </script>
 
 <style scoped lang="less">
-.connecttiktok{
+.connectstreamerbot{
 	.content {
 		display: flex;
 		flex-direction: column;
@@ -126,6 +124,8 @@ export default toNative(ConnectTiktok);
 
 		.error {
 			cursor: pointer;
+			white-space: pre-line;
+			text-align: center;
 		}
 	}
 
@@ -135,5 +135,6 @@ export default toNative(ConnectTiktok);
 		flex-direction: column;
 		align-items: center;
 	}
+	
 }
 </style>

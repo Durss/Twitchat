@@ -244,7 +244,7 @@ export class ToggleBlock extends Vue {
 		return;
 		this.dragCount ++;
 		clearTimeout(this.toggleTimeout);
-		this.toggleTimeout = setTimeout(() => {
+		this.toggleTimeout = window.setTimeout(() => {
 			this.toggle(true);
 		}, 750);
 	}

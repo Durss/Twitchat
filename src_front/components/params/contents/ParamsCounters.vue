@@ -327,7 +327,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 	public onChangeValue(entry:CounterEntry, userEntry?:UserEntry):void {
 		clearTimeout(this.timeoutEdit);
 		let diff = 0;
-		this.timeoutEdit = setTimeout(() => {
+		this.timeoutEdit = window.setTimeout(() => {
 			if(userEntry) {
 				diff = userEntry.param.value - entry.counter.users![ userEntry.user.id ];
 			}else{
@@ -440,7 +440,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 
 		//Users not loaded yet, search user from Twitch API
 		clearTimeout(this.timeoutSearch);
-		this.timeoutSearch = setTimeout(async () => {
+		this.timeoutSearch = window.setTimeout(async () => {
 			const users = await TwitchUtils.getUserInfo(undefined, [entry.search[counter.id]]);
 			let found = false;
 			if(users.length > 0) {

@@ -240,7 +240,7 @@ class RaidState extends Vue {
 	public remoteConnect():void {
 		this.remoteConnecting = true;
 		this.$store.stream.connectToExtraChan(this.user!);
-		setTimeout(()=>{
+		window.setTimeout(()=>{
 			this.canRemoteConnect = false;
 		},500)
 	}

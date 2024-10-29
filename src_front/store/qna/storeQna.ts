@@ -287,7 +287,7 @@ export const storeQna = defineStore('qna', {
 			//When banning a user this method is called for all their messages
 			clearTimeout(deleteDebounce);
 			deleteSpool.push(messageID);
-			deleteDebounce = setTimeout(() => {
+			deleteDebounce = window.setTimeout(() => {
 				for (let i = 0; i < this.activeSessions.length; i++) {
 					const session = this.activeSessions[i];
 					for (let j = 0; j < session.messages.length; j++) {
@@ -310,7 +310,7 @@ export const storeQna = defineStore('qna', {
 
 		shareSessionsWithMods():void {
 			clearTimeout(shareDebounce);
-			shareDebounce = setTimeout(() => {
+			shareDebounce = window.setTimeout(() => {
 				ApiHelper.call("mod/qna", "POST", {sessions:this.activeSessions.filter(v=>v.shareWithMods==true)});
 			}, 500);
 		}

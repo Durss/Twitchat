@@ -175,7 +175,7 @@ class UserList extends Vue {
 		clearTimeout(this.debounceTo);
 		const isInit = Object.keys(this.channels).length==0;
 
-		this.debounceTo = setTimeout(()=> {
+		this.debounceTo = window.setTimeout(()=> {
 			// const s = Date.now();
 			const userList = this.$store.users.users;
 			

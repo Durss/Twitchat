@@ -260,7 +260,7 @@ class ParamsValues extends Vue implements IParameterContent {
 	 */
 	public onChangeValue(entry:ValueEntry, userEntry?:UserEntry):void {
 		clearTimeout(this.timeoutEdit);
-		this.timeoutEdit = setTimeout(() => {
+		this.timeoutEdit = window.setTimeout(() => {
 			if(userEntry) {
 				this.$store.values.updateValue(entry.value.id, userEntry.param.value, userEntry.user);
 			}else{
@@ -368,7 +368,7 @@ class ParamsValues extends Vue implements IParameterContent {
 
 		//Users not loaded yet, search user from Twitch API
 		clearTimeout(this.timeoutSearch);
-		this.timeoutSearch = setTimeout(async () => {
+		this.timeoutSearch = window.setTimeout(async () => {
 			const users = await TwitchUtils.getUserInfo(undefined, [entry.search[value.id]]);
 			let found = false;
 			if(users.length > 0) {

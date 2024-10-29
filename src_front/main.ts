@@ -67,6 +67,7 @@ import { storeLabels } from './store/labels/storeLabels';
 import { storeDonationGoals } from './store/donation_goals/storeDonationGoals';
 import { storeTiltify } from './store/tiltify/storeTiltify';
 import { storeTiktok } from './store/tiktok/storeTiktok';
+import { storeStreamerbot } from './store/storeStreamerbot/storeStreamerbot';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -107,7 +108,7 @@ const i18n = createI18n({
 		}
 	}catch(error) {
 		console.log(error);
-		setTimeout(() => {
+		window.setTimeout(() => {
 			StoreProxy.default.common.alert( "An error occured when loading labels :(" );
 			storeMain().initComplete = true;
 		}, 1000);
@@ -270,6 +271,7 @@ function buildApp() {
 	StoreProxy.default.donationGoals = storeDonationGoals();
 	StoreProxy.default.tiltify = storeTiltify();
 	StoreProxy.default.tiktok = storeTiktok();
+	StoreProxy.default.streamerbot = storeStreamerbot();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.default.labels = (storeLabels() as unknown) as StoreProxy.ILabelsState & StoreProxy.ILabelsGetters & StoreProxy.ILabelsActions & { $state: StoreProxy.ILabelsState; $reset:()=>void };
 

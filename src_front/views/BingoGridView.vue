@@ -288,7 +288,7 @@ class BingoGridView extends Vue {
 			this.entries.forEach(v=> states[v.id] = v.check);
 			this.additionalEntries.forEach(v=> states[v.id] = v.check);
 			clearTimeout(this.moderateDebounce);
-			this.moderateDebounce = setTimeout(()=>{
+			this.moderateDebounce = window.setTimeout(()=>{
 				ApiHelper.call("bingogrid/moderate", "POST", {states, uid:this.param_uid, gridid:this.param_gridId});
 			}, 500);
 		}
@@ -430,7 +430,7 @@ class BingoGridView extends Vue {
 		&& this.bingoCount != bingoCount
 		&& this.$store.public.authenticated) {
 			clearTimeout(this.bingoCountDebounce);
-			this.bingoCountDebounce = setTimeout(() => {
+			this.bingoCountDebounce = window.setTimeout(() => {
 				ApiHelper.call("bingogrid/bingo", "POST", {count:bingoCount, gridid:this.param_gridId, uid:this.param_uid});
 			}, 2000);
 		}
@@ -612,7 +612,7 @@ class BingoGridView extends Vue {
 	private playNotification():void {
 		this.setPageTitle();
 		clearTimeout(this.notificationDebounce);
-		this.notificationDebounce = setTimeout(() => {
+		this.notificationDebounce = window.setTimeout(() => {
 			const audio = new Audio(this.$asset("sounds/notification.mp3"));
 			audio.volume = .25;
 			audio.play();

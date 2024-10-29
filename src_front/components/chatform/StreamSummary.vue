@@ -339,7 +339,7 @@ class StreamSummary extends AbstractSidePanel {
 		this.userList = list.splice(0, 20);
 
 		//Add users sequentially to avoid huge lag if rendering 1000 users at once
-		setTimeout(()=> {
+		window.setTimeout(()=> {
 			const renderInterval = setInterval(()=> {
 				if(list.length > 0) {
 					this.userList.push(...list.splice(0, 10)!);

@@ -770,7 +770,7 @@ export default class ContextMenuHelper {
 	 */
 	private getHighlightOverPresence():Promise<boolean> {
 		return new Promise((resolve, reject)=> {
-			const timeout = setTimeout(() =>{
+			const timeout = window.setTimeout(() =>{
 				resolve(false);
 				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
 			}, 1000)
@@ -842,7 +842,7 @@ export default class ContextMenuHelper {
 								| TwitchatDataTypes.MessageRaidData, htmlNode:HTMLElement, discord:boolean = false):Promise<void> {
 
 		StoreProxy.main.messageExportState = {id:"progress"};
-		const errorTimeout = setTimeout(()=> {
+		const errorTimeout = window.setTimeout(()=> {
 			StoreProxy.main.messageExportState = {id:"error"};
 		}, 10000)
 		const bgcolor = StoreProxy.common.theme == "dark"? "#18181b" : "#EEEEEE";
@@ -938,7 +938,7 @@ export default class ContextMenuHelper {
 				let loaded = 0;
 				//Wait for all images to be loaded
 				await new Promise<void>((resolve)=> {
-					const fallBackTO = setTimeout(() => resolve(), 1000);
+					const fallBackTO = window.setTimeout(() => resolve(), 1000);
 					imgs.forEach((v:HTMLImageElement)=>{
 						if(/.*cloudfront.net/.test(v.src)) {
 							//CORS bypass for cheermotes

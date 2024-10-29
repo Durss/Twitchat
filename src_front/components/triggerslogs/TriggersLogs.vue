@@ -129,7 +129,7 @@ class TriggersLogs extends AbstractSidePanel {
 
 	public refreshList():void {
 		this.reloading = true;
-		setTimeout(()=>{
+		window.setTimeout(()=>{
 			this.reloading = false;
 		}, 500)
 	}

@@ -63,7 +63,7 @@ export const storeTiktok = defineStore('tiktok', {
 					if(autoreconnect) {
 						// console.log('🎤 TikTok connection lost');
 						try {
-							reconnectTimeout = setTimeout(()=> {
+							reconnectTimeout = window.setTimeout(()=> {
 								this.connect();
 							}, 10000)
 						}catch(error) {
@@ -303,7 +303,7 @@ export const storeTiktok = defineStore('tiktok', {
 					}else{
 						debouncedLikes[user!.id] = {count:0, to:-1}
 					}
-					const to = setTimeout(()=> {
+					const to = window.setTimeout(()=> {
 						const message:TwitchatDataTypes.MessageTikTokLikeData = {
 							channel_id:json.data.tikfinityUserId.toString(),
 							platform:"tiktok",

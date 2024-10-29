@@ -38,7 +38,7 @@ class DistortionHeart extends AbstractDistortion {
 		gsap.fromTo(item, {scale:0}, {duration:1, scale, ease:"elastic.out", onComplete:()=> {
 			gsap.fromTo(item, {scale:scale*1.5}, {duration:.35, scale, ease:"back.out", repeat:-1, repeatDelay:1.5});
 			gsap.fromTo(item, {scale:scale*1.25}, {duration:.35, delay:.3, scale, ease:"back.out", repeat:-1, repeatDelay:1.5});
-			setTimeout(() => {
+			window.setTimeout(() => {
 				gsap.to(item, {duration:.5, scale:0, ease:"back.in", onComplete:()=> {
 					this.removeItem(item);
 				}});

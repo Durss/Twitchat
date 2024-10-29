@@ -161,7 +161,7 @@ class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 		//Not usign @change because the value is changed on onToggleParam() based
 		//on currently enabled parameters which would conflict with this handler
 		//if it was using @change.
-		setTimeout(() => {
+		window.setTimeout(() => {
 			this.parameters.forEach(v=> v.enabled = this.param_toggleAll.value);
 			this.onToggleParam();
 		}, 0);

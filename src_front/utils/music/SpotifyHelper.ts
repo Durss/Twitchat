@@ -241,7 +241,7 @@ export default class SpotifyHelper {
 		}catch(error) {
 			//Refresh failed, try again
 			if(attempt < 5) {
-				this._refreshTimeout = setTimeout(()=>{
+				this._refreshTimeout = window.setTimeout(()=>{
 					this.refreshToken(++attempt);
 				}, 5000);
 			}else{
@@ -461,18 +461,18 @@ export default class SpotifyHelper {
 		}catch(error) {
 			//API crashed, try again 5s later
 			StoreProxy.music.spotifyConsecutiveErrors ++;
-			this._getTrackTimeout = setTimeout(()=> this.getCurrentTrack(), 5000);
+			this._getTrackTimeout = window.setTimeout(()=> this.getCurrentTrack(), 5000);
 			return;
 		}
 		if(res.status == 401) {
 			await this.refreshToken();
-			this._getTrackTimeout = setTimeout(()=> this.getCurrentTrack(), 1000);
+			this._getTrackTimeout = window.setTimeout(()=> this.getCurrentTrack(), 1000);
 			return;
 		}
 		if(res.status == 204) {
 			//No content, nothing is playing
 			this._isPlaying = false;
-			this._getTrackTimeout = setTimeout(()=> this.getCurrentTrack(), 10000);
+			this._getTrackTimeout = window.setTimeout(()=> this.getCurrentTrack(), 10000);
 			StoreProxy.music.spotifyConsecutiveErrors = 0;
 			return;
 		}
@@ -482,7 +482,7 @@ export default class SpotifyHelper {
 			json = await res.json();
 		}catch(error) { }
 		if(!json) {
-			this._getTrackTimeout = setTimeout(()=> {
+			this._getTrackTimeout = window.setTimeout(()=> {
 				this.getCurrentTrack();
 			}, 5000);
 			return;
@@ -527,7 +527,7 @@ export default class SpotifyHelper {
 				//the actual new track
 				delete this._trackIdToRequest[this.currentTrack.id];
 				await this.nextTrack();
-				this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 500);
+				this._getTrackTimeout = window.setTimeout(()=> { this.getCurrentTrack(); }, 500);
 				return;
 			}
 
@@ -572,7 +572,7 @@ export default class SpotifyHelper {
 
 				let delay = json.item.duration_ms - json.progress_ms;
 				if(isNaN(delay)) delay = 5000;
-				this._getTrackTimeout = setTimeout(()=> {
+				this._getTrackTimeout = window.setTimeout(()=> {
 					this.getCurrentTrack();
 				}, Math.min(5000, delay + 1000));
 
@@ -602,10 +602,10 @@ export default class SpotifyHelper {
 
 					this._lastTrackInfo = null;
 				}
-				this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
+				this._getTrackTimeout = window.setTimeout(()=> { this.getCurrentTrack(); }, 5000);
 			}
 		}else{
-			this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
+			this._getTrackTimeout = window.setTimeout(()=> { this.getCurrentTrack(); }, 5000);
 		}
 	}
 

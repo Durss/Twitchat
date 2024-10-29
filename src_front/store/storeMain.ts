@@ -274,30 +274,30 @@ export const storeMain = defineStore("main", {
 
 			//Warn the user about the automatic "ad" message sent every 2h
 			if(DataStore.get(DataStore.TWITCHAT_AD_WARNED) !== "true" && sAuth.donorLevel == -1 && !sAuth.isPremium) {
-				setTimeout(()=>{
+				window.setTimeout(()=>{
 					sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING);
 				}, 5000);
 			}else
 			//Warn the user about the new ad break capabilities
 			if(DataStore.get(DataStore.AD_BREAK_SCOPES_REQUEST) !== "true" && !TwitchUtils.hasScopes([TwitchScopes.ADS_READ, TwitchScopes.ADS_SNOOZE])) {
-				setTimeout(()=>{
+				window.setTimeout(()=>{
 					sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.AD_BREAK_SCOPE_REQUEST);
 				}, 5000);
 			}else
 			//Ask the user if they want to make their donation public
 			if(!DataStore.get(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT) && sAuth.donorLevel > -1) {
-				setTimeout(()=>{
+				window.setTimeout(()=>{
 					sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT);
 				}, 5000);
 			}else
 			//Show "right click message" hint
 			if(!DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT)) {
-				setTimeout(()=>{
+				window.setTimeout(()=>{
 					sChat.sendRightClickHint();
 				}, 5000);
 			}else{
 				//Hot fix to make sure new changelog highlights are displayed properly
-				setTimeout(()=> { sChat.sendTwitchatAd(); }, 1000);
+				window.setTimeout(()=> { sChat.sendTwitchatAd(); }, 1000);
 			}
 
 			const lastUpdateRead = parseInt(DataStore.get(DataStore.UPDATE_INDEX));
@@ -890,6 +890,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.emergency.populateData();
 			StoreProxy.streamlabs.populateData();
 			StoreProxy.prediction.populateData();
+			StoreProxy.streamerbot.populateData();
 			StoreProxy.donationGoals.populateData();
 			StoreProxy.streamelements.populateData();
 

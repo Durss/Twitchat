@@ -19,6 +19,7 @@ import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/storeTiltify";
 import type { PatreonDataTypes } from "@/utils/patreon/PatreonDataTypes";
+import type { StreamerbotAction } from "@streamerbot/client";
 
 /**
 * Created : 23/09/2022
@@ -68,6 +69,7 @@ export default class StoreProxy {
 	public static donationGoals:IDonationGoalState & IDonationGoalGetters & IDonationGoalActions & {$state:IDonationGoalState, $reset:()=>void};
 	public static tiltify:ITiltifyState & ITiltifyGetters & ITiltifyActions & {$state:ITiltifyState, $reset:()=>void};
 	public static tiktok:ITiktokState & ITiktokGetters & ITiktokActions & {$state:ITiktokState, $reset:()=>void};
+	public static streamerbot:IStreamerbotState & IStreamerbotGetters & IStreamerbotActions & {$state:IStreamerbotState, $reset:()=>void};
 	public static public:IPublicState & IPublicGetters & IPublicActions & {$state:IPublicState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
@@ -3106,6 +3108,44 @@ export interface ITiktokActions {
 	 * @param data 
 	 */
 	onEvent(data:unknown):void;
+	/**
+	 * Saves current configs to store
+	 */
+	saveConfigs():void;
+}
+
+
+
+
+
+export interface IStreamerbotState {
+	connected:boolean;
+	ip:string;
+	port:number;
+	password:string;
+	actionList:StreamerbotAction[];
+}
+
+export interface IStreamerbotGetters {
+}
+
+export interface IStreamerbotActions {
+	/**
+	 * Populates the store
+	 */
+	populateData():Promise<void>;
+	/**
+	 * Connect with SB
+	 */
+	connect():Promise<boolean>;
+	/**
+	 * Disconnects from Streamer.bot
+	 */
+	disconnect():void;
+	/**
+	 * Execute an action by its ID
+	 */
+	doAction(id:string):void
 	/**
 	 * Saves current configs to store
 	 */

@@ -105,7 +105,7 @@ class ConnectHeat extends Vue {
 	 */
 	public changeChannel():void {
 		clearTimeout(this.debouncer);
-		this.debouncer = setTimeout(async ()=> {
+		this.debouncer = window.setTimeout(async ()=> {
 			this.connecting = true;
 			await HeatSocket.instance.connect(this.param_debugChan.value);
 			this.connecting = false;

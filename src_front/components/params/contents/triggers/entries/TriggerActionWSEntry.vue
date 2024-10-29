@@ -4,7 +4,7 @@
 			<img src="@/assets/icons/info.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.http_ws.need_to_connect">
 				<template #LINK>
-					<a @click="$store.params.openParamsPage(contentConnexions)">{{ $t("triggers.actions.http_ws.need_to_connect_link") }}</a>
+					<a @click="openConnectForm()">{{ $t("triggers.actions.http_ws.need_to_connect_link") }}</a>
 				</template>
 			</i18n-t>
 		</div>
@@ -61,7 +61,6 @@ class TriggerActionWSEntry extends AbstractTriggerActionEntry {
 	public param_payload:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, maxLength:10000, labelKey:"triggers.actions.http_ws.payload_description" };
 
 	public get websocketConnected():boolean { return WebsocketTrigger.instance.connected; }
-	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
 
 	public beforeMount():void {
 
@@ -93,6 +92,10 @@ class TriggerActionWSEntry extends AbstractTriggerActionEntry {
 			}
 		});
 		this.param_payload.placeholderList = list;
+	}
+
+	public openConnectForm():void {
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.WEBSOCKET);
 	}
 
 }

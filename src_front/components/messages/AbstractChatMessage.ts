@@ -132,7 +132,7 @@ export default class AbstractChatMessage extends Vue {
 			this.time = Utils.elapsedDuration(d.getTime(), step);
 			
 			clearTimeout(this.refreshTimeout);
-			this.refreshTimeout = setTimeout(()=> {
+			this.refreshTimeout = window.setTimeout(()=> {
 				this.refreshDate();
 			}, step);
 		}else{
@@ -208,7 +208,7 @@ export default class AbstractChatMessage extends Vue {
 	 */
 	protected getHighlightOverPresence():Promise<boolean> {
 		return new Promise((resolve, reject)=> {
-			const timeout = setTimeout(() =>{
+			const timeout = window.setTimeout(() =>{
 				resolve(false);
 				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
 			}, 1000)

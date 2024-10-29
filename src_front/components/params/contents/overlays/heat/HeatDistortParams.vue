@@ -180,7 +180,7 @@ class HeatDistortParams extends Vue {
 		const sceneName = this.modelValue.obsItemPath.groupName || this.modelValue.obsItemPath.sceneName;
 		if(!sceneName) return;
 
-		this.updateDebounce = setTimeout(async () => {
+		this.updateDebounce = window.setTimeout(async () => {
 			let filterTarget = "";
 			if(this.modelValue.obsItemPath.source.name) filterTarget = this.modelValue.obsItemPath.source.name;
 			else if(this.modelValue.obsItemPath.groupName) filterTarget = this.modelValue.obsItemPath.groupName;
@@ -197,7 +197,7 @@ class HeatDistortParams extends Vue {
 			for (let i = 0; i < 5; i++) {
 				const px = Math.random();
 				const py = Math.random();
-				setTimeout(()=>{
+				window.setTimeout(()=>{
 					HeatSocket.instance.fireEvent(uid, px, py, false, false, false);
 				}, 250 * i);
 			}

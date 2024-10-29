@@ -109,7 +109,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 				this.connected = false;
 				if(this._autoReconnect) {
 					try {
-						setTimeout(()=> {
+						window.setTimeout(()=> {
 							this.connect(ip, port);
 						}, 1000)
 					}catch(error) {
@@ -180,7 +180,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 		clearTimeout(this._resetVoiceTimeout);
 
 		if(autoRemoveDelay > -1) {
-			this._resetVoiceTimeout = setTimeout(async ()=> {
+			this._resetVoiceTimeout = window.setTimeout(async ()=> {
 				this.enableVoiceEffect(undefined, "DISABLE_EFFECT");
 			}, autoRemoveDelay);
 		}

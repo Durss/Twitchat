@@ -405,7 +405,7 @@ class EmoteSelector extends Vue {
 		if(this.buildOffset >= this.users.length) return;
 
 		const u = this.users[this.buildOffset];
-		this.buildTimeout = setTimeout(()=>{
+		this.buildTimeout = window.setTimeout(()=>{
 			this.buildOffset ++;
 			this.buildNextUser();
 		}, Math.min(250, u.emotes.length * 5));

@@ -283,7 +283,7 @@ class DevmodeMenu extends Vue {
 					break;
 				}
 				case "cheer_pin": {
-					setTimeout(()=> {
+					window.setTimeout(()=> {
 						const m = (message as TwitchatDataTypes.MessageCheerData);
 						const durations = [60,120,300,600,1200,3600,7200];
 						const ranges = [0,200,500,1000,2000,5000,10000];
@@ -357,7 +357,7 @@ class DevmodeMenu extends Vue {
 				}
 			}
 			if(type === TwitchatDataTypes.TwitchatMessageType.CLIP_PENDING_PUBLICATION) {
-				setTimeout(()=>{
+				window.setTimeout(()=>{
 					this.simulateEvent(event, TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE);
 				}, 2000);
 			}
@@ -494,7 +494,7 @@ class DevmodeMenu extends Vue {
 				this.$store.chat.addMessage(message);
 				mainCount += count;
 				clearTimeout(mainDebounce);
-				mainDebounce = setTimeout(() => {
+				mainDebounce = window.setTimeout(() => {
 					console.log("Main subgifts:", mainCount);
 				}, 500);
 			}, false);
@@ -523,7 +523,7 @@ class DevmodeMenu extends Vue {
 				this.$store.chat.addMessage(message);
 				secondaryCount += count;
 				clearTimeout(secondaryDebounce);
-				secondaryDebounce = setTimeout(() => {
+				secondaryDebounce = window.setTimeout(() => {
 					console.log("Secondary subgifts:", secondaryCount);
 				}, 500);
 			}, false);
@@ -661,7 +661,7 @@ class DevmodeMenu extends Vue {
 		this.$store.stream.setCommercialInfo(channelId, params);
 
 		clearTimeout(this.commercialTO);
-		this.commercialTO = setTimeout(()=> {
+		this.commercialTO = window.setTimeout(()=> {
 			params.prevAdStart_at = Date.now();
 			params.currentAdDuration_ms = 33000;
 			this.$store.stream.setCommercialInfo(channelId, params, this.$store.auth.twitch.user, true);

@@ -142,7 +142,7 @@ class ScopeSelector extends Vue {
 
 	public onSelectionUpdate():void {
 		clearTimeout(this.debounce);
-		this.debounce = setTimeout(()=> {
+		this.debounce = window.setTimeout(()=> {
 			const scopes:string[] = [];
 			for (let i = 0; i < this.param_items.length; i++) {
 				const p = this.param_items[i];

@@ -897,7 +897,7 @@ export class MessageListFilter extends Vue {
 		});
 
 		//Delay save to avoid UI lag during toggle
-		setTimeout(()=>{
+		window.setTimeout(()=>{
 			this.$emit("change");
 			this.$store.params.saveChatColumnConfs();
 		}, 300);

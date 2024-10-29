@@ -447,7 +447,7 @@ class HeatScreenEditor extends Vue {
 			area.style.backgroundImage = "url("+image+")";
 		}
 
-		setTimeout(()=>this.refreshImage(), 60);
+		window.setTimeout(()=>this.refreshImage(), 60);
 	}
 
 }

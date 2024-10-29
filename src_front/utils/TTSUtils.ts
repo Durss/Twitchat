@@ -111,7 +111,7 @@ export default class TTSUtils {
 		//For some reasong it doesn't anymore (at least on Vivaldi)
 		//Here we check if reading completed or not after a short
 		//delay, if not, we execute necessary things.
-		setTimeout(()=> {
+		window.setTimeout(()=> {
 			if(!this.readComplete) {
 				this.onReadComplete();
 			}
@@ -753,7 +753,7 @@ export default class TTSUtils {
 			//Ignore this message and process the next one
 			//SetTimeout is here to avoid potential recursion overflow
 			//if there are too many expired pending messages
-			setTimeout(() => {
+			window.setTimeout(() => {
 				this.pendingMessages.shift();
 				this.readNextMessage();
 			}, 0);
@@ -781,7 +781,7 @@ export default class TTSUtils {
 		if(window.speechSynthesis) window.speechSynthesis.speak(mess);
 
 		if(paramsTTS.maxDuration > 0) {
-			this.stopTimeout = setTimeout(()=> {
+			this.stopTimeout = window.setTimeout(()=> {
 				if(window.speechSynthesis) window.speechSynthesis.cancel();
 				this.onReadComplete();
 			}, paramsTTS.maxDuration * 1000);

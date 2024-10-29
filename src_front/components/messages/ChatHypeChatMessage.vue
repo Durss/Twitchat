@@ -59,7 +59,7 @@ class ChatHypeChatMessage extends AbstractChatMessage {
 		const remainingDuration = Math.max(0, duration - (Date.now() - this.messageData.date)/1000);
 		fill.style.transition = "width "+remainingDuration+"s linear";
 		fill.style.width = "100%";
-		setTimeout(()=> {
+		window.setTimeout(()=> {
 			fill.style.width = "0%";
 		},0);
 	}

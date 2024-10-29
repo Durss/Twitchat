@@ -110,7 +110,7 @@ export default class GoXLRSocket extends EventDispatcher {
 				rebuildPlaceholdersCache();
 				if(this._autoReconnect) {
 					try {
-						setTimeout(()=> {
+						window.setTimeout(()=> {
 							this.connect(ip, port);
 						}, 1000)
 					}catch(error) {

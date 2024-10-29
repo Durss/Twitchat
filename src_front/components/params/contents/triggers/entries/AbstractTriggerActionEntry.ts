@@ -24,7 +24,7 @@ export default class AbstractTriggerActionEntry extends Vue {
 		//it happens.
 		watch(()=>this.triggerData.actions, (a, b)=> {
 			clearTimeout(updateDebounce);
-			updateDebounce = setTimeout(()=> {
+			updateDebounce = window.setTimeout(()=> {
 				this.updatePlaceholderList();
 			}, 100);
 		}, {deep:true});

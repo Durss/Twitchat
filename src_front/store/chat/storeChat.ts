@@ -1213,7 +1213,7 @@ export const storeChat = defineStore('chat', {
 										//Reset counter 10s after hate raid detection.
 										//We shouldn't get an another wave for this message unless someone
 										//removes the blocked terms
-										setTimeout(()=>{
+										window.setTimeout(()=>{
 											delete antiHateRaidCounter[key];
 										}, 10000);
 										this.addMessage(currentHateRaidAlert);
@@ -1422,7 +1422,7 @@ export const storeChat = defineStore('chat', {
 					&& sParams.appearance.raidHighlightUserTrack.value === true) {
 						StoreProxy.users.trackUser(message.user);
 					}
-					setTimeout(()=> {
+					window.setTimeout(()=> {
 						const localMess = message as TwitchatDataTypes.MessageRaidData;
 						localMess.user.channelInfo[localMess.channel_id].is_raider = false;
 						if(sParams.appearance.raidHighlightUser.value
@@ -2127,7 +2127,7 @@ export const storeChat = defineStore('chat', {
 				&& mTyped.channel_id == channelId
 				&& !mTyped.cleared) {
 					//Send public API events by batches of 5 to avoid clogging it
-					setTimeout(()=> {
+					window.setTimeout(()=> {
 						const wsMessage = {
 							channel:mTyped.channel_id,
 							message:(m.type == "message")? m.message : "",
@@ -2156,7 +2156,7 @@ export const storeChat = defineStore('chat', {
 				const mTyped = m as TwitchatDataTypes.GreetableMessage;
 				if(mTyped.channel_id == channelId && !mTyped.cleared) {
 					//Send public API events by batches of 5 to avoid clogging it
-					setTimeout(()=> {
+					window.setTimeout(()=> {
 						const wsMessage = {
 							channel:mTyped.channel_id,
 							message:(m.type == "message")? m.message : "",
@@ -2285,7 +2285,7 @@ export const storeChat = defineStore('chat', {
 			//event before receiving message on IRC. Wait a little and try again
 			if(retryCount != 20) {
 				retryCount = retryCount? retryCount++ : 1;
-				setTimeout(()=>{
+				window.setTimeout(()=>{
 					this.flagSuspiciousMessage(messageId, flaggedChans, retryCount);
 				}, 100);
 			}

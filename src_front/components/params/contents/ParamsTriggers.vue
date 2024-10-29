@@ -195,7 +195,7 @@ class ParamsTriggers extends Vue implements IParameterContent {
 		//Watch for any change on the selected trigger
 		watch(()=>this.currentTriggerData, ()=> {
 			clearTimeout(debounceTimeout);
-			debounceTimeout = setTimeout(()=> {
+			debounceTimeout = window.setTimeout(()=> {
 				if(this.currentTriggerData) {
 					if(this.currentTriggerData.type == TriggerTypes.SCHEDULE) {
 						//Force reschedule after an update
@@ -380,10 +380,13 @@ class ParamsTriggers extends Vue implements IParameterContent {
 					const m = data as TwitchatDataTypes.MessageNoticeData;
 					switch(m.noticeId) {
 						case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE:{
+							console.log("?§.?§?§§?§?", triggerEvent.value == TriggerTypes.EMERGENCY_MODE_START);
 							(m as TwitchatDataTypes.MessageEmergencyModeInfo).enabled = (triggerEvent.value == TriggerTypes.EMERGENCY_MODE_START);
+							break;
 						}
 						case TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE:{
 							(m as TwitchatDataTypes.MessageShieldMode).enabled = (triggerEvent.value == TriggerTypes.SHIELD_MODE_ON);
+							break;
 						}
 					}
 					TriggerActionHandler.instance.execute(data, true);
@@ -642,6 +645,19 @@ class ParamsTriggers extends Vue implements IParameterContent {
 					if(triggerEvent.value == TriggerTypes.VOICEMOD_SOUND_EFFECT) {
 						delete (m as TwitchatDataTypes.MessageVoicemodData).voiceID;
 						delete (m as TwitchatDataTypes.MessageVoicemodData).voiceName;
+					} else
+					
+					if(triggerEvent.value == TriggerTypes.MONITOR_RESTRICT_OFF) {
+						(m as TwitchatDataTypes.MessageLowtrustTreatmentData).restricted =
+						(m as TwitchatDataTypes.MessageLowtrustTreatmentData).monitored = false;
+					} else
+					
+					if(triggerEvent.value == TriggerTypes.MONITOR_ON) {
+						(m as TwitchatDataTypes.MessageLowtrustTreatmentData).monitored = true;
+					} else
+					
+					if(triggerEvent.value == TriggerTypes.RESTRICT_ON) {
+						(m as TwitchatDataTypes.MessageLowtrustTreatmentData).restricted = false;
 					}
 
 					TriggerActionHandler.instance.execute(m, true, trigger.id);

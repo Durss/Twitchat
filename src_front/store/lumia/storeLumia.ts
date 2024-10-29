@@ -72,7 +72,7 @@ export const storeLumia = defineStore('lumia', {
 					this.connected = false;
 					clearTimeout(reconnectTimeout);
 					reconnectAttempts ++;
-					reconnectTimeout = setTimeout(()=> {
+					reconnectTimeout = window.setTimeout(()=> {
 						socket = undefined;
 						this.connect(token, true);
 					}, 500 * reconnectAttempts);
@@ -84,7 +84,7 @@ export const storeLumia = defineStore('lumia', {
 					if(!autoReconnect) return;
 					reconnectAttempts ++;
 					clearTimeout(reconnectTimeout);
-					reconnectTimeout = setTimeout(()=> {
+					reconnectTimeout = window.setTimeout(()=> {
 						socket = undefined;
 						this.connect(token, true);
 					}, 500 * reconnectAttempts);

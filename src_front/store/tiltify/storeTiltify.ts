@@ -97,7 +97,7 @@ export const storeTiltify = defineStore('tiltify', {
 			await this.loadInfos();
 			this.connected = true;
 			
-			setTimeout(async ()=> {
+			window.setTimeout(async ()=> {
 				const res = await ApiHelper.call("tiltify/token/refresh", "POST", {refreshToken:this.token!.refresh_token});
 				if(res.status == 200 && res.json.token) {
 					this.token = res.json.token;

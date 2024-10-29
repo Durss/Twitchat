@@ -88,7 +88,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				//Will be reset before the timeout expires if the overlay
 				//still exists
 				clearTimeout(overlayCheckInterval[id]);
-				overlayCheckInterval[id] = setTimeout(()=>{
+				overlayCheckInterval[id] = window.setTimeout(()=>{
 					this.availableOverlayList = this.availableOverlayList.filter(v => v.id != id);
 				}, 25000);
 			});
@@ -193,7 +193,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 							})
 							//Stack bingos for 5s before announcing them on tchat to avoid spam
 							clearTimeout(debounceChatAnnounce);
-							debounceChatAnnounce = setTimeout(()=> {
+							debounceChatAnnounce = window.setTimeout(()=> {
 								//Dedupe entries, only keep the last registered ones for each user
 								//which should be the highest one
 								const userDone:{[uid:string]:boolean} = {};
@@ -372,7 +372,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			}
 			
 			clearTimeout(debounceShuffle);
-			debounceShuffle = setTimeout(() => {
+			debounceShuffle = window.setTimeout(() => {
 				this.saveData(id, undefined, false);
 				if(StoreProxy.auth.isPremium) {
 					ApiHelper.call("bingogrid/shuffle", "POST", {gridid:grid.id, grid, uid:StoreProxy.auth.twitch.user.id}, true, 2);
@@ -451,7 +451,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 
 		async saveData(gridId?:string, cellId?:string, broadcastToViewers:boolean = false):Promise<void> {
 			if(++saveCountPending != 20) clearTimeout(debounceSave);
-			debounceSave = setTimeout(() => {
+			debounceSave = window.setTimeout(() => {
 				saveCountPending = 0;
 				const grid = this.gridList.find(g => g.id === gridId);
 				if(gridId && grid) {
@@ -654,7 +654,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			if(cell.check != prevState) {
 				//Debounce avoids spamming viewers
 				clearTimeout(tickDebounce[gridId]);
-				tickDebounce[gridId] = setTimeout(() => {
+				tickDebounce[gridId] = window.setTimeout(() => {
 					const states:{[cellId:string]:boolean} = {};
 					grid.entries.forEach(v=> states[v.id] = v.check);
 					if(grid.additionalEntries) grid.additionalEntries.forEach(v=> states[v.id] = v.check);

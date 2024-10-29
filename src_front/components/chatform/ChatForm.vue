@@ -584,7 +584,7 @@ export class ChatForm extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.CREDITS_OVERLAY_PRESENCE, this.creditsOverlayPresenceHandler);
 		this.onUpdateTrackedUserList();
 		//Leave some time to open transition to complete before showing announcements
-		setTimeout(()=> {
+		window.setTimeout(()=> {
 			this.loadAnnouncements();
 			this.showGazaBtn = true;
 		}, 2000);
@@ -661,7 +661,7 @@ export class ChatForm extends Vue {
 	public async loadAnnouncements(onlyImportant:boolean = false):Promise<void> {
 		//Wait for emotes to be loaded
 		if(!TwitchUtils.emotesLoaded) {
-			setTimeout(()=> {
+			window.setTimeout(()=> {
 				this.loadAnnouncements(onlyImportant);
 			}, 2000);
 			return;
@@ -1154,7 +1154,7 @@ export class ChatForm extends Vue {
 	private onCreditsOverlayPresence():void {
 		this.creditsOverlayRunning = true;
 		clearTimeout(this.creditsOverlayPresenceHandlerTimeout);
-		this.creditsOverlayPresenceHandlerTimeout = setTimeout(()=>{
+		this.creditsOverlayPresenceHandlerTimeout = window.setTimeout(()=>{
 			this.creditsOverlayRunning = false;
 		}, 25000);
 	}

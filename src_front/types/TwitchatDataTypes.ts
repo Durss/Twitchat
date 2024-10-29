@@ -37,6 +37,7 @@ export namespace TwitchatDataTypes {
 		BINGO_GRID: "bingogrid",
 		STREAMDECK: "streamdeck",
 		HIGHLIGHT: "chathighlight",
+		STREAMERBOT: "streamerbot",
 		STREAMELEMENTS: "streamelements",
 	} as const;
 	export type ParamDeepSectionsStringType = typeof ParamDeepSections[keyof typeof ParamDeepSections] | OverlayTypes;
@@ -605,7 +606,7 @@ export namespace TwitchatDataTypes {
 		 */
 		editCallback?:(data:ParameterData<ValueType, ListType, ChildValueType, StorageType>) => void;
 	}
-	export interface ParameterDataListValue<T> {
+	export interface ParameterDataListValue<ValueType> {
 		/**
 		 * Raw text label
 		 */
@@ -617,7 +618,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Value of the entry
 		 */
-		value:T;
+		value:ValueType;
 		/**
 		 * Is entry disabled?
 		*/
@@ -686,6 +687,11 @@ export namespace TwitchatDataTypes {
 			code:string,
 			image:TwitchatImage,
 		}|undefined};
+		/**
+		 * Contains either "numberValue", "emoteValue" or "customValue"
+		 * depending on the trigger type
+		 */
+		genericValue:string|number;
 		winners?:TwitchatDataTypes.TwitchatUser[];
 	}
 
@@ -4145,7 +4151,7 @@ export namespace TwitchatDataTypes {
 		 */
 		unpinAt_ms: number;
 		/**
-		 * Just a store for the setTimeout() ref so we can clear it later when pin's config change
+		 * Just a store for the window.setTimeout() ref so we can clear it later when pin's config change
 		 */
 		timeoutRef?: number;
 	}

@@ -78,7 +78,7 @@ export const storeAuth = defineStore('auth', {
 				}
 
 				clearTimeout(refreshTokenTO);
-				refreshTokenTO = setTimeout(()=>{
+				refreshTokenTO = window.setTimeout(()=>{
 					this.twitch_tokenRefresh();
 				}, delay);
 				if(callback) callback(true);
@@ -103,7 +103,7 @@ export const storeAuth = defineStore('auth', {
 					DataStore.set(DataStore.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
 					clearTimeout(refreshTokenTO);
 					//Schedule refresh
-					refreshTokenTO = setTimeout(()=>{
+					refreshTokenTO = window.setTimeout(()=>{
 						this.twitch_tokenRefresh();
 					}, twitchAuthResult.expires_in*1000 - 60000 * 5);
 				}else {

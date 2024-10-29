@@ -166,7 +166,7 @@ export const storeRaffle = defineStore('raffle', {
 						if(StoreProxy.params.features.raffleHighlightUser.value) {
 							const user = StoreProxy.users.getUserFrom(winnerLoc.user.platform, winnerLoc.user.channel_id, winnerLoc.user.id, undefined, undefined, undefined, undefined, false, undefined, false);
 							StoreProxy.users.trackUser(user);
-							setTimeout(()=> {
+							window.setTimeout(()=> {
 								StoreProxy.users.untrackUser(user);
 							}, (StoreProxy.params.features.raffleHighlightUserDuration.value as number ?? 0) * 1000 * 60);
 						}
@@ -218,7 +218,7 @@ export const storeRaffle = defineStore('raffle', {
 			}
 			const messageParams = data.messages?.raffleWinner || map[data.mode];
 			if(messageParams.enabled) {
-				setTimeout(() => {
+				window.setTimeout(() => {
 					let message = messageParams.message;
 					if(data.mode == "chat" || data.mode == "sub" || data.mode == "tips") {
 						message = message.replace(/\{USER\}/gi, winner.label);
@@ -400,7 +400,7 @@ export const storeRaffle = defineStore('raffle', {
 							MessengerProxy.instance.sendMessage(joinMessage, [message.platform]);
 							
 						}else if(joinMessage) {
-							debounceConfirm = setTimeout(() => {
+							debounceConfirm = window.setTimeout(() => {
 								confirmSpool = [];
 								MessengerProxy.instance.sendMessage(joinMessage, [message.platform]);
 							}, 500);

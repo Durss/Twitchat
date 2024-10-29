@@ -331,7 +331,7 @@ class OverlayBitsWall extends AbstractOverlay {
 					}
 				}
 				for (let i = 0; i < count; i++) {
-					setTimeout(()=> {
+					window.setTimeout(()=> {
 						this.createCheermote({guid: Utils.getUUID(),index:bits, scaleOriginal:scale, scale, uid:data.uid, scale_prev:scale, destroyed:false}, pos);
 					}, 30 * i);
 				}
@@ -423,7 +423,7 @@ class OverlayBitsWall extends AbstractOverlay {
 		if(this.parameters?.break_durations) {
 			duration = (this.parameters!.break_durations![key] || 10) * 1000;
 		}
-		setTimeout(()=>this.breakCheermote(body), duration);
+		window.setTimeout(()=>this.breakCheermote(body), duration);
 	}
 
 	/**
@@ -519,7 +519,7 @@ class OverlayBitsWall extends AbstractOverlay {
 			//It shouldn't be an issue to keep it this way, but in case some OBS chromium
 			//apply dirty anti alias that would have an effect on the shader, we add a
 			//#808000 background over it after 10s
-			setTimeout(() => {
+			window.setTimeout(() => {
 				app.stage.addChildAt(displacementBackground, 0);
 			}, 10000)
 			app.stage.addChild(displacementHolder);

@@ -361,7 +361,7 @@ class MessageList extends Vue {
 		if(this.customActivitiesDisplayed) return;
 
 		clearTimeout(this.updateDebounce);
-		this.updateDebounce = setTimeout(async () => {
+		this.updateDebounce = window.setTimeout(async () => {
 			if(!this.lockScroll) {
 				this.pendingMessages = [];
 				this.lockedLiveMessages = [];
@@ -417,7 +417,7 @@ class MessageList extends Vue {
 				}
 			}else if(scrollToBottom){
 				this.forceScrollDown = true;
-				setTimeout(()=> {
+				window.setTimeout(()=> {
 					this.forceScrollDown = false;
 				}, 1000);
 			}
@@ -1015,7 +1015,7 @@ class MessageList extends Vue {
 						}
 					}
 					clearTimeout(this.selectionTimeout);
-					this.selectionTimeout = setTimeout(()=>{
+					this.selectionTimeout = window.setTimeout(()=>{
 						this.selectedItem = null;
 						this.selectedMessage = null;
 						this.selectionDate = 0;
@@ -1089,7 +1089,7 @@ class MessageList extends Vue {
 
 			case TwitchatEvent.CHAT_FEED_SELECT_CHOOSING_ACTION: {
 				clearTimeout(this.selectionTimeout);
-				this.selectionTimeout = setTimeout(()=>{
+				this.selectionTimeout = window.setTimeout(()=>{
 					this.selectedItem = null;
 					this.selectedMessage = null;
 					this.selectionDate = 0;
@@ -1443,7 +1443,7 @@ class MessageList extends Vue {
 		if (this.lightMode || !m) return;
 
 		clearTimeout(this.openConvTimeout);
-		this.openConvTimeout = setTimeout(async () => {
+		this.openConvTimeout = window.setTimeout(async () => {
 			this.conversationMode = false;
 
 			let messageList: TwitchatDataTypes.MessageChatData[] = [];
@@ -1512,7 +1512,7 @@ class MessageList extends Vue {
 		if (this.conversation.length == 0) return;
 		//Timeout avoids blinking when leaving the message but
 		//hovering another one or the conversation window
-		this.closeConvTimeout = setTimeout(() => {
+		this.closeConvTimeout = window.setTimeout(() => {
 			this.conversation = [];
 			const mainHolder = this.$refs.chatMessageHolder as HTMLDivElement;
 			gsap.to(mainHolder, { opacity: 1, duration: .25 });

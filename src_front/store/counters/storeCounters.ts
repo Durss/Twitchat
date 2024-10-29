@@ -70,7 +70,7 @@ export const storeCounters = defineStore('counters', {
 		broadcastCounterValue(id:string):void {
 			clearTimeout(broadcastTimeoutDebounce[id]);
 			//Debounce broadcast to avoid spamming when updating lots of users at once
-			broadcastTimeoutDebounce[id] = setTimeout(()=>{
+			broadcastTimeoutDebounce[id] = window.setTimeout(()=>{
 				let counter = this.counterList.find(v=> v.id == id);
 				if(!counter) return;
 				

@@ -102,7 +102,7 @@ class OBSConnectForm extends Vue {
 			this.paramUpdate();
 			this.connected = true;
 			this.connectSuccess = true;
-			setTimeout(()=> {
+			window.setTimeout(()=> {
 				this.connectSuccess = false;
 			}, 3000);
 		}else{

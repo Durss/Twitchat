@@ -146,7 +146,7 @@ export const storePatreon = defineStore('patreon', {
 				this.connected = true;
 		
 				clearTimeout(refreshTimeout);
-				refreshTimeout = setTimeout(()=> {
+				refreshTimeout = window.setTimeout(()=> {
 					this.refreshToken();
 				}, Math.max(60 * 1000, res.json.data.expires_in - 60000));
 			}
@@ -215,7 +215,7 @@ export const storePatreon = defineStore('patreon', {
 				this.connected = true;
 				
 				clearTimeout(refreshTimeout);
-				refreshTimeout = setTimeout(()=> {
+				refreshTimeout = window.setTimeout(()=> {
 					this.refreshToken();
 				}, Math.max(60 * 1000, res.json.data.expires_in - 60000));
 			}else{

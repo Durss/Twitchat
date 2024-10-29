@@ -420,7 +420,7 @@ export const storeStreamelements = defineStore('streamelements', {
 					pingInterval = "";
 					clearTimeout(reconnectTimeout);
 					reconnectAttempts ++;
-					reconnectTimeout = setTimeout(()=> {
+					reconnectTimeout = window.setTimeout(()=> {
 						socket = undefined;
 						this.connect(token, true);
 					}, 500 * reconnectAttempts);
@@ -437,7 +437,7 @@ export const storeStreamelements = defineStore('streamelements', {
 					if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
 					pingInterval = "";
 					clearTimeout(reconnectTimeout);
-					reconnectTimeout = setTimeout(()=> {
+					reconnectTimeout = window.setTimeout(()=> {
 						socket = undefined;
 						this.connect(token, true);
 					}, 500 * reconnectAttempts);

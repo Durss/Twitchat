@@ -417,7 +417,7 @@ export default class TwitchUtils {
 		const res = await this.callApi(url, options);
 		const json = await res.json();
 		if (res.status == 200) {
-			setTimeout(() => {
+			window.setTimeout(() => {
 				//Schedule reload of the polls after poll ends
 				this.getPolls();
 			}, (duration + 1) * 1000);
@@ -515,7 +515,7 @@ export default class TwitchUtils {
 		const res = await this.callApi(url, options);
 		const json = await res.json();
 		if (res.status == 200) {
-			setTimeout(() => {
+			window.setTimeout(() => {
 				this.getPredictions();
 			}, (duration + 1) * 1000);
 			return json.data;
@@ -602,7 +602,7 @@ export default class TwitchUtils {
 			// resolve pending
 			// resolved
 			// prediction ended
-			setTimeout(() => {
+			window.setTimeout(() => {
 				this.getPredictions();
 			}, 5000);
 			return json.data;
@@ -2336,11 +2336,11 @@ export default class TwitchUtils {
 		} else
 		if (res.status == 429) {
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers, url.pathname, attemptCount);
-			if (attemptCount < 8) {
-				attemptCount++;
-				return await this.eventsubSubscribe(channelId, userId, session_id, topic, version, additionalCondition, attemptCount);
-			}
+			// await this.onRateLimit(res.headers, url.pathname, attemptCount);
+			// if (attemptCount < 2) {
+			// 	attemptCount++;
+			// 	return await this.eventsubSubscribe(channelId, userId, session_id, topic, version, additionalCondition, attemptCount);
+			// }
 		}
 		return false;
 	}

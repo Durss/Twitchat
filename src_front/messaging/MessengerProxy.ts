@@ -150,7 +150,7 @@ export default class MessengerProxy {
 			}
 
 			clearTimeout(this.joinSpoolTimeout);
-			this.joinSpoolTimeout = setTimeout(()=> {
+			this.joinSpoolTimeout = window.setTimeout(()=> {
 				const d = e.data! as TwitchatDataTypes.MessageJoinData;
 
 				//Split join events by channels
@@ -182,7 +182,7 @@ export default class MessengerProxy {
 			this.leaveSpool.push({user:d.users[0], channelId:d.channel_id});
 
 			clearTimeout(this.leaveSpoolTimeout);
-			this.leaveSpoolTimeout = setTimeout(()=> {
+			this.leaveSpoolTimeout = window.setTimeout(()=> {
 				try {
 					const d = e.data! as TwitchatDataTypes.MessageJoinData;
 
@@ -587,6 +587,7 @@ export default class MessengerProxy {
 				guessNumber: false,
 				guessEmote: false,
 				guessCustom: false,
+				genericValue: "",
 				min: 0,
 				max: 100,
 			};

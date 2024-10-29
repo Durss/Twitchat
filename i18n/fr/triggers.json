@@ -168,10 +168,12 @@
 				"action_customBadges": "Badges personnalisés",
 				"action_customUsername": "Pseudo personnalisé",
 				"action_heat_click": "Cliquer une distorsion",
-				"action_heat_click_tt": "Vous devez d'abord créer une distorsion pour pouvoir utiliser cette action",
+				"action_heat_click_tt": "Vous devez d'abord créer une distorsion pour utiliser cette action",
 				"action_lumia": "Contrôler Lumia Stream",
 				"action_lumia_tt": "Vous devez connecter Lumia Stream",
-				"action_bingoGrid": "Grille de bingo"
+				"action_bingoGrid": "Grille de bingo",
+				"action_streamerbot": "Action Streamer.bot",
+				"action_streamerbot_tt": "Vous devez connecter Twitchat à Streamer.bot pour utiliser cette action"
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
@@ -577,6 +579,11 @@
 				"param_cell_id": "Case spécifique",
 				"param_cell": "Case",
 				"no_grid": "Vous devez d'abord créer une grille de bingo avant de pouvoir l'éditer"
+			},
+			"streamerbot":{
+				"param_action":"Action à executer",
+				"need_to_connect": "Cette action nécessite de {LINK}",
+				"need_to_connect_link": "connecter Streamer.bot"
 			}
 		},
 		"categories": {

@@ -2399,7 +2399,7 @@ export default class TriggerActionHandler {
 									resolve();
 								}, undefined, undefined, undefined, false);
 								//Timeout request to avoid blocking trigger
-								setTimeout(()=>{
+								window.setTimeout(()=>{
 									if(!resolved) {
 										login = "USER_NOT_FOUND";
 										resolve();
@@ -3145,6 +3145,22 @@ export default class TriggerActionHandler {
 							log.error = true;
 							logStep.error = true;
 						}
+					}
+				}else
+
+				//Handle Delete chat message action
+				if(step.type == "streamerbot") {
+					if(!StoreProxy.streamerbot.connected) {
+						logStep.messages.push({date:Date.now(), value:"❌ Streamer.bot not connect, cannot execute requested action"});
+						log.error = true;
+						logStep.error = true;
+					}else if(!step.streamerbotData) {
+						logStep.messages.push({date:Date.now(), value:"❌ Missing streamer.bot related trigger action data"});
+						log.error = true;
+						logStep.error = true;
+					}else{
+						logStep.messages.push({date:Date.now(), value:"✔ Execute Streamer.bot action ID: "+step.streamerbotData.actionId});
+						StoreProxy.streamerbot.doAction(step.streamerbotData.actionId);
 					}
 				}
 

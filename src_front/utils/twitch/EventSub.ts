@@ -27,6 +27,9 @@ export default class EventSub {
 
 	constructor() {
 		this.connectURL = Config.instance.TWITCH_EVENTSUB_PATH;
+		window.addEventListener("beforeunload", ()=>{
+			if(this.socket) this.cleanupSocket(this.socket);
+		})
 	}
 
 	/********************
@@ -148,7 +151,7 @@ export default class EventSub {
 
 			// console.log("EVENTSUB : Closed");
 			clearTimeout(this.reconnectTimeout)
-			this.reconnectTimeout = setTimeout(()=>{
+			this.reconnectTimeout = window.setTimeout(()=>{
 				this.connect();
 			}, 1000);
 		};
@@ -379,7 +382,7 @@ export default class EventSub {
 	 */
 	private scheduleReconnect():void {
 		clearTimeout(this.reconnectTimeout);
-		this.reconnectTimeout = setTimeout(()=>{
+		this.reconnectTimeout = window.setTimeout(()=>{
 			console.log("EVENTSUB : Session keep alive not received within the expected timeframe");
 			this.connect();
 		}, (this.keepalive_timeout_seconds + 5) * 1000);
@@ -1043,7 +1046,7 @@ export default class EventSub {
 		})
 		StoreProxy.stream.setCommercialInfo(event.broadcaster_user_id, infos, starter, true);
 
-		setTimeout(() => {
+		window.setTimeout(() => {
 			TwitchUtils.getAdSchedule()
 		}, infos.currentAdDuration_ms + 60000);
 	}
@@ -1096,7 +1099,7 @@ export default class EventSub {
 		//Debounce events and merge them
 		this.debouncedAutomodTerms.push(event);
 		clearTimeout(this.debounceAutomodTermsUpdate);
-		this.debounceAutomodTermsUpdate = setTimeout(async () => {
+		this.debounceAutomodTermsUpdate = window.setTimeout(async () => {
 			//Sort events by moderators
 			const grouped:{[channelModAction:string]:TwitchEventSubDataTypes.AutomodTermsUpdateEvent[]} = {};
 			this.debouncedAutomodTerms.forEach((t)=> {

@@ -111,7 +111,7 @@ class PublicApiTest extends Vue {
 			this.connected = true;
 			this.connectSuccess = true;
 			this.initAPI();
-			setTimeout(()=> {
+			window.setTimeout(()=> {
 				this.connectSuccess = false;
 				this.openConnectForm = false;
 			}, 3000);

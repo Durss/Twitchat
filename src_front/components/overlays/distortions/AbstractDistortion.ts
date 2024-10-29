@@ -158,7 +158,7 @@ export default class AbstractDistortion extends Vue {
 		const backgroundMaterial = new THREE.MeshBasicMaterial({ color: 0x808000 });
 		const background = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
 		background.position.x = -frustumSize * aspectRatio / 4;
-		setTimeout(()=>{
+		window.setTimeout(()=>{
 			scene.add(background);
 		}, 10000);
 

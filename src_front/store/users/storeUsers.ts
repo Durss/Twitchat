@@ -302,7 +302,7 @@ export const storeUsers = defineStore('users', {
 				//this method, then populates the is_partner and is_affiliate and
 				//other fields from IRC tags which avoids the need to get the users
 				//details via an API call.
-				const to = setTimeout((batchType:"id"|"login")=> {
+				const to = window.setTimeout((batchType:"id"|"login")=> {
 
 					const batch:BatchItem[] = batchType == "login"? twitchUserBatchLoginToLoad.splice(0) : twitchUserBatchIdToLoad.splice(0);
 
@@ -596,7 +596,7 @@ export const storeUsers = defineStore('users', {
 
 			if(duration_s != undefined) {
 				//Auto unflag the user once timeout expires
-				unbanFlagTimeouts[uid] = setTimeout(()=> {
+				unbanFlagTimeouts[uid] = window.setTimeout(()=> {
 					StoreProxy.users.flagUnbanned(platform, channelId, uid, undefined, true);
 					if(platform == "twitch") {
 						//If requested to re grant mod role after a moderator timeout completes, do it

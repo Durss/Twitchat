@@ -521,7 +521,7 @@ class Chat extends Vue {
 		this.computeWindowsSizes();
 
 
-		// setTimeout(() => {
+		// window.setTimeout(() => {
 		// 	this.$store.params.openModal("shareParams");
 		// }, 1000);
 	}

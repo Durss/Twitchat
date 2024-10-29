@@ -92,7 +92,7 @@ class OverlaysRaffleWheel extends Vue {
 				clearTimeout(this.resizeDebounce);
 				if(this.itemList.length > 0) {
 					//Only populate on resize
-					this.resizeDebounce = setTimeout(()=>this.populate(), 50);
+					this.resizeDebounce = window.setTimeout(()=>this.populate(), 50);
 				}
 			}
 		}
@@ -245,7 +245,7 @@ class OverlaysRaffleWheel extends Vue {
 						const duration = 9;//Math.abs(this.endOffset - this.scrollOffset)*.001;
 						//Scroll down after last item has appeared
 						gsap.to(this, {scrollOffset: this.endOffset, duration, ease:"sine.inOut", onComplete:()=>{
-							setTimeout(()=>{
+							window.setTimeout(()=>{
 								this.onAnimationComplete();
 							},500);
 						}});

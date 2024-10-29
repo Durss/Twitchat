@@ -954,7 +954,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 		this.$nextTick().then(async () => {
 			if(resetScroll && this.data?.params?.startDelay) {
 				await new Promise<void>((resolve) => {
-					this.startDelayTimeout = setTimeout(() => resolve(), this.data!.params!.startDelay * 1000);
+					this.startDelayTimeout = window.setTimeout(() => resolve(), this.data!.params!.startDelay * 1000);
 				})
 			}
 

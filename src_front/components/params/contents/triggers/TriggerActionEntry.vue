@@ -156,6 +156,12 @@
 					:disabled="!lumiaConnected"
 					v-tooltip="lumiaConnected? '' : $t('triggers.actions.common.action_lumia_tt')">{{ $t('triggers.actions.common.action_lumia') }}</TTButton>
 
+				<TTButton class="button" @click.capture="selectActionType('streamerbot')"
+					:disabled="!$store.streamerbot.connected"
+					v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_triggerAction_streamerbot'}"
+					v-tooltip="heatClickEnabled? '' : $t('triggers.actions.common.action_streamerbot_tt')"
+					icon="streamerbot">{{ $t('triggers.actions.common.action_streamerbot') }}</TTButton>
+
 				<TTButton class="button" @click.capture="selectActionType('customBadges')"
 					v-newflag="{date:1693519200000, id:'params_triggerAction_custombadges'}"
 					icon="badge">{{ $t('triggers.actions.common.action_customBadges') }}</TTButton>
@@ -213,6 +219,7 @@
 		<TriggerActionExtensionEntry v-else-if="action.type=='extension'" :action="action" :triggerData="triggerData" :extensions="extensions" />
 		<TriggerActionDiscordEntry v-else-if="action.type=='discord'" :action="action" :triggerData="triggerData" />
 		<TriggerActionLumiaEntry v-else-if="action.type=='lumia'" :action="action" :triggerData="triggerData" />
+		<TriggerActionStreamerbotEntry v-else-if="action.type=='streamerbot'" :action="action" :triggerData="triggerData" />
 		<RaffleForm v-else-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 		<BingoForm v-else-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 		<PollForm v-else-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -271,6 +278,7 @@ import TriggerActionDiscordEntry from './entries/TriggerActionDiscordEntry.vue';
 import TriggerActionLumiaEntry from './entries/TriggerActionLumiaEntry.vue';
 import TriggerActionBingoGridEntry from './entries/TriggerActionBingoGridEntry.vue';
 import TriggerActionDeleteMessageEntry from './entries/TriggerActionDeleteMessageEntry.vue';
+import TriggerActionStreamerbotEntry from './entries/TriggerActionStreamerbotEntry.vue';
 
 @Component({
 	components:{
@@ -306,6 +314,7 @@ import TriggerActionDeleteMessageEntry from './entries/TriggerActionDeleteMessag
 		TriggerActionCustomUsername,
 		TriggerActionCustomChatEntry,
 		TriggerActionStreamInfoEntry,
+		TriggerActionStreamerbotEntry,
 		TriggerActionVibratePhoneEntry,
 		TriggerActionDeleteMessageEntry,
 		TriggerActionTriggerToggleEntry,
@@ -460,6 +469,7 @@ class TriggerActionEntry extends Vue {
 		if(this.action.type == "reward") icons.push( 'channelPoints' );
 		if(this.action.type == "extension") icons.push( 'extension' );
 		if(this.action.type == "bingoGrid") icons.push( 'bingo_grid' );
+		if(this.action.type == "streamerbot") icons.push( 'streamerbot' );
 		return icons;
 	}
 
@@ -545,6 +555,12 @@ class TriggerActionEntry extends Vue {
 			case "ws": {
 				if(!this.wsConnected) {
 					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.WEBSOCKET);
+					return;
+				}break
+			}
+			case "streamerbot": {
+				if(!this.$store.streamerbot.connected) {
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.STREAMERBOT);
 					return;
 				}break
 			}

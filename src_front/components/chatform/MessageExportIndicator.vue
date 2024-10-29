@@ -57,7 +57,7 @@ class MessageExportIndicator extends Vue {
 			|| this.state.id == "discord"
 			|| this.state.id == "complete_copyOnly"
 			|| this.state.id == "complete_downloadOnly") {
-				this.closeTimeout = setTimeout(() => {
+				this.closeTimeout = window.setTimeout(() => {
 					this.$store.main.messageExportState = null;
 				}, 7000);
 			}

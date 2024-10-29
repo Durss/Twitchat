@@ -199,7 +199,7 @@ class OverlayParamsPredictions extends Vue {
 		PublicAPI.instance.broadcast(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PRESENCE);
 		clearTimeout(this.subcheckTimeout);
 		//If after 1,5s the overlay didn't answer, assume it doesn't exist
-		this.subcheckTimeout = setTimeout(()=>{
+		this.subcheckTimeout = window.setTimeout(()=>{
 			this.overlayExists = false;
 			this.checkingOverlayPresence = false;
 		}, 1500);
@@ -241,15 +241,15 @@ class OverlayParamsPredictions extends Vue {
 		}
 
 		clearTimeout(this.simulateEndTimeout);
-		this.simulateEndTimeout = setTimeout(() => {
+		this.simulateEndTimeout = window.setTimeout(() => {
 			SetIntervalWorker.instance.delete(this.simulateInterval);
 			predi.pendingAnswer = true;
 			this.$store.prediction.setPrediction(predi);
 
-			this.simulateEndTimeout = setTimeout(()=>{
+			this.simulateEndTimeout = window.setTimeout(()=>{
 				predi.winner = winnerBackup;
 				this.$store.prediction.setPrediction(predi);
-				this.simulateEndTimeout = setTimeout(()=>{
+				this.simulateEndTimeout = window.setTimeout(()=>{
 					this.$store.prediction.setPrediction(null);
 					this.testing = false;
 				}, this.param_resultDuration.value * 1000);

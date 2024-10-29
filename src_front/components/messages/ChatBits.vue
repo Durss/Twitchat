@@ -101,7 +101,7 @@ class ChatBits extends AbstractChatMessage {
 		const remainingDuration = Math.max(0, duration - (Date.now() - this.messageData.date)/1000);
 		fill.style.transition = "transform "+remainingDuration+"s linear";
 		fill.style.transform = "scaleX(100%)";
-		setTimeout(()=> {
+		window.setTimeout(()=> {
 			fill.style.transform = "scaleX(0)";
 		},100);
 	}

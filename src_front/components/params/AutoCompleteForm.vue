@@ -103,7 +103,7 @@ class AutoCompleteForm extends Vue {
 			return;
 		}
 
-		this.searchTimeout = setTimeout(()=> {
+		this.searchTimeout = window.setTimeout(()=> {
 			this.$emit("search", this.search, this.searchResult);
 		}, this.delay);
 	}

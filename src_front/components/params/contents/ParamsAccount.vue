@@ -225,7 +225,7 @@ class ParamsAccount extends Vue implements IParameterContent {
 		const {json} = await ApiHelper.call("auth/CSRFToken", "GET", {withRef:true});
 		this.CSRFToken = json.token;
 		document.location.href = TwitchUtils.getOAuthURL(this.CSRFToken, this.scopes);
-		setTimeout(()=>{
+		window.setTimeout(()=>{
 			this.connecting = false;
 		}, 10000);
 	}

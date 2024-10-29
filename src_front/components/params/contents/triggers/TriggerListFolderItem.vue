@@ -221,7 +221,7 @@ class TriggerListFolderItem extends Vue {
 		if(item.type == "trigger" && item.trigger.enabled
 		&& !this.$store.auth.isPremium
 		&& this.$store.triggers.triggerList.filter(v=>v.enabled !== false && this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false).length > this.$config.MAX_TRIGGERS) {
-			setTimeout(()=>{
+			window.setTimeout(()=>{
 				item.trigger.enabled = false;
 			}, 350);
 			this.vibrate(el);
@@ -250,7 +250,7 @@ class TriggerListFolderItem extends Vue {
 		&& !this.$store.auth.isPremium
 		&& this.$store.triggers.triggerList.filter(v=>v.enabled !== false && this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false).length > this.$config.MAX_TRIGGERS) {
 			//Need to wait for animation to complete
-			setTimeout(()=>{
+			window.setTimeout(()=>{
 				folder.enabled = false;
 				//Emit the revert
 				this.$emit('change');
@@ -260,7 +260,7 @@ class TriggerListFolderItem extends Vue {
 	}
 
 	private vibrate(el:HTMLElement):void {
-		setTimeout(()=>{
+		window.setTimeout(()=>{
 			gsap.fromTo(el, {backgroundColor:"rgba(255,0,0,1)"}, {duration:.5, backgroundColor:"rgba(255,0,0,0)" , clearProps:"background-color"})
 			gsap.fromTo(el, {x:-5}, {duration:.25, x:5, ease:RoughEase.ease.config({strength:8, points:20, template:Linear.easeNone, randomize:false}) , clearProps:"x"})
 		}, 150);

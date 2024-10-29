@@ -97,7 +97,7 @@ export default class HeatSocket extends EventDispatcher {
 	
 				this.connected = false;
 				this.ws = null
-				this.reconnectTimeout = setTimeout(() => { this.connect(channelId); }, 1000)
+				this.reconnectTimeout = window.setTimeout(() => { this.connect(channelId); }, 1000)
 			});
 		})
 	}

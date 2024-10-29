@@ -41,7 +41,7 @@ export const storeTimer = defineStore('timer', {
 				//Reset end timeout
 				const remaining = this.countdown.duration_ms - (Date.now() - this.countdown.startAt_ms) + this.countdown.pausedDuration;
 				clearTimeout(this.countdown.timeoutRef);
-				this.countdown.timeoutRef = setTimeout(()=> {
+				this.countdown.timeoutRef = window.setTimeout(()=> {
 					this.countdownStop(false);
 				}, remaining);
 			}
@@ -126,7 +126,7 @@ export const storeTimer = defineStore('timer', {
 
 		countdownStart(duration_ms:number) {
 			if(this.countdown) clearTimeout(this.countdown.timeoutRef);
-			const timeout = setTimeout(()=> {
+			const timeout = window.setTimeout(()=> {
 				this.countdownStop();
 			}, Math.max(duration_ms, 1000));
 

@@ -123,7 +123,7 @@ class GoXLRUI extends Vue {
 				if(!item) return;
 				item.classList.add("highlight");
 				clearTimeout(this.encoderTimeouts[bt]);
-				this.encoderTimeouts[bt] = setTimeout(()=> {
+				this.encoderTimeouts[bt] = window.setTimeout(()=> {
 					item.classList.remove("highlight");
 				}, 500);
 			}

@@ -194,7 +194,7 @@ class Changelog extends Vue {
 		
 		gsap.set(this.$el as HTMLDivElement, {opacity:0});
 		//Leave the view a bit of time to render to avoid lag during transition
-		setTimeout(()=> {
+		window.setTimeout(()=> {
 			gsap.set(this.$el as HTMLDivElement, {opacity:1});
 			gsap.from(this.$refs.dimmer as HTMLDivElement, {duration:.25, opacity:0});
 			gsap.from(this.$refs.holder as HTMLDivElement, {marginTop:"150px", ease:"back.out", opacity:0, duration:1, clearProps:"all"});

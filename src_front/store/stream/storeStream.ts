@@ -178,7 +178,7 @@ export const storeStream = defineStore('stream', {
 				}
 				//Cut OBS stream if requested
 				if(StoreProxy.params.features.stopStreamOnRaid.value === true) {
-					setTimeout(() => {
+					window.setTimeout(() => {
 						OBSWebsocket.instance.stopStreaming();
 					}, 2000);
 				}
@@ -249,7 +249,7 @@ export const storeStream = defineStore('stream', {
 					TwitchUtils.setRoomSettings(uid, {emotesOnly:false});
 				}
 				//Give it a minute to twitch after starting stream to schedule ads
-				setTimeout(()=> {
+				window.setTimeout(()=> {
 					TwitchUtils.getAdSchedule();
 				}, 60000);
 			}
@@ -338,7 +338,7 @@ export const storeStream = defineStore('stream', {
 					log:"Schedule approaching ad trigger in "+((remainingTime-ms)/1000)+"s"
 				});
 				//Schedule message
-				const to = setTimeout(()=>{
+				const to = window.setTimeout(()=>{
 					const message: TwitchatDataTypes.MessageAdBreakApproachingData = {
 						platform:"twitch",
 						id:Utils.getUUID(),
@@ -364,7 +364,7 @@ export const storeStream = defineStore('stream', {
 				Logger.instance.log("ads", {
 					log:"Wait for "+(remainingTime/1000)+"s (with 5s margin) before forcing an ad"
 				});
-				const to = setTimeout(() => {
+				const to = window.setTimeout(() => {
 					Logger.instance.log("ads", {
 						log:"Approaching timer complete in 5s. Start a "+(data.currentAdDuration_ms/1000)+"s ad"
 					});
@@ -394,7 +394,7 @@ export const storeStream = defineStore('stream', {
 
 			//Schedule ad break complete message
 			if(startDate + data.currentAdDuration_ms > Date.now()) {
-				const to = setTimeout(() => {
+				const to = window.setTimeout(() => {
 					const message:TwitchatDataTypes.MessageAdBreakCompleteData = {
 						type:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_COMPLETE,
 						id:Utils.getUUID(),
@@ -408,7 +408,7 @@ export const storeStream = defineStore('stream', {
 						log:"Trigger ad complete"
 					});
 					StoreProxy.chat.addMessage(message);
-					setTimeout(()=> {
+					window.setTimeout(()=> {
 						TwitchUtils.getAdSchedule();//get fresh new ad schedule data
 					}, 10000);
 				}, startDate + data.currentAdDuration_ms - Date.now());

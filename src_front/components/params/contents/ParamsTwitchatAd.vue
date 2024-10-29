@@ -75,7 +75,7 @@ class ParamsTwitchatAd extends Vue {
 		const subContent = this.$store.params.currentPageSubContent;
 		if(subContent == "ad") {
 			this.blink = true;
-			setTimeout(()=>{
+			window.setTimeout(()=>{
 				this.blink = false;
 				this.$store.params.currentPageSubContent = "";
 			}, 3000);
@@ -89,7 +89,7 @@ class ParamsTwitchatAd extends Vue {
 			if(this.$store.params.currentPageSubContent === "ad") {
 				this.collapse = false;
 				this.blink = true;
-				setTimeout(()=>{
+				window.setTimeout(()=>{
 					this.blink = false;
 					this.$store.params.currentPageSubContent = "";
 				}, 3000);

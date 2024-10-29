@@ -495,7 +495,7 @@ class OverlayParamsCredits extends Vue {
 		PublicAPI.instance.broadcast(TwitchatEvent.GET_CREDITS_OVERLAY_PRESENCE);
 		clearTimeout(this.subcheckTimeout);
 		//If after 1,5s the overlay didn't answer, assume it doesn't exist
-		this.subcheckTimeout = setTimeout(()=>{
+		this.subcheckTimeout = window.setTimeout(()=>{
 			this.overlayExists = false;
 			this.checkingOverlayPresence = false;
 		}, 1500);

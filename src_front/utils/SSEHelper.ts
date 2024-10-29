@@ -16,6 +16,9 @@ export default class SSEHelper extends EventDispatcher {
 
 	constructor() {
 		super();
+		window.addEventListener("beforeunload", ()=>{
+			if(this._sse && this._sse.readyState == this._sse.OPEN) this._sse.close();
+		});
 	}
 
 	/********************
@@ -63,7 +66,7 @@ export default class SSEHelper extends EventDispatcher {
 		this._sse.onopen = (event) => {
 			this._failCount = 0;
 			//randomize event so not everyone potentially spams server after rebooting it
-			setTimeout(() => {
+			window.setTimeout(() => {
 				this.dispatchEvent(new SSEEvent(SSEEvent.ON_CONNECT));
 			}, Math.random()*5000);
 		}
@@ -73,9 +76,9 @@ export default class SSEHelper extends EventDispatcher {
 			if(++this._failCount === 5) {
 				this.dispatchEvent(new SSEEvent(SSEEvent.FAILED_CONNECT));
 			}
-			setTimeout(() => {
+			window.setTimeout(() => {
 				this.connect();
-			}, 2000);
+			}, Math.random()*5000);
 		};
 
 		window.addEventListener("beforeunload", ()=>{
@@ -95,7 +98,7 @@ export default class SSEHelper extends EventDispatcher {
 			let json = JSON.parse(event.data) as {code:string, data:any};
 			
 			clearTimeout(this._pingFailTimeout);
-			this._pingFailTimeout = setTimeout(()=>{
+			this._pingFailTimeout = window.setTimeout(()=>{
 				this.connect();
 			}, this._expectedPingInterval);
 
