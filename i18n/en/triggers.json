@@ -650,6 +650,7 @@
 			"bingo_number": "Number to guess",
 			"bingo_emote": "Emote to guess",
 			"bingo_custom": "Custom text to guess",
+			"bingo_generic": "Value to guess (number, emote code or text)",
 			"sub_tier": "Sub tier: prime, 1, 2 or 3",
 			"subgift_tier": "Sub tier: 1, 2 or 3",
 			"sub_message": "Message of the user",

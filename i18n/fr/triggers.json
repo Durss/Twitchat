@@ -650,6 +650,7 @@
 			"bingo_number": "Nombre à deviner",
 			"bingo_emote": "Emote à deviner",
 			"bingo_custom": "Texte personnalisé à deviner",
+			"bingo_generic": "Valeur à deviner (nombre, code d'emote ou text)",
 			"sub_tier": "Niveau de l'abonnement: prime, 1, 2 ou 3",
 			"subgift_tier": "Niveau de l'abonnement: 1, 2 ou 3",
 			"sub_message": "Message de la personne",
