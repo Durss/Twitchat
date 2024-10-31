@@ -533,6 +533,11 @@
 		},
 		"youtube_subgift": {
 			"title": "{USER} a offert {COUNT} abonnements {TIER} à {LIST}"
+		},
+		"suspended_trigger_stack":{
+			"title": "Une séquence d'exécution de trigger rend Twitchat instable.\nLeur exécution a été interrompue par mesure de sécurité.",
+			"resumeBt": "Relancer",
+			"callstack": "Historique d'exécution :"
 		}
 	}
 }

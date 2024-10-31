@@ -531,8 +531,10 @@
 			"new": "{USER} subscribed for the first time at tier {TIER}",
 			"resub": "{USER} subscibed at {TIER} for {MONTHS} months"
 		},
-		"youtube_subgift":{
-			"title": "{USER} offered {COUNT} memberships at tier {TIER} to {LIST}"
+		"suspended_trigger_stack":{
+			"title": "A sequence of triggers executions is making Twitchat unstable.\nIt has been stopped to prevent further issues.",
+			"resumeBt": "Resume",
+			"callstack": "Execution history:"
 		}
 	}
 }

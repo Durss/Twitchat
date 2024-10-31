@@ -516,6 +516,15 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
+	
+		<ChatSuspendedTriggerStack class="message"
+			v-else-if="messageData.type == 'suspended_trigger_stack'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
+		/>
 	</div>
 </template>
 
@@ -577,6 +586,7 @@ import ChatYoutubeSubscription from './ChatYoutubeSubscription.vue';
 import ChatYoutubeSubgift from './ChatYoutubeSubgift.vue';
 import ChatTiltifyEvent from './ChatTiltifyEvent.vue';
 import ChatPatreonEvent from './ChatPatreonEvent.vue';
+import ChatSuspendedTriggerStack from './ChatSuspendedTriggerStack.vue';
 
 @Component({
 	components:{
@@ -634,6 +644,7 @@ import ChatPatreonEvent from './ChatPatreonEvent.vue';
 		ChatYoutubeSubscription,
 		ChatStreamelementsEvent,
 		ChatYoutubeSuperSticker,
+		ChatSuspendedTriggerStack,
 		ChatCommunityChallengeContribution,
 	},
 	emits:["onRead", "showConversation", "showUserMessages", "unscheduleMessageOpen", "setCustomActivities", "showModal", "openFilters", "onOverMessage"],

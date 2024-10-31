@@ -754,6 +754,7 @@ class MessageList extends Vue {
 				return true;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.SUSPENDED_TRIGGER_STACK: 
 			case TwitchatDataTypes.TwitchatMessageType.HATE_RAID: {
 				return true;
 			}

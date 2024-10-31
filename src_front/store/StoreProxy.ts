@@ -2,7 +2,7 @@ import type HeatEvent from "@/events/HeatEvent";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import type { HeatScreen } from "@/types/HeatDataTypes";
 import type { LabelItemData, LabelItemPlaceholder, LabelItemPlaceholderList } from "@/types/ILabelOverlayData";
-import type { TriggerActionCountDataAction, TriggerActionTypes, TriggerData, TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
+import type { TriggerActionCountDataAction, TriggerActionTypes, TriggerCallStack, TriggerData, TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/types/spotify/SpotifyDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
@@ -150,6 +150,11 @@ export interface IMainState {
 	 * "true" if user choose to continue offline
 	 */
 	offlineMode:boolean;
+	/**
+	 * Triggers susspended from execution due to super high frequency
+	 * and loop
+	 */
+	suspendedTriggerStacks:TriggerCallStack[];
 }
 
 export interface IMainGetters {
@@ -237,6 +242,12 @@ export interface IMainActions {
 	 */
 	showOutdatedDataVersionAlert():void;
 	hideOutdatedDataVersionAlert(offlineMode:boolean):void;
+
+	/**
+	 * Called when a trigger's exec stack is suspended
+	 * @param callstack 
+	 */
+	suspendedTriggerStack(callstack:TriggerCallStack):void
 }
 
 

@@ -36,6 +36,23 @@ type RecursivePath<T> = T extends Array<infer U>
 // 	arrayProp?:{test:string}[];
 // }
 
+
+export interface TriggerCallStack {
+	id:string;
+	/**
+	 * Function to call to resume execution
+	 * @returns 
+	 */
+	resume?:()=>void;
+	/**
+	 * Details about all triggers executions
+	 */
+	stack: {
+		date:number;
+		triggerId:string;
+	}[];
+}
+
 // type myType1 = Path<Test>;
 // type myType = Path<Test, "prefix">;
 // const a: Path<Test, "myPrefix"> = "myPrefix.myProp"; // valid
