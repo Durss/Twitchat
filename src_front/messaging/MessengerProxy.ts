@@ -337,12 +337,7 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(isAdmin && cmd == "/userlist") {
-			StoreProxy.params.openModal("TTuserList")
-			return true;
-		}else
-
-		if(isAdmin && cmd == "/logmessages") {
+		if(cmd == "/__logmessages__") {
 			console.log(StoreProxy.chat.messages)
 			return true;
 		}else
@@ -533,6 +528,11 @@ export default class MessengerProxy {
 
 		if(isAdmin && cmd == "/ungiftpremium") {
 			StoreProxy.admin.ungiftPremium(params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
+			return true;
+		}else
+
+		if(isAdmin && cmd == "/userlist") {
+			StoreProxy.params.openModal("TTuserList")
 			return true;
 		}else
 
