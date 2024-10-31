@@ -1577,8 +1577,8 @@ export default class EventSub {
 			pendingAnswer: topic === "channel.prediction.lock",
 			started_at: currentPrediction?.started_at || new Date(event.started_at).getTime() - 1000,
 			duration_s: duration,
-			totalPoints,
-			totalUsers,
+			totalPoints: totalPoints || currentPrediction?.totalPoints || 0,
+			totalUsers: totalUsers || currentPrediction?.totalUsers || 0,
 		};
 		if(topic === "channel.prediction.end") {
 			prediction.ended_at = new Date((event as TwitchEventSubDataTypes.PredictionEndEvent).ended_at).getTime()
