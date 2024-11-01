@@ -984,8 +984,41 @@ export default class TriggerActionHandler {
 	/**
 	 * Execute a specific trigger
 	 */
-	public async executeTrigger(trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string, dynamicPlaceholders:{[key:string]:string|number} = {}, ignoreDisableState:boolean = false):Promise<boolean> {
+	public async executeTrigger(trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string, dynamicPlaceholders:{[key:string]:string|number} = {}, ignoreDisableState:boolean = false, callStack?:TriggerActionDataTypes.TriggerCallStack):Promise<boolean> {
 		if(!trigger.enabled && !testMode && !ignoreDisableState) return false;
+
+		if(!callStack) {
+			callStack = {
+				id:Utils.getUUID(),
+				stack: [],
+			}
+		}
+		callStack.stack.push({date:Date.now(), triggerId:trigger.id});
+
+		if(callStack.stack.length > 2000) {
+			let delayAvg = 0;
+			for (let i = 1; i < callStack.stack.length; i++) {
+				const prev = callStack.stack[i-1];
+				const curr = callStack.stack[i];
+				delayAvg += curr.date - prev.date;
+			}
+			delayAvg /= callStack.stack.length;
+			if(delayAvg < 1000) {
+				StoreProxy.main.suspendedTriggerStack(callStack);
+				try {
+					await new Promise<void>((resolve, reject) => {
+						callStack.resume = ()=>{
+							//Restart stack
+							StoreProxy.main.suspendedTriggerStacks.splice(StoreProxy.main.suspendedTriggerStacks.indexOf(callStack), 1);
+							callStack.stack = [];
+							resolve();
+						};
+					})
+				}catch(error) {
+					return false;
+				}
+			}
+		}
 
 		const log:LogTrigger = {
 			date:Date.now(),
@@ -1901,7 +1934,7 @@ export default class TriggerActionHandler {
 							if(trigger.enabled) {
 								// console.log("Exect sub trigger", step.triggerKey);
 								logStep.messages.push({date:Date.now(), value:"Call trigger \""+step.triggerId+"\""});
-								await this.executeTrigger(trigger, message, false, undefined, undefined, dynamicPlaceholders);
+								await this.executeTrigger(trigger, message, false, undefined, undefined, dynamicPlaceholders, undefined, callStack);
 							}else{
 								logStep.messages.push({date:Date.now(), value:"❌ Call trigger: trigger is disabled"});
 								log.error = true;
@@ -2368,7 +2401,7 @@ export default class TriggerActionHandler {
 								if(trigger) {
 									// console.log("Exec sub trigger", step.triggerKey);
 									logStep.messages.push({date:Date.now(), value:"Call random trigger \""+triggerId+"\""});
-									await this.executeTrigger(trigger, message, testMode, undefined, undefined, dynamicPlaceholders, true);
+									await this.executeTrigger(trigger, message, testMode, undefined, undefined, dynamicPlaceholders, true, callStack);
 									if(step.disableAfterExec === true) {
 										trigger.enabled = false;
 									}

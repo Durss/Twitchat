@@ -551,6 +551,11 @@
 		},
 		"tiktok_share":{
 			"new": "{USER} a partagé le stream"
+		},
+		"suspended_trigger_stack":{
+			"title": "Une séquence d'exécution de trigger rend Twitchat instable.\nLeur exécution a été interrompue par mesure de sécurité.",
+			"resumeBt": "Relancer",
+			"callstack": "Historique d'exécution :"
 		}
 	}
 }

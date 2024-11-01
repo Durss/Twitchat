@@ -552,6 +552,15 @@
 		:lightMode="lightMode"
 		:childrenList="childrenList"
 	/>
+	
+		<ChatSuspendedTriggerStack class="message"
+			v-else-if="messageData.type == 'suspended_trigger_stack'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
+		/>
 	</div>
 </template>
 
@@ -617,6 +626,7 @@ import ChatTikTokSub from './ChatTikTokSub.vue';
 import ChatTikTokGift from './ChatTikTokGift.vue';
 import ChatTikTokLike from './ChatTikTokLike.vue';
 import ChatTikTokShare from './ChatTikTokShare.vue';
+import ChatSuspendedTriggerStack from './ChatSuspendedTriggerStack.vue';
 
 @Component({
 	components:{
@@ -678,6 +688,7 @@ import ChatTikTokShare from './ChatTikTokShare.vue';
 		ChatYoutubeSubscription,
 		ChatStreamelementsEvent,
 		ChatYoutubeSuperSticker,
+		ChatSuspendedTriggerStack,
 		ChatCommunityChallengeContribution,
 	},
 	emits:["onRead", "showConversation", "showUserMessages", "unscheduleMessageOpen", "setCustomActivities", "showModal", "openFilters", "onOverMessage"],

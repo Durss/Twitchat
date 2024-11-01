@@ -3,6 +3,7 @@ import type { OBSItemPath } from "@/utils/OBSWebsocket";
 import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type { JsonObject } from 'type-fest';
 import type { GoXLRTypes } from "./GoXLRTypes";
+import type { TriggerCallStack } from "./TriggerActionDataTypes";
 
 export namespace TwitchatDataTypes {
 
@@ -2269,6 +2270,7 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_APPROACHING:"hype_train_approaching",
 		HYPE_TRAIN_COOLED_DOWN:"hype_train_cooled_down",
 		CLIP_CREATION_COMPLETE:"clip_creation_complete",
+		SUSPENDED_TRIGGER_STACK:"suspended_trigger_stack",
 		CLIP_PENDING_PUBLICATION:"clip_pending_publication",
 		COMMUNITY_BOOST_COMPLETE:"community_boost_complete",
 		OBS_PLAYBACK_STATE_UPDATE:"obs_playback_state_update",
@@ -2377,6 +2379,7 @@ export namespace TwitchatDataTypes {
 		goxlr_sample_complete:false,
 		obs_input_mute_toggle:false,
 		hype_train_cooled_down:true,
+		suspended_trigger_stack:true,
 		hype_train_approaching:false,
 		clip_creation_complete:false,
 		clip_pending_publication:true,
@@ -2526,6 +2529,7 @@ export namespace TwitchatDataTypes {
 									| MessageTikTokGiftData
 									| MessageTikTokLikeData
 									| MessageTikTokShareData
+									| MessageSuspendedTriggerStackData
 	;
 
 	/**
@@ -5349,5 +5353,13 @@ export namespace TwitchatDataTypes {
 		 * User that sent the gift
 		 */
 		user:TwitchatUser;
+	}
+
+	export interface MessageSuspendedTriggerStackData extends AbstractTwitchatMessage {
+		type:"suspended_trigger_stack";
+		/**
+		 * Trigger stack that has been suspended
+		 */
+		triggerStack:TriggerCallStack;
 	}
 }
