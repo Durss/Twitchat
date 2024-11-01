@@ -467,7 +467,10 @@ class MessageList extends Vue {
 		//Avoid adding any new message when showing a custom list of emssage (ex: hype train filtered activities)
 		if(this.customActivitiesDisplayed) return false;
 		//Check if this message should be displayed on this column
-		const colValid = Array.isArray(m.col)? m.col.length == 0 || m.col.includes(this.config.order) : m.col == undefined || m.col == this.config.order;
+		const colValid = Array.isArray(m.col)?
+							m.col.length == 0 || m.col.includes(this.config.order)
+						:
+							m.col == undefined || m.col == this.config.order || m.col < 0;
 		if(!colValid) return false;
 
 		//Filter by channel ID if necessary
@@ -788,7 +791,7 @@ class MessageList extends Vue {
 		// const maxScroll = (el.scrollHeight - el.offsetHeight);
 		const m = e.data as TwitchatDataTypes.ChatMessageTypes;
 		if (!await this.shouldShowMessage(m)) return;
-
+		
 		if(await this.mergeWithPrevious(m)) return;
 
 		//If scrolling is locked or there are still messages pending,
