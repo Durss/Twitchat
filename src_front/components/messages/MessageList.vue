@@ -1035,7 +1035,7 @@ class MessageList extends Vue {
 					this.showSelectionError();
 					return;
 				}
-				TwitchUtils.banUser(this.selectedMessage.user, this.selectedMessage.channel_id, data.duration ?? 0);
+				TwitchUtils.banUser(this.selectedMessage.user, this.selectedMessage.channel_id, data.duration);
 				this.selectedItem = null;
 				this.selectedMessage = null;
 				this.selectionDate = 0;
