@@ -158,7 +158,7 @@
 		"twitch_scopes": {
 			"bits:read": "Receive bits alerts",
 			"chat:read": "Read your chat",
-			"user:read:chat": "Read other channels chat",
+			"user:read:chat": "Read your chat (v2)",
 			"chat:edit": "Write on your chat",
 			"whispers:edit": "Send whispers",
 			"whispers:read": "Receive whispers",
