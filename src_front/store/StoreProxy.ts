@@ -3162,6 +3162,10 @@ export interface IStreamerbotActions {
 	 * Saves current configs to store
 	 */
 	saveConfigs():void;
+	/**
+	 * Lists available actions
+	 */
+	listActions():Promise<void>
 }
 
 

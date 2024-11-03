@@ -55,11 +55,7 @@ export const storeStreamerbot = defineStore('streamerbot', {
 					onConnect:(res)=>{
 						this.connected = true;
 						initResolver(true);
-						socket.getActions().then(actions=>{
-							this.actionList = actions.actions;
-							
-							socket.doAction({id:"399e97b7-ed7c-4882-befd-9c94240591a9"}, {param:"zgeg!"});
-						});
+						this.listActions();
 						this.saveConfigs();
 					},
 					onError:(error) =>{
@@ -77,6 +73,10 @@ export const storeStreamerbot = defineStore('streamerbot', {
 					this.connected = false;
 					initResolver(false);
 				});
+
+				socket.on("Application.ActionAdded", ()=>this.listActions());
+				socket.on("Application.ActionDeleted", ()=>this.listActions());
+				socket.on("Application.ActionUpdated", ()=>this.listActions());
 			});
 		},
 
@@ -85,8 +85,15 @@ export const storeStreamerbot = defineStore('streamerbot', {
 			socket.disconnect();
 		},
 		
-		doAction(id:string, arg:{[key:string]:string}):void {
-			socket.doAction({id}, arg);
+		doAction(id:string, args:{[key:string]:string|number}):void {
+			const date = new Date();
+			args.date = date.getFullYear() + "/" + (date.getMonth()+1).toString().padStart(2, "0") + "/" + date.getDate().toString().padStart(2, "0");
+			args.time = date.getHours().toString().padStart(2, "0") + ":" + date.getMinutes().toString().padStart(2, "0");
+			args.longtime = args.time + ":" + date.getSeconds().toString().padStart(2, "0");
+			args.unixtime = Math.round(date.getTime()/1000);
+			args.eventSource = "Twitchat";
+			console.log(args);
+			socket.doAction({id}, args);
 		},
 		
 		saveConfigs():void {
@@ -97,6 +104,12 @@ export const storeStreamerbot = defineStore('streamerbot', {
 			DataStore.set(DataStore.STREAMERBOT_CONFIGS, data);
 			DataStore.set(DataStore.STREAMERBOT_WS_PASSWORD, this.password);
 		},
+
+		async listActions():Promise<void> {
+			const actions = await socket.getActions()
+			console.log("LIST ACTIONS", actions.actions);
+			this.actionList = actions.actions;
+		}
 	} as IStreamerbotActions
 	& ThisType<IStreamerbotActions
 		& UnwrapRef<IStreamerbotState>

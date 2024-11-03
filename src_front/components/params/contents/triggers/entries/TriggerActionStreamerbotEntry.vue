@@ -29,14 +29,15 @@
 </template>
 
 <script lang="ts">
+import ParamItem from '@/components/params/ParamItem.vue';
 import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
-import type { ITriggerPlaceholder, TriggerActionStreamerbotData, TriggerData } from '@/types/TriggerActionDataTypes';
+import TTButton from '@/components/TTButton.vue';
+import type { TriggerActionStreamerbotData, TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
-import TTButton from '@/components/TTButton.vue';
-import ParamItem from '@/components/params/ParamItem.vue';
+import { watch } from 'vue';
 
 @Component({
 	components:{
@@ -60,17 +61,6 @@ class TriggerActionStreamerbotEntry extends AbstractTriggerActionEntry {
 	public param_values:TwitchatDataTypes.ParameterData<string>[] = []
 
 	public beforeMount():void {
-		const list:TwitchatDataTypes.ParameterDataListValue<string>[] = this.$store.streamerbot.actionList.map(action =>{
-			return {
-				value:action.id,
-				label:action.name,
-			}
-		});
-		list.unshift({
-			value:"",
-			labelKey:"global.select_placeholder"
-		})
-		this.param_action.listValues = list;
 		if(!this.action.streamerbotData) {
 			this.action.streamerbotData = {
 				actionId:"",
@@ -80,7 +70,10 @@ class TriggerActionStreamerbotEntry extends AbstractTriggerActionEntry {
 		if(!this.action.streamerbotData.params) {
 			this.action.streamerbotData.params = [];
 		}
+		this.buildActionList();
 		this.buildParams();
+
+		watch(()=>this.$store.streamerbot.actionList, () => this.buildActionList());
 	}
 
 	public openConnectForm():void {
@@ -114,6 +107,23 @@ class TriggerActionStreamerbotEntry extends AbstractTriggerActionEntry {
 			this.param_keys.push({type:"string", maxLength:50, value:"", placeholderList:this.placeholderList});
 			this.param_values.push({type:"string", maxLength:10000, value:"", placeholderList:this.placeholderList});
 		})
+	}
+
+	private buildActionList():void {
+		const list:TwitchatDataTypes.ParameterDataListValue<string>[] = this.$store.streamerbot.actionList.map(action =>{
+			return {
+				value:action.id,
+				label:action.name,
+			}
+		});
+		list.unshift({
+			value:"",
+			labelKey:"global.select_placeholder"
+		})
+		if(list.findIndex(v=> v.value == this.action.streamerbotData!.actionId) == -1) {
+			this.action.streamerbotData!.actionId = "";
+		}
+		this.param_action.listValues = list;
 	}
 
 }

@@ -3193,6 +3193,7 @@ export default class TriggerActionHandler {
 						logStep.error = true;
 					}else{
 						const args:{[key:string]:string} = {};
+						args.__source = Object.keys(TriggerTypes).find(k=>TriggerTypes[k as keyof typeof TriggerTypes] == trigger.type) || "";
 						if(step.streamerbotData.params) {
 							for (let i = 0; i < step.streamerbotData.params.length; i++) {
 								const param = step.streamerbotData.params[i];

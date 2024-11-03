@@ -640,16 +640,18 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private async onMessage(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean):Promise<void> {
 		//Ignore anything that's not a message or a /me
 		if(tags["message-type"] != "chat" && tags["message-type"] != "action" && (tags["message-type"] as string) != "announcement") {
-			let data:TwitchatDataTypes.MessageNoticeData = {
-				channel_id:this.getChannelID(channel),
-				date:Date.now(),
-				id:Utils.getUUID(),
-				message:"message type ignored "+ tags["message-type"],
-				platform:"twitch",
-				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-				noticeId:TwitchatDataTypes.TwitchatNoticeType.GENERIC,
+			if(!Config.instance.IS_PROD) {
+				let data:TwitchatDataTypes.MessageNoticeData = {
+					channel_id:this.getChannelID(channel),
+					date:Date.now(),
+					id:Utils.getUUID(),
+					message:"Unknown message type: "+ tags["message-type"],
+					platform:"twitch",
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.GENERIC,
+				}
+				this.dispatchEvent(new MessengerClientEvent("NOTICE", data));
 			}
-			this.dispatchEvent(new MessengerClientEvent("NOTICE", data));
 			return;
 		}
 
