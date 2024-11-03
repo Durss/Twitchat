@@ -146,7 +146,7 @@
 						icon="ticket"
 						:count="raffleEntryCount"
 						v-tooltip="{touch:'hold', content:$t('chat.form.raffleBt_aria'), showOnCreate:shouldShowTooltip('raffle'), onHidden:()=>onHideTooltip('raffle')}"
-						@click="openNotifications('raffle')" />
+						@click="openNotifications('raffle')"><template v-if="$store.raffle.raffleList.length > 1">x{{ $store.raffle.raffleList.length }}</template></ButtonNotification>
 				</transition>
 
 				<transition name="blink">

@@ -14,6 +14,8 @@
 				:percent="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  1 : timerPercent"
 				:duration="raffleData.entries?.length == raffleData.maxEntries && raffleData.maxEntries > 0?  0 : raffleData.duration_s * 1000"
 			/>
+
+			<div class="card-item secondary warning" v-if="$store.raffle.raffleList.length >= 10"><Icon name="alert" />{{$t("raffle.state_many_raffles", {COUNT:$store.raffle.raffleList.length})}}</div>
 	
 			<div class="entries">
 				<img src="@/assets/icons/user.svg" alt="user">
@@ -371,6 +373,15 @@ export default toNative(RaffleState);
 			width: 1em;
 			object-fit: fill;
 			margin-right: .5em;
+		}
+	}
+
+	.warning {
+		white-space: pre-line;
+		text-align: center;
+		.icon {
+			height: 1em;
+			margin-right: .25em;
 		}
 	}
 
