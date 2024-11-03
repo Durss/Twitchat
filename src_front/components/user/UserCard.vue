@@ -89,7 +89,7 @@
 
 				<div class="scrollable" v-show="!manageBadges && !manageUserNames">
 					<div class="infoList" v-if="isTwitchProfile">
-						<div :class="{info:true, recent:(Date.now() - (user.created_at_ms || 0)) < 14 * 24 * 60 * 60 * 10000}" v-tooltip="$t('usercard.creation_date_tt')+'\n'+createDate">
+						<div :class="{info:true, recent:(Date.now() - (user.created_at_ms || 0)) < 14 * 24 * 60 * 60 * 1000}" v-tooltip="$t('usercard.creation_date_tt')+'\n'+createDate">
 							<Icon name="alert" alt="recent account" class="icon recent"/>
 							<Icon name="date" alt="account creation date" class="icon"/>
 							{{createDateElapsed}}
