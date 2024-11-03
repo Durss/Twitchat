@@ -156,7 +156,7 @@
 		"twitch_scopes_grant_title": "Permission required",
 		"twitch_scopes_grant_description": "You're going to be redirected to login to grant this new permission.",
 		"twitch_scopes": {
-			"bits:read": "Read bits leaderboard",
+			"bits:read": "Receive bits alerts",
 			"chat:read": "Read your chat",
 			"user:read:chat": "Read other channels chat",
 			"chat:edit": "Write on your chat",

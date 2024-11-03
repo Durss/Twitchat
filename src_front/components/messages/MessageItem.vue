@@ -2,6 +2,7 @@
 	<div class="holder">
 		<img v-if="messageData.channelSource?.pic && $store.params.appearance.multiChatAvatar.value === true"
 			class="avatar"
+			:style="{color:messageData.channelSource.color+'99'}"
 			v-tooltip="messageData.channelSource.name"
 			:src="messageData.channelSource.pic" />
 		
@@ -739,6 +740,8 @@ export default toNative(MessageItem);
 		border-radius: 50%;
 		height: 1.5em;
 		align-self: center;
+		outline: 1px solid currentColor;
+		padding: 1px;
 	}
 	.message {
 		width: 100%;

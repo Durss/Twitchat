@@ -447,8 +447,8 @@ export namespace TwitchEventSubDataTypes {
 			top_predictors: {
 				user_name: string;
 				user_login: string;
-				user_id: any;
-				channel_points_won?: any;
+				user_id: string;
+				channel_points_won?: number;
 				channel_points_used: number;
 			}[];
 		}[];
@@ -867,7 +867,7 @@ export namespace TwitchEventSubDataTypes {
 		user_name: string;
 		user_login: string;
 		low_trust_status: "none"|"active_monitoring"|"restricted";
-		shared_ban_channel_ids?: any;
+		shared_ban_channel_ids?: string[];
 		types: ("manually_added"|"ban_evader_detector"|"shared_channel_ban"|string)[];
 		ban_evasion_evaluation: "unknown”"|"possible"|"likely";
 		message:  {
@@ -877,19 +877,91 @@ export namespace TwitchEventSubDataTypes {
 		};
 	}
 
-	type MessageFragments = (MessageFragmentText|MessageFragmentEmote)[];
+	export interface ChatMessageEvent {
+		broadcaster_user_id: string;
+		broadcaster_user_login: string;
+		broadcaster_user_name: string;
+		chatter_user_id: string;
+		chatter_user_login: string;
+		chatter_user_name: string;
+		message_id: string;
+		message: {
+			text:string;
+			fragments:MessageFragments;
+		};
+		color: string;
+		badges: {
+			set_id: string;
+			id: string;
+			info: string;
+		}[];
+		message_type: string;
+		cheer?: {
+			bits:number;
+		};
+		reply?: {
+			parent_message_id: string;
+			parent_message_body: string;
+			parent_user_id: string;
+			parent_user_name: string;
+			parent_user_login: string;
+			thread_message_id: string;
+			thread_user_id: string;
+			thread_user_name: string;
+			thread_user_login: string;
+		};
+		channel_points_custom_reward_id?: string;
+		channel_points_animation_id?: string;
+		source_broadcaster_user_id?: string;
+		source_broadcaster_user_login?: string;
+		source_broadcaster_user_name?: string;
+		source_message_id?: string;
+		source_badges?:  {
+			set_id: string;
+			id: string;
+			info: string;
+		}[];
+	}
+
+	export type MessageFragments = (MessageFragmentText|MessageFragmentEmote|MessageFragmentMention|MessageFragmentCheermote)[];
 
 	interface MessageFragmentText {
-		type: "text",
-		text: string,
+		type: "text";
+		text: string;
 	}
 
 	interface MessageFragmentEmote {
-		type: "emote",
-		text: string,
+		type: "emote";
+		text: string;
 		emote: {
 			id: string;
+			format: Array<"static" | "animated">;
 			emote_set_id: string;
+			owner_id: string;
+		}
+	}
+
+	interface MessageFragmentCheermote {
+		type: "cheermote";
+		text: string;
+		/**
+		 * Cheermote info
+		 * Actual cheermote text code is a concatenation of prefix and bits values
+		 */
+		cheermote:{
+			prefix: string;
+			bits: number;
+			tier: number;
+		}
+	}
+
+	interface MessageFragmentMention {
+		type: "mention";
+		text: string;
+		mention:{
+			user_id: string;
+			user_login: string;
+			user_name: string;
 		}
 	}
 }

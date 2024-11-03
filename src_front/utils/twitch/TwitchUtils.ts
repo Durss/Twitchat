@@ -10,6 +10,7 @@ import SevenTVUtils from "../emotes/SevenTVUtils";
 import { TwitchScopes, type TwitchScopesString } from "./TwitchScopes";
 import * as Sentry from "@sentry/vue";
 import Database from "@/store/Database";
+import type { TwitchEventSubDataTypes } from "@/types/twitch/TwitchEventSubDataTypes";
 
 /**
 * Created : 19/01/2021
@@ -3382,6 +3383,55 @@ export default class TwitchUtils {
 			}
 		}
 		return message_html;
+	}
+
+	/**
+	 * Converts Twitch fragments to Twitchat chunks
+	 */
+	public static async eventsubFragmentsToTwitchatChunks(fragments: TwitchEventSubDataTypes.MessageFragments, channelId:string):Promise<TwitchatDataTypes.ParseMessageChunk[]> {
+		let chunks:TwitchatDataTypes.ParseMessageChunk[] = [];
+		for (let i = 0; i < fragments.length; i++) {
+			const f = fragments[i];
+			switch(f.type) {
+				default:
+				case "text":{
+					chunks.push({type:"text", value:f.text});
+					break;
+				}
+				case "emote":{
+					const type = f.emote.format.includes("animated")? "animated" : "static";
+					const url_1x = "https://static-cdn.jtvnw.net/emoticons/v2/"+f.emote.id+"/"+type+"/dark/1.0";
+					const url_4x = "https://static-cdn.jtvnw.net/emoticons/v2/"+f.emote.id+"/"+type+"/dark/3.0";
+					chunks.push({type:"emote", value:f.text, emote:url_1x, emoteHD:url_4x || url_1x});
+					break;
+				}
+				case "cheermote":{
+					const cheermoteList = await this.loadCheermoteList(channelId);
+					const cheermote = cheermoteList.find(v=>v.prefix.toLowerCase() == f.cheermote.prefix.toLowerCase())?.tiers.find(v=>v.min_bits == f.cheermote.tier);
+					if(!cheermote) {
+						console.log("Cheermote not found", f.cheermote, cheermoteList);
+						// chunks.push({type:"text", value:f.text});
+						//Fallback to old parsing
+						const defaultChunk:TwitchatDataTypes.ParseMessageChunk = {type:"text", value:f.text};
+						const chunk = await this.parseCheermotes([defaultChunk], channelId);
+						chunks.push(...chunk || defaultChunk);
+					}else{
+						const imgSD = cheermote.images.dark.animated["2"] ?? cheermote.images.dark.static["2"];
+						const imgHD = cheermote.images.dark.animated["4"] ?? cheermote.images.dark.static["4"];
+						chunks.push({type:"cheermote", value:f.text, emote:imgSD, emoteHD:imgHD || imgSD});
+					}
+					break;
+				}
+				case "mention":{
+					chunks.push({type:"user", value:f.text, username:f.mention.user_login});
+					break;
+				}
+			}
+		}
+
+		//TODO parse links on text chunks
+
+		return chunks;
 	}
 
 	/**

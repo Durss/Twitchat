@@ -156,7 +156,7 @@
 		"twitch_scopes_grant_title": "Permission requise",
 		"twitch_scopes_grant_description": "Vous allez être redirigé·e vers la page de login pour accorder cette nouvelle permission.",
 		"twitch_scopes": {
-			"bits:read": "Lire le classement des bits",
+			"bits:read": "Recevoir les notifications de bits",
 			"chat:read": "Lire le tchat",
 			"user:read:chat": "Lire d'autres tchats",
 			"chat:edit": "Ecrire dans le tchat",

@@ -2964,6 +2964,10 @@ export namespace TwitchatDataTypes {
 		 */
 		twitch_gigantifiedEmote_url?: string;
 		/**
+		 * Is message coming from IRC or EventSub?
+		 */
+		twitch_source?:"eventsub"|"irc";
+		/**
 		 * Animation type AKA message skin
 		 */
 		twitch_animationId?: "simmer"|"rainbow-eclipse"|"cosmic-abyss";

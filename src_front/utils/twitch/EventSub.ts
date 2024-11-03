@@ -226,6 +226,7 @@ export default class EventSub {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_LOCK, "1");
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_END, "1");
 			}
+			
 			/*
 			if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS])) {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_START, "1");
@@ -327,9 +328,9 @@ export default class EventSub {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.SUSPICIOUS_USER_UPDATE, "1");
 			}
 		}
-			
+		
 		if(TwitchUtils.hasScopes([TwitchScopes.CHAT_READ_EVENTSUB])) {
-			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_MESSAGES, "1", {user_id:channelId});
+			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_MESSAGES, "1", {user_id:myUID});
 		}
 
 		this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {to_broadcaster_user_id:channelId});
@@ -536,6 +537,11 @@ export default class EventSub {
 			case TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_END:
 			case TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_LOCK: {
 				this.predictionEvent(topic, payload.event as TwitchEventSubDataTypes.PredictionStartEvent | TwitchEventSubDataTypes.PredictionProgressEvent | TwitchEventSubDataTypes.PredictionEndEvent | TwitchEventSubDataTypes.PredictionLockEvent);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.CHAT_MESSAGES: {
+				this.chatMessageEvent(topic, payload.event as TwitchEventSubDataTypes.ChatMessageEvent);
 				break;
 			}
 		}
@@ -1489,7 +1495,7 @@ export default class EventSub {
 			m.twitch_sharedBanChannels = users?.map(v=> { return {id:v.id, login:v.login}}) ?? [];
 			StoreProxy.chat.addMessage(m);
 		}else{
-			StoreProxy.chat.flagSuspiciousMessage(event.message.message_id, event.shared_ban_channel_ids);
+			StoreProxy.chat.flagSuspiciousMessage(event.message.message_id, event.shared_ban_channel_ids || []);
 		}
 	}
 
@@ -1597,6 +1603,79 @@ export default class EventSub {
 			//Clear prediction
 			StoreProxy.prediction.setPrediction(null);
 		}
+	}
+
+	private async chatMessageEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ChatMessageEvent):Promise<void> {
+		window.setTimeout(async () => {
+			//Check if message is already in the list, otherwise add it as a fallback
+			const messageList = StoreProxy.chat.messages;
+			for (let index = messageList.length-1; index > Math.max(0, messageList.length-50); index--) {
+				//Message found, stop there
+				if(messageList[index].id === event.message_id) return
+			}
+			if(event.cheer) {
+				const messageChunks:TwitchatDataTypes.ParseMessageChunk[] = await TwitchUtils.eventsubFragmentsToTwitchatChunks(event.message.fragments, event.broadcaster_user_id);
+				const messageHTML = TwitchUtils.messageChunksToHTML(messageChunks);
+				const message:TwitchatDataTypes.MessageCheerData = {
+					id:event.message_id,
+					channel_id:event.broadcaster_user_id,
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.CHEER,
+					platform:"twitch",
+					user:await StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.chatter_user_id, event.chatter_user_login, event.chatter_user_name),
+					message: event.message.text,
+					message_chunks: messageChunks,
+					message_html: messageHTML,
+					message_size: TwitchUtils.computeMessageSize(messageChunks),
+					bits: event.cheer.bits,
+					pinned:false,
+					pinDuration_ms:0,
+					pinLevel:0,
+				};
+				StoreProxy.chat.addMessage(message);
+			}else{
+				const messageChunks:TwitchatDataTypes.ParseMessageChunk[] = await TwitchUtils.eventsubFragmentsToTwitchatChunks(event.message.fragments, event.broadcaster_user_id);
+				const messageHTML = TwitchUtils.messageChunksToHTML(messageChunks);
+				const message:TwitchatDataTypes.MessageChatData = {
+					id:event.message_id,
+					channel_id:event.broadcaster_user_id,
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+					platform:"twitch",
+					user:await StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.chatter_user_id, event.chatter_user_login, event.chatter_user_name),
+					answers: [],
+					message: event.message.text,
+					message_chunks: messageChunks,
+					message_html: messageHTML,
+					message_size: TwitchUtils.computeMessageSize(messageChunks),
+					is_short:Utils.stripHTMLTags(messageHTML || "").length / (event.message.text.length||1) < .6 || event.message.text.length < 4,
+					twitch_source:"eventsub",
+				};
+	
+				//Check if it's a /me message
+				if(/\u0001ACTION .*\u0001/.test(event.message.text)) {
+					message.twitch_isSlashMe = true;
+				}
+	
+				if(event.reply) {
+					let messageList = StoreProxy.chat.messages;
+					//Search for original message the user answered to
+					for (let i = messageList.length-1; i >= Math.max(0, messageList.length-50); i--) {
+						let m = messageList[i];
+						if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
+						if(m.id === event.reply.parent_message_id) {
+							if(m.answersTo) m = m.answersTo;
+							if(!m.answers) m.answers = [];
+							m.answers.push( message );
+							message.answersTo = m;
+							break;
+						}
+					}
+				}
+	
+				StoreProxy.chat.addMessage(message);
+			}
+		}, 5000);
 	}
 
 }

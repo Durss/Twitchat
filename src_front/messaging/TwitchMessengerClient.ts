@@ -639,7 +639,19 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	private async onMessage(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean):Promise<void> {
 		//Ignore anything that's not a message or a /me
-		if(tags["message-type"] != "chat" && tags["message-type"] != "action" && (tags["message-type"] as string) != "announcement") return;
+		if(tags["message-type"] != "chat" && tags["message-type"] != "action" && (tags["message-type"] as string) != "announcement") {
+			let data:TwitchatDataTypes.MessageNoticeData = {
+				channel_id:this.getChannelID(channel),
+				date:Date.now(),
+				id:Utils.getUUID(),
+				message:"message type ignored "+ tags["message-type"],
+				platform:"twitch",
+				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+				noticeId:TwitchatDataTypes.TwitchatNoticeType.GENERIC,
+			}
+			this.dispatchEvent(new MessengerClientEvent("NOTICE", data));
+			return;
+		}
 
 		//Ignore rewards with text, they are also sent to PubSub with more info
 		if(tags["custom-reward-id"]) return;
@@ -669,7 +681,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			message_chunks:[],
 			message_size:0,
 			is_short:false,
-			raw_data:{tags, message}
+			raw_data:{tags, message},
+			twitch_source:"irc",
 		};
 
 		if(isSharedChatMessage) {
@@ -842,6 +855,22 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private async onCheer(channel:string, tags:tmi.ChatUserstate, message:string):Promise<void> {
 		const channel_id = this.getChannelID(channel);
 		const chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"]);
+		setTimeout(() => {
+			if(StoreProxy.chat.messages.findIndex(v=>v.id == tags.id) === -1) {
+				let data:TwitchatDataTypes.MessageCustomData = {
+					channel_id:this.getChannelID(channel),
+					date:Date.now(),
+					id:Utils.getUUID(),
+					message:"Cheer not found on history after 5s !",
+					platform:"twitch",
+					type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+					style:"error",
+
+				}
+				this.dispatchEvent(new MessengerClientEvent("MESSAGE", data));
+				console.log("MISSING CHEEEEEEEEER", channel, tags, message);
+			}
+		}, 5000);
 		await TwitchUtils.parseCheermotes(chunks, channel_id);
 
 		this.dispatchEvent(new MessengerClientEvent("CHEER", {
@@ -1022,22 +1051,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			|| (user.channelInfo[channel_id].banEndDate && !isTO)
 			//if user is perma banned and it's a TO
 			|| (!user.channelInfo[channel_id].banEndDate && isTO)) {
-
-				const m:TwitchatDataTypes.MessageBanData = {
-					id:Utils.getUUID(),
-					date:Date.now(),
-					platform:"twitch",
-					channel_id,
-					type:TwitchatDataTypes.TwitchatMessageType.BAN,
-					user,
-				};
-
-				if(isTO) m.duration_s = duration as number;
-
 				//Flag as banned. This also populates the ban reason of the user
 				await StoreProxy.users.flagBanned("twitch", channel_id, user.id, isTO? duration as number : undefined);
-				m.reason = user.channelInfo[channel_id].banReason;
-				StoreProxy.chat.addMessage(m);
 			}
 		},990)
 	}
@@ -1065,7 +1080,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const user = this.getUserFromTags(tags, channelId);
 
 					const params = parsed.params as string[];
-					const message = params[1];
+					const message = params[1] || "";
 					const message_chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"], tags.sentLocally == true);
 					const message_html = TwitchUtils.messageChunksToHTML(message_chunks);
 					const message_size = TwitchUtils.computeMessageSize(message_chunks);
@@ -1086,7 +1101,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					};
 					this.dispatchEvent(new MessengerClientEvent("WATCH_STREAK", eventData));
 
-					//Add as standard emssage
+					//Add as standard message
 					const messageData:TwitchatDataTypes.MessageChatData = {
 						channel_id: channelId,
 						id:Utils.getUUID(),
