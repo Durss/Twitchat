@@ -1335,7 +1335,19 @@ const UserDataSchema = {
 						type:"object",
 						additionalProperties: true,
 						patternProperties: {
-							".*": {type:"string", maxLength:100000},
+							".*": {
+								anyOf: [
+									{type:"string", maxLength:100000},
+									{
+										type:"object",
+										additionalProperties: false,
+										properties:{
+											platform: {type:"string", maxLength:40},
+											value: {type:"string", maxLength:100000},
+										}
+									}
+								],
+							}
 						}
 					}
 				}
@@ -1373,7 +1385,19 @@ const UserDataSchema = {
 						type:"object",
 						additionalProperties: true,
 						patternProperties: {
-							".*": {type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+							".*": {
+								anyOf: [
+									{type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+									{
+										type:"object",
+										additionalProperties: false,
+										properties:{
+											platform: {type:"string", maxLength:40},
+											value: {type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+										}
+									}
+								],
+							}
 						}
 					}
 				}

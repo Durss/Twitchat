@@ -310,6 +310,7 @@ export interface YoutubeChannelInfo {
 				description: string;
 			};
 			country: string;
+			defaultLanguage?: string
 		};
 		status: {
 			privacyStatus: string;

@@ -174,7 +174,7 @@ export default class YoutubeHelper {
 	/**
 	 * Get the current user info
 	 */
-	public async getUserInfo():Promise<void> {
+	public async getCurrentUserInfo():Promise<void> {
 		this._creditsUsed ++;
 		Logger.instance.log("youtube", {log:"Loading user infos...", credits: this._creditsUsed, liveID:this._currentLiveIds});
 		const url = new URL(this.API_PATH+"channels");
@@ -706,6 +706,29 @@ export default class YoutubeHelper {
 		return false;
 	}
 
+	public async getUserListInfo(ids:string[]):Promise<TwitchatDataTypes.TwitchatUser[]> {
+		let users:TwitchatDataTypes.TwitchatUser[] = [];
+		while(ids.length > 0) {
+			const url = new URL(this.API_PATH+"channels");
+			url.searchParams.append("part", "snippet,id");
+			//Load by chunks of 50 users max
+			ids.splice(0, 50).forEach(id => {
+				url.searchParams.append("id", id);
+			});
+
+			const res = await fetch(url, {method:"GET", headers:this.headers});
+			if(res.status >= 200 && res.status <= 204) {
+				const json = await res.json() as YoutubeChannelInfo;
+				json.items.forEach(ytUser => {
+					const user = StoreProxy.users.getUserFrom("youtube", this._userData?.id || ytUser.id, ytUser.id, ytUser.snippet.title, ytUser.snippet.title, undefined, false, false, false, false);
+					user.avatarPath = ytUser.snippet.thumbnails.default.url || ytUser.snippet.thumbnails.medium.url;
+					users.push(user);
+				});
+			}
+		}
+		return users;
+	}
+
 
 
 	/*******************
@@ -788,7 +811,7 @@ export default class YoutubeHelper {
 	 */
 	private async loadEmotesAndUser():Promise<void> {
 		if(Object.keys(this._emotes).length == 0) {
-			await this.getUserInfo();
+			await this.getCurrentUserInfo();
 			const emotesQuery = await fetch(StoreProxy.asset("youtube/emote_list.json"));
 			const json = await emotesQuery.json();
 			this._emotes = json;

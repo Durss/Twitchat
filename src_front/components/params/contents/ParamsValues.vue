@@ -87,8 +87,12 @@
 
 								<template v-if="entry.idToUsers[entry.value.id] && entry.idToUsers[entry.value.id]!.length > 0">
 									<div class="sort" v-if="entry.idToUsers[entry.value.id]!.filter(v=>v.hide !== true).length > 1">
-										<button>{{$t("values.form.username")}}</button>
-										<button>{{$t("values.form.userValue")}}</button>
+										<button disabled>{{$t("values.form.username")}}</button>
+										<button disabled>{{$t("values.form.userValue")}}</button>
+									</div>
+									<div class="card-item alert error" v-if="entry.idToYoutubeConnect[entry.value.id]">
+										<span>{{ $t("counters.connect_youtube") }}</span>
+										<TTButton icon="youtube" @click="openYoutubeConnect()" alert light>{{ $t("counters.connect_youtubeBt") }}</TTButton>
 									</div>
 									<InfiniteList class="scrollableList"
 									:dataset="entry.idToUsers[entry.value.id]!.filter(v=>v.hide !== true)"
@@ -99,8 +103,9 @@
 										<div class="card-item userItem">
 											<div class="infos">
 												<div class="head">
-													<img :src="item.user.avatarPath" class="avatar" v-if="item.user.avatarPath">
-													<a :href="'https://twitch.tv/'+item.user.login" class="login" target="_blank">{{ item.user.displayNameOriginal }}</a>
+													<img :src="item.user.avatarPath" class="avatar" v-if="item.user.avatarPath" referrerpolicy="no-referrer">
+													<a v-if="item.user.platform == 'twitch'" :href="'https://twitch.tv/'+item.user.login" class="login" target="_blank">{{ item.user.displayNameOriginal }}</a>
+													<a v-else="item.user.platform == 'youtube'" :href="'https://www.youtube.com/channel/'+item.user.id" class="login" target="_blank">{{ item.user.displayNameOriginal }}</a>
 												</div>
 												<ParamItem class="value" noBackground
 													:paramData="item.param"
@@ -131,6 +136,7 @@ import type IParameterContent from './IParameterContent';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import draggable from 'vuedraggable';
+import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 
 @Component({
 	components:{
@@ -375,7 +381,7 @@ class ParamsValues extends Vue implements IParameterContent {
 				const u = users[0];
 				if(value.users![u.id] != undefined) {
 					found = true;
-					let v = (value.users && value.users[u.id])? value.users![u.id] : "";
+					let v = (value.users && value.users[u.id])? value.users![u.id].value : "";
 					entry.idToUsers[value.id] = [{
 							hide:false,
 							param:reactive({type:"string", value:v, maxLength:100000}),
@@ -395,22 +401,68 @@ class ParamsValues extends Vue implements IParameterContent {
 	 */
 	public async loadUsers(entry:ValueEntry):Promise<void> {
 		entry.idToLoading[entry.value.id] = true;
+		let entries:UserEntry[] = [];
 
 		clearTimeout(this.timeoutSearch);
 		const users = await TwitchUtils.getUserInfo(Object.keys(entry.value.users!));
-		if(users.length > 0) {
+		// if(users.length > 0) {
+		// 	const channelId = this.$store.auth.twitch.user.id;
+		// 	const ttUsers:UserEntry[] = users.map((u) => {
+		// 		let value = (entry.value.users && entry.value.users[u.id])? entry.value.users![u.id].value : "";
+		// 		const param:TwitchatDataTypes.ParameterData<string> = reactive({type:'string', longText:true, value});
+		// 		const user = this.$store.users.getUserFrom("twitch", channelId, u.id, u.login, u.display_name);
+		// 		user.avatarPath = u.profile_image_url;
+		// 		const res:UserEntry = { param, user, hide:false };
+		// 		return res;
+		// 	});
+		// 	entry.idToAllLoaded[entry.value.id] = true;
+		// 	entry.idToUsers[entry.value.id] = ttUsers;
+		// }
+
+		const twitchUsers = await TwitchUtils.getUserInfo(Object.keys(entry.value.users!).filter(v=>entry.value.users![v].platform == "twitch"));
+		if(twitchUsers.length > 0) {
 			const channelId = this.$store.auth.twitch.user.id;
-			const ttUsers:UserEntry[] = users.map((u) => {
-				let value = (entry.value.users && entry.value.users[u.id])? entry.value.users![u.id] : "";
+			const ttUsers:UserEntry[] = twitchUsers.map((u) => {
+				let value = (entry.value.users && entry.value.users[u.id])? entry.value.users![u.id].value : "";
 				const param:TwitchatDataTypes.ParameterData<string> = reactive({type:'string', longText:true, value});
 				const user = this.$store.users.getUserFrom("twitch", channelId, u.id, u.login, u.display_name);
 				user.avatarPath = u.profile_image_url;
-				const res:UserEntry = { param, user, hide:false };
-				return res;
+				return { param, user, hide:false };
 			});
-			entry.idToAllLoaded[entry.value.id] = true;
-			entry.idToUsers[entry.value.id] = ttUsers;
+			entries = entries.concat(ttUsers);
 		}
+
+		
+		const youtubeIds = Object.keys(entry.value.users!).filter(v=>entry.value.users![v].platform == "youtube");
+		if(youtubeIds.length > 0) {
+			if(YoutubeHelper.instance.connected) {
+				console.log("Connected?",YoutubeHelper.instance.connected)
+				const youtubeUsers = await YoutubeHelper.instance.getUserListInfo(youtubeIds);
+				if(youtubeUsers.length > 0) {
+					const ttUsers:UserEntry[] = youtubeUsers.map((user) => {
+						let value = (entry.value.users && entry.value.users[user.id])? entry.value.users![user.id].value : "";
+						const param:TwitchatDataTypes.ParameterData<string> = reactive({type:'string', longText:true, value});
+						return { param, user, hide:false };
+					});
+					entries = entries.concat(ttUsers);
+				}
+			}else{
+				const ttUsers:UserEntry[] = youtubeIds.map((id) => {
+					let value = (entry.value.users && entry.value.users[id])? entry.value.users![id].value : "";
+					const param:TwitchatDataTypes.ParameterData<string> = reactive({type:'string', longText:true, value});
+					const user = this.$store.users.getUserFrom("youtube", id, id, id, "[Youtube User #"+id.substring(0,5)+"...]");
+					return { param, user, hide:false };
+				});
+				entries = entries.concat(ttUsers);
+				entry.idToYoutubeConnect[entry.value.id] = true;
+			}
+		}
+		
+		if(entries.length > 0) {
+			entry.idToAllLoaded[entry.value.id] = true;
+			entry.idToUsers[entry.value.id] = entries;
+		}
+
 		entry.idToLoading[entry.value.id] = false;
 	}
 
@@ -423,7 +475,7 @@ class ParamsValues extends Vue implements IParameterContent {
 		.then(()=>{
 			//Reset value data
 			for (const key in entry.value.users!) {
-				entry.value.users[key] = "";
+				entry.value.users[key].value = "";
 			}
 
 			//Reset view data
@@ -466,6 +518,13 @@ class ParamsValues extends Vue implements IParameterContent {
 	}
 
 	/**
+	 * Opens YouTube connect form
+	 */
+	public openYoutubeConnect():void {
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.YOUTUBE);
+	}
+
+	/**
 	 * Builds up local values list
 	 */
 	private buildEntries():void{
@@ -481,6 +540,7 @@ class ParamsValues extends Vue implements IParameterContent {
 					search:{},
 					sortDirection:{},
 					sortType:{},
+					idToYoutubeConnect:{},
 				}
 		});
 
@@ -503,6 +563,7 @@ interface ValueEntry {
 	sortType:{[key:string]:"name"|"points"};
 	sortDirection:{[key:string]:1|-1};
 	search:{[key:string]:string};
+	idToYoutubeConnect:{[key:string]:boolean};
 }
 
 interface UserEntry {
@@ -634,9 +695,7 @@ export default toNative(ParamsValues);
 						border-radius: .5em;
 						background-color: var(--color-primary);
 						box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
-						&:hover {
-							background-color: var(--color-primary-light);
-						}
+						cursor: default;
 					}
 					button:nth-child(1) {
 						flex-grow: 1;

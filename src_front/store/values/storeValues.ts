@@ -95,8 +95,11 @@ export const storeValues = defineStore('values', {
 						if(!entry.users) entry.users = {};
 						const uid = (user? user.id : userId) || "";
 						if(uid) {
-							prevValue = entry.users![uid];
-							entry.users![uid] = value;
+							prevValue = entry.users![uid].value;
+							entry.users![uid] = {
+								value: value,
+								platform: user!.platform || "twitch",
+							};
 						}
 					}else{
 						prevValue = entry.value;

@@ -12,6 +12,8 @@
 		"examples": "Exemples :",
 		"user_not_found": "personne introuvable",
 		"premium_cannot_enable":"Vous ne pouvez pas réactiver ce compteur. Vous avez atteint le maximum de {MAX} compteurs actifs. Devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} compteurs.",
+		"connect_youtube":"Twitchat n'est pas connecté à YouTube.\nLe nom des viewers YouTube ne peut être récupéré.",
+		"connect_youtubeBt":"Connect YouTube.",
 		"form": {
 			"name": "Nom",
 			"value": "Valeur",

@@ -12,6 +12,8 @@
 		"examples":"Examples :",
 		"user_not_found":"user not found",
 		"premium_cannot_enable":"You cannot enable this counter back. You reached the maximum of {MAX} counters that can be enabled. Become premium to create up to {MAX_PREMIUM} counters.",
+		"connect_youtube":"Twitchat is not connected with YouTube.\nYouTube user info cannot be retrieved.",
+		"connect_youtubeBt":"Connect YouTube.",
 		"form": {
 			"name": "Name",
 			"value": "Value",

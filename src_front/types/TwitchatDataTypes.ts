@@ -108,9 +108,12 @@ export namespace TwitchatDataTypes {
 		 */
 		perUser:boolean;
 		/**
-		 * Users counters values
+		 * Users values
 		 */
-		users?:{[key:string]:number};
+		users?:{[userId:string]:{
+			platform:ChatPlatform,
+			value:number;
+		}};
 		/**
 		 * Only available for counters overlay related to a "per user" counter
 		 * Contains user info necessary for display on screen.
@@ -150,7 +153,10 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Users values
 		 */
-		users?:{[userId:string]:string};
+		users?:{[userId:string]:{
+			platform:ChatPlatform,
+			value:string;
+		}};
 		/**
 		 * Is the counter disabled ?
 		 * It can be disabled if the user has to disable counters they're not

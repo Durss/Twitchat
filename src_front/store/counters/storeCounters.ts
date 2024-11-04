@@ -110,7 +110,7 @@ export const storeCounters = defineStore('counters', {
 									counter!.leaderboard!.push({
 										avatar:res.avatarPath!,
 										login:res.displayNameOriginal,
-										points:v.value
+										points:v.value.value
 									})
 								}
 								//All users ready, broadcast change
@@ -163,9 +163,9 @@ export const storeCounters = defineStore('counters', {
 				if(!c.users) c.users = {};
 				if(user) {
 					if(user.temporary || user.errored) return 0;
-					counterValue = c.users[user.id] || 0;
+					counterValue = c.users[user.id].value || 0;
 				}else if(userId) {
-					counterValue = c.users[userId] || 0;
+					counterValue = c.users[userId].value || 0;
 				}
 			}
 
@@ -207,7 +207,10 @@ export const storeCounters = defineStore('counters', {
 			
 			if(c.perUser) {
 				const uid = (user? user.id : userId) || "";
-				c.users![uid] = parseFloat(counterValue.toString());//Forcing parsing as float. For some unsolved reason there was very few cases where value became a string
+				c.users![uid] = {
+					platform:user!.platform,
+					value:parseFloat(counterValue.toString())//Forcing parsing as float. For some unsolved reason there was very few cases where value became a string
+				}
 			}else{
 				c.value = parseFloat(counterValue.toString());//Forcing parsing as float. For some unsolved reason there was very few cases where value became a string
 			}

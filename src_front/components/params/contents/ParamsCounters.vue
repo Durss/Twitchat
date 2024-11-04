@@ -113,6 +113,10 @@
 											<template v-if="entry.sortType[entry.counter.id]==='points'">{{ entry.sortDirection[entry.counter.id] == 1? "▼" : "▲" }}</template>
 										</button>
 									</div>
+									<div class="card-item alert error" v-if="entry.idToYoutubeConnect[entry.counter.id]">
+										<span>{{ $t("counters.connect_youtube") }}</span>
+										<TTButton icon="youtube" @click="openYoutubeConnect()" alert light>{{ $t("counters.connect_youtubeBt") }}</TTButton>
+									</div>
 									<InfiniteList class="scrollableList"
 									:dataset="entry.idToUsers[entry.counter.id]!.filter(v=>v.hide !== true)"
 									:itemSize="50"
@@ -120,8 +124,9 @@
 									lockScroll
 									v-slot="{ item } : {item:UserEntry}">
 										<div class="card-item userItem">
-											<img :src="item.user.avatarPath" class="avatar" v-if="item.user.avatarPath">
-											<a :href="'https://twitch.tv/'+item.user.login" class="login" target="_blank">{{ item.user.displayNameOriginal }}</a>
+											<img :src="item.user.avatarPath" class="avatar" v-if="item.user.avatarPath" referrerpolicy="no-referrer">
+											<a v-if="item.user.platform == 'twitch'" :href="'https://twitch.tv/'+item.user.login" class="login" target="_blank">{{ item.user.displayNameOriginal }}</a>
+											<a v-else="item.user.platform == 'youtube'" :href="'https://www.youtube.com/channel/'+item.user.id" class="login" target="_blank">{{ item.user.displayNameOriginal }}</a>
 											<ParamItem class="value" noBackground
 												:paramData="item.param"
 												@input="onChangeValue(entry, item)" />
@@ -152,6 +157,7 @@ import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
 import ToggleButton from '@/components/ToggleButton.vue';
 import draggable from 'vuedraggable';
+import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 
 @Component({
 	components:{
@@ -329,7 +335,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 		let diff = 0;
 		this.timeoutEdit = window.setTimeout(() => {
 			if(userEntry) {
-				diff = userEntry.param.value - entry.counter.users![ userEntry.user.id ];
+				diff = userEntry.param.value - entry.counter.users![ userEntry.user.id ].value;
 			}else{
 				diff = entry.param.value - entry.counter.value;
 			}
@@ -447,7 +453,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 				const u = users[0];
 				if(counter.users![u.id] != undefined) {
 					found = true;
-					let value = (counter.users && counter.users[u.id])? counter.users![u.id] : 0;
+					let value = (counter.users && counter.users[u.id])? counter.users![u.id].value : 0;
 					entry.idToUsers[counter.id] = [{
 							hide:false,
 							param:reactive({type:"number", value:value, min:counter.min || undefined, max:counter.max || undefined}),
@@ -469,20 +475,50 @@ class ParamsCounters extends Vue implements IParameterContent {
 		entry.idToLoading[entry.counter.id] = true;
 
 		clearTimeout(this.timeoutSearch);
-		const users = await TwitchUtils.getUserInfo(Object.keys(entry.counter.users!));
-		if(users.length > 0) {
+		let entries:UserEntry[] = [];
+
+		const twitchUsers = await TwitchUtils.getUserInfo(Object.keys(entry.counter.users!).filter(v=>entry.counter.users![v].platform == "twitch"));
+		if(twitchUsers.length > 0) {
 			const channelId = this.$store.auth.twitch.user.id;
-			const ttUsers:UserEntry[] = users.map((u) => {
-				let value = (entry.counter.users && entry.counter.users[u.id])? entry.counter.users![u.id] : 0;
+			const ttUsers:UserEntry[] = twitchUsers.map((u) => {
+				let value = (entry.counter.users && entry.counter.users[u.id])? entry.counter.users![u.id].value : 0;
 				const param:TwitchatDataTypes.ParameterData<number> = reactive({type:'number', value, min:entry.counter.min || undefined, max:entry.counter.max || undefined});
 				const user = this.$store.users.getUserFrom("twitch", channelId, u.id, u.login, u.display_name);
 				user.avatarPath = u.profile_image_url;
-				const res:UserEntry = { param, user, hide:false };
-				return res;
+				return { param, user, hide:false };
 			});
-			entry.idToAllLoaded[entry.counter.id] = true;
-			entry.idToUsers[entry.counter.id] = ttUsers;
+			entries = entries.concat(ttUsers);
+		}
+		
+		const youtubeIds = Object.keys(entry.counter.users!).filter(v=>entry.counter.users![v].platform == "youtube");
+		if(youtubeIds.length > 0) {
+			if(YoutubeHelper.instance.connected) {
+				console.log("Connected?",YoutubeHelper.instance.connected)
+				const youtubeUsers = await YoutubeHelper.instance.getUserListInfo(youtubeIds);
+				if(youtubeUsers.length > 0) {
+					const ttUsers:UserEntry[] = youtubeUsers.map((user) => {
+						let value = (entry.counter.users && entry.counter.users[user.id])? entry.counter.users![user.id].value : 0;
+						const param:TwitchatDataTypes.ParameterData<number> = reactive({type:'number', value, min:entry.counter.min || undefined, max:entry.counter.max || undefined});
+						return { param, user, hide:false };
+					});
+					entries = entries.concat(ttUsers);
+				}
+			}else{
+				const ttUsers:UserEntry[] = youtubeIds.map((id) => {
+					let value = (entry.counter.users && entry.counter.users[id])? entry.counter.users![id].value : 0;
+					const param:TwitchatDataTypes.ParameterData<number> = reactive({type:'number', value, min:entry.counter.min || undefined, max:entry.counter.max || undefined});
+					const user = this.$store.users.getUserFrom("youtube", id, id, id, "[Youtube User #"+id.substring(0,5)+"...]");
+					return { param, user, hide:false };
+				});
+				entries = entries.concat(ttUsers);
+				entry.idToYoutubeConnect[entry.counter.id] = true;
+			}
+		}
+		
+		if(entries.length > 0) {
 			this.sortOn(entry);
+			entry.idToAllLoaded[entry.counter.id] = true;
+			entry.idToUsers[entry.counter.id] = entries;
 		}
 		entry.idToLoading[entry.counter.id] = false;
 	}
@@ -497,7 +533,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 			//Reset counter data
 			let value:number = entry.counter.min != false? entry.counter.min : 0;
 			for (const key in entry.counter.users!) {
-				entry.counter.users[key] = value;
+				entry.counter.users[key].value = value;
 			}
 
 			//Reset view data
@@ -584,6 +620,13 @@ class ParamsCounters extends Vue implements IParameterContent {
 	}
 
 	/**
+	 * Opens YouTube connect form
+	 */
+	public openYoutubeConnect():void {
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.YOUTUBE);
+	}
+
+	/**
 	 * Builds up local counter list
 	 */
 	private buildEntries():void{
@@ -601,6 +644,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 					search:{},
 					sortDirection:{},
 					sortType:{},
+					idToYoutubeConnect:{},
 				}
 		});
 
@@ -619,6 +663,7 @@ interface CounterEntry {
 	idToUsers:{[key:string]:UserEntry[]|null};
 	idToNoResult:{[key:string]:boolean};
 	idToLoading:{[key:string]:boolean};
+	idToYoutubeConnect:{[key:string]:boolean};
 	idToAllLoaded:{[key:string]:boolean};
 	sortType:{[key:string]:"name"|"points"};
 	sortDirection:{[key:string]:1|-1};
@@ -838,6 +883,15 @@ export default toNative(ParamsCounters);
 						}
 					}
 				}
+			}
+
+			.error {
+				gap: .5em;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				white-space: pre-line;
+				text-align: center
 			}
 		}
 	}

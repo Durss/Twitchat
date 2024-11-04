@@ -148,7 +148,7 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	static override async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 59;
+		const latestVersion = 60;
 
 		this.cleanupPreV7Data(data);
 
@@ -360,6 +360,10 @@ export default class DataStore extends DataStoreCommon{
 		}
 		if(v==58) {
 			this.migrateWSTriggerActions(data);
+			v = 59;
+		}
+		if(v==59) {
+			this.migratePerUserCountersAndValues(data);
 			v = latestVersion;
 		}
 
@@ -1597,5 +1601,47 @@ export default class DataStore extends DataStoreCommon{
 				})
 			});
 		}
+	}
+	
+	/**
+	 * Migrate per-user counters and values to new "per-channel" items
+	 * Old counter/values types where :
+	 * {[uid:string]:string|number}
+	 * 
+	 * Now it is:
+	 * {[userId:string]:{
+	 * 	platform:ChatPlatform,
+	 * 	value:string|number;
+	 * }}
+	 * @param data 
+	 */
+	private static migratePerUserCountersAndValues(data:any):void {
+		const values:TwitchatDataTypes.ValueData[] = data[DataStore.VALUES];
+		(values || []).forEach(value => {
+			if(value.perUser !== true || !value.users) return;
+			for (const uid in value.users) {
+				const userVal = value.users[uid] as unknown as string;
+				const platform:TwitchatDataTypes.ChatPlatform = (parseInt(uid).toString() == uid)? "twitch" : "youtube";
+				value.users[uid] = {
+					platform,
+					value:userVal,
+				};
+			}
+			console.log("Migrate value", value);
+		});
+		
+		const counters:TwitchatDataTypes.CounterData[] = data[DataStore.COUNTERS];
+		(counters || []).forEach(counter => {
+			if(counter.perUser !== true || !counter.users) return;
+			for (const uid in counter.users) {
+				const userVal = counter.users[uid] as unknown as number;
+				const platform:TwitchatDataTypes.ChatPlatform = (parseInt(uid).toString() == uid)? "twitch" : "youtube";
+				counter.users[uid] = {
+					platform,
+					value:userVal,
+				};
+			}
+			console.log("Migrate counter", counter);
+		});
 	}
 }
