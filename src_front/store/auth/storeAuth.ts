@@ -113,8 +113,8 @@ export const storeAuth = defineStore('auth', {
 						const res = await this.twitch_tokenRefresh();
 						if(!res) {
 							StoreProxy.common.alert("Unable to connect with Twitch API :(.", false, true);
-							if(cb) cb(false, true);
-							else router.push({name:"login", params:{betaReason:"true"}});
+							if(cb) cb(false, false);
+							else router.push({name:"login", params:{betaReason:"false"}});
 							return;
 						}else{
 							twitchAuthResult = res;
@@ -149,6 +149,7 @@ export const storeAuth = defineStore('auth', {
 					window.setInitMessage("checking beta access permissions");
 					const res = await ApiHelper.call("beta/user", "GET", {uid:userRes.user_id});
 					if(res.status != 200 || res.json.data.beta !== true) {
+						console.log("Beta refused", res.json);
 						if(cb) cb(false, true);
 						else router.push({name:"login", params:{betaReason:"true"}});
 						return;
@@ -156,8 +157,8 @@ export const storeAuth = defineStore('auth', {
 				}
 				
 				if(!TwitchUtils.hasScopes(Config.instance.MANDATORY_TWITCH_SCOPES)) {
-					if(cb) cb(false, true);
-					else router.push({name:"login", params:{betaReason:"true"}});
+					if(cb) cb(false, false);
+					else router.push({name:"login", params:{betaReason:"false"}});
 					return;
 				}
 
