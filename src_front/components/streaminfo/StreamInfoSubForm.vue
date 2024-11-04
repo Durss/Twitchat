@@ -92,7 +92,7 @@ class StreamInfoSubForm extends Vue {
 	public param_title:TwitchatDataTypes.ParameterData<string>	= {value:"", type:"string", maxLength:140, labelKey:"stream.form_stream_title", placeholderKey:"stream.form_stream_title_placeholder"};
 	public param_tags:TwitchatDataTypes.ParameterData<string[]>	= {value:[], type:"editablelist", labelKey:"stream.form_stream_tags", max:100, maxLength:25};
 	public param_branded:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", labelKey:"stream.form_branded"};
-	public param_labels:TwitchatDataTypes.ParameterData<boolean>[]	= [];
+	public param_labels:TwitchatDataTypes.ParameterData<boolean, unknown, unknown, string>[]	= [];
 
 	public localTags:string[] = [];
 	public localCategories:TwitchDataTypes.StreamCategory[] = [];
@@ -166,7 +166,7 @@ class StreamInfoSubForm extends Vue {
 	public onLabelsUpdate():void {
 		const labels:{id:string, enabled:boolean}[] = [];
 		for (let i = 0; i < this.param_labels.length; i++) {
-			labels.push( {id:this.param_labels[i].storage as string, enabled:this.param_labels[i].value === true});
+			labels.push( {id:this.param_labels[i].storage!, enabled:this.param_labels[i].value === true});
 		}
 		this.$emit('update:labels', labels);
 	}
@@ -209,7 +209,7 @@ class StreamInfoSubForm extends Vue {
 
 		//Set classification label states
 		for (let i = 0; i < this.param_labels.length; i++) {
-			if(labels.find(v=>v.id === this.param_labels[i].storage as string)?.enabled === true) {
+			if(labels.find(v=>v.id === this.param_labels[i].storage!)?.enabled === true) {
 				this.param_labels[i].value = true;
 			}
 		}

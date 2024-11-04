@@ -1048,7 +1048,7 @@ export class MessageListFilter extends Vue {
 		}
 
 		for (let i = 0; i < ids.length; i++) {
-			const filter = this.filters.find(v => (v.storage as typeof TwitchatDataTypes.MessageListFilterTypes[number]).type === ids[i]);
+			const filter = this.filters.find(v => v.storage!.type === ids[i]);
 			if(filter) filter.value = true;
 		}
 

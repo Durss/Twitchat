@@ -78,7 +78,7 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 	public connecting:boolean = false;
 	public connectionFailed:boolean = false;
 	public voices:VoicemodTypes.Voice[] = [];
-	public voiceParams:TwitchatDataTypes.ParameterData<string>[] = [];
+	public voiceParams:TwitchatDataTypes.ParameterData<string, unknown, unknown, VoicemodTypes.Voice>[] = [];
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enable"};
 	public param_voiceIndicator:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, example:"voicemod_reset.png", labelKey:"voicemod.show_indicator"};
 	public permissions:TwitchatDataTypes.PermissionsData = {
@@ -189,7 +189,7 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 			const p = this.voiceParams[i];
 			const cmd = p.value.trim().toLowerCase();
 			if(cmd.length > 0) {
-				commandToVoiceID[cmd] = (p.storage as VoicemodTypes.Voice).id;
+				commandToVoiceID[cmd] = p.storage!.id;
 			}
 		}
 
@@ -232,8 +232,8 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 		};
 		this.voiceParams.push( data );
 		this.voiceParams.sort((a, b)=> {
-			if((a.storage as VoicemodTypes.Voice).friendlyName < (b.storage as VoicemodTypes.Voice).friendlyName) return -1;
-			if((a.storage as VoicemodTypes.Voice).friendlyName > (b.storage as VoicemodTypes.Voice).friendlyName) return 1;
+			if(a.storage!.friendlyName < b.storage!.friendlyName) return -1;
+			if(a.storage!.friendlyName > b.storage!.friendlyName) return 1;
 			return 0;
 		});
 		if(++this.loadCount === this.loadTotal) {
