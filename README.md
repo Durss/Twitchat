@@ -100,8 +100,8 @@ Create a `data/credentials/credentials.json` file and set the following content 
 	"twitch_client_secret": "",
 	"twitch_redirect_uri": "http://localhost:8080/oauth",
 	"twitch_scopes": [
-		"chat:read",
-		"chat:edit",
+		"chat:read+user:read:chat",
+		"chat:edit+user:write:chat",
 		"moderator:manage:announcements",
 		"moderator:manage:chat_messages",
 		"moderator:manage:shoutouts",
@@ -139,7 +139,8 @@ Create a `data/credentials/credentials.json` file and set the following content 
 		"moderator:manage:warnings",
 		"moderator:read:moderators",
 		"moderator:read:vips",
-		"moderator:read:suspicious_users"
+		"moderator:read:suspicious_users",
+		"bits:read"
 	],
 
 	"spotify_client_id": "",

@@ -2,6 +2,7 @@ export const TwitchScopes = {
 	CHAT_READ: "chat:read",
 	CHAT_READ_EVENTSUB: "user:read:chat",
 	CHAT_WRITE: "chat:edit",
+	CHAT_WRITE_EVENTSUB: "user:write:chat",
 	WHISPER_READ: "whispers:read",
 	WHISPER_WRITE: "user:manage:whispers",
 	SHOUTOUT: "moderator:manage:shoutouts",

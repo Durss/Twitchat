@@ -473,9 +473,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		if(this._client) {
 			if(replyTo) {
 				//@ts-ignore
-				this._client.reply(this._channelIdToLogin[channelId], text, replyTo.id);
+				// this._client.reply(this._channelIdToLogin[channelId], text, replyTo.id);
+				await TwitchUtils.sendMessage(channelId, text, replyTo.id);
 			}else{
-				this._client.say(this._channelIdToLogin[channelId], text);
+				// this._client.say(this._channelIdToLogin[channelId], text);
+				await TwitchUtils.sendMessage(channelId, text);
 			}
 		}
 		return true

@@ -57,7 +57,7 @@ export default class Config {
 	/**
 	 * List of twitch scopes that MUST be granted for twitchat to work
 	 */
-	public MANDATORY_TWITCH_SCOPES:TwitchScopesString[] = [TwitchScopes.CHAT_READ, TwitchScopes.CHAT_WRITE, TwitchScopes.SEND_ANNOUNCE, TwitchScopes.CHAT_READ_EVENTSUB];
+	public MANDATORY_TWITCH_SCOPES:TwitchScopesString[] = [TwitchScopes.CHAT_READ, TwitchScopes.CHAT_WRITE, TwitchScopes.SEND_ANNOUNCE, TwitchScopes.CHAT_READ_EVENTSUB, TwitchScopes.CHAT_WRITE_EVENTSUB];
 	/**
 	 * URL of twitchat's discord
 	 */
