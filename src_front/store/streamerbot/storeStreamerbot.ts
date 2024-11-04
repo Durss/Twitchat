@@ -92,7 +92,6 @@ export const storeStreamerbot = defineStore('streamerbot', {
 			args.longtime = args.time + ":" + date.getSeconds().toString().padStart(2, "0");
 			args.unixtime = Math.round(date.getTime()/1000);
 			args.eventSource = "Twitchat";
-			console.log(args);
 			socket.doAction({id}, args);
 		},
 		
@@ -107,7 +106,6 @@ export const storeStreamerbot = defineStore('streamerbot', {
 
 		async listActions():Promise<void> {
 			const actions = await socket.getActions()
-			console.log("LIST ACTIONS", actions.actions);
 			this.actionList = actions.actions;
 		}
 	} as IStreamerbotActions
