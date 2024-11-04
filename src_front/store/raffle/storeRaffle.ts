@@ -591,12 +591,9 @@ export const storeRaffle = defineStore('raffle', {
 								joinCount:1,
 								label:userData.display_name,
 								score:parseInt(users[key].value) || 1,
-								//FIXME Following won't work if joining from youtube chat.
-								//Sadly, for now I'm not storing the platform source of a per-user value (same for counters)
-								//so I can't track back the proper platform, hence, this hardcoded value 😬
 								user:{
 									id:userData.id,
-									platform:"twitch",
+									platform:users[key].platform || "twitch",
 									channel_id,
 								}
 							})
