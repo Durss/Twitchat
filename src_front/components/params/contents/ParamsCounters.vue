@@ -455,14 +455,14 @@ class ParamsCounters extends Vue implements IParameterContent {
 			for (const key in counter.users) {
 				//If entry has a login and login matches search
 				if(counter.users[key].login
-				&& counter.users[key].login?.toLowerCase().indexOf(search) > -1) {
+				&& counter.users[key].login!.toLowerCase().indexOf(search) > -1) {
 					entry.idToUsers[counter.id]!.push({
 						hide:false,
 						param:reactive({type:"number", value:counter.users[key].value, min:counter.min || undefined, max:counter.max || undefined}),
 						platform:counter.users[key].platform,
 						user:{
 							id:key,
-							login:counter.users[key].login,
+							login:counter.users[key].login!,
 						},
 					});
 				}
@@ -521,7 +521,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 		const twitchUsers = await TwitchUtils.getUserInfo(Object.keys(counterItem.counter.users!).filter(v=>counterItem.counter.users![v].platform == "twitch"));
 		if(twitchUsers.length > 0) {
 			const channelId = this.$store.auth.twitch.user.id;
-			const ttUsers:UserEntry[] = twitchUsers.map((u) => {
+			twitchUsers.forEach((u) => {
 				const entry = counterItem.counter.users![u.id];
 				if(!entry) return null;
 				const value = entry.value || 0;
@@ -542,9 +542,8 @@ class ParamsCounters extends Vue implements IParameterContent {
 						avatar:user.avatarPath,
 					}, 
 				}
-				return res;
-			}).filter(v=>v != null);
-			entries = entries.concat(ttUsers);
+				entries.push(res);
+			});
 		}
 		
 		const youtubeIds = Object.keys(counterItem.counter.users!).filter(v=>counterItem.counter.users![v].platform == "youtube");
@@ -552,7 +551,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 			if(YoutubeHelper.instance.connected) {
 				const youtubeUsers = await YoutubeHelper.instance.getUserListInfo(youtubeIds);
 				if(youtubeUsers.length > 0) {
-					const ttUsers:UserEntry[] = youtubeUsers.map((user) => {
+					youtubeUsers.forEach((user) => {
 						const entry = counterItem.counter.users![user.id];
 						if(!entry) return null;
 						const value = entry.value || 0;
@@ -572,11 +571,11 @@ class ParamsCounters extends Vue implements IParameterContent {
 							}, 
 						}
 						return res;
-					}).filter(v=>v != null);
-					entries = entries.concat(ttUsers);
+					entries.push(res);
+				});
 				}
 			}else{
-				const ttUsers:UserEntry[] = youtubeIds.map((uid) => {
+				youtubeIds.forEach((uid) => {
 					const entry = counterItem.counter.users![uid];
 					if(!entry) return null;
 					const value = entry.value || 0;
@@ -590,9 +589,8 @@ class ParamsCounters extends Vue implements IParameterContent {
 							login:entry.login || "[Youtube User #"+uid.substring(0,5)+"...]", 
 						}, 
 					}
-					return res;
-				}).filter(v=>v != null);
-				entries = entries.concat(ttUsers);
+					entries.push(res);
+				});
 				counterItem.idToYoutubeConnect[counterItem.counter.id] = true;
 			}
 		}

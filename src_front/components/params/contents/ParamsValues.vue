@@ -384,14 +384,14 @@ class ParamsValues extends Vue implements IParameterContent {
 			for (const key in value.users) {
 				//If entry has a login and login matches search
 				if(value.users[key].login
-				&& value.users[key].login?.toLowerCase().indexOf(search) > -1) {
+				&& value.users[key].login!.toLowerCase().indexOf(search) > -1) {
 					entry.idToUsers[value.id]!.push({
 						hide:false,
 						param:reactive({type:"string", value:value.users[key].value, maxLength:100000}),
 						platform:value.users[key].platform,
 						user:{
 							id:key,
-							login:value.users[key].login,
+							login:value.users[key].login!,
 						},
 					});
 				}
@@ -452,7 +452,7 @@ class ParamsValues extends Vue implements IParameterContent {
 		const twitchUsers = await TwitchUtils.getUserInfo(Object.keys(valueItem.value.users!).filter(v=>valueItem.value.users![v].platform == "twitch"));
 		if(twitchUsers.length > 0) {
 			const channelId = this.$store.auth.twitch.user.id;
-			const ttUsers:UserEntry[] = twitchUsers.map((u) => {
+			twitchUsers.forEach((u) => {
 				const entry = valueItem.value.users![u.id];
 				if(!entry) return null;
 				const value = entry.value || "";
@@ -473,9 +473,8 @@ class ParamsValues extends Vue implements IParameterContent {
 						avatar:user.avatarPath,
 					}, 
 				}
-				return res;
-			}).filter(v=>v != null);
-			entries = entries.concat(ttUsers);
+				entries.push(res);
+			});
 		}
 		
 		//Get YouTube users
@@ -484,7 +483,7 @@ class ParamsValues extends Vue implements IParameterContent {
 			if(YoutubeHelper.instance.connected) {
 				const youtubeUsers = await YoutubeHelper.instance.getUserListInfo(youtubeIds);
 				if(youtubeUsers.length > 0) {
-					const ttUsers:UserEntry[] = youtubeUsers.map((user) => {
+					youtubeUsers.forEach((user) => {
 						const entry = valueItem.value.users![user.id];
 						if(!entry) return null;
 						const value = entry.value || "";
@@ -503,12 +502,11 @@ class ParamsValues extends Vue implements IParameterContent {
 								avatar:user.avatarPath,
 							}, 
 						}
-						return res;
-					}).filter(v=>v != null);
-					entries = entries.concat(ttUsers);
+						entries.push(res);
+					});
 				}
 			}else{
-				const ttUsers:UserEntry[] = youtubeIds.map((uid) => {
+				youtubeIds.forEach((uid) => {
 					const entry = valueItem.value.users![uid];
 					if(!entry) return null;
 					const value = entry.value || "";
@@ -522,10 +520,9 @@ class ParamsValues extends Vue implements IParameterContent {
 							login:entry.login || "[Youtube User #"+uid.substring(0,5)+"...]", 
 						}, 
 					}
-					return res;
-				}).filter(v=>v != null);
+					entries.push(res);
+				});
 
-				entries = entries.concat(ttUsers);
 				valueItem.idToYoutubeConnect[valueItem.value.id] = true;
 			}
 		}
