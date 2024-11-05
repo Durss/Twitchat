@@ -2576,128 +2576,150 @@ export default class TriggerActionHandler {
 							let searchTerms = "";
 							let playlistTarget:TwitchatDataTypes.MessageMusicAddedToQueueData["playlistTarget"] = undefined;
 							let trackData:TwitchatDataTypes.MusicTrackData|undefined = undefined;
+							let allowSR = true;
 							if(SpotifyHelper.instance.connected) {
-								const playlistMode = step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST;
-								//Requested to add a track to a playlist, search for the playlost
-								if(playlistMode) {
-									let m:string = step.playlist;
-									if(message.type == "message") {
-										m = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, m, subEvent);
-									}
-									let id:string|null = null;
-									if(/open\.spotify\.com\/playlist\/.*/gi.test(m)) {
-										const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
-										id = chunks[2];
-									}
-
-									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Getting playlist by: "+(id || m)});
-									const playlist = await SpotifyHelper.instance.getUserPlaylist(id, m);
-									if(!playlist) {
-										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Playlist not found"});
-										logStep.error = true;
-										log.error = true;
-										const platforms:TwitchatDataTypes.ChatPlatform[] = [];
-										if(message.platform) platforms.push(message.platform);
-										// MessengerProxy.instance.sendMessage("Playlist not found", platforms);
-									}else{
-										playlistTarget = {
-											id:playlist.id,
-											title:playlist.name,
-											url:playlist.external_urls?.spotify,
-											cover:playlist.images && playlist.images.length > 0? playlist.images[0].url : "",
-										};
-
-										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Playlist found: "+(playlistTarget.title)+" : ID "+playlistTarget.id});
-									}
+								const maxPerUser = step.maxPerUser || 0;
+								let pendingCount = 0;
+								if(executingUser && maxPerUser > 0) {
+									pendingCount = SpotifyHelper.instance.getPendingTracksForUser(executingUser);
+									allowSR = pendingCount < maxPerUser;
 								}
+								if(!allowSR) {
+									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] User has "+pendingCount+" trakcs in the queue for a maximum of "+maxPerUser+" per user allowed."});
+									log.error = true;
+									logStep.error = true;
+									failCode = "spotify_max_per_user_reached";
 
-								let track:SearchTrackItem|null = null;
-								if(/open\.spotify\.[a-z]{2,}\/.*track\/.*/gi.test(m)) {
-									//Full URL specified, extract the ID from it
-									let url = m;
-									//Add protocol if missing
-									if(!/https?:\/\//.test(url)) url = "https://"+url;
-									try {
-										const chunks = new URL(url).pathname.split(/\//gi);
-										const id = chunks.pop()!;
-										track = await SpotifyHelper.instance.getTrackByID(id);
-										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Get track by ID success: "+(track != null)+" : TRACK ID "+id});
-									}catch(error) {
+								}else{
+									const playlistMode = step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST;
+									//Requested to add a track to a playlist, search for the playlost
+									if(playlistMode) {
+										let m:string = step.playlist;
+										if(message.type == "message") {
+											m = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, m, subEvent);
+										}
+										let id:string|null = null;
+										if(/open\.spotify\.com\/playlist\/.*/gi.test(m)) {
+											const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
+											id = chunks[2];
+										}
+	
+										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Getting playlist by: "+(id || m)});
+										const playlist = await SpotifyHelper.instance.getUserPlaylist(id, m);
+										if(!playlist) {
+											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Playlist not found"});
+											logStep.error = true;
+											log.error = true;
+											const platforms:TwitchatDataTypes.ChatPlatform[] = [];
+											if(message.platform) platforms.push(message.platform);
+											// MessengerProxy.instance.sendMessage("Playlist not found", platforms);
+										}else{
+											playlistTarget = {
+												id:playlist.id,
+												title:playlist.name,
+												url:playlist.external_urls?.spotify,
+												cover:playlist.images && playlist.images.length > 0? playlist.images[0].url : "",
+											};
+	
+											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Playlist found: "+(playlistTarget.title)+" : ID "+playlistTarget.id});
+										}
+									}
+	
+									let track:SearchTrackItem|null = null;
+									if(/open\.spotify\.[a-z]{2,}\/.*track\/.*/gi.test(m)) {
+										//Full URL specified, extract the ID from it
+										let url = m;
+										//Add protocol if missing
+										if(!/https?:\/\//.test(url)) url = "https://"+url;
+										try {
+											const chunks = new URL(url).pathname.split(/\//gi);
+											const id = chunks.pop()!;
+											track = await SpotifyHelper.instance.getTrackByID(id);
+											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Get track by ID success: "+(track != null)+" : TRACK ID "+id});
+										}catch(error) {
+											logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Unsupported track URL : "+m});
+											log.error = true;
+											logStep.error = true;
+											failCode = "wrong_url";
+										}
+									}else if(/spotify\..[a-z]{2,}\/.*/gi.test(m)) {
 										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Unsupported track URL : "+m});
 										log.error = true;
 										logStep.error = true;
 										failCode = "wrong_url";
-									}
-								}else if(/spotify\..[a-z]{2,}\/.*/gi.test(m)) {
-									logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Unsupported track URL : "+m});
-									log.error = true;
-									logStep.error = true;
-									failCode = "wrong_url";
-								}else{
-									//No URL given, search with API
-									searchTerms = m;
-									const tracks = await SpotifyHelper.instance.searchTrack(m);
-									if(tracks && tracks.length > 0) {
-										switch(step.musicSelectionType) {
-											case "2": track = tracks.length > 1? tracks[1] : tracks.pop()!; break;
-											case "3": track = tracks.length > 2? tracks[2] : tracks.pop()!; break;
-											case "top3": track = Utils.pickRand(tracks.splice(0, 3)); break;
-											case "top5": track = Utils.pickRand(tracks.splice(0, 5)); break;
-											case "top10": track = Utils.pickRand(tracks.splice(0, 10)); break;
-											case "top15": track = Utils.pickRand(tracks.splice(0, 15)); break;
-											case "top20": track = Utils.pickRand(tracks.splice(0, 20)); break;
-											case "top25": track = Utils.pickRand(tracks.splice(0, 25)); break;
-											case "top30": track = Utils.pickRand(tracks.splice(0, 30)); break;
-											case "top40": track = Utils.pickRand(tracks.splice(0, 40)); break;
-											case "top50": track = Utils.pickRand(tracks.splice(0, 50)); break;
-											default:
-											case "1": track = tracks[0]; break;
+									}else{
+										//No URL given, search with API
+										searchTerms = m;
+										const tracks = await SpotifyHelper.instance.searchTrack(m);
+										if(tracks && tracks.length > 0) {
+											switch(step.musicSelectionType) {
+												case "2": track = tracks.length > 1? tracks[1] : tracks.pop()!; break;
+												case "3": track = tracks.length > 2? tracks[2] : tracks.pop()!; break;
+												case "top3": track = Utils.pickRand(tracks.splice(0, 3)); break;
+												case "top5": track = Utils.pickRand(tracks.splice(0, 5)); break;
+												case "top10": track = Utils.pickRand(tracks.splice(0, 10)); break;
+												case "top15": track = Utils.pickRand(tracks.splice(0, 15)); break;
+												case "top20": track = Utils.pickRand(tracks.splice(0, 20)); break;
+												case "top25": track = Utils.pickRand(tracks.splice(0, 25)); break;
+												case "top30": track = Utils.pickRand(tracks.splice(0, 30)); break;
+												case "top40": track = Utils.pickRand(tracks.splice(0, 40)); break;
+												case "top50": track = Utils.pickRand(tracks.splice(0, 50)); break;
+												default:
+												case "1": track = tracks[0]; break;
+											}
 										}
+										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Search track with selection \""+(step.musicSelectionType || "1")+"\": "+(track != null? 'success' : 'failed')});
 									}
-									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Search track with selection \""+(step.musicSelectionType || "1")+"\": "+(track != null? 'success' : 'failed')});
-								}
-								if(track) {
-									if(step.limitDuration === true && track.duration_ms > maxDuration) {
-										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Track is longer than the allowed "+Utils.formatDuration(maxDuration)+"s"});
-										failCode = "max_duration";
-									}else {
-										let success:string|boolean = false;
-										if(playlistMode && playlistTarget) {
-											success = await SpotifyHelper.instance.addToPlaylist(track, playlistTarget.id);
-										}else{
-											success = await SpotifyHelper.instance.addToQueue(track, false, executingUser, searchTerms);
+									if(track) {
+										if(step.limitDuration === true && track.duration_ms > maxDuration) {
+											logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Track is longer than the allowed "+Utils.formatDuration(maxDuration)+"s"});
+											failCode = "max_duration";
+										}else {
+											let success:string|boolean = false;
+											if(playlistMode && playlistTarget) {
+												success = await SpotifyHelper.instance.addToPlaylist(track, playlistTarget.id);
+											}else{
+												success = await SpotifyHelper.instance.addToQueue(track, false, executingUser, searchTerms);
+											}
+											if(success === true) {
+												logStep.messages.push({date:Date.now(), value:"✔ [SPOTIFY] Add to "+(playlistMode? "playlist": "queue")+" success"});
+												trackData = {
+													id:track.id,
+													title:track.name,
+													artist:track.artists[0].name,
+													album:track.album.name,
+													cover:track.album.images[0].url,
+													duration:track.duration_ms,
+													url:track.external_urls.spotify,
+												};
+											}else if(success == "NO_ACTIVE_DEVICE") {
+												logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] No active device found"});
+												log.error = true;
+												logStep.error = true;
+												failCode = "no_active_device";
+	
+											}else{
+												logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Add to "+(playlistMode? "playlist": "queue")+" failed with reason: "+success});
+												log.error = true;
+												logStep.error = true;
+												failCode = playlistMode? "api_playlist" : "api_queue";
+											}
 										}
-										if(success === true) {
-											logStep.messages.push({date:Date.now(), value:"✔ [SPOTIFY] Add to "+(playlistMode? "playlist": "queue")+" success"});
-											trackData = {
-												id:track.id,
-												title:track.name,
-												artist:track.artists[0].name,
-												album:track.album.name,
-												cover:track.album.images[0].url,
-												duration:track.duration_ms,
-												url:track.external_urls.spotify,
-											};
-										}else if(success == "NO_ACTIVE_DEVICE") {
-											logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] No active device found"});
-											log.error = true;
-											logStep.error = true;
-											failCode = "no_active_device";
-
-										}else{
-											logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Add to "+(playlistMode? "playlist": "queue")+" failed with reason: "+success});
-											log.error = true;
-											logStep.error = true;
-											failCode = playlistMode? "api_playlist" : "api_queue";
-										}
+									}else{
+										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Searching track failed, no result found for search \""+m+"\""});
+										log.error = true;
+										logStep.error = true;
+										failCode = "no_result";
 									}
-								}else{
-									logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Searching track failed, no result found for search \""+m+"\""});
-									log.error = true;
-									logStep.error = true;
-									failCode = "no_result";
 								}
 							}
+
+							const failReason = StoreProxy.i18n.t("triggers.actions.music.fail_reasons."+failCode,
+												{
+													DURATION:Utils.formatDuration((step.maxDuration || 0)*1000)+"s",
+													SEARCH:m,
+													USER:executingUser?.displayNameOriginal || "",
+												});
 
 							const trackAddedMesssageData:TwitchatDataTypes.MessageMusicAddedToQueueData = {
 								id:Utils.getUUID(),
@@ -2710,7 +2732,7 @@ export default class TriggerActionHandler {
 								user:executingUser,
 								triggerIdSource:trigger.id,
 								failCode,
-								failReason:StoreProxy.i18n.t("triggers.actions.music.fail_reasons."+failCode, {DURATION:Utils.formatDuration(maxDuration)+"s", SEARCH:m}),
+								failReason,
 								search:m,
 								maxDuration:step.maxDuration,
 								channel_id:message.channel_id,
@@ -2733,7 +2755,7 @@ export default class TriggerActionHandler {
 								if(step.failMessage) {
 									const confirmPH = TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE);
 									let chatMessage = await this.parsePlaceholders(dynamicPlaceholders, confirmPH, trigger, trackAddedMesssageData, step.failMessage, subEvent, false);
-									chatMessage = chatMessage.replace(/\{FAIL_REASON\}/gi, StoreProxy.i18n.t("triggers.actions.music.fail_reasons."+failCode, {DURATION:Utils.formatDuration((step.maxDuration || 0)*1000), SEARCH:m}));
+									chatMessage = chatMessage.replace(/\{FAIL_REASON\}/gi, failReason);
 									MessengerProxy.instance.sendMessage(chatMessage);
 								}
 

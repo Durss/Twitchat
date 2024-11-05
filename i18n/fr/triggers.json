@@ -221,6 +221,8 @@
 				"param_max_duration": "N'autoriser que les morceaux de moins de {VALUE}s",
 				"param_playlist": "Playlist\n(nom, URL ou ID)",
 				"param_selection": "Morceau à sélectionner\n(dans le cas d'une recherche textuelle)",
+				"param_limit_perUser": "Limiter le nombre de morceau par personne dans la file d'attente",
+				"param_max_perUser": "Une personne peut avoir {VALUE} morceau max en attente|Une personne peut avoir {VALUE} morceau max en attente|Une personne peut avoir {VALUE} morceaux max en attente",
 				"param_selection_options": {
 					"1": "Le plus pertinent",
 					"2": "Le 2ème plus pertinent",
@@ -238,6 +240,7 @@
 				"missing_playlist_edit_scopes":"Twitchat needs permissions to edit your playlists",
 				"spotify_only": "Fonctionne uniquement avec Spotify",
 				"fail_reasons": {
+					"spotify_max_per_user_reached": "{USER} a atteint le maximum de morceaux autorisés en file d'attente",
 					"spotify_not_connected": "Twitchat n'est pas connecté à Spotify",
 					"wrong_url": "L'URL donnée n'est pas une URL Spotify valide",
 					"max_duration": "Le morceau est plus long que le maximum autorisé de {DURATION}",

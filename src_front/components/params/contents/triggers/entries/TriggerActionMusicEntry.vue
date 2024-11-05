@@ -21,6 +21,9 @@
 			<ParamItem v-if="showTrackInput"			:paramData="param_limitDuration"		v-model="action.limitDuration">
 				<ParamItem v-if="showTrackInput"		:paramData="param_maxDuration"			v-model="action.maxDuration" class="child" noBackground />
 			</ParamItem>
+			<ParamItem v-if="showTrackInput"			:paramData="param_maxPerUser"			v-model="param_maxPerUser.value">
+				<ParamItem v-if="showTrackInput"		:paramData="param_maxPerUser_value"		v-model="action.maxPerUser" class="child" noBackground />
+			</ParamItem>
 			<ParamItem v-if="showTrackInput"			:paramData="param_selection"			v-model="action.musicSelectionType" />
 			<ParamItem v-if="showTrackInput"			:paramData="param_track"				v-model="action.track" />
 			<ParamItem v-if="showTrackInput"			:paramData="param_confirmSongRequest"	v-model="action.confirmMessage" />
@@ -62,6 +65,8 @@ class TriggerActionMusicEntry extends AbstractTriggerActionEntry {
 	public param_failSongRequest:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"{FAIL_REASON}", icon:"cross", maxLength:500, labelKey:"triggers.actions.music.param_failSongRequest" };
 	public param_playlist:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"info", maxLength:500, labelKey:"triggers.actions.music.param_playlist" };
 	public param_selection:TwitchatDataTypes.ParameterData<TriggerActionMusicEntryDataSelection> = { type:"list", value:"1", icon:"search", labelKey:"triggers.actions.music.param_selection" };
+	public param_maxPerUser:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"user", labelKey:"triggers.actions.music.param_limit_perUser" };
+	public param_maxPerUser_value:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, min:0, max:99, icon:"number", labelKey:"triggers.actions.music.param_max_perUser"};
 
 	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected; }
 	public get showTrackInput():boolean { return this.param_actions.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE || this.param_actions.value == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST; }
@@ -94,6 +99,7 @@ class TriggerActionMusicEntry extends AbstractTriggerActionEntry {
 		if(!this.action.track) this.action.track = "";
 		if(!this.action.failMessage) this.action.failMessage = "";
 		if(!this.action.confirmMessage) this.action.confirmMessage = "";
+		if((this.action.maxPerUser ||0) > 0) this.param_maxPerUser.value = true;
 
 	}
 

@@ -677,6 +677,11 @@ export interface TriggerActionMusicEntryData extends TriggerActionData{
 	 */
 	limitDuration?:boolean;
 	/**
+	 * Maximum number of trakcs a user can have in the queue
+	 * -1 = unlimited
+	 */
+	maxPerUser?:number;
+	/**
 	 * Maximum track duration for a SR
 	 */
 	maxDuration?:number;

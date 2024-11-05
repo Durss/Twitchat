@@ -276,6 +276,7 @@ const UserDataSchema = {
 								track: {type:"string", maxLength:500},
 								limitDuration: {type:"boolean"},
 								maxDuration: {type:"number", minimum:0 , maximum:3600},
+								maxPerUser: {type:"number", minimum:0 , maximum:1000},
 								failMessage: {type:"string", maxLength:500},
 								confirmMessage: {type:"string", maxLength:500},
 								playlist: {type:"string", maxLength:500},

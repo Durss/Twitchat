@@ -221,6 +221,8 @@
 				"param_max_duration": "Only allow tracks shorter than {VALUE}s",
 				"param_playlist": "Playlist\n(name, link or ID)",
 				"param_selection": "Track result to select\n(for textual searches)",
+				"param_limit_perUser": "Limit number of tracks per user in the queue",
+				"param_max_perUser": "Users can have {VALUE} track in the queue at max|Users can have {VALUE} track in the queue at max|Users can have {VALUE} tracks in the queue at max",
 				"param_selection_options": {
 					"1": "Most relevant",
 					"2": "2nd most relevant",
@@ -238,6 +240,7 @@
 				"missing_playlist_edit_scopes":"Twitchat needs permissions to edit your playlists",
 				"spotify_only": "Only works with Spotify",
 				"fail_reasons": {
+					"spotify_max_per_user_reached": "{USER} reached the maximum number of tracks allowed in the queue",
 					"spotify_not_connected": "Twitchat is not connected with Spotify",
 					"wrong_url": "The given URL isn't a valid Spotify URL",
 					"max_duration": "The given track is longer than the {DURATION} maximum allowed",
