@@ -21,6 +21,8 @@
 		"resyncRewardsBt_tt": "Si vous avez modifié vos récompenses de points de chaîne, cliquez pour récupérer les changements",
 		"resyncExtensionBt": "Rafraîchir les extensions",
 		"resyncExtensionBt_tt": "Si vous avez ajouté ou modifié le status d'une extension, cliquez pour récupérer les changements",
+		"resyncmixitupBt": "Rafraîchir Mix It Up",
+		"resyncmixitupBt_tt": "Si vous avez ajouté ou modifié des commandes Mix It Up, cliquez pour récupérer les changements",
 		"delete_confirm": "Supprimer ce trigger ?",
 		"delete_action_confirm": "Supprimer l'action ?",
 		"delete_actions_confirm": "Supprimer toutes les action ?",

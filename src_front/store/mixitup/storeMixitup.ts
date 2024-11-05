@@ -68,7 +68,11 @@ export const storeMixitup = defineStore('mixitup', {
 					Arguments: Object.values(args).join("|"),
 				}),
 			};
-			await fetch("http://"+this.ip+":"+this.port+"/api/v2/commands/"+id, options);
+			try {
+				await fetch("http://"+this.ip+":"+this.port+"/api/v2/commands/"+id, options);
+			}catch(error) {
+				//Ignore
+			}
 		},
 		
 		saveConfigs():void {
@@ -84,12 +88,16 @@ export const storeMixitup = defineStore('mixitup', {
 				method:"GET",
 				headers: { "Content-Type": "application/json" },
 			};
-			const req = await fetch("http://"+this.ip+":"+this.port+"/api/v2/commands?pageSize=999999999", options);
-			if(req.status == 200) {
-				const json = await req.json() as {Commands:IMixitupState["commandList"], TotalCount:number};
-				this.commandList = json.Commands || [];
-			}else{
-				throw new Error("Failed to connect to MixItUp");
+			try {
+				const req = await fetch("http://"+this.ip+":"+this.port+"/api/v2/commands?pageSize=999999999", options);
+				if(req.status == 200) {
+					const json = await req.json() as {Commands:IMixitupState["commandList"], TotalCount:number};
+					this.commandList = json.Commands || [];
+				}else{
+					throw new Error("Failed to connect to MixItUp");
+				}
+			}catch(error) {
+				//Ignore
 			}
 		}
 	} as IMixitupActions

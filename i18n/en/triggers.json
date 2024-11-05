@@ -21,6 +21,8 @@
 		"resyncRewardsBt_tt": "If you modified your channel point rewards, click to get those updates",
 		"resyncExtensionBt": "Resync Twitch extensions",
 		"resyncExtensionBt_tt": "If you added or modified the status of an extension, click to get those changes",
+		"resyncmixitupBt": "Resync Mix It Up",
+		"resyncmixitupBt_tt": "If you added or modified a Mix It Up command, click to get those changes",
 		"delete_confirm": "Delete trigger?",
 		"delete_action_confirm": "Delete action?",
 		"delete_actions_confirm": "Delete all actions?",

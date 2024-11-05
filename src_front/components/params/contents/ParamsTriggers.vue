@@ -36,6 +36,13 @@
 				v-tooltip="$t('triggers.resyncExtensionBt_tt')"
 				:loading="loadingExtension">{{ $t('triggers.resyncExtensionBt') }}</Button>
 
+			<Button class="cta resyncBt" small
+				icon="mixitup"
+				v-if="$store.mixitup.connected"
+				@click="listMixItUp()"
+				v-tooltip="$t('triggers.resyncmixitupBt_tt')"
+				:loading="loadingMixItUp">{{ $t('triggers.resyncmixitupBt') }}</Button>
+
 			<Button class="cta" small
 				v-if="canTestTrigger"
 				icon="test"
@@ -123,6 +130,7 @@ class ParamsTriggers extends Vue implements IParameterContent {
 	public eventsCount:number = 0;
 	public showForm:boolean = false;
 	public loadingRewards:boolean = false;
+	public loadingMixItUp:boolean = false;
 	public loadingExtension:boolean = false;
 	public loadingOBSElements:boolean = false;
 	public headerKey:string = "triggers.header";
@@ -171,6 +179,9 @@ class ParamsTriggers extends Vue implements IParameterContent {
 		}
 		if(TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS])) {
 			this.listExtensions();
+		}
+		if(this.$store.mixitup.connected) {
+			this.listMixItUp();
 		}
 		//No trigger yet, just show form
 		if(this.noTrigger) {
@@ -344,6 +355,16 @@ class ParamsTriggers extends Vue implements IParameterContent {
 		this.extensions = list || [];
 		await Utils.promisedTimeout(200);//Just make sure the loading is visible in case query runs crazy fast
 		this.loadingExtension = false;
+	}
+
+	/**
+	 * Lists Mix It Up commands
+	 */
+	public async listMixItUp():Promise<void> {
+		this.loadingMixItUp = true;
+		this.$store.mixitup.listCommands();
+		await Utils.promisedTimeout(200);//Just make sure the loading is visible in case query runs crazy fast
+		this.loadingMixItUp = false;
 	}
 
 	/**
