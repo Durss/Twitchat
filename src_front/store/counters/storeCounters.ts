@@ -163,8 +163,9 @@ export const storeCounters = defineStore('counters', {
 				if(!c.users) c.users = {};
 				if(user) {
 					if(user.temporary || user.errored) return 0;
+					if(!c.users[user.id]) c.users[user.id] = {login:user.login, value:0, platform:user.platform};
 					counterValue = c.users[user.id].value || 0;
-				}else if(userId) {
+				}else if(userId && c.users[userId]) {
 					counterValue = c.users[userId].value || 0;
 				}
 			}
@@ -208,7 +209,8 @@ export const storeCounters = defineStore('counters', {
 			if(c.perUser) {
 				const uid = (user? user.id : userId) || "";
 				c.users![uid] = {
-					platform:user!.platform,
+					login: user?.login || c.users![uid].login,
+					platform: c.users![uid]?.platform || user?.platform || "twitch",
 					value:parseFloat(counterValue.toString())//Forcing parsing as float. For some unsolved reason there was very few cases where value became a string
 				}
 			}else{

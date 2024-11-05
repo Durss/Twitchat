@@ -114,6 +114,7 @@ export namespace TwitchatDataTypes {
 		users?:{[userId:string]:{
 			platform:ChatPlatform,
 			value:number;
+			login?:string;
 		}};
 		/**
 		 * Only available for counters overlay related to a "per user" counter
@@ -157,6 +158,7 @@ export namespace TwitchatDataTypes {
 		users?:{[userId:string]:{
 			platform:ChatPlatform,
 			value:string;
+			login?:string;
 		}};
 		/**
 		 * Is the counter disabled ?

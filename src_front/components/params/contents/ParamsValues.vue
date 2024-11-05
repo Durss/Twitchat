@@ -39,7 +39,7 @@
 			v-model="valueEntries"
 			direction="vertical"
 			group="values"
-			item-key="counter.id"
+			item-key="value.id"
 			:animation="250"
 			@sort="onSortItems()">
 				<template #item="{element:entry, index}:{element:ValueEntry, index:number}">
@@ -103,13 +103,17 @@
 										<div class="card-item userItem">
 											<div class="infos">
 												<div class="head">
-													<img :src="item.user.avatarPath" class="avatar" v-if="item.user.avatarPath" referrerpolicy="no-referrer">
-													<a v-if="item.user.platform == 'twitch'" :href="'https://twitch.tv/'+item.user.login" class="login" target="_blank">{{ item.user.displayNameOriginal }}</a>
-													<a v-else="item.user.platform == 'youtube'" :href="'https://www.youtube.com/channel/'+item.user.id" class="login" target="_blank">{{ item.user.displayNameOriginal }}</a>
+													<img :src="item.user.avatar" class="avatar" v-if="item.user.avatar" referrerpolicy="no-referrer">
+													<a v-if="item.platform == 'twitch'" :href="'https://twitch.tv/'+item.user.login" class="login" target="_blank">{{ item.user.login }}</a>
+													<a v-else-if="item.platform == 'youtube'" :href="'https://www.youtube.com/channel/'+item.user.id" class="login" target="_blank">{{ item.user.login }}</a>
+													<a v-else-if="item.platform == 'tiktok'" :href="'https://www.tiktok.com/@'+item.user.login" class="login" target="_blank">{{ item.user.login }}</a>
+													<Icon name="twitch" v-if="item.platform == 'twitch'" />
+													<Icon name="youtube" v-else-if="item.platform == 'youtube'" />
+													<Icon name="tiktok" v-else-if="item.platform == 'tiktok'" />
 												</div>
 												<ParamItem class="value" noBackground
-													:paramData="item.param"
-													@input="onChangeValue(entry, item)" />
+												:paramData="item.param"
+												@input="onChangeValue(entry, item)" />
 											</div>
 											<button class="deleteBt" @click="deleteUser(entry, item)"><Icon name="trash" theme="light" /></button>
 										</div>
@@ -268,7 +272,7 @@ class ParamsValues extends Vue implements IParameterContent {
 		clearTimeout(this.timeoutEdit);
 		this.timeoutEdit = window.setTimeout(() => {
 			if(userEntry) {
-				this.$store.values.updateValue(entry.value.id, userEntry.param.value, userEntry.user);
+				this.$store.values.updateValue(entry.value.id, userEntry.param.value, undefined, userEntry.user.id);
 			}else{
 				this.$store.values.updateValue(entry.value.id, entry.param.value);
 			}
@@ -343,6 +347,8 @@ class ParamsValues extends Vue implements IParameterContent {
 	 */
 	public searchUser(entry:ValueEntry):void {
 		const value = entry.value;
+		const search = entry.search[value.id].toLowerCase();
+
 		let preloadedUsers = entry.idToUsers[value.id];
 		entry.idToNoResult[value.id] = false;
 		if(entry.search[value.id].length == 0) {
@@ -357,7 +363,7 @@ class ParamsValues extends Vue implements IParameterContent {
 			for (let i = 0; i < preloadedUsers.length; i++) {
 				const u = preloadedUsers[i];
 				u.hide = false;
-				if(u.user.login.indexOf(entry.search[value.id]) == -1 && u.user.displayNameOriginal.indexOf(entry.search[value.id]) == -1) {
+				if(u.user.login.indexOf(search) == -1 && u.user.login.toLowerCase().indexOf(search) == -1) {
 					u.hide = true;
 				}else{
 					hasResult = true;
@@ -371,25 +377,59 @@ class ParamsValues extends Vue implements IParameterContent {
 		}
 
 		entry.idToLoading[value.id] = true;
+		entry.idToUsers[value.id] = [];
+
+		//Search from "login" property if it exists
+		if(value.users) {
+			for (const key in value.users) {
+				//If entry has a login and login matches search
+				if(value.users[key].login
+				&& value.users[key].login?.toLowerCase().indexOf(search) > -1) {
+					entry.idToUsers[value.id]!.push({
+						hide:false,
+						param:reactive({type:"string", value:value.users[key].value, maxLength:100000}),
+						platform:value.users[key].platform,
+						user:{
+							id:key,
+							login:value.users[key].login,
+						},
+					});
+				}
+			}
+		}
 
 		//Users not loaded yet, search user from Twitch API
 		clearTimeout(this.timeoutSearch);
 		this.timeoutSearch = window.setTimeout(async () => {
-			const users = await TwitchUtils.getUserInfo(undefined, [entry.search[value.id]]);
+			const users = await TwitchUtils.getUserInfo(undefined, [search]);
 			let found = false;
 			if(users.length > 0) {
 				const u = users[0];
 				if(value.users![u.id] != undefined) {
 					found = true;
-					let v = (value.users && value.users[u.id])? value.users![u.id].value : "";
-					entry.idToUsers[value.id] = [{
+					//If user isn't already in the results
+					//and user is in the value users
+					if((entry.value.users || {})[u.id]) {
+						const existingIndex = (entry.idToUsers[value.id] ||[]).findIndex(v=>v.user.id === u.id);
+						const userEntry:UserEntry = {
 							hide:false,
-							param:reactive({type:"string", value:v, maxLength:100000}),
-							user:this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, u.id, u.login, u.display_name),
-						}];
+							param:reactive({type:"string", value:(value.users && value.users[u.id])? value.users![u.id].value : "", maxLength:100000}),
+							platform:"twitch",
+							user:{
+								id:u.id,
+								login:u.display_name,
+								avatar:u.profile_image_url,
+							},
+						}
+						if(existingIndex > -1){
+							entry.idToUsers[value.id]![existingIndex] = userEntry;
+						}else{
+							entry.idToUsers[value.id]!.push(userEntry);
+						}
+					}
 				}
 			}
-			entry.idToNoResult[value.id] = !found;
+			entry.idToNoResult[value.id] = (entry.idToUsers[value.id] || []).filter(v=>!v.hide).length == 0;
 			entry.idToLoading[value.id] = false;
 			
 		}, 500);
@@ -397,73 +437,106 @@ class ParamsValues extends Vue implements IParameterContent {
 
 	/**
 	 * Load all users
-	 * @param entry 
+	 * @param valueItem 
 	 */
-	public async loadUsers(entry:ValueEntry):Promise<void> {
-		entry.idToLoading[entry.value.id] = true;
+	public async loadUsers(valueItem:ValueEntry):Promise<void> {
+		if((valueItem.value.users || []).length == 0) return;
+		
+		valueItem.idToLoading[valueItem.value.id] = true;
 		let entries:UserEntry[] = [];
+		let loginUpdated:boolean = false;
 
 		clearTimeout(this.timeoutSearch);
-		const users = await TwitchUtils.getUserInfo(Object.keys(entry.value.users!));
-		// if(users.length > 0) {
-		// 	const channelId = this.$store.auth.twitch.user.id;
-		// 	const ttUsers:UserEntry[] = users.map((u) => {
-		// 		let value = (entry.value.users && entry.value.users[u.id])? entry.value.users![u.id].value : "";
-		// 		const param:TwitchatDataTypes.ParameterData<string> = reactive({type:'string', longText:true, value});
-		// 		const user = this.$store.users.getUserFrom("twitch", channelId, u.id, u.login, u.display_name);
-		// 		user.avatarPath = u.profile_image_url;
-		// 		const res:UserEntry = { param, user, hide:false };
-		// 		return res;
-		// 	});
-		// 	entry.idToAllLoaded[entry.value.id] = true;
-		// 	entry.idToUsers[entry.value.id] = ttUsers;
-		// }
-
-		const twitchUsers = await TwitchUtils.getUserInfo(Object.keys(entry.value.users!).filter(v=>entry.value.users![v].platform == "twitch"));
+		
+		//Get Twitch users
+		const twitchUsers = await TwitchUtils.getUserInfo(Object.keys(valueItem.value.users!).filter(v=>valueItem.value.users![v].platform == "twitch"));
 		if(twitchUsers.length > 0) {
 			const channelId = this.$store.auth.twitch.user.id;
 			const ttUsers:UserEntry[] = twitchUsers.map((u) => {
-				let value = (entry.value.users && entry.value.users[u.id])? entry.value.users![u.id].value : "";
+				const entry = valueItem.value.users![u.id];
+				if(!entry) return null;
+				const value = entry.value || "";
 				const param:TwitchatDataTypes.ParameterData<string> = reactive({type:'string', longText:true, value});
 				const user = this.$store.users.getUserFrom("twitch", channelId, u.id, u.login, u.display_name);
+				if(entry.login != u.login){
+					entry.login = u.login;//Refresh login
+					loginUpdated = true;
+				}
 				user.avatarPath = u.profile_image_url;
-				return { param, user, hide:false };
-			});
+				const res:UserEntry = { 
+					param, 
+					hide:false,
+					platform:"twitch",
+					user:{
+						id:user.id,
+						login:user.displayNameOriginal, 
+						avatar:user.avatarPath,
+					}, 
+				}
+				return res;
+			}).filter(v=>v != null);
 			entries = entries.concat(ttUsers);
 		}
-
 		
-		const youtubeIds = Object.keys(entry.value.users!).filter(v=>entry.value.users![v].platform == "youtube");
+		//Get YouTube users
+		const youtubeIds = Object.keys(valueItem.value.users!).filter(v=>valueItem.value.users![v].platform == "youtube");
 		if(youtubeIds.length > 0) {
 			if(YoutubeHelper.instance.connected) {
-				console.log("Connected?",YoutubeHelper.instance.connected)
 				const youtubeUsers = await YoutubeHelper.instance.getUserListInfo(youtubeIds);
 				if(youtubeUsers.length > 0) {
 					const ttUsers:UserEntry[] = youtubeUsers.map((user) => {
-						let value = (entry.value.users && entry.value.users[user.id])? entry.value.users![user.id].value : "";
+						const entry = valueItem.value.users![user.id];
+						if(!entry) return null;
+						const value = entry.value || "";
 						const param:TwitchatDataTypes.ParameterData<string> = reactive({type:'string', longText:true, value});
-						return { param, user, hide:false };
-					});
+						if(entry.login != user.login){
+							entry.login = user.login;//Refresh login
+							loginUpdated = true;
+						}
+						const res:UserEntry = { 
+							param, 
+							hide:false,
+							platform:"youtube",
+							user:{
+								id:user.id,
+								login:user.displayNameOriginal, 
+								avatar:user.avatarPath,
+							}, 
+						}
+						return res;
+					}).filter(v=>v != null);
 					entries = entries.concat(ttUsers);
 				}
 			}else{
-				const ttUsers:UserEntry[] = youtubeIds.map((id) => {
-					let value = (entry.value.users && entry.value.users[id])? entry.value.users![id].value : "";
+				const ttUsers:UserEntry[] = youtubeIds.map((uid) => {
+					const entry = valueItem.value.users![uid];
+					if(!entry) return null;
+					const value = entry.value || "";
 					const param:TwitchatDataTypes.ParameterData<string> = reactive({type:'string', longText:true, value});
-					const user = this.$store.users.getUserFrom("youtube", id, id, id, "[Youtube User #"+id.substring(0,5)+"...]");
-					return { param, user, hide:false };
-				});
+					const res:UserEntry = { 
+						param, 
+						hide:false,
+						platform:"youtube",
+						user:{
+							id:uid,
+							login:entry.login || "[Youtube User #"+uid.substring(0,5)+"...]", 
+						}, 
+					}
+					return res;
+				}).filter(v=>v != null);
+
 				entries = entries.concat(ttUsers);
-				entry.idToYoutubeConnect[entry.value.id] = true;
+				valueItem.idToYoutubeConnect[valueItem.value.id] = true;
 			}
 		}
 		
 		if(entries.length > 0) {
-			entry.idToAllLoaded[entry.value.id] = true;
-			entry.idToUsers[entry.value.id] = entries;
+			valueItem.idToAllLoaded[valueItem.value.id] = true;
+			valueItem.idToUsers[valueItem.value.id] = entries;
 		}
+		valueItem.idToLoading[valueItem.value.id] = false;
 
-		entry.idToLoading[entry.value.id] = false;
+		if(loginUpdated) this.$store.values.saveValues();
 	}
 
 	/**
@@ -508,7 +581,7 @@ class ParamsValues extends Vue implements IParameterContent {
 	}
 
 	/**
-	 * Called when counters are sorted
+	 * Called when values are sorted
 	 * Applies the sorting to original cata array
 	 */
 	public onSortItems():void {
@@ -568,7 +641,12 @@ interface ValueEntry {
 
 interface UserEntry {
 	param:TwitchatDataTypes.ParameterData<string>,
-	user:TwitchatDataTypes.TwitchatUser,
+	platform:TwitchatDataTypes.ChatPlatform;
+	user:{
+		id:string;
+		login:string;
+		avatar?:string;
+	},
 	hide:boolean,
 }
 
@@ -742,6 +820,9 @@ export default toNative(ParamsValues);
 								height: 100%;
 								border-radius: 50%;
 								width: 2em;
+							}
+							.icon {
+								height: 1em;
 							}
 						}
 						.value {

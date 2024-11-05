@@ -1361,6 +1361,7 @@ const UserDataSchema = {
 										type:"object",
 										additionalProperties: false,
 										properties:{
+											login: {type:"string", maxLength:100},
 											platform: {type:"string", maxLength:40},
 											value: {type:"string", maxLength:100000},
 										}
@@ -1411,6 +1412,7 @@ const UserDataSchema = {
 										type:"object",
 										additionalProperties: false,
 										properties:{
+											login: {type:"string", maxLength:100},
 											platform: {type:"string", maxLength:40},
 											value: {type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 										}

@@ -98,7 +98,8 @@ export const storeValues = defineStore('values', {
 							prevValue = entry.users![uid].value;
 							entry.users![uid] = {
 								value: value,
-								platform: user!.platform || "twitch",
+								platform: user?.platform || entry.users![uid]?.platform || "twitch",
+								login: user?.login || entry.users![uid]?.platform,
 							};
 						}
 					}else{
