@@ -17,6 +17,7 @@ export const storePatreon = defineStore('patreon', {
 		token: null,
 		isMember: false,
 		connected: false,
+		isFakeConnection: false,
 		oauthFlowParams: null,
 		webhookExists: false,
 		webhookScopesGranted: false,
@@ -84,7 +85,7 @@ export const storePatreon = defineStore('patreon', {
 		 * Disconnects the user
 		 */
 		disconnect():void {
-			ApiHelper.call("patreon/user/webhook", "DELETE", {token:this.token!.access_token});
+			ApiHelper.call("patreon/user/webhook", "DELETE", {token:this.token!.access_token}, false);
 			this.connected = false;
 			this.isMember = false;
 			this.token = null;
@@ -139,11 +140,12 @@ export const storePatreon = defineStore('patreon', {
 					expires_at: Date.now() + res.json.data.expires_in,
 					scopes: res.json.data.scope.split(" ") as PatreonDataTypes.AuthTokenInfo["scopes"],
 				};
-				this.webhookScopesGranted = this.token.scopes.includes("w:campaigns.webhook") || false
+				this.webhookScopesGranted = this.token.scopes.includes("w:campaigns.webhook");
 		
 				DataStore.set(DataStore.PATREON_AUTH_TOKEN, this.token);
 				await this.loadMemberState();
 				this.connected = true;
+				this.isFakeConnection = false;
 		
 				clearTimeout(refreshTimeout);
 				refreshTimeout = window.setTimeout(()=> {
@@ -224,6 +226,12 @@ export const storePatreon = defineStore('patreon', {
 				DataStore.remove(DataStore.PATREON_AUTH_TOKEN);
 				StoreProxy.common.alert(StoreProxy.i18n.t("error.patreon_disconected"));
 			}
+		},
+
+		fakeConnectedState():void {
+			this.connected = true;
+			this.isFakeConnection = true;
+			this.webhookScopesGranted = true;
 		},
 
 	} as IPatreonActions

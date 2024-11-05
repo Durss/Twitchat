@@ -352,6 +352,7 @@ type ApiEndpoints =  {
 					donorLevel:number;
 					lifetimePercent:number;
 					discordLinked:boolean;
+					patreonLinked:string;
 					dataSharing:string[];
 				}
 			}

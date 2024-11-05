@@ -171,7 +171,7 @@ export default class PatreonController extends AbstractController {
 			"Authorization":"Bearer "+token,
 			"User-Agent":this.userAgent,
 		};
-
+		
 		//Create new webhook
 		const options = {
 			method:"POST",
@@ -266,6 +266,11 @@ export default class PatreonController extends AbstractController {
 					}else{
 						webhookExists = true;
 						webhookID = entry.id;
+
+						const filePath = Config.patreonUid2WebhookSecret;
+						const json = JSON.parse(fs.existsSync(filePath)? fs.readFileSync(filePath, "utf8") : "{}");
+						json[campaignID] = {twitchId:user.user_id, secret:entry.attributes.secret};
+						fs.writeFileSync(filePath, JSON.stringify(json), "utf8");
 					}
 				}
 			});
@@ -285,19 +290,26 @@ export default class PatreonController extends AbstractController {
 	 * @param response
 	 */
 	public async deleteUserWebhook(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		const token:string = (request.body || request.query as any).token;
 		const webhookRes = await this.getUserWebhook(request, response, false);
 		if(!webhookRes) return;
-
-		const token:string = (request.body || request.query as any).token;
+		const webhook = webhookRes;
+		
 		const headers = {
 			'Content-Type': 'application/json',
 			"Authorization":"Bearer "+token,
 			"User-Agent":this.userAgent,
 		};
 
-		Logger.info("[PATREON] Delete user webhook for", webhookRes.user.login);
 		
-		await fetch("https://www.patreon.com/api/oauth2/v2/webhooks/"+webhookRes.webhookID, {method:"DELETE", headers});
+		//Delete webhook secret ref
+		const filePath = Config.patreonUid2WebhookSecret;
+		const json = JSON.parse(fs.existsSync(filePath)? fs.readFileSync(filePath, "utf8") : "{}") as {[id:string]:{twitchId:string, secret:string}};
+		Logger.info("[PATREON] Delete user webhook for", json[webhook.campaignID].twitchId);
+		delete json[webhook.campaignID];
+		fs.writeFileSync(filePath, JSON.stringify(json), "utf8");
+		
+		await fetch("https://www.patreon.com/api/oauth2/v2/webhooks/"+webhook.webhookID, {method:"DELETE", headers});
 
 		response.header('Content-Type', 'application/json');
 		response.status(200);

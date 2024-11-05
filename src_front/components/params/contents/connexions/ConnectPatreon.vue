@@ -19,12 +19,17 @@
 			<TTButton icon="premium" @click="openPremium()" premium big>{{ $t('premium.become_premiumBt')  }}</TTButton>
 		</section>
 
-		<section v-else-if="!connected">
+		<section v-else-if="$store.patreon.isFakeConnection" class="card-item info">
+			<span><Icon name="info" />{{ $t("patreon.fakeConnection") }}</span>
+			<i>{{ $t("patreon.fakeConnection_disclaimer") }}</i>
+		</section>
+
+		<section v-if="$store.auth.isPremium && (!connected || $store.patreon.isFakeConnection)">
 			<TTButton type="link" :href="oAuthURL" target="_self" :loading="loading">{{ $t("global.connect") }}</TTButton>
 			<div class="card-item alert error" v-if="error" @click="error = false">{{ $t("error.streamelements_connect_failed") }}</div>
 		</section>
 
-		<section v-else>
+		<section v-else-if="!$store.patreon.isFakeConnection">
 			<TTButton alert @click="disconnect()">{{ $t("global.disconnect") }}</TTButton>
 		</section>
 
@@ -60,13 +65,15 @@ class ConnectPatreon extends Vue {
 	public get connected():boolean { return this.$store.patreon.connected && this.$store.patreon.webhookScopesGranted; }
 
 	public async mounted():Promise<void> {
-		if(!this.connected) {
+		if(this.$store.patreon.oauthFlowParams) {
 			this.loading = true;
 			if(!await this.$store.patreon.completeOAuthFlow()) {
 				await this.loadAuthURL();
 			}else{
 				this.loading = false;
 			}
+		}else if(this.$store.patreon.isFakeConnection){
+			await this.loadAuthURL();
 		}
 		this.$store.debug.simulateMessage<TwitchatDataTypes.PatreonNewMemberData>(TwitchatDataTypes.TwitchatMessageType.PATREON, (mess) => {
 			mess.eventType = "new_member";
@@ -134,6 +141,17 @@ export default toNative(ConnectPatreon);
 		white-space: pre-line;
 		.button {
 			margin-top: .5em;
+		}
+	}
+
+	.info {
+		.icon {
+			height: 1em;
+			margin-right: .25em;
+		}
+		i {
+			font-size: .8em;
+			text-align: center
 		}
 	}
 }

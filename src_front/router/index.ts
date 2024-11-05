@@ -163,7 +163,7 @@ const routes: Array<RouteRecordRaw> = [
 				if(to.fullPath.indexOf("/premium") > -1) {
 					sParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 				}else{
-					sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, "patreon");
+					sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.PATREON);
 				}
 			}else{
 				StoreProxy.common.alert( StoreProxy.i18n.t("error.patreon_denied") );
