@@ -103,7 +103,8 @@
 										<div class="card-item userItem">
 											<div class="infos">
 												<div class="head">
-													<img :src="item.user.avatar" class="avatar" v-if="item.user.avatar" referrerpolicy="no-referrer">
+													<img v-if="item.user.avatar" :src="item.user.avatar" class="avatar" referrerpolicy="no-referrer">
+													<Icon v-else name="user" class="avatar" />
 													<a v-if="item.platform == 'twitch'" :href="'https://twitch.tv/'+item.user.login" class="login" target="_blank">{{ item.user.login }}</a>
 													<a v-else-if="item.platform == 'youtube'" :href="'https://www.youtube.com/channel/'+item.user.id" class="login" target="_blank">{{ item.user.login }}</a>
 													<a v-else-if="item.platform == 'tiktok'" :href="'https://www.tiktok.com/@'+item.user.login" class="login" target="_blank">{{ item.user.login }}</a>
@@ -527,6 +528,23 @@ class ParamsValues extends Vue implements IParameterContent {
 			}
 		}
 		
+		for (const uid in valueItem.value.users) {
+			const user = valueItem.value.users[uid];
+			//If entry does not exists in the loaded list, push it
+			if(entries.findIndex(v => v.user.id == uid) === -1) {
+				const value = user.value || "";
+				entries.push({
+					hide:false,
+					param:reactive({type:'string', longText:true, value}),
+					platform:user.platform,
+					user:{
+						id:uid,
+						login:user.login!,
+					},
+				});
+			}
+		}
+		
 		if(entries.length > 0) {
 			valueItem.idToAllLoaded[valueItem.value.id] = true;
 			valueItem.idToUsers[valueItem.value.id] = entries;
@@ -814,11 +832,11 @@ export default toNative(ParamsValues);
 								cursor: pointer;
 							}
 							.avatar {
-								height: 100%;
+								height: 2em;
 								border-radius: 50%;
-								width: 2em;
+								aspect-ratio: 1;
 							}
-							.icon {
+							.icon:not(.avatar) {
 								height: 1em;
 							}
 						}

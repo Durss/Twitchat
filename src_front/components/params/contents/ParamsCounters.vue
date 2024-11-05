@@ -124,7 +124,8 @@
 									lockScroll
 									v-slot="{ item } : {item:UserEntry}">
 										<div class="card-item userItem">
-											<img :src="item.user.avatar" class="avatar" v-if="item.user.avatar" referrerpolicy="no-referrer">
+											<img v-if="item.user.avatar" :src="item.user.avatar" class="avatar" referrerpolicy="no-referrer">
+											<Icon v-else name="user" class="avatar" />
 											<a v-if="item.platform == 'twitch'" :href="'https://twitch.tv/'+item.user.login" class="login" target="_blank">{{ item.user.login }}</a>
 											<a v-else-if="item.platform == 'youtube'" :href="'https://www.youtube.com/channel/'+item.user.id" class="login" target="_blank">{{ item.user.login }}</a>
 											<a v-else-if="item.platform == 'tiktok'" :href="'https://www.tiktok.com/@'+item.user.login" class="login" target="_blank">{{ item.user.login }}</a>
@@ -570,9 +571,8 @@ class ParamsCounters extends Vue implements IParameterContent {
 								avatar:user.avatarPath,
 							}, 
 						}
-						return res;
-					entries.push(res);
-				});
+						entries.push(res);
+					});
 				}
 			}else{
 				youtubeIds.forEach((uid) => {
@@ -592,6 +592,22 @@ class ParamsCounters extends Vue implements IParameterContent {
 					entries.push(res);
 				});
 				counterItem.idToYoutubeConnect[counterItem.counter.id] = true;
+			}
+		}
+		
+		for (const uid in counterItem.counter.users) {
+			const user = counterItem.counter.users[uid];
+			//If entry does not exists in the loaded list, push it
+			if(entries.findIndex(v => v.user.id == uid) === -1) {
+				entries.push({
+					hide:false,
+					param:reactive({type:"number", value:user.value, min:counterItem.counter.min || undefined, max:counterItem.counter.max || undefined}),
+					platform:user.platform,
+					user:{
+						id:uid,
+						login:user.login!,
+					},
+				});
 			}
 		}
 		
@@ -951,8 +967,9 @@ export default toNative(ParamsCounters);
 						width: 45%;
 					}
 					.avatar {
-						height: 100%;
+						height: 2em;
 						border-radius: 50%;
+						aspect-ratio: 1;
 					}
 					.value {
 						flex-basis: 100px;
@@ -971,7 +988,7 @@ export default toNative(ParamsCounters);
 							background-color: var(--color-alert-light);
 						}
 					}
-					.icon {
+					.icon:not(.avatar) {
 						height: 1em;
 					}
 				}
