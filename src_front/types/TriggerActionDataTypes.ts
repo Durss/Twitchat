@@ -97,6 +97,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionDeleteMessageData
 								| TriggerActionStreamerbotData
 								| TriggerActionSammiData
+								| TriggerActionMixitupData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -539,6 +540,19 @@ export interface TriggerActionSammiData extends TriggerActionData{
 	 */
 	sammiData?:{
 		buttonId:string;
+	};
+}
+
+export interface TriggerActionMixitupData extends TriggerActionData{
+	type:"mixitup";
+	/**
+	 * Mix It Up params
+	 */
+	mixitupData?:{
+		commandId:string;
+		params?:{
+			value:string;
+		}[];
 	};
 }
 

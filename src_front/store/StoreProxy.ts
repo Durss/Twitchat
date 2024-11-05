@@ -3251,6 +3251,13 @@ export interface IMixitupActions {
 	 */
 	disconnect(): void;
 	/**
+	 * Executes given command
+	 * @param id 
+	 * @param platform 
+	 * @param args 
+	 */
+	execCommand(id:string, platform:TwitchatDataTypes.ChatPlatform, args?:{[key:string]:string}):Promise<void>;
+	/**
 	 * Saves current configs to store
 	 */
 	saveConfigs(): void;

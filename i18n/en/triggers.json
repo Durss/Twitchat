@@ -175,7 +175,9 @@
 				"action_streamerbot": "Streamer.bot action",
 				"action_streamerbot_tt": "You first need to connect Twitchat with Streamer.bot to use this action",
 				"action_sammi": "SAMMI action",
-				"action_sammi_tt": "You first need to connect Twitchat with SAMMI to use this action"
+				"action_sammi_tt": "You first need to connect Twitchat with SAMMI to use this action",
+				"action_mixitup": "Mix It Up action",
+				"action_mixitup_tt": "You first need to connect Twitchat with Mix It Up to use this action"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -592,6 +594,12 @@
 				"param_buttonId":"Button ID to trigger",
 				"need_to_connect": "This action requires you to {LINK}",
 				"need_to_connect_link": "connect with SAMMI"
+			},
+			"mixitup":{
+				"param_commandId":"Command to trigger",
+				"need_to_connect": "This action requires you to {LINK}",
+				"need_to_connect_link": "connect with Mix It Up",
+				"add_arg_bt":"Add parameter"
 			}
 		},
 		"categories": {

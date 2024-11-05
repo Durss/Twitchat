@@ -737,7 +737,7 @@ const UserDataSchema = {
 										params: {
 											type:"array",
 											minItems:0,
-											maxItems:20,
+											maxItems:40,
 											items: {
 												type: "object",
 												additionalProperties: false,
@@ -754,6 +754,25 @@ const UserDataSchema = {
 									additionalProperties: false,
 									properties: {
 										buttonId: {type:"string", maxLength:40},
+									}
+								},
+								mixitupData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										commandId: {type:"string", maxLength:100},
+										params: {
+											type:"array",
+											minItems:0,
+											maxItems:40,
+											items: {
+												type: "object",
+												additionalProperties: false,
+												properties: {
+													value: {type:"string", maxLength:1000},
+												}
+											}
+										}
 									}
 								},
 							}

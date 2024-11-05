@@ -65,14 +65,10 @@ export const storeMixitup = defineStore('mixitup', {
 				},
 				body:JSON.stringify({
 					Platform: map[platform] || "Twitch",
-					Arguments: args,
+					Arguments: Object.values(args).join("|"),
 				}),
 			};
-			const req = await fetch("http://"+this.ip+":"+this.port+"/api/v2/commands/"+id, options);
-			if(req.status == 200) {
-				const json = await req.json();
-				console.log(json);
-			}
+			await fetch("http://"+this.ip+":"+this.port+"/api/v2/commands/"+id, options);
 		},
 		
 		saveConfigs():void {
@@ -90,8 +86,8 @@ export const storeMixitup = defineStore('mixitup', {
 			};
 			const req = await fetch("http://"+this.ip+":"+this.port+"/api/v2/commands?pageSize=999999999", options);
 			if(req.status == 200) {
-				const json = await req.json();
-				this.commandList = json;
+				const json = await req.json() as {Commands:IMixitupState["commandList"], TotalCount:number};
+				this.commandList = json.Commands || [];
 			}else{
 				throw new Error("Failed to connect to MixItUp");
 			}

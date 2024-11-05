@@ -168,6 +168,12 @@
 					v-tooltip="$store.sammi.connected? '' : $t('triggers.actions.common.action_sammi_tt')"
 					icon="sammi">{{ $t('triggers.actions.common.action_sammi') }}</TTButton>
 
+				<TTButton class="button" @click.capture="selectActionType('mixitup')"
+					:disabled="!$store.mixitup.connected"
+					v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_triggerAction_mixitup'}"
+					v-tooltip="$store.sammi.connected? '' : $t('triggers.actions.common.action_mixitup_tt')"
+					icon="mixitup">{{ $t('triggers.actions.common.action_mixitup') }}</TTButton>
+
 				<TTButton class="button" @click.capture="selectActionType('customBadges')"
 					v-newflag="{date:1693519200000, id:'params_triggerAction_custombadges'}"
 					icon="badge">{{ $t('triggers.actions.common.action_customBadges') }}</TTButton>
@@ -227,6 +233,7 @@
 		<TriggerActionLumiaEntry v-else-if="action.type=='lumia'" :action="action" :triggerData="triggerData" />
 		<TriggerActionStreamerbotEntry v-else-if="action.type=='streamerbot'" :action="action" :triggerData="triggerData" />
 		<TriggerActionSammiEntry v-else-if="action.type=='sammi'" :action="action" :triggerData="triggerData" />
+		<TriggerActionMixitupEntry v-else-if="action.type=='mixitup'" :action="action" :triggerData="triggerData" />
 		<RaffleForm v-else-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 		<BingoForm v-else-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 		<PollForm v-else-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -287,6 +294,7 @@ import TriggerActionBingoGridEntry from './entries/TriggerActionBingoGridEntry.v
 import TriggerActionDeleteMessageEntry from './entries/TriggerActionDeleteMessageEntry.vue';
 import TriggerActionStreamerbotEntry from './entries/TriggerActionStreamerbotEntry.vue';
 import TriggerActionSammiEntry from './entries/TriggerActionSammiEntry.vue';
+import TriggerActionMixitupEntry from './entries/TriggerActionMixitupEntry.vue';
 
 @Component({
 	components:{
@@ -313,6 +321,7 @@ import TriggerActionSammiEntry from './entries/TriggerActionSammiEntry.vue';
 		TriggerActionRewardEntry,
 		TriggerActionCustomBadge,
 		TriggerActionRandomEntry,
+		TriggerActionMixitupEntry,
 		TriggerActionTriggerEntry,
 		TriggerActionDiscordEntry,
 		TriggerActionVoicemodEntry,
@@ -570,6 +579,18 @@ class TriggerActionEntry extends Vue {
 			case "streamerbot": {
 				if(!this.$store.streamerbot.connected) {
 					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.STREAMERBOT);
+					return;
+				}break
+			}
+			case "sammi": {
+				if(!this.$store.sammi.connected) {
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.SAMMI);
+					return;
+				}break
+			}
+			case "mixitup": {
+				if(!this.$store.mixitup.connected) {
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.MIXITUP);
 					return;
 				}break
 			}

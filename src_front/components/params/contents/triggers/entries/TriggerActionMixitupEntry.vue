@@ -1,29 +1,30 @@
 <template>
-	<div class="triggeractionstreamerbotentry triggerActionForm">
-		<div class="card-item info warn" v-if="!$store.streamerbot.connected">
+	<div class="triggeractionmixitupentry triggerActionForm">
+		<div class="card-item info warn" v-if="!$store.mixitup.connected">
 			<img src="@/assets/icons/info.svg" alt="info">
-			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.streamerbot.need_to_connect">
+			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.mixitup.need_to_connect">
 				<template #LINK>
-					<a @click="openConnectForm()">{{ $t("triggers.actions.streamerbot.need_to_connect_link") }}</a>
+					<a @click="openConnectForm()">{{ $t("triggers.actions.mixitup.need_to_connect_link") }}</a>
 				</template>
 			</i18n-t>
 		</div>
 
-		<ParamItem :paramData="param_action" v-model="action.streamerbotData!.actionId" />
+		<ParamItem :paramData="param_commandId" v-model="action.mixitupData!.commandId" />
+
 
 		<div class="headerList">
-			<div class="header head" v-if="action.streamerbotData!.params && action.streamerbotData!.params.length > 0">
-				<div>%{{ $t("global.key") }}%</div>
+			<div class="header head" v-if="action.mixitupData!.params && action.mixitupData!.params.length > 0">
+				<div>{{ $t("global.key") }}</div>
 				<div>{{ $t("global.value") }}</div>
 			</div>
 	
-			<div class="header" v-for="(param, index) in action.streamerbotData!.params">
-				<ParamItem :paramData="param_keys[index]" v-model="param.key" noBackground placeholdersAsPopout />
+			<div class="header" v-for="(param, index) in action.mixitupData!.params">
+				<div v-click2Select class="key">$argdelimited{{index+1}}text</div>
 				<ParamItem :paramData="param_values[index]" v-model="param.value" noBackground placeholdersAsPopout />
 				<TTButton class="deleteBt" icon="trash" @click="deleteParam(index)" alert />
 			</div>
 	
-			<TTButton class="center" icon="add" v-if="(action.streamerbotData!.params?.length || 0) < 40" @click="addParam()">{{ $t("triggers.actions.streamerbot.add_arg_bt") }}</TTButton>
+			<TTButton class="center" icon="add" v-if="(action.mixitupData!.params?.length || 0) < 40" @click="addParam()">{{ $t("triggers.actions.mixitup.add_arg_bt") }}</TTButton>
 		</div>
 	</div>
 </template>
@@ -32,12 +33,12 @@
 import ParamItem from '@/components/params/ParamItem.vue';
 import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
-import TTButton from '@/components/TTButton.vue';
-import type { TriggerActionStreamerbotData, TriggerData } from '@/types/TriggerActionDataTypes';
+import type { TriggerActionMixitupData, TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import { watch } from 'vue';
+import TTButton from '@/components/TTButton.vue';
 
 @Component({
 	components:{
@@ -48,32 +49,31 @@ import { watch } from 'vue';
 	},
 	emits:["update"]
 })
-class TriggerActionStreamerbotEntry extends AbstractTriggerActionEntry {
+class TriggerActionMixitupEntry extends AbstractTriggerActionEntry {
 
 	@Prop
-	declare action:TriggerActionStreamerbotData;
+	declare action:TriggerActionMixitupData;
 
 	@Prop
 	declare triggerData:TriggerData;
 
-	public param_action:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"", labelKey:"triggers.actions.streamerbot.param_action" };
-	public param_keys:TwitchatDataTypes.ParameterData<string>[] = [];
+	public param_commandId:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"", labelKey:"triggers.actions.mixitup.param_commandId" };
 	public param_values:TwitchatDataTypes.ParameterData<string>[] = [];
 
 	public beforeMount():void {
-		if(!this.action.streamerbotData) {
-			this.action.streamerbotData = {
-				actionId:"",
+		if(!this.action.mixitupData) {
+			this.action.mixitupData = {
+				commandId:"",
 				params:[],
 			};
 		}
-		if(!this.action.streamerbotData.params) {
-			this.action.streamerbotData.params = [];
+		if(!this.action.mixitupData.params) {
+			this.action.mixitupData.params = [];
 		}
-		this.buildActionList();
+		this.buildCommandList();
 		this.buildParams();
 
-		watch(()=>this.$store.streamerbot.actionList, () => this.buildActionList());
+		watch(()=>this.$store.mixitup.commandList, () => this.buildCommandList());
 	}
 
 	public openConnectForm():void {
@@ -84,8 +84,7 @@ class TriggerActionStreamerbotEntry extends AbstractTriggerActionEntry {
 	 * Add a custom param
 	 */
 	public addParam():void {
-		this.action.streamerbotData!.params!.push({
-			key:"",
+		this.action.mixitupData!.params!.push({
 			value:"",
 		});
 		this.buildParams();
@@ -95,44 +94,45 @@ class TriggerActionStreamerbotEntry extends AbstractTriggerActionEntry {
 	 * Called when "delete header" button is clicked
 	 */
 	public deleteParam(index:number):void {
-		this.action.streamerbotData!.params!.splice(index, 1);
+		this.action.mixitupData!.params!.splice(index, 1);
 	}
 
 	/**
 	 * Builds param data items
 	 */
 	private buildParams():void {
-		this.action.streamerbotData!.params!.forEach((value, index) => {
-			if(this.param_keys.length > index) return;
-			this.param_keys.push({type:"string", maxLength:50, value:"", placeholderList:this.placeholderList});
+		this.action.mixitupData!.params!.forEach((value, index) => {
+			if(this.param_values.length > index) return;
 			this.param_values.push({type:"string", maxLength:10000, value:"", placeholderList:this.placeholderList});
 		})
 	}
 
-	private buildActionList():void {
+	private buildCommandList():void {
 		const list:TwitchatDataTypes.ParameterDataListValue<string>[]
-		= this.$store.streamerbot.actionList.map(action =>{
+		= this.$store.mixitup.commandList.map(action =>{
 			return {
-				value:action.id,
-				label:action.name,
+				value:action.ID,
+				label:action.Name,
 			}
 		}).sort((a, b) => a.label.localeCompare(b.label));
 		list.unshift({
 			value:"",
 			labelKey:"global.select_placeholder"
 		})
-		if(list.findIndex(v=> v.value == this.action.streamerbotData!.actionId) == -1) {
-			this.action.streamerbotData!.actionId = "";
+		if(list.findIndex(v=> v.value == this.action.mixitupData!.commandId) == -1) {
+			this.action.mixitupData!.commandId = "";
 		}
-		this.param_action.listValues = list;
+		this.param_commandId.listValues = list;
 	}
 
+
 }
-export default toNative(TriggerActionStreamerbotEntry);
+export default toNative(TriggerActionMixitupEntry);
 </script>
 
 <style scoped lang="less">
-.triggeractionstreamerbotentry{
+.triggeractionmixitupentry{
+
 	.center {
 		align-self: center;
 	}
@@ -148,7 +148,7 @@ export default toNative(TriggerActionStreamerbotEntry);
 			flex: 1;
 			&.head {
 				gap: 0;
-				justify-content: space-around;
+				width: 100%;
 				div {
 					background-color: var(--grayout);
 					padding: .25em;
@@ -158,6 +158,7 @@ export default toNative(TriggerActionStreamerbotEntry);
 						margin-right: 1px;
 						border-top-left-radius: var(--border-radius);
 						border-bottom-left-radius: var(--border-radius);
+						flex-shrink: 2;
 					}
 					&:not(:first-child){
 						border-top-right-radius: var(--border-radius);
@@ -175,6 +176,14 @@ export default toNative(TriggerActionStreamerbotEntry);
 			}
 			.deleteBt {
 				flex-shrink: 0;
+			}
+			.key {
+				text-align: center;
+				align-self: center;
+				font-weight: bold;
+				max-width: 50%;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 		}
 		.addBt {

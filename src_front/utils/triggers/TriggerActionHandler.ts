@@ -3221,6 +3221,30 @@ export default class TriggerActionHandler {
 						logStep.messages.push({date:Date.now(), value:"✔ Execute SAMMI button ID: "+step.sammiData.buttonId});
 						StoreProxy.sammi.triggerButton(step.sammiData.buttonId);
 					}
+				}else
+
+				//Handle Mix It Up action
+				if(step.type == "mixitup") {
+					if(!StoreProxy.mixitup.connected) {
+						logStep.messages.push({date:Date.now(), value:"❌ Mix It Up not connect, cannot execute requested coommand"});
+						log.error = true;
+						logStep.error = true;
+					}else if(!step.mixitupData) {
+						logStep.messages.push({date:Date.now(), value:"❌ Missing Mix It Up related trigger action data"});
+						log.error = true;
+						logStep.error = true;
+					}else{
+						const args:{[key:string]:string} = {};
+						if(step.mixitupData.params) {
+							for (let i = 0; i < step.mixitupData.params.length; i++) {
+								const param = step.mixitupData.params[i];
+								let value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, param.value || "", subEvent)
+								args[i.toString()] = value.replace(/\|/g, "│");//Replace pipes by an alternative equivalent. This is to avoid issues with Mix It Up using it as a parameter delimiter
+							}
+						}
+						logStep.messages.push({date:Date.now(), value:"✔ Execute Mix It Up command ID: "+step.mixitupData.commandId+" with arguments: "+JSON.stringify(args)});
+						StoreProxy.mixitup.execCommand(step.mixitupData.commandId, message.platform, args);
+					}
 				}
 
 			}catch(error:any) {

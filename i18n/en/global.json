@@ -55,6 +55,8 @@
 		"refresh": "Refresh",
 		"contact": "Contact: {MAIL}",
 		"translation": "Translation",
+		"key":"Key",
+		"value":"Value",
 		"advanced_params": "Advanced parameters",
 		"join_discordBt": "Join Discord",
 		"ask_supportBt": "Ask for help",
