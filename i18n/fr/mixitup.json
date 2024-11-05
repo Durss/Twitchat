@@ -1,0 +1,10 @@
+{
+	"mixitup":{
+		"header":"Connectez Twitchat avec {LINK} et contrôlez-le depuis les Triggers",
+		"instructions":"Dans Mix It Up, rendez-vous dans \"Services\" et activez \"Developer API\"",
+		"install":"Installer Mix It Up",
+		"connect_error":"Impossible de se connecter à Mix It Up.",
+		"ip":"IP",
+		"port":"Port"
+	}
+}

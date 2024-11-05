@@ -886,6 +886,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.tiltify.populateData();
 			StoreProxy.discord.populateData();
 			StoreProxy.automod.populateData();
+			StoreProxy.mixitup.populateData();
 			StoreProxy.triggers.populateData();
 			StoreProxy.counters.populateData();
 			StoreProxy.bingoGrid.populateData();

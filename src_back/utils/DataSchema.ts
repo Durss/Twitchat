@@ -2108,6 +2108,14 @@ const UserDataSchema = {
 				port: {type:"integer", minimum:0, maximum:65535},
 			}
 		},
+
+		mixitupConfigs:{
+			type: "object",
+			properties: {
+				ip: {type:"string", maxLength:100},
+				port: {type:"integer", minimum:0, maximum:65535},
+			}
+		},
 	}
 }
 

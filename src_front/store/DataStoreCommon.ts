@@ -111,6 +111,7 @@ export default class DataStoreCommon {
 	public static STREAMERBOT_WS_PASSWORD:string = "streamerbotWsPassword";
 	public static SAMMI_CONFIGS:string = "sammiConfigs";
 	public static SAMMI_API_PASSWORD:string = "sammiApiPassword";
+	public static MIXITUP_CONFIGS:string = "mixitupConfigs";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";

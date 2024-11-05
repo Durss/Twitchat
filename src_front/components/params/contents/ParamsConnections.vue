@@ -5,47 +5,66 @@
 		<p class="head">{{ $t("connexions.header") }}</p>
 
 		<div class="content">
-			<button class="card-item premium" @click="subContent='youtube'">
+			<button class="card-item premium"
+			:class="{connected:youtubeConnected}"
+			@click="subContent='youtube'">
 				<Icon name="youtube" />
 				<p>Youtube</p>
 			</button>
 
-			<button class="card-item premium" @click="subContent='goxlr'">
+			<button class="card-item premium"
+			:class="{connected:goxlrConnected}"
+			@click="subContent='goxlr'">
 				<Icon name="goxlr" />
 				<p>GoXLR</p>
 			</button>
 
-			<button class="card-item premium" @click="subContent='streamelements'">
+			<button class="card-item premium"
+			:class="{connected:$store.streamelements.connected}"
+			@click="subContent='streamelements'">
 				<Icon name="streamelements" />
 				<p>Streamelements</p>
 			</button>
 
-			<button class="card-item premium" @click="subContent='kofi'">
+			<button class="card-item premium"
+			:class="{connected:$store.kofi.connected}"
+			@click="subContent='kofi'">
 				<Icon name="kofi" />
 				<p>Ko-fi</p>
 			</button>
 
-			<button class="card-item premium" @click="subContent='tipeee'">
+			<button class="card-item premium"
+			:class="{connected:$store.tipeee.connected}"
+			@click="subContent='tipeee'">
 				<Icon name="tipeee" />
 				<p>Tipeee Stream</p>
 			</button>
 
-			<button class="card-item premium" @click="subContent='lumia'">
+			<button class="card-item premium"
+			:class="{connected:$store.lumia.connected}"
+			@click="subContent='lumia'">
 				<Icon name="lumia" />
 				<p>Lumia Stream</p>
 			</button>
 
-			<button class="card-item premium beta" @click="subContent='patreon'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_7, id:'params_connect.patreon'}">
+			<button class="card-item premium"
+			:class="{connected:$store.patreon.connected}"
+			@click="subContent='patreon'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_7, id:'params_connect.patreon'}">
 				<Icon name="patreon" />
 				<p>Patreon</p>
+				<div class="beta"></div>
 			</button>
 
-			<button class="card-item premium half" @click="subContent='streamlabs'">
+			<button class="card-item premium half"
+			:class="{connected:$store.streamlabs.connected}"
+			@click="subContent='streamlabs'">
 				<Icon name="streamlabs" />
 				<p>Streamlabs</p>
 			</button>
 
-			<button class="card-item" @click="subContent='tiktok'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.tiktok'}">
+			<button class="card-item"
+			:class="{connected:$store.tiktok.connected}"
+			@click="subContent='tiktok'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.tiktok'}">
 				<Icon name="tiktok" />
 				<p>
 					<span>TikTok</span>
@@ -53,52 +72,78 @@
 				</p>
 			</button>
 
-			<button class="card-item" @click="subContent='tiltify'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_7, id:'params_connect.tiltify'}">
+			<button class="card-item"
+			:class="{connected:$store.tiltify.connected}"
+			@click="subContent='tiltify'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_7, id:'params_connect.tiltify'}">
 				<Icon name="tiltify" />
 				<p>Tiltify</p>
 			</button>
 
-			<button class="card-item" @click="subContent='voicemod'">
+			<button class="card-item"
+			:class="{connected:voicemodConnected}"
+			@click="subContent='voicemod'">
 				<Icon name="voicemod" />
 				<p>Voicemod</p>
 			</button>
 
-			<button class="card-item" @click="subContent='streamdeck'">
+			<button class="card-item"
+			@click="subContent='streamdeck'">
 				<Icon name="elgato" />
 				<p>Stream Deck</p>
 			</button>
 
-			<button class="card-item" @click="subContent='discord'">
+			<button class="card-item"
+			:class="{connected:$store.discord.discordLinked}"
+			@click="subContent='discord'">
 				<Icon name="discord" />
 				<p>Discord</p>
 			</button>
 
-			<button class="card-item" @click="subContent='spotify'">
+			<button class="card-item"
+			:class="{connected:spotifyConnected}"
+			@click="subContent='spotify'">
 				<Icon name="spotify" />
 				<p>Spotify</p>
 			</button>
 
-			<button class="card-item" @click="subContent='obs'">
+			<button class="card-item"
+			:class="{connected:obsConnected}"
+			@click="subContent='obs'">
 				<Icon name="obs" />
 				<p>OBS</p>
 			</button>
 
-			<button class="card-item" @click="subContent='heat'">
+			<button class="card-item"
+			:class="{connected:heatConnected}"
+			@click="subContent='heat'">
 				<Icon name="heat" />
 				<p>Heat</p>
 			</button>
 
-			<button class="card-item" @click="subContent='streamerbot'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.stramerbot'}">
+			<button class="card-item"
+			:class="{connected:$store.streamerbot.connected}"
+			@click="subContent='streamerbot'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.stramerbot'}">
 				<Icon name="streamerbot" />
 				<p>Streamer.bot</p>
 			</button>
 
-			<button class="card-item" @click="subContent='sammi'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.sammi'}">
+			<button class="card-item"
+			:class="{connected:$store.sammi.connected}"
+			@click="subContent='sammi'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.sammi'}">
 				<Icon name="sammi" />
 				<p>SAMMI</p>
 			</button>
 
-			<button class="card-item" @click="subContent='websocket'">
+			<button class="card-item"
+			:class="{connected:$store.mixitup.connected}"
+			@click="subContent='mixitup'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.mixitup'}">
+				<Icon name="mixitup" />
+				<p>Mix It Up</p>
+			</button>
+
+			<button class="card-item"
+			:class="{connected:wsCustomConnected}"
+			@click="subContent='websocket'">
 				<Icon name="broadcast" />
 				<p>Websocket</p>
 			</button>
@@ -124,6 +169,7 @@
 	<ConnectTiktok v-else-if="subContent == 'tiktok'" />
 	<ConnectStreamerBot v-else-if="subContent == 'streamerbot'" />
 	<ConnectSammi v-else-if="subContent == 'sammi'" />
+	<ConnectMixitup v-else-if="subContent == 'mixitup'" />
 
 </template>
 
@@ -152,6 +198,14 @@ import ConnectTipeee from './connexions/ConnectTipeee.vue';
 import ConnectVoicemod from './connexions/ConnectVoicemod.vue';
 import ConnectWebsocket from './connexions/ConnectWebsocket.vue';
 import ConnectYoutube from './connexions/ConnectYoutube.vue';
+import ConnectMixitup from './connexions/ConnectMixitup.vue';
+import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
+import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
+import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
+import HeatSocket from '@/utils/twitch/HeatSocket';
+import OBSWebsocket from '@/utils/OBSWebsocket';
+import WebsocketTrigger from '@/utils/WebsocketTrigger';
 
 @Component({
 	components:{
@@ -168,6 +222,7 @@ import ConnectYoutube from './connexions/ConnectYoutube.vue';
 		ConnectTiltify,
 		ConnectSpotify,
 		ConnectYoutube,
+		ConnectMixitup,
 		ConnectVoicemod,
 		ConnectWebsocket,
 		ConnectStreamdeck,
@@ -182,7 +237,13 @@ class ParamsConnections extends Vue implements IParameterContent {
 	public allowHighlight:boolean = true;
 	public subContent:TwitchatDataTypes.ParamDeepSectionsStringType|"" = "";
 
-	public get youtubeEnabled() { return Config.instance.YOUTUBE_CLIENT_ID; }
+	public get youtubeConnected():boolean { return YoutubeHelper.instance.connected }
+	public get goxlrConnected():boolean { return GoXLRSocket.instance.connected }
+	public get voicemodConnected():boolean { return VoicemodWebSocket.instance.connected }
+	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected }
+	public get heatConnected():boolean { return HeatSocket.instance.connected }
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected }
+	public get wsCustomConnected():boolean { return WebsocketTrigger.instance.connected }
 
 	public async beforeMount():Promise<void> {
 		await this.$nextTick();
@@ -231,6 +292,8 @@ export default toNative(ParamsConnections);
 			margin: unset;
 			transition: background-color .2s;
 			overflow: visible;
+			position: relative;
+			border-right: 2px solid var(--color-alert);
 			&.premium {
 				background-color: var(--color-premium-fadest);
 				
@@ -254,9 +317,14 @@ export default toNative(ParamsConnections);
 				}
 			}
 
-			&.beta{
-				position: relative;
+			.beta{
+				position: absolute;
 				overflow: hidden;
+				width: 100%;
+				height: 100%;
+				top: 0;
+				left: 0;
+				border-radius: var(--border-radius);
 				&::after {
 					content: "BETA";
 					position: absolute;
@@ -271,6 +339,7 @@ export default toNative(ParamsConnections);
 					font-size: .85em;
 				}
 			}
+
 			p {
 				flex-grow: 1;
 				display: flex;
@@ -279,6 +348,23 @@ export default toNative(ParamsConnections);
 					font-size: .8em;
 					font-style: italic;
 					opacity: .75;
+				}
+			}
+			&::after {
+				content: "";
+				position: absolute;
+				top: 50%;
+				right: 0;
+				width: .5em;
+				height: .5em;
+				border-radius: 50%;
+				transform: translate(50%, -50%);
+				background-color: var(--color-alert);
+			}
+			&.connected {
+				border-right: 1px solid var(--color-primary);
+				&::after {
+					background-color: var(--color-primary);
 				}
 			}
 		}

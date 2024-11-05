@@ -30,6 +30,7 @@ export namespace TwitchatDataTypes {
 		PATREON: "patreon",
 		TILTIFY: "tiltify",
 		PREMIUM: "premium",
+		MIXITUP: "mixitup",
 		YOUTUBE: "youtube",
 		DISCORD: "discord",
 		VOICEMOD: "voicemod",

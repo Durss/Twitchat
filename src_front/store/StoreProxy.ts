@@ -72,6 +72,7 @@ export default class StoreProxy {
 	public static streamerbot:IStreamerbotState & IStreamerbotGetters & IStreamerbotActions & {$state:IStreamerbotState, $reset:()=>void};
 	public static sammi:ISammiState & ISammiGetters & ISammiActions & {$state:ISammiState, $reset:()=>void};
 	public static public:IPublicState & IPublicGetters & IPublicActions & {$state:IPublicState, $reset:()=>void};
+	public static mixitup: IMixitupState & IMixitupGetters & IMixitupActions & { $state: IMixitupState, $reset: () => void };
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static asset:(path: string) => string;
@@ -1920,7 +1921,6 @@ export interface IUsersActions {
 	/**
 	 * Update the name of a custom badge
 	 * @param badgeId
-	 * @param name
 	 */
 	updateCustomBadgeName(badgeId:string, name:string):void;
 	/**
@@ -2217,6 +2217,7 @@ export interface IPatreonState {
 	token: PatreonDataTypes.AuthTokenInfo | null,
 	isMember: boolean;
 	connected: boolean;
+	isFakeConnection: boolean;
 	webhookExists: boolean;
 	webhookScopesGranted:boolean;
 	/**
@@ -2278,6 +2279,17 @@ export interface IPatreonActions {
 	 * Refreshes access token
 	 */
 	refreshToken():Promise<void>;
+	/**
+	 * Simulate connected state.
+	 * Due to shit Patreon API allowing only one session for a
+	 * clientID/userID tupple, I can't maintain proper session state
+	 * except onserver-side which I don't want to do.
+	 * Patreon connection basically only creates Webhooks. We don't
+	 * really need an actual active session.
+	 * Webhooks states are saved server-side, if a webhook exists,
+	 * the auth endpoint tells us. In which case this method is called.
+	 */
+	fakeConnectedState():void;
 }
 
 
@@ -3203,4 +3215,47 @@ export interface ISammiActions {
 	 * Saves current configs to store
 	 */
 	saveConfigs():void;
+}
+
+
+
+
+export interface IMixitupState {
+	connected: boolean;
+	ip: string;
+	port: number;
+	commandList:{
+		ID: string;
+		Name: string;
+		Type: string;
+		IsEnabled: boolean;
+		Unlocked: boolean;
+		GroupName: string|null;
+	}[];
+}
+
+export interface IMixitupGetters {
+}
+
+export interface IMixitupActions {
+	/**
+	 * Populates the store
+	 */
+	populateData(): Promise<void>;
+	/**
+	 * Connect to Mixitup
+	 */
+	connect(): Promise<boolean>;
+	/**
+	 * Disconnect from Mixitup
+	 */
+	disconnect(): void;
+	/**
+	 * Saves current configs to store
+	 */
+	saveConfigs(): void;
+	/**
+	 * Lists all available commands
+	 */
+	listCommands():Promise<void>;
 }
