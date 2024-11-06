@@ -1606,6 +1606,9 @@ export default class EventSub {
 	}
 
 	private async chatMessageEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ChatMessageEvent):Promise<void> {
+		//Ignore reward related messages as they're handled by the reward event
+		if(event.channel_points_custom_reward_id) return;
+		
 		window.setTimeout(async () => {
 			//Check if message is already in the list, otherwise add it as a fallback
 			const messageList = StoreProxy.chat.messages;

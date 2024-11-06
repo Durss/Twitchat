@@ -895,7 +895,7 @@ export namespace TwitchEventSubDataTypes {
 			id: string;
 			info: string;
 		}[];
-		message_type: string;
+		message_type: "text" | "channel_points_highlighted";
 		cheer?: {
 			bits:number;
 		};
