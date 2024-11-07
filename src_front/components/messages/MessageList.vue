@@ -777,6 +777,10 @@ class MessageList extends Vue {
 				return this.config.filters.tiktok_share !== false;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION: {
+				return this.config.filters.twitch_charity_donation !== false;
+			}
+
 			default: return false;
 		}
 	}

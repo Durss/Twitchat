@@ -1468,6 +1468,10 @@
 				"label": "Nouveau don sur une campagne Tiltify",
 				"description": "Actions à exécuter lorsqu'un nouveau don est reçu pour une campagne Tiltify"
 			},
+			"TWITCH_CHARITY_DONATION": {
+				"label": "Nouveau don sur la campagne caritative Twitch",
+				"description": "Actions à exécuter lorsqu'un nouveau don est reçu pour la campagne caritative Twitch"
+			},
 			"PATREON_NEW_MEMBER": {
 				"label": "Nouveau membre sur Patreon",
 				"description": "Actions à exécuter lorsqu'un nouveau membre s'abonne sur Patreon"

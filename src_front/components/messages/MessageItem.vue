@@ -544,18 +544,27 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
-	<ChatTikTokShare class="message"
-		v-else-if="messageData.type == 'tiktok_share'"
-		:messageData="messageData"
-		@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
-		:colIndex="colIndex"
-		:lightMode="lightMode"
-		:childrenList="childrenList"
-	/>
-	
+		
+		<ChatTikTokShare class="message"
+			v-else-if="messageData.type == 'tiktok_share'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
+		/>
+		
 		<ChatSuspendedTriggerStack class="message"
 			v-else-if="messageData.type == 'suspended_trigger_stack'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
+		/>
+		
+		<ChatTwitchCharityDonation class="message"
+			v-else-if="messageData.type == 'twitch_charity_donation'"
 			:messageData="messageData"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
 			:colIndex="colIndex"
@@ -628,6 +637,7 @@ import ChatTikTokGift from './ChatTikTokGift.vue';
 import ChatTikTokLike from './ChatTikTokLike.vue';
 import ChatTikTokShare from './ChatTikTokShare.vue';
 import ChatSuspendedTriggerStack from './ChatSuspendedTriggerStack.vue';
+import ChatTwitchCharityDonation from './ChatTwitchCharityDonation.vue';
 
 @Component({
 	components:{
@@ -690,6 +700,7 @@ import ChatSuspendedTriggerStack from './ChatSuspendedTriggerStack.vue';
 		ChatStreamelementsEvent,
 		ChatYoutubeSuperSticker,
 		ChatSuspendedTriggerStack,
+		ChatTwitchCharityDonation,
 		ChatCommunityChallengeContribution,
 	},
 	emits:["onRead", "showConversation", "showUserMessages", "unscheduleMessageOpen", "setCustomActivities", "showModal", "openFilters", "onOverMessage"],

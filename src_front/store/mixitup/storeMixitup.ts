@@ -3,6 +3,7 @@ import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _Getters
 import type { UnwrapRef } from 'vue';
 import type { IMixitupActions, IMixitupGetters, IMixitupState } from '../StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { log } from 'mathjs';
 
 
 let initResolver!:(value: boolean) => void;
@@ -88,16 +89,12 @@ export const storeMixitup = defineStore('mixitup', {
 				method:"GET",
 				headers: { "Content-Type": "application/json" },
 			};
-			try {
-				const req = await fetch("http://"+this.ip+":"+this.port+"/api/v2/commands?pageSize=999999999", options);
-				if(req.status == 200) {
-					const json = await req.json() as {Commands:IMixitupState["commandList"], TotalCount:number};
-					this.commandList = json.Commands || [];
-				}else{
-					throw new Error("Failed to connect to MixItUp");
-				}
-			}catch(error) {
-				//Ignore
+			const req = await fetch("http://"+this.ip+":"+this.port+"/api/v2/commands?pageSize=999999999", options);
+			if(req.status == 200) {
+				const json = await req.json() as {Commands:IMixitupState["commandList"], TotalCount:number};
+				this.commandList = json.Commands || [];
+			}else{
+				throw new Error("Failed to connect to MixItUp");
 			}
 		}
 	} as IMixitupActions

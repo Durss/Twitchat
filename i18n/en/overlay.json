@@ -520,7 +520,14 @@
 				"TIKTOK_GIFT_AVATAR": "TikTok Gift - User avatar",
 				"TIKTOK_GIFT_IMAGE": "TikTok Gift - Gift image",
 				"TIKTOK_GIFT_COUNT": "TikTok Gift - Gift count",
-				"TIKTOK_GIFT_DIAMONDS": "TikTok Gift - Diamonds received"
+				"TIKTOK_GIFT_DIAMONDS": "TikTok Gift - Diamonds received",
+				"TWITCH_CHARITY_NAME": "Twitch Charity - Name",
+				"TWITCH_CHARITY_IMAGE": "Twitch Charity - Image",
+				"TWITCH_CHARITY_RAISED": "Twitch Charity - Raised",
+				"TWITCH_CHARITY_GOAL": "Twitch Charity - Goal",
+				"TWITCH_CHARITY_LAST_TIP_USER": "Twitch Charity - Last Tipper name",
+				"TWITCH_CHARITY_LAST_TIP_AMOUNT": "Twitch Charity - Last Tipper tip",
+				"TWITCH_CHARITY_LAST_TIP_AVATAR": "Twitch Charity - Last Tipper avatar"
 			}
 		}
 	}

@@ -127,6 +127,10 @@
 					<ParamItem class="child" noBackground :paramData="param_tip_tiltify_minAmount" v-model="localData.tip_tiltify_minAmount" />
 					<ParamItem class="child" noBackground :paramData="param_tip_tiltify_ponderate" v-model="localData.tip_tiltify_ponderate" />
 				</ParamItem>
+				<ParamItem :paramData="param_tip_twitchCharity" v-model="localData.tip_twitchCharity">
+					<ParamItem class="child" noBackground :paramData="param_tip_twitchCharity_minAmount" v-model="localData.tip_twitchCharity_minAmount" />
+					<ParamItem class="child" noBackground :paramData="param_tip_twitchCharity_ponderate" v-model="localData.tip_twitchCharity_ponderate" />
+				</ParamItem>
 
 				<ParamItem :paramData="param_enterDuration" v-model="localData.duration_s" />
 				
@@ -179,7 +183,8 @@
 							&& localData.tip_streamlabsCharity!==true
 							&& localData.tip_streamelements!==true
 							&& localData.tip_tipeee!==true
-							&& localData.tip_tiltify!==true">{{ $t('global.start') }}</TTButton>
+							&& localData.tip_tiltify!==true
+							&& localData.tip_twitchCharity!==true">{{ $t('global.start') }}</TTButton>
 			</form>
 
 			<form class="form" v-else-if="localData.mode=='sub' && canListSubs" @submit.prevent="submitForm()">
@@ -362,18 +367,21 @@ class RaffleForm extends AbstractSidePanel {
 	public param_tip_streamlements:TwitchatDataTypes.ParameterData<boolean>				= {value:false, type:"boolean", labelKey:"raffle.params.tip_streamelements", icon:"streamelements"};
 	public param_tip_tipeee:TwitchatDataTypes.ParameterData<boolean>					= {value:false, type:"boolean", labelKey:"raffle.params.tip_tipeee", icon:"tipeee"};
 	public param_tip_tiltify:TwitchatDataTypes.ParameterData<boolean>					= {value:false, type:"boolean", labelKey:"raffle.params.tip_tiltify", icon:"tiltify"};
+	public param_tip_twitchCharity:TwitchatDataTypes.ParameterData<boolean>				= {value:false, type:"boolean", labelKey:"raffle.params.tip_twitchCharity", icon:"twitch_charity"};
 	public param_tip_kofi_minAmount:TwitchatDataTypes.ParameterData<number>				= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
 	public param_tip_streamlabs_minAmount:TwitchatDataTypes.ParameterData<number>		= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
 	public param_tip_streamlabsCharity_minAmount:TwitchatDataTypes.ParameterData<number>= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
 	public param_tip_streamlements_minAmount:TwitchatDataTypes.ParameterData<number>	= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
 	public param_tip_tipeee_minAmount:TwitchatDataTypes.ParameterData<number>			= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
 	public param_tip_tiltify_minAmount:TwitchatDataTypes.ParameterData<number>			= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
+	public param_tip_twitchCharity_minAmount:TwitchatDataTypes.ParameterData<number>	= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
 	public param_tip_kofi_ponderate:TwitchatDataTypes.ParameterData<number>				= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_ponderate"};
 	public param_tip_streamlabs_ponderate:TwitchatDataTypes.ParameterData<number>		= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_ponderate"};
 	public param_tip_streamlabsCharity_ponderate:TwitchatDataTypes.ParameterData<number>= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_ponderate"};
 	public param_tip_streamlements_ponderate:TwitchatDataTypes.ParameterData<number>	= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_ponderate"};
 	public param_tip_tipeee_ponderate:TwitchatDataTypes.ParameterData<number>			= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_ponderate"};
 	public param_tip_tiltify_ponderate:TwitchatDataTypes.ParameterData<number>			= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_ponderate"};
+	public param_tip_twitchCharity_ponderate:TwitchatDataTypes.ParameterData<number>	= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_ponderate"};
 	public param_enterDuration:TwitchatDataTypes.ParameterData<number>					= {value:600, type:"duration", min:1, max:24*60*60, labelKey:"raffle.params.duration", icon:"timer"};
 	public param_maxUsersToggle:TwitchatDataTypes.ParameterData<boolean, any, any>		= {value:false, type:"boolean", labelKey:"raffle.params.limit_users", icon:"user"};
 	public param_maxEntries:TwitchatDataTypes.ParameterData<number>						= {value:10, type:"number", min:0, max:1000000, labelKey:"raffle.params.max_users", icon:"user"};
@@ -430,18 +438,21 @@ class RaffleForm extends AbstractSidePanel {
 		tip_streamelements:false,
 		tip_tipeee:false,
 		tip_tiltify:false,
+		tip_twitchCharity:false,
 		tip_kofi_minAmount:1,
 		tip_streamlabs_minAmount:1,
 		tip_streamlabsCharity_minAmount:1,
 		tip_streamelements_minAmount:1,
 		tip_tipeee_minAmount:1,
 		tip_tiltify_minAmount:1,
+		tip_twitchCharity_minAmount:1,
 		tip_kofi_ponderate:0,
 		tip_streamlabs_ponderate:0,
 		tip_streamlabsCharity_ponderate:0,
 		tip_streamelements_ponderate:0,
 		tip_tipeee_ponderate:0,
 		tip_tiltify_ponderate:0,
+		tip_twitchCharity_ponderate:0,
 		messages: {
 			raffleStart:{
 				enabled:false,
@@ -553,6 +564,13 @@ class RaffleForm extends AbstractSidePanel {
 			let label = "Tiltify";
 			if((this.localData.tip_tiltify_minAmount || 0) > 0) {
 				label += " ("+this.localData.tip_tiltify_minAmount+"🪙"+minSuffix+")";
+			}
+			platforms.push(label);
+		}
+		if(this.localData.tip_twitchCharity){
+			let label = "Twitch charity";
+			if((this.localData.tip_twitchCharity_minAmount || 0) > 0) {
+				label += " ("+this.localData.tip_twitchCharity_minAmount+"🪙"+minSuffix+")";
 			}
 			platforms.push(label);
 		}

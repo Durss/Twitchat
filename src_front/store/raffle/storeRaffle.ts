@@ -292,10 +292,11 @@ export const storeRaffle = defineStore('raffle', {
 					(raffle.tip_streamlabsCharity === true && message.type == TwitchatDataTypes.TwitchatMessageType.STREAMLABS && message.eventType == "charity" && message.amount >= (raffle.tip_streamlabsCharity_minAmount || 0)) ||
 					(raffle.tip_streamelements === true && message.type == TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS && message.eventType == "donation" && message.amount >= (raffle.tip_streamelements_minAmount || 0)) ||
 					(raffle.tip_tipeee === true && message.type == TwitchatDataTypes.TwitchatMessageType.TIPEEE && message.eventType == "donation" && message.amount >= (raffle.tip_tipeee_minAmount || 0)) ||
-					(raffle.tip_tiltify === true && message.type == TwitchatDataTypes.TwitchatMessageType.TILTIFY && message.eventType == "donation" && message.amount  >= (raffle.tip_tiltify_minAmount || 0))
+					(raffle.tip_tiltify === true && message.type == TwitchatDataTypes.TwitchatMessageType.TILTIFY && message.eventType == "donation" && message.amount  >= (raffle.tip_tiltify_minAmount || 0)) ||
+					(raffle.tip_twitchCharity === true && message.type == TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION && message.amount  >= (raffle.tip_twitchCharity_minAmount || 0))
 				)) {
 					canJoin = true;
-					username = message.userName;
+					username = message.type == TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION? message.user.displayNameOriginal : message.userName;
 					const existingEntry = username? raffle.entries.find(v=>v.label.toLowerCase().trim() == username.toLowerCase().trim()) : false;
 					//Refuse if username is already registered
 					if(existingEntry && raffle.multipleJoin !== true) return;

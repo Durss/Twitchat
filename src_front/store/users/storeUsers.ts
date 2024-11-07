@@ -43,7 +43,7 @@ let twitchUserBatchIdTimeout = -1;
 
 export const storeUsers = defineStore('users', {
 	state: () => ({
-		tmpDisplayName:"...loading...",
+		tmpDisplayName:"…loading…",
 		pendingShoutouts: {},
 		userCard: null,
 		customUsernames: {},

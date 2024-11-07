@@ -773,7 +773,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Source to link this donation goal to
 		 */
-		dataSource:"streamlabs_charity"|"tiltify"|"counter"|"twitch_subs"|"twitch_followers";
+		dataSource:"streamlabs_charity"|"tiltify"|"counter"|"twitch_subs"|"twitch_followers"|"twitch_charity";
 		/**
 		 * Optional campaign ID.
 		 * Not used by "streamlabs_charity" as the campaign
@@ -840,18 +840,21 @@ export namespace TwitchatDataTypes {
 		tip_streamelements?:boolean;
 		tip_tipeee?:boolean;
 		tip_tiltify?:boolean;
+		tip_twitchCharity?:boolean;
 		tip_kofi_minAmount?:number;
 		tip_streamlabs_minAmount?:number;
 		tip_streamlabsCharity_minAmount?:number;
 		tip_streamelements_minAmount?:number;
 		tip_tipeee_minAmount?:number;
 		tip_tiltify_minAmount?:number;
+		tip_twitchCharity_minAmount?:number;
 		tip_kofi_ponderate?:number;
 		tip_streamlabs_ponderate?:number;
 		tip_streamlabsCharity_ponderate?:number;
 		tip_streamelements_ponderate?:number;
 		tip_tipeee_ponderate?:number;
 		tip_tiltify_ponderate?:number;
+		tip_twitchCharity_ponderate?:number;
 		value_id?:string;
 		value_splitter?:string;
 		removeWinningEntry?:boolean;
@@ -2279,6 +2282,7 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_APPROACHING:"hype_train_approaching",
 		HYPE_TRAIN_COOLED_DOWN:"hype_train_cooled_down",
 		CLIP_CREATION_COMPLETE:"clip_creation_complete",
+		TWITCH_CHARITY_DONATION:"twitch_charity_donation",
 		SUSPENDED_TRIGGER_STACK:"suspended_trigger_stack",
 		CLIP_PENDING_PUBLICATION:"clip_pending_publication",
 		COMMUNITY_BOOST_COMPLETE:"community_boost_complete",
@@ -2388,6 +2392,7 @@ export namespace TwitchatDataTypes {
 		goxlr_sample_complete:false,
 		obs_input_mute_toggle:false,
 		hype_train_cooled_down:true,
+		twitch_charity_donation:true,
 		suspended_trigger_stack:true,
 		hype_train_approaching:false,
 		clip_creation_complete:false,
@@ -2539,6 +2544,7 @@ export namespace TwitchatDataTypes {
 									| MessageTikTokLikeData
 									| MessageTikTokShareData
 									| MessageSuspendedTriggerStackData
+									| MessageCharityDonationData
 	;
 
 	/**
@@ -2570,6 +2576,7 @@ export namespace TwitchatDataTypes {
 							| typeof TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION
 							| typeof TwitchatMessageType.BINGO
 							| typeof TwitchatMessageType.RAFFLE
+							| typeof TwitchatMessageType.TWITCH_CHARITY_DONATION
 							| typeof TwitchatMessageType.KOFI
 							| typeof TwitchatMessageType.STREAMLABS
 							| typeof TwitchatMessageType.STREAMELEMENTS
@@ -2614,6 +2621,7 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,		labelKey:"chat.filters.message_types.community_challenge_contribution",		icon:"channelPoints",	scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.BINGO,								labelKey:"chat.filters.message_types.bingo",								icon:"bingo",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.RAFFLE,								labelKey:"chat.filters.message_types.raffle",								icon:"ticket",			scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.TWITCH_CHARITY_DONATION,				labelKey:"chat.filters.message_types.twitch_charity_donation",				icon:"twitch_charity",	scopes:[TwitchScopes.CHARITY_READ],	newFlag:Config.instance.NEW_FLAGS_DATE_V15},
 		{type:TwitchatMessageType.KOFI,									labelKey:"chat.filters.message_types.kofi",									icon:"kofi",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
 		{type:TwitchatMessageType.STREAMLABS,							labelKey:"chat.filters.message_types.streamlabs",							icon:"streamlabs",		scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
 		{type:TwitchatMessageType.STREAMELEMENTS,						labelKey:"chat.filters.message_types.streamelements",						icon:"streamelements",	scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
@@ -5374,5 +5382,49 @@ export namespace TwitchatDataTypes {
 		 * Trigger stack that has been suspended
 		 */
 		triggerStack:TriggerCallStack;
+	}
+
+	export interface MessageCharityDonationData extends AbstractTwitchatMessage {
+		type:"twitch_charity_donation";
+		/**
+		 * User that donated
+		 */
+		user:TwitchatUser;
+		/**
+		 * Amount donated
+		 */
+		amount:number;
+		/**
+		 * Amount donated formatted (amount + currency)
+		 */
+		amountFormatted:string;
+		/**
+		 * Goal amount to reach
+		 */
+		goal:number
+		/**
+		 * Goal amount to reach formatted
+		 */
+		goalFormatted:string;
+		/**
+		 * Current amount
+		 */
+		raised:number
+		/**
+		 * Current amount formatted
+		 */
+		raisedFormatted:string;
+		/**
+		 * Currency of the donation
+		 */
+		currency:string;
+		/**
+		 * Campaign details
+		 */
+		campaign:{
+			id:string;
+			url:string;
+			title:string;
+		}
 	}
 }

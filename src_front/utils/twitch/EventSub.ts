@@ -199,7 +199,6 @@ export default class EventSub {
 		const isBroadcaster	= me.id == user.id;
 		const isMod	= me.channelInfo[channelId]?.is_moderator === true || isBroadcaster;
 		this.chanSubscriptions[channelId] = [];
-		console.log("CONNECT TO", user.login, isBroadcaster, isMod);
 
 		if(isBroadcaster){
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_UPDATE, "2");
@@ -210,6 +209,11 @@ export default class EventSub {
 			//Used by online/offline triggers
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
+			
+			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_DONATE, "1");
+			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_PROGRESS, "1");
+			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_START, "1");
+			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_STOP, "1");
 
 			if(TwitchUtils.hasScopes([TwitchScopes.ADS_READ])) {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.AD_BREAK_BEGIN, "1");
@@ -542,6 +546,34 @@ export default class EventSub {
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.CHAT_MESSAGES: {
 				this.chatMessageEvent(topic, payload.event as TwitchEventSubDataTypes.ChatMessageEvent);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_START: {
+				const charity = payload.event as TwitchEventSubDataTypes.CharityStartEvent;
+				StoreProxy.twitchCharity.onCharityStart(charity);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_PROGRESS: {
+				const charity = payload.event as TwitchEventSubDataTypes.CharityProgressEvent;
+				StoreProxy.twitchCharity.onCharityProgress(charity.id, charity.current_amount, charity.target_amount);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_DONATE: {
+				const donation = payload.event as TwitchEventSubDataTypes.CharityDonationEvent;
+				const user = StoreProxy.users.getUserFrom("twitch", donation.user_id, donation.user_id, donation.user_login, donation.user_name, undefined, undefined, false, undefined, false);
+				//Delay to give it a little more time to progress to come in before interpreting donation
+				setTimeout(()=>{
+					StoreProxy.twitchCharity.onCharityDonation(donation.campaign_id, user, donation.amount.value/Math.pow(10, donation.amount.decimal_places), donation.amount.currency);
+				},500);
+				break;
+			}
+			
+			case TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_STOP: {
+				const charity = payload.event as TwitchEventSubDataTypes.CharityStopEvent;
+				StoreProxy.twitchCharity.onCharityStop(charity.id);
 				break;
 			}
 		}

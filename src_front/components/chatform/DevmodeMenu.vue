@@ -79,6 +79,7 @@
 			<Button small @click="simulateEvent($event, 'pinned')" icon="pin">Pin message</Button>
 			<Button small @click="simulateEvent($event, 'unpinned')" icon="unpin">Upin message</Button>
 			<Button small @click="simulateEvent($event, 'clear_chat')" icon="delete">Clear chat</Button>
+			<Button small @click="simulateEvent($event, 'twitch_charity_donation')" icon="twitch_charity">Twitch charity donation</Button>
 			<Button small @click="simulateEvent($event, 'streamelements', 'se_donation')" icon="streamelements">Streamelements donation</Button>
 			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_donation')" icon="streamlabs">Streamlabs donation</Button>
 			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_merch')" icon="streamlabs">Streamlabs merch</Button>

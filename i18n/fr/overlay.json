@@ -514,6 +514,14 @@
 				"VIEWER_COUNT": "Viewers - total",
 				"STREAM_CATEGORY_NAME": "Catégorie du stream - Titre",
 				"STREAM_CATEGORY_COVER": "Catégorie du stream - Image",
+
+				"TWITCH_CHARITY_NAME": "Twitch Charity - Nom",
+				"TWITCH_CHARITY_IMAGE": "Twitch Charity - Image",
+				"TWITCH_CHARITY_RAISED": "Twitch Charity - Montant récolté",
+				"TWITCH_CHARITY_GOAL": "Twitch Charity - Objectif",
+				"TWITCH_CHARITY_LAST_TIP_USER": "Twitch Charity - Dernier·e donnateurice",
+				"TWITCH_CHARITY_LAST_TIP_AMOUNT": "Twitch Charity - Dernier don",
+				"TWITCH_CHARITY_LAST_TIP_AVATAR": "Twitch Charity - Avatar du dernier don",
 				
 				"POWER_UP_GIANTIFIED_ID": "Power-up Emote gigantisée - ID utilisateur·ice",
 				"POWER_UP_GIANTIFIED_NAME": "Power-up Emote gigantisée - Pseudo",

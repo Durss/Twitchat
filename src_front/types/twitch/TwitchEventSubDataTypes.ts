@@ -964,4 +964,74 @@ export namespace TwitchEventSubDataTypes {
 			user_name: string;
 		}
 	}
+
+	export interface CharityStartEvent extends CharityProgressEvent{
+		started_at: string;
+	}
+
+	export interface CharityStopEvent extends CharityProgressEvent{
+		stopped_at: string;
+	}
+
+	export interface CharityDonationEvent {
+		id: string;
+		campaign_id: string;
+		broadcaster_user_id: string;
+		broadcaster_user_name: string;
+		broadcaster_user_login: string;
+		user_id: string;
+		user_login: string;
+		user_name: string;
+		charity_name: string;
+		charity_description: string;
+		charity_logo: string;
+		charity_website: string;
+		amount: {
+			value: number;
+			decimal_places: number;
+			currency: string;
+		};
+	}
+
+	export interface CharityProgressEvent {
+		id: string;
+		broadcaster_id: string;
+		broadcaster_name: string;
+		broadcaster_login: string;
+		charity_name: string;
+		charity_description: string;
+		charity_logo: string;
+		charity_website: string;
+		current_amount: {
+			value: number;
+			decimal_places: number;
+			currency: string;
+		};
+		target_amount: {
+			value: number;
+			decimal_places: number;
+			currency: string;
+		};
+	}
+
+	export interface SharedChatStartEvent {
+		session_id: string;
+		broadcaster_user_id: string;
+		broadcaster_user_login: string;
+		broadcaster_user_name: string;
+		host_broadcaster_user_id: string;
+		host_broadcaster_user_login: string;
+		host_broadcaster_user_name: string;
+		participants: {
+			broadcaster_user_id: string;
+			broadcaster_user_name: string;
+			broadcaster_user_login: string;
+		}[];
+	}
+
+	export interface SharedChatUpdateEvent extends SharedChatStartEvent {
+	}
+
+	export interface SharedChatEndEvent {
+	}
 }

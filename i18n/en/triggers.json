@@ -854,7 +854,7 @@
 			"sl_tipAlltimeTopDonation_amount": "Top donation amount all time",
 			"sl_tipAlltimeTopDonation_username": "Name of top donation all time",
 			"sl_raised": "Amount raised",
-			"sl_raised_formatted": "Amount raiised formatted",
+			"sl_raised_formatted": "Amount raised formatted",
 			"sl_goal": "Goal amount",
 			"sl_goal_formatted": "Goal amount formatted",
 			"sl_campaign_id": "Campaign ID",
@@ -1370,6 +1370,10 @@
 			"STREAMLABS_CHARITY_TIP": {
 				"label": "Received donation on a Streamlabs Charity campaign",
 				"description": "Actions to execute when someone makes a donation on Streamlabs Charity campaign"
+			},
+			"TWITCH_CHARITY_DONATION": {
+				"label": "Received donation on a Twitch Charity campaign",
+				"description": "Actions to execute when someone makes a donation on Twitch Charity campaign"
 			},
 			"KOFI_DONATION": {
 				"label": "Received a donation on Ko-fi",

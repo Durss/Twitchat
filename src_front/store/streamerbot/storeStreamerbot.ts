@@ -83,6 +83,8 @@ export const storeStreamerbot = defineStore('streamerbot', {
 		disconnect():void {
 			this.connected = false;
 			socket.disconnect();
+			DataStore.remove(DataStore.STREAMERBOT_CONFIGS);
+			DataStore.remove(DataStore.STREAMERBOT_WS_PASSWORD);
 		},
 		
 		doAction(id:string, args:{[key:string]:string|number}):void {

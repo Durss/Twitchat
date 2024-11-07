@@ -72,7 +72,7 @@
 							<TTButton icon="tiltify" @click="openTiltify" light alert>{{ $t("global.configure") }}</TTButton>
 						</div>
 						<div class="card-item alert missingCharity"
-						v-else-if="overlay.dataSource == 'tiltify' && $store.tiltify.campaigns.length == 0">
+						v-else-if="overlay.dataSource == 'tiltify' && $store.tiltify.campaignList.length == 0">
 							<div>{{ $t("donation_goals.tiltify_not_campaign") }}</div>
 						</div>
 						<div class="card-item alert missingCharity"
@@ -80,13 +80,29 @@
 							<div>{{ $t("donation_goals.counter_empty") }}</div>
 							<TTButton icon="counter" @click="openCounters" light alert>{{ $t("donation_goals.counter_createBt") }}</TTButton>
 						</div>
+						<div class="card-item alert missingCharity"
+						v-else-if="overlay.dataSource == 'twitch_charity' && !canListTwitchCharities">
+							<div>{{ $t("donation_goals.twitch_charity_not_connected") }}</div>
+							<TTButton icon="tiltify" @click="grantCharityScope" light alert>{{ $t("global.configure") }}</TTButton>
+						</div>
+						<div class="card-item alert missingCharity"
+						v-else-if="overlay.dataSource == 'twitch_charity' && !$store.twitchCharity.currentCharity">
+							<div>{{ $t("donation_goals.twitch_charity_not_campaign") }}</div>
+						</div>
 
 						<ParamItem  :paramData="param_campaignId[overlay.id]" v-model="overlay.campaignId" @change="save(overlay.id)"
-							v-if="(overlay.dataSource == 'streamlabs_charity' || overlay.dataSource == 'tiltify') && (param_campaignId[overlay.id].listValues || []).length > 0"
+							v-if="(overlay.dataSource == 'streamlabs_charity' || overlay.dataSource == 'tiltify' || overlay.dataSource == 'twitch_charity') && (param_campaignId[overlay.id].listValues || []).length > 0"
 							:childLevel="1" noBackground />
 
 						<ParamItem :paramData="param_counterId[overlay.id]" v-model="overlay.counterId" @change="save(overlay.id)"
 							v-if="overlay.dataSource == 'counter' && (param_counterId[overlay.id].listValues || []).length > 0" :childLevel="1" noBackground />
+
+						<div class="parameter-child charityDetails" v-if="overlay.dataSource == 'twitch_charity' && $store.streamlabs.charityTeam != null">
+							<div class="holder">
+								<span><Icon name="twitch_charity"/>{{ $t("donation_goals.param_campaignId") }}:</span>
+								<a :href=" $store.twitchCharity.currentCharity!.charity_website" target="_blank"><Icon name="newtab"/>{{ $store.twitchCharity.currentCharity!.charity_name }}</a>
+							</div>
+						</div>
 
 						<div class="parameter-child charityDetails" v-if="overlay.dataSource == 'streamlabs_charity' && $store.streamlabs.charityTeam != null">
 							<div class="holder">
@@ -187,6 +203,8 @@ import { Component, toNative, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
 import DurationForm from '@/components/DurationForm.vue';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 @Component({
 	components:{
@@ -235,12 +253,17 @@ class OverlayParamsDonationGoal extends Vue {
 	}
 
 	/**
+	 * Get if charity read scope has been granted
+	 */
+	public get canListTwitchCharities():boolean {
+		return TwitchUtils.hasScopes([TwitchScopes.CHARITY_READ]);
+	}
+
+	/**
 	 * Save data to storage
 	 */
 	public beforeMount():void {
 		this.initParams();
-		//@ts-ignore
-		window.simulateDonation = (amount:number) => this.simulateAmount("ea8509b0-0649-4937-aac8-1b983167d43c", amount);
 	}
 
 	/**
@@ -262,6 +285,13 @@ class OverlayParamsDonationGoal extends Vue {
 	 */
 	public openCounters():void {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
+	}
+
+	/**
+	 * Request for charity scope
+	 */
+	public grantCharityScope():void {
+		TwitchUtils.requestScopes([TwitchScopes.CHARITY_READ]);
 	}
 
 	/**
@@ -398,7 +428,7 @@ class OverlayParamsDonationGoal extends Vue {
 					
 					case "tiltify": {
 						const list:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
-						this.$store.tiltify.campaigns.forEach(c=>{
+						this.$store.tiltify.campaignList.forEach(c=>{
 							list.push({
 								value:c.id,
 								label:c.name,
@@ -429,6 +459,7 @@ class OverlayParamsDonationGoal extends Vue {
 			this.param_dataSource[id].listValues = [
 				{value:"tiltify", label:"Tiltify"},
 				{value:"streamlabs_charity", label:"Streamlabs Charity"},
+				{value:"twitch_charity", labelKey:"donation_goals.twitch_charity"},
 				{value:"counter", labelKey:"donation_goals.counter_entry"},
 				{value:"twitch_subs", labelKey:"donation_goals.twitch_subs_entry"},
 				{value:"twitch_followers", labelKey:"donation_goals.twitch_followers_entry"},

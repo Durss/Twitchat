@@ -303,10 +303,11 @@ export const TriggerEventTypeCategories = {
 	KOFI:			{id:15, labelKey:"triggers.categories.kofi", icons:["kofi"]} as TriggerEventTypeCategory,
 	STREAMELEMENTS:	{id:16, labelKey:"triggers.categories.streamelements", icons:["streamelements"]} as TriggerEventTypeCategory,
 	TIPEEE:			{id:17, labelKey:"triggers.categories.tipeee", icons:["tipeee"]} as TriggerEventTypeCategory,
-	TILTIFY:		{id:18, labelKey:"triggers.categories.tiltify", icons:["tiltify"]} as TriggerEventTypeCategory,
-	PATREON:		{id:19, labelKey:"triggers.categories.patreon", icons:["patreon"]} as TriggerEventTypeCategory,
-	YOUTUBE:		{id:20, labelKey:"triggers.categories.youtube", icons:["youtube"]} as TriggerEventTypeCategory,
-	TIKTOK:			{id:21, labelKey:"triggers.categories.tiktok", icons:["tiktok"]} as TriggerEventTypeCategory,
+	TWITCH_CHARITY:	{id:18, labelKey:"triggers.categories.twitch_charity", icons:["twitch_charity"]} as TriggerEventTypeCategory,
+	TILTIFY:		{id:19, labelKey:"triggers.categories.tiltify", icons:["tiltify"]} as TriggerEventTypeCategory,
+	PATREON:		{id:20, labelKey:"triggers.categories.patreon", icons:["patreon"]} as TriggerEventTypeCategory,
+	YOUTUBE:		{id:21, labelKey:"triggers.categories.youtube", icons:["youtube"]} as TriggerEventTypeCategory,
+	TIKTOK:			{id:22, labelKey:"triggers.categories.tiktok", icons:["tiktok"]} as TriggerEventTypeCategory,
 };
 export type TriggerEventTypeCategoryID = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories]['id'];
 
@@ -1377,6 +1378,7 @@ export const TriggerTypes = {
 	MONITOR_ON:"153",
 	RESTRICT_ON:"154",
 	MONITOR_RESTRICT_OFF:"155",
+	TWITCH_CHARITY_DONATION:"156",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -2137,6 +2139,20 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"CAMPAIGN_PAGE", descKey:'triggers.placeholders.sl_campaign_url', pointer:"campaign.url", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsCharityData>,
 	];
 
+	map[TriggerTypes.TWITCH_CHARITY_DONATION] = [
+		{tag:USER_NAME, descKey:'triggers.placeholders.user', pointer:"user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
+		{tag:"CURRENCY", descKey:'triggers.placeholders.currency', pointer:"currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
+		{tag:"AMOUNT_NUMERIC", descKey:'triggers.placeholders.donation_amount', pointer:"amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
+		{tag:"AMOUNT_FORMATTED", descKey:'triggers.placeholders.donation_amount_formatted', pointer:"amountFormatted", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
+		{tag:"RAISED_TOTAL_NUMERIC", descKey:'triggers.placeholders.sl_raised', pointer:"raised", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
+		{tag:"RAISED_TOTAL_FORMATTED", descKey:'triggers.placeholders.sl_raised_formatted', pointer:"raisedFormatted", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
+		{tag:"GOAL_NUMERIC", descKey:'triggers.placeholders.sl_goal', pointer:"goal", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
+		{tag:"GOAL_FORMATTED", descKey:'triggers.placeholders.sl_goal_formatted', pointer:"goalFormatted", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
+		{tag:"CAMPAIGN_ID", descKey:'triggers.placeholders.sl_campaign_id', pointer:"campaign.id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
+		{tag:"CAMPAIGN_NAME", descKey:'triggers.placeholders.sl_campaign_title', pointer:"campaign.title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
+		{tag:"CAMPAIGN_PAGE", descKey:'triggers.placeholders.sl_campaign_url', pointer:"campaign.url", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCharityDonationData>,
+	];
+
 	map[TriggerTypes.TILTIFY_TIP] = [
 		{tag:USER_NAME, descKey:'triggers.placeholders.user', pointer:"userName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.TiltifyDonationData>,
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.TiltifyDonationData>,
@@ -2534,6 +2550,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.TIPEEE, icon:"tipeee", labelKey:"triggers.events.TIPEEE_DONATION.label", value:TriggerTypes.TIPEEE_DONATION, descriptionKey:"triggers.events.TIPEEE_DONATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIPEEE},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.TIPEEE, icon:"tipeee", labelKey:"triggers.events.TIPEEE_SUB.label", value:TriggerTypes.TIPEEE_SUB, descriptionKey:"triggers.events.TIPEEE_SUB.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIPEEE},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.TIPEEE, icon:"tipeee", labelKey:"triggers.events.TIPEEE_RESUB.label", value:TriggerTypes.TIPEEE_RESUB, descriptionKey:"triggers.events.TIPEEE_RESUB.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIPEEE},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V13_7, category:TriggerEventTypeCategories.TWITCH_CHARITY, icon:"twitch_charity", labelKey:"triggers.events.TWITCH_CHARITY_DONATION.label", value:TriggerTypes.TWITCH_CHARITY_DONATION, descriptionKey:"triggers.events.TWITCH_CHARITY_DONATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13_7, category:TriggerEventTypeCategories.TILTIFY, icon:"tiltify", labelKey:"triggers.events.TILTIFY_TIP.label", value:TriggerTypes.TILTIFY_TIP, descriptionKey:"triggers.events.TILTIFY_TIP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TILTIFY},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13_7, category:TriggerEventTypeCategories.PATREON, icon:"patreon", labelKey:"triggers.events.PATREON_NEW_MEMBER.label", value:TriggerTypes.PATREON_NEW_MEMBER, descriptionKey:"triggers.events.PATREON_NEW_MEMBER.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.PATREON},
 		

@@ -107,6 +107,7 @@
 				"countdown": "Countdown",
 				"prediction": "Predictions",
 				"subscription": "Subs",
+				"twitch_charity_donation": "Twitch charity Donation",
 				"hype_train_summary": "Hype train summaries",
 				"hype_train_cooled_down": "Hype train cooldown",
 				"community_boost_complete": "Community boosts",
@@ -479,6 +480,9 @@
 			"donation": "{USER} made a {AMOUNT} donation on Tipeee",
 			"donation_recurring": "{USER} donated {AMOUNT} for {MONTHS} months on Tipeee",
 			"monthly": "{USER} donates {AMOUNT} per month on Tipeee"
+		},
+		"twitch_charity": {
+			"donation": "{USER} donated {AMOUNT} to {CAMPAIGN} Twitch Charity"
 		},
 		"tiltify": {
 			"donation": "{USER} donated {AMOUNT} to {CAMPAIGN}"

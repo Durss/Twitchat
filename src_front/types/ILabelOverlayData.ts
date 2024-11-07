@@ -176,6 +176,14 @@ export const LabelItemPlaceholderList = [
 
 	{tag:"TIPEEE_TIP_NAME",						type:"string",	descriptionKey:"overlay.labels.placeholders.TIPEEE_TIP_NAME", backup:true} as const,
 	{tag:"TIPEEE_TIP_AMOUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.TIPEEE_TIP_AMOUNT", backup:true} as const,
+
+	{tag:"TWITCH_CHARITY_NAME",					type:"string",	descriptionKey:"overlay.labels.placeholders.TWITCH_CHARITY_NAME", backup:true} as const,
+	{tag:"TWITCH_CHARITY_IMAGE",				type:"image",	descriptionKey:"overlay.labels.placeholders.TWITCH_CHARITY_IMAGE", backup:true} as const,
+	{tag:"TWITCH_CHARITY_RAISED",				type:"number",	descriptionKey:"overlay.labels.placeholders.TWITCH_CHARITY_RAISED", backup:true} as const,
+	{tag:"TWITCH_CHARITY_GOAL",					type:"number",	descriptionKey:"overlay.labels.placeholders.TWITCH_CHARITY_GOAL", backup:true} as const,
+	{tag:"TWITCH_CHARITY_LAST_TIP_USER",		type:"string",	descriptionKey:"overlay.labels.placeholders.TWITCH_CHARITY_LAST_TIP_USER", backup:true} as const,
+	{tag:"TWITCH_CHARITY_LAST_TIP_AMOUNT",		type:"number",	descriptionKey:"overlay.labels.placeholders.TWITCH_CHARITY_LAST_TIP_AMOUNT", backup:true} as const,
+	{tag:"TWITCH_CHARITY_LAST_TIP_AVATAR",		type:"image",	descriptionKey:"overlay.labels.placeholders.TWITCH_CHARITY_LAST_TIP_AVATAR", backup:true} as const,
 	
 	{tag:"VOICEMOD_EFFECT_TITLE",				type:"number",	descriptionKey:"overlay.labels.placeholders.VOICEMOD_EFFECT_TITLE", backup:true} as const,
 	{tag:"VOICEMOD_EFFECT_ICON",				type:"number",	descriptionKey:"overlay.labels.placeholders.VOICEMOD_EFFECT_ICON", backup:false} as const,

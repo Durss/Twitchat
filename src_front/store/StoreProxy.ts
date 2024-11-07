@@ -73,6 +73,7 @@ export default class StoreProxy {
 	public static sammi:ISammiState & ISammiGetters & ISammiActions & {$state:ISammiState, $reset:()=>void};
 	public static public:IPublicState & IPublicGetters & IPublicActions & {$state:IPublicState, $reset:()=>void};
 	public static mixitup: IMixitupState & IMixitupGetters & IMixitupActions & { $state: IMixitupState, $reset: () => void };
+	public static twitchCharity: ITwitchCharityState & ITwitchCharityGetters & ITwitchCharityActions & { $state: ITwitchCharityState, $reset: () => void };
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static asset:(path: string) => string;
@@ -3056,7 +3057,7 @@ export interface IDonationGoalActions {
 
 export interface ITiltifyState {
 	user:TiltifyUser|null;
-	campaigns:TiltifyCampaign[];
+	campaignList:TiltifyCampaign[];
 	connected:boolean;
 	token:TiltifyToken|null;
 	authResult:{code:string, csrf:string};
@@ -3265,4 +3266,45 @@ export interface IMixitupActions {
 	 * Lists all available commands
 	 */
 	listCommands():Promise<void>;
+}
+
+
+
+
+export interface ITwitchCharityState {
+	currentCharity:TwitchDataTypes.CharityCampaign | null;
+}
+
+export interface ITwitchCharityGetters {
+}
+
+export interface ITwitchCharityActions {
+	/**
+	 * Populates the store
+	 */
+	populateData(): Promise<void>;
+	/**
+	 * Called when a new charity compaign is started
+	 */
+	onCharityStart(charity:TwitchDataTypes.CharityCampaign):void;
+	/**
+	 * Called when a charity progresses
+	 */
+	onCharityProgress(charityId:string, currentAmount:TwitchDataTypes.CharityCampaign["current_amount"], goalAmount:TwitchDataTypes.CharityCampaign["target_amount"]):void;
+	/**
+	 * Called when receiving a new donation
+	 * @param charityId 
+	 * @param user 
+	 * @param amount 
+	 * @param currency 
+	 */
+	onCharityDonation(charityId:string, user:TwitchatDataTypes.TwitchatUser, amount:number, currency:string):void
+	/**
+	 * Called when a charity compaign is stopped
+	 */
+	onCharityStop(charityId:string):void;
+	/**
+	 * Update global labels
+	 */
+	updateLabels():void;
 }

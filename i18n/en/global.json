@@ -160,8 +160,9 @@
 		"twitch_scopes": {
 			"bits:read": "Receive bits alerts",
 			"chat:read": "Read your chat",
-			"user:read:chat": "Read your chat (v2)",
 			"chat:edit": "Write on your chat",
+			"user:read:chat": "Read your chat",
+			"user:write:chat": "Write on your chat",
 			"whispers:edit": "Send whispers",
 			"whispers:read": "Receive whispers",
 			"user:read:blocked_users": "List blocked users",
@@ -204,7 +205,8 @@
 			"channel:read:ads":"Read ad break info",
 			"channel:manage:ads":"Snooze an incoming ad break",
 			"moderator:manage:warnings":"Send warning to users",
-			"moderator:read:suspicious_users":"Suspicious/restricted messages"
+			"moderator:read:suspicious_users":"Suspicious/restricted messages",
+			"channel:read:charity":"Lire vos Campagnes caritatives"
 		},
 		"permissions": {
 			"broadcaster": "Broadcaster",

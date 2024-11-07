@@ -1517,6 +1517,19 @@ export const storeChat = defineStore('chat', {
 						break;
 					}
 	
+					//New Tipeee event
+					case TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION: {
+						if(!isFromRemoteChan) {
+							message = message as TwitchatDataTypes.MessageCharityDonationData;
+							StoreProxy.labels.updateLabelValue("TWITCH_CHARITY_LAST_TIP_USER", message.user.displayName);
+							StoreProxy.labels.updateLabelValue("TWITCH_CHARITY_LAST_TIP_AVATAR", message.user.avatarPath || "", message.user.id);
+							StoreProxy.labels.updateLabelValue("TWITCH_CHARITY_LAST_TIP_AMOUNT", message.amountFormatted);
+							sRaffle.checkRaffleJoin(message);
+							StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, message.amount.toString(), "twitch_charity");
+						}
+						break;
+					}
+	
 					//New YouTube sub
 					case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION: {
 						if(!isFromRemoteChan) {

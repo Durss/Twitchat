@@ -1763,6 +1763,28 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION: {
+					const amount = Math.round(Math.random()*50);
+					const m:TwitchatDataTypes.MessageCharityDonationData = {
+						id:Utils.getUUID(),
+						type:TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION,
+						date:Date.now(),
+						channel_id:StoreProxy.auth.twitch.user.id,
+						platform:"twitch",
+						user,
+						currency:"€",
+						amount,
+						amountFormatted:amount+"€",
+						campaign: {
+							id:StoreProxy.twitchCharity.currentCharity?.id || Utils.getUUID(),
+							title:StoreProxy.twitchCharity.currentCharity?.charity_name || "My Twitch charity campaign",
+							url:StoreProxy.twitchCharity.currentCharity?.charity_website || "https://dashboard.twitch.tv/charity",
+						},
+					};
+					data = m;
+					break;
+				}
+
 				default: {
 					let message = "The request message type \""+type+"\" is lacking implementation on storeDebug."
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);

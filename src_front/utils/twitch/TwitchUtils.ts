@@ -2310,13 +2310,15 @@ export default class TwitchUtils {
 			version,
 			condition: {
 				broadcaster_user_id: channelId,
-				moderator_user_id: userId,
 			} as { [key: string]: any },
 			transport: {
 				method: "websocket",
 				session_id,
 			}
 		};
+		if(userId) {
+			body.condition.moderator_user_id = userId;
+		}
 
 		if (additionalCondition) {
 			for (const key in additionalCondition) {
@@ -3016,6 +3018,31 @@ export default class TwitchUtils {
 			return this.sendMessage(channelID, message, replyToID);
 		}
 		return false;
+	}
+
+	/**
+	 * Sends a warning to a user
+	 * @param uid user ID
+	 * @param reason warning message
+	 */
+	public static async getCharityList(channelID: string): Promise<TwitchDataTypes.CharityCampaign[]> {
+		if (!this.hasScopes([TwitchScopes.CHARITY_READ])) return [];
+
+		const url = new URL(Config.instance.TWITCH_API_PATH + "charity/campaigns");
+		url.searchParams.append("broadcaster_id", channelID);
+
+		const res = await this.callApi(url, {
+			method: "GET",
+			headers: this.headers,
+		});
+		if (res.status == 200 || res.status == 204) {
+			const json = await res.json() as {data:TwitchDataTypes.CharityCampaign[]};
+			return json.data;
+		} else if (res.status == 429) {
+			await this.onRateLimit(res.headers, url.pathname);
+			return this.getCharityList(channelID);
+		}
+		return [];
 	}
 
 

@@ -70,6 +70,7 @@ import { storeTiktok } from './store/tiktok/storeTiktok';
 import { storeStreamerbot } from './store/streamerbot/storeStreamerbot';
 import { storeSammi } from './store/sammi/storeSammi';
 import { storeMixitup } from './store/mixitup/storeMixitup';
+import { storeTwitchCharity } from './store/twitch_charity/storeTwitchCharity';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -278,6 +279,7 @@ function buildApp() {
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.default.labels = (storeLabels() as unknown) as StoreProxy.ILabelsState & StoreProxy.ILabelsGetters & StoreProxy.ILabelsActions & { $state: StoreProxy.ILabelsState; $reset:()=>void };
 	StoreProxy.default.mixitup = storeMixitup();
+	StoreProxy.default.twitchCharity = storeTwitchCharity();
 
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach(k => {

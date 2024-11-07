@@ -1,7 +1,7 @@
 export const TwitchScopes = {
 	CHAT_READ: "chat:read",
-	CHAT_READ_EVENTSUB: "user:read:chat",
 	CHAT_WRITE: "chat:edit",
+	CHAT_READ_EVENTSUB: "user:read:chat",
 	CHAT_WRITE_EVENTSUB: "user:write:chat",
 	WHISPER_READ: "whispers:read",
 	WHISPER_WRITE: "user:manage:whispers",
@@ -43,6 +43,7 @@ export const TwitchScopes = {
 	CHAT_WARNING: "moderator:manage:warnings",
 	READ_VIPS: "moderator:read:vips",
 	SUSPICIOUS_USERS: "moderator:read:suspicious_users",
+	CHARITY_READ: "channel:read:charity",
 } as const;
 export type TwitchScopesString = typeof TwitchScopes[keyof typeof TwitchScopes];
 
