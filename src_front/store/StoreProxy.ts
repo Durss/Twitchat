@@ -20,6 +20,7 @@ import type { PredictionOverlayParamStoreData } from "./prediction/storePredicti
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/storeTiltify";
 import type { PatreonDataTypes } from "@/utils/patreon/PatreonDataTypes";
 import type { StreamerbotAction } from "@streamerbot/client";
+import type { ElevenLabs } from "elevenlabs";
 
 /**
 * Created : 23/09/2022
@@ -3307,4 +3308,43 @@ export interface ITwitchCharityActions {
 	 * Update global labels
 	 */
 	updateLabels():void;
+}
+
+
+
+
+export interface IElevenLabsState {
+	connected:boolean;
+	apiKey:string;
+	voiceList:ElevenLabs.Voice[];
+}
+
+export interface IElevenLabsGetters {
+}
+
+export interface IElevenLabsActions {
+	/**
+	 * Populates the store
+	 */
+	populateData(): Promise<void>;
+	/**
+	 * Connects to ElevenLabs
+	 */
+	connect(): Promise<boolean>;
+	/**
+	 * Disconnects to ElevenLabs
+	 */
+	disconnect(): void;
+	/**
+	 * Called when a new charity compaign is started
+	 */
+	tts(message:string, modelId:string, lang:string, settings?:unknown):Promise<void>;
+	/**
+	 * Loads available voices list
+	 */
+	loadVoiceList():Promise<boolean>;
+	/**
+	 * Saves current confis
+	 */
+	saveConfigs():void;
 }

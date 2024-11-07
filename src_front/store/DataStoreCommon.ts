@@ -112,6 +112,7 @@ export default class DataStoreCommon {
 	public static SAMMI_CONFIGS:string = "sammiConfigs";
 	public static SAMMI_API_PASSWORD:string = "sammiApiPassword";
 	public static MIXITUP_CONFIGS:string = "mixitupConfigs";
+	public static ELEVENLABS_API_KEY:string = "elevenlabsApiKey";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";
@@ -149,6 +150,7 @@ export default class DataStoreCommon {
 		this.STREAMLABS_CHARITY_CACHE,
 		this.STREAMERBOT_WS_PASSWORD,
 		this.SAMMI_API_PASSWORD,
+		this.ELEVENLABS_API_KEY,
 	];
 
 

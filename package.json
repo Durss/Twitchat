@@ -80,6 +80,7 @@
 		"concurrently": "^7.5.0",
 		"dom-to-image-more": "^3.1.6",
 		"dpdm": "^3.9.0",
+		"elevenlabs": "^0.18.0",
 		"eslint": "^7.32.0",
 		"eslint-plugin-vue": "^8.0.3",
 		"grapheme-splitter": "^1.0.4",
