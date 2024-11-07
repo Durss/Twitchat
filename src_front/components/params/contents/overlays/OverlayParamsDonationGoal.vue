@@ -73,7 +73,7 @@
 						</div>
 						<div class="card-item alert missingCharity"
 						v-else-if="overlay.dataSource == 'tiltify' && $store.tiltify.campaignList.length == 0">
-							<div>{{ $t("donation_goals.tiltify_not_campaign") }}</div>
+							<div>{{ $t("donation_goals.tiltify_no_campaign") }}</div>
 						</div>
 						<div class="card-item alert missingCharity"
 						v-else-if="overlay.dataSource == 'counter' && $store.counters.counterList.length == 0">
@@ -87,7 +87,8 @@
 						</div>
 						<div class="card-item alert missingCharity"
 						v-else-if="overlay.dataSource == 'twitch_charity' && !$store.twitchCharity.currentCharity">
-							<div>{{ $t("donation_goals.twitch_charity_not_campaign") }}</div>
+							<div>{{ $t("donation_goals.twitch_charity_no_campaign") }}</div>
+							<TTButton type="link" href="https://dashboard.twitch.tv/charity/" target="_blank" icon="newtab" alert light>{{$t("donation_goals.twitch_charity_open")}}</TTButton>
 						</div>
 
 						<ParamItem  :paramData="param_campaignId[overlay.id]" v-model="overlay.campaignId" @change="save(overlay.id)"
@@ -97,7 +98,7 @@
 						<ParamItem :paramData="param_counterId[overlay.id]" v-model="overlay.counterId" @change="save(overlay.id)"
 							v-if="overlay.dataSource == 'counter' && (param_counterId[overlay.id].listValues || []).length > 0" :childLevel="1" noBackground />
 
-						<div class="parameter-child charityDetails" v-if="overlay.dataSource == 'twitch_charity' && $store.streamlabs.charityTeam != null">
+						<div class="parameter-child charityDetails" v-if="overlay.dataSource == 'twitch_charity' && $store.twitchCharity.currentCharity != null">
 							<div class="holder">
 								<span><Icon name="twitch_charity"/>{{ $t("donation_goals.param_campaignId") }}:</span>
 								<a :href=" $store.twitchCharity.currentCharity!.charity_website" target="_blank"><Icon name="newtab"/>{{ $store.twitchCharity.currentCharity!.charity_name }}</a>

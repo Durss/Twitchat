@@ -28,6 +28,7 @@ export const storeTwitchCharity = defineStore('switchcharity', {
 		},
 
 		onCharityStart(charity:TwitchDataTypes.CharityCampaign):void {
+			console.log("START IT ", charity.charity_name);
 			this.currentCharity = charity;
 			this.updateLabels();
 		},
@@ -78,9 +79,10 @@ export const storeTwitchCharity = defineStore('switchcharity', {
 
 		onCharityStop(charityId:string):void {
 			if(this.currentCharity && this.currentCharity.id == charityId) {
+				console.log("STOP IT ", this.currentCharity.charity_name);
 				this.currentCharity = null;
 				this.populateData();
-			this.updateLabels();
+				this.updateLabels();
 			}
 		},
 
