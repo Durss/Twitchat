@@ -76,7 +76,7 @@ class ConnectStreamerBot extends Vue {
 
 	public param_ip:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"streamerbot.ip", maxLength:100};
 	public param_port:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", labelKey:"streamerbot.port", min:0, max:65535};
-	public param_pass:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"streamerbot.pass", maxLength:100};
+	public param_pass:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"streamerbot.pass", maxLength:100, isPrivate:true};
 		
 	public get canConnect():boolean {
 		return this.param_ip.value.length >= 7;// && this.param_port.value > 0;

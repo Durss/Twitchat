@@ -107,13 +107,6 @@
 			</button>
 
 			<button class="card-item"
-			:class="{connected:obsConnected}"
-			@click="subContent='obs'">
-				<Icon name="obs" />
-				<p>OBS</p>
-			</button>
-
-			<button class="card-item"
 			:class="{connected:heatConnected}"
 			@click="subContent='heat'">
 				<Icon name="heat" />
@@ -139,6 +132,20 @@
 			@click="subContent='mixitup'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.mixitup'}">
 				<Icon name="mixitup" />
 				<p>Mix It Up</p>
+			</button>
+
+			<button class="card-item"
+			:class="{connected:$store.elevenLabs.connected}"
+			@click="subContent='elevenlabs'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.elevenlabs'}">
+				<Icon name="elevenlabs" />
+				<p>ElevenLabs</p>
+			</button>
+
+			<button class="card-item"
+			:class="{connected:obsConnected}"
+			@click="subContent='obs'">
+				<Icon name="obs" />
+				<p>OBS</p>
 			</button>
 
 			<button class="card-item"
@@ -170,13 +177,13 @@
 	<ConnectStreamerBot v-else-if="subContent == 'streamerbot'" />
 	<ConnectSammi v-else-if="subContent == 'sammi'" />
 	<ConnectMixitup v-else-if="subContent == 'mixitup'" />
+	<ConnectElevenLabs v-else-if="subContent == 'elevenlabs'" />
 
 </template>
 
 <script lang="ts">
 import Icon from '@/components/Icon.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import type IParameterContent from './IParameterContent';
 import ConnectDiscord from './connexions/ConnectDiscord.vue';
@@ -206,6 +213,7 @@ import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import HeatSocket from '@/utils/twitch/HeatSocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
+import ConnectElevenLabs from './connexions/ConnectElevenLabs.vue';
 
 @Component({
 	components:{
@@ -227,6 +235,7 @@ import WebsocketTrigger from '@/utils/WebsocketTrigger';
 		ConnectWebsocket,
 		ConnectStreamdeck,
 		ConnectStreamlabs,
+		ConnectElevenLabs,
 		ConnectStreamerBot,
 		ConnectStreamelements,
 	},

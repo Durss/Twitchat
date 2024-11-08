@@ -37,6 +37,7 @@ export namespace TwitchatDataTypes {
 		WEBSOCKET: "websocket",
 		HEAT_AREAS: "heatAreas",
 		STREAMLABS: "streamlabs",
+		ELEVENLABS: "elevenlabs",
 		BINGO_GRID: "bingogrid",
 		STREAMDECK: "streamdeck",
 		HIGHLIGHT: "chathighlight",
@@ -612,6 +613,11 @@ export namespace TwitchatDataTypes {
 		 * Optional error message to be displayed
 		 */
 		errorMessage?:string;
+		/**
+		 * Defines if the parameter is private
+		 * A private parameter is not saved server-side
+		 */
+		isPrivate?:boolean;
 		/**
 		 * Callback called when value is changed (if v-model can't be used)
 		 */
@@ -1209,7 +1215,12 @@ export namespace TwitchatDataTypes {
 		volume: number;
 		rate: number;
 		pitch: number;
-		voice: string;
+		elevenlabs_stability: number;
+		elevenlabs_similarity: number;
+		voice: {
+			id:string;
+			platform:"system"|"elevenlabs";
+		};
 		removeEmotes: boolean;
 		maxLength: number;
 		maxDuration: number;

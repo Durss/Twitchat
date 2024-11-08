@@ -1765,23 +1765,31 @@ export const storeDebug = defineStore('debug', {
 
 				case TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION: {
 					const amount = Math.round(Math.random()*50);
-					const m:TwitchatDataTypes.MessageCharityDonationData = {
+					const currency = StoreProxy.twitchCharity.currentCharity?.current_amount.currency || "EUR";
+					const goal = !StoreProxy.twitchCharity.currentCharity? amount*10 : StoreProxy.twitchCharity.currentCharity.target_amount.value/Math.pow(10, StoreProxy.twitchCharity.currentCharity.target_amount.decimal_places);
+					const raised = !StoreProxy.twitchCharity.currentCharity? amount*5 : StoreProxy.twitchCharity.currentCharity.current_amount.value/Math.pow(10, StoreProxy.twitchCharity.currentCharity.current_amount.decimal_places);
+					const message:TwitchatDataTypes.MessageCharityDonationData = {
 						id:Utils.getUUID(),
 						type:TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION,
 						date:Date.now(),
 						channel_id:StoreProxy.auth.twitch.user.id,
 						platform:"twitch",
 						user,
-						currency:"€",
 						amount,
-						amountFormatted:amount+"€",
+						currency,
+						amountFormatted: amount + currency,
+						goal,
+						goalFormatted: goal + currency,
+						raised,
+						raisedFormatted: raised + currency,
 						campaign: {
-							id:StoreProxy.twitchCharity.currentCharity?.id || Utils.getUUID(),
+							id: StoreProxy.twitchCharity.currentCharity?.id || "123",
 							title:StoreProxy.twitchCharity.currentCharity?.charity_name || "My Twitch charity campaign",
 							url:StoreProxy.twitchCharity.currentCharity?.charity_website || "https://dashboard.twitch.tv/charity",
 						},
 					};
-					data = m;
+	
+					StoreProxy.chat.addMessage(message);
 					break;
 				}
 

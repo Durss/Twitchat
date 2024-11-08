@@ -50,6 +50,8 @@
 			"param_rate": "Vitesse {VALUE}",
 			"param_pitch": "Pitch {VALUE}",
 			"param_voice": "Voix",
+			"param_elevenlabs_stability":"Stabilité",
+			"param_elevenlabs_similarity":"Similarité",
 			"param_removeEmotes": "Supprimer les emotes",
 			"test_message": "Ceci est un test",
 			"test_placeholder": "message...",

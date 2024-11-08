@@ -1052,11 +1052,25 @@ const UserDataSchema = {
 				volume: {type:"number", minimum:0, maximum:1},
 				rate: {type:"number", minimum:0.1, maximum:10},
 				pitch: {type:"number", minimum:0, maximum:2},
+				elevenlabs_stability: {type:"number", minimum:0, maximum:1},
+				elevenlabs_similarity: {type:"number", minimum:0, maximum:1},
 				maxLength: {type:"integer", minimum:0, maximum:500},
 				maxDuration: {type:"integer", minimum:0, maximum:120},
 				timeout: {type:"integer", minimum:0, maximum:300},
 				inactivityPeriod: {type:"integer", minimum:0, maximum:60},
-				voice: {type:"string", maxLength:500},
+				voice: {
+					anyOf: [
+						{type:"string", maxLength:500},
+						{
+							type:"object",
+							additionalProperties: false,
+							properties:{
+								id: {type:"string", maxLength:100},
+								platform: {type:"string", maxLength:40},
+							}
+						}
+					],
+				},
 				removeURL: {type:"boolean"},
 				replaceURL: {type:"string", maxLength:100},
 				removeEmotes: {type:"boolean"},
@@ -1941,7 +1955,7 @@ const UserDataSchema = {
 							title: {type:"string", maxLength:40},
 							campaignId: {type:"string", maxLength:100},
 							counterId: {type:"string", maxLength:40},
-							dataSource: {enum: ["streamlabs_charity","tiltify","counter","twitch_subs","twitch_followers"]},
+							dataSource: {enum: ["streamlabs_charity","tiltify","counter","twitch_subs","twitch_followers","twitch_charity"]},
 							enabled: {type:"boolean"},
 							ideDone: {type:"boolean"},
 							notifyTips: {type:"boolean"},

@@ -58,6 +58,7 @@
 		"key":"Clé",
 		"value":"Valeur",
 		"advanced_params": "Paramètres avancés",
+		"private_field": "Cette information ne sera jamais sauvegardée sur le serveur de Twitchat",
 		"join_discordBt": "Rejoindre Discord",
 		"ask_supportBt": "Demander de l'aide",
 		"obs_connect": "Cette fonctionnalité nécessite de {LINK}",

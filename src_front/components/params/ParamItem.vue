@@ -70,7 +70,8 @@
 				/>
 
 				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
-				<div class="inputHolder">
+				<div class="inputHolder" :class="{privateField:paramData.isPrivate}">
+					<Icon v-if="paramData.isPrivate" name="spoiler" class="privateIcon" v-tooltip="$t('global.private_field')" />
 					<textarea ref="input" v-if="longText && !paramData.noInput"
 						:tabindex="tabindex"
 						v-model="textValue"
@@ -96,7 +97,7 @@
 						:placeholder="placeholder"
 						:maxlength="paramData.maxLength? paramData.maxLength : 524288"
 						:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
-						autocomplete="new-password"
+						:autocomplete="paramData.type == 'password'? 'off' : 'new-password'"
 						@focus="$emit('focus')"
 						@blur="clampValue(); $emit('blur')"
 						@input="$emit('input')">
@@ -436,7 +437,7 @@ export class ParamItem extends Vue {
 	private isLocalUpdate:boolean = false;
 	private childrenExpanded:boolean = false;
 
-	public get longText():boolean { return this.paramData?.longText === true || this.textValue?.length > 40; }
+	public get longText():boolean { return this.paramData?.longText === true || (this.textValue?.length > 40 && this.paramData.type != "password"); }
 
 	public get showChildren():boolean {
 		if(this.forceChildDisplay !== false) return true;
@@ -1087,6 +1088,8 @@ export default toNative(ParamItem);
 				.inputHolder {
 					position: relative;
 					flex-grow: 1;
+					overflow: hidden;
+					border-radius: var(--border-radius);
 					.maxlength {
 						font-size: .7em;
 						position: absolute;
@@ -1101,6 +1104,21 @@ export default toNative(ParamItem);
 					input {
 						width: 100%;
 						max-width: unset;
+					}
+
+					&.privateField {
+						input {
+							padding-left: 1.5em;
+						}
+						.privateIcon {
+							width:1.5em;
+							height: 100%;
+							background-color: var(--color-text);
+							color:var(--grayout);
+							position: absolute;
+							left: 0;
+							padding: .25em;
+						}
 					}
 				}
 			}

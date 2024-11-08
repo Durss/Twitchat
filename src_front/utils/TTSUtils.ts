@@ -46,7 +46,6 @@ export default class TTSUtils {
 	private static _instance:TTSUtils;
 
 	private _enabled:boolean = false;
-	private voices:SpeechSynthesisVoice[] = [];
 	private pendingMessages:SpokenMessage[] = [];
 	private lastMessageTime:number = 0;
 	private stopTimeout:number = -1;
@@ -80,6 +79,48 @@ export default class TTSUtils {
 		}
 		this._enabled = value;
 	}
+
+	/**
+	 * Get avalaible voices
+	 */
+	public get voices() {
+		let res:(
+			{platform:"system", voice:SpeechSynthesisVoice}
+			| {platform:"elevenlabs", voiceId:string}
+		)[] = []
+
+		//Add system voices
+		res.concat(window.speechSynthesis? window.speechSynthesis.getVoices().map(v=>{
+			return {
+				platform: "system",
+				voice: v
+			}
+		}) : []);
+		if(window.speechSynthesis) {
+			//Sometimes voices are not ready at this point.
+			//We'll listen for the "voiceschanged" event to get them later as a fallback
+			window.speechSynthesis.onvoiceschanged = () => {
+				window.speechSynthesis.getVoices().forEach(v=> {
+					//Add voices if missing from list
+					if(!this.voices.filter(v=>v.platform == "system").find(x=>x.voice.name == v.name)) {
+						this.voices.push({platform:"system", voice:v});
+					}
+				});
+			};
+		}
+
+		//Add ElevenLabs voices
+		if(StoreProxy.elevenLabs.connected) {
+			this.voices.concat(StoreProxy.elevenLabs.voiceList.map(v=>{
+				return {
+					platform: "elevenlabs",
+					voiceId: v.voice_id,
+				}
+			}));
+		}
+
+		return res;
+	}
 	
 	
 	/******************
@@ -91,7 +132,7 @@ export default class TTSUtils {
 	 * 
 	 * @returns SpeechSynthesisVoice[]
 	 */
-	public getVoices():SpeechSynthesisVoice[] {
+	public getVoices() {
 		return this.voices;
 	}
 
@@ -206,20 +247,13 @@ export default class TTSUtils {
 			this.pendingMessages.push(m);
 		}
 	}
-	
+
 	
 	
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
 	private initialize():void {
-		this.voices = window.speechSynthesis? window.speechSynthesis.getVoices() : [];
-		if(window.speechSynthesis) {
-			window.speechSynthesis.onvoiceschanged = () => { // in case they are not yet loaded
-				this.voices = window.speechSynthesis.getVoices();
-			};
-		}
-		
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_TTS, ()=> {
 			this.stop();
 		});

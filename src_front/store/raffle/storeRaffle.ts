@@ -54,6 +54,9 @@ export const storeRaffle = defineStore('raffle', {
 
 		async startRaffle(payload:TwitchatDataTypes.RaffleData) {
 			this.raffleList.push(payload);
+			while(this.raffleList.length > 20) {
+				this.raffleList.shift();
+			}
 			
 			payload.created_at = Date.now();
 			payload.sessionId = Utils.getUUID();

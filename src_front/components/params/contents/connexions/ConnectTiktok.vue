@@ -8,7 +8,7 @@
 					<a href="https://tiktok.com/" target="_blank"><Icon name="newtab" />TikTok</a>
 				</template>
 			</i18n-t>
-			<div class="card-item secondary infos">
+			<div class="card-item secondary infos" v-if="!$store.tiktok.connected">
 				<span>
 					<Icon name="info" />
 					<i18n-t scope="global" keypath="tiktok.requirement">

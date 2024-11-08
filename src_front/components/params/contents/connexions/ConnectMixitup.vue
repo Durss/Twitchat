@@ -8,7 +8,7 @@
 					<a href="https://mixitupapp.com" target="_blank"><Icon name="newtab" />Mix It Up</a>
 				</template>
 			</i18n-t>
-			<div class="card-item secondary infos">
+			<div class="card-item secondary infos" v-if="!$store.mixitup.connected">
 				<span>
 					<Icon name="info" />
 					<span>{{$t("mixitup.instructions")}}</span>

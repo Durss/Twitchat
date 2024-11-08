@@ -64,12 +64,12 @@
 						<div class="card-item alert missingCharity"
 						v-if="overlay.dataSource == 'streamlabs_charity' && $store.streamlabs.charityTeam == null">
 							<div>{{ $t("donation_goals.streamlabs_charity_not_connected") }}</div>
-							<TTButton icon="streamlabs" @click="openStreamlabs" light alert>{{ $t("global.configure") }}</TTButton>
+							<TTButton icon="streamlabs" @click="openStreamlabs" light alert>{{ $t("global.connect") }}</TTButton>
 						</div>
 						<div class="card-item alert missingCharity"
 						v-if="overlay.dataSource == 'tiltify' && !$store.tiltify.connected">
 							<div>{{ $t("donation_goals.tiltify_not_connected") }}</div>
-							<TTButton icon="tiltify" @click="openTiltify" light alert>{{ $t("global.configure") }}</TTButton>
+							<TTButton icon="tiltify" @click="openTiltify" light alert>{{ $t("global.connect") }}</TTButton>
 						</div>
 						<div class="card-item alert missingCharity"
 						v-else-if="overlay.dataSource == 'tiltify' && $store.tiltify.campaignList.length == 0">
@@ -83,7 +83,7 @@
 						<div class="card-item alert missingCharity"
 						v-else-if="overlay.dataSource == 'twitch_charity' && !canListTwitchCharities">
 							<div>{{ $t("donation_goals.twitch_charity_not_connected") }}</div>
-							<TTButton icon="tiltify" @click="grantCharityScope" light alert>{{ $t("global.configure") }}</TTButton>
+							<TTButton icon="twitch_charity" @click="grantCharityScope" light alert>{{ $t("global.grant_scope") }}</TTButton>
 						</div>
 						<div class="card-item alert missingCharity"
 						v-else-if="overlay.dataSource == 'twitch_charity' && !$store.twitchCharity.currentCharity">

@@ -58,6 +58,7 @@
 		"key":"Key",
 		"value":"Value",
 		"advanced_params": "Advanced parameters",
+		"private_field": "This information will never be saved on Twitchat server",
 		"join_discordBt": "Join Discord",
 		"ask_supportBt": "Ask for help",
 		"obs_connect": "This feature needs you to {LINK}",

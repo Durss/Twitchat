@@ -20,7 +20,7 @@ import type { PredictionOverlayParamStoreData } from "./prediction/storePredicti
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/storeTiltify";
 import type { PatreonDataTypes } from "@/utils/patreon/PatreonDataTypes";
 import type { StreamerbotAction } from "@streamerbot/client";
-import type { ElevenLabs } from "elevenlabs";
+import type { ElevenLabsModel, ElevenLabsVoice } from "./elevenlabs/storeElevenLabs";
 
 /**
 * Created : 23/09/2022
@@ -75,6 +75,7 @@ export default class StoreProxy {
 	public static public:IPublicState & IPublicGetters & IPublicActions & {$state:IPublicState, $reset:()=>void};
 	public static mixitup: IMixitupState & IMixitupGetters & IMixitupActions & { $state: IMixitupState, $reset: () => void };
 	public static twitchCharity: ITwitchCharityState & ITwitchCharityGetters & ITwitchCharityActions & { $state: ITwitchCharityState, $reset: () => void };
+	public static elevenLabs: IElevenLabsState & IElevenLabsGetters & IElevenLabsActions & { $state: IElevenLabsState, $reset: () => void };
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static asset:(path: string) => string;
@@ -3316,7 +3317,8 @@ export interface ITwitchCharityActions {
 export interface IElevenLabsState {
 	connected:boolean;
 	apiKey:string;
-	voiceList:ElevenLabs.Voice[];
+	voiceList:ElevenLabsVoice[];
+	modelList:ElevenLabsModel[];
 }
 
 export interface IElevenLabsGetters {
@@ -3338,11 +3340,11 @@ export interface IElevenLabsActions {
 	/**
 	 * Called when a new charity compaign is started
 	 */
-	tts(message:string, modelId:string, lang:string, settings?:unknown):Promise<void>;
+	read(message:string, modelId:string, lang?:string, settings?:unknown):Promise<void>;
 	/**
 	 * Loads available voices list
 	 */
-	loadVoiceList():Promise<boolean>;
+	loadParams():Promise<boolean>;
 	/**
 	 * Saves current confis
 	 */

@@ -8,7 +8,7 @@
 					<a href="https://sammi.solutions" target="_blank"><Icon name="newtab" />SAMMI</a>
 				</template>
 			</i18n-t>
-			<div class="card-item secondary infos">
+			<div class="card-item secondary infos" v-if="!$store.sammi.connected">
 				<span>
 					<Icon name="info" />
 					<span>{{$t("sammi.instructions")}}</span>
@@ -76,7 +76,7 @@ class ConnectSammi extends Vue {
 
 	public param_ip:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"sammi.ip", maxLength:100};
 	public param_port:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", labelKey:"sammi.port", min:0, max:65535};
-	public param_pass:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"sammi.pass", maxLength:100};
+	public param_pass:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"sammi.pass", maxLength:100, isPrivate:true};
 		
 	public get canConnect():boolean {
 		return this.param_ip.value.length >= 7;// && this.param_port.value > 0;

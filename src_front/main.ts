@@ -71,6 +71,7 @@ import { storeStreamerbot } from './store/streamerbot/storeStreamerbot';
 import { storeSammi } from './store/sammi/storeSammi';
 import { storeMixitup } from './store/mixitup/storeMixitup';
 import { storeTwitchCharity } from './store/twitch_charity/storeTwitchCharity';
+import { storeElevenLabs } from './store/elevenlabs/storeElevenLabs';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -280,6 +281,7 @@ function buildApp() {
 	StoreProxy.default.labels = (storeLabels() as unknown) as StoreProxy.ILabelsState & StoreProxy.ILabelsGetters & StoreProxy.ILabelsActions & { $state: StoreProxy.ILabelsState; $reset:()=>void };
 	StoreProxy.default.mixitup = storeMixitup();
 	StoreProxy.default.twitchCharity = storeTwitchCharity();
+	StoreProxy.default.elevenLabs = storeElevenLabs();
 
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach(k => {
