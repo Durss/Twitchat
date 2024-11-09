@@ -44,9 +44,9 @@ export const storeElevenLabs = defineStore('elevenlabs', {
 			return new Promise<boolean>(async (resolve)=>{
 				try {
 					const success = await this.loadParams();
+					await this.loadApiCredits();
 					this.connected = success;
 					TTSUtils.instance.loadVoiceList();
-					this.loadApiCredits();
 					resolve(this.connected);
 					if(this.connected) {
 						this.saveConfigs()
