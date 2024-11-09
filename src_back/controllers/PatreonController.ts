@@ -607,15 +607,16 @@ export default class PatreonController extends AbstractController {
 		Utils.logToFile("patreon", JSON.stringify({type:event, data:request.body}));
 
 		if(event === "members:create") {
-			this.uidToFirstPayment[uid] = true;
+			const message = request.body as WebhookMemberCreateEvent;
+			this.uidToFirstPayment[message.data.relationships.user.data.id] = true;
 		}else
 		if(event === "members:update") {
-			const message = request.body as WebhookMemberCreateEvent;
+			const message = request.body as WebhookMemberUpdateEvent;
 			//Only accept "paid" status
 			if(message.data.attributes.last_charge_status.toLowerCase() == "paid") {
 				const membershipDuration = Math.abs(new Date(message.data.attributes.pledge_relationship_start).getTime() - new Date(message.data.attributes.last_charge_date).getTime());
-				if((membershipDuration < 20*24*60*60*1000 && this.uidToFirstPayment[uid] !== false) || this.uidToFirstPayment[uid] === true) {
-					this.uidToFirstPayment[uid] = false;
+				if((membershipDuration < 20*24*60*60*1000 && this.uidToFirstPayment[message.data.relationships.user.data.id] !== false) || this.uidToFirstPayment[message.data.relationships.user.data.id] === true) {
+					this.uidToFirstPayment[message.data.relationships.user.data.id] = false;
 					const user = message.included.find(v=>v.type == "user");
 					const tier = message.included.find(v=>v.type == "tier");
 					//Broadcast to client
@@ -1013,6 +1014,130 @@ interface WebhookMemberCreateEvent {
 		};
 		id: string;
 		type: "campaign" | "user" | "tier";
+	}[];
+	links: {
+		self: string;
+	};
+}
+
+
+interface WebhookMemberUpdateEvent {
+	data: {
+		attributes: {
+			campaign_lifetime_support_cents: number
+			currently_entitled_amount_cents: number
+			email: string
+			full_name: string
+			is_follower: boolean
+			is_free_trial: boolean
+			last_charge_date: string
+			last_charge_status: string
+			lifetime_support_cents: number
+			next_charge_date: string
+			note: string
+			patron_status: string
+			pledge_cadence: number
+			pledge_relationship_start: string
+			will_pay_amount_cents: number
+		}
+		id: string
+		relationships: {
+			address: {
+				data: any
+			}
+			campaign: {
+				data: {
+					id: string
+					type: string
+				}
+				links: {
+					related: string
+				}
+			}
+			currently_entitled_tiers: {
+				data: {
+					id: string
+					type: string
+				}[]
+			}
+			user: {
+				data: {
+					id: string
+					type: string
+				}
+				links: {
+					related: string
+				}
+			}
+		}
+		type: string
+	};
+	included: {
+		attributes: {
+			created_at?: string
+			creation_name?: string
+			discord_server_id?: string
+			google_analytics_id: any
+			has_rss?: boolean
+			has_sent_rss_notify?: boolean
+			image_small_url?: string
+			image_url: string
+			is_charged_immediately?: boolean
+			is_monthly?: boolean
+			is_nsfw?: boolean
+			main_video_embed: any
+			main_video_url: any
+			one_liner: any
+			patron_count?: number
+			pay_per_name?: string
+			pledge_url?: string
+			published_at?: string
+			rss_artwork_url: any
+			rss_feed_title: any
+			summary?: string
+			thanks_embed?: string
+			thanks_msg?: string
+			thanks_video_url: any
+			url: string
+			vanity?: string
+			about: any
+			created?: string
+			first_name?: string
+			full_name?: string
+			hide_pledges?: boolean
+			is_creator?: boolean
+			last_name?: string
+			like_count?: number
+			social_connections?: {
+				discord: any
+				facebook: any
+				google: any
+				instagram: any
+				reddit: any
+				spotify: any
+				spotify_open_access: any
+				tiktok: any
+				twitch: any
+				twitter: any
+				twitter2: any
+				vimeo: any
+				youtube: any
+			}
+			thumb_url?: string
+			amount_cents?: number
+			description?: string
+			discord_role_ids?: string[]
+			edited_at?: string
+			post_count?: number
+			published?: boolean
+			remaining: any
+			requires_shipping?: boolean
+			title?: string
+			unpublished_at: any
+			user_limit: any
+		}
+		id: string
+		type: string
 	}[];
 	links: {
 		self: string;
