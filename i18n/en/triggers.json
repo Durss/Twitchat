@@ -628,7 +628,8 @@
 			"youtube": "YouTube",
 			"tiltify": "Titlitfy",
 			"patreon": "Patreon",
-			"tiktok": "TikTok"
+			"tiktok": "TikTok",
+			"twitch_charity": "Twitch Charity"
 		},
 		"placeholders": {
 			"trigger_name": "Current trigger name",

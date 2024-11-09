@@ -90,3 +90,4 @@ TwitchScope2Icon[TwitchScopes.CHAT_WARNING]				= "alert";
 TwitchScope2Icon[TwitchScopes.READ_VIPS]				= "vip";
 TwitchScope2Icon[TwitchScopes.READ_MODERATORS]			= "mod";
 TwitchScope2Icon[TwitchScopes.SUSPICIOUS_USERS]			= "shield";
+TwitchScope2Icon[TwitchScopes.CHARITY_READ]				= "twitch_charity";
