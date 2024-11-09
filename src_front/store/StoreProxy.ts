@@ -3340,7 +3340,7 @@ export interface IElevenLabsActions {
 	/**
 	 * Called when a new charity compaign is started
 	 */
-	read(message:string, modelId:string, lang?:string, settings?:unknown):Promise<void>;
+	read(message:string, voiceId:string, modelId:string, lang?:string, settings?:unknown):Promise<string>;
 	/**
 	 * Loads available voices list
 	 */

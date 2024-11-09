@@ -1052,6 +1052,7 @@ const UserDataSchema = {
 				volume: {type:"number", minimum:0, maximum:1},
 				rate: {type:"number", minimum:0.1, maximum:10},
 				pitch: {type:"number", minimum:0, maximum:2},
+				elevenlabs_model: {type:"string", maxLength:100},
 				elevenlabs_stability: {type:"number", minimum:0, maximum:1},
 				elevenlabs_similarity: {type:"number", minimum:0, maximum:1},
 				maxLength: {type:"integer", minimum:0, maximum:500},

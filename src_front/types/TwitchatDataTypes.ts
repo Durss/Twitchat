@@ -465,7 +465,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Data that populates ParamItem components
 	 */
-	export interface ParameterData<ValueType, ListType = unknown, ChildValueType = unknown, StorageType = any> {
+	export interface ParameterData<ValueType, ListType = unknown, ChildValueType = unknown, StorageType = any, ListStorageType = unknown> {
 		id?:number;
 		/**
 		 * Parameter type
@@ -478,11 +478,11 @@ export namespace TwitchatDataTypes {
 		/**
 		 * List values for the "list" type
 		 */
-		listValues?:TwitchatDataTypes.ParameterDataListValue<ListType>[];
+		listValues?:TwitchatDataTypes.ParameterDataListValue<ListType, ListStorageType>[];
 		/**
 		 * Contains the raw selected list item
 		 */
-		selectedListValue?:ParameterDataListValue<ListType>;
+		selectedListValue?:ParameterDataListValue<ListType, ListStorageType>;
 		/**
 		 * List values for the "editablelist" type
 		 */
@@ -621,9 +621,9 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Callback called when value is changed (if v-model can't be used)
 		 */
-		editCallback?:(data:ParameterData<ValueType, ListType, ChildValueType, StorageType>) => void;
+		editCallback?:(data:ParameterData<ValueType, ListType, ChildValueType, StorageType, ListStorageType>) => void;
 	}
-	export interface ParameterDataListValue<ValueType> {
+	export interface ParameterDataListValue<ValueType, StorageType = unknown> {
 		/**
 		 * Raw text label
 		 */
@@ -648,6 +648,10 @@ export namespace TwitchatDataTypes {
 		 * Flag ISO code. Only used by the ParamItem with "list" type and "multiple" flag on
 		 */
 		flag?:string;
+		/**
+		 * Just a field to allow storage of random data if necessary
+		 */
+		storage?:StorageType;
 		// [parameter: string]: unknown;
 	}
 
@@ -1215,6 +1219,7 @@ export namespace TwitchatDataTypes {
 		volume: number;
 		rate: number;
 		pitch: number;
+		elevenlabs_model: string;
 		elevenlabs_stability: number;
 		elevenlabs_similarity: number;
 		voice: {

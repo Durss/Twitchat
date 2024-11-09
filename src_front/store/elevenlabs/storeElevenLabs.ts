@@ -2,11 +2,12 @@ import DataStore from '@/store/DataStore';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IElevenLabsActions, IElevenLabsGetters, IElevenLabsState } from '../StoreProxy';
+import TTSUtils from '@/utils/TTSUtils';
 
 
 export const storeElevenLabs = defineStore('elevenlabs', {
 	state: () => ({
-		apiKey: "sk_d9d8a4ad663ad6b8dab2dc60130e99b86a49168c4d496af7",
+		apiKey: "",
 		connected: false,
 		voiceList: [],
 		modelList: [],
@@ -36,6 +37,7 @@ export const storeElevenLabs = defineStore('elevenlabs', {
 				try {
 					const success = await this.loadParams();
 					this.connected = success;
+					TTSUtils.instance.loadVoiceList();
 					resolve(this.connected);
 					if(this.connected) {
 						this.saveConfigs()
@@ -51,8 +53,7 @@ export const storeElevenLabs = defineStore('elevenlabs', {
 			DataStore.remove(DataStore.ELEVENLABS_API_KEY);
 		},
 
-
-		async read(message:string, modelId:string, lang?:string, settings?:unknown):Promise<void> {
+		async read(message:string, voiceId:string, modelId:string, lang?:string, settings?:unknown):Promise<string> {
 			const options:RequestInit = {};
 			const headers = new Headers();
 			headers.append("xi-api-key", this.apiKey);
@@ -71,25 +72,15 @@ export const storeElevenLabs = defineStore('elevenlabs', {
 				}
 			});
 
-			const voiceId = "McVZB9hVxVSk3Equu8EH";
 			const url = new URL("https://api.elevenlabs.io/v1/text-to-speech/"+voiceId);
 			url.searchParams.append("enable_logging", "false");
 			url.searchParams.append("output_format", "mp3_22050_32");
 			
 			const ttsQuery = await fetch(url, options);
 			const audioBlob = await ttsQuery.blob();
-
-			// Create an object URL for the audio blob
 			const audioUrl = URL.createObjectURL(audioBlob);
-			
-			// Create an Audio object and play it
-			const audio = new Audio(audioUrl);
-			audio.play();
-			
-			// Optionally, clean up the object URL after the audio is done playing
-			audio.onended = () => {
-				URL.revokeObjectURL(audioUrl);
-			};
+
+			return audioUrl;
 		},
 
 		async loadParams():Promise<boolean> {
@@ -101,11 +92,11 @@ export const storeElevenLabs = defineStore('elevenlabs', {
 			options.headers = headers;
 			const voiceListQuery = await fetch("https://api.elevenlabs.io/v1/voices", options);
 			if(voiceListQuery.status !== 200) return false;
-			this.voiceList = (await voiceListQuery.json()).voices;
+			this.voiceList = ((await voiceListQuery.json()).voices as typeof this.voiceList);
 			
 			const modelListQuery = await fetch("https://api.elevenlabs.io/v1/models", options);
 			if(modelListQuery.status !== 200) return false;
-			this.modelList = await modelListQuery.json();
+			this.modelList = (await modelListQuery.json() as typeof this.modelList).filter(v=>v.can_do_text_to_speech === true);
 			// this.read("Coucou ici", "eleven_turbo_v2_5");
 			return true;
 		},

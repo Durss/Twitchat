@@ -43,13 +43,18 @@ export default class TTSUtils {
 	public static placeholderStreamlabsPatreon:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholderStreamelementsTip:TwitchatDataTypes.PlaceholderEntry[];
 
+	public voiceList:(
+			{platform:"system", name:string, id:string, voice:SpeechSynthesisVoice}
+			| {platform:"elevenlabs", name:string, id:string}
+		)[] = [];
+
 	private static _instance:TTSUtils;
 
 	private _enabled:boolean = false;
-	private pendingMessages:SpokenMessage[] = [];
-	private lastMessageTime:number = 0;
-	private stopTimeout:number = -1;
-	private readComplete:boolean = false;
+	private _pendingMessages:SpokenMessage[] = [];
+	private _lastMessageTime:number = 0;
+	private _stopTimeout:number = -1;
+	private _readComplete:boolean = false;
 
 	/***********
 	* HANDLERS *
@@ -75,7 +80,7 @@ export default class TTSUtils {
 	public set enabled(value: boolean) {
 		if (!value && this._enabled) {
 			this.stop();
-			this.pendingMessages = [];
+			this._pendingMessages = [];
 		}
 		this._enabled = value;
 	}
@@ -83,7 +88,7 @@ export default class TTSUtils {
 	/**
 	 * Get avalaible voices
 	 */
-	public get voices() {
+	public loadVoiceList() {
 		let res:(
 			{platform:"system", voice:SpeechSynthesisVoice}
 			| {platform:"elevenlabs", voiceId:string}
@@ -102,8 +107,8 @@ export default class TTSUtils {
 			window.speechSynthesis.onvoiceschanged = () => {
 				window.speechSynthesis.getVoices().forEach(v=> {
 					//Add voices if missing from list
-					if(!this.voices.filter(v=>v.platform == "system").find(x=>x.voice.name == v.name)) {
-						this.voices.push({platform:"system", voice:v});
+					if(!this.voiceList.filter(v=>v.platform == "system").find(x=>x.voice.name == v.name)) {
+						this.voiceList.push({platform:"system", id:v.voiceURI, name:v.name, voice:v});
 					}
 				});
 			};
@@ -111,10 +116,11 @@ export default class TTSUtils {
 
 		//Add ElevenLabs voices
 		if(StoreProxy.elevenLabs.connected) {
-			this.voices.concat(StoreProxy.elevenLabs.voiceList.map(v=>{
+			this.voiceList = this.voiceList.concat(StoreProxy.elevenLabs.voiceList.map(v=>{
 				return {
 					platform: "elevenlabs",
-					voiceId: v.voice_id,
+					name: "ElevenLabs - "+(v.name || v.voice_id),
+					id: v.voice_id,
 				}
 			}));
 		}
@@ -133,7 +139,7 @@ export default class TTSUtils {
 	 * @returns SpeechSynthesisVoice[]
 	 */
 	public getVoices() {
-		return this.voices;
+		return this.voiceList;
 	}
 
 	/**
@@ -141,7 +147,7 @@ export default class TTSUtils {
 	 */
 	public stop(clearQueue:boolean = false):void {
 		if(clearQueue) {
-			this.pendingMessages = [];
+			this._pendingMessages = [];
 		}
 		if(window.speechSynthesis) window.speechSynthesis.cancel();
 
@@ -153,7 +159,7 @@ export default class TTSUtils {
 		//Here we check if reading completed or not after a short
 		//delay, if not, we execute necessary things.
 		window.setTimeout(()=> {
-			if(!this.readComplete) {
+			if(!this._readComplete) {
 				this.onReadComplete();
 			}
 		}, 100);
@@ -174,11 +180,11 @@ export default class TTSUtils {
 		if(text.trim().length === 0) return;
 		
 		const m:SpokenMessage = {message, id, text, force:true, date: Date.now()};
-		this.pendingMessages.splice(1, 0, m);
+		this._pendingMessages.splice(1, 0, m);
 		if(StoreProxy.tts.speaking) {
 			this.stop();//This triggers the next message play
 		}else
-		if(this.pendingMessages.length == 1) {
+		if(this._pendingMessages.length == 1) {
 			this.readNextMessage();
 		}
 	}
@@ -194,11 +200,11 @@ export default class TTSUtils {
 		if(text.trim().length === 0) return;
 
 		const m:SpokenMessage = {text, id, date: Date.now()};
-		if(this.pendingMessages.length == 0) {
-			this.pendingMessages.push(m);
+		if(this._pendingMessages.length == 0) {
+			this._pendingMessages.push(m);
 			this.readNextMessage();
 		}else{
-			this.pendingMessages.splice(1, 0, m);
+			this._pendingMessages.splice(1, 0, m);
 		}
 	}
 
@@ -218,8 +224,8 @@ export default class TTSUtils {
 		//If requested to only read after a certain inactivity duration and
 		//that duration has not passed yet, don't read the message
 		if (paramsTTS.inactivityPeriod > 0
-		&& (Date.now() - this.lastMessageTime <= paramsTTS.inactivityPeriod * 1000 * 60)) {
-			this.lastMessageTime = Date.now();
+		&& (Date.now() - this._lastMessageTime <= paramsTTS.inactivityPeriod * 1000 * 60)) {
+			this._lastMessageTime = Date.now();
 			return;
 		}
 		let force = false;
@@ -236,15 +242,15 @@ export default class TTSUtils {
 		if(text.trim().length === 0) return;
 
 		//Check if message is already scheduled
-		const scheduledInstance = this.pendingMessages.find(m => m.message && m.message.id == message.id);
+		const scheduledInstance = this._pendingMessages.find(m => m.message && m.message.id == message.id);
 		if(scheduledInstance) return;
 
 		const m:SpokenMessage = {message, id, text, force, date: Date.now()};
-		if (this.pendingMessages.length == 0) {
-			this.pendingMessages.push(m)
+		if (this._pendingMessages.length == 0) {
+			this._pendingMessages.push(m)
 			this.readNextMessage();
 		} else {
-			this.pendingMessages.push(m);
+			this._pendingMessages.push(m);
 		}
 	}
 
@@ -763,9 +769,9 @@ export default class TTSUtils {
 	 * Read the next pending message
 	 */
 	private async readNextMessage():Promise<void> {
-		if(this.pendingMessages.length === 0 || !this._enabled) return;
+		if(this._pendingMessages.length === 0 || !this._enabled) return;
 		
-		const message = this.pendingMessages[0];
+		const message = this._pendingMessages[0];
 		let skipMessage = false;
 
 		//Message deleted?
@@ -776,7 +782,7 @@ export default class TTSUtils {
 			}
 		}
 		const paramsTTS = StoreProxy.tts.params;
-		this.lastMessageTime = Date.now();
+		this._lastMessageTime = Date.now();
 		
 		//Timeout reached for this message?
 		if (paramsTTS.timeout > 0 && Date.now() - message.date > paramsTTS.timeout * 1000 * 60) {
@@ -788,34 +794,56 @@ export default class TTSUtils {
 			//SetTimeout is here to avoid potential recursion overflow
 			//if there are too many expired pending messages
 			window.setTimeout(() => {
-				this.pendingMessages.shift();
+				this._pendingMessages.shift();
 				this.readNextMessage();
 			}, 0);
 			return;
 		}
 		
 		message.reading = true;
-		const voice = this.voices.find(x => x.name == paramsTTS.voice);
-		const mess = new SpeechSynthesisUtterance(message.text);
-		mess.rate = paramsTTS.rate;
-		mess.pitch = paramsTTS.pitch;
-		mess.volume = paramsTTS.volume;
-		if(voice) {
-			mess.voice = voice;
-			mess.lang = voice.lang;
+		const voice = this.voiceList.find(x => x.id == paramsTTS.voice.id);
+		console.log(paramsTTS.voice, this.voiceList)
+		if(voice?.platform == "system") {
+			const mess = new SpeechSynthesisUtterance(message.text);
+			mess.rate = paramsTTS.rate;
+			mess.pitch = paramsTTS.pitch;
+			mess.volume = paramsTTS.volume;
+			if(voice) {
+				mess.voice = voice.voice;
+				mess.lang = voice.voice.lang;
+			}
+			mess.onstart = (ev: SpeechSynthesisEvent) => {
+				this._readComplete = false;
+				StoreProxy.tts.speaking = true;
+			}
+			mess.onend = (ev: SpeechSynthesisEvent) => {
+				this.onReadComplete();
+			}
+	
+			if(window.speechSynthesis) window.speechSynthesis.speak(mess);
 		}
-		mess.onstart = (ev: SpeechSynthesisEvent) => {
-			this.readComplete = false;
+		else if(voice?.platform == "elevenlabs") {
+			this._readComplete = false;
 			StoreProxy.tts.speaking = true;
+			try {
+				const audioUrl = await StoreProxy.elevenLabs.read(message.text, paramsTTS.voice.id, paramsTTS.elevenlabs_model);
+				// Create an Audio object and play it
+				const audio = new Audio(audioUrl);
+				audio.volume = paramsTTS.volume;
+				audio.play();
+				
+				// Optionally, clean up the object URL after the audio is done playing
+				audio.onended = () => {
+					URL.revokeObjectURL(audioUrl);
+					this.onReadComplete();
+				};
+			}catch(error) {
+				this.onReadComplete();
+			}
 		}
-		mess.onend = (ev: SpeechSynthesisEvent) => {
-			this.onReadComplete();
-		}
-
-		if(window.speechSynthesis) window.speechSynthesis.speak(mess);
 
 		if(paramsTTS.maxDuration > 0) {
-			this.stopTimeout = window.setTimeout(()=> {
+			this._stopTimeout = window.setTimeout(()=> {
 				if(window.speechSynthesis) window.speechSynthesis.cancel();
 				this.onReadComplete();
 			}, paramsTTS.maxDuration * 1000);
@@ -828,10 +856,10 @@ export default class TTSUtils {
 	 */
 	private cleanupPrevIDs(id:string):void {
 		//Only clean after the first one as it's the one currently playing
-		for (let i = 1; i < this.pendingMessages.length; i++) {
-			const m = this.pendingMessages[i];
+		for (let i = 1; i < this._pendingMessages.length; i++) {
+			const m = this._pendingMessages[i];
 			if(m.id === id) {
-				this.pendingMessages.splice(i, 1);
+				this._pendingMessages.splice(i, 1);
 				i--;
 			}
 		}
@@ -841,9 +869,9 @@ export default class TTSUtils {
 	 * Called when reading of a message completes or is interrupted
 	 */
 	private onReadComplete():void {
-		this.readComplete = true;
-		this.pendingMessages.shift();
-		clearTimeout(this.stopTimeout);
+		this._readComplete = true;
+		this._pendingMessages.shift();
+		clearTimeout(this._stopTimeout);
 		StoreProxy.tts.speaking = false;
 		this.readNextMessage();
 	}

@@ -57,15 +57,26 @@
 
 			<section class="card-item">
 				<ParamItem noBackground :paramData="param_voice" v-model="param_voice.value" />
+				<template v-if="finalData.voice.platform == 'elevenlabs'">
+					<ParamItem noBackground :paramData="param_elevenlabs_model" v-model="param_elevenlabs_model.value">
+						<div class="card-item modelInfo">
+							<strong>{{ param_elevenlabs_model.selectedListValue?.storage?.name }}</strong>
+							<div><Icon name="info" />{{param_elevenlabs_model.selectedListValue!.storage?.description}}</div>
+						</div>
+					</ParamItem>
+
+					<template v-if="param_elevenlabs_model.selectedListValue?.storage?.can_be_finetuned">
+						<ParamItem noBackground :paramData="param_elevenlabs_stability" v-model="param_elevenlabs_stability.value" />
+						<ParamItem noBackground :paramData="param_elevenlabs_similarity" v-model="param_elevenlabs_similarity.value" />
+						<ParamItem v-if="param_elevenlabs_model.selectedListValue?.storage?.can_use_style" noBackground :paramData="param_elevenlabs_style" v-model="param_elevenlabs_style.value" />
+					</template>
+				</template>
+
 				<ParamItem noBackground :paramData="param_volume" v-model="param_volume.value" />
 				
 				<template v-if="finalData.voice.platform == 'system'">
 					<ParamItem noBackground :paramData="param_rate" v-model="param_rate.value" />
 					<ParamItem noBackground :paramData="param_pitch" v-model="param_pitch.value" />
-				</template>
-				<template v-else-if="finalData.voice.platform == 'elevenlabs'">
-					<ParamItem noBackground :paramData="param_elevenlabs_stability" v-model="param_elevenlabs_stability.value" />
-					<ParamItem noBackground :paramData="param_elevenlabs_similarity" v-model="param_elevenlabs_similarity.value" />
 				</template>
 
 				<form @submit.prevent="testVoice()">
@@ -105,6 +116,7 @@ import PermissionsForm from '../../PermissionsForm.vue';
 import type IParameterContent from './IParameterContent';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Icon from '@/components/Icon.vue';
+import type { ElevenLabsModel } from '@/store/elevenlabs/storeElevenLabs';
 
 @Component({
 	components:{
@@ -127,8 +139,10 @@ class ParamsTTS extends Vue implements IParameterContent {
 	public param_voice:TwitchatDataTypes.ParameterData<TwitchatDataTypes.TTSParamsData["voice"]["id"], TwitchatDataTypes.TTSParamsData["voice"]["id"]> = {type:"list", value:"", listValues:[], id:404, parent:400};
 	public param_removeEmotes:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true};
 
+	public param_elevenlabs_model:TwitchatDataTypes.ParameterData<string, string, unknown, unknown, ElevenLabsModel> = {type:"list", value:""};
 	public param_elevenlabs_stability:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:.5, min:0, max:1, step:.02};
 	public param_elevenlabs_similarity:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:.5, min:0, max:1, step:.02};
+	public param_elevenlabs_style:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:0, min:0, max:1, step:.02};
 
 	public param_maxLengthToggle:TwitchatDataTypes.ParameterData<boolean, unknown, any> = {type:"boolean", value:false };
 	public param_maxLength:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:200, min:10, max:500, step:10};
@@ -225,6 +239,7 @@ class ParamsTTS extends Vue implements IParameterContent {
 			volume:this.param_volume.value,
 			rate:this.param_rate.value,
 			pitch:this.param_pitch.value,
+			elevenlabs_model: this.param_elevenlabs_model.value,
 			elevenlabs_stability: this.param_elevenlabs_stability.value,
 			elevenlabs_similarity: this.param_elevenlabs_similarity.value,
 			voice:{
@@ -299,24 +314,25 @@ class ParamsTTS extends Vue implements IParameterContent {
 		};
 	}
 
-	public loadVoices():void {
-		if(window.speechSynthesis) {
-			this.param_voice.listValues = window.speechSynthesis.getVoices().map(x => { return {label:x.name, value:x.name} });
-		}else{
-			this.param_voice.listValues = [];
-		}
-
-		//Add ElevenLabs voices
-		if(this.$store.elevenLabs.connected) {
-			const elVoices = this.$store.elevenLabs.voiceList.map(x => { return {label:"ElevenLabs: "+x.name, value:x.voice_id} });
-			this.param_voice.listValues.push(...elVoices);
-		}
-	}
-
 	public async beforeMount():Promise<void> {
 		let params: TwitchatDataTypes.TTSParamsData = this.$store.tts.params;
 		
-		this.loadVoices();
+		this.param_voice.listValues = TTSUtils.instance.voiceList.map(v=> {
+			return {label:v.name, value:v.id}
+		})
+		
+		this.param_elevenlabs_model.listValues = this.$store.elevenLabs.modelList.map(v=> {
+			let cost = "$";
+			if(v.model_rates?.character_cost_multiplier == 1) cost += "$";
+			if((v.model_rates?.character_cost_multiplier || 0) > 1) cost += "$";
+			const res:NonNullable<typeof this.param_elevenlabs_model.listValues>[0] = {
+				label:v.name + " ("+cost+")",
+				value:v.model_id,
+				storage:v
+			};
+			return res;
+		})
+		// window.speechSynthesis.getVoices().map(x => { return {label:x.name, value:x.name} })
 
 		this.testStr										= this.$t("tts.params.test_message");
 
@@ -326,8 +342,10 @@ class ParamsTTS extends Vue implements IParameterContent {
 		this.param_pitch.labelKey							= "tts.params.param_pitch";
 		this.param_voice.labelKey							= "tts.params.param_voice";
 		this.param_removeEmotes.labelKey					= "tts.params.param_removeEmotes";
+		this.param_elevenlabs_model.labelKey				= "tts.params.param_elevenlabs_model";
 		this.param_elevenlabs_stability.labelKey			= "tts.params.param_elevenlabs_stability";
 		this.param_elevenlabs_similarity.labelKey			= "tts.params.param_elevenlabs_similarity";
+		this.param_elevenlabs_style.labelKey				= "tts.params.param_elevenlabs_style";
 
 		this.param_readMessages.labelKey					= "tts.messages.param_readMessages";
 		this.param_readWhispers.labelKey					= "tts.messages.param_readWhispers";
@@ -626,6 +644,13 @@ export default toNative(ParamsTTS);
 			}
 			.small {
 				font-size: .8em;
+			}
+
+			.modelInfo {
+				margin-top: .25em;
+				gap: .5em;
+				display: flex;
+				flex-direction: column;
 			}
 		}
 	}
