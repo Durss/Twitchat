@@ -1698,7 +1698,7 @@ export default class TriggerActionHandler {
 				if(step.type == "tts" && message) {
 					const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text, subEvent);
 					logStep.messages.push({date:Date.now(), value:"TTS read message \""+text+"\""});
-					TTSUtils.instance.readNext(text, ttsID ?? trigger.id);
+					TTSUtils.instance.readNext(text, ttsID ?? trigger.id, step.voiceParams);
 				}else
 
 				//Handle poll action

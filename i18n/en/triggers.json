@@ -354,7 +354,8 @@
 			"tts": {
 				"header": "This feature needs you to enable {LINK} feature",
 				"header_link": "text to speech",
-				"param_message": "Message to read with text to speech"
+				"param_message": "Message to read with text to speech",
+				"param_customVoice": "Use a specific voice"
 			},
 			"voicemod": {
 				"header": "This feature needs you to {LINK}",

@@ -56,33 +56,7 @@
 			<Splitter class="splitter">{{ $t("tts.params.title") }}</Splitter>
 
 			<section class="card-item">
-				<ParamItem noBackground :paramData="param_voice" v-model="param_voice.value" />
-				<template v-if="finalData.voice.platform == 'elevenlabs'">
-					<ParamItem noBackground :paramData="param_elevenlabs_model" v-model="param_elevenlabs_model.value">
-						<div class="card-item modelInfo">
-							<strong>{{ param_elevenlabs_model.selectedListValue?.storage?.name }}</strong>
-							<div><Icon name="info" />{{param_elevenlabs_model.selectedListValue!.storage?.description}}</div>
-						</div>
-					</ParamItem>
-
-					<template v-if="param_elevenlabs_model.selectedListValue?.storage?.can_be_finetuned">
-						<ParamItem noBackground :paramData="param_elevenlabs_stability" v-model="param_elevenlabs_stability.value" />
-						<ParamItem noBackground :paramData="param_elevenlabs_similarity" v-model="param_elevenlabs_similarity.value" />
-						<ParamItem v-if="param_elevenlabs_model.selectedListValue?.storage?.can_use_style" noBackground :paramData="param_elevenlabs_style" v-model="param_elevenlabs_style.value" />
-					</template>
-				</template>
-
-				<ParamItem noBackground :paramData="param_volume" v-model="param_volume.value" />
-				
-				<template v-if="finalData.voice.platform == 'system'">
-					<ParamItem noBackground :paramData="param_rate" v-model="param_rate.value" />
-					<ParamItem noBackground :paramData="param_pitch" v-model="param_pitch.value" />
-				</template>
-
-				<form @submit.prevent="testVoice()">
-					<input class="center" type="text" v-model="testStr" :placeholder="$t('tts.params.test_placeholder')">
-					<TTButton class="center" icon="tts" type="submit">{{ $t('tts.params.testBt') }}</TTButton>
-				</form>
+				<TTSVoiceParams v-model="voiceParams" />
 			</section>
 
 			<Splitter class="splitter">{{ $t("tts.filters.title") }}</Splitter>
@@ -101,22 +75,19 @@
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
+import Icon from '@/components/Icon.vue';
+import TTSVoiceParams from '@/components/voice/TTSVoiceParams.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TTSUtils from '@/utils/TTSUtils';
-import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/gsap-core';
 import { watch, type CSSProperties } from 'vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import TTButton from '../../TTButton.vue';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
+import PermissionsForm from '../../PermissionsForm.vue';
 import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
+import TTButton from '../../TTButton.vue';
 import ParamItem from '../ParamItem.vue';
-import PermissionsForm from '../../PermissionsForm.vue';
 import type IParameterContent from './IParameterContent';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Icon from '@/components/Icon.vue';
-import type { ElevenLabsModel } from '@/store/elevenlabs/storeElevenLabs';
 
 @Component({
 	components:{
@@ -125,25 +96,27 @@ import type { ElevenLabsModel } from '@/store/elevenlabs/storeElevenLabs';
 		Splitter,
 		ParamItem,
 		ToggleBlock,
+		TTSVoiceParams,
 		PermissionsForm,
 	}
 })
 //TODO replace all the hardcoded message types and build them dynamically
 class ParamsTTS extends Vue implements IParameterContent {
 
-	public testStr:string = "";
+	public voiceParams:TwitchatDataTypes.TTSVoiceParamsData = {
+		voice:"",
+		volume:1,
+		rate:1,
+		pitch:1,
+		elevenlabs_lang:"",
+		elevenlabs_model:"",
+		elevenlabs_stability:.5,
+		elevenlabs_similarity:.5,
+		elevenlabs_style:0,
+	};
+
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false};
-	public param_volume:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:1, min:0, max:1, step:0.1};
-	public param_rate:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:1, min:0.1, max:5, step:0.1};
-	public param_pitch:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:1, min:0, max:2, step:0.1};
-	public param_voice:TwitchatDataTypes.ParameterData<TwitchatDataTypes.TTSParamsData["voice"]["id"], TwitchatDataTypes.TTSParamsData["voice"]["id"]> = {type:"list", value:"", listValues:[], id:404, parent:400};
 	public param_removeEmotes:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true};
-
-	public param_elevenlabs_model:TwitchatDataTypes.ParameterData<string, string, unknown, unknown, ElevenLabsModel> = {type:"list", value:""};
-	public param_elevenlabs_stability:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:.5, min:0, max:1, step:.02};
-	public param_elevenlabs_similarity:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:.5, min:0, max:1, step:.02};
-	public param_elevenlabs_style:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:0, min:0, max:1, step:.02};
-
 	public param_maxLengthToggle:TwitchatDataTypes.ParameterData<boolean, unknown, any> = {type:"boolean", value:false };
 	public param_maxLength:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:200, min:10, max:500, step:10};
 	public param_maxDurationToggle:TwitchatDataTypes.ParameterData<boolean, unknown, any> = {type:"boolean", value:false };
@@ -236,15 +209,17 @@ class ParamsTTS extends Vue implements IParameterContent {
 	public get finalData():TwitchatDataTypes.TTSParamsData {
 		return {
 			enabled:this.param_enabled.value,
-			volume:this.param_volume.value,
-			rate:this.param_rate.value,
-			pitch:this.param_pitch.value,
-			elevenlabs_model: this.param_elevenlabs_model.value,
-			elevenlabs_stability: this.param_elevenlabs_stability.value,
-			elevenlabs_similarity: this.param_elevenlabs_similarity.value,
+			volume:this.voiceParams.volume,
+			rate:this.voiceParams.rate,
+			pitch:this.voiceParams.pitch,
+			elevenlabs_model: this.voiceParams.elevenlabs_model,
+			elevenlabs_lang: this.voiceParams.elevenlabs_lang,
+			elevenlabs_stability: this.voiceParams.elevenlabs_stability,
+			elevenlabs_similarity: this.voiceParams.elevenlabs_similarity,
+			elevenlabs_style: this.voiceParams.elevenlabs_style,
 			voice:{
-				id:this.param_voice.value,
-				platform:this.$store.elevenLabs.voiceList?.findIndex(x => x.voice_id === this.param_voice.value) > -1? "elevenlabs" : "system",
+				id:this.voiceParams.voice,
+				platform:this.$store.elevenLabs.voiceList?.findIndex(x => x.voice_id === this.voiceParams.voice) > -1? "elevenlabs" : "system",
 			},
 			ttsPerms:this.param_ttsPerms,
 			removeEmotes:this.param_removeEmotes.value,
@@ -317,35 +292,9 @@ class ParamsTTS extends Vue implements IParameterContent {
 	public async beforeMount():Promise<void> {
 		let params: TwitchatDataTypes.TTSParamsData = this.$store.tts.params;
 		
-		this.param_voice.listValues = TTSUtils.instance.voiceList.map(v=> {
-			return {label:v.name, value:v.id}
-		})
-		
-		this.param_elevenlabs_model.listValues = this.$store.elevenLabs.modelList.map(v=> {
-			let cost = "$";
-			if(v.model_rates?.character_cost_multiplier == 1) cost += "$";
-			if((v.model_rates?.character_cost_multiplier || 0) > 1) cost += "$";
-			const res:NonNullable<typeof this.param_elevenlabs_model.listValues>[0] = {
-				label:v.name + " ("+cost+")",
-				value:v.model_id,
-				storage:v
-			};
-			return res;
-		})
-		// window.speechSynthesis.getVoices().map(x => { return {label:x.name, value:x.name} })
-
-		this.testStr										= this.$t("tts.params.test_message");
 
 		this.param_enabled.labelKey							= "global.enable";
-		this.param_volume.labelKey							= "tts.params.param_volume";
-		this.param_rate.labelKey							= "tts.params.param_rate";
-		this.param_pitch.labelKey							= "tts.params.param_pitch";
-		this.param_voice.labelKey							= "tts.params.param_voice";
 		this.param_removeEmotes.labelKey					= "tts.params.param_removeEmotes";
-		this.param_elevenlabs_model.labelKey				= "tts.params.param_elevenlabs_model";
-		this.param_elevenlabs_stability.labelKey			= "tts.params.param_elevenlabs_stability";
-		this.param_elevenlabs_similarity.labelKey			= "tts.params.param_elevenlabs_similarity";
-		this.param_elevenlabs_style.labelKey				= "tts.params.param_elevenlabs_style";
 
 		this.param_readMessages.labelKey					= "tts.messages.param_readMessages";
 		this.param_readWhispers.labelKey					= "tts.messages.param_readWhispers";
@@ -424,11 +373,6 @@ class ParamsTTS extends Vue implements IParameterContent {
 		this.param_readStreamelementsTipPattern.labelKey	= "tts.messages.param_format";
 
 		this.param_enabled.value = params.enabled;
-		this.param_volume.value = params.volume;
-		this.param_rate.value = params.rate;
-		this.param_pitch.value = params.pitch;
-		this.param_voice.value = params.voice.id;
-		this.param_ttsPerms = params.ttsPerms;
 		this.param_removeEmotes.value = params.removeEmotes;
 		this.param_maxLength.value = params.maxLength;
 		this.param_maxDuration.value = params.maxDuration;
@@ -436,6 +380,17 @@ class ParamsTTS extends Vue implements IParameterContent {
 		this.param_inactivityPeriod.value = params.inactivityPeriod;
 		this.param_removeURL.value = params.removeURL;
 		this.param_replaceURL.value = params.replaceURL;
+		this.param_ttsPerms = params.ttsPerms;
+		
+		this.voiceParams.volume = params.volume;
+		this.voiceParams.rate = params.rate;
+		this.voiceParams.pitch = params.pitch;
+		this.voiceParams.voice = params.voice.id;
+		this.voiceParams.elevenlabs_model = params.elevenlabs_model;
+		this.voiceParams.elevenlabs_similarity = params.elevenlabs_similarity;
+		this.voiceParams.elevenlabs_stability = params.elevenlabs_stability;
+		this.voiceParams.elevenlabs_style = params.elevenlabs_style;
+		this.voiceParams.elevenlabs_lang = params.elevenlabs_lang;
 
 		function label(label1:string, label2:string):string {
 			if(label1.length > 0) return label1;
@@ -549,26 +504,6 @@ class ParamsTTS extends Vue implements IParameterContent {
 
 	public onNavigateBack(): boolean { return false; }
 
-	public testVoice():void {
-		const uid = StoreProxy.auth.twitch.user.id;
-		const chunks = TwitchUtils.parseMessageToChunks(this.testStr);
-		const m:TwitchatDataTypes.MessageChatData = {
-			id:Utils.getUUID(),
-			date:Date.now(),
-			platform:"twitchat",
-			channel_id: uid,
-			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-			user: StoreProxy.users.getUserFrom("twitch", uid, uid),
-			message: this.testStr,
-			message_chunks: chunks,
-			message_html: TwitchUtils.messageChunksToHTML(chunks),
-			message_size: TwitchUtils.computeMessageSize(chunks),
-			answers: [],
-			is_short:false,
-		};
-		TTSUtils.instance.readNow(m);
-	}
-
 	public async onShowItem(el:Element, done:()=>void):Promise<void> {
 		await this.$nextTick();
 		gsap.killTweensOf(el);
@@ -644,13 +579,6 @@ export default toNative(ParamsTTS);
 			}
 			.small {
 				font-size: .8em;
-			}
-
-			.modelInfo {
-				margin-top: .25em;
-				gap: .5em;
-				display: flex;
-				flex-direction: column;
 			}
 		}
 	}

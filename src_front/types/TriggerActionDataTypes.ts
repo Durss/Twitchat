@@ -498,6 +498,10 @@ export interface TriggerActionTTSData extends TriggerActionData{
 	 * Text to read out loud
 	 */
 	text:string;
+	/**
+	 * Voice parameters for TTS
+	 */
+	voiceParams?:TwitchatDataTypes.TTSVoiceParamsData;
 }
 
 export interface TriggerActionRaffleData extends TriggerActionData{

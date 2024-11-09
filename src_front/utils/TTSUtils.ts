@@ -11,6 +11,7 @@ interface SpokenMessage {
 	id: string;
 	force?: boolean;
 	reading?: boolean;
+	params?: TwitchatDataTypes.TTSVoiceParamsData;
 }
 
 export default class TTSUtils {
@@ -88,26 +89,24 @@ export default class TTSUtils {
 	/**
 	 * Get avalaible voices
 	 */
-	public loadVoiceList() {
-		let res:(
-			{platform:"system", voice:SpeechSynthesisVoice}
-			| {platform:"elevenlabs", voiceId:string}
-		)[] = []
-
+	public loadVoiceList():void {
 		//Add system voices
-		res.concat(window.speechSynthesis? window.speechSynthesis.getVoices().map(v=>{
+		this.voiceList = window.speechSynthesis? window.speechSynthesis.getVoices().map(v=>{
 			return {
 				platform: "system",
-				voice: v
+				voice: v,
+				id: v.voiceURI,
+				name: v.name,
 			}
-		}) : []);
+		}) : [];
+
 		if(window.speechSynthesis) {
 			//Sometimes voices are not ready at this point.
 			//We'll listen for the "voiceschanged" event to get them later as a fallback
 			window.speechSynthesis.onvoiceschanged = () => {
 				window.speechSynthesis.getVoices().forEach(v=> {
 					//Add voices if missing from list
-					if(!this.voiceList.filter(v=>v.platform == "system").find(v=>v.voice.name == v.name)) {
+					if(!this.voiceList.find(w=>w.id == v.voiceURI)) {
 						this.voiceList.push({platform:"system", id:v.voiceURI, name:v.name, voice:v});
 					}
 				});
@@ -125,23 +124,23 @@ export default class TTSUtils {
 			}));
 		}
 
-		return res;
+
+		const paramsTTS = StoreProxy.tts.params;
+		if(paramsTTS) {
+			if(typeof paramsTTS.voice === "string") {
+				paramsTTS.voice = {
+					platform: "system",
+					id: this.voiceList.find(v=>v.id == paramsTTS.voice as unknown as string)?.id || paramsTTS.voice as string,
+				}
+			}
+		}
+		console.log(paramsTTS)
 	}
 	
 	
 	/******************
 	 * PUBLIC METHODS *
 	 ******************/
-
-	/**
-	 * Get voices list
-	 * 
-	 * @returns SpeechSynthesisVoice[]
-	 */
-	public getVoices() {
-		return this.voiceList;
-	}
-
 	/**
 	 * Stops currently playing speech
 	 */
@@ -170,7 +169,7 @@ export default class TTSUtils {
 	 * Stops any currently playing message and add it next on the queue
 	 * @param message 
 	 */
-	public async readNow(message:TwitchatDataTypes.ChatMessageTypes, id?:string):Promise<void> {
+	public async readNow(message:TwitchatDataTypes.ChatMessageTypes, id?:string, params?:TwitchatDataTypes.TTSVoiceParamsData):Promise<void> {
 		if (!this._enabled) return;
 		if(id) this.cleanupPrevIDs(id);
 		if(!id) id = Utils.getUUID();
@@ -179,7 +178,7 @@ export default class TTSUtils {
 		const text = await this.parseMessage(message, true);
 		if(text.trim().length === 0) return;
 		
-		const m:SpokenMessage = {message, id, text, force:true, date: Date.now()};
+		const m:SpokenMessage = {message, id, params, text, force:true, date: Date.now()};
 		this._pendingMessages.splice(1, 0, m);
 		if(StoreProxy.tts.speaking) {
 			this.stop();//This triggers the next message play
@@ -193,13 +192,13 @@ export default class TTSUtils {
 	 * Reads a string message after the current one.
 	 * @param text 
 	 */
-	public readNext(text: string, id?:string):void {
+	public readNext(text: string, id?:string, params?:TwitchatDataTypes.TTSVoiceParamsData):void {
 		if (!this._enabled) return;
 		if(id) this.cleanupPrevIDs(id);
 		if(!id) id = Utils.getUUID();
 		if(text.trim().length === 0) return;
 
-		const m:SpokenMessage = {text, id, date: Date.now()};
+		const m:SpokenMessage = {text, id, params, date: Date.now()};
 		if(this._pendingMessages.length == 0) {
 			this._pendingMessages.push(m);
 			this.readNextMessage();
@@ -215,7 +214,7 @@ export default class TTSUtils {
 	 * @param id 
 	 * @returns 
 	 */
-	public async addMessageToQueue(message:TwitchatDataTypes.ChatMessageTypes, id?:string):Promise<void> {
+	public async addMessageToQueue(message:TwitchatDataTypes.ChatMessageTypes, id?:string, params?:TwitchatDataTypes.TTSVoiceParamsData):Promise<void> {
 		if (!this._enabled) return;
 		if(id) this.cleanupPrevIDs(id);
 		if(!id) id = Utils.getUUID();
@@ -245,7 +244,7 @@ export default class TTSUtils {
 		const scheduledInstance = this._pendingMessages.find(m => m.message && m.message.id == message.id);
 		if(scheduledInstance) return;
 
-		const m:SpokenMessage = {message, id, text, force, date: Date.now()};
+		const m:SpokenMessage = {message, id, text, params, force, date: Date.now()};
 		if (this._pendingMessages.length == 0) {
 			this._pendingMessages.push(m)
 			this.readNextMessage();
@@ -362,44 +361,46 @@ export default class TTSUtils {
 			{ tag:"USER", descKey:"tts.placeholders.user" },
 			{ tag:"AMOUNT", descKey:"tts.placeholders.donation_amount" },
 			{ tag:"MESSAGE", descKey:"tts.placeholders.message" },
-		]
+		];
 
 		TTSUtils.placeholderKofiMerch = [
 			{ tag:"USER", descKey:"tts.placeholders.user" },
 			{ tag:"AMOUNT", descKey:"tts.placeholders.merch_amount" },
 			{ tag:"PRODUCT", descKey:"tts.placeholders.merch_product" },
 			{ tag:"MESSAGE", descKey:"tts.placeholders.message" },
-		]
+		];
 
 		TTSUtils.placeholderKofiSub = [
 			{ tag:"USER", descKey:"tts.placeholders.user" },
 			{ tag:"MESSAGE", descKey:"tts.placeholders.message" },
 			{ tag:"TIER", descKey:"tts.placeholders.kofi_tier" },
 			{ tag:"AMOUNT", descKey:"tts.placeholders.merch_amount" },
-		]
+		];
 
 		TTSUtils.placeholderStreamlabsTip = [
 			{ tag:"USER", descKey:"tts.placeholders.user" },
 			{ tag:"AMOUNT", descKey:"tts.placeholders.donation_amount" },
 			{ tag:"MESSAGE", descKey:"tts.placeholders.message" },
-		]
+		];
 
 		TTSUtils.placeholderStreamlabsMerch = [
 			{ tag:"USER", descKey:"tts.placeholders.user" },
 			{ tag:"PRODUCT", descKey:"tts.placeholders.merch_product" },
 			{ tag:"MESSAGE", descKey:"tts.placeholders.message" },
-		]
+		];
 		
 		TTSUtils.placeholderStreamlabsPatreon = [
 			{ tag:"USER", descKey:"tts.placeholders.user" },
 			{ tag:"AMOUNT", descKey:"tts.placeholders.donation_amount" },
-		]
+		];
 
 		TTSUtils.placeholderStreamelementsTip = [
 			{ tag:"USER", descKey:"tts.placeholders.user" },
 			{ tag:"AMOUNT", descKey:"tts.placeholders.donation_amount" },
 			{ tag:"MESSAGE", descKey:"tts.placeholders.message" },
-		]
+		];
+
+		this.loadVoiceList();
 	}
 
 	/**
@@ -771,13 +772,13 @@ export default class TTSUtils {
 	private async readNextMessage():Promise<void> {
 		if(this._pendingMessages.length === 0 || !this._enabled) return;
 		
-		const message = this._pendingMessages[0];
+		const messageEntry = this._pendingMessages[0];
 		let skipMessage = false;
 
 		//Message deleted?
-		if(message.message) {
-			if(TwitchatDataTypes.DeletableMessageTypes.includes(message.message.type)) {
-				const m = message.message as TwitchatDataTypes.MessageChatData;//Cast to one of the deletable types for the sake of typing. Couldn't find a cleaner way to achieve that :(
+		if(messageEntry.message) {
+			if(TwitchatDataTypes.DeletableMessageTypes.includes(messageEntry.message.type)) {
+				const m = messageEntry.message as TwitchatDataTypes.MessageChatData;//Cast to one of the deletable types for the sake of typing. Couldn't find a cleaner way to achieve that :(
 				if(m.deleted == true) skipMessage = true;
 			}
 		}
@@ -785,11 +786,11 @@ export default class TTSUtils {
 		this._lastMessageTime = Date.now();
 		
 		//Timeout reached for this message?
-		if (paramsTTS.timeout > 0 && Date.now() - message.date > paramsTTS.timeout * 1000 * 60) {
+		if (paramsTTS.timeout > 0 && Date.now() - messageEntry.date > paramsTTS.timeout * 1000 * 60) {
 			skipMessage = true;
 		}
 
-		if(skipMessage && message.force !== true) {
+		if(skipMessage && messageEntry.force !== true) {
 			//Ignore this message and process the next one
 			//SetTimeout is here to avoid potential recursion overflow
 			//if there are too many expired pending messages
@@ -800,14 +801,13 @@ export default class TTSUtils {
 			return;
 		}
 		
-		message.reading = true;
-		const voice = this.voiceList.find(x => x.id == paramsTTS.voice.id);
-		console.log(paramsTTS.voice, this.voiceList)
+		messageEntry.reading = true;
+		const voice = this.voiceList.find(v => v.id == (messageEntry.params?.voice || paramsTTS.voice.id));
 		if(voice?.platform == "system") {
-			const mess = new SpeechSynthesisUtterance(message.text);
-			mess.rate = paramsTTS.rate;
-			mess.pitch = paramsTTS.pitch;
-			mess.volume = paramsTTS.volume;
+			const mess = new SpeechSynthesisUtterance(messageEntry.text);
+			mess.rate = messageEntry.params?.rate || paramsTTS.rate;
+			mess.pitch = messageEntry.params?.pitch || paramsTTS.pitch;
+			mess.volume = messageEntry.params?.volume || paramsTTS.volume;
 			if(voice) {
 				mess.voice = voice.voice;
 				mess.lang = voice.voice.lang;
@@ -826,10 +826,20 @@ export default class TTSUtils {
 			this._readComplete = false;
 			StoreProxy.tts.speaking = true;
 			try {
-				const audioUrl = await StoreProxy.elevenLabs.read(message.text, paramsTTS.voice.id, paramsTTS.elevenlabs_model);
+				let settings:{[key:string]:number|string} = {};
+				if(messageEntry.params?.elevenlabs_similarity || paramsTTS.elevenlabs_similarity)	settings.similarity_boost	= messageEntry.params?.elevenlabs_similarity || paramsTTS.elevenlabs_similarity;
+				if(messageEntry.params?.elevenlabs_stability || paramsTTS.elevenlabs_stability)		settings.stability			= messageEntry.params?.elevenlabs_stability || paramsTTS.elevenlabs_stability;
+				if(messageEntry.params?.elevenlabs_style || paramsTTS.elevenlabs_style)				settings.style				= messageEntry.params?.elevenlabs_style || paramsTTS.elevenlabs_style;
+				const audioUrl = await StoreProxy.elevenLabs.read(
+									messageEntry.text,
+									messageEntry.params?.voice || paramsTTS.voice.id,
+									messageEntry.params?.elevenlabs_model || paramsTTS.elevenlabs_model,
+									messageEntry.params?.elevenlabs_lang || paramsTTS.elevenlabs_lang,
+									settings
+								);
 				// Create an Audio object and play it
 				const audio = new Audio(audioUrl);
-				audio.volume = paramsTTS.volume;
+				audio.volume = messageEntry.params?.volume || paramsTTS.volume;
 				audio.play();
 				
 				// Optionally, clean up the object URL after the audio is done playing

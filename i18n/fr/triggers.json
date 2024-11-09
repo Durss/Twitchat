@@ -354,7 +354,8 @@
 			"tts": {
 				"header": "Veuillez activer la fonctionnalité {LINK}",
 				"header_link": "text to speech",
-				"param_message": "Message à lire à haute voix"
+				"param_message": "Message à lire à haute voix",
+				"param_customVoice": "Utiliser une voix spécifique"
 			},
 			"voicemod": {
 				"header": "Veuillez {LINK}",

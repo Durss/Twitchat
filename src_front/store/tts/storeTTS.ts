@@ -13,6 +13,8 @@ export const storeTTS = defineStore('tts', {
 		speaking: false,
 		params: {
 			elevenlabs_model: "",
+			elevenlabs_lang: "",
+			elevenlabs_style: 0,
 			elevenlabs_similarity: .5,
 			elevenlabs_stability: .5,
 			enabled:false,

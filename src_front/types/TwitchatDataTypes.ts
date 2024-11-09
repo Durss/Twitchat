@@ -1220,8 +1220,10 @@ export namespace TwitchatDataTypes {
 		rate: number;
 		pitch: number;
 		elevenlabs_model: string;
+		elevenlabs_lang: string;
 		elevenlabs_stability: number;
 		elevenlabs_similarity: number;
+		elevenlabs_style: number;
 		voice: {
 			id:string;
 			platform:"system"|"elevenlabs";
@@ -1295,6 +1297,21 @@ export namespace TwitchatDataTypes {
 		 * @deprecated was a kind of duplicate of what "ttsPerms" allows
 		 */
 		readUsers?:string[];
+	}
+
+	/**
+	 * Contains a voice parameters for TTS
+	 */
+	export interface TTSVoiceParamsData {
+		voice:string;
+		volume:number;
+		rate:number;
+		pitch:number;
+		elevenlabs_lang:string;
+		elevenlabs_model:string;
+		elevenlabs_stability:number;
+		elevenlabs_similarity:number;
+		elevenlabs_style:number;
 	}
 
 	/**

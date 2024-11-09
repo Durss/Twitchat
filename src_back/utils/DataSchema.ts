@@ -1,4 +1,4 @@
-import Ajv from "ajv"
+import Ajv from "ajv";
 
 
 /**
@@ -653,6 +653,21 @@ const UserDataSchema = {
 										}
 									}
 								},
+								voiceParams: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										voice: {type:"string", maxLength:50},
+										volume: {type:"number", minimum:0, maximum:1},
+										rate: {type:"number", minimum:0, maximum:5},
+										pitch: {type:"number", minimum:0, maximum:2},
+										elevenlabs_lang: {type:"string", maxLength:10},
+										elevenlabs_model: {type:"string", maxLength:50},
+										elevenlabs_stability: {type:"number", minimum:0, maximum:1},
+										elevenlabs_similarity: {type:"number", minimum:0, maximum:1},
+										elevenlabs_style: {type:"number", minimum:0, maximum:1},
+									}
+								},
 								heatClickData: {
 									type: "object",
 									additionalProperties: false,
@@ -1055,6 +1070,8 @@ const UserDataSchema = {
 				elevenlabs_model: {type:"string", maxLength:100},
 				elevenlabs_stability: {type:"number", minimum:0, maximum:1},
 				elevenlabs_similarity: {type:"number", minimum:0, maximum:1},
+				elevenlabs_style: {type:"number", minimum:0, maximum:1},
+				elevenlabs_lang: {type:"string", maxLength:10},
 				maxLength: {type:"integer", minimum:0, maximum:500},
 				maxDuration: {type:"integer", minimum:0, maximum:120},
 				timeout: {type:"integer", minimum:0, maximum:300},
