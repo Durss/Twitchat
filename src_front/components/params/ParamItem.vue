@@ -1108,7 +1108,7 @@ export default toNative(ParamItem);
 
 					&.privateField {
 						input {
-							padding-left: 1.5em;
+							padding-left: 1.75em;
 						}
 						.privateIcon {
 							width:1.5em;

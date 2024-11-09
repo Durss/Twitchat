@@ -3544,7 +3544,7 @@ export default class TriggerActionHandler {
 								//If it's a per-user counter, get the user's value
 								const user = this.extractUserFromTrigger(trigger, message);
 								if(user && counter.users && counter.users[user.id]) {
-									value = counter.users[user.id].toString();
+									value = counter.users[user.id].value.toString();
 								}else{
 									value = "0";
 								}
@@ -3568,7 +3568,7 @@ export default class TriggerActionHandler {
 								//If it's a per-user counter, get the user's value
 								const user = this.extractUserFromTrigger(trigger, message);
 								if(user && valueEntry.users && valueEntry.users[user.id]) {
-									value = valueEntry.users[user.id].toString();
+									value = valueEntry.users[user.id].value.toString();
 								}else{
 									value = "";
 								}
