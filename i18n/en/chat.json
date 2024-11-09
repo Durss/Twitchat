@@ -544,11 +544,6 @@
 		"youtube_subgift":{
 			"title": "{USER} offered {COUNT} memberships at tier {TIER} to {LIST}"
 		},
-		"suspended_trigger_stack":{
-			"title": "A sequence of triggers executions is making Twitchat unstable.\nIt has been stopped to prevent further issues.",
-			"resumeBt": "Resume",
-			"callstack": "Execution history:"
-		},
 		"tiktok_sub":{
 			"new": "{USER} subscribed"
 		},
@@ -560,6 +555,15 @@
 		},
 		"tiktok_share":{
 			"new": "{USER} shared the stream"
+		},
+		"suspended_trigger_stack":{
+			"title": "A sequence of triggers executions is making Twitchat unstable.\nIt has been stopped to prevent further issues.",
+			"resumeBt": "Resume",
+			"callstack": "Execution history:"
+		},
+		"tts": {
+			"elevenlabs_credits_empty":"You spent all your Elevenlabs credits.",
+			"elevenlabs_credits_almost_empty":"Your Elevenlabs credits are almost empty. You have {CREDITS} credits left."
 		}
 	}
 }

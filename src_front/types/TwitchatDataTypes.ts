@@ -4601,7 +4601,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Message style
 		 */
-		style?:"message"|"highlight"|"error";
+		style?:"message"|"highlight"|"error"|"warn";
 		/**
 		 * CTAs to add on the message
 		 */

@@ -3349,4 +3349,9 @@ export interface IElevenLabsActions {
 	 * Saves current confis
 	 */
 	saveConfigs():void;
+	/**
+	 * Load remaining api credits.
+	 * Warn on chat when count is low
+	 */
+	loadApiCredits():Promise<void>
 }

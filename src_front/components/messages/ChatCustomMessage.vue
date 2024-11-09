@@ -77,8 +77,9 @@ class ChatCustomMessage extends AbstractChatMessage {
 		const res = ["chatcustommessage", "chatMessage"];
 		if(this.messageData.icon) res.push("hasIcon");
 		switch(this.messageData.style) {
-			case "error": res.push("highlight", "alert"); break;
 			case "highlight": res.push("highlight"); break;
+			case "error": res.push("highlight", "alert"); break;
+			case "warn": res.push("highlight", "error"); break;
 		}
 		return res;
 	}

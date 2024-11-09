@@ -560,6 +560,10 @@
 			"title": "Une séquence d'exécution de trigger rend Twitchat instable.\nLeur exécution a été interrompue par mesure de sécurité.",
 			"resumeBt": "Relancer",
 			"callstack": "Historique d'exécution :"
+		},
+		"tts": {
+			"elevenlabs_credits_empty":"Vous avez dépensé tous vos crédits EleventLabs.",
+			"elevenlabs_credits_almost_empty":"Vous avez bientôt épuisé vos crédits ElevenLabs. Il vous reste {CREDITS} crédits."
 		}
 	}
 }

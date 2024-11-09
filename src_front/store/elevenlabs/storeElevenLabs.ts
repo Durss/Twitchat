@@ -3,7 +3,12 @@ import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _Getters
 import type { UnwrapRef } from 'vue';
 import type { IElevenLabsActions, IElevenLabsGetters, IElevenLabsState } from '../StoreProxy';
 import TTSUtils from '@/utils/TTSUtils';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import StoreProxy from '../StoreProxy';
+import Utils from '@/utils/Utils';
 
+let emptyCreditsWarned = false
+let almostEmptyCreditsWarned = false
 
 export const storeElevenLabs = defineStore('elevenlabs', {
 	state: () => ({
@@ -29,6 +34,7 @@ export const storeElevenLabs = defineStore('elevenlabs', {
 				this.apiKey = apiKey;
 			}
 			if(this.apiKey) this.connect();
+			this.loadApiCredits();
 		},
 
 		async connect():Promise<boolean> {
@@ -80,6 +86,8 @@ export const storeElevenLabs = defineStore('elevenlabs', {
 			const audioBlob = await ttsQuery.blob();
 			const audioUrl = URL.createObjectURL(audioBlob);
 
+			this.loadApiCredits();
+
 			return audioUrl;
 		},
 
@@ -103,6 +111,53 @@ export const storeElevenLabs = defineStore('elevenlabs', {
 
 		saveConfigs():void {
 			DataStore.set(DataStore.ELEVENLABS_API_KEY, this.apiKey);
+		},
+
+		async loadApiCredits():Promise<void> {
+			const options:RequestInit = {};
+			const headers = new Headers();
+			headers.append("xi-api-key", this.apiKey);
+			headers.append("Accept", "application/json");
+			headers.append("Content-Type", "application/json");
+			options.headers = headers;
+
+			const urlUser = new URL("https://api.elevenlabs.io/v1/user/subscription");
+			const userQuery = await fetch(urlUser, options);
+			if(userQuery.status !== 200) return;
+			const user = await userQuery.json() as ElevenLabsUserSubscription;
+
+			let warnMessage = "";
+			
+			//Warn user if getting close to credits limit if not already warned
+			if(!almostEmptyCreditsWarned && user.character_count/user.character_limit > .9) {
+				warnMessage = StoreProxy.i18n.t("chat.tts.elevenlabs_credits_almost_empty", {CREDITS:user.character_limit - user.character_count}),
+				almostEmptyCreditsWarned = true;
+			}
+			
+			//Warn user when all credits are spent if not already warned
+			if(!emptyCreditsWarned && user.character_limit - user.character_count < 5) {
+				warnMessage = StoreProxy.i18n.t("chat.tts.elevenlabs_credits_almost_empty", {CREDITS:user.character_limit - user.character_count}),
+				emptyCreditsWarned = true;
+			}
+			
+			if(warnMessage) {
+				const message:TwitchatDataTypes.MessageCustomData = {
+					channel_id: StoreProxy.auth.twitch.user.id,
+					date: Date.now(),
+					id: Utils.getUUID(),
+					platform: "twitchat",
+					type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+					icon: "elevenlabs",
+					style: "warn",
+					user: {
+						name: "ElevenLabs",
+						color: "white",
+					},
+					message: warnMessage,
+				}
+	
+				StoreProxy.chat.addMessage(message);
+			}
 		},
 	} as IElevenLabsActions
 	& ThisType<IElevenLabsActions
@@ -278,4 +333,26 @@ export interface ElevenLabsVoice {
     is_owner?: boolean;
     is_legacy?: boolean;
     is_mixed?: boolean;
+}
+
+interface ElevenLabsUserSubscription {
+	tier: string
+	character_count: number
+	character_limit: number
+	can_extend_character_limit: boolean
+	allowed_to_extend_character_limit: boolean
+	next_character_count_reset_unix: number
+	voice_limit: number
+	max_voice_add_edits: number
+	voice_add_edit_counter: number
+	professional_voice_limit: number
+	can_extend_voice_limit: boolean
+	can_use_instant_voice_cloning: boolean
+	can_use_professional_voice_cloning: boolean
+	currency: any
+	status: string
+	billing_period: any
+	character_refresh_period: any
+	next_invoice: any
+	has_open_invoices: boolean
 }
