@@ -134,7 +134,6 @@ export default class TTSUtils {
 				}
 			}
 		}
-		console.log(paramsTTS)
 	}
 	
 	
