@@ -16,6 +16,8 @@ export const storeElevenLabs = defineStore('elevenlabs', {
 		connected: false,
 		voiceList: [],
 		modelList: [],
+		creditsUsed:0,
+		creditsTotal:0,
 	} as IElevenLabsState),
 
 
@@ -126,6 +128,9 @@ export const storeElevenLabs = defineStore('elevenlabs', {
 			if(userQuery.status !== 200) return;
 			const user = await userQuery.json() as ElevenLabsUserSubscription;
 
+			this.creditsUsed = user.character_count;
+			this.creditsTotal = user.character_limit;
+
 			let warnMessage = "";
 			
 			//Warn user if getting close to credits limit if not already warned
@@ -154,7 +159,7 @@ export const storeElevenLabs = defineStore('elevenlabs', {
 						color: "white",
 					},
 					message: warnMessage,
-				}
+				};
 	
 				StoreProxy.chat.addMessage(message);
 			}

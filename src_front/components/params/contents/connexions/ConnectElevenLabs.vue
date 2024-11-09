@@ -45,6 +45,15 @@
 						</template>
 					</i18n-t>
 				</div>
+
+				<i18n-t class="card-item" scope="global" keypath="elevenlabs.credits_usage" tag="div">
+					<template #LIMIT>
+						<strong>{{ $store.elevenLabs.creditsTotal }}</strong>
+					</template>
+					<template #USED>
+						<strong>{{ $store.elevenLabs.creditsUsed }}</strong>
+					</template>
+				</i18n-t>
 	
 				<TTButton class="connectBt" alert @click="disconnect()">{{ $t('global.disconnect') }}</TTButton>
 			</template>

@@ -3319,6 +3319,8 @@ export interface IElevenLabsState {
 	apiKey:string;
 	voiceList:ElevenLabsVoice[];
 	modelList:ElevenLabsModel[];
+	creditsUsed:number;
+	creditsTotal:number;
 }
 
 export interface IElevenLabsGetters {
