@@ -101,7 +101,7 @@
 		"shx": "^0.3.4",
 		"three": "^0.158.0",
 		"tmi.js": "github:Durss/tmi.js",
-		"typescript": "^5.4.2",
+		"typescript": "^5.6.3",
 		"vite": "^5.4.1",
 		"vite-plugin-package-version": "^1.1.0",
 		"vue": "^3.3.9",

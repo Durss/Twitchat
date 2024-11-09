@@ -192,9 +192,10 @@ class ConnectGoXLR extends Vue {
 			const knob = knobs.pop();
 			//Remove all knob IDs and push the previously extracted one
 			const list = this.knobSelectionReadMark.filter(v => v != "reverb" && v != "echo" && v != "pitch" && v != "gender");
+			//@ts-ignore //TODO fix typing bellow
 			if(knob) list.push(knob);
 			this.knobSelectionReadMark = list;
-
+			//@ts-ignore //TODO fix typing bellow
 			this.showEncoderWarning = list[list.length-1] == "pitch";
 			const index = this.param_chatColIndexMarkRead.value;
 			this.$store.params.setGoXLRChatColReadMarkParams(index, list);
@@ -204,9 +205,10 @@ class ConnectGoXLR extends Vue {
 			const knob = knobs.pop();
 			//Remove all knob IDs and push the previously extracted one
 			const list = this.knobSelectionScroll.filter(v => v != "reverb" && v != "echo" && v != "pitch" && v != "gender");
+			//@ts-ignore //TODO fix typing bellow
 			if(knob) list.push(knob);
 			this.knobSelectionScroll = list;
-
+			//@ts-ignore //TODO fix typing bellow
 			this.showEncoderWarning = list[list.length-1] == "pitch";
 			const index = this.param_chatColIndexScroll.value;
 			this.$store.params.setGoXLRChatColScrollParams(index, list);

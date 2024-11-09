@@ -107,7 +107,7 @@ export default class TTSUtils {
 			window.speechSynthesis.onvoiceschanged = () => {
 				window.speechSynthesis.getVoices().forEach(v=> {
 					//Add voices if missing from list
-					if(!this.voiceList.filter(v=>v.platform == "system").find(x=>x.voice.name == v.name)) {
+					if(!this.voiceList.filter(v=>v.platform == "system").find(v=>v.voice.name == v.name)) {
 						this.voiceList.push({platform:"system", id:v.voiceURI, name:v.name, voice:v});
 					}
 				});

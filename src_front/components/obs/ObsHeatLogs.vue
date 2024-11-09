@@ -22,7 +22,7 @@
 				</div>
 				
 				<div v-for="(log, index) in logs" class="card-item entry">
-					<div class="head" @click="expandState[index] = !expandState[index] ?? true">
+					<div class="head" @click="expandState[index] = !(expandState[index] ?? false)">
 						<div class="row">
 							<span class="date">{{ formatDate(log.date) }}</span>
 							<span>{{ log.info }}</span>
