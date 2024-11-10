@@ -207,7 +207,7 @@
 			"channel:manage:ads":"Snooze an incoming ad break",
 			"moderator:manage:warnings":"Send warning to users",
 			"moderator:read:suspicious_users":"Suspicious/restricted messages",
-			"channel:read:charity":"Lire vos Campagnes caritatives"
+			"channel:read:charity":"Read your Twitch charity campaigns"
 		},
 		"permissions": {
 			"broadcaster": "Broadcaster",
