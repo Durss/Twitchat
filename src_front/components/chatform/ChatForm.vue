@@ -35,7 +35,7 @@
 					<div class="replyTo" v-if="$store.chat.replyTo">
 						<button class="closeBt" type="button" @click="$store.chat.replyTo = null"><Icon name="cross"/></button>
 						<div class="content">
-							<i18n-t scope="global" keypath="chat.form.reply_to" tag="span" class="head">
+							<i18n-t scope="global" :keypath="$store.chat.messageMode == 'chat'? 'chat.form.reply_to' : 'chat.form.quoting'" tag="span" class="head">
 								<template #USER>
 									<a class="userlink" @click.stop="openUserCard($store.chat.replyTo!.user, $store.chat.replyTo!.channel_id)">{{$store.chat.replyTo!.user.displayName}}</a>
 								</template>
@@ -949,6 +949,7 @@ export class ChatForm extends Vue {
 
 				if(res.status == 200) {
 					this.message = "";
+					this.$store.chat.replyTo = null;
 				}else{
 					this.error = true;
 				}
