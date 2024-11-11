@@ -67,6 +67,8 @@
 					light
 					:loading="picking"
 					:disabled="!canPick">{{ $t('raffle.state_pickBt') }}</TTButton>
+
+				<ParamItem class="small" v-model="raffleData.autoClose" :paramData="param_autoClose" noBackground @change="$store.raffle.saveData()" />
 			</div>
 	
 			<div class="card-item overlayStatus" v-if="obsConnected && !checkingOverlay && !overlayFound">
@@ -95,11 +97,13 @@ import ProgressBar from '../ProgressBar.vue';
 import TTButton from '../TTButton.vue';
 import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 import { gsap } from 'gsap/gsap-core';
+import ParamItem from '../params/ParamItem.vue';
 
 
 @Component({
 	components:{
 		TTButton,
+		ParamItem,
 		ProgressBar,
 		OverlayInstaller,
 	},
@@ -116,6 +120,7 @@ class RaffleState extends Vue {
 	public timerPercent:number = 0;
 	public raffleData:TwitchatDataTypes.RaffleData | null = null;
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
+	public param_autoClose:TwitchatDataTypes.ParameterData<boolean> = {value:true, type:"boolean", labelKey:"raffle.params.param_autoClose", icon:"trash"};
 
 	private validRaffleTypes:TwitchatDataTypes.RaffleData["mode"][] = ["chat", "tips"];
 	private overlaySource:OBSSourceItem|null = null;
@@ -405,7 +410,11 @@ export default toNative(RaffleState);
 		row-gap: .5em;
 		display: flex;
 		flex-wrap: wrap;
+		align-items: center;
 		justify-content: center;
+		.small {
+			font-size: .8em;
+		}
 	}
 
 	.overlayStatus {

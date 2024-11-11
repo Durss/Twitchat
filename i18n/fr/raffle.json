@@ -76,6 +76,7 @@
 			"limit_users": "Limiter le nombre de participant·es",
 			"max_users": "Maximum",
 			"multiple_join": "Autoriser à participer plusieurs fois",
+			"param_autoClose": "Automatiquement fermer le tirage après avoir tiré une entrée gagnante",
 			"ponderate": "Pondérer les participations\n(chaque critère rempli comptera pour X participations)",
 			"ponderate_VIP": "VIP",
 			"ponderate_sub": "Sub T1/prime",

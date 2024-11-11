@@ -76,6 +76,7 @@
 			"limit_users": "Limit users count",
 			"max_users": "Max user count",
 			"multiple_join": "Users can enter multiple times",
+			"param_autoClose": "Automatically close raffle after picking a winner",
 			"ponderate": "Weight entries\n(additional points given for every matching criteria)",
 			"ponderate_VIP": "VIP",
 			"ponderate_sub": "Subscriber T1/prime",

@@ -871,7 +871,11 @@ export namespace TwitchatDataTypes {
 		removeWinningEntry?:boolean;
 		duration_s:number;
 		maxEntries:number;
+		autoClose:boolean;
 		multipleJoin:boolean;
+		//If true, this raffle woon't appear on the raffle list accessible from the footer
+		//and won't be saved to server
+		ghost?:true;
 		created_at:number;
 		entries:RaffleEntry[];
 		vipRatio:number;

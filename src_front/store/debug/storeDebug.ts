@@ -740,6 +740,7 @@ export const storeDebug = defineStore('debug', {
 							subgiftRatio:0,
 							mode:'manual',
 							multipleJoin:false,
+							autoClose:false,
 							subMode_excludeGifted:false,
 							subMode_includeGifters:false,
 							showCountdownOverlay:false,

@@ -142,11 +142,11 @@
 
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.raffleBt_aria')"
-						v-if="$store.raffle.raffleList && $store.raffle.raffleList.filter(v=>v.mode == 'chat' || v.mode == 'tips').length > 0"
+						v-if="$store.raffle.raffleList && raffleListActive.length > 0"
 						icon="ticket"
 						:count="raffleEntryCount"
 						v-tooltip="{touch:'hold', content:$t('chat.form.raffleBt_aria'), showOnCreate:shouldShowTooltip('raffle'), onHidden:()=>onHideTooltip('raffle')}"
-						@click="openNotifications('raffle')"><template v-if="$store.raffle.raffleList.length > 1">x{{ $store.raffle.raffleList.length }}</template></ButtonNotification>
+						@click="openNotifications('raffle')"><template v-if="raffleListActive.length > 1">x{{ raffleListActive.length }}</template></ButtonNotification>
 				</transition>
 
 				<transition name="blink">
@@ -160,6 +160,7 @@
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.suggBt_aria')"
 						icon="chatPoll"
+						:count="$store.chatSuggestion.data?.choices.length"
 						v-tooltip="{touch:'hold', content:$t('chat.form.suggBt_aria'), showOnCreate:shouldShowTooltip('chatsuggState'), onHidden:()=>onHideTooltip('chatsuggState')}"
 						@click="openModal('chatsuggState')"
 						v-if="$store.chatSuggestion.data != null" />
@@ -501,6 +502,8 @@ export class ChatForm extends Vue {
 	public get showObsBtn():boolean { return this.$store.obs.connectionEnabled === true && !OBSWebsocket.instance.connected; }
 
 	public get qnaSessionActive():boolean { return this.$store.qna.activeSessions.length > 0; }
+	
+	public get raffleListActive():TwitchatDataTypes.RaffleData[] { return this.$store.raffle.raffleList.filter(v=>v.mode != 'manual' && v.mode != 'values' && v.ghost !== true); }
 
 	public get voiceBotStarted():boolean { return VoiceController.instance.started; }
 	public get voiceBotConfigured():boolean {
@@ -567,7 +570,7 @@ export class ChatForm extends Vue {
 
 	public get raffleEntryCount():number {
 		let total = 0;
-		this.$store.raffle.raffleList.filter(v=>v.mode == 'chat' || v.mode == 'tips').forEach(v=> total += v.entries.length);
+		this.raffleListActive.forEach(v=> total += v.entries.length);
 		return total;
 	}
 

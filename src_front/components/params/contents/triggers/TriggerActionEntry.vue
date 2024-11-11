@@ -175,6 +175,7 @@
 					icon="mixitup">{{ $t('triggers.actions.common.action_mixitup') }}</TTButton>
 
 				<TTButton class="button" @click.capture="selectActionType('playability')"
+					v-if="$store.main.devmode"
 					:disabled="!$store.playability.connected"
 					v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_triggerAction_playability'}"
 					v-tooltip="$store.sammi.connected? '' : $t('triggers.actions.common.action_playability_tt')"

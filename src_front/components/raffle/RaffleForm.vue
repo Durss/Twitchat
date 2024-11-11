@@ -34,8 +34,9 @@
 				<ParamItem :paramData="param_enterDuration" v-model="localData.duration_s" />
 
 				<ToggleBlock class="configs" :icons="['params']" :title="$t('global.advanced_params')" :open="false">
-					<ParamItem :paramData="param_multipleJoin"  v-model="localData.multipleJoin" />
-					<ParamItem :paramData="param_maxUsersToggle"  v-model="param_maxUsersToggle.value" @change="onValueChange()">
+					<ParamItem :paramData="param_autoClose" v-model="localData.autoClose" />
+					<ParamItem :paramData="param_multipleJoin" v-model="localData.multipleJoin" />
+					<ParamItem :paramData="param_maxUsersToggle" v-model="param_maxUsersToggle.value" @change="onValueChange()">
 						<ParamItem class="child" noBackground :paramData="param_maxEntries" v-model="localData.maxEntries" />
 					</ParamItem>
 					<ParamItem :paramData="param_ponderateVotes" v-model="param_ponderateVotes.value" @change="onValueChange()">
@@ -386,7 +387,8 @@ class RaffleForm extends AbstractSidePanel {
 	public param_maxUsersToggle:TwitchatDataTypes.ParameterData<boolean, any, any>		= {value:false, type:"boolean", labelKey:"raffle.params.limit_users", icon:"user"};
 	public param_maxEntries:TwitchatDataTypes.ParameterData<number>						= {value:10, type:"number", min:0, max:1000000, labelKey:"raffle.params.max_users", icon:"user"};
 	public param_multipleJoin:TwitchatDataTypes.ParameterData<boolean>					= {value:false, type:"boolean", labelKey:"raffle.params.multiple_join", icon:"user"};
-	public param_ponderateVotes:TwitchatDataTypes.ParameterData<boolean, any, any>		= {value:false, type:"boolean", labelKey:"raffle.params.ponderate"};
+	public param_autoClose:TwitchatDataTypes.ParameterData<boolean>						= {value:true, type:"boolean", labelKey:"raffle.params.param_autoClose", icon:"trash"};
+	public param_ponderateVotes:TwitchatDataTypes.ParameterData<boolean, any, any>		= {value:false, type:"boolean", labelKey:"raffle.params.ponderate", icon:"balance"};
 	public param_ponderateVotes_vip:TwitchatDataTypes.ParameterData<number>				= {value:0, type:"number", min:0, max:100, icon:"vip", labelKey:"raffle.params.ponderate_VIP"};
 	public param_ponderateVotes_sub:TwitchatDataTypes.ParameterData<number>				= {value:0, type:"number", min:0, max:100, icon:"sub", labelKey:"raffle.params.ponderate_sub"};
 	public param_ponderateVotes_subT2:TwitchatDataTypes.ParameterData<number>			= {value:0, type:"number", min:0, max:100, icon:"sub", labelKey:"raffle.params.ponderate_subT2", twitch_scopes:[TwitchScopes.LIST_SUBSCRIBERS]};
@@ -416,6 +418,7 @@ class RaffleForm extends AbstractSidePanel {
 		reward_id:undefined,
 		duration_s:600,
 		maxEntries:0,
+		autoClose:true,
 		multipleJoin:false,
 		created_at:Date.now(),
 		entries:[],
@@ -701,6 +704,9 @@ class RaffleForm extends AbstractSidePanel {
 
 		const payload:TwitchatDataTypes.RaffleData = JSON.parse(JSON.stringify(this.localData)) as typeof this.localData;
 		payload.messages = undefined;
+
+		//Force autoclose for those raffle types as they don't need to persist
+		if(payload.mode == "manual" || payload.mode == "values") payload.autoClose = true;
 
 		//Sub mode specifics
 		if(this.localData.mode == "sub") {

@@ -1752,7 +1752,7 @@ export default class TriggerActionHandler {
 				if(step.type == "raffle") {
 					const data:TwitchatDataTypes.RaffleData = JSON.parse(JSON.stringify(step.raffleData));
 					if(data.customEntries) {
-						//Parse placeholders on custom erntries
+						//Parse placeholders on custom entries
 						data.customEntries = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, data.customEntries);
 					}
 					logStep.messages.push({date:Date.now(), value:"✔ Starting \""+data.mode+"\" raffle"});

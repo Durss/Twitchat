@@ -148,7 +148,7 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	static override async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 60;
+		const latestVersion = 61;
 
 		this.cleanupPreV7Data(data);
 
@@ -364,6 +364,10 @@ export default class DataStore extends DataStoreCommon{
 		}
 		if(v==59) {
 			this.migratePerUserCountersAndValues(data);
+			v = 60;
+		}
+		if(v==60) {
+			this.cleanAndMigrateRunningRaffles(data);
 			v = latestVersion;
 		}
 
@@ -1643,5 +1647,34 @@ export default class DataStore extends DataStoreCommon{
 			}
 			console.log("Migrate counter", counter);
 		});
+	}
+	
+	/**
+	 * Cleanup all "manual" and "values" raffles that are still on user's data.
+	 * After this update they will automatically be removed from it. But not until then.
+	 * Also setting "autoClose" flag to true on all raffles started from triggers
+	 * @param data 
+	 */
+	private static cleanAndMigrateRunningRaffles(data:any):void {
+		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+		if(triggers && Array.isArray(triggers)) {
+			triggers.forEach(t => {
+				t.actions.forEach(a => {
+					if(a.type == "raffle") {
+						a.raffleData.autoClose = true;
+					}
+				})
+			});
+		}
+
+		let rafflesRunning = data[DataStore.RAFFLES_RUNNING] as TwitchatDataTypes.RaffleData[];
+		if(rafflesRunning && Array.isArray(rafflesRunning)) {
+			//Remove manual and values raffles from history
+			rafflesRunning = rafflesRunning.filter((v:TwitchatDataTypes.RaffleData) => {
+				if(v.mode == "manual") return false;
+				if(v.mode == "values") return false;
+				return true;
+			})
+		}
 	}
 }
