@@ -134,6 +134,13 @@
 				<p>Mix It Up</p>
 			</button>
 
+			<button class="card-item" v-if="$store.main.devmode"
+			:class="{connected:$store.playability.connected}"
+			@click="subContent='playability'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.playability'}">
+				<Icon name="playability" />
+				<p>PlayAbility</p>
+			</button>
+
 			<button class="card-item"
 			:class="{connected:$store.elevenLabs.connected}"
 			@click="subContent='elevenlabs'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.elevenlabs'}">
@@ -178,6 +185,7 @@
 	<ConnectSammi v-else-if="subContent == 'sammi'" />
 	<ConnectMixitup v-else-if="subContent == 'mixitup'" />
 	<ConnectElevenLabs v-else-if="subContent == 'elevenlabs'" />
+	<ConnectPlayability v-else-if="subContent == 'playability'" />
 
 </template>
 
@@ -214,6 +222,7 @@ import HeatSocket from '@/utils/twitch/HeatSocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import ConnectElevenLabs from './connexions/ConnectElevenLabs.vue';
+import ConnectPlayability from './connexions/ConnectPlayability.vue';
 
 @Component({
 	components:{
@@ -236,6 +245,7 @@ import ConnectElevenLabs from './connexions/ConnectElevenLabs.vue';
 		ConnectStreamdeck,
 		ConnectStreamlabs,
 		ConnectElevenLabs,
+		ConnectPlayability,
 		ConnectStreamerBot,
 		ConnectStreamelements,
 	},

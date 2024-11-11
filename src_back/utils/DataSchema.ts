@@ -794,6 +794,31 @@ const UserDataSchema = {
 										}
 									}
 								},
+								playabilityData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										outputs: {
+											type:"array",
+											minItems:0,
+											maxItems:40,
+											items: {
+												type: "object",
+												additionalProperties: false,
+												properties: {
+													code: {type:"string", maxLength:20},
+													type: {type:"string", maxLength:20},
+													value:{
+														anyOf: [
+															{ type: "number", minimum: -1, maximum: 1 },
+															{ type: "boolean" }
+														]
+													},
+												}
+											}
+										}
+									}
+								},
 							}
 						},
 					}
@@ -2167,6 +2192,14 @@ const UserDataSchema = {
 		},
 
 		mixitupConfigs:{
+			type: "object",
+			properties: {
+				ip: {type:"string", maxLength:100},
+				port: {type:"integer", minimum:0, maximum:65535},
+			}
+		},
+
+		playabilityConfigs:{
 			type: "object",
 			properties: {
 				ip: {type:"string", maxLength:100},

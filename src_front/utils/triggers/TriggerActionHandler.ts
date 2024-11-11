@@ -3273,6 +3273,25 @@ export default class TriggerActionHandler {
 						logStep.messages.push({date:Date.now(), value:"✔ Execute Mix It Up command ID: "+step.mixitupData.commandId+" with arguments: "+JSON.stringify(args)});
 						StoreProxy.mixitup.execCommand(step.mixitupData.commandId, message.platform, args);
 					}
+				}else
+
+				if(step.type == "playability") {
+					if(!StoreProxy.playability.connected) {
+						logStep.messages.push({date:Date.now(), value:"❌ PlayAbility not connect, cannot execute requested actions"});
+						log.error = true;
+						logStep.error = true;
+					}else if(!step.playabilityData) {
+						logStep.messages.push({date:Date.now(), value:"❌ Missing PlayAbility related trigger action data"});
+						log.error = true;
+						logStep.error = true;
+					}else{
+						StoreProxy.playability.execOutputs(step.playabilityData.outputs);
+						for (let i = 0; i < step.playabilityData.outputs.length; i++) {
+							const element = step.playabilityData.outputs[i];
+							logStep.messages.push({date:Date.now(), value:"✔ Simulate PlayAbility output: "+element.code+" to "+element.value});
+						}
+					}
+
 				}
 
 			}catch(error:any) {

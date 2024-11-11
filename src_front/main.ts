@@ -72,6 +72,7 @@ import { storeSammi } from './store/sammi/storeSammi';
 import { storeMixitup } from './store/mixitup/storeMixitup';
 import { storeTwitchCharity } from './store/twitch_charity/storeTwitchCharity';
 import { storeElevenLabs } from './store/elevenlabs/storeElevenLabs';
+import { storePlayability } from './store/playability/storePlayability';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -282,6 +283,7 @@ function buildApp() {
 	StoreProxy.default.mixitup = storeMixitup();
 	StoreProxy.default.twitchCharity = storeTwitchCharity();
 	StoreProxy.default.elevenLabs = storeElevenLabs();
+	StoreProxy.default.playability = storePlayability();
 
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach(k => {

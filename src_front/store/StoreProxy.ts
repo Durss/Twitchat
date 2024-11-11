@@ -2,7 +2,7 @@ import type HeatEvent from "@/events/HeatEvent";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import type { HeatScreen } from "@/types/HeatDataTypes";
 import type { LabelItemData, LabelItemPlaceholder, LabelItemPlaceholderList } from "@/types/ILabelOverlayData";
-import type { TriggerActionCountDataAction, TriggerActionTypes, TriggerCallStack, TriggerData, TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
+import type { TriggerActionCountDataAction, TriggerActionPlayabilityData, TriggerActionTypes, TriggerCallStack, TriggerData, TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/types/spotify/SpotifyDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
@@ -76,6 +76,7 @@ export default class StoreProxy {
 	public static mixitup: IMixitupState & IMixitupGetters & IMixitupActions & { $state: IMixitupState, $reset: () => void };
 	public static twitchCharity: ITwitchCharityState & ITwitchCharityGetters & ITwitchCharityActions & { $state: ITwitchCharityState, $reset: () => void };
 	public static elevenLabs: IElevenLabsState & IElevenLabsGetters & IElevenLabsActions & { $state: IElevenLabsState, $reset: () => void };
+	public static playability: IPlayabilityState & IPlayabilityGetters & IPlayabilityActions & { $state: IPlayabilityState, $reset: () => void };
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static asset:(path: string) => string;
@@ -3356,4 +3357,58 @@ export interface IElevenLabsActions {
 	 * Warn on chat when count is low
 	 */
 	loadApiCredits():Promise<void>
+}
+
+
+
+
+export interface IPlayabilityState {
+	connected: boolean;
+	ip: string;
+	port: number;
+	mappingList: {
+		input: {
+			type: string;
+			code: string;
+			settings: {}
+		},
+		output: {
+			type: NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"][number]["type"];
+			code: NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"][number]["code"];
+			value: NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"][number]["value"];
+		},
+		description: string;
+		id: number;
+	}[];
+}
+
+export interface IPlayabilityGetters {
+}
+
+export interface IPlayabilityActions {
+	/**
+	 * Populates the store
+	 */
+	populateData(): Promise<void>;
+	/**
+	 * Connect to Playability
+	 */
+	connect(isReconnect?:boolean): Promise<boolean>;
+	/**
+	 * Disconnect from Playability
+	 */
+	disconnect(): void;
+	/**
+	 * Simulates an ouput list
+	 * @param outputs
+	 */
+	execOutputs(outputs:NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"]):Promise<void>;
+	/**
+	 * Saves current configs to store
+	 */
+	saveConfigs(): void;
+	/**
+	 * Lists all available commands
+	 */
+	listCommands():Promise<void>;
 }

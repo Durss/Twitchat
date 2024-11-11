@@ -98,7 +98,7 @@ export const storeLumia = defineStore('lumia', {
 			this.socketToken = "";
 			this.saveData();
 			clearTimeout(reconnectTimeout);
-			if(socket && !this.connected) socket.close();
+			if(socket && this.connected) socket.close();
 		},
 
 		setColor(color:number|string, brightness:number, duration:number, transition:number):void {

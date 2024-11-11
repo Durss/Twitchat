@@ -179,7 +179,9 @@
 				"action_sammi": "SAMMI action",
 				"action_sammi_tt": "You first need to connect Twitchat with SAMMI to use this action",
 				"action_mixitup": "Mix It Up action",
-				"action_mixitup_tt": "You first need to connect Twitchat with Mix It Up to use this action"
+				"action_mixitup_tt": "You first need to connect Twitchat with Mix It Up to use this action",
+				"action_playability": "PlayAbility action",
+				"action_playability_tt": "You first need to connect Twitchat with PlayAbility to use this action"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -606,6 +608,13 @@
 				"need_to_connect": "This action requires you to {LINK}",
 				"need_to_connect_link": "connect with Mix It Up",
 				"add_arg_bt":"Add parameter"
+			},
+			"playability":{
+				"need_to_connect": "This action requires you to {LINK}",
+				"need_to_connect_link": "connect with PlayAbility",
+				"add_output_bt": "Add action",
+				"output_press":"Press button",
+				"output_release":"Release button"
 			}
 		},
 		"categories": {

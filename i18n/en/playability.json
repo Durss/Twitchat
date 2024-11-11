@@ -1,0 +1,11 @@
+{
+	"playability": {
+		"header":"Connect Twitchat with {LINK} and control it from the Triggers",
+        "info": "PlayAbility is designed to make video games accessible to people with disabilities by allowing them to be controlled from your face.\n\nConnecting Twitchat to PlayAbility will allow you to trigger keyboard, controller, or mouse keys from the Triggers. For example, let your viewers shoot for you from a channel points reward, a sub, a raid, a donation, ...",
+		"instructions":"In PlayAbility, head over \"Settings\" => \"Advanced\" make sure \"Enable Websocket Server\" is ON",
+		"install":"Install PlayAbility",
+		"connect_error":"Unable to connect with PlayAbility.",
+		"ip":"IP",
+		"port":"Port"
+	}
+}

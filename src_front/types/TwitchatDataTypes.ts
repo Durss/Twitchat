@@ -40,6 +40,7 @@ export namespace TwitchatDataTypes {
 		ELEVENLABS: "elevenlabs",
 		BINGO_GRID: "bingogrid",
 		STREAMDECK: "streamdeck",
+		PLAYABILITY: "playability",
 		HIGHLIGHT: "chathighlight",
 		STREAMERBOT: "streamerbot",
 		STREAMELEMENTS: "streamelements",

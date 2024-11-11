@@ -98,6 +98,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionStreamerbotData
 								| TriggerActionSammiData
 								| TriggerActionMixitupData
+								| TriggerActionPlayabilityData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -557,6 +558,20 @@ export interface TriggerActionMixitupData extends TriggerActionData{
 		commandId:string;
 		params?:{
 			value:string;
+		}[];
+	};
+}
+
+export interface TriggerActionPlayabilityData extends TriggerActionData{
+	type:"playability";
+	/**
+	 * Mix It Up params
+	 */
+	playabilityData?:{
+		outputs:{
+			code:string;
+			type:"axis"|"keyboard"|"mouseButton"|"trigger"|"button";
+			value:number|boolean;
 		}[];
 	};
 }
