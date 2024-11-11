@@ -42,6 +42,7 @@
 		"missing_reward_scope": "CHARGEMENT DE LA RECOMPENSE IMPOSSIBLE",
 		"random_placeholder": "Placeholder de valeur aléatoire {NAME}",
 		"http_placeholder": "Placeholder HTTP {NAME}",
+		"raffle_placeholder": "Entrée de tirage au sort gagnante",
 		"premium_limit": "Vous avez créé le maximum de {MAX} triggers actifs. Devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} triggers. Ou désactivez / supprimez des triggers pour en créer de nouveaux.",
 		"delete_folder_confirm": {
 			"title": "Supprimer le dossier ?",

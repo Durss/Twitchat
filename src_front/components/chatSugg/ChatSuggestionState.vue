@@ -121,11 +121,10 @@ class ChatSuggestionState extends AbstractSidePanel {
 			showCountdownOverlay:false,
 		};
 
-		data.resultCallback = ()=> {
+		data.resultCallback = (winner:TwitchatDataTypes.RaffleEntry)=> {
 			if(data.winners
 			&& data.winners.length > 0) {
-				const winnerId = data.winners[data.winners.length-1].id;
-				const index = this.poll.choices.findIndex(v=>v.id == winnerId);
+				const index = this.poll.choices.findIndex(v=>v.id == winner.id);
 				if(index > -1) {
 					const entry = this.poll.choices.splice(index, 1)[0];
 					if(entry) {

@@ -302,6 +302,20 @@
 					</i18n-t>
 				</TTButton>
 			</form>
+
+			<ParamItem
+			v-if="triggerMode"
+			:paramData="param_trigger_waitForWinner"
+			v-model="localData.triggerWaitForWinner">
+				<div class="parameter-child card-item placeholderInfo primary">
+					<Icon name="info" />
+					<i18n-t scope="global" tag="span" keypath="raffle.params.trigger_waitForWinner_placeholder">
+						<template #PLACEHOLDER>
+							<mark v-click2Select>{RAFFLE_WINNER_ENTRY}</mark>
+						</template>
+					</i18n-t>
+				</div>
+			</ParamItem>
 		</div>
 	</div>
 </template>
@@ -403,6 +417,7 @@ class RaffleForm extends AbstractSidePanel {
 	public param_values_splitter:TwitchatDataTypes.ParameterData<string>				= {value:",", type:"string", maxLength:5, labelKey:"raffle.params.value_splitter", icon:"splitter"};
 	public param_values_remove:TwitchatDataTypes.ParameterData<boolean>					= {value:false, type:"boolean", labelKey:"raffle.params.value_remove", icon:"trash"};
 	public param_list_remove:TwitchatDataTypes.ParameterData<boolean>					= {value:false, type:"boolean", labelKey:"raffle.params.list_remove", icon:"trash"};
+	public param_trigger_waitForWinner:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.trigger_waitForWinner", icon:"countdown"};
 
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	public winnerTipsPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
@@ -717,14 +732,10 @@ class RaffleForm extends AbstractSidePanel {
 			this.winner = null;
 			this.pickingEntry = true;
 			await Utils.promisedTimeout(2000);
-			payload.resultCallback = ()=> {
+			payload.resultCallback = (winner:TwitchatDataTypes.RaffleEntry)=> {
 				clearInterval(interval);
-
-				if(payload.winners
-				&& payload.winners.length > 0) {
-					this.winnerTmp = null;
-					this.winner = payload.winners[payload.winners.length-1].label;
-				}
+				this.winnerTmp = null;
+				this.winner = winner.label;
 			}
 		}
 
@@ -889,6 +900,14 @@ export default toNative(RaffleForm);
 					}
 				}
 			}
+		}
+	}
+
+	.placeholderInfo {
+		.icon {
+			height: 1em;
+			margin-right: .25em;
+			vertical-align: baseline;
 		}
 	}
 }

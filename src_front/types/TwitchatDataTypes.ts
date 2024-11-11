@@ -873,8 +873,10 @@ export namespace TwitchatDataTypes {
 		maxEntries:number;
 		autoClose:boolean;
 		multipleJoin:boolean;
-		//If true, this raffle woon't appear on the raffle list accessible from the footer
-		//and won't be saved to server
+		/**
+		 * If true, this raffle woon't appear on the raffle list
+		 * accessible from the footer and won't be saved to server
+		 */
 		ghost?:true;
 		created_at:number;
 		entries:RaffleEntry[];
@@ -889,6 +891,10 @@ export namespace TwitchatDataTypes {
 		showCountdownOverlay:boolean;
 		customEntries:string;
 		winners?:RaffleEntry[];
+		/**
+		 * If true, trigger's execution will be halted until a winner is picked
+		 */
+		triggerWaitForWinner?:true;
 		/**
 		 * Messages to send on chat
 		 */
@@ -919,7 +925,7 @@ export namespace TwitchatDataTypes {
 		 * Only used by raffle form to show winner within the form
 		 * when raffle completes
 		 */
-		resultCallback?:()=>void;
+		resultCallback?:(winner:RaffleEntry)=>void;
 		/**
 		 * @deprecated use duration_s instead. Only hear for typing on data migration
 		 */

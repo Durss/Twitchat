@@ -457,6 +457,7 @@ const UserDataSchema = {
 										value_splitter: {type:"string", maxLength:5},
 										multipleJoin: {type:"boolean"},
 										autoClose: {type:"boolean"},
+										triggerWaitForWinner: {type:"boolean"},
 										duration_s: {type:"integer", minimum:0, maximum:120 * 60000},
 										maxEntries: {type:"integer", minimum:0, maximum:1000000},
 										created_at: {type:"integer", minimum:0, maximum:9999999999999},
@@ -2048,6 +2049,7 @@ const UserDataSchema = {
 					maxEntries: { type: "number" },
 					multipleJoin: { type: "boolean" },
 					autoClose: { type: "boolean" },
+					triggerWaitForWinner: {type:"boolean"},
 					created_at: { type: "number" },
 					entries: {
 						type:"array",

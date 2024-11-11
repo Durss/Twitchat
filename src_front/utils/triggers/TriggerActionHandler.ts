@@ -1288,7 +1288,7 @@ export default class TriggerActionHandler {
 					}else{
 						delay = step.delay;
 					}
-					logStep.messages.push({date:Date.now(), value:"Wait for "+ delay+"s..."});
+					logStep.messages.push({date:Date.now(), value:"🕙 Wait for "+ delay+"s..."});
 					await Utils.promisedTimeout(delay * 1000);
 				}else
 
@@ -1520,7 +1520,7 @@ export default class TriggerActionHandler {
 										}
 									}
 									if(step.waitMediaEnd === true && (action == "show" || action == "replay")) {
-										logStep.messages.push({date:Date.now(), value:"Wait for media \""+step.sourceName+"\" to complete playing..."});
+										logStep.messages.push({date:Date.now(), value:"🕙 Wait for media \""+step.sourceName+"\" to complete playing..."});
 										await new Promise<void>((resolve, reject)=> {
 											const handler = (e:TwitchatEvent) => {
 												const d = e.data as {inputName:string};
@@ -1751,12 +1751,29 @@ export default class TriggerActionHandler {
 				//Handle raffle action
 				if(step.type == "raffle") {
 					const data:TwitchatDataTypes.RaffleData = JSON.parse(JSON.stringify(step.raffleData));
+					let winnerResolver:Promise<TwitchatDataTypes.RaffleEntry> | null = null;
 					if(data.customEntries) {
 						//Parse placeholders on custom entries
 						data.customEntries = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, data.customEntries);
 					}
+					if(step.raffleData.triggerWaitForWinner === true) {
+						winnerResolver = new Promise<TwitchatDataTypes.RaffleEntry>((resolve)=>{
+							data.resultCallback = (winner:TwitchatDataTypes.RaffleEntry)=>{
+								resolve!(winner);
+							}
+						})
+					}
 					logStep.messages.push({date:Date.now(), value:"✔ Starting \""+data.mode+"\" raffle"});
 					StoreProxy.raffle.startRaffle(data);
+					console.log(step.raffleData.triggerWaitForWinner)
+					if(step.raffleData.triggerWaitForWinner === true) {
+						logStep.messages.push({date:Date.now(), value:"🕙Waiting for a raffle winner to be picked..."});
+						if(winnerResolver) {
+							const winner = await winnerResolver;
+							dynamicPlaceholders["RAFFLE_WINNER_ENTRY"] = winner.label;
+						}
+
+					}
 				}else
 
 				//Handle raffle enter action

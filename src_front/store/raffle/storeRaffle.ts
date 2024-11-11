@@ -244,7 +244,7 @@ export const storeRaffle = defineStore('raffle', {
 				PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_RESULT, (winner as unknown) as JsonObject);
 			}
 
-			if(raffleEntry.resultCallback) raffleEntry.resultCallback();
+			if(raffleEntry.resultCallback) raffleEntry.resultCallback(winner);
 
 			//Remove raffle entry
 			if(raffleEntry.autoClose === true) {

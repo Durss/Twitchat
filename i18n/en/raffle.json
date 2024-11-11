@@ -92,7 +92,9 @@
 			"entry_placeholder": "Winning entry",
 			"value_placeholder": "Select source Value",
 			"value_splitter": "Entries separator\n(char that seperates entries)",
-			"value_remove": "Remove winning entry from Value\n(the entry will be lost!)"
+			"value_remove": "Remove winning entry from Value\n(the entry will be lost!)",
+			"trigger_waitForWinner": "Wait for a winner to be picked.\n(trigger's execution will be paused until a winner is picked)",
+			"trigger_waitForWinner_placeholder": "Use {PLACEHOLDER} placeholder on any action bellow this one to get the winning entry"
 		},
 		"state_title": "Raffle",
 		"state_users": "{COUNT} entered",

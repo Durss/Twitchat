@@ -122,7 +122,7 @@ class RaffleState extends Vue {
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	public param_autoClose:TwitchatDataTypes.ParameterData<boolean> = {value:true, type:"boolean", labelKey:"raffle.params.param_autoClose", icon:"trash"};
 
-	private validRaffleTypes:TwitchatDataTypes.RaffleData["mode"][] = ["chat", "tips"];
+	private validRaffleTypes:TwitchatDataTypes.RaffleData["mode"][] = ["chat", "tips", "sub"];
 	private overlaySource:OBSSourceItem|null = null;
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
