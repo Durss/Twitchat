@@ -26,6 +26,8 @@ export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 	public static LABELS_UPDATE = "LABELS_UPDATE" as const;
 	public static SPOIL_MESSAGE = "SPOIL_MESSAGE" as const;
 	public static PATREON_MEMBER_CREATE = "PATREON_MEMBER_CREATE" as const;
+	public static PRIVATE_MOD_MESSAGE = "PRIVATE_MOD_MESSAGE" as const;
+	public static PRIVATE_MOD_MESSAGE_ANSWER = "PRIVATE_MOD_MESSAGE_ANSWER" as const;
 
 	constructor(eventType:T, public data?:EventTypeMap[T]) {
 		super(eventType);
@@ -126,7 +128,19 @@ export type EventTypeMap = {
 			title: string;
 			description: string;
 		}
-	}
+	};
+	PRIVATE_MOD_MESSAGE: {
+		from_uid:string;
+		from_login:string;
+		message:TwitchatDataTypes.ParseMessageChunk[];
+		action:TwitchatDataTypes.MessagePrivateModeratorData["action"];
+		messageId:string;
+		messageIdParent:string;
+	};
+	PRIVATE_MOD_MESSAGE_ANSWER: {
+		messageId:string;
+		answer:boolean;
+	};
 }
 
 interface AbstractQnaAciton {

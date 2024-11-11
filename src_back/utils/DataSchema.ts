@@ -812,6 +812,7 @@ const UserDataSchema = {
 													type: {type:"string", maxLength:20},
 													value:{
 														anyOf: [
+															{ enum: ["press_release"] },
 															{ type: "number", minimum: -1, maximum: 1 },
 															{ type: "boolean" }
 														]

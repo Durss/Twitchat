@@ -1075,6 +1075,33 @@ type ApiEndpoints =  {
 			}
 		},
 	};
+	"mod/privateMessage": {
+		POST: {
+			parameters: {
+				to_uid:string;
+				message:TwitchatDataTypes.ParseMessageChunk[];
+				action:TwitchatDataTypes.MessagePrivateModeratorData["action"];
+				messageId:string;
+				messageParentId?:string;
+			};
+			response:{
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		},
+		PUT: {
+			parameters: {
+				messageId:string;
+				answer:boolean;
+			};
+			response:{
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		},
+	};
 	"mod/qna/message": {
 		PUT: {
 			parameters: {

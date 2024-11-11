@@ -538,6 +538,10 @@ export interface IChatState {
 	 */
 	replyTo:TwitchatDataTypes.MessageChatData|null;
 	/**
+	 * Messaging mode
+	 */
+	messageMode:"dm"|"question"|"chat";
+	/**
 	 * Number of whispers not read
 	 */
 	whispersUnreadCount:number;
@@ -719,12 +723,21 @@ export interface IChatActions {
 	/**
 	 * Accepts or rejects given automoded messages
 	 */
-	automodAction(accept:boolean, message:TwitchatDataTypes.ChatMessageTypes):Promise<void> 
+	automodAction(accept:boolean, message:TwitchatDataTypes.ChatMessageTypes):Promise<void>;
 	/**
 	 * Flag a message as a spoiler
 	 * @param message 
 	 */
-	flagAsSpoiler(message:TwitchatDataTypes.MessageChatData):Promise<void>
+	flagAsSpoiler(message:TwitchatDataTypes.MessageChatData):Promise<void>;
+	/**
+	 * Adds a private mod message from given info
+	 */
+	addPrivateModMessage(
+		from:TwitchatDataTypes.TwitchatUser,
+		message:TwitchatDataTypes.ParseMessageChunk[],
+		action:TwitchatDataTypes.MessagePrivateModeratorData["action"],
+		message_parent_id?:string,
+		message_id?:string):TwitchatDataTypes.MessagePrivateModeratorData;
 }
 
 

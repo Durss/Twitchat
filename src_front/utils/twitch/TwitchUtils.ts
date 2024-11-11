@@ -3347,12 +3347,12 @@ export default class TwitchUtils {
 				const chunk = result[i];
 				if (chunk.type == "text") {
 					result.splice(i, 1);//Remove source chunk
-					const res = (chunk.value || "").split(/(?:^|\s)((?:(?:http|ftp|https):\/\/)?(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi);
+					const res = (chunk.value || "").split(/((?:(?:http|ftp|https):\/\/)?(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi);
 					let subIndex = 0;
 					res.forEach(v => {
 						if(v == "") return;
 						//Add sub chunks to original resulting chunks
-						let islink = /(?:^|\s)((?:(?:http|ftp|https):\/\/)?(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi.test(v);
+						let islink = /((?:(?:http|ftp|https):\/\/)?(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi.test(v);
 						//Avoid floating numbers to be parsed as links
 						if (/[0-9]+\.[0-9]+$/.test(v)) islink = false;
 						const node: TwitchatDataTypes.ParseMessageChunk = {

@@ -2313,6 +2313,7 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
 		RAFFLE_PICK_WINNER:"raffle_pick_winner",
 		OBS_RECORDING_STOP:"obs_recording_stop",
+		PRIVATE_MOD_MESSAGE:"private_mod_message",
 		OBS_RECORDING_START:"obs_recording_start",
 		AD_BREAK_START_CHAT:"ad_break_start_chat",
 		HYPE_TRAIN_PROGRESS:"hype_train_progress",
@@ -2423,6 +2424,7 @@ export namespace TwitchatDataTypes {
 		hype_train_cancel:false,
 		hype_train_summary:true,
 		goxlr_sound_input:false,
+		private_mod_message:true,
 		raffle_pick_winner:false,
 		low_trust_treatment:true,
 		ad_break_start_chat:true,
@@ -2589,6 +2591,7 @@ export namespace TwitchatDataTypes {
 									| MessageTikTokShareData
 									| MessageSuspendedTriggerStackData
 									| MessageCharityDonationData
+									| MessagePrivateModeratorData
 	;
 
 	/**
@@ -2816,6 +2819,7 @@ export namespace TwitchatDataTypes {
 		super_chat:true,
 		subscription:true,
 		user_watch_streak:true,
+		private_mod_message:true,
 		youtube_subscription:true,
 	}
 
@@ -5470,5 +5474,27 @@ export namespace TwitchatDataTypes {
 			url:string;
 			title:string;
 		}
+	}
+
+	export interface MessagePrivateModeratorData extends TranslatableMessage {
+		type:"private_mod_message";
+		/**
+		 * Message type:
+		 * - message: simple message
+		 * - question: question to answer
+		 */
+		action:"message"|"question";
+		/**
+		 * Optional message ID to reference
+		 */
+		parentMessage?:TranslatableMessage;
+		/**
+		 * Answer given by the streamer for a "question" message
+		 */
+		answer?:boolean;
+		/**
+		 * Channel ID the message has been sent to
+		 */
+		toChannelId?:string;
 	}
 }

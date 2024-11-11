@@ -57,16 +57,20 @@
 						</div>
 					</div>
 
-					<div class="inputField">
-						<ChannelSwitcher class="chanSwitcher"
-							v-model="$store.stream.currentChatChannel.id"
-							v-model:name="$store.stream.currentChatChannel.name"
-							v-model:platform="$store.stream.currentChatChannel.platform" />
-							
+					<div class="inputField" :class="{modAction:$store.chat.messageMode!='chat'}" :style="inputStyles">
+						<div class="actions">
+							<ChannelSwitcher class="chanSwitcher"
+								v-model="$store.stream.currentChatChannel.id"
+								v-model:name="$store.stream.currentChatChannel.name"
+								v-model:platform="$store.stream.currentChatChannel.platform" />
+
+							<ModeratorActionSwitcher v-if="isModeratedChannel" v-model:mode="$store.chat.messageMode" />
+						</div>
+
 						<button class="youtubeError"
 							v-if="mustConnectYoutubeChan"
 							@click="$store.params.openParamsPage('connexions', 'youtube')">{{ $t('chat.form.youtube_not_connected') }}</button>
-						
+
 						<button class="youtubeError"
 							v-else-if="$store.stream.currentChatChannel.platform == 'youtube' && mustGrantYoutubeScope"
 							@click="$store.params.openParamsPage('connexions', 'youtube')">{{ $t('chat.form.youtube_missing_scope') }}</button>
@@ -81,8 +85,7 @@
 							@input="$event => message = ($event.target as HTMLInputElement).value"
 							@keyup.capture.tab="(e)=>onTab(e)"
 							@keyup.enter="(e:Event)=>sendMessage(e)"
-							@keydown="onKeyDown"
-							:style="inputStyles">
+							@keydown="onKeyDown">
 					</div>
 				</div>
 
@@ -396,6 +399,7 @@ import ChannelSwitcher from './ChannelSwitcher.vue';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import {YoutubeScopes} from "@/utils/youtube/YoutubeScopes";
+import ModeratorActionSwitcher from './ModeratorActionSwitcher.vue';
 
 @Component({
 	components:{
@@ -410,6 +414,7 @@ import {YoutubeScopes} from "@/utils/youtube/YoutubeScopes";
 		AutocompleteChatForm,
 		MessageExportIndicator,
 		ChatMessageChunksParser,
+		ModeratorActionSwitcher,
 	},
 	emits: [
 		"update:showEmotes",
@@ -572,6 +577,12 @@ export class ChatForm extends Vue {
 		let total = 0;
 		this.raffleListActive.forEach(v=> total += v.entries.length);
 		return total;
+	}
+
+	public get isModeratedChannel():boolean {
+		const chanId = this.$store.stream.currentChatChannel.id;
+		return chanId != this.$store.auth.twitch.user.id
+			&& this.$store.auth.twitchModeratedChannels.findIndex(v=>v.broadcaster_id == chanId) > -1;
 	}
 
 	public beforeMount(): void {
@@ -919,6 +930,31 @@ export class ChatForm extends Vue {
 			}
 		}else{
 
+			if(this.$store.chat.messageMode != "chat") {
+				const chunks = TwitchUtils.parseMessageToChunks(this.message, undefined, true);
+				const message =  StoreProxy.chat.addPrivateModMessage(
+									this.$store.auth.twitch.user,
+									chunks,
+									this.$store.chat.messageMode == "question"? "question": "message",
+									this.$store.chat.replyTo?.id);
+
+				//Allows to display a message on chat from its raw JSON
+				const res = await ApiHelper.call("mod/privateMessage", "POST", {
+					message: chunks, 
+					action: this.$store.chat.messageMode == "question"? "question": "message",
+					to_uid: this.$store.stream.currentChatChannel.id,
+					messageId: message.id,
+					messageParentId: this.$store.chat.replyTo?.id,
+				});
+
+				if(res.status == 200) {
+					this.message = "";
+				}else{
+					this.error = true;
+				}
+				return;
+			}
+
 			//Send message
 			try {
 				if(this.$store.main.cypherEnabled) {
@@ -1250,19 +1286,30 @@ export default toNative(ChatForm);
 					gap: 0;
 					display: flex;
 					flex-direction: row;
+					background-color: var(--background-color-fader);
+					border-radius: var(--border-radius);
 					input {
 						flex-grow: 1;
 						color: var(--color-text);
-						padding-left: 2em;
+						background:transparent;
 					}
-					.chanSwitcher {
-						position: absolute;
-						margin: .15em;
+					.actions {
+						// gap: .25em;
+						display: flex;
+						flex-direction: row;
+						align-items: center;
+						z-index: 1;
+						.chanSwitcher {
+							// position: absolute;
+							margin: .15em;
+						}
 					}
 
 					.youtubeError {
+						position: absolute;
 						text-align: center;
 						width: 100%;
+						z-index: 0;
 						line-height: 1.75em;
 						color: var(--color-text);
 						background-color: var(--color-alert-fader);
@@ -1271,6 +1318,13 @@ export default toNative(ChatForm);
 						&:hover {
 							background-color: var(--color-alert-fade);
 						}
+					}
+
+					&.modAction {
+						background-color: var(--color-text-inverse) !important;
+						@c1: #00a86520;
+						@c2: #00a86530;
+						background-image: repeating-linear-gradient(-45deg, @c1, @c1 20px, @c2 20px, @c2 40px);
 					}
 				}
 

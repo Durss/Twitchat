@@ -550,7 +550,7 @@ class UserCard extends AbstractSidePanel {
 				if(!user.displayName) user.displayName = u.display_name;
 
 				//Adding partner badge if no badge is already specified
-				if(user.channelInfo[this.channel!.id]?.badges?.length == 0) {
+				if(user.channelInfo[this.channel!.id] && user.channelInfo[this.channel!.id].badges?.length == 0) {
 					const staticBadges:Badges = {};
 					staticBadges[u.broadcaster_type] = "1";
 					user.channelInfo[this.channel!.id].badges = TwitchUtils.getBadgesFromRawBadges(this.channel!.id, undefined, staticBadges);

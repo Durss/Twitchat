@@ -1,14 +1,15 @@
 import { TranslatableLanguagesMap } from '@/TranslatableLanguages';
 import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
+import SSEEvent from '@/events/SSEEvent';
 import TwitchatEvent from '@/events/TwitchatEvent';
-import MessengerProxy from '@/messaging/MessengerProxy';
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
 import LandeWorker from '@/utils/LandeWorker';
 import PublicAPI from '@/utils/PublicAPI';
+import SSEHelper from '@/utils/SSEHelper';
 import SchedulerHelper from '@/utils/SchedulerHelper';
 import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
@@ -21,8 +22,6 @@ import type { JsonArray, JsonObject } from 'type-fest';
 import { reactive, watch, type UnwrapRef } from 'vue';
 import Database from '../Database';
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy';
-import SSEHelper from '@/utils/SSEHelper';
-import SSEEvent from '@/events/SSEEvent';
 
 //Don't make this reactive, it kills performances on the long run
 let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -42,6 +41,7 @@ export const storeChat = defineStore('chat', {
 		whispers: {},
 		emoteSelectorCache: [],
 		replyTo: null,
+		messageMode: "chat",
 		spamingFakeMessages: false,
 
 		botMessages: {
@@ -723,10 +723,32 @@ export const storeChat = defineStore('chat', {
 					const mess = messageList[i];
 					if(mess.id == event.data?.messageId && mess.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 						mess.spoiler = true;
+						break;
 					}
-					break;
 				}
-			})
+			});
+
+			//Listen for private moderator messages 
+			SSEHelper.instance.addEventListener(SSEEvent.PRIVATE_MOD_MESSAGE, (event)=>{
+				if(!event.data) return;
+				const message_chunks = event.data.message;
+				const channel_id = StoreProxy.auth.twitch.user.id;
+				const from = StoreProxy.users.getUserFrom("twitch", channel_id, event.data.from_uid, channel_id, event.data.from_login);
+				this.addPrivateModMessage(from, message_chunks, event.data.action, event.data.messageIdParent, event.data.messageId);
+			});
+
+			//Listen for private moderator messages answers
+			SSEHelper.instance.addEventListener(SSEEvent.PRIVATE_MOD_MESSAGE_ANSWER, (event)=>{
+				if(!event.data) return;
+				for (let i = messageList.length-1; i >= Math.max(0, messageList.length - 1000); i--) {
+					const message = messageList[i];
+					if(message.id == event.data.messageId && message.type == TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE) {
+						message.answer = event.data.answer;
+						Database.instance.updateMessage(message);
+						break;
+					}
+				}
+			});
 		},
 
 		async preloadMessageHistory():Promise<void> {
@@ -2387,7 +2409,41 @@ export const storeChat = defineStore('chat', {
 					StoreProxy.common.alert(StoreProxy.i18n.t("error.spoil_action"));
 				})
 			}
-		}
+		},
+
+		addPrivateModMessage(
+		from:TwitchatDataTypes.TwitchatUser,
+		message_chunks:TwitchatDataTypes.ParseMessageChunk[],
+		action:TwitchatDataTypes.MessagePrivateModeratorData["action"],
+		message_parent_id?:string,
+		message_id?:string):TwitchatDataTypes.MessagePrivateModeratorData {
+			const channel_id = StoreProxy.auth.twitch.user.id;
+			const message:TwitchatDataTypes.MessagePrivateModeratorData = {
+				channel_id,
+				platform:"twitch",
+				date:Date.now(),
+				id:message_id || Utils.getUUID(),
+				type:TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE,
+				message: message_chunks.map(v=>v.value).join(" "),
+				message_chunks,
+				message_html:TwitchUtils.messageChunksToHTML(message_chunks),
+				action: action,
+				user: from,
+				toChannelId: StoreProxy.stream.currentChatChannel.id
+			};
+			if(message_parent_id) {
+				for (let i = messageList.length-1; i >= Math.max(0, messageList.length - 1000); i--) {
+					const mess = messageList[i];
+					if(mess.id == message_parent_id && TwitchatDataTypes.IsTranslatableMessage[mess.type]) {
+						message.parentMessage = mess as TwitchatDataTypes.TranslatableMessage;
+					}
+					break;
+				}
+			}
+			this.addMessage(message);
+			return message
+		},
+
 	} as IChatActions
 	& ThisType<IChatActions
 		& UnwrapRef<IChatState>

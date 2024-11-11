@@ -60,7 +60,13 @@
 			"extra_chan_info": "Les Triggers, le TTS, le mode urgence, l'automod,\netc... ne s'exécuteront que pour votre propre chaîne",
 			"youtube_not_connected": "Vous n'êtes connecté·e à aucun live YouTube",
 			"youtube_missing_scope": "Vous n'avez pas autorisé Twitchat à envoyer des messages sur YouTube",
-			"obs_disconnected_tt": "Non connecté à OBS"
+			"obs_disconnected_tt": "Non connecté à OBS",
+			"mode_private": "Envoyez un message uniquement à {USER}",
+			"mode_private_details": "Envoyez un message que seul·e {USER} verra\nNe fonctionne que si {USER} utilise Twitchat !",
+			"mode_question": "Poser une question à {USER}",
+			"mode_question_details": "Poser une question que seul·e {USER} verra.\nLe message présentera 2 boutons \"accepter\"\net \"refuser\" pour vous répondre en 1 click.\nNe fonctionne que si {USER} utilise Twitchat !",
+			"mode_public": "Envoyer un message public",
+			"mode_public_details": "Envoie un message classique dans le tchat de {USER}."
 		},
 		"filters": {
 			"cta": "Options importantes ici",
@@ -564,6 +570,10 @@
 		"tts": {
 			"elevenlabs_credits_empty":"Vous avez dépensé tous vos crédits EleventLabs.",
 			"elevenlabs_credits_almost_empty":"Vous avez bientôt épuisé vos crédits ElevenLabs. Il vous reste {CREDITS} crédits."
+		},
+		"private_mod_message": {
+			"accepted": "accepté",
+			"refused": "refusé"
 		}
 	}
 }

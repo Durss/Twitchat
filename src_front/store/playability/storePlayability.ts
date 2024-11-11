@@ -60,7 +60,6 @@ export const storePlayability = defineStore('playability', {
 				
 				socket.onmessage = (event) => {
 					const json = JSON.parse(event.data);
-					console.log(json);
 					switch(json.type) {
 						case "CONNECT": break;
 						case "PROFILE_MAPPINGS":{
@@ -114,6 +113,11 @@ export const storePlayability = defineStore('playability', {
 				type:NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"][number]["type"],
 				code?:NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"][number]["code"],
 				value?:boolean|number,
+			})[]} = {events:[]};
+			const scheduledRelease:{events:({
+				type:NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"][number]["type"],
+				code?:NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"][number]["code"],
+				value?:boolean|number,
 			})[]} = {events:[]}
 			outputs.forEach((output) => {
 				if(output.value == "press_release") {
@@ -128,7 +132,7 @@ export const storePlayability = defineStore('playability', {
 						code: output.code,
 						value: false,
 					}
-					data.events.push(release);
+					scheduledRelease.events.push(release);
 				}else{
 					let o:typeof data.events[0] = {
 						type: output.type,
@@ -138,8 +142,16 @@ export const storePlayability = defineStore('playability', {
 					data.events.push(o);
 				}
 			});
-			console.log(data)
+			
 			socket.send(JSON.stringify(data));
+			
+			//If releases are scheduled, wait a little and release.
+			//This is necessary for gamepads
+			if(scheduledRelease.events.length > 0) {
+				setTimeout(()=>{
+					socket!.send(JSON.stringify(scheduledRelease));
+				}, 50);
+			}
 		},
 		
 		saveConfigs():void {

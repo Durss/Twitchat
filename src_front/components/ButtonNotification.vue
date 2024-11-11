@@ -59,8 +59,8 @@ export default toNative(ButtonNotification);
 		&:before {
 			//Offset "new flag" for better readability
 			margin-left: -5px;
-		width: 7px;
-		height: 7px;
+			width: 7px;
+			height: 7px;
 		}
 	}
 

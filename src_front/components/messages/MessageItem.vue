@@ -571,6 +571,15 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
+		
+		<ChatPrivateModerator class="message"
+			v-else-if="messageData.type == 'private_mod_message'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
+		/>
 	</div>
 </template>
 
@@ -638,6 +647,7 @@ import ChatTikTokLike from './ChatTikTokLike.vue';
 import ChatTikTokShare from './ChatTikTokShare.vue';
 import ChatSuspendedTriggerStack from './ChatSuspendedTriggerStack.vue';
 import ChatTwitchCharityDonation from './ChatTwitchCharityDonation.vue';
+import ChatPrivateModerator from './ChatPrivateModerator.vue';
 
 @Component({
 	components:{
@@ -688,6 +698,7 @@ import ChatTwitchCharityDonation from './ChatTwitchCharityDonation.vue';
 		ChatHypeTrainResult,
 		ChatCountdownResult,
 		ChatHypeChatMessage,
+		ChatPrivateModerator,
 		ChatPredictionResult,
 		ChatYoutubeSuperChat,
 		ChatTrackAddedToQueue,
