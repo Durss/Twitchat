@@ -134,7 +134,7 @@
 				<p>Mix It Up</p>
 			</button>
 
-			<button class="card-item" v-if="$store.main.devmode"
+			<button class="card-item"
 			:class="{connected:$store.playability.connected}"
 			@click="subContent='playability'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.playability'}">
 				<Icon name="playability" />
