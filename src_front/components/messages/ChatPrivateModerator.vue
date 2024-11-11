@@ -27,7 +27,7 @@
 			</span>
 			
 			<div class="quote" v-if="messageData.parentMessage">
-				<div class="header"><Icon name="info" /><strong>Message cité:</strong></div>
+				<div class="header"><Icon name="info" /><strong>{{ $t("chat.private_mod_message.quoted_message") }}</strong></div>
 				<a :href="getProfilePage(messageData.parentMessage.user)" target="_blank"
 					@click.stop.prevent="openUserCard(messageData.parentMessage.user, messageData.parentMessage.channel_id, messageData.parentMessage.platform)"
 					data-login

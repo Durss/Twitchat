@@ -97,6 +97,9 @@ class ModeratorActionSwitcher extends Vue {
 		gsap.to(holder, {duration:.1, scaleY:0, clearProps:"scaleY", ease:"back.in", onComplete:() => {
 			this.expand = false;
 		}});
+		this.showDetails1 =
+		this.showDetails2 =
+		this.showDetails3 = false;
 	}
 
 	/**

@@ -931,12 +931,13 @@ export class ChatForm extends Vue {
 		}else{
 
 			if(this.$store.chat.messageMode != "chat") {
+				const parentId = this.$store.chat.replyTo?.id;
 				const chunks = TwitchUtils.parseMessageToChunks(this.message, undefined, true);
 				const message =  StoreProxy.chat.addPrivateModMessage(
 									this.$store.auth.twitch.user,
 									chunks,
 									this.$store.chat.messageMode == "question"? "question": "message",
-									this.$store.chat.replyTo?.id);
+									parentId);
 
 				//Allows to display a message on chat from its raw JSON
 				const res = await ApiHelper.call("mod/privateMessage", "POST", {
@@ -944,7 +945,7 @@ export class ChatForm extends Vue {
 					action: this.$store.chat.messageMode == "question"? "question": "message",
 					to_uid: this.$store.stream.currentChatChannel.id,
 					messageId: message.id,
-					messageParentId: this.$store.chat.replyTo?.id,
+					messageParentId: parentId,
 				});
 
 				if(res.status == 200) {

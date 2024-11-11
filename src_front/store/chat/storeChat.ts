@@ -2436,8 +2436,8 @@ export const storeChat = defineStore('chat', {
 					const mess = messageList[i];
 					if(mess.id == message_parent_id && TwitchatDataTypes.IsTranslatableMessage[mess.type]) {
 						message.parentMessage = mess as TwitchatDataTypes.TranslatableMessage;
+						break;
 					}
-					break;
 				}
 			}
 			this.addMessage(message);

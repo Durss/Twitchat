@@ -574,6 +574,7 @@
 			"elevenlabs_credits_almost_empty":"Vous avez bientôt épuisé vos crédits ElevenLabs. Il vous reste {CREDITS} crédits."
 		},
 		"private_mod_message": {
+			"quoted_message": "Message cité :",
 			"accepted": "accepté",
 			"refused": "refusé"
 		}
