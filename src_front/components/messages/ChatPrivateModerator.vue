@@ -79,7 +79,6 @@ class ChatPrivateModerator extends AbstractChatMessage {
 
 	public beforeMount():void {
 		this.toUser = this.$store.users.getUserFrom("twitch", this.messageData.channel_id, this.messageData.toChannelId);
-		console.log("OFKOKFODKFOKDKFD", this.toUser)
 	}
 
 	public async answerQuestion(answer:boolean):Promise<void> {
