@@ -6,6 +6,10 @@
 		"install":"Install PlayAbility",
 		"connect_error":"Unable to connect with PlayAbility.",
 		"ip":"IP",
-		"port":"Port"
+		"port":"Port",
+		"hints_axis_1":"left/down",
+		"hints_axis_2":"right/up",
+		"hints_trigger_1":"release",
+		"hints_trigger_2":"press"
 	}
 }

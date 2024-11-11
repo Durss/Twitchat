@@ -13,7 +13,17 @@
 	
 			<div class="action" v-for="(param, index) in action.playabilityData!.outputs">
 				<ParamItem :paramData="param_outputs[index]" v-model="param.code" noBackground @change="buildValueFields(index)" />
-				<ParamItem :paramData="param_values[index]" v-model="param.value" noBackground :key="param_values[index].storage!" />
+				<div class="value">
+					<div v-if="param.type == 'axis'" class="hints">
+						<div>{{ $t("playability.hints_axis_1") }}</div>
+						<div>{{ $t("playability.hints_axis_2") }}</div>
+					</div>
+					<div v-else-if="param.type == 'trigger'" class="hints">
+						<div>{{ $t("playability.hints_trigger_1") }}</div>
+						<div>{{ $t("playability.hints_trigger_2") }}</div>
+					</div>
+					<ParamItem :paramData="param_values[index]" v-model="param.value" noBackground :key="param_values[index].storage!" />
+				</div>
 				<TTButton class="deleteBt" icon="trash" @click="deleteOutput(index)" alert />
 			</div>
 
@@ -116,7 +126,11 @@ class TriggerActionPlayabilityEntry extends AbstractTriggerActionEntry {
 				this.param_values[index] = {
 					value:true,
 					type:"list",
-					listValues: [{labelKey:"triggers.actions.playability.output_press", value:true}, {labelKey:"triggers.actions.playability.output_release", value:false}],
+					listValues: [
+						{labelKey:"triggers.actions.playability.output_press", value:true},
+						{labelKey:"triggers.actions.playability.output_release", value:false},
+						{labelKey:"triggers.actions.playability.output_press_release", value:"press_release"},
+					],
 				};
 			}else
 	
@@ -129,7 +143,7 @@ class TriggerActionPlayabilityEntry extends AbstractTriggerActionEntry {
 					type:"slider",
 					min:-1,
 					max:1,
-					step:0.01,
+					step:0.1,
 					storage:Utils.getUUID(),//Used to force unmount/mount of the component
 				};
 			}else
@@ -143,7 +157,7 @@ class TriggerActionPlayabilityEntry extends AbstractTriggerActionEntry {
 					type:"slider",
 					min:0,
 					max:1,
-					step:0.01,
+					step:0.1,
 					storage:Utils.getUUID(),//Used to force unmount/mount of the component
 				};
 			}else{
@@ -181,8 +195,15 @@ export default toNative(TriggerActionPlayabilityEntry);
 			align-items: center;
 			align-self: stretch;
 			justify-content: stretch;
-			.paramitem  {
+			.paramitem, .value  {
 				flex: 1;
+
+				.hints {
+					display: flex;
+					flex-direction: rows;
+					justify-content: space-between;
+					font-size: .8em;
+				}
 			}
 		}
 	}

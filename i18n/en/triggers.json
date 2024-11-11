@@ -615,7 +615,8 @@
 				"need_to_connect_link": "connect with PlayAbility",
 				"add_output_bt": "Add action",
 				"output_press":"Press button",
-				"output_release":"Release button"
+				"output_release":"Release button",
+				"output_press_release":"Press/Release button"
 			}
 		},
 		"categories": {

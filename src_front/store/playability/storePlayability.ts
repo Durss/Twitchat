@@ -59,12 +59,13 @@ export const storePlayability = defineStore('playability', {
 				}
 				
 				socket.onmessage = (event) => {
-					if(/websocket server.*/i.test(event.data)) return;//Ignore connection message
 					const json = JSON.parse(event.data);
+					console.log(json);
 					switch(json.type) {
+						case "CONNECT": break;
 						case "PROFILE_MAPPINGS":{
 							this.mappingList = json.data.mappings;
-							console.log(this.mappingList)
+							break;
 						}
 					}
 				}
@@ -108,37 +109,37 @@ export const storePlayability = defineStore('playability', {
 			if(!socket) {
 				await this.connect();
 			}
-			console.log("EXEC", this.connected, socket)
 			if(!socket || !this.connected) return;
-			type outputTypeProps = {[K in NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"][number]["type"]]:string};
 			const data:{events:({
 				type:NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"][number]["type"],
-				state?:boolean,
-				value?:number,
-				button?:string,
-				key?:string,
-				axis?:string,
-				trigger?:string,
+				code?:NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"][number]["code"],
+				value?:boolean|number,
 			})[]} = {events:[]}
-			// } & Partial<outputTypeProps>)[]} = {events:[]}
 			outputs.forEach((output) => {
-				const event:(typeof data.events)[number] = {
-					type: output.type,
-				};
-				// event[output.type] = output.code;
-				if(["mouseButton", "button"].includes(output.type)) {
-					event.state = output.value as boolean;
-					event.button = output.code;
+				if(output.value == "press_release") {
+					let press:typeof data.events[0] = {
+						type: output.type,
+						code: output.code,
+						value: true,
+					}
+					data.events.push(press);
+					let release:typeof data.events[0] = {
+						type: output.type,
+						code: output.code,
+						value: false,
+					}
+					data.events.push(release);
 				}else{
-					event.value = output.value as number;
-					if(output.type === "keyboard") event.key = output.code;
-					else if(output.type === "axis") event.axis = output.code;
-					else if(output.type === "trigger") event.trigger = output.code;
+					let o:typeof data.events[0] = {
+						type: output.type,
+						code: output.code,
+						value: output.value,
+					}
+					data.events.push(o);
 				}
-				data.events.push(event);
 			});
-			socket.send(JSON.stringify(data));
 			console.log(data)
+			socket.send(JSON.stringify(data));
 		},
 		
 		saveConfigs():void {
@@ -148,9 +149,6 @@ export const storePlayability = defineStore('playability', {
 			};
 			DataStore.set(DataStore.PLAYABILITY_CONFIGS, data);
 		},
-
-		async listCommands():Promise<void> {
-		}
 	} as IPlayabilityActions
 	& ThisType<IPlayabilityActions
 		& UnwrapRef<IPlayabilityState>

@@ -571,7 +571,7 @@ export interface TriggerActionPlayabilityData extends TriggerActionData{
 		outputs:{
 			code:string;
 			type:"axis"|"keyboard"|"mouseButton"|"trigger"|"button";
-			value:number|boolean;
+			value:number|boolean|"press_release";
 		}[];
 	};
 }

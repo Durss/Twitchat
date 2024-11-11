@@ -287,12 +287,12 @@ export namespace TwitchatDataTypes {
 		type: "text" | "emote" | "cheermote" | "url" | "highlight" | "user";
 		/**
 		 * Possible values for each chunk types:
-		 * text: text content
-		 * emote: emote name
-		 * cheermote: cheermote name
-		 * url: url with protocole striped out
-		 * highlight: highlighted text
-		 * user: user name
+		 * - text: text content
+		 * - emote: emote name
+		 * - cheermote: cheermote name
+		 * - url: url with protocol striped out
+		 * - highlight: highlighted text
+		 * - user: user name
 		 */
 		value: string;
 		/**

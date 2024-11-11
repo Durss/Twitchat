@@ -3407,8 +3407,4 @@ export interface IPlayabilityActions {
 	 * Saves current configs to store
 	 */
 	saveConfigs(): void;
-	/**
-	 * Lists all available commands
-	 */
-	listCommands():Promise<void>;
 }

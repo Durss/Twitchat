@@ -615,7 +615,8 @@
 				"need_to_connect_link": "connecter PlayAbility",
 				"add_output_bt": "Ajouter une action",
 				"output_press":"Appuyer le bouton",
-				"output_release":"Relâcher le bouton"
+				"output_release":"Relâcher le bouton",
+				"output_press_release":"Appuyer/Relâcher le bouton"
 			}
 		},
 		"categories": {
