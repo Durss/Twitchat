@@ -1660,7 +1660,7 @@ export default class DataStore extends DataStoreCommon{
 		if(triggers && Array.isArray(triggers)) {
 			triggers.forEach(t => {
 				t.actions.forEach(a => {
-					if(a.type == "raffle") {
+					if(a.type == "raffle" && a.raffleData) {
 						a.raffleData.autoClose = true;
 					}
 				})
