@@ -9,6 +9,7 @@ import type { GoXLRTypes } from "./GoXLRTypes";
 import { TwitchatDataTypes } from "./TwitchatDataTypes";
 import type { TwitchDataTypes } from "./twitch/TwitchDataTypes";
 import Utils from "@/utils/Utils";
+import { reactive } from "vue";
 
 /**
  * Util to strongly type string object paths.
@@ -1398,6 +1399,7 @@ export const TriggerTypes = {
 	RESTRICT_ON:"154",
 	MONITOR_RESTRICT_OFF:"155",
 	TWITCH_CHARITY_DONATION:"156",
+	PLAYABILITY_INPUT:"157",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1459,16 +1461,32 @@ export function TriggerActionPlaceholders(key:TriggerActionStringTypes):ITrigger
 }
 
 /**
- * Cleansup the placeholders cache to force it to be rebuilt next time.
+ * Cleanup the placeholders cache to force it to be rebuilt next time.
  * This is used by the counters, when changing the placeholder of a counter
  * the cache needs to be rebuilt to get those changes.
  */
 export function rebuildPlaceholdersCache():void { eventPlaceholdersCache = undefined }
 
 /**
+ * Defines custom values for given placeholder of given trigger type.
+ */
+export function setTriggerEventPlaceholderValues(triggerType:TriggerTypesValue, placeholderTag:string, values:TwitchatDataTypes.ParameterDataListValue<unknown>[]) {
+	const placeholderList = TriggerEventPlaceholders(triggerType);
+	const placeholder = placeholderList.find(v=>v.tag.toLowerCase() === placeholderTag.toLowerCase());
+	if(placeholder) {
+		placeholder.values = values;
+		eventPlaceholderValuesCache[triggerType] = {
+			tag:placeholder.tag,
+			values,
+		}
+	}
+}
+
+/**
  * Placeholders related to a trigger event type
  */
 let eventPlaceholdersCache:Partial<{[key in TriggerTypesValue]:ITriggerPlaceholder<any>[]}>|undefined;
+let eventPlaceholderValuesCache:Partial<{[key in TriggerTypesValue]:{tag:string, values:TwitchatDataTypes.ParameterDataListValue<unknown>[]}}> = {};
 export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlaceholder<any>[] {
 	if(eventPlaceholdersCache && eventPlaceholdersCache[key]) {
 		return eventPlaceholdersCache[key] ?? [];
@@ -2225,6 +2243,12 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:USER_AVATAR, descKey:'triggers.placeholders.user_avatar', pointer:"user.avatarPath", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokShareData>,
 	];
 
+	map[TriggerTypes.PLAYABILITY_INPUT] = [
+		{tag:"INPUT_NAME", descKey:'triggers.placeholders.playability_inputName', pointer:"inputCode", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessagePlayabilityInputData>,
+		{tag:"INPUT_TYPE", descKey:'triggers.placeholders.playability_inputType', pointer:"inputType", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessagePlayabilityInputData>,
+		{tag:"INPUT_VALUE", descKey:'triggers.placeholders.playability_inputValue', pointer:"inputValue", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessagePlayabilityInputData>,
+	];
+
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder<any>[] = [];
 	for (let i = 0; i < counters.length; i++) {
@@ -2397,7 +2421,16 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		map[k] = entry;
 	}
 
-	eventPlaceholdersCache = map;
+	//Inject custom values
+	for (const triggerType in eventPlaceholderValuesCache) {
+		let typedKey = triggerType as TriggerTypesValue;
+		if(!map[typedKey]) continue;
+		const placeholder = map[typedKey].find(v=>v.tag == eventPlaceholderValuesCache[typedKey]?.tag)
+		if(!placeholder) continue;
+		placeholder.values = eventPlaceholderValuesCache[typedKey]!.values;
+	}
+
+	eventPlaceholdersCache = reactive(map);
 	return map[key] ?? [];
 }
 
@@ -2543,6 +2576,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.MISC, icon:"offline", labelKey:"triggers.events.FOLLOWED_STREAM_OFFLINE.label", value:TriggerTypes.FOLLOWED_STREAM_OFFLINE, descriptionKey:"triggers.events.FOLLOWED_STREAM_OFFLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE, disabledReasonLabelKey:"triggers.events.FOLLOWED_STREAM_OFFLINE.disabled_reason"},
 		{category:TriggerEventTypeCategories.MISC, icon:"heat", labelKey:"triggers.events.HEAT_CLICK.label", value:TriggerTypes.HEAT_CLICK, descriptionKey:"triggers.events.HEAT_CLICK.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK},
 		{category:TriggerEventTypeCategories.MISC, icon:"credits", labelKey:"triggers.events.CREDITS_COMPLETE.label", value:TriggerTypes.CREDITS_COMPLETE, descriptionKey:"triggers.events.CREDITS_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CREDITS_COMPLETE},
+		{category:TriggerEventTypeCategories.MISC, icon:"playability", labelKey:"triggers.events.PLAYABILITY_INPUT.label", value:TriggerTypes.PLAYABILITY_INPUT, descriptionKey:"triggers.events.PLAYABILITY_INPUT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.PLAYABILITY_INPUT},
 		
 		{category:TriggerEventTypeCategories.COUNTER_VALUE, icon:"count", labelKey:"triggers.events.COUNTER_EDIT.label", value:TriggerTypes.COUNTER_EDIT, descriptionKey:"triggers.events.COUNTER_EDIT.description", isCategory:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
 		{category:TriggerEventTypeCategories.COUNTER_VALUE, icon:"add", labelKey:"triggers.events.COUNTER_ADD.label", value:TriggerTypes.COUNTER_ADD, descriptionKey:"triggers.events.COUNTER_ADD.description", isCategory:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
@@ -2569,7 +2603,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.TIPEEE, icon:"tipeee", labelKey:"triggers.events.TIPEEE_DONATION.label", value:TriggerTypes.TIPEEE_DONATION, descriptionKey:"triggers.events.TIPEEE_DONATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIPEEE},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.TIPEEE, icon:"tipeee", labelKey:"triggers.events.TIPEEE_SUB.label", value:TriggerTypes.TIPEEE_SUB, descriptionKey:"triggers.events.TIPEEE_SUB.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIPEEE},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.TIPEEE, icon:"tipeee", labelKey:"triggers.events.TIPEEE_RESUB.label", value:TriggerTypes.TIPEEE_RESUB, descriptionKey:"triggers.events.TIPEEE_RESUB.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIPEEE},
-		{newDate:Config.instance.NEW_FLAGS_DATE_V13_7, category:TriggerEventTypeCategories.TWITCH_CHARITY, icon:"twitch_charity", labelKey:"triggers.events.TWITCH_CHARITY_DONATION.label", value:TriggerTypes.TWITCH_CHARITY_DONATION, descriptionKey:"triggers.events.TWITCH_CHARITY_DONATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V15, category:TriggerEventTypeCategories.TWITCH_CHARITY, icon:"twitch_charity", labelKey:"triggers.events.TWITCH_CHARITY_DONATION.label", value:TriggerTypes.TWITCH_CHARITY_DONATION, descriptionKey:"triggers.events.TWITCH_CHARITY_DONATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13_7, category:TriggerEventTypeCategories.TILTIFY, icon:"tiltify", labelKey:"triggers.events.TILTIFY_TIP.label", value:TriggerTypes.TILTIFY_TIP, descriptionKey:"triggers.events.TILTIFY_TIP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TILTIFY},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13_7, category:TriggerEventTypeCategories.PATREON, icon:"patreon", labelKey:"triggers.events.PATREON_NEW_MEMBER.label", value:TriggerTypes.PATREON_NEW_MEMBER, descriptionKey:"triggers.events.PATREON_NEW_MEMBER.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.PATREON},
 		

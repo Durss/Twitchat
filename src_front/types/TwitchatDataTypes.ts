@@ -3,7 +3,7 @@ import type { OBSItemPath } from "@/utils/OBSWebsocket";
 import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type { JsonObject } from 'type-fest';
 import type { GoXLRTypes } from "./GoXLRTypes";
-import type { TriggerCallStack } from "./TriggerActionDataTypes";
+import type { TriggerActionPlayabilityData, TriggerCallStack } from "./TriggerActionDataTypes";
 
 export namespace TwitchatDataTypes {
 
@@ -2302,6 +2302,7 @@ export namespace TwitchatDataTypes {
 		OBS_START_STREAM:"obs_start_stream",
 		HYPE_TRAIN_START:"hype_train_start",
 		OBS_SCENE_CHANGE:"obs_scene_change",
+		PLAYABILITY_INPUT:"playability_input",
 		BINGO_GRID_VIEWER:"bingo_grid_viewer",
 		AD_BREAK_COMPLETE:"ad_break_complete",
 		GOXLR_SOUND_INPUT:"goxlr_sound_input",
@@ -2416,6 +2417,7 @@ export namespace TwitchatDataTypes {
 		hype_train_start:false,
 		obs_scene_change:false,
 		obs_start_stream:false,
+		playability_input:false,
 		bingo_grid_viewer:false,
 		twitch_celebration:true,
 		obs_source_toggle:false,
@@ -2592,6 +2594,7 @@ export namespace TwitchatDataTypes {
 									| MessageSuspendedTriggerStackData
 									| MessageCharityDonationData
 									| MessagePrivateModeratorData
+									| MessagePlayabilityInputData
 	;
 
 	/**
@@ -5496,5 +5499,22 @@ export namespace TwitchatDataTypes {
 		 * Channel ID the message has been sent to
 		 */
 		toChannelId?:string;
+	}
+
+	export interface MessagePlayabilityInputData extends AbstractTwitchatMessage {
+		type:"playability_input";
+		/**
+		 * Input code
+		 */
+		inputCode:string;
+		/**
+		 * Input type
+		 */
+		inputType:NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"][number]["type"];
+		/**
+		 * input value
+		 */
+		inputValue:number|boolean;
+
 	}
 }

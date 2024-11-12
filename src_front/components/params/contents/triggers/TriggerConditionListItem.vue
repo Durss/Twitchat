@@ -6,15 +6,16 @@
 
 		<ParamItem class="operator" noBackground :paramData="param_operator" v-model="condition.operator" :key="'op_'+condition.id" />
 
+		<TTButton v-if="forceCustom" @click="forceCustom = false">&lt;</TTButton>
 		<ParamItem class="value" v-if="needsValue && forceCustom !== true && param_value_list.listValues" noBackground :paramData="param_value_list" v-model="condition.value" :key="'vl_'+condition.id" @change="onSelectFixedValue()" />
 		<ParamItem class="value" v-else-if="needsValue" noBackground :paramData="param_value" v-model="condition.value" :key="'v_'+condition.id" placeholdersAsPopout />
-
+		
 		<div class="ctas">
-			<Button small icon="group"
+			<TTButton small icon="group"
 				@click="addItem()"
 				v-tooltip="$t('triggers.condition.group_tt')"
 				v-if="triggerData.conditions && triggerData.conditions.conditions.length > 1" />
-			<Button alert small icon="cross"
+			<TTButton alert small icon="cross"
 				@click="deleteItem()" />
 		</div>
 	</div>
@@ -31,7 +32,7 @@ import ParamItem from '../../ParamItem.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ParamItem,
 	},
 	emits:[],
@@ -88,6 +89,7 @@ class TriggerConditionListItem extends Vue {
 
 		//Add trigger's placeholders
 		let placeholders = TriggerEventPlaceholders(this.triggerData.type).concat();
+		let debouncedRebuild = -1;
 		placeholderList = placeholderList.concat(placeholders.map(v=> {
 			let name = "";
 			//If it's a counter tag, get counter's name
@@ -101,6 +103,12 @@ class TriggerConditionListItem extends Vue {
 				const counter = this.$store.values.valueList.find(v=>v.placeholderKey?.toLowerCase() === valueTag.toLowerCase());
 				if(counter) name = counter.name;
 			}
+			watch(()=>v.values, ()=> {
+				clearTimeout(debouncedRebuild);
+				debouncedRebuild = window.setTimeout(()=> {
+					this.buildSourceList();
+				}, 20);
+			}, {deep:true});
 			return {
 				label: this.$t(v.descKey, {NAME:"\""+name+"\""}),
 				value:v.tag.toUpperCase(),
@@ -151,7 +159,7 @@ class TriggerConditionListItem extends Vue {
 		//If selected placeholder has fixed values
 		if(this.param_placeholder.selectedListValue && (this.param_placeholder.selectedListValue as ConditionListValues<string>).fixedValues) {
 			const list = (this.param_placeholder.selectedListValue as ConditionListValues<string>).fixedValues!.concat();
-			list.push({value:this.CUSTOM, labelKey:"triggers.condition.custom_value"})
+			list.push({value:this.CUSTOM, labelKey:"triggers.condition.custom_value"});
 			this.param_value_list.listValues = list;
 
 			//If condition's value does not exist on the fixed ones, force

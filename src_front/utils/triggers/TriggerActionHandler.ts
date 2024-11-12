@@ -718,6 +718,12 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.PLAYABILITY_INPUT: {
+				if(await this.executeTriggersByType(TriggerTypes.PLAYABILITY_INPUT, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				switch(message.noticeId) {
 					case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE:{
@@ -3927,7 +3933,12 @@ export default class TriggerActionHandler {
 					case "<=": localRes = parseInt(value) <= valueNum; break;
 					case ">": localRes = parseInt(value) > valueNum; break;
 					case ">=": localRes = parseInt(value) >= valueNum; break;
-					case "=": localRes = value.toLowerCase() == expectation.toLowerCase(); break;
+					case "=": localRes = value == expectation || value.toLowerCase() == expectation.toLowerCase()
+							|| (value == "1" && expectation == "true")
+							|| (value == "true" && expectation == "1")
+							|| (value == "0" && expectation == "false")
+							|| (value == "false" && expectation == "0");
+							break;
 					case "!=": localRes = value.toLowerCase() != expectation.toLowerCase(); break;
 					case "contains": localRes = value.toLowerCase().indexOf(expectation.toLowerCase()) > -1; break;
 					case "not_contains": localRes = value.toLowerCase().indexOf(expectation.toLowerCase()) == -1; break;

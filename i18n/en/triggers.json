@@ -902,7 +902,15 @@
 			"tiktok_like_count":"Number of likes",
 			"tiktok_like_total":"Total likes received during current stream",
 			"tiktok_diamonds":"Diamonds received",
-			"tiktok_sub_month":"Sub months"
+			"tiktok_sub_month":"Sub months",
+			"playability_inputName":"Input name",
+			"playability_inputType":"Input type",
+			"playability_inputValue":"Input value",
+			"playability_inputType_axis":"Gamepad Stick",
+			"playability_inputType_button":"Gamepad Button",
+			"playability_inputType_keyboard":"Keyboard key",
+			"playability_inputType_mouseButton":"Mouse click",
+			"playability_inputType_trigger":"Gamepad Trigger"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1552,6 +1560,10 @@
 			"MONITOR_RESTRICT_OFF": {
 				"label":"User not monitored or restricted anymore",
 				"description": "Actions to execute when a user stops being monitored or restricted from chatting"
+			},
+			"PLAYABILITY_INPUT": {
+				"label":"Action triggered on PlayAbility",
+				"description": "Actions to execute when an action is triggered by PlayAbility"
 			}
 		},
 		"musicEvents": {

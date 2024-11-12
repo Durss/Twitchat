@@ -3420,4 +3420,8 @@ export interface IPlayabilityActions {
 	 * Saves current configs to store
 	 */
 	saveConfigs(): void;
+	/**
+	 * Reload current profile definition
+	 */
+	loadProfile():void;
 }

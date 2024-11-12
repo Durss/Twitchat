@@ -902,7 +902,12 @@
 			"tiktok_like_count":"Nombre de likes",
 			"tiktok_like_total":"Nombtre de likes reçus durant ce stream",
 			"tiktok_diamonds":"Diamants reçus",
-			"tiktok_sub_month":"Mois d'abonnement"
+			"tiktok_sub_month":"Mois d'abonnement",
+			"playability_inputType_axis":"Stick manette",
+			"playability_inputType_button":"Bouton manette",
+			"playability_inputType_keyboard":"Touche de clavier",
+			"playability_inputType_mouseButton":"Click souris",
+			"playability_inputType_trigger":"Gachette manette"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1552,6 +1557,10 @@
 			"MONITOR_RESTRICT_OFF": {
 				"label":"Personne plus surveillée ou restrainte",
 				"description": "Actions à exécuter lorsqu'une personne n'est plus surveillée ou restreinte"
+			},
+			"PLAYABILITY_INPUT": {
+				"label":"Action déclenchée par PlayAbility",
+				"description": "Actions à exécuter lorsqu'une action est déclenchée par PlayAbility"
 			}
 		},
 		"musicEvents": {

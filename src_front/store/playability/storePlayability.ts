@@ -1,8 +1,12 @@
 import DataStore from '@/store/DataStore';
-import type { TriggerActionPlayabilityData } from '@/types/TriggerActionDataTypes';
+import { setTriggerEventPlaceholderValues, TriggerTypes, type TriggerActionPlayabilityData } from '@/types/TriggerActionDataTypes';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IPlayabilityActions, IPlayabilityGetters, IPlayabilityState } from '../StoreProxy';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import StoreProxy from '../StoreProxy';
+import Utils from '@/utils/Utils';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 
 
 let initResolver!:(value: boolean) => void;
@@ -51,20 +55,65 @@ export const storePlayability = defineStore('playability', {
 				initResolver = resolve;
 		
 				socket = new WebSocket(`ws://${this.ip}:${this.port}`);
-				socket.onopen = (e) => {
-					this.connected = true;
-					resolve(true);
-					this.saveConfigs();
-					socket!.send(JSON.stringify({type: "GET_PROFILE_MAPPINGS", profile: "Twitchat"}))
-				}
 				
 				socket.onmessage = (event) => {
 					const json = JSON.parse(event.data);
 					switch(json.type) {
-						case "CONNECT": break;
+						case "CONNECT":{
+							this.connected = true;
+							resolve(true);
+							this.saveConfigs();
+							this.loadProfile();
+							break;
+						}
+
+						case "PROFILE_UPDATE":{
+							this.loadProfile();
+							break;
+						}
+
 						case "PROFILE_MAPPINGS":{
 							this.mappingList = json.data.mappings;
+							//Update trigger actions list
+							const inputNames:TwitchatDataTypes.ParameterDataListValue<string>[] = this.mappingList.map(v=> {
+								return {
+									value: v.output.code,
+									label: v.output.code,
+								}
+							})
+							setTriggerEventPlaceholderValues(TriggerTypes.PLAYABILITY_INPUT, "INPUT_NAME", inputNames);
+							
+							//Define input types on triggers
+							const inputTypes:TwitchatDataTypes.ParameterDataListValue<NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"][number]["type"]>[] = [];
+							inputTypes.push({labelKey:"triggers.placeholders.playability_inputType_axis", value:"axis"});
+							inputTypes.push({labelKey:"triggers.placeholders.playability_inputType_button", value:"button"});
+							inputTypes.push({labelKey:"triggers.placeholders.playability_inputType_keyboard", value:"keyboard"});
+							inputTypes.push({labelKey:"triggers.placeholders.playability_inputType_mouseButton", value:"mouseButton"});
+							inputTypes.push({labelKey:"triggers.placeholders.playability_inputType_trigger", value:"trigger"});
+							setTriggerEventPlaceholderValues(TriggerTypes.PLAYABILITY_INPUT, "INPUT_TYPE", inputTypes);
 							break;
+						}
+
+						case "EVENTS":{
+							let events:{
+								source: "output",
+								type: NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"][number]["type"],
+								code: string,
+								value: boolean|number
+							}[] = json.events;
+							events.forEach((event) => {
+								let message:TwitchatDataTypes.MessagePlayabilityInputData = {
+									channel_id: StoreProxy.auth.twitch.user.id,
+									date: Date.now(),
+									id: Utils.getUUID(),
+									platform: "twitchat",
+									type: TwitchatDataTypes.TwitchatMessageType.PLAYABILITY_INPUT,
+									inputCode: event.code,
+									inputType: event.type,
+									inputValue: event.value,
+								};
+								TriggerActionHandler.instance.execute(message);
+							});
 						}
 					}
 				}
@@ -161,6 +210,10 @@ export const storePlayability = defineStore('playability', {
 			};
 			DataStore.set(DataStore.PLAYABILITY_CONFIGS, data);
 		},
+
+		loadProfile():void {
+			socket!.send(JSON.stringify({type: "GET_PROFILE_MAPPINGS", profile: "Twitchat"}));
+		}
 	} as IPlayabilityActions
 	& ThisType<IPlayabilityActions
 		& UnwrapRef<IPlayabilityState>
