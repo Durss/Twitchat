@@ -31,6 +31,7 @@ import { gsap } from "gsap/gsap-core";
 //Do not declare this as a class prop to avoid every props from
 //being reactive
 let engine!:Matter.Engine;
+let runner!:Matter.Runner;
 let app!:PIXI.Application;
 let textureHolder!:PIXI.Container;
 let displacementHolder!:PIXI.Container;
@@ -54,6 +55,9 @@ class OverlayBitsWall extends AbstractOverlay {
 	private globalScale:number = 1;
 	private globalScale_prev:number = 1;
 	private interval:number = -1;
+	private lastFrameTime:number = performance.now();
+	private frameCount:number = 0;
+	private fps:number = 0;
 	private disposed:boolean = false;
 	private bitsHandler!:(e:TwitchatEvent)=>void;
 	private paramsDataHandler!:(e:TwitchatEvent)=>void;
@@ -461,7 +465,7 @@ class OverlayBitsWall extends AbstractOverlay {
 		});
 
 		Matter.Composite.add(engine.world, mouseConstraint);
-    	renderer.mouse = mouse;
+		renderer.mouse = mouse;
 
 		// engine.gravity.y = 2;
 		// engine.positionIterations = 12;
@@ -489,7 +493,8 @@ class OverlayBitsWall extends AbstractOverlay {
 		// Matter.Composite.add(engine.world, [wallL, wallR]);
 
 		// this.renderFrame();
-		Matter.Runner.run(engine)
+		runner = Matter.Runner.create({isFixed:true, delta:1000/60});
+		Matter.Runner.run(runner, engine);
 		Matter.Render.run(renderer);
 		Matter.Events.on(engine.render, 'afterRender', () => this.renderFrame());
 
@@ -539,9 +544,22 @@ class OverlayBitsWall extends AbstractOverlay {
 	 */
 	private renderFrame():void {
 		if(this.disposed) return;
+		
+		const now = performance.now();
+		this.frameCount++;
 
+		const delta = now - this.lastFrameTime;
+		if (delta >= 1000) {
+			this.fps = (this.frameCount / delta) * 1000;
+			this.frameCount = 0;
+			this.lastFrameTime = now;
+		}
+		
+		const physicsRatio = 30/this.fps;
+		runner.delta = 1000/this.fps;
 		const vph = document.body.clientHeight;
 		const vpw = document.body.clientWidth;
+		// Matter.Runner.tick(, engine, physicsRatio);
 
 		/* Draw bounding boxes
 		var bodies = Matter.Composite.allBodies(engine.world);
