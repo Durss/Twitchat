@@ -63,11 +63,15 @@
 			"youtube_missing_scope": "Vous n'avez pas autorisé Twitchat à envoyer des messages sur YouTube",
 			"obs_disconnected_tt": "Non connecté à OBS",
 			"mode_private": "Envoyez un message uniquement à {USER}",
-			"mode_private_details": "Envoyez un message que seul·e {USER} verra\nNe fonctionne que si {USER} utilise Twitchat !",
-			"mode_question": "Poser une question à {USER}",
-			"mode_question_details": "Poser une question que seul·e {USER} verra.\nLe message présentera 2 boutons \"accepter\"\net \"refuser\" pour vous répondre en 1 click.\nNe fonctionne que si {USER} utilise Twitchat !",
+			"mode_private_details": "Envoyez un message que seul·e {USER} verra\n\nNe fonctionne que si {USER} utilise Twitchat !",
+			"mode_question": "Poser une question uniquement à {USER}",
+			"mode_question_details": "Poser une question que seul·e {USER} verra.\nLe message présentera 2 boutons \"accepter\"\net \"refuser\" pour vous répondre en 1 click.\n\nNe fonctionne que si {USER} utilise Twitchat !",
 			"mode_public": "Envoyer un message public",
-			"mode_public_details": "Envoie un message classique dans le tchat de {USER}."
+			"mode_public_details": "Envoie un message classique dans le tchat de {USER}.",
+			"mode_private_mods": "Envoyez un message uniquement à {USER} et aux modos",
+			"mode_private_mods_details": "Envoyez un message que seul·e {USER} et les modos verront\n\nNe fonctionne que si {USER} et les modos utilisent Twitchat !",
+			"mode_private_mods_only": "Envoyez un message uniquement à vos modos",
+			"mode_private_mods_only_details": "Envoyez un message que seul·es vos modos verront\n\nVos modos doivent utiliser Twitchat pour les recevoir !"
 		},
 		"filters": {
 			"cta": "Options importantes ici",

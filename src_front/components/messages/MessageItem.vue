@@ -575,6 +575,8 @@
 		<ChatPrivateModerator class="message"
 			v-else-if="messageData.type == 'private_mod_message'"
 			:messageData="messageData"
+			@showConversation="$emit('showConversation', $event)"
+			@showUserMessages="$emit('showUserMessages', $event)"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
 			:colIndex="colIndex"
 			:lightMode="lightMode"
@@ -650,6 +652,7 @@ import ChatTwitchCharityDonation from './ChatTwitchCharityDonation.vue';
 import ChatPrivateModerator from './ChatPrivateModerator.vue';
 
 @Component({
+	name:"MessageItem",
 	components:{
 		ChatAd,
 		ChatBan,

@@ -1083,6 +1083,12 @@ type ApiEndpoints =  {
 				action:TwitchatDataTypes.MessagePrivateModeratorData["action"];
 				messageId:string;
 				messageParentId?:string;
+				messageParentFallback?: {
+					uid:string;
+					login:string;
+					platform:string;
+					message:TwitchatDataTypes.ParseMessageChunk[];
+				}
 			};
 			response:{
 				success:boolean;

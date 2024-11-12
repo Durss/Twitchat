@@ -18,8 +18,8 @@
 				<div class="fake" v-if="m.fake === true && !$config.DEMO_MODE" v-tooltip="{content:$t('chat.fake_tag_tt'), placement:'right'}">{{$t("chat.fake_tag")}}</div>
 				<MessageItem :messageData="m"
 					@onRead="toggleMarkRead"
-					@showConversation="openConversation"
-					@showUserMessages="openUserHistory"
+					@showConversation="(messageData:TwitchatDataTypes.MessageChatData)=>openConversation(messageData, m.id)"
+					@showUserMessages="(messageData:TwitchatDataTypes.MessageChatData)=>openUserHistory(messageData, m.id)"
 					@unscheduleMessageOpen="unscheduleHistoryOpen"
 					@onOverMessage="onEnterMessage"
 					@mouseleave="onLeaveMessage"
@@ -1430,11 +1430,11 @@ class MessageList extends Vue {
 	 * Called when asking to read a conversation
 	 * Display the full conversation if any
 	 */
-	public async openConversation(m: TwitchatDataTypes.MessageChatData): Promise<void> {
+	public async openConversation(m: TwitchatDataTypes.MessageChatData, idRef:string): Promise<void> {
 		if (this.lightMode || !m || (!m.answersTo && !m.answers)) return;
-
+		
 		this.conversationMode = true;
-
+		
 		if (m.answers.length > 0) {
 			this.conversation = m.answers.concat();
 			this.conversation.unshift(m);
@@ -1442,13 +1442,13 @@ class MessageList extends Vue {
 			this.conversation = m.answersTo.answers.concat();
 			this.conversation.unshift(m.answersTo);
 		}
-		this.openConversationHolder(m);
+		this.openConversationHolder(idRef);
 	}
 
 	/**
 	 * Called to open a user's messages history
 	 */
-	public async openUserHistory(m: TwitchatDataTypes.MessageChatData): Promise<void> {
+	public async openUserHistory(m: TwitchatDataTypes.MessageChatData, idRef:string): Promise<void> {
 		if (this.lightMode || !m) return;
 
 		clearTimeout(this.openConvTimeout);
@@ -1465,7 +1465,7 @@ class MessageList extends Vue {
 			}
 			this.conversation = messageList;
 
-			this.openConversationHolder(m);
+			this.openConversationHolder(idRef);
 		}, 350)
 	}
 
@@ -1485,13 +1485,13 @@ class MessageList extends Vue {
 	 * Opens up the conversation holder.
 	 * Call this after making sure the messages are rendered
 	 */
-	private async openConversationHolder(m: TwitchatDataTypes.MessageChatData): Promise<void> {
+	private async openConversationHolder(idRef: string): Promise<void> {
 		if (this.conversation.length == 0) return;
 		await this.$nextTick();
 
 		clearTimeout(this.closeConvTimeout);
 		const holderBounds = this.$el.getBoundingClientRect();
-		const messageHolder = (this.$refs["message_" + m.id] as HTMLDivElement[])[0];
+		const messageHolder = (this.$refs["message_" +idRef] as HTMLDivElement[])[0];
 		const messageBounds = messageHolder.getBoundingClientRect();
 		const chatMessagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
 		const conversationHolder = this.$refs.conversationHolder as HTMLDivElement;

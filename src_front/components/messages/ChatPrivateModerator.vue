@@ -28,14 +28,25 @@
 			
 			<div class="quote" v-if="messageData.parentMessage">
 				<div class="header"><Icon name="info" /><strong>{{ $t("chat.private_mod_message.quoted_message") }}</strong></div>
-				<a :href="getProfilePage(messageData.parentMessage.user)" target="_blank"
-					@click.stop.prevent="openUserCard(messageData.parentMessage.user, messageData.parentMessage.channel_id, messageData.parentMessage.platform)"
-					data-login
-					class="login">{{messageData.parentMessage.user.displayNameOriginal}}</a>
-					
+
+				<MessageItem class="message"
+					light
+					:messageData="messageData.parentMessage"
+					@showConversation="(messageData:TwitchatDataTypes.ChatMessageTypes)=>$emit('showConversation', messageData)"
+					@showUserMessages="(messageData:TwitchatDataTypes.ChatMessageTypes)=>$emit('showUserMessages', messageData)" />
+			</div>
+			
+			<div class="quote" v-if="messageData.parentMessageFallback">
+				<div class="header"><Icon name="info" /><strong>{{ $t("chat.private_mod_message.quoted_message") }}</strong></div>
+				
+				<a v-if="fallbackParentUser" :href="getProfilePage(fallbackParentUser)" target="_blank"
+						@click.stop.prevent="openUserCard(fallbackParentUser, messageData.channel_id, fallbackParentUser.platform)"
+						data-login
+						class="login">{{fallbackParentUser.displayName}}</a>
+						
 				<ChatMessageChunksParser
-					:platform="messageData.platform"
-					:chunks="messageData.parentMessage.message_chunks"
+					:platform="messageData.parentMessageFallback.platform"
+					:chunks="messageData.parentMessageFallback.message"
 					:channel="messageData.channel_id" />
 			</div>
 		</div>
@@ -53,21 +64,24 @@
 </template>
 
 <script lang="ts">
+import Database from '@/store/Database';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ApiHelper from '@/utils/ApiHelper';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import AbstractChatMessage from './AbstractChatMessage';
+import { defineAsyncComponent } from 'vue';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
-import ApiHelper from '@/utils/ApiHelper';
-import Database from '@/store/Database';
-import { to } from 'mathjs';
+
 
 @Component({
+	name:"ChatPrivateModerator",
 	components:{
 		TTButton,
+		MessageItem: defineAsyncComponent(() => import("@/components/messages/MessageItem.vue")),
 		ChatMessageChunksParser,
 	},
-	emits:["onRead"],
+	emits:["onRead", "showConversation", "showUserMessages"],
 })
 class ChatPrivateModerator extends AbstractChatMessage {
 	
@@ -76,9 +90,13 @@ class ChatPrivateModerator extends AbstractChatMessage {
 
 	public loading:boolean = false;
 	public toUser:TwitchatDataTypes.TwitchatUser|null = null;
+	public fallbackParentUser:TwitchatDataTypes.TwitchatUser|null = null;
 
 	public beforeMount():void {
 		this.toUser = this.$store.users.getUserFrom("twitch", this.messageData.channel_id, this.messageData.toChannelId);
+		if(!this.messageData.parentMessage && this.messageData.parentMessageFallback) {
+			this.fallbackParentUser = this.$store.users.getUserFrom(this.messageData.parentMessageFallback.platform, this.messageData.channel_id, this.messageData.parentMessageFallback.uid, this.messageData.parentMessageFallback.login);
+		}
 	}
 
 	public async answerQuestion(answer:boolean):Promise<void> {
@@ -115,6 +133,9 @@ export default toNative(ChatPrivateModerator);
 				height: 1em;
 				margin-right: .25em;
 			}
+		}
+		.message {
+			font-size: 1rem;
 		}
 	}
 

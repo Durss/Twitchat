@@ -41,7 +41,7 @@ export const storeChat = defineStore('chat', {
 		whispers: {},
 		emoteSelectorCache: [],
 		replyTo: null,
-		messageMode: "chat",
+		messageMode: "message",
 		spamingFakeMessages: false,
 
 		botMessages: {
@@ -734,7 +734,7 @@ export const storeChat = defineStore('chat', {
 				const message_chunks = event.data.message;
 				const channel_id = StoreProxy.auth.twitch.user.id;
 				const from = StoreProxy.users.getUserFrom("twitch", channel_id, event.data.from_uid, channel_id, event.data.from_login);
-				this.addPrivateModMessage(from, message_chunks, event.data.action, event.data.messageIdParent, event.data.messageId);
+				this.addPrivateModMessage(from, message_chunks, event.data.action, event.data.messageId, event.data.messageIdParent, undefined, event.data.messageParentFallback);
 			});
 
 			//Listen for private moderator messages answers
@@ -2415,8 +2415,10 @@ export const storeChat = defineStore('chat', {
 		from:TwitchatDataTypes.TwitchatUser,
 		message_chunks:TwitchatDataTypes.ParseMessageChunk[],
 		action:TwitchatDataTypes.MessagePrivateModeratorData["action"],
+		message_id:string,
 		message_parent_id?:string,
-		message_id?:string):TwitchatDataTypes.MessagePrivateModeratorData {
+		message_parent_ref?:TwitchatDataTypes.MessageChatData,
+		message_parent_fallback?:TwitchatDataTypes.MessagePrivateModeratorData["parentMessageFallback"]):TwitchatDataTypes.MessagePrivateModeratorData {
 			const channel_id = StoreProxy.auth.twitch.user.id;
 			const message:TwitchatDataTypes.MessagePrivateModeratorData = {
 				channel_id,
@@ -2427,10 +2429,15 @@ export const storeChat = defineStore('chat', {
 				message: message_chunks.map(v=>v.value).join(" "),
 				message_chunks,
 				message_html:TwitchUtils.messageChunksToHTML(message_chunks),
+				parentMessageFallback: message_parent_fallback,
 				action: action,
 				user: from,
 				toChannelId: StoreProxy.stream.currentChatChannel.id
 			};
+
+			if(message_parent_ref) {
+				message.parentMessage = message_parent_ref;
+			}else
 			if(message_parent_id) {
 				for (let i = messageList.length-1; i >= Math.max(0, messageList.length - 1000); i--) {
 					const mess = messageList[i];

@@ -540,7 +540,7 @@ export interface IChatState {
 	/**
 	 * Messaging mode
 	 */
-	messageMode:"dm"|"question"|"chat";
+	messageMode:"dm"|"dm_mods"|"question"|"message";
 	/**
 	 * Number of whispers not read
 	 */
@@ -736,8 +736,11 @@ export interface IChatActions {
 		from:TwitchatDataTypes.TwitchatUser,
 		message:TwitchatDataTypes.ParseMessageChunk[],
 		action:TwitchatDataTypes.MessagePrivateModeratorData["action"],
+		message_id:string,
 		message_parent_id?:string,
-		message_id?:string):TwitchatDataTypes.MessagePrivateModeratorData;
+		message_parent_ref?:TwitchatDataTypes.MessageChatData,
+		message_parent_fallback?:TwitchatDataTypes.MessagePrivateModeratorData["parentMessageFallback"],
+	):TwitchatDataTypes.MessagePrivateModeratorData;
 }
 
 

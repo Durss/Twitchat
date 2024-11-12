@@ -136,6 +136,7 @@ export type EventTypeMap = {
 		action:TwitchatDataTypes.MessagePrivateModeratorData["action"];
 		messageId:string;
 		messageIdParent:string;
+		messageParentFallback?: TwitchatDataTypes.MessagePrivateModeratorData["parentMessageFallback"];
 	};
 	PRIVATE_MOD_MESSAGE_ANSWER: {
 		messageId:string;

@@ -102,14 +102,14 @@ export default class ContextMenuHelper {
 			//Reply/quote
 			if(tMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				let allowed = true;
-				if(StoreProxy.chat.messageMode != "chat"
+				if(StoreProxy.chat.messageMode != "message"
 				&& tMessage.channel_id != StoreProxy.stream.currentChatChannel.id) {
 					allowed = false;
 				}
 				if(allowed) {
 					options.push({
-								label: StoreProxy.chat.messageMode == "chat"? t("chat.context_menu.answer") : t("chat.context_menu.quote"),
-								icon: StoreProxy.chat.messageMode == "chat"? this.getIcon("icons/reply.svg") : this.getIcon("icons/quote.svg"),
+								label: StoreProxy.chat.messageMode == "message"? t("chat.context_menu.answer") : t("chat.context_menu.quote"),
+								icon: StoreProxy.chat.messageMode == "message"? this.getIcon("icons/reply.svg") : this.getIcon("icons/quote.svg"),
 								onClick: () => {
 									StoreProxy.chat.replyTo = tMessage as TwitchatDataTypes.MessageChatData;
 								}

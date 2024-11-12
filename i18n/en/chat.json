@@ -63,11 +63,15 @@
 			"youtube_missing_scope": "You haven't granted Twitchat permission to write on you chat",
 			"obs_disconnected_tt": "Not connected to OBS",
 			"mode_private": "Privately send message to {USER}",
-			"mode_private_details": "Send a message only {USER} will see.\nOnly works if they use Twitchat!",
+			"mode_private_details": "Send a message only {USER} will see.\n\nOnly works if they use Twitchat!",
 			"mode_question": "Privately ask something to {USER}",
-			"mode_question_details": "Send a message only {USER} will see.\nThe message will show them 2 buttons\n\"accept\" and \"refuse\" to answer your\nquestion with a simple click.\nOnly works if they use Twitchat!",
+			"mode_question_details": "Send a message only {USER} will see.\nThe message will show them 2 buttons\n\"accept\" and \"refuse\" to answer your\nquestion with a simple click.\n\nOnly works if they use Twitchat!",
 			"mode_public": "Send public message on chat",
-			"mode_public_details": "Send a regular public message on\n{USER}'s chat."
+			"mode_public_details": "Send a regular public message on\n{USER}'s chat.",
+			"mode_private_mods": "Privately send message to {USER} and mods",
+			"mode_private_mods_details": "Send a message only {USER} and mods will see.\n\nOnly works if they use Twitchat!",
+			"mode_private_mods_only": "Privately send message to your mods",
+			"mode_private_mods_only_details": "Send a message only your mods will see.\n\nOnly works if they use Twitchat!"
 		},
 		"filters": {
 			"cta": "Important options here",

@@ -3,26 +3,44 @@
 		<ButtonNotification :icon="modeToIcon[mode]" class="button" @click.stop="open"></ButtonNotification>
 
 		<div class="popin blured-background-window" ref="popin" v-if="expand">
-			<div v-if="showDetails1" class="card-item infos">{{ $t("chat.form.mode_private_details", {USER:broadcasterName}) }}</div>
-			<div v-if="showDetails2" class="card-item infos">{{ $t("chat.form.mode_question_details", {USER:broadcasterName}) }}</div>
-			<div v-if="showDetails3" class="card-item infos">{{ $t("chat.form.mode_public_details", {USER:broadcasterName}) }}</div>
+			<template v-if="broadcastermode">
+				<div v-if="showDetails == 2" class="card-item infos">{{ $t("chat.form.mode_private_mods_only_details", {USER:broadcasterName}) }}</div>
+				
+				<TTButton class="addChanBt" :icon="modeToIcon.dm_mods"
+				@click="setMode('dm_mods')"
+				@mouseenter="showDetails = 2"
+				@mouseleave="showDetails=-1"
+				transparent medium>{{ $t("chat.form.mode_private_mods_only", {USER:broadcasterName}) }}</TTButton>
+			</template>
+			<template v-else>
+				<div v-if="showDetails == 1" class="card-item infos">{{ $t("chat.form.mode_private_details", {USER:broadcasterName}) }}</div>
+				<div v-if="showDetails == 2" class="card-item infos">{{ $t("chat.form.mode_private_mods_details", {USER:broadcasterName}) }}</div>
+				<div v-if="showDetails == 3" class="card-item infos">{{ $t("chat.form.mode_question_details", {USER:broadcasterName}) }}</div>
+				<div v-if="showDetails == 4" class="card-item infos">{{ $t("chat.form.mode_public_details", {USER:broadcasterName}) }}</div>
 
-			<TTButton class="addChanBt" icon="mod"
-			@click="setMode('dm')"
-			@mouseenter="showDetails1=true"
-			@mouseleave="showDetails1=false"
-			transparent medium>{{ $t("chat.form.mode_private", {USER:broadcasterName}) }}</TTButton>
+				<TTButton class="addChanBt" :icon="modeToIcon.dm"
+				@click="setMode('dm')"
+				@mouseenter="showDetails = 1"
+				@mouseleave="showDetails=-1"
+				transparent medium>{{ $t("chat.form.mode_private", {USER:broadcasterName}) }}</TTButton>
+	
+				<TTButton class="addChanBt" :icon="modeToIcon.dm_mods"
+				@click="setMode('dm_mods')"
+				@mouseenter="showDetails = 2"
+				@mouseleave="showDetails=-1"
+				transparent medium>{{ $t("chat.form.mode_private_mods", {USER:broadcasterName}) }}</TTButton>
+				
+				<TTButton class="addChanBt" :icon="modeToIcon.question"
+				@click="setMode('question')"
+				@mouseenter="showDetails = 3"
+				@mouseleave="showDetails=-1"
+				transparent medium>{{ $t("chat.form.mode_question", {USER:broadcasterName}) }}</TTButton>
+			</template>
 			
-			<TTButton class="addChanBt" icon="question"
-			@click="setMode('question')"
-			@mouseenter="showDetails2=true"
-			@mouseleave="showDetails2=false"
-			transparent medium>{{ $t("chat.form.mode_question", {USER:broadcasterName}) }}</TTButton>
-			
-			<TTButton class="addChanBt" icon="whispers"
-			@click="setMode('chat')"
-			@mouseenter="showDetails3=true"
-			@mouseleave="showDetails3=false"
+			<TTButton class="addChanBt" :icon="modeToIcon.message"
+			@click="setMode('message')"
+			@mouseenter="showDetails = 4"
+			@mouseleave="showDetails=-1"
 			transparent medium>{{ $t("chat.form.mode_public", {USER:broadcasterName}) }}</TTButton>
 		</div>
 	</div>
@@ -48,17 +66,17 @@ class ModeratorActionSwitcher extends Vue {
 	public mode!:IChatState["messageMode"];
 
 	public expand:boolean = false;
-	public showDetails1:boolean = false;
-	public showDetails2:boolean = false;
-	public showDetails3:boolean = false;
+	public showDetails:number = -1;
 	public modeToIcon:{[key in typeof this.mode]:string} = {
-		dm:"mod",
+		dm:"broadcaster",
+		dm_mods:"mod",
 		question:"question",
-		chat:"whispers",
+		message:"whispers",
 	};
 
 	private clickHandler!:(e:MouseEvent) => void;
 
+	public get broadcastermode():boolean { return this.$store.stream.currentChatChannel.id == this.$store.auth.twitch.user.id; }
 	public get broadcasterName():string { return this.$store.stream.currentChatChannel.name; }
 
 	public beforeMount():void {
@@ -97,9 +115,7 @@ class ModeratorActionSwitcher extends Vue {
 		gsap.to(holder, {duration:.1, scaleY:0, clearProps:"scaleY", ease:"back.in", onComplete:() => {
 			this.expand = false;
 		}});
-		this.showDetails1 =
-		this.showDetails2 =
-		this.showDetails3 = false;
+		this.showDetails = -1;
 	}
 
 	/**

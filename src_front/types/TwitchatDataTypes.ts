@@ -4,6 +4,7 @@ import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScop
 import type { JsonObject } from 'type-fest';
 import type { GoXLRTypes } from "./GoXLRTypes";
 import type { TriggerActionPlayabilityData, TriggerCallStack } from "./TriggerActionDataTypes";
+import type { IChatState } from "@/store/StoreProxy";
 
 export namespace TwitchatDataTypes {
 
@@ -5486,11 +5487,21 @@ export namespace TwitchatDataTypes {
 		 * - message: simple message
 		 * - question: question to answer
 		 */
-		action:"message"|"question";
+		action:IChatState["messageMode"];
 		/**
 		 * Optional message ID to reference
 		 */
 		parentMessage?:TranslatableMessage;
+		/**
+		 * Optional fallback parent message.
+		 * Used in case parentMessage isn't found on history
+		 */
+		parentMessageFallback?:{
+			uid:string;
+			login:string;
+			platform:ChatPlatform;
+			message:TwitchatDataTypes.ParseMessageChunk[];
+		};
 		/**
 		 * Answer given by the streamer for a "question" message
 		 */

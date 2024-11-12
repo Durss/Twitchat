@@ -99,12 +99,12 @@ export default class RemoteModController extends AbstractController {
 			return
 		}
 
-		//Check if user is a mod on the given channel
-		const moderated = await TwitchUtils.getModeratedChannels(user.user_id, request.headers.authorization!);
-		if(moderated.findIndex(v=>v.broadcaster_id == body.to_uid) == -1) {
-			//Check if target user is one of our mods
-			const moderators = await TwitchUtils.getModerators(user.user_id, request.headers.authorization!);
-			if(moderators.findIndex(v=>v.user_id == body.to_uid) == -1) {
+		//Check if target user is one of our mods
+		const moderators = await TwitchUtils.getModerators(user.user_id, request.headers.authorization!);
+		if(user.user_id !== body.to_uid && moderators.findIndex(v=>v.user_id == body.to_uid) == -1) {
+			//Check if user is a mod on the given channel
+			const moderated = await TwitchUtils.getModeratedChannels(user.user_id, request.headers.authorization!);
+			if(moderated.findIndex(v=>v.broadcaster_id == body.to_uid) == -1) {
 				response.header('Content-Type', 'application/json');
 				response.status(400);
 				response.send(JSON.stringify({success:false, error:"cannot send private message", errorCode:"NOT_MODERATOR"}));
@@ -112,14 +112,23 @@ export default class RemoteModController extends AbstractController {
 			}
 		}
 
-		SSEController.sendToUser(body.to_uid, SSECode.PRIVATE_MOD_MESSAGE, {
+		const message = {
 			action: body.action,
 			message: body.message,
 			from_uid: user.user_id,
 			from_login: user.login,
 			messageId: body.messageId,
 			messageIdParent: body.messageParentId,
-		});
+			messageParentFallback: body.messageParentFallback,
+		};
+		SSEController.sendToUser(body.to_uid, SSECode.PRIVATE_MOD_MESSAGE, message);
+
+		console.log(body.action, moderators.map(v=>v.user_login))
+		if(body.action == "dm_mods") {
+			moderators.forEach(mod => {
+				SSEController.sendToUser(mod.user_id, SSECode.PRIVATE_MOD_MESSAGE, message);
+			})
+		}
 
 		response.header('Content-Type', 'application/json');
 		response.status(200);

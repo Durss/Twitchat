@@ -35,7 +35,7 @@
 					<div class="replyTo" v-if="$store.chat.replyTo">
 						<button class="closeBt" type="button" @click="$store.chat.replyTo = null"><Icon name="cross"/></button>
 						<div class="content">
-							<i18n-t scope="global" :keypath="$store.chat.messageMode == 'chat'? 'chat.form.reply_to' : 'chat.form.quoting'" tag="span" class="head">
+							<i18n-t scope="global" :keypath="$store.chat.messageMode == 'message'? 'chat.form.reply_to' : 'chat.form.quoting'" tag="span" class="head">
 								<template #USER>
 									<a class="userlink" @click.stop="openUserCard($store.chat.replyTo!.user, $store.chat.replyTo!.channel_id)">{{$store.chat.replyTo!.user.displayName}}</a>
 								</template>
@@ -57,7 +57,7 @@
 						</div>
 					</div>
 
-					<div class="inputField" :class="{modAction:$store.chat.messageMode!='chat'}" :style="inputStyles">
+					<div class="inputField" :class="{modAction:$store.chat.messageMode!='message'}" :style="inputStyles">
 						<div class="actions">
 							<ChannelSwitcher class="chanSwitcher"
 								v-model="$store.stream.currentChatChannel.id"
@@ -581,6 +581,7 @@ export class ChatForm extends Vue {
 
 	public get isModeratedChannel():boolean {
 		const chanId = this.$store.stream.currentChatChannel.id;
+		if(chanId == this.$store.auth.twitch.user.id) return true;
 		return chanId != this.$store.auth.twitch.user.id
 			&& this.$store.auth.twitchModeratedChannels.findIndex(v=>v.broadcaster_id == chanId) > -1;
 	}
@@ -930,22 +931,31 @@ export class ChatForm extends Vue {
 			}
 		}else{
 
-			if(this.$store.chat.messageMode != "chat") {
-				const parentId = this.$store.chat.replyTo?.id;
+			if(this.$store.chat.messageMode != "message") {
+				const parentMessage = this.$store.chat.replyTo;
 				const chunks = TwitchUtils.parseMessageToChunks(this.message, undefined, true);
 				const message =  StoreProxy.chat.addPrivateModMessage(
 									this.$store.auth.twitch.user,
 									chunks,
-									this.$store.chat.messageMode == "question"? "question": "message",
-									parentId);
+									this.$store.chat.messageMode,
+									Utils.getUUID(),
+									parentMessage?.id,
+									this.$store.chat.replyTo || undefined,
+								);
 
 				//Allows to display a message on chat from its raw JSON
 				const res = await ApiHelper.call("mod/privateMessage", "POST", {
 					message: chunks, 
-					action: this.$store.chat.messageMode == "question"? "question": "message",
+					action: this.$store.chat.messageMode,
 					to_uid: this.$store.stream.currentChatChannel.id,
 					messageId: message.id,
-					messageParentId: parentId,
+					messageParentId: parentMessage?.id,
+					messageParentFallback: parentMessage? {
+						uid:parentMessage.user.id,
+						login:parentMessage.user.login,
+						platform:parentMessage.platform,
+						message:parentMessage.message_chunks,
+					} : undefined,
 				});
 
 				if(res.status == 200) {
