@@ -123,7 +123,6 @@ export default class RemoteModController extends AbstractController {
 		};
 		SSEController.sendToUser(body.to_uid, SSECode.PRIVATE_MOD_MESSAGE, message);
 
-		console.log(body.action, moderators.map(v=>v.user_login))
 		if(body.action == "dm_mods") {
 			moderators.forEach(mod => {
 				SSEController.sendToUser(mod.user_id, SSECode.PRIVATE_MOD_MESSAGE, message);

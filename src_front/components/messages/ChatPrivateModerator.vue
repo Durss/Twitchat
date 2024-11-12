@@ -27,7 +27,7 @@
 			</span>
 			
 			<div class="quote" v-if="messageData.parentMessage">
-				<div class="header"><Icon name="info" /><strong>{{ $t("chat.private_mod_message.quoted_message") }}</strong></div>
+				<Icon name="quote" />
 
 				<MessageItem class="message"
 					light
@@ -37,7 +37,7 @@
 			</div>
 			
 			<div class="quote" v-if="messageData.parentMessageFallback">
-				<div class="header"><Icon name="info" /><strong>{{ $t("chat.private_mod_message.quoted_message") }}</strong></div>
+				<Icon name="quote" />
 				
 				<a v-if="fallbackParentUser" :href="getProfilePage(fallbackParentUser)" target="_blank"
 						@click.stop.prevent="openUserCard(fallbackParentUser, messageData.channel_id, fallbackParentUser.platform)"
@@ -124,9 +124,17 @@ export default toNative(ChatPrivateModerator);
 	}
 
 	.quote {
+		position: relative;
 		font-style: italic;
 		margin-top: .5em;
+		&>.icon {
+			position: absolute;
+			height: 1em;
+			top: -.35em;
+			left: -.5em;
+		}
 		.header {
+			display: none;
 			font-style: normal;
 			margin-bottom: .5em;
 			.icon {
@@ -136,6 +144,11 @@ export default toNative(ChatPrivateModerator);
 		}
 		.message {
 			font-size: 1rem;
+			:deep(.chatmessageholder) {
+				border: unset !important;
+				background: unset !important;
+				padding: 0 !important;
+			}
 		}
 	}
 
