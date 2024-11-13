@@ -637,9 +637,11 @@ export default class EventSub {
 			tags = chanInfo.tags;
 		}
 
+		let isChange = false;
 		let infos = StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id];
 		
 		if(!infos) {
+			isChange = true;
 			infos = StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id] = {
 				title,
 				category,
@@ -650,6 +652,12 @@ export default class EventSub {
 				user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name, undefined, undefined, false, undefined, false),
 				lastSoDoneDate:0,
 			}
+		}else{
+			isChange = infos.title != title
+					|| infos.category != category
+					|| infos.tags.toString() != tags.toString()
+					|| infos.viewers != viewers
+					|| infos.live != live;
 		}
 		infos.title = title;
 		infos.category = category;
@@ -669,19 +677,23 @@ export default class EventSub {
 			StoreProxy.labels.updateLabelValue("VIEWER_COUNT", viewers);
 		}
 
-		const message:TwitchatDataTypes.MessageStreamInfoUpdate = {
-			id:Utils.getUUID(),
-			date:Date.now(),
-			platform:"twitch",
-			channel_id:event.broadcaster_user_id,
-			type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-			message:StoreProxy.i18n.t("stream.notification", {TITLE:event.title, CATEGORY:event.category_name}),
-			noticeId:TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE,
-			title:infos.title,
-			category:infos.category
+		//This flag is here as a workaround for a sporadical twitch issue
+		//where they trigger the event twice in a short timeframe (~1s)
+		if(isChange) {
+			const message:TwitchatDataTypes.MessageStreamInfoUpdate = {
+				id:Utils.getUUID(),
+				date:Date.now(),
+				platform:"twitch",
+				channel_id:event.broadcaster_user_id,
+				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+				message:StoreProxy.i18n.t("stream.notification", {TITLE:event.title, CATEGORY:event.category_name}),
+				noticeId:TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE,
+				title:infos.title,
+				category:infos.category
+			}
+	
+			StoreProxy.chat.addMessage(message);
 		}
-
-		StoreProxy.chat.addMessage(message);
 	}
 
 	/**
