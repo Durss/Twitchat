@@ -1005,6 +1005,7 @@ export class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.MESSAGE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.WHISPER );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.PINNED );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE );
 				for (const key in this.config.messageFilters) {
 					const k = key as messageFilterTypes;
 					this.config.messageFilters[k] = k == "automod"
