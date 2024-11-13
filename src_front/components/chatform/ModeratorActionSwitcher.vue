@@ -24,11 +24,11 @@
 				@mouseleave="showDetails=-1"
 				transparent medium>{{ $t("chat.form.mode_private", {USER:broadcasterName}) }}</TTButton>
 	
-				<TTButton class="addChanBt" :icon="modeToIcon.dm_mods"
+				<!-- <TTButton class="addChanBt" :icon="modeToIcon.dm_mods"
 				@click="setMode('dm_mods')"
 				@mouseenter="showDetails = 2"
 				@mouseleave="showDetails=-1"
-				transparent medium>{{ $t("chat.form.mode_private_mods", {USER:broadcasterName}) }}</TTButton>
+				transparent medium>{{ $t("chat.form.mode_private_mods", {USER:broadcasterName}) }}</TTButton> -->
 				
 				<TTButton class="addChanBt" :icon="modeToIcon.question"
 				@click="setMode('question')"
