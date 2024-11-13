@@ -137,7 +137,8 @@
 				"patreon": "Patreon alerts",
 				"tiktok_like": "Tiktok likes",
 				"tiktok_gift": "Tiktok gifts",
-				"tiktok_share": "Tiktok share"
+				"tiktok_share": "Tiktok share",
+				"private_mod_message": "Private mod messages"
 			},
 			"message_filters": {
 				"viewers": "Sent by viewers",

@@ -1794,6 +1794,25 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE: {
+					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const m:TwitchatDataTypes.MessagePrivateModeratorData = {
+						id:Utils.getUUID(),
+						type:TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE,
+						date:Date.now(),
+						channel_id:StoreProxy.auth.twitch.user.id,
+						platform:"twitch",
+						user:fakeUser,
+						message:message,
+						message_chunks:chunks,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						action:Utils.pickRand(["dm", "dm_mods", "question", "message"]),
+					};
+	
+					data = m;
+					break;
+				}
+
 				default: {
 					let message = "The request message type \""+type+"\" is lacking implementation on storeDebug."
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);

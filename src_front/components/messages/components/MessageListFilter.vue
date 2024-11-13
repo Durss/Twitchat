@@ -708,6 +708,33 @@ export class MessageListFilter extends Vue {
 			}, false);
 			this.loadingPreview = false;
 
+		}else
+		if(filter.type == TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE) {
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessagePrivateModeratorData>(TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE, (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				data.action = "dm";
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessagePrivateModeratorData>(TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE, (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				data.action = "question";
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessagePrivateModeratorData>(TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE, async (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				data.action = "dm";
+				const replyTo = await this.$store.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false);
+				data.parentMessage = replyTo;
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			this.loadingPreview = false;
+
 		}else{
 
 			this.$store.debug.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(filter.type, (data)=> {
