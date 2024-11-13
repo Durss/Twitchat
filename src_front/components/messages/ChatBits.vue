@@ -59,6 +59,10 @@ class ChatBits extends AbstractChatMessage {
 		return res;
 	}
 
+	public get iconColor():string{
+		return this.$store.common.theme == "dark" ? "#5cffbe" : "#00a865";
+	}
+
 	public get messages():TwitchatDataTypes.MessageCheerData[] {
 		let res:TwitchatDataTypes.MessageCheerData[] =  [];
 		if(this.messageData.message_chunks && this.messageData.message_chunks.length > 0) res.push(this.messageData);
@@ -116,7 +120,7 @@ export default toNative(ChatBits);
 	background-position: 100% center;
 	overflow: hidden;
 	&>.icon {
-		color: #5cffbe;
+		color: v-bind(iconColor);
 	}
 
 	&.pinned {

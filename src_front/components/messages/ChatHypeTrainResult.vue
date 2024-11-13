@@ -125,6 +125,10 @@ class ChatHypeTrainResult extends AbstractChatMessage {
 	public primes:number = 0;
 	public bits:number = 0;
 	public hypeChats:string[] = []
+
+	public get iconColor():string{
+		return this.$store.common.theme == "dark" ? "#00d6d6" : "#00a3a3";
+	}
 	
 	public getConductorSubCount():number {
 		let count = 0;
@@ -203,7 +207,7 @@ export default toNative(ChatHypeTrainResult);
 <style scoped lang="less">
 .chathypetrainresult{
 	&>.icon {
-		color: #00d6d6;
+		color: v-bind(iconColor);
 	}
 	.highlight() {
 		color: var(--color-text-light);

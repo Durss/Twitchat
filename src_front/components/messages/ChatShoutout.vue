@@ -78,6 +78,10 @@ class ChatShoutout extends AbstractChatMessage {
 
 	public channel!:TwitchatDataTypes.TwitchatUser;
 
+	public get iconColor():string{
+		return this.$store.common.theme == "dark" ? "#9147ff" : "#772ce8";
+	}
+
 	public beforeMount(): void {
 		this.channel = this.$store.users.getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id)
 	}
@@ -109,7 +113,7 @@ export default toNative(ChatShoutout);
 		gap: .25em;
 	}
 	&>.icon {
-		color: #9147ff;
+		color: v-bind(iconColor);
 	}
 }
 </style>

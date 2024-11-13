@@ -88,6 +88,10 @@ class ChatPrivateModerator extends AbstractChatMessage {
 	@Prop
 	declare messageData:TwitchatDataTypes.MessagePrivateModeratorData;
 
+	public get loginsBrightnessFilter():string{
+		return this.$store.common.theme == "dark" ? "none" : "brightness(80%)";
+	}
+
 	public loading:boolean = false;
 	public toUser:TwitchatDataTypes.TwitchatUser|null = null;
 	public fallbackParentUser:TwitchatDataTypes.TwitchatUser|null = null;
@@ -149,6 +153,9 @@ export default toNative(ChatPrivateModerator);
 				background: unset !important;
 				padding: 0 !important;
 			}
+		}
+		:deep(.login) {
+			filter: v-bind(loginsBrightnessFilter);
 		}
 	}
 

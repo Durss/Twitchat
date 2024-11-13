@@ -43,6 +43,7 @@
 	--background-color-fade: rgba(255,255,255,.5);
 	--background-color-fader: rgba(255,255,255,.15);
 	--background-color-fadest: rgba(255,255,255,.05);
+	--background-color-transparent: rgba(255,255,255,0);
 
 	--grayout: fade(@color-dark, 70%);
 	--grayout-fader: fade(@color-dark, 50%);
@@ -165,6 +166,7 @@ body.light {
 	--background-color-fade: rgba(0,0,0,.5);
 	--background-color-fader: rgba(0,0,0,.15);
 	--background-color-fadest: rgba(0,0,0,.075);
+	--background-color-transparent: rgba(0,0,0,0);
 
 	--grayout: fade(@color-light, 70%);
 	--grayout-fader: fade(@color-light, 50%);
@@ -372,15 +374,15 @@ mark {
 	line-height: 1.2em;
 	border-radius: var(--border-radius);
 	border-left: 2px solid var(--background-color-fader);
-	background-image: linear-gradient(90deg, var(--background-color-fadest), rgba(255,255,255,0));
+	background-image: linear-gradient(90deg, var(--background-color-fadest), var(--background-color-transparent));
 	padding: .5em;
 	&.primary {
 		border-left-color: var(--color-primary-fade);
-		background-image: linear-gradient(90deg, var(--color-primary-fadest), rgba(255,255,255,0));
+		background-image: linear-gradient(90deg, var(--color-primary-fadest), var(--background-color-transparent));
 	}
 	&.secondary {
 		border-left-color: var(--color-secondary-fade);
-		background-image: linear-gradient(90deg, var(--color-secondary-fadest), rgba(255,255,255,0));
+		background-image: linear-gradient(90deg, var(--color-secondary-fadest), var(--background-color-transparent));
 	}
 }
 

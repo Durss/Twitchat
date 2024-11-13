@@ -57,6 +57,10 @@ class ChatMessageChunksParser extends Vue {
 	@Prop
 	public chunks!:TwitchatDataTypes.ParseMessageChunk[];
 
+	public get colorDarken():string{
+		return this.$store.common.theme == "dark" ? "none" : "brightness(0.8)";
+	}
+
 	public get spoiledChunks():TwitchatDataTypes.ParseMessageChunk[] {
 		if((!this.forceSpoiler && !this.containsSpoiler) || this.$store.params.features.spoilersEnabled.value !== true) return this.chunks;
 		
@@ -120,12 +124,16 @@ export default toNative(ChatMessageChunksParser);
 </script>
 
 <style scoped lang="less">
-.login:hover {
-	background-color: var(--background-color-fader);
-	border-radius: 3px;
 
-	.copyBt {
-		width: 1em;
+.login {
+	filter: v-bind(colorDarken);
+	&:hover {
+		background-color: var(--background-color-fader);
+		border-radius: 3px;
+	
+		.copyBt {
+			width: 1em;
+		}
 	}
 }
 .emote {

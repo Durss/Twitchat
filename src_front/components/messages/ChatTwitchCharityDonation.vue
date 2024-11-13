@@ -3,7 +3,7 @@
 	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 
-		<Icon name="twitch_charity" alt="twitch charity" class="icon"/>
+		<Icon name="twitch_charity" alt="twitch charity" class="icon charityIcon"/>
 
 		<div class="messageHolder">
 			<i18n-t scope="global" tag="span" keypath="chat.twitch_charity.donation">
@@ -35,11 +35,18 @@ class ChatTwitchCharityDonation extends AbstractChatMessage {
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageCharityDonationData;
 
+	public get iconColor():string{
+		return this.$store.common.theme == "dark" ? "#5cffbe" : "#00a865";
+	}
+
 }
 export default toNative(ChatTwitchCharityDonation);
 </script>
 
 <style scoped lang="less">
 .chattwitchcharitydonation{
+	.charityIcon {
+		color: v-bind(iconColor);
+	}
 }
 </style>

@@ -49,6 +49,10 @@ class ChatPollResult extends AbstractChatMessage {
 	
 	public get me():TwitchatDataTypes.TwitchatUser { return this.$store.auth.twitch.user; }
 
+	public get iconColor():string{
+		return this.$store.common.theme == "dark" ? "#9147ff" : "#772ce8";
+	}
+
 	public getChoiceClasses(o:TwitchatDataTypes.MessagePollDataChoice):string[] {
 		const res = ["outcome"];
 		if(o.votes == this.maxVotesValue) res.push("winner");
@@ -84,7 +88,7 @@ export default toNative(ChatPollResult);
 .chatpollresult{
 	text-align: center;
 	&>.icon {
-		color: #9147ff;
+		color: v-bind(iconColor);
 	}
 
 	.content {

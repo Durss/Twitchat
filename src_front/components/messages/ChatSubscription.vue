@@ -149,6 +149,10 @@ class ChatSubscription extends AbstractChatMessage {
 		return res;
 	}
 
+	public get iconColor():string{
+		return this.$store.common.theme == "dark" ? "#1f69ff" : "#1756d3";
+	}
+
 	public get totalSubgifts():number|undefined {
 		return this.messageData.user.channelInfo[this.messageData.channel_id].totalSubgifts;
 	}
@@ -169,7 +173,7 @@ export default toNative(ChatSubscription);
 <style scoped lang="less">
 .chatsubscription{
 	&>.icon {
-		color: #1f69ff;
+		color: v-bind(iconColor);
 	}
 	.additional {
 		opacity: .8;

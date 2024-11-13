@@ -36,6 +36,10 @@ class ChatFollow extends AbstractChatMessage {
 		return res;
 	}
 
+	public get iconColor():string{
+		return this.$store.common.theme == "dark" ? "#ff38db" : "#c516a5";
+	}
+
 }
 export default toNative(ChatFollow);
 </script>
@@ -43,7 +47,7 @@ export default toNative(ChatFollow);
 <style scoped lang="less">
 .chatfollow{
 	.followIcon {
-		color: #ff38db;
+		color: v-bind(iconColor);
 	}
 }
 </style>
