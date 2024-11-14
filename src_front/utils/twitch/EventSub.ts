@@ -317,14 +317,15 @@ export default class EventSub {
 
 			if(TwitchUtils.hasScopes([TwitchScopes.AUTOMOD])) {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_TERMS_UPDATE, "1");
-				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_MESSAGE_UPDATE, "1");
+				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_MESSAGE_UPDATE, "beta");
 
-				if(!isBroadcaster) {
+				// if(!isBroadcaster) {
 					//Only subbing to this as a moderator.
 					//Broadcaster uses PubSub alternative that, to date, gives more details.
 					//Eventsub doesn't tell which part of the message triggered the automod.
-					this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_MESSAGE_HELD, "1");
-				}
+					this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_MESSAGE_HELD, "beta");
+					console.log("AUTOMOD SUBSCRIBE", channelId)
+				// }
 			}
 
 			if(TwitchUtils.hasScopes([TwitchScopes.SUSPICIOUS_USERS])) {
@@ -1197,8 +1198,10 @@ export default class EventSub {
 		//Build usable emotes set
 		const chunks:TwitchatDataTypes.ParseMessageChunk[] = [];
 		const words:string[] = [];
+		let charCount = 0;
 		for (let i = 0; i < event.message.fragments.length; i++) {
 			const el = event.message.fragments[i];
+			let automodChunk = event.automod.boundaries.findIndex(v=>v.start_pos <= charCount && v.end_pos >= charCount) > -1;
 			if(el.type == "emote") {
 				chunks.push({
 					type:"emote",
@@ -1206,19 +1209,21 @@ export default class EventSub {
 					emote:"https://static-cdn.jtvnw.net/emoticons/v2/"+el.emote.id+"/default/light/2.0",
 					emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/"+el.emote.id+"/default/light/4.0",
 				});
-			//Not supported by eventsub :(
-			// }else if(el.automod) {
-			// 	chunks.push({
-			// 		type:"highlight",
-			// 		value:el.text,
-			// 	});
-			// 	words.push(el.text);
+			
+			}else if(automodChunk) {
+				chunks.push({
+					type:"highlight",
+					value:el.text,
+				});
+				words.push(el.text);
+				
 			}else if(el.text) {
 				chunks.push({
 					type:"text",
 					value:el.text,
 				});
 			}
+			charCount += el.text.length;
 		}
 
 		const userData = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.broadcaster_user_name, undefined, undefined, false, undefined, false);
@@ -1235,7 +1240,7 @@ export default class EventSub {
 			message_chunks:chunks,
 			message_html:messageHtml,
 			message_size:0,
-			twitch_automod:{ reasons:[event.category], words },
+			twitch_automod:{ reasons:[event.automod.category], words },
 			is_short:false,
 		};
 		m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);

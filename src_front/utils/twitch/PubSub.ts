@@ -109,41 +109,9 @@ export default class PubSub extends EventDispatcher {
 			}
 			if(TwitchUtils.hasScopes([TwitchScopes.MODERATION_EVENTS])){
 				subscriptions.push("chat_moderator_actions."+myUID+"."+myUID);
-				subscriptions.push("automod-queue."+myUID+"."+myUID);
 				subscriptions.push("low-trust-users."+myUID+"."+myUID);
 				// subscriptions.push("channel-chat-highlights."+myUID+"."+myUID);//Needs a twitch scope T_T. This is what allows to get "raider" message highlight
 			}
-
-			/*
-			if(Config.instance.debugChans.length > 0) {
-				//Subscribe to someone else's channel pointevents
-				const users = await TwitchUtils.getUserInfo(undefined, Config.instance.debugChans.filter(v=>v.platform=="twitch").map(v=>v.login));
-				const uids = users.map(v=> v.id);
-				for (let i = 0; i < uids.length; i++) {
-					const uid = uids[i];
-					if(uid == myUID) continue;
-					subscriptions.push("raid."+uid);
-					subscriptions.push("hype-train-events-v1."+uid);
-					subscriptions.push("video-playback-by-id."+uid);//Get viewers count
-					subscriptions.push("community-points-channel-v1."+uid);//Get channel points rewards
-					subscriptions.push("community-boost-events-v1."+uid);//Get channel points rewards
-					subscriptions.push("predictions-channel-v1."+uid);//Get prediction events
-					subscriptions.push("polls."+uid);//Get poll events
-					subscriptions.push("stream-chat-room-v1."+uid);//Host events (RIP)
-					//TODO check if we're mod on the "uid" channel
-					subscriptions.push("chat_moderator_actions."+myUID+"."+uid);
-					subscriptions.push("automod-queue."+myUID+"."+uid);
-					subscriptions.push("low-trust-users."+myUID+"."+uid);
-					subscriptions.push("pinned-chat-updates-v1."+uid);
-					// subscriptions.push("user-moderation-notifications."+myUID+"."+uid);
-					// subscriptions.push("channel-ad-poll-update-events."+uid);
-					// subscriptions.push("pv-watch-party-events."+uid);
-					// subscriptions.push("stream-change-by-channel."+uid);
-					// subscriptions.push("radio-events-v1."+uid);
-					// subscriptions.push("channel-sub-gifts-v1."+uid);
-				}
-			}
-				*/
 			this.subscribe(subscriptions);
 		};
 
@@ -377,14 +345,6 @@ export default class PubSub extends EventDispatcher {
 			StoreProxy.chat.addMessage(m)
 
 
-
-		}else if(data.type == "automod_caught_message") {
-			//Still using PubSub instead of EventSub because, to date, it gives more details.
-			//Eventsub doesn't tell which part of the message triggered the automod.
-			this.automodEvent(data.data as  PubSubDataTypes.AutomodData, channelId);
-
-
-
 		//Manage rewards
 		}else if(data.type == "reward-redeemed" &&
 		(topic!.toLowerCase().indexOf("channel-points-channel") > -1 || topic!.toLowerCase().indexOf("community-points-channel") > -1)) {
@@ -572,84 +532,6 @@ export default class PubSub extends EventDispatcher {
 					(m as TwitchatDataTypes.MessageModerationAction).user = moderatedUser;
 				}
 				StoreProxy.chat.addMessage(m);
-			}
-		}
-	}
-
-	/**
-	 * Called when a message is held by automod
-	 * @param localObj
-	 */
-	private automodEvent(localObj:PubSubDataTypes.AutomodData, channelId:string):void {
-		if(localObj.status == "PENDING") {
-			const reasons:string[] = [];
-			for (let i = 0; i < localObj.message.content.fragments.length; i++) {
-				const f = localObj.message.content.fragments[i];
-				if(!f.automod) continue;
-				for (const key in f.automod.topics) {
-					if(reasons.indexOf(key) == -1) reasons.push(key);
-				}
-			}
-
-			//Build usable emotes set
-			const chunks:TwitchatDataTypes.ParseMessageChunk[] = [];
-			const words:string[] = [];
-			for (let i = 0; i < localObj.message.content.fragments.length; i++) {
-				const el = localObj.message.content.fragments[i];
-				if(el.emoticon) {
-					chunks.push({
-						type:"emote",
-						value:el.text,
-						emote:"https://static-cdn.jtvnw.net/emoticons/v2/"+el.emoticon.emoticonID+"/default/light/2.0",
-						emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/"+el.emoticon.emoticonID+"/default/light/4.0",
-					});
-				}else if(el.automod) {
-					chunks.push({
-						type:"highlight",
-						value:el.text,
-					});
-					words.push(el.text);
-				}else if(el.text) {
-					chunks.push({
-						type:"text",
-						value:el.text,
-					});
-				}
-			}
-
-			const user = localObj.message.sender;
-			const userData = StoreProxy.users.getUserFrom("twitch", channelId, user.user_id, user.login, user.display_name);
-			userData.color = user.chat_color;
-			const messageHtml = TwitchUtils.messageChunksToHTML(chunks);
-			const messageClean = Utils.stripHTMLTags(messageHtml);
-			// const chunks = TwitchUtils.parseMessageToChunks(textMessage);
-			const m:TwitchatDataTypes.MessageChatData = {
-				id:localObj.message.id,
-				channel_id:channelId,
-				date:Date.now(),
-				type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-				platform:"twitch",
-				user:userData,
-				answers:[],
-				message:messageClean,
-				message_chunks:chunks,
-				message_html:messageHtml,
-				message_size:0,
-				twitch_automod:{ reasons, words },
-				is_short:false,
-			};
-			m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
-			StoreProxy.chat.addMessage(m);
-
-		}else
-		if(localObj.status == "DENIED" || localObj.status == "ALLOWED") {
-			//Search message by its ID
-			const list = StoreProxy.chat.messages.concat();
-			for (let i = list.length-1; i > -1; i--) {
-				if(localObj.message.id == list[i].id) {
-					//Delete it even if allowed as it's actually sent back via IRC
-					StoreProxy.chat.deleteMessage(list[i], undefined, false);
-				}
 			}
 		}
 	}

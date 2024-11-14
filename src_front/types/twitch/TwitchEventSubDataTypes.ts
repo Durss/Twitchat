@@ -668,8 +668,16 @@ export namespace TwitchEventSubDataTypes {
 			text:string;
 			fragments:MessageFragments;
 		};
-		category: string;
-		level: number;
+		reason: string;
+		automod: {
+			category: string;
+			level: number;
+			boundaries: {
+				start_pos: number;
+				end_pos: number;
+			}[];
+		};
+		blocked_term: any;
 		held_at: string;
 	}
 
@@ -678,6 +686,28 @@ export namespace TwitchEventSubDataTypes {
 		moderator_user_login: string;
 		moderator_user_name: string;
 		status: "approved"|"denied";
+		broadcaster_user_id: string;
+		broadcaster_user_login: string;
+		broadcaster_user_name: string;
+		user_id: string;
+		user_login: string;
+		user_name: string;
+		message_id: string;
+		message: {
+			text:string;
+			fragments:MessageFragments;
+		};
+		reason: string;
+		automod: {
+			category: string;
+			level: number;
+			boundaries: {
+				start_pos: number;
+				end_pos: number;
+			}[];
+		};
+		blocked_term: any;
+		held_at: string;
 	}
 
 	export type ModerationEvent  = ModerationEvent_raid
