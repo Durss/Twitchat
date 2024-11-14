@@ -295,6 +295,7 @@ export default class EventSub {
 					this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_SENT, "1");
 				}
 				if(TwitchUtils.hasScopes([TwitchScopes.CHAT_READ_EVENTSUB])) {
+					this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.DELETE_MESSAGE, "1", {user_id:myUID});
 					this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_CLEAR, "1", {user_id:myUID});
 				}
 			}
@@ -593,13 +594,13 @@ export default class EventSub {
 					fromAutomod:false,
 					user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
 				};
-				// if(localObj.created_by) {
-				// 	message.user = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by)
-				// }
-				// if(localObj.from_automod) {
-				// 	message.fromAutomod = true;
-				// }
 				StoreProxy.chat.addMessage(message);
+				break;
+			}
+			
+			case TwitchEventSubDataTypes.SubscriptionTypes.DELETE_MESSAGE: {
+				const event = payload.event as TwitchEventSubDataTypes.ChatDeleteMessageEvent;
+				StoreProxy.chat.deleteMessageByID(event.message_id, undefined, false);
 				break;
 			}
 		}

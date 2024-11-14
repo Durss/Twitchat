@@ -57,6 +57,7 @@ export namespace TwitchEventSubDataTypes {
 		SUSPICIOUS_USER_MESSAGE: "channel.suspicious_user.message",
 		SUSPICIOUS_USER_UPDATE: "channel.suspicious_user.update",
 		CHAT_CLEAR: "channel.chat.clear",
+		DELETE_MESSAGE: "channel.chat.message_delete",
 	} as const;
 	export type SubscriptionStringTypes = typeof SubscriptionTypes[keyof typeof SubscriptionTypes];
 
@@ -1005,6 +1006,16 @@ export namespace TwitchEventSubDataTypes {
         broadcaster_user_id: string;
         broadcaster_user_name: string;
         broadcaster_user_login: string;
+	}
+
+	export interface ChatDeleteMessageEvent {
+        broadcaster_user_id: string;
+        broadcaster_user_name: string;
+        broadcaster_user_login: string;
+        target_user_id: string;
+        target_user_name: string;
+        target_user_login: string;
+        message_id: string;
 	}
 
 	export interface CharityStartEvent extends CharityProgressEvent{
