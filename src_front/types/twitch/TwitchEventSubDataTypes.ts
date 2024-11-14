@@ -56,6 +56,7 @@ export namespace TwitchEventSubDataTypes {
 		AUTOMOD_MESSAGE_HELD: "automod.message.hold",
 		SUSPICIOUS_USER_MESSAGE: "channel.suspicious_user.message",
 		SUSPICIOUS_USER_UPDATE: "channel.suspicious_user.update",
+		CHAT_CLEAR: "channel.chat.clear",
 	} as const;
 	export type SubscriptionStringTypes = typeof SubscriptionTypes[keyof typeof SubscriptionTypes];
 
@@ -730,6 +731,7 @@ export namespace TwitchEventSubDataTypes {
 								| ModerationEvent_slowon
 								| ModerationEvent_slowoff
 								| ModerationEvent_warn
+								| ModerationEvent_clear
 	;
 
 	export interface ModerationEvent_base {
@@ -840,6 +842,10 @@ export namespace TwitchEventSubDataTypes {
 
 	export interface ModerationEvent_slowoff extends ModerationEvent_base {
 		action: "slowoff";
+	}
+
+	export interface ModerationEvent_clear extends ModerationEvent_base {
+		action: "clear";
 	}
 
 	export interface ModerationEvent_warn extends ModerationEvent_base {
@@ -993,6 +999,12 @@ export namespace TwitchEventSubDataTypes {
 			user_login: string;
 			user_name: string;
 		}
+	}
+
+	export interface ChatClearEvent {
+        broadcaster_user_id: string;
+        broadcaster_user_name: string;
+        broadcaster_user_login: string;
 	}
 
 	export interface CharityStartEvent extends CharityProgressEvent{

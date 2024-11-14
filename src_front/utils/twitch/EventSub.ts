@@ -199,6 +199,14 @@ export default class EventSub {
 		const isBroadcaster	= me.id == user.id;
 		const isMod	= me.channelInfo[channelId]?.is_moderator === true || isBroadcaster;
 		this.chanSubscriptions[channelId] = [];
+		const hasChannelModerateV2Permissions = TwitchUtils.hasScopes([TwitchScopes.BLOCKED_TERMS,
+																TwitchScopes.SET_ROOM_SETTINGS,
+																TwitchScopes.UNBAN_REQUESTS,
+																TwitchScopes.EDIT_BANNED,
+																TwitchScopes.DELETE_MESSAGES,
+																TwitchScopes.CHAT_WARNING,
+																TwitchScopes.READ_MODERATORS,
+																TwitchScopes.READ_VIPS]);
 
 		if(isBroadcaster){
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_UPDATE, "2");
@@ -272,14 +280,7 @@ export default class EventSub {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, "2");
 			}
 			
-			if(TwitchUtils.hasScopes([TwitchScopes.BLOCKED_TERMS,
-			TwitchScopes.SET_ROOM_SETTINGS,
-			TwitchScopes.UNBAN_REQUESTS,
-			TwitchScopes.EDIT_BANNED,
-			TwitchScopes.DELETE_MESSAGES,
-			TwitchScopes.CHAT_WARNING,
-			TwitchScopes.READ_MODERATORS,
-			TwitchScopes.READ_VIPS])) {
+			if(hasChannelModerateV2Permissions) {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_MODERATE, "2");
 			}else{
 				//This topic does not support moderator token
@@ -292,6 +293,9 @@ export default class EventSub {
 				}
 				if(TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING])) {
 					this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_WARN_SENT, "1");
+				}
+				if(TwitchUtils.hasScopes([TwitchScopes.CHAT_READ_EVENTSUB])) {
+					this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_CLEAR, "1", {user_id:myUID});
 				}
 			}
 
@@ -575,6 +579,27 @@ export default class EventSub {
 			case TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_STOP: {
 				const charity = payload.event as TwitchEventSubDataTypes.CharityStopEvent;
 				StoreProxy.twitchCharity.onCharityStop(charity.id);
+				break;
+			}
+			
+			case TwitchEventSubDataTypes.SubscriptionTypes.CHAT_CLEAR: {
+				const event = payload.event as TwitchEventSubDataTypes.ChatClearEvent;
+				const message:TwitchatDataTypes.MessageClearChatData = {
+					platform:"twitch",
+					type:TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT,
+					id:Utils.getUUID(),
+					channel_id:event.broadcaster_user_id,
+					date:Date.now(),
+					fromAutomod:false,
+					user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
+				};
+				// if(localObj.created_by) {
+				// 	message.user = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by)
+				// }
+				// if(localObj.from_automod) {
+				// 	message.fromAutomod = true;
+				// }
+				StoreProxy.chat.addMessage(message);
 				break;
 			}
 		}
@@ -1286,8 +1311,27 @@ export default class EventSub {
 				StoreProxy.stream.setRaiding(m);
 				break;
 			}
+
 			case "unraid":{
 				StoreProxy.stream.setRaiding();
+				break;
+			}
+			
+			case "clear":{
+				const message:TwitchatDataTypes.MessageClearChatData = {
+					platform:"twitch",
+					type:TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT,
+					id:Utils.getUUID(),
+					channel_id:event.broadcaster_user_id,
+					date:Date.now(),
+					fromAutomod:false,
+				};
+				if(event.moderator_user_id) {
+					message.user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name, undefined, false, false, false, false);
+				}else{
+					message.fromAutomod = true;
+				}
+				StoreProxy.chat.addMessage(message);
 				break;
 			}
 
@@ -1467,8 +1511,14 @@ export default class EventSub {
 				});
 				break;
 			}
+
+			case "delete": {
+				const deleter = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name, undefined, false, false, false, false);
+				StoreProxy.chat.deleteMessageByID(event.delete.message_id, deleter, false);
+			}
 			
 			default: {
+				console.log("Unhandled moderation event from eventsub");
 				console.log(event);
 			}
 		}
@@ -1728,6 +1778,10 @@ export default class EventSub {
 				StoreProxy.chat.addMessage(message);
 			}
 		}, 5000);
+	}
+
+	private async chatClearEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ChatClearEvent):Promise<void> {
+		//Ignore reward related messages as they're handled by the reward event
 	}
 
 }
