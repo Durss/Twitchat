@@ -981,6 +981,7 @@ export default class TriggerActionHandler {
 
 		const triggers = this.triggerType2Triggers[ key ];
 		if(!triggers || triggers.length == 0) return false;
+		triggers.sort((a,b)=> (b.queuePriority || 0) - (a.queuePriority || 0));
 
 		//Execute all triggers related to the current trigger event type
 		for (const trigger of triggers) {
@@ -1098,7 +1099,8 @@ export default class TriggerActionHandler {
 		let queue:typeof this.triggerTypeToQueue[string] = [];
 
 		if(queueKey) {
-			log.entries.push({date:Date.now(), type:"message", value:"Execute trigger in queue \""+queueKey+"\""});
+			const prioritySuffix = trigger.queuePriority? " with priority "+trigger.queuePriority+"" : "";
+			log.entries.push({date:Date.now(), type:"message", value:"Execute trigger in queue \""+queueKey+"\""+prioritySuffix});
 
 			if(!this.triggerTypeToQueue[queueKey]) this.triggerTypeToQueue[queueKey] = [];
 			queue = this.triggerTypeToQueue[queueKey];

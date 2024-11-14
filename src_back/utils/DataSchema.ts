@@ -167,6 +167,7 @@ const UserDataSchema = {
 					counterId: {type:"string", maxLength:50},
 					valueId: {type:"string", maxLength:50},
 					queue: {type:"string", maxLength:100, nullable:true},
+					queuePriority: {type:"integer", minimum:-100, maximum:100},
 					conditions: { $ref: "#/definitions/conditionGroup" },
 					permissions: { $ref: "defs.json#/definitions/permissions" },
 					heatAllowAnon: {type:"boolean"},

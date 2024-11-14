@@ -36,6 +36,7 @@
 		"trigger_queue": "Execution queue",
 		"trigger_queue_info": "To make sure some triggers execute one after another, associate them to the same execution queue.",
 		"trigger_queue_input_placeholder": "execution queue...",
+		"trigger_queue_priority": "Priority",
 		"missing_trigger": "DELETED TRIGGER",
 		"missing_counter": "DELETED COUNTER",
 		"missing_reward": "DELETED REWARD",

@@ -72,7 +72,14 @@
 					<Icon name="list" class="icon" />
 					<span>{{ $t("triggers.trigger_queue") }}</span>
 				</div>
-				<ParamItem noBackground class="selector" :paramData="param_queue" v-model="triggerData.queue" />
+				<ParamItem noBackground class="selector" :paramData="param_queue" v-model="triggerData.queue">
+					<template #composite>
+						<ParamItem noBackground class="priority"
+							v-tooltip="$t('triggers.trigger_queue_priority')"
+							:paramData="param_queue_priority"
+							v-model="triggerData.queuePriority" />
+					</template>
+				</ParamItem>
 			</div>
 		</div>
 
@@ -199,6 +206,7 @@ class TriggerActionList extends Vue {
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:true, icon:"disable", labelKey:"global.enabled" };
 	public param_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"label", placeholder:"...", labelKey:"triggers.trigger_name" };
 	public param_queue:TwitchatDataTypes.ParameterData<string> = {type:"editablelist", value:"", maxLength:100, max:1, placeholderKey:"triggers.trigger_queue_input_placeholder"}
+	public param_queue_priority:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0, min:-100, max:100}
 
 	private selectOffset = {x:0, y:0};
 	private scrollDir:number = 0;
@@ -641,6 +649,29 @@ export default toNative(TriggerActionList);
 			}
 			.selector {
 				flex-basis: 300px;
+				:deep(.list.editable) {
+					gap: 1px;
+					flex-direction: row;
+					justify-content: stretch;
+					align-items: stretch;
+					.v-select {
+						flex: 1;
+					}
+					.vs__dropdown-toggle {
+						border-top-right-radius: 0 !important;
+						border-bottom-right-radius: 0 !important;
+					}
+				}
+				.priority {
+					flex-basis: 50px;
+					:deep(.content),
+					:deep(.holder),
+					:deep(input){
+						height: 100%;
+						border-top-left-radius: 0;
+						border-bottom-left-radius: 0;
+					}
+				}
 			}
 		}
 

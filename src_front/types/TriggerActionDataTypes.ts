@@ -181,6 +181,10 @@ export interface TriggerData {
 	 */
 	queue?:string;
 	/**
+	 * Execution priority within queue
+	 */
+	queuePriority?:number;
+	/**
 	 * Trigger's permission for user related trigger events (only chat commands for now)
 	 */
 	permissions?:TwitchatDataTypes.PermissionsData;
