@@ -931,7 +931,7 @@
 				"description": "Actions à exécuter lorsqu'un défi communautaire est rempli"
 			},
 			"STREAM_INFO_UPDATE": {
-				"label": "Infos de streams mises à jour",
+				"label": "Infos de stream mises à jour",
 				"description": "Actions à exécuter lorsque les infos de stream sont mises à jour"
 			},
 			"FIRST_ALL_TIME": {
