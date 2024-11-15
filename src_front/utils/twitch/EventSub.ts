@@ -24,6 +24,7 @@ export default class EventSub {
 	private sessionID:string = "";
 	private connectURL:string = "";
 	private chanSubscriptions:{[chanId:string]:{topic:string, uid:string, id:string}[]} = {};
+	private lastChannelUpdateInfos = {title:"", category:"", tags:[""], viewers:0, live:false};
 
 	constructor() {
 		this.connectURL = Config.instance.TWITCH_EVENTSUB_PATH;
@@ -664,11 +665,9 @@ export default class EventSub {
 			tags = chanInfo.tags;
 		}
 
-		let isChange = false;
 		let infos = StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id];
 		
 		if(!infos) {
-			isChange = true;
 			infos = StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id] = {
 				title,
 				category,
@@ -679,18 +678,25 @@ export default class EventSub {
 				user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name, undefined, undefined, false, undefined, false),
 				lastSoDoneDate:0,
 			}
-		}else{
-			isChange = infos.title != title
-					|| infos.category != category
-					|| infos.tags.toString() != tags.toString()
-					|| infos.viewers != viewers
-					|| infos.live != live;
 		}
 		infos.title = title;
 		infos.category = category;
 		infos.tags = tags;
 		infos.viewers = viewers;
 		infos.live = live;
+	
+		//Allows to dedupe update events
+		const isChange = infos.title != this.lastChannelUpdateInfos.title
+				|| infos.category != this.lastChannelUpdateInfos.category
+				|| infos.tags.toString() != this.lastChannelUpdateInfos.tags.toString()
+				|| infos.viewers != this.lastChannelUpdateInfos.viewers
+				|| infos.live != this.lastChannelUpdateInfos.live;
+				
+		this.lastChannelUpdateInfos.title = infos.title;
+		this.lastChannelUpdateInfos.category = infos.category;
+		this.lastChannelUpdateInfos.tags = infos.tags;
+		this.lastChannelUpdateInfos.viewers = infos.viewers;
+		this.lastChannelUpdateInfos.live = infos.live;
 
 		if(event.broadcaster_user_id == StoreProxy.auth.twitch.user.id) {
 			const categoryData = await TwitchUtils.getCategoryByID(event.category_id);
@@ -706,6 +712,7 @@ export default class EventSub {
 
 		//This flag is here as a workaround for a sporadical twitch issue
 		//where they trigger the event twice in a short timeframe (~1s)
+		console.log(isChange)
 		if(isChange) {
 			const message:TwitchatDataTypes.MessageStreamInfoUpdate = {
 				id:Utils.getUUID(),
