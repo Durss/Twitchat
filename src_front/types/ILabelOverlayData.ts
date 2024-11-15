@@ -210,4 +210,5 @@ export const LabelItemPlaceholderList = [
 	{tag:"TIKTOK_GIFT_AVATAR",					type:"image",	descriptionKey:"overlay.labels.placeholders.TIKTOK_GIFT_AVATAR", backup:true} as const,
 	{tag:"TIKTOK_GIFT_IMAGE",					type:"image",	descriptionKey:"overlay.labels.placeholders.TIKTOK_GIFT_IMAGE", backup:true} as const,
 	{tag:"TIKTOK_GIFT_COUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.TIKTOK_GIFT_COUNT", backup:true} as const,
+	{tag:"TIKTOK_GIFT_DIAMONDS",				type:"number",	descriptionKey:"overlay.labels.placeholders.TIKTOK_GIFT_DIAMONDS", backup:true} as const,
 ] as const;
