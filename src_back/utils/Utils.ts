@@ -1,5 +1,6 @@
 import Config from "./Config.js";
 import * as fs from "fs";
+import * as crypto from "crypto";
 
 /**
 * Created : 20/07/2023 
@@ -8,7 +9,8 @@ export default class Utils {
 	
 	public static promisedTimeout(delay: number): Promise<void> {
 		return new Promise(function (resolve) {
-			setTimeout(() => resolve(), delay);
+			//Node has a upper limit of 2147483647 seconds for timeouts
+			setTimeout(() => resolve(), Math.min(2147483647, Math.max(0, delay)));
 		})
 	}
 
@@ -52,5 +54,32 @@ export default class Utils {
 		
 		fs.appendFileSync(logPath, "\r\n"+logData);
 		return true;
+	}
+
+	/**
+	 * Encrypts a data
+	 * @param text 
+	 * @returns 
+	 */
+	public static encrypt(text):string {
+		const iv = crypto.randomBytes(16);
+		const cipher = crypto.createCipheriv("aes-256-cbc", Buffer.from(Config.credentials.patreon_cipherKey, 'hex'), iv);
+		let encrypted = cipher.update(text);
+		encrypted = Buffer.concat([encrypted, cipher.final()]);
+		return iv.toString('hex') + ':' + encrypted.toString('hex');
+	}
+	
+	/**
+	 * Decrypts a data encrypted via encrypt()
+	 * @see Utils.encrypt
+	 */
+	public static decrypt(text):string {
+		const textParts = text.split(':');
+		const iv = Buffer.from(textParts.shift(), 'hex');
+		const encryptedText = Buffer.from(textParts.join(':'), 'hex');
+		const decipher = crypto.createDecipheriv("aes-256-cbc", Buffer.from(Config.credentials.patreon_cipherKey, 'hex'), iv);
+		let decrypted = decipher.update(encryptedText);
+		decrypted = Buffer.concat([decrypted, decipher.final()]);
+		return decrypted.toString();
 	}
 }

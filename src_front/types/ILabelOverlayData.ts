@@ -170,6 +170,7 @@ export const LabelItemPlaceholderList = [
 	{tag:"PATREON_AMOUNT",						type:"number",	descriptionKey:"overlay.labels.placeholders.PATREON_AMOUNT", backup:true} as const,
 	{tag:"PATREON_TITLE",						type:"string",	descriptionKey:"overlay.labels.placeholders.PATREON_TITLE", backup:true} as const,
 	{tag:"PATREON_AVATAR",						type:"image",	descriptionKey:"overlay.labels.placeholders.PATREON_AVATAR", backup:true} as const,
+	{tag:"PATREON_MEMBER_COUNT",				type:"number",	descriptionKey:"overlay.labels.placeholders.PATREON_MEMBER_COUNT", backup:true} as const,
 
 	{tag:"STREAMELEMENTS_TIP_NAME",				type:"string",	descriptionKey:"overlay.labels.placeholders.STREAMELEMENTS_TIP_NAME", backup:true} as const,
 	{tag:"STREAMELEMENTS_TIP_AMOUNT",			type:"number",	descriptionKey:"overlay.labels.placeholders.STREAMELEMENTS_TIP_AMOUNT", backup:true} as const,
@@ -209,5 +210,4 @@ export const LabelItemPlaceholderList = [
 	{tag:"TIKTOK_GIFT_AVATAR",					type:"image",	descriptionKey:"overlay.labels.placeholders.TIKTOK_GIFT_AVATAR", backup:true} as const,
 	{tag:"TIKTOK_GIFT_IMAGE",					type:"image",	descriptionKey:"overlay.labels.placeholders.TIKTOK_GIFT_IMAGE", backup:true} as const,
 	{tag:"TIKTOK_GIFT_COUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.TIKTOK_GIFT_COUNT", backup:true} as const,
-	{tag:"TIKTOK_GIFT_DIAMONDS",				type:"number",	descriptionKey:"overlay.labels.placeholders.TIKTOK_GIFT_DIAMONDS", backup:true} as const,
 ] as const;

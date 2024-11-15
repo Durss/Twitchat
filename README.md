@@ -157,6 +157,7 @@ Create a `data/credentials/credentials.json` file and set the following content 
 	"patreon_client_secret_server": "",
 	"patreon_redirect_uri_server": "http://localhost:3018/api/patreon/serverauth",
 	"patreon_webhook_secret": "",
+	"patreon_cipherKey":"", //64 chars
 
 	"tenor_secret": "",
 	"youtube_key": "path/to/key.json",

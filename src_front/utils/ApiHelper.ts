@@ -1,4 +1,5 @@
 import StoreProxy from "@/store/StoreProxy";
+import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "@/store/tiltify/storeTiltify";
 import type { TenorGif } from "@/types/TenorDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { UluleTypes } from "@/types/UluleTypes";
@@ -7,7 +8,7 @@ import type { YoutubeAuthToken } from "@/types/youtube/YoutubeDataTypes";
 import type { ServerConfig } from "./Config";
 import Config from "./Config";
 import Utils from "./Utils";
-import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "@/store/tiltify/storeTiltify";
+import type { IPatreonMember, IPatreonTier } from "@/store/patreon/storePatreon";
 
 /**
 * Created : 13/07/2023
@@ -413,7 +414,7 @@ type ApiEndpoints =  {
 			};
 		};
 	};
-	"patreon/authenticate": {
+	"patreon/user/authenticate": {
 		POST: {
 			parameters: {
 				code:string;
@@ -434,35 +435,38 @@ type ApiEndpoints =  {
 			}
 		}
 	};
-	"patreon/refresh_token": {
+	"patreon/user/disconnect": {
 		POST: {
 			parameters: {
-				token:string;
 			},
 			response: {
 				success:boolean;
 				message?:string;
-				data: {
-					access_token: string;
-					refresh_token: string;
-					expires_in: number;
-					scope: string;
-					token_type: string;
-					expires_at: number;
-				}
 			}
 		}
 	};
-	"patreon/isMember": {
+	"patreon/user/isMember": {
 		GET: {
 			parameters: {
-				token:string;
 			},
 			response: {
 				success:boolean;
 				message?:string;
 				data?: {isMember:boolean};
 				errorCode?:string;
+			}
+		}
+	};
+	"patreon/user/memberList": {
+		GET: {
+			parameters: void;
+			response: {
+				success:boolean;
+				message?:string;
+				data: {
+					memberList:IPatreonMember[];
+					tierList:IPatreonTier[];
+				};
 			}
 		}
 	};
@@ -473,35 +477,6 @@ type ApiEndpoints =  {
 				success:boolean;
 				message?:string;
 				data: {isDown:boolean};
-			}
-		}
-	};
-	"patreon/user/webhook": {
-		GET: {
-			parameters: {
-				token:string;
-			},
-			response: {
-				success:boolean;
-				webhookExists:boolean;
-			}
-		}
-		POST: {
-			parameters: {
-				token:string;
-			},
-			response: {
-				success:boolean;
-				message?:string;
-			}
-		}
-		DELETE: {
-			parameters: {
-				token:string;
-			},
-			response: {
-				success:boolean;
-				message?:string;
 			}
 		}
 	};

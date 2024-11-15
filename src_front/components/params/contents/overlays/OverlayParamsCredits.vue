@@ -141,10 +141,17 @@
 									<ParamItem :paramData="param_sortByName[element.id]"				v-model="element.sortByNames" noPremiumLock />
 									<ParamItem :paramData="param_sortByAmounts[element.id]"				v-model="element.sortByAmounts" noPremiumLock />
 								</template>
-
+								
 								<template v-if="element.slotType == 'merch'">
 									<ParamItem :paramData="param_showMerchKofi[element.id]"				v-model="element.showMerchKofi" noPremiumLock />
 									<ParamItem :paramData="param_showMerchStreamlabs[element.id]"		v-model="element.showMerchStreamlabs" noPremiumLock />
+								</template>
+								
+								<template v-if="element.slotType == 'patreonMembers'">
+									<ParamItem :paramData="param_anonLastNames[element.id]"				v-model="element.anonLastNames" noPremiumLock />
+									<ParamItem :paramData="param_patreonTiers[element.id]"				v-model="element.patreonTiers" noPremiumLock />
+									<ParamItem :paramData="param_sortByName[element.id]"				v-model="element.sortByNames" noPremiumLock />
+									<ParamItem :paramData="param_sortByAmounts[element.id]"				v-model="element.sortByAmounts" noPremiumLock />
 								</template>
 
 								<template v-if="element.slotType == 'powerups'">
@@ -282,6 +289,8 @@ import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
+import type { IPatreonTier } from '@/store/patreon/storePatreon';
+import StoreProxy from '@/store/StoreProxy';
 
 @Component({
 	components:{
@@ -362,6 +371,8 @@ class OverlayParamsCredits extends Vue {
 	public param_showPuSkin:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showPuEmote:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showPuCeleb:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_anonLastNames:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_patreonTiers:{[key:string]:TwitchatDataTypes.ParameterData<boolean, unknown, boolean, unknown, IPatreonTier>} = {};
 	public slotTypes = TwitchatDataTypes.EndingCreditsSlotDefinitions;
 	public overlayExists = false;
 	public sendingSummaryData = false;
@@ -550,7 +561,9 @@ class OverlayParamsCredits extends Vue {
 			if(!this.isPremium && slotDef.premium) {
 				entry.showAmounts = false;
 			}
-			this.param_showAmounts[id] = {type:"boolean", icon:"number", value:entry.showAmounts || true, labelKey:this.getDefinitionFromSlot(slotType).amountLabel, premiumOnly:true};
+			let icon = "number";
+			if(slotDef.id == "patreonMembers") icon = "date";
+			this.param_showAmounts[id] = {type:"boolean", icon, value:entry.showAmounts || true, labelKey:this.getDefinitionFromSlot(slotType).amountLabel, premiumOnly:true};
 		}
 
 		if(slotDef.id == "rewards") {
@@ -691,6 +704,46 @@ class OverlayParamsCredits extends Vue {
 			this.param_showPuEmote[id]			= {type:'boolean', value:entry.showPuEmote, icon:"emote", labelKey:'overlay.credits.param_showPuEmote'};
 			this.param_showPuCeleb[id]			= {type:'boolean', value:entry.showPuCeleb, icon:"watchStreak", labelKey:'overlay.credits.param_showPuCeleb'};
 			this.param_sortByAmounts[id]		= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:"overlay.credits.param_sortByPuCount", premiumOnly:true};
+		}else
+
+		if(slotDef.id == "patreonMembers") {
+			if(entry.sortByNames == undefined)	entry.sortByNames = true;
+			if(entry.sortByAmounts == undefined)entry.sortByAmounts = true;
+			if(entry.anonLastNames == undefined)entry.anonLastNames = true;
+			if(entry.patreonTiers == undefined)	entry.patreonTiers = StoreProxy.patreon.tierList.map(v=>v.id) || [];
+			
+			this.param_anonLastNames[id]		= {type:"boolean", value:entry.anonLastNames, icon:"anon", labelKey:"overlay.credits.param_anonLastNames", premiumOnly:true};
+			this.param_sortByName[id]			= {type:"boolean", value:entry.sortByNames, icon:"filters", labelKey:"overlay.credits.param_sortByNames", premiumOnly:true};
+			this.param_sortByAmounts[id]		= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:"overlay.credits.param_sortByDuration", premiumOnly:true};
+			this.param_patreonTiers[id]			= {type:"boolean", value:true, noInput:true, icon:"patreon", labelKey:"overlay.credits.param_patreonTiers", premiumOnly:true};
+
+			this.param_filterRewards[id]	= {type:'boolean', value:true, icon:"channelPoints", labelKey:'overlay.credits.param_filterRewards', premiumOnly:true, twitch_scopes:[TwitchScopes.LIST_REWARDS]};
+			if(rewards.length == 0 && TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
+				rewards = (await TwitchUtils.getRewards()).sort((a,b)=>a.cost-b.cost);
+			}
+			let children:TwitchatDataTypes.ParameterData<boolean, unknown, unknown, IPatreonTier>[] = [];
+			const tierList = StoreProxy.patreon.tierList;
+			for (let j = 0; j < tierList.length; j++) {
+				const tier = tierList[j];
+				//Skip "free" tier
+				if(tier.attributes.amount_cents == 0) continue;
+				children.push({
+					type:'boolean',
+					value:entry.patreonTiers!.includes(tier.id),
+					label:tier.attributes.title,// + " - cost:" + tier.attributes.amount_cents/100,
+					storage:tier,
+					editCallback:(data)=> {
+						if(data.value === true && !entry.patreonTiers!.includes(data.storage!.id)) {
+							entry.patreonTiers!.push(data.storage!.id);
+						}
+						if(data.value === false && entry.patreonTiers!.includes(data.storage!.id)) {
+							entry.patreonTiers!.splice(entry.patreonTiers!.indexOf(data.storage!.id), 1);
+							entry.patreonTiers = entry.patreonTiers!.filter(v=>v !== data.storage!.id);
+						}
+					}
+				});
+			}
+			this.param_patreonTiers[id].children = children;
 		}else
 
 		if(slotDef.id == "ytSuperSticker"

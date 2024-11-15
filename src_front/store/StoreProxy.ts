@@ -21,6 +21,7 @@ import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/store
 import type { PatreonDataTypes } from "@/utils/patreon/PatreonDataTypes";
 import type { StreamerbotAction } from "@streamerbot/client";
 import type { ElevenLabsModel, ElevenLabsVoice } from "./elevenlabs/storeElevenLabs";
+import type { IPatreonMember, IPatreonTier } from "./patreon/storePatreon";
 
 /**
 * Created : 23/09/2022
@@ -2234,12 +2235,8 @@ export interface IHeatActions {
 
 
 export interface IPatreonState {
-	token: PatreonDataTypes.AuthTokenInfo | null,
 	isMember: boolean;
 	connected: boolean;
-	isFakeConnection: boolean;
-	webhookExists: boolean;
-	webhookScopesGranted:boolean;
 	/**
 	 * Patreon auth flow params
 	 */
@@ -2247,6 +2244,8 @@ export interface IPatreonState {
 		code:string;
 		csrf:string;
 	} | null;
+	memberList: IPatreonMember[];
+	tierList: IPatreonTier[];
 }
 
 export interface IPatreonGetters {
@@ -2268,6 +2267,11 @@ export interface IPatreonActions {
 	 */
 	getOAuthURL(premiumContext?:boolean):Promise<string>;
 	/**
+	 * Generate an auth token from a auth code 
+	 * @param code 
+	 */
+	authenticate(code:string, premiumContext?:boolean):Promise<void>;
+	/**
 	 * Disconnects the user
 	 */
 	disconnect():void;
@@ -2283,33 +2287,13 @@ export interface IPatreonActions {
 	 */
 	completeOAuthFlow(premiumContext?:boolean):Promise<boolean>;
 	/**
-	 * Generate an auth token from a auth code 
-	 * @param code 
-	 */
-	authenticate(code:string, premiumContext?:boolean):Promise<void>;
-	/**
 	 * Get the user's data
 	 */
 	loadMemberState():Promise<void>;
 	/**
-	 * Create a webhook
+	 * Loads user's member list
 	 */
-	createWebhook():Promise<void>;
-	/**
-	 * Refreshes access token
-	 */
-	refreshToken():Promise<void>;
-	/**
-	 * Simulate connected state.
-	 * Due to shit Patreon API allowing only one session for a
-	 * clientID/userID tupple, I can't maintain proper session state
-	 * except onserver-side which I don't want to do.
-	 * Patreon connection basically only creates Webhooks. We don't
-	 * really need an actual active session.
-	 * Webhooks states are saved server-side, if a webhook exists,
-	 * the auth endpoint tells us. In which case this method is called.
-	 */
-	fakeConnectedState():void;
+	loadMemberList():Promise<void>
 }
 
 

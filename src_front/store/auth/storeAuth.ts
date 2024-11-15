@@ -349,7 +349,7 @@ export const storeAuth = defineStore('auth', {
 			this.lifetimePremiumPercent		= res.json.data.lifetimePercent || 0;
 			this.dataSharingUserList		= res.json.data.dataSharing || [];
 			StoreProxy.discord.discordLinked= res.json.data.discordLinked === true;
-			if(res.json.data.patreonLinked) StoreProxy.patreon.fakeConnectedState();
+			if(res.json.data.patreonLinked) StoreProxy.patreon.loadMemberState();
 			this.twitch.user.channelInfo[user.id].following_date_ms = user.created_at_ms || 0;
 			//Uncomment to force non-premium for debugging
 			// if(!Config.instance.IS_PROD) {

@@ -28,9 +28,13 @@ export default class Config {
 	 */
 	public static get patreonMembers(): string { return this.PATREON_DATA_FOLDER + "patreonMembers.json"; }
 	/**
+	 * Links a twitch user ID to a Patreon token
+	 */
+	public static get twitch2PatreonToken(): string { return this.PATREON_DATA_FOLDER + "twitch2PatreonToken.json"; }
+	/**
 	 * Links a twitch user ID to a Patreon member ID
 	 */
-	public static get patreon2Twitch(): string { return this.PATREON_DATA_FOLDER + "patreon2Twitch.json"; }
+	public static get twitch2Patreon(): string { return this.PATREON_DATA_FOLDER + "patreon2Twitch.json"; }
 	/**
 	 * Links a patreon user ID to their webhook secret
 	 */
@@ -410,6 +414,7 @@ interface Credentials {
 	patreon_redirect_uri_server:string;
 	patreon_webhook_url:string;
 	patreon_webhook_secret:string;
+	patreon_cipherKey:string;
 
 	tenor_secret:string;
 	youtube_key:string;

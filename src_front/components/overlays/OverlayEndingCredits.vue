@@ -63,7 +63,7 @@
 					<div v-if="item.params.slotType == 'subs'" v-for="entry in getSortedSubs(item.params).splice(0, item.params.maxEntries)" class="item">
 						<Icon class="badge" v-if="item.params.showBadges && entry.value.fromActiveSubs !== true" :name="entry.type == 'subgift'? 'gift' : 'sub'" />
 						<span class="info">{{entry.value.login}}</span>
-						<span class="count" v-if="entry.type!='subgift' && item.params.showSubMonths === true && entry.value.subDuration"> − {{ getSubDurationlabel(entry.value.subDuration) }}</span>
+						<span class="count" v-if="entry.type!='subgift' && item.params.showSubMonths === true && entry.value.subDuration"> − {{ getMonthsDurationlabel(entry.value.subDuration) }}</span>
 						<span class="count" v-if="entry.type=='subgift' && item.params.showAmounts === true"> − {{ entry.value.total }}</span>
 					</div>
 
@@ -178,6 +178,11 @@
 						<div class="gradientBg" v-if="entry.skinID"></div>
 						<span class="info">{{entry.login}}</span>
 						<div class="amount" v-if="(entry.count || 0) > 0 && item.params.uniqueUsers === true">x<strong>{{ entry.count }}</strong></div>
+					</div>
+
+					<div v-if="item.params.slotType == 'patreonMembers'" v-for="entry in getPatreonMembers(item.params).splice(0, item.params.maxEntries)" class="item">
+						<span class="info">{{entry.login}}</span>
+						<span class="count" v-if="item.params.showAmounts === true"> − {{ getMonthsDurationlabel(entry.months) }}</span>
 					</div>
 				</div>
 			</div>
@@ -351,6 +356,29 @@ class OverlayEndingCredits extends AbstractOverlay {
 			if(b.type === "subgift") scoreB += b.value.total;
 			if(a.type != "subgift" && a.value.subDuration) scoreA += a.value.subDuration;
 			if(b.type != "subgift" && b.value.subDuration) scoreB += b.value.subDuration;
+
+			return scoreB - scoreA;
+		});
+	}
+
+	public getPatreonMembers(params:TwitchatDataTypes.EndingCreditsSlotParams) {
+		let members:TwitchatDataTypes.StreamSummaryData["patreonMembers"][number][]
+		= (this.data?.patreonMembers || []).filter(v=>(params.patreonTiers || []).includes(v.tier));
+		console.log(members);
+
+		return members.sort((a, b)=> {
+			let scoreA = 0;
+			let scoreB = 0;
+
+			if(params.sortByAmounts) {
+				if(a.months > b.months) scoreA +=2;
+				if(a.months < b.months) scoreB +=2;
+			}
+
+			if(params.sortByNames) {
+				if(a.login.toLowerCase() > b.login.toLowerCase()) scoreB ++;
+				if(a.login.toLowerCase() < b.login.toLowerCase()) scoreA ++;
+			}
 
 			return scoreB - scoreA;
 		});
@@ -585,7 +613,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 		return this.makeUnique(item, res);
 	}
 
-	public getSubDurationlabel(duration:number):string {
+	public getMonthsDurationlabel(duration:number):string {
 		const [singular, plural] = this.data!.labels.sub_duration.split(" | ");
 		let template = singular;
 		if(duration > 1 && plural) template = plural;
@@ -664,6 +692,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 			case "tiktokGifts": count = this.getSortedTikTokGift(item).length; break;
 			case "tiktokLikes": count = (this.data?.tiktokLikes || []).length; break;
 			case "tiktokShares": count = (this.data?.tiktokShares || []).length; break;
+			case "patreonMembers": count = this.getPatreonMembers(item).length; break;
 		}
 		count = Math.min(count, item.maxEntries);
 		this.entryCountCache[item.id] = count;

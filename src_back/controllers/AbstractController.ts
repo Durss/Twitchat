@@ -165,9 +165,9 @@ export default class AbstractController {
 			}
 	
 			//Check if user is part of active patreon members
-			if(!isPremium && fs.existsSync(Config.patreon2Twitch)) {
+			if(!isPremium && fs.existsSync(Config.twitch2Patreon)) {
 				//Get patreon member ID from twitch user ID
-				const jsonMap = JSON.parse(fs.readFileSync(Config.patreon2Twitch, "utf-8"));
+				const jsonMap = JSON.parse(fs.readFileSync(Config.twitch2Patreon, "utf-8"));
 				const memberID = jsonMap[uid];
 				//Get if user is part of the active patreon members
 				const members = JSON.parse(fs.readFileSync(Config.patreonMembers, "utf-8")) as PatreonMember[];

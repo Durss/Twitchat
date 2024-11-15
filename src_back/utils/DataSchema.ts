@@ -1671,6 +1671,7 @@ const UserDataSchema = {
 							showPuSkin: {type:"boolean"},
 							showPuEmote: {type:"boolean"},
 							showPuCeleb: {type:"boolean"},
+							anonLastNames: {type:"boolean"},
 							label: {type:"string", maxLength:100},
 							maxEntries: {type:"integer", minimum:1, maximum:1000},
 							layout: {enum: ["col","center","2cols","3cols","left","right","colLeft","colRight"]},
@@ -1681,6 +1682,12 @@ const UserDataSchema = {
 								type:"array",
 								minItems:0,
 								maxItems:300,
+								items:{type:"string", maxLength:40},
+							},
+							patreonTiers: {
+								type:"array",
+								minItems:0,
+								maxItems:100,
 								items:{type:"string", maxLength:40},
 							},
 						}
