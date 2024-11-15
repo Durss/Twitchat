@@ -20,7 +20,7 @@
 				<div class="infos">
 					<div class="title quote">
 						<span>{{messageData.info.title}}</span>
-						<p class="category">{{messageData.info.category}}</p>
+						<p v-if="messageData.info.category" class="category">{{messageData.info.category}}</p>
 					</div>
 				</div>
 
