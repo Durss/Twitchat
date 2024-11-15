@@ -308,12 +308,30 @@ class OverlayEndingCredits extends AbstractOverlay {
 		if(params.showAllSubgifters === true) {
 			res = res.concat(subgifts.filter(v=>v.fromActiveSubs === true && tierToShow[v.tier]).map(v=>{ return {type:"subgift", value:v}}));
 		}
+
+		const allowedPlatforms:TwitchatDataTypes.ChatPlatform[] = [];
+		if(params.showSubs || params.showResubs || params.showSubgifts) allowedPlatforms.push("twitch");
+		if(params.showSubsYoutube || params.showSubgiftsYoutube) allowedPlatforms.push("youtube");
+		if(params.showSubsTiktok) allowedPlatforms.push("tiktok");
 		
 		if(params.showAllSubs !== true && params.showAllSubgifters !== true){
-			if(params.showSubs !== false)		res = res.concat(subs.filter(v=>v.fromActiveSubs !== true && tierToShow[v.tier]).map(v=>{ return {type:"sub", value:v}}));
-			if(params.showResubs !== false)		res = res.concat(resubs.filter(v=>v.fromActiveSubs !== true && tierToShow[v.tier]).map(v=>{ return {type:"resub", value:v}}));
-			if(params.showSubgifts !== false)	res = res.concat(this.makeUnique(params, subgifts.filter(v=>v.fromActiveSubs !== true && tierToShow[v.tier])).map(v=>{ return {type:"subgift", value:v}}));
+			if(params.showSubs !== false || params.showSubsYoutube !== false || params.showSubsTiktok !== false) {
+				res = res.concat(subs.filter(v=>
+					v.fromActiveSubs !== true && tierToShow[v.tier] && allowedPlatforms.includes(v.platform)
+				).map(v=>{ return {type:"sub", value:v}}));
+			}
+			if(params.showResubs !== false) {
+				res = res.concat(resubs.filter(v=>
+					v.fromActiveSubs !== true && tierToShow[v.tier] && allowedPlatforms.includes(v.platform)
+				).map(v=>{ return {type:"resub", value:v}}));
+			}
+			if(params.showSubgifts !== false || params.showSubgiftsYoutube !== false) {
+				res = res.concat(this.makeUnique(params, subgifts.filter(v=>
+					v.fromActiveSubs !== true && tierToShow[v.tier] && allowedPlatforms.includes(v.platform)
+				)).map(v=>{ return {type:"subgift", value:v}}));
+			}
 		}
+
 		return res.sort((a, b)=> {
 			let scoreA = 0;
 			let scoreB = 0;

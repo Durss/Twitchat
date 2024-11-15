@@ -1712,7 +1712,7 @@ export const storeDebug = defineStore('debug', {
 						type,
 						channel_id:uid,
 						image:"https://p19-webcast.tiktokcdn.com/img/maliva/webcast-va/eba3a9bb85c33e017f3648eaf88d7189~tplv-obj.png",
-						user,
+						user:fakeUser,
 						count,
 						diamonds:count,
 						giftId:"123456",
@@ -1729,7 +1729,7 @@ export const storeDebug = defineStore('debug', {
 						platform:"youtube",
 						type,
 						channel_id:uid,
-						user,
+						user:fakeUser,
 						count,
 						streamLikeCount:Math.round(Math.random()*100000)+1234,
 					};
@@ -1744,7 +1744,7 @@ export const storeDebug = defineStore('debug', {
 						platform:"youtube",
 						type,
 						channel_id:uid,
-						user,
+						user:fakeUser,
 					};
 					data = m;
 					break;
@@ -1757,7 +1757,7 @@ export const storeDebug = defineStore('debug', {
 						platform:"youtube",
 						type,
 						channel_id:uid,
-						user,
+						user:fakeUser,
 						months:1,
 					};
 					data = m;

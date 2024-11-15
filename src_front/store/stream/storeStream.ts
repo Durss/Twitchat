@@ -576,6 +576,10 @@ export const storeStream = defineStore('stream', {
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageShoutoutData>(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (message)=>{
 						message.received = true;
 					}, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageTikTokGiftData>(TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageTikTokGiftData>(TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageTikTokGiftData>(TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageTikTokGiftData>(TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB, undefined, false));
 				}
 
 				//Raid require API calls which are slowing down generation if we request many, only request a few
@@ -621,6 +625,7 @@ export const storeStream = defineStore('stream', {
 						login:user.displayNameOriginal,
 						tier:Utils.pickRand([1,2,3,"prime"]),
 						fromActiveSubs:true,
+						platform:"twitch",
 					};
 					if(i%3 == 0) {
 						result.subs.push(subData)
@@ -652,7 +657,7 @@ export const storeStream = defineStore('stream', {
 				}
 				
 
-				//Load all current subs
+				//Load all currently active subs from Twitch
 				const shouldLoadAllsubs = parameters && parameters.slots.filter(v=>v.slotType == "subs")
 										.findIndex(v=>v.enabled === true && v.showAllSubs === true) > -1;
 				const shouldLoadAllsubgifters = parameters && parameters.slots.filter(v=>v.slotType == "subs")
@@ -672,6 +677,7 @@ export const storeStream = defineStore('stream', {
 								login:sub.user_name,
 								tier:{1000:1, 2000:2, 3000:3, prime:"prime"}[sub.tier] as typeof result.subs[number]["tier"],
 								fromActiveSubs:true,
+								platform:"twitch",
 							};
 							result.subs.push(subData);
 							if(sub.is_gift){
@@ -726,23 +732,29 @@ export const storeStream = defineStore('stream', {
 
 				switch(m.type) {
 					case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
-						const sub:typeof result.subs[number] = {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier, subDuration:m.totalSubDuration || 1};
-						if(m.is_gift || m.is_giftUpgrade) result.subgifts.push( {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier, total:m.gift_count || 1} );
+						const sub:typeof result.subs[number] = {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier, subDuration:m.totalSubDuration || 1, platform:"twitch"};
+						if(m.is_gift || m.is_giftUpgrade) result.subgifts.push( {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier, total:m.gift_count || 1, platform:"tiktok"} );
 						else if(m.is_resub) result.resubs.push(sub);
 						else result.subs.push(sub);
 						break;
 					}
 
 					case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION: {
-						const sub:typeof result.subs[number] = {uid:m.user.id, login:m.user.displayNameOriginal, tier:1, subDuration:m.months || 1};
+						const sub:typeof result.subs[number] = {uid:m.user.id, login:m.user.displayNameOriginal, tier:1, subDuration:m.months || 1, platform:"youtube"};
 						if(m.is_resub) result.resubs.push(sub);
 						else result.subs.push(sub);
 						break;
 					}
 
 					case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBGIFT: {
-						const sub:typeof result.subgifts[number] = {uid:m.user.id, login:m.user.displayNameOriginal, tier:1, total:m.gift_count};
+						const sub:typeof result.subgifts[number] = {uid:m.user.id, login:m.user.displayNameOriginal, tier:1, total:m.gift_count, platform:"youtube"};
 						result.subgifts.push(sub);
+						break;
+					}
+
+					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB: {
+						const sub:typeof result.subs[number] = {uid:m.user.id, login:m.user.displayNameOriginal, tier:1, platform:"tiktok"};
+						result.subs.push(sub);
 						break;
 					}
 
@@ -974,6 +986,11 @@ export const storeStream = defineStore('stream', {
 							result.tiktokShares.push( share );
 						}
 						share.count ++;
+						break;
+					}
+
+					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB: {
+						result.subs.push( {uid:m.user.id, login:m.user.displayNameOriginal, tier:1, subDuration:m.months, platform:"tiktok"} );
 						break;
 					}
 				}

@@ -642,7 +642,7 @@ class OverlayParamsCredits extends Vue {
 			this.param_showResubs[id]			= {type:"boolean", value:entry.showResubs, icon:"sub", labelKey:"overlay.credits.param_showResubs"};
 			this.param_showSubgifts[id]			= {type:"boolean", value:entry.showSubgifts, icon:"gift", labelKey:"overlay.credits.param_showSubgifts"};
 			this.param_showSubsYoutube[id]		= {type:'boolean', value:entry.showSubsYoutube, icon:"youtube", labelKey:'overlay.credits.param_showSubsYoutube', premiumOnly:true};
-			this.param_showSubsTiktok[id]		= {type:'boolean', value:entry.showSubsTiktok===true, icon:"tiktok", labelKey:'overlay.credits.param_showSubsTiktok'};
+			this.param_showSubsTiktok[id]		= {type:'boolean', value:entry.showSubsTiktok===true, icon:"tiktok", labelKey:'overlay.credits.param_showSubsTiktok', premiumOnly:true};
 			this.param_showSubgiftsYoutube[id]	= {type:'boolean', value:entry.showSubgiftsYoutube, icon:"youtube", labelKey:'overlay.credits.param_showSubgiftsYoutube', premiumOnly:true};
 			this.param_showSubsPrime[id]		= {type:'boolean', value:entry.showSubsPrime===true, labelKey:'overlay.credits.param_showSubsPrime'};
 			this.param_showAllActiveSubs[id]	= {type:'boolean', value:entry.showAllSubs===true, icon:"date", labelKey:'overlay.credits.param_showAllActiveSubs'};
