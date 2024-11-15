@@ -11,7 +11,7 @@
 				data-login
 				class="login bold">{{messageData.user.displayNameOriginal}}</a>
 				
-			<span class="login" v-if="toUser && toUser.temporary !== true">=>
+			<span class="login" v-if="toUser && toUser.id != $store.auth.twitch.user.id && toUser.temporary !== true">=>
 				<a :href="getProfilePage(toUser)" target="_blank"
 					@click.stop.prevent="openUserCard(toUser, messageData.channel_id, messageData.platform)"
 					data-login
