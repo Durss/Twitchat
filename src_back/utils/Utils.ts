@@ -55,31 +55,62 @@ export default class Utils {
 		fs.appendFileSync(logPath, "\r\n"+logData);
 		return true;
 	}
-
+	
 	/**
-	 * Encrypts a data
-	 * @param text 
-	 * @returns 
+	 * Encrypts text using AES-256-CBC
+	 * @param text Text to encrypt
+	 * @returns encrypted text with IV prepended
 	 */
-	public static encrypt(text):string {
-		const iv = crypto.randomBytes(16);
-		const cipher = crypto.createCipheriv("aes-256-cbc", Buffer.from(Config.credentials.patreon_cipherKey, 'hex'), iv);
-		let encrypted = cipher.update(text);
-		encrypted = Buffer.concat([encrypted, cipher.final()]);
-		return iv.toString('hex') + ':' + encrypted.toString('hex');
+	public static encrypt(text: string): string {
+		
+		// Convert hex key to Uint8Array
+		const keyUint8 = new Uint8Array(Buffer.from(Config.credentials.patreon_cipherKey, 'hex'));
+		
+		if (keyUint8.length !== 32) {
+			throw new Error('Secret key must be 32 bytes');
+		}
+	
+		// Generate IV and convert to Uint8Array
+		const ivUint8 = new Uint8Array(crypto.randomBytes(12));
+		
+		const cipher = crypto.createCipheriv('aes-256-gcm', keyUint8, ivUint8);
+		const encryptedBuffer = Buffer.concat([
+			cipher.update(Buffer.from(text, 'utf8')),
+			cipher.final()
+		]);
+		
+		const authTag = cipher.getAuthTag();
+		
+		return Buffer.from(ivUint8).toString('hex') 
+			+ ':' + encryptedBuffer.toString('hex')
+			+ ':' + authTag.toString('hex');
 	}
 	
 	/**
-	 * Decrypts a data encrypted via encrypt()
-	 * @see Utils.encrypt
+	 * Decrypts text using AES-256-CBC
+	 * @param encryptedText Text to decrypt (with IV prepended)
+	 * @returns decrypted text
 	 */
-	public static decrypt(text):string {
-		const textParts = text.split(':');
-		const iv = Buffer.from(textParts.shift(), 'hex');
-		const encryptedText = Buffer.from(textParts.join(':'), 'hex');
-		const decipher = crypto.createDecipheriv("aes-256-cbc", Buffer.from(Config.credentials.patreon_cipherKey, 'hex'), iv);
-		let decrypted = decipher.update(encryptedText);
-		decrypted = Buffer.concat([decrypted, decipher.final()]);
-		return decrypted.toString();
+	public static decrypt(encryptedText: string): string {
+		const keyUint8 = new Uint8Array(Buffer.from(Config.credentials.patreon_cipherKey, 'hex'));
+    
+		if (keyUint8.length !== 32) {
+			throw new Error('Secret key must be 32 bytes');
+		}
+	
+		const [ivHex, encryptedHex, authTagHex] = encryptedText.split(':');
+		const ivUint8 = new Uint8Array(Buffer.from(ivHex, 'hex'));
+		const encryptedUint8 = new Uint8Array(Buffer.from(encryptedHex, 'hex'));
+		const authTagUint8 = new Uint8Array(Buffer.from(authTagHex, 'hex'));
+		
+		const decipher = crypto.createDecipheriv('aes-256-gcm', keyUint8, ivUint8);
+		decipher.setAuthTag(Buffer.from(authTagUint8));
+		
+		const decryptedBuffer = Buffer.concat([
+			decipher.update(Buffer.from(encryptedUint8)),
+			decipher.final()
+		]);
+		
+		return decryptedBuffer.toString('utf8');
 	}
 }

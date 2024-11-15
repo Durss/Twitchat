@@ -63,7 +63,7 @@
 		"@types/gsap": "^3.0.0",
 		"@types/jsonpath": "^0.2.4",
 		"@types/matter-js": "^0.19.5",
-		"@types/node": "^20.10.2",
+		"@types/node": "^22.9.0",
 		"@types/three": "^0.158.0",
 		"@types/tmi.js": "^1.8.1",
 		"@types/vue-select": "^3.16.0",

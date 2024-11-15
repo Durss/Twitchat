@@ -115,8 +115,8 @@ export default class UserController extends AbstractController {
 
 		//Is user part of Patreon donors?
 		if(premiumType == "") {
-			if(fs.existsSync(Config.patreon2Twitch)) {
-				const jsonP2T = JSON.parse(fs.readFileSync(Config.patreon2Twitch, "utf-8") || "{}");
+			if(fs.existsSync(Config.twitch2Patreon)) {
+				const jsonP2T = JSON.parse(fs.readFileSync(Config.twitch2Patreon, "utf-8") || "{}");
 				const patreonID = jsonP2T[uid];
 				if(patreonID && fs.existsSync(Config.patreonMembers)) {
 					const jsonPMembers = JSON.parse(fs.readFileSync(Config.patreonMembers, "utf-8") || "{}") as PatreonMember[];

@@ -293,6 +293,7 @@ export default class PatreonController extends AbstractController {
 		}
 
 		const campaignMembers = await this.loadCampaignMembers(patreonAuth.token.access_token, campaign.id) as {members:PatreonMemberships["data"][0][]};
+		campaignMembers.members = campaignMembers.members.filter(v=>v.attributes.patron_status === "active_patron");
 
 		response.header('Content-Type', 'application/json');
 		response.status(200);
@@ -794,6 +795,9 @@ export default class PatreonController extends AbstractController {
 			}
 			return {twitchUser, token};
 		}catch(error) {
+			response.header('Content-Type', 'application/json');
+			response.status(401);
+			response.send({success:false, message:"could not decrypt token", errorCode:"INVALID_TOKEN"});
 			return false;
 		}
 	}
