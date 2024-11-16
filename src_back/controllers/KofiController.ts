@@ -79,7 +79,12 @@ export default class KofiController extends AbstractController {
 		try {
 			const data = JSON.parse((request.body as any).data) as KofiData;
 			const user = this.hashmapCache[data.verification_token];
-			if(!user) return;
+			if(!user ||super.isUserPremium(user.twitch)) {
+				response.header('Content-Type', 'application/json')
+				.status(200)
+				.send("ok");
+				return;
+			}
 
 			//If there are shop items, attempt to load their details
 			//EDIT: disabled, ko-fi enhanced their anti-scrape protection, I couldn't
@@ -254,7 +259,7 @@ export default class KofiController extends AbstractController {
 	 * @param response 
 	 */
 	private async postToken(request:FastifyRequest, response:FastifyReply) {
-		const guard = await super.twitchUserGuard(request, response);
+		const guard = await super.premiumGuard(request, response);
 		if(guard === false) return;
 
 		const token = (request.body as any).token;
