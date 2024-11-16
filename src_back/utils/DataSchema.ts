@@ -2219,6 +2219,18 @@ const UserDataSchema = {
 				port: {type:"integer", minimum:0, maximum:65535},
 			}
 		},
+
+		kofiConfigs: {
+			type: "object",
+			properties: {
+				webhooks: {
+					type:"array",
+					minItems:0,
+					maxItems:5,
+					items:{ type: "string", maxLength:300 }
+				}
+			}
+		}
 	}
 }
 

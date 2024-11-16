@@ -2717,6 +2717,7 @@ export interface IStreamelementsActions {
 
 export interface IKofiState {
 	webhooktoken:string;
+	webhooks:string[];
 	connected:boolean;
 }
 
@@ -2740,7 +2741,11 @@ export interface IKofiActions {
 	 * Called when receiving a ko-fi event
 	 * @param data
 	 */
-	onEvent(data:any):void
+	onEvent(data:any):void;
+	/**
+	 * Saves configs to server
+	 */
+	saveConfigs():void;
 }
 
 

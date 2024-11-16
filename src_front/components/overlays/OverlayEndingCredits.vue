@@ -363,8 +363,24 @@ class OverlayEndingCredits extends AbstractOverlay {
 
 	public getPatreonMembers(params:TwitchatDataTypes.EndingCreditsSlotParams) {
 		let members:TwitchatDataTypes.StreamSummaryData["patreonMembers"][number][]
-		= (this.data?.patreonMembers || []).filter(v=>(params.patreonTiers || []).includes(v.tier));
-		console.log(members);
+		= (this.data?.patreonMembers || []).filter(v=>(params.patreonTiers || []).includes(v.tier)).concat();
+
+		if(params.anonLastNames == true) {
+			members = members.map(v=> {
+				v = JSON.parse(JSON.stringify(v));
+				let login = v.login.trim();
+				//Keep the first first word as is.
+				//Only keep first letter of the rest of the words.
+				//Split first and second word with a space, split the next words with a dot.
+				const chunks = login.split(" ");
+				if(chunks.length > 1) {
+					login = chunks.map((v,i)=> i == 0? v+" " : v[0].toUpperCase()+".").join("");
+					login = login.substring(0, login.length-1);
+					v.login = login;
+				}
+				return v;
+			})
+		}
 
 		return members.sort((a, b)=> {
 			let scoreA = 0;

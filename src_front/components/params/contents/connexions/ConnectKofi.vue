@@ -48,8 +48,24 @@
 		</template>
 		
 
-		<section v-else>
+		<section class="connected" v-else>
 			<TTButton alert @click="disconnect()" :loading="loading">{{ $t("global.disconnect") }}</TTButton>
+			
+			<ToggleBlock :title="$t('kofi.advanced_params')" class="advancedParams" small :open="false">
+				<form @submit.prevent="" class="additionalWebhooks">
+					<div>{{ $t('kofi.advanced_params_header') }}</div>
+					<div class="entry" v-for="(url, index) in $store.kofi.webhooks">
+						<input type="text"
+							@blur="$store.kofi.saveConfigs()"
+							pattern="https?:\/\/.*"
+							v-model="$store.kofi.webhooks[index]"
+							:placeholder="$t('kofi.webhook_placeholder')">
+						
+						<TTButton icon="trash" alert @click="$store.kofi.webhooks.splice(index,1); $store.kofi.saveConfigs()" />
+					</div>
+					<TTButton @click="addWebhook()" v-if="$store.kofi.webhooks.length < 5" icon="add">{{ $t("kofi.add_webhookBt") }}</TTButton>
+				</form>
+			</ToggleBlock>
 		</section>
 
 		<section class="examples">
@@ -68,6 +84,7 @@
 import { TTButton } from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import MessageItem from '@/components/messages/MessageItem.vue';
+import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
@@ -137,6 +154,13 @@ class ConnectKofi extends Vue {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
+	/**
+	 * Opens the premium param page
+	 */
+	public addWebhook():void{
+		this.$store.kofi.webhooks.push("");
+	}
+
 }
 export default toNative(ConnectKofi);
 </script>
@@ -183,6 +207,10 @@ export default toNative(ConnectKofi);
 		}
 	}
 
+	.connected {
+		align-items: center
+	}
+
 	.examples {
 		margin-top: 2em;
 		.icon {
@@ -192,6 +220,37 @@ export default toNative(ConnectKofi);
 		}
 		.chatMessage  {
 			font-size: 1em;
+		}
+	}
+
+	.advancedParams {
+		margin-top: 1em;
+	}
+
+	.additionalWebhooks {
+		display: flex;
+		flex-direction: column;
+		gap: .25em;
+
+		.entry {
+			gap: 1px;
+			display: flex;
+			flex-direction: row;
+			input {
+				width: 0;
+				flex-grow: 1;
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+				border: 1px solid transparent;
+			}
+			input:invalid {
+				border-color: var(--color-alert);
+				background-color: var(--color-alert-fadest);
+			}
+			.button {
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+			}
 		}
 	}
 }

@@ -114,6 +114,7 @@ export default class DataStoreCommon {
 	public static MIXITUP_CONFIGS:string = "mixitupConfigs";
 	public static ELEVENLABS_API_KEY:string = "elevenlabsApiKey";
 	public static PLAYABILITY_CONFIGS:string = "playabilityConfigs";
+	public static KOFI_CONFIGS:string = "kofiConfigs";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";
