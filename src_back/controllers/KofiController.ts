@@ -79,7 +79,7 @@ export default class KofiController extends AbstractController {
 		try {
 			const data = JSON.parse((request.body as any).data) as KofiData;
 			const user = this.hashmapCache[data.verification_token];
-			if(!user ||super.isUserPremium(user.twitch)) {
+			if(!user || !super.isUserPremium(user.twitch)) {
 				response.header('Content-Type', 'application/json')
 				.status(200)
 				.send("ok");
