@@ -578,24 +578,35 @@ export const storeMain = defineStore("main", {
 			/**
 			 * Called when switching to another scene
 			 */
+			let changeDebounce:number = -1;
 			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_CHANGE, async (event:TwitchatEvent):Promise<void> => {
-				//If no scene whas stored, get the current one to use it as the "previousSceneName" on the trigge rmessage
-				if(!StoreProxy.common.currentOBSScene) {
-					StoreProxy.common.currentOBSScene = await OBSWebsocket.instance.getCurrentScene();
-				}
-				const e = event.data as {sceneName:string};
-				const m:TwitchatDataTypes.MessageOBSSceneChangedData = {
-					id: Utils.getUUID(),
-					date: Date.now(),
-					platform: "twitchat",
-					type: TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE,
-					sceneName: e.sceneName,
-					previousSceneName: StoreProxy.common.currentOBSScene,
-					channel_id:StoreProxy.auth.twitch.user.id,
-				};
-				StoreProxy.common.currentOBSScene = e.sceneName;
-				TriggerActionHandler.instance.execute(m);
-				rebuildPlaceholdersCache();
+				clearTimeout(changeDebounce);
+				//Debounce consecutive events changes.
+				//When leaving studio mode, 2 events are triggered in a row, once for the scene we're leaving
+				//and once for the scene we're entering. This debounce avoids the first event to be interpreted
+				changeDebounce = window.setTimeout(async ()=> {
+					const e = event.data as {sceneName:string};
+					//If no scene whas stored, get the current one to use it as the "previousSceneName" on the trigge rmessage
+					if(!StoreProxy.common.currentOBSScene) {
+						StoreProxy.common.currentOBSScene = await OBSWebsocket.instance.getCurrentScene();
+					}else
+					//Ignore if old and new scene are the same
+					//For some reason, leaving studio mode on OBS triggers 2 scene change events
+					if(StoreProxy.common.currentOBSScene == e.sceneName) return;
+	
+					const m:TwitchatDataTypes.MessageOBSSceneChangedData = {
+						id: Utils.getUUID(),
+						date: Date.now(),
+						platform: "twitchat",
+						type: TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE,
+						sceneName: e.sceneName,
+						previousSceneName: StoreProxy.common.currentOBSScene,
+						channel_id:StoreProxy.auth.twitch.user.id,
+					};
+					StoreProxy.common.currentOBSScene = e.sceneName;
+					TriggerActionHandler.instance.execute(m);
+					rebuildPlaceholdersCache();
+				}, 30);
 			});
 
 			/**
