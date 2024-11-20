@@ -191,7 +191,7 @@ class ConnectGoXLR extends Vue {
 			const knobs = this.knobSelectionReadMark.filter(v => v == "reverb" || v == "echo" || v == "pitch" || v == "gender");
 			const knob = knobs.pop();
 			//Remove all knob IDs and push the previously extracted one
-			const list = this.knobSelectionReadMark.filter(v => v != "reverb" && v != "echo" && v != "pitch" && v != "gender");
+			const list:typeof this.knobSelectionReadMark = this.knobSelectionReadMark.filter(v => v != "reverb" && v != "echo" && v != "pitch" && v != "gender");
 			if(knob) list.push(knob);
 			this.knobSelectionReadMark = list;
 
@@ -203,7 +203,7 @@ class ConnectGoXLR extends Vue {
 			const knobs = this.knobSelectionScroll.filter(v => v == "reverb" || v == "echo" || v == "pitch" || v == "gender");
 			const knob = knobs.pop();
 			//Remove all knob IDs and push the previously extracted one
-			const list = this.knobSelectionScroll.filter(v => v != "reverb" && v != "echo" && v != "pitch" && v != "gender");
+			const list:typeof this.knobSelectionReadMark = this.knobSelectionScroll.filter(v => v != "reverb" && v != "echo" && v != "pitch" && v != "gender");
 			if(knob) list.push(knob);
 			this.knobSelectionScroll = list;
 
