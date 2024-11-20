@@ -213,7 +213,7 @@ export const storeTipeee = defineStore('tipeee', {
 												message:message.parameters.message,
 												message_chunks:chunks,
 												message_html:TwitchUtils.messageChunksToHTML(chunks),
-												userName:message.user.username,
+												userName:message.parameters.username,
 												recurring:message.parameters.recurring == 1,
 												recurringCount:message.parameters.recurring_counter || 0,
 											};
