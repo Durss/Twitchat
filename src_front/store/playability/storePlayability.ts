@@ -45,8 +45,6 @@ export const storePlayability = defineStore('playability', {
 
 		async connect(isReconnect:boolean = false):Promise<boolean> {
 			this.connected = false;
-			//Token changed
-			if(isReconnect) return Promise.resolve(false);
 			
 			this.disconnect();
 
