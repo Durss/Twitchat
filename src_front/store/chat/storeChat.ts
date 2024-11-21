@@ -22,6 +22,7 @@ import type { JsonArray, JsonObject } from 'type-fest';
 import { reactive, watch, type UnwrapRef } from 'vue';
 import Database from '../Database';
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy';
+import Logger from '@/utils/Logger';
 
 //Don't make this reactive, it kills performances on the long run
 let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -1617,43 +1618,103 @@ export const storeChat = defineStore('chat', {
 						if(message.is_gift && message.gift_recipients) {
 							// console.log("Merge attempt");
 							for (let i = subgiftHistory.length-1; i >= 0; i--) {
-								const subHistoryEntry = subgiftHistory[i];
-								if(message.channel_id != subHistoryEntry.channel_id) {
-									// if(subHistoryEntry.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
-										// const json = {
-										// 	isGift1:message.is_gift,
-										// 	isGift2:subHistoryEntry.is_gift,
-										// 	ischannelID1:message.channel_id,
-										// 	ischannelID2:subHistoryEntry.channel_id,
-										// 	recipients1:message.gift_recipients,
-										// 	recipients2:subHistoryEntry.gift_recipients,
-										// }
-										// console.log("[SUBSCRIPTION MERGE] cannot merge gift:", json);
-									// }
+								const subgiftHistoryEntry = subgiftHistory[i];
+								let baseLog = {
+									uid_ref:subgiftHistoryEntry.user.id,
+									uid_new:message.user.id,
+									tier_ref:subgiftHistoryEntry.tier,
+									tier_new:message.tier,
+									date_ref:subgiftHistoryEntry.date,
+									date_new:message.date,
+									elapsed:Math.abs(message.date - subgiftHistoryEntry.date),
+								}
+								if(message.channel_id != subgiftHistoryEntry.channel_id) {
+									if(subgiftHistoryEntry.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
+										Logger.instance.log("subgifts", {
+											id:message.id,
+											type:"subgifts",
+											merged:false,
+											reason:"different_channel",
+											data:{
+												...baseLog,
+												isGift1:message.is_gift,
+												isGift2:subgiftHistoryEntry.is_gift,
+												ischannelID1:message.channel_id,
+												ischannelID2:subgiftHistoryEntry.channel_id,
+												recipients1:JSON.parse(JSON.stringify(message.gift_recipients.map(v=>{return {uid:v.id, login:v.login}}))),
+												recipients2:JSON.parse(JSON.stringify((subgiftHistoryEntry.gift_recipients || []).map(v=>{return {uid:v.id, login:v.login}}))),
+											}
+										});
+									}
 									continue;
 								}
-								// console.log("Found sub ", m);
+								if(subgiftHistoryEntry.tier != message.tier) {
+									Logger.instance.log("subgifts", {
+										id:message.id,
+										type:"subgifts",
+										merged:false,
+										reason:"different_tier",
+										data:{
+											...baseLog,
+											tier1: subgiftHistoryEntry.tier,
+											tier2: message.tier,
+										}
+									});
+									continue;
+								}
+								if(subgiftHistoryEntry.user.id != message.user.id) {
+									Logger.instance.log("subgifts", {
+										id:message.id,
+										type:"subgifts",
+										merged:false,
+										reason:"different_user",
+										data:{
+											...baseLog,
+											tier1: subgiftHistoryEntry.user.id,
+											tier2: message.user.id,
+										}
+									});
+									continue;
+								}
+								if(Math.abs(message.date - subgiftHistoryEntry.date) >= 10000) {
+									Logger.instance.log("subgifts", {
+										id:message.id,
+										type:"subgifts",
+										merged:false,
+										reason:"too_old",
+										data:{
+											...baseLog,
+											timeframe: Math.abs(message.date - subgiftHistoryEntry.date),
+										}
+									});
+									continue;
+								}
+								
 								//If the message is a subgift from the same user with the same tier on
 								//the same channel and happened in the last 10s, merge it.
-								if(subHistoryEntry.tier == message.tier
-								&& subHistoryEntry.user.id == message.user.id
-								&& Math.abs(message.date - subHistoryEntry.date) < 10000) {
-									// console.log("MERGE IT !");
-									if(!subHistoryEntry.gift_recipients) subHistoryEntry.gift_recipients = [];
-									subHistoryEntry.date = Date.now();//Update timestamp
-									for (let j = 0; j < message.gift_recipients.length; j++) {
-										subHistoryEntry.gift_recipients.push(message.gift_recipients[j]);
-									}
-									subHistoryEntry.gift_count = subHistoryEntry.gift_recipients.length;
-									if(!isFromRemoteChan) {
-										//DO NOT INCREMENT "SUB_COUNT" AND "SUB_POINTS" HERE !
-										//It is done later once gift bomb completes
-										StoreProxy.labels.updateLabelValue("SUBGIFT_COUNT", subHistoryEntry.gift_count);
-										StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_COUNT", subHistoryEntry.gift_count);
-									}
-									return;
+								// console.log("MERGE IT !");
+								if(!subgiftHistoryEntry.gift_recipients) subgiftHistoryEntry.gift_recipients = [];
+								subgiftHistoryEntry.date = Date.now();//Update timestamp
+								for (let j = 0; j < message.gift_recipients.length; j++) {
+									subgiftHistoryEntry.gift_recipients.push(message.gift_recipients[j]);
 								}
-								// console.log("[SUBSCRIPTION MERGE] Don't merge", subHistoryEntry.tier == message.tier, subHistoryEntry.user.id == message.user.id, Date.now() - subHistoryEntry.date < 5000);
+								subgiftHistoryEntry.gift_count = subgiftHistoryEntry.gift_recipients.length;
+								if(!isFromRemoteChan) {
+									//DO NOT INCREMENT "SUB_COUNT" AND "SUB_POINTS" HERE !
+									//It is done later once gift bomb completes
+									StoreProxy.labels.updateLabelValue("SUBGIFT_COUNT", subgiftHistoryEntry.gift_count);
+									StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_COUNT", subgiftHistoryEntry.gift_count);
+								}
+								Logger.instance.log("subgifts", {
+									...baseLog,
+									id:message.id,
+									type:"subgifts",
+									merged:true,
+									data:{
+										parent: subgiftHistoryEntry.id,
+									}
+								});
+								return;
 							}
 							//Message not merged, might be the first subgift of a series, save it
 							//for future subgift events

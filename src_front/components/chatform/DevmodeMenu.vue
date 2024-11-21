@@ -634,16 +634,19 @@ class DevmodeMenu extends Vue {
 
 	public async simulateSubgiftSpam():Promise<void> {
 		let user:TwitchatDataTypes.TwitchatUser;
-		const fakeUsers = await TwitchUtils.getFakeUsers();
+		// const fakeUsers = await TwitchUtils.getFakeUsers();
 
 		for (let i = 0; i < 30; i++) {
+			const uid = Math.round(Math.random()*168177762 + 1000000000).toString();
+			const fakeUser = this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, uid);
 			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, (message)=> {
 				const m = message as TwitchatDataTypes.MessageSubscriptionData;
 				if(!user) user = m.user;
 				else m.user = user;
 				m.tier = 1;
 				m.is_gift = true;
-				m.gift_recipients = [Utils.pickRand(fakeUsers)];
+				m.gift_recipients = [fakeUser];
+				// m.gift_recipients = [Utils.pickRand(fakeUsers)];
 				return true;
 			});
 			await Utils.promisedTimeout(100);

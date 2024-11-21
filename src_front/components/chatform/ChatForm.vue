@@ -887,6 +887,11 @@ export class ChatForm extends Vue {
 			this.message = "";
 		}else
 
+		if(cmd == "/giftlogs") {
+			Logger.instance.download("subgifts");
+			this.message = "";
+		}else
+
 		if(cmd == "/__demo_mode__") {
 			Config.instance.DEMO_MODE = !Config.instance.DEMO_MODE;
 			this.message = "";
