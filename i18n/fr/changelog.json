@@ -28,12 +28,7 @@
 			{
 				"i": "mod",
 				"l": "Messages privés Twitchat",
-				"d": "Twitchat permet d'échanger des messages privés avec vos modérateurices utilisant Twitchat.\n\nVos modos pourront citer des messages du tchat et vous poser des questions auxquelles répondre en 1 click pour fluidifier au mieux vos échanges.",
-				"a": {
-					"l": "Essayer",
-					"param": "connexions",
-					"subparam": "streamerbot"
-				}
+				"d": "Twitchat permet d'échanger des messages privés avec vos modérateurices utilisant Twitchat.\n\nVos modos pourront citer des messages du tchat et vous poser des questions auxquelles répondre en 1 click pour fluidifier au mieux vos échanges."
 			},
 			{
 				"i": "streamerbot",
@@ -84,6 +79,7 @@
 				"i": "credits",
 				"l": "Crédits de fin",
 				"d": "Afficher vos membres Patreon actifs grâce à la nouvelle section \"Membres Patreon\"",
+				"p": true,
 				"a": {
 					"l": "Essayer",
 					"param": "overlays",
@@ -103,6 +99,7 @@
 				"i": "kofi",
 				"l": "Ko-Fi webhooks",
 				"d": "Ko-Fi a un fonctionnement extrêmement restrictif et ne permet de connecter un compte qu'à une application.\n\nTwitchat permet désormais de contourner cette limitation en vous laissant définir jusqu'à 5 URL alternatives vers lesquelles retransmettre les évènements Ko-Fi.",
+				"p": true,
 				"a": {
 					"l": "Connecter",
 					"param": "connexions",
@@ -122,11 +119,15 @@
 			{
 				"i": "broadcast",
 				"l": "Triggers",
-				"d": "18 nouveaux événements de triggers :<ul><li>Chat effacé</li><li>Sub-only activé/désactivé</li><li>Followers-only activé/désactivé</li><li>Emote-only activé/désactivé</li><li>Mode lent activé/désactivé</li><li>Utilisateurice surveillé·e</li><li>Utilisateurice réstreint·e</li><li>Levée de la surveillance/restriction</li><li>Don reçu sur la campagne caritative Twitch</li><li>Action PlayAbility détectée</li><li>TikTok - Nouvel abonnement</li><li>TikTok - Like reçu</li><li>TikTok - Cadeau reçu</li><li>TikTok - Partage du stream</li></ul>"
+				"d": "18 nouveaux événements de triggers :<ul><li>Chat effacé</li><li>Sub-only activé/désactivé</li><li>Followers-only activé/désactivé</li><li>Emote-only activé/désactivé</li><li>Mode lent activé/désactivé</li><li>Utilisateurice surveillé·e</li><li>Utilisateurice réstreint·e</li><li>Levée de la surveillance/restriction</li><li>Don reçu sur la campagne caritative Twitch</li><li>Action PlayAbility détectée</li><li>TikTok - Nouvel abonnement</li><li>TikTok - Like reçu</li><li>TikTok - Cadeau reçu</li><li>TikTok - Partage du stream</li></ul>",
+				"a": {
+					"l": "Try",
+					"param": "triggers"
+				}
 			},
 			{
 				"l": "Mais aussi",
-				"d": "Plein d'autres choses ont été ajoutées ou modifiées.<br><a href=\"https://github.com/Durss/Twitchat/releases/latest/#french\" target=\"_blank\">Voir la liste complète ici</a>"
+				"d": "Plein d'autres choses ont été ajoutées ou modifiées.<br><a href=\"https://github.com/Durss/Twitchat/releases/new_fr/#french\" target=\"_blank\">Voir la liste complète ici</a>"
 			},
 			{
 				"i": "donate",
