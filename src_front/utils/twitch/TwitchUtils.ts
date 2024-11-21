@@ -2996,26 +2996,28 @@ export default class TwitchUtils {
 	public static async sendMessage(channelID: string, message:string, replyToID?:string): Promise<boolean> {
 		if (!this.hasScopes([TwitchScopes.BLOCKED_TERMS])) return false;
 
-		const url = new URL(Config.instance.TWITCH_API_PATH + "chat/messages");
-		const body:{[key:string]:string|number} = {
-			broadcaster_id: channelID,
-			sender_id: this.uid,
-			message: message,
-		}
-		if(replyToID) {
-			body.reply_parent_message_id = replyToID;
-		}
-
-		const res = await this.callApi(url, {
-			method: "POST",
-			headers: this.headers,
-			body:JSON.stringify(body),
-		});
-		if (res.status == 200 || res.status == 204) {
-			return true;
-		} else if (res.status == 429) {
-			await this.onRateLimit(res.headers, url.pathname);
-			return this.sendMessage(channelID, message, replyToID);
+		while(message.length > 0) {
+			const url = new URL(Config.instance.TWITCH_API_PATH + "chat/messages");
+			const body:{[key:string]:string|number} = {
+				broadcaster_id: channelID,
+				sender_id: this.uid,
+				message: message.substring(0, 499),
+			}
+			if(replyToID) {
+				body.reply_parent_message_id = replyToID;
+			}
+	
+			const res = await this.callApi(url, {
+				method: "POST",
+				headers: this.headers,
+				body:JSON.stringify(body),
+			});
+			if (res.status == 429) {
+				await this.onRateLimit(res.headers, url.pathname);
+				return this.sendMessage(channelID, message, replyToID);
+			}
+			
+			message = message.substring(499);
 		}
 		return false;
 	}
