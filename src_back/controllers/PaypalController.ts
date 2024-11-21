@@ -103,7 +103,7 @@ export default class PaypalController extends AbstractController {
 		
 		const token = await this.getToken();
 		const body:any = request.body;
-		const giftedUserId = body.giftedUser;
+		const giftedUserId = body.giftUserId;
 		let giftedUser:TwitchUserInfos|null = null;
 		let errorMessage = "";
 
