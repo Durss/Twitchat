@@ -33,7 +33,7 @@ import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } fro
 
 export const storeMain = defineStore("main", {
 	state: () => ({
-		latestUpdateIndex: 18,
+		latestUpdateIndex: 19,
 		initComplete: false,
 		devmode: false,
 		messageExportState: null,

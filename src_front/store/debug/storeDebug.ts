@@ -1790,7 +1790,8 @@ export const storeDebug = defineStore('debug', {
 						},
 					};
 	
-					StoreProxy.chat.addMessage(message);
+					// StoreProxy.chat.addMessage(message);
+					data = message;
 					break;
 				}
 

@@ -77,6 +77,14 @@
 								</i18n-t>
 							</div>
 							
+							<div v-if="item.i=='tiktok'" class="card-item messageList">
+								<MessageItem v-for="mess in tikTokFakeMessages" :messageData="mess" lightMode disableConversation />
+							</div>
+							
+							<div v-if="item.i=='charity'" class="card-item messageList">
+								<MessageItem v-for="mess in charityFakeMessages" :messageData="mess" lightMode disableConversation />
+							</div>
+							
 							<!-- <ChangelogLabels v-if="item.i=='label' && currentSlide == index" /> -->
 							<Changelog3rdPartyAnim v-if="item.i=='offline' && currentSlide == index" />
 							
@@ -150,6 +158,8 @@ class Changelog extends Vue {
 	public readAtSpeedOfLight:boolean = false;
 	public currentSlide:number = 0;
 	public buildIndex:number = 0;
+	public tikTokFakeMessages:TwitchatDataTypes.ChatMessageTypes[] = [];
+	public charityFakeMessages:TwitchatDataTypes.ChatMessageTypes[] = [];
 	
 	private openedAt = 0;
 	private buttonPos = {x:0, y:0};
@@ -213,6 +223,26 @@ class Changelog extends Vue {
 				clearInterval(interval);
 			}
 		}, 200);
+
+		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=>{
+			message.platform = "tiktok";
+			this.tikTokFakeMessages.push(message);
+		}, false);
+		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB, (message)=>{
+			this.tikTokFakeMessages.push(message);
+		}, false);
+		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT, (message)=>{
+			this.tikTokFakeMessages.push(message);
+		}, false);
+		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE, (message)=>{
+			this.tikTokFakeMessages.push(message);
+		}, false);
+		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE, (message)=>{
+			this.tikTokFakeMessages.push(message);
+		}, false);
+		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION, (message)=>{
+			this.charityFakeMessages.push(message);
+		}, false);
 	}
 	
 	public beforeUnmount():void {
@@ -385,7 +415,7 @@ export default toNative(Changelog);
 	z-index: 2;
 
 	&.premium {
-		.holder {
+		&>.holder {
 			color: var(--color-light);
 			background-color: var(--color-premium-dark);
 			
@@ -400,7 +430,7 @@ export default toNative(Changelog);
 		}
 	}
 	
-	.holder {
+	&>.holder {
 		width: 600px;
 		max-width: ~"min(600px, var(--vw))";
 		// height: unset;
@@ -548,6 +578,13 @@ export default toNative(Changelog);
 					}
 				}
 
+				.messageList {
+					gap: .5em;
+					display: flex;
+					flex-direction: column;
+					text-align: left;
+				}
+
 				.premiumTable {
 					color: var(--color-text);
 					background-color: var(--grayout);
@@ -571,6 +608,14 @@ export default toNative(Changelog);
 					}
 					&:not(li > ul) {
 						margin-bottom: 1em;
+					}
+
+					&:not(.toc) {
+						li {
+							text-align: left;
+							tab-size: 20px;
+							white-space: pre;
+						}
 					}
 				}
 
