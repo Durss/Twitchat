@@ -12,7 +12,13 @@
 			<div class="card-item secondary infos" v-if="!$store.playability.connected">
 				<span>
 					<Icon name="info" />
-					<span>{{$t("playability.instructions")}}</span>
+					<i18n-t scope="global" tag="span" keypath="playability.instructions">
+						<template #SETTINGS><strong>Settings</strong></template>
+						<template #ADVANCED><strong>Advanced</strong></template>
+						<template #OPTION_1><strong>Enable Websocket Server</strong></template>
+						<template #OPTION_2><strong>Allow Websocket Inputs</strong></template>
+						<template #OPTION_3><strong>Allow Websocket Outputs</strong></template>
+					</i18n-t>
 				</span>
 				<TTButton class="installBt"
 					href="https://playability.gg"
