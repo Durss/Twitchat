@@ -85,6 +85,7 @@ class ModeratorActionSwitcher extends Vue {
 	}
 	
 	public async beforeUnmount():Promise<void> {
+		this.$store.chat.messageMode = "message";
 		document.removeEventListener("click", this.clickHandler);
 	}
 
