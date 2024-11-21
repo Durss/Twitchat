@@ -69,17 +69,21 @@ export const storeElevenLabs = defineStore('elevenlabs', {
 			headers.append("Accept", "audio/mpeg");
 			headers.append("Content-Type", "application/json");
 
-			options.headers = headers;
-			options.method = "POST";
-			options.body = JSON.stringify({
+			const body:Record<string, unknown> = {
 				model_id: modelId,
 				text: message,
-				language_code: lang,
 				voice_settings: {
 					stability: .5,
 					similarity_boost: .5
 				}
-			});
+			};
+			if(lang && modelId === "eleven_turbo_v2_5") {
+				body.language_code = lang;
+			}
+
+			options.headers = headers;
+			options.method = "POST";
+			options.body = JSON.stringify(body);
 
 			const url = new URL("https://api.elevenlabs.io/v1/text-to-speech/"+voiceId);
 			url.searchParams.append("enable_logging", "false");

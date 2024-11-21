@@ -1,27 +1,32 @@
 <template>
 	<div class="ttsvoiceparams">
-		<ParamItem noBackground :paramData="param_voice" v-model="modelValue.voice" @change="onchange()" />
+		<ParamItem noBackground :paramData="param_voice" v-model="modelValue.voice" @change="onVoiceChange()" />
 		<template v-if="param_voice.selectedListValue?.storage?.platform == 'elevenlabs'">
-			<ParamItem noBackground :paramData="param_elevenlabs_model" v-model="modelValue.elevenlabs_model" @change="updateLanguages">
+			<ParamItem noBackground :paramData="param_elevenlabs_model" v-model="modelValue.elevenlabs_model" @change="updateLanguages()">
 				<div class="card-item modelInfo" v-if="param_elevenlabs_model.selectedListValue">
 					<strong>{{ param_elevenlabs_model.selectedListValue!.storage?.name }}</strong>
 					<div><Icon name="info" />{{param_elevenlabs_model.selectedListValue!.storage?.description}}</div>
 				</div>
 			</ParamItem>
-			<ParamItem noBackground :paramData="param_elevenlabs_lang" v-model="modelValue.elevenlabs_lang" @change="onchange()" />
+
+			<ParamItem noBackground
+			:paramData="param_elevenlabs_lang"
+			v-model="modelValue.elevenlabs_lang"
+			v-if="modelValue.elevenlabs_model == 'eleven_turbo_v2_5'"
+			@change="onChange()" />
 
 			<template v-if="param_elevenlabs_model.selectedListValue?.storage?.can_be_finetuned">
-				<ParamItem noBackground :paramData="param_elevenlabs_stability" v-model="modelValue.elevenlabs_stability" @change="onchange()" />
-				<ParamItem noBackground :paramData="param_elevenlabs_similarity" v-model="modelValue.elevenlabs_similarity" @change="onchange()" />
-				<ParamItem v-if="param_elevenlabs_model.selectedListValue?.storage?.can_use_style" noBackground :paramData="param_elevenlabs_style" v-model="modelValue.elevenlabs_style" @change="onchange()" />
+				<ParamItem noBackground :paramData="param_elevenlabs_stability" v-model="modelValue.elevenlabs_stability" @change="onChange()" />
+				<ParamItem noBackground :paramData="param_elevenlabs_similarity" v-model="modelValue.elevenlabs_similarity" @change="onChange()" />
+				<ParamItem v-if="param_elevenlabs_model.selectedListValue?.storage?.can_use_style" noBackground :paramData="param_elevenlabs_style" v-model="modelValue.elevenlabs_style" @change="onChange()" />
 			</template>
 		</template>
 
-		<ParamItem noBackground :paramData="param_volume" v-model="modelValue.volume" @change="onchange()" />
+		<ParamItem noBackground :paramData="param_volume" v-model="modelValue.volume" @change="onChange()" />
 		
 		<template v-if="param_voice.selectedListValue?.storage?.platform == 'system'">
-			<ParamItem noBackground :paramData="param_rate" v-model="modelValue.rate" @change="onchange()" />
-			<ParamItem noBackground :paramData="param_pitch" v-model="modelValue.pitch" @change="onchange()" />
+			<ParamItem noBackground :paramData="param_rate" v-model="modelValue.rate" @change="onChange()" />
+			<ParamItem noBackground :paramData="param_pitch" v-model="modelValue.pitch" @change="onChange()" />
 		</template>
 
 		<form @submit.prevent="testVoice()">
@@ -88,6 +93,10 @@ class TTSVoiceParams extends Vue {
 	}
 
 	public mounted():void {
+		this.onVoiceChange();
+	}
+
+	public onVoiceChange():void {
 		//Wait for components to be mounted and initialized
 		this.$nextTick().then(()=> {
 			this.updateLanguages();
@@ -99,7 +108,7 @@ class TTSVoiceParams extends Vue {
 		this.param_elevenlabs_lang.listValues = languages.map(v=> {
 			return {label:v.name, value:v.language_id}
 		});
-		this.onchange();
+		this.onChange();
 	}
 
 	public testVoice():void {
@@ -122,7 +131,7 @@ class TTSVoiceParams extends Vue {
 		TTSUtils.instance.readNow(m, undefined, this.modelValue);
 	}
 
-	public onchange():void {
+	public onChange():void {
 		this.$emit("update:modelValue", this.modelValue);
 	}
 }
