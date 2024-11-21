@@ -76,6 +76,7 @@ declare global {
 		billingToken: "",
 		facilitatorAccessToken: "",
 		paymentSource: "paypal",
+		giftUserId : "",
 	}
 	type PAYPAL_ORDER_TYPE = typeof PAYPAL_ORDER;
 

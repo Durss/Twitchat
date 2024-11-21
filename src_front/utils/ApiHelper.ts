@@ -508,7 +508,7 @@ type ApiEndpoints =  {
 	};
 	"paypal/complete_order": {
 		POST: {
-			parameters: typeof PAYPAL_ORDER;
+			parameters: Partial<typeof PAYPAL_ORDER>;
 			response: {
 				success:boolean;
 				error?:string;
