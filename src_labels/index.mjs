@@ -2,18 +2,14 @@
  * This process takes all the JSON files within the "i18n" folder,
  * compiles them all together and output the static/labels.json file
  */
-// import * as fs from "fs";
-// import * as path from "path";
-// import {fileURLToPath} from 'url';
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
-
 import * as fs from "fs";
 import * as path from "path";
 import {fileURLToPath} from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const credentialsPath = path.join("data", "credentials", "credentials.json");
+const credentials = fs.existsSync(credentialsPath)? JSON.parse(fs.readFileSync(credentialsPath, "utf8")) : null;
 
 console.log("\x1b[36m \n Compiling all label files into one... \x1b[0m");
 function getLabelFilesFrom(p) {
@@ -61,6 +57,10 @@ fs.writeFileSync(dest, JSON.stringify(output), {encoding:"utf-8"});
 const dest2 = path.join(__dirname, "../dist/labels.json");
 if(fs.existsSync(dest2)) {
 	fs.writeFileSync(dest2, JSON.stringify(output), {encoding:"utf-8"});
+}
+
+if(credentials) {
+	await fetch("http://localhost:3018/api/admin/labels/reload", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({key:credentials.csrf_key})});
 }
 
 console.log("\x1b[32m All files compiled to:", dest, "\x1b[0m");

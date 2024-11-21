@@ -5,18 +5,13 @@ import * as fs from "fs";
 import * as path from "path";
 import Logger from "../utils/Logger.js";
 import Utils from "../utils/Utils.js";
-import SSEController, { SSECode } from "./SSEController.js";
-import {spawn} from "child_process";
+import AdminController from "./AdminController.js";
 
 /**
 * Created : 22/02/2023
 */
 export default class FileServeController extends AbstractController {
-
-	private announcements_cache:string = "[]";
 	private config_cache:string = "";
-	private savingLabels:boolean = false;
-	private savingPromise:Promise<void>|null = null;
 	
 	constructor(public server:FastifyInstance) {
 		super();
@@ -50,20 +45,6 @@ export default class FileServeController extends AbstractController {
 
 		//Updates labels
 		this.server.post('/api/log', async (request:FastifyRequest, response:FastifyReply) => this.postLog(request, response) );
-
-		//Add an annoucement
-		this.server.post('/api/admin/announcements', async (request:FastifyRequest, response:FastifyReply) => this.postAnnouncement(request, response) );
-
-		//Updates labels
-		this.server.post('/api/admin/labels', async (request:FastifyRequest, response:FastifyReply) => this.postLabels(request, response) );
-
-		//Add an annoucement
-		this.server.delete('/api/admin/announcements', async (request:FastifyRequest, response:FastifyReply) => this.deleteAnnouncement(request, response) );
-
-		//Initialize cache
-		if(fs.existsSync(Config.ANNOUNCEMENTS_PATH)) {
-			this.announcements_cache = fs.readFileSync(Config.ANNOUNCEMENTS_PATH, "utf-8");
-		}
 	}
 	
 	
@@ -149,7 +130,7 @@ export default class FileServeController extends AbstractController {
 	private getAnnouncements(request:FastifyRequest, response:FastifyReply):void {
 		response.header('Content-Type', 'application/json');
 		response.status(200);
-		response.send(this.announcements_cache);
+		response.send(AdminController.announcements_cache);
 	}
 
 	private postLog(request:FastifyRequest, response:FastifyReply):void {
@@ -170,73 +151,6 @@ export default class FileServeController extends AbstractController {
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send({success:true});
-	}
-
-	private postAnnouncement(request:FastifyRequest, response:FastifyReply):void {
-		if(!super.adminGuard(request, response)) return;
-
-		const body:any = request.body;
-		const dateStart:number = body.dateStart || Date.now();
-		const dateEnd:number = body.dateEnd;
-		const important:boolean = body.important === true;
-		const title:{[key:string]:string} = body.title;
-		const text:{[key:string]:string} = body.text;
-		const versionMax:string = body.versionMax || "";
-		const donorsOnly:boolean = body.donorsOnly === true;
-		const premiumOnly:boolean = body.premiumOnly === true;
-		const patreonOnly:boolean = body.patreonOnly === true;
-		const heatOnly:boolean = body.heatOnly === true;
-
-		let list:AnnouncementData[] = [];
-		if(fs.existsSync(Config.ANNOUNCEMENTS_PATH)) {
-			list = JSON.parse(fs.readFileSync(Config.ANNOUNCEMENTS_PATH, "utf-8")) as AnnouncementData[];
-		}
-
-		const announce:AnnouncementData ={
-			id:Utils.getUUID(),
-			dateStart,
-			title,
-			text,
-			important,
-			donorsOnly,
-			premiumOnly,
-			patreonOnly,
-			heatOnly,
-		};
-		if(dateEnd) announce.dateEnd = dateEnd;
-		if(versionMax.length >= 2) announce.versionMax = versionMax;
-		list.push(announce);
-
-		this.announcements_cache = JSON.stringify(list);
-		fs.writeFileSync(Config.ANNOUNCEMENTS_PATH, this.announcements_cache, "utf-8");
-
-		response.header('Content-Type', 'application/json');
-		response.status(200);
-		response.send(JSON.stringify({success:true, data:list}));
-	}
-
-	private deleteAnnouncement(request:FastifyRequest, response:FastifyReply):void {
-		if(!super.adminGuard(request, response)) return;
-
-		const body:any = request.body;
-		const id:string = body.id;
-
-		let list:AnnouncementData[] = [];
-		if(fs.existsSync(Config.ANNOUNCEMENTS_PATH)) {
-			list = JSON.parse(fs.readFileSync(Config.ANNOUNCEMENTS_PATH, "utf-8")) as AnnouncementData[];
-		}
-
-		const index = list.findIndex(v=>v.id === id);
-		if(index > -1) {
-			list.splice(index, 1);
-		}
-
-		this.announcements_cache = JSON.stringify(list);
-		fs.writeFileSync(Config.ANNOUNCEMENTS_PATH, this.announcements_cache, "utf-8");
-
-		response.header('Content-Type', 'application/json');
-		response.status(200);
-		response.send(JSON.stringify({success:true, data:list}));
 	}
 
 	/**
@@ -282,100 +196,4 @@ export default class FileServeController extends AbstractController {
 		// response.header('Content-Type','image/png');
 		// response.send(s).type('image/png').code(200);
 	}
-
-	/**
-	 * Updates a labels section
-	 * @param request 
-	 * @param response 
-	 * @returns 
-	 */
-	public async postLabels(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const user = await this.adminGuard(request, response);
-		if(!user) return;
-		
-		const body:any = request.body;
-		const lang:string = body.lang;
-		const json:any = {};
-		const section:string = body.section;
-		json[section] = body.labels;
-
-		if(this.savingLabels) {
-			Logger.warn("A label update is already in progress, wait for it complete before updateing section",section);
-			await this.savingPromise;
-			return await this.postLabels(request, response);
-		}
-
-		this.savingLabels = true;
-
-		let globalResolver!:()=>void;
-		this.savingPromise = new Promise((resolve) => {
-			globalResolver = resolve;
-		});
-		
-		Logger.info("Updating labels section \""+section+"\"");
-
-		try {
-			await new Promise<void>(resolve => {
-				fs.writeFileSync(path.join(Config.LABELS_ROOT, lang+"/"+section+".json"), JSON.stringify(json, null, "\t"), "utf-8");
-				const script = path.join(Config.LABELS_ROOT, "../src_labels/index.mjs");
-				// exec(`start /B node ${script}`, (error, stdout, stderr) => {
-				let errored = false;
-				const child = spawn('node', [script], {shell: false, windowsHide:true});
-				
-				child.stdout.on('data', data => {
-					console.log(data.toString());
-				});
-				
-				child.stderr.on('data', data => {
-					console.error(data.toString());
-					errored = true;
-				});
-	
-				child.on('error', (error) => {
-					console.error(error.message);
-					errored = true;
-				});
-				
-				child.on('close', (code) => {
-					if (errored) {
-						Logger.error("Failed compiling labels");
-						response.header('Content-Type', 'application/json');
-						response.status(500);
-						response.send(JSON.stringify({success:false, message:"failed executing script to compile labels", errorCode:"EXEC_SCRIPT_ERROR"}));
-						resolve();
-						return;
-					}
-					Logger.success("Labels compiled successfuly");
-					response.header('Content-Type', 'application/json');
-					response.status(200);
-					response.send(JSON.stringify({success:true}));
-					this.savingLabels = false;
-					resolve();
-					SSEController.sendToUser(user.user_id, SSECode.LABELS_UPDATE);
-				});
-			});
-
-		}catch(error) {
-			response.header('Content-Type', 'application/json');
-			response.status(500);
-			response.send(JSON.stringify({success:false, message:"an unknown error has occured", errorCode:"UNKNOWN_ERROR"}));
-		}
-		this.savingLabels = false;
-		globalResolver();
-	}
-
-}
-
-interface AnnouncementData{
-	id:string;
-	dateStart:number;
-	important:boolean;
-	donorsOnly:boolean;
-	premiumOnly:boolean;
-	patreonOnly:boolean;
-	heatOnly:boolean;
-	title:{[key:string]:string};
-	text:{[key:string]:string};
-	dateEnd?:number;
-	versionMax?:string;
 }
