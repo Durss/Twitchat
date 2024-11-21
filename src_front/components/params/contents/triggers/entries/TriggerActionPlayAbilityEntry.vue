@@ -9,7 +9,7 @@
 			</i18n-t>
 		</div>
 
-		<div class="actionList">
+		<div class="actionList" v-else>
 	
 			<div class="action" v-for="(param, index) in action.playabilityData!.outputs">
 				<ParamItem :paramData="param_outputs[index]" v-model="param.code" noBackground @change="buildValueFields(index)" />
@@ -62,9 +62,11 @@ class TriggerActionPlayabilityEntry extends AbstractTriggerActionEntry {
 
 	public param_outputs:TwitchatDataTypes.ParameterData<string, string, unknown, NonNullable<typeof this.action.playabilityData>["outputs"][0], NonNullable<typeof this.action.playabilityData>["outputs"][0]>[] = [];
 	public param_values:(TwitchatDataTypes.ParameterData<number> | TwitchatDataTypes.ParameterData<boolean>)[] = [];
+	
 	private availableOutputs:NonNullable<(typeof this.param_outputs)[number]["listValues"]> = [];
 
 	public beforeMount():void {
+		if(!this.$store.playability.connected) return;
 		if(!this.action.playabilityData) {
 			this.action.playabilityData = {
 				outputs:[],
