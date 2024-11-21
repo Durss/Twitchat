@@ -895,7 +895,7 @@ export default class PatreonController extends AbstractController {
 		//Campaigns is an array but, to date, Patreon only allows one campaign per account
 		//no need to check for other entries but the first
 		webhookURL = Config.credentials.patreon_webhook_url.replace("{ID}", campaign.id);
-		
+
 		//Check if webhook already exists and cleanup any duplicate
 		const headers = {
 			'Content-Type': 'application/json',
@@ -927,7 +927,7 @@ export default class PatreonController extends AbstractController {
 					}
 				}
 			});
-			return {campaignID: campaign.id, webhookURL, user:patreonAuth.twitchUser, webhookExists:false, webhookID};
+			return {campaignID: campaign.id, webhookURL, user:patreonAuth.twitchUser, webhookExists, webhookID};
 		}
 	}
 
