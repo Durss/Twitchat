@@ -528,7 +528,7 @@ class UserCard extends AbstractSidePanel {
 
 		try {
 			let user = this.user!;
-			const loadFromLogin = user.login != this.$store.users.tmpDisplayName;
+			const loadFromLogin = user.login != this.$store.users.tmpDisplayName && !user.errored && !user.temporary;
 			const users = await TwitchUtils.getUserInfo(loadFromLogin? undefined : [user.id], loadFromLogin? [user.login] : undefined);
 			if(users.length > 0) {
 				const u = users[0];
