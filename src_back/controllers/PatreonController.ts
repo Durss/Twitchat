@@ -538,7 +538,8 @@ export default class PatreonController extends AbstractController {
 		if(event === "members:update") {
 			const message = request.body as WebhookMemberUpdateEvent;
 			//Only accept "paid" status
-			if(message.data.attributes.last_charge_status.toLowerCase() == "paid") {
+			if(message.data.attributes.last_charge_status.toLowerCase() == "paid"
+			&& message.data.attributes.patron_status == "active_patron") {
 				const membershipDuration = Math.abs(new Date(message.data.attributes.pledge_relationship_start).getTime() - new Date(message.data.attributes.last_charge_date).getTime());
 				if((membershipDuration < 20*24*60*60*1000 && this.uidToFirstPayment[message.data.relationships.user.data.id] !== false) || this.uidToFirstPayment[message.data.relationships.user.data.id] === true) {
 					this.uidToFirstPayment[message.data.relationships.user.data.id] = false;
