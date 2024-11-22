@@ -1966,6 +1966,10 @@ export interface IUsersActions {
 	 * Saves custom usernames to server
 	 */
 	saveCustomUsername():void;
+	/**
+	 * Defines custom trigger placeholers
+	 */
+	setTriggerPlaceholders():void;
 }
 
 

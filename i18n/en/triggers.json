@@ -652,6 +652,7 @@
 			"user_id": "User ID",
 			"user_color": "User color",
 			"user_badges": "User badges as JSON",
+			"user_custom_badges": "Custom user badge IDs",
 			"my_user": "My user name",
 			"my_user_id": "My user ID",
 			"user_avatar": "User avatar URL",

@@ -647,6 +647,10 @@ export namespace TwitchatDataTypes {
 		 */
 		icon?:string;
 		/**
+		 * Image path of the entry
+		 */
+		image?:string;
+		/**
 		 * Flag ISO code. Only used by the ParamItem with "list" type and "multiple" flag on
 		 */
 		flag?:string;

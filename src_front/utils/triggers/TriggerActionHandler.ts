@@ -3335,8 +3335,8 @@ export default class TriggerActionHandler {
 				item.resolver();//Proceed to next trigger in current queue
 			}
 		}
-		log.entries.push({date:Date.now(), type:"message", value:"✔ Trigger execution complete"});
 		log.complete = true;
+		log.entries.push({date:Date.now(), type:"message", value:"✔ Trigger execution complete"});
 
 		// console.log("Steps parsed", actions);
 		return true;
@@ -3345,7 +3345,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	public async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false, removeHTMLtags:boolean = true, escapeDoubleQuotes:boolean = false):Promise<string> {
+	public async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholders:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false, removeHTMLtags:boolean = true, escapeDoubleQuotes:boolean = false):Promise<string> {
 		let res = src.toString();
 		if(!res) return "";
 		//If there are no placeholder, ignore
@@ -3355,8 +3355,8 @@ export default class TriggerActionHandler {
 
 		const ululeProject = DataStore.get(DataStore.ULULE_PROJECT);
 		const isPremium = StoreProxy.auth.isPremium;
-		const channelId = StoreProxy.auth.twitch.user.id;
 		const me = StoreProxy.auth.twitch.user;
+		const channelId = me.id;
 		// const channelId = message.hasOwnProperty("channel_id")? message.channel_id : StoreProxy.auth.twitch.user.id;
 
 		//Replace dynamic placeholders. These are user defined placeholders.
@@ -3377,7 +3377,7 @@ export default class TriggerActionHandler {
 			// console.log(subEvent);
 
 			let placeholders = TriggerEventPlaceholders(trigger.type).concat() ?? [];//Clone it to avoid modifying original
-			if(actionPlaceholder.length > 0) placeholders = placeholders.concat(actionPlaceholder);
+			if(actionPlaceholders.length > 0) placeholders = placeholders.concat(actionPlaceholders);
 			// console.log(placeholders);
 			//No placeholders for this event type, just send back the source text
 			if(placeholders.length == 0) return res;
@@ -3670,9 +3670,25 @@ export default class TriggerActionHandler {
 							case "lastcheer_login": value = (StoreProxy.labels.getLabelByKey("CHEER_NAME") || "").toString(); break;
 							case "lastcheer_amount": value = (StoreProxy.labels.getLabelByKey("CHEER_AMOUNT") || "0").toString(); break;
 						}
+					
+					/**
+					 * If the placeholder requests for a user's twitch badges
+					 */
 					}else if(pointer.indexOf("__user_badges__") == 0 && Object.hasOwn(message, "user")) {
 						const typedMessage = message as TwitchatDataTypes.MessageChatData;
 						value = JSON.stringify(typedMessage.user.channelInfo[typedMessage.channel_id]?.badges || []);
+					
+					/**
+					 * If the placeholder requests for a user's custom badges
+					 */
+					}else if(pointer.indexOf("__user_custom_badges__") == 0 && Object.hasOwn(message, "user")) {
+						const user = this.extractUserFromTrigger(trigger, message);
+						if(user){
+							const badges = StoreProxy.users.customUserBadges[user.id];
+							value = (badges || []).map(v=>v.id).join(", ");
+						}else {
+							value = "";
+						}
 					}
 				}else{
 					const chunks:string[] = placeholder.pointer.split(".");

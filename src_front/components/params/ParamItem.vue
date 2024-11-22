@@ -237,11 +237,14 @@
 				>
 					<template v-slot:option="option:TwitchatDataTypes.ParameterDataListValue<unknown>">
 						<Icon class="image" v-if="option.icon" :name="option.icon" />
-						<div class="image" v-else></div>
+						<img class="image" v-else-if="option.image" :src="option.image">
+						<div class="image" v-else>{{option.label != undefined? option.label : $t(option.labelKey!)}}</div>
 					</template>
 
 					<template #selected-option="option:TwitchatDataTypes.ParameterDataListValue<unknown>">
 						<Icon class="image" v-if="option.icon" :name="option.icon" />
+						<img class="image" v-else-if="option.image" :src="option.image">
+						<div class="image" v-else>{{option.label != undefined? option.label : $t(option.labelKey!)}}</div>
 					</template>
 				</vue-select>
 				<slot name="composite" />
@@ -437,7 +440,7 @@ export class ParamItem extends Vue {
 	private isLocalUpdate:boolean = false;
 	private childrenExpanded:boolean = false;
 
-	public get longText():boolean { return this.paramData?.longText === true || (this.textValue?.length > 40 && this.paramData.type != "password"); }
+	public get longText():boolean { return this.paramData?.longText === true || (this.textValue?.length > 40 && this.paramData.longText !== false && this.paramData.type != "password"); }
 
 	public get showChildren():boolean {
 		if(this.forceChildDisplay !== false) return true;

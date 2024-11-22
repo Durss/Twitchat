@@ -13,6 +13,7 @@ import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 import ApiHelper from '@/utils/ApiHelper';
 import EventSub from '@/utils/twitch/EventSub';
+import { setTriggerEventPlaceholderValues, TriggerTypes, USER_CUSTOM_BADGES } from '@/types/TriggerActionDataTypes';
 
 interface BatchItem {
 	channelId?:string;
@@ -113,6 +114,7 @@ export const storeUsers = defineStore('users', {
 			const customBadgeListParams = DataStore.get(DataStore.CUSTOM_BADGE_LIST);
 			if(customBadgeListParams) {
 				this.customBadgeList = JSON.parse(customBadgeListParams);
+				this.setTriggerPlaceholders();
 			}
 		},
 		/**
@@ -1233,10 +1235,41 @@ export const storeUsers = defineStore('users', {
 		saveCustomBadges():void {
 			DataStore.set(DataStore.CUSTOM_BADGE_LIST, this.customBadgeList);
 			DataStore.set(DataStore.CUSTOM_USER_BADGES, this.customUserBadges);
+			this.setTriggerPlaceholders();
 		},
 
 		saveCustomUsername():void {
 			DataStore.set(DataStore.CUSTOM_USERNAMES, this.customUsernames);
+		},
+
+		setTriggerPlaceholders():void {
+			const values:TwitchatDataTypes.ParameterDataListValue<string, TwitchatDataTypes.TwitchatCustomUserBadge>[]
+				= this.customBadgeList.map(v=>({value:v.id, label:v.name || v.id, storage:v, image:v.img}));
+			[TriggerTypes.ANY_MESSAGE,
+			TriggerTypes.FIRST_TODAY,
+			TriggerTypes.FIRST_ALL_TIME,
+			TriggerTypes.RETURNING_USER,
+			TriggerTypes.ANNOUNCEMENTS,
+			TriggerTypes.CHAT_COMMAND,
+			TriggerTypes.USER_WATCH_STREAK,
+			TriggerTypes.CHEER,
+			TriggerTypes.SUB,
+			TriggerTypes.SUBGIFT,
+			TriggerTypes.POWER_UP_GIANT_EMOTE,
+			TriggerTypes.POWER_UP_MESSAGE,
+			TriggerTypes.POWER_UP_CELEBRATION,
+			TriggerTypes.PIN_MESSAGE,
+			TriggerTypes.UNPIN_MESSAGE,
+			TriggerTypes.RAID,
+			TriggerTypes.SHOUTOUT_IN,
+			TriggerTypes.SHOUTOUT_OUT,
+			TriggerTypes.FOLLOWED_STREAM_ONLINE,
+			TriggerTypes.FOLLOWED_STREAM_OFFLINE,
+			TriggerTypes.HEAT_CLICK,
+			TriggerTypes.BINGO_GRID_VIEWER_LINE,
+			TriggerTypes.REWARD_REDEEM].forEach(v=>{
+				setTriggerEventPlaceholderValues(v, USER_CUSTOM_BADGES, values);
+			});
 		},
 
 	} as IUsersActions
