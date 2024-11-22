@@ -450,7 +450,7 @@ export default class MessengerProxy {
 					const channelRef = await StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[1]);
 					channelId = channelRef.id;
 				}
-				const user = StoreProxy.users.getUserFrom("twitch", channelId, undefined, username);
+				const user = await StoreProxy.users.getUserFrom("twitch", channelId, undefined, username);
 				StoreProxy.users.openUserCard( user, channelId, "twitch");
 			}
 			return true;

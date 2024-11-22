@@ -4,10 +4,10 @@
 			<template v-if="loading">
 				<ClearButton aria-label="close" @click="closeCard()" />
 				<div class="header">
-					<div class="title">
-						<span class="label">{{user.displayName}}</span>
-					</div>
 					<Icon name="loader" alt="loading" class="loader"/>
+					<div class="title">
+						<a :href="profilePage" target="_blank">{{ user.displayName }}</a>
+					</div>
 				</div>
 			</template>
 
@@ -456,7 +456,13 @@ class UserCard extends AbstractSidePanel {
 			if(card && card.user) {
 				const chanId = card.channelId ?? StoreProxy.auth.twitch.user.id;
 				this.channel = this.$store.users.getUserFrom(card.platform || "twitch", chanId, chanId);
-				this.user = this.$store.users.getUserFrom(card.platform || "twitch", chanId, card.user.id);
+				this.user = card.user;
+				this.$nextTick(()=>{
+					this.open();
+				})
+				while(this.user.temporary === true) {
+					await Utils.promisedTimeout(250);
+				}
 				this.isOwnChannel = chanId == StoreProxy.auth.twitch.user.id || chanId == StoreProxy.auth.youtube.user?.id;
 				this.isSelfProfile = this.user.id == StoreProxy.auth.twitch.user.id;
 				//Check if message is from our chan or one we can moderate, and that this chan is not the current user
@@ -469,9 +475,6 @@ class UserCard extends AbstractSidePanel {
 				this.dateOffsetTimeout = window.setInterval(() => {
 					this.dateOffset += 1000;
 				}, 1000);
-				this.$nextTick(()=>{
-					this.open();
-				})
 			}else{
 				clearInterval(this.dateOffsetTimeout);
 				if(this.user){
@@ -838,8 +841,9 @@ export default toNative(UserCard);
 		.loader {
 			margin: auto;
 			display: block;
-			width: 2em;
-			height: 2em;
+			width: 5em;
+			height: 5em;
+			padding: 1em;
 		}
 
 		.modList {
