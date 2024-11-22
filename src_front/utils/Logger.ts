@@ -42,12 +42,9 @@ export default class Logger {
 	* PUBLIC METHODS *
 	******************/
 	public log<T extends LogsKey>(type: T, data: LogData[T]): void {
-		let log:LogData[T] = {
-			...data,
-			type,
-			date: Date.now(),
-		}
-		this.logs[type].push(log as any);//Dirty typing... I gave up...
+		const fullData = data as LogData[T] & {date:number};
+		fullData.date = Date.now();
+		this.logs[type].push(fullData as any);//Dirty typing... I gave up...
 		//Limit histories sizes
 		for (const key in this.logs) {
 			type keyType = keyof typeof this.logs;
@@ -174,9 +171,7 @@ export interface LogTriggerStep {
 }
 
 export interface LogSubGifts {
-	type:"subgifts",
 	id:string;
-	date:number;
 	merged:boolean;
 	reason?:string;
 	data?:unknown;
