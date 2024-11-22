@@ -1632,7 +1632,6 @@ export const storeChat = defineStore('chat', {
 									if(subgiftHistoryEntry.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
 										Logger.instance.log("subgifts", {
 											id:message.id,
-											type:"subgifts",
 											merged:false,
 											reason:"different_channel",
 											data:{
@@ -1651,7 +1650,6 @@ export const storeChat = defineStore('chat', {
 								if(subgiftHistoryEntry.tier != message.tier) {
 									Logger.instance.log("subgifts", {
 										id:message.id,
-										type:"subgifts",
 										merged:false,
 										reason:"different_tier",
 										data:{
@@ -1665,7 +1663,6 @@ export const storeChat = defineStore('chat', {
 								if(subgiftHistoryEntry.user.id != message.user.id) {
 									Logger.instance.log("subgifts", {
 										id:message.id,
-										type:"subgifts",
 										merged:false,
 										reason:"different_user",
 										data:{
@@ -1679,7 +1676,6 @@ export const storeChat = defineStore('chat', {
 								if(Math.abs(message.date - subgiftHistoryEntry.date) >= 10000) {
 									Logger.instance.log("subgifts", {
 										id:message.id,
-										type:"subgifts",
 										merged:false,
 										reason:"too_old",
 										data:{
@@ -1708,7 +1704,6 @@ export const storeChat = defineStore('chat', {
 								Logger.instance.log("subgifts", {
 									...baseLog,
 									id:message.id,
-									type:"subgifts",
 									merged:true,
 									data:{
 										parent: subgiftHistoryEntry.id,
