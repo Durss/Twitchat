@@ -330,7 +330,6 @@ export default class EventSub {
 					//Broadcaster uses PubSub alternative that, to date, gives more details.
 					//Eventsub doesn't tell which part of the message triggered the automod.
 					this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_MESSAGE_HELD, "beta");
-					console.log("AUTOMOD SUBSCRIBE", channelId)
 				// }
 			}
 
@@ -1242,7 +1241,13 @@ export default class EventSub {
 		let charCount = 0;
 		for (let i = 0; i < event.message.fragments.length; i++) {
 			const el = event.message.fragments[i];
-			let automodChunk = event.automod.boundaries.findIndex(v=>v.start_pos <= charCount && v.end_pos >= charCount) > -1;
+			let automodChunk = false;
+			if(event.automod) {
+				automodChunk = event.automod.boundaries.findIndex(v=>v.start_pos <= charCount && v.end_pos >= charCount) > -1;
+			}
+			if(event.blocked_term) {
+				automodChunk = event.blocked_term.terms_found.map(v=>v.boundary).findIndex(v=>v.start_pos <= charCount && v.end_pos >= charCount) > -1;
+			}
 			if(el.type == "emote") {
 				chunks.push({
 					type:"emote",
@@ -1281,7 +1286,7 @@ export default class EventSub {
 			message_chunks:chunks,
 			message_html:messageHtml,
 			message_size:0,
-			twitch_automod:{ reasons:[event.automod.category], words },
+			twitch_automod:{ reasons:[event.reason == "blocked_term"? "blocked term" : event.automod?.category || ""], words },
 			is_short:false,
 		};
 		m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);

@@ -1750,6 +1750,7 @@ class MessageList extends Vue {
 			&& (newMessage.twitch_announcementColor
 				|| newMessage.twitch_gigantifiedEmote
 				|| newMessage.twitch_animationId
+				|| newMessage.twitch_automod
 			)) return false;
 		}
 
