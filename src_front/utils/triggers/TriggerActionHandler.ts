@@ -3800,11 +3800,11 @@ export default class TriggerActionHandler {
 	 */
 	private async extractUserFromPlaceholder(channel_id:string, placeholder:string, dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholders:TriggerActionDataTypes.ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:Omit<LogTrigger, "date">):Promise<TwitchatDataTypes.TwitchatUser[]> {
 		const displayName = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+placeholder.toUpperCase()+"}");
-
+		
 		//Not ideal but if there are multiple users they're concatenated in
 		//a single coma seperated string (placeholder parsing is made for display :/).
 		//Here we split it on comas just in case there are multiple user names
-		const list = displayName.split(",");
+		const list = displayName.trim().split(",").filter(v=>v.length > 2);
 		const result:TwitchatDataTypes.TwitchatUser[] = [];
 		for (const displayName of list) {
 			//Load user details
