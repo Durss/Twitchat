@@ -9,7 +9,7 @@
 		"erase_confirm_title":"Erase local parameters?",
 		"erase_confirm_description":"This will only erase parameters from this browser.<br>Triggers, voice commands, text to speech actions, automod params, emergency params, etc... will be reset.",
 		"authorization":"Authorizations",
-		"language":"Display language",
+		"language":"Interface language",
 		"share": {
 			"info":"If you want to share your parameters between multiple accounts, click the \"Connect\" button bellow and authenticate with your secondary account.\n\nThe data from the second account will be replaced by the ones of your current \"{USER}\" account.",
 			"connectBt": "Connect",

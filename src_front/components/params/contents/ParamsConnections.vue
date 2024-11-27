@@ -150,6 +150,13 @@
 			</button>
 
 			<button class="card-item"
+			:class="{connected:$store.twitchBot.connected}"
+			@click="subContent='twitchbot'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.twitchbot'}">
+				<Icon name="twitch" />
+				<p>Twitch bot</p>
+			</button>
+
+			<button class="card-item"
 			:class="{connected:obsConnected}"
 			@click="subContent='obs'">
 				<Icon name="obs" />
@@ -187,21 +194,31 @@
 	<ConnectMixitup v-else-if="subContent == 'mixitup'" />
 	<ConnectElevenLabs v-else-if="subContent == 'elevenlabs'" />
 	<ConnectPlayability v-else-if="subContent == 'playability'" />
+	<ConnectTwitchBot v-else-if="subContent == 'twitchbot'" />
 
 </template>
 
 <script lang="ts">
-import Icon from '@/components/Icon.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import OBSWebsocket from '@/utils/OBSWebsocket';
+import WebsocketTrigger from '@/utils/WebsocketTrigger';
+import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
+import HeatSocket from '@/utils/twitch/HeatSocket';
+import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
+import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import type IParameterContent from './IParameterContent';
 import ConnectDiscord from './connexions/ConnectDiscord.vue';
+import ConnectElevenLabs from './connexions/ConnectElevenLabs.vue';
 import ConnectGoXLR from './connexions/ConnectGoXLR.vue';
 import ConnectHeat from './connexions/ConnectHeat.vue';
 import ConnectKofi from './connexions/ConnectKofi.vue';
 import ConnectLumia from './connexions/ConnectLumia.vue';
+import ConnectMixitup from './connexions/ConnectMixitup.vue';
 import ConnectOBS from './connexions/ConnectOBS.vue';
 import ConnectPatreon from './connexions/ConnectPatreon.vue';
+import ConnectPlayability from './connexions/ConnectPlayability.vue';
 import ConnectSammi from './connexions/ConnectSammi.vue';
 import ConnectSpotify from './connexions/ConnectSpotify.vue';
 import ConnectStreamdeck from './connexions/ConnectStreamdeck.vue';
@@ -214,16 +231,7 @@ import ConnectTipeee from './connexions/ConnectTipeee.vue';
 import ConnectVoicemod from './connexions/ConnectVoicemod.vue';
 import ConnectWebsocket from './connexions/ConnectWebsocket.vue';
 import ConnectYoutube from './connexions/ConnectYoutube.vue';
-import ConnectMixitup from './connexions/ConnectMixitup.vue';
-import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
-import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
-import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
-import SpotifyHelper from '@/utils/music/SpotifyHelper';
-import HeatSocket from '@/utils/twitch/HeatSocket';
-import OBSWebsocket from '@/utils/OBSWebsocket';
-import WebsocketTrigger from '@/utils/WebsocketTrigger';
-import ConnectElevenLabs from './connexions/ConnectElevenLabs.vue';
-import ConnectPlayability from './connexions/ConnectPlayability.vue';
+import ConnectTwitchBot from './connexions/ConnectTwitchBot.vue';
 
 @Component({
 	components:{
@@ -243,6 +251,7 @@ import ConnectPlayability from './connexions/ConnectPlayability.vue';
 		ConnectMixitup,
 		ConnectVoicemod,
 		ConnectWebsocket,
+		ConnectTwitchBot,
 		ConnectStreamdeck,
 		ConnectStreamlabs,
 		ConnectElevenLabs,

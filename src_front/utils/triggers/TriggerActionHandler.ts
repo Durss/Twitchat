@@ -1090,7 +1090,7 @@ export default class TriggerActionHandler {
 			if(!/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(text)) {
 				text = StoreProxy.i18n.t("global.ad_default", {USER_MESSAGE:text});
 			}
-			MessengerProxy.instance.sendMessage(text);
+			MessengerProxy.instance.sendMessage(text, undefined, undefined, undefined, false, false);
 			return true;
 		}
 

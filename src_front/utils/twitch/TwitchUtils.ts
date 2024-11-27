@@ -2993,7 +2993,7 @@ export default class TwitchUtils {
 	 * @param uid user ID
 	 * @param reason warning message
 	 */
-	public static async sendMessage(channelID: string, message:string, replyToID?:string): Promise<boolean> {
+	public static async sendMessage(channelID: string, message:string, replyToID?:string, sendAsBot:boolean = true): Promise<boolean> {
 		if (!this.hasScopes([TwitchScopes.BLOCKED_TERMS])) return false;
 
 		while(message.length > 0) {
@@ -3006,10 +3006,16 @@ export default class TwitchUtils {
 			if(replyToID) {
 				body.reply_parent_message_id = replyToID;
 			}
+
+			let headers = {...this.headers};
+			if(sendAsBot && StoreProxy.twitchBot.connected && StoreProxy.twitchBot.userInfos) {
+				body.sender_id = StoreProxy.twitchBot.userInfos.user_id;
+				headers['Authorization'] = 'Bearer ' + StoreProxy.twitchBot.authToken!.access_token;
+			}
 	
 			const res = await this.callApi(url, {
 				method: "POST",
-				headers: this.headers,
+				headers,
 				body:JSON.stringify(body),
 			});
 			if (res.status == 429) {

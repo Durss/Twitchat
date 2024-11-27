@@ -63,16 +63,17 @@ import VueSelect from "vue-select";
 import 'vue-select/dist/vue-select.css';
 import VueTippy, { setDefaultProps } from "vue-tippy";
 import { storeCommon } from './store/common/storeCommon';
-import { storeLabels } from './store/labels/storeLabels';
 import { storeDonationGoals } from './store/donation_goals/storeDonationGoals';
-import { storeTiltify } from './store/tiltify/storeTiltify';
-import { storeTiktok } from './store/tiktok/storeTiktok';
-import { storeStreamerbot } from './store/streamerbot/storeStreamerbot';
-import { storeSammi } from './store/sammi/storeSammi';
-import { storeMixitup } from './store/mixitup/storeMixitup';
-import { storeTwitchCharity } from './store/twitch_charity/storeTwitchCharity';
 import { storeElevenLabs } from './store/elevenlabs/storeElevenLabs';
+import { storeLabels } from './store/labels/storeLabels';
+import { storeMixitup } from './store/mixitup/storeMixitup';
 import { storePlayability } from './store/playability/storePlayability';
+import { storeSammi } from './store/sammi/storeSammi';
+import { storeStreamerbot } from './store/streamerbot/storeStreamerbot';
+import { storeTiktok } from './store/tiktok/storeTiktok';
+import { storeTiltify } from './store/tiltify/storeTiltify';
+import { storeTwitchCharity } from './store/twitch_charity/storeTwitchCharity';
+import { storeTwitchBot } from './store/twitchbot/storeTwitchBot';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -284,6 +285,7 @@ function buildApp() {
 	StoreProxy.default.twitchCharity = storeTwitchCharity();
 	StoreProxy.default.elevenLabs = storeElevenLabs();
 	StoreProxy.default.playability = storePlayability();
+	StoreProxy.default.twitchBot = storeTwitchBot();
 
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach(k => {

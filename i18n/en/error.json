@@ -119,6 +119,7 @@
 		"bingo_grid_404": "Bingo grid not found",
 		"streamelements_connect_failed": "Streamelements authentication failed",
 		"patreon_connect_failed": "Patreon authentication failed",
+		"twitch_bot_connect_failed": "Failed connecting to your Twitch bot account",
 		"qna_action": "Something went wrong when performing requested Q&A moderation action",
 		"spoil_action": "Something went wrong when asking to spoil the message on streamer's chat",
 		"sse_error": "Failed establishing connexion to live events, {APP} may not work properly.\nDisable all adblockers for this page and try reloading it.",

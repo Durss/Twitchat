@@ -115,6 +115,7 @@ export default class DataStoreCommon {
 	public static ELEVENLABS_API_KEY:string = "elevenlabsApiKey";
 	public static PLAYABILITY_CONFIGS:string = "playabilityConfigs";
 	public static KOFI_CONFIGS:string = "kofiConfigs";
+	public static TWITCH_BOT:string = "twitchBot";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";
@@ -153,6 +154,7 @@ export default class DataStoreCommon {
 		this.STREAMERBOT_WS_PASSWORD,
 		this.SAMMI_API_PASSWORD,
 		this.ELEVENLABS_API_KEY,
+		this.TWITCH_BOT,
 	];
 
 

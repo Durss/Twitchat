@@ -244,7 +244,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	/**
 	 * Disconnect from all channels and cut IRC connection
 	 */
-	public async sendMessage(channelId:string, text:string, replyTo?:TwitchatDataTypes.MessageChatData, noConfirm = false):Promise<boolean> {
+	public async sendMessage(channelId:string, text:string, replyTo?:TwitchatDataTypes.MessageChatData, noConfirmCommercial:boolean = false, sendAsBot:boolean = true):Promise<boolean> {
 		//TMI.js doesn't send the message back to their sender if sending
 		//it just after receiving a message (same frame).
 		//If we didn't wait for a frame, the message would be sent properly
@@ -371,7 +371,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					if(!StoreProxy.auth.twitch.user.is_affiliate && !StoreProxy.auth.twitch.user.is_partner) return false;
 					if(!TwitchUtils.requestScopes([TwitchScopes.START_COMMERCIAL])) return false;
 					const duration = parseInt(chunks[0]);
-					StoreProxy.stream.startCommercial(channelId, duration, noConfirm);
+					StoreProxy.stream.startCommercial(channelId, duration, noConfirmCommercial);
 					return true;
 				}
 				case "/shield":  {
@@ -470,15 +470,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			}
 
 		}
-		if(this._client) {
-			if(replyTo) {
-				//@ts-ignore
-				// this._client.reply(this._channelIdToLogin[channelId], text, replyTo.id);
-				await TwitchUtils.sendMessage(channelId, text, replyTo.id);
-			}else{
-				// this._client.say(this._channelIdToLogin[channelId], text);
-				await TwitchUtils.sendMessage(channelId, text);
-			}
+		if(replyTo) {
+			//@ts-ignore
+			// this._client.reply(this._channelIdToLogin[channelId], text, replyTo.id);
+			await TwitchUtils.sendMessage(channelId, text, replyTo.id, sendAsBot);
+		}else{
+			// this._client.say(this._channelIdToLogin[channelId], text);
+			await TwitchUtils.sendMessage(channelId, text, undefined, sendAsBot);
 		}
 		return true
 	}

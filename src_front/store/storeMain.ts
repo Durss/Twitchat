@@ -900,6 +900,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.triggers.populateData();
 			StoreProxy.counters.populateData();
 			StoreProxy.bingoGrid.populateData();
+			StoreProxy.twitchBot.populateData();
 			StoreProxy.emergency.populateData();
 			StoreProxy.elevenLabs.populateData();
 			StoreProxy.streamlabs.populateData();

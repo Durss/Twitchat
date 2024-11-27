@@ -897,6 +897,12 @@ export class ChatForm extends Vue {
 			this.message = "";
 		}else
 
+		if(cmd == "/__reset_custom_usernames__") {
+			this.$store.users.customUsernames = {};
+			this.$store.users.saveCustomUsername();
+			this.message = "";
+		}else
+
 		if(cmd == "/__sentry_on__" || cmd == "/__sentry_off__") {
 			let sentryParamSrc = DataStore.get(DataStore.AB_SENTRY);
 			let sentryParam = sentryParamSrc? JSON.parse(sentryParamSrc) : {v:1, date:Date.now(), enabled:true};
@@ -981,7 +987,7 @@ export class ChatForm extends Vue {
 				const replyTo = this.$store.chat.replyTo ?? undefined;
 				if(await MessengerProxy.instance.sendMessage(this.message,
 															[this.$store.stream.currentChatChannel.platform],
-															this.$store.stream.currentChatChannel.id, replyTo)) {
+															this.$store.stream.currentChatChannel.id, replyTo, false, false)) {
 					this.message = "";
 					this.$store.chat.replyTo = null;
 				}

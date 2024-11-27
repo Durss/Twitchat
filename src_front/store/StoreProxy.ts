@@ -78,6 +78,7 @@ export default class StoreProxy {
 	public static twitchCharity: ITwitchCharityState & ITwitchCharityGetters & ITwitchCharityActions & { $state: ITwitchCharityState, $reset: () => void };
 	public static elevenLabs: IElevenLabsState & IElevenLabsGetters & IElevenLabsActions & { $state: IElevenLabsState, $reset: () => void };
 	public static playability: IPlayabilityState & IPlayabilityGetters & IPlayabilityActions & { $state: IPlayabilityState, $reset: () => void };
+	public static twitchBot: ITwitchBotState & ITwitchBotGetters & ITwitchBotActions & { $state: ITwitchBotState, $reset: () => void };
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static asset:(path: string) => string;
@@ -3420,4 +3421,45 @@ export interface IPlayabilityActions {
 	 * Reload current profile definition
 	 */
 	loadProfile():void;
+}
+
+
+
+
+export interface ITwitchBotState {
+	connected:boolean;
+	connecting:boolean;
+	authToken:TwitchDataTypes.AuthTokenResult|null;
+	userInfos:TwitchDataTypes.Token|null;
+}
+
+export interface ITwitchBotGetters {
+}
+
+export interface ITwitchBotActions {
+	/**
+	 * Populates the store
+	 */
+	populateData(): Promise<void>;
+	/**
+	 * Connects to ElevenLabs
+	 */
+	connect(): Promise<boolean>;
+	/**
+	 * Disconnects to ElevenLabs
+	 */
+	disconnect(): void;
+	/**
+	 * Starts oAuth flow.
+	 * Attempts to open a popup or redirect to the twitch auth page
+	 */	
+	startAuthFlow(event:MouseEvent):Promise<void>;
+	/**
+	 * Sets oAuth result
+	 */	
+	completeOAuthProcess(code:string, csrf:string):Promise<boolean>;
+	/**
+	 * Saves parameters
+	 */
+	saveParams():void;
 }
