@@ -46,7 +46,10 @@
 			</div>
 		</div>
 
-		<ParamItem :paramData="param_value" v-model="action.newValue" />
+		<ParamItem :paramData="param_value" v-model="action.newValue" key="value" forceChildDisplay>
+			<ParamItem :childLevel="1" :paramData="param_maths" v-model="action.interpretMaths" key="maths" noBackground />
+		</ParamItem>
+		
 	</div>
 </template>
 
@@ -75,9 +78,10 @@ class TriggerActionValueEntry extends AbstractTriggerActionEntry {
 
 	private userPLaceholders:ITriggerPlaceholder<any>[] = [];
 
-	public param_values:TwitchatDataTypes.ParameterData<string[], string> = {type:"list", labelKey:"triggers.actions.value.select_label", value:[], listValues:[]}
-	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.value.value_label", value:""}
-	public param_userAction:TwitchatDataTypes.ParameterData<NonNullable<TriggerActionValueData["userAction"]>[string], NonNullable<TriggerActionValueData["userAction"]>[string]> = {type:"list", labelKey:"triggers.actions.value.param_action", value:"update"}
+	public param_values:TwitchatDataTypes.ParameterData<string[], string> = {type:"list", labelKey:"triggers.actions.value.select_label", value:[], listValues:[]};
+	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.value.value_label", value:""};
+	public param_maths:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"triggers.actions.value.interpret_arithmetic", value:true};
+	public param_userAction:TwitchatDataTypes.ParameterData<NonNullable<TriggerActionValueData["userAction"]>[string], NonNullable<TriggerActionValueData["userAction"]>[string]> = {type:"list", labelKey:"triggers.actions.value.param_action", value:"update"};
 
 	/**
 	 * Build user trigger source list
@@ -114,6 +118,8 @@ class TriggerActionValueEntry extends AbstractTriggerActionEntry {
 
 
 	public beforeMount(): void {
+		if(this.action.interpretMaths === undefined) this.action.interpretMaths = true;
+
 		typeof this.action["userAction"]
 		this.param_userAction.listValues = [
 			{value:"update", labelKey:"triggers.actions.value.action_update"},

@@ -289,6 +289,7 @@ const UserDataSchema = {
 								browserEventParams: {type:"string", maxLength:10000},
 								sendAsBody: {type:"boolean"},
 								customHeaders: {type:"boolean"},
+								interpretMaths: {type:"boolean"},
 								headers:{
 									type:"array",
 									minItems:0,

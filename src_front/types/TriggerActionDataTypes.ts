@@ -1081,6 +1081,10 @@ export interface TriggerActionValueData extends TriggerActionData{
 	 * delete: delete the entry
 	 */
 	userAction?:{[valueId:string]:"update"|"delete"},
+	/**
+	 * Defines if arithmetic operators should be interpreted
+	 */
+	interpretMaths?:boolean;
 }
 
 export type TriggerActionRandomDataMode = "list"|"number"|"trigger"|"value"|"counter";

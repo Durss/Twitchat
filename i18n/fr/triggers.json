@@ -416,7 +416,8 @@
 				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
 			"value": {
-				"value_label": "Nouvelle valeur\n(supporte les opération mathématiques)",
+				"value_label": "Nouvelle valeur",
+				"interpret_arithmetic": "Interprêter les opérations mathématiques",
 				"select_label": "Valeurs à mettre à jour",
 				"select_placeholder": "Sélectionnez une valeur...",
 				"param_action": "Action\n(pour les valeurs par-utilisateur)",

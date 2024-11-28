@@ -2342,7 +2342,7 @@ export interface IValuesActions {
 	 * @param user
 	 * @param userId
 	 */
-	updateValue(id:string, value:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void;
+	updateValue(id:string, value:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string, interpretMaths?:boolean):void;
 	/**
 	 * Deletes a per-user value entry
 	 * @param id 

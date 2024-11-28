@@ -2313,7 +2313,7 @@ export default class TriggerActionHandler {
 										if(action == "delete") {
 											StoreProxy.values.deleteValueEntry(v.id, user);
 										}else{
-											StoreProxy.values.updateValue(v.id, text, user);
+											StoreProxy.values.updateValue(v.id, text, user, undefined, step.interpretMaths);
 										}
 										let logMessage = action+" value \""+v.name+"\", "+text;
 										if(user) logMessage += " (for @"+user.displayNameOriginal+")";
@@ -2339,7 +2339,7 @@ export default class TriggerActionHandler {
 									if(action == "delete") {
 										StoreProxy.values.deleteValueEntry(v.id, undefined, uid);
 									}else{
-										StoreProxy.values.updateValue(v.id, text, undefined, uid);
+										StoreProxy.values.updateValue(v.id, text, undefined, uid, step.interpretMaths);
 									}
 								}
 
@@ -2360,7 +2360,7 @@ export default class TriggerActionHandler {
 										if(action == "delete") {
 											StoreProxy.values.deleteValueEntry(v.id, undefined, user.id);
 										}else{
-											StoreProxy.values.updateValue(v.id, text, undefined, user.id);
+											StoreProxy.values.updateValue(v.id, text, undefined, user.id, step.interpretMaths);
 										}
 									}
 								}
@@ -2372,7 +2372,7 @@ export default class TriggerActionHandler {
 									if(action == "delete") {
 										StoreProxy.values.deleteValueEntry(v.id, user);
 									}else{
-										StoreProxy.values.updateValue(v.id, text, user);
+										StoreProxy.values.updateValue(v.id, text, user, undefined, step.interpretMaths);
 									}
 									let logMessage = action+" \""+v.name+"\" to \""+text+"\"";
 									if(user) logMessage += " (for @"+user.displayNameOriginal+")";

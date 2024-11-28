@@ -79,9 +79,9 @@ export const storeValues = defineStore('values', {
 			this.saveValues();
 		},
 
-		updateValue(id:string, value:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void {
+		updateValue(id:string, value:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string, interpretMaths?:boolean):void {
 			let prevValue = "";
-			if(value != undefined && value.trim() != "e") {//Ignore euler notation
+			if(interpretMaths !== false && value != undefined && value.trim() != "e") {//Ignore euler notation
 				try {
 					const num = MathEval(value);
 					if(!isNaN(num)) value = num.toString();
