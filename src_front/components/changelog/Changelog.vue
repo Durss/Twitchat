@@ -21,7 +21,7 @@
 					<p v-if="readAtSpeedOfLight" class="description">{{ $t("changelog.forceRead.readAtSpeedOfLight") }}</p>
 					<p class="description">{{ $t("changelog.forceRead.description") }}</p>
 					<TTButton primary big @click="cancelClose()">{{ $t("changelog.forceRead.sorryBt") }}</TTButton>
-					<TTButton class="noCareBt" big alert @click="close(true)">{{ $t("changelog.forceRead.fuBt") }}</TTButton>
+					<!-- <TTButton class="noCareBt" big alert @click="close(true)">{{ $t("changelog.forceRead.fuBt") }}</TTButton> -->
 					<TTButton class="noCareBt" icon="timer" secondary @click="reminder()">{{ $t("changelog.forceRead.reminderBt") }}</TTButton>
 				</div>
 
@@ -281,7 +281,7 @@ class Changelog extends Vue {
 			this.$emit('close');
 		}});
 
-		if(DataStore.get(DataStore.UPDATE_INDEX) != (this.$store.main.latestUpdateIndex as number).toString()) {
+		if(!forceClose && DataStore.get(DataStore.UPDATE_INDEX) != (this.$store.main.latestUpdateIndex as number).toString()) {
 			DataStore.set(DataStore.UPDATE_INDEX, this.$store.main.latestUpdateIndex);
 		}
 	}
@@ -432,14 +432,14 @@ export default toNative(Changelog);
 			align-self: flex-start;
 			overflow-y: auto;
 
-			// &:not(.current) {
-			// 	overflow: hidden;
-			// 	max-height: 70vh;
-			// 	.inner {
-			// 		height: 100%;
-			// 		max-height: 100%;
-			// 	}
-			// }
+			&:not(.current) {
+				overflow: hidden;
+				max-height: 70vh;
+				.inner {
+					// height: 100%;
+					max-height: 100vh;
+				}
+			}
 			.inner {
 				display: flex;
 				flex-direction: column;
@@ -688,8 +688,8 @@ export default toNative(Changelog);
 		}
 		
 		.description {
-			font-size: 1.3em;
-			line-height: 1.3em;
+			font-size: 1.2em;
+			line-height: 1.2em;
 			white-space: pre-line;
 			text-align: left;
 		}
