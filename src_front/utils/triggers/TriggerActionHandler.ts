@@ -5,7 +5,8 @@ import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { gsap } from "gsap/gsap-core";
-import { evaluate as MathEval, typed } from 'mathjs';
+import jsonpath from "jsonpath";
+import { evaluate as MathEval } from 'mathjs';
 import { RequestBatchExecutionType, type RequestBatchRequest } from "obs-websocket-js";
 import type { JsonObject } from "type-fest";
 import TwitchatEvent from "../../events/TwitchatEvent";
@@ -28,7 +29,6 @@ import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import YoutubeHelper from "../youtube/YoutubeHelper";
-import jsonpath from "jsonpath";
 
 /**
 * Created : 22/04/2022

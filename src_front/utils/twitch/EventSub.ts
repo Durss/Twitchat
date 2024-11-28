@@ -711,7 +711,6 @@ export default class EventSub {
 
 		//This flag is here as a workaround for a sporadical twitch issue
 		//where they trigger the event twice in a short timeframe (~1s)
-		console.log(isChange)
 		if(isChange) {
 			const message:TwitchatDataTypes.MessageStreamInfoUpdate = {
 				id:Utils.getUUID(),
