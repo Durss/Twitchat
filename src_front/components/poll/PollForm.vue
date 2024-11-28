@@ -237,6 +237,7 @@ export default toNative(PollForm);
 			justify-content: center;
 			max-height: 5em;
 			overflow-y: auto;
+			min-height: 2em;
 		}
 		form > .card-item {
 			.field {
