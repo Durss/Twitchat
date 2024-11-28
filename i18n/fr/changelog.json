@@ -76,6 +76,16 @@
 				"d": "Twitchat notifie désormais lorsqu'un don est effectué sur une campagne caritative en cours.\n\nAutomatisez des actions grâce au nouveau Triggers dédié.\n\nPermettez de rejoindre un tirage au sort pour chaque don effectué sur une campagne caritative.\n\nL'overlay de Goals peut-être connecté à la campagne caritative Twitch en cours."
 			},
 			{
+				"i": "twitch",
+				"l": "Twitch compte bot",
+				"d": "Vous pouvez maintenant lier Twitchat à un second compte Bot.\nTous les messages de bot seront envoyés par ce compte au lieu du vôtre.",
+				"a": {
+					"l": "Connecter",
+					"param": "connexions",
+					"subparam": "twitchbot"
+				}
+			},
+			{
 				"i": "credits",
 				"l": "Crédits de fin",
 				"d": "Afficher vos membres Patreon actifs grâce à la nouvelle section \"Membres Patreon\"",
@@ -139,7 +149,8 @@
 			"description": "J'ai bossé fort sur ces mises à jour, je trouverais ça stylé que tu prennes 2 minutes pour les lire sitoplé 🙏",
 			"readAtSpeedOfLight": "Essaie pas de me faire croire que tu lis à la vitesse de la lumière 😏",
 			"sorryBt": "ui pardon je lis 🥺",
-			"fuBt": "menfou 🤪"
+			"fuBt": "menfou 🤪",
+			"reminderBt": "Rappel en fin de stream"
 		}
 	}
 }

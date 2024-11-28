@@ -993,6 +993,11 @@ export interface IParamsState {
 	 */
 	donationReminderEnabled:boolean;
 	/**
+	 * Defines if updates reminder should be posted when user ends
+	 * their stream (after raid and/or strem cut)
+	 */
+	updatesReminderEnabled:boolean;
+	/**
 	 * Duration after which a 1st user message today is removed from the list
 	 */
 	greetThemAutoDelete:number;

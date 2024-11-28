@@ -176,6 +176,11 @@ export const storeStream = defineStore('stream', {
 					StoreProxy.params.donationReminderEnabled = false;
 					StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER);
 				}
+				//Send donation reminder if requested
+				if(StoreProxy.params.updatesReminderEnabled) {
+					StoreProxy.params.donationReminderEnabled = false;
+					StoreProxy.params.openModal("updates");
+				}
 				//Cut OBS stream if requested
 				if(StoreProxy.params.features.stopStreamOnRaid.value === true) {
 					window.setTimeout(() => {

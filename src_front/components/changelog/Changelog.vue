@@ -20,8 +20,9 @@
 					<h2>{{ $t("changelog.forceRead.title") }}</h2>
 					<p v-if="readAtSpeedOfLight" class="description">{{ $t("changelog.forceRead.readAtSpeedOfLight") }}</p>
 					<p class="description">{{ $t("changelog.forceRead.description") }}</p>
-					<TTButton big @click="cancelClose()">{{ $t("changelog.forceRead.sorryBt") }}</TTButton>
-					<TTButton class="noCareBt placeholder" ref="noCarePlaceholder" big alert @click="close(true)">{{ $t("changelog.forceRead.fuBt") }}</TTButton>
+					<TTButton primary big @click="cancelClose()">{{ $t("changelog.forceRead.sorryBt") }}</TTButton>
+					<TTButton class="noCareBt" big alert @click="close(true)">{{ $t("changelog.forceRead.fuBt") }}</TTButton>
+					<TTButton class="noCareBt" icon="timer" secondary @click="reminder()">{{ $t("changelog.forceRead.reminderBt") }}</TTButton>
 				</div>
 
 				<div v-else-if="showFu" class="fu" ref="fu">🤬</div>
@@ -162,11 +163,9 @@ class Changelog extends Vue {
 	public charityFakeMessages:TwitchatDataTypes.ChatMessageTypes[] = [];
 	
 	private openedAt = 0;
-	private buttonPos = {x:0, y:0};
 	private closing:boolean = false;
 	private slideCountRead = new Map();
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
-	private mouseMoveHandler!:(e:MouseEvent)=>void;
 	
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 	public get isPremium():boolean { return this.$store.auth.isPremium; }
@@ -211,9 +210,7 @@ class Changelog extends Vue {
 		}, 250);
 
 		this.keyUpHandler = (e:KeyboardEvent) => this.onKeyUp(e);
-		this.mouseMoveHandler = (e:MouseEvent) => this.onMouseMove(e);
 		document.addEventListener("keyup", this.keyUpHandler);
-		document.addEventListener("mousemove", this.mouseMoveHandler);
 		this.skinPagination();
 
 		//Stagger items build ot avoid lag on open
@@ -247,7 +244,6 @@ class Changelog extends Vue {
 	
 	public beforeUnmount():void {
 		document.removeEventListener("keyup", this.keyUpHandler);
-		document.removeEventListener("mousemove", this.mouseMoveHandler);
 	}
 
 	public async cancelClose():Promise<void> {
@@ -256,7 +252,7 @@ class Changelog extends Vue {
 		this.skinPagination();
 	}
 
-	public async close(forceClose:boolean = false):Promise<void> {
+	public async close(forceClose:boolean = false, fuMode:boolean = true):Promise<void> {
 		if(this.closing) return;
 
 		//If not all slides have been read or spent less than 30s on it
@@ -264,26 +260,19 @@ class Changelog extends Vue {
 		this.readAtSpeedOfLight = Date.now() - this.openedAt < this.items.length * 2000 && !didntReadAll;
 		if(!forceClose && (didntReadAll || this.readAtSpeedOfLight)) {
 			this.showReadAlert = true;
-			await this.$nextTick();
-			const placeholder = (this.$refs.noCarePlaceholder as TTButtonClass).$el;
-			const button = (this.$refs.noCareFloating as TTButtonClass).$el;
-			const phBounds = placeholder.getBoundingClientRect();
-			this.buttonPos.x = phBounds.x;
-			this.buttonPos.y = phBounds.y;
-			button.style.left = this.buttonPos.x+"px";
-			button.style.top = this.buttonPos.y+"px";
 			return;
 		}
 
 		this.closing = true;
 		
 		if(forceClose) {
-			this.showFu = true;
-			this.showReadAlert = false;
-			await this.$nextTick();
-			gsap.to(this.$refs.fu as HTMLDivElement, {duration:.5, opacity:0, fontSize:0, ease:"back.in"});
-			await Utils.promisedTimeout(500);
-
+			this.showFu = fuMode;
+			this.showReadAlert = !fuMode;
+			if(fuMode) {
+				await this.$nextTick();
+				gsap.to(this.$refs.fu as HTMLDivElement, {duration:.5, opacity:0, fontSize:0, ease:"back.in"});
+				await Utils.promisedTimeout(500);
+			}
 			this.$store.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATE_REMINDER);
 		}
 
@@ -320,55 +309,11 @@ class Changelog extends Vue {
 	}
 
 	/**
-	 * Requests for emote scope
+	 * Schedule a reminder
 	 */
-	public grantEmoteScope():void {
-		TwitchUtils.requestScopes([TwitchScopes.READ_EMOTES]);
-	}
-
-	/**
-	 * Requests for unban requests scope
-	 */
-	public grantUnbanRequestScope():void {
-		TwitchUtils.requestScopes([TwitchScopes.UNBAN_REQUESTS]);
-	}
-
-	/**
-	 * Called when mouse moves to reducse "close" button when approaching it
-	 * @param e 
-	 */
-	private onMouseMove(e:MouseEvent):void {
-		const button = (this.$refs.noCareFloating as TTButtonClass);
-		if(!button) return;
-		const buttonEl = button.$el;
-		const mouseX = e.clientX;
-		const mouseY = e.clientY;
-
-		const buttonRect = buttonEl.getBoundingClientRect();
-		const buttonX = buttonRect.left + buttonRect.width / 2;
-		const buttonY = buttonRect.top + buttonRect.height / 2;
-
-		const offsetX = mouseX - buttonX;
-		const offsetY = mouseY - buttonY;
-
-		const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
-
-		if (distance < Math.max(buttonRect.width/2, buttonRect.height)) {
-			const moveX = (offsetX / distance) * 10;
-			const moveY = (offsetY / distance) * 10;
-			this.showMrBean = true;
-
-			this.buttonPos.x -= moveX;
-			this.buttonPos.y -= moveY;
-			
-			if (this.buttonPos.x < 0) this.buttonPos.x = 0;
-			if (this.buttonPos.y < 0) this.buttonPos.y = 0;
-			if (this.buttonPos.x > window.innerWidth - buttonRect.width) this.buttonPos.x = this.$el.clientWidth - buttonRect.width;
-			if (this.buttonPos.y > window.innerHeight - buttonRect.height) this.buttonPos.y = this.$el.clientHeight - buttonRect.height;
-
-			buttonEl.style.left = `${this.buttonPos.x}px`;
-			buttonEl.style.top = `${this.buttonPos.y}px`;
-		}
+	public reminder():void {
+		this.$store.params.updatesReminderEnabled = true;
+		this.close(true, false);
 	}
 
 	/**
@@ -747,10 +692,6 @@ export default toNative(Changelog);
 			line-height: 1.3em;
 			white-space: pre-line;
 			text-align: left;
-		}
-		.noCareBt.placeholder {
-			opacity: 0;
-			pointer-events: none;
 		}
 	}
 

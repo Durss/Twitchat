@@ -23,6 +23,7 @@ export const storeParams = defineStore('params', {
 		currentPageSubContent:"",
 		currentModal:"",
 		donationReminderEnabled:false,
+		updatesReminderEnabled:false,
 		greetThemAutoDelete: 600,
 		pinnedMenuItems:["chatters", "rewards"],
 		features: {

@@ -76,6 +76,16 @@
 				"d": "Twitchat now notifies when a donation is made to an ongoing charity campaign.\n\nAutomate actions with the new dedicated Trigger.\n\nAllow joining a raffle for each donation made to the campaign.\n\nThe Goals overlay is compatible with Twitch charity campaign."
 			},
 			{
+				"i": "twitch",
+				"l": "Twitch bot account",
+				"d": "You can now link Twitchat with a secondary bot account.\nAll bot messages will be sent through this account instead of yours.",
+				"a": {
+					"l": "Connect",
+					"param": "connexions",
+					"subparam": "twitchbot"
+				}
+			},
+			{
 				"i": "credits",
 				"l": "End Credits",
 				"d": "Display your active Patreon members with the new \"Patreon Members\" section",
@@ -139,7 +149,8 @@
 			"description": "I worked hard on these updates, please take 2 minutes of your time to read 🙏",
 			"readAtSpeedOfLight": "Are you trying to make me believe that you read at the speed of light 😏?",
 			"sorryBt": "ok i read sorry 🥺",
-			"fuBt": "don't care 🤪"
+			"fuBt": "don't care 🤪",
+			"reminderBt": "Remind me after the stream"
 		}
 	}
 }
