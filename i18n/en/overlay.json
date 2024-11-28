@@ -173,6 +173,7 @@
 			"param_pu_celeb_tt": "Won't work until Twitch fixes their API",
 			"param_anonLastNames": "Anonymize last names",
 			"param_patreonTiers": "Tiers to include",
+			"param_freeText": "Text (supports HTML)",
 			"scroll_tt": "Scroll this section into view",
 			"testBt": "Start fake credits",
 			"moderators_label": "MODERATORS",

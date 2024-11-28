@@ -629,7 +629,7 @@ class OverlayParamsCredits extends Vue {
 
 		if(slotDef.id == "text") {
 			const placeholderList	= TriggerEventPlaceholders(TriggerTypes.GLOBAL_PLACEHOLDERS).concat();
-			this.param_text[id]		= {type:"string", value:"", longText:true, maxLength:1000, placeholderList};
+			this.param_text[id]		= {type:"string", value:"", longText:true, maxLength:1000, labelKey:"overlay.credits.param_freeText", placeholderList};
 		}else
 
 		if(slotDef.id == "hypetrains") {

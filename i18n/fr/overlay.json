@@ -170,6 +170,7 @@
 			"param_merch_streamlabs": "Streamlabs merch",
 			"param_anonLastNames": "Anonimiser les noms de famille",
 			"param_patreonTiers": "Tiers à afficher",
+			"param_freeText": "Texte (supporte le HTML)",
 			"scroll_tt": "Défiler jusqu'à cette section",
 			"testBt": "Lancer un faux générique",
 			"moderators_label": "MODERATEUR·ICES",
