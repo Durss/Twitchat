@@ -90,6 +90,7 @@
 				"l": "Crédits de fin",
 				"d": "Afficher vos membres Patreon actifs grâce à la nouvelle section \"Membres Patreon\"",
 				"p": true,
+				"g": "update_images/patreon_fr.png",
 				"a": {
 					"l": "Essayer",
 					"param": "overlays",
@@ -100,6 +101,7 @@
 				"i": "spotify",
 				"l": "Spotify",
 				"d": "L'action de triggers Spotify permet de limiter le nombre de morceaux qu'une personne peut ajouter à la file d'attente.\n\nGrâce à ceci, une personne pourra ajouter un morceau à la file d'attente seulement si elle a moins de X morceaux déjà en attente de lecture.",
+				"g": "update_images/spotify_fr.png",
 				"a": {
 					"l": "Essayer",
 					"param": "triggers"
@@ -109,6 +111,7 @@
 				"i": "kofi",
 				"l": "Ko-Fi webhooks",
 				"d": "Ko-Fi a un fonctionnement extrêmement restrictif et ne permet de connecter un compte qu'à une application.\n\nTwitchat permet désormais de contourner cette limitation en vous laissant définir jusqu'à 5 URL alternatives vers lesquelles retransmettre les évènements Ko-Fi.",
+				"g": "update_images/kofi_fr.png",
 				"p": true,
 				"a": {
 					"l": "Connecter",

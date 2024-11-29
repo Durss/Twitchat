@@ -19,6 +19,7 @@
 				"i": "playability",
 				"l": "PlayAbility",
 				"d": "Automate actions when you smile, raise your eyebrows, open your mouth, turn your head, and much more.\nAlso simulate pressing keyboard keys or mouse buttons from Triggers.\n\nPlayAbility aims to make video games accessible to people with disabilities. Its integration with Twitchat allows you to enhance interactivity in your streams by, for example, enabling your viewers to shoot for you in an FPS by subscribing to your channel. Or count the number of times you smile or raise your eyebrows.",
+				"g": "update_images/playability.gif",
 				"a": {
 					"l": "Try",
 					"param": "connexions",
@@ -28,7 +29,8 @@
 			{
 				"i": "mod",
 				"l": "Twitchat Private Messages",
-				"d": "Twitchat allows you to exchange private messages with your moderators using Twitchat.\n\nYour mods can quote chat messages and ask you questions you can then answer with one click to ease communications with your mods."
+				"d": "Twitchat allows you to exchange private messages with your moderators using Twitchat.\n\nYour mods can quote chat messages and ask you questions you can then answer with one click to ease communications with them.",
+				"v": "update_images/moderator_dm.mp4"
 			},
 			{
 				"i": "streamerbot",
@@ -90,6 +92,7 @@
 				"l": "End Credits",
 				"d": "Display your active Patreon members with the new \"Patreon Members\" section",
 				"p": true,
+				"g": "update_images/patreon_en.png",
 				"a": {
 					"l": "Try",
 					"param": "overlays",
@@ -100,6 +103,7 @@
 				"i": "spotify",
 				"l": "Spotify",
 				"d": "The Spotify triggers action allows you to limit the number of tracks a person can add to the queue.\n\nWith this, a person can only add a track to the queue if they have fewer than X tracks already waiting to be played.",
+				"g": "update_images/spotify_en.png",
 				"a": {
 					"l": "Try",
 					"param": "triggers"
@@ -110,6 +114,7 @@
 				"l": "Ko-Fi webhooks",
 				"d": "Ko-Fi has extremely restrictive functionality and only allows connecting an account to one third party application only.\n\nTwitchat now allows you to bypass this limitation by letting you define up to 5 alternative URLs to which Ko-Fi events can be retransmitted.",
 				"p": true,
+				"g": "update_images/kofi_en.png",
 				"a": {
 					"l": "Connect",
 					"param": "connexions",

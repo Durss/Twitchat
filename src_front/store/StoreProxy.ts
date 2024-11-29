@@ -1084,6 +1084,7 @@ export interface IParamsActions {
 	/**
 	 * Open the specified modal
 	 * @param modal
+	 * @param noToggle by default, calling open toggle visibility. Set this to true to avoid closing if already opened
 	 */
 	openModal(modal:TwitchatDataTypes.ModalTypes, noToggle?:boolean):void;
 	/**
