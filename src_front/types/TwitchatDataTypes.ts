@@ -1906,7 +1906,7 @@ export namespace TwitchatDataTypes {
 		tiktokGifts:{uid:string, login:string, count:number, amount:number, imageUrl:string}[];
 		tiktokLikes:{uid:string, login:string, count:number}[];
 		tiktokShares:{uid:string, login:string, count:number}[];
-		patreonMembers:{uid:string, login:string, months:number, tier:string}[];
+		patreonMembers:{uid:string, login:string, months:number, tier:string, lifetimeAmount:number}[];
 		labels:{
 			no_entry:string;
 			train:string;
@@ -2120,14 +2120,17 @@ export namespace TwitchatDataTypes {
 		sortByNames?:boolean;
 		sortByRoles?:boolean;
 		sortByAmounts?:boolean;
+		sortByTotalAmounts?:boolean;
 		sortBySubTypes?:boolean;
 		showChatters?:boolean;
 		showTrainConductors?:boolean;
 		showPuSkin?:boolean;
 		showPuEmote?:boolean;
 		showPuCeleb?:boolean;
+		showTotalAmounts?:boolean;
 		uniqueUsers?:boolean;
 		text?:string,
+		currency?:string,
 		filterRewards?:boolean,
 		showRewardUsers?:boolean,
 		showNormalCheers?:boolean,

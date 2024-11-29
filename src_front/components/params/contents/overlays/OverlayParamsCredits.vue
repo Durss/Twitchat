@@ -152,6 +152,10 @@
 									<ParamItem :paramData="param_patreonTiers[element.id]"				v-model="element.patreonTiers" noPremiumLock />
 									<ParamItem :paramData="param_sortByName[element.id]"				v-model="element.sortByNames" noPremiumLock />
 									<ParamItem :paramData="param_sortByAmounts[element.id]"				v-model="element.sortByAmounts" noPremiumLock />
+									<ParamItem :paramData="param_sortByTotalAmount[element.id]"			v-model="element.sortByTotalAmounts" noPremiumLock />
+									<ParamItem :paramData="param_showTotalAmount[element.id]"			v-model="element.showTotalAmounts" noPremiumLock>
+										<ParamItem :paramData="param_currency[element.id]"				v-model="element.currency" :childLevel="1" noBackground noPremiumLock />
+									</ParamItem>
 								</template>
 
 								<template v-if="element.slotType == 'powerups'">
@@ -353,6 +357,7 @@ class OverlayParamsCredits extends Vue {
 	public param_sortBySubTypes:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_sortByRoles:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_sortByAmounts:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_sortByTotalAmount:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_sortByName:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_text:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_filterRewards:{[key:string]:TwitchatDataTypes.ParameterData<boolean, unknown, boolean>} = {};
@@ -372,6 +377,8 @@ class OverlayParamsCredits extends Vue {
 	public param_showPuEmote:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showPuCeleb:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_anonLastNames:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showTotalAmount:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_currency:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_patreonTiers:{[key:string]:TwitchatDataTypes.ParameterData<boolean, unknown, boolean, unknown, IPatreonTier>} = {};
 	public slotTypes = TwitchatDataTypes.EndingCreditsSlotDefinitions;
 	public overlayExists = false;
@@ -707,15 +714,21 @@ class OverlayParamsCredits extends Vue {
 		}else
 
 		if(slotDef.id == "patreonMembers") {
-			if(entry.sortByNames == undefined)	entry.sortByNames = true;
-			if(entry.sortByAmounts == undefined)entry.sortByAmounts = true;
-			if(entry.anonLastNames == undefined)entry.anonLastNames = true;
+			if(entry.currency == undefined)				entry.currency = "€";
+			if(entry.sortByNames == undefined)			entry.sortByNames = true;
+			if(entry.sortByAmounts == undefined)		entry.sortByAmounts = true;
+			if(entry.anonLastNames == undefined)		entry.anonLastNames = true;
+			if(entry.showTotalAmounts == undefined)		entry.showTotalAmounts = false;
+			if(entry.sortByTotalAmounts == undefined)	entry.sortByTotalAmounts = false;
 			if(entry.patreonTiers == undefined)	entry.patreonTiers = StoreProxy.patreon.tierList.map(v=>v.id) || [];
 			
 			this.param_anonLastNames[id]		= {type:"boolean", value:entry.anonLastNames, icon:"anon", labelKey:"overlay.credits.param_anonLastNames", premiumOnly:true};
 			this.param_sortByName[id]			= {type:"boolean", value:entry.sortByNames, icon:"filters", labelKey:"overlay.credits.param_sortByNames", premiumOnly:true};
 			this.param_sortByAmounts[id]		= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:"overlay.credits.param_sortByDuration", premiumOnly:true};
+			this.param_sortByTotalAmount[id]	= {type:"boolean", value:entry.sortByTotalAmounts, icon:"filters", labelKey:"overlay.credits.param_sortByTotalAmount", premiumOnly:true};
+			this.param_showTotalAmount[id]		= {type:"boolean", value:entry.showTotalAmounts, icon:"coin", labelKey:"overlay.credits.param_showTotalAmount", premiumOnly:true};
 			this.param_patreonTiers[id]			= {type:"boolean", value:true, noInput:true, icon:"patreon", labelKey:"overlay.credits.param_patreonTiers", premiumOnly:true};
+			this.param_currency[id]				= {type:"string", value:entry.currency, maxLength:5, labelKey:"overlay.credits.param_currency", premiumOnly:true};
 
 			this.param_filterRewards[id]	= {type:'boolean', value:true, icon:"channelPoints", labelKey:'overlay.credits.param_filterRewards', premiumOnly:true, twitch_scopes:[TwitchScopes.LIST_REWARDS]};
 			if(rewards.length == 0 && TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {

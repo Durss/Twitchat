@@ -1025,6 +1025,7 @@ export const storeStream = defineStore('stream', {
 						login:v.attributes.full_name,
 						months:v.relationships.pledge_history.data.filter(v=>/^(pledge_start|subscription):/.test(v.id)).length,
 						tier:maxId || "",
+						lifetimeAmount: v.attributes.lifetime_support_cents / 100,
 					};
 				return entry;
 			});

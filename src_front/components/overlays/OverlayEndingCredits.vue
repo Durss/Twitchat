@@ -183,6 +183,7 @@
 					<div v-if="item.params.slotType == 'patreonMembers'" v-for="entry in getPatreonMembers(item.params).splice(0, item.params.maxEntries)" class="item">
 						<span class="info">{{entry.login}}</span>
 						<span class="count" v-if="item.params.showAmounts === true"> − {{ getMonthsDurationlabel(entry.months) }}</span>
+						<span class="count" v-if="item.params.showTotalAmounts === true"> − {{ entry.lifetimeAmount.toFixed(0) }}{{ item.params.currency }}</span>
 					</div>
 				</div>
 			</div>
@@ -387,8 +388,13 @@ class OverlayEndingCredits extends AbstractOverlay {
 			let scoreB = 0;
 
 			if(params.sortByAmounts) {
-				if(a.months > b.months) scoreA +=2;
-				if(a.months < b.months) scoreB +=2;
+				if(a.months > b.months) scoreA += 1000;
+				if(a.months < b.months) scoreB += 1000;
+			}
+
+			if(params.sortByTotalAmounts) {
+				if(a.lifetimeAmount > b.lifetimeAmount) scoreA += 10000;
+				if(a.lifetimeAmount < b.lifetimeAmount) scoreB += 10000;
 			}
 
 			if(params.sortByNames) {
