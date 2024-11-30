@@ -33,8 +33,7 @@ import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } fro
 
 export const storeMain = defineStore("main", {
 	state: () => ({
-		latestUpdateIndex: 18,
-		theme:"dark",
+		latestUpdateIndex: 19,
 		initComplete: false,
 		devmode: false,
 		messageExportState: null,
@@ -67,8 +66,6 @@ export const storeMain = defineStore("main", {
 			},
 		},
 		chatAlert:null,
-		t4p:"",
-		t4pLastDate:0,
 		iconCache:{},
 		outdatedDataVersion:false,
 		offlineMode:false,
@@ -275,35 +272,32 @@ export const storeMain = defineStore("main", {
 				this.reloadLabels(true);
 			});
 
-			//TODO remove once T4P ends
-			this.t4p = DataStore.get(DataStore.T4P_CHAT_CMD) || "";
-
 			//Warn the user about the automatic "ad" message sent every 2h
 			if(DataStore.get(DataStore.TWITCHAT_AD_WARNED) !== "true" && sAuth.donorLevel == -1 && !sAuth.isPremium) {
-				setTimeout(()=>{
+				window.setTimeout(()=>{
 					sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING);
 				}, 5000);
 			}else
 			//Warn the user about the new ad break capabilities
 			if(DataStore.get(DataStore.AD_BREAK_SCOPES_REQUEST) !== "true" && !TwitchUtils.hasScopes([TwitchScopes.ADS_READ, TwitchScopes.ADS_SNOOZE])) {
-				setTimeout(()=>{
+				window.setTimeout(()=>{
 					sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.AD_BREAK_SCOPE_REQUEST);
 				}, 5000);
 			}else
 			//Ask the user if they want to make their donation public
 			if(!DataStore.get(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT) && sAuth.donorLevel > -1) {
-				setTimeout(()=>{
+				window.setTimeout(()=>{
 					sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT);
 				}, 5000);
 			}else
 			//Show "right click message" hint
 			if(!DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT)) {
-				setTimeout(()=>{
+				window.setTimeout(()=>{
 					sChat.sendRightClickHint();
 				}, 5000);
 			}else{
 				//Hot fix to make sure new changelog highlights are displayed properly
-				setTimeout(()=> { sChat.sendTwitchatAd(); }, 1000);
+				window.setTimeout(()=> { sChat.sendTwitchatAd(); }, 1000);
 			}
 
 			const lastUpdateRead = parseInt(DataStore.get(DataStore.UPDATE_INDEX));
@@ -480,7 +474,7 @@ export const storeMain = defineStore("main", {
 					user = await new Promise((resolve) => {
 						StoreProxy.users.getUserFrom("twitch", channelId, data.uid, undefined, undefined, (user) => {
 							resolve(user);
-						});
+						}, undefined, undefined, undefined, false);
 					});
 				} else {
 					//Create a fake partial user with only ID set so the trigger's cooldowns
@@ -584,24 +578,35 @@ export const storeMain = defineStore("main", {
 			/**
 			 * Called when switching to another scene
 			 */
+			let changeDebounce:number = -1;
 			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_CHANGE, async (event:TwitchatEvent):Promise<void> => {
-				//If no scene whas stored, get the current one to use it as the "previousSceneName" on the trigge rmessage
-				if(!StoreProxy.common.currentOBSScene) {
-					StoreProxy.common.currentOBSScene = await OBSWebsocket.instance.getCurrentScene();
-				}
-				const e = event.data as {sceneName:string};
-				const m:TwitchatDataTypes.MessageOBSSceneChangedData = {
-					id: Utils.getUUID(),
-					date: Date.now(),
-					platform: "twitchat",
-					type: TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE,
-					sceneName: e.sceneName,
-					previousSceneName: StoreProxy.common.currentOBSScene,
-					channel_id:StoreProxy.auth.twitch.user.id,
-				};
-				StoreProxy.common.currentOBSScene = e.sceneName;
-				TriggerActionHandler.instance.execute(m);
-				rebuildPlaceholdersCache();
+				clearTimeout(changeDebounce);
+				//Debounce consecutive events changes.
+				//When leaving studio mode, 2 events are triggered in a row, once for the scene we're leaving
+				//and once for the scene we're entering. This debounce avoids the first event to be interpreted
+				changeDebounce = window.setTimeout(async ()=> {
+					const e = event.data as {sceneName:string};
+					//If no scene whas stored, get the current one to use it as the "previousSceneName" on the trigge rmessage
+					if(!StoreProxy.common.currentOBSScene) {
+						StoreProxy.common.currentOBSScene = await OBSWebsocket.instance.getCurrentScene();
+					}else
+					//Ignore if old and new scene are the same
+					//For some reason, leaving studio mode on OBS triggers 2 scene change events
+					if(StoreProxy.common.currentOBSScene == e.sceneName) return;
+	
+					const m:TwitchatDataTypes.MessageOBSSceneChangedData = {
+						id: Utils.getUUID(),
+						date: Date.now(),
+						platform: "twitchat",
+						type: TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE,
+						sceneName: e.sceneName,
+						previousSceneName: StoreProxy.common.currentOBSScene,
+						channel_id:StoreProxy.auth.twitch.user.id,
+					};
+					StoreProxy.common.currentOBSScene = e.sceneName;
+					TriggerActionHandler.instance.execute(m);
+					rebuildPlaceholdersCache();
+				}, 30);
 			});
 
 			/**
@@ -879,22 +884,30 @@ export const storeMain = defineStore("main", {
 			StoreProxy.music.populateData();
 			StoreProxy.lumia.populateData();
 			StoreProxy.users.populateData();
+			StoreProxy.sammi.populateData();
 			StoreProxy.raffle.populateData();
 			StoreProxy.labels.populateData();
 			StoreProxy.stream.populateData();
 			StoreProxy.params.populateData();
 			StoreProxy.values.populateData();
+			StoreProxy.tiktok.populateData();
 			StoreProxy.tipeee.populateData();
 			StoreProxy.patreon.populateData();
 			StoreProxy.tiltify.populateData();
 			StoreProxy.discord.populateData();
 			StoreProxy.automod.populateData();
+			StoreProxy.mixitup.populateData();
 			StoreProxy.triggers.populateData();
 			StoreProxy.counters.populateData();
 			StoreProxy.bingoGrid.populateData();
+			StoreProxy.twitchBot.populateData();
 			StoreProxy.emergency.populateData();
+			StoreProxy.elevenLabs.populateData();
 			StoreProxy.streamlabs.populateData();
 			StoreProxy.prediction.populateData();
+			StoreProxy.playability.populateData();
+			StoreProxy.streamerbot.populateData();
+			StoreProxy.twitchCharity.populateData();
 			StoreProxy.donationGoals.populateData();
 			StoreProxy.streamelements.populateData();
 

@@ -1,0 +1,9 @@
+{
+	"tiktok": {
+		"header":"Receive {LINK} messages and alerts on Twitchat",
+		"requirement":"You'll first need to install and configure {LINK}",
+		"install":"Install TikFinity",
+		"examples":"Message examples",
+		"connect_error":"Unable to connect with TikFinity."
+	}
+}

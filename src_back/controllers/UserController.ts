@@ -100,10 +100,23 @@ export default class UserController extends AbstractController {
 			premiumType = "lifetime";
 		}
 
+		//Check if user has a patreon webhook secret. If so, condisder they're connected
+		const filePath = Config.patreonUid2WebhookSecret;
+		let patreonLinked = false;
+		if(filePath && fs.existsSync(filePath)) {
+			const json = JSON.parse(fs.existsSync(filePath)? fs.readFileSync(filePath, "utf8") : "{}") as {[key:string]:{twitchId:string, secret:string}};
+			for (const key in json) {
+				if(json[key].twitchId === uid) {
+					patreonLinked = true;
+					break;
+				}
+			}
+		}
+
 		//Is user part of Patreon donors?
 		if(premiumType == "") {
-			if(fs.existsSync(Config.patreon2Twitch)) {
-				const jsonP2T = JSON.parse(fs.readFileSync(Config.patreon2Twitch, "utf-8") || "{}");
+			if(fs.existsSync(Config.twitch2Patreon)) {
+				const jsonP2T = JSON.parse(fs.readFileSync(Config.twitch2Patreon, "utf-8") || "{}");
 				const patreonID = jsonP2T[uid];
 				if(patreonID && fs.existsSync(Config.patreonMembers)) {
 					const jsonPMembers = JSON.parse(fs.readFileSync(Config.patreonMembers, "utf-8") || "{}") as PatreonMember[];
@@ -118,13 +131,15 @@ export default class UserController extends AbstractController {
 					donorLevel:number,
 					isAdmin?:true,
 					premiumType:PremiumStates,
-					lifetimePercent?:number
-					discordLinked?:boolean} = {
-												donorLevel,
-												lifetimePercent,
-												premiumType,
-												dataSharing: super.getDataSharingList(uid)
-											};
+					lifetimePercent:number
+					patreonLinked?:true,
+					discordLinked?:true
+				} = {
+				donorLevel,
+				lifetimePercent,
+				premiumType,
+				dataSharing: super.getDataSharingList(uid)
+			};
 		if(Config.credentials.admin_ids.includes(uid)) {
 			data.isAdmin = true;
 		}
@@ -135,6 +150,10 @@ export default class UserController extends AbstractController {
 
 		if(Config.FORCE_NON_PREMIUM && Config.LOCAL_TESTING) {
 			data.premiumType = "";
+		}
+
+		if(patreonLinked) {
+			data.patreonLinked = true;
 		}
 
 		response.header('Content-Type', 'application/json');

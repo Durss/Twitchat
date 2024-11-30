@@ -15,9 +15,8 @@
 </template>
 
 <script lang="ts">
-import { storeParams } from '@/store/params/storeParams';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
+import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
@@ -31,13 +30,7 @@ class ChatRaffleResult extends AbstractChatMessage {
 	
 	public tipPlatform:string = "";
 	
-	public get user():TwitchatDataTypes.TwitchatUser|null {
-		const w = this.messageData.winner;
-		if(!w.user) return null;
-		const user = this.$store.users.getUserFrom(w.user.platform, w.user.channel_id, w.user.id);
-
-		return user;
-	}
+	public user:TwitchatDataTypes.TwitchatUser|null = null;
 
 	public beforeMount():void {
 		switch(this.messageData.winner.tip?.source) {
@@ -48,6 +41,11 @@ class ChatRaffleResult extends AbstractChatMessage {
 			case "tipeee": this.tipPlatform = "Tipeee"; break;
 			case "tiltify": this.tipPlatform = "Tiltify"; break;
 			default: this.tipPlatform = "Unknown platform";
+		}
+		
+		const w = this.messageData.winner;
+		if(w.user) {
+			this.user = this.$store.users.getUserFrom(w.user.platform, w.user.channel_id, w.user.id);
 		}
 	}
 }

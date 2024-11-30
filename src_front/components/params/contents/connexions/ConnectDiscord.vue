@@ -258,7 +258,7 @@ class ConnectDiscord extends Vue implements IParameterContent {
 			this.errorCode = "";
 			//Debounce updates to avoid spamming server
 			clearTimeout(this.validateDebounce);
-			this.validateDebounce = setTimeout(()=>{
+			this.validateDebounce = window.setTimeout(()=>{
 				this.validateCode();
 			}, 500);
 		}

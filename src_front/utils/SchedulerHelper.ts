@@ -165,7 +165,7 @@ export default class SchedulerHelper {
 				const timeFrame = 5*60*1000;
 				const waitFor = Math.min(timeFrame, Math.max(0, nextDate - Date.now() - timeFrame));
 				clearTimeout(this._adScheduleTimeout);
-				this._adScheduleTimeout = setTimeout(()=> {
+				this._adScheduleTimeout = window.setTimeout(()=> {
 					// console.log("Do reset. Deleted?"+message.deleted, "date:"+(Date.now() + this._adSchedule!.repeatDuration! * 1000 - waitFor) );
 					if(message.deleted === true) return;
 					e.date = Date.now() + this._adSchedule.scheduleParams!.repeatDuration! * 1000;

@@ -17,7 +17,9 @@ export default class WebsocketTrigger {
 	private static _instance:WebsocketTrigger;
 	
 	constructor() {
-	
+		window.addEventListener("beforeunload", ()=>{
+			if(this.connected) this.disconnect();
+		});
 	}
 	
 	/********************
@@ -88,7 +90,7 @@ export default class WebsocketTrigger {
 	
 				this.connected = false;
 				clearTimeout(this.reconnectTimeout)
-				this.reconnectTimeout = setTimeout(()=>{
+				this.reconnectTimeout = window.setTimeout(()=>{
 					this.connect(url);
 				}, 5000);
 			};

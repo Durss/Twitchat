@@ -388,7 +388,7 @@ export const storeDebug = defineStore('debug', {
 					if(type == TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE) {
 						fillClipInfo(m);
 					}else{
-						setTimeout(()=>{
+						window.setTimeout(()=>{
 							fillClipInfo(m);
 						}, 2000);
 					}
@@ -649,6 +649,7 @@ export const storeDebug = defineStore('debug', {
 							guessEmote:false,
 							guessNumber:true,
 							guessCustom:false,
+							genericValue:"",
 							min:0,
 							max:1000,
 							numberValue:Math.round(Math.random()*999),
@@ -739,6 +740,7 @@ export const storeDebug = defineStore('debug', {
 							subgiftRatio:0,
 							mode:'manual',
 							multipleJoin:false,
+							autoClose:false,
 							subMode_excludeGifted:false,
 							subMode_includeGifters:false,
 							showCountdownOverlay:false,
@@ -1697,6 +1699,117 @@ export const storeDebug = defineStore('debug', {
 						topic,
 						message:"{\"topic\":\""+topic+"\"}"
 					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT: {
+					const count = Math.round(Math.random()*100);
+					const m:TwitchatDataTypes.MessageTikTokGiftData = {
+						date:Date.now(),
+						id:Utils.getUUID(),
+						platform:"youtube",
+						type,
+						channel_id:uid,
+						image:"https://p19-webcast.tiktokcdn.com/img/maliva/webcast-va/eba3a9bb85c33e017f3648eaf88d7189~tplv-obj.png",
+						user:fakeUser,
+						count,
+						diamonds:count,
+						giftId:"123456",
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE: {
+					const count = Math.round(Math.random()*20);
+					const m:TwitchatDataTypes.MessageTikTokLikeData = {
+						date:Date.now(),
+						id:Utils.getUUID(),
+						platform:"youtube",
+						type,
+						channel_id:uid,
+						user:fakeUser,
+						count,
+						streamLikeCount:Math.round(Math.random()*100000)+1234,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE: {
+					const m:TwitchatDataTypes.MessageTikTokShareData = {
+						date:Date.now(),
+						id:Utils.getUUID(),
+						platform:"youtube",
+						type,
+						channel_id:uid,
+						user:fakeUser,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB: {
+					const m:TwitchatDataTypes.MessageTikTokSubData = {
+						date:Date.now(),
+						id:Utils.getUUID(),
+						platform:"youtube",
+						type,
+						channel_id:uid,
+						user:fakeUser,
+						months:1,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION: {
+					const amount = Math.round(Math.random()*50);
+					const currency = StoreProxy.twitchCharity.currentCharity?.current_amount.currency || "EUR";
+					const goal = !StoreProxy.twitchCharity.currentCharity? amount*10 : StoreProxy.twitchCharity.currentCharity.target_amount.value/Math.pow(10, StoreProxy.twitchCharity.currentCharity.target_amount.decimal_places);
+					const raised = !StoreProxy.twitchCharity.currentCharity? amount*5 : StoreProxy.twitchCharity.currentCharity.current_amount.value/Math.pow(10, StoreProxy.twitchCharity.currentCharity.current_amount.decimal_places);
+					const message:TwitchatDataTypes.MessageCharityDonationData = {
+						id:Utils.getUUID(),
+						type:TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION,
+						date:Date.now(),
+						channel_id:StoreProxy.auth.twitch.user.id,
+						platform:"twitch",
+						user,
+						amount,
+						currency,
+						amountFormatted: amount + currency,
+						goal,
+						goalFormatted: goal + currency,
+						raised,
+						raisedFormatted: raised + currency,
+						campaign: {
+							id: StoreProxy.twitchCharity.currentCharity?.id || "123",
+							title:StoreProxy.twitchCharity.currentCharity?.charity_name || "My Twitch charity campaign",
+							url:StoreProxy.twitchCharity.currentCharity?.charity_website || "https://dashboard.twitch.tv/charity",
+						},
+					};
+	
+					// StoreProxy.chat.addMessage(message);
+					data = message;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE: {
+					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const m:TwitchatDataTypes.MessagePrivateModeratorData = {
+						id:Utils.getUUID(),
+						type:TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE,
+						date:Date.now(),
+						channel_id:StoreProxy.auth.twitch.user.id,
+						platform:"twitch",
+						user:fakeUser,
+						message:message,
+						message_chunks:chunks,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						action:Utils.pickRand(["dm", "dm_mods", "question", "message"]),
+					};
+	
 					data = m;
 					break;
 				}

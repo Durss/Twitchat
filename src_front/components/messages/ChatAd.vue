@@ -233,7 +233,7 @@ class ChatAd extends Vue {
 	public confirmGngngnClose():void {
 		this.showConfirm = true;
 		this.confirmDelay = true;
-		setTimeout(()=> {
+		window.setTimeout(()=> {
 			this.confirmDelay = false;
 		}, 2000);
 	}

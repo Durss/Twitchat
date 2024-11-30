@@ -11,13 +11,6 @@ import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IRaffleActions, type IRaffleGetters, type IRaffleState } from '../StoreProxy';
 import DataStore from '../DataStore';
 
-/**
- * This stores temporary raffles.
- * Used when starting a raffle from a "chat suggestion" session.
- * There's no point in creating an actual session in this case
- * as it's a "create/dispose" session flow.
- */
-let ghostEntries:TwitchatDataTypes.RaffleData[] = [];
 let confirmSpool:string[] = [];
 let debounceConfirm:number = -1;
 
@@ -54,6 +47,9 @@ export const storeRaffle = defineStore('raffle', {
 
 		async startRaffle(payload:TwitchatDataTypes.RaffleData) {
 			this.raffleList.push(payload);
+			while(this.raffleList.length > 20) {
+				this.raffleList.shift();
+			}
 			
 			payload.created_at = Date.now();
 			payload.sessionId = Utils.getUUID();
@@ -152,21 +148,20 @@ export const storeRaffle = defineStore('raffle', {
 		},
 
 		onRaffleComplete(sessionId:string, winner:TwitchatDataTypes.RaffleEntry, publish = false, chatMessageDelay:number = 0) {
-			let data = this.raffleList.find(v=>v.sessionId === sessionId);
-			if(!data) data = ghostEntries.find(v=>v.sessionId === sessionId);
-			if(data) {
-				const winnerLoc = data.entries.find(v=> v.id == winner.id);
+			let raffleEntry = this.raffleList.find(v=>v.sessionId === sessionId);
+			if(raffleEntry) {
+				const winnerLoc = raffleEntry.entries.find(v=> v.id == winner.id);
 				if(winnerLoc) {
 					winner = winnerLoc;
 
-					if(!data.winners) data.winners = [];
-					data.winners.push(winnerLoc);
+					if(!raffleEntry.winners) raffleEntry.winners = [];
+					raffleEntry.winners.push(winnerLoc);
 
 					if(winnerLoc.user) {
 						if(StoreProxy.params.features.raffleHighlightUser.value) {
-							const user = StoreProxy.users.getUserFrom(winnerLoc.user.platform, winnerLoc.user.channel_id, winnerLoc.user.id);
+							const user = StoreProxy.users.getUserFrom(winnerLoc.user.platform, winnerLoc.user.channel_id, winnerLoc.user.id, undefined, undefined, undefined, undefined, false, undefined, false);
 							StoreProxy.users.trackUser(user);
-							setTimeout(()=> {
+							window.setTimeout(()=> {
 								StoreProxy.users.untrackUser(user);
 							}, (StoreProxy.params.features.raffleHighlightUserDuration.value as number ?? 0) * 1000 * 60);
 						}
@@ -174,13 +169,14 @@ export const storeRaffle = defineStore('raffle', {
 				}
 
 			}else{
-				data = {
+				raffleEntry = {
 					command:"",
 					created_at:Date.now(),
 					entries:[winner],
 					winners:[winner],
 					customEntries:"",
 					multipleJoin:false,
+					autoClose:false,
 					duration_s:0,
 					followRatio:1,
 					subgiftRatio:1,
@@ -202,25 +198,25 @@ export const storeRaffle = defineStore('raffle', {
 				platform:"twitchat",
 				id:Utils.getUUID(),
 				date:Date.now(),
-				raffleData:data,
+				raffleData:raffleEntry,
 				winner,
 				channel_id:StoreProxy.auth.twitch.user.id,
 			}
 			StoreProxy.chat.addMessage(message);
 
 			//Post result on chat
-			const map:{[key in typeof data.mode]:TwitchatDataTypes.BotMessageEntry} = {
+			const map:{[key in typeof raffleEntry.mode]:TwitchatDataTypes.BotMessageEntry} = {
 				chat:StoreProxy.chat.botMessages.raffle,
 				sub:StoreProxy.chat.botMessages.raffleSubsWinner,
 				tips:StoreProxy.chat.botMessages.raffleTipsWinner,
 				manual:StoreProxy.chat.botMessages.raffleListWinner,
 				values:StoreProxy.chat.botMessages.raffleValuesWinner,
 			}
-			const messageParams = data.messages?.raffleWinner || map[data.mode];
+			const messageParams = raffleEntry.messages?.raffleWinner || map[raffleEntry.mode];
 			if(messageParams.enabled) {
-				setTimeout(() => {
+				window.setTimeout(() => {
 					let message = messageParams.message;
-					if(data.mode == "chat" || data.mode == "sub" || data.mode == "tips") {
+					if(raffleEntry.mode == "chat" || raffleEntry.mode == "sub" || raffleEntry.mode == "tips") {
 						message = message.replace(/\{USER\}/gi, winner.label);
 					}else{
 						message = message.replace(/\{ENTRY\}/gi, winner.label);
@@ -248,16 +244,13 @@ export const storeRaffle = defineStore('raffle', {
 				PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_RESULT, (winner as unknown) as JsonObject);
 			}
 
-			if(data.resultCallback) data.resultCallback();
+			if(raffleEntry.resultCallback) raffleEntry.resultCallback(winner);
 
 			//Remove raffle entry
-			//EDIT: Do not remove it! User may want to pick multiple winners
-			// let index = this.raffleList.findIndex(v=>v.sessionId === sessionId)
-			// if(index > -1) this.raffleList.splice(index, 1);
-
-			//Remove ghost session if any
-			const index = ghostEntries.findIndex(v=>v.sessionId === sessionId)
-			if(index > -1) ghostEntries.splice(index, 1);
+			if(raffleEntry.autoClose === true) {
+				let index = this.raffleList.findIndex(v=>v.sessionId === sessionId)
+				if(index > -1) this.raffleList.splice(index, 1);
+			}
 
 			this.saveData();
 		},
@@ -292,10 +285,11 @@ export const storeRaffle = defineStore('raffle', {
 					(raffle.tip_streamlabsCharity === true && message.type == TwitchatDataTypes.TwitchatMessageType.STREAMLABS && message.eventType == "charity" && message.amount >= (raffle.tip_streamlabsCharity_minAmount || 0)) ||
 					(raffle.tip_streamelements === true && message.type == TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS && message.eventType == "donation" && message.amount >= (raffle.tip_streamelements_minAmount || 0)) ||
 					(raffle.tip_tipeee === true && message.type == TwitchatDataTypes.TwitchatMessageType.TIPEEE && message.eventType == "donation" && message.amount >= (raffle.tip_tipeee_minAmount || 0)) ||
-					(raffle.tip_tiltify === true && message.type == TwitchatDataTypes.TwitchatMessageType.TILTIFY && message.eventType == "donation" && message.amount  >= (raffle.tip_tiltify_minAmount || 0))
+					(raffle.tip_tiltify === true && message.type == TwitchatDataTypes.TwitchatMessageType.TILTIFY && message.eventType == "donation" && message.amount  >= (raffle.tip_tiltify_minAmount || 0)) ||
+					(raffle.tip_twitchCharity === true && message.type == TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION && message.amount  >= (raffle.tip_twitchCharity_minAmount || 0))
 				)) {
 					canJoin = true;
-					username = message.userName;
+					username = message.type == TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION? message.user.displayNameOriginal : message.userName;
 					const existingEntry = username? raffle.entries.find(v=>v.label.toLowerCase().trim() == username.toLowerCase().trim()) : false;
 					//Refuse if username is already registered
 					if(existingEntry && raffle.multipleJoin !== true) return;
@@ -400,7 +394,7 @@ export const storeRaffle = defineStore('raffle', {
 							MessengerProxy.instance.sendMessage(joinMessage, [message.platform]);
 							
 						}else if(joinMessage) {
-							debounceConfirm = setTimeout(() => {
+							debounceConfirm = window.setTimeout(() => {
 								confirmSpool = [];
 								MessengerProxy.instance.sendMessage(joinMessage, [message.platform]);
 							}, 500);
@@ -417,6 +411,7 @@ export const storeRaffle = defineStore('raffle', {
 		},
 
 		async pickWinner(sessionId:string, forcedData?:TwitchatDataTypes.RaffleData, forcedWinner?:TwitchatDataTypes.RaffleEntry):Promise<void> {
+			if(forcedData) this.raffleList.push(forcedData);
 			const data = forcedData ?? this.raffleList.find(v=>v.sessionId === sessionId);
 			if(!data) {
 				StoreProxy.common.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_raffle"));
@@ -424,10 +419,6 @@ export const storeRaffle = defineStore('raffle', {
 			}
 
 			if(!data.sessionId) data.sessionId = Utils.getUUID();
-
-			if(forcedData && this.raffleList.findIndex(v=>v.sessionId === sessionId) == -1) {
-				ghostEntries.push(forcedData);
-			}
 			
 			//Executes raffle pick winner related triggers
 			const message:TwitchatDataTypes.MessageRafflePickWinnerData = {
@@ -445,7 +436,7 @@ export const storeRaffle = defineStore('raffle', {
 			data.entries.forEach(v=> {
 				//Skip if it's not a user or if the score has already been computed
 				if(!v.user || v.score > 0) return;
-				const user = sUsers.getUserFrom(v.user.platform, v.user.channel_id, v.user.id);
+				const user = sUsers.getUserFrom(v.user.platform, v.user.channel_id, v.user.id, undefined, undefined, undefined, undefined, false, undefined, false);
 				userList.push({user, channel_id:v.user.channel_id, entry:v});
 			});
 
@@ -492,7 +483,7 @@ export const storeRaffle = defineStore('raffle', {
 				//Apply other ratios
 				for (const v of userList) {
 					const channel_id	= v.channel_id;
-					const user			= sUsers.getUserFrom(v.user.platform, channel_id, v.user.id);
+					const user			= sUsers.getUserFrom(v.user.platform, channel_id, v.user.id, undefined, undefined, undefined, undefined, false, undefined, false);
 					//Apply VIP ratio
 					if(data.vipRatio > 0 && user.channelInfo[channel_id].is_vip)		v.entry.score += data.vipRatio;
 					//Apply sub gifter ratio
@@ -590,13 +581,10 @@ export const storeRaffle = defineStore('raffle', {
 								id:Utils.getUUID(),
 								joinCount:1,
 								label:userData.display_name,
-								score:parseInt(users[key]) || 1,
-								//FIXME Following won't work if joining from youtube chat.
-								//Sadly, for now I'm not storing the platform source of a per-user value (same for counters)
-								//so I can't track back the proper platform, hence, this hardcoded value 😬
+								score:parseInt(users[key].value) || 1,
 								user:{
 									id:userData.id,
-									platform:"twitch",
+									platform:users[key].platform || "twitch",
 									channel_id,
 								}
 							})
@@ -706,7 +694,6 @@ export const storeRaffle = defineStore('raffle', {
 							customEntries = customEntries.filter(v=> v.trim() !== winner.label);
 							const splitterRaplacement = splitter == ","? "," : "\n";
 							data.customEntries = customEntries.join(splitterRaplacement);
-							console.log(data.customEntries);
 						}
 				}
 			}

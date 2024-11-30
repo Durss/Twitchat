@@ -14,6 +14,8 @@
 		<ParamItem :paramData="param_obsAction_conf" v-model="action.obsAction" />
 
 		<div class="info secondary" v-if="action.obsAction === 'pauserecord' || action.obsAction === 'resumerecord'">{{$t("triggers.actions.obs.param_obs_action_pauserecord_alert")}}</div>
+		
+		<ParamItem  v-else-if="action.obsAction === 'createchapter'" :paramData="param_record_chapter_name" v-model="action.recordChapterName" />
 
 		<template v-else-if="action.obsAction === 'emitevent'">
 			<div class="info">{{ $t("triggers.actions.obs.param_browser_info") }}</div>
@@ -123,6 +125,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public param_transformDuration_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:500, min:0, max:60000, icon:"timer", labelKey:"triggers.actions.obs.param_transform_animate_duration" };
 	public param_browserEvent_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", maxLength:100, icon:"label", labelKey:"triggers.actions.obs.param_browserEvent_name" };
 	public param_browserEvent_param:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", maxLength:10000, longText:true, icon:"placeholder", labelKey:"triggers.actions.obs.param_browserEvent_param" };
+	public param_record_chapter_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", maxLength:100, icon:"label", labelKey:"triggers.actions.obs.param_record_chapter_name" };
 	
 	public selectedSourceName:string = "";
 	
@@ -242,6 +245,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_pauserecord", value:"pauserecord"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_resumerecord", value:"resumerecord"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_stoprecord", value:"stoprecord"});
+		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_createchapter", value:"createchapter"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_startvirtualcam", value:"startvirtualcam"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_stopvirtualcam", value:"stopvirtualcam"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_emitevent", value:"emitevent"});
@@ -466,6 +470,10 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 			delete this.action.animateEasing;
 			delete this.action.animateDuration;
 			delete this.action.relativeTransform;
+		}
+
+		if(this.action.obsAction != "createchapter") {
+			delete this.action.recordChapterName;
 		}
 	}
 }

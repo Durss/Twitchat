@@ -504,4 +504,25 @@ export namespace TwitchDataTypes {
 		updated_at:string;
 		expires_at?:string;
 	}
+
+	export interface CharityCampaign {
+		id: string;
+		broadcaster_id: string;
+		broadcaster_name: string;
+		broadcaster_login: string;
+		charity_name: string;
+		charity_description: string;
+		charity_logo: string;
+		charity_website: string;
+		current_amount: {
+			value: number;
+			currency: string;
+			decimal_places: number;
+		}
+		target_amount: {
+			value: number;
+			currency: string;
+			decimal_places: number;
+		}
+	}
 }

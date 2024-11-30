@@ -18,8 +18,8 @@
 				<div class="fake" v-if="m.fake === true && !$config.DEMO_MODE" v-tooltip="{content:$t('chat.fake_tag_tt'), placement:'right'}">{{$t("chat.fake_tag")}}</div>
 				<MessageItem :messageData="m"
 					@onRead="toggleMarkRead"
-					@showConversation="openConversation"
-					@showUserMessages="openUserHistory"
+					@showConversation="(messageData:TwitchatDataTypes.MessageChatData)=>openConversation(messageData, m.id)"
+					@showUserMessages="(messageData:TwitchatDataTypes.MessageChatData)=>openUserHistory(messageData, m.id)"
 					@unscheduleMessageOpen="unscheduleHistoryOpen"
 					@onOverMessage="onEnterMessage"
 					@mouseleave="onLeaveMessage"
@@ -361,7 +361,7 @@ class MessageList extends Vue {
 		if(this.customActivitiesDisplayed) return;
 
 		clearTimeout(this.updateDebounce);
-		this.updateDebounce = setTimeout(async () => {
+		this.updateDebounce = window.setTimeout(async () => {
 			if(!this.lockScroll) {
 				this.pendingMessages = [];
 				this.lockedLiveMessages = [];
@@ -417,7 +417,7 @@ class MessageList extends Vue {
 				}
 			}else if(scrollToBottom){
 				this.forceScrollDown = true;
-				setTimeout(()=> {
+				window.setTimeout(()=> {
 					this.forceScrollDown = false;
 				}, 1000);
 			}
@@ -434,6 +434,7 @@ class MessageList extends Vue {
 	private rebuildChannelIdsHashmap() {
 		const validIds = this.$store.stream.connectedTwitchChans.concat().map(v=>v.user.id);
 		if(this.$store.auth.youtube.user) validIds.push(this.$store.auth.youtube.user.id);
+		if(this.$store.tiktok.connected) validIds.push("tiktok");
 		validIds.push(this.$store.auth.twitch.user.id);
 		const chanIds:{[uid:string]:boolean} = {};
 
@@ -466,12 +467,16 @@ class MessageList extends Vue {
 		//Avoid adding any new message when showing a custom list of emssage (ex: hype train filtered activities)
 		if(this.customActivitiesDisplayed) return false;
 		//Check if this message should be displayed on this column
-		const colValid = Array.isArray(m.col)? m.col.length == 0 || m.col.includes(this.config.order) : m.col == undefined || m.col == this.config.order || m.col < 0;
+		const colValid = Array.isArray(m.col)?
+							m.col.length == 0 || m.col.includes(this.config.order)
+						:
+							m.col == undefined || m.col == this.config.order || m.col < 0;
 		if(!colValid) return false;
 
 		//Filter by channel ID if necessary
 		if(this.filteredChanIDs) {
-			if(this.filteredChanIDs[m.channel_id] !== true) return false;
+			const chanId = m.platform == "tiktok"? "tiktok" : m.channel_id;
+			if(this.filteredChanIDs[chanId] !== true) return false;
 		}
 
 		//If message is deleted, keep it only if requested to show messages AND deleted messages
@@ -577,6 +582,7 @@ class MessageList extends Vue {
 				return this.config.filters.message === true && this.config.messageFilters.viewers === true;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB:
 			case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION:
 			case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBGIFT:
 			case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
@@ -673,6 +679,10 @@ class MessageList extends Vue {
 				return this.config.filters.pinned === true;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE: {
+				return this.config.filters.private_mod_message !== false;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.WARN_CHATTER:
 			case TwitchatDataTypes.TwitchatMessageType.WARN_ACKNOWLEDGE:
 			case TwitchatDataTypes.TwitchatMessageType.BLOCKED_TERMS:
@@ -759,6 +769,22 @@ class MessageList extends Vue {
 				return true;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT: {
+				return this.config.filters.tiktok_gift !== false;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE: {
+				return this.config.filters.tiktok_like !== false;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE: {
+				return this.config.filters.tiktok_share !== false;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION: {
+				return this.config.filters.twitch_charity_donation !== false;
+			}
+
 			default: return false;
 		}
 	}
@@ -773,7 +799,7 @@ class MessageList extends Vue {
 		// const maxScroll = (el.scrollHeight - el.offsetHeight);
 		const m = e.data as TwitchatDataTypes.ChatMessageTypes;
 		if (!await this.shouldShowMessage(m)) return;
-
+		
 		if(await this.mergeWithPrevious(m)) return;
 
 		//If scrolling is locked or there are still messages pending,
@@ -1001,7 +1027,7 @@ class MessageList extends Vue {
 						}
 					}
 					clearTimeout(this.selectionTimeout);
-					this.selectionTimeout = setTimeout(()=>{
+					this.selectionTimeout = window.setTimeout(()=>{
 						this.selectedItem = null;
 						this.selectedMessage = null;
 						this.selectionDate = 0;
@@ -1075,7 +1101,7 @@ class MessageList extends Vue {
 
 			case TwitchatEvent.CHAT_FEED_SELECT_CHOOSING_ACTION: {
 				clearTimeout(this.selectionTimeout);
-				this.selectionTimeout = setTimeout(()=>{
+				this.selectionTimeout = window.setTimeout(()=>{
 					this.selectedItem = null;
 					this.selectedMessage = null;
 					this.selectionDate = 0;
@@ -1407,11 +1433,11 @@ class MessageList extends Vue {
 	 * Called when asking to read a conversation
 	 * Display the full conversation if any
 	 */
-	public async openConversation(m: TwitchatDataTypes.MessageChatData): Promise<void> {
+	public async openConversation(m: TwitchatDataTypes.MessageChatData, idRef:string): Promise<void> {
 		if (this.lightMode || !m || (!m.answersTo && !m.answers)) return;
-
+		
 		this.conversationMode = true;
-
+		
 		if (m.answers.length > 0) {
 			this.conversation = m.answers.concat();
 			this.conversation.unshift(m);
@@ -1419,17 +1445,17 @@ class MessageList extends Vue {
 			this.conversation = m.answersTo.answers.concat();
 			this.conversation.unshift(m.answersTo);
 		}
-		this.openConversationHolder(m);
+		this.openConversationHolder(idRef);
 	}
 
 	/**
 	 * Called to open a user's messages history
 	 */
-	public async openUserHistory(m: TwitchatDataTypes.MessageChatData): Promise<void> {
+	public async openUserHistory(m: TwitchatDataTypes.MessageChatData, idRef:string): Promise<void> {
 		if (this.lightMode || !m) return;
 
 		clearTimeout(this.openConvTimeout);
-		this.openConvTimeout = setTimeout(async () => {
+		this.openConvTimeout = window.setTimeout(async () => {
 			this.conversationMode = false;
 
 			let messageList: TwitchatDataTypes.MessageChatData[] = [];
@@ -1442,7 +1468,7 @@ class MessageList extends Vue {
 			}
 			this.conversation = messageList;
 
-			this.openConversationHolder(m);
+			this.openConversationHolder(idRef);
 		}, 350)
 	}
 
@@ -1462,13 +1488,13 @@ class MessageList extends Vue {
 	 * Opens up the conversation holder.
 	 * Call this after making sure the messages are rendered
 	 */
-	private async openConversationHolder(m: TwitchatDataTypes.MessageChatData): Promise<void> {
+	private async openConversationHolder(idRef: string): Promise<void> {
 		if (this.conversation.length == 0) return;
 		await this.$nextTick();
 
 		clearTimeout(this.closeConvTimeout);
 		const holderBounds = this.$el.getBoundingClientRect();
-		const messageHolder = (this.$refs["message_" + m.id] as HTMLDivElement[])[0];
+		const messageHolder = (this.$refs["message_" +idRef] as HTMLDivElement[])[0];
 		const messageBounds = messageHolder.getBoundingClientRect();
 		const chatMessagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
 		const conversationHolder = this.$refs.conversationHolder as HTMLDivElement;
@@ -1498,7 +1524,7 @@ class MessageList extends Vue {
 		if (this.conversation.length == 0) return;
 		//Timeout avoids blinking when leaving the message but
 		//hovering another one or the conversation window
-		this.closeConvTimeout = setTimeout(() => {
+		this.closeConvTimeout = window.setTimeout(() => {
 			this.conversation = [];
 			const mainHolder = this.$refs.chatMessageHolder as HTMLDivElement;
 			gsap.to(mainHolder, { opacity: 1, duration: .25 });
@@ -1724,6 +1750,7 @@ class MessageList extends Vue {
 			&& (newMessage.twitch_announcementColor
 				|| newMessage.twitch_gigantifiedEmote
 				|| newMessage.twitch_animationId
+				|| newMessage.twitch_automod
 			)) return false;
 		}
 

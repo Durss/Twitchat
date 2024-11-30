@@ -1,14 +1,15 @@
 import { TranslatableLanguagesMap } from '@/TranslatableLanguages';
 import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
+import SSEEvent from '@/events/SSEEvent';
 import TwitchatEvent from '@/events/TwitchatEvent';
-import MessengerProxy from '@/messaging/MessengerProxy';
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
 import LandeWorker from '@/utils/LandeWorker';
 import PublicAPI from '@/utils/PublicAPI';
+import SSEHelper from '@/utils/SSEHelper';
 import SchedulerHelper from '@/utils/SchedulerHelper';
 import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
@@ -21,8 +22,7 @@ import type { JsonArray, JsonObject } from 'type-fest';
 import { reactive, watch, type UnwrapRef } from 'vue';
 import Database from '../Database';
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy';
-import SSEHelper from '@/utils/SSEHelper';
-import SSEEvent from '@/events/SSEEvent';
+import Logger from '@/utils/Logger';
 
 //Don't make this reactive, it kills performances on the long run
 let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -42,6 +42,7 @@ export const storeChat = defineStore('chat', {
 		whispers: {},
 		emoteSelectorCache: [],
 		replyTo: null,
+		messageMode: "message",
 		spamingFakeMessages: false,
 
 		botMessages: {
@@ -723,10 +724,32 @@ export const storeChat = defineStore('chat', {
 					const mess = messageList[i];
 					if(mess.id == event.data?.messageId && mess.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 						mess.spoiler = true;
+						break;
 					}
-					break;
 				}
-			})
+			});
+
+			//Listen for private moderator messages 
+			SSEHelper.instance.addEventListener(SSEEvent.PRIVATE_MOD_MESSAGE, (event)=>{
+				if(!event.data) return;
+				const message_chunks = event.data.message;
+				const channel_id = StoreProxy.auth.twitch.user.id;
+				const from = StoreProxy.users.getUserFrom("twitch", channel_id, event.data.from_uid, channel_id, event.data.from_login);
+				this.addPrivateModMessage(from, message_chunks, event.data.action, event.data.messageId, event.data.messageIdParent, undefined, event.data.messageParentFallback);
+			});
+
+			//Listen for private moderator messages answers
+			SSEHelper.instance.addEventListener(SSEEvent.PRIVATE_MOD_MESSAGE_ANSWER, (event)=>{
+				if(!event.data) return;
+				for (let i = messageList.length-1; i >= Math.max(0, messageList.length - 1000); i--) {
+					const message = messageList[i];
+					if(message.id == event.data.messageId && message.type == TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE) {
+						message.answer = event.data.answer;
+						Database.instance.updateMessage(message);
+						break;
+					}
+				}
+			});
 		},
 
 		async preloadMessageHistory():Promise<void> {
@@ -942,966 +965,1062 @@ export const storeChat = defineStore('chat', {
 			const logTimings = false;//Enable to check for perf issues
 			const isFromRemoteChan = message.channel_id != sAuth.twitch.user.id && message.channel_id != sAuth.youtube.user?.id;
 
-			message = reactive(message);
-			
-			if(!message.channelSource
-			&& message.channel_id != sAuth.twitch.user.id
-			&& message.channel_id != sAuth.youtube.user?.id) {
-				const infos = sStream.connectedTwitchChans.find(v=>v.user.id == message.channel_id);
-				if(infos) {
-					message.channelSource = {
-						color: infos.color,
-						name: infos.user.displayNameOriginal,
-						pic: infos.user.avatarPath?.replace(/300x300/gi, "50x50"),
+			try {
+
+				message = reactive(message);
+				
+				if(!message.channelSource
+				&& message.channel_id != sAuth.twitch.user.id
+				&& message.channel_id != sAuth.youtube.user?.id) {
+					const infos = sStream.connectedTwitchChans.find(v=>v.user.id == message.channel_id);
+					if(infos) {
+						message.channelSource = {
+							color: infos.color,
+							name: infos.user.displayNameOriginal,
+							pic: infos.user.avatarPath?.replace(/300x300/gi, "50x50"),
+						}
 					}
 				}
-			}
-
-			if(!greetedUsersInitialized) {
-				greetedUsersInitialized = true;
-				const history = DataStore.get(DataStore.GREET_HISTORY);
-				greetedUsersExpire_at = JSON.parse(history ?? "{}");
-				//Previously they were stored in an array instead of an object, convert it
-				if(Array.isArray(greetedUsersExpire_at)) greetedUsersExpire_at = {};
-				const now = Date.now();
-				for (const key in greetedUsersExpire_at) {
-					if(greetedUsersExpire_at[key] < now - 24 * 60 * 60 * 1000) {
-						//Old entry, delete it
-						delete greetedUsersExpire_at[key];
+	
+				if(!greetedUsersInitialized) {
+					greetedUsersInitialized = true;
+					const history = DataStore.get(DataStore.GREET_HISTORY);
+					greetedUsersExpire_at = JSON.parse(history ?? "{}");
+					//Previously they were stored in an array instead of an object, convert it
+					if(Array.isArray(greetedUsersExpire_at)) greetedUsersExpire_at = {};
+					const now = Date.now();
+					for (const key in greetedUsersExpire_at) {
+						if(greetedUsersExpire_at[key] < now - 24 * 60 * 60 * 1000) {
+							//Old entry, delete it
+							delete greetedUsersExpire_at[key];
+						}
 					}
+					DataStore.set(DataStore.GREET_HISTORY, greetedUsersExpire_at);
 				}
-				DataStore.set(DataStore.GREET_HISTORY, greetedUsersExpire_at);
-			}
-
-			//Check if it's a greetable message
-			if(TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(message.type)) {
-				const greetable = message as TwitchatDataTypes.GreetableMessage;
-				this.flagMessageAsFirstToday(greetable);
-			}
-
-			//Live translation if first message ever on the channel
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-			&& message.twitch_isFirstMessage
-			&& sAuth.isPremium
-			&& sParams.features.autoTranslateFirst.value === true
-			&& sParams.features.autoTranslateFirstLang.value
-			&& (sParams.features.autoTranslateFirstLang.value as string[]).length > 0) {
-				const spokenLanguages = sParams.features.autoTranslateFirstSpoken.value as string[] || [];
-				const translatable = message as TwitchatDataTypes.TranslatableMessage;
-				const text = translatable.message_chunks?.filter(v=>v.type == 'text').map(v=>v.value).join("").trim() || "";
-				if(text.length >= 4 && spokenLanguages.length > 0) {
-					//Check language of the message from the work
-					LandeWorker.instance.lande(text, (langs)=>{
-						const iso3 = langs[0][0] as keyof typeof TranslatableLanguagesMap;
-						//Force to english if confidence is too low as it tends to detect weird languages for basic english messages
-						//Also force english if first returned lang is Affrikaan and second is english.
-						//It detects most english messages as Afrikaan.
-						const lang = (langs[0][1] < .6 || (langs[0][0] == "afr" && langs[1][0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
-						if(lang && !spokenLanguages.includes(lang.iso1)) {
-							const langTarget = (sParams.features.autoTranslateFirstLang.value as string[])[0];
-							if(lang.iso1 != langTarget) {
-								ApiHelper.call("google/translate", "GET", {langSource:lang.iso1, langTarget, text:text}, false)
-								.then(res=>{
-									if(res.json.data.translation) {
-										translatable.translation = {
-											flagISO:lang.flag,
-											languageCode:lang.iso1,
-											languageName:lang.name,
-											translation:res.json.data.translation,
+	
+				//Check if it's a greetable message
+				if(TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(message.type)) {
+					const greetable = message as TwitchatDataTypes.GreetableMessage;
+					this.flagMessageAsFirstToday(greetable);
+				}
+	
+				//Live translation if first message ever on the channel
+				if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+				&& message.twitch_isFirstMessage
+				&& sAuth.isPremium
+				&& sParams.features.autoTranslateFirst.value === true
+				&& sParams.features.autoTranslateFirstLang.value
+				&& (sParams.features.autoTranslateFirstLang.value as string[]).length > 0) {
+					const spokenLanguages = sParams.features.autoTranslateFirstSpoken.value as string[] || [];
+					const translatable = message as TwitchatDataTypes.TranslatableMessage;
+					const text = translatable.message_chunks?.filter(v=>v.type == 'text').map(v=>v.value).join("").trim() || "";
+					if(text.length >= 4 && spokenLanguages.length > 0) {
+						//Check language of the message from the work
+						LandeWorker.instance.lande(text, (langs)=>{
+							const iso3 = langs[0][0] as keyof typeof TranslatableLanguagesMap;
+							//Force to english if confidence is too low as it tends to detect weird languages for basic english messages
+							//Also force english if first returned lang is Affrikaan and second is english.
+							//It detects most english messages as Afrikaan.
+							const lang = (langs[0][1] < .6 || (langs[0][0] == "afr" && langs[1][0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
+							if(lang && !spokenLanguages.includes(lang.iso1)) {
+								const langTarget = (sParams.features.autoTranslateFirstLang.value as string[])[0];
+								if(lang.iso1 != langTarget) {
+									ApiHelper.call("google/translate", "GET", {langSource:lang.iso1, langTarget, text:text}, false)
+									.then(res=>{
+										if(res.json.data.translation) {
+											translatable.translation = {
+												flagISO:lang.flag,
+												languageCode:lang.iso1,
+												languageName:lang.name,
+												translation:res.json.data.translation,
+											}
+											Database.instance.updateMessage(message);
 										}
+									}).catch((error)=>{
+										translatable.translation_failed = true;
 										Database.instance.updateMessage(message);
-									}
-								}).catch((error)=>{
-									translatable.translation_failed = true;
-									Database.instance.updateMessage(message);
-								});
-							}
-						}
-					})
-				}
-			}
-
-			if(logTimings) console.log("1", message.id, Date.now() - s);
-			switch(message.type) {
-				case TwitchatDataTypes.TwitchatMessageType.MESSAGE:
-				case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
-					if(message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
-						const to = message.user.id == sAuth.twitch.user.id? message.to : message.user;
-						const from = message.user.id == sAuth.twitch.user.id? message.user : message.to;
-						if(!this.whispers[to.id]) this.whispers[to.id] = {from, to, messages:[]};
-						this.whispers[to.id].messages.push(message);
-						this.whispersUnreadCount ++;
-						const wsUser = {
-							id:message.user.id,
-							login:message.user.login,
-							displayName:message.user.displayNameOriginal,
-						};
-						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:this.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
-
-					}else {
-
-						//Check if it's an "ad" message
-						if(!isFromRemoteChan
-						//Remove eventual /command from the reference message
-						&& this.botMessages.twitchatAd.message.trim().replace(/(\s)+/g, "$1").replace(/\/.*? /gi, "") == message.message.trim().replace(/(\s)+/g, "$1")) {
-							message.is_ad = true;
-						}
-
-						if(message.twitch_hypeChat) {
-							//Push a dedicated hype chat message
-							const hypeChatMessage:TwitchatDataTypes.MessageHypeChatData = {
-								date:Date.now(),
-								id:Utils.getUUID(),
-								message,
-								platform:message.platform,
-								type:TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT,
-								channel_id:message.channel_id,
-							}
-							this.addMessage(hypeChatMessage);
-						}
-					}
-
-					//Check if the message contains a mention
-					if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-						let words = [sAuth.twitch.user.login, ...(sParams.appearance.highlightMentions_custom.value as string[] || [])];
-						message.hasMention = new RegExp(words.map(word=> "\\b"+word+"\\b").join("|"), "gim")
-											.test(message.message ?? "");
-					}
-
-					//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
-					if(ChatCypherPlugin.instance.isCypherCandidate(message.message)) {
-						const original = message.message;
-						message.message = message.message_html = await ChatCypherPlugin.instance.decrypt(message.message);
-						message.message_chunks = TwitchUtils.parseMessageToChunks(message.message);
-						message.message_size = TwitchUtils.computeMessageSize(message.message_chunks);
-						message.cyphered = message.message != original;
-					}
-
-					//Search in the last 30 messages if this message has already been sent
-					//If so, just increment the previous one
-					if(sParams.features.groupIdenticalMessage.value === true) {
-						const len = messageList.length;
-						const end = Math.max(0, len - 30);
-						for (let i = len-1; i > end; i--) {
-							const m = messageList[i];
-							if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.type != TwitchatDataTypes.TwitchatMessageType.WHISPER) continue;
-							if(message.type != m.type) continue;
-							if(m.user.id != message.user.id) continue;
-							if(m.date < Date.now() - 30000 || i < len-30) continue;//"i < len-0" more or less means "if message is still visible on screen"
-							if(message.message.toLowerCase() != m.message.toLowerCase()) continue;
-							if(message.spoiler != m.spoiler) continue;
-							if(message.deleted != m.deleted) continue;
-							if(message.channel_id != m.channel_id) continue;
-							//If whisper target isn't the same, skip it
-							if(message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER
-								&& m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
-								if(m.to.id != message.to.id) continue;
-							}
-
-							if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-							&& m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-								//If highlight state isn't the same, skip it
-								if(m.twitch_isHighlighted != message.twitch_isHighlighted) continue;
-								//Don't merge automoded
-								if(message.automod || m.automod) continue;
-								if(message.twitch_automod || m.twitch_automod) continue;
-								//Don't merge answers to messages
-								if(message.answersTo || m.answersTo) continue;
-							}
-							if(!m.occurrenceCount) m.occurrenceCount = 0;
-							//Remove message
-							messageList.splice(i, 1);
-							await Database.instance.deleteMessage(m);
-							EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:true}));
-							m.occurrenceCount ++;
-							//Update timestamp
-							m.date = Date.now();
-							message = m;
-							break;
-						}
-					}
-
-
-
-					if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-						if(message.twitch_gigantifiedEmote) {
-							const emote = message.message_chunks.findLast(v=>v.type == "emote");
-							StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_ID", message.user.id);
-							StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_NAME", message.user.displayNameOriginal);
-							StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_AVATAR", message.user.avatarPath || "", message.user.id);
-							StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_CODE", emote?.value || "");
-							StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_IMAGE", emote?.emoteHD || "");
-						}
-
-						if(message.twitch_animationId) {
-							StoreProxy.labels.updateLabelValue("POWER_UP_MESSAGE_ID", message.user.id);
-							StoreProxy.labels.updateLabelValue("POWER_UP_MESSAGE_NAME", message.user.displayNameOriginal);
-							StoreProxy.labels.updateLabelValue("POWER_UP_MESSAGE_AVATAR", message.user.avatarPath || "", message.user.id);
-						}
-						//Reset ad schedule if necessary
-						if(!isFromRemoteChan) {
-							if(/\b(?:https?:\/\/)twitchat\.fr\b/gi.test(message.message)) {
-								SchedulerHelper.instance.resetAdSchedule(message);
-							}
-							if(!message.user.channelInfo[message.channel_id].is_broadcaster) {
-								SchedulerHelper.instance.incrementMessageCount();
-							}
-	
-							//Detect hate raid.
-							if(sParams.features.antiHateRaid.value === true && Date.now() > antiHateRaidGraceEndDate) {
-								const key = message.message_chunks.filter(v=>v.type == "text").join("").toLowerCase();
-								if(message.twitch_isFirstMessage === true || message.user.channelInfo[message.channel_id].is_new) {
-									//It's a first time chatter, log their message
-									if(!antiHateRaidCounter[key]) {
-										antiHateRaidCounter[key] = {
-											date:0,
-											messages:[],
-											ignore:false,
-										};
-									}
-	
-									//If user isn't already registered to the haters, add them
-									if(antiHateRaidCounter[key].messages.findIndex(v=>v.user.id == (message as TwitchatDataTypes.MessageChatData).user.id) == -1) {
-										antiHateRaidCounter[key].date = Date.now();
-										antiHateRaidCounter[key].messages.push(message);
-									}
-	
-									//5 users sent the same message, strike them if no other legit user sent the same
-									if(antiHateRaidCounter[key].ignore != true && antiHateRaidCounter[key].messages.length == 5) {
-										currentHateRaidAlert = reactive({
-											id:Utils.getUUID(),
-											type:TwitchatDataTypes.TwitchatMessageType.HATE_RAID,
-											channel_id:message.channel_id,
-											platform:message.platform,
-											date:Date.now(),
-											haters:antiHateRaidCounter[key].messages.map(v=>v.user),
-											terms:[],
-										});
-	
-										//Ban groups of words to make it a little more bullet proof
-										const chunks = message.message_chunks.filter(v=>v.type == "text").map(v=>v.value).join(" ").split(" ");
-										let word = "";
-										for (let i = 0; i < chunks.length; i++) {
-											const w = chunks[i];
-											word += " "+w;
-											if(word.length > 15) {
-												word = word.trim()
-												TwitchUtils.addBanword(word).then(result => {
-													if(result !== false) {
-														currentHateRaidAlert.terms.push({id:result.id, text:result.text});
-														if(saveToDB) {
-															Database.instance.updateMessage(currentHateRaidAlert);
-														}
-													}
-												});
-												word = "";
-											}
-										}
-										//Delete previous messages if requested
-										if(sParams.features.antiHateRaidDeleteMessage.value == true){
-											antiHateRaidCounter[key].messages.forEach(async v=> {
-												if(v.deleted !== true) {
-													this.deleteMessage(v);
-												}
-											});
-										}
-										//Start emergency mode if requested
-										if(sParams.features.antiHateRaidEmergency.value == true){
-											sEmergency.setEmergencyMode(true);
-										}
-	
-										//Reset counter 10s after hate raid detection.
-										//We shouldn't get an another wave for this message unless someone
-										//removes the blocked terms
-										setTimeout(()=>{
-											delete antiHateRaidCounter[key];
-										}, 10000);
-										this.addMessage(currentHateRaidAlert);
-									}else
-									//If anti hate raid is active and new message is received (might happen
-									//as adding a banword to twitch takes a few hundred milliseconds)
-									if(antiHateRaidCounter[key].ignore != true && antiHateRaidCounter[key].messages.length > 5) {
-										//Add user to list
-										currentHateRaidAlert.haters.push(message.user);
-										Database.instance.updateMessage(currentHateRaidAlert);
-										//Delete messages if requested
-										if(sParams.features.antiHateRaidDeleteMessage.value == true){
-											if(message.deleted !== true) {
-												this.deleteMessage(message);
-											}
-										}
-									}
-	
-									//Cleanup old cache to free memory
-									let expiredSince = Date.now() - 5*60*1000;
-									for (const key in antiHateRaidCounter) {
-										const element = antiHateRaidCounter[key];
-										if(element.date < expiredSince) delete antiHateRaidCounter[key];
-									}
-								}else if(antiHateRaidCounter[key]) {
-									//It's not a first time chatter ignore this message
-									antiHateRaidCounter[key].ignore = true;
+									});
 								}
 							}
+						})
+					}
+				}
+	
+				if(logTimings) console.log("1", message.id, Date.now() - s);
+				switch(message.type) {
+					case TwitchatDataTypes.TwitchatMessageType.MESSAGE:
+					case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
+						if(message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+							const to = message.user.id == sAuth.twitch.user.id? message.to : message.user;
+							const from = message.user.id == sAuth.twitch.user.id? message.user : message.to;
+							if(!this.whispers[to.id]) this.whispers[to.id] = {from, to, messages:[]};
+							this.whispers[to.id].messages.push(message);
+							this.whispersUnreadCount ++;
+							const wsUser = {
+								id:message.user.id,
+								login:message.user.login,
+								displayName:message.user.displayNameOriginal,
+							};
+							PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:this.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
+	
+						}else {
+	
+							//Check if it's an "ad" message
+							if(!isFromRemoteChan
+							//Remove eventual /command from the reference message
+							&& this.botMessages.twitchatAd.message.trim().replace(/(\s)+/g, "$1").replace(/\/.*? /gi, "") == message.message.trim().replace(/(\s)+/g, "$1")) {
+								message.is_ad = true;
+							}
+	
+							if(message.twitch_hypeChat) {
+								//Push a dedicated hype chat message
+								const hypeChatMessage:TwitchatDataTypes.MessageHypeChatData = {
+									date:Date.now(),
+									id:Utils.getUUID(),
+									message,
+									platform:message.platform,
+									type:TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT,
+									channel_id:message.channel_id,
+								}
+								this.addMessage(hypeChatMessage);
+							}
 						}
-
+	
+						//Check if the message contains a mention
+						if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+							let words = [sAuth.twitch.user.login, ...(sParams.appearance.highlightMentions_custom.value as string[] || [])];
+							message.hasMention = new RegExp(words.map(word=> "\\b"+word+"\\b").join("|"), "gim")
+												.test(message.message ?? "");
+						}
+	
+						//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
+						if(ChatCypherPlugin.instance.isCypherCandidate(message.message)) {
+							const original = message.message;
+							message.message = message.message_html = await ChatCypherPlugin.instance.decrypt(message.message);
+							message.message_chunks = TwitchUtils.parseMessageToChunks(message.message);
+							message.message_size = TwitchUtils.computeMessageSize(message.message_chunks);
+							message.cyphered = message.message != original;
+						}
+	
+						//Search in the last 30 messages if this message has already been sent
+						//If so, just increment the previous one
+						if(sParams.features.groupIdenticalMessage.value === true) {
+							const len = messageList.length;
+							const end = Math.max(0, len - 30);
+							for (let i = len-1; i > end; i--) {
+								const m = messageList[i];
+								if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.type != TwitchatDataTypes.TwitchatMessageType.WHISPER) continue;
+								if(message.type != m.type) continue;
+								if(m.user.id != message.user.id) continue;
+								if(m.date < Date.now() - 30000 || i < len-30) continue;//"i < len-0" more or less means "if message is still visible on screen"
+								if(message.message.toLowerCase() != m.message.toLowerCase()) continue;
+								if(message.spoiler != m.spoiler) continue;
+								if(message.deleted != m.deleted) continue;
+								if(message.channel_id != m.channel_id) continue;
+								//If whisper target isn't the same, skip it
+								if(message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER
+									&& m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+									if(m.to.id != message.to.id) continue;
+								}
+	
+								if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+								&& m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+									//If highlight state isn't the same, skip it
+									if(m.twitch_isHighlighted != message.twitch_isHighlighted) continue;
+									//Don't merge automoded
+									if(message.automod || m.automod) continue;
+									if(message.twitch_automod || m.twitch_automod) continue;
+									//Don't merge answers to messages
+									if(message.answersTo || m.answersTo) continue;
+								}
+								if(!m.occurrenceCount) m.occurrenceCount = 0;
+								//Remove message
+								messageList.splice(i, 1);
+								await Database.instance.deleteMessage(m);
+								EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:true}));
+								m.occurrenceCount ++;
+								//Update timestamp
+								m.date = Date.now();
+								message = m;
+								break;
+							}
+						}
+	
+	
+	
+						if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+							if(message.twitch_gigantifiedEmote) {
+								const emote = message.message_chunks.findLast(v=>v.type == "emote");
+								StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_ID", message.user.id);
+								StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_NAME", message.user.displayNameOriginal);
+								StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_AVATAR", message.user.avatarPath || "", message.user.id);
+								StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_CODE", emote?.value || "");
+								StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_IMAGE", emote?.emoteHD || "");
+							}
+	
+							if(message.twitch_animationId) {
+								StoreProxy.labels.updateLabelValue("POWER_UP_MESSAGE_ID", message.user.id);
+								StoreProxy.labels.updateLabelValue("POWER_UP_MESSAGE_NAME", message.user.displayNameOriginal);
+								StoreProxy.labels.updateLabelValue("POWER_UP_MESSAGE_AVATAR", message.user.avatarPath || "", message.user.id);
+							}
+							//Reset ad schedule if necessary
+							if(!isFromRemoteChan) {
+								if(/\b(?:https?:\/\/)twitchat\.fr\b/gi.test(message.message)) {
+									SchedulerHelper.instance.resetAdSchedule(message);
+								}
+								if(!message.user.channelInfo[message.channel_id].is_broadcaster) {
+									SchedulerHelper.instance.incrementMessageCount();
+								}
+		
+								//Detect hate raid.
+								if(sParams.features.antiHateRaid.value === true && Date.now() > antiHateRaidGraceEndDate) {
+									const key = message.message_chunks.filter(v=>v.type == "text").join("").toLowerCase();
+									if(message.twitch_isFirstMessage === true || message.user.channelInfo[message.channel_id].is_new) {
+										//It's a first time chatter, log their message
+										if(!antiHateRaidCounter[key]) {
+											antiHateRaidCounter[key] = {
+												date:0,
+												messages:[],
+												ignore:false,
+											};
+										}
+		
+										//If user isn't already registered to the haters, add them
+										if(antiHateRaidCounter[key].messages.findIndex(v=>v.user.id == (message as TwitchatDataTypes.MessageChatData).user.id) == -1) {
+											antiHateRaidCounter[key].date = Date.now();
+											antiHateRaidCounter[key].messages.push(message);
+										}
+		
+										//5 users sent the same message, strike them if no other legit user sent the same
+										if(antiHateRaidCounter[key].ignore != true && antiHateRaidCounter[key].messages.length == 5) {
+											currentHateRaidAlert = reactive({
+												id:Utils.getUUID(),
+												type:TwitchatDataTypes.TwitchatMessageType.HATE_RAID,
+												channel_id:message.channel_id,
+												platform:message.platform,
+												date:Date.now(),
+												haters:antiHateRaidCounter[key].messages.map(v=>v.user),
+												terms:[],
+											});
+		
+											//Ban groups of words to make it a little more bullet proof
+											const chunks = message.message_chunks.filter(v=>v.type == "text").map(v=>v.value).join(" ").split(" ");
+											let word = "";
+											for (let i = 0; i < chunks.length; i++) {
+												const w = chunks[i];
+												word += " "+w;
+												if(word.length > 15) {
+													word = word.trim()
+													TwitchUtils.addBanword(word).then(result => {
+														if(result !== false) {
+															currentHateRaidAlert.terms.push({id:result.id, text:result.text});
+															if(saveToDB) {
+																Database.instance.updateMessage(currentHateRaidAlert);
+															}
+														}
+													});
+													word = "";
+												}
+											}
+											//Delete previous messages if requested
+											if(sParams.features.antiHateRaidDeleteMessage.value == true){
+												antiHateRaidCounter[key].messages.forEach(async v=> {
+													if(v.deleted !== true) {
+														this.deleteMessage(v);
+													}
+												});
+											}
+											//Start emergency mode if requested
+											if(sParams.features.antiHateRaidEmergency.value == true){
+												sEmergency.setEmergencyMode(true);
+											}
+		
+											//Reset counter 10s after hate raid detection.
+											//We shouldn't get an another wave for this message unless someone
+											//removes the blocked terms
+											window.setTimeout(()=>{
+												delete antiHateRaidCounter[key];
+											}, 10000);
+											this.addMessage(currentHateRaidAlert);
+										}else
+										//If anti hate raid is active and new message is received (might happen
+										//as adding a banword to twitch takes a few hundred milliseconds)
+										if(antiHateRaidCounter[key].ignore != true && antiHateRaidCounter[key].messages.length > 5) {
+											//Add user to list
+											currentHateRaidAlert.haters.push(message.user);
+											Database.instance.updateMessage(currentHateRaidAlert);
+											//Delete messages if requested
+											if(sParams.features.antiHateRaidDeleteMessage.value == true){
+												if(message.deleted !== true) {
+													this.deleteMessage(message);
+												}
+											}
+										}
+		
+										//Cleanup old cache to free memory
+										let expiredSince = Date.now() - 5*60*1000;
+										for (const key in antiHateRaidCounter) {
+											const element = antiHateRaidCounter[key];
+											if(element.date < expiredSince) delete antiHateRaidCounter[key];
+										}
+									}else if(antiHateRaidCounter[key]) {
+										//It's not a first time chatter ignore this message
+										antiHateRaidCounter[key].ignore = true;
+									}
+								}
+							}
+	
+							const wsMessage = {
+								channel:message.channel_id,
+								message:message.message,
+								user: {
+									id:message.user.id,
+									login:message.user.login,
+									displayName:message.user.displayNameOriginal,
+								}
+							}
+	
+							//If it's a text message and user isn't a follower, broadcast to WS
+							if(message.user.channelInfo[message.channel_id].is_following === false) {
+								PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, wsMessage);
+							}
+	
+							//Check if the message contains a mention
+							if(message.hasMention) {
+								PublicAPI.instance.broadcast(TwitchatEvent.MENTION, wsMessage);
+							}
+	
+							//If it's the first message today for this user
+							if(message.todayFirst === true) {
+								PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST, wsMessage);
+							}
+	
+							//If it's the first message all time of the user
+							if(message.twitch_isFirstMessage) {
+								//Flag user as new chatter
+								message.user.channelInfo[message.channel_id].is_new = true;
+								// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, wsMessage);
+							}
+	
+							//Handle spoiler command
+							if(message.answersTo && await Utils.checkPermissions(this.spoilerParams.permissions, message.user, message.channel_id)) {
+								const cmd = message.message.replace(/@[^\s]+\s?/, "").trim().toLowerCase();
+								if(cmd.indexOf("!spoiler") === 0) {
+									message.answersTo.spoiler = true;
+								}
+							}
+	
+							//Flag as spoiler
+							if(message.message.indexOf("||") > -1) message.containsSpoiler = true;
+	
+							//check if it's a chat alert command
+							if(!isFromRemoteChan
+							&& sParams.features.alertMode.value === true
+							&& await Utils.checkPermissions(sMain.chatAlertParams.permissions, message.user, message.channel_id)) {
+								if(message.message.trim().toLowerCase().indexOf(sMain.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
+									//Execute alert
+									sMain.chatAlert = message;
+	
+									//Execute trigger
+									const trigger:TwitchatDataTypes.MessageChatAlertData = {
+										date:Date.now(),
+										id:Utils.getUUID(),
+										platform:message.platform,
+										type:TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT,
+										message:message,
+										channel_id:message.channel_id,
+									}
+									TriggerActionHandler.instance.execute(trigger);
+								}
+							}
+	
+							//If there's a mention, search for last messages within
+							//a max timeframe to find if the message may be a reply to
+							//a message that was sent by the mentionned user
+							if(/@\w/gi.test(message.message) && !message.answersTo) {
+								// console.log("Mention found");
+								const ts = Date.now();
+								const messages = this.messages;
+								const timeframe = 5*60*1000;//Check if a massage answers another within this timeframe
+								const matches = message.message.match(/@\w+/gi) as RegExpMatchArray;
+								for (let i = 0; i < matches.length; i++) {
+									const match = matches[i].replace("@", "").toLowerCase();
+									// console.log("Search for message from ", match);
+									for (let j = messages.length-1; j >= 0; j--) {
+										const m = messages[j];
+										//Not a user message, ignore it
+										if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
+										//Not sent from the mentionned user, ignore it
+										if(m.user.login != match && m.user.displayNameOriginal.toLowerCase() != match) continue;
+										//If message is too old, stop there
+										if(ts - m.date > timeframe) break;
+	
+										if(m.answers) {
+											//If it's the root message of a conversation
+											m.answers.push( message );
+											message.answersTo = m;
+										}else if(m.answersTo && m.answersTo.answers) {
+											//If the messages answers to a message itself
+											//answering to another message
+											m.answersTo.answers.push( message );
+											message.answersTo = m.answersTo;
+										}else{
+											//If message answers to a message not from a conversation
+											message.answersTo = m;
+											if(!m.answers) m.answers = [];
+											m.answers.push( message );
+										}
+										break;
+									}
+								}
+							}
+	
+							//If it's a new user and "autospoil new users" option is enabled,
+							//set the message as a spoiler
+							if(message.user.channelInfo[message.channel_id].is_new === true
+							&& this.spoilerParams.autoSpoilNewUsers === true
+							&& message.user.noAutospoil !== true) {
+								message.spoiler = true;
+								message.autospoiled = true;
+							}
+						}
+						break;
+					}
+	
+					//Reward redeem
+					case TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK: {
+						if(!isFromRemoteChan) {
+							StoreProxy.labels.updateLabelValue("WATCH_STREAK_ID", message.user.id);
+							StoreProxy.labels.updateLabelValue("WATCH_STREAK_NAME", message.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("WATCH_STREAK_AVATAR", message.user.avatarPath || "", message.user.id);
+							StoreProxy.labels.updateLabelValue("WATCH_STREAK_COUNT", message.streak);
+						}
+						break;
+					}
+	
+					//Reward redeem
+					case TwitchatDataTypes.TwitchatMessageType.REWARD: {
+	
+						//Check if the user can enter a raffle
+						if(!isFromRemoteChan) {
+							sRaffle.checkRaffleJoin(message);
+						}
+	
 						const wsMessage = {
 							channel:message.channel_id,
 							message:message.message,
+							message_chunks:(message.message_chunks as unknown) as JsonArray,
 							user: {
 								id:message.user.id,
 								login:message.user.login,
 								displayName:message.user.displayNameOriginal,
-							}
+							},
+							reward:{
+								id:message.reward.id,
+								cost:message.reward.cost,
+								title:message.reward.title,
+							},
+						} as JsonObject;
+						PublicAPI.instance.broadcast(TwitchatEvent.REWARD_REDEEM, wsMessage);
+						if(!isFromRemoteChan) {
+							StoreProxy.labels.updateLabelValue("REWARD_ID", message.user.id);
+							StoreProxy.labels.updateLabelValue("REWARD_NAME", message.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("REWARD_AVATAR", message.user.avatarPath || "", message.user.id);
+							StoreProxy.labels.updateLabelValue("REWARD_ICON", message.reward.icon.hd || message.reward.icon.sd);
+							StoreProxy.labels.updateLabelValue("REWARD_TITLE", message.reward.title);
 						}
-
-						//If it's a text message and user isn't a follower, broadcast to WS
-						if(message.user.channelInfo[message.channel_id].is_following === false) {
-							PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, wsMessage);
-						}
-
-						//Check if the message contains a mention
-						if(message.hasMention) {
-							PublicAPI.instance.broadcast(TwitchatEvent.MENTION, wsMessage);
-						}
-
-						//If it's the first message today for this user
-						if(message.todayFirst === true) {
-							PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST, wsMessage);
-						}
-
-						//If it's the first message all time of the user
-						if(message.twitch_isFirstMessage) {
-							//Flag user as new chatter
-							message.user.channelInfo[message.channel_id].is_new = true;
-							// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, wsMessage);
-						}
-
-						//Handle spoiler command
-						if(message.answersTo && await Utils.checkPermissions(this.spoilerParams.permissions, message.user, message.channel_id)) {
-							const cmd = message.message.replace(/@[^\s]+\s?/, "").trim().toLowerCase();
-							if(cmd.indexOf("!spoiler") === 0) {
-								message.answersTo.spoiler = true;
-							}
-						}
-
-						//Flag as spoiler
-						if(message.message.indexOf("||") > -1) message.containsSpoiler = true;
-
-						//check if it's a chat alert command
-						if(!isFromRemoteChan
-						&& sParams.features.alertMode.value === true
-						&& await Utils.checkPermissions(sMain.chatAlertParams.permissions, message.user, message.channel_id)) {
-							if(message.message.trim().toLowerCase().indexOf(sMain.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
-								//Execute alert
-								sMain.chatAlert = message;
-
-								//Execute trigger
-								const trigger:TwitchatDataTypes.MessageChatAlertData = {
-									date:Date.now(),
-									id:Utils.getUUID(),
-									platform:message.platform,
-									type:TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT,
-									message:message,
-									channel_id:message.channel_id,
-								}
-								TriggerActionHandler.instance.execute(trigger);
-							}
-						}
-
-						//If there's a mention, search for last messages within
-						//a max timeframe to find if the message may be a reply to
-						//a message that was sent by the mentionned user
-						if(/@\w/gi.test(message.message) && !message.answersTo) {
-							// console.log("Mention found");
-							const ts = Date.now();
-							const messages = this.messages;
-							const timeframe = 5*60*1000;//Check if a massage answers another within this timeframe
-							const matches = message.message.match(/@\w+/gi) as RegExpMatchArray;
-							for (let i = 0; i < matches.length; i++) {
-								const match = matches[i].replace("@", "").toLowerCase();
-								// console.log("Search for message from ", match);
-								for (let j = messages.length-1; j >= 0; j--) {
-									const m = messages[j];
-									//Not a user message, ignore it
-									if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
-									//Not sent from the mentionned user, ignore it
-									if(m.user.login != match && m.user.displayNameOriginal.toLowerCase() != match) continue;
-									//If message is too old, stop there
-									if(ts - m.date > timeframe) break;
-
-									if(m.answers) {
-										//If it's the root message of a conversation
-										m.answers.push( message );
-										message.answersTo = m;
-									}else if(m.answersTo && m.answersTo.answers) {
-										//If the messages answers to a message itself
-										//answering to another message
-										m.answersTo.answers.push( message );
-										message.answersTo = m.answersTo;
-									}else{
-										//If message answers to a message not from a conversation
-										message.answersTo = m;
-										if(!m.answers) m.answers = [];
-										m.answers.push( message );
-									}
-									break;
-								}
-							}
-						}
-
-						//If it's a new user and "autospoil new users" option is enabled,
-						//set the message as a spoiler
-						if(message.user.channelInfo[message.channel_id].is_new === true
-						&& this.spoilerParams.autoSpoilNewUsers === true
-						&& message.user.noAutospoil !== true) {
-							message.spoiler = true;
-							message.autospoiled = true;
-						}
+						break;
 					}
-					break;
-				}
-
-				//Reward redeem
-				case TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK: {
-					if(!isFromRemoteChan) {
-						StoreProxy.labels.updateLabelValue("WATCH_STREAK_ID", message.user.id);
-						StoreProxy.labels.updateLabelValue("WATCH_STREAK_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("WATCH_STREAK_AVATAR", message.user.avatarPath || "", message.user.id);
-						StoreProxy.labels.updateLabelValue("WATCH_STREAK_COUNT", message.streak);
-					}
-					break;
-				}
-
-				//Reward redeem
-				case TwitchatDataTypes.TwitchatMessageType.REWARD: {
-
-					//Check if the user can enter a raffle
-					if(!isFromRemoteChan) {
-						sRaffle.checkRaffleJoin(message);
-					}
-
-					const wsMessage = {
-						channel:message.channel_id,
-						message:message.message,
-						message_chunks:(message.message_chunks as unknown) as JsonArray,
-						user: {
-							id:message.user.id,
-							login:message.user.login,
-							displayName:message.user.displayNameOriginal,
-						},
-						reward:{
-							id:message.reward.id,
-							cost:message.reward.cost,
-							title:message.reward.title,
-						},
-					} as JsonObject;
-					PublicAPI.instance.broadcast(TwitchatEvent.REWARD_REDEEM, wsMessage);
-					if(!isFromRemoteChan) {
-						StoreProxy.labels.updateLabelValue("REWARD_ID", message.user.id);
-						StoreProxy.labels.updateLabelValue("REWARD_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("REWARD_AVATAR", message.user.avatarPath || "", message.user.id);
-						StoreProxy.labels.updateLabelValue("REWARD_ICON", message.reward.icon.hd || message.reward.icon.sd);
-						StoreProxy.labels.updateLabelValue("REWARD_TITLE", message.reward.title);
-					}
-					break;
-				}
-
-				//Incomming raid
-				case TwitchatDataTypes.TwitchatMessageType.RAID: {
-					antiHateRaidGraceEndDate = Date.now() + 3 * 60 * 1000;
-					if(!isFromRemoteChan) {
-						sStream.lastRaider = message.user;
-						StoreProxy.labels.updateLabelValue("RAID_ID", message.user.id);
-						StoreProxy.labels.updateLabelValue("RAID_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("RAID_AVATAR", message.user.avatarPath || "", message.user.id);
-						StoreProxy.labels.updateLabelValue("RAID_COUNT", message.viewers);
-					}
-					message.user.channelInfo[message.channel_id].is_raider = true;
-					if(sParams.appearance.raidHighlightUser.value
-					&& sParams.appearance.raidHighlightUserTrack.value === true) {
-						StoreProxy.users.trackUser(message.user);
-					}
-					setTimeout(()=> {
-						const localMess = message as TwitchatDataTypes.MessageRaidData;
-						localMess.user.channelInfo[localMess.channel_id].is_raider = false;
+	
+					//Incomming raid
+					case TwitchatDataTypes.TwitchatMessageType.RAID: {
+						antiHateRaidGraceEndDate = Date.now() + 3 * 60 * 1000;
+						if(!isFromRemoteChan) {
+							sStream.lastRaider = message.user;
+							StoreProxy.labels.updateLabelValue("RAID_ID", message.user.id);
+							StoreProxy.labels.updateLabelValue("RAID_NAME", message.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("RAID_AVATAR", message.user.avatarPath || "", message.user.id);
+							StoreProxy.labels.updateLabelValue("RAID_COUNT", message.viewers);
+						}
+						message.user.channelInfo[message.channel_id].is_raider = true;
 						if(sParams.appearance.raidHighlightUser.value
 						&& sParams.appearance.raidHighlightUserTrack.value === true) {
-							StoreProxy.users.untrackUser(localMess.user);
+							StoreProxy.users.trackUser(message.user);
 						}
-					}, (sParams.appearance.raidHighlightUserDuration.value as number ?? 0) * 1000 * 60);
-
-					break;
-				}
-
-				//New cheer
-				case TwitchatDataTypes.TwitchatMessageType.CHEER: {
-					if(!isFromRemoteChan) {
-						message = message as TwitchatDataTypes.MessageCheerData;
-						StoreProxy.labels.updateLabelValue("CHEER_ID", message.user.id);
-						StoreProxy.labels.updateLabelValue("CHEER_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("CHEER_AVATAR", message.user.avatarPath || "", message.user.id);
-						StoreProxy.labels.updateLabelValue("CHEER_AMOUNT", message.bits);
+						window.setTimeout(()=> {
+							const localMess = message as TwitchatDataTypes.MessageRaidData;
+							localMess.user.channelInfo[localMess.channel_id].is_raider = false;
+							if(sParams.appearance.raidHighlightUser.value
+							&& sParams.appearance.raidHighlightUserTrack.value === true) {
+								StoreProxy.users.untrackUser(localMess.user);
+							}
+						}, (sParams.appearance.raidHighlightUserDuration.value as number ?? 0) * 1000 * 60);
+	
+						break;
 					}
-					break;
-				}
-
-				//New kofi event
-				case TwitchatDataTypes.TwitchatMessageType.KOFI: {
-					if(!isFromRemoteChan) {
-						message = message as TwitchatDataTypes.MessageKofiData;
-						if(message.eventType == "donation") {
-							StoreProxy.labels.updateLabelValue("KOFI_TIP_NAME", message.userName);
-							StoreProxy.labels.updateLabelValue("KOFI_TIP_AMOUNT", message.amountFormatted);
-							sRaffle.checkRaffleJoin(message);
-						}else
-						if(message.eventType == "merch") {
-							StoreProxy.labels.updateLabelValue("KOFI_MERCH_USER", message.userName);
-							StoreProxy.labels.updateLabelValue("KOFI_MERCH_AMOUNT", message.amountFormatted);
-							StoreProxy.labels.updateLabelValue("KOFI_MERCH_NAME", message.products[0].name || "");
+	
+					//New cheer
+					case TwitchatDataTypes.TwitchatMessageType.CHEER: {
+						if(!isFromRemoteChan) {
+							message = message as TwitchatDataTypes.MessageCheerData;
+							StoreProxy.labels.updateLabelValue("CHEER_ID", message.user.id);
+							StoreProxy.labels.updateLabelValue("CHEER_NAME", message.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("CHEER_AVATAR", message.user.avatarPath || "", message.user.id);
+							StoreProxy.labels.updateLabelValue("CHEER_AMOUNT", message.bits);
 						}
+						break;
 					}
-					break;
-				}
-
-				//New Streamelements event
-				case TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS: {
-					if(!isFromRemoteChan) {
-						message = message as TwitchatDataTypes.MessageStreamelementsData;
-						if(message.eventType == "donation") {
-							StoreProxy.labels.updateLabelValue("STREAMELEMENTS_TIP_NAME", message.userName);
-							StoreProxy.labels.updateLabelValue("STREAMELEMENTS_TIP_AMOUNT", message.amountFormatted);
-							sRaffle.checkRaffleJoin(message);
+	
+					//New kofi event
+					case TwitchatDataTypes.TwitchatMessageType.KOFI: {
+						if(!isFromRemoteChan) {
+							message = message as TwitchatDataTypes.MessageKofiData;
+							if(message.eventType == "donation") {
+								StoreProxy.labels.updateLabelValue("KOFI_TIP_NAME", message.userName);
+								StoreProxy.labels.updateLabelValue("KOFI_TIP_AMOUNT", message.amountFormatted);
+								sRaffle.checkRaffleJoin(message);
+							}else
+							if(message.eventType == "merch") {
+								StoreProxy.labels.updateLabelValue("KOFI_MERCH_USER", message.userName);
+								StoreProxy.labels.updateLabelValue("KOFI_MERCH_AMOUNT", message.amountFormatted);
+								StoreProxy.labels.updateLabelValue("KOFI_MERCH_NAME", message.products[0].name || "");
+							}
 						}
+						break;
 					}
-					break;
-				}
-
-				//New Streamlabs event
-				case TwitchatDataTypes.TwitchatMessageType.STREAMLABS: {
-					if(!isFromRemoteChan) {
-						message = message as TwitchatDataTypes.MessageStreamlabsData;
-						if(message.eventType == "donation") {
-							StoreProxy.labels.updateLabelValue("STREAMLABS_TIP_NAME", message.userName);
-							StoreProxy.labels.updateLabelValue("STREAMLABS_TIP_AMOUNT", message.amountFormatted);
-							sRaffle.checkRaffleJoin(message);
-						}else
-						if(message.eventType == "merch") {
-							StoreProxy.labels.updateLabelValue("STREAMLABS_MERCH_USER", message.userName);
-							StoreProxy.labels.updateLabelValue("STREAMLABS_MERCH_NAME", message.product);
-						}else
-						if(message.eventType == "charity") {
-							StoreProxy.labels.incrementLabelValue("STREAMLABS_CHARITY_RAISED", message.amount);
-							StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_AMOUNT", message.amount);
-							StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_USER", message.userName);
-							StoreProxy.donationGoals.onDonation(message.userName, message.amount.toString(), "streamlabs_charity");
-							StoreProxy.donationGoals.onSourceValueUpdate("streamlabs_charity", message.campaign.id);
-							sRaffle.checkRaffleJoin(message);
+	
+					//New Streamelements event
+					case TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS: {
+						if(!isFromRemoteChan) {
+							message = message as TwitchatDataTypes.MessageStreamelementsData;
+							if(message.eventType == "donation") {
+								StoreProxy.labels.updateLabelValue("STREAMELEMENTS_TIP_NAME", message.userName);
+								StoreProxy.labels.updateLabelValue("STREAMELEMENTS_TIP_AMOUNT", message.amountFormatted);
+								sRaffle.checkRaffleJoin(message);
+							}
 						}
+						break;
 					}
-					break;
-				}
-
-				//New Tipeee event
-				case TwitchatDataTypes.TwitchatMessageType.TIPEEE: {
-					if(!isFromRemoteChan) {
-						message = message as TwitchatDataTypes.MessageTipeeeDonationData;
-						if(message.eventType == "donation") {
-							StoreProxy.labels.updateLabelValue("TIPEEE_TIP_NAME", message.userName);
-							StoreProxy.labels.updateLabelValue("TIPEEE_TIP_AMOUNT", message.amountFormatted);
-							sRaffle.checkRaffleJoin(message);
+	
+					//New Streamlabs event
+					case TwitchatDataTypes.TwitchatMessageType.STREAMLABS: {
+						if(!isFromRemoteChan) {
+							message = message as TwitchatDataTypes.MessageStreamlabsData;
+							if(message.eventType == "donation") {
+								StoreProxy.labels.updateLabelValue("STREAMLABS_TIP_NAME", message.userName);
+								StoreProxy.labels.updateLabelValue("STREAMLABS_TIP_AMOUNT", message.amountFormatted);
+								sRaffle.checkRaffleJoin(message);
+							}else
+							if(message.eventType == "merch") {
+								StoreProxy.labels.updateLabelValue("STREAMLABS_MERCH_USER", message.userName);
+								StoreProxy.labels.updateLabelValue("STREAMLABS_MERCH_NAME", message.product);
+							}else
+							if(message.eventType == "charity") {
+								StoreProxy.labels.incrementLabelValue("STREAMLABS_CHARITY_RAISED", message.amount);
+								StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_AMOUNT", message.amount);
+								StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_LAST_TIP_USER", message.userName);
+								StoreProxy.donationGoals.onDonation(message.userName, message.amount.toString(), "streamlabs_charity");
+								StoreProxy.donationGoals.onSourceValueUpdate("streamlabs_charity", message.campaign.id);
+								sRaffle.checkRaffleJoin(message);
+							}
 						}
+						break;
 					}
-					break;
-				}
-
-				//New YouTube sub
-				case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION: {
-					if(!isFromRemoteChan) {
-						StoreProxy.labels.updateLabelValue("SUB_YOUTUBE_ID", message.user.id);
-						StoreProxy.labels.updateLabelValue("SUB_YOUTUBE_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("SUB_YOUTUBE_AVATAR", message.user.avatarPath || "");
-						StoreProxy.labels.updateLabelValue("SUB_YOUTUBE_TIER", message.levelName);
-						StoreProxy.labels.updateLabelValue("SUB_GENERIC_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("SUB_GENERIC_AVATAR", message.user.avatarPath || "");
-						StoreProxy.labels.updateLabelValue("SUB_GENERIC_TIER", message.levelName);
+	
+					//New Tipeee event
+					case TwitchatDataTypes.TwitchatMessageType.TIPEEE: {
+						if(!isFromRemoteChan) {
+							message = message as TwitchatDataTypes.MessageTipeeeDonationData;
+							if(message.eventType == "donation") {
+								StoreProxy.labels.updateLabelValue("TIPEEE_TIP_NAME", message.userName);
+								StoreProxy.labels.updateLabelValue("TIPEEE_TIP_AMOUNT", message.amountFormatted);
+								sRaffle.checkRaffleJoin(message);
+							}
+						}
+						break;
 					}
-					break;
-				}
-
-				//New superchat 
-				case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT: {
-					if(!isFromRemoteChan) {
+	
+					//New Tipeee event
+					case TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION: {
+						if(!isFromRemoteChan) {
+							message = message as TwitchatDataTypes.MessageCharityDonationData;
+							StoreProxy.labels.updateLabelValue("TWITCH_CHARITY_LAST_TIP_USER", message.user.displayName);
+							StoreProxy.labels.updateLabelValue("TWITCH_CHARITY_LAST_TIP_AVATAR", message.user.avatarPath || "", message.user.id);
+							StoreProxy.labels.updateLabelValue("TWITCH_CHARITY_LAST_TIP_AMOUNT", message.amountFormatted);
+							sRaffle.checkRaffleJoin(message);
+							StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, message.amount.toString(), "twitch_charity");
+						}
+						break;
+					}
+	
+					//New YouTube sub
+					case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION: {
+						if(!isFromRemoteChan) {
+							StoreProxy.labels.updateLabelValue("SUB_YOUTUBE_ID", message.user.id);
+							StoreProxy.labels.updateLabelValue("SUB_YOUTUBE_NAME", message.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("SUB_YOUTUBE_AVATAR", message.user.avatarPath || "");
+							StoreProxy.labels.updateLabelValue("SUB_YOUTUBE_TIER", message.levelName);
+							StoreProxy.labels.updateLabelValue("SUB_GENERIC_NAME", message.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("SUB_GENERIC_AVATAR", message.user.avatarPath || "");
+							StoreProxy.labels.updateLabelValue("SUB_GENERIC_TIER", message.levelName);
+						}
+						break;
+					}
+	
+					//New superchat 
+					case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT: {
+						if(!isFromRemoteChan) {
+							StoreProxy.labels.updateLabelValue("SUPER_CHAT_ID", message.user.id);
+							StoreProxy.labels.updateLabelValue("SUPER_CHAT_NAME", message.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("SUPER_CHAT_AVATAR", message.user.avatarPath || "");
+							StoreProxy.labels.updateLabelValue("SUPER_CHAT_AMOUNT", message.amountDisplay);
+						}
+						break;
+					}
+	
+					//New patreon member
+					case TwitchatDataTypes.TwitchatMessageType.PATREON: {
+						StoreProxy.labels.updateLabelValue("PATREON_USER", message.user.username);
+						StoreProxy.labels.updateLabelValue("PATREON_AVATAR", message.user.avatar);
+						StoreProxy.labels.updateLabelValue("PATREON_TITLE", message.tier.title);
+						StoreProxy.labels.updateLabelValue("PATREON_AMOUNT", message.tier.amount);
+						break;
+					}
+	
+					//New donation on Tiltify
+					case TwitchatDataTypes.TwitchatMessageType.TILTIFY: {
+						StoreProxy.labels.updateLabelValue("TILTIFY_LAST_TIP_USER", message.userName);
+						StoreProxy.labels.updateLabelValue("TILTIFY_LAST_TIP_AMOUNT", message.amount);
+						break;
+					}
+	
+					//New sub
+					case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
+						PublicAPI.instance.broadcast(TwitchatEvent.SUBSCRIPTION, {
+							tier:message.tier,
+							months:message.months,
+							user:{
+								id:message.user.id,
+								login:message.user.login,
+							},
+							message:message.message || "",
+							message_chunks:(message.message_chunks as unknown) as JsonObject || [],
+							recipients:message.gift_recipients?.map(u=>{return {uid:u.id, login:u.login}}) || [],
+							streakMonths:message.streakMonths,
+							totalSubDuration:message.totalSubDuration,
+							giftCount:message.gift_count || 0,
+							isPrimeUpgrade:message.is_primeUpgrade,
+							isGift:message.is_gift,
+							isGiftUpgrade:message.is_giftUpgrade,
+							isResub:message.is_resub,
+						});
+						//If it's a subgift, merge it with potential previous ones
+						if(message.is_gift && message.gift_recipients) {
+							// console.log("Merge attempt");
+							for (let i = subgiftHistory.length-1; i >= 0; i--) {
+								const subgiftHistoryEntry = subgiftHistory[i];
+								let baseLog = {
+									uid_ref:subgiftHistoryEntry.user.id,
+									uid_new:message.user.id,
+									tier_ref:subgiftHistoryEntry.tier,
+									tier_new:message.tier,
+									date_ref:subgiftHistoryEntry.date,
+									date_new:message.date,
+									elapsed:Math.abs(message.date - subgiftHistoryEntry.date),
+								}
+								if(message.channel_id != subgiftHistoryEntry.channel_id) {
+									if(subgiftHistoryEntry.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
+										Logger.instance.log("subgifts", {
+											id:message.id,
+											merged:false,
+											reason:"different_channel",
+											data:{
+												...baseLog,
+												isGift1:message.is_gift,
+												isGift2:subgiftHistoryEntry.is_gift,
+												ischannelID1:message.channel_id,
+												ischannelID2:subgiftHistoryEntry.channel_id,
+												recipients1:JSON.parse(JSON.stringify(message.gift_recipients.map(v=>{return {uid:v.id, login:v.login}}))),
+												recipients2:JSON.parse(JSON.stringify((subgiftHistoryEntry.gift_recipients || []).map(v=>{return {uid:v.id, login:v.login}}))),
+											}
+										});
+									}
+									continue;
+								}
+								if(subgiftHistoryEntry.tier != message.tier) {
+									Logger.instance.log("subgifts", {
+										id:message.id,
+										merged:false,
+										reason:"different_tier",
+										data:{
+											...baseLog,
+											tier1: subgiftHistoryEntry.tier,
+											tier2: message.tier,
+										}
+									});
+									continue;
+								}
+								if(subgiftHistoryEntry.user.id != message.user.id) {
+									Logger.instance.log("subgifts", {
+										id:message.id,
+										merged:false,
+										reason:"different_user",
+										data:{
+											...baseLog,
+											tier1: subgiftHistoryEntry.user.id,
+											tier2: message.user.id,
+										}
+									});
+									continue;
+								}
+								if(Math.abs(message.date - subgiftHistoryEntry.date) >= 10000) {
+									Logger.instance.log("subgifts", {
+										id:message.id,
+										merged:false,
+										reason:"too_old",
+										data:{
+											...baseLog,
+											timeframe: Math.abs(message.date - subgiftHistoryEntry.date),
+										}
+									});
+									continue;
+								}
+								
+								//If the message is a subgift from the same user with the same tier on
+								//the same channel and happened in the last 10s, merge it.
+								// console.log("MERGE IT !");
+								if(!subgiftHistoryEntry.gift_recipients) subgiftHistoryEntry.gift_recipients = [];
+								subgiftHistoryEntry.date = Date.now();//Update timestamp
+								for (let j = 0; j < message.gift_recipients.length; j++) {
+									subgiftHistoryEntry.gift_recipients.push(message.gift_recipients[j]);
+								}
+								subgiftHistoryEntry.gift_count = subgiftHistoryEntry.gift_recipients.length;
+								if(!isFromRemoteChan) {
+									//DO NOT INCREMENT "SUB_COUNT" AND "SUB_POINTS" HERE !
+									//It is done later once gift bomb completes
+									StoreProxy.labels.updateLabelValue("SUBGIFT_COUNT", subgiftHistoryEntry.gift_count);
+									StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_COUNT", subgiftHistoryEntry.gift_count);
+								}
+								Logger.instance.log("subgifts", {
+									...baseLog,
+									id:message.id,
+									merged:true,
+									data:{
+										parent: subgiftHistoryEntry.id,
+									}
+								});
+								return;
+							}
+							//Message not merged, might be the first subgift of a series, save it
+							//for future subgift events
+							subgiftHistory.push(message);
+						}else if(!isFromRemoteChan){
+							StoreProxy.labels.updateLabelValue("SUB_ID", message.user.id);
+							StoreProxy.labels.updateLabelValue("SUB_NAME", message.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("SUB_AVATAR", message.user.avatarPath || "", message.user.id);
+							StoreProxy.labels.updateLabelValue("SUB_TIER", message.tier);
+	
+							StoreProxy.labels.updateLabelValue("SUB_GENERIC_ID", message.user.id);
+							StoreProxy.labels.updateLabelValue("SUB_GENERIC_NAME", message.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("SUB_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
+							StoreProxy.labels.updateLabelValue("SUB_GENERIC_TIER", message.tier);
+	
+							StoreProxy.labels.incrementLabelValue("SUB_COUNT", 1);
+							StoreProxy.labels.incrementLabelValue("SUB_POINTS", {prime:1, 1:2, 2:3, 3:6}[message.tier]);
+							StoreProxy.donationGoals.onSourceValueUpdate("twitch_subs");
+							const tierLabel = {prime:"prime", 1:"tier 1", 2:"tier 2", 3:"tier 3"}[message.tier];
+							StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, tierLabel, "twitch_subs");
+						}
+						break;
+					}
+	
+					//Users joined, check if any need to be autobanned
+					case TwitchatDataTypes.TwitchatMessageType.JOIN: {
+						if(!isFromRemoteChan) {
+							for (let i = 0; i < message.users.length; i++) {
+								const user = message.users[i];
+								const rule = sAutomod.isMessageAutomoded(user.displayNameOriginal, user, message.channel_id);
+								if(rule != null) {
+									if(user.platform == "twitch") {
+										TwitchUtils.banUser(user, message.channel_id, undefined, `banned by Twitchat's automod because nickname matched an automod rule`);
+									}
+									//Most message on chat to alert the stream
+									const mess:TwitchatDataTypes.MessageAutobanJoinData = {
+										platform:user.platform,
+										channel_id: message.channel_id,
+										type:TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN,
+										date:Date.now(),
+										id:Utils.getUUID(),
+										user,
+										rule:rule,
+									};
+									this.addMessage(mess);
+								}
+							}
+						}
+						break;
+					}
+	
+					//New follower
+					case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
+						sUsers.flagAsFollower(message.user, message.channel_id);
+						if(!isFromRemoteChan) {
+							StoreProxy.labels.updateLabelValue("FOLLOWER_ID", message.user.id);
+							StoreProxy.labels.updateLabelValue("FOLLOWER_NAME", message.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("FOLLOWER_AVATAR", message.user.avatarPath || "", message.user.id);
+							StoreProxy.labels.incrementLabelValue("FOLLOWER_COUNT", 1);
+							StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, "1", "twitch_followers");
+						}
+	
+						//Merge all followbot events into one
+						if(message.followbot === true && !isFromRemoteChan) {
+							const prevFollowbots:TwitchatDataTypes.MessageFollowingData[] = [];
+							const deletedMessages:(TwitchatDataTypes.MessageFollowingData|TwitchatDataTypes.MessageFollowbotData)[] = [];
+							let bulkMessage!:TwitchatDataTypes.MessageFollowbotData;
+	
+							//Search for any existing followbot event, delete them and group
+							//them into a single followbot alert with all the users in it
+							//Only search within the last 100 messages
+							const maxIndex = Math.max(0, messageList.length - 100);
+							let postMessage = true;
+							for (let i = messageList.length-1; i >= maxIndex; i--) {
+								const m = messageList[i];
+								//Found a follow event, delete it
+								if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
+								&& m.followbot === true
+								&& m.platform == message.platform) {
+									m.deleted = true;
+									deletedMessages.push(m);
+									prevFollowbots.push(m);
+									messageList.splice(i, 1);
+									i--;
+								}else
+								//Found an existing bulk message not older than 1min, keep it aside
+								if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST
+								&& m.date > Date.now() - 1 * 60 * 1000
+								&& m.platform == message.platform) {
+									bulkMessage = m;
+									postMessage = false;
+								}
+							}
+							if(!bulkMessage) {
+								bulkMessage = reactive({
+									id:Utils.getUUID(),
+									date:Date.now(),
+									platform:message.platform,
+									type:TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST,
+									users:[],
+									channel_id:message.channel_id,
+								});
+							}
+							if(prevFollowbots.length > 0) {
+								bulkMessage.users = bulkMessage.users.concat(prevFollowbots.map(v=>v.user));
+							}
+							bulkMessage.date = Date.now();
+							bulkMessage.users.push(message.user);
+							message = bulkMessage;
+	
+							//Broadcast DELETE events
+							while(deletedMessages.length > 0) {
+								const m = deletedMessages.pop();
+								if(!m) continue;
+								EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
+							}
+							if(!postMessage) return;
+						}else{
+							const wsMessage = {
+								user:{
+									id: message.user.id,
+									login: message.user.login,
+									displayName: message.user.displayNameOriginal,
+								}
+							}
+							PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, wsMessage);
+						}
+						break;
+					}
+	
+					//Request to clear chat
+					case TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT: {
+						if(message.channel_id) this.delChannelMessages(message.channel_id);
+						break;
+					}
+	
+					//Ban user
+					case TwitchatDataTypes.TwitchatMessageType.BAN: {
+						this.delUserMessages((message as TwitchatDataTypes.MessageBanData).user.id, (message as TwitchatDataTypes.MessageBanData).channel_id);
+						break;
+					}
+	
+					//Twitch celebration
+					case TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION: {
+						StoreProxy.labels.updateLabelValue("POWER_UP_CELEBRATION_ID", message.user.id);
+						StoreProxy.labels.updateLabelValue("POWER_UP_CELEBRATION_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("POWER_UP_CELEBRATION_AVATAR", message.user.avatarPath || "", message.user.id);
+						StoreProxy.labels.updateLabelValue("POWER_UP_CELEBRATION_CODE", message.emoteID);
+						StoreProxy.labels.updateLabelValue("POWER_UP_CELEBRATION_IMAGE", "https://static-cdn.jtvnw.net/emoticons/v2/" + message.emoteID + "/default/light/3.0");
+						break;
+					}
+	
+					//YouTube Superchat
+					case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT: {
 						StoreProxy.labels.updateLabelValue("SUPER_CHAT_ID", message.user.id);
 						StoreProxy.labels.updateLabelValue("SUPER_CHAT_NAME", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("SUPER_CHAT_AVATAR", message.user.avatarPath || "");
 						StoreProxy.labels.updateLabelValue("SUPER_CHAT_AMOUNT", message.amountDisplay);
+						break;
 					}
-					break;
-				}
-
-				//New patreon member
-				case TwitchatDataTypes.TwitchatMessageType.PATREON: {
-					StoreProxy.labels.updateLabelValue("PATREON_USER", message.user.username);
-					StoreProxy.labels.updateLabelValue("PATREON_AVATAR", message.user.avatar);
-					StoreProxy.labels.updateLabelValue("PATREON_TITLE", message.tier.title);
-					StoreProxy.labels.updateLabelValue("PATREON_AMOUNT", message.tier.amount);
-					break;
-				}
-
-				//New donation on Tiltify
-				case TwitchatDataTypes.TwitchatMessageType.TILTIFY: {
-					StoreProxy.labels.updateLabelValue("TILTIFY_LAST_TIP_USER", message.userName);
-					StoreProxy.labels.updateLabelValue("TILTIFY_LAST_TIP_AMOUNT", message.amount);
-					break;
-				}
-
-				//New sub
-				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
-					PublicAPI.instance.broadcast(TwitchatEvent.SUBSCRIPTION, {
-						tier:message.tier,
-						months:message.months,
-						user:{
-							id:message.user.id,
-							login:message.user.login,
-						},
-						message:message.message || "",
-						message_chunks:(message.message_chunks as unknown) as JsonObject || [],
-						recipients:message.gift_recipients?.map(u=>{return {uid:u.id, login:u.login}}) || [],
-						streakMonths:message.streakMonths,
-						totalSubDuration:message.totalSubDuration,
-						giftCount:message.gift_count || 0,
-						isPrimeUpgrade:message.is_primeUpgrade,
-						isGift:message.is_gift,
-						isGiftUpgrade:message.is_giftUpgrade,
-						isResub:message.is_resub,
-					});
-					//If it's a subgift, merge it with potential previous ones
-					if(message.is_gift && message.gift_recipients) {
-						// console.log("Merge attempt");
-						for (let i = subgiftHistory.length-1; i >= 0; i--) {
-							const subHistoryEntry = subgiftHistory[i];
-							if(message.channel_id != subHistoryEntry.channel_id) {
-								// if(subHistoryEntry.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
-									// const json = {
-									// 	isGift1:message.is_gift,
-									// 	isGift2:subHistoryEntry.is_gift,
-									// 	ischannelID1:message.channel_id,
-									// 	ischannelID2:subHistoryEntry.channel_id,
-									// 	recipients1:message.gift_recipients,
-									// 	recipients2:subHistoryEntry.gift_recipients,
-									// }
-									// console.log("[SUBSCRIPTION MERGE] cannot merge gift:", json);
-								// }
-								continue;
-							}
-							// console.log("Found sub ", m);
-							//If the message is a subgift from the same user with the same tier on
-							//the same channel and happened in the last 10s, merge it.
-							if(subHistoryEntry.tier == message.tier
-							&& subHistoryEntry.user.id == message.user.id
-							&& Math.abs(message.date - subHistoryEntry.date) < 10000) {
-								// console.log("MERGE IT !");
-								if(!subHistoryEntry.gift_recipients) subHistoryEntry.gift_recipients = [];
-								subHistoryEntry.date = Date.now();//Update timestamp
-								for (let j = 0; j < message.gift_recipients.length; j++) {
-									subHistoryEntry.gift_recipients.push(message.gift_recipients[j]);
-								}
-								subHistoryEntry.gift_count = subHistoryEntry.gift_recipients.length;
-								if(!isFromRemoteChan) {
-									//DO NOT INCREMENT "SUB_COUNT" AND "SUB_POINTS" HERE !
-									//It is done later once gift bomb completes
-									StoreProxy.labels.updateLabelValue("SUBGIFT_COUNT", subHistoryEntry.gift_count);
-									StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_COUNT", subHistoryEntry.gift_count);
-								}
-								return;
-							}
-							// console.log("[SUBSCRIPTION MERGE] Don't merge", subHistoryEntry.tier == message.tier, subHistoryEntry.user.id == message.user.id, Date.now() - subHistoryEntry.date < 5000);
-						}
-						//Message not merged, might be the first subgift of a series, save it
-						//for future subgift events
-						subgiftHistory.push(message);
-					}else if(!isFromRemoteChan){
-						StoreProxy.labels.updateLabelValue("SUB_ID", message.user.id);
-						StoreProxy.labels.updateLabelValue("SUB_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("SUB_AVATAR", message.user.avatarPath || "", message.user.id);
-						StoreProxy.labels.updateLabelValue("SUB_TIER", message.tier);
-
-						StoreProxy.labels.updateLabelValue("SUB_GENERIC_ID", message.user.id);
-						StoreProxy.labels.updateLabelValue("SUB_GENERIC_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("SUB_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
-						StoreProxy.labels.updateLabelValue("SUB_GENERIC_TIER", message.tier);
-
-						StoreProxy.labels.incrementLabelValue("SUB_COUNT", 1);
-						StoreProxy.labels.incrementLabelValue("SUB_POINTS", {prime:1, 1:2, 2:3, 3:6}[message.tier]);
-						StoreProxy.donationGoals.onSourceValueUpdate("twitch_subs");
-						const tierLabel = {prime:"prime", 1:"tier 1", 2:"tier 2", 3:"tier 3"}[message.tier];
-						StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, tierLabel, "twitch_subs");
+	
+					//YouTube Super sticker
+					case TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER: {
+						StoreProxy.labels.updateLabelValue("SUPER_STICKER_ID", message.user.id);
+						StoreProxy.labels.updateLabelValue("SUPER_STICKER_NAME", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("SUPER_STICKER_AVATAR", message.user.avatarPath || "");
+						StoreProxy.labels.updateLabelValue("SUPER_STICKER_AMOUNT", message.amountDisplay);
+						StoreProxy.labels.updateLabelValue("SUPER_STICKER_IMAGE", message.sticker_url);
+						break;
 					}
-					break;
+	
+					//TikTok gift
+					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT: {
+						StoreProxy.labels.updateLabelValue("TIKTOK_GIFT_USER", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("TIKTOK_GIFT_AVATAR", message.user.avatarPath || "");
+						StoreProxy.labels.updateLabelValue("TIKTOK_GIFT_IMAGE", message.image);
+						StoreProxy.labels.updateLabelValue("TIKTOK_GIFT_COUNT", message.count);
+						StoreProxy.labels.updateLabelValue("TIKTOK_GIFT_DIAMONDS", message.diamonds);
+						break;
+					}
+	
+					//TikTok sub
+					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB: {
+						StoreProxy.labels.updateLabelValue("TIKTOK_SUB_USER", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("TIKTOK_SUB_AVATAR", message.user.avatarPath || "");
+						break;
+					}
+	
+					//TikTok Share
+					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE: {
+						StoreProxy.labels.updateLabelValue("TIKTOK_SHARE_USER", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("TIKTOK_SHARE_AVATAR", message.user.avatarPath || "");
+						break;
+					}
+	
+					//TikTok like
+					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE: {
+						StoreProxy.labels.updateLabelValue("TIKTOK_LIKE_USER", message.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("TIKTOK_LIKE_AVATAR", message.user.avatarPath || "");
+						StoreProxy.labels.updateLabelValue("TIKTOK_LIKE_TOTAL", message.streamLikeCount);
+						StoreProxy.labels.updateLabelValue("TIKTOK_LIKE_COUNT", message.count);
+						break;
+					}
 				}
-
-				//Users joined, check if any need to be autobanned
-				case TwitchatDataTypes.TwitchatMessageType.JOIN: {
-					if(!isFromRemoteChan) {
-						for (let i = 0; i < message.users.length; i++) {
-							const user = message.users[i];
-							const rule = sAutomod.isMessageAutomoded(user.displayNameOriginal, user, message.channel_id);
-							if(rule != null) {
-								if(user.platform == "twitch") {
-									TwitchUtils.banUser(user, message.channel_id, undefined, `banned by Twitchat's automod because nickname matched an automod rule`);
+	
+				if(logTimings) console.log("2", message.id, Date.now() - s);
+	
+				if(TwitchatDataTypes.IsTranslatableMessage[message.type] && !isFromRemoteChan) {
+					const typedMessage = message as TwitchatDataTypes.TranslatableMessage;
+					const cmd = (typedMessage.message || "").trim().split(" ")[0].toLowerCase();
+	
+					//If a raffle is in progress, check if the user can enter
+					sRaffle.checkRaffleJoin(typedMessage as TwitchatDataTypes.ChatMessageTypes);
+	
+					//If there's a suggestion poll and the timer isn't over
+					const suggestionPoll = sChatSuggestion.data;
+					if(suggestionPoll && cmd == suggestionPoll.command.toLowerCase().trim()) {
+						sChatSuggestion.addChatSuggestion(typedMessage);
+					}
+	
+					//Check if it's the winning choice of a bingo
+					sBingo.checkBingoWinner(typedMessage);
+	
+					//Handle OBS commands
+					sOBS.handleChatCommand(typedMessage, cmd);
+	
+					//Handle Emergency commands
+					sEmergency.handleChatCommand(typedMessage, cmd);
+	
+					//Handle Emergency commands
+					sQna.handleChatCommand(typedMessage, cmd);
+	
+					//Handle Voicemod commands
+					sVoice.handleChatCommand(typedMessage, cmd);
+					
+					//Handle bingo grid commands
+					sBingoGrid.handleChatCommand(typedMessage, cmd);
+				}
+	
+				if(logTimings) console.log("3", message.id, Date.now() - s);
+	
+				//Apply automod rules if requested
+				if(sAutomod.params.enabled === true && !isFromRemoteChan) {
+					if( message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+					|| message.type == TwitchatDataTypes.TwitchatMessageType.CHEER
+					|| message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
+					|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
+					|| message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
+					|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
+						if(sAutomod.params.banUserNames === true && !message.user.channelInfo[message.channel_id].is_banned) {
+							//Check if nickname passes the automod
+							const rule = sAutomod.isMessageAutomoded(message.user.displayNameOriginal, message.user, message.channel_id);
+							if(rule) {
+								//User blocked by automod
+								if(message.user.platform == "twitch") {
+									message.user.channelInfo[message.channel_id].is_banned = true;
+									TwitchUtils.banUser(message.user, message.channel_id, undefined, "banned by Twitchat's automod because nickname matched an automod rule");
 								}
-								//Most message on chat to alert the stream
+								//Post message on chat to alert the streamer
 								const mess:TwitchatDataTypes.MessageAutobanJoinData = {
-									platform:user.platform,
+									platform:"twitchat",
 									channel_id: message.channel_id,
 									type:TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN,
 									date:Date.now(),
 									id:Utils.getUUID(),
-									user,
+									user:message.user,
 									rule:rule,
 								};
 								this.addMessage(mess);
+								return;
 							}
 						}
-					}
-					break;
-				}
-
-				//New follower
-				case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
-					sUsers.flagAsFollower(message.user, message.channel_id);
-					if(!isFromRemoteChan) {
-						StoreProxy.labels.updateLabelValue("FOLLOWER_ID", message.user.id);
-						StoreProxy.labels.updateLabelValue("FOLLOWER_NAME", message.user.displayNameOriginal);
-						StoreProxy.labels.updateLabelValue("FOLLOWER_AVATAR", message.user.avatarPath || "", message.user.id);
-						StoreProxy.labels.incrementLabelValue("FOLLOWER_COUNT", 1);
-						StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, "1", "twitch_followers");
-					}
-
-					//Merge all followbot events into one
-					if(message.followbot === true && !isFromRemoteChan) {
-						const prevFollowbots:TwitchatDataTypes.MessageFollowingData[] = [];
-						const deletedMessages:(TwitchatDataTypes.MessageFollowingData|TwitchatDataTypes.MessageFollowbotData)[] = [];
-						let bulkMessage!:TwitchatDataTypes.MessageFollowbotData;
-
-						//Search for any existing followbot event, delete them and group
-						//them into a single followbot alert with all the users in it
-						//Only search within the last 100 messages
-						const maxIndex = Math.max(0, messageList.length - 100);
-						let postMessage = true;
-						for (let i = messageList.length-1; i >= maxIndex; i--) {
-							const m = messageList[i];
-							//Found a follow event, delete it
-							if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
-							&& m.followbot === true
-							&& m.platform == message.platform) {
-								m.deleted = true;
-								deletedMessages.push(m);
-								prevFollowbots.push(m);
-								messageList.splice(i, 1);
-								i--;
-							}else
-							//Found an existing bulk message not older than 1min, keep it aside
-							if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST
-							&& m.date > Date.now() - 1 * 60 * 1000
-							&& m.platform == message.platform) {
-								bulkMessage = m;
-								postMessage = false;
-							}
-						}
-						if(!bulkMessage) {
-							bulkMessage = reactive({
-								id:Utils.getUUID(),
-								date:Date.now(),
-								platform:message.platform,
-								type:TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST,
-								users:[],
-								channel_id:message.channel_id,
-							});
-						}
-						if(prevFollowbots.length > 0) {
-							bulkMessage.users = bulkMessage.users.concat(prevFollowbots.map(v=>v.user));
-						}
-						bulkMessage.date = Date.now();
-						bulkMessage.users.push(message.user);
-						message = bulkMessage;
-
-						//Broadcast DELETE events
-						while(deletedMessages.length > 0) {
-							const m = deletedMessages.pop();
-							if(!m) continue;
-							EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
-						}
-						if(!postMessage) return;
-					}else{
-						const wsMessage = {
-							user:{
-								id: message.user.id,
-								login: message.user.login,
-								displayName: message.user.displayNameOriginal,
-							}
-						}
-						PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, wsMessage);
-					}
-					break;
-				}
-
-				//Request to clear chat
-				case TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT: {
-					if(message.channel_id) this.delChannelMessages(message.channel_id);
-					break;
-				}
-
-				//Ban user
-				case TwitchatDataTypes.TwitchatMessageType.BAN: {
-					this.delUserMessages((message as TwitchatDataTypes.MessageBanData).user.id, (message as TwitchatDataTypes.MessageBanData).channel_id);
-					break;
-				}
-
-				//Twitch celebration
-				case TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION: {
-					StoreProxy.labels.updateLabelValue("POWER_UP_CELEBRATION_ID", message.user.id);
-					StoreProxy.labels.updateLabelValue("POWER_UP_CELEBRATION_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("POWER_UP_CELEBRATION_AVATAR", message.user.avatarPath || "", message.user.id);
-					StoreProxy.labels.updateLabelValue("POWER_UP_CELEBRATION_CODE", message.emoteID);
-					StoreProxy.labels.updateLabelValue("POWER_UP_CELEBRATION_IMAGE", "https://static-cdn.jtvnw.net/emoticons/v2/" + message.emoteID + "/default/light/3.0");
-					break;
-				}
-
-				//YouTube Superchat
-				case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT: {
-					StoreProxy.labels.updateLabelValue("SUPER_CHAT_ID", message.user.id);
-					StoreProxy.labels.updateLabelValue("SUPER_CHAT_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("SUPER_CHAT_AVATAR", message.user.avatarPath || "", message.user.id);
-					StoreProxy.labels.updateLabelValue("SUPER_CHAT_AMOUNT", message.amountDisplay);
-					break;
-				}
-
-				//YouTube Super sticker
-				case TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER: {
-					StoreProxy.labels.updateLabelValue("SUPER_STICKER_ID", message.user.id);
-					StoreProxy.labels.updateLabelValue("SUPER_STICKER_NAME", message.user.displayNameOriginal);
-					StoreProxy.labels.updateLabelValue("SUPER_STICKER_AVATAR", message.user.avatarPath || "", message.user.id);
-					StoreProxy.labels.updateLabelValue("SUPER_STICKER_AMOUNT", message.amountDisplay);
-					StoreProxy.labels.updateLabelValue("SUPER_STICKER_IMAGE", message.sticker_url);
-					break;
-				}
-			}
-
-			if(logTimings) console.log("2", message.id, Date.now() - s);
-
-			if(TwitchatDataTypes.IsTranslatableMessage[message.type] && !isFromRemoteChan) {
-				const typedMessage = message as TwitchatDataTypes.TranslatableMessage;
-				const cmd = (typedMessage.message || "").trim().split(" ")[0].toLowerCase();
-
-				//If a raffle is in progress, check if the user can enter
-				sRaffle.checkRaffleJoin(typedMessage as TwitchatDataTypes.ChatMessageTypes);
-
-				//If there's a suggestion poll and the timer isn't over
-				const suggestionPoll = sChatSuggestion.data;
-				if(suggestionPoll && cmd == suggestionPoll.command.toLowerCase().trim()) {
-					sChatSuggestion.addChatSuggestion(typedMessage);
-				}
-
-				//Check if it's the winning choice of a bingo
-				sBingo.checkBingoWinner(typedMessage);
-
-				//Handle OBS commands
-				sOBS.handleChatCommand(typedMessage, cmd);
-
-				//Handle Emergency commands
-				sEmergency.handleChatCommand(typedMessage, cmd);
-
-				//Handle Emergency commands
-				sQna.handleChatCommand(typedMessage, cmd);
-
-				//Handle Voicemod commands
-				sVoice.handleChatCommand(typedMessage, cmd);
-				
-				//Handle bingo grid commands
-				sBingoGrid.handleChatCommand(typedMessage, cmd);
-
-				//TODO remove this once T4P ends
-				const elapsed = Date.now() - StoreProxy.main.t4pLastDate;
-				if(elapsed > 60000 && StoreProxy.main.t4p && cmd == StoreProxy.main.t4p) {
-					ApiHelper.call("t4p", "GET").then(result => {
-						if(result.status == 200 && result.json.data) {
-							const name = StoreProxy.i18n.locale == "fr"? result.json.data.campaignNameFr : result.json.data.campaignName
-							MessengerProxy.instance.sendMessage(name+": "+result.json.data.url);
-						}
-					})
-				}
-			}
-
-			if(logTimings) console.log("3", message.id, Date.now() - s);
-
-			//Apply automod rules if requested
-			if(sAutomod.params.enabled === true && !isFromRemoteChan) {
-				if( message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-				|| message.type == TwitchatDataTypes.TwitchatMessageType.CHEER
-				|| message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
-				|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
-				|| message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
-				|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
-					if(sAutomod.params.banUserNames === true && !message.user.channelInfo[message.channel_id].is_banned) {
-						//Check if nickname passes the automod
-						const rule = sAutomod.isMessageAutomoded(message.user.displayNameOriginal, message.user, message.channel_id);
-						if(rule) {
-							//User blocked by automod
-							if(message.user.platform == "twitch") {
-								message.user.channelInfo[message.channel_id].is_banned = true;
-								TwitchUtils.banUser(message.user, message.channel_id, undefined, "banned by Twitchat's automod because nickname matched an automod rule");
-							}
-							//Post message on chat to alert the streamer
-							const mess:TwitchatDataTypes.MessageAutobanJoinData = {
-								platform:"twitchat",
-								channel_id: message.channel_id,
-								type:TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN,
-								date:Date.now(),
-								id:Utils.getUUID(),
-								user:message.user,
-								rule:rule,
-							};
-							this.addMessage(mess);
-							return;
-						}
-					}
-
-					//Check if message passes the automod
-					if(message.type != TwitchatDataTypes.TwitchatMessageType.FOLLOWING
-					&& message.type != TwitchatDataTypes.TwitchatMessageType.RAID
-					&& message.message) {
-						const rule = sAutomod.isMessageAutomoded(message.message, message.user, message.channel_id);
-						if(rule) {
-							if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-								//If rule does not requests to be applied only to first time chatters
-								//or if it's a first time chatter
-								if(rule.firstTimeChatters !== true ||
-									(rule.firstTimeChatters === true &&
-										(
-										message.twitch_isFirstMessage ||
-										message.twitch_isPresentation
+	
+						//Check if message passes the automod
+						if(message.type != TwitchatDataTypes.TwitchatMessageType.FOLLOWING
+						&& message.type != TwitchatDataTypes.TwitchatMessageType.RAID
+						&& message.message) {
+							const rule = sAutomod.isMessageAutomoded(message.message, message.user, message.channel_id);
+							if(rule) {
+								if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+									//If rule does not requests to be applied only to first time chatters
+									//or if it's a first time chatter
+									if(rule.firstTimeChatters !== true ||
+										(rule.firstTimeChatters === true &&
+											(
+											message.twitch_isFirstMessage ||
+											message.twitch_isPresentation
+											)
 										)
-									)
-								) {
-									message.automod = rule;
-									if(message.user.platform == "twitch") {
-										TwitchUtils.deleteMessages(message.channel_id, message.id);
-										//No need to call this.deleteMessageByID(), IRC will call it when request completes
-									}
-
-									//Start emergency if requested
-									if(rule.emergency === true && sEmergency.params.enabled === true) {
-										sEmergency.setEmergencyMode(true);
+									) {
+										message.automod = rule;
+										if(message.user.platform == "twitch") {
+											TwitchUtils.deleteMessages(message.channel_id, message.id);
+											//No need to call this.deleteMessageByID(), IRC will call it when request completes
+										}
+	
+										//Start emergency if requested
+										if(rule.emergency === true && sEmergency.params.enabled === true) {
+											sEmergency.setEmergencyMode(true);
+										}
 									}
 								}
 							}
 						}
 					}
 				}
+				if(logTimings) console.log("4", message.id, Date.now() - s);
+			}catch(error) {
+				console.error("Error processing message", message);
+				console.error(error);
 			}
-			if(logTimings) console.log("4", message.id, Date.now() - s);
 
 			//Only save messages to history if requested
 			if(TwitchatDataTypes.DisplayableMessageTypes[message.type] === true) {
@@ -2105,7 +2224,7 @@ export const storeChat = defineStore('chat', {
 				&& mTyped.channel_id == channelId
 				&& !mTyped.cleared) {
 					//Send public API events by batches of 5 to avoid clogging it
-					setTimeout(()=> {
+					window.setTimeout(()=> {
 						const wsMessage = {
 							channel:mTyped.channel_id,
 							message:(m.type == "message")? m.message : "",
@@ -2134,7 +2253,7 @@ export const storeChat = defineStore('chat', {
 				const mTyped = m as TwitchatDataTypes.GreetableMessage;
 				if(mTyped.channel_id == channelId && !mTyped.cleared) {
 					//Send public API events by batches of 5 to avoid clogging it
-					setTimeout(()=> {
+					window.setTimeout(()=> {
 						const wsMessage = {
 							channel:mTyped.channel_id,
 							message:(m.type == "message")? m.message : "",
@@ -2263,7 +2382,7 @@ export const storeChat = defineStore('chat', {
 			//event before receiving message on IRC. Wait a little and try again
 			if(retryCount != 20) {
 				retryCount = retryCount? retryCount++ : 1;
-				setTimeout(()=>{
+				window.setTimeout(()=>{
 					this.flagSuspiciousMessage(messageId, flaggedChans, retryCount);
 				}, 100);
 			}
@@ -2346,7 +2465,48 @@ export const storeChat = defineStore('chat', {
 					StoreProxy.common.alert(StoreProxy.i18n.t("error.spoil_action"));
 				})
 			}
-		}
+		},
+
+		addPrivateModMessage(
+		from:TwitchatDataTypes.TwitchatUser,
+		message_chunks:TwitchatDataTypes.ParseMessageChunk[],
+		action:TwitchatDataTypes.MessagePrivateModeratorData["action"],
+		message_id:string,
+		message_parent_id?:string,
+		message_parent_ref?:TwitchatDataTypes.MessageChatData,
+		message_parent_fallback?:TwitchatDataTypes.MessagePrivateModeratorData["parentMessageFallback"]):TwitchatDataTypes.MessagePrivateModeratorData {
+			const channel_id = StoreProxy.auth.twitch.user.id;
+			const message:TwitchatDataTypes.MessagePrivateModeratorData = {
+				channel_id,
+				platform:"twitch",
+				date:Date.now(),
+				id:message_id || Utils.getUUID(),
+				type:TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE,
+				message: message_chunks.map(v=>v.value).join(" "),
+				message_chunks,
+				message_html:TwitchUtils.messageChunksToHTML(message_chunks),
+				parentMessageFallback: message_parent_fallback,
+				action: action,
+				user: from,
+				toChannelId: StoreProxy.stream.currentChatChannel.id
+			};
+
+			if(message_parent_ref) {
+				message.parentMessage = message_parent_ref;
+			}else
+			if(message_parent_id) {
+				for (let i = messageList.length-1; i >= Math.max(0, messageList.length - 1000); i--) {
+					const mess = messageList[i];
+					if(mess.id == message_parent_id && TwitchatDataTypes.IsTranslatableMessage[mess.type]) {
+						message.parentMessage = mess as TwitchatDataTypes.TranslatableMessage;
+						break;
+					}
+				}
+			}
+			this.addMessage(message);
+			return message
+		},
+
 	} as IChatActions
 	& ThisType<IChatActions
 		& UnwrapRef<IChatState>

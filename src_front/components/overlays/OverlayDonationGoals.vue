@@ -183,7 +183,7 @@ class OverlayDonationGoals extends AbstractOverlay {
 		clearTimeout(this.autoHideTimeout);
 		if(this.state!.params.autoDisplay === true) {
 			//Schedule hide
-			this.autoHideTimeout = setTimeout(() => this.show = false , 10000);
+			this.autoHideTimeout = window.setTimeout(() => this.show = false , 10000);
 		}
 
 		if(this.state.params.hideDone === true || this.state.params.limitEntryCount === true) {
@@ -194,12 +194,12 @@ class OverlayDonationGoals extends AbstractOverlay {
 
 		//If showing the full list, scroll to the currently active goal
 		clearTimeout(this.scrollTimeout);
-		this.scrollTimeout = setTimeout(()=>{
+		this.scrollTimeout = window.setTimeout(()=>{
 			const list = this.$refs.list as HTMLDivElement;
 			const boundsRef = list.getBoundingClientRect();
 			const item = document.querySelector("#current_donation_goal");
 			if(!item) {
-				setTimeout(() => {
+				window.setTimeout(() => {
 					this.onActivity();
 				}, 100);
 				return;

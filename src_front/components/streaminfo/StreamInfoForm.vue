@@ -126,7 +126,7 @@ class StreamInfoForm extends AbstractSidePanel {
 			try {
 				if(await this.$store.stream.updateStreamInfos("twitch", channelId, this.title, this.category?.id ?? "", this.tags, this.branded, this.labels)) {
 					this.updateSuccess = true;
-					setTimeout(()=>{
+					window.setTimeout(()=>{
 						this.updateSuccess = false;
 					}, 5000);
 				}else{
@@ -197,7 +197,7 @@ class StreamInfoForm extends AbstractSidePanel {
 		try {
 			if(await this.$store.stream.updateStreamInfos("twitch", channelId, p.title, p.categoryID as string, p.tags, p.branded, p.labels)) {
 				this.updateSuccess = true;
-				setTimeout(()=>{
+				window.setTimeout(()=>{
 					this.updateSuccess = false;
 				}, 5000);
 			}else{

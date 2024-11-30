@@ -1,0 +1,15 @@
+{
+	"playability": {
+		"header":"Connect Twitchat with {LINK} and control it from the Triggers",
+        "info": "PlayAbility is designed to make video games accessible to people with disabilities by allowing to control them with your face.\n\nConnecting Twitchat to PlayAbility will allow you to trigger keyboard, controller, or mouse keys from the Triggers. For example, let your viewers shoot for you from a channel points reward, a sub, a raid, a donation, ...",
+		"instructions":"In PlayAbility, head over \"{SETTINGS}\" => \"{ADVANCED}\" make sure \"Enable{OPTION_1} is ON as  well as \"{OPTION_2}\" and \"{OPTION_3}\"",
+		"install":"Install PlayAbility",
+		"connect_error":"Unable to connect with PlayAbility.",
+		"ip":"IP",
+		"port":"Port",
+		"hints_axis_1":"left/down",
+		"hints_axis_2":"right/up",
+		"hints_trigger_1":"release",
+		"hints_trigger_2":"press"
+	}
+}

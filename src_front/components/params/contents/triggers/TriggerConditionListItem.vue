@@ -6,15 +6,18 @@
 
 		<ParamItem class="operator" noBackground :paramData="param_operator" v-model="condition.operator" :key="'op_'+condition.id" />
 
-		<ParamItem class="value" v-if="needsValue && forceCustom !== true && param_value_list.listValues" noBackground :paramData="param_value_list" v-model="condition.value" :key="'vl_'+condition.id" @change="onSelectFixedValue()" />
-		<ParamItem class="value" v-else-if="needsValue" noBackground :paramData="param_value" v-model="condition.value" :key="'v_'+condition.id" placeholdersAsPopout />
-
+		<div class="valueHolder" :class="{isCustomValue:forceCustom}">
+			<TTButton class="clearCustomBt" v-if="forceCustom" @click="forceCustom = false" icon="cross" secondary small></TTButton>
+			<ParamItem class="value" v-if="needsValue && forceCustom !== true && param_value_list.listValues" noBackground :paramData="param_value_list" v-model="condition.value" :key="'vl_'+condition.id" @change="onSelectFixedValue()" />
+			<ParamItem class="value" v-else-if="needsValue" noBackground :paramData="param_value" v-model="condition.value" :key="'v_'+condition.id" placeholdersAsPopout />
+		</div>
+		
 		<div class="ctas">
-			<Button small icon="group"
+			<TTButton small icon="group"
 				@click="addItem()"
 				v-tooltip="$t('triggers.condition.group_tt')"
 				v-if="triggerData.conditions && triggerData.conditions.conditions.length > 1" />
-			<Button alert small icon="cross"
+			<TTButton alert small icon="cross"
 				@click="deleteItem()" />
 		</div>
 	</div>
@@ -31,7 +34,7 @@ import ParamItem from '../../ParamItem.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ParamItem,
 	},
 	emits:[],
@@ -50,7 +53,7 @@ class TriggerConditionListItem extends Vue {
 	public forceCustom:boolean = false;
 	public param_placeholder:TwitchatDataTypes.ParameterData<string, string> = {type:"list", value:""}
 	public param_operator:TwitchatDataTypes.ParameterData<TriggerConditionOperator, TriggerConditionOperator> = {type:"list", value:">"}
-	public param_value:TwitchatDataTypes.ParameterData<string, string> = {type:"string", value:""}
+	public param_value:TwitchatDataTypes.ParameterData<string, string> = {type:"string", value:"", longText:false}
 	public param_value_list:TwitchatDataTypes.ParameterData<string, unknown> = {type:"list", value:""}
 
 	private firstRender:boolean = true;
@@ -88,6 +91,7 @@ class TriggerConditionListItem extends Vue {
 
 		//Add trigger's placeholders
 		let placeholders = TriggerEventPlaceholders(this.triggerData.type).concat();
+		let debouncedRebuild = -1;
 		placeholderList = placeholderList.concat(placeholders.map(v=> {
 			let name = "";
 			//If it's a counter tag, get counter's name
@@ -101,6 +105,12 @@ class TriggerConditionListItem extends Vue {
 				const counter = this.$store.values.valueList.find(v=>v.placeholderKey?.toLowerCase() === valueTag.toLowerCase());
 				if(counter) name = counter.name;
 			}
+			watch(()=>v.values, ()=> {
+				clearTimeout(debouncedRebuild);
+				debouncedRebuild = window.setTimeout(()=> {
+					this.buildSourceList();
+				}, 20);
+			}, {deep:true});
 			return {
 				label: this.$t(v.descKey, {NAME:"\""+name+"\""}),
 				value:v.tag.toUpperCase(),
@@ -151,8 +161,9 @@ class TriggerConditionListItem extends Vue {
 		//If selected placeholder has fixed values
 		if(this.param_placeholder.selectedListValue && (this.param_placeholder.selectedListValue as ConditionListValues<string>).fixedValues) {
 			const list = (this.param_placeholder.selectedListValue as ConditionListValues<string>).fixedValues!.concat();
-			list.push({value:this.CUSTOM, labelKey:"triggers.condition.custom_value"})
+			list.push({value:this.CUSTOM, labelKey:"triggers.condition.custom_value"});
 			this.param_value_list.listValues = list;
+			this.param_value_list.type = "imagelist";
 
 			//If condition's value does not exist on the fixed ones, force
 			//custom field to be displayed with that value.
@@ -246,8 +257,35 @@ export default toNative(TriggerConditionListItem);
 		flex-shrink: 0;
 	}
 
-	.value {
+	.valueHolder {
 		min-width: 100px;
+		display: flex;
+		flex-direction: row;
+		.value {
+			width: 100%;
+		}
+		.clearCustomBt {
+			border-top-right-radius: 0;
+			border-bottom-right-radius: 0;
+		}
+		&.isCustomValue{
+			.value {
+				:deep(.popoutMode) {
+					height: 100%;
+				}
+				:deep(.content) {
+					height: 100%;
+					.holder {
+						height: 100%;
+					}
+					.inputHolder, input {
+						height: 100%;
+						border-top-left-radius: 0;
+						border-bottom-left-radius: 0;
+					}
+				}
+			}
+		}
 	}
 
 	.ctas {

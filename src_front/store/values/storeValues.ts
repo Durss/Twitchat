@@ -79,9 +79,9 @@ export const storeValues = defineStore('values', {
 			this.saveValues();
 		},
 
-		updateValue(id:string, value:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void {
+		updateValue(id:string, value:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string, interpretMaths?:boolean):void {
 			let prevValue = "";
-			if(value != undefined && value.trim() != "e") {//Ignore euler notation
+			if(interpretMaths !== false && value != undefined && value.trim() != "e") {//Ignore euler notation
 				try {
 					const num = MathEval(value);
 					if(!isNaN(num)) value = num.toString();
@@ -95,8 +95,12 @@ export const storeValues = defineStore('values', {
 						if(!entry.users) entry.users = {};
 						const uid = (user? user.id : userId) || "";
 						if(uid) {
-							prevValue = entry.users![uid];
-							entry.users![uid] = value;
+							prevValue = entry.users![uid]?.value;
+							entry.users![uid] = {
+								value: value,
+								platform: user?.platform || entry.users![uid]?.platform || "twitch",
+								login: user?.login || entry.users![uid]?.platform,
+							};
 						}
 					}else{
 						prevValue = entry.value;

@@ -4,10 +4,10 @@
 			<template v-if="loading">
 				<ClearButton aria-label="close" @click="closeCard()" />
 				<div class="header">
-					<div class="title">
-						<span class="label">{{user.displayName}}</span>
-					</div>
 					<Icon name="loader" alt="loading" class="loader"/>
+					<div class="title">
+						<a :href="profilePage" target="_blank">{{ user.displayName }}</a>
+					</div>
 				</div>
 			</template>
 
@@ -54,7 +54,7 @@
 						<CustomUserBadges :tooltip="$t('usercard.remove_badgesBt')" :user="user" @select="removeCustomBadge" :channelId="channel!.id" />
 						
 						<template v-if="!edittingLogin">
-							<a :href="profilePage" target="_blank">
+							<a :href="profilePage" target="_blank" class="nickname">
 								<span class="label">{{user.displayName}}</span>
 								<span class="translation" v-if="translateUsername">({{user.login}})</span>
 							</a>
@@ -85,11 +85,15 @@
 					<div class="userID" v-tooltip="$t('global.copy')" @click="copyID()" ref="userID">#{{user.id}}</div>
 				</div>
 				
-				<ChatModTools v-if="isTwitchProfile && canModerate && !isSelfProfile" class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock v-show="!manageBadges && !manageUserNames" />
+				<ChatModTools v-if="isTwitchProfile && canModerate" class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock v-show="!manageBadges && !manageUserNames" />
 
 				<div class="scrollable" v-show="!manageBadges && !manageUserNames">
 					<div class="infoList" v-if="isTwitchProfile">
-						<div class="info" v-tooltip="$t('usercard.creation_date_tt')+'\n'+createDate"><Icon name="date" alt="account creation date" class="icon"/>{{createDateElapsed}}</div>
+						<div :class="{info:true, recent:(Date.now() - (user.created_at_ms || 0)) < 14 * 24 * 60 * 60 * 1000}" v-tooltip="$t('usercard.creation_date_tt')+'\n'+createDate">
+							<Icon name="alert" alt="recent account" class="icon recent"/>
+							<Icon name="date" alt="account creation date" class="icon"/>
+							{{createDateElapsed}}
+						</div>
 						
 						<div class="info" v-if="followersCount > -1"><Icon name="follow_outline" class="icon"/>{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
 						
@@ -375,6 +379,9 @@ class UserCard extends AbstractSidePanel {
 			case "youtube": {
 				return "https://www.youtube.com/channel/"+this.user!.id;
 			}
+			case "tiktok": {
+				return "https://www.tiktok.com/@"+this.user!.login;
+			}
 		}
 		return "#";
 	}
@@ -449,20 +456,25 @@ class UserCard extends AbstractSidePanel {
 			if(card && card.user) {
 				const chanId = card.channelId ?? StoreProxy.auth.twitch.user.id;
 				this.channel = this.$store.users.getUserFrom(card.platform || "twitch", chanId, chanId);
-				this.user = this.$store.users.getUserFrom(card.platform || "twitch", chanId, card.user.id);
+				this.user = card.user;
+				this.$nextTick(()=>{
+					this.open();
+				})
+				while(this.user.temporary === true) {
+					await Utils.promisedTimeout(250);
+				}
 				this.isOwnChannel = chanId == StoreProxy.auth.twitch.user.id || chanId == StoreProxy.auth.youtube.user?.id;
-				this.canModerate = (this.moderatedChannelList.findIndex(v=>v.broadcaster_id === chanId) > -1 || chanId == StoreProxy.auth.twitch.user.id) && chanId != this.user.id;
-				this.isSelfProfile = this.user.id != StoreProxy.auth.twitch.user.id;
+				this.isSelfProfile = this.user.id == StoreProxy.auth.twitch.user.id;
+				//Check if message is from our chan or one we can moderate, and that this chan is not the current user
+				this.canModerate = (this.moderatedChannelList.findIndex(v=>v.broadcaster_id === chanId) > -1 || chanId == StoreProxy.auth.twitch.user.id)
+									&& chanId != this.user.id;
 				if(!this.isOwnChannel) {
 					this.channelColor = this.$store.stream.connectedTwitchChans.find(v=>v.user.id === chanId)?.color || "#ffffff";
 				}
 				this.loadUserInfo();
-				this.dateOffsetTimeout = setInterval(() => {
+				this.dateOffsetTimeout = window.setInterval(() => {
 					this.dateOffset += 1000;
 				}, 1000);
-				this.$nextTick(()=>{
-					this.open();
-				})
 			}else{
 				clearInterval(this.dateOffsetTimeout);
 				if(this.user){
@@ -519,7 +531,7 @@ class UserCard extends AbstractSidePanel {
 
 		try {
 			let user = this.user!;
-			const loadFromLogin = user.login != this.$store.users.tmpDisplayName;
+			const loadFromLogin = user.login != this.$store.users.tmpDisplayName && !user.errored && !user.temporary;
 			const users = await TwitchUtils.getUserInfo(loadFromLogin? undefined : [user.id], loadFromLogin? [user.login] : undefined);
 			if(users.length > 0) {
 				const u = users[0];
@@ -541,7 +553,7 @@ class UserCard extends AbstractSidePanel {
 				if(!user.displayName) user.displayName = u.display_name;
 
 				//Adding partner badge if no badge is already specified
-				if(user.channelInfo[this.channel!.id]?.badges?.length == 0) {
+				if(user.channelInfo[this.channel!.id] && user.channelInfo[this.channel!.id].badges?.length == 0) {
 					const staticBadges:Badges = {};
 					staticBadges[u.broadcaster_type] = "1";
 					user.channelInfo[this.channel!.id].badges = TwitchUtils.getBadgesFromRawBadges(this.channel!.id, undefined, staticBadges);
@@ -750,10 +762,27 @@ class UserCard extends AbstractSidePanel {
 	 */
 	private loadHistory(uid:string):void {
 		const messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
-		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = ["following", "message", "reward", "subscription", "shoutout", "whisper", "ban", "unban", "cheer", "user_watch_streak"]
+		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = [
+			"following", 
+			"message", 
+			"reward", 
+			"subscription", 
+			"shoutout", 
+			"whisper", 
+			"ban", 
+			"unban", 
+			"cheer", 
+			"user_watch_streak",
+			"youtube_subgift",
+			"youtube_subscription",
+			"tiktok_like",
+			"tiktok_gift",
+			"tiktok_sub",
+		]
 		for (let i = this.$store.chat.messages.length-1; i > 0; i--) {
 			const mess = this.$store.chat.messages[i];
 			if(!allowedTypes.includes(mess.type)) continue;
+
 			if(mess.type == "shoutout" && mess.user.id == uid) {
 				messageList.unshift(mess);
 			}else if(mess.type == "following" && mess.user.id == uid) {
@@ -770,6 +799,16 @@ class UserCard extends AbstractSidePanel {
 				messageList.unshift(mess);
 			}else if(mess.type == "user_watch_streak" && mess.user.id == uid) {
 				messageList.unshift(mess);
+			}else if(mess.type == "youtube_subgift" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if(mess.type == "youtube_subscription" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if(mess.type == "tiktok_like" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if(mess.type == "tiktok_gift" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if(mess.type == "tiktok_sub" && mess.user.id == uid) {
+				messageList.unshift(mess);
 			}
 			if (messageList.length > 100) break;//Limit message count for perf reasons
 		}
@@ -777,7 +816,7 @@ class UserCard extends AbstractSidePanel {
 		//Build messages by batch to avoid lag on open
 		this.messageHistory = messageList.splice(-20);
 		clearInterval(this.messageBuildInterval);
-		this.messageBuildInterval = setInterval(()=> {
+		this.messageBuildInterval = window.setInterval(()=> {
 			if(messageList.length == 0) clearInterval(this.messageBuildInterval);
 
 			this.messageHistory.unshift(...messageList.splice(-5));
@@ -802,8 +841,9 @@ export default toNative(UserCard);
 		.loader {
 			margin: auto;
 			display: block;
-			width: 2em;
-			height: 2em;
+			width: 5em;
+			height: 5em;
+			padding: 1em;
 		}
 
 		.modList {
@@ -856,18 +896,27 @@ export default toNative(UserCard);
 					margin-right: .25em;
 					z-index: 2;
 				}
-	
-				.label {
-					text-overflow: ellipsis;
-					overflow: hidden;
-					line-height: 1.2em;
+
+				.nickname {
+					max-width: 80%;
+					display: inline-block;
+					
+					.label {
+						text-overflow: ellipsis;
+						overflow: hidden;
+						line-height: 1.2em;
+						text-wrap: nowrap;
+						width:100%;
+						display: inline-block;
+					}
+		
+					.translation {
+						font-style: italic;
+						font-size: .8em;
+						margin-left: .25em;
+					}
 				}
 	
-				.translation {
-					font-style: italic;
-					font-size: .8em;
-					margin-left: .25em;
-				}
 	
 				.badge, :deep(.customUserBadge) {
 					height: .8em;
@@ -880,6 +929,7 @@ export default toNative(UserCard);
 				.editLoginBt {
 					height: .7em;
 					margin-left: .25em;
+					flex-shrink: 0;
 					.icon {
 						height: 100%;
 						display: block;
@@ -1004,6 +1054,16 @@ export default toNative(UserCard);
 						// font-family: Azeret;
 						font-size: .8em;
 						font-variant-numeric: tabular-nums;
+					}
+				}
+				&.recent {
+					border-width: 0;
+					color: var(--color-light);
+					background-color: var(--color-secondary);
+				}
+				&:not(.recent) {
+					.icon.recent {
+						display: none;
 					}
 				}
 			}

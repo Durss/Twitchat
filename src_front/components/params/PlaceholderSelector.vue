@@ -16,7 +16,7 @@
 		</template>
 		<template #content>
 			
-			<input class="searchField" type="text"
+			<input class="placeholderSelector_searchField" type="text"
 			v-if="search || localPlaceholders.length + globalPlaceholders.length + globalPlaceholderCategories.length > 5"
 			v-model="search"
 			:placeholder="$t('global.search_placeholder')"
@@ -201,10 +201,11 @@ class PlaceholderSelector extends Vue {
 			let carretPos = target.selectionStart as number | 0;
 			if(!carretPos) carretPos = 0;
 			//Insert tag
+			console.log(target, target.value)
 			const text = target.value.substring(0, carretPos) + tag + target.value.substring(carretPos);
 			this.$emit("update:modelValue", text);
 		}else{
-			this.$emit("update:modelValue", "{"+h.tag+"}");
+			this.$emit("update:modelValue", this.modelValue+"{"+h.tag+"}");
 			this.$emit("insert", "{"+h.tag+"}");
 		}
 
@@ -225,6 +226,14 @@ export default toNative(PlaceholderSelector);
 </script>
 
 <style lang="less">
+.placeholderSelector_searchField {
+	margin: 0 auto;
+	margin-bottom: .5em;
+	display: block;
+	max-width: unset;
+	min-width: unset;
+	outline: 1ps solid red;
+}
 .tooltipContent {
 	.global {
 		margin-top: .25em;
@@ -235,6 +244,7 @@ export default toNative(PlaceholderSelector);
 		max-width: 100vw;
 		max-height: min(100vh, 300px);
 		overflow-y: auto;
+
 	}
 
 	.list {
@@ -300,14 +310,6 @@ export default toNative(PlaceholderSelector);
 		.icon {
 			height: 1em;
 		}
-	}
-
-	.searchField {
-		margin: 0 auto;
-		margin-bottom: .5em;
-		display: block;
-		max-width: unset;
-		min-width: unset;
 	}
 }
 </style>

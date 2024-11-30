@@ -24,7 +24,7 @@ export const storeAccessibility = defineStore('Accessibility', {
 			this.ariaPolite = Utils.stripHTMLTags(message);
 			clearTimeout(ariaPoliteTimeout);
 			//Clear it after 10s
-			ariaPoliteTimeout = setTimeout(()=> {
+			ariaPoliteTimeout = window.setTimeout(()=> {
 				this.ariaPolite = "";
 			}, 10000);
 		}

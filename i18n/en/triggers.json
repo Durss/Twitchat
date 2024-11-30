@@ -21,6 +21,8 @@
 		"resyncRewardsBt_tt": "If you modified your channel point rewards, click to get those updates",
 		"resyncExtensionBt": "Resync Twitch extensions",
 		"resyncExtensionBt_tt": "If you added or modified the status of an extension, click to get those changes",
+		"resyncmixitupBt": "Resync Mix It Up",
+		"resyncmixitupBt_tt": "If you added or modified a Mix It Up command, click to get those changes",
 		"delete_confirm": "Delete trigger?",
 		"delete_action_confirm": "Delete action?",
 		"delete_actions_confirm": "Delete all actions?",
@@ -34,12 +36,14 @@
 		"trigger_queue": "Execution queue",
 		"trigger_queue_info": "To make sure some triggers execute one after another, associate them to the same execution queue.",
 		"trigger_queue_input_placeholder": "execution queue...",
+		"trigger_queue_priority": "Priority",
 		"missing_trigger": "DELETED TRIGGER",
 		"missing_counter": "DELETED COUNTER",
 		"missing_reward": "DELETED REWARD",
 		"missing_reward_scope": "CANNOT LOAD REWARD INFO",
 		"random_placeholder": "Random value placeholder {NAME}",
 		"http_placeholder": "HTTP placeholder {NAME}",
+		"raffle_placeholder": "Winning raffle entry",
 		"premium_limit": "You created the maximum number of {MAX} triggers. Become premium to create up to {MAX_PREMIUM} triggers. Or disable / delete some triggers to create new ones.",
 		"delete_folder_confirm": {
 			"title": "Delete folder?",
@@ -171,7 +175,15 @@
 				"action_heat_click": "Click a distortion",
 				"action_heat_click_tt": "You first need to create a distortion to use this action",
 				"action_lumia": "Control Lumia Stream",
-				"action_lumia_tt": "You first need to connect with Lumia Stream"
+				"action_lumia_tt": "You first need to connect with Lumia Stream",
+				"action_streamerbot": "Streamer.bot action",
+				"action_streamerbot_tt": "You first need to connect Twitchat with Streamer.bot to use this action",
+				"action_sammi": "SAMMI action",
+				"action_sammi_tt": "You first need to connect Twitchat with SAMMI to use this action",
+				"action_mixitup": "Mix It Up action",
+				"action_mixitup_tt": "You first need to connect Twitchat with Mix It Up to use this action",
+				"action_playability": "PlayAbility action",
+				"action_playability_tt": "You first need to connect Twitchat with PlayAbility to use this action"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -215,6 +227,8 @@
 				"param_max_duration": "Only allow tracks shorter than {VALUE}s",
 				"param_playlist": "Playlist\n(name, link or ID)",
 				"param_selection": "Track result to select\n(for textual searches)",
+				"param_limit_perUser": "Limit number of tracks per user in the queue",
+				"param_max_perUser": "Users can have {VALUE} track in the queue at max|Users can have {VALUE} track in the queue at max|Users can have {VALUE} tracks in the queue at max",
 				"param_selection_options": {
 					"1": "Most relevant",
 					"2": "2nd most relevant",
@@ -232,6 +246,7 @@
 				"missing_playlist_edit_scopes":"Twitchat needs permissions to edit your playlists",
 				"spotify_only": "Only works with Spotify",
 				"fail_reasons": {
+					"spotify_max_per_user_reached": "{USER} reached the maximum number of tracks allowed in the queue",
 					"spotify_not_connected": "Twitchat is not connected with Spotify",
 					"wrong_url": "The given URL isn't a valid Spotify URL",
 					"max_duration": "The given track is longer than the {DURATION} maximum allowed",
@@ -260,6 +275,8 @@
 				"param_obs_action_emitevent": "Emit browser event",
 				"param_obs_action_startvirtualcam": "Start virtual cam",
 				"param_obs_action_stopvirtualcam": "Stop virtual cam",
+				"param_obs_action_createchapter": "Add chapter marker to current record",
+				"param_record_chapter_name":"Chapter name",
 				"param_browser_info": "This feature is for developpers. It allows to emit a javascript event on all browsser sources to send them data.",
 				"param_browser_usage": "Add this to your browser source to receive the data:",
 				"param_browserEvent_name": "Event name",
@@ -341,7 +358,8 @@
 			"tts": {
 				"header": "This feature needs you to enable {LINK} feature",
 				"header_link": "text to speech",
-				"param_message": "Message to read with text to speech"
+				"param_message": "Message to read with text to speech",
+				"param_customVoice": "Use a specific voice"
 			},
 			"voicemod": {
 				"header": "This feature needs you to {LINK}",
@@ -363,6 +381,7 @@
 				"custom_body": "Custom body",
 				"custom_body_placeholder": "{'{'}\n...\n{'}'}",
 				"select_param": "Select parameters to send:",
+				"select_param_ws": "Select parameters to add to JSON body:",
 				"protocol_error": "Due to browser security restrictions, only 127.0.0.1 or localhost domains can be called with HTTP protocol. Use HTTPS for other domains.",
 				"send_as_body": "Send parameters selected bellow in the body as JSON\n(otherwise they're sent as query URL)",
 				"custom_headers": "Custom headers",
@@ -370,7 +389,7 @@
 				"need_to_connect": "This action requires you to {LINK}",
 				"need_to_connect_link": "connect to a websocket server",
 				"topic_description": "Custom value",
-				"payload_description": "Custom data",
+				"payload_description": "Custom JSON body",
 				"extract_data": "Extract query result data to placeholders",
 				"extract_data_type_text": "Text",
 				"extract_data_type_json": "JSON",
@@ -397,7 +416,8 @@
 				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
 			"value": {
-				"value_label": "New value\n(supports arithmetic operations)",
+				"value_label": "New value",
+				"interpret_arithmetic": "Interpret arithmetic operations (AKA maths)",
 				"select_label": "Values to update",
 				"select_placeholder": "Select a value...",
 				"param_action": "Action to perform\n(for per-user values)",
@@ -574,6 +594,31 @@
 				"param_cell_id":"Specific cell",
 				"param_cell":"Cell",
 				"no_grid":"You must first create a bingo grid"
+			},
+			"streamerbot":{
+				"param_action":"Action to execute",
+				"need_to_connect": "This action requires you to {LINK}",
+				"need_to_connect_link": "connect with Streamer.bot",
+				"add_arg_bt":"Add parameter"
+			},
+			"sammi":{
+				"param_buttonId":"Button ID to trigger",
+				"need_to_connect": "This action requires you to {LINK}",
+				"need_to_connect_link": "connect with SAMMI"
+			},
+			"mixitup":{
+				"param_commandId":"Command to trigger",
+				"need_to_connect": "This action requires you to {LINK}",
+				"need_to_connect_link": "connect with Mix It Up",
+				"add_arg_bt":"Add parameter"
+			},
+			"playability":{
+				"need_to_connect": "This action requires you to {LINK}",
+				"need_to_connect_link": "connect with PlayAbility",
+				"add_output_bt": "Add action",
+				"output_press":"Press button",
+				"output_release":"Release button",
+				"output_press_release":"Press/Release button"
 			}
 		},
 		"categories": {
@@ -596,7 +641,9 @@
 			"tipeee": "Tipeee",
 			"youtube": "YouTube",
 			"tiltify": "Titlitfy",
-			"patreon": "Patreon"
+			"patreon": "Patreon",
+			"tiktok": "TikTok",
+			"twitch_charity": "Twitch Charity"
 		},
 		"placeholders": {
 			"trigger_name": "Current trigger name",
@@ -606,6 +653,7 @@
 			"user_id": "User ID",
 			"user_color": "User color",
 			"user_badges": "User badges as JSON",
+			"user_custom_badges": "Custom user badge IDs",
 			"my_user": "My user name",
 			"my_user_id": "My user ID",
 			"user_avatar": "User avatar URL",
@@ -631,6 +679,7 @@
 			"bingo_number": "Number to guess",
 			"bingo_emote": "Emote to guess",
 			"bingo_custom": "Custom text to guess",
+			"bingo_generic": "Value to guess (number, emote code or text)",
 			"sub_tier": "Sub tier: prime, 1, 2 or 3",
 			"subgift_tier": "Sub tier: 1, 2 or 3",
 			"sub_message": "Message of the user",
@@ -821,7 +870,7 @@
 			"sl_tipAlltimeTopDonation_amount": "Top donation amount all time",
 			"sl_tipAlltimeTopDonation_username": "Name of top donation all time",
 			"sl_raised": "Amount raised",
-			"sl_raised_formatted": "Amount raiised formatted",
+			"sl_raised_formatted": "Amount raised formatted",
 			"sl_goal": "Goal amount",
 			"sl_goal_formatted": "Goal amount formatted",
 			"sl_campaign_id": "Campaign ID",
@@ -850,7 +899,21 @@
 			"youtube_sub_months":"Membership duration in months",
 			"ws_topic":"Websocket topic",
 			"ws_message":"All message data",
-			"platform":"Platform that started the trigger\n(twitch, youtube, ...)"
+			"platform":"Platform that started the trigger\n(twitch, youtube, ...)",
+			"tiktok_gift_count":"Number of gifts",
+			"tiktok_gift_id":"ID of the gift",
+			"tiktok_like_count":"Number of likes",
+			"tiktok_like_total":"Total likes received during current stream",
+			"tiktok_diamonds":"Diamonds received",
+			"tiktok_sub_month":"Sub months",
+			"playability_inputName":"Input name",
+			"playability_inputType":"Input type",
+			"playability_inputValue":"Input value",
+			"playability_inputType_axis":"Gamepad Stick",
+			"playability_inputType_button":"Gamepad Button",
+			"playability_inputType_keyboard":"Keyboard key",
+			"playability_inputType_mouseButton":"Mouse click",
+			"playability_inputType_trigger":"Gamepad Trigger"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1332,6 +1395,10 @@
 				"label": "Received donation on a Streamlabs Charity campaign",
 				"description": "Actions to execute when someone makes a donation on Streamlabs Charity campaign"
 			},
+			"TWITCH_CHARITY_DONATION": {
+				"label": "Received donation on a Twitch Charity campaign",
+				"description": "Actions to execute when someone makes a donation on Twitch Charity campaign"
+			},
 			"KOFI_DONATION": {
 				"label": "Received a donation on Ko-fi",
 				"description": "Actions to execute when receiving a donation on Ko-fi"
@@ -1432,6 +1499,74 @@
 			"PATREON_NEW_MEMBER": {
 				"label": "New member on Patreon",
 				"description": "Actions to execute when a new member subscribes on Patreon"
+			},
+			"TIKTOK_SUB": {
+				"label":"TikTok subscriber",
+				"description":"A member subscribed on TikTok"
+			},
+			"TIKTOK_GIFT": {
+				"label":"TikTok gift",
+				"description":"A viewer sent a gift on TikTok"
+			},
+			"TIKTOK_LIKE": {
+				"label":"Tiktok like",
+				"description":"A viewer sent a like on TikTok"
+			},
+			"TIKTOK_SHARE": {
+				"label":"Tiktok share",
+				"description":"A viewer shared your TikTok stream"
+			},
+			"CLEAR_CHAT": {
+				"label":"Chat cleared",
+				"description": "Actions to execute when the chat is cleared"
+			},
+			"SUB_ONLY_ON": {
+				"label":"Sub-only enabled",
+				"description": "Actions to execute when sub-only mode is enabled"
+			},
+			"SUB_ONLY_OFF": {
+				"label":"Sub-only disabled",
+				"description": "Actions to execute when sub-only mode is disabled"
+			},
+			"FOLLOW_ONLY_ON": {
+				"label":"Follow-only enabled",
+				"description": "Actions to execute when follow-only mode is enabled"
+			},
+			"FOLLOW_ONLY_OFF": {
+				"label":"Follow-only disabled",
+				"description": "Actions to execute when follow-only mode is disabled"
+			},
+			"EMOTE_ONLY_ON": {
+				"label":"Emote-only enabled",
+				"description": "Actions to execute when emote-only mode is enabled"
+			},
+			"EMOTE_ONLY_OFF": {
+				"label":"Emote-only disabled",
+				"description": "Actions to execute when emote-only mode is disabled"
+			},
+			"SLOW_MODE_ON": {
+				"label":"Slow mode enabled",
+				"description": "Actions to execute when slow mode is enabled"
+			},
+			"SLOW_MODE_OFF": {
+				"label":"Slow mode disabled",
+				"description": "Actions to execute when slow mode is disabled"
+			},
+			"MONITOR_ON": {
+				"label":"User monitored",
+				"description": "Actions to execute when a user is monitored"
+			},
+			"RESTRICT_ON": {
+				"label":"User restricted",
+				"description": "Actions to execute when a user is restricted from chatting"
+			},
+			"MONITOR_RESTRICT_OFF": {
+				"label":"User not monitored or restricted anymore",
+				"description": "Actions to execute when a user stops being monitored or restricted from chatting"
+			},
+			"PLAYABILITY_INPUT": {
+				"label":"Action triggered on PlayAbility",
+				"description": "Actions to execute when an action is triggered by PlayAbility"
 			}
 		},
 		"musicEvents": {

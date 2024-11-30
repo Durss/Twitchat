@@ -115,7 +115,7 @@ export default class Utils {
 
 	public static promisedTimeout(delay: number): Promise<void> {
 		return new Promise(function (resolve) {
-			setTimeout(() => resolve(), delay);
+			window.setTimeout(() => resolve(), delay);
 		})
 	}
 

@@ -47,6 +47,7 @@
 			"shoutoutBt_aria": "Shoutouts en attente",
 			"viewer_count": "Nombre de viewers",
 			"reply_to": "Réponse à {USER} :",
+			"quoting": "Citer {USER} :",
 			"spotify_down": "L'API Spotify est cassée.\nL'overlay et les triggers Spotify ne pourront fonctionner tant qu'ils ne l'auront pas réparée.",
 			"creditsBt_aria": "Générique de fin",
 			"bingoGridBt_aria": "Grilles de bingo",
@@ -60,7 +61,17 @@
 			"extra_chan_info": "Les Triggers, le TTS, le mode urgence, l'automod,\netc... ne s'exécuteront que pour votre propre chaîne",
 			"youtube_not_connected": "Vous n'êtes connecté·e à aucun live YouTube",
 			"youtube_missing_scope": "Vous n'avez pas autorisé Twitchat à envoyer des messages sur YouTube",
-			"obs_disconnected_tt": "Non connecté à OBS"
+			"obs_disconnected_tt": "Non connecté à OBS",
+			"mode_private": "Envoyez un message uniquement à {USER}",
+			"mode_private_details": "Envoyez un message que seul·e {USER} verra\n\nNe fonctionne que si {USER} utilise Twitchat !",
+			"mode_question": "Poser une question uniquement à {USER}",
+			"mode_question_details": "Poser une question que seul·e {USER} verra.\nLe message présentera 2 boutons \"accepter\"\net \"refuser\" pour vous répondre en 1 click.\n\nNe fonctionne que si {USER} utilise Twitchat !",
+			"mode_public": "Envoyer un message public",
+			"mode_public_details": "Envoie un message classique dans le tchat de {USER}.",
+			"mode_private_mods": "Envoyez un message uniquement à {USER} et aux modos",
+			"mode_private_mods_details": "Envoyez un message que seul·e {USER} et les modos verront\n\nNe fonctionne que si {USER} et les modos utilisent Twitchat !",
+			"mode_private_mods_only": "Envoyez un message uniquement à vos modos",
+			"mode_private_mods_only_details": "Envoyez un message que seul·es vos modos verront\n\nVos modos doivent utiliser Twitchat pour les recevoir !"
 		},
 		"filters": {
 			"cta": "Options importantes ici",
@@ -107,6 +118,7 @@
 				"countdown": "Compte à rebours",
 				"prediction": "Prédictions",
 				"subscription": "Abonnements",
+				"twitch_charity_donation": "Don Twitch Charity",
 				"hype_train_summary": "Résultats du train de la hype",
 				"hype_train_cooled_down": "Train de la hype prêt",
 				"community_boost_complete": "Boost de stream",
@@ -122,7 +134,11 @@
 				"kofi": "Alertes Ko-fi",
 				"tipeee": "Alertes Tipeee",
 				"tiltify": "Alertes Tiltify",
-				"patreon": "Alertes Patreon"
+				"patreon": "Alertes Patreon",
+				"tiktok_like": "Tiktok likes",
+				"tiktok_gift": "Tiktok cadeaux",
+				"tiktok_share": "Tiktok partages",
+				"private_mod_message": "Messages de modération privés"
 			},
 			"message_filters": {
 				"viewers": "Envoyé par des viewers",
@@ -358,6 +374,7 @@
 			"untrack": "Ne plus suivre ses messages",
 			"shoutout": "Faire un shoutout",
 			"answer": "Répondre",
+			"quote": "Citer",
 			"tts": "Lire via TTS",
 			"tts_all": "Lire tous ses messages via TTS",
 			"tts_all_start": "Lire tous ses messages via TTS",
@@ -477,6 +494,9 @@
 			"donation_recurring": "{USER} a fait un don de {AMOUNT} pour {MONTHS} mois sur Tipeee",
 			"monthly": "{USER} s'est abonné pour {AMOUNT} par mois sur Tipeee"
 		},
+		"twitch_charity": {
+			"donation": "{USER} a donné {AMOUNT} pour la campagne Twitch {CAMPAIGN}"
+		},
 		"tiltify": {
 			"donation": "{USER} a donné {AMOUNT} pour {CAMPAIGN}"
 		},
@@ -492,6 +512,9 @@
 		"youtube": {
 			"platform_youtube": "Message reçu\nsur YouTube",
 			"connected_to": "Vous êtes maintenant connecté·e au tchat du live \"{TITLE}\""
+		},
+		"tiktok": {
+			"platform_youtube": "Message reçu\nsur TikTok"
 		},
 		"celebration": {
 			"message": "{USER} a obtenu {EMOTE} Célébration de chaîne pour {PRICE}",
@@ -534,10 +557,30 @@
 		"youtube_subgift": {
 			"title": "{USER} a offert {COUNT} abonnements {TIER} à {LIST}"
 		},
+		"tiktok_sub":{
+			"new": "{USER} s'est abonné"
+		},
+		"tiktok_like":{
+			"new": "{USER} a envoyé {COUNT} likes"
+		},
+		"tiktok_gift":{
+			"new": "{USER} a envoyé x{COUNT} {IMAGE}"
+		},
+		"tiktok_share":{
+			"new": "{USER} a partagé le stream"
+		},
 		"suspended_trigger_stack":{
 			"title": "Une séquence d'exécution de trigger rend Twitchat instable.\nLeur exécution a été interrompue par mesure de sécurité.",
 			"resumeBt": "Relancer",
 			"callstack": "Historique d'exécution :"
+		},
+		"tts": {
+			"elevenlabs_credits_empty":"Vous avez dépensé tous vos crédits EleventLabs.",
+			"elevenlabs_credits_almost_empty":"Vous avez bientôt épuisé vos crédits ElevenLabs. Il vous reste {CREDITS} crédits."
+		},
+		"private_mod_message": {
+			"accepted": "accepté",
+			"refused": "refusé"
 		}
 	}
 }

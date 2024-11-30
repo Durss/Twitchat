@@ -147,7 +147,7 @@ export default class Database {
 			//For example this happens when receiving a whisper from someone who's profile
 			//has not been loaded before.
 			if(json.indexOf(StoreProxy.users.tmpDisplayName) > -1) {
-				setTimeout(() => {
+				window.setTimeout(() => {
 					this.updateMessage(message);
 				}, 5000);
 			}
@@ -157,7 +157,7 @@ export default class Database {
 			.add(data)
 			query.addEventListener("success", event => {
 				clearTimeout(this._cleanTimeout);
-				this._cleanTimeout = setTimeout(() => {
+				this._cleanTimeout = window.setTimeout(() => {
 					if((event.target as IDBRequest).result > this._maxRecords) {
 						this.limitMessageCount();
 					}

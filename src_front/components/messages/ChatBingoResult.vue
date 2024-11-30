@@ -1,5 +1,6 @@
 <template>
-	<div class="chatbingoresult chatMessage highlight">
+	<div class="chatbingoresult chatMessage highlight"
+	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		<Icon name="bingo" alt="icon" class="icon"/>
 

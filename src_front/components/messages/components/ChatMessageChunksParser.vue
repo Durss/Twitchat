@@ -57,6 +57,10 @@ class ChatMessageChunksParser extends Vue {
 	@Prop
 	public chunks!:TwitchatDataTypes.ParseMessageChunk[];
 
+	public get colorDarken():string{
+		return this.$store.common.theme == "dark" ? "none" : "brightness(0.8)";
+	}
+
 	public get spoiledChunks():TwitchatDataTypes.ParseMessageChunk[] {
 		if((!this.forceSpoiler && !this.containsSpoiler) || this.$store.params.features.spoilersEnabled.value !== true) return this.chunks;
 		
@@ -106,12 +110,11 @@ class ChatMessageChunksParser extends Vue {
 	}
 
 	public getUserClasses(username:string):CSSProperties {
-		const channelId = this.channel || this.$store.auth.twitch.user.id;
 		if(!this.$store.auth.twitch.user) return {color:"#c400da"};
-		const user = this.$store.users.getUserFrom(this.platform || "twitch", channelId, undefined, username);
-		if(user.color) {
+		const color = this.$store.users.getUserColorFromLogin(username, this.platform || "twitch");
+		if(color) {
 			return {
-				color: Utils.getUserColor(user),
+				color: color,
 			};
 		}
 		return {};
@@ -121,12 +124,16 @@ export default toNative(ChatMessageChunksParser);
 </script>
 
 <style scoped lang="less">
-.login:hover {
-	background-color: var(--background-color-fader);
-	border-radius: 3px;
 
-	.copyBt {
-		width: 1em;
+.login {
+	filter: v-bind(colorDarken);
+	&:hover {
+		background-color: var(--background-color-fader);
+		border-radius: 3px;
+	
+		.copyBt {
+			width: 1em;
+		}
 	}
 }
 .emote {

@@ -124,8 +124,8 @@
 			"param_showSubsT1": "Tier 1",
 			"param_showSubsT2": "Tier 2",
 			"param_showSubsT3": "Tier 3",
-			"param_showAllActiveSubs": "Afficher tous les abonnements actifs",
-			"param_showAllActiveSubgifters": "Afficher toutes les personnes ayant offert un abonnement actif",
+			"param_showAllActiveSubs": "Afficher tous les abonnements actifs sur Twitch",
+			"param_showAllActiveSubgifters": "Afficher toutes les personnes ayant offert un abonnement actif sur Twitch",
 			"param_showChatters": "Afficher les autres chatters",
 			"param_showResubs": "Afficher les resubs",
 			"param_showSubgifts": "Afficher les subgifts",
@@ -138,9 +138,16 @@
 			"param_pu_celeb_tt": "Ne peut fonctionner tant que Twitch ne corrige pas leur API",
 			"param_sortByNames": "Trier par ordre alphabétique",
 			"param_sortByRoles": "Trier par rôles",
-			"param_sortByAmounts": "Trier par nombre de messages",
+			"param_sortByAmount": "Trier par nombre de messages",
 			"param_sortByPuCount": "Trier par nombre de power-ups",
-			"param_sortByTipAmounts": "Trier par valeur des dons",
+			"param_sortByTipAmount": "Trier par valeur des dons",
+			"param_sortByGiftAmount": "Trier par valeur des cadeaux",
+			"param_sortByLikeCount": "Trier par nombre de likes",
+			"param_sortByShareCount": "Trier par nombre de partages",
+			"param_sortByDuration": "Trier par durée d'abonnement",
+			"param_sortByTotalAmount": "Trier par montant total donné",
+			"param_showTotalAmount": "Afficher le montant total donné",
+			"param_currency": "Devise",
 			"param_layout": "Disposition des entrées",
 			"param_maxItems": "Maximum d'entrées à afficher",
 			"param_customHTML": "Template HTML personnalisé",
@@ -164,6 +171,9 @@
 			"param_tip_streamelements": "Dons Streamelements",
 			"param_merch_kofi": "Merch Ko-fi",
 			"param_merch_streamlabs": "Streamlabs merch",
+			"param_anonLastNames": "Anonimiser les noms de famille",
+			"param_patreonTiers": "Tiers à afficher",
+			"param_freeText": "Texte (supporte le HTML)",
 			"scroll_tt": "Défiler jusqu'à cette section",
 			"testBt": "Lancer un faux générique",
 			"moderators_label": "MODERATEUR·ICES",
@@ -190,8 +200,12 @@
 				"tips": "Dons",
 				"powerups": "Power-ups",
 				"merch": "Achat de merch",
+				"patreonMembers": "Membres Patreon",
 				"ytSuperchat": "Afficher les Super chats",
-				"ytSuperSticker": "Afficher les Super stickers"
+				"ytSuperSticker": "Afficher les Super stickers",
+				"tiktokLikes": "Likes tiktok",
+				"tiktokShares": "Partages tiktok",
+				"tiktokGifts": "Cadeaux tiktok"
 			},
 			"labels": {
 				"text": "",
@@ -212,8 +226,12 @@
 				"tips": "DONS",
 				"powerups": "POWER-UPS",
 				"merch": "MERCH ACHETÉ",
+				"patreonMembers": "MEMBRES PATREON",
 				"ytSuperchat": "SUPER CHATS",
-				"ytSuperSticker": "SUPER STICKERS"
+				"ytSuperSticker": "SUPER STICKERS",
+				"tiktokLikes": "LIKES TIKTOK",
+				"tiktokShares": "PARTAGES TIKTOK",
+				"tiktokGifts": "CADEAUX TIKTOK"
 			},
 			"amounts": {
 				"cheers": "Afficher le nombre de bits",
@@ -228,14 +246,19 @@
 				"timeouts": "Afficher la durée totale de timeout pour chaque personne",
 				"polls": "Afficher le nombre de votes",
 				"predictions": "Afficher le nombre de points de chaîne",
-				"tips": "Afficher le montant des dons"
+				"tips": "Afficher le montant des dons",
+				"patreonMembers": "Afficher la durée de l'abonnement",
+				"tiktokLikes": "Afficher le nombre de likes",
+				"tiktokShares": "Show share count",
+				"tiktokGifts": "Afficher le nombre de diamants reçus"
 			},
 			"manual_install_instructions": "Pour un fonctionnement optimal, assurez-vous d'activer les options \"Désactiver la source quand elle n'est pas visible\" et \"Rafraîchir la source quand elle devient active\" sur la source navigateur OBS.",
 			"param_pu_skin": "Effets de message",
 			"param_pu_emote": "Emotes gigantisées",
 			"param_pu_celeb": "Célébrations",
 			"param_showSubsYoutube": "Afficher les subs YouTube",
-			"param_showSubgiftsYoutube": "Afficher les subgifts YouTube"
+			"param_showSubgiftsYoutube": "Afficher les subgifts YouTube",
+			"param_showSubsTiktok": "Show Tiktok subs"
 		},
 		"heatDistort": {
 			"title": "Distorsion de source OBS",
@@ -501,6 +524,14 @@
 				"VIEWER_COUNT": "Viewers - total",
 				"STREAM_CATEGORY_NAME": "Catégorie du stream - Titre",
 				"STREAM_CATEGORY_COVER": "Catégorie du stream - Image",
+
+				"TWITCH_CHARITY_NAME": "Twitch Charity - Nom de la campagne",
+				"TWITCH_CHARITY_IMAGE": "Twitch Charity - Image de la campagne",
+				"TWITCH_CHARITY_RAISED": "Twitch Charity - Montant récolté",
+				"TWITCH_CHARITY_GOAL": "Twitch Charity - Objectif",
+				"TWITCH_CHARITY_LAST_TIP_USER": "Twitch Charity - Dernier·e donnateurice",
+				"TWITCH_CHARITY_LAST_TIP_AMOUNT": "Twitch Charity - Dernier don",
+				"TWITCH_CHARITY_LAST_TIP_AVATAR": "Twitch Charity - Avatar du dernier don",
 				
 				"POWER_UP_GIANTIFIED_ID": "Power-up Emote gigantisée - ID utilisateur·ice",
 				"POWER_UP_GIANTIFIED_NAME": "Power-up Emote gigantisée - Pseudo",
@@ -521,7 +552,23 @@
 				"PATREON_USER": "Patreon - Pseudo",
 				"PATREON_TITLE": "Patreon - Titre de l'abonnement",
 				"PATREON_AMOUNT": "Patreon - Montant de l'abonnement",
-				"PATREON_AVATAR": "Patreon - Avatar"
+				"PATREON_AVATAR": "Patreon - Avatar",
+				"PATREON_MEMBER_COUNT": "Patreon - Nombre de membres actifs",
+				
+				"TIKTOK_VIEWER_COUNT": "TikTok - Viewers",
+				"TIKTOK_LIKE_TOTAL": "TikTok Like - Likes total du stream",
+				"TIKTOK_LIKE_USER": "TikTok Like - Pseudo",
+				"TIKTOK_LIKE_AVATAR": "TikTok Like - Avatar",
+				"TIKTOK_LIKE_COUNT": "TikTok Like - Likes envoyés",
+				"TIKTOK_SUB_USER": "TikTok Sub - Pseudo",
+				"TIKTOK_SUB_AVATAR": "TikTok Sub - Avatar",
+				"TIKTOK_SHARE_USER": "TikTok Share - Pseudo",
+				"TIKTOK_SHARE_AVATAR": "TikTok Share - Avatar",
+				"TIKTOK_GIFT_USER": "TikTok Cadeau - Pseudo",
+				"TIKTOK_GIFT_AVATAR": "TikTok Cadeau - Avatar",
+				"TIKTOK_GIFT_IMAGE": "TikTok Cadeau - Image",
+				"TIKTOK_GIFT_COUNT": "TikTok Cadeau - Nombre de cadeaux",
+				"TIKTOK_GIFT_DIAMONDS": "TikTok Cadeau - Dimants reçus"
 			}
 		}
 	}

@@ -99,7 +99,6 @@ export default class DataStoreCommon {
 	public static BINGO_GRIDS:string = "bingoGrids";
 	public static OVERLAY_LABELS:string = "overlayLabels";
 	public static OVERLAY_LABELS_CACHE:string = "overlayLabelsCache";
-	public static T4P_CHAT_CMD:string = "t4p_chat_cmd";
 	public static USER_ID:string = "userId";
 	public static USERCARD_PINNED_CHANNEL:string = "usercardPinnedChannel";
 	public static AUTOCONNECT_CHANS:string = "autoconnectChans";
@@ -107,6 +106,16 @@ export default class DataStoreCommon {
 	public static TILTIFY:string = "tiltify";
 	public static TILTIFY_TOKEN:string = "tiltifyToken";
 	public static RAFFLES_RUNNING:string = "rafflesRunning";
+	public static TIKTOK_CONFIGS:string = "tiktokConfigs";
+	public static STREAMERBOT_CONFIGS:string = "streamerbotConfigs";
+	public static STREAMERBOT_WS_PASSWORD:string = "streamerbotWsPassword";
+	public static SAMMI_CONFIGS:string = "sammiConfigs";
+	public static SAMMI_API_PASSWORD:string = "sammiApiPassword";
+	public static MIXITUP_CONFIGS:string = "mixitupConfigs";
+	public static ELEVENLABS_API_KEY:string = "elevenlabsApiKey";
+	public static PLAYABILITY_CONFIGS:string = "playabilityConfigs";
+	public static KOFI_CONFIGS:string = "kofiConfigs";
+	public static TWITCH_BOT:string = "twitchBot";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";
@@ -140,9 +149,12 @@ export default class DataStoreCommon {
 		this.STREAMLABS,
 		this.STREAMELEMENTS,
 		this.TIPEEE,
-		this.T4P_CHAT_CMD,
 		this.TILTIFY_TOKEN,
 		this.STREAMLABS_CHARITY_CACHE,
+		this.STREAMERBOT_WS_PASSWORD,
+		this.SAMMI_API_PASSWORD,
+		this.ELEVENLABS_API_KEY,
+		this.TWITCH_BOT,
 	];
 
 

@@ -70,7 +70,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 		//Debounce connection calls if calling it for multiple channels at once
 		clearTimeout(this._connectTimeout);
-		this._connectTimeout = setTimeout(async ()=>{
+		this._connectTimeout = window.setTimeout(async ()=>{
 			Logger.instance.log("irc", {info:"Initial connect to channel(s) "+this._channelList.join(", ")});
 			const chans = await TwitchUtils.getUserInfo(undefined, this._channelList);
 			if(chans.length === 0) {
@@ -94,12 +94,12 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const amIModThere = result !== false;
 					if(amIModThere) {
 						//Go through getUserFrom() that will init the channelInfo property for later use
-						const me = StoreProxy.users.getUserFrom("twitch", channel.id, meObj.id, meObj.login, meObj.displayNameOriginal)
+						const me = StoreProxy.users.getUserFrom("twitch", channel.id, meObj.id, meObj.login, meObj.displayNameOriginal, undefined, undefined, false, undefined, false)
 						//Flag self as mod of that channel
 						me.channelInfo[channel.id].is_moderator = true;
 					}
 				})
-				const u = StoreProxy.users.getUserFrom("twitch", channel.id, channel.id, channel.login, channel.display_name);//Preload user to storage
+				const u = StoreProxy.users.getUserFrom("twitch", channel.id, channel.id, channel.login, channel.display_name, undefined, undefined, false, undefined, false);//Preload user to storage
 				u.channelInfo[channel.id].online = true;
 				u.channelInfo[channel.id].is_broadcaster = true;
 
@@ -244,7 +244,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	/**
 	 * Disconnect from all channels and cut IRC connection
 	 */
-	public async sendMessage(channelId:string, text:string, replyTo?:TwitchatDataTypes.MessageChatData, noConfirm = false):Promise<boolean> {
+	public async sendMessage(channelId:string, text:string, replyTo?:TwitchatDataTypes.MessageChatData, noConfirmCommercial:boolean = false, sendAsBot:boolean = true):Promise<boolean> {
 		//TMI.js doesn't send the message back to their sender if sending
 		//it just after receiving a message (same frame).
 		//If we didn't wait for a frame, the message would be sent properly
@@ -283,7 +283,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 							StoreProxy.common.alert("User <strong>\""+login+"\"</strong> does not exists");
 						}
 						resolve(user);
-					})
+					}, undefined, undefined, undefined, false)
 				})
 				// let res:TwitchDataTypes.UserInfo[];
 				// try {
@@ -371,7 +371,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					if(!StoreProxy.auth.twitch.user.is_affiliate && !StoreProxy.auth.twitch.user.is_partner) return false;
 					if(!TwitchUtils.requestScopes([TwitchScopes.START_COMMERCIAL])) return false;
 					const duration = parseInt(chunks[0]);
-					StoreProxy.stream.startCommercial(channelId, duration, noConfirm);
+					StoreProxy.stream.startCommercial(channelId, duration, noConfirmCommercial);
 					return true;
 				}
 				case "/shield":  {
@@ -470,13 +470,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			}
 
 		}
-		if(this._client) {
-			if(replyTo) {
-				//@ts-ignore
-				this._client.reply(this._channelIdToLogin[channelId], text, replyTo.id);
-			}else{
-				this._client.say(this._channelIdToLogin[channelId], text);
-			}
+		if(replyTo) {
+			//@ts-ignore
+			// this._client.reply(this._channelIdToLogin[channelId], text, replyTo.id);
+			await TwitchUtils.sendMessage(channelId, text, replyTo.id, sendAsBot);
+		}else{
+			// this._client.say(this._channelIdToLogin[channelId], text);
+			await TwitchUtils.sendMessage(channelId, text, undefined, sendAsBot);
 		}
 		return true
 	}
@@ -639,7 +639,21 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	private async onMessage(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean):Promise<void> {
 		//Ignore anything that's not a message or a /me
-		if(tags["message-type"] != "chat" && tags["message-type"] != "action" && (tags["message-type"] as string) != "announcement") return;
+		if(tags["message-type"] != "chat" && tags["message-type"] != "action" && (tags["message-type"] as string) != "announcement") {
+			if(!Config.instance.IS_PROD) {
+				let data:TwitchatDataTypes.MessageNoticeData = {
+					channel_id:this.getChannelID(channel),
+					date:Date.now(),
+					id:Utils.getUUID(),
+					message:"Unknown message type: "+ tags["message-type"],
+					platform:"twitch",
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.GENERIC,
+				}
+				this.dispatchEvent(new MessengerClientEvent("NOTICE", data));
+			}
+			return;
+		}
 
 		//Ignore rewards with text, they are also sent to PubSub with more info
 		if(tags["custom-reward-id"]) return;
@@ -669,7 +683,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			message_chunks:[],
 			message_size:0,
 			is_short:false,
-			raw_data:{tags, message}
+			raw_data:{tags, message},
+			twitch_source:"irc",
 		};
 
 		if(isSharedChatMessage) {
@@ -681,7 +696,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					this._remoteIdToPromise[chanId] = new Promise<TwitchatDataTypes.TwitchatUser>((resolve)=>{
 						StoreProxy.users.getUserFrom("twitch", chanId, chanId, undefined, undefined, (user)=>{
 							resolve(user);
-						})
+						}, undefined, undefined, undefined, false)
 					});
 				}
 
@@ -842,6 +857,22 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private async onCheer(channel:string, tags:tmi.ChatUserstate, message:string):Promise<void> {
 		const channel_id = this.getChannelID(channel);
 		const chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"]);
+		setTimeout(() => {
+			if(StoreProxy.chat.messages.findIndex(v=>v.id == tags.id) === -1) {
+				let data:TwitchatDataTypes.MessageCustomData = {
+					channel_id:this.getChannelID(channel),
+					date:Date.now(),
+					id:Utils.getUUID(),
+					message:"Cheer not found on history after 5s !",
+					platform:"twitch",
+					type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+					style:"error",
+
+				}
+				this.dispatchEvent(new MessengerClientEvent("MESSAGE", data));
+				console.log("MISSING CHEEEEEEEEER", channel, tags, message);
+			}
+		}, 5000);
 		await TwitchUtils.parseCheermotes(chunks, channel_id);
 
 		this.dispatchEvent(new MessengerClientEvent("CHEER", {
@@ -888,7 +919,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const recipientLogin = tags["msg-param-recipient-user-name"] ?? recipient;
 		const recipientName = tags["msg-param-recipient-display-name"] ?? recipient;
 		const recipientId = tags["msg-param-recipient-id"];
-		const user = StoreProxy.users.getUserFrom("twitch", data.channel_id, recipientId, recipientLogin, recipientName);
+		const user = StoreProxy.users.getUserFrom("twitch", data.channel_id, recipientId, recipientLogin, recipientName, undefined, undefined, false, undefined, false);
 		data.gift_recipients = [user];
 		data.gift_count = 1;
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
@@ -902,7 +933,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const recipientLogin = tags["msg-param-recipient-user-name"] ?? recipient;
 		const recipientName = tags["msg-param-recipient-display-name"] ?? recipient;
 		const recipientId = tags["msg-param-recipient-id"];
-		const user = StoreProxy.users.getUserFrom("twitch", data.channel_id, recipientId, recipientLogin, recipientName);
+		const user = StoreProxy.users.getUserFrom("twitch", data.channel_id, recipientId, recipientLogin, recipientName, undefined, undefined, false, undefined, false);
 		data.gift_recipients = [user];
 		data.gift_count = 1;
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
@@ -1013,7 +1044,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//can then ignore the event. Otherwise, we send the notificaiton.
 		//We don't wait 1s or more, otherwise if TO for 1s the user would be unbanned
 		//before the setTimeout completes
-		setTimeout(async ()=> {
+		window.setTimeout(async ()=> {
 			const channel_id = this.getChannelID(channel);
 			const user = this.getUserStateFromLogin(username, channel_id).user;
 			const isTO = !isNaN(duration as number);
@@ -1022,22 +1053,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			|| (user.channelInfo[channel_id].banEndDate && !isTO)
 			//if user is perma banned and it's a TO
 			|| (!user.channelInfo[channel_id].banEndDate && isTO)) {
-
-				const m:TwitchatDataTypes.MessageBanData = {
-					id:Utils.getUUID(),
-					date:Date.now(),
-					platform:"twitch",
-					channel_id,
-					type:TwitchatDataTypes.TwitchatMessageType.BAN,
-					user,
-				};
-
-				if(isTO) m.duration_s = duration as number;
-
 				//Flag as banned. This also populates the ban reason of the user
 				await StoreProxy.users.flagBanned("twitch", channel_id, user.id, isTO? duration as number : undefined);
-				m.reason = user.channelInfo[channel_id].banReason;
-				StoreProxy.chat.addMessage(m);
 			}
 		},990)
 	}
@@ -1065,7 +1082,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const user = this.getUserFromTags(tags, channelId);
 
 					const params = parsed.params as string[];
-					const message = params[1];
+					const message = params[1] || "";
 					const message_chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"], tags.sentLocally == true);
 					const message_html = TwitchUtils.messageChunksToHTML(message_chunks);
 					const message_size = TwitchUtils.computeMessageSize(message_chunks);
@@ -1086,7 +1103,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					};
 					this.dispatchEvent(new MessengerClientEvent("WATCH_STREAK", eventData));
 
-					//Add as standard emssage
+					//Add as standard message
 					const messageData:TwitchatDataTypes.MessageChatData = {
 						channel_id: channelId,
 						id:Utils.getUUID(),
@@ -1134,7 +1151,17 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			case "NOTICE": {
 				let [msgid, url, cmd, channel, message] = (parsed.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");
 				console.log("NOTICE::", msgid, message);
-				let noticeId:TwitchatDataTypes.TwitchatNoticeStringType = TwitchatDataTypes.TwitchatNoticeType.GENERIC;
+				const msgIdToNoticeId:{[msgId:string]:TwitchatDataTypes.TwitchatNoticeStringType} = {
+					"subs_on": TwitchatDataTypes.TwitchatNoticeType.SUB_ONLY_ON,
+					"subs_off": TwitchatDataTypes.TwitchatNoticeType.SUB_ONLY_OFF,
+					"followers_on": TwitchatDataTypes.TwitchatNoticeType.FOLLOW_ONLY_ON,
+					"followers_off": TwitchatDataTypes.TwitchatNoticeType.FOLLOW_ONLY_OFF,
+					"emote_only_on": TwitchatDataTypes.TwitchatNoticeType.EMOTE_ONLY_ON,
+					"emote_only_off": TwitchatDataTypes.TwitchatNoticeType.EMOTE_ONLY_OFF,
+					"slow_on": TwitchatDataTypes.TwitchatNoticeType.SLOW_MODE_ON,
+					"slow_off": TwitchatDataTypes.TwitchatNoticeType.SLOW_MODE_OFF,
+				}
+				let noticeId:TwitchatDataTypes.TwitchatNoticeStringType = msgIdToNoticeId[msgid] || TwitchatDataTypes.TwitchatNoticeType.GENERIC;
 				if(!message) {
 					if(msgid.indexOf("bad_delete_message_error") > -1) {
 						message = StoreProxy.i18n.t("error.delete_message")

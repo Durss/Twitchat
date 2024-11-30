@@ -10,7 +10,7 @@
 			@change="$store.params.saveChatMenuPins()"
 			v-model="$store.params.pinnedMenuItems">
 			<template #header>
-					<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" :newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'chatform_params_3'}" />
+					<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" :newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'chatform_params_4'}" />
 					<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" icon="commands" @click="$emit('update:showCommands', true)" :newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'chatform_cmds_2'}" />
 				</template>
 				<template #item="{element, index}:{element:typeof TwitchatDataTypes.PinnableMenuItems[number]['id'], index:number}">
@@ -35,7 +35,7 @@
 					<div class="replyTo" v-if="$store.chat.replyTo">
 						<button class="closeBt" type="button" @click="$store.chat.replyTo = null"><Icon name="cross"/></button>
 						<div class="content">
-							<i18n-t scope="global" keypath="chat.form.reply_to" tag="span" class="head">
+							<i18n-t scope="global" :keypath="$store.chat.messageMode == 'message'? 'chat.form.reply_to' : 'chat.form.quoting'" tag="span" class="head">
 								<template #USER>
 									<a class="userlink" @click.stop="openUserCard($store.chat.replyTo!.user, $store.chat.replyTo!.channel_id)">{{$store.chat.replyTo!.user.displayName}}</a>
 								</template>
@@ -57,11 +57,20 @@
 						</div>
 					</div>
 
-					<div class="inputField">
+					<div class="inputField" :class="{modAction:$store.chat.messageMode!='message'}" :style="inputStyles">
+						<div class="actions">
+							<ChannelSwitcher class="chanSwitcher"
+								v-model="$store.stream.currentChatChannel.id"
+								v-model:name="$store.stream.currentChatChannel.name"
+								v-model:platform="$store.stream.currentChatChannel.platform" />
+
+							<ModeratorActionSwitcher v-if="isModeratedChannel" v-model:mode="$store.chat.messageMode" />
+						</div>
+
 						<button class="youtubeError"
 							v-if="mustConnectYoutubeChan"
 							@click="$store.params.openParamsPage('connexions', 'youtube')">{{ $t('chat.form.youtube_not_connected') }}</button>
-						
+
 						<button class="youtubeError"
 							v-else-if="$store.stream.currentChatChannel.platform == 'youtube' && mustGrantYoutubeScope"
 							@click="$store.params.openParamsPage('connexions', 'youtube')">{{ $t('chat.form.youtube_missing_scope') }}</button>
@@ -76,13 +85,7 @@
 							@input="$event => message = ($event.target as HTMLInputElement).value"
 							@keyup.capture.tab="(e)=>onTab(e)"
 							@keyup.enter="(e:Event)=>sendMessage(e)"
-							@keydown="onKeyDown"
-							:style="inputStyles">
-
-						<ChannelSwitcher class="chanSwitcher"
-							v-model="$store.stream.currentChatChannel.id"
-							v-model:name="$store.stream.currentChatChannel.name"
-							v-model:platform="$store.stream.currentChatChannel.platform" />
+							@keydown="onKeyDown">
 					</div>
 				</div>
 
@@ -142,11 +145,11 @@
 
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.raffleBt_aria')"
-						v-if="$store.raffle.raffleList && $store.raffle.raffleList.filter(v=>v.mode == 'chat' || v.mode == 'tips').length > 0"
+						v-if="$store.raffle.raffleList && raffleListActive.length > 0"
 						icon="ticket"
 						:count="raffleEntryCount"
 						v-tooltip="{touch:'hold', content:$t('chat.form.raffleBt_aria'), showOnCreate:shouldShowTooltip('raffle'), onHidden:()=>onHideTooltip('raffle')}"
-						@click="openNotifications('raffle')" />
+						@click="openNotifications('raffle')"><template v-if="raffleListActive.length > 1">x{{ raffleListActive.length }}</template></ButtonNotification>
 				</transition>
 
 				<transition name="blink">
@@ -160,6 +163,7 @@
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.suggBt_aria')"
 						icon="chatPoll"
+						:count="$store.chatSuggestion.data?.choices.length"
 						v-tooltip="{touch:'hold', content:$t('chat.form.suggBt_aria'), showOnCreate:shouldShowTooltip('chatsuggState'), onHidden:()=>onHideTooltip('chatsuggState')}"
 						@click="openModal('chatsuggState')"
 						v-if="$store.chatSuggestion.data != null" />
@@ -215,14 +219,23 @@
 				<CommercialTimer />
 
 				<div v-if="$store.params.appearance.showViewersCount.value === true
-					&& streamInfo && streamInfo.viewers > 0"
+					&& (twitchViewerCount > 0 || tiktokViewerCount > 0)"
 					v-tooltip="{touch:'hold', content:$t('chat.form.viewer_count')}"
 					class="viewCount"
 					@click="censoredViewCount = !censoredViewCount"
 				>
-					<p v-if="censoredViewCount">x</p>
-					<p v-if="!censoredViewCount">{{streamInfo.viewers}}</p>
-					<Icon class="icon" name="user"/>
+					<Icon class="icon" name="show"/>
+					<div v-if="twitchViewerCount > 0" class="platform">
+						<Icon name="twitch" v-if="tiktokViewerCount > 0" />
+						<p v-if="censoredViewCount" class="censor">xx</p>
+						<p v-if="!censoredViewCount">{{twitchViewerCount}}</p>
+					</div>
+
+					<div v-if="tiktokViewerCount > 0" class="platform">
+						<Icon name="tiktok" />
+						<p v-if="censoredViewCount" class="censor">xx</p>
+						<p v-if="!censoredViewCount">{{tiktokViewerCount}}</p>
+					</div>
 				</div>
 
 				<transition name="blink">
@@ -386,6 +399,7 @@ import ChannelSwitcher from './ChannelSwitcher.vue';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import {YoutubeScopes} from "@/utils/youtube/YoutubeScopes";
+import ModeratorActionSwitcher from './ModeratorActionSwitcher.vue';
 
 @Component({
 	components:{
@@ -400,6 +414,7 @@ import {YoutubeScopes} from "@/utils/youtube/YoutubeScopes";
 		AutocompleteChatForm,
 		MessageExportIndicator,
 		ChatMessageChunksParser,
+		ModeratorActionSwitcher,
 	},
 	emits: [
 		"update:showEmotes",
@@ -464,8 +479,16 @@ export class ChatForm extends Vue {
 		return this.$store.emergency.params.enabled === true;
 	}
 
-	public get streamInfo():TwitchatDataTypes.StreamInfo | undefined {
-		return this.$store.stream.currentStreamInfo[this.$store.auth.twitch.user.id];
+	public get twitchViewerCount():number {
+		const infos = this.$store.stream.currentStreamInfo[this.$store.auth.twitch.user.id];
+		if(infos) return infos.viewers;
+		return 0;
+	}
+
+	public get tiktokViewerCount():number {
+		const infos = this.$store.stream.currentStreamInfo["tiktok"];
+		if(infos) return infos.viewers;
+		return 0;
 	}
 	public get hasChannelPoints():boolean {
 		return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner;
@@ -484,6 +507,8 @@ export class ChatForm extends Vue {
 	public get showObsBtn():boolean { return this.$store.obs.connectionEnabled === true && !OBSWebsocket.instance.connected; }
 
 	public get qnaSessionActive():boolean { return this.$store.qna.activeSessions.length > 0; }
+	
+	public get raffleListActive():TwitchatDataTypes.RaffleData[] { return this.$store.raffle.raffleList.filter(v=>v.mode != 'manual' && v.mode != 'values' && v.ghost !== true); }
 
 	public get voiceBotStarted():boolean { return VoiceController.instance.started; }
 	public get voiceBotConfigured():boolean {
@@ -550,8 +575,15 @@ export class ChatForm extends Vue {
 
 	public get raffleEntryCount():number {
 		let total = 0;
-		this.$store.raffle.raffleList.filter(v=>v.mode == 'chat' || v.mode == 'tips').forEach(v=> total += v.entries.length);
+		this.raffleListActive.forEach(v=> total += v.entries.length);
 		return total;
+	}
+
+	public get isModeratedChannel():boolean {
+		const chanId = this.$store.stream.currentChatChannel.id;
+		if(chanId == this.$store.auth.twitch.user.id) return true;
+		return chanId != this.$store.auth.twitch.user.id
+			&& this.$store.auth.twitchModeratedChannels.findIndex(v=>v.broadcaster_id == chanId) > -1;
 	}
 
 	public beforeMount(): void {
@@ -567,12 +599,12 @@ export class ChatForm extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.CREDITS_OVERLAY_PRESENCE, this.creditsOverlayPresenceHandler);
 		this.onUpdateTrackedUserList();
 		//Leave some time to open transition to complete before showing announcements
-		setTimeout(()=> {
+		window.setTimeout(()=> {
 			this.loadAnnouncements();
 			this.showGazaBtn = true;
 		}, 2000);
 		//Check for new announcements every 30min
-		this.announcementInterval = setInterval(()=> {
+		this.announcementInterval = window.setInterval(()=> {
 			this.loadAnnouncements(true);
 		}, 10 * 60 * 1000);
 	}
@@ -644,7 +676,7 @@ export class ChatForm extends Vue {
 	public async loadAnnouncements(onlyImportant:boolean = false):Promise<void> {
 		//Wait for emotes to be loaded
 		if(!TwitchUtils.emotesLoaded) {
-			setTimeout(()=> {
+			window.setTimeout(()=> {
 				this.loadAnnouncements(onlyImportant);
 			}, 2000);
 			return;
@@ -855,8 +887,19 @@ export class ChatForm extends Vue {
 			this.message = "";
 		}else
 
+		if(cmd == "/giftlogs") {
+			Logger.instance.download("subgifts");
+			this.message = "";
+		}else
+
 		if(cmd == "/__demo_mode__") {
 			Config.instance.DEMO_MODE = !Config.instance.DEMO_MODE;
+			this.message = "";
+		}else
+
+		if(cmd == "/__reset_custom_usernames__") {
+			this.$store.users.customUsernames = {};
+			this.$store.users.saveCustomUsername();
 			this.message = "";
 		}else
 
@@ -899,6 +942,42 @@ export class ChatForm extends Vue {
 			}
 		}else{
 
+			if(this.$store.chat.messageMode != "message") {
+				const parentMessage = this.$store.chat.replyTo;
+				const chunks = TwitchUtils.parseMessageToChunks(this.message, undefined, true);
+				const message =  StoreProxy.chat.addPrivateModMessage(
+									this.$store.auth.twitch.user,
+									chunks,
+									this.$store.chat.messageMode,
+									Utils.getUUID(),
+									parentMessage?.id,
+									this.$store.chat.replyTo || undefined,
+								);
+
+				//Allows to display a message on chat from its raw JSON
+				const res = await ApiHelper.call("mod/privateMessage", "POST", {
+					message: chunks, 
+					action: this.$store.chat.messageMode,
+					to_uid: this.$store.stream.currentChatChannel.id,
+					messageId: message.id,
+					messageParentId: parentMessage?.id,
+					messageParentFallback: parentMessage? {
+						uid:parentMessage.user.id,
+						login:parentMessage.user.login,
+						platform:parentMessage.platform,
+						message:parentMessage.message_chunks,
+					} : undefined,
+				});
+
+				if(res.status == 200) {
+					this.message = "";
+					this.$store.chat.replyTo = null;
+				}else{
+					this.error = true;
+				}
+				return;
+			}
+
 			//Send message
 			try {
 				if(this.$store.main.cypherEnabled) {
@@ -908,7 +987,7 @@ export class ChatForm extends Vue {
 				const replyTo = this.$store.chat.replyTo ?? undefined;
 				if(await MessengerProxy.instance.sendMessage(this.message,
 															[this.$store.stream.currentChatChannel.platform],
-															this.$store.stream.currentChatChannel.id, replyTo)) {
+															this.$store.stream.currentChatChannel.id, replyTo, false, false)) {
 					this.message = "";
 					this.$store.chat.replyTo = null;
 				}
@@ -1137,7 +1216,7 @@ export class ChatForm extends Vue {
 	private onCreditsOverlayPresence():void {
 		this.creditsOverlayRunning = true;
 		clearTimeout(this.creditsOverlayPresenceHandlerTimeout);
-		this.creditsOverlayPresenceHandlerTimeout = setTimeout(()=>{
+		this.creditsOverlayPresenceHandlerTimeout = window.setTimeout(()=>{
 			this.creditsOverlayRunning = false;
 		}, 25000);
 	}
@@ -1230,19 +1309,30 @@ export default toNative(ChatForm);
 					gap: 0;
 					display: flex;
 					flex-direction: row;
+					background-color: var(--background-color-fader);
+					border-radius: var(--border-radius);
 					input {
 						flex-grow: 1;
 						color: var(--color-text);
-						padding-left: 2em;
+						background:transparent;
 					}
-					.chanSwitcher {
-						position: absolute;
-						margin: .15em;
+					.actions {
+						// gap: .25em;
+						display: flex;
+						flex-direction: row;
+						align-items: center;
+						z-index: 1;
+						.chanSwitcher {
+							// position: absolute;
+							margin: .15em;
+						}
 					}
 
 					.youtubeError {
+						position: absolute;
 						text-align: center;
 						width: 100%;
+						z-index: 0;
 						line-height: 1.75em;
 						color: var(--color-text);
 						background-color: var(--color-alert-fader);
@@ -1251,6 +1341,13 @@ export default toNative(ChatForm);
 						&:hover {
 							background-color: var(--color-alert-fade);
 						}
+					}
+
+					&.modAction {
+						background-color: var(--color-text-inverse) !important;
+						@c1: #00a86520;
+						@c2: #00a86530;
+						background-image: repeating-linear-gradient(-45deg, @c1, @c1 20px, @c2 20px, @c2 40px);
 					}
 				}
 
@@ -1401,7 +1498,17 @@ export default toNative(ChatForm);
 				padding: .35em;
 				.icon {
 					height: 1em;
-					margin-left: .1em;
+					margin-right: .25em;
+				}
+				.platform {
+					display: flex;
+					flex-direction: row;
+					.icon {
+						margin-right: .15em;
+					}
+				}
+				.censor {
+					filter: blur(3px)
 				}
 			}
 

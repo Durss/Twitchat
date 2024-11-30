@@ -14,12 +14,11 @@ let refreshTimeout:number = 0;
 
 export const storePatreon = defineStore('patreon', {
 	state: () => ({
-		token: null,
 		isMember: false,
 		connected: false,
 		oauthFlowParams: null,
-		webhookExists: false,
-		webhookScopesGranted: false,
+		memberList: [],
+		tierList: [],
 	} as IPatreonState),
 
 
@@ -33,16 +32,6 @@ export const storePatreon = defineStore('patreon', {
 
 	actions: {
 		async populateData():Promise<void> {
-			const token	= DataStore.get(DataStore.PATREON_AUTH_TOKEN);
-			
-			if(token) {
-				this.token = JSON.parse(token);
-				await this.refreshToken();
-				if(this.connected) {
-					await this.loadMemberState();
-				}
-			}
-			
 			SSEHelper.instance.addEventListener("PATREON_MEMBER_CREATE", (event) =>{
 				const data = event.data;
 				if(!data) return;
@@ -58,6 +47,8 @@ export const storePatreon = defineStore('patreon', {
 					user:data.user,
 				}
 				StoreProxy.chat.addMessage(message);
+
+				this.loadMemberList();
 			})
 		},
 		
@@ -73,8 +64,8 @@ export const storePatreon = defineStore('patreon', {
 			const url = new URL("https://www.patreon.com/oauth2/authorize");
 			url.searchParams.append("response_type", "code");
 			url.searchParams.append("client_id", Config.instance.PATREON_CLIENT_ID);
-			url.searchParams.append("redirect_uri", StoreProxy.patreon.getRedirectURI(premiumContext));
-			url.searchParams.append("scope", premiumContext? "identity" : Config.instance.PATREON_SCOPES);
+			url.searchParams.append("redirect_uri", this.getRedirectURI(premiumContext));
+			url.searchParams.append("scope", Config.instance.PATREON_SCOPES);
 			url.searchParams.append("state", json.token);
 
 			return url.href;
@@ -84,10 +75,9 @@ export const storePatreon = defineStore('patreon', {
 		 * Disconnects the user
 		 */
 		disconnect():void {
-			ApiHelper.call("patreon/user/webhook", "DELETE", {token:this.token!.access_token});
+			ApiHelper.call("patreon/user/disconnect", "POST", {}, false);
 			this.connected = false;
 			this.isMember = false;
-			this.token = null;
 			clearTimeout(refreshTimeout);
 			DataStore.remove(DataStore.PATREON_AUTH_TOKEN);
 		},
@@ -107,7 +97,7 @@ export const storePatreon = defineStore('patreon', {
 		 * @returns 
 		 */
 		async completeOAuthFlow(premiumContext:boolean = false):Promise<boolean> {
-			const authParams = StoreProxy.patreon.oauthFlowParams;
+			const authParams = this.oauthFlowParams;
 			if(!authParams) return false;
 			const {json:csrf} = await ApiHelper.call("auth/CSRFToken", "POST", {token:authParams.csrf}, false);
 			if(!csrf.success) {
@@ -115,7 +105,7 @@ export const storePatreon = defineStore('patreon', {
 			}else{
 				try {
 					await this.authenticate(authParams.code, premiumContext);
-					StoreProxy.patreon.setPatreonAuthResult(null);
+					this.setPatreonAuthResult(null);
 					return true;
 				}catch(e:unknown) {
 					console.log(e);
@@ -130,25 +120,11 @@ export const storePatreon = defineStore('patreon', {
 		 * @param code 
 		 */
 		async authenticate(code:string, premiumContext:boolean = false):Promise<void> {
-			const res = await ApiHelper.call("patreon/authenticate", "POST", {code:code, redirect_uri:this.getRedirectURI(premiumContext)}, false);
+			const res = await ApiHelper.call("patreon/user/authenticate", "POST", {code:code, redirect_uri:this.getRedirectURI(premiumContext)}, false);
 
 			if(res.status == 200) {
-				this.token = {
-					access_token: res.json.data.access_token,
-					refresh_token: res.json.data.refresh_token,
-					expires_at: Date.now() + res.json.data.expires_in,
-					scopes: res.json.data.scope.split(" ") as PatreonDataTypes.AuthTokenInfo["scopes"],
-				};
-				this.webhookScopesGranted = this.token.scopes.includes("w:campaigns.webhook") || false
-		
-				DataStore.set(DataStore.PATREON_AUTH_TOKEN, this.token);
 				await this.loadMemberState();
 				this.connected = true;
-		
-				clearTimeout(refreshTimeout);
-				refreshTimeout = setTimeout(()=> {
-					this.refreshToken();
-				}, Math.max(60 * 1000, res.json.data.expires_in - 60000));
 			}
 		},
 
@@ -156,73 +132,36 @@ export const storePatreon = defineStore('patreon', {
 		 * Get the user's data
 		 */
 		async loadMemberState():Promise<void> {
-			if(!this.token) return;
-			
-			const res = await ApiHelper.call("patreon/isMember", "GET", {token:this.token.access_token});
+			const res = await ApiHelper.call("patreon/user/isMember", "GET");
 			if(res.status != 200) {
 				if(res.json.errorCode == "MAX_LINKED_ACCOUNTS") {
 					StoreProxy.common.alert(StoreProxy.i18n.t('error.patreon_max_linked'))
 				}
 			}else{
+				this.connected = true;
 				this.isMember = res.json.data?.isMember === true;
 				if(this.isMember) {
 					StoreProxy.chat.cleanupDonationRelatedMessages();
 				}
-				if(StoreProxy.auth.isPremium) {
-					//Check if webhook exists in case user granted the necessary scope
-					//If it does not, create it.
-					if(this.token.scopes.includes("w:campaigns.webhook")) {
-						const webhookRes = await ApiHelper.call("patreon/user/webhook", "GET", {token:this.token!.access_token});
-						this.webhookExists = webhookRes.json.success===true && webhookRes.json.webhookExists===true;
-						
-						if(!this.webhookExists) {
-							await this.createWebhook();
-						}
-					}
-				}
+				this.loadMemberList();
 			}
 		},
 
 		/**
-		 * Get the user's data
+		 * Get the user's member list
 		 */
-		async createWebhook():Promise<void> {
-			if(!this.token) return;
-			
-			const res = await ApiHelper.call("patreon/user/webhook", "POST", {token:this.token.access_token}, false);
-			if(res.status != 200) {
-			}else{
-				this.webhookExists = true;
-			}
-		},
+		async loadMemberList():Promise<void> {
+			const res = await ApiHelper.call("patreon/user/memberList", "GET");
+			if(res.status == 200) {
+				this.memberList	= res.json.data.memberList;
+				this.tierList	= res.json.data.tierList;
+				const freeTier = this.tierList.find(t => t.attributes.amount_cents == 0);
+				const activeMembers = this.memberList.filter(m => {
+					return m.attributes.patron_status == "active_patron"
+					&& m.attributes.currently_entitled_amount_cents > 0
+				});
 
-		/**
-		 * Refreshes access token
-		 */
-		async refreshToken():Promise<void> {
-			if(!this.token) return;
-			const res = await ApiHelper.call("patreon/refresh_token", "POST", {token:this.token.refresh_token});
-			if(res.status == 200 && res.json) {
-				this.token = {
-					access_token: res.json.data.access_token,
-					refresh_token: res.json.data.refresh_token,
-					expires_at: Date.now() + res.json.data.expires_in * 1000,
-					scopes: res.json.data.scope.split(" ") as PatreonDataTypes.AuthTokenInfo["scopes"],
-				}
-				this.webhookScopesGranted = this.token.scopes.includes("w:campaigns.webhook") || false
-	
-				DataStore.set(DataStore.PATREON_AUTH_TOKEN, this.token);
-				this.connected = true;
-				
-				clearTimeout(refreshTimeout);
-				refreshTimeout = setTimeout(()=> {
-					this.refreshToken();
-				}, Math.max(60 * 1000, res.json.data.expires_in - 60000));
-			}else{
-				this.token = null;
-				this.connected = false;
-				DataStore.remove(DataStore.PATREON_AUTH_TOKEN);
-				StoreProxy.common.alert(StoreProxy.i18n.t("error.patreon_disconected"));
+				StoreProxy.labels.updateLabelValue("PATREON_MEMBER_COUNT", activeMembers.length);
 			}
 		},
 
@@ -237,4 +176,45 @@ export const storePatreon = defineStore('patreon', {
 
 if(import.meta.hot) {
 	import.meta.hot.accept(acceptHMRUpdate(storePatreon, import.meta.hot))
+}
+
+export interface IPatreonMember {
+	attributes: {
+		currently_entitled_amount_cents: number;
+		full_name: string;
+		is_follower: boolean;
+		last_charge_date: string | null;
+		last_charge_status: "Paid" | "Declined" | "Deleted" | "Pending" | "Refunded" | "Fraud" | "Other" | null;
+		lifetime_support_cents: number;
+		patron_status: "active_patron" | "declined_patron" | "former_patron";
+	};
+	id: string;
+	relationships: {
+		currently_entitled_tiers: {
+			data: {
+				id: string;
+				type: string;
+			}[];
+		};
+		pledge_history:{
+			
+			data: {
+				id: string;
+				type: string;
+			}[];
+		}
+	};
+	type: string;
+}
+export interface IPatreonTier {
+	attributes: {
+		amount_cents: number;
+		description: string;
+		image_url: any;
+		published: boolean;
+		published_at: string;
+		title: string;
+	};
+	id: string;
+	type: string;
 }

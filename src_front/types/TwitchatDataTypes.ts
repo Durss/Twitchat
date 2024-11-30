@@ -3,7 +3,8 @@ import type { OBSItemPath } from "@/utils/OBSWebsocket";
 import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type { JsonObject } from 'type-fest';
 import type { GoXLRTypes } from "./GoXLRTypes";
-import type { TriggerCallStack } from "./TriggerActionDataTypes";
+import type { TriggerActionPlayabilityData, TriggerCallStack } from "./TriggerActionDataTypes";
+import type { IChatState } from "@/store/StoreProxy";
 
 export namespace TwitchatDataTypes {
 
@@ -23,20 +24,27 @@ export namespace TwitchatDataTypes {
 		KO_FI: "kofi",
 		GOXLR: "goxlr",
 		LUMIA: "lumia",
+		SAMMI: "sammi",
 		TIPEEE: "tipeee",
+		TIKTOK: "tiktok",
 		SPOTIFY: "spotify",
 		PATREON: "patreon",
 		TILTIFY: "tiltify",
 		PREMIUM: "premium",
+		MIXITUP: "mixitup",
 		YOUTUBE: "youtube",
 		DISCORD: "discord",
 		VOICEMOD: "voicemod",
+		TWITCHBOT: "twitchbot",
 		WEBSOCKET: "websocket",
 		HEAT_AREAS: "heatAreas",
 		STREAMLABS: "streamlabs",
+		ELEVENLABS: "elevenlabs",
 		BINGO_GRID: "bingogrid",
 		STREAMDECK: "streamdeck",
+		PLAYABILITY: "playability",
 		HIGHLIGHT: "chathighlight",
+		STREAMERBOT: "streamerbot",
 		STREAMELEMENTS: "streamelements",
 	} as const;
 	export type ParamDeepSectionsStringType = typeof ParamDeepSections[keyof typeof ParamDeepSections] | OverlayTypes;
@@ -105,9 +113,13 @@ export namespace TwitchatDataTypes {
 		 */
 		perUser:boolean;
 		/**
-		 * Users counters values
+		 * Users values
 		 */
-		users?:{[key:string]:number};
+		users?:{[userId:string]:{
+			platform:ChatPlatform,
+			value:number;
+			login?:string;
+		}};
 		/**
 		 * Only available for counters overlay related to a "per user" counter
 		 * Contains user info necessary for display on screen.
@@ -147,7 +159,11 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Users values
 		 */
-		users?:{[userId:string]:string};
+		users?:{[userId:string]:{
+			platform:ChatPlatform,
+			value:string;
+			login?:string;
+		}};
 		/**
 		 * Is the counter disabled ?
 		 * It can be disabled if the user has to disable counters they're not
@@ -229,25 +245,6 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Contains chat message sub filters
-	 */
-	export interface ChatColumnsConfigMessageFilters {
-		automod:boolean;
-		suspiciousUsers:boolean;
-		deleted:boolean;
-		bots:boolean;
-		commands:boolean;
-		viewers:boolean;
-		moderators:boolean;
-		vips:boolean;
-		subs:boolean;
-		partners:boolean;
-		short:boolean;
-		tracked:boolean;
-		pinned:boolean;
-	}
-
-	/**
 	 * Bot messages types
 	 */
 	export interface IBotMessage {
@@ -292,12 +289,12 @@ export namespace TwitchatDataTypes {
 		type: "text" | "emote" | "cheermote" | "url" | "highlight" | "user";
 		/**
 		 * Possible values for each chunk types:
-		 * text: text content
-		 * emote: emote name
-		 * cheermote: cheermote name
-		 * url: url with protocole striped out
-		 * highlight: highlighted text
-		 * user: user name
+		 * - text: text content
+		 * - emote: emote name
+		 * - cheermote: cheermote name
+		 * - url: url with protocol striped out
+		 * - highlight: highlighted text
+		 * - user: user name
 		 */
 		value: string;
 		/**
@@ -471,7 +468,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Data that populates ParamItem components
 	 */
-	export interface ParameterData<ValueType, ListType = unknown, ChildValueType = unknown, StorageType = any> {
+	export interface ParameterData<ValueType, ListType = unknown, ChildValueType = unknown, StorageType = any, ListStorageType = unknown> {
 		id?:number;
 		/**
 		 * Parameter type
@@ -484,11 +481,11 @@ export namespace TwitchatDataTypes {
 		/**
 		 * List values for the "list" type
 		 */
-		listValues?:TwitchatDataTypes.ParameterDataListValue<ListType>[];
+		listValues?:TwitchatDataTypes.ParameterDataListValue<ListType, ListStorageType>[];
 		/**
 		 * Contains the raw selected list item
 		 */
-		selectedListValue?:ParameterDataListValue<ListType>;
+		selectedListValue?:ParameterDataListValue<ListType, ListStorageType>;
 		/**
 		 * List values for the "editablelist" type
 		 */
@@ -620,11 +617,16 @@ export namespace TwitchatDataTypes {
 		 */
 		errorMessage?:string;
 		/**
+		 * Defines if the parameter is private
+		 * A private parameter is not saved server-side
+		 */
+		isPrivate?:boolean;
+		/**
 		 * Callback called when value is changed (if v-model can't be used)
 		 */
-		editCallback?:(data:ParameterData<ValueType, ListType, ChildValueType, StorageType>) => void;
+		editCallback?:(data:ParameterData<ValueType, ListType, ChildValueType, StorageType, ListStorageType>) => void;
 	}
-	export interface ParameterDataListValue<T> {
+	export interface ParameterDataListValue<ValueType, StorageType = unknown> {
 		/**
 		 * Raw text label
 		 */
@@ -636,7 +638,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Value of the entry
 		 */
-		value:T;
+		value:ValueType;
 		/**
 		 * Is entry disabled?
 		*/
@@ -646,9 +648,17 @@ export namespace TwitchatDataTypes {
 		 */
 		icon?:string;
 		/**
+		 * Image path of the entry
+		 */
+		image?:string;
+		/**
 		 * Flag ISO code. Only used by the ParamItem with "list" type and "multiple" flag on
 		 */
 		flag?:string;
+		/**
+		 * Just a field to allow storage of random data if necessary
+		 */
+		storage?:StorageType;
 		// [parameter: string]: unknown;
 	}
 
@@ -705,6 +715,11 @@ export namespace TwitchatDataTypes {
 			code:string,
 			image:TwitchatImage,
 		}|undefined};
+		/**
+		 * Contains either "numberValue", "emoteValue" or "customValue"
+		 * depending on the trigger type
+		 */
+		genericValue:string|number;
 		winners?:TwitchatDataTypes.TwitchatUser[];
 	}
 
@@ -775,7 +790,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Source to link this donation goal to
 		 */
-		dataSource:"streamlabs_charity"|"tiltify"|"counter"|"twitch_subs"|"twitch_followers";
+		dataSource:"streamlabs_charity"|"tiltify"|"counter"|"twitch_subs"|"twitch_followers"|"twitch_charity";
 		/**
 		 * Optional campaign ID.
 		 * Not used by "streamlabs_charity" as the campaign
@@ -842,24 +857,33 @@ export namespace TwitchatDataTypes {
 		tip_streamelements?:boolean;
 		tip_tipeee?:boolean;
 		tip_tiltify?:boolean;
+		tip_twitchCharity?:boolean;
 		tip_kofi_minAmount?:number;
 		tip_streamlabs_minAmount?:number;
 		tip_streamlabsCharity_minAmount?:number;
 		tip_streamelements_minAmount?:number;
 		tip_tipeee_minAmount?:number;
 		tip_tiltify_minAmount?:number;
+		tip_twitchCharity_minAmount?:number;
 		tip_kofi_ponderate?:number;
 		tip_streamlabs_ponderate?:number;
 		tip_streamlabsCharity_ponderate?:number;
 		tip_streamelements_ponderate?:number;
 		tip_tipeee_ponderate?:number;
 		tip_tiltify_ponderate?:number;
+		tip_twitchCharity_ponderate?:number;
 		value_id?:string;
 		value_splitter?:string;
 		removeWinningEntry?:boolean;
 		duration_s:number;
 		maxEntries:number;
+		autoClose:boolean;
 		multipleJoin:boolean;
+		/**
+		 * If true, this raffle woon't appear on the raffle list
+		 * accessible from the footer and won't be saved to server
+		 */
+		ghost?:true;
 		created_at:number;
 		entries:RaffleEntry[];
 		vipRatio:number;
@@ -873,6 +897,10 @@ export namespace TwitchatDataTypes {
 		showCountdownOverlay:boolean;
 		customEntries:string;
 		winners?:RaffleEntry[];
+		/**
+		 * If true, trigger's execution will be halted until a winner is picked
+		 */
+		triggerWaitForWinner?:true;
 		/**
 		 * Messages to send on chat
 		 */
@@ -903,7 +931,7 @@ export namespace TwitchatDataTypes {
 		 * Only used by raffle form to show winner within the form
 		 * when raffle completes
 		 */
-		resultCallback?:()=>void;
+		resultCallback?:(winner:RaffleEntry)=>void;
 		/**
 		 * @deprecated use duration_s instead. Only hear for typing on data migration
 		 */
@@ -1065,7 +1093,7 @@ export namespace TwitchatDataTypes {
 	 * Contains info about a stream
 	 */
 	export interface StreamInfo {
-		user:TwitchatUser;
+		user?:TwitchatUser;
 		title:string;
 		category:string;
 		tags:string[];
@@ -1208,7 +1236,15 @@ export namespace TwitchatDataTypes {
 		volume: number;
 		rate: number;
 		pitch: number;
-		voice: string;
+		elevenlabs_model: string;
+		elevenlabs_lang: string;
+		elevenlabs_stability: number;
+		elevenlabs_similarity: number;
+		elevenlabs_style: number;
+		voice: {
+			id:string;
+			platform:"system"|"elevenlabs";
+		};
 		removeEmotes: boolean;
 		maxLength: number;
 		maxDuration: number;
@@ -1278,6 +1314,21 @@ export namespace TwitchatDataTypes {
 		 * @deprecated was a kind of duplicate of what "ttsPerms" allows
 		 */
 		readUsers?:string[];
+	}
+
+	/**
+	 * Contains a voice parameters for TTS
+	 */
+	export interface TTSVoiceParamsData {
+		voice:string;
+		volume:number;
+		rate:number;
+		pitch:number;
+		elevenlabs_lang:string;
+		elevenlabs_model:string;
+		elevenlabs_stability:number;
+		elevenlabs_similarity:number;
+		elevenlabs_style:number;
 	}
 
 	/**
@@ -1836,9 +1887,9 @@ export namespace TwitchatDataTypes {
 		params?:EndingCreditsParams;
 		follows:{uid:string, login:string}[];
 		raids:{uid:string, login:string, raiders:number}[];
-		subs:{uid:string, login:string, tier:1|2|3|"prime", subDuration?:number, fromActiveSubs?:true}[];
-		resubs:{uid:string, login:string, tier:1|2|3|"prime", subDuration?:number, fromActiveSubs?:true}[];
-		subgifts:{uid:string, login:string, tier:1|2|3|"prime", total:number, fromActiveSubs?:true}[];
+		subs:{uid:string, login:string, tier:1|2|3|"prime", subDuration?:number, fromActiveSubs?:true, platform:ChatPlatform}[];
+		resubs:{uid:string, login:string, tier:1|2|3|"prime", subDuration?:number, fromActiveSubs?:true, platform:ChatPlatform}[];
+		subgifts:{uid:string, login:string, tier:1|2|3|"prime", total:number, fromActiveSubs?:true, platform:ChatPlatform}[];
 		bits:{uid:string, login:string, bits:number, pinned:boolean}[];
 		hypeChats:{uid:string, login:string, amount:number, currency:string}[];
 		rewards:{uid:string, login:string, reward:{name:string, id:string, icon:string}}[];
@@ -1852,6 +1903,10 @@ export namespace TwitchatDataTypes {
 		powerups:{login:string, skinID?:TwitchatDataTypes.MessageChatData["twitch_animationId"], emoteUrl?:string, type:"animation" | "gigantifiedemote" | "celebration"}[];
 		superChats:{uid:string, login:string, amount:number, currency:string}[];
 		superStickers:{uid:string, login:string, amount:number, currency:string, stickerUrl:string}[];
+		tiktokGifts:{uid:string, login:string, count:number, amount:number, imageUrl:string}[];
+		tiktokLikes:{uid:string, login:string, count:number}[];
+		tiktokShares:{uid:string, login:string, count:number}[];
+		patreonMembers:{uid:string, login:string, months:number, tier:string, lifetimeAmount:number}[];
 		labels:{
 			no_entry:string;
 			train:string;
@@ -1959,27 +2014,57 @@ export namespace TwitchatDataTypes {
 	type ExcludeUndefined<T> = T extends undefined ? never : T;
 	export type StreamSummaryDataListItem = UnionFromArrayProps<StreamSummaryData>;
 
-	export type EndingCreditsSlotStringTypes = "text" | "bans" | "mods" | "subs" | "vips" | "raids" | "polls" | "so_in" | "so_out" | "cheers" | "follows" | "rewards" | "chatters" | "timeouts" | "hypechats" | "hypetrains" | "predictions" | "tips" | "shoutouts" | "merch" | "powerups" | "ytSuperchat" | "ytSuperSticker";
+	export type EndingCreditsSlotStringTypes = "text" 
+											| "bans" 
+											| "mods" 
+											| "subs" 
+											| "vips" 
+											| "raids" 
+											| "polls" 
+											| "so_in" 
+											| "so_out" 
+											| "cheers" 
+											| "follows" 
+											| "rewards" 
+											| "chatters" 
+											| "timeouts" 
+											| "hypechats" 
+											| "hypetrains" 
+											| "predictions" 
+											| "tips" 
+											| "shoutouts" 
+											| "merch" 
+											| "patreonMembers" 
+											| "powerups" 
+											| "ytSuperchat" 
+											| "ytSuperSticker"
+											| "tiktokLikes"
+											| "tiktokShares"
+											| "tiktokGifts";
 	export const EndingCreditsSlotDefinitions:EndingCreditsSlotDefinition[] = [
-		{id:"cheers",		premium:false,	hasAmount:true,		canMerge:true,		icon:"bits",			label:"overlay.credits.categories.cheers",			defaultLabel:"overlay.credits.labels.cheers",		amountLabel:"overlay.credits.amounts.cheers"},
-		{id:"subs",			premium:false,	hasAmount:true,		canMerge:true,		icon:"sub",				label:"overlay.credits.categories.subs",			defaultLabel:"overlay.credits.labels.subs",			amountLabel:"overlay.credits.amounts.subs",		newFlag: Config.instance.NEW_FLAGS_DATE_V13_4},
+		{id:"cheers",		premium:false,	hasAmount:true,		canMerge:true,		icon:"bits",			label:"overlay.credits.categories.cheers",			defaultLabel:"overlay.credits.labels.cheers",			amountLabel:"overlay.credits.amounts.cheers"},
+		{id:"subs",			premium:false,	hasAmount:true,		canMerge:true,		icon:"sub",				label:"overlay.credits.categories.subs",			defaultLabel:"overlay.credits.labels.subs",				amountLabel:"overlay.credits.amounts.subs",				newFlag: Config.instance.NEW_FLAGS_DATE_V13_4},
 		{id:"follows",		premium:false,	hasAmount:false,	canMerge:false,		icon:"follow",			label:"overlay.credits.categories.follows",			defaultLabel:"overlay.credits.labels.follows"},
-		{id:"raids",		premium:false,	hasAmount:true,		canMerge:true,		icon:"raid",			label:"overlay.credits.categories.raids",			defaultLabel:"overlay.credits.labels.raids",		amountLabel:"overlay.credits.amounts.raids"},
-		{id:"chatters",		premium:false,	hasAmount:true,		canMerge:false,		icon:"user",			label:"overlay.credits.categories.chatters",		defaultLabel:"overlay.credits.labels.chatters", 	amountLabel:"overlay.credits.amounts.chatters"},
-		{id:"powerups",		premium:false,	hasAmount:false,	canMerge:true,		icon:"watchStreak",		label:"overlay.credits.categories.powerups",		defaultLabel:"overlay.credits.labels.powerups",		newFlag: Config.instance.NEW_FLAGS_DATE_V13},
-		// {id:"hypechats",	premium:true,	hasAmount:true,		canMerge:true,		icon:"hypeChat",		label:"overlay.credits.categories.hypechats",		defaultLabel:"overlay.credits.labels.hypechats",	amountLabel:"overlay.credits.amounts.hypechats"},
+		{id:"raids",		premium:false,	hasAmount:true,		canMerge:true,		icon:"raid",			label:"overlay.credits.categories.raids",			defaultLabel:"overlay.credits.labels.raids",			amountLabel:"overlay.credits.amounts.raids"},
+		{id:"chatters",		premium:false,	hasAmount:true,		canMerge:false,		icon:"user",			label:"overlay.credits.categories.chatters",		defaultLabel:"overlay.credits.labels.chatters", 		amountLabel:"overlay.credits.amounts.chatters"},
+		{id:"powerups",		premium:false,	hasAmount:false,	canMerge:true,		icon:"watchStreak",		label:"overlay.credits.categories.powerups",		defaultLabel:"overlay.credits.labels.powerups",			newFlag: Config.instance.NEW_FLAGS_DATE_V13},
+		{id:"tiktokLikes",	premium:false,	hasAmount:true,		canMerge:false,		icon:"tiktok",			label:"overlay.credits.categories.tiktokLikes",		defaultLabel:"overlay.credits.labels.tiktokLikes",		amountLabel:"overlay.credits.amounts.tiktokLikes",		newFlag: Config.instance.NEW_FLAGS_DATE_V15},
+		{id:"tiktokShares",	premium:false,	hasAmount:true,		canMerge:false,		icon:"tiktok",			label:"overlay.credits.categories.tiktokShares",	defaultLabel:"overlay.credits.labels.tiktokShares",		amountLabel:"overlay.credits.amounts.tiktokShares",		newFlag: Config.instance.NEW_FLAGS_DATE_V15},
+		{id:"tiktokGifts",	premium:false,	hasAmount:true,		canMerge:true,		icon:"tiktok",			label:"overlay.credits.categories.tiktokGifts",		defaultLabel:"overlay.credits.labels.tiktokGifts",		amountLabel:"overlay.credits.amounts.tiktokGifts",		newFlag: Config.instance.NEW_FLAGS_DATE_V15},
+		// {id:"hypechats",	premium:true,	hasAmount:true,		canMerge:true,		icon:"hypeChat",		label:"overlay.credits.categories.hypechats",		defaultLabel:"overlay.credits.labels.hypechats",		amountLabel:"overlay.credits.amounts.hypechats"},
 		{id:"hypetrains",	premium:true,	hasAmount:false,	canMerge:false,		icon:"train",			label:"overlay.credits.categories.hypetrains",		defaultLabel:"overlay.credits.labels.hypetrains"},
-		{id:"rewards",		premium:true,	hasAmount:true,		canMerge:false,		icon:"channelPoints",	label:"overlay.credits.categories.rewards",			defaultLabel:"overlay.credits.labels.rewards",		amountLabel:"overlay.credits.amounts.rewards"},
-		{id:"bans",			premium:true,	hasAmount:true,		canMerge:false,		icon:"ban",				label:"overlay.credits.categories.bans",			defaultLabel:"overlay.credits.labels.bans",			amountLabel:"overlay.credits.amounts.bans"},
-		{id:"timeouts",		premium:true,	hasAmount:true,		canMerge:false,		icon:"timeout",			label:"overlay.credits.categories.timeouts",		defaultLabel:"overlay.credits.labels.timeouts",		amountLabel:"overlay.credits.amounts.timeouts"},
-		{id:"so_in",		premium:true,	hasAmount:true,		canMerge:false,		icon:"shoutout",		label:"overlay.credits.categories.so_in",			defaultLabel:"overlay.credits.labels.so_in",		amountLabel:"overlay.credits.amounts.so_in"},
-		{id:"so_out",		premium:true,	hasAmount:true,		canMerge:false,		icon:"shoutout",		label:"overlay.credits.categories.so_out",			defaultLabel:"overlay.credits.labels.so_out",		amountLabel:"overlay.credits.amounts.so_out"},
-		{id:"polls",		premium:true,	hasAmount:true,		canMerge:false,		icon:"poll",			label:"overlay.credits.categories.polls",			defaultLabel:"overlay.credits.labels.polls",		amountLabel:"overlay.credits.amounts.polls"},
-		{id:"predictions",	premium:true,	hasAmount:true,		canMerge:false,		icon:"prediction",		label:"overlay.credits.categories.predictions",		defaultLabel:"overlay.credits.labels.predictions",	amountLabel:"overlay.credits.amounts.predictions"},
-		{id:"tips",			premium:true,	hasAmount:true,		canMerge:true,		icon:"coin",			label:"overlay.credits.categories.tips",			defaultLabel:"overlay.credits.labels.tips",			amountLabel:"overlay.credits.amounts.tips",		newFlag: Config.instance.NEW_FLAGS_DATE_V13},
-		{id:"merch",		premium:true,	hasAmount:false,	canMerge:false,		icon:"label",			label:"overlay.credits.categories.merch",			defaultLabel:"overlay.credits.labels.merch",		newFlag: Config.instance.NEW_FLAGS_DATE_V13},
-		{id:"ytSuperchat",	premium:true,	hasAmount:true,		canMerge:true,		icon:"youtube",			label:"overlay.credits.categories.ytSuperchat",		defaultLabel:"overlay.credits.labels.ytSuperchat",	amountLabel:"overlay.credits.amounts.tips",		newFlag: Config.instance.NEW_FLAGS_DATE_V13},
-		{id:"ytSuperSticker",premium:true,	hasAmount:true,		canMerge:true,		icon:"youtube",			label:"overlay.credits.categories.ytSuperSticker",	defaultLabel:"overlay.credits.labels.ytSuperSticker",	amountLabel:"overlay.credits.amounts.tips",	newFlag: Config.instance.NEW_FLAGS_DATE_V13},
+		{id:"rewards",		premium:true,	hasAmount:true,		canMerge:false,		icon:"channelPoints",	label:"overlay.credits.categories.rewards",			defaultLabel:"overlay.credits.labels.rewards",			amountLabel:"overlay.credits.amounts.rewards"},
+		{id:"bans",			premium:true,	hasAmount:true,		canMerge:false,		icon:"ban",				label:"overlay.credits.categories.bans",			defaultLabel:"overlay.credits.labels.bans",				amountLabel:"overlay.credits.amounts.bans"},
+		{id:"timeouts",		premium:true,	hasAmount:true,		canMerge:false,		icon:"timeout",			label:"overlay.credits.categories.timeouts",		defaultLabel:"overlay.credits.labels.timeouts",			amountLabel:"overlay.credits.amounts.timeouts"},
+		{id:"so_in",		premium:true,	hasAmount:true,		canMerge:false,		icon:"shoutout",		label:"overlay.credits.categories.so_in",			defaultLabel:"overlay.credits.labels.so_in",			amountLabel:"overlay.credits.amounts.so_in"},
+		{id:"so_out",		premium:true,	hasAmount:true,		canMerge:false,		icon:"shoutout",		label:"overlay.credits.categories.so_out",			defaultLabel:"overlay.credits.labels.so_out",			amountLabel:"overlay.credits.amounts.so_out"},
+		{id:"polls",		premium:true,	hasAmount:true,		canMerge:false,		icon:"poll",			label:"overlay.credits.categories.polls",			defaultLabel:"overlay.credits.labels.polls",			amountLabel:"overlay.credits.amounts.polls"},
+		{id:"predictions",	premium:true,	hasAmount:true,		canMerge:false,		icon:"prediction",		label:"overlay.credits.categories.predictions",		defaultLabel:"overlay.credits.labels.predictions",		amountLabel:"overlay.credits.amounts.predictions"},
+		{id:"tips",			premium:true,	hasAmount:true,		canMerge:true,		icon:"coin",			label:"overlay.credits.categories.tips",			defaultLabel:"overlay.credits.labels.tips",				amountLabel:"overlay.credits.amounts.tips",				newFlag: Config.instance.NEW_FLAGS_DATE_V13},
+		{id:"merch",		premium:true,	hasAmount:false,	canMerge:false,		icon:"label",			label:"overlay.credits.categories.merch",			defaultLabel:"overlay.credits.labels.merch",			newFlag: Config.instance.NEW_FLAGS_DATE_V13},
+		{id:"ytSuperchat",	premium:true,	hasAmount:true,		canMerge:true,		icon:"youtube",			label:"overlay.credits.categories.ytSuperchat",		defaultLabel:"overlay.credits.labels.ytSuperchat",		amountLabel:"overlay.credits.amounts.tips",				newFlag: Config.instance.NEW_FLAGS_DATE_V13},
+		{id:"ytSuperSticker",premium:true,	hasAmount:true,		canMerge:true,		icon:"youtube",			label:"overlay.credits.categories.ytSuperSticker",	defaultLabel:"overlay.credits.labels.ytSuperSticker",	amountLabel:"overlay.credits.amounts.tips",				newFlag: Config.instance.NEW_FLAGS_DATE_V13},
+		{id:"patreonMembers",premium:true,	hasAmount:true,		canMerge:false,		icon:"patreon",			label:"overlay.credits.categories.patreonMembers",	defaultLabel:"overlay.credits.labels.patreonMembers",	amountLabel:"overlay.credits.amounts.patreonMembers",	newFlag: Config.instance.NEW_FLAGS_DATE_V15},
 		{id:"text",			premium:true,	hasAmount:false,	canMerge:false,		icon:"font",			label:"overlay.credits.categories.text",			defaultLabel:"overlay.credits.labels.text"},
 	];
 
@@ -2022,6 +2107,7 @@ export namespace TwitchatDataTypes {
 		showAllSubs?:boolean;
 		showAllSubgifters?:boolean;
 		showSubsYoutube?:boolean;
+		showSubsTiktok?:boolean;
 		showSubgiftsYoutube?:boolean;
 		showTipsKofi?:boolean;
 		showSubsKofi?:boolean;
@@ -2034,18 +2120,23 @@ export namespace TwitchatDataTypes {
 		sortByNames?:boolean;
 		sortByRoles?:boolean;
 		sortByAmounts?:boolean;
+		sortByTotalAmounts?:boolean;
 		sortBySubTypes?:boolean;
 		showChatters?:boolean;
 		showTrainConductors?:boolean;
 		showPuSkin?:boolean;
 		showPuEmote?:boolean;
 		showPuCeleb?:boolean;
+		showTotalAmounts?:boolean;
 		uniqueUsers?:boolean;
 		text?:string,
+		currency?:string,
 		filterRewards?:boolean,
 		showRewardUsers?:boolean,
 		showNormalCheers?:boolean,
 		showPinnedCheers?:boolean,
+		anonLastNames?:boolean,
+		patreonTiers?:string[],
 		rewardIds?:string[],
 		/**
 		 * @deprecated only here for data migration typing
@@ -2192,6 +2283,10 @@ export namespace TwitchatDataTypes {
 		MUSIC_START:"music_start",
 		TWITCHAT_AD:"twitchat_ad",
 		YOUTUBE_BAN:"youtube_ban",
+		TIKTOK_SUB:"tiktok_sub",
+		TIKTOK_GIFT:"tiktok_gift",
+		TIKTOK_LIKE:"tiktok_like",
+		TIKTOK_SHARE:"tiktok_share",
 		VALUE_UPDATE:"value_update",
 		GOXLR_BUTTON:"goxlr_button",
 		RAID_STARTED:"raid_started",
@@ -2221,6 +2316,7 @@ export namespace TwitchatDataTypes {
 		OBS_START_STREAM:"obs_start_stream",
 		HYPE_TRAIN_START:"hype_train_start",
 		OBS_SCENE_CHANGE:"obs_scene_change",
+		PLAYABILITY_INPUT:"playability_input",
 		BINGO_GRID_VIEWER:"bingo_grid_viewer",
 		AD_BREAK_COMPLETE:"ad_break_complete",
 		GOXLR_SOUND_INPUT:"goxlr_sound_input",
@@ -2232,6 +2328,7 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
 		RAFFLE_PICK_WINNER:"raffle_pick_winner",
 		OBS_RECORDING_STOP:"obs_recording_stop",
+		PRIVATE_MOD_MESSAGE:"private_mod_message",
 		OBS_RECORDING_START:"obs_recording_start",
 		AD_BREAK_START_CHAT:"ad_break_start_chat",
 		HYPE_TRAIN_PROGRESS:"hype_train_progress",
@@ -2245,6 +2342,7 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_APPROACHING:"hype_train_approaching",
 		HYPE_TRAIN_COOLED_DOWN:"hype_train_cooled_down",
 		CLIP_CREATION_COMPLETE:"clip_creation_complete",
+		TWITCH_CHARITY_DONATION:"twitch_charity_donation",
 		SUSPENDED_TRIGGER_STACK:"suspended_trigger_stack",
 		CLIP_PENDING_PUBLICATION:"clip_pending_publication",
 		COMMUNITY_BOOST_COMPLETE:"community_boost_complete",
@@ -2302,6 +2400,10 @@ export namespace TwitchatDataTypes {
 		music_start:true,
 		subscription:true,
 		autoban_join:true,
+		tiktok_sub:true,
+		tiktok_gift:true,
+		tiktok_like:true,
+		tiktok_share:true,
 		super_sticker:true,
 		value_update:false,
 		unban_request:true,
@@ -2329,6 +2431,7 @@ export namespace TwitchatDataTypes {
 		hype_train_start:false,
 		obs_scene_change:false,
 		obs_start_stream:false,
+		playability_input:false,
 		bingo_grid_viewer:false,
 		twitch_celebration:true,
 		obs_source_toggle:false,
@@ -2337,6 +2440,7 @@ export namespace TwitchatDataTypes {
 		hype_train_cancel:false,
 		hype_train_summary:true,
 		goxlr_sound_input:false,
+		private_mod_message:true,
 		raffle_pick_winner:false,
 		low_trust_treatment:true,
 		ad_break_start_chat:true,
@@ -2350,6 +2454,7 @@ export namespace TwitchatDataTypes {
 		goxlr_sample_complete:false,
 		obs_input_mute_toggle:false,
 		hype_train_cooled_down:true,
+		twitch_charity_donation:true,
 		suspended_trigger_stack:true,
 		hype_train_approaching:false,
 		clip_creation_complete:false,
@@ -2384,6 +2489,14 @@ export namespace TwitchatDataTypes {
 		DEVMODE:"devMode",//When enabling/disabling devmode via "/devmode" command
 		BLOCKED:"blocked",//When a user is blocked
 		UNBLOCKED:"unblocked",//When a user is unblocked
+		SUB_ONLY_ON:"subs_on",
+		SUB_ONLY_OFF:"subs_off",
+		FOLLOW_ONLY_ON:"followers_on",
+		FOLLOW_ONLY_OFF:"followers_off",
+		EMOTE_ONLY_ON:"emote_only_on",
+		EMOTE_ONLY_OFF:"emote_only_off",
+		SLOW_MODE_ON:"slow_on",
+		SLOW_MODE_OFF:"slow_off",
 	} as const;
 	export type TwitchatNoticeStringType = typeof TwitchatNoticeType[keyof typeof TwitchatNoticeType]|null;
 
@@ -2488,7 +2601,14 @@ export namespace TwitchatDataTypes {
 									| MessageWebsocketTopicData
 									| MessageTiltifyData
 									| MessageTwitchatStartedData
+									| MessageTikTokSubData
+									| MessageTikTokGiftData
+									| MessageTikTokLikeData
+									| MessageTikTokShareData
 									| MessageSuspendedTriggerStackData
+									| MessageCharityDonationData
+									| MessagePrivateModeratorData
+									| MessagePlayabilityInputData
 	;
 
 	/**
@@ -2520,6 +2640,7 @@ export namespace TwitchatDataTypes {
 							| typeof TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION
 							| typeof TwitchatMessageType.BINGO
 							| typeof TwitchatMessageType.RAFFLE
+							| typeof TwitchatMessageType.TWITCH_CHARITY_DONATION
 							| typeof TwitchatMessageType.KOFI
 							| typeof TwitchatMessageType.STREAMLABS
 							| typeof TwitchatMessageType.STREAMELEMENTS
@@ -2527,6 +2648,9 @@ export namespace TwitchatDataTypes {
 							| typeof TwitchatMessageType.TILTIFY
 							| typeof TwitchatMessageType.PATREON
 							| typeof TwitchatMessageType.COUNTDOWN
+							| typeof TwitchatMessageType.TIKTOK_LIKE
+							| typeof TwitchatMessageType.TIKTOK_GIFT
+							| typeof TwitchatMessageType.TIKTOK_SHARE
 							| typeof TwitchatMessageType.STREAM_ONLINE
 							| typeof TwitchatMessageType.MUSIC_ADDED_TO_QUEUE
 							| typeof TwitchatMessageType.AD_BREAK_START_CHAT
@@ -2536,18 +2660,23 @@ export namespace TwitchatDataTypes {
 							| typeof TwitchatMessageType.USER_WATCH_STREAK
 							| typeof TwitchatMessageType.TWITCHAT_AD
 							| typeof TwitchatMessageType.WHISPER
-							| typeof TwitchatMessageType.MESSAGE;
+							| typeof TwitchatMessageType.MESSAGE
+							| typeof TwitchatMessageType.PRIVATE_MOD_MESSAGE;
 							
 	export const MessageListFilterTypes:{type:AllowFilterTypes, labelKey:string, icon:string, scopes:TwitchScopesString[], newFlag:number}[] = [
 		{type:TwitchatMessageType.FOLLOWING,							labelKey:"chat.filters.message_types.following",							icon:"follow",			scopes:[TwitchScopes.LIST_FOLLOWERS],	newFlag:0},
 		{type:TwitchatMessageType.SUBSCRIPTION,							labelKey:"chat.filters.message_types.subscription",							icon:"sub",				scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.CHEER,								labelKey:"chat.filters.message_types.cheer",								icon:"bits",			scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.TIKTOK_LIKE,							labelKey:"chat.filters.message_types.tiktok_like",							icon:"follow",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V15},
+		{type:TwitchatMessageType.TIKTOK_GIFT,							labelKey:"chat.filters.message_types.tiktok_gift",							icon:"gift",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V15},
+		{type:TwitchatMessageType.TIKTOK_SHARE,							labelKey:"chat.filters.message_types.tiktok_share",							icon:"share",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V15},
 		{type:TwitchatMessageType.RAID,									labelKey:"chat.filters.message_types.raid",									icon:"raid",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.PINNED,								labelKey:"chat.filters.message_types.pinned",								icon:"pin",				scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.SHOUTOUT,								labelKey:"chat.filters.message_types.shoutout",								icon:"shoutout",		scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.BAN,									labelKey:"chat.filters.message_types.ban",									icon:"ban",				scopes:[TwitchScopes.MODERATION_EVENTS],	newFlag:0},
 		{type:TwitchatMessageType.UNBAN,								labelKey:"chat.filters.message_types.unban",								icon:"unban",			scopes:[TwitchScopes.MODERATION_EVENTS],	newFlag:0},
 		{type:TwitchatMessageType.UNBAN_REQUEST,						labelKey:"chat.filters.message_types.unban_request",						icon:"unbanRequest",	scopes:[TwitchScopes.UNBAN_REQUESTS],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
+		{type:TwitchatMessageType.PRIVATE_MOD_MESSAGE,					labelKey:"chat.filters.message_types.private_mod_message",					icon:"mod",				scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V15},
 		{type:TwitchatMessageType.NOTICE,								labelKey:"chat.filters.message_types.notice",								icon:"mod",				scopes:[TwitchScopes.BLOCKED_TERMS, TwitchScopes.CHAT_WARNING, TwitchScopes.SET_ROOM_SETTINGS, TwitchScopes.UNBAN_REQUESTS, TwitchScopes.EDIT_BANNED, TwitchScopes.DELETE_MESSAGES, TwitchScopes.READ_MODERATORS, TwitchScopes.READ_VIPS],	newFlag:Config.instance.NEW_FLAGS_DATE_V13},
 		{type:TwitchatMessageType.REWARD,								labelKey:"chat.filters.message_types.reward",								icon:"channelPoints",	scopes:[TwitchScopes.LIST_REWARDS],	newFlag:0},
 		{type:TwitchatMessageType.POLL,									labelKey:"chat.filters.message_types.poll",									icon:"poll",			scopes:[TwitchScopes.MANAGE_POLLS],	newFlag:0},
@@ -2558,6 +2687,7 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,		labelKey:"chat.filters.message_types.community_challenge_contribution",		icon:"channelPoints",	scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.BINGO,								labelKey:"chat.filters.message_types.bingo",								icon:"bingo",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.RAFFLE,								labelKey:"chat.filters.message_types.raffle",								icon:"ticket",			scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.TWITCH_CHARITY_DONATION,				labelKey:"chat.filters.message_types.twitch_charity_donation",				icon:"twitch_charity",	scopes:[TwitchScopes.CHARITY_READ],	newFlag:Config.instance.NEW_FLAGS_DATE_V15},
 		{type:TwitchatMessageType.KOFI,									labelKey:"chat.filters.message_types.kofi",									icon:"kofi",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
 		{type:TwitchatMessageType.STREAMLABS,							labelKey:"chat.filters.message_types.streamlabs",							icon:"streamlabs",		scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
 		{type:TwitchatMessageType.STREAMELEMENTS,						labelKey:"chat.filters.message_types.streamelements",						icon:"streamelements",	scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
@@ -2595,6 +2725,11 @@ export namespace TwitchatDataTypes {
 		{type:"commands",		labelKey:"chat.filters.message_filters.commands", 		icon:"commands",hasPreview:false,	scopes:[] as TwitchScopesString[]},
 		{type:"short",			labelKey:"chat.filters.message_filters.short", 			icon:"",		hasPreview:false,	scopes:[] as TwitchScopesString[]},
 	] as const;
+
+	/**
+	 * Contains chat message sub filters
+	 */
+	export type ChatColumnsConfigMessageFilters = { [key in typeof MessageListChatMessageFilterTypes[number]["type"]]:boolean};
 
 	/**
 	 * Common props for all message types
@@ -2703,6 +2838,7 @@ export namespace TwitchatDataTypes {
 		super_chat:true,
 		subscription:true,
 		user_watch_streak:true,
+		private_mod_message:true,
 		youtube_subscription:true,
 	}
 
@@ -2911,6 +3047,10 @@ export namespace TwitchatDataTypes {
 		 * URL of the gigantified emote
 		 */
 		twitch_gigantifiedEmote_url?: string;
+		/**
+		 * Is message coming from IRC or EventSub?
+		 */
+		twitch_source?:"eventsub"|"irc";
 		/**
 		 * Animation type AKA message skin
 		 */
@@ -3816,7 +3956,7 @@ export namespace TwitchatDataTypes {
 		 * If set, adding to queue failed.
 		 * This contains the failure reason
 		 */
-		failCode?:undefined|"spotify_not_connected" | "wrong_url" | "max_duration" | "api_queue" | "api_playlist" | "no_result" | "no_active_device";
+		failCode?:undefined|"spotify_not_connected" | "wrong_url" | "max_duration" | "api_queue" | "api_playlist" | "no_result" | "no_active_device" | "spotify_max_per_user_reached";
 		/**
 		 * Textual reason for the failure
 		 */
@@ -4104,7 +4244,7 @@ export namespace TwitchatDataTypes {
 		 */
 		unpinAt_ms: number;
 		/**
-		 * Just a store for the setTimeout() ref so we can clear it later when pin's config change
+		 * Just a store for the window.setTimeout() ref so we can clear it later when pin's config change
 		 */
 		timeoutRef?: number;
 	}
@@ -4495,7 +4635,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Message style
 		 */
-		style?:"message"|"highlight"|"error";
+		style?:"message"|"highlight"|"error"|"warn";
 		/**
 		 * CTAs to add on the message
 		 */
@@ -5226,11 +5366,181 @@ export namespace TwitchatDataTypes {
 		type:"twitchat_started";
 	}
 
+	/**
+	 * Represents a subscription on TikTok
+	 */
+	export interface MessageTikTokSubData extends AbstractTwitchatMessage {
+		type:"tiktok_sub";
+		/**
+		 * User that sent the gift
+		 */
+		user:TwitchatUser;
+		/**
+		 * Number of months the user subscribed for
+		 * /!\ not exactly sure about the meaning of this value!
+		 */
+		months:number;
+	}
+
+	/**
+	 * Represents a gift on TikTok
+	 */
+	export interface MessageTikTokGiftData extends AbstractTwitchatMessage {
+		type:"tiktok_gift";
+		/**
+		 * User that sent the gift
+		 */
+		user:TwitchatUser;
+		/**
+		 * Gift image
+		 */
+		image:string;
+		/**
+		 * Number of gifts
+		 */
+		count:number;
+		/**
+		 * Number of diamonds the streamer earns
+		 */
+		diamonds:number;
+		/**
+		 * ID of the gift
+		 */
+		giftId:string;
+		/**
+		 * Raw data of the original message
+		 */
+		raw_data?:any;
+	}
+
+	/**
+	 * Represents a like on TikTok
+	 */
+	export interface MessageTikTokLikeData extends AbstractTwitchatMessage {
+		type:"tiktok_like";
+		/**
+		 * User that sent the gift
+		 */
+		user:TwitchatUser;
+		/**
+		 * Number of likes (sent by batch)
+		 */
+		count:number;
+		/**
+		 * Total number of likes received on this stream
+		 */
+		streamLikeCount:number;
+	}
+
+	/**
+	 * Represents a share on TikTok
+	 */
+	export interface MessageTikTokShareData extends AbstractTwitchatMessage {
+		type:"tiktok_share";
+		/**
+		 * User that sent the gift
+		 */
+		user:TwitchatUser;
+	}
+
 	export interface MessageSuspendedTriggerStackData extends AbstractTwitchatMessage {
 		type:"suspended_trigger_stack";
 		/**
 		 * Trigger stack that has been suspended
 		 */
 		triggerStack:TriggerCallStack;
+	}
+
+	export interface MessageCharityDonationData extends AbstractTwitchatMessage {
+		type:"twitch_charity_donation";
+		/**
+		 * User that donated
+		 */
+		user:TwitchatUser;
+		/**
+		 * Amount donated
+		 */
+		amount:number;
+		/**
+		 * Amount donated formatted (amount + currency)
+		 */
+		amountFormatted:string;
+		/**
+		 * Goal amount to reach
+		 */
+		goal:number
+		/**
+		 * Goal amount to reach formatted
+		 */
+		goalFormatted:string;
+		/**
+		 * Current amount
+		 */
+		raised:number
+		/**
+		 * Current amount formatted
+		 */
+		raisedFormatted:string;
+		/**
+		 * Currency of the donation
+		 */
+		currency:string;
+		/**
+		 * Campaign details
+		 */
+		campaign:{
+			id:string;
+			url:string;
+			title:string;
+		}
+	}
+
+	export interface MessagePrivateModeratorData extends TranslatableMessage {
+		type:"private_mod_message";
+		/**
+		 * Message type:
+		 * - message: simple message
+		 * - question: question to answer
+		 */
+		action:IChatState["messageMode"];
+		/**
+		 * Optional message ID to reference
+		 */
+		parentMessage?:TranslatableMessage;
+		/**
+		 * Optional fallback parent message.
+		 * Used in case parentMessage isn't found on history
+		 */
+		parentMessageFallback?:{
+			uid:string;
+			login:string;
+			platform:ChatPlatform;
+			message:TwitchatDataTypes.ParseMessageChunk[];
+		};
+		/**
+		 * Answer given by the streamer for a "question" message
+		 */
+		answer?:boolean;
+		/**
+		 * Channel ID the message has been sent to
+		 */
+		toChannelId?:string;
+	}
+
+	export interface MessagePlayabilityInputData extends AbstractTwitchatMessage {
+		type:"playability_input";
+		/**
+		 * Input code
+		 */
+		inputCode:string;
+		/**
+		 * Input type
+		 */
+		inputType:NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"][number]["type"];
+		/**
+		 * input value
+		 */
+		inputValue:number|boolean;
+
 	}
 }

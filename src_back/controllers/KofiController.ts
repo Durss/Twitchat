@@ -79,7 +79,12 @@ export default class KofiController extends AbstractController {
 		try {
 			const data = JSON.parse((request.body as any).data) as KofiData;
 			const user = this.hashmapCache[data.verification_token];
-			if(!user) return;
+			if(!user || !super.isUserPremium(user.twitch)) {
+				response.header('Content-Type', 'application/json')
+				.status(200)
+				.send("ok");
+				return;
+			}
 
 			//If there are shop items, attempt to load their details
 			//EDIT: disabled, ko-fi enhanced their anti-scrape protection, I couldn't
@@ -92,7 +97,6 @@ export default class KofiController extends AbstractController {
 				// for (let i = 0; i < data.shop_items.length; i++) {
 				// 	const item = data.shop_items[i];
 
-				// 	//TODO remove that debug
 				// 	// if(i==0) item.direct_link_code = "07c48c41e7";
 				// 	// if(i==1) item.direct_link_code = "c0065f0775";
 
@@ -183,7 +187,37 @@ export default class KofiController extends AbstractController {
 				//*/
 			}
 
+			//Send event to connected clients
 			SSEController.sendToUser(user.twitch, SSECode.KO_FI_EVENT, data);
+
+			//Check if user defined webhooks and proxy the event to them
+			const userFilePath = Config.USER_DATA_PATH + user.twitch+".json";
+			if(fs.existsSync(userFilePath)){
+				const data = JSON.parse(fs.readFileSync(userFilePath, {encoding:"utf8"}));
+				if(data.kofiConfigs?.webhooks && Array.isArray(data.kofiConfigs?.webhooks)) {
+					for (let i = 0; i < data.kofiConfigs.webhooks.length; i++) {
+						const webhook = data.kofiConfigs.webhooks[i];
+						let url = new URL(Config.credentials.kofi_proxy);
+						url.searchParams.append("url", webhook);
+						let success = false;
+						try {
+							let res = await fetch(url, {
+								method: request.method,
+								headers: {
+									...request.headers,
+									host: url.host,
+								},
+								body: new URLSearchParams(request.body as URLSearchParams).toString(),
+							})
+							if(res.status === 200) success = true;
+						}catch(error) {
+						}
+						if(!success) {
+							SSEController.sendToUser(user.twitch, SSECode.KO_FI_DELETE_WEBHOOK, webhook);
+						}
+					}
+				}
+			}
 		}catch(error) {
 			Logger.error("Failed parsing kofi event");
 			console.log(error);
@@ -225,7 +259,7 @@ export default class KofiController extends AbstractController {
 	 * @param response 
 	 */
 	private async postToken(request:FastifyRequest, response:FastifyReply) {
-		const guard = await super.twitchUserGuard(request, response);
+		const guard = await super.premiumGuard(request, response);
 		if(guard === false) return;
 
 		const token = (request.body as any).token;

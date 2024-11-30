@@ -46,7 +46,7 @@ async function connectToOBS():Promise<void> {
 		obsSocket.addListener("ConnectionClosed", ()=> {
 			obsConnected = false;
 			clearTimeout(reconnectTimeout);
-			reconnectTimeout = setTimeout(()=> {
+			reconnectTimeout = window.setTimeout(()=> {
 				connectToOBS();
 			}, 5000);
 		});
@@ -74,7 +74,7 @@ async function connectToOBS():Promise<void> {
 	}catch(error) {
 		console.log(error);
 		clearTimeout(reconnectTimeout);
-		reconnectTimeout = setTimeout(()=> {
+		reconnectTimeout = window.setTimeout(()=> {
 			connectToOBS();
 		}, 5000);
 	}
@@ -423,7 +423,7 @@ function setScrollSpeed(attempts = 0) {
 			//if tried more than 100 times, give up to avoid looping for nothing
 			if(attempts > 100) return;
 			//Try again
-			setTimeout(()=>setScrollSpeed(++attempts), 60);
+			window.setTimeout(()=>setScrollSpeed(++attempts), 60);
 		}else{
 			const phType:LabelItemPlaceholder["type"] = parameters!.mode == "placeholder"? placeholders[parameters!.placeholder].type : "string";
 			const ratio = phType == "image"? .5 : 20/parameters!.fontSize;
@@ -439,7 +439,7 @@ requestInitialInfo();
 
 
 
-setInterval(()=>{
+window.setInterval(()=>{
 	if(mustRefreshRegularly) refreshTimerValues();
 }, 1000);
 

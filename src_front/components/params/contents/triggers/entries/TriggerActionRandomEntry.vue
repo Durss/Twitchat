@@ -302,7 +302,7 @@ class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
 		}
 		this.buildIndex += 10;
 
-		setTimeout(()=> {
+		window.setTimeout(()=> {
 			this.buildNextListBatch();
 		}, 30);
 	}

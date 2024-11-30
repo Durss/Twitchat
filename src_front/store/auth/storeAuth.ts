@@ -78,7 +78,7 @@ export const storeAuth = defineStore('auth', {
 				}
 
 				clearTimeout(refreshTokenTO);
-				refreshTokenTO = setTimeout(()=>{
+				refreshTokenTO = window.setTimeout(()=>{
 					this.twitch_tokenRefresh();
 				}, delay);
 				if(callback) callback(true);
@@ -103,7 +103,7 @@ export const storeAuth = defineStore('auth', {
 					DataStore.set(DataStore.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
 					clearTimeout(refreshTokenTO);
 					//Schedule refresh
-					refreshTokenTO = setTimeout(()=>{
+					refreshTokenTO = window.setTimeout(()=>{
 						this.twitch_tokenRefresh();
 					}, twitchAuthResult.expires_in*1000 - 60000 * 5);
 				}else {
@@ -113,8 +113,8 @@ export const storeAuth = defineStore('auth', {
 						const res = await this.twitch_tokenRefresh();
 						if(!res) {
 							StoreProxy.common.alert("Unable to connect with Twitch API :(.", false, true);
-							if(cb) cb(false, true);
-							else router.push({name:"login", params:{betaReason:"true"}});
+							if(cb) cb(false, false);
+							else router.push({name:"login", params:{betaReason:"false"}});
 							return;
 						}else{
 							twitchAuthResult = res;
@@ -149,6 +149,7 @@ export const storeAuth = defineStore('auth', {
 					window.setInitMessage("checking beta access permissions");
 					const res = await ApiHelper.call("beta/user", "GET", {uid:userRes.user_id});
 					if(res.status != 200 || res.json.data.beta !== true) {
+						console.log("Beta refused", res.json);
 						if(cb) cb(false, true);
 						else router.push({name:"login", params:{betaReason:"true"}});
 						return;
@@ -156,8 +157,8 @@ export const storeAuth = defineStore('auth', {
 				}
 				
 				if(!TwitchUtils.hasScopes(Config.instance.MANDATORY_TWITCH_SCOPES)) {
-					if(cb) cb(false, true);
-					else router.push({name:"login", params:{betaReason:"true"}});
+					if(cb) cb(false, false);
+					else router.push({name:"login", params:{betaReason:"false"}});
 					return;
 				}
 
@@ -348,6 +349,7 @@ export const storeAuth = defineStore('auth', {
 			this.lifetimePremiumPercent		= res.json.data.lifetimePercent || 0;
 			this.dataSharingUserList		= res.json.data.dataSharing || [];
 			StoreProxy.discord.discordLinked= res.json.data.discordLinked === true;
+			if(res.json.data.patreonLinked) StoreProxy.patreon.loadMemberState();
 			this.twitch.user.channelInfo[user.id].following_date_ms = user.created_at_ms || 0;
 			//Uncomment to force non-premium for debugging
 			// if(!Config.instance.IS_PROD) {

@@ -6,7 +6,7 @@
 			<TTButton icon="lock_fit" primary @click="grantScopes()">{{ $t("rewards.manage.scope_grantBt") }}</TTButton>
 		</div>
 
-		<div v-else-if="loading" class="loader scrollable">
+		<div v-else-if="loading && !rewardToTransfer" class="loader scrollable">
 			<Icon class="loader" name="loader" />
 			<p>{{ $t("global.loading") }}</p>
 		</div>
@@ -16,7 +16,7 @@
 				<TTButton icon="back" @click="rewardToTransfer = null" class="backBt" transparent />
 				<h1>{{ $t("rewards.manage.transfer_title") }}</h1>
 			</div>
-			<RewardListTransferForm :reward="rewardToTransfer" @complete="onTranferComplete()" />
+			<RewardListTransferForm :reward="rewardToTransfer" @transferDone="loadRewards(true)" />
 		</div>
 
 		<div v-else-if="rewardToEdit" class="edit scrollable">
@@ -135,6 +135,7 @@ class RewardsList extends Vue {
 	}
 
 	public async loadRewards(forceReload:boolean = false):Promise<void> {
+		console.log("REWARDS LIST LOAD");
 		this.loading = true;
 		try {
 			this.nonManageableRewards = await TwitchUtils.getRewards(forceReload);

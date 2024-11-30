@@ -15,6 +15,8 @@ let readyResolver:() => void;
 let readyPromise = new Promise<void>((resolve) => readyResolver = resolve);
 let broadcastCount:number = 0;
 let broadcastDebounce:number = -1;
+let saveDebounce:number = -1;
+let lastSaveDate:number = Date.now();
 
 export const storeLabels = defineStore('labels', {
 	state: () => ({
@@ -154,7 +156,18 @@ export const storeLabels = defineStore('labels', {
 				labelList:this.labelList,
 				cachedValues,
 			}
-			DataStore.set(DataStore.OVERLAY_LABELS, data);
+
+			let elapsedSinceLastSave = Date.now() - lastSaveDate;
+			clearTimeout(saveDebounce);
+			saveDebounce = window.setTimeout(() => {
+				lastSaveDate = Date.now();
+				DataStore.set(DataStore.OVERLAY_LABELS, data);
+			}, 30000);
+			//Make sure labels are saved at least every 5 minutes
+			if(elapsedSinceLastSave > 5 * 60 * 1000) {
+				lastSaveDate = Date.now();
+				DataStore.set(DataStore.OVERLAY_LABELS, data);
+			}
 			if(labelId) this.broadcastLabelParams(labelId);
 		},
 
@@ -194,7 +207,7 @@ export const storeLabels = defineStore('labels', {
 			//every few events get actually fired without clogging the
 			//communication channel
 			if(++broadcastCount != 50) clearTimeout(broadcastDebounce);
-			broadcastDebounce = setTimeout(() => {
+			broadcastDebounce = window.setTimeout(() => {
 				broadcastCount = 0;
 				const list:{[tag:string]:{value:string|number, type:LabelItemPlaceholder["type"]}} = {};
 				for (const key in this.allPlaceholders) {

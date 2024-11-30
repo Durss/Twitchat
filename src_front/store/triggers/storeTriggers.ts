@@ -236,7 +236,7 @@ export const storeTriggers = defineStore('triggers', {
 			//and discord is linked
 			if(StoreProxy.discord.discordLinked) {
 				clearTimeout(discordCmdUpdateDebounce);
-				discordCmdUpdateDebounce = setTimeout(() => {
+				discordCmdUpdateDebounce = window.setTimeout(() => {
 					const commands:{name:string, params:{name:string}[]}[] = [];
 					list.forEach((data:TriggerData)=> {
 						if(data.type == TriggerTypes.SLASH_COMMAND

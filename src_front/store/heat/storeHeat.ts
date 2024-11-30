@@ -145,7 +145,7 @@ export const storeHeat = defineStore('heat', {
 				user = await new Promise((resolve)=> {
 					StoreProxy.users.getUserFrom("twitch", channelId, event.uid, undefined, undefined, (user)=>{
 						resolve(user);
-					});
+					}, undefined, undefined, undefined, false);
 				});
 				log.user = user;
 			}else{

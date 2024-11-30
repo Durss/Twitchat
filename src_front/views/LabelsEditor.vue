@@ -294,7 +294,7 @@ class LabelsEditor extends Vue {
 		this.selectedSectionKey = "";
 		this.searchKeys = searchValueWithPaths(labels, this.search.toLowerCase());
 		this.noResult = this.searchKeys.length == 0;
-		setTimeout(()=> {
+		window.setTimeout(()=> {
 			this.noResult = false;
 		}, 1000);
 	}

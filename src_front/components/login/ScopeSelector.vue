@@ -61,15 +61,14 @@ class ScopeSelector extends Vue {
 	public buildIndex = 0;
 	public forceFullList:boolean = false;
 	public params_all:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"login.grant_all"};
-	public param_items:TwitchatDataTypes.ParameterData<boolean>[] = [];
-	public param_items_requested:TwitchatDataTypes.ParameterData<boolean>[] = [];
+	public param_items:TwitchatDataTypes.ParameterData<boolean, unknown, unknown, TwitchScopesString[]>[] = [];
+	public param_items_requested:TwitchatDataTypes.ParameterData<boolean, unknown, unknown, TwitchScopesString[]>[] = [];
 
 	private debounce:number = -1;
 
-	public getClasses(p:TwitchatDataTypes.ParameterData<boolean>):string[] {
+	public getClasses(p:TwitchatDataTypes.ParameterData<boolean, unknown, unknown, TwitchScopesString[]>):string[] {
 		let res:string[] = [];
 		if(p.value === true) res.push("selected");
-		if(this.requestedScopes?.indexOf(p.storage as TwitchScopesString) > -1) res.push("forced");
 		return res;
 	}
 
@@ -92,27 +91,28 @@ class ScopeSelector extends Vue {
 		const forceSelect = !userScopes || userScopes.length <= disabled.length && (!this.requestedScopes || this.requestedScopes.length == 0);
 		let allSelected = true;
 		for (let i = 0; i < scopes.length; i++) {
-			const s:TwitchScopesString = scopes[i];
-			if(this.requestedScopes.indexOf(s) > -1) {
+			const localScopes:TwitchScopesString[] = scopes[i].split("+") as TwitchScopesString[];
+			const requested = localScopes.filter(s=> this.requestedScopes.indexOf(s) > -1);
+			if(requested.length > 0) {
 				this.param_items_requested.push({
-					labelKey:"global.twitch_scopes."+s,
+					labelKey:"global.twitch_scopes."+localScopes[0],
 					type:"boolean",
 					value:true,
-					icon:TwitchScope2Icon[s],
+					icon:TwitchScope2Icon[localScopes[0]],
 					iconTheme:"light",
-					storage:s,
+					storage:localScopes,
 				});
 			}else{
-				const selected = forceSelect? true : TwitchUtils.hasScopes([s]);
+				const selected = forceSelect? true : TwitchUtils.hasScopes(localScopes);
 				if(!selected) allSelected = false;
 				this.param_items.push({
-					labelKey:"global.twitch_scopes."+s,
+					labelKey:"global.twitch_scopes."+localScopes[0],
 					type:"boolean",
 					value:selected,
-					icon:TwitchScope2Icon[s],
+					icon:TwitchScope2Icon[localScopes[0]],
 					iconTheme:"light",
-					disabled:disabled.indexOf(s) > -1,
-					storage:s,
+					disabled:localScopes.filter(s => disabled.indexOf(s) > -1).length > 0,
+					storage:localScopes,
 				});
 			}
 		}
@@ -142,15 +142,15 @@ class ScopeSelector extends Vue {
 
 	public onSelectionUpdate():void {
 		clearTimeout(this.debounce);
-		this.debounce = setTimeout(()=> {
+		this.debounce = window.setTimeout(()=> {
 			const scopes:string[] = [];
 			for (let i = 0; i < this.param_items.length; i++) {
 				const p = this.param_items[i];
-				if(p.value === true) scopes.push(p.storage as string);
+				if(p.value === true) scopes.push(...p.storage || []);
 			}
 			for (let i = 0; i < this.param_items_requested.length; i++) {
 				const p = this.param_items_requested[i];
-				if(p.value === true) scopes.push(p.storage as string);
+				if(p.value === true) scopes.push(...p.storage || []);
 			}
 			this.$emit("update", scopes);
 		}, 50)

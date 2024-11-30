@@ -9,7 +9,7 @@
 		"erase_confirm_title": "Effacer vos paramètres ?",
 		"erase_confirm_description": "Cela effacera uniquement les paramètres de ce navigateur.<br>Les triggers, les commandes vocales, les paramètres automod, les paramètres du mode urgence, etc... seront réinitialisés.",
 		"authorization": "Autorisations",
-		"language": "Langue d'affichage",
+		"language": "Langue de l'interface",
 		"share": {
 			"info": "Si vous souhaitez partager vos paramètres entre plusieurs comptes, cliquez sur le bouton \"Connexion\" ci-dessous et connectez-vous avec votre compte secondaire\n\nLes données du compte secondaire seront alors remplacées par celles du compte actuel \"{USER}\".",
 			"connectBt": "Connexion",

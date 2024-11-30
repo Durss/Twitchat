@@ -296,7 +296,7 @@ class ParamsDonate extends Vue {
 		//Debug to automatically increment amount
 		/*
 		this.amount = 1
-		setTimeout(async() => {
+		window.setTimeout(async() => {
 			let i = 2;
 			for (; i <= 20; i++) {
 				this.amount = i;
@@ -369,14 +369,14 @@ class ParamsDonate extends Vue {
 					//quite a sensitive stuff, I prefer not to remove it yet.
 					//But it seems like i could drop this and simply send "data" on
 					//the endpoint.
-					const obj:{[key:string]:string} = {};
+					const body:Partial<typeof PAYPAL_ORDER> = {};
 					type orderKeys = keyof typeof PAYPAL_ORDER;
 					for (const key in data) {
-						obj[key] = data[key as orderKeys] as string;
+						body[key as keyof typeof PAYPAL_ORDER] = data[key as orderKeys] as string;
 					}
 					try {
-						if(this.giftedUser) obj.giftUserId = this.giftedUser.id;
-						const orderRes = await ApiHelper.call("paypal/complete_order", "POST", obj as typeof PAYPAL_ORDER);
+						if(this.giftedUser) body.giftUserId = this.giftedUser.id;
+						const orderRes = await ApiHelper.call("paypal/complete_order", "POST", body);
 						if(orderRes.json.success === true) {
 							await this.$store.auth.loadUserState(this.$store.auth.twitch.user.id);
 							this.$store.auth.donorLevel = orderRes.json.data.donorLevel || 0;

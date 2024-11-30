@@ -11,20 +11,14 @@ export default class Logger {
 
 	private static _instance:Logger;
 
-    private logs: {
-        "ads": LogAds[],
-        "obs": LogOBS[],
-        "irc": LogIRC[],
-        "heat": LogHeat[],
-        "youtube": LogYoutube[],
-        "triggers": LogTrigger[],
-    } = reactive({
+    private logs:LogsHistory = reactive({
         "ads": [],
         "obs": [],
         "irc": [],
         "heat": [],
         "youtube": [],
         "triggers": [],
+        "subgifts": [],
     });
 
 	constructor() {
@@ -47,80 +41,27 @@ export default class Logger {
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	public log(type:"ads", data:Omit<LogAds, 'date'>):void;
-	public log(type:"obs", data:Omit<LogOBS, 'date'>):void;
-	public log(type:"irc", data:Omit<LogIRC, 'date'>):void;
-	public log(type:"heat", data:Omit<LogHeat, 'date'>):void;
-	public log(type:"youtube", data:Omit<LogYoutube, 'date'>):void;
-	public log(type:"triggers", data:Omit<LogTrigger, 'date'>):void;
-	public log(type:keyof typeof this.logs, data:Partial<LogAds|LogOBS|LogIRC|LogHeat|LogYoutube|LogTrigger>):void {
-		data.date = Date.now();
-		switch(type) {
-			case "ads": {
-				this.logs[type].push(data as LogAds);
-				break;
-			}
-			case "irc": {
-				this.logs[type].push(data as LogIRC);
-				break;
-			}
-			case "obs": {
-				this.logs[type].push(data as LogOBS);
-				break;
-			}
-			case "heat": {
-				this.logs[type].push(data as LogHeat);
-				break;
-			}
-			case "youtube": {
-				this.logs[type].push(data as LogYoutube);
-				break;
-			}
-			case "triggers": {
-				this.logs[type].push(data as LogTrigger);
-				break;
-			}
-		}
-
+	public log<T extends LogsKey>(type: T, data: LogData[T]): void {
+		const fullData = data as LogData[T] & {date:number};
+		fullData.date = Date.now();
+		this.logs[type].push(fullData as any);//Dirty typing... I gave up...
 		//Limit histories sizes
 		for (const key in this.logs) {
 			type keyType = keyof typeof this.logs;
-			if(this.logs[key as keyType].length > 1000) this.logs[key as keyType].splice(1);
+			if(this.logs[key as keyType].length > 500) this.logs[key as keyType].splice(1);
 		}
 	}
 
-	public getLogs(type:"ads"):LogAds[];
-	public getLogs(type:"obs"):LogOBS[];
-	public getLogs(type:"irc"):LogIRC[];
-	public getLogs(type:"heat"):LogHeat[];
-	public getLogs(type:"youtube"):LogYoutube[];
-	public getLogs(type:"triggers"):LogTrigger[];
-	public getLogs(...args:any[]):any[] {
-		const key = args[0] as keyof typeof this.logs;
-		return this.logs[key];
+	public getLogs(type:LogsKey):any[] {
+		return this.logs[type];
 	}
 
-	public clear(type:"ads"):void;
-	public clear(type:"obs"):void;
-	public clear(type:"irc"):void;
-	public clear(type:"heat"):void;
-	public clear(type:"youtube"):void;
-	public clear(type:"triggers"):void;
-	public clear(...args:any[]):void{
-		const key = args[0] as keyof typeof this.logs;
-		this.logs[key].splice(0);
+	public clear(type:LogsKey):void{
+		this.logs[type].splice(0);
 	}
 
-	public download(type:"ads"):void;
-	public download(type:"obs"):void;
-	public download(type:"irc"):void;
-	public download(type:"heat"):void;
-	public download(type:"youtube"):void;
-	public download(type:"triggers"):void;
-	public download(...args:any[]):void{
-		const key = args[0] as keyof typeof this.logs;
-
-		const data = JSON.stringify(this.logs[key]);
+	public download(type:LogsKey):void{
+		const data = JSON.stringify(this.logs[type]);
 		const blob = new Blob([data], { type: 'application/json' });
 		const url = window.URL.createObjectURL(blob);
 		window.open(url, "_blank");
@@ -134,6 +75,28 @@ export default class Logger {
 	private initialize():void {
 	}
 }
+
+type LogsHistory = {
+	ads: LogAds[],
+	obs: LogOBS[],
+	irc: LogIRC[],
+	heat: LogHeat[],
+	youtube: LogYoutube[],
+	triggers: LogTrigger[],
+	subgifts: LogSubGifts[],
+}
+
+type LogsKey = keyof LogsHistory;
+
+type LogData = {
+	ads: Omit<LogAds, 'date'>,
+	obs: Omit<LogOBS, 'date'>,
+	irc: Omit<LogIRC, 'date'>,
+	heat: Omit<LogHeat, 'date'>,
+	youtube: Omit<LogYoutube, 'date'>,
+	triggers: Omit<LogTrigger, 'date'>,
+	subgifts: Omit<LogSubGifts, 'date'>,
+};
 
 interface AbstractLog {
 	date:number;
@@ -205,4 +168,11 @@ export interface LogTriggerStep {
 	error:boolean;
 	data:TriggerActionTypes;
 	messages:{date:number, value:string}[];
+}
+
+export interface LogSubGifts {
+	id:string;
+	merged:boolean;
+	reason?:string;
+	data?:unknown;
 }

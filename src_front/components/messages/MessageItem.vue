@@ -2,6 +2,7 @@
 	<div class="holder">
 		<img v-if="messageData.channelSource?.pic && $store.params.appearance.multiChatAvatar.value === true"
 			class="avatar"
+			:style="{color:messageData.channelSource.color+'99'}"
 			v-tooltip="messageData.channelSource.name"
 			:src="messageData.channelSource.pic" />
 		
@@ -517,9 +518,65 @@
 			:childrenList="childrenList"
 		/>
 	
+		<ChatTikTokSub class="message"
+			v-else-if="messageData.type == 'tiktok_sub'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
+		/>
+	
+		<ChatTikTokGift class="message"
+			v-else-if="messageData.type == 'tiktok_gift'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
+		/>
+	
+		<ChatTikTokLike class="message"
+			v-else-if="messageData.type == 'tiktok_like'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
+		/>
+		
+		<ChatTikTokShare class="message"
+			v-else-if="messageData.type == 'tiktok_share'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
+		/>
+		
 		<ChatSuspendedTriggerStack class="message"
 			v-else-if="messageData.type == 'suspended_trigger_stack'"
 			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
+		/>
+		
+		<ChatTwitchCharityDonation class="message"
+			v-else-if="messageData.type == 'twitch_charity_donation'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
+		/>
+		
+		<ChatPrivateModerator class="message"
+			v-else-if="messageData.type == 'private_mod_message'"
+			:messageData="messageData"
+			@showConversation="$emit('showConversation', $event)"
+			@showUserMessages="$emit('showUserMessages', $event)"
 			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
 			:colIndex="colIndex"
 			:lightMode="lightMode"
@@ -586,9 +643,16 @@ import ChatYoutubeSubscription from './ChatYoutubeSubscription.vue';
 import ChatYoutubeSubgift from './ChatYoutubeSubgift.vue';
 import ChatTiltifyEvent from './ChatTiltifyEvent.vue';
 import ChatPatreonEvent from './ChatPatreonEvent.vue';
+import ChatTikTokSub from './ChatTikTokSub.vue';
+import ChatTikTokGift from './ChatTikTokGift.vue';
+import ChatTikTokLike from './ChatTikTokLike.vue';
+import ChatTikTokShare from './ChatTikTokShare.vue';
 import ChatSuspendedTriggerStack from './ChatSuspendedTriggerStack.vue';
+import ChatTwitchCharityDonation from './ChatTwitchCharityDonation.vue';
+import ChatPrivateModerator from './ChatPrivateModerator.vue';
 
 @Component({
+	name:"MessageItem",
 	components:{
 		ChatAd,
 		ChatBan,
@@ -605,6 +669,10 @@ import ChatSuspendedTriggerStack from './ChatSuspendedTriggerStack.vue';
 		ChatShoutout,
 		ChatHateRaid,
 		ChatKofiEvent,
+		ChatTikTokSub,
+		ChatTikTokGift,
+		ChatTikTokLike,
+		ChatTikTokShare,
 		ChatPinNotice,
 		ChatJoinLeave,
 		ChatTrackStart,
@@ -633,6 +701,7 @@ import ChatSuspendedTriggerStack from './ChatSuspendedTriggerStack.vue';
 		ChatHypeTrainResult,
 		ChatCountdownResult,
 		ChatHypeChatMessage,
+		ChatPrivateModerator,
 		ChatPredictionResult,
 		ChatYoutubeSuperChat,
 		ChatTrackAddedToQueue,
@@ -645,6 +714,7 @@ import ChatSuspendedTriggerStack from './ChatSuspendedTriggerStack.vue';
 		ChatStreamelementsEvent,
 		ChatYoutubeSuperSticker,
 		ChatSuspendedTriggerStack,
+		ChatTwitchCharityDonation,
 		ChatCommunityChallengeContribution,
 	},
 	emits:["onRead", "showConversation", "showUserMessages", "unscheduleMessageOpen", "setCustomActivities", "showModal", "openFilters", "onOverMessage"],
@@ -695,6 +765,8 @@ export default toNative(MessageItem);
 		border-radius: 50%;
 		height: 1.5em;
 		align-self: center;
+		outline: 1px solid currentColor;
+		padding: 1px;
 	}
 	.message {
 		width: 100%;

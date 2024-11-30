@@ -66,6 +66,7 @@
 			"tip_kofi":"Ko-fi",
 			"tip_streamlabs":"Streamlabs",
 			"tip_streamlabsCharity":"Streamlabs Charity",
+			"tip_twitchCharity":"Twitch Charity",
 			"tip_streamelements":"Streamelements",
 			"tip_tipeee":"Tipeee",
 			"tip_tiltify":"Tiltify",
@@ -75,6 +76,7 @@
 			"limit_users": "Limit users count",
 			"max_users": "Max user count",
 			"multiple_join": "Users can enter multiple times",
+			"param_autoClose": "Automatically close raffle after picking a winner",
 			"ponderate": "Weight entries\n(additional points given for every matching criteria)",
 			"ponderate_VIP": "VIP",
 			"ponderate_sub": "Subscriber T1/prime",
@@ -90,14 +92,17 @@
 			"entry_placeholder": "Winning entry",
 			"value_placeholder": "Select source Value",
 			"value_splitter": "Entries separator\n(char that seperates entries)",
-			"value_remove": "Remove winning entry from Value\n(the entry will be lost!)"
+			"value_remove": "Remove winning entry from Value\n(the entry will be lost!)",
+			"trigger_waitForWinner": "Wait for a winner to be picked.\n(trigger's execution will be paused until a winner is picked)",
+			"trigger_waitForWinner_placeholder": "Use {PLACEHOLDER} placeholder on any action bellow this one to get the winning entry"
 		},
 		"state_title": "Raffle",
 		"state_users": "{COUNT} entered",
 		"state_users_cumulated": "{COUNT} tickets",
 		"state_pickBt": "Pick a winner",
-		"state_stopBt": "Stop Raffle",
+		"state_stopBt": "Close Raffle",
 		"state_overlay_not_visible": "Raffle overlay is not visible",
-		"state_overlay_not_found": "Raffle overlay does not exist on current OBS scene"
+		"state_overlay_not_found": "Raffle overlay does not exist on current OBS scene",
+		"state_many_raffles": "You have {COUNT} raffles running, you may want to close some of them.\nUse arrows on the side to navigate through them."
 	}
 }

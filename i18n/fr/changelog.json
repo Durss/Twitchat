@@ -6,20 +6,115 @@
 		"heat_details_link": "Heat",
 		"highlights": [
 			{
-				"i": "goal",
-				"l": "Objectifs",
-				"v": "/update_images/goals.mp4",
-				"d": "Créez des objectifs de dons, d'abonnés, de followers ou tout autre type d'objectifs personnalisés et affichez-les sur votre stream grâce au nouvel overlay dédié.",
+				"i": "tiktok",
+				"l": "TikTok",
+				"d": "Recevez vos messages et notifications TIkTok Live directement dans Twitchat !\n\nAutomatisez des actions grâce aux nouveaux Triggers dédiés aux évènements TikTok.",
 				"a": {
 					"l": "Essayer",
-					"param": "overlays",
-					"subparam": "donationgoals"
+					"param": "connexions",
+					"subparam": "tiktok"
 				}
 			},
 			{
-				"i": "patreon",
-				"l": "Alertes Patreon",
-				"d": "Connectez Twitchat à Patreon et recevez une notification lorsqu'une nouvelle personne s'abonne à votre Patreon.",
+				"i": "playability",
+				"l": "PlayAbility",
+				"d": "Automatisez des actions lorsque vous souriez, haussez les sourcils, ouvrez la bouche, tournez la tête, et bien plus encore.\nMais aussi simulez l'appui sur des touches de clavier ou des boutons de souris depuis les Triggers.\n\nPlayAbility a pour but de rendre les jeux-vidéos accessibles aux personnes en situation de handicap. Son intégration Twitchat permet de pousser son usage pour augmenter l'interactivité de vos streams en permettant par exemple à vos viewers de tirer à votre place dans un FPS en s'abonnant à votre chaîne. Ou encore comptez le nombre de fois que vous souriez ou levez les sourcils.",
+				"g": "update_images/playability.gif",
+				"a": {
+					"l": "Essayer",
+					"param": "connexions",
+					"subparam": "playability"
+				}
+			},
+			{
+				"i": "mod",
+				"l": "Messages privés Twitchat",
+				"d": "Twitchat permet d'échanger des messages privés avec vos modérateurices utilisant Twitchat.\n\nVos modos pourront citer des messages du tchat et vous poser des questions auxquelles répondre en 1 click pour fluidifier au mieux vos échanges.",
+				"v": "update_images/moderator_dm.mp4"
+			},
+			{
+				"i": "streamerbot",
+				"l": "Streamer.bot",
+				"d": "Déclenchez des actions Streamer.bot depuis les Triggers pour combiner les fonctionnalités exclusives à Twitchat à toutes les possibilités offertes par Streamer.bot.",
+				"a": {
+					"l": "Essayer",
+					"param": "connexions",
+					"subparam": "streamerbot"
+				}
+			},
+			{
+				"i": "sammi",
+				"l": "SAMMI",
+				"d": "Déclenchez des boutons SAMMI depuis les Triggers pour combiner les fonctionnalités exclusives à Twitchat à toutes les possibilités offertes par SAMMI.",
+				"a": {
+					"l": "Essayer",
+					"param": "overlays",
+					"subparam": "sammi"
+				}
+			},
+			{
+				"i": "mixitup",
+				"l": "Mix It Up",
+				"d": "Déclenchez des commandes Mix It Up depuis les Triggers pour combiner les fonctionnalités exclusives à Twitchat à toutes les possibilités offertes par Mix It Up.",
+				"a": {
+					"l": "Essayer",
+					"param": "connexions",
+					"subparam": "mixitup"
+				}
+			},
+			{
+				"i": "elevenlabs",
+				"l": "ElevenLabs",
+				"d": "Twitchat permet désormais d'utiliser des voix ElevenLabs pour lire vos messages.\nElevenLabs propose des voix de synthèse beaucoup plus réalistes que celles proposées par Twitchat jusque-là.",
+				"a": {
+					"l": "Essayer",
+					"param": "connexions",
+					"subparam": "elevenlabs"
+				}
+			},
+			{
+				"i": "charity",
+				"l": "Twitch Charity",
+				"d": "Twitchat notifie désormais lorsqu'un don est effectué sur une campagne caritative en cours.\n\nAutomatisez des actions grâce au nouveau Triggers dédié.\n\nPermettez de rejoindre un tirage au sort pour chaque don effectué sur une campagne caritative.\n\nL'overlay de Goals peut-être connecté à la campagne caritative Twitch en cours."
+			},
+			{
+				"i": "twitch",
+				"l": "Twitch compte bot",
+				"d": "Vous pouvez maintenant lier Twitchat à un second compte Bot.\nTous les messages de bot seront envoyés par ce compte au lieu du vôtre.",
+				"a": {
+					"l": "Connecter",
+					"param": "connexions",
+					"subparam": "twitchbot"
+				}
+			},
+			{
+				"i": "credits",
+				"l": "Crédits de fin",
+				"d": "Afficher vos membres Patreon actifs grâce à la nouvelle section \"Membres Patreon\"",
+				"p": true,
+				"g": "update_images/patreon_fr.png",
+				"a": {
+					"l": "Essayer",
+					"param": "overlays",
+					"subparam": "credits"
+				}
+			},
+			{
+				"i": "spotify",
+				"l": "Spotify",
+				"d": "L'action de triggers Spotify permet de limiter le nombre de morceaux qu'une personne peut ajouter à la file d'attente.",
+				"g": "update_images/spotify_fr.png",
+				"a": {
+					"l": "Essayer",
+					"param": "triggers"
+				}
+			},
+			{
+				"i": "kofi",
+				"l": "Ko-Fi webhooks",
+				"d": "Ko-Fi a un fonctionnement extrêmement restrictif et ne permet de connecter un compte qu'à une seule application.\n\nTwitchat permet désormais de contourner cette limitation en vous laissant définir jusqu'à 5 URL alternatives vers lesquelles retransmettre les évènements Ko-Fi.",
+				"g": "update_images/kofi_fr.png",
+				"p": true,
 				"a": {
 					"l": "Connecter",
 					"param": "connexions",
@@ -27,39 +122,9 @@
 				}
 			},
 			{
-				"i": "charity",
-				"l": "Streamlabs Charity",
-				"d": "Connectez Twitchat à Streamlabs puis configurez une campagne Streamlabs Charity pour recevoir des notifications pour chaque dons reçus.\n\nAutomatisez ce que vous souhaitez lorsqu'un don est reçu grâce au nouveau Trigger dédié.",
-				"a": {
-					"l": "Essayer",
-					"param": "connexions",
-					"subparam": "streamlabs"
-				}
-			},
-			{
-				"i": "tiltify",
-				"l": "Tiltify",
-				"d": "Connectez Twitchat à Tiltify pour être notifié lors de la réception d'un don.\n\nAutomatisez ce que vous voulez lorsqu'un don est reçu grâce au nouveau Trigger dédié.",
-				"a": {
-					"l": "Essayer",
-					"param": "connexions",
-					"subparam": "tiltify"
-				}
-			},
-			{
-				"i": "ticket",
-				"l": "Tirages au sort",
-				"d": "Vous pouvez maintenant gérer plusieurs tirages au sort simultanément.\n\nLes tirages au sort en cours ne sont plus perdus après le rechargement de Twitchat.\n\nUne nouvelle option de tirage au sort permet aux utilisateurices de participer en effectuant un don sur une plateforme externe.\n\nVous pouvez ajouter du temps à un tirage au sort en cours. Cela permet également de rouvrir un tirage au sort fermée.\n\nEn démarrant un tirage au sort via les triggers, vous pouvez désormais définir des messages de démarrage, de participation et de victoire personnalisés, différents des messages globaux."
-			},
-			{
-				"i": "whispers",
-				"l": "Tchats partagés",
-				"d": "Si vous utilisez la fonctionnalité native de Tchats Partagés du système \"Stream Together\" de Twitch, Twitchat différenciera désormais correctement les messages selon leur origine, comme cela était déjà le cas lors de l'utilisation de la fonctionnalité de tchats fusionnés de Twitchat."
-			},
-			{
 				"i": "label",
 				"l": "Labels",
-				"d": "Nouveaux labels disponibles sur l'overlay de Labels.<ul><li>{STREAMLABS_CHARITY_NAME} : nom de la campagne Streamlabs Charity</li><li>{STREAMLABS_CHARITY_IMAGE} : image de la campagne Streamlabs Charity</li><li>{STREAMLABS_CHARITY_RAISED} : montant global collecté</li><li>{STREAMLABS_CHARITY_RAISED_PERSONNAL} : montant personnel collecté</li><li>{STREAMLABS_CHARITY_GOAL} : objectif de la campagne</li><li>{STREAMLABS_CHARITY_LAST_TIP_USER} : dernier donateur</li><li>{STREAMLABS_CHARITY_LAST_TIP_AMOUNT} : dernier montant donné</li><li>{PATREON_USER} : nom de l'abonné</li><li>{PATREON_AVATAR} : photo de profil de l'abonné</li><li>{PATREON_AMOUNT} : montant de l'abonnement</li><li>{PATREON_TITLE} : titre de l'abonnement</li><li>{TILTIFY_LAST_TIP_USER} : nom du dernier donateur</li><li>{TILTIFY_LAST_TIP_AMOUNT} : montant du don</li></ul>",
+				"d": "22 nouveaux labels disponibles sur l'overlay de Labels.<ul><li>Nombre de viewers sur TikTok</li><li>Nombre de likes total du live TikTok</li><li>Pseudo du dernier Like TikTok</li><li>Avatar du dernier like TikTok</li><li>Nombre de likes envoyés</li><li>Pseudo du dernier abonnement TikTok</li><li>Avatar du dernier abonnement TikTok</li><li>Pseudo du dernier partage TikTok</li><li>Avatar du dernier partage TikTok</li><li>Pseudo du dernier cadeau TikTok</li><li>Avatar du dernier cadeau TikTok</li><li>Image du dernier cadeau TikTok</li><li>Quantité du dernier cadeau TikTok</li><li>Diamants reçus avec le dernier cadeau TikTok</li><li>Twitch Charity - Nom de la campagne</li><li>Twitch Charity - Image de la campagne</li><li>Twitch Charity - Montant récolté</li><li>Twitch Charity - Objectif</li><li>Twitch Charity - Dernier·e donnateurice</li><li>Twitch Charity - Dernier don</li><li>Twitch Charity - Avatar du dernier don</li><li>Patreon - Nombre de membres actifs</li></ul>",
 				"a": {
 					"l": "Essayer",
 					"param": "overlays",
@@ -69,23 +134,28 @@
 			{
 				"i": "broadcast",
 				"l": "Triggers",
-				"d": "6 nouveaux événements de triggers :<ul><li>Nouveau membre Patreon</li><li>Don Streamlabs Charity</li><li>Don Tiltify</li><li>Chargement de Twitchat terminé</li><li>Enregistrement OBS démarré</li><li>Enregistrement OBS arrêté</li></ul>L'action de trigger OBS permet désormais de :<ul><li>Démarrer le stream</li><li>Arrêter le stream</li><li>Démarrer l'enregistrement</li><li>Mettre en pause l'enregistrement</li><li>Reprendre l'enregistrement</li><li>Arrêter l'enregistrement</li><li>Émettre un événement JavaScript sur toutes les sources de navigateur</li><li>Démarrer la caméra virtuelle</li><li>Arrêter la caméra virtuelle</li><li>Mettre à jour le CSS personnalisé d'une source navigateur</li></ul>"
+				"d": "18 nouveaux événements de triggers :<ul><li>Chat effacé</li><li>Sub-only activé/désactivé</li><li>Followers-only activé/désactivé</li><li>Emote-only activé/désactivé</li><li>Mode lent activé/désactivé</li><li>Utilisateurice surveillé·e</li><li>Utilisateurice réstreint·e</li><li>Levée de la surveillance/restriction</li><li>Don reçu sur la campagne caritative Twitch</li><li>Action PlayAbility détectée</li><li>TikTok - Nouvel abonnement</li><li>TikTok - Like reçu</li><li>TikTok - Cadeau reçu</li><li>TikTok - Partage du stream</li></ul>",
+				"a": {
+					"l": "Try",
+					"param": "triggers"
+				}
 			},
 			{
 				"l": "Mais aussi",
-				"d": "Plein d'autres choses ont été ajoutées ou modifiées.<br><a href=\"https://github.com/Durss/Twitchat/releases/latest/#french\" target=\"_blank\">Voir la liste complète ici</a>"
+				"d": "Plein d'autres choses ont été ajoutées ou modifiées.<br><a href=\"https://github.com/Durss/Twitchat/releases/new_fr/#french\" target=\"_blank\">Voir la liste complète ici</a>"
 			},
 			{
 				"i": "donate",
-				"d": "Twitchat est mon activité principale depuis maintenant +2 ans <b>sans aucune autre source de revenus</b>.\n\nSi vous pouvez vous le permettre, un don libre ou un soutient mensuel sur Patreon m'aidera énormément ❤️"
+				"d": "Twitchat est mon activité principale depuis maintenant +2 ans <b>sans aucune autre source de revenus</b>.\n\nSi vous pouvez vous le permettre, un don sur PayPal ou un soutient mensuel sur Patreon m'aidera énormément ❤️"
 			}
 		],
 		"forceRead": {
 			"title": "EH OH TU LIS!",
-			"description": "J'ai bossé fort sur ces mises à jour, je trouverais ça stylé que tu prennes 2 minutes pour les lire sitoplé 🙏",
-			"readAtSpeedOfLight": "Essaie pas de me faire croire que tu lis à la vitesse de la lumière 😏",
+			"description": "J'ai bossé fort sur ces mises à jour, je trouverais ça stylé que tu prennes 2 minutes pour les lire sitoplé 🙏",
+			"readAtSpeedOfLight": "Essaie pas de me faire croire que tu lis à la vitesse de la lumière 😏",
 			"sorryBt": "ui pardon je lis 🥺",
-			"fuBt": "menfou 🤪"
+			"fuBt": "menfou 🤪",
+			"reminderBt": "Rappel en fin de stream"
 		}
 	}
 }

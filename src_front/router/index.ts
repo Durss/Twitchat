@@ -124,6 +124,38 @@ const routes: Array<RouteRecordRaw> = [
 		},
 	},
 	{
+		path: '/twitchbot/oauth',
+		name: 'twitchbot/auth',
+		redirect:() => {
+			if(window.opener) {
+				window.opener.postMessage({ 
+					type: 'TWITCHBOT_AUTH_RESULT',
+					data: {
+						code: Utils.getQueryParameterByName("code"),
+						csrf: Utils.getQueryParameterByName("state")
+					}
+				}, document.location.origin);
+				window.close();
+				return {name:"chat", query:{}};
+			}
+			const sParams = StoreProxy.params;
+			const params = {
+				code:Utils.getQueryParameterByName("code") as string,
+				csrf:Utils.getQueryParameterByName("state") as string,
+			}
+			if(params.code && !Utils.getQueryParameterByName("error")) {
+				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.TWITCHBOT);
+				StoreProxy.twitchBot.completeOAuthProcess(params.code, params.csrf);
+			}else{
+				StoreProxy.common.alert( StoreProxy.i18n.t("twitch_bot.auth_refused") );
+			}
+			return {name:"chat", query:{}};
+		},
+		meta: {
+			needAuth:true,
+		}
+	},
+	{
 		path: '/spotify/auth',
 		name: 'spotify/auth',
 		redirect:() => {
@@ -163,7 +195,7 @@ const routes: Array<RouteRecordRaw> = [
 				if(to.fullPath.indexOf("/premium") > -1) {
 					sParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 				}else{
-					sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, "patreon");
+					sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.PATREON);
 				}
 			}else{
 				StoreProxy.common.alert( StoreProxy.i18n.t("error.patreon_denied") );

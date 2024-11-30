@@ -1,4 +1,4 @@
-import Ajv from "ajv"
+import Ajv from "ajv";
 
 
 /**
@@ -167,6 +167,7 @@ const UserDataSchema = {
 					counterId: {type:"string", maxLength:50},
 					valueId: {type:"string", maxLength:50},
 					queue: {type:"string", maxLength:100, nullable:true},
+					queuePriority: {type:"integer", minimum:-100, maximum:100},
 					conditions: { $ref: "#/definitions/conditionGroup" },
 					permissions: { $ref: "defs.json#/definitions/permissions" },
 					heatAllowAnon: {type:"boolean"},
@@ -276,6 +277,7 @@ const UserDataSchema = {
 								track: {type:"string", maxLength:500},
 								limitDuration: {type:"boolean"},
 								maxDuration: {type:"number", minimum:0 , maximum:3600},
+								maxPerUser: {type:"number", minimum:0 , maximum:1000},
 								failMessage: {type:"string", maxLength:500},
 								confirmMessage: {type:"string", maxLength:500},
 								playlist: {type:"string", maxLength:500},
@@ -287,6 +289,7 @@ const UserDataSchema = {
 								browserEventParams: {type:"string", maxLength:10000},
 								sendAsBody: {type:"boolean"},
 								customHeaders: {type:"boolean"},
+								interpretMaths: {type:"boolean"},
 								headers:{
 									type:"array",
 									minItems:0,
@@ -455,6 +458,8 @@ const UserDataSchema = {
 										value_id: {type:"string", maxLength:200},
 										value_splitter: {type:"string", maxLength:5},
 										multipleJoin: {type:"boolean"},
+										autoClose: {type:"boolean"},
+										triggerWaitForWinner: {type:"boolean"},
 										duration_s: {type:"integer", minimum:0, maximum:120 * 60000},
 										maxEntries: {type:"integer", minimum:0, maximum:1000000},
 										created_at: {type:"integer", minimum:0, maximum:9999999999999},
@@ -478,18 +483,21 @@ const UserDataSchema = {
 										tip_streamelements: {type:"boolean"},
 										tip_tipeee: {type:"boolean"},
 										tip_tiltify: {type:"boolean"},
+										tip_twitchCharity: {type:"boolean"},
 										tip_kofi_minAmount: {type:"integer", minimum:0, maximum:999999},
 										tip_streamlabs_minAmount: {type:"integer", minimum:0, maximum:999999},
 										tip_streamlabsCharity_minAmount: {type:"integer", minimum:0, maximum:999999},
 										tip_streamelements_minAmount: {type:"integer", minimum:0, maximum:999999},
 										tip_tipeee_minAmount: {type:"integer", minimum:0, maximum:999999},
 										tip_tiltify_minAmount: {type:"integer", minimum:0, maximum:999999},
+										tip_twitchCharity_minAmount: {type:"integer", minimum:0, maximum:999999},
 										tip_kofi_ponderate: {type:"integer", minimum:0, maximum:999999},
 										tip_streamlabs_ponderate: {type:"integer", minimum:0, maximum:999999},
 										tip_streamlabsCharity_ponderate: {type:"integer", minimum:0, maximum:999999},
 										tip_streamelements_ponderate: {type:"integer", minimum:0, maximum:999999},
 										tip_tipeee_ponderate: {type:"integer", minimum:0, maximum:999999},
 										tip_tiltify_ponderate: {type:"integer", minimum:0, maximum:999999},
+										tip_twitchCharity_ponderate: {type:"integer", minimum:0, maximum:999999},
 										followRatio: {type:"integer", minimum:0, maximum:100},
 										vipRatio: {type:"integer", minimum:0, maximum:100},
 										subRatio: {type:"integer", minimum:0, maximum:100},
@@ -649,6 +657,21 @@ const UserDataSchema = {
 										}
 									}
 								},
+								voiceParams: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										voice: {type:"string", maxLength:50},
+										volume: {type:"number", minimum:0, maximum:1},
+										rate: {type:"number", minimum:0, maximum:5},
+										pitch: {type:"number", minimum:0, maximum:2},
+										elevenlabs_lang: {type:"string", maxLength:10},
+										elevenlabs_model: {type:"string", maxLength:50},
+										elevenlabs_stability: {type:"number", minimum:0, maximum:1},
+										elevenlabs_similarity: {type:"number", minimum:0, maximum:1},
+										elevenlabs_style: {type:"number", minimum:0, maximum:1},
+									}
+								},
 								heatClickData: {
 									type: "object",
 									additionalProperties: false,
@@ -729,6 +752,78 @@ const UserDataSchema = {
 										voice: {type:"string", maxLength:100},
 									}
 								},
+								streamerbotData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										actionId: {type:"string", maxLength:100},
+										params: {
+											type:"array",
+											minItems:0,
+											maxItems:40,
+											items: {
+												type: "object",
+												additionalProperties: false,
+												properties: {
+													key: {type:"string", maxLength:50},
+													value: {type:"string", maxLength:1000},
+												}
+											}
+										}
+									}
+								},
+								sammiData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										buttonId: {type:"string", maxLength:40},
+									}
+								},
+								mixitupData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										commandId: {type:"string", maxLength:100},
+										params: {
+											type:"array",
+											minItems:0,
+											maxItems:40,
+											items: {
+												type: "object",
+												additionalProperties: false,
+												properties: {
+													value: {type:"string", maxLength:1000},
+												}
+											}
+										}
+									}
+								},
+								playabilityData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										outputs: {
+											type:"array",
+											minItems:0,
+											maxItems:40,
+											items: {
+												type: "object",
+												additionalProperties: false,
+												properties: {
+													code: {type:"string", maxLength:20},
+													type: {type:"string", maxLength:20},
+													value:{
+														anyOf: [
+															{ enum: ["press_release"] },
+															{ type: "number", minimum: -1, maximum: 1 },
+															{ type: "boolean" }
+														]
+													},
+												}
+											}
+										}
+									}
+								},
 							}
 						},
 					}
@@ -740,10 +835,13 @@ const UserDataSchema = {
 			type:"object",
 			additionalProperties: false,
 			properties: {
+				raffleJoin: { $ref: "#/definitions/botMessage" },
 				raffleStart: { $ref: "#/definitions/botMessage" },
 				raffleTipsStart: { $ref: "#/definitions/botMessage" },
-				raffleJoin: { $ref: "#/definitions/botMessage" },
 				raffleTipsJoin: { $ref: "#/definitions/botMessage" },
+				raffleValuesWinner: { $ref: "#/definitions/botMessage" },
+				raffleListWinner: { $ref: "#/definitions/botMessage" },
+				raffleSubsWinner: { $ref: "#/definitions/botMessage" },
 				raffle: { $ref: "#/definitions/botMessage" },
 				raffleTipsWinner: { $ref: "#/definitions/botMessage" },
 				bingoStart: { $ref: "#/definitions/botMessage" },
@@ -999,11 +1097,28 @@ const UserDataSchema = {
 				volume: {type:"number", minimum:0, maximum:1},
 				rate: {type:"number", minimum:0.1, maximum:10},
 				pitch: {type:"number", minimum:0, maximum:2},
+				elevenlabs_model: {type:"string", maxLength:100},
+				elevenlabs_stability: {type:"number", minimum:0, maximum:1},
+				elevenlabs_similarity: {type:"number", minimum:0, maximum:1},
+				elevenlabs_style: {type:"number", minimum:0, maximum:1},
+				elevenlabs_lang: {type:"string", maxLength:10},
 				maxLength: {type:"integer", minimum:0, maximum:500},
 				maxDuration: {type:"integer", minimum:0, maximum:120},
 				timeout: {type:"integer", minimum:0, maximum:300},
 				inactivityPeriod: {type:"integer", minimum:0, maximum:60},
-				voice: {type:"string", maxLength:500},
+				voice: {
+					anyOf: [
+						{type:"string", maxLength:500},
+						{
+							type:"object",
+							additionalProperties: false,
+							properties:{
+								id: {type:"string", maxLength:100},
+								platform: {type:"string", maxLength:40},
+							}
+						}
+					],
+				},
 				removeURL: {type:"boolean"},
 				replaceURL: {type:"string", maxLength:100},
 				removeEmotes: {type:"boolean"},
@@ -1305,7 +1420,20 @@ const UserDataSchema = {
 						type:"object",
 						additionalProperties: true,
 						patternProperties: {
-							".*": {type:"string", maxLength:100000},
+							".*": {
+								anyOf: [
+									{type:"string", maxLength:100000},
+									{
+										type:"object",
+										additionalProperties: false,
+										properties:{
+											login: {type:"string", maxLength:100},
+											platform: {type:"string", maxLength:40},
+											value: {type:"string", maxLength:100000},
+										}
+									}
+								],
+							}
 						}
 					}
 				}
@@ -1343,7 +1471,20 @@ const UserDataSchema = {
 						type:"object",
 						additionalProperties: true,
 						patternProperties: {
-							".*": {type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+							".*": {
+								anyOf: [
+									{type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+									{
+										type:"object",
+										additionalProperties: false,
+										properties:{
+											login: {type:"string", maxLength:100},
+											platform: {type:"string", maxLength:40},
+											value: {type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+										}
+									}
+								],
+							}
 						}
 					}
 				}
@@ -1507,6 +1648,7 @@ const UserDataSchema = {
 							showSubgifts: {type:"boolean"},
 							showSubsYoutube: {type:"boolean"},
 							showSubgiftsYoutube: {type:"boolean"},
+							showSubsTiktok: {type:"boolean"},
 							showSubsKofi: {type:"boolean"},
 							showResubs: {type:"boolean"},
 							showTipsKofi: {type:"boolean"},
@@ -1516,10 +1658,12 @@ const UserDataSchema = {
 							showTipsStreamelements: {type:"boolean"},
 							showMerchKofi: {type:"boolean"},
 							showMerchStreamlabs: {type:"boolean"},
+							showTotalAmounts: {type:"boolean"},
 							sortByNames: {type:"boolean"},
 							sortByRoles: {type:"boolean"},
 							sortByAmounts: {type:"boolean"},
 							sortBySubTypes: {type:"boolean"},
+							sortByTotalAmounts: {type:"boolean"},
 							uniqueUsers: {type:"boolean"},
 							filterRewards: {type:"boolean"},
 							showRewardUsers: {type:"boolean"},
@@ -1530,7 +1674,9 @@ const UserDataSchema = {
 							showPuSkin: {type:"boolean"},
 							showPuEmote: {type:"boolean"},
 							showPuCeleb: {type:"boolean"},
+							anonLastNames: {type:"boolean"},
 							label: {type:"string", maxLength:100},
+							currency: {type:"string", maxLength:5},
 							maxEntries: {type:"integer", minimum:1, maximum:1000},
 							layout: {enum: ["col","center","2cols","3cols","left","right","colLeft","colRight"]},
 							customHTML: {type:"boolean"},
@@ -1540,6 +1686,12 @@ const UserDataSchema = {
 								type:"array",
 								minItems:0,
 								maxItems:300,
+								items:{type:"string", maxLength:40},
+							},
+							patreonTiers: {
+								type:"array",
+								minItems:0,
+								maxItems:100,
 								items:{type:"string", maxLength:40},
 							},
 						}
@@ -1861,7 +2013,7 @@ const UserDataSchema = {
 							title: {type:"string", maxLength:40},
 							campaignId: {type:"string", maxLength:100},
 							counterId: {type:"string", maxLength:40},
-							dataSource: {enum: ["streamlabs_charity","tiltify","counter","twitch_subs","twitch_followers"]},
+							dataSource: {enum: ["streamlabs_charity","tiltify","counter","twitch_subs","twitch_followers","twitch_charity"]},
 							enabled: {type:"boolean"},
 							ideDone: {type:"boolean"},
 							notifyTips: {type:"boolean"},
@@ -1909,6 +2061,8 @@ const UserDataSchema = {
 					duration_s: { type: "number" },
 					maxEntries: { type: "number" },
 					multipleJoin: { type: "boolean" },
+					autoClose: { type: "boolean" },
+					triggerWaitForWinner: {type:"boolean"},
 					created_at: { type: "number" },
 					entries: {
 						type:"array",
@@ -2026,6 +2180,58 @@ const UserDataSchema = {
 							}
 						},
 					}
+				}
+			}
+		},
+
+		tiktokConfigs:{
+			type: "object",
+			properties: {
+				ip: {type:"string", maxLength:100},
+				port: {type:"integer", minimum:0, maximum:65535},
+			}
+		},
+
+		streamerbotConfigs:{
+			type: "object",
+			properties: {
+				ip: {type:"string", maxLength:100},
+				port: {type:"integer", minimum:0, maximum:65535},
+			}
+		},
+
+		sammiConfigs:{
+			type: "object",
+			properties: {
+				ip: {type:"string", maxLength:100},
+				port: {type:"integer", minimum:0, maximum:65535},
+			}
+		},
+
+		mixitupConfigs:{
+			type: "object",
+			properties: {
+				ip: {type:"string", maxLength:100},
+				port: {type:"integer", minimum:0, maximum:65535},
+			}
+		},
+
+		playabilityConfigs:{
+			type: "object",
+			properties: {
+				ip: {type:"string", maxLength:100},
+				port: {type:"integer", minimum:0, maximum:65535},
+			}
+		},
+
+		kofiConfigs: {
+			type: "object",
+			properties: {
+				webhooks: {
+					type:"array",
+					minItems:0,
+					maxItems:5,
+					items:{ type: "string", maxLength:300 }
 				}
 			}
 		}

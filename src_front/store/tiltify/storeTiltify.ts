@@ -15,7 +15,7 @@ import Utils from '@/utils/Utils';
 export const storeTiltify = defineStore('tiltify', {
 	state: () => ({
 		user:null,
-		campaigns:[],
+		campaignList:[],
 		token:null,
 		connected:false,
 		authResult:{code:"", csrf:""},
@@ -97,7 +97,7 @@ export const storeTiltify = defineStore('tiltify', {
 			await this.loadInfos();
 			this.connected = true;
 			
-			setTimeout(async ()=> {
+			window.setTimeout(async ()=> {
 				const res = await ApiHelper.call("tiltify/token/refresh", "POST", {refreshToken:this.token!.refresh_token});
 				if(res.status == 200 && res.json.token) {
 					this.token = res.json.token;
@@ -122,7 +122,7 @@ export const storeTiltify = defineStore('tiltify', {
 			switch(data.type) {
 				case "donation": {
 					const chunks = TwitchUtils.parseMessageToChunks(data.message || "", undefined, true);
-					const campaign = this.campaigns.find(v=>v.id === data.campaignId);
+					const campaign = this.campaignList.find(v=>v.id === data.campaignId);
 					const message:TwitchatDataTypes.TiltifyDonationData = {
 						id:Utils.getUUID(),
 						eventType:"donation",
@@ -152,9 +152,9 @@ export const storeTiltify = defineStore('tiltify', {
 				}
 
 				case "cause_update": {
-					let campaign = this.campaigns.find(v=>v.id === data.campaignId);
+					let campaign = this.campaignList.find(v=>v.id === data.campaignId);
 					if(!campaign) {
-						campaign = this.campaigns.find(v=>v.cause_id === data.causeId);
+						campaign = this.campaignList.find(v=>v.cause_id === data.causeId);
 						break;
 					}
 					
@@ -170,14 +170,14 @@ export const storeTiltify = defineStore('tiltify', {
 
 		async loadInfos():Promise<{user:TiltifyUser, campaigns:TiltifyCampaign[]}> {
 			const infos = await ApiHelper.call("tiltify/info", "GET", {token:this.token!.access_token}, false, 0);
-			this.campaigns = infos.json.campaigns;
+			this.campaignList = infos.json.campaigns;
 			const login = StoreProxy.auth.twitch.user.login.toLowerCase();
 			if(login === "loxetv"
 			|| login === "m0uftchup"
 			|| login === "chezmarino"
 			|| login === "shakawah") {
 				ApiHelper.call("log", "POST", {cat:"random", log:{
-						type:"tiltify_campaigns", login, user:{id:infos.json.user.id, name:infos.json.user.username}, campaigns:(this.campaigns || []).map(v=>{
+						type:"tiltify_campaigns", login, user:{id:infos.json.user.id, name:infos.json.user.username}, campaigns:(this.campaignList || []).map(v=>{
 							return {
 								name:v.name,
 								id:v.id,
@@ -192,7 +192,7 @@ export const storeTiltify = defineStore('tiltify', {
 			}
 			this.user = infos.json.user;
 			StoreProxy.donationGoals.broadcastData();
-			return {user:this.user, campaigns:this.campaigns};
+			return {user:this.user, campaigns:this.campaignList};
 		}
 	
 	} as ITiltifyActions

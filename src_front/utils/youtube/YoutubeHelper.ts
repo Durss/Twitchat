@@ -84,7 +84,7 @@ export default class YoutubeHelper {
 				//Wait 5s so messages have time to load from DB to avoid duplicates
 				//after loading history from youtube.
 				//Yeah... extremely dirty way of dealing with async stuff... but I haven't slept for 26h T_T
-				setTimeout(()=> {
+				window.setTimeout(()=> {
 					//This will start automatic polling session
 					this.getCurrentLiveBroadcast();
 					this.getLastestFollowers();
@@ -154,7 +154,7 @@ export default class YoutubeHelper {
 			Logger.instance.log("youtube", {log:"User authenticated. Schedule auth token refresh in "+Utils.formatDuration(refreshDelay)+"s", credits: this._creditsUsed, liveID:this._currentLiveIds});
 			//Refresh token 1min before it expires
 			clearTimeout(this._refreshTimeout);
-			this._refreshTimeout = setTimeout(()=> {
+			this._refreshTimeout = window.setTimeout(()=> {
 				this.refreshToken();
 			}, refreshDelay);
 			this.connected = true;
@@ -174,7 +174,7 @@ export default class YoutubeHelper {
 	/**
 	 * Get the current user info
 	 */
-	public async getUserInfo():Promise<void> {
+	public async getCurrentUserInfo():Promise<void> {
 		this._creditsUsed ++;
 		Logger.instance.log("youtube", {log:"Loading user infos...", credits: this._creditsUsed, liveID:this._currentLiveIds});
 		const url = new URL(this.API_PATH+"channels");
@@ -268,7 +268,7 @@ export default class YoutubeHelper {
 				this._currentLiveIds = [];
 				this.availableLiveBroadcasts = [];
 				//Search again in 1min
-				this._pollMessageTimeout = setTimeout(()=> this.getCurrentLiveBroadcast(), 5000);
+				this._pollMessageTimeout = window.setTimeout(()=> this.getCurrentLiveBroadcast(), 5000);
 			}
 			return json;
 		}else{
@@ -425,7 +425,7 @@ export default class YoutubeHelper {
 		}
 		this._lastMessageDelay = additionalDelay;
 
-		this._pollMessageTimeout = setTimeout(()=>this.getMessages(), maxDelay + additionalDelay*1000);
+		this._pollMessageTimeout = window.setTimeout(()=>this.getMessages(), maxDelay + additionalDelay*1000);
 	}
 
 	/**
@@ -467,7 +467,7 @@ export default class YoutubeHelper {
 				});
 				Logger.instance.log("youtube", {log:"Loaded latest followers: "+json.items.length, credits: this._creditsUsed, liveID:this._currentLiveIds});
 				//Check for new followers in a minute
-				this._pollFollowersTimeout = setTimeout(()=>this.getLastestFollowers(false), 60000);
+				this._pollFollowersTimeout = window.setTimeout(()=>this.getLastestFollowers(false), 60000);
 				return newFollowers;
 			}else {
 				//Something failed :(
@@ -500,7 +500,7 @@ export default class YoutubeHelper {
 		try {
 			const res = await fetch(url, {method:"GET", headers:this.headers});
 			if(res.status == 200) {
-				this._pollSubscribersTimeout = setTimeout(()=>this.getLastestFollowers(false), 60000 * 5);
+				this._pollSubscribersTimeout = window.setTimeout(()=>this.getLastestFollowers(false), 60000 * 5);
 				//TODO
 				return [];
 			}else {
@@ -706,6 +706,29 @@ export default class YoutubeHelper {
 		return false;
 	}
 
+	public async getUserListInfo(ids:string[]):Promise<TwitchatDataTypes.TwitchatUser[]> {
+		let users:TwitchatDataTypes.TwitchatUser[] = [];
+		while(ids.length > 0) {
+			const url = new URL(this.API_PATH+"channels");
+			url.searchParams.append("part", "snippet,id");
+			//Load by chunks of 50 users max
+			ids.splice(0, 50).forEach(id => {
+				url.searchParams.append("id", id);
+			});
+
+			const res = await fetch(url, {method:"GET", headers:this.headers});
+			if(res.status >= 200 && res.status <= 204) {
+				const json = await res.json() as YoutubeChannelInfo;
+				json.items.forEach(ytUser => {
+					const user = StoreProxy.users.getUserFrom("youtube", this._userData?.id || ytUser.id, ytUser.id, ytUser.snippet.title, ytUser.snippet.title, undefined, false, false, false, false);
+					user.avatarPath = ytUser.snippet.thumbnails.default.url || ytUser.snippet.thumbnails.medium.url;
+					users.push(user);
+				});
+			}
+		}
+		return users;
+	}
+
 
 
 	/*******************
@@ -742,7 +765,7 @@ export default class YoutubeHelper {
 			const refreshDelay = token.expiry_date - Date.now() - 60000;
 			Logger.instance.log("youtube", {log:"Auth token refreshed successfully. Schedule next refresh in "+Utils.formatDuration(refreshDelay)+"s", credits: this._creditsUsed, liveID:this._currentLiveIds});
 			//Refresh token 1min before it expires
-			this._refreshTimeout = setTimeout(()=> {
+			this._refreshTimeout = window.setTimeout(()=> {
 				this.refreshToken();
 			}, refreshDelay);
 			this.connected = true;
@@ -788,7 +811,7 @@ export default class YoutubeHelper {
 	 */
 	private async loadEmotesAndUser():Promise<void> {
 		if(Object.keys(this._emotes).length == 0) {
-			await this.getUserInfo();
+			await this.getCurrentUserInfo();
 			const emotesQuery = await fetch(StoreProxy.asset("youtube/emote_list.json"));
 			const json = await emotesQuery.json();
 			this._emotes = json;
@@ -959,7 +982,7 @@ export default class YoutubeHelper {
 
 				this._giftBombs[m.id] = data;
 
-				setTimeout(() => {
+				window.setTimeout(() => {
 					StoreProxy.chat.addMessage(data);
 				}, 1000);
 

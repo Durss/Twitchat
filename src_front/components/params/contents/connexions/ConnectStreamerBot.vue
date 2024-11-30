@@ -1,0 +1,139 @@
+<template>
+	<div class="connectstreamerbot parameterContent">
+		<Icon name="streamerbot" alt="streamerbot icon" class="icon" />
+
+		<div class="head">
+			<i18n-t scope="global" tag="span" keypath="streamerbot.header">
+				<template #LINK>
+					<a href="https://streamer.bot/" target="_blank"><Icon name="newtab" />Streamer.bot</a>
+				</template>
+			</i18n-t>
+			<div class="card-item secondary infos">
+				<span>
+					<Icon name="info" />
+					<span>{{$t("streamerbot.instructions")}}</span>
+				</span>
+				<TTButton class="installBt"
+					href="https://streamer.bot"
+					type="link"
+					icon="newtab"
+					target="_blank"
+					light secondary>{{ $t("streamerbot.install") }}</TTButton>
+			</div>
+		</div>
+
+		<div class="content">
+			<form class="card-item" v-if="!$store.streamerbot.connected" @submit.prevent="connect()">
+				<ParamItem noBackground :paramData="param_ip" v-model="$store.streamerbot.ip" autofocus/>
+				<ParamItem noBackground :paramData="param_port" v-model="$store.streamerbot.port"/>
+				<ParamItem noBackground :paramData="param_pass" v-model="$store.streamerbot.password"/>
+
+				<div class="ctas">
+					<TTButton type="reset" alert
+						@click="disconnect()"
+						:loading="connecting"
+						:disabled="!canConnect">{{ $t('global.clear') }}</TTButton>
+					<TTButton type="submit"
+						:loading="connecting"
+						:disabled="!canConnect">{{ $t('global.connect') }}</TTButton>
+				</div>
+			</form>
+			<div class="card-item alert error" v-if="error" @click="error=false">{{$t("streamerbot.connect_error")}}</div>
+	
+			<template v-if="$store.streamerbot.connected">
+				<div class="card-item primary" v-if="showSuccess">{{ $t("connexions.triggerSocket.success") }}</div>
+
+				<div class="card-item infos">
+					<div><strong>{{ $t(param_ip.labelKey!) }}</strong>: {{$store.streamerbot.ip}}</div>
+					<div><strong>{{ $t(param_port.labelKey!) }}</strong>: {{$store.streamerbot.port}}</div>
+				</div>
+	
+				<TTButton class="connectBt" alert @click="disconnect()">{{ $t('global.disconnect') }}</TTButton>
+			</template>
+		</div>
+
+	</div>
+</template>
+
+<script lang="ts">
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import ParamItem from '../../ParamItem.vue';
+import TTButton from '@/components/TTButton.vue';
+
+@Component({
+	components:{
+		TTButton,
+		ParamItem,
+	},
+	emits:[],
+})
+class ConnectStreamerBot extends Vue {
+
+	public error = false;
+	public showSuccess = false;
+	public connecting = false;
+
+	public param_ip:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"streamerbot.ip", maxLength:100};
+	public param_port:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", labelKey:"streamerbot.port", min:0, max:65535};
+	public param_pass:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"streamerbot.pass", maxLength:100, isPrivate:true};
+		
+	public get canConnect():boolean {
+		return this.param_ip.value.length >= 7;// && this.param_port.value > 0;
+	}
+
+	public beforeMount():void {
+		
+	}
+
+	public async connect():Promise<void> {
+		this.error = false;
+		this.connecting = true;
+		const res = await this.$store.streamerbot.connect();
+		this.error = !res;
+		this.connecting = false;
+	}
+
+	public disconnect():void {
+		this.$store.streamerbot.disconnect();
+	}
+}
+export default toNative(ConnectStreamerBot);
+</script>
+
+<style scoped lang="less">
+.connectstreamerbot{
+	.content {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1em;
+	
+		form {
+			display: flex;
+			flex-direction: column;
+			gap:.5em;
+		}
+		.ctas {
+			gap: 1em;
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+		}
+
+		.error {
+			cursor: pointer;
+			white-space: pre-line;
+			text-align: center;
+		}
+	}
+
+	.infos {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+	
+}
+</style>

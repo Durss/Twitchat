@@ -1,5 +1,6 @@
 <template>
-	<div :class="classes" @contextmenu="onContextMenu($event, messageData, $el)">
+	<div :class="classes"
+	@contextmenu="onContextMenu($event, messageData, $el)">
 		<div class="fader" ref="fader" v-if="messageData.pinned"></div>
 		<div class="fill" ref="fill" v-if="messageData.pinned"></div>
 		
@@ -58,6 +59,10 @@ class ChatBits extends AbstractChatMessage {
 		return res;
 	}
 
+	public get iconColor():string{
+		return this.$store.common.theme == "dark" ? "#5cffbe" : "#00a865";
+	}
+
 	public get messages():TwitchatDataTypes.MessageCheerData[] {
 		let res:TwitchatDataTypes.MessageCheerData[] =  [];
 		if(this.messageData.message_chunks && this.messageData.message_chunks.length > 0) res.push(this.messageData);
@@ -100,7 +105,7 @@ class ChatBits extends AbstractChatMessage {
 		const remainingDuration = Math.max(0, duration - (Date.now() - this.messageData.date)/1000);
 		fill.style.transition = "transform "+remainingDuration+"s linear";
 		fill.style.transform = "scaleX(100%)";
-		setTimeout(()=> {
+		window.setTimeout(()=> {
 			fill.style.transform = "scaleX(0)";
 		},100);
 	}
@@ -115,7 +120,7 @@ export default toNative(ChatBits);
 	background-position: 100% center;
 	overflow: hidden;
 	&>.icon {
-		color: #5cffbe;
+		color: v-bind(iconColor);
 	}
 
 	&.pinned {

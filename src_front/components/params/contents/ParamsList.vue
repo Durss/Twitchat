@@ -228,7 +228,7 @@ class ParamsList extends Vue implements IParameterContent {
 	private startSequentialBuild():void {
 		this.buildIndex = this.buildBatch;
 		clearInterval(this.buildInterval);
-		this.buildInterval = setInterval(()=> {
+		this.buildInterval = window.setInterval(()=> {
 			this.buildIndex ++;
 			if(this.buildIndex >= Object.keys(this.params).length) {
 				clearInterval(this.buildInterval);
@@ -242,10 +242,10 @@ class ParamsList extends Vue implements IParameterContent {
 							this.highlightId = param as string;
 							const holder = holders[0];
 							if(holder) {
-								const interval = setInterval(()=>{
+								const interval = window.setInterval(()=>{
 									holder.scrollIntoView();
 								},30);
-								setTimeout(() => {
+								window.setTimeout(() => {
 									clearInterval(interval);
 								}, 1000);
 							}

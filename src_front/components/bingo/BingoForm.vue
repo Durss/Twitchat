@@ -104,6 +104,7 @@ class BingoForm extends AbstractSidePanel {
 			guessNumber: this.mode == "num",
 			guessEmote: this.mode == "emote",
 			guessCustom: this.mode == "custom",
+			genericValue: "",
 			min: this.minValue.value,
 			max: this.maxValue.value,
 			customValue: this.customValue.value,

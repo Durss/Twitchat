@@ -81,7 +81,7 @@ class HeatDebugPopout extends Vue {
 			py:event.clientY,
 			color:event.altKey || event.ctrlKey || event.shiftKey? "#12c7d0" : "#e55a37",
 		});
-		setTimeout(()=>{
+		window.setTimeout(()=>{
 			this.clicks.shift();
 		}, 500)
 		px = px/bounds.width
@@ -127,7 +127,7 @@ class HeatDebugPopout extends Vue {
 		clearInterval(this.debugInterval);
 		if(e.key.toUpperCase() == "D" && e.ctrlKey && e.altKey) {
 			const bounds = (this.$refs.area as HTMLDivElement).getBoundingClientRect();
-			this.debugInterval = setInterval(()=>{
+			this.debugInterval = window.setInterval(()=>{
 				this.clearOBSCache();
 				this.onClickArea(new MouseEvent("click", {
 					clientX:bounds.left,
@@ -149,7 +149,7 @@ class HeatDebugPopout extends Vue {
 			area.style.backgroundImage = "url("+image+")";
 		}
 
-		setTimeout(()=>this.refreshImage(), 60);
+		window.setTimeout(()=>this.refreshImage(), 60);
 	}
 }
 interface ClickData {

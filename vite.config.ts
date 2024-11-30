@@ -74,12 +74,12 @@ export default defineConfig({
 	optimizeDeps: {
 		// exclude: ['tmi.js'],
 		esbuildOptions: {
-			target: 'es2015'
+			target: 'es2020'
 		}
 	},
 
 	build: {
-		target: 'es2015',
+		target: 'es2020',
 		sourcemap: true,
 
 		rollupOptions: {

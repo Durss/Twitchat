@@ -24,7 +24,7 @@ export default class AbstractTriggerActionEntry extends Vue {
 		//it happens.
 		watch(()=>this.triggerData.actions, (a, b)=> {
 			clearTimeout(updateDebounce);
-			updateDebounce = setTimeout(()=> {
+			updateDebounce = window.setTimeout(()=> {
 				this.updatePlaceholderList();
 			}, 100);
 		}, {deep:true});
@@ -74,7 +74,7 @@ export default class AbstractTriggerActionEntry extends Vue {
 			&& (a.condition !== undefined || this.action.condition === false)
 			&& (a.condition === false || this.action.condition !== undefined)) continue;
 			//If its anything but a "random" or "http" action, skip it (only these ones create custom placeholders for now)
-			if(a.type != "random" && a.type != "http") continue;
+			if(a.type != "random" && a.type != "http" && a.type != "raffle") continue;
 
 			if(a.type == "random"){
 				//If it's not a list or number random value mode, ignore it (onlye these have a custom placeholder)
@@ -156,7 +156,21 @@ export default class AbstractTriggerActionEntry extends Vue {
 						descReplacedValues:{NAME:"{"+a.outputPlaceholder.toUpperCase()+"}"},
 					});
 				}
+			}else
+			
+			if(a.type == "raffle") {
+				if(a.raffleData.triggerWaitForWinner) {
+					placeholdersList.push({
+						tag:"RAFFLE_WINNER_ENTRY",
+						pointer:"",
+						isUserID:false,
+						customTag:true,
+						numberParsable:false,
+						descKey:'triggers.raffle_placeholder',
+						example:"My raffle entry"
+					});
 				}
+			}
 		}
 
 		const placeholderIds:string[] = placeholdersList.map(v=>v.tag.toLowerCase()).sort();

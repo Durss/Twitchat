@@ -51,7 +51,7 @@ import TTButton from '../TTButton.vue';
 	components:{
 		TTButton,
 	},
-	emits:["complete"],
+	emits:["transferDone"],
 })
 class RewardListTransferForm extends Vue {
 
@@ -89,7 +89,7 @@ class RewardListTransferForm extends Vue {
 			this.error = this.$t("error.rewards.create_unknown");
 		}else{
 			this.recreated = true;
-			// this.$emit("complete");
+			this.$emit("transferDone");
 		}
 		this.tranfering = false;
 	}

@@ -1,7 +1,7 @@
 <template>
 	<div class="buttonnotification" @click="onClick($event)" v-newflag="newflag">
 		<Icon :name="icon" class="icon" v-if="icon" />
-		<slot></slot>
+		<span class="label" v-if="$slots.default != undefined"><slot></slot></span>
 		<span v-if="count > 0" class="count">{{ count }}</span>
 	</div>
 </template>
@@ -36,8 +36,8 @@ export default toNative(ButtonNotification);
 
 <style scoped lang="less">
 .buttonnotification{
-	width: 2em;
-	height: 2em;
+	min-width: 2em;
+	min-height: 2em;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -59,8 +59,8 @@ export default toNative(ButtonNotification);
 		&:before {
 			//Offset "new flag" for better readability
 			margin-left: -5px;
-		width: 7px;
-		height: 7px;
+			width: 7px;
+			height: 7px;
 		}
 	}
 
@@ -74,12 +74,22 @@ export default toNative(ButtonNotification);
 		top: 0;
 		right: 0;
 		transform: translate(20%, -60%);
-		border-radius: 1em;
-		font-size: 12px;
-		padding: .25em .5em;
-		font-family: var(--font-roboto);
-		color: var(--color-light);
-		background-color: var(--color-secondary);
+			border-radius: 1em;
+			font-size: 12px;
+			padding: .25em .5em;
+			font-family: var(--font-roboto);
+			color: var(--color-light);
+			background-color: var(--color-secondary);
+	}
+
+	.label {
+		margin-left: 2px;
+	}
+	&:has(.icon + .label){
+		.label {
+			font-size: .8em;
+			font-weight: b;
+		}
 	}
 }
 @media only screen and (max-width: 600px) {

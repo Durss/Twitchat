@@ -8,11 +8,13 @@ import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _Getters
 import type { UnwrapRef } from 'vue';
 import type { IKofiActions, IKofiGetters, IKofiState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import DataStore from '../DataStore';
 
 
 export const storeKofi = defineStore('kofi', {
 	state: () => ({
 		webhooktoken:"",
+		webhooks:[],
 		connected:false,
 	} as IKofiState),
 
@@ -28,6 +30,12 @@ export const storeKofi = defineStore('kofi', {
 
 	actions: {
 		async populateData():Promise<void> {
+			const json = DataStore.get(DataStore.KOFI_CONFIGS);
+			if(json) {
+				const data = JSON.parse(json) as IStoreData;
+				this.webhooks = data.webhooks || []
+			}
+
 			ApiHelper.call("kofi/token", "GET", undefined, false).then(result =>{
 				if(result.json.token) {
 					this.webhooktoken = result.json.token;
@@ -37,6 +45,11 @@ export const storeKofi = defineStore('kofi', {
 
 			SSEHelper.instance.addEventListener(SSEEvent.KO_FI_EVENT, (event) => {
 				this.onEvent(event.data);
+			});
+
+			SSEHelper.instance.addEventListener(SSEEvent.KO_FI_DELETE_WEBHOOK, (webhook) => {
+				this.webhooks = this.webhooks.filter(w=>w != webhook.data);
+				this.saveConfigs();
 			});
 		},
 
@@ -163,7 +176,15 @@ export const storeKofi = defineStore('kofi', {
 					break;
 				}
 			}
-		}
+		},
+		
+		saveConfigs():void {
+			this.webhooks = this.webhooks.splice(0, 5)//Limit to 5 webhooks
+			const data:IStoreData = {
+				webhooks:this.webhooks,
+			};
+			DataStore.set(DataStore.KOFI_CONFIGS, data);
+		},
 	
 	} as IKofiActions
 	& ThisType<IKofiActions
@@ -176,6 +197,9 @@ export const storeKofi = defineStore('kofi', {
 
 if(import.meta.hot) {
 	import.meta.hot.accept(acceptHMRUpdate(storeKofi, import.meta.hot))
+}
+interface IStoreData {
+	webhooks:string[];
 }
 
 export interface KofiEventData {

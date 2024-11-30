@@ -111,7 +111,7 @@ class SponsorTable extends Vue {
 		//depending on the context the holder's height my not be ready.
 		//try again until it is
 		if(boundsList.height == 0) {
-			setTimeout(()=>this.expandRows(rowIndex, animate), 30);
+			window.setTimeout(()=>this.expandRows(rowIndex, animate), 30);
 			return;
 		}
 		const duration = animate?Math.min(1, Math.abs(added)/400):0;

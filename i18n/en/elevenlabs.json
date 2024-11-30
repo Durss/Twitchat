@@ -1,0 +1,11 @@
+{
+	"elevenlabs": {
+		"header":"Connect Twitchat with {LINK} and use it to read messages with realistic voices",
+		"instructions":"You need to create an account on ElevenLabs and request an API Key",
+		"install":"Create API Key",
+		"invalid_api_key": "Invalid API key",
+		"apiKey":"API Key",
+		"credits_usage":"Remaining credits: {REMAINING}/{LIMIT}",
+		"usage":"You can now use ElevenLabs to read messages on the {TTS} section or read anything you want from the {TRIGGERS} thanks to the ElevenLabs action."
+	}
+}

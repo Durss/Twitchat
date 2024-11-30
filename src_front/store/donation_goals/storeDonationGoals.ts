@@ -110,20 +110,29 @@ export const storeDonationGoals = defineStore('donationGoals', {
 				}
 	
 				if(overlay.dataSource == "tiltify") {
-					if(!StoreProxy.tiltify.campaigns) continue;
-					const campaign = StoreProxy.tiltify.campaigns.find(v=>v.id == overlay.campaignId);
+					if(!StoreProxy.tiltify.campaignList) continue;
+					const campaign = StoreProxy.tiltify.campaignList.find(v=>v.id == overlay.campaignId);
 					if(!campaign) continue;
 	
 					goal = parseFloat(campaign.goal.value);
 					raisedTotal = parseFloat(campaign.total_amount_raised.value);
 					raisedPersonnal = parseFloat(campaign.amount_raised.value);
 				}
+	
+				if(overlay.dataSource == "twitch_charity") {
+					const campaign = StoreProxy.twitchCharity.currentCharity;
+					if(!campaign) continue;
+	
+					goal = campaign.target_amount.value/Math.pow(10, campaign.target_amount.decimal_places);
+					raisedTotal = 
+					raisedPersonnal = campaign.current_amount.value/Math.pow(10, campaign.current_amount.decimal_places);
+				}
 
 				if(overlay.dataSource == "counter") {
 					const counter = StoreProxy.counters.counterList.find(v=>v.id == overlay.counterId);
 					if(!counter) continue;
 					goal = counter.max || 0;
-					raisedTotal = counter.value;
+					raisedTotal = 
 					raisedPersonnal = counter.value;
 				}
 
@@ -131,7 +140,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 					const subs = StoreProxy.labels.getLabelByKey("SUB_COUNT") as number || 0;
 					if(isNaN(subs)) continue;
 					goal = subs;
-					raisedTotal = subs;
+					raisedTotal = 
 					raisedPersonnal = subs;
 				}
 
@@ -139,7 +148,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 					const followers = StoreProxy.labels.getLabelByKey("FOLLOWER_COUNT") as number || 0;
 					if(isNaN(followers)) continue;
 					goal = followers;
-					raisedTotal = followers;
+					raisedTotal = 
 					raisedPersonnal = followers;
 				}
 
@@ -148,27 +157,11 @@ export const storeDonationGoals = defineStore('donationGoals', {
 		},
 
 		onSourceValueUpdate(platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"], sourceId?:string):void {
-			if(platform === "tiltify" || platform === "streamlabs_charity") {
-				const login = StoreProxy.auth.twitch.user.login.toLowerCase();
-				if(login === "loxetv"
-				|| login === "m0uftchup"
-				|| login === "chezmarino"
-				|| login === "shakawah") {
-					ApiHelper.call("log", "POST", {cat:"random", log:{
-							type:"goal_update", login, platform, sourceId, overlays:(this.overlayList || []).map(v=>{
-								return {
-									source:v.dataSource,
-									campaign:v.campaignId,
-								};
-							})
-						}
-					});
-				}
-			}
 			for (let i = 0; i < this.overlayList.length; i++) {
 				const overlay = this.overlayList[i];
 				if(overlay.dataSource == platform) {
 					if( (platform == "streamlabs_charity" && overlay.campaignId == StoreProxy.streamlabs.charityTeam?.id)
+					|| platform == "twitch_charity"
 					|| overlay.campaignId == sourceId
 					|| overlay.counterId == sourceId
 					|| !sourceId) {

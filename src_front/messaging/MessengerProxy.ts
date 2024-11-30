@@ -55,7 +55,7 @@ export default class MessengerProxy {
 	 * @param channelId
 	 * @return if the message has been sent properly (chat field is cleared if this returns true)
 	 */
-	public async sendMessage(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string, replyTo?:TwitchatDataTypes.MessageChatData, noConfirm:boolean = false):Promise<boolean> {
+	public async sendMessage(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string, replyTo?:TwitchatDataTypes.MessageChatData, noConfirm:boolean = false, sendAsBot:boolean = true):Promise<boolean> {
 		if(replyTo) {
 			targetPlatforms = [replyTo.platform!];
 			channelId = replyTo.channel_id;
@@ -69,7 +69,7 @@ export default class MessengerProxy {
 		// console.log("          to:", channelId);
 		// console.log("          on:", targetPlatforms);
 		if(!hasPlatform || targetPlatforms!.indexOf("twitch")>-1) {
-			if(await TwitchMessengerClient.instance.sendMessage(channelId, message, replyTo, noConfirm) === false) {
+			if(await TwitchMessengerClient.instance.sendMessage(channelId, message, replyTo, noConfirm, sendAsBot) === false) {
 				return false;
 			}
 		}
@@ -150,7 +150,7 @@ export default class MessengerProxy {
 			}
 
 			clearTimeout(this.joinSpoolTimeout);
-			this.joinSpoolTimeout = setTimeout(()=> {
+			this.joinSpoolTimeout = window.setTimeout(()=> {
 				const d = e.data! as TwitchatDataTypes.MessageJoinData;
 
 				//Split join events by channels
@@ -182,7 +182,7 @@ export default class MessengerProxy {
 			this.leaveSpool.push({user:d.users[0], channelId:d.channel_id});
 
 			clearTimeout(this.leaveSpoolTimeout);
-			this.leaveSpoolTimeout = setTimeout(()=> {
+			this.leaveSpoolTimeout = window.setTimeout(()=> {
 				try {
 					const d = e.data! as TwitchatDataTypes.MessageJoinData;
 
@@ -337,12 +337,7 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(isAdmin && cmd == "/userlist") {
-			StoreProxy.params.openModal("TTuserList")
-			return true;
-		}else
-
-		if(isAdmin && cmd == "/logmessages") {
+		if(cmd == "/__logmessages__") {
 			console.log(StoreProxy.chat.messages)
 			return true;
 		}else
@@ -455,7 +450,7 @@ export default class MessengerProxy {
 					const channelRef = await StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[1]);
 					channelId = channelRef.id;
 				}
-				const user = StoreProxy.users.getUserFrom("twitch", channelId, undefined, username);
+				const user = await StoreProxy.users.getUserFrom("twitch", channelId, undefined, username);
 				StoreProxy.users.openUserCard( user, channelId, "twitch");
 			}
 			return true;
@@ -494,7 +489,7 @@ export default class MessengerProxy {
 					}
 					StoreProxy.chat.addMessage(notice);
 				}else{
-					const user = StoreProxy.users.getUserFrom("twitch", channelId, res[0].id, res[0].login, res[0].display_name);
+					const user = StoreProxy.users.getUserFrom("twitch", channelId, res[0].id, res[0].login, res[0].display_name, undefined, undefined, false, undefined, false);
 					StoreProxy.tts.ttsReadUser(user, cmd == "/tts");
 				}
 			}catch(error) {}
@@ -536,6 +531,11 @@ export default class MessengerProxy {
 			return true;
 		}else
 
+		if(isAdmin && cmd == "/userlist") {
+			StoreProxy.params.openModal("TTuserList")
+			return true;
+		}else
+
 		if(cmd == "/streamsummary") {
 			StoreProxy.params.openModal("streamSummary");
 			return true;
@@ -565,7 +565,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/setstreamcategory") {
-			const categories = await TwitchUtils.searchCategory(params[0]);
+			const categories = await TwitchUtils.searchCategory(params.join(" "));
 			if(categories.length > 0) {
 				await TwitchUtils.setStreamInfos(channelId, undefined, categories[0].id);
 			}
@@ -587,6 +587,7 @@ export default class MessengerProxy {
 				guessNumber: false,
 				guessEmote: false,
 				guessCustom: false,
+				genericValue: "",
 				min: 0,
 				max: 100,
 			};

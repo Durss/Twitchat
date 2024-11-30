@@ -73,7 +73,7 @@ export const storeStream = defineStore('stream', {
 					this.autoconnectChans.forEach(async chan => {
 						StoreProxy.users.getUserFrom(chan.platform, chan.id, chan.id, undefined, undefined, (user)=>{
 							this.connectToExtraChan(user);
-						})
+						}, undefined, undefined, undefined, false);
 					})
 				}
 			}catch(error) {}
@@ -88,7 +88,7 @@ export const storeStream = defineStore('stream', {
 				live:false,
 				viewers:0,
 				lastSoDoneDate:0,
-				user:StoreProxy.users.getUserFrom(platform, channelId, channelId),
+				user:StoreProxy.users.getUserFrom(platform, channelId, channelId, undefined, undefined, undefined, undefined, false, undefined, false),
 			};
 
 			if(platform == "twitch") {
@@ -176,9 +176,14 @@ export const storeStream = defineStore('stream', {
 					StoreProxy.params.donationReminderEnabled = false;
 					StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER);
 				}
+				//Send donation reminder if requested
+				if(StoreProxy.params.updatesReminderEnabled) {
+					StoreProxy.params.donationReminderEnabled = false;
+					StoreProxy.params.openModal("updates");
+				}
 				//Cut OBS stream if requested
 				if(StoreProxy.params.features.stopStreamOnRaid.value === true) {
-					setTimeout(() => {
+					window.setTimeout(() => {
 						OBSWebsocket.instance.stopStreaming();
 					}, 2000);
 				}
@@ -249,7 +254,7 @@ export const storeStream = defineStore('stream', {
 					TwitchUtils.setRoomSettings(uid, {emotesOnly:false});
 				}
 				//Give it a minute to twitch after starting stream to schedule ads
-				setTimeout(()=> {
+				window.setTimeout(()=> {
 					TwitchUtils.getAdSchedule();
 				}, 60000);
 			}
@@ -338,7 +343,7 @@ export const storeStream = defineStore('stream', {
 					log:"Schedule approaching ad trigger in "+((remainingTime-ms)/1000)+"s"
 				});
 				//Schedule message
-				const to = setTimeout(()=>{
+				const to = window.setTimeout(()=>{
 					const message: TwitchatDataTypes.MessageAdBreakApproachingData = {
 						platform:"twitch",
 						id:Utils.getUUID(),
@@ -357,14 +362,14 @@ export const storeStream = defineStore('stream', {
 				commercialTimeouts[channelId].push(to);
 			});
 
-			//Force ad start a liuttle before the timer completes
+			//Force ad start a little before the timer completes
 			//This is a workaround Twitch not starting ad at the given date but only
 			//a few seconds to a minute or more after that.
 			if(remainingTime > 0) {
 				Logger.instance.log("ads", {
 					log:"Wait for "+(remainingTime/1000)+"s (with 5s margin) before forcing an ad"
 				});
-				const to = setTimeout(() => {
+				const to = window.setTimeout(() => {
 					Logger.instance.log("ads", {
 						log:"Approaching timer complete in 5s. Start a "+(data.currentAdDuration_ms/1000)+"s ad"
 					});
@@ -394,7 +399,7 @@ export const storeStream = defineStore('stream', {
 
 			//Schedule ad break complete message
 			if(startDate + data.currentAdDuration_ms > Date.now()) {
-				const to = setTimeout(() => {
+				const to = window.setTimeout(() => {
 					const message:TwitchatDataTypes.MessageAdBreakCompleteData = {
 						type:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_COMPLETE,
 						id:Utils.getUUID(),
@@ -408,7 +413,7 @@ export const storeStream = defineStore('stream', {
 						log:"Trigger ad complete"
 					});
 					StoreProxy.chat.addMessage(message);
-					setTimeout(()=> {
+					window.setTimeout(()=> {
 						TwitchUtils.getAdSchedule();//get fresh new ad schedule data
 					}, 10000);
 				}, startDate + data.currentAdDuration_ms - Date.now());
@@ -458,6 +463,8 @@ export const storeStream = defineStore('stream', {
 		async getSummary(offset:number = 0, includeParams:boolean = false, simulate:boolean = false):Promise<TwitchatDataTypes.StreamSummaryData> {
 			const channelId = StoreProxy.auth.twitch.user.id;
 			const isPremium = StoreProxy.auth.isPremium;
+			const uid2TikTokShare:{[uid:string]:TwitchatDataTypes.StreamSummaryData["tiktokShares"][number]} = {};
+			const uid2TikTokLikes:{[uid:string]:TwitchatDataTypes.StreamSummaryData["tiktokLikes"][number]} = {};
 			let prevDate = 0;
 			const $tm = StoreProxy.i18n.tm;
 			const result:TwitchatDataTypes.StreamSummaryData = {
@@ -480,6 +487,10 @@ export const storeStream = defineStore('stream', {
 				powerups:[],
 				superChats:[],
 				superStickers:[],
+				tiktokGifts:[],
+				tiktokLikes:[],
+				tiktokShares:[],
+				patreonMembers:[],
 				labels:{
 					no_entry:$tm("overlay.credits.empty_slot"),
 					train:$tm("train.ending_credits"),
@@ -571,6 +582,10 @@ export const storeStream = defineStore('stream', {
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageShoutoutData>(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (message)=>{
 						message.received = true;
 					}, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageTikTokGiftData>(TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageTikTokGiftData>(TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageTikTokGiftData>(TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageTikTokGiftData>(TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB, undefined, false));
 				}
 
 				//Raid require API calls which are slowing down generation if we request many, only request a few
@@ -616,6 +631,7 @@ export const storeStream = defineStore('stream', {
 						login:user.displayNameOriginal,
 						tier:Utils.pickRand([1,2,3,"prime"]),
 						fromActiveSubs:true,
+						platform:"twitch",
 					};
 					if(i%3 == 0) {
 						result.subs.push(subData)
@@ -635,7 +651,7 @@ export const storeStream = defineStore('stream', {
 					const m = StoreProxy.chat.messages[i];
 					if(dateOffset && m.date < dateOffset) break;
 					//Ignore messages not from our own chan
-					if(m.channel_id != channelId) continue;
+					if(m.channel_id != channelId && m.platform != "tiktok") continue;
 
 					//If more than 4h past between the 2 messages, consider it's a different stream and stop there
 					if(!dateOffset && prevDate > 0 && prevDate - m.date > 4 * 60 * 60000) {
@@ -647,7 +663,7 @@ export const storeStream = defineStore('stream', {
 				}
 				
 
-				//Load all current subs
+				//Load all currently active subs from Twitch
 				const shouldLoadAllsubs = parameters && parameters.slots.filter(v=>v.slotType == "subs")
 										.findIndex(v=>v.enabled === true && v.showAllSubs === true) > -1;
 				const shouldLoadAllsubgifters = parameters && parameters.slots.filter(v=>v.slotType == "subs")
@@ -667,6 +683,7 @@ export const storeStream = defineStore('stream', {
 								login:sub.user_name,
 								tier:{1000:1, 2000:2, 3000:3, prime:"prime"}[sub.tier] as typeof result.subs[number]["tier"],
 								fromActiveSubs:true,
+								platform:"twitch",
 							};
 							result.subs.push(subData);
 							if(sub.is_gift){
@@ -721,23 +738,29 @@ export const storeStream = defineStore('stream', {
 
 				switch(m.type) {
 					case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
-						const sub:typeof result.subs[number] = {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier, subDuration:m.totalSubDuration || 1};
-						if(m.is_gift || m.is_giftUpgrade) result.subgifts.push( {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier, total:m.gift_count || 1} );
+						const sub:typeof result.subs[number] = {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier, subDuration:m.totalSubDuration || 1, platform:"twitch"};
+						if(m.is_gift || m.is_giftUpgrade) result.subgifts.push( {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier, total:m.gift_count || 1, platform:"tiktok"} );
 						else if(m.is_resub) result.resubs.push(sub);
 						else result.subs.push(sub);
 						break;
 					}
 
 					case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION: {
-						const sub:typeof result.subs[number] = {uid:m.user.id, login:m.user.displayNameOriginal, tier:1, subDuration:m.months || 1};
+						const sub:typeof result.subs[number] = {uid:m.user.id, login:m.user.displayNameOriginal, tier:1, subDuration:m.months || 1, platform:"youtube"};
 						if(m.is_resub) result.resubs.push(sub);
 						else result.subs.push(sub);
 						break;
 					}
 
 					case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBGIFT: {
-						const sub:typeof result.subgifts[number] = {uid:m.user.id, login:m.user.displayNameOriginal, tier:1, total:m.gift_count};
+						const sub:typeof result.subgifts[number] = {uid:m.user.id, login:m.user.displayNameOriginal, tier:1, total:m.gift_count, platform:"youtube"};
 						result.subgifts.push(sub);
+						break;
+					}
+
+					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB: {
+						const sub:typeof result.subs[number] = {uid:m.user.id, login:m.user.displayNameOriginal, tier:1, platform:"tiktok"};
+						result.subs.push(sub);
 						break;
 					}
 
@@ -946,8 +969,66 @@ export const storeStream = defineStore('stream', {
 						}
 						break;
 					}
+
+					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT: {
+						result.tiktokGifts.push( {uid:m.user.id, login:m.user.displayNameOriginal, count: m.count, amount: m.diamonds/m.count, imageUrl: m.image} );
+						break;
+					}
+
+					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE: {
+						let like = uid2TikTokLikes[m.user.id] || {uid:m.user.id, login:m.user.displayNameOriginal, count: 0};
+						uid2TikTokLikes[m.user.id] = like;
+						if(like.count == 0) {
+							result.tiktokLikes.push( like );
+						}
+						like.count += m.count;
+						break;
+					}
+
+					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE: {
+						let share = uid2TikTokShare[m.user.id] || {uid:m.user.id, login:m.user.displayNameOriginal, count: 0};
+						uid2TikTokShare[m.user.id] = share;
+						if(share.count == 0) {
+							result.tiktokShares.push( share );
+						}
+						share.count ++;
+						break;
+					}
+
+					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB: {
+						result.subs.push( {uid:m.user.id, login:m.user.displayNameOriginal, tier:1, subDuration:m.months, platform:"tiktok"} );
+						break;
+					}
 				}
 			}
+
+			const tiers = StoreProxy.patreon.tierList;
+			const valueMap = new Map<string, number>();
+			tiers.forEach(item => valueMap.set(item.id, item.attributes.amount_cents));
+
+			result.patreonMembers = StoreProxy.patreon.memberList.filter(v=>v.attributes.patron_status == "active_patron")
+			.map(v=> {
+				//Find entitled tier that has the highest amount value
+				let maxId: string | null = null;
+				let maxValue = -Infinity;
+				(v.relationships.currently_entitled_tiers.data || [{id:""}]).forEach(item => {
+					const value = valueMap.get(item.id);
+					if (value !== undefined && value > maxValue) {
+						maxValue = value;
+						maxId = item.id;
+					}
+				});
+
+				const entry:typeof result.patreonMembers[number]
+					= {
+						uid:v.id,
+						login:v.attributes.full_name,
+						months:v.relationships.pledge_history.data.filter(v=>/^(pledge_start|subscription):/.test(v.id)).length,
+						tier:maxId || "",
+						lifetimeAmount: v.attributes.lifetime_support_cents / 100,
+					};
+				return entry;
+			});
 
 			if(includeParams && parameters!=null) {
 				result.params = parameters;

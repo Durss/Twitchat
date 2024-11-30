@@ -28,7 +28,7 @@ import ParamItem from '../../ParamItem.vue';
 })
 class OBSScenes extends Vue {
 
-	public sceneParams:TwitchatDataTypes.ParameterData<string>[] = [];
+	public sceneParams:TwitchatDataTypes.ParameterData<string, unknown, unknown, {sceneIndex:number, sceneName:string}>[] = [];
 
 	public mounted():void {
 		watch(()=> OBSWebsocket.instance.connected, () => { 
@@ -39,7 +39,7 @@ class OBSScenes extends Vue {
 
 	public onSceneCommandUpdate():void {
 		const params = this.sceneParams
-		.map(v=> {return { scene:v.storage as {sceneIndex:number, sceneName:string}, command:v.value }})
+		.map(v=> {return { scene:v.storage!, command:v.value }})
 		.filter(v=> (v.command ?? "") != "");
 		this.$store.obs.setOBSSceneCommands(params);
 	}

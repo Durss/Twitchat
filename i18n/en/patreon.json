@@ -1,6 +1,6 @@
 {
 	"patreon": {
-		"header":"Get notified when you get new members on {LINK}",
+		"header":"Get notified when you get new members on {LINK} and show your active members in the ending credits overlay",
 		"linkBt":"Link Patreon",
 		"info":"{LINK} to enjoy Premium features.",
 		"info_link":"Support me monthly on Patreon",
@@ -12,6 +12,6 @@
 		"is_not_member":"You are not part of the donors on Patreon 😥",
 		"is_not_member_details":"You do not have access to Premium features.\r\nNote: It may take a few minutes for Patreon to process your payment.",
 		"api_down":"Patreon API is down.\nIt's not the first time, and probably not the last...\n\nIf you just subscribed on Patreon you may have issues being recognized as Premium until Patreon fixes their API sorry :(...",
-		"beta":"Feedback needed!\nPlease let me know if you have any issue with it."
+		"beta":"Feedback needed!\nPlease let me know if you have any issue with receiving patreon notifications."
 	}
 }

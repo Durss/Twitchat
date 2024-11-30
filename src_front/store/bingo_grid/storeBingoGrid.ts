@@ -88,7 +88,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				//Will be reset before the timeout expires if the overlay
 				//still exists
 				clearTimeout(overlayCheckInterval[id]);
-				overlayCheckInterval[id] = setTimeout(()=>{
+				overlayCheckInterval[id] = window.setTimeout(()=>{
 					this.availableOverlayList = this.availableOverlayList.filter(v => v.id != id);
 				}, 25000);
 			});
@@ -103,7 +103,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				//Ignore heat click if grid is disabled or heat interaction is disabled
 				if(!grid || !grid.enabled || !grid.heatClick) return;
 
-				const user = await StoreProxy.users.getUserFrom("twitch", data.click.channelId, data.click.uid, data.click.login);
+				const user = await StoreProxy.users.getUserFrom("twitch", data.click.channelId, data.click.uid, data.click.login, undefined, undefined, undefined, false, undefined, false);
 				
 				//Ignore banned users (but not timed out ones)
 				const chanInfo = user.channelInfo[StoreProxy.auth.twitch.user.id];
@@ -126,7 +126,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				if(!event.data) return;
 				if(event.data.count <= 0) return;
 				const channelId = StoreProxy.auth.twitch.user.id;
-				const user = await StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, event.data.uid, event.data.login, event.data.login);
+				const user = await StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, event.data.uid, event.data.login, event.data.login, undefined, undefined, false, undefined, false);
 				
 				//Ignore banned users (but not timed out ones)
 				const chanInfo = user.channelInfo[channelId];
@@ -193,7 +193,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 							})
 							//Stack bingos for 5s before announcing them on tchat to avoid spam
 							clearTimeout(debounceChatAnnounce);
-							debounceChatAnnounce = setTimeout(()=> {
+							debounceChatAnnounce = window.setTimeout(()=> {
 								//Dedupe entries, only keep the last registered ones for each user
 								//which should be the highest one
 								const userDone:{[uid:string]:boolean} = {};
@@ -372,7 +372,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			}
 			
 			clearTimeout(debounceShuffle);
-			debounceShuffle = setTimeout(() => {
+			debounceShuffle = window.setTimeout(() => {
 				this.saveData(id, undefined, false);
 				if(StoreProxy.auth.isPremium) {
 					ApiHelper.call("bingogrid/shuffle", "POST", {gridid:grid.id, grid, uid:StoreProxy.auth.twitch.user.id}, true, 2);
@@ -451,7 +451,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 
 		async saveData(gridId?:string, cellId?:string, broadcastToViewers:boolean = false):Promise<void> {
 			if(++saveCountPending != 20) clearTimeout(debounceSave);
-			debounceSave = setTimeout(() => {
+			debounceSave = window.setTimeout(() => {
 				saveCountPending = 0;
 				const grid = this.gridList.find(g => g.id === gridId);
 				if(gridId && grid) {
@@ -654,7 +654,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			if(cell.check != prevState) {
 				//Debounce avoids spamming viewers
 				clearTimeout(tickDebounce[gridId]);
-				tickDebounce[gridId] = setTimeout(() => {
+				tickDebounce[gridId] = window.setTimeout(() => {
 					const states:{[cellId:string]:boolean} = {};
 					grid.entries.forEach(v=> states[v.id] = v.check);
 					if(grid.additionalEntries) grid.additionalEntries.forEach(v=> states[v.id] = v.check);

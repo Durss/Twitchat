@@ -70,7 +70,7 @@ export const storeCounters = defineStore('counters', {
 		broadcastCounterValue(id:string):void {
 			clearTimeout(broadcastTimeoutDebounce[id]);
 			//Debounce broadcast to avoid spamming when updating lots of users at once
-			broadcastTimeoutDebounce[id] = setTimeout(()=>{
+			broadcastTimeoutDebounce[id] = window.setTimeout(()=>{
 				let counter = this.counterList.find(v=> v.id == id);
 				if(!counter) return;
 				
@@ -110,7 +110,7 @@ export const storeCounters = defineStore('counters', {
 									counter!.leaderboard!.push({
 										avatar:res.avatarPath!,
 										login:res.displayNameOriginal,
-										points:v.value
+										points:v.value.value
 									})
 								}
 								//All users ready, broadcast change
@@ -123,7 +123,7 @@ export const storeCounters = defineStore('counters', {
 									})
 									PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter} as unknown as JsonObject);
 								}
-							});
+							}, undefined, undefined, undefined, false);
 						})
 					}
 				}else{
@@ -163,9 +163,10 @@ export const storeCounters = defineStore('counters', {
 				if(!c.users) c.users = {};
 				if(user) {
 					if(user.temporary || user.errored) return 0;
-					counterValue = c.users[user.id] || 0;
-				}else if(userId) {
-					counterValue = c.users[userId] || 0;
+					if(!c.users[user.id]) c.users[user.id] = {login:user.login, value:0, platform:user.platform};
+					counterValue = c.users[user.id].value || 0;
+				}else if(userId && c.users[userId]) {
+					counterValue = c.users[userId].value || 0;
 				}
 			}
 
@@ -207,7 +208,11 @@ export const storeCounters = defineStore('counters', {
 			
 			if(c.perUser) {
 				const uid = (user? user.id : userId) || "";
-				c.users![uid] = parseFloat(counterValue.toString());//Forcing parsing as float. For some unsolved reason there was very few cases where value became a string
+				c.users![uid] = {
+					login: user?.login || c.users![uid].login,
+					platform: c.users![uid]?.platform || user?.platform || "twitch",
+					value:parseFloat(counterValue.toString())//Forcing parsing as float. For some unsolved reason there was very few cases where value became a string
+				}
 			}else{
 				c.value = parseFloat(counterValue.toString());//Forcing parsing as float. For some unsolved reason there was very few cases where value became a string
 			}

@@ -95,7 +95,7 @@
 
 								<template v-if="element.slotType == 'subs'">
 									<div class="card-item tierList" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_4, id:'endingcredits_slot_sub_tiers'}">
-										<ParamItem :paramData="param_showSubsPrime[element.id]"	v-model="element.showSubsPrime" noBackground />
+										<ParamItem :paramData="param_showSubsPrime[element.id]"	v-model="element.showSubsPrime" noBackground v-if="param_showAllActiveSubs[element.id].value != true && param_showAllActiveSubgifters[element.id].value != true" />
 										<ParamItem :paramData="param_showSubsT1[element.id]"	v-model="element.showSubsT1" noBackground />
 										<ParamItem :paramData="param_showSubsT2[element.id]"	v-model="element.showSubsT2" noBackground />
 										<ParamItem :paramData="param_showSubsT3[element.id]"	v-model="element.showSubsT3" noBackground />
@@ -107,6 +107,7 @@
 										<ParamItem :paramData="param_showResubs[element.id]"			v-model="element.showResubs" />
 										<ParamItem :paramData="param_showSubgifts[element.id]"			v-model="element.showSubgifts" />
 										<ParamItem :paramData="param_showSubMonths[element.id]"			v-model="element.showSubMonths" />
+										<ParamItem :paramData="param_showSubsTiktok[element.id]"		v-model="element.showSubsTiktok" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'endingcredits_slot_tiktokSub'}" />
 										<ParamItem :paramData="param_showSubsYoutube[element.id]"		v-model="element.showSubsYoutube" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'endingcredits_slot_ytSub'}" />
 										<ParamItem :paramData="param_showSubgiftsYoutube[element.id]"	v-model="element.showSubgiftsYoutube" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'endingcredits_slot_ytSubgift'}" />
 										<ParamItem :paramData="param_showBadges[element.id]"			v-model="element.showBadges" />
@@ -140,10 +141,21 @@
 									<ParamItem :paramData="param_sortByName[element.id]"				v-model="element.sortByNames" noPremiumLock />
 									<ParamItem :paramData="param_sortByAmounts[element.id]"				v-model="element.sortByAmounts" noPremiumLock />
 								</template>
-
+								
 								<template v-if="element.slotType == 'merch'">
 									<ParamItem :paramData="param_showMerchKofi[element.id]"				v-model="element.showMerchKofi" noPremiumLock />
 									<ParamItem :paramData="param_showMerchStreamlabs[element.id]"		v-model="element.showMerchStreamlabs" noPremiumLock />
+								</template>
+								
+								<template v-if="element.slotType == 'patreonMembers'">
+									<ParamItem :paramData="param_anonLastNames[element.id]"				v-model="element.anonLastNames" noPremiumLock />
+									<ParamItem :paramData="param_patreonTiers[element.id]"				v-model="element.patreonTiers" noPremiumLock />
+									<ParamItem :paramData="param_sortByName[element.id]"				v-model="element.sortByNames" noPremiumLock />
+									<ParamItem :paramData="param_sortByAmounts[element.id]"				v-model="element.sortByAmounts" noPremiumLock />
+									<ParamItem :paramData="param_sortByTotalAmount[element.id]"			v-model="element.sortByTotalAmounts" noPremiumLock />
+									<ParamItem :paramData="param_showTotalAmount[element.id]"			v-model="element.showTotalAmounts" noPremiumLock>
+										<ParamItem :paramData="param_currency[element.id]"				v-model="element.currency" :childLevel="1" noBackground noPremiumLock />
+									</ParamItem>
 								</template>
 
 								<template v-if="element.slotType == 'powerups'">
@@ -152,7 +164,11 @@
 									<ParamItem :paramData="param_showPuCeleb[element.id]"				v-model="element.showPuCeleb" disabled v-tooltip="$t('overlay.credits.param_pu_celeb_tt')" />
 								</template>
 
-								<template v-if="element.slotType == 'ytSuperSticker' || element.slotType == 'ytSuperchat'">
+								<template v-if="element.slotType == 'ytSuperSticker'
+								|| element.slotType == 'ytSuperchat'
+								|| element.slotType == 'tiktokGifts'
+								|| element.slotType == 'tiktokShares'
+								|| element.slotType == 'tiktokLikes'">
 									<ParamItem :paramData="param_sortByAmounts[element.id]"	v-model="element.sortByAmounts" />
 									<ParamItem :paramData="param_sortByName[element.id]"	v-model="element.sortByNames" />
 								</template>
@@ -277,6 +293,8 @@ import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
+import type { IPatreonTier } from '@/store/patreon/storePatreon';
+import StoreProxy from '@/store/StoreProxy';
 
 @Component({
 	components:{
@@ -330,6 +348,7 @@ class OverlayParamsCredits extends Vue {
 	public param_showSubsT3:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showAllActiveSubgifters:{[key:string]:TwitchatDataTypes.ParameterData<boolean, undefined, boolean>} = {};
 	public param_showSubsYoutube:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showSubsTiktok:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showSubgiftsYoutube:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showSubsKofi:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showMods:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
@@ -338,6 +357,7 @@ class OverlayParamsCredits extends Vue {
 	public param_sortBySubTypes:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_sortByRoles:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_sortByAmounts:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_sortByTotalAmount:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_sortByName:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_text:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_filterRewards:{[key:string]:TwitchatDataTypes.ParameterData<boolean, unknown, boolean>} = {};
@@ -356,6 +376,10 @@ class OverlayParamsCredits extends Vue {
 	public param_showPuSkin:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showPuEmote:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showPuCeleb:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_anonLastNames:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showTotalAmount:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_currency:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_patreonTiers:{[key:string]:TwitchatDataTypes.ParameterData<boolean, unknown, boolean, unknown, IPatreonTier>} = {};
 	public slotTypes = TwitchatDataTypes.EndingCreditsSlotDefinitions;
 	public overlayExists = false;
 	public sendingSummaryData = false;
@@ -489,7 +513,7 @@ class OverlayParamsCredits extends Vue {
 		PublicAPI.instance.broadcast(TwitchatEvent.GET_CREDITS_OVERLAY_PRESENCE);
 		clearTimeout(this.subcheckTimeout);
 		//If after 1,5s the overlay didn't answer, assume it doesn't exist
-		this.subcheckTimeout = setTimeout(()=>{
+		this.subcheckTimeout = window.setTimeout(()=>{
 			this.overlayExists = false;
 			this.checkingOverlayPresence = false;
 		}, 1500);
@@ -544,7 +568,9 @@ class OverlayParamsCredits extends Vue {
 			if(!this.isPremium && slotDef.premium) {
 				entry.showAmounts = false;
 			}
-			this.param_showAmounts[id] = {type:"boolean", icon:"number", value:entry.showAmounts || true, labelKey:this.getDefinitionFromSlot(slotType).amountLabel, premiumOnly:true};
+			let icon = "number";
+			if(slotDef.id == "patreonMembers") icon = "date";
+			this.param_showAmounts[id] = {type:"boolean", icon, value:entry.showAmounts || true, labelKey:this.getDefinitionFromSlot(slotType).amountLabel, premiumOnly:true};
 		}
 
 		if(slotDef.id == "rewards") {
@@ -605,12 +631,12 @@ class OverlayParamsCredits extends Vue {
 			this.param_showBadges[id]	= {type:'boolean', value:entry.showBadges!, icon:"badge", labelKey:'overlay.credits.param_showBadges', premiumOnly:true};
 			this.param_sortByName[id]	= {type:"boolean", value:entry.sortByNames!, icon:"filters", labelKey:"overlay.credits.param_sortByNames", premiumOnly:true};
 			this.param_sortByRoles[id]	= {type:"boolean", value:entry.sortByRoles!, icon:"filters", labelKey:"overlay.credits.param_sortByRoles", premiumOnly:true};
-			this.param_sortByAmounts[id]= {type:"boolean", value:entry.sortByAmounts!, icon:"filters", labelKey:"overlay.credits.param_sortByAmounts", premiumOnly:true};
+			this.param_sortByAmounts[id]= {type:"boolean", value:entry.sortByAmounts!, icon:"filters", labelKey:"overlay.credits.param_sortByAmount", premiumOnly:true};
 		}else
 
 		if(slotDef.id == "text") {
 			const placeholderList	= TriggerEventPlaceholders(TriggerTypes.GLOBAL_PLACEHOLDERS).concat();
-			this.param_text[id]		= {type:"string", value:"", longText:true, maxLength:1000, placeholderList};
+			this.param_text[id]		= {type:"string", value:"", longText:true, maxLength:1000, labelKey:"overlay.credits.param_freeText", placeholderList};
 		}else
 
 		if(slotDef.id == "hypetrains") {
@@ -636,6 +662,7 @@ class OverlayParamsCredits extends Vue {
 			this.param_showResubs[id]			= {type:"boolean", value:entry.showResubs, icon:"sub", labelKey:"overlay.credits.param_showResubs"};
 			this.param_showSubgifts[id]			= {type:"boolean", value:entry.showSubgifts, icon:"gift", labelKey:"overlay.credits.param_showSubgifts"};
 			this.param_showSubsYoutube[id]		= {type:'boolean', value:entry.showSubsYoutube, icon:"youtube", labelKey:'overlay.credits.param_showSubsYoutube', premiumOnly:true};
+			this.param_showSubsTiktok[id]		= {type:'boolean', value:entry.showSubsTiktok===true, icon:"tiktok", labelKey:'overlay.credits.param_showSubsTiktok', premiumOnly:true};
 			this.param_showSubgiftsYoutube[id]	= {type:'boolean', value:entry.showSubgiftsYoutube, icon:"youtube", labelKey:'overlay.credits.param_showSubgiftsYoutube', premiumOnly:true};
 			this.param_showSubsPrime[id]		= {type:'boolean', value:entry.showSubsPrime===true, labelKey:'overlay.credits.param_showSubsPrime'};
 			this.param_showAllActiveSubs[id]	= {type:'boolean', value:entry.showAllSubs===true, icon:"date", labelKey:'overlay.credits.param_showAllActiveSubs'};
@@ -664,7 +691,7 @@ class OverlayParamsCredits extends Vue {
 			this.param_showTipsPatreon[id]			= {type:'boolean', value:entry.showTipsPatreon, icon:"patreon", labelKey:'overlay.credits.param_tip_patreon', premiumOnly:true};
 			this.param_showTipsStreamlabs[id]		= {type:'boolean', value:entry.showTipsStreamlabs, icon:"streamlabs", labelKey:'overlay.credits.param_tip_streamlabs', premiumOnly:true};
 			this.param_showTipsStreamelements[id]	= {type:'boolean', value:entry.showTipsStreamelements, icon:"streamelements", labelKey:'overlay.credits.param_tip_streamelements', premiumOnly:true};
-			this.param_sortByAmounts[id]			= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:"overlay.credits.param_sortByTipAmounts", premiumOnly:true};
+			this.param_sortByAmounts[id]			= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:"overlay.credits.param_sortByTipAmount", premiumOnly:true};
 			this.param_showSubsKofi[id]				= {type:'boolean', value:entry.showSubsKofi===true, icon:"kofi", labelKey:'overlay.credits.param_showSubsKofi', premiumOnly:true};
 		}else
 
@@ -686,11 +713,68 @@ class OverlayParamsCredits extends Vue {
 			this.param_sortByAmounts[id]		= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:"overlay.credits.param_sortByPuCount", premiumOnly:true};
 		}else
 
-		if(slotDef.id == "ytSuperSticker" || slotDef.id == "ytSuperchat") {
+		if(slotDef.id == "patreonMembers") {
+			if(entry.currency == undefined)				entry.currency = "€";
+			if(entry.sortByNames == undefined)			entry.sortByNames = true;
+			if(entry.sortByAmounts == undefined)		entry.sortByAmounts = true;
+			if(entry.anonLastNames == undefined)		entry.anonLastNames = true;
+			if(entry.showTotalAmounts == undefined)		entry.showTotalAmounts = false;
+			if(entry.sortByTotalAmounts == undefined)	entry.sortByTotalAmounts = false;
+			if(entry.patreonTiers == undefined)	entry.patreonTiers = StoreProxy.patreon.tierList.map(v=>v.id) || [];
+			
+			this.param_anonLastNames[id]		= {type:"boolean", value:entry.anonLastNames, icon:"anon", labelKey:"overlay.credits.param_anonLastNames", premiumOnly:true};
+			this.param_sortByName[id]			= {type:"boolean", value:entry.sortByNames, icon:"filters", labelKey:"overlay.credits.param_sortByNames", premiumOnly:true};
+			this.param_sortByAmounts[id]		= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:"overlay.credits.param_sortByDuration", premiumOnly:true};
+			this.param_sortByTotalAmount[id]	= {type:"boolean", value:entry.sortByTotalAmounts, icon:"filters", labelKey:"overlay.credits.param_sortByTotalAmount", premiumOnly:true};
+			this.param_showTotalAmount[id]		= {type:"boolean", value:entry.showTotalAmounts, icon:"coin", labelKey:"overlay.credits.param_showTotalAmount", premiumOnly:true};
+			this.param_patreonTiers[id]			= {type:"boolean", value:true, noInput:true, icon:"patreon", labelKey:"overlay.credits.param_patreonTiers", premiumOnly:true};
+			this.param_currency[id]				= {type:"string", value:entry.currency, maxLength:5, labelKey:"overlay.credits.param_currency", premiumOnly:true};
+
+			this.param_filterRewards[id]	= {type:'boolean', value:true, icon:"channelPoints", labelKey:'overlay.credits.param_filterRewards', premiumOnly:true, twitch_scopes:[TwitchScopes.LIST_REWARDS]};
+			if(rewards.length == 0 && TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
+				rewards = (await TwitchUtils.getRewards()).sort((a,b)=>a.cost-b.cost);
+			}
+			let children:TwitchatDataTypes.ParameterData<boolean, unknown, unknown, IPatreonTier>[] = [];
+			const tierList = StoreProxy.patreon.tierList;
+			for (let j = 0; j < tierList.length; j++) {
+				const tier = tierList[j];
+				//Skip "free" tier
+				if(tier.attributes.amount_cents == 0) continue;
+				children.push({
+					type:'boolean',
+					value:entry.patreonTiers!.includes(tier.id),
+					label:tier.attributes.title,// + " - cost:" + tier.attributes.amount_cents/100,
+					storage:tier,
+					editCallback:(data)=> {
+						if(data.value === true && !entry.patreonTiers!.includes(data.storage!.id)) {
+							entry.patreonTiers!.push(data.storage!.id);
+						}
+						if(data.value === false && entry.patreonTiers!.includes(data.storage!.id)) {
+							entry.patreonTiers!.splice(entry.patreonTiers!.indexOf(data.storage!.id), 1);
+							entry.patreonTiers = entry.patreonTiers!.filter(v=>v !== data.storage!.id);
+						}
+					}
+				});
+			}
+			this.param_patreonTiers[id].children = children;
+		}else
+
+		if(slotDef.id == "ytSuperSticker"
+		|| slotDef.id == "ytSuperchat"
+		|| slotDef.id == "tiktokGifts"
+		|| slotDef.id == "tiktokLikes"
+		|| slotDef.id == "tiktokShares") {
 			if(entry.sortByNames == undefined || !this.isPremium)	entry.sortByNames = false;
 			if(entry.sortByAmounts == undefined || !this.isPremium)	entry.sortByAmounts = false;
 			this.param_sortByName[id]	= {type:"boolean", value:entry.sortByNames, icon:"filters", labelKey:"overlay.credits.param_sortByNames", premiumOnly:true};
-			this.param_sortByAmounts[id]= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:"overlay.credits.param_sortByTipAmounts", premiumOnly:true};
+			const labelKey = {
+				"tiktokGifts": "param_sortByGiftAmount", 
+				"tiktokLikes": "param_sortByLikeCount", 
+				"tiktokShares": "param_sortByShareCount", 
+				"ytSuperSticker": "param_sortByTipAmount", 
+				"ytSuperchat": "param_sortByTipAmouns"
+			}[slotDef.id];
+			this.param_sortByAmounts[id]= {type:"boolean", value:entry.sortByAmounts, icon:"filters", labelKey:"overlay.credits."+labelKey, premiumOnly:true};
 		}
 
 		if(slotDef.canMerge) {

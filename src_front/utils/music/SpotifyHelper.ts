@@ -25,7 +25,7 @@ export default class SpotifyHelper {
 	private _token!:SpotifyAuthToken;
 	private _refreshTimeout!:number;
 	private _getTrackTimeout!:number;
-	private _lastTrackInfo!:TwitchatDataTypes.MusicTrackData|null;
+	private _lastTrackInfo!:{progress:number, track:TwitchatDataTypes.MusicTrackData}|null;
 	private _headers!:{"Accept":string, "Content-Type":string, "Authorization":string};
 	private _clientID = "";
 	private _clientSecret = "";
@@ -65,6 +65,9 @@ export default class SpotifyHelper {
 	/******************
 	* PUBLIC METHODS *
 	******************/
+	/**
+	 * Connects the user to spotify
+	 */
 	public connect():void {
 		const appParams	= DataStore.get(DataStore.SPOTIFY_APP_PARAMS);
 		const authToken	= DataStore.get(DataStore.SPOTIFY_AUTH_TOKEN);
@@ -80,6 +83,9 @@ export default class SpotifyHelper {
 		}
 	}
 
+	/**
+	 * Disconnects the user from spotify
+	 */
 	public disconnect():void {
 		clearTimeout(this._refreshTimeout);
 		clearTimeout(this._getTrackTimeout);
@@ -241,7 +247,7 @@ export default class SpotifyHelper {
 		}catch(error) {
 			//Refresh failed, try again
 			if(attempt < 5) {
-				this._refreshTimeout = setTimeout(()=>{
+				this._refreshTimeout = window.setTimeout(()=>{
 					this.refreshToken(++attempt);
 				}, 5000);
 			}else{
@@ -461,18 +467,18 @@ export default class SpotifyHelper {
 		}catch(error) {
 			//API crashed, try again 5s later
 			StoreProxy.music.spotifyConsecutiveErrors ++;
-			this._getTrackTimeout = setTimeout(()=> this.getCurrentTrack(), 5000);
+			this._getTrackTimeout = window.setTimeout(()=> this.getCurrentTrack(), 3000);
 			return;
 		}
 		if(res.status == 401) {
 			await this.refreshToken();
-			this._getTrackTimeout = setTimeout(()=> this.getCurrentTrack(), 1000);
+			this._getTrackTimeout = window.setTimeout(()=> this.getCurrentTrack(), 1000);
 			return;
 		}
 		if(res.status == 204) {
 			//No content, nothing is playing
 			this._isPlaying = false;
-			this._getTrackTimeout = setTimeout(()=> this.getCurrentTrack(), 10000);
+			this._getTrackTimeout = window.setTimeout(()=> this.getCurrentTrack(), 10000);
 			StoreProxy.music.spotifyConsecutiveErrors = 0;
 			return;
 		}
@@ -482,9 +488,9 @@ export default class SpotifyHelper {
 			json = await res.json();
 		}catch(error) { }
 		if(!json) {
-			this._getTrackTimeout = setTimeout(()=> {
+			this._getTrackTimeout = window.setTimeout(()=> {
 				this.getCurrentTrack();
-			}, 5000);
+			}, 3000);
 			return;
 		}
 
@@ -527,17 +533,18 @@ export default class SpotifyHelper {
 				//the actual new track
 				delete this._trackIdToRequest[this.currentTrack.id];
 				await this.nextTrack();
-				this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 500);
+				this._getTrackTimeout = window.setTimeout(()=> { this.getCurrentTrack(); }, 500);
 				return;
 			}
 
 			if(this._isPlaying) {
-
-				//Broadcast to the triggers
+				let trackChanged = false;
+				//Check if track has changed
 				if(!this._lastTrackInfo
-				|| this._lastTrackInfo?.duration != this.currentTrack.duration
-				|| this._lastTrackInfo?.title != this.currentTrack.title
-				|| this._lastTrackInfo?.artist != this.currentTrack.artist) {
+				|| this._lastTrackInfo?.track.duration != this.currentTrack.duration
+				|| this._lastTrackInfo?.track.title != this.currentTrack.title
+				|| this._lastTrackInfo?.track.artist != this.currentTrack.artist) {
+					trackChanged = true;
 					const message:TwitchatDataTypes.MessageMusicStartData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
@@ -550,31 +557,40 @@ export default class SpotifyHelper {
 					};
 					StoreProxy.chat.addMessage(message);
 					delete this._trackIdToRequest[this.currentTrack.id];
+					
+					StoreProxy.labels.updateLabelValue("MUSIC_TITLE", this.currentTrack.title);
+					StoreProxy.labels.updateLabelValue("MUSIC_ARTIST", this.currentTrack.artist);
+					StoreProxy.labels.updateLabelValue("MUSIC_ALBUM", this.currentTrack.album);
+					StoreProxy.labels.updateLabelValue("MUSIC_COVER", this.currentTrack.cover);
+					this.resyncQueue();
+	
 				}
-				
-				StoreProxy.labels.updateLabelValue("MUSIC_TITLE", this.currentTrack.title);
-				StoreProxy.labels.updateLabelValue("MUSIC_ARTIST", this.currentTrack.artist);
-				StoreProxy.labels.updateLabelValue("MUSIC_ALBUM", this.currentTrack.album);
-				StoreProxy.labels.updateLabelValue("MUSIC_COVER", this.currentTrack.cover);
 
-				//Broadcast to the overlays
-				const apiData = {
-					trackName: this.currentTrack.title,
-					artistName: this.currentTrack.artist,
-					trackDuration: this.currentTrack.duration,
-					trackPlaybackPos: json.progress_ms,
-					cover: this.currentTrack.cover,
-					params: StoreProxy.music.musicPlayerParams,
+				//If track changed or progress has moved by more than 10s
+				if(trackChanged
+				|| Math.abs(json.progress_ms - (this._lastTrackInfo?.progress || -100000)) > 10000) {
+					//Broadcast to the overlays
+					const apiData = {
+						trackName: this.currentTrack.title,
+						artistName: this.currentTrack.artist,
+						trackDuration: this.currentTrack.duration,
+						trackPlaybackPos: json.progress_ms,
+						cover: this.currentTrack.cover,
+						params: StoreProxy.music.musicPlayerParams,
+					}
+					PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, (apiData as unknown) as JsonObject);
 				}
-				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, (apiData as unknown) as JsonObject);
 
-				this._lastTrackInfo = this.currentTrack;
+				this._lastTrackInfo = {
+					track:this.currentTrack,
+					progress:json.progress_ms,
+				};
 
 				let delay = json.item.duration_ms - json.progress_ms;
-				if(isNaN(delay)) delay = 5000;
-				this._getTrackTimeout = setTimeout(()=> {
+				if(isNaN(delay)) delay = 3000;
+				this._getTrackTimeout = window.setTimeout(()=> {
 					this.getCurrentTrack();
-				}, Math.min(5000, delay + 1000));
+				}, Math.min(3000, delay + 1000));
 
 			}else{
 				//Broadcast to the overlays
@@ -602,10 +618,10 @@ export default class SpotifyHelper {
 
 					this._lastTrackInfo = null;
 				}
-				this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
+				this._getTrackTimeout = window.setTimeout(()=> { this.getCurrentTrack(); }, 3000);
 			}
 		}else{
-			this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
+			this._getTrackTimeout = window.setTimeout(()=> { this.getCurrentTrack(); }, 3000);
 		}
 	}
 
@@ -715,6 +731,18 @@ export default class SpotifyHelper {
 		return false;
 	}
 
+	/**
+	 * Get how many tracks the users has pending in the queue
+	 */
+	public getPendingTracksForUser(user:TwitchatDataTypes.TwitchatUser):number {
+		let count = 0;
+		for (const id in this._trackIdToRequest) {
+			const request = this._trackIdToRequest[id];
+			if(request.skip !== true && request.user.id == user.id) count ++;
+		}
+		return count;
+	}
+
 
 
 	/*******************
@@ -810,7 +838,7 @@ export default class SpotifyHelper {
 	 * Gets a podcast infos
 	 */
 	private async getEpisodeInfos():Promise<SpotifyTrack|null> {
-		const options = {
+		const options:RequestInit = {
 			headers:this._headers
 		}
 		const res = await fetch("https://api.spotify.com/v1/me/player/currently-playing?additional_types=episode", options);
@@ -822,6 +850,35 @@ export default class SpotifyHelper {
 			return await res.json();
 		}catch(error) {
 			return null;
+		}
+	}
+
+	/**
+	 * Loads current queue and remove any SR tracks that are not in the queue
+	 */
+	private async resyncQueue():Promise<void> {
+		const options:RequestInit = {
+			method:"GET",
+			headers:this._headers
+		}
+		const res = await fetch("https://api.spotify.com/v1/me/player/queue", options);
+		if(res.status == 401) {
+			await this.refreshToken();
+			return;
+		}
+		try {
+			const json = await res.json() as {currently_playing:SpotifyTrack["item"], queue:SpotifyTrack["item"][]};
+			const trackIds = json.queue.map(v=> v.id);
+			for (const id in this._trackIdToRequest) {
+				if(trackIds.indexOf(id) == -1) {
+					//Pending track request not found on queue, remove it
+					//this makes sure a viewer can make a new !sr even if the
+					//track has been skipped by the streamer
+					delete this._trackIdToRequest[id];
+				}
+			}
+		}catch(error){
+
 		}
 	}
 

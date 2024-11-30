@@ -51,12 +51,16 @@
 			<ChatMessageInfoBadges class="infoBadges" :infos="infoBadges" v-if="infoBadges.length > 0" />
 
 			<Icon name="youtube" v-if="messageData.platform == 'youtube'" v-tooltip="$t('chat.youtube.platform_youtube')" />
+			<Icon name="tiktok" v-if="messageData.platform == 'tiktok'" v-tooltip="$t('chat.tiktok.platform_tiktok')" />
 
 			<div class="userBadges" v-if="filteredBadges.length > 0 || miniBadges.length > 0">
-				<template v-for="(b,index) in filteredBadges" :key="index">
+
+		
+				<tooltip v-for="(b,index) in filteredBadges" :key="index"
+				:content="'<div style=\'text-align:center\'><img src='+(b.icon.hd || b.icon.sd)+' width=\'64\' class=\'emote\'><br>'+b.title+'</div>'">
 					<Icon v-if="b.icon.sd.indexOf('http') == -1" :name="b.icon.sd" class="badge" v-tooltip="b.title" />
 					<img v-else :src="b.icon.sd" class="badge" v-tooltip="b.title">
-				</template>
+				</tooltip>
 
 				<span class="badge mini" v-for="(b,index) in miniBadges"
 					:key="index"
@@ -156,6 +160,10 @@
 			<Button @click="disableAd()" alert icon="cross">{{ $t('chat.message.disable_ad') }}</Button>
 			<Button @click="openAdParams()" icon="edit">{{ $t('chat.message.customize_ad') }}</Button>
 		</div>
+		
+		<Icon class="eventsub" name="info"
+			v-if="messageData.type == 'message' && messageData.twitch_source == 'eventsub'"
+			v-tooltip="'BETA-TESTERS\nPlease let me know on Discord if you see this icon!'"></Icon>
 	</div>
 
 </template>
@@ -425,10 +433,7 @@ class ChatMessage extends AbstractChatMessage {
 
 				const age = Date.now() - (mess.user.created_at_ms || 0);
 				if(age < 14 * 24 * 60 * 60000) {
-					let label = "";
-					if(age > 24 * 60 * 60000)	label = Math.round(age/(24*60*60000)) + this.$t("chat.custom_badge.tooltip.new_account_day");
-					else if(age > 60 * 60000)	label = Math.round(age/(60 * 60000)) + this.$t("chat.custom_badge.tooltip.new_account_hour");
-					else						label = Math.round(age/60000) + this.$t("chat.custom_badge.tooltip.new_account_minute");
+					let label = Utils.elapsedDuration(mess.user.created_at_ms || 0);
 					list.push({type:TwitchatDataTypes.MessageBadgeDataType.NEW_ACCOUNT, label, tooltipLabelParams:{DURATION:label}});
 				}
 			}
@@ -1008,6 +1013,7 @@ export default toNative(ChatMessage);
 		cursor: pointer;
 		font-weight: bold;
 		text-decoration: none;
+		text-wrap: nowrap;
 		// -webkit-text-stroke: fade(#000, 50%) .25px;
 		&:hover {
 			background-color: var(--background-color-fader);
@@ -1238,6 +1244,16 @@ export default toNative(ChatMessage);
 		justify-content: center;
 		gap: .5em;
 		margin-top: .5em;
+	}
+
+	.eventsub {
+		position: absolute;
+		top: .25em;
+		right: 0;
+		height: 1em;
+		width: 1em;
+		color: var(--color-secondary);
+		opacity: .5;
 	}
 }
 </style>

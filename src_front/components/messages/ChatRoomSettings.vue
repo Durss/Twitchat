@@ -57,13 +57,12 @@ class ChatRoomSettings extends AbstractChatMessage {
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageRoomSettingsData;
 
-	public get isMod():boolean {
-		const authUser = this.$store.auth[this.messageData.platform].user;
-		const user = this.$store.users.getUserFrom(this.messageData.platform, this.messageData.channel_id, authUser.id, authUser.login, authUser.displayName)
-		return user.channelInfo[this.messageData.channel_id].is_moderator && TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS]);
-	}
+	public isMod:boolean = false
 
 	public beforeMount(): void {
+		const authUser = this.$store.auth[this.messageData.platform].user;
+		const user = this.$store.users.getUserFrom(this.messageData.platform, this.messageData.channel_id, authUser.id, authUser.login, authUser.displayName, undefined, undefined, undefined, undefined, false);
+		this.isMod = user.channelInfo[this.messageData.channel_id].is_moderator && TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS]);
 	}
 
 	public unset(prop:"sub"|"follow"|"delay"|"slow"|"emote"):void {

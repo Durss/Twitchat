@@ -47,6 +47,7 @@
 			"shoutoutBt_aria": "Pending shoutouts",
 			"viewer_count": "Viewer count",
 			"reply_to": "Replying to {USER}:",
+			"quoting": "Quoting {USER}:",
 			"spotify_down": "Spotify API is down.\nOverlay and triggers won't work until they fix it :(",
 			"creditsBt_aria": "Ending credits",
 			"qnaBt_aria": "Question & Answer",
@@ -60,7 +61,17 @@
 			"extra_chan_info": "Triggers, TTS, emergency mode, automod,\netc... will execute only for your own channel",
 			"youtube_not_connected": "Not connected to any YouTube live",
 			"youtube_missing_scope": "You haven't granted Twitchat permission to write on you chat",
-			"obs_disconnected_tt": "Not connected to OBS"
+			"obs_disconnected_tt": "Not connected to OBS",
+			"mode_private": "Privately send message to {USER}",
+			"mode_private_details": "Send a message only {USER} will see.\n\nOnly works if they use Twitchat!",
+			"mode_question": "Privately ask something to {USER}",
+			"mode_question_details": "Send a message only {USER} will see.\nThe message will show them 2 buttons\n\"accept\" and \"refuse\" to answer your\nquestion with a simple click.\n\nOnly works if they use Twitchat!",
+			"mode_public": "Send public message on chat",
+			"mode_public_details": "Send a regular public message on\n{USER}'s chat.",
+			"mode_private_mods": "Privately send message to {USER} and mods",
+			"mode_private_mods_details": "Send a message only {USER} and mods will see.\n\nOnly works if they use Twitchat!",
+			"mode_private_mods_only": "Privately send message to your mods",
+			"mode_private_mods_only_details": "Send a message only your mods will see.\n\nOnly works if they use Twitchat!"
 		},
 		"filters": {
 			"cta": "Important options here",
@@ -107,6 +118,7 @@
 				"countdown": "Countdown",
 				"prediction": "Predictions",
 				"subscription": "Subs",
+				"twitch_charity_donation": "Twitch charity Donation",
 				"hype_train_summary": "Hype train summaries",
 				"hype_train_cooled_down": "Hype train cooldown",
 				"community_boost_complete": "Community boosts",
@@ -122,7 +134,11 @@
 				"kofi": "Ko-fi alerts",
 				"tipeee": "Tipeee alerts",
 				"tiltify": "Tiltify alerts",
-				"patreon": "Patreon alerts"
+				"patreon": "Patreon alerts",
+				"tiktok_like": "Tiktok likes",
+				"tiktok_gift": "Tiktok gifts",
+				"tiktok_share": "Tiktok share",
+				"private_mod_message": "Private mod messages"
 			},
 			"message_filters": {
 				"viewers": "Sent by viewers",
@@ -358,6 +374,7 @@
 			"untrack": "Untrack user",
 			"shoutout": "Shoutout user",
 			"answer": "Answer",
+			"quote": "Quote",
 			"tts": "Read with TTS",
 			"tts_all": "Read all messages with TTS",
 			"tts_all_start": "Read all their messages with TTS",
@@ -477,6 +494,9 @@
 			"donation_recurring": "{USER} donated {AMOUNT} for {MONTHS} months on Tipeee",
 			"monthly": "{USER} donates {AMOUNT} per month on Tipeee"
 		},
+		"twitch_charity": {
+			"donation": "{USER} donated {AMOUNT} to {CAMPAIGN} Twitch Charity"
+		},
 		"tiltify": {
 			"donation": "{USER} donated {AMOUNT} to {CAMPAIGN}"
 		},
@@ -492,6 +512,9 @@
 		"youtube": {
 			"platform_youtube": "Message received\non YouTube",
 			"connected_to": "Now connected to live chat \"{TITLE}\""
+		},
+		"tiktok": {
+			"platform_tiktok": "Message received\non TikTok"
 		},
 		"celebration": {
 			"message": "{USER} redeemed {EMOTE} On-screen Celebration for {PRICE}",
@@ -531,10 +554,33 @@
 			"new": "{USER} subscribed for the first time at tier {TIER}",
 			"resub": "{USER} subscibed at {TIER} for {MONTHS} months"
 		},
+		"youtube_subgift":{
+			"title": "{USER} offered {COUNT} memberships at tier {TIER} to {LIST}"
+		},
+		"tiktok_sub":{
+			"new": "{USER} subscribed"
+		},
+		"tiktok_like":{
+			"new": "{USER} liked {COUNT} times"
+		},
+		"tiktok_gift":{
+			"new": "{USER} sent x{COUNT} {IMAGE}"
+		},
+		"tiktok_share":{
+			"new": "{USER} shared the stream"
+		},
 		"suspended_trigger_stack":{
 			"title": "A sequence of triggers executions is making Twitchat unstable.\nIt has been stopped to prevent further issues.",
 			"resumeBt": "Resume",
 			"callstack": "Execution history:"
+		},
+		"tts": {
+			"elevenlabs_credits_empty":"You spent all your Elevenlabs credits.",
+			"elevenlabs_credits_almost_empty":"Your Elevenlabs credits are almost empty. You have {CREDITS} credits left."
+		},
+		"private_mod_message": {
+			"accepted": "accepted",
+			"refused": "refused"
 		}
 	}
 }

@@ -194,7 +194,6 @@ class ConnectGoXLR extends Vue {
 			const list:typeof this.knobSelectionReadMark = this.knobSelectionReadMark.filter(v => v != "reverb" && v != "echo" && v != "pitch" && v != "gender");
 			if(knob) list.push(knob);
 			this.knobSelectionReadMark = list;
-
 			this.showEncoderWarning = list[list.length-1] == "pitch";
 			const index = this.param_chatColIndexMarkRead.value;
 			this.$store.params.setGoXLRChatColReadMarkParams(index, list);
@@ -206,7 +205,6 @@ class ConnectGoXLR extends Vue {
 			const list:typeof this.knobSelectionReadMark = this.knobSelectionScroll.filter(v => v != "reverb" && v != "echo" && v != "pitch" && v != "gender");
 			if(knob) list.push(knob);
 			this.knobSelectionScroll = list;
-
 			this.showEncoderWarning = list[list.length-1] == "pitch";
 			const index = this.param_chatColIndexScroll.value;
 			this.$store.params.setGoXLRChatColScrollParams(index, list);

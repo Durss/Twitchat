@@ -56,6 +56,8 @@ export namespace TwitchEventSubDataTypes {
 		AUTOMOD_MESSAGE_HELD: "automod.message.hold",
 		SUSPICIOUS_USER_MESSAGE: "channel.suspicious_user.message",
 		SUSPICIOUS_USER_UPDATE: "channel.suspicious_user.update",
+		CHAT_CLEAR: "channel.chat.clear",
+		DELETE_MESSAGE: "channel.chat.message_delete",
 	} as const;
 	export type SubscriptionStringTypes = typeof SubscriptionTypes[keyof typeof SubscriptionTypes];
 
@@ -447,8 +449,8 @@ export namespace TwitchEventSubDataTypes {
 			top_predictors: {
 				user_name: string;
 				user_login: string;
-				user_id: any;
-				channel_points_won?: any;
+				user_id: string;
+				channel_points_won?: number;
 				channel_points_used: number;
 			}[];
 		}[];
@@ -668,8 +670,27 @@ export namespace TwitchEventSubDataTypes {
 			text:string;
 			fragments:MessageFragments;
 		};
-		category: string;
-		level: number;
+		reason: "automod" | "blocked_term";
+		automod?: {
+			category: string;
+			level: number;
+			boundaries: {
+				start_pos: number;
+				end_pos: number;
+			}[];
+		};
+		blocked_term?: {
+			terms_found: {
+				term_id: string;
+				owner_broadcaster_user_id: string;
+				owner_broadcaster_user_login: string;
+				owner_broadcaster_user_name: string;
+				boundary: {
+					start_pos: number;
+					end_pos: number;
+				};
+			}[];
+		};
 		held_at: string;
 	}
 
@@ -700,6 +721,7 @@ export namespace TwitchEventSubDataTypes {
 								| ModerationEvent_slowon
 								| ModerationEvent_slowoff
 								| ModerationEvent_warn
+								| ModerationEvent_clear
 	;
 
 	export interface ModerationEvent_base {
@@ -812,6 +834,10 @@ export namespace TwitchEventSubDataTypes {
 		action: "slowoff";
 	}
 
+	export interface ModerationEvent_clear extends ModerationEvent_base {
+		action: "clear";
+	}
+
 	export interface ModerationEvent_warn extends ModerationEvent_base {
 		action: "warn";
 		warn: {
@@ -867,7 +893,7 @@ export namespace TwitchEventSubDataTypes {
 		user_name: string;
 		user_login: string;
 		low_trust_status: "none"|"active_monitoring"|"restricted";
-		shared_ban_channel_ids?: any;
+		shared_ban_channel_ids?: string[];
 		types: ("manually_added"|"ban_evader_detector"|"shared_channel_ban"|string)[];
 		ban_evasion_evaluation: "unknown”"|"possible"|"likely";
 		message:  {
@@ -877,19 +903,177 @@ export namespace TwitchEventSubDataTypes {
 		};
 	}
 
-	type MessageFragments = (MessageFragmentText|MessageFragmentEmote)[];
+	export interface ChatMessageEvent {
+		broadcaster_user_id: string;
+		broadcaster_user_login: string;
+		broadcaster_user_name: string;
+		chatter_user_id: string;
+		chatter_user_login: string;
+		chatter_user_name: string;
+		message_id: string;
+		message: {
+			text:string;
+			fragments:MessageFragments;
+		};
+		color: string;
+		badges: {
+			set_id: string;
+			id: string;
+			info: string;
+		}[];
+		message_type: "text" | "channel_points_highlighted";
+		cheer?: {
+			bits:number;
+		};
+		reply?: {
+			parent_message_id: string;
+			parent_message_body: string;
+			parent_user_id: string;
+			parent_user_name: string;
+			parent_user_login: string;
+			thread_message_id: string;
+			thread_user_id: string;
+			thread_user_name: string;
+			thread_user_login: string;
+		};
+		channel_points_custom_reward_id?: string;
+		channel_points_animation_id?: string;
+		source_broadcaster_user_id?: string;
+		source_broadcaster_user_login?: string;
+		source_broadcaster_user_name?: string;
+		source_message_id?: string;
+		source_badges?:  {
+			set_id: string;
+			id: string;
+			info: string;
+		}[];
+	}
+
+	export type MessageFragments = (MessageFragmentText|MessageFragmentEmote|MessageFragmentMention|MessageFragmentCheermote)[];
 
 	interface MessageFragmentText {
-		type: "text",
-		text: string,
+		type: "text";
+		text: string;
 	}
 
 	interface MessageFragmentEmote {
-		type: "emote",
-		text: string,
+		type: "emote";
+		text: string;
 		emote: {
 			id: string;
+			format: Array<"static" | "animated">;
 			emote_set_id: string;
+			owner_id: string;
 		}
+	}
+
+	interface MessageFragmentCheermote {
+		type: "cheermote";
+		text: string;
+		/**
+		 * Cheermote info
+		 * Actual cheermote text code is a concatenation of prefix and bits values
+		 */
+		cheermote:{
+			prefix: string;
+			bits: number;
+			tier: number;
+		}
+	}
+
+	interface MessageFragmentMention {
+		type: "mention";
+		text: string;
+		mention:{
+			user_id: string;
+			user_login: string;
+			user_name: string;
+		}
+	}
+
+	export interface ChatClearEvent {
+        broadcaster_user_id: string;
+        broadcaster_user_name: string;
+        broadcaster_user_login: string;
+	}
+
+	export interface ChatDeleteMessageEvent {
+        broadcaster_user_id: string;
+        broadcaster_user_name: string;
+        broadcaster_user_login: string;
+        target_user_id: string;
+        target_user_name: string;
+        target_user_login: string;
+        message_id: string;
+	}
+
+	export interface CharityStartEvent extends CharityProgressEvent{
+		started_at: string;
+	}
+
+	export interface CharityStopEvent extends CharityProgressEvent{
+		stopped_at: string;
+	}
+
+	export interface CharityDonationEvent {
+		id: string;
+		campaign_id: string;
+		broadcaster_user_id: string;
+		broadcaster_user_name: string;
+		broadcaster_user_login: string;
+		user_id: string;
+		user_login: string;
+		user_name: string;
+		charity_name: string;
+		charity_description: string;
+		charity_logo: string;
+		charity_website: string;
+		amount: {
+			value: number;
+			decimal_places: number;
+			currency: string;
+		};
+	}
+
+	export interface CharityProgressEvent {
+		id: string;
+		broadcaster_id: string;
+		broadcaster_name: string;
+		broadcaster_login: string;
+		charity_name: string;
+		charity_description: string;
+		charity_logo: string;
+		charity_website: string;
+		current_amount: {
+			value: number;
+			decimal_places: number;
+			currency: string;
+		};
+		target_amount: {
+			value: number;
+			decimal_places: number;
+			currency: string;
+		};
+	}
+
+	export interface SharedChatStartEvent {
+		session_id: string;
+		broadcaster_user_id: string;
+		broadcaster_user_login: string;
+		broadcaster_user_name: string;
+		host_broadcaster_user_id: string;
+		host_broadcaster_user_login: string;
+		host_broadcaster_user_name: string;
+		participants: {
+			broadcaster_user_id: string;
+			broadcaster_user_name: string;
+			broadcaster_user_login: string;
+		}[];
+	}
+
+	export interface SharedChatUpdateEvent extends SharedChatStartEvent {
+	}
+
+	export interface SharedChatEndEvent {
 	}
 }

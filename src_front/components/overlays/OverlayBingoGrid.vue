@@ -723,7 +723,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		//Schedule auto close if requested
 		if(item.type != "close"){
 			if(this.bingo && this.bingo.autoShowHide === true) {
-				this.innactivityTimeout = setTimeout(()=>{
+				this.innactivityTimeout = window.setTimeout(()=>{
 					this.pushEvent({type:"close"});
 				}, 5 * 1000);
 			}
@@ -850,7 +850,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				this.canPlayWinSound = true;
 			}
 
-			setTimeout(() => {
+			window.setTimeout(() => {
 				resolve();
 			}, delay*1000);
 		})

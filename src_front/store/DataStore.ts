@@ -48,7 +48,7 @@ export default class DataStore extends DataStoreCommon{
 		if(this.abortQuery && !this.abortQuery.signal.aborted) this.abortQuery.abort("search update");
 
 		return new Promise((resolve) => {;
-			this.saveTO = setTimeout(async () => {
+			this.saveTO = window.setTimeout(async () => {
 				const data = JSON.parse(JSON.stringify(this.rawStore));
 
 				//Do not save sensitive and useless data to server
@@ -148,7 +148,7 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	static override async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 58;
+		const latestVersion = 61;
 
 		this.cleanupPreV7Data(data);
 
@@ -356,11 +356,24 @@ export default class DataStore extends DataStoreCommon{
 		}
 		if(v==57) {
 			this.migrateHTTPTriggerOutputPlaceholer(data);
+			v = 58;
+		}
+		if(v==58) {
+			this.migrateWSTriggerActions(data);
+			v = 59;
+		}
+		if(v==59) {
+			this.migratePerUserCountersAndValues(data);
+			v = 60;
+		}
+		if(v==60) {
+			this.cleanAndMigrateRunningRaffles(data);
 			v = latestVersion;
 		}
 
 		delete data["p:hideChat"];//TODO remove in a few months (added 08/08/204)
 		delete data["antifa_hide"];//TODO remove in a few months (added 08/08/204)
+		delete data["t4p_chat_cmd"];//TODO remove in a few months (added 26/10/204)
 		//TODO remove in a few months (added 08/08/204)
 		if(typeof data["p:autoTranslateFirstLang"] == "string") {
 			data["p:autoTranslateFirstLang"] = [data["p:autoTranslateFirstLang"]];
@@ -1562,6 +1575,106 @@ export default class DataStore extends DataStoreCommon{
 					}
 				})
 			});
+		}
+	}
+	
+	/**
+	 * Migrate WS trigger actions.
+	 * Until then there was a "topic" and "payload" options
+	 * but they were both sent as a prop of the body with no
+	 * way to specify the actual body which was blocking to
+	 * properly interface with third party apps.
+	 * Now there's only a "payload" property.
+	 * This method migrates previous format to new one
+	 * @param data 
+	 */
+	private static migrateWSTriggerActions(data:any):void {
+		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+		if(triggers && Array.isArray(triggers)) {
+			triggers.forEach(t => {
+				t.actions.forEach(a => {
+					if(a.type == "ws") {
+						let payload:{payload?:string, topic?:string} = {};
+						if(a.payload) payload.payload = a.payload;
+						if(a.topic) payload.topic = a.topic;
+
+						delete a.topic;
+
+						a.payload = JSON.stringify(payload);
+					}
+				})
+			});
+		}
+	}
+	
+	/**
+	 * Migrate per-user counters and values to new "per-channel" items
+	 * Old counter/values types where :
+	 * {[uid:string]:string|number}
+	 * 
+	 * Now it is:
+	 * {[userId:string]:{
+	 * 	platform:ChatPlatform,
+	 * 	value:string|number;
+	 * }}
+	 * @param data 
+	 */
+	private static migratePerUserCountersAndValues(data:any):void {
+		const values:TwitchatDataTypes.ValueData[] = data[DataStore.VALUES];
+		(values || []).forEach(value => {
+			if(value.perUser !== true || !value.users) return;
+			for (const uid in value.users) {
+				const userVal = value.users[uid] as unknown as string;
+				const platform:TwitchatDataTypes.ChatPlatform = (parseInt(uid).toString() == uid)? "twitch" : "youtube";
+				value.users[uid] = {
+					platform,
+					value:userVal,
+				};
+			}
+			console.log("Migrate value", value);
+		});
+		
+		const counters:TwitchatDataTypes.CounterData[] = data[DataStore.COUNTERS];
+		(counters || []).forEach(counter => {
+			if(counter.perUser !== true || !counter.users) return;
+			for (const uid in counter.users) {
+				const userVal = counter.users[uid] as unknown as number;
+				const platform:TwitchatDataTypes.ChatPlatform = (parseInt(uid).toString() == uid)? "twitch" : "youtube";
+				counter.users[uid] = {
+					platform,
+					value:userVal,
+				};
+			}
+			console.log("Migrate counter", counter);
+		});
+	}
+	
+	/**
+	 * Cleanup all "manual" and "values" raffles that are still on user's data.
+	 * After this update they will automatically be removed from it. But not until then.
+	 * Also setting "autoClose" flag to true on all raffles started from triggers
+	 * @param data 
+	 */
+	private static cleanAndMigrateRunningRaffles(data:any):void {
+		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+		if(triggers && Array.isArray(triggers)) {
+			triggers.forEach(t => {
+				t.actions.forEach(a => {
+					if(a.type == "raffle" && a.raffleData) {
+						a.raffleData.autoClose = true;
+					}
+				})
+			});
+		}
+
+		let rafflesRunning = data[DataStore.RAFFLES_RUNNING] as TwitchatDataTypes.RaffleData[];
+		if(rafflesRunning && Array.isArray(rafflesRunning)) {
+			//Remove manual and values raffles from history
+			rafflesRunning = rafflesRunning.filter((v:TwitchatDataTypes.RaffleData) => {
+				if(v.mode == "manual") return false;
+				if(v.mode == "values") return false;
+				return true;
+			})
 		}
 	}
 }

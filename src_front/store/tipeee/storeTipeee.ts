@@ -55,7 +55,7 @@ export const storeTipeee = defineStore('tipeee', {
 				this.accessToken = result.json.accessToken!;
 				this.refreshToken = result.json.refreshToken!;
 				this.saveData();
-				setTimeout(() => {
+				window.setTimeout(() => {
 					this.doRefreshToken();
 				}, 3600 * 1000);
 				//Tipeee do not returns expireas at for refresh token. Refresh every hour :/
@@ -241,7 +241,7 @@ export const storeTipeee = defineStore('tipeee', {
 					if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
 					clearTimeout(reconnectTimeout);
 					reconnectAttempts ++;
-					reconnectTimeout = setTimeout(()=> {
+					reconnectTimeout = window.setTimeout(()=> {
 						socket = undefined;
 						this.connect(token, true);
 					}, 500 * reconnectAttempts);
@@ -255,7 +255,7 @@ export const storeTipeee = defineStore('tipeee', {
 					reconnectAttempts ++;
 					if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
 					clearTimeout(reconnectTimeout);
-					reconnectTimeout = setTimeout(()=> {
+					reconnectTimeout = window.setTimeout(()=> {
 						socket = undefined;
 						this.connect(token, true);
 					}, 500 * reconnectAttempts);

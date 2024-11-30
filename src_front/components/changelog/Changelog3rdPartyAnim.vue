@@ -59,7 +59,7 @@ class Changelog3rdPartyAnim extends Vue {
 		//f** up the animation
 		items.forEach(item => item.style.opacity = "0");
 
-		setTimeout(async ()=> {
+		window.setTimeout(async ()=> {
 			for (let i = 0; i < items.length; i++) {
 				const el = items[i];
 				await Utils.promisedTimeout(200);

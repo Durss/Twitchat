@@ -1,0 +1,10 @@
+{
+	"twitch_bot": {
+		"header": "Connect a secondary Twitch account to send bot messages",
+		"auth_refused": "You have refused access to your Twitch account",
+		"auth_hint": "Click the link shown bellow to authenticate with your secondary account",
+		"hints": "Add your bot as a VIP or a moderator to your channel to make sure it can send messages without being blocked.",
+		"add_modBt": "Add to mods",
+		"add_vipBt": "Add to VIPs"
+	}
+}

@@ -9,30 +9,6 @@
 			<div class="content">
 				<p v-for="e in $tm('gaza.description')">{{ e }}</p>
 
-				<div class="card-item t4p">
-					<i18n-t scope="global" keypath="gaza.t4p_info">
-						<template #URL>
-							<a :href="$t('gaza.t4p_doc')" target="_blank">Twitch 4 Palestine <Icon name="newtab"/></a>
-						</template>
-					</i18n-t>
-					<section class="card-item dark">
-						<strong><Icon name="user" /> {{ $t("gaza.t4p_fundraisers") }}</strong>
-						<OverlayInstaller class="installer" url="https://twitch4palestine.com" customSourceName="Twitch 4 palestine - fundraisers" :sourceTransform="{width:1600, height:500}"/>
-					</section>
-					<section class="card-item dark">
-						<strong><Icon name="notification" /> {{ $t("gaza.t4p_alerts") }}</strong>
-						<OverlayInstaller class="installer" url="https://twitch4palestine.com/alert" customSourceName="Twitch 4 palestine - alerts" :sourceTransform="{width:1600, height:500}"/>
-					</section>
-
-					<section class="card-item dark">
-						<ParamItem :paramData="param_chatCmd_enabled" noBackground @change="onCmdStateChange">
-							<ParamItem class="t4pcmd child" :paramData="param_chatCmd" noBackground v-model="$store.main.t4p"></ParamItem>
-						</ParamItem>
-					</section>
-				</div>
-
-				<Splitter class="splitter">{{ $t("global.or") }}</Splitter>
-
 				<div class="ctas">
 					
 					<TTButton type="link"
@@ -87,19 +63,11 @@ class HelpGenocideVictims extends Vue {
 	public sent:boolean = false;
 	public sending:boolean = false;
 	public url:string = "https://gazafunds.com";
-	public param_chatCmd_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"gaza.t4p_chatCmd_toggle", icon:"chatCommand"}
-	public param_chatCmd:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"!t4p", labelKey:"gaza.t4p_chatCmd"}
 
 	public mounted():void {
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});
-
-		this.param_chatCmd_enabled.value = this.$store.main.t4p != "";
-
-		watch(()=>this.$store.main.t4p, ()=>{
-			DataStore.set(DataStore.T4P_CHAT_CMD, this.$store.main.t4p);
-		});
 	}
 
 	public async close():Promise<void> {
@@ -116,11 +84,6 @@ class HelpGenocideVictims extends Vue {
 		await Utils.promisedTimeout(500);
 		this.sending = false;
 		this.sent = true;
-	}
-
-	public onCmdStateChange():void {
-		if(!this.param_chatCmd_enabled.value) this.$store.main.t4p = "";
-		else this.$store.main.t4p = "!t4p";
 	}
 
 }
@@ -165,24 +128,6 @@ export default toNative(HelpGenocideVictims);
 		vertical-align: middle;
 	}
 
-	.t4p {
-		margin-top: 1em;
-		section {
-			padding: .5em;
-			margin-top: .5em;
-			border-radius: var(--border-radius);
-			.icon {
-				margin-right: .5em;
-			}
-			.strong {
-				text-align: center;
-			}
-		}
-		.t4pcmd:deep(.inputHolder) {
-			flex-basis: 100px;
-			flex-grow: unset;
-		}
-	}
 	.installer {
 		margin-top: .5em;
 	}

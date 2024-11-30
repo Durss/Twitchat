@@ -136,7 +136,7 @@ class NewUsers extends Vue {
 		});
 
 		//Automatically deletes messages after the configured delay
-		this.deleteInterval = setInterval(()=> {
+		this.deleteInterval = window.setInterval(()=> {
 			const delay = this.$store.params.greetThemAutoDelete;
 			if(delay == -1) return;
 

@@ -278,6 +278,7 @@ export default toNative(PredictionForm);
 			align-items: center;
 			justify-content: center;
 			max-height: 5em;
+			min-height: 2em;
 			overflow-y: auto;
 		}
 		form{

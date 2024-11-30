@@ -192,7 +192,7 @@ class OverlayParamsAdBreak extends Vue {
 			PublicAPI.instance.broadcast(TwitchatEvent.GET_AD_BREAK_OVERLAY_PRESENCE);
 			clearTimeout(this.subcheckTimeout);
 			//If after 1,5s the overlay didn't answer, assume it doesn't exist
-			this.subcheckTimeout = setTimeout(()=>{
+			this.subcheckTimeout = window.setTimeout(()=>{
 				this.overlayExists = false;
 			}, 1500);
 		}, 2000);
@@ -226,7 +226,7 @@ class OverlayParamsAdBreak extends Vue {
 			remainingSnooze: 3,
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_DATA, (data as unknown) as JsonObject);
-		setTimeout(()=> {
+		window.setTimeout(()=> {
 			this.testingApproaching = false;
 		}, 250);
 	}
@@ -241,7 +241,7 @@ class OverlayParamsAdBreak extends Vue {
 			remainingSnooze: 3,
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_DATA, (data as unknown) as JsonObject);
-		setTimeout(()=> {
+		window.setTimeout(()=> {
 			this.testingRunning = false;
 		}, 250);
 	}

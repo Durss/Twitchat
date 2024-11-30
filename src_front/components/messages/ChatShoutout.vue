@@ -1,5 +1,6 @@
 <template>
-	<div class="chatshoutout chatMessage highlight">
+	<div class="chatshoutout chatMessage highlight"
+	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 
 		<Icon name="shoutout" alt="shoutout" class="icon"/>
@@ -75,8 +76,14 @@ class ChatShoutout extends AbstractChatMessage {
 
 	public shoutoutLoading = false;
 
-	public get channel():TwitchatDataTypes.TwitchatUser {
-		return this.$store.users.getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id);
+	public channel!:TwitchatDataTypes.TwitchatUser;
+
+	public get iconColor():string{
+		return this.$store.common.theme == "dark" ? "#9147ff" : "#772ce8";
+	}
+
+	public beforeMount(): void {
+		this.channel = this.$store.users.getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id)
 	}
 
 	public async shoutout():Promise<void> {
@@ -106,7 +113,7 @@ export default toNative(ChatShoutout);
 		gap: .25em;
 	}
 	&>.icon {
-		color: #9147ff;
+		color: v-bind(iconColor);
 	}
 }
 </style>

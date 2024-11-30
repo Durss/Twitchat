@@ -128,9 +128,11 @@ import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import MessageTranslation from './MessageTranslation.vue';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
+		Icon,
 		MessageTranslation,
 		ChatMessageChunksParser,
 	},
@@ -145,6 +147,10 @@ class ChatSubscription extends AbstractChatMessage {
 		let res = ["chatsubscription", "chatMessage", "highlight"];
 		if(this.messageData.deleted === true) res.push("deleted");
 		return res;
+	}
+
+	public get iconColor():string{
+		return this.$store.common.theme == "dark" ? "#1f69ff" : "#1756d3";
 	}
 
 	public get totalSubgifts():number|undefined {
@@ -167,7 +173,7 @@ export default toNative(ChatSubscription);
 <style scoped lang="less">
 .chatsubscription{
 	&>.icon {
-		color: #1f69ff;
+		color: v-bind(iconColor);
 	}
 	.additional {
 		opacity: .8;

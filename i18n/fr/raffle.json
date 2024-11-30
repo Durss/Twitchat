@@ -66,6 +66,7 @@
 			"tip_kofi":"Ko-fi",
 			"tip_streamlabs":"Streamlabs",
 			"tip_streamlabsCharity":"Streamlabs Charity",
+			"tip_twitchCharity":"Twitch Charity",
 			"tip_streamelements":"Streamelements",
 			"tip_tipeee":"Tipeee",
 			"tip_tiltify":"Tiltify",
@@ -75,6 +76,7 @@
 			"limit_users": "Limiter le nombre de participant·es",
 			"max_users": "Maximum",
 			"multiple_join": "Autoriser à participer plusieurs fois",
+			"param_autoClose": "Automatiquement fermer le tirage après avoir tiré une entrée gagnante",
 			"ponderate": "Pondérer les participations\n(chaque critère rempli comptera pour X participations)",
 			"ponderate_VIP": "VIP",
 			"ponderate_sub": "Sub T1/prime",
@@ -90,7 +92,9 @@
 			"username_placeholder": "Pseudo",
 			"entry_placeholder": "Entrée gagnante",
 			"value_splitter": "Séparateur d'entrées\n(caractère séparant les entrées)",
-			"value_remove": "Supprimer l'entrée gagnante de la Valeur\n(L'entrée sera définitivement supprimée de la Valeur !)"
+			"value_remove": "Supprimer l'entrée gagnante de la Valeur\n(L'entrée sera définitivement supprimée de la Valeur !)",
+			"trigger_waitForWinner": "Attendre qu'une entrée gagnante soit sélectionnée\n(l'exécution du trigger sera mise en pause le temps qu'une entrée soit sélectionnée)",
+			"trigger_waitForWinner_placeholder": "Utilisez le placeholder {PLACEHOLDER} dans n'importe quelle action sous celle-ci pour récupérer l'entrée gagnante"
 		},
 		"state_title": "Tirage au sort",
 		"state_users": "0 entrée | 1 entrée | {COUNT} entrées",
@@ -98,6 +102,7 @@
 		"state_pickBt": "Tirer au sort",
 		"state_stopBt": "Clore le tirage",
 		"state_overlay_not_visible": "L'overlay de tirage au sort est masqué",
-		"state_overlay_not_found": "L'overlay de tirage au sort n'existe pas sur la scène OBS actuelle"
+		"state_overlay_not_found": "L'overlay de tirage au sort n'existe pas sur la scène OBS actuelle",
+		"state_many_raffles": "Vous avez {COUNT} tirages au sort en cours.\nUtilisez les flèches sur les côtés pour consulter les autres tirages et en fermer."
 	}
 }

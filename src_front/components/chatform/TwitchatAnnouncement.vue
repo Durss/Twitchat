@@ -93,8 +93,8 @@ class TwitchatAnnouncement extends AbstractSidePanel {
 	public loading:boolean = false;
 	public submitting:boolean = false;
 	public announcements:TwitchatDataTypes.TwitchatAnnouncementData[] = [];
-	public param_title:TwitchatDataTypes.ParameterData<string>[] = [];
-	public param_text:TwitchatDataTypes.ParameterData<string>[] = [];
+	public param_title:TwitchatDataTypes.ParameterData<string, unknown, unknown, string>[] = [];
+	public param_text:TwitchatDataTypes.ParameterData<string, unknown, unknown, string>[] = [];
 	public param_important:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"announcement.param_important", icon:"alert"};
 	public param_dateStart:TwitchatDataTypes.ParameterData<string> = {type:"datetime", value:new Date().toISOString().substring(0, 16), labelKey:"announcement.param_dateStart", icon:"date"};
 	public param_dateEnd:TwitchatDataTypes.ParameterData<string> = {type:"datetime", value:"", labelKey:"announcement.param_dateEnd", icon:"date"};
@@ -151,8 +151,8 @@ class TwitchatAnnouncement extends AbstractSidePanel {
 		this.submitting = true;
 		const title:{[key:string]:string} = {};
 		const text:{[key:string]:string} = {};
-		this.param_title.forEach(v=> title[v.storage as string] = v.value);
-		this.param_text.forEach(v=> text[v.storage as string] = v.value);
+		this.param_title.forEach(v=> title[v.storage!] = v.value);
+		this.param_text.forEach(v=> text[v.storage!] = v.value);
 
 		this.$confirm(this.$t("announcement.create_confirm.title"), this.$t("announcement.create_confirm.description"))
 		.then(async ()=>{

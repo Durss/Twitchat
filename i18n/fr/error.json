@@ -117,6 +117,8 @@
 		"lumia_connect_failed": "La connexion à Lumia Stream a échouée.\nAssurez-vous que Lumia Stream est lancé et que le jeton est valide.",
 		"streamelements_denied": "Vous avez refusé l'accès à votre profil Streamelements.",
 		"streamelements_connect_failed": "Authentification Streamelements échouée.",
+		"patreon_connect_failed": "Authentification Patreon échouée.",
+		"twitch_bot_connect_failed": "Authentification avec votre ccompte Twitch de bot échouée.",
 		"bingo_grid_404": "Grille de bingo introuvable",
 		"qna_action": "Une erreur est survenue lors de l'exécution d'une action de modération de questions/réponses",
 		"spoil_action": "Une erreur est survenue lors du marquage comme spoiler du message chez la/le streamer",

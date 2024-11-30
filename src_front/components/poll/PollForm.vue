@@ -33,7 +33,7 @@
 					/>
 				</div>
 				<ParamItem :paramData="param_extraVotes" v-model="param_extraVotes.value" @change="onValueChange()">
-					<ParamItem :paramData="param_points" @change="onValueChange()" v-if="param_extraVotes.value === true" v-model="param_points.value" noBackground class="child" />
+					<ParamItem :paramData="param_points" @change="onValueChange()" v-model="param_points.value" noBackground class="child" />
 				</ParamItem>
 				<ParamItem :paramData="param_duration" @change="onValueChange()" />
 				
@@ -193,12 +193,16 @@ class PollForm extends AbstractSidePanel {
 	 */
 	public onValueChange():void {
 		if(this.action) {
+			if(!this.param_extraVotes.value) {
+				this.param_points.value = 0;
+			}
 			this.action.pollData = {
 				title:this.title,
 				answers:this.answers.filter(v=> v.length > 0),
 				pointsPerVote:this.param_points.value,
 				voteDuration:this.param_duration.value,
 			};
+			
 		}
 	}
 
@@ -233,6 +237,7 @@ export default toNative(PollForm);
 			justify-content: center;
 			max-height: 5em;
 			overflow-y: auto;
+			min-height: 2em;
 		}
 		form > .card-item {
 			.field {

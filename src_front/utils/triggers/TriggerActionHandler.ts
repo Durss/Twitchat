@@ -5,7 +5,8 @@ import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { gsap } from "gsap/gsap-core";
-import { evaluate as MathEval, typed } from 'mathjs';
+import jsonpath from "jsonpath";
+import { evaluate as MathEval } from 'mathjs';
 import { RequestBatchExecutionType, type RequestBatchRequest } from "obs-websocket-js";
 import type { JsonObject } from "type-fest";
 import TwitchatEvent from "../../events/TwitchatEvent";
@@ -28,7 +29,6 @@ import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import YoutubeHelper from "../youtube/YoutubeHelper";
-import jsonpath from "jsonpath";
 
 /**
 * Created : 22/04/2022
@@ -81,8 +81,10 @@ export default class TriggerActionHandler {
 	 * @param testMode
 	 */
 	public async execute(message:TwitchatDataTypes.ChatMessageTypes, testMode = false, forcedTriggerId?:string):Promise<void> {
-		//Allow trigger exec only for our own chan
-		if(message.channel_id != StoreProxy.auth.twitch.user.id && message.channel_id != StoreProxy.auth.youtube.user?.id) return;
+		//Allow trigger exec only for our own chan or from tiktok
+		if(message.channel_id != StoreProxy.auth.twitch.user.id
+		&& message.channel_id != StoreProxy.auth.youtube.user?.id
+		&& message.platform != "tiktok") return;
 
 		//Check if it's a greetable message
 		if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
@@ -390,6 +392,7 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE:{
+				if(!message.info.user) return;
 				const event = message.info.user.id == StoreProxy.auth.twitch.user.id? TriggerTypes.STREAM_ONLINE : TriggerTypes.FOLLOWED_STREAM_ONLINE;
 				if(await this.executeTriggersByType(event, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
@@ -397,6 +400,7 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE:{
+				if(!message.info.user) return;
 				const event = message.info.user.id == StoreProxy.auth.twitch.user.id? TriggerTypes.STREAM_OFFLINE : TriggerTypes.FOLLOWED_STREAM_OFFLINE;
 				if(await this.executeTriggersByType(event, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
@@ -671,6 +675,55 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT:{
+				if(await this.executeTriggersByType(TriggerTypes.TIKTOK_GIFT, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB:{
+				if(await this.executeTriggersByType(TriggerTypes.TIKTOK_SUB, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE:{
+				if(await this.executeTriggersByType(TriggerTypes.TIKTOK_LIKE, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE:{
+				if(await this.executeTriggersByType(TriggerTypes.TIKTOK_SHARE, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT: {
+				if(await this.executeTriggersByType(TriggerTypes.CLEAR_CHAT, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT: {
+				const event = message.monitored? TriggerTypes.MONITOR_ON : message.restricted? TriggerTypes.RESTRICT_ON : TriggerTypes.MONITOR_RESTRICT_OFF;
+				if(await this.executeTriggersByType(event, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION: {
+				if(await this.executeTriggersByType(TriggerTypes.TWITCH_CHARITY_DONATION, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.PLAYABILITY_INPUT: {
+				if(await this.executeTriggersByType(TriggerTypes.PLAYABILITY_INPUT, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				switch(message.noticeId) {
 					case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE:{
@@ -709,6 +762,46 @@ export default class TriggerActionHandler {
 						const m = message as TwitchatDataTypes.MessageShieldMode;
 						const event = m.enabled? TriggerTypes.SHIELD_MODE_ON : TriggerTypes.SHIELD_MODE_OFF;
 						if(await this.executeTriggersByType(event, message, testMode, undefined, undefined, forcedTriggerId)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.SUB_ONLY_ON:{
+						if(await this.executeTriggersByType(TriggerTypes.SUB_ONLY_ON, message, testMode, undefined, undefined, forcedTriggerId)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.SUB_ONLY_OFF:{
+						if(await this.executeTriggersByType(TriggerTypes.SUB_ONLY_OFF, message, testMode, undefined, undefined, forcedTriggerId)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.FOLLOW_ONLY_ON:{
+						if(await this.executeTriggersByType(TriggerTypes.FOLLOW_ONLY_ON, message, testMode, undefined, undefined, forcedTriggerId)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.FOLLOW_ONLY_OFF:{
+						if(await this.executeTriggersByType(TriggerTypes.FOLLOW_ONLY_OFF, message, testMode, undefined, undefined, forcedTriggerId)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.EMOTE_ONLY_ON:{
+						if(await this.executeTriggersByType(TriggerTypes.EMOTE_ONLY_ON, message, testMode, undefined, undefined, forcedTriggerId)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.EMOTE_ONLY_OFF:{
+						if(await this.executeTriggersByType(TriggerTypes.EMOTE_ONLY_OFF, message, testMode, undefined, undefined, forcedTriggerId)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.SLOW_MODE_ON:{
+						if(await this.executeTriggersByType(TriggerTypes.SLOW_MODE_ON, message, testMode, undefined, undefined, forcedTriggerId)) {
+							return;
+						}break;
+					}
+					case TwitchatDataTypes.TwitchatNoticeType.SLOW_MODE_OFF:{
+						if(await this.executeTriggersByType(TriggerTypes.SLOW_MODE_OFF, message, testMode, undefined, undefined, forcedTriggerId)) {
 							return;
 						}break;
 					}
@@ -888,6 +981,7 @@ export default class TriggerActionHandler {
 
 		const triggers = this.triggerType2Triggers[ key ];
 		if(!triggers || triggers.length == 0) return false;
+		triggers.sort((a,b)=> (b.queuePriority || 0) - (a.queuePriority || 0));
 
 		//Execute all triggers related to the current trigger event type
 		for (const trigger of triggers) {
@@ -996,7 +1090,7 @@ export default class TriggerActionHandler {
 			if(!/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(text)) {
 				text = StoreProxy.i18n.t("global.ad_default", {USER_MESSAGE:text});
 			}
-			MessengerProxy.instance.sendMessage(text);
+			MessengerProxy.instance.sendMessage(text, undefined, undefined, undefined, false, false);
 			return true;
 		}
 
@@ -1005,7 +1099,8 @@ export default class TriggerActionHandler {
 		let queue:typeof this.triggerTypeToQueue[string] = [];
 
 		if(queueKey) {
-			log.entries.push({date:Date.now(), type:"message", value:"Execute trigger in queue \""+queueKey+"\""});
+			const prioritySuffix = trigger.queuePriority? " with priority "+trigger.queuePriority+"" : "";
+			log.entries.push({date:Date.now(), type:"message", value:"Execute trigger in queue \""+queueKey+"\""+prioritySuffix});
 
 			if(!this.triggerTypeToQueue[queueKey]) this.triggerTypeToQueue[queueKey] = [];
 			queue = this.triggerTypeToQueue[queueKey];
@@ -1042,7 +1137,7 @@ export default class TriggerActionHandler {
 				if(message.type == TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK) {
 					//Heat click messages have a limited type definition.
 					//Get the full user from those limited data
-					executingUser = await StoreProxy.users.getUserFrom(message.platform, message.channel_id, message.user.id, message.user.login);
+					executingUser = await StoreProxy.users.getUserFrom(message.platform, message.channel_id, message.user.id, message.user.login, undefined, undefined, undefined, false, undefined, false);
 				}else{
 					executingUser = message.user;
 				}
@@ -1201,7 +1296,7 @@ export default class TriggerActionHandler {
 					}else{
 						delay = step.delay;
 					}
-					logStep.messages.push({date:Date.now(), value:"Wait for "+ delay+"s..."});
+					logStep.messages.push({date:Date.now(), value:"🕙 Wait for "+ delay+"s..."});
 					await Utils.promisedTimeout(delay * 1000);
 				}else
 
@@ -1433,7 +1528,7 @@ export default class TriggerActionHandler {
 										}
 									}
 									if(step.waitMediaEnd === true && (action == "show" || action == "replay")) {
-										logStep.messages.push({date:Date.now(), value:"Wait for media \""+step.sourceName+"\" to complete playing..."});
+										logStep.messages.push({date:Date.now(), value:"🕙 Wait for media \""+step.sourceName+"\" to complete playing..."});
 										await new Promise<void>((resolve, reject)=> {
 											const handler = (e:TwitchatEvent) => {
 												const d = e.data as {inputName:string};
@@ -1483,6 +1578,9 @@ export default class TriggerActionHandler {
 					}else
 					if(step.obsAction == "stopvirtualcam") {
 						await OBSWebsocket.instance.socket.call("StopVirtualCam");
+					}else
+					if(step.obsAction == "createchapter") {
+						await OBSWebsocket.instance.socket.call("CreateRecordChapter", {chapterName:step.recordChapterName});
 					}else
 					if(step.obsAction == "emitevent") {
 						const params = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.browserEventParams || "", subEvent);
@@ -1608,7 +1706,7 @@ export default class TriggerActionHandler {
 				if(step.type == "tts" && message) {
 					const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text, subEvent);
 					logStep.messages.push({date:Date.now(), value:"TTS read message \""+text+"\""});
-					TTSUtils.instance.readNext(text, ttsID ?? trigger.id);
+					TTSUtils.instance.readNext(text, ttsID ?? trigger.id, step.voiceParams);
 				}else
 
 				//Handle poll action
@@ -1661,12 +1759,29 @@ export default class TriggerActionHandler {
 				//Handle raffle action
 				if(step.type == "raffle") {
 					const data:TwitchatDataTypes.RaffleData = JSON.parse(JSON.stringify(step.raffleData));
+					let winnerResolver:Promise<TwitchatDataTypes.RaffleEntry> | null = null;
 					if(data.customEntries) {
-						//Parse placeholders on custom erntries
+						//Parse placeholders on custom entries
 						data.customEntries = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, data.customEntries);
+					}
+					if(step.raffleData.triggerWaitForWinner === true) {
+						winnerResolver = new Promise<TwitchatDataTypes.RaffleEntry>((resolve)=>{
+							data.resultCallback = (winner:TwitchatDataTypes.RaffleEntry)=>{
+								resolve!(winner);
+							}
+						})
 					}
 					logStep.messages.push({date:Date.now(), value:"✔ Starting \""+data.mode+"\" raffle"});
 					StoreProxy.raffle.startRaffle(data);
+					console.log(step.raffleData.triggerWaitForWinner)
+					if(step.raffleData.triggerWaitForWinner === true) {
+						logStep.messages.push({date:Date.now(), value:"🕙Waiting for a raffle winner to be picked..."});
+						if(winnerResolver) {
+							const winner = await winnerResolver;
+							dynamicPlaceholders["RAFFLE_WINNER_ENTRY"] = winner.label;
+						}
+
+					}
 				}else
 
 				//Handle raffle enter action
@@ -2000,23 +2115,31 @@ export default class TriggerActionHandler {
 
 				//Handle WS message trigger action
 				if(step.type == "ws") {
-					const json:{[key:string]:number|string|boolean} = {};
+					let jsonSrc = step.payload || "{}";
+					let json:{[key:string]:number|string|boolean} = {};
+					try {
+						jsonSrc = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, jsonSrc, subEvent, false, false, false, true);
+						json = JSON.parse(jsonSrc);
+					}catch(error) {
+						json = {
+							twitchat_error:"Invalid JSON structure",
+						};
+						logStep.messages.push({date:Date.now(), value:"❌ Failed parsing JSON: "+error});
+						logStep.messages.push({date:Date.now(), value:"❌ Given JSON after replacing placeholders: "+jsonSrc});
+						logStep.messages.push({date:Date.now(), value:"❌ Using empty JSON as body instead of custom one"});
+						log.error = true;
+						logStep.error = true;
+					}
 					for (const tag of step.params) {
 						const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent, false, false, false);
 						json[tag.toLowerCase()] = value;
 					}
-					if(step.topic) {
-						json.topic = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.topic, subEvent);
-					}
-					if(step.payload) {
-						json.payload = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.payload, subEvent);
-					}
 					try {
 						if(WebsocketTrigger.instance.connected) {
-							logStep.messages.push({date:Date.now(), value:"Sending WS message: "+json});
+							logStep.messages.push({date:Date.now(), value:"Sending WS message: "+JSON.stringify(json)});
 							WebsocketTrigger.instance.sendMessage(json);
 						}else{
-							logStep.messages.push({date:Date.now(), value:"❌ Websocket not connected. Cannot send data: "+json});
+							logStep.messages.push({date:Date.now(), value:"❌ Websocket not connected. Cannot send data: "+JSON.stringify(json)});
 							log.error = true;
 							logStep.error = true;
 						}
@@ -2190,7 +2313,7 @@ export default class TriggerActionHandler {
 										if(action == "delete") {
 											StoreProxy.values.deleteValueEntry(v.id, user);
 										}else{
-											StoreProxy.values.updateValue(v.id, text, user);
+											StoreProxy.values.updateValue(v.id, text, user, undefined, step.interpretMaths);
 										}
 										let logMessage = action+" value \""+v.name+"\", "+text;
 										if(user) logMessage += " (for @"+user.displayNameOriginal+")";
@@ -2216,7 +2339,7 @@ export default class TriggerActionHandler {
 									if(action == "delete") {
 										StoreProxy.values.deleteValueEntry(v.id, undefined, uid);
 									}else{
-										StoreProxy.values.updateValue(v.id, text, undefined, uid);
+										StoreProxy.values.updateValue(v.id, text, undefined, uid, step.interpretMaths);
 									}
 								}
 
@@ -2237,7 +2360,7 @@ export default class TriggerActionHandler {
 										if(action == "delete") {
 											StoreProxy.values.deleteValueEntry(v.id, undefined, user.id);
 										}else{
-											StoreProxy.values.updateValue(v.id, text, undefined, user.id);
+											StoreProxy.values.updateValue(v.id, text, undefined, user.id, step.interpretMaths);
 										}
 									}
 								}
@@ -2249,7 +2372,7 @@ export default class TriggerActionHandler {
 									if(action == "delete") {
 										StoreProxy.values.deleteValueEntry(v.id, user);
 									}else{
-										StoreProxy.values.updateValue(v.id, text, user);
+										StoreProxy.values.updateValue(v.id, text, user, undefined, step.interpretMaths);
 									}
 									let logMessage = action+" \""+v.name+"\" to \""+text+"\"";
 									if(user) logMessage += " (for @"+user.displayNameOriginal+")";
@@ -2338,9 +2461,9 @@ export default class TriggerActionHandler {
 									login = user.login;
 									resolved = true;
 									resolve();
-								});
+								}, undefined, undefined, undefined, false);
 								//Timeout request to avoid blocking trigger
-								setTimeout(()=>{
+								window.setTimeout(()=>{
 									if(!resolved) {
 										login = "USER_NOT_FOUND";
 										resolve();
@@ -2484,128 +2607,150 @@ export default class TriggerActionHandler {
 							let searchTerms = "";
 							let playlistTarget:TwitchatDataTypes.MessageMusicAddedToQueueData["playlistTarget"] = undefined;
 							let trackData:TwitchatDataTypes.MusicTrackData|undefined = undefined;
+							let allowSR = true;
 							if(SpotifyHelper.instance.connected) {
-								const playlistMode = step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST;
-								//Requested to add a track to a playlist, search for the playlost
-								if(playlistMode) {
-									let m:string = step.playlist;
-									if(message.type == "message") {
-										m = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, m, subEvent);
-									}
-									let id:string|null = null;
-									if(/open\.spotify\.com\/playlist\/.*/gi.test(m)) {
-										const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
-										id = chunks[2];
-									}
-
-									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Getting playlist by: "+(id || m)});
-									const playlist = await SpotifyHelper.instance.getUserPlaylist(id, m);
-									if(!playlist) {
-										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Playlist not found"});
-										logStep.error = true;
-										log.error = true;
-										const platforms:TwitchatDataTypes.ChatPlatform[] = [];
-										if(message.platform) platforms.push(message.platform);
-										// MessengerProxy.instance.sendMessage("Playlist not found", platforms);
-									}else{
-										playlistTarget = {
-											id:playlist.id,
-											title:playlist.name,
-											url:playlist.external_urls?.spotify,
-											cover:playlist.images && playlist.images.length > 0? playlist.images[0].url : "",
-										};
-
-										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Playlist found: "+(playlistTarget.title)+" : ID "+playlistTarget.id});
-									}
+								const maxPerUser = step.maxPerUser || 0;
+								let pendingCount = 0;
+								if(executingUser && maxPerUser > 0) {
+									pendingCount = SpotifyHelper.instance.getPendingTracksForUser(executingUser);
+									allowSR = pendingCount < maxPerUser;
 								}
+								if(!allowSR) {
+									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] User has "+pendingCount+" trakcs in the queue for a maximum of "+maxPerUser+" per user allowed."});
+									log.error = true;
+									logStep.error = true;
+									failCode = "spotify_max_per_user_reached";
 
-								let track:SearchTrackItem|null = null;
-								if(/open\.spotify\.[a-z]{2,}\/.*track\/.*/gi.test(m)) {
-									//Full URL specified, extract the ID from it
-									let url = m;
-									//Add protocol if missing
-									if(!/https?:\/\//.test(url)) url = "https://"+url;
-									try {
-										const chunks = new URL(url).pathname.split(/\//gi);
-										const id = chunks.pop()!;
-										track = await SpotifyHelper.instance.getTrackByID(id);
-										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Get track by ID success: "+(track != null)+" : TRACK ID "+id});
-									}catch(error) {
+								}else{
+									const playlistMode = step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST;
+									//Requested to add a track to a playlist, search for the playlost
+									if(playlistMode) {
+										let m:string = step.playlist;
+										if(message.type == "message") {
+											m = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, m, subEvent);
+										}
+										let id:string|null = null;
+										if(/open\.spotify\.com\/playlist\/.*/gi.test(m)) {
+											const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
+											id = chunks[2];
+										}
+	
+										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Getting playlist by: "+(id || m)});
+										const playlist = await SpotifyHelper.instance.getUserPlaylist(id, m);
+										if(!playlist) {
+											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Playlist not found"});
+											logStep.error = true;
+											log.error = true;
+											const platforms:TwitchatDataTypes.ChatPlatform[] = [];
+											if(message.platform) platforms.push(message.platform);
+											// MessengerProxy.instance.sendMessage("Playlist not found", platforms);
+										}else{
+											playlistTarget = {
+												id:playlist.id,
+												title:playlist.name,
+												url:playlist.external_urls?.spotify,
+												cover:playlist.images && playlist.images.length > 0? playlist.images[0].url : "",
+											};
+	
+											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Playlist found: "+(playlistTarget.title)+" : ID "+playlistTarget.id});
+										}
+									}
+	
+									let track:SearchTrackItem|null = null;
+									if(/open\.spotify\.[a-z]{2,}\/.*track\/.*/gi.test(m)) {
+										//Full URL specified, extract the ID from it
+										let url = m;
+										//Add protocol if missing
+										if(!/https?:\/\//.test(url)) url = "https://"+url;
+										try {
+											const chunks = new URL(url).pathname.split(/\//gi);
+											const id = chunks.pop()!;
+											track = await SpotifyHelper.instance.getTrackByID(id);
+											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Get track by ID success: "+(track != null)+" : TRACK ID "+id});
+										}catch(error) {
+											logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Unsupported track URL : "+m});
+											log.error = true;
+											logStep.error = true;
+											failCode = "wrong_url";
+										}
+									}else if(/spotify\..[a-z]{2,}\/.*/gi.test(m)) {
 										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Unsupported track URL : "+m});
 										log.error = true;
 										logStep.error = true;
 										failCode = "wrong_url";
-									}
-								}else if(/spotify\..[a-z]{2,}\/.*/gi.test(m)) {
-									logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Unsupported track URL : "+m});
-									log.error = true;
-									logStep.error = true;
-									failCode = "wrong_url";
-								}else{
-									//No URL given, search with API
-									searchTerms = m;
-									const tracks = await SpotifyHelper.instance.searchTrack(m);
-									if(tracks && tracks.length > 0) {
-										switch(step.musicSelectionType) {
-											case "2": track = tracks.length > 1? tracks[1] : tracks.pop()!; break;
-											case "3": track = tracks.length > 2? tracks[2] : tracks.pop()!; break;
-											case "top3": track = Utils.pickRand(tracks.splice(0, 3)); break;
-											case "top5": track = Utils.pickRand(tracks.splice(0, 5)); break;
-											case "top10": track = Utils.pickRand(tracks.splice(0, 10)); break;
-											case "top15": track = Utils.pickRand(tracks.splice(0, 15)); break;
-											case "top20": track = Utils.pickRand(tracks.splice(0, 20)); break;
-											case "top25": track = Utils.pickRand(tracks.splice(0, 25)); break;
-											case "top30": track = Utils.pickRand(tracks.splice(0, 30)); break;
-											case "top40": track = Utils.pickRand(tracks.splice(0, 40)); break;
-											case "top50": track = Utils.pickRand(tracks.splice(0, 50)); break;
-											default:
-											case "1": track = tracks[0]; break;
+									}else{
+										//No URL given, search with API
+										searchTerms = m;
+										const tracks = await SpotifyHelper.instance.searchTrack(m);
+										if(tracks && tracks.length > 0) {
+											switch(step.musicSelectionType) {
+												case "2": track = tracks.length > 1? tracks[1] : tracks.pop()!; break;
+												case "3": track = tracks.length > 2? tracks[2] : tracks.pop()!; break;
+												case "top3": track = Utils.pickRand(tracks.splice(0, 3)); break;
+												case "top5": track = Utils.pickRand(tracks.splice(0, 5)); break;
+												case "top10": track = Utils.pickRand(tracks.splice(0, 10)); break;
+												case "top15": track = Utils.pickRand(tracks.splice(0, 15)); break;
+												case "top20": track = Utils.pickRand(tracks.splice(0, 20)); break;
+												case "top25": track = Utils.pickRand(tracks.splice(0, 25)); break;
+												case "top30": track = Utils.pickRand(tracks.splice(0, 30)); break;
+												case "top40": track = Utils.pickRand(tracks.splice(0, 40)); break;
+												case "top50": track = Utils.pickRand(tracks.splice(0, 50)); break;
+												default:
+												case "1": track = tracks[0]; break;
+											}
 										}
+										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Search track with selection \""+(step.musicSelectionType || "1")+"\": "+(track != null? 'success' : 'failed')});
 									}
-									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Search track with selection \""+(step.musicSelectionType || "1")+"\": "+(track != null? 'success' : 'failed')});
-								}
-								if(track) {
-									if(step.limitDuration === true && track.duration_ms > maxDuration) {
-										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Track is longer than the allowed "+Utils.formatDuration(maxDuration)+"s"});
-										failCode = "max_duration";
-									}else {
-										let success:string|boolean = false;
-										if(playlistMode && playlistTarget) {
-											success = await SpotifyHelper.instance.addToPlaylist(track, playlistTarget.id);
-										}else{
-											success = await SpotifyHelper.instance.addToQueue(track, false, executingUser, searchTerms);
+									if(track) {
+										if(step.limitDuration === true && track.duration_ms > maxDuration) {
+											logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Track is longer than the allowed "+Utils.formatDuration(maxDuration)+"s"});
+											failCode = "max_duration";
+										}else {
+											let success:string|boolean = false;
+											if(playlistMode && playlistTarget) {
+												success = await SpotifyHelper.instance.addToPlaylist(track, playlistTarget.id);
+											}else{
+												success = await SpotifyHelper.instance.addToQueue(track, false, executingUser, searchTerms);
+											}
+											if(success === true) {
+												logStep.messages.push({date:Date.now(), value:"✔ [SPOTIFY] Add to "+(playlistMode? "playlist": "queue")+" success"});
+												trackData = {
+													id:track.id,
+													title:track.name,
+													artist:track.artists[0].name,
+													album:track.album.name,
+													cover:track.album.images[0].url,
+													duration:track.duration_ms,
+													url:track.external_urls.spotify,
+												};
+											}else if(success == "NO_ACTIVE_DEVICE") {
+												logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] No active device found"});
+												log.error = true;
+												logStep.error = true;
+												failCode = "no_active_device";
+	
+											}else{
+												logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Add to "+(playlistMode? "playlist": "queue")+" failed with reason: "+success});
+												log.error = true;
+												logStep.error = true;
+												failCode = playlistMode? "api_playlist" : "api_queue";
+											}
 										}
-										if(success === true) {
-											logStep.messages.push({date:Date.now(), value:"✔ [SPOTIFY] Add to "+(playlistMode? "playlist": "queue")+" success"});
-											trackData = {
-												id:track.id,
-												title:track.name,
-												artist:track.artists[0].name,
-												album:track.album.name,
-												cover:track.album.images[0].url,
-												duration:track.duration_ms,
-												url:track.external_urls.spotify,
-											};
-										}else if(success == "NO_ACTIVE_DEVICE") {
-											logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] No active device found"});
-											log.error = true;
-											logStep.error = true;
-											failCode = "no_active_device";
-
-										}else{
-											logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Add to "+(playlistMode? "playlist": "queue")+" failed with reason: "+success});
-											log.error = true;
-											logStep.error = true;
-											failCode = playlistMode? "api_playlist" : "api_queue";
-										}
+									}else{
+										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Searching track failed, no result found for search \""+m+"\""});
+										log.error = true;
+										logStep.error = true;
+										failCode = "no_result";
 									}
-								}else{
-									logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Searching track failed, no result found for search \""+m+"\""});
-									log.error = true;
-									logStep.error = true;
-									failCode = "no_result";
 								}
 							}
+
+							const failReason = StoreProxy.i18n.t("triggers.actions.music.fail_reasons."+failCode,
+												{
+													DURATION:Utils.formatDuration((step.maxDuration || 0)*1000)+"s",
+													SEARCH:m,
+													USER:executingUser?.displayNameOriginal || "",
+												});
 
 							const trackAddedMesssageData:TwitchatDataTypes.MessageMusicAddedToQueueData = {
 								id:Utils.getUUID(),
@@ -2618,7 +2763,7 @@ export default class TriggerActionHandler {
 								user:executingUser,
 								triggerIdSource:trigger.id,
 								failCode,
-								failReason:StoreProxy.i18n.t("triggers.actions.music.fail_reasons."+failCode, {DURATION:Utils.formatDuration(maxDuration)+"s", SEARCH:m}),
+								failReason,
 								search:m,
 								maxDuration:step.maxDuration,
 								channel_id:message.channel_id,
@@ -2641,7 +2786,7 @@ export default class TriggerActionHandler {
 								if(step.failMessage) {
 									const confirmPH = TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE);
 									let chatMessage = await this.parsePlaceholders(dynamicPlaceholders, confirmPH, trigger, trackAddedMesssageData, step.failMessage, subEvent, false);
-									chatMessage = chatMessage.replace(/\{FAIL_REASON\}/gi, StoreProxy.i18n.t("triggers.actions.music.fail_reasons."+failCode, {DURATION:Utils.formatDuration((step.maxDuration || 0)*1000), SEARCH:m}));
+									chatMessage = chatMessage.replace(/\{FAIL_REASON\}/gi, failReason);
 									MessengerProxy.instance.sendMessage(chatMessage);
 								}
 
@@ -3087,6 +3232,91 @@ export default class TriggerActionHandler {
 							logStep.error = true;
 						}
 					}
+				}else
+
+				//Handle Streamer.bot action
+				if(step.type == "streamerbot") {
+					if(!StoreProxy.streamerbot.connected) {
+						logStep.messages.push({date:Date.now(), value:"❌ Streamer.bot not connect, cannot execute requested action"});
+						log.error = true;
+						logStep.error = true;
+					}else if(!step.streamerbotData) {
+						logStep.messages.push({date:Date.now(), value:"❌ Missing Streamer.bot related trigger action data"});
+						log.error = true;
+						logStep.error = true;
+					}else{
+						const args:{[key:string]:string} = {};
+						args.__source = Object.keys(TriggerTypes).find(k=>TriggerTypes[k as keyof typeof TriggerTypes] == trigger.type) || "";
+						if(step.streamerbotData.params) {
+							for (let i = 0; i < step.streamerbotData.params.length; i++) {
+								const param = step.streamerbotData.params[i];
+								let key = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, param.key || "", subEvent)
+								let value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, param.value || "", subEvent)
+								args[key] = value;
+							}
+						}
+						logStep.messages.push({date:Date.now(), value:"✔ Execute Streamer.bot action ID: "+step.streamerbotData.actionId+" with arguments: "+JSON.stringify(args)});
+						StoreProxy.streamerbot.doAction(step.streamerbotData.actionId, args);
+					}
+				}else
+
+				//Handle SAMMI action
+				if(step.type == "sammi") {
+					if(!StoreProxy.sammi.connected) {
+						logStep.messages.push({date:Date.now(), value:"❌ SAMMI not connect, cannot execute requested button"});
+						log.error = true;
+						logStep.error = true;
+					}else if(!step.sammiData) {
+						logStep.messages.push({date:Date.now(), value:"❌ Missing SAMMI related trigger action data"});
+						log.error = true;
+						logStep.error = true;
+					}else{
+						logStep.messages.push({date:Date.now(), value:"✔ Execute SAMMI button ID: "+step.sammiData.buttonId});
+						StoreProxy.sammi.triggerButton(step.sammiData.buttonId);
+					}
+				}else
+
+				//Handle Mix It Up action
+				if(step.type == "mixitup") {
+					if(!StoreProxy.mixitup.connected) {
+						logStep.messages.push({date:Date.now(), value:"❌ Mix It Up not connect, cannot execute requested coommand"});
+						log.error = true;
+						logStep.error = true;
+					}else if(!step.mixitupData) {
+						logStep.messages.push({date:Date.now(), value:"❌ Missing Mix It Up related trigger action data"});
+						log.error = true;
+						logStep.error = true;
+					}else{
+						const args:{[key:string]:string} = {};
+						if(step.mixitupData.params) {
+							for (let i = 0; i < step.mixitupData.params.length; i++) {
+								const param = step.mixitupData.params[i];
+								let value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, param.value || "", subEvent)
+								args[i.toString()] = value.replace(/\|/g, "│");//Replace pipes by an alternative equivalent. This is to avoid issues with Mix It Up using it as a parameter delimiter
+							}
+						}
+						logStep.messages.push({date:Date.now(), value:"✔ Execute Mix It Up command ID: "+step.mixitupData.commandId+" with arguments: "+JSON.stringify(args)});
+						StoreProxy.mixitup.execCommand(step.mixitupData.commandId, message.platform, args);
+					}
+				}else
+
+				if(step.type == "playability") {
+					if(!StoreProxy.playability.connected) {
+						logStep.messages.push({date:Date.now(), value:"❌ PlayAbility not connect, cannot execute requested actions"});
+						log.error = true;
+						logStep.error = true;
+					}else if(!step.playabilityData) {
+						logStep.messages.push({date:Date.now(), value:"❌ Missing PlayAbility related trigger action data"});
+						log.error = true;
+						logStep.error = true;
+					}else{
+						StoreProxy.playability.execOutputs(step.playabilityData.outputs);
+						for (let i = 0; i < step.playabilityData.outputs.length; i++) {
+							const element = step.playabilityData.outputs[i];
+							logStep.messages.push({date:Date.now(), value:"✔ Simulate PlayAbility output: "+element.code+" to "+element.value});
+						}
+					}
+
 				}
 
 			}catch(error:any) {
@@ -3105,8 +3335,8 @@ export default class TriggerActionHandler {
 				item.resolver();//Proceed to next trigger in current queue
 			}
 		}
-		log.entries.push({date:Date.now(), type:"message", value:"✔ Trigger execution complete"});
 		log.complete = true;
+		log.entries.push({date:Date.now(), type:"message", value:"✔ Trigger execution complete"});
 
 		// console.log("Steps parsed", actions);
 		return true;
@@ -3115,16 +3345,18 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	public async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false, removeHTMLtags:boolean = true, escapeDoubleQuotes:boolean = false):Promise<string> {
+	public async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholders:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false, removeHTMLtags:boolean = true, escapeDoubleQuotes:boolean = false):Promise<string> {
 		let res = src.toString();
 		if(!res) return "";
+		//If there are no placeholder, ignore
+		if(res.indexOf("{") == -1 || res.indexOf("}") == -1) return res;
 		let subEvent_regSafe = "";
 		if(subEvent) subEvent_regSafe = subEvent.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 
 		const ululeProject = DataStore.get(DataStore.ULULE_PROJECT);
 		const isPremium = StoreProxy.auth.isPremium;
-		const channelId = StoreProxy.auth.twitch.user.id;
 		const me = StoreProxy.auth.twitch.user;
+		const channelId = me.id;
 		// const channelId = message.hasOwnProperty("channel_id")? message.channel_id : StoreProxy.auth.twitch.user.id;
 
 		//Replace dynamic placeholders. These are user defined placeholders.
@@ -3145,7 +3377,7 @@ export default class TriggerActionHandler {
 			// console.log(subEvent);
 
 			let placeholders = TriggerEventPlaceholders(trigger.type).concat() ?? [];//Clone it to avoid modifying original
-			if(actionPlaceholder.length > 0) placeholders = placeholders.concat(actionPlaceholder);
+			if(actionPlaceholders.length > 0) placeholders = placeholders.concat(actionPlaceholders);
 			// console.log(placeholders);
 			//No placeholders for this event type, just send back the source text
 			if(placeholders.length == 0) return res;
@@ -3356,7 +3588,7 @@ export default class TriggerActionHandler {
 								//If it's a per-user counter, get the user's value
 								const user = this.extractUserFromTrigger(trigger, message);
 								if(user && counter.users && counter.users[user.id]) {
-									value = counter.users[user.id].toString();
+									value = counter.users[user.id].value.toString();
 								}else{
 									value = "0";
 								}
@@ -3380,7 +3612,7 @@ export default class TriggerActionHandler {
 								//If it's a per-user counter, get the user's value
 								const user = this.extractUserFromTrigger(trigger, message);
 								if(user && valueEntry.users && valueEntry.users[user.id]) {
-									value = valueEntry.users[user.id].toString();
+									value = valueEntry.users[user.id].value.toString();
 								}else{
 									value = "";
 								}
@@ -3438,9 +3670,25 @@ export default class TriggerActionHandler {
 							case "lastcheer_login": value = (StoreProxy.labels.getLabelByKey("CHEER_NAME") || "").toString(); break;
 							case "lastcheer_amount": value = (StoreProxy.labels.getLabelByKey("CHEER_AMOUNT") || "0").toString(); break;
 						}
+					
+					/**
+					 * If the placeholder requests for a user's twitch badges
+					 */
 					}else if(pointer.indexOf("__user_badges__") == 0 && Object.hasOwn(message, "user")) {
 						const typedMessage = message as TwitchatDataTypes.MessageChatData;
 						value = JSON.stringify(typedMessage.user.channelInfo[typedMessage.channel_id]?.badges || []);
+					
+					/**
+					 * If the placeholder requests for a user's custom badges
+					 */
+					}else if(pointer.indexOf("__user_custom_badges__") == 0 && Object.hasOwn(message, "user")) {
+						const user = this.extractUserFromTrigger(trigger, message);
+						if(user){
+							const badges = StoreProxy.users.customUserBadges[user.id];
+							value = (badges || []).map(v=>v.id).join(", ");
+						}else {
+							value = "";
+						}
 					}
 				}else{
 					const chunks:string[] = placeholder.pointer.split(".");
@@ -3552,11 +3800,11 @@ export default class TriggerActionHandler {
 	 */
 	private async extractUserFromPlaceholder(channel_id:string, placeholder:string, dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholders:TriggerActionDataTypes.ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:Omit<LogTrigger, "date">):Promise<TwitchatDataTypes.TwitchatUser[]> {
 		const displayName = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+placeholder.toUpperCase()+"}");
-
+		
 		//Not ideal but if there are multiple users they're concatenated in
 		//a single coma seperated string (placeholder parsing is made for display :/).
 		//Here we split it on comas just in case there are multiple user names
-		const list = displayName.split(",");
+		const list = displayName.trim().split(",").filter(v=>v.length > 2);
 		const result:TwitchatDataTypes.TwitchatUser[] = [];
 		for (const displayName of list) {
 			//Load user details
@@ -3577,7 +3825,7 @@ export default class TriggerActionHandler {
 						log.entries.push({date:Date.now(), type:"message", value:"✔ Custom user loading complete: "+user.displayName+"(#"+user.id+")"});
 					}
 					resolve(user);
-				});
+				}, undefined, undefined, undefined, false);
 			});
 			if(user) result.push(user);
 		}
@@ -3601,7 +3849,7 @@ export default class TriggerActionHandler {
 			for (let i = 0; i < channels.length; i++) {
 				const c = channels[i];
 				liveChannels[c.user_id] = {
-					user:StoreProxy.users.getUserFrom("twitch", channel_id, c.user_id, c.user_login, c.user_name),
+					user:StoreProxy.users.getUserFrom("twitch", channel_id, c.user_id, c.user_login, c.user_name, undefined, undefined, false, undefined, false),
 					category:c.game_name,
 					title:c.title,
 					tags: c.tags,
@@ -3703,7 +3951,12 @@ export default class TriggerActionHandler {
 					case "<=": localRes = parseInt(value) <= valueNum; break;
 					case ">": localRes = parseInt(value) > valueNum; break;
 					case ">=": localRes = parseInt(value) >= valueNum; break;
-					case "=": localRes = value.toLowerCase() == expectation.toLowerCase(); break;
+					case "=": localRes = value == expectation || value.toLowerCase() == expectation.toLowerCase()
+							|| (value == "1" && expectation == "true")
+							|| (value == "true" && expectation == "1")
+							|| (value == "0" && expectation == "false")
+							|| (value == "false" && expectation == "0");
+							break;
 					case "!=": localRes = value.toLowerCase() != expectation.toLowerCase(); break;
 					case "contains": localRes = value.toLowerCase().indexOf(expectation.toLowerCase()) > -1; break;
 					case "not_contains": localRes = value.toLowerCase().indexOf(expectation.toLowerCase()) == -1; break;

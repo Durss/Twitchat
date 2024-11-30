@@ -56,7 +56,7 @@ const i18n = createI18n({
 		}
 	}catch(error) {
 		console.log(error);
-		setTimeout(() => {
+		window.setTimeout(() => {
 			StoreProxy.default.common.alert( "An error occured when loading labels :(" );
 		}, 1000);
 	}

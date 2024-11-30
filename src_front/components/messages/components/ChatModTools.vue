@@ -122,7 +122,7 @@ class ChatModTools extends Vue {
 	}
 
 	public closeToOptions():void {
-		this.closeTimeout = setTimeout(() => {
+		this.closeTimeout = window.setTimeout(() => {
 			const holder = this.$refs.toOptions as HTMLDivElement;
 			if(!holder) return;
 			gsap.to(holder, {width:0, duration:.2, ease:"sin.inOut",

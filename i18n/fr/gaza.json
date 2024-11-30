@@ -7,18 +7,12 @@
 			"Il s'agit d'humanité.",
 			"Agir contre un génocide infâme se déroulant sous nos yeux ne fait pas de vous des antisémites et encore moins pro-hamas.",
 			"\n",
-			"Si vous ne pouvez vous le permettre financièrement, partagez l'une des options suivantes à vos viewers 💖"
+			"Si vous ne pouvez vous le permettre financièrement, partagez le lien ci-dessous à vos viewers 💖"
 		],
 		"send_bt":"Partager GazaFunds.com en tchat",
 		"open_bt":"Ouvrir GazaFunds.com",
 		"allFunds_bt":"Consulter toutes les cagnottes",
 		"thanks":"💖 Merci 💖",
-		"t4p_info":"Vous pouvez utiliser l'overlay {URL} qui met en avant une cagnotte vérifiée. Une fois remplie, une autre cagnotte vérifiée prend sa place.",
-		"t4p_doc":"https://twitch4palestine.com/doc",
-		"t4p_fundraisers":"Ajouter l'overlay de cagnotte",
-		"t4p_alerts":"Ajouter l'overlay d'alertes de dons",
-		"t4p_chatCmd_toggle":"Activer une commande de tchat pour envoyer le lien de la cagnotte actuelle dans le tchat",
-		"t4p_chatCmd":"Commande (1min de cooldown)",
 		"gazafunds":"https://gazafunds.com"
 	}
 }

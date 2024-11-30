@@ -94,6 +94,24 @@ export const storeBingo = defineStore('bingo', {
 					MessengerProxy.instance.sendMessage(txt, [message.user.platform]);
 				}
 
+				if(bingo.guessNumber) {
+					delete bingo.customValue;
+					delete bingo.emoteValue;
+					bingo.genericValue = bingo.numberValue!;
+				}else
+				if(bingo.guessEmote && bingo.emoteValue) {
+					delete bingo.numberValue;
+					delete bingo.customValue;
+					const key = Object.keys(bingo.emoteValue!)[0] as keyof typeof bingo.emoteValue;
+					let code = bingo.emoteValue[key]?.code || "EMOTE_NOT_FOUND";
+					bingo.genericValue = code;
+				}else
+				if(bingo.guessCustom) {
+					delete bingo.numberValue;
+					delete bingo.emoteValue;
+					bingo.genericValue = bingo.customValue!;
+				}
+
 				//Notify broadcaster and execute trigger
 				const m:TwitchatDataTypes.MessageBingoData = {
 					id:Utils.getUUID(),

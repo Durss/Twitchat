@@ -99,7 +99,7 @@ class ObsHeatLogs extends AbstractSidePanel {
 	public async onSearch():Promise<void> {
 		this.searching = true;
 		clearTimeout(this.searchTO);
-		this.searchTO = setTimeout(()=>{
+		this.searchTO = window.setTimeout(()=>{
 			this.search = this.param_search.value;
 			this.searching = false;
 		}, 250)

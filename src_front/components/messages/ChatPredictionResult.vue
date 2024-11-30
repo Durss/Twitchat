@@ -52,6 +52,10 @@ class ChatPredictionResult extends AbstractChatMessage {
 
 	public get me():TwitchatDataTypes.TwitchatUser { return this.$store.auth.twitch.user; }
 
+	public get iconColor():string{
+		return this.$store.common.theme == "dark" ? "#9147ff" : "#772ce8";
+	}
+
 	public getOutcomeClasses(o:TwitchatDataTypes.MessagePredictionDataOutcome):string[] {
 		const res = ["outcome"];
 		if(this.messageData.winner?.id === o.id) res.push("winner");
@@ -84,7 +88,7 @@ export default toNative(ChatPredictionResult);
 .chatpredictionresult{
 	text-align: center;
 	&>.icon {
-		color: #9147ff;
+		color: v-bind(iconColor);
 	}
 
 	.content {

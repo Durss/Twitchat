@@ -36,6 +36,13 @@
 				v-tooltip="$t('triggers.resyncExtensionBt_tt')"
 				:loading="loadingExtension">{{ $t('triggers.resyncExtensionBt') }}</Button>
 
+			<Button class="cta resyncBt" small
+				icon="mixitup"
+				v-if="$store.mixitup.connected"
+				@click="listMixItUp()"
+				v-tooltip="$t('triggers.resyncmixitupBt_tt')"
+				:loading="loadingMixItUp">{{ $t('triggers.resyncmixitupBt') }}</Button>
+
 			<Button class="cta" small
 				v-if="canTestTrigger"
 				icon="test"
@@ -123,6 +130,7 @@ class ParamsTriggers extends Vue implements IParameterContent {
 	public eventsCount:number = 0;
 	public showForm:boolean = false;
 	public loadingRewards:boolean = false;
+	public loadingMixItUp:boolean = false;
 	public loadingExtension:boolean = false;
 	public loadingOBSElements:boolean = false;
 	public headerKey:string = "triggers.header";
@@ -172,6 +180,9 @@ class ParamsTriggers extends Vue implements IParameterContent {
 		if(TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS])) {
 			this.listExtensions();
 		}
+		if(this.$store.mixitup.connected) {
+			this.listMixItUp();
+		}
 		//No trigger yet, just show form
 		if(this.noTrigger) {
 			// this.showForm = true;
@@ -195,7 +206,7 @@ class ParamsTriggers extends Vue implements IParameterContent {
 		//Watch for any change on the selected trigger
 		watch(()=>this.currentTriggerData, ()=> {
 			clearTimeout(debounceTimeout);
-			debounceTimeout = setTimeout(()=> {
+			debounceTimeout = window.setTimeout(()=> {
 				if(this.currentTriggerData) {
 					if(this.currentTriggerData.type == TriggerTypes.SCHEDULE) {
 						//Force reschedule after an update
@@ -347,6 +358,16 @@ class ParamsTriggers extends Vue implements IParameterContent {
 	}
 
 	/**
+	 * Lists Mix It Up commands
+	 */
+	public async listMixItUp():Promise<void> {
+		this.loadingMixItUp = true;
+		this.$store.mixitup.listCommands();
+		await Utils.promisedTimeout(200);//Just make sure the loading is visible in case query runs crazy fast
+		this.loadingMixItUp = false;
+	}
+
+	/**
 	 * Simulates a trigger's execution
 	 */
 	public createTriggerWithinFolder(folderId:string):void {
@@ -380,10 +401,13 @@ class ParamsTriggers extends Vue implements IParameterContent {
 					const m = data as TwitchatDataTypes.MessageNoticeData;
 					switch(m.noticeId) {
 						case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE:{
+							console.log("?§.?§?§§?§?", triggerEvent.value == TriggerTypes.EMERGENCY_MODE_START);
 							(m as TwitchatDataTypes.MessageEmergencyModeInfo).enabled = (triggerEvent.value == TriggerTypes.EMERGENCY_MODE_START);
+							break;
 						}
 						case TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE:{
 							(m as TwitchatDataTypes.MessageShieldMode).enabled = (triggerEvent.value == TriggerTypes.SHIELD_MODE_ON);
+							break;
 						}
 					}
 					TriggerActionHandler.instance.execute(data, true);
@@ -642,6 +666,19 @@ class ParamsTriggers extends Vue implements IParameterContent {
 					if(triggerEvent.value == TriggerTypes.VOICEMOD_SOUND_EFFECT) {
 						delete (m as TwitchatDataTypes.MessageVoicemodData).voiceID;
 						delete (m as TwitchatDataTypes.MessageVoicemodData).voiceName;
+					} else
+					
+					if(triggerEvent.value == TriggerTypes.MONITOR_RESTRICT_OFF) {
+						(m as TwitchatDataTypes.MessageLowtrustTreatmentData).restricted =
+						(m as TwitchatDataTypes.MessageLowtrustTreatmentData).monitored = false;
+					} else
+					
+					if(triggerEvent.value == TriggerTypes.MONITOR_ON) {
+						(m as TwitchatDataTypes.MessageLowtrustTreatmentData).monitored = true;
+					} else
+					
+					if(triggerEvent.value == TriggerTypes.RESTRICT_ON) {
+						(m as TwitchatDataTypes.MessageLowtrustTreatmentData).restricted = false;
 					}
 
 					TriggerActionHandler.instance.execute(m, true, trigger.id);

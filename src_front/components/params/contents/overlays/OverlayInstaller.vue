@@ -140,7 +140,7 @@ class OverlayInstaller extends Vue {
 		}
 		console.log(this.isExistingSource);
 		if(!this.isExistingSource) {
-			this.successTO = setTimeout(()=> {
+			this.successTO = window.setTimeout(()=> {
 				this.showSuccess = false;
 			}, 5000);
 		}
@@ -152,7 +152,7 @@ class OverlayInstaller extends Vue {
 	 */
 	public copyUrl():void {
 		this.confirmCopy = true;
-		setTimeout(()=> {
+		window.setTimeout(()=> {
 			this.confirmCopy = false;
 		}, 1500)
 		const holder = this.$refs.copyButton as HTMLDivElement;

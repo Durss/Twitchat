@@ -63,7 +63,7 @@ class ChatConnect extends AbstractChatMessage {
 			this.$store.accessibility.setAriaPolite(this.message);
 			if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.DISCONNECT) {
 				const chanId = this.messageData.channel_id;
-				setTimeout(()=> {
+				window.setTimeout(()=> {
 					this.showReconnectBt = !TwitchMessengerClient.instance.getIsConnectedToChannelID(chanId);
 				}, 2000);
 			}
@@ -79,7 +79,7 @@ class ChatConnect extends AbstractChatMessage {
 		}else{
 			this.$store.stream.connectToExtraChan(user);
 		}
-		setTimeout(()=> {
+		window.setTimeout(()=> {
 			this.showReconnectBt = !TwitchMessengerClient.instance.getIsConnectedToChannelID(this.messageData.channel_id);
 		}, 5000);
 	}

@@ -237,7 +237,6 @@ export default class TwitchUtils {
 		}, 60 * 60 * 1000);
 		return list;
 	}
-
 	
 	
 	

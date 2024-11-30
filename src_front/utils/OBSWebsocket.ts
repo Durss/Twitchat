@@ -103,7 +103,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			console.log(error);
 			if(this.autoReconnect) {
 				clearTimeout(this.reconnectTimeout);
-				this.reconnectTimeout = setTimeout(()=> {
+				this.reconnectTimeout = window.setTimeout(()=> {
 					this.connect(port, pass, autoReconnect, ip);
 				}, 5000);
 			}
@@ -195,7 +195,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(!this.connected) {
 			//Try again
 			if(retryCount == 30) return;
-			setTimeout(()=> this.broadcast(type, eventId, data, ++retryCount), 1000);
+			window.setTimeout(()=> this.broadcast(type, eventId, data, ++retryCount), 1000);
 			return;
 		}
 
@@ -217,8 +217,8 @@ export default class OBSWebsocket extends EventDispatcher {
 
 		const res = await this.obs.call("GetSceneList") as {
 			currentProgramSceneName: string;
-			currentPreviewSceneName: string;
 			currentProgramSceneUuid: string;
+			currentPreviewSceneName: string;
 			currentPreviewSceneUuid: string;
 			scenes: {sceneIndex:number, sceneName:string}[];
 		};
@@ -1071,7 +1071,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			this.connected = false;
 			if(this.autoReconnect) {
 				clearTimeout(this.reconnectTimeout);
-				this.reconnectTimeout = setTimeout(()=> {
+				this.reconnectTimeout = window.setTimeout(()=> {
 					this.connect(this.connectInfo.port, this.connectInfo.pass, this.autoReconnect, this.connectInfo.ip);
 				}, 5000);
 			}

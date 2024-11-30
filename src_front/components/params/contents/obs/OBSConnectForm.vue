@@ -61,7 +61,7 @@ class OBSConnectForm extends Vue {
 	public connectSuccess:boolean = false;
 	public isBraveBrowser:boolean = false;
 	public obsPort_conf:TwitchatDataTypes.ParameterData<number>	= { type:"number", value:4455, min:0, max:65535, step:1, labelKey:"obs.form_port" };
-	public obsPass_conf:TwitchatDataTypes.ParameterData<string>	= { type:"password", value:"", labelKey:"obs.form_pass" };
+	public obsPass_conf:TwitchatDataTypes.ParameterData<string>	= { type:"password", value:"", labelKey:"obs.form_pass", isPrivate:true };
 	public obsIP_conf:TwitchatDataTypes.ParameterData<string>	= { type:"string", value:"127.0.0.1", maxLength:100, labelKey:"obs.form_ip" };
 
 	public async beforeMount():Promise<void> {
@@ -102,7 +102,7 @@ class OBSConnectForm extends Vue {
 			this.paramUpdate();
 			this.connected = true;
 			this.connectSuccess = true;
-			setTimeout(()=> {
+			window.setTimeout(()=> {
 				this.connectSuccess = false;
 			}, 3000);
 		}else{

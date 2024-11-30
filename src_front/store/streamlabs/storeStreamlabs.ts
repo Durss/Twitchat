@@ -222,7 +222,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 											});
 
 											clearTimeout(charityRefreshTimeout);
-											charityRefreshTimeout = setTimeout(()=>{
+											charityRefreshTimeout = window.setTimeout(()=>{
 												//Load fresh new charity data
 												this.loadCharityCampaignInfo();
 											}, 5000);
@@ -315,7 +315,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 					if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
 					clearTimeout(reconnectTimeout);
 					reconnectAttempts ++;
-					reconnectTimeout = setTimeout(()=> {
+					reconnectTimeout = window.setTimeout(()=> {
 						socket = undefined;
 						this.connect(token, true);
 					}, 500 * reconnectAttempts);
@@ -328,7 +328,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 					reconnectAttempts ++;
 					if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
 					clearTimeout(reconnectTimeout);
-					reconnectTimeout = setTimeout(()=> {
+					reconnectTimeout = window.setTimeout(()=> {
 						socket = undefined;
 						this.connect(token, true);
 					}, 500 * reconnectAttempts);

@@ -63,9 +63,17 @@ import VueSelect from "vue-select";
 import 'vue-select/dist/vue-select.css';
 import VueTippy, { setDefaultProps } from "vue-tippy";
 import { storeCommon } from './store/common/storeCommon';
-import { storeLabels } from './store/labels/storeLabels';
 import { storeDonationGoals } from './store/donation_goals/storeDonationGoals';
+import { storeElevenLabs } from './store/elevenlabs/storeElevenLabs';
+import { storeLabels } from './store/labels/storeLabels';
+import { storeMixitup } from './store/mixitup/storeMixitup';
+import { storePlayability } from './store/playability/storePlayability';
+import { storeSammi } from './store/sammi/storeSammi';
+import { storeStreamerbot } from './store/streamerbot/storeStreamerbot';
+import { storeTiktok } from './store/tiktok/storeTiktok';
 import { storeTiltify } from './store/tiltify/storeTiltify';
+import { storeTwitchCharity } from './store/twitch_charity/storeTwitchCharity';
+import { storeTwitchBot } from './store/twitchbot/storeTwitchBot';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -106,7 +114,7 @@ const i18n = createI18n({
 		}
 	}catch(error) {
 		console.log(error);
-		setTimeout(() => {
+		window.setTimeout(() => {
 			StoreProxy.default.common.alert( "An error occured when loading labels :(" );
 			storeMain().initComplete = true;
 		}, 1000);
@@ -268,8 +276,16 @@ function buildApp() {
 	StoreProxy.default.common = storeCommon();
 	StoreProxy.default.donationGoals = storeDonationGoals();
 	StoreProxy.default.tiltify = storeTiltify();
+	StoreProxy.default.tiktok = storeTiktok();
+	StoreProxy.default.streamerbot = storeStreamerbot();
+	StoreProxy.default.sammi = storeSammi();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.default.labels = (storeLabels() as unknown) as StoreProxy.ILabelsState & StoreProxy.ILabelsGetters & StoreProxy.ILabelsActions & { $state: StoreProxy.ILabelsState; $reset:()=>void };
+	StoreProxy.default.mixitup = storeMixitup();
+	StoreProxy.default.twitchCharity = storeTwitchCharity();
+	StoreProxy.default.elevenLabs = storeElevenLabs();
+	StoreProxy.default.playability = storePlayability();
+	StoreProxy.default.twitchBot = storeTwitchBot();
 
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach(k => {

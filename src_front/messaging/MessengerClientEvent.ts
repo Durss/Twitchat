@@ -36,7 +36,7 @@ export default class MessengerClientEvent extends Event {
 					string
 					;
 
-	constructor(type:"MESSAGE", data:TwitchatDataTypes.MessageChatData);
+	constructor(type:"MESSAGE", data:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageCustomData);
 	constructor(type:"DELETE_MESSAGE", data:string);
 	constructor(type:"WHISPER", data:TwitchatDataTypes.MessageWhisperData);
 	constructor(type:"CHEER", data:TwitchatDataTypes.MessageCheerData);

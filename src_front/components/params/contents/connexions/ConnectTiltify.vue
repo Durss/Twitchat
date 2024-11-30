@@ -26,16 +26,16 @@
 				</TTButton>
 			</section>
 	
-			<section class="card-item secondary noCampaign" v-if="$store.tiltify.campaigns.length == 0">
+			<section class="card-item secondary noCampaign" v-if="$store.tiltify.campaignList.length == 0">
 				<Icon name="alert" />
 				<span>{{ $t("tiltify.no_campaign") }}</span>
 				<TTButton type="link" href="https://tiltify.com/start" target="_blank" icon="newtab" light secondary>{{ $t("global.start") }}</TTButton>
 			</section>
 			<template v-else>
 				<section class="card-item infos">
-					<strong>{{ $tc("tiltify.campaign_list", $store.tiltify.campaigns.length) }}</strong>
+					<strong>{{ $tc("tiltify.campaign_list", $store.tiltify.campaignList.length) }}</strong>
 					<div class="campaignList">
-						<div v-for="campaign in $store.tiltify.campaigns" class="campaign">
+						<div v-for="campaign in $store.tiltify.campaignList" class="campaign">
 							<a :href="campaign.donate_url" target="_blank"><Icon name="newtab" />{{campaign.name}}</a>
 							<TTButton clear icon="copy" v-tooltip="$t('tiltify.copy_id_tt')" @click="copyId(campaign.id)">#ID</TTButton>
 						</div>

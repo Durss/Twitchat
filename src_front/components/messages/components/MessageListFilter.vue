@@ -66,18 +66,18 @@
 
 					<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" v-model="param_toggleAll.value" @change="toggleAll()" />
 
-					<div class="item" v-for="f in filters"
-					:key="'filter_'+f.storage">
+					<div class="item" v-for="filter in filters"
+					:key="'filter_'+filter.storage">
 						<Icon name="show" class="preview"
-							v-if="f.storage!.type != 'message'"
+							v-if="filter.storage!.type != 'message'"
 							@mouseleave="mouseLeaveItem()"
-							@mouseenter="mouseEnterItem(f.storage!)" />
+							@mouseenter="mouseEnterItem(filter.storage!)" />
 
-						<ParamItem :paramData="f" autoFade
+						<ParamItem :paramData="filter" autoFade
 						@change="saveData()"
-						v-model="config.filters[f.storage!.type as 'message']"
-						v-newflag="f.storage!.newFlag > 0? {date:f.storage!.newFlag, id:'messagefilters_'+f.storage!.type} : undefined">
-							<template #child v-if="f.storage?.type == whisperType && config.filters.whisper === true">
+						v-model="config.filters[filter.storage!.type as 'message']"
+						v-newflag="filter.storage!.newFlag > 0? {date:filter.storage!.newFlag, id:'messagefilters_'+filter.storage!.type} : undefined">
+							<template #child v-if="filter.storage?.type == whisperType && config.filters.whisper === true">
 								<ToggleBlock class="whispersPermissions"
 								:title="$t('chat.filters.whispers_permissions')"
 								small
@@ -85,7 +85,7 @@
 									<PermissionsForm v-model="config.whispersPermissions" @update:modelValue="saveData()" />
 								</ToggleBlock>
 							</template>
-							<template #child v-if="f.storage?.type == messageType && config.filters.message === true">
+							<template #child v-if="filter.storage?.type == messageType && config.filters.message === true">
 								<div class="subFilters">
 									<div class="item">
 										<div class="preview"></div>
@@ -98,19 +98,19 @@
 											v-model="config.userBlockList" />
 									</div>
 									
-									<div class="item" v-for="f in messageFilters">
+									<div class="item" v-for="messageFilter in messageFilters">
 										<Icon name="show" class="preview"
-											v-if="f.storage!.hasPreview"
+											v-if="messageFilter.storage!.hasPreview"
 											@mouseleave="mouseLeaveItem()"
-											@mouseenter="previewSubMessage(f.storage!)" />
+											@mouseenter="previewSubMessage(messageFilter.storage!)" />
 										<div v-else class="preview"></div>
 											
 										<ParamItem autoFade
 											v-if="config.filters.message === true"
-											:key="'subfilter_'+f.storage"
-											:paramData="f"
+											:key="'subfilter_'+messageFilter.storage"
+											:paramData="messageFilter"
 											@change="saveData()"
-											v-model="config.messageFilters[f.storage!.type]" />
+											v-model="config.messageFilters[messageFilter.storage!.type]" />
 									</div>
 
 									<template v-if="$store.users.customBadgeList.length > 0">
@@ -339,6 +339,12 @@ export class MessageListFilter extends Vue {
 		chans.push({platform:"twitch", user:this.$store.auth.twitch.user, isRemoteChan:false, color:"transparent"});
 		if(this.$store.auth.youtube.user) {
 			chans.push({platform:"youtube", user:this.$store.auth.youtube.user, isRemoteChan:false, color:"transparent"});
+		}
+		
+		if(this.$store.tiktok.connected) {
+			const user:TwitchatDataTypes.TwitchatUser = JSON.parse(JSON.stringify(this.$store.auth.twitch.user));
+			user.id = "tiktok";
+			chans.push({platform:"tiktok", user, isRemoteChan:false, color:"transparent"});
 		}
 		
 		this.$store.stream.connectedTwitchChans.forEach(entry=> {
@@ -702,6 +708,33 @@ export class MessageListFilter extends Vue {
 			}, false);
 			this.loadingPreview = false;
 
+		}else
+		if(filter.type == TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE) {
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessagePrivateModeratorData>(TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE, (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				data.action = "dm";
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessagePrivateModeratorData>(TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE, (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				data.action = "question";
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessagePrivateModeratorData>(TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE, async (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				data.action = "dm";
+				const replyTo = await this.$store.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false);
+				data.parentMessage = replyTo;
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			this.loadingPreview = false;
+
 		}else{
 
 			this.$store.debug.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(filter.type, (data)=> {
@@ -829,7 +862,7 @@ export class MessageListFilter extends Vue {
 			this.config.channelIDs[entry.user.id] = {platform:entry.platform, date:Date.now()};
 		}
 
-		//Limite history size
+		//Limit history size
 		if(Object.keys(this.config.channelIDs).length > 100) {
 			let olderDate:number = 0;
 			let olderKey:string | null = null;
@@ -891,7 +924,7 @@ export class MessageListFilter extends Vue {
 		});
 
 		//Delay save to avoid UI lag during toggle
-		setTimeout(()=>{
+		window.setTimeout(()=>{
 			this.$emit("change");
 			this.$store.params.saveChatColumnConfs();
 		}, 300);
@@ -972,6 +1005,7 @@ export class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.MESSAGE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.WHISPER );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.PINNED );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE );
 				for (const key in this.config.messageFilters) {
 					const k = key as messageFilterTypes;
 					this.config.messageFilters[k] = k == "automod"
@@ -1001,6 +1035,9 @@ export class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.COUNTDOWN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.PREDICTION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAMLABS );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE );
@@ -1028,6 +1065,7 @@ export class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.KOFI );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.TIPEEE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAMLABS );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY );
@@ -1038,7 +1076,7 @@ export class MessageListFilter extends Vue {
 		}
 
 		for (let i = 0; i < ids.length; i++) {
-			const filter = this.filters.find(v => (v.storage as typeof TwitchatDataTypes.MessageListFilterTypes[number]).type === ids[i]);
+			const filter = this.filters.find(v => v.storage!.type === ids[i]);
 			if(filter) filter.value = true;
 		}
 

@@ -2,7 +2,7 @@ import type HeatEvent from "@/events/HeatEvent";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import type { HeatScreen } from "@/types/HeatDataTypes";
 import type { LabelItemData, LabelItemPlaceholder, LabelItemPlaceholderList } from "@/types/ILabelOverlayData";
-import type { TriggerActionCountDataAction, TriggerActionTypes, TriggerCallStack, TriggerData, TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
+import type { TriggerActionCountDataAction, TriggerActionPlayabilityData, TriggerActionTypes, TriggerCallStack, TriggerData, TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/types/spotify/SpotifyDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
@@ -19,6 +19,9 @@ import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/storeTiltify";
 import type { PatreonDataTypes } from "@/utils/patreon/PatreonDataTypes";
+import type { StreamerbotAction } from "@streamerbot/client";
+import type { ElevenLabsModel, ElevenLabsVoice } from "./elevenlabs/storeElevenLabs";
+import type { IPatreonMember, IPatreonTier } from "./patreon/storePatreon";
 
 /**
 * Created : 23/09/2022
@@ -67,7 +70,15 @@ export default class StoreProxy {
 	public static labels:ILabelsState & ILabelsGetters & ILabelsActions & {$state:ILabelsState, $reset:()=>void};
 	public static donationGoals:IDonationGoalState & IDonationGoalGetters & IDonationGoalActions & {$state:IDonationGoalState, $reset:()=>void};
 	public static tiltify:ITiltifyState & ITiltifyGetters & ITiltifyActions & {$state:ITiltifyState, $reset:()=>void};
+	public static tiktok:ITiktokState & ITiktokGetters & ITiktokActions & {$state:ITiktokState, $reset:()=>void};
+	public static streamerbot:IStreamerbotState & IStreamerbotGetters & IStreamerbotActions & {$state:IStreamerbotState, $reset:()=>void};
+	public static sammi:ISammiState & ISammiGetters & ISammiActions & {$state:ISammiState, $reset:()=>void};
 	public static public:IPublicState & IPublicGetters & IPublicActions & {$state:IPublicState, $reset:()=>void};
+	public static mixitup: IMixitupState & IMixitupGetters & IMixitupActions & { $state: IMixitupState, $reset: () => void };
+	public static twitchCharity: ITwitchCharityState & ITwitchCharityGetters & ITwitchCharityActions & { $state: ITwitchCharityState, $reset: () => void };
+	public static elevenLabs: IElevenLabsState & IElevenLabsGetters & IElevenLabsActions & { $state: IElevenLabsState, $reset: () => void };
+	public static playability: IPlayabilityState & IPlayabilityGetters & IPlayabilityActions & { $state: IPlayabilityState, $reset: () => void };
+	public static twitchBot: ITwitchBotState & ITwitchBotGetters & ITwitchBotActions & { $state: ITwitchBotState, $reset: () => void };
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static asset:(path: string) => string;
@@ -129,19 +140,9 @@ export interface IMainState {
 	 */
 	chatAlert:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData|null;
 	/**
-	 * Date of last t4p command exec to cooldown users
+	 * Icons cache for faster load
 	 */
 	iconCache:{[key:string]:string|Promise<void>};
-	/**
-	 * Temporary chat command to send current "Twitch 4 palestinans" fundraising
-	 * //TODO remove
-	 */
-	t4p:string;
-	/**
-	 * Date of last t4p command exec to cooldown users
-	 * //TODO remove
-	 */
-	t4pLastDate:number;
 	/**
 	 * Shows an alert to the user when true.
 	 */
@@ -539,6 +540,10 @@ export interface IChatState {
 	 */
 	replyTo:TwitchatDataTypes.MessageChatData|null;
 	/**
+	 * Messaging mode
+	 */
+	messageMode:"dm"|"dm_mods"|"question"|"message";
+	/**
 	 * Number of whispers not read
 	 */
 	whispersUnreadCount:number;
@@ -720,12 +725,24 @@ export interface IChatActions {
 	/**
 	 * Accepts or rejects given automoded messages
 	 */
-	automodAction(accept:boolean, message:TwitchatDataTypes.ChatMessageTypes):Promise<void> 
+	automodAction(accept:boolean, message:TwitchatDataTypes.ChatMessageTypes):Promise<void>;
 	/**
 	 * Flag a message as a spoiler
 	 * @param message 
 	 */
-	flagAsSpoiler(message:TwitchatDataTypes.MessageChatData):Promise<void>
+	flagAsSpoiler(message:TwitchatDataTypes.MessageChatData):Promise<void>;
+	/**
+	 * Adds a private mod message from given info
+	 */
+	addPrivateModMessage(
+		from:TwitchatDataTypes.TwitchatUser,
+		message:TwitchatDataTypes.ParseMessageChunk[],
+		action:TwitchatDataTypes.MessagePrivateModeratorData["action"],
+		message_id:string,
+		message_parent_id?:string,
+		message_parent_ref?:TwitchatDataTypes.MessageChatData,
+		message_parent_fallback?:TwitchatDataTypes.MessagePrivateModeratorData["parentMessageFallback"],
+	):TwitchatDataTypes.MessagePrivateModeratorData;
 }
 
 
@@ -976,6 +993,11 @@ export interface IParamsState {
 	 */
 	donationReminderEnabled:boolean;
 	/**
+	 * Defines if updates reminder should be posted when user ends
+	 * their stream (after raid and/or strem cut)
+	 */
+	updatesReminderEnabled:boolean;
+	/**
 	 * Duration after which a 1st user message today is removed from the list
 	 */
 	greetThemAutoDelete:number;
@@ -1062,6 +1084,7 @@ export interface IParamsActions {
 	/**
 	 * Open the specified modal
 	 * @param modal
+	 * @param noToggle by default, calling open toggle visibility. Set this to true to avoid closing if already opened
 	 */
 	openModal(modal:TwitchatDataTypes.ModalTypes, noToggle?:boolean):void;
 	/**
@@ -1769,7 +1792,12 @@ export interface IUsersActions {
 	 * @param forcedFollowState
 	 * @param getPronouns
 	 */
-	getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState?:boolean, getPronouns?:boolean, forcedSubscriberState?:boolean):TwitchatDataTypes.TwitchatUser;
+	getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState?:boolean, getPronouns?:boolean, forcedSubscriberState?:boolean, loadExtras?:boolean):TwitchatDataTypes.TwitchatUser;
+	/**
+	 * Get given user's color 
+	 * @param login 
+	 */
+	getUserColorFromLogin(login:string, platform:TwitchatDataTypes.ChatPlatform):string|null;
 	/**
 	 * Load a list of the blocked users
 	 */
@@ -1921,7 +1949,6 @@ export interface IUsersActions {
 	/**
 	 * Update the name of a custom badge
 	 * @param badgeId
-	 * @param name
 	 */
 	updateCustomBadgeName(badgeId:string, name:string):void;
 	/**
@@ -1946,6 +1973,10 @@ export interface IUsersActions {
 	 * Saves custom usernames to server
 	 */
 	saveCustomUsername():void;
+	/**
+	 * Defines custom trigger placeholers
+	 */
+	setTriggerPlaceholders():void;
 }
 
 
@@ -2215,11 +2246,8 @@ export interface IHeatActions {
 
 
 export interface IPatreonState {
-	token: PatreonDataTypes.AuthTokenInfo | null,
 	isMember: boolean;
 	connected: boolean;
-	webhookExists: boolean;
-	webhookScopesGranted:boolean;
 	/**
 	 * Patreon auth flow params
 	 */
@@ -2227,6 +2255,8 @@ export interface IPatreonState {
 		code:string;
 		csrf:string;
 	} | null;
+	memberList: IPatreonMember[];
+	tierList: IPatreonTier[];
 }
 
 export interface IPatreonGetters {
@@ -2248,6 +2278,11 @@ export interface IPatreonActions {
 	 */
 	getOAuthURL(premiumContext?:boolean):Promise<string>;
 	/**
+	 * Generate an auth token from a auth code 
+	 * @param code 
+	 */
+	authenticate(code:string, premiumContext?:boolean):Promise<void>;
+	/**
 	 * Disconnects the user
 	 */
 	disconnect():void;
@@ -2263,22 +2298,13 @@ export interface IPatreonActions {
 	 */
 	completeOAuthFlow(premiumContext?:boolean):Promise<boolean>;
 	/**
-	 * Generate an auth token from a auth code 
-	 * @param code 
-	 */
-	authenticate(code:string, premiumContext?:boolean):Promise<void>;
-	/**
 	 * Get the user's data
 	 */
 	loadMemberState():Promise<void>;
 	/**
-	 * Create a webhook
+	 * Loads user's member list
 	 */
-	createWebhook():Promise<void>;
-	/**
-	 * Refreshes access token
-	 */
-	refreshToken():Promise<void>;
+	loadMemberList():Promise<void>
 }
 
 
@@ -2317,7 +2343,7 @@ export interface IValuesActions {
 	 * @param user
 	 * @param userId
 	 */
-	updateValue(id:string, value:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void;
+	updateValue(id:string, value:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string, interpretMaths?:boolean):void;
 	/**
 	 * Deletes a per-user value entry
 	 * @param id 
@@ -2702,6 +2728,7 @@ export interface IStreamelementsActions {
 
 export interface IKofiState {
 	webhooktoken:string;
+	webhooks:string[];
 	connected:boolean;
 }
 
@@ -2725,7 +2752,11 @@ export interface IKofiActions {
 	 * Called when receiving a ko-fi event
 	 * @param data
 	 */
-	onEvent(data:any):void
+	onEvent(data:any):void;
+	/**
+	 * Saves configs to server
+	 */
+	saveConfigs():void;
 }
 
 
@@ -3045,7 +3076,7 @@ export interface IDonationGoalActions {
 
 export interface ITiltifyState {
 	user:TiltifyUser|null;
-	campaigns:TiltifyCampaign[];
+	campaignList:TiltifyCampaign[];
 	connected:boolean;
 	token:TiltifyToken|null;
 	authResult:{code:string, csrf:string};
@@ -3088,4 +3119,361 @@ export interface ITiltifyActions {
 	 * Loads info about the user and their campaigns
 	 */
 	loadInfos():Promise<{user:TiltifyUser, campaigns:TiltifyCampaign[]}>
+}
+
+
+
+
+
+export interface ITiktokState {
+	connected:boolean;
+	ip:string;
+	port:number;
+}
+
+export interface ITiktokGetters {
+}
+
+export interface ITiktokActions {
+	/**
+	 * Populates the store
+	 */
+	populateData():Promise<void>;
+	/**
+	 * Initiate connection to tikfinity socket
+	 */
+	connect():Promise<boolean>
+	/**
+	 * Closes connection with tikfinity socket
+	 */
+	disconnect():void
+	/**
+	 * Called on a TikTok event (message, gift, like,...)
+	 * @param data 
+	 */
+	onEvent(data:unknown):void;
+	/**
+	 * Saves current configs to store
+	 */
+	saveConfigs():void;
+}
+
+
+
+
+
+export interface IStreamerbotState {
+	connected:boolean;
+	ip:string;
+	port:number;
+	password:string;
+	actionList:StreamerbotAction[];
+}
+
+export interface IStreamerbotGetters {
+}
+
+export interface IStreamerbotActions {
+	/**
+	 * Populates the store
+	 */
+	populateData():Promise<void>;
+	/**
+	 * Connect with SB
+	 */
+	connect():Promise<boolean>;
+	/**
+	 * Disconnects from Streamer.bot
+	 */
+	disconnect():void;
+	/**
+	 * Execute an action by its ID
+	 */
+	doAction(id:string, args:{[key:string]:string}):void;
+	/**
+	 * Saves current configs to store
+	 */
+	saveConfigs():void;
+	/**
+	 * Lists available actions
+	 */
+	listActions():Promise<void>
+}
+
+
+
+
+
+export interface ISammiState {
+	connected:boolean;
+	ip:string;
+	port:number;
+	password:string;
+}
+
+export interface ISammiGetters {
+}
+
+export interface ISammiActions {
+	/**
+	 * Populates the store
+	 */
+	populateData():Promise<void>;
+	/**
+	 * Connect with Sammi
+	 */
+	connect():Promise<boolean>;
+	/**
+	 * Disconnects from Sammi
+	 */
+	disconnect():void;
+	/**
+	 * Execute an action by its ID
+	 */
+	triggerButton(id:string):Promise<boolean>;
+	/**
+	 * Saves current configs to store
+	 */
+	saveConfigs():void;
+}
+
+
+
+
+export interface IMixitupState {
+	connected: boolean;
+	ip: string;
+	port: number;
+	commandList:{
+		ID: string;
+		Name: string;
+		Type: string;
+		IsEnabled: boolean;
+		Unlocked: boolean;
+		GroupName: string|null;
+	}[];
+}
+
+export interface IMixitupGetters {
+}
+
+export interface IMixitupActions {
+	/**
+	 * Populates the store
+	 */
+	populateData(): Promise<void>;
+	/**
+	 * Connect to Mixitup
+	 */
+	connect(): Promise<boolean>;
+	/**
+	 * Disconnect from Mixitup
+	 */
+	disconnect(): void;
+	/**
+	 * Executes given command
+	 * @param id 
+	 * @param platform 
+	 * @param args 
+	 */
+	execCommand(id:string, platform:TwitchatDataTypes.ChatPlatform, args?:{[key:string]:string}):Promise<void>;
+	/**
+	 * Saves current configs to store
+	 */
+	saveConfigs(): void;
+	/**
+	 * Lists all available commands
+	 */
+	listCommands():Promise<void>;
+}
+
+
+
+
+export interface ITwitchCharityState {
+	currentCharity:TwitchDataTypes.CharityCampaign | null;
+}
+
+export interface ITwitchCharityGetters {
+}
+
+export interface ITwitchCharityActions {
+	/**
+	 * Populates the store
+	 */
+	populateData(): Promise<void>;
+	/**
+	 * Called when a new charity compaign is started
+	 */
+	onCharityStart(charity:TwitchDataTypes.CharityCampaign):void;
+	/**
+	 * Called when a charity progresses
+	 */
+	onCharityProgress(charityId:string, currentAmount:TwitchDataTypes.CharityCampaign["current_amount"], goalAmount:TwitchDataTypes.CharityCampaign["target_amount"]):void;
+	/**
+	 * Called when receiving a new donation
+	 * @param charityId 
+	 * @param user 
+	 * @param amount 
+	 * @param currency 
+	 */
+	onCharityDonation(charityId:string, user:TwitchatDataTypes.TwitchatUser, amount:number, currency:string):void
+	/**
+	 * Called when a charity compaign is stopped
+	 */
+	onCharityStop(charityId:string):void;
+	/**
+	 * Update global labels
+	 */
+	updateLabels():void;
+}
+
+
+
+
+export interface IElevenLabsState {
+	connected:boolean;
+	apiKey:string;
+	voiceList:ElevenLabsVoice[];
+	modelList:ElevenLabsModel[];
+	creditsUsed:number;
+	creditsTotal:number;
+}
+
+export interface IElevenLabsGetters {
+}
+
+export interface IElevenLabsActions {
+	/**
+	 * Populates the store
+	 */
+	populateData(): Promise<void>;
+	/**
+	 * Connects to ElevenLabs
+	 */
+	connect(): Promise<boolean>;
+	/**
+	 * Disconnects to ElevenLabs
+	 */
+	disconnect(): void;
+	/**
+	 * Called when a new charity compaign is started
+	 */
+	read(message:string, voiceId:string, modelId:string, lang?:string, settings?:{
+		similarity_boost?:number
+		stability?:number
+		style?:number
+	}):Promise<string|false>;
+	/**
+	 * Loads available voices list
+	 */
+	loadParams():Promise<boolean>;
+	/**
+	 * Saves current confis
+	 */
+	saveConfigs():void;
+	/**
+	 * Load remaining api credits.
+	 * Warn on chat when count is low
+	 */
+	loadApiCredits():Promise<void>;
+	/**
+	 * Builds up a cache from the history
+	 */
+	buildHistoryCache(onlyLatest?:boolean):Promise<void>;
+}
+
+
+
+
+export interface IPlayabilityState {
+	connected: boolean;
+	ip: string;
+	port: number;
+	mappingList: {
+		input: {
+			type: string;
+			code: string;
+			settings: {}
+		},
+		output: {
+			type: NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"][number]["type"];
+			code: NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"][number]["code"];
+			value: NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"][number]["value"];
+		},
+		description: string;
+		id: number;
+	}[];
+}
+
+export interface IPlayabilityGetters {
+}
+
+export interface IPlayabilityActions {
+	/**
+	 * Populates the store
+	 */
+	populateData(): Promise<void>;
+	/**
+	 * Connect to Playability
+	 */
+	connect(isReconnect?:boolean): Promise<boolean>;
+	/**
+	 * Disconnect from Playability
+	 */
+	disconnect(): void;
+	/**
+	 * Simulates an ouput list
+	 * @param outputs
+	 */
+	execOutputs(outputs:NonNullable<TriggerActionPlayabilityData["playabilityData"]>["outputs"]):Promise<void>;
+	/**
+	 * Saves current configs to store
+	 */
+	saveConfigs(): void;
+	/**
+	 * Reload current profile definition
+	 */
+	loadProfile():void;
+}
+
+
+
+
+export interface ITwitchBotState {
+	connected:boolean;
+	connecting:boolean;
+	authToken:TwitchDataTypes.AuthTokenResult|null;
+	userInfos:TwitchDataTypes.Token|null;
+}
+
+export interface ITwitchBotGetters {
+}
+
+export interface ITwitchBotActions {
+	/**
+	 * Populates the store
+	 */
+	populateData(): Promise<void>;
+	/**
+	 * Connects to ElevenLabs
+	 */
+	connect(): Promise<boolean>;
+	/**
+	 * Disconnects to ElevenLabs
+	 */
+	disconnect(): void;
+	/**
+	 * Starts oAuth flow.
+	 * Attempts to open a popup or redirect to the twitch auth page
+	 */	
+	startAuthFlow(event:MouseEvent):Promise<void>;
+	/**
+	 * Sets oAuth result
+	 */	
+	completeOAuthProcess(code:string, csrf:string):Promise<boolean>;
+	/**
+	 * Saves parameters
+	 */
+	saveParams():void;
 }

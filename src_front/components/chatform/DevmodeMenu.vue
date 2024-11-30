@@ -55,6 +55,11 @@
 			<Button small @click="simulateEvent($event, 'super_sticker')" icon="youtube">Youtube Super sticker</Button>
 			<Button small @click="simulateEvent($event, 'youtube_subscription')" icon="youtube">Youtube Sub</Button>
 			<Button small @click="simulateEvent($event, 'youtube_subgift')" icon="youtube">Youtube Subgift</Button>
+			<Button small @click="simulateEvent($event, 'message', 'tiktok')" icon="tiktok">TikTok message</Button>
+			<Button small @click="simulateEvent($event, 'tiktok_sub')" icon="tiktok">TikTok Sub</Button>
+			<Button small @click="simulateEvent($event, 'tiktok_gift')" icon="tiktok">TikTok Gift</Button>
+			<Button small @click="simulateEvent($event, 'tiktok_like')" icon="tiktok">TikTok Like</Button>
+			<Button small @click="simulateEvent($event, 'tiktok_share')" icon="tiktok">TikTok Share</Button>
 			<Button small @click="simulateEvent($event, 'following')" icon="follow">Follow</Button>
 			<Button small @click="simulateEvent($event, 'reward')" icon="channelPoints">Reward redeem</Button>
 			<Button small @click="simulateEvent($event, 'community_challenge_contribution')" icon="channelPoints">Challenge contribution</Button>
@@ -74,6 +79,7 @@
 			<Button small @click="simulateEvent($event, 'pinned')" icon="pin">Pin message</Button>
 			<Button small @click="simulateEvent($event, 'unpinned')" icon="unpin">Upin message</Button>
 			<Button small @click="simulateEvent($event, 'clear_chat')" icon="delete">Clear chat</Button>
+			<Button small @click="simulateEvent($event, 'twitch_charity_donation')" icon="twitch_charity">Twitch charity donation</Button>
 			<Button small @click="simulateEvent($event, 'streamelements', 'se_donation')" icon="streamelements">Streamelements donation</Button>
 			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_donation')" icon="streamlabs">Streamlabs donation</Button>
 			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_merch')" icon="streamlabs">Streamlabs merch</Button>
@@ -278,7 +284,7 @@ class DevmodeMenu extends Vue {
 					break;
 				}
 				case "cheer_pin": {
-					setTimeout(()=> {
+					window.setTimeout(()=> {
 						const m = (message as TwitchatDataTypes.MessageCheerData);
 						const durations = [60,120,300,600,1200,3600,7200];
 						const ranges = [0,200,500,1000,2000,5000,10000];
@@ -333,20 +339,26 @@ class DevmodeMenu extends Vue {
 				case "youtube": {
 					if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 						message.platform = "youtube";
-						message.message = "!q coucou durssSLIP";
+						// message.message = "!q coucou durssSLIP";
 						
-						const chunks = TwitchUtils.parseMessageToChunks(message.message, undefined, true);
-						message.message_chunks = chunks;
-						message.message_html = TwitchUtils.messageChunksToHTML(chunks);
+						// const chunks = TwitchUtils.parseMessageToChunks(message.message, undefined, true);
+						// message.message_chunks = chunks;
+						// message.message_html = TwitchUtils.messageChunksToHTML(chunks);
 						message.youtube_liveId = "xxxx";
 					}else
 					if(message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING) {
 						message.platform = "youtube";
 					}
 				}
+
+				case "tiktok": {
+					if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+						message.platform = "tiktok";
+					}
+				}
 			}
 			if(type === TwitchatDataTypes.TwitchatMessageType.CLIP_PENDING_PUBLICATION) {
-				setTimeout(()=>{
+				window.setTimeout(()=>{
 					this.simulateEvent(event, TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE);
 				}, 2000);
 			}
@@ -483,7 +495,7 @@ class DevmodeMenu extends Vue {
 				this.$store.chat.addMessage(message);
 				mainCount += count;
 				clearTimeout(mainDebounce);
-				mainDebounce = setTimeout(() => {
+				mainDebounce = window.setTimeout(() => {
 					console.log("Main subgifts:", mainCount);
 				}, 500);
 			}, false);
@@ -512,7 +524,7 @@ class DevmodeMenu extends Vue {
 				this.$store.chat.addMessage(message);
 				secondaryCount += count;
 				clearTimeout(secondaryDebounce);
-				secondaryDebounce = setTimeout(() => {
+				secondaryDebounce = window.setTimeout(() => {
 					console.log("Secondary subgifts:", secondaryCount);
 				}, 500);
 			}, false);
@@ -622,16 +634,19 @@ class DevmodeMenu extends Vue {
 
 	public async simulateSubgiftSpam():Promise<void> {
 		let user:TwitchatDataTypes.TwitchatUser;
-		const fakeUsers = await TwitchUtils.getFakeUsers();
+		// const fakeUsers = await TwitchUtils.getFakeUsers();
 
 		for (let i = 0; i < 30; i++) {
+			const uid = Math.round(Math.random()*168177762 + 1000000000).toString();
+			const fakeUser = this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, uid);
 			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, (message)=> {
 				const m = message as TwitchatDataTypes.MessageSubscriptionData;
 				if(!user) user = m.user;
 				else m.user = user;
 				m.tier = 1;
 				m.is_gift = true;
-				m.gift_recipients = [Utils.pickRand(fakeUsers)];
+				m.gift_recipients = [fakeUser];
+				// m.gift_recipients = [Utils.pickRand(fakeUsers)];
 				return true;
 			});
 			await Utils.promisedTimeout(100);
@@ -650,7 +665,7 @@ class DevmodeMenu extends Vue {
 		this.$store.stream.setCommercialInfo(channelId, params);
 
 		clearTimeout(this.commercialTO);
-		this.commercialTO = setTimeout(()=> {
+		this.commercialTO = window.setTimeout(()=> {
 			params.prevAdStart_at = Date.now();
 			params.currentAdDuration_ms = 33000;
 			this.$store.stream.setCommercialInfo(channelId, params, this.$store.auth.twitch.user, true);
@@ -721,6 +736,7 @@ type Subaction = "first"
 				| "my_stream_offline"
 				| "unban_request_solve"
 				| "youtube"
+				| "tiktok"
 				| "skin1"
 				| "skin2"
 				| "skin3"

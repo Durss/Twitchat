@@ -1,6 +1,6 @@
 {
 	"patreon": {
-		"header":"Soyez notifié·e lorsqu'une personne s'abonne à votre {LINK}",
+		"header":"Soyez notifié·e lorsqu'une personne s'abonne à votre {LINK} et affichez vos membres actifs dans l'overlay de générique de fin",
 		"linkBt":"Lier Patreon",
 		"info":"{LINK} pour profiter des fonctionnalités Premium.",
 		"info_link":"Abonnez-vous sur Patreon",
@@ -12,6 +12,6 @@
 		"is_not_member":"Vous ne faites pas partie des donateur·ices sur Patreon 😥",
 		"is_not_member_details":"Vous ne bénéficiez pas des fonctionnalités premium.\r\nNote : Patreon peut prendre quelques minutes à traiter votre paiement.",
 		"api_down":"L'API Patreon est en panne.\nCe n'est ni la 1ère ni la dernière fois que celà arrive hélas...\n\nSi vous venez de souscrire sur Patreon il faudra peut-être attendre que Patreon corrige leur API pour que vous soyez reconnu·e comme Premium :(...",
-		"beta":"Retours souhaités !\nEssayez de me prévenir si vous rencontrez des problèmes"
+		"beta":"Retours souhaités !\nEssayez de me prévenir si vous rencontrez des problèmes avec les notifications Patreon."
 	}
 }

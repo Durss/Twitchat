@@ -8,6 +8,7 @@
 				<div class="login" id="highlight_login" v-if="user">
 					<Icon name="youtube" v-if="user && user.platform == 'youtube'" theme="alert"/>
 					<Icon name="twitch" v-if="user && user.platform == 'twitch'" theme="twitch"/>
+					<Icon name="tiktok" v-if="user && user.platform == 'tiktok'" style="color:#000000"/>
 					<Icon name="kick" v-if="user && user.platform == 'kick'" style="color:#50f918"/>
 					<Icon name="instagram" v-if="user && user.platform == 'instagram'" style="color:#d34a65"/>
 					<span>{{user.displayNameOriginal ?? user.displayName}}</span>
@@ -177,13 +178,13 @@ class OverlayChatHighlight extends Vue {
 		clearInterval(this.iFrameInitTimeout);
 		clearInterval(this.progressBarInterval);
 
-		this.iFrameInitTimeout = setTimeout(async ()=> {
+		this.iFrameInitTimeout = window.setTimeout(async ()=> {
 			this.loadingClip = false;
 			await this.$nextTick();
 			this.showCurrent();
 			const startTime = Date.now();
 			const duration = this.clipData!.duration;
-			this.progressBarInterval = setInterval(()=> {
+			this.progressBarInterval = window.setInterval(()=> {
 				this.clipPercent = (Date.now() - startTime) / (duration*1000);
 				
 				if(this.clipPercent >= 1) {
@@ -202,7 +203,7 @@ class OverlayChatHighlight extends Vue {
 		let video = this.$refs.video as HTMLVideoElement;
 		const duration = this.clipData!.duration;
 		video.play();
-		this.progressBarInterval = setInterval(()=> {
+		this.progressBarInterval = window.setInterval(()=> {
 			this.clipPercent = video.currentTime/duration;
 			
 			if(this.clipPercent >= 1) {
@@ -281,7 +282,7 @@ class OverlayChatHighlight extends Vue {
 			let label = (minutes <= 1)? singular : plural;
 			this.dateLabel = label.replace("{MIN}", minutes.toString());
 		}
-		this.dateTimeout = setTimeout(()=>this.updateDate(), 1000);
+		this.dateTimeout = window.setTimeout(()=>this.updateDate(), 1000);
 	}
 }
 export default toNative(OverlayChatHighlight);

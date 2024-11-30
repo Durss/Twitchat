@@ -1,7 +1,8 @@
 export const TwitchScopes = {
 	CHAT_READ: "chat:read",
-	CHAT_READ_EVENTSUB: "user:read:chat",
 	CHAT_WRITE: "chat:edit",
+	CHAT_READ_EVENTSUB: "user:read:chat",
+	CHAT_WRITE_EVENTSUB: "user:write:chat",
 	WHISPER_READ: "whispers:read",
 	WHISPER_WRITE: "user:manage:whispers",
 	SHOUTOUT: "moderator:manage:shoutouts",
@@ -42,6 +43,7 @@ export const TwitchScopes = {
 	CHAT_WARNING: "moderator:manage:warnings",
 	READ_VIPS: "moderator:read:vips",
 	SUSPICIOUS_USERS: "moderator:read:suspicious_users",
+	CHARITY_READ: "channel:read:charity",
 } as const;
 export type TwitchScopesString = typeof TwitchScopes[keyof typeof TwitchScopes];
 
@@ -88,3 +90,4 @@ TwitchScope2Icon[TwitchScopes.CHAT_WARNING]				= "alert";
 TwitchScope2Icon[TwitchScopes.READ_VIPS]				= "vip";
 TwitchScope2Icon[TwitchScopes.READ_MODERATORS]			= "mod";
 TwitchScope2Icon[TwitchScopes.SUSPICIOUS_USERS]			= "shield";
+TwitchScope2Icon[TwitchScopes.CHARITY_READ]				= "twitch_charity";

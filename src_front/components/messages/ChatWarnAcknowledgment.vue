@@ -1,5 +1,6 @@
 <template>
-	<div class="chatwarnuser chatMessage highlight success">
+	<div class="chatwarnuser chatMessage highlight success"
+	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="alert" alt="alert" class="icon"/>

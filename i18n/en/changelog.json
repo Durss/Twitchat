@@ -6,60 +6,125 @@
 		"heat_details_link": "Heat",
 		"highlights": [
 			{
-				"i": "goal",
-				"l": "Goals",
-				"v": "/update_images/goals.mp4",
-				"d": "Create donation goals, sub goals, follower goals, or any kind of custom goals and show them on your stream thanks to the new dedicated overlay.",
+				"i": "tiktok",
+				"l": "TikTok",
+				"d": "Receive your TikTok Live messages and notifications directly in Twitchat!\n\nAutomate actions with new Triggers dedicated to TikTok.",
 				"a": {
 					"l": "Try",
-					"param": "overlays",
-					"subparam": "donationgoals"
+					"param": "connexions",
+					"subparam": "tiktok"
 				}
 			},
 			{
-				"i": "patreon",
-				"l": "Patreon alerts",
-				"d": "Connect Twitchat with Patreon and get notified when a new member subscribes to your Patreon.",
+				"i": "playability",
+				"l": "PlayAbility",
+				"d": "Automate actions when you smile, raise your eyebrows, open your mouth, turn your head, and much more.\nAlso simulate pressing keyboard keys or mouse buttons from Triggers.\n\nPlayAbility aims to make video games accessible to people with disabilities. Its integration with Twitchat allows you to enhance interactivity in your streams by, for example, enabling your viewers to shoot for you in an FPS by subscribing to your channel. Or count the number of times you smile or raise your eyebrows.",
+				"g": "update_images/playability.gif",
 				"a": {
-					"l": "Connect",
+					"l": "Try",
 					"param": "connexions",
-					"subparam": "patreon"
+					"subparam": "playability"
+				}
+			},
+			{
+				"i": "mod",
+				"l": "Twitchat Private Messages",
+				"d": "Twitchat allows you to exchange private messages with your moderators using Twitchat.\n\nYour mods can quote chat messages and ask you questions you can then answer with one click to ease communications with them.",
+				"v": "update_images/moderator_dm.mp4"
+			},
+			{
+				"i": "streamerbot",
+				"l": "Streamer.bot",
+				"d": "Trigger Streamer.bot actions from Twitchat's Triggers to combine Twitchat's exclusive features with all the possibilities offered by Streamer.bot.",
+				"a": {
+					"l": "Try",
+					"param": "connexions",
+					"subparam": "streamerbot"
+				}
+			},
+			{
+				"i": "sammi",
+				"l": "SAMMI",
+				"d": "Trigger SAMMI buttons from Twitchat's Triggers to combine Twitchat's exclusive features with all the possibilities offered by SAMMI.",
+				"a": {
+					"l": "Try",
+					"param": "overlays",
+					"subparam": "sammi"
+				}
+			},
+			{
+				"i": "mixitup",
+				"l": "Mix It Up",
+				"d": "Trigger Mix It Up commands from Twitchat's Triggers to combine Twitchat's exclusive features with all the possibilities offered by Mix It Up.",
+				"a": {
+					"l": "Try",
+					"param": "connexions",
+					"subparam": "mixitup"
+				}
+			},
+			{
+				"i": "elevenlabs",
+				"l": "ElevenLabs",
+				"d": "Twitchat now allows you to use ElevenLabs voices to read your messages.\nElevenLabs offers much more realistic synthetic voices than those previously offered by Twitchat.",
+				"a": {
+					"l": "Try",
+					"param": "connexions",
+					"subparam": "elevenlabs"
 				}
 			},
 			{
 				"i": "charity",
-				"l": "Streamlabs Charity",
-				"d": "Connect Twitchat with Streamlabs and configure a Streamlabs Charity campaign to get notified when receiving a donation.\n\nAutomate anything you want when a donation occurs thanks to the new dedicated Trigger.",
+				"l": "Twitch Charity",
+				"d": "Twitchat now notifies when a donation is made to an ongoing charity campaign.\n\nAutomate actions with the new dedicated Trigger.\n\nAllow joining a raffle for each donation made to the campaign.\n\nThe Goals overlay is compatible with Twitch charity campaign."
+			},
+			{
+				"i": "twitch",
+				"l": "Twitch bot account",
+				"d": "You can now link Twitchat with a secondary bot account.\nAll bot messages will be sent through this account instead of yours.",
 				"a": {
-					"l": "Try",
+					"l": "Connect",
 					"param": "connexions",
-					"subparam": "streamlabs"
+					"subparam": "twitchbot"
 				}
 			},
 			{
-				"i": "tiltify",
-				"l": "Tiltify",
-				"d": "Connect Twitchat with Tiltify to get notified when receiving a donation.\n\nAutomate anything you want when a donation occurs thanks to the new dedicated Trigger.",
+				"i": "credits",
+				"l": "End Credits",
+				"d": "Display your active Patreon members with the new \"Patreon Members\" section",
+				"p": true,
+				"g": "update_images/patreon_en.png",
 				"a": {
 					"l": "Try",
-					"param": "connexions",
-					"subparam": "tiltify"
+					"param": "overlays",
+					"subparam": "credits"
 				}
 			},
 			{
-				"i": "ticket",
-				"l": "Raffles",
-				"d": "You can now run any number of raffles simultaneously\n\nCurrently runnning raffles are not lost anymore after reloading Twitchat\n\nNew raffle option allows users to enter by making a tip or donation on any external platform\n\nYou add more time to a running raffle. This also allows to reopen a closed raffle.\n\nWhen starting a raffle from the triggers, you can now define custom start/join/win chat messages different than the global ones"
+				"i": "spotify",
+				"l": "Spotify",
+				"d": "The Spotify trigger action allows you to limit the number of tracks a person can add to the queue.",
+				"g": "update_images/spotify_en.png",
+				"a": {
+					"l": "Try",
+					"param": "triggers"
+				}
 			},
 			{
-				"i": "whispers",
-				"l": "Shared chat",
-				"d": "When using the native Shared Chat feature from Twitch's \"Stream Together\" system, Twitchat will now properly differentiate messages by their origin the same way it did when using the merge chat feature from Twitchat"
+				"i": "kofi",
+				"l": "Ko-Fi webhooks",
+				"d": "Ko-Fi has extremely restrictive functionality and only allows connecting an account to one third party application only.\n\nTwitchat now allows you to bypass this limitation by letting you define up to 5 alternative URLs to which Ko-Fi events can be retransmitted.",
+				"p": true,
+				"g": "update_images/kofi_en.png",
+				"a": {
+					"l": "Connect",
+					"param": "connexions",
+					"subparam": "kofi"
+				}
 			},
 			{
 				"i": "label",
 				"l": "Labels",
-				"d": "New labels available on the Labels overlay.<ul><li>{STREAMLABS_CHARITY_NAME}: Streamlabs Charity campaign - name</li><li>{STREAMLABS_CHARITY_IMAGE}: Streamlabs Charity campaign - image</li><li>{STREAMLABS_CHARITY_RAISED}: Streamlabs Charity campaign - raised global</li><li>{STREAMLABS_CHARITY_RAISED_PERSONNAL}: Streamlabs Charity campaign - raised personnal</li><li>{STREAMLABS_CHARITY_GOAL}: Streamlabs Charity campaign - goal</li><li>{STREAMLABS_CHARITY_LAST_TIP_USER}: Streamlabs Charity campaign - last tipper</li><li>{STREAMLABS_CHARITY_LAST_TIP_AMOUNT}: Streamlabs Charity campaign - last tip</li><li>{PATREON_USER}: user name that subscribe</li><li>{PATREON_AVATAR}: user's profile pic</li><li>{PATREON_AMOUNT}: amount of the membership</li><li>{PATREON_TITLE}: title of the membership</li><li>{TILTIFY_LAST_TIP_USER}: user name that tipped</li><li>{TILTIFY_LAST_TIP_AMOUNT}: tip amount</li></ul>",
+				"d": "22 new labels available on the Labels overlay.<ul><li>Number of viewers on TikTok</li><li>Total number of likes on the TikTok live</li><li>Username of the last TikTok like</li><li>Avatar of the last TikTok like</li><li>Number of likes sent</li><li>Username of the last TikTok subscription</li><li>Avatar of the last TikTok subscription</li><li>Username of the last TikTok share</li><li>Avatar of the last TikTok share</li><li>Username of the last TikTok gift</li><li>Avatar of the last TikTok gift</li><li>Image of the last TikTok gift</li><li>Quantity of the last TikTok gift</li><li>Diamonds received with the last TikTok gift</li><li>Twitch Charity - Campaign name</li><li>Twitch Charity - Campaign image</li><li>Twitch Charity - Amount raised</li><li>Twitch Charity - Goal</li><li>Twitch Charity - Last donor</li><li>Twitch Charity - Last donation</li><li>Twitch Charity - Last donation avatar</li><li>Patreon - Number of active members</li></ul>",
 				"a": {
 					"l": "Try",
 					"param": "overlays",
@@ -69,23 +134,28 @@
 			{
 				"i": "broadcast",
 				"l": "Triggers",
-				"d": "6 new Trigger events:<ul><li>New Patreon member</li><li>Streamlabs Charity donation</li><li>Tiltify Donation</li><li>Twitchat finished loading</li><li>OBS recording started</li><li>OBS recording stopped</li></ul>OBS trigger action now allows to:\n<ul><li>Start stream</li><li>Stop stream</li><li>Start recording</li><li>Pause recording</li><li>Resume record</li><li>Stop recording</li><li>Emit a javascript event on all browser sources</li><li>Start virtual cam</li><li>Stop virtual cam</li><li>Update custom CSS of a browser source</li></ul>"
+				"d": "18 new trigger events:<ul><li>Chat cleared</li><li>Sub-only enabled/disabled</li><li>Followers-only enabled/disabled</li><li>Emote-only enabled/disabled</li><li>Slow mode enabled/disabled</li><li>User monitored</li><li>User restricted</li><li>Monitoring/restriction lifted</li><li>Donation received on Twitch charity campaign</li><li>PlayAbility action detected</li><li>TikTok - New subscription</li><li>TikTok - Like received</li><li>TikTok - Gift received</li><li>TikTok - Stream shared</li></ul>",
+				"a": {
+					"l": "Try",
+					"param": "triggers"
+				}
 			},
 			{
 				"l": "And more",
-				"d": "Many other things have been added or modified.<br><a href=\"https://github.com/Durss/Twitchat/releases/latest/#english\" target=\"_blank\">Read complete changelog here</a>"
+				"d": "Many other things have been added or modified.<br><a href=\"https://github.com/Durss/Twitchat/releases/latest/#new_en\" target=\"_blank\">Read complete changelog here</a>"
 			},
 			{
 				"i": "donate",
-				"d": "Twitchat has been my main activity for more than 2 years now <b>without any other source of income</b>.\n\nIf you can afford it, a one-time donation or monthly support on Patreon would help me a lot ❤️"
+				"d": "Twitchat has been my main activity for more than 2 years now <b>without any other source of income</b>.\n\nIf you can afford it, a one-time donation on PayPal or monthly support on Patreon would help me a lot ❤️"
 			}
 		],
 		"forceRead": {
 			"title": "I WANT YOU\r\nTO READ THIS",
-			"description": "I worked hard on these updates, please take 2 minutes of your time to read 🙏",
-			"readAtSpeedOfLight": "Are you trying to make me believe that you read at the speed of light 😏?",
+			"description": "I worked hard on these updates, please take 2 minutes of your time to read them 🙏",
+			"readAtSpeedOfLight": "Are you trying to make me believe that you read at the speed of light 😏?",
 			"sorryBt": "ok i read sorry 🥺",
-			"fuBt": "don't care 🤪"
+			"fuBt": "don't care 🤪",
+			"reminderBt": "Remind me after the stream"
 		}
 	}
 }

@@ -162,7 +162,7 @@ class OverlayPredictions extends AbstractOverlay {
 		//Debounce updates as twitch is a little spammy when resolving a prediction
 		// clearTimeout(this.updateDebounce);
 
-		// this.updateDebounce = setTimeout(async ()=>{
+		// this.updateDebounce = window.setTimeout(async ()=>{
 			const prediction = ((e.data as unknown) as {prediction:TwitchatDataTypes.MessagePredictionData}).prediction;
 			
 			if(prediction && prediction.winner){

@@ -81,6 +81,10 @@ class ChatRaid extends AbstractChatMessage {
 		return res;
 	}
 
+	public get iconColor():string{
+		return this.$store.common.theme == "dark" ? "#ebeb00" : "#949400";
+	}
+
 	public beforeMount():void {
 		this.showCount = this.$store.params.appearance.showRaidViewersCount.value !== false;
 		this.formatedDuration = Utils.formatDuration(this.messageData.stream.duration);
@@ -104,7 +108,7 @@ export default toNative(ChatRaid);
 <style scoped lang="less">
 .chatraid{
 	&>.icon {
-		color: #ebeb00;
+		color: v-bind(iconColor);
 	}
 	.messageHolder {
 		display: flex;

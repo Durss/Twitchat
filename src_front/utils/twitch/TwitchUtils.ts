@@ -10,6 +10,7 @@ import SevenTVUtils from "../emotes/SevenTVUtils";
 import { TwitchScopes, type TwitchScopesString } from "./TwitchScopes";
 import * as Sentry from "@sentry/vue";
 import Database from "@/store/Database";
+import type { TwitchEventSubDataTypes } from "@/types/twitch/TwitchEventSubDataTypes";
 
 /**
 * Created : 19/01/2021
@@ -417,7 +418,7 @@ export default class TwitchUtils {
 		const res = await this.callApi(url, options);
 		const json = await res.json();
 		if (res.status == 200) {
-			setTimeout(() => {
+			window.setTimeout(() => {
 				//Schedule reload of the polls after poll ends
 				this.getPolls();
 			}, (duration + 1) * 1000);
@@ -515,7 +516,7 @@ export default class TwitchUtils {
 		const res = await this.callApi(url, options);
 		const json = await res.json();
 		if (res.status == 200) {
-			setTimeout(() => {
+			window.setTimeout(() => {
 				this.getPredictions();
 			}, (duration + 1) * 1000);
 			return json.data;
@@ -602,7 +603,7 @@ export default class TwitchUtils {
 			// resolve pending
 			// resolved
 			// prediction ended
-			setTimeout(() => {
+			window.setTimeout(() => {
 				this.getPredictions();
 			}, 5000);
 			return json.data;
@@ -1345,7 +1346,9 @@ export default class TwitchUtils {
 	/**
 	 * Get pronouns of a user
 	 */
-	public static async getPronouns(uid: string, username: string): Promise<TwitchatDataTypes.Pronoun | null> {
+	public static async getPronouns(uid: string, username: string, platform:TwitchatDataTypes.ChatPlatform): Promise<TwitchatDataTypes.Pronoun | null> {
+		if(platform != "twitch") return null;//No platform support anything else but twitch so far
+
 		const getPronounAlejo = async (): Promise<TwitchatDataTypes.Pronoun | null> => {
 			const url = new URL("https://pronouns.alejo.io/api/users/" + username);
 			const res = await this.callApi(url);
@@ -1362,7 +1365,7 @@ export default class TwitchUtils {
 
 		const getPronounPronounDb = async (): Promise<TwitchatDataTypes.Pronoun | null> => {
 			const url = new URL("https://pronoundb.org/api/v2/lookup")
-			url.searchParams.set("platform", "twitch");
+			url.searchParams.set("platform", platform);
 			url.searchParams.set("ids", uid);
 			const res = await this.callApi(url);
 			const data = await res.json();
@@ -1377,10 +1380,12 @@ export default class TwitchUtils {
 		}
 
 		let pronoun: TwitchatDataTypes.Pronoun | null = null;
-		try {
-			pronoun = await getPronounAlejo();
-		} catch (error) {
-			/*ignore*/
+		if(platform === "twitch") {
+			try {
+				pronoun = await getPronounAlejo();
+			} catch (error) {
+				/*ignore*/
+			}
 		}
 		if (pronoun == null) {
 			try {
@@ -1712,7 +1717,7 @@ export default class TwitchUtils {
 			message.clipID = json.data[0].id;
 
 			const createdDate = Date.now();
-			const interval = setInterval(async () => {
+			const interval = window.setInterval(async () => {
 				const clip = await TwitchUtils.getClipById(message.clipID);
 				if (clip) {
 					clearInterval(interval);
@@ -2305,13 +2310,15 @@ export default class TwitchUtils {
 			version,
 			condition: {
 				broadcaster_user_id: channelId,
-				moderator_user_id: userId,
 			} as { [key: string]: any },
 			transport: {
 				method: "websocket",
 				session_id,
 			}
 		};
+		if(userId) {
+			body.condition.moderator_user_id = userId;
+		}
 
 		if (additionalCondition) {
 			for (const key in additionalCondition) {
@@ -2332,11 +2339,11 @@ export default class TwitchUtils {
 		} else
 		if (res.status == 429) {
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers, url.pathname, attemptCount);
-			if (attemptCount < 8) {
-				attemptCount++;
-				return await this.eventsubSubscribe(channelId, userId, session_id, topic, version, additionalCondition, attemptCount);
-			}
+			// await this.onRateLimit(res.headers, url.pathname, attemptCount);
+			// if (attemptCount < 2) {
+			// 	attemptCount++;
+			// 	return await this.eventsubSubscribe(channelId, userId, session_id, topic, version, additionalCondition, attemptCount);
+			// }
 		}
 		return false;
 	}
@@ -2981,6 +2988,71 @@ export default class TwitchUtils {
 		return false;
 	}
 
+	/**
+	 * Sends a warning to a user
+	 * @param uid user ID
+	 * @param reason warning message
+	 */
+	public static async sendMessage(channelID: string, message:string, replyToID?:string, sendAsBot:boolean = true): Promise<boolean> {
+		if (!this.hasScopes([TwitchScopes.BLOCKED_TERMS])) return false;
+
+		while(message.length > 0) {
+			const url = new URL(Config.instance.TWITCH_API_PATH + "chat/messages");
+			const body:{[key:string]:string|number} = {
+				broadcaster_id: channelID,
+				sender_id: this.uid,
+				message: message.substring(0, 499),
+			}
+			if(replyToID) {
+				body.reply_parent_message_id = replyToID;
+			}
+
+			let headers = {...this.headers};
+			if(sendAsBot && StoreProxy.twitchBot.connected && StoreProxy.twitchBot.userInfos) {
+				body.sender_id = StoreProxy.twitchBot.userInfos.user_id;
+				headers['Authorization'] = 'Bearer ' + StoreProxy.twitchBot.authToken!.access_token;
+			}
+	
+			const res = await this.callApi(url, {
+				method: "POST",
+				headers,
+				body:JSON.stringify(body),
+			});
+			if (res.status == 429) {
+				await this.onRateLimit(res.headers, url.pathname);
+				return this.sendMessage(channelID, message, replyToID);
+			}
+			
+			message = message.substring(499);
+		}
+		return false;
+	}
+
+	/**
+	 * Sends a warning to a user
+	 * @param uid user ID
+	 * @param reason warning message
+	 */
+	public static async getCharityList(channelID: string): Promise<TwitchDataTypes.CharityCampaign[]> {
+		if (!this.hasScopes([TwitchScopes.CHARITY_READ])) return [];
+
+		const url = new URL(Config.instance.TWITCH_API_PATH + "charity/campaigns");
+		url.searchParams.append("broadcaster_id", channelID);
+
+		const res = await this.callApi(url, {
+			method: "GET",
+			headers: this.headers,
+		});
+		if (res.status == 200 || res.status == 204) {
+			const json = await res.json() as {data:TwitchDataTypes.CharityCampaign[]};
+			return json.data;
+		} else if (res.status == 429) {
+			await this.onRateLimit(res.headers, url.pathname);
+			return this.getCharityList(channelID);
+		}
+		return [];
+	}
+
 
 
 
@@ -3283,12 +3355,12 @@ export default class TwitchUtils {
 				const chunk = result[i];
 				if (chunk.type == "text") {
 					result.splice(i, 1);//Remove source chunk
-					const res = (chunk.value || "").split(/(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi);
+					const res = (chunk.value || "").split(/((?:(?:http|ftp|https):\/\/)?(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi);
 					let subIndex = 0;
 					res.forEach(v => {
 						if(v == "") return;
 						//Add sub chunks to original resulting chunks
-						let islink = /(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi.test(v);
+						let islink = /((?:(?:http|ftp|https):\/\/)?(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi.test(v);
 						//Avoid floating numbers to be parsed as links
 						if (/[0-9]+\.[0-9]+$/.test(v)) islink = false;
 						const node: TwitchatDataTypes.ParseMessageChunk = {
@@ -3314,25 +3386,28 @@ export default class TwitchUtils {
 		}
 
 		//Parse username chunks
-		for (let i = 0; i < result.length; i++) {
-			const chunk = result[i];
-			if (chunk.type == "text") {
-				result.splice(i, 1);//Remove source chunk
-				const res = (chunk.value || "").split(/(@[a-z0-9_]{3,25})/gi);
-				let subIndex = 0;
-				res.forEach(v => {
-					//Add sub chunks to original resulting chunks
-					const isUsername = /(@[a-z0-9_]{3,25})/gi.test(v)
-					const node: TwitchatDataTypes.ParseMessageChunk = {
-						type: isUsername ? "user" : "text",
-						value: v,
-					};
-					if (isUsername) {
-						node.username = v.substring(1);//Remove "@"
-					}
-					result.splice(i + subIndex, 0, node);
-					subIndex++;
-				})
+		//only for twitch ash we cannot retrive the actual user profile for other platforms
+		if(platform == "twitch") {
+			for (let i = 0; i < result.length; i++) {
+				const chunk = result[i];
+				if (chunk.type == "text") {
+					result.splice(i, 1);//Remove source chunk
+					const res = (chunk.value || "").split(/(@[a-z0-9_]{3,25})/gi);
+					let subIndex = 0;
+					res.forEach(v => {
+						//Add sub chunks to original resulting chunks
+						const isUsername = /(@[a-z0-9_]{3,25})/gi.test(v)
+						const node: TwitchatDataTypes.ParseMessageChunk = {
+							type: isUsername ? "user" : "text",
+							value: v,
+						};
+						if (isUsername) {
+							node.username = v.substring(1);//Remove "@"
+						}
+						result.splice(i + subIndex, 0, node);
+						subIndex++;
+					})
+				}
 			}
 		}
 
@@ -3375,6 +3450,55 @@ export default class TwitchUtils {
 			}
 		}
 		return message_html;
+	}
+
+	/**
+	 * Converts Twitch fragments to Twitchat chunks
+	 */
+	public static async eventsubFragmentsToTwitchatChunks(fragments: TwitchEventSubDataTypes.MessageFragments, channelId:string):Promise<TwitchatDataTypes.ParseMessageChunk[]> {
+		let chunks:TwitchatDataTypes.ParseMessageChunk[] = [];
+		for (let i = 0; i < fragments.length; i++) {
+			const f = fragments[i];
+			switch(f.type) {
+				default:
+				case "text":{
+					chunks.push({type:"text", value:f.text});
+					break;
+				}
+				case "emote":{
+					const type = f.emote.format.includes("animated")? "animated" : "static";
+					const url_1x = "https://static-cdn.jtvnw.net/emoticons/v2/"+f.emote.id+"/"+type+"/dark/1.0";
+					const url_4x = "https://static-cdn.jtvnw.net/emoticons/v2/"+f.emote.id+"/"+type+"/dark/3.0";
+					chunks.push({type:"emote", value:f.text, emote:url_1x, emoteHD:url_4x || url_1x});
+					break;
+				}
+				case "cheermote":{
+					const cheermoteList = await this.loadCheermoteList(channelId);
+					const cheermote = cheermoteList.find(v=>v.prefix.toLowerCase() == f.cheermote.prefix.toLowerCase())?.tiers.find(v=>v.min_bits == f.cheermote.tier);
+					if(!cheermote) {
+						console.log("Cheermote not found", f.cheermote, cheermoteList);
+						// chunks.push({type:"text", value:f.text});
+						//Fallback to old parsing
+						const defaultChunk:TwitchatDataTypes.ParseMessageChunk = {type:"text", value:f.text};
+						const chunk = await this.parseCheermotes([defaultChunk], channelId);
+						chunks.push(...chunk || defaultChunk);
+					}else{
+						const imgSD = cheermote.images.dark.animated["2"] ?? cheermote.images.dark.static["2"];
+						const imgHD = cheermote.images.dark.animated["4"] ?? cheermote.images.dark.static["4"];
+						chunks.push({type:"cheermote", value:f.text, emote:imgSD, emoteHD:imgHD || imgSD});
+					}
+					break;
+				}
+				case "mention":{
+					chunks.push({type:"user", value:f.text, username:f.mention.user_login});
+					break;
+				}
+			}
+		}
+
+		//TODO parse links on text chunks
+
+		return chunks;
 	}
 
 	/**

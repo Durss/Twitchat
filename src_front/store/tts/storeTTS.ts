@@ -12,11 +12,19 @@ export const storeTTS = defineStore('tts', {
 	state: () => ({
 		speaking: false,
 		params: {
+			elevenlabs_model: "",
+			elevenlabs_lang: "",
+			elevenlabs_style: 0,
+			elevenlabs_similarity: .5,
+			elevenlabs_stability: .5,
 			enabled:false,
 			volume:1,
 			rate:1,
 			pitch:1,
-			voice:'',
+			voice:{
+				id:"",
+				platform:"system",
+			},
 			maxLength:0,
 			maxDuration:30,
 			timeout:0,

@@ -27,7 +27,7 @@
 			<TransitionGroup name="list" tag="div" ref="list" class="itemList" v-if="entries.length > 0">
 			<div :class="c.selected? 'card-item secondary win' : 'card-item'" v-for="(c,index) in entries" :key="c.data.id">
 				<div class="header">
-					<Icon v-if="c.selected" name="sub" />
+					<Icon v-if="c.selected" name="sub" ref="selected" />
 					
 					<button class="deleteBt" v-else @click="deleteEntery(c.data)"><Icon name="trash" /></button>
 					
@@ -53,6 +53,7 @@ import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
 import ProgressBar from '../ProgressBar.vue';
 import ToggleBlock from '../ToggleBlock.vue';
+import Utils from '@/utils/Utils';
 import Icon from '../Icon.vue';
 
 @Component({
@@ -90,12 +91,13 @@ class ChatSuggestionState extends AbstractSidePanel {
 
 	public pickEntry():void {
 		const data:TwitchatDataTypes.RaffleData = {
+			sessionId:Utils.getUUID(),
 			command:"",
 			created_at:Date.now(),
-			entries:this.entries.map(v=> {
+			entries:this.poll.choices.map(v=> {
 				return {
-					id:v.data.id,
-					label:v.data.user.displayName+" : "+v.data.label,
+					id:v.id,
+					label:v.user.displayName+" : "+v.label,
 					score:1,
 					joinCount:1,
 				}
@@ -109,6 +111,8 @@ class ChatSuggestionState extends AbstractSidePanel {
 			subT3Ratio:1,
 			vipRatio:1,
 			multipleJoin:false,
+			autoClose:true,
+			ghost:true,
 			subMode_excludeGifted:false,
 			subMode_includeGifters:false,
 			maxEntries:0,
@@ -117,21 +121,24 @@ class ChatSuggestionState extends AbstractSidePanel {
 			showCountdownOverlay:false,
 		};
 
-		data.resultCallback = ()=> {
+		data.resultCallback = (winner:TwitchatDataTypes.RaffleEntry)=> {
 			if(data.winners
 			&& data.winners.length > 0) {
-				const winnerId = data.winners[data.winners.length-1].id;
-				const index = this.poll.choices.findIndex(v=>v.id == winnerId);
-				const entry = this.poll.choices.splice(index, 1)[0];
-				if(entry) {
-					this.poll.winners.push( entry );
-					//Scroll back to top
-					const list = (this.$refs.list as Vue).$el;
-					gsap.to(list, {duration:.25, scrollTo:{y:0}});
+				const index = this.poll.choices.findIndex(v=>v.id == winner.id);
+				if(index > -1) {
+					const entry = this.poll.choices.splice(index, 1)[0];
+					if(entry) {
+						this.poll.winners.push( entry );
+						//Scroll back to top
+						const doneList = (this.$refs["selected"] as Vue[]).map(v=>v.$el);
+						if(doneList.length > 0) {
+							doneList[doneList.length-1].scrollIntoView();
+						}
+					}
 				}
 			}
 		}
-		this.$store.raffle.pickWinner("", data);
+		this.$store.raffle.pickWinner(data.sessionId!, data);
 	}
 
 	public closePoll():void {

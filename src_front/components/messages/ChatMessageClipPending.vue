@@ -62,7 +62,7 @@ class ChatMessageClipPending extends AbstractChatMessage {
 
 		//This is a stupid solution to the fact the watcher doesn't seem to work
 		//and I have no idea why :/
-		this.interval = setInterval(async ()=> {
+		this.interval = window.setInterval(async ()=> {
 			this.loading = this.messageData.loading;
 			this.error = this.messageData.error
 

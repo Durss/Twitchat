@@ -11,6 +11,7 @@ export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 	public static ON_CONNECT = "ON_CONNECT" as const;
 	public static FAILED_CONNECT = "FAILED_CONNECT" as const;
 	public static KO_FI_EVENT = "KO_FI_EVENT" as const;
+	public static KO_FI_DELETE_WEBHOOK = "KO_FI_DELETE_WEBHOOK" as const;
 	public static TILTIFY_EVENT = "TILTIFY_EVENT" as const;
 	public static NOTIFICATION = "NOTIFICATION" as const;
 	public static BINGO_GRID_UPDATE = "BINGO_GRID_UPDATE" as const;
@@ -26,6 +27,8 @@ export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 	public static LABELS_UPDATE = "LABELS_UPDATE" as const;
 	public static SPOIL_MESSAGE = "SPOIL_MESSAGE" as const;
 	public static PATREON_MEMBER_CREATE = "PATREON_MEMBER_CREATE" as const;
+	public static PRIVATE_MOD_MESSAGE = "PRIVATE_MOD_MESSAGE" as const;
+	public static PRIVATE_MOD_MESSAGE_ANSWER = "PRIVATE_MOD_MESSAGE_ANSWER" as const;
 
 	constructor(eventType:T, public data?:EventTypeMap[T]) {
 		super(eventType);
@@ -54,6 +57,7 @@ export type EventTypeMap = {
 	AUTHENTICATION_FAILED: void;
 	LABELS_UPDATE: void;
 	KO_FI_EVENT: KofiEventData;
+	KO_FI_DELETE_WEBHOOK: string;
 	TILTIFY_EVENT: TiltifyDonationEventData | TiltifyCauseEventData;
 	NOTIFICATION: {
 			messageId:string;
@@ -126,7 +130,20 @@ export type EventTypeMap = {
 			title: string;
 			description: string;
 		}
-	}
+	};
+	PRIVATE_MOD_MESSAGE: {
+		from_uid:string;
+		from_login:string;
+		message:TwitchatDataTypes.ParseMessageChunk[];
+		action:TwitchatDataTypes.MessagePrivateModeratorData["action"];
+		messageId:string;
+		messageIdParent:string;
+		messageParentFallback?: TwitchatDataTypes.MessagePrivateModeratorData["parentMessageFallback"];
+	};
+	PRIVATE_MOD_MESSAGE_ANSWER: {
+		messageId:string;
+		answer:boolean;
+	};
 }
 
 interface AbstractQnaAciton {
