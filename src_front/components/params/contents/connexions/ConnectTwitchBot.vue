@@ -10,14 +10,21 @@
 			</i18n-t>
 		</div>
 
-		<section v-if="$store.auth.isPremium && !$store.twitchBot.connected">
+		<section v-if="!$store.twitchBot.connected">
 			<TTButton @click="$store.twitchBot.startAuthFlow($event)"
 				icon="twitch"
 				:loading="$store.twitchBot.connecting">{{ $t("global.connect") }}</TTButton>
 			<div class="card-item alert error" v-if="error" @click="error = false">{{ $t("error.twitch_bot_connect_failed") }}</div>
 		</section>
 
-		<section v-else-if="$store.twitchBot.connected">
+
+		<section v-if="!$store.twitchBot.connected" class="card-item authHint">
+			<p><Icon name="info" />{{ $t("twitch_bot.auth_hint") }}</p>
+			<img v-if="$i18n.locale == 'fr'" src="@/assets/img/data_sharing/switchAccount_fr.png" alt="tutorial">
+			<img v-else src="@/assets/img/data_sharing/switchAccount_en.png" alt="tutorial">
+		</section>
+
+		<section v-if="$store.twitchBot.connected">
 			<TTButton alert @click="$store.twitchBot.disconnect()">{{ $t("global.disconnect") }} - {{ $store.twitchBot.userInfos?.login }}</TTButton>
 		</section>
 
@@ -107,6 +114,19 @@ export default toNative(ConnectTwitchBot);
 		.icon {
 			height: 1em;
 			margin-right: .5em;
+		}
+	}
+	
+	.authHint {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1em;
+		max-width: 300px;
+
+		.icon {
+			height: 1em;
+			margin-right: .25em;
 		}
 	}
 }

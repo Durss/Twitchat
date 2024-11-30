@@ -2,6 +2,7 @@
 	"twitch_bot":{
 		"header": "Connectez un compte Twitch secondaire avec lequel envoyer les messages de bot",
 		"auth_refused": "Vous avez refusez l'accès à votre compte Twitch",
+		"auth_hint": "Cliquez le lien indiqué ci-dessous pour vous connecter avec votre compte secondaire",
 		"hints": "Ajoutez votre bot à vos VIPs ou vos modos pour vous assurer que ses messages ne soient pas bloqués.",
 		"add_modBt": "Ajouter aux modos",
 		"add_vipBt": "Ajouter aux VIPs"
