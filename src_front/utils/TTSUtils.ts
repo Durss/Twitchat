@@ -802,30 +802,16 @@ export default class TTSUtils {
 		
 		messageEntry.reading = true;
 		const voice = this.voiceList.find(v => v.id == (messageEntry.params?.voice || paramsTTS.voice.id));
-		if(voice?.platform == "system") {
-			const mess = new SpeechSynthesisUtterance(messageEntry.text);
-			mess.rate = messageEntry.params?.rate || paramsTTS.rate;
-			mess.pitch = messageEntry.params?.pitch || paramsTTS.pitch;
-			mess.volume = messageEntry.params?.volume || paramsTTS.volume;
-			if(voice) {
-				mess.voice = voice.voice;
-				mess.lang = voice.voice.lang;
-			}
-			mess.onstart = (ev: SpeechSynthesisEvent) => {
-				this._readComplete = false;
-				StoreProxy.tts.speaking = true;
-			}
-			mess.onend = (ev: SpeechSynthesisEvent) => {
-				this.onReadComplete();
-			}
-	
-			if(window.speechSynthesis) window.speechSynthesis.speak(mess);
-		}
-		else if(voice?.platform == "elevenlabs") {
+		let fallbackToSystem = false;
+		if(voice?.platform == "elevenlabs") {
 			this._readComplete = false;
 			StoreProxy.tts.speaking = true;
 			try {
-				let settings:{[key:string]:number|string} = {};
+				let settings:{
+					similarity_boost?:number
+					stability?:number
+					style?:number
+				} = {};
 				if(messageEntry.params?.elevenlabs_similarity || paramsTTS.elevenlabs_similarity)	settings.similarity_boost	= messageEntry.params?.elevenlabs_similarity || paramsTTS.elevenlabs_similarity;
 				if(messageEntry.params?.elevenlabs_stability || paramsTTS.elevenlabs_stability)		settings.stability			= messageEntry.params?.elevenlabs_stability || paramsTTS.elevenlabs_stability;
 				if(messageEntry.params?.elevenlabs_style || paramsTTS.elevenlabs_style)				settings.style				= messageEntry.params?.elevenlabs_style || paramsTTS.elevenlabs_style;
@@ -836,19 +822,43 @@ export default class TTSUtils {
 									messageEntry.params?.elevenlabs_lang || paramsTTS.elevenlabs_lang,
 									settings
 								);
-				// Create an Audio object and play it
-				const audio = new Audio(audioUrl);
-				audio.volume = messageEntry.params?.volume || paramsTTS.volume;
-				audio.play();
-				
-				// Optionally, clean up the object URL after the audio is done playing
-				audio.onended = () => {
-					URL.revokeObjectURL(audioUrl);
-					this.onReadComplete();
-				};
+				if(audioUrl) {
+					// Create an Audio object and play it
+					const audio = new Audio(audioUrl);
+					audio.volume = messageEntry.params?.volume || paramsTTS.volume;
+					audio.play();
+					
+					// Optionally, clean up the object URL after the audio is done playing
+					audio.onended = () => {
+						URL.revokeObjectURL(audioUrl);
+						this.onReadComplete();
+					};
+				}else{
+					fallbackToSystem = true;
+				}
 			}catch(error) {
 				this.onReadComplete();
 			}
+		}
+
+		if(voice?.platform == "system" || fallbackToSystem) {
+			const mess = new SpeechSynthesisUtterance(messageEntry.text);
+			mess.rate = messageEntry.params?.rate || paramsTTS.rate;
+			mess.pitch = messageEntry.params?.pitch || paramsTTS.pitch;
+			mess.volume = messageEntry.params?.volume || paramsTTS.volume;
+			if(voice) {
+				mess.voice = voice?.platform == "system"? voice.voice : this.voiceList.find(v=>v.platform == "system")?.voice || null;
+				mess.lang = voice?.platform == "system"? voice.voice.lang : navigator.language || (<any>navigator)['userLanguage'];
+			}
+			mess.onstart = (ev: SpeechSynthesisEvent) => {
+				this._readComplete = false;
+				StoreProxy.tts.speaking = true;
+			}
+			mess.onend = (ev: SpeechSynthesisEvent) => {
+				this.onReadComplete();
+			}
+	
+			if(window.speechSynthesis) window.speechSynthesis.speak(mess);
 		}
 
 		if(paramsTTS.maxDuration > 0) {

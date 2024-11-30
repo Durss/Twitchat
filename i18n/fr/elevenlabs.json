@@ -5,7 +5,7 @@
 		"install":"Créer une clé d'API",
 		"invalid_api_key": "Clé d'API invalide",
 		"apiKey":"Clé d'API",
-		"credits_usage":"Crédits utilisés: {USED}/{LIMIT}",
+		"credits_usage":"Crédits restant: {REMAINING}/{LIMIT}",
 		"usage":"Vous pouvez maintenant utiliser ElevenLabs pour lire des messages depuis la section {TTS} ou lire tout ce que vous voulez à partir des {TRIGGERS} grâce à l'action ElevenLabs."
 	}
 }

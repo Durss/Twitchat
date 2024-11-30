@@ -5,7 +5,7 @@
 		"install":"Create API Key",
 		"invalid_api_key": "Invalid API key",
 		"apiKey":"API Key",
-		"credits_usage":"Credits used: {USED}/{LIMIT}",
+		"credits_usage":"Remaining credits: {REMAINING}/{LIMIT}",
 		"usage":"You can now use ElevenLabs to read messages on the {TTS} section or read anything you want from the {TRIGGERS} thanks to the ElevenLabs action."
 	}
 }

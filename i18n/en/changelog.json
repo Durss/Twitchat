@@ -102,7 +102,7 @@
 			{
 				"i": "spotify",
 				"l": "Spotify",
-				"d": "The Spotify triggers action allows you to limit the number of tracks a person can add to the queue.\n\nWith this, a person can only add a track to the queue if they have fewer than X tracks already waiting to be played.",
+				"d": "The Spotify trigger action allows you to limit the number of tracks a person can add to the queue.",
 				"g": "update_images/spotify_en.png",
 				"a": {
 					"l": "Try",
@@ -124,7 +124,7 @@
 			{
 				"i": "label",
 				"l": "Labels",
-				"d": "22 new labels available on the Labels overlay.<ul><li><strong>{TIKTOK_VIEWER_COUNT}</strong>\n\tNumber of viewers on TikTok</li><li><strong>{TIKTOK_LIKE_TOTAL}</strong>\n\tTotal number of likes on the TikTok live</li><li><strong>{TIKTOK_LIKE_USER}</strong>\n\tUsername of the last TikTok like</li><li><strong>{TIKTOK_LIKE_AVATAR}</strong>\n\tAvatar of the last TikTok like</li><li><strong>{TIKTOK_LIKE_COUNT}</strong>\n\tNumber of likes sent</li><li><strong>{TIKTOK_SUB_USER}</strong>\n\tUsername of the last TikTok subscription</li><li><strong>{TIKTOK_SUB_AVATAR}</strong>\n\tAvatar of the last TikTok subscription</li><li><strong>{TIKTOK_SHARE_USER}</strong>\n\tUsername of the last TikTok share</li><li><strong>{TIKTOK_SHARE_AVATAR}</strong>\n\tAvatar of the last TikTok share</li><li><strong>{TIKTOK_GIFT_USER}</strong>\n\tUsername of the last TikTok gift</li><li><strong>{TIKTOK_GIFT_AVATAR}</strong>\n\tAvatar of the last TikTok gift</li><li><strong>{TIKTOK_GIFT_IMAGE}</strong>\n\tImage of the last TikTok gift</li><li><strong>{TIKTOK_GIFT_COUNT}</strong>\n\tQuantity of the last TikTok gift</li><li><strong>{TIKTOK_GIFT_DIAMONDS}</strong>\n\tDiamonds received with the last TikTok gift</li><li><strong>{TWITCH_CHARITY_NAME}</strong>\n\tTwitch Charity - Campaign name</li><li><strong>{TWITCH_CHARITY_IMAGE}</strong>\n\tTwitch Charity - Campaign image</li><li><strong>{TWITCH_CHARITY_RAISED}</strong>\n\tTwitch Charity - Amount raised</li><li><strong>{TWITCH_CHARITY_GOAL}</strong>\n\tTwitch Charity - Goal</li><li><strong>{TWITCH_CHARITY_LAST_TIP_USER}</strong>\n\tTwitch Charity - Last donor</li><li><strong>{TWITCH_CHARITY_LAST_TIP_AMOUNT}</strong>\n\tTwitch Charity - Last donation</li><li><strong>{TWITCH_CHARITY_LAST_TIP_AVATAR}</strong>\n\tTwitch Charity - Last donation avatar</li><li><strong>{PATREON_MEMBER_COUNT}</strong>\n\tPatreon - Number of active members</li></ul>",
+				"d": "22 new labels available on the Labels overlay.<ul><li>Number of viewers on TikTok</li><li>Total number of likes on the TikTok live</li><li>Username of the last TikTok like</li><li>Avatar of the last TikTok like</li><li>Number of likes sent</li><li>Username of the last TikTok subscription</li><li>Avatar of the last TikTok subscription</li><li>Username of the last TikTok share</li><li>Avatar of the last TikTok share</li><li>Username of the last TikTok gift</li><li>Avatar of the last TikTok gift</li><li>Image of the last TikTok gift</li><li>Quantity of the last TikTok gift</li><li>Diamonds received with the last TikTok gift</li><li>Twitch Charity - Campaign name</li><li>Twitch Charity - Campaign image</li><li>Twitch Charity - Amount raised</li><li>Twitch Charity - Goal</li><li>Twitch Charity - Last donor</li><li>Twitch Charity - Last donation</li><li>Twitch Charity - Last donation avatar</li><li>Patreon - Number of active members</li></ul>",
 				"a": {
 					"l": "Try",
 					"param": "overlays",
@@ -146,7 +146,7 @@
 			},
 			{
 				"i": "donate",
-				"d": "Twitchat has been my main activity for more than 2 years now <b>without any other source of income</b>.\n\nIf you can afford it, a one-time donation or monthly support on Patreon would help me a lot ❤️"
+				"d": "Twitchat has been my main activity for more than 2 years now <b>without any other source of income</b>.\n\nIf you can afford it, a one-time donation on PayPal or monthly support on Patreon would help me a lot ❤️"
 			}
 		],
 		"forceRead": {

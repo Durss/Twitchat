@@ -7,8 +7,14 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import StoreProxy from '../StoreProxy';
 import Utils from '@/utils/Utils';
 
-let emptyCreditsWarned = false
-let almostEmptyCreditsWarned = false
+let emptyCreditsWarned = false;
+let almostEmptyCreditsWarned = false;
+let cacheHistory:{[key:string]:{id:string}} = {};
+
+function getKey(text:string, voiceId:string, modelId:string):string {
+	const splitter = "___";
+	return Utils.slugify(text) + splitter + voiceId + splitter + modelId;
+}
 
 export const storeElevenLabs = defineStore('elevenlabs', {
 	state: () => ({
@@ -35,8 +41,7 @@ export const storeElevenLabs = defineStore('elevenlabs', {
 			if(apiKey) {
 				this.apiKey = apiKey;
 			}
-			if(this.apiKey) this.connect();
-			this.loadApiCredits();
+			if(this.apiKey) await this.connect();
 		},
 
 		async connect():Promise<boolean> {
@@ -44,12 +49,13 @@ export const storeElevenLabs = defineStore('elevenlabs', {
 			return new Promise<boolean>(async (resolve)=>{
 				try {
 					const success = await this.loadParams();
-					await this.loadApiCredits();
 					this.connected = success;
 					TTSUtils.instance.loadVoiceList();
 					resolve(this.connected);
 					if(this.connected) {
+						await this.loadApiCredits();
 						this.saveConfigs()
+						await this.buildHistoryCache();
 					}
 				}catch(error) {
 					resolve(false);
@@ -62,7 +68,28 @@ export const storeElevenLabs = defineStore('elevenlabs', {
 			DataStore.remove(DataStore.ELEVENLABS_API_KEY);
 		},
 
-		async read(message:string, voiceId:string, modelId:string, lang?:string, settings?:unknown):Promise<string> {
+		async read(message:string, voiceId:string, modelId:string, lang?:string, settings?:{
+		similarity_boost?:number
+		stability?:number
+		style?:number}):Promise<string|false> {
+			const key = getKey(message, voiceId, modelId);
+			//Check if there's a cached history for this message, if so, load it
+			if(cacheHistory[key]) {
+				const historyId = cacheHistory[key].id;
+				const options:RequestInit = {};
+				const headers = new Headers();
+				headers.append("xi-api-key", this.apiKey);
+				headers.append("Accept", "audio/mpeg");
+				headers.append("Content-Type", "application/json");
+				const url = new URL("https://api.elevenlabs.io/v1/history/"+historyId+"/audio");
+				options.headers = headers;
+				const ttsQuery = await fetch(url, options);
+				const audioBlob = await ttsQuery.blob();
+				const audioUrl = URL.createObjectURL(audioBlob);
+				return audioUrl;
+			}
+
+			if(emptyCreditsWarned) return false;
 			const options:RequestInit = {};
 			const headers = new Headers();
 			headers.append("xi-api-key", this.apiKey);
@@ -73,8 +100,8 @@ export const storeElevenLabs = defineStore('elevenlabs', {
 				model_id: modelId,
 				text: message,
 				voice_settings: {
-					stability: .5,
-					similarity_boost: .5
+					stability: settings?.stability || .5,
+					similarity_boost: settings?.similarity_boost ||.5,
 				}
 			};
 			if(lang && modelId === "eleven_turbo_v2_5") {
@@ -94,6 +121,7 @@ export const storeElevenLabs = defineStore('elevenlabs', {
 			const audioUrl = URL.createObjectURL(audioBlob);
 
 			this.loadApiCredits();
+			this.buildHistoryCache(true);
 
 			return audioUrl;
 		},
@@ -168,6 +196,30 @@ export const storeElevenLabs = defineStore('elevenlabs', {
 	
 				StoreProxy.chat.addMessage(message);
 			}
+		},
+
+		async buildHistoryCache(onlyLatest:boolean = false):Promise<void> {
+			const options:RequestInit = {};
+			const headers = new Headers();
+			headers.append("xi-api-key", this.apiKey);
+			headers.append("Accept", "application/json");
+			headers.append("Content-Type", "application/json");
+			options.headers = headers;
+
+			let history:ElevenLabsHistory;
+			let failSafe = 0;
+			do {
+				const urlHistory = new URL("https://api.elevenlabs.io/v1/history");
+				urlHistory.searchParams.append("page_size", onlyLatest? "10" : "1000");
+				const historyQuery = await fetch(urlHistory, options);
+				if(historyQuery.status !== 200) return;
+				history = await historyQuery.json() as ElevenLabsHistory;
+				history.history.forEach(h=>{
+					const key = getKey(h.text, h.voice_id, h.model_id);
+					cacheHistory[key] = {id:h.history_item_id};
+				});
+			}while(history && history.has_more && ++failSafe < 1000 && !onlyLatest);
+			console.log(cacheHistory);
 		},
 	} as IElevenLabsActions
 	& ThisType<IElevenLabsActions
@@ -346,23 +398,67 @@ export interface ElevenLabsVoice {
 }
 
 interface ElevenLabsUserSubscription {
-	tier: string
-	character_count: number
-	character_limit: number
-	can_extend_character_limit: boolean
-	allowed_to_extend_character_limit: boolean
-	next_character_count_reset_unix: number
-	voice_limit: number
-	max_voice_add_edits: number
-	voice_add_edit_counter: number
-	professional_voice_limit: number
-	can_extend_voice_limit: boolean
-	can_use_instant_voice_cloning: boolean
-	can_use_professional_voice_cloning: boolean
-	currency: any
-	status: string
-	billing_period: any
-	character_refresh_period: any
-	next_invoice: any
-	has_open_invoices: boolean
+	tier: string;
+	character_count: number;
+	character_limit: number;
+	can_extend_character_limit: boolean;
+	allowed_to_extend_character_limit: boolean;
+	next_character_count_reset_unix: number;
+	voice_limit: number;
+	max_voice_add_edits: number;
+	voice_add_edit_counter: number;
+	professional_voice_limit: number;
+	can_extend_voice_limit: boolean;
+	can_use_instant_voice_cloning: boolean;
+	can_use_professional_voice_cloning: boolean;
+	currency: any;
+	status: string;
+	billing_period: any;
+	character_refresh_period: any;
+	next_invoice: any;
+	has_open_invoices: boolean;
+}
+
+interface ElevenLabsHistory {
+	history: {
+		history_item_id: string;
+		request_id: string;
+		voice_id: string;
+		model_id: string;
+		voice_name: string;
+		voice_category: string;
+		text: string;
+		date_unix: number;
+		character_count_change_from: number;
+		character_count_change_to: number;
+		content_type: string;
+		state: string;
+		settings: unknown;
+		feedback: {
+			thumbs_up: boolean;
+			feedback: string;
+			emotions: boolean;
+			inaccurate_clone: boolean;
+			glitches: boolean;
+			audio_quality: boolean;
+			other: boolean;
+			review_status: string;
+		};
+		share_link_id: string;
+		source: string;
+		alignments: {
+			alignment: {
+				characters: string[];
+				character_start_times_seconds: number[];
+				character_end_times_seconds: number[];
+			};
+			normalized_alignment: {
+				characters: string[];
+				character_start_times_seconds: number[];
+				character_end_times_seconds: number[];
+			};
+		};
+	}[];
+	last_history_item_id: string;
+	has_more: boolean;
 }

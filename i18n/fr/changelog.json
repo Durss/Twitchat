@@ -19,6 +19,7 @@
 				"i": "playability",
 				"l": "PlayAbility",
 				"d": "Automatisez des actions lorsque vous souriez, haussez les sourcils, ouvrez la bouche, tournez la tête, et bien plus encore.\nMais aussi simulez l'appui sur des touches de clavier ou des boutons de souris depuis les Triggers.\n\nPlayAbility a pour but de rendre les jeux-vidéos accessibles aux personnes en situation de handicap. Son intégration Twitchat permet de pousser son usage pour augmenter l'interactivité de vos streams en permettant par exemple à vos viewers de tirer à votre place dans un FPS en s'abonnant à votre chaîne. Ou encore comptez le nombre de fois que vous souriez ou levez les sourcils.",
+				"g": "update_images/playability.gif",
 				"a": {
 					"l": "Essayer",
 					"param": "connexions",
@@ -28,7 +29,8 @@
 			{
 				"i": "mod",
 				"l": "Messages privés Twitchat",
-				"d": "Twitchat permet d'échanger des messages privés avec vos modérateurices utilisant Twitchat.\n\nVos modos pourront citer des messages du tchat et vous poser des questions auxquelles répondre en 1 click pour fluidifier au mieux vos échanges."
+				"d": "Twitchat permet d'échanger des messages privés avec vos modérateurices utilisant Twitchat.\n\nVos modos pourront citer des messages du tchat et vous poser des questions auxquelles répondre en 1 click pour fluidifier au mieux vos échanges.",
+				"v": "update_images/moderator_dm.mp4"
 			},
 			{
 				"i": "streamerbot",
@@ -100,7 +102,7 @@
 			{
 				"i": "spotify",
 				"l": "Spotify",
-				"d": "L'action de triggers Spotify permet de limiter le nombre de morceaux qu'une personne peut ajouter à la file d'attente.\n\nGrâce à ceci, une personne pourra ajouter un morceau à la file d'attente seulement si elle a moins de X morceaux déjà en attente de lecture.",
+				"d": "L'action de triggers Spotify permet de limiter le nombre de morceaux qu'une personne peut ajouter à la file d'attente.",
 				"g": "update_images/spotify_fr.png",
 				"a": {
 					"l": "Essayer",
@@ -110,7 +112,7 @@
 			{
 				"i": "kofi",
 				"l": "Ko-Fi webhooks",
-				"d": "Ko-Fi a un fonctionnement extrêmement restrictif et ne permet de connecter un compte qu'à une application.\n\nTwitchat permet désormais de contourner cette limitation en vous laissant définir jusqu'à 5 URL alternatives vers lesquelles retransmettre les évènements Ko-Fi.",
+				"d": "Ko-Fi a un fonctionnement extrêmement restrictif et ne permet de connecter un compte qu'à une seule application.\n\nTwitchat permet désormais de contourner cette limitation en vous laissant définir jusqu'à 5 URL alternatives vers lesquelles retransmettre les évènements Ko-Fi.",
 				"g": "update_images/kofi_fr.png",
 				"p": true,
 				"a": {
@@ -122,7 +124,7 @@
 			{
 				"i": "label",
 				"l": "Labels",
-				"d": "22 nouveaux labels disponibles sur l'overlay de Labels.<ul><li><strong>{TIKTOK_VIEWER_COUNT}</strong>\n\tNombre de viewers sur TikTok</li><li><strong>{TIKTOK_LIKE_TOTAL}</strong>\n\tNombre de likes total du live TikTok</li><li><strong>{TIKTOK_LIKE_USER}</strong>\n\tPseudo du dernier Like TikTok</li><li><strong>{TIKTOK_LIKE_AVATAR}</strong>\n\tAvatar du dernier like TikTok</li><li><strong>{TIKTOK_LIKE_COUNT}</strong>\n\tNombre de likes envoyés</li><li><strong>{TIKTOK_SUB_USER}</strong>\n\tPseudo du dernier abonnement TikTok</li><li><strong>{TIKTOK_SUB_AVATAR}</strong>\n\tAvatar du dernier abonnement TikTok</li><li><strong>{TIKTOK_SHARE_USER}</strong>\n\tPseudo du dernier partage TikTok</li><li><strong>{TIKTOK_SHARE_AVATAR}</strong>\n\tAvatar du dernier partage TikTok</li><li><strong>{TIKTOK_GIFT_USER}</strong>\n\tPseudo du dernier cadeau TikTok</li><li><strong>{TIKTOK_GIFT_AVATAR}</strong>\n\tAvatar du dernier cadeau TikTok</li><li><strong>{TIKTOK_GIFT_IMAGE}</strong>\n\tImage du dernier cadeau TikTok</li><li><strong>{TIKTOK_GIFT_COUNT}</strong>\n\tQuantité du dernier cadeau TikTok</li><li><strong>{TIKTOK_GIFT_DIAMONDS}</strong>\n\tDiamants reçus avec le dernier cadeau TikTok</li><li><strong>{TWITCH_CHARITY_NAME}</strong>\n\tTwitch Charity - Nom de la campagne</li><li><strong>{TWITCH_CHARITY_IMAGE}</strong>\n\tTwitch Charity - Image de la campagne</li><li><strong>{TWITCH_CHARITY_RAISED}</strong>\n\tTwitch Charity - Montant récolté</li><li><strong>{TWITCH_CHARITY_GOAL}</strong>\n\tTwitch Charity - Objectif</li><li><strong>{TWITCH_CHARITY_LAST_TIP_USER}</strong>\n\tTwitch Charity - Dernier·e donnateurice</li><li><strong>{TWITCH_CHARITY_LAST_TIP_AMOUNT}</strong>\n\tTwitch Charity - Dernier don</li><li><strong>{TWITCH_CHARITY_LAST_TIP_AVATAR}</strong>\n\tTwitch Charity - Avatar du dernier don</li><li><strong>{PATREON_MEMBER_COUNT}</strong>\n\tPatreon - Nombre de membres actifs</li></ul>",
+				"d": "22 nouveaux labels disponibles sur l'overlay de Labels.<ul><li>Nombre de viewers sur TikTok</li><li>Nombre de likes total du live TikTok</li><li>Pseudo du dernier Like TikTok</li><li>Avatar du dernier like TikTok</li><li>Nombre de likes envoyés</li><li>Pseudo du dernier abonnement TikTok</li><li>Avatar du dernier abonnement TikTok</li><li>Pseudo du dernier partage TikTok</li><li>Avatar du dernier partage TikTok</li><li>Pseudo du dernier cadeau TikTok</li><li>Avatar du dernier cadeau TikTok</li><li>Image du dernier cadeau TikTok</li><li>Quantité du dernier cadeau TikTok</li><li>Diamants reçus avec le dernier cadeau TikTok</li><li>Twitch Charity - Nom de la campagne</li><li>Twitch Charity - Image de la campagne</li><li>Twitch Charity - Montant récolté</li><li>Twitch Charity - Objectif</li><li>Twitch Charity - Dernier·e donnateurice</li><li>Twitch Charity - Dernier don</li><li>Twitch Charity - Avatar du dernier don</li><li>Patreon - Nombre de membres actifs</li></ul>",
 				"a": {
 					"l": "Essayer",
 					"param": "overlays",
@@ -144,7 +146,7 @@
 			},
 			{
 				"i": "donate",
-				"d": "Twitchat est mon activité principale depuis maintenant +2 ans <b>sans aucune autre source de revenus</b>.\n\nSi vous pouvez vous le permettre, un don libre ou un soutient mensuel sur Patreon m'aidera énormément ❤️"
+				"d": "Twitchat est mon activité principale depuis maintenant +2 ans <b>sans aucune autre source de revenus</b>.\n\nSi vous pouvez vous le permettre, un don sur PayPal ou un soutient mensuel sur Patreon m'aidera énormément ❤️"
 			}
 		],
 		"forceRead": {

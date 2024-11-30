@@ -3359,7 +3359,11 @@ export interface IElevenLabsActions {
 	/**
 	 * Called when a new charity compaign is started
 	 */
-	read(message:string, voiceId:string, modelId:string, lang?:string, settings?:unknown):Promise<string>;
+	read(message:string, voiceId:string, modelId:string, lang?:string, settings?:{
+		similarity_boost?:number
+		stability?:number
+		style?:number
+	}):Promise<string|false>;
 	/**
 	 * Loads available voices list
 	 */
@@ -3372,7 +3376,11 @@ export interface IElevenLabsActions {
 	 * Load remaining api credits.
 	 * Warn on chat when count is low
 	 */
-	loadApiCredits():Promise<void>
+	loadApiCredits():Promise<void>;
+	/**
+	 * Builds up a cache from the history
+	 */
+	buildHistoryCache(onlyLatest?:boolean):Promise<void>;
 }
 
 

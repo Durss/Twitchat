@@ -50,8 +50,8 @@
 					<template #LIMIT>
 						<strong>{{ $store.elevenLabs.creditsTotal }}</strong>
 					</template>
-					<template #USED>
-						<strong>{{ $store.elevenLabs.creditsUsed }}</strong>
+					<template #REMAINING>
+						<strong>{{ $store.elevenLabs.creditsTotal - $store.elevenLabs.creditsUsed }}</strong>
 					</template>
 				</i18n-t>
 	
