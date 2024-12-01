@@ -41,6 +41,7 @@
 		"liveAlerts":"Get notified when someone you follow starts or ends a live (5min delay)",
 		"censorDeletedMessages": "Censor deleted messages",
 		"multiChatAvatar": "Show channels profile pic next to messages from other channels\n(If you connect to another Twitch chat, messages from other chans than yours will get a distinct color border on the left unless this option is enabled)",
+		"sharedChatHide": "Only show messages from my own channel during a shared chat session",
 		"highlightusernames": "Make {'@'}mentions clickable",
 		"highlightMods": "Highlight Mods",
 		"highlightVips": "Highlight VIPs",

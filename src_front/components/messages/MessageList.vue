@@ -232,6 +232,7 @@ class MessageList extends Vue {
 			this.computeMaxMessageCount();
 		});
 
+		watch(()=>this.$store.params.appearance.sharedChatHide.value, async () => this.fullListRefresh());
 		watch(()=>this.$store.params.features.mergeConsecutive.value, async () => this.fullListRefresh());
 		watch(()=>this.$store.params.features.mergeConsecutive_maxSize.value, async () => this.fullListRefresh());
 		watch(()=>this.$store.params.features.mergeConsecutive_maxSizeTotal.value, async () => this.fullListRefresh());
@@ -453,6 +454,11 @@ class MessageList extends Vue {
 	 * @param m
 	 */
 	private async shouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): Promise<boolean> {
+		//Hide shared chat messages if requested
+		if(this.$store.params.appearance.sharedChatHide.value === true) {
+			if(m.channelSource) return false;
+		}
+
 		if(this.lightMode) {
 			//If in light mode, only allow normal chat messages that are not deleted/moded/...
 			return m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE

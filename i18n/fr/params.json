@@ -40,6 +40,8 @@
 		"liveMessages": "Montrer les nouveaux messages lorsque le tchat est mis en pause",
 		"liveAlerts": "Être notifié·e lorsqu'une personne que vous suivez lance ou termine un live (délais de 5min)",
 		"censorDeletedMessages": "Censurer les messages supprimés",
+		"multiChatAvatar": "Afficher l'avatar de la chaîne à côté des messages d'autres chaînes\n(Si vous vous connectez à d'autres chaînes Twitch, leurs messages auront une bordure colorée distincte, à moins que cette option soit activée)",
+		"sharedChatHide": "Afficher uniquement les messages de ma chaîne durant une session de tchat partagé",
 		"highlightusernames": "Rendre les {'@'}mentions cliquables",
 		"highlightMods": "Mettre en avant les Modos",
 		"highlightVips": "Mettre en avant les VIPs",
@@ -216,7 +218,6 @@
 			"warn": "Envoyer un avertissement",
 			"giftpremium": "Offrir un abonnement premium",
 			"ungiftpremium": "Retire l'abonnement premium offert"
-		},
-		"multiChatAvatar": "Afficher l'avatar de la chaîne à côté des messages d'autres chaînes\n(Si vous vous connectez à d'autres chaînes Twitch, leurs messages auront une bordure colorée distincte, à moins que cette option soit activée)"
+		}
 	}
 }

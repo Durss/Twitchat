@@ -1706,10 +1706,10 @@ export const storeChat = defineStore('chat', {
 									StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_COUNT", subgiftHistoryEntry.gift_count);
 								}
 								Logger.instance.log("subgifts", {
-									...baseLog,
 									id:message.id,
 									merged:true,
 									data:{
+										...baseLog,
 										parent: subgiftHistoryEntry.id,
 									}
 								});
