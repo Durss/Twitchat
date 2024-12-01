@@ -1797,7 +1797,7 @@ export default class EventSub {
 	
 				StoreProxy.chat.addMessage(message);
 			}
-		}, 5000);
+		}, 2000);
 	}
 
 	private async chatClearEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ChatClearEvent):Promise<void> {

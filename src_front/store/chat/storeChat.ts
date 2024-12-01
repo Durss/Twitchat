@@ -32,6 +32,7 @@ let subgiftHistory:TwitchatDataTypes.MessageSubscriptionData[] = [];
 let antiHateRaidCounter:{[message:string]:{messages:TwitchatDataTypes.MessageChatData[], date:number, ignore:boolean}} = {};
 let antiHateRaidGraceEndDate = -1;
 let currentHateRaidAlert!:TwitchatDataTypes.MessageHateRaidData;
+let parsedMessageIds:Record<string, boolean> = {};
 
 export const storeChat = defineStore('chat', {
 	state: () => ({
@@ -964,6 +965,9 @@ export const storeChat = defineStore('chat', {
 			const s = Date.now();
 			const logTimings = false;//Enable to check for perf issues
 			const isFromRemoteChan = message.channel_id != sAuth.twitch.user.id && message.channel_id != sAuth.youtube.user?.id;
+
+			if(parsedMessageIds[message.id]) return;
+			parsedMessageIds[message.id] = true;
 
 			try {
 
