@@ -1129,7 +1129,7 @@ export const storeUsers = defineStore('users', {
 			name = name.trim().substring(0, 25);
 			const uid = typeof user === "string"? user : user.id;
 			const displayName = typeof user === "string"? "" : user.displayNameOriginal;
-			const paltform = typeof user === "string"? platform : user.platform;
+			const platformLoc = typeof user === "string"? platform : user.platform;
 			if(name.length == 0 || name === displayName) {
 				delete this.customUsernames[uid];
 			}else{
@@ -1140,7 +1140,7 @@ export const storeUsers = defineStore('users', {
 					StoreProxy.common.alert(StoreProxy.i18n.t("error.max_custom_usernames", {COUNT:Config.instance.MAX_CUSTOM_USERNAMES}));
 					return false;
 				}
-				this.customUsernames[uid] = {name, platform, channel:channelId};
+				this.customUsernames[uid] = {name, platform:platformLoc, channel:channelId};
 			}
 
 			this.saveCustomUsername();

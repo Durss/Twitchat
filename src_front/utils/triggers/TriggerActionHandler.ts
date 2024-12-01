@@ -2931,7 +2931,7 @@ export default class TriggerActionHandler {
 						if(StoreProxy.users.setCustomUsername(user.id, newUsername, channel_id, user.platform)) {
 							logStep.messages.push({date:Date.now(), value:"✔ Set #"+user.id+" username to \""+newUsername+"\""});
 						}else{
-							logStep.messages.push({date:Date.now(), value:"❌ Failed to set #"+user.id+" username to \""+newUsername+"\""});
+							logStep.messages.push({date:Date.now(), value:"❌ Failed to set #"+user.id+" username to \""+newUsername+"\". You probably reached the maximum amount of custom usernames."});
 							log.error = true;
 							logStep.error = true;
 						}
