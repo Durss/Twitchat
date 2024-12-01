@@ -1125,19 +1125,22 @@ export const storeUsers = defineStore('users', {
 			this.saveCustomUsername();
 		},
 
-		setCustomUsername(user:TwitchatDataTypes.TwitchatUser, name:string, channelId:string):boolean {
+		setCustomUsername(user:TwitchatDataTypes.TwitchatUser|string, name:string, channelId:string, platform:TwitchatDataTypes.ChatPlatform):boolean {
 			name = name.trim().substring(0, 25);
-			if(name.length == 0 || name === user.displayNameOriginal) {
-				delete this.customUsernames[user.id];
+			const uid = typeof user === "string"? user : user.id;
+			const displayName = typeof user === "string"? "" : user.displayNameOriginal;
+			const paltform = typeof user === "string"? platform : user.platform;
+			if(name.length == 0 || name === displayName) {
+				delete this.customUsernames[uid];
 			}else{
 				//User can give up to 10 custom user names if not premium
-				if(!this.customUsernames[user.id]
+				if(!this.customUsernames[uid]
 				&& !StoreProxy.auth.isPremium
 				&& Object.keys(this.customUsernames).length >= Config.instance.MAX_CUSTOM_USERNAMES) {
 					StoreProxy.common.alert(StoreProxy.i18n.t("error.max_custom_usernames", {COUNT:Config.instance.MAX_CUSTOM_USERNAMES}));
 					return false;
 				}
-				this.customUsernames[user.id] = {name, platform:user.platform, channel:channelId};
+				this.customUsernames[uid] = {name, platform, channel:channelId};
 			}
 
 			this.saveCustomUsername();

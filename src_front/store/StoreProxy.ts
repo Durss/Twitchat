@@ -1934,7 +1934,7 @@ export interface IUsersActions {
 	 * @param name
 	 * @returns false if user has used all the non premium slots
 	 */
-	setCustomUsername(user:TwitchatDataTypes.TwitchatUser, name:string, channelId:string):boolean;
+	setCustomUsername(user:TwitchatDataTypes.TwitchatUser|string, name:string, channelId:string, platform:string):boolean;
 	/**
 	 * Create a new custom user badge
 	 * @returns false if user the maximum custom badges has been reached, otherwise returns the created badge ID

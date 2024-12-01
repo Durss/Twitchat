@@ -702,7 +702,7 @@ class UserCard extends AbstractSidePanel {
 	 */
 	public submitCustomLogin():void {
 		this.edittingLogin = false;
-		if(!this.$store.users.setCustomUsername(this.user!, this.customLogin, this.channel!.id)) {
+		if(!this.$store.users.setCustomUsername(this.user!, this.customLogin, this.channel!.id, this.user!.platform)) {
 			this.manageUserNames = true;
 		}
 		//Update customLogin from the actual displayname.

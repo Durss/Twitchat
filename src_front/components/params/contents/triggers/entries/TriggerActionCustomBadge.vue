@@ -114,9 +114,9 @@ class TriggerActionCustomBadge extends AbstractTriggerActionEntry {
 	private get userSourceOptions():TwitchatDataTypes.ParameterDataListValue<string>[] {
 		const res:TwitchatDataTypes.ParameterDataListValue<string>[] = [
 			//Add static sources "sender" and "everyone"
-			{labelKey:"triggers.actions.count.user_source_sender", value:COUNTER_EDIT_SOURCE_SENDER},
-			{labelKey:"triggers.actions.count.user_source_chatters", value:COUNTER_EDIT_SOURCE_CHATTERS},
-			{labelKey:"triggers.actions.count.user_source_everyone", value:COUNTER_EDIT_SOURCE_EVERYONE},
+			{labelKey:"triggers.actions.customBadge.user_source_sender", value:COUNTER_EDIT_SOURCE_SENDER},
+			{labelKey:"triggers.actions.customBadge.user_source_chatters", value:COUNTER_EDIT_SOURCE_CHATTERS},
+			{labelKey:"triggers.actions.customBadge.user_source_everyone", value:COUNTER_EDIT_SOURCE_EVERYONE},
 		];
 
 		//Add command's placeholders

@@ -219,7 +219,6 @@ export const storeElevenLabs = defineStore('elevenlabs', {
 					cacheHistory[key] = {id:h.history_item_id};
 				});
 			}while(history && history.has_more && ++failSafe < 1000 && !onlyLatest);
-			console.log(cacheHistory);
 		},
 	} as IElevenLabsActions
 	& ThisType<IElevenLabsActions

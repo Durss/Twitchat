@@ -503,11 +503,17 @@
 				"no_badge": "drag & drop badge here",
 				"badge_to_add": "Badges to add",
 				"badge_to_del": "Badges to remove",
-				"param_add_badgeBt": "Create badge"
+				"param_add_badgeBt": "Create badge",
+				"user_source_sender": "User calling the trigger",
+				"user_source_everyone": "All existing custom badge entries",
+				"user_source_chatters": "All users on chat"
 			},
 			"customUsername": {
 				"param_user": "Select user to edit username of",
-				"param_username": "New username (leave empty to reset)"
+				"param_username": "New username\n(leave empty to reset)",
+				"user_source_sender": "User calling the trigger",
+				"user_source_everyone": "All existing custom username entries",
+				"user_source_chatters": "All users on chat"
 			},
 			"adBreak": {
 				"param_delay": "Delay before ad break starts"

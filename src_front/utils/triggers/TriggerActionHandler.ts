@@ -2890,22 +2890,48 @@ export default class TriggerActionHandler {
 
 				//Handle custom badges
 				if(step.type == "customUsername") {
-					let users:TwitchatDataTypes.TwitchatUser[] = [];
+					let users:{id:string, platform:TwitchatDataTypes.ChatPlatform}[] = [];
+					const newUsername:string = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.customUsername);
 					//if requested to update badges of the user executing the trigger
 					if(step.customUsernameUserSource == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_SENDER) {
 						const user = this.extractUserFromTrigger(trigger, message);
-						if(user) users.push(user);
+						if(user) {
+							users.push({id:user.id, platform:user.platform});
+							logStep.messages.push({date:Date.now(), value:"✔ Set sender #"+user.id+" username to \""+newUsername+"\""});
+						}else{
+							logStep.messages.push({date:Date.now(), value:"❌ Sender to edit not found"});
+						}
+					}else
+					if(step.customUsernameUserSource == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_CHATTERS) {
+						StoreProxy.users.users.forEach(user=> {
+							users.push({id:user.id, platform:user.platform});
+						});
+						if(users.length > 0) {
+							logStep.messages.push({date:Date.now(), value:"✔ Set "+users.length+" chatters names to \""+newUsername+"\""});
+						}else{
+							logStep.messages.push({date:Date.now(), value:"❌ No chatters to edit"});
+						}
+					}else
+					if(step.customUsernameUserSource == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE) {
+						const names = StoreProxy.users.customUsernames;
+						Object.keys(names).forEach(uid => {
+							users.push({id:uid, platform:names[uid].platform});
+						});
+						if(users.length > 0) {
+							logStep.messages.push({date:Date.now(), value:"✔ Set "+users.length+" entries to \""+newUsername+"\""});
+						}else{
+							logStep.messages.push({date:Date.now(), value:"❌ There is currently no existing entry to edit"});
+						}
 					}else{
 						users = await this.extractUserFromPlaceholder(channel_id, step.customUsernameUserSource, dynamicPlaceholders, actionPlaceholders, trigger, message, log);
 					}
 
-					const newUsername:string = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.customUsername);
 					for (let i = 0; i < users.length; i++) {
 						const user = users[i];
-						if(StoreProxy.users.setCustomUsername(user, newUsername, channel_id)) {
-							logStep.messages.push({date:Date.now(), value:"✔ Set "+user.login+"'s username to \""+(newUsername || user.displayNameOriginal)+"\""});
+						if(StoreProxy.users.setCustomUsername(user.id, newUsername, channel_id, user.platform)) {
+							logStep.messages.push({date:Date.now(), value:"✔ Set #"+user.id+" username to \""+newUsername+"\""});
 						}else{
-							logStep.messages.push({date:Date.now(), value:"❌ Failed to set "+user.login+"'s username to \""+(newUsername || user.displayNameOriginal)+"\""});
+							logStep.messages.push({date:Date.now(), value:"❌ Failed to set #"+user.id+" username to \""+newUsername+"\""});
 							log.error = true;
 							logStep.error = true;
 						}

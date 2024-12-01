@@ -6,10 +6,10 @@
 		</div>
 
 		<div class="list">
-			<div class="card-item user" v-for="u, key in $store.users.customUsernames">
-				<button class="deleteBt" v-tooltip="$t('usercard.manage_usernames_removeBt')" @click="deleteCustomName(key as string)"><Icon name="cross" theme="alert" /></button>
-				<span class="original" v-tooltip="$t('usercard.manage_usernames_real_tt')">{{ $store.users.getUserFrom(u.platform, u.channel, key as string).displayNameOriginal }}</span>
-				<span class="rename" v-tooltip="$t('usercard.manage_usernames_custom_tt')">({{ u.name }})</span>
+			<div class="card-item user" v-for="item in itemList">
+				<button class="deleteBt" v-tooltip="$t('usercard.manage_usernames_removeBt')" @click="deleteCustomName(item.user.id)"><Icon name="cross" theme="alert" /></button>
+				<span class="original" v-tooltip="$t('usercard.manage_usernames_real_tt')">{{ item.user.displayNameOriginal }}</span>
+				<span class="rename" v-tooltip="$t('usercard.manage_usernames_custom_tt')">({{ item.customName }})</span>
 			</div>
 		</div>
 	</div>
@@ -19,6 +19,7 @@
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import Icon from '../Icon.vue';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Component({
 	components:{
@@ -29,11 +30,13 @@ import Icon from '../Icon.vue';
 })
 class CustomUserNameManager extends Vue {
 
+	public itemList:{customName:string, user:TwitchatDataTypes.TwitchatUser}[] = [];
+
 	public async mounted():Promise<void> {
 		const customUsernames = this.$store.users.customUsernames;
 		for (const uid in customUsernames) {
 			const u = customUsernames[uid];
-			this.$store.users.getUserFrom(u.platform, u.channel, uid);
+			this.itemList.push( {user: this.$store.users.getUserFrom(u.platform, u.channel, uid), customName:u.name } );
 		}
 	}
 
@@ -84,7 +87,7 @@ export default toNative(CustomUserNameManager);
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
-		justify-content: center;
+		justify-content: flex-start;
 		.user {
 			display: inline-flex;
 			flex-direction: row;

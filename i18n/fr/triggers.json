@@ -503,11 +503,17 @@
 				"no_badge": "drag & drop un badge ici",
 				"badge_to_add": "Badges à ajouter",
 				"badge_to_del": "Badges à retirer",
-				"param_add_badgeBt": "Créer un badge"
+				"param_add_badgeBt": "Créer un badge",
+				"user_source_sender": "Personne déclenchant le trigger",
+				"user_source_everyone": "Toutes les personnes possédant un badge personnalisé",
+				"user_source_chatters": "Toutes les personnes connectées au tchat"
 			},
 			"customUsername": {
 				"param_user": "Sélectionnez la personne dont éditer le pseudo",
-				"param_username": "Nouveau pseudo (laisser vide pour réinitialiser)"
+				"param_username": "Nouveau pseudo\n(laisser vide pour réinitialiser)",
+				"user_source_sender": "Personne déclenchant le trigger",
+				"user_source_everyone": "Toutes les personne ayant un pseudo personnalisé",
+				"user_source_chatters": "Toutes les personnes connectées au tchat"
 			},
 			"adBreak": {
 				"param_delay": "Durée avant le lancement de la pub"

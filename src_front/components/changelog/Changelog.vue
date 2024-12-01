@@ -257,7 +257,7 @@ class Changelog extends Vue {
 
 		//If not all slides have been read or spent less than 30s on it
 		const didntReadAll = [...this.slideCountRead].length < this.items.length - 1; //don't care about last slide
-		this.readAtSpeedOfLight = Date.now() - this.openedAt < this.items.length * 2000 && !didntReadAll;
+		this.readAtSpeedOfLight = Date.now() - this.openedAt < this.items.length * 4000 && !didntReadAll;
 		if(!forceClose && (didntReadAll || this.readAtSpeedOfLight)) {
 			this.showReadAlert = true;
 			return;
