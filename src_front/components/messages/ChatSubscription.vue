@@ -94,14 +94,14 @@
 					</template>
 				</i18n-t>
 	
-				<!-- Number of months they bought in advance DISABLED UNTIL TWITCH FIXES THEIR DATA -->
-				<!-- <i18n-t scope="global" tag="div" class="additional"
+				<!-- Number of months they bought in advance -->
+				<i18n-t scope="global" tag="div" class="additional"
 				v-if="messageData.months > 0"
 				keypath="chat.subscription.sub_advance" :plural="messageData.months">
 					<template #COUNT>
 						<strong>{{ messageData.months }}</strong>
 					</template>
-				</i18n-t> -->
+				</i18n-t>
 	
 				<!-- Sub streak -->
 				<i18n-t scope="global" tag="div" class="additional"
