@@ -160,10 +160,6 @@
 			<Button @click="disableAd()" alert icon="cross">{{ $t('chat.message.disable_ad') }}</Button>
 			<Button @click="openAdParams()" icon="edit">{{ $t('chat.message.customize_ad') }}</Button>
 		</div>
-		
-		<Icon class="eventsub" name="info"
-			v-if="messageData.type == 'message' && messageData.twitch_source == 'eventsub'"
-			v-tooltip="'BETA-TESTERS\nPlease let me know on Discord if you see this icon!'"></Icon>
 	</div>
 
 </template>
@@ -1244,16 +1240,6 @@ export default toNative(ChatMessage);
 		justify-content: center;
 		gap: .5em;
 		margin-top: .5em;
-	}
-
-	.eventsub {
-		position: absolute;
-		top: .25em;
-		right: 0;
-		height: 1em;
-		width: 1em;
-		color: var(--color-secondary);
-		opacity: .5;
 	}
 }
 </style>
