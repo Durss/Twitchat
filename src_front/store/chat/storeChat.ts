@@ -1620,7 +1620,7 @@ export const storeChat = defineStore('chat', {
 						});
 						//If it's a subgift, merge it with potential previous ones
 						if(message.is_gift && message.gift_recipients) {
-							// console.log("Merge attempt");
+							// Attempt to merge subgift messages
 							for (let i = subgiftHistory.length-1; i >= 0; i--) {
 								const subgiftHistoryEntry = subgiftHistory[i];
 								let baseLog = {
@@ -1632,6 +1632,7 @@ export const storeChat = defineStore('chat', {
 									date_new:message.date,
 									elapsed:Math.abs(message.date - subgiftHistoryEntry.date),
 								}
+								// Skip if the messages are from different channels
 								if(message.channel_id != subgiftHistoryEntry.channel_id) {
 									if(subgiftHistoryEntry.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
 										Logger.instance.log("subgifts", {
@@ -1651,6 +1652,7 @@ export const storeChat = defineStore('chat', {
 									}
 									continue;
 								}
+								// Skip if the messages are of different tiers
 								if(subgiftHistoryEntry.tier != message.tier) {
 									Logger.instance.log("subgifts", {
 										id:message.id,
@@ -1664,6 +1666,7 @@ export const storeChat = defineStore('chat', {
 									});
 									continue;
 								}
+								// Skip if the messages are from different users
 								if(subgiftHistoryEntry.user.id != message.user.id) {
 									Logger.instance.log("subgifts", {
 										id:message.id,
@@ -1677,6 +1680,7 @@ export const storeChat = defineStore('chat', {
 									});
 									continue;
 								}
+								// Skip if the messages are too old (more than 10 seconds apart)
 								if(Math.abs(message.date - subgiftHistoryEntry.date) >= 10000) {
 									Logger.instance.log("subgifts", {
 										id:message.id,
@@ -1690,18 +1694,14 @@ export const storeChat = defineStore('chat', {
 									continue;
 								}
 								
-								//If the message is a subgift from the same user with the same tier on
-								//the same channel and happened in the last 10s, merge it.
-								// console.log("MERGE IT !");
-								if(!subgiftHistoryEntry.gift_recipients) subgiftHistoryEntry.gift_recipients = [];
-								subgiftHistoryEntry.date = Date.now();//Update timestamp
-								for (let j = 0; j < message.gift_recipients.length; j++) {
-									subgiftHistoryEntry.gift_recipients.push(message.gift_recipients[j]);
-								}
-								subgiftHistoryEntry.gift_count = subgiftHistoryEntry.gift_recipients.length;
+								// Merge subgift messages if they are from the same user, same tier, same channel, and within 10 seconds
+								if(!subgiftHistoryEntry.gift_recipients) subgiftHistoryEntry.gift_recipients = [];//Init recipent list if necessary
+								subgiftHistoryEntry.date = Math.max(subgiftHistoryEntry.date, message.date); // Keep latest timestamp
+								subgiftHistoryEntry.gift_recipients.push(...message.gift_recipients);//Merge recipients
+								subgiftHistoryEntry.gift_count = subgiftHistoryEntry.gift_recipients.length;//Increment count
 								if(!isFromRemoteChan) {
-									//DO NOT INCREMENT "SUB_COUNT" AND "SUB_POINTS" HERE !
-									//It is done later once gift bomb completes
+									// DO NOT INCREMENT "SUB_COUNT" AND "SUB_POINTS" HERE!
+									// It is done later once gift bomb completes
 									StoreProxy.labels.updateLabelValue("SUBGIFT_COUNT", subgiftHistoryEntry.gift_count);
 									StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_COUNT", subgiftHistoryEntry.gift_count);
 								}
