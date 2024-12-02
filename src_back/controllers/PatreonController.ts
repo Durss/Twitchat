@@ -259,6 +259,8 @@ export default class PatreonController extends AbstractController {
 					if(patreonAuth.token.scope.includes("w:campaigns.webhook")) {
 						//If webhook creation failed, response is sent by the function, stop there
 						if(!await this.createUserWebhook(request, response, patreonAuth)) return;
+					}else{
+						Logger.warn("[PATREON] User "+patreonAuth.twitchUser.login+" doesn't have the required scope to create webhooks. User only granted "+patreonAuth.token.scope);
 					}
 				}
 
@@ -746,7 +748,7 @@ export default class PatreonController extends AbstractController {
 	 * @param memberList 
 	 * @returns 
 	 */
-	private async loadCampaign(campaignId:string,):Promise<{success:boolean, error?:string[], campaign?:unknown}> {
+	private async loadCampaign(campaignId:string):Promise<{success:boolean, error?:string[], campaign?:unknown}> {
 		const url = new URL("https://www.patreon.com/api/oauth2/v2/campaigns/"+campaignId);
 		url.searchParams.append("fields[campaign]", "created_at,creation_name,discord_server_id,image_small_url,image_url,is_charged_immediately,is_monthly,main_video_embed,main_video_url,one_liner,one_liner,patron_count,pay_per_name,pledge_url,published_at,summary,thanks_embed,thanks_msg,thanks_video_url");
 
@@ -790,9 +792,9 @@ export default class PatreonController extends AbstractController {
 			const token = JSON.parse(Utils.decrypt(json[twitchUser.user_id])) as PatreonToken;
 			//Refresh token if necessary (give it 1 minute of margin)
 			if(token.expires_at > Date.now() - 60000) {
-				const patreonToken = await this.refreshUserToken(token, twitchUser.user_id);
-				if(!patreonToken) return false;
-				return  { twitchUser, token:patreonToken };
+				const newToken = await this.refreshUserToken(token, twitchUser.user_id);
+				if(!newToken) return false;
+				return  { twitchUser, token:newToken };
 			}
 			return {twitchUser, token};
 		}catch(error) {
