@@ -87,6 +87,7 @@
 			</button>
 
 			<button class="card-item"
+			:class="{noConnectInfo:true}"
 			@click="subContent='streamdeck'">
 				<Icon name="elgato" />
 				<p>Stream Deck</p>
@@ -322,7 +323,9 @@ export default toNative(ParamsConnections);
 			transition: background-color .2s;
 			overflow: visible;
 			position: relative;
-			border-right: 2px solid var(--color-alert);
+			&:not(.noConnectInfo) {
+				border-right: 2px solid var(--color-alert);
+			}
 			&.premium {
 				background-color: var(--color-premium-fadest);
 				
@@ -379,7 +382,7 @@ export default toNative(ParamsConnections);
 					opacity: .75;
 				}
 			}
-			&::after {
+			&:not(.noConnectInfo)::after {
 				content: "";
 				position: absolute;
 				top: 50%;
