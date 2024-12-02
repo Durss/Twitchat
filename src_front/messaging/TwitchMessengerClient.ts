@@ -915,7 +915,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
 		data.streakMonths = streakMonths;
-		data.months = this.getNumValueFromTag(tags["msg-param-gift-months"], 1);
 		const recipientLogin = tags["msg-param-recipient-user-name"] ?? recipient;
 		const recipientName = tags["msg-param-recipient-display-name"] ?? recipient;
 		const recipientId = tags["msg-param-recipient-id"];
@@ -929,7 +928,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
 		data.streakMonths = streakMonths;
-		data.months = this.getNumValueFromTag(tags["msg-param-gift-months"], 1);
 		const recipientLogin = tags["msg-param-recipient-user-name"] ?? recipient;
 		const recipientName = tags["msg-param-recipient-display-name"] ?? recipient;
 		const recipientId = tags["msg-param-recipient-id"];
