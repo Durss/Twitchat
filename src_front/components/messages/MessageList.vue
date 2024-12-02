@@ -499,7 +499,7 @@ class MessageList extends Vue {
 					//If requested mandatory badges, check if user has it
 					if(this.config.mandatoryBadges_flag && (this.config.mandatoryBadges || [])?.length > 0) {
 						const badges = this.$store.users.customUserBadges[m.user.id];
-						if(!badges) return false;
+					if(!badges) return false;
 						for (let i = 0; i < this.config.mandatoryBadges!.length; i++) {
 							const badge = this.config.mandatoryBadges![i];
 							if(badges.find(b => b.id == badge)) return true;
@@ -522,17 +522,18 @@ class MessageList extends Vue {
 				if (m.user.is_tracked && this.config.messageFilters.tracked) {
 					return true;
 				}
-
+				
 				//Force pinned messages if requested
 				if (m.is_saved && this.config.messageFilters.pinned) {
 					return true;
 				}
-
+				
 				//Ignore specific users
-				if (this.config.userBlockList && m.user.displayNameOriginal.length > 0 && this.config.userBlockList.map(v=>v.toLowerCase()).includes(m.user.login.toLowerCase())) {
+				if (this.config.userBlockList && m.user.displayNameOriginal.length > 0
+				&& this.config.userBlockList.map(v=>v.toLowerCase()).includes(m.user.login.toLowerCase())) {
 					return false;
 				}
-
+			
 				//Ignore specific commands
 				if (this.config.messageFilters.commands === true && this.config.commandsBlockList.length > 0) {
 					const cleanMess = m.message.trim().toLowerCase();
@@ -1317,8 +1318,9 @@ class MessageList extends Vue {
 			if(index > -1) this.lockedLiveMessages.splice(index, 1);
 
 			//Message isn't supposed to be displayed, ignore it
-			if(!await this.shouldShowMessage(message!)) message = undefined;
-			else if(message) {
+			if(!await this.shouldShowMessage(message!)) {
+				message = undefined;
+			}else if(message) {
 				if(await this.mergeWithPrevious(message, undefined, this.pendingMessages)) continue;
 				//Add message
 				messageCountToAdd --;
@@ -1371,7 +1373,7 @@ class MessageList extends Vue {
 					removed.push(this.filteredMessages.pop()!);
 					this.filteredMessages.unshift(m);
 					messageAdded = true;
-					if(--messageCountToAdd == 0) break;
+					if(--messageCountToAdd == -1) break;
 				}
 			}
 		}
