@@ -2070,12 +2070,10 @@ export default class TriggerActionHandler {
 									json = null;
 								}
 	
-								console.log("LIST", step.outputPlaceholderList, json);
 								if(step.outputPlaceholderList && step.outputPlaceholderList.length > 0) {
 									for (let i = 0; i < step.outputPlaceholderList.length; i++) {
 										const ph = step.outputPlaceholderList[i];
 										if(!ph.placeholder || ph.placeholder.length === 0) continue;
-										console.log(ph);
 	
 										if(ph.type == "text") {
 											logStep.messages.push({date:Date.now(), value:"Store full query result to placeholder {"+ph.placeholder+"}"});
@@ -2088,7 +2086,6 @@ export default class TriggerActionHandler {
 												log.error = true;
 												logStep.error = true;
 											}else{
-												console.log(results);
 												logStep.messages.push({date:Date.now(), value:"Store JSONPath result to placeholder {"+ph.placeholder+"}: "+results[0]});
 												dynamicPlaceholders[ph.placeholder] = results.length == 1 && typeof results[0] === "string"? results[0] : results.join(", ");
 											}
