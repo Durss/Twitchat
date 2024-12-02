@@ -116,7 +116,7 @@ export const storePatreon = defineStore('patreon', {
 		},
 
 		/**
-		 * Generate an auth token from a auth code 
+		 * Generate an auth token from an auth code 
 		 * @param code 
 		 */
 		async authenticate(code:string, premiumContext:boolean = false):Promise<void> {
@@ -140,10 +140,10 @@ export const storePatreon = defineStore('patreon', {
 			}else{
 				this.connected = true;
 				this.isMember = res.json.data?.isMember === true;
-				if(this.isMember) {
+				if(StoreProxy.auth.isPremium) {
 					StoreProxy.chat.cleanupDonationRelatedMessages();
+					this.loadMemberList();
 				}
-				this.loadMemberList();
 			}
 		},
 
@@ -155,7 +155,7 @@ export const storePatreon = defineStore('patreon', {
 			if(res.status == 200) {
 				this.memberList	= res.json.data.memberList;
 				this.tierList	= res.json.data.tierList;
-				const freeTier = this.tierList.find(t => t.attributes.amount_cents == 0);
+				// const freeTier = this.tierList.find(t => t.attributes.amount_cents == 0);
 				const activeMembers = this.memberList.filter(m => {
 					return m.attributes.patron_status == "active_patron"
 					&& m.attributes.currently_entitled_amount_cents > 0

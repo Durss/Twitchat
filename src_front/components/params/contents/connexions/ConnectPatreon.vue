@@ -8,7 +8,7 @@
 					<a href="https://patreon.com/" target="_blank"><Icon name="newtab" />Patreon</a>
 				</template>
 			</i18n-t>
-			<div class="card-item secondary beta">
+			<div class="card-item secondary beta" v-if="$store.auth.isPremium">
 				<Icon name="alert" />
 				{{ $t("patreon.beta") }}<br>
 				<TTButton :href="$config.DISCORD_URL" type="link" target="_blank" class="discordBt" secondary light icon="discord">Discord</TTButton>
@@ -19,7 +19,7 @@
 			<TTButton icon="premium" @click="openPremium()" premium big>{{ $t('premium.become_premiumBt')  }}</TTButton>
 		</section>
 
-		<section v-if="$store.auth.isPremium && !$store.patreon.connected">
+		<section v-else-if="$store.auth.isPremium && !$store.patreon.connected">
 			<TTButton type="link" :href="oAuthURL" target="_self" :loading="loading">{{ $t("global.connect") }}</TTButton>
 			<div class="card-item alert error" v-if="error" @click="error = false">{{ $t("error.patreon_connect_failed") }}</div>
 		</section>

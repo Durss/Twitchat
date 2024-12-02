@@ -4,10 +4,10 @@ import * as fs from "fs";
 import fetch from "node-fetch";
 import Config from "../utils/Config.js";
 import Logger from "../utils/Logger.js";
-import TwitchUtils, { TwitchToken } from "../utils/TwitchUtils.js";
+import { TwitchToken } from "../utils/TwitchUtils.js";
+import Utils from "../utils/Utils.js";
 import AbstractController from "./AbstractController.js";
 import SSEController from "./SSEController.js";
-import Utils from "../utils/Utils.js";
 
 /**
 * Created : 13/07/2023
@@ -86,7 +86,7 @@ export default class PatreonController extends AbstractController {
 	 * @param response
 	 */
 	public async postUserAuthenticate(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const twitchUser = await this.premiumGuard(request, response);
+		const twitchUser = await this.twitchUserGuard(request, response);
 		if(!twitchUser) return;
 
 		const body:any = request.body;
@@ -115,7 +115,7 @@ export default class PatreonController extends AbstractController {
 
 				response.header('Content-Type', 'application/json');
 				response.status(200);
-				response.send(JSON.stringify({success:true, data:token}));
+				response.send(JSON.stringify({success:true}));
 			}
 		}else{
 			Logger.error("Failed authenticating with Patreon with status:", result.status);
@@ -146,7 +146,7 @@ export default class PatreonController extends AbstractController {
 
 		//Search if a webhook exists
 		const webhookRes = await this.getUserWebhook(request, response, patreonAuth);
-		if(!webhookRes) return;
+		if(!webhookRes || !webhookRes.webhookID) return;
 		
 		if(patreonAuth.token.scope.includes("w:campaigns.webhook")) {
 			//Delete webhook
@@ -231,30 +231,34 @@ export default class PatreonController extends AbstractController {
 					}
 				}
 
-				//User is part of active patreon members.
-				if(isMember) {
-					let twitch2Patreon = {};
-					if(fs.existsSync(Config.twitch2Patreon)) {
-						twitch2Patreon = JSON.parse(fs.readFileSync(Config.twitch2Patreon, "utf-8") || "{}");
-					}
-					let linkedCount = 0;
-					// Count linked accounts
-					for (const twitchId in twitch2Patreon) {
-						if(twitch2Patreon[twitchId] == memberID) {
-							linkedCount ++;
+				//User is premium?
+				if(this.isUserPremium(patreonAuth.twitchUser.user_id)) {
+					//MemberID is empty if user got premium granted and isn't part of patreon donors
+					//Ignore this case
+					if(memberID) {
+						let linkedCount = 0;
+						let twitch2Patreon = {};
+						if(fs.existsSync(Config.twitch2Patreon)) {
+							twitch2Patreon = JSON.parse(fs.readFileSync(Config.twitch2Patreon, "utf-8") || "{}");
+						}
+						
+						// Count linked accounts
+						for (const twitchId in twitch2Patreon) {
+							if(twitch2Patreon[twitchId] == memberID) {
+								linkedCount ++;
+							}
+						}
+						twitch2Patreon[patreonAuth.twitchUser.user_id] = memberID;
+						fs.writeFileSync(Config.twitch2Patreon, JSON.stringify(twitch2Patreon), "utf-8");
+	
+						//Check if user has already linked 2 accounts or more
+						if(linkedCount >= 2) {
+							response.header('Content-Type', 'application/json');
+							response.status(401);
+							response.send(JSON.stringify({success:false, errorCode:"MAX_LINKED_ACCOUNTS"}));
+							return;
 						}
 					}
-
-					//Check if user has already linked 2 accounts or more
-					if(linkedCount >= 2) {
-						response.header('Content-Type', 'application/json');
-						response.status(401);
-						response.send(JSON.stringify({success:false, errorCode:"MAX_LINKED_ACCOUNTS"}));
-						return;
-					}
-
-					twitch2Patreon[patreonAuth.twitchUser.user_id] = memberID;
-					fs.writeFileSync(Config.twitch2Patreon, JSON.stringify(twitch2Patreon), "utf-8");
 
 					if(patreonAuth.token.scope.includes("w:campaigns.webhook")) {
 						//If webhook creation failed, response is sent by the function, stop there
@@ -784,25 +788,39 @@ export default class PatreonController extends AbstractController {
 		if(!twitchUser) return false;
 
 		let json = {};
+		let errorMessage = "";
+		let errorCode = "";
 		if(fs.existsSync(Config.twitch2PatreonToken)) {
 			json = JSON.parse(fs.readFileSync(Config.twitch2PatreonToken, "utf-8") || "{}");
 		}
 
-		try {
-			const token = JSON.parse(Utils.decrypt(json[twitchUser.user_id])) as PatreonToken;
-			//Refresh token if necessary (give it 1 minute of margin)
-			if(token.expires_at > Date.now() - 60000) {
-				const newToken = await this.refreshUserToken(token, twitchUser.user_id);
-				if(!newToken) return false;
-				return  { twitchUser, token:newToken };
+		if(!json[twitchUser.user_id]) {
+			errorCode = "NOT_CONNECTED";
+			errorMessage = "user isn't connected to Patreon";
+		}else{
+			try {
+				const token = JSON.parse(Utils.decrypt(json[twitchUser.user_id])) as PatreonToken;
+				//Refresh token if necessary (give it 1 minute of margin)
+				if(token.expires_at > Date.now() - 60000) {
+					const newToken = await this.refreshUserToken(token, twitchUser.user_id);
+					if(newToken) {
+						return  { twitchUser, token:newToken };
+					}else{
+						errorCode = "INVALID_TOKEN";
+						errorMessage = "could not refresh token";
+					}
+				}else{
+					return {twitchUser, token};
+				}
+			}catch(error) {
+				errorCode = "INVALID_TOKEN";
+				errorMessage = "could not decrypt token";
 			}
-			return {twitchUser, token};
-		}catch(error) {
-			response.header('Content-Type', 'application/json');
-			response.status(401);
-			response.send({success:false, message:"could not decrypt token", errorCode:"INVALID_TOKEN"});
-			return false;
 		}
+		response.header('Content-Type', 'application/json');
+		response.status(401);
+		response.send({success:false, message:errorMessage, errorCode});
+		return false;
 	}
 
 	/**
