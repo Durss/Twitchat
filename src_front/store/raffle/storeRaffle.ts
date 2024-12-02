@@ -33,7 +33,7 @@ export const storeRaffle = defineStore('raffle', {
 		populateData() {
 			const rafflesRunning = JSON.parse(DataStore.get(DataStore.RAFFLES_RUNNING) || "[]");
 			if(rafflesRunning) {
-				this.raffleList = rafflesRunning;
+				this.raffleList = rafflesRunning.splice(0, 20);
 			}
 
 			/**

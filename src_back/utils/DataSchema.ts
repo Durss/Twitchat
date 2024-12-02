@@ -1236,7 +1236,7 @@ const UserDataSchema = {
 		emergencyFollowers: {
 			type:"array",
 			minItems:0,
-			maxItems:1000,
+			maxItems:1500,
 			items: {
 				type:"object",
 				additionalProperties: false,
@@ -2060,7 +2060,7 @@ const UserDataSchema = {
 		rafflesRunning:{
 			type:"array",
 			minItems:0,
-			maxItems:50,
+			maxItems:20,
 			items:{
 				type: "object",
 				properties: {
