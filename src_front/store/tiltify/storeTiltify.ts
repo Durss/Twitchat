@@ -171,25 +171,6 @@ export const storeTiltify = defineStore('tiltify', {
 		async loadInfos():Promise<{user:TiltifyUser, campaigns:TiltifyCampaign[]}> {
 			const infos = await ApiHelper.call("tiltify/info", "GET", {token:this.token!.access_token}, false, 0);
 			this.campaignList = infos.json.campaigns;
-			const login = StoreProxy.auth.twitch.user.login.toLowerCase();
-			if(login === "loxetv"
-			|| login === "m0uftchup"
-			|| login === "chezmarino"
-			|| login === "shakawah") {
-				ApiHelper.call("log", "POST", {cat:"random", log:{
-						type:"tiltify_campaigns", login, user:{id:infos.json.user.id, name:infos.json.user.username}, campaigns:(this.campaignList || []).map(v=>{
-							return {
-								name:v.name,
-								id:v.id,
-								uid:v.user_id,
-								legacy_id:v.legacy_id,
-								team_id:v.team_id,
-								cause_id:v.cause_id,
-							};
-						})
-					}
-				});
-			}
 			this.user = infos.json.user;
 			StoreProxy.donationGoals.broadcastData();
 			return {user:this.user, campaigns:this.campaignList};
