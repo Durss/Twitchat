@@ -1090,7 +1090,9 @@ export default class TriggerActionHandler {
 			if(!/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(text)) {
 				text = StoreProxy.i18n.t("global.ad_default", {USER_MESSAGE:text});
 			}
-			MessengerProxy.instance.sendMessage(text, undefined, undefined, undefined, false, false);
+			if(!await MessengerProxy.instance.sendMessage(text, undefined, undefined, undefined, false, false)) {
+				log.entries.push({date:Date.now(), type:"message", value:"❌ Following message was not sent: "+text});
+			}
 			return true;
 		}
 
@@ -1160,7 +1162,9 @@ export default class TriggerActionHandler {
 							canExecute = false;
 							if(trigger.cooldown.alert !== false) {
 								const text = StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s});
-								MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id);
+								if(!await MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id)) {
+									log.entries.push({date:Date.now(), type:"message", value:"❌ Following message was not sent: "+text});
+								}
 							}
 							log.entries.push({date:Date.now(), type:"message", value:"❌ User "+message.user.login+" is on cooldown for "+remaining_s});
 							log.error = true;
@@ -1180,7 +1184,9 @@ export default class TriggerActionHandler {
 						canExecute = false;
 						if(trigger.cooldown.alert !== false) {
 							const text = StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s});
-							MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id);
+							if(!await MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id)) {
+								log.entries.push({date:Date.now(), type:"message", value:"❌ Following message was not sent: "+text});
+							}
 						}
 						log.entries.push({date:Date.now(), type:"message", value:"❌ Trigger is on global cooldown for "+remaining_s});
 						log.error = true;
@@ -1607,7 +1613,7 @@ export default class TriggerActionHandler {
 					logStep.messages.push({date:Date.now(), value:"Send Message \""+text+"\""+(replyTo? " as reply to "+replyTo.id : "")});
 					const success = await MessengerProxy.instance.sendMessage(text, platforms, undefined, replyTo, true);
 					if(!success) {
-						logStep.messages.push({date:Date.now(), value:"❌ An error occured sending the given message. If message is a /command, the error might be due to commande execution failing."});
+						logStep.messages.push({date:Date.now(), value:"❌ An error occured sending the given message. If message is a /command, the error might be due to command execution failing."});
 						log.error = true;
 						logStep.error = true;
 					}
@@ -2775,7 +2781,9 @@ export default class TriggerActionHandler {
 								if(step.confirmMessage) {
 									const confirmPH = TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE);
 									const chatMessage = await this.parsePlaceholders(dynamicPlaceholders, confirmPH, trigger, trackAddedMesssageData, step.confirmMessage, subEvent, false);
-									MessengerProxy.instance.sendMessage(chatMessage);
+									if(!await MessengerProxy.instance.sendMessage(chatMessage)) {
+										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] following message was not sent: "+chatMessage});
+									}
 								}
 							}else{
 
@@ -2784,7 +2792,9 @@ export default class TriggerActionHandler {
 									const confirmPH = TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE);
 									let chatMessage = await this.parsePlaceholders(dynamicPlaceholders, confirmPH, trigger, trackAddedMesssageData, step.failMessage, subEvent, false);
 									chatMessage = chatMessage.replace(/\{FAIL_REASON\}/gi, failReason);
-									MessengerProxy.instance.sendMessage(chatMessage);
+									if(!await MessengerProxy.instance.sendMessage(chatMessage)) {
+										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] following message was not sent: "+chatMessage});
+									}
 								}
 
 							}
