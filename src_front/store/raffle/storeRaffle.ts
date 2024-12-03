@@ -702,7 +702,9 @@ export const storeRaffle = defineStore('raffle', {
 		},
 
 		saveData():void {
-			DataStore.set(DataStore.RAFFLES_RUNNING, this.raffleList);
+			DataStore.set(DataStore.RAFFLES_RUNNING, this.raffleList.filter(v=>{
+				return v.mode != "sub" &&  v.mode != "manual" && v.mode != "values"
+			}));
 		}
 	} as IRaffleActions
 	& ThisType<IRaffleActions

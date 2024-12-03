@@ -508,7 +508,7 @@ export class ChatForm extends Vue {
 
 	public get qnaSessionActive():boolean { return this.$store.qna.activeSessions.length > 0; }
 	
-	public get raffleListActive():TwitchatDataTypes.RaffleData[] { return this.$store.raffle.raffleList.filter(v=>v.mode != 'manual' && v.mode != 'values' && v.ghost !== true); }
+	public get raffleListActive():TwitchatDataTypes.RaffleData[] { return this.$store.raffle.raffleList.filter(v=>v.mode != 'manual' && v.mode != 'values' && v.mode != 'sub' && v.ghost !== true); }
 
 	public get voiceBotStarted():boolean { return VoiceController.instance.started; }
 	public get voiceBotConfigured():boolean {
