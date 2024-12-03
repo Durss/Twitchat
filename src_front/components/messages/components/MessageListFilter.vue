@@ -1030,6 +1030,8 @@ export class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.RAFFLE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.REWARD );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.PINNED );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.TILTIFY );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.PATREON );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SHOUTOUT );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.FOLLOWING );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.COUNTDOWN );
@@ -1048,6 +1050,7 @@ export class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION );
 				break;
 			}
@@ -1064,12 +1067,15 @@ export class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.CHEER );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.KOFI );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.TIPEEE );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.PATREON );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.TILTIFY );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAMLABS );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE );
 				break;
 			}
