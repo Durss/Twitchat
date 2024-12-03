@@ -189,7 +189,7 @@ export default class PaypalController extends AbstractController {
 				}else{
 					//User properly added to list
 					if(params.gifterLogin) {
-						Logger.success("User \""+params.gifterLogin+"\" gifted "+params.amount+"€ to "+twitchUser.login);
+						Logger.success("User \""+params.gifterLogin+"\" gifted "+params.amount+"€ to "+params.twitchLogin);
 					}else{
 						Logger.success("User \""+twitchUser.login+"\" added to donors ("+params.amount+"€)");
 					}
