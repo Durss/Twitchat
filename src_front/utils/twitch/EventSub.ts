@@ -254,15 +254,15 @@ export default class EventSub {
 			//*/
 
 			//Not using those as IRC does it better
-			// if(TwitchUtils.hasScope(TwitchScopes.LIST_SUBS)) {
+			// if(TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) {
 				// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.SUB, "1");
-				// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.SUB_END, "1");
 				// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.SUBGIFT, "1");
 				// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.RESUB, "1");
+				// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.SUB_END, "1");
 			// }
 
 			//Not using this as IRC does it better
-			// if(TwitchUtils.hasScope(TwitchScopes.READ_CHEER)) {
+			// if(TwitchUtils.hasScopes([TwitchScopes.READ_CHEER])) {
 				// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.BITS, "1");
 			// }
 
@@ -433,8 +433,9 @@ export default class EventSub {
 			}
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.SUB:
-			case TwitchEventSubDataTypes.SubscriptionTypes.RESUB: {
-				this.subscriptionEvent(topic, payload.event as TwitchEventSubDataTypes.SubEvent | TwitchEventSubDataTypes.SubRenewEvent);
+			case TwitchEventSubDataTypes.SubscriptionTypes.RESUB:
+			case TwitchEventSubDataTypes.SubscriptionTypes.SUBGIFT: {
+				this.subscriptionEvent(topic, payload.event as TwitchEventSubDataTypes.SubEvent | TwitchEventSubDataTypes.SubRenewEvent | TwitchEventSubDataTypes.SubgiftEvent);
 				break;
 			}
 
@@ -795,9 +796,10 @@ export default class EventSub {
 	 * @param topic
 	 * @param event
 	 */
-	private subscriptionEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.SubEvent | TwitchEventSubDataTypes.SubRenewEvent):void {
+	private subscriptionEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.SubEvent | TwitchEventSubDataTypes.SubRenewEvent | TwitchEventSubDataTypes.SubgiftEvent):void {
 		const sub = event as TwitchEventSubDataTypes.SubEvent;
 		const renew = event as TwitchEventSubDataTypes.SubRenewEvent;
+		const gift = event as TwitchEventSubDataTypes.SubgiftEvent;
 
 		//THIS IS AN UNTESTED DRAFT THAT IS NOT USED AT THE MOMENT BECAUSE IRC DOES IT BETTER
 
