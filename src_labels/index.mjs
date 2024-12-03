@@ -60,7 +60,9 @@ if(fs.existsSync(dest2)) {
 }
 
 if(credentials) {
-	await fetch("http://localhost:3018/api/admin/labels/reload", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({key:credentials.csrf_key})});
+	try {
+		await fetch("http://localhost:3018/api/admin/labels/reload", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({key:credentials.csrf_key})});
+	}catch(error){ /* ignore */ }
 }
 
 console.log("\x1b[32m All files compiled to:", dest, "\x1b[0m");
