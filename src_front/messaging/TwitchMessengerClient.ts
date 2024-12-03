@@ -298,7 +298,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			switch(cmd) {
 				case "/announce": {
 					if(!TwitchUtils.requestScopes([TwitchScopes.SEND_ANNOUNCE])) return false;
-					await TwitchUtils.sendAnnouncement(channelId, chunks.splice(1).join(" "), chunks[0] as "blue"|"green"|"orange"|"purple"|"primary");
+					await TwitchUtils.sendAnnouncement(channelId, chunks.splice(1).join(" "), chunks[0] as "blue"|"green"|"orange"|"purple"|"primary", sendAsBot);
 					return true;
 				}
 				case "/warn":{
@@ -915,6 +915,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
 		data.streakMonths = streakMonths;
+		data.months = this.getNumValueFromTag(tags["msg-param-gift-months"], 1);
 		const recipientLogin = tags["msg-param-recipient-user-name"] ?? recipient;
 		const recipientName = tags["msg-param-recipient-display-name"] ?? recipient;
 		const recipientId = tags["msg-param-recipient-id"];
@@ -928,6 +929,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
 		data.streakMonths = streakMonths;
+		data.months = this.getNumValueFromTag(tags["msg-param-gift-months"], 1);
 		const recipientLogin = tags["msg-param-recipient-user-name"] ?? recipient;
 		const recipientName = tags["msg-param-recipient-display-name"] ?? recipient;
 		const recipientId = tags["msg-param-recipient-id"];

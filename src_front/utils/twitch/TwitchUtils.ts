@@ -1844,17 +1844,26 @@ export default class TwitchUtils {
 	/**
 	 * Sends an announcement
 	 */
-	public static async sendAnnouncement(channelId: string, message: string, color: "blue" | "green" | "orange" | "purple" | "primary" = "primary"): Promise<boolean> {
+	public static async sendAnnouncement(channelId: string, message: string, color: "blue" | "green" | "orange" | "purple" | "primary" = "primary", sendAsBot:boolean = true): Promise<boolean> {
 		if (!this.hasScopes([TwitchScopes.SEND_ANNOUNCE])) return false;
 
-		const options = {
-			method: "POST",
-			headers: this.headers,
-			body: JSON.stringify({ message, color }),
-		}
+		
 		const url = new URL(Config.instance.TWITCH_API_PATH + "chat/announcements");
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("moderator_id", this.uid);
+		
+		let headers = {...this.headers};
+		if(sendAsBot && StoreProxy.twitchBot.connected && StoreProxy.twitchBot.userInfos) {
+			url.searchParams.set("moderator_id", StoreProxy.twitchBot.userInfos.user_id);
+			headers['Authorization'] = 'Bearer ' + StoreProxy.twitchBot.authToken!.access_token;
+		}
+
+		const options = {
+			method: "POST",
+			headers,
+			body: JSON.stringify({ message, color }),
+		}
+
 		const res = await this.callApi(url, options);
 		if (res.status == 200 || res.status == 204) {
 			return true;

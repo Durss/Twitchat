@@ -1,12 +1,11 @@
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import ApiHelper from "@/utils/ApiHelper";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { ITwitchBotActions, ITwitchBotGetters, ITwitchBotState } from '../StoreProxy';
-import ApiHelper from "@/utils/ApiHelper";
-import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import StoreProxy from "../StoreProxy";
-import Utils from "@/utils/Utils";
 
 let oAuthCode:string = "";
 let oAuthCsrf:string = "";
@@ -34,7 +33,7 @@ export const storeTwitchBot = defineStore('switchbot', {
 			const params = DataStore.get(DataStore.TWITCH_BOT);
 			if(params) {
 				const data = JSON.parse(params) as IStoreData;
-				if(data?.authToken) {
+				if(data?.authToken && data.authToken.access_token) {
 					this.authToken = data.authToken;
 					this.connect();
 				}
@@ -90,7 +89,7 @@ export const storeTwitchBot = defineStore('switchbot', {
 			}catch(e) {
 				StoreProxy.common.alert(StoreProxy.i18n.t("error.csrf_failed"));
 			}
-			const url = TwitchUtils.getOAuthURL(csrf, ["chat:edit","user:write:chat"], "/twitchbot");
+			const url = TwitchUtils.getOAuthURL(csrf, ["chat:edit","user:write:chat","moderator:manage:announcements"], "/twitchbot");
 			const win = window.open(url, "twitchbot", "width=800,height=600");
 			if(win) {
 				//detect popup close with cross origin support
