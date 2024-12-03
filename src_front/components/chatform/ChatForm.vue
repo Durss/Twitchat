@@ -1,31 +1,24 @@
 <template>
 	<div :class="classes">
 		<div class="holder">
-			<draggable tag="div"
-			class="leftForm"
-			:animation="250"
-			group="items"
-			ghostClass="ghost"
-			item-key="id"
-			@change="$store.params.saveChatMenuPins()"
-			v-model="$store.params.pinnedMenuItems">
-			<template #header>
-					<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" :newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'chatform_params_4'}" />
-					<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" icon="commands" @click="$emit('update:showCommands', true)" :newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'chatform_cmds_2'}" />
-				</template>
-				<template #item="{element, index}:{element:typeof TwitchatDataTypes.PinnableMenuItems[number]['id'], index:number}">
-					<ButtonNotification :key="element"
-						@mouseenter="element == 'chatters'? updateOnlineUsersTooltip($event) : ()=>{}"
-						v-tooltip="{
-							touch:'hold',
-							content: element == 'chatters' && $store.params.appearance.showViewersCount.value === true? onlineUsersTooltip : $t(getPinnedMenuItemFromid(element).labelKey)
-						}"
-						:aria-label="$t(getPinnedMenuItemFromid(element).labelKey)"
-						:icon="getPinnedMenuItemFromid(element).icon"
-						@click="onClickMenuItem(getPinnedMenuItemFromid(element))" />
-				</template>
-			</draggable>
 
+			<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" draggable="false" icon="params" @click="toggleParams()" :newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'chatform_params_4'}" />
+			<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" draggable="false" icon="commands" @click="$emit('update:showCommands', true)" :newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'chatform_cmds_2'}" />
+			<VueDraggable class="sortableItems"
+			v-model="$store.params.pinnedMenuItems"
+			:group="{name:'items'}"
+			animation="250"
+			@end="$store.params.saveChatMenuPins()">
+				<ButtonNotification v-for="element in $store.params.pinnedMenuItems" :key="element"
+					@mouseenter="element == 'chatters'? updateOnlineUsersTooltip($event) : ()=>{}"
+					v-tooltip="{
+						touch:'hold',
+						content: element == 'chatters' && $store.params.appearance.showViewersCount.value === true? onlineUsersTooltip : $t(getPinnedMenuItemFromid(element).labelKey)
+					}"
+					:aria-label="$t(getPinnedMenuItemFromid(element).labelKey)"
+					:icon="getPinnedMenuItemFromid(element).icon"
+					@click="onClickMenuItem(getPinnedMenuItemFromid(element))" />
+			</VueDraggable>
 
 			<form @submit.prevent="" class="inputForm" name="messageform">
 				<Icon class="loader" name="loader" v-if="loading" />
@@ -385,7 +378,6 @@ import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';
 import { gsap } from 'gsap/gsap-core';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import draggable from 'vuedraggable';
 import ButtonNotification from '../ButtonNotification.vue';
 import TTButton from '../TTButton.vue';
 import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
@@ -400,12 +392,13 @@ import OBSWebsocket from '@/utils/OBSWebsocket';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import {YoutubeScopes} from "@/utils/youtube/YoutubeScopes";
 import ModeratorActionSwitcher from './ModeratorActionSwitcher.vue';
+import { VueDraggable } from 'vue-draggable-plus';
 
 @Component({
 	components:{
 		TTButton,
 		ParamItem,
-		draggable,
+		VueDraggable,
 		ChannelSwitcher,
 		CommercialTimer,
 		ButtonNotification,
@@ -1282,7 +1275,7 @@ export default toNative(ChatForm);
 		background-color: var(--background-color-secondary);
 		padding: .25em;
 
-		.leftForm {
+		.sortableItems {
 			display: flex;
 			flex-direction: row;
 			align-self: center;

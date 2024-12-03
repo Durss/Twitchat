@@ -17,45 +17,37 @@
 			</div>
 
 			<div class="scrollable">
-				<draggable class="buttonList"
+				<VueDraggable class="buttonList"
 				v-model="pinnedMenuEntries"
-				direction="vertical"
-				group="menu_sections"
-				item-key="page"
-				:animation="250"
-				@sort="onEditMenu()">
-					<template #item="{element, index}:{element:MenuEntry, index:number}">
-						<TTButton @click="openPage(element.page, true)"
-							class="menuItem"
-							v-newflag="element.newflag"
-							:class="[(element.premium ? 'premiumIndicator '+element.icon : element.icon)].filter(v=>v!='').join(' ')"
-							:icon="element.icon"
-							:primary="content==element.page"
-							:secondary="element.theme == 'secondary'"
-							:premium="element.theme == 'premium'">{{$t(element.labelKey)}}</TTButton>
-					</template>
-				</draggable>
+				:group="{name:'menu_sections'}"
+				animation="250"
+				@end="onEditMenu()">
+					<TTButton v-for="element in pinnedMenuEntries" @click="openPage(element.page, true)"
+						class="menuItem"
+						v-newflag="element.newflag"
+						:class="[(element.premium ? 'premiumIndicator '+element.icon : element.icon)].filter(v=>v!='').join(' ')"
+						:icon="element.icon"
+						:primary="content==element.page"
+						:secondary="element.theme == 'secondary'"
+						:premium="element.theme == 'premium'">{{$t(element.labelKey)}}</TTButton>
+				</VueDraggable>
 
 				<ToggleBlock :icons="['add']" :title="$t('params.more_params')" small :open="false">
 					<div class="dragInfo"><Icon name="hand" />{{ $t("params.customize_sections") }}</div>
-					<draggable class="buttonList"
+					<VueDraggable class="buttonList"
 					v-model="unpinnedMenuEntries"
-					direction="vertical"
-					group="menu_sections"
-					item-key="page"
-					:animation="250"
-					@sort="onEditMenu()">
-						<template #item="{element, index}:{element:MenuEntry, index:number}">
-							<TTButton @click="openPage(element.page, true)"
-								class="menuItem"
-								v-newflag="element.newflag"
-								:class="[(element.premium ? 'premiumIndicator '+element.icon : element.icon)].filter(v=>v!='').join(' ')"
-								icon="dragZone"
-								:primary="content==element.page"
-								:secondary="element.theme == 'secondary'"
-								:premium="element.theme == 'premium'">{{$t(element.labelKey)}}</TTButton>
-						</template>
-					</draggable>
+					:group="{name:'menu_sections'}"
+					animation="250"
+					@end="onEditMenu()">
+						<TTButton v-for="element in unpinnedMenuEntries" @click="openPage(element.page, true)"
+							class="menuItem"
+							v-newflag="element.newflag"
+							:class="[(element.premium ? 'premiumIndicator '+element.icon : element.icon)].filter(v=>v!='').join(' ')"
+							icon="dragZone"
+							:primary="content==element.page"
+							:secondary="element.theme == 'secondary'"
+							:premium="element.theme == 'premium'">{{$t(element.labelKey)}}</TTButton>
+					</VueDraggable>
 				</ToggleBlock>
 
 				<div class="buttonList">
@@ -163,13 +155,12 @@ import ParamsTwitchatAd from './contents/ParamsTwitchatAd.vue';
 import ParamsValues from './contents/ParamsValues.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 import ToggleBlock from '../../components/ToggleBlock.vue';
-import draggable from 'vuedraggable';
 import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
+import { VueDraggable } from 'vue-draggable-plus';
 
 @Component({
 	components:{
-		draggable,
 		TTButton,
 		ParamsTTS,
 		DonorState,
@@ -178,6 +169,7 @@ import Config from '@/utils/Config';
 		ClearButton,
 		ParamsAbout,
 		ParamsAlert,
+		VueDraggable,
 		ParamsDonate,
 		ParamsValues,
 		ParamsPremium,
