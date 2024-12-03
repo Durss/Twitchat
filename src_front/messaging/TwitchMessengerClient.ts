@@ -607,6 +607,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 */
 	private getCommonSubObject(channel:string, tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate|tmi.PrimeUpgradeUserstate, methods?:tmi.SubMethods, message?:string):TwitchatDataTypes.MessageSubscriptionData {
 		const channel_id = this.getChannelID(channel);
+		let prepaidMonths = this.getNumValueFromTag(tags["msg-param-multimonth-duration"], -1);
+		if(prepaidMonths != 3 && prepaidMonths != 6) prepaidMonths = 1;
 		const res:TwitchatDataTypes.MessageSubscriptionData = {
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION,
@@ -620,7 +622,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			is_resub: false,
 			is_primeUpgrade: false,
 			is_targetedSubgift:tags["msg-param-community-gift-id"] == undefined,
-			months:this.getNumValueFromTag(tags["msg-param-multimonth-duration"], -1),
+			months:prepaidMonths,
 			streakMonths:this.getNumValueFromTag(tags["msg-param-streak-months"], -1),
 			totalSubDuration:this.getNumValueFromTag(tags["msg-param-cumulative-months"], -1),
 			raw_data:{tags, methods, message},

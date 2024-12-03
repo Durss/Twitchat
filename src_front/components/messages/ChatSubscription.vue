@@ -95,13 +95,16 @@
 				</i18n-t>
 	
 				<!-- Number of months they bought in advance -->
-				<i18n-t scope="global" tag="div" class="additional"
-				v-if="messageData.months > 0"
-				keypath="chat.subscription.sub_advance" :plural="messageData.months">
-					<template #COUNT>
-						<strong>{{ messageData.months }}</strong>
-					</template>
-				</i18n-t>
+				<div class="additional"
+				v-if="messageData.months > 0">
+					<Icon name="alert" v-tooltip="$t('chat.subscription.sub_prepaid_disclaimer')" />
+					<i18n-t scope="global"
+					keypath="chat.subscription.sub_prepaid" :plural="messageData.months">
+						<template #COUNT>
+							<strong>{{ messageData.months }}</strong>
+						</template>
+					</i18n-t>
+				</div>
 	
 				<!-- Sub streak -->
 				<i18n-t scope="global" tag="div" class="additional"
@@ -129,10 +132,12 @@ import AbstractChatMessage from './AbstractChatMessage';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import MessageTranslation from './MessageTranslation.vue';
 import Icon from '../Icon.vue';
+import TTButton from '../TTButton.vue';
 
 @Component({
 	components:{
 		Icon,
+		TTButton,
 		MessageTranslation,
 		ChatMessageChunksParser,
 	},
@@ -177,6 +182,15 @@ export default toNative(ChatSubscription);
 	}
 	.additional {
 		opacity: .8;
+		.icon {
+			margin-right: .25em;
+			background-color: var(--color-secondary);
+			color: white;
+			padding: 3px;
+			border-radius: 5px;
+			height: 1.25em;
+			vertical-align: text-bottom;
+		}
 	}
 
 	.holder {
