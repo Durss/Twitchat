@@ -911,6 +911,8 @@ export const storeMain = defineStore("main", {
 			StoreProxy.donationGoals.populateData();
 			StoreProxy.streamelements.populateData();
 
+			rebuildPlaceholdersCache();
+
 			const theme = DataStore.get(DataStore.THEME);
 			if(theme) {
 				StoreProxy.common.theme = theme as "light" | "dark";
