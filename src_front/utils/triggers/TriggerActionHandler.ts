@@ -1721,10 +1721,10 @@ export default class TriggerActionHandler {
 						if(step.pollData.title && step.pollData.answers.length >= 2) {
 							const answers:string[] = [];
 							for (const a of step.pollData.answers) {
-								answers.push(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, a))
+								answers.push(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, a, subEvent))
 							}
 							await TwitchUtils.createPoll(StoreProxy.auth.twitch.user.id,
-								await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pollData.title),
+								await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pollData.title, subEvent),
 								answers,
 								step.pollData.voteDuration,
 								step.pollData.pointsPerVote);
@@ -1745,10 +1745,10 @@ export default class TriggerActionHandler {
 						if(step.predictionData.title && step.predictionData.answers.length >= 2) {
 							const answers:string[] = [];
 							for (const a of step.predictionData.answers) {
-								answers.push(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, a))
+								answers.push(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, a, subEvent))
 							}
 							await TwitchUtils.createPrediction(StoreProxy.auth.twitch.user.id,
-								await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.predictionData.title),
+								await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.predictionData.title, subEvent),
 								answers,
 								step.predictionData.voteDuration);
 						}else{
@@ -1805,7 +1805,7 @@ export default class TriggerActionHandler {
 				if(step.type == "bingo") {
 					const data:TwitchatDataTypes.BingoConfig = JSON.parse(JSON.stringify(step.bingoData));
 					if(data.customValue) {
-						data.customValue = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, data.customValue);
+						data.customValue = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, data.customValue, subEvent);
 					}
 					StoreProxy.bingo.startBingo(data);
 				}else
@@ -1840,10 +1840,10 @@ export default class TriggerActionHandler {
 									let px = step.bingoGrid.x;
 									let py = step.bingoGrid.y;
 									if(typeof px == "string") {
-										px = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, px.toString());
+										px = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, px.toString(), subEvent);
 									}
 									if(typeof py == "string") {
-										py = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, py.toString());
+										py = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, py.toString(), subEvent);
 									}
 									px = parseInt(px.toString()) - 1;
 									py = parseInt(py.toString()) - 1;
@@ -1856,7 +1856,7 @@ export default class TriggerActionHandler {
 								if(cell) {
 									if(step.bingoGrid.action == "rename") {
 										const prevLabel = cell.label;
-										cell.label = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.bingoGrid.label);
+										cell.label = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.bingoGrid.label, subEvent);
 										StoreProxy.bingoGrid.saveData(grid.id, cell.id);
 										logStep.messages.push({date:Date.now(), value:"✔ Renaming cell \""+prevLabel+"\" to \""+cell.label+"\""});
 									}else{
@@ -1873,7 +1873,7 @@ export default class TriggerActionHandler {
 							}
 							case "add_cell": {
 								let label = step.bingoGrid.label.trim().substring(0, 60) || "";
-								label = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, label);
+								label = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, label, subEvent);
 								if(label) {
 									logStep.messages.push({date:Date.now(), value:"✔ Add additional cell \""+label+"\""});
 									if(!grid.additionalEntries) grid.additionalEntries = [];
@@ -2572,7 +2572,7 @@ export default class TriggerActionHandler {
 							case "set_fader": {
 								if(step.faderId) {
 									logStep.messages.push({date:Date.now(), value:"GoXLR set fader \""+step.faderId + "\" volume to "+ step.faderValue});
-									const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.faderValue!);
+									const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.faderValue!, subEvent);
 									GoXLRSocket.instance.setFaderValue(step.faderId, parseInt(value) || 0);
 								}
 								break;
@@ -2898,7 +2898,7 @@ export default class TriggerActionHandler {
 				//Handle custom badges
 				if(step.type == "customUsername") {
 					let users:{id:string, platform:TwitchatDataTypes.ChatPlatform}[] = [];
-					const newUsername:string = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.customUsername);
+					const newUsername:string = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.customUsername, subEvent);
 					//if requested to update badges of the user executing the trigger
 					if(step.customUsernameUserSource == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_SENDER) {
 						const user = this.extractUserFromTrigger(trigger, message);
