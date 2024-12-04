@@ -36,7 +36,7 @@
 							v-model="folder.color.value"
 							@change="$emit('change', $event)" />
 						<Icon name="broadcast" />
-						<div class="count">x{{ folder.items.filter(v=>v.type == 'trigger').length }}</div>
+						<div class="count">x{{ countTriggerItems(folder) }}</div>
 					</div>
 				</template>
 				<template #right_actions>
@@ -257,6 +257,18 @@ class TriggerListFolderItem extends Vue {
 			}, 200);
 			this.vibrate((this.$refs["folder_"+folder.id] as Vue).$el as HTMLElement);
 		}
+	}
+	
+	public countTriggerItems(folder:TriggerListFolderEntry):number {
+		function parseFolder(folder:TriggerListFolderEntry):number {
+			let count = 0;
+			folder.items.forEach(v=>{
+				if(v.type == 'trigger') count ++;
+				if(v.type == 'folder') count += parseFolder(v);
+			});
+			return count;
+		}
+		return parseFolder(folder);
 	}
 
 	private vibrate(el:HTMLElement):void {
