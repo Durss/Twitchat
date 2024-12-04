@@ -169,7 +169,9 @@ class VoiceTriggerList extends Vue {
 		.then(()=>{
 			const index = this.actions.findIndex(v => v.id == id);
 			this.actions.splice(index, 1);
-		})
+		}).catch(error => {
+			//ignore
+		});
 	}
 
 	public isOpen(id:string|undefined):boolean {

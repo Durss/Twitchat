@@ -196,7 +196,9 @@ class ParamsAccount extends Vue implements IParameterContent {
 			TTSUtils.instance.enabled = false;
 			TriggerActionHandler.instance.populate([]);
 			DataStore.set(DataStore.SYNC_DATA_TO_SERVER, false);
-		})
+		}).catch(error => {
+			//ignore
+		});
 	}
 
 	public async generateCSRF():Promise<void> {

@@ -703,7 +703,9 @@ export default class ContextMenuHelper {
 						break;
 				}
 			}
-		})
+		}).catch(error => {
+			//ignore
+		});
 	}
 
 	/**
@@ -740,7 +742,9 @@ export default class ContextMenuHelper {
 			}else{
 				TwitchUtils.blockUser(message.user);
 			}
-		})
+		}).catch(error => {
+			//ignore
+		});
 	}
 
 	/**

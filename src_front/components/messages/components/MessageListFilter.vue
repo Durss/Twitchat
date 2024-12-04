@@ -1097,7 +1097,9 @@ export class MessageListFilter extends Vue {
 		.confirm(this.$t("chat.delete_col_confirm_title"), this.$t("chat.delete_col_confirm_desc"))
 		.then(()=> {
 			this.$store.params.delChatColumn(this.config);
-		})
+		}).catch(error => {
+			//ignore
+		});
 	}
 
 	/**
