@@ -133,7 +133,7 @@
 
 								<template v-if="element.slotType == 'tips'">
 									<ParamItem :paramData="param_showTipsKofi[element.id]"				v-model="element.showTipsKofi" noPremiumLock />
-									<ParamItem :paramData="param_showSubsKofi[element.id]"				v-model="element.showSubsYoutube" noPremiumLock v-newflag="{date:$config.NEW_FLAGS_DATE_V13_6, id:'endingcredits_slot_kofiSub'}" />
+									<ParamItem :paramData="param_showSubsKofi[element.id]"				v-model="element.showSubsKofi" noPremiumLock v-newflag="{date:$config.NEW_FLAGS_DATE_V13_6, id:'endingcredits_slot_kofiSub'}" />
 									<ParamItem :paramData="param_showTipsTipeee[element.id]"			v-model="element.showTipsTipeee" noPremiumLock />
 									<ParamItem :paramData="param_showTipsStreamlabs[element.id]"		v-model="element.showTipsStreamlabs" noPremiumLock />
 									<ParamItem :paramData="param_showTipsPatreon[element.id]"			v-model="element.showTipsPatreon" noPremiumLock />
@@ -680,7 +680,7 @@ class OverlayParamsCredits extends Vue {
 			if(entry.sortByNames == undefined) 				entry.sortByNames = false;
 			if(entry.sortByAmounts == undefined) 			entry.sortByAmounts = false;
 			if(entry.showTipsKofi === undefined)			entry.showTipsKofi = true;
-			if(entry.showSubsKofi === undefined)			entry.showTipsKofi = true;
+			if(entry.showSubsKofi === undefined)			entry.showTipsKofi = entry.showSubsYoutube ?? true;//I made a mistake in the past, setting this v-model's entry to "showSubsYoutube".
 			if(entry.showTipsTipeee === undefined)			entry.showTipsTipeee = true;
 			if(entry.showTipsPatreon === undefined)			entry.showTipsPatreon = true;
 			if(entry.showTipsStreamlabs === undefined)		entry.showTipsStreamlabs = true;
