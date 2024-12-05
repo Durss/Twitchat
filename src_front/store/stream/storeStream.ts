@@ -830,7 +830,7 @@ export const storeStream = defineStore('stream', {
 								subs += v.subgift_t3 || 0;
 							});
 						}
-						const train:TwitchatDataTypes.StreamSummaryData['hypeTrains'][0] = {level:m.train.level, percent:m.train.currentValue};
+						const train:TwitchatDataTypes.StreamSummaryData['hypeTrains'][0] = {level:m.train.level, percent:Math.round(m.train.currentValue / m.train.goal * 100)};
 						if(m.train.conductor_bits) {
 							train.conductorBits = {uid:m.train.conductor_bits.user.id, login:m.train.conductor_bits.user.displayNameOriginal, bits};
 						}
