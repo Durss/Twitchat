@@ -301,7 +301,12 @@ class OverlayEndingCredits extends AbstractOverlay {
 		const subs = this.data?.subs || [];
 		const resubs = this.data?.resubs || [];
 		const subgifts = this.data?.subgifts || [];
-		const tierToShow = {"prime":params.showSubsPrime!==false, 1:params.showSubsT1!==false, 2:params.showSubsT2!==false, 3:params.showSubsT3!==false}
+		const tierToShow = {
+								"prime": params.showSubsPrime !== false,
+								1: params.showSubsT1 !== false,
+								2: params.showSubsT2 !== false,
+								3: params.showSubsT3 !== false
+							};
 		let res: ({type:"sub", value:TwitchatDataTypes.StreamSummaryData["subs"][0]}
 				| {type:"resub", value:TwitchatDataTypes.StreamSummaryData["resubs"][0]}
 				| {type:"subgift", value:TwitchatDataTypes.StreamSummaryData["subgifts"][0]})[] = [];
@@ -314,13 +319,13 @@ class OverlayEndingCredits extends AbstractOverlay {
 		if(params.showAllSubgifters === true) {
 			res = res.concat(subgifts.filter(v=>v.fromActiveSubs === true && tierToShow[v.tier]).map(v=>{ return {type:"subgift", value:v}}));
 		}
-
-		const allowedPlatforms:TwitchatDataTypes.ChatPlatform[] = [];
-		if(params.showSubs || params.showResubs || params.showSubgifts) allowedPlatforms.push("twitch");
-		if(params.showSubsYoutube || params.showSubgiftsYoutube) allowedPlatforms.push("youtube");
-		if(params.showSubsTiktok) allowedPlatforms.push("tiktok");
 		
 		if(params.showAllSubs !== true && params.showAllSubgifters !== true){
+			const allowedPlatforms:TwitchatDataTypes.ChatPlatform[] = [];
+			if(params.showSubs || params.showResubs || params.showSubgifts) allowedPlatforms.push("twitch");
+			if(params.showSubsYoutube || params.showSubgiftsYoutube) allowedPlatforms.push("youtube");
+			if(params.showSubsTiktok) allowedPlatforms.push("tiktok");
+	
 			if(params.showSubs !== false || params.showSubsYoutube !== false || params.showSubsTiktok !== false) {
 				res = res.concat(subs.filter(v=>
 					v.fromActiveSubs !== true && tierToShow[v.tier] && allowedPlatforms.includes(v.platform)

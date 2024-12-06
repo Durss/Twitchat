@@ -739,7 +739,7 @@ export const storeStream = defineStore('stream', {
 				switch(m.type) {
 					case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
 						const sub:typeof result.subs[number] = {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier, subDuration:m.totalSubDuration || 1, platform:"twitch"};
-						if(m.is_gift || m.is_giftUpgrade) result.subgifts.push( {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier, total:m.gift_count || 1, platform:"tiktok"} );
+						if(m.is_gift || m.is_giftUpgrade) result.subgifts.push( {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier, total:m.gift_count || 1, platform:"twitch"} );
 						else if(m.is_resub) result.resubs.push(sub);
 						else result.subs.push(sub);
 						break;
