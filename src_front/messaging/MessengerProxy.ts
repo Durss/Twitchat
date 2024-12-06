@@ -846,6 +846,7 @@ export default class MessengerProxy {
 				channel_id:messageData.channel_id,
 			}
 			TriggerActionHandler.instance.execute(trigger);
+			return true;
 		}else
 
 		if(isAdmin && cmd == "/fakewhisper" || cmd == "/fakewhispers") {
