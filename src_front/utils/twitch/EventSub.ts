@@ -323,13 +323,13 @@ export default class EventSub {
 
 			if(TwitchUtils.hasScopes([TwitchScopes.AUTOMOD])) {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_TERMS_UPDATE, "1");
-				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_MESSAGE_UPDATE, "beta");
+				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_MESSAGE_UPDATE, "2");
 
 				// if(!isBroadcaster) {
 					//Only subbing to this as a moderator.
 					//Broadcaster uses PubSub alternative that, to date, gives more details.
 					//Eventsub doesn't tell which part of the message triggered the automod.
-					this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_MESSAGE_HELD, "beta");
+					this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMOD_MESSAGE_HELD, "2");
 				// }
 			}
 
