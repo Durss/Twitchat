@@ -1657,6 +1657,27 @@ export default class TriggerActionHandler {
 							}
 							logStep.messages.push({date:Date.now(), value:"Loaded user \""+user.displayName+"\""});
 						}
+						if(message.type == TwitchatDataTypes.TwitchatMessageType.RAFFLE) {
+							if(message.winner?.user) {
+								logStep.messages.push({date:Date.now(), value:"Raffle winner is a user, loading user ID #"+message.winner.user.id+" from platform "+message.winner.user.platform});
+								user = await new Promise<TwitchatDataTypes.TwitchatUser|undefined>((resolve)=>{
+									//Consider it failed adfter 10s with no result. Just a fail safe in case there's an issue
+									//so the trigger doesn't remain blocked.
+									let to = setTimeout(() => {
+										logStep.messages.push({date:Date.now(), value:"Raffle winner profile loading failed. Loading abort after 10s with no response"});
+										resolve(undefined)
+									}, 10000);
+
+									//Load user details so their name and avatars are shown
+									const u = message.winner.user!;
+									StoreProxy.users.getUserFrom(u.platform, u.channel_id, u.id, undefined, undefined, (user)=>{
+										clearTimeout(to);
+										logStep.messages.push({date:Date.now(), value:"Raffle winner profile loading complete: "+user.displayNameOriginal});
+										resolve(user);
+									});
+								});
+							}
+						}
 
 
 						//If it has a clip link, get its info and highlight the message

@@ -290,7 +290,7 @@ export const storeUsers = defineStore('users', {
 			if(!user.login) user.login = this.tmpDisplayName;
 
 			//User was already existing, consider stop there
-			if(userExisted){
+			if(userExisted && !user.temporary){
 				if(loadCallback) loadCallback(user);
 				// const e = Date.now();
 				// console.log("Duration 1 :", user.login, user.id, e-s);
