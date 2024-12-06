@@ -624,7 +624,10 @@ export default toNative(BingoGridForm);
 			}
 
 			&.locked {
-				outline: 1px solid var(--color-secondary-fader);
+				@c1: var(--grayout-fadest);
+				@c2: transparent;
+				background-color: @c2;
+				background-image: repeating-linear-gradient(-45deg, @c1, @c1 20px, @c2 20px, @c2 40px);
 			}
 		}
 	}

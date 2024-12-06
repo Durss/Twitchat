@@ -54,7 +54,7 @@
 			"perf_alert": "Looks like you have quite a lot of viewers on your stream.\nI can't guarantee my server will survive that, please make a little prayer before sharing the link with your viewers 🙏."
 		},
 		"state": {
-			"auth_bt": "Authenticate to play",
+			"auth_bt": "Get your own random grid",
 			"cell_disabled": "{USER} must\ntick this cell\nto enable it",
 			"mod_info": "You're a moderator of this channel, the cells you tick will be enabled for everyone",
 			"showLeaderboard_bt": "Show on overlay",

@@ -214,7 +214,11 @@ export default class BingoGridController extends AbstractController {
 				});
 	
 				//If cells mismatch, replace the grid after shuffling entries
-				if(forceNewGridGen || sortedKeysNew.join(",") != sortedKeysPrev.join(",")) {
+				const forceNewGridGen_local = forceNewGridGen
+				|| sortedKeysNew.join(",") != sortedKeysPrev.join(",")
+				|| cachedGrid.data.cols != grid.cols
+				|| cachedGrid.data.rows != grid.rows;
+				if(forceNewGridGen_local) {
 					if(user.user_id != viewerId) {
 						//Don't shuffle broadcaster so their public grid is the same
 						//as the overlay one
@@ -244,7 +248,7 @@ export default class BingoGridController extends AbstractController {
 				cachedGrid.data.enabled = grid.enabled;
 				this.saveViewerGrid(user.user_id, gridid, viewerId, cachedGrid);
 	
-				SSEController.sendToUser(viewerId, SSETopic.BINGO_GRID_UPDATE, {grid:cachedGrid.data, force:forceNewGridGen});
+				SSEController.sendToUser(viewerId, SSETopic.BINGO_GRID_UPDATE, {grid:cachedGrid.data, force:forceNewGridGen_local});
 			})
 		}
 
