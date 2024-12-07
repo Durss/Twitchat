@@ -96,7 +96,7 @@
 	
 				<!-- Number of months they bought in advance -->
 				<div class="additional"
-				v-if="messageData.months > 0">
+				v-if="messageData.months > 1">
 					<Icon name="alert" v-tooltip="$t('chat.subscription.sub_prepaid_disclaimer')" />
 					<i18n-t scope="global"
 					keypath="chat.subscription.sub_prepaid" :plural="messageData.months">
