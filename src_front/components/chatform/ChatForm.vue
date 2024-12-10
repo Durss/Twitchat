@@ -60,13 +60,17 @@
 							<ModeratorActionSwitcher v-if="isModeratedChannel" v-model:mode="$store.chat.messageMode" />
 						</div>
 
-						<button class="youtubeError"
+						<button class="chatInputError"
 							v-if="mustConnectYoutubeChan"
 							@click="$store.params.openParamsPage('connexions', 'youtube')">{{ $t('chat.form.youtube_not_connected') }}</button>
 
-						<button class="youtubeError"
+						<button class="chatInputError"
 							v-else-if="$store.stream.currentChatChannel.platform == 'youtube' && mustGrantYoutubeScope"
-							@click="$store.params.openParamsPage('connexions', 'youtube')">{{ $t('chat.form.youtube_missing_scope') }}</button>
+							@click="$store.params.openParamsPage('connexions', 'youtube')"><Icon name="lock_fit" />{{ $t('chat.form.youtube_missing_scope') }}</button>
+
+						<button class="chatInputError"
+							v-else-if="$store.stream.currentChatChannel.platform == 'twitch' && mustGrantTwitchScope"
+							@click="grantTwitchScopes()"><Icon name="lock_fit" />{{ $t('chat.form.twitch_missing_scope') }}</button>
 							
 						<!-- using @input instead of v-model so it works properly on mobile -->
 						<input v-else
@@ -566,6 +570,10 @@ export class ChatForm extends Vue {
 		return !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE]);
 	}
 
+	public get mustGrantTwitchScope():boolean {
+		return !TwitchUtils.hasScopes(Config.instance.MANDATORY_TWITCH_SCOPES);
+	}
+
 	public get raffleEntryCount():number {
 		let total = 0;
 		this.raffleListActive.forEach(v=> total += v.entries.length);
@@ -655,6 +663,8 @@ export class ChatForm extends Vue {
 	public openModal(modal:TwitchatDataTypes.ModalTypes):void { this.$store.params.openModal(modal); }
 	
 	public openOBSParams():void { this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS); }
+	
+	public grantTwitchScopes():void { TwitchUtils.requestScopes(Config.instance.MANDATORY_TWITCH_SCOPES); }
 
 	public async closeAnnouncement():Promise<void> {
 		let history:{[key:string]:boolean} = JSON.parse(DataStore.get(DataStore.ANNOUNCEMENTS_READ) || "{}");
@@ -1321,7 +1331,7 @@ export default toNative(ChatForm);
 						}
 					}
 
-					.youtubeError {
+					.chatInputError {
 						position: absolute;
 						text-align: center;
 						width: 100%;
@@ -1333,6 +1343,11 @@ export default toNative(ChatForm);
 						transition: background-color .1s;
 						&:hover {
 							background-color: var(--color-alert-fade);
+						}
+						.icon {
+							height: 1em;
+							vertical-align: middle;
+							margin-right: .5em;
 						}
 					}
 

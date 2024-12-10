@@ -61,6 +61,7 @@
 			"extra_chan_info": "Les Triggers, le TTS, le mode urgence, l'automod,\netc... ne s'exécuteront que pour votre propre chaîne",
 			"youtube_not_connected": "Vous n'êtes connecté·e à aucun live YouTube",
 			"youtube_missing_scope": "Vous n'avez pas autorisé Twitchat à envoyer des messages sur YouTube",
+			"twitch_missing_scope": "Vous n'avez pas autorisé Twitchat à envoyer des messages sur Twtich",
 			"obs_disconnected_tt": "Non connecté à OBS",
 			"mode_private": "Envoyez un message uniquement à {USER}",
 			"mode_private_details": "Envoyez un message que seul·e {USER} verra\n\nNe fonctionne que si {USER} utilise Twitchat !",
