@@ -255,8 +255,8 @@ class Changelog extends Vue {
 	public async close(forceClose:boolean = false, fuMode:boolean = true):Promise<void> {
 		if(this.closing) return;
 
-		//If not all slides have been read or spent less than 30s on it
-		let minSlidesToRead = Math.floor(this.items.length * .9);
+		//If most of the slides haven't been swiped or too quickly, yell at the user
+		let minSlidesToRead = Math.floor(this.items.length * .8 - 2); //-1 to ignore TOC and Donate slides
 		const didntReadAll = [...this.slideCountRead].length < minSlidesToRead; //don't care about last slide
 		this.readAtSpeedOfLight = Date.now() - this.openedAt < minSlidesToRead * 2000 && !didntReadAll;
 		if(!forceClose && (didntReadAll || this.readAtSpeedOfLight)) {
