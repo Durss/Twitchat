@@ -172,6 +172,7 @@ export default toNative(ConnectSpotify);
 
 	.needsPremium {
 		background: var(--color-secondary-fader);
+		text-align: center;
 	}
 
 	.loader {
