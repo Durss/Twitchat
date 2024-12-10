@@ -297,7 +297,6 @@ export default class EventSub {
 				}
 				if(TwitchUtils.hasScopes([TwitchScopes.CHAT_READ_EVENTSUB])) {
 					this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.DELETE_MESSAGE, "1", {user_id:myUID});
-					this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_CLEAR, "1", {user_id:myUID});
 				}
 			}
 
@@ -341,6 +340,7 @@ export default class EventSub {
 		
 		if(TwitchUtils.hasScopes([TwitchScopes.CHAT_READ_EVENTSUB])) {
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_MESSAGES, "1", {user_id:myUID});
+			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_CLEAR, "1", {user_id:myUID});
 		}
 
 		this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {to_broadcaster_user_id:channelId});
@@ -1340,20 +1340,7 @@ export default class EventSub {
 			}
 			
 			case "clear":{
-				const message:TwitchatDataTypes.MessageClearChatData = {
-					platform:"twitch",
-					type:TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT,
-					id:Utils.getUUID(),
-					channel_id:event.broadcaster_user_id,
-					date:Date.now(),
-					fromAutomod:false,
-				};
-				if(event.moderator_user_id) {
-					message.user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name, undefined, false, false, false, false);
-				}else{
-					message.fromAutomod = true;
-				}
-				StoreProxy.chat.addMessage(message);
+				//Ignore, already listened from dedicated topic
 				break;
 			}
 

@@ -503,7 +503,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this._client.on("timeout", this.onTimeoutUser.bind(this));
 		this._client.on("raided", this.raided.bind(this));
 		this._client.on("disconnected", this.disconnected.bind(this));
-		this._client.on("clearchat", this.clearchat.bind(this));
 		this._client.on("messagedeleted", this.onDeleteMessage.bind(this));
 		this._client.on('raw_message', this.raw_message.bind(this));
 
@@ -1004,24 +1003,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		};
 		this.dispatchEvent(new MessengerClientEvent("DISCONNECTED", eventData));
 	}
-
-	private clearchat(channel:string):void {
-		const channel_id = this.getChannelID(channel);
-		const me = StoreProxy.auth.twitch.user;
-
-		//If we're the broadcaster we get clear details from pubsub
-		if(channel_id == me.id) return;
-
-		this.dispatchEvent(new MessengerClientEvent("CLEAR_CHAT", {
-			platform:"twitch",
-			type:TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT,
-			id:Utils.getUUID(),
-			channel_id,
-			date:Date.now(),
-			fromAutomod:false,
-		}));
-	}
-
 
 	private onDeleteMessage(channel: string, username: string, deletedMessage: string, tags:tmi.DeleteUserstate):void {
 		const msgID = tags["target-msg-id"];
