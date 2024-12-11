@@ -117,7 +117,8 @@ export default toNative(AnchorsMenu);
 				width: @size;
 				height: @size;
 				padding: 5px;
-				object-fit: fill;
+				display: flex;
+				justify-content: center;
 			}
 
 			.label {
