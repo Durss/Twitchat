@@ -205,6 +205,7 @@ export default class YoutubeHelper {
 		this._creditsUsed ++;
 		Logger.instance.log("youtube", {log:"Loading current live broadcast", credits: this._creditsUsed, liveID:this._currentLiveIds});
 		const url = new URL(this.API_PATH+"liveBroadcasts");
+		url.searchParams.append("maxResults", "50");
 		url.searchParams.append("mine", "true");
 		url.searchParams.append("part", "id");
 		url.searchParams.append("part", "status");
