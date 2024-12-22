@@ -2750,6 +2750,10 @@ export namespace TwitchatDataTypes {
 			pic?:string
 		};
 		/**
+		 * Defines if messages originates from a shared chat session.
+		 */
+		twitchSharedChat?:boolean;
+		/**
 		 * true if message has been deleted
 		 */
 		deleted?:boolean;

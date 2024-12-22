@@ -717,6 +717,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				pic:this._remoteIdToUser[chanId].avatarPath,
 				name:this._remoteIdToUser[chanId].login,
 			}
+			data.twitchSharedChat = true;
 		}
 
 		data.message_chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"], tags.sentLocally == true);

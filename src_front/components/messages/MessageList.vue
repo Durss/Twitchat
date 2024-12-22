@@ -455,8 +455,8 @@ class MessageList extends Vue {
 	 */
 	private async shouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): Promise<boolean> {
 		//Hide shared chat messages if requested
-		if(this.$store.params.appearance.sharedChatHide.value === true) {
-			if(m.channelSource) return false;
+		if(m.twitchSharedChat === true && m.channelSource && this.$store.params.appearance.sharedChatHide.value === true) {
+			return false;
 		}
 
 		if(this.lightMode) {
