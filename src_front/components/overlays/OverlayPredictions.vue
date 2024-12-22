@@ -202,7 +202,7 @@ class OverlayPredictions extends AbstractOverlay {
 						}});
 					}
 				}else{
-					this.close();
+					this.close(true);
 				}
 			}
 		// }, 500);
