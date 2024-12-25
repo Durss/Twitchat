@@ -1354,22 +1354,26 @@ export const storeChat = defineStore('chat', {
 										const m = messages[j];
 										//Not a user message, ignore it
 										if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
-										//Not sent from the mentionned user, ignore it
-										if(m.user.login != match && m.user.displayNameOriginal.toLowerCase() != match) continue;
 										//If message is too old, stop there
 										if(ts - m.date > timeframe) break;
+										//Not sent from the mentionned user, ignore it
+										if(m.user.login != match && m.user.displayNameOriginal.toLowerCase() != match) continue;
 	
+										//If it's the root message of a conversation
 										if(m.answers) {
-											//If it's the root message of a conversation
+											//Add current message to its answers
 											m.answers.push( message );
 											message.answersTo = m;
+
+										//If the messages answers to a message itself
 										}else if(m.answersTo && m.answersTo.answers) {
-											//If the messages answers to a message itself
 											//answering to another message
 											m.answersTo.answers.push( message );
 											message.answersTo = m.answersTo;
+
+										//If message answers to a message that is not part a conversation
 										}else{
-											//If message answers to a message not from a conversation
+											//Create conversation thread
 											message.answersTo = m;
 											if(!m.answers) m.answers = [];
 											m.answers.push( message );

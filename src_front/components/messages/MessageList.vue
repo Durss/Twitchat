@@ -1445,14 +1445,37 @@ class MessageList extends Vue {
 		if (this.lightMode || !m || (!m.answersTo && !m.answers)) return;
 		
 		this.conversationMode = true;
+		this.conversation = [m];
 		
 		if (m.answers.length > 0) {
-			this.conversation = m.answers.concat();
-			this.conversation.unshift(m);
-		} else if (m.answersTo) {
-			this.conversation = m.answersTo.answers.concat();
-			this.conversation.unshift(m.answersTo);
+			this.conversation.push( ...m.answers );
 		}
+		
+		//answering to another message
+		if (m.answersTo) {
+			let ref = m;
+			while(ref.answersTo) {
+				this.conversation.push( ref.answersTo );
+				if(ref.answers) {
+					this.conversation.push( ...ref.answers );
+				}
+				ref = ref.answersTo;
+			}
+		}
+
+		// Dedupe conversation items based on their ID
+		const dedupedConversation = this.conversation.reduce((acc, current) => {
+			const x = acc.find(item => item.id === current.id);
+			if (!x) {
+				return acc.concat([current]);
+			} else {
+				return acc;
+			}
+		}, [] as TwitchatDataTypes.MessageChatData[]);
+
+		// Sort deduped conversation items by date
+		this.conversation = dedupedConversation.sort((a, b) => a.date - b.date);
+
 		this.openConversationHolder(idRef);
 	}
 
