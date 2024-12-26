@@ -227,11 +227,14 @@ export default class TwitchUtils {
 		while (items.length > 0) {
 			const param = ids ? "id" : "login";
 			const url = new URL(Config.instance.TWITCH_API_PATH + "users");
+			let userCount = 0;
 			items.splice(0, 100).forEach(v => {
 				//If ID contains something else than numbers, ignore it to avoid crashing the whole query
 				if (param == "id" && !/^[0-9]+$/.test(v)) return;
 				url.searchParams.append(param, v);
+				userCount ++;
 			});
+			if(userCount === 0) continue;
 			const result = await this.callApi(url, { headers: this.headers, signal });
 			if (result.status === 200) {
 				const json = await result.json();
