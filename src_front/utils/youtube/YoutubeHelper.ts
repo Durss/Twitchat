@@ -7,7 +7,7 @@ import ApiHelper from "../ApiHelper";
 import Logger from "../Logger";
 import Utils from "../Utils";
 import TwitchUtils from "../twitch/TwitchUtils";
-import type { YoutubeScopesString } from "./YoutubeScopes";
+import { YoutubeScopes, type YoutubeScopesString } from "./YoutubeScopes";
 import StickerList from "./sticker_list.json";
 
 /**
@@ -638,6 +638,58 @@ export default class YoutubeHelper {
 	public async sendMessage(message:string, liveId?:string):Promise<boolean> {
 		const url = new URL(this.API_PATH+"liveChat/messages");
 		url.searchParams.append("part", "snippet");
+
+		if(message.charAt(0) == "/") {
+			const chunks = message.split(/\s/gi).filter(v => v != "");
+			let cmd = (chunks.shift() as string).toLowerCase();
+
+			switch(cmd) {
+				case "/announce": 
+				case "/warn":
+				case "/vip":
+				case "/unvip":
+				case "/mod":
+				case "/unmod":
+				case "/commercial":
+				case "/shield":
+				case "/shieldoff":
+				case "/delete":
+				case "/clear":
+				case "/color":
+				case "/emoteonly":
+				case "/emoteonlyoff":
+				case "/followers":
+				case "/followersoff":
+				case "/slow":
+				case "/slowoff":
+				case "/subscribers":
+				case "/subscribersoff":
+				case "/raid":
+				case "/unraid":
+				case "/clip":
+				case "/whisper":
+				case "/w":
+				case "/marker":
+				case "/uniquechat": 
+				case "/uniquechatoff": 
+				case "/mods": 
+				case "/vips": return false;
+				
+				case "/unban":
+				case "/block":
+				case "/unblock":
+				case "/timeout":
+				case "/untimeout": return false;
+				
+				case "/ban":{
+					// if(!this.requestScopes([YoutubeScopes.CHAT_MODERATE])) return false;
+					// // this.getCurrentUserInfo
+					// const user = StoreProxy.users.getUserFrom("youtube", this._userData!.id, undefined, undefined, chunks.join(" "), undefined, true, true, false);
+					// console.log(user);
+					return false;
+				}
+			}
+		}
 
 		let success = false;
 		const lives = liveId? [liveId] : this.currentLiveIds;
