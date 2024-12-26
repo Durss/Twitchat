@@ -1,0 +1,16 @@
+{
+	"groq": {
+		"header":"Groq est une IA très rapide à bas prix\nGénérez du contenu depuis les triggers ou demandez un résumé de conversation",
+		"instructions":"Vous devez créer un compte sur Groq et créer une clé d'API",
+		"install":"Créer une clé d'API",
+		"invalid_api_key": "Clé d'API invalide",
+		"apiKey":"Clé d'API",
+		"credits_usage":"Crédits restant: {REMAINING}/{LIMIT}",
+		"usage":"Vous pouvez maintenant utiliser Groq depuis les {TRIGGERS}.\nAussi, lors de l'ouverture d'une conversation entre utilisateurices, vous aurez la possibilité de générer un résumé de la conversation afin de ne pas avoir à tout lire.",
+		"default_model": "Choisissez le modèle à utiliser par défaut",
+		"models_pricing": "consulter les prix",
+		"models_limits": "consulter les limites",
+		"conversation_preprompt": "Fais un court résumé de cette conversation. {'@'}xxx sont des mentions d'utilisateurs",
+		"summarize_bt": "Résumer avec Groq"
+	}
+}

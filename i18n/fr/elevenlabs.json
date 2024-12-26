@@ -1,7 +1,7 @@
 {
 	"elevenlabs": {
 		"header":"Connectez Twitchat avec {LINK} et utilisez-le pour lire des messages avec des voix réalistes",
-		"instructions":"Vous devez créer un compte sur ElevenLabs et créer une clé API",
+		"instructions":"Vous devez créer un compte sur ElevenLabs et créer une clé d'API",
 		"install":"Créer une clé d'API",
 		"invalid_api_key": "Clé d'API invalide",
 		"apiKey":"Clé d'API",

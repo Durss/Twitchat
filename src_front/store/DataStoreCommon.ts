@@ -112,6 +112,8 @@ export default class DataStoreCommon {
 	public static SAMMI_CONFIGS:string = "sammiConfigs";
 	public static SAMMI_API_PASSWORD:string = "sammiApiPassword";
 	public static MIXITUP_CONFIGS:string = "mixitupConfigs";
+	public static GROQ_API_KEY:string = "groqApiKey";
+	public static GROQ_CONFIGS:string = "groqConfigs";
 	public static ELEVENLABS_API_KEY:string = "elevenlabsApiKey";
 	public static PLAYABILITY_CONFIGS:string = "playabilityConfigs";
 	public static KOFI_CONFIGS:string = "kofiConfigs";
@@ -153,6 +155,7 @@ export default class DataStoreCommon {
 		this.STREAMLABS_CHARITY_CACHE,
 		this.STREAMERBOT_WS_PASSWORD,
 		this.SAMMI_API_PASSWORD,
+		this.GROQ_API_KEY,
 		this.ELEVENLABS_API_KEY,
 		this.TWITCH_BOT,
 	];

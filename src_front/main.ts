@@ -74,6 +74,7 @@ import { storeTiktok } from './store/tiktok/storeTiktok';
 import { storeTiltify } from './store/tiltify/storeTiltify';
 import { storeTwitchCharity } from './store/twitch_charity/storeTwitchCharity';
 import { storeTwitchBot } from './store/twitchbot/storeTwitchBot';
+import { storeGroq } from './store/groq/storeGroq';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -286,6 +287,7 @@ function buildApp() {
 	StoreProxy.default.elevenLabs = storeElevenLabs();
 	StoreProxy.default.playability = storePlayability();
 	StoreProxy.default.twitchBot = storeTwitchBot();
+	StoreProxy.default.groq = storeGroq();
 
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach(k => {

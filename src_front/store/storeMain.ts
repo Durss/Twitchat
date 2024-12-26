@@ -879,6 +879,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.poll.populateData();
 			StoreProxy.chat.populateData();
 			StoreProxy.heat.populateData();
+			StoreProxy.groq.populateData();
 			StoreProxy.kofi.populateData();
 			StoreProxy.voice.populateData();
 			StoreProxy.music.populateData();

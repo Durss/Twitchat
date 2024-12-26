@@ -83,6 +83,7 @@
 		"eslint": "^7.32.0",
 		"eslint-plugin-vue": "^8.0.3",
 		"grapheme-splitter": "^1.0.4",
+		"groq-sdk": "^0.9.1",
 		"gsap": "^3.10.4",
 		"i": "^0.3.7",
 		"isomorphic-dompurify": "^1.9.0",

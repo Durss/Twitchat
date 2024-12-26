@@ -2247,7 +2247,14 @@ const UserDataSchema = {
 					items:{ type: "string", maxLength:300 }
 				}
 			}
-		}
+		},
+
+		groqConfigs:{
+			type: "object",
+			properties: {
+				defaultModel: {type:"string", maxLength:100},
+			}
+		},
 	}
 }
 
