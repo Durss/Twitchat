@@ -21,6 +21,7 @@ export namespace TwitchatDataTypes {
 		OBS: "obs",
 		TTS: "tts",
 		HEAT: "heat",
+		groq: "groq",
 		KO_FI: "kofi",
 		GOXLR: "goxlr",
 		LUMIA: "lumia",

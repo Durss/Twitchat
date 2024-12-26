@@ -98,9 +98,16 @@
 					disableConversation
 				/>
 			</div>
+			<div class="ctas">
+				<TTButton v-if="$store.groq.connected"
+					@click="$store.groq.getSummary(conversation)"
+					icon="groq"
+					secondary
+					small>{{ $t("groq.summarize_bt") }}</TTButton>
+			</div>
 		</div>
 
-		<div v-if="showLoadingGradient && !lightMode" class="noMessage">
+		<div v-if="showLoadingGradient && !lightMode" claconformess="noMessage">
 			<div class="gradient"></div>
 		</div>
 	</div>
@@ -129,7 +136,7 @@ import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 
 @Component({
 	components: {
-		Button: TTButton,
+		TTButton,
 		MessageItem,
 		ClearButton,
 		MessageListFilter,
@@ -1537,7 +1544,6 @@ class MessageList extends Vue {
 		const conversationHolder = this.$refs.conversationHolder as HTMLDivElement;
 		const convMessagesholder = this.$refs.conversationMessages as HTMLDivElement;
 
-
 		this.conversationPos = Math.max(conversationHolder.getBoundingClientRect().height, messageBounds.top - holderBounds.top + 10);//+10 shouldn't be necessary but for some reason i couldn't figure out, it is... It makes sure holder is down enough so we can move mouse inside it without rolling out the message
 
 		//Scroll history to top
@@ -1558,7 +1564,6 @@ class MessageList extends Vue {
 	 */
 	public onLeaveMessage(): void {
 		clearTimeout(this.openConvTimeout);
-		if (this.conversation.length == 0) return;
 		//Timeout avoids blinking when leaving the message but
 		//hovering another one or the conversation window
 		this.closeConvTimeout = window.setTimeout(() => {
@@ -2186,6 +2191,16 @@ export default toNative(MessageList);
 			overflow-x: hidden;
 			.message:nth-child(odd) {
 				background-color: rgba(255, 255, 255, .025);
+			}
+		}
+
+		.ctas {
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+			margin-top: 10px;
+			button {
+				margin: 0 5px;
 			}
 		}
 	}

@@ -52,7 +52,6 @@
 			@click="subContent='patreon'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_7, id:'params_connect.patreon'}">
 				<Icon name="patreon" />
 				<p>Patreon</p>
-				<div class="beta"></div>
 			</button>
 
 			<button class="card-item premium half"
@@ -151,6 +150,13 @@
 			</button>
 
 			<button class="card-item"
+			:class="{connected:$store.groq.connected}"
+			@click="subContent='groq'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_connect.groq'}">
+				<Icon name="groq" />
+				<p>Groq</p>
+			</button>
+
+			<button class="card-item"
 			:class="{connected:$store.twitchBot.connected}"
 			@click="subContent='twitchbot'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.twitchbot'}">
 				<Icon name="twitch" />
@@ -196,6 +202,7 @@
 	<ConnectElevenLabs v-else-if="subContent == 'elevenlabs'" />
 	<ConnectPlayability v-else-if="subContent == 'playability'" />
 	<ConnectTwitchBot v-else-if="subContent == 'twitchbot'" />
+	<ConnectGroq v-else-if="subContent == 'groq'" />
 
 </template>
 
@@ -233,11 +240,13 @@ import ConnectVoicemod from './connexions/ConnectVoicemod.vue';
 import ConnectWebsocket from './connexions/ConnectWebsocket.vue';
 import ConnectYoutube from './connexions/ConnectYoutube.vue';
 import ConnectTwitchBot from './connexions/ConnectTwitchBot.vue';
+import ConnectGroq from './connexions/ConnectGroq.vue';
 
 @Component({
 	components:{
 		ConnectOBS,
 		ConnectKofi,
+		ConnectGroq,
 		ConnectHeat,
 		ConnectGoXLR,
 		ConnectLumia,

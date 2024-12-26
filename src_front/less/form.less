@@ -86,19 +86,19 @@ button {
 
 @supports(-webkit-appearance: none) or (-moz-appearance: none) {
 	input[type='radio'] {
-		--border-hover: #275EFE;
 		appearance: none;
-		height: 1.25em;
-		width: 1.25em;
+		height: 1em;
+		width: 1em;
 		outline: none;
 		display: inline-block;
 		margin: 0;
 		cursor: pointer;
-		background: #fff;
+		background: rgba(255, 255, 255, .5);
 		transition: background .3s;
 		border-radius: 50%;
 		&:checked {
-			background: var(--color-primary);
+			opacity: 1;
+			background: var(--color-secondary);
 		}
 	}
 }

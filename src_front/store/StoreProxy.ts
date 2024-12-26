@@ -12,16 +12,16 @@ import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type VoiceAction from "@/utils/voice/VoiceAction";
 import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 import type { YoutubeScopesString } from "@/utils/youtube/YoutubeScopes";
+import type { StreamerbotAction } from "@streamerbot/client";
 import type { Composer, VueI18n } from "vue-i18n";
 import type { Router } from "vue-router";
+import type { ElevenLabsModel, ElevenLabsVoice } from "./elevenlabs/storeElevenLabs";
 import type { LumiaVoiceList } from "./lumia/storeLumia";
+import type { IPatreonMember, IPatreonTier } from "./patreon/storePatreon";
 import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/storeTiltify";
-import type { PatreonDataTypes } from "@/utils/patreon/PatreonDataTypes";
-import type { StreamerbotAction } from "@streamerbot/client";
-import type { ElevenLabsModel, ElevenLabsVoice } from "./elevenlabs/storeElevenLabs";
-import type { IPatreonMember, IPatreonTier } from "./patreon/storePatreon";
+import type Groq from "groq-sdk";
 
 /**
 * Created : 23/09/2022
@@ -79,6 +79,7 @@ export default class StoreProxy {
 	public static elevenLabs: IElevenLabsState & IElevenLabsGetters & IElevenLabsActions & { $state: IElevenLabsState, $reset: () => void };
 	public static playability: IPlayabilityState & IPlayabilityGetters & IPlayabilityActions & { $state: IPlayabilityState, $reset: () => void };
 	public static twitchBot: ITwitchBotState & ITwitchBotGetters & ITwitchBotActions & { $state: ITwitchBotState, $reset: () => void };
+	public static groq: IGroqState & IGroqGetters & IGroqActions & { $state: IGroqState, $reset: () => void };
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static asset:(path: string) => string;
@@ -3361,7 +3362,7 @@ export interface IElevenLabsActions {
 	 */
 	connect(): Promise<boolean>;
 	/**
-	 * Disconnects to ElevenLabs
+	 * Disconnects from ElevenLabs
 	 */
 	disconnect(): void;
 	/**
@@ -3464,11 +3465,11 @@ export interface ITwitchBotActions {
 	 */
 	populateData(): Promise<void>;
 	/**
-	 * Connects to ElevenLabs
+	 * Connects Twitch bot account
 	 */
 	connect(): Promise<boolean>;
 	/**
-	 * Disconnects to ElevenLabs
+	 * Disconnects Twitch bot account
 	 */
 	disconnect(): void;
 	/**
@@ -3484,4 +3485,43 @@ export interface ITwitchBotActions {
 	 * Saves parameters
 	 */
 	saveParams():void;
+}
+
+
+
+
+export interface IGroqState {
+	connected:boolean;
+	apiKey:string;
+	creditsUsed:number;
+	creditsTotal:number;
+	defaultModel:string;
+	availableModels:(Groq.Models.Model & {active:boolean, context_window:number, type:"text"|"speech"})[];
+}
+
+export interface IGroqGetters {
+}
+
+export interface IGroqActions {
+	/**
+	 * Populates the store
+	 */
+	populateData(): Promise<void>;
+	/**
+	 * Connects to Groq
+	 */
+	connect(): Promise<boolean>;
+	/**
+	 * Disconnects from Groq
+	 */
+	disconnect(): void;
+	/**
+	 * Saves current configs
+	 */
+	saveConfigs(): void;
+	/**
+	 * Ask for a summary about the given messages
+	 * @param messagesList
+	 */
+	getSummary(messagesList:TwitchatDataTypes.ChatMessageTypes[]):Promise<string>;
 }

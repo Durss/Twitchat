@@ -1,0 +1,16 @@
+{
+	"groq": {
+		"header":"Groq is a cheap and super fast AI\nGenerate content from triggers or ask for a conversation summary",
+		"instructions":"You need to create an account on Groq and request an API Key",
+		"install":"Create API Key",
+		"invalid_api_key": "Invalid API key",
+		"apiKey":"API Key",
+		"credits_usage":"Remaining credits: {REMAINING}/{LIMIT}",
+		"usage":"You can now use Groq AI to generate content from the {TRIGGERS}.\nAlso, when opening a conversation between users you'll get an option to generate a summary of the conversation so you don't have to read it all.",
+		"default_model": "Choose default model to use",
+		"models_pricing": "check pricing",
+		"models_limits": "check rate limits",
+		"conversation_preprompt": "Generate a short summary of the conversation. {'@'}xxx are mentions of users",
+		"summarize_bt": "Summarize with Groq"
+	}
+}
