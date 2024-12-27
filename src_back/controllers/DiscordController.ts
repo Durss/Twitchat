@@ -618,8 +618,8 @@ export default class DiscordController extends AbstractController {
 		const languages = I18n.instance.discordLanguages;
 
 		let cmd:COMMAND_NAME | `${string}_guild` = (appCommandMode? 'link' : 'link_guild');
-		const LINK_CMD = new SlashCommandBuilder()
-		.setName(cmd)
+		const LINK_CMD = new SlashCommandBuilder();
+		LINK_CMD.setName(cmd)
 		.setDescription(I18n.instance.get("en", "server.discord.commands.link.description"))
 		.addStringOption(option => {
 			option.setName("twitch_login")
@@ -638,8 +638,8 @@ export default class DiscordController extends AbstractController {
 
 
 		cmd = (appCommandMode? 'say' : 'say_guild');
-		const SAY_CMD = new SlashCommandBuilder()
-		.setName(cmd)
+		const SAY_CMD = new SlashCommandBuilder();
+		SAY_CMD.setName(cmd)
 		.setDescription(I18n.instance.get("en", "server.discord.commands.say.description"))
 		.addStringOption(option =>{
 			option.setName("message")
@@ -671,8 +671,8 @@ export default class DiscordController extends AbstractController {
 
 
 		cmd = (appCommandMode? 'ask' : 'ask_guild');
-		const ASK_CMD = new SlashCommandBuilder()
-		.setName(cmd)
+		const ASK_CMD = new SlashCommandBuilder();
+		ASK_CMD.setName(cmd)
 		.setDescription(I18n.instance.get("en", "server.discord.commands.ask.description"))
 		.addStringOption(option => {
 			option.setName("message")
@@ -702,7 +702,7 @@ export default class DiscordController extends AbstractController {
 			ASK_CMD.setDescriptionLocalization(lang.discord, I18n.instance.get(lang.labels, "server.discord.commands.ask.description"));
 		})
 
-		const commandList:Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">[] = [LINK_CMD, SAY_CMD, ASK_CMD];
+		const commandList:SlashCommandBuilder[] = [LINK_CMD, SAY_CMD, ASK_CMD];
 
 
 		this._rest = new REST().setToken(Config.credentials.discord_bot_token);
@@ -712,7 +712,7 @@ export default class DiscordController extends AbstractController {
 		}else{
 			existingCmds = await this._rest.get(Routes.applicationGuildCommands(Config.credentials.discord_client_id, debugGuildID)) as SlashCommandDefinition[];
 		}
-		const missingCmds:Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">[] = [];
+		const missingCmds:SlashCommandBuilder[] = [];
 		const removedCmds:SlashCommandDefinition[] = [];
 		//Check which commands should be removed
 		for (let i = 0; i < existingCmds.length; i++) {
