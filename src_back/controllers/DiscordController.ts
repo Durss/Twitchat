@@ -702,7 +702,7 @@ export default class DiscordController extends AbstractController {
 			ASK_CMD.setDescriptionLocalization(lang.discord, I18n.instance.get(lang.labels, "server.discord.commands.ask.description"));
 		})
 
-		const commandList:Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">[] = [LINK_CMD, SAY_CMD, ASK_CMD];
+		const commandList:SlashCommandBuilder[] = [LINK_CMD, SAY_CMD, ASK_CMD];
 
 
 		this._rest = new REST().setToken(Config.credentials.discord_bot_token);
@@ -712,7 +712,7 @@ export default class DiscordController extends AbstractController {
 		}else{
 			existingCmds = await this._rest.get(Routes.applicationGuildCommands(Config.credentials.discord_client_id, debugGuildID)) as SlashCommandDefinition[];
 		}
-		const missingCmds:Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">[] = [];
+		const missingCmds:SlashCommandBuilder[] = [];
 		const removedCmds:SlashCommandDefinition[] = [];
 		//Check which commands should be removed
 		for (let i = 0; i < existingCmds.length; i++) {
