@@ -10,15 +10,19 @@
 		"default_model": "Choisissez le modèle à utiliser par défaut",
 		"models_pricing": "consulter les prix",
 		"models_limits": "consulter les limites",
-		"conversation_preprompt": "Fais un très court résumé de cette conversation de tchat. {'@'}xxx sont des mentions d'utilisateurs. Réponds uniquement le résumé.",
+		"conversation_preprompt": "Fais un très court résumé de cette conversation de tchat Twitch. {'@'}xxx sont des mentions d'utilisateurs. Réponds uniquement le résumé.",
 		"summarize_bt": "Résumer avec Groq",
-		"summarize_durations": "Faire un résumé des dernières {DURATION} du tchat",
-		"summarize_duration_bt": "Résumer {COUNT} message|Résumer {COUNT} messages",
-		"summarize_1m_bt": "1m",
-		"summarize_2m_bt": "2m",
-		"summarize_5m_bt": "5m",
-		"summarize_10m_bt": "10m",
-		"summarize_30m_bt": "30m",
-		"summarize_60m_bt": "1h"
+		"summarize_title": "Limitez le nombre de message à résumer:",
+		"summarize_chat_title": "Résumer le tchat avec Groq\n @:groq.summarize_title",
+		"param_filter": "Limite",
+		"param_filter_duration": "Ancienneté",
+		"param_filter_count": "Nombre",
+		"param_filter_all": "Tous",
+		"param_duration": "Ancienneté",
+		"param_count": "Nombre",
+		"param_ignore_short": "Ignorer les messages courts ou composés principalement d'emotes",
+		"param_preprompt": "Preprompt personnalisé",
+		"param_preprompt_placeholder": "Donnez des instructions à Groq sur l'analyse à effectuer...",
+		"summarize_duration_bt": "Résumer {COUNT} message|Résumer {COUNT} messages"
 	}
 }

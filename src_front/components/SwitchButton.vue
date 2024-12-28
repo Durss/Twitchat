@@ -115,7 +115,10 @@ export default toNative(SwitchButton);
 			}
 		}
 		.toggle {
-			background-color: var(--color-primary-fadest);
+			background-color: var(--color-primary-fadest) !important;
+			&:hover {
+				background-color: var(--color-primary-fader) !important;
+			}
 			:deep(.circle) {
 				background-color: var(--color-primary-light);
 			}
@@ -172,6 +175,9 @@ export default toNative(SwitchButton);
 		color: var(--color-secondary);
 		.toggle {
 			background-color: var(--color-secondary-fadest) !important;
+			&:hover {
+				background-color: var(--color-secondary-fader) !important;
+			}
 			:deep(.circle) {
 				background-color: var(--color-secondary-light);
 			}
@@ -194,6 +200,9 @@ export default toNative(SwitchButton);
 		color: var(--color-alert);
 		.toggle {
 			background-color: var(--color-alert-fadest) !important;
+			&:hover {
+				background-color: var(--color-alert-fader) !important;
+			}
 			:deep(.circle) {
 				background-color: var(--color-alert-light);
 			}

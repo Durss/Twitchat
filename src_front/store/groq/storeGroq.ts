@@ -1,9 +1,9 @@
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Groq from "groq-sdk";
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { IGroqActions, IGroqGetters, IGroqState } from '../StoreProxy';
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import StoreProxy from "../StoreProxy";
 
 let groq:Groq|null = null;
@@ -105,24 +105,48 @@ export const storeGroq = defineStore('groq', {
 			DataStore.set(DataStore.GROQ_CONFIGS, configs);
 		},
 
-		async getSummary(messagesList:TwitchatDataTypes.MessageChatData[]):Promise<string> {
+		async getSummary(messagesList:TwitchatDataTypes.MessageChatData[], preprompt?:string):Promise<string> {
 			if(!groq) await this.connect();
 			if(!groq || !this.connected) return Promise.resolve("");
 
+			const prompt:Groq.Chat.Completions.ChatCompletionMessageParam[] = [];
+			prompt.push({
+					role: "system",
+					content: StoreProxy.i18n.t("groq.conversation_preprompt"),
+				});
+
+			if(preprompt) {
+				prompt.push({
+						role: "system",
+						content: preprompt,
+					});
+			}
+
+			const sortedList = messagesList.sort((a,b) => a.date - b.date);
+			let mainPrompt = "";
+			let currentUser = "";
+			let split = false;
+			//Merge consecutive messages from same users to reduce token usage
+			const splitter = " — ";
+			for (let i = 0; i < sortedList.length; i++) {
+				const m = sortedList[i];
+				if(currentUser != m.user.displayNameOriginal) {
+					currentUser = m.user.displayNameOriginal;
+					mainPrompt += "\n" + currentUser + ": ";
+					split = false;
+				}
+				if(split) mainPrompt += splitter;
+				mainPrompt += m.message;
+				split = true;
+			}
+			
+			prompt.push({
+					role: "user",
+					content: mainPrompt,
+				});
+
 			let res = await groq.chat.completions.create({
-				messages: [
-							{
-								role: "system",
-								content: StoreProxy.i18n.t("groq.conversation_preprompt"),
-							},
-							{
-								role: "user",
-								content: messagesList.map((message) => {
-									if(message.is_short) return "";
-									return message.user.displayNameOriginal + ": " + message.message;
-								}).filter(m => m.trim().length > 0).join("\n"),
-							},
-						],
+				messages: prompt,
 				model: this.defaultModel,
 				temperature: 0.5,
 				max_tokens: 1024,

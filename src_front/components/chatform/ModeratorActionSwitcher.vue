@@ -82,12 +82,12 @@ class ModeratorActionSwitcher extends Vue {
 
 	public beforeMount():void {
 		this.clickHandler = (e:MouseEvent) => this.onClickDOM(e);
-		document.addEventListener("click", this.clickHandler);
+		document.addEventListener("click", this.clickHandler, true);
 	}
 	
 	public async beforeUnmount():Promise<void> {
 		this.$store.chat.messageMode = "message";
-		document.removeEventListener("click", this.clickHandler);
+		document.removeEventListener("click", this.clickHandler, true);
 	}
 
 	/**
@@ -153,7 +153,6 @@ export default toNative(ModeratorActionSwitcher);
 .moderatoractionswitcher{
 
 	.newFlag {
-		border: 1px solid var(--color-secondary);
 		&::before {
 			top: 0;
 			left: 0;

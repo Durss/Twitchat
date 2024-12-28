@@ -427,7 +427,7 @@ export const storeUsers = defineStore('users', {
 			const hashmap = userMaps[platform];
 			if(!hashmap) return null;
 			let u = hashmap.loginToUser[login] || hashmap.displayNameToUser[login];
-			if(u) return u.color || null;
+			if(u) return Utils.getUserColor(u) || null;
 			return null;
 		},
 

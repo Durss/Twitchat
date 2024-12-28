@@ -58,7 +58,7 @@
 			"connect_extra_chan": "Connect to another Twitch channel",
 			"extra_chan_tt": "Channel to write to: {USER}\n(right click for fast switch)",
 			"extra_chan_params_tt": "Parameters",
-			"extra_chan_info": "Triggers, TTS, emergency mode, automod,\netc... will execute only for your own channel",
+			"extra_chan_info": "Triggers, emergency mode, automod,\netc... will execute only for your own channel",
 			"youtube_not_connected": "Not connected to any YouTube live",
 			"youtube_missing_scope": "You haven't granted Twitchat permission to write on YouTube chat",
 			"twitch_missing_scope": "You haven't granted Twitchat permission to write on Twitch chat",
