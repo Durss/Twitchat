@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<div class="holder">
 
-			<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" draggable="false" icon="params" @click="toggleParams()" :newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'chatform_params_4'}" />
+			<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" draggable="false" icon="params" @click="toggleParams()" :newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'chatform_params_5'}" />
 			<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" draggable="false" icon="commands" @click="$emit('update:showCommands', true)" :newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'chatform_cmds_2'}" />
 			<VueDraggable class="sortableItems"
 			v-model="$store.params.pinnedMenuItems"
@@ -58,6 +58,9 @@
 								v-model:platform="$store.stream.currentChatChannel.platform" />
 
 							<ModeratorActionSwitcher v-if="isModeratedChannel" v-model:mode="$store.chat.messageMode" />
+							
+							<GroqChannelAction v-if="$store.groq.connected" />
+							
 						</div>
 
 						<button class="chatInputError"
@@ -397,12 +400,14 @@ import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import {YoutubeScopes} from "@/utils/youtube/YoutubeScopes";
 import ModeratorActionSwitcher from './ModeratorActionSwitcher.vue';
 import { VueDraggable } from 'vue-draggable-plus';
+import GroqChannelAction from './GroqChannelAction.vue';
 
 @Component({
 	components:{
 		TTButton,
 		ParamItem,
 		VueDraggable,
+		GroqChannelAction,
 		ChannelSwitcher,
 		CommercialTimer,
 		ButtonNotification,
@@ -1324,15 +1329,16 @@ export default toNative(ChatForm);
 						background:transparent;
 					}
 					.actions {
-						// gap: .25em;
 						display: flex;
 						flex-direction: row;
 						align-items: center;
 						z-index: 1;
 						.chanSwitcher {
-							// position: absolute;
 							margin: .15em;
 						}
+						// *:last-child {
+						// 	margin-right: -.5em;
+						// }
 					}
 
 					.chatInputError {

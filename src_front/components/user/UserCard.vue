@@ -216,6 +216,14 @@
 							<h2 class="title">{{ $t("usercard.messages") }}</h2>
 						</div>
 
+						<div class="ctas" v-if="$store.groq.connected">
+							<TTButton v-if="$store.groq.connected"
+								@click="$store.groq.getSummary(messageHistory.filter(v=>v.type === 'message'))"
+								icon="groq"
+								secondary
+								small>{{ $t("groq.summarize_bt") }}</TTButton>
+						</div>
+
 						<div class="list" ref="messagelist">
 							<div class="subholder" v-for="m in messageHistory" :key="m.id">
 								<MessageItem class="message"
@@ -1150,6 +1158,10 @@ export default toNative(UserCard);
 					.subholder {
 						margin-bottom: 3px;
 					}
+				}
+				.ctas {
+					align-self: center;
+					margin: .5em auto;
 				}
 			}
 

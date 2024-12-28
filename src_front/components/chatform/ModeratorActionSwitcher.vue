@@ -1,6 +1,7 @@
 <template>
 	<div class="moderatoractionswitcher">
-		<ButtonNotification :icon="modeToIcon[mode]" class="button" @click.stop="open"></ButtonNotification>
+		<ButtonNotification :icon="modeToIcon[mode]" class="button" @click.stop="open"
+			v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'groq_chanaction_0'}"></ButtonNotification>
 
 		<div class="popin blured-background-window" ref="popin" v-if="expand">
 			<template v-if="broadcastermode">
@@ -150,15 +151,21 @@ export default toNative(ModeratorActionSwitcher);
 
 <style scoped lang="less">
 .moderatoractionswitcher{
-	// position: absolute;
-	margin-right: 0;
-	margin-right: -.5em;
+
+	.newFlag {
+		border: 1px solid var(--color-secondary);
+		&::before {
+			top: 0;
+			left: 0;
+		}
+	}
 
 	&>.button {
 		min-width: 1.5em;
 		min-height: 1.5em;
 		font-weight: bold;
 		:deep(.icon) {
+			width: auto;
 			font-size: .8em;
 		}
 	}
