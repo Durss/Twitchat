@@ -6,7 +6,6 @@
 		"set_url":"Spécifiez l'URL suivante dans le champ \"Webhook URL\"",
 		"set_token":"Copiez votre Token de Vérification ci-dessous",
 		"examples":"Messages d'exemple",
-		"advanced_params":"Paramètres avancés",
 		"advanced_params_header":"Transmettez les évènements Ko-Fi vers d'autres webhooks",
 		"webhook_placeholder":"https://...",
 		"add_webhookBt":"Ajouter un webhook"
