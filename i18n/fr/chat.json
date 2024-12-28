@@ -58,7 +58,7 @@
 			"extra_chan_tt": "Ecrire chez : {USER}\n(clic droit pour changer)",
 			"connect_extra_chan": "Se connecter à une chaîne Twitch",
 			"extra_chan_params_tt": "Paramètres",
-			"extra_chan_info": "Les Triggers, le TTS, le mode urgence, l'automod,\netc... ne s'exécuteront que pour votre propre chaîne",
+			"extra_chan_info": "Les Triggers, le mode urgence, l'automod,\netc... ne s'exécuteront que pour votre propre chaîne",
 			"youtube_not_connected": "Vous n'êtes connecté·e à aucun live YouTube",
 			"youtube_missing_scope": "Vous n'avez pas autorisé Twitchat à envoyer des messages sur YouTube",
 			"twitch_missing_scope": "Vous n'avez pas autorisé Twitchat à envoyer des messages sur Twtich",

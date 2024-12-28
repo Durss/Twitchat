@@ -51,7 +51,7 @@
 		<section class="connected" v-else>
 			<TTButton alert @click="disconnect()" :loading="loading">{{ $t("global.disconnect") }}</TTButton>
 			
-			<ToggleBlock :title="$t('kofi.advanced_params')" class="advancedParams" small :open="false">
+			<ToggleBlock :title="$t('global.advanced_params')" class="advancedParams" small :open="false">
 				<form @submit.prevent="" class="additionalWebhooks">
 					<div>{{ $t('kofi.advanced_params_header') }}</div>
 					<div class="entry" v-for="(url, index) in $store.kofi.webhooks">

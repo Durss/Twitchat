@@ -1191,11 +1191,11 @@ export default toNative(ChatMessage);
 	&.announcement {
 		border-radius: 0;
 		border-image-slice: 1;
-		border-left: .6em solid rgba(255, 255, 255, .5);
-		border-right: .6em solid rgba(255, 255, 255, .5);
+		border-left: .6em solid var(--background-color-fader);
+		border-right: .6em solid var(--background-color-fade);
 		padding-top: 0;
 		padding-bottom: .25em;
-		background-color: rgba(255, 255, 255, .1);
+		background-color: var(--background-color-fadest);
 
 		.announcementHolder {
 			display: flex;
@@ -1204,7 +1204,7 @@ export default toNative(ChatMessage);
 			margin-bottom: .25em;
 			flex-direction: row;
 			justify-content: center;
-			background-color: var(--background-color-fader);
+			background-color: var(--background-color-fadest);
 			width: calc(100% + .5em);
 			margin-left: -.25em;
 

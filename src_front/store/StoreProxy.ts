@@ -3522,6 +3522,7 @@ export interface IGroqActions {
 	/**
 	 * Ask for a summary about the given messages
 	 * @param messagesList
+	 * @param preprompt
 	 */
-	getSummary(messagesList:TwitchatDataTypes.ChatMessageTypes[]):Promise<string>;
+	getSummary(messagesList:TwitchatDataTypes.ChatMessageTypes[], preprompt?:string):Promise<string>;
 }

@@ -2355,7 +2355,7 @@ export namespace TwitchatDataTypes {
 	//Dynamically type TwitchatMessageStringType from TwitchatMessageType values
 	export type TwitchatMessageStringType = typeof TwitchatMessageType[keyof typeof TwitchatMessageType];
 
-	export const DisplayableMessageTypes:{[key in ChatMessageTypes["type"]]:boolean} = {
+	export const DisplayableMessageTypes = {
 		ban:true,
 		raid:true,
 		unban:true,
@@ -2465,7 +2465,7 @@ export namespace TwitchatDataTypes {
 		community_boost_complete:true,
 		obs_playback_state_update:false,
 		community_challenge_contribution:true,
-	} as const;
+	} as const satisfies Record<ChatMessageTypes["type"], boolean>;
 
 
 	/**

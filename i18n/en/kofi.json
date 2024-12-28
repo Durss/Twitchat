@@ -6,7 +6,6 @@
 		"set_url":"Set the following URL in the \"Webhook URL\" input",
 		"set_token":"Copy the verification token bellow",
 		"examples":"Message examples",
-		"advanced_params":"Advanced parameters",
 		"advanced_params_header":"Transmit Ko-Fi events to other webhooks",
 		"webhook_placeholder":"https://...",
 		"add_webhookBt":"Add webhook"

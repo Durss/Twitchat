@@ -99,11 +99,17 @@
 				/>
 			</div>
 			<div class="ctas">
-				<TTButton v-if="$store.groq.connected"
-					@click="$store.groq.getSummary(conversation)"
+				<TTButton v-if="$store.groq.connected && !showSummaryForm"
+					@click="showSummaryForm = true"
+					v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'chat_conversation_groq'}"
 					icon="groq"
-					secondary
 					small>{{ $t("groq.summarize_bt") }}</TTButton>
+
+				<GroqSummaryFilterForm v-if="showSummaryForm"
+					mode="duration"
+					:filterValue="5*60"
+					:messageList="conversation"
+					@close="showSummaryForm = false" />
 			</div>
 		</div>
 
@@ -132,7 +138,7 @@ import MessageItem from './MessageItem.vue';
 import MessageListFilter, {MessageListFilter as MessageListFilterClass} from './components/MessageListFilter.vue';
 import { RoughEase } from 'gsap/all';
 import { Linear } from 'gsap/all';
-import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
+import GroqSummaryFilterForm from '../GroqSummaryFilterForm.vue';
 
 @Component({
 	components: {
@@ -140,15 +146,13 @@ import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 		MessageItem,
 		ClearButton,
 		MessageListFilter,
+		GroqSummaryFilterForm,
 	},
 	emits: ["showModal", 'addColumn']
 })
 class MessageList extends Vue {
 
-	@Prop({
-			type: Boolean,
-			default: false,
-		})
+	@Prop({ type: Boolean, default: false })
 	public lightMode!: boolean;
 	@Prop
 	public filterId!: string;
@@ -161,6 +165,7 @@ class MessageList extends Vue {
 	public conversation: TwitchatDataTypes.MessageChatData[] = [];
 	public hovered = false;
 	public lockScroll = false;
+	public showSummaryForm = false;
 	public customActivitiesDisplayed = false;
 	public showLoadingGradient = false;
 	public conversationMode = true;//Used to change title between "History"/"Conversation"
@@ -1458,36 +1463,30 @@ class MessageList extends Vue {
 		if (this.lightMode || !m || (!m.answersTo && !m.answers)) return;
 
 		this.conversationMode = true;
-		this.conversation = [m];
+		const conv:TwitchatDataTypes.MessageChatData[] = [];
+		const parsedIds:{[id:string]:true} = {};
 
-		if (m.answers.length > 0) {
-			this.conversation.push( ...m.answers );
-		}
+		//Recursive parsing of the conversation
+		//Go though all answers of all messages to get the full conversation
+		function parseMessage(m:TwitchatDataTypes.MessageChatData) {
+			if(parsedIds[m.id] === true) return;
+			parsedIds[m.id] = true;
+			conv.push(m);
 
-		//answering to another message
-		if (m.answersTo) {
-			let ref = m;
-			while(ref.answersTo) {
-				this.conversation.push( ref.answersTo );
-				if(ref.answers) {
-					this.conversation.push( ...ref.answers );
-				}
-				ref = ref.answersTo;
+			if(m.answersTo) {
+				parseMessage(m.answersTo);
+			}
+			if(m.answers) {
+				m.answers.forEach((a) => {
+					if(parsedIds[a.id] === true) return;
+					parseMessage(a);
+				});
 			}
 		}
+		parseMessage(m);
 
-		// Dedupe conversation items based on their ID
-		const dedupedConversation = this.conversation.reduce((acc, current) => {
-			const x = acc.find(item => item.id === current.id);
-			if (!x) {
-				return acc.concat([current]);
-			} else {
-				return acc;
-			}
-		}, [] as TwitchatDataTypes.MessageChatData[]);
-
-		// Sort deduped conversation items by date
-		this.conversation = dedupedConversation.sort((a, b) => a.date - b.date);
+		// Sort conversation items by date
+		this.conversation = conv.sort((a, b) => a.date - b.date);
 
 		this.openConversationHolder(idRef);
 	}
@@ -1564,10 +1563,13 @@ class MessageList extends Vue {
 	 */
 	public onLeaveMessage(): void {
 		clearTimeout(this.openConvTimeout);
+		//This avoids exception when closing content if a content-editable element currently has focus
+		(document.activeElement as HTMLElement|undefined)?.blur();
 		//Timeout avoids blinking when leaving the message but
 		//hovering another one or the conversation window
 		this.closeConvTimeout = window.setTimeout(() => {
 			this.conversation = [];
+			this.showSummaryForm = false;
 			const mainHolder = this.$refs.chatMessageHolder as HTMLDivElement;
 			gsap.to(mainHolder, { opacity: 1, duration: .25 });
 		}, 0);
@@ -2062,7 +2064,8 @@ export default toNative(MessageList);
 		background: var(--color-primary);
 		color: #fff;
 		white-space: nowrap;
-		padding: .7em;
+		padding: .5em;
+		font-size: .8em;
 		transition: background-color .25s;
 		transform-origin: bottom center;
 		cursor: pointer;
@@ -2170,6 +2173,7 @@ export default toNative(MessageList);
 		max-width: 100%;
 		box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, .5);
 		transform: translateY(-100%);
+		color: var(--color-text);
 
 		.head {
 			display: flex;
@@ -2177,7 +2181,6 @@ export default toNative(MessageList);
 			border-bottom: 1px solid var(--splitter-color);
 			padding-bottom: 10px;
 			margin-bottom: 10px;
-			color: var(--color-text);
 
 			h1 {
 				text-align: center;

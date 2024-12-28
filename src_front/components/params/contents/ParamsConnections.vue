@@ -409,9 +409,6 @@ export default toNative(ParamsConnections);
 				}
 			}
 		}
-		:deep(.newFlag) {
-			border: 1px solid var(--color-secondary);
-		}
 	}
 }
 

@@ -10,15 +10,19 @@
 		"default_model": "Choose default model to use",
 		"models_pricing": "check pricing",
 		"models_limits": "check rate limits",
-		"conversation_preprompt": "Generate a very short summary of this chat conversation. {'@'}xxx are mentions of other users. Only answer the summary.",
+		"conversation_preprompt": "Generate a very short summary of this Twitch chat conversation. {'@'}xxx are mentions of other users. Only answer the summary.",
 		"summarize_bt": "Summarize with Groq",
-		"summarize_durations": "Summarize chat's last {DURATION}",
-		"summarize_duration_bt": "Summarize {COUNT} message|Summarize {COUNT} messages",
-		"summarize_1m_bt": "1m",
-		"summarize_2m_bt": "2m",
-		"summarize_5m_bt": "5m",
-		"summarize_10m_bt": "10m",
-		"summarize_30m_bt": "30m",
-		"summarize_60m_bt": "1h"
+		"summarize_title": "Limit the number of messages to summarize",
+		"summarize_chat_title": "Generate chat summary with Groq\n @:groq.summarize_title",
+		"param_filter": "Limit",
+		"param_filter_duration": "Age",
+		"param_filter_count": "Count",
+		"param_filter_all": "All",
+		"param_duration": "Age",
+		"param_count": "Count",
+		"param_ignore_short": "Ignore short or mostly emote messages",
+		"param_preprompt": "Custom preprompt",
+		"param_preprompt_placeholder": "Give instructions on what you want Groq to analyse...",
+		"summarize_duration_bt": "Summarize {COUNT} message|Summarize {COUNT} messages"
 	}
 }
