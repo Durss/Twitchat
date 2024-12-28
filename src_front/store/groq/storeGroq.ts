@@ -14,7 +14,7 @@ export const storeGroq = defineStore('groq', {
 		connected: false,
 		creditsTotal: 0,
 		creditsUsed: 0,
-		defaultModel:"llama-3.2-1b-preview",
+		defaultModel:"llama-3.3-70b-versatile",
 		availableModels:[],
 	} as IGroqState),
 
@@ -53,7 +53,11 @@ export const storeGroq = defineStore('groq', {
 						console.log(models);
 						this.availableModels = models.data as typeof this.availableModels;
 						this.availableModels.forEach((model) => {
-							model.type = model.context_window >= 1024? "text" : "speech";
+							if(model.id.indexOf("vision") > -1) {
+								model.type = "vision";
+							}else{
+								model.type = model.context_window >= 1024? "text" : "speech";
+							}
 						});
 						this.connected = true;
 						resolve(true);
@@ -61,15 +65,7 @@ export const storeGroq = defineStore('groq', {
 						console.error(error);
 						resolve(false);
 					});
-					// const success = await this.loadParams();
-					// this.connected = success;
-					// TTSUtils.instance.loadVoiceList();
-					// resolve(this.connected);
-					// if(this.connected) {
-					// 	await this.loadApiCredits();
-						this.saveConfigs()
-					// 	await this.buildHistoryCache();
-					// }
+					this.saveConfigs()
 
 					// groq.chat.completions.create({
 					// 	messages: [
@@ -133,8 +129,11 @@ export const storeGroq = defineStore('groq', {
 				top_p: 1,
 				stop: null,
 				stream: false,
+				// response_format: {
+				// 	type: "json_object",
+				// }
 			});
-			console.log(res.choices[0].message);
+			console.log(res.choices[0].message.content);
 			return "This is a summary";
 		}
 

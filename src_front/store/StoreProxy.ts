@@ -3488,7 +3488,7 @@ export interface IGroqState {
 	creditsUsed:number;
 	creditsTotal:number;
 	defaultModel:string;
-	availableModels:(Groq.Models.Model & {active:boolean, context_window:number, type:"text"|"speech"})[];
+	availableModels:(Groq.Models.Model & {active:boolean, context_window:number, type:"text"|"speech"|"vision"})[];
 }
 
 export interface IGroqGetters {
