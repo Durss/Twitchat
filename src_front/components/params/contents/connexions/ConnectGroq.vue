@@ -54,32 +54,32 @@
 						<strong>{{ $store.groq.creditsTotal - $store.groq.creditsUsed }}</strong>
 					</template>
 				</i18n-t> -->
+	
+				<form class="card-item modelList">
+					<p class="head">{{ $t("groq.default_model") }}
+						<br><i><a href="https://groq.com/pricing/" target="_blank">{{ $t("groq.models_pricing") }}</a></i>
+						<span> · </span>
+						<i><a href="https://console.groq.com/settings/limits/" target="_blank">{{ $t("groq.models_limits") }}</a></i>
+					</p>
+					<template v-for="category in modelCategories">
+						<p class="categoryName">{{ category.name }}</p>
+						<ul>
+							<li v-for="model in category.models" :class="{selected: model.id == $store.groq.defaultModel}">
+								<input type="radio"
+									:id="model.id"
+									:name="model.id"
+									v-model="$store.groq.defaultModel"
+									:value="model.id"
+									@change="$store.groq.saveConfigs()" />
+								<label :for="model.id">
+									<span class="size">{{ Math.floor(model.context_window/1024) }}K</span>
+									<span class="name">{{ model.id.replace(/-/g, ' ') }}</span>
+								</label>
+							</li>
+						</ul>
+					</template>
+				</form>
 			</template>
-
-			<form class="card-item modelList">
-				<p class="head">{{ $t("groq.default_model") }}
-					<br><i><a href="https://groq.com/pricing/" target="_blank">{{ $t("groq.models_pricing") }}</a></i>
-					<span> · </span>
-					<i><a href="https://console.groq.com/settings/limits/" target="_blank">{{ $t("groq.models_limits") }}</a></i>
-				</p>
-				<template v-for="category in modelCategories">
-					<p class="categoryName">{{ category.name }}</p>
-					<ul>
-						<li v-for="model in category.models" :class="{selected: model.id == $store.groq.defaultModel}">
-							<input type="radio"
-								:id="model.id"
-								:name="model.id"
-								v-model="$store.groq.defaultModel"
-								:value="model.id"
-								@change="$store.groq.saveConfigs()" />
-							<label :for="model.id">
-								<span class="size">{{ Math.floor(model.context_window/1024) }}K</span>
-								<span class="name">{{ model.id.replace(/-/g, ' ') }}</span>
-							</label>
-						</li>
-					</ul>
-				</template>
-			</form>
 		</div>
 
 	</div>
