@@ -139,7 +139,7 @@ class GroqSummaryFilterForm extends Vue {
 	public async summarize():Promise<void> {
 		this.loading = true;
 		try {
-			await this.$store.groq.getSummary(this.filteredMessageList, this.preprompt);
+			this.$store.groq.getSummary(this.filteredMessageList, this.preprompt);
 		}catch(e) {
 			console.error(e);
 			return;

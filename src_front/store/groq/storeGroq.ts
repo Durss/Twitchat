@@ -141,6 +141,7 @@ export const storeGroq = defineStore('groq', {
 			
 			historyEntry.prompt = mainPrompt;
 			this.answerHistory.push(historyEntry);
+			StoreProxy.params.openModal("groqHistory", true);
 			
 			let stream = await groq.chat.completions.create({
 				messages: prompt,
@@ -156,7 +157,7 @@ export const storeGroq = defineStore('groq', {
 			});
 
 			for await (const chunk of stream) {
-				historyEntry.answer = historyEntry.answer + chunk.choices[0]?.delta?.content || "";
+				historyEntry.answer += chunk.choices[0]?.delta?.content || "";
 			}
 			
 			await Database.instance.addGroqHistory(historyEntry);

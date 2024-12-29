@@ -57,7 +57,7 @@
 		"translation": "Translation",
 		"key":"Key",
 		"value":"Value",
-		"elapsed_duration":"{DURATION} ago",
+		"elapsed_duration":"{DURATION}s ago",
 		"elapsed_duration_now":"now",
 		"advanced_params": "Advanced parameters",
 		"private_field": "This information will never be saved on Twitchat server",
