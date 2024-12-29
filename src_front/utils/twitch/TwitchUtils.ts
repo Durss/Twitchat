@@ -258,11 +258,6 @@ export default class TwitchUtils {
 		search = Utils.slugify(search).replace(/-/g, "_").trim().toLowerCase();
 		let users: TwitchDataTypes.UserInfo[] = [];
 		let liveStates:{[uid:string]:boolean} = {};
-		//The exact match may not be returned because it sorts results in the
-		//most terrible way.
-		//We first search for the exact match in case it exists to return it
-		//first later
-		const [bestResult] = await this.getUserInfo(undefined, [search]);
 		// const [bestResult] = await this.getChannelInfo([bestResult[0].id]);
 		if(signal.aborted) return {users, liveStates};
 
@@ -288,8 +283,18 @@ export default class TwitchUtils {
 				if (b.login.toLowerCase().toLowerCase() == search) return 1;
 				return a.login.localeCompare(b.login, 'en', { sensitivity: 'base' });
 			});
-			if(users.findIndex(v=>v.login.toLowerCase() === search) === -1 && bestResult) {
-				users.unshift(bestResult);
+			const bestIndex = users.findIndex(v=>v.login.toLowerCase() === search);
+			if(bestIndex > -1) {
+				//Bring best match to top
+				users.unshift( ...users.splice(bestIndex, 1) );
+			}else {
+				//The exact match may not be returned because it sorts results in the
+				//most terrible way.
+				//If exact match isn't on the result, try to search it specifically
+				const [bestResult] = await this.getUserInfo(undefined, [search]);
+				if(bestResult) {
+					users.unshift( bestResult );
+				}
 			}
 			return {users:users.slice(0, maxLength), liveStates};
 		} else if (result.status == 429) {
