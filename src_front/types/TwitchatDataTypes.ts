@@ -10,7 +10,7 @@ export namespace TwitchatDataTypes {
 
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
 
-	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "bingo_grid" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs" | "shareParams";
+	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "bingo_grid" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs" | "shareParams" | "groqHistory";
 
 	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
 
@@ -2005,6 +2005,32 @@ export namespace TwitchatDataTypes {
 		 * know who actually owns the session
 		 */
 		ownerId:string;
+	}
+
+	/**
+	 * Represents a Groq history item
+	 */
+	export interface GroqHistoryItem {
+		/**
+		 * Item ID
+		 */
+		id:string;
+		/**
+		 * Prompt used
+		 */
+		prompt:string;
+		/**
+		 * Answer from groq
+		 */
+		answer:string;
+		/**
+		 * Date of the prompt
+		 */
+		date:number;
+		/**
+		 * Preprompt used
+		 */
+		preprompt?:string;
 	}
 
 	/**

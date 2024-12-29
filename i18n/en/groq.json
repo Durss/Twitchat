@@ -23,6 +23,13 @@
 		"param_ignore_short": "Ignore short or mostly emote messages",
 		"param_preprompt": "Custom preprompt",
 		"param_preprompt_placeholder": "Give instructions on what you want Groq to analyse...",
-		"summarize_duration_bt": "Summarize {COUNT} message|Summarize {COUNT} messages"
+		"summarize_duration_bt": "Summarize {COUNT} message|Summarize {COUNT} messages",
+		"history":{
+			"title":"Generation history",
+			"delete_confirm":{
+				"title":"Delete entry?",
+				"message":"This cannot bu undone!"
+			}
+		}
 	}
 }

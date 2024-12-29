@@ -269,6 +269,15 @@
 				</transition>
 
 				<transition name="blink">
+					<ButtonNotification class="groq"
+						icon="groq"
+						v-if="$store.groq.answerHistory.length > 0"
+						:aria-label="$t('chat.form.groqBt_aria')"
+						v-tooltip="{touch:'hold', content:$t('chat.form.groqBt_aria')}"
+						@click="openModal('groqHistory')" />
+				</transition>
+
+				<transition name="blink">
 					<ButtonNotification class="voice"
 						:icon="voiceBotStarted? 'microphone_recording' : 'microphone_mute'"
 						v-if="voiceBotConfigured"
@@ -426,6 +435,7 @@ import GroqChannelAction from './GroqChannelAction.vue';
 		"update:showShoutout",
 		"update:showCredits",
 		"update:showBingoGrid",
+		"update:showGroqHistory",
 		"setCurrentNotification",
 		"update:showGazaFunds",
 		"update:showChatUsers",

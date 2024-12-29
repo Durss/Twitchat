@@ -1,6 +1,6 @@
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import StoreProxy from "./StoreProxy";
-import { reactive } from "vue";
+import { reactive, toRaw } from "vue";
 
 /**
 * Created : 28/07/2023 
@@ -8,16 +8,19 @@ import { reactive } from "vue";
 export default class Database {
 
 	public static MESSAGES_TABLE:string = "messages";
+	public static GROQ_HISTORY_TABLE:string = "groqHistory";
 
 	private static _instance:Database;
 
-	private DB_VERSION:number = 4;
+	private DB_VERSION:number = 5;
 
 	private _dbConnection!:IDBOpenDBRequest;
 	private _messageStore!:IDBObjectStore;
+	private _groqStore!:IDBObjectStore;
 	private _db!:IDBDatabase;
 	private _cleanTimeout:number = -1;
-	private _maxRecords:number = 20000;
+	private _maxMessageRecords:number = 20000;
+	private _maxGroqRecords:number = 500;
 	private _ready:boolean = true;
 	private _quotaWarned:boolean = false;
 	private _versionUpgraded:boolean = false;
@@ -61,24 +64,41 @@ export default class Database {
 				}
 				this._db = (event.target as any)?.result;
 				if(this._versionUpgraded) {
-					await this.clear();
+					// await this.clearMessages();
+					// await this.clearGroqHistory();
 				}else{
 					await this.limitMessageCount();
+					await this.limitGroqCount();
 				}
 				resolve();
 			}
-			this._dbConnection.onupgradeneeded = (event) => {
+			this._dbConnection.onupgradeneeded = async (event) => {
 				this._ready = false;
 				this._db = (event.target as any)?.result;
-				
-				if(!this._db.objectStoreNames.contains(Database.MESSAGES_TABLE)) {
-					this._messageStore = this._db.createObjectStore(Database.MESSAGES_TABLE, {autoIncrement: true});
+				// Create MESSAGES_TABLE if it doesn't exist
+				if (!this._db.objectStoreNames.contains(Database.MESSAGES_TABLE)) {
+					this._messageStore = this._db.createObjectStore(Database.MESSAGES_TABLE, { autoIncrement: true });
 					this._messageStore.createIndex("id", "id", { unique: true });
-					this._messageStore.transaction.oncomplete = (event) => {
-						this._ready = true;
-					}
+					await new Promise<void>((resolve)=>{
+						this._messageStore.transaction.oncomplete = (event) => {
+							resolve();
+						}
+					});
 				}
+			
+				// Create GROQ_HISTORY_TABLE if it doesn't exist
+				if (!this._db.objectStoreNames.contains(Database.GROQ_HISTORY_TABLE)) {
+					this._groqStore = this._db.createObjectStore(Database.GROQ_HISTORY_TABLE, { autoIncrement: true });
+					this._groqStore.createIndex("id", "id", { unique: true });
+					await new Promise<void>((resolve)=>{
+						this._groqStore.transaction.oncomplete = (event) => {
+							resolve();
+						}
+					});
+				}
+			
 				this._versionUpgraded = (event.newVersion || 0) > event.oldVersion;
+				this._ready = true;
 			};
 		});
 	}
@@ -87,7 +107,7 @@ export default class Database {
 	 * Get all chat messages from the DB
 	 */
 	public async getMessageList():Promise<TwitchatDataTypes.ChatMessageTypes[]> {
-		if(!this._db || !this._ready) return Promise.resolve([]);
+		if(!this._db || !this._ready) return [];
 		return new Promise((resolve, reject)=> {
 			const query = this._db.transaction(Database.MESSAGES_TABLE, "readonly")
 			.objectStore(Database.MESSAGES_TABLE)
@@ -111,10 +131,11 @@ export default class Database {
 	 */
 	public async addMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void> {
 		if(!this._db || !this._ready) return Promise.reject("Database not ready");
+		message = toRaw(message);
 		const sAuth = StoreProxy.auth;
 		const isFromRemoteChan = message.channel_id != sAuth.twitch.user.id && message.channel_id != sAuth.youtube.user?.id;
 		//Don't save messages from remote channels
-		// if(isFromRemoteChan) return Promise.resolve();
+		if(isFromRemoteChan) return Promise.resolve();
 
 		const ignoreList:TwitchatDataTypes.TwitchatMessageStringType[] = [
 			TwitchatDataTypes.TwitchatMessageType.JOIN,
@@ -158,7 +179,7 @@ export default class Database {
 			query.addEventListener("success", event => {
 				clearTimeout(this._cleanTimeout);
 				this._cleanTimeout = window.setTimeout(() => {
-					if((event.target as IDBRequest).result > this._maxRecords) {
+					if((event.target as IDBRequest).result > this._maxMessageRecords) {
 						this.limitMessageCount();
 					}
 				}, 1000);
@@ -241,9 +262,9 @@ export default class Database {
 	}
 
 	/**
-	 * Clears database content
+	 * Clears messages database content
 	 */
-	public async clear():Promise<void>{
+	public async clearMessages():Promise<void>{
 		if(!this._db || !this._ready) return Promise.resolve();
 
 		return new Promise((resolve, reject)=> {
@@ -253,6 +274,108 @@ export default class Database {
 			.addEventListener("success", async (event) => {
 				console.log("[IndexedDB] message history cleared");
 				resolve();
+			});
+		});
+	}
+
+	/**
+	 * Clears groq database content
+	 */
+	public async clearGroqHistory():Promise<void>{
+		if(!this._db || !this._ready) return Promise.resolve();
+
+		return new Promise((resolve, reject)=> {
+			this._db.transaction(Database.GROQ_HISTORY_TABLE, "readwrite")
+			.objectStore(Database.GROQ_HISTORY_TABLE)
+			.clear()
+			.addEventListener("success", async (event) => {
+				console.log("[IndexedDB] groq history cleared");
+				resolve();
+			});
+		});
+	}
+
+	/**
+	 * Get all Groq history items
+	 */
+	public async getGroqHistoryList():Promise<TwitchatDataTypes.GroqHistoryItem[]> {
+		if(!this._db || !this._ready) return [];
+		return new Promise((resolve, reject)=> {
+			const query = this._db.transaction(Database.GROQ_HISTORY_TABLE, "readonly")
+			.objectStore(Database.GROQ_HISTORY_TABLE)
+			.getAll();
+			query.addEventListener("success", event => {
+				const result = (event.target as IDBRequest).result as TwitchatDataTypes.GroqHistoryItem[] || [];
+				resolve(result);
+			})
+			query.addEventListener("error", event => {
+				console.error("Get Groq history list error");
+				console.error(event);
+				resolve([]);
+			});
+		});
+	}
+
+	/**
+	 * Add a Grod history item to DB
+	 * 
+	 * @param message 
+	 */
+	public async addGroqHistory(data:TwitchatDataTypes.GroqHistoryItem):Promise<void> {
+		if(!this._db || !this._ready) return Promise.reject("Database not ready");
+		data = toRaw(data);
+	
+		return new Promise((resolve, reject)=> {
+			const query = this._db.transaction(Database.GROQ_HISTORY_TABLE, "readwrite")
+			.objectStore(Database.GROQ_HISTORY_TABLE)
+			.add(data)
+			query.addEventListener("success", event => {
+				clearTimeout(this._cleanTimeout);
+				this._cleanTimeout = window.setTimeout(() => {
+					if((event.target as IDBRequest).result > this._maxMessageRecords) {
+						this.limitGroqCount();
+					}
+				}, 1000);
+				resolve();
+			});
+			query.addEventListener("error", event => {
+				console.error("Add groq history error");
+				console.error(event);
+				reject();
+			});
+			query.addEventListener("onabort", event => {
+				const error = (event.target as IDBRequest).error;
+				if (error && error.name == 'QuotaExceededError' && !this._quotaWarned) {
+					this._quotaWarned = true;
+					StoreProxy.common.alert("[IndexedDB] Storage quota reached, cannot save Groq answer to history");
+					this.limitGroqCount();
+				}
+				resolve();
+			});
+		});
+	}
+
+	/**
+	 * Deletes a Groq history item from DB
+	 * @param message 
+	 */
+	public async deleteGroqHistory(id:string):Promise<void>{
+		if(!this._db || !this._ready) return Promise.resolve();
+
+		return new Promise((resolve, reject)=> {
+			this._db.transaction(Database.GROQ_HISTORY_TABLE, "readwrite")
+			.objectStore(Database.GROQ_HISTORY_TABLE)
+			.index("id")
+			.openCursor(IDBKeyRange.only(id))
+			.addEventListener("success", event => {
+				const pointer = (event.target as IDBRequest).result;
+				if(pointer) {
+					pointer.delete().addEventListener("success", ()=>{
+						resolve();
+					});
+				}else{
+					resolve();
+				}
 			});
 		});
 	}
@@ -268,11 +391,35 @@ export default class Database {
 		.count()
 		.addEventListener("success", async (event) => {
 			const entry = event.target as IDBRequest;
-			const deleteCount = entry.result as number - this._maxRecords;
+			const deleteCount = entry.result as number - this._maxMessageRecords;
 			if(deleteCount > 0) {
 				for (let i = 0; i < deleteCount; i++) {
 					const store = await this._db.transaction(Database.MESSAGES_TABLE, "readwrite")
 					.objectStore(Database.MESSAGES_TABLE);
+					store.openKeyCursor()
+					.addEventListener("success", (event) => {
+						const pointer = event.target as IDBRequest|null;
+						if(pointer) {
+							store.delete(pointer.result.key);
+							this._quotaWarned = false;
+						}
+					});
+				}
+			}
+		});
+	}
+
+	private limitGroqCount():void {
+		this._db.transaction(Database.GROQ_HISTORY_TABLE, "readwrite")
+		.objectStore(Database.GROQ_HISTORY_TABLE)
+		.count()
+		.addEventListener("success", async (event) => {
+			const entry = event.target as IDBRequest;
+			const deleteCount = entry.result as number - this._maxGroqRecords;
+			if(deleteCount > 0) {
+				for (let i = 0; i < deleteCount; i++) {
+					const store = await this._db.transaction(Database.GROQ_HISTORY_TABLE, "readwrite")
+					.objectStore(Database.GROQ_HISTORY_TABLE);
 					store.openKeyCursor()
 					.addEventListener("success", (event) => {
 						const pointer = event.target as IDBRequest|null;

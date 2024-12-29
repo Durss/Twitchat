@@ -23,6 +23,13 @@
 		"param_ignore_short": "Ignorer les messages courts ou composés principalement d'emotes",
 		"param_preprompt": "Preprompt personnalisé",
 		"param_preprompt_placeholder": "Donnez des instructions à Groq sur l'analyse à effectuer...",
-		"summarize_duration_bt": "Résumer {COUNT} message|Résumer {COUNT} messages"
+		"summarize_duration_bt": "Résumer {COUNT} message|Résumer {COUNT} messages",
+		"history":{
+			"title":"Historique des générations",
+			"delete_confirm":{
+				"title":"Supprimer l'entrée ?",
+				"message":"Cete action ne pourra être annulée"
+			}
+		}
 	}
 }

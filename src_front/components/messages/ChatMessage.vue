@@ -140,7 +140,7 @@
 					<div class="subtitle">{{$t("chat.message.clip_channel")}} {{clipInfo.broadcaster_name}}</div>
 					<div class="subtitle">{{$t("chat.message.clip_duration")}} {{clipInfo.duration}}s</div>
 					<div class="subtitle">{{$t("chat.message.clip_views")}} {{clipInfo.view_count}}</div>
-					<Button class="highlightBt" small
+					<Button class="highlightBt"
 						:aria-label="$t('chat.message.highlightBt_aria')"
 						icon="highlight"
 						v-tooltip="$t('chat.message.highlightBt_tt')"
@@ -1109,10 +1109,10 @@ export default toNative(ChatMessage);
 				font-size: .8em;
 			}
 			.highlightBt {
-				font-size: 1.25em;
+				font-size: .8rem;
 			}
 			.alertIcon {
-				height: 1.5em;
+				height: 1rem;
 				margin: 0 0 .5em .5em;
 			}
 		}

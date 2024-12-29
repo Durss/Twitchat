@@ -106,8 +106,7 @@
 					small>{{ $t("groq.summarize_bt") }}</TTButton>
 
 				<GroqSummaryFilterForm v-if="showSummaryForm"
-					mode="duration"
-					:filterValue="5*60"
+					mode="all"
 					:messageList="conversation"
 					@close="showSummaryForm = false" />
 			</div>

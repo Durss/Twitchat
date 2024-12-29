@@ -781,7 +781,7 @@ export const storeChat = defineStore('chat', {
 					const m = res[i];
 
 					//Filter only entries for our own channel
-					if(m.channel_id != uid) continue;
+					// if(m.channel_id != uid) continue;
 
 					if(!lastPuEmote && m.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.twitch_gigantifiedEmote) {
 						lastPuEmote = true;
@@ -875,7 +875,7 @@ export const storeChat = defineStore('chat', {
 		clearHistory():void {
 			StoreProxy.main.confirm(StoreProxy.i18n.t("params.clearHistory"), StoreProxy.i18n.t("params.clearHistory_confirm"))
 			.then(()=> {
-				Database.instance.clear();
+				Database.instance.clearMessages();
 			}).catch(error=>{});
 		},
 

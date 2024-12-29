@@ -3489,6 +3489,7 @@ export interface IGroqState {
 	creditsTotal:number;
 	defaultModel:string;
 	availableModels:(Groq.Models.Model & {active:boolean, context_window:number, type:"text"|"speech"|"vision"})[];
+	answerHistory:TwitchatDataTypes.GroqHistoryItem[];
 }
 
 export interface IGroqGetters {
@@ -3499,6 +3500,10 @@ export interface IGroqActions {
 	 * Populates the store
 	 */
 	populateData(): Promise<void>;
+	/**
+	 * Preload message history from IndexedDB
+	 */
+	preloadMessageHistory():Promise<void>;
 	/**
 	 * Connects to Groq
 	 */
@@ -3517,4 +3522,8 @@ export interface IGroqActions {
 	 * @param preprompt
 	 */
 	getSummary(messagesList:TwitchatDataTypes.ChatMessageTypes[], preprompt?:string):Promise<string>;
+	/**
+	 * Removes an answer from DB
+	 */
+	removeAnswer(id:string):Promise<void>;
 }

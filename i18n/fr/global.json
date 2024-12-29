@@ -57,6 +57,8 @@
 		"translation": "Traduction",
 		"key":"Clé",
 		"value":"Valeur",
+		"elapsed_duration":"il y a {DURATION}",
+		"elapsed_duration_now":"maintenant",
 		"advanced_params": "Paramètres avancés",
 		"private_field": "Cette information ne sera jamais sauvegardée sur le serveur de Twitchat",
 		"join_discordBt": "Rejoindre Discord",

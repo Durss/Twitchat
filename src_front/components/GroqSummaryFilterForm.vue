@@ -130,9 +130,9 @@ class GroqSummaryFilterForm extends Vue {
 			if(this.modeLocal == "duration") this.duration = this.filterValue;
 		}
 		this.param_filter.listValues = [
-			{value:"duration", label:this.$t("groq.param_filter_duration")},
-			{value:"count", label:this.$t("groq.param_filter_count")},
-			{value:"all", label:this.$t("groq.param_filter_all")},
+			{value:"duration", labelKey:"groq.param_filter_duration"},
+			{value:"count", labelKey:"groq.param_filter_count"},
+			{value:"all", labelKey:"groq.param_filter_all"},
 		];
 	}
 
@@ -181,9 +181,6 @@ export default toNative(GroqSummaryFilterForm);
 	.paramitem {
 		:deep(select) {
 			flex-basis: 150px;
-		}
-		:deep(input) {
-			flex-basis: 150px !important;
 		}
 	}
 

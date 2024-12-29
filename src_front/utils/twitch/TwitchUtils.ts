@@ -3689,7 +3689,6 @@ export default class TwitchUtils {
 			return await fetch(input, init);
 		} catch (error: any) {
 			if(init?.signal && init.signal.aborted) {
-				console.log("ABORTED")
 				return new Response(error.message, { status: 499 });
 			}else{
 				console.log(error);
