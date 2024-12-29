@@ -225,7 +225,8 @@
 							<GroqSummaryFilterForm class="groq" v-if="showGroqForm"
 								mode="all"
 								:messageList="messageHistory"
-								@close="showGroqForm = false" />
+								@close="showGroqForm = false"
+								@complete="closeCard()" />
 						</div>
 
 						<div class="list" ref="messagelist">
