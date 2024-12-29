@@ -938,6 +938,7 @@ export const storeMain = defineStore("main", {
 
 			Database.instance.connect().then(async ()=> {
 				await StoreProxy.chat.preloadMessageHistory();
+				await StoreProxy.groq.preloadMessageHistory();
 
 				//Reload devmode state
 				this.toggleDevMode( DataStore.get(DataStore.DEVMODE) === "true" );

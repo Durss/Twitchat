@@ -53,6 +53,7 @@
 			<Extensions				class="popin" v-if="$store.params.currentModal == 'extensions'" @close="$store.params.closeModal()" />
 			<QnaForm				class="popin" v-if="$store.params.currentModal == 'qnaForm'" @close="$store.params.closeModal()" />
 			<QnaList				class="popin" v-if="$store.params.currentModal == 'qna'" @close="$store.params.closeModal()" />
+			<GroqHistory			class="popin" v-if="$store.params.currentModal == 'groqHistory'" @close="$store.params.closeModal()" />
 			<UserCard				class="popin"  />
 		</Teleport>
 
@@ -219,6 +220,7 @@ import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
 import ShareParams from './ShareParams.vue';
 import Config from '@/utils/Config';
+import GroqHistory from '@/components/chatform/GroqHistory.vue';
 
 @Component({
 	components:{
@@ -242,6 +244,7 @@ import Config from '@/utils/Config';
 		TTUserList,
 		ObsHeatLogs,
 		MessageList,
+		GroqHistory,
 		DevmodeMenu,
 		RewardsList,
 		ShareParams,

@@ -1,10 +1,12 @@
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Groq from "groq-sdk";
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { UnwrapRef } from 'vue';
+import { reactive, type UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { IGroqActions, IGroqGetters, IGroqState } from '../StoreProxy';
 import StoreProxy from "../StoreProxy";
+import Utils from "@/utils/Utils";
+import Database from "../Database";
 
 let groq:Groq|null = null;
 
@@ -16,6 +18,7 @@ export const storeGroq = defineStore('groq', {
 		creditsUsed: 0,
 		defaultModel:"llama-3.3-70b-versatile",
 		availableModels:[],
+		answerHistory:[],
 	} as IGroqState),
 
 
@@ -41,16 +44,19 @@ export const storeGroq = defineStore('groq', {
 			if(this.apiKey) await this.connect();
 		},
 
+		async preloadMessageHistory():Promise<void> {
+			Database.instance.getGroqHistoryList().then(res=>{
+				if(res.length === 0) return;
+				this.answerHistory = res;
+			});
+		},
+
 		async connect():Promise<boolean> {
 			this.connected = false;
 			return new Promise<boolean>(async (resolve)=>{
 				try {
 					groq = new Groq({ apiKey: this.apiKey, dangerouslyAllowBrowser:true });
 					groq.models.list().then((models) => {
-						groq!.models.retrieve("llama-3.2-1b-preview").then((model) => {
-							console.log(model);
-						});
-						console.log(models);
 						this.availableModels = models.data as typeof this.availableModels;
 						this.availableModels.forEach((model) => {
 							if(model.id.indexOf("vision") > -1) {
@@ -66,25 +72,6 @@ export const storeGroq = defineStore('groq', {
 						resolve(false);
 					});
 					this.saveConfigs()
-
-					// groq.chat.completions.create({
-					// 	messages: [
-					// 		{
-					// 			role: "system",
-					// 			content: "you are a helpful assistant.",
-					// 		},
-					// 		{
-					// 			role: "user",
-					// 			content: "Explain the importance of fast language models",
-					// 		},
-					// 	],
-					// 	model: "llama3-8b-8192",
-					// 	temperature: 0.5,
-					// 	max_tokens: 1024,
-					// 	top_p: 1,
-					// 	stop: null,
-					// 	stream: false,
-					// });
 					
 				}catch(error) {
 					resolve(false);
@@ -109,6 +96,12 @@ export const storeGroq = defineStore('groq', {
 			if(!groq) await this.connect();
 			if(!groq || !this.connected) return Promise.resolve("");
 
+			const historyEntry:typeof this.answerHistory[number] = reactive({
+				id: Utils.getUUID(),
+				date:Date.now(),
+				prompt: "",
+				answer: "",
+			});
 			const prompt:Groq.Chat.Completions.ChatCompletionMessageParam[] = [];
 			prompt.push({
 					role: "system",
@@ -120,6 +113,7 @@ export const storeGroq = defineStore('groq', {
 						role: "system",
 						content: preprompt,
 					});
+				historyEntry.preprompt = preprompt;
 			}
 
 			const sortedList = messagesList.sort((a,b) => a.date - b.date);
@@ -144,22 +138,45 @@ export const storeGroq = defineStore('groq', {
 					role: "user",
 					content: mainPrompt,
 				});
-
-			let res = await groq.chat.completions.create({
+			
+			historyEntry.prompt = mainPrompt;
+			this.answerHistory.push(historyEntry);
+			
+			let stream = await groq.chat.completions.create({
 				messages: prompt,
 				model: this.defaultModel,
 				temperature: 0.5,
 				max_tokens: 1024,
 				top_p: 1,
 				stop: null,
-				stream: false,
+				stream: true,
 				// response_format: {
 				// 	type: "json_object",
 				// }
 			});
-			console.log(res.choices[0].message.content);
-			return "This is a summary";
-		}
+
+			for await (const chunk of stream) {
+				historyEntry.answer = historyEntry.answer + chunk.choices[0]?.delta?.content || "";
+			}
+			
+			await Database.instance.addGroqHistory(historyEntry);
+			return historyEntry.answer;
+		},
+
+		async removeAnswer(id:string):Promise<void> {
+			return new Promise<void>((resolve)=>{
+			StoreProxy.main.confirm(
+				StoreProxy.i18n.t("groq.history.delete_confirm.title"),
+				StoreProxy.i18n.t("groq.history.delete_confirm.message")
+			).then((result)=>{
+				this.answerHistory.splice(this.answerHistory.findIndex((entry)=>entry.id === id), 1);
+				Database.instance.deleteGroqHistory(id);
+				resolve();
+			}).catch(()=>{
+				resolve();
+			});
+		});
+		},
 
 	} as IGroqActions
 	& ThisType<IGroqActions
