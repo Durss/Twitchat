@@ -618,8 +618,8 @@ export default class DiscordController extends AbstractController {
 		const languages = I18n.instance.discordLanguages;
 
 		let cmd:COMMAND_NAME | `${string}_guild` = (appCommandMode? 'link' : 'link_guild');
-		const LINK_CMD = new SlashCommandBuilder()
-		.setName(cmd)
+		const LINK_CMD = new SlashCommandBuilder();
+		LINK_CMD.setName(cmd)
 		.setDescription(I18n.instance.get("en", "server.discord.commands.link.description"))
 		.addStringOption(option => {
 			option.setName("twitch_login")
@@ -638,8 +638,8 @@ export default class DiscordController extends AbstractController {
 
 
 		cmd = (appCommandMode? 'say' : 'say_guild');
-		const SAY_CMD = new SlashCommandBuilder()
-		.setName(cmd)
+		const SAY_CMD = new SlashCommandBuilder();
+		SAY_CMD.setName(cmd)
 		.setDescription(I18n.instance.get("en", "server.discord.commands.say.description"))
 		.addStringOption(option =>{
 			option.setName("message")
@@ -671,8 +671,8 @@ export default class DiscordController extends AbstractController {
 
 
 		cmd = (appCommandMode? 'ask' : 'ask_guild');
-		const ASK_CMD = new SlashCommandBuilder()
-		.setName(cmd)
+		const ASK_CMD = new SlashCommandBuilder();
+		ASK_CMD.setName(cmd)
 		.setDescription(I18n.instance.get("en", "server.discord.commands.ask.description"))
 		.addStringOption(option => {
 			option.setName("message")
