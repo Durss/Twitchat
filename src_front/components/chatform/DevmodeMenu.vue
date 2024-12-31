@@ -349,6 +349,7 @@ class DevmodeMenu extends Vue {
 					if(message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING) {
 						message.platform = "youtube";
 					}
+					break;
 				}
 
 				case "tiktok": {

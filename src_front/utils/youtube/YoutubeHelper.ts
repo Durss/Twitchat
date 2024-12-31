@@ -245,7 +245,9 @@ export default class YoutubeHelper {
 				const liveId = item.snippet.liveChatId;
 				this.liveFound = true;
 				this._liveIdToChanId[liveId] = item.snippet.channelId;
-				this._currentLiveIds[0] = liveId;
+				if(this._currentLiveIds.indexOf(liveId) == -1) {
+					this._currentLiveIds.push(liveId);
+				}
 				this.availableLiveBroadcasts = items;
 				this._lastMessageDate = Date.now();
 				const messageNotification:TwitchatDataTypes.MessageCustomData = {
