@@ -11,6 +11,18 @@
 			"title":"Fonctionnalités",
 			"list":[
 				{
+					"icon":"tiktok",
+					"image":"tiktok_messages.png",
+					"title":"TikTok",
+					"description":"Retrouvez vos messages TikTok au même endroit que vos messages Twitch (nécessite <a href='https://tikfinity.zerody.one/app/' target='_blank'>TikFinity</a>)"
+				},
+				{
+					"icon":"youtube",
+					"image":"youtube_messages.png",
+					"title":"YouTube",
+					"description":"Connectez jusqu'à 3 lives YouTube simultanés et recevez leurs messages en un seul endroit"
+				},
+				{
 					"icon":"merge",
 					"image":"merge_messages.gif",
 					"title":"Anti-spam",

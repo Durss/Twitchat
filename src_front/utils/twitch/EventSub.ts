@@ -1273,7 +1273,7 @@ export default class EventSub {
 			charCount += el.text.length;
 		}
 
-		const userData = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.broadcaster_user_name, undefined, undefined, false, undefined, false);
+		const userData = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false);
 		const messageHtml = TwitchUtils.messageChunksToHTML(chunks);
 		const m:TwitchatDataTypes.MessageChatData = {
 			id:event.message_id,

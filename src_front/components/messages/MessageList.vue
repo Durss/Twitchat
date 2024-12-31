@@ -138,6 +138,7 @@ import MessageListFilter, {MessageListFilter as MessageListFilterClass} from './
 import { RoughEase } from 'gsap/all';
 import { Linear } from 'gsap/all';
 import GroqSummaryFilterForm from '../GroqSummaryFilterForm.vue';
+import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 
 @Component({
 	components: {
@@ -250,6 +251,8 @@ class MessageList extends Vue {
 		watch(()=>this.$store.params.features.mergeConsecutive_maxSizeTotal.value, async () => this.fullListRefresh());
 		watch(()=>this.$store.params.features.mergeConsecutive_minDuration.value, async () => this.fullListRefresh());
 		watch(()=>this.$store.stream.connectedTwitchChans, ()=> this.rebuildChannelIdsHashmap(), {deep:true});
+		watch(()=>this.$store.tiktok.connected, ()=> this.rebuildChannelIdsHashmap(), {deep:true});
+		watch(()=>YoutubeHelper.instance.connected, ()=> this.rebuildChannelIdsHashmap(), {deep:true});
 		watch(()=>this.config, ()=> this.rebuildChannelIdsHashmap(), {deep:true});
 
 		this.publicApiEventHandler = (e) => this.onPublicApiEvent(e);
@@ -445,12 +448,14 @@ class MessageList extends Vue {
 	 * channel source.
 	 */
 	private rebuildChannelIdsHashmap() {
+		//Check for all valid IDs depending on the connected platforms
 		const validIds = this.$store.stream.connectedTwitchChans.concat().map(v=>v.user.id);
 		if(this.$store.auth.youtube.user) validIds.push(this.$store.auth.youtube.user.id);
 		if(this.$store.tiktok.connected) validIds.push("tiktok");
 		validIds.push(this.$store.auth.twitch.user.id);
+		
+		//Only keep configured entries that match a valid channel ID
 		const chanIds:{[uid:string]:boolean} = {};
-
 		Object.keys(this.config.channelIDs || {})
 		.filter(id=>validIds.includes(id))
 		.forEach(id => {
