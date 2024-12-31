@@ -233,6 +233,10 @@ export default class YoutubeHelper {
 			})
 			//Filter out past broadcast that got closed
 			.filter(v=> v.status.recordingStatus == "recording" || v.status.recordingStatus == "notRecording");
+			
+			json.items.forEach(v=> {
+				this._liveIdToChanId[v.snippet.liveChatId] = v.snippet.channelId;
+			})
 
 			//Get first item corresponding to a live running or coming.
 			//Prioritise items with higher "live" status meaning
@@ -244,7 +248,6 @@ export default class YoutubeHelper {
 			if(item) {
 				const liveId = item.snippet.liveChatId;
 				this.liveFound = true;
-				this._liveIdToChanId[liveId] = item.snippet.channelId;
 				if(this._currentLiveIds.indexOf(liveId) == -1) {
 					this._currentLiveIds.push(liveId);
 				}
@@ -344,7 +347,10 @@ export default class YoutubeHelper {
 					for (; i < json.items.length; i++) {
 						const m = json.items[i];
 						//Message already registered? Skip it
-						if(idsDone[m.id]) continue;
+						if(idsDone[m.id]) {
+							console.log("SKIP", m.id, m);
+							continue;
+						}
 
 						const data = await this.parseMessage(m, this._liveIdToChanId[liveId], liveId);
 						if(data) {
@@ -882,13 +888,16 @@ export default class YoutubeHelper {
 		const message =  m.snippet.displayMessage || "";
 		const message_chunks = m.snippet.displayMessage? this.parseMessageChunks(m.snippet.displayMessage) : [];
 		const message_html = TwitchUtils.messageChunksToHTML(message_chunks);
-		m.snippet.authorChannelId
 		const user = await StoreProxy.users.getUserFrom("youtube", channelId, m.authorDetails.channelId, m.authorDetails.displayName, m.authorDetails.displayName);
 		const chanInfos = user.channelInfo[channelId];
-		chanInfos.is_broadcaster = m.authorDetails.isChatOwner;
-		chanInfos.is_moderator = m.authorDetails.isChatModerator || m.authorDetails.isChatOwner;
-		user.is_partner = m.authorDetails.isChatSponsor;
-		user.avatarPath = m.authorDetails.profileImageUrl;
+		try {
+			chanInfos.is_broadcaster = m.authorDetails.isChatOwner;
+			chanInfos.is_moderator = m.authorDetails.isChatModerator || m.authorDetails.isChatOwner;
+			user.is_partner = m.authorDetails.isChatSponsor;
+			user.avatarPath = m.authorDetails.profileImageUrl;
+		}catch(error) {
+			console.error(error)
+		}
 		
 
 		//Add badge if not already specified
