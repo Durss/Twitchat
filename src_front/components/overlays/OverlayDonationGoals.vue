@@ -122,12 +122,13 @@ class OverlayDonationGoals extends AbstractOverlay {
 		//Not an event for this overlay, ignore it
 		if(state.params.id != this.id) return;
 
-		//If value hasn't changed, ignore
-		//useful to filter out subs auto refresh. Twitchat crawls active subs every 5 minutes.
-		//This triggers a param update even if the count hasn't changed.
-		//If user chose to auto hide the goals after 10s of inactivity, that update will bring
-		//them back on each refresh if even if no new sub was received
-		if(state.raisedPersonnal === this.localRaised) return;
+		//Deeply check if something changed.
+		//If not, ignore that update.
+		//This happens when twitchat refreshes the list of currently active subs.
+		//Sub count my not have changed but it will still trigger an oevrlay update
+		if(this.state) {
+			if(Utils.deepEqual(this.state, state)) return;
+		}
 		
 		//Show list if necessary
 		if(state!.params.autoDisplay && !this.show) {

@@ -866,4 +866,31 @@ export default class Utils {
 			return ((t = t ^ t >>> 15) >>> 0) / 4294967296;
 		}
 	}
+
+	/**
+	 * Deeply checks for differences between 2 arbitrary objects
+	 * @param a 
+	 * @param b 
+	 * @returns 
+	 */
+	public static deepEqual(a:unknown, b:unknown):boolean {
+		if(a === b) return true;
+		if(typeof a !== typeof b) return false;
+		if(typeof a !== "object") return false;
+		if(Array.isArray(a) !== Array.isArray(b)) return false;
+		if(Array.isArray(a)) {
+			if(a.length !== (b as any[]).length) return false;
+			for (let i = 0; i < a.length; i++) {
+				if(!this.deepEqual(a[i], (b as any[])[i])) return false;
+			}
+		}else{
+			const keysA = Object.keys(a as Object);
+			const keysB = Object.keys(b as Object);
+			if(keysA.length !== keysB.length) return false;
+			for (const key of keysA) {
+				if(!this.deepEqual((a as any)[key], (b as any)[key])) return false;
+			}
+		}
+		return true;
+	}
 }
