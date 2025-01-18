@@ -986,15 +986,19 @@ export class ChatForm extends Vue {
 				if(this.$store.main.cypherEnabled) {
 					this.message = await TwitchCypherPlugin.instance.encrypt(this.message);
 				}
-				this.loading = true;
+				// this.loading = true;
+				
 				const replyTo = this.$store.chat.replyTo ?? undefined;
-				if(await MessengerProxy.instance.sendMessage(this.message,
+				const messageLocal = this.message;
+				this.message = "";
+				this.$store.chat.replyTo = null;
+				if(await MessengerProxy.instance.sendMessage(messageLocal,
 															[this.$store.stream.currentChatChannel.platform],
 															this.$store.stream.currentChatChannel.id, replyTo, false, false)) {
-					this.message = "";
-					this.$store.chat.replyTo = null;
+					// this.message = "";
+					// this.$store.chat.replyTo = null;
 				}
-				this.loading = false;
+				// this.loading = false;
 			}catch(error) {
 				console.log(error);
 				this.error = true;
