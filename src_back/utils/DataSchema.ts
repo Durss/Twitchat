@@ -265,7 +265,7 @@ const UserDataSchema = {
 													"startvirtualcam",
 													"stopvirtualcam",
 													"createchapter",
-													"hotkey",
+													"hotKey",
 													"screenshot",
 												]},
 								triggerId: {type:"string", maxLength:50},
