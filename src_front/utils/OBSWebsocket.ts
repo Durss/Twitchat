@@ -1,5 +1,5 @@
 import StoreProxy from '@/store/StoreProxy';
-import OBSWebSocket, { RequestBatchExecutionType, type RequestBatchRequest } from 'obs-websocket-js';
+import {OBSWebSocket as ObsWS , RequestBatchExecutionType, type RequestBatchRequest } from 'obs-websocket-js';
 import type { JsonArray, JsonObject } from 'type-fest';
 import { reactive } from 'vue';
 import { EventDispatcher } from '../events/EventDispatcher';
@@ -13,9 +13,9 @@ import TriggerActionHandler from './triggers/TriggerActionHandler';
 /**
 * Created : 29/03/2022
 */
-export default class OBSWebsocket extends EventDispatcher {
+export default class OBSWebSocket extends EventDispatcher {
 
-	private static _instance:OBSWebsocket;
+	private static _instance:OBSWebSocket;
 
 	public connected:boolean = false;
 	//This var is here to avoid using a reference to TriggerTypes.HEAT_CLICK on this class.
@@ -24,8 +24,9 @@ export default class OBSWebsocket extends EventDispatcher {
 	//other parts of code useless for the overlay.
 	//Removing this ref from here allows for a proper tree shaking of deps
 	public heatClickTriggerType:string = "82";
+	public versionInfo!:Awaited<ReturnType<typeof this.obs.call<"GetVersion">>>;
 
-	private obs!:OBSWebSocket;
+	private obs!:ObsWS;
 	private reconnectTimeout!:number;
 	private autoReconnect:boolean = false;
 	private connectInfo:{port:string, ip:string, pass:string} = {port:"",ip:"",pass:""};
@@ -44,15 +45,15 @@ export default class OBSWebsocket extends EventDispatcher {
 	/********************
 	* GETTER / SETTERS *
 	********************/
-	static get instance():OBSWebsocket {
-		if(!OBSWebsocket._instance) {
-			OBSWebsocket._instance = reactive(new OBSWebsocket()) as OBSWebsocket;
-			OBSWebsocket._instance.initialize();
+	static get instance():OBSWebSocket {
+		if(!OBSWebSocket._instance) {
+			OBSWebSocket._instance = reactive(new OBSWebSocket()) as OBSWebSocket;
+			OBSWebSocket._instance.initialize();
 		}
-		return OBSWebsocket._instance;
+		return OBSWebSocket._instance;
 	}
 
-	public get socket():OBSWebSocket { return this.obs; }
+	public get socket():ObsWS { return this.obs; }
 
 
 
@@ -149,11 +150,12 @@ export default class OBSWebsocket extends EventDispatcher {
 				requestData: {sceneName:"Scene 2", sceneItemId:37, sceneItemEnabled:true}
 			});
 			
-			await OBSWebsocket.instance.socket.callBatch(frames, {executionType:RequestBatchExecutionType.SerialFrame, haltOnFailure:false});
+			await this.socket.callBatch(frames, {executionType:RequestBatchExecutionType.SerialFrame, haltOnFailure:false});
 			await Utils.promisedTimeout(1000);
 			loop();
 		}
-		// loop();
+
+		this.versionInfo = await this.socket.call("GetVersion");
 
 		return true;
 	}
@@ -1059,13 +1061,22 @@ export default class OBSWebsocket extends EventDispatcher {
 		return false;
 	}
 
+	/**
+	 * Get available hotkeys
+	 */
+	public async getHotkeys():Promise<string[]> {
+		if(!this.connected) return [];
+		const res = await this.obs.call("GetHotkeyList");
+		return res.hotkeys;
+	}
+
 
 
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
 	private initialize():void {
-		this.obs = new OBSWebSocket();
+		this.obs = new ObsWS();
 
 		this.obs.addListener("ConnectionClosed", ()=> {
 			this.connected = false;
