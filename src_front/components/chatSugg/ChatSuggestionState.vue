@@ -33,7 +33,7 @@
 					
 					<a class="title" target="_blank"
 					:href="'https://twitch.tv/'+c.data.user.login"
-					@click.prevent="openUserCard(c.data.user)">{{c.data.user.displayName}}</a>
+					@click.prevent="openUserCard(c.data.user)">{{c.data.user.displayNameOriginal}}</a>
 				</div>
 				<div class="info">
 					<div class="text">{{c.data.label}}</div>
@@ -46,15 +46,14 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { gsap } from 'gsap/gsap-core';
-import {toNative,  Component } from 'vue-facing-decorator';
+import Utils from '@/utils/Utils';
+import { Component, toNative } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
-import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
+import Icon from '../Icon.vue';
 import ProgressBar from '../ProgressBar.vue';
 import ToggleBlock from '../ToggleBlock.vue';
-import Utils from '@/utils/Utils';
-import Icon from '../Icon.vue';
+import TTButton from '../TTButton.vue';
 
 @Component({
 	components:{
@@ -97,7 +96,7 @@ class ChatSuggestionState extends AbstractSidePanel {
 			entries:this.poll.choices.map(v=> {
 				return {
 					id:v.id,
-					label:v.user.displayName+" : "+v.label,
+					label:v.user.displayNameOriginal+" : "+v.label,
 					score:1,
 					joinCount:1,
 				}
