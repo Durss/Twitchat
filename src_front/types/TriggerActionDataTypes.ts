@@ -370,8 +370,8 @@ export interface TriggerActionDelayData extends TriggerActionData{
 	delay:number;
 }
 
-export type TriggerActionObsDataAction = "sources"|"startstream"|"stopstream"|"startrecord"|"pauserecord"|"resumerecord"|"stoprecord"|"emitevent"|"startvirtualcam"|"stopvirtualcam"|"createchapter";
-export type TriggerActionObsSourceDataAction = "show"|"hide"|"mute"|"unmute"|"replay"|"stop"|"next"|"prev"|"switch_to"|"move"|"rotate"|"resize"|"toggle_visibility";//|"startstream"|"stopstream"|"startrecord"|"pauserecord"|"stoprecord";
+export type TriggerActionObsDataAction = "sources"|"startstream"|"stopstream"|"startrecord"|"pauserecord"|"resumerecord"|"stoprecord"|"emitevent"|"startvirtualcam"|"stopvirtualcam"|"createchapter"|"hotKey"|"screenshot";
+export type TriggerActionObsSourceDataAction = "show"|"hide"|"mute"|"unmute"|"replay"|"stop"|"next"|"prev"|"switch_to"|"move"|"rotate"|"resize"|"toggle_visibility";
 export interface TriggerActionObsData extends TriggerActionData{
 	type:"obs";
 	/**
@@ -476,6 +476,40 @@ export interface TriggerActionObsData extends TriggerActionData{
 	 * @deprecated replaced by "action" prop
 	 */
 	show?:boolean|"replay";
+	/**
+	 * Hotkey action to trigger
+	 */
+	hotKeyAction?:string;
+	/**
+	 * Defines whether we want to `save` the screenshot to the hard 
+	 * drive at the specified path with `screenshotImgSavePath` or
+	 * to `get` base64 data of it and save it to `screenshotImgSavePlaceholder`
+	 */
+	screenshotImgMode?:"save"|"get";
+	/**
+	 * Image format for source screenshot
+	 */
+	screenshotImgFormat?:string;
+	/**
+	 * Request custom image size ?
+	 */
+	screenshotImgCustomSize?:boolean;
+	/**
+	 * Custom image width
+	 */
+	screenshotImgWidth?:number;
+	/**
+	 * Custom image height
+	 */
+	screenshotImgHeight?:number;
+	/**
+	 * Path to save the file to
+	 */
+	screenshotImgSavePath?:string;
+	/**
+	 * Placeholder to save the screenshot to
+	 */
+	screenshotImgSavePlaceholder?:string;
 }
 
 export interface TriggerActionChatData extends TriggerActionData{

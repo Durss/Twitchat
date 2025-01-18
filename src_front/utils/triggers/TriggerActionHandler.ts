@@ -1308,6 +1308,7 @@ export default class TriggerActionHandler {
 
 				//Handle OBS action
 				if(step.type == "obs") {
+					logStep.messages.push({date:Date.now(), value:"Execute OBS action "+step.obsAction});
 					if(step.obsAction == "sources" || !step.obsAction) {
 						//Wait for potential OBS action in progress for the exact same source
 						//to complete its execution
@@ -1561,33 +1562,43 @@ export default class TriggerActionHandler {
 						resolverOBS();
 						delete this.obsSourceNameToQueue[step.sourceName];
 					}else
+					
 					if(step.obsAction == "startstream") {
 						OBSWebsocket.instance.startStreaming();
 					}else
+
 					if(step.obsAction == "stopstream") {
 						OBSWebsocket.instance.stopStreaming();
 					}else
+
 					if(step.obsAction == "startrecord") {
 						await OBSWebsocket.instance.socket.call("StartRecord");
 					}else
+
 					if(step.obsAction == "pauserecord") {
 						await OBSWebsocket.instance.socket.call("PauseRecord");
 					}else
+
 					if(step.obsAction == "resumerecord") {
 						await OBSWebsocket.instance.socket.call("ResumeRecord");
 					}else
+
 					if(step.obsAction == "stoprecord") {
 						await OBSWebsocket.instance.socket.call("StopRecord");
 					}else
+
 					if(step.obsAction == "startvirtualcam") {
 						await OBSWebsocket.instance.socket.call("StartVirtualCam");
 					}else
+
 					if(step.obsAction == "stopvirtualcam") {
 						await OBSWebsocket.instance.socket.call("StopVirtualCam");
 					}else
+
 					if(step.obsAction == "createchapter") {
 						await OBSWebsocket.instance.socket.call("CreateRecordChapter", {chapterName:step.recordChapterName});
 					}else
+
 					if(step.obsAction == "emitevent") {
 						const params = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.browserEventParams || "", subEvent);
 						const event:{requestType:string, vendorName:string, requestData:{event_name:string, event_data:{data:string}}} = {
@@ -1599,6 +1610,41 @@ export default class TriggerActionHandler {
 							}
 						};
 						OBSWebsocket.instance.socket.call("CallVendorRequest", event);
+					}else
+
+					if(step.obsAction == "hotKey" && step.hotKeyAction) {
+						await OBSWebsocket.instance.socket.call("TriggerHotkeyByName", {hotkeyName:step.hotKeyAction});
+					}else
+
+					if(step.obsAction == "screenshot") {
+						if(!step.sourceName) {
+							logStep.messages.push({date:Date.now(), value:"❌ Cannot save screenshot, source name is missing."});
+							log.error = true;
+							logStep.error = true;
+						}else{
+							const size:{imageWidth?:number, imageHeight?:number} = {};
+							if(step.screenshotImgCustomSize) {
+								if(step.screenshotImgWidth) size.imageWidth = step.screenshotImgWidth;
+								if(step.screenshotImgHeight) size.imageHeight = step.screenshotImgHeight;
+							}
+	
+							if(step.screenshotImgMode == "save") {
+								if(!step.screenshotImgSavePath) {
+									logStep.messages.push({date:Date.now(), value:"❌ Cannot save screenshot, File Path information is missing."});
+									log.error = true;
+									logStep.error = true;
+								}else{
+									await OBSWebsocket.instance.socket.call("SaveSourceScreenshot", {sourceName:step.sourceName, imageFilePath:step.screenshotImgSavePath, imageFormat:step.screenshotImgFormat || "jpeg", ...size});
+								}
+							}else
+							if(step.screenshotImgMode == "get") {
+								const res = await OBSWebsocket.instance.socket.call("GetSourceScreenshot", {sourceName:step.sourceName, imageFormat:step.screenshotImgFormat || "jpeg", ...size});
+								if(step.screenshotImgSavePlaceholder) {
+									dynamicPlaceholders[step.screenshotImgSavePlaceholder] = res.imageData;
+									logStep.messages.push({date:Date.now(), value:"Saved screenshot image to placeholder \""+step.screenshotImgSavePlaceholder+"\""});
+								}
+							}
+						}
 					}
 				}else
 

@@ -69,6 +69,37 @@
 				</div>
 			</div>
 		</template>
+		
+		<template v-else-if="action.obsAction === 'hotKey'">
+			<img src="@/assets/icons/loader.svg" alt="loader" class="card-item loading" v-if="(param_hotkeyAction_conf.listValues || []).length == 0" />
+			<ParamItem class="url" :paramData="param_hotkeyAction_conf" v-model="action.hotKeyAction" v-else />
+		</template>
+		
+		<template v-else-if="action.obsAction === 'screenshot'">
+			<ParamItem :paramData="param_source_conf" v-model="selectedSourceName" />
+			<ParamItem :paramData="param_screenImgFormat_conf" v-model="action.screenshotImgFormat" />
+			<ParamItem :paramData="param_screenImgSize_toggle_conf" v-model="action.screenshotImgCustomSize">
+				<ParamItem :paramData="param_screenImgSize_width_conf" v-model="action.screenshotImgWidth" noBackground :childLevel="1" />
+				<ParamItem :paramData="param_screenImgSize_height_conf" v-model="action.screenshotImgHeight" noBackground :childLevel="1" />
+			</ParamItem>
+
+			<SwitchButton :labels="[$t('triggers.actions.obs.param_screenImgSize_modeSave_conf'), $t('triggers.actions.obs.param_screenImgSize_modeGet_conf')]"
+			:values="['save', 'get']"
+			v-model="action.screenshotImgMode" />
+
+			<ParamItem v-if="action.screenshotImgMode == 'save'" :paramData="param_screenImgSavePath_conf" v-model="action.screenshotImgSavePath" />
+			<template  v-if="action.screenshotImgMode == 'get'">
+				<ParamItem :paramData="param_screenImgSavePH_conf" v-model="action.screenshotImgSavePlaceholder" />
+				
+				<i18n-t scope="global" class="card-item primary" tag="div"
+				keypath="triggers.actions.common.custom_placeholder_example"
+				v-if="(action.screenshotImgSavePlaceholder || '').length > 0">
+					<template #PLACEHOLDER>
+						<mark v-click2Select>{{"{"}}{{action.screenshotImgSavePlaceholder!.toUpperCase()}}{{"}"}}</mark>
+					</template>
+				</i18n-t>
+			</template>
+		</template>
 
 	</div>
 </template>
@@ -84,11 +115,14 @@ import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import TTButton from '@/components/TTButton.vue';
 import Utils from '@/utils/Utils';
+import OBSWebSocket from '@/utils/OBSWebsocket';
+import SwitchButton from '@/components/SwitchButton.vue';
 
 @Component({
 	components:{
 		TTButton,
 		ParamItem,
+		SwitchButton,
 	},
 	emits:[]
 })
@@ -126,6 +160,13 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public param_browserEvent_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", maxLength:100, icon:"label", labelKey:"triggers.actions.obs.param_browserEvent_name" };
 	public param_browserEvent_param:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", maxLength:10000, longText:true, icon:"placeholder", labelKey:"triggers.actions.obs.param_browserEvent_param" };
 	public param_record_chapter_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", maxLength:100, icon:"label", labelKey:"triggers.actions.obs.param_record_chapter_name" };
+	public param_hotkeyAction_conf:TwitchatDataTypes.ParameterData<string, string> = { type:"list", value:"", icon:"press", labelKey:"triggers.actions.obs.param_record_hotkey_name" };
+	public param_screenImgFormat_conf:TwitchatDataTypes.ParameterData<string, string> = { type:"list", value:"jpeg", icon:"params", labelKey:"triggers.actions.obs.param_screenImgFormat_conf" };
+	public param_screenImgSize_toggle_conf:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"scale", labelKey:"triggers.actions.obs.param_screenImgSize_toggle_conf" };
+	public param_screenImgSize_width_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:1920, min:8, max:4096, icon:"coord_x", labelKey:"triggers.actions.obs.param_screenImgSize_width_conf" };
+	public param_screenImgSize_height_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:1080, min:8, max:4096, icon:"coord_y", labelKey:"triggers.actions.obs.param_screenImgSize_height_conf" };
+	public param_screenImgSavePath_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", placeholder:"D:/image.jpeg", maxLength:500, icon:"save", labelKey:"triggers.actions.obs.param_screenImgSavePath_conf" };
+	public param_screenImgSavePH_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", maxLength:30, allowedCharsRegex:"a-z0-9_", icon:"placeholder", labelKey:"triggers.actions.obs.param_screenImgSavePH_conf" };
 	
 	public selectedSourceName:string = "";
 	
@@ -193,6 +234,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public async beforeMount():Promise<void> {
 		if(this.action.obsAction == undefined) this.action.obsAction = "sources";
 		if(this.action.action == undefined) this.action.action = "show";
+		this.param_screenImgFormat_conf.listValues = OBSWebSocket.instance.versionInfo.supportedImageFormats.map(v=> {return {label:v, value:v}});
 	}
 
 	public async mounted():Promise<void> {
@@ -249,8 +291,11 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_startvirtualcam", value:"startvirtualcam"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_stopvirtualcam", value:"stopvirtualcam"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_emitevent", value:"emitevent"});
+		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_hotkey", value:"hotKey"});
+		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_screenshot", value:"screenshot"});
 		this.param_obsAction_conf.listValues	= actionList;
 		
+		watch(()=>this.action.obsAction, ()=> { this.onActionChange(); });
 		watch(()=>this.obsScenes, ()=> { this.prefillForm(); }, {deep:true});
 		watch(()=>this.obsInputs, ()=> { this.prefillForm(); }, {deep:true});
 		watch(()=>this.obsSources, ()=> { this.prefillForm(); }, {deep:true});
@@ -264,6 +309,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 				this.action.sourceName = "";
 			}
 		});
+		this.onActionChange()
 	}
 
 	/**
@@ -292,6 +338,25 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		});
 		`;
 		Utils.copyToClipboard(code);
+	}
+
+	/**
+	 * Called when selecting a new action and on init
+	 */
+	private onActionChange():void {
+		if(this.action.obsAction == "hotKey") {
+			OBSWebsocket.instance.getHotkeys().then((list) => {
+				const disallowList = [
+					"libobs",
+					"ObsBrowser",
+					"MediaSource",
+				]
+				const hotkeys = list
+				.filter(key=> disallowList.find(v => key.includes(v)) == undefined)
+				.map(v=> {return {label:v.replace(".", " "), value:v}});
+				this.param_hotkeyAction_conf.listValues = hotkeys;
+			});
+		}
 	}
 
 	/**
@@ -355,7 +420,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 				list.push({label:this.action.filterName, value:this.action.filterName})
 			}
 			this.param_filter_conf.value = this.action.filterName || list[0].value;
-			if(list.length > 1) {
+			if(list.length > 1 && this.action.obsAction != "screenshot") {
 				this.param_filter_conf.listValues = list;
 				this.param_source_conf.children = [this.param_filter_conf];
 			}else{
@@ -475,6 +540,22 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		if(this.action.obsAction != "createchapter") {
 			delete this.action.recordChapterName;
 		}
+
+		if(this.action.obsAction == "screenshot") {
+			if(!this.action.screenshotImgMode) this.action.screenshotImgMode = "save";
+			if(!this.action.screenshotImgCustomSize) this.action.screenshotImgCustomSize = false;
+		}else{
+			delete this.action.screenshotImgFormat;
+			delete this.action.screenshotImgWidth;
+			delete this.action.screenshotImgHeight;
+			delete this.action.screenshotImgCustomSize;
+			delete this.action.screenshotImgMode;
+			delete this.action.screenshotImgSavePath;
+		}
+
+		if(this.action.obsAction != "hotKey") {
+			delete this.action.hotKeyAction;
+		}
 	}
 }
 
@@ -525,6 +606,10 @@ export default toNative(TriggerActionOBSEntry);
 	/* Functions */
 	.typescript .function {
 		color: #ffd700;
+	}
+
+	.loading {
+		height: 2em;
 	}
 }
 </style>
