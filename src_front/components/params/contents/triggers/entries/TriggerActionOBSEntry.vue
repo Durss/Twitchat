@@ -320,7 +320,8 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		this.param_url_conf.placeholderList		=
 		this.param_media_conf.placeholderList	=
 		this.param_css_conf.placeholderList		=
-		this.param_browserEvent_param.placeholderList = list;
+		this.param_screenImgSavePath_conf.placeholderList	=
+		this.param_browserEvent_param.placeholderList		= list;
 
 		this.param_x_conf.placeholderList		=
 		this.param_y_conf.placeholderList		=

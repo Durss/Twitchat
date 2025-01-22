@@ -1641,12 +1641,13 @@ export default class TriggerActionHandler {
 							}
 
 							if(step.screenshotImgMode == "save") {
-								if(!step.screenshotImgSavePath) {
+								const path = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.screenshotImgSavePath || "", subEvent);
+								if(!path) {
 									logStep.messages.push({date:Date.now(), value:"❌ Cannot save screenshot, File Path information is missing."});
 									log.error = true;
 									logStep.error = true;
 								}else{
-									await OBSWebsocket.instance.socket.call("SaveSourceScreenshot", {sourceName:sourceName, imageFilePath:step.screenshotImgSavePath, imageFormat:step.screenshotImgFormat || "jpeg", ...size});
+									await OBSWebsocket.instance.socket.call("SaveSourceScreenshot", {sourceName:sourceName, imageFilePath:path, imageFormat:step.screenshotImgFormat || "jpeg", ...size});
 								}
 							}else
 							if(step.screenshotImgMode == "get") {
