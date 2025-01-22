@@ -29,6 +29,7 @@ import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import YoutubeHelper from "../youtube/YoutubeHelper";
+import OBSWebSocket from "../OBSWebsocket";
 
 /**
 * Created : 22/04/2022
@@ -96,7 +97,7 @@ export default class TriggerActionHandler {
 
 		switch(message.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
-				//Only trigger one of "first ever", "first today" 
+				//Only trigger one of "first ever", "first today"
 				if(message.twitch_isFirstMessage === true) {
 					await this.executeTriggersByType(TriggerTypes.FIRST_ALL_TIME, message, testMode, undefined, undefined, forcedTriggerId);
 				}else
@@ -1308,35 +1309,40 @@ export default class TriggerActionHandler {
 
 				//Handle OBS action
 				if(step.type == "obs") {
+					let sourceName = step.sourceName;
+					if(sourceName == StoreProxy.i18n.t("triggers.actions.obs.param_source_currentScene")) {
+						sourceName = await OBSWebSocket.instance.getCurrentScene();
+					}
+
 					logStep.messages.push({date:Date.now(), value:"Execute OBS action "+step.obsAction});
 					if(step.obsAction == "sources" || !step.obsAction) {
 						//Wait for potential OBS action in progress for the exact same source
 						//to complete its execution
-						const sourceBusy = this.obsSourceNameToQueue[step.sourceName] != undefined;
+						const sourceBusy = this.obsSourceNameToQueue[sourceName] != undefined;
 						if(sourceBusy) {
-							logStep.messages.push({date:Date.now(), value:"OBS source \""+step.sourceName+"\" is busy, wait for its release"});
+							logStep.messages.push({date:Date.now(), value:"OBS source \""+sourceName+"\" is busy, wait for its release"});
 						}
-						const prom = this.obsSourceNameToQueue[step.sourceName] ?? Promise.resolve();
+						const prom = this.obsSourceNameToQueue[sourceName] ?? Promise.resolve();
 						let resolverOBS!: ()=>void;
-						this.obsSourceNameToQueue[step.sourceName] = new Promise<void>(async (resolve, reject)=> { resolverOBS = resolve });
+						this.obsSourceNameToQueue[sourceName] = new Promise<void>(async (resolve, reject)=> { resolverOBS = resolve });
 						await prom;
 						if(sourceBusy) {
-							logStep.messages.push({date:Date.now(), value:"OBS source \""+step.sourceName+"\" has been released, continue process"});
+							logStep.messages.push({date:Date.now(), value:"OBS source \""+sourceName+"\" has been released, continue process"});
 						}
-	
-						logStep.messages.push({date:Date.now(), value:"Execute OBS action \""+step.action+"\" on source \""+step.sourceName+"\""});
-	
+
+						logStep.messages.push({date:Date.now(), value:"Execute OBS action \""+step.action+"\" on source \""+sourceName+"\""});
+
 						if(!OBSWebsocket.instance.connected) {
 							logStep.messages.push({date:Date.now(), value:"❌ OBS-Websocket NOT CONNECTED! Cannot execute requested action."});
 							log.error = true;
 							logStep.error = true;
 						}else{
-	
+
 							if(step.text) {
 								try {
 									const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent);
 									logStep.messages.push({date:Date.now(), value:"Update text to \""+text+"\""});
-									await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
+									await OBSWebsocket.instance.setTextSourceContent(sourceName, text);
 								}catch(error) {
 									console.error(error);
 								}
@@ -1345,7 +1351,7 @@ export default class TriggerActionHandler {
 								try {
 									const url = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.url as string, subEvent);
 									logStep.messages.push({date:Date.now(), value:"Update browser source URL to \""+url+"\""});
-									await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
+									await OBSWebsocket.instance.setBrowserSourceURL(sourceName, url);
 								}catch(error) {
 									console.error(error);
 								}
@@ -1354,7 +1360,7 @@ export default class TriggerActionHandler {
 								try {
 									const css = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.browserSourceCss as string, subEvent);
 									logStep.messages.push({date:Date.now(), value:"Update browser source CSS"});
-									await OBSWebsocket.instance.setBrowserSourceCSS(step.sourceName, css);
+									await OBSWebsocket.instance.setBrowserSourceCSS(sourceName, css);
 								}catch(error) {
 									console.error(error);
 								}
@@ -1363,19 +1369,19 @@ export default class TriggerActionHandler {
 								try {
 									const url = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.mediaPath as string, subEvent, true, true);
 									logStep.messages.push({date:Date.now(), value:"Update Media source url to \""+url+"\""});
-									await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, url);
+									await OBSWebsocket.instance.setMediaSourceURL(sourceName, url);
 								}catch(error) {
 									console.error(error);
 								}
 							}
-	
+
 							if(step.filterName) {
 								try {
 									logStep.messages.push({date:Date.now(), value:"Set filter \""+step.filterName+"\" visibility to \""+(step.action == 'show'? "visible" : "hidden")+"\""});
 									if(step.action == "toggle_visibility"){
-										await OBSWebsocket.instance.toggleFilterState(step.sourceName, step.filterName);
+										await OBSWebsocket.instance.toggleFilterState(sourceName, step.filterName);
 									}else{
-										await OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.action === "show");
+										await OBSWebsocket.instance.setFilterState(sourceName, step.filterName, step.action === "show");
 									}
 								}catch(error) {
 									console.error(error);
@@ -1391,22 +1397,22 @@ export default class TriggerActionHandler {
 								}
 								try {
 									switch(action) {
-										case "hide": await OBSWebsocket.instance.setSourceState(step.sourceName, false); break;
-										case "show": await OBSWebsocket.instance.setSourceState(step.sourceName, true); break;
-										case "toggle_visibility": await OBSWebsocket.instance.toggleSourceState(step.sourceName); break;
-										case "replay": await OBSWebsocket.instance.replayMedia(step.sourceName); break;
-										case "stop": await OBSWebsocket.instance.stopMedia(step.sourceName); break;
-										case "mute": await OBSWebsocket.instance.setMuteState(step.sourceName, true); break;
-										case "next": await OBSWebsocket.instance.nextMedia(step.sourceName); break;
-										case "prev": await OBSWebsocket.instance.prevMedia(step.sourceName); break;
-										case "unmute": await OBSWebsocket.instance.setMuteState(step.sourceName, false); break;
-										case "switch_to": await OBSWebsocket.instance.setCurrentScene(step.sourceName); break;
+										case "hide": await OBSWebsocket.instance.setSourceState(sourceName, false); break;
+										case "show": await OBSWebsocket.instance.setSourceState(sourceName, true); break;
+										case "toggle_visibility": await OBSWebsocket.instance.toggleSourceState(sourceName); break;
+										case "replay": await OBSWebsocket.instance.replayMedia(sourceName); break;
+										case "stop": await OBSWebsocket.instance.stopMedia(sourceName); break;
+										case "mute": await OBSWebsocket.instance.setMuteState(sourceName, true); break;
+										case "next": await OBSWebsocket.instance.nextMedia(sourceName); break;
+										case "prev": await OBSWebsocket.instance.prevMedia(sourceName); break;
+										case "unmute": await OBSWebsocket.instance.setMuteState(sourceName, false); break;
+										case "switch_to": await OBSWebsocket.instance.setCurrentScene(sourceName); break;
 										case "move":
 										case "rotate":
 										case "resize": {
-											const items = await OBSWebsocket.instance.getSourceOnCurrentScene(step.sourceName);
+											const items = await OBSWebsocket.instance.getSourceOnCurrentScene(sourceName);
 											if(!items || items.length == 0) {
-												logStep.messages.push({date:Date.now(), value:"❌ source \""+step.sourceName+"\" not found"});
+												logStep.messages.push({date:Date.now(), value:"❌ source \""+sourceName+"\" not found"});
 												log.error = true;
 												logStep.error = true;
 											}else{
@@ -1445,7 +1451,7 @@ export default class TriggerActionHandler {
 															text = text.replace(/,/gi, ".");
 															result.rotation = MathEval(text);
 													}
-	
+
 													//Handle relative transform mode
 													if(step.relativeTransform === true) {
 														if(result.positionX) result.positionX += transform.positionX;
@@ -1454,7 +1460,7 @@ export default class TriggerActionHandler {
 														if(result.height) result.height += transform.height;
 														if(result.rotation) result.rotation += transform.rotation;
 													}
-	
+
 													//OBS-WS does not allow to change the source's sizes.
 													//Instead we compute the equivalent scale values.
 													if(result.width) {
@@ -1466,14 +1472,14 @@ export default class TriggerActionHandler {
 														delete result.height;
 													}
 													logStep.messages.push({date:Date.now(), value:"Set source transform to "+JSON.stringify(result)});
-	
+
 													if(step.animate === true) {
 														logStep.messages.push({date:Date.now(), value:"Animate transformation. Duration: "+step.animateDuration+". Easing: "+step.animateEasing});
 														const params:{[key:string]:number|string|(()=>void)} = {};
 														for (const key in result) params[key] = result[key as keyof ReducedType]!;
 														params.duration = step.animateDuration! / 1000;
 														params.ease = step.animateEasing!;
-														
+
 														//Compute animation frames
 														//from: https://gsap.com/community/forums/topic/16782-get-array-of-resulting-values/?do=findComment&comment=74424
 														function summarizeTweenValues(tween:gsap.core.Tween, fps:number = 60) {
@@ -1524,7 +1530,7 @@ export default class TriggerActionHandler {
 																requestData:{sleepFrames:1},
 															})
 														}
-														
+
 														//Make OBS execute animation frames
 														OBSWebsocket.instance.socket.callBatch(frames, {executionType:RequestBatchExecutionType.SerialFrame, haltOnFailure:false});
 													}else{
@@ -1535,12 +1541,12 @@ export default class TriggerActionHandler {
 										}
 									}
 									if(step.waitMediaEnd === true && (action == "show" || action == "replay")) {
-										logStep.messages.push({date:Date.now(), value:"🕙 Wait for media \""+step.sourceName+"\" to complete playing..."});
+										logStep.messages.push({date:Date.now(), value:"🕙 Wait for media \""+sourceName+"\" to complete playing..."});
 										await new Promise<void>((resolve, reject)=> {
 											const handler = (e:TwitchatEvent) => {
 												const d = e.data as {inputName:string};
-												if(d.inputName != step.sourceName) return;
-												logStep.messages.push({date:Date.now(), value:"Media \""+step.sourceName+"\" playing complete."});
+												if(d.inputName != sourceName) return;
+												logStep.messages.push({date:Date.now(), value:"Media \""+sourceName+"\" playing complete."});
 												OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, handler);
 												resolve();
 											}
@@ -1555,14 +1561,14 @@ export default class TriggerActionHandler {
 									logStep.messages.push({date:Date.now(), value:"❌ [EXCEPTION] OBS step execution thrown an error: "+(error.message || JSON.stringify(error))});
 								}
 							}
-	
-							logStep.messages.push({date:Date.now(), value:"OBS action executed on source \""+step.sourceName+"\""});
+
+							logStep.messages.push({date:Date.now(), value:"OBS action executed on source \""+sourceName+"\""});
 						}
-	
+
 						resolverOBS();
-						delete this.obsSourceNameToQueue[step.sourceName];
+						delete this.obsSourceNameToQueue[sourceName];
 					}else
-					
+
 					if(step.obsAction == "startstream") {
 						OBSWebsocket.instance.startStreaming();
 					}else
@@ -1617,7 +1623,7 @@ export default class TriggerActionHandler {
 					}else
 
 					if(step.obsAction == "screenshot") {
-						if(!step.sourceName) {
+						if(!sourceName) {
 							logStep.messages.push({date:Date.now(), value:"❌ Cannot save screenshot, source name is missing."});
 							log.error = true;
 							logStep.error = true;
@@ -1627,18 +1633,18 @@ export default class TriggerActionHandler {
 								if(step.screenshotImgWidth) size.imageWidth = step.screenshotImgWidth;
 								if(step.screenshotImgHeight) size.imageHeight = step.screenshotImgHeight;
 							}
-	
+
 							if(step.screenshotImgMode == "save") {
 								if(!step.screenshotImgSavePath) {
 									logStep.messages.push({date:Date.now(), value:"❌ Cannot save screenshot, File Path information is missing."});
 									log.error = true;
 									logStep.error = true;
 								}else{
-									await OBSWebsocket.instance.socket.call("SaveSourceScreenshot", {sourceName:step.sourceName, imageFilePath:step.screenshotImgSavePath, imageFormat:step.screenshotImgFormat || "jpeg", ...size});
+									await OBSWebsocket.instance.socket.call("SaveSourceScreenshot", {sourceName:sourceName, imageFilePath:step.screenshotImgSavePath, imageFormat:step.screenshotImgFormat || "jpeg", ...size});
 								}
 							}else
 							if(step.screenshotImgMode == "get") {
-								const res = await OBSWebsocket.instance.socket.call("GetSourceScreenshot", {sourceName:step.sourceName, imageFormat:step.screenshotImgFormat || "jpeg", ...size});
+								const res = await OBSWebsocket.instance.socket.call("GetSourceScreenshot", {sourceName:sourceName, imageFormat:step.screenshotImgFormat || "jpeg", ...size});
 								if(step.screenshotImgSavePlaceholder) {
 									dynamicPlaceholders[step.screenshotImgSavePlaceholder] = res.imageData;
 									logStep.messages.push({date:Date.now(), value:"Saved screenshot image to placeholder \""+step.screenshotImgSavePlaceholder+"\""});
@@ -2142,12 +2148,12 @@ export default class TriggerActionHandler {
 								}catch(error){
 									json = null;
 								}
-	
+
 								if(step.outputPlaceholderList && step.outputPlaceholderList.length > 0) {
 									for (let i = 0; i < step.outputPlaceholderList.length; i++) {
 										const ph = step.outputPlaceholderList[i];
 										if(!ph.placeholder || ph.placeholder.length === 0) continue;
-	
+
 										if(ph.type == "text") {
 											logStep.messages.push({date:Date.now(), value:"Store full query result to placeholder {"+ph.placeholder+"}"});
 											dynamicPlaceholders[ph.placeholder] = text;
@@ -2704,7 +2710,7 @@ export default class TriggerActionHandler {
 											const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
 											id = chunks[2];
 										}
-	
+
 										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Getting playlist by: "+(id || m)});
 										const playlist = await SpotifyHelper.instance.getUserPlaylist(id, m);
 										if(!playlist) {
@@ -2721,11 +2727,11 @@ export default class TriggerActionHandler {
 												url:playlist.external_urls?.spotify,
 												cover:playlist.images && playlist.images.length > 0? playlist.images[0].url : "",
 											};
-	
+
 											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Playlist found: "+(playlistTarget.title)+" : ID "+playlistTarget.id});
 										}
 									}
-	
+
 									let track:SearchTrackItem|null = null;
 									if(/open\.spotify\.[a-z]{2,}\/.*track\/.*/gi.test(m)) {
 										//Full URL specified, extract the ID from it
@@ -2798,7 +2804,7 @@ export default class TriggerActionHandler {
 												log.error = true;
 												logStep.error = true;
 												failCode = "no_active_device";
-	
+
 											}else{
 												logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Add to "+(playlistMode? "playlist": "queue")+" failed with reason: "+success});
 												log.error = true;
@@ -3770,14 +3776,14 @@ export default class TriggerActionHandler {
 							case "lastcheer_login": value = (StoreProxy.labels.getLabelByKey("CHEER_NAME") || "").toString(); break;
 							case "lastcheer_amount": value = (StoreProxy.labels.getLabelByKey("CHEER_AMOUNT") || "0").toString(); break;
 						}
-					
+
 					/**
 					 * If the placeholder requests for a user's twitch badges
 					 */
 					}else if(pointer.indexOf("__user_badges__") == 0 && Object.hasOwn(message, "user")) {
 						const typedMessage = message as TwitchatDataTypes.MessageChatData;
 						value = JSON.stringify(typedMessage.user.channelInfo[typedMessage.channel_id]?.badges || []);
-					
+
 					/**
 					 * If the placeholder requests for a user's custom badges
 					 */
@@ -3900,7 +3906,7 @@ export default class TriggerActionHandler {
 	 */
 	private async extractUserFromPlaceholder(channel_id:string, placeholder:string, dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholders:TriggerActionDataTypes.ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:Omit<LogTrigger, "date">):Promise<TwitchatDataTypes.TwitchatUser[]> {
 		const displayName = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+placeholder.toUpperCase()+"}");
-		
+
 		//Not ideal but if there are multiple users they're concatenated in
 		//a single coma seperated string (placeholder parsing is made for display :/).
 		//Here we split it on comas just in case there are multiple user names

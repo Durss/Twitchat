@@ -269,9 +269,10 @@ import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 import BingoForm from '../../../bingo/BingoForm.vue';
 import RaffleForm from '../../../raffle/RaffleForm.vue';
+import TriggerActionBingoGridEntry from './entries/TriggerActionBingoGridEntry.vue';
 import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
 import TriggerActionClickHeatEntry from './entries/TriggerActionClickHeatEntry.vue';
 import TriggerActionCountEntry from './entries/TriggerActionCountEntry.vue';
@@ -279,13 +280,22 @@ import TriggerActionCustomBadge from './entries/TriggerActionCustomBadge.vue';
 import TriggerActionCustomChatEntry from './entries/TriggerActionCustomChatEntry.vue';
 import TriggerActionCustomUsername from './entries/TriggerActionCustomUsername.vue';
 import TriggerActionDelayEntry from './entries/TriggerActionDelayEntry.vue';
+import TriggerActionDeleteMessageEntry from './entries/TriggerActionDeleteMessageEntry.vue';
+import TriggerActionDiscordEntry from './entries/TriggerActionDiscordEntry.vue';
+import TriggerActionExtensionEntry from './entries/TriggerActionExtensionEntry.vue';
 import TriggerActionGoXLREntry from './entries/TriggerActionGoXLREntry.vue';
 import TriggerActionHTTPCall from './entries/TriggerActionHTTPCall.vue';
 import TriggerActionHighlightEntry from './entries/TriggerActionHighlightEntry.vue';
+import TriggerActionLumiaEntry from './entries/TriggerActionLumiaEntry.vue';
+import TriggerActionMixitupEntry from './entries/TriggerActionMixitupEntry.vue';
 import TriggerActionMusicEntry from './entries/TriggerActionMusicEntry.vue';
 import TriggerActionOBSEntry from './entries/TriggerActionOBSEntry.vue';
+import TriggerActionPlayAbilityEntry from './entries/TriggerActionPlayAbilityEntry.vue';
 import TriggerActionRandomEntry from './entries/TriggerActionRandomEntry.vue';
+import TriggerActionRewardEntry from './entries/TriggerActionRewardEntry.vue';
+import TriggerActionSammiEntry from './entries/TriggerActionSammiEntry.vue';
 import TriggerActionStreamInfoEntry from './entries/TriggerActionStreamInfoEntry.vue';
+import TriggerActionStreamerbotEntry from './entries/TriggerActionStreamerbotEntry.vue';
 import TriggerActionTTSEntry from './entries/TriggerActionTTSEntry.vue';
 import TriggerActionTriggerEntry from './entries/TriggerActionTriggerEntry.vue';
 import TriggerActionTriggerToggleEntry from './entries/TriggerActionTriggerToggleEntry.vue';
@@ -293,16 +303,6 @@ import TriggerActionValueEntry from './entries/TriggerActionValueEntry.vue';
 import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneEntry.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
-import TriggerActionRewardEntry from './entries/TriggerActionRewardEntry.vue';
-import TriggerActionExtensionEntry from './entries/TriggerActionExtensionEntry.vue';
-import TriggerActionDiscordEntry from './entries/TriggerActionDiscordEntry.vue';
-import TriggerActionLumiaEntry from './entries/TriggerActionLumiaEntry.vue';
-import TriggerActionBingoGridEntry from './entries/TriggerActionBingoGridEntry.vue';
-import TriggerActionDeleteMessageEntry from './entries/TriggerActionDeleteMessageEntry.vue';
-import TriggerActionStreamerbotEntry from './entries/TriggerActionStreamerbotEntry.vue';
-import TriggerActionSammiEntry from './entries/TriggerActionSammiEntry.vue';
-import TriggerActionMixitupEntry from './entries/TriggerActionMixitupEntry.vue';
-import TriggerActionPlayAbilityEntry from './entries/TriggerActionPlayAbilityEntry.vue';
 
 @Component({
 	components:{
@@ -453,7 +453,7 @@ class TriggerActionEntry extends Vue {
 	 */
 	public get icons():string[] {
 		const icons = [];
-		const action2Icon:{[key in TriggerActionObsSourceDataAction]:string} = {
+		const sourceAction2Icon:{[key in TriggerActionObsSourceDataAction]:string} = {
 			hide:"hide",
 			show:"show",
 			mute:"mute",
@@ -466,39 +466,46 @@ class TriggerActionEntry extends Vue {
 			next:"next",
 			prev:"prev",
 			stop:"stop",
-			toggle_visibility:"show"
+			toggle_visibility:"show",
 		};
 
-		if(this.action.type == "obs") icons.push( action2Icon[this.action.action]+"" );
-		if(this.action.type == "music") icons.push( 'spotify' );
-		if(this.action.type == "chat") icons.push( 'whispers' );
-		if(this.action.type == "tts") icons.push( 'tts' );
-		if(this.action.type == "raffle") icons.push( 'ticket' );
-		if(this.action.type == "raffle_enter") icons.push( 'user' );
-		if(this.action.type == "bingo") icons.push( 'bingo' );
-		if(this.action.type == "voicemod") icons.push( 'voicemod' );
-		if(this.action.type == "trigger") icons.push( 'broadcast' );
-		if(this.action.type == "triggerToggle") icons.push( 'broadcast' );
-		if(this.action.type == "highlight") icons.push( 'highlight' );
-		if(this.action.type == "http") icons.push( 'url' );
-		if(this.action.type == "ws") icons.push( 'url' );
-		if(this.action.type == "poll") icons.push( 'poll' );
-		if(this.action.type == "prediction") icons.push( 'prediction' );
-		if(this.action.type == "count") icons.push( 'count' );
-		if(this.action.type == "value") icons.push( 'placeholder' );
-		if(this.action.type == "random") icons.push( 'dice_placeholder' );
-		if(this.action.type == "stream_infos") icons.push( 'info' );
-		if(this.action.type == "delay") icons.push( 'timer' );
-		if(this.action.type == "vibrate") icons.push( 'vibrate' );
-		if(this.action.type == "customBadges") icons.push( 'badge' );
-		if(this.action.type == "customUsername") icons.push( 'user' );
-		if(this.action.type == "heat_click") icons.push( 'distort' );
-		if(this.action.type == "reward") icons.push( 'channelPoints' );
-		if(this.action.type == "extension") icons.push( 'extension' );
-		if(this.action.type == "bingoGrid") icons.push( 'bingo_grid' );
-		if(this.action.type == "streamerbot") icons.push( 'streamerbot' );
-		if(this.action.type == "mixitup") icons.push( 'mixitup' );
-		if(this.action.type == "playability") icons.push( 'playability' );
+		if(this.action.type == "obs") {
+			if(this.action.obsAction == "sources") icons.push( sourceAction2Icon[this.action.action]+"" );
+			else if(this.action.obsAction === "screenshot") icons.push( "screenshot" );
+			else if(this.action.obsAction === "hotKey") icons.push( "press" );
+			else if(this.action.obsAction === "startrecord") icons.push( "recordStart" );
+			else if(this.action.obsAction === "stoprecord") icons.push( "recordStop" );
+			else if(this.action.obsAction === "pauserecord") icons.push( "pause" );
+		}
+		else if(this.action.type == "music") icons.push( 'spotify' );
+		else if(this.action.type == "chat") icons.push( 'whispers' );
+		else if(this.action.type == "tts") icons.push( 'tts' );
+		else if(this.action.type == "raffle") icons.push( 'ticket' );
+		else if(this.action.type == "raffle_enter") icons.push( 'user' );
+		else if(this.action.type == "bingo") icons.push( 'bingo' );
+		else if(this.action.type == "voicemod") icons.push( 'voicemod' );
+		else if(this.action.type == "trigger") icons.push( 'broadcast' );
+		else if(this.action.type == "triggerToggle") icons.push( 'broadcast' );
+		else if(this.action.type == "highlight") icons.push( 'highlight' );
+		else if(this.action.type == "http") icons.push( 'url' );
+		else if(this.action.type == "ws") icons.push( 'url' );
+		else if(this.action.type == "poll") icons.push( 'poll' );
+		else if(this.action.type == "prediction") icons.push( 'prediction' );
+		else if(this.action.type == "count") icons.push( 'count' );
+		else if(this.action.type == "value") icons.push( 'placeholder' );
+		else if(this.action.type == "random") icons.push( 'dice_placeholder' );
+		else if(this.action.type == "stream_infos") icons.push( 'info' );
+		else if(this.action.type == "delay") icons.push( 'timer' );
+		else if(this.action.type == "vibrate") icons.push( 'vibrate' );
+		else if(this.action.type == "customBadges") icons.push( 'badge' );
+		else if(this.action.type == "customUsername") icons.push( 'user' );
+		else if(this.action.type == "heat_click") icons.push( 'distort' );
+		else if(this.action.type == "reward") icons.push( 'channelPoints' );
+		else if(this.action.type == "extension") icons.push( 'extension' );
+		else if(this.action.type == "bingoGrid") icons.push( 'bingo_grid' );
+		else if(this.action.type == "streamerbot") icons.push( 'streamerbot' );
+		else if(this.action.type == "mixitup") icons.push( 'mixitup' );
+		else if(this.action.type == "playability") icons.push( 'playability' );
 		return icons;
 	}
 
@@ -509,8 +516,9 @@ class TriggerActionEntry extends Vue {
 		if(!action.sourceName) return false;
 		if(!this.obsConnected) return true;
 		return this.obsSources.findIndex(v=>v.sourceName == action.sourceName) == -1
-		&& this.obsScenes.findIndex(v=>v.sceneName == action.sourceName) == -1
-		&& this.obsInputs.findIndex(v=>v.inputName == action.sourceName) == -1;
+			&& this.obsScenes.findIndex(v=>v.sceneName == action.sourceName) == -1
+			&& this.obsInputs.findIndex(v=>v.inputName == action.sourceName) == -1
+			&& action.sourceName != this.$t("triggers.actions.obs.param_source_currentScene");
 	}
 
 	public async beforeMount():Promise<void> {

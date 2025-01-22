@@ -14,7 +14,7 @@
 		<ParamItem :paramData="param_obsAction_conf" v-model="action.obsAction" />
 
 		<div class="info secondary" v-if="action.obsAction === 'pauserecord' || action.obsAction === 'resumerecord'">{{$t("triggers.actions.obs.param_obs_action_pauserecord_alert")}}</div>
-		
+
 		<ParamItem  v-else-if="action.obsAction === 'createchapter'" :paramData="param_record_chapter_name" v-model="action.recordChapterName" />
 
 		<template v-else-if="action.obsAction === 'emitevent'">
@@ -30,7 +30,7 @@
 				</div>
 			</div>
 		</template>
-		
+
 		<template v-else-if="action.obsAction === 'sources'">
 			<ParamItem :paramData="param_source_conf" v-model="selectedSourceName" />
 			<ParamItem :paramData="param_sourceAction_conf" v-model="action.action" v-if="selectedSourceName" />
@@ -51,9 +51,9 @@
 				v-if="canSetMediaPath"
 				:paramData="param_media_conf"
 				v-model="action.mediaPath" />
-				
+
 			<ParamItem class="url" :paramData="param_mediaEndEvent_conf" v-model="action.waitMediaEnd" v-if="canWaitForMediaEnd" />
-	
+
 			<div v-if="showPlaceholderWarning" class="info">
 				<img src="@/assets/icons/alert.svg" alt="info" class="">
 				<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.obs.media_source">
@@ -69,12 +69,12 @@
 				</div>
 			</div>
 		</template>
-		
+
 		<template v-else-if="action.obsAction === 'hotKey'">
 			<img src="@/assets/icons/loader.svg" alt="loader" class="card-item loading" v-if="(param_hotkeyAction_conf.listValues || []).length == 0" />
 			<ParamItem class="url" :paramData="param_hotkeyAction_conf" v-model="action.hotKeyAction" v-else />
 		</template>
-		
+
 		<template v-else-if="action.obsAction === 'screenshot'">
 			<ParamItem :paramData="param_source_conf" v-model="selectedSourceName" />
 			<ParamItem :paramData="param_screenImgFormat_conf" v-model="action.screenshotImgFormat" />
@@ -90,7 +90,7 @@
 			<ParamItem v-if="action.screenshotImgMode == 'save'" :paramData="param_screenImgSavePath_conf" v-model="action.screenshotImgSavePath" />
 			<template  v-if="action.screenshotImgMode == 'get'">
 				<ParamItem :paramData="param_screenImgSavePH_conf" v-model="action.screenshotImgSavePlaceholder" />
-				
+
 				<i18n-t scope="global" class="card-item primary" tag="div"
 				keypath="triggers.actions.common.custom_placeholder_example"
 				v-if="(action.screenshotImgSavePlaceholder || '').length > 0">
@@ -106,17 +106,16 @@
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
+import SwitchButton from '@/components/SwitchButton.vue';
+import TTButton from '@/components/TTButton.vue';
 import { type ITriggerPlaceholder, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerActionObsSourceDataAction, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { OBSFilter, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
-import OBSWebsocket, { type OBSInputItem } from '@/utils/OBSWebsocket';
+import { default as OBSWebsocket, default as OBSWebSocket, type OBSInputItem } from '@/utils/OBSWebsocket';
+import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
-import TTButton from '@/components/TTButton.vue';
-import Utils from '@/utils/Utils';
-import OBSWebSocket from '@/utils/OBSWebsocket';
-import SwitchButton from '@/components/SwitchButton.vue';
 
 @Component({
 	components:{
@@ -138,7 +137,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public obsSources!:OBSSourceItem[];
 	@Prop({default:[]})
 	public obsInputs!:OBSInputItem[];
-	
+
 	public param_obsAction_conf:TwitchatDataTypes.ParameterData<TriggerActionObsDataAction, TriggerActionObsDataAction> = { type:"list", value:"sources", listValues:[], icon:"show", labelKey:"triggers.actions.obs.param_obsAction" };
 	public param_sourceAction_conf:TwitchatDataTypes.ParameterData<TriggerActionObsSourceDataAction, TriggerActionObsSourceDataAction> = { type:"list", value:"show", listValues:[], icon:"show", labelKey:"triggers.actions.obs.param_sourceAction" };
 	public param_source_conf:TwitchatDataTypes.ParameterData<string, string, string> = { type:"list", value:"", listValues:[], icon:"list", children:[], labelKey:"triggers.actions.obs.param_source" };
@@ -161,24 +160,24 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public param_browserEvent_param:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", maxLength:10000, longText:true, icon:"placeholder", labelKey:"triggers.actions.obs.param_browserEvent_param" };
 	public param_record_chapter_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", maxLength:100, icon:"label", labelKey:"triggers.actions.obs.param_record_chapter_name" };
 	public param_hotkeyAction_conf:TwitchatDataTypes.ParameterData<string, string> = { type:"list", value:"", icon:"press", labelKey:"triggers.actions.obs.param_record_hotkey_name" };
-	public param_screenImgFormat_conf:TwitchatDataTypes.ParameterData<string, string> = { type:"list", value:"jpeg", icon:"params", labelKey:"triggers.actions.obs.param_screenImgFormat_conf" };
+	public param_screenImgFormat_conf:TwitchatDataTypes.ParameterData<string, string> = { type:"list", value:"jpeg", icon:"screenshot", labelKey:"triggers.actions.obs.param_screenImgFormat_conf" };
 	public param_screenImgSize_toggle_conf:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"scale", labelKey:"triggers.actions.obs.param_screenImgSize_toggle_conf" };
 	public param_screenImgSize_width_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:1920, min:8, max:4096, icon:"coord_x", labelKey:"triggers.actions.obs.param_screenImgSize_width_conf" };
 	public param_screenImgSize_height_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:1080, min:8, max:4096, icon:"coord_y", labelKey:"triggers.actions.obs.param_screenImgSize_height_conf" };
 	public param_screenImgSavePath_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", placeholder:"D:/image.jpeg", maxLength:500, icon:"save", labelKey:"triggers.actions.obs.param_screenImgSavePath_conf" };
 	public param_screenImgSavePH_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", maxLength:30, allowedCharsRegex:"a-z0-9_", icon:"placeholder", labelKey:"triggers.actions.obs.param_screenImgSavePH_conf" };
-	
+
 	public selectedSourceName:string = "";
-	
+
 	private filters:OBSFilter[] = [];
-	
+
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
 	public get showPlaceholderWarning():boolean {
 		if(!this.isMediaSource || this.param_sourceAction_conf.value != "show") return false;
 		return /\{[^ }]+\}/gi.test(this.param_media_conf.value);
-	} 
+	}
 
 	/**
 	 * Get if the selected source is a text source
@@ -278,7 +277,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		this.$nextTick().then(()=>{
 			this.action.action = actionBackup;
 		});
-		
+
 		const actionList:TwitchatDataTypes.ParameterDataListValue<TriggerActionObsDataAction>[] = [];
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_sources", value:"sources"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_startstream", value:"startstream"});
@@ -294,7 +293,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_hotkey", value:"hotKey"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_screenshot", value:"screenshot"});
 		this.param_obsAction_conf.listValues	= actionList;
-		
+
 		watch(()=>this.action.obsAction, ()=> { this.onActionChange(); });
 		watch(()=>this.obsScenes, ()=> { this.prefillForm(); }, {deep:true});
 		watch(()=>this.obsInputs, ()=> { this.prefillForm(); }, {deep:true});
@@ -316,16 +315,16 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	 * Called when the available placeholder list is updated
 	 */
 	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
-		this.param_text_conf.placeholderList	= 
-		this.param_url_conf.placeholderList		= 
-		this.param_media_conf.placeholderList	= 
-		this.param_css_conf.placeholderList		= 
+		this.param_text_conf.placeholderList	=
+		this.param_url_conf.placeholderList		=
+		this.param_media_conf.placeholderList	=
+		this.param_css_conf.placeholderList		=
 		this.param_browserEvent_param.placeholderList = list;
 
-		this.param_x_conf.placeholderList		= 
-		this.param_y_conf.placeholderList		= 
-		this.param_angle_conf.placeholderList	= 
-		this.param_width_conf.placeholderList	= 
+		this.param_x_conf.placeholderList		=
+		this.param_y_conf.placeholderList		=
+		this.param_angle_conf.placeholderList	=
+		this.param_width_conf.placeholderList	=
 		this.param_height_conf.placeholderList= list.filter(v=> v.numberParsable === true);
 	}
 
@@ -364,8 +363,11 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	 */
 	private async prefillForm(cleanData:boolean = true):Promise<void> {
 		let list:SourceItem[] = [];
-		//Get all OBS scenes
-		list.push({labelKey:"triggers.actions.obs.param_source_splitter_scenes", value:"__scenes__", disabled:true, name:"__scene__", type:"scene"});
+		//Add "--- Scenes ---" splitter
+		list.push({labelKey:"triggers.actions.obs.param_source_splitter_scenes", value:"__scenes__", disabled:true, type:"scene", name:"__scene__"});
+		//Add "current scene "item"
+		list.push({labelKey:"triggers.actions.obs.param_source_currentScene", value:"scene_"+this.$t("triggers.actions.obs.param_source_currentScene"), type:"scene", name:this.$t("triggers.actions.obs.param_source_currentScene")});
+		//Add existing OBS scenes
 		list = list.concat( this.obsScenes.map<SourceItem>(v=> {return {label:v.sceneName, value:"scene_"+v.sceneName, type:"scene", name:v.sceneName}}) );
 		//Get all OBS sources
 		if(this.obsSources.length > 0) {
@@ -392,7 +394,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		//Add "select..." placeholder entry
 		list.unshift({labelKey:"global.select_placeholder", value:"", name:"", type:"source"});
 		this.param_source_conf.listValues = list;
-		
+
 		await this.onSourceChanged(true, cleanData)
 	}
 
@@ -411,7 +413,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 				this.filters = []
 			}
 		}
-		
+
 		if(this.filters.length > 0 || this.action.filterName) {
 			const list:TwitchatDataTypes.ParameterDataListValue<string>[] = (this.filters || []).map(v => {return {label:v.filterName, value:v.filterName}});
 			list.unshift({labelKey:"triggers.actions.obs.param_filter_none", value:""});
