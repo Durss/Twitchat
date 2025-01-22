@@ -294,6 +294,7 @@
 				"param_browserEvent_name": "Nom de l'évènement",
 				"param_browserEvent_param": "Paramètre de l'évènement",
 				"param_source": "Élément OBS",
+				"param_source_currentScene": "Scène courante",
 				"param_source_splitter_scenes": "━━━━━━ Scènes ━━━━━━",
 				"param_source_splitter_sources": "━━━━━━ Sources ━━━━━━",
 				"param_source_splitter_inputs": "━━━━━━ Inputs ━━━━━━",
