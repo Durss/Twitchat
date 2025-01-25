@@ -2011,6 +2011,7 @@ export default class TriggerActionHandler {
 							}
 							break;
 						}
+
 						case "sound":{
 							if(step.soundID) {
 								//Select a voice by its ID
@@ -2023,6 +2024,22 @@ export default class TriggerActionHandler {
 								logStep.messages.push({date:Date.now(), value:"[VOICEMOD] play sound with name \""+voiceName+"\""});
 								VoicemodWebSocket.instance.playSound(voiceName);
 							}
+							break;
+						}
+
+						case "hearMyselfOn":
+						case "hearMyselfOff":{
+							const enable = step.action == "hearMyselfOn";
+							logStep.messages.push({date:Date.now(), value:"[VOICEMOD] Set hear my self to \""+enable+"\""});
+							VoicemodWebSocket.instance.setHearMyselfState(enable);
+							break;
+						}
+
+						case "voiceChangerOn":
+						case "voiceChangerOff":{
+							const enable = step.action == "voiceChangerOn";
+							logStep.messages.push({date:Date.now(), value:"[VOICEMOD] Set voice changer state to \""+enable+"\""});
+							VoicemodWebSocket.instance.setVoiceChangerState(enable);
 							break;
 						}
 
@@ -3442,9 +3459,9 @@ export default class TriggerActionHandler {
 						logStep.error = true;
 					}else{
 						logStep.messages.push({date:Date.now(), value:"✔ Call Groq API"});
-						let preprompt = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.groqData.preprompt, subEvent)
-						let prompt = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.groqData.prompt, subEvent)
-						const text = await StoreProxy.groq.executeQuery(preprompt, prompt, step.groqData.model, step.groqData.jsonMode? step.groqData.json : undefined)
+						let preprompt = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.groqData.preprompt, subEvent);
+						let prompt = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.groqData.prompt, subEvent);
+						const text = await StoreProxy.groq.executeQuery(preprompt, prompt, step.groqData.model, step.groqData.jsonMode? step.groqData.json : undefined);
 						if(text === false) {
 							logStep.messages.push({date:Date.now(), value:"❌ Failed getting valid answer from Groq"});
 							log.error = true;

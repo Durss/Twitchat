@@ -385,7 +385,11 @@
 				"param_action_voice": "Enable a filter",
 				"param_action_sound": "Play a sound",
 				"param_action_beepOn": "Start beep",
-				"param_action_beepOff": "Stop beep"
+				"param_action_beepOff": "Stop beep",
+				"param_action_voiceChangerOn": "Start voice changer",
+				"param_action_voiceChangerOff": "Stop voice changer",
+				"param_action_hearMyselfOn": "Start hear my voice",
+				"param_action_hearMyselfOff": "Stop hear my voice"
 			},
 			"http_ws": {
 				"url": "URL to call",

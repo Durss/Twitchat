@@ -385,7 +385,11 @@
 				"param_action_voice": "Activer un filtre",
 				"param_action_sound": "Jouer un son",
 				"param_action_beepOn": "Activer le beep",
-				"param_action_beepOff": "Désactiver le beep"
+				"param_action_beepOff": "Désactiver le beep",
+				"param_action_voiceChangerOn": "Activer la changement de voix",
+				"param_action_voiceChangerOff": "Désactiver la changement de voix",
+				"param_action_hearMyselfOn": "Activer \"entendre ma voix\"",
+				"param_action_hearMyselfOff": "Désactiver \"entendre ma voix\""
 			},
 			"http_ws": {
 				"url": "URL à appeler",
