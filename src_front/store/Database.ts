@@ -1,9 +1,10 @@
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import * as Sentry from "@sentry/vue";
+import { toRaw } from "vue";
 import StoreProxy from "./StoreProxy";
-import { reactive, toRaw } from "vue";
 
 /**
-* Created : 28/07/2023 
+* Created : 28/07/2023
 */
 export default class Database {
 
@@ -25,11 +26,11 @@ export default class Database {
 	private _quotaWarned:boolean = false;
 	private _versionUpgraded:boolean = false;
 
-	
+
 	constructor() {
-	
+
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
@@ -39,9 +40,9 @@ export default class Database {
 		}
 		return Database._instance;
 	}
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
@@ -67,8 +68,18 @@ export default class Database {
 					// await this.clearMessages();
 					// await this.clearGroqHistory();
 				}else{
-					await this.limitMessageCount();
-					await this.limitGroqCount();
+					try {
+						await this.limitMessageCount();
+						await this.limitGroqCount();
+					}catch(error) {
+						const tables = Array.from(this._db.objectStoreNames);
+						const version = this._db.version;
+						// Avoid blocking app start if an error occurs.
+						// this would lead to requesting user to authenticated back
+						console.error(error);
+						Sentry.captureException(error);
+						Sentry.captureMessage("Database init error "+(error as Error).message+". Available tables: "+tables.join(", ")+". DB version: "+version);
+					}
 				}
 				resolve();
 			}
@@ -85,7 +96,7 @@ export default class Database {
 						}
 					});
 				}
-			
+
 				// Create GROQ_HISTORY_TABLE if it doesn't exist
 				if (!this._db.objectStoreNames.contains(Database.GROQ_HISTORY_TABLE)) {
 					this._groqStore = this._db.createObjectStore(Database.GROQ_HISTORY_TABLE, { autoIncrement: true });
@@ -96,7 +107,7 @@ export default class Database {
 						}
 					});
 				}
-			
+
 				this._versionUpgraded = (event.newVersion || 0) > event.oldVersion;
 				this._ready = true;
 			};
@@ -126,8 +137,8 @@ export default class Database {
 
 	/**
 	 * Add a chat message to the DB
-	 * 
-	 * @param message 
+	 *
+	 * @param message
 	 */
 	public async addMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void> {
 		if(!this._db || !this._ready) return Promise.reject("Database not ready");
@@ -172,7 +183,7 @@ export default class Database {
 					this.updateMessage(message);
 				}, 5000);
 			}
-	
+
 			const query = this._db.transaction(Database.MESSAGES_TABLE, "readwrite")
 			.objectStore(Database.MESSAGES_TABLE)
 			.add(data)
@@ -204,7 +215,7 @@ export default class Database {
 
 	/**
 	 * Updates a message on the DB
-	 * @param message 
+	 * @param message
 	 */
 	public async updateMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void>{
 		if(!this._db || !this._ready) return Promise.resolve();
@@ -234,7 +245,7 @@ export default class Database {
 
 	/**
 	 * Deletes a message from the DB
-	 * @param message 
+	 * @param message
 	 */
 	public async deleteMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void>{
 		if(!this._db || !this._ready) return Promise.resolve();
@@ -318,13 +329,13 @@ export default class Database {
 
 	/**
 	 * Add a Grod history item to DB
-	 * 
-	 * @param message 
+	 *
+	 * @param message
 	 */
 	public async addGroqHistory(data:TwitchatDataTypes.GroqHistoryItem):Promise<void> {
 		if(!this._db || !this._ready) return Promise.reject("Database not ready");
 		data = toRaw(data);
-	
+
 		return new Promise((resolve, reject)=> {
 			const query = this._db.transaction(Database.GROQ_HISTORY_TABLE, "readwrite")
 			.objectStore(Database.GROQ_HISTORY_TABLE)
@@ -357,7 +368,7 @@ export default class Database {
 
 	/**
 	 * Deletes a Groq history item from DB
-	 * @param message 
+	 * @param message
 	 */
 	public async deleteGroqHistory(id:string):Promise<void>{
 		if(!this._db || !this._ready) return Promise.resolve();
@@ -379,9 +390,9 @@ export default class Database {
 			});
 		});
 	}
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -435,7 +446,7 @@ export default class Database {
 
 	/**
 	 * Remove some props known for being potential source of circular references
-	 * @param value 
+	 * @param value
 	 */
 	private removeCircularReferences<T>(value:T):{data:T, json:string} {
 		type KeysOfUnion<T> = T extends T ? keyof T: never;
