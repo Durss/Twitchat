@@ -7,6 +7,7 @@ import type { IGroqActions, IGroqGetters, IGroqState } from '../StoreProxy';
 import StoreProxy from "../StoreProxy";
 import Utils from "@/utils/Utils";
 import Database from "../Database";
+import type { ChatCompletionCreateParamsNonStreaming } from "groq-sdk/resources/chat/completions";
 
 let groq:Groq|null = null;
 
@@ -72,7 +73,7 @@ export const storeGroq = defineStore('groq', {
 						resolve(false);
 					});
 					this.saveConfigs()
-					
+
 				}catch(error) {
 					resolve(false);
 				}
@@ -133,16 +134,16 @@ export const storeGroq = defineStore('groq', {
 				mainPrompt += m.message;
 				split = true;
 			}
-			
+
 			prompt.push({
 					role: "user",
 					content: mainPrompt,
 				});
-			
+
 			historyEntry.prompt = mainPrompt;
 			this.answerHistory.push(historyEntry);
 			StoreProxy.params.openModal("groqHistory", true);
-			
+
 			let stream = await groq.chat.completions.create({
 				messages: prompt,
 				model: this.defaultModel,
@@ -159,25 +160,71 @@ export const storeGroq = defineStore('groq', {
 			for await (const chunk of stream) {
 				historyEntry.answer += chunk.choices[0]?.delta?.content || "";
 			}
-			
+
 			await Database.instance.addGroqHistory(historyEntry);
 			return historyEntry.answer;
 		},
 
 		async removeAnswer(id:string):Promise<void> {
 			return new Promise<void>((resolve)=>{
-			StoreProxy.main.confirm(
-				StoreProxy.i18n.t("groq.history.delete_confirm.title"),
-				StoreProxy.i18n.t("groq.history.delete_confirm.message")
-			).then((result)=>{
-				this.answerHistory.splice(this.answerHistory.findIndex((entry)=>entry.id === id), 1);
-				Database.instance.deleteGroqHistory(id);
-				resolve();
-			}).catch(()=>{
-				resolve();
+				StoreProxy.main.confirm(
+					StoreProxy.i18n.t("groq.history.delete_confirm.title"),
+					StoreProxy.i18n.t("groq.history.delete_confirm.message")
+				).then((result)=>{
+					this.answerHistory.splice(this.answerHistory.findIndex((entry)=>entry.id === id), 1);
+					Database.instance.deleteGroqHistory(id);
+					resolve();
+				}).catch(()=>{
+					resolve();
+				});
 			});
-		});
 		},
+
+		async executeQuery(preprompt:string, prompt:string, model:string = "", jsonSchema?:string):Promise<string|false> {
+			if(!groq) await this.connect();
+			if(!groq || !this.connected) return Promise.resolve("");
+
+			const promptList:Groq.Chat.Completions.ChatCompletionMessageParam[] = [];
+
+			if(preprompt) {
+				if(jsonSchema) {
+					preprompt += "\n"+StoreProxy.i18n.t("groq.json_preprompt", {SCHEMA:jsonSchema});
+				}
+				promptList.push({
+					role: "system",
+					content: preprompt,
+				});
+			}
+
+			if(prompt) {
+				promptList.push({
+					role: "user",
+					content: prompt,
+				});
+			}
+
+			const options:ChatCompletionCreateParamsNonStreaming = {
+				messages: promptList,
+				model: this.defaultModel,
+				temperature: 0.5,
+				max_tokens: 1024,
+				top_p: 1,
+				stop: null,
+				stream: false,
+			};
+			if(jsonSchema) {
+				options.response_format = {
+					type: "json_object",
+				}
+			}
+			try {
+				let result = await groq.chat.completions.create(options);
+				return result.choices[0].message.content || "";
+			}catch(error) {
+				console.error(error);
+				return false;
+			}
+		}
 
 	} as IGroqActions
 	& ThisType<IGroqActions

@@ -100,6 +100,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionSammiData
 								| TriggerActionMixitupData
 								| TriggerActionPlayabilityData
+								| TriggerActionGroqData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -604,7 +605,7 @@ export interface TriggerActionMixitupData extends TriggerActionData{
 export interface TriggerActionPlayabilityData extends TriggerActionData{
 	type:"playability";
 	/**
-	 * Mix It Up params
+	 * Playability params
 	 */
 	playabilityData?:{
 		outputs:{
@@ -612,6 +613,39 @@ export interface TriggerActionPlayabilityData extends TriggerActionData{
 			type:"axis"|"keyboard"|"mouseButton"|"trigger"|"button";
 			value:number|boolean|"press_release";
 		}[];
+	};
+}
+
+export interface TriggerActionGroqData extends TriggerActionData{
+	type:"groq";
+	/**
+	 * Groq params
+	 */
+	groqData?:{
+		/**
+		 * Prerompt
+		 */
+		preprompt:string;
+		/**
+		 * Prompt
+		 */
+		prompt:string;
+		/**
+		 * Groq model to use
+		 */
+		model:string;
+		/**
+		 * Use JSON mode to get formated result
+		 */
+		jsonMode:boolean;
+		/**
+		 * JSON example
+		 */
+		json?:string;
+		/**
+		 * Extract placeholders as simple text or with JSONPath
+		 */
+		outputPlaceholderList?:IHttpPlaceholder[];
 	};
 }
 
@@ -827,11 +861,7 @@ export interface TriggerActionHTTPCallData extends TriggerActionData{
 	/**
 	 * Extract placeholders with JSONPath
 	 */
-	outputPlaceholderList?:{
-		type:"text"|"json",
-		path:string;
-		placeholder:string;
-	}[];
+	outputPlaceholderList?:IHttpPlaceholder[];
 	/**
 	 * Custom body value
 	 */
@@ -1451,6 +1481,12 @@ export const TriggerTypes = {
 } as const;
 export type TriggerTypesKey = keyof typeof TriggerTypes;
 export type TriggerTypesValue = typeof TriggerTypes[TriggerTypesKey];
+
+export interface IHttpPlaceholder {
+	type:"text"|"json",
+	path:string;
+	placeholder:string;
+};
 
 export interface ITriggerPlaceholder<T, U=unknown, V extends string=""> extends TwitchatDataTypes.PlaceholderEntry {
 	pointer:Path<T, V>;

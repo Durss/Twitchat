@@ -184,7 +184,9 @@
 				"action_mixitup": "Action Mix It Up",
 				"action_mixitup_tt": "Vous devez connecter Twitchat à Mix It Up pour utiliser cette action",
 				"action_playability": "Action PlayAbility",
-				"action_playability_tt": "Vous devez connecter Twitchat à PlayAbility pour utiliser cette action"
+				"action_playability_tt": "Vous devez connecter Twitchat à PlayAbility pour utiliser cette action",
+				"action_groq": "Action Groq",
+				"action_groq_tt": "Vous devez connecter Twitchat à Groq pour utiliser cette action"
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
@@ -638,6 +640,17 @@
 				"output_press":"Appuyer le bouton",
 				"output_release":"Relâcher le bouton",
 				"output_press_release":"Appuyer/Relâcher le bouton"
+			},
+			"groq": {
+				"preprompt": "Preprompt",
+				"prompt": "Prompt",
+				"model": "Modèle",
+				"model_default": "Modèle par défaut",
+				"jsonMode": "Réponse au format JSON",
+				"jsonMode_hint": "{LINK} pour demander à Groq de renvoyer une réponse JSON dans le format que vous souhaitez",
+				"jsonMode_hint_link": "Voir les instructions",
+				"json": "Format JSON",
+				"jsonError": "Format JSON invalide:\n{ERROR}"
 			}
 		},
 		"categories": {

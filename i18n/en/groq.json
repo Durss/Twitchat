@@ -11,6 +11,7 @@
 		"models_pricing": "check pricing",
 		"models_limits": "check rate limits",
 		"conversation_preprompt": "Generate a very short summary of this Twitch chat conversation. {'@'}xxx are mentions of other users. Only answer the summary.",
+		"json_preprompt": "Answer format must be a JSON object that complies this schema: {SCHEMA}",
 		"summarize_bt": "Summarize with Groq",
 		"summarize_title": "Limit the number of messages to summarize",
 		"summarize_chat_title": "Generate chat summary with Groq\n @:groq.summarize_title",

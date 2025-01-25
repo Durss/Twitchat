@@ -21,7 +21,7 @@ export namespace TwitchatDataTypes {
 		OBS: "obs",
 		TTS: "tts",
 		HEAT: "heat",
-		groq: "groq",
+		GROQ: "groq",
 		KO_FI: "kofi",
 		GOXLR: "goxlr",
 		LUMIA: "lumia",
@@ -316,7 +316,7 @@ export namespace TwitchatDataTypes {
 		 * but "username" will only contain "durss"
 		 */
 		username?: string;
-		
+
 		/**
 		 * Only declared by the ChatMessageChunkParser component to define if
 		 * the chunk sshould be displayed as spoiler
@@ -799,7 +799,7 @@ export namespace TwitchatDataTypes {
 		 */
 		campaignId?:string;
 		/**
-		 * Counter ID if "dataSource" is set to "counter" 
+		 * Counter ID if "dataSource" is set to "counter"
 		 */
 		counterId?:string;
 		/**
@@ -2041,29 +2041,29 @@ export namespace TwitchatDataTypes {
 	type ExcludeUndefined<T> = T extends undefined ? never : T;
 	export type StreamSummaryDataListItem = UnionFromArrayProps<StreamSummaryData>;
 
-	export type EndingCreditsSlotStringTypes = "text" 
-											| "bans" 
-											| "mods" 
-											| "subs" 
-											| "vips" 
-											| "raids" 
-											| "polls" 
-											| "so_in" 
-											| "so_out" 
-											| "cheers" 
-											| "follows" 
-											| "rewards" 
-											| "chatters" 
-											| "timeouts" 
-											| "hypechats" 
-											| "hypetrains" 
-											| "predictions" 
-											| "tips" 
-											| "shoutouts" 
-											| "merch" 
-											| "patreonMembers" 
-											| "powerups" 
-											| "ytSuperchat" 
+	export type EndingCreditsSlotStringTypes = "text"
+											| "bans"
+											| "mods"
+											| "subs"
+											| "vips"
+											| "raids"
+											| "polls"
+											| "so_in"
+											| "so_out"
+											| "cheers"
+											| "follows"
+											| "rewards"
+											| "chatters"
+											| "timeouts"
+											| "hypechats"
+											| "hypetrains"
+											| "predictions"
+											| "tips"
+											| "shoutouts"
+											| "merch"
+											| "patreonMembers"
+											| "powerups"
+											| "ytSuperchat"
 											| "ytSuperSticker"
 											| "tiktokLikes"
 											| "tiktokShares"
@@ -2689,7 +2689,7 @@ export namespace TwitchatDataTypes {
 							| typeof TwitchatMessageType.WHISPER
 							| typeof TwitchatMessageType.MESSAGE
 							| typeof TwitchatMessageType.PRIVATE_MOD_MESSAGE;
-							
+
 	export const MessageListFilterTypes:{type:AllowFilterTypes, labelKey:string, icon:string, scopes:TwitchScopesString[], newFlag:number}[] = [
 		{type:TwitchatMessageType.FOLLOWING,							labelKey:"chat.filters.message_types.following",							icon:"follow",			scopes:[TwitchScopes.LIST_FOLLOWERS],	newFlag:0},
 		{type:TwitchatMessageType.SUBSCRIPTION,							labelKey:"chat.filters.message_types.subscription",							icon:"sub",				scopes:[],	newFlag:0},
