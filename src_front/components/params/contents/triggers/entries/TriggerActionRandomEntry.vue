@@ -208,6 +208,7 @@ class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
 		if(this.action.disableAfterExec == undefined) this.action.disableAfterExec = this.param_disableAfterExec.value;
 		if(!this.action.triggers) this.action.triggers = [];
 		if(!this.action.list) this.action.list = [];
+		if(!this.action.valueSplitter) this.action.valueSplitter = ",";
 		this.buildIndex = 0;
 
 		this.valueIdToValue = {};

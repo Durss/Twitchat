@@ -715,7 +715,7 @@ export interface TriggerCustomUsernameData extends TriggerActionData{
 	customUsernameUserSource:string;
 }
 
-export const TriggerActionVoicemodDataActionList = ["voice", "sound", "beepOn", "beepOff"] as const;
+export const TriggerActionVoicemodDataActionList = ["voice", "sound", "beepOn", "beepOff", "hearMyselfOn", "hearMyselfOff", "voiceChangerOn", "voiceChangerOff"] as const;
 export type TriggerActionVoicemodDataAction = typeof TriggerActionVoicemodDataActionList[number];
 export interface TriggerActionVoicemodData extends TriggerActionData{
 	type:"voicemod";
