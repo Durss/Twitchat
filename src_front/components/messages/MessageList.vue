@@ -613,7 +613,6 @@ class MessageList extends Vue {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION:
-			case TwitchatDataTypes.TwitchatMessageType.GIGANTIFIED_EMOTE:
 			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
 				return this.config.filters.reward === true;
 			}
@@ -1563,7 +1562,10 @@ class MessageList extends Vue {
 	public onLeaveMessage(): void {
 		clearTimeout(this.openConvTimeout);
 		//This avoids exception when closing content if a content-editable element currently has focus
-		(document.activeElement as HTMLElement|undefined)?.blur();
+		const target = (document.activeElement as HTMLElement|undefined);
+		if (this.$el.contains(target)) {
+			target?.blur();
+		}
 		//Timeout avoids blinking when leaving the message but
 		//hovering another one or the conversation window
 		this.closeConvTimeout = window.setTimeout(() => {
