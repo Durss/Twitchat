@@ -3442,14 +3442,14 @@ export default class TriggerActionHandler {
 						logStep.error = true;
 					}else{
 						logStep.messages.push({date:Date.now(), value:"✔ Call Groq API"});
-						const text = await StoreProxy.groq.executeQuery(step.groqData.preprompt, step.groqData.prompt, step.groqData.model, step.groqData.jsonMode? step.groqData.json : undefined)
+						let preprompt = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.groqData.preprompt, subEvent)
+						let prompt = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.groqData.prompt, subEvent)
+						const text = await StoreProxy.groq.executeQuery(preprompt, prompt, step.groqData.model, step.groqData.jsonMode? step.groqData.json : undefined)
 						if(text === false) {
 							logStep.messages.push({date:Date.now(), value:"❌ Failed getting valid answer from Groq"});
 							log.error = true;
 							logStep.error = true;
 						}else{
-							console.log("GROQ RESULT", text);
-
 							let json:any|null = null;
 							try {
 								json = JSON.parse(text);
