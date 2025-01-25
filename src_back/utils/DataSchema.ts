@@ -846,6 +846,31 @@ const UserDataSchema = {
 										}
 									}
 								},
+								groqData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										jsonMode:{ type: "boolean" },
+										model:{ type: "string", maxLength:100 },
+										json:{ type: "string", maxLength:100000 },
+										prompt:{ type: "string", maxLength:100000 },
+										preprompt:{ type: "string", maxLength:100000 },
+										outputPlaceholderList:{
+											type:"array",
+											minItems:0,
+											maxItems:50,
+											items:{
+												type:"object",
+												additionalProperties: false,
+												properties: {
+													type: {type:"string", maxLength:20},
+													path: {type:"string", maxLength:500},
+													placeholder: {type:"string", maxLength:30},
+												}
+											}
+										},
+									}
+								},
 							}
 						},
 					}
@@ -885,7 +910,7 @@ const UserDataSchema = {
 				additionalProperties: false,
 				properties: {
 					id: {type:"string", maxLength:100},
-					sentences: {type:"string", maxLength:1000000},
+					sentences: {type:"string", maxLength:100000},
 				}
 			},
 		},
@@ -1412,7 +1437,7 @@ const UserDataSchema = {
 						maxProperties:100,
 						patternProperties: {
 							".{1,100}": {
-								type:"object", 
+								type:"object",
 								additionalProperties: false,
 								properties: {
 									platform: { type:"string", maxLength:30 },

@@ -177,8 +177,14 @@
 				<TTButton class="button" @click.capture="selectActionType('playability')"
 					:disabled="!$store.playability.connected"
 					v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_triggerAction_playability'}"
-					v-tooltip="$store.sammi.connected? '' : $t('triggers.actions.common.action_playability_tt')"
+					v-tooltip="$store.playability.connected? '' : $t('triggers.actions.common.action_playability_tt')"
 					icon="playability">{{ $t('triggers.actions.common.action_playability') }}</TTButton>
+
+				<TTButton class="button" @click.capture="selectActionType('groq')"
+					:disabled="!$store.groq.connected"
+					v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_triggerAction_groq'}"
+					v-tooltip="$store.groq.connected? '' : $t('triggers.actions.common.action_groq_tt')"
+					icon="groq">{{ $t('triggers.actions.common.action_groq') }}</TTButton>
 
 				<TTButton class="button" @click.capture="selectActionType('customBadges')"
 					v-newflag="{date:1693519200000, id:'params_triggerAction_custombadges'}"
@@ -241,6 +247,7 @@
 		<TriggerActionSammiEntry v-else-if="action.type=='sammi'" :action="action" :triggerData="triggerData" />
 		<TriggerActionMixitupEntry v-else-if="action.type=='mixitup'" :action="action" :triggerData="triggerData" />
 		<TriggerActionPlayAbilityEntry v-else-if="action.type=='playability'" :action="action" :triggerData="triggerData" />
+		<TriggerActionGroqEntry v-else-if="action.type=='groq'" :action="action" :triggerData="triggerData" />
 		<RaffleForm v-else-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 		<BingoForm v-else-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 		<PollForm v-else-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -303,6 +310,7 @@ import TriggerActionValueEntry from './entries/TriggerActionValueEntry.vue';
 import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneEntry.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
+import TriggerActionGroqEntry from './entries/TriggerActionGroqEntry.vue';
 
 @Component({
 	components:{
@@ -318,6 +326,7 @@ import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 		TriggerActionOBSEntry,
 		TriggerActionTTSEntry,
 		TriggerActionHTTPCall,
+		TriggerActionGroqEntry,
 		TriggerActionChatEntry,
 		TriggerActionLumiaEntry,
 		TriggerActionDelayEntry,
@@ -506,6 +515,7 @@ class TriggerActionEntry extends Vue {
 		else if(this.action.type == "streamerbot") icons.push( 'streamerbot' );
 		else if(this.action.type == "mixitup") icons.push( 'mixitup' );
 		else if(this.action.type == "playability") icons.push( 'playability' );
+		else if(this.action.type == "groq") icons.push( 'groq' );
 		return icons;
 	}
 
@@ -630,6 +640,12 @@ class TriggerActionEntry extends Vue {
 					this.$store.auth.requestTwitchScopes([TwitchScopes.EXTENSIONS]);
 					return;
 				}break
+			}
+			case "groq": {
+				if(!this.$store.groq.connected) {
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.GROQ);
+					return;
+				}break;
 			}
 		}
 		this.action.type = type;

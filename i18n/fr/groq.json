@@ -11,6 +11,7 @@
 		"models_pricing": "consulter les prix",
 		"models_limits": "consulter les limites",
 		"conversation_preprompt": "Fais un très court résumé de cette conversation de tchat Twitch. {'@'}xxx sont des mentions d'utilisateurs. Réponds uniquement le résumé.",
+		"json_preprompt": "Le format de réponse doit être un objet JSON conforme à ce schéma: {SCHEMA}",
 		"summarize_bt": "Résumer avec Groq",
 		"summarize_title": "Limitez le nombre de message à résumer:",
 		"summarize_chat_title": "Résumer le tchat avec Groq\n @:groq.summarize_title",

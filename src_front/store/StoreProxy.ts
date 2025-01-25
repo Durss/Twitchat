@@ -3534,4 +3534,8 @@ export interface IGroqActions {
 	 * Removes an answer from DB
 	 */
 	removeAnswer(id:string):Promise<void>;
+	/**
+	 * Executes a query
+	 */
+	executeQuery(preprompt:string, prompt:string, model?:string, jsonSchema?:string):Promise<string|false>
 }

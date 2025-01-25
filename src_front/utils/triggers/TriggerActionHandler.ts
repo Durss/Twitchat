@@ -3429,7 +3429,58 @@ export default class TriggerActionHandler {
 							logStep.messages.push({date:Date.now(), value:"✔ Simulate PlayAbility output: "+element.code+" to "+element.value});
 						}
 					}
+				}else
 
+				if(step.type == "groq") {
+					if(!StoreProxy.groq.connected) {
+						logStep.messages.push({date:Date.now(), value:"❌ Groq not connect, cannot execute requested action"});
+						log.error = true;
+						logStep.error = true;
+					}else if(!step.groqData) {
+						logStep.messages.push({date:Date.now(), value:"❌ Missing Groq related trigger action data"});
+						log.error = true;
+						logStep.error = true;
+					}else{
+						logStep.messages.push({date:Date.now(), value:"✔ Call Groq API"});
+						const text = await StoreProxy.groq.executeQuery(step.groqData.preprompt, step.groqData.prompt, step.groqData.model, step.groqData.jsonMode? step.groqData.json : undefined)
+						if(text === false) {
+							logStep.messages.push({date:Date.now(), value:"❌ Failed getting valid answer from Groq"});
+							log.error = true;
+							logStep.error = true;
+						}else{
+							console.log("GROQ RESULT", text);
+
+							let json:any|null = null;
+							try {
+								json = JSON.parse(text);
+							}catch(error){
+								json = null;
+							}
+
+							if(step.groqData?.outputPlaceholderList && step.groqData.outputPlaceholderList.length > 0) {
+								for (let i = 0; i < step.groqData.outputPlaceholderList.length; i++) {
+									const ph = step.groqData.outputPlaceholderList[i];
+									if(!ph.placeholder || ph.placeholder.length === 0) continue;
+
+									if(ph.type == "text") {
+										logStep.messages.push({date:Date.now(), value:"Store full query result to placeholder {"+ph.placeholder+"}"});
+										dynamicPlaceholders[ph.placeholder] = text;
+									}else
+									if(ph.type == "json" && json) {
+										const results = jsonpath.query(json, ph.path);
+										if(results.length == 0) {
+											logStep.messages.push({date:Date.now(), value:"JSONPath expression did not return any result: "+ph.path});
+											log.error = true;
+											logStep.error = true;
+										}else{
+											logStep.messages.push({date:Date.now(), value:"Store JSONPath result to placeholder {"+ph.placeholder+"}: "+results[0]});
+											dynamicPlaceholders[ph.placeholder] = results.length == 1 && typeof results[0] === "string"? results[0] : results.join(", ");
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 
 			}catch(error:any) {

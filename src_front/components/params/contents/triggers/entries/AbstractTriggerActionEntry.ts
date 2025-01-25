@@ -7,7 +7,7 @@ import { ComponentBase, Prop, Vue } from 'vue-facing-decorator';
     name: "AbstractTriggerActionEntry"
 })
 export default class AbstractTriggerActionEntry extends Vue {
-	
+
 	@Prop
 	declare action:TriggerActionData;
 
@@ -51,7 +51,7 @@ export default class AbstractTriggerActionEntry extends Vue {
 				//Chat command params have priority over them.
 				const existingIndex = placeholdersList.findIndex(u=>u.tag.toLowerCase() == v.tag.toLowerCase());
 				if(existingIndex > -1) placeholdersList.splice(existingIndex, 1);
-				
+
 				placeholdersList.push({
 					tag:v.tag,
 					pointer:"",
@@ -74,7 +74,7 @@ export default class AbstractTriggerActionEntry extends Vue {
 			&& (a.condition !== undefined || this.action.condition === false)
 			&& (a.condition === false || this.action.condition !== undefined)) continue;
 			//If its anything but a "random" or "http" action, skip it (only these ones create custom placeholders for now)
-			if(a.type != "random" && a.type != "http" && a.type != "raffle" && a.type != "obs") continue;
+			if(a.type != "random" && a.type != "http" && a.type != "raffle" && a.type != "obs" && a.type != "groq") continue;
 
 			if(a.type == "random"){
 				//If it's not a list or number random value mode, ignore it (onlye these have a custom placeholder)
@@ -85,7 +85,7 @@ export default class AbstractTriggerActionEntry extends Vue {
 					//Dynamic placeholder have priority over them.
 					const existingIndex = placeholdersList.findIndex(u=>u.tag.toLowerCase() == a.placeholder.toLowerCase());
 					if(existingIndex > -1) placeholdersList.splice(existingIndex, 1);
-	
+
 					placeholdersList.push({
 										tag:a.placeholder.toUpperCase(),
 										pointer:"",
@@ -107,14 +107,14 @@ export default class AbstractTriggerActionEntry extends Vue {
 							a.valueCounterPlaceholders!.userName
 						)
 					}
-					
+
 					for (let i = 0; i < placeholders.length; i++) {
 						const ph = placeholders[i];
 						//If a static placeholder already exists with the same name, remove it.
 						//Dynamic placeholder have priority over them.
 						const existingIndex = placeholdersList.findIndex(u=>u.tag.toLowerCase() == ph.toLowerCase());
 						if(existingIndex > -1) placeholdersList.splice(existingIndex, 1);
-		
+
 						placeholdersList.push({
 											tag:ph.toUpperCase(),
 											pointer:"",
@@ -127,7 +127,25 @@ export default class AbstractTriggerActionEntry extends Vue {
 					}
 				}
 			}else
-			
+
+			if(a.type == "groq") {
+				if(a.groqData?.outputPlaceholderList && a.groqData?.outputPlaceholderList.length > 0) {
+					for (let i = 0; i < a.groqData?.outputPlaceholderList.length; i++) {
+						const ph = a.groqData?.outputPlaceholderList[i];
+						if(!ph.placeholder || ph.placeholder.length === 0) continue;
+						placeholdersList.push({
+							tag:ph.placeholder.toUpperCase(),
+							pointer:"",
+							isUserID:false,
+							customTag:true,
+							numberParsable:true,
+							descKey:'triggers.http_placeholder',
+							descReplacedValues:{NAME:"{"+ph.placeholder.toUpperCase()+"}"},
+						});
+					}
+				}
+
+			}else
 			if(a.type == "http") {
 				if(a.outputPlaceholderList && a.outputPlaceholderList.length > 0) {
 					for (let i = 0; i < a.outputPlaceholderList.length; i++) {
@@ -157,7 +175,7 @@ export default class AbstractTriggerActionEntry extends Vue {
 					});
 				}
 			}else
-			
+
 			if(a.type == "raffle") {
 				if(a.raffleData.triggerWaitForWinner) {
 					placeholdersList.push({
@@ -171,7 +189,7 @@ export default class AbstractTriggerActionEntry extends Vue {
 					});
 				}
 			}else
-			
+
 			if(a.type == "obs" && a.obsAction == "screenshot" && a.screenshotImgMode == "get" && a.screenshotImgSavePlaceholder) {
 					placeholdersList.push({
 						tag:a.screenshotImgSavePlaceholder.toUpperCase(),
@@ -199,7 +217,7 @@ export default class AbstractTriggerActionEntry extends Vue {
 	/**
 	 * Called when the available placeholder list is updated
 	 */
-	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
+	public onPlaceholderUpdate(list:ITriggerPlaceholder<unknown>[]):void {
 		//override
 	}
 

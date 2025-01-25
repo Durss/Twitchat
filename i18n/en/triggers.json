@@ -184,7 +184,9 @@
 				"action_mixitup": "Mix It Up action",
 				"action_mixitup_tt": "You first need to connect Twitchat with Mix It Up to use this action",
 				"action_playability": "PlayAbility action",
-				"action_playability_tt": "You first need to connect Twitchat with PlayAbility to use this action"
+				"action_playability_tt": "You first need to connect Twitchat with PlayAbility to use this action",
+				"action_groq": "Groq action",
+				"action_groq_tt": "You first need to connect Twitchat with Groqger to use this action"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -638,6 +640,17 @@
 				"output_press":"Press button",
 				"output_release":"Release button",
 				"output_press_release":"Press/Release button"
+			},
+			"groq": {
+				"preprompt": "Preprompt",
+				"prompt": "Prompt",
+				"model": "Model",
+				"model_default": "Default model",
+				"jsonMode": "Get answer as JSON",
+				"jsonMode_hint": "{LINK} on how to make Groq answer a JSON",
+				"jsonMode_hint_link": "See instructions",
+				"json": "{'{'}\n\t\"myKey\": \"Expected Groq result example\",\n\t\"myOtherKey\": \"Another Groq result\"\n{'}'}",
+				"jsonError": "Invalid JSON format:\n{ERROR}"
 			}
 		},
 		"categories": {
