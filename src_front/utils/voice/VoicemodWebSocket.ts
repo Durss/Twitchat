@@ -405,24 +405,20 @@ export default class VoicemodWebSocket extends EventDispatcher {
 
 			case VoicemodWebSocket.ACTION_TOGGLE_VOICE_CHANGER: {
 				this._voiceChangerState = json.actionObject.value === true;
-				console.log("Toggle voice changer "+this._voiceChangerState);
 				break;
 			}
 			case VoicemodWebSocket.EVENT_VOICE_CHANGER_ON: {
 				this._voiceChangerState = true;
-				console.log("Voice changer ON");
 				break;
 			}
 			case VoicemodWebSocket.EVENT_VOICE_CHANGER_OFF: {
 				this._voiceChangerState = false;
-				console.log("Voice changer OFF");
 				break;
 			}
 
 			case VoicemodWebSocket.ACTION_TOGGLE_HEAR_MYSELF:
 				//This is called both when we request the status and when we change it
 				this._hearMyselfState = json.actionObject.value === true;
-				console.log("HEAR myself: "+this._hearMyselfState);
 				break;
 
 			default:
