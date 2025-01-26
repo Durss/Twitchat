@@ -2570,7 +2570,7 @@ export default class TriggerActionHandler {
 									}
 								}, 5000);
 							});
-							value = (source.users[uid] ?? 0).toString();
+							value = (source.users[uid]?.value ?? 0).toString();
 							if(step.valueCounterPlaceholders.userId) {
 								dynamicPlaceholders[step.valueCounterPlaceholders.userId]	= uid;
 								logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.valueCounterPlaceholders.userId+"}\" with value \""+uid+"\""});
@@ -2583,12 +2583,14 @@ export default class TriggerActionHandler {
 								dynamicPlaceholders[step.valueCounterPlaceholders.value]	= value;
 								logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.valueCounterPlaceholders.value+"}\" with value \""+value+"\""});
 							}
+
 						}else if(source && !source.perUser && step.valueSplitter && step.valueCounterPlaceholders) {
 							let entries = (source.value || "").toString().split(new RegExp(step.valueSplitter, ""));
 							entries = entries.map(v=> v.trim());
 							const value = Utils.pickRand(entries);
 							dynamicPlaceholders[step.valueCounterPlaceholders.value] = value;
 							logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.valueCounterPlaceholders.value+"}\" with value \""+value+"\""});
+
 						}else{
 							let logMessage = "❌ Cannot pick random entry from given source \""+step.mode+"\".";
 							if(!source) {
