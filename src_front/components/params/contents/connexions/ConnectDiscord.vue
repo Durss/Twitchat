@@ -6,21 +6,21 @@
 			<i18n-t scope="global"  tag="p" keypath="discord.header"></i18n-t>
 			<TTButton icon="discord" primary type="link" :href="$config.DISCORD_BOT_URL" target="_blank">{{ $t("discord.install_bt") }}</TTButton>
 		</div>
-		
+
 		<TTButton class="unlinkBt" icon="cross"
 			v-if="$store.discord.discordLinked"
 			alert @click="unlink()"
 			:loading="submitting">{{ $t("discord.unkinkBt", {GUILD:$store.discord.linkedToGuild}) }}</TTButton>
-		
-		
+
+
 		<TTButton class="refreshBt" icon="refresh"
 			v-if="$store.discord.discordLinked"
 			@click="refreshChannels()"
 			:loading="refreshingChans">{{ $t("discord.refreshChansBt") }}</TTButton>
-		
+
 		<div class="content">
 			<template v-if="$store.discord.discordLinked">
-	
+
 				<section class="card-item colSelector">
 					<Icon name="split" />
 					<span>{{$t("discord.chat_col")}}</span>
@@ -31,13 +31,13 @@
 						:secondary="$store.discord.chatCols.indexOf(col.order) > -1">{{ index+1 }}</TTButton>
 					</div>
 				</section>
-	
+
 				<section class="card-item reactions">
 					<Icon name="emote" />
 					<ParamItem :paramData="param_reactions" noBackground v-model="$store.discord.reactionsEnabled" @change="saveParams()" />
 					<div class="message"><MessageItem :messageData="messagePreview"></MessageItem></div>
 				</section>
-	
+
 				<section class="card-item">
 					<Icon name="mod" />
 					<span>{{$t("discord.channel_ban_log")}}</span>
@@ -46,7 +46,7 @@
 					</select>
 					<ParamItem :paramData="param_banLogThread" noBackground v-model="$store.discord.banLogThread" @change="saveParams()" />
 				</section>
-	
+
 				<section class="card-item">
 					<Icon name="commands" />
 					<i18n-t scope="global" tag="p" keypath="discord.channel_cmd">
@@ -56,13 +56,13 @@
 						<option v-for="chan in channelList" :key="chan.id" :value="chan.id">{{ chan.name }}</option>
 					</select>
 				</section>
-	
+
 				<section class="card-item">
 					<Icon name="rightClick" />
 					<span>{{$t("discord.quick_actions")}}</span>
 					<ParamsDiscordQuickActions channelList @change="saveParams()" />
 				</section>
-	
+
 				<section class="card-item">
 					<Icon name="save" />
 					<span>{{$t("discord.channel_logs")}}</span>
@@ -76,7 +76,7 @@
 						</i18n-t>
 					</div>
 				</section>
-	
+
 				<section class="card-item slashCmd">
 					<Icon name="broadcast" />
 					<i18n-t scope="global" tag="span" keypath="discord.public_triggers">
@@ -86,7 +86,7 @@
 						<template #ICON><Icon name="info" /></template>
 					</i18n-t>
 				</section>
-	
+
 				<section class="card-item helpDesk">
 					<Icon name="helpDesk" />
 					<span>{{ $t("discord.ticket") }}</span>
@@ -102,7 +102,7 @@
 					</div>
 				</section>
 			</template>
-			
+
 			<section class="card-item confirm" v-else-if="askLinkConfirmation">
 				<div>{{ $t("discord.install_confirm") }}</div>
 				<mark class="discordName">{{ discordName }}</mark>
@@ -111,7 +111,7 @@
 					<TTButton icon="checkmark" primary @click="confirmLink()" :loading="submitting">{{ $t("global.confirm") }}</TTButton>
 				</div>
 			</section>
-	
+
 			<section class="card-item codeForm" v-else>
 				<i18n-t scope="global"  tag="p" keypath="discord.install_code">
 					<template #CMD><mark>/link</mark></template>
@@ -125,7 +125,7 @@
 						v-click2Select
 						ref="codeInput">
 				</div>
-				
+
 				<div class="info">
 					<Icon name="alert" />
 					<i18n-t scope="global" keypath="discord.install_warn">
@@ -134,7 +134,7 @@
 				</div>
 				<Icon class="loader" name="loader" v-if="linkLoading" />
 			</section>
-			
+
 		</div>
 		<div @click="errorCode = ''" v-if="errorCode" class="card-item alert error">{{ $t("error.discord."+errorCode, {CHANNEL:errorChan}) }}</div>
 
@@ -189,7 +189,7 @@ class ConnectDiscord extends Vue implements IParameterContent {
 			name:"DiscordUser"
 		}
 	}
-	
+
 	/**
 	 * Get discord channel list
 	 */
@@ -198,7 +198,7 @@ class ConnectDiscord extends Vue implements IParameterContent {
 		list.unshift({id:"", name:this.$t("global.select_placeholder")});
 		return list;
 	}
-	
+
 	public async beforeMount():Promise<void> {
 		this.saveParams();
 	}
@@ -207,7 +207,7 @@ class ConnectDiscord extends Vue implements IParameterContent {
 
 	/**
 	 * Called when pressing a key on an input of the code form
-	 * @param event 
+	 * @param event
 	 */
 	public onKeyDown(event:KeyboardEvent):void {
 		if(event.key == "Backspace") {
@@ -233,7 +233,7 @@ class ConnectDiscord extends Vue implements IParameterContent {
 	/**
 	 * Called anytime an input's value changes
 	 * cycles the focus and manage copy/paste properly
-	 * @param event 
+	 * @param event
 	 */
 	public onChange(event:Event):void {
 		const inputs = this.$refs.codeInput as HTMLInputElement[];
@@ -304,7 +304,7 @@ class ConnectDiscord extends Vue implements IParameterContent {
 	 */
 	public async unlink():Promise<void> {
 		this.submitting = true;
-		
+
 		const res = await this.$store.discord.unlinkDiscord();
 		if(res !== true) this.errorCode = res;
 
@@ -316,7 +316,7 @@ class ConnectDiscord extends Vue implements IParameterContent {
 	 */
 	public async refreshChannels():Promise<void> {
 		this.refreshingChans = true;
-		
+
 		await this.$store.discord.loadChannelList();
 
 		//Make sure loader is visible and avoid spam
@@ -337,7 +337,7 @@ class ConnectDiscord extends Vue implements IParameterContent {
 		}
 		this.saveParams();
 	}
-	
+
 	/**
 	 * Saves params
 	 */
@@ -403,10 +403,8 @@ export default toNative(ConnectDiscord);
 			}
 			&>.icon {
 				height: 2em;
+				margin: auto;
 				vertical-align: middle;
-				&:not(.loader) {
-					margin-right: .5em;
-				}
 			}
 			span {
 				line-height: 1.25em;

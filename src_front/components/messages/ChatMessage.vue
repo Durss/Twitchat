@@ -8,7 +8,7 @@
 			<img src="@/assets/img/chat_animation/cosmic-abyss_1.jpg" alt="cosmic abyss background 1">
 			<img src="@/assets/img/chat_animation/cosmic-abyss_2.jpg" alt="cosmic abyss background 2">
 		</div>
-		
+
 		<div v-if="automodReasons" class="automod">
 			<img src="@/assets/icons/automod.svg">
 			<div class="header"><strong>{{ $t('chat.message.automod') }}</strong> {{automodReasons}}</div>
@@ -55,7 +55,7 @@
 
 			<div class="userBadges" v-if="filteredBadges.length > 0 || miniBadges.length > 0">
 
-		
+
 				<tooltip v-for="(b,index) in filteredBadges" :key="index"
 				:content="'<div style=\'text-align:center\'><img src='+(b.icon.hd || b.icon.sd)+' width=\'64\' class=\'emote\'><br>'+b.title+'</div>'">
 					<Icon v-if="b.icon.sd.indexOf('http') == -1" :name="b.icon.sd" class="badge" v-tooltip="b.title" />
@@ -935,6 +935,7 @@ export default toNative(ChatMessage);
 
 		&.convBt {
 			cursor: pointer;
+			margin-bottom: -.4em;
 			:deep(svg) {
 				height: 1em;
 			}

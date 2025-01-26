@@ -76,7 +76,7 @@
 					c9-1.3,16.8-7,20.9-15.2L197.8,16C207.9-4.7,237.3-4.7,247.5,16z"/></svg>
 			</div>
 		</template>
-		
+
 		<div v-else-if="error" class="error card-item alert"><Icon name="alert" />Bingo grid not found</div>
 	</div>
 </template>
@@ -164,7 +164,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 
 	public beforeMount(): void {
 		this.id = this.$route.query.bid as string ?? "";
-		
+
 		this.winSoundVolume = new Audio(this.$asset("sounds/win.mp3"));
 
 		this.bingoUpdateHandler = (e) => this.onBingoUpdate(e);
@@ -194,7 +194,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	override requestInfo():void {
 		PublicAPI.instance.broadcast(TwitchatEvent.GET_BINGO_GRID_PARAMETERS, {bid:this.id});
 	}
-	
+
 	/**
 	 * Tell Twitchat overlay exists
 	 */
@@ -228,7 +228,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		await this.openCloseGrid(true);
 
 		const newLeaderboard = e.data.scores && e.data.scores.length > 0? e.data : null;
-		
+
 		if(newLeaderboard) this.leaderboard = newLeaderboard;
 		else{
 			//Close leaderboard
@@ -246,7 +246,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		const bounds = holder.getBoundingClientRect();
 		this.width	= Math.ceil(bounds.width / this.debugScale);
 		this.height = Math.ceil(bounds.height / this.debugScale);
-		
+
 		await this.$nextTick();
 		// await Utils.promisedTimeout(1000);
 
@@ -261,7 +261,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		let fontSize = Math.min(scrollHolderBounds.height/this.debugScale/10, this.width/10)+"px";
 		this.leaderBoardFontSize = "min(11vw, 11vh, "+fontSize+")";
 		await this.$nextTick();
-		
+
 		const listBounds = listHolder.getBoundingClientRect();
 		gsap.fromTo(listHolder, {y:scrollHolderBounds.height/this.debugScale}, {y:-listBounds.height/this.debugScale, duration, ease:"none", repeat:-1});
 	}
@@ -289,7 +289,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				this.error = true;
 				return;
 			}
-			
+
 			if(animate) {
 				this.bingo = data.bingo;
 				await this.$nextTick();
@@ -318,7 +318,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			// FAKE USER BINGOS
 			//@ts-ignore
 			window.fakeUserEvents = ()=>{
-		
+
 				this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
 						"gridId": this.id,
 						"user": {
@@ -337,7 +337,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 						},
 						"count": 9
 					}));
-		
+
 				this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
 						"gridId": this.id,
 						"user": {
@@ -372,11 +372,11 @@ export class OverlayBingoGrid extends AbstractOverlay {
 
 	/**
 	 * Update current grid
-	 * @param data 
+	 * @param data
 	 */
 	public async updateGrid(data:IBingoUpdateData):Promise<void> {
 		this.bingo = data.bingo;
-			
+
 		this.broadcastPresence();
 
 		if(!this.gridOpened) {
@@ -482,25 +482,25 @@ export class OverlayBingoGrid extends AbstractOverlay {
 					let index = (x+cx) + (y+cy) * bingo.cols;
 					spiralOrder.push(index);
 				}
-	
+
 				if (x === y
 				|| (x < 0 && x === -y)
 				|| (x > 0 && x === 1-y)){
 					delta = [-delta[1], delta[0]]
 				}
-	
+
 				x += delta[0];
 				y += delta[1];
 			}
-	
+
 			const cells = this.$refs.cell as HTMLElement[];
 			const scaleFrom = open? 0 : 1;
 			const scaleTo = open? 1 : 0;
 			gsap.fromTo([this.$refs.cellsHolder, this.$refs.gridHolder],
 						{scale:scaleFrom},
-						{scale:scaleTo, ease:open? "sine.out" :"sine.in", 
-							duration:.35, 
-							clearProps:open? "transform": "", 
+						{scale:scaleTo, ease:open? "sine.out" :"sine.in",
+							duration:.35,
+							clearProps:open? "transform": "",
 							delay:open? 0 : .55 + Math.pow(cells.length,.8)*.05,
 							onComplete:()=>{
 								if(!open) {
@@ -508,7 +508,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 									resolve();
 								}
 							}});
-			
+
 			//Animate items from center
 			cells.forEach((cell, index) => {
 				let distance = spiralOrder.findIndex(v=>v===index);
@@ -661,10 +661,10 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	 */
 	private async pushEvent(data:typeof this.pendingEvents[number]):Promise<void> {
 		if(data.type == "user") {
-			//search if that user is already pending for display 
+			//search if that user is already pending for display
 			const existingIndex = this.pendingEvents.findIndex(v=> v.type == "user" && v.userBingo!.user.id == data.userBingo?.user.id);
 			//If iser already exists, is not the current one playing (>0) and
-			//their new bingo count is greater than the scheduled one, replace 
+			//their new bingo count is greater than the scheduled one, replace
 			if(existingIndex > 0 && this.pendingEvents[existingIndex].userBingo!.count < data.userBingo!.count) {
 				this.pendingEvents[existingIndex] = data;
 			}
@@ -719,7 +719,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				break;
 			}
 		}
-		
+
 		//Schedule auto close if requested
 		if(item.type != "close"){
 			if(this.bingo && this.bingo.autoShowHide === true) {
@@ -737,7 +737,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	 * Show a viewer info
 	 */
 	private async animateViewer(data:IUserBingoData):Promise<void> {
-		
+
 		const holder = this.$refs.cellsHolder as HTMLDivElement;
 		const bounds = holder.getBoundingClientRect();
 		this.width	= Math.ceil(bounds.width / this.debugScale);
@@ -752,9 +752,9 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			}
 
 			this.currentUserAlert = data;
-			
+
 			await this.$nextTick();
-	
+
 			const cellsHolder = this.$refs.cellsHolder as HTMLElement;
 			const userInfos = this.$refs.userInfo as HTMLElement;
 			const userCount = this.$refs.userCount as HTMLElement;
@@ -766,7 +766,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			}
 
 			const boundsHolder = cellsHolder.getBoundingClientRect();
-	
+
 			data.displayCount = 0;
 
 			const boundsUser = userInfos.getBoundingClientRect();
@@ -788,7 +788,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				dot.style.top = (boundsHolder.height/this.debugScale + Math.random()*height*5)+"px";
 				dot.style.height = height+"px";
 				dot.style.width = (Math.random()*10+5)+"px";
-				
+
 				// dot.style.zIndex = "1000";
 				gsap.to(dot, {
 					top:(-height)+"px",
@@ -941,9 +941,8 @@ export default toNative(OverlayBingoGrid);
 			height: 1em;
 			min-height: 1em;
 			max-height: 10%;
-			margin: auto;
 			display: block;
-			margin: .25em 0;
+			margin: .25em auto;
 			color: #ffee00;
 			filter: drop-shadow(0 0 .05em #00000080);
 		}
