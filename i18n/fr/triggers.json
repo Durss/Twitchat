@@ -46,6 +46,7 @@
 		"raffle_placeholder": "Entrée de tirage au sort gagnante",
 		"screenshot_placeholder": "Screenshot OBS",
 		"premium_limit": "Vous avez créé le maximum de {MAX} triggers actifs. Devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} triggers. Ou désactivez / supprimez des triggers pour en créer de nouveaux.",
+		"add_action": "Ajouter une action",
 		"delete_folder_confirm": {
 			"title": "Supprimer le dossier ?",
 			"desc": "Les triggers de ce dossier seront déplacé dans son parent."

@@ -2,12 +2,16 @@
 	<div class="triggeractiondeletemessageentry">
 		<Icon name="dragZone"
 			class="orderBt"
+			data-noselect
 			v-tooltip="$t('triggers.reorder_tt')" />
 
 
 		<span>{{ $t("triggers.actions.delete_message.info") }}</span>
 
-		<TTButton class="deleteBt" alert icon="trash" @click="$emit('delete')" />
+		<div class="actions">
+			<TTButton transparent icon="merge" @click="$emit('addCondition')" v-tooltip="$t('triggers.condition.add_tt')" />
+			<TTButton class="deleteBt" alert icon="trash" @click="$emit('delete')" />
+		</div>
 	</div>
 </template>
 
@@ -27,7 +31,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		DurationForm,
 		PlaceholderSelector,
 	},
-	emits:["delete"],
+	emits:["delete", "addCondition"],
 })
 class TriggerActionDeleteMessageEntry extends AbstractTriggerActionEntry {
 
@@ -62,10 +66,13 @@ export default toNative(TriggerActionDeleteMessageEntry);
 		height: 1em;
 	}
 
-	.deleteBt {
-		align-self: stretch;
-		border-radius: 0;
-		flex-shrink: 0;
+	.actions {
+		display: flex;
+		flex-direction: row;
+		.button {
+			align-self: stretch;
+			border-radius: 0;
+		}
 	}
 
 	.field {
