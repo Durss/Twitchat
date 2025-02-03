@@ -238,6 +238,7 @@ const UserDataSchema = {
 							additionalProperties: false,
 							properties: {
 								id: {type:"string", maxLength:100},
+								conditionList: { $ref: "#/definitions/conditionGroup" },
 								sourceName: {type:"string", maxLength:100},
 								//remove this property after some time
 								show: {
