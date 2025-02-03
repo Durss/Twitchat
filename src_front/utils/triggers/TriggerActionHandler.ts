@@ -1624,7 +1624,8 @@ export default class TriggerActionHandler {
 					}else
 
 					if(step.obsAction == "createchapter") {
-						await OBSWebsocket.instance.socket.call("CreateRecordChapter", {chapterName:step.recordChapterName});
+						const chapterName = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.recordChapterName || "", subEvent);
+						await OBSWebsocket.instance.socket.call("CreateRecordChapter", {chapterName});
 					}else
 
 					if(step.obsAction == "emitevent") {
