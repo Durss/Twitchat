@@ -4012,7 +4012,7 @@ export default class TriggerActionHandler {
 				//I can't just use "message.platform" as this contains "twitchat" for messages
 				//like raffle and bingo results. Full user loading only happens if "twitch"
 				//platform is specified, the user would remain in a temporary state otherwise
-				//[EDIT] basic workaround applied bellow
+				//[EDIT] basic workaround applied below
 				const platform = message.platform == "twitchat"? "twitch" : message.platform;
 				StoreProxy.users.getUserFrom(platform, channel_id, undefined, undefined, displayName.trim(), (userData)=>{
 					let user:TwitchatDataTypes.TwitchatUser|undefined;

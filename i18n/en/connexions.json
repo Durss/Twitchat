@@ -3,7 +3,7 @@
 		"header":"Connect Twitchat with external softwares",
 		"spotify":{
 			"refused":"Sadly, <strong>Spotify is refusing</strong> Twitchat to use their API with unlimited users and <i>(necessary)</i> extended quotas.",
-			"how_to":"To use it you'll have to {URL} and fill-in the values bellow:",
+			"how_to":"To use it you'll have to {URL} and fill-in the values below:",
 			"how_to_read":"READ THIS TUTORIAL",
 			"usage":"Connect with Spotify to control it from the Triggers or display currently playing track from the Overlays.",
 			"usage_premium":"Controlling playback requires a Spotify Premium subscription!",

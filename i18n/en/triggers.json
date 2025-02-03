@@ -169,7 +169,7 @@
 				"action_stream_infos": "Set stream infos",
 				"action_stream_infos_tt": "You need to allow Twitchat to update your stream info",
 				"action_vibrate": "Vibrate phone",
-				"custom_placeholder_example": "Use {PLACEHOLDER} keyword in any field of the actions bellow to get the placeholder's value.",
+				"custom_placeholder_example": "Use {PLACEHOLDER} keyword in any field of the actions below to get the placeholder's value.",
 				"action_goxlr": "Control GoXLR",
 				"action_goxlr_tt": "You need to connect your GoXLR",
 				"action_customBadges": "Custom user badges",
@@ -403,7 +403,7 @@
 				"select_param": "Select parameters to send:",
 				"select_param_ws": "Select parameters to add to JSON body:",
 				"protocol_error": "Due to browser security restrictions, only 127.0.0.1 or localhost domains can be called with HTTP protocol. Use HTTPS for other domains.",
-				"send_as_body": "Send parameters selected bellow in the body as JSON\n(otherwise they're sent as query URL)",
+				"send_as_body": "Send parameters selected below in the body as JSON\n(otherwise they're sent as query URL)",
 				"custom_headers": "Custom headers",
 				"add_headerBt": "Add header",
 				"need_to_connect": "This action requires you to {LINK}",
@@ -490,7 +490,7 @@
 				"create_areaBt": "Create clickable areas"
 			},
 			"goxlr": {
-				"select_button": "Select which buttons should execute that trigger in the interface bellow",
+				"select_button": "Select which buttons should execute that trigger in the interface below",
 				"param_action": "Action type",
 				"param_fxPreset": "FX preset to enable",
 				"param_fxPreset_keep": "Keep current",
@@ -516,7 +516,7 @@
 				"action_sample_play": "Play sample",
 				"action_set_fader": "Set a volume",
 				"action_profile": "Switch profile",
-				"select_sampler": "Select the sample bank and button on the interface bellow"
+				"select_sampler": "Select the sample bank and button on the interface below"
 			},
 			"customBadge": {
 				"param_user": "Select user to edit tags of",

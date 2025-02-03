@@ -32,7 +32,7 @@ type AssertExact<T, Expected> = [T] extends [Expected] ? ([Expected] extends [T]
 type Test1 = AssertExact<LabelItemPlaceholder["type"], "string"|"number"|"image"|"duration"|"date"|"time"|"datetime"|"hours"|"minutes"|"seconds"|"day"|"month"|"year">;
 
 //If there's an error on TypeCheck var that's because one of the labels
-//bellow has an invalid "type" value
+//below has an invalid "type" value
 const TypeCheck: Test1 = true;
 
 export const LabelItemPlaceholderList = [
@@ -119,7 +119,7 @@ export const LabelItemPlaceholderList = [
 	{tag:"RAID_ID",								type:"string",	descriptionKey:"overlay.labels.placeholders.RAID_ID", backup:true} as const,
 	{tag:"RAID_AVATAR",							type:"image",	descriptionKey:"overlay.labels.placeholders.RAID_AVATAR", backup:true} as const,
 	{tag:"RAID_COUNT",							type:"number",	descriptionKey:"overlay.labels.placeholders.RAID_COUNT", backup:true} as const,
-	
+
 	{tag:"WATCH_STREAK_NAME",					type:"string",	descriptionKey:"overlay.labels.placeholders.WATCH_STREAK_NAME", backup:true} as const,
 	{tag:"WATCH_STREAK_ID",						type:"string",	descriptionKey:"overlay.labels.placeholders.WATCH_STREAK_ID", backup:true} as const,
 	{tag:"WATCH_STREAK_AVATAR",					type:"image",	descriptionKey:"overlay.labels.placeholders.WATCH_STREAK_AVATAR", backup:true} as const,
@@ -165,7 +165,7 @@ export const LabelItemPlaceholderList = [
 	// {tag:"TILTIFY_GOAL",						type:"number",	descriptionKey:"overlay.labels.placeholders.TILTIFY_GOAL", backup:true} as const,
 	{tag:"TILTIFY_LAST_TIP_USER",				type:"string",	descriptionKey:"overlay.labels.placeholders.TILTIFY_LAST_TIP_USER", backup:true} as const,
 	{tag:"TILTIFY_LAST_TIP_AMOUNT",				type:"number",	descriptionKey:"overlay.labels.placeholders.TILTIFY_LAST_TIP_AMOUNT", backup:true} as const,
-	
+
 	{tag:"PATREON_USER",						type:"string",	descriptionKey:"overlay.labels.placeholders.PATREON_USER", backup:true} as const,
 	{tag:"PATREON_AMOUNT",						type:"number",	descriptionKey:"overlay.labels.placeholders.PATREON_AMOUNT", backup:true} as const,
 	{tag:"PATREON_TITLE",						type:"string",	descriptionKey:"overlay.labels.placeholders.PATREON_TITLE", backup:true} as const,
@@ -185,27 +185,27 @@ export const LabelItemPlaceholderList = [
 	{tag:"TWITCH_CHARITY_LAST_TIP_USER",		type:"string",	descriptionKey:"overlay.labels.placeholders.TWITCH_CHARITY_LAST_TIP_USER", backup:true} as const,
 	{tag:"TWITCH_CHARITY_LAST_TIP_AMOUNT",		type:"number",	descriptionKey:"overlay.labels.placeholders.TWITCH_CHARITY_LAST_TIP_AMOUNT", backup:true} as const,
 	{tag:"TWITCH_CHARITY_LAST_TIP_AVATAR",		type:"image",	descriptionKey:"overlay.labels.placeholders.TWITCH_CHARITY_LAST_TIP_AVATAR", backup:true} as const,
-	
+
 	{tag:"VOICEMOD_EFFECT_TITLE",				type:"number",	descriptionKey:"overlay.labels.placeholders.VOICEMOD_EFFECT_TITLE", backup:true} as const,
 	{tag:"VOICEMOD_EFFECT_ICON",				type:"number",	descriptionKey:"overlay.labels.placeholders.VOICEMOD_EFFECT_ICON", backup:false} as const,
-	
+
 	{tag:"MUSIC_TITLE",							type:"string",	descriptionKey:"overlay.labels.placeholders.MUSIC_TITLE", backup:true} as const,
 	{tag:"MUSIC_ARTIST",						type:"string",	descriptionKey:"overlay.labels.placeholders.MUSIC_ARTIST", backup:true} as const,
 	{tag:"MUSIC_ALBUM",							type:"string",	descriptionKey:"overlay.labels.placeholders.MUSIC_ALBUM", backup:true} as const,
 	{tag:"MUSIC_COVER",							type:"image",	descriptionKey:"overlay.labels.placeholders.MUSIC_COVER", backup:true} as const,
-	
+
 	{tag:"TIKTOK_VIEWER_COUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.TIKTOK_VIEWER_COUNT", backup:true} as const,
 	{tag:"TIKTOK_LIKE_TOTAL",					type:"number",	descriptionKey:"overlay.labels.placeholders.TIKTOK_LIKE_TOTAL", backup:true} as const,
 	{tag:"TIKTOK_LIKE_USER",					type:"string",	descriptionKey:"overlay.labels.placeholders.TIKTOK_LIKE_USER", backup:true} as const,
 	{tag:"TIKTOK_LIKE_AVATAR",					type:"image",	descriptionKey:"overlay.labels.placeholders.TIKTOK_LIKE_AVATAR", backup:true} as const,
 	{tag:"TIKTOK_LIKE_COUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.TIKTOK_LIKE_COUNT", backup:true} as const,
-	
+
 	{tag:"TIKTOK_SUB_USER",						type:"string",	descriptionKey:"overlay.labels.placeholders.TIKTOK_SUB_USER", backup:true} as const,
 	{tag:"TIKTOK_SUB_AVATAR",					type:"image",	descriptionKey:"overlay.labels.placeholders.TIKTOK_SUB_AVATAR", backup:true} as const,
-	
+
 	{tag:"TIKTOK_SHARE_USER",					type:"string",	descriptionKey:"overlay.labels.placeholders.TIKTOK_SHARE_USER", backup:true} as const,
 	{tag:"TIKTOK_SHARE_AVATAR",					type:"image",	descriptionKey:"overlay.labels.placeholders.TIKTOK_SHARE_AVATAR", backup:true} as const,
-	
+
 	{tag:"TIKTOK_GIFT_USER",					type:"string",	descriptionKey:"overlay.labels.placeholders.TIKTOK_GIFT_USER", backup:true} as const,
 	{tag:"TIKTOK_GIFT_AVATAR",					type:"image",	descriptionKey:"overlay.labels.placeholders.TIKTOK_GIFT_AVATAR", backup:true} as const,
 	{tag:"TIKTOK_GIFT_IMAGE",					type:"image",	descriptionKey:"overlay.labels.placeholders.TIKTOK_GIFT_IMAGE", backup:true} as const,

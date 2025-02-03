@@ -878,7 +878,7 @@ export default toNative(TriggerCreateForm);
 			&:is(div) {
 				//Used for OBS filter section names
 				//Filters are listed by source item, this represents a source item
-				//that has all its filters listed bellow it
+				//that has all its filters listed below it
 				background-color: var(--color-light-fade);
 				&:not(:first-of-type) {
 					margin-top: 1em;

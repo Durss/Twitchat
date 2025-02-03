@@ -28,7 +28,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 
 	private static EVENT_VOICE_CHANGED_EVENT: string = "voiceLoadedEvent";
 	private static EVENT_VOICE_CHANGED_EVENT_V3: string = "voiceChangedEvent";
-	//Bellow events are captured but nothing is done with it so far
+	//Below events are captured but nothing is done with it so far
 	private static EVENT_VOICE_CHANGER_ON: string = "voiceChangerEnabledEvent";
 	private static EVENT_VOICE_CHANGER_OFF: string = "voiceChangerDisabledEvent";
 

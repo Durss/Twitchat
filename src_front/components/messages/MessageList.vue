@@ -1752,7 +1752,7 @@ class MessageList extends Vue {
 				gsap.killTweensOf(messageHolder)
 				// gsap.to(messageHolder, {duration:.25, ease:Linear.easeNone, scrollTop:this.virtualScrollY});
 
-				//If message is bellow 3/4 of the chat height, scroll down
+				//If message is below 3/4 of the chat height, scroll down
 			}else if(messageBounds.top > thresholdBottom) {
 				this.virtualScrollY += messageBounds.top - thresholdBottom;
 				messageHolder.scrollTop = this.virtualScrollY;
