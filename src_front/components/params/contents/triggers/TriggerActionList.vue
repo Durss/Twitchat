@@ -459,7 +459,7 @@ class TriggerActionList extends Vue {
 			this.selectedActions = [];
 			e.stopPropagation();
 		}
-		if(e.key == "Backspace") e.preventDefault();
+		if(this.selectedActions.length > 0 && e.key == "Backspace") e.preventDefault();
 	}
 
 	private onKeyUp(e:KeyboardEvent):void {
