@@ -1295,6 +1295,22 @@ export default class TriggerActionHandler {
 
 			const actionPlaceholders = TriggerActionPlaceholders(step.type);
 
+			if(step.conditionList) {
+				logStep.messages.push({date:Date.now(), value:"Action has a condition, check if it passes"});
+				try {
+					const passesLocalCondition = await this.checkConditions(step.conditionList.operator, [step.conditionList], trigger, message, log, dynamicPlaceholders, subEvent, logStep);
+					if (!passesLocalCondition) {
+						logStep.error = true;
+						logStep.messages.push({ date: Date.now(), value: "❌ Action is not allowed to execute" });
+						continue;
+					}
+
+				}catch(error) {
+					log.entries.push({date:Date.now(), type:"message", value:"❌[EXCEPTION] An error occured when checking trigger action's conditions:" + error});
+					log.error = true;
+				}
+			}
+
 			logStep.messages.push({date:Date.now(), value:"Start step execution"});
 
 			try {
@@ -4106,7 +4122,7 @@ export default class TriggerActionHandler {
 	 * @param log
 	 * @param subEvent
 	 */
-	public async checkConditions(operator:"AND"|"OR", conditions:(TriggerActionDataTypes.TriggerConditionGroup|TriggerActionDataTypes.TriggerCondition)[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:Omit<LogTrigger, "date">, dynamicPlaceholders:{[key:string]:string|number}, subEvent?:string|null):Promise<boolean> {
+	public async checkConditions(operator: "AND" | "OR", conditions: (TriggerActionDataTypes.TriggerConditionGroup | TriggerActionDataTypes.TriggerCondition)[], trigger: TriggerData, message: TwitchatDataTypes.ChatMessageTypes, log: Omit<LogTrigger, "date">, dynamicPlaceholders: { [key: string]: string | number }, subEvent?: string | null, logStep?: LogTriggerStep):Promise<boolean> {
 		//If there are no conditions consider it passes check
 		if(!conditions || !Array.isArray(conditions)) return true;
 
@@ -4115,7 +4131,7 @@ export default class TriggerActionHandler {
 		for (const c of conditions) {
 			let localRes = false;
 			if(c.type == "group") {
-				localRes = await this.checkConditions(c.operator, c.conditions, trigger, message, log, dynamicPlaceholders, subEvent);
+				localRes = await this.checkConditions(c.operator, c.conditions, trigger, message, log, dynamicPlaceholders, subEvent, logStep);
 			}else{
 				//Some user got corrupted data where those 3 values were missing
 				//This is a fail-safe
@@ -4153,13 +4169,19 @@ export default class TriggerActionHandler {
 					case "shorter_than": localRes = value == null || value == undefined? true : value.toString().trim().length < valueNum; break;
 					default: localRes = false;
 				}
-				log.entries.push({date:Date.now(), type:"message", value:"Executing operator \""+c.operator+"\" between \""+value+"\" and \""+expectation+"\" => "+localRes.toString()});
+
+				const logMessage = "Executing operator \"" + c.operator + "\" between \"" + value + "\" and \"" + expectation + "\" => " + localRes.toString();
+				if(logStep) {
+					logStep.messages.push({ date: Date.now(), value: logMessage });
+				}else {
+					log.entries.push({ date: Date.now(), type: "message", value: logMessage });
+				}
 			}
 
 			if(index == 0) res = localRes;
 			else if(operator == "AND") res &&= localRes;
 			else if(operator == "OR") res ||= localRes;
-			index ++
+			index ++;
 		}
 		return res;
 	}

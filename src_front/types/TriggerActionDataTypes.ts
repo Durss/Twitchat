@@ -198,7 +198,7 @@ export interface TriggerData {
 	 */
 	scheduleParams?:TriggerScheduleData;
 	/**
-	 * Conditions to be matched for the trigger ot be executed
+	 * Conditions to be matched for the trigger to be executed
 	 */
 	conditions?:TriggerConditionGroup;
 	/**
@@ -356,6 +356,10 @@ export interface TriggerActionData {
 	 * @deprecated moved to a dedicated action
 	 */
 	delay?:number|string;
+	/**
+	 * Conditions to be matched for the next action to be executed
+	 */
+	conditionList?:TriggerConditionGroup;
 }
 
 //Used for temporary trigger data before user selects the trigger type

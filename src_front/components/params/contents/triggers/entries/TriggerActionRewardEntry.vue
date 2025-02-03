@@ -1,7 +1,7 @@
 <template>
 	<div class="triggeractionrewardentry triggerActionForm">
 		<ParamItem :paramData="param_action" v-model="action.rewardAction.action" />
-		
+
 		<template v-if="param_action.value != 'create' && param_action.value != 'refund'">
 			<div class="card-item" v-if="loading"><Icon name="loader" class="loader" /></div>
 			<ParamItem :paramData="param_reward" v-else-if="param_reward.listValues!.length > 0" v-model="action.rewardAction.rewardId" />
@@ -9,11 +9,11 @@
 				<template #ICON><Icon name="channelPoints" /></template>
 			</i18n-t>
 		</template>
-		
+
 		<ParamItem :paramData="param_state" v-if="param_action.value == 'toggle' && param_reward.listValues!.length > 0" v-model="action.rewardAction.state" />
-		
+
 		<RewardListEditForm v-if="param_action.value == 'create'" v-model="action.rewardAction.rewardEdit" :placeholderList="placeholderList" />
-		
+
 		<template v-if="param_action.value == 'edit'">
 			<RewardListEditForm v-if="selectedRewardData" :reward="selectedRewardData" v-model="action.rewardAction.rewardEdit" :placeholderList="placeholderList" triggerMode />
 			<i18n-t scope="global" tag="div" class="card-item alert" keypath="triggers.actions.reward.no_manageable_reward" v-else>
@@ -46,10 +46,10 @@ class TriggerActionRewardEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionRewardData;
-	
+
 	@Prop
 	public rewards!:TwitchDataTypes.Reward[];
-	
+
 	@Prop
 	declare triggerData:TriggerData;
 
@@ -140,6 +140,7 @@ export default toNative(TriggerActionRewardEntry);
 
 	.loader {
 		height: 2em;
+		width: 2em;
 		margin: auto;
 		display: block;
 	}

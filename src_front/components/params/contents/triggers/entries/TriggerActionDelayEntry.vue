@@ -2,6 +2,7 @@
 	<div class="triggeractiondelayentry">
 		<Icon name="dragZone"
 			class="orderBt"
+			data-noselect
 			v-tooltip="$t('triggers.reorder_tt')" />
 
 		<img src="@/assets/icons/timer.svg" class="icon">
@@ -9,15 +10,18 @@
 		<DurationForm v-if="isNumericValue" class="field" v-model="action.delay" allowMs />
 
 		<TTButton v-else icon="trash" small secondary @click="action.delay = 0">{{ action.delay }}</TTButton>
-		
-		<PlaceholderSelector class="placeholders" v-if="placeholderList?.length > 0"
-			:placeholders="placeholderList"
-			:secondary="true"
-			:popoutMode="true"
-			@insert="insertTag"
-		/>
 
-		<TTButton class="deleteBt" alert icon="trash" @click="$emit('delete')" />
+		<div class="actions">
+			<PlaceholderSelector class="placeholders" v-if="placeholderList?.length > 0"
+				:placeholders="placeholderList"
+				:secondary="true"
+				:popoutMode="true"
+				@insert="insertTag"
+			/>
+
+			<TTButton transparent icon="merge" @click="$emit('addCondition')" v-tooltip="$t('triggers.condition.add_tt')" />
+			<TTButton alert icon="trash" @click="$emit('delete')" />
+		</div>
 	</div>
 </template>
 
@@ -37,13 +41,13 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		DurationForm,
 		PlaceholderSelector,
 	},
-	emits:["delete"],
+	emits:["delete", "addCondition"],
 })
 class TriggerActionDelayEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionTypes;
-	
+
 	@Prop
 	declare triggerData:TriggerData;
 
@@ -62,7 +66,7 @@ class TriggerActionDelayEntry extends AbstractTriggerActionEntry {
 	public insertTag(tag:string):void {
 		this.action.delay = tag;
 	}
-	
+
 }
 export default toNative(TriggerActionDelayEntry);
 </script>
@@ -88,10 +92,13 @@ export default toNative(TriggerActionDelayEntry);
 		height: 1em;
 	}
 
-	.deleteBt {
-		align-self: stretch;
-		border-radius: 0;
-		flex-shrink: 0;
+	.actions {
+		display: flex;
+		flex-direction: row;
+		.button {
+			align-self: stretch;
+			border-radius: 0;
+		}
 	}
 
 	.field {
@@ -113,7 +120,6 @@ export default toNative(TriggerActionDelayEntry);
 		align-self: stretch;
 		border-radius: 0;
 		flex-shrink: 0;
-		margin-right: -.5em;
 	}
 }
 </style>
