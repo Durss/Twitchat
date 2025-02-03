@@ -304,7 +304,7 @@ export default class PubSub extends EventDispatcher {
 
 		//sent when a clip is sent on chat (see ChatRichEmbed JSON example).
 		}else if(data.type == "chat_rich_embed") {
-			//Warning: JSON might be mostly empty/incomplete. Example bellow:
+			//Warning: JSON might be mostly empty/incomplete. Example below:
 			//{"type":"chat_rich_embed","data":{"message_id":"1fda6833-d53c-44d2-958b-389dd2289ff8","request_url":"https://clips.twitch.tv/","thumbnail_url":"https://clips-media-assets2.twitch.tv/-preview-86x45.jpg","twitch_metadata":{"clip_metadata":{"game":"","channel_display_name":"","slug":"","id":"0","broadcaster_id":"","curator_id":""}}}}
 
 
@@ -906,7 +906,7 @@ export default class PubSub extends EventDispatcher {
 				const version = import.meta.env.PACKAGE_VERSION;
 				ApiHelper.call("log", "POST", {cat:"hypetrain", log:{reason:"TRAIN END", tt_v:version, data:train}});
 			}
-			
+
 			//Hide hype train popin
 			StoreProxy.stream.setHypeTrain(undefined);
 		}, 5000)

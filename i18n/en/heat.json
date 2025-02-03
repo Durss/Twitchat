@@ -19,7 +19,7 @@
 		"need_OBS":"This feature needs you to connect with OBS.",
 		"need_OBS_connectBt":"Connect with OBS",
 		"max_screen_reached":"You reached the maximum of {COUNT} screen you can create",
-		"anonymous_info":"IMPORTANT: By default, clicks sent by Heat are anonymous. For them to not be anonymous, viewers must grant access to their ID by clicking Heat icon on your stream as bellow:",
+		"anonymous_info":"IMPORTANT: By default, clicks sent by Heat are anonymous. For them to not be anonymous, viewers must grant access to their ID by clicking Heat icon on your stream as below:",
 		"logs":{
 			"title":"Heat logs",
 			"subtitle":"Get details about heat clicks",
@@ -34,7 +34,7 @@
 			"description": "Send a message when Ulule overlay is clicked"
 		},
 		"debug":{
-			"description": "Heat only works when you're live. To help you test things without going live, click on the area bellow to simulate an interaction.",
+			"description": "Heat only works when you're live. To help you test things without going live, click on the area below to simulate an interaction.",
 			"popout": "Open in new window",
 			"obs": "Compute OBS sources positions. These positions are refreshed only every 30s. If you moved a source, click here to get fresh positions."
 		},
