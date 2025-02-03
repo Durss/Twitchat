@@ -134,6 +134,13 @@ class TriggerConditionList extends Vue {
 
 	public handleClickOutside(event: MouseEvent): void {
 		const target = event.target as HTMLElement;
+		let parent = target.parentElement;
+		while (parent) {
+			//Don't close conditions if clicking on a tooltip's content
+			//a tooltip is used for the placeholder list on the condition's value input
+			if (parent.classList.contains('tippy-content')) return;
+			parent = parent.parentElement;
+		}
 		if (!this.$el.contains(target)) {
 			this.expanded = false;
 		}
