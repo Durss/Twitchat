@@ -291,6 +291,7 @@
 				"param_screenImgSize_modeSave_conf": "Save to disk",
 				"param_screenImgSize_modeGet_conf": "Get data",
 				"param_screenImgSavePath_conf": "File path to save the image to",
+				"param_screenImgSavePath_conf_error": "File path must contain the file name and extension (ex: image.jpg)",
 				"param_screenImgSavePH_conf": "Placeholder to save Base64 data to",
 				"param_browser_info": "This feature is for developpers. It allows to emit a javascript event on all browsser sources to send them data.",
 				"param_browser_usage": "Add this to your browser source to receive the data:",

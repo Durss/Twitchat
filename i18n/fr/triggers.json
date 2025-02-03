@@ -291,6 +291,7 @@
 				"param_screenImgSize_modeSave_conf": "Enregistrer sur le disque",
 				"param_screenImgSize_modeGet_conf": "Récupérer les données",
 				"param_screenImgSavePath_conf": "Chemin du fichier où enregistrer",
+				"param_screenImgSavePath_conf_error": "Le chemin du fichier doit contenir un nom de fichier et son extension (ex: image.jpg)",
 				"param_screenImgSavePH_conf": "Placeholder dans lequel enregistrer les données au format Base64",
 				"param_browser_info": "Cette fonctionnalité est à destination des développeur·euses et permet de déclencher des évènement javascript directement dans les sources navigateur pour leur transmettre des données.",
 				"param_browser_usage": "Ajoutez ceci dans votre source navigateur pour recevoir l'évènement:",

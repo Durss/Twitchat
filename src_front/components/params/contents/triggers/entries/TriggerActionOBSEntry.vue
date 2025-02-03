@@ -87,7 +87,11 @@
 			:values="['save', 'get']"
 			v-model="action.screenshotImgMode" />
 
-			<ParamItem v-if="action.screenshotImgMode == 'save'" :paramData="param_screenImgSavePath_conf" v-model="action.screenshotImgSavePath" />
+			<ParamItem v-if="action.screenshotImgMode == 'save'"
+				:paramData="param_screenImgSavePath_conf"
+				:error="isInvalidScreenFilePath"
+				v-model="action.screenshotImgSavePath" />
+
 			<template  v-if="action.screenshotImgMode == 'get'">
 				<ParamItem :paramData="param_screenImgSavePH_conf" v-model="action.screenshotImgSavePlaceholder" />
 
@@ -211,6 +215,11 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public get canSetMediaPath():boolean { return this.isMediaSource && this.param_filter_conf.value == "" && this.param_sourceAction_conf.value == "show"; }
 
 	/**
+	 * Get if custom file path for source screen shot contains a file name or not
+	 */
+	public get isInvalidScreenFilePath():boolean { return !/[^\\/]+\.[^\\/]+$/.test(this.action.screenshotImgSavePath || ""); }
+
+	/**
 	 * Get if the selected source is a media source
 	 */
 	public get isMediaSource():boolean {
@@ -240,6 +249,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public async mounted():Promise<void> {
 		const sourceNameBackup = this.action.sourceName;
 		const actionBackup = this.action.action;
+		this.param_screenImgSavePath_conf.errorMessage = this.$t("triggers.actions.obs.param_screenImgSavePath_conf_error");
 
 		// this.transformAnimate_conf.children = [this.transformEasing_conf, this.transformDuration_conf];
 
