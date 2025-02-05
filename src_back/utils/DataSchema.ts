@@ -373,6 +373,7 @@ const UserDataSchema = {
 								float: {type:"boolean"},
 								condition: {type:"boolean"},
 								skipDisabled: {type:"boolean"},
+								removePickedEntry: {type:"boolean"},
 								disableAfterExec: {type:"boolean"},
 								mode: {type:"string", maxLength:20},
 								title: {type:"string", maxLength:140},
@@ -655,7 +656,7 @@ const UserDataSchema = {
 											type: "object",
 											additionalProperties: false,
 											properties: {
-												name: {type:"string", maxLength:25},
+												name: {type:"string", maxLength:50},
 												color: {type:"string", maxLength:10},
 											}
 										},

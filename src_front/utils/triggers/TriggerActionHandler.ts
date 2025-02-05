@@ -2524,7 +2524,7 @@ export default class TriggerActionHandler {
 
 					//Pick an item from a custom list
 					}else if(step.mode == "list" && step.placeholder) {
-						const value = Utils.pickRand(step.list);
+						const value = Utils.pickRand(step.list, step.removePickedEntry);
 						dynamicPlaceholders[step.placeholder] = value;
 						logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.placeholder+"}\" with value \""+value+"\""});
 
@@ -2543,7 +2543,8 @@ export default class TriggerActionHandler {
 							logStep.messages.push({date:Date.now(), value:"Empty trigger list or all triggers disabled"});
 						}else{
 							//Pick a random trigger
-							const triggerId = Utils.pickRand(triggers);
+							const triggerId = Utils.pickRand(triggers, step.removePickedEntry);
+							step.triggers = triggers;
 							if(triggerId) {
 								const trigger = sTriggers.triggerList.find(v=>v.id == triggerId);
 								if(trigger) {
@@ -2569,24 +2570,43 @@ export default class TriggerActionHandler {
 										StoreProxy.counters.counterList.find(v=>v.id == sourceID)
 										: StoreProxy.values.valueList.find(v=>v.id == sourceID);
 						if(source && source.users && step.valueCounterPlaceholders) {
-							uid = Utils.pickRand(Object.keys(source.users));
-							//Attempt to load user name.
-							//TODO due to data storage format this will fail for non-twitch platforms
-							await new Promise<void>((resolve, reject)=>{
-								let resolved = false;
-								StoreProxy.users.getUserFrom("twitch", channel_id, uid, undefined, undefined, (user)=>{
-									login = user.login;
-									resolved = true;
-									resolve();
-								}, undefined, undefined, undefined, false);
-								//Timeout request to avoid blocking trigger
-								window.setTimeout(()=>{
-									if(!resolved) {
-										login = "USER_NOT_FOUND";
-										resolve();
+							if(Object.keys(source.users).length > 0) {
+								uid = Utils.pickRand(Object.keys(source.users));
+
+								//Attempt to load user name.
+								await new Promise<void>(async (resolve, reject)=>{
+									const platform = source.users![uid].platform;
+									let resolved = false;
+									if(platform === "twitch") {
+										StoreProxy.users.getUserFrom("twitch", channel_id, uid, undefined, undefined, (user)=>{
+											login = user.login;
+											resolved = true;
+											resolve();
+										}, undefined, undefined, undefined, false);
+									}else
+									if(platform === "youtube") {
+										const [user] = await YoutubeHelper.instance.getUserListInfo([uid]);
+										if(user) {
+											login = user.displayName;
+											resolved = true;
+											resolve();
+										}
 									}
-								}, 5000);
-							});
+
+									//Timeout request to avoid blocking trigger
+									window.setTimeout(()=>{
+										if(!resolved) {
+											login = "USER_NOT_FOUND";
+											resolve();
+										}
+									}, 5000);
+								});
+							}else{
+								logStep.messages.push({date:Date.now(), value:"Source list is empty. Cannot pick random entry."});
+								logStep.error = true;
+								log.error = true;
+							}
+							console.log(source.users[uid])
 							value = (source.users[uid]?.value ?? 0).toString();
 							if(step.valueCounterPlaceholders.userId) {
 								dynamicPlaceholders[step.valueCounterPlaceholders.userId]	= uid;
@@ -2600,11 +2620,24 @@ export default class TriggerActionHandler {
 								dynamicPlaceholders[step.valueCounterPlaceholders.value]	= value;
 								logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.valueCounterPlaceholders.value+"}\" with value \""+value+"\""});
 							}
+							if(uid && step.removePickedEntry) {
+								if(step.mode == "counter") {
+									StoreProxy.counters.deleteCounterEntry(source.id, undefined, uid);
+								}else{
+									StoreProxy.values.deleteValueEntry(source.id, undefined, uid);
+								}
+							}
 
 						}else if(source && !source.perUser && step.valueSplitter && step.valueCounterPlaceholders) {
 							let entries = (source.value || "").toString().split(new RegExp(step.valueSplitter, ""));
 							entries = entries.map(v=> v.trim());
-							const value = Utils.pickRand(entries);
+							const value = Utils.pickRand(entries, step.removePickedEntry);
+							if(step.removePickedEntry) {
+								source.value = entries.filter(v=>v != value).join(step.valueSplitter);
+								if(step.mode == "value") {
+									StoreProxy.values.updateValue(source.id, source.value);
+								}
+							}
 							dynamicPlaceholders[step.valueCounterPlaceholders.value] = value;
 							logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.valueCounterPlaceholders.value+"}\" with value \""+value+"\""});
 

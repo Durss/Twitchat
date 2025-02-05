@@ -476,7 +476,8 @@
 				"placeholder_tuto": "Définissez le nom des placeholders dans lesquels extraire les données correspondantes:",
 				"placeholder_user_id": "ID de la personne",
 				"placeholder_user_name": "Pseudo de la personne (Twitch only)",
-				"placeholder_value": "Valeur"
+				"placeholder_value": "Valeur",
+				"param_removePickedEntry": "Retirer l'entrée gagnante de la liste"
 			},
 			"raffle_enter": {
 				"info": "La personne déclenchant l'évènement actuel participera au tirage au sort en cours. Cette action n'aura aucun effet si aucun tirage au sort n'a été démarré avant ça."

@@ -54,9 +54,13 @@ export default class Utils {
 	 * Picks random entry
 	 *
 	 * @param a
+	 * @param removeFromSource
 	 */
-	public static pickRand<T>(a:T[]):T {
-		return a[ Math.floor(Math.random() * a.length) ];
+	public static pickRand<T>(a:T[], removeFromSource:boolean = false):T {
+		const index = Math.floor(Math.random() * a.length);
+		const res = a[index];
+		if(removeFromSource) a.splice(index, 1);
+		return res;
 	}
 
 	/**
@@ -852,8 +856,8 @@ export default class Utils {
 	/**
 	 * Returns a seeded random generator.
 	 * Just call the given function to get a new pseudo random number
-	 * @param seed 
-	 * @returns 
+	 * @param seed
+	 * @returns
 	 */
 	public static seededRandom =(seed:number):()=>number => {
 		return () => {
@@ -869,9 +873,9 @@ export default class Utils {
 
 	/**
 	 * Deeply checks for differences between 2 arbitrary objects
-	 * @param a 
-	 * @param b 
-	 * @returns 
+	 * @param a
+	 * @param b
+	 * @returns
 	 */
 	public static deepEqual(a:unknown, b:unknown):boolean {
 		if(a === b) return true;
