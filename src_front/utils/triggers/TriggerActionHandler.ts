@@ -3416,6 +3416,12 @@ export default class TriggerActionHandler {
 					}
 				}else
 
+				//Handle Spoil chat message action
+				if(step.type == "spoil_message") {
+					(message as TwitchatDataTypes.MessageChatData).spoiler = true;
+					logStep.messages.push({date:Date.now(), value:"✔ Flagged message as spoiler"});
+				}else
+
 				//Handle Streamer.bot action
 				if(step.type == "streamerbot") {
 					if(!StoreProxy.streamerbot.connected) {

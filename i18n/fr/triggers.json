@@ -138,6 +138,7 @@
 				"action_delay": "Pause",
 				"action_chat": "Envoyer un message",
 				"action_delete": "Supprimer le message",
+				"action_spoil_message": "Spoiler le message",
 				"action_customChat": "Notification personnalisée",
 				"action_reward": "Récompense de points de chaîne",
 				"action_extension": "Extension Twitch",
@@ -208,6 +209,9 @@
 			},
 			"delete_message": {
 				"info": "Supprimer le message de tchat ayant déclenché ce trigger"
+			},
+			"spoil_message": {
+				"info": "Marquer le message de tchat ayant déclencher ce trigger comme spoiler"
 			},
 			"discord": {
 				"param_message": "Message à envoyer sur Discord",
