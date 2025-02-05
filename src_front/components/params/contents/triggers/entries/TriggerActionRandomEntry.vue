@@ -89,6 +89,11 @@
 				<p>{{ $t("triggers.actions.random.value_no_values") }}</p>
 				<TTButton secondary light small @click="createValue()">{{ $t("values.addBt") }}</TTButton>
 			</div>
+
+			<ParamItem v-if="valueIdToValue[param_value.value]?.perUser !== true"
+				:paramData="param_valueSplitter"
+				:error="(action.valueSplitter || '').trim().length == 0"
+				v-model="action.valueSplitter" noBackground />
 		</template>
 
 		<template v-if="action.mode == 'counter'">
@@ -101,28 +106,25 @@
 			</div>
 		</template>
 
-		<ParamItem v-if="action.mode == 'value' && valueIdToValue[param_value.value]?.perUser !== true"
-			:paramData="param_valueSplitter"
-			:error="(action.valueSplitter || '').trim().length == 0"
-			v-model="action.valueSplitter" nobackground />
-
 		<div v-if="(action.mode=='value' && (param_value.listValues || []).length > 0) || (action.mode=='counter' && (param_counter.listValues || []).length > 0)" class="card-item listItem">
 			<p>{{ $t("triggers.actions.random.placeholder_tuto") }}</p>
 			<template v-if="action.mode=='counter' || valueIdToValue[param_value.value]?.perUser === true">
 				<ParamItem :paramData="param_placeholderUserId"
-				:error="(action.valueCounterPlaceholders!.userId || '').trim().length == 0"
-				v-model="action.valueCounterPlaceholders!.userId" nobackground />
+					:error="(action.valueCounterPlaceholders!.userId || '').trim().length == 0"
+					v-model="action.valueCounterPlaceholders!.userId" noBackground />
 				<ParamItem :paramData="param_placeholderUserName"
-				:error="(action.valueCounterPlaceholders!.userName || '').trim().length == 0"
-				v-model="action.valueCounterPlaceholders!.userName" nobackground />
+					:error="(action.valueCounterPlaceholders!.userName || '').trim().length == 0"
+					v-model="action.valueCounterPlaceholders!.userName" noBackground />
 			</template>
 
 			<ParamItem :paramData="param_placeholderValue"
 				:error="(action.valueCounterPlaceholders!.value || '').trim().length == 0"
-			v-model="action.valueCounterPlaceholders!.value" nobackground />
+				v-model="action.valueCounterPlaceholders!.value" noBackground />
 		</div>
 
-		<ParamItem v-if="action.mode != 'trigger' && action.mode != 'value' && action.mode != 'counter'" :paramData="param_placeholder" v-model="action.placeholder" :error="action.placeholder && action.placeholder.length === 0" />
+		<ParamItem v-if="action.mode == 'list' || action.mode == 'number'" :paramData="param_placeholder" v-model="action.placeholder" :error="action.placeholder && action.placeholder.length === 0" />
+
+		<ParamItem v-if="action.mode == 'list' || action.mode == 'trigger' || action.mode == 'value' || action.mode == 'counter'" :paramData="param_removePickedEntry" v-model="action.removePickedEntry" />
 
 		<i18n-t scope="global" class="card-item primary" tag="div"
 		keypath="triggers.actions.common.custom_placeholder_example"
@@ -193,6 +195,7 @@ class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
 	public param_placeholderUserId:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.placeholder_user_id", value:"", icon:"label"};
 	public param_placeholderUserName:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.placeholder_user_name", value:"", icon:"user"};
 	public param_placeholderValue:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.placeholder_value", value:"", icon:"number"};
+	public param_removePickedEntry:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"triggers.actions.random.param_removePickedEntry", value:false, icon:"trash"};
 
 	public getTriggerInfo(triggerId:string):{label:string, icon:string, iconURL?:string, iconBgColor?:string} {
 		const t = this.$store.triggers.triggerList.find(v=>v.id === triggerId);

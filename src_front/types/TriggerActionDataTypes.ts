@@ -1179,6 +1179,11 @@ export interface TriggerActionRandomData extends TriggerActionData{
 	 */
 	placeholder:string;
 	/**
+	 * Removed entry from the list after randomly picking it
+	 * Works for "list", "trigger", "value", and "counter" modes
+	 */
+	removePickedEntry:boolean;
+	/**
 	 * List of custom textual items
 	 */
 	list:string[];

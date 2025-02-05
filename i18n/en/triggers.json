@@ -476,7 +476,8 @@
 				"placeholder_tuto": "Define placeholders names to which extract corresponding data:",
 				"placeholder_user_id": "User ID",
 				"placeholder_user_name": "User name (Twitch only)",
-				"placeholder_value": "Value"
+				"placeholder_value": "Value",
+				"param_removePickedEntry": "Remove picked up entry from list"
 			},
 			"raffle_enter": {
 				"info": "The user triggering the current event will enter any currently running raffle. It will do nothing if no raffle has been created first."
