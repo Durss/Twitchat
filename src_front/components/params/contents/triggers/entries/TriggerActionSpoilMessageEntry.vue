@@ -5,9 +5,9 @@
 			data-noselect
 			v-tooltip="$t('triggers.reorder_tt')" />
 
-		<Icon name="trash" />
+		<Icon name="spoiler" />
 
-		<span>{{ $t("triggers.actions.delete_message.info") }}</span>
+		<span>{{ $t("triggers.actions.spoil_message.info") }}</span>
 
 		<div class="actions">
 			<TTButton transparent icon="merge" @click="$emit('addCondition')" v-tooltip="$t('triggers.condition.add_tt')" />
@@ -34,7 +34,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	},
 	emits:["delete", "addCondition"],
 })
-class TriggerActionDeleteMessageEntry extends AbstractTriggerActionEntry {
+class TriggerActionSpoilMessageEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionTypes;
@@ -43,7 +43,7 @@ class TriggerActionDeleteMessageEntry extends AbstractTriggerActionEntry {
 	declare triggerData:TriggerData;
 
 }
-export default toNative(TriggerActionDeleteMessageEntry);
+export default toNative(TriggerActionSpoilMessageEntry);
 </script>
 
 <style scoped lang="less">

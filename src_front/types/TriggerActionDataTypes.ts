@@ -96,6 +96,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionLumiaData
 								| TriggerActionBingoGridData
 								| TriggerActionDeleteMessageData
+								| TriggerActionSpoilMessageData
 								| TriggerActionStreamerbotData
 								| TriggerActionSammiData
 								| TriggerActionMixitupData
@@ -1273,10 +1274,17 @@ export interface TriggerActionDiscordData extends TriggerActionData {
 }
 
 /**
- * Represents a discord action data
+ * Represents a message delete request
  */
 export interface TriggerActionDeleteMessageData extends TriggerActionData {
 	type:"delete_message";
+}
+
+/**
+ * Represents a message spoil request
+ */
+export interface TriggerActionSpoilMessageData extends TriggerActionData {
+	type:"spoil_message";
 }
 
 /**

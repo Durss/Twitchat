@@ -138,6 +138,7 @@
 				"action_delay": "Delay",
 				"action_chat": "Send chat message",
 				"action_delete": "Delete chat message",
+				"action_spoil_message": "Spoil chat message",
 				"action_customChat": "Custom notification",
 				"action_reward": "Channel points reward",
 				"action_extension": "Twitch Extension",
@@ -207,7 +208,10 @@
 				"reset_cooldown_tt": "Reset current cooldowns"
 			},
 			"delete_message": {
-				"info": "Delete the chat message that started this trigger."
+				"info": "Delete the chat message that started this trigger"
+			},
+			"spoil_message": {
+				"info": "Flag the chat message that started this trigger as spoiler"
 			},
 			"discord": {
 				"param_message": "Message to send to Discord",

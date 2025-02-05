@@ -1,5 +1,5 @@
 <template>
-	<div class="triggeractiondelayentry">
+	<div class="triggeractiondelayentry triggerActionLight">
 		<Icon name="dragZone"
 			class="orderBt"
 			data-noselect
@@ -73,53 +73,5 @@ export default toNative(TriggerActionDelayEntry);
 
 <style scoped lang="less">
 .triggeractiondelayentry{
-	margin: auto;
-	width: fit-content;
-	border-radius: .5em;
-	background-color: var(--color-primary);
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	padding-left: .5em;
-	color: var(--color-light);
-	overflow: hidden;
-	gap: .5em;
-	line-height: 1.5em;
-	box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
-	position: relative;
-
-	.icon {
-		height: 1em;
-	}
-
-	.actions {
-		display: flex;
-		flex-direction: row;
-		.button {
-			align-self: stretch;
-			border-radius: 0;
-		}
-	}
-
-	.field {
-		background: transparent;
-		padding: 0;
-	}
-
-	.orderBt {
-		cursor: grab;
-		height: .8em;
-		vertical-align: middle;
-		line-height: 1em;
-		user-select: none;
-		&:active {
-			cursor: grabbing;
-		}
-	}
-	.placeholders {
-		align-self: stretch;
-		border-radius: 0;
-		flex-shrink: 0;
-	}
 }
 </style>

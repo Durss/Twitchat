@@ -25,6 +25,12 @@
 			@delete="$emit('delete')"
 			@addCondition="addCondition" />
 
+		<TriggerActionSpoilMessageEntry v-else-if="action.type=='spoil_message'"
+			:action="action"
+			:triggerData="triggerData"
+			@delete="$emit('delete')"
+			@addCondition="addCondition" />
+
 		<ToggleBlock v-else
 		noArrow
 		data-noselect
@@ -72,7 +78,10 @@
 
 			<div v-if="action.type===null" class="typeSelector">
 				<div class="info">{{ $t('triggers.actions.common.select_action') }}</div>
-				<div class="list">
+
+				<input class="searchField" type="text" v-model="search" :placeholder="$t('global.search_placeholder')" @input="onSearch" />
+
+				<div class="list" ref="actionList">
 
 					<TTButton class="button" @click="selectActionType('delay')"
 						icon="timer">{{ $t('triggers.actions.common.action_delay') }}</TTButton>
@@ -83,6 +92,10 @@
 					<TTButton class="button" @click="selectActionType('delete_message')"
 						v-if="isDeletableMessageTrigger"
 						icon="trash">{{ $t('triggers.actions.common.action_delete') }}</TTButton>
+
+					<TTButton class="button" @click="selectActionType('spoil_message')"
+						v-if="isDeletableMessageTrigger"
+						icon="spoiler">{{ $t('triggers.actions.common.action_spoil_message') }}</TTButton>
 
 					<TTButton class="button" @click="selectActionType('customChat')"
 						v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'params_triggerAction_ttnotif'}"
@@ -340,6 +353,7 @@ import TriggerActionValueEntry from './entries/TriggerActionValueEntry.vue';
 import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneEntry.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
+import TriggerActionSpoilMessageEntry from './entries/TriggerActionSpoilMessageEntry.vue';
 
 @Component({
 	components:{
@@ -382,6 +396,7 @@ import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 		TriggerActionPlayAbilityEntry,
 		TriggerActionStreamerbotEntry,
 		TriggerActionVibratePhoneEntry,
+		TriggerActionSpoilMessageEntry,
 		TriggerActionDeleteMessageEntry,
 		TriggerActionTriggerToggleEntry,
 	},
@@ -407,6 +422,7 @@ class TriggerActionEntry extends Vue {
 	public index!:number;
 
 	public opened = false;
+	public search = "";
 	public placeholderList: ITriggerPlaceholder<unknown>[] = [];
 
 	public get lumiaConnected():boolean { return this.$store.lumia.connected; }
@@ -698,6 +714,17 @@ class TriggerActionEntry extends Vue {
 		this.placeholderList = list;
 	}
 
+	public onSearch():void {
+		const holder = this.$refs.actionList as HTMLDivElement;
+		([...holder.children] as HTMLElement[]).forEach(el => {
+			if(el.textContent?.toLowerCase().includes(this.search.toLowerCase())) {
+				el.style.display = "flex";
+			}else{
+				el.style.display = "none";
+			}
+		});
+	}
+
 }
 export default toNative(TriggerActionEntry);
 </script>
@@ -788,9 +815,15 @@ export default toNative(TriggerActionEntry);
 
 	.typeSelector {
 		.info {
-			align-self: center;
+			justify-self: center;
 			font-weight: bold;
 			margin-bottom: .5em;
+		}
+
+		.searchField {
+			width: 100%;
+			margin-bottom: .5em;
+			text-align: center;
 		}
 
 		.list {
