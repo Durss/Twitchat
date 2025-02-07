@@ -325,7 +325,11 @@ function buildApp() {
 				el.focus({preventScroll:true});
 				if(el.tagName.toLowerCase() == "input" || el.tagName.toLowerCase() == "textarea") {
 					const typedEl = el as HTMLInputElement;
-					typedEl.setSelectionRange(typedEl.value.length, typedEl.value.length);
+					if(typedEl.type =="number") {
+						typedEl.focus();
+					}else{
+						typedEl.setSelectionRange(typedEl.value.length, typedEl.value.length);
+					}
 				}
 			}
 		}
