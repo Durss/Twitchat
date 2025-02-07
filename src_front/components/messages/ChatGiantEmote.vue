@@ -1,11 +1,11 @@
 <template>
-	<div class="chatcelebration chatMessage highlight"
+	<div class="chatgiantemote chatMessage highlight"
 	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 
 		<div class="holder">
 			<Icon name="watchStreak" />
-			<i18n-t scope="global" class="label" tag="span" keypath="chat.celebration.message">
+			<i18n-t scope="global" class="label" tag="span" keypath="chat.gigantified_emote.message">
 				<template #USER>
 					<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 				</template>
@@ -31,17 +31,17 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 	},
 	emits:['onRead'],
 })
-class ChatCelebration extends AbstractChatMessage {
+class ChatGiantEmote extends AbstractChatMessage {
 
 	@Prop
-	declare messageData:TwitchatDataTypes.MessageTwitchCelebrationData;
+	declare messageData:TwitchatDataTypes.MessageTwitchGigantifiedEmoteData;
 
 }
-export default toNative(ChatCelebration);
+export default toNative(ChatGiantEmote);
 </script>
 
 <style scoped lang="less">
-.chatcelebration{
+.chatgiantemote{
 
 	.cost {
 		font-size: .7em;

@@ -71,10 +71,10 @@ export default class PubSub extends EventDispatcher {
 				// "leaderboard-events-v1.sub-gifts-sent-"+myUID+"-WEEK",
 				"video-playback-by-id."+myUID,//Get viewer count
 				"community-boost-events-v1."+myUID,//Boost after a boost train complete
-				"chatrooms-user-v1."+myUID,//Host events (RIP)
+				// "chatrooms-user-v1."+myUID,//Host events (RIP)
 				"pinned-chat-updates-v1."+myUID,//when a message is un/pinned
 				// "predictions-channel-v1."+myUID,
-				"polls."+myUID,
+				// "polls."+myUID,
 				"hype-train-events-v2."+myUID,
 				// "hype-train-events-v2.37804856",//Testing golden kappa data
 				// "hype-train-events-v2.43809079",//Testing golden kappa data
@@ -83,14 +83,14 @@ export default class PubSub extends EventDispatcher {
 				// "hype-train-events-v2.115060112",//Testing golden kappa data
 				// "hype-train-events-v2.53964156",//Testing golden kappa data
 				// "hype-train-events-v2.117482317",//Testing golden kappa data
-				"raid."+myUID,
+				// "raid."+myUID,
 				"community-moments-channel-v1."+myUID,
 				"user-moderation-notifications."+myUID+"."+myUID,
-				"ads."+myUID,//???
-				"ad-property-refresh."+myUID,//???
-				"stream-chat-room-v1."+myUID,//???
-				"sponsorships-v1."+myUID,//???
-				"community-points-channel-v1."+myUID,
+				// "ads."+myUID,//???
+				// "ad-property-refresh."+myUID,//???
+				// "stream-chat-room-v1."+myUID,//???
+				// "sponsorships-v1."+myUID,//???
+				// "community-points-channel-v1."+myUID,
 				//"user-preferences-update-v1."+myUID,//not allowed
 				// "onsite-notifications."+myUID,//not allowed
 				// "activity-feed-broadcaster-v2."+myUID,//not allowed
@@ -102,11 +102,11 @@ export default class PubSub extends EventDispatcher {
 				// "stream-change-v1."+myUID,
 			];
 			if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])){
-				subscriptions.push("channel-points-channel-v1."+myUID);
+				// subscriptions.push("channel-points-channel-v1."+myUID);
 			}
-			if(TwitchUtils.hasScopes([TwitchScopes.WHISPER_READ])){
-				subscriptions.push("whispers."+myUID);
-			}
+			// if(TwitchUtils.hasScopes([TwitchScopes.WHISPER_READ])){
+				// subscriptions.push("whispers."+myUID);
+			// }
 			if(TwitchUtils.hasScopes([TwitchScopes.MODERATION_EVENTS])){
 				subscriptions.push("chat_moderator_actions."+myUID+"."+myUID);
 				subscriptions.push("low-trust-users."+myUID+"."+myUID);

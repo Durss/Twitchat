@@ -5,16 +5,16 @@
 			:style="{color:messageData.channelSource.color+'99'}"
 			v-tooltip="messageData.channelSource.name"
 			:src="messageData.channelSource.pic" />
-		
+
 		<template v-else-if="messageData.channelSource">
 			<span class="border"
 				:style="{color:messageData.channelSource.color+'99'}"></span>
-			
+
 			<span class="side"
 				v-tooltip="messageData.channelSource.name"
 				:style="{color:messageData.channelSource.color}"></span>
 		</template>
-		
+
 		<component v-if="componentRef" class="message"
 			:is="componentRef"
 			:messageData="messageData"
@@ -80,6 +80,7 @@ import ChatUnbanRequest from './ChatUnbanRequest.vue';
 import ChatTipeeeEvent from './ChatTipeeeEvent.vue';
 import ChatTrackStart from './ChatTrackStart.vue';
 import ChatCelebration from './ChatCelebration.vue';
+import ChatGiantEmote from './ChatGiantEmote.vue';
 import ChatAutomodTermsUpdate from './ChatAutomodTermsUpdate.vue';
 import ChatHateRaid from './ChatHateRaid.vue';
 import ChatWarnUser from './ChatWarnUser.vue';
@@ -124,6 +125,7 @@ import ChatPrivateModerator from './ChatPrivateModerator.vue';
 		ChatJoinLeave,
 		ChatTrackStart,
 		ChatPollResult,
+		ChatGiantEmote,
 		ChatTipeeeEvent,
 		ChatStreamOnOff,
 		ChatBingoResult,
@@ -170,16 +172,16 @@ class MessageItem extends Vue {
 
 	@Prop()
 	public messageData!:TwitchatDataTypes.ChatMessageTypes;
-	
+
 	@Prop()
 	public colIndex!:number;
-	
+
 	@Prop()
 	public lightMode!:boolean;
-	
+
 	@Prop()
 	public disableConversation!:boolean;
-	
+
 	@Prop({default:[]})
 	public childrenList!:TwitchatDataTypes.ChatMessageTypes[];
 
@@ -190,7 +192,7 @@ class MessageItem extends Vue {
 		};
 
 		type ExpectedTypes = KeysWithTrueValue<typeof TwitchatDataTypes.DisplayableMessageTypes>;
-		
+
 		const map:{[key in ExpectedTypes]:typeof Vue} = {
 			'twitchat_ad':ChatAd,
 			'join':ChatJoinLeave,
@@ -243,6 +245,7 @@ class MessageItem extends Vue {
 			'patreon':ChatPatreonEvent,
 			'unban_request':ChatUnbanRequest,
 			'twitch_celebration':ChatCelebration,
+			'gigantified_emote':ChatGiantEmote,
 			'blocked_terms':ChatAutomodTermsUpdate,
 			'hate_raid':ChatHateRaid,
 			'warn_chatter':ChatWarnUser,

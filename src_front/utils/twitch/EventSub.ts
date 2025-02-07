@@ -7,6 +7,7 @@ import Logger from "../Logger";
 import Utils from "../Utils";
 import { TwitchScopes } from "./TwitchScopes";
 import TwitchUtils from "./TwitchUtils";
+import ApiHelper from "../ApiHelper";
 
 /**
 * Created : 02/12/2022
@@ -191,7 +192,7 @@ export default class EventSub {
 	 * Connect to a channel chan.
 	 * Will connect to appropriate topics depending on wether we're a mod
 	 * on the given channel or not (make sure user.channelInfo[uid] is properly populated)
-	 * @param user 
+	 * @param user
 	 */
 	public async connectToChannel(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
 		const me	= StoreProxy.auth.twitch.user;
@@ -214,11 +215,11 @@ export default class EventSub {
 
 			//Don't need to listen for this event for anyone else but the broadcaster
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {from_broadcaster_user_id:channelId});
-			
+
 			//Used by online/offline triggers
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
-			
+
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_DONATE, "1");
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_PROGRESS, "1");
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_START, "1");
@@ -230,7 +231,7 @@ export default class EventSub {
 
 			if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMATIC_REWARD_REDEEM, "1");
-				// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM, "1");
+				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM, "1");
 				// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM_UPDATE, "1");
 			}
 			if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS])) {
@@ -239,8 +240,8 @@ export default class EventSub {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_LOCK, "1");
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_END, "1");
 			}
-			
-			/*
+
+			//*
 			if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS])) {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_START, "1");
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_PROGRESS, "1");
@@ -265,6 +266,9 @@ export default class EventSub {
 			// if(TwitchUtils.hasScopes([TwitchScopes.READ_CHEER])) {
 				// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.BITS, "1");
 			// }
+			if(TwitchUtils.hasScopes([TwitchScopes.READ_CHEER])) {
+				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.BITS_USE, "beta");
+			}
 
 			//Don't need it
 				// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_CREATE, "1");
@@ -280,7 +284,7 @@ export default class EventSub {
 			if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, "2");
 			}
-			
+
 			if(hasChannelModerateV2Permissions) {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_MODERATE, "2");
 			}else{
@@ -337,10 +341,14 @@ export default class EventSub {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.SUSPICIOUS_USER_UPDATE, "1");
 			}
 		}
-		
+
 		if(TwitchUtils.hasScopes([TwitchScopes.CHAT_READ_EVENTSUB])) {
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_MESSAGES, "1", {user_id:myUID});
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_CLEAR, "1", {user_id:myUID});
+		}
+
+		if(TwitchUtils.hasScopes([TwitchScopes.WHISPER_MANAGE])) {
+			// this.createSubscription("", "", TwitchEventSubDataTypes.SubscriptionTypes.WHISPERS, "1", {user_id:myUID});
 		}
 
 		this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {to_broadcaster_user_id:channelId});
@@ -349,7 +357,7 @@ export default class EventSub {
 	/**
 	 * Disconnect from remote chan.
 	 * Deletes all eventsub subscriptions related to given chan
-	 * @param channel 
+	 * @param channel
 	 */
 	public async disconnectRemoteChan(channel:TwitchatDataTypes.TwitchatUser):Promise<void> {
 		if(!this.chanSubscriptions[channel.id]) return;
@@ -469,6 +477,11 @@ export default class EventSub {
 				break;
 			}
 
+			case TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM: {
+				this.rewardRedeem(topic, payload.event as TwitchEventSubDataTypes.RewardRedeemEvent);
+				break;
+			}
+
 			case TwitchEventSubDataTypes.SubscriptionTypes.AUTOMATIC_REWARD_REDEEM: {
 				this.automaticRewardRedeem(topic, payload.event as TwitchEventSubDataTypes.AutomaticRewardRedeemEvent);
 				break;
@@ -496,6 +509,11 @@ export default class EventSub {
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.SUSPICIOUS_USER_UPDATE: {
 				this.suspiciousUserStateUpdate(topic, payload.event as TwitchEventSubDataTypes.SuspiciousUserStateUpdate);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.WHISPERS: {
+				this.whisperMessage(topic, payload.event as TwitchEventSubDataTypes.WhisperEvent);
 				break;
 			}
 
@@ -527,7 +545,7 @@ export default class EventSub {
 				this.unbanRequestEvent(topic, payload.event as TwitchEventSubDataTypes.UnbanRequestEvent | TwitchEventSubDataTypes.UnbanRequestResolveEvent);
 				break;
 			}
-			
+
 			case TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_MODERATE: {
 				this.moderationEvent(topic, payload.event as TwitchEventSubDataTypes.ModerationEvent);
 				break;
@@ -551,6 +569,13 @@ export default class EventSub {
 				break;
 			}
 
+			case TwitchEventSubDataTypes.SubscriptionTypes.POLL_START:
+			case TwitchEventSubDataTypes.SubscriptionTypes.POLL_PROGRESS:
+			case TwitchEventSubDataTypes.SubscriptionTypes.POLL_END: {
+				this.pollEvent(topic, payload.event as TwitchEventSubDataTypes.PollStartEvent | TwitchEventSubDataTypes.PollProgressEvent | TwitchEventSubDataTypes.PollEndEvent);
+				break;
+			}
+
 			case TwitchEventSubDataTypes.SubscriptionTypes.CHAT_MESSAGES: {
 				this.chatMessageEvent(topic, payload.event as TwitchEventSubDataTypes.ChatMessageEvent);
 				break;
@@ -563,12 +588,14 @@ export default class EventSub {
 			}
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_PROGRESS: {
+				ApiHelper.call("log", "POST", {cat:"eventsub", log:{topic, tt_v:import.meta.env.PACKAGE_VERSION, data:payload.event}});
 				const charity = payload.event as TwitchEventSubDataTypes.CharityProgressEvent;
 				StoreProxy.twitchCharity.onCharityProgress(charity.id, charity.current_amount, charity.target_amount);
 				break;
 			}
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_DONATE: {
+				ApiHelper.call("log", "POST", {cat:"eventsub", log:{topic, tt_v:import.meta.env.PACKAGE_VERSION, data:payload.event}});
 				const donation = payload.event as TwitchEventSubDataTypes.CharityDonationEvent;
 				const user = StoreProxy.users.getUserFrom("twitch", donation.user_id, donation.user_id, donation.user_login, donation.user_name, undefined, undefined, false, undefined, false);
 				//Delay to give it a little more time to progress to come in before interpreting donation
@@ -577,31 +604,34 @@ export default class EventSub {
 				},500);
 				break;
 			}
-			
+
 			case TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_STOP: {
 				const charity = payload.event as TwitchEventSubDataTypes.CharityStopEvent;
 				StoreProxy.twitchCharity.onCharityStop(charity.id);
 				break;
 			}
-			
+
 			case TwitchEventSubDataTypes.SubscriptionTypes.CHAT_CLEAR: {
-				const event = payload.event as TwitchEventSubDataTypes.ChatClearEvent;
-				const message:TwitchatDataTypes.MessageClearChatData = {
-					platform:"twitch",
-					type:TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT,
-					id:Utils.getUUID(),
-					channel_id:event.broadcaster_user_id,
-					date:Date.now(),
-					fromAutomod:false,
-					user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
-				};
-				StoreProxy.chat.addMessage(message);
+				this.chatClearEvent(topic, payload.event as TwitchEventSubDataTypes.ChatClearEvent);
 				break;
 			}
-			
+
 			case TwitchEventSubDataTypes.SubscriptionTypes.DELETE_MESSAGE: {
 				const event = payload.event as TwitchEventSubDataTypes.ChatDeleteMessageEvent;
 				StoreProxy.chat.deleteMessageByID(event.message_id, undefined, false);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.BITS_USE: {
+				ApiHelper.call("log", "POST", {cat:"eventsub", log:{topic, tt_v:import.meta.env.PACKAGE_VERSION, data:payload.event}});
+				this.bitsUsed(topic, payload.event as TwitchEventSubDataTypes.BitsUseEvent);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_START:
+			case TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_PROGRESS:
+			case TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_END: {
+				ApiHelper.call("log", "POST", {cat:"eventsub", log:{topic, tt_v:import.meta.env.PACKAGE_VERSION, data:payload.event}});
 				break;
 			}
 		}
@@ -666,7 +696,7 @@ export default class EventSub {
 		}
 
 		let infos = StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id];
-		
+
 		if(!infos) {
 			infos = StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id] = {
 				title,
@@ -684,14 +714,14 @@ export default class EventSub {
 		infos.tags = tags;
 		infos.viewers = viewers;
 		infos.live = live;
-	
+
 		//Allows to dedupe update events
 		const isChange = infos.title != this.lastChannelUpdateInfos.title
 				|| infos.category != this.lastChannelUpdateInfos.category
 				|| infos.tags.toString() != this.lastChannelUpdateInfos.tags.toString()
 				|| infos.viewers != this.lastChannelUpdateInfos.viewers
 				|| infos.live != this.lastChannelUpdateInfos.live;
-				
+
 		this.lastChannelUpdateInfos.title = infos.title;
 		this.lastChannelUpdateInfos.category = infos.category;
 		this.lastChannelUpdateInfos.tags = infos.tags;
@@ -724,7 +754,7 @@ export default class EventSub {
 				title:infos.title,
 				category:infos.category
 			}
-	
+
 			StoreProxy.chat.addMessage(message);
 		}
 	}
@@ -932,8 +962,8 @@ export default class EventSub {
 
 	/**
 	 * Called when unbanning a user
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private unbanEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.UnbanEvent):void {
 		const moderator = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name, undefined, undefined, false, undefined, false);
@@ -962,8 +992,8 @@ export default class EventSub {
 
 	/**
 	 * Called when a moderator is removed
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private modRemoveEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModeratorRemoveEvent):void {
 		const modedUser		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false);
@@ -981,15 +1011,59 @@ export default class EventSub {
 		StoreProxy.users.flagUnmod("twitch", event.broadcaster_user_id, modedUser.id);
 		StoreProxy.chat.addMessage(m);
 	}
-	
+
+	/**
+	 * Called when redeeming a reward except for power ups and
+	 * automatic rewards like "highlight my message"
+	 * @param topic
+	 * @param payload
+	 */
+	private rewardRedeem(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.RewardRedeemEvent):void {
+		const user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false);
+		const reward = StoreProxy.rewards.rewardList.find(r=>r.id == event.reward.id);
+		const m:TwitchatDataTypes.MessageRewardRedeemData = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitch",
+			channel_id:event.broadcaster_user_id,
+			type:TwitchatDataTypes.TwitchatMessageType.REWARD,
+			user,
+			reward:{
+				id:event.reward.id,
+				title:event.reward.title,
+				cost:event.reward.cost,
+				description:event.reward.prompt,
+				color:reward? reward.background_color : "#ffffff",
+				icon:{
+					sd:reward?.image?.url_1x ?? StoreProxy.asset("icons/channel_points.svg"),
+					hd:reward?.image?.url_4x ?? StoreProxy.asset("icons/channel_points.svg"),
+				},
+			},
+			message_size:0,
+			redeemId: event.id,
+		};
+
+		if(event.user_input) {
+			const chunks	= TwitchUtils.parseMessageToChunks(event.user_input, undefined, true);
+			m.message		= event.user_input;
+			m.message_chunks= chunks;
+			m.message_html	= TwitchUtils.messageChunksToHTML(chunks);
+			m.message_size	= TwitchUtils.computeMessageSize(chunks);
+		}
+
+		StoreProxy.chat.addMessage(m);
+	}
+
 	/**
 	 * Called when redeeming an automatic reward (used only for "celebration" for now)
-	 * @param topic 
-	 * @param payload 
+	 * EDIT: Not used anymore. Power-Ups are handle through "bits used" topic that gives more info
+	 * and "highlight my message" is handled through IRC as it also works for external channels
+	 * @param topic
+	 * @param payload
 	 */
 	private automaticRewardRedeem(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AutomaticRewardRedeemEvent):void {
+		return;
 		if(event.reward.type != "celebration") return;
-
 		const user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false);
 		const m:TwitchatDataTypes.MessageTwitchCelebrationData = {
 			id:Utils.getUUID(),
@@ -1181,11 +1255,11 @@ export default class EventSub {
 
 		StoreProxy.chat.addMessage(message);
 	}
-	
+
 	/**
 	 * Called when automod terms are updated
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async automodTermsUpdate(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AutomodTermsUpdateEvent):Promise<void> {
 		//Debounce events and merge them
@@ -1220,11 +1294,11 @@ export default class EventSub {
 			}
 		}, 1000);
 	}
-	
+
 	/**
 	 * Called when a message is held by automod
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async automodMessageHeld(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AutomodMessageHeldEvent):Promise<void> {
 		// const reasons:string[] = [];
@@ -1256,14 +1330,14 @@ export default class EventSub {
 					emote:"https://static-cdn.jtvnw.net/emoticons/v2/"+el.emote.id+"/default/light/2.0",
 					emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/"+el.emote.id+"/default/light/4.0",
 				});
-			
+
 			}else if(automodChunk) {
 				chunks.push({
 					type:"highlight",
 					value:el.text,
 				});
 				words.push(el.text);
-				
+
 			}else if(el.text) {
 				chunks.push({
 					type:"text",
@@ -1293,11 +1367,11 @@ export default class EventSub {
 		m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
 		StoreProxy.chat.addMessage(m);
 	}
-	
+
 	/**
 	 * Called when the status of a message held by automod is updated
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async automodMessageUpdate(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AutomodMessageUpdateEvent):Promise<void> {
 		//Delete it even if allowed as it's actually sent back via IRC
@@ -1306,8 +1380,8 @@ export default class EventSub {
 
 	/**
 	 * Called when a moderation event happens
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async moderationEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModerationEvent):Promise<void> {
 		const user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name, undefined, undefined, false, undefined, false);
@@ -1338,7 +1412,7 @@ export default class EventSub {
 				StoreProxy.stream.setRaiding();
 				break;
 			}
-			
+
 			case "clear":{
 				//Ignore, already listened from dedicated topic
 				break;
@@ -1525,7 +1599,7 @@ export default class EventSub {
 				const deleter = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name, undefined, false, false, false, false);
 				StoreProxy.chat.deleteMessageByID(event.delete.message_id, deleter, false);
 			}
-			
+
 			default: {
 				console.log("Unhandled moderation event from eventsub");
 				console.log(event);
@@ -1535,8 +1609,8 @@ export default class EventSub {
 
 	/**
 	 * Called when a user acknowledged a warning
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async warningAcknowledgeEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.WarningAcknowledgeEvent):Promise<void> {
 		console.log("ACKNOWLEDGED");
@@ -1553,8 +1627,8 @@ export default class EventSub {
 
 	/**
 	 * Called when a user is sent a warning a warning
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async warningSendEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.WarningSentEvent):Promise<void> {
 		const moderator = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name)
@@ -1575,8 +1649,8 @@ export default class EventSub {
 
 	/**
 	 * Called when a user suspicious/restricted user sends a message
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async suspiciousUserMessage(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.SuspiciousUserMessage):Promise<void> {
 		if(event.low_trust_status == "restricted") {
@@ -1609,8 +1683,8 @@ export default class EventSub {
 
 	/**
 	 * Called when a user suspicious/restricted user sends a message
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async suspiciousUserStateUpdate(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.SuspiciousUserStateUpdate):Promise<void> {
 		const m:TwitchatDataTypes.MessageLowtrustTreatmentData = {
@@ -1630,8 +1704,8 @@ export default class EventSub {
 
 	/**
 	 * Called when a prediction event is received
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async predictionEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.PredictionStartEvent | TwitchEventSubDataTypes.PredictionProgressEvent | TwitchEventSubDataTypes.PredictionEndEvent | TwitchEventSubDataTypes.PredictionLockEvent):Promise<void> {
 		if(topic === "channel.prediction.end" && (event as TwitchEventSubDataTypes.PredictionEndEvent).status == "canceled") {
@@ -1644,7 +1718,7 @@ export default class EventSub {
 		const isComplete = topic === "channel.prediction.end" && (event as TwitchEventSubDataTypes.PredictionEndEvent).status == "resolved";
 		const outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = currentPrediction?.outcomes || [];
 		//Merge outcomes with current data.
-		//Eventsub "end" doesn't send back the vote/user count with the outcome. 
+		//Eventsub "end" doesn't send back the vote/user count with the outcome.
 		//because of this, we need to keep the local outcomes with their current
 		//votes instead of simply using what EventSub gives us.
 		if(topic == "channel.prediction.progress") {
@@ -1683,7 +1757,6 @@ export default class EventSub {
 			let typedEvent = event as TwitchEventSubDataTypes.PredictionStartEvent;
 			duration = (new Date(typedEvent.locks_at).getTime() - new Date(event.started_at).getTime())/1000;
 		}
-		const me = StoreProxy.auth.twitch.user;
 		const prediction:TwitchatDataTypes.MessagePredictionData = {
 			date:Date.now(),
 			id:event.id,
@@ -1713,10 +1786,56 @@ export default class EventSub {
 		}
 	}
 
+	/**
+	 * Called when a prediction event is received
+	 * @param topic
+	 * @param event
+	 */
+	private async pollEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.PollStartEvent | TwitchEventSubDataTypes.PollProgressEvent | TwitchEventSubDataTypes.PollEndEvent):Promise<void> {
+		const choices:TwitchatDataTypes.MessagePollDataChoice[] = [];
+		let winner!:TwitchatDataTypes.MessagePollDataChoice;
+		let winnerValue = -1;
+		for (let i = 0; i < event.choices.length; i++) {
+			const c = event.choices[i];
+			let votes = 0
+			if(topic != "channel.poll.begin") {
+				const typedEvent = event as TwitchEventSubDataTypes.PollProgressEvent | TwitchEventSubDataTypes.PollEndEvent;
+				votes = typedEvent.choices[i].votes;
+			}
+			const entry:TwitchatDataTypes.MessagePollDataChoice = { id: c.id, label: c.title, votes };
+			if(entry.votes > winnerValue) {
+				winner = entry;
+				winnerValue = entry.votes;
+			}
+			choices.push(entry);
+		}
+
+		const poll:TwitchatDataTypes.MessagePollData = {
+			date:Date.now(),
+			id:event.id,
+			platform:"twitch",
+			channel_id: event.broadcaster_user_id,
+			type:TwitchatDataTypes.TwitchatMessageType.POLL,
+			title: event.title,
+			choices,
+			duration_s: (new Date(event.ends_at).getTime() - new Date(event.started_at).getTime())/1000,
+			started_at: new Date(event.started_at).getTime(),
+			ended_at: event.ends_at? new Date(event.ends_at).getTime() : undefined,
+			winner,
+		};
+
+		const isComplete = topic === "channel.poll.end";
+		StoreProxy.poll.setCurrentPoll(poll, isComplete);
+		if(isComplete) {
+			//Clear poll
+			StoreProxy.poll.setCurrentPoll(null);
+		}
+	}
+
 	private async chatMessageEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ChatMessageEvent):Promise<void> {
 		//Ignore reward related messages as they're handled by the reward event
 		if(event.channel_points_custom_reward_id) return;
-		
+
 		window.setTimeout(async () => {
 			//Check if message is already in the list, otherwise add it as a fallback
 			const messageList = StoreProxy.chat.messages;
@@ -1762,12 +1881,12 @@ export default class EventSub {
 					is_short:Utils.stripHTMLTags(messageHTML || "").length / (event.message.text.length||1) < .6 || event.message.text.length < 4,
 					twitch_source:"eventsub",
 				};
-	
+
 				//Check if it's a /me message
 				if(/\u0001ACTION .*\u0001/.test(event.message.text)) {
 					message.twitch_isSlashMe = true;
 				}
-	
+
 				if(event.reply) {
 					let messageList = StoreProxy.chat.messages;
 					//Search for original message the user answered to
@@ -1783,14 +1902,94 @@ export default class EventSub {
 						}
 					}
 				}
-	
+
 				StoreProxy.chat.addMessage(message);
 			}
 		}, 2000);
 	}
 
+	/**
+	 * Called when chat is cleared
+	 * @param topic
+	 * @param event
+	 */
 	private async chatClearEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ChatClearEvent):Promise<void> {
-		//Ignore reward related messages as they're handled by the reward event
+		const message:TwitchatDataTypes.MessageClearChatData = {
+			platform:"twitch",
+			type:TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT,
+			id:Utils.getUUID(),
+			channel_id:event.broadcaster_user_id,
+			date:Date.now(),
+			fromAutomod:false,
+			user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
+		};
+		StoreProxy.chat.addMessage(message);
+	}
+
+	/**
+	 * Called when receiving a whisper
+	 * EDIT: not used because it lacks emotes data. We use the IRC whisper event instead
+	 */
+	private async whisperMessage(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.WhisperEvent):Promise<void> {
+		const meID		= StoreProxy.auth.twitch.user.id;
+		const sender	= StoreProxy.users.getUserFrom("twitch", meID, event.from_user_id);
+		const receiver	= StoreProxy.users.getUserFrom("twitch", meID, event.to_user_id);
+		const chunks	= TwitchUtils.parseMessageToChunks(event.whisper.text, undefined, true, "twitch");
+		const whisper:TwitchatDataTypes.MessageWhisperData = {
+			date:Date.now(),
+			id:Utils.getUUID(),
+			platform:"twitch",
+			type:TwitchatDataTypes.TwitchatMessageType.WHISPER,
+			channel_id:meID,
+			user:sender,
+			to: receiver,
+			message: event.whisper.text,
+			message_chunks: chunks,
+			message_html: TwitchUtils.messageChunksToHTML(chunks),
+			message_size: TwitchUtils.computeMessageSize(chunks),
+		}
+		StoreProxy.chat.addMessage(whisper);
+	}
+
+	/**
+	 * Called when bits are used on the channel
+	 */
+	private async bitsUsed(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.BitsUseEvent):Promise<void> {
+		const user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false);
+		if(event.power_up.type == "celebration") {
+			const m:TwitchatDataTypes.MessageTwitchCelebrationData = {
+				id:Utils.getUUID(),
+				date:Date.now(),
+				platform:"twitch",
+				channel_id:event.broadcaster_user_id,
+				type:TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION,
+				user,
+				cost: event.bits,
+				emoteID: event.power_up.emote.id,
+				emoteURL:"https://static-cdn.jtvnw.net/emoticons/v2/" + event.power_up.emote.id + "/default/light/3.0"
+			};
+			StoreProxy.chat.addMessage(m);
+		}else
+		if(event.power_up.type == "gigantify_an_emote") {
+			const messageChunks:TwitchatDataTypes.ParseMessageChunk[] = await TwitchUtils.eventsubFragmentsToTwitchatChunks(event.message.fragments, event.broadcaster_user_id);
+			const messageHTML = TwitchUtils.messageChunksToHTML(messageChunks);
+			const m:TwitchatDataTypes.MessageTwitchGigantifiedEmoteData = {
+				id:Utils.getUUID(),
+				date:Date.now(),
+				platform:"twitch",
+				channel_id:event.broadcaster_user_id,
+				type:TwitchatDataTypes.TwitchatMessageType.GIGANTIFIED_EMOTE,
+				user,
+				cost: event.bits,
+				emoteID: event.power_up.emote.id,
+				emoteURL:"https://static-cdn.jtvnw.net/emoticons/v2/" + event.power_up.emote.id + "/default/light/3.0",
+				message:event.message.text,
+				message_chunks:messageChunks,
+				message_html:messageHTML,
+				message_size:0,
+			};
+			StoreProxy.chat.addMessage(m);
+		}
 	}
 
 }

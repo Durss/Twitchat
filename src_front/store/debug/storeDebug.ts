@@ -1571,6 +1571,28 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.GIGANTIFIED_EMOTE: {
+					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const emote = Utils.pickRand(staticEmotes);
+					const m:TwitchatDataTypes.MessageTwitchGigantifiedEmoteData = {
+						platform:"twitch",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						channel_id:uid,
+						user:fakeUser,
+						cost:40,
+						emoteID:emote.id,
+						emoteURL:emote.images.url_4x || emote.images.url_2x || emote.images.url_1x,
+						message,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						message_chunks:chunks,
+						message_size:0,
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.WARN_CHATTER: {
 					const m:TwitchatDataTypes.MessageWarnUserData = {
 						platform:"twitch",
@@ -1789,7 +1811,7 @@ export const storeDebug = defineStore('debug', {
 							url:StoreProxy.twitchCharity.currentCharity?.charity_website || "https://dashboard.twitch.tv/charity",
 						},
 					};
-	
+
 					// StoreProxy.chat.addMessage(message);
 					data = message;
 					break;
@@ -1809,7 +1831,7 @@ export const storeDebug = defineStore('debug', {
 						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						action:Utils.pickRand(["dm", "dm_mods", "question", "message"]),
 					};
-	
+
 					data = m;
 					break;
 				}
@@ -2123,3 +2145,4 @@ export const storeDebug = defineStore('debug', {
 if(import.meta.hot) {
 	import.meta.hot.accept(acceptHMRUpdate(storeDebug, import.meta.hot))
 }
+

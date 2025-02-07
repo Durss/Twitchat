@@ -4,7 +4,7 @@ export const TwitchScopes = {
 	CHAT_READ_EVENTSUB: "user:read:chat",
 	CHAT_WRITE_EVENTSUB: "user:write:chat",
 	WHISPER_READ: "whispers:read",
-	WHISPER_WRITE: "user:manage:whispers",
+	WHISPER_MANAGE: "user:manage:whispers",
 	SHOUTOUT: "moderator:manage:shoutouts",
 	SEND_ANNOUNCE: "moderator:manage:announcements",
 	DELETE_MESSAGES: "moderator:manage:chat_messages",
@@ -52,7 +52,7 @@ TwitchScope2Icon[TwitchScopes.CHAT_READ]				= "whispers";
 TwitchScope2Icon[TwitchScopes.CHAT_READ_EVENTSUB]		= "whispers";
 TwitchScope2Icon[TwitchScopes.CHAT_WRITE]				= "whispers";
 TwitchScope2Icon[TwitchScopes.WHISPER_READ]				= "whispers";
-TwitchScope2Icon[TwitchScopes.WHISPER_WRITE]			= "whispers";
+TwitchScope2Icon[TwitchScopes.WHISPER_MANAGE]			= "whispers";
 TwitchScope2Icon[TwitchScopes.SHOUTOUT]					= "shoutout";
 TwitchScope2Icon[TwitchScopes.SEND_ANNOUNCE]			= "announcement";
 TwitchScope2Icon[TwitchScopes.DELETE_MESSAGES]			= "trash";

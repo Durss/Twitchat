@@ -458,7 +458,7 @@ export const storeChat = defineStore('chat', {
 				detailsKey:"params.commands.whisper",
 				alias:"/whisper {recipient} {message}",
 				twitchCmd:true,
-				twitch_scopes:[TwitchScopes.WHISPER_WRITE, TwitchScopes.WHISPER_READ],
+				twitch_scopes:[TwitchScopes.WHISPER_READ, TwitchScopes.WHISPER_MANAGE],
 			},
 			{
 				id:"shieldOn",
@@ -730,7 +730,7 @@ export const storeChat = defineStore('chat', {
 				}
 			});
 
-			//Listen for private moderator messages 
+			//Listen for private moderator messages
 			SSEHelper.instance.addEventListener(SSEEvent.PRIVATE_MOD_MESSAGE, (event)=>{
 				if(!event.data) return;
 				const message_chunks = event.data.message;
@@ -972,7 +972,7 @@ export const storeChat = defineStore('chat', {
 			try {
 
 				message = reactive(message);
-				
+
 				if(!message.channelSource
 				&& message.channel_id != sAuth.twitch.user.id
 				&& message.channel_id != sAuth.youtube.user?.id) {
@@ -985,7 +985,7 @@ export const storeChat = defineStore('chat', {
 						}
 					}
 				}
-	
+
 				if(!greetedUsersInitialized) {
 					greetedUsersInitialized = true;
 					const history = DataStore.get(DataStore.GREET_HISTORY);
@@ -1001,13 +1001,13 @@ export const storeChat = defineStore('chat', {
 					}
 					DataStore.set(DataStore.GREET_HISTORY, greetedUsersExpire_at);
 				}
-	
+
 				//Check if it's a greetable message
 				if(TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(message.type)) {
 					const greetable = message as TwitchatDataTypes.GreetableMessage;
 					this.flagMessageAsFirstToday(greetable);
 				}
-	
+
 				//Live translation if first message ever on the channel
 				if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 				&& message.twitch_isFirstMessage
@@ -1049,7 +1049,7 @@ export const storeChat = defineStore('chat', {
 						})
 					}
 				}
-	
+
 				if(logTimings) console.log("1", message.id, Date.now() - s);
 				switch(message.type) {
 					case TwitchatDataTypes.TwitchatMessageType.MESSAGE:
@@ -1066,16 +1066,16 @@ export const storeChat = defineStore('chat', {
 								displayName:message.user.displayNameOriginal,
 							};
 							PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:this.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
-	
+
 						}else {
-	
+
 							//Check if it's an "ad" message
 							if(!isFromRemoteChan
 							//Remove eventual /command from the reference message
 							&& this.botMessages.twitchatAd.message.trim().replace(/(\s)+/g, "$1").replace(/\/.*? /gi, "") == message.message.trim().replace(/(\s)+/g, "$1")) {
 								message.is_ad = true;
 							}
-	
+
 							if(message.twitch_hypeChat) {
 								//Push a dedicated hype chat message
 								const hypeChatMessage:TwitchatDataTypes.MessageHypeChatData = {
@@ -1089,14 +1089,14 @@ export const storeChat = defineStore('chat', {
 								this.addMessage(hypeChatMessage);
 							}
 						}
-	
+
 						//Check if the message contains a mention
 						if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 							let words = [sAuth.twitch.user.login, ...(sParams.appearance.highlightMentions_custom.value as string[] || [])];
 							message.hasMention = new RegExp(words.map(word=> "\\b"+word+"\\b").join("|"), "gim")
 												.test(message.message ?? "");
 						}
-	
+
 						//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
 						if(ChatCypherPlugin.instance.isCypherCandidate(message.message)) {
 							const original = message.message;
@@ -1105,7 +1105,7 @@ export const storeChat = defineStore('chat', {
 							message.message_size = TwitchUtils.computeMessageSize(message.message_chunks);
 							message.cyphered = message.message != original;
 						}
-	
+
 						//Search in the last 30 messages if this message has already been sent
 						//If so, just increment the previous one
 						if(sParams.features.groupIdenticalMessage.value === true) {
@@ -1126,7 +1126,7 @@ export const storeChat = defineStore('chat', {
 									&& m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 									if(m.to.id != message.to.id) continue;
 								}
-	
+
 								if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 								&& m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 									//If highlight state isn't the same, skip it
@@ -1149,9 +1149,9 @@ export const storeChat = defineStore('chat', {
 								break;
 							}
 						}
-	
-	
-	
+
+
+
 						if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 							if(message.twitch_gigantifiedEmote) {
 								const emote = message.message_chunks.findLast(v=>v.type == "emote");
@@ -1161,7 +1161,7 @@ export const storeChat = defineStore('chat', {
 								StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_CODE", emote?.value || "");
 								StoreProxy.labels.updateLabelValue("POWER_UP_GIANTIFIED_IMAGE", emote?.emoteHD || "");
 							}
-	
+
 							if(message.twitch_animationId) {
 								StoreProxy.labels.updateLabelValue("POWER_UP_MESSAGE_ID", message.user.id);
 								StoreProxy.labels.updateLabelValue("POWER_UP_MESSAGE_NAME", message.user.displayNameOriginal);
@@ -1175,7 +1175,7 @@ export const storeChat = defineStore('chat', {
 								if(!message.user.channelInfo[message.channel_id].is_broadcaster) {
 									SchedulerHelper.instance.incrementMessageCount();
 								}
-		
+
 								//Detect hate raid.
 								if(sParams.features.antiHateRaid.value === true && Date.now() > antiHateRaidGraceEndDate) {
 									const key = message.message_chunks.filter(v=>v.type == "text").join("").toLowerCase();
@@ -1188,13 +1188,13 @@ export const storeChat = defineStore('chat', {
 												ignore:false,
 											};
 										}
-		
+
 										//If user isn't already registered to the haters, add them
 										if(antiHateRaidCounter[key].messages.findIndex(v=>v.user.id == (message as TwitchatDataTypes.MessageChatData).user.id) == -1) {
 											antiHateRaidCounter[key].date = Date.now();
 											antiHateRaidCounter[key].messages.push(message);
 										}
-		
+
 										//5 users sent the same message, strike them if no other legit user sent the same
 										if(antiHateRaidCounter[key].ignore != true && antiHateRaidCounter[key].messages.length == 5) {
 											currentHateRaidAlert = reactive({
@@ -1206,7 +1206,7 @@ export const storeChat = defineStore('chat', {
 												haters:antiHateRaidCounter[key].messages.map(v=>v.user),
 												terms:[],
 											});
-		
+
 											//Ban groups of words to make it a little more bullet proof
 											const chunks = message.message_chunks.filter(v=>v.type == "text").map(v=>v.value).join(" ").split(" ");
 											let word = "";
@@ -1238,7 +1238,7 @@ export const storeChat = defineStore('chat', {
 											if(sParams.features.antiHateRaidEmergency.value == true){
 												sEmergency.setEmergencyMode(true);
 											}
-		
+
 											//Reset counter 10s after hate raid detection.
 											//We shouldn't get an another wave for this message unless someone
 											//removes the blocked terms
@@ -1260,7 +1260,7 @@ export const storeChat = defineStore('chat', {
 												}
 											}
 										}
-		
+
 										//Cleanup old cache to free memory
 										let expiredSince = Date.now() - 5*60*1000;
 										for (const key in antiHateRaidCounter) {
@@ -1273,7 +1273,7 @@ export const storeChat = defineStore('chat', {
 									}
 								}
 							}
-	
+
 							const wsMessage = {
 								channel:message.channel_id,
 								message:message.message,
@@ -1283,29 +1283,29 @@ export const storeChat = defineStore('chat', {
 									displayName:message.user.displayNameOriginal,
 								}
 							}
-	
+
 							//If it's a text message and user isn't a follower, broadcast to WS
 							if(message.user.channelInfo[message.channel_id].is_following === false) {
 								PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, wsMessage);
 							}
-	
+
 							//Check if the message contains a mention
 							if(message.hasMention) {
 								PublicAPI.instance.broadcast(TwitchatEvent.MENTION, wsMessage);
 							}
-	
+
 							//If it's the first message today for this user
 							if(message.todayFirst === true) {
 								PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST, wsMessage);
 							}
-	
+
 							//If it's the first message all time of the user
 							if(message.twitch_isFirstMessage) {
 								//Flag user as new chatter
 								message.user.channelInfo[message.channel_id].is_new = true;
 								// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, wsMessage);
 							}
-	
+
 							//Handle spoiler command
 							if(message.answersTo && await Utils.checkPermissions(this.spoilerParams.permissions, message.user, message.channel_id)) {
 								const cmd = message.message.replace(/@[^\s]+\s?/, "").trim().toLowerCase();
@@ -1313,10 +1313,10 @@ export const storeChat = defineStore('chat', {
 									message.answersTo.spoiler = true;
 								}
 							}
-	
+
 							//Flag as spoiler
 							if(message.message.indexOf("||") > -1) message.containsSpoiler = true;
-	
+
 							//check if it's a chat alert command
 							if(!isFromRemoteChan
 							&& sParams.features.alertMode.value === true
@@ -1324,7 +1324,7 @@ export const storeChat = defineStore('chat', {
 								if(message.message.trim().toLowerCase().indexOf(sMain.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
 									//Execute alert
 									sMain.chatAlert = message;
-	
+
 									//Execute trigger
 									const trigger:TwitchatDataTypes.MessageChatAlertData = {
 										date:Date.now(),
@@ -1337,7 +1337,7 @@ export const storeChat = defineStore('chat', {
 									TriggerActionHandler.instance.execute(trigger);
 								}
 							}
-	
+
 							//If there's a mention, search for last messages within
 							//a max timeframe to find if the message may be a reply to
 							//a message that was sent by the mentionned user
@@ -1358,7 +1358,7 @@ export const storeChat = defineStore('chat', {
 										if(ts - m.date > timeframe) break;
 										//Not sent from the mentionned user, ignore it
 										if(m.user.login != match && m.user.displayNameOriginal.toLowerCase() != match) continue;
-	
+
 										//If it's the root message of a conversation
 										if(m.answers) {
 											//Add current message to its answers
@@ -1382,7 +1382,7 @@ export const storeChat = defineStore('chat', {
 									}
 								}
 							}
-	
+
 							//If it's a new user and "autospoil new users" option is enabled,
 							//set the message as a spoiler
 							if(message.user.channelInfo[message.channel_id].is_new === true
@@ -1394,7 +1394,7 @@ export const storeChat = defineStore('chat', {
 						}
 						break;
 					}
-	
+
 					//Reward redeem
 					case TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK: {
 						if(!isFromRemoteChan) {
@@ -1405,15 +1405,15 @@ export const storeChat = defineStore('chat', {
 						}
 						break;
 					}
-	
+
 					//Reward redeem
 					case TwitchatDataTypes.TwitchatMessageType.REWARD: {
-	
+
 						//Check if the user can enter a raffle
 						if(!isFromRemoteChan) {
 							sRaffle.checkRaffleJoin(message);
 						}
-	
+
 						const wsMessage = {
 							channel:message.channel_id,
 							message:message.message,
@@ -1439,7 +1439,7 @@ export const storeChat = defineStore('chat', {
 						}
 						break;
 					}
-	
+
 					//Incomming raid
 					case TwitchatDataTypes.TwitchatMessageType.RAID: {
 						antiHateRaidGraceEndDate = Date.now() + 3 * 60 * 1000;
@@ -1463,10 +1463,10 @@ export const storeChat = defineStore('chat', {
 								StoreProxy.users.untrackUser(localMess.user);
 							}
 						}, (sParams.appearance.raidHighlightUserDuration.value as number ?? 0) * 1000 * 60);
-	
+
 						break;
 					}
-	
+
 					//New cheer
 					case TwitchatDataTypes.TwitchatMessageType.CHEER: {
 						if(!isFromRemoteChan) {
@@ -1478,7 +1478,7 @@ export const storeChat = defineStore('chat', {
 						}
 						break;
 					}
-	
+
 					//New kofi event
 					case TwitchatDataTypes.TwitchatMessageType.KOFI: {
 						if(!isFromRemoteChan) {
@@ -1496,7 +1496,7 @@ export const storeChat = defineStore('chat', {
 						}
 						break;
 					}
-	
+
 					//New Streamelements event
 					case TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS: {
 						if(!isFromRemoteChan) {
@@ -1509,7 +1509,7 @@ export const storeChat = defineStore('chat', {
 						}
 						break;
 					}
-	
+
 					//New Streamlabs event
 					case TwitchatDataTypes.TwitchatMessageType.STREAMLABS: {
 						if(!isFromRemoteChan) {
@@ -1534,7 +1534,7 @@ export const storeChat = defineStore('chat', {
 						}
 						break;
 					}
-	
+
 					//New Tipeee event
 					case TwitchatDataTypes.TwitchatMessageType.TIPEEE: {
 						if(!isFromRemoteChan) {
@@ -1547,7 +1547,7 @@ export const storeChat = defineStore('chat', {
 						}
 						break;
 					}
-	
+
 					//New Tipeee event
 					case TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION: {
 						if(!isFromRemoteChan) {
@@ -1560,7 +1560,7 @@ export const storeChat = defineStore('chat', {
 						}
 						break;
 					}
-	
+
 					//New YouTube sub
 					case TwitchatDataTypes.TwitchatMessageType.YOUTUBE_SUBSCRIPTION: {
 						if(!isFromRemoteChan) {
@@ -1574,8 +1574,8 @@ export const storeChat = defineStore('chat', {
 						}
 						break;
 					}
-	
-					//New superchat 
+
+					//New superchat
 					case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT: {
 						if(!isFromRemoteChan) {
 							StoreProxy.labels.updateLabelValue("SUPER_CHAT_ID", message.user.id);
@@ -1585,7 +1585,7 @@ export const storeChat = defineStore('chat', {
 						}
 						break;
 					}
-	
+
 					//New patreon member
 					case TwitchatDataTypes.TwitchatMessageType.PATREON: {
 						StoreProxy.labels.updateLabelValue("PATREON_USER", message.user.username);
@@ -1594,14 +1594,14 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.updateLabelValue("PATREON_AMOUNT", message.tier.amount);
 						break;
 					}
-	
+
 					//New donation on Tiltify
 					case TwitchatDataTypes.TwitchatMessageType.TILTIFY: {
 						StoreProxy.labels.updateLabelValue("TILTIFY_LAST_TIP_USER", message.userName);
 						StoreProxy.labels.updateLabelValue("TILTIFY_LAST_TIP_AMOUNT", message.amount);
 						break;
 					}
-	
+
 					//New sub
 					case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
 						PublicAPI.instance.broadcast(TwitchatEvent.SUBSCRIPTION, {
@@ -1697,7 +1697,7 @@ export const storeChat = defineStore('chat', {
 									});
 									continue;
 								}
-								
+
 								// Merge subgift messages if they are from the same user, same tier, same channel, and within 10 seconds
 								if(!subgiftHistoryEntry.gift_recipients) subgiftHistoryEntry.gift_recipients = [];//Init recipent list if necessary
 								subgiftHistoryEntry.date = Math.max(subgiftHistoryEntry.date, message.date); // Keep latest timestamp
@@ -1727,12 +1727,12 @@ export const storeChat = defineStore('chat', {
 							StoreProxy.labels.updateLabelValue("SUB_NAME", message.user.displayNameOriginal);
 							StoreProxy.labels.updateLabelValue("SUB_AVATAR", message.user.avatarPath || "", message.user.id);
 							StoreProxy.labels.updateLabelValue("SUB_TIER", message.tier);
-	
+
 							StoreProxy.labels.updateLabelValue("SUB_GENERIC_ID", message.user.id);
 							StoreProxy.labels.updateLabelValue("SUB_GENERIC_NAME", message.user.displayNameOriginal);
 							StoreProxy.labels.updateLabelValue("SUB_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
 							StoreProxy.labels.updateLabelValue("SUB_GENERIC_TIER", message.tier);
-	
+
 							StoreProxy.labels.incrementLabelValue("SUB_COUNT", 1);
 							StoreProxy.labels.incrementLabelValue("SUB_POINTS", {prime:1, 1:2, 2:3, 3:6}[message.tier]);
 							StoreProxy.donationGoals.onSourceValueUpdate("twitch_subs");
@@ -1741,7 +1741,7 @@ export const storeChat = defineStore('chat', {
 						}
 						break;
 					}
-	
+
 					//Users joined, check if any need to be autobanned
 					case TwitchatDataTypes.TwitchatMessageType.JOIN: {
 						if(!isFromRemoteChan) {
@@ -1768,7 +1768,7 @@ export const storeChat = defineStore('chat', {
 						}
 						break;
 					}
-	
+
 					//New follower
 					case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
 						sUsers.flagAsFollower(message.user, message.channel_id);
@@ -1779,13 +1779,13 @@ export const storeChat = defineStore('chat', {
 							StoreProxy.labels.incrementLabelValue("FOLLOWER_COUNT", 1);
 							StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, "1", "twitch_followers");
 						}
-	
+
 						//Merge all followbot events into one
 						if(message.followbot === true && !isFromRemoteChan) {
 							const prevFollowbots:TwitchatDataTypes.MessageFollowingData[] = [];
 							const deletedMessages:(TwitchatDataTypes.MessageFollowingData|TwitchatDataTypes.MessageFollowbotData)[] = [];
 							let bulkMessage!:TwitchatDataTypes.MessageFollowbotData;
-	
+
 							//Search for any existing followbot event, delete them and group
 							//them into a single followbot alert with all the users in it
 							//Only search within the last 100 messages
@@ -1827,7 +1827,7 @@ export const storeChat = defineStore('chat', {
 							bulkMessage.date = Date.now();
 							bulkMessage.users.push(message.user);
 							message = bulkMessage;
-	
+
 							//Broadcast DELETE events
 							while(deletedMessages.length > 0) {
 								const m = deletedMessages.pop();
@@ -1847,19 +1847,19 @@ export const storeChat = defineStore('chat', {
 						}
 						break;
 					}
-	
+
 					//Request to clear chat
 					case TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT: {
 						if(message.channel_id) this.delChannelMessages(message.channel_id);
 						break;
 					}
-	
+
 					//Ban user
 					case TwitchatDataTypes.TwitchatMessageType.BAN: {
 						this.delUserMessages((message as TwitchatDataTypes.MessageBanData).user.id, (message as TwitchatDataTypes.MessageBanData).channel_id);
 						break;
 					}
-	
+
 					//Twitch celebration
 					case TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION: {
 						StoreProxy.labels.updateLabelValue("POWER_UP_CELEBRATION_ID", message.user.id);
@@ -1869,7 +1869,7 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.updateLabelValue("POWER_UP_CELEBRATION_IMAGE", "https://static-cdn.jtvnw.net/emoticons/v2/" + message.emoteID + "/default/light/3.0");
 						break;
 					}
-	
+
 					//YouTube Superchat
 					case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT: {
 						StoreProxy.labels.updateLabelValue("SUPER_CHAT_ID", message.user.id);
@@ -1878,7 +1878,7 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.updateLabelValue("SUPER_CHAT_AMOUNT", message.amountDisplay);
 						break;
 					}
-	
+
 					//YouTube Super sticker
 					case TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER: {
 						StoreProxy.labels.updateLabelValue("SUPER_STICKER_ID", message.user.id);
@@ -1888,7 +1888,7 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.updateLabelValue("SUPER_STICKER_IMAGE", message.sticker_url);
 						break;
 					}
-	
+
 					//TikTok gift
 					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT: {
 						StoreProxy.labels.updateLabelValue("TIKTOK_GIFT_USER", message.user.displayNameOriginal);
@@ -1898,21 +1898,21 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.updateLabelValue("TIKTOK_GIFT_DIAMONDS", message.diamonds);
 						break;
 					}
-	
+
 					//TikTok sub
 					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB: {
 						StoreProxy.labels.updateLabelValue("TIKTOK_SUB_USER", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("TIKTOK_SUB_AVATAR", message.user.avatarPath || "");
 						break;
 					}
-	
+
 					//TikTok Share
 					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE: {
 						StoreProxy.labels.updateLabelValue("TIKTOK_SHARE_USER", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("TIKTOK_SHARE_AVATAR", message.user.avatarPath || "");
 						break;
 					}
-	
+
 					//TikTok like
 					case TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE: {
 						StoreProxy.labels.updateLabelValue("TIKTOK_LIKE_USER", message.user.displayNameOriginal);
@@ -1922,43 +1922,43 @@ export const storeChat = defineStore('chat', {
 						break;
 					}
 				}
-	
+
 				if(logTimings) console.log("2", message.id, Date.now() - s);
-	
+
 				if(TwitchatDataTypes.IsTranslatableMessage[message.type] && !isFromRemoteChan) {
 					const typedMessage = message as TwitchatDataTypes.TranslatableMessage;
 					const cmd = (typedMessage.message || "").trim().split(" ")[0].toLowerCase();
-	
+
 					//If a raffle is in progress, check if the user can enter
 					sRaffle.checkRaffleJoin(typedMessage as TwitchatDataTypes.ChatMessageTypes);
-	
+
 					//If there's a suggestion poll and the timer isn't over
 					const suggestionPoll = sChatSuggestion.data;
 					if(suggestionPoll && cmd == suggestionPoll.command.toLowerCase().trim()) {
 						sChatSuggestion.addChatSuggestion(typedMessage);
 					}
-	
+
 					//Check if it's the winning choice of a bingo
 					sBingo.checkBingoWinner(typedMessage);
-	
+
 					//Handle OBS commands
 					sOBS.handleChatCommand(typedMessage, cmd);
-	
+
 					//Handle Emergency commands
 					sEmergency.handleChatCommand(typedMessage, cmd);
-	
+
 					//Handle Emergency commands
 					sQna.handleChatCommand(typedMessage, cmd);
-	
+
 					//Handle Voicemod commands
 					sVoice.handleChatCommand(typedMessage, cmd);
-					
+
 					//Handle bingo grid commands
 					sBingoGrid.handleChatCommand(typedMessage, cmd);
 				}
-	
+
 				if(logTimings) console.log("3", message.id, Date.now() - s);
-	
+
 				//Apply automod rules if requested
 				if(sAutomod.params.enabled === true && !isFromRemoteChan) {
 					if( message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
@@ -1990,7 +1990,7 @@ export const storeChat = defineStore('chat', {
 								return;
 							}
 						}
-	
+
 						//Check if message passes the automod
 						if(message.type != TwitchatDataTypes.TwitchatMessageType.FOLLOWING
 						&& message.type != TwitchatDataTypes.TwitchatMessageType.RAID
@@ -2013,7 +2013,7 @@ export const storeChat = defineStore('chat', {
 											TwitchUtils.deleteMessages(message.channel_id, message.id);
 											//No need to call this.deleteMessageByID(), IRC will call it when request completes
 										}
-	
+
 										//Start emergency if requested
 										if(rule.emergency === true && sEmergency.params.enabled === true) {
 											sEmergency.setEmergencyMode(true);
@@ -2088,7 +2088,7 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.incrementLabelValue("SUB_COUNT", message.gift_count || 1);
 						StoreProxy.labels.incrementLabelValue("SUB_POINTS", {prime:1, 1:2, 2:3, 3:6}[message.tier] * (message.gift_count || 1));
 						StoreProxy.labels.incrementLabelValue("SUBGIFT_COUNT", message.gift_count || 1);
-						
+
 						StoreProxy.donationGoals.onSourceValueUpdate("twitch_subs");
 						const tierLabel = {prime:"prime", 1:"tier 1", 2:"tier 2", 3:"tier 3"}[message.tier];
 						StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, message.gift_count+" "+tierLabel, "twitch_subs");
@@ -2097,14 +2097,14 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.updateLabelValue("SUBGIFT_YOUTUBE_NAME", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("SUBGIFT_YOUTUBE_AVATAR", message.user.avatarPath || "");
 						StoreProxy.labels.updateLabelValue("SUBGIFT_YOUTUBE_TIER", message.levelName);
-						
+
 						StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_TIER", message.levelName);
 						StoreProxy.labels.updateLabelValue("SUB_GENERIC_TIER", message.levelName);
 
 						// StoreProxy.labels.incrementLabelValue("SUBGIFT_YOUTUBE_COUNT", message.gift_count || 1);
 						// StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, message.gift_count+" "+message.levelName, "twitch_subs");
 					}
-					
+
 					StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_ID", message.user.id);
 					StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_NAME", message.user.displayNameOriginal);
 					StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
@@ -2283,8 +2283,8 @@ export const storeChat = defineStore('chat', {
 		setEmoteSelectorCache(payload:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[]) { this.emoteSelectorCache = payload; },
 
 		openWhisperWithUser(user:TwitchatDataTypes.TwitchatUser):void {
-			if(!TwitchUtils.requestScopes([TwitchScopes.WHISPER_READ && TwitchScopes.WHISPER_WRITE])) return;
-			
+			if(!TwitchUtils.requestScopes([TwitchScopes.WHISPER_MANAGE])) return;
+
 			const from = StoreProxy.auth.twitch.user;
 			StoreProxy.chat.whispers[user.id] = {to:user, from, messages:[]};
 			StoreProxy.params.openModal("whispers", true);
@@ -2462,7 +2462,7 @@ export const storeChat = defineStore('chat', {
 
 		async flagAsSpoiler(message:TwitchatDataTypes.MessageChatData):Promise<void>{
 			message.spoiler = true;
-			
+
 			if(message.channel_id != StoreProxy.auth.twitch.user.id) {
 				//If remotely moderating session, tell the broadcaster the message must be
 				//added to the list

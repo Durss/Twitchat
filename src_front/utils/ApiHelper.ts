@@ -46,7 +46,7 @@ export default class ApiHelper {
 		P extends ApiDefinition<ApiEndpoints, U, M>["parameters"]>
 		(endpoint:U, method:M, data?:P, retryOnFail:boolean = true, attemptIndex:number = 0, headers:{[key:string]:string} = {}, abortSignal?:AbortSignal)
 		:Promise<{status:number; json:ApiDefinition<ApiEndpoints, U, M>["response"]}> {
-			
+
 		const url = new URL(Config.instance.API_PATH+"/"+endpoint);
 		headers["App-Version"] = import.meta.env.PACKAGE_VERSION;
 		if(this._accessToken) {
@@ -985,7 +985,7 @@ type ApiEndpoints =  {
 		POST: {
 			parameters: {
 				log:unknown;
-				cat:"streamlabs"|"hypetrain"|"tiltify"|"kofi"|"patreon"|"random";
+					cat:"streamlabs"|"hypetrain"|"tiltify"|"kofi"|"patreon"|"random"|"eventsub";
 			};
 			response:{
 				success:boolean;
@@ -1006,7 +1006,7 @@ type ApiEndpoints =  {
 				errorCode?:string;
 			}
 		},
-		
+
 		DELETE: {
 			parameters: {
 				uid:string;
