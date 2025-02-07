@@ -263,11 +263,11 @@ class HypeTrainState extends Vue {
 
 		const p = Math.floor(this.trainData.currentValue/this.trainData.goal * 100);
 		//Log data to understand where a "NaN%" is coming from on some users
-		if(isNaN(p) || this.trainData.goal == undefined || this.trainData.currentValue == undefined
-		|| isNaN(this.timerDuration) || this.timerDuration == undefined) {
-			const version = import.meta.env.PACKAGE_VERSION;
-			ApiHelper.call("log", "POST", {cat:"hypetrain", log:{reason:"RENDERING ERROR", tt_v:version, data:this.trainData}});
-		}
+		// if(isNaN(p) || this.trainData.goal == undefined || this.trainData.currentValue == undefined
+		// || isNaN(this.timerDuration) || this.timerDuration == undefined) {
+		// 	const version = import.meta.env.PACKAGE_VERSION;
+		// 	ApiHelper.call("log", "POST", {cat:"hypetrain", log:{reason:"RENDERING ERROR", tt_v:version, data:this.trainData}});
+		// }
 		gsap.to(this, {progressPercent:p, ease:"sine.inOut", duration:.5});
 	}
 

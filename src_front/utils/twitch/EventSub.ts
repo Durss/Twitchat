@@ -7,6 +7,7 @@ import Logger from "../Logger";
 import Utils from "../Utils";
 import { TwitchScopes } from "./TwitchScopes";
 import TwitchUtils from "./TwitchUtils";
+import ApiHelper from "../ApiHelper";
 
 /**
 * Created : 02/12/2022
@@ -587,12 +588,14 @@ export default class EventSub {
 			}
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_PROGRESS: {
+				ApiHelper.call("log", "POST", {cat:"eventsub", log:{topic, tt_v:import.meta.env.PACKAGE_VERSION, data:payload.event}});
 				const charity = payload.event as TwitchEventSubDataTypes.CharityProgressEvent;
 				StoreProxy.twitchCharity.onCharityProgress(charity.id, charity.current_amount, charity.target_amount);
 				break;
 			}
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_DONATE: {
+				ApiHelper.call("log", "POST", {cat:"eventsub", log:{topic, tt_v:import.meta.env.PACKAGE_VERSION, data:payload.event}});
 				const donation = payload.event as TwitchEventSubDataTypes.CharityDonationEvent;
 				const user = StoreProxy.users.getUserFrom("twitch", donation.user_id, donation.user_id, donation.user_login, donation.user_name, undefined, undefined, false, undefined, false);
 				//Delay to give it a little more time to progress to come in before interpreting donation
@@ -620,8 +623,15 @@ export default class EventSub {
 			}
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.BITS_USE: {
-				console.log(payload)
+				ApiHelper.call("log", "POST", {cat:"eventsub", log:{topic, tt_v:import.meta.env.PACKAGE_VERSION, data:payload.event}});
 				this.bitsUsed(topic, payload.event as TwitchEventSubDataTypes.BitsUseEvent);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_START:
+			case TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_PROGRESS:
+			case TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_END: {
+				ApiHelper.call("log", "POST", {cat:"eventsub", log:{topic, tt_v:import.meta.env.PACKAGE_VERSION, data:payload.event}});
 				break;
 			}
 		}

@@ -162,7 +162,7 @@ export default class Config {
 		});
 	}
 
-	public static LOGS_PATH(category:"streamlabs"|"hypetrain"|"tiltify"|"kofi"|"patreon"|"random"): string {
+	public static LOGS_PATH(category:"streamlabs"|"hypetrain"|"tiltify"|"kofi"|"patreon"|"random"|"eventsub"): string {
 		return this.getEnvData({
 			dev: path.join(this.LOGS_FOLDER, "/"+category+".json"),
 			beta: path.join(this.LOGS_FOLDER, "/"+category+".json"),
@@ -451,6 +451,6 @@ interface Credentials {
 	tiltify_redirect_uri:string;
 	tiltify_scopes:string;
 	tiltify_api_path:string;
-	
+
 	kofi_proxy:string;
 }
