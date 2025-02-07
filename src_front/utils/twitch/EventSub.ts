@@ -343,6 +343,10 @@ export default class EventSub {
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_CLEAR, "1", {user_id:myUID});
 		}
 
+		if(TwitchUtils.hasScopes([TwitchScopes.WHISPER_MANAGE])) {
+			// this.createSubscription("", "", TwitchEventSubDataTypes.SubscriptionTypes.WHISPERS, "1", {user_id:myUID});
+		}
+
 		this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {to_broadcaster_user_id:channelId});
 	}
 
@@ -499,6 +503,11 @@ export default class EventSub {
 				break;
 			}
 
+			case TwitchEventSubDataTypes.SubscriptionTypes.WHISPERS: {
+				this.whisperMessage(topic, payload.event as TwitchEventSubDataTypes.WhisperEvent);
+				break;
+			}
+
 			case TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON:
 			case TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF: {
 				this.streamStartStopEvent(topic, payload.event as TwitchEventSubDataTypes.StreamOnlineEvent | TwitchEventSubDataTypes.StreamOfflineEvent);
@@ -592,17 +601,7 @@ export default class EventSub {
 			}
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.CHAT_CLEAR: {
-				const event = payload.event as TwitchEventSubDataTypes.ChatClearEvent;
-				const message:TwitchatDataTypes.MessageClearChatData = {
-					platform:"twitch",
-					type:TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT,
-					id:Utils.getUUID(),
-					channel_id:event.broadcaster_user_id,
-					date:Date.now(),
-					fromAutomod:false,
-					user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
-				};
-				StoreProxy.chat.addMessage(message);
+				this.chatClearEvent(topic, payload.event as TwitchEventSubDataTypes.ChatClearEvent);
 				break;
 			}
 
@@ -1841,8 +1840,47 @@ export default class EventSub {
 		}, 2000);
 	}
 
+	/**
+	 * Called when chat is cleared
+	 * @param topic
+	 * @param event
+	 */
 	private async chatClearEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ChatClearEvent):Promise<void> {
-		//Ignore reward related messages as they're handled by the reward event
+		const message:TwitchatDataTypes.MessageClearChatData = {
+			platform:"twitch",
+			type:TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT,
+			id:Utils.getUUID(),
+			channel_id:event.broadcaster_user_id,
+			date:Date.now(),
+			fromAutomod:false,
+			user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
+		};
+		StoreProxy.chat.addMessage(message);
+	}
+
+	/**
+	 * Called when receiving a whisper
+	 * EDIT: not used because it lacks emotes data. We use the IRC whisper event instead
+	 */
+	private async whisperMessage(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.WhisperEvent):Promise<void> {
+		const meID		= StoreProxy.auth.twitch.user.id;
+		const sender	= StoreProxy.users.getUserFrom("twitch", meID, event.from_user_id);
+		const receiver	= StoreProxy.users.getUserFrom("twitch", meID, event.to_user_id);
+		const chunks	= TwitchUtils.parseMessageToChunks(event.whisper.text, undefined, true, "twitch");
+		const whisper:TwitchatDataTypes.MessageWhisperData = {
+			date:Date.now(),
+			id:Utils.getUUID(),
+			platform:"twitch",
+			type:TwitchatDataTypes.TwitchatMessageType.WHISPER,
+			channel_id:meID,
+			user:sender,
+			to: receiver,
+			message: event.whisper.text,
+			message_chunks: chunks,
+			message_html: TwitchUtils.messageChunksToHTML(chunks),
+			message_size: TwitchUtils.computeMessageSize(chunks),
+		}
+		StoreProxy.chat.addMessage(whisper);
 	}
 
 }

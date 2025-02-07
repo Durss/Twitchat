@@ -153,7 +153,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				BTTVUtils.instance.addChannel(channel.id);
 				FFZUtils.instance.addChannel(channel.id);
 				SevenTVUtils.instance.addChannel(channel.id);
-				
+
 
 				if(this._client) {
 					Logger.instance.log("irc", {info:"Join channel "+ channel.login});
@@ -177,7 +177,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				Logger.instance.log("irc", {info:"Create IRC client"});
 				this._client = new tmi.Client(options);
 				this._client.connect();
-				
+
 				this.initialize();
 			}
 		}, 1000);
@@ -201,7 +201,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			this._channelList.splice(index, 1);
 			this._client.part("#"+channel);
 		}
-		
+
 		// const params = this._client.getOptions();
 		// const index = this._channelList.findIndex(v=>v===channel);
 		// if(index > -1) {
@@ -452,7 +452,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 				case "/whisper":
 				case "/w": {
-					if(!TwitchUtils.requestScopes([TwitchScopes.WHISPER_WRITE])) return false;
+					if(!TwitchUtils.requestScopes([TwitchScopes.WHISPER_MANAGE])) return false;
 					const login = chunks[0].replace(/^@/, "").toLowerCase();
 					return await TwitchUtils.whisper(chunks.splice(1).join(" "), login);
 				}
@@ -640,7 +640,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	private async onMessage(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean):Promise<void> {
 		//Ignore anything that's not a message or a /me
-		if(tags["message-type"] != "chat" && tags["message-type"] != "action" && (tags["message-type"] as string) != "announcement") {
+		if(tags["message-type"] != "chat"
+		&& tags["message-type"] != "whisper"
+		&& tags["message-type"] != "action"
+		&& tags["message-type"] != "announcement") {
 			if(!Config.instance.IS_PROD) {
 				let data:TwitchatDataTypes.MessageNoticeData = {
 					channel_id:this.getChannelID(channel),
@@ -658,6 +661,34 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 		//Ignore rewards with text, they are also sent to PubSub with more info
 		if(tags["custom-reward-id"]) return;
+
+		console.log(channel, tags, message)
+
+		//Receive whispers
+		if(tags["message-type"] == "whisper") {
+			const channel_id = StoreProxy.auth.twitch.user.id;
+			const user = this.getUserFromTags(tags, channel_id);
+
+			const data:TwitchatDataTypes.MessageWhisperData = {
+				id:tags.id!,
+				type:TwitchatDataTypes.TwitchatMessageType.WHISPER,
+				to: StoreProxy.auth.twitch.user,
+				platform:"twitch",
+				channel_id,
+				date:Date.now(),
+				user,
+				message,
+				message_html:"",
+				message_chunks:[],
+				message_size:0,
+			};
+
+			data.message_chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"], tags.sentLocally == true);
+			data.message_html = TwitchUtils.messageChunksToHTML(data.message_chunks);
+			data.message_size = TwitchUtils.computeMessageSize(data.message_chunks);
+			this.dispatchEvent(new MessengerClientEvent("WHISPER", data));
+			return;
+		}
 
 		const channel_id = this.getChannelID(channel);
 		const user = this.getUserFromTags(tags, channel_id);
@@ -710,7 +741,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				this._remoteChanToColor[chanId] = this._remoteChanColors[this._remoteChanColorPointer];
 				this._remoteChanColorPointer ++;
 			}
-			
+
 			//Define remote channel info
 			data.channelSource = {
 				color:this._remoteChanToColor[chanId],

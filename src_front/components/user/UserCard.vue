@@ -22,7 +22,7 @@
 				<div class="card-item alert errorMessage">{{ $t("error.user_profile") }}</div>
 			</template>
 
-			
+
 			<template v-else-if="!loading && !error">
 				<ClearButton aria-label="close" @click="closeCard()" v-show="!manageBadges && !manageUserNames" />
 				<div class="header" v-show="!manageBadges && !manageUserNames">
@@ -33,7 +33,7 @@
 								alt="avatar"
 								class="large"
 								referrerpolicy="no-referrer">
-	
+
 							<img v-if="!isOwnChannel && channel?.avatarPath"
 								:src="channel.avatarPath"
 								@click.capture.prevent="resetChanContext()"
@@ -48,11 +48,11 @@
 					</a>
 					<div class="title">
 						<CustomBadgeSelector class="customBadges" :user="user" @manageBadges="manageBadges = true" :channelId="channel!.id" @limitReached="manageBadges = true" />
-						
+
 						<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" v-tooltip="b.title">
 
 						<CustomUserBadges :tooltip="$t('usercard.remove_badgesBt')" :user="user" @select="removeCustomBadge" :channelId="channel!.id" />
-						
+
 						<template v-if="!edittingLogin">
 							<a :href="profilePage" target="_blank" class="nickname">
 								<span class="label">{{user.displayName}}</span>
@@ -74,7 +74,7 @@
 								</template>
 							</tooltip>
 						</template>
-						
+
 						<form v-else class="editLoginForm" @submit.prevent="submitCustomLogin()">
 							<input class="" type="text" :placeholder="$t('global.login_placeholder')" v-model="customLogin" ref="customUsername" maxlength="25">
 							<TTButton type="submit" icon="checkmark"></TTButton>
@@ -84,7 +84,7 @@
 					<span v-if="isTwitchProfile && user.pronouns" class="pronouns">({{ user.pronounsLabel }})</span>
 					<div class="userID" v-tooltip="$t('global.copy')" @click="copyID()" ref="userID">#{{user.id}}</div>
 				</div>
-				
+
 				<ChatModTools v-if="isTwitchProfile && canModerate" class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock v-show="!manageBadges && !manageUserNames" />
 
 				<div class="scrollable" v-show="!manageBadges && !manageUserNames">
@@ -94,10 +94,10 @@
 							<Icon name="date" alt="account creation date" class="icon"/>
 							{{createDateElapsed}}
 						</div>
-						
+
 						<div class="info" v-if="followersCount > -1"><Icon name="follow_outline" class="icon"/>{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
-						
-						
+
+
 						<template v-if="isOwnChannel">
 							<div class="info" v-if="subState && subStateLoaded">
 								<Icon name="gift" alt="subscribed" class="icon" v-if="subState.is_gift"/>
@@ -123,7 +123,7 @@
 					</div>
 
 					<div class="banReason quote" v-if="banReason"><Icon name="ban" /> {{ banReason }}</div>
-					
+
 					<div class="ctas" v-if="isTwitchProfile">
 						<form class="warnForm" @submit.prevent="warnUser()" v-if="showWarningForm">
 							<TTButton type="button" icon="back" @click="showWarningForm = false" alert></TTButton>
@@ -139,7 +139,7 @@
 							<TTButton v-if="$store.tts.params.enabled === true" small icon="tts" @click="toggleReadUser()">{{ ttsReadBtLabel }}</TTButton>
 						</template>
 					</div>
-					
+
 					<div class="ctas">
 						<TTButton type="link" small icon="newtab" :href="profilePage" target="_blank">{{$t('usercard.profileBt')}}</TTButton>
 						<template v-if="isTwitchProfile">
@@ -149,7 +149,7 @@
 								@click.stop="openUserCard($event, channel!.login)"
 								:href="'https://www.twitch.tv/popout/'+channel!.login+'/viewercard/'+user!.login"
 								target="_blank">{{$t('usercard.viewercardBt')}}</TTButton>
-							
+
 							<TTButton small
 							v-if="!isOwnChannel"
 								type="link"
@@ -157,9 +157,9 @@
 								@click.stop="openUserCard($event)"
 								:href="'https://www.twitch.tv/popout/'+$store.auth.twitch.user.login+'/viewercard/'+user!.login"
 								target="_blank">{{$store.auth.twitch.user.displayName, $store.auth.twitch.user.login}}</TTButton>
-							
+
 							<TTButton v-if="!canListModeratedChans" small secondary icon="mod" @click="grantModeratedScope()">{{$t('usercard.moderator_viewercardBt')}}</TTButton>
-							
+
 							<div class="modItem" v-for="modedChan of moderatedChannelList_pinned.filter(v=>v.broadcaster_id != channel!.id)">
 								<TTButton small
 									type="link"
@@ -170,7 +170,7 @@
 									target="_blank" >{{ modedChan.broadcaster_name }}</TTButton>
 								<TTButton icon="unpin" @click="unpinModIem(modedChan)"></TTButton>
 							</div>
-							
+
 							<tooltip
 							interactive
 							trigger="click"
@@ -198,7 +198,7 @@
 							</tooltip>
 						</template>
 					</div>
-					
+
 					<div class="card-item secondary liveInfo" v-if="currentStream">
 						<div class="header">
 							<div class="title">{{ $t("usercard.streaming") }}</div>
@@ -210,12 +210,12 @@
 					</div>
 
 					<div class="card-item description quote" v-if="userDescription">{{userDescription}}</div>
-				
+
 					<div class="card-item messages" v-if="messageHistory.length > 0">
 						<div class="header">
 							<h2 class="title">{{ $t("usercard.messages") }}</h2>
 						</div>
-		
+
 						<div class="list" ref="messagelist">
 							<div class="subholder" v-for="m in messageHistory" :key="m.id">
 								<MessageItem class="message"
@@ -351,7 +351,7 @@ class UserCard extends AbstractSidePanel {
 	/**
 	 * Get if we can whisper
 	 */
-	public get canWhisper():boolean { return this.user!.id != this.$store.auth.twitch.user.id &&  TwitchUtils.hasScopes([TwitchScopes.WHISPER_READ && TwitchScopes.WHISPER_WRITE]); }
+	public get canWhisper():boolean { return this.user!.id != this.$store.auth.twitch.user.id &&  TwitchUtils.hasScopes([TwitchScopes.WHISPER_READ && TwitchScopes.WHISPER_MANAGE]); }
 
 	/**
 	 * Get if we can shoutout
@@ -403,7 +403,7 @@ class UserCard extends AbstractSidePanel {
 			}
 			res.push(entry)
 		}
-		return res; 
+		return res;
 	}
 
 	/**
@@ -432,14 +432,14 @@ class UserCard extends AbstractSidePanel {
 
 	/**
 	 * Get a formated timeout duration
-	 * @param duration 
+	 * @param duration
 	 */
 	public getFormatedTimeoutDuration(duration:number):string {
 		return Utils.formatDuration(Math.max(0, duration - this.dateOffset));
 	}
 
 	public mounted():void {
-		let pinnedChanIds:string[] = []; 
+		let pinnedChanIds:string[] = [];
 		try {
 			pinnedChanIds = JSON.parse(DataStore.get(DataStore.USERCARD_PINNED_CHANNEL) || "[]") as string[] || [];
 		}catch(error) {
@@ -520,7 +520,7 @@ class UserCard extends AbstractSidePanel {
 		if(!this.$store.users.userCard) {
 			this.loading = false;
 		}
-		
+
 		if(!this.isTwitchProfile) {
 			this.loading = false;
 			this.user = this.$store.users.userCard!.user;
@@ -559,7 +559,7 @@ class UserCard extends AbstractSidePanel {
 					user.channelInfo[this.channel!.id].badges = TwitchUtils.getBadgesFromRawBadges(this.channel!.id, undefined, staticBadges);
 				}
 				this.badges = user.channelInfo[this.channel!.id].badges;
-				
+
 				//Async loading of data
 				TwitchUtils.getCurrentStreamInfo([u.id]).then(v=> {
 					this.currentStream = v[0];
@@ -663,12 +663,12 @@ class UserCard extends AbstractSidePanel {
 	 * Start tracking user's messages
 	 */
 	public trackUser():void { this.$store.users.trackUser(this.user!); }
-	
+
 	/**
 	 * Stop tracking user's messages
 	 */
 	public untrackUser():void { this.$store.users.untrackUser(this.user!); }
-	
+
 	/**
 	 * View the user card from our own chan
 	 */
@@ -713,7 +713,7 @@ class UserCard extends AbstractSidePanel {
 
 	/**
 	 * Removes a custom badge from the user
-	 * @param badgeId 
+	 * @param badgeId
 	 */
 	public removeCustomBadge(badgeId:string):void {
 		this.$store.users.removeCustomBadge(this.user!.id, badgeId, this.channel!.id);
@@ -745,7 +745,7 @@ class UserCard extends AbstractSidePanel {
 	 */
 	private onKeyUp(e:KeyboardEvent):void {
 		if(!this.user) return;
-		
+
 		if(e.key == "Escape") {
 			if(this.edittingLogin) {
 				this.edittingLogin = false;
@@ -763,15 +763,15 @@ class UserCard extends AbstractSidePanel {
 	private loadHistory(uid:string):void {
 		const messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
 		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = [
-			"following", 
-			"message", 
-			"reward", 
-			"subscription", 
-			"shoutout", 
-			"whisper", 
-			"ban", 
-			"unban", 
-			"cheer", 
+			"following",
+			"message",
+			"reward",
+			"subscription",
+			"shoutout",
+			"whisper",
+			"ban",
+			"unban",
+			"cheer",
 			"user_watch_streak",
 			"youtube_subgift",
 			"youtube_subscription",
@@ -820,7 +820,7 @@ class UserCard extends AbstractSidePanel {
 			if(messageList.length == 0) clearInterval(this.messageBuildInterval);
 
 			this.messageHistory.unshift(...messageList.splice(-5));
-			
+
 			if(this.messageHistory.length < 30) {
 				this.$nextTick(()=>{
 					const messagelist = this.$refs.messagelist as HTMLDivElement |undefined;
@@ -868,11 +868,11 @@ export default toNative(UserCard);
 				border-bottom-left-radius: 0;
 			}
 		}
-	
+
 		.errorMessage, .warn {
 			text-align: center;
 		}
-	
+
 		&>.header, &>div>.header {
 			display: flex;
 			flex-direction: column;
@@ -883,14 +883,14 @@ export default toNative(UserCard);
 			a {
 				text-decoration: none;
 			}
-	
+
 			.title {
 				font-size: 1.5em;
 				display: flex;
 				align-items: center;
 				justify-content: center;
 				width:100%;
-	
+
 				.customBadges {
 					font-size: .8em;
 					margin-right: .25em;
@@ -900,7 +900,7 @@ export default toNative(UserCard);
 				.nickname {
 					max-width: 80%;
 					display: inline-block;
-					
+
 					.label {
 						text-overflow: ellipsis;
 						overflow: hidden;
@@ -909,15 +909,15 @@ export default toNative(UserCard);
 						width:100%;
 						display: inline-block;
 					}
-		
+
 					.translation {
 						font-style: italic;
 						font-size: .8em;
 						margin-left: .25em;
 					}
 				}
-	
-	
+
+
 				.badge, :deep(.customUserBadge) {
 					height: .8em;
 					margin-right: 3px;
@@ -925,7 +925,7 @@ export default toNative(UserCard);
 						cursor: not-allowed;
 					}
 				}
-	
+
 				.editLoginBt {
 					height: .7em;
 					margin-left: .25em;
@@ -938,7 +938,7 @@ export default toNative(UserCard);
 						}
 					}
 				}
-	
+
 				.editLoginForm {
 					gap: 0;
 					font-size: 1rem;
@@ -948,19 +948,19 @@ export default toNative(UserCard);
 						border-top-left-radius: 0;
 						border-bottom-left-radius: 0;
 					}
-	
+
 					input {
 						border-top-right-radius: 0;
 						border-bottom-right-radius: 0;
 					}
 				}
 			}
-	
+
 			.originalName {
 				font-style: italic;
 				margin-bottom: .25em;
 			}
-	
+
 			.pronouns {
 				border-radius: 3px;
 				color: var(--color-text);
@@ -969,7 +969,7 @@ export default toNative(UserCard);
 				font-size: .8em;
 				margin-bottom: .25em;
 			}
-	
+
 			.live {
 				position: relative;
 				display: block;
@@ -984,7 +984,7 @@ export default toNative(UserCard);
 				transform: translate(-50%, -50%);
 				z-index: 1;
 				box-shadow: 0 -.25em .5em rgba(0, 0, 0, .5);
-	
+
 				.viewers {
 					font-weight: normal;
 					.icon {
@@ -993,13 +993,13 @@ export default toNative(UserCard);
 					}
 				}
 			}
-	
+
 			.userID {
 				font-size: .7em;
 				cursor: copy;
 				z-index: 1;
 			}
-	
+
 			.avatar {
 				position: relative;
 				.large {
@@ -1028,7 +1028,7 @@ export default toNative(UserCard);
 				}
 			}
 		}
-	
+
 		.infoList {
 			display: flex;
 			flex-direction: row;
@@ -1068,7 +1068,7 @@ export default toNative(UserCard);
 				}
 			}
 		}
-	
+
 		.liveInfo {
 			align-self: center;
 			flex-shrink: 0;
@@ -1079,7 +1079,7 @@ export default toNative(UserCard);
 				}
 			}
 		}
-	
+
 		.modActions {
 			margin: -.5em 0;
 			align-self: center;
@@ -1089,7 +1089,7 @@ export default toNative(UserCard);
 		.banReason {
 			background-color: var(--color-alert-fadest);
 		}
-	
+
 		.ctas {
 			display: flex;
 			flex-direction: row;
@@ -1119,13 +1119,13 @@ export default toNative(UserCard);
 				}
 			}
 		}
-	
+
 		.description {
 			flex-shrink: 0;
 			align-self: center;
 			text-align: center;
 		}
-	
+
 		.scrollable {
 			overflow-y: auto;
 			gap: 1em;
@@ -1136,11 +1136,11 @@ export default toNative(UserCard);
 				flex-shrink: 0;
 			}
 		}
-	
+
 		.messages {
 			display: flex;
 			flex-direction: column;
-	
+
 			&.messages {
 				.list {
 					gap: 1em;
@@ -1152,7 +1152,7 @@ export default toNative(UserCard);
 					}
 				}
 			}
-	
+
 		}
 	}
 }

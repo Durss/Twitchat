@@ -58,6 +58,7 @@ export namespace TwitchEventSubDataTypes {
 		SUSPICIOUS_USER_UPDATE: "channel.suspicious_user.update",
 		CHAT_CLEAR: "channel.chat.clear",
 		DELETE_MESSAGE: "channel.chat.message_delete",
+		WHISPERS: "user.whisper.message",
 	} as const;
 	export type SubscriptionStringTypes = typeof SubscriptionTypes[keyof typeof SubscriptionTypes];
 
@@ -158,6 +159,7 @@ export namespace TwitchEventSubDataTypes {
 		| GoalEndEvent
 		| StreamOnlineEvent
 		| StreamOfflineEvent
+		| WhisperEvent
 		;
 	}
 
@@ -606,7 +608,7 @@ export namespace TwitchEventSubDataTypes {
 		viewer_count: number;
 		started_at: string;
 	}
-	
+
 	export interface AdBreakEvent {
 		broadcaster_user_id:string;
 		broadcaster_user_login:string;
@@ -618,7 +620,7 @@ export namespace TwitchEventSubDataTypes {
 		is_automatic:boolean;
 		started_at:string
 	}
-	
+
 	export interface UnbanRequestResolveEvent {
 		id: string;
 		broadcaster_user_id: string;
@@ -903,6 +905,19 @@ export namespace TwitchEventSubDataTypes {
 		};
 	}
 
+	export interface WhisperEvent {
+		from_user_id: string
+		from_user_login: string
+		from_user_name: string
+		to_user_id: string
+		to_user_login: string
+		to_user_name: string
+		whisper_id: string
+		whisper: {
+			text: string
+		}
+	}
+
 	export interface ChatMessageEvent {
 		broadcaster_user_id: string;
 		broadcaster_user_login: string;
@@ -1077,3 +1092,6 @@ export namespace TwitchEventSubDataTypes {
 	export interface SharedChatEndEvent {
 	}
 }
+
+
+

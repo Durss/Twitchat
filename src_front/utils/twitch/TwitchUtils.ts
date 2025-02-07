@@ -265,7 +265,7 @@ export default class TwitchUtils {
 		const [bestResult] = await this.getUserInfo(undefined, [search]);
 		// const [bestResult] = await this.getChannelInfo([bestResult[0].id]);
 		if(signal.aborted) return {users, liveStates};
-		
+
 		const url = new URL(Config.instance.TWITCH_API_PATH + "search/channels");
 		url.searchParams.append("query", search);
 		url.searchParams.append("first", "100");
@@ -274,7 +274,7 @@ export default class TwitchUtils {
 		if (result.status === 200) {
 			const json = await result.json();
 			const list = json.data as TwitchDataTypes.LiveChannelSearchResult[];
-			
+
 			list.forEach(v=> liveStates[v.id] = v.is_live);
 
 			list.sort((a, b) => {
@@ -650,7 +650,7 @@ export default class TwitchUtils {
 	 */
 	public static async loadEmoteSets(channelId: string, staticEmotes?: TwitchDataTypes.Emote[]): Promise<void> {
 		if(this.loadedChannelEmotes[channelId] === true) return;
-		
+
 		let emotesTwitch: TwitchDataTypes.Emote[] = [];
 		if (!staticEmotes) {
 			//Twitch global emotes
@@ -663,7 +663,7 @@ export default class TwitchUtils {
 			} else {
 				throw (json);
 			}
-			
+
 			if (this.hasScopes([TwitchScopes.READ_EMOTES])) {
 				let userEmotes = await this.getUserEmotes(channelId);
 				if (userEmotes) {
@@ -1850,11 +1850,11 @@ export default class TwitchUtils {
 	public static async sendAnnouncement(channelId: string, message: string, color: "blue" | "green" | "orange" | "purple" | "primary" = "primary", sendAsBot:boolean = true): Promise<boolean> {
 		if (!this.hasScopes([TwitchScopes.SEND_ANNOUNCE])) return false;
 
-		
+
 		const url = new URL(Config.instance.TWITCH_API_PATH + "chat/announcements");
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("moderator_id", this.uid);
-		
+
 		let headers = {...this.headers};
 		if(sendAsBot && StoreProxy.twitchBot.connected && StoreProxy.twitchBot.userInfos) {
 			url.searchParams.set("moderator_id", StoreProxy.twitchBot.userInfos.user_id);
@@ -2201,7 +2201,7 @@ export default class TwitchUtils {
 			await this.onRateLimit(res.headers, url.pathname);
 			return await this.raidChannel(channel);
 		} else {
-			
+
 			let message = "Unable to raid " + channel + "."
 			try {
 				const json = await res.json();
@@ -2240,7 +2240,7 @@ export default class TwitchUtils {
 	 * Sends a whisper to someone
 	 */
 	public static async whisper(message: string, toLogin?: string, toId?: string): Promise<boolean> {
-		if (!this.hasScopes([TwitchScopes.WHISPER_WRITE])) return false;
+		if (!this.hasScopes([TwitchScopes.WHISPER_MANAGE])) return false;
 
 		if (!toId && toLogin) {
 			try {
@@ -2263,6 +2263,27 @@ export default class TwitchUtils {
 		url.searchParams.append("to_user_id", toId);
 		const res = await this.callApi(url, options);
 		if (res.status == 200 || res.status == 204) {
+			const me = StoreProxy.auth.twitch.user;
+			const data:TwitchatDataTypes.MessageWhisperData = {
+				id:Utils.getUUID(),
+				type:TwitchatDataTypes.TwitchatMessageType.WHISPER,
+				platform:"twitch",
+				channel_id: me.id,
+				date:Date.now(),
+				user: me,
+				to: StoreProxy.users.getUserFrom("twitch", me.id, toId),
+				message,
+				message_html:"",
+				message_chunks:[],
+				message_size:0,
+			};
+
+			data.message_chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+			data.message_html = TwitchUtils.messageChunksToHTML(data.message_chunks);
+			data.message_size = TwitchUtils.computeMessageSize(data.message_chunks);
+
+			StoreProxy.chat.addMessage(data);
+
 			return true;
 		} else
 		if (res.status == 429) {
@@ -2316,18 +2337,21 @@ export default class TwitchUtils {
 	/**
 	 * Subscribe to an eventsub topic
 	 */
-	public static async eventsubSubscribe(channelId: string, userId: string, session_id: string, topic: string, version: "1" | "2" | "3" | "beta", additionalCondition?: { [key: string]: any }, attemptCount: number = 0): Promise<false | string> {
+	public static async eventsubSubscribe(broadcasterId: string, userId: string, session_id: string, topic: string, version: "1" | "2" | "3" | "beta", additionalCondition?: { [key: string]: any }, attemptCount: number = 0): Promise<false | string> {
 		const body = {
 			type: topic,
 			version,
-			condition: {
-				broadcaster_user_id: channelId,
-			} as { [key: string]: any },
+			condition: {} as Record<string, string>,
 			transport: {
 				method: "websocket",
 				session_id,
 			}
 		};
+
+		if(broadcasterId) {
+			body.condition.broadcaster_user_id = broadcasterId;
+		}
+
 		if(userId) {
 			body.condition.moderator_user_id = userId;
 		}
@@ -2457,7 +2481,7 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Sends a whisper to someone
+	 * Sends a shoutout to someone
 	 */
 	public static async sendShoutout(channelId: string, user: TwitchatDataTypes.TwitchatUser): Promise<boolean|"NOT_LIVE"|"NOT_MODERATOR"|"RATE_LIMIT"> {
 		if (!this.hasScopes([TwitchScopes.SHOUTOUT])) return false;
@@ -3024,7 +3048,7 @@ export default class TwitchUtils {
 				body.sender_id = StoreProxy.twitchBot.userInfos.user_id;
 				headers['Authorization'] = 'Bearer ' + StoreProxy.twitchBot.authToken!.access_token;
 			}
-	
+
 			const res = await this.callApi(url, {
 				method: "POST",
 				headers,
@@ -3034,7 +3058,7 @@ export default class TwitchUtils {
 				await this.onRateLimit(res.headers, url.pathname);
 				return this.sendMessage(channelID, message, replyToID);
 			}
-			
+
 			message = message.substring(499);
 		}
 		return false;
@@ -3379,13 +3403,13 @@ export default class TwitchUtils {
 							type: islink ? "url" : "text",
 							value: v,
 						};
-	
+
 						// console.log(node);
-	
+
 						if (islink) {
 							node.href = !/^https?/gi.test(v) ? "https://" + v : v;
 						}
-	
+
 						result.splice(i + subIndex, 0, node);
 						subIndex++;
 					})
@@ -3607,7 +3631,7 @@ export default class TwitchUtils {
 	 * First call parseMessageToChunks() to generate compatible chunks, then call
 	 * this method with the words you want to convert to "highlight" nodes
 	 * Modifies the chunks array in place
-	 * 
+	 *
 	 * //TODO allow mentions starting with "@"
 	 */
 	public static highlightChunks(chunks: TwitchatDataTypes.ParseMessageChunk[], words: string[]): TwitchatDataTypes.ParseMessageChunk[] {

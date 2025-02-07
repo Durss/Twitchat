@@ -4,7 +4,7 @@
 			<ClearButton @click="close" />
 			<h1 class="title" v-if="isConversation"><img :src="getCorrespondant(selectedUserId).avatarPath" v-if="getCorrespondant(selectedUserId).avatarPath" class="icon">{{ $t('whispers.title') }} - {{ getCorrespondant(selectedUserId).displayName }}</h1>
 		</div>
-	
+
 		<div class="content" v-if="isConversation">
 			<div class="messageList" ref="messageList">
 				<div v-for="m in $store.chat.whispers[selectedUserId].messages" :key="m.id" :class="messageClasses(m)">
@@ -26,7 +26,7 @@
 				<TTButton class="submit" type="submit" icon="checkmark" :disabled="!whisper" />
 			</form>
 			<TTButton v-else small highlight icon="unlock" @click="requestTwitchScope()">{{ $t('whispers.add_scope_bt') }}</TTButton>
-			
+
 			<div class="userlist" v-if="Object.keys($store.chat.whispers).length > 0">
 				<div v-for="whispers, key in $store.chat.whispers" :key="key" class="user">
 					<TTButton small class="login" @click="selectedUserId = <string>key" :selected="selectedUserId == key">{{ getCorrespondant(<string>key).displayName }}</TTButton>
@@ -34,7 +34,7 @@
 				</div>
 			</div>
 		</div>
-	
+
 		<div class="content" v-else>
 		</div>
 	</div>
@@ -69,7 +69,7 @@ class WhispersState extends AbstractSidePanel {
 	public selectedUserId:string = "";
 
 	public get canAnswer():boolean {
-		return TwitchUtils.hasScopes([TwitchScopes.WHISPER_WRITE]);
+		return TwitchUtils.hasScopes([TwitchScopes.WHISPER_MANAGE]);
 	}
 
 	public get isConversation():boolean {
@@ -117,14 +117,14 @@ class WhispersState extends AbstractSidePanel {
 	}
 
 	public requestTwitchScope():void {
-		this.$store.auth.requestTwitchScopes([TwitchScopes.WHISPER_WRITE]);
+		this.$store.auth.requestTwitchScopes([TwitchScopes.WHISPER_MANAGE]);
 	}
 
 	public async sendWhisper():Promise<void> {
 		if(!this.whisper || !this.selectedUserId) return;
 
 		this.error = false;
-		
+
 		try {
 			await TwitchUtils.whisper(this.whisper, undefined, this.selectedUserId);
 		}catch(error) {
@@ -168,7 +168,7 @@ export default toNative(WhispersState);
 		.userlistToggle {
 			width: 100%;
 		}
-		
+
 		.userlist {
 			display: flex;
 			flex-direction: row;
@@ -217,7 +217,7 @@ export default toNative(WhispersState);
 				.chatMessageTime + *{
 					padding-left: 3em;
 				}
-				
+
 				.text {
 					word-break: break-word;
 				}
@@ -233,7 +233,7 @@ export default toNative(WhispersState);
 						padding-right: 3em;
 					}
 				}
-	
+
 				:deep( .emote ) {
 					max-height: 2em;
 					vertical-align: middle;
