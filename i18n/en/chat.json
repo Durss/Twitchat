@@ -519,8 +519,12 @@
 			"platform_tiktok": "Message received\non TikTok"
 		},
 		"celebration": {
-			"message": "{USER} redeemed {EMOTE} On-screen Celebration for {PRICE}",
+			"message": "{USER} redeemed the Power Up \"On-screen Celebration\" for {PRICE}",
 			"message_tmp": "{USER} redeemed the Power Up \"On-screen Celebration\""
+		},
+		"gigantified_emote": {
+			"message": "{USER} redeemed the Power Up \"Gigantify emote\" for {PRICE}",
+			"message_tmp": "{USER} redeemed the Power Up \"Gigantify emote\""
 		},
 		"blocked_terms": {
 			"add_permitted": "{USER} added {TERMS} to permitted terms",

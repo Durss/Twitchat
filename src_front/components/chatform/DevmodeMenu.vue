@@ -33,7 +33,7 @@
 			<Button small @click="simulateEvent($event, 'message', 'skin1')" icon="watchStreak">Power Up skin 1</Button>
 			<Button small @click="simulateEvent($event, 'message', 'skin2')" icon="watchStreak">Power Up skin 2</Button>
 			<Button small @click="simulateEvent($event, 'message', 'skin3')" icon="watchStreak">Power Up skin 3</Button>
-			<Button small @click="simulateEvent($event, 'message', 'giantEmote')" icon="watchStreak">Power Up Giant emote</Button>
+			<Button small @click="simulateEvent($event, 'gigantified_emote')" icon="watchStreak">Power Up Giant emote</Button>
 			<Button small @click="simulateEvent($event, 'twitch_celebration')" icon="watchStreak">Power Up celebration</Button>
 			<Button small @click="simulateEvent($event, 'user_watch_streak')" icon="watchStreak">Watch streak</Button>
 			<Button small @click="simulateEvent($event, 'raid', 'raidOffline')" icon="raid">Incoming raid offline</Button>
@@ -340,7 +340,7 @@ class DevmodeMenu extends Vue {
 					if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 						message.platform = "youtube";
 						// message.message = "!q coucou durssSLIP";
-						
+
 						// const chunks = TwitchUtils.parseMessageToChunks(message.message, undefined, true);
 						// message.message_chunks = chunks;
 						// message.message_html = TwitchUtils.messageChunksToHTML(chunks);

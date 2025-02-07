@@ -59,6 +59,7 @@ export namespace TwitchEventSubDataTypes {
 		CHAT_CLEAR: "channel.chat.clear",
 		DELETE_MESSAGE: "channel.chat.message_delete",
 		WHISPERS: "user.whisper.message",
+		BITS_USE: "channel.bits.use",
 	} as const;
 	export type SubscriptionStringTypes = typeof SubscriptionTypes[keyof typeof SubscriptionTypes];
 
@@ -1090,6 +1091,33 @@ export namespace TwitchEventSubDataTypes {
 	}
 
 	export interface SharedChatEndEvent {
+	}
+
+	export interface BitsUseEvent {
+		user_id: string;
+		user_login: string;
+		user_name: string;
+		broadcaster_user_id: string;
+		broadcaster_user_login: string;
+		broadcaster_user_name: string;
+		bits: number;
+		type: string;
+		power_up: {
+			type: "gigantify_an_emote" | "celebration";
+			emote: {
+				id: string;
+				name: string;
+			};
+			message_effect_id: null;
+		} | {
+			type: "message_effect";
+			emote: null
+			message_effect_id: "simmer"|"rainbow-eclipse"|"cosmic-abyss";
+		};
+		message: {
+			text:string;
+			fragments:MessageFragments;
+		};
 	}
 }
 

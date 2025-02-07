@@ -96,7 +96,7 @@ export default class TriggerActionHandler {
 
 		switch(message.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
-				//Only trigger one of "first ever", "first today" 
+				//Only trigger one of "first ever", "first today"
 				if(message.twitch_isFirstMessage === true) {
 					await this.executeTriggersByType(TriggerTypes.FIRST_ALL_TIME, message, testMode, undefined, undefined, forcedTriggerId);
 				}else
@@ -113,9 +113,9 @@ export default class TriggerActionHandler {
 				if(message.twitch_animationId) {
 					await this.executeTriggersByType(TriggerTypes.POWER_UP_MESSAGE, message, testMode, undefined, undefined, forcedTriggerId);
 				}
-				if(message.twitch_gigantifiedEmote) {
-					await this.executeTriggersByType(TriggerTypes.POWER_UP_GIANT_EMOTE, message, testMode, undefined, undefined, forcedTriggerId);
-				}
+				// if(message.twitch_gigantifiedEmote) {
+				// 	await this.executeTriggersByType(TriggerTypes.POWER_UP_GIANT_EMOTE, message, testMode, undefined, undefined, forcedTriggerId);
+				// }
 
 				if(message.message) {
 					const cmd = message.message.trim().split(" ")[0].toLowerCase();
@@ -137,6 +137,12 @@ export default class TriggerActionHandler {
 
 			case TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION: {
 				if(await this.executeTriggersByType(TriggerTypes.POWER_UP_CELEBRATION, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.GIGANTIFIED_EMOTE: {
+				if(await this.executeTriggersByType(TriggerTypes.POWER_UP_GIANT_EMOTE, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
 				}break;
 			}
@@ -1323,15 +1329,15 @@ export default class TriggerActionHandler {
 						if(sourceBusy) {
 							logStep.messages.push({date:Date.now(), value:"OBS source \""+step.sourceName+"\" has been released, continue process"});
 						}
-	
+
 						logStep.messages.push({date:Date.now(), value:"Execute OBS action \""+step.action+"\" on source \""+step.sourceName+"\""});
-	
+
 						if(!OBSWebsocket.instance.connected) {
 							logStep.messages.push({date:Date.now(), value:"❌ OBS-Websocket NOT CONNECTED! Cannot execute requested action."});
 							log.error = true;
 							logStep.error = true;
 						}else{
-	
+
 							if(step.text) {
 								try {
 									const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent);
@@ -1368,7 +1374,7 @@ export default class TriggerActionHandler {
 									console.error(error);
 								}
 							}
-	
+
 							if(step.filterName) {
 								try {
 									logStep.messages.push({date:Date.now(), value:"Set filter \""+step.filterName+"\" visibility to \""+(step.action == 'show'? "visible" : "hidden")+"\""});
@@ -1445,7 +1451,7 @@ export default class TriggerActionHandler {
 															text = text.replace(/,/gi, ".");
 															result.rotation = MathEval(text);
 													}
-	
+
 													//Handle relative transform mode
 													if(step.relativeTransform === true) {
 														if(result.positionX) result.positionX += transform.positionX;
@@ -1454,7 +1460,7 @@ export default class TriggerActionHandler {
 														if(result.height) result.height += transform.height;
 														if(result.rotation) result.rotation += transform.rotation;
 													}
-	
+
 													//OBS-WS does not allow to change the source's sizes.
 													//Instead we compute the equivalent scale values.
 													if(result.width) {
@@ -1466,14 +1472,14 @@ export default class TriggerActionHandler {
 														delete result.height;
 													}
 													logStep.messages.push({date:Date.now(), value:"Set source transform to "+JSON.stringify(result)});
-	
+
 													if(step.animate === true) {
 														logStep.messages.push({date:Date.now(), value:"Animate transformation. Duration: "+step.animateDuration+". Easing: "+step.animateEasing});
 														const params:{[key:string]:number|string|(()=>void)} = {};
 														for (const key in result) params[key] = result[key as keyof ReducedType]!;
 														params.duration = step.animateDuration! / 1000;
 														params.ease = step.animateEasing!;
-														
+
 														//Compute animation frames
 														//from: https://gsap.com/community/forums/topic/16782-get-array-of-resulting-values/?do=findComment&comment=74424
 														function summarizeTweenValues(tween:gsap.core.Tween, fps:number = 60) {
@@ -1524,7 +1530,7 @@ export default class TriggerActionHandler {
 																requestData:{sleepFrames:1},
 															})
 														}
-														
+
 														//Make OBS execute animation frames
 														OBSWebsocket.instance.socket.callBatch(frames, {executionType:RequestBatchExecutionType.SerialFrame, haltOnFailure:false});
 													}else{
@@ -1555,14 +1561,14 @@ export default class TriggerActionHandler {
 									logStep.messages.push({date:Date.now(), value:"❌ [EXCEPTION] OBS step execution thrown an error: "+(error.message || JSON.stringify(error))});
 								}
 							}
-	
+
 							logStep.messages.push({date:Date.now(), value:"OBS action executed on source \""+step.sourceName+"\""});
 						}
-	
+
 						resolverOBS();
 						delete this.obsSourceNameToQueue[step.sourceName];
 					}else
-					
+
 					if(step.obsAction == "startstream") {
 						OBSWebsocket.instance.startStreaming();
 					}else
@@ -1627,7 +1633,7 @@ export default class TriggerActionHandler {
 								if(step.screenshotImgWidth) size.imageWidth = step.screenshotImgWidth;
 								if(step.screenshotImgHeight) size.imageHeight = step.screenshotImgHeight;
 							}
-	
+
 							if(step.screenshotImgMode == "save") {
 								if(!step.screenshotImgSavePath) {
 									logStep.messages.push({date:Date.now(), value:"❌ Cannot save screenshot, File Path information is missing."});
@@ -2142,12 +2148,12 @@ export default class TriggerActionHandler {
 								}catch(error){
 									json = null;
 								}
-	
+
 								if(step.outputPlaceholderList && step.outputPlaceholderList.length > 0) {
 									for (let i = 0; i < step.outputPlaceholderList.length; i++) {
 										const ph = step.outputPlaceholderList[i];
 										if(!ph.placeholder || ph.placeholder.length === 0) continue;
-	
+
 										if(ph.type == "text") {
 											logStep.messages.push({date:Date.now(), value:"Store full query result to placeholder {"+ph.placeholder+"}"});
 											dynamicPlaceholders[ph.placeholder] = text;
@@ -2704,7 +2710,7 @@ export default class TriggerActionHandler {
 											const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
 											id = chunks[2];
 										}
-	
+
 										logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Getting playlist by: "+(id || m)});
 										const playlist = await SpotifyHelper.instance.getUserPlaylist(id, m);
 										if(!playlist) {
@@ -2721,11 +2727,11 @@ export default class TriggerActionHandler {
 												url:playlist.external_urls?.spotify,
 												cover:playlist.images && playlist.images.length > 0? playlist.images[0].url : "",
 											};
-	
+
 											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Playlist found: "+(playlistTarget.title)+" : ID "+playlistTarget.id});
 										}
 									}
-	
+
 									let track:SearchTrackItem|null = null;
 									if(/open\.spotify\.[a-z]{2,}\/.*track\/.*/gi.test(m)) {
 										//Full URL specified, extract the ID from it
@@ -2798,7 +2804,7 @@ export default class TriggerActionHandler {
 												log.error = true;
 												logStep.error = true;
 												failCode = "no_active_device";
-	
+
 											}else{
 												logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Add to "+(playlistMode? "playlist": "queue")+" failed with reason: "+success});
 												log.error = true;
@@ -3770,14 +3776,14 @@ export default class TriggerActionHandler {
 							case "lastcheer_login": value = (StoreProxy.labels.getLabelByKey("CHEER_NAME") || "").toString(); break;
 							case "lastcheer_amount": value = (StoreProxy.labels.getLabelByKey("CHEER_AMOUNT") || "0").toString(); break;
 						}
-					
+
 					/**
 					 * If the placeholder requests for a user's twitch badges
 					 */
 					}else if(pointer.indexOf("__user_badges__") == 0 && Object.hasOwn(message, "user")) {
 						const typedMessage = message as TwitchatDataTypes.MessageChatData;
 						value = JSON.stringify(typedMessage.user.channelInfo[typedMessage.channel_id]?.badges || []);
-					
+
 					/**
 					 * If the placeholder requests for a user's custom badges
 					 */
@@ -3900,7 +3906,7 @@ export default class TriggerActionHandler {
 	 */
 	private async extractUserFromPlaceholder(channel_id:string, placeholder:string, dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholders:TriggerActionDataTypes.ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:Omit<LogTrigger, "date">):Promise<TwitchatDataTypes.TwitchatUser[]> {
 		const displayName = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+placeholder.toUpperCase()+"}");
-		
+
 		//Not ideal but if there are multiple users they're concatenated in
 		//a single coma seperated string (placeholder parsing is made for display :/).
 		//Here we split it on comas just in case there are multiple user names

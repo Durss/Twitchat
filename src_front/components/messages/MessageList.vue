@@ -441,7 +441,7 @@ class MessageList extends Vue {
 		if(this.$store.auth.youtube.user) validIds.push(this.$store.auth.youtube.user.id);
 		if(this.$store.tiktok.connected) validIds.push("tiktok");
 		validIds.push(this.$store.auth.twitch.user.id);
-		
+
 		//Only keep configured entries that match a valid channel ID
 		const chanIds:{[uid:string]:boolean} = {};
 		Object.keys(this.config.channelIDs || {})
@@ -449,11 +449,11 @@ class MessageList extends Vue {
 		.forEach(id => {
 			chanIds[id] = true;
 		});
-		
+
 		this.filteredChanIDs = Object.keys(chanIds).length > 0? chanIds : null;
 		this.fullListRefresh();
 	}
-		
+
 	/**
 	 * Returns if a message should be displayed or not
 	 * @param m
@@ -510,7 +510,7 @@ class MessageList extends Vue {
 							if(badges.find(b => b.id == badge)) return true;
 						}
 					}
-	
+
 					//If requested forbidden badges, check if user has it
 					if(this.config.forbiddenBadges_flag && (this.config.forbiddenBadges || [])?.length > 0) {
 						const badges = this.$store.users.customUserBadges[m.user.id];
@@ -527,18 +527,18 @@ class MessageList extends Vue {
 				if (m.user.is_tracked && this.config.messageFilters.tracked) {
 					return true;
 				}
-				
+
 				//Force pinned messages if requested
 				if (m.is_saved && this.config.messageFilters.pinned) {
 					return true;
 				}
-				
+
 				//Ignore specific users
 				if (this.config.userBlockList && m.user.displayNameOriginal.length > 0
 				&& this.config.userBlockList.map(v=>v.toLowerCase()).includes(m.user.login.toLowerCase())) {
 					return false;
 				}
-			
+
 				//Ignore specific commands
 				if (this.config.messageFilters.commands === true && this.config.commandsBlockList.length > 0) {
 					const cleanMess = m.message.trim().toLowerCase();
@@ -601,7 +601,8 @@ class MessageList extends Vue {
 				return this.config.filters.subscription === true;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION: 
+			case TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION:
+			case TwitchatDataTypes.TwitchatMessageType.GIGANTIFIED_EMOTE:
 			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
 				return this.config.filters.reward === true;
 			}
@@ -776,7 +777,7 @@ class MessageList extends Vue {
 				return true;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.SUSPENDED_TRIGGER_STACK: 
+			case TwitchatDataTypes.TwitchatMessageType.SUSPENDED_TRIGGER_STACK:
 			case TwitchatDataTypes.TwitchatMessageType.HATE_RAID: {
 				return true;
 			}
@@ -811,7 +812,7 @@ class MessageList extends Vue {
 		// const maxScroll = (el.scrollHeight - el.offsetHeight);
 		const m = e.data as TwitchatDataTypes.ChatMessageTypes;
 		if (!await this.shouldShowMessage(m)) return;
-		
+
 		if(await this.mergeWithPrevious(m)) return;
 
 		//If scrolling is locked or there are still messages pending,
@@ -1448,14 +1449,14 @@ class MessageList extends Vue {
 	 */
 	public async openConversation(m: TwitchatDataTypes.MessageChatData, idRef:string): Promise<void> {
 		if (this.lightMode || !m || (!m.answersTo && !m.answers)) return;
-		
+
 		this.conversationMode = true;
 		this.conversation = [m];
-		
+
 		if (m.answers.length > 0) {
 			this.conversation.push( ...m.answers );
 		}
-		
+
 		//answering to another message
 		if (m.answersTo) {
 			let ref = m;
@@ -1736,13 +1737,13 @@ class MessageList extends Vue {
 			let thresholdBottom = listBounds.top + listBounds.height* 3/4;
 			//If message is above 1/4 of the chat height, scroll top
 			if(messageBounds.top < thresholdTop) {
-				
+
 				this.lockScroll = true;
 				this.virtualScrollY -= thresholdTop - messageBounds.top;
 				messageHolder.scrollTop = this.virtualScrollY;
 				gsap.killTweensOf(messageHolder)
 				// gsap.to(messageHolder, {duration:.25, ease:Linear.easeNone, scrollTop:this.virtualScrollY});
-				
+
 				//If message is bellow 3/4 of the chat height, scroll down
 			}else if(messageBounds.top > thresholdBottom) {
 				this.virtualScrollY += messageBounds.top - thresholdBottom;
@@ -1807,7 +1808,7 @@ class MessageList extends Vue {
 			//Not the same user don't merge
 			if(prevCast.user.id !== newCast.user.id) return false;
 			if(prevCast.channel_id !== newCast.channel_id) return false;
-				
+
 			//Get date of the latest children if any, or the date of the message itself
 			const prevDate = this.messageIdToChildren[prevMessage.id]?.length > 0? this.messageIdToChildren[prevMessage.id][this.messageIdToChildren[prevMessage.id].length-1].date : prevMessage.date;
 			//Too much time elapsed between the 2 messages

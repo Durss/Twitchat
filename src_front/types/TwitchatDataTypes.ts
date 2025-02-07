@@ -2316,6 +2316,7 @@ export namespace TwitchatDataTypes {
 		OBS_START_STREAM:"obs_start_stream",
 		HYPE_TRAIN_START:"hype_train_start",
 		OBS_SCENE_CHANGE:"obs_scene_change",
+		GIGANTIFIED_EMOTE:"gigantified_emote",
 		PLAYABILITY_INPUT:"playability_input",
 		BINGO_GRID_VIEWER:"bingo_grid_viewer",
 		AD_BREAK_COMPLETE:"ad_break_complete",
@@ -2425,6 +2426,7 @@ export namespace TwitchatDataTypes {
 		warn_acknowledge:true,
 		obs_stop_stream:false,
 		websocket_topic:false,
+		gigantified_emote:true,
 		twitchat_started:false,
 		credits_complete:false,
 		user_watch_streak:true,
@@ -2589,6 +2591,7 @@ export namespace TwitchatDataTypes {
 									| MessageBingoGridData
 									| MessageBingoGridViewerData
 									| MessageTwitchCelebrationData
+									| MessageTwitchGigantifiedEmoteData
 									| MessageBlockedTermsData
 									| MessageHateRaidData
 									| MessageWarnUserData
@@ -2783,6 +2786,7 @@ export namespace TwitchatDataTypes {
 		cheer:true,
 		subscription:false,
 		user_watch_streak:false,
+		gigantified_emote:false,
 	}
 	export interface MergeableMessage {
 		/**
@@ -5068,7 +5072,7 @@ export namespace TwitchatDataTypes {
 	export interface MessageTwitchCelebrationData extends AbstractTwitchatMessage {
 		type:"twitch_celebration";
 		/**
-		 * User that got moderated
+		 * User that sent the celebration
 		 */
 		user:TwitchatUser;
 		/**
@@ -5083,6 +5087,46 @@ export namespace TwitchatDataTypes {
 		 * Bits used to trigger celebration
 		 */
 		cost:number;
+	}
+
+	/**
+	 * Represents a Twitch "gigantified emote" event
+	 */
+	export interface MessageTwitchGigantifiedEmoteData extends AbstractTwitchatMessage {
+		type:"gigantified_emote";
+		/**
+		 * User that sent the gigantifed emote
+		 */
+		user:TwitchatUser;
+		/**
+		 * Emote ID that was used
+		 */
+		emoteID:string;
+		/**
+		 * Emote URL
+		 */
+		emoteURL:string;
+		/**
+		 * Bits used to gigantify the emote
+		 */
+		cost:number;
+		/**
+		 * Text message content
+		 */
+		message:string;
+		/**
+		 * Message splitted by chunks types (text, url and emote)
+		 */
+		message_chunks:ParseMessageChunk[];
+		/**
+		 * Message content as HTML
+		 * All emotes are replaced by HTML tags
+		 */
+		message_html:string;
+		/**
+		 * @see MergeableMessage
+		 */
+		message_size:number;
 	}
 
 	/**

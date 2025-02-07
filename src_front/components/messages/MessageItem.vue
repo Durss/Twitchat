@@ -5,16 +5,16 @@
 			:style="{color:messageData.channelSource.color+'99'}"
 			v-tooltip="messageData.channelSource.name"
 			:src="messageData.channelSource.pic" />
-		
+
 		<template v-else-if="messageData.channelSource">
 			<span class="border"
 				:style="{color:messageData.channelSource.color+'99'}"></span>
-			
+
 			<span class="side"
 				v-tooltip="messageData.channelSource.name"
 				:style="{color:messageData.channelSource.color}"></span>
 		</template>
-		
+
 		<ChatAd class="message"
 			v-if="messageData.type == 'twitchat_ad'"
 			:messageData="messageData"
@@ -24,7 +24,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatJoinLeave class="message"
 			v-else-if="(messageData.type == 'join' || messageData.type == 'leave')"
 			:messageData="messageData"
@@ -33,7 +33,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatFollow class="message"
 			v-else-if="messageData.type == 'following'"
 			:messageData="messageData"
@@ -42,7 +42,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatRaid class="message"
 			v-else-if="messageData.type == 'raid'"
 			:messageData="messageData"
@@ -51,7 +51,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatConnect class="message"
 			v-else-if="(messageData.type == 'connect' || messageData.type == 'disconnect')"
 			:messageData="messageData"
@@ -60,7 +60,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatMessage class="message"
 			v-else-if="messageData.type == 'message' || messageData.type == 'whisper'"
 			:messageData="messageData"
@@ -74,7 +74,7 @@
 			:childrenList="childrenList"
 			:disableConversation="disableConversation"
 		/>
-	
+
 		<ChatNotice class="message"
 			v-else-if="messageData.type == 'notice'"
 			:messageData="messageData"
@@ -83,7 +83,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatPollResult class="message"
 			v-else-if="messageData.type == 'poll'"
 			:messageData="messageData"
@@ -92,7 +92,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatPredictionResult class="message"
 			v-else-if="messageData.type == 'prediction'"
 			:messageData="messageData"
@@ -101,7 +101,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatBingoResult class="message"
 			v-else-if="messageData.type == 'bingo'"
 			:messageData="messageData"
@@ -110,7 +110,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatRaffleResult class="message"
 			v-else-if="messageData.type == 'raffle'"
 			:messageData="messageData"
@@ -119,7 +119,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatCountdownResult class="message"
 			v-else-if="messageData.type == 'countdown'"
 			:messageData="messageData"
@@ -128,7 +128,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatTimerResult class="message"
 			v-else-if="messageData.type == 'timer'"
 			:messageData="messageData"
@@ -137,7 +137,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatHypeTrainCooldown class="message"
 			v-else-if="messageData.type == 'hype_train_cooled_down'"
 			:messageData="messageData"
@@ -146,7 +146,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatHypeTrainResult class="message"
 			v-else-if="messageData.type == 'hype_train_summary'"
 			:messageData="messageData"
@@ -156,7 +156,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatFollowbotEvents class="message"
 			v-else-if="messageData.type == 'followbot_list'"
 			:messageData="messageData"
@@ -165,7 +165,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatRoomSettings class="message"
 			v-else-if="messageData.type == 'room_settings'"
 			:messageData="messageData"
@@ -174,7 +174,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatClear class="message"
 			v-else-if="messageData.type == 'clear_chat'"
 			:messageData="messageData"
@@ -183,7 +183,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatShoutout class="message"
 			v-else-if="messageData.type == 'shoutout'"
 			:messageData="messageData"
@@ -192,7 +192,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatLowTrustTreatment class="message"
 			v-else-if="messageData.type == 'low_trust_treatment'"
 			:messageData="messageData"
@@ -201,7 +201,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatPinNotice class="message"
 			v-else-if="messageData.type == 'pinned' || messageData.type == 'unpinned'"
 			:messageData="messageData"
@@ -210,7 +210,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatBan class="message"
 			v-else-if="messageData.type == 'ban' || messageData.type == 'youtube_ban'"
 			:messageData="messageData"
@@ -219,7 +219,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatUnban class="message"
 			v-else-if="messageData.type == 'unban'"
 			:messageData="messageData"
@@ -228,7 +228,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatStreamOnOff class="message"
 			v-else-if="messageData.type == 'stream_online' || messageData.type == 'stream_offline'"
 			:messageData="messageData"
@@ -237,7 +237,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatMessageClipPending class="message"
 			v-else-if="messageData.type == 'clip_pending_publication'"
 			:messageData="messageData"
@@ -246,7 +246,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatScopeRequester class="message"
 			v-else-if="messageData.type == 'scope_request'"
 			:messageData="messageData"
@@ -256,7 +256,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatCommunityBoost class="message"
 			v-else-if="messageData.type == 'community_boost_complete'"
 			:messageData="messageData"
@@ -265,7 +265,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatBits class="message"
 			v-else-if="messageData.type == 'cheer'"
 			:messageData="messageData"
@@ -274,7 +274,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatSubscription class="message"
 			v-else-if="messageData.type == 'subscription'"
 			:messageData="messageData"
@@ -283,7 +283,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatReward class="message"
 			v-else-if="messageData.type == 'reward'"
 			:messageData="messageData"
@@ -292,7 +292,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatCommunityChallengeContribution class="message"
 			v-else-if="messageData.type == 'community_challenge_contribution'"
 			:messageData="messageData"
@@ -301,7 +301,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatAutobanJoin class="message"
 			v-else-if="messageData.type == 'autoban_join'"
 			:messageData="messageData"
@@ -310,7 +310,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatWatchStreak class="message"
 			v-else-if="messageData.type == 'user_watch_streak'"
 			:messageData="messageData"
@@ -319,7 +319,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatHypeChatMessage class="message"
 			v-else-if="messageData.type == 'hype_chat'"
 			:messageData="messageData"
@@ -328,7 +328,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatAdBreakStarted class="message"
 			v-else-if="messageData.type == 'ad_break_start_chat'"
 			:messageData="messageData"
@@ -337,7 +337,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatHistorySplitter class="message"
 			v-else-if="messageData.type == 'history_splitter'"
 			:messageData="messageData"
@@ -346,7 +346,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatTrackAddedToQueue class="message"
 			v-else-if="messageData.type == 'music_added_to_queue'"
 			:messageData="messageData"
@@ -355,7 +355,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatTrackStart class="message"
 			v-else-if="messageData.type == 'music_start'"
 			:messageData="messageData"
@@ -364,7 +364,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatCustomMessage class="message"
 			v-else-if="messageData.type == 'custom'"
 			:messageData="messageData"
@@ -373,7 +373,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatStreamlabsEvent class="message"
 			v-else-if="messageData.type == 'streamlabs'"
 			:messageData="messageData"
@@ -382,7 +382,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatStreamelementsEvent class="message"
 			v-else-if="messageData.type == 'streamelements'"
 			:messageData="messageData"
@@ -391,7 +391,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatKofiEvent class="message"
 			v-else-if="messageData.type == 'kofi'"
 			:messageData="messageData"
@@ -400,7 +400,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatTipeeeEvent class="message"
 			v-else-if="messageData.type == 'tipeee'"
 			:messageData="messageData"
@@ -409,7 +409,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatTiltifyEvent class="message"
 			v-else-if="messageData.type == 'tiltify'"
 			:messageData="messageData"
@@ -418,7 +418,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatPatreonEvent class="message"
 			v-else-if="messageData.type == 'patreon'"
 			:messageData="messageData"
@@ -427,7 +427,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatUnbanRequest class="message"
 			v-else-if="messageData.type == 'unban_request'"
 			:messageData="messageData"
@@ -436,7 +436,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatCelebration class="message"
 			v-else-if="messageData.type == 'twitch_celebration'"
 			:messageData="messageData"
@@ -445,7 +445,16 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
+		<ChatGiantEmote class="message"
+			v-else-if="messageData.type == 'gigantified_emote'"
+			:messageData="messageData"
+			@onRead="(m:TwitchatDataTypes.ChatMessageTypes, e:MouseEvent) => $emit('onRead', m, e)"
+			:colIndex="colIndex"
+			:lightMode="lightMode"
+			:childrenList="childrenList"
+		/>
+
 		<ChatAutomodTermsUpdate class="message"
 			v-else-if="messageData.type == 'blocked_terms'"
 			:messageData="messageData"
@@ -454,7 +463,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatHateRaid class="message"
 			v-else-if="messageData.type == 'hate_raid'"
 			:messageData="messageData"
@@ -463,7 +472,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatWarnUser class="message"
 			v-else-if="messageData.type == 'warn_chatter'"
 			:messageData="messageData"
@@ -472,7 +481,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatWarnAcknowledgment class="message"
 			v-else-if="messageData.type == 'warn_acknowledge'"
 			:messageData="messageData"
@@ -481,7 +490,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatYoutubeSuperChat class="message"
 			v-else-if="messageData.type == 'super_chat'"
 			:messageData="messageData"
@@ -490,7 +499,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatYoutubeSuperSticker class="message"
 			v-else-if="messageData.type == 'super_sticker'"
 			:messageData="messageData"
@@ -499,7 +508,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatYoutubeSubscription class="message"
 			v-else-if="messageData.type == 'youtube_subscription'"
 			:messageData="messageData"
@@ -508,7 +517,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatYoutubeSubgift class="message"
 			v-else-if="messageData.type == 'youtube_subgift'"
 			:messageData="messageData"
@@ -517,7 +526,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatTikTokSub class="message"
 			v-else-if="messageData.type == 'tiktok_sub'"
 			:messageData="messageData"
@@ -526,7 +535,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatTikTokGift class="message"
 			v-else-if="messageData.type == 'tiktok_gift'"
 			:messageData="messageData"
@@ -535,7 +544,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-	
+
 		<ChatTikTokLike class="message"
 			v-else-if="messageData.type == 'tiktok_like'"
 			:messageData="messageData"
@@ -544,7 +553,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-		
+
 		<ChatTikTokShare class="message"
 			v-else-if="messageData.type == 'tiktok_share'"
 			:messageData="messageData"
@@ -553,7 +562,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-		
+
 		<ChatSuspendedTriggerStack class="message"
 			v-else-if="messageData.type == 'suspended_trigger_stack'"
 			:messageData="messageData"
@@ -562,7 +571,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-		
+
 		<ChatTwitchCharityDonation class="message"
 			v-else-if="messageData.type == 'twitch_charity_donation'"
 			:messageData="messageData"
@@ -571,7 +580,7 @@
 			:lightMode="lightMode"
 			:childrenList="childrenList"
 		/>
-		
+
 		<ChatPrivateModerator class="message"
 			v-else-if="messageData.type == 'private_mod_message'"
 			:messageData="messageData"
@@ -633,6 +642,7 @@ import ChatUnbanRequest from './ChatUnbanRequest.vue';
 import ChatTipeeeEvent from './ChatTipeeeEvent.vue';
 import ChatTrackStart from './ChatTrackStart.vue';
 import ChatCelebration from './ChatCelebration.vue';
+import ChatGiantEmote from './ChatGiantEmote.vue';
 import ChatAutomodTermsUpdate from './ChatAutomodTermsUpdate.vue';
 import ChatHateRaid from './ChatHateRaid.vue';
 import ChatWarnUser from './ChatWarnUser.vue';
@@ -677,6 +687,7 @@ import ChatPrivateModerator from './ChatPrivateModerator.vue';
 		ChatJoinLeave,
 		ChatTrackStart,
 		ChatPollResult,
+		ChatGiantEmote,
 		ChatTipeeeEvent,
 		ChatStreamOnOff,
 		ChatBingoResult,
@@ -723,16 +734,16 @@ class MessageItem extends Vue {
 
 	@Prop()
 	public messageData!:TwitchatDataTypes.ChatMessageTypes;
-	
+
 	@Prop()
 	public colIndex!:number;
-	
+
 	@Prop()
 	public lightMode!:boolean;
-	
+
 	@Prop()
 	public disableConversation!:boolean;
-	
+
 	@Prop({default:[]})
 	public childrenList!:TwitchatDataTypes.ChatMessageTypes[];
 

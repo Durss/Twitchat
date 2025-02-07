@@ -265,6 +265,9 @@ export default class EventSub {
 			// if(TwitchUtils.hasScopes([TwitchScopes.READ_CHEER])) {
 				// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.BITS, "1");
 			// }
+			if(TwitchUtils.hasScopes([TwitchScopes.READ_CHEER])) {
+				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.BITS_USE, "beta");
+			}
 
 			//Don't need it
 				// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_CREATE, "1");
@@ -613,6 +616,12 @@ export default class EventSub {
 			case TwitchEventSubDataTypes.SubscriptionTypes.DELETE_MESSAGE: {
 				const event = payload.event as TwitchEventSubDataTypes.ChatDeleteMessageEvent;
 				StoreProxy.chat.deleteMessageByID(event.message_id, undefined, false);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.BITS_USE: {
+				console.log(payload)
+				this.bitsUsed(topic, payload.event as TwitchEventSubDataTypes.BitsUseEvent);
 				break;
 			}
 		}
@@ -994,7 +1003,8 @@ export default class EventSub {
 	}
 
 	/**
-	 * Called when redeeming a reward
+	 * Called when redeeming a reward except for power ups and
+	 * automatic rewards like "highlight my message"
 	 * @param topic
 	 * @param payload
 	 */
@@ -1022,7 +1032,7 @@ export default class EventSub {
 			message_size:0,
 			redeemId: event.id,
 		};
-		// m.user.channelInfo[channelId].online = true;
+
 		if(event.user_input) {
 			const chunks	= TwitchUtils.parseMessageToChunks(event.user_input, undefined, true);
 			m.message		= event.user_input;
@@ -1030,17 +1040,20 @@ export default class EventSub {
 			m.message_html	= TwitchUtils.messageChunksToHTML(chunks);
 			m.message_size	= TwitchUtils.computeMessageSize(chunks);
 		}
+
 		StoreProxy.chat.addMessage(m);
 	}
 
 	/**
 	 * Called when redeeming an automatic reward (used only for "celebration" for now)
+	 * EDIT: Not used anymore. Power-Ups are handle through "bits used" topic that gives more info
+	 * and "highlight my message" is handled through IRC as it also works for external channels
 	 * @param topic
 	 * @param payload
 	 */
 	private automaticRewardRedeem(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AutomaticRewardRedeemEvent):void {
+		return;
 		if(event.reward.type != "celebration") return;
-
 		const user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false);
 		const m:TwitchatDataTypes.MessageTwitchCelebrationData = {
 			id:Utils.getUUID(),
@@ -1926,6 +1939,47 @@ export default class EventSub {
 			message_size: TwitchUtils.computeMessageSize(chunks),
 		}
 		StoreProxy.chat.addMessage(whisper);
+	}
+
+	/**
+	 * Called when bits are used on the channel
+	 */
+	private async bitsUsed(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.BitsUseEvent):Promise<void> {
+		const user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false);
+		if(event.power_up.type == "celebration") {
+			const m:TwitchatDataTypes.MessageTwitchCelebrationData = {
+				id:Utils.getUUID(),
+				date:Date.now(),
+				platform:"twitch",
+				channel_id:event.broadcaster_user_id,
+				type:TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION,
+				user,
+				cost: event.bits,
+				emoteID: event.power_up.emote.id,
+				emoteURL:"https://static-cdn.jtvnw.net/emoticons/v2/" + event.power_up.emote.id + "/default/light/3.0"
+			};
+			StoreProxy.chat.addMessage(m);
+		}else
+		if(event.power_up.type == "gigantify_an_emote") {
+			const messageChunks:TwitchatDataTypes.ParseMessageChunk[] = await TwitchUtils.eventsubFragmentsToTwitchatChunks(event.message.fragments, event.broadcaster_user_id);
+			const messageHTML = TwitchUtils.messageChunksToHTML(messageChunks);
+			const m:TwitchatDataTypes.MessageTwitchGigantifiedEmoteData = {
+				id:Utils.getUUID(),
+				date:Date.now(),
+				platform:"twitch",
+				channel_id:event.broadcaster_user_id,
+				type:TwitchatDataTypes.TwitchatMessageType.GIGANTIFIED_EMOTE,
+				user,
+				cost: event.bits,
+				emoteID: event.power_up.emote.id,
+				emoteURL:"https://static-cdn.jtvnw.net/emoticons/v2/" + event.power_up.emote.id + "/default/light/3.0",
+				message:event.message.text,
+				message_chunks:messageChunks,
+				message_html:messageHTML,
+				message_size:0,
+			};
+			StoreProxy.chat.addMessage(m);
+		}
 	}
 
 }

@@ -519,8 +519,12 @@
 			"platform_youtube": "Message reçu\nsur TikTok"
 		},
 		"celebration": {
-			"message": "{USER} a obtenu {EMOTE} Célébration de chaîne pour {PRICE}",
+			"message": "{USER} a acheté le Power-Up \"Célébration de chaîne\" pour {PRICE}",
 			"message_tmp": "{USER} a obtenu le Power-Up \"Célébration de chaîne\""
+		},
+		"gigantified_emote": {
+			"message": "{USER} a acheté le Power-Up \"Gigantiser une emote\" pour {PRICE}",
+			"message_tmp": "{USER} a obtenu le Power-Up \"Gigantiser une emote\""
 		},
 		"blocked_terms": {
 			"add_permitted": "{USER} a ajouté {TERMS} aux termes autorisés",

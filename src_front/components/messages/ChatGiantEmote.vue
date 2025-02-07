@@ -1,5 +1,5 @@
 <template>
-	<div class="chatcelebration chatMessage highlight"
+	<div class="chatgiantemote chatMessage highlight"
 	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 
@@ -31,17 +31,17 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 	},
 	emits:['onRead'],
 })
-class ChatCelebration extends AbstractChatMessage {
+class ChatGiantEmote extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageTwitchCelebrationData;
 
 }
-export default toNative(ChatCelebration);
+export default toNative(ChatGiantEmote);
 </script>
 
 <style scoped lang="less">
-.chatcelebration{
+.chatgiantemote{
 
 	.cost {
 		font-size: .7em;
