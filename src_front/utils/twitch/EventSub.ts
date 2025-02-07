@@ -191,7 +191,7 @@ export default class EventSub {
 	 * Connect to a channel chan.
 	 * Will connect to appropriate topics depending on wether we're a mod
 	 * on the given channel or not (make sure user.channelInfo[uid] is properly populated)
-	 * @param user 
+	 * @param user
 	 */
 	public async connectToChannel(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
 		const me	= StoreProxy.auth.twitch.user;
@@ -214,11 +214,11 @@ export default class EventSub {
 
 			//Don't need to listen for this event for anyone else but the broadcaster
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {from_broadcaster_user_id:channelId});
-			
+
 			//Used by online/offline triggers
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
-			
+
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_DONATE, "1");
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_PROGRESS, "1");
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_START, "1");
@@ -239,8 +239,8 @@ export default class EventSub {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_LOCK, "1");
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_END, "1");
 			}
-			
-			/*
+
+			//*
 			if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS])) {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_START, "1");
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_PROGRESS, "1");
@@ -280,7 +280,7 @@ export default class EventSub {
 			if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, "2");
 			}
-			
+
 			if(hasChannelModerateV2Permissions) {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_MODERATE, "2");
 			}else{
@@ -337,7 +337,7 @@ export default class EventSub {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.SUSPICIOUS_USER_UPDATE, "1");
 			}
 		}
-		
+
 		if(TwitchUtils.hasScopes([TwitchScopes.CHAT_READ_EVENTSUB])) {
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_MESSAGES, "1", {user_id:myUID});
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHAT_CLEAR, "1", {user_id:myUID});
@@ -349,7 +349,7 @@ export default class EventSub {
 	/**
 	 * Disconnect from remote chan.
 	 * Deletes all eventsub subscriptions related to given chan
-	 * @param channel 
+	 * @param channel
 	 */
 	public async disconnectRemoteChan(channel:TwitchatDataTypes.TwitchatUser):Promise<void> {
 		if(!this.chanSubscriptions[channel.id]) return;
@@ -527,7 +527,7 @@ export default class EventSub {
 				this.unbanRequestEvent(topic, payload.event as TwitchEventSubDataTypes.UnbanRequestEvent | TwitchEventSubDataTypes.UnbanRequestResolveEvent);
 				break;
 			}
-			
+
 			case TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_MODERATE: {
 				this.moderationEvent(topic, payload.event as TwitchEventSubDataTypes.ModerationEvent);
 				break;
@@ -548,6 +548,13 @@ export default class EventSub {
 			case TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_END:
 			case TwitchEventSubDataTypes.SubscriptionTypes.PREDICTION_LOCK: {
 				this.predictionEvent(topic, payload.event as TwitchEventSubDataTypes.PredictionStartEvent | TwitchEventSubDataTypes.PredictionProgressEvent | TwitchEventSubDataTypes.PredictionEndEvent | TwitchEventSubDataTypes.PredictionLockEvent);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.POLL_START:
+			case TwitchEventSubDataTypes.SubscriptionTypes.POLL_PROGRESS:
+			case TwitchEventSubDataTypes.SubscriptionTypes.POLL_END: {
+				this.pollEvent(topic, payload.event as TwitchEventSubDataTypes.PollStartEvent | TwitchEventSubDataTypes.PollProgressEvent | TwitchEventSubDataTypes.PollEndEvent);
 				break;
 			}
 
@@ -577,13 +584,13 @@ export default class EventSub {
 				},500);
 				break;
 			}
-			
+
 			case TwitchEventSubDataTypes.SubscriptionTypes.CHARITY_STOP: {
 				const charity = payload.event as TwitchEventSubDataTypes.CharityStopEvent;
 				StoreProxy.twitchCharity.onCharityStop(charity.id);
 				break;
 			}
-			
+
 			case TwitchEventSubDataTypes.SubscriptionTypes.CHAT_CLEAR: {
 				const event = payload.event as TwitchEventSubDataTypes.ChatClearEvent;
 				const message:TwitchatDataTypes.MessageClearChatData = {
@@ -598,7 +605,7 @@ export default class EventSub {
 				StoreProxy.chat.addMessage(message);
 				break;
 			}
-			
+
 			case TwitchEventSubDataTypes.SubscriptionTypes.DELETE_MESSAGE: {
 				const event = payload.event as TwitchEventSubDataTypes.ChatDeleteMessageEvent;
 				StoreProxy.chat.deleteMessageByID(event.message_id, undefined, false);
@@ -666,7 +673,7 @@ export default class EventSub {
 		}
 
 		let infos = StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id];
-		
+
 		if(!infos) {
 			infos = StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id] = {
 				title,
@@ -684,14 +691,14 @@ export default class EventSub {
 		infos.tags = tags;
 		infos.viewers = viewers;
 		infos.live = live;
-	
+
 		//Allows to dedupe update events
 		const isChange = infos.title != this.lastChannelUpdateInfos.title
 				|| infos.category != this.lastChannelUpdateInfos.category
 				|| infos.tags.toString() != this.lastChannelUpdateInfos.tags.toString()
 				|| infos.viewers != this.lastChannelUpdateInfos.viewers
 				|| infos.live != this.lastChannelUpdateInfos.live;
-				
+
 		this.lastChannelUpdateInfos.title = infos.title;
 		this.lastChannelUpdateInfos.category = infos.category;
 		this.lastChannelUpdateInfos.tags = infos.tags;
@@ -724,7 +731,7 @@ export default class EventSub {
 				title:infos.title,
 				category:infos.category
 			}
-	
+
 			StoreProxy.chat.addMessage(message);
 		}
 	}
@@ -932,8 +939,8 @@ export default class EventSub {
 
 	/**
 	 * Called when unbanning a user
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private unbanEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.UnbanEvent):void {
 		const moderator = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name, undefined, undefined, false, undefined, false);
@@ -962,8 +969,8 @@ export default class EventSub {
 
 	/**
 	 * Called when a moderator is removed
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private modRemoveEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModeratorRemoveEvent):void {
 		const modedUser		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false);
@@ -981,11 +988,11 @@ export default class EventSub {
 		StoreProxy.users.flagUnmod("twitch", event.broadcaster_user_id, modedUser.id);
 		StoreProxy.chat.addMessage(m);
 	}
-	
+
 	/**
 	 * Called when redeeming an automatic reward (used only for "celebration" for now)
-	 * @param topic 
-	 * @param payload 
+	 * @param topic
+	 * @param payload
 	 */
 	private automaticRewardRedeem(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AutomaticRewardRedeemEvent):void {
 		if(event.reward.type != "celebration") return;
@@ -1181,11 +1188,11 @@ export default class EventSub {
 
 		StoreProxy.chat.addMessage(message);
 	}
-	
+
 	/**
 	 * Called when automod terms are updated
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async automodTermsUpdate(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AutomodTermsUpdateEvent):Promise<void> {
 		//Debounce events and merge them
@@ -1220,11 +1227,11 @@ export default class EventSub {
 			}
 		}, 1000);
 	}
-	
+
 	/**
 	 * Called when a message is held by automod
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async automodMessageHeld(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AutomodMessageHeldEvent):Promise<void> {
 		// const reasons:string[] = [];
@@ -1256,14 +1263,14 @@ export default class EventSub {
 					emote:"https://static-cdn.jtvnw.net/emoticons/v2/"+el.emote.id+"/default/light/2.0",
 					emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/"+el.emote.id+"/default/light/4.0",
 				});
-			
+
 			}else if(automodChunk) {
 				chunks.push({
 					type:"highlight",
 					value:el.text,
 				});
 				words.push(el.text);
-				
+
 			}else if(el.text) {
 				chunks.push({
 					type:"text",
@@ -1293,11 +1300,11 @@ export default class EventSub {
 		m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
 		StoreProxy.chat.addMessage(m);
 	}
-	
+
 	/**
 	 * Called when the status of a message held by automod is updated
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async automodMessageUpdate(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AutomodMessageUpdateEvent):Promise<void> {
 		//Delete it even if allowed as it's actually sent back via IRC
@@ -1306,8 +1313,8 @@ export default class EventSub {
 
 	/**
 	 * Called when a moderation event happens
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async moderationEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModerationEvent):Promise<void> {
 		const user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name, undefined, undefined, false, undefined, false);
@@ -1338,7 +1345,7 @@ export default class EventSub {
 				StoreProxy.stream.setRaiding();
 				break;
 			}
-			
+
 			case "clear":{
 				//Ignore, already listened from dedicated topic
 				break;
@@ -1525,7 +1532,7 @@ export default class EventSub {
 				const deleter = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name, undefined, false, false, false, false);
 				StoreProxy.chat.deleteMessageByID(event.delete.message_id, deleter, false);
 			}
-			
+
 			default: {
 				console.log("Unhandled moderation event from eventsub");
 				console.log(event);
@@ -1535,8 +1542,8 @@ export default class EventSub {
 
 	/**
 	 * Called when a user acknowledged a warning
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async warningAcknowledgeEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.WarningAcknowledgeEvent):Promise<void> {
 		console.log("ACKNOWLEDGED");
@@ -1553,8 +1560,8 @@ export default class EventSub {
 
 	/**
 	 * Called when a user is sent a warning a warning
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async warningSendEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.WarningSentEvent):Promise<void> {
 		const moderator = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name)
@@ -1575,8 +1582,8 @@ export default class EventSub {
 
 	/**
 	 * Called when a user suspicious/restricted user sends a message
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async suspiciousUserMessage(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.SuspiciousUserMessage):Promise<void> {
 		if(event.low_trust_status == "restricted") {
@@ -1609,8 +1616,8 @@ export default class EventSub {
 
 	/**
 	 * Called when a user suspicious/restricted user sends a message
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async suspiciousUserStateUpdate(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.SuspiciousUserStateUpdate):Promise<void> {
 		const m:TwitchatDataTypes.MessageLowtrustTreatmentData = {
@@ -1630,8 +1637,8 @@ export default class EventSub {
 
 	/**
 	 * Called when a prediction event is received
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async predictionEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.PredictionStartEvent | TwitchEventSubDataTypes.PredictionProgressEvent | TwitchEventSubDataTypes.PredictionEndEvent | TwitchEventSubDataTypes.PredictionLockEvent):Promise<void> {
 		if(topic === "channel.prediction.end" && (event as TwitchEventSubDataTypes.PredictionEndEvent).status == "canceled") {
@@ -1644,7 +1651,7 @@ export default class EventSub {
 		const isComplete = topic === "channel.prediction.end" && (event as TwitchEventSubDataTypes.PredictionEndEvent).status == "resolved";
 		const outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = currentPrediction?.outcomes || [];
 		//Merge outcomes with current data.
-		//Eventsub "end" doesn't send back the vote/user count with the outcome. 
+		//Eventsub "end" doesn't send back the vote/user count with the outcome.
 		//because of this, we need to keep the local outcomes with their current
 		//votes instead of simply using what EventSub gives us.
 		if(topic == "channel.prediction.progress") {
@@ -1683,7 +1690,6 @@ export default class EventSub {
 			let typedEvent = event as TwitchEventSubDataTypes.PredictionStartEvent;
 			duration = (new Date(typedEvent.locks_at).getTime() - new Date(event.started_at).getTime())/1000;
 		}
-		const me = StoreProxy.auth.twitch.user;
 		const prediction:TwitchatDataTypes.MessagePredictionData = {
 			date:Date.now(),
 			id:event.id,
@@ -1713,10 +1719,56 @@ export default class EventSub {
 		}
 	}
 
+	/**
+	 * Called when a prediction event is received
+	 * @param topic
+	 * @param event
+	 */
+	private async pollEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.PollStartEvent | TwitchEventSubDataTypes.PollProgressEvent | TwitchEventSubDataTypes.PollEndEvent):Promise<void> {
+		const choices:TwitchatDataTypes.MessagePollDataChoice[] = [];
+		let winner!:TwitchatDataTypes.MessagePollDataChoice;
+		let winnerValue = -1;
+		for (let i = 0; i < event.choices.length; i++) {
+			const c = event.choices[i];
+			let votes = 0
+			if(topic != "channel.poll.begin") {
+				const typedEvent = event as TwitchEventSubDataTypes.PollProgressEvent | TwitchEventSubDataTypes.PollEndEvent;
+				votes = typedEvent.choices[i].votes;
+			}
+			const entry:TwitchatDataTypes.MessagePollDataChoice = { id: c.id, label: c.title, votes };
+			if(entry.votes > winnerValue) {
+				winner = entry;
+				winnerValue = entry.votes;
+			}
+			choices.push(entry);
+		}
+
+		const poll:TwitchatDataTypes.MessagePollData = {
+			date:Date.now(),
+			id:event.id,
+			platform:"twitch",
+			channel_id: event.broadcaster_user_id,
+			type:TwitchatDataTypes.TwitchatMessageType.POLL,
+			title: event.title,
+			choices,
+			duration_s: (new Date(event.ends_at).getTime() - new Date(event.started_at).getTime())/1000,
+			started_at: new Date(event.started_at).getTime(),
+			ended_at: event.ends_at? new Date(event.ends_at).getTime() : undefined,
+			winner,
+		};
+
+		const isComplete = topic === "channel.poll.end";
+		StoreProxy.poll.setCurrentPoll(poll, isComplete);
+		if(isComplete) {
+			//Clear poll
+			StoreProxy.poll.setCurrentPoll(null);
+		}
+	}
+
 	private async chatMessageEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ChatMessageEvent):Promise<void> {
 		//Ignore reward related messages as they're handled by the reward event
 		if(event.channel_points_custom_reward_id) return;
-		
+
 		window.setTimeout(async () => {
 			//Check if message is already in the list, otherwise add it as a fallback
 			const messageList = StoreProxy.chat.messages;
@@ -1762,12 +1814,12 @@ export default class EventSub {
 					is_short:Utils.stripHTMLTags(messageHTML || "").length / (event.message.text.length||1) < .6 || event.message.text.length < 4,
 					twitch_source:"eventsub",
 				};
-	
+
 				//Check if it's a /me message
 				if(/\u0001ACTION .*\u0001/.test(event.message.text)) {
 					message.twitch_isSlashMe = true;
 				}
-	
+
 				if(event.reply) {
 					let messageList = StoreProxy.chat.messages;
 					//Search for original message the user answered to
@@ -1783,7 +1835,7 @@ export default class EventSub {
 						}
 					}
 				}
-	
+
 				StoreProxy.chat.addMessage(message);
 			}
 		}, 2000);
