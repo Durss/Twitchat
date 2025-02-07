@@ -230,7 +230,7 @@ export default class EventSub {
 
 			if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMATIC_REWARD_REDEEM, "1");
-				// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM, "1");
+				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM, "1");
 				// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM_UPDATE, "1");
 			}
 			if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS])) {
@@ -470,6 +470,11 @@ export default class EventSub {
 
 			case TwitchEventSubDataTypes.SubscriptionTypes.MODERATOR_REMOVE: {
 				this.modRemoveEvent(topic, payload.event as TwitchEventSubDataTypes.ModeratorRemoveEvent);
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM: {
+				this.rewardRedeem(topic, payload.event as TwitchEventSubDataTypes.RewardRedeemEvent);
 				break;
 			}
 
@@ -985,6 +990,46 @@ export default class EventSub {
 			message: StoreProxy.i18n.t("global.moderation_action.unmodded_by", {USER:modedUser.displayName, MODERATOR:moderator.displayName}),
 		};
 		StoreProxy.users.flagUnmod("twitch", event.broadcaster_user_id, modedUser.id);
+		StoreProxy.chat.addMessage(m);
+	}
+
+	/**
+	 * Called when redeeming a reward
+	 * @param topic
+	 * @param payload
+	 */
+	private rewardRedeem(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.RewardRedeemEvent):void {
+		const user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false);
+		const reward = StoreProxy.rewards.rewardList.find(r=>r.id == event.reward.id);
+		const m:TwitchatDataTypes.MessageRewardRedeemData = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitch",
+			channel_id:event.broadcaster_user_id,
+			type:TwitchatDataTypes.TwitchatMessageType.REWARD,
+			user,
+			reward:{
+				id:event.reward.id,
+				title:event.reward.title,
+				cost:event.reward.cost,
+				description:event.reward.prompt,
+				color:reward? reward.background_color : "#ffffff",
+				icon:{
+					sd:reward?.image?.url_1x ?? StoreProxy.asset("icons/channel_points.svg"),
+					hd:reward?.image?.url_4x ?? StoreProxy.asset("icons/channel_points.svg"),
+				},
+			},
+			message_size:0,
+			redeemId: event.id,
+		};
+		// m.user.channelInfo[channelId].online = true;
+		if(event.user_input) {
+			const chunks	= TwitchUtils.parseMessageToChunks(event.user_input, undefined, true);
+			m.message		= event.user_input;
+			m.message_chunks= chunks;
+			m.message_html	= TwitchUtils.messageChunksToHTML(chunks);
+			m.message_size	= TwitchUtils.computeMessageSize(chunks);
+		}
 		StoreProxy.chat.addMessage(m);
 	}
 

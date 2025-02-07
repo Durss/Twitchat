@@ -90,7 +90,7 @@ export default class PubSub extends EventDispatcher {
 				// "ad-property-refresh."+myUID,//???
 				// "stream-chat-room-v1."+myUID,//???
 				// "sponsorships-v1."+myUID,//???
-				"community-points-channel-v1."+myUID,
+				// "community-points-channel-v1."+myUID,
 				//"user-preferences-update-v1."+myUID,//not allowed
 				// "onsite-notifications."+myUID,//not allowed
 				// "activity-feed-broadcaster-v2."+myUID,//not allowed
@@ -102,7 +102,7 @@ export default class PubSub extends EventDispatcher {
 				// "stream-change-v1."+myUID,
 			];
 			if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])){
-				subscriptions.push("channel-points-channel-v1."+myUID);
+				// subscriptions.push("channel-points-channel-v1."+myUID);
 			}
 			// if(TwitchUtils.hasScopes([TwitchScopes.WHISPER_READ])){
 				// subscriptions.push("whispers."+myUID);

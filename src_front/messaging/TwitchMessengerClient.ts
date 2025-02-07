@@ -659,10 +659,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			return;
 		}
 
-		//Ignore rewards with text, they are also sent to PubSub with more info
-		if(tags["custom-reward-id"]) return;
-
-		console.log(channel, tags, message)
+		//Ignore rewards with text, they are also sent to EventSub
+		if(tags["custom-reward-id"]) return
 
 		//Receive whispers
 		if(tags["message-type"] == "whisper") {
