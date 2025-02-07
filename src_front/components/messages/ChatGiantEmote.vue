@@ -5,7 +5,7 @@
 
 		<div class="holder">
 			<Icon name="watchStreak" />
-			<i18n-t scope="global" class="label" tag="span" keypath="chat.celebration.message">
+			<i18n-t scope="global" class="label" tag="span" keypath="chat.gigantified_emote.message">
 				<template #USER>
 					<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 				</template>
@@ -34,7 +34,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 class ChatGiantEmote extends AbstractChatMessage {
 
 	@Prop
-	declare messageData:TwitchatDataTypes.MessageTwitchCelebrationData;
+	declare messageData:TwitchatDataTypes.MessageTwitchGigantifiedEmoteData;
 
 }
 export default toNative(ChatGiantEmote);
