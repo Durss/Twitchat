@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { LogStyle } from "../utils/Logger.js";
 import { fileURLToPath } from 'url';
+import Utils from "./Utils.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -162,7 +163,7 @@ export default class Config {
 		});
 	}
 
-	public static LOGS_PATH(category:"streamlabs"|"hypetrain"|"tiltify"|"kofi"|"patreon"|"random"|"eventsub"): string {
+	public static LOGS_PATH(category:typeof Utils.allowedLogCategories[number]): string {
 		return this.getEnvData({
 			dev: path.join(this.LOGS_FOLDER, "/"+category+".json"),
 			beta: path.join(this.LOGS_FOLDER, "/"+category+".json"),

@@ -15,6 +15,7 @@
 
 		<div class="info secondary" v-if="action.obsAction === 'pauserecord' || action.obsAction === 'resumerecord'">{{$t("triggers.actions.obs.param_obs_action_pauserecord_alert")}}</div>
 
+
 		<ParamItem  v-else-if="action.obsAction === 'createchapter'" :paramData="param_record_chapter_name" v-model="action.recordChapterName" />
 
 		<template v-else-if="action.obsAction === 'emitevent'">
@@ -242,7 +243,8 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public async beforeMount():Promise<void> {
 		if(this.action.obsAction == undefined) this.action.obsAction = "sources";
 		if(this.action.action == undefined) this.action.action = "show";
-		this.param_screenImgFormat_conf.listValues = OBSWebSocket.instance.versionInfo.supportedImageFormats.map(v=> {return {label:v, value:v}});
+		const defaultFormats = ["jpeg", "jpg", "png", "bmp"];
+		this.param_screenImgFormat_conf.listValues = (OBSWebSocket.instance.versionInfo?.supportedImageFormats ?? defaultFormats).map(v=> {return {label:v, value:v}});
 	}
 
 	public async mounted():Promise<void> {
@@ -330,7 +332,6 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		this.param_media_conf.placeholderList	=
 		this.param_css_conf.placeholderList		=
 		this.param_record_chapter_name.placeholderList	=
-		this.param_browserEvent_param.placeholderList	= list;
 		this.param_browserEvent_param.placeholderList	= list;
 
 		this.param_x_conf.placeholderList		=

@@ -33,15 +33,24 @@ class CustomUserNameManager extends Vue {
 	public itemList:{customName:string, user:TwitchatDataTypes.TwitchatUser}[] = [];
 
 	public async mounted():Promise<void> {
-		const customUsernames = this.$store.users.customUsernames;
-		for (const uid in customUsernames) {
-			const u = customUsernames[uid];
-			this.itemList.push( {user: this.$store.users.getUserFrom(u.platform, u.channel, uid), customName:u.name } );
-		}
+		this.refreshList();
 	}
 
 	public deleteCustomName(uid:string):void {
 		this.$store.users.removeCustomUsername(uid);
+		this.refreshList();
+	}
+
+	private refreshList():void {
+		const customUsernames = this.$store.users.customUsernames;
+		this.itemList = [];
+		for (const uid in customUsernames) {
+			const u = customUsernames[uid];
+			this.itemList.push( {user: this.$store.users.getUserFrom(u.platform, u.channel, uid), customName:u.name } );
+		}
+		if(this.itemList.length == 0){
+			this.$emit("close");
+		}
 	}
 
 }

@@ -1955,6 +1955,7 @@ export default class EventSub {
 	 * Called when bits are used on the channel
 	 */
 	private async bitsUsed(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.BitsUseEvent):Promise<void> {
+		if(!event.power_up) return;
 		const user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false);
 		if(event.power_up.type == "celebration") {
 			const m:TwitchatDataTypes.MessageTwitchCelebrationData = {
