@@ -3502,7 +3502,10 @@ export default class TwitchUtils {
 					break;
 				}
 				case "emote":{
-					const type = f.emote.format.includes("animated")? "animated" : "static";
+					// New "bits use" eventsub topic seems to send "emote" fragments without
+					// the "format" property. Added the [] fallback while i get some logs to
+					// figure out that mess
+					const type = (f.emote.format || []).includes("animated")? "animated" : "static";
 					const url_1x = "https://static-cdn.jtvnw.net/emoticons/v2/"+f.emote.id+"/"+type+"/dark/1.0";
 					const url_4x = "https://static-cdn.jtvnw.net/emoticons/v2/"+f.emote.id+"/"+type+"/dark/3.0";
 					chunks.push({type:"emote", value:f.text, emote:url_1x, emoteHD:url_4x || url_1x});
