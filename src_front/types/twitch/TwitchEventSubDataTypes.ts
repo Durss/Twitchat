@@ -1102,7 +1102,7 @@ export namespace TwitchEventSubDataTypes {
 		broadcaster_user_name: string;
 		bits: number;
 		type: string;
-		power_up: {
+		power_up: null | {
 			type: "gigantify_an_emote" | "celebration";
 			emote: {
 				id: string;
