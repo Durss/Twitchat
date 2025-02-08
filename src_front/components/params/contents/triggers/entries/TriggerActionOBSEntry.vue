@@ -14,7 +14,7 @@
 		<ParamItem :paramData="param_obsAction_conf" v-model="action.obsAction" />
 
 		<div class="info secondary" v-if="action.obsAction === 'pauserecord' || action.obsAction === 'resumerecord'">{{$t("triggers.actions.obs.param_obs_action_pauserecord_alert")}}</div>
-		
+
 		<ParamItem  v-else-if="action.obsAction === 'createchapter'" :paramData="param_record_chapter_name" v-model="action.recordChapterName" />
 
 		<template v-else-if="action.obsAction === 'emitevent'">
@@ -30,7 +30,7 @@
 				</div>
 			</div>
 		</template>
-		
+
 		<template v-else-if="action.obsAction === 'sources'">
 			<ParamItem :paramData="param_source_conf" v-model="selectedSourceName" />
 			<ParamItem :paramData="param_sourceAction_conf" v-model="action.action" v-if="selectedSourceName" />
@@ -51,9 +51,9 @@
 				v-if="canSetMediaPath"
 				:paramData="param_media_conf"
 				v-model="action.mediaPath" />
-				
+
 			<ParamItem class="url" :paramData="param_mediaEndEvent_conf" v-model="action.waitMediaEnd" v-if="canWaitForMediaEnd" />
-	
+
 			<div v-if="showPlaceholderWarning" class="info">
 				<img src="@/assets/icons/alert.svg" alt="info" class="">
 				<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.obs.media_source">
@@ -69,12 +69,12 @@
 				</div>
 			</div>
 		</template>
-		
+
 		<template v-else-if="action.obsAction === 'hotKey'">
 			<img src="@/assets/icons/loader.svg" alt="loader" class="card-item loading" v-if="(param_hotkeyAction_conf.listValues || []).length == 0" />
 			<ParamItem class="url" :paramData="param_hotkeyAction_conf" v-model="action.hotKeyAction" v-else />
 		</template>
-		
+
 		<template v-else-if="action.obsAction === 'screenshot'">
 			<ParamItem :paramData="param_source_conf" v-model="selectedSourceName" />
 			<ParamItem :paramData="param_screenImgFormat_conf" v-model="action.screenshotImgFormat" />
@@ -90,7 +90,7 @@
 			<ParamItem v-if="action.screenshotImgMode == 'save'" :paramData="param_screenImgSavePath_conf" v-model="action.screenshotImgSavePath" />
 			<template  v-if="action.screenshotImgMode == 'get'">
 				<ParamItem :paramData="param_screenImgSavePH_conf" v-model="action.screenshotImgSavePlaceholder" />
-				
+
 				<i18n-t scope="global" class="card-item primary" tag="div"
 				keypath="triggers.actions.common.custom_placeholder_example"
 				v-if="(action.screenshotImgSavePlaceholder || '').length > 0">
@@ -138,7 +138,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public obsSources!:OBSSourceItem[];
 	@Prop({default:[]})
 	public obsInputs!:OBSInputItem[];
-	
+
 	public param_obsAction_conf:TwitchatDataTypes.ParameterData<TriggerActionObsDataAction, TriggerActionObsDataAction> = { type:"list", value:"sources", listValues:[], icon:"show", labelKey:"triggers.actions.obs.param_obsAction" };
 	public param_sourceAction_conf:TwitchatDataTypes.ParameterData<TriggerActionObsSourceDataAction, TriggerActionObsSourceDataAction> = { type:"list", value:"show", listValues:[], icon:"show", labelKey:"triggers.actions.obs.param_sourceAction" };
 	public param_source_conf:TwitchatDataTypes.ParameterData<string, string, string> = { type:"list", value:"", listValues:[], icon:"list", children:[], labelKey:"triggers.actions.obs.param_source" };
@@ -167,18 +167,18 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public param_screenImgSize_height_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:1080, min:8, max:4096, icon:"coord_y", labelKey:"triggers.actions.obs.param_screenImgSize_height_conf" };
 	public param_screenImgSavePath_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", placeholder:"D:/image.jpeg", maxLength:500, icon:"save", labelKey:"triggers.actions.obs.param_screenImgSavePath_conf" };
 	public param_screenImgSavePH_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", maxLength:30, allowedCharsRegex:"a-z0-9_", icon:"placeholder", labelKey:"triggers.actions.obs.param_screenImgSavePH_conf" };
-	
+
 	public selectedSourceName:string = "";
-	
+
 	private filters:OBSFilter[] = [];
-	
+
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
 	public get showPlaceholderWarning():boolean {
 		if(!this.isMediaSource || this.param_sourceAction_conf.value != "show") return false;
 		return /\{[^ }]+\}/gi.test(this.param_media_conf.value);
-	} 
+	}
 
 	/**
 	 * Get if the selected source is a text source
@@ -234,7 +234,8 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public async beforeMount():Promise<void> {
 		if(this.action.obsAction == undefined) this.action.obsAction = "sources";
 		if(this.action.action == undefined) this.action.action = "show";
-		this.param_screenImgFormat_conf.listValues = OBSWebSocket.instance.versionInfo.supportedImageFormats.map(v=> {return {label:v, value:v}});
+		const defaultFormats = ["jpeg", "jpg", "png", "bmp"];
+		this.param_screenImgFormat_conf.listValues = (OBSWebSocket.instance.versionInfo?.supportedImageFormats ?? defaultFormats).map(v=> {return {label:v, value:v}});
 	}
 
 	public async mounted():Promise<void> {
@@ -278,7 +279,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		this.$nextTick().then(()=>{
 			this.action.action = actionBackup;
 		});
-		
+
 		const actionList:TwitchatDataTypes.ParameterDataListValue<TriggerActionObsDataAction>[] = [];
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_sources", value:"sources"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_startstream", value:"startstream"});
@@ -294,7 +295,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_hotkey", value:"hotKey"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_screenshot", value:"screenshot"});
 		this.param_obsAction_conf.listValues	= actionList;
-		
+
 		watch(()=>this.action.obsAction, ()=> { this.onActionChange(); });
 		watch(()=>this.obsScenes, ()=> { this.prefillForm(); }, {deep:true});
 		watch(()=>this.obsInputs, ()=> { this.prefillForm(); }, {deep:true});
@@ -316,16 +317,16 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	 * Called when the available placeholder list is updated
 	 */
 	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
-		this.param_text_conf.placeholderList	= 
-		this.param_url_conf.placeholderList		= 
-		this.param_media_conf.placeholderList	= 
-		this.param_css_conf.placeholderList		= 
+		this.param_text_conf.placeholderList	=
+		this.param_url_conf.placeholderList		=
+		this.param_media_conf.placeholderList	=
+		this.param_css_conf.placeholderList		=
 		this.param_browserEvent_param.placeholderList = list;
 
-		this.param_x_conf.placeholderList		= 
-		this.param_y_conf.placeholderList		= 
-		this.param_angle_conf.placeholderList	= 
-		this.param_width_conf.placeholderList	= 
+		this.param_x_conf.placeholderList		=
+		this.param_y_conf.placeholderList		=
+		this.param_angle_conf.placeholderList	=
+		this.param_width_conf.placeholderList	=
 		this.param_height_conf.placeholderList= list.filter(v=> v.numberParsable === true);
 	}
 
@@ -392,7 +393,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		//Add "select..." placeholder entry
 		list.unshift({labelKey:"global.select_placeholder", value:"", name:"", type:"source"});
 		this.param_source_conf.listValues = list;
-		
+
 		await this.onSourceChanged(true, cleanData)
 	}
 
@@ -411,7 +412,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 				this.filters = []
 			}
 		}
-		
+
 		if(this.filters.length > 0 || this.action.filterName) {
 			const list:TwitchatDataTypes.ParameterDataListValue<string>[] = (this.filters || []).map(v => {return {label:v.filterName, value:v.filterName}});
 			list.unshift({labelKey:"triggers.actions.obs.param_filter_none", value:""});

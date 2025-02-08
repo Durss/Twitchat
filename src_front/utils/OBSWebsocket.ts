@@ -24,7 +24,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	//other parts of code useless for the overlay.
 	//Removing this ref from here allows for a proper tree shaking of deps
 	public heatClickTriggerType:string = "82";
-	public versionInfo!:Awaited<ReturnType<typeof this.obs.call<"GetVersion">>>;
+	public versionInfo:Awaited<ReturnType<typeof this.obs.call<"GetVersion">>> | null = null;
 
 	private obs!:ObsWS;
 	private reconnectTimeout!:number;
@@ -149,7 +149,7 @@ export default class OBSWebSocket extends EventDispatcher {
 				requestType:"SetSceneItemEnabled",
 				requestData: {sceneName:"Scene 2", sceneItemId:37, sceneItemEnabled:true}
 			});
-			
+
 			await this.socket.callBatch(frames, {executionType:RequestBatchExecutionType.SerialFrame, haltOnFailure:false});
 			await Utils.promisedTimeout(1000);
 			loop();
@@ -684,7 +684,7 @@ export default class OBSWebSocket extends EventDispatcher {
 				});
 			}
 		}
-		
+
 		await Utils.promisedTimeout(50);
 	}
 
@@ -1210,7 +1210,7 @@ export default class OBSWebSocket extends EventDispatcher {
 
 		this.obs.on("RecordStateChanged", async (e:{ outputActive: boolean; outputState: string; outputPath: string; }) => {
 			if(e.outputState != "OBS_WEBSOCKET_OUTPUT_STOPPED" && e.outputState != "OBS_WEBSOCKET_OUTPUT_STARTED") return;
-			
+
 			const event = e.outputActive? TwitchatDataTypes.TwitchatMessageType.OBS_RECORDING_START : TwitchatDataTypes.TwitchatMessageType.OBS_RECORDING_STOP;
 			TriggerActionHandler.instance.execute({
 				id:Utils.getUUID(),
