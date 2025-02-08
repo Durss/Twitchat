@@ -70,7 +70,7 @@ export default class PubSub extends EventDispatcher {
 				// "leaderboard-events-v1.bits-usage-by-channel-v1-"+myUID+"-WEEK",
 				// "leaderboard-events-v1.sub-gifts-sent-"+myUID+"-WEEK",
 				"video-playback-by-id."+myUID,//Get viewer count
-				"community-boost-events-v1."+myUID,//Boost after a boost train complete
+				// "community-boost-events-v1."+myUID,//Boost after a boost train complete
 				// "chatrooms-user-v1."+myUID,//Host events (RIP)
 				"pinned-chat-updates-v1."+myUID,//when a message is un/pinned
 				// "predictions-channel-v1."+myUID,
@@ -84,8 +84,7 @@ export default class PubSub extends EventDispatcher {
 				// "hype-train-events-v2.53964156",//Testing golden kappa data
 				// "hype-train-events-v2.117482317",//Testing golden kappa data
 				// "raid."+myUID,
-				"community-moments-channel-v1."+myUID,
-				"user-moderation-notifications."+myUID+"."+myUID,
+				// "community-moments-channel-v1."+myUID,
 				// "ads."+myUID,//???
 				// "ad-property-refresh."+myUID,//???
 				// "stream-chat-room-v1."+myUID,//???
@@ -101,17 +100,6 @@ export default class PubSub extends EventDispatcher {
 				// "presence."+myUID,
 				// "stream-change-v1."+myUID,
 			];
-			if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])){
-				// subscriptions.push("channel-points-channel-v1."+myUID);
-			}
-			// if(TwitchUtils.hasScopes([TwitchScopes.WHISPER_READ])){
-				// subscriptions.push("whispers."+myUID);
-			// }
-			if(TwitchUtils.hasScopes([TwitchScopes.MODERATION_EVENTS])){
-				subscriptions.push("chat_moderator_actions."+myUID+"."+myUID);
-				subscriptions.push("low-trust-users."+myUID+"."+myUID);
-				// subscriptions.push("channel-chat-highlights."+myUID+"."+myUID);//Needs a twitch scope T_T. This is what allows to get "raider" message highlight
-			}
 			this.subscribe(subscriptions);
 		};
 
@@ -251,43 +239,6 @@ export default class PubSub extends EventDispatcher {
 			}
 
 
-
-		//sent when sending a whisper from anywhere
-		}else if(data.type == "whisper_sent" || data.type == "whisper_received") {
-			data.data = JSON.parse(data.data as string);//for this event it's a string..thanks twitch for your consistency
-			const localObj		= (data.data as unknown) as PubSubDataTypes.WhisperSent;
-			const senderID		= localObj.from_id.toString();
-			const receiverID	= localObj.thread_id.replace(new RegExp("_?"+localObj.from_id+"_?", "gi"), "");
-			const meID			= StoreProxy.auth.twitch.user.id;
-			let emotes:string	= "";
-			if(localObj.tags.emotes) {
-				//Convert parsed emote data to raw data expected by the parser
-				const list = (localObj.tags.emotes as unknown) as {emote_id:string, start:number, end:number}[];
-				emotes = TwitchUtils.parsedEmoteDataToRawEmoteData(list);
-			}
-
-			const sender = StoreProxy.users.getUserFrom("twitch", meID, senderID);
-			const receiver = StoreProxy.users.getUserFrom("twitch", meID, receiverID);
-			sender.color = localObj.tags.color;
-			receiver.color = localObj.recipient.color;
-			const chunks = TwitchUtils.parseMessageToChunks(localObj.body, emotes);
-			const whisper:TwitchatDataTypes.MessageWhisperData = {
-				date:Date.now(),
-				id:Utils.getUUID(),
-				platform:"twitch",
-				type:TwitchatDataTypes.TwitchatMessageType.WHISPER,
-				channel_id:meID,
-				user:sender,
-				to: receiver,
-				message: localObj.body,
-				message_chunks: chunks,
-				message_html: TwitchUtils.messageChunksToHTML(chunks),
-				message_size: TwitchUtils.computeMessageSize(chunks),
-			}
-			StoreProxy.chat.addMessage(whisper);
-
-
-
 		//Un/Pin message events
 		}else if(data.type == "pin-message") {
 			const localObj = (data.data as unknown) as PubSubDataTypes.PinMessage;
@@ -306,14 +257,6 @@ export default class PubSub extends EventDispatcher {
 		}else if(data.type == "chat_rich_embed") {
 			//Warning: JSON might be mostly empty/incomplete. Example below:
 			//{"type":"chat_rich_embed","data":{"message_id":"1fda6833-d53c-44d2-958b-389dd2289ff8","request_url":"https://clips.twitch.tv/","thumbnail_url":"https://clips-media-assets2.twitch.tv/-preview-86x45.jpg","twitch_metadata":{"clip_metadata":{"game":"","channel_display_name":"","slug":"","id":"0","broadcaster_id":"","curator_id":""}}}}
-
-
-
-		//Sent when a whisper is read
-		}else if(data.type == "thread") {
-			data.data = JSON.parse(data.data as string);//for this event it's a string..thanks twitch for your consistency
-			this.whisperRead(data.data as PubSubDataTypes.WhisperRead);
-
 
 
 		}else if(data.type == "hype-train-approaching") {
@@ -343,14 +286,6 @@ export default class PubSub extends EventDispatcher {
 				type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
 			};
 			StoreProxy.chat.addMessage(m)
-
-
-		//Manage rewards
-		}else if(data.type == "reward-redeemed" &&
-		(topic!.toLowerCase().indexOf("channel-points-channel") > -1 || topic!.toLowerCase().indexOf("community-points-channel") > -1)) {
-			const localObj = data.data as  PubSubDataTypes.RewardData;
-			this.rewardEvent(localObj);
-
 
 
 		//Channel points challenge progress
@@ -390,29 +325,6 @@ export default class PubSub extends EventDispatcher {
 				m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
 				StoreProxy.chat.addMessage(m);
 			}
-
-
-
-		}else if(data.type == "POLL_CREATE" || data.type == "POLL_UPDATE" || data.type == "POLL_COMPLETE" || data.type == "POLL_TERMINATE" || data.type == "POLL_ARCHIVE") {
-			const localObj = data.data as PubSubDataTypes.PollData;
-			if(data.type === "POLL_ARCHIVE" && StoreProxy.poll.data?.id != localObj.poll.poll_id) {
-				return;
-			}
-			const isComplete = data.type == "POLL_COMPLETE" || data.type == "POLL_TERMINATE" || data.type == "POLL_ARCHIVE";
-			this.pollEvent(localObj, isComplete);
-
-
-
-		}else if(data.type == "POLL_MODERATE" || data.type == "POLL_INVALID") {
-			// const localObj = data.data as PubSubDataTypes.PollData;
-			// TwitchUtils.getPolls(localObj.poll.owned_by);
-
-
-
-		}else if(data.type == "event-created" || data.type == "event-updated") {
-			const localObj = data.data as PubSubDataTypes.PredictionData;
-			this.predictionEvent(localObj);
-
 
 
 		// }else if(data.type == "raid_update_v2" && data.raid) {
@@ -469,53 +381,6 @@ export default class PubSub extends EventDispatcher {
 	}
 
 	/**
-	 * Called when a user redeems a reward
-	 */
-	private rewardEvent(localObj:PubSubDataTypes.RewardData):void {
-		//We subscribe to 2 different events for rewards, one that works on our channel and
-		//one that works on other user's channel.
-		//Because of this we receive events twice. We filter that here.
-		//TODO check if it's usefull to subscribe to "channel-points-channel-v1" for the broadcaster
-		//or if the "community-points-channel-v1" could be enough to avoid those duplicates
-		if(this.rewardsParsed[localObj.redemption.id] === true) return;
-		this.rewardsParsed[localObj.redemption.id] = true;
-
-		const channelId = localObj.redemption.channel_id;
-		const img = localObj.redemption.reward.image ?? localObj.redemption.reward.default_image;
-		const m:TwitchatDataTypes.MessageRewardRedeemData = {
-			id:localObj.redemption.id,
-			channel_id:channelId,
-			date:Date.now(),
-			type:TwitchatDataTypes.TwitchatMessageType.REWARD,
-			platform:"twitch",
-			reward:{
-				id:localObj.redemption.reward.id,
-				title:localObj.redemption.reward.title,
-				cost:localObj.redemption.reward.cost,
-				description:localObj.redemption.reward.prompt,
-				color:localObj.redemption.reward.background_color,
-				icon:{
-					sd:img.url_2x,
-					hd:img.url_4x,
-				},
-			},
-			message_size:0,
-			redeemId:localObj.redemption.id,
-			user:StoreProxy.users.getUserFrom("twitch", channelId, localObj.redemption.user.id, localObj.redemption.user.login, localObj.redemption.user.display_name),
-		};
-		// m.user.channelInfo[channelId].online = true;
-		if(localObj.redemption.user_input) {
-			const chunks	= TwitchUtils.parseMessageToChunks(localObj.redemption.user_input, undefined, true);
-			m.message		= localObj.redemption.user_input;
-			m.message_chunks= chunks;
-			m.message_html	= TwitchUtils.messageChunksToHTML(chunks);
-			m.message_size	= TwitchUtils.computeMessageSize(chunks);
-		}
-
-		StoreProxy.chat.addMessage(m);
-	}
-
-	/**
 	 * Community challenge contribution
 	 */
 	private communityChallengeContributionEvent(localObj:PubSubDataTypes.ChannelPointChallengeContribution):void {
@@ -544,101 +409,6 @@ export default class PubSub extends EventDispatcher {
 		};
 		// m.user.channelInfo[localObj.channel_id].online = true;
 		StoreProxy.chat.addMessage(m);
-	}
-
-	/**
-	 * Called when a poll event occurs (create/update/close)
-	 * @param localObj
-	 */
-	private pollEvent(localObj:PubSubDataTypes.PollData, isComplete:boolean):void {
-		const choices:TwitchatDataTypes.MessagePollDataChoice[] = [];
-		let winner!:TwitchatDataTypes.MessagePollDataChoice;
-		let winnerValue = -1;
-		for (let i = 0; i < localObj.poll.choices.length; i++) {
-			const c = localObj.poll.choices[i];
-			const entry = { id: c.choice_id, label: c.title, votes: c.votes.total };
-			if(entry.votes > winnerValue) {
-				winner = entry;
-				winnerValue = entry.votes;
-			}
-			choices.push(entry);
-		}
-
-		const me = StoreProxy.auth.twitch.user;
-		const poll:TwitchatDataTypes.MessagePollData = {
-			date:Date.now(),
-			id:localObj.poll.poll_id,
-			creator: StoreProxy.users.getUserFrom("twitch", me.id, localObj.poll.created_by),
-			platform:"twitch",
-			channel_id: localObj.poll.owned_by,
-			type:TwitchatDataTypes.TwitchatMessageType.POLL,
-			title: localObj.poll.title,
-			choices,
-			duration_s: localObj.poll.duration_seconds,
-			started_at: new Date(localObj.poll.started_at).getTime(),
-			ended_at: localObj.poll.ended_at? new Date(localObj.poll.ended_at).getTime() : undefined,
-			winner,
-		};
-
-		StoreProxy.poll.setCurrentPoll(poll, isComplete);
-		if(isComplete) {
-			//Clear poll
-			StoreProxy.poll.setCurrentPoll(null);
-		}
-	}
-
-	/**
-	 * Called when a prediction event occurs (create/update/close)
-	 */
-	private predictionEvent(localObj:PubSubDataTypes.PredictionData):void {
-		if(localObj.event.status === "CANCEL_PENDING") return;
-		if(localObj.event.status === "CANCELED") {
-			StoreProxy.prediction.setPrediction(null);
-			return;
-		}
-		let totalPoints = 0;
-		let totalUsers = 0;
-		const isComplete = localObj.event.status == "RESOLVED";
-		const outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = [];
-		for (let i = 0; i < localObj.event.outcomes.length; i++) {
-			const c = localObj.event.outcomes[i];
-			totalPoints += c.total_points;
-			totalUsers += c.total_users;
-			outcomes.push({
-				id: c.id,
-				label: c.title,
-				votes: c.total_points,
-				voters: c.total_users,
-			})
-		}
-		const me = StoreProxy.auth.twitch.user;
-		const prediction:TwitchatDataTypes.MessagePredictionData = {
-			date:Date.now(),
-			id:localObj.event.id,
-			creator: StoreProxy.users.getUserFrom("twitch", me.id, localObj.event.created_by.user_id, localObj.event.created_by.user_display_name.toLowerCase(), localObj.event.created_by.user_display_name),
-			platform:"twitch",
-			channel_id: localObj.event.channel_id,
-			type:TwitchatDataTypes.TwitchatMessageType.PREDICTION,
-			title: localObj.event.title,
-			outcomes,
-			pendingAnswer: localObj.event.status === "RESOLVE_PENDING" || localObj.event.status === "LOCKED",
-			started_at: new Date(localObj.event.created_at).getTime(),
-			duration_s: localObj.event.prediction_window_seconds,
-			totalPoints,
-			totalUsers,
-		};
-		if(localObj.event.ended_at) {
-			prediction.ended_at = new Date(localObj.event.ended_at).getTime()
-		}
-		if(localObj.event.winning_outcome_id) {
-			prediction.winner = outcomes.find(v => v.id == localObj.event.winning_outcome_id);
-		}
-
-		StoreProxy.prediction.setPrediction(prediction, isComplete);
-		if(isComplete) {
-			//Clear prediction
-			StoreProxy.prediction.setPrediction(null);
-		}
 	}
 
 
@@ -928,14 +698,6 @@ export default class PubSub extends EventDispatcher {
 			percent:Math.round(storeTrain.currentValue/storeTrain.goal * 100),
 		}
 		StoreProxy.chat.addMessage(message);
-	}
-
-	/**
-	 * Called when whispers are read
-	 */
-	private whisperRead(data:PubSubDataTypes.WhisperRead):void {
-		data;//
-		// StoreProxy.store.dispatch("closeWhispers", data.id.split("_")[1]);
 	}
 
 	/**
