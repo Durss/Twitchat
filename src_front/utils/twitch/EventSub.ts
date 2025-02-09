@@ -1035,8 +1035,8 @@ export default class EventSub {
 				description:event.reward.prompt,
 				color:reward? reward.background_color : "#ffffff",
 				icon:{
-					sd:reward?.image?.url_1x ?? StoreProxy.asset("icons/channel_points.svg"),
-					hd:reward?.image?.url_4x ?? StoreProxy.asset("icons/channel_points.svg"),
+					sd:reward?.image?.url_1x ?? StoreProxy.asset("icons/channelPoints.svg"),
+					hd:reward?.image?.url_4x ?? StoreProxy.asset("icons/channelPoints.svg"),
 				},
 			},
 			message_size:0,
