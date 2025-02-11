@@ -157,7 +157,8 @@ Create a `data/credentials/credentials.json` file and set the following content 
 	"patreon_client_secret_server": "",
 	"patreon_redirect_uri_server": "http://localhost:3018/api/patreon/serverauth",
 	"patreon_webhook_secret": "",
-	"patreon_cipherKey":"", //64 chars
+	"patreon_cipherKey":"", //64 chars hexadecimal
+	"patreon_webhook_url":"https://your_domain.com/api/patreon/user/webhook/{ID}",
 
 	"tenor_secret": "",
 	"youtube_key": "path/to/key.json",
@@ -180,7 +181,7 @@ Create a `data/credentials/credentials.json` file and set the following content 
 
 	"streamelements_client_id":"",
 	"streamelements_client_secret":"",
-	
+
 	"tipeee_client_id":"",
 	"tipeee_client_secret":"",
 	"tipeee_redirect_uri":"http://localhost:8080/tipeee/auth",

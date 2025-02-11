@@ -58,7 +58,7 @@ export default class PatreonController extends AbstractController {
 		this.server.get('/api/patreon/serverauth', async (request, response) => await this.getServerAuth(request, response));
 		this.server.get('/api/patreon/isApiDown', async (request, response) => await this.getApiDown(request, response));
 		this.server.post('/api/patreon/webhook', async (request, response) => await this.postWebhookTrigger(request, response));
-		
+
 		this.server.get('/api/patreon/user/memberList', async (request, response) => await this.getUserMemberList(request, response));
 		this.server.get('/api/patreon/user/isMember', async (request, response) => await this.getUserIsMember(request, response));
 		this.server.post('/api/patreon/user/webhook/:uid', async (request, response) => await this.postUserWebhookTrigger(request, response));
@@ -66,6 +66,13 @@ export default class PatreonController extends AbstractController {
 		this.server.post('/api/patreon/user/disconnect', async (request, response) => await this.disconnectUser(request, response));
 
 		if(Config.credentials.patreon_client_id_server && Config.credentials.patreon_client_secret_server) {
+			const keyUint8 = new Uint8Array(Buffer.from(Config.credentials.patreon_cipherKey, 'hex'));
+			if (keyUint8.length !== 32) {
+				Logger.error('Credential\'s "patreon_cipherKey" key must be 32 bytes (64 chars hexa string). Got', keyUint8.length, "("+Config.credentials.patreon_cipherKey+"). Please make sure value is an hexadecimal string");
+			}
+			if (!/https:.*\/api\/patreon\/user\/webhook\/\{ID\}/gi.test(Config.credentials.patreon_webhook_url)) {
+				Logger.error('Credential\'s "patreon_webhook_url" must be a valid URL. Must be secured (https) and end with "/api/patreon/user/webhook/{ID}". Got: '+Config.credentials.patreon_webhook_url);
+			}
 			await this.authenticateLocal();
 		}
 
@@ -86,40 +93,46 @@ export default class PatreonController extends AbstractController {
 	 * @param response
 	 */
 	public async postUserAuthenticate(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const twitchUser = await this.twitchUserGuard(request, response);
-		if(!twitchUser) return;
+		try {
 
-		const body:any = request.body;
-		const url = new URL("https://www.patreon.com/api/oauth2/token");
-		url.searchParams.append("grant_type", "authorization_code");
-		url.searchParams.append("code", body.code);
-		url.searchParams.append("redirect_uri", body.redirect_uri);
-		url.searchParams.append("client_id", Config.credentials.patreon_client_id);
-		url.searchParams.append("client_secret", Config.credentials.patreon_client_secret);
+			const twitchUser = await this.twitchUserGuard(request, response);
+			if(!twitchUser) return;
 
-		const result = await fetch(url, {method:"POST", headers:{"User-Agent":this.userAgent}});
-		if(result.status == 200) {
-			const token = await result.json() as PatreonToken & { error?: string; };
-			
-			if(token.error) {
-				response.header('Content-Type', 'application/json');
-				response.status(500);
-				response.send({success:false, message:token.error});
-			}else{
-				let json = {};
-				if(fs.existsSync(Config.twitch2PatreonToken)) {
-					json = JSON.parse(fs.readFileSync(Config.twitch2PatreonToken, "utf-8") || "{}");
+			const body:any = request.body;
+			const url = new URL("https://www.patreon.com/api/oauth2/token");
+			url.searchParams.append("grant_type", "authorization_code");
+			url.searchParams.append("code", body.code);
+			url.searchParams.append("redirect_uri", body.redirect_uri);
+			url.searchParams.append("client_id", Config.credentials.patreon_client_id);
+			url.searchParams.append("client_secret", Config.credentials.patreon_client_secret);
+
+			const result = await fetch(url, {method:"POST", headers:{"User-Agent":this.userAgent}});
+			if(result.status == 200) {
+				const token = await result.json() as PatreonToken & { error?: string; };
+
+				if(token.error) {
+					response.header('Content-Type', 'application/json');
+					response.status(500);
+					response.send({success:false, message:token.error});
+				}else{
+					let json = {};
+					if(fs.existsSync(Config.twitch2PatreonToken)) {
+						json = JSON.parse(fs.readFileSync(Config.twitch2PatreonToken, "utf-8") || "{}");
+					}
+					json[twitchUser.user_id] = Utils.encrypt(JSON.stringify(token));
+					fs.writeFileSync(Config.twitch2PatreonToken, JSON.stringify(json), "utf-8");
+
+					response.header('Content-Type', 'application/json');
+					response.status(200);
+					response.send(JSON.stringify({success:true}));
 				}
-				json[twitchUser.user_id] = Utils.encrypt(JSON.stringify(token));
-				fs.writeFileSync(Config.twitch2PatreonToken, JSON.stringify(json), "utf-8");
-
-				response.header('Content-Type', 'application/json');
-				response.status(200);
-				response.send(JSON.stringify({success:true}));
+			}else{
+				Logger.error("[PATREON][USER] "+twitchUser.login+" failed authenticating with Patreon with status:", result.status);
+				console.log(await result.text());
+				throw new Error("auth failed")
 			}
-		}else{
-			Logger.error("[PATREON][USER] "+twitchUser.login+" failed authenticating with Patreon with status:", result.status);
-			console.log(await result.text());
+		}catch(error) {
+			console.log(error)
 			response.header('Content-Type', 'application/json');
 			response.status(500);
 			response.send({success:false, message:"Authentication failed"});
@@ -147,7 +160,7 @@ export default class PatreonController extends AbstractController {
 		//Search if a webhook exists
 		const webhookRes = await this.getUserWebhook(request, response, patreonAuth);
 		if(!webhookRes || !webhookRes.webhookID) return;
-		
+
 		if(patreonAuth.token.scope.includes("w:campaigns.webhook")) {
 			//Delete webhook
 			const webhook = webhookRes;
@@ -241,7 +254,7 @@ export default class PatreonController extends AbstractController {
 						if(fs.existsSync(Config.twitch2Patreon)) {
 							twitch2Patreon = JSON.parse(fs.readFileSync(Config.twitch2Patreon, "utf-8") || "{}");
 						}
-						
+
 						// Count linked accounts
 						for (const twitchId in twitch2Patreon) {
 							if(twitch2Patreon[twitchId] == memberID) {
@@ -250,7 +263,7 @@ export default class PatreonController extends AbstractController {
 						}
 						twitch2Patreon[patreonAuth.twitchUser.user_id] = memberID;
 						fs.writeFileSync(Config.twitch2Patreon, JSON.stringify(twitch2Patreon), "utf-8");
-	
+
 						//Check if user has already linked 2 accounts or more
 						if(linkedCount >= 2) {
 							response.header('Content-Type', 'application/json');
@@ -371,7 +384,7 @@ export default class PatreonController extends AbstractController {
 				clearTimeout(this.tokenRefresh);
 				this.tokenRefresh = setTimeout(()=>{
 					this.authenticateLocal();
-				
+
 				//Node has a upper limit of 2147483647 seconds for timeouts
 				}, Math.max(0, Math.min(2147483647, token.expires_in*1000 - 60000)));
 
@@ -509,70 +522,77 @@ export default class PatreonController extends AbstractController {
 	public async postUserWebhookTrigger(request:FastifyRequest, response:FastifyReply):Promise<void> {
 		//Retreive user ID from query path
 		const { uid } = request.params as any;
+		const event = request.headers["x-patreon-event"];
 
 		//Get webhook secret and twitch user ID
 		const filePath = Config.patreonUid2WebhookSecret;
 		const json = JSON.parse(fs.existsSync(filePath)? fs.readFileSync(filePath, "utf8") : "{}");
 		const {twitchId, secret} = json[uid];
-		
+
 		//If user isn't premium, ignore event
 		if(!this.isUserPremium(twitchId)) {
+			Logger.warn("[PATREON][USER] received webhook event \""+event+"\" for user ", uid, "(twitch:"+twitchId+") but user is not premium, ignore it");
 			response.status(200);
 			response.send("OK");
 			return;
 		}
 
-		//Verify signature
-		const event = request.headers["x-patreon-event"];
-		const signature = request.headers["x-patreon-signature"];
-		const hash = crypto.createHmac('md5', secret)
-		//@ts-ignore no typings for "rowBody" that is added by fastify-raw-body
-		.update(request.rawBody)
-		.digest('hex');
-		
-		Logger.success("[PATREON][USER] received webhook event \""+event+"\" for user ", uid, "(twitch:"+twitchId+")");
+		try {
 
-		if(signature != hash) {
-			Logger.warn("[PATREON][USER] Invalid webhook signature for user", uid, "(twitch:"+twitchId+")");
-			response.status(401);
-			response.send("Unauthorized");
-			return;
-		}
+			//Verify signature
+			const signature = request.headers["x-patreon-signature"];
+			const hash = crypto.createHmac('md5', secret)
+			//@ts-ignore no typings for "rowBody" that is added by fastify-raw-body
+			.update(request.rawBody)
+			.digest('hex');
 
-		Utils.logToFile("patreon", JSON.stringify({type:event, data:request.body}));
+			Logger.success("[PATREON][USER] received webhook event \""+event+"\" for user ", uid, "(twitch:"+twitchId+")");
 
-		if(event === "members:create") {
-			const message = request.body as WebhookMemberCreateEvent;
-			this.uidToFirstPayment[message.data.relationships.user.data.id] = true;
-		}else
-		if(event === "members:update") {
-			const message = request.body as WebhookMemberUpdateEvent;
-			//Only accept "paid" status
-			if(message.data.attributes.last_charge_status.toLowerCase() == "paid"
-			&& message.data.attributes.patron_status == "active_patron") {
-				const membershipDuration = Math.abs(new Date(message.data.attributes.pledge_relationship_start).getTime() - new Date(message.data.attributes.last_charge_date).getTime());
-				if((membershipDuration < 20*24*60*60*1000 && this.uidToFirstPayment[message.data.relationships.user.data.id] !== false) || this.uidToFirstPayment[message.data.relationships.user.data.id] === true) {
-					this.uidToFirstPayment[message.data.relationships.user.data.id] = false;
-					const user = message.included.find(v=>v.type == "user");
-					const tier = message.included.find(v=>v.type == "tier");
-					const username = user?.attributes.full_name || message.data.attributes.full_name;
-					Logger.info("[PATREON] User "+uid+" subscribedwith tier \""+tier?.attributes.title+"\" on channel #"+twitchId);
-					//Broadcast to client
-					SSEController.sendToUser(twitchId, "PATREON_MEMBER_CREATE", {
-						uid,
-						user: {
-							username,
-							avatar: user?.attributes.image_small_url || user?.attributes.image_url || user?.attributes.thumb_url,
-							url: user?.attributes.url,
-						},
-						tier: {
-							amount:(tier?.attributes.amount_cents || message.data.attributes.currently_entitled_amount_cents || 0)/100,
-							title:tier?.attributes.title || "",
-							description:tier?.attributes.description || "",
-						}
-					});
+			if(signature != hash) {
+				Logger.warn("[PATREON][USER] Invalid webhook signature for user", uid, "(twitch:"+twitchId+")");
+				response.status(401);
+				response.send("Unauthorized");
+				return;
+			}
+
+			Utils.logToFile("patreon", JSON.stringify({type:event, data:request.body}));
+
+			if(event === "members:create") {
+				const message = request.body as WebhookMemberCreateEvent;
+				this.uidToFirstPayment[message.data.relationships.user.data.id] = true;
+			}else
+			if(event === "members:update") {
+				const message = request.body as WebhookMemberUpdateEvent;
+				//Only accept "paid" status
+				if(message.data.attributes.last_charge_status.toLowerCase() == "paid"
+				&& message.data.attributes.patron_status == "active_patron") {
+					const membershipDuration = Math.abs(new Date(message.data.attributes.pledge_relationship_start).getTime() - new Date(message.data.attributes.last_charge_date).getTime());
+					if((membershipDuration < 20*24*60*60*1000 && this.uidToFirstPayment[message.data.relationships.user.data.id] !== false) || this.uidToFirstPayment[message.data.relationships.user.data.id] === true) {
+						this.uidToFirstPayment[message.data.relationships.user.data.id] = false;
+						const user = message.included.find(v=>v.type == "user");
+						const tier = message.included.find(v=>v.type == "tier");
+						const username = user?.attributes.full_name || message.data.attributes.full_name;
+						Logger.info("[PATREON] User "+uid+" subscribedwith tier \""+tier?.attributes.title+"\" on channel #"+twitchId);
+						//Broadcast to client
+						SSEController.sendToUser(twitchId, "PATREON_MEMBER_CREATE", {
+							uid,
+							user: {
+								username,
+								avatar: user?.attributes.image_small_url || user?.attributes.image_url || user?.attributes.thumb_url,
+								url: user?.attributes.url,
+							},
+							tier: {
+								amount:(tier?.attributes.amount_cents || message.data.attributes.currently_entitled_amount_cents || 0)/100,
+								title:tier?.attributes.title || "",
+								description:tier?.attributes.description || "",
+							}
+						});
+					}
 				}
 			}
+		}catch(error) {
+			Logger.error("[PATREON][USER] Error while processing webhook event "+event+" for user "+uid);
+			console.log(error);
 		}
 
 		response.status(200);
@@ -605,7 +625,7 @@ export default class PatreonController extends AbstractController {
 
 		if(members) {
 			if(verbose) Logger.info("[PATREON][SERVICE] "+members.length+" members loaded");
-	
+
 			//Only keep active patrons
 			const filteredMembers = members.filter(v=>v.attributes.patron_status === "active_patron")
 			.filter(v=>v.relationships.currently_entitled_tiers.data.length > 0
@@ -621,7 +641,7 @@ export default class PatreonController extends AbstractController {
 				};
 				return member;
 			});
-	
+
 			if(verbose) Logger.info("[PATREON][SERVICE] "+filteredMembers.length+" active members");
 			// fs.writeFileSync(Config.patreonMembers.replace(".json", "_src.json"), JSON.stringify(json.data), "utf-8");
 			fs.writeFileSync(Config.patreonMembers, JSON.stringify(filteredMembers), "utf-8");
@@ -696,10 +716,10 @@ export default class PatreonController extends AbstractController {
 
 	/**
 	 * Load all users for given campaign ID
-	 * @param campaignId 
-	 * @param offset 
-	 * @param memberList 
-	 * @returns 
+	 * @param campaignId
+	 * @param offset
+	 * @param memberList
+	 * @returns
 	 */
 	private async loadCampaignMembers(accessToken:string, campaignId:string, offset?:string, memberList:any[] = []):Promise<{success:boolean, error?:string[], members?:PatreonMemberships["data"][0][]}> {
 		const url = new URL("https://www.patreon.com/api/oauth2/v2/campaigns/"+campaignId+"/members");
@@ -749,10 +769,10 @@ export default class PatreonController extends AbstractController {
 
 	/**
 	 * Load campaign ID details
-	 * @param campaignId 
-	 * @param offset 
-	 * @param memberList 
-	 * @returns 
+	 * @param campaignId
+	 * @param offset
+	 * @param memberList
+	 * @returns
 	 */
 	private async loadCampaign(campaignId:string):Promise<{success:boolean, error?:string[], campaign?:unknown}> {
 		const url = new URL("https://www.patreon.com/api/oauth2/v2/campaigns/"+campaignId);
@@ -781,8 +801,8 @@ export default class PatreonController extends AbstractController {
 
 	/**
 	 * Get a Patreon token from a twitch user ID
-	 * @param twitchId 
-	 * @returns 
+	 * @param twitchId
+	 * @returns
 	 */
 	private async getPatreonTokenFromTwitchToken(request:FastifyRequest, response:FastifyReply):Promise<false|{twitchUser:TwitchToken, token:PatreonToken}> {
 		const twitchUser = await this.twitchUserGuard(request, response);
@@ -830,65 +850,73 @@ export default class PatreonController extends AbstractController {
 	 * @param response
 	 */
 	private async createUserWebhook(request, response, patreonAuth:Awaited<ReturnType<typeof this.getPatreonTokenFromTwitchToken>>, resolveQuery:boolean = true):Promise<boolean> {
-		const webhookRes = await this.getUserWebhook(request, response, patreonAuth, resolveQuery);
-		if(!webhookRes) return false;
-		
-		//Webhook already exists, no need to create it, stop there
-		if(webhookRes.webhookExists) return true;
-		if(!patreonAuth) return false;
-		const headers = {
-			'Content-Type': 'application/json',
-			"Authorization":"Bearer "+patreonAuth.token.access_token,
-			"User-Agent":this.userAgent,
-		};
-		
-		//Create new webhook
-		const options = {
-			method:"POST",
-			headers,
-			body:JSON.stringify({
-				"data": {
-					"type": "webhook",
-					"attributes": {
-						"triggers": ["members:create", "members:update", "members:delete", "members:pledge:create", "members:pledge:update", "members:pledge:delete"],
-						"uri": webhookRes.webhookURL,
-					},
-					"relationships": {
-						"campaign": {
-							"data": {"type": "campaign", "id": webhookRes.campaignID},
+		try {
+			const webhookRes = await this.getUserWebhook(request, response, patreonAuth, resolveQuery);
+			if(!webhookRes) return false;
+
+			//Webhook already exists, no need to create it, stop there
+			if(webhookRes.webhookExists) return true;
+			if(!patreonAuth) return false;
+			const headers = {
+				'Content-Type': 'application/json',
+				"Authorization":"Bearer "+patreonAuth.token.access_token,
+				"User-Agent":this.userAgent,
+			};
+
+			//Create new webhook
+			const options = {
+				method:"POST",
+				headers,
+				body:JSON.stringify({
+					"data": {
+						"type": "webhook",
+						"attributes": {
+							"triggers": ["members:create", "members:update", "members:delete", "members:pledge:create", "members:pledge:update", "members:pledge:delete"],
+							"uri": webhookRes.webhookURL,
+						},
+						"relationships": {
+							"campaign": {
+								"data": {"type": "campaign", "id": webhookRes.campaignID},
+							},
 						},
 					},
-				},
-			})
-		}
-		const resultWebhook = await fetch("https://www.patreon.com/api/oauth2/v2/webhooks", options);
-		if(resultWebhook.status == 429) {
-			Logger.warn("[PATREON][USER] Rate limited createUserWebhook for user "+patreonAuth.twitchUser.login+", retrying in a few seconds");
-			const json:{errors:{retry_after_seconds:number}[]} = await resultWebhook.json();
-			let delay = (json.errors ||[{retry_after_seconds:Math.random()*3 + 1}])[0].retry_after_seconds * 1000;
-			await Utils.promisedTimeout(delay);
-			return this.createUserWebhook(request, response, patreonAuth);
-		}else{
-			const jsonWebhook = await resultWebhook.json() as {data:WebhookEntry, errors?:unknown[]};
-			if(jsonWebhook.errors) {
-				Logger.error("[PATREON][USER] creating webhook failed");
-				console.log(jsonWebhook);
-				if(resolveQuery) {
-					response.header('Content-Type', 'application/json');
-					response.status(500);
-					response.send({success:false, message:jsonWebhook.errors});
-				}
-				return false;
-			}else{
-				Logger.info("[PATREON][USER] Create user webhook for", webhookRes.user.login);
-				//Save webhook secret
-				const filePath = Config.patreonUid2WebhookSecret;
-				const json = JSON.parse(fs.existsSync(filePath)? fs.readFileSync(filePath, "utf8") : "{}");
-				json[webhookRes.campaignID] = {twitchId:webhookRes.user.user_id, secret:jsonWebhook.data.attributes.secret};
-				fs.writeFileSync(filePath, JSON.stringify(json), "utf8");
-				
-				return true;
+				})
 			}
+			const resultWebhook = await fetch("https://www.patreon.com/api/oauth2/v2/webhooks", options);
+			if(resultWebhook.status == 429) {
+				Logger.warn("[PATREON][USER] Rate limited createUserWebhook for user "+patreonAuth.twitchUser.login+", retrying in a few seconds");
+				const json:{errors:{retry_after_seconds:number}[]} = await resultWebhook.json();
+				let delay = (json.errors ||[{retry_after_seconds:Math.random()*3 + 1}])[0].retry_after_seconds * 1000;
+				await Utils.promisedTimeout(delay);
+				return this.createUserWebhook(request, response, patreonAuth);
+			}else{
+				const jsonWebhook = await resultWebhook.json() as {data:WebhookEntry, errors?:unknown[]};
+				if(jsonWebhook.errors) {
+					Logger.error("[PATREON][USER] creating webhook failed");
+					console.log(jsonWebhook);
+					if(resolveQuery) {
+						response.header('Content-Type', 'application/json');
+						response.status(500);
+						response.send({success:false, message:jsonWebhook.errors});
+					}
+					return false;
+				}else{
+					Logger.info("[PATREON][USER] Create user webhook for", webhookRes.user.login);
+					//Save webhook secret
+					const filePath = Config.patreonUid2WebhookSecret;
+					const json = JSON.parse(fs.existsSync(filePath)? fs.readFileSync(filePath, "utf8") : "{}");
+					json[webhookRes.campaignID] = {twitchId:webhookRes.user.user_id, secret:jsonWebhook.data.attributes.secret};
+					fs.writeFileSync(filePath, JSON.stringify(json), "utf8");
+
+					return true;
+				}
+			}
+		}catch(error) {
+			console.log(error)
+			response.header('Content-Type', 'application/json');
+			response.status(401);
+			response.send({success:false, message:"Something went wrong", errorCode:"UNKNOWN"});
+			return false;
 		}
 	}
 
@@ -914,7 +942,7 @@ export default class PatreonController extends AbstractController {
 			}
 			return false;
 		}
-		
+
 		let webhookExists = false;
 		let webhookURL:string = "";
 		let webhookID:string = "";
@@ -945,7 +973,7 @@ export default class PatreonController extends AbstractController {
 					}else{
 						webhookExists = true;
 						webhookID = entry.id;
-	
+
 						const filePath = Config.patreonUid2WebhookSecret;
 						const json = JSON.parse(fs.existsSync(filePath)? fs.readFileSync(filePath, "utf8") : "{}");
 						json[campaign.id] = {twitchId:patreonAuth.twitchUser.user_id, secret:entry.attributes.secret};
@@ -977,7 +1005,7 @@ export default class PatreonController extends AbstractController {
 			console.log(json);
 			return false;
 		}
-		
+
 		let jsonTokens = {};
 		if(fs.existsSync(Config.twitch2PatreonToken)) {
 			jsonTokens = JSON.parse(fs.readFileSync(Config.twitch2PatreonToken, "utf-8") || "{}");
