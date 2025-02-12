@@ -31,6 +31,9 @@ export default class SSEController extends AbstractController {
 		async function exitHandler(options, exitCode) {
 			let i = 0;
 			Object.keys(SSEController.uidToResponse).forEach(uid => {
+				const entry = SSEController.uidToResponse[uid];
+				if(!entry || entry.length === 0) return;
+
 				console.log("Sending SERVER_UPDATE to", uid);
 				SSEController.sendToUser(uid, "SERVER_UPDATE", {delay: 5000 + i * 50});
 			});
@@ -126,6 +129,9 @@ export default class SSEController extends AbstractController {
 					connexions.splice(i, 1);
 					i--;
 				}
+			}
+			if(connexions.length === 0) {
+				delete SSEController.uidToResponse[userInfo.user_id];
 			}
 		});
 	}
