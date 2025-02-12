@@ -158,6 +158,7 @@ export default class DataStoreCommon {
 		this.GROQ_API_KEY,
 		this.ELEVENLABS_API_KEY,
 		this.TWITCH_BOT,
+		this.EMERGENCY_FOLLOWERS,
 	];
 
 
