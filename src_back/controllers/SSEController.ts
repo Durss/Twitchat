@@ -4,7 +4,7 @@ import Utils from "../utils/Utils.js";
 import AbstractController from "./AbstractController.js";
 
 /**
-* Created : 23/02/2024 
+* Created : 23/02/2024
 */
 export default class SSEController extends AbstractController {
 
@@ -13,25 +13,65 @@ export default class SSEController extends AbstractController {
 	constructor(public server:FastifyInstance) {
 		super();
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
 	public initialize():void {
 		this.server.get('/api/sse/register', async (request, response) => await this.postRegisterSSE(request, response));
+
+		// Broadcast an event to all connected peers before server restarts.
+		// This tells clients not to reconnect right away
+		async function exitHandler(options, exitCode) {
+			let i = 0;
+			Object.keys(SSEController.uidToResponse).forEach(uid => {
+				console.log("Sending SERVER_UPDATE to", uid);
+				SSEController.sendToUser(uid, "SERVER_UPDATE", {delay: 5000 + i * 50});
+			});
+
+			await Utils.promisedTimeout(3000);
+			if (options.cleanup) console.log('clean');
+			if (exitCode || exitCode === 0) console.log(exitCode);
+			if (options.exit) process.exit();
+		}
+
+		// do something when app is closing
+		process.on('exit', exitHandler.bind(null,{cleanup:true}));
+
+		// catches ctrl+c event
+		process.on('SIGINT', exitHandler.bind(null, {exit:true}));
+
+		// catches "kill pid" (for example: nodemon restart)
+		process.on('SIGUSR1', exitHandler.bind(null, {exit:true}));
+
+		process.on('SIGUSR2', exitHandler.bind(null, {exit:true}));
+
+		// catches PM2 stop/restart events
+		process.on('SIGTERM', exitHandler.bind(null, {exit:true}));
+
+		// catches uncaught exceptions
+		process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
+
+		// PM2 on windows sends a message before shutdown
+		process.on('message', function(msg) {
+			if (msg == 'shutdown') {
+				exitHandler({}, 0);
+			}
+		});
+
 	}
 
 	/**
 	 * Push an event to the given user with the given data
-	 * @param uid 
-	 * @param data 
-	 * @returns 
+	 * @param uid
+	 * @param data
+	 * @returns
 	 */
 	public static sendToUser(uid:string, code:keyof typeof SSECode, data?:unknown):boolean {
 		const responses = this.uidToResponse[uid];
@@ -46,18 +86,18 @@ export default class SSEController extends AbstractController {
 	public static countUserConnexions(uid:string):number {
 		return this.uidToResponse[uid]? this.uidToResponse[uid].length : 0;
 	}
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
 	/**
 	 * Init an SSE connection
-	 * 
-	 * @param request 
-	 * @param response 
-	 * @returns 
+	 *
+	 * @param request
+	 * @param response
+	 * @returns
 	 */
 	private async postRegisterSSE(request:FastifyRequest, response:FastifyReply):Promise<void> {
 		response.sse({id:"connecting", data:JSON.stringify({success:true, code:SSECode.CONNECTING})});
@@ -95,7 +135,7 @@ export default class SSEController extends AbstractController {
 	 * This is necessary if app is behind cloudflare as CF kills innactive
 	 * connections after 100s.
 	 * Sending a ping tells them connection is still active
-	 * @param params 
+	 * @param params
 	 */
 	private static schedulePing(params:typeof SSEController.uidToResponse["string"][number]):void {
 		if(params.pingTimeout) {
@@ -129,5 +169,6 @@ export const SSECode = {
 	TILTIFY_EVENT:"TILTIFY_EVENT" as const,
 	PATREON_MEMBER_CREATE:"PATREON_MEMBER_CREATE" as const,
 	PRIVATE_MOD_MESSAGE:"PRIVATE_MOD_MESSAGE" as const,
+	SERVER_UPDATE:"SERVER_UPDATE" as const,
 	PRIVATE_MOD_MESSAGE_ANSWER:"PRIVATE_MOD_MESSAGE_ANSWER" as const,
 }
