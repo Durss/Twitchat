@@ -23,6 +23,7 @@ export default class PatreonController extends AbstractController {
 	private webhookDebounce:NodeJS.Timeout|null = null;
 	private userAgent = "Twitchat.fr server service";
 	private uidToFirstPayment:{[uid:string]:boolean} = {};
+	private campaignCache:Record<string, Awaited<ReturnType<typeof this.getCampaignID>>> = {};
 
 	//If a user chooses to make a "custom pledge", they're not attributed to any
 	//actual tier. This represents the minimum amount (in cents) they should give
@@ -74,7 +75,21 @@ export default class PatreonController extends AbstractController {
 				Logger.error('Credential\'s "patreon_webhook_url" must be a valid URL. Must be secured (https) and end with "/api/patreon/user/webhook/{ID}". Got: '+Config.credentials.patreon_webhook_url);
 			}
 			this.rebuildUserWebhooks();
-			await this.authenticateLocal();
+			this.authenticateLocal();
+
+			setTimeout(async () => {
+				const messages = [
+					`{"type":"members:create","data":{"data":{"attributes":{"campaign_lifetime_support_cents":0,"currently_entitled_amount_cents":400,"email":"pommefuji93@gmail.com","full_name":"Pomme____","is_follower":false,"is_free_trial":false,"is_gifted":false,"last_charge_date":"2025-02-11T23:35:12.000+00:00","last_charge_status":"Pending","lifetime_support_cents":0,"next_charge_date":"2025-03-12T00:00:00.000+00:00","note":"","patron_status":"active_patron","pledge_cadence":1,"pledge_relationship_start":"2025-02-11T23:35:10.454+00:00","will_pay_amount_cents":400},"id":"33921f2d-e9bc-419e-a90b-bb0d542d9637","relationships":{"address":{"data":null},"campaign":{"data":{"id":"9093199","type":"campaign"},"links":{"related":"https://www.patreon.com/api/oauth2/v2/campaigns/9093199"}},"currently_entitled_tiers":{"data":[{"id":"10135167","type":"tier"}]},"user":{"data":{"id":"143706720","type":"user"},"links":{"related":"https://www.patreon.com/api/oauth2/v2/user/143706720"}}},"type":"member"},"included":[{"attributes":{"created_at":"2022-08-10T15:14:32.000+00:00","creation_name":"creating tools for streamers and puzzle boxes","discord_server_id":"960695714483167252","google_analytics_id":null,"has_rss":false,"has_sent_rss_notify":false,"image_small_url":"https://c10.patreonusercontent.com/4/patreon-media/p/campaign/9093199/d94ef37c62894b429069692c1848b438/eyJ3IjoxOTIwLCJ3ZSI6MX0%3D/2.jpg?token-time=1741046400&token-hash=q7tqk9E6nRPgsGpu-ow0GSMu5Gwv8jonovdjFf28bds%3D","image_url":"https://c10.patreonusercontent.com/4/patreon-media/p/campaign/9093199/d94ef37c62894b429069692c1848b438/eyJ3IjoxOTIwLCJ3ZSI6MX0%3D/2.jpg?token-time=1741046400&token-hash=q7tqk9E6nRPgsGpu-ow0GSMu5Gwv8jonovdjFf28bds%3D","is_charged_immediately":true,"is_monthly":true,"is_nsfw":false,"main_video_embed":null,"main_video_url":null,"one_liner":null,"patron_count":293,"pay_per_name":"month","pledge_url":"/checkout/durss","published_at":"2022-08-11T00:19:26.000+00:00","rss_artwork_url":null,"rss_feed_title":null,"summary":"I'm coding open-source tools around Twitch free for all to use and also create and build puzzle boxes, one of which &quot;open-sourced&quot;.<br><br>My biggest project from far is <a href=\"https://twitchat.fr\" target=\"_blank\">Twitchat</a>, a full featured twitch chat alternative that aims to make streamer's life easier by filling gaps of the official Twitch chat.<br>It took months of full-time work to create. I made it available for free to everyone but it cost me lots of time and a little for its hosting. I architectured the project so the hosting costs are as low as possible but, sadly, no hosting is free!<br><br>I love this project, have lots of other feature ideas and I try to make it up-to-date with new Twitch features as fast as possible, but it requires lots of time.<br><br>Any support for that work (and the others bellow) would be much appreciated if you can afford it !<br><br><strong>Here are some of the open-source tools/sites I made :</strong><br><ul><li><a href=\"https://www.patreon.com/edit/%E2%80%8Bhttps://twitchat.fr\" target=\"_blank\">Twitchat.fr</a> : A full featured twitch chat alternative to make streamers' life easier</li><li><a href=\"https://multiblindtest.com\" target=\"_blank\">Multiblindtest.com</a> : Level-up your blindtest skills by playing up to 6 tracks simultaneously.</li><li><a href=\"https://github.com/Durss/streamerRaider\" target=\"_blank\">StreamerRaider</a> : A tool to list your live twitch community members and send alerts on Discord when they go live (<a href=\"https://raid.protopotes.stream/\" target=\"_blank\">live example</a>)</li><li><a href=\"https://github.com/Durss/StreamDeck\" target=\"_blank\">Super basic stream deck</a> : Use a tiny remote keyboard to control your stream. Made for developpers.</li><li><a href=\"https://github.com/Durss/SlipLord\" target=\"_blank\">SlipLord</a> : A discord bot that allows you to get notifications when anyone goes live on twitch, create polls and anonymous polls, a roles selector, get alerts when it's someone's birthday and get a support system</li></ul>More on my <a href=\"https://github.com/Durss\" target=\"_blank\">githhub page</a>.<br><br><strong>I also create and build puzzle boxes :</strong><br>You can see them on my <a href=\"https://instagram.com/durss\" target=\"_blank\">Instagram page</a>.<br>I sell some on my <a href=\"https://box.durss.ninja\" target=\"_blank\">boxes website</a>.<br>And I made a <a href=\"https://www.instructables.com/Sequential-Discovery-Puzzle-Box/\" target=\"_blank\">step-by-step article</a> if you'd like to create your own Flatbox.<br>I also made <a href=\"https://www.instructables.com/Secret-Enigma-Box/\" target=\"_blank\">this step-by-step</a> for another secret box.","thanks_embed":"","thanks_msg":"<p style=\"\">Hello !</p><p style=\"\"></p><p style=\"\">Thank you so much for your support, that really means a lot to me! Feel free to&nbsp;<a href=\"https://discord.gg/fmqD2xUYvP\" rel=\"noopener noreferrer nofollow\">join the Discord&nbsp;</a>and link your account with Patreon to get access to private channels for Patrons. You'll get prioriy on your feedbacks and bug reports over other users.</p><p style=\"\"></p><p style=\"\">Also, as long as you keep supporting me monthly on Patreon you'll get access to premium features within Twitchat.</p><p style=\"\"></p><p style=\"\">🚨🚨🚨 <strong>Go under Parameters =&gt; Premium section and link your Patreon account to unlock those Premium features.</strong></p><p style=\"\"></p><p style=\"\">Have a good day :)</p>","thanks_video_url":null,"url":"https://www.patreon.com/durss","vanity":"durss"},"id":"9093199","type":"campaign"},{"attributes":{"about":null,"created":"2024-09-30T10:51:39.000+00:00","first_name":"Pomme____","full_name":"Pomme____","hide_pledges":true,"image_url":"https://c10.patreonusercontent.com/4/patreon-media/p/user/143706720/a128f4a49481484eb6975db105361452/eyJ3IjoyMDB9/1.jpeg?token-time=2145916800&token-hash=PkRVrf8vjeAaQA_nNcD4pO-KXpU4Z3wG97c-fIC8jhY%3D","is_creator":false,"last_name":"","like_count":0,"social_connections":{"discord":{"user_id":"705299085128761354"},"facebook":null,"google":null,"instagram":null,"reddit":null,"spotify":null,"spotify_open_access":null,"tiktok":null,"twitch":null,"twitter":null,"twitter2":null,"vimeo":null,"youtube":null},"thumb_url":"https://c10.patreonusercontent.com/4/patreon-media/p/user/143706720/a128f4a49481484eb6975db105361452/eyJ3IjoyMDB9/1.jpeg?token-time=2145916800&token-hash=PkRVrf8vjeAaQA_nNcD4pO-KXpU4Z3wG97c-fIC8jhY%3D","url":"https://www.patreon.com/user?u=143706720","vanity":null},"id":"143706720","type":"user"},{"attributes":{"amount_cents":400,"created_at":"2023-08-28T21:03:02.496+00:00","description":"<p style=\"\"><span style=\"color:rgba(11, 12, 15, 0.95);\"><mark style=\"background-color:rgb(255, 255, 255);\">Get premium Twitchat features.</mark></span></p>","discord_role_ids":["1007072857131593731"],"edited_at":"2023-08-28T21:49:50.215+00:00","image_url":"https://c10.patreonusercontent.com/4/patreon-media/p/reward/10135167/489a7a916e004a7dbd2e612aa5c849db/eyJ3Ijo0MDB9/2.png?token-time=2145916800&token-hash=xoxC-4ogtgdPwtiv8XpPT-py7mKbBBJ9wJMh4sv43oU%3D","patron_count":126,"post_count":0,"published":true,"published_at":"2023-08-28T21:03:02.496+00:00","remaining":null,"requires_shipping":false,"title":"🙂 Basic supporter (premium)","unpublished_at":null,"url":"/checkout/durss?rid=10135167","user_limit":null},"id":"10135167","type":"tier"}],"links":{"self":"https://www.patreon.com/api/oauth2/v2/members/33921f2d-e9bc-419e-a90b-bb0d542d9637"}}}`,
+					`{"type":"members:pledge:create","data":{"data":{"attributes":{"campaign_lifetime_support_cents":0,"currently_entitled_amount_cents":400,"email":"pommefuji93@gmail.com","full_name":"Pomme____","is_follower":false,"is_free_trial":false,"is_gifted":false,"last_charge_date":"2025-02-11T23:35:12.000+00:00","last_charge_status":"Pending","lifetime_support_cents":0,"next_charge_date":"2025-03-12T00:00:00.000+00:00","note":"","patron_status":"active_patron","pledge_cadence":1,"pledge_relationship_start":"2025-02-11T23:35:10.454+00:00","will_pay_amount_cents":400},"id":"33921f2d-e9bc-419e-a90b-bb0d542d9637","relationships":{"address":{"data":null},"campaign":{"data":{"id":"9093199","type":"campaign"},"links":{"related":"https://www.patreon.com/api/oauth2/v2/campaigns/9093199"}},"currently_entitled_tiers":{"data":[{"id":"10135167","type":"tier"}]},"user":{"data":{"id":"143706720","type":"user"},"links":{"related":"https://www.patreon.com/api/oauth2/v2/user/143706720"}}},"type":"member"},"included":[{"attributes":{"created_at":"2022-08-10T15:14:32.000+00:00","creation_name":"creating tools for streamers and puzzle boxes","discord_server_id":"960695714483167252","google_analytics_id":null,"has_rss":false,"has_sent_rss_notify":false,"image_small_url":"https://c10.patreonusercontent.com/4/patreon-media/p/campaign/9093199/d94ef37c62894b429069692c1848b438/eyJ3IjoxOTIwLCJ3ZSI6MX0%3D/2.jpg?token-time=1741046400&token-hash=q7tqk9E6nRPgsGpu-ow0GSMu5Gwv8jonovdjFf28bds%3D","image_url":"https://c10.patreonusercontent.com/4/patreon-media/p/campaign/9093199/d94ef37c62894b429069692c1848b438/eyJ3IjoxOTIwLCJ3ZSI6MX0%3D/2.jpg?token-time=1741046400&token-hash=q7tqk9E6nRPgsGpu-ow0GSMu5Gwv8jonovdjFf28bds%3D","is_charged_immediately":true,"is_monthly":true,"is_nsfw":false,"main_video_embed":null,"main_video_url":null,"one_liner":null,"patron_count":293,"pay_per_name":"month","pledge_url":"/checkout/durss","published_at":"2022-08-11T00:19:26.000+00:00","rss_artwork_url":null,"rss_feed_title":null,"summary":"I'm coding open-source tools around Twitch free for all to use and also create and build puzzle boxes, one of which &quot;open-sourced&quot;.<br><br>My biggest project from far is <a href=\"https://twitchat.fr\" target=\"_blank\">Twitchat</a>, a full featured twitch chat alternative that aims to make streamer's life easier by filling gaps of the official Twitch chat.<br>It took months of full-time work to create. I made it available for free to everyone but it cost me lots of time and a little for its hosting. I architectured the project so the hosting costs are as low as possible but, sadly, no hosting is free!<br><br>I love this project, have lots of other feature ideas and I try to make it up-to-date with new Twitch features as fast as possible, but it requires lots of time.<br><br>Any support for that work (and the others bellow) would be much appreciated if you can afford it !<br><br><strong>Here are some of the open-source tools/sites I made :</strong><br><ul><li><a href=\"https://www.patreon.com/edit/%E2%80%8Bhttps://twitchat.fr\" target=\"_blank\">Twitchat.fr</a> : A full featured twitch chat alternative to make streamers' life easier</li><li><a href=\"https://multiblindtest.com\" target=\"_blank\">Multiblindtest.com</a> : Level-up your blindtest skills by playing up to 6 tracks simultaneously.</li><li><a href=\"https://github.com/Durss/streamerRaider\" target=\"_blank\">StreamerRaider</a> : A tool to list your live twitch community members and send alerts on Discord when they go live (<a href=\"https://raid.protopotes.stream/\" target=\"_blank\">live example</a>)</li><li><a href=\"https://github.com/Durss/StreamDeck\" target=\"_blank\">Super basic stream deck</a> : Use a tiny remote keyboard to control your stream. Made for developpers.</li><li><a href=\"https://github.com/Durss/SlipLord\" target=\"_blank\">SlipLord</a> : A discord bot that allows you to get notifications when anyone goes live on twitch, create polls and anonymous polls, a roles selector, get alerts when it's someone's birthday and get a support system</li></ul>More on my <a href=\"https://github.com/Durss\" target=\"_blank\">githhub page</a>.<br><br><strong>I also create and build puzzle boxes :</strong><br>You can see them on my <a href=\"https://instagram.com/durss\" target=\"_blank\">Instagram page</a>.<br>I sell some on my <a href=\"https://box.durss.ninja\" target=\"_blank\">boxes website</a>.<br>And I made a <a href=\"https://www.instructables.com/Sequential-Discovery-Puzzle-Box/\" target=\"_blank\">step-by-step article</a> if you'd like to create your own Flatbox.<br>I also made <a href=\"https://www.instructables.com/Secret-Enigma-Box/\" target=\"_blank\">this step-by-step</a> for another secret box.","thanks_embed":"","thanks_msg":"<p style=\"\">Hello !</p><p style=\"\"></p><p style=\"\">Thank you so much for your support, that really means a lot to me! Feel free to&nbsp;<a href=\"https://discord.gg/fmqD2xUYvP\" rel=\"noopener noreferrer nofollow\">join the Discord&nbsp;</a>and link your account with Patreon to get access to private channels for Patrons. You'll get prioriy on your feedbacks and bug reports over other users.</p><p style=\"\"></p><p style=\"\">Also, as long as you keep supporting me monthly on Patreon you'll get access to premium features within Twitchat.</p><p style=\"\"></p><p style=\"\">🚨🚨🚨 <strong>Go under Parameters =&gt; Premium section and link your Patreon account to unlock those Premium features.</strong></p><p style=\"\"></p><p style=\"\">Have a good day :)</p>","thanks_video_url":null,"url":"https://www.patreon.com/durss","vanity":"durss"},"id":"9093199","type":"campaign"},{"attributes":{"about":null,"created":"2024-09-30T10:51:39.000+00:00","first_name":"Pomme____","full_name":"Pomme____","hide_pledges":true,"image_url":"https://c10.patreonusercontent.com/4/patreon-media/p/user/143706720/a128f4a49481484eb6975db105361452/eyJ3IjoyMDB9/1.jpeg?token-time=2145916800&token-hash=PkRVrf8vjeAaQA_nNcD4pO-KXpU4Z3wG97c-fIC8jhY%3D","is_creator":false,"last_name":"","like_count":0,"social_connections":{"discord":{"user_id":"705299085128761354"},"facebook":null,"google":null,"instagram":null,"reddit":null,"spotify":null,"spotify_open_access":null,"tiktok":null,"twitch":null,"twitter":null,"twitter2":null,"vimeo":null,"youtube":null},"thumb_url":"https://c10.patreonusercontent.com/4/patreon-media/p/user/143706720/a128f4a49481484eb6975db105361452/eyJ3IjoyMDB9/1.jpeg?token-time=2145916800&token-hash=PkRVrf8vjeAaQA_nNcD4pO-KXpU4Z3wG97c-fIC8jhY%3D","url":"https://www.patreon.com/user?u=143706720","vanity":null},"id":"143706720","type":"user"},{"attributes":{"amount_cents":400,"created_at":"2023-08-28T21:03:02.496+00:00","description":"<p style=\"\"><span style=\"color:rgba(11, 12, 15, 0.95);\"><mark style=\"background-color:rgb(255, 255, 255);\">Get premium Twitchat features.</mark></span></p>","discord_role_ids":["1007072857131593731"],"edited_at":"2023-08-28T21:49:50.215+00:00","image_url":"https://c10.patreonusercontent.com/4/patreon-media/p/reward/10135167/489a7a916e004a7dbd2e612aa5c849db/eyJ3Ijo0MDB9/2.png?token-time=2145916800&token-hash=xoxC-4ogtgdPwtiv8XpPT-py7mKbBBJ9wJMh4sv43oU%3D","patron_count":126,"post_count":0,"published":true,"published_at":"2023-08-28T21:03:02.496+00:00","remaining":null,"requires_shipping":false,"title":"🙂 Basic supporter (premium)","unpublished_at":null,"url":"/checkout/durss?rid=10135167","user_limit":null},"id":"10135167","type":"tier"}],"links":{"self":"https://www.patreon.com/api/oauth2/v2/members/33921f2d-e9bc-419e-a90b-bb0d542d9637"}}}`,
+					`{"type":"members:pledge:create","data":{"data":{"attributes":{"campaign_lifetime_support_cents":0,"currently_entitled_amount_cents":400,"email":"pommefuji93@gmail.com","full_name":"Pomme____","is_follower":false,"is_free_trial":false,"is_gifted":false,"last_charge_date":"2025-02-11T23:35:12.000+00:00","last_charge_status":"Pending","lifetime_support_cents":0,"next_charge_date":"2025-03-12T00:00:00.000+00:00","note":"","patron_status":"active_patron","pledge_cadence":1,"pledge_relationship_start":"2025-02-11T23:35:10.454+00:00","will_pay_amount_cents":400},"id":"33921f2d-e9bc-419e-a90b-bb0d542d9637","relationships":{"address":{"data":null},"campaign":{"data":{"id":"9093199","type":"campaign"},"links":{"related":"https://www.patreon.com/api/oauth2/v2/campaigns/9093199"}},"currently_entitled_tiers":{"data":[{"id":"10135167","type":"tier"}]},"user":{"data":{"id":"143706720","type":"user"},"links":{"related":"https://www.patreon.com/api/oauth2/v2/user/143706720"}}},"type":"member"},"included":[{"attributes":{"created_at":"2022-08-10T15:14:32.000+00:00","creation_name":"creating tools for streamers and puzzle boxes","discord_server_id":"960695714483167252","google_analytics_id":null,"has_rss":false,"has_sent_rss_notify":false,"image_small_url":"https://c10.patreonusercontent.com/4/patreon-media/p/campaign/9093199/d94ef37c62894b429069692c1848b438/eyJ3IjoxOTIwLCJ3ZSI6MX0%3D/2.jpg?token-time=1741046400&token-hash=q7tqk9E6nRPgsGpu-ow0GSMu5Gwv8jonovdjFf28bds%3D","image_url":"https://c10.patreonusercontent.com/4/patreon-media/p/campaign/9093199/d94ef37c62894b429069692c1848b438/eyJ3IjoxOTIwLCJ3ZSI6MX0%3D/2.jpg?token-time=1741046400&token-hash=q7tqk9E6nRPgsGpu-ow0GSMu5Gwv8jonovdjFf28bds%3D","is_charged_immediately":true,"is_monthly":true,"is_nsfw":false,"main_video_embed":null,"main_video_url":null,"one_liner":null,"patron_count":293,"pay_per_name":"month","pledge_url":"/checkout/durss","published_at":"2022-08-11T00:19:26.000+00:00","rss_artwork_url":null,"rss_feed_title":null,"summary":"I'm coding open-source tools around Twitch free for all to use and also create and build puzzle boxes, one of which &quot;open-sourced&quot;.<br><br>My biggest project from far is <a href=\"https://twitchat.fr\" target=\"_blank\">Twitchat</a>, a full featured twitch chat alternative that aims to make streamer's life easier by filling gaps of the official Twitch chat.<br>It took months of full-time work to create. I made it available for free to everyone but it cost me lots of time and a little for its hosting. I architectured the project so the hosting costs are as low as possible but, sadly, no hosting is free!<br><br>I love this project, have lots of other feature ideas and I try to make it up-to-date with new Twitch features as fast as possible, but it requires lots of time.<br><br>Any support for that work (and the others bellow) would be much appreciated if you can afford it !<br><br><strong>Here are some of the open-source tools/sites I made :</strong><br><ul><li><a href=\"https://www.patreon.com/edit/%E2%80%8Bhttps://twitchat.fr\" target=\"_blank\">Twitchat.fr</a> : A full featured twitch chat alternative to make streamers' life easier</li><li><a href=\"https://multiblindtest.com\" target=\"_blank\">Multiblindtest.com</a> : Level-up your blindtest skills by playing up to 6 tracks simultaneously.</li><li><a href=\"https://github.com/Durss/streamerRaider\" target=\"_blank\">StreamerRaider</a> : A tool to list your live twitch community members and send alerts on Discord when they go live (<a href=\"https://raid.protopotes.stream/\" target=\"_blank\">live example</a>)</li><li><a href=\"https://github.com/Durss/StreamDeck\" target=\"_blank\">Super basic stream deck</a> : Use a tiny remote keyboard to control your stream. Made for developpers.</li><li><a href=\"https://github.com/Durss/SlipLord\" target=\"_blank\">SlipLord</a> : A discord bot that allows you to get notifications when anyone goes live on twitch, create polls and anonymous polls, a roles selector, get alerts when it's someone's birthday and get a support system</li></ul>More on my <a href=\"https://github.com/Durss\" target=\"_blank\">githhub page</a>.<br><br><strong>I also create and build puzzle boxes :</strong><br>You can see them on my <a href=\"https://instagram.com/durss\" target=\"_blank\">Instagram page</a>.<br>I sell some on my <a href=\"https://box.durss.ninja\" target=\"_blank\">boxes website</a>.<br>And I made a <a href=\"https://www.instructables.com/Sequential-Discovery-Puzzle-Box/\" target=\"_blank\">step-by-step article</a> if you'd like to create your own Flatbox.<br>I also made <a href=\"https://www.instructables.com/Secret-Enigma-Box/\" target=\"_blank\">this step-by-step</a> for another secret box.","thanks_embed":"","thanks_msg":"<p style=\"\">Hello !</p><p style=\"\"></p><p style=\"\">Thank you so much for your support, that really means a lot to me! Feel free to&nbsp;<a href=\"https://discord.gg/fmqD2xUYvP\" rel=\"noopener noreferrer nofollow\">join the Discord&nbsp;</a>and link your account with Patreon to get access to private channels for Patrons. You'll get prioriy on your feedbacks and bug reports over other users.</p><p style=\"\"></p><p style=\"\">Also, as long as you keep supporting me monthly on Patreon you'll get access to premium features within Twitchat.</p><p style=\"\"></p><p style=\"\">🚨🚨🚨 <strong>Go under Parameters =&gt; Premium section and link your Patreon account to unlock those Premium features.</strong></p><p style=\"\"></p><p style=\"\">Have a good day :)</p>","thanks_video_url":null,"url":"https://www.patreon.com/durss","vanity":"durss"},"id":"9093199","type":"campaign"},{"attributes":{"about":null,"created":"2024-09-30T10:51:39.000+00:00","first_name":"Pomme____","full_name":"Pomme____","hide_pledges":true,"image_url":"https://c10.patreonusercontent.com/4/patreon-media/p/user/143706720/a128f4a49481484eb6975db105361452/eyJ3IjoyMDB9/1.jpeg?token-time=2145916800&token-hash=PkRVrf8vjeAaQA_nNcD4pO-KXpU4Z3wG97c-fIC8jhY%3D","is_creator":false,"last_name":"","like_count":0,"social_connections":{"discord":{"user_id":"705299085128761354"},"facebook":null,"google":null,"instagram":null,"reddit":null,"spotify":null,"spotify_open_access":null,"tiktok":null,"twitch":null,"twitter":null,"twitter2":null,"vimeo":null,"youtube":null},"thumb_url":"https://c10.patreonusercontent.com/4/patreon-media/p/user/143706720/a128f4a49481484eb6975db105361452/eyJ3IjoyMDB9/1.jpeg?token-time=2145916800&token-hash=PkRVrf8vjeAaQA_nNcD4pO-KXpU4Z3wG97c-fIC8jhY%3D","url":"https://www.patreon.com/user?u=143706720","vanity":null},"id":"143706720","type":"user"},{"attributes":{"amount_cents":400,"created_at":"2023-08-28T21:03:02.496+00:00","description":"<p style=\"\"><span style=\"color:rgba(11, 12, 15, 0.95);\"><mark style=\"background-color:rgb(255, 255, 255);\">Get premium Twitchat features.</mark></span></p>","discord_role_ids":["1007072857131593731"],"edited_at":"2023-08-28T21:49:50.215+00:00","image_url":"https://c10.patreonusercontent.com/4/patreon-media/p/reward/10135167/489a7a916e004a7dbd2e612aa5c849db/eyJ3Ijo0MDB9/2.png?token-time=2145916800&token-hash=xoxC-4ogtgdPwtiv8XpPT-py7mKbBBJ9wJMh4sv43oU%3D","patron_count":126,"post_count":0,"published":true,"published_at":"2023-08-28T21:03:02.496+00:00","remaining":null,"requires_shipping":false,"title":"🙂 Basic supporter (premium)","unpublished_at":null,"url":"/checkout/durss?rid=10135167","user_limit":null},"id":"10135167","type":"tier"}],"links":{"self":"https://www.patreon.com/api/oauth2/v2/members/33921f2d-e9bc-419e-a90b-bb0d542d9637"}}}`,
+					`{"type":"members:update","data":{"data":{"attributes":{"campaign_lifetime_support_cents":400,"currently_entitled_amount_cents":400,"email":"pommefuji93@gmail.com","full_name":"Pomme____","is_follower":false,"is_free_trial":false,"is_gifted":false,"last_charge_date":"2025-02-11T23:35:12.000+00:00","last_charge_status":"Paid","lifetime_support_cents":400,"next_charge_date":"2025-03-12T00:00:00.000+00:00","note":"","patron_status":"active_patron","pledge_cadence":1,"pledge_relationship_start":"2025-02-11T23:35:10.454+00:00","will_pay_amount_cents":400},"id":"33921f2d-e9bc-419e-a90b-bb0d542d9637","relationships":{"address":{"data":null},"campaign":{"data":{"id":"9093199","type":"campaign"},"links":{"related":"https://www.patreon.com/api/oauth2/v2/campaigns/9093199"}},"currently_entitled_tiers":{"data":[{"id":"10135167","type":"tier"}]},"user":{"data":{"id":"143706720","type":"user"},"links":{"related":"https://www.patreon.com/api/oauth2/v2/user/143706720"}}},"type":"member"},"included":[{"attributes":{"created_at":"2022-08-10T15:14:32.000+00:00","creation_name":"creating tools for streamers and puzzle boxes","discord_server_id":"960695714483167252","google_analytics_id":null,"has_rss":false,"has_sent_rss_notify":false,"image_small_url":"https://c10.patreonusercontent.com/4/patreon-media/p/campaign/9093199/d94ef37c62894b429069692c1848b438/eyJ3IjoxOTIwLCJ3ZSI6MX0%3D/2.jpg?token-time=1741046400&token-hash=q7tqk9E6nRPgsGpu-ow0GSMu5Gwv8jonovdjFf28bds%3D","image_url":"https://c10.patreonusercontent.com/4/patreon-media/p/campaign/9093199/d94ef37c62894b429069692c1848b438/eyJ3IjoxOTIwLCJ3ZSI6MX0%3D/2.jpg?token-time=1741046400&token-hash=q7tqk9E6nRPgsGpu-ow0GSMu5Gwv8jonovdjFf28bds%3D","is_charged_immediately":true,"is_monthly":true,"is_nsfw":false,"main_video_embed":null,"main_video_url":null,"one_liner":null,"patron_count":293,"pay_per_name":"month","pledge_url":"/checkout/durss","published_at":"2022-08-11T00:19:26.000+00:00","rss_artwork_url":null,"rss_feed_title":null,"summary":"I'm coding open-source tools around Twitch free for all to use and also create and build puzzle boxes, one of which &quot;open-sourced&quot;.<br><br>My biggest project from far is <a href=\"https://twitchat.fr\" target=\"_blank\">Twitchat</a>, a full featured twitch chat alternative that aims to make streamer's life easier by filling gaps of the official Twitch chat.<br>It took months of full-time work to create. I made it available for free to everyone but it cost me lots of time and a little for its hosting. I architectured the project so the hosting costs are as low as possible but, sadly, no hosting is free!<br><br>I love this project, have lots of other feature ideas and I try to make it up-to-date with new Twitch features as fast as possible, but it requires lots of time.<br><br>Any support for that work (and the others bellow) would be much appreciated if you can afford it !<br><br><strong>Here are some of the open-source tools/sites I made :</strong><br><ul><li><a href=\"https://www.patreon.com/edit/%E2%80%8Bhttps://twitchat.fr\" target=\"_blank\">Twitchat.fr</a> : A full featured twitch chat alternative to make streamers' life easier</li><li><a href=\"https://multiblindtest.com\" target=\"_blank\">Multiblindtest.com</a> : Level-up your blindtest skills by playing up to 6 tracks simultaneously.</li><li><a href=\"https://github.com/Durss/streamerRaider\" target=\"_blank\">StreamerRaider</a> : A tool to list your live twitch community members and send alerts on Discord when they go live (<a href=\"https://raid.protopotes.stream/\" target=\"_blank\">live example</a>)</li><li><a href=\"https://github.com/Durss/StreamDeck\" target=\"_blank\">Super basic stream deck</a> : Use a tiny remote keyboard to control your stream. Made for developpers.</li><li><a href=\"https://github.com/Durss/SlipLord\" target=\"_blank\">SlipLord</a> : A discord bot that allows you to get notifications when anyone goes live on twitch, create polls and anonymous polls, a roles selector, get alerts when it's someone's birthday and get a support system</li></ul>More on my <a href=\"https://github.com/Durss\" target=\"_blank\">githhub page</a>.<br><br><strong>I also create and build puzzle boxes :</strong><br>You can see them on my <a href=\"https://instagram.com/durss\" target=\"_blank\">Instagram page</a>.<br>I sell some on my <a href=\"https://box.durss.ninja\" target=\"_blank\">boxes website</a>.<br>And I made a <a href=\"https://www.instructables.com/Sequential-Discovery-Puzzle-Box/\" target=\"_blank\">step-by-step article</a> if you'd like to create your own Flatbox.<br>I also made <a href=\"https://www.instructables.com/Secret-Enigma-Box/\" target=\"_blank\">this step-by-step</a> for another secret box.","thanks_embed":"","thanks_msg":"<p style=\"\">Hello !</p><p style=\"\"></p><p style=\"\">Thank you so much for your support, that really means a lot to me! Feel free to&nbsp;<a href=\"https://discord.gg/fmqD2xUYvP\" rel=\"noopener noreferrer nofollow\">join the Discord&nbsp;</a>and link your account with Patreon to get access to private channels for Patrons. You'll get prioriy on your feedbacks and bug reports over other users.</p><p style=\"\"></p><p style=\"\">Also, as long as you keep supporting me monthly on Patreon you'll get access to premium features within Twitchat.</p><p style=\"\"></p><p style=\"\">🚨🚨🚨 <strong>Go under Parameters =&gt; Premium section and link your Patreon account to unlock those Premium features.</strong></p><p style=\"\"></p><p style=\"\">Have a good day :)</p>","thanks_video_url":null,"url":"https://www.patreon.com/durss","vanity":"durss"},"id":"9093199","type":"campaign"},{"attributes":{"about":null,"created":"2024-09-30T10:51:39.000+00:00","first_name":"Pomme____","full_name":"Pomme____","hide_pledges":true,"image_url":"https://c10.patreonusercontent.com/4/patreon-media/p/user/143706720/a128f4a49481484eb6975db105361452/eyJ3IjoyMDB9/1.jpeg?token-time=2145916800&token-hash=PkRVrf8vjeAaQA_nNcD4pO-KXpU4Z3wG97c-fIC8jhY%3D","is_creator":false,"last_name":"","like_count":0,"social_connections":{"discord":{"user_id":"705299085128761354"},"facebook":null,"google":null,"instagram":null,"reddit":null,"spotify":null,"spotify_open_access":null,"tiktok":null,"twitch":null,"twitter":null,"twitter2":null,"vimeo":null,"youtube":null},"thumb_url":"https://c10.patreonusercontent.com/4/patreon-media/p/user/143706720/a128f4a49481484eb6975db105361452/eyJ3IjoyMDB9/1.jpeg?token-time=2145916800&token-hash=PkRVrf8vjeAaQA_nNcD4pO-KXpU4Z3wG97c-fIC8jhY%3D","url":"https://www.patreon.com/user?u=143706720","vanity":null},"id":"143706720","type":"user"},{"attributes":{"amount_cents":400,"created_at":"2023-08-28T21:03:02.496+00:00","description":"<p style=\"\"><span style=\"color:rgba(11, 12, 15, 0.95);\"><mark style=\"background-color:rgb(255, 255, 255);\">Get premium Twitchat features.</mark></span></p>","discord_role_ids":["1007072857131593731"],"edited_at":"2023-08-28T21:49:50.215+00:00","image_url":"https://c10.patreonusercontent.com/4/patreon-media/p/reward/10135167/489a7a916e004a7dbd2e612aa5c849db/eyJ3Ijo0MDB9/2.png?token-time=2145916800&token-hash=xoxC-4ogtgdPwtiv8XpPT-py7mKbBBJ9wJMh4sv43oU%3D","patron_count":126,"post_count":0,"published":true,"published_at":"2023-08-28T21:03:02.496+00:00","remaining":null,"requires_shipping":false,"title":"🙂 Basic supporter (premium)","unpublished_at":null,"url":"/checkout/durss?rid=10135167","user_limit":null},"id":"10135167","type":"tier"}],"links":{"self":"https://www.patreon.com/api/oauth2/v2/members/33921f2d-e9bc-419e-a90b-bb0d542d9637"}}}`,
+				];
+				for (let i = 0; i < messages.length; i++) {
+					const m = messages[i];
+					// this.postUserWebhookTrigger()
+					await Utils.promisedTimeout(1000);
+				}
+			}, 10000);
 		}
 
 		// const res = await this.loadCampaign("9093199");
@@ -547,7 +562,7 @@ export default class PatreonController extends AbstractController {
 			.update(request.rawBody)
 			.digest('hex');
 
-			Logger.success("[PATREON][USER] received webhook event \""+event+"\" for user ", uid, "(twitch:"+twitchId+")");
+			Logger.success("[PATREON][USER] received webhook event \""+event+"\" for user", uid, "(twitch:"+twitchId+")");
 
 			if(signature != hash) {
 				Logger.warn("[PATREON][USER] Invalid webhook signature for user", uid, "(twitch:"+twitchId+")");
@@ -565,7 +580,7 @@ export default class PatreonController extends AbstractController {
 			if(event === "members:update") {
 				const message = request.body as WebhookMemberUpdateEvent;
 				//Only accept "paid" status
-				if(message.data.attributes.last_charge_status.toLowerCase() == "paid"
+				if(message.data.attributes.last_charge_status?.toLowerCase() == "paid"
 				&& message.data.attributes.patron_status == "active_patron") {
 					const membershipDuration = Math.abs(new Date(message.data.attributes.pledge_relationship_start).getTime() - new Date(message.data.attributes.last_charge_date).getTime());
 					if((membershipDuration < 20*24*60*60*1000 && this.uidToFirstPayment[message.data.relationships.user.data.id] !== false) || this.uidToFirstPayment[message.data.relationships.user.data.id] === true) {
@@ -573,7 +588,7 @@ export default class PatreonController extends AbstractController {
 						const user = message.included.find(v=>v.type == "user");
 						const tier = message.included.find(v=>v.type == "tier");
 						const username = user?.attributes.full_name || message.data.attributes.full_name;
-						Logger.info("[PATREON] User "+uid+" subscribedwith tier \""+tier?.attributes.title+"\" on channel #"+twitchId);
+						Logger.info("[PATREON] User "+uid+" subscribed with tier \""+tier?.attributes.title+"\" on channel #"+twitchId);
 						//Broadcast to client
 						SSEController.sendToUser(twitchId, "PATREON_MEMBER_CREATE", {
 							uid,
@@ -666,6 +681,7 @@ export default class PatreonController extends AbstractController {
 		id: string,
 		type: string,
 	}[]}|false> {
+		if(this.campaignCache[accessToken]) return this.campaignCache[accessToken];
 		const url = new URL("https://www.patreon.com/api/oauth2/v2/campaigns");
 		url.searchParams.append("include", "tiers");
 		url.searchParams.append("fields[campaign]", "creation_name,patron_count,image_small_url");
@@ -693,7 +709,9 @@ export default class PatreonController extends AbstractController {
 				Logger.error("[PATREON] campaign list failed");
 				console.log(json.errors[0].detail);
 			}else if(json.data?.length > 0) {
-				return {id:json.data[0].id, tiers:json.included.filter(v=>v.type == "tier")};
+				const res = {id:json.data[0].id, tiers:json.included.filter(v=>v.type == "tier")};
+				this.campaignCache[accessToken] = res;
+				return res;
 			}
 		}
 		return false;
@@ -927,7 +945,7 @@ export default class PatreonController extends AbstractController {
 	 * @param response
 	 */
 	private async getUserWebhook(request:FastifyRequest, response:FastifyReply, patreonAuth:Awaited<ReturnType<typeof this.getPatreonTokenFromTwitchToken>>, resolveQuery:boolean = true):Promise<{webhookURL:string, campaignID:string, user:TwitchToken, webhookID:string, webhookExists:boolean}|false|void> {
-		if(!patreonAuth) return;
+		if(!patreonAuth) return false;
 
 		let campaign:Awaited<ReturnType<typeof this.getCampaignID>> = false;
 		try {
@@ -1026,7 +1044,6 @@ export default class PatreonController extends AbstractController {
 	private async rebuildUserWebhooks():Promise<void> {
 		const secretsFile = Config.patreonUid2WebhookSecret;
 		const tokensFile = Config.twitch2PatreonToken;
-		const secrets = JSON.parse(fs.existsSync(secretsFile)? fs.readFileSync(secretsFile, "utf8") : "{}");
 		const tokens = JSON.parse(fs.existsSync(tokensFile)? fs.readFileSync(tokensFile, "utf8") : "{}");
 
 		for (const twitchId in tokens) {
@@ -1047,7 +1064,6 @@ export default class PatreonController extends AbstractController {
 
 			let webhookExists = false;
 			let webhookURL:string = "";
-			let webhookID:string = "";
 			//Campaigns is an array but, to date, Patreon only allows one campaign per account
 			//no need to check for other entries but the first
 			webhookURL = Config.credentials.patreon_webhook_url.replace("{ID}", campaign.id);
@@ -1067,25 +1083,96 @@ export default class PatreonController extends AbstractController {
 							fetch("https://www.patreon.com/api/oauth2/v2/webhooks/"+entry.id, {method:"DELETE", headers});
 						}else{
 							webhookExists = true;
-							webhookID = entry.id;
 							Logger.info("[PATREON][USER] Webhook found for user "+twitchId);
 
 							const filePath = Config.patreonUid2WebhookSecret;
 							const json = JSON.parse(fs.existsSync(filePath)? fs.readFileSync(filePath, "utf8") : "{}");
 							json[campaign.id] = {twitchId, secret:entry.attributes.secret};
 							fs.writeFileSync(filePath, JSON.stringify(json), "utf8");
+
+							if(entry.attributes.paused) {
+								this.resumeWebhook(token, campaign.id, entry.id);
+							}
 						}
-					}else if(entry.attributes.uri.indexOf("ngrok") > -1){
+					}else if(entry.attributes.uri.indexOf("ngrok") > -1) {
 						//Delete any invalid ngrok webhooks
 						fetch("https://www.patreon.com/api/oauth2/v2/webhooks/"+entry.id, {method:"DELETE", headers});
 					}
 				});
 				if(!webhookExists) {
-					Logger.warn("[PATREON][USER] Couldn't find webhook for user "+twitchId);
+					Logger.warn("[PATREON][USER] Couldn't find webhook for user "+twitchId+". Attempt to create it");
+					//Create new webhook
+					const options = {
+						method:"POST",
+						headers,
+						body:JSON.stringify({
+							"data": {
+								"type": "webhook",
+								"attributes": {
+									"triggers": ["members:create", "members:update", "members:delete", "members:pledge:create", "members:pledge:update", "members:pledge:delete"],
+									"uri": webhookURL,
+								},
+								"relationships": {
+									"campaign": {
+										"data": {"type": "campaign", "id": campaign.id},
+									},
+								},
+							},
+						})
+					}
+					const resultWebhook = await fetch("https://www.patreon.com/api/oauth2/v2/webhooks", options);
+					if(resultWebhook.status == 429) {
+						Logger.warn("[PATREON][USER] Rate limited when creating user webhook for user "+twitchId+" :(");
+					}else{
+						const jsonWebhook = await resultWebhook.json() as {data:WebhookEntry, errors?:unknown[]};
+						if(jsonWebhook.errors) {
+							Logger.error("[PATREON][USER] creating webhook failed");
+							console.log(jsonWebhook);
+						}else{
+							Logger.info("[PATREON][USER] Create user webhook for", twitchId);
+							//Save webhook secret
+							const filePath = Config.patreonUid2WebhookSecret;
+							const json = JSON.parse(fs.existsSync(filePath)? fs.readFileSync(filePath, "utf8") : "{}");
+							json[campaign.id] = {twitchId, secret:jsonWebhook.data.attributes.secret};
+							fs.writeFileSync(filePath, JSON.stringify(json), "utf8");
+						}
+					}
 				}
-				// return {campaignID: campaign.id, webhookURL, user:patreonAuth.twitchUser, webhookExists, webhookID};
 			}
 		}
+	}
+
+	private async resumeWebhook(accessToken:PatreonToken, campaignID:string, webhookID:string):Promise<void> {
+		Logger.info("[PATREON][USER] Resuming webhook for campaign", campaignID);
+		const headers = {
+			'Content-Type': 'application/json',
+			"Authorization":"Bearer "+accessToken.access_token,
+			"User-Agent":this.userAgent,
+		};
+
+		const options = {
+			method:"PATCH",
+			headers,
+			body:JSON.stringify({
+				"data": {
+					"id": webhookID,
+					"type": "webhook",
+					"attributes": {
+						"triggers": ["members:create", "members:update", "members:delete", "members:pledge:create", "members:pledge:update", "members:pledge:delete"],
+						"uri": Config.credentials.patreon_webhook_url.replace("{ID}", campaignID),
+						"paused": false,
+					},
+				},
+			})
+		}
+		const resultWebhook = await fetch("https://www.patreon.com/api/oauth2/v2/webhooks/"+webhookID, options);
+		if(resultWebhook.status == 200) {
+			Logger.success("[PATREON][USER] Successfully resumed webhook for campaign", campaignID);
+		}else{
+			Logger.error("[PATREON][USER] Failed to resume webhook for campaign", campaignID);
+			console.log(await resultWebhook.json());
+		}
+
 	}
 
 }
