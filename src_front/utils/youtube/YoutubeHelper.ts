@@ -233,7 +233,7 @@ export default class YoutubeHelper {
 			})
 			//Filter out past broadcast that got closed
 			.filter(v=> v.status.recordingStatus == "recording" || v.status.recordingStatus == "notRecording");
-			
+
 			json.items.forEach(v=> {
 				this._liveIdToChanId[v.snippet.liveChatId] = v.snippet.channelId;
 			})
@@ -652,7 +652,7 @@ export default class YoutubeHelper {
 			let cmd = (chunks.shift() as string).toLowerCase();
 
 			switch(cmd) {
-				case "/announce": 
+				case "/announce":
 				case "/warn":
 				case "/vip":
 				case "/unvip":
@@ -678,17 +678,17 @@ export default class YoutubeHelper {
 				case "/whisper":
 				case "/w":
 				case "/marker":
-				case "/uniquechat": 
-				case "/uniquechatoff": 
-				case "/mods": 
+				case "/uniquechat":
+				case "/uniquechatoff":
+				case "/mods":
 				case "/vips": return false;
-				
+
 				case "/unban":
 				case "/block":
 				case "/unblock":
 				case "/timeout":
 				case "/untimeout": return false;
-				
+
 				case "/ban":{
 					// if(!this.requestScopes([YoutubeScopes.CHAT_MODERATE])) return false;
 					// // this.getCurrentUserInfo
@@ -712,7 +712,7 @@ export default class YoutubeHelper {
 					}
 				}
 			}
-	
+
 			this._creditsUsed += 50;
 			const res = await fetch(url, {method:"POST", headers:this.headers, body:JSON.stringify(body)});
 			if(res.status == 200 || res.status == 204) {
@@ -728,7 +728,7 @@ export default class YoutubeHelper {
 
 	/**
 	 * Connects to a live by its URL
-	 * @param url 
+	 * @param url
 	 */
 	public async connectToLiveByURL(videoUrl:string):Promise<boolean> {
 		const extractID = (url:string):string|false => {
@@ -898,12 +898,12 @@ export default class YoutubeHelper {
 		}catch(error) {
 			console.error(error)
 		}
-		
+
 
 		//Add badge if not already specified
 		if(chanInfos.is_broadcaster && !chanInfos.badges.find(v=>v.id == "broadcaster")) {
 			chanInfos.badges.push({
-				icon:{sd:"broadcaster"},
+				icon:{sd:StoreProxy.asset("icons/broadcaster.svg")},
 				id:"broadcaster",
 				title:StoreProxy.i18n.t("chat.message.badges.broadcaster"),
 			})
@@ -911,7 +911,7 @@ export default class YoutubeHelper {
 		//Add badge if not already specified
 		if(chanInfos.is_moderator && !chanInfos.badges.find(v=>v.id == "moderator")) {
 			chanInfos.badges.push({
-				icon:{sd:"mod"},
+				icon:{sd:StoreProxy.asset("icons/mod.svg")},
 				id:"moderator",
 				title:StoreProxy.i18n.t("chat.message.badges.moderator"),
 			})
@@ -920,7 +920,7 @@ export default class YoutubeHelper {
 		//Add badge if not already specified
 		if(user.is_partner && !chanInfos.badges.find(v=>v.id == "partner")) {
 			chanInfos.badges.push({
-				icon:{sd:"partner"},
+				icon:{sd:StoreProxy.asset("icons/partner.svg")},
 				id:"partner",
 				title:StoreProxy.i18n.t("chat.message.badges.partner"),
 			})
@@ -943,7 +943,7 @@ export default class YoutubeHelper {
 					is_short:false,
 					youtube_liveId:liveId,
 				};
-		
+
 				data.is_short = Utils.stripHTMLTags(data.message_html).length / data.message.length < .6 || data.message.length < 4;
 				data.raw_data = m;
 				return data;
@@ -966,7 +966,7 @@ export default class YoutubeHelper {
 					currency:m.snippet.superChatDetails.currency,
 					tier:m.snippet.superChatDetails.tier,
 				};
-		
+
 				data.message_html = TwitchUtils.messageChunksToHTML(data.message_chunks || []);
 				return data;
 			}
@@ -1009,7 +1009,7 @@ export default class YoutubeHelper {
 				data.message_html = TwitchUtils.messageChunksToHTML(data.message_chunks || []);
 				return data;
 			}
-			
+
 			case "newSponsorEvent": {
 				const data:TwitchatDataTypes.MessageYoutubeSubscriptionData = {
 					date:new Date(m.snippet.publishedAt).getTime(),
@@ -1026,7 +1026,7 @@ export default class YoutubeHelper {
 					levelName: m.snippet.newSponsorDetails.memberLevelName || "",
 					months: 1,
 				};
-		
+
 				return data;
 			}
 
