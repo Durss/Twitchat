@@ -63,7 +63,7 @@
 				</i18n-t>
 
 				<div v-for="e in c.events" :key="e.value" :class="getTriggerClasses(e)"
-				v-newflag="e.newDate? {date:c.newDate, id:'triggerEvent_'+e.value} : undefined">
+				v-newflag="e.newDate? {date:e.newDate, id:'triggerEvent_'+e.value} : undefined">
 					<TTButton class="triggerBt"
 						:icon="e.icon"
 						:premium="e.premium === true"
@@ -223,6 +223,7 @@ class TriggerCreateForm extends Vue {
 				newDate:v.newDate,
 			}
 		})
+
 		if(this.search && !showPrivate) {
 			const premiumSearch = this.search.toLowerCase() == "premium"
 			const reg = new RegExp(this.search, "i");
@@ -755,6 +756,9 @@ export default toNative(TriggerCreateForm);
 				.label {
 					font-weight: bold;
 				}
+			}
+			&.newFlag {
+				border: 0;
 			}
 		}
 
