@@ -572,7 +572,11 @@ export const storeMain = defineStore("main", {
 			 * Listen for highlighted message to show up the "close highlighted message" button
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent<{message:string, message_id:string}|undefined>)=> {
-				sChat.highlightedMessageId = e.data?.message_id || null;
+				if(e.data?.message_id) {
+					sChat.highlightedMessageId = e.data?.message_id || null;
+				}else{
+					sChat.highlightChatMessageOverlay();
+				}
 			});
 
 			/**
@@ -593,7 +597,7 @@ export const storeMain = defineStore("main", {
 					//Ignore if old and new scene are the same
 					//For some reason, leaving studio mode on OBS triggers 2 scene change events
 					if(StoreProxy.common.currentOBSScene == e.sceneName) return;
-	
+
 					const m:TwitchatDataTypes.MessageOBSSceneChangedData = {
 						id: Utils.getUUID(),
 						date: Date.now(),
@@ -867,7 +871,7 @@ export const storeMain = defineStore("main", {
 
 		loadDataFromStorage() {
 			window.setInitMessage("load user data to memory");
-			
+
 			/**
 			 * CAREFUL THIS METHOD CAN BE CALLED MULTIPLE TIMES
 			 * Don't do anything that could break if called multiple times!

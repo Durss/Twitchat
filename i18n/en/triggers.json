@@ -758,6 +758,7 @@
 			"reward_description": "Reward description",
 			"reward_cost": "Reward cost",
 			"reward_message": "User message if any",
+			"reward_id": "Reward ID",
 			"track_artist": "Current track artist name",
 			"track_title": "Current track's title",
 			"track_album": "Current track's album name",
@@ -1189,6 +1190,10 @@
 			"HIGHLIGHT_CHAT_MESSAGE": {
 				"label": "Highlighted message",
 				"description": "Actions to execute when requesting to highlight a message"
+			},
+			"HIGHLIGHT_CHAT_MESSAGE_CLOSE": {
+				"label": "Highlighted message closed",
+				"description": "Actions to execute after closing an highlighted message"
 			},
 			"CHAT_ALERT": {
 				"label": "Chat alert",

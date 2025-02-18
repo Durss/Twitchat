@@ -2365,6 +2365,13 @@ export const storeChat = defineStore('chat', {
 			}else{
 				this.highlightedMessageId = null;
 				PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE);
+				TriggerActionHandler.instance.execute({
+					type:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT_CLOSE,
+					channel_id: StoreProxy.auth.twitch.user.id,
+					date: Date.now(),
+					id: Utils.getUUID(),
+					platform: "twitchat",
+				});
 			}
 
 		},

@@ -758,6 +758,7 @@
 			"reward_description": "Description de la récompense",
 			"reward_cost": "Prix de la récompense",
 			"reward_message": "Message de la personne",
+			"reward_id": "ID de la récompense",
 			"track_artist": "Artiste du morceau en cours",
 			"track_title": "Titre du morceau en cours",
 			"track_album": "Album du morceau en cours",
@@ -1186,6 +1187,10 @@
 			"HIGHLIGHT_CHAT_MESSAGE": {
 				"label": "Message mis en avant",
 				"description": "Actions à exécuter lorsqu'un message est mis en avant"
+			},
+			"HIGHLIGHT_CHAT_MESSAGE_CLOSE": {
+				"label": "Message mis en avant fermé",
+				"description": "Actions à exécuter lorsqu'un message est mis en avant est refermé"
 			},
 			"CHAT_ALERT": {
 				"label": "Alerte",

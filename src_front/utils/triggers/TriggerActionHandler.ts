@@ -289,6 +289,12 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT_CLOSE: {
+				if(await this.executeTriggersByType(TriggerTypes.HIGHLIGHT_CHAT_MESSAGE_CLOSE, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE: {
 				if(await this.executeTriggersByType(TriggerTypes.OBS_SCENE, message, testMode, message.sceneName.toLowerCase(), undefined, forcedTriggerId)) {
 					return;

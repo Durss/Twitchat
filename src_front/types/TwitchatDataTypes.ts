@@ -2362,6 +2362,7 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_PROGRESS:"hype_train_progress",
 		HYPE_TRAIN_COMPLETE:"hype_train_complete",
 		LOW_TRUST_TREATMENT:"low_trust_treatment",
+		CHAT_HIGHLIGHT_CLOSE:"chat_highlight_close",
 		YOUTUBE_SUBSCRIPTION:"youtube_subscription",
 		AD_BREAK_APPROACHING:"ad_break_approaching",
 		MUSIC_ADDED_TO_QUEUE:"music_added_to_queue",
@@ -2445,7 +2446,7 @@ export namespace TwitchatDataTypes {
 		streamelements:true,
 		stream_offline:true,
 		ad_break_start:false,
-		chat_highlight:false,//Used for "highlight on overlay" events
+		chat_highlight:false,
 		counter_update:false,
 		goxlr_fx_state:false,
 		youtube_subgift:true,
@@ -2478,8 +2479,9 @@ export namespace TwitchatDataTypes {
 		youtube_subscription:true,
 		hype_train_progress:false,
 		hype_train_complete:false,
-		ad_break_approaching:false,
 		music_added_to_queue:true,
+		ad_break_approaching:false,
+		chat_highlight_close:false,
 		goxlr_sample_complete:false,
 		obs_input_mute_toggle:false,
 		hype_train_cooled_down:true,
@@ -2568,6 +2570,7 @@ export namespace TwitchatDataTypes {
 									| MessageShoutoutData
 									| MessageVoicemodData
 									| MessageChatHighlightData
+									| MessageChatHighlightCloseData
 									| MessageConnectData
 									| MessageDisconnectData
 									| MessageFollowbotData
@@ -4078,6 +4081,13 @@ export namespace TwitchatDataTypes {
 		 * Details about the highlight
 		 */
 		info:ChatHighlightInfo;
+	}
+
+	/**
+	 * Represents a chat highlight close message
+	 */
+	export interface MessageChatHighlightCloseData extends AbstractTwitchatMessage {
+		type:"chat_highlight_close";
 	}
 
 	/**
