@@ -2533,8 +2533,9 @@ export default class TriggerActionHandler {
 					//Pick an item from a custom list
 					}else if(step.mode == "list" && step.placeholder) {
 						const value = Utils.pickRand(step.list, step.removePickedEntry);
-						dynamicPlaceholders[step.placeholder] = value;
-						logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.placeholder+"}\" with value \""+value+"\""});
+						const parsedValue = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, value, subEvent);;
+						dynamicPlaceholders[step.placeholder] = parsedValue;
+						logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.placeholder+"}\" with value \""+parsedValue+"\""});
 
 					//Pick a trrigger from a custom trigger list
 					}else if(step.mode == "trigger") {
@@ -2614,7 +2615,7 @@ export default class TriggerActionHandler {
 								logStep.error = true;
 								log.error = true;
 							}
-							console.log(source.users[uid])
+
 							value = (source.users[uid]?.value ?? 0).toString();
 							if(step.valueCounterPlaceholders.userId) {
 								dynamicPlaceholders[step.valueCounterPlaceholders.userId]	= uid;

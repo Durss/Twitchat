@@ -15,7 +15,7 @@
 			<button class="tooltipOpener"><Icon name="placeholder" /></button>
 		</template>
 		<template #content>
-			
+
 			<input class="placeholderSelector_searchField" type="text"
 			v-if="search || localPlaceholders.length + globalPlaceholders.length + globalPlaceholderCategories.length > 5"
 			v-model="search"
@@ -27,7 +27,7 @@
 					<template v-for="(h,index) in localPlaceholders" :key="h.tag+index">
 						<button type="button" @click="$event => insert(h, $event)"
 							v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
-						
+
 						<i18n-t scope="global" :keypath="h.descKey" tag="span">
 							<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
 								<mark>{{ value }}</mark>
@@ -35,7 +35,7 @@
 						</i18n-t>
 					</template>
 				</div>
-		
+
 				<ToggleBlock class="global" small v-if="(globalPlaceholders.length + globalPlaceholderCategories.length) > 0" :open="search.length > 0"
 				noBackground
 				:title="$t('global.placeholder_selector_global')">
@@ -43,7 +43,7 @@
 						<template v-for="(h,index) in globalPlaceholders" :key="h.tag+index">
 							<button type="button" @click="$event => insert(h, $event)"
 								v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
-							
+
 							<i18n-t scope="global" :keypath="h.descKey" tag="span">
 								<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
 									<mark>{{ value }}</mark>
@@ -51,7 +51,7 @@
 							</i18n-t>
 						</template>
 					</div>
-						
+
 					<ToggleBlock class="global" v-for="c in globalPlaceholderCategories" :key="c.key" small :open="search.length > 0"
 					noBackground
 					:title="$t('global.placeholder_selector_categories.'+c.key)">
@@ -59,7 +59,7 @@
 							<template v-for="(h,index) in c.entries" :key="h.tag+index">
 								<button type="button" @click="$event => insert(h, $event)"
 									v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
-								
+
 								<i18n-t scope="global" :keypath="h.descKey" tag="span">
 									<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
 										<mark>{{ value }}</mark>
@@ -96,13 +96,13 @@ class PlaceholderSelector extends Vue {
 
 	@Prop
 	public target!:(HTMLInputElement | HTMLTextAreaElement) | Promise<HTMLInputElement | HTMLTextAreaElement>;
-	
+
 	@Prop
 	public modelValue!:string;
-	
+
 	@Prop({default:false})
 	public copyMode!:boolean;
-	
+
 	@Prop({default:false})
 	public popoutMode!:boolean;
 
@@ -134,7 +134,7 @@ class PlaceholderSelector extends Vue {
 											|| this.$t(v.descKey).toLowerCase().indexOf(search) > -1
 										));
 	}
-	
+
 	public get globalPlaceholders():TwitchatDataTypes.PlaceholderEntry[]{
 		const search = this.search.toLowerCase().trim();
 		const list = this.placeholders.filter(v=>v.globalTag === true
@@ -201,7 +201,6 @@ class PlaceholderSelector extends Vue {
 			let carretPos = target.selectionStart as number | 0;
 			if(!carretPos) carretPos = 0;
 			//Insert tag
-			console.log(target, target.value)
 			const text = target.value.substring(0, carretPos) + tag + target.value.substring(carretPos);
 			this.$emit("update:modelValue", text);
 		}else{
