@@ -1490,6 +1490,7 @@ export const TriggerTypes = {
 	TWITCH_CHARITY_DONATION:"156",
 	PLAYABILITY_INPUT:"157",
 	HIGHLIGHT_CHAT_MESSAGE_CLOSE:"158",
+	MESSAGE_ANSWER:"159",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1596,7 +1597,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		map[trigger] = [];
 	}
 
-	type SafeMessage = Omit<TwitchatDataTypes.MessageChatData, "answers" | "answersTo" | "children">;
+	type SafeMessage = Omit<TwitchatDataTypes.MessageChatData, "answers" | "children" | "answersTo">;
 	type SafeReward = Omit<TwitchatDataTypes.MessageRewardRedeemData, "children">;
 
 	map[TriggerTypes.ANY_MESSAGE] =
@@ -1619,6 +1620,15 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 
 	map[TriggerTypes.POWER_UP_MESSAGE] = [...map[TriggerTypes.ANY_MESSAGE]!,
 		{tag:"SKIN", descKey:'triggers.placeholders.power_up_message', pointer:"twitch_animationId", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
+	];
+
+	map[TriggerTypes.MESSAGE_ANSWER] = [...map[TriggerTypes.ANY_MESSAGE]!,
+		{tag:"PARENT_"+USER_NAME, descKey:'triggers.placeholders.parent_user', pointer:"answersTo.user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {answersTo:SafeMessage}>,
+		{tag:"PARENT_"+USER_DISPLAY_NAME, descKey:'triggers.placeholders.parent_user_customName', pointer:"answersTo.user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {answersTo:SafeMessage}>,
+		{tag:"PARENT_"+USER_ID, descKey:'triggers.placeholders.parent_user_id', pointer:"answersTo.user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<SafeMessage & {answersTo:SafeMessage}>,
+		{tag:"PARENT_MESSAGE", descKey:'triggers.placeholders.parent_message', pointer:"answersTo.message", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {answersTo:SafeMessage}>,
+		{tag:"PARENT_MESSAGE_JSON", descKey:'triggers.placeholders.parent_message_json', pointer:"answersTo.message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {answersTo:SafeMessage}>,
+		{tag:"PARENT_MESSAGE_HTML", descKey:'triggers.placeholders.parent_message_html', pointer:"answersTo.message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {answersTo:SafeMessage}>,
 	];
 
 	map[TriggerTypes.POWER_UP_GIANT_EMOTE] = [...map[TriggerTypes.ANY_MESSAGE]!,
@@ -2582,7 +2592,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"emergency", labelKey:"triggers.events.EMERGENCY_MODE_START.label", value:TriggerTypes.EMERGENCY_MODE_START, descriptionKey:"triggers.events.EMERGENCY_MODE_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"emergency", labelKey:"triggers.events.EMERGENCY_MODE_STOP.label", value:TriggerTypes.EMERGENCY_MODE_STOP, descriptionKey:"triggers.events.EMERGENCY_MODE_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"highlight", labelKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE.label", value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, descriptionKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT},
-		{category:TriggerEventTypeCategories.TWITCHAT, icon:"highlight", labelKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE_CLOSE.label", value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE_CLOSE, descriptionKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE_CLOSE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT_CLOSE},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V16, category:TriggerEventTypeCategories.TWITCHAT, icon:"highlight", labelKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE_CLOSE.label", value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE_CLOSE, descriptionKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE_CLOSE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT_CLOSE},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"alert", labelKey:"triggers.events.CHAT_ALERT.label", value:TriggerTypes.CHAT_ALERT, descriptionKey:"triggers.events.CHAT_ALERT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"commands", labelKey:"triggers.events.SLASH_COMMAND.label", value:TriggerTypes.SLASH_COMMAND, descriptionKey:"triggers.events.SLASH_COMMAND.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13_7, category:TriggerEventTypeCategories.TWITCHAT, icon:"twitchat", labelKey:"triggers.events.TWITCHAT_STARTED.label", value:TriggerTypes.TWITCHAT_STARTED, descriptionKey:"triggers.events.TWITCHAT_STARTED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TWITCHAT_STARTED},
@@ -2590,6 +2600,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 
 		{category:TriggerEventTypeCategories.CHAT_REWARDS, icon:"chatCommand", labelKey:"triggers.events.CHAT_COMMAND.label", value:TriggerTypes.CHAT_COMMAND, isCategory:true, descriptionKey:"triggers.events.CHAT_COMMAND.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{category:TriggerEventTypeCategories.CHAT_REWARDS, icon:"whispers", labelKey:"triggers.events.ANY_MESSAGE.label", value:TriggerTypes.ANY_MESSAGE, descriptionKey:"triggers.events.ANY_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V16, category:TriggerEventTypeCategories.CHAT_REWARDS, icon:"reply", labelKey:"triggers.events.MESSAGE_ANSWER.label", value:TriggerTypes.MESSAGE_ANSWER, descriptionKey:"triggers.events.MESSAGE_ANSWER.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{category:TriggerEventTypeCategories.CHAT_REWARDS, icon:"channelPoints", labelKey:"triggers.events.REWARD_REDEEM.label", value:TriggerTypes.REWARD_REDEEM, isCategory:true, descriptionKey:"triggers.events.REWARD_REDEEM.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.REWARD},
 		{category:TriggerEventTypeCategories.CHAT_REWARDS, icon:"channelPoints", labelKey:"triggers.events.COMMUNITY_CHALLENGE_PROGRESS.label", value:TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS, descriptionKey:"triggers.events.COMMUNITY_CHALLENGE_PROGRESS.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION},
 		{category:TriggerEventTypeCategories.CHAT_REWARDS, icon:"channelPoints", labelKey:"triggers.events.COMMUNITY_CHALLENGE_COMPLETE.label", value:TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE, descriptionKey:"triggers.events.COMMUNITY_CHALLENGE_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION},

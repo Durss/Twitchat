@@ -114,17 +114,19 @@ export default class TriggerActionHandler {
 				if(message.twitch_animationId) {
 					await this.executeTriggersByType(TriggerTypes.POWER_UP_MESSAGE, message, testMode, undefined, undefined, forcedTriggerId);
 				}
-				// if(message.twitch_gigantifiedEmote) {
-				// 	await this.executeTriggersByType(TriggerTypes.POWER_UP_GIANT_EMOTE, message, testMode, undefined, undefined, forcedTriggerId);
-				// }
 
 				if(message.message) {
 					const cmd = message.message.trim().split(" ")[0].toLowerCase();
 					await this.executeTriggersByType(TriggerTypes.CHAT_COMMAND, message, testMode, cmd, undefined, forcedTriggerId);
+					//In case a command is declared with spaces included, attempt to execute it
 					const cmdall = message.message.trim().toLowerCase();
 					if(cmdall != cmd) {
 						await this.executeTriggersByType(TriggerTypes.CHAT_COMMAND, message, testMode, cmdall, undefined, forcedTriggerId);
 					}
+				}
+
+				if(message.answersTo) {
+					await this.executeTriggersByType(TriggerTypes.MESSAGE_ANSWER, message, testMode, undefined, undefined, forcedTriggerId);
 				}
 
 				if(message.user.id != StoreProxy.auth.twitch.user.id

@@ -693,7 +693,10 @@
 			"trigger_id": "Current trigger ID",
 			"user": "User name",
 			"user_customName": "User name custom",
-			"user_id": "User ID",
+			"user_id": "Parent message - User ID",
+			"parent_user": "Parent message - User name",
+			"parent_user_customName": "Parent message - User name custom",
+			"parent_user_id": "User ID",
 			"user_color": "User color",
 			"user_badges": "User badges as JSON",
 			"user_custom_badges": "Custom user badge IDs",
@@ -707,6 +710,9 @@
 			"message": "Message content",
 			"message_json": "Message content as JSON",
 			"message_html": "Message content as HTML",
+			"parent_message": "Parent message content",
+			"parent_message_json": "Parent message content as JSON",
+			"parent_message_html": "Parent message content as HTML",
 			"pinned_by": "User who pinned the mesage",
 			"pinned_by_id": "ID of the user who pinned the mesage",
 			"poll_title": "Poll title",
@@ -967,6 +973,10 @@
 			"ANY_MESSAGE": {
 				"label": "Any message",
 				"description": "Actions to execute everytime a message is received on chat"
+			},
+			"MESSAGE_ANSWER": {
+				"label": "Answer to a message",
+				"description": "Actions to execute when a message answers another message"
 			},
 			"REWARD_REDEEM": {
 				"label": "Channel point reward",

@@ -694,6 +694,9 @@
 			"user": "Pseudo",
 			"user_customName": "Pseudo personnalisé",
 			"user_id": "ID utilisateur",
+			"parent_user": "Message parent - Pseudo",
+			"parent_user_customName": "Message parent - Pseudo personnalisé",
+			"parent_user_id": "Message parent - ID utilisateur",
 			"user_color": "Couleur du pseudo",
 			"user_badges": "Badges au format JSON",
 			"user_custom_badges": "Badges personnalisés (IDs)",
@@ -707,6 +710,9 @@
 			"message": "Message",
 			"message_json": "Message au format JSON",
 			"message_html": "Message au format HTML",
+			"parent_message": "Message parent",
+			"parent_message_json": "Message parent au format JSON",
+			"parent_message_html": "Message parent au format HTML",
 			"pinned_by": "Pseudo de la personne ayant épinglé",
 			"pinned_by_id": "ID de la personne ayant épinglé",
 			"poll_title": "Titre du sondage",
@@ -964,6 +970,10 @@
 			"ANY_MESSAGE": {
 				"label": "Tous les messages",
 				"description": "Actions à exécuter chaque fois qu'un message est reçu"
+			},
+			"MESSAGE_ANSWER": {
+				"label": "Réponse à un message",
+				"description": "Actions à exécuter lorsqu'un message répond à un autre"
 			},
 			"REWARD_REDEEM": {
 				"label": "Récompense de points de chaîne",
