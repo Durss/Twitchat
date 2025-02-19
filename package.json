@@ -21,9 +21,6 @@
 		"i18n": "node src_labels/index.mjs",
 		"typecheck": "vue-tsc --noEmit",
 		"lint": "eslint . --ext .vue,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-		"streamdeck_package": "npm run streamdeck_package_clean && DistributionTool.exe -b -i streamdeck_plugin/fr.twitchat.sdPlugin -o streamdeck_plugin",
-		"streamdeck_package_clean": "shx rm streamdeck_plugin/fr.twitchat.streamDeckPlugin",
-		"streamdeck_deploy_local": "shx cp -r streamdeck_plugin/fr.twitchat.sdPlugin C:/Users/franc/AppData/Roaming/Elgato/StreamDeck/Plugins/",
 		"check-circular-dependencies": "dpdm ./src_front/main.ts",
 		"versionUpgrade": "node scripts/versionSuffix.mjs"
 	},
