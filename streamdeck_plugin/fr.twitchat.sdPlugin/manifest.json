@@ -7,7 +7,7 @@
 				{
 					"Image": "icons/AUTOMOD_ACCEPT",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -21,7 +21,7 @@
 				{
 					"Image": "icons/AUTOMOD_REJECT",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -35,7 +35,7 @@
 				{
 					"Image": "icons/GREET_FEED_READ",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -45,12 +45,12 @@
 		{
 			"Icon": "icons/GREET_FEED_READ_default",
 			"Name": "Remove X 'Greet them' message",
-			"Tooltip": "Clear some messages from 'Greet them' section", 
+			"Tooltip": "Clear some messages from 'Greet them' section",
 			"States": [
 				{
 					"Image": "icons/GREET_FEED_READ",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -64,7 +64,7 @@
 				{
 					"Image": "icons/CHAT_FEED_READ_ALL",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -78,7 +78,7 @@
 				{
 					"Image": "icons/CHAT_FEED_READ",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -92,14 +92,16 @@
 				{
 					"Image": "icons/CHAT_FEED_READ",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.chat-feed-read-encoder",
-			"Controllers": ["Encoder"],
-			"Encoder":{
+			"Controllers": [
+				"Encoder"
+			],
+			"Encoder": {
 				"TriggerDescription": {
 					"Rotate": "Read messages"
 				}
@@ -112,7 +114,7 @@
 				{
 					"Image": "icons/CHAT_FEED_PAUSE",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -126,7 +128,7 @@
 				{
 					"Image": "icons/CLEAR_CHAT_HIGHLIGHT",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -140,7 +142,7 @@
 				{
 					"Image": "icons/CHAT_FEED_UNPAUSE",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -154,7 +156,7 @@
 				{
 					"Image": "icons/CHAT_FEED_SCROLL_UP",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -168,7 +170,7 @@
 				{
 					"Image": "icons/CHAT_FEED_SCROLL_DOWN",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -182,14 +184,16 @@
 				{
 					"Image": "icons/CHAT_FEED_SCROLL_ENCODER",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.chat-feed-scroll",
-			"Controllers": ["Encoder"],
-			"Encoder":{
+			"Controllers": [
+				"Encoder"
+			],
+			"Encoder": {
 				"TriggerDescription": {
 					"Rotate": "Scroll chat"
 				}
@@ -202,14 +206,16 @@
 				{
 					"Image": "icons/TARGET_MESSAGE",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.chat-feed-select",
-			"Controllers": ["Encoder"],
-			"Encoder":{
+			"Controllers": [
+				"Encoder"
+			],
+			"Encoder": {
 				"TriggerDescription": {
 					"Rotate": "Select chat message",
 					"Push": "Switch between select/moderation modes"
@@ -223,7 +229,7 @@
 				{
 					"Image": "icons/POLL_TOGGLE",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -237,7 +243,7 @@
 				{
 					"Image": "icons/PREDICTION_TOGGLE",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -251,7 +257,7 @@
 				{
 					"Image": "icons/BINGO_TOGGLE",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -265,7 +271,7 @@
 				{
 					"Image": "icons/RAFFLE_TOGGLE",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -279,7 +285,7 @@
 				{
 					"Image": "icons/RAFFLE_PICK_WINNER",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -293,7 +299,7 @@
 				{
 					"Image": "icons/VIEWERS_COUNT_TOGGLE",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -307,7 +313,7 @@
 				{
 					"Image": "icons/MOD_TOOLS_TOGGLE",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -322,7 +328,7 @@
 				{
 					"Image": "icons/CENSOR_DELETED_MESSAGES_TOGGLE",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -337,7 +343,7 @@
 				{
 					"Image": "icons/SHOUTOUT",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -351,7 +357,7 @@
 				{
 					"Image": "icons/EMERGENCY",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -366,7 +372,7 @@
 				{
 					"Image": "icons/STOP_TTS",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -381,7 +387,7 @@
 				{
 					"Image": "icons/ENABLE_STT",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -395,7 +401,7 @@
 				{
 					"Image": "icons/DISABLE_STT",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -409,7 +415,7 @@
 				{
 					"Image": "icons/COUNTDOWN",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -423,7 +429,7 @@
 				{
 					"Image": "icons/TIMER",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -437,7 +443,7 @@
 				{
 					"Image": "icons/COUNT",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -451,7 +457,7 @@
 				{
 					"Image": "icons/EXECUTE_TRIGGER",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -465,7 +471,7 @@
 				{
 					"Image": "icons/TOGGLE_TRIGGER",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -479,7 +485,7 @@
 				{
 					"Image": "icons/SEND_MESSAGE",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -493,7 +499,7 @@
 				{
 					"Image": "icons/MERGE_TOGGLE",
 					"TitleAlignment": "bottom",
-					"FontSize": "10"
+					"FontSize": 10
 				}
 			],
 			"PropertyInspectorPath": "propertyInspector.html",
@@ -501,8 +507,8 @@
 			"UUID": "fr.twitchat.action.merge-toggle"
 		}
 	],
-	"Category":"Twitchat",
-	"CategoryIcon":"icons/pluginIcon",
+	"Category": "Twitchat",
+	"CategoryIcon": "icons/pluginIcon",
 	"SDKVersion": 2,
 	"Author": "Durss",
 	"CodePath": "index.html",
@@ -510,7 +516,8 @@
 	"Name": "Twitchat",
 	"Icon": "icons/pluginIcon",
 	"URL": "https://twitchat.fr",
-	"Version": "2.8",
+	"Version": "2.8.1.0",
+	"UUID": "fr.twitchat",
 	"OS": [
 		{
 			"Platform": "mac",
@@ -522,6 +529,6 @@
 		}
 	],
 	"Software": {
-		"MinimumVersion": "4.1"
+		"MinimumVersion": "6.4"
 	}
 }
