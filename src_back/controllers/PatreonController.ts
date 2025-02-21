@@ -583,7 +583,11 @@ export default class PatreonController extends AbstractController {
 				if(message.data.attributes.last_charge_status?.toLowerCase() == "paid"
 				&& message.data.attributes.patron_status == "active_patron") {
 					const membershipDuration = Math.abs(new Date(message.data.attributes.pledge_relationship_start).getTime() - new Date(message.data.attributes.last_charge_date).getTime());
-					if((membershipDuration < 20*24*60*60*1000 && this.uidToFirstPayment[message.data.relationships.user.data.id] !== false) || this.uidToFirstPayment[message.data.relationships.user.data.id] === true) {
+					if(this.uidToFirstPayment[message.data.relationships.user.data.id] === true
+					|| (
+						membershipDuration < 20*24*60*60*1000
+						&& this.uidToFirstPayment[message.data.relationships.user.data.id] !== false
+					)) {
 						this.uidToFirstPayment[message.data.relationships.user.data.id] = false;
 						const user = message.included.find(v=>v.type == "user");
 						const tier = message.included.find(v=>v.type == "tier");
