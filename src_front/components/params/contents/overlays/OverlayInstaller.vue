@@ -26,7 +26,7 @@
 
 		<div v-if="error" class="card-item alert error" @click="error=''">{{ $t("overlay.install_error", {ERROR:error}) }}</div>
 
-		<div class="card-item instructions" v-if="showInput && $slots.default">
+		<div class="card-item instructions" v-if="(!obsConnected || showInput) && $slots.default">
 			<slot></slot>
 		</div>
 	</div>

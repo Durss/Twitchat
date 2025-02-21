@@ -266,7 +266,7 @@
 			"install": "Nécessite de {HEAT} sur votre chaîne Twitch et d'{SHADER} dans OBS.",
 			"install_heat_link": "configurer l'extension Heat",
 			"install_shader_link": "installer le plugin Shadertastic",
-			"install_instructions": "<ul><li>Définissez la largeur à 2 fois celle de votre scène (ex: 3840px pour une scène de 1920px).</li><li>Définissez la hauteur à celle de votre scène (ex: 1080px).</li><li>Placez la source hors écran</li><li>Débit d'images: 60fps</li><li>Ajoutez un filtre Shadertastic à votre scène<ul><li><strong>Effect</strong>: Displacement map (Source)</li><li><strong>Displace</strong>: mode: Displace + Overlay</li><li><strong>Color Space</strong>: RGB</li><li><strong>Strength X/Y</strong>: 0.050</li><li><strong>Displacement Map</strong>: the browser source you just created</li></ul></li></ul>",
+			"install_instructions": "<ul><li>Définissez la largeur à 2 fois celle de votre scène (ex: 3840px pour une scène de 1920px).</li><li>Définissez la hauteur à celle de votre scène (ex: 1080px).</li><li>Placez la source hors écran</li><li>Débit d'images: 60fps</li><li>Ajoutez un filtre Shadertastic à la scène contenant la source<ul><li><strong>Effect</strong>: Displacement map (Source)</li><li><strong>Displace</strong>: mode: Displace + Overlay</li><li><strong>Color Space</strong>: RGB</li><li><strong>Strength X/Y</strong>: 0.050</li><li><strong>Displacement Map</strong>: the browser source you just created</li></ul></li></ul>",
 			"select_target": "Selectionnez l'élément OBS sur lequel appliquer les distorsions",
 			"select_scene": "<- Selectionnez une scène",
 			"premium_locked": "Désactivez une autre distorsion ou devenez premium pour réactiver celle-ci",
@@ -327,7 +327,7 @@
 			"testBt": "Envoyer des bits",
 			"simulate_pinned": "Simuler des cheers épinglés",
 			"simulate_pinned_level": "Niveau",
-			"install_instructions": "<ul><li>Définissez la largeur à 2 fois celle de votre scène (ex: 3840px pour une scène de 1920px).</li><li>Définissez la hauteur à celle de votre scène (ex: 1080px).</li><li>Placez la source hors écran</li><li>Débit d'images: 60fps</li><li>Ajoutez un filtre Shadertastic à votre scène<ul><li><strong>Effect</strong>: Displacement map (Source)</li><li><strong>Displace</strong>: mode: Displace + Overlay</li><li><strong>Color Space</strong>: RGB</li><li><strong>Strength X/Y</strong>: 0.050</li><li><strong>Displacement Map</strong>: the browser source you just created</li></ul></li></ul>",
+			"install_instructions": "<ul><li>Définissez la largeur à 2 fois celle de votre scène (ex: 3840px pour une scène de 1920px).</li><li>Définissez la hauteur à celle de votre scène (ex: 1080px).</li><li>Placez la source hors écran</li><li>Débit d'images: 60fps</li><li>Ajoutez un filtre Shadertastic à la scène contenant la source<ul><li><strong>Effect</strong>: Displacement map (Source)</li><li><strong>Displace</strong>: mode: Displace + Overlay</li><li><strong>Color Space</strong>: RGB</li><li><strong>Strength X/Y</strong>: 0.050</li><li><strong>Displacement Map</strong>: the browser source you just created</li></ul></li></ul>",
 			"param_size": "Taille Maximum des cheermotes {VALUE}%\n(un cheer épinglé lâche des cheermotes plus grosses selon le niveau de pin)",
 			"param_break": "Permettre aux viewers de casser les cheermotes\n(Nécessite d'installer <a href='https://dashboard.twitch.tv/extensions/cr20njfkgll4okyrhag7xxph270sqk' target='_blank'>l'extension Heat</a> sur votre chaîne)",
 			"param_break_senderOnly": "Autoriser les viewers à casser <strong><u>UNIQUEMENT</u></strong> leurs propres cheermotes",
@@ -395,52 +395,52 @@
 			"placeholders": {
 				"SUB_COUNT": "Subs - total",
 				"SUB_POINTS": "Subs - points (ne sont PAS les points partner+)",
-				
+
 				"SUB_ID": "Sub - ID utilisateur·ice",
 				"SUB_NAME": "Sub - Pseudo",
 				"SUB_AVATAR": "Sub - Avatar",
 				"SUB_TIER": "Sub - Niveau",
-				
+
 				"SUBGIFT_ID": "Subgift - ID utilisateur·ice",
 				"SUBGIFT_NAME": "Subgift - Pseudo",
 				"SUBGIFT_AVATAR": "Subgift - Avatar",
 				"SUBGIFT_TIER": "Subgift - Niveau",
 				"SUBGIFT_COUNT": "Subgift - Nombre",
-				
+
 				"CHEER_ID": "Bits reçus - ID utilisateur·ice",
 				"CHEER_NAME": "Bits reçus - Pseudo",
 				"CHEER_AVATAR": "Bits reçus - Avatar",
 				"CHEER_AMOUNT": "Bits reçus - Montant",
-				
+
 				"FOLLOWER_COUNT": "Followers - total",
-				
+
 				"FOLLOWER_ID": "Follower - ID utilisateur·ice",
 				"FOLLOWER_NAME": "Follower - Pseudo",
 				"FOLLOWER_AVATAR": "Follower - Avatar",
-				
+
 				"REWARD_ID": "Récompense de pts de chaîne - ID utilisateur·ice",
 				"REWARD_NAME": "Récompense de pts de chaîne - Pseudo",
 				"REWARD_AVATAR": "Récompense de pts de chaîne - Avatar",
 				"REWARD_TITLE": "Récompense de pts de chaîne - Titre",
 				"REWARD_ICON": "Récompense de pts de chaîne - Icône",
 				"REWARD_MESSAGE": "Récompense de pts de chaîne - Message",
-				
+
 				"RAID_ID": "Raid reçu - ID utilisateur·ice",
 				"RAID_NAME": "Raid reçu - Pseudo",
 				"RAID_AVATAR": "Raid reçu - Avatar",
 				"RAID_COUNT": "Raid reçu - Viewers",
-				
+
 				"WATCH_STREAK_ID": "Visionnage consécutif - ID utilisateur·ice",
 				"WATCH_STREAK_NAME": "Visionnage consécutif - Pseudo",
 				"WATCH_STREAK_AVATAR": "Visionnage consécutif - Avatar",
 				"WATCH_STREAK_COUNT": "Visionnage consécutif - Nombre",
-				
+
 				"KOFI_TIP_NAME": "Ko-Fi don - Pseudo",
 				"KOFI_TIP_AMOUNT": "Ko-Fi don - Montant",
 				"KOFI_MERCH_USER": "Ko-Fi merch - Pseudo",
 				"KOFI_MERCH_NAME": "Ko-Fi merch - Article",
 				"KOFI_MERCH_AMOUNT": "Ko-Fi merch - Prix",
-				
+
 				"STREAMLABS_TIP_NAME": "Streamlabs don - Pseudo",
 				"STREAMLABS_TIP_AMOUNT": "Streamlabs don - Montant",
 				"STREAMLABS_MERCH_USER": "Streamlabs merch - Pseudo",
@@ -454,7 +454,7 @@
 				"STREAMLABS_CHARITY_LAST_TIP_USER": "Campagne SL Charity - Dernier·e donnateurice",
 				"STREAMLABS_CHARITY_LAST_TIP_AMOUNT": "Campagne SL Charity - Dernier don",
 				"STREAMLABS_CHARITY_RAISED_PERSONNAL": "Campagne SL Charity - montant récolté perso",
-				
+
 				"TILTIFY_NAME": "Campagne Tiltify - nom",
 				"TILTIFY_IMAGE": "Campagne Tiltify - image",
 				"TILTIFY_RAISED": "Campagne Tiltify - montant récolté global",
@@ -462,51 +462,51 @@
 				"TILTIFY_LAST_TIP_USER": "Campagne Tiltify - Dernier·e donnateurice",
 				"TILTIFY_LAST_TIP_AMOUNT": "Campagne Tiltify - Dernier tip",
 				"TILTIFY_RAISED_PERSONNAL": "Campagne Tiltify - montant récolté perso",
-				
+
 				"TIPEEE_TIP_NAME": "Tipeee don - Pseudo",
 				"TIPEEE_TIP_AMOUNT": "Tipeee don - Montant",
-				
+
 				"SUB_YOUTUBE_ID": "Sub YouTube - ID utilisateur·ice",
 				"SUB_YOUTUBE_NAME": "Sub YouTube - Pseudo",
 				"SUB_YOUTUBE_AVATAR": "Sub YouTube - Avatar",
 				"SUB_YOUTUBE_TIER": "Sub YouTube - Niveau",
-				
+
 				"SUB_GENERIC_ID": "Sub (inclus YouTube & subgift) - ID utilisateur·ice",
 				"SUB_GENERIC_NAME": "Sub (inclus YouTube & subgift) - Pseudo",
 				"SUB_GENERIC_AVATAR": "Sub (inclus YouTube & subgift) - Avatar",
 				"SUB_GENERIC_TIER": "Sub (inclus YouTube & subgift) - Niveau",
-				
+
 				"SUBGIFT_YOUTUBE_ID": "Subgift YouTube - ID utilisateur·ice",
 				"SUBGIFT_YOUTUBE_NAME": "Subgift YouTube - Pseudo",
 				"SUBGIFT_YOUTUBE_AVATAR": "Subgift YouTube - Avatar",
 				"SUBGIFT_YOUTUBE_TIER": "Subgift YouTube - Niveau",
 				"SUBGIFT_YOUTUBE_COUNT": "Subgift YouTube - Nombre",
-				
+
 				"SUBGIFT_GENERIC_ID": "Subgift (inclus YouTube) - ID utilisateur·ice",
 				"SUBGIFT_GENERIC_NAME": "Subgift (inclus YouTube) - Pseudo",
 				"SUBGIFT_GENERIC_AVATAR": "Subgift (inclus YouTube) - Avatar",
 				"SUBGIFT_GENERIC_TIER": "Subgift (inclus YouTube) - Niveau",
 				"SUBGIFT_GENERIC_COUNT": "Subgift (inclus YouTube) - Nombre",
-				
+
 				"SUPER_CHAT_ID": "Super chat YouTube - ID utilisateur·ice",
 				"SUPER_CHAT_NAME": "Super chat YouTube - Pseudo",
 				"SUPER_CHAT_AVATAR": "Super chat YouTube - Avatar",
 				"SUPER_CHAT_AMOUNT": "Super chat YouTube - Montant",
-				
+
 				"SUPER_STICKER_ID": "Super sticker YouTube - ID utilisateur·ice",
 				"SUPER_STICKER_NAME": "Super sticker YouTube - Pseudo",
 				"SUPER_STICKER_AVATAR": "Super sticker YouTube - Avatar",
 				"SUPER_STICKER_AMOUNT": "Super sticker YouTube - Montant",
 				"SUPER_STICKER_IMAGE": "Super sticker YouTube - Image",
-				
+
 				"VOICEMOD_EFFECT_TITLE": "Voicemod effet - Nom",
 				"VOICEMOD_EFFECT_ICON": "Voicemod effet - Icône",
-				
+
 				"MUSIC_TITLE": "Musique en cours - Titre",
 				"MUSIC_ARTIST": "Musique en cours - Artiste",
 				"MUSIC_ALBUM": "Musique en cours - Album",
 				"MUSIC_COVER": "Musique en cours - Image",
-				
+
 				"DATE": "Date actuelle",
 				"TIME": "Heure actuelle formatted",
 				"DATE_TIME": "Date et heure actuelles formattées",
@@ -514,7 +514,7 @@
 				"DAY": "Jour actuel",
 				"MONTH": "Mois actuel",
 				"YEAR": "Année actuelle",
-				
+
 				"HOURS": "Heure actuelle",
 				"MINUTES": "Minute actuelle",
 				"SECONDS": "Seconde actuelle",
@@ -532,19 +532,19 @@
 				"TWITCH_CHARITY_LAST_TIP_USER": "Twitch Charity - Dernier·e donnateurice",
 				"TWITCH_CHARITY_LAST_TIP_AMOUNT": "Twitch Charity - Dernier don",
 				"TWITCH_CHARITY_LAST_TIP_AVATAR": "Twitch Charity - Avatar du dernier don",
-				
+
 				"POWER_UP_GIANTIFIED_ID": "Power-up Emote gigantisée - ID utilisateur·ice",
 				"POWER_UP_GIANTIFIED_NAME": "Power-up Emote gigantisée - Pseudo",
 				"POWER_UP_GIANTIFIED_AVATAR": "Power-up Emote gigantisée - Avatar",
 				"POWER_UP_GIANTIFIED_CODE": "Power-up Emote gigantisée - Code",
 				"POWER_UP_GIANTIFIED_IMAGE": "Power-up Emote gigantisée - Image",
-				
+
 				"POWER_UP_CELEBRATION_ID": "Power-up Célébration - ID utilisateur·ice",
 				"POWER_UP_CELEBRATION_NAME": "Power-up Célébration - Pseudo",
 				"POWER_UP_CELEBRATION_AVATAR": "Power-up Célébration - Avatar",
 				"POWER_UP_CELEBRATION_CODE": "Power-up Célébration - Code",
 				"POWER_UP_CELEBRATION_IMAGE": "Power-up Célébration - Image",
-				
+
 				"POWER_UP_MESSAGE_ID": "Power-up Message - ID utilisateur·ice",
 				"POWER_UP_MESSAGE_NAME": "Power-up Message - Pseudo",
 				"POWER_UP_MESSAGE_AVATAR": "Power-up Message - Avatar",
@@ -554,7 +554,7 @@
 				"PATREON_AMOUNT": "Patreon - Montant de l'abonnement",
 				"PATREON_AVATAR": "Patreon - Avatar",
 				"PATREON_MEMBER_COUNT": "Patreon - Nombre de membres actifs",
-				
+
 				"TIKTOK_VIEWER_COUNT": "TikTok - Viewers",
 				"TIKTOK_LIKE_TOTAL": "TikTok Like - Likes total du stream",
 				"TIKTOK_LIKE_USER": "TikTok Like - Pseudo",
