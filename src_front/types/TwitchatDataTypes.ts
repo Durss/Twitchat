@@ -781,7 +781,7 @@ export namespace TwitchatDataTypes {
 		 */
 		hideDelay:number;
 		/**
-		 * Number of items to display after the current goal
+		 * Should the number of items bellow the current one be limited
 		 */
 		limitEntryCount:boolean;
 		/**
@@ -2352,6 +2352,7 @@ export namespace TwitchatDataTypes {
 		OBS_SOURCE_TOGGLE:"obs_source_toggle",
 		OBS_FILTER_TOGGLE:"obs_filter_toggle",
 		HYPE_TRAIN_CANCEL:"hype_train_cancel",
+		GOAL_STEP_COMPLETE:"goal_step_complete",
 		TWITCH_CELEBRATION:"twitch_celebration",
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
 		RAFFLE_PICK_WINNER:"raffle_pick_winner",
@@ -2475,6 +2476,7 @@ export namespace TwitchatDataTypes {
 		low_trust_treatment:true,
 		ad_break_start_chat:true,
 		obs_recording_stop:false,
+		goal_step_complete:false,
 		obs_recording_start:false,
 		youtube_subscription:true,
 		hype_train_progress:false,
@@ -2642,6 +2644,7 @@ export namespace TwitchatDataTypes {
 									| MessageCharityDonationData
 									| MessagePrivateModeratorData
 									| MessagePlayabilityInputData
+									| MessageGoalStepCompleteData
 	;
 
 	/**
@@ -5528,6 +5531,12 @@ export namespace TwitchatDataTypes {
 		user:TwitchatUser;
 	}
 
+	/**
+	 * Represents a stack of trigger that have been suspended.
+	 * This happens when an infinite recursive call stack is detected
+	 * This message is sent when execution is paused.
+	 * Users has a button to resume execution
+	 */
 	export interface MessageSuspendedTriggerStackData extends AbstractTwitchatMessage {
 		type:"suspended_trigger_stack";
 		/**
@@ -5536,6 +5545,9 @@ export namespace TwitchatDataTypes {
 		triggerStack:TriggerCallStack;
 	}
 
+	/**
+	 * Represents a donation made on twitch charity
+	 */
 	export interface MessageCharityDonationData extends AbstractTwitchatMessage {
 		type:"twitch_charity_donation";
 		/**
@@ -5580,6 +5592,9 @@ export namespace TwitchatDataTypes {
 		}
 	}
 
+	/**
+	 * Represents a private moderator message
+	 */
 	export interface MessagePrivateModeratorData extends TranslatableMessage {
 		type:"private_mod_message";
 		/**
@@ -5612,6 +5627,9 @@ export namespace TwitchatDataTypes {
 		toChannelId?:string;
 	}
 
+	/**
+	 * Represents a PlayAbility event
+	 */
 	export interface MessagePlayabilityInputData extends AbstractTwitchatMessage {
 		type:"playability_input";
 		/**
@@ -5626,6 +5644,24 @@ export namespace TwitchatDataTypes {
 		 * input value
 		 */
 		inputValue:number|boolean;
+	}
 
+	/**
+	 * Represents a Goal's overlay step completion
+	 */
+	export interface MessageGoalStepCompleteData extends AbstractTwitchatMessage {
+		type:"goal_step_complete";
+		/**
+		 * Index of the completed step
+		 */
+		stepIndex:number;
+		/**
+		 * Goal overlay data
+		 */
+		goalConfig:DonationGoalOverlayConfig
+		/**
+		 * Completed step info
+		 */
+		stepConfig:DonationGoalOverlayConfig["goalList"][number];
 	}
 }

@@ -1836,6 +1836,44 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.GOAL_STEP_COMPLETE: {
+					const fakeStep:TwitchatDataTypes.DonationGoalOverlayConfig["goalList"][number] = {
+						amount:132,
+						id:"068bdae5-2936-4659-0000-cc2725ca63f8",
+						secret:false,
+						title:"My amazing step",
+					};
+					const m:TwitchatDataTypes.MessageGoalStepCompleteData = {
+						id:Utils.getUUID(),
+						type:TwitchatDataTypes.TwitchatMessageType.GOAL_STEP_COMPLETE,
+						date:Date.now(),
+						channel_id:StoreProxy.auth.twitch.user.id,
+						platform:"twitchat",
+						goalConfig: {
+							id:"068bdae5-2936-4659-0001-cc2725ca63f8",
+							autoDisplay:true,
+							color:"#6441a5",
+							currency:"USD",
+							dataSource:"counter",
+							enabled:true,
+							goalList: [
+								fakeStep,
+							],
+							hideDelay:0,
+							hideDone:true,
+							limitEntryCount:false,
+							maxDisplayedEntries:1,
+							notifyTips:true,
+							title:"My amazing goal",
+						},
+						stepConfig:fakeStep,
+						stepIndex:0,
+					};
+
+					data = m;
+					break;
+				}
+
 				default: {
 					let message = "The request message type \""+type+"\" is lacking implementation on storeDebug."
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);

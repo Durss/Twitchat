@@ -956,11 +956,20 @@
 			"tiktok_like_total":"Nombtre de likes reçus durant ce stream",
 			"tiktok_diamonds":"Diamants reçus",
 			"tiktok_sub_month":"Mois d'abonnement",
+			"playability_inputName":"Nom de l'input",
+			"playability_inputType":"Type d'input",
+			"playability_inputValue":"Valeur de l'input",
 			"playability_inputType_axis":"Stick manette",
 			"playability_inputType_button":"Bouton manette",
 			"playability_inputType_keyboard":"Touche de clavier",
 			"playability_inputType_mouseButton":"Click souris",
-			"playability_inputType_trigger":"Gachette manette"
+			"playability_inputType_trigger":"Gachette manette",
+			"goal_step_id":"ID de l'étape",
+			"goal_step_index":"Index de l'étape (débute à 0)",
+			"goal_step_title":"Titre de l'étape",
+			"goal_step_secret":"Étape secrète ?",
+			"goal_overlay_id":"ID de l'overlay d'objectifs",
+			"goal_overlay_title":"Titre de l'overlay d'objectifs"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1622,6 +1631,10 @@
 			"PLAYABILITY_INPUT": {
 				"label":"Action déclenchée par PlayAbility",
 				"description": "Actions à exécuter lorsqu'une action est déclenchée par PlayAbility"
+			},
+			"GOAL_STEP_COMPLETE": {
+				"label":"Objectif remplit (overlay Goals)",
+				"description": "Actions à exécuter lorsqu'une étape d'un objectif est complétée"
 			}
 		},
 		"musicEvents": {

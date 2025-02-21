@@ -963,7 +963,13 @@
 			"playability_inputType_button":"Gamepad Button",
 			"playability_inputType_keyboard":"Keyboard key",
 			"playability_inputType_mouseButton":"Mouse click",
-			"playability_inputType_trigger":"Gamepad Trigger"
+			"playability_inputType_trigger":"Gamepad Trigger",
+			"goal_step_id":"Step ID",
+			"goal_step_index":"Step index (fist is 0)",
+			"goal_step_title":"Step title",
+			"goal_step_secret":"Is secret step?",
+			"goal_overlay_id":"Goal overlay ID",
+			"goal_overlay_title":"Goal overlay title"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1625,6 +1631,10 @@
 			"PLAYABILITY_INPUT": {
 				"label":"Action triggered on PlayAbility",
 				"description": "Actions to execute when an action is triggered by PlayAbility"
+			},
+			"GOAL_STEP_COMPLETE": {
+				"label":"Goal overlay step complete",
+				"description": "Actions to execute when a step of a Goal completes"
 			}
 		},
 		"musicEvents": {

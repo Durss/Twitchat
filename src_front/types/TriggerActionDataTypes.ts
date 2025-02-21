@@ -1491,6 +1491,7 @@ export const TriggerTypes = {
 	PLAYABILITY_INPUT:"157",
 	HIGHLIGHT_CHAT_MESSAGE_CLOSE:"158",
 	MESSAGE_ANSWER:"159",
+	GOAL_STEP_COMPLETE:"160",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -2396,6 +2397,15 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"INPUT_VALUE", descKey:'triggers.placeholders.playability_inputValue', pointer:"inputValue", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessagePlayabilityInputData>,
 	];
 
+	map[TriggerTypes.GOAL_STEP_COMPLETE] = [
+		{tag:"STEP_ID", descKey:'triggers.placeholders.goal_step_id', pointer:"stepConfig.id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
+		{tag:"STEP_INDEX", descKey:'triggers.placeholders.goal_step_index', pointer:"stepIndex", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
+		{tag:"STEP_TITLE", descKey:'triggers.placeholders.goal_step_title', pointer:"stepConfig.title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
+		{tag:"STEP_SECRET", descKey:'triggers.placeholders.goal_step_index', pointer:"stepConfig.secret", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
+		{tag:"GOALS_ID", descKey:'triggers.placeholders.goal_overlay_id', pointer:"goalConfig.id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
+		{tag:"GOALS_TITLE", descKey:'triggers.placeholders.goal_overlay_title', pointer:"goalConfig.title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
+	];
+
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder<any>[] = [];
 	for (let i = 0; i < counters.length; i++) {
@@ -2726,6 +2736,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.MISC, icon:"heat", labelKey:"triggers.events.HEAT_CLICK.label", value:TriggerTypes.HEAT_CLICK, descriptionKey:"triggers.events.HEAT_CLICK.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK},
 		{category:TriggerEventTypeCategories.MISC, icon:"credits", labelKey:"triggers.events.CREDITS_COMPLETE.label", value:TriggerTypes.CREDITS_COMPLETE, descriptionKey:"triggers.events.CREDITS_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CREDITS_COMPLETE},
 		{category:TriggerEventTypeCategories.MISC, icon:"playability", labelKey:"triggers.events.PLAYABILITY_INPUT.label", value:TriggerTypes.PLAYABILITY_INPUT, descriptionKey:"triggers.events.PLAYABILITY_INPUT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.PLAYABILITY_INPUT},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V16, category:TriggerEventTypeCategories.MISC, icon:"goal", labelKey:"triggers.events.GOAL_STEP_COMPLETE.label", value:TriggerTypes.GOAL_STEP_COMPLETE, descriptionKey:"triggers.events.GOAL_STEP_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOAL_STEP_COMPLETE},
 
 		{category:TriggerEventTypeCategories.COUNTER_VALUE, icon:"count", labelKey:"triggers.events.COUNTER_EDIT.label", value:TriggerTypes.COUNTER_EDIT, descriptionKey:"triggers.events.COUNTER_EDIT.description", isCategory:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
 		{category:TriggerEventTypeCategories.COUNTER_VALUE, icon:"add", labelKey:"triggers.events.COUNTER_ADD.label", value:TriggerTypes.COUNTER_ADD, descriptionKey:"triggers.events.COUNTER_ADD.description", isCategory:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
