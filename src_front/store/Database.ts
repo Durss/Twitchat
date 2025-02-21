@@ -69,6 +69,14 @@ export default class Database {
 					// await this.clearGroqHistory();
 				}else{
 					try {
+						//These should remain within the onupgradeneeded() callback but for some
+						//reason it sometimes failed to create a new table after a version upgrade
+						//while still upgrading the DB version.
+						//This stuck the users with a missing table.
+						//So as a fallback, we create tables here if they don't exist.
+						await this.createMessageTable();
+						await this.createGroqTable();
+
 						await this.limitMessageCount();
 						await this.limitGroqCount();
 					}catch(error) {
@@ -86,28 +94,8 @@ export default class Database {
 			this._dbConnection.onupgradeneeded = async (event) => {
 				this._ready = false;
 				this._db = (event.target as any)?.result;
-				// Create MESSAGES_TABLE if it doesn't exist
-				if (!this._db.objectStoreNames.contains(Database.MESSAGES_TABLE)) {
-					this._messageStore = this._db.createObjectStore(Database.MESSAGES_TABLE, { autoIncrement: true });
-					this._messageStore.createIndex("id", "id", { unique: true });
-					await new Promise<void>((resolve)=>{
-						this._messageStore.transaction.oncomplete = (event) => {
-							resolve();
-						}
-					});
-				}
-
-				// Create GROQ_HISTORY_TABLE if it doesn't exist
-				if (!this._db.objectStoreNames.contains(Database.GROQ_HISTORY_TABLE)) {
-					this._groqStore = this._db.createObjectStore(Database.GROQ_HISTORY_TABLE, { autoIncrement: true });
-					this._groqStore.createIndex("id", "id", { unique: true });
-					await new Promise<void>((resolve)=>{
-						this._groqStore.transaction.oncomplete = (event) => {
-							resolve();
-						}
-					});
-				}
-
+				await this.createMessageTable();
+				await this.createGroqTable();
 				this._versionUpgraded = (event.newVersion || 0) > event.oldVersion;
 				this._ready = true;
 			};
@@ -461,5 +449,33 @@ export default class Database {
 		const clone = JSON.parse(json);
 
 		return {data:clone, json};
+	}
+
+	private async createMessageTable():Promise<void> {
+		const tableList = this._db.objectStoreNames;
+		// Create MESSAGES_TABLE if it doesn't exist
+		if (!tableList.contains(Database.MESSAGES_TABLE)) {
+			this._messageStore = this._db.createObjectStore(Database.MESSAGES_TABLE, { autoIncrement: true });
+			this._messageStore.createIndex("id", "id", { unique: true });
+			await new Promise<void>((resolve)=>{
+				this._messageStore.transaction.oncomplete = (event) => {
+					resolve();
+				}
+			});
+		}
+	}
+
+	private async createGroqTable():Promise<void> {
+		const tableList = this._db.objectStoreNames;
+		// Create GROQ_HISTORY_TABLE if it doesn't exist
+		if (!tableList.contains(Database.GROQ_HISTORY_TABLE)) {
+			this._groqStore = this._db.createObjectStore(Database.GROQ_HISTORY_TABLE, { autoIncrement: true });
+			this._groqStore.createIndex("id", "id", { unique: true });
+			await new Promise<void>((resolve)=>{
+				this._groqStore.transaction.oncomplete = (event) => {
+					resolve();
+				}
+			});
+		}
 	}
 }
