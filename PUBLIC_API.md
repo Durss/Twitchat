@@ -369,9 +369,9 @@ Sent when a countdown start
 ### JSON param
 ```typescript
 {
-	startAt:string,//formated date
+	startAt:string,//formatted date
 	startAt_ms:number,//Timestamp in ms
-	duration:number,//Duration formated
+	duration:number,//Duration formatted
 	duration_ms:number,//Duration in ms
 }
 ```
@@ -380,11 +380,11 @@ Sent when a countdown completes
 ### JSON param
 ```typescript
 {
-	startAt:string,//formated date
+	startAt:string,//formatted date
 	startAt_ms:number,//Timestamp in ms
-	endAt:string,//formated date
+	endAt:string,//formatted date
 	endAt_ms:number,//Timestamp in ms
-	duration:number,//Duration formated
+	duration:number,//Duration formatted
 	duration_ms:number,//Duration in ms
 }
 ```

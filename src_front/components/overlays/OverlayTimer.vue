@@ -32,9 +32,10 @@ class OverlayTimer extends AbstractOverlay {
 	public timerValue:string = "";
 	public countdownValue:string = "";
 
+	private overlayId:string = "";
 	private intervalUpdate:number = -1;
 	private timerData:TwitchatDataTypes.TimerData|null = null;
-	private countdownData:TwitchatDataTypes.CountdownData|null = null;
+	private countdownData:TwitchatDataTypes.TimerData|null = null;
 
 	private timerEventHandler!:(e:TwitchatEvent)=>void;
 	private countdownEventHandler!:(e:TwitchatEvent)=>void;
@@ -51,7 +52,9 @@ class OverlayTimer extends AbstractOverlay {
 		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTDOWN_COMPLETE, this.countdownEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GET_TIMER_OVERLAY_PRESENCE, this.timerPresenceHandler);
 
-		this.intervalUpdate = window.setInterval(()=>{ this.computeValues() }, 1000)
+		this.intervalUpdate = window.setInterval(()=>{ this.computeValues() }, 1000);
+
+		this.overlayId = this.$route.query.tid as string ?? "";
 	}
 
 	public beforeUnmount():void {
@@ -64,19 +67,21 @@ class OverlayTimer extends AbstractOverlay {
 	}
 
 	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_CURRENT_TIMERS);
+		PublicAPI.instance.broadcast(TwitchatEvent.GET_CURRENT_TIMERS, {id:this.overlayId});
 	}
 
 	public async onTimerEvent(e:TwitchatEvent):Promise<void> {
-		if(e.type == TwitchatEvent.TIMER_START) {
-			this.timerData = (e.data as unknown) as TwitchatDataTypes.TimerData;
-			this.computeValues();
+		const data = (e.data as unknown) as TwitchatDataTypes.TimerData;
+		if(data.id != this.overlayId
+		&& !(data.isDefault && this.overlayId == "")) return;
 
-			if(!this.$refs.timer) {
-				await this.$nextTick();
-				gsap.from(this.$refs.timer as HTMLDivElement, {duration:.7, y:"-100%"});
-			}
-		}else{
+		if(e.type == TwitchatEvent.TIMER_START) {
+			this.timerData = data;
+			this.computeValues();
+			await this.$nextTick();
+			if(this.$refs.timer) gsap.fromTo(this.$refs.timer as HTMLDivElement, {y:"-100%"}, {duration:.7, y:"0%"});
+
+		}else if(this.$refs.timer) {
 			gsap.to(this.$refs.timer as HTMLDivElement, {duration:.7, y:"-100%", onComplete:()=> {
 				this.timerData = null;
 				this.timerValue = "";
@@ -85,15 +90,17 @@ class OverlayTimer extends AbstractOverlay {
 	}
 
 	public async onCountdownEvent(e:TwitchatEvent):Promise<void> {
-		if(e.type == TwitchatEvent.COUNTDOWN_START) {
-			this.countdownData = (e.data as unknown) as TwitchatDataTypes.CountdownData;
-			this.computeValues();
+		const data = (e.data as unknown) as TwitchatDataTypes.TimerData;
+		if(data.id != this.overlayId
+		&& !(data.isDefault && this.overlayId == ""))	return;
 
-			if(!this.$refs.countdown) {
-				await this.$nextTick();
-				gsap.from(this.$refs.countdown as HTMLDivElement, {duration:.7, y:"-100%"});
-			}
-		}else{
+		if(e.type == TwitchatEvent.COUNTDOWN_START) {
+			this.countdownData = data;
+			this.computeValues();
+			await this.$nextTick();
+			if(this.$refs.countdown) gsap.from(this.$refs.countdown as HTMLDivElement, {duration:.7, y:"-100%"});
+
+		}else if(this.$refs.countdown) {
 			gsap.to(this.$refs.countdown as HTMLDivElement, {duration:.7, y:"-100%", onComplete:()=>{
 				this.countdownData = null;
 				this.countdownValue = "";
@@ -102,23 +109,24 @@ class OverlayTimer extends AbstractOverlay {
 	}
 
 	public computeValues():void {
-		if(this.countdownData) {
+		if(this.countdownData && this.countdownData.startAt_ms) {
 			let elapsed = Date.now() - this.countdownData.startAt_ms;
 			if(this.countdownData.paused) {
-				elapsed -= Date.now() - this.countdownData.pausedAt!;
+				elapsed -= Date.now() - this.countdownData.pausedAt_ms!;
 			}
-			elapsed -= this.countdownData.pausedDuration;
+			elapsed -= this.countdownData.pauseDuration_ms;
 			const remaining = Math.round((this.countdownData.duration_ms - elapsed)/1000)*1000;
-			this.countdownValue = Utils.formatDuration(remaining, false, this.countdownData.labels.days);
+			this.countdownValue = Utils.formatDuration(remaining, false, "d");
 		}else{
 			this.countdownValue = "";
 		}
-		if(this.timerData) {
+
+		if(this.timerData && this.timerData.startAt_ms) {
 			let elapsed = Math.floor((Date.now() - this.timerData.startAt_ms + this.timerData.offset_ms)/1000)*1000;
 			if(this.timerData.paused) {
-				elapsed -= Date.now() - this.timerData.pausedAt!;
+				elapsed -= Date.now() - this.timerData.pausedAt_ms!;
 			}
-			this.timerValue = Utils.formatDuration(elapsed, false, this.timerData.labels.days);
+			this.timerValue = Utils.formatDuration(elapsed, false, "d");
 		}else{
 			this.timerValue = "";
 		}

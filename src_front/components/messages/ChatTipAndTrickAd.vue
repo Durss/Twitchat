@@ -6,7 +6,7 @@
 			<div>{{ $t("tips.alerts.info_1") }}</div>
 			<TTButton primary light @click.stop="openParamPage(contentTriggers)" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
-		
+
 		<div v-if="tipIndex===1" class="entry">
 			<img src="@/assets/icons/elgato.svg" alt="elgato" class="icon">
 			<h1>{{ $t('tips.streamdeck.title') }}</h1>
@@ -14,21 +14,21 @@
 			<div>{{ $t('tips.streamdeck.info_2') }}</div>
 			<TTButton primary light @click.stop="openParamPage(contentConnexions, subcontentStreamdeck)" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
-		
+
 		<div v-if="tipIndex===2" class="entry">
 			<img src="@/assets/icons/raid.svg" alt="raid" class="icon">
 			<h1>{{ $t('tips.obs_stop.title') }}</h1>
 			<div>{{ $t('tips.obs_stop.info_1') }}</div>
 			<TTButton primary light @click.stop="openParamItem('features.stopStreamOnRaid')" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
-		
+
 		<div v-if="tipIndex===3" class="entry">
 			<img src="@/assets/icons/bingo.svg" alt="bingo" class="icon">
 			<h1>{{ $t('tips.bingo.title') }}</h1>
 			<div>{{ $t('tips.bingo.info_1') }}</div>
 			<TTButton primary light @click.stop="openModal('bingo')" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
-		
+
 		<div v-if="tipIndex===4" class="entry">
 			<img src="@/assets/icons/ticket.svg" alt="raffle" class="icon">
 			<h1>{{ $t('tips.raffle.title') }}</h1>
@@ -36,7 +36,7 @@
 			<div>{{ $t('tips.raffle.info_2') }}</div>
 			<TTButton primary light @click.stop="openModal('raffle')" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
-		
+
 		<div v-if="tipIndex===5" class="entry">
 			<img src="@/assets/icons/obs.svg" alt="obs" class="icon">
 			<h1>{{ $t('tips.obs.title') }}</h1>
@@ -44,7 +44,7 @@
 			<div>{{ $t('tips.obs.info_2') }}</div>
 			<TTButton primary light @click.stop="openParamPage(contentConnexions, subcontentObs)" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
-		
+
 		<div v-if="tipIndex===6" class="entry">
 			<img src="@/assets/icons/api.svg" alt="api" class="icon">
 			<h1>{{ $t('tips.api.title') }}</h1>
@@ -55,7 +55,7 @@
 				target="_blank"
 				type="link">{{ $t('tips.api.readBt') }}</TTButton>
 		</div>
-		
+
 		<div v-if="tipIndex===7" class="entry">
 			<img src="@/assets/icons/music.svg" alt="music" class="icon">
 			<h1>{{ $t('tips.music.title') }}</h1>
@@ -63,7 +63,7 @@
 			<div>{{ $t('tips.music.info_2') }}</div>
 			<TTButton primary light @click.stop="openParamPage(contentConnexions, subcontentSpotify)" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
-		
+
 		<div v-if="tipIndex===8" class="entry">
 			<img src="@/assets/icons/overlay.svg" alt="overlay" class="icon">
 			<h1>{{ $t('tips.overlays.title') }}</h1>
@@ -71,7 +71,7 @@
 			<div v-html="$t('tips.overlays.info_2')"></div>
 			<TTButton primary light @click.stop="openParamPage(contentOverlays)" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
-		
+
 		<div v-if="tipIndex===9" class="entry">
 			<img src="@/assets/icons/countdown.svg" alt="timer" class="icon">
 			<h1>{{ $t('tips.countdown.title') }}</h1>
@@ -81,7 +81,7 @@
 			</i18n-t>
 			<TTButton primary light icon="countdown" @click.stop="openModal('timer')">{{ $t('tips.tryBt') }}</TTButton>
 		</div>
-		
+
 		<div v-if="tipIndex===10" class="entry">
 			<img src="@/assets/icons/obs.svg" alt="obs dock" class="icon">
 			<h1>{{ $t('tips.dock.title') }}</h1>
@@ -89,12 +89,12 @@
 			<div v-html="$t('tips.dock.info_2')"></div>
 			<img src="@/assets/img/obs_dock.png" alt="obs dock screen">
 		</div>
-		
+
 		<div v-if="tipIndex===11" class="entry">
 			<img src="@/assets/icons/highlight.svg" alt="chat highlight" class="icon">
 			<h1>{{ $t('tips.highlight.title') }}</h1>
 			<div>{{ $t('tips.highlight.info') }}</div>
-			
+
 			<a class="demo" href="https://www.youtube.com/watch?v=Yv3ACHtNj3Q" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.jpg" class="cover"></a>
 
 			<TTButton primary light @click.stop="openParamPage(contentOverlays, contentChatHighlight)" icon="overlay">{{ $t('tips.highlight.config_overlayBt') }}</TTButton>
@@ -133,8 +133,8 @@ class ChatTipAndTrickAd extends Vue {
 	}
 
 	public openModal(modal:TwitchatDataTypes.ModalTypes):void { this.$emit("showModal", modal); }
-	public startTimer():void { this.$store.timer.timerStart(); }
-	public startCountdown():void { this.$store.timer.countdownStart(2 * 60 * 1000); }
+	public startTimer():void { this.$store.timers.timerStart(); }
+	public startCountdown():void { this.$store.timers.countdownStart(2 * 60 * 1000); }
 	public openParamItem(paramPath:string):void { this.$store.params.searchParamByPath(paramPath); }
 	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType, subContent?:TwitchatDataTypes.ParamDeepSectionsStringType):void { this.$store.params.openParamsPage(page, subContent); }
 

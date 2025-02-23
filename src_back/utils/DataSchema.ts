@@ -2292,6 +2292,35 @@ const UserDataSchema = {
 				defaultModel: {type:"string", maxLength:100},
 			}
 		},
+
+		timersConfigs:{
+			type: "object",
+			properties: {
+				timerList: {
+					type:"array",
+					minItems:0,
+					maxItems:100,
+					items:{
+						type: "object",
+						properties: {
+							id: { type: "string" },
+							enabled: { type: "boolean" },
+							isDefault: { type: "boolean" },
+							title: { type: "string" },
+							type: { enum: ["timer", "countdown"] },
+							placeholderKey: { type: "string", maxLength:50 },
+							startAt_ms: { type: "number", nullable: true },
+							offset_ms: { type: "number" },
+							pauseDuration_ms: { type: "number" },
+							paused: { type: "boolean" },
+							pausedAt_ms: { type: "number", nullable: true },
+							endAt_ms: { type: "number", nullable: true },
+							duration_ms: { type: "number" }
+						}
+					}
+				},
+			}
+		},
 	}
 }
 

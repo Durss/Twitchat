@@ -1,6 +1,6 @@
 <template>
 	<div class="livefollowings sidePanel" :class="{needPermission:!canRaid}">
-		
+
 		<div class="head">
 			<h1 v-if="showRaidHistory" ><Icon name="user" class="icon" />{{$t('raid.raid_historyBt')}}</h1>
 			<h1 v-else><Icon name="user" class="icon" />{{$t('cmdmenu.whoslive_title')}}</h1>
@@ -11,7 +11,7 @@
 				<TTButton class="actionBt" small v-else icon="live" @click="showRaidHistory = false">{{ $t("raid.raid_liveBt") }}</TTButton>
 			</template>
 		</div>
-		
+
 		<div class="content">
 			<Icon name="loader" alt="loading" class="loader" v-if="loading" />
 
@@ -29,7 +29,7 @@
 					<div class="date">{{ $t("liveusers.date", {DURATION:getElapsedDuration(entry.date)}) }}</div>
 				</a>
 			</div>
-			
+
 			<div class="list" v-else>
 				<a :href="'https://twitch.tv/'+s.user_login" v-for="s in streams" :key="s.id" class="card-item stream" ref="streamCard" @click.prevent="raid(s.user_login)">
 					<div class="header">
@@ -139,10 +139,6 @@ class LiveFollowings extends AbstractSidePanel {
 		return Utils.elapsedDuration(last.date);
 	}
 
-	public getFormatedDate(date:number) {
-		return Utils.formatDate(new Date(date), true);
-	}
-
 	public getElapsedDuration(date:number) {
 		return Utils.elapsedDuration(date);
 	}
@@ -182,7 +178,7 @@ class LiveFollowings extends AbstractSidePanel {
 			for (let i = 0; i < cards.length; i++) {
 				gsap.from(cards[i], {duration:.25, opacity:0, y:-20, delay:i*.02})
 			}
-	
+
 			for (let i = 0; i < res.length; i++) {
 				if(this.disposed) break;
 				TwitchUtils.getRoomSettings(res[i].user_id).then(roomSettings => {
@@ -249,7 +245,7 @@ export default toNative(LiveFollowings);
 
 	&.needPermission {
 		.content>.list>.stream:hover {
-			
+
 			background-color: var(--color-alert);
 			.header {
 				background-color: var(--color-alert-light);
@@ -301,7 +297,7 @@ export default toNative(LiveFollowings);
 				flex-direction: column;
 				text-decoration: none;
 				color: var(--color-text);
-	
+
 				&:hover {
 					cursor: pointer;
 					background-color: var(--color-primary);
@@ -324,7 +320,7 @@ export default toNative(LiveFollowings);
 						}
 					}
 				}
-	
+
 				.details {
 					font-size: .8em;
 					gap: .5em;
@@ -345,7 +341,7 @@ export default toNative(LiveFollowings);
 						max-width: 100%;
 						overflow-wrap: break-word;
 					}
-	
+
 					.footer {
 						font-size: .9em;
 						display: flex;
@@ -382,8 +378,8 @@ export default toNative(LiveFollowings);
 							display: none;
 						}
 					}
-		
-					.raidBt, .permissionBt{
+
+					.raidBt, permissionBt{
 						.center();
 						position: absolute;
 						opacity: 0;

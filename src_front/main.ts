@@ -249,7 +249,7 @@ function buildApp() {
 	StoreProxy.default.raffle = storeRaffle();
 	StoreProxy.default.rewards = storeRewards();
 	StoreProxy.default.stream = storeStream();
-	StoreProxy.default.timer = storeTimer();
+	StoreProxy.default.timers = storeTimer();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.default.triggers = (storeTriggers() as unknown) as StoreProxy.ITriggersState & StoreProxy.ITriggersGetters & StoreProxy.ITriggersActions & { $state: StoreProxy.ITriggersState; $reset:()=>void };
 	StoreProxy.default.tts = storeTTS();

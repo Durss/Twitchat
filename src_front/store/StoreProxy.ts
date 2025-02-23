@@ -43,7 +43,7 @@ export default class StoreProxy {
 	public static prediction:IPredictionState & IPredictionGetters & IPredictionActions & {$state:IPredictionState, $reset:()=>void};
 	public static raffle:IRaffleState & IRaffleGetters & IRaffleActions & {$state:IRaffleState, $reset:()=>void};
 	public static stream:IStreamState & IStreamGetters & IStreamActions & {$state:IStreamState, $reset:()=>void};
-	public static timer:ITimerState & ITimerGetters & ITimerActions & {$state:ITimerState, $reset:()=>void};
+	public static timers:ITimerState & ITimerGetters & ITimerActions & {$state:ITimerState, $reset:()=>void};
 	public static triggers:ITriggersState & ITriggersGetters & ITriggersActions & {$state:ITriggersState, $reset:()=>void};
 	public static tts:ITTSState & ITTSGetters & ITTSActions & {$state:ITTSState , $reset:()=>void};
 	public static users:IUsersState & IUsersGetters & IUsersActions & {$state:IUsersState, $reset:()=>void};
@@ -1439,31 +1439,10 @@ export interface IStreamActions {
 
 
 export interface ITimerState {
-	// /**
-	//  * Date at which the current timer started
-	//  */
-	// timerStartDate: number;
-	// /**
-	//  * Offset to apply to the current timer.
-	//  * Allows to add or remove time from a the timer
-	//  */
-	// timerOffset: number;
-	// /**
-	//  * Is the timer paused ?
-	//  */
-	// timerPaused: boolean;
-	// /**
-	//  * Date at which the timer was paused
-	//  */
-	// timerPausedAt: number;
 	/**
-	 * Current timer info
+	 * Timer's list
 	 */
-	timer: TwitchatDataTypes.TimerData|null;
-	/**
-	 * Current countdown info
-	 */
-	countdown: TwitchatDataTypes.CountdownData|null;
+	timerList: TwitchatDataTypes.TimerData[],
 }
 
 export interface ITimerGetters {
@@ -1471,62 +1450,60 @@ export interface ITimerGetters {
 
 export interface ITimerActions {
 	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
+	/**
 	 * Braodcast current timer and countdown statesvia the PublicAPI
 	 */
 	broadcastStates():void;
 	/**
+	 * Create a timer
+	 */
+	createTimer():void;
+	/**
+	 * Deletes given timer
+	 */
+	deleteTimer(id:string):void;
+	/**
 	 * Start the timer
 	 */
-	timerStart():void;
+	timerStart(id:string):void;
 	/**
 	 * Add a duration to the timer
 	 * @param duration_ms
 	 */
-	timerAdd(duration_ms:number):void;
+	timerAdd(id:string, duration_ms:number):void;
 	/**
 	 * Remove a duration from the timer
 	 * @param duration_ms
 	 */
-	timerRemove(duration_ms:number):void;
+	timerRemove(id:string, duration_ms:number):void;
 	/**
 	 * Pauses the timer
 	 */
-	timerPause():void;
+	timerPause(id:string):void;
 	/**
 	 * Unpauses the timer
 	 */
-	timerUnpause():void;
+	timerUnpause(id:string):void;
 	/**
 	 * Stop the timer
 	 */
-	timerStop():void;
+	timerStop(id:string):void;
 	/**
-	 * Start the countdown
-	 * @param durEation_ms
+	 * Resets the timer
 	 */
-	countdownStart(durEation_ms:number):void;
+	resetTimer(id:string):void;
 	/**
-	 * Add a duration to the countdown
-	 * @param duration_ms
+	 * Saves data to server
 	 */
-	countdownAdd(duration_ms:number):void;
+	saveData():void;
 	/**
-	 * Remove a duration from the countdown
-	 * @param duration_ms
+	 * Gets current timer/countdown computed value
+	 * Remaining time for a countodwn, elasped time for a timer
 	 */
-	countdownRemove(duration_ms:number):void;
-	/**
-	 * Pauses the countdown
-	 */
-	countdownPause():void;
-	/**
-	 * Unpauses the countdown
-	 */
-	countdownUnpause():void;
-	/**
-	 * Stop the countdown
-	 */
-	countdownStop(aborted?:boolean):void;
+	getTimerComputedValue(id:string):{duration_ms:number, duration_str:string}
 }
 
 

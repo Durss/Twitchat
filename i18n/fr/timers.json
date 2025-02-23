@@ -1,0 +1,34 @@
+{
+	"timers":{
+		"default":{
+			"title":"Chronomètre & Décompte",
+			"description":"Lancez un chronomètre ou un compte à rebours",
+			"timerBt":"Chrono",
+			"countdownBt":"Décompte",
+			"duration_param":"Durée (secondes)",
+			"timer_head":"Vous retrouverez le chronomètre dans la barre de tchat. Stoppez-le en cliquant dessus ou via la commande {CMD}.",
+			"countdown_head":"Vous retrouverez le compte à rebours dans la barre de tchat. Stoppez-le en cliquant dessus ou via la commande {CMD}.",
+			"timer_title": "Chronomètre par défaut",
+			"countdown_title": "Compte à rebours par défaut"
+		},
+
+		"header": "Créez des minuteurs, contrôlez-les depuis {LINK_TRIGGER} et {LINK_OVERLAY} sur votre stream",
+		"header_link_trigger": "les triggers",
+		"header_link_overlay": "affichez-les",
+		"addBt": "Créer un minuteur",
+		"premium_limit": "Vous avez créé le maximum de {MAX} minuteurs actifs.\nDevenez membre Premium pour créer jusqu'à {MAX_PREMIUM} minuteurs.\nOu désactivez / supprimez des minuteurs pour en créer de nouveaux.",
+		"delete_confirm": {
+			"title": "Supprimer le minuteur",
+			"message": "Êtes-vous sûr de vouloir supprimer ce minuteur ?"
+		},
+
+		"form": {
+			"param_type_timer": "Chronomètre",
+			"param_type_countdown": "Compte à rebours",
+			"param_duration": "Durée",
+			"param_placeholder": "Nom du placeholder",
+			"param_placeholder_tt": "Cette valeur vous permettra<br>de récupérer la valeur du<br>minuteur dans n'importe<br>quelle action de trigger",
+			"param_placeholder_conflict": "Un autre minuteur utilise déjà ce placeholder"
+		}
+	}
+}

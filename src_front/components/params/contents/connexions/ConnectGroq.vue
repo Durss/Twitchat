@@ -20,10 +20,15 @@
 					target="_blank"
 					light secondary>{{ $t("groq.install") }}</TTButton>
 			</div>
+
+			<i18n-t class="small" scope="global" tag="span" keypath="groq.disclaimer">
+				<template #GROQ>Gro<strong>Q</strong></template>
+				<template #GROK>Gro<strong>K</strong></template>
+			</i18n-t>
 		</div>
 
 		<div class="content">
-	
+
 			<TTButton class="connectBt" alert @click="disconnect()">{{ $t('global.disconnect') }}</TTButton>
 
 			<form class="card-item" v-if="!$store.groq.connected" @submit.prevent="connect()">
@@ -36,7 +41,7 @@
 				</div>
 			</form>
 			<div class="card-item alert error" v-if="error" @click="error=false">{{$t("groq.invalid_api_key")}}</div>
-	
+
 			<template v-if="$store.groq.connected">
 				<div class="card-item infos">
 					<i18n-t scope="global" keypath="groq.usage" tag="span">
@@ -54,7 +59,7 @@
 						<strong>{{ $store.groq.creditsTotal - $store.groq.creditsUsed }}</strong>
 					</template>
 				</i18n-t> -->
-	
+
 				<form class="card-item modelList">
 					<p class="head">{{ $t("groq.default_model") }}
 						<br><i><a href="https://groq.com/pricing/" target="_blank">{{ $t("groq.models_pricing") }}</a></i>
@@ -107,7 +112,7 @@ class ConnectElevenLabs extends Vue {
 	public connecting = false;
 
 	public param_apiKey:TwitchatDataTypes.ParameterData<string> = {value:"", type:"password", icon:"key", labelKey:"groq.apiKey", isPrivate:true};
-		
+
 	public get canConnect():boolean {
 		return this.param_apiKey.value.length >= 30;
 	}
@@ -136,7 +141,7 @@ class ConnectElevenLabs extends Vue {
 	}
 
 	public beforeMount():void {
-		
+
 	}
 
 	public async connect():Promise<void> {
@@ -150,7 +155,7 @@ class ConnectElevenLabs extends Vue {
 	public disconnect():void {
 		this.$store.groq.disconnect();
 	}
-	
+
 	public openTriggers():void {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
 	}
@@ -165,7 +170,7 @@ export default toNative(ConnectElevenLabs);
 		flex-direction: column;
 		align-items: center;
 		gap: 1em;
-	
+
 		form {
 			display: flex;
 			flex-direction: column;
@@ -242,6 +247,6 @@ export default toNative(ConnectElevenLabs);
 			}
 		}
 	}
-	
+
 }
 </style>

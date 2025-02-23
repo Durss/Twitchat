@@ -1,0 +1,34 @@
+{
+	"timers":{
+		"header": "Create custom timers, control them from {LINK_TRIGGER} and {LINK_OVERLAY} on your stream.",
+		"header_link_trigger": "the triggers",
+		"header_link_overlay": "display them",
+		"addBt": "Create timer",
+		"premium_limit": "You created the maximum number of {MAX} countters.\nBecome premium to create up to {MAX_PREMIUM} countters.\nOr disable / delete some countters to create new ones.",
+		"delete_confirm": {
+			"title": "Delete entry",
+			"message": "Are you sure you want to delete this entry?"
+		},
+
+		"default":{
+			"title":"Stopwatch & Countdown",
+			"description":"Start a Stopwatch or a countdown",
+			"timerBt":"Stopwatch",
+			"countdownBt":"Countdown",
+			"duration_param":"Duration (seconds)",
+			"timer_head":"You'll see the timer on the chat bar at the bottom of the screen. Stop it by clicking on it or via the command {CMD}.",
+			"countdown_head":"You'll see the countdown on the chat bar at the bottom of the screen. Stop it by clicking on it or via the command {CMD}.",
+			"timer_title": "Default timer",
+			"countdown_title": "Default countdown"
+		},
+
+		"form": {
+			"param_type_timer": "Stopwatch",
+			"param_type_countdown": "Countdown",
+			"param_duration": "Duration",
+			"param_placeholder": "Placeholder name",
+			"param_placeholder_tt": "This value will allow you<br>to get this entry's value<br>in any trigger action",
+			"param_placeholder_conflict": "Another timer already uses this placeholder"
+		}
+	}
+}

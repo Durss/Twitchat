@@ -54,8 +54,6 @@
 			<Icon name="tiktok" v-if="messageData.platform == 'tiktok'" v-tooltip="$t('chat.tiktok.platform_tiktok')" />
 
 			<div class="userBadges" v-if="filteredBadges.length > 0 || miniBadges.length > 0">
-
-
 				<tooltip v-for="(b,index) in filteredBadges" :key="index"
 				:content="'<div style=\'text-align:center\'><img src='+(b.icon.hd || b.icon.sd)+' width=\'64\' class=\'emote\'><br>'+b.title+'</div>'">
 					<Icon v-if="b.icon.sd.indexOf('http') == -1" :name="b.icon.sd" class="badge" v-tooltip="b.title" />

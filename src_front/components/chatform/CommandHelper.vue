@@ -86,7 +86,7 @@
 			<TTButton aria-label="Start a 120s ad"	v-if="adCooldown == 0" small @click.capture="startAd(120);"	:disabled="!canStartCommercial">2'00</TTButton>
 			<TTButton aria-label="Start a 150s ad"	v-if="adCooldown == 0" small @click.capture="startAd(150);"	:disabled="!canStartCommercial">2'30</TTButton>
 			<TTButton aria-label="Start a 180s ad"	v-if="adCooldown == 0" small @click.capture="startAd(180);"	:disabled="!canStartCommercial">3'00</TTButton>
-			<div v-if="adCooldown > 0" class="card-item alert cooldown">{{$t('cmdmenu.commercial', {DURATION:adCooldownFormated})}}</div>
+			<div v-if="adCooldown > 0" class="card-item alert cooldown">{{$t('cmdmenu.commercial', {DURATION:adCooldownFormatted})}}</div>
 		</div>
 
 		<ParamItem class="roomParam" :paramData="param_followOnly"	v-model="param_followOnly.value"	@change="setFollowOnly()"	@click="requestRoomSettingsScopes()"	noBackground />
@@ -106,13 +106,13 @@
 			<label class="title" for="raid_input">
 				<Icon name="raid" />{{$t('cmdmenu.raid')}}
 			</label>
-			
+
 			<SearchUserForm class="raidForm"
 				v-if="canRaid"
 				upwards
 				v-model="raidUser"
 				@select="raid"/>
-				
+
 			<div v-else class="missingScope">
 				<p>{{ $t('cmdmenu.scope_grant') }}</p>
 				<TTButton icon="unlock" alert small @click="requestRaidScopes()" >{{$t('cmdmenu.scope_grantBt')}}</TTButton>
@@ -177,7 +177,7 @@ class CommandHelper extends Vue {
 
 	private clickHandler!:(e:MouseEvent) => void;
 
-	public get adCooldownFormated():string { return Utils.formatDuration(this.adCooldown); }
+	public get adCooldownFormatted():string { return Utils.formatDuration(this.adCooldown); }
 	public get hasChannelPoints():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
 	public get canEditStreamInfos():boolean { return TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]); }
 	public get canStartCommercial():boolean { return TwitchUtils.hasScopes([TwitchScopes.START_COMMERCIAL]) && this.hasChannelPoints; }

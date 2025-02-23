@@ -274,7 +274,7 @@
 			"abort": "Le compte à rebours de {DURATION} a été arrêté après {ABORT_DURATION}"
 		},
 		"timer": {
-			"end": "Chronomètre terminé à {DURATION}"
+			"end": "Chronomètre terminé après {DURATION}"
 		},
 		"connect": {
 			"on": "Bienvenue sur la chaine {PLATFORM} de {ROOM}",

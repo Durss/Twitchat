@@ -75,6 +75,7 @@ export namespace TwitchatDataTypes {
 		AD: "ad",
 		CONNEXIONS: "connexions",
 		PREMIUM: "premium",
+		TIMERS: "timers",
 	} as const;
 	export type ParameterPagesStringType = typeof ParameterPages[keyof typeof ParameterPages];
 
@@ -1131,43 +1132,60 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Contains info about a countdown
-	 */
-	export interface CountdownData {
-		startAt:string;
-		startAt_ms:number;
-		endAt?:string;
-		endAt_ms?:number;
-		paused?:boolean;
-		aborted?:boolean;
-		pausedAt?:number;
-		pausedDuration:number;
-		duration:string;
-		duration_ms:number;
-		finalDuration?:string;
-		finalDuration_ms?:number;
-		timeoutRef:number;
-		labels:{
-			days:string;
-		}
-	}
-
-	/**
-	 * Contains info about a timer
+	 * Contains info about a timer/countdown
 	 */
 	export interface TimerData {
-		startAt:string;
-		startAt_ms:number;
+		id:string;
+		/**
+		 * Is timer/countdown enabled
+		 */
+		enabled:boolean;
+		/**
+		 * Is the default timer/countdown
+		 * These are static instances that cannot be deleted
+		 * for use with the /timer and /countdown commands
+		 */
+		isDefault:boolean;
+		/**
+		 * Name of the timer/countdown
+		 */
+		title:string
+		/**
+		 * Type of entry, timer or countdown
+		 */
+		type:"timer"|"countdown",
+		/**
+		 * Timer/countdown's placeholder for trigger
+		 */
+		placeholderKey:string
+		/**
+		 * Date in ms the timer/countdown has been started at
+		 */
+		startAt_ms?:number;
+		/**
+		 * Duration added to the timer/countdown
+		 */
 		offset_ms:number;
-		paused?:boolean;
-		pausedAt?:number;
-		endAt?:string;
+		/**
+		 * Duration the countdown has been paused for
+		 */
+		pauseDuration_ms:number;
+		/**
+		 * Is timer/countdown paused
+		 */
+		paused:boolean;
+		/**
+		 * Date in ms the timer/countdown has been paused at
+		 */
+		pausedAt_ms?:number;
+		/**
+		 * Date in ms the countdown has ended
+		 */
 		endAt_ms?:number;
-		duration?:string;
-		duration_ms?:number;
-		labels:{
-			days:string;
-		}
+		/**
+		 * Duration of the countdown in ms
+		 */
+		duration_ms:number;
 	}
 
 	/**
@@ -3736,9 +3754,45 @@ export namespace TwitchatDataTypes {
 	export interface MessageCountdownData extends AbstractTwitchatMessage {
 		type:"countdown";
 		/**
-		 * Countdown's data
+		 * Is countdown completed
 		 */
-		countdown:CountdownData;
+		complete:boolean;
+		/**
+		 * Is countdown aborted
+		 */
+		aborted:boolean;
+		/**
+		 * Timer duration in milliseconds
+		 */
+		startedAt_ms:number;
+		/**
+		 * Timer duration formatted
+		 */
+		startedAt_str:string;
+		/**
+		 * Countdown duration in milliseconds
+		 */
+		duration_ms:number;
+		/**
+		 * Countdown duration formatted
+		 */
+		duration_str:string;
+		/**
+		 * Final countdown duration in milliseconds
+		 */
+		finalDuration_ms?:number;
+		/**
+		 * Final countdown duration formatted
+		 */
+		finalDuration_str?:string;
+		/**
+		 * Countdown end date in milliseconds
+		 */
+		endedAt_ms?:number;
+		/**
+		 * Countdown end date formatted
+		 */
+		endedAt_str?:string;
 	}
 
 	/**
@@ -3747,13 +3801,25 @@ export namespace TwitchatDataTypes {
 	export interface MessageTimerData extends AbstractTwitchatMessage {
 		type:"timer";
 		/**
-		 * true if timer is running
+		 * Timer duration in milliseconds
 		 */
-		started:boolean,
+		startedAt_ms:number;
 		/**
-		 * Timer's data
+		 * Timer duration formatted
 		 */
-		timer:TimerData;
+		startedAt_str:string;
+		/**
+		 * Timer duration in milliseconds
+		 */
+		duration_ms:number;
+		/**
+		 * Timer duration formatted
+		 */
+		duration_str:string;
+		/**
+		 * Get if timer has been stopped
+		 */
+		stopped:boolean;
 	}
 
 	/**

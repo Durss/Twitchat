@@ -836,12 +836,12 @@
 			"heat_key_ctrl": "Touche CTRL enfoncée ?",
 			"clip_url": "URL du clip",
 			"timer_value": "Durée du timer en secondes",
-			"timer_value_formated": "Durée du timer formatée",
-			"countdown_value": "Durée restante du compte à rebours en secondes",
-			"countdown_value_formated": "Durée restante du compte à rebours formatée",
+			"timer_value_formatted": "Durée du timer formatée",
+			"countdown_remaining": "Durée restante du compte à rebours en secondes",
+			"countdown_remaining_formatted": "Durée restante du compte à rebours formatée",
 			"countdown_duration": "Durée du compte à rebours en secondes",
 			"countdown_duration_ms": "Durée du compte à rebours en millisecondes",
-			"countdown_duration_formated": "Durée du compte à rebours formatée",
+			"countdown_duration_formatted": "Durée du compte à rebours formatée",
 			"goxlr_button_id": "Id du boutton",
 			"goxlr_fader_index": "Index du fader (1 -> 4)",
 			"goxlr_preset_index": "Index du preset actif (0 -> 5)",
@@ -1170,26 +1170,26 @@
 				"description": "Actions à exécuter régulièrement ou à des dates spécifiques"
 			},
 			"TIMER_START": {
-				"label": "Lancement du chronomètre",
-				"description": "Actions à exécuter lorsque le chronomètre est lancé {INFO}",
+				"label": "Lancement d'un chronomètre",
+				"description": "Actions à exécuter lorsqu'un chronomètre est lancé {INFO}",
 				"description_info": "({CMD})",
 				"description_info_cmd": "/timerStart"
 			},
 			"TIMER_STOP": {
-				"label": "Arrêt du chronomètre",
-				"description": "Actions à exécuter lorsque le chronomètre est arrêté {INFO}",
+				"label": "Arrêt d'un chronomètre",
+				"description": "Actions à exécuter lorsqu'un chronomètre est arrêté {INFO}",
 				"description_info": "({CMD})",
 				"description_info_cmd": "/timerStop"
 			},
 			"COUNTDOWN_START": {
 				"label": "Lancement d'un compte à rebours",
-				"description": "Actions à exécuter lorsque le compte à rebours est lancé {INFO}",
+				"description": "Actions à exécuter lorsqu'un compte à rebours est lancé {INFO}",
 				"description_info": "({CMD})",
 				"description_info_cmd": "/countdown"
 			},
 			"COUNTDOWN_STOP": {
-				"label": "Arrêt du compte à rebours",
-				"description": "Actions à exécuter lorsque le compte à rebours termine"
+				"label": "Arrêt d'un compte à rebours",
+				"description": "Actions à exécuter lorsqu'un compte à rebours termine"
 			},
 			"SHOUTOUT": {
 				"label": "Shoutout (Twitchat)",

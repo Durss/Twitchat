@@ -186,6 +186,14 @@ export default class Config {
 	 * Maximum bingo grids for premium users
 	 */
 	public MAX_DONATION_GOALS_PREMIUM = 50;
+	/**
+	 * Maximum number of timers
+	 */
+	public MAX_TIMERS = 2;
+	/**
+	 * Maximum number of timers for premium users
+	 */
+	public MAX_TIMERS_PREMIUM = 100;
 
 	private _serverConfig!:ServerConfig;
 

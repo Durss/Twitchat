@@ -58,9 +58,9 @@
 								v-model:platform="$store.stream.currentChatChannel.platform" />
 
 							<ModeratorActionSwitcher v-if="isModeratedChannel" v-model:mode="$store.chat.messageMode" />
-							
+
 							<GroqChannelAction v-if="$store.groq.connected" />
-							
+
 						</div>
 
 						<button class="chatInputError"
@@ -74,7 +74,7 @@
 						<button class="chatInputError"
 							v-else-if="$store.stream.currentChatChannel.platform == 'twitch' && mustGrantTwitchScope"
 							@click="grantTwitchScopes()"><Icon name="lock_fit" />{{ $t('chat.form.twitch_missing_scope') }}</button>
-							
+
 						<!-- using @input instead of v-model so it works properly on mobile -->
 						<input v-else
 							type="text"
@@ -214,7 +214,7 @@
 
 				<CommunityBoostInfo v-if="$store.stream.communityBoostState" />
 
-				<TimerCountDownInfo v-if="$store.timer.countdown || $store.timer.timer" />
+				<TimerCountDownInfo v-if="isActiveTimer" />
 
 				<CommercialTimer />
 
@@ -519,8 +519,18 @@ export class ChatForm extends Vue {
 	public get showObsBtn():boolean { return this.$store.obs.connectionEnabled === true && !OBSWebsocket.instance.connected; }
 
 	public get qnaSessionActive():boolean { return this.$store.qna.activeSessions.length > 0; }
-	
+
 	public get raffleListActive():TwitchatDataTypes.RaffleData[] { return this.$store.raffle.raffleList.filter(v=>v.mode != 'manual' && v.mode != 'values' && v.mode != 'sub' && v.ghost !== true); }
+	
+	public get isActiveTimer():boolean {
+		const defaults = this.$store.timers.timerList.filter(v=>v.isDefault);
+		for (let i = 0; i < defaults.length; i++) {
+			const entry = defaults[i];
+			if(entry.startAt_ms) return true;
+		}
+
+		return false;
+	}
 
 	public get voiceBotStarted():boolean { return VoiceController.instance.started; }
 	public get voiceBotConfigured():boolean {
@@ -660,7 +670,7 @@ export class ChatForm extends Vue {
 				}
 			}
 		});
-		
+
 		gsap.from(this.$el, {y:50, delay:.2, duration:1, ease:"sine.out"});
 		const btns = (this.$el as HTMLDivElement).querySelectorAll(".leftForm>*,.inputForm>*");
 		gsap.from(btns, {y:50, duration:.7, delay:.5, ease:"back.out(2)", stagger:.075});
@@ -676,9 +686,9 @@ export class ChatForm extends Vue {
 	public openNotifications(type:TwitchatDataTypes.NotificationTypes):void { this.$emit('setCurrentNotification', type); }
 
 	public openModal(modal:TwitchatDataTypes.ModalTypes):void { this.$store.params.openModal(modal); }
-	
+
 	public openOBSParams():void { this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS); }
-	
+
 	public grantTwitchScopes():void { TwitchUtils.requestScopes(Config.instance.MANDATORY_TWITCH_SCOPES); }
 
 	public async closeAnnouncement():Promise<void> {
@@ -974,7 +984,7 @@ export class ChatForm extends Vue {
 
 				//Allows to display a message on chat from its raw JSON
 				const res = await ApiHelper.call("mod/privateMessage", "POST", {
-					message: chunks, 
+					message: chunks,
 					action: this.$store.chat.messageMode,
 					to_uid: this.$store.stream.currentChatChannel.id,
 					messageId: message.id,
@@ -1002,7 +1012,7 @@ export class ChatForm extends Vue {
 					this.message = await TwitchCypherPlugin.instance.encrypt(this.message);
 				}
 				// this.loading = true;
-				
+
 				const replyTo = this.$store.chat.replyTo ?? undefined;
 				const messageLocal = this.message;
 				this.message = "";

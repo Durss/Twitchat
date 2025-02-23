@@ -236,14 +236,14 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.COUNTDOWN: {
-				const event = message.countdown.endAt? TriggerTypes.COUNTDOWN_STOP : TriggerTypes.COUNTDOWN_START;
+				const event = message.complete? TriggerTypes.COUNTDOWN_STOP : TriggerTypes.COUNTDOWN_START;
 				if(await this.executeTriggersByType(event, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TIMER: {
-				const event = message.started? TriggerTypes.TIMER_START : TriggerTypes.TIMER_STOP;
+				const event = message.stopped? TriggerTypes.TIMER_STOP : TriggerTypes.TIMER_START;
 				if(await this.executeTriggersByType(event, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
 				}break;
@@ -3731,17 +3731,17 @@ export default class TriggerActionHandler {
 					 */
 					}else if(pointer.indexOf("__timer__") == 0) {
 						const pointerLocal = pointer.replace('__timer__.', '');
-						const timer = StoreProxy.timer.timer;
-						if(timer) {
+						const timer = StoreProxy.timers.timerList.find(t => t.isDefault && t.type == "timer");
+						if(timer && timer.startAt_ms) {
 							const start = timer.startAt_ms;
 							let elapsed = Math.floor((Date.now() - start + timer.offset_ms)/1000)*1000;
 							if(timer.paused) {
-								elapsed -= Date.now() - timer.pausedAt!;
+								elapsed -= Date.now() - timer.pausedAt_ms!;
 							}
 							if(pointerLocal == "value") {
 								value = Math.round(elapsed / 1000).toString();
 							}else
-							if(pointerLocal == "value_formated") {
+							if(pointerLocal == "value_formatted") {
 								value = Utils.formatDuration(elapsed);
 							}
 						}else{
@@ -3753,23 +3753,23 @@ export default class TriggerActionHandler {
 					 */
 					}else if(pointer.indexOf("__countdown__") == 0) {
 						const pointerLocal = pointer.replace('__countdown__.', '');
-						const cd = StoreProxy.timer.countdown;
-						if(cd) {
+						const cd = StoreProxy.timers.timerList.find(t => t.isDefault && t.type == "countdown");
+						if(cd && cd.startAt_ms) {
 							let elapsed = Date.now() - cd.startAt_ms;
 							if(cd.paused) {
-								elapsed -= Date.now() - cd.pausedAt!;
+								elapsed -= Date.now() - cd.pausedAt_ms!;
 							}
 							const remaining = Math.ceil((cd.duration_ms - elapsed)/1000)*1000;
 							if(pointerLocal == "value") {
 								value = Math.round(remaining / 1000).toString();
 							}else
-							if(pointerLocal == "value_formated") {
+							if(pointerLocal == "value_formatted") {
 								value = Utils.formatDuration(remaining);
 							}else
 							if(pointerLocal == "duration") {
 								value = Math.round(cd.duration_ms / 1000).toString();
 							}else
-							if(pointerLocal == "duration_formated") {
+							if(pointerLocal == "duration_formatted") {
 								value = Utils.formatDuration(cd.duration_ms);
 							}
 						}else{

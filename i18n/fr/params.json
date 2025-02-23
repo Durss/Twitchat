@@ -120,7 +120,8 @@
 			"donate": "Faire un don",
 			"youtube": "YouTube",
 			"discord": "Discord",
-			"premium": "Premium"
+			"premium": "Premium",
+			"timers": "Minuteurs"
 		},
 		"botMessages": {
 			"raffleStart": "/announce 🎉🎉🎉 Le tirage au sort a commencé 🎉🎉🎉 Rejoignez le tirage avec la commande {CMD} ?",

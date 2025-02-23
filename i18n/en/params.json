@@ -120,7 +120,8 @@
 			"donate": "Donate",
 			"youtube": "YouTube",
 			"discord": "Discord",
-			"premium": "Premium"
+			"premium": "Premium",
+			"timers": "Timers"
 		},
 		"botMessages": {
 			"raffleStart": "/announce 🎉🎉🎉 Raffle has started 🎉🎉🎉 Use {CMD} command to enter!",

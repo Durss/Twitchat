@@ -661,7 +661,7 @@ class MessageList extends Vue {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TIMER: {
-				return this.config.filters.countdown === true && !m.started;
+				return this.config.filters.countdown === true && m.stopped;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN: {

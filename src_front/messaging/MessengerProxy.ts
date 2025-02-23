@@ -268,67 +268,80 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/countdown") {
+			const entry = StoreProxy.timers.timerList.find(v=>v.type == "countdown" && v.isDefault)!;
 			const duration = this.paramsToDuration(params[0]);
-			StoreProxy.timer.countdownStart(duration * 1000);
+			entry.duration_ms = duration * 1000;
+			StoreProxy.timers.timerStart(entry.id);
 			return true;
 		}else
 
 		if(cmd == "/countdownadd") {
+			const entry = StoreProxy.timers.timerList.find(v=>v.type == "countdown" && v.isDefault)!;
 			const duration = this.paramsToDuration(params[0]);
-			StoreProxy.timer.countdownAdd(duration * 1000);
+			StoreProxy.timers.timerAdd(entry.id, duration * 1000);
 			return true;
 		}else
 
 		if(cmd == "/countdownremove") {
+			const entry = StoreProxy.timers.timerList.find(v=>v.type == "countdown" && v.isDefault)!;
 			const duration = this.paramsToDuration(params[0]);
-			StoreProxy.timer.countdownRemove(duration * 1000);
+			StoreProxy.timers.timerRemove(entry.id, duration * 1000);
 			return true;
 		}else
 
 		if(cmd == "/countdownpause") {
-			StoreProxy.timer.countdownPause();
+			const entry = StoreProxy.timers.timerList.find(v=>v.type == "countdown" && v.isDefault)!;
+			StoreProxy.timers.timerPause(entry.id);
 			return true;
 		}else
 
 		if(cmd == "/countdownunpause") {
-			StoreProxy.timer.countdownUnpause();
+			const entry = StoreProxy.timers.timerList.find(v=>v.type == "countdown" && v.isDefault)!;
+			StoreProxy.timers.timerUnpause(entry.id);
 			return true;
 		}else
 
 		if(cmd == "/countdownstop") {
-			StoreProxy.timer.countdownStop();
+			const entry = StoreProxy.timers.timerList.find(v=>v.type == "countdown" && v.isDefault)!;
+			StoreProxy.timers.timerStop(entry.id);
 			return true;
 		}else
 
 		if(cmd == "/timerstart") {
-			StoreProxy.timer.timerStart();
+			const entry = StoreProxy.timers.timerList.find(v=>v.type == "timer" && v.isDefault)!;
+			StoreProxy.timers.timerStart(entry.id);
 			return true;
 		}else
 
 		if(cmd == "/timeradd") {
+			const entry = StoreProxy.timers.timerList.find(v=>v.type == "timer" && v.isDefault)!;
 			const duration = this.paramsToDuration(params[0]);
-			StoreProxy.timer.timerAdd(duration * 1000);
+			StoreProxy.timers.timerAdd(entry.id, duration * 1000);
 			return true;
 		}else
 
 		if(cmd == "/timerremove") {
+			const entry = StoreProxy.timers.timerList.find(v=>v.type == "timer" && v.isDefault)!;
 			const duration = this.paramsToDuration(params[0]);
-			StoreProxy.timer.timerRemove(duration * 1000);
+			StoreProxy.timers.timerRemove(entry.id, duration * 1000);
 			return true;
 		}else
 
 		if(cmd == "/timerpause") {
-			StoreProxy.timer.timerPause();
+			const entry = StoreProxy.timers.timerList.find(v=>v.type == "timer" && v.isDefault)!;
+			StoreProxy.timers.timerPause(entry.id);
 			return true;
 		}else
 
 		if(cmd == "/timerunpause") {
-			StoreProxy.timer.timerUnpause();
+			const entry = StoreProxy.timers.timerList.find(v=>v.type == "timer" && v.isDefault)!;
+			StoreProxy.timers.timerUnpause(entry.id);
 			return true;
 		}else
 
 		if(cmd == "/timerstop") {
-			StoreProxy.timer.timerStop();
+			const entry = StoreProxy.timers.timerList.find(v=>v.type == "timer" && v.isDefault)!;
+			StoreProxy.timers.timerStop(entry.id);
 			return true;
 		}else
 
@@ -760,7 +773,7 @@ export default class MessengerProxy {
 				});
 				params.shift();
 			}
-			
+
 			const forcedMessage = params.join(" ");
 			let inc = 0;
 			StoreProxy.chat.spamingFakeMessages = !countMode;
@@ -906,7 +919,7 @@ export default class MessengerProxy {
 	}
 
 	private paramsToDuration(param:string):number {
-		const chunks = param.split(/[^a-z0-9_]+/gi);
+		const chunks = param.split(/[^a-z0-9_]+/gi).filter(v => v != "");
 		let duration = 0;
 		for(let i = 0; i < chunks.length; i++) {
 			const value = parseInt(chunks[i]);

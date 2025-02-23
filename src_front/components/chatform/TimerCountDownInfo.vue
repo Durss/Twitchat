@@ -1,6 +1,6 @@
 <template>
 	<div class="timercountdowninfo">
-		<div class="timer" v-if="$store.timer.timer"
+		<div class="timer" v-if="timerRef?.startAt_ms"
 		@mouseenter="hoverTimer = true"
 		@mouseleave="hoverTimer = false">
 			<Icon name="timer" alt="timer" />
@@ -8,7 +8,7 @@
 			<div v-if="hoverTimer" @click="stopTimer()">{{ $t("global.stop") }}</div>
 		</div>
 
-		<div class="countdown" v-if="$store.timer.countdown"
+		<div class="countdown" v-if="countdownRef?.startAt_ms"
 		@mouseenter="hoverCountdown = true"
 		@mouseleave="hoverCountdown = false">
 			<Icon name="countdown" alt="countdown" />
@@ -23,6 +23,7 @@ import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Component({
 	components:{
@@ -30,21 +31,29 @@ import Icon from '../Icon.vue';
 	}
 })
 class TimerCountDownInfo extends Vue {
-	
+
 	public timer:string = "";
 	public countdown:string = "";
 	public hoverTimer:boolean = false;
 	public hoverCountdown:boolean = false;
-	
+	public timerRef:TwitchatDataTypes.TimerData|null = null;
+	public countdownRef:TwitchatDataTypes.TimerData|null = null;
+
 	private interval:number = -1;
 
+
 	public mounted():void {
+		this.timerRef = this.$store.timers.timerList.find(t => t.type === "timer" && t.isDefault)!;
+		this.countdownRef = this.$store.timers.timerList.find(t => t.type === "countdown" && t.isDefault)!;
+
 		this.interval = window.setInterval(()=> {
 			this.computeValues();
 		}, 1000);
+
 		this.computeValues();
-		watch(() => this.$store.timer.timer, () => this.computeValues(), {deep:true} );
-		watch(() => this.$store.timer.countdown, () => this.computeValues(), {deep:true} );
+
+		watch(() => this.timerRef, () => this.computeValues(), {deep:true} );
+		watch(() => this.countdownRef, () => this.computeValues(), {deep:true} );
 	}
 
 	public beforeUnmount():void {
@@ -52,28 +61,12 @@ class TimerCountDownInfo extends Vue {
 	}
 
 	public computeValues():void {
-		const countdown = this.$store.timer.countdown;
-		if(countdown) {
-			let elapsed = Date.now() - countdown.startAt_ms;
-			if(countdown.paused) {
-				elapsed -= Date.now() - countdown.pausedAt!;
-			}
-			elapsed -= countdown.pausedDuration;
-			const remaining = Math.round((countdown.duration_ms - elapsed)/1000)*1000;
-			this.countdown = Utils.formatDuration(remaining);
-		}
-		const timer = this.$store.timer.timer;
-		if(timer) {
-			let elapsed = Math.round((Date.now() - timer.startAt_ms + timer.offset_ms)/1000)*1000;
-			if(timer.paused) {
-				elapsed -= Date.now() - timer.pausedAt!;
-			}
-			this.timer = Utils.formatDuration(elapsed);
-		}
+		this.countdown = this.$store.timers.getTimerComputedValue(this.countdownRef!.id).duration_str;
+		this.timer = this.$store.timers.getTimerComputedValue(this.timerRef!.id).duration_str;
 	}
 
-	public stopTimer():void { this.$store.timer.timerStop() }
-	public stopCountdown():void { this.$store.timer.countdownStop() }
+	public stopTimer():void { this.$store.timers.timerStop(this.timerRef!.id) }
+	public stopCountdown():void { this.$store.timers.timerStop(this.countdownRef!.id) }
 
 }
 export default toNative(TimerCountDownInfo);

@@ -66,7 +66,7 @@
 		</Teleport>
 
 		<NonPremiumCleanup v-if="mustDisableItems" @close="mustDisableItems_precalc = false" />
-		
+
 		<OutdatedDataVersionAlert v-if="$store.main.outdatedDataVersion" />
 
 		<div class="bottom">
@@ -766,9 +766,9 @@ class Chat extends Vue {
 				const durationStr = (e.data as JsonObject).timeAdd as string ?? "1";
 				const durationMs = isNaN(parseInt(durationStr))? 1000 : parseInt(durationStr) * 1000;
 				if(durationMs > 0) {
-					this.$store.timer.timerAdd(durationMs);
+					this.$store.timers.timerAdd(durationMs);
 				}else{
-					this.$store.timer.timerRemove(-durationMs);
+					this.$store.timers.timerRemove(-durationMs);
 				}
 				break;
 			}
@@ -777,9 +777,9 @@ class Chat extends Vue {
 				const durationStr = (e.data as JsonObject).timeAdd as string ?? "1";
 				const durationMs = isNaN(parseInt(durationStr))? 1000 : parseInt(durationStr) * 1000;
 				if(durationMs > 0) {
-					this.$store.timer.countdownAdd(durationMs);
+					this.$store.timers.countdownAdd(durationMs);
 				}else{
-					this.$store.timer.countdownRemove(-durationMs);
+					this.$store.timers.countdownRemove(-durationMs);
 				}
 				break;
 			}

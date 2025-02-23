@@ -10,7 +10,7 @@
 			<template #CMD1><mark>/countdown</mark></template>
 			<template #CMD2><mark>/timerStart</mark></template>
 		</i18n-t>
-		
+
 		<section class="card-item">
 			<div class="header">
 				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
@@ -39,7 +39,7 @@
 				</ul>
 			</ToggleBlock>
 		</section>
-		
+
 		<section class="card-item">
 			<div class="header">
 				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
@@ -64,9 +64,9 @@ import OverlayInstaller from './OverlayInstaller.vue';
 	}
 })
 class OverlayParamsTimer extends Vue {
-	
-	public startTimer():void { this.$store.timer.timerStart(); }
-	public startCountdown():void { this.$store.timer.countdownStart(2 * 60 * 1000); }
+
+	public startTimer():void { this.$store.timers.timerStart(); }
+	public startCountdown():void { this.$store.timers.countdownStart(2 * 60 * 1000); }
 
 }
 export default toNative(OverlayParamsTimer);

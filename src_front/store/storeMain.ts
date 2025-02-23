@@ -256,7 +256,7 @@ export const storeMain = defineStore("main", {
 			const sAuth = StoreProxy.auth;
 			const sChat = StoreProxy.chat;
 			const sUsers = StoreProxy.users;
-			const sTimer = StoreProxy.timer;
+			const sTimer = StoreProxy.timers;
 			const sStream = StoreProxy.stream;
 			const sEmergency = StoreProxy.emergency;
 			StoreProxy.discord.initialize();
@@ -559,13 +559,6 @@ export const storeMain = defineStore("main", {
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_POLLS_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
 				StoreProxy.poll.broadcastState();
-			});
-
-			/**
-			 * Called when timer overlay requests for current timers
-			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
-				sTimer.broadcastStates();
 			});
 
 			/**
@@ -890,6 +883,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.lumia.populateData();
 			StoreProxy.users.populateData();
 			StoreProxy.sammi.populateData();
+			StoreProxy.timers.populateData();
 			StoreProxy.raffle.populateData();
 			StoreProxy.labels.populateData();
 			StoreProxy.stream.populateData();
