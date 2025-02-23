@@ -58,7 +58,7 @@ export default class DiscordController extends AbstractController {
 			this.buildTwitchHashmap();
 		}
 
-		//Cleanup expired tokens every 5s
+		//Cleanup expired tokens every 30s
 		setInterval(()=> {
 			const now = Date.now();
 			for (let i = 0; i < this._pendingTokens.length; i++) {
@@ -68,7 +68,7 @@ export default class DiscordController extends AbstractController {
 					i--;
 				}
 			}
-		}, 5000);
+		}, 30000);
 
 		return this;
 	}
@@ -784,6 +784,7 @@ export default class DiscordController extends AbstractController {
 			try {
 				guildDetails = await this._rest.get(Routes.guildPreview(command.guild_id)) as GuildPreview;
 			}catch(error) {
+				console.log(error)
 				response.status(200)
 				.send({
 					type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -852,7 +853,7 @@ export default class DiscordController extends AbstractController {
 				response.status(200).send({
 					type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 					data: {
-						content: "**:white_check_mark:** `/"+command.data.name+"`"+ (params.length > 0? "`"+params.map(v=>v.value).join("` `")+"`" : ""),
+						content: "**:white_check_mark:** `/"+command.data.name+"` "+ (params.length > 0? "`"+params.map(v=>v.value).join("` `")+"`" : ""),
 					},
 				});
 

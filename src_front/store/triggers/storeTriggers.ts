@@ -16,6 +16,7 @@ import SSEEvent from '@/events/SSEEvent';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 let discordCmdUpdateDebounce:number = -1;
+let wasDiscordCmds = false;
 
 export const storeTriggers = defineStore('triggers', {
 	state: () => ({
@@ -159,7 +160,7 @@ export const storeTriggers = defineStore('triggers', {
 				let name = clone.name || TriggerUtils.getTriggerDisplayInfo(clone).label;
 				name += " (CLONE)";
 				clone.name = name;
-				
+
 				//Add trigger to requested folder if necessary
 				if(parentId) {
 					const addToTreeItem = (items:TriggerTreeItemData[])=>{
@@ -241,6 +242,7 @@ export const storeTriggers = defineStore('triggers', {
 					list.forEach((data:TriggerData)=> {
 						if(data.type == TriggerTypes.SLASH_COMMAND
 						&& data.chatCommand
+						&& data.enabled === true
 						&& data.addToDiscord === true) {
 							const params: typeof commands[number]["params"] = [];
 							if(data.chatCommandParams) {
@@ -254,13 +256,14 @@ export const storeTriggers = defineStore('triggers', {
 							});
 						}
 					})
-					if(commands.length > 0) {
+					if(commands.length > 0 || wasDiscordCmds) {
 						//Update discord commands
 						ApiHelper.call("discord/commands", "POST", {commands}, false).then(res=>{
 							//
 						});
 					}
-				}, 10000);
+					wasDiscordCmds = commands.length > 0;
+				}, 6000);
 			}
 
 			DataStore.set(DataStore.TRIGGERS, list);
