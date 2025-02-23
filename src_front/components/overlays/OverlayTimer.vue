@@ -41,7 +41,7 @@ class OverlayTimer extends AbstractOverlay {
 	private countdownEventHandler!:(e:TwitchatEvent)=>void;
 	private timerPresenceHandler!:(e:TwitchatEvent)=>void;
 
-	public mounted():void {
+	public beforeMount():void {
 		this.timerEventHandler = (e:TwitchatEvent)=>this.onTimerEvent(e);
 		this.countdownEventHandler = (e:TwitchatEvent)=>this.onCountdownEvent(e);
 		this.timerPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.TIMER_OVERLAY_PRESENCE); }

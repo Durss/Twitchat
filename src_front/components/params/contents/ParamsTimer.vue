@@ -38,11 +38,12 @@
 				titleDefault="..."
 				:titleMaxLengh="50"
 				@update:title="$store.timers.saveData()">
-
 					<template #left_actions>
-						<Icon name="timer" v-if="entry.type == 'timer'" />
-						<Icon name="countdown" v-if="entry.type == 'countdown'" />
+						<Icon name="timer" class="timerTypeIcon" v-if="entry.type == 'timer'" />
+						<Icon name="countdown" class="timerTypeIcon" v-if="entry.type == 'countdown'" />
+						<div class="timerValue" :class="{paused:entry.paused}" v-if="entry.startAt_ms">{{ timer2Duration[entry.id]?.duration_str }}</div>
 					</template>
+
 					<template #right_actions>
 						<div class="actions" v-if="!entry.isDefault">
 							<ToggleButton v-model="entry.enabled"
@@ -60,14 +61,20 @@
 							@change="$store.timers.resetTimer(entry.id); $store.timers.saveData(); checkForPlaceholderDuplicates(); refreshTimers();"
 						></SwitchButton>
 
+						<div class="ctas">
+							<TTButton icon="play" v-if="!entry.startAt_ms" @click="$store.timers.timerStart(entry.id); refreshTimers()">Start</TTButton>
+
+							<template v-else>
+								<TTButton icon="pause" @click="$store.timers.timerPause(entry.id); refreshTimers()" v-if="!entry.paused">Pause</TTButton>
+								<TTButton icon="play" @click="$store.timers.timerUnpause(entry.id); refreshTimers()" v-else>Unpause</TTButton>
+								<TTButton icon="stop" @click="$store.timers.timerStop(entry.id); refreshTimers()">Stop</TTButton>
+							</template>
+						</div>
+
 						<template v-if="entry.type == 'countdown'">
 							<ParamItem :paramData="param_duration[entry.id]"
 							v-model="param_duration[entry.id].value"
 							@change="entry.duration_ms = param_duration[entry.id].value * 1000" />
-						</template>
-
-						<template v-else>
-
 						</template>
 
 						<div class="card-item placeholder"
@@ -82,18 +89,6 @@
 							<template v-if="timer2PlaceholderError[entry.id]">
 								<div class="errorReason" v-if="[defaultTimerPLaceholder, defaultCountdownPLaceholder].includes(entry.placeholderKey)">{{ $t("timers.form.param_placeholder_default_conflict") }}</div>
 								<div class="errorReason" v-else>{{ $t("timers.form.param_placeholder_conflict") }}</div>
-							</template>
-						</div>
-
-						<div class="timerValue" v-if="entry.startAt_ms">{{ (Math.round(timer2Duration[entry.id]?.duration_ms/100)/10).toFixed(1) }}</div>
-
-						<div class="ctas">
-							<TTButton icon="play" v-if="!entry.startAt_ms" @click="$store.timers.timerStart(entry.id); refreshTimers()">Start</TTButton>
-
-							<template v-else>
-								<TTButton icon="pause" @click="$store.timers.timerPause(entry.id); refreshTimers()" v-if="!entry.paused">Pause</TTButton>
-								<TTButton icon="play" @click="$store.timers.timerUnpause(entry.id); refreshTimers()" v-else>Unpause</TTButton>
-								<TTButton icon="stop" @click="$store.timers.timerStop(entry.id); refreshTimers()">Stop</TTButton>
 							</template>
 						</div>
 					</div>
@@ -294,6 +289,29 @@ export default toNative(ParamsTimer);
 			}
 		}
 
+		.timerTypeIcon {
+			width: 1em;
+			z-index: 1;
+		}
+
+		.timerValue {
+			display: flex;
+			text-align: center;
+			font-variant-numeric: tabular-nums;
+			background-color: var(--color-primary-fade);
+			border-radius: 0;
+			align-self: stretch;
+			align-items: center;
+			margin: calc(-.5em - 1px) 0;
+			margin-left: -2em;
+			padding: 0 .5em;
+			padding-left: 2em;
+
+			&.paused {
+				background-color: var(--color-secondary-fader);
+			}
+		}
+
 		.content {
 			display: flex;
 			flex-direction: column;
@@ -326,10 +344,6 @@ export default toNative(ParamsTimer);
 						text-align: center;
 					}
 				}
-			}
-			.timerValue {
-				text-align: center;
-				font-variant-numeric: tabular-nums;
 			}
 			.ctas {
 				display: flex;

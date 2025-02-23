@@ -7,8 +7,9 @@ import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _Getters
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import StoreProxy, { type ITimerActions, type ITimerGetters, type ITimerState } from '../StoreProxy';
+import SetTimeoutWorker from '@/utils/SeTimeoutWorker';
 
-const countdownTO:Record<string, number> = {};
+const countdownTO:Record<string, string> = {};
 
 export const storeTimer = defineStore('timer', {
 	state: () => ({
@@ -70,8 +71,21 @@ export const storeTimer = defineStore('timer', {
 			/**
 			 * Called when timer overlay requests for a timer info
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
-				this.broadcastStates();
+			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, (event:TwitchatEvent<{ id?:string }>)=> {
+				if(event.data?.id) {
+					//Broadcast requested timer state
+					const entry = this.timerList.find(t=> t.id === event.data!.id);
+					if(entry && entry.type === "timer")		PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, entry);
+					if(entry && entry.type === "countdown")	PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, entry);
+				}else{
+					//Broadcast default timers states
+					for (let i = 0; i < this.timerList.length; i++) {
+						const entry = this.timerList[i];
+						if(!entry.isDefault) continue;
+						if(entry.type === "timer")		PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, entry);
+						if(entry.type === "countdown")	PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, entry);
+					}
+				}
 			});
 		},
 
@@ -200,7 +214,7 @@ export const storeTimer = defineStore('timer', {
 			if(!entry || !entry.startAt_ms) return;
 			entry.paused = true;
 			entry.pausedAt_ms = Date.now();
-			if(entry.type == "countdown" && countdownTO[entry.id]) window.clearTimeout(countdownTO[entry.id]);
+			if(entry.type == "countdown" && countdownTO[entry.id]) SetTimeoutWorker.instance.delete(countdownTO[entry.id]);
 			this.broadcastStates();
 			this.saveData();
 		},
@@ -276,6 +290,7 @@ export const storeTimer = defineStore('timer', {
 		resetTimer(id:string) {
 			const entry = this.timerList.find(t=> t.id === id);
 			if(!entry) return;
+			SetTimeoutWorker.instance.delete(countdownTO[entry.id]);
 			delete entry.pausedAt_ms
 			delete entry.endAt_ms
 			delete entry.startAt_ms;
@@ -294,10 +309,10 @@ export const storeTimer = defineStore('timer', {
 			for (let i = 0; i < this.timerList.length; i++) {
 				const entry = this.timerList[i];
 				if(entry.type != "countdown") continue;
-				if(countdownTO[entry.id]) window.clearTimeout(countdownTO[entry.id]);
+				if(countdownTO[entry.id]) SetTimeoutWorker.instance.delete(countdownTO[entry.id]);
 				if(entry.paused) continue;
 
-				countdownTO[entry.id] = window.setTimeout(()=> {
+				countdownTO[entry.id] = SetTimeoutWorker.instance.create(()=> {
 					this.timerStop(entry.id);
 				}, this.getTimerComputedValue(entry.id).duration_ms);
 			}
@@ -316,7 +331,7 @@ export const storeTimer = defineStore('timer', {
 				}
 				return  {
 					duration_ms: elapsed,
-					duration_str: Utils.formatDuration(elapsed, true, StoreProxy.i18n.t("global.date_days"))
+					duration_str: Utils.formatDuration(Math.ceil(elapsed/500)*500, true, StoreProxy.i18n.t("global.date_days"))
 				}
 			}
 
@@ -330,7 +345,7 @@ export const storeTimer = defineStore('timer', {
 
 				return  {
 					duration_ms: remaining,
-					duration_str: Utils.formatDuration(remaining, true, StoreProxy.i18n.t("global.date_days"))
+					duration_str: Utils.formatDuration(Math.ceil(remaining/500)*500, true, StoreProxy.i18n.t("global.date_days"))
 				}
 			}
 
