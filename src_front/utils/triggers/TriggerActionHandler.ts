@@ -3727,53 +3727,32 @@ export default class TriggerActionHandler {
 						cleanSubevent = false;
 
 					/**
-					 * If the placeholder requests for the current timer value
+					 * If the placeholder requests for a timer info
 					 */
 					}else if(pointer.indexOf("__timer__") == 0) {
 						const pointerLocal = pointer.replace('__timer__.', '');
-						const timer = StoreProxy.timers.timerList.find(t => t.isDefault && t.type == "timer");
-						if(timer && timer.startAt_ms) {
-							const start = timer.startAt_ms;
-							let elapsed = Math.floor((Date.now() - start + timer.offset_ms)/1000)*1000;
-							if(timer.paused) {
-								elapsed -= Date.now() - timer.pausedAt_ms!;
-							}
-							if(pointerLocal == "value") {
-								value = Math.round(elapsed / 1000).toString();
-							}else
-							if(pointerLocal == "value_formatted") {
-								value = Utils.formatDuration(elapsed);
-							}
-						}else{
-							value = "0";
-						}
+						const timer = StoreProxy.timers.timerList.find(t => t.id == placeholder.storage);
+						if(timer) {
+							const duration = StoreProxy.timers.getTimerComputedValue(timer.id)
+							switch(pointerLocal) {
+								case "timer_paused": value = timer.paused? "true" : "false"; break;
 
-					/**
-					 * If the placeholder requests for the current countdown value
-					 */
-					}else if(pointer.indexOf("__countdown__") == 0) {
-						const pointerLocal = pointer.replace('__countdown__.', '');
-						const cd = StoreProxy.timers.timerList.find(t => t.isDefault && t.type == "countdown");
-						if(cd && cd.startAt_ms) {
-							let elapsed = Date.now() - cd.startAt_ms;
-							if(cd.paused) {
-								elapsed -= Date.now() - cd.pausedAt_ms!;
-							}
-							const remaining = Math.ceil((cd.duration_ms - elapsed)/1000)*1000;
-							if(pointerLocal == "value") {
-								value = Math.round(remaining / 1000).toString();
-							}else
-							if(pointerLocal == "value_formatted") {
-								value = Utils.formatDuration(remaining);
-							}else
-							if(pointerLocal == "duration") {
-								value = Math.round(cd.duration_ms / 1000).toString();
-							}else
-							if(pointerLocal == "duration_formatted") {
-								value = Utils.formatDuration(cd.duration_ms);
+								case "remaining_formatted":
+								case "elapsed_formatted": value = duration.duration_ms.toString(); break;
+
+								case "remaining_ms":
+								case "elapsed_ms": value = duration.duration_str; break;
+
+								case "duration_formatted": value = Utils.formatDuration(timer.duration_ms, true); break;
+								case "duration_ms": value = timer.duration_ms.toString(); break;
+
+								default: value = "0";
 							}
 						}else{
-							value = "0";
+							switch(pointerLocal) {
+								case "timer_paused": value = "false"; break;
+								default: value = "0";
+							}
 						}
 
 					/**

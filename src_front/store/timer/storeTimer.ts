@@ -67,9 +67,8 @@ export const storeTimer = defineStore('timer', {
 			}
 			this.saveData();
 
-
 			/**
-			 * Called when timer overlay requests for current timers
+			 * Called when timer overlay requests for a timer info
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
 				this.broadcastStates();

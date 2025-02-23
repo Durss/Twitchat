@@ -155,7 +155,7 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	static override async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 61;
+		const latestVersion = 62;
 
 		this.cleanupPreV7Data(data);
 
@@ -375,13 +375,17 @@ export default class DataStore extends DataStoreCommon{
 		}
 		if(v==60) {
 			this.cleanAndMigrateRunningRaffles(data);
+			v = 61;
+		}
+		if(v==61) {
+			this.migrateTimerPlaceholders(data);
 			v = latestVersion;
 		}
 
-		delete data["p:hideChat"];//TODO remove in a few months (added 08/08/204)
-		delete data["antifa_hide"];//TODO remove in a few months (added 08/08/204)
-		delete data["t4p_chat_cmd"];//TODO remove in a few months (added 26/10/204)
-		//TODO remove in a few months (added 08/08/204)
+		delete data["p:hideChat"];//TODO remove in a few months (added 08/08/2024)
+		delete data["antifa_hide"];//TODO remove in a few months (added 08/08/2024)
+		delete data["t4p_chat_cmd"];//TODO remove in a few months (added 26/10/2024)
+		//TODO remove in a few months (added 08/08/2024)
 		if(typeof data["p:autoTranslateFirstLang"] == "string") {
 			data["p:autoTranslateFirstLang"] = [data["p:autoTranslateFirstLang"]];
 		}
@@ -1682,6 +1686,25 @@ export default class DataStore extends DataStoreCommon{
 				if(v.mode == "values") return false;
 				return true;
 			})
+		}
+	}
+
+	/**
+	 * Migrate old global timer/countdown placeholders to new ones
+	 * @param data
+	 */
+	private static migrateTimerPlaceholders(data:any):void {
+		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+		if(triggers && Array.isArray(triggers)) {
+			let str = JSON.stringify(triggers);
+			str = str.replace(/\{TIMER_F\}/g, "{TIMER_DEFAULT_ELAPSED}");
+			str = str.replace(/\{TIMER\}/g, "{TIMER_DEFAULT_ELAPSED_MS}");
+			str = str.replace(/\{COUNTDOWN_VALUE_F\}/g, "{COUNTDOWN_DEFAULT_REMAINING}");
+			str = str.replace(/\{COUNTDOWN_VALUE\}/g, "{COUNTDOWN_DEFAULT_REMAINING_MS}");
+			str = str.replace(/\{COUNTDOWN_DURATION_F\}/g, "{COUNTDOWN_DEFAULT_DURATION}");
+			str = str.replace(/\{COUNTDOWN_DURATION\}/g, "{COUNTDOWN_DEFAULT_DURATION_MS}");
+
+			data[DataStore.TRIGGERS] = JSON.parse(str);
 		}
 	}
 }

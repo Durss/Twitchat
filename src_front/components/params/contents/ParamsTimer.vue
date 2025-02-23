@@ -104,18 +104,19 @@
 </template>
 
 <script lang="ts">
+import Icon from '@/components/Icon.vue';
+import PlaceholderField from '@/components/PlaceholderField.vue';
+import SwitchButton from '@/components/SwitchButton.vue';
 import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
+import StoreProxy from '@/store/StoreProxy';
+import { rebuildPlaceholdersCache } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, toNative, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
-import Icon from '@/components/Icon.vue';
-import SwitchButton from '@/components/SwitchButton.vue';
-import PlaceholderField from '@/components/PlaceholderField.vue';
-import type StoreProxy from '@/store/StoreProxy';
 
 @Component({
 	components:{
@@ -238,6 +239,8 @@ class ParamsTimer extends Vue implements IParameterContent {
 				}
 			}
 		}
+
+		rebuildPlaceholdersCache();
 	}
 }
 export default toNative(ParamsTimer);
