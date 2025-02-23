@@ -3797,6 +3797,10 @@ export namespace TwitchatDataTypes {
 	export interface MessageCountdownData extends AbstractTwitchatMessage {
 		type:"countdown";
 		/**
+		 * Timer ID
+		 */
+		countdown_id:string;
+		/**
 		 * Is countdown completed
 		 */
 		complete:boolean;
@@ -3843,6 +3847,10 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageTimerData extends AbstractTwitchatMessage {
 		type:"timer";
+		/**
+		 * Timer ID
+		 */
+		timer_id:string;
 		/**
 		 * Timer duration in milliseconds
 		 */

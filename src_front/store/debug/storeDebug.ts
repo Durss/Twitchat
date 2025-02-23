@@ -885,6 +885,7 @@ export const storeDebug = defineStore('debug', {
 						duration_ms:duration,
 						duration_str:Utils.formatDuration(duration, true),
 						stopped:true,
+						timer_id:Utils.getUUID(),
 					};
 					data = m;
 					break;
@@ -909,6 +910,7 @@ export const storeDebug = defineStore('debug', {
 						endedAt_str:Utils.formatDate(new Date(), true),
 						finalDuration_ms:duration,
 						finalDuration_str:Utils.formatDuration(duration, true),
+						countdown_id:Utils.getUUID(),
 					};
 					data = m;
 					break;

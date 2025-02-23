@@ -765,10 +765,12 @@ class Chat extends Vue {
 			case TwitchatEvent.TIMER_ADD: {
 				const durationStr = (e.data as JsonObject).timeAdd as string ?? "1";
 				const durationMs = isNaN(parseInt(durationStr))? 1000 : parseInt(durationStr) * 1000;
+				const timer = this.$store.timers.timerList.find(v=>v.type == 'timer' && v.isDefault);
+				if(!timer) return;
 				if(durationMs > 0) {
-					this.$store.timers.timerAdd(durationMs);
+					this.$store.timers.timerAdd(timer.id, durationMs);
 				}else{
-					this.$store.timers.timerRemove(-durationMs);
+					this.$store.timers.timerRemove(timer.id, -durationMs);
 				}
 				break;
 			}
@@ -776,10 +778,12 @@ class Chat extends Vue {
 			case TwitchatEvent.COUNTDOWN_ADD: {
 				const durationStr = (e.data as JsonObject).timeAdd as string ?? "1";
 				const durationMs = isNaN(parseInt(durationStr))? 1000 : parseInt(durationStr) * 1000;
+				const timer = this.$store.timers.timerList.find(v=>v.type == 'countdown' && v.isDefault);
+				if(!timer) return;
 				if(durationMs > 0) {
-					this.$store.timers.countdownAdd(durationMs);
+					this.$store.timers.timerAdd(timer.id, durationMs);
 				}else{
-					this.$store.timers.countdownRemove(-durationMs);
+					this.$store.timers.timerRemove(timer.id, -durationMs);
 				}
 				break;
 			}

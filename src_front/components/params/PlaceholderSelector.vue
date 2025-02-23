@@ -259,7 +259,7 @@ export default toNative(PlaceholderSelector);
 			border-radius: .5em;
 			padding: .25em .5em;
 			&:nth-child(odd) {
-				max-width: 20vw;
+				max-width: 30vw;
 				word-break: break-all;
 				border-top-right-radius: 0;
 				border-bottom-right-radius: 0;

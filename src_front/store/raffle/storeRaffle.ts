@@ -58,7 +58,11 @@ export const storeRaffle = defineStore('raffle', {
 				case "chat": {
 					//Start countdown if requested
 					if(payload.showCountdownOverlay) {
-						StoreProxy.timers.countdownStart(payload.duration_s * 1000);
+						const timer = StoreProxy.timers.timerList.find(v=>v.type == 'countdown' && v.isDefault);
+						if(timer) {
+							timer.duration_ms = payload.duration_s * 1000;
+							StoreProxy.timers.timerStart(timer.id);
+						}
 					}
 					//Announce start on chat
 					const messageParams = payload.messages?.raffleStart || StoreProxy.chat.botMessages.raffleStart;

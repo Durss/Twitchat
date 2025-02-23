@@ -1547,8 +1547,8 @@ export const COUNTER_VALUE_PLACEHOLDER_PREFIX:string = "COUNTER_VALUE_";
 export const COUNTER_EDIT_SOURCE_SENDER:string = "SENDER";
 export const COUNTER_EDIT_SOURCE_EVERYONE:string = "EVERYONE";
 export const COUNTER_EDIT_SOURCE_CHATTERS:string = "CHATTERS";
-export const TIMER_PLACEHOLDER_PREFIX:string = "TIMER_";
-export const COUNTDOWN_PLACEHOLDER_PREFIX:string = "COUNTDOWN_";
+export const STOPWATCH_PLACEHOLDER_PREFIX:string = "SW_";
+export const COUNTDOWN_PLACEHOLDER_PREFIX:string = "CD_";
 
 /**
  * Placeholders related to a trigger action type
@@ -1939,25 +1939,26 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:USER_FOLLOWAGE, descKey:'triggers.placeholders.followage', pointer:"user", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
 		{tag:USER_FOLLOWAGE_MS, descKey:'triggers.placeholders.followage_ms', pointer:"user", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
 		{tag:USER_AVATAR, descKey:'triggers.placeholders.user_avatar', pointer:"user.avatarPath", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
-		{tag:"DURATION", descKey:'triggers.placeholders.timer_duration', pointer:"duration_s", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
+		{tag:"DURATION", descKey:'triggers.placeholders.timer_duration_ms', pointer:"duration_s", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
 	];
 
 	map[TriggerTypes.TIMER_START] = [
-		{tag:"START_DATE", descKey:'triggers.placeholders.start_date', pointer:"startedAt_str", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
+		{tag:"TIMER_ID", descKey:'triggers.placeholders.timer_id', pointer:"timer_id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
 	];
 	map[TriggerTypes.TIMER_STOP] = [
-		{tag:"START_DATE", descKey:'triggers.placeholders.start_date', pointer:"startedAt_str", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
-		{tag:"DURATION", descKey:'triggers.placeholders.timer_duration', pointer:"duration_str", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
+		{tag:"TIMER_ID", descKey:'triggers.placeholders.timer_id', pointer:"timer_id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
+		{tag:"DURATION", descKey:'triggers.placeholders.timer_duration_formatted', pointer:"duration_str", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
 		{tag:"DURATION_MS", descKey:'triggers.placeholders.timer_duration_ms', pointer:"duration_ms", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
 	];
 
 	map[TriggerTypes.COUNTDOWN_START] = [
-		{tag:"START_AT", descKey:'triggers.placeholders.start_date', pointer:"startedAt_str", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
+		{tag:"TIMER_ID", descKey:'triggers.placeholders.timer_id', pointer:"countdown_id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
 		{tag:"DURATION", descKey:'triggers.placeholders.countdown_duration_formatted', pointer:"duration_str", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
 		{tag:"DURATION_MS", descKey:'triggers.placeholders.countdown_duration_ms', pointer:"duration_ms", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
 	];
 	map[TriggerTypes.COUNTDOWN_STOP] =  [...map[TriggerTypes.COUNTDOWN_START]!,
-		{tag:"END_AT", descKey:'triggers.placeholders.countdown_end_date', pointer:"endedAt_str", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
+		{tag:"REAL_DURATION", descKey:'triggers.placeholders.countdown_duration_formatted', pointer:"finalDuration_str", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
+		{tag:"REAL_DURATION_MS", descKey:'triggers.placeholders.countdown_duration_ms', pointer:"finalDuration_ms", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
 	];
 
 	map[TriggerTypes.VIP] =
@@ -2434,18 +2435,18 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	for (let i = 0; i < timers.length; i++) {
 		const t = timers[i];
 		if(t.placeholderKey) {
-			const prefix = t.type == "timer"? TIMER_PLACEHOLDER_PREFIX : COUNTDOWN_PLACEHOLDER_PREFIX;
+			const prefix = t.type == "timer"? STOPWATCH_PLACEHOLDER_PREFIX : COUNTDOWN_PLACEHOLDER_PREFIX;
 			const tagBase = prefix + t.placeholderKey.toUpperCase();
 			timersPlaceholders.push({category:"timer", tag:tagBase+"_PAUSED", descKey:'triggers.placeholders.timer_paused', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.paused", numberParsable:false, isUserID:false, globalTag:true, storage:t.id} as ITriggerPlaceholder<TwitchatDataTypes.TimerData, string, "__timer__">);
 			if(t.type == "timer") {
-				timersPlaceholders.push({category:"timer", tag:tagBase+"_ELAPSED", descKey:'triggers.placeholders.timer_value_formatted', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.elapsed_formatted", numberParsable:true, isUserID:false, globalTag:true, example:"60000", storage:t.id});
-				timersPlaceholders.push({category:"timer", tag:tagBase+"_ELAPSED_MS", descKey:'triggers.placeholders.timer_value', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.elapsed_ms", numberParsable:false, isUserID:false, globalTag:true, example:"60", storage:t.id});
+				timersPlaceholders.push({category:"timer", tag:tagBase+"_ELAPSED", descKey:'triggers.placeholders.timer_duration_formatted', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.elapsed_formatted", numberParsable:true, isUserID:false, globalTag:true, example:"60000", storage:t.id});
+				timersPlaceholders.push({category:"timer", tag:tagBase+"_ELAPSED_MS", descKey:'triggers.placeholders.timer_duration_ms', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.elapsed_ms", numberParsable:false, isUserID:false, globalTag:true, example:"60", storage:t.id});
 			}
 			if(t.type == "countdown") {
 				timersPlaceholders.push({category:"timer", tag:tagBase+"_DURATION", descKey:'triggers.placeholders.countdown_duration_formatted', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.duration_formatted", numberParsable:true, isUserID:false, globalTag:true, example:"60000", storage:t.id});
 				timersPlaceholders.push({category:"timer", tag:tagBase+"_DURATION_MS", descKey:'triggers.placeholders.countdown_duration', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.duration_ms", numberParsable:false, isUserID:false, globalTag:true, example:"60", storage:t.id});
 				timersPlaceholders.push({category:"timer", tag:tagBase+"_REMAINING", descKey:'triggers.placeholders.countdown_remaining_formatted', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.remaining_formatted", numberParsable:true, isUserID:false, globalTag:true, example:"60000", storage:t.id});
-				timersPlaceholders.push({category:"timer", tag:tagBase+"_REMAINING_MS", descKey:'triggers.placeholders.countdown_remaining', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.remaining_ms", numberParsable:false, isUserID:false, globalTag:true, example:"60", storage:t.id});
+				timersPlaceholders.push({category:"timer", tag:tagBase+"_REMAINING_MS", descKey:'triggers.placeholders.countdown_remaining_ms', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.remaining_ms", numberParsable:false, isUserID:false, globalTag:true, example:"60", storage:t.id});
 			}
 		}
 	}

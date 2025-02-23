@@ -132,9 +132,7 @@ class ChatTipAndTrickAd extends Vue {
 		this.tipIndex = Math.floor(Math.random()*(this.maxIndex+1));
 	}
 
-	public openModal(modal:TwitchatDataTypes.ModalTypes):void { this.$emit("showModal", modal); }
-	public startTimer():void { this.$store.timers.timerStart(); }
-	public startCountdown():void { this.$store.timers.countdownStart(2 * 60 * 1000); }
+	public openModal(modal:TwitchatDataTypes.ModalTypes):void { this.$store.params.openModal(modal); }
 	public openParamItem(paramPath:string):void { this.$store.params.searchParamByPath(paramPath); }
 	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType, subContent?:TwitchatDataTypes.ParamDeepSectionsStringType):void { this.$store.params.openParamsPage(page, subContent); }
 
