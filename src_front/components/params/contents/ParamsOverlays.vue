@@ -45,7 +45,7 @@
 			<button class="item" @click="subContent = 'chathighlight'"><img src="@/assets/img/overlays/highlights.jpg" alt="Chat highlight"></button>
 			<button class="item" @click="subContent = 'labels'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'params_overlays_labels'}"><img src="@/assets/img/overlays/labels.jpg" alt="Labels"></button>
 			<button class="item" @click="subContent = 'counter'"><img src="@/assets/img/overlays/counters.jpg" alt="Counters"></button>
-			<button class="item" @click="subContent = 'timer'"><img src="@/assets/img/overlays/timer.jpg" alt="Timers"></button>
+			<button class="item" @click="subContent = 'timer'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_overlays_timers'}"><img src="@/assets/img/overlays/timer.jpg" alt="Timers"></button>
 			<button class="item" @click="subContent = 'ulule'"><img src="@/assets/img/overlays/ulule.jpg" alt="Ulule"></button>
 		</div>
 
@@ -228,6 +228,7 @@ export default toNative(ParamsOverlays);
 			margin: 0;
 			aspect-ratio: 16/9;
 			transition: filter .25s;
+			border: 0;
 			img {
 				overflow: hidden;
 				border-radius: var(--border-radius);

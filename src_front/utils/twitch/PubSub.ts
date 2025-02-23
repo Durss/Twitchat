@@ -4,11 +4,10 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import * as Sentry from "@sentry/vue";
 import { EventDispatcher } from "../../events/EventDispatcher";
+import ApiHelper from '../ApiHelper';
 import SetIntervalWorker from '../SetIntervalWorker';
 import Utils from "../Utils";
 import type { PubSubDataTypes } from './PubSubDataTypes';
-import { TwitchScopes } from './TwitchScopes';
-import ApiHelper from '../ApiHelper';
 
 /**
 * Created : 13/01/2022
@@ -22,7 +21,6 @@ export default class PubSub extends EventDispatcher {
 	private hypeTrainApproachingTimer!:number;
 	private hypeTrainProgressTimer!:number;
 	private history:{date:string, message:PubSubDataTypes.SocketMessage}[] = [];
-	private rewardsParsed:{[key:string]:boolean} = {};
 
 	constructor() {
 		super();

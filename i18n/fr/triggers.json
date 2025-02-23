@@ -988,11 +988,13 @@
 			},
 			"COMMUNITY_CHALLENGE_PROGRESS": {
 				"label": "Progression de défi communautaire",
-				"description": "Actions à exécuter quand quelqu'un contribue à un défi communautaire"
+				"description": "Actions à exécuter quand quelqu'un contribue à un défi communautaire",
+				"disabled_reason": "Twitch a restreint la possibilité de recevoir cette information. Twitchat ne peut plus\nl'utiliser :("
 			},
 			"COMMUNITY_CHALLENGE_COMPLETE": {
 				"label": "Objectif de défi communautaire rempli",
-				"description": "Actions à exécuter lorsqu'un défi communautaire est rempli"
+				"description": "Actions à exécuter lorsqu'un défi communautaire est rempli",
+				"disabled_reason": "Twitch a restreint la possibilité de recevoir cette information. Twitchat ne peut plus\nl'utiliser :("
 			},
 			"STREAM_INFO_UPDATE": {
 				"label": "Infos de stream mises à jour",
@@ -1141,11 +1143,13 @@
 			},
 			"PIN_MESSAGE": {
 				"label": "Message épinglé",
-				"description": "Actions à exécuter lorsqu'un message est épinglé"
+				"description": "Actions à exécuter lorsqu'un message est épinglé",
+				"disabled_reason": "Twitch a restreint la possibilité de recevoir cette information. Twitchat ne peut plus\nl'utiliser :("
 			},
 			"UNPIN_MESSAGE": {
 				"label": "Message désépinglé",
-				"description": "Actions à exécuter lorsqu'un message est désépinglé"
+				"description": "Actions à exécuter lorsqu'un message est désépinglé",
+				"disabled_reason": "Twitch a restreint la possibilité de recevoir cette information. Twitchat ne peut plus\nl'utiliser :("
 			},
 			"TRACK_ADDED_TO_QUEUE": {
 				"label": "Morceau ajouté à la file d'attente",

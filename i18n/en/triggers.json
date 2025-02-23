@@ -988,11 +988,13 @@
 			},
 			"COMMUNITY_CHALLENGE_PROGRESS": {
 				"label": "Community challenge progress",
-				"description": "Actions to execute when a user contributes to a community challenge"
+				"description": "Actions to execute when a user contributes to a community challenge",
+				"disabled_reason": "Twitch restricted access to this information. Twitchat cannot use it anymore :("
 			},
 			"COMMUNITY_CHALLENGE_COMPLETE": {
 				"label": "Community challenge complete",
-				"description": "Actions to execute when a community challenge completes"
+				"description": "Actions to execute when a community challenge completes",
+				"disabled_reason": "Twitch restricted access to this information. Twitchat cannot use it anymore :("
 			},
 			"STREAM_INFO_UPDATE": {
 				"label": "Stream info update",
@@ -1141,11 +1143,13 @@
 			},
 			"PIN_MESSAGE": {
 				"label": "Pin message",
-				"description": "Actions to execute when pinning a message"
+				"description": "Actions to execute when pinning a message",
+				"disabled_reason": "Twitch restricted access to this event. Twitchat cannot use it anymore :("
 			},
 			"UNPIN_MESSAGE": {
 				"label": "Unpin message",
-				"description": "Actions to execute when unpinning a message"
+				"description": "Actions to execute when unpinning a message",
+				"disabled_reason": "Twitch restricted access to this event. Twitchat cannot use it anymore :("
 			},
 			"TRACK_ADDED_TO_QUEUE": {
 				"label": "Track added to queue",
