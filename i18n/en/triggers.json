@@ -126,7 +126,8 @@
 			"param_cmd_params_example": "Command usage example:",
 			"param_cmd_params_example_result": "Result:",
 			"param_cmd_params_type_tt": "Data type. Select \"User\" to make twitchat load user's data",
-			"format_error": "Command must start with a \" / \""
+			"format_error": "Command must start with a \" / \"",
+			"grant_discord_rights": "Grant permission to your discord members"
 		},
 		"actions": {
 			"common": {

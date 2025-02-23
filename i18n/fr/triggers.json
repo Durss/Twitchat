@@ -118,15 +118,16 @@
 		"slash_cmd": {
 			"param_cmd": "Commande",
 			"param_cmd_placeholder": "/commande...",
-			"param_ctx_menu": "Ajouter aux options de modération (click droit sur un message)",
+			"param_ctx_menu": "Ajouter aux options de modération (clic droit sur un message)",
 			"param_discord": "Ajouter cette commande à votre Discord",
 			"param_cmd_params": "Paramètres de commande optionnels",
-			"param_cmd_params_tt": "Ceci permet d'extraire des portions du message et de les injecter dans les actions à exécuter par le bais de placeholders.",
+			"param_cmd_params_tt": "Ceci permet d'extraire des portions du message et de les injecter dans les actions à exécuter par le biais de placeholders.",
 			"param_cmd_params_placeholder": "ajouter un paramètre...",
-			"param_cmd_params_example": "Exemple d'utilisation de la commande :",
-			"param_cmd_params_example_result": "Resultat :",
+			"param_cmd_params_example": "Exemple d'utilisation de la commande :",
+			"param_cmd_params_example_result": "Résultat :",
 			"param_cmd_params_type_tt": "Type de donnée. Sélectionnez \"User\" pour que Twitchat charge les données de la personne",
-			"format_error": "La commande doit commencer par un \" / \""
+			"format_error": "La commande doit commencer par un \" / \"",
+			"grant_discord_rights": "Accorder les droits à vos membres Discord"
 		},
 		"actions": {
 			"common": {
