@@ -230,7 +230,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 	}
 
 	public openOverlays():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "counter");
 	}
 
 	public mounted(): void {

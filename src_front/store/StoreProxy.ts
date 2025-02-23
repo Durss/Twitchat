@@ -1456,7 +1456,7 @@ export interface ITimerActions {
 	/**
 	 * Braodcast current timer and countdown statesvia the PublicAPI
 	 */
-	broadcastStates():void;
+	broadcastStates(id?:string):void;
 	/**
 	 * Create a timer
 	 */

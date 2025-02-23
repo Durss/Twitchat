@@ -30,11 +30,21 @@
 			"testBt": "Start a test animation"
 		},
 		"timer": {
-			"title": "Timer & Countdown",
-			"head": "When starting a countdown or a timer with {CMD1} or {CMD2} commands, this overlay will display their durations.",
-			"css": "You can change the appearance of the timers by overriding these CSS values on OBS browser source params",
-			"try_timerBt": "Try timer",
-			"try_countdownBt": "Try countdown (2min)"
+			"default_timer": "This overlay is tied with {CMD} commands",
+			"css": "Change the appearance of the timer with these CSS selectors",
+			"param_style": "Overlay style",
+			"param_style_text":"Text",
+			"param_style_bar":"Progress bar",
+			"param_showIcon": "Show icon",
+			"param_bgColor": "Background color",
+			"param_bgEnabled": "Show background",
+			"param_textFont": "Text font",
+			"param_textSize": "Text size",
+			"param_textColor": "Text color",
+			"param_progressSize": "Bar size ( {VALUE}px )",
+			"param_progressStyle": "Progress type",
+			"param_progressStyle_empty": "Empty",
+			"param_progressStyle_fill": "Fill"
 		},
 		"counters": {
 			"title": "Counters",

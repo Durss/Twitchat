@@ -1,5 +1,15 @@
 {
 	"timers":{
+		"header": "Créez des minuteurs, contrôlez-les depuis {LINK_TRIGGER} et {LINK_OVERLAY} sur votre stream",
+		"header_link_trigger": "les triggers",
+		"header_link_overlay": "affichez-les",
+		"addBt": "Créer un minuteur",
+		"premium_limit": "Vous avez créé le maximum de {MAX} minuteurs actifs.\nDevenez membre Premium pour créer jusqu'à {MAX_PREMIUM} minuteurs.\nOu désactivez / supprimez des minuteurs pour en créer de nouveaux.",
+		"delete_confirm": {
+			"title": "Supprimer le minuteur",
+			"message": "Êtes-vous sûr de vouloir supprimer ce minuteur ?"
+		},
+
 		"default":{
 			"title":"Chronomètre & Décompte",
 			"description":"Lancez un chronomètre ou un compte à rebours",
@@ -10,16 +20,6 @@
 			"countdown_head":"Vous retrouverez le compte à rebours dans la barre de tchat. Stoppez-le en cliquant dessus ou via la commande {CMD}.",
 			"timer_title": "Chronomètre par défaut",
 			"countdown_title": "Compte à rebours par défaut"
-		},
-
-		"header": "Créez des minuteurs, contrôlez-les depuis {LINK_TRIGGER} et {LINK_OVERLAY} sur votre stream",
-		"header_link_trigger": "les triggers",
-		"header_link_overlay": "affichez-les",
-		"addBt": "Créer un minuteur",
-		"premium_limit": "Vous avez créé le maximum de {MAX} minuteurs actifs.\nDevenez membre Premium pour créer jusqu'à {MAX_PREMIUM} minuteurs.\nOu désactivez / supprimez des minuteurs pour en créer de nouveaux.",
-		"delete_confirm": {
-			"title": "Supprimer le minuteur",
-			"message": "Êtes-vous sûr de vouloir supprimer ce minuteur ?"
 		},
 
 		"form": {

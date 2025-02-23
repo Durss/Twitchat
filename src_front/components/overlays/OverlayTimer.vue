@@ -1,26 +1,53 @@
 <template>
 	<div class="overlaytimer">
-		<div class="timer" v-if="timerValue" id="timer" ref="timer">
-			<Icon id="timer_icon" name="timer" />
-			<div id="timer_label">{{timerValue}}</div>
-		</div>
+		<template v-if="timerValue && configTimer">
+			<div class="timer" id="timer" ref="timer"
+			:class="{noBg:!configTimer.bgEnabled}"
+			:style="{
+				fontFamily: configTimer.textFont,
+				fontSize: configTimer.textSize + 'px',
+				color: configTimer.textColor,
+				backgroundColor: configTimer.bgColor,
+			}">
+				<Icon id="timer_icon" name="timer" v-if="configTimer.showIcon" />
+				<div id="timer_label">{{timerValue}}</div>
+			</div>
+		</template>
 
-		<div class="countdown" v-if="countdownValue" id="countdown" ref="countdown">
-			<Icon id="countdown_icon" name="countdown" />
-			<div id="countdown_label">{{countdownValue}}</div>
-		</div>
+		<template v-if="countdownValue && configCountdown">
+			<div class="countdown" id="countdown" ref="countdown"
+			v-if="configCountdown.style == 'text'"
+			:class="{noBg:!configCountdown.bgEnabled}"
+			:style="{
+				fontFamily: configCountdown.textFont,
+				fontSize: configCountdown.textSize + 'px',
+				color: configCountdown.textColor,
+				backgroundColor: configCountdown.bgColor,
+			}">
+				<Icon id="countdown_icon" name="countdown" v-if="configCountdown.showIcon" />
+				<div id="countdown_label">{{countdownValue}}</div>
+			</div>
+			<div v-else-if="configCountdown.style == 'bar'" class="progress" ref="countdown">
+				<div class="fill"
+				:style="{
+					width: countdownPercent+'%',
+					backgroundColor: configCountdown.bgColor,
+					height: configCountdown.progressSize + 'px',
+				}"></div>
+			</div>
+		</template>
 	</div>
 </template>
 
 <script lang="ts">
+import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/gsap-core';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import AbstractOverlay from './AbstractOverlay';
+import { Component, toNative } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
+import AbstractOverlay from './AbstractOverlay';
 
 @Component({
 	components:{
@@ -31,6 +58,9 @@ class OverlayTimer extends AbstractOverlay {
 
 	public timerValue:string = "";
 	public countdownValue:string = "";
+	public countdownPercent:number = 0
+	public configTimer:TwitchatDataTypes.TimerData["overlayParams"]|null = null;
+	public configCountdown:TwitchatDataTypes.TimerData["overlayParams"]|null = null;
 
 	private overlayId:string = "";
 	private intervalUpdate:number = -1;
@@ -52,9 +82,9 @@ class OverlayTimer extends AbstractOverlay {
 		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTDOWN_COMPLETE, this.countdownEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GET_TIMER_OVERLAY_PRESENCE, this.timerPresenceHandler);
 
-		this.intervalUpdate = window.setInterval(()=>{ this.computeValues() }, 1000);
+		this.intervalUpdate = window.setInterval(()=>{ this.computeValues() }, 100);
 
-		this.overlayId = this.$route.query.tid as string ?? "";
+		this.overlayId = this.$route.query.twitchat_overlay_id as string ?? "";
 	}
 
 	public beforeUnmount():void {
@@ -77,16 +107,21 @@ class OverlayTimer extends AbstractOverlay {
 
 		if(e.type == TwitchatEvent.TIMER_START) {
 			this.timerData = data;
+			const wasVisible = this.timerValue != "";
 			this.computeValues();
-			await this.$nextTick();
-			if(this.$refs.timer) gsap.fromTo(this.$refs.timer as HTMLDivElement, {y:"-100%"}, {duration:.7, y:"0%"});
+			if(!wasVisible) {
+				await this.$nextTick();
+				if(this.$refs.timer) gsap.fromTo(this.$refs.timer as HTMLDivElement, {y:"-100%"}, {duration:.5, y:"0%"});
+			}
 
 		}else if(this.$refs.timer) {
-			gsap.to(this.$refs.timer as HTMLDivElement, {duration:.7, y:"-100%", onComplete:()=> {
+			gsap.to(this.$refs.timer as HTMLDivElement, {duration:.5, y:"-100%", onComplete:()=> {
 				this.timerData = null;
 				this.timerValue = "";
 			}});
 		}
+
+		this.configTimer = data.overlayParams;
 	}
 
 	public async onCountdownEvent(e:TwitchatEvent):Promise<void> {
@@ -96,16 +131,21 @@ class OverlayTimer extends AbstractOverlay {
 
 		if(e.type == TwitchatEvent.COUNTDOWN_START) {
 			this.countdownData = data;
+			const wasVisible = this.countdownValue != "";
 			this.computeValues();
-			await this.$nextTick();
-			if(this.$refs.countdown) gsap.from(this.$refs.countdown as HTMLDivElement, {duration:.7, y:"-100%"});
+			if(!wasVisible){
+				await this.$nextTick();
+				if(this.$refs.countdown) gsap.from(this.$refs.countdown as HTMLDivElement, {duration:.5, y:"-100%"});
+			}
 
 		}else if(this.$refs.countdown) {
-			gsap.to(this.$refs.countdown as HTMLDivElement, {duration:.7, y:"-100%", onComplete:()=>{
+			gsap.to(this.$refs.countdown as HTMLDivElement, {duration:.5, y:"-100%", onComplete:()=>{
 				this.countdownData = null;
 				this.countdownValue = "";
 			}});
 		}
+
+		this.configCountdown = data.overlayParams;
 	}
 
 	public computeValues():void {
@@ -117,8 +157,15 @@ class OverlayTimer extends AbstractOverlay {
 			elapsed -= this.countdownData.pauseDuration_ms;
 			const remaining = Math.round((this.countdownData.duration_ms - elapsed)/1000)*1000;
 			this.countdownValue = Utils.formatDuration(remaining, false, "d");
+
+			let percent = elapsed/this.countdownData.duration_ms;
+			if(this.configCountdown && this.configCountdown.progressStyle === "empty") {
+				percent = 1 - percent;
+			}
+			this.countdownPercent = Math.max(0, Math.min(100, percent*100));
 		}else{
 			this.countdownValue = "";
+			this.countdownPercent = 0;
 		}
 
 		if(this.timerData && this.timerData.startAt_ms) {
@@ -161,6 +208,12 @@ export default toNative(OverlayTimer);
 		box-shadow: 0 0 .5em rgba(0, 0, 0, 1);
 		font-family: var(--font-roboto);
 
+		&.noBg {
+			background-color: transparent;
+			box-shadow: none;
+			padding: 0;
+		}
+
 		.icon {
 			height: 1em;
 			width: 1em;
@@ -169,6 +222,18 @@ export default toNative(OverlayTimer);
 		}
 		&:not(:first-child) {
 			margin-left: 1em;
+		}
+	}
+
+	.progress {
+		width: 100vw;
+		position: fixed;
+		top: 0;
+		left: 0;
+		transform: translateX(-50vw);
+		.fill {
+			will-change: width;
+			transition: width .1s linear;
 		}
 	}
 }

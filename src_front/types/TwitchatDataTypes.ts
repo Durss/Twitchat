@@ -1186,6 +1186,49 @@ export namespace TwitchatDataTypes {
 		 * Duration of the countdown in ms
 		 */
 		duration_ms:number;
+		/**
+		 * Contains overlay's params
+		 */
+		overlayParams: {
+			/**
+			 * Style of display
+			 * text: legacy mode
+			 * bar: new render style for countdown with a progress bar reducing
+			 */
+			style:"text"|"bar";
+			/**
+			 * Background color
+			 */
+			bgColor:string;
+			/**
+			 * Show background
+			 */
+			bgEnabled:boolean;
+			/**
+			 * Show icon
+			 */
+			showIcon:boolean;
+			/**
+			 * Text font
+			 */
+			textFont:string;
+			/**
+			 * Text size
+			 */
+			textSize:number;
+			/**
+			 * Text color
+			 */
+			textColor:string;
+			/**
+			 * Size of the progress bar
+			 */
+			progressSize:number;
+			/**
+			 * Progress style for "bar" style
+			 */
+			progressStyle:"fill"|"empty";
+		}
 	}
 
 	/**

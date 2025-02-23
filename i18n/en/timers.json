@@ -4,7 +4,7 @@
 		"header_link_trigger": "the triggers",
 		"header_link_overlay": "display them",
 		"addBt": "Create timer",
-		"premium_limit": "You created the maximum number of {MAX} countters.\nBecome premium to create up to {MAX_PREMIUM} countters.\nOr disable / delete some countters to create new ones.",
+		"premium_limit": "You created the maximum number of {MAX} timers.\nBecome premium to create up to {MAX_PREMIUM} timers.\nOr disable / delete some timers to create new ones.",
 		"delete_confirm": {
 			"title": "Delete entry",
 			"message": "Are you sure you want to delete this entry?"

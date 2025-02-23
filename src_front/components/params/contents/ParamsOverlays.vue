@@ -32,21 +32,21 @@
 		</div> -->
 
 		<div class="list" v-if="subContent == null">
-			<button class="item" @click="subContent = 'donationgoals'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_7, id:'params_overlays_donationgoals'}"><img src="@/assets/img/overlays/donation_goals.jpg"></button>
-			<button class="item" @click="subContent = 'bingogrid'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'params_overlays_bingogrid'}"><img src="@/assets/img/overlays/bingo_grids.jpg"></button>
-			<button class="item" @click="subContent = 'polls'" v-if="isAffiliate" v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_overlays_poll'}"><img src="@/assets/img/overlays/polls.jpg"></button>
-			<button class="item" @click="subContent = 'predictions'" v-if="isAffiliate" v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_overlays_prediction'}"><img src="@/assets/img/overlays/predictions.jpg"></button>
-			<button class="item" @click="subContent = 'wheel'"><img src="@/assets/img/overlays/raffle.jpg"></button>
-			<button class="item" @click="subContent = 'bitswall'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_bitswall'}"><img src="@/assets/img/overlays/bits_wall.jpg"></button>
-			<button class="item" @click="subContent = 'credits'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_credits'}"><img src="@/assets/img/overlays/ending_credits.jpg"></button>
-			<button class="item" @click="subContent = 'music'"><img src="@/assets/img/overlays/spotify.jpg"></button>
-			<button class="item" @click="subContent = 'distort'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_distort'}"><img src="@/assets/img/overlays/interractive_distortions.jpg"></button>
-			<button class="item" @click="subContent = 'adbreak'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_adbreak'}"><img src="@/assets/img/overlays/ad_break.jpg"></button>
-			<button class="item" @click="subContent = 'chathighlight'"><img src="@/assets/img/overlays/highlights.jpg"></button>
-			<button class="item" @click="subContent = 'labels'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'params_overlays_labels'}"><img src="@/assets/img/overlays/labels.jpg"></button>
-			<button class="item" @click="subContent = 'counter'"><img src="@/assets/img/overlays/counters.jpg"></button>
-			<button class="item" @click="subContent = 'timer'"><img src="@/assets/img/overlays/timer.jpg"></button>
-			<button class="item" @click="subContent = 'ulule'"><img src="@/assets/img/overlays/ulule.jpg"></button>
+			<button class="item" @click="subContent = 'donationgoals'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_7, id:'params_overlays_donationgoals'}"><img src="@/assets/img/overlays/donation_goals.jpg" alt="Goals"></button>
+			<button class="item" @click="subContent = 'bingogrid'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'params_overlays_bingogrid'}"><img src="@/assets/img/overlays/bingo_grids.jpg" alt="Bingo grid"></button>
+			<button class="item" @click="subContent = 'polls'" v-if="isAffiliate" v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_overlays_poll'}"><img src="@/assets/img/overlays/polls.jpg" alt="Polls"></button>
+			<button class="item" @click="subContent = 'predictions'" v-if="isAffiliate" v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_overlays_prediction'}"><img src="@/assets/img/overlays/predictions.jpg" alt="Predictions"></button>
+			<button class="item" @click="subContent = 'wheel'"><img src="@/assets/img/overlays/raffle.jpg" alt="wheel"></button>
+			<button class="item" @click="subContent = 'bitswall'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_bitswall'}"><img src="@/assets/img/overlays/bits_wall.jpg" alt="Bits wall"></button>
+			<button class="item" @click="subContent = 'credits'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_credits'}"><img src="@/assets/img/overlays/ending_credits.jpg" alt="Ending Credits"></button>
+			<button class="item" @click="subContent = 'music'"><img src="@/assets/img/overlays/spotify.jpg" alt="music"></button>
+			<button class="item" @click="subContent = 'distort'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_distort'}"><img src="@/assets/img/overlays/interractive_distortions.jpg" alt="Interactive distortions"></button>
+			<button class="item" @click="subContent = 'adbreak'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_adbreak'}"><img src="@/assets/img/overlays/ad_break.jpg" alt="Ad break indicator"></button>
+			<button class="item" @click="subContent = 'chathighlight'"><img src="@/assets/img/overlays/highlights.jpg" alt="Chat highlight"></button>
+			<button class="item" @click="subContent = 'labels'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'params_overlays_labels'}"><img src="@/assets/img/overlays/labels.jpg" alt="Labels"></button>
+			<button class="item" @click="subContent = 'counter'"><img src="@/assets/img/overlays/counters.jpg" alt="Counters"></button>
+			<button class="item" @click="subContent = 'timer'"><img src="@/assets/img/overlays/timer.jpg" alt="Timers"></button>
+			<button class="item" @click="subContent = 'ulule'"><img src="@/assets/img/overlays/ulule.jpg" alt="Ulule"></button>
 		</div>
 
 		<div class="form">

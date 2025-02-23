@@ -10,6 +10,19 @@ import StoreProxy, { type ITimerActions, type ITimerGetters, type ITimerState } 
 import SetTimeoutWorker from '@/utils/SeTimeoutWorker';
 
 const countdownTO:Record<string, string> = {};
+const getDefaultStyle = ():TwitchatDataTypes.TimerData["overlayParams"] => {
+	return {
+		style:"text",
+		bgColor:"#ffffff",
+		showIcon:true,
+		bgEnabled:true,
+		textFont:"Roboto",
+		textSize:32,
+		textColor:"#18181b",
+		progressSize:10,
+		progressStyle:"empty",
+	}
+}
 
 export const storeTimer = defineStore('timer', {
 	state: () => ({
@@ -44,6 +57,7 @@ export const storeTimer = defineStore('timer', {
 				offset_ms:0,
 				pauseDuration_ms:0,
 				duration_ms:0,
+				overlayParams: getDefaultStyle(),
 			}
 			const defaultCountdown:TwitchatDataTypes.TimerData = {
 				id:Utils.getUUID(),
@@ -57,6 +71,7 @@ export const storeTimer = defineStore('timer', {
 				startAt_ms:0,
 				offset_ms:0,
 				pauseDuration_ms:0,
+				overlayParams: getDefaultStyle(),
 			}
 
 			// Create default time/countdown if missing
@@ -66,6 +81,12 @@ export const storeTimer = defineStore('timer', {
 			if (!this.timerList.some(timer => timer.isDefault && timer.type === "timer")) {
 				this.timerList.unshift(defaultTimer);
 			}
+
+			//TODO remove
+			this.timerList.forEach(timer => {
+				timer.overlayParams = getDefaultStyle();
+			})
+
 			this.saveData();
 
 			/**
@@ -73,25 +94,22 @@ export const storeTimer = defineStore('timer', {
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, (event:TwitchatEvent<{ id?:string }>)=> {
 				if(event.data?.id) {
-					//Broadcast requested timer state
-					const entry = this.timerList.find(t=> t.id === event.data!.id);
-					if(entry && entry.type === "timer")		PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, entry);
-					if(entry && entry.type === "countdown")	PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, entry);
+					this.broadcastStates(event.data.id);
 				}else{
 					//Broadcast default timers states
 					for (let i = 0; i < this.timerList.length; i++) {
 						const entry = this.timerList[i];
 						if(!entry.isDefault) continue;
-						if(entry.type === "timer")		PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, entry);
-						if(entry.type === "countdown")	PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, entry);
+						this.broadcastStates(entry.id);
 					}
 				}
 			});
 		},
 
-		broadcastStates() {
+		broadcastStates(id?:string) {
 			for (let i = 0; i < this.timerList.length; i++) {
 				const entry = this.timerList[i];
+				if(id && entry.id !== id) continue;
 
 				if(entry.type === "timer") {
 					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, entry);
@@ -118,6 +136,7 @@ export const storeTimer = defineStore('timer', {
 				offset_ms:0,
 				pauseDuration_ms:0,
 				duration_ms:0,
+				overlayParams: getDefaultStyle(),
 			}
 			this.timerList.push(data);
 			this.saveData();
@@ -223,7 +242,11 @@ export const storeTimer = defineStore('timer', {
 			const entry = this.timerList.find(t=> t.id === id);
 			if(!entry || !entry.startAt_ms) return;
 			entry.paused = false;
-			entry.offset_ms -= Date.now() - (entry.pausedAt_ms || 0);
+			if(entry.type == "timer") {
+				entry.offset_ms -= Date.now() - (entry.pausedAt_ms || 0);
+			}else{
+				entry.pauseDuration_ms += Date.now() - (entry.pausedAt_ms || 0);
+			}
 			entry.pausedAt_ms = 0;
 			this.broadcastStates();
 			this.saveData();
@@ -235,7 +258,6 @@ export const storeTimer = defineStore('timer', {
 			if(entry.paused) this.timerUnpause(id);
 			entry.endAt_ms = Date.now();
 			const duration = this.getTimerComputedValue(id);
-
 			let message!:TwitchatDataTypes.MessageTimerData|TwitchatDataTypes.MessageCountdownData;
 			switch(entry.type) {
 				case "timer":{
@@ -291,6 +313,8 @@ export const storeTimer = defineStore('timer', {
 			const entry = this.timerList.find(t=> t.id === id);
 			if(!entry) return;
 			SetTimeoutWorker.instance.delete(countdownTO[entry.id]);
+			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, entry);
+			PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, entry);
 			delete entry.pausedAt_ms
 			delete entry.endAt_ms
 			delete entry.startAt_ms;
@@ -309,7 +333,10 @@ export const storeTimer = defineStore('timer', {
 			for (let i = 0; i < this.timerList.length; i++) {
 				const entry = this.timerList[i];
 				if(entry.type != "countdown") continue;
-				if(countdownTO[entry.id]) SetTimeoutWorker.instance.delete(countdownTO[entry.id]);
+				if(countdownTO[entry.id]) {
+					SetTimeoutWorker.instance.delete(countdownTO[entry.id]);
+					delete countdownTO[entry.id];
+				}
 				if(entry.paused) continue;
 
 				countdownTO[entry.id] = SetTimeoutWorker.instance.create(()=> {

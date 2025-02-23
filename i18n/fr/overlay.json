@@ -30,11 +30,21 @@
 			"testBt": "Lancer une animation de test"
 		},
 		"timer": {
-			"title": "Chronomètre & Compte à rebours",
-			"head": "Si vous lancez un chronomètre ou un compte à rebours avec les commandes {CMD1} ou {CMD2}, cet overlay affichera leurs durées.",
-			"css": "Changez leur apparence via ces sélecteurs CSS",
-			"try_timerBt": "Tester le chronomère",
-			"try_countdownBt": "Tester un compte à rebours (2min)"
+			"default_timer": "Cet overlay est lié aux commandes {CMD}",
+			"css": "Changez l'apparence via ces sélecteurs CSS",
+			"param_style": "Style d'affichage",
+			"param_style_text":"Texte",
+			"param_style_bar":"Barre de progression",
+			"param_showIcon": "Afficher l'icône",
+			"param_bgColor": "Couleur de fond",
+			"param_bgEnabled": "Afficher le fond",
+			"param_textFont": "Police du texte",
+			"param_textSize": "Taille du texte",
+			"param_textColor": "Couleur du texte",
+			"param_progressSize": "Taille de la barre ( {VALUE}px )",
+			"param_progressStyle": "Type de progression",
+			"param_progressStyle_empty": "Vider",
+			"param_progressStyle_fill": "Remplir"
 		},
 		"counters": {
 			"title": "Compteurs",
