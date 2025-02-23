@@ -875,24 +875,16 @@ export const storeDebug = defineStore('debug', {
 					const duration = Math.round(Math.random()*60*10)*1000;
 					const start = new Date(Date.now() - duration);
 					const m:TwitchatDataTypes.MessageTimerData = {
-						platform:"twitch",
-						type,
+						type:TwitchatDataTypes.TwitchatMessageType.TIMER,
+						platform:"twitchat",
 						id:Utils.getUUID(),
 						date:Date.now(),
-						started:true,
-						timer:{
-							startAt:Utils.formatDate(start),
-							startAt_ms:start.getTime(),
-							duration:Utils.formatDuration(duration, true),
-							duration_ms:duration,
-							offset_ms:0,
-							endAt:Utils.formatDate(new Date()),
-							endAt_ms:Date.now(),
-							labels: {
-								days:StoreProxy.i18n.t("global.date_days"),
-							}
-						},
-						channel_id:uid,
+						channel_id:StoreProxy.auth.twitch.user.id,
+						startedAt_ms:start.getTime(),
+						startedAt_str:Utils.formatDate(new Date(start.getTime()), true),
+						duration_ms:duration,
+						duration_str:Utils.formatDuration(duration, true),
+						stopped:true,
 					};
 					data = m;
 					break;
@@ -902,27 +894,21 @@ export const storeDebug = defineStore('debug', {
 					const duration = Math.round(Math.random() *60*60)*1000;
 					const start = new Date(Date.now() - duration);
 					const m:TwitchatDataTypes.MessageCountdownData = {
+						type:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
 						platform:"twitchat",
-						type,
-						date:Date.now(),
 						id:Utils.getUUID(),
-						countdown: {
-							duration:Utils.formatDuration(duration, true),
-							duration_ms:duration,
-							startAt:Utils.formatDate(start),
-							startAt_ms:start.getTime(),
-							endAt:Utils.formatDate(new Date()),
-							endAt_ms:Date.now(),
-							timeoutRef:-1,
-							pausedDuration:0,
-							aborted:false,
-							finalDuration:Utils.formatDuration(duration, true),
-							finalDuration_ms:duration,
-							labels: {
-								days:StoreProxy.i18n.t("global.date_days"),
-							}
-						},
-						channel_id:uid,
+						date:Date.now(),
+						channel_id:StoreProxy.auth.twitch.user.id,
+						startedAt_ms:start.getTime(),
+						startedAt_str:Utils.formatDate(new Date(start.getTime()), true),
+						duration_ms:duration,
+						duration_str:Utils.formatDuration(duration, true),
+						aborted:false,
+						complete:true,
+						endedAt_ms:Date.now(),
+						endedAt_str:Utils.formatDate(new Date(), true),
+						finalDuration_ms:duration,
+						finalDuration_str:Utils.formatDuration(duration, true),
 					};
 					data = m;
 					break;

@@ -78,7 +78,10 @@
 									v-model="entry.placeholderKey"
 									:prefix="entry.type == 'timer'? 'TIMER_' : 'COUNTDOWN_'"
 									@change="checkForPlaceholderDuplicates()" />
-								<div class="errorReason" v-if="timer2PlaceholderError[entry.id]">{{ $t("timers.form.param_placeholder_conflict") }}</div>
+								<template v-if="timer2PlaceholderError[entry.id]">
+									<div class="errorReason" v-if="[defaultTimerPLaceholder, defaultCountdownPLaceholder].includes(entry.placeholderKey)">{{ $t("timers.form.param_placeholder_default_conflict") }}</div>
+									<div class="errorReason" v-else>{{ $t("timers.form.param_placeholder_conflict") }}</div>
+								</template>
 							</div>
 
 							<div class="timerValue" v-if="entry.startAt_ms">{{ (Math.round(timer2Duration[entry.id]?.duration_ms/100)/10).toFixed(1) }}</div>
@@ -132,6 +135,9 @@ class ParamsTimer extends Vue implements IParameterContent {
 	public param_duration:Record<string, TwitchatDataTypes.ParameterData<number>> = {};
 	public timer2Duration:Record<string, ReturnType<typeof StoreProxy.timers.getTimerComputedValue>> = {};
 	public timer2PlaceholderError:Record<string, boolean> = {};
+	public defaultTimerPLaceholder = "";
+	public defaultCountdownPLaceholder = "";
+
 	private refreshInterval = -1;
 
 	public get canCreateTimers():boolean {
@@ -150,6 +156,8 @@ class ParamsTimer extends Vue implements IParameterContent {
 
 	public mounted(): void {
 		this.refreshInterval = window.setInterval(()=>this.refreshTimers(), 100);
+		this.defaultTimerPLaceholder = this.$store.timers.timerList.find(v=>v.type == 'timer' && v.isDefault)?.placeholderKey || '';
+		this.defaultCountdownPLaceholder = this.$store.timers.timerList.find(v=>v.type == 'countdown' && v.isDefault)?.placeholderKey || '';
 
 		// watch(()=> this.param_placeholder.value, ()=> {
 		// 	if(!this.param_placeholder.value) {
@@ -220,13 +228,11 @@ class ParamsTimer extends Vue implements IParameterContent {
 		});
 		for (let i = 0; i < this.$store.timers.timerList.length; i++) {
 			const t = this.$store.timers.timerList[i];
-			const prefix1 = t.type == 'timer'? 'TIMER_' : 'COUNTDOWN_';
 			if(!t.placeholderKey) continue;
 			for (let j = 0; j < this.$store.timers.timerList.length; j++) {
 				const t2 = this.$store.timers.timerList[j];
-				const prefix2 = t2.type == 'timer'? 'TIMER_' : 'COUNTDOWN_';
 				if(t2.id == t.id) continue;
-				if(t2.placeholderKey && prefix2 + t2.placeholderKey.toUpperCase() == prefix1 + t.placeholderKey.toUpperCase()) {
+				if(t2.placeholderKey && t2.placeholderKey.toUpperCase() == t.placeholderKey.toUpperCase()) {
 					this.timer2PlaceholderError[t.id] = true;
 					break;
 				}

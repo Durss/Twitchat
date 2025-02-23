@@ -34,7 +34,7 @@ export const storeTimer = defineStore('timer', {
 			const defaultTimer:TwitchatDataTypes.TimerData = {
 				id:Utils.getUUID(),
 				type:"timer",
-				placeholderKey:"TIMER_DEFAULT",
+				placeholderKey:"DEFAULT",
 				title:StoreProxy.i18n.t("timers.default.timer_title"),
 				enabled:true,
 				isDefault:true,
@@ -47,7 +47,7 @@ export const storeTimer = defineStore('timer', {
 			const defaultCountdown:TwitchatDataTypes.TimerData = {
 				id:Utils.getUUID(),
 				type:"countdown",
-				placeholderKey:"COUNTDOWN_DEFAULT",
+				placeholderKey:"DEFAULT",
 				title:StoreProxy.i18n.t("timers.default.countdown_title"),
 				duration_ms:60_000,
 				enabled:true,

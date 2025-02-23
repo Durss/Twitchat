@@ -28,6 +28,7 @@
 			"param_duration": "Duration",
 			"param_placeholder": "Placeholder name",
 			"param_placeholder_tt": "This value will allow you<br>to get this entry's value<br>in any trigger action",
+			"param_placeholder_default_conflict": "This is a reserved placeholder name",
 			"param_placeholder_conflict": "Another timer already uses this placeholder"
 		}
 	}

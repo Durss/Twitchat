@@ -28,6 +28,7 @@
 			"param_duration": "Durée",
 			"param_placeholder": "Nom du placeholder",
 			"param_placeholder_tt": "Cette valeur vous permettra<br>de récupérer la valeur du<br>minuteur dans n'importe<br>quelle action de trigger",
+			"param_placeholder_default_conflict": "Ce nom de placeholder est réservé",
 			"param_placeholder_conflict": "Un autre minuteur utilise déjà ce placeholder"
 		}
 	}
