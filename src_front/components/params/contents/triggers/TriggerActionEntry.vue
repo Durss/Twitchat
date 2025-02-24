@@ -156,6 +156,10 @@
 					<TTButton class="button" @click="selectActionType('random')"
 						icon="dice">{{ $t('triggers.actions.common.action_random') }}</TTButton>
 
+					<TTButton class="button" @click="selectActionType('timer')"
+						v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_triggerAction_timer'}"
+						icon="timer">{{ $t('triggers.actions.common.action_timer') }}</TTButton>
+
 					<TTButton class="button" @click.capture="selectActionType('obs')"
 						icon="obs"
 						:disabled="!obsConnected"
@@ -287,6 +291,7 @@
 			<TriggerActionMixitupEntry v-else-if="action.type=='mixitup'" :action="action" :triggerData="triggerData" />
 			<TriggerActionPlayAbilityEntry v-else-if="action.type=='playability'" :action="action" :triggerData="triggerData" />
 			<TriggerActionGroqEntry v-else-if="action.type=='groq'" :action="action" :triggerData="triggerData" />
+			<TriggerActionTimerEntry v-else-if="action.type=='timer'" :action="action" :triggerData="triggerData" />
 			<RaffleForm v-else-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 			<BingoForm v-else-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 			<PollForm v-else-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -354,6 +359,7 @@ import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneE
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 import TriggerActionSpoilMessageEntry from './entries/TriggerActionSpoilMessageEntry.vue';
+import TriggerActionTimerEntry from './entries/TriggerActionTimerEntry.vue';
 
 @Component({
 	components:{
@@ -379,6 +385,7 @@ import TriggerActionSpoilMessageEntry from './entries/TriggerActionSpoilMessageE
 		TriggerActionMusicEntry,
 		TriggerActionSammiEntry,
 		TriggerActionGoXLREntry,
+		TriggerActionTimerEntry,
 		TriggerActionRewardEntry,
 		TriggerActionCustomBadge,
 		TriggerActionRandomEntry,
@@ -563,6 +570,7 @@ class TriggerActionEntry extends Vue {
 		else if(this.action.type == "mixitup") icons.push( 'mixitup' );
 		else if(this.action.type == "playability") icons.push( 'playability' );
 		else if(this.action.type == "groq") icons.push( 'groq' );
+		else if(this.action.type == "timer") icons.push( 'timer' );
 		return icons;
 	}
 

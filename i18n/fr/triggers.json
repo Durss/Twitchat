@@ -72,7 +72,7 @@
 		},
 		"rewards": {
 			"require": "Ces événéments nécessitent de {URL}",
-			"require_url": "lister vos récompenses de point de chaîne",
+			"require_url": "lister vos récompenses de points de chaîne",
 			"all_rewards": "N'importe quelle récompense"
 		},
 		"schedule": {
@@ -141,7 +141,7 @@
 				"action_delete": "Supprimer le message",
 				"action_spoil_message": "Spoiler le message",
 				"action_customChat": "Notification personnalisée",
-				"action_reward": "Récompense de points de chaîne",
+				"action_reward": "Récompense de pts de chaîne",
 				"action_extension": "Extension Twitch",
 				"action_bingo": "Lancer un bingo",
 				"action_chatSugg": "Suggestions de tchat",
@@ -189,7 +189,8 @@
 				"action_playability": "Action PlayAbility",
 				"action_playability_tt": "Vous devez connecter Twitchat à PlayAbility pour utiliser cette action",
 				"action_groq": "Action Groq",
-				"action_groq_tt": "Vous devez connecter Twitchat à Groq pour utiliser cette action"
+				"action_groq_tt": "Vous devez connecter Twitchat à Groq pour utiliser cette action",
+				"action_timer": "Minuteur"
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
@@ -663,6 +664,20 @@
 				"jsonMode_hint_link": "Voir les instructions",
 				"json": "Format JSON",
 				"jsonError": "Format JSON invalide:\n{ERROR}"
+			},
+			"timer": {
+				"no_timer": "Vous devez d'abord créer un minuteur",
+				"createTimer_bt": "Créer un minuteur",
+				"param_timer": "Minuteur",
+				"param_action": "Action",
+				"param_action_start": "Démarrer",
+				"param_action_pause": "Mettre en pause",
+				"param_action_resume": "Reprendre",
+				"param_action_stop": "Arrêter",
+				"param_action_add": "Ajouter du temps",
+				"param_action_remove": "Retirer du temps",
+				"param_action_set": "Changer la durée",
+				"param_duration": "Durée (secondes)"
 			}
 		},
 		"categories": {

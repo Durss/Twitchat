@@ -873,6 +873,21 @@ const UserDataSchema = {
 										},
 									}
 								},
+
+								timerData:{
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										timerId: {type:"string", maxLength:50},
+										action: { enum: ["start","pause","resume","stop","reset","add","remove","set"] },
+										duration: {
+											anyOf: [
+												{ type: "integer", minimum:0, maximum:Number.MAX_SAFE_INTEGER, nullable: true },
+												{ type: "string",  minLength: 0, maxLength: 100 }
+											]
+										}
+									}
+								},
 							}
 						},
 					}
@@ -2100,6 +2115,7 @@ const UserDataSchema = {
 			maxItems:20,
 			items:{
 				type: "object",
+				additionalProperties: false,
 				properties: {
 					sessionId: { type: "string" },
 					mode: { enum: ["chat", "sub", "manual", "values", "tips"] },
@@ -2206,6 +2222,7 @@ const UserDataSchema = {
 					},
 					messages: {
 						type: "object",
+						additionalProperties: false,
 						properties: {
 							raffleStart: {
 								type: "object",
@@ -2236,6 +2253,7 @@ const UserDataSchema = {
 
 		tiktokConfigs:{
 			type: "object",
+			additionalProperties: false,
 			properties: {
 				ip: {type:"string", maxLength:100},
 				port: {type:"integer", minimum:0, maximum:65535},
@@ -2244,6 +2262,7 @@ const UserDataSchema = {
 
 		streamerbotConfigs:{
 			type: "object",
+			additionalProperties: false,
 			properties: {
 				ip: {type:"string", maxLength:100},
 				port: {type:"integer", minimum:0, maximum:65535},
@@ -2252,6 +2271,7 @@ const UserDataSchema = {
 
 		sammiConfigs:{
 			type: "object",
+			additionalProperties: false,
 			properties: {
 				ip: {type:"string", maxLength:100},
 				port: {type:"integer", minimum:0, maximum:65535},
@@ -2260,6 +2280,7 @@ const UserDataSchema = {
 
 		mixitupConfigs:{
 			type: "object",
+			additionalProperties: false,
 			properties: {
 				ip: {type:"string", maxLength:100},
 				port: {type:"integer", minimum:0, maximum:65535},
@@ -2268,6 +2289,7 @@ const UserDataSchema = {
 
 		playabilityConfigs:{
 			type: "object",
+			additionalProperties: false,
 			properties: {
 				ip: {type:"string", maxLength:100},
 				port: {type:"integer", minimum:0, maximum:65535},
@@ -2276,6 +2298,7 @@ const UserDataSchema = {
 
 		kofiConfigs: {
 			type: "object",
+			additionalProperties: false,
 			properties: {
 				webhooks: {
 					type:"array",
@@ -2288,6 +2311,7 @@ const UserDataSchema = {
 
 		groqConfigs:{
 			type: "object",
+			additionalProperties: false,
 			properties: {
 				defaultModel: {type:"string", maxLength:100},
 			}
@@ -2295,6 +2319,7 @@ const UserDataSchema = {
 
 		timersConfigs:{
 			type: "object",
+			additionalProperties: false,
 			properties: {
 				timerList: {
 					type:"array",

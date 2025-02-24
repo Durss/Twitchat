@@ -3573,6 +3573,56 @@ export default class TriggerActionHandler {
 					}
 				}
 
+				if(step.type == "timer") {
+					const timer = StoreProxy.timers.timerList.find(t=>t.id == step.timerData.timerId);
+					const action = step.timerData.action;
+					logStep.messages.push({date:Date.now(), value:"Execute action \""+action+"\" on timer \""+(timer? timer.title : "-timer not found-")+"\""});
+					if(timer) {
+						switch(action) {
+							case "set":
+							case "add":
+							case "remove": {
+								let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.timerData.duration || "0", subEvent);
+								let value = 0;
+								try {
+									value = MathEval(text);
+									logStep.messages.push({date:Date.now(), value:"Math evaluation result: "+value});
+								}catch(error){
+									value = 0;
+									logStep.messages.push({date:Date.now(), value:"❌ Failed to interpret arithmetic expression for duration \""+step.timerData.duration+"\""});
+									log.error = true;
+									logStep.error = true;
+								}
+
+								//Convert to ms
+								value *= 1000;
+
+								if(action == "set") {
+									timer.duration_ms = value;
+									StoreProxy.timers.broadcastStates(timer.id);
+									StoreProxy.timers.saveData();
+
+								}else if(action == "add") {
+									StoreProxy.timers.timerAdd(timer.id, value);
+
+								}else if(action == "remove") {
+									StoreProxy.timers.timerRemove(timer.id, value);
+								}
+								break;
+							}
+							case "pause": StoreProxy.timers.timerPause(timer.id); break;
+							case "resume": StoreProxy.timers.timerUnpause(timer.id); break;
+							case "start": StoreProxy.timers.timerStart(timer.id); break;
+							case "stop": StoreProxy.timers.timerStop(timer.id); break;
+							default: {
+								logStep.messages.push({date:Date.now(), value:"❌ Woops... Unhandled timer action \""+action+"\" 😬"});
+								log.error = true;
+								logStep.error = true;
+							}
+						}
+					}
+				}
+
 			}catch(error:any) {
 				console.error(error);
 				logStep.messages.push({date:Date.now(), value:"❌ [EXCEPTION] step execution thrown an error: "+error.message+" "+error.stack});

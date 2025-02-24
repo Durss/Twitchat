@@ -102,6 +102,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionMixitupData
 								| TriggerActionPlayabilityData
 								| TriggerActionGroqData
+								| TriggerActionTimerData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -651,6 +652,28 @@ export interface TriggerActionGroqData extends TriggerActionData{
 		 * Extract placeholders as simple text or with JSONPath
 		 */
 		outputPlaceholderList?:IHttpPlaceholder[];
+	};
+}
+
+export const TriggerActionTimerData_ACTION = ["start", "pause", "resume", "stop", "add", "remove", "set"] as const;
+export interface TriggerActionTimerData extends TriggerActionData{
+	type:"timer";
+	/**
+	 * Timer params
+	 */
+	timerData:{
+		/**
+		 * Timer ID
+		 */
+		timerId:string;
+		/**
+		 * Action to perform
+		 */
+		action:typeof TriggerActionTimerData_ACTION[number];
+		/**
+		 * Duration to add
+		 */
+		duration?:string;
 	};
 }
 

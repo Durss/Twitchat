@@ -653,7 +653,13 @@ export default class MessengerProxy {
 					if(res.status != 200) {
 						switch(res.json.errorCode) {
 							case "POST_FAILED":
+								error = StoreProxy.i18n.t("error.discord.POST_FAILED", {CHANNEL:res.json.channelName});
+								break;
+							case "MISSING_ACCESS":
 								error = StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:res.json.channelName});
+								break;
+							case "UNKNOWN_CHANNEL":
+								error = StoreProxy.i18n.t("error.discord.UNKNOWN_CHANNEL", {CHANNEL:res.json.channelName});
 								break;
 							default:
 								error = StoreProxy.i18n.t("error.discord.UNKNOWN");

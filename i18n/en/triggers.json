@@ -189,7 +189,8 @@
 				"action_playability": "PlayAbility action",
 				"action_playability_tt": "You first need to connect Twitchat with PlayAbility to use this action",
 				"action_groq": "Groq action",
-				"action_groq_tt": "You first need to connect Twitchat with Groqger to use this action"
+				"action_groq_tt": "You first need to connect Twitchat with Groqger to use this action",
+				"action_timer": "Timer"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -663,6 +664,20 @@
 				"jsonMode_hint_link": "See instructions",
 				"json": "{'{'}\n\t\"myKey\": \"Expected Groq result example\",\n\t\"myOtherKey\": \"Another Groq result\"\n{'}'}",
 				"jsonError": "Invalid JSON format:\n{ERROR}"
+			},
+			"timer": {
+				"no_timer": "You must first create a timer",
+				"createTimer_bt": "Create a timer",
+				"param_timer": "Timer to control",
+				"param_action": "Action",
+				"param_action_start": "Start",
+				"param_action_pause": "Pause",
+				"param_action_resume": "Resume",
+				"param_action_stop": "Stop",
+				"param_action_add": "Add time",
+				"param_action_remove": "Remove time",
+				"param_action_set": "Set duration",
+				"param_duration": "Duration (seconds)"
 			}
 		},
 		"categories": {
