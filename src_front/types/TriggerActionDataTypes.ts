@@ -2405,9 +2405,10 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 
 	map[TriggerTypes.GOAL_STEP_COMPLETE] = [
 		{tag:"STEP_ID", descKey:'triggers.placeholders.goal_step_id', pointer:"stepConfig.id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
-		{tag:"STEP_INDEX", descKey:'triggers.placeholders.goal_step_index', pointer:"stepIndex", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
+		{tag:"STEP_INDEX", descKey:'triggers.placeholders.goal_step_index', pointer:"stepIndex", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
 		{tag:"STEP_TITLE", descKey:'triggers.placeholders.goal_step_title', pointer:"stepConfig.title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
-		{tag:"STEP_SECRET", descKey:'triggers.placeholders.goal_step_index', pointer:"stepConfig.secret", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
+		{tag:"STEP_SECRET", descKey:'triggers.placeholders.goal_step_secret', pointer:"stepConfig.secret", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
+		{tag:"STEP_AMOUNT", descKey:'triggers.placeholders.goal_step_amount', pointer:"stepConfig.amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
 		{tag:"GOALS_ID", descKey:'triggers.placeholders.goal_overlay_id', pointer:"goalConfig.id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
 		{tag:"GOALS_TITLE", descKey:'triggers.placeholders.goal_overlay_title', pointer:"goalConfig.title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
 	];

@@ -46,6 +46,7 @@
 		"show": "Show",
 		"hide": "Hide",
 		"copy": "Copy",
+		"copy_id": "Copy ID",
 		"stop": "Stop",
 		"edit": "Edit",
 		"import": "Import",
