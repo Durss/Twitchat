@@ -167,10 +167,16 @@ export default class DiscordController extends AbstractController {
 		}catch(error) {
 			const channels = await this._rest.get(Routes.guildChannels(guard.guild.guildID)) as {id:string, name:string}[];
 			const channel = channels.find(v=>v.id == params.channelId);
-			console.log(error);
+			const typedError = error as {code:number, message:string};
+			Logger.error("Unable to send message image to discord")
+			let errorCode = "POST_FAILED";
+			if(typedError.code === 50001) errorCode = "MISSING_ACCESS";
+			if(typedError.code === 10003) errorCode = "UNKNOWN_CHANNEL";
+			console.log(guard.user.login+" misconfigured Discord. Cannot post to "+channel?.name);
+			console.log(typedError.message);
 			response.header('Content-Type', 'application/json')
 			.status(401)
-			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:"POST_FAILED", channelName:channel? channel.name : "", success:false}));
+			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode, channelName:channel? channel.name : "", success:false}));
 			return;
 		}
 	}
@@ -226,7 +232,7 @@ export default class DiscordController extends AbstractController {
 		}catch(error) {
 			const channels = await this._rest.get(Routes.guildChannels(guard.guild.guildID)) as {id:string, name:string}[];
 			const channel = channels.find(v=>v.id == params.channelId);
-			console.log(error);
+			if(error.message) console.log(error.message);
 			response.header('Content-Type', 'application/json')
 			.status(401)
 			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:messageSent && !threadCreated? "CREATE_THREAD_FAILED" : "POST_FAILED", channelName:channel? channel.name : "", success:false}));
@@ -316,10 +322,15 @@ export default class DiscordController extends AbstractController {
 		}catch(error) {
 			const channels = await this._rest.get(Routes.guildChannels(guard.guild.guildID)) as {id:string, name:string}[];
 			const channel = channels.find(v=>v.id == params.channelId);
-			console.log(error);
+			const typedError = error as {code:number, message:string};
+			Logger.error("Unable to send message image to discord")
+			let errorCode = "POST_FAILED";
+			if(typedError.code === 50001) errorCode = "MISSING_ACCESS";
+			if(typedError.code === 10003) errorCode = "UNKNOWN_CHANNEL";
+			console.log(typedError.message);
 			response.header('Content-Type', 'application/json')
 			.status(401)
-			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:"POST_FAILED", channelName:channel? channel.name : "", success:false}));
+			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode, channelName:channel? channel.name : "", success:false}));
 			return;
 		}
 	}
@@ -418,6 +429,11 @@ export default class DiscordController extends AbstractController {
 				response.header('Content-Type', 'application/json')
 				.status(401)
 				.send(JSON.stringify({error:"Missing permission", errorCode:"MISSING_ACCESS", channelName:channel? channel.name : "", success:false}));
+
+			}else if(typedError.code == 10003) {
+				response.header('Content-Type', 'application/json')
+				.status(401)
+				.send(JSON.stringify({error:"Unknown channel", errorCode:"UNKNOWN_CHANNEL", success:false}));
 
 			}else{
 				response.header('Content-Type', 'application/json')
