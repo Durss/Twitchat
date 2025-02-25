@@ -190,7 +190,8 @@
 				"action_playability_tt": "You first need to connect Twitchat with PlayAbility to use this action",
 				"action_groq": "Groq action",
 				"action_groq_tt": "You first need to connect Twitchat with Groqger to use this action",
-				"action_timer": "Timer"
+				"action_timer": "Timer",
+				"trigger_stop": "Stop trigger execution"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -678,6 +679,9 @@
 				"param_action_remove": "Remove time",
 				"param_action_set": "Set duration",
 				"param_duration": "Duration (seconds)"
+			},
+			"trigger_stop": {
+				"info": "The trigger execution will stop here.\nThe following actions will not be executed."
 			}
 		},
 		"categories": {

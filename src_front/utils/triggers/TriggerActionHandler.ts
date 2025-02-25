@@ -3571,7 +3571,7 @@ export default class TriggerActionHandler {
 							}
 						}
 					}
-				}
+				}else
 
 				if(step.type == "timer") {
 					const timer = StoreProxy.timers.timerList.find(t=>t.id == step.timerData.timerId);
@@ -3621,6 +3621,12 @@ export default class TriggerActionHandler {
 							}
 						}
 					}
+				}else
+
+				if(step.type == "trigger_stop") {
+					logStep.messages.push({date:Date.now(), value:"Stop trigger execution"});
+					logStep.messages.push({date:Date.now(), value:"✔ Step execution complete"});
+					break;
 				}
 
 			}catch(error:any) {

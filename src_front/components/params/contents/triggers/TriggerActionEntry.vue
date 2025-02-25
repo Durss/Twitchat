@@ -31,6 +31,12 @@
 			@delete="$emit('delete')"
 			@addCondition="addCondition" />
 
+		<TriggerActionStopExecEntry v-else-if="action.type=='trigger_stop'"
+			:action="action"
+			:triggerData="triggerData"
+			@delete="$emit('delete')"
+			@addCondition="addCondition" />
+
 		<ToggleBlock v-else
 		noArrow
 		data-noselect
@@ -243,6 +249,9 @@
 					<TTButton class="button" @click="selectActionType('triggerToggle')"
 						icon="broadcast" >{{ $t('triggers.actions.common.action_triggerToggle') }}</TTButton>
 
+					<TTButton class="button" @click="selectActionType('trigger_stop')"
+						icon="stop" >{{ $t('triggers.actions.common.trigger_stop') }}</TTButton>
+
 					<TTButton class="button" @click="selectActionType('vibrate')"
 						icon="vibrate" >{{ $t('triggers.actions.common.action_vibrate') }}</TTButton>
 
@@ -360,6 +369,7 @@ import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 import TriggerActionSpoilMessageEntry from './entries/TriggerActionSpoilMessageEntry.vue';
 import TriggerActionTimerEntry from './entries/TriggerActionTimerEntry.vue';
+import TriggerActionStopExecEntry from './entries/TriggerActionStopExecEntry.vue';
 
 @Component({
 	components:{
@@ -392,6 +402,7 @@ import TriggerActionTimerEntry from './entries/TriggerActionTimerEntry.vue';
 		TriggerActionMixitupEntry,
 		TriggerActionTriggerEntry,
 		TriggerActionDiscordEntry,
+		TriggerActionStopExecEntry,
 		TriggerActionVoicemodEntry,
 		TriggerActionBingoGridEntry,
 		TriggerActionClickHeatEntry,

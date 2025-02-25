@@ -103,6 +103,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionPlayabilityData
 								| TriggerActionGroqData
 								| TriggerActionTimerData
+								| TriggerActionStopExecData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -656,6 +657,9 @@ export interface TriggerActionGroqData extends TriggerActionData{
 }
 
 export const TriggerActionTimerData_ACTION = ["start", "pause", "resume", "stop", "add", "remove", "set"] as const;
+/**
+ * Represents a custom timer control action
+ */
 export interface TriggerActionTimerData extends TriggerActionData{
 	type:"timer";
 	/**
@@ -677,6 +681,16 @@ export interface TriggerActionTimerData extends TriggerActionData{
 	};
 }
 
+/**
+ * Represents a trigger execution interrupt
+ */
+export interface TriggerActionStopExecData extends TriggerActionData{
+	type:"trigger_stop";
+}
+
+/**
+ * Represents a bingo grid action
+ */
 export interface TriggerActionBingoGridData extends TriggerActionData{
 	type:"bingoGrid";
 	/**
@@ -715,6 +729,9 @@ export interface TriggerActionBingoGridData extends TriggerActionData{
 	}
 }
 
+/**
+ * Custom badge updates
+ */
 export interface TriggerCustomBadgesData extends TriggerActionData{
 	type:"customBadges";
 	/**
@@ -731,6 +748,9 @@ export interface TriggerCustomBadgesData extends TriggerActionData{
 	customBadgeDel:string[];
 }
 
+/**
+ * Custom user name update
+ */
 export interface TriggerCustomUsernameData extends TriggerActionData{
 	type:"customUsername";
 	/**

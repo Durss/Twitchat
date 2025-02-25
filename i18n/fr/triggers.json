@@ -190,7 +190,8 @@
 				"action_playability_tt": "Vous devez connecter Twitchat à PlayAbility pour utiliser cette action",
 				"action_groq": "Action Groq",
 				"action_groq_tt": "Vous devez connecter Twitchat à Groq pour utiliser cette action",
-				"action_timer": "Minuteur"
+				"action_timer": "Minuteur",
+				"trigger_stop": "Stopper le trigger"
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
@@ -678,6 +679,9 @@
 				"param_action_remove": "Retirer du temps",
 				"param_action_set": "Changer la durée",
 				"param_duration": "Durée (secondes)"
+			},
+			"trigger_stop": {
+				"info": "L'exécution du trigger s'arrêtera ici.\nLes actions suivantes ne seront pas exécutées."
 			}
 		},
 		"categories": {
