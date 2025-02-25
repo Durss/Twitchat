@@ -5,7 +5,7 @@
 				<Icon name="groq" />
 				<h1>{{ $t("groq.history.title") }}</h1>
 			</div>
-			
+
 			<ClearButton @click="close()" />
 		</div>
 
@@ -24,6 +24,7 @@
 					<img v-if="entry.answer.length < 2" class="loader" src="@/assets/icons/loader.svg" />
 					<div v-else>{{ entry.answer }}</div>
 					<div class="date">{{ dateMaps[entry.id].display }}</div>
+					<!-- <input type="text" :placeholder="$t('groq.reprompt_placeholder')"> -->
 				</div>
 				<TTButton icon="trash" alert @click="deleteEntry(entry.id)" />
 			</div>
@@ -94,11 +95,9 @@ class GroqHistory extends AbstractSidePanel {
 	 */
 	public refreshDate() {
 		for (const key in this.dateMaps) {
-			if (Object.prototype.hasOwnProperty.call(this.dateMaps, key)) {
-				const entry = this.dateMaps[key];
-				entry.display = this.formatDate(entry.ts);
-				entry.elapsed = Date.now() - entry.ts;
-			}
+			const entry = this.dateMaps[key];
+			entry.display = this.formatDate(entry.ts);
+			entry.elapsed = Date.now() - entry.ts;
 		}
 		clearTimeout(this.refreshTimeout);
 		this.refreshTimeout = window.setTimeout(() => {
@@ -111,7 +110,7 @@ class GroqHistory extends AbstractSidePanel {
 	 */
 	private formatDate(ts:number):string {
 		const elapsed = Date.now() - ts;
-		if(elapsed > 30 * 24 * 60 * 60 * 1000) {
+		if(elapsed > 2 * 24 * 60 * 60 * 1000) {
 			return Utils.formatDate(new Date(ts));
 		}
 		if(elapsed < 5000) return this.$t("global.elapsed_duration_now");

@@ -10,16 +10,11 @@
 			"message": "Are you sure you want to delete this entry?"
 		},
 
-		"default":{
+		"panel":{
 			"title":"Stopwatch & Countdown",
 			"description":"Start a Stopwatch or a countdown",
-			"timerBt":"Stopwatch",
-			"countdownBt":"Countdown",
-			"duration_param":"Duration (seconds)",
-			"timer_head":"You'll see the timer on the chat bar at the bottom of the screen. Stop it by clicking on it or via the command {CMD}.",
-			"countdown_head":"You'll see the countdown on the chat bar at the bottom of the screen. Stop it by clicking on it or via the command {CMD}.",
-			"timer_title": "Default timer",
-			"countdown_title": "Default countdown"
+			"hint_timer": "You can control this timer with the {CMD} commands",
+			"hint_countdown": "You can control this countdown with the {CMD} commands"
 		},
 
 		"form": {

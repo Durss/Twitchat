@@ -10,16 +10,11 @@
 			"message": "Êtes-vous sûr de vouloir supprimer ce minuteur ?"
 		},
 
-		"default":{
-			"title":"Chronomètre & Décompte",
+		"panel":{
+			"title":"Minuteurs",
 			"description":"Lancez un chronomètre ou un compte à rebours",
-			"timerBt":"Chrono",
-			"countdownBt":"Décompte",
-			"duration_param":"Durée (secondes)",
-			"timer_head":"Vous retrouverez le chronomètre dans la barre de tchat. Stoppez-le en cliquant dessus ou via la commande {CMD}.",
-			"countdown_head":"Vous retrouverez le compte à rebours dans la barre de tchat. Stoppez-le en cliquant dessus ou via la commande {CMD}.",
-			"timer_title": "Chronomètre par défaut",
-			"countdown_title": "Compte à rebours par défaut"
+			"hint_timer": "Vous pouvez contrôler ce chronomètre avec les commandes {CMD}",
+			"hint_countdown": "Vous pouvez contrôler ce compte à rebours avec les commandes {CMD}"
 		},
 
 		"form": {

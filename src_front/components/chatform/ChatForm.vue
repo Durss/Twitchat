@@ -521,9 +521,9 @@ export class ChatForm extends Vue {
 	public get qnaSessionActive():boolean { return this.$store.qna.activeSessions.length > 0; }
 
 	public get raffleListActive():TwitchatDataTypes.RaffleData[] { return this.$store.raffle.raffleList.filter(v=>v.mode != 'manual' && v.mode != 'values' && v.mode != 'sub' && v.ghost !== true); }
-	
+
 	public get isActiveTimer():boolean {
-		const defaults = this.$store.timers.timerList.filter(v=>v.isDefault);
+		const defaults = this.$store.timers.timerList
 		for (let i = 0; i < defaults.length; i++) {
 			const entry = defaults[i];
 			if(entry.startAt_ms) return true;

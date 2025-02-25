@@ -1,8 +1,8 @@
 <template>
 	<div class="paramstimer parameterContent">
-		<Icon name="timer" class="icon" />
+		<Icon name="timer" class="icon" v-if="panelContext == false" />
 
-		<div class="head">
+		<div class="head" v-if="panelContext == false">
 			<i18n-t scope="global" tag="p" keypath="timers.header">
 				<template #LINK_TRIGGER>
 					<a @click="openTriggers()" target="_blank">{{ $t("timers.header_link_trigger") }}</a>
@@ -26,11 +26,12 @@
 		direction="vertical"
 		group="timers"
 		item-key="id"
+		:disabled="panelContext !== false"
 		:animation="250"
 		@sort="rebuildParams()">
 			<template #item="{element:entry, index}:{element:TwitchatDataTypes.TimerData, index:number}">
 				<ToggleBlock class="timerEntry"
-				v-if="!entry.isDefault"
+				v-if="!entry.isDefault || panelContext !== false"
 				:open="false" noArrow
 				:key="entry.id"
 				:editableTitle="!entry.isDefault"
@@ -54,12 +55,13 @@
 					</template>
 
 					<div class="content">
-						<SwitchButton v-model="entry.type"
-							:icons="['timer', 'countdown']"
-							:values="['timer', 'countdown']"
-							:labels="[$t('timers.form.param_type_timer'), $t('timers.form.param_type_countdown')]"
-							@change="$store.timers.resetTimer(entry.id); $store.timers.saveData(); checkForPlaceholderDuplicates(); refreshTimers();"
-						></SwitchButton>
+						<div class="info" v-if="entry.isDefault">
+							<Icon name="info" />
+							<i18n-t scope="global" tag="span" :keypath="entry.type == 'timer'? 'timers.panel.hint_timer' : 'timers.panel.hint_countdown'">
+								<template v-if="entry.type == 'countdown'" #CMD><mark>/countdown...</mark></template>
+								<template v-if="entry.type == 'timer'" #CMD><mark>/timer...</mark></template>
+							</i18n-t>
+						</div>
 
 						<div class="ctas">
 							<TTButton icon="play" v-if="!entry.startAt_ms" @click="$store.timers.timerStart(entry.id); refreshTimers()">Start</TTButton>
@@ -70,6 +72,13 @@
 								<TTButton icon="stop" @click="$store.timers.timerStop(entry.id); refreshTimers()">Stop</TTButton>
 							</template>
 						</div>
+
+						<SwitchButton v-model="entry.type"
+							:icons="['timer', 'countdown']"
+							:values="['timer', 'countdown']"
+							:labels="[$t('timers.form.param_type_timer'), $t('timers.form.param_type_countdown')]"
+							@change="$store.timers.resetTimer(entry.id); $store.timers.saveData(); checkForPlaceholderDuplicates(); refreshTimers();"
+						></SwitchButton>
 
 						<template v-if="entry.type == 'countdown'">
 							<ParamItem :paramData="param_duration[entry.id]"
@@ -109,7 +118,7 @@ import ToggleButton from '@/components/ToggleButton.vue';
 import StoreProxy from '@/store/StoreProxy';
 import { rebuildPlaceholdersCache } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, toNative, Vue } from 'vue-facing-decorator';
+import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
@@ -128,6 +137,9 @@ import type IParameterContent from './IParameterContent';
 	emits:[]
 })
 class ParamsTimer extends Vue implements IParameterContent {
+
+	@Prop({type:Boolean, default:false})
+	public panelContext!:boolean;
 
 	public param_duration:Record<string, TwitchatDataTypes.ParameterData<number>> = {};
 	public timer2Duration:Record<string, ReturnType<typeof StoreProxy.timers.getTimerComputedValue>> = {};
@@ -238,6 +250,7 @@ class ParamsTimer extends Vue implements IParameterContent {
 			for (let j = 0; j < this.$store.timers.timerList.length; j++) {
 				const t2 = this.$store.timers.timerList[j];
 				if(t2.id == t.id) continue;
+				if(t2.type != t.type) continue;
 				if(t2.placeholderKey && t2.placeholderKey.toUpperCase() == t.placeholderKey.toUpperCase()) {
 					this.timer2PlaceholderError[t.id] = true;
 					break;
@@ -267,10 +280,20 @@ export default toNative(ParamsTimer);
 		gap: .5em;
 		display: flex;
 		flex-direction: column;
-
 		// width: 100%;
 		width: calc(100% - 2em);
 		margin: auto;
+
+		.info{
+			text-align: center;
+			font-size: .8em;
+			margin-bottom: .25em;
+			.icon {
+				height: 1em;
+				margin-right: .5em;
+			}
+		}
+
 		.actions {
 			gap: .25em;
 			display: flex;
