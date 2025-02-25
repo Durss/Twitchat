@@ -232,7 +232,8 @@ export default class DiscordController extends AbstractController {
 		}catch(error) {
 			const channels = await this._rest.get(Routes.guildChannels(guard.guild.guildID)) as {id:string, name:string}[];
 			const channel = channels.find(v=>v.id == params.channelId);
-			if(error.message) console.log(error.message);
+			const typedError = error as {code:number, message:string};
+			if(typedError.message) console.log(typedError.message);
 			response.header('Content-Type', 'application/json')
 			.status(401)
 			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:messageSent && !threadCreated? "CREATE_THREAD_FAILED" : "POST_FAILED", channelName:channel? channel.name : "", success:false}));
