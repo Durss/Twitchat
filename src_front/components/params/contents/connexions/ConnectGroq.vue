@@ -8,6 +8,15 @@
 					<a href="https://groq.com" target="_blank"><Icon name="newtab" />Groq</a>
 				</template>
 			</i18n-t>
+
+			<div class="small disclaimer">
+				<Icon name="info" />
+				<i18n-t scope="global" tag="span" keypath="groq.disclaimer">
+					<template #GROQ>Gro<strong>Q</strong></template>
+					<template #GROK>Gro<strong>K</strong></template>
+				</i18n-t>
+			</div>
+
 			<div class="card-item secondary infos" v-if="!$store.groq.connected">
 				<span>
 					<Icon name="info" />
@@ -20,16 +29,11 @@
 					target="_blank"
 					light secondary>{{ $t("groq.install") }}</TTButton>
 			</div>
-
-			<i18n-t class="small" scope="global" tag="span" keypath="groq.disclaimer">
-				<template #GROQ>Gro<strong>Q</strong></template>
-				<template #GROK>Gro<strong>K</strong></template>
-			</i18n-t>
 		</div>
 
 		<div class="content">
 
-			<TTButton class="connectBt" alert @click="disconnect()">{{ $t('global.disconnect') }}</TTButton>
+			<TTButton class="connectBt" v-if="$store.groq.connected" alert @click="disconnect()">{{ $t('global.disconnect') }}</TTButton>
 
 			<form class="card-item" v-if="!$store.groq.connected" @submit.prevent="connect()">
 				<ParamItem noBackground :paramData="param_apiKey" v-model="$store.groq.apiKey" autofocus/>
@@ -197,6 +201,25 @@ export default toNative(ConnectElevenLabs);
 		align-items: center;
 		line-height: 1.2em;
 		white-space: pre-line;
+	}
+
+	.disclaimer {
+		padding: .25em .5em;
+		background-color: var(--color-alert-fader);
+		border-radius: var(--border-radius);
+		animation: fadeInOut 1s infinite;
+		.icon {
+			margin-right: .5em;
+		}
+
+		@keyframes fadeInOut {
+			0%, 100% {
+				background-color: var(--color-alert-fade);
+			}
+			50% {
+				background-color: var(--color-alert-transparent);
+			}
+		}
 	}
 
 	.modelList {

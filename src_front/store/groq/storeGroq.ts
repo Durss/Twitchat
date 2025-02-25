@@ -93,11 +93,11 @@ export const storeGroq = defineStore('groq', {
 			DataStore.set(DataStore.GROQ_CONFIGS, configs);
 		},
 
-		async getSummary(messagesList:TwitchatDataTypes.MessageChatData[], preprompt?:string):Promise<string> {
+		async getSummary(messagesList:TwitchatDataTypes.MessageChatData[], preprompt?:string, repromptEntry?:TwitchatDataTypes.GroqHistoryItem):Promise<string> {
 			if(!groq) await this.connect();
 			if(!groq || !this.connected) return Promise.resolve("");
 
-			const historyEntry:typeof this.answerHistory[number] = reactive({
+			const historyEntry:typeof this.answerHistory[number] = repromptEntry? repromptEntry : reactive({
 				id: Utils.getUUID(),
 				date:Date.now(),
 				prompt: "",
@@ -117,22 +117,26 @@ export const storeGroq = defineStore('groq', {
 				historyEntry.preprompt = preprompt;
 			}
 
-			const sortedList = messagesList.sort((a,b) => a.date - b.date);
 			let mainPrompt = "";
-			let currentUser = "";
-			let split = false;
-			//Merge consecutive messages from same users to reduce token usage
-			const splitter = " — ";
-			for (let i = 0; i < sortedList.length; i++) {
-				const m = sortedList[i];
-				if(currentUser != m.user.displayNameOriginal) {
-					currentUser = m.user.displayNameOriginal;
-					mainPrompt += "\n" + currentUser + ": ";
-					split = false;
+			if(repromptEntry) {
+				mainPrompt = repromptEntry.prompt;
+			}else{
+				const sortedList = messagesList.sort((a,b) => a.date - b.date);
+				let currentUser = "";
+				let split = false;
+				//Merge consecutive messages from same users to reduce token usage
+				const splitter = " — ";
+				for (let i = 0; i < sortedList.length; i++) {
+					const m = sortedList[i];
+					if(currentUser != m.user.displayNameOriginal) {
+						currentUser = m.user.displayNameOriginal;
+						mainPrompt += "\n" + currentUser + ": ";
+						split = false;
+					}
+					if(split) mainPrompt += splitter;
+					mainPrompt += m.message;
+					split = true;
 				}
-				if(split) mainPrompt += splitter;
-				mainPrompt += m.message;
-				split = true;
 			}
 
 			prompt.push({
@@ -141,7 +145,7 @@ export const storeGroq = defineStore('groq', {
 				});
 
 			historyEntry.prompt = mainPrompt;
-			this.answerHistory.push(historyEntry);
+			if(!repromptEntry) this.answerHistory.push(historyEntry);
 			StoreProxy.params.openModal("groqHistory", true);
 
 			let stream = await groq.chat.completions.create({
@@ -157,11 +161,15 @@ export const storeGroq = defineStore('groq', {
 				// }
 			});
 
+			if(repromptEntry) repromptEntry.answer = "";
+
 			for await (const chunk of stream) {
 				historyEntry.answer += chunk.choices[0]?.delta?.content || "";
 			}
 
-			await Database.instance.addGroqHistory(historyEntry);
+			if(!repromptEntry) {
+				await Database.instance.addGroqHistory(historyEntry);
+			}
 			return historyEntry.answer;
 		},
 
@@ -178,6 +186,12 @@ export const storeGroq = defineStore('groq', {
 					resolve();
 				});
 			});
+		},
+
+		async repromptHistoryEntry(id:string, prompt:string):Promise<void> {
+			const entry = this.answerHistory.find((entry)=>entry.id === id);
+			if(!entry) return;
+			await this.getSummary([], prompt, entry);
 		},
 
 		async executeQuery(preprompt:string, prompt:string, model:string = "", jsonSchema?:string):Promise<string|false> {

@@ -1,6 +1,7 @@
 {
 	"groq": {
 		"header":"Groq is a cheap and super fast AI\nGenerate content from triggers or ask for a conversation summary",
+		"disclaimer":"{GROQ} is NOT related to {GROK} from the fascist nazi fucker called musk",
 		"instructions":"You need to create an account on Groq and request an API Key",
 		"install":"Create API Key",
 		"invalid_api_key": "Invalid API key",
@@ -24,6 +25,7 @@
 		"param_ignore_short": "Ignore short or mostly emote messages",
 		"param_preprompt": "Custom preprompt",
 		"param_preprompt_placeholder": "Give instructions on what you want Groq to analyse...",
+		"reprompt_placeholder": "Ask another question...",
 		"summarize_duration_bt": "Summarize {COUNT} message|Summarize {COUNT} messages",
 		"history":{
 			"title":"Generation history",

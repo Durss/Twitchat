@@ -3505,12 +3505,17 @@ export interface IGroqActions {
 	 * Ask for a summary about the given messages
 	 * @param messagesList
 	 * @param preprompt
+	 * @param repromptEntry
 	 */
-	getSummary(messagesList:TwitchatDataTypes.ChatMessageTypes[], preprompt?:string):Promise<string>;
+	getSummary(messagesList:TwitchatDataTypes.ChatMessageTypes[], preprompt?:string, repromptEntry?:TwitchatDataTypes.GroqHistoryItem):Promise<string>;
 	/**
 	 * Removes an answer from DB
 	 */
 	removeAnswer(id:string):Promise<void>;
+	/**
+	 * Reprompt an history entry
+	 */
+	repromptHistoryEntry(id:string, prompt:string):Promise<void>;
 	/**
 	 * Executes a query
 	 */
