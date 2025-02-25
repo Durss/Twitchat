@@ -250,6 +250,7 @@
 						icon="broadcast" >{{ $t('triggers.actions.common.action_triggerToggle') }}</TTButton>
 
 					<TTButton class="button" @click="selectActionType('trigger_stop')"
+						v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_triggerAction_trigger_stop'}"
 						icon="stop" >{{ $t('triggers.actions.common.trigger_stop') }}</TTButton>
 
 					<TTButton class="button" @click="selectActionType('vibrate')"
