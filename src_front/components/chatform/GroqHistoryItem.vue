@@ -140,8 +140,7 @@ export default toNative(GroqHistoryItem);
 			align-items: center;
 			.input {
 				flex: 1;
-				word-wrap: wrap;
-				word-break: break-all;
+				word-break: break-word;
 			}
 			* {
 				border-radius: 0;
