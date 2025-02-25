@@ -10,7 +10,7 @@
 				<div class="prompt">{{ entry.prompt.trim() }}</div>
 			</ToggleBlock>
 			<img v-if="entry.answer.length < 2 || reprompting" class="loader" src="@/assets/icons/loader.svg" />
-			<div v-else>{{ entry.answer }}</div>
+			<div class="answer" v-else>{{ entry.answer }}</div>
 			<div class="date">{{ date }}</div>
 
 			<form @submit.prevent="onSubmit">
@@ -87,6 +87,7 @@ class GroqHistoryItem extends Vue {
 		this.reprompting = true;
 		await this.$store.groq.repromptHistoryEntry(this.entry.id, this.newPrompt);
 		this.reprompting = false;
+		this.newPrompt = "";
 	}
 
 	/**
@@ -110,7 +111,11 @@ class GroqHistoryItem extends Vue {
 			return Utils.formatDate(new Date(ts));
 		}
 		if(elapsed < 5000) return this.$t("global.elapsed_duration_now");
-		return this.$t("global.elapsed_duration", {DURATION:Utils.formatDuration(elapsed)});
+		if(elapsed < 10 * 60 * 1000) {
+			return this.$t("global.elapsed_duration", {DURATION:Utils.formatDuration(elapsed)});
+		}else{
+			return Utils.formatDate(new Date(ts), true);
+		}
 	}
 
 }
@@ -137,7 +142,7 @@ export default toNative(GroqHistoryItem);
 			flex-direction: row;
 			gap: 1px;
 			position: relative;
-			align-items: center;
+			align-items: stretch;
 			.input {
 				flex: 1;
 				word-break: break-word;
@@ -160,6 +165,7 @@ export default toNative(GroqHistoryItem);
 				position: absolute;
 				margin-left: 1em;
 				pointer-events: none;
+				align-self: center;
 			}
 		}
 
@@ -171,6 +177,10 @@ export default toNative(GroqHistoryItem);
 		.loader {
 			width: 1.5em;
 			margin: 0 auto;
+		}
+
+		.answer {
+			white-space: pre-line;
 		}
 
 		.date {

@@ -104,10 +104,12 @@ export const storeGroq = defineStore('groq', {
 				answer: "",
 			});
 			const prompt:Groq.Chat.Completions.ChatCompletionMessageParam[] = [];
-			prompt.push({
+			if(!repromptEntry) {
+				prompt.push({
 					role: "system",
 					content: StoreProxy.i18n.t("groq.conversation_preprompt"),
 				});
+			}
 
 			if(preprompt) {
 				prompt.push({
@@ -169,6 +171,8 @@ export const storeGroq = defineStore('groq', {
 
 			if(!repromptEntry) {
 				await Database.instance.addGroqHistory(historyEntry);
+			}else{
+				await Database.instance.updateGroqHistory(historyEntry);
 			}
 			return historyEntry.answer;
 		},

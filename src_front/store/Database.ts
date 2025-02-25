@@ -355,6 +355,30 @@ export default class Database {
 	}
 
 	/**
+	 * Updates a Groq history item
+	 * @param entry
+	 */
+	public async updateGroqHistory(entry:TwitchatDataTypes.GroqHistoryItem):Promise<void>{
+		if(!this._db || !this._ready) return Promise.resolve();
+		return new Promise((resolve, reject)=> {
+			this._db.transaction(Database.GROQ_HISTORY_TABLE, "readwrite")
+			.objectStore(Database.GROQ_HISTORY_TABLE)
+			.index("id")
+			.openCursor(IDBKeyRange.only(entry.id))
+			.addEventListener("success", event => {
+				const pointer = (event.target as IDBRequest).result;
+				if(pointer) {
+					pointer.update(JSON.parse(JSON.stringify(entry))).addEventListener("success", ()=>{
+						resolve();
+					});
+				}else{
+					resolve();
+				}
+			});
+		});
+	}
+
+	/**
 	 * Deletes a Groq history item from DB
 	 * @param message
 	 */

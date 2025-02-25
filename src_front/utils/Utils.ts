@@ -173,7 +173,7 @@ export default class Utils {
 	 */
 	public static formatDate(date:Date, addTime:boolean = true, noDate:boolean = false):string {
 		let res = "";
-		if(!noDate) {
+		if(!noDate && date.getTime() - Date.now() < 24 * 3600 * 1000) {
 			res = Utils.toDigits(date.getDate())+ "/"
 				+ Utils.toDigits(date.getMonth() + 1) + "/"
 				+ date.getFullYear()
