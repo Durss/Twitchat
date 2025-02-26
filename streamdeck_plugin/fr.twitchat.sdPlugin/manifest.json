@@ -505,6 +505,34 @@
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.merge-toggle"
+		},
+		{
+			"Icon": "icons/QNA_HIGHLIGHT",
+			"Name": "Highlight Q&A entry",
+			"States": [
+				{
+					"Image": "icons/QNA_HIGHLIGHT",
+					"TitleAlignment": "bottom",
+					"FontSize": 10
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.qna-highlight"
+		},
+		{
+			"Icon": "icons/QNA_SKIP",
+			"Name": "Skip Q&A entry",
+			"States": [
+				{
+					"Image": "icons/QNA_SKIP",
+					"TitleAlignment": "bottom",
+					"FontSize": 10
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.qna-skip"
 		}
 	],
 	"Category": "Twitchat",

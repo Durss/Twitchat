@@ -110,6 +110,8 @@
 				<strong class="hidden" data-execute-trigger>Execute a trigger. If the selected trigger uses placeholders they won't be available when executed from here</strong>
 				<strong class="hidden" data-toggle-trigger>Enable or disable any trigger.</strong>
 				<strong class="hidden" data-send-message>Send a message. You can use any Twitch or Twitchat commands as well as custom chat commands created on the triggers</strong>
+				<strong class="hidden" data-qna-highlight>Highlight top-most Q&A item</strong>
+				<strong class="hidden" data-qna-skip>Skip top-most Q&A item</strong>
 			</div>
 		</div>
 
@@ -243,6 +245,19 @@
 		</div>
 
 		<div class="sdpi-item hidden" id="select_single"
+		data-qna-highlight
+		data-qna-skip>
+			<div class="sdpi-item-label">Q&A session</div>
+			<select class="sdpi-item-value select"
+				id="qnaId"
+				oninput="onChangeValue()"
+				data-qna-highlight
+				data-qna-skip
+				data-sync>
+			</select>
+		</div>
+
+		<div class="sdpi-item hidden" id="select_single"
 		data-send-message>
 			<div class="sdpi-item-label">Message</div>
 			<input class="sdpi-item-value hidden" data-sync type="text"
@@ -269,11 +284,11 @@
 				console.log("Property Inspector connected", actionInfo, appInfo, connection, messageType, port, uuid);
 
 				$PI.onDidReceiveGlobalSettings((jsonObj) => {
-					console.log("onDidReceiveGlobalSettings", jsonObj);
 					const settings = jsonObj.payload.settings;
-					globalSettings = settings;
-					populateGlobalSettings(settings);
 					if(isFirstUpdate) {
+						console.log("onDidReceiveGlobalSettings", jsonObj);
+						globalSettings = settings;
+						populateGlobalSettings(settings);
 						$PI.getSettings();
 					}else if(settings.OBSWS_CONNECTED != wasConnected) {
 						document.location.reload();
@@ -283,7 +298,6 @@
 				});
 
 				$PI.onDidReceiveSettings($PI.actionInfo.action, (jsonObj) => {
-					console.log("onDidReceiveSettings", jsonObj.payload.settings);
 					const settings = jsonObj.payload.settings;
 					populateLocalSettings(settings);
 				});
@@ -316,7 +330,7 @@
 			const colSelector = document.getElementById("colIndex");
 			if(colSelector) {
 				colSelector.innerHTML = "";
-				for (let i = 0; i < settings.COLS_COUNT; i++) {
+				for (let i = 0; i < settings.COLS_COUNT || 0; i++) {
 					const opt = document.createElement("option");
 					opt.value = i,
 					opt.innerText = i+1;
@@ -326,8 +340,8 @@
 
 			//Populate counter selector
 			const counterSelector = document.getElementById("counterId");
-			if(counterSelector) {
-				counterSelector.innerHTML = "";
+			if(counterSelector && settings.COUNTER_LIST) {
+				qnaSelector.innerHTML = "<option value=''>...select</option>";
 				for (let i = 0; i < settings.COUNTER_LIST.length; i++) {
 					const counter = settings.COUNTER_LIST[i];
 
@@ -343,8 +357,8 @@
 
 			//Populate triggers selector
 			const triggerSelector = document.getElementById("triggerId");
-			if(triggerSelector) {
-				triggerSelector.innerHTML = "";
+			if(triggerSelector && settings.TRIGGER_LIST) {
+				qnaSelector.innerHTML = "<option value=''>...select</option>";
 				for (let i = 0; i < settings.TRIGGER_LIST.length; i++) {
 					const trigger = settings.TRIGGER_LIST[i];
 
@@ -352,6 +366,20 @@
 					opt.value = trigger.id;
 					opt.innerText = trigger.name;
 					triggerSelector.appendChild(opt);
+				}
+			}
+
+			//Populate Q&A selector
+			const qnaSelector = document.getElementById("qnaId");
+			if(qnaSelector && settings.QNA_LIST) {
+				qnaSelector.innerHTML = "<option value=''>...select</option>";
+				for (let i = 0; i < settings.QNA_LIST.length; i++) {
+					const session = settings.QNA_LIST[i];
+
+					const opt = document.createElement("option");
+					opt.value = session.id;
+					opt.innerText = session.command;
+					qnaSelector.appendChild(opt);
 				}
 			}
 
