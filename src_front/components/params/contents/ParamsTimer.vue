@@ -26,12 +26,10 @@
 		direction="vertical"
 		group="timers"
 		item-key="id"
-		:disabled="panelContext !== false"
 		:animation="250"
 		@sort="rebuildParams()">
 			<template #item="{element:entry, index}:{element:TwitchatDataTypes.TimerData, index:number}">
 				<ToggleBlock class="timerEntry"
-				v-if="!entry.isDefault || panelContext !== false"
 				:open="false" noArrow
 				:key="entry.id"
 				:editableTitle="!entry.isDefault"
@@ -51,6 +49,9 @@
 							@change="console.log(entry.enabled);$store.timers.saveData()"
 							@click.stop />
 							<TTButton class="actionBt" alert icon="trash" @click.stop="$store.timers.deleteTimer(entry.id)" />
+						</div>
+						<div class="actions" v-else>
+							<TTButton class="actionBt" @click.stop :copy="entry.id" icon="id" v-tooltip="$t('global.copy_id')" small />
 						</div>
 					</template>
 
@@ -73,33 +74,35 @@
 							</template>
 						</div>
 
-						<SwitchButton v-model="entry.type"
-							:icons="['timer', 'countdown']"
-							:values="['timer', 'countdown']"
-							:labels="[$t('timers.form.param_type_timer'), $t('timers.form.param_type_countdown')]"
-							@change="$store.timers.resetTimer(entry.id); $store.timers.saveData(); checkForPlaceholderDuplicates(); refreshTimers();"
-						></SwitchButton>
+						<template v-if="!entry.isDefault">
+							<SwitchButton v-model="entry.type"
+								:icons="['timer', 'countdown']"
+								:values="['timer', 'countdown']"
+								:labels="[$t('timers.form.param_type_timer'), $t('timers.form.param_type_countdown')]"
+								@change="$store.timers.resetTimer(entry.id); $store.timers.saveData(); checkForPlaceholderDuplicates(); refreshTimers();"
+							></SwitchButton>
 
-						<template v-if="entry.type == 'countdown'">
-							<ParamItem :paramData="param_duration[entry.id]"
-							v-model="param_duration[entry.id].value"
-							@change="entry.duration_ms = param_duration[entry.id].value * 1000" />
-						</template>
-
-						<div class="card-item placeholder"
-						:class="{error:timer2PlaceholderError[entry.id]}"
-						v-tooltip="$t('timers.form.param_placeholder_tt')">
-							<Icon name="placeholder"/>
-							<span class="label">{{ $t("timers.form.param_placeholder") }}</span>
-							<PlaceholderField class="field"
-								v-model="entry.placeholderKey"
-								:prefix="entry.type == 'timer'? 'TIMER_' : 'COUNTDOWN_'"
-								@change="checkForPlaceholderDuplicates()" />
-							<template v-if="timer2PlaceholderError[entry.id]">
-								<div class="errorReason" v-if="[defaultTimerPLaceholder, defaultCountdownPLaceholder].includes(entry.placeholderKey)">{{ $t("timers.form.param_placeholder_default_conflict") }}</div>
-								<div class="errorReason" v-else>{{ $t("timers.form.param_placeholder_conflict") }}</div>
+							<template v-if="entry.type == 'countdown'">
+								<ParamItem :paramData="param_duration[entry.id]"
+								v-model="param_duration[entry.id].value"
+								@change="entry.duration_ms = param_duration[entry.id].value * 1000" />
 							</template>
-						</div>
+
+							<div class="card-item placeholder"
+							:class="{error:timer2PlaceholderError[entry.id]}"
+							v-tooltip="$t('timers.form.param_placeholder_tt')">
+								<Icon name="placeholder"/>
+								<span class="label">{{ $t("timers.form.param_placeholder") }}</span>
+								<PlaceholderField class="field"
+									v-model="entry.placeholderKey"
+									:prefix="entry.type == 'timer'? 'TIMER_' : 'COUNTDOWN_'"
+									@change="checkForPlaceholderDuplicates()" />
+								<template v-if="timer2PlaceholderError[entry.id]">
+									<div class="errorReason" v-if="[defaultTimerPLaceholder, defaultCountdownPLaceholder].includes(entry.placeholderKey)">{{ $t("timers.form.param_placeholder_default_conflict") }}</div>
+									<div class="errorReason" v-else>{{ $t("timers.form.param_placeholder_conflict") }}</div>
+								</template>
+							</div>
+						</template>
 					</div>
 				</ToggleBlock>
 			</template>
@@ -167,27 +170,6 @@ class ParamsTimer extends Vue implements IParameterContent {
 		this.refreshInterval = window.setInterval(()=>this.refreshTimers(), 100);
 		this.defaultTimerPLaceholder = this.$store.timers.timerList.find(v=>v.type == 'timer' && v.isDefault)?.placeholderKey || '';
 		this.defaultCountdownPLaceholder = this.$store.timers.timerList.find(v=>v.type == 'countdown' && v.isDefault)?.placeholderKey || '';
-
-		// watch(()=> this.param_placeholder.value, ()=> {
-		// 	if(!this.param_placeholder.value) {
-		// 		this.param_placeholder.error = false;
-		// 		return;
-		// 	}
-		// 	//Check if a placeholder with the same name already exists
-		// 	const timers = this.$store.timers.timerList;
-		// 	const placeholder = this.param_placeholder.value.toLowerCase();
-		// 	let exists = false;
-		// 	for (let i = 0; i < timers.length; i++) {
-		// 		const t = timers[i];
-		// 		if(t.id == this.editedTimer?.id) continue;
-		// 		if(t.placeholderKey && t.placeholderKey.toLowerCase() === placeholder) {
-		// 			exists = true;
-		// 			continue;
-		// 		}
-		// 	}
-		// 	this.param_placeholder.error = exists;
-		// 	this.param_placeholder.errorMessage = exists? this.$t("timers.placholder_conflict") : '';
-		// })
 
 		this.buildParams();
 	}

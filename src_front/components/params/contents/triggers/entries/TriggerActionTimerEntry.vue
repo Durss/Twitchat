@@ -19,7 +19,7 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import TTButton from '@/components/TTButton.vue';
 import { TriggerActionTimerData_ACTION, type ITriggerPlaceholder, type TriggerActionTimerData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
+import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 @Component({
