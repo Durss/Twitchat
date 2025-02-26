@@ -307,6 +307,7 @@ export const storeDebug = defineStore('debug', {
 							title: chan.title,
 							category: chan.game_name,
 							duration: Date.now() - new Date(chan.started_at).getTime(),
+							duration_str: Utils.formatDuration(Date.now() - new Date(chan.started_at).getTime()),
 							wasLive: Math.random() > .5
 						}
 					};

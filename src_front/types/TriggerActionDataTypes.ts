@@ -1850,6 +1850,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"stream.category", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{tag:"VIEWERS", descKey:'triggers.placeholders.stream_viewers', pointer:"viewers", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{tag:"DURATION", descKey:'triggers.placeholders.stream_duration', pointer:"stream.duration", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
+		{tag:"DURATION_TXT", descKey:'triggers.placeholders.stream_duration_str', pointer:"stream.duration_str", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{tag:"WAS_LIVE", descKey:'triggers.placeholders.stream_live', pointer:"stream.wasLive", numberParsable:false, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 	];
 

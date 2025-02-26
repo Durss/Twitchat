@@ -778,6 +778,7 @@
 			"stream_category": "Stream category",
 			"stream_viewers": "Viewers count",
 			"stream_duration": "Stream duration in milliseconds",
+			"stream_duration_str": "Stream duration formatted",
 			"stream_live": "\"true\" if user was live when raiding",
 			"viewers": "Viewers count",
 			"reward_title": "Reward name",

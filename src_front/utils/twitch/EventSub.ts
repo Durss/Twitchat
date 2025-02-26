@@ -943,6 +943,7 @@ export default class EventSub {
 					title,
 					category,
 					duration,
+					duration_str:Utils.formatDuration(duration),
 				}
 			};
 			StoreProxy.chat.addMessage(message);

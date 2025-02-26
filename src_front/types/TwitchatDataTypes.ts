@@ -3668,6 +3668,10 @@ export namespace TwitchatDataTypes {
 			 * Stream duration in ms
 			 */
 			duration: number;
+			/**
+			 * Stream duration formatted
+			 */
+			duration_str: string;
 		}
 	}
 

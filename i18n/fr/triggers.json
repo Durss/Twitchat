@@ -778,6 +778,7 @@
 			"stream_category": "Catégorie du stream",
 			"stream_viewers": "Nombre de viewers",
 			"stream_duration": "Durée du stream en millisecondes",
+			"stream_duration_str": "Durée du stream formatée",
 			"stream_live": "\"true\" si la personne était en stream au moment du raid",
 			"viewers": "Nombre de viewers",
 			"reward_title": "Nom de la récompense",
