@@ -138,6 +138,7 @@ import MessageListFilter, {MessageListFilter as MessageListFilterClass} from './
 import { RoughEase } from 'gsap/all';
 import { Linear } from 'gsap/all';
 import GroqSummaryFilterForm from '../GroqSummaryFilterForm.vue';
+import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 
 @Component({
 	components: {

@@ -262,6 +262,7 @@ class MessageItem extends Vue {
 			'private_mod_message':ChatPrivateModerator,
 			'connect':ChatConnect,
 			'disconnect':ChatConnect,
+			'gigantified_emote':ChatGiantEmote,
 		};
 		if(!Object.hasOwn(map, this.messageData.type)) {
 			console.warn("MISSING MESSAGE COMPONENT FOR TYPE:", this.messageData.type);

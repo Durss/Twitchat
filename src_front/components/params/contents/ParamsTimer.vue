@@ -48,6 +48,7 @@
 							<ToggleButton v-model="entry.enabled"
 							@change="console.log(entry.enabled);$store.timers.saveData()"
 							@click.stop />
+							<TTButton class="actionBt" @click.stop :copy="entry.id" icon="id" v-tooltip="$t('global.copy_id')" small />
 							<TTButton class="actionBt" alert icon="trash" @click.stop="$store.timers.deleteTimer(entry.id)" />
 						</div>
 						<div class="actions" v-else>
