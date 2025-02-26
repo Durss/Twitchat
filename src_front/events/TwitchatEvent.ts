@@ -88,6 +88,7 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static LABEL_OVERLAY_PLACEHOLDERS:TwitchatEventType = "LABEL_OVERLAY_PLACEHOLDERS";
 	public static DONATION_GOALS_OVERLAY_PARAMS:TwitchatEventType = "DONATION_GOALS_OVERLAY_PARAMS";
 	public static DONATION_EVENT:TwitchatEventType = "DONATION_EVENT";
+	public static QNA_SESSION_LIST:TwitchatEventType = "QNA_SESSION_LIST";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -169,6 +170,9 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static AUTOMOD_ACCEPT:TwitchatActionType = "AUTOMOD_ACCEPT";
 	public static AUTOMOD_REJECT:TwitchatActionType = "AUTOMOD_REJECT";
 	public static GET_DONATION_GOALS_OVERLAY_PARAMS:TwitchatActionType = "GET_DONATION_GOALS_OVERLAY_PARAMS";
+	public static QNA_HIGHLIGHT:TwitchatActionType = "QNA_HIGHLIGHT";
+	public static QNA_SKIP:TwitchatActionType = "QNA_SKIP";
+	public static QNA_SESSION_GET_ALL:TwitchatActionType = "QNA_SESSION_GET_ALL";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:T) {
 		super(type);
@@ -256,6 +260,7 @@ export const TwitchatEventTypeList = [
 	"LABEL_OVERLAY_PLACEHOLDERS",
 	"DONATION_GOALS_OVERLAY_PARAMS",
 	"DONATION_EVENT",
+	"QNA_SESSION_LIST",
 ] as const;
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
 
@@ -339,5 +344,8 @@ export const TwitchatActionTypeList = [
 	"AUTOMOD_ACCEPT",
 	"AUTOMOD_REJECT",
 	"GET_DONATION_GOALS_OVERLAY_PARAMS",
+	"QNA_HIGHLIGHT",
+	"QNA_SKIP",
+	"QNA_SESSION_GET_ALL",
 ] as const;
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

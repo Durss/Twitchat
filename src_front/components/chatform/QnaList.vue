@@ -20,14 +20,14 @@
 			<div class="description" v-else-if="currentSession.shareWithMods">
 				<Icon name="mod" /> {{ $t("qna.list.shared") }}
 			</div>
-			
+
 			<div class="messageList" ref="messageList">
 				<div class="noResult" v-if="messages.length === 0">{{ $t("global.no_result") }}</div>
 				<div v-else v-for="(m, index) in messages" :key="m.message.id" class="messageItem">
 					<MessageItem class="message" :messageData="buildFakeMessage(m)" :lightMode="true" />
-					
+
 					<TTButton :aria-label="$t('pin.highlightBt_aria')"
-						@click.capture="chatHighlight(buildFakeMessage(m))"
+						@click.capture="chatHighlight(m)"
 						class="button"
 						small
 						icon="highlight"
@@ -48,7 +48,7 @@
 			<div class="pagination" v-if="pageCount > 1">
 				<TTButton v-for="i in pageCount" :selected="pageIndex == i-1" @click="pageIndex = i-1">{{ i }}</TTButton>
 			</div>
-			
+
 			<div class="sessionlist">
 				<div v-for="(s, index) in $store.qna.activeSessions" :key="s.id" class="user">
 					<TTButton @click="currentSessionIndex = index" :selected="currentSession.id == s.id">{{ s.command }} <i>x{{ s.messages.length }}</i></TTButton>
@@ -82,7 +82,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 	emits:["close"],
 })
 class QnaList extends AbstractSidePanel {
-	
+
 	public overlayAvailable = false;
 	public highlightLoading = true;
 	public itemsPerPage = 20;
@@ -153,22 +153,22 @@ class QnaList extends AbstractSidePanel {
 
 	/**
 	 * Removes a message from pins
-	 * @param m 
+	 * @param m
 	 */
 	public async unpin(message:TwitchatDataTypes.QnaSession["messages"][number], index:number):Promise<void> {
 		this.$store.qna.removeMessageFromSession(message, this.currentSession!);
 	}
-	
+
 	/**
 	 * Highlights a message on dedicated overlay
 	 */
-	public async chatHighlight(m:TwitchatDataTypes.MessageChatData):Promise<void> {
+	public async chatHighlight(m:TwitchatDataTypes.QnaSession["messages"][number]):Promise<void> {
 		if(!this.overlayAvailable) {
 			//Open parameters if overlay is not found
 			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HIGHLIGHT);
 		}else{
 			this.highlightLoading = true;
-			this.$store.chat.highlightChatMessageOverlay(m);
+			this.$store.qna.highlightEntry(m);
 			await Utils.promisedTimeout(1000);
 			this.highlightLoading = false;
 		}
@@ -176,7 +176,7 @@ class QnaList extends AbstractSidePanel {
 
 	/**
 	 * Builds up a fake message data to display on list
-	 * @param m 
+	 * @param m
 	 */
 	public buildFakeMessage(m:TwitchatDataTypes.QnaSession["messages"][number]):TwitchatDataTypes.MessageChatData {
 		return {

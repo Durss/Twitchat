@@ -9,6 +9,9 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 import SSEHelper from '@/utils/SSEHelper';
 import SSEEvent from '@/events/SSEEvent';
 import ApiHelper from '@/utils/ApiHelper';
+import PublicAPI from '@/utils/PublicAPI';
+import TwitchatEvent from '@/events/TwitchatEvent';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 let shareDebounce = -1;
 let deleteDebounce = -1;
@@ -32,7 +35,7 @@ export const storeQna = defineStore('qna', {
 	actions: {
 		populateData():void {
 			/**
-			 * Called when a mod requests for currently shared 
+			 * Called when a mod requests for currently shared
 			 */
 			SSEHelper.instance.addEventListener(SSEEvent.SHARED_MOD_INFO_REQUEST, ()=> {
 				this.shareSessionsWithMods();
@@ -63,7 +66,7 @@ export const storeQna = defineStore('qna', {
 				const data = event.data;
 				const me = StoreProxy.auth.twitch.user;
 				const moderator = await StoreProxy.users.getUserFrom("twitch", me.id, data.moderatorId, undefined, undefined, undefined, undefined, false, undefined, false);
-				
+
 				//Make sure user is a moderator
 				if(!moderator.channelInfo[me.id].is_moderator) return;
 
@@ -91,8 +94,29 @@ export const storeQna = defineStore('qna', {
 					}
 				}
 			});
+
+			PublicAPI.instance.addEventListener(TwitchatEvent.QNA_HIGHLIGHT, (event:TwitchatEvent<{qnaId:string}>) => {
+				const session = this.activeSessions.find(v=>v.id == event.data?.qnaId);
+				console.log("Highlighting", event.data?.qnaId, session);
+				if(session) {
+					this.highlightEntry(session.messages[0]);
+				}
+			});
+
+			PublicAPI.instance.addEventListener(TwitchatEvent.QNA_SKIP, (event:TwitchatEvent<{qnaId:string}>) => {
+				const session = this.activeSessions.find(v=>v.id == event.data?.qnaId);
+				if(session) {
+					this.removeMessageFromSession(session.messages[0], session);
+				}
+			});
+
+			console.log("QNA store initialized", TwitchatEvent.QNA_SESSION_GET_ALL);
+			PublicAPI.instance.addEventListener(TwitchatEvent.QNA_SESSION_GET_ALL, (event:TwitchatEvent) => {
+				this.broadcastQnaList();
+
+			});
 		},
-		
+
 		createSession(command:string, allowUpvotes:boolean, shareWithMods:boolean):TwitchatDataTypes.QnaSession | false{
 			command = command.toLowerCase().trim();
 			if(this.activeSessions.find(v=>v.command.toLowerCase() == command)) {
@@ -129,6 +153,7 @@ export const storeQna = defineStore('qna', {
 			if(shareWithMods) {
 				this.shareSessionsWithMods();
 			}
+			this.broadcastQnaList();
 			return session;
 		},
 
@@ -172,18 +197,19 @@ export const storeQna = defineStore('qna', {
 			if(session.shareWithMods) {
 				this.shareSessionsWithMods();
 			}
+			this.broadcastQnaList();
 		},
 
 		async addMessageToSession(message:TwitchatDataTypes.TranslatableMessage, session:TwitchatDataTypes.QnaSession):Promise<void>{
 			if(session.messages.find(v=>v.message.id === message.id)) return;//Message already added
-			
+
 			const qnaMessage:TwitchatDataTypes.QnaSession["messages"][number] = {
 				channelId: message.channel_id,
 				message: {
-					id: message.id, 
+					id: message.id,
 					chunks: message.message_chunks || []
-				}, 
-				votes: 1, 
+				},
+				votes: 1,
 				platform: message.platform,
 				user: {
 					id: message.user.id,
@@ -191,7 +217,7 @@ export const storeQna = defineStore('qna', {
 				}
 			};
 			session.messages.push(qnaMessage);
-			
+
 			if(session.shareWithMods) {
 				if(session.ownerId != StoreProxy.auth.twitch.user.id) {
 					//If remotely moderating session, tell the broadcaster the message must be
@@ -264,18 +290,18 @@ export const storeQna = defineStore('qna', {
 					session.messages.push({
 											channelId: message.channel_id,
 											message: {
-												id: message.id, 
+												id: message.id,
 												chunks: message.message_chunks || []
-											}, 
-											votes: 1, 
+											},
+											votes: 1,
 											platform: message.platform,
 											user: {
 												id: message.user.id,
 												name: message.user.displayNameOriginal,
 											}
 										});
-				} 
-			
+				}
+
 				if(session.shareWithMods && session.ownerId == StoreProxy.auth.twitch.user.id) {
 					this.shareSessionsWithMods();
 				}
@@ -297,7 +323,7 @@ export const storeQna = defineStore('qna', {
 							session.messages.splice(j, 1);
 							deleteSpool.splice(poolIndex, 1);
 							j --;
-			
+
 							if(session.shareWithMods) {
 								this.shareSessionsWithMods();
 							}
@@ -313,7 +339,30 @@ export const storeQna = defineStore('qna', {
 			shareDebounce = window.setTimeout(() => {
 				ApiHelper.call("mod/qna", "POST", {sessions:this.activeSessions.filter(v=>v.shareWithMods==true)});
 			}, 500);
+		},
+
+		highlightEntry(entry:TwitchatDataTypes.QnaSession["messages"][0]):void {
+			const fakeMessage:TwitchatDataTypes.MessageChatData = {
+				id: entry.message.id,
+				platform: entry.platform,
+				channel_id: entry.channelId,
+				type: TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				date: Date.now(),
+				answers: [],
+				is_short: false,
+				message: entry.message.chunks.map(v=>v.value)+" ",
+				message_chunks: entry.message.chunks,
+				message_html: TwitchUtils.messageChunksToHTML(entry.message.chunks),
+				message_size: TwitchUtils.computeMessageSize(entry.message.chunks),
+				user: StoreProxy.users.getUserFrom(entry.platform, entry.channelId, entry.user.id, undefined, entry.user.name),
+			};
+			StoreProxy.chat.highlightChatMessageOverlay(fakeMessage);
+		},
+
+		broadcastQnaList():void {
+			PublicAPI.instance.broadcast(TwitchatEvent.QNA_SESSION_LIST, {qnaSessions:this.activeSessions.map(v=>({id:v.id, command:v.command, open:v.open}))});
 		}
+
 
 	} as IQnaActions
 	& ThisType<IQnaActions

@@ -246,7 +246,7 @@ export interface IMainActions {
 
 	/**
 	 * Called when a trigger's exec stack is suspended
-	 * @param callstack 
+	 * @param callstack
 	 */
 	suspendedTriggerStack(callstack:TriggerCallStack):void
 }
@@ -512,12 +512,12 @@ export interface IBingoGridActions {
 	removeCustomCell(gridId:string, cellId:string):void;
 	/**
 	 * Shows the leaderboard for the given grid on its overlay
-	 * @param gridId 
+	 * @param gridId
 	 */
 	showLeaderboard(gridId:string):void;
 	/**
 	 * Hides the leaderboard for the given grid on its overlay
-	 * @param gridId 
+	 * @param gridId
 	 */
 	hideLeaderboard(gridId:string):void;
 }
@@ -654,7 +654,7 @@ export interface IChatActions {
 	 * Opens up the whispers list for the given user.
 	 * Initializes a fake conversation with the user to allow for the window
 	 * to be displayed
-	 * @param user 
+	 * @param user
 	 */
 	openWhisperWithUser(user:TwitchatDataTypes.TwitchatUser):void;
 	/**
@@ -728,7 +728,7 @@ export interface IChatActions {
 	automodAction(accept:boolean, message:TwitchatDataTypes.ChatMessageTypes):Promise<void>;
 	/**
 	 * Flag a message as a spoiler
-	 * @param message 
+	 * @param message
 	 */
 	flagAsSpoiler(message:TwitchatDataTypes.MessageChatData):Promise<void>;
 	/**
@@ -1423,13 +1423,13 @@ export interface IStreamActions {
 	connectToExtraChan(user:TwitchatDataTypes.TwitchatUser):Promise<void>;
 	/**
 	 * Disconnects from an extra channel
-	 * @param login 
+	 * @param login
 	 */
 	disconnectFromExtraChan(user:TwitchatDataTypes.TwitchatUser):Promise<void>;
 	/**
 	 * Define autoconnect state of given channel.
-	 * @param user 
-	 * @param pinned 
+	 * @param user
+	 * @param pinned
 	 */
 	setExtraChanAutoconnectState(user:TwitchatDataTypes.TwitchatUser, pinned:boolean):void;
 }
@@ -1794,8 +1794,8 @@ export interface IUsersActions {
 	 */
 	getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState?:boolean, getPronouns?:boolean, forcedSubscriberState?:boolean, loadExtras?:boolean):TwitchatDataTypes.TwitchatUser;
 	/**
-	 * Get given user's color 
-	 * @param login 
+	 * Get given user's color
+	 * @param login
 	 */
 	getUserColorFromLogin(login:string, platform:TwitchatDataTypes.ChatPlatform):string|null;
 	/**
@@ -2153,9 +2153,9 @@ export interface ICountersActions {
 	increment(id:string, action:TriggerActionCountDataAction, value:number, user?:TwitchatDataTypes.TwitchatUser, userId?:string):number;
 	/**
 	 * Deletes a per-user counter entry
-	 * @param id 
-	 * @param user 
-	 * @param userId 
+	 * @param id
+	 * @param user
+	 * @param userId
 	 */
 	deleteCounterEntry(id:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void;
 	/**
@@ -2269,17 +2269,17 @@ export interface IPatreonActions {
 	populateData():void;
 	/**
 	 * Sets oAuth code to then complete oAuth flow
-	 * @param value 
+	 * @param value
 	 */
 	setPatreonAuthResult(value:{code:string,csrf:string}|null):void;
 	/**
 	 * Get oAuth URL to redirect to to start oauth flow
-	 * @param premiumContext 
+	 * @param premiumContext
 	 */
 	getOAuthURL(premiumContext?:boolean):Promise<string>;
 	/**
-	 * Generate an auth token from a auth code 
-	 * @param code 
+	 * Generate an auth token from a auth code
+	 * @param code
 	 */
 	authenticate(code:string, premiumContext?:boolean):Promise<void>;
 	/**
@@ -2288,13 +2288,13 @@ export interface IPatreonActions {
 	disconnect():void;
 	/**
 	 * Get redirect URI
-	 * @param premiumContext 
-	 * @returns 
+	 * @param premiumContext
+	 * @returns
 	 */
 	getRedirectURI(premiumContext?:boolean):string;
 	/**
 	 * Completes oauth flow
-	 * @returns 
+	 * @returns
 	 */
 	completeOAuthFlow(premiumContext?:boolean):Promise<boolean>;
 	/**
@@ -2346,9 +2346,9 @@ export interface IValuesActions {
 	updateValue(id:string, value:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string, interpretMaths?:boolean):void;
 	/**
 	 * Deletes a per-user value entry
-	 * @param id 
-	 * @param user 
-	 * @param userId 
+	 * @param id
+	 * @param user
+	 * @param userId
 	 */
 	deleteValueEntry(id:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void;
 	/**
@@ -2452,15 +2452,15 @@ export interface IQnaActions {
 	/**
 	 * Adds message to given session
 	 * Properly handles adding message to a remote session when moderating
-	 * @param message 
-	 * @param session 
+	 * @param message
+	 * @param session
 	 */
 	addMessageToSession(message:TwitchatDataTypes.TranslatableMessage, session:TwitchatDataTypes.QnaSession):Promise<void>;
 	/**
 	 * Removes message from given session
 	 * Properly handles removing message from a remote session when moderating
-	 * @param message 
-	 * @param session 
+	 * @param message
+	 * @param session
 	 */
 	removeMessageFromSession(message:TwitchatDataTypes.QnaSession["messages"][number], session:TwitchatDataTypes.QnaSession):Promise<void>;
 	/**
@@ -2471,7 +2471,15 @@ export interface IQnaActions {
 	/**
 	 * Sends shared sessions with connected mods
 	 */
-	shareSessionsWithMods():void
+	shareSessionsWithMods():void;
+	/**
+	 * Highlights given entry on overlay
+	 */
+	highlightEntry(entry:TwitchatDataTypes.QnaSession["messages"][0]):void;
+	/**
+	 * Broadcasts Q&A list to public API
+	 */
+	broadcastQnaList():void
 }
 
 
@@ -2982,21 +2990,21 @@ export interface ILabelsActions {
 	/**
 	 * Saves data to storage
 	 * If given labelId the update propagates to related overlays
-	 * @param labelId 
+	 * @param labelId
 	 */
 	saveData(labelId?:string):void;
 	/**
 	 * Updates given placeholder's value
-	 * 
-	 * @param key 
-	 * @param value 
+	 *
+	 * @param key
+	 * @param value
 	 * @param userId useful for AVATAR placeholders. This forces avatar loading if necessary (only for Twitch users!)
 	 */
 	updateLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:string|number, userId?:string):Promise<void>;
 	/**
 	 * Updates a numerci label value by adding the given value to it
-	 * @param key 
-	 * @param value 
+	 * @param key
+	 * @param value
 	 */
 	incrementLabelValue(key:typeof LabelItemPlaceholderList[number]["tag"], value:number):Promise<void>;
 	/**
@@ -3009,7 +3017,7 @@ export interface ILabelsActions {
 	broadcastLabelParams(labelId:string):void;
 	/**
 	 * Duplicate given label
-	 * @param labelId 
+	 * @param labelId
 	 */
 	duplicateLabel(labelId:string):void;
 }
@@ -3036,12 +3044,12 @@ export interface IDonationGoalActions {
 	addOverlay():TwitchatDataTypes.DonationGoalOverlayConfig;
 	/**
 	 * Delete an overlay
-	 * @param id 
+	 * @param id
 	 */
 	removeOverlay(id:string):void;
 	/**
 	 * Duplicate an overlay
-	 * @param id 
+	 * @param id
 	 */
 	duplicateOverlay(id:string):void;
 	/**
@@ -3050,7 +3058,7 @@ export interface IDonationGoalActions {
 	saveData(updatedOverlayId?:string):void;
 	/**
 	 * Broadcasts data of given overlay ID
-	 * @param overlayId 
+	 * @param overlayId
 	 */
 	broadcastData(overlayId?:string):void;
 	/**
@@ -3063,9 +3071,9 @@ export interface IDonationGoalActions {
 	onDonation(username:string, amount:string, platform:TwitchatDataTypes.DonationGoalOverlayConfig["dataSource"], campaignId?:string):void;
 	/**
 	 * Simulates a donation for given overlay with given fake amount
-	 * @param overlayId 
-	 * @param newAmount 
-	 * @param addedAmount 
+	 * @param overlayId
+	 * @param newAmount
+	 * @param addedAmount
 	 */
 	simulateDonation(overlayId:string, newAmount:number, addedAmount:number):Promise<void>
 }
@@ -3149,7 +3157,7 @@ export interface ITiktokActions {
 	disconnect():void
 	/**
 	 * Called on a TikTok event (message, gift, like,...)
-	 * @param data 
+	 * @param data
 	 */
 	onEvent(data:unknown):void;
 	/**
@@ -3272,9 +3280,9 @@ export interface IMixitupActions {
 	disconnect(): void;
 	/**
 	 * Executes given command
-	 * @param id 
-	 * @param platform 
-	 * @param args 
+	 * @param id
+	 * @param platform
+	 * @param args
 	 */
 	execCommand(id:string, platform:TwitchatDataTypes.ChatPlatform, args?:{[key:string]:string}):Promise<void>;
 	/**
@@ -3312,10 +3320,10 @@ export interface ITwitchCharityActions {
 	onCharityProgress(charityId:string, currentAmount:TwitchDataTypes.CharityCampaign["current_amount"], goalAmount:TwitchDataTypes.CharityCampaign["target_amount"]):void;
 	/**
 	 * Called when receiving a new donation
-	 * @param charityId 
-	 * @param user 
-	 * @param amount 
-	 * @param currency 
+	 * @param charityId
+	 * @param user
+	 * @param amount
+	 * @param currency
 	 */
 	onCharityDonation(charityId:string, user:TwitchatDataTypes.TwitchatUser, amount:number, currency:string):void
 	/**
@@ -3466,11 +3474,11 @@ export interface ITwitchBotActions {
 	/**
 	 * Starts oAuth flow.
 	 * Attempts to open a popup or redirect to the twitch auth page
-	 */	
+	 */
 	startAuthFlow(event:MouseEvent):Promise<void>;
 	/**
 	 * Sets oAuth result
-	 */	
+	 */
 	completeOAuthProcess(code:string, csrf:string):Promise<boolean>;
 	/**
 	 * Saves parameters
