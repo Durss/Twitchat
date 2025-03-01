@@ -322,21 +322,19 @@ export const storeDebug = defineStore('debug', {
 					const value = Math.ceil(Math.random()*20+10)*1000;
 					const currentValue = Math.round(value*Math.random());
 					const level = Math.ceil(Math.random()*10);
-					const approached_at = Date.now() - 3 * 60 * 1000;
 					const train:TwitchatDataTypes.HypeTrainStateData = {
 						channel_id:uid,
 						level,
 						currentValue,
 						goal:value,
-						approached_at,
-						started_at:approached_at + Math.round(Math.random()*2*60*1000),
+						approached_at:Date.now() - 3 * 60000,
+						started_at:Date.now() - Math.round(Math.random() * 2 * 60000),
 						updated_at:Date.now(),
-						timeLeft_s:Math.ceil(Math.random()*5*60),
+						ends_at:Date.now() + 5 * 60000,
 						state: "START",
 						is_boost_train:false,
 						is_golden_kappa:false,
 						is_new_record:false,
-						rawData:{},
 					};
 					const m:TwitchatDataTypes.MessageHypeTrainEventData = {
 						id:Utils.getUUID(),
@@ -459,7 +457,7 @@ export const storeDebug = defineStore('debug', {
 							approached_at,
 							started_at:approached_at + 30000,
 							updated_at:approached_at + 30000,
-							timeLeft_s:0,
+							ends_at:approached_at + 30000,
 							goal:100,
 							currentValue:Math.floor(Math.random() * 100),
 							level:Math.round(sum/8000),
@@ -468,16 +466,13 @@ export const storeDebug = defineStore('debug', {
 							is_golden_kappa:false,
 							state:'COMPLETED',
 							conductor_subs:{
-								type:"SUBS",
 								user:conductor_subs,
-								contributions:[{sub_t1:Math.round(Math.random()*100)}]
+								amount:Math.round(Math.random()*100),
 							},
 							conductor_bits:{
-								type:"BITS",
 								user:conductor_bits,
-								contributions:[{bits:Math.round(Math.random()*10000)}]
+								amount:Math.round(Math.random()*10000),
 							},
-							rawData:{},
 						},
 						activities,
 					};

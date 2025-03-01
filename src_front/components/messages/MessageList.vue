@@ -50,7 +50,7 @@
 			<div class="incompatibleSelection" ref="incompatibleSelection">⛔</div>
 		</teleport>
 
-		<div class="locked" ref="locked" v-if="!lightMode && lockScroll" @click.stop="unPause">
+		<div class="locked" ref="locked" v-if="!lightMode && lockScroll && !customActivitiesDisplayed" @click.stop="unPause">
 			<span v-if="lockScroll">{{ $t("chat.paused") }}</span>
 			<span v-if="pendingMessages.length > 0">(+{{ pendingMessages.length }})</span>
 		</div>

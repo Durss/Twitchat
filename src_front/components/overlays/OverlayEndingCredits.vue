@@ -95,12 +95,12 @@
 						<span v-html="data.labels.train.replace(/\{LEVEL\}/gi, `<strong>${parseInt(entry.level+'')}</strong>`).replace(/\{PERCENT\}/gi, `<strong>${parseFloat(entry.percent+'')}</strong>`)"></span>
 						<template v-if="item.params.showTrainConductors && (entry.conductorBits || entry.conductorSubs)">
 							<div v-if="entry.conductorSubs" class="conductor">
-								<span>{{entry.conductorSubs.login}}</span>
-								<span>x{{entry.conductorSubs.subs}} <Icon class="badge" name="sub" /></span>
+								<Icon class="badge" name="sub" /><span>{{entry.conductorSubs.login}}</span>
+								<!-- <span>x{{entry.conductorSubs.subs}} <Icon class="badge" name="sub" /></span> -->
 							</div>
 							<div v-if="entry.conductorBits" class="conductor">
-								<span>{{entry.conductorBits.login}}</span>
-								<span>x{{entry.conductorBits.bits}} <Icon class="badge" name="bits" /></span>
+								<Icon class="badge" name="bits" /><span>{{entry.conductorBits.login}}</span>
+								<!-- <span>x{{entry.conductorBits.bits}} <Icon class="badge" name="bits" /></span> -->
 							</div>
 						</template>
 					</div>
@@ -319,13 +319,13 @@ class OverlayEndingCredits extends AbstractOverlay {
 		if(params.showAllSubgifters === true) {
 			res = res.concat(subgifts.filter(v=>v.fromActiveSubs === true && tierToShow[v.tier]).map(v=>{ return {type:"subgift", value:v}}));
 		}
-		
+
 		if(params.showAllSubs !== true && params.showAllSubgifters !== true){
 			const allowedPlatforms:TwitchatDataTypes.ChatPlatform[] = [];
 			if(params.showSubs || params.showResubs || params.showSubgifts) allowedPlatforms.push("twitch");
 			if(params.showSubsYoutube || params.showSubgiftsYoutube) allowedPlatforms.push("youtube");
 			if(params.showSubsTiktok) allowedPlatforms.push("tiktok");
-	
+
 			if(params.showSubs !== false || params.showSubsYoutube !== false || params.showSubsTiktok !== false) {
 				res = res.concat(subs.filter(v=>
 					v.fromActiveSubs !== true && tierToShow[v.tier] && allowedPlatforms.includes(v.platform)
@@ -420,7 +420,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 				res = this.makeUnique(params, this.data!.superChats);
 			}
 		}else
-		
+
 		if(params.slotType == "ytSuperSticker") {
 			let tmp = this.data!.superStickers.map(v => { return {...v, stickerUrlList:[v.stickerUrl!]}});
 			if(params.uniqueUsers === true) {
@@ -564,7 +564,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 					i--;
 				}
 			}
-			
+
 			let usersDoneAnims:{[login:string]:typeof anims[number]} = {};
 			for (let i = 0; i < anims.length; i++) {
 				const item = anims[i];
@@ -1041,7 +1041,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 				if(this.data?.params?.timing == 'duration') {
 					this.scrollStarted_at = Date.now();
 				}
-	
+
 				const emotes = this.$refs.powerupEmote as HTMLImageElement[] || [];
 				const vw = document.body.clientWidth;
 				const vh = document.body.clientHeight;
@@ -1061,7 +1061,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 						imgTag.style.zIndex = Math.round(props.scale*100).toString();
 					}
 				});
-				
+
 				this.renderFrame(performance.now());
 			}
 		})
@@ -1112,7 +1112,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 				document.body.style["-webkit-mask-image"] = "none";
 			}
 		})
-		
+
 		//Move power up emotes based on current speed
 		if(this.powerUpEmoteProps.length > 0 && !this.creditsComplete) {
 			const emotes = this.$refs.powerupEmote as HTMLImageElement[] || null;
@@ -1250,7 +1250,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 		});
 
 		this.powerUpEmoteProps = [];
-		
+
 		let powerups = this.data.powerups.concat();
 
 		if(powerups.length > 0) {
@@ -1258,7 +1258,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 			while(powerups.length < 20) powerups.push(Utils.pickRand(powerups));
 			//50 items max
 			powerups = Utils.shuffle(powerups).splice(0, 50);
-			
+
 			for (let i = 0; i < powerups.length; i++) {
 				if(!powerups[i].emoteUrl) continue;
 				const behind = Math.random()>.2;
@@ -1699,7 +1699,7 @@ export default toNative(OverlayEndingCredits);
 			}
 		}
 
-		
+
 		&.polls, &.predictions {
 			.list {
 				gap: 3em;
@@ -1862,7 +1862,7 @@ export default toNative(OverlayEndingCredits);
 			}
 			.list {
 				align-items: flex-start;
-				align-self: flex-start;	
+				align-self: flex-start;
 				.item {
 					justify-content: flex-start;
 					.userlist, .stickerList {

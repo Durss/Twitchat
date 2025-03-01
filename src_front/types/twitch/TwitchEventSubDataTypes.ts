@@ -152,6 +152,7 @@ export namespace TwitchEventSubDataTypes {
 		| PredictionEndEvent
 		| HypeTrainStartEvent
 		| HypeTrainProgressEvent
+		| HypeTrainEndEvent
 		| ShieldModeStartEvent
 		| ShieldModeStopEvent
 		| BitsExtensionEvent
@@ -475,15 +476,15 @@ export namespace TwitchEventSubDataTypes {
 		broadcaster_user_login: string;
 		broadcaster_user_name: string;
 		total: number;
-		progress: number;
-		goal: number;
 		top_contributions: {
 			user_id: string;
 			user_login: string;
 			user_name: string;
-			type: string;
+			type: "subscription" | "bits";
 			total: number;
 		}[];
+		started_at: string;
+		is_golden_kappa_train: boolean;
 		last_contribution: {
 			user_id: string;
 			user_login: string;
@@ -492,25 +493,29 @@ export namespace TwitchEventSubDataTypes {
 			total: number;
 		};
 		level: number;
-		started_at: string;
+		goal: number;
+		progress: number;
 		expires_at: string;
 	}
 
-	export interface HypeTrainProgressEvent {
+	export interface HypeTrainProgressEvent extends HypeTrainStartEvent {}
+
+	export interface HypeTrainEndEvent {
 		id: string;
 		broadcaster_user_id: string;
 		broadcaster_user_login: string;
 		broadcaster_user_name: string;
-		level: number;
 		total: number;
 		top_contributions: {
 			user_id: string;
 			user_login: string;
 			user_name: string;
-			type: string;
+			type: "subscription" | "bits";
 			total: number;
 		}[];
 		started_at: string;
+		is_golden_kappa_train: boolean;
+		level: number;
 		ended_at: string;
 		cooldown_ends_at: string;
 	}

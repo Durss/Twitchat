@@ -1432,6 +1432,10 @@ export interface IStreamActions {
 	 * @param pinned
 	 */
 	setExtraChanAutoconnectState(user:TwitchatDataTypes.TwitchatUser, pinned:boolean):void;
+	/**
+	 * Request cooldown duration before next hype train
+	 */
+	scheduleHypeTrainCooldownAlert():Promise<void>;
 }
 
 

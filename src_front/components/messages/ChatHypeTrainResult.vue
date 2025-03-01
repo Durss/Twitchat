@@ -7,7 +7,7 @@
 				<template #LEVEL><mark>{{$t("chat.hype_train.summary_level")}} {{messageData.train.level}}</mark></template>
 				<template #PERCENT><mark>{{reachPercent}}%</mark></template>
 			</i18n-t>
-			
+
 			<div class="details">
 				<div class="row" v-if="bits > 0" v-tooltip="$t('global.tooltips.bits')">
 					<img src="@/assets/icons/bits.svg" class="icon" key="bits">
@@ -42,11 +42,6 @@
 					<span class="label">{{subgifts}}</span>
 				</div>
 
-				<div class="row" v-for="v in hypeChats" v-tooltip="$t('global.tooltips.hype_chat')">
-					<img src="@/assets/icons/hypeChat.svg" class="icon" key="paid">
-					<span class="label">{{v}}</span>
-				</div>
-				
 			</div>
 
 			<div class="conductors">
@@ -60,7 +55,7 @@
 						:href="'https://twitch.tv/'+messageData.train.conductor_subs.user.login"
 						target="_blank"
 						@click.stop.prevent="openUserCard(messageData.train.conductor_subs!.user, messageData.channel_id)">{{messageData.train.conductor_subs.user.displayName}}</a>
-	
+
 						<i18n-t scope="global" tag="div" class="label" keypath="train.conductor_subs" :plural="getConductorSubCount()">
 							<template #COUNT>
 								<span class="count">{{ getConductorSubCount() }}</span>
@@ -78,17 +73,17 @@
 						<a class="userlink"
 						:href="'https://twitch.tv/'+messageData.train.conductor_bits.user.login"
 						target="_blank"
-						@click.stop.prevent="openUserCard(messageData.train.conductor_bits!.user, messageData.channel_id)">{{messageData.train.conductor_bits.user.displayName}}</a>
-						
-						<i18n-t scope="global" tag="div" class="label" keypath="train.conductor_bits" :plural="getConductorBitsCount()">
+						@click.stop.prevent="openUserCard(messageData.train.conductor_bits.user, messageData.channel_id)">{{messageData.train.conductor_bits.user.displayName}}</a>
+
+						<i18n-t scope="global" tag="div" class="label" keypath="train.conductor_bits" :plural="messageData.train.conductor_bits.amount">
 							<template #COUNT>
-								<span class="count">{{ getConductorBitsCount() }}</span>
+								<span class="count">{{ messageData.train.conductor_bits.amount }}</span>
 							</template>
 						</i18n-t>
 					</div>
 				</div>
 			</div>
-			
+
 			<Button v-if="!filtering && messageData.activities.length > 0" small icon="filters" @click.stop="filter()">{{ $t('chat.hype_train.filterBt') }}</Button>
 		</div>
 	</div>
@@ -108,7 +103,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 })
 
 class ChatHypeTrainResult extends AbstractChatMessage {
-	
+
 	@Prop({
 			type:Boolean,
 			default:false,
@@ -124,38 +119,26 @@ class ChatHypeTrainResult extends AbstractChatMessage {
 	public subgifts:number = 0;
 	public primes:number = 0;
 	public bits:number = 0;
-	public hypeChats:string[] = []
 
 	public get iconColor():string{
 		return this.$store.common.theme == "dark" ? "#00d6d6" : "#00a3a3";
 	}
-	
+
 	public getConductorSubCount():number {
 		let count = 0;
-		for (let i = 0; i < this.messageData.train.conductor_subs!.contributions.length; i++) {
-			const c = this.messageData.train.conductor_subs!.contributions[i];
-			if(c.sub_t1) count += c.sub_t1;
-			if(c.sub_t2) count += c.sub_t2;
-			if(c.sub_t3) count += c.sub_t3;
-			if(c.subgift_t1) count += c.subgift_t1;
-			if(c.subgift_t2) count += c.subgift_t2;
-			if(c.subgift_t3) count += c.subgift_t3;
-		}
-		return count;
-	}
-
-	public getConductorBitsCount():number {
-		let count = 0;
-		for (let i = 0; i < this.messageData.train.conductor_bits!.contributions.length; i++) {
-			const c = this.messageData.train.conductor_bits!.contributions[i];
-			if(c.bits) count += c.bits;
+		for (let i = 0; i < this.messageData.activities.length; i++) {
+			const element = this.messageData.activities[i];
+			if(element.type === TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
+			&& element.user.id === this.messageData.train.conductor_subs!.user.id) {
+				if(element.is_gift) count += element.gift_count || 1;
+				else count++;
+			}
 		}
 		return count;
 	}
 
 	public mounted():void {
 		this.reachPercent = Math.round(this.messageData.train.currentValue / this.messageData.train.goal * 100);
-		const hypeChatCurrencyToTotal:{[key:string]:number} = {};
 		for (let i = 0; i < this.messageData.activities.length; i++) {
 			const el = this.messageData.activities[i];
 			switch(el.type) {
@@ -176,23 +159,7 @@ class ChatHypeTrainResult extends AbstractChatMessage {
 					this.bits += el.bits;
 					break;
 				}
-
-				case TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT: {
-					const hypeChat = el.message.twitch_hypeChat!;
-					if(!hypeChatCurrencyToTotal[hypeChat.currency]) {
-						hypeChatCurrencyToTotal[hypeChat.currency] = 0;
-					}
-					hypeChatCurrencyToTotal[hypeChat.currency] += hypeChat.amount;
-					break;
-				}
 			}
-		}
-
-		this.hypeChats = [];
-		for (const key in hypeChatCurrencyToTotal) {
-			const total = hypeChatCurrencyToTotal[key];
-			const currency = {EUR:"€", USD:"$", GBP:"£"}[key] || key;
-			this.hypeChats.push( currency +" "+ total );
 		}
 	}
 
@@ -244,7 +211,7 @@ export default toNative(ChatHypeTrainResult);
 			padding-top: .25em;
 			padding-bottom: .25em;
 			cursor: default;
-			
+
 			.icon {
 				height: 1em;
 				max-width: 1em;
@@ -296,7 +263,7 @@ export default toNative(ChatHypeTrainResult);
 		position: relative;
 		justify-content: center;
 		gap: 1em;
-		
+
 		.conductor {
 			display: inline-flex;
 			align-items: center;
@@ -307,7 +274,7 @@ export default toNative(ChatHypeTrainResult);
 			border-radius: var(--border-radius);
 			padding: .5em;
 			min-width: 6em;
-			
+
 			.icon {
 				position: absolute;
 				top: -.5em;
@@ -337,6 +304,6 @@ export default toNative(ChatHypeTrainResult);
 			}
 		}
 	}
-	
+
 }
 </style>

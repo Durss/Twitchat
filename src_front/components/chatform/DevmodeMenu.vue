@@ -121,7 +121,7 @@
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import EventSub from '@/utils/twitch/EventSub';
+import EventSub, { fakeHypeTrain1, fakeHypeTrain2 } from '@/utils/twitch/EventSub';
 import PubSub from '@/utils/twitch/PubSub';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -457,8 +457,23 @@ class DevmodeMenu extends Vue {
 		StoreProxy.chat.addMessage(message);
 	}
 
-	public simulateHypeTrain(goldenKappa:boolean = false):void {
-		PubSub.instance.simulateHypeTrain(goldenKappa);
+	public async simulateHypeTrain(goldenKappa:boolean = false):Promise<void> {
+		EventSub.instance.simulateHypeTrain(goldenKappa);
+
+		// const train = fakeHypeTrain2;
+		// const timeScale = 1;
+		// let dateOffset = new Date(train[0] as string).getTime();
+		// for (let i = 1; i < train.length; i++) {
+		// 	const entry = train[i];
+		// 	if(typeof entry == "string") {
+		// 		const ts = new Date(entry).getTime();
+		// 		await Utils.promisedTimeout((ts - dateOffset) * timeScale);
+		// 		dateOffset = ts;
+		// 	}else {
+		// 		entry.data.is_golden_kappa_train = goldenKappa;
+		// 		console.log(entry.data.level, entry.data.total)
+		// 	}
+		// }
 	}
 
 	public simulateComunityBoost():void {
