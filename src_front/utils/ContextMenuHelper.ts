@@ -107,6 +107,12 @@ export default class ContextMenuHelper {
 					&& tMessage.channel_id != StoreProxy.stream.currentChatChannel.id) {
 						allowed = false;
 					}
+
+					if(tMessage.channel_id != StoreProxy.auth.twitch.user.id
+					&& !StoreProxy.stream.connectedTwitchChans.find(v=>v.user.id == tMessage.channel_id)) {
+						allowed = false;
+					}
+
 					if(allowed) {
 						options.push({
 									label: StoreProxy.chat.messageMode == "message"? t("chat.context_menu.answer") : t("chat.context_menu.quote"),
