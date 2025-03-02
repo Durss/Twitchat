@@ -108,7 +108,7 @@ const i18n = createI18n({
 (async()=> {
 	try {
 		window.setInitMessage("loading labels");
-		const labelsRes = await fetch("/labels.json");
+		const labelsRes = await fetch("/labels.json?v="+import.meta.env.PACKAGE_VERSION);
 		const labelsJSON = await labelsRes.json();
 		for (const lang in labelsJSON) {
 			i18n.global.setLocaleMessage(lang, labelsJSON[lang]);
