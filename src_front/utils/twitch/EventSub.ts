@@ -600,9 +600,9 @@ export default class EventSub {
 				break;
 			}
 
+			// case TwitchEventSubDataTypes.SubscriptionTypes.POLL_END: //Not necessary and interferes with overlay
 			case TwitchEventSubDataTypes.SubscriptionTypes.POLL_START:
-			case TwitchEventSubDataTypes.SubscriptionTypes.POLL_PROGRESS:
-			case TwitchEventSubDataTypes.SubscriptionTypes.POLL_END: {
+			case TwitchEventSubDataTypes.SubscriptionTypes.POLL_PROGRESS: {
 				this.pollEvent(topic, payload.event as TwitchEventSubDataTypes.PollStartEvent | TwitchEventSubDataTypes.PollProgressEvent | TwitchEventSubDataTypes.PollEndEvent);
 				break;
 			}
