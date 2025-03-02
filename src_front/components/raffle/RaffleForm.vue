@@ -26,7 +26,7 @@
 				<ParamItem :paramData="param_command" v-model="param_command.value" :autofocus="true" @change="onValueChange()">
 					<ParamItem class="child" noBackground :paramData="param_commandValue" v-model="localData.command" :autofocus="true" />
 				</ParamItem>
-				
+
 				<ParamItem :paramData="param_reward" v-model="param_reward.value" @change="onValueChange()" v-if="param_rewardvalue.listValues!.length > 1">
 					<ParamItem class="child" noBackground :paramData="param_rewardvalue" v-model="localData.reward_id" />
 				</ParamItem>
@@ -87,7 +87,7 @@
 					v-if="triggerMode === false"
 					:aria-label="$t('raffle.chat.startBt_aria')"
 					icon="ticket">{{ $t('global.start') }}</TTButton>
-					
+
 				<div class="card-item triggerInfo" v-if="triggerMode === false">
 					<Icon name="info" />
 
@@ -117,7 +117,7 @@
 					<ParamItem class="child" noBackground :paramData="param_tip_streamlabsCharity_ponderate" v-model="localData.tip_streamlabsCharity_ponderate" />
 				</ParamItem>
 				<ParamItem :paramData="param_tip_streamlements" v-model="localData.tip_streamelements">
-					<ParamItem class="child" noBackground :paramData="param_tip_streamlements_minAmount" v-model="localData.tip_streamelements_minAmount" />
+					<ParamItem class="child" noBackground :paramData="param_tip_streamelements_minAmount" v-model="localData.tip_streamelements_minAmount" />
 					<ParamItem class="child" noBackground :paramData="param_tip_streamlements_ponderate" v-model="localData.tip_streamelements_ponderate" />
 				</ParamItem>
 				<ParamItem :paramData="param_tip_tipeee" v-model="localData.tip_tipeee">
@@ -134,7 +134,7 @@
 				</ParamItem>
 
 				<ParamItem :paramData="param_enterDuration" v-model="localData.duration_s" />
-				
+
 				<ToggleBlock class="configs" :icons="['params']" :title="$t('global.advanced_params')" :open="false">
 					<ParamItem :paramData="param_multipleJoin"  v-model="localData.multipleJoin" />
 					<ParamItem :paramData="param_maxUsersToggle"  v-model="param_maxUsersToggle.value" @change="onValueChange()">
@@ -190,7 +190,7 @@
 
 			<form class="form" v-else-if="localData.mode=='sub' && canListSubs" @submit.prevent="submitForm()">
 				<div class="card-item info">{{ $t("raffle.subs.description") }}</div>
-				
+
 				<ParamItem :paramData="param_subs_includeGifters" v-model="localData.subMode_includeGifters" />
 				<ParamItem :paramData="param_subs_excludeGifted" v-model="localData.subMode_excludeGifted" />
 				<div class="card-item winner" v-if="winner" ref="winnerHolder">
@@ -287,7 +287,7 @@
 					icon="announcement"
 					titleKey="raffle.configs.postOnChat_winner"
 				/>
-				
+
 
 				<TTButton type="submit"
 				v-if="triggerMode === false"
@@ -386,7 +386,7 @@ class RaffleForm extends AbstractSidePanel {
 	public param_tip_kofi_minAmount:TwitchatDataTypes.ParameterData<number>				= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
 	public param_tip_streamlabs_minAmount:TwitchatDataTypes.ParameterData<number>		= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
 	public param_tip_streamlabsCharity_minAmount:TwitchatDataTypes.ParameterData<number>= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
-	public param_tip_streamlements_minAmount:TwitchatDataTypes.ParameterData<number>	= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
+	public param_tip_streamelements_minAmount:TwitchatDataTypes.ParameterData<number>	= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
 	public param_tip_tipeee_minAmount:TwitchatDataTypes.ParameterData<number>			= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
 	public param_tip_tiltify_minAmount:TwitchatDataTypes.ParameterData<number>			= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
 	public param_tip_twitchCharity_minAmount:TwitchatDataTypes.ParameterData<number>	= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_minAmount"};
@@ -592,7 +592,7 @@ class RaffleForm extends AbstractSidePanel {
 			}
 			platforms.push(label);
 		}
-		
+
 		return [
 			{tag:"PLATFORMS", descKey:"raffle.configs.message_cmd_placeholder", example:platforms.join(", ")},
 		];
@@ -616,7 +616,7 @@ class RaffleForm extends AbstractSidePanel {
 		this.winnerSubsPlaceholders		= [
 			{tag:"USER", descKey:"raffle.params.usernames_placeholder", example:this.$store.auth.twitch.user.displayNameOriginal},
 		];
-		this.winnerListPlaceholders		= 
+		this.winnerListPlaceholders		=
 		this.winnerValuesPlaceholders	= [
 			{tag:"ENTRY", descKey:"raffle.params.entry_placeholder", example:"My Awesome Entry"},
 		];
@@ -649,7 +649,7 @@ class RaffleForm extends AbstractSidePanel {
 				if(preselectedValue) {
 					this.param_values.value = preselectedValue;
 				}
-				
+
 				if(this.triggerMode && this.action) {
 					if(!this.action.raffleData.messages) {
 						this.action.raffleData.messages = reactive({
@@ -767,7 +767,7 @@ class RaffleForm extends AbstractSidePanel {
 		if(this.param_command.value === true) {
 			cmd = this.param_commandValue.value || this.$t("raffle.params.command_placeholder");
 		}
-		
+
 		if(this.param_ponderateVotes.value == false) {
 			this.localData.vipRatio = 0;
 			this.localData.followRatio = 0;
@@ -783,13 +783,13 @@ class RaffleForm extends AbstractSidePanel {
 			this.localData.subT3Ratio = this.localData.subT3Ratio || 1;
 			this.localData.subgiftRatio = this.localData.subgiftRatio || 1;
 		}
-		
+
 		if(this.param_maxUsersToggle.value == false) {
 			this.localData.maxEntries = 0;
 		}else{
 			this.localData.maxEntries = this.localData.maxEntries || 100;
 		}
-		
+
 		if(this.param_reward.value == false) {
 			this.localData.reward_id = "";
 		}
@@ -799,7 +799,7 @@ class RaffleForm extends AbstractSidePanel {
 			// this.param_rewardvalue.value = this.action.raffleData.reward_id || "";
 			this.action.raffleData = this.localData;
 		}
-		
+
 		this.localData.value_id = this.param_values.selectedListValue?.value.id;
 	}
 

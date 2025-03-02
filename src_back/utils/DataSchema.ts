@@ -99,6 +99,155 @@ const UserDataSchema = {
 				}
 			}
 		},
+
+		raffleData:{
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				mode: { enum: ["chat", "sub", "manual", "values", "tips"] },
+				command: { type: "string", maxLength:100 },
+				reward_id: { type: "string", maxLength:100 },
+				value_id: { type: "string", maxLength:100 },
+				value_splitter: { type: "string", maxLength:10 },
+				multipleJoin: {type:"boolean"},
+				autoClose: {type:"boolean"},
+				triggerWaitForWinner: {type:"boolean"},
+				duration_s: {type:"integer", minimum:0, maximum:120 * 60000},
+				maxEntries: {type:"integer", minimum:0, maximum:1000000},
+				created_at: {type:"integer", minimum:0, maximum:9999999999999},
+				entries: {
+					type:"array",
+					minItems:0,
+					maxItems:10000,
+					items: {
+						type: "object",
+						additionalProperties: false,
+						properties: {
+							id:{type:"string", maxLength:100},
+							label:{type:"string", maxLength:200},
+							score:{type:"integer", minimum:0, maximum:100},
+							joinCount: { type: "number" },
+							user: {
+								type: "object",
+								properties: {
+									id: { type: "string", maxLength:100 },
+									channel_id: { type: "string", maxLength:100 },
+									platform: { type: "string", maxLength:20 }
+								},
+							},
+							tip: {
+								type: "object",
+								properties: {
+									amount: {
+										anyOf:[
+											{type:"string", maxLength:50},
+											{type:"number", minimum:0 , maximum:99999}
+										]
+									},
+									source: { type: "string", maxLength:20 }
+								},
+							},
+						}
+					}
+				},
+				tip_kofi: {type:"boolean"},
+				tip_streamlabs: {type:"boolean"},
+				tip_streamlabsCharity: {type:"boolean"},
+				tip_streamelements: {type:"boolean"},
+				tip_tipeee: {type:"boolean"},
+				tip_tiltify: {type:"boolean"},
+				tip_twitchCharity: {type:"boolean"},
+				tip_kofi_minAmount: {type:"integer", minimum:0, maximum:999999},
+				tip_streamlabs_minAmount: {type:"integer", minimum:0, maximum:999999},
+				tip_streamlabsCharity_minAmount: {type:"integer", minimum:0, maximum:999999},
+				tip_streamelements_minAmount: {type:"integer", minimum:0, maximum:999999},
+				tip_tipeee_minAmount: {type:"integer", minimum:0, maximum:999999},
+				tip_tiltify_minAmount: {type:"integer", minimum:0, maximum:999999},
+				tip_twitchCharity_minAmount: {type:"integer", minimum:0, maximum:999999},
+				tip_kofi_ponderate: {type:"integer", minimum:0, maximum:999999},
+				tip_streamlabs_ponderate: {type:"integer", minimum:0, maximum:999999},
+				tip_streamlabsCharity_ponderate: {type:"integer", minimum:0, maximum:999999},
+				tip_streamelements_ponderate: {type:"integer", minimum:0, maximum:999999},
+				tip_tipeee_ponderate: {type:"integer", minimum:0, maximum:999999},
+				tip_tiltify_ponderate: {type:"integer", minimum:0, maximum:999999},
+				tip_twitchCharity_ponderate: {type:"integer", minimum:0, maximum:999999},
+				followRatio: {type:"integer", minimum:0, maximum:100},
+				vipRatio: {type:"integer", minimum:0, maximum:100},
+				subRatio: {type:"integer", minimum:0, maximum:100},
+				subT2Ratio: {type:"integer", minimum:0, maximum:100},
+				subT3Ratio: {type:"integer", minimum:0, maximum:100},
+				subgiftRatio: {type:"integer", minimum:0, maximum:100},
+				subMode_includeGifters: {type:"boolean"},
+				subMode_excludeGifted: {type:"boolean"},
+				showCountdownOverlay: {type:"boolean"},
+				removeWinningEntry: {type:"boolean"},
+				customEntries: { type: "string", maxLength:10000 },
+				winners: {
+					type:"array",
+					minItems:0,
+					maxItems:1000,
+					items:{
+						type: "object",
+						properties: {
+							id: { type: "string" },
+							label: { type: "string", maxLength:300 },
+							score: { type: "number" },
+							joinCount: { type: "number" },
+							user: {
+								type: "object",
+								properties: {
+									id: { type: "string", maxLength:100 },
+									channel_id: { type: "string", maxLength:100 },
+									platform: { type: "string", maxLength:20 }
+								},
+							},
+							tip: {
+								type: "object",
+								properties: {
+									amount: {
+										anyOf:[
+											{type:"string", maxLength:50},
+											{type:"number", minimum:0 , maximum:99999}
+										]
+									},
+									source: { type: "string", maxLength:20 }
+								},
+							},
+						},
+					},
+				},
+				messages: {
+					type: "object",
+					additionalProperties: false,
+					properties: {
+						raffleStart:{
+							type: "object",
+							additionalProperties: false,
+							properties: {
+								message: {type:"string", maxLength:500},
+								enabled: {type:"boolean"},
+							}
+						},
+						raffleJoin:{
+							type: "object",
+							additionalProperties: false,
+							properties: {
+								message: {type:"string", maxLength:500},
+								enabled: {type:"boolean"},
+							}
+						},
+						raffleWinner:{
+							type: "object",
+							additionalProperties: false,
+							properties: {
+								message: {type:"string", maxLength:500},
+								enabled: {type:"boolean"},
+							}
+						},
+					},
+				},
+			},
+		},
 	},
 
 	type:"object",
@@ -470,99 +619,7 @@ const UserDataSchema = {
 										value: {type:"string", maxLength:10000},
 									}
 								},
-								raffleData: {
-									type: "object",
-									additionalProperties: false,
-									properties: {
-										mode: {type:"string", maxLength:20},
-										command: {type:"string", maxLength:100},
-										reward_id: {type:"string", maxLength:200},
-										value_id: {type:"string", maxLength:200},
-										value_splitter: {type:"string", maxLength:5},
-										multipleJoin: {type:"boolean"},
-										autoClose: {type:"boolean"},
-										triggerWaitForWinner: {type:"boolean"},
-										duration_s: {type:"integer", minimum:0, maximum:120 * 60000},
-										maxEntries: {type:"integer", minimum:0, maximum:1000000},
-										created_at: {type:"integer", minimum:0, maximum:9999999999999},
-										entries: {
-											type:"array",
-											minItems:0,
-											maxItems:10000,
-											items: {
-												type: "object",
-												additionalProperties: false,
-												properties: {
-													id:{type:"string", maxLength:100},
-													label:{type:"string", maxLength:200},
-													score:{type:"integer", minimum:0, maximum:100},
-												}
-											}
-										},
-										tip_kofi: {type:"boolean"},
-										tip_streamlabs: {type:"boolean"},
-										tip_streamlabsCharity: {type:"boolean"},
-										tip_streamelements: {type:"boolean"},
-										tip_tipeee: {type:"boolean"},
-										tip_tiltify: {type:"boolean"},
-										tip_twitchCharity: {type:"boolean"},
-										tip_kofi_minAmount: {type:"integer", minimum:0, maximum:999999},
-										tip_streamlabs_minAmount: {type:"integer", minimum:0, maximum:999999},
-										tip_streamlabsCharity_minAmount: {type:"integer", minimum:0, maximum:999999},
-										tip_streamelements_minAmount: {type:"integer", minimum:0, maximum:999999},
-										tip_tipeee_minAmount: {type:"integer", minimum:0, maximum:999999},
-										tip_tiltify_minAmount: {type:"integer", minimum:0, maximum:999999},
-										tip_twitchCharity_minAmount: {type:"integer", minimum:0, maximum:999999},
-										tip_kofi_ponderate: {type:"integer", minimum:0, maximum:999999},
-										tip_streamlabs_ponderate: {type:"integer", minimum:0, maximum:999999},
-										tip_streamlabsCharity_ponderate: {type:"integer", minimum:0, maximum:999999},
-										tip_streamelements_ponderate: {type:"integer", minimum:0, maximum:999999},
-										tip_tipeee_ponderate: {type:"integer", minimum:0, maximum:999999},
-										tip_tiltify_ponderate: {type:"integer", minimum:0, maximum:999999},
-										tip_twitchCharity_ponderate: {type:"integer", minimum:0, maximum:999999},
-										followRatio: {type:"integer", minimum:0, maximum:100},
-										vipRatio: {type:"integer", minimum:0, maximum:100},
-										subRatio: {type:"integer", minimum:0, maximum:100},
-										subT2Ratio: {type:"integer", minimum:0, maximum:100},
-										subT3Ratio: {type:"integer", minimum:0, maximum:100},
-										subgiftRatio: {type:"integer", minimum:0, maximum:100},
-										subMode_includeGifters: {type:"boolean"},
-										subMode_excludeGifted: {type:"boolean"},
-										showCountdownOverlay: {type:"boolean"},
-										removeWinningEntry: {type:"boolean"},
-										customEntries: {type:"string", maxLength:1000000},
-										messages: {
-											type: "object",
-											additionalProperties: false,
-											properties: {
-												raffleStart:{
-													type: "object",
-													additionalProperties: false,
-													properties: {
-														message: {type:"string", maxLength:500},
-														enabled: {type:"boolean"},
-													}
-												},
-												raffleJoin:{
-													type: "object",
-													additionalProperties: false,
-													properties: {
-														message: {type:"string", maxLength:500},
-														enabled: {type:"boolean"},
-													}
-												},
-												raffleWinner:{
-													type: "object",
-													additionalProperties: false,
-													properties: {
-														message: {type:"string", maxLength:500},
-														enabled: {type:"boolean"},
-													}
-												},
-											},
-										},
-									},
-								},
+								raffleData: { $ref: "#/definitions/raffleData" },
 								bingoData: {
 									type: "object",
 									additionalProperties: false,
@@ -1412,7 +1469,7 @@ const UserDataSchema = {
 						maxProperties:100,
 						patternProperties: {
 							".{1,100}": {
-								type:"object", 
+								type:"object",
 								additionalProperties: false,
 								properties: {
 									platform: { type:"string", maxLength:30 },
@@ -2071,140 +2128,7 @@ const UserDataSchema = {
 			type:"array",
 			minItems:0,
 			maxItems:20,
-			items:{
-				type: "object",
-				properties: {
-					sessionId: { type: "string" },
-					mode: { enum: ["chat", "sub", "manual", "values", "tips"] },
-					command: { type: "string", maxLength:100 },
-					reward_id: { type: "string", maxLength:100 },
-					value_id: { type: "string", maxLength:100 },
-					value_splitter: { type: "string", maxLength:10 },
-					removeWinningEntry: { type: "boolean" },
-					duration_s: { type: "number" },
-					maxEntries: { type: "number" },
-					multipleJoin: { type: "boolean" },
-					autoClose: { type: "boolean" },
-					triggerWaitForWinner: {type:"boolean"},
-					created_at: { type: "number" },
-					entries: {
-						type:"array",
-						minItems:0,
-						maxItems:1000,
-						items:{
-							type: "object",
-							properties: {
-								id: { type: "string" },
-								label: { type: "string", maxLength:300 },
-								score: { type: "number" },
-								joinCount: { type: "number" },
-								user: {
-									type: "object",
-									properties: {
-										id: { type: "string", maxLength:100 },
-										channel_id: { type: "string", maxLength:100 },
-										platform: { type: "string", maxLength:20 }
-									},
-								},
-								tip: {
-									type: "object",
-									properties: {
-										amount: {
-											anyOf:[
-												{type:"string", maxLength:50},
-												{type:"number", minimum:0 , maximum:99999}
-											]
-										},
-										source: { type: "string", maxLength:20 }
-									},
-								},
-							},
-						},
-					},
-					vipRatio: { type: "number" },
-					followRatio: { type: "number" },
-					subRatio: { type: "number" },
-					subT2Ratio: { type: "number" },
-					subT3Ratio: { type: "number" },
-					subgiftRatio: { type: "number" },
-					subMode_includeGifters: { type: "boolean" },
-					subMode_excludeGifted: { type: "boolean" },
-					showCountdownOverlay: { type: "boolean" },
-					customEntries: { type: "string", maxLength:10000 },
-					tip_kofi: { type: "boolean" },
-					tip_streamlabs: { type: "boolean" },
-					tip_streamlabsCharity: { type: "boolean" },
-					tip_streamelements: { type: "boolean" },
-					tip_tipeee: { type: "boolean" },
-					tip_tiltify: { type: "boolean" },
-					tip_kofi_minAmount: { type: "number", minimum:0, maximum:999999 },
-					tip_streamlabs_minAmount: { type: "number", minimum:0, maximum:999999 },
-					tip_streamlabsCharity_minAmount: { type: "number", minimum:0, maximum:999999 },
-					tip_streamlements_minAmount: { type: "number", minimum:0, maximum:999999 },
-					tip_tipeee_minAmount: { type: "number", minimum:0, maximum:999999 },
-					tip_tiltify_minAmount: { type: "number", minimum:0, maximum:999999 },
-					winners: {
-						type:"array",
-						minItems:0,
-						maxItems:1000,
-						items:{
-							type: "object",
-							properties: {
-								id: { type: "string" },
-								label: { type: "string", maxLength:300 },
-								score: { type: "number" },
-								joinCount: { type: "number" },
-								user: {
-									type: "object",
-									properties: {
-										id: { type: "string", maxLength:100 },
-										channel_id: { type: "string", maxLength:100 },
-										platform: { type: "string", maxLength:20 }
-									},
-								},
-								tip: {
-									type: "object",
-									properties: {
-										amount: {
-											anyOf:[
-												{type:"string", maxLength:50},
-												{type:"number", minimum:0 , maximum:99999}
-											]
-										},
-										source: { type: "string", maxLength:20 }
-									},
-								},
-							},
-						},
-					},
-					messages: {
-						type: "object",
-						properties: {
-							raffleStart: {
-								type: "object",
-								properties: {
-									enabled: { type: "boolean" },
-									message: { type: "string", maxLength:500 }
-								},
-							},
-							raffleJoin: {
-								type: "object",
-								properties: {
-									enabled: { type: "boolean" },
-									message: { type: "string", maxLength:500 }
-								},
-							},
-							raffleWinner: {
-								type: "object",
-								properties: {
-									enabled: { type: "boolean" },
-									message: { type: "string", maxLength:500 }
-								},
-							}
-						},
-					}
-				}
-			}
+			items:{ $ref: "#/definitions/raffleData" },
 		},
 
 		tiktokConfigs:{
