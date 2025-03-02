@@ -32,7 +32,7 @@
 						<OverlayInstaller type="timer" :sourceSuffix="entry.title" :id="entry.isDefault? '' : entry.id" :sourceTransform="{width:300, height:100}" />
 					</div>
 
-					<ParamItem :paramData="param_style[entry.id]" v-model="entry.overlayParams.style" class="selectList" v-if="!entry.isDefault && entry.type == 'countdown'" />
+					<ParamItem :paramData="param_style[entry.id]" v-model="entry.overlayParams.style" class="selectList" v-if="!entry.isDefault && entry.type == 'countdown'" @change="onChange(entry)" />
 
 					<template v-if="entry.overlayParams.style != 'bar'">
 						<ParamItem :paramData="param_showIcon[entry.id]" v-model="entry.overlayParams.showIcon" @change="onChange(entry)" />
