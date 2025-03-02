@@ -25,7 +25,8 @@ let hypeTrainCooldownTo = "";
 // Given a user's feedback, "hype train cooldown" notification is sent multiple times
 // dunno if i can actually trust them, but just in case this flag makes it so a
 // cooldown alert won't be sent again unless a hype train happened in between
-let ignoreHypeTrainCooldown = false;
+// Set to true by default to avoid sending a cooldown alert on first launch
+let ignoreHypeTrainCooldown = true;
 
 export const storeStream = defineStore('stream', {
 	state: () => ({
@@ -214,6 +215,7 @@ export const storeStream = defineStore('stream', {
 		},
 
 		setHypeTrain(data:TwitchatDataTypes.HypeTrainStateData|undefined) {
+			if(ignoreHypeTrainCooldown) this.scheduleHypeTrainCooldownAlert();
 			ignoreHypeTrainCooldown = false;
 			this.hypeTrain = data;
 			if(data && data.state == "COMPLETED" && data.approached_at) {
