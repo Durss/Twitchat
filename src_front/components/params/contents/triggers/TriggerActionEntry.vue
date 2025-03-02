@@ -85,7 +85,7 @@
 			<div v-if="action.type===null" class="typeSelector">
 				<div class="info">{{ $t('triggers.actions.common.select_action') }}</div>
 
-				<input class="searchField" type="text" v-model="search" :placeholder="$t('global.search_placeholder')" @input="onSearch" />
+				<input class="searchField" type="text" v-model="search" :placeholder="$t('global.search_placeholder')" @input="onSearch" v-autofocus="true" />
 
 				<div class="list" ref="actionList">
 
