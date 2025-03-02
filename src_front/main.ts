@@ -76,6 +76,8 @@ import { storeTwitchCharity } from './store/twitch_charity/storeTwitchCharity';
 import { storeTwitchBot } from './store/twitchbot/storeTwitchBot';
 import { storeGroq } from './store/groq/storeGroq';
 
+window.setInitMessage("Booting app...");
+
 setDefaultProps({
 	theme:"twitchat",
 	animation:"scale",
@@ -392,29 +394,7 @@ function buildApp() {
 		StoreProxy.default.main.setAhsInstaller(e as TwitchatDataTypes.InstallHandler);
 	});
 
-	const currentABVersion = 2;
-	const userRangeTargetRatio = .75;
-	let sentryParam = {v:currentABVersion, date:Date.now(), enabled:false};
-	let sentryParamSrc = DataStore.get(DataStore.AB_SENTRY);
-	//Reset old data format
-	if(sentryParamSrc === "true" || sentryParamSrc === "false") sentryParamSrc = null;
-	//Sentry params not yet defined, initialize it
-	if(!sentryParamSrc)  {
-		sentryParam.v = 2;
-		sentryParam.enabled = Math.random() < userRangeTargetRatio;
-		DataStore.set(DataStore.AB_SENTRY, sentryParam);
-	}else{
-		try {
-			const json = JSON.parse(sentryParamSrc);
-			sentryParam = json;
-			if(sentryParam.v != currentABVersion) {
-				sentryParam.v = currentABVersion;
-				sentryParam.enabled = Math.random() < userRangeTargetRatio;
-				DataStore.set(DataStore.AB_SENTRY, sentryParam);
-			}
-		}catch(error) { }
-	}
-	if((Config.instance.BETA_MODE || sentryParam.enabled) && document.location.hostname != "localhost") {
+	if(document.location.hostname != "localhost") {
 		Sentry.init({
 			app,
 			debug:false,
