@@ -342,7 +342,7 @@
 			//Populate counter selector
 			const counterSelector = document.getElementById("counterId");
 			if(counterSelector && settings.COUNTER_LIST) {
-				qnaSelector.innerHTML = "<option value=''>...select</option>";
+				counterSelector.innerHTML = "<option value=''>...select</option>";
 				for (let i = 0; i < settings.COUNTER_LIST.length; i++) {
 					const counter = settings.COUNTER_LIST[i];
 
@@ -359,7 +359,7 @@
 			//Populate triggers selector
 			const triggerSelector = document.getElementById("triggerId");
 			if(triggerSelector && settings.TRIGGER_LIST) {
-				qnaSelector.innerHTML = "<option value=''>...select</option>";
+				triggerSelector.innerHTML = "<option value=''>...select</option>";
 				for (let i = 0; i < settings.TRIGGER_LIST.length; i++) {
 					const trigger = settings.TRIGGER_LIST[i];
 
