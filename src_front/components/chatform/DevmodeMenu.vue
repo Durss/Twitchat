@@ -121,17 +121,17 @@
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import EventSub from '@/utils/twitch/EventSub';
 import PubSub from '@/utils/twitch/PubSub';
+import staticEmotes from '@/utils/twitch/staticEmoteList.json';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/gsap-core';
-import { reactive } from 'vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import TTButton from '../TTButton.vue';
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import { LoremIpsum } from "lorem-ipsum";
-import staticEmotes from '@/utils/twitch/staticEmoteList.json';
+import { reactive } from 'vue';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
+import TTButton from '../TTButton.vue';
 
 @Component({
 	components:{
@@ -457,8 +457,8 @@ class DevmodeMenu extends Vue {
 		StoreProxy.chat.addMessage(message);
 	}
 
-	public simulateHypeTrain(goldenKappa:boolean = false):void {
-		PubSub.instance.simulateHypeTrain(goldenKappa);
+	public async simulateHypeTrain(goldenKappa:boolean = false):Promise<void> {
+		EventSub.instance.simulateHypeTrain(goldenKappa);
 	}
 
 	public simulateComunityBoost():void {

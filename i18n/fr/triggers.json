@@ -1096,7 +1096,8 @@
 			},
 			"HYPE_TRAIN_APPROACHING": {
 				"label": "Arrivée d'un train de la hype",
-				"description": "Actions à exécuter lorsqu'un train de la hype arrive"
+				"description": "Actions à exécuter lorsqu'un train de la hype arrive",
+				"disabled_reason": "Twitch a restreint la possibilité de recevoir cette information. Twitchat ne peut plus\nl'utiliser :("
 			},
 			"HYPE_TRAIN_START": {
 				"label": "Début du train de la hype",
@@ -1116,7 +1117,8 @@
 			},
 			"HYPE_TRAIN_COOLDOWN": {
 				"label": "Cooldown du train de la hype",
-				"description": "Actions à exécuter lorsque le train de la hype peut à nouveau être lancé"
+				"description": "Actions à exécuter lorsque le train de la hype peut à nouveau être lancé",
+				"disabled_reason": "Twitch a restreint la possibilité de recevoir cette information. Twitchat ne peut plus\nl'utiliser :("
 			},
 			"TIMEOUT": {
 				"label": "Bannissement temporaire",

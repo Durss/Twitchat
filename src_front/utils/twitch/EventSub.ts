@@ -189,6 +189,37 @@ export default class EventSub {
 	}
 
 	/**
+	 * Simulates a hype train
+	 */
+	public async simulateHypeTrain(goldenKappa:boolean = false):Promise<void> {
+		const train = fakeHypeTrain2;
+		const timeScale = 1;
+		const globalOffset = Date.now() - new Date(train[0] as string).getTime();
+		let dateOffset = new Date(train[0] as string).getTime();
+		for (let i = 1; i < train.length; i++) {
+			const entry = JSON.parse(JSON.stringify(train[i]));
+			if(typeof entry == "string") {
+				const ts = new Date(entry).getTime();
+				const wait = (ts - dateOffset) * timeScale;
+				await Utils.promisedTimeout(wait);
+				dateOffset = ts;
+			}else {
+				entry.data.started_at = new Date(new Date(entry.data.started_at).getTime() + globalOffset).toISOString();
+				if(entry.topic == "channel.hype_train.end") {
+					const typedData = entry.data as TwitchEventSubDataTypes.HypeTrainEndEvent;
+					typedData.ended_at = new Date(new Date(typedData.ended_at).getTime() + globalOffset).toISOString();
+				}else{
+					const typedData = entry.data as TwitchEventSubDataTypes.HypeTrainProgressEvent;
+					typedData.expires_at = new Date(new Date(typedData.expires_at).getTime() + globalOffset).toISOString();
+				}
+				entry.data.is_golden_kappa_train = goldenKappa;
+				// console.log(entry.data.level, entry.data.expires_at);
+				this.hypeTrainEvent(entry.topic, entry.data);
+			}
+		}
+	}
+
+	/**
 	 * Connect to a channel chan.
 	 * Will connect to appropriate topics depending on wether we're a mod
 	 * on the given channel or not (make sure user.channelInfo[uid] is properly populated)
@@ -230,7 +261,7 @@ export default class EventSub {
 			}
 
 			if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
-				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMATIC_REWARD_REDEEM, "1");
+				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.AUTOMATIC_REWARD_REDEEM, "2");
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM, "1");
 				// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_REDEEM_UPDATE, "1");
 			}
@@ -267,7 +298,7 @@ export default class EventSub {
 				// this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.BITS, "1");
 			// }
 			if(TwitchUtils.hasScopes([TwitchScopes.READ_CHEER])) {
-				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.BITS_USE, "beta");
+				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.BITS_USE, "1");
 			}
 
 			//Don't need it
@@ -1994,4 +2025,207 @@ export default class EventSub {
 		}
 	}
 
+	/**
+	 * Called when a hype train event occurs
+	 */
+	private async hypeTrainEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.HypeTrainStartEvent | TwitchEventSubDataTypes.HypeTrainProgressEvent | TwitchEventSubDataTypes.HypeTrainEndEvent):Promise<void> {
+		function getConductor(contributors:typeof event.top_contributions, type:typeof event.top_contributions[number]["type"]):TwitchatDataTypes.HypeTrainConductorData|undefined {
+			if(!contributors) return undefined;
+			const conductor = contributors.find(v=>v.type == type);
+			if(!conductor) return undefined;
+			return {
+				user:StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, conductor.user_id, conductor.user_login, conductor.user_name, undefined, undefined, false, undefined, false),
+				amount: conductor.total,
+			}
+		}
+		const storeTrain = StoreProxy.stream.hypeTrain;
+		const dateStart = new Date(event.started_at).getTime();
+		const prevLevel = storeTrain?.level || 1;
+		const train:TwitchatDataTypes.HypeTrainStateData = {
+			channel_id: event.broadcaster_user_id,
+			level: event.level,
+			currentValue: event.total,
+			goal: storeTrain?.goal || 0,
+			approached_at: dateStart,
+			started_at: dateStart,
+			updated_at: storeTrain?.updated_at || dateStart,
+			ends_at: dateStart,
+			state: "START",
+			is_boost_train:false,
+			is_golden_kappa: event.is_golden_kappa_train,
+			is_new_record:false,
+			conductor_bits: getConductor(event.top_contributions, "bits"),
+			conductor_subs: getConductor(event.top_contributions, "subscription"),
+		};
+		switch(topic) {
+			case TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_START:
+			case TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_PROGRESS: {
+				const typedEvent = event as TwitchEventSubDataTypes.HypeTrainStartEvent;
+				train.goal = typedEvent.goal;
+				train.state = topic === TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_START? "START" : "PROGRESS";
+				train.currentValue = typedEvent.progress;
+				train.ends_at = new Date(typedEvent.expires_at).getTime();
+				if(prevLevel > 1 && prevLevel < train.level) {
+					train.state = "LEVEL_UP";
+					train.updated_at = Date.now();
+				}
+				break;
+			}
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_END: {
+				const typedEvent = event as TwitchEventSubDataTypes.HypeTrainEndEvent;
+				train.state = train.level > 1 ? "COMPLETED" : "EXPIRED";
+				train.updated_at = Date.now();
+				train.ends_at = new Date(typedEvent.ended_at).getTime();
+				break;
+			}
+		}
+
+		console.log(topic, train.state, train)
+		StoreProxy.stream.setHypeTrain(train);
+		return;
+
+
+		const eventMap:Record<typeof train.state, TwitchatDataTypes.MessageHypeTrainEventData["type"]> = {
+			APPROACHING:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING,
+			START:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_START,
+			PROGRESS:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_PROGRESS,
+			LEVEL_UP:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_PROGRESS,
+			COMPLETED:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COMPLETE,
+			EXPIRED:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_CANCEL,
+		};
+
+		const message:TwitchatDataTypes.MessageHypeTrainEventData = {
+			channel_id: event.broadcaster_user_id,
+			platform:"twitch",
+			date: Date.now(),
+			id: Utils.getUUID(),
+			type: eventMap[train.state],
+			train,
+			level: train.level,
+			percent: Math.round(train.currentValue/train.goal * 100),
+		}
+		StoreProxy.chat.addMessage(message);
+	}
+
 }
+
+type HypeTrainEvent = {
+	topic:TwitchEventSubDataTypes.SubscriptionStringTypes,
+	tt_v:string,
+	data:TwitchEventSubDataTypes.HypeTrainStartEvent|TwitchEventSubDataTypes.HypeTrainProgressEvent|TwitchEventSubDataTypes.HypeTrainEndEvent
+};
+
+const fakeHypeTrain1:(string|HypeTrainEvent)[] = [
+	"Wed Feb 26 2025 11:02:24 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.begin","tt_v":"15.8.0-beta","data":{"id":"981bd62e-cf77-4053-99bb-d74ac82f4ab7","broadcaster_user_id":"699725915","broadcaster_user_login":"cailloute","broadcaster_user_name":"Cailloute","total":1100,"top_contributions":[{"user_id":"46815369","user_login":"hommesoupe","user_name":"HOMMESOUPE","type":"subscription","total":500},{"user_id":"36500397","user_login":"is_lew","user_name":"is_lew","type":"bits","total":100}],"started_at":"2025-02-26T11:02:23.926325145Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"147803140","user_login":"meltox9","user_name":"Meltox9","type":"subscription","total":500},"level":1,"goal":1600,"progress":1100,"expires_at":"2025-02-26T11:07:23.926325145Z"}},
+	"Wed Feb 26 2025 11:02:24 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"981bd62e-cf77-4053-99bb-d74ac82f4ab7","broadcaster_user_id":"699725915","broadcaster_user_login":"cailloute","broadcaster_user_name":"Cailloute","total":1100,"top_contributions":[{"user_id":"46815369","user_login":"hommesoupe","user_name":"HOMMESOUPE","type":"subscription","total":500}],"started_at":"2025-02-26T11:02:23.926325145Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"147803140","user_login":"meltox9","user_name":"Meltox9","type":"subscription","total":500},"level":1,"goal":1600,"progress":1100,"expires_at":"2025-02-26T11:07:23.926325145Z"}},
+	"Wed Feb 26 2025 11:02:24 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"981bd62e-cf77-4053-99bb-d74ac82f4ab7","broadcaster_user_id":"699725915","broadcaster_user_login":"cailloute","broadcaster_user_name":"Cailloute","total":1100,"top_contributions":[{"user_id":"36500397","user_login":"is_lew","user_name":"is_lew","type":"bits","total":100},{"user_id":"46815369","user_login":"hommesoupe","user_name":"HOMMESOUPE","type":"subscription","total":500}],"started_at":"2025-02-26T11:02:23.926325145Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"147803140","user_login":"meltox9","user_name":"Meltox9","type":"subscription","total":500},"level":1,"goal":1600,"progress":1100,"expires_at":"2025-02-26T11:07:23.926325145Z"}},
+	"Wed Feb 26 2025 11:02:35 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"981bd62e-cf77-4053-99bb-d74ac82f4ab7","broadcaster_user_id":"699725915","broadcaster_user_login":"cailloute","broadcaster_user_name":"Cailloute","total":1600,"top_contributions":[{"user_id":"36500397","user_login":"is_lew","user_name":"is_lew","type":"bits","total":100},{"user_id":"46815369","user_login":"hommesoupe","user_name":"HOMMESOUPE","type":"subscription","total":500}],"started_at":"2025-02-26T11:02:23.926325145Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"126505645","user_login":"lucyherself","user_name":"lucyherself","type":"subscription","total":500},"level":2,"goal":1800,"progress":0,"expires_at":"2025-02-26T11:07:34.779946801Z"}},
+	"Wed Feb 26 2025 11:02:55 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"981bd62e-cf77-4053-99bb-d74ac82f4ab7","broadcaster_user_id":"699725915","broadcaster_user_login":"cailloute","broadcaster_user_name":"Cailloute","total":2100,"top_contributions":[{"user_id":"36500397","user_login":"is_lew","user_name":"is_lew","type":"bits","total":100},{"user_id":"46815369","user_login":"hommesoupe","user_name":"HOMMESOUPE","type":"subscription","total":500}],"started_at":"2025-02-26T11:02:23.926325145Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"172784644","user_login":"corentin_teufeurs","user_name":"corentin_teufeurs","type":"subscription","total":500},"level":2,"goal":1800,"progress":500,"expires_at":"2025-02-26T11:07:34.779946801Z"}},
+	"Wed Feb 26 2025 11:05:25 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"981bd62e-cf77-4053-99bb-d74ac82f4ab7","broadcaster_user_id":"699725915","broadcaster_user_login":"cailloute","broadcaster_user_name":"Cailloute","total":2600,"top_contributions":[{"user_id":"46815369","user_login":"hommesoupe","user_name":"HOMMESOUPE","type":"subscription","total":500},{"user_id":"36500397","user_login":"is_lew","user_name":"is_lew","type":"bits","total":100}],"started_at":"2025-02-26T11:02:23.926325145Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"173513907","user_login":"el_chauve","user_name":"El_Chauve","type":"subscription","total":500},"level":2,"goal":1800,"progress":1000,"expires_at":"2025-02-26T11:07:34.779946801Z"}},
+	"Wed Feb 26 2025 11:07:35 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.end","tt_v":"15.8.0-beta","data":{"id":"981bd62e-cf77-4053-99bb-d74ac82f4ab7","broadcaster_user_id":"699725915","broadcaster_user_login":"cailloute","broadcaster_user_name":"Cailloute","total":2600,"top_contributions":[{"user_id":"36500397","user_login":"is_lew","user_name":"is_lew","type":"bits","total":100},{"user_id":"46815369","user_login":"hommesoupe","user_name":"HOMMESOUPE","type":"subscription","total":500}],"started_at":"2025-02-26T11:02:23.926325145Z","is_golden_kappa_train":false,"level":2,"ended_at":"2025-02-26T11:07:34.779946801Z","cooldown_ends_at":"2025-02-26T12:07:34.779946801Z"}},
+]
+
+
+const fakeHypeTrain2:(string|HypeTrainEvent)[] = [
+	"Wed Feb 26 2025 20:17:14 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.begin","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":7500,"top_contributions":[{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":5000}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":5000},"level":4,"goal":2300,"progress":2000,"expires_at":"2025-02-26T20:22:13.902326119Z"}},
+	"Wed Feb 26 2025 20:17:14 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":7500,"top_contributions":[{"user_id":"976047964","user_login":"dmeance91","user_name":"dmeance91","type":"subscription","total":2500}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":5000},"level":4,"goal":2300,"progress":2000,"expires_at":"2025-02-26T20:22:13.902326119Z"}},
+	"Wed Feb 26 2025 20:17:14 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":7500,"top_contributions":[{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":5000}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":5000},"level":4,"goal":2300,"progress":2000,"expires_at":"2025-02-26T20:22:13.902326119Z"}},
+	"Wed Feb 26 2025 20:18:06 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":10000,"top_contributions":[{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":5000}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"777313389","user_login":"nonopetitrobot35","user_name":"nonopetitrobot35","type":"subscription","total":2500},"level":5,"goal":3000,"progress":2200,"expires_at":"2025-02-26T20:23:06.23658382Z"}},
+	"Wed Feb 26 2025 20:18:59 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":12500,"top_contributions":[{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":5000}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"976047964","user_login":"dmeance91","user_name":"dmeance91","type":"subscription","total":2500},"level":6,"goal":3700,"progress":1700,"expires_at":"2025-02-26T20:23:59.335428975Z"}},
+	"Wed Feb 26 2025 20:19:55 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":13000,"top_contributions":[{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":5000}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"551798656","user_login":"starbuck91973","user_name":"starbuck91973","type":"subscription","total":500},"level":6,"goal":3700,"progress":2200,"expires_at":"2025-02-26T20:23:59.335428975Z"}},
+	"Wed Feb 26 2025 20:20:55 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":15500,"top_contributions":[{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":5000}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"1192832981","user_login":"cywilzeee","user_name":"cywilzeee","type":"subscription","total":2500},"level":7,"goal":4700,"progress":1000,"expires_at":"2025-02-26T20:25:54.675470528Z"}},
+	"Wed Feb 26 2025 20:21:20 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":16500,"top_contributions":[{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":5000}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"741891202","user_login":"danekedu1030","user_name":"danekedu1030","type":"subscription","total":1000},"level":7,"goal":4700,"progress":2000,"expires_at":"2025-02-26T20:25:54.675470528Z"}},
+	"Wed Feb 26 2025 20:21:40 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":21500,"top_contributions":[{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":5000}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"689314925","user_login":"mickeilckeil","user_name":"mickeilckeil","type":"subscription","total":5000},"level":8,"goal":5900,"progress":2300,"expires_at":"2025-02-26T20:26:40.218783694Z"}},
+	"Wed Feb 26 2025 20:23:36 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":21700,"top_contributions":[{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":5000},{"user_id":"78023595","user_login":"julio54fr","user_name":"julio54fr","type":"bits","total":200}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"78023595","user_login":"julio54fr","user_name":"julio54fr","type":"bits","total":200},"level":8,"goal":5900,"progress":2500,"expires_at":"2025-02-26T20:26:40.218783694Z"}},
+	"Wed Feb 26 2025 20:24:02 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":22200,"top_contributions":[{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":5000},{"user_id":"78023595","user_login":"julio54fr","user_name":"julio54fr","type":"bits","total":200}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"506978682","user_login":"retropeps","user_name":"retropeps","type":"subscription","total":500},"level":8,"goal":5900,"progress":3000,"expires_at":"2025-02-26T20:26:40.218783694Z"}},
+	"Wed Feb 26 2025 20:24:46 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":27200,"top_contributions":[{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":5000},{"user_id":"78023595","user_login":"julio54fr","user_name":"julio54fr","type":"bits","total":200}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"471155667","user_login":"beudbeud","user_name":"beudbeud","type":"subscription","total":5000},"level":9,"goal":7200,"progress":2100,"expires_at":"2025-02-26T20:29:46.321229974Z"}},
+	"Wed Feb 26 2025 20:25:21 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":29700,"top_contributions":[{"user_id":"78023595","user_login":"julio54fr","user_name":"julio54fr","type":"bits","total":200},{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":7500}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":2500},"level":9,"goal":7200,"progress":4600,"expires_at":"2025-02-26T20:29:46.321229974Z"}},
+	"Wed Feb 26 2025 20:26:12 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":32200,"top_contributions":[{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":7500},{"user_id":"78023595","user_login":"julio54fr","user_name":"julio54fr","type":"bits","total":200}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"68851691","user_login":"bidibul14","user_name":"bidibul14","type":"subscription","total":2500},"level":9,"goal":7200,"progress":7100,"expires_at":"2025-02-26T20:29:46.321229974Z"}},
+	"Wed Feb 26 2025 20:28:31 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":32300,"top_contributions":[{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":7500},{"user_id":"78023595","user_login":"julio54fr","user_name":"julio54fr","type":"bits","total":200}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"65237735","user_login":"hyperionktv","user_name":"HyperionKTV","type":"bits","total":100},"level":10,"goal":8800,"progress":0,"expires_at":"2025-02-26T20:33:30.674119163Z"}},
+	"Wed Feb 26 2025 20:28:40 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":34800,"top_contributions":[{"user_id":"78023595","user_login":"julio54fr","user_name":"julio54fr","type":"bits","total":200},{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":7500}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"50769053","user_login":"ludalito","user_name":"ludalito","type":"subscription","total":2500},"level":10,"goal":8800,"progress":2500,"expires_at":"2025-02-26T20:33:30.674119163Z"}},
+	"Wed Feb 26 2025 20:31:13 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":35300,"top_contributions":[{"user_id":"78023595","user_login":"julio54fr","user_name":"julio54fr","type":"bits","total":200},{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":7500}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"167752842","user_login":"exdeath74","user_name":"exdeath74","type":"subscription","total":500},"level":10,"goal":8800,"progress":3000,"expires_at":"2025-02-26T20:33:30.674119163Z"}},
+	"Wed Feb 26 2025 20:33:13 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":35800,"top_contributions":[{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":7500},{"user_id":"78023595","user_login":"julio54fr","user_name":"julio54fr","type":"bits","total":200}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"103414767","user_login":"spinrah","user_name":"SpinRah","type":"subscription","total":500},"level":10,"goal":8800,"progress":3500,"expires_at":"2025-02-26T20:33:30.674119163Z"}},
+	"Wed Feb 26 2025 20:33:32 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.end","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":35800,"top_contributions":[{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":7500},{"user_id":"78023595","user_login":"julio54fr","user_name":"julio54fr","type":"bits","total":200}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"level":10,"ended_at":"2025-02-26T20:33:30.674119163Z","cooldown_ends_at":"2025-02-26T22:33:30.674119163Z"}},
+]
+
+
+const fakeHypeTrain3:(string|HypeTrainEvent)[] = [
+	"Wed Feb 26 2025 20:20:38 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.begin","tt_v":"15.8.0-beta","data":{"id":"0ee8f52b-9217-4387-9d02-bda736f7db6f","broadcaster_user_id":"83599745","broadcaster_user_login":"loxetv","broadcaster_user_name":"LoxeTV","total":6000,"top_contributions":[{"user_id":"162476051","user_login":"styrya","user_name":"styrya","type":"subscription","total":5500}],"started_at":"2025-02-26T20:20:38.15826255Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"162476051","user_login":"styrya","user_name":"styrya","type":"subscription","total":5000},"level":4,"goal":2300,"progress":500,"expires_at":"2025-02-26T20:25:38.15826255Z"}},
+	"Wed Feb 26 2025 20:20:38 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"0ee8f52b-9217-4387-9d02-bda736f7db6f","broadcaster_user_id":"83599745","broadcaster_user_login":"loxetv","broadcaster_user_name":"LoxeTV","total":6000,"top_contributions":[{"user_id":"162476051","user_login":"styrya","user_name":"styrya","type":"subscription","total":5500}],"started_at":"2025-02-26T20:20:38.15826255Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"162476051","user_login":"styrya","user_name":"styrya","type":"subscription","total":5000},"level":4,"goal":2300,"progress":500,"expires_at":"2025-02-26T20:25:38.15826255Z"}},
+	"Wed Feb 26 2025 20:20:38 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"0ee8f52b-9217-4387-9d02-bda736f7db6f","broadcaster_user_id":"83599745","broadcaster_user_login":"loxetv","broadcaster_user_name":"LoxeTV","total":6000,"top_contributions":[{"user_id":"162476051","user_login":"styrya","user_name":"styrya","type":"subscription","total":5500}],"started_at":"2025-02-26T20:20:38.15826255Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"162476051","user_login":"styrya","user_name":"styrya","type":"subscription","total":5000},"level":4,"goal":2300,"progress":500,"expires_at":"2025-02-26T20:25:38.15826255Z"}},
+	"Wed Feb 26 2025 20:22:51 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"0ee8f52b-9217-4387-9d02-bda736f7db6f","broadcaster_user_id":"83599745","broadcaster_user_login":"loxetv","broadcaster_user_name":"LoxeTV","total":6500,"top_contributions":[{"user_id":"162476051","user_login":"styrya","user_name":"styrya","type":"subscription","total":5500}],"started_at":"2025-02-26T20:20:38.15826255Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"117144431","user_login":"karim_hasui","user_name":"karim_Hasui","type":"subscription","total":500},"level":4,"goal":2300,"progress":1000,"expires_at":"2025-02-26T20:25:38.15826255Z"}},
+	"Wed Feb 26 2025 20:23:41 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"0ee8f52b-9217-4387-9d02-bda736f7db6f","broadcaster_user_id":"83599745","broadcaster_user_login":"loxetv","broadcaster_user_name":"LoxeTV","total":11500,"top_contributions":[{"user_id":"162476051","user_login":"styrya","user_name":"styrya","type":"subscription","total":10500}],"started_at":"2025-02-26T20:20:38.15826255Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"162476051","user_login":"styrya","user_name":"styrya","type":"subscription","total":5000},"level":6,"goal":3700,"progress":700,"expires_at":"2025-02-26T20:28:41.431332807Z"}},
+	"Wed Feb 26 2025 20:24:34 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"0ee8f52b-9217-4387-9d02-bda736f7db6f","broadcaster_user_id":"83599745","broadcaster_user_login":"loxetv","broadcaster_user_name":"LoxeTV","total":16500,"top_contributions":[{"user_id":"162476051","user_login":"styrya","user_name":"styrya","type":"subscription","total":10500}],"started_at":"2025-02-26T20:20:38.15826255Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"47974986","user_login":"mestriki","user_name":"Mestriki","type":"subscription","total":5000},"level":7,"goal":4700,"progress":2000,"expires_at":"2025-02-26T20:29:34.48342558Z"}},
+	"Wed Feb 26 2025 20:26:01 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"0ee8f52b-9217-4387-9d02-bda736f7db6f","broadcaster_user_id":"83599745","broadcaster_user_login":"loxetv","broadcaster_user_name":"LoxeTV","total":16600,"top_contributions":[{"user_id":"162476051","user_login":"styrya","user_name":"styrya","type":"subscription","total":10500},{"user_id":"202330771","user_login":"b3riic","user_name":"B3riic","type":"bits","total":100}],"started_at":"2025-02-26T20:20:38.15826255Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"202330771","user_login":"b3riic","user_name":"B3riic","type":"bits","total":100},"level":7,"goal":4700,"progress":2100,"expires_at":"2025-02-26T20:29:34.48342558Z"}},
+	"Wed Feb 26 2025 20:27:17 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"0ee8f52b-9217-4387-9d02-bda736f7db6f","broadcaster_user_id":"83599745","broadcaster_user_login":"loxetv","broadcaster_user_name":"LoxeTV","total":16700,"top_contributions":[{"user_id":"202330771","user_login":"b3riic","user_name":"B3riic","type":"bits","total":100},{"user_id":"162476051","user_login":"styrya","user_name":"styrya","type":"subscription","total":10500}],"started_at":"2025-02-26T20:20:38.15826255Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"426554997","user_login":"emo__globine__dark","user_name":"Emo__Globine__Dark","type":"bits","total":100},"level":7,"goal":4700,"progress":2200,"expires_at":"2025-02-26T20:29:34.48342558Z"}},
+	"Wed Feb 26 2025 20:29:35 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.end","tt_v":"15.8.0-beta","data":{"id":"0ee8f52b-9217-4387-9d02-bda736f7db6f","broadcaster_user_id":"83599745","broadcaster_user_login":"loxetv","broadcaster_user_name":"LoxeTV","total":16700,"top_contributions":[{"user_id":"202330771","user_login":"b3riic","user_name":"B3riic","type":"bits","total":100},{"user_id":"162476051","user_login":"styrya","user_name":"styrya","type":"subscription","total":10500}],"started_at":"2025-02-26T20:20:38.15826255Z","is_golden_kappa_train":false,"level":7,"ended_at":"2025-02-26T20:29:34.48342558Z","cooldown_ends_at":"2025-02-26T21:29:34.48342558Z"}},
+]
+
+const fakeHypeTrain4:(string|HypeTrainEvent)[] = [
+	"Thu Feb 27 2025 20:16:28 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.begin","tt_v":"15.8.0-beta","data":{"id":"15337c23-4e8f-4620-b43d-45aa1326b70e","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":4000,"top_contributions":[{"user_id":"976047964","user_login":"dmeance91","user_name":"dmeance91","type":"subscription","total":2500}],"started_at":"2025-02-27T20:16:27.463858611Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"404250363","user_login":"deselegies","user_name":"deselegies","type":"subscription","total":1000},"level":3,"goal":2100,"progress":600,"expires_at":"2025-02-27T20:21:27.463858611Z"}},
+	"Thu Feb 27 2025 20:16:28 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"15337c23-4e8f-4620-b43d-45aa1326b70e","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":4000,"top_contributions":[{"user_id":"976047964","user_login":"dmeance91","user_name":"dmeance91","type":"subscription","total":2500}],"started_at":"2025-02-27T20:16:27.463858611Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"404250363","user_login":"deselegies","user_name":"deselegies","type":"subscription","total":1000},"level":3,"goal":2100,"progress":600,"expires_at":"2025-02-27T20:21:27.463858611Z"}},
+	"Thu Feb 27 2025 20:16:28 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"15337c23-4e8f-4620-b43d-45aa1326b70e","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":4000,"top_contributions":[{"user_id":"404250363","user_login":"deselegies","user_name":"deselegies","type":"subscription","total":1000}],"started_at":"2025-02-27T20:16:27.463858611Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"404250363","user_login":"deselegies","user_name":"deselegies","type":"subscription","total":1000},"level":3,"goal":2100,"progress":600,"expires_at":"2025-02-27T20:21:27.463858611Z"}},
+	"Thu Feb 27 2025 20:16:28 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"15337c23-4e8f-4620-b43d-45aa1326b70e","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":4000,"top_contributions":[{"user_id":"976047964","user_login":"dmeance91","user_name":"dmeance91","type":"subscription","total":2500}],"started_at":"2025-02-27T20:16:27.463858611Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"404250363","user_login":"deselegies","user_name":"deselegies","type":"subscription","total":1000},"level":3,"goal":2100,"progress":600,"expires_at":"2025-02-27T20:21:27.463858611Z"}},
+	"Thu Feb 27 2025 20:16:52 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"15337c23-4e8f-4620-b43d-45aa1326b70e","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":4500,"top_contributions":[{"user_id":"976047964","user_login":"dmeance91","user_name":"dmeance91","type":"subscription","total":2500}],"started_at":"2025-02-27T20:16:27.463858611Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"659912481","user_login":"zurtog","user_name":"Zurtog","type":"subscription","total":500},"level":3,"goal":2100,"progress":1100,"expires_at":"2025-02-27T20:21:27.463858611Z"}},
+	"Thu Feb 27 2025 20:21:28 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.end","tt_v":"15.8.0-beta","data":{"id":"15337c23-4e8f-4620-b43d-45aa1326b70e","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":4500,"top_contributions":[{"user_id":"976047964","user_login":"dmeance91","user_name":"dmeance91","type":"subscription","total":2500}],"started_at":"2025-02-27T20:16:27.463858611Z","is_golden_kappa_train":false,"level":3,"ended_at":"2025-02-27T20:21:27.463858611Z","cooldown_ends_at":"2025-02-27T22:21:27.463858611Z"}},
+]
+
+
+const fakeHypeTrain5 = [
+	"Sat Mar 01 2025 18:04:03 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.begin","tt_v":"15.8.0-beta","data":{"id":"f2e2c754-5170-4b56-a4a8-bc4010765241","broadcaster_user_id":"93471965","broadcaster_user_login":"spikeyderfuchs","broadcaster_user_name":"SpikeyDerFuchs","total":600,"top_contributions":[{"user_id":"641195021","user_login":"beadieerste","user_name":"BeaDieErste","type":"subscription","total":500},{"user_id":"701920673","user_login":"tricethefirst","user_name":"TriceTheFirst","type":"bits","total":100}],"started_at":"2025-03-01T18:04:02.81282652Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"701920673","user_login":"tricethefirst","user_name":"TriceTheFirst","type":"bits","total":100},"level":1,"goal":1600,"progress":600,"expires_at":"2025-03-01T18:09:02.81282652Z"}},
+	"Sat Mar 01 2025 18:04:03 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"f2e2c754-5170-4b56-a4a8-bc4010765241","broadcaster_user_id":"93471965","broadcaster_user_login":"spikeyderfuchs","broadcaster_user_name":"SpikeyDerFuchs","total":600,"top_contributions":[{"user_id":"641195021","user_login":"beadieerste","user_name":"BeaDieErste","type":"subscription","total":500}],"started_at":"2025-03-01T18:04:02.81282652Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"701920673","user_login":"tricethefirst","user_name":"TriceTheFirst","type":"bits","total":100},"level":1,"goal":1600,"progress":600,"expires_at":"2025-03-01T18:09:02.81282652Z"}},
+	"Sat Mar 01 2025 18:04:03 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"f2e2c754-5170-4b56-a4a8-bc4010765241","broadcaster_user_id":"93471965","broadcaster_user_login":"spikeyderfuchs","broadcaster_user_name":"SpikeyDerFuchs","total":600,"top_contributions":[{"user_id":"701920673","user_login":"tricethefirst","user_name":"TriceTheFirst","type":"bits","total":100},{"user_id":"641195021","user_login":"beadieerste","user_name":"BeaDieErste","type":"subscription","total":500}],"started_at":"2025-03-01T18:04:02.81282652Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"701920673","user_login":"tricethefirst","user_name":"TriceTheFirst","type":"bits","total":100},"level":1,"goal":1600,"progress":600,"expires_at":"2025-03-01T18:09:02.81282652Z"}},
+	"Sat Mar 01 2025 18:05:04 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"f2e2c754-5170-4b56-a4a8-bc4010765241","broadcaster_user_id":"93471965","broadcaster_user_login":"spikeyderfuchs","broadcaster_user_name":"SpikeyDerFuchs","total":3100,"top_contributions":[{"user_id":"701920673","user_login":"tricethefirst","user_name":"TriceTheFirst","type":"bits","total":100},{"user_id":"641195021","user_login":"beadieerste","user_name":"BeaDieErste","type":"subscription","total":3000}],"started_at":"2025-03-01T18:04:02.81282652Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"641195021","user_login":"beadieerste","user_name":"BeaDieErste","type":"subscription","total":2500},"level":2,"goal":1800,"progress":1500,"expires_at":"2025-03-01T18:10:04.518205092Z"}},
+	"Sat Mar 01 2025 18:07:39 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"f2e2c754-5170-4b56-a4a8-bc4010765241","broadcaster_user_id":"93471965","broadcaster_user_login":"spikeyderfuchs","broadcaster_user_name":"SpikeyDerFuchs","total":3600,"top_contributions":[{"user_id":"701920673","user_login":"tricethefirst","user_name":"TriceTheFirst","type":"bits","total":100},{"user_id":"641195021","user_login":"beadieerste","user_name":"BeaDieErste","type":"subscription","total":3000}],"started_at":"2025-03-01T18:04:02.81282652Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"642530162","user_login":"spikeysblaubeerbot","user_name":"SpikeysBlaubeerBot","type":"subscription","total":500},"level":3,"goal":2100,"progress":200,"expires_at":"2025-03-01T18:12:39.157432196Z"}},
+	"Sat Mar 01 2025 18:09:18 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.progress","tt_v":"15.8.0-beta","data":{"id":"f2e2c754-5170-4b56-a4a8-bc4010765241","broadcaster_user_id":"93471965","broadcaster_user_login":"spikeyderfuchs","broadcaster_user_name":"SpikeyDerFuchs","total":3700,"top_contributions":[{"user_id":"701920673","user_login":"tricethefirst","user_name":"TriceTheFirst","type":"bits","total":200},{"user_id":"641195021","user_login":"beadieerste","user_name":"BeaDieErste","type":"subscription","total":3000}],"started_at":"2025-03-01T18:04:02.81282652Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"701920673","user_login":"tricethefirst","user_name":"TriceTheFirst","type":"bits","total":100},"level":3,"goal":2100,"progress":300,"expires_at":"2025-03-01T18:12:39.157432196Z"}},
+	"Sat Mar 01 2025 18:12:40 GMT+0000 (Coordinated Universal Time)",
+	{"topic":"channel.hype_train.end","tt_v":"15.8.0-beta","data":{"id":"f2e2c754-5170-4b56-a4a8-bc4010765241","broadcaster_user_id":"93471965","broadcaster_user_login":"spikeyderfuchs","broadcaster_user_name":"SpikeyDerFuchs","total":3700,"top_contributions":[{"user_id":"701920673","user_login":"tricethefirst","user_name":"TriceTheFirst","type":"bits","total":200},{"user_id":"641195021","user_login":"beadieerste","user_name":"BeaDieErste","type":"subscription","total":3000}],"started_at":"2025-03-01T18:04:02.81282652Z","is_golden_kappa_train":false,"level":3,"ended_at":"2025-03-01T18:12:39.157432196Z","cooldown_ends_at":"2025-03-01T19:12:39.157432196Z"}},
+]

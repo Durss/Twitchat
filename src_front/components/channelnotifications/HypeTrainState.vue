@@ -2,28 +2,25 @@
 <template>
 	<div :class="classes">
 
-		<div class="content" v-if="trainData.state == 'APPROACHING'">
-			<Icon name="train" alt="train" class="icon" v-if="!boostMode" />
-			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
-			<h1 v-if="!boostMode">{{ $t("train.hype_approaching") }}</h1>
-			<h1 v-else-if="goldenKappaMode">{{ $t("train.golden_approaching") }}</h1>
-			<h1 v-else>{{ $t("train.boost_approaching") }}</h1>
-		</div>
+		<div class="fill" :style="{width: (100 - roundProgressPercent)+'%'}"></div>
 
-		<div class="content" v-if="trainProgress">
-			<Icon name="train" alt="train" class="icon" v-if="!boostMode" />
-			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
-			<i18n-t scope="global" tag="h1"
+		<div class="head">
+			<img src="@/assets/img/goldenKappa.png" alt="golden kappa" class="icon kappa" v-if="goldenKappaMode">
+			<Icon name="train" alt="train" class="icon" v-else-if="!boostMode" />
+			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-else-if="boostMode">
+			<template v-if="trainData.state == 'APPROACHING'">
+				<h1 v-if="!boostMode">{{ $t("train.hype_approaching") }}</h1>
+				<h1 v-else-if="goldenKappaMode">{{ $t("train.golden_approaching") }}</h1>
+				<h1 v-else>{{ $t("train.boost_approaching") }}</h1>
+			</template>
+
+			<i18n-t scope="global" tag="h1" v-else-if="trainProgress"
 			:keypath="boostMode?'train.boost_progress': goldenKappaMode?'train.golden_progress':'train.hype_progress'">
 				<template #LEVEL>{{ trainData.level }}</template>
 				<template #PERCENT><span class="percent">{{roundProgressPercent}}%</span></template>
 			</i18n-t>
-		</div>
 
-		<div class="content" v-if="trainData.state == 'COMPLETED'">
-			<Icon name="train" alt="train" class="icon" v-if="!boostMode" />
-			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
-			<h1>
+			<h1 v-else-if="trainData.state == 'COMPLETED'">
 				<span v-if="!boostMode">{{ $t("train.hype_complete") }}</span>
 				<span v-else-if="goldenKappaMode">{{ $t("train.golden_complete") }}</span>
 				<span v-else>{{ $t("train.boost_complete") }}</span>
@@ -33,14 +30,12 @@
 					<template #LEVEL><strong>{{completeLevel}}</strong></template>
 				</i18n-t>
 			</h1>
-		</div>
 
-		<div class="content" v-if="trainData.state == 'EXPIRE'">
-			<Icon name="train" alt="train" class="icon" v-if="!boostMode" />
-			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
-			<h1 v-if="!boostMode">{{ $t("train.boost_cancel") }}</h1>
-			<h1 v-else-if="goldenKappaMode">{{ $t("train.golden_cancel") }}</h1>
-			<h1 v-else>{{ $t("train.boost_cancel") }}</h1>
+			<template v-else-if="trainData.state == 'EXPIRED'">
+				<h1 v-if="!boostMode">{{ $t("train.boost_cancel") }}</h1>
+				<h1 v-else-if="goldenKappaMode">{{ $t("train.golden_cancel") }}</h1>
+				<h1 v-else>{{ $t("train.boost_cancel") }}</h1>
+			</template>
 		</div>
 
 		<ProgressBar v-if="(trainProgress || trainData.state == 'APPROACHING') && trainData.state != 'COMPLETED'"
@@ -52,39 +47,29 @@
 		/>
 
 		<div class="content conductors">
-			<div v-if="conductor_subs" class="conductor" ref="conductor_subs_holder" v-tooltip="$t('train.conductor_subs_tt')">
-				<div class="head">
-					<div class="icon"><img src="@/assets/icons/sub.svg"></div>
-				</div>
+			<a @click.stop="openUserCard(conductor_subs!.user)"
+			v-if="conductor_subs" class="conductor" ref="conductor_subs_holder" v-tooltip="$t('train.conductor_subs_tt')">
+				<img :src="conductor_subs.user.avatarPath" class="avatar">
+				<span class="userlink">{{conductor_subs.user.displayName}}</span>
 
-				<a @click.stop="openUserCard(conductor_subs!.user)">
-					<img :src="conductor_subs.user.avatarPath" class="avatar">
-					<span class="userlink">{{conductor_subs.user.displayName}}</span>
-				</a>
-
-				<i18n-t scope="global" tag="div" class="label" keypath="train.conductor_subs" :plural="getConductorSubCount()">
+				<!-- <i18n-t scope="global" tag="div" class="label" keypath="train.conductor_subs" :plural="getConductorSubCount()">
 					<template #COUNT>
 						<span class="count">{{ getConductorSubCount() }}</span>
 					</template>
-				</i18n-t>
-			</div>
+				</i18n-t> -->
+			</a>
 
-			<div v-if="conductor_bits" class="conductor" ref="conductor_bits_holder" v-tooltip="$t('train.conductor_bits_tt')">
-				<div class="head">
-					<div class="icon"><img src="@/assets/icons/bits.svg"></div>
-				</div>
+			<a @click.stop="openUserCard(conductor_bits!.user)"
+			v-if="conductor_bits" class="conductor" ref="conductor_bits_holder" v-tooltip="$t('train.conductor_bits_tt')">
+				<img :src="conductor_bits.user.avatarPath" class="avatar">
+				<span class="userlink">{{conductor_bits.user.displayName}}</span>
 
-				<a @click.stop="openUserCard(conductor_subs!.user)">
-					<img :src="conductor_bits.user.avatarPath" class="avatar">
-					<span class="userlink">{{conductor_bits.user.displayName}}</span>
-				</a>
-
-				<i18n-t scope="global" tag="div" class="label" keypath="train.conductor_bits" :plural="getConductorBitsCount()">
+				<i18n-t scope="global" tag="div" class="label" keypath="train.conductor_bits" :plural="conductor_bits.amount">
 					<template #COUNT>
-						<span class="count">{{ getConductorBitsCount() }}</span>
+						<span class="count">{{ conductor_bits.amount }}</span>
 					</template>
 				</i18n-t>
-			</div>
+			</a>
 
 		</div>
 	</div>
@@ -126,7 +111,7 @@ class HypeTrainState extends Vue {
 	}
 
 	public get trainProgress():boolean {
-		return this.trainData.state == 'START' || this.trainData.state == 'PROGRESSING' || this.trainData.state == 'LEVEL_UP';
+		return this.trainData.state == 'START' || this.trainData.state == 'PROGRESS' || this.trainData.state == 'LEVEL_UP';
 	}
 
 	public get trainData():TwitchatDataTypes.HypeTrainStateData {
@@ -134,12 +119,8 @@ class HypeTrainState extends Vue {
 		return this.$store.stream.hypeTrain!;
 	}
 
-	public get duration():string {
-		return Utils.formatDuration(this.trainData.timeLeft_s * (1-this.timerPercent) * 1000);
-	}
-
 	public get roundProgressPercent():number {
-		return Math.round(this.progressPercent);
+		return Math.max(0, Math.min(100, Math.round(this.progressPercent)));
 	}
 
 	public get classes():string[] {
@@ -147,29 +128,6 @@ class HypeTrainState extends Vue {
 		if(this.boostMode) res.push("boost");
 		if(this.goldenKappaMode) res.push("golden");
 		return res;
-	}
-
-	public getConductorSubCount():number {
-		let count = 0;
-		for (let i = 0; i < this.conductor_subs!.contributions.length; i++) {
-			const c = this.conductor_subs!.contributions[i];
-			if(c.sub_t1) count += c.sub_t1;
-			if(c.sub_t2) count += c.sub_t2;
-			if(c.sub_t3) count += c.sub_t3;
-			if(c.subgift_t1) count += c.subgift_t1;
-			if(c.subgift_t2) count += c.subgift_t2;
-			if(c.subgift_t3) count += c.subgift_t3;
-		}
-		return count;
-	}
-
-	public getConductorBitsCount():number {
-		let count = 0;
-		for (let i = 0; i < this.conductor_bits!.contributions.length; i++) {
-			const c = this.conductor_bits!.contributions[i];
-			if(c.bits) count += c.bits;
-		}
-		return count;
 	}
 
 	public mounted():void {
@@ -259,15 +217,7 @@ class HypeTrainState extends Vue {
 	public dataChange():void {
 		gsap.killTweensOf(this);
 
-		this.timerDuration = this.trainData.state == "APPROACHING"? this.trainData.timeLeft_s * 1000 : 5*60*1000;
-
 		const p = Math.floor(this.trainData.currentValue/this.trainData.goal * 100);
-		//Log data to understand where a "NaN%" is coming from on some users
-		// if(isNaN(p) || this.trainData.goal == undefined || this.trainData.currentValue == undefined
-		// || isNaN(this.timerDuration) || this.timerDuration == undefined) {
-		// 	const version = import.meta.env.PACKAGE_VERSION;
-		// 	ApiHelper.call("log", "POST", {cat:"hypetrain", log:{reason:"RENDERING ERROR", tt_v:version, data:this.trainData}});
-		// }
 		gsap.to(this, {progressPercent:p, ease:"sine.inOut", duration:.5});
 	}
 
@@ -278,11 +228,11 @@ class HypeTrainState extends Vue {
 	private renderFrame():void {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
-		const elapsed = Date.now() - this.trainData.updated_at;
-		const duration = this.trainData.timeLeft_s * 1000;
-		this.timerPercent = 1 - (duration-elapsed)/this.timerDuration;
-	}
 
+		const remaining = Math.max(0, this.trainData.ends_at - Date.now());
+		this.timerDuration = this.trainData.state == "APPROACHING"? remaining : 5*60*1000;
+		this.timerPercent = 1 - remaining / this.timerDuration;
+	}
 }
 export default toNative(HypeTrainState);
 </script>
@@ -295,49 +245,92 @@ export default toNative(HypeTrainState);
 		background-color: @c !important;
 	}
 
+	.fill {
+		position: absolute;
+		top: 0;
+		right: 0;
+		height: 100%;
+		background-color: #00000018;
+		transition: width .5s;
+	}
+
+	.head {
+		z-index: 1;
+		display: flex;
+		flex-direction: row;
+		gap: .5em;
+		row-gap: .25em;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+
+		h1 {
+			display: flex;
+			flex-direction: row;
+			gap: .5em;
+			row-gap: .25em;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.subtitle {
+			font-size: .9em;
+			font-weight: normal;
+		}
+
+		&>.icon {
+			width: 2em;
+			&.kappa {
+				transform: scale(1.5) rotate(-15deg);
+				animation: shake 5s linear infinite;
+
+				@keyframes shake {
+					0% { transform: scale(1.5) rotate(-10deg); }
+					1% { transform: scale(1.5) rotate(-15deg); }
+					2% { transform: scale(1.5) rotate(-20deg); }
+					3% { transform: scale(1.5) rotate(-15deg); }
+					4% { transform: scale(1.5) rotate(-10deg); }
+					5% { transform: scale(1.5) rotate(-15deg); }
+					6% { transform: scale(1.5) rotate(-20deg); }
+					7% { transform: scale(1.5) rotate(-15deg); }
+					100% { transform: scale(1.5) rotate(-15deg); }
+				}
+			}
+		}
+
+		.percent {
+			font-family: var(--font-azeret);
+			font-size: .9em;
+			vertical-align: middle;
+			color: var(--color-primary);
+			background-color: var(--color-light);
+			padding: .25em;
+			border-radius: var(--border-radius);
+			// text-shadow: var(--text-shadow-contrast);
+			letter-spacing: 1px;
+		}
+	}
+
 	&.golden {
 		@c: #f2b027;
 		h1, .icon {
 			color: black;
 		}
-		.content .percent {
-			text-shadow: unset;
+		.head .percent {
+			color: black !important;
 		}
-		background-image: linear-gradient(250deg, @c 0%, #ffe64c 100%);
-		// background-image: linear-gradient(99.04deg, rgba(255, 255, 255, 0) 4.07%, rgba(255, 255, 255, 0.8) 15.55%, rgba(255, 255, 255, 0) 29.58%, rgba(255, 255, 255, 0) 39.14%, rgba(255, 255, 255, 0.77) 48.71%, rgba(255, 255, 255, 0.05) 56.36%, rgba(255, 255, 255, 0.447714) 75.49%, rgba(255, 255, 255, 0.92) 78.68%, rgba(255, 255, 255, 0.78) 82.5%, rgba(255, 255, 255, 0) 92.71%, rgba(255, 255, 255, 0.432432) 102.91%, rgba(255, 255, 255, 0.78) 107.37%), #ffdf9e;
+		background-image: linear-gradient(25-10deg, @c 0%, #ffe64c 100%);
 	}
 
 	.content {
+		z-index: 1;
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
 		align-items: center;
 		flex-wrap: wrap;
-
-		h1 {
-			text-align: center;
-			.subtitle {
-				font-size: .9em;
-				font-weight: normal;
-			}
-		}
-
-		&>.icon {
-			height: 25px;
-			margin-right: 10px;
-		}
-
-		.percent {
-			font-family: var(--font-azeret);
-			font-size: .7em;
-			vertical-align: middle;
-			margin-left: 15px;
-			background-color: var(--color-light-fade);
-			padding: 5px;
-			border-radius: 5px;
-			text-shadow: var(--text-shadow-contrast);
-			letter-spacing: 1px;
-		}
 
 		&.conductors {
 			margin-top: .5em;
@@ -349,43 +342,19 @@ export default toNative(HypeTrainState);
 			.conductor {
 				display: flex;
 				align-items: center;
-				flex-direction: column;
+				flex-direction: row;
 				gap:.25em;
 				background-color: var(--color-secondary);
 				border-radius: var(--border-radius);
 				padding: .5em;
 				min-width: 6em;
+				color: var(--color-light);
 
-				.head {
-					position: absolute;
-					display: flex;
-					flex-direction: column;
-					align-self: flex-start;
-					margin-top: -.8em;
-					margin-left: -.8em;
-					.icon {
-						display: inline;
-						background-color: var(--color-secondary);
-						padding: .25em;
-						border-radius: 50%;
-						img {
-							object-fit: fill;
-							width: 1em;
-							height: 1em;
-						}
-					}
-				}
 				.avatar {
-					width: 3em;
-					height: 3em;
+					width: 2em;
 					border-radius: 50%;
 					margin: auto;
 					display: block;
-					margin-bottom: .5em;
-				}
-				.userlink {
-					font-size: .9em;
-					color: var(--color-light);
 				}
 				.label {
 					.count {

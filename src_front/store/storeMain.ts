@@ -934,12 +934,16 @@ export const storeMain = defineStore("main", {
 				WebsocketTrigger.instance.connect(url).then(()=>{}).catch(()=> {});
 			}
 
-			Database.instance.connect().then(async ()=> {
-				await StoreProxy.chat.preloadMessageHistory();
-				await StoreProxy.groq.preloadMessageHistory();
+			//Reload devmode state
+			this.toggleDevMode( DataStore.get(DataStore.DEVMODE) === "true" );
 
-				//Reload devmode state
-				this.toggleDevMode( DataStore.get(DataStore.DEVMODE) === "true" );
+			Database.instance.connect().then(async ()=> {
+				try {
+					await StoreProxy.chat.preloadMessageHistory();
+				}catch(error) {
+					console.error("An error occured when preloading chat history");
+					console.error(error);
+				}
 			});
 
 			/**

@@ -982,36 +982,24 @@ export namespace TwitchatDataTypes {
 		approached_at:number;
 		started_at:number;
 		updated_at:number;
-		timeLeft_s:number;
-		state:"APPROACHING" | "START" | "PROGRESSING" | "LEVEL_UP" | "COMPLETED" | "EXPIRE";
-		is_boost_train:boolean;
+		ends_at:number;
+		state:"APPROACHING" | "START" | "PROGRESS" | "LEVEL_UP" | "COMPLETED" | "EXPIRED";
 		is_golden_kappa:boolean;
 		is_new_record:boolean;
 		conductor_subs?:HypeTrainConductorData;
 		conductor_bits?:HypeTrainConductorData;
-		rawData:any;
+		/**
+		 * @deprecated doesn't seem to exist anymore
+		 */
+		is_boost_train:boolean;
 	}
 
 	/**
 	 * Stores the data about one of the hype train's conductors
 	 */
 	export interface HypeTrainConductorData {
-		type:"SUBS" | "BITS";
 		user:TwitchatUser;
-		contributions:HypeTrainConductorContributionsData[];
-	}
-
-	/**
-	 * Stores contributions of a hype train conductor
-	 */
-	export interface HypeTrainConductorContributionsData {
-		bits?:number;
-		sub_t1?:number;
-		sub_t2?:number;
-		sub_t3?:number;
-		subgift_t1?:number;
-		subgift_t2?:number;
-		subgift_t3?:number;
+		amount:number;
 	}
 
 	/**
@@ -3600,7 +3588,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Chat activities related to this hype train
 		 */
-		activities: (MessageSubscriptionData|MessageCheerData|MessageHypeChatData)[];
+		activities: (MessageSubscriptionData|MessageCheerData)[];
 	}
 
 	/**

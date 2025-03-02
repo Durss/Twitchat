@@ -11,7 +11,7 @@
 					<strong v-if="messageData.isPublic">{{ messageData.userName }}</strong>
 					<strong v-else>{{ $t("chat.kofi.anonymous") }}</strong>
 				</template>
-				
+
 				<template #AMOUNT>
 					<strong>{{ messageData.amountFormatted }}</strong>
 				</template>
@@ -33,7 +33,7 @@
 					</template>
 				</template>
 			</i18n-t>
-			<div class="quote" v-if="messageData.eventType == 'donation' || messageData.eventType == 'merch' && messageData.message">
+			<div class="quote" v-if="(messageData.eventType == 'donation' || messageData.eventType == 'merch') && messageData.message">
 				<ChatMessageChunksParser :chunks="messageData.message_chunks"></ChatMessageChunksParser>
 			</div>
 		</div>
@@ -55,7 +55,7 @@ import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 	emits:["onRead"],
 })
 class ChatKofiEvent extends AbstractChatMessage {
-	
+
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageKofiData;
 
@@ -75,7 +75,7 @@ export default toNative(ChatKofiEvent);
 
 <style scoped lang="less">
 .chatkofievent{
-	
+
 	.quote {
 		margin-top: .5em;
 	}

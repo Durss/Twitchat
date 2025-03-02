@@ -17,8 +17,11 @@ import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
 import EventSub from '@/utils/twitch/EventSub';
 import staticEmotes from '@/utils/twitch/staticEmoteList.json';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import SetIntervalWorker from '@/utils/SetIntervalWorker';
+import SetTimeoutWorker from '@/utils/SeTimeoutWorker';
 
 const commercialTimeouts:{[key:string]:number[]} = {};
+let hypeTrainCooldownTo = ";"
 
 export const storeStream = defineStore('stream', {
 	state: () => ({
@@ -77,6 +80,11 @@ export const storeStream = defineStore('stream', {
 					})
 				}
 			}catch(error) {}
+
+			// Get next hype train availability every hours just in case
+			SetIntervalWorker.instance.create(()=>{
+				this.scheduleHypeTrainCooldownAlert();
+			}, 60 * 60 * 1000)
 		},
 
 		async loadStreamInfo(platform:TwitchatDataTypes.ChatPlatform, channelId:string):Promise<void> {
@@ -170,7 +178,7 @@ export const storeStream = defineStore('stream', {
 					this.raidHistory.shift();
 				}
 				DataStore.set(DataStore.RAID_HISTORY, this.raidHistory);
-				
+
 				//Send donation reminder if requested
 				if(StoreProxy.params.donationReminderEnabled) {
 					StoreProxy.params.donationReminderEnabled = false;
@@ -231,6 +239,11 @@ export const storeStream = defineStore('stream', {
 					}
 					StoreProxy.chat.addMessage(res);
 				}
+
+				// Wait half an hour and check for cooldown before next train
+				setTimeout(()=> {
+					this.scheduleHypeTrainCooldownAlert();
+				}, 30 * 60 *60);
 			}
 		},
 
@@ -604,7 +617,7 @@ export const storeStream = defineStore('stream', {
 						message.eventType = "merch";
 						message.products = [{id:"123456", name:Utils.pickRand(["T-shirt", "Hoodie", "Hat", "Mug", "Stickers", "Pins"]), quantity:1}, {id:"234561", name:Utils.pickRand(["T-shirt", "Hoodie", "Hat", "Mug", "Stickers", "Pins"]), quantity:1}];
 					}, false));
-					
+
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageKofiData>(TwitchatDataTypes.TwitchatMessageType.KOFI, (message)=>{
 						message.eventType = "subscription";
 					}, false));
@@ -620,7 +633,7 @@ export const storeStream = defineStore('stream', {
 
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageTwitchCelebrationData>(TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION, undefined, false));
 				}
-					
+
 
 				//Fake "show all current subs" content
 				const fakeUsers = await TwitchUtils.getFakeUsers();
@@ -661,7 +674,7 @@ export const storeStream = defineStore('stream', {
 					messages.push(m);
 					prevDate = m.date;
 				}
-				
+
 
 				//Load all currently active subs from Twitch
 				const shouldLoadAllsubs = parameters && parameters.slots.filter(v=>v.slotType == "subs")
@@ -677,7 +690,7 @@ export const storeStream = defineStore('stream', {
 							if(ignoredAccounts[sub.user_login.toLowerCase()] === true) return;
 							//Ignore self
 							if(sub.user_id == channelId) return;
-							
+
 							const subData:TwitchatDataTypes.StreamSummaryData["subs"][number] = {
 								uid:sub.user_id,
 								login:sub.user_name,
@@ -815,27 +828,12 @@ export const storeStream = defineStore('stream', {
 					}
 
 					case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY: {
-						let bits = 0;
-						let subs = 0;
-						if(m.train.conductor_bits) {
-							m.train.conductor_bits.contributions.forEach(v=> bits += v.bits || 0);
-						}
-						if(m.train.conductor_subs) {
-							m.train.conductor_subs.contributions.forEach(v=> {
-								subs += v.sub_t1 || 0;
-								subs += v.sub_t2 || 0;
-								subs += v.sub_t3 || 0;
-								subs += v.subgift_t1 || 0;
-								subs += v.subgift_t2 || 0;
-								subs += v.subgift_t3 || 0;
-							});
-						}
 						const train:TwitchatDataTypes.StreamSummaryData['hypeTrains'][0] = {level:m.train.level, percent:Math.round(m.train.currentValue / m.train.goal * 100)};
 						if(m.train.conductor_bits) {
-							train.conductorBits = {uid:m.train.conductor_bits.user.id, login:m.train.conductor_bits.user.displayNameOriginal, bits};
+							train.conductorBits = {uid:m.train.conductor_bits.user.id, login:m.train.conductor_bits.user.displayNameOriginal, bits:m.train.conductor_bits.amount};
 						}
 						if(m.train.conductor_subs) {
-							train.conductorSubs = {uid:m.train.conductor_subs.user.id, login:m.train.conductor_subs.user.displayNameOriginal, subs};
+							train.conductorSubs = {uid:m.train.conductor_subs.user.id, login:m.train.conductor_subs.user.displayNameOriginal, subs:m.train.conductor_subs.amount};
 						}
 						result.hypeTrains.push(train);
 						break;
@@ -1037,7 +1035,7 @@ export const storeStream = defineStore('stream', {
 				if(simulate || !startDateBackup) {
 					StoreProxy.stream.currentStreamInfo[channelId]!.started_at = dateOffset || (Date.now() - 45 * 60000);
 				}
-				
+
 				result.premiumWarningSlots = {};
 				//Parse "text" slots placeholders and remove premium-only slots
 				for (let i = 0; i < result.params.slots.length; i++) {
@@ -1066,19 +1064,36 @@ export const storeStream = defineStore('stream', {
 			TwitchMessengerClient.instance.connectToChannel(user.login);
 			EventSub.instance.connectToChannel(user);
 		},
-		
+
 		async disconnectFromExtraChan(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
 			const index = this.connectedTwitchChans.findIndex(entry => entry.user.id === user.id);
 			this.connectedTwitchChans.splice(index, 1);
 			TwitchMessengerClient.instance.disconnectFromChannel(user.login);
 			EventSub.instance.disconnectRemoteChan(user);
 		},
-		
+
 		setExtraChanAutoconnectState(user:TwitchatDataTypes.TwitchatUser, pinned:boolean):void {
 			const index = this.autoconnectChans.findIndex(v=>v.id == user.id && v.platform == user.platform);
 			if(index > -1) this.autoconnectChans.splice(index, 1);
 			else this.autoconnectChans.push({id:user.id, platform:user.platform});
 			DataStore.set(DataStore.AUTOCONNECT_CHANS, this.autoconnectChans);
+		},
+
+		async scheduleHypeTrainCooldownAlert():Promise<void> {
+			const [train] = await TwitchUtils.getHypeTrains(StoreProxy.auth.twitch.user.id);
+			if(train && train.event_data.cooldown_end_time) {
+				if(hypeTrainCooldownTo) SetTimeoutWorker.instance.delete(hypeTrainCooldownTo);
+				hypeTrainCooldownTo = SetTimeoutWorker.instance.create(() => {
+					const m:TwitchatDataTypes.MessageHypeTrainCooledDownData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitch",
+						channel_id:StoreProxy.auth.twitch.user.id,
+						type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
+					};
+					StoreProxy.chat.addMessage(m)
+				}, new Date(train.event_data.cooldown_end_time).getTime() - Date.now());
+			}
 		}
 
 	} as IStreamActions

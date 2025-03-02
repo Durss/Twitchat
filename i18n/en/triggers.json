@@ -1164,12 +1164,12 @@
 			"PIN_MESSAGE": {
 				"label": "Pin message",
 				"description": "Actions to execute when pinning a message",
-				"disabled_reason": "Twitch restricted access to this event. Twitchat cannot use it anymore :("
+				"disabled_reason": "Twitch restricted access to this information. Twitchat cannot use it anymore :("
 			},
 			"UNPIN_MESSAGE": {
 				"label": "Unpin message",
 				"description": "Actions to execute when unpinning a message",
-				"disabled_reason": "Twitch restricted access to this event. Twitchat cannot use it anymore :("
+				"disabled_reason": "Twitch restricted access to this information. Twitchat cannot use it anymore :("
 			},
 			"TRACK_ADDED_TO_QUEUE": {
 				"label": "Track added to queue",
