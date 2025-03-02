@@ -26,7 +26,7 @@
 				<div class="typescript"><pre><span class="keyword">window</span>.<span class="function">addEventListener</span>(<span class="string">"{{ action.browserEventName }}"</span>, (<span class="param">param</span>) => {
 	<span class="keyword">console</span>.<span class="function">log</span>(<span class="param">param.detail.data</span>);
 });</pre>
-					<TTButton class="copyBt" icon="copy" @click="copyBrowserEventCode()" transparent />
+					<TTButton class="copyBt" icon="copy" :copy="getBrowserEventCode()" transparent />
 				</div>
 			</div>
 		</template>
@@ -344,12 +344,10 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	/**
 	 * Called when copy button is clicked on browser event example
 	 */
-	public copyBrowserEventCode():void {
-		const code = `window.addEventListener("${this.action.browserEventName}", (param) => {
-			console.log(param.detail.data);
-		});
-		`;
-		Utils.copyToClipboard(code);
+	public getBrowserEventCode():string {
+		return `window.addEventListener("${this.action.browserEventName}", (param) => {
+	console.log(param.detail.data);
+});`;
 	}
 
 	/**
