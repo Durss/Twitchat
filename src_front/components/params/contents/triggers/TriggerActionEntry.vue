@@ -147,7 +147,7 @@
 						v-tooltip="canEditStreamInfo? '' : $t('triggers.actions.common.action_stream_infos_tt')">{{ $t('triggers.actions.common.action_stream_infos') }}</TTButton>
 
 					<TTButton class="button" @click="selectActionType('chatSugg')"
-						icon="chatPoll">{{ $t('triggers.actions.common.action_chatSugg') }}</TTButton>
+						icon="chatSugg">{{ $t('triggers.actions.common.action_chatSugg') }}</TTButton>
 
 					<TTButton class="button" @click="selectActionType('highlight')"
 						icon="highlight" >{{ $t('triggers.actions.common.action_highlight') }}</TTButton>

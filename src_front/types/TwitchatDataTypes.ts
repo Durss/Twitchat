@@ -2301,7 +2301,7 @@ export namespace TwitchatDataTypes {
 		{id:"bingo",		isModal:true,	icon:"bingo", 			modalId:"bingo",		modelValueName:"",	 labelKey:"cmdmenu.bingo"},
 		{id:"bingo_grid",	isModal:true,	icon:"bingo_grid", 		modalId:"bingo_grid",	modelValueName:"",	 labelKey:"cmdmenu.bingo_grid"},
 		{id:"qna",			isModal:true,	icon:"qna", 			modalId:"qnaForm",		modelValueName:"",	 labelKey:"cmdmenu.qna"},
-		{id:"chatSugg",		isModal:true,	icon:"chatPoll", 		modalId:"chatsuggForm",	modelValueName:"",	 labelKey:"cmdmenu.suggestions"},
+		{id:"chatSugg",		isModal:true,	icon:"chatSugg", 		modalId:"chatsuggForm",	modelValueName:"",	 labelKey:"cmdmenu.suggestions"},
 		{id:"timer",		isModal:true,	icon:"timer", 			modalId:"timer",		modelValueName:"",	 labelKey:"cmdmenu.timer"},
 		{id:"streamInfo",	isModal:true,	icon:"info", 			modalId:"streamInfo",	modelValueName:"",	 labelKey:"cmdmenu.info"},
 		{id:"extensions",	isModal:true,	icon:"extension", 		modalId:"extensions",	modelValueName:"",	 labelKey:"cmdmenu.extensions"},

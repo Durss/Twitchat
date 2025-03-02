@@ -162,7 +162,7 @@
 
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.suggBt_aria')"
-						icon="chatPoll"
+						icon="chatSugg"
 						:count="$store.chatSuggestion.data?.choices.length"
 						v-tooltip="{touch:'hold', content:$t('chat.form.suggBt_aria'), showOnCreate:shouldShowTooltip('chatsuggState'), onHidden:()=>onHideTooltip('chatsuggState')}"
 						@click="openModal('chatsuggState')"

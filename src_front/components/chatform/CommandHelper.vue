@@ -38,7 +38,7 @@
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="openModal('chatsuggForm');"
-				icon="chatPoll">{{$t('cmdmenu.suggestions')}}</TTButton>
+				icon="chatSugg">{{$t('cmdmenu.suggestions')}}</TTButton>
 			<TTButton icon="pin" :primary="isPinned('chatSugg')" @click="onTogglePin('chatSugg')" />
 		</div>
 		<div class="menuItem">

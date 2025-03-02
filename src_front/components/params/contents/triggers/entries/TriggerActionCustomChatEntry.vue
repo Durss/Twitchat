@@ -8,7 +8,7 @@
 			<ParamItem :paramData="param_highlight" v-model="action.customMessage.highlightColor" v-if="action.customMessage.style == 'highlight'" noBackground class="child" />
 		</ParamItem>
 
-		<ParamItem :paramData="param_user" v-if="action.customMessage.user" v-model="action.customMessage.user.name">
+		<ParamItem :paramData="param_user" v-if="action.customMessage.user" v-model="action.customMessage.user!.name">
 			<ParamItem :paramData="param_userColor" v-model="action.customMessage.user!.color" noBackground class="child" v-if="param_style.value != 'error'" />
 		</ParamItem>
 
