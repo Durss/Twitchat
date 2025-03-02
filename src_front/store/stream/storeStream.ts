@@ -239,6 +239,11 @@ export const storeStream = defineStore('stream', {
 					StoreProxy.chat.addMessage(res);
 				}
 				this.scheduleHypeTrainCooldownAlert();
+
+				window.setTimeout(()=> {
+					//Hide hype train popin
+					StoreProxy.stream.setHypeTrain(undefined);
+				}, 5000)
 			}
 		},
 

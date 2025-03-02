@@ -192,7 +192,7 @@ export default class EventSub {
 	 * Simulates a hype train
 	 */
 	public async simulateHypeTrain(goldenKappa:boolean = false):Promise<void> {
-		const train = fakeHypeTrain2;
+		const train = fakeHypeTrain4;
 		const timeScale = 1;
 		const globalOffset = Date.now() - new Date(train[0] as string).getTime();
 		let dateOffset = new Date(train[0] as string).getTime();
@@ -1644,7 +1644,6 @@ export default class EventSub {
 	 * @param event
 	 */
 	private async warningAcknowledgeEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.WarningAcknowledgeEvent):Promise<void> {
-		console.log("ACKNOWLEDGED");
 		const message:TwitchatDataTypes.MessageWarnAcknowledgementData = {
 			id:Utils.getUUID(),
 			date:Date.now(),
@@ -1729,7 +1728,6 @@ export default class EventSub {
 			restricted:event.low_trust_status == "restricted",
 			monitored:event.low_trust_status == "active_monitoring",
 		};
-		console.log(event)
 		StoreProxy.chat.addMessage(m);
 	}
 
@@ -2080,10 +2078,7 @@ export default class EventSub {
 			}
 		}
 
-		console.log(topic, train.state, train)
 		StoreProxy.stream.setHypeTrain(train);
-		return;
-
 
 		const eventMap:Record<typeof train.state, TwitchatDataTypes.MessageHypeTrainEventData["type"]> = {
 			APPROACHING:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING,
