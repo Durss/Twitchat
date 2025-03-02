@@ -148,7 +148,7 @@ class TriggerConditionListItem extends Vue {
 		if(this.condition.placeholder != "" && placeholderListLocal.findIndex(v=>v.value == this.condition.placeholder) == -1) {
 			placeholderListLocal.push({label:this.condition.placeholder, value:this.condition.placeholder});
 		}
-		console.log(placeholderListLocal)
+		
 		this.param_placeholder.listValues = placeholderListLocal;
 		this.param_value.placeholderList = placeholders.concat();
 		//Wait for list to render and update its internal "selectedListValue" value.

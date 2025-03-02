@@ -156,7 +156,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 					raisedPersonnal = followers;
 				}
 
-				const currentStepIndex = overlay.goalList.sort((a,b) => a.amount - b.amount).findLastIndex(v=>v.amount <= raisedTotal);
+				const currentStepIndex = overlay.goalList.concat().sort((a,b) => a.amount - b.amount).findLastIndex(v=>v.amount <= raisedTotal);
 				if(donationGoalStatesCache[overlay.id] != currentStepIndex) {
 					if(donationGoalStatesCache[overlay.id] < currentStepIndex) {
 						const currentStep = overlay.goalList[currentStepIndex];

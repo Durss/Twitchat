@@ -986,6 +986,7 @@
 			"goal_step_index":"Index de l'étape (débute à 0)",
 			"goal_step_title":"Titre de l'étape",
 			"goal_step_secret":"Étape secrète ?",
+			"goal_step_amount":"Montant de l'étape",
 			"goal_overlay_id":"ID de l'overlay d'objectifs",
 			"goal_overlay_title":"Titre de l'overlay d'objectifs"
 		},
