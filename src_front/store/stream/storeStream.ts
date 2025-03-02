@@ -21,7 +21,11 @@ import SetIntervalWorker from '@/utils/SetIntervalWorker';
 import SetTimeoutWorker from '@/utils/SeTimeoutWorker';
 
 const commercialTimeouts:{[key:string]:number[]} = {};
-let hypeTrainCooldownTo = ";"
+let hypeTrainCooldownTo = "";
+// Given a user's feedback, "hype train cooldown" notification is sent multiple times
+// dunno if i can actually trust them, but just in case this flag makes it so a
+// cooldown alert won't be sent again unless a hype train happened in between
+let ignoreHypeTrainCooldown = false;
 
 export const storeStream = defineStore('stream', {
 	state: () => ({
@@ -210,6 +214,7 @@ export const storeStream = defineStore('stream', {
 		},
 
 		setHypeTrain(data:TwitchatDataTypes.HypeTrainStateData|undefined) {
+			ignoreHypeTrainCooldown = false;
 			this.hypeTrain = data;
 			if(data && data.state == "COMPLETED" && data.approached_at) {
 				const threshold = 5*60*1000;
@@ -1089,6 +1094,7 @@ export const storeStream = defineStore('stream', {
 			if(train && train.event_data.cooldown_end_time) {
 				if(hypeTrainCooldownTo) SetTimeoutWorker.instance.delete(hypeTrainCooldownTo);
 				hypeTrainCooldownTo = SetTimeoutWorker.instance.create(() => {
+					if(ignoreHypeTrainCooldown) return;
 					const m:TwitchatDataTypes.MessageHypeTrainCooledDownData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
@@ -1097,6 +1103,7 @@ export const storeStream = defineStore('stream', {
 						type:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
 					};
 					StoreProxy.chat.addMessage(m)
+					ignoreHypeTrainCooldown = true;
 				}, new Date(train.event_data.cooldown_end_time).getTime() - Date.now());
 			}
 		}
