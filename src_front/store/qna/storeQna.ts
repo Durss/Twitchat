@@ -110,7 +110,6 @@ export const storeQna = defineStore('qna', {
 				}
 			});
 
-			console.log("QNA store initialized", TwitchatEvent.QNA_SESSION_GET_ALL);
 			PublicAPI.instance.addEventListener(TwitchatEvent.QNA_SESSION_GET_ALL, (event:TwitchatEvent) => {
 				this.broadcastQnaList();
 
