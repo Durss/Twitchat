@@ -343,7 +343,6 @@ export const storeRaffle = defineStore('raffle', {
 
 				if(!canJoin) return;
 
-				const messageCast = message;// as TwitchatDataTypes.GreetableMessage;
 				const elapsed = Date.now() - new Date(raffle.created_at).getTime();
 
 				//Check if within time frame and max users count isn't reached
@@ -371,8 +370,8 @@ export const storeRaffle = defineStore('raffle', {
 							username = user.displayNameOriginal;
 							entry.user = {
 								id:user.id,
-								platform:messageCast.platform,
-								channel_id:messageCast.channel_id,
+								platform:message.platform,
+								channel_id:message.channel_id,
 							};
 						}
 						raffle.entries.push(entry);
