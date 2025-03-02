@@ -173,6 +173,7 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static QNA_HIGHLIGHT:TwitchatActionType = "QNA_HIGHLIGHT";
 	public static QNA_SKIP:TwitchatActionType = "QNA_SKIP";
 	public static QNA_SESSION_GET_ALL:TwitchatActionType = "QNA_SESSION_GET_ALL";
+	public static HIDE_ALERT:TwitchatActionType = "HIDE_ALERT";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:T) {
 		super(type);
@@ -347,5 +348,6 @@ export const TwitchatActionTypeList = [
 	"QNA_HIGHLIGHT",
 	"QNA_SKIP",
 	"QNA_SESSION_GET_ALL",
+	"HIDE_ALERT",
 ] as const;
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

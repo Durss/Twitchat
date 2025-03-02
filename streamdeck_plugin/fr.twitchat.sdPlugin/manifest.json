@@ -533,6 +533,20 @@
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.qna-skip"
+		},
+		{
+			"Icon": "icons/HIDE_ALERT",
+			"Name": "Hide !alert",
+			"States": [
+				{
+					"Image": "icons/HIDE_ALERT",
+					"TitleAlignment": "bottom",
+					"FontSize": 10
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.hide-alert"
 		}
 	],
 	"Category": "Twitchat",

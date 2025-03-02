@@ -3,7 +3,7 @@ import HeatEvent from '@/events/HeatEvent';
 import SSEEvent from '@/events/SSEEvent';
 import TwitchatEvent, { type TwitchatEventType } from '@/events/TwitchatEvent';
 import router from '@/router';
-import { TriggerTypes, rebuildPlaceholdersCache, type SocketParams, type TriggerActionChatData, type TriggerData, type TriggerCallStack } from '@/types/TriggerActionDataTypes';
+import { TriggerTypes, rebuildPlaceholdersCache, type SocketParams, type TriggerActionChatData, type TriggerCallStack, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';

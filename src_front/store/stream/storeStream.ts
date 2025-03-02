@@ -90,6 +90,7 @@ export const storeStream = defineStore('stream', {
 			SetIntervalWorker.instance.create(()=>{
 				this.scheduleHypeTrainCooldownAlert();
 			}, 60 * 60 * 1000)
+			this.scheduleHypeTrainCooldownAlert();
 		},
 
 		async loadStreamInfo(platform:TwitchatDataTypes.ChatPlatform, channelId:string):Promise<void> {
