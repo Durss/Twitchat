@@ -244,6 +244,11 @@ export const storeStream = defineStore('stream', {
 				setTimeout(()=> {
 					this.scheduleHypeTrainCooldownAlert();
 				}, 30 * 60 *60);
+
+				window.setTimeout(()=> {
+					//Hide hype train popin
+					StoreProxy.stream.setHypeTrain(undefined);
+				}, 5000)
 			}
 		},
 
