@@ -837,7 +837,6 @@ export default class MessengerProxy {
 			//Execute alert
 			message = message.replace(/\/alertstreamer\s*/gi, "");
 			const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
-			console.log(chunks);
 			const messageData:TwitchatDataTypes.MessageChatData = {
 				platform:"twitchat",
 				type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
@@ -852,7 +851,6 @@ export default class MessengerProxy {
 				answers:[],
 				message_size:0,
 			}
-			console.log(messageData)
 			StoreProxy.main.chatAlert = messageData;
 
 			//Execute trigger
