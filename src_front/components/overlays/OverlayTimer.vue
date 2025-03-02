@@ -63,6 +63,8 @@ class OverlayTimer extends AbstractOverlay {
 	public configCountdown:TwitchatDataTypes.TimerData["overlayParams"]|null = null;
 
 	private overlayId:string = "";
+	private timerHidding:boolean = false;
+	private countdownHidding:boolean = false;
 	private intervalUpdate:number = -1;
 	private timerData:TwitchatDataTypes.TimerData|null = null;
 	private countdownData:TwitchatDataTypes.TimerData|null = null;
@@ -105,16 +107,20 @@ class OverlayTimer extends AbstractOverlay {
 		if(data.id != this.overlayId
 		&& !(data.isDefault && this.overlayId == "")) return;
 
+		if(this.$refs.timer) gsap.killTweensOf(this.$refs.timer as HTMLDivElement);
+
 		if(e.type == TwitchatEvent.TIMER_START) {
 			this.timerData = data;
 			const wasVisible = this.timerValue != "";
 			this.computeValues();
-			if(!wasVisible) {
+			if(!wasVisible || this.timerHidding) {
 				await this.$nextTick();
 				if(this.$refs.timer) gsap.fromTo(this.$refs.timer as HTMLDivElement, {y:"-100%"}, {duration:.5, y:"0%"});
 			}
+			this.timerHidding = false;
 
 		}else if(this.$refs.timer) {
+			this.timerHidding = true;
 			gsap.to(this.$refs.timer as HTMLDivElement, {duration:.5, y:"-100%", onComplete:()=> {
 				this.timerData = null;
 				this.timerValue = "";
@@ -129,16 +135,20 @@ class OverlayTimer extends AbstractOverlay {
 		if(data.id != this.overlayId
 		&& !(data.isDefault && this.overlayId == ""))	return;
 
+		if(this.$refs.countdown) gsap.killTweensOf(this.$refs.countdown as HTMLDivElement);
+
 		if(e.type == TwitchatEvent.COUNTDOWN_START) {
 			this.countdownData = data;
 			const wasVisible = this.countdownValue != "";
 			this.computeValues();
-			if(!wasVisible){
+			if(!wasVisible || this.countdownHidding){
 				await this.$nextTick();
 				if(this.$refs.countdown) gsap.from(this.$refs.countdown as HTMLDivElement, {duration:.5, y:"-100%"});
 			}
-
+			this.countdownHidding = false;
+			
 		}else if(this.$refs.countdown) {
+			this.countdownHidding = true;
 			gsap.to(this.$refs.countdown as HTMLDivElement, {duration:.5, y:"-100%", onComplete:()=>{
 				this.countdownData = null;
 				this.countdownValue = "";
