@@ -17,6 +17,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 let discordCmdUpdateDebounce:number = -1;
 let wasDiscordCmds = false;
+let enabledStateCache:{[triggerId:string]:boolean} = {};
 
 export const storeTriggers = defineStore('triggers', {
 	state: () => ({
@@ -231,6 +232,15 @@ export const storeTriggers = defineStore('triggers', {
 			const list = JSON.parse(JSON.stringify(this.triggerList));
 			list.forEach((data:TriggerData)=> {
 				data.actions = cleanEmptyActions(data.actions);
+				if(data.type == TriggerTypes.SCHEDULE && enabledStateCache[data.id] != data.enabled) {
+					enabledStateCache[data.id] = data.enabled;
+					//TODO should check if parent folder(s) are enabled as well but too lazy for now T_T
+					if(data.enabled) {
+						SchedulerHelper.instance.scheduleTrigger(data);
+					}else{
+						SchedulerHelper.instance.unscheduleTrigger(data);
+					}
+				}
 			})
 
 			//Create discord commands if requested by some slash commands

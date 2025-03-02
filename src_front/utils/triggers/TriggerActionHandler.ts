@@ -2568,6 +2568,7 @@ export default class TriggerActionHandler {
 									await this.executeTrigger(trigger, message, testMode, undefined, undefined, dynamicPlaceholders, true, callStack);
 									if(step.disableAfterExec === true) {
 										trigger.enabled = false;
+										StoreProxy.triggers.saveTriggers();
 									}
 								}else{
 									logStep.messages.push({date:Date.now(), value:"Random trigger not found for ID \""+triggerId+"\""});

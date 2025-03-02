@@ -711,6 +711,7 @@ class Chat extends Vue {
 						case "toggle":	trigger.enabled = !trigger.enabled; break;
 					}
 				}
+				this.$store.triggers.saveTriggers();
 				break;
 			}
 

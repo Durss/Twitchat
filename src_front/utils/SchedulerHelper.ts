@@ -85,7 +85,7 @@ export default class SchedulerHelper {
 	 * @returns 
 	 */
 	public scheduleTrigger(trigger:TriggerData):void {
-		if(!trigger || !trigger.scheduleParams) return;
+		if(!trigger || !trigger.scheduleParams || !trigger.enabled) return;
 
 		//Cleanup any previously scheduled trigger
 		this.unscheduleTrigger(trigger);
