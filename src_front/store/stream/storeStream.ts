@@ -1096,6 +1096,10 @@ export const storeStream = defineStore('stream', {
 			const [train] = await TwitchUtils.getHypeTrains(StoreProxy.auth.twitch.user.id);
 			if(train && train.event_data.cooldown_end_time) {
 				if(hypeTrainCooldownTo) SetTimeoutWorker.instance.delete(hypeTrainCooldownTo);
+
+				const remainingTime = new Date(train.event_data.cooldown_end_time).getTime() - Date.now();
+				if(remainingTime <= 0) return;
+
 				hypeTrainCooldownTo = SetTimeoutWorker.instance.create(() => {
 					if(ignoreHypeTrainCooldown) return;
 					const m:TwitchatDataTypes.MessageHypeTrainCooledDownData = {
@@ -1107,7 +1111,7 @@ export const storeStream = defineStore('stream', {
 					};
 					StoreProxy.chat.addMessage(m)
 					ignoreHypeTrainCooldown = true;
-				}, new Date(train.event_data.cooldown_end_time).getTime() - Date.now());
+				}, remainingTime);
 			}
 		}
 
