@@ -25,7 +25,7 @@
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
-import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerConditionOperatorList, TriggerEventPlaceholders, type TriggerCondition, type TriggerConditionGroup, type TriggerData, VALUE_PLACEHOLDER_PREFIX, type TriggerConditionOperator, type ITriggerPlaceholder } from '@/types/TriggerActionDataTypes';
+import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerConditionOperatorList, TriggerEventPlaceholders, type TriggerCondition, type TriggerConditionGroup, type TriggerData, VALUE_PLACEHOLDER_PREFIX, type TriggerConditionOperator, type ITriggerPlaceholder, STOPWATCH_PLACEHOLDER_PREFIX, COUNTDOWN_PLACEHOLDER_PREFIX } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
@@ -110,6 +110,16 @@ class TriggerConditionListItem extends Vue {
 					const counter = this.$store.values.valueList.find(v=>v.placeholderKey?.toLowerCase() === valueTag.toLowerCase());
 					if(counter) name = counter.name;
 				}
+				if(v.tag.indexOf(COUNTDOWN_PLACEHOLDER_PREFIX) > -1) {
+					const valueTag = v.tag.replace(COUNTDOWN_PLACEHOLDER_PREFIX, "");
+					const timer = this.$store.timers.timerList.find(v=>v.placeholderKey && valueTag.indexOf(v.placeholderKey) == 0);
+					if(timer) name = timer.title;
+				}
+				if(v.tag.indexOf(STOPWATCH_PLACEHOLDER_PREFIX) > -1) {
+					const valueTag = v.tag.replace(STOPWATCH_PLACEHOLDER_PREFIX, "");
+					const timer = this.$store.timers.timerList.find(v=>v.placeholderKey && valueTag.indexOf(v.placeholderKey) == 0);
+					if(timer) name = timer.title;
+				}
 				watch(()=>v.values, ()=> {
 					clearTimeout(debouncedRebuild);
 					debouncedRebuild = window.setTimeout(()=> {
@@ -117,7 +127,7 @@ class TriggerConditionListItem extends Vue {
 					}, 20);
 				}, {deep:true});
 				return {
-					label: this.$t(v.descKey, {NAME:"\""+name+"\""}),
+					label: this.$t(v.descKey, {NAME:name? "\""+name+"\"" : ""}),
 					value:v.tag.toUpperCase(),
 					fixedValues:v.values,
 				}
@@ -138,6 +148,7 @@ class TriggerConditionListItem extends Vue {
 		if(this.condition.placeholder != "" && placeholderListLocal.findIndex(v=>v.value == this.condition.placeholder) == -1) {
 			placeholderListLocal.push({label:this.condition.placeholder, value:this.condition.placeholder});
 		}
+		console.log(placeholderListLocal)
 		this.param_placeholder.listValues = placeholderListLocal;
 		this.param_value.placeholderList = placeholders.concat();
 		//Wait for list to render and update its internal "selectedListValue" value.
