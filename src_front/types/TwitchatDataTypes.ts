@@ -3256,17 +3256,7 @@ export namespace TwitchatDataTypes {
 		 */
 		isFake?:boolean;
 	}
-	export interface MessagePollDataChoice {
-		id: string;
-		/**
-		 * Choice text
-		 */
-		label: string;
-		/**
-		 * Number of votes the choice got
-		 */
-		votes: number;
-	}
+	export type MessagePollDataChoice = Omit<MessagePredictionDataOutcome, "voters">
 
 	/**
 	 * Represents a prediction's data

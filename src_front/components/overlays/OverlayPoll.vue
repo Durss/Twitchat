@@ -1,38 +1,20 @@
 <template>
-	<div :class="classes" id="holder" v-if="show && poll && parameters">
-		<div id="progress" class="progress" ref="progress" v-show="parameters.showTimer"></div>
-		<h1 id="title" v-if="parameters.showTitle">{{ poll?.title }}</h1>
-		<div id="list" class="list" v-if="listMode">
-			<div id="list_choice" class="choice" :class="getWinClasses(c)" v-for="(c, index) in poll.choices" ref="bar">
-				<h2 id="list_choice_label" v-if="parameters.showLabels">{{c.label}}</h2>
-				<div class="bar" id="list_choice_bar" :style="getAnswerStyles(c)">
-					<div class="details" id="list_choice_bar_details">
-						<span id="list_choice_bar_details_percent" class="percent" v-if="parameters.showPercent">{{getPercent(c).toFixed(0)}}%</span>
-						<span id="list_choice_bar_details_votes" class="votes" v-if="parameters.showVotes"><Icon name="user" class="icon"/>{{c.votes}}</span>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div id="line" class="battle" v-else ref="holder">
-			<div id="line_labelList" class="labels" v-if="parameters.showLabels">
-				<h2 id="line_labelList_label" class="outcomeTitle"
-				:class="getWinClasses(c)"
-				v-for="(c, index) in poll.choices" :style="{flexBasis:getPercent(c)+'%'}">
-					{{ c.label }}
-				</h2>
-			</div>
-			<div class="chunks" id="line_bar" ref="bar">
-				<div id="line_bar_item" class="chunk"
-				:class="getWinClasses(c)"
-				v-for="(c, index) in poll.choices" :style="{flexBasis:getPercent(c)+'%'}">
-					<div class="details" id="line_bar_item_details">
-						<span id="line_bar_item_details_percent" class="percent" v-if="parameters.showPercent">{{getPercent(c).toFixed(0)}}%</span>
-						<span id="line_bar_item_details_votes" class="votes" v-if="parameters.showVotes"><Icon name="user" class="icon"/>{{c.votes}}</span>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+	<PollRenderer v-if="poll && parameters"
+		:open="show"
+		:showTimer="parameters.showTimer"
+		:showLabels="parameters.showLabels"
+		:showPercent="parameters.showPercent"
+		:showVoters="parameters.showVotes"
+		:showVotes="false"
+		:showWinner="showWinner"
+		:title="parameters.showTitle? poll.title : ''"
+		:duration="poll.duration_s * 1000"
+		:startedAt="poll.started_at"
+		:resultDuration_s="parameters.resultDuration_s"
+		:placement="parameters.placement"
+		:mode="listMode? 'list' : 'line'"
+		:entries="poll.choices"
+		/>
 </template>
 
 <script lang="ts">
@@ -40,14 +22,15 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import type { PollOverlayParamStoreData } from '@/store/poll/storePoll';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import type { CSSProperties } from 'vue';
 import { Component, toNative } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
 import AbstractOverlay from './AbstractOverlay';
-import { gsap } from 'gsap/gsap-core';
+import PollRenderer from './poll/PollRenderer.vue';
+import Utils from '@/utils/Utils';
 @Component({
 	components:{
 		Icon,
+		PollRenderer,
 	},
 	emits:[],
 })
@@ -80,48 +63,6 @@ class OverlayPoll extends AbstractOverlay {
 		&& (!this.parameters.listModeOnlyMore2 || (this.parameters.listModeOnlyMore2 && this.poll!.choices.length > 2))
 	}
 
-	public get classes():string[] {
-		let res:string[] = [
-			"overlaypoll",
-			"position-"+this.parameters.placement
-		];
-		if(this.showWinner) res.push("win");
-		return res;
-	}
-
-	public getWinClasses(c:TwitchatDataTypes.MessagePollDataChoice):string[] {
-		let res:string[] = [];
-		if(this.showWinner) {
-			let max = 0;
-			this.poll?.choices.forEach(v=> max = Math.max(max, v.votes));
-			if(c.votes >= max) res.push("win");
-		}
-		return res;
-	}
-
-	public getAnswerStyles(c:TwitchatDataTypes.MessagePollDataChoice):CSSProperties {
-		return {
-			backgroundSize: `${this.getPercent(c, true)}% 100%`,
-		}
-	}
-
-	public getPercent(c:TwitchatDataTypes.MessagePollDataChoice, barSizeTarget:boolean = false):number {
-		let maxVotes = 0;
-		let totalVotes = 0;
-		if(this.poll) {
-			for (let i = 0; i < this.poll.choices.length; i++) {
-				totalVotes += this.poll.choices[i].votes;
-				maxVotes = Math.max(maxVotes, this.poll.choices[i].votes);
-			}
-			if(totalVotes == 0) {
-				if(this.listMode) return 0;
-				return 100/this.poll.choices.length;
-			}
-		}
-		if(this.listMode && barSizeTarget) totalVotes = maxVotes;
-		return Math.round(c.votes/Math.max(1,totalVotes) * 100);
-	}
-
 	public async mounted():Promise<void> {
 		PublicAPI.instance.broadcast(TwitchatEvent.POLLS_OVERLAY_PRESENCE);
 
@@ -147,8 +88,8 @@ class OverlayPoll extends AbstractOverlay {
 
 	public async onUpdatePoll(e:TwitchatEvent):Promise<void> {
 		if(!this.parametersReceived) {
-			//overlay's parameters not received yet, put data aside
-			//onUpdatePoll() will be called by onUpdateParams() afterwards
+			// overlay's parameters not received yet, put data aside
+			// onUpdatePoll() will be called by onUpdateParams() afterwards
 			this.pendingData = e;
 			this.requestInfo();
 			return;
@@ -156,25 +97,17 @@ class OverlayPoll extends AbstractOverlay {
 
 		const poll = ((e.data as unknown) as {poll:TwitchatDataTypes.MessagePollData}).poll;
 		if(!poll) {
-			if(this.poll) this.close();
+			// No poll given when a poll was displayed, request close
+			if(this.poll) {
+				this.showWinner = this.parameters.resultDuration_s > 0;
+				this.show = true;
+				await Utils.promisedTimeout(this.parameters.resultDuration_s * 1000);
+				this.show = false;
+			}
 		}else{
-			const opening	= this.poll == null || this.poll.id != poll.id;
 			this.show		= this.parameters.showOnlyResult !== true;
 			this.showWinner	= false;
 			this.poll		= poll;
-			if(this.show) {
-				if(opening) await this.open();
-
-				const progressBar = this.$refs.progress as HTMLElement;
-				if(progressBar) {
-					const timeSpent = Math.min(poll.duration_s * 1000, Date.now() - poll.started_at);
-					const percentDone = timeSpent / (poll.duration_s * 1000);
-					const percentRemaining = 1 - percentDone;
-					const duration = poll.duration_s * percentRemaining;
-					gsap.killTweensOf(progressBar);
-					gsap.fromTo(progressBar, {width:(percentRemaining * 100) +"%"}, {duration, ease:"none", width:"0%"});
-				}
-			}
 		}
 	}
 
@@ -184,64 +117,11 @@ class OverlayPoll extends AbstractOverlay {
 		if(this.pendingData) {
 			this.onUpdatePoll(this.pendingData);
 			this.pendingData = null;
-		}
-	}
-
-	private async open():Promise<void> {
-		this.show = true;
-		await this.$nextTick();
-
-		let labels = this.$refs.labels as HTMLElement
-		let items = this.$refs.bar as HTMLElement[] || HTMLElement;
-		if(!Array.isArray(items)) items = [items];
-		const minWidth = parseInt(this.$el.minWidth || "300");
-		const width = Math.max(minWidth, items[0].getBoundingClientRect().width);
-
-		gsap.killTweensOf(this.$el);
-		gsap.fromTo(this.$el, {scale:0}, {scale:1, duration:.5, ease:"back.out", clearProps:true});
-
-		if(labels) {
-			labels.removeAttribute("style");
-			gsap.killTweensOf(labels);
-			gsap.fromTo(labels, {width:0}, {ease:"back.out", duration:.5, width, clearProps:true});
-		}
-
-		if(this.listMode) {
-			items.forEach(item=>{
-				item.removeAttribute("style");
-			});
-			gsap.killTweensOf(items);
-			// gsap.from(items, {y:"-50px", scaleY:0, ease:"back.out", delay:.1, duration:.5, stagger:.1, clearProps:true});
-			gsap.fromTo(items, {width:0}, {ease:"back.out", delay:.25, duration:.5, width, stagger:.05,
-						onComplete:(item)=>{
-							items.forEach(item=>{
-								item.style.width = width+"px";
-								item.style.minWidth = width+"px";
-							});
-						}});
 		}else{
-			const holder = this.$refs.holder as HTMLElement;
-			gsap.from(holder, {scaleX:0, ease:"back.out", delay:.1, duration:.5, clearProps:true});
+			this.show = this.parameters.showOnlyResult !== true;
 		}
 	}
 
-	public async close():Promise<void> {
-		this.showWinner = true;
-		if(this.parameters.showOnlyResult === true && !this.show) {
-			this.show = true;
-			await this.open();
-		}
-		const delay = this.parameters.resultDuration_s || 5;
-		if(delay > 0) {
-			const progressBar = this.$refs.progress as HTMLElement;
-			gsap.killTweensOf(progressBar);
-			gsap.fromTo(progressBar, {width:"100%"}, {duration:delay, ease:"none", width:"0%"});
-		}
-		gsap.to(this.$el, {scale:0, duration:.5, delay, ease:"back.in", onComplete:()=>{
-			this.poll = null;
-			this.show = false;
-		}});
-	}
 }
 export default toNative(OverlayPoll);
 

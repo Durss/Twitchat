@@ -600,7 +600,7 @@ export default class EventSub {
 				break;
 			}
 
-			// case TwitchEventSubDataTypes.SubscriptionTypes.POLL_END: //Not necessary and interferes with overlay
+			case TwitchEventSubDataTypes.SubscriptionTypes.POLL_END:
 			case TwitchEventSubDataTypes.SubscriptionTypes.POLL_START:
 			case TwitchEventSubDataTypes.SubscriptionTypes.POLL_PROGRESS: {
 				this.pollEvent(topic, payload.event as TwitchEventSubDataTypes.PollStartEvent | TwitchEventSubDataTypes.PollProgressEvent | TwitchEventSubDataTypes.PollEndEvent);
@@ -1822,6 +1822,10 @@ export default class EventSub {
 	 * @param event
 	 */
 	private async pollEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.PollStartEvent | TwitchEventSubDataTypes.PollProgressEvent | TwitchEventSubDataTypes.PollEndEvent):Promise<void> {
+		//Ignore archived event
+		if(topic === TwitchEventSubDataTypes.SubscriptionTypes.POLL_END
+		&& (event as TwitchEventSubDataTypes.PollEndEvent).status == "archived") return;
+
 		const choices:TwitchatDataTypes.MessagePollDataChoice[] = [];
 		let winner!:TwitchatDataTypes.MessagePollDataChoice;
 		let winnerValue = -1;
