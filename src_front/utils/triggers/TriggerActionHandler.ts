@@ -217,6 +217,13 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.CHAT_POLL: {
+				const eventType = message.isStart === true? TriggerTypes.CHAT_POLL_START : TriggerTypes.CHAT_POLL_RESULT;
+				if(await this.executeTriggersByType(eventType, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.BINGO: {
 				if(await this.executeTriggersByType(TriggerTypes.BINGO_RESULT, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
@@ -1020,6 +1027,10 @@ export default class TriggerActionHandler {
 	 */
 	public async executeTrigger(trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string, dynamicPlaceholders:{[key:string]:string|number} = {}, ignoreDisableState:boolean = false, callStack?:TriggerActionDataTypes.TriggerCallStack):Promise<boolean> {
 		if(!trigger.enabled && !testMode && !ignoreDisableState) return false;
+
+		if(!subEvent && trigger.type == TriggerTypes.SLASH_COMMAND) {
+			subEvent = trigger.chatCommand
+		}
 
 		if(!callStack) {
 			callStack = {
@@ -3628,6 +3639,18 @@ export default class TriggerActionHandler {
 					logStep.messages.push({date:Date.now(), value:"Stop trigger execution"});
 					logStep.messages.push({date:Date.now(), value:"✔ Step execution complete"});
 					break;
+				}else
+
+				if(step.type == "chat_poll") {
+					logStep.messages.push({date:Date.now(), value:"Start chat poll"});
+					const clone = JSON.parse(JSON.stringify(step.chatPollData)) as typeof step.chatPollData;
+					clone.title = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, clone.title, subEvent);
+					for (let i = 0; i < clone.choices.length; i++) {
+						const entry = clone.choices[i];
+						entry.label = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, entry.label, subEvent);
+					}
+					clone.started_at = Date.now();
+					StoreProxy.chatPoll.setCurrentPoll(clone);
 				}
 
 			}catch(error:any) {

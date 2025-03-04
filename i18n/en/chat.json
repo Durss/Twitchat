@@ -28,6 +28,7 @@
 			"emoteBt_aria": "Emotes list",
 			"pollBt_aria": "Current poll",
 			"suggBt_aria": "Current chat suggestions",
+			"chatPollBt_aria": "Current chat poll",
 			"predictionBt_aria": "Current prediction",
 			"trackedBt_aria": "Tracked users",
 			"raffleBt_aria": "Current raffle",

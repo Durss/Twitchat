@@ -128,6 +128,10 @@
 						icon="prediction"
 						:disabled="!canCreatePrediction">{{ $t('triggers.actions.common.action_prediction') }}</TTButton>
 
+					<TTButton class="button" @click.capture="selectActionType('chat_poll')"
+						v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_triggerAction_chatpoll'}"
+						icon="chatPoll">{{ $t('triggers.actions.common.action_chat_poll') }}</TTButton>
+
 					<TTButton class="button" @click="selectActionType('bingo')"
 						icon="bingo">{{ $t('triggers.actions.common.action_bingo') }}</TTButton>
 
@@ -305,6 +309,7 @@
 			<RaffleForm v-else-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 			<BingoForm v-else-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 			<PollForm v-else-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
+			<ChatPollForm v-else-if="action.type=='chat_poll'" :action="action" :triggerData="triggerData" triggerMode />
 			<PredictionForm v-else-if="action.type=='prediction'" :action="action" :triggerData="triggerData" triggerMode />
 			<ChatSuggestionForm v-else-if="action.type=='chatSugg'" :action="action" :triggerData="triggerData" triggerMode />
 			<div v-else-if="action.type=='raffle_enter'" class="raffleEnter">{{ $t("triggers.actions.raffle_enter.info") }}</div>
@@ -371,6 +376,7 @@ import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 import TriggerActionSpoilMessageEntry from './entries/TriggerActionSpoilMessageEntry.vue';
 import TriggerActionTimerEntry from './entries/TriggerActionTimerEntry.vue';
 import TriggerActionStopExecEntry from './entries/TriggerActionStopExecEntry.vue';
+import ChatPollForm from '@/components/poll/ChatPollForm.vue';
 
 @Component({
 	components:{
@@ -380,6 +386,7 @@ import TriggerActionStopExecEntry from './entries/TriggerActionStopExecEntry.vue
 		BingoForm,
 		RaffleForm,
 		ToggleBlock,
+		ChatPollForm,
 		PredictionForm,
 		ChatSuggestionForm,
 		TriggerConditionList,
@@ -566,6 +573,7 @@ class TriggerActionEntry extends Vue {
 		else if(this.action.type == "ws") icons.push( 'url' );
 		else if(this.action.type == "poll") icons.push( 'poll' );
 		else if(this.action.type == "prediction") icons.push( 'prediction' );
+		else if(this.action.type == "chat_poll") icons.push( 'chatPoll' );
 		else if(this.action.type == "count") icons.push( 'count' );
 		else if(this.action.type == "value") icons.push( 'placeholder' );
 		else if(this.action.type == "random") icons.push( 'dice_placeholder' );

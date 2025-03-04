@@ -98,6 +98,7 @@ import ChatTikTokShare from './ChatTikTokShare.vue';
 import ChatSuspendedTriggerStack from './ChatSuspendedTriggerStack.vue';
 import ChatTwitchCharityDonation from './ChatTwitchCharityDonation.vue';
 import ChatPrivateModerator from './ChatPrivateModerator.vue';
+import ChatChatPollResult from './ChatChatPollResult.vue';
 
 @Component({
 	name:"MessageItem",
@@ -203,6 +204,7 @@ class MessageItem extends Vue {
 			'whisper':ChatMessage,
 			'notice':ChatNotice,
 			'poll':ChatPollResult,
+			'chat_poll':ChatChatPollResult,
 			'prediction':ChatPredictionResult,
 			'bingo':ChatBingoResult,
 			'raffle':ChatRaffleResult,

@@ -43,7 +43,7 @@
 							v-if="answers.length > 2 && (index < answers.length-1 || answers.length == 10)"
 							@click="deleteAnswer(index)"
 						/>
-					
+
 					</div>
 					<PlaceholderSelector class="child placeholders" v-if="placeholderList.length > 0"
 						copyMode
@@ -54,8 +54,8 @@
 				<div class="card-item">
 					<ParamItem noBackground :paramData="param_duration" @change="onValueChange()" />
 				</div>
-				
-				<TTButton type="submit" v-if="triggerMode === false" :loading="loading" :disabled="!canSubmit">{{ $t('global.submit') }}</TTButton>
+
+				<TTButton type="submit" v-if="triggerMode === false" :loading="loading" :disabled="!canSubmit">{{ $t('global.start') }}</TTButton>
 				<div class="errorCard" v-if="error" @click="error = ''">{{error}}</div>
 			</form>
 		</div>
@@ -90,7 +90,7 @@ import DataStore from '@/store/DataStore';
 	emits:['close']
 })
 class PredictionForm extends AbstractSidePanel {
-	
+
 	@Prop({type: Boolean, default: false})
 	public voiceControl!:boolean;
 
@@ -135,8 +135,8 @@ class PredictionForm extends AbstractSidePanel {
 
 	public getAnswerClasses(index:number):string[] {
 		const res = ["answer"];
-		if(this.filledCount < 3 && index == 1) res.push("red"); 
-		if(index > 1 && this.answers[index].length==0) res.push("disabled"); 
+		if(this.filledCount < 3 && index == 1) res.push("red");
+		if(index > 1 && this.answers[index].length==0) res.push("disabled");
 		return res;
 	}
 
@@ -148,7 +148,7 @@ class PredictionForm extends AbstractSidePanel {
 		}
 
 		if(this.triggerMode != false) {
-			this.placeholderList = 
+			this.placeholderList =
 			this.param_title.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
 
 			if(this.action.predictionData) {
@@ -204,7 +204,6 @@ class PredictionForm extends AbstractSidePanel {
 						}
 					}
 				}
-
 			}
 		}, {deep:true});
 	}
@@ -250,7 +249,7 @@ class PredictionForm extends AbstractSidePanel {
 
 	/**
 	 * Selects a poll's preset
-	 * @param params 
+	 * @param params
 	 */
 	public selectPreset(params:typeof this.predictionHistory[number]):void {
 		this.param_title.value = params.title;

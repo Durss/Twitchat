@@ -120,6 +120,14 @@
 				</transition>
 
 				<transition name="blink">
+					<ButtonNotification :aria-label="$t('chat.form.chatPollBt_aria')"
+						icon="chatPoll"
+						v-tooltip="{touch:'hold', content:$t('chat.form.chatPollBt_aria'), showOnCreate:shouldShowTooltip('chatPoll'), onHidden:()=>onHideTooltip('chatPoll')}"
+						@click="openNotifications('chatPoll')"
+						v-if="$store.chatPoll.data" />
+				</transition>
+
+				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.predictionBt_aria')"
 						icon="prediction"
 						v-tooltip="{touch:'hold', content:$t('chat.form.predictionBt_aria'), showOnCreate:shouldShowTooltip('prediction'), onHidden:()=>onHideTooltip('prediction')}"

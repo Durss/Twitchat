@@ -25,8 +25,9 @@
 			<div :class="contentClasses">
 				<div class="list" v-if="localPlaceholders.length > 0">
 					<template v-for="(h,index) in localPlaceholders" :key="h.tag+index">
-						<button type="button" @click="$event => insert(h, $event)"
-							v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
+						<TTButton primary small @click="insert(h)"
+							:copy="copyMode !== false? '{'+h.tag+'}' : undefined"
+							v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</TTButton>
 
 						<i18n-t scope="global" :keypath="h.descKey" tag="span">
 							<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
@@ -41,8 +42,9 @@
 				:title="$t('global.placeholder_selector_global')">
 					<div class="list">
 						<template v-for="(h,index) in globalPlaceholders" :key="h.tag+index">
-							<button type="button" @click="$event => insert(h, $event)"
-								v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
+							<TTButton primary small @click="insert(h)"
+								:copy="copyMode !== false? '{'+h.tag+'}' : undefined"
+								v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</TTButton>
 
 							<i18n-t scope="global" :keypath="h.descKey" tag="span">
 								<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
@@ -57,8 +59,9 @@
 					:title="$t('global.placeholder_selector_categories.'+c.key)">
 						<div class="list">
 							<template v-for="(h,index) in c.entries" :key="h.tag+index">
-								<button type="button" @click="$event => insert(h, $event)"
-									v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
+								<TTButton primary small @click="insert(h)"
+								:copy="copyMode !== false? '{'+h.tag+'}' : undefined"
+									v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</TTButton>
 
 								<i18n-t scope="global" :keypath="h.descKey" tag="span">
 									<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
@@ -81,10 +84,12 @@ import Utils from '@/utils/Utils';
 import { gsap } from 'gsap';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
+import TTButton from '../TTButton.vue';
 
 @Component({
 	components:{
 		Icon,
+		TTButton,
 		ToggleBlock,
 	},
 	emits:["update:modelValue", "insert"]
@@ -185,7 +190,7 @@ class PlaceholderSelector extends Vue {
 	/**
 	 * Add a token on the text
 	 */
-	public async insert(h:TwitchatDataTypes.PlaceholderEntry, event:MouseEvent):Promise<void> {
+	public async insert(h:TwitchatDataTypes.PlaceholderEntry):Promise<void> {
 		if(this.target) {
 			let target = this.target as HTMLInputElement | HTMLTextAreaElement;
 			//target can be a promise returning the actual target, if it's a promise
@@ -207,11 +212,6 @@ class PlaceholderSelector extends Vue {
 			this.$emit("update:modelValue", this.modelValue+"{"+h.tag+"}");
 			this.$emit("insert", "{"+h.tag+"}");
 		}
-
-		if(this.copyMode !== false) {
-			Utils.copyToClipboard("{"+h.tag+"}");
-		}
-		gsap.fromTo(event.target, {scaleY:1.5, filter:"brightness(5)"}, {scaleY:1, filter:"brightness(1)", duration:.25, ease:"sine.out"});
 	}
 
 	/**
@@ -224,7 +224,7 @@ class PlaceholderSelector extends Vue {
 export default toNative(PlaceholderSelector);
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 .placeholderSelector_searchField {
 	margin: 0 auto;
 	margin-bottom: .5em;
@@ -232,6 +232,7 @@ export default toNative(PlaceholderSelector);
 	max-width: unset;
 	min-width: unset;
 	outline: 1ps solid red;
+	font-size: .8em;
 }
 .tooltipContent {
 	.global {
@@ -269,14 +270,9 @@ export default toNative(PlaceholderSelector);
 				border-bottom-left-radius: 0;
 			}
 		}
-		button {
-			display: inline;
-			text-align: right;
-			font-weight: bold;
-			color: var(--color-light);
-			background-color: var(--color-primary);
-			&:hover {
-				background-color: var(--color-primary-light);
+		.button {
+			:deep(.label) {
+				text-align: right !important;
 			}
 		}
 		span {

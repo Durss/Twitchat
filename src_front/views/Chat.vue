@@ -31,6 +31,7 @@
 			<VoiceTranscript class="tts" />
 
 			<PollForm				class="popin" v-if="$store.params.currentModal == 'poll'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
+			<ChatPollForm			class="popin" v-if="$store.params.currentModal == 'chatPoll'" @close="$store.params.closeModal()" />
 			<ChatSuggestionForm		class="popin" v-if="$store.params.currentModal == 'chatsuggForm'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
 			<RaffleForm				class="popin" v-if="$store.params.currentModal == 'raffle'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
 			<PredictionForm			class="popin" v-if="$store.params.currentModal == 'pred'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
@@ -213,6 +214,7 @@ import Login from './Login.vue';
 import ShareParams from './ShareParams.vue';
 import Config from '@/utils/Config';
 import GroqHistory from '@/components/chatform/GroqHistory.vue';
+import ChatPollForm from '@/components/poll/ChatPollForm.vue';
 
 @Component({
 	components:{
@@ -243,6 +245,7 @@ import GroqHistory from '@/components/chatform/GroqHistory.vue';
 		ShoutoutList,
 		TriggersLogs,
 		TrackedUsers,
+		ChatPollForm,
 		BingoGridForm,
 		MessageSearch,
 		StreamSummary,
@@ -373,6 +376,13 @@ class Chat extends Vue {
 			let poll = this.$store.poll.data;
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
 			if(poll && isNew) this.setCurrentNotification("poll", false);
+		});
+
+		//Auto opens the poll status if terminated
+		watch(() => this.$store.chatPoll.data, (newValue, prevValue) => {
+			let poll = this.$store.chatPoll.data;
+			const isNew = !prevValue || (newValue && prevValue);
+			if(poll && isNew) this.setCurrentNotification("chatPoll", false);
 		});
 
 		//Auto opens the bingo status when created

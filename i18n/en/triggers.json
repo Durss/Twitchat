@@ -164,6 +164,7 @@
 				"action_http": "HTTP call",
 				"action_ws": "Websocket message",
 				"action_poll": "Start poll",
+				"action_chat_poll": "Start chat poll",
 				"action_prediction": "Start prediction",
 				"action_count": "Update a counter",
 				"action_value": "Update a value",
@@ -1070,6 +1071,14 @@
 			"PREDICTION_RESULT": {
 				"label": "Prediction result",
 				"description": "Actions to execute when a prediction completes"
+			},
+			"CHAT_POLL_START": {
+				"label": "Chat poll started",
+				"description": "Actions to execute when a chat poll starts"
+			},
+			"CHAT_POLL_RESULT": {
+				"label": "Chat poll result",
+				"description": "Actions to execute when a chat poll completes"
 			},
 			"RAFFLE_RESULT": {
 				"label": "Raffle result",

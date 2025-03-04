@@ -194,6 +194,14 @@ export default class Config {
 	 * Maximum number of timers for premium users
 	 */
 	public MAX_TIMERS_PREMIUM = 100;
+	/**
+	 * Maximum chat poll entries
+	 */
+	public MAX_CHAT_POLL_ENTRIES = 5;
+	/**
+	 * Maximum chat poll entries for premium users
+	 */
+	public MAX_CHAT_POLL_ENTRIES_PREMIUM = 20;
 
 	private _serverConfig!:ServerConfig;
 

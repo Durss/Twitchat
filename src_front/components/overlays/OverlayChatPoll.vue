@@ -14,31 +14,31 @@
 		:placement="parameters.placement"
 		:mode="listMode? 'list' : 'line'"
 		:entries="poll.choices"
+		showIndex
 		/>
 </template>
 
 <script lang="ts">
-import TwitchatEvent from '@/events/TwitchatEvent';
-import type { PollOverlayParamStoreData } from '@/store/poll/storePoll';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import AbstractOverlay from './AbstractOverlay';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { PollOverlayParamStoreData } from '@/store/poll/storePoll';
+import TwitchatEvent from '@/events/TwitchatEvent';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import { Component, toNative } from 'vue-facing-decorator';
-import Icon from '../Icon.vue';
-import AbstractOverlay from './AbstractOverlay';
 import PollRenderer from './poll/PollRenderer.vue';
+
 @Component({
 	components:{
-		Icon,
 		PollRenderer,
 	},
 	emits:[],
 })
-class OverlayPoll extends AbstractOverlay {
+class OverlayChatPoll extends AbstractOverlay {
 
 	public show:boolean = false;
 	public showWinner:boolean = false;
-	public poll:TwitchatDataTypes.MessagePollData | null = null;
+	public poll:TwitchatDataTypes.ChatPollData | null = null;
 	public parameters:PollOverlayParamStoreData = {
 		showTitle:true,
 		listMode:true,
@@ -64,26 +64,26 @@ class OverlayPoll extends AbstractOverlay {
 	}
 
 	public async mounted():Promise<void> {
-		PublicAPI.instance.broadcast(TwitchatEvent.POLLS_OVERLAY_PRESENCE);
+		PublicAPI.instance.broadcast(TwitchatEvent.CHAT_POLL_OVERLAY_PRESENCE);
 
 		this.updateParametersHandler = (e:TwitchatEvent)=>this.onUpdateParams(e);
 		this.updatePollHandler = (e:TwitchatEvent)=>this.onUpdatePoll(e);
-		this.requestPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.POLLS_OVERLAY_PRESENCE); }
+		this.requestPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.CHAT_POLL_OVERLAY_PRESENCE); }
 
-		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_PROGRESS, this.updatePollHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.POLLS_OVERLAY_PARAMETERS, this.updateParametersHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.GET_POLLS_OVERLAY_PRESENCE, this.requestPresenceHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_POLL_PROGRESS, this.updatePollHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_POLL_OVERLAY_PARAMETERS, this.updateParametersHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.GET_CHAT_POLL_OVERLAY_PRESENCE, this.requestPresenceHandler);
 	}
 
 	public beforeUnmount():void {
 		super.beforeUnmount();
-		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_PROGRESS, this.updatePollHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.POLLS_OVERLAY_PARAMETERS, this.updateParametersHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_POLLS_OVERLAY_PRESENCE, this.requestPresenceHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_POLL_PROGRESS, this.updatePollHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_POLL_OVERLAY_PARAMETERS, this.updateParametersHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_CHAT_POLL_OVERLAY_PRESENCE, this.requestPresenceHandler);
 	}
 
 	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_POLLS_OVERLAY_PARAMETERS);
+		PublicAPI.instance.broadcast(TwitchatEvent.GET_CHAT_POLL_OVERLAY_PARAMETERS);
 	}
 
 	public async onUpdatePoll(e:TwitchatEvent):Promise<void> {
@@ -95,7 +95,7 @@ class OverlayPoll extends AbstractOverlay {
 			return;
 		}
 
-		const poll = ((e.data as unknown) as {poll:TwitchatDataTypes.MessagePollData}).poll;
+		const poll = ((e.data as unknown) as {poll:TwitchatDataTypes.ChatPollData}).poll;
 		if(!poll) {
 			// No poll given when a poll was displayed, request close
 			if(this.poll) {
@@ -123,6 +123,5 @@ class OverlayPoll extends AbstractOverlay {
 	}
 
 }
-export default toNative(OverlayPoll);
-
+export default toNative(OverlayChatPoll);
 </script>

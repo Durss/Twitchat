@@ -622,7 +622,8 @@ class MessageList extends Vue {
 				return this.config.filters.prediction === true;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.POLL: {
+			case TwitchatDataTypes.TwitchatMessageType.POLL:
+			case TwitchatDataTypes.TwitchatMessageType.CHAT_POLL: {
 				return this.config.filters.poll === true;
 			}
 

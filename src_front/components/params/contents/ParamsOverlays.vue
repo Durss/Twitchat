@@ -35,6 +35,7 @@
 			<button class="item" @click="subContent = 'donationgoals'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_7, id:'params_overlays_donationgoals'}"><img src="@/assets/img/overlays/donation_goals.jpg" alt="Goals"></button>
 			<button class="item" @click="subContent = 'bingogrid'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'params_overlays_bingogrid'}"><img src="@/assets/img/overlays/bingo_grids.jpg" alt="Bingo grid"></button>
 			<button class="item" @click="subContent = 'polls'" v-if="isAffiliate" v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_overlays_poll'}"><img src="@/assets/img/overlays/polls.jpg" alt="Polls"></button>
+			<button class="item" @click="subContent = 'chatPoll'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_overlays_chatpoll'}"><img src="@/assets/img/overlays/chat_poll.jpg" alt="Polls"></button>
 			<button class="item" @click="subContent = 'predictions'" v-if="isAffiliate" v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_overlays_prediction'}"><img src="@/assets/img/overlays/predictions.jpg" alt="Predictions"></button>
 			<button class="item" @click="subContent = 'wheel'"><img src="@/assets/img/overlays/raffle.jpg" alt="wheel"></button>
 			<button class="item" @click="subContent = 'bitswall'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_bitswall'}"><img src="@/assets/img/overlays/bits_wall.jpg" alt="Bits wall"></button>
@@ -63,6 +64,7 @@
 			<OverlayParamsUlule class="block"			:open="subContent == 'ulule'"			v-if="subContent == 'ulule'" />
 			<OverlayParamsPredictions class="block"		:open="subContent == 'predictions'"		v-if="subContent == 'predictions'" />
 			<OverlayParamsPolls class="block"			:open="subContent == 'polls'"			v-if="subContent == 'polls'" />
+			<OverlayParamsChatPoll class="block"		:open="subContent == 'chatPoll'"		v-if="subContent == 'chatPoll'" />
 			<OverlayParamsBingoGrid class="block"		:open="subContent == 'bingogrid'"		v-if="subContent == 'bingogrid'" />
 			<OverlayParamsLabels class="block"			:open="subContent == 'labels'"			v-if="subContent == 'labels'" />
 			<OverlayParamsDonationGoal class="block"	:open="subContent == 'donationgoals'"	v-if="subContent == 'donationgoals'" />
@@ -94,6 +96,7 @@ import OverlayParamsPolls from './overlays/OverlayParamsPolls.vue';
 import OverlayParamsBingoGrid from './overlays/OverlayParamsBingoGrid.vue';
 import OverlayParamsLabels from './overlays/OverlayParamsLabels.vue';
 import OverlayParamsDonationGoal from './overlays/OverlayParamsDonationGoal.vue';
+import OverlayParamsChatPoll from './overlays/OverlayParamsChatPoll.vue';
 
 @Component({
 	components:{
@@ -108,6 +111,7 @@ import OverlayParamsDonationGoal from './overlays/OverlayParamsDonationGoal.vue'
 		OverlayParamsSpotify,
 		OverlayParamsCounter,
 		OverlayParamsCredits,
+		OverlayParamsChatPoll,
 		OverlayParamsBitswall,
 		OverlayParamsBingoGrid,
 		OverlayParamsHighlight,

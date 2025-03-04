@@ -12,7 +12,7 @@ import { storeAutomod } from '@/store/automod/storeAutomod';
 import { storeBingo } from '@/store/bingo/storeBingo';
 import { storeBingoGrid } from '@/store/bingo_grid/storeBingoGrid';
 import { storeChat } from '@/store/chat/storeChat';
-import { storeChatSuggestion } from '@/store/chatSugg/storeChatSuggestion';
+import { storeChatSuggestion } from '@/store/chat_sugg/storeChatSuggestion';
 import { storeCounters } from '@/store/counters/storeCounters';
 import { storeDebug } from '@/store/debug/storeDebug';
 import { storeDiscord } from '@/store/discord/storeDiscord';
@@ -75,6 +75,7 @@ import { storeTiltify } from './store/tiltify/storeTiltify';
 import { storeTwitchCharity } from './store/twitch_charity/storeTwitchCharity';
 import { storeTwitchBot } from './store/twitchbot/storeTwitchBot';
 import { storeGroq } from './store/groq/storeGroq';
+import { storeChatPoll } from './store/chat_poll/storeChatPoll';
 
 window.setInitMessage("Booting app...");
 
@@ -247,6 +248,7 @@ function buildApp() {
 	StoreProxy.default.obs = storeOBS();
 	StoreProxy.default.params = storeParams();
 	StoreProxy.default.poll = storePoll();
+	StoreProxy.default.chatPoll = storeChatPoll();
 	StoreProxy.default.prediction = storePrediction();
 	StoreProxy.default.raffle = storeRaffle();
 	StoreProxy.default.rewards = storeRewards();

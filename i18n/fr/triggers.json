@@ -163,6 +163,7 @@
 				"action_http": "Appel HTTP",
 				"action_ws": "Message Websocket",
 				"action_poll": "Lancer un sondage",
+				"action_chat_poll": "Lancer un sondage de tchat",
 				"action_prediction": "Lancer une prédiction",
 				"action_count": "Modifier un compteur",
 				"action_value": "Modifier une valeur",
@@ -1070,6 +1071,14 @@
 			"PREDICTION_RESULT": {
 				"label": "Résultat de prédiction",
 				"description": "Actions à exécuter lorsqu'une prédiction termine"
+			},
+			"CHAT_POLL_START": {
+				"label": "Début d'un sondage de tchat",
+				"description": "Actions à exécuter lorsqu'un sondage de tchat débute"
+			},
+			"CHAT_POLL_RESULT": {
+				"label": "Résultat de sondage de tchat",
+				"description": "Actions à exécuter lorsqu'un sondage de tchat termine"
 			},
 			"RAFFLE_RESULT": {
 				"label": "Résultat de tirage au sort",

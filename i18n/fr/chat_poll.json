@@ -1,0 +1,16 @@
+{
+	"chatPoll":{
+		"form":{
+			"title":"Créer un sondage de tchat",
+			"header":"Les viewers pourront voter en envoyant le numéro de la réponse dans le tchat",
+			"closeBt_aria":"Fermer la fenêtre",
+			"permissions":"Permissions",
+			"question":"Question",
+			"answers":"Réponses (minimum 2)",
+			"vote_duration":"Durée du vote (minutes)"
+		},
+		"state":{
+			"endBt":"Terminer le sondage"
+		}
+	}
+}

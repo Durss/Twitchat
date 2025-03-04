@@ -10,11 +10,11 @@ export namespace TwitchatDataTypes {
 
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
 
-	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "bingo_grid" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs" | "shareParams" | "groqHistory";
+	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatPoll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "bingo_grid" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs" | "shareParams" | "groqHistory";
 
-	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
+	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "chatPoll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
 
-	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "bingogrid" | "labels" | 'donationgoals';
+	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals';
 
 	export const ParamDeepSections = {
 		AD: "ad",
@@ -1220,6 +1220,40 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
+	 * Chat poll data
+	 */
+	export interface ChatPollData {
+		/**
+		 * Poll title
+		 */
+		title: string;
+		/**
+		 * Poll choices
+		 */
+		choices: MessagePollDataChoice[];
+		/**
+		 * Poll duration in seconds
+		 */
+		duration_s: number;
+		/**
+		 * Timestamp when the poll has been started
+		 */
+		started_at: number;
+		/**
+		 * Timestamp when the poll has ended
+		 */
+		ended_at?: number;
+		/**
+		 * Winning choice
+		 */
+		winner?:MessagePollDataChoice;
+		/**
+		 * Permissions params
+		 */
+		permissions:PermissionsData;
+	}
+
+	/**
 	 * Generic screen position
 	 * tl = top left
 	 * t = top
@@ -2293,9 +2327,10 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Defines the pinnable menu items
 	 */
-	type PinId = "poll" | "prediction" | "raffle" | "bingo" | "bingo_grid" | "qna" | "chatSugg" | "timer" | "streamInfo" | "extensions" | "clearChat" | "chatters" | "rewards";
+	type PinId = "poll" | "chatPoll" | "prediction" | "raffle" | "bingo" | "bingo_grid" | "qna" | "chatSugg" | "timer" | "streamInfo" | "extensions" | "clearChat" | "chatters" | "rewards";
 	export const PinnableMenuItems:{id:PinId, isModal:boolean, icon:string, modalId:TwitchatDataTypes.ModalTypes|"", modelValueName:string, labelKey:string}[] = [
 		{id:"poll",			isModal:true,	icon:"poll", 			modalId:"poll",			modelValueName:"",	 labelKey:"cmdmenu.poll"},
+		{id:"chatPoll",		isModal:true,	icon:"chatPoll", 		modalId:"chatPoll",		modelValueName:"",	 labelKey:"cmdmenu.chatPoll"},
 		{id:"prediction",	isModal:true,	icon:"prediction", 		modalId:"pred",			modelValueName:"",	 labelKey:"cmdmenu.prediction"},
 		{id:"raffle",		isModal:true,	icon:"ticket", 			modalId:"raffle",		modelValueName:"",	 labelKey:"cmdmenu.raffle"},
 		{id:"bingo",		isModal:true,	icon:"bingo", 			modalId:"bingo",		modelValueName:"",	 labelKey:"cmdmenu.bingo"},
@@ -2341,6 +2376,7 @@ export namespace TwitchatDataTypes {
 		SHOUTOUT:"shoutout",
 		VOICEMOD:"voicemod",
 		QNA_STOP:"qna_stop",
+		CHAT_POLL:"chat_poll",
 		QNA_START:"qna_start",
 		HYPE_CHAT:"hype_chat",
 		FOLLOWING:"following",
@@ -2457,6 +2493,7 @@ export namespace TwitchatDataTypes {
 		shoutout:true,
 		unpinned:true,
 		qna_stop:false,
+		chat_poll:true,
 		qna_start:false,
 		qna_delete:false,
 		warn_chatter:true,
@@ -2694,6 +2731,7 @@ export namespace TwitchatDataTypes {
 									| MessagePrivateModeratorData
 									| MessagePlayabilityInputData
 									| MessageGoalStepCompleteData
+									| MessageChatPollData
 	;
 
 	/**
@@ -5762,5 +5800,17 @@ export namespace TwitchatDataTypes {
 		 * Completed step info
 		 */
 		stepConfig:DonationGoalOverlayConfig["goalList"][number];
+	}
+
+	export interface MessageChatPollData extends AbstractTwitchatMessage {
+		type: "chat_poll";
+		/**
+		 * Poll's data
+		 */
+		poll: ChatPollData;
+		/**
+		 * Is poll just starting
+		 */
+		isStart:boolean;
 	}
 }

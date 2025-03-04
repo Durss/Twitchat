@@ -104,6 +104,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionGroqData
 								| TriggerActionTimerData
 								| TriggerActionStopExecData
+								| TriggerActionChatPollData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -679,13 +680,6 @@ export interface TriggerActionTimerData extends TriggerActionData{
 		 */
 		duration?:string;
 	};
-}
-
-/**
- * Represents a trigger execution interrupt
- */
-export interface TriggerActionStopExecData extends TriggerActionData{
-	type:"trigger_stop";
 }
 
 /**
@@ -1331,6 +1325,21 @@ export interface TriggerActionSpoilMessageData extends TriggerActionData {
 }
 
 /**
+ * Represents a trigger execution interrupt
+ */
+export interface TriggerActionStopExecData extends TriggerActionData{
+	type:"trigger_stop";
+}
+
+/**
+ * Contains a chat poll data
+ */
+export interface TriggerActionChatPollData extends TriggerActionData{
+	type:"chat_poll";
+	chatPollData:TwitchatDataTypes.ChatPollData;
+}
+
+/**
  * Represents a tree structure item.
  * Either a trigger folder or a trigger item entry
  */
@@ -1535,6 +1544,8 @@ export const TriggerTypes = {
 	HIGHLIGHT_CHAT_MESSAGE_CLOSE:"158",
 	MESSAGE_ANSWER:"159",
 	GOAL_STEP_COMPLETE:"160",
+	CHAT_POLL_START:"161",
+	CHAT_POLL_RESULT:"162",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1753,6 +1764,10 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	map[TriggerTypes.POLL_RESULT] = [
 		{tag:"TITLE", descKey:'triggers.placeholders.poll_title', pointer:"title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessagePollData>,
 		{tag:"WIN", descKey:'triggers.placeholders.poll_win', pointer:"winner.label", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessagePollData>,
+	];
+	map[TriggerTypes.CHAT_POLL_RESULT] = [
+		{tag:"TITLE", descKey:'triggers.placeholders.poll_title', pointer:"poll.title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageChatPollData>,
+		{tag:"WIN", descKey:'triggers.placeholders.poll_win', pointer:"poll.winner.label", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageChatPollData>,
 	];
 
 	map[TriggerTypes.PREDICTION_START] = [
@@ -2699,6 +2714,8 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.GAMES, icon:"poll", labelKey:"triggers.events.POLL_RESULT.label", value:TriggerTypes.POLL_RESULT, descriptionKey:"triggers.events.POLL_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.POLL},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, category:TriggerEventTypeCategories.GAMES, icon:"prediction", labelKey:"triggers.events.PREDICTION_START.label", value:TriggerTypes.PREDICTION_START, descriptionKey:"triggers.events.PREDICTION_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.PREDICTION},
 		{category:TriggerEventTypeCategories.GAMES, icon:"prediction", labelKey:"triggers.events.PREDICTION_RESULT.label", value:TriggerTypes.PREDICTION_RESULT, descriptionKey:"triggers.events.PREDICTION_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.PREDICTION},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V16, category:TriggerEventTypeCategories.GAMES, icon:"chatPoll", labelKey:"triggers.events.CHAT_POLL_START.label", value:TriggerTypes.CHAT_POLL_START, descriptionKey:"triggers.events.CHAT_POLL_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_POLL},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V16, category:TriggerEventTypeCategories.GAMES, icon:"chatPoll", labelKey:"triggers.events.CHAT_POLL_RESULT.label", value:TriggerTypes.CHAT_POLL_RESULT, descriptionKey:"triggers.events.CHAT_POLL_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_POLL},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.GAMES, icon:"ticket", labelKey:"triggers.events.RAFFLE_PICK_WINNER.label", value:TriggerTypes.RAFFLE_PICK_WINNER, descriptionKey:"triggers.events.RAFFLE_PICK_WINNER.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAFFLE},
 		{category:TriggerEventTypeCategories.GAMES, icon:"ticket", labelKey:"triggers.events.RAFFLE_RESULT.label", value:TriggerTypes.RAFFLE_RESULT, descriptionKey:"triggers.events.RAFFLE_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAFFLE},
 		{category:TriggerEventTypeCategories.GAMES, icon:"bingo", labelKey:"triggers.events.BINGO_RESULT.label", value:TriggerTypes.BINGO_RESULT, descriptionKey:"triggers.events.BINGO_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.BINGO},

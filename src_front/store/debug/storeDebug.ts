@@ -612,6 +612,55 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.CHAT_POLL: {
+					const choices:TwitchatDataTypes.MessageChatPollData["poll"]["choices"] = [];
+					const count = Math.max(2, Math.ceil(Math.random()*5));
+					let winner!:TwitchatDataTypes.MessagePollDataChoice;
+					let winnerCount = 0;
+					for(let i=0; i < count; i++) {
+						const votes = Math.round(Math.random()*50);
+						const entry = {id:Utils.getUUID(), label:"Option "+(i+1), votes};
+						if(votes > winnerCount) {
+							winnerCount = votes;
+							winner = entry;
+						}
+						choices.push(entry);
+					}
+					const lorem = new LoremIpsum({
+						sentencesPerParagraph: { max: 8, min: 4 },
+						wordsPerSentence: { max: 5, min: 2 }
+					});
+					const m:TwitchatDataTypes.MessageChatPollData = {
+						id:Utils.getUUID(),
+						platform:"twitch",
+						channel_id:uid,
+						date:Date.now(),
+						type,
+						poll: {
+							choices,
+							duration_s:180,
+							title:lorem.generateSentences(1).replace(".","")+"?",
+							started_at:Date.now() - 2 * 60 * 1000,
+							ended_at:Date.now(),
+							winner,
+							permissions:{
+								broadcaster:true,
+								mods:true,
+								vips:false,
+								subs:false,
+								follower:false,
+								follower_duration_ms:0,
+								all:false,
+								usersAllowed:[],
+								usersRefused:[],
+							}
+						},
+						isStart:false,
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN: {
 					const m:TwitchatDataTypes.MessageAutobanJoinData = {
 						platform:"twitchat",

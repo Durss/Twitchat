@@ -13,6 +13,7 @@
 		<OverlayBitsWall v-if="overlay=='bitswall'" />
 		<OverlayPredictions v-if="overlay=='predictions'" />
 		<OverlayPoll v-if="overlay=='polls'" />
+		<OverlayChatPoll v-if="overlay=='chatPoll'" />
 		<OverlayBingoGrid v-if="overlay=='bingogrid'" ref="bingoGrid" />
 		<OverlayDonationGoals v-if="overlay=='donationgoals'" />
 	</div>
@@ -41,6 +42,7 @@ const OverlayPredictions = defineAsyncComponent({loader: () => import('@/compone
 const OverlayPoll = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayPoll.vue')});
 const OverlayBingoGrid = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayBingoGrid.vue')});
 const OverlayDonationGoals = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayDonationGoals.vue')});
+const OverlayChatPoll = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayChatPoll.vue')});
 
 @Component({
 	components:{
@@ -50,6 +52,7 @@ const OverlayDonationGoals = defineAsyncComponent({loader: () => import('@/compo
 		OverlayAdBreak,
 		OverlayCounter,
 		OverlayDistort,
+		OverlayChatPoll,
 		OverlayBitsWall,
 		OverlayHeatDebug,
 		OverlayBingoGrid,

@@ -248,6 +248,25 @@ const UserDataSchema = {
 				},
 			},
 		},
+		pollOverlayData: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				listMode: {type:"boolean"},
+				listModeOnlyMore2: {type:"boolean"},
+				showTitle: {type:"boolean"},
+				showLabels: {type:"boolean"},
+				showVotes: {type:"boolean"},
+				showVoters: {type:"boolean"},
+				showPercent: {type:"boolean"},
+				showTimer: {type:"boolean"},
+				showOnlyResult: {type:"boolean"},
+				hideUntilResolved: {type:"boolean"},
+				resultDuration_s: {type:"number", minimum:1, maximum:10*60},
+				placement: {enum: ["tl", "t", "tr", "l", "m", "r", "bl", "b", "br"]},
+				permissions: { $ref: "defs.json#/definitions/permissions" },
+			}
+		}
 	},
 
 	type:"object",
@@ -663,6 +682,30 @@ const UserDataSchema = {
 										},
 									}
 								},
+								chatPollData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										title: {type:"string", maxLength:100},
+										duration_s: {type:"integer", minimum:0, maximum:999999999},
+										started_at: {type:"integer", minimum:0, maximum:Number.MAX_SAFE_INTEGER},
+										permissions:{ $ref: "defs.json#/definitions/permissions" },
+										choices: {
+											type:"array",
+											minItems:0,
+											maxItems:20,
+											items:{
+												type: "object",
+												additionalProperties: false,
+												properties: {
+													id:{type:"string", maxLength:50},
+													votes:{type:"number", minimum:0, maximum:Number.MAX_SAFE_INTEGER},
+													label:{type:"string", maxLength:50},
+												}
+											}
+										},
+									}
+								},
 								predictionData: {
 									type: "object",
 									additionalProperties: false,
@@ -672,7 +715,7 @@ const UserDataSchema = {
 										answers: {
 											type:"array",
 											minItems:0,
-											maxItems:50,
+											maxItems:10,
 											items:{type:"string", maxLength:25},
 										},
 									}
@@ -1947,40 +1990,9 @@ const UserDataSchema = {
 				},
 			}
 		},
-		predictionOverlayParams: {
-			type:"object",
-			additionalProperties: false,
-			properties: {
-				listMode: {type:"boolean"},
-				listModeOnlyMore2: {type:"boolean"},
-				showTitle: {type:"boolean"},
-				showLabels: {type:"boolean"},
-				showVotes: {type:"boolean"},
-				showVoters: {type:"boolean"},
-				showPercent: {type:"boolean"},
-				showTimer: {type:"boolean"},
-				showOnlyResult: {type:"boolean"},
-				hideUntilResolved: {type:"boolean"},
-				resultDuration_s: {type:"number", minimum:1, maximum:10*60},
-				placement: {enum: ["tl", "t", "tr", "l", "m", "r", "bl", "b", "br"]},
-			}
-		},
-		pollOverlayParams: {
-			type:"object",
-			additionalProperties: false,
-			properties: {
-				listMode: {type:"boolean"},
-				listModeOnlyMore2: {type:"boolean"},
-				showTitle: {type:"boolean"},
-				showLabels: {type:"boolean"},
-				showVotes: {type:"boolean"},
-				showPercent: {type:"boolean"},
-				showTimer: {type:"boolean"},
-				showOnlyResult: {type:"boolean"},
-				resultDuration_s: {type:"number", minimum:1, maximum:10*60},
-				placement: {enum: ["tl", "t", "tr", "l", "m", "r", "bl", "b", "br"]},
-			}
-		},
+		predictionOverlayParams: { $ref: "defs.json#/definitions/pollOverlayData" },
+		pollOverlayParams: { $ref: "defs.json#/definitions/pollOverlayData" },
+		chatPollOverlayParams: { $ref: "defs.json#/definitions/pollOverlayData" },
 		pinnedChatMenuItem:{
 			type:"array",
 			minItems:0,

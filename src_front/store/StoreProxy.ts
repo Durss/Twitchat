@@ -40,6 +40,7 @@ export default class StoreProxy {
 	public static obs:IOBSState & IOBSGetters & IOBSActions & {$state:IOBSState , $reset:()=>void};
 	public static params:IParamsState & IParamsGetters & IParamsActions & {$state:IParamsState, $reset:()=>void};
 	public static poll:IPollState & IPollGetters & IPollActions & {$state:IPollState, $reset:()=>void};
+	public static chatPoll:IChatPollState & IChatPollGetters & IChatPollActions & {$state:IChatPollState, $reset:()=>void};
 	public static prediction:IPredictionState & IPredictionGetters & IPredictionActions & {$state:IPredictionState, $reset:()=>void};
 	public static raffle:IRaffleState & IRaffleGetters & IRaffleActions & {$state:IRaffleState, $reset:()=>void};
 	public static stream:IStreamState & IStreamGetters & IStreamActions & {$state:IStreamState, $reset:()=>void};
@@ -749,6 +750,51 @@ export interface IChatActions {
 
 
 
+export interface IChatPollState {
+	/**
+	 * Current poll data
+	 */
+	data:TwitchatDataTypes.ChatPollData | null,
+	/**
+	 * Contains params about the prediction overlay
+	 */
+	overlayParams:PollOverlayParamStoreData;
+}
+
+export interface IChatPollGetters {
+}
+
+export interface IChatPollActions {
+	/**
+	 * Populates data from data store value
+	 */
+	populateData(params?:PollOverlayParamStoreData):void;
+	/**
+	 * Handles a chat command to check if it is linked to current poll
+	 * @param message
+	 * @param cmd
+	 */
+	handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):Promise<void>;
+	/**
+	 * Set current poll data
+	 * @param data
+	 */
+	setCurrentPoll(data:TwitchatDataTypes.ChatPollData|null):void;
+	/**
+	 * Updates overlay params
+	 * @param params
+	 */
+	setOverlayParams(params:PollOverlayParamStoreData):void;
+	/**
+	 * Broadcast current poll state.
+	 * Sends overlay parameters as well
+	 */
+	broadcastState():void;
+}
+
+
+
+
 export interface IChatSuggestionState {
 	/**
 	 * Current chat suggestion data
@@ -1151,7 +1197,7 @@ export interface IPollActions {
 	/**
 	 * Set current poll data
 	 * @param data
-	 * @param postOnChat
+	 * @param postOnChat post result on chat
 	 */
 	setCurrentPoll(data:TwitchatDataTypes.MessagePollData|null, postOnChat?:boolean):void;
 	/**

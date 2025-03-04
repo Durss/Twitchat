@@ -5,12 +5,15 @@
 		<h1 id="title" v-if="title">{{ title }}</h1>
 		<div id="list" class="list" v-if="mode == 'list'">
 			<div id="list_choice" class="choice" :class="getWinClasses(c)" v-for="(c, index) in entries" ref="bar">
-				<h2 id="list_choice_label" v-if="showLabels">{{c.label}}</h2>
-				<div class="bar" id="list_choice_bar" :style="getAnswerStyles(c)">
-					<div class="details" id="list_choice_bar_details">
-						<span id="list_choice_bar_details_percent" class="percent" v-if="showPercent">{{getPercent(c).toFixed(0)}}%</span>
-						<span id="list_choice_bar_details_votes" class="votes" v-if="showVoters"><Icon name="user" class="icon" />{{c.voters ?? c.votes}}</span>
-						<span id="list_choice_bar_details_points" class="points" v-if="showVotes"><Icon name="channelPoints" class="icon"/>{{c.votes}}</span>
+				<div class="index" v-if="showIndex !== false"><span>{{ index }}</span></div>
+				<div class="subContent">
+					<h2 id="list_choice_label" v-if="showLabels">{{c.label}}</h2>
+					<div class="bar" id="list_choice_bar" :style="getAnswerStyles(c)">
+						<div class="details" id="list_choice_bar_details">
+							<span id="list_choice_bar_details_percent" class="percent" v-if="showPercent">{{getPercent(c).toFixed(0)}}%</span>
+							<span id="list_choice_bar_details_votes" class="votes" v-if="showVoters"><Icon name="user" class="icon" />{{c.voters ?? c.votes}}</span>
+							<span id="list_choice_bar_details_points" class="points" v-if="showVotes"><Icon name="channelPoints" class="icon"/>{{c.votes}}</span>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -74,6 +77,9 @@ class PollRenderer extends Vue {
 
 	@Prop({type:Boolean, required:true})
 	public showWinner!: boolean;
+
+	@Prop({type:Boolean, default:false})
+	public showIndex!: boolean;
 
 	@Prop({type:Number, required:true})
 	public resultDuration_s!: number;
@@ -224,6 +230,12 @@ export default toNative(PollRenderer);
 
 <style scoped lang="less">
 .pollrenderer{
+	--color1: #387aff;
+	--color1-fade: #387aff33;
+	--color2: #f50e9b;
+	--color2-fade: #f50e9b33;
+	--colorProgress: var(--color1);
+
 	background-color: var(--color-light);
 	position: absolute;
 	padding: 1em;
@@ -239,7 +251,7 @@ export default toNative(PollRenderer);
 	.progress {
 		width: 100%;
 		height: .5em;
-		background-color: #387aff;
+		background-color: var(--colorProgress);
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -297,10 +309,10 @@ export default toNative(PollRenderer);
 				overflow: hidden;
 				padding: .5em 0;
 				&:nth-child(odd) {
-					background-color: #387aff;
+					background-color: var(--color1);
 				}
 				&:nth-child(even) {
-					background-color: #f50e9b;
+					background-color: var(--color2);
 				}
 			}
 		}
@@ -310,45 +322,71 @@ export default toNative(PollRenderer);
 		align-self: stretch;
 		.choice {
 			width: 100%;
+			gap: .5em;
 			display: flex;
-			flex-direction: column;
-			align-items: stretch;
-			overflow: hidden;
+			flex-direction: row;
+			align-items: center;
 			transform-origin: top center;
 			margin: auto;
-			&:not(:last-child) {
-				margin-bottom: .75em;
-			}
-			h2 {
-				margin-bottom: .25em;
-				white-space: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
-			}
-			.bar {
-				min-height: 1em;
-				flex-grow: 1;
-				border-radius: var(--border-radius);
-				padding: .25em .5em;
-				font-size: 1em;
-				color: var(--color-light);
-				@c: #387aff;
-				transition: background-size .3s;
-				background: linear-gradient(to right, @c 100%, @c 100%);
-				background-color: fade(#387aff, 20%);
-				background-repeat: no-repeat;
+
+			.index {
 				display: flex;
-				justify-content: flex-end;
 				align-items: center;
+				justify-content: center;
+				font-weight: bold;
+				flex-shrink: 0;
+				width: 1.5em;
+				height: 1.5em;
+				border-radius: 50%;
+				background-color: var(--color1);
+				color: var(--color-light);
+				span {
+					filter: drop-shadow(-2px 0 0 var(--color1))
+							drop-shadow(2px 0 0 var(--color1))
+							drop-shadow(0 -2px 0 var(--color1))
+							drop-shadow(0 2px 0 var(--color1));
+				}
+			}
+
+			.subContent {
+				width: 100%;
+				display: flex;
+				flex-direction: column;
+				align-items: stretch;
+				transform-origin: top center;
+				margin: auto;
+				&:not(:last-child) {
+					margin-bottom: .75em;
+				}
+				h2 {
+					margin-bottom: .25em;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
+				.bar {
+					min-height: 1em;
+					flex-grow: 1;
+					border-radius: var(--border-radius);
+					padding: .25em .5em;
+					font-size: 1em;
+					color: var(--color-light);
+					transition: background-size .3s;
+					background: linear-gradient(to right, var(--color1) 100%, var(--color1) 100%);
+					background-color: var(--color1-fade);
+					background-repeat: no-repeat;
+					display: flex;
+					justify-content: flex-end;
+					align-items: center;
+				}
 			}
 		}
 		.choice:first-child:nth-last-child(2):nth-child(2),
 		.choice:first-child:nth-last-child(2) ~ .choice {
 			.bar {
-				@c: #f50e9b;
 				transition: background-size .3s;
-				background: linear-gradient(to right, @c 100%, @c 100%);
-				background-color: fade(#f50e9b, 20%);
+				background: linear-gradient(to right, var(--color2) 100%, var(--color2) 100%);
+				background-color: var(--color2-fade);
 				background-repeat: no-repeat;
 			}
 		}
@@ -439,7 +477,7 @@ export default toNative(PollRenderer);
 				transition: opacity .25s;
 				opacity: .5;
 				.bar {
-					background-color: fade(#387aff, 20%);
+					background-color: var(--color1-fade);
 				}
 				&.win {
 					opacity: 1;

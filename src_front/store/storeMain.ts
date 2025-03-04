@@ -548,20 +548,6 @@ export const storeMain = defineStore("main", {
 			});
 
 			/**
-			 * Called when prediction overlay request for its configs
-			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
-				StoreProxy.prediction.broadcastState();
-			});
-
-			/**
-			 * Called when poll overlay request for its configs
-			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_POLLS_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
-				StoreProxy.poll.broadcastState();
-			});
-
-			/**
 			 * Listen for highlighted message to show up the "close highlighted message" button
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent<{message:string, message_id:string}|undefined>)=> {
@@ -896,6 +882,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.discord.populateData();
 			StoreProxy.automod.populateData();
 			StoreProxy.mixitup.populateData();
+			StoreProxy.chatPoll.populateData();
 			StoreProxy.triggers.populateData();
 			StoreProxy.counters.populateData();
 			StoreProxy.bingoGrid.populateData();

@@ -690,6 +690,18 @@ class ParamsTriggers extends Vue implements IParameterContent {
 					if(triggerEvent.value == TriggerTypes.MESSAGE_ANSWER) {
 						const fakeMessage = await this.$store.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE);
 						(m as TwitchatDataTypes.MessageChatData).answersTo = fakeMessage;
+					}else
+
+					if(triggerEvent.value == TriggerTypes.POLL_START) {
+						(m as TwitchatDataTypes.MessagePollData).isStart = true;
+					}else
+
+					if(triggerEvent.value == TriggerTypes.PREDICTION_START) {
+						(m as TwitchatDataTypes.MessagePredictionData).isStart = true;
+					}else
+
+					if(triggerEvent.value == TriggerTypes.CHAT_POLL_START) {
+						(m as TwitchatDataTypes.MessageChatPollData).isStart = true;
 					}
 
 					TriggerActionHandler.instance.execute(m, true, trigger.id);

@@ -961,6 +961,7 @@ export const storeChat = defineStore('chat', {
 			const sMain = StoreProxy.main;
 			const sVoice = StoreProxy.voice;
 			const sBingoGrid = StoreProxy.bingoGrid;
+			const sChatPoll = StoreProxy.chatPoll;
 			const sAuth = StoreProxy.auth;
 			const s = Date.now();
 			const logTimings = false;//Enable to check for perf issues
@@ -1925,6 +1926,7 @@ export const storeChat = defineStore('chat', {
 
 				if(logTimings) console.log("2", message.id, Date.now() - s);
 
+				// If it's a message, check if it's a command
 				if(TwitchatDataTypes.IsTranslatableMessage[message.type] && !isFromRemoteChan) {
 					const typedMessage = message as TwitchatDataTypes.TranslatableMessage;
 					const cmd = (typedMessage.message || "").trim().split(" ")[0].toLowerCase();
@@ -1947,7 +1949,7 @@ export const storeChat = defineStore('chat', {
 					//Handle Emergency commands
 					sEmergency.handleChatCommand(typedMessage, cmd);
 
-					//Handle Emergency commands
+					//Handle Q&A commands
 					sQna.handleChatCommand(typedMessage, cmd);
 
 					//Handle Voicemod commands
@@ -1955,6 +1957,9 @@ export const storeChat = defineStore('chat', {
 
 					//Handle bingo grid commands
 					sBingoGrid.handleChatCommand(typedMessage, cmd);
+
+					//Handle chat poll commands
+					sChatPoll.handleChatCommand(typedMessage, cmd);
 				}
 
 				if(logTimings) console.log("3", message.id, Date.now() - s);

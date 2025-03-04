@@ -372,12 +372,28 @@
 			"param_listModeOnlyMore2": "Uniquement s'il y a plus de 2 choix",
 			"param_showTitle": "Titre du sondage",
 			"param_showLabels": "Titre des choix",
-			"param_showVotes": "Nombre de votes",
-			"param_showPercent": "Pourcentages",
-			"param_showProgress": "Temps restant",
-			"param_placement": "Position dans l'écran",
+			"param_showVotes": "@:overlay.predictions.param_showVotes",
+			"param_showPercent": "@:overlay.predictions.param_showPercent",
+			"param_showProgress": "@:overlay.predictions.param_showProgress",
+			"param_placement": "@:overlay.predictions.param_placement",
 			"param_showOnlyResult": "Afficher <strong><u>UNIQUEMENT</u></strong> le résultat",
-			"param_resultDuration": "Durée d'affichage du résultat"
+			"param_resultDuration": "@:overlay.predictions.param_resultDuration"
+		},
+		"chatPolls": {
+			"title": "Sondage de tchat",
+			"head": "Afficher le sondage en cours sur votre stream",
+			"css": "@:overlay.polls.css",
+			"testBt": "@:overlay.polls.testBt",
+			"param_listMode": "@:overlay.polls.param_listMode",
+			"param_listModeOnlyMore2": "@:overlay.polls.param_listModeOnlyMore2",
+			"param_showTitle": "@:overlay.polls.param_showTitle",
+			"param_showLabels": "@:overlay.polls.param_showLabels",
+			"param_showVotes": "@:overlay.polls.param_showVotes",
+			"param_showPercent": "@:overlay.polls.param_showPercent",
+			"param_showProgress": "@:overlay.polls.param_showProgress",
+			"param_placement": "@:overlay.polls.param_placement",
+			"param_showOnlyResult": "@:overlay.polls.param_showOnlyResult",
+			"param_resultDuration": "@:overlay.polls.param_resultDuration"
 		},
 		"bingo_grid": {
 			"head": "Afficher des grilles de bingo interactives"

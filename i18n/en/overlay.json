@@ -373,12 +373,28 @@
 			"param_listModeOnlyMore2": "Only if there are more than 2 choices",
 			"param_showTitle": "Show poll title",
 			"param_showLabels": "Show choice titles",
-			"param_showVotes": "Show vote count",
-			"param_showPercent": "Show percentages",
-			"param_showProgress": "Show timer",
-			"param_placement": "Position on screen",
+			"param_showVotes": "@:overlay.predictions.param_showVotes",
+			"param_showPercent": "@:overlay.predictions.param_showPercent",
+			"param_showProgress": "@:overlay.predictions.param_showProgress",
+			"param_placement": "@:overlay.predictions.param_placement",
 			"param_showOnlyResult": "<strong><u>ONLY</u></strong> show poll result",
-			"param_resultDuration": "Show result duration"
+			"param_resultDuration": "@:overlay.predictions.param_resultDuration"
+		},
+		"chatPoll": {
+			"title": "Chat polls",
+			"head": "Show current chat poll on your stream",
+			"css": "@:overlay.polls.css",
+			"testBt": "@:overlay.polls.testBt",
+			"param_listMode": "@:overlay.polls.param_listMode",
+			"param_listModeOnlyMore2": "@:overlay.polls.param_listModeOnlyMore2",
+			"param_showTitle": "@:overlay.polls.param_showTitle",
+			"param_showLabels": "@:overlay.polls.param_showLabels",
+			"param_showVotes": "@:overlay.polls.param_showVotes",
+			"param_showPercent": "@:overlay.polls.param_showPercent",
+			"param_showProgress": "@:overlay.polls.param_showProgress",
+			"param_placement": "@:overlay.polls.param_placement",
+			"param_showOnlyResult": "@:overlay.polls.param_showOnlyResult",
+			"param_resultDuration": "@:overlay.polls.param_resultDuration"
 		},
 		"bingo_grid": {
 			"head": "Show interactive bingo grids"

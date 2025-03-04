@@ -1,0 +1,16 @@
+{
+	"chatPoll":{
+		"form":{
+			"title":"Create a chat poll",
+			"header":"Viewers will be able to vote by sending the answer index on chat",
+			"closeBt_aria":"Close poll form",
+			"permissions":"Permissions",
+			"question":"Question",
+			"answers":"Answers (at least 2)",
+			"vote_duration":"Vote duration (minutes)"
+		},
+		"state":{
+			"endBt":"End poll"
+		}
+	}
+}
