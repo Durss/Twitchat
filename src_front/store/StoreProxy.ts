@@ -2187,6 +2187,11 @@ export interface ICountersActions {
 	 */
 	deleteCounterEntry(id:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void;
 	/**
+	 * Deletes all per-user counter entries
+	 * @param id
+	 */
+	deleteAllCounterEntries(id:string):void;
+	/**
 	 * Saves counters to server
 	 */
 	saveCounters():void;

@@ -2307,105 +2307,46 @@ export default class TriggerActionHandler {
 					}
 					if(!step.action) step.action = "ADD";
 
-					if(!isNaN(value) && value != null && value != Infinity) {
-						const ids = step.counters;
-						let action:NonNullable<TriggerActionDataTypes.TriggerActionValueData["userAction"]>[string] = "update";
-						for (const c of StoreProxy.counters.counterList) {
-							action = step.userAction? step.userAction[c.id] : "update";
-							if(ids.indexOf(c.id) > -1) {
-								//Check if we can update the counter
-								if(c.enabled == false && !isPremium) {
-									const logMessage = "❌ Not premium and counter \""+c.name+"\" is disabled. Counter not updated.";
-									logStep.messages.push({date:Date.now(), value:logMessage});
-									log.error = true;
-									logStep.error = true;
-								}else
-								//Check if this step requests that this counter should update a user
-								//different than the default one (the one executing the command)
-								if(c.perUser
-								&& step.counterUserSources
-								&& step.counterUserSources[c.id]
-								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_SENDER
-								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE
-								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_CHATTERS) {
-									logStep.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.counterUserSources[c.id].toUpperCase()+"}\"..."})
+					const ids = step.counters;
+					let action:NonNullable<TriggerActionDataTypes.TriggerActionValueData["userAction"]>[string] = "update";
+					for (const c of StoreProxy.counters.counterList) {
+						action = step.userAction? step.userAction[c.id] : "update";
+						if(ids.indexOf(c.id) > -1) {
+							//Check if we can update the counter
+							if(c.enabled == false && !isPremium) {
+								const logMessage = "❌ Not premium and counter \""+c.name+"\" is disabled. Counter not updated.";
+								logStep.messages.push({date:Date.now(), value:logMessage});
+								log.error = true;
+								logStep.error = true;
+							}else
+							//Check if this step requests that this counter should update a user
+							//different than the default one (the one executing the command)
+							if(c.perUser
+							&& step.counterUserSources
+							&& step.counterUserSources[c.id]
+							&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_SENDER
+							&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE
+							&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_CHATTERS) {
+								logStep.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.counterUserSources[c.id].toUpperCase()+"}\"..."})
 
-									const users = await this.extractUserFromPlaceholder(channel_id, step.counterUserSources[c.id], dynamicPlaceholders, actionPlaceholders, trigger, message, log);
-									for (let i = 0; i < users.length; i++) {
-										const user = users[i];
-										if(!c.perUser || (user && !user.temporary && !user.errored && !user.anonymous)) {
-											if(action == "delete") {
-												StoreProxy.counters.deleteCounterEntry(c.id, user);
-											}else{
-												StoreProxy.counters.increment(c.id, step.action, value, user);
-											}
-											let logMessage = action+" counter \""+c.name+"\", \""+step.action+"\" "+value+" ("+text+")";
-											if(user) logMessage += " (for @"+user.displayNameOriginal+")";
-											logStep.messages.push({date:Date.now(), value:logMessage});
-										}else{
-											let reason = "";
-											if(!c.perUser && user) reason = "counter is not a per user counter";
-											if(c.perUser && (!user || user.temporary || user.errored || user.anonymous)) reason = "counter is a per-user counter but given user is not loaded or anonymous";
-											log.error = true;
-											logStep.error = true;
-											logStep.messages.push({date:Date.now(), value:"❌ Cannot update requested counter because "+reason});
-										}
-									}
-
-								//Check if requested to edit all users of a counter
-								}else if(c.perUser
-								&& c.users
-								&& step.counterUserSources
-								&& step.counterUserSources[c.id]
-								&& step.counterUserSources[c.id] == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE){
-									logStep.messages.push({date:Date.now(), value:action+" all existing users, \""+step.action+"\" "+value+" ("+text+")"});
-									for (const uid in c.users) {
-										if(action == "delete") {
-											StoreProxy.counters.deleteCounterEntry(c.id, undefined, uid);
-										}else{
-											StoreProxy.counters.increment(c.id, step.action, value, undefined, uid);
-										}
-									}
-
-								//Check if requested to edit all current chatters of a counter
-								}else if(c.perUser
-								&& c.users
-								&& step.counterUserSources
-								&& step.counterUserSources[c.id]
-								&& step.counterUserSources[c.id] == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_CHATTERS){
-									logStep.messages.push({date:Date.now(), value:action+" all chatters, \""+step.action+"\" "+value+" ("+text+")"});
-									const list = StoreProxy.users.users
-									for (let i = 0; i < list.length; i++) {
-										const user = list[i];
-										if(user.channelInfo[channel_id]
-										//If user is online or their last acitivity on chat was less than 10min ago
-										&& (user.channelInfo[channel_id].online || Date.now() - (user.channelInfo[channel_id].lastActivityDate || 0) < 10 * 60000)) {
-											if(action == "delete") {
-												StoreProxy.counters.deleteCounterEntry(c.id, undefined, user.id);
-											}else{
-												StoreProxy.counters.increment(c.id, step.action, value, undefined, user.id);
-											}
-										}
-									}
-
-								//Standard counter edition (either current user or a non-per-user counter)
-								}else{
-									const user = c.perUser? this.extractUserFromTrigger(trigger, message) : undefined;
+								const users = await this.extractUserFromPlaceholder(channel_id, step.counterUserSources[c.id], dynamicPlaceholders, actionPlaceholders, trigger, message, log);
+								for (let i = 0; i < users.length; i++) {
+									const user = users[i];
 									if(!c.perUser || (user && !user.temporary && !user.errored && !user.anonymous)) {
 										if(action == "delete") {
-											const logMessage = "Deleting value of @"+user?.displayNameOriginal;;
-											logStep.messages.push({date:Date.now(), value:logMessage});
 											StoreProxy.counters.deleteCounterEntry(c.id, user);
 										}else{
-											const newValue = StoreProxy.counters.increment(c.id, step.action, value, user);
-											let logMessage = "";
-											if(step.action == "ADD") logMessage = "Add "+value+" ("+text+") to \""+c.name+"\"";
-											if(step.action == "DEL") logMessage = "Substract "+value+" ("+text+") from \""+c.name+"\"";
-											if(step.action == "SET") logMessage = "Set \""+c.name+"\" value to "+value+" ("+text+")";
-											if(user) logMessage += " (for @"+user.displayNameOriginal+")";
-											logMessage += ". New value is "+newValue;
-											logStep.messages.push({date:Date.now(), value:logMessage});
+											if(!isNaN(value) && value != null && value != Infinity) {
+												StoreProxy.counters.increment(c.id, step.action, value, user);
+											}else{
+												logStep.messages.push({date:Date.now(), value:"New value is invalid: \""+value+"\""});
+												logStep.error = true;
+												log.error = true;
+											}
 										}
+										let logMessage = action+" counter \""+c.name+"\", \""+step.action+"\" "+value+" ("+text+")";
+										if(user) logMessage += " (for @"+user.displayNameOriginal+")";
+										logStep.messages.push({date:Date.now(), value:logMessage});
 									}else{
 										let reason = "";
 										if(!c.perUser && user) reason = "counter is not a per user counter";
@@ -2415,12 +2356,90 @@ export default class TriggerActionHandler {
 										logStep.messages.push({date:Date.now(), value:"❌ Cannot update requested counter because "+reason});
 									}
 								}
+
+							//Check if requested to edit all users of a counter
+							}else if(c.perUser
+							&& c.users
+							&& step.counterUserSources
+							&& step.counterUserSources[c.id]
+							&& step.counterUserSources[c.id] == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE){
+								logStep.messages.push({date:Date.now(), value:action+" all existing users, \""+step.action+"\" "+value+" ("+text+")"});
+
+								if(action == "delete") {
+									StoreProxy.counters.deleteAllCounterEntries(c.id);
+								}else{
+									if(!isNaN(value) && value != null && value != Infinity) {
+										for (const uid in c.users) {
+											StoreProxy.counters.increment(c.id, step.action, value, undefined, uid);
+										}
+									}else{
+										logStep.messages.push({date:Date.now(), value:"New value is invalid: \""+value+"\""});
+										logStep.error = true;
+										log.error = true;
+									}
+								}
+
+							//Check if requested to edit all current chatters of a counter
+							}else if(c.perUser
+							&& c.users
+							&& step.counterUserSources
+							&& step.counterUserSources[c.id]
+							&& step.counterUserSources[c.id] == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_CHATTERS){
+								logStep.messages.push({date:Date.now(), value:action+" all chatters, \""+step.action+"\" "+value+" ("+text+")"});
+								const list = StoreProxy.users.users
+								for (let i = 0; i < list.length; i++) {
+									const user = list[i];
+									if(user.channelInfo[channel_id]
+									//If user is online or their last acitivity on chat was less than 10min ago
+									&& (user.channelInfo[channel_id].online || Date.now() - (user.channelInfo[channel_id].lastActivityDate || 0) < 10 * 60000)) {
+										if(action == "delete") {
+											StoreProxy.counters.deleteCounterEntry(c.id, undefined, user.id);
+										}else{
+											if(!isNaN(value) && value != null && value != Infinity) {
+												StoreProxy.counters.increment(c.id, step.action, value, undefined, user.id);
+											}else{
+												logStep.messages.push({date:Date.now(), value:"New value is invalid: \""+value+"\""});
+												logStep.error = true;
+												log.error = true;
+											}
+										}
+									}
+								}
+
+							//Standard counter edition (either current user or a non-per-user counter)
+							}else{
+								const user = c.perUser? this.extractUserFromTrigger(trigger, message) : undefined;
+								if(!c.perUser || (user && !user.temporary && !user.errored && !user.anonymous)) {
+									if(action == "delete") {
+										const logMessage = "Deleting value of @"+user?.displayNameOriginal;;
+										logStep.messages.push({date:Date.now(), value:logMessage});
+										StoreProxy.counters.deleteCounterEntry(c.id, user);
+									}else{
+										if(!isNaN(value) && value != null && value != Infinity) {
+											const newValue = StoreProxy.counters.increment(c.id, step.action, value, user);
+											let logMessage = "";
+											if(step.action == "ADD") logMessage = "Add "+value+" ("+text+") to \""+c.name+"\"";
+											if(step.action == "DEL") logMessage = "Substract "+value+" ("+text+") from \""+c.name+"\"";
+											if(step.action == "SET") logMessage = "Set \""+c.name+"\" value to "+value+" ("+text+")";
+											if(user) logMessage += " (for @"+user.displayNameOriginal+")";
+											logMessage += ". New value is "+newValue;
+											logStep.messages.push({date:Date.now(), value:logMessage});
+										}else{
+											logStep.messages.push({date:Date.now(), value:"New value is invalid: \""+value+"\""});
+											logStep.error = true;
+											log.error = true;
+										}
+									}
+								}else{
+									let reason = "";
+									if(!c.perUser && user) reason = "counter is not a per user counter";
+									if(c.perUser && (!user || user.temporary || user.errored || user.anonymous)) reason = "counter is a per-user counter but given user is not loaded or anonymous";
+									log.error = true;
+									logStep.error = true;
+									logStep.messages.push({date:Date.now(), value:"❌ Cannot update requested counter because "+reason});
+								}
 							}
 						}
-					}else{
-						logStep.messages.push({date:Date.now(), value:"New value is invalid: \""+value+"\""});
-						logStep.error = true;
-						log.error = true;
 					}
 				}else
 
