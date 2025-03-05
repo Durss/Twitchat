@@ -704,6 +704,20 @@ const UserDataSchema = {
 												}
 											}
 										},
+										votes: {
+											type:"object",
+											additionalProperties: true,
+											patternProperties: {
+												".{0,100}": {
+													type: "object",
+													additionalProperties: false,
+													properties: {
+														platform: {type:"string", maxLength:15},
+														index:{type:"number", minimum:0, maximum:1000},
+													}
+												},
+											}
+										},
 									}
 								},
 								predictionData: {
