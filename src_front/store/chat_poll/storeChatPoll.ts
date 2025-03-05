@@ -70,15 +70,23 @@ export const storeChatPoll = defineStore('chatPoll', {
 		},
 
 		async handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):Promise<void> {
-			//Check if a poll is running
+			// Check if a poll is running
 			if(!this.data) return;
 
-			//Check if message matches a valid index
+			// Check if message matches a valid index
 			const index = parseInt(message.message || "");
 			if(isNaN(index) || index < 1 || index > this.data.choices.length) return;
 
-			//Check permission
+			// Check permission
 			if(!await Utils.checkPermissions(this.data.permissions, message.user, message.channel_id)) return;
+
+			// User already voted
+			if(this.data.votes[message.user.id]) return;
+
+			this.data.votes[message.user.id] = {
+				index: index,
+				platform: message.platform,
+			};
 
 			this.data.choices[index-1].votes ++;
 			PublicAPI.instance.broadcast(TwitchatEvent.CHAT_POLL_PROGRESS, {poll: this.data});

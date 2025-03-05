@@ -1,6 +1,6 @@
 <template>
 	<div class="pollstate gameStateWindow">
-		<h1 class="title"><img src="@/assets/icons/chatPoll.svg">{{poll.title}}</h1>
+		<h1 class="title"><img src="@/assets/icons/chatPoll.svg"><span>{{poll.title}}</span></h1>
 
 		<ProgressBar class="progress"
 			secondary
@@ -13,8 +13,8 @@
 				:style="getAnswerStyles(c)"
 				:class="getAnswerClasses(c)"
 			>
-				<div>{{c.label}}</div>
-				<div>{{getPercent(c)}}% ({{c.votes}})</div>
+				<div class="label">{{c.label}}</div>
+				<div class="percent">{{getPercent(c)}}% ({{c.votes}})</div>
 			</div>
 		</div>
 
@@ -103,6 +103,12 @@ export default toNative(ChatPollState);
 
 <style scoped lang="less">
 .pollstate{
+	.title > span {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		display: inline-block;
+	}
 	.creator {
 		font-size: .8em;
 		text-align: center;
@@ -123,6 +129,16 @@ export default toNative(ChatPollState);
 			transition: background-size .2s;
 			justify-content: space-between;
 			background-repeat: no-repeat;
+			.label {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				display: inline-block;
+			}
+
+			.percent {
+				flex-shrink: 0;
+			}
+
 			&:not(:last-child) {
 				margin-bottom: 5px;
 			}

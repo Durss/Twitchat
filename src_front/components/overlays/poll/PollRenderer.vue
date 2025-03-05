@@ -260,6 +260,10 @@ export default toNative(PollRenderer);
 	h1 {
 		text-align: center;
 		margin-bottom: .25em;
+		display: inline-block;
+		overflow: hidden;
+		word-break: break-word;
+		max-width: 300px;
 	}
 
 	.battle {
@@ -360,9 +364,7 @@ export default toNative(PollRenderer);
 				}
 				h2 {
 					margin-bottom: .25em;
-					white-space: nowrap;
-					overflow: hidden;
-					text-overflow: ellipsis;
+					word-break: break-word;
 				}
 				.bar {
 					min-height: 1em;

@@ -174,6 +174,7 @@ class ChatPollForm extends AbstractSidePanel {
 			permissions:this.permissions,
 			duration_s:this.param_duration.value,
 			started_at:Date.now(),
+			votes:{},
 		})
 		this.close();
 	}
@@ -189,6 +190,7 @@ class ChatPollForm extends AbstractSidePanel {
 				duration_s:this.param_duration.value,
 				started_at:Date.now(),
 				permissions:this.permissions,
+				votes:{},
 			};
 		}
 	}

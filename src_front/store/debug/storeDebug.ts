@@ -653,7 +653,8 @@ export const storeDebug = defineStore('debug', {
 								all:false,
 								usersAllowed:[],
 								usersRefused:[],
-							}
+							},
+							votes:{},
 						},
 						isStart:false,
 					};

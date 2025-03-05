@@ -1251,6 +1251,10 @@ export namespace TwitchatDataTypes {
 		 * Permissions params
 		 */
 		permissions:PermissionsData;
+		/**
+		 * Stores the poll's votes
+		 */
+		votes:{[uid:string]:{index:number, platform:ChatPlatform}}
 	}
 
 	/**
