@@ -1774,11 +1774,14 @@ export const storeChat = defineStore('chat', {
 					case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
 						sUsers.flagAsFollower(message.user, message.channel_id);
 						if(!isFromRemoteChan) {
-							StoreProxy.labels.updateLabelValue("FOLLOWER_ID", message.user.id);
-							StoreProxy.labels.updateLabelValue("FOLLOWER_NAME", message.user.displayNameOriginal);
-							StoreProxy.labels.updateLabelValue("FOLLOWER_AVATAR", message.user.avatarPath || "", message.user.id);
-							StoreProxy.labels.incrementLabelValue("FOLLOWER_COUNT", 1);
+							StoreProxy.labels.updateLabelValue("FOLLOWER_GENERIC_ID", message.user.id);
+							StoreProxy.labels.updateLabelValue("FOLLOWER_GENERIC_NAME", message.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("FOLLOWER_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
 							if(message.platform === "twitch") {
+								StoreProxy.labels.updateLabelValue("FOLLOWER_ID", message.user.id);
+								StoreProxy.labels.updateLabelValue("FOLLOWER_NAME", message.user.displayNameOriginal);
+								StoreProxy.labels.updateLabelValue("FOLLOWER_AVATAR", message.user.avatarPath || "", message.user.id);
+								StoreProxy.labels.incrementLabelValue("FOLLOWER_COUNT", 1);
 								StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, "1", "twitch_followers");
 							}else
 							if(message.platform === "tiktok") {

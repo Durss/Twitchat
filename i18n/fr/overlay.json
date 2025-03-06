@@ -440,9 +440,13 @@
 
 				"FOLLOWER_COUNT": "Followers - total",
 
-				"FOLLOWER_ID": "Follower - ID utilisateur·ice",
-				"FOLLOWER_NAME": "Follower - Pseudo",
-				"FOLLOWER_AVATAR": "Follower - Avatar",
+				"FOLLOWER_ID": "Follower Twitch - ID utilisateur·ice",
+				"FOLLOWER_NAME": "Follower Twitch - Pseudo",
+				"FOLLOWER_AVATAR": "Follower Twitch - Avatar",
+
+				"FOLLOWER_GENERIC_ID": "Follower - ID utilisateur·ice",
+				"FOLLOWER_GENERIC_NAME": "Follower - Pseudo",
+				"FOLLOWER_GENERIC_AVATAR": "Follower - Avatar",
 
 				"REWARD_ID": "Récompense de pts de chaîne - ID utilisateur·ice",
 				"REWARD_NAME": "Récompense de pts de chaîne - Pseudo",

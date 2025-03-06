@@ -112,6 +112,10 @@ export const LabelItemPlaceholderList = [
 	{tag:"FOLLOWER_ID",							type:"string",	descriptionKey:"overlay.labels.placeholders.FOLLOWER_ID", backup:true} as const,
 	{tag:"FOLLOWER_AVATAR",						type:"image",	descriptionKey:"overlay.labels.placeholders.FOLLOWER_AVATAR", backup:true} as const,
 
+	{tag:"FOLLOWER_GENERIC_NAME",				type:"string",	descriptionKey:"overlay.labels.placeholders.FOLLOWER_GENERIC_NAME", backup:true} as const,
+	{tag:"FOLLOWER_GENERIC_ID",					type:"string",	descriptionKey:"overlay.labels.placeholders.FOLLOWER_GENERIC_ID", backup:true} as const,
+	{tag:"FOLLOWER_GENERIC_AVATAR",				type:"image",	descriptionKey:"overlay.labels.placeholders.FOLLOWER_GENERIC_AVATAR", backup:true} as const,
+
 	{tag:"REWARD_NAME",							type:"string",	descriptionKey:"overlay.labels.placeholders.REWARD_NAME", backup:true} as const,
 	{tag:"REWARD_ID",							type:"string",	descriptionKey:"overlay.labels.placeholders.REWARD_ID", backup:true} as const,
 	{tag:"REWARD_AVATAR",						type:"image",	descriptionKey:"overlay.labels.placeholders.REWARD_AVATAR", backup:true} as const,
