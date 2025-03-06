@@ -1778,7 +1778,17 @@ export const storeChat = defineStore('chat', {
 							StoreProxy.labels.updateLabelValue("FOLLOWER_NAME", message.user.displayNameOriginal);
 							StoreProxy.labels.updateLabelValue("FOLLOWER_AVATAR", message.user.avatarPath || "", message.user.id);
 							StoreProxy.labels.incrementLabelValue("FOLLOWER_COUNT", 1);
-							StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, "1", "twitch_followers");
+							if(message.platform === "twitch") {
+								StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, "1", "twitch_followers");
+							}else
+							if(message.platform === "tiktok") {
+								StoreProxy.labels.updateLabelValue("TIKTOK_LIKE_USER", message.user.displayNameOriginal);
+								StoreProxy.labels.updateLabelValue("TIKTOK_LIKE_AVATAR", message.user.avatarPath || "");
+							}else
+							if(message.platform === "youtube") {
+								StoreProxy.labels.updateLabelValue("FOLLOWER_YOUTUBE_USER", message.user.displayNameOriginal);
+								StoreProxy.labels.updateLabelValue("FOLLOWER_YOUTUBE_AVATAR", message.user.avatarPath || "");
+							}
 						}
 
 						//Merge all followbot events into one

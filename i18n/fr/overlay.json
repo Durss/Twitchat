@@ -492,7 +492,7 @@
 				"TIPEEE_TIP_NAME": "Tipeee don - Pseudo",
 				"TIPEEE_TIP_AMOUNT": "Tipeee don - Montant",
 
-				"SUB_YOUTUBE_ID": "Sub YouTube - ID utilisateur·ice",
+				"YOUTUBE_SUB__ID": "Sub YouTube - ID utilisateur·ice",
 				"SUB_YOUTUBE_NAME": "Sub YouTube - Pseudo",
 				"SUB_YOUTUBE_AVATAR": "Sub YouTube - Avatar",
 				"SUB_YOUTUBE_TIER": "Sub YouTube - Niveau",
@@ -507,6 +507,9 @@
 				"SUBGIFT_YOUTUBE_AVATAR": "Subgift YouTube - Avatar",
 				"SUBGIFT_YOUTUBE_TIER": "Subgift YouTube - Niveau",
 				"SUBGIFT_YOUTUBE_COUNT": "Subgift YouTube - Nombre",
+
+				"FOLLOWER_YOUTUBE_USER": "YouTube Follower - Pseudo",
+				"FOLLOWER_YOUTUBE_AVATAR": "YouTube Follower - Avatar",
 
 				"SUBGIFT_GENERIC_ID": "Subgift (inclus YouTube) - ID utilisateur·ice",
 				"SUBGIFT_GENERIC_NAME": "Subgift (inclus YouTube) - Pseudo",
@@ -582,6 +585,8 @@
 				"PATREON_MEMBER_COUNT": "Patreon - Nombre de membres actifs",
 
 				"TIKTOK_VIEWER_COUNT": "TikTok - Viewers",
+				"TIKTOK_FOLLOWER_USER": "TikTok Follower - Pseudo",
+				"TIKTOK_FOLLOWER_AVATAR": "TikTok Follower - Avatar",
 				"TIKTOK_LIKE_TOTAL": "TikTok Like - Likes total du stream",
 				"TIKTOK_LIKE_USER": "TikTok Like - Pseudo",
 				"TIKTOK_LIKE_AVATAR": "TikTok Like - Avatar",

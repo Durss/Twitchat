@@ -78,6 +78,9 @@ export const LabelItemPlaceholderList = [
 	{tag:"SUBGIFT_YOUTUBE_TIER",				type:"string",	descriptionKey:"overlay.labels.placeholders.SUBGIFT_YOUTUBE_TIER", backup:true} as const,
 	{tag:"SUBGIFT_YOUTUBE_COUNT",				type:"number",	descriptionKey:"overlay.labels.placeholders.SUBGIFT_YOUTUBE_COUNT", backup:true} as const,
 
+	{tag:"FOLLOWER_YOUTUBE_USER",				type:"string",	descriptionKey:"overlay.labels.placeholders.FOLLOWER_YOUTUBE_USER", backup:true} as const,
+	{tag:"FOLLOWER_YOUTUBE_AVATAR",				type:"number",	descriptionKey:"overlay.labels.placeholders.FOLLOWER_YOUTUBE_AVATAR", backup:true} as const,
+
 	{tag:"SUB_GENERIC_NAME",					type:"string",	descriptionKey:"overlay.labels.placeholders.SUB_GENERIC_NAME", backup:true} as const,
 	{tag:"SUB_GENERIC_ID",						type:"string",	descriptionKey:"overlay.labels.placeholders.SUB_GENERIC_ID", backup:true} as const,
 	{tag:"SUB_GENERIC_AVATAR",					type:"image",	descriptionKey:"overlay.labels.placeholders.SUB_GENERIC_AVATAR", backup:true} as const,
@@ -199,6 +202,8 @@ export const LabelItemPlaceholderList = [
 	{tag:"TIKTOK_LIKE_USER",					type:"string",	descriptionKey:"overlay.labels.placeholders.TIKTOK_LIKE_USER", backup:true} as const,
 	{tag:"TIKTOK_LIKE_AVATAR",					type:"image",	descriptionKey:"overlay.labels.placeholders.TIKTOK_LIKE_AVATAR", backup:true} as const,
 	{tag:"TIKTOK_LIKE_COUNT",					type:"number",	descriptionKey:"overlay.labels.placeholders.TIKTOK_LIKE_COUNT", backup:true} as const,
+
+	{tag:"TIKTOK_LIKE_FOLLOWER",				type:"number",	descriptionKey:"overlay.labels.placeholders.TIKTOK_LIKE_FOLLOWER", backup:true} as const,
 
 	{tag:"TIKTOK_SUB_USER",						type:"string",	descriptionKey:"overlay.labels.placeholders.TIKTOK_SUB_USER", backup:true} as const,
 	{tag:"TIKTOK_SUB_AVATAR",					type:"image",	descriptionKey:"overlay.labels.placeholders.TIKTOK_SUB_AVATAR", backup:true} as const,
