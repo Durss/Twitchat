@@ -13,7 +13,7 @@
 			<div class="header">
 				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
 			</div>
-			<OverlayInstaller type="polls" @obsSourceCreated="getOverlayPresence(true)" />
+			<OverlayInstaller type="chatPoll" @obsSourceCreated="getOverlayPresence(true)" />
 
 			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
 				<div class="cssHead">{{ $t("overlay.chatPoll.css") }}</div>

@@ -379,7 +379,7 @@
 			"param_showOnlyResult": "Afficher <strong><u>UNIQUEMENT</u></strong> le résultat",
 			"param_resultDuration": "@:overlay.predictions.param_resultDuration"
 		},
-		"chatPolls": {
+		"chatPoll": {
 			"title": "Sondage de tchat",
 			"head": "Afficher le sondage en cours sur votre stream",
 			"css": "@:overlay.polls.css",
