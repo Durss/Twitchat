@@ -49,6 +49,7 @@ export const storeStream = defineStore('stream', {
 			platform:"twitch",
 		},
 		autoconnectChans:[],
+		currentVODUrl:"",
 	} as IStreamState),
 
 
