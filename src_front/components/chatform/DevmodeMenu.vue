@@ -73,6 +73,7 @@
 			<Button small @click="simulateEvent($event, 'autoban_join')" icon="automod">Automod Twitchat join</Button>
 			<Button small @click="simulateEvent($event, 'poll')" icon="poll">Poll result</Button>
 			<Button small @click="simulateEvent($event, 'prediction')" icon="prediction">Prediction result</Button>
+			<Button small @click="simulateEvent($event, 'chat_poll')" icon="chatPoll">Chat poll result</Button>
 			<Button small @click="simulateEvent($event, 'bingo')" icon="bingo">Bingo result</Button>
 			<Button small @click="simulateEvent($event, 'raffle')" icon="ticket">Raffle result</Button>
 			<Button small @click="simulateEvent($event, 'countdown')" icon="timer">Countdown result</Button>
