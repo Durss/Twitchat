@@ -3094,6 +3094,29 @@ export default class TwitchUtils {
 		return [];
 	}
 
+	/**
+	 * Gets a user's VODs
+	 * @param uid user ID
+	 */
+	public static async getUserVODs(uid:string, limit:number = 10): Promise<TwitchDataTypes.VOD[]> {
+		const url = new URL(Config.instance.TWITCH_API_PATH + "videos");
+		url.searchParams.append("user_id", uid);
+		url.searchParams.append("first", limit.toString());
+
+		const res = await this.callApi(url, {
+			method: "GET",
+			headers: this.headers,
+		});
+		if (res.status == 200 || res.status == 204) {
+			const json = await res.json() as {data:TwitchDataTypes.VOD[]};
+			return json.data;
+		} else if (res.status == 429) {
+			await this.onRateLimit(res.headers, url.pathname);
+			return this.getUserVODs(uid, limit);
+		}
+		return [];
+	}
+
 
 
 

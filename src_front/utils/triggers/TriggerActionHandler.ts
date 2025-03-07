@@ -3753,11 +3753,17 @@ export default class TriggerActionHandler {
 					if(pointer.indexOf("__me__") == 0) {
 						const pointerLocal = pointer.replace('__me__.', '') as keyof Pick<TwitchatDataTypes.TwitchatUser, "id" | "login">;
 						value = me[pointerLocal];
-					}
+					}else
+					/**
+					 * Get current VOD
+					 */
+					if(pointer.indexOf("__current_vod__") == 0) {
+						value = StoreProxy.stream.currentVODUrl || "";
+
 					/**
 					 * If the placeholder requests for the current stream info
 					 */
-					if(pointer.indexOf("__my_stream__") == 0 && streamInfos) {
+					}else if(pointer.indexOf("__my_stream__") == 0 && streamInfos) {
 						const pointerLocal = pointer.replace('__my_stream__.', '') as keyof TwitchatDataTypes.StreamInfo | "duration" | "duration_ms";
 						const startDate = (streamInfos.started_at || Date.now());
 						if(pointerLocal == "duration") {

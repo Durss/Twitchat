@@ -1603,6 +1603,7 @@ export const COUNTER_EDIT_SOURCE_EVERYONE:string = "EVERYONE";
 export const COUNTER_EDIT_SOURCE_CHATTERS:string = "CHATTERS";
 export const STOPWATCH_PLACEHOLDER_PREFIX:string = "SW_";
 export const COUNTDOWN_PLACEHOLDER_PREFIX:string = "CD_";
+export const CURRENT_VOD_URL:string = "CURRENT_VOD_URL";
 
 /**
  * Placeholders related to a trigger action type
@@ -2519,6 +2520,9 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		if(entry.findIndex(v=>v.tag == "MY_LOGIN") == -1) {
 			entry.push({tag:"MY_ID", descKey:'triggers.placeholders.my_user_id', pointer:"__me__.id", numberParsable:false, isUserID:true, globalTag:true, example:"123456"} as ITriggerPlaceholder<TwitchatDataTypes.TwitchatUser, string, "__me__">);
 			entry.push({tag:"MY_LOGIN", descKey:'triggers.placeholders.my_user', pointer:"__me__.login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"} as ITriggerPlaceholder<TwitchatDataTypes.TwitchatUser, string, "__me__">);
+		}
+		if(entry.findIndex(v=>v.tag == "CURRENT_VOD_URL") == -1) {
+			entry.push({tag:"CURRENT_VOD_URL", descKey:'triggers.placeholders.current_vod_url', pointer:"__current_vod__", numberParsable:false, isUserID:true, globalTag:true, example:"https://www.twitch.tv/videos/123456"});
 		}
 		if(entry.findIndex(v=>v.tag == "NOW") == -1) {
 			entry.push({tag:"NOW", descKey:'triggers.placeholders.now', pointer:"__date__.now", numberParsable:true, isUserID:false, globalTag:true, example:Date.now().toString()});

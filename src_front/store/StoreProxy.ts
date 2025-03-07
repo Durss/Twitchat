@@ -1361,6 +1361,10 @@ export interface IStreamState {
 		platform:TwitchatDataTypes.ChatPlatform;
 	};
 	/**
+	 * Gets current VOD URL
+	 */
+	currentVODUrl: string;
+	/**
 	 * Channels to autoconnect to on twitchat loading
 	 */
 	autoconnectChans:{id:string, platform:TwitchatDataTypes.ChatPlatform}[],
