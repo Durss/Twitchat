@@ -1136,13 +1136,7 @@ export default class EventSub {
 
 		//Stream online
 		}else if(topic === TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON) {
-			try {
-				// Get current VOD's URL for trigger's placeholder
-				const vod = await TwitchUtils.getUserVODs(event.broadcaster_user_id, 1);
-				if(vod && vod.length == 1) {
-					StoreProxy.stream.currentVODUrl = vod[0].url;
-				}
-			}catch(error) {}
+			await StoreProxy.stream.grabCurrentStreamVOD();
 
 			//Load stream info
 			const [streamInfo] = await TwitchUtils.getCurrentStreamInfo([event.broadcaster_user_id]);

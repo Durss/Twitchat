@@ -87,11 +87,13 @@ export const storeStream = defineStore('stream', {
 				}
 			}catch(error) {}
 
-			// Get next hype train availability every hours just in case
+			// Get next hype train availability and current VOD URL every hours just in case
 			SetIntervalWorker.instance.create(()=>{
 				this.scheduleHypeTrainCooldownAlert();
+				this.grabCurrentStreamVOD()
 			}, 60 * 60 * 1000)
 			this.scheduleHypeTrainCooldownAlert();
+			this.grabCurrentStreamVOD()
 		},
 
 		async loadStreamInfo(platform:TwitchatDataTypes.ChatPlatform, channelId:string):Promise<void> {
@@ -1114,6 +1116,17 @@ export const storeStream = defineStore('stream', {
 					ignoreHypeTrainCooldown = true;
 				}, remainingTime);
 			}
+		},
+
+		async grabCurrentStreamVOD():Promise<void> {
+			try {
+				const [currentStreamInfo] = await TwitchUtils.getCurrentStreamInfo([StoreProxy.auth.twitch.user.id]);
+				// Get current VOD's URL for trigger's placeholder
+				const vod = await TwitchUtils.getVODInfo(currentStreamInfo.id);
+				if(vod) {
+					StoreProxy.stream.currentVODUrl = vod.url;
+				}
+			}catch(error) {}
 		}
 
 	} as IStreamActions

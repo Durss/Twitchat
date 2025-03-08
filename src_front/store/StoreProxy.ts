@@ -1487,6 +1487,11 @@ export interface IStreamActions {
 	 * Request cooldown duration before next hype train
 	 */
 	scheduleHypeTrainCooldownAlert():Promise<void>;
+	/**
+	 * Get current stream VOD URL
+	 * Just used to populate the placeholder {CURRENT_VOD_URL}
+	 */
+	grabCurrentStreamVOD():Promise<void>;
 }
 
 
