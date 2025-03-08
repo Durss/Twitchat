@@ -13,7 +13,7 @@ export default class Database {
 
 	private static _instance:Database;
 
-	private DB_VERSION:number = 5;
+	private DB_VERSION:number = 6;
 
 	private _dbConnection!:IDBOpenDBRequest;
 	private _messageStore!:IDBObjectStore;
@@ -74,8 +74,9 @@ export default class Database {
 						//while still upgrading the DB version.
 						//This stuck the users with a missing table.
 						//So as a fallback, we create tables here if they don't exist.
-						await this.createMessageTable();
-						await this.createGroqTable();
+						// [EDIT] IndexedDB doesn't allow to create tables outside of onupgradeneeded
+						// await this.createMessageTable();
+						// await this.createGroqTable();
 
 						await this.limitMessageCount();
 						await this.limitGroqCount();
