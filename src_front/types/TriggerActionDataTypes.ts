@@ -2521,9 +2521,6 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 			entry.push({tag:"MY_ID", descKey:'triggers.placeholders.my_user_id', pointer:"__me__.id", numberParsable:false, isUserID:true, globalTag:true, example:"123456"} as ITriggerPlaceholder<TwitchatDataTypes.TwitchatUser, string, "__me__">);
 			entry.push({tag:"MY_LOGIN", descKey:'triggers.placeholders.my_user', pointer:"__me__.login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"} as ITriggerPlaceholder<TwitchatDataTypes.TwitchatUser, string, "__me__">);
 		}
-		if(entry.findIndex(v=>v.tag == "CURRENT_VOD_URL") == -1) {
-			entry.push({tag:"CURRENT_VOD_URL", descKey:'triggers.placeholders.current_vod_url', pointer:"__current_vod__", numberParsable:false, isUserID:true, globalTag:true, example:"https://www.twitch.tv/videos/123456"});
-		}
 		if(entry.findIndex(v=>v.tag == "NOW") == -1) {
 			entry.push({tag:"NOW", descKey:'triggers.placeholders.now', pointer:"__date__.now", numberParsable:true, isUserID:false, globalTag:true, example:Date.now().toString()});
 			entry.push({tag:"DATE", descKey:'triggers.placeholders.date', pointer:"__date__.date", numberParsable:false, isUserID:false, globalTag:true, example:Utils.formatDate(new Date(), false)});
@@ -2544,6 +2541,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 			entry.push({category:"stream", tag:"MY_STREAM_DURATION", descKey:"triggers.placeholders.my_stream_duration", pointer:"__my_stream__.duration", numberParsable:false, isUserID:false, globalTag:true, example:"01:23:45"});
 			entry.push({category:"stream", tag:"MY_STREAM_DURATION_MS", descKey:"triggers.placeholders.my_stream_duration_ms", pointer:"__my_stream__.duration_ms", numberParsable:true, isUserID:false, globalTag:true, example:"16200000"});
 			entry.push({category:"stream", tag:"MY_STREAM_LIVE", descKey:"triggers.placeholders.my_stream_live", pointer:"__my_stream__.live", numberParsable:false, isUserID:false, globalTag:true, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}], example:"false"} as ITriggerPlaceholder<TwitchatDataTypes.StreamInfo, boolean, "__my_stream__">);
+			entry.push({category:"stream", tag:"CURRENT_VOD_URL", descKey:'triggers.placeholders.current_vod_url', pointer:"__current_vod__", numberParsable:false, isUserID:true, globalTag:true, example:"https://www.twitch.tv/videos/123456"});
 		}
 
 		if(entry.findIndex(v=>v.tag == "ULULE_CAMPAIGN_NAME") == -1 && hasUlule) {
