@@ -346,7 +346,7 @@ export const storeUsers = defineStore('users', {
 								//Most probably because login is wrong or user is banned
 								let fallbackLogin = userLocal.login || userLocal.displayNameOriginal;
 								if(fallbackLogin == this.tmpDisplayName) fallbackLogin = "#"+userLocal.id;
-								userLocal.displayName = 
+								userLocal.displayName =
 								userLocal.login = "❌("+fallbackLogin+")";
 								userLocal.errored = true;
 
@@ -628,7 +628,7 @@ export const storeUsers = defineStore('users', {
 						}
 					}
 				}, duration_s*1000);
-			
+
 			}else{
 
 				//Send logs to discord if requested
@@ -785,7 +785,7 @@ export const storeUsers = defineStore('users', {
 
 			//Delete all previous messages of the user
 			StoreProxy.chat.delUserMessages(uid, channelId);
-			
+
 			//Send notification on chat
 			if(bannedUser) {
 				const m:TwitchatDataTypes.MessageBanData|TwitchatDataTypes.MessageYoutubeBanData = {
@@ -819,7 +819,7 @@ export const storeUsers = defineStore('users', {
 					}), undefined, undefined, undefined, false);
 				})
 			}
-			
+
 			//Already unbanned or user not found, ignore
 			if(!unbannedUser || !unbannedUser.channelInfo[channelId].is_banned) return;
 
@@ -857,7 +857,7 @@ export const storeUsers = defineStore('users', {
 		},
 
 		//Check if user is following
-		async checkFollowerState(user:Pick<TwitchatDataTypes.TwitchatUser, "channelInfo" | "id">, channelId:string):Promise<boolean> {
+		async checkFollowerState(user:Pick<TwitchatDataTypes.TwitchatUser, "channelInfo" | "id" | "platform">, channelId:string):Promise<boolean> {
 			if(channelId != StoreProxy.auth.twitch.user?.id) {
 				//Only get follower state for our own chan, ignore others as it won't be possible in the future
 				user.channelInfo[channelId].is_following = true;
@@ -869,7 +869,7 @@ export const storeUsers = defineStore('users', {
 				return true;
 			}
 			if(user.id) {
-				if(user.channelInfo[channelId].is_following == null) {
+				if(user.channelInfo[channelId].is_following == null && user.platform == "twitch") {
 					try {
 						// console.log("Check if ", user.displayName, "follows", channelId, "or", StoreProxy.auth.twitch.user.id);
 						const res = await TwitchUtils.getFollowerState(user.id);
@@ -946,7 +946,7 @@ export const storeUsers = defineStore('users', {
 			try {
 				await TwitchUtils.getFollowers(null, 70000, async(list)=> {
 					if(list.length === 0) return;
-					
+
 					for (let i = parseOffset; i < list.length; i++) {
 						hashmap[list[i].user_id] = new Date(list[i].followed_at).getTime();
 					}
@@ -1226,7 +1226,7 @@ export const storeUsers = defineStore('users', {
 			if(!this.customUserBadges[userId]) return;
 
 			const index = this.customUserBadges[userId].findIndex(badge => badge.id == badgeId && badge.channel == channelId);
-			
+
 			if(index > -1) this.customUserBadges[userId].splice(index, 1);
 			if(this.customUserBadges[userId].length === 0) {
 				delete this.customUserBadges[userId];
