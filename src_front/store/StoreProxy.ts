@@ -3004,6 +3004,7 @@ export interface ILabelsState {
 	labelList:LabelItemData[];
 	placeholders:Partial<{[key in LabelItemPlaceholder["tag"]]:{
 		value:string|number;
+		category:string;
 		placeholder:LabelItemPlaceholder
 	}}>;
 }

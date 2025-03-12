@@ -8,9 +8,9 @@
 			<TTButton class="addBt"
 			v-if="$store.auth.isPremium || $store.labels.labelList.length < $config.MAX_LABELS"
 			@click="addLabel()" icon="add">{{ $t("overlay.labels.addBt") }}</TTButton>
-	
+
 			<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.labels.labelList.length < $config.MAX_LABELS_PREMIUM">{{ $t("overlay.labels.premium_limit") }}</div>
-			
+
 			<div class="premium" v-else>
 				<div>{{ $t("overlay.labels.non_premium_limit", {MAX:$config.MAX_BINGO_GRIDS_PREMIUM}) }}</div>
 				<TTButton icon="premium" @click="openPremium()" light premium>{{$t('premium.become_premiumBt')}}</TTButton>
@@ -54,7 +54,7 @@
 					@change="save(label)"
 					:values="['placeholder', 'html']"
 					:labels="[$t('overlay.labels.togle_value'), 'HTML']"></SwitchButton>
-					
+
 					<ParamItem v-if="label.mode == 'html'" :paramData="param_customText[label.id]" v-model="label.html" @change="save(label)"></ParamItem>
 					<ParamItem v-if="label.mode == 'html'" :paramData="param_customCSS[label.id]" v-model="label.css" @change="save(label)"></ParamItem>
 
@@ -130,8 +130,13 @@ class OverlayParamsLabels extends Vue {
 				descKey:p.placeholder.descriptionKey,
 				descReplacedValues:{"NAME":p.placeholder.descriptionKeyName || ""},
 				tag:p.placeholder.tag,
+				category:p.category,
 			});
 		}
+		this.placeholders = this.placeholders.sort((a,b)=>{
+			if(a.category != b.category && a.category && b.category) return a.category.localeCompare(b.category);
+			return a.tag.localeCompare(b.tag);
+		});
 		this.initParams();
 	}
 
@@ -187,14 +192,32 @@ class OverlayParamsLabels extends Vue {
 			this.param_scrollable[id]			= {type:"boolean", value:false, labelKey:"overlay.labels.param_scrollable", icon:"scroll_horizontal"};
 
 			let values:typeof this.param_labelValue[string]["listValues"] = [];
-			this.placeholders.forEach(p=> {
-				values.push({
-					value:p.tag,
-					label:p.descReplacedValues? this.$t(p.descKey, p.descReplacedValues) : undefined,
-					labelKey:p.descKey,
+			let prevCat = "";
+			let group:TwitchatDataTypes.ParameterDataListValue<string> = {value:"", group:[]};
+			for (let i = 0; i < this.placeholders.length; i++) {
+				const entry = this.placeholders[i];
+				if(entry.category != prevCat) {
+					if(group.value) values.push(group);
+					group = {
+						value:this.$t("overlay.labels.categories."+entry.category),
+						label:this.$t("overlay.labels.categories."+entry.category),
+						group:[],
+					};
+					prevCat = entry.category!;
+				}
+				group.group!.push({
+					value:entry.tag,
+					label:entry.descReplacedValues? this.$t(entry.descKey, entry.descReplacedValues) : undefined,
+					labelKey:entry.descKey,
 				});
-			});
-			
+
+				group.group!.sort((a,b)=>{
+					if(a.label && b.label) return a.label.localeCompare(b.label);
+					return a.value.localeCompare(b.value);
+				});
+			}
+			if(group.value) values.push(group);
+
 			this.param_labelValue[id].listValues = values;
 		});
 	}
@@ -259,7 +282,7 @@ export default toNative(OverlayParamsLabels);
 			align-items: center;
 		}
 	}
-	
+
 	.colorPicker {
 		width: 30px;
 		min-width: 30px;

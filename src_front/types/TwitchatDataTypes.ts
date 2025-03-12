@@ -661,6 +661,10 @@ export namespace TwitchatDataTypes {
 		 * Just a field to allow storage of random data if necessary
 		 */
 		storage?:StorageType;
+		/**
+		 * Optional group containing sub entries
+		 */
+		group?:ParameterDataListValue<ValueType, StorageType>[];
 		// [parameter: string]: unknown;
 	}
 
@@ -1053,7 +1057,7 @@ export namespace TwitchatDataTypes {
 		descReplacedValues?:{[key:string]:string};
 		example?:string;
 		globalTag?:boolean;
-		category?:"stream"|"counter"|"value"|"timer"|"music"|"goxlr"|"twitch"|"streamlabs";
+		category?:"stream"|"counter"|"value"|"timer"|"music"|"goxlr"|"twitch"|"streamlabs"|string;
 		/**
 		 * Is placeholder private
 		 * Used for a deprecated placeholder that i don't want to simply break

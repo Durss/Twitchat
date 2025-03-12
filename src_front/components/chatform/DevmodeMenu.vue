@@ -60,6 +60,7 @@
 			<Button small @click="simulateEvent($event, 'tiktok_gift')" icon="tiktok">TikTok Gift</Button>
 			<Button small @click="simulateEvent($event, 'tiktok_like')" icon="tiktok">TikTok Like</Button>
 			<Button small @click="simulateEvent($event, 'tiktok_share')" icon="tiktok">TikTok Share</Button>
+			<Button small @click="simulateEvent($event, 'following', 'tiktok')" icon="tiktok">TikTok Follow</Button>
 			<Button small @click="simulateEvent($event, 'following')" icon="follow">Follow</Button>
 			<Button small @click="simulateEvent($event, 'reward')" icon="channelPoints">Reward redeem</Button>
 			<Button small @click="simulateEvent($event, 'community_challenge_contribution')" icon="channelPoints">Challenge contribution</Button>
@@ -339,24 +340,19 @@ class DevmodeMenu extends Vue {
 
 				case "youtube": {
 					if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-						message.platform = "youtube";
 						// message.message = "!q coucou durssSLIP";
 
 						// const chunks = TwitchUtils.parseMessageToChunks(message.message, undefined, true);
 						// message.message_chunks = chunks;
 						// message.message_html = TwitchUtils.messageChunksToHTML(chunks);
 						message.youtube_liveId = "xxxx";
-					}else
-					if(message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING) {
-						message.platform = "youtube";
 					}
+					message.platform = "youtube";
 					break;
 				}
 
 				case "tiktok": {
-					if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 						message.platform = "tiktok";
-					}
 				}
 			}
 			if(type === TwitchatDataTypes.TwitchatMessageType.CLIP_PENDING_PUBLICATION) {

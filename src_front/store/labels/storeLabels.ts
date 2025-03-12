@@ -34,8 +34,9 @@ export const storeLabels = defineStore('labels', {
 				if(v.perUser) return;
 				placeholders["VALUE_"+v.placeholderKey as "SUB_TIER"] = {
 					value:v.value,
+					category:"value",
 					placeholder:{
-						descriptionKey: "triggers.placeholders.value_global_value",
+						descriptionKey: "overlay.labels.placeholders.VALUE",
 						descriptionKeyName: v.name,
 						//@ts-ignore super dirty way of bypassing type checking on this I know...
 						tag:"VALUE_"+v.placeholderKey,
@@ -48,8 +49,9 @@ export const storeLabels = defineStore('labels', {
 				if(v.perUser) return;
 				placeholders["COUNTER_"+v.placeholderKey as "SUB_TIER"] = {
 					value:v.value,
+					category:"counter",
 					placeholder:{
-						descriptionKey: "triggers.placeholders.counter_global_value",
+						descriptionKey: "overlay.labels.placeholders.COUNTER",
 						descriptionKeyName: v.name,
 						//@ts-ignore super dirty way of bypassing type checking on this I know...
 						tag:"COUNTER_"+v.placeholderKey,
@@ -71,14 +73,15 @@ export const storeLabels = defineStore('labels', {
 			LabelItemPlaceholderList.forEach(p => {
 				this.placeholders[p.tag] = {
 					value: p.type == "number"? 0 : "",
+					category:p.category,
 					placeholder:p,
 				}
-			})
+			});
 			const json = DataStore.get(DataStore.OVERLAY_LABELS);
 			if(json) {
 				const data = JSON.parse(json) as IStoreData;
 				this.labelList = data.labelList;
-				
+
 				//Restore placeholder values from cache
 				if(data.cachedValues) {
 					for (const tag in data.cachedValues) {
@@ -99,20 +102,20 @@ export const storeLabels = defineStore('labels', {
 				if(e.data) this.broadcastLabelParams(e.data.id);
 			});
 
-			this.placeholders["DATE"]		= {value:Date.now(), placeholder:LabelItemPlaceholderList.find(v=>v.tag ==  "DATE")!};
-			this.placeholders["TIME"]		= {value:Date.now(), placeholder:LabelItemPlaceholderList.find(v=>v.tag ==  "TIME")!};
-			this.placeholders["DATE_TIME"]	= {value:Date.now(), placeholder:LabelItemPlaceholderList.find(v=>v.tag ==  "DATE_TIME")!};
+			this.placeholders["DATE"]		= {value:Date.now(), category:"date", placeholder:LabelItemPlaceholderList.find(v=>v.tag ==  "DATE")!};
+			this.placeholders["TIME"]		= {value:Date.now(), category:"date", placeholder:LabelItemPlaceholderList.find(v=>v.tag ==  "TIME")!};
+			this.placeholders["DATE_TIME"]	= {value:Date.now(), category:"date", placeholder:LabelItemPlaceholderList.find(v=>v.tag ==  "DATE_TIME")!};
 
 			ready = true;
 			readyResolver();
 
 			this.broadcastPlaceholders();
 		},
-		
+
 		getLabelByKey(key:typeof LabelItemPlaceholderList[number]["tag"]):string|number|undefined {
 			return this.placeholders[key]?.value;
 		},
-		
+
 		addLabel():void {
 			this.labelList.push({
 				id:Utils.getUUID(),
@@ -131,7 +134,7 @@ export const storeLabels = defineStore('labels', {
 			});
 			this.saveData();
 		},
-		
+
 		removeLabel(labelId:string):void {
 			const t = StoreProxy.i18n.t;
 			StoreProxy.main.confirm(t("overlay.labels.delete_confirm.title"), t("overlay.labels.delete_confirm.description"))
@@ -200,7 +203,7 @@ export const storeLabels = defineStore('labels', {
 			this.broadcastPlaceholders();
 			this.saveData();
 		},
-		
+
 		broadcastPlaceholders():void {
 			//This condition makes sure that even if some part of the code
 			//ends up spamming "broadcastPlaceholders()" calls, at least
@@ -230,7 +233,7 @@ export const storeLabels = defineStore('labels', {
 				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PLACEHOLDERS, list);
 			}, 100);
 		},
-		
+
 		broadcastLabelParams(labelId:string):void {
 			const data = this.labelList.find(v=>v.id == labelId) || null;
 			const tag = data?.placeholder;

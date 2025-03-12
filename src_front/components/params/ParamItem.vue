@@ -6,7 +6,7 @@
 		<div class="content">
 			<Icon :theme="paramData.iconTheme" :name="paramData.icon" v-if="paramData.icon" class="paramIcon" />
 			<img :src="paramData.iconURL" v-if="paramData.iconURL" class="paramIcon">
-			
+
 			<div v-if="paramData.type == 'custom'" class="holder custom">
 
 			<label :for="'custom'+key"
@@ -46,7 +46,7 @@
 				<label :for="paramData.type+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 
 				<TTButton v-if="typeof paramData.value == 'string'" @click="paramData.value = 0; clampValue();" icon="trash" secondary>{{ paramData.value }}</TTButton>
-				
+
 				<input v-else-if="!paramData.noInput" ref="input"
 					:tabindex="tabindex"
 					type="number"
@@ -101,7 +101,7 @@
 						@focus="$emit('focus')"
 						@blur="clampValue(); $emit('blur')"
 						@input="$emit('input')">
-						
+
 					<div class="maxlength" v-if="paramData.maxLength">{{(paramData.value as string).length}}/{{paramData.maxLength}}</div>
 				</div>
 				<slot name="composite" />
@@ -170,9 +170,18 @@
 					:id="'list'+key"
 					v-model="paramData.value"
 					v-autofocus="autofocus">
-					<option v-for="a in paramData.listValues"
-						:value="a.value"
-						:disabled="a.disabled === true">{{a.label != undefined? a.label : $t(a.labelKey!)}}</option>
+					<template v-for="a in paramData.listValues" :key="a.value">
+						<component :is="a.group? 'optgroup' : 'option'"
+						:disabled="a.disabled === true"
+						:label="a.label != undefined? a.label : $t(a.labelKey!)">
+							<option v-for="b in a.group!"
+							:value="b.value"
+							:disabled="b.disabled === true">
+								<CountryFlag v-if="a.flag" :country="a.flag" size="small" />
+								{{b.label != undefined? b.label : $t(b.labelKey!)}}
+							</option>
+						</component>
+					</template>
 				</select>
 				<slot name="composite" />
 			</div>
@@ -256,7 +265,7 @@
 				/>
 
 				<label :for="'editablelist'+key" v-html="label" v-tooltip="tooltip"></label>
-				
+
 				<vue-select class="listField"
 					label="label"
 					ref="vueSelect"
@@ -671,7 +680,21 @@ export class ParamItem extends Vue {
 		if(this.paramData.listValues && this.paramData.listValues.length > 0 && this.paramData.multiple !== true) {
 			//Check if the value is on the listValues.
 			//If not, fallback to the first value.
-			if(!this.paramData.listValues.find(v=>v.value === this.paramData.value)) {
+			let found;
+			for (let i = 0; i < this.paramData.listValues.length; i++) {
+				const entry = this.paramData.listValues[i];
+				if(entry.group) {
+					const v = entry.group.find(v=>v.value === this.paramData.value);
+					if(v) {
+						found = v;
+						break
+					}
+				}else if(entry.value === this.paramData.value) {
+					found = entry;
+					break;
+				}
+			}
+			if(!found) {
 				this.paramData.value = this.paramData.listValues[0].value;
 			}
 			this.updateSelectedListValue();
@@ -728,7 +751,7 @@ export class ParamItem extends Vue {
 			const maxLength = this.paramData.maxLength || 300;
 			const list = (this.paramData.value as string[]);
 			list.forEach((v,i)=> list[i] = v.substring(0, maxLength));
-			
+
 			//Limit number of items of the editablelist
 			const maxItem = this.paramData.max ?? 999;
 			if(list.length > maxItem) {
@@ -831,7 +854,7 @@ export class ParamItem extends Vue {
 		&& (this.paramData.type == "number" || this.paramData.type == "integer")) {
 			this.paramData.value = 0;
 		}
-		
+
 		if(this.paramData.type == "integer") {
 			this.paramData.value = Math.round(this.paramData.value as number);
 		}

@@ -27,26 +27,31 @@ input, textarea, select, .input-field {
 		color: var(--color-text);
 		background-color: var(--background-color-secondary);
 	}
-	
+
+	optgroup {
+		color: var(--color-text);
+		background-color: #008667;
+	}
+
 	&:disabled {
 		cursor: auto;
 		opacity: .5;
 	}
-	
+
 	&::placeholder {
 		font-style: italic;
 		color: var(--color-text-fade);
 	}
 	&:-webkit-autofill,
-	&:-webkit-autofill:hover, 
-	&:-webkit-autofill:active, 
-	&:-webkit-autofill:valid, 
+	&:-webkit-autofill:hover,
+	&:-webkit-autofill:active,
+	&:-webkit-autofill:valid,
 	&:-webkit-autofill:focus {
 		color: var(--color-dark);
 		background-color: var(--color-primary-extralight);
 		box-shadow: none !important;
 	}
-	
+
 	&::-webkit-scrollbar-thumb {
 		border-radius:20px;
 		background-color: var(--color-light);
@@ -74,7 +79,7 @@ body.dark {
 		color-scheme: dark;
 	}
 }
-	
+
 button {
 	font-family: var(--font-inter);
 	background: none;
