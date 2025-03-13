@@ -5,6 +5,8 @@
 		"header_link_overlay": "display them",
 		"addBt": "Create timer",
 		"premium_limit": "You created the maximum number of {MAX} timers.\nBecome premium to create up to {MAX_PREMIUM} timers.\nOr disable / delete some timers to create new ones.",
+		"default_timer_title": "Default timer",
+		"default_countdown_title": "Default countdown",
 		"delete_confirm": {
 			"title": "Delete entry",
 			"message": "Are you sure you want to delete this entry?"
