@@ -2096,7 +2096,7 @@ const UserDataSchema = {
 				labelList: {
 					type:"array",
 					minItems:0,
-					maxItems:20,
+					maxItems:50,
 					items:{
 						type:"object",
 						additionalProperties: false,
