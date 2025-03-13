@@ -90,10 +90,10 @@
 				</ToggleBlock>
 
 				<ToggleBlock :icons="['badge','user']" :title="$t('premium.cleanup.custom_badges_attribution')" :alert="!badgesUserOK" :open="!badgesUserOK"
-				v-if="Object.keys($store.users.customUserBadges).length > 0">
+				v-if="userBadges.length > 0">
 					<template #right_actions>
 						<Icon :name="(badgesUserOK? 'checkmark' : 'alert')" />
-						<strong>{{Object.keys($store.users.customUserBadges).length}}/{{ $config.MAX_CUSTOM_BADGES_ATTRIBUTION }}</strong>
+						<strong>{{userBadges.length}}/{{ $config.MAX_CUSTOM_BADGES_ATTRIBUTION }}</strong>
 					</template>
 					<div class="itemList">
 						<div class="rowItem" v-for="user in userBadges" v-tooltip="$t('premium.cleanup.custom_badges_attribution_remove')" @click="deleteUserBadges(user)">
@@ -174,6 +174,22 @@
 					</div>
 				</ToggleBlock>
 
+				<ToggleBlock :icons="['timer']" :title="$t('premium.cleanup.timers')" :alert="!timersOK" :open="!timersOK"
+				v-if="$store.timers.timerList.filter(v=>!v.isDefault).length > 0">
+					<template #right_actions>
+						<Icon :name="(labelsOK? 'checkmark' : 'alert')" />
+						<strong>{{$store.timers.timerList.filter(v=>v.enabled && !v.isDefault).length}}/{{ $config.MAX_TIMERS }}</strong>
+					</template>
+					<div class="itemList">
+						<div class="rowItem" v-for="item in $store.timers.timerList.filter(v=>!v.isDefault)">
+							<span class="label">{{ item.title }}</span>
+							<div class="toggle">
+								<ToggleButton v-model="item.enabled" @change="toggleTimer(item)" />
+							</div>
+						</div>
+					</div>
+				</ToggleBlock>
+
 				<div class="card-item warning" v-if="!allOK">{{ $t("premium.cleanup.disable_more_items") }}</div>
 				<TTButton class="completeBt" icon="checkmark" v-else @click="close()">{{ $t("premium.cleanup.completeBt") }}</TTButton>
 			</div>
@@ -222,6 +238,7 @@ class NonPremiumCleanup extends Vue {
 	public get distortionsOK():boolean { return this.$store.heat.distortionList.filter(v=>v.enabled).length <= this.$config.MAX_DISTORTION_OVERLAYS; }
 	public get bingoGridsOK():boolean { return this.$store.bingoGrid.gridList.filter(v=>v.enabled).length <= this.$config.MAX_BINGO_GRIDS; }
 	public get labelsOK():boolean { return this.$store.labels.labelList.filter(v=>v.enabled).length <= this.$config.MAX_LABELS; }
+	public get timersOK():boolean { return this.$store.timers.timerList.filter(v=>v.enabled && !v.isDefault).length <= this.$config.MAX_TIMERS; }
 	public get allOK():boolean {
 		return this.triggersOK
 			&& this.countersOK
@@ -232,7 +249,8 @@ class NonPremiumCleanup extends Vue {
 			&& this.usernamesOK
 			&& this.distortionsOK
 			&& this.bingoGridsOK
-			&& this.labelsOK;
+			&& this.labelsOK
+			&& this.timersOK;
 	}
 
 	public folderTriggerList:(TriggerListEntry|TriggerListFolderEntry)[] = [];
@@ -403,6 +421,10 @@ class NonPremiumCleanup extends Vue {
 		this.$store.labels.saveData(item.id);
 	}
 
+	public toggleTimer(item:TwitchatDataTypes.TimerData):void {
+		this.$store.timers.saveData();
+	}
+
 	public onToggleTrigger():void {
 		function buildItem(root:TriggerListEntry|TriggerListFolderEntry):TriggerTreeItemData {
 			switch(root.type) {
@@ -491,6 +513,7 @@ export default toNative(NonPremiumCleanup);
 				align-items: center;
 				color: var(--color-text);
 				padding: 0;
+				margin-left: .5em;
 				.icon {
 					height: 1.5em;
 					width: 1.5em;

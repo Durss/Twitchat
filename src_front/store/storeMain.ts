@@ -89,7 +89,8 @@ export const storeMain = defineStore("main", {
 				|| Object.keys(StoreProxy.users.customUsernames).length > Config.instance.MAX_CUSTOM_USERNAMES
 				|| StoreProxy.heat.distortionList.filter(v=>v.enabled).length > Config.instance.MAX_DISTORTION_OVERLAYS
 				|| StoreProxy.bingoGrid.gridList.filter(v=>v.enabled).length > Config.instance.MAX_BINGO_GRIDS
-				|| StoreProxy.labels.labelList.filter(v=>v.enabled).length > Config.instance.MAX_LABELS;
+				|| StoreProxy.labels.labelList.filter(v=>v.enabled).length > Config.instance.MAX_LABELS
+				|| StoreProxy.timers.timerList.filter(v=>v.enabled && !v.isDefault).length > Config.instance.MAX_TIMERS;
 		}
 	},
 
