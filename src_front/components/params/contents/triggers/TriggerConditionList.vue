@@ -139,6 +139,7 @@ class TriggerConditionList extends Vue {
 			//Don't close conditions if clicking on a tooltip's content
 			//a tooltip is used for the placeholder list on the condition's value input
 			if (parent.classList.contains('tippy-content')) return;
+			if (parent.classList.contains('vs__dropdown-menu')) return;
 			parent = parent.parentElement;
 		}
 		if (!this.$el.contains(target)) {
