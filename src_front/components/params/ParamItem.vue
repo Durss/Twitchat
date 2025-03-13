@@ -173,6 +173,7 @@
 					<template v-for="a in paramData.listValues" :key="a.value">
 						<component :is="a.group? 'optgroup' : 'option'"
 						:disabled="a.disabled === true"
+						:value="a.group? null : a.value"
 						:label="a.label != undefined? a.label : $t(a.labelKey!)">
 							<option v-for="b in a.group!"
 							:value="b.value"
@@ -691,10 +692,12 @@ export class ParamItem extends Vue {
 					}
 				}else if(entry.value === this.paramData.value) {
 					found = entry;
+					console.log("FOUND", entry)
 					break;
 				}
 			}
 			if(!found) {
+				console.log("NOT FOUND", this.paramData.value)
 				this.paramData.value = this.paramData.listValues[0].value;
 			}
 			this.updateSelectedListValue();
