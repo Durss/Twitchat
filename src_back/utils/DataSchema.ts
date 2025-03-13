@@ -1300,6 +1300,7 @@ const UserDataSchema = {
 				},
 				removeURL: {type:"boolean"},
 				replaceURL: {type:"string", maxLength:100},
+				allRemoteChans: {type:"boolean"},
 				removeEmotes: {type:"boolean"},
 				readMessages:{type:"boolean"},
 				readMessagePatern: {type:"string", maxLength:300},

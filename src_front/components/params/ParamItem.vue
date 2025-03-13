@@ -692,12 +692,10 @@ export class ParamItem extends Vue {
 					}
 				}else if(entry.value === this.paramData.value) {
 					found = entry;
-					console.log("FOUND", entry)
 					break;
 				}
 			}
 			if(!found) {
-				console.log("NOT FOUND", this.paramData.value)
 				this.paramData.value = this.paramData.listValues[0].value;
 			}
 			this.updateSelectedListValue();

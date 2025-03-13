@@ -1337,6 +1337,7 @@ export namespace TwitchatDataTypes {
 			id:string;
 			platform:"system"|"elevenlabs";
 		};
+		allRemoteChans: boolean;
 		removeEmotes: boolean;
 		maxLength: number;
 		maxDuration: number;

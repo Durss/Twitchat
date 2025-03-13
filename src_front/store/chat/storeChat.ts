@@ -2155,8 +2155,12 @@ export const storeChat = defineStore('chat', {
 				PublicAPI.instance.broadcast(TwitchatEvent.BITS, wsMessage);
 			}
 
-			TriggerActionHandler.instance.execute(message);
-			TTSUtils.instance.addMessageToQueue(message);
+			if(!isFromRemoteChan) {
+				TriggerActionHandler.instance.execute(message);
+			}
+			if(!isFromRemoteChan || StoreProxy.tts.params.allRemoteChans != false) {
+				TTSUtils.instance.addMessageToQueue(message);
+			}
 		},
 
 		deleteMessageByID(messageID:string, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint:boolean = true) {
