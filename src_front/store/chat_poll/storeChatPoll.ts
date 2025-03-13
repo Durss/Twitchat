@@ -73,20 +73,28 @@ export const storeChatPoll = defineStore('chatPoll', {
 			// Check if a poll is running
 			if(!this.data) return;
 
+			const trimedMsg = (message.message || "").trim()
 			// Check if message matches a valid index
-			const index = parseInt(message.message || "");
-			if(isNaN(index) || index < 1 || index > this.data.choices.length) return;
+			const index = parseInt(trimedMsg);
+			if(isNaN(index) || index < 1 || index > this.data.choices.length || index.toString().trim() != trimedMsg) return;
 
 			// Check permission
 			if(!await Utils.checkPermissions(this.data.permissions, message.user, message.channel_id)) return;
 
-			// User already voted
-			if(this.data.votes[message.user.id]) return;
+			if(this.data.votes[message.user.id]) {
+				// Check if the user has already voted for this index
+				if (this.data.votes[message.user.id].indices.includes(index)) return;
 
-			this.data.votes[message.user.id] = {
-				index: index,
-				platform: message.platform,
-			};
+				// Check if the user has reached the maximum number of votes allowed
+				if (this.data.votes[message.user.id].indices.length >= this.data.maxVotePerUser) return;
+			}else{
+				this.data.votes[message.user.id] = {
+					indices: [],
+					login: message.user.login,
+					platform: message.platform,
+				};
+			}
+			this.data.votes[message.user.id].indices.push(index);
 
 			this.data.choices[index-1].votes ++;
 			PublicAPI.instance.broadcast(TwitchatEvent.CHAT_POLL_PROGRESS, {poll: this.data});

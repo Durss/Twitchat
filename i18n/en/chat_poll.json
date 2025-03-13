@@ -7,7 +7,8 @@
 			"permissions":"Permissions",
 			"question":"Question",
 			"answers":"Answers (at least 2)",
-			"vote_duration":"Vote duration (minutes)"
+			"voteDuration":"Vote duration (minutes)",
+			"allowMultiVote":"Allow users to vote for {VALUE} answer max|Allow users to vote for {VALUE} answers max"
 		},
 		"state":{
 			"endBt":"End poll"

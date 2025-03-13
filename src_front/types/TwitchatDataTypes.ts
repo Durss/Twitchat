@@ -1258,7 +1258,11 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Stores the poll's votes
 		 */
-		votes:{[uid:string]:{index:number, platform:ChatPlatform}}
+		votes:{[uid:string]:{indices:number[], login:string, platform:ChatPlatform}}
+		/**
+		 * Maximum answers a user can vote for
+		 */
+		maxVotePerUser:number;
 	}
 
 	/**
@@ -4630,7 +4634,7 @@ export namespace TwitchatDataTypes {
 		 * User that clicked.
 		 * "null" for anonymous users
 		 */
-		user:Pick<TwitchatDataTypes.TwitchatUser, "channelInfo" | "id" | "login"> | null;
+		user:Pick<TwitchatDataTypes.TwitchatUser, "channelInfo" | "id" | "login" | "platform"> | null;
 		/**
 		 * Is it an anonymous user?
 		 */

@@ -69,6 +69,7 @@
 		"placeholder_selector_title": "Special placeholders dynamically replaced",
 		"placeholder_selector_insert": "Insert",
 		"placeholder_selector_categories": {
+			"misc": "Miscellaneous",
 			"stream": "Stream info",
 			"timer": "Timer & countdown",
 			"goxlr": "GoXLR",

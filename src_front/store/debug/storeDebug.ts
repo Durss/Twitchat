@@ -643,6 +643,7 @@ export const storeDebug = defineStore('debug', {
 							started_at:Date.now() - 2 * 60 * 1000,
 							ended_at:Date.now(),
 							winner,
+							maxVotePerUser:1,
 							permissions:{
 								broadcaster:true,
 								mods:true,

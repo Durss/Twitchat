@@ -53,7 +53,7 @@ class TriggerActionMusicEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionMusicEntryData;
-	
+
 	@Prop
 	declare triggerData:TriggerData;
 
@@ -78,10 +78,12 @@ class TriggerActionMusicEntry extends AbstractTriggerActionEntry {
 
 	public beforeMount():void {
 		//List all available trigger types
-		let events:TriggerMusicEventType[] = [];
-		events.push( {labelKey:"triggers.actions.music.param_actions_default", icon:"music", value:"0", category:TriggerEventTypeCategories.MUSIC} ),
-		events = events.concat(MusicTriggerEvents());
-		
+		let events:TwitchatDataTypes.ParameterDataListValue<TriggerMusicTypesValue>[] = [];
+		events.push( {labelKey:"triggers.actions.music.param_actions_default", value:"0"} );
+		MusicTriggerEvents().forEach(v=> {
+			events.push( {labelKey:v.labelKey, value:v.value} );
+		});
+
 		this.param_actions.value		= this.action.musicAction? this.action.musicAction : events[0].value;
 		this.param_actions.listValues	= events;
 

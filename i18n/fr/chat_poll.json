@@ -7,7 +7,8 @@
 			"permissions":"Permissions",
 			"question":"Question",
 			"answers":"Réponses (minimum 2)",
-			"vote_duration":"Durée du vote (minutes)"
+			"voteDuration":"Durée du vote (minutes)",
+			"allowMultiVote":"Permettre aux viewers de voter pour {VALUE} réponse maximum|Permettre aux viewers de voter pour {VALUE} réponses maximum"
 		},
 		"state":{
 			"endBt":"Terminer le sondage"

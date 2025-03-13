@@ -689,6 +689,7 @@ const UserDataSchema = {
 										title: {type:"string", maxLength:100},
 										duration_s: {type:"integer", minimum:0, maximum:999999999},
 										started_at: {type:"integer", minimum:0, maximum:Number.MAX_SAFE_INTEGER},
+										maxVotePerUser: {type:"integer", minimum:1, maximum:2},
 										permissions:{ $ref: "defs.json#/definitions/permissions" },
 										choices: {
 											type:"array",

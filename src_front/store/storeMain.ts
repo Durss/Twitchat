@@ -467,7 +467,7 @@ export const storeMain = defineStore("main", {
 						alert: false,
 					}
 				};
-				let user!: Pick<TwitchatDataTypes.TwitchatUser, "id" | "login" | "channelInfo" | "anonymous">;
+				let user!: Pick<TwitchatDataTypes.TwitchatUser, "id" | "login" | "channelInfo" | "anonymous" | "platform">;
 				const channelId = StoreProxy.auth.twitch.user.id;
 				if (!data.anonymous) {
 					//Load user data
@@ -494,7 +494,7 @@ export const storeMain = defineStore("main", {
 						is_vip: false,
 						online: true,
 					};
-					user = { id: data.uid || "anon", login: "anon", channelInfo, anonymous: true };
+					user = { id: data.uid || "anon", login: "anon", channelInfo, anonymous: true, platform:"twitch" };
 				}
 				const message: TwitchatDataTypes.MessageHeatClickData = {
 					date: Date.now(),

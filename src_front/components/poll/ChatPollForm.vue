@@ -29,13 +29,14 @@
 				</div>
 
 				<ParamItem :paramData="param_duration" @change="onValueChange()" />
+				<ParamItem :paramData="param_allowMultiVote" @change="onValueChange()" />
 
 				<ToggleBlock :title="$t('chatPoll.form.permissions')" :open="false" :icons="['lock_fit']">
 					<PermissionsForm v-model="permissions" @change="onValueChange()" />
 				</ToggleBlock>
 
 				<TTButton type="submit" v-if="triggerMode === false"
-					:disabled="title.length < 1 || choices.filter(v=> v.label.trim().length > 0).length < 2">{{ $t('global.start') }}</TTButton>
+					:disabled="choices.filter(v=> v.label.trim().length > 0).length < 2">{{ $t('global.start') }}</TTButton>
 			</form>
 		</div>
 	</div>
@@ -86,8 +87,9 @@ class ChatPollForm extends AbstractSidePanel {
 
 	public title = "";
 	public choices:TwitchatDataTypes.ChatPollData["choices"] = [];
-	public param_title:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", maxLength:100, labelKey:"prediction.form.question", placeholderKey:"prediction.form.question_placeholder"};
-	public param_duration:TwitchatDataTypes.ParameterData<number> = {value:2*60, type:"duration", min:5, max:3600, labelKey:"poll.form.vote_duration", icon:"timer"};
+	public param_title:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", maxLength:100, labelKey:"chatPoll.form.question", placeholderKey:"prediction.form.question_placeholder"};
+	public param_duration:TwitchatDataTypes.ParameterData<number> = {value:2*60, type:"duration", min:5, max:3600, labelKey:"chatPoll.form.voteDuration", icon:"timer"};
+	public param_allowMultiVote:TwitchatDataTypes.ParameterData<number> = {value:1, type:"number", min:1, max:2, labelKey:"chatPoll.form.allowMultiVote", icon:"user"};
 	public placeholderList:ITriggerPlaceholder<any>[] = [];
 	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
@@ -162,8 +164,9 @@ class ChatPollForm extends AbstractSidePanel {
 						}
 					}
 				}
-
 			}
+
+			this.param_allowMultiVote.max = this.choices.length
 		}, {deep:true});
 	}
 
@@ -175,6 +178,7 @@ class ChatPollForm extends AbstractSidePanel {
 			duration_s:this.param_duration.value,
 			started_at:Date.now(),
 			votes:{},
+			maxVotePerUser:2,
 		})
 		this.close();
 	}
@@ -190,6 +194,7 @@ class ChatPollForm extends AbstractSidePanel {
 				duration_s:this.param_duration.value,
 				started_at:Date.now(),
 				permissions:this.permissions,
+				maxVotePerUser:this.param_allowMultiVote.value,
 				votes:{},
 			};
 		}

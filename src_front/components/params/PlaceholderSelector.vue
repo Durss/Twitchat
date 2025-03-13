@@ -38,19 +38,23 @@
 				</div>
 
 				<template v-if="(globalPlaceholders.length + globalPlaceholderCategories.length) > 0">
-					<div class="list">
-						<template v-for="(h,index) in globalPlaceholders" :key="h.tag+index">
-							<TTButton primary small @click="insert(h)"
-								:copy="copyMode !== false? '{'+h.tag+'}' : undefined"
-								v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</TTButton>
+					<ToggleBlock class="misc" key="misc" small v-if="globalPlaceholders.length > 0" :open="search.length > 0"
+					noBackground
+					:title="$t('global.placeholder_selector_categories.misc')">
+						<div class="list">
+							<template v-for="(h,index) in globalPlaceholders" :key="h.tag+index">
+								<TTButton primary small @click="insert(h)"
+									:copy="copyMode !== false? '{'+h.tag+'}' : undefined"
+									v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</TTButton>
 
-							<i18n-t scope="global" :keypath="h.descKey" tag="span">
-								<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
-									<mark>{{ value }}</mark>
-								</template>
-							</i18n-t>
-						</template>
-					</div>
+								<i18n-t scope="global" :keypath="h.descKey" tag="span">
+									<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
+										<mark>{{ value }}</mark>
+									</template>
+								</i18n-t>
+							</template>
+						</div>
+					</ToggleBlock>
 
 					<ToggleBlock class="global" v-for="c in globalPlaceholderCategories" :key="c.key" small :open="search.length > 0"
 					noBackground
@@ -233,9 +237,9 @@ export default toNative(PlaceholderSelector);
 	font-size: .8em;
 }
 .tooltipContent {
-	.global {
-		margin-top: .25em;
-	}
+	gap: .25em;
+	display: flex;
+	flex-direction: column;
 
 	&.popoutMode {
 		width: 450px;
