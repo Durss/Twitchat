@@ -37,9 +37,7 @@
 					</template>
 				</div>
 
-				<ToggleBlock class="global" small v-if="(globalPlaceholders.length + globalPlaceholderCategories.length) > 0" :open="search.length > 0"
-				noBackground
-				:title="$t('global.placeholder_selector_global')">
+				<template v-if="(globalPlaceholders.length + globalPlaceholderCategories.length) > 0">
 					<div class="list">
 						<template v-for="(h,index) in globalPlaceholders" :key="h.tag+index">
 							<TTButton primary small @click="insert(h)"
@@ -71,7 +69,7 @@
 							</template>
 						</div>
 					</ToggleBlock>
-				</ToggleBlock>
+				</template>
 			</div>
 		</template>
 	</component>

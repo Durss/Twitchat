@@ -184,7 +184,7 @@ class OverlayParamsLabels extends Vue {
 			this.param_labelValue[id]			= {type:"list", value:"", labelKey:"overlay.labels.param_labelValue", icon:"label"};
 			this.param_labelValueFont[id]		= {type:"font", value:"Inter", labelKey:"overlay.labels.param_labelValueFont", icon:"font"};
 			this.param_labelValueSize[id]		= {type:"number", value:40, labelKey:"overlay.labels.param_labelValueSize", icon:"fontSize", min:5, max:300};
-			this.param_customText[id]			= {type:"string", value:"", labelKey:"overlay.labels.param_customText", maxLength:10000, longText:true, icon:"html", placeholderList:this.placeholders};
+			this.param_customText[id]			= {type:"string", value:"", labelKey:"overlay.labels.param_customText", maxLength:10000, longText:true, icon:"html"};
 			this.param_customCSS[id]			= {type:"string", value:"", labelKey:"overlay.labels.param_customCSS", maxLength:10000, longText:true, icon:"css"};
 			this.param_textColor[id]			= {type:"color", value:""};
 			this.param_backgroundEnabled[id]	= {type:"boolean", value:true, labelKey:"overlay.labels.param_backgroundEnabled", icon:"overlay"};
@@ -196,11 +196,12 @@ class OverlayParamsLabels extends Vue {
 			let group:TwitchatDataTypes.ParameterDataListValue<string> = {value:"", group:[]};
 			for (let i = 0; i < this.placeholders.length; i++) {
 				const entry = this.placeholders[i];
+				entry.globalTag = true;
 				if(entry.category != prevCat) {
 					if(group.value) values.push(group);
 					group = {
-						value:this.$t("overlay.labels.categories."+entry.category),
-						label:this.$t("overlay.labels.categories."+entry.category),
+						value:this.$t("global.placeholder_selector_categories."+entry.category),
+						label:this.$t("global.placeholder_selector_categories."+entry.category),
 						group:[],
 					};
 					prevCat = entry.category!;
@@ -219,6 +220,7 @@ class OverlayParamsLabels extends Vue {
 			if(group.value) values.push(group);
 
 			this.param_labelValue[id].listValues = values;
+			this.param_customText[id].placeholderList = this.placeholders;
 		});
 	}
 
