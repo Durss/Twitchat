@@ -182,6 +182,8 @@ export const storeStream = defineStore('stream', {
 					uid:this.currentRaid.user.id,
 					date:Date.now(),
 				});
+				//Sort from older to most recent
+				this.raidHistory.sort((a,b)=> a.date - b.date);
 				//Limit history to 200 entries
 				if(this.raidHistory.length > 200) {
 					this.raidHistory.shift();
