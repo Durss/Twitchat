@@ -92,6 +92,7 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static DONATION_GOALS_OVERLAY_PARAMS:TwitchatEventType = "DONATION_GOALS_OVERLAY_PARAMS";
 	public static DONATION_EVENT:TwitchatEventType = "DONATION_EVENT";
 	public static QNA_SESSION_LIST:TwitchatEventType = "QNA_SESSION_LIST";
+	public static ANIMATED_TEXT_CONFIGS:TwitchatEventType = "ANIMATED_TEXT_CONFIGS";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -179,6 +180,8 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static QNA_SKIP:TwitchatActionType = "QNA_SKIP";
 	public static QNA_SESSION_GET_ALL:TwitchatActionType = "QNA_SESSION_GET_ALL";
 	public static HIDE_ALERT:TwitchatActionType = "HIDE_ALERT";
+	public static GET_ANIMATED_TEXT_CONFIGS:TwitchatActionType = "GET_ANIMATED_TEXT_CONFIGS";
+	public static ANIMATED_TEXT_SET:TwitchatActionType = "ANIMATED_TEXT_SET";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:T) {
 		super(type);
@@ -270,6 +273,7 @@ export const TwitchatEventTypeList = [
 	"DONATION_GOALS_OVERLAY_PARAMS",
 	"DONATION_EVENT",
 	"QNA_SESSION_LIST",
+	"ANIMATED_TEXT_CONFIGS",
 ] as const;
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
 
@@ -359,5 +363,7 @@ export const TwitchatActionTypeList = [
 	"QNA_SKIP",
 	"QNA_SESSION_GET_ALL",
 	"HIDE_ALERT",
+	"GET_ANIMATED_TEXT_CONFIGS",
+	"ANIMATED_TEXT_SET",
 ] as const;
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

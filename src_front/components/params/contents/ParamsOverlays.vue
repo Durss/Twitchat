@@ -44,6 +44,7 @@
 			<button class="item" @click="subContent = 'distort'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_distort'}"><img src="@/assets/img/overlays/interractive_distortions.jpg" alt="Interactive distortions"></button>
 			<button class="item" @click="subContent = 'adbreak'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_adbreak'}"><img src="@/assets/img/overlays/ad_break.jpg" alt="Ad break indicator"></button>
 			<button class="item" @click="subContent = 'chathighlight'"><img src="@/assets/img/overlays/highlights.jpg" alt="Chat highlight"></button>
+			<button class="item" @click="subContent = 'animatedtext'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_overlays_animatedText'}"><img src="@/assets/img/overlays/animated_text.jpg" alt="Animated text"></button>
 			<button class="item" @click="subContent = 'labels'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'params_overlays_labels'}"><img src="@/assets/img/overlays/labels.jpg" alt="Labels"></button>
 			<button class="item" @click="subContent = 'counter'"><img src="@/assets/img/overlays/counters.jpg" alt="Counters"></button>
 			<button class="item" @click="subContent = 'timer'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_overlays_timers'}"><img src="@/assets/img/overlays/timer.jpg" alt="Timers"></button>
@@ -68,6 +69,7 @@
 			<OverlayParamsBingoGrid class="block"		:open="subContent == 'bingogrid'"		v-if="subContent == 'bingogrid'" />
 			<OverlayParamsLabels class="block"			:open="subContent == 'labels'"			v-if="subContent == 'labels'" />
 			<OverlayParamsDonationGoal class="block"	:open="subContent == 'donationgoals'"	v-if="subContent == 'donationgoals'" />
+			<OverlayParamsAnimatedText class="block"	:open="subContent == 'animatedtext'"	v-if="subContent == 'animatedtext'" />
 		</div>
 	</div>
 </template>
@@ -97,6 +99,7 @@ import OverlayParamsBingoGrid from './overlays/OverlayParamsBingoGrid.vue';
 import OverlayParamsLabels from './overlays/OverlayParamsLabels.vue';
 import OverlayParamsDonationGoal from './overlays/OverlayParamsDonationGoal.vue';
 import OverlayParamsChatPoll from './overlays/OverlayParamsChatPoll.vue';
+import OverlayParamsAnimatedText from './overlays/OverlayParamsAnimatedText.vue';
 
 @Component({
 	components:{
@@ -118,6 +121,7 @@ import OverlayParamsChatPoll from './overlays/OverlayParamsChatPoll.vue';
 		OverlayParamsPredictions,
 		OverlayParamsHeatDistort,
 		OverlayParamsDonationGoal,
+		OverlayParamsAnimatedText,
 	},
 	emits:[]
 })

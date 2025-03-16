@@ -30,8 +30,10 @@
 			"testBt": "Start a test animation"
 		},
 		"timer": {
+			"header": "Create timers, control them from Triggers, and display their status on your stream",
 			"default_timer": "This overlay is tied with {CMD} commands",
 			"css": "Change the appearance of the timer with these CSS selectors",
+			"createTimer_bt": "Create a timer",
 			"param_style": "Overlay style",
 			"param_style_text":"Text",
 			"param_style_bar":"Progress bar",
@@ -44,7 +46,9 @@
 			"param_progressSize": "Bar size ( {VALUE}px )",
 			"param_progressStyle": "Progress type",
 			"param_progressStyle_empty": "Empty",
-			"param_progressStyle_fill": "Fill"
+			"param_progressStyle_fill": "Fill",
+			"premium_limit":"You reached the maximum number timers you can create.",
+			"non_premium_limit":"You reached the maximum number of timers.\nBecome premium to create up to {MAX} timers."
 		},
 		"counters": {
 			"title": "Counters",
@@ -394,7 +398,8 @@
 			"param_showProgress": "@:overlay.polls.param_showProgress",
 			"param_placement": "@:overlay.polls.param_placement",
 			"param_showOnlyResult": "@:overlay.polls.param_showOnlyResult",
-			"param_resultDuration": "@:overlay.polls.param_resultDuration"
+			"param_resultDuration": "@:overlay.polls.param_resultDuration",
+			"non_premium_limit":"You reached the maximum number of answers.\nBecome premium to set up to {MAX} answers."
 		},
 		"bingo_grid": {
 			"head": "Show interactive bingo grids"
@@ -605,6 +610,31 @@
 				"TIKTOK_GIFT_IMAGE": "Gift - Image",
 				"TIKTOK_GIFT_COUNT": "Gift - Number of gifts",
 				"TIKTOK_GIFT_DIAMONDS": "Gift - Diamonds received"
+			}
+		},
+		"animatedText": {
+			"header": "Show animated text on your stream",
+			"add_bt": "Create overlay",
+			"default_title":"Animated text",
+			"premium_limit": "You reached the maximum number of overlays you can create",
+			"non_premium_limit":"You reached the maximum number of animated text overlays.\nBecome premium to set up to {MAX} overlays.",
+			"param_animDurationScale": "Animation duration",
+			"param_animStrength": "Animation amplitude",
+			"param_animStyle": "Animation type",
+			"param_autoHide": "Auto-hide text",
+			"param_colorBase": "Text color",
+			"param_colorHighlights": "Highlight color",
+			"param_textFont": "Text font",
+			"param_textSize": "Text size",
+			"param_anim_styles": {
+				"wave": "Wave",
+				"typewriter": "Typewritter",
+				"bounce": "Bouncy",
+				"wobble": "Wobbly"
+			},
+			"delete_confirm": {
+				"title": "Delete entry",
+				"message": "Are you sure you want to delete this entry?"
 			}
 		}
 	}

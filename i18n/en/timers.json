@@ -4,6 +4,7 @@
 		"header_link_trigger": "the triggers",
 		"header_link_overlay": "display them",
 		"addBt": "Create timer",
+		"overlayBt": "Configure overlays",
 		"premium_limit": "You created the maximum number of {MAX} timers.\nBecome premium to create up to {MAX_PREMIUM} timers.\nOr disable / delete some timers to create new ones.",
 		"default_timer_title": "Default timer",
 		"default_countdown_title": "Default countdown",

@@ -4,18 +4,19 @@
 		<OverlaysRaffleWheel v-if="overlay=='wheel' || overlay=='unified'" />
 		<OverlayChatHighlight v-if="overlay=='chathighlight' || overlay=='unified'" />
 		<OverlayMusicPlayer v-if="overlay=='music' || overlay=='unified'" :embed="overlay=='unified'" keepEmbedTransitions ref="music" class="music" />
-		<OverlayEndingCredits v-if="overlay=='credits'" />
-		<OverlayCounter v-if="overlay=='counter'" />
-		<OverlayUlule v-if="overlay=='ulule'" />
-		<OverlayHeatDebug v-if="overlay=='heatdebug'" />
-		<OverlayAdBreak v-if="overlay=='adbreak'" />
-		<OverlayDistort v-if="overlay=='distort'" />
-		<OverlayBitsWall v-if="overlay=='bitswall'" />
-		<OverlayPredictions v-if="overlay=='predictions'" />
-		<OverlayPoll v-if="overlay=='polls'" />
-		<OverlayChatPoll v-if="overlay=='chatPoll'" />
-		<OverlayBingoGrid v-if="overlay=='bingogrid'" ref="bingoGrid" />
-		<OverlayDonationGoals v-if="overlay=='donationgoals'" />
+		<OverlayEndingCredits v-else-if="overlay=='credits'" />
+		<OverlayCounter v-else-if="overlay=='counter'" />
+		<OverlayUlule v-else-if="overlay=='ulule'" />
+		<OverlayHeatDebug v-else-if="overlay=='heatdebug'" />
+		<OverlayAdBreak v-else-if="overlay=='adbreak'" />
+		<OverlayDistort v-else-if="overlay=='distort'" />
+		<OverlayBitsWall v-else-if="overlay=='bitswall'" />
+		<OverlayPredictions v-else-if="overlay=='predictions'" />
+		<OverlayPoll v-else-if="overlay=='polls'" />
+		<OverlayChatPoll v-else-if="overlay=='chatPoll'" />
+		<OverlayBingoGrid v-else-if="overlay=='bingogrid'" ref="bingoGrid" />
+		<OverlayDonationGoals v-else-if="overlay=='donationgoals'" />
+		<OverlayAnimatedText v-else-if="overlay=='animatedtext'" />
 	</div>
 </template>
 
@@ -43,6 +44,7 @@ const OverlayPoll = defineAsyncComponent({loader: () => import('@/components/ove
 const OverlayBingoGrid = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayBingoGrid.vue')});
 const OverlayDonationGoals = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayDonationGoals.vue')});
 const OverlayChatPoll = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayChatPoll.vue')});
+const OverlayAnimatedText = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayAnimatedText.vue')});
 
 @Component({
 	components:{
@@ -62,6 +64,7 @@ const OverlayChatPoll = defineAsyncComponent({loader: () => import('@/components
 		OverlayDonationGoals,
 		OverlayEndingCredits,
 		OverlayChatHighlight,
+		OverlayAnimatedText,
 	}
 })
 class Overlay extends Vue {

@@ -2429,6 +2429,33 @@ const UserDataSchema = {
 				},
 			}
 		},
+
+		animatedTextConfigs:{
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				animatedTextList: {
+					type:"array",
+					minItems:0,
+					maxItems:10,
+					items:{
+						type: "object",
+						properties: {
+							id: { type: "string" },
+							title: { type: "string", maxLength:30 },
+							animStyle: { type: "string", maxLength:20 },
+							animDurationScale: { type: "number", minimum:0, maximum:1 },
+							animStrength: { type: "number", minimum:0, maximum:1 },
+							colorBase: {type:"string", maxLength:10},
+							colorHighlights: {type:"string", maxLength:10},
+							autoHide: { type: "boolean" },
+							textFont: {type:"string", maxLength:50},
+							textSize: {type:"number", minimum:1, maximum:300},
+						}
+					}
+				},
+			}
+		},
 	}
 }
 

@@ -118,7 +118,7 @@ export const storeTimer = defineStore('timer', {
 
 		createTimer() {
 			// +2 is to account for the default timer and countdown
-			if(!StoreProxy.auth.isPremium && this.timerList.length >= Config.instance.MAX_TIMERS + 2) return;
+			if(!StoreProxy.auth.isPremium && this.timerList.filter(v=>!v.isDefault && v.enabled).length >= Config.instance.MAX_TIMERS + 2) return;
 			const data:TwitchatDataTypes.TimerData = {
 				id:Utils.getUUID(),
 				type:"timer",

@@ -30,8 +30,10 @@
 			"testBt": "Lancer une animation de test"
 		},
 		"timer": {
+			"header": "Créez des minuteurs, contrôlez-les depuis les Triggers, et affichez leur état sur votre stream",
 			"default_timer": "Cet overlay est lié aux commandes {CMD}",
 			"css": "Changez l'apparence via ces sélecteurs CSS",
+			"createTimer_bt": "Créez un minuteur",
 			"param_style": "Style d'affichage",
 			"param_style_text":"Texte",
 			"param_style_bar":"Barre de progression",
@@ -44,7 +46,9 @@
 			"param_progressSize": "Taille de la barre ( {VALUE}px )",
 			"param_progressStyle": "Type de progression",
 			"param_progressStyle_empty": "Vider",
-			"param_progressStyle_fill": "Remplir"
+			"param_progressStyle_fill": "Remplir",
+			"premium_limit":"Vous avez atteint le nombre maximum de minuteurs que vous pouvez créer.",
+			"non_premium_limit":"Vous avez atteint le nombre maximum de minuteurs.\nDevenez premium pour définir jusqu'à {MAX} minuteurs."
 		},
 		"counters": {
 			"title": "Compteurs",
@@ -393,7 +397,8 @@
 			"param_showProgress": "@:overlay.polls.param_showProgress",
 			"param_placement": "@:overlay.polls.param_placement",
 			"param_showOnlyResult": "@:overlay.polls.param_showOnlyResult",
-			"param_resultDuration": "@:overlay.polls.param_resultDuration"
+			"param_resultDuration": "@:overlay.polls.param_resultDuration",
+			"non_premium_limit":"Vous avez atteint le nombre maximum de réponses.\nDevenez premium pour définir jusqu'à {MAX} réponses."
 		},
 		"bingo_grid": {
 			"head": "Afficher des grilles de bingo interactives"
@@ -604,6 +609,31 @@
 				"TIKTOK_GIFT_IMAGE": "Cadeau - Image",
 				"TIKTOK_GIFT_COUNT": "Cadeau - Nombre de cadeaux",
 				"TIKTOK_GIFT_DIAMONDS": "Cadeau - Dimants reçus"
+			}
+		},
+		"animatedText": {
+			"header": "Affiche du texte animé sur ton stream",
+			"add_bt": "Créer un overlay",
+			"default_title":"Texte animé",
+			"premium_limit":"Vous avez atteint le nombre maximum de textes animés que vous pouvez créer.",
+			"non_premium_limit":"Vous avez atteint le nombre maximum de textes animés que vous pouvez créer.\nDevenez premium pour créer jusqu'à {MAX} textes animés.",
+			"param_animDurationScale": "Durée de l'animation",
+			"param_animStrength": "Amplitude de l'animation",
+			"param_animStyle": "Type d'animation",
+			"param_autoHide": "Masquer automatiquement le text",
+			"param_colorBase": "Couleur du texte",
+			"param_colorHighlights": "Couleur des mots clés",
+			"param_textFont": "Police du texte",
+			"param_textSize": "Taille du texte",
+			"param_anim_styles": {
+				"wave": "Vague",
+				"typewriter": "Machine à écrire",
+				"bounce": "Rebond",
+				"wobble": "Elastique"
+			},
+			"delete_confirm": {
+				"title": "Supprimer cet entrée",
+				"message": "Êtes-vous sûr de vouloir supprimer cette entrée ?"
 			}
 		}
 	}

@@ -894,6 +894,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.prediction.populateData();
 			StoreProxy.playability.populateData();
 			StoreProxy.streamerbot.populateData();
+			StoreProxy.animatedText.populateData();
 			StoreProxy.twitchCharity.populateData();
 			StoreProxy.donationGoals.populateData();
 			StoreProxy.streamelements.populateData();

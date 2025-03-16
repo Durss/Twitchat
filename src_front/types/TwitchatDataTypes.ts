@@ -14,7 +14,7 @@ export namespace TwitchatDataTypes {
 
 	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "chatPoll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
 
-	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals';
+	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals' | "animatedtext";
 
 	export const ParamDeepSections = {
 		AD: "ad",
@@ -2128,6 +2128,53 @@ export namespace TwitchatDataTypes {
 		 */
 		preprompt?:string;
 	}
+
+	/**
+	 * Represents an Animated Text overlay params
+	 */
+	export interface AnimatedTextData {
+		id:string;
+		/**
+		 * Optional overlay title
+		 */
+		title:string;
+		/**
+		 * Animation style
+		 */
+		animStyle: typeof AnimatedTextData_AnimStyles[number];
+		/**
+		 * Animation duration scale
+		 * The higher the slower.
+		 * Represents the delay between each letter
+		 */
+		animDurationScale:number;
+		/**
+		 * Animation strength
+		 * The higher the value, the strong the animation effect
+		 */
+		animStrength:number;
+		/**
+		 * Text color
+		 */
+		colorBase:string;
+		/**
+		 * Highlighted text color
+		 */
+		colorHighlights:string;
+		/**
+		 * Automatically hide the text after a duration that depends on the text length
+		 */
+		autoHide:boolean;
+		/**
+		 * Text font
+		 */
+		textFont:string;
+		/**
+		 * Text size
+		 */
+		textSize:number;
+	}
+	export const AnimatedTextData_AnimStyles = ["wave","typewriter","bounce","wobble"] as const
 
 	/**
 	 * Contains only the Array props from the StreamSummaryData

@@ -19,6 +19,7 @@
 				<span>{{$t("timers.premium_limit", {MAX:$config.MAX_TIMERS, MAX_PREMIUM:$config.MAX_TIMERS_PREMIUM})}}</span>
 				<TTButton icon="premium" premium light @click="openPremium()">{{ $t("premium.become_premiumBt") }}</TTButton>
 			</div>
+			<TTButton icon="overlay" @click="openOverlays()">{{ $t('timers.overlayBt') }}</TTButton>
 		</section>
 
 		<draggable class="entryList"
@@ -46,7 +47,7 @@
 					<template #right_actions>
 						<div class="actions" v-if="!entry.isDefault">
 							<ToggleButton v-model="entry.enabled"
-							@change="console.log(entry.enabled);$store.timers.saveData()"
+							@change="$store.timers.saveData()"
 							@click.stop />
 							<TTButton class="actionBt" @click.stop :copy="entry.id" icon="id" v-tooltip="$t('global.copy_id')" small />
 							<TTButton class="actionBt" alert icon="trash" @click.stop="$store.timers.deleteTimer(entry.id)" />
@@ -154,8 +155,8 @@ class ParamsTimer extends Vue implements IParameterContent {
 	private refreshInterval = -1;
 
 	public get canCreateTimers():boolean {
-		if(this.$store.auth.isPremium) return true;
-		const count = this.$store.timers.timerList.filter(v=>v.enabled != false).length;
+		if(this.$store.auth.isPremium) return this.$store.timers.timerList.length < this.$config.MAX_TIMERS_PREMIUM;
+		const count = this.$store.timers.timerList.filter(v=>v.enabled != false).length - 2;
 		return count < this.$config.MAX_TIMERS;
 	}
 

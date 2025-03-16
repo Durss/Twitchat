@@ -81,6 +81,7 @@ export default class StoreProxy {
 	public static playability: IPlayabilityState & IPlayabilityGetters & IPlayabilityActions & { $state: IPlayabilityState, $reset: () => void };
 	public static twitchBot: ITwitchBotState & ITwitchBotGetters & ITwitchBotActions & { $state: ITwitchBotState, $reset: () => void };
 	public static groq: IGroqState & IGroqGetters & IGroqActions & { $state: IGroqState, $reset: () => void };
+	public static animatedText: IAnimatedTextState & IAnimatedTextGetters & IAnimatedTextActions & { $state: IAnimatedTextState, $reset: () => void };
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static asset:(path: string) => string;
@@ -3585,4 +3586,40 @@ export interface IGroqActions {
 	 * Executes a query
 	 */
 	executeQuery(preprompt:string, prompt:string, model?:string, jsonSchema?:string):Promise<string|false>
+}
+
+
+
+
+export interface IAnimatedTextState {
+	/**
+	 * AnimatedText's list
+	 */
+	animatedTextList: TwitchatDataTypes.AnimatedTextData[],
+}
+
+export interface IAnimatedTextGetters {
+}
+
+export interface IAnimatedTextActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
+	/**
+	 * Braodcast current animatedText and countdown statesvia the PublicAPI
+	 */
+	broadcastStates(id?:string):void;
+	/**
+	 * Create a animatedText
+	 */
+	createAnimatedText():void;
+	/**
+	 * Deletes given animatedText
+	 */
+	deleteAnimatedText(id:string):void;
+	/**
+	 * Saves data to server
+	 */
+	saveData():void;
 }

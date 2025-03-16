@@ -22,6 +22,11 @@
 						<div class="len">{{choices[index].label.length}}/50</div>
 					</div>
 
+					<div class="card-item premium" v-if="showPremiumLimit">
+						<div>{{ $t("overlay.chatPoll.non_premium_limit", {MAX:$config.MAX_CHAT_POLL_ENTRIES_PREMIUM}) }}</div>
+						<TTButton icon="premium" @click="openPremium()" light premium>{{$t('premium.become_premiumBt')}}</TTButton>
+					</div>
+
 					<PlaceholderSelector class="child placeholders" v-if="placeholderList.length > 0"
 						copyMode
 						:placeholders="placeholderList"
@@ -44,7 +49,7 @@
 
 <script lang="ts">
 import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionChatPollData, type TriggerData } from '@/types/TriggerActionDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
@@ -86,6 +91,7 @@ class ChatPollForm extends AbstractSidePanel {
 	public triggerData!:TriggerData;
 
 	public title = "";
+	public showPremiumLimit = false;
 	public choices:TwitchatDataTypes.ChatPollData["choices"] = [];
 	public param_title:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", maxLength:100, labelKey:"chatPoll.form.question", placeholderKey:"prediction.form.question_placeholder"};
 	public param_duration:TwitchatDataTypes.ParameterData<number> = {value:2*60, type:"duration", min:5, max:3600, labelKey:"chatPoll.form.voteDuration", icon:"timer"};
@@ -166,6 +172,7 @@ class ChatPollForm extends AbstractSidePanel {
 				}
 			}
 
+			this.showPremiumLimit = (this.choices.length-emptyCount) == maxEntries && maxEntries < Config.instance.MAX_CHAT_POLL_ENTRIES_PREMIUM;
 			this.param_allowMultiVote.max = this.choices.length
 		}, {deep:true});
 	}
@@ -200,6 +207,13 @@ class ChatPollForm extends AbstractSidePanel {
 		}
 	}
 
+	/**
+	 * Opens the premium section
+	 */
+	public openPremium():void {
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+	}
+
 }
 export default toNative(ChatPollForm);
 </script>
@@ -207,18 +221,6 @@ export default toNative(ChatPollForm);
 <style scoped lang="less">
 .chatpollform{
 	.content{
-		.presets {
-			row-gap: .5em;
-			column-gap: .2em;
-			display: flex;
-			flex-direction: row;
-			flex-wrap: wrap;
-			align-items: center;
-			justify-content: center;
-			max-height: 5em;
-			overflow-y: auto;
-			min-height: 2em;
-		}
 		form > .card-item {
 			.field {
 				flex-grow: 1;
@@ -244,6 +246,15 @@ export default toNative(ChatPollForm);
 					margin-bottom: .5em;
 				}
 			}
+		}
+	}
+
+	.premium {
+		white-space: pre-line;
+		.button {
+			display: flex;
+			margin: auto;
+			margin-top: .5em;
 		}
 	}
 }

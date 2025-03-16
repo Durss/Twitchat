@@ -32,7 +32,7 @@
 						:premium="element.theme == 'premium'">{{$t(element.labelKey)}}</TTButton>
 				</VueDraggable>
 
-				<ToggleBlock :icons="['add']" :title="$t('params.more_params')" small :open="false" v-newflag="newFlagMoreParams">
+				<ToggleBlock :title="$t('params.more_params')" small :open="false" v-newflag="newFlagMoreParams">
 					<div class="dragInfo"><Icon name="hand" />{{ $t("params.customize_sections") }}</div>
 					<VueDraggable class="buttonList"
 					v-model="unpinnedMenuEntries"

@@ -202,6 +202,14 @@ export default class Config {
 	 * Maximum chat poll entries for premium users
 	 */
 	public MAX_CHAT_POLL_ENTRIES_PREMIUM = 20;
+	/**
+	 * Maximum number of animated texts
+	 */
+	public MAX_ANIMATED_TEXT = 1;
+	/**
+	 * Maximum number of animated texts for premium users
+	 */
+	public MAX_ANIMATED_TEXT_PREMIUM = 10;
 
 	private _serverConfig!:ServerConfig;
 

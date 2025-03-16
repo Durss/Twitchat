@@ -6,6 +6,12 @@
 			<Icon name="newtab" theme="light" />
 		</a> -->
 
+		<div class="header">{{ $t("overlay.timer.header") }}</div>
+
+		<section>
+			<TTButton @click="openTimerParams" icon="add">{{ $t("overlay.timer.createTimer_bt") }}</TTButton>
+		</section>
+
 		<section class="timerList">
 			<ToggleBlock v-for="entry in $store.timers.timerList"
 			:title="entry.title"
@@ -78,13 +84,13 @@
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, toNative, Vue } from 'vue-facing-decorator';
-import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
 import Icon from '@/components/Icon.vue';
+import TTButton from '../../../TTButton.vue';
 
 @Component({
 	components:{
@@ -136,6 +142,10 @@ class OverlayParamsTimer extends Vue {
 	public onChange(entry:TwitchatDataTypes.TimerData):void {
 		this.$store.timers.saveData();
 		this.$store.timers.broadcastStates(entry.id);
+	}
+
+	public openTimerParams():void {
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TIMERS);
 	}
 
 }

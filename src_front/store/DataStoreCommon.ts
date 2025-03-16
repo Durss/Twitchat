@@ -120,6 +120,7 @@ export default class DataStoreCommon {
 	public static KOFI_CONFIGS:string = "kofiConfigs";
 	public static TWITCH_BOT:string = "twitchBot";
 	public static TIMERS_CONFIGS:string = "timersConfigs";
+	public static ANIMATED_TEXT_CONFIGS:string = "animatedTextConfigs";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";
