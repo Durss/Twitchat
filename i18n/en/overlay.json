@@ -618,7 +618,7 @@
 			"default_title":"Animated text",
 			"premium_limit": "You reached the maximum number of overlays you can create",
 			"non_premium_limit":"You reached the maximum number of animated text overlays.\nBecome premium to set up to {MAX} overlays.",
-			"param_animDurationScale": "Animation duration",
+			"param_animDurationScale": "Animation speed",
 			"param_animStrength": "Animation amplitude",
 			"param_animStyle": "Animation type",
 			"param_autoHide": "Auto-hide text",
@@ -630,7 +630,8 @@
 				"wave": "Wave",
 				"typewriter": "Typewritter",
 				"bounce": "Bouncy",
-				"wobble": "Wobbly"
+				"wobble": "Wobbly",
+				"rotate": "Rotation"
 			},
 			"delete_confirm": {
 				"title": "Delete entry",

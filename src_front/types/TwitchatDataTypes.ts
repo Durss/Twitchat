@@ -2174,7 +2174,7 @@ export namespace TwitchatDataTypes {
 		 */
 		textSize:number;
 	}
-	export const AnimatedTextData_AnimStyles = ["wave","typewriter","bounce","wobble"] as const
+	export const AnimatedTextData_AnimStyles = ["wave","typewriter","bounce","wobble","rotate"] as const
 
 	/**
 	 * Contains only the Array props from the StreamSummaryData

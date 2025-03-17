@@ -29,6 +29,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 
 	public text:string = "";
 	public params!:TwitchatDataTypes.AnimatedTextData;
+	public strongColor:string = "inherit";
 
 	private id:string = "";
 	private configHandler!:(e:TwitchatEvent<TwitchatDataTypes.AnimatedTextData>)=>void;
@@ -68,12 +69,14 @@ class OverlayAnimatedText extends AbstractOverlay {
 		if(!e.data || e.data.id != this.id) return;
 		const prevParams = this.params;
 		this.params = e.data;
+		this.strongColor = this.params.colorHighlights
 
 		let shouldRender = false;
 		if(prevParams) {
 			shouldRender ||= this.params.animDurationScale != prevParams.animDurationScale;
 			shouldRender ||= this.params.animStrength != prevParams.animStrength;
 			shouldRender ||= this.params.animStyle != prevParams.animStyle;
+			shouldRender ||= this.params.textFont != prevParams.textFont;
 			if(this.text && shouldRender) {
 				this.messageQueue.unshift(this.text);
 				this.next();
@@ -113,11 +116,12 @@ class OverlayAnimatedText extends AbstractOverlay {
 
 	private async animate():Promise<void> {
 		const split = new SplitType(this.$refs["text"] as HTMLElement, {split:["words","chars"], charClass:"char", wordClass:"word"})
-		const ads = this.params.animDurationScale;
+		const ads = 2 - this.params.animDurationScale;
 		const amp = this.params.animStrength;
+		const chars = split.chars || [];
 		switch(this.params.animStyle) {
 			case "wave": {
-				gsap.fromTo(split.chars || [],
+				gsap.fromTo(chars,
 				{scale:0, opacity:0},
 				{
 					scale:1,
@@ -129,8 +133,24 @@ class OverlayAnimatedText extends AbstractOverlay {
 				break;
 			}
 
+			case "typewriter": {
+				let delay = 0;
+				for (let i = 0; i < chars.length; i++) {
+					const char = chars[i];
+					char.style.opacity = "0";
+					setTimeout(()=>{
+						char.style.opacity = "1";
+					}, delay * 1000);
+					delay += ads * (Math.random() * Math.random() * .25)
+					if (char === char.parentElement?.lastElementChild) {
+						delay += ads * .2 * Math.random();
+					}
+				}
+				break;
+			}
+
 			case "wobble": {
-				gsap.fromTo(split.chars || [],
+				gsap.fromTo(chars,
 				{scale:0, opacity:0},
 				{
 					scale:1,
@@ -138,6 +158,78 @@ class OverlayAnimatedText extends AbstractOverlay {
 					ease:"elastic.out("+(amp*1.5)+","+Math.max(.05, ((2-amp)/2*.5 + .1 - ads*.1))+")",
 					duration:2 * ads,
 					stagger:.025 * ads
+				});
+				break;
+			}
+
+			case "bounce": {
+				chars.forEach(v=>v.style.transformOrigin = "bottom center");
+				for (let i = 0; i < chars.length; i++) {
+					const char = chars[i];
+					gsap.fromTo(
+						char,
+						{ y: "-100%", scaleX:1-amp/2*.5, scaleY: 2*amp, opacity: 0 },
+						{
+							y: 0,
+							scaleY: 1,
+							opacity: 1,
+							ease: "none",
+							duration: .1 * ads,
+							delay: i * 0.05 * ads,
+						}
+					);
+					gsap.to(
+						char,
+						{
+							y: 0,
+							scaleY: .1,
+							scaleX: 2 * amp,
+							ease: "none",
+							duration: .1 * ads,
+							delay: i * 0.05 * ads + .1 * ads,
+						}
+					);
+					gsap.to(
+						char,
+						{
+							scaleY: 1,
+							ease:"back.out("+Math.pow(amp, 2)*2.5+")",
+							duration: .3 * ads,
+							delay: i * 0.05 * ads + .1 * ads + .06 * ads,
+						}
+					);
+					gsap.to(
+						char,
+						{
+							scaleX: 1,
+							ease:"back.out",
+							duration: .3 * ads,
+							delay: i * 0.05 * ads + .1 * ads + .06 * ads,
+						}
+					);
+				}
+				break;
+			}
+
+			case "rotate": {
+				chars.forEach(v=>v.style.transformOrigin = "35% 35%");
+
+				gsap.fromTo(chars,
+				{ scale:0, opacity:0 },
+				{
+					scale:1,
+					opacity:1,
+					ease:"back.out("+Math.pow(amp, 2)*2.5+")",
+					duration:.5 * ads,
+					stagger:.025 * ads
+				});
+				gsap.fromTo(chars,
+				{ rotation:(100*amp)+"deg" },
+				{
+					rotation:0,
+					ease:"sine.out",
+					duration:.5 * ads,
+					stagger:.035 * ads
 				});
 				break;
 			}
@@ -154,6 +246,8 @@ export default toNative(OverlayAnimatedText);
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
+	width: calc(100vw - 1em);
+	text-align: center;
 
 	// :deep(.char),
 	// :deep(.word) {
@@ -161,7 +255,7 @@ export default toNative(OverlayAnimatedText);
 	// }
 
 	:deep(strong) {
-		// color: v-bind(params.colorHighlights)
+		color: v-bind(strongColor)
 	}
 }
 </style>
