@@ -81,7 +81,7 @@ class TriggerConditionListItem extends Vue {
 	 * Create the source list used as the first operator of the condition
 	 */
 	public buildSourceList():void {
-		let placeholderListLocal:ConditionListValues<string>[] =  [];
+		let placeholderListLocal:ConditionListValues<string,ITriggerPlaceholder>[] =  [];
 		let placeholders: ITriggerPlaceholder<any, unknown, "">[] = [];
 		if(this.placeholderList.length == 0) {
 			//Add commmand params
@@ -130,6 +130,7 @@ class TriggerConditionListItem extends Vue {
 					label: this.$t(v.descKey, {NAME:name? "\""+name+"\"" : ""}),
 					value:v.tag.toUpperCase(),
 					fixedValues:v.values,
+					storage:v,
 				}
 			}));
 		}else {
@@ -139,6 +140,7 @@ class TriggerConditionListItem extends Vue {
 					label: this.$t(v.descKey, v.descReplacedValues ?? {}),
 					value: v.tag.toUpperCase(),
 					fixedValues: v.values,
+					storage:v,
 				}
 			})
 		}
@@ -148,7 +150,8 @@ class TriggerConditionListItem extends Vue {
 		if(this.condition.placeholder != "" && placeholderListLocal.findIndex(v=>v.value == this.condition.placeholder) == -1) {
 			placeholderListLocal.push({label:this.condition.placeholder, value:this.condition.placeholder});
 		}
-		
+
+		console.log(placeholderListLocal)
 		this.param_placeholder.listValues = placeholderListLocal;
 		this.param_value.placeholderList = placeholders.concat();
 		//Wait for list to render and update its internal "selectedListValue" value.
@@ -167,9 +170,9 @@ class TriggerConditionListItem extends Vue {
 	public updateOperators(inputOrigin:boolean = false):void {
 		if(inputOrigin && this.firstRender) return;
 
-		let placeholders = TriggerEventPlaceholders(this.triggerData.type).concat();
-		const placeholderRef = placeholders.find(v=> v.tag.toLowerCase() === this.condition.placeholder.toLowerCase());
+		const placeholderRef = this.param_placeholder.selectedListValue.storage;
 		const cmdParamRef = this.triggerData.chatCommandParams?.find(v=> v.tag == this.condition.placeholder);
+		console.log(placeholderRef)
 
 		this.param_operator.listValues = TriggerConditionOperatorList.map(v=> {
 			return {
@@ -178,6 +181,7 @@ class TriggerConditionListItem extends Vue {
 			}
 		}).filter(v=> {
 			//Remove arithmetical operators if placeholder isn't parsable as number
+			// console.log(placeholderRef, v.value);
 			if((!placeholderRef || placeholderRef.numberParsable !== true) && !cmdParamRef) {
 				return ![">","<",">=","<="].includes(v.value);
 			}
@@ -245,7 +249,7 @@ class TriggerConditionListItem extends Vue {
 	}
 }
 
-export interface ConditionListValues<T> extends TwitchatDataTypes.ParameterDataListValue<T> {
+export interface ConditionListValues<T,U> extends TwitchatDataTypes.ParameterDataListValue<T,U> {
 	fixedValues?:TwitchatDataTypes.ParameterDataListValue<unknown>[];
 }
 

@@ -2501,13 +2501,13 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 			timersPlaceholders.push({category:"timer", tag:tagBase+"_PAUSED", descKey:'triggers.placeholders.timer_paused', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.paused", numberParsable:false, isUserID:false, globalTag:true, storage:t.id} as ITriggerPlaceholder<TwitchatDataTypes.TimerData, string, "__timer__">);
 			if(t.type == "timer") {
 				timersPlaceholders.push({category:"timer", tag:tagBase+"_ELAPSED", descKey:'triggers.placeholders.timer_duration_formatted', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.elapsed_formatted", numberParsable:true, isUserID:false, globalTag:true, example:"60000", storage:t.id});
-				timersPlaceholders.push({category:"timer", tag:tagBase+"_ELAPSED_MS", descKey:'triggers.placeholders.timer_duration_ms', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.elapsed_ms", numberParsable:false, isUserID:false, globalTag:true, example:"60", storage:t.id});
+				timersPlaceholders.push({category:"timer", tag:tagBase+"_ELAPSED_MS", descKey:'triggers.placeholders.timer_duration_ms', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.elapsed_ms", numberParsable:true, isUserID:false, globalTag:true, example:"60", storage:t.id});
 			}
 			if(t.type == "countdown") {
 				timersPlaceholders.push({category:"timer", tag:tagBase+"_DURATION", descKey:'triggers.placeholders.countdown_duration_formatted', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.duration_formatted", numberParsable:true, isUserID:false, globalTag:true, example:"60000", storage:t.id});
-				timersPlaceholders.push({category:"timer", tag:tagBase+"_DURATION_MS", descKey:'triggers.placeholders.countdown_duration_ms', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.duration_ms", numberParsable:false, isUserID:false, globalTag:true, example:"60", storage:t.id});
+				timersPlaceholders.push({category:"timer", tag:tagBase+"_DURATION_MS", descKey:'triggers.placeholders.countdown_duration_ms', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.duration_ms", numberParsable:true, isUserID:false, globalTag:true, example:"60", storage:t.id});
 				timersPlaceholders.push({category:"timer", tag:tagBase+"_REMAINING", descKey:'triggers.placeholders.countdown_remaining_formatted', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.remaining_formatted", numberParsable:true, isUserID:false, globalTag:true, example:"60000", storage:t.id});
-				timersPlaceholders.push({category:"timer", tag:tagBase+"_REMAINING_MS", descKey:'triggers.placeholders.countdown_remaining_ms', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.remaining_ms", numberParsable:false, isUserID:false, globalTag:true, example:"60", storage:t.id});
+				timersPlaceholders.push({category:"timer", tag:tagBase+"_REMAINING_MS", descKey:'triggers.placeholders.countdown_remaining_ms', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.remaining_ms", numberParsable:true, isUserID:false, globalTag:true, example:"60", storage:t.id});
 			}
 		}
 	}
