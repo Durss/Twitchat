@@ -2155,9 +2155,7 @@ export const storeChat = defineStore('chat', {
 				PublicAPI.instance.broadcast(TwitchatEvent.BITS, wsMessage);
 			}
 
-			if(!isFromRemoteChan) {
-				TriggerActionHandler.instance.execute(message);
-			}
+			TriggerActionHandler.instance.execute(message);
 			if(!isFromRemoteChan || StoreProxy.tts.params.allRemoteChans != false) {
 				TTSUtils.instance.addMessageToQueue(message);
 			}

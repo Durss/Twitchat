@@ -192,7 +192,9 @@
 				"action_groq": "Groq action",
 				"action_groq_tt": "You first need to connect Twitchat with Groqger to use this action",
 				"action_timer": "Timer",
-				"trigger_stop": "Stop trigger execution"
+				"trigger_stop": "Stop trigger execution",
+				"action_animated_text": "Animate text",
+				"action_animated_text_tt": "You first need to create an animated text overlay to use this action"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -989,7 +991,8 @@
 			"goal_step_secret":"Is secret step?",
 			"goal_step_amount":"Step amount",
 			"goal_overlay_id":"Goal overlay ID",
-			"goal_overlay_title":"Goal overlay title"
+			"goal_overlay_title":"Goal overlay title",
+			"current_vod_url":"URL of the current VOD"
 		},
 		"events": {
 			"CHAT_COMMAND": {

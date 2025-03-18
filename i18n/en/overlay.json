@@ -631,6 +631,8 @@
 				"typewriter": "Typewritter",
 				"bounce": "Bouncy",
 				"wobble": "Wobbly",
+				"neon": "Neon",
+				"elastic": "Elastic",
 				"rotate": "Rotation"
 			},
 			"delete_confirm": {

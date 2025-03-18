@@ -192,7 +192,9 @@
 				"action_groq": "Action Groq",
 				"action_groq_tt": "Vous devez connecter Twitchat à Groq pour utiliser cette action",
 				"action_timer": "Minuteur",
-				"trigger_stop": "Stopper le trigger"
+				"trigger_stop": "Stopper le trigger",
+				"action_animated_text": "Animer du texte",
+				"action_animated_text_tt": "Vous devez d'abord créer un overlay de text animé pour utiliser cette action"
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
@@ -989,7 +991,8 @@
 			"goal_step_secret":"Étape secrète ?",
 			"goal_step_amount":"Montant de l'étape",
 			"goal_overlay_id":"ID de l'overlay d'objectifs",
-			"goal_overlay_title":"Titre de l'overlay d'objectifs"
+			"goal_overlay_title":"Titre de l'overlay d'objectifs",
+			"current_vod_url":"URL la VOD en cours"
 		},
 		"events": {
 			"CHAT_COMMAND": {

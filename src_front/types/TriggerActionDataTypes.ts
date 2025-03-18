@@ -105,6 +105,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionTimerData
 								| TriggerActionStopExecData
 								| TriggerActionChatPollData
+								| TriggerActionAnimatedTextData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -1337,6 +1338,33 @@ export interface TriggerActionStopExecData extends TriggerActionData{
 export interface TriggerActionChatPollData extends TriggerActionData{
 	type:"chat_poll";
 	chatPollData:TwitchatDataTypes.ChatPollData;
+}
+
+/**
+ * Contains a animated text command data
+ */
+export interface TriggerActionAnimatedTextData extends TriggerActionData{
+	type:"animated_text";
+	animatedTextData: ({
+		/**
+		 * Action to perform
+		 */
+		action:"show";
+		/**
+		 * Text to display
+		 */
+		text:string;
+	} | {
+		/**
+		 * Action to perform
+		 */
+		action:"hide";
+	}) & {
+		/**
+		 * Overlay to control
+		 */
+		overlayId:string;
+	};
 }
 
 /**

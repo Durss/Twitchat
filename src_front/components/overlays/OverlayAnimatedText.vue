@@ -122,12 +122,19 @@ class OverlayAnimatedText extends AbstractOverlay {
 		switch(this.params.animStyle) {
 			case "wave": {
 				gsap.fromTo(chars,
-				{scale:0, opacity:0},
+				{scale:0},
 				{
 					scale:1,
-					opacity:1,
 					ease:"back.out("+Math.pow(amp, 2)*5+")",
 					duration:.5 * ads,
+					stagger:.025 * ads
+				});
+				gsap.fromTo(chars,
+				{scale:0, opacity:0},
+				{
+					opacity:1,
+					ease:"none",
+					duration:.25 * ads,
 					stagger:.025 * ads
 				});
 				break;
@@ -141,9 +148,9 @@ class OverlayAnimatedText extends AbstractOverlay {
 					setTimeout(()=>{
 						char.style.opacity = "1";
 					}, delay * 1000);
-					delay += ads * (Math.random() * Math.random() * .25)
+					delay += ads * (Math.random() * Math.random() * .2);
 					if (char === char.parentElement?.lastElementChild) {
-						delay += ads * .2 * Math.random();
+						delay += ads * .3 * Math.random();
 					}
 				}
 				break;
@@ -230,6 +237,75 @@ class OverlayAnimatedText extends AbstractOverlay {
 					ease:"sine.out",
 					duration:.5 * ads,
 					stagger:.035 * ads
+				});
+				break;
+			}
+
+			case "neon": {
+				chars.forEach(v=>{
+					gsap.fromTo(v,
+					{ opacity:0 },
+					{
+						opacity:1,
+						ease:"none",
+						delay:Math.random() * .25 * amp,
+						duration:.5 * ads * Math.random(),
+						onUpdate:()=>{
+							if(Math.random() > .9) {
+								v.style.opacity = Math.random() > .5 ? "1" : ".25";
+							}
+						},
+						onComplete:()=>{
+							v.style.opacity = "1";
+							if(Math.random() > .35) {
+								gsap.from(v,
+								{
+									immediateRender:false,
+									opacity:.35,
+									delay:1 * ads * Math.random(),
+									ease:"step(5)",
+									duration:.2 * ads,
+									repeat:Math.floor(1 + Math.random() * 1),
+								});
+							}
+						}
+					});
+				});
+				break;
+			}
+
+			case "elastic": {
+				let delay = 0;
+				chars.forEach(v=>{
+					const dist = 100 * amp;
+					const angle = Math.random() * Math.PI * 2;
+					const ox = Math.cos(angle) * dist;
+					const oy = Math.sin(angle) * dist;
+					gsap.fromTo(v,
+					{ x:ox+"%"},
+					{
+						x:0,
+						ease:"elastic.out("+(amp*1.5)+","+Math.max(.05, ((2-amp)/2*.5 + .1 - ads*.1))+")",
+						delay,
+						duration:1.5 * ads,
+					});
+					gsap.fromTo(v,
+					{ y:oy+"%"},
+					{
+						y:0,
+						ease:"elastic.out("+(amp*1.5)+","+Math.max(.05, ((2-amp)/2*.5 + .1 - ads*.1))+")",
+						delay:delay+.025 * ads,
+						duration:1.5 * ads,
+					});
+					gsap.fromTo(v,
+					{ opacity:0 },
+					{
+						opacity:1,
+						ease:"none",
+						delay,
+						duration:.25 * ads,
+					});
+					delay += .025 * ads;
 				});
 				break;
 			}

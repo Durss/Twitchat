@@ -626,10 +626,12 @@
 			"param_textFont": "Police du texte",
 			"param_textSize": "Taille du texte",
 			"param_anim_styles": {
-				"wave": "Vague",
+				"wave": "Vague simple",
 				"typewriter": "Machine à écrire",
 				"bounce": "Rebond",
-				"wobble": "Elastique",
+				"wobble": "Vague",
+				"neon": "Néon",
+				"elastic": "Élastique",
 				"rotate": "Rotation"
 			},
 			"delete_confirm": {

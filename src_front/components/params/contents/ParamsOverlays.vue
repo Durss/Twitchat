@@ -200,6 +200,8 @@ export default toNative(ParamsOverlays);
 		align-items: flex;
 		flex-wrap: wrap;
 		margin: auto;
+		align-items: center;
+		justify-content: center;
 		gap: .5em;
 		.dockTuto {
 			flex-grow: 1;

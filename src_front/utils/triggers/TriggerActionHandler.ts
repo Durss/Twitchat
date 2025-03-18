@@ -83,9 +83,9 @@ export default class TriggerActionHandler {
 	 */
 	public async execute(message:TwitchatDataTypes.ChatMessageTypes, testMode = false, forcedTriggerId?:string):Promise<void> {
 		//Allow trigger exec only for our own chan or from tiktok
-		if(message.channel_id != StoreProxy.auth.twitch.user.id
-		&& message.channel_id != StoreProxy.auth.youtube.user?.id
-		&& message.platform != "tiktok") return;
+		// if(message.channel_id != StoreProxy.auth.twitch.user.id
+		// && message.channel_id != StoreProxy.auth.youtube.user?.id
+		// && message.platform != "tiktok") return;
 
 		//Check if it's a greetable message
 		if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
@@ -4285,10 +4285,10 @@ export default class TriggerActionHandler {
 					valueNum = value;
 				}
 				switch(c.operator) {
-					case "<": localRes = parseInt(value) < valueNum; break;
-					case "<=": localRes = parseInt(value) <= valueNum; break;
-					case ">": localRes = parseInt(value) > valueNum; break;
-					case ">=": localRes = parseInt(value) >= valueNum; break;
+					case "<": localRes = parseFloat(value) < valueNum; break;
+					case "<=": localRes = parseFloat(value) <= valueNum; break;
+					case ">": localRes = parseFloat(value) > valueNum; break;
+					case ">=": localRes = parseFloat(value) >= valueNum; break;
 					case "=": localRes = value == expectation || value.toLowerCase() == expectation.toLowerCase()
 							|| (value == "1" && expectation == "true")
 							|| (value == "true" && expectation == "1")

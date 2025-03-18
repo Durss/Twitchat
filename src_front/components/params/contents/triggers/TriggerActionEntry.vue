@@ -272,6 +272,12 @@
 						v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'params_triggerAction_clickHeat'}"
 						v-tooltip="heatClickEnabled? '' : $t('triggers.actions.common.action_heat_click_tt')"
 						icon="distort">{{ $t('triggers.actions.common.action_heat_click') }}</TTButton>
+
+					<TTButton class="button" @click.capture="selectActionType('animated_text')"
+						:disabled="!canAnimateText"
+						v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_triggerAction_animateText'}"
+						v-tooltip="canAnimateText? '' : $t('triggers.actions.common.action_animated_text_tt')"
+						icon="animate">{{ $t('triggers.actions.common.action_animated_text') }}</TTButton>
 				</div>
 			</div>
 
@@ -306,6 +312,7 @@
 			<TriggerActionPlayAbilityEntry v-else-if="action.type=='playability'" :action="action" :triggerData="triggerData" />
 			<TriggerActionGroqEntry v-else-if="action.type=='groq'" :action="action" :triggerData="triggerData" />
 			<TriggerActionTimerEntry v-else-if="action.type=='timer'" :action="action" :triggerData="triggerData" />
+			<TriggerActionAnimateText v-else-if="action.type=='animated_text'" :action="action" :triggerData="triggerData" />
 			<RaffleForm v-else-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 			<BingoForm v-else-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 			<PollForm v-else-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -377,6 +384,7 @@ import TriggerActionSpoilMessageEntry from './entries/TriggerActionSpoilMessageE
 import TriggerActionTimerEntry from './entries/TriggerActionTimerEntry.vue';
 import TriggerActionStopExecEntry from './entries/TriggerActionStopExecEntry.vue';
 import ChatPollForm from '@/components/poll/ChatPollForm.vue';
+import TriggerActionAnimateText from './entries/TriggerActionAnimateText.vue';
 
 @Component({
 	components:{
@@ -404,6 +412,7 @@ import ChatPollForm from '@/components/poll/ChatPollForm.vue';
 		TriggerActionSammiEntry,
 		TriggerActionGoXLREntry,
 		TriggerActionTimerEntry,
+		TriggerActionAnimateText,
 		TriggerActionRewardEntry,
 		TriggerActionCustomBadge,
 		TriggerActionRandomEntry,
@@ -464,6 +473,7 @@ class TriggerActionEntry extends Vue {
 	public get canCreatePrediction():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]); }
 	public get canEditStreamInfo():boolean { return TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]); }
 	public get heatClickEnabled():boolean { return (this.$store.heat.distortionList || []).length > 0; }
+	public get canAnimateText():boolean { return this.$store.animatedText.animatedTextList.length > 0; }
 	public get isAffiliate():boolean {
 		return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner;
 	}
@@ -626,6 +636,12 @@ class TriggerActionEntry extends Vue {
 			case "heat_click": {
 				if(!this.heatClickEnabled) {
 					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "distort");
+					return;
+				}break
+			}
+			case "animated_text": {
+				if(!this.canAnimateText) {
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "animatedtext");
 					return;
 				}break
 			}
