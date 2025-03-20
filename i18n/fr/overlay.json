@@ -632,7 +632,8 @@
 				"wobble": "Vague",
 				"neon": "Néon",
 				"elastic": "Élastique",
-				"rotate": "Rotation"
+				"rotate": "Rotation",
+				"swarm": "Essaim"
 			},
 			"delete_confirm": {
 				"title": "Supprimer cet entrée",

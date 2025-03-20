@@ -633,7 +633,8 @@
 				"wobble": "Wobbly",
 				"neon": "Neon",
 				"elastic": "Elastic",
-				"rotate": "Rotation"
+				"rotate": "Rotation",
+				"swarm": "Swarm"
 			},
 			"delete_confirm": {
 				"title": "Delete entry",
