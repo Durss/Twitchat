@@ -161,7 +161,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 						duration:.25 * ads,
 						stagger:.025 * ads,
 						onComplete:() => {
-							this.resolveTO = setTimeout(() => {
+							this.resolveTO = window.setTimeout(() => {
 								resolve()
 							}, 250)
 						}
@@ -174,7 +174,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 					for (let i = 0; i < chars.length; i++) {
 						const char = chars[i];
 						char.style.opacity = "0";
-						setTimeout(()=>{
+						window.setTimeout(()=>{
 							char.style.opacity = "1";
 						}, delay * 1000);
 						delay += ads * (Math.random() * Math.random() * .2);
@@ -182,7 +182,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 							delay += ads * .3 * Math.random();
 						}
 					}
-					this.resolveTO = setTimeout(() => {
+					this.resolveTO = window.setTimeout(() => {
 						resolve()
 					}, delay * 1000);
 					break;
@@ -198,7 +198,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 						duration:2 * ads,
 						stagger:.025 * ads,
 						onComplete:() => {
-							this.resolveTO = setTimeout(() => {
+							this.resolveTO = window.setTimeout(() => {
 								resolve()
 							}, 250)
 						}
@@ -253,7 +253,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 							}
 						);
 						if(i === chars.length-1) {
-							this.resolveTO = setTimeout(() => {
+							this.resolveTO = window.setTimeout(() => {
 								resolve()
 							}, (delay + .3) * 1000)
 						}
@@ -282,7 +282,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 						delay:.1,
 						stagger:.025 * ads,
 						onComplete:() => {
-							this.resolveTO = setTimeout(() => {
+							this.resolveTO = window.setTimeout(() => {
 								resolve()
 							}, 350)
 						}
@@ -320,7 +320,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 							}
 						});
 						if(index === chars.length-1) {
-							this.resolveTO = setTimeout(() => {
+							this.resolveTO = window.setTimeout(() => {
 								resolve()
 							}, (.5 * ads + .5 * amp) * 1000)
 						}
@@ -362,7 +362,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 						delay += .025 * ads;
 
 						if(index === chars.length-1) {
-							this.resolveTO = setTimeout(() => {
+							this.resolveTO = window.setTimeout(() => {
 								resolve()
 							}, (1.5 * ads + delay) * 1000)
 						}
