@@ -2162,10 +2162,6 @@ export namespace TwitchatDataTypes {
 		 */
 		colorHighlights:string;
 		/**
-		 * Automatically hide the text after a duration that depends on the text length
-		 */
-		autoHide:boolean;
-		/**
 		 * Text font
 		 */
 		textFont:string;

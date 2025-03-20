@@ -93,6 +93,7 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static DONATION_EVENT:TwitchatEventType = "DONATION_EVENT";
 	public static QNA_SESSION_LIST:TwitchatEventType = "QNA_SESSION_LIST";
 	public static ANIMATED_TEXT_CONFIGS:TwitchatEventType = "ANIMATED_TEXT_CONFIGS";
+	public static ANIMATED_TEXT_HIDE_COMPLETE:TwitchatEventType = "ANIMATED_TEXT_HIDE_COMPLETE";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -274,6 +275,7 @@ export const TwitchatEventTypeList = [
 	"DONATION_EVENT",
 	"QNA_SESSION_LIST",
 	"ANIMATED_TEXT_CONFIGS",
+	"ANIMATED_TEXT_HIDE_COMPLETE",
 ] as const;
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
 

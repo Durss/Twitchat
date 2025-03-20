@@ -1003,6 +1003,17 @@ const UserDataSchema = {
 										}
 									}
 								},
+
+								animatedTextData:{
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										overlayId: {type:"string", maxLength:50},
+										action: { enum: ["show", "hide"] },
+										autoHide: { type: "boolean" },
+										text: { type: "string",  minLength: 0, maxLength: 1000 }
+									}
+								},
 							}
 						},
 					}
@@ -2448,7 +2459,6 @@ const UserDataSchema = {
 							animStrength: { type: "number", minimum:0, maximum:2 },
 							colorBase: {type:"string", maxLength:10},
 							colorHighlights: {type:"string", maxLength:10},
-							autoHide: { type: "boolean" },
 							textFont: {type:"string", maxLength:50},
 							textSize: {type:"number", minimum:1, maximum:300},
 						}

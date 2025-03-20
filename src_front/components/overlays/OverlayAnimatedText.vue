@@ -35,8 +35,9 @@ class OverlayAnimatedText extends AbstractOverlay {
 
 	private id:string = "";
 	private configHandler!:(e:TwitchatEvent<TwitchatDataTypes.AnimatedTextData>)=>void;
-	private textHandler!:(e:TwitchatEvent<{id:string, text:string}>)=>void;
-	private messageQueue:string[] = [];
+	private textHandler!:(e:TwitchatEvent<{overlayId:string, queryId:string, text:string, autoNext:boolean}>)=>void;
+	private currentEntry:NonNullable<Parameters<typeof this.textHandler>[0]["data"]>|null = null;
+	private messageQueue:(typeof this.currentEntry)[] = [];
 	private raf = -1;
 	private resolveTO = -1;
 	private split:SplitType|null = null;
@@ -52,9 +53,8 @@ class OverlayAnimatedText extends AbstractOverlay {
 	}
 
 	public mounted(): void {
-		// this.messageQueue.push("Coucou <strong>ceci</strong> est un test");
-		this.messageQueue.push("Coucou <strong>ceci</strong> est un test Coucou <strong>ceci</strong> est un test Coucou <strong>ceci</strong> est un test Coucou <strong>ceci</strong> est un test Coucou <strong>ceci</strong> est un test Coucou <strong>ceci</strong> est un test Coucou <strong>ceci</strong> est un test Coucou <strong>ceci</strong> est un test Coucou <strong>ceci</strong> est un test Coucou <strong>ceci</strong> est un test Coucou <strong>ceci</strong> est un test Coucou <strong>ceci</strong> est un test ");
-		// this.messageQueue.push("Coucou");
+		this.messageQueue.push({overlayId:this.id, queryId:"", text:"Coucou <strong>ceci</strong> est un test", autoNext:true});
+		this.messageQueue.push({overlayId:this.id, queryId:"", text:"doudidou bidididibidbi bop bop wooop", autoNext:false});
 		this.next();
 	}
 
@@ -95,7 +95,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 					gsap.killTweensOf(char);
 				})
 				if(this.raf > -1) cancelAnimationFrame(this.raf);
-				this.messageQueue.unshift(this.text);
+				this.messageQueue.unshift(this.currentEntry);
 				this.next();
 			}
 		}
@@ -106,8 +106,8 @@ class OverlayAnimatedText extends AbstractOverlay {
 	 * @param e
 	 */
 	public onText(e:Parameters<typeof this.textHandler>[0]):void {
-		if(!e.data || e.data.id != this.id) return;
-		this.messageQueue.push(e.data.text);
+		if(!e.data || e.data.overlayId != this.id) return;
+		this.messageQueue.push(e.data);
 		if(this.messageQueue.length == 1) this.next();
 	}
 
@@ -115,12 +115,14 @@ class OverlayAnimatedText extends AbstractOverlay {
 	 * Animate next text
 	 */
 	public async next():Promise<void> {
-		console.log("NEXT");
 		this.ready = false;
 		if(this.messageQueue.length == 0) return;
-		const text = this.messageQueue.shift();
-		if(!text) return;
-		this.text = DOMPurify.sanitize(text);
+		const entry = this.messageQueue.shift();
+		if(!entry) return;
+		this.text = "";
+		await this.$nextTick();
+		this.currentEntry = entry;
+		this.text = DOMPurify.sanitize(entry.text);
 		await this.$nextTick();
 		if(!this.params) {
 			//Wait for params if not there yet
@@ -129,11 +131,17 @@ class OverlayAnimatedText extends AbstractOverlay {
 				if(this.params) break;
 			}
 		}
-		await this.animate();
-		this.next();
+		await this.showText();
+		if(this.currentEntry.autoNext) {
+			const textLen = (this.$refs["text"] as HTMLElement)?.textContent?.length;
+			await Utils.promisedTimeout((textLen || 30) * 100);
+			PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_HIDE_COMPLETE, {queryId:this.currentEntry.queryId});
+			await this.hideText();
+			this.next();
+		}
 	}
 
-	private async animate():Promise<void> {
+	private async showText():Promise<void> {
 		return new Promise((resolve) => {
 			this.split = new SplitType(this.$refs["text"] as HTMLElement, {split:["words","chars"], charClass:"char", wordClass:"word"})
 			const ads = 2 - this.params.animDurationScale;
@@ -154,7 +162,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 						stagger:.025 * ads
 					});
 					gsap.fromTo(chars,
-					{scale:0, opacity:0},
+					{opacity:0},
 					{
 						opacity:1,
 						ease:"none",
@@ -194,7 +202,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 					{
 						scale:1,
 						opacity:1,
-						ease:"elastic.out("+(amp*1.5)+","+Math.max(.05, ((2-amp)/2*.5 + .1 - ads*.1))+")",
+						ease:"elastic.out("+Math.max(1, amp*1.5)+","+Math.max(.05, ((2-amp)/2*.5 + .1 - ads*.1))+")",
 						duration:2 * ads,
 						stagger:.025 * ads,
 						onComplete:() => {
@@ -455,6 +463,256 @@ class OverlayAnimatedText extends AbstractOverlay {
 
 						// refPoint.style.left = `${leader.x}px`;
 						// refPoint.style.top = `${leader.y + Math.sin(randAngle) * randAmp}px`;
+
+						if (placed.every(p => p)) {
+							resolve();
+						}
+					};
+					renderFrame();
+				}
+			}
+		})
+	}
+
+
+	private async hideText():Promise<void> {
+		return new Promise((resolve) => {
+			this.split = new SplitType(this.$refs["text"] as HTMLElement, {split:["words","chars"], charClass:"char", wordClass:"word"})
+			const ads = 2 - this.params.animDurationScale;
+			const amp = this.params.animStrength;
+			const chars = this.split.chars || [];
+			this.ready = true;
+
+			if(this.raf > -1) cancelAnimationFrame(this.raf);
+
+			switch(this.params.animStyle) {
+				case "wave": {
+					gsap.to(chars,
+					{
+						scale:0,
+						ease:"back.in("+Math.pow(amp, 2)*5+")",
+						duration:.5 * ads,
+						stagger:.025 * ads
+					});
+					gsap.to(chars,{
+						opacity:0,
+						ease:"none",
+						delay:.25,
+						duration:.25 * ads,
+						stagger:.025 * ads,
+						onComplete:() => {
+							this.resolveTO = window.setTimeout(() => {
+								resolve()
+							}, 250)
+						}
+					});
+					break;
+				}
+
+				case "typewriter": {
+					let maxDelay = 0;
+					for (let i = 0; i < chars.length; i++) {
+						const char = chars[i];
+						const delay = ads * (Math.random() * Math.random() * .5);
+						maxDelay = Math.max(maxDelay, delay);
+						window.setTimeout(()=>{
+							char.style.opacity = "0";
+						}, delay * 1000);
+					}
+					this.resolveTO = window.setTimeout(() => {
+						resolve()
+					}, maxDelay * 1000);
+					break;
+				}
+
+				case "wobble": {
+					gsap.to(chars,
+					{
+						scale:0,
+						opacity:0,
+						ease:"back.in("+(amp*3)+")",
+						duration:.5 * ads,
+						stagger:.025 * ads,
+						onComplete:() => {
+							this.resolveTO = window.setTimeout(() => {
+								resolve()
+							}, 250)
+						}
+					});
+					break;
+				}
+
+				case "bounce": {
+					chars.forEach(v=>v.style.transformOrigin = "bottom center");
+					for (let i = 0; i < chars.length; i++) {
+						const char = chars[i];
+						let delay = i * 0.05 * ads + .1 * ads;
+						gsap.to(
+							char,
+							{
+								scaleY: .1,
+								scaleX: Math.max(1.2, 1.5 * amp),
+								ease: "none",
+								duration: .1 * ads,
+								delay,
+							}
+						);
+						delay += .1 * ads;
+						gsap.to(
+							char,
+							{
+								scaleX: .3 * (2-amp),
+								scaleY: 1,
+								ease:"none",
+								duration: .2 * ads,
+								delay,
+							}
+						);
+						gsap.to(
+							char,
+							{
+								y:"-50%",
+								opacity: 0,
+								ease:"back.out",
+								duration: .3 * ads,
+								delay:delay + .2*ads*.5,
+							}
+						);
+						if(i === chars.length-1) {
+							this.resolveTO = window.setTimeout(() => {
+								resolve()
+							}, (delay + .3) * 1000)
+						}
+					}
+					break;
+				}
+
+				case "rotate": {
+					chars.forEach(v=>v.style.transformOrigin = "10% 10%");
+
+					gsap.to(chars,
+					{
+						rotation:(100*amp)+"deg",
+						ease:"back.in",
+						duration:.5 * ads,
+						stagger:.025 * ads,
+						onComplete:() => {
+							this.resolveTO = window.setTimeout(() => {
+								resolve()
+							}, 350)
+						}
+					});
+					gsap.to(chars,
+					{
+						scale:0,
+						opacity:0,
+						ease:"back.out("+Math.pow(amp, 2)*2.5+")",
+						duration:.5 * ads,
+						delay:.4 * ads,
+						stagger:.025 * ads
+					});
+					break;
+				}
+
+				case "neon": {
+					let maxDelay = 0;
+					for (let i = 0; i < chars.length; i++) {
+						const char = chars[i];
+						const delay = ads * (Math.random() * Math.random() * .5);
+						maxDelay = Math.max(maxDelay, delay);
+						window.setTimeout(()=>{
+							char.style.opacity = "0";
+						}, delay * 1000);
+					}
+					this.resolveTO = window.setTimeout(() => {
+						resolve()
+					}, maxDelay * 1000);
+					break;
+				}
+
+				case "elastic": {
+					let delay = 0;
+					chars.forEach((v, index)=>{
+						const dist = 100 * amp;
+						const angle = Math.random() * Math.PI * 2;
+						const ox = Math.cos(angle) * dist;
+						const oy = Math.sin(angle) * dist;
+						gsap.to(v,
+						{
+							x:ox+"%",
+							ease:"back.in("+(amp*5)+")",
+							delay,
+							duration:.5 * ads,
+						});
+						gsap.to(v,
+						{
+							y:oy+"%",
+							ease:"back.in("+(amp*5)+")",
+							delay:delay+.025 * ads,
+							duration:.5 * ads,
+						});
+						gsap.to(v,
+						{
+							opacity:0,
+							ease:"none",
+							delay:delay + .25 * ads,
+							duration:.25 * ads,
+						});
+						delay += .025 * ads;
+
+						if(index === chars.length-1) {
+							this.resolveTO = window.setTimeout(() => {
+								resolve()
+							}, (1.5 * ads + delay) * 1000)
+						}
+					});
+					break;
+				}
+
+				case "swarm": {
+					const points = chars.map(char => {
+						const rect = char.getBoundingClientRect();
+						return {
+							x: rect.left,
+							y: rect.top,
+							scale:1,
+							dir: Math.random() * Math.PI * 2,
+							speed: (Math.random()-Math.random()) * Math.max(.15, amp*.5) * 5,
+							freq: Math.random() * (.01 + amp * .0),
+						};
+					});
+					chars.forEach((char, index) => {
+						const point = points[index]
+						char.style.left = point.x+"px";
+						char.style.top = point.y+"px";
+						char.style.position = "fixed";
+						char.style.willChange = "scale";
+					});
+
+					const renderFrame = () => {
+						this.raf = requestAnimationFrame(() => renderFrame());
+
+						let placed = Array(chars.length).fill(false);
+						for (let i = 0; i < chars.length; i++) {
+							// if(i == 1) break;
+							const char = chars[i];
+							const target = points[i];
+							let currX = parseFloat(char.style.left);
+							let currY = parseFloat(char.style.top);
+							currX += Math.cos(target.dir) * target.speed;
+							currY += Math.sin(target.dir) * target.speed;
+							char.style.left = `${currX}px`;
+							char.style.top = `${currY}px`;
+							char.style.transform = `scale(${target.scale})`;
+
+							target.dir += target.freq
+							if(target.scale > 0) {
+								target.scale -= (2-ads)/2*.04 + .01;
+							}else{
+								target.scale = 0;
+								placed[i] = true;
+							}
+						}
 
 						if (placed.every(p => p)) {
 							resolve();

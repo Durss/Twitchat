@@ -621,7 +621,6 @@
 			"param_animDurationScale": "Animation speed",
 			"param_animStrength": "Animation amplitude",
 			"param_animStyle": "Animation type",
-			"param_autoHide": "Auto-hide text",
 			"param_colorBase": "Text color",
 			"param_colorHighlights": "Highlight color",
 			"param_textFont": "Text font",

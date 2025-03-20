@@ -1354,6 +1354,10 @@ export interface TriggerActionAnimatedTextData extends TriggerActionData{
 		 * Text to display
 		 */
 		text:string;
+		/**
+		 * Automatically hide the text after a duration that depends on the text length
+		 */
+		autoHide:boolean;
 	} | {
 		/**
 		 * Action to perform
