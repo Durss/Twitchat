@@ -13,7 +13,7 @@
 			</i18n-t>
 		</div>
 
-		<section>
+		<section class="ctas">
 			<TTButton icon="add" v-if="canCreateTimers" @click="$store.timers.createTimer(); buildParams()">{{ $t('timers.addBt') }}</TTButton>
 			<div class="card-item premium premiumLimit" v-else>
 				<span>{{$t("timers.premium_limit", {MAX:$config.MAX_TIMERS, MAX_PREMIUM:$config.MAX_TIMERS_PREMIUM})}}</span>
@@ -47,8 +47,9 @@
 					<template #right_actions>
 						<div class="actions" v-if="!entry.isDefault">
 							<ToggleButton v-model="entry.enabled"
-							@change="$store.timers.saveData()"
-							@click.stop />
+								@change="$store.timers.saveData()"
+								@click.stop
+								v-if="entry.enabled || canCreateTimers" />
 							<TTButton class="actionBt" @click.stop :copy="entry.id" icon="id" v-tooltip="$t('global.copy_id')" small />
 							<TTButton class="actionBt" alert icon="trash" @click.stop="$store.timers.deleteTimer(entry.id)" />
 						</div>
@@ -258,6 +259,10 @@ export default toNative(ParamsTimer);
 			margin: auto;
 			margin-top: .5em;
 		}
+	}
+
+	.ctas {
+		align-items: center;
 	}
 
 	.entryList {
