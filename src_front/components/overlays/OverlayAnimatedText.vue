@@ -378,8 +378,9 @@ class OverlayAnimatedText extends AbstractOverlay {
 							x: rect.left,
 							y: rect.top,
 							dir: Math.random() * Math.PI * 2,
-							speed: (Math.random() + .25) * 5 * amp,
-							dirInc: (Math.random()-Math.random()) * amp * .2,
+							dist: (Math.random() + .25) * 8 * amp,
+							speed: (Math.random()-Math.random()) * Math.max(.2, amp*(2-ads)) * .25,
+							speedEnd: (Math.random() + .25) * 5 * Math.max(.2, amp*(2-ads)),
 						};
 					});
 					const leader = {x:bounds.left, y:bounds.height/2.5};
@@ -420,26 +421,26 @@ class OverlayAnimatedText extends AbstractOverlay {
 
 							if (leader.x <= target.x) {
 								// Follow the leader
-								target.dir += target.dirInc;
+								target.dir += target.speed;
 								currX += (leader.x - currX) * 0.2;
 								currY += (leader.y - currY + Math.sin(leaderAngle) * leaderAmp) * 0.2;
-								char.style.left = `${currX + Math.cos(target.dir) * target.speed}px`;
-								char.style.top = `${currY + Math.sin(target.dir) * target.speed}px`;
+								char.style.left = `${currX + Math.cos(target.dir) * target.dist}px`;
+								char.style.top = `${currY + Math.sin(target.dir) * target.dist}px`;
 							} else {
 								// Gradually move to final position
 								const angle = Math.atan2(target.y - currY, target.x - currX);
 								target.dir += angleDistance(target.dir, angle) * Math.max(.1, (2-ads)/2 * .2);
 								const dist = Math.sqrt(Math.pow(target.x - currX, 2) + Math.pow(target.y - currY, 2));
-								if(dist <= target.speed * 20) {
-									target.speed *= .98;
+								if(dist <= target.speedEnd * 10) {
+									target.speedEnd *= .95;
 								}
-								if(dist <= target.speed*2 + .5) {
+								if(dist <= target.speedEnd*1 + .5) {
 									char.style.left = `${target.x}px`;
 									char.style.top = `${target.y}px`;
 									placed[i] = true;
 								}else{
-									currX += Math.cos(target.dir) * target.speed;
-									currY += Math.sin(target.dir) * target.speed;
+									currX += Math.cos(target.dir) * target.speedEnd;
+									currY += Math.sin(target.dir) * target.speedEnd;
 									char.style.left = `${currX}px`;
 									char.style.top = `${currY}px`;
 								}
