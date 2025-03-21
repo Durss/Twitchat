@@ -184,7 +184,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 				await this.hideText(entry.queryId);
 				// Next text in queue
 				this.next();
-			}, (textLen || 0) * 1000);
+			}, (textLen || 0) * 100);
 		}
 	}
 
@@ -527,7 +527,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 				}
 
 				case "caterpillar": {
-					const vw = window.innerWidth - 100;
+					const vw = window.innerWidth;
 					let scroll = 0;
 					const scrollSpeed = (2 - ads)/2 * 3 + 1;
 					const points = chars.map((char, index) => {
@@ -874,6 +874,7 @@ export default toNative(OverlayAnimatedText);
 	&.caterpillar {
 		white-space: nowrap;
 		word-spacing: .25em;
+		text-align: left;
 	}
 
 	:deep(b),
