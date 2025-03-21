@@ -312,7 +312,7 @@
 			<TriggerActionPlayAbilityEntry v-else-if="action.type=='playability'" :action="action" :triggerData="triggerData" />
 			<TriggerActionGroqEntry v-else-if="action.type=='groq'" :action="action" :triggerData="triggerData" />
 			<TriggerActionTimerEntry v-else-if="action.type=='timer'" :action="action" :triggerData="triggerData" />
-			<TriggerActionAnimateText v-else-if="action.type=='animated_text'" :action="action" :triggerData="triggerData" />
+			<TriggerActionAnimateTextEntry v-else-if="action.type=='animated_text'" :action="action" :triggerData="triggerData" />
 			<RaffleForm v-else-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 			<BingoForm v-else-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 			<PollForm v-else-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -384,7 +384,7 @@ import TriggerActionSpoilMessageEntry from './entries/TriggerActionSpoilMessageE
 import TriggerActionTimerEntry from './entries/TriggerActionTimerEntry.vue';
 import TriggerActionStopExecEntry from './entries/TriggerActionStopExecEntry.vue';
 import ChatPollForm from '@/components/poll/ChatPollForm.vue';
-import TriggerActionAnimateText from './entries/TriggerActionAnimateText.vue';
+import TriggerActionAnimateTextEntry from './entries/TriggerActionAnimateTextEntry.vue';
 
 @Component({
 	components:{
@@ -412,7 +412,7 @@ import TriggerActionAnimateText from './entries/TriggerActionAnimateText.vue';
 		TriggerActionSammiEntry,
 		TriggerActionGoXLREntry,
 		TriggerActionTimerEntry,
-		TriggerActionAnimateText,
+		TriggerActionAnimateTextEntry,
 		TriggerActionRewardEntry,
 		TriggerActionCustomBadge,
 		TriggerActionRandomEntry,

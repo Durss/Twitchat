@@ -1345,31 +1345,39 @@ export interface TriggerActionChatPollData extends TriggerActionData{
  */
 export interface TriggerActionAnimatedTextData extends TriggerActionData{
 	type:"animated_text";
-	animatedTextData: ({
-		/**
-		 * Action to perform
-		 */
-		action:"show";
-		/**
-		 * Text to display
-		 */
-		text:string;
-		/**
-		 * Automatically hide the text after a duration that depends on the text length
-		 */
-		autoHide:boolean;
-	} | {
-		/**
-		 * Action to perform
-		 */
-		action:"hide";
-	}) & {
-		/**
-		 * Overlay to control
-		 */
-		overlayId:string;
-	};
+	animatedTextData: TriggerActionAnimatedTextData_ActionShow | TriggerActionAnimatedTextData_ActionHide
 }
+interface TriggerActionAnimatedTextData_ActionAbstract {
+	/**
+	 * Action to perform
+	 */
+	action: typeof TriggerActionAnimatedTextData_ActionList[number]
+	/**
+	 * Overlay to control
+	 */
+	overlayId:string;
+}
+interface TriggerActionAnimatedTextData_ActionShow extends TriggerActionAnimatedTextData_ActionAbstract {
+	/**
+	 * Action to perform
+	 */
+	action:"show";
+	/**
+	 * Text to display
+	 */
+	text:string;
+	/**
+	 * Automatically hide the text after a duration that depends on the text length
+	 */
+	autoHide:boolean;
+}
+interface TriggerActionAnimatedTextData_ActionHide extends TriggerActionAnimatedTextData_ActionAbstract {
+	/**
+	 * Action to perform
+	 */
+	action:"hide";
+}
+export const TriggerActionAnimatedTextData_ActionList = ["show", "hide"] as const;
 
 /**
  * Represents a tree structure item.

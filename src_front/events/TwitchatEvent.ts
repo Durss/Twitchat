@@ -183,6 +183,7 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static HIDE_ALERT:TwitchatActionType = "HIDE_ALERT";
 	public static GET_ANIMATED_TEXT_CONFIGS:TwitchatActionType = "GET_ANIMATED_TEXT_CONFIGS";
 	public static ANIMATED_TEXT_SET:TwitchatActionType = "ANIMATED_TEXT_SET";
+	public static ANIMATED_TEXT_CLOSE:TwitchatActionType = "ANIMATED_TEXT_CLOSE";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:T) {
 		super(type);
@@ -367,5 +368,6 @@ export const TwitchatActionTypeList = [
 	"HIDE_ALERT",
 	"GET_ANIMATED_TEXT_CONFIGS",
 	"ANIMATED_TEXT_SET",
+	"ANIMATED_TEXT_CLOSE",
 ] as const;
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

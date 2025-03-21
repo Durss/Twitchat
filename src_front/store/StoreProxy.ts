@@ -3622,4 +3622,13 @@ export interface IAnimatedTextActions {
 	 * Saves data to server
 	 */
 	saveData():void;
+	/**
+	 * Starts the animation of the given text
+	 * Promise resolves after text is hidden
+	 */
+	animateText(overlayId:string, text:string, autoHide?:boolean):Promise<void>
+	/**
+	 * Hide text currently displayed
+	 */
+	hideText(overlayId:string):Promise<void>
 }

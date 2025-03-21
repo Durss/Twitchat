@@ -8,6 +8,7 @@ import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import StoreProxy, { type IAnimatedTextActions, type IAnimatedTextGetters, type IAnimatedTextState } from '../StoreProxy';
 
+const queryIdToResolver = new Map<string, ()=>void>();
 
 export const storeAnimatedText = defineStore('animatedtext', {
 	state: () => ({
@@ -45,6 +46,16 @@ export const storeAnimatedText = defineStore('animatedtext', {
 					}
 				}
 			});
+
+			/**
+			 * Called when animatedtext overlay requests for a animatedtext info
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.ANIMATED_TEXT_HIDE_COMPLETE, (event:TwitchatEvent<{ queryId?:string }>)=> {
+				if(event.data?.queryId) {
+					const resolver = queryIdToResolver.get(event.data?.queryId);
+					if(resolver) resolver();
+				}
+			});
 		},
 
 		broadcastStates(id?:string) {
@@ -63,7 +74,6 @@ export const storeAnimatedText = defineStore('animatedtext', {
 				animDurationScale:1,
 				animStrength:1,
 				animStyle:"wave",
-				autoHide:true,
 				colorBase:"#ffffff",
 				colorHighlights:"#e04e00",
 				textFont:"Inter",
@@ -88,6 +98,22 @@ export const storeAnimatedText = defineStore('animatedtext', {
 				animatedTextList:this.animatedTextList
 			};
 			DataStore.set(DataStore.ANIMATED_TEXT_CONFIGS, data);
+		},
+
+		async animateText(overlayId:string, text:string, autoHide:boolean = false):Promise<void> {
+			return new Promise<void>((resolve, reject)=> {
+				const queryId:string = Utils.getUUID();
+				queryIdToResolver.set(queryId, resolve);
+				PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_SET, {overlayId, queryId, text, autoHide});
+			});
+		},
+
+		async hideText(overlayId:string):Promise<void> {
+			return new Promise<void>((resolve, reject)=> {
+				const queryId:string = Utils.getUUID();
+				queryIdToResolver.set(queryId, resolve);
+				PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_CLOSE, {overlayId, queryId});
+		});
 		},
 	} as IAnimatedTextActions
 	& ThisType<IAnimatedTextActions

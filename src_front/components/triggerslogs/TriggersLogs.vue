@@ -161,6 +161,7 @@ export default toNative(TriggersLogs);
 
 	.loader {
 		height: 2em;
+		margin: 0 auto;
 	}
 
 	.empty {

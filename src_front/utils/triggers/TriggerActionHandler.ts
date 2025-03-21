@@ -3670,6 +3670,31 @@ export default class TriggerActionHandler {
 					}
 					clone.started_at = Date.now();
 					StoreProxy.chatPoll.setCurrentPoll(clone);
+				}else
+
+				if(step.type == "animated_text") {
+					const overlay = StoreProxy.animatedText.animatedTextList.find(v=>v.id == step.animatedTextData.overlayId);
+					if(!overlay) {
+						logStep.messages.push({date:Date.now(), value:"❌ Requested overlay ID not found \""+step.animatedTextData.overlayId+"\" 😬"});
+						log.error = true;
+						logStep.error = true;
+
+					}else if(step.animatedTextData.action == "show"){
+						const autohide = step.animatedTextData.autoHide === true;
+						const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.animatedTextData.text, subEvent);
+						logStep.messages.push({date:Date.now(), value:"Show animated text: "+ text});
+						logStep.messages.push({date:Date.now(), value:"Auto hide? "+ autohide});
+						const promise = StoreProxy.animatedText.animateText(overlay.id, text, autohide);
+						if(autohide) {
+							logStep.messages.push({date:Date.now(), value:"⌛ Wait for animation to complete..."});
+							await promise;
+							logStep.messages.push({date:Date.now(), value:"✔ Animation completed"});
+						}
+
+					}else if(step.animatedTextData.action == "hide"){
+						logStep.messages.push({date:Date.now(), value:"Hide animated text"});
+						await StoreProxy.animatedText.hideText(overlay.id);
+					}
 				}
 
 			}catch(error:any) {

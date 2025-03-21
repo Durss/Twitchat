@@ -35,7 +35,8 @@ class OverlayAnimatedText extends AbstractOverlay {
 
 	private id:string = "";
 	private configHandler!:(e:TwitchatEvent<TwitchatDataTypes.AnimatedTextData>)=>void;
-	private textHandler!:(e:TwitchatEvent<{overlayId:string, queryId:string, text:string, autoNext:boolean}>)=>void;
+	private textHandler!:(e:TwitchatEvent<{overlayId:string, queryId:string, text:string, autoHide:boolean}>)=>void;
+	private closeHandler!:(e:TwitchatEvent<{overlayId:string, queryId:string}>)=>void;
 	private currentEntry:NonNullable<Parameters<typeof this.textHandler>[0]["data"]>|null = null;
 	private messageQueue:(typeof this.currentEntry)[] = [];
 	private raf = -1;
@@ -46,16 +47,18 @@ class OverlayAnimatedText extends AbstractOverlay {
 		this.id = this.$route.query.twitchat_overlay_id as string ?? "";
 
 		this.textHandler = (e)=>this.onText(e);
+		this.closeHandler = (e)=>this.onClose(e);
 		this.configHandler = (e)=>this.onConfig(e);
 
 		PublicAPI.instance.addEventListener(TwitchatEvent.ANIMATED_TEXT_SET, this.textHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.ANIMATED_TEXT_CLOSE, this.closeHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.ANIMATED_TEXT_CONFIGS, this.configHandler);
 	}
 
 	public mounted(): void {
-		this.messageQueue.push({overlayId:this.id, queryId:"", text:"Coucou <strong>ceci</strong> est un test", autoNext:true});
-		this.messageQueue.push({overlayId:this.id, queryId:"", text:"doudidou bidididibidbi bop bop wooop", autoNext:false});
-		this.next();
+		// this.messageQueue.push({overlayId:this.id, queryId:"", text:"Coucou <strong>ceci</strong> est un test", autoHide:true});
+		// this.messageQueue.push({overlayId:this.id, queryId:"", text:"doudidou bidididibidbi bop bop wooop", autoHide:false});
+		// this.next();
 	}
 
 	public beforeUnmount():void {
@@ -63,6 +66,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 		cancelAnimationFrame(this.raf);
 		super.beforeUnmount();
 		PublicAPI.instance.removeEventListener(TwitchatEvent.ANIMATED_TEXT_SET, this.textHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.ANIMATED_TEXT_CLOSE, this.closeHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.ANIMATED_TEXT_CONFIGS, this.configHandler);
 		this.split?.chars?.forEach(char=> {
 			gsap.killTweensOf(char);
@@ -112,6 +116,15 @@ class OverlayAnimatedText extends AbstractOverlay {
 	}
 
 	/**
+	 * Called when requesting to display a new text
+	 * @param e
+	 */
+	public onClose(e:Parameters<typeof this.closeHandler>[0]):void {
+		if(!e.data || e.data.overlayId != this.id) return;
+		this.hideText(e.data?.queryId);
+	}
+
+	/**
 	 * Animate next text
 	 */
 	public async next():Promise<void> {
@@ -132,15 +145,17 @@ class OverlayAnimatedText extends AbstractOverlay {
 			}
 		}
 		await this.showText();
-		if(this.currentEntry.autoNext) {
+		if(this.currentEntry.autoHide) {
 			const textLen = (this.$refs["text"] as HTMLElement)?.textContent?.length;
 			await Utils.promisedTimeout((textLen || 30) * 100);
-			PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_HIDE_COMPLETE, {queryId:this.currentEntry.queryId});
-			await this.hideText();
+			await this.hideText(entry.queryId);
 			this.next();
 		}
 	}
 
+	/**
+	 * Starts text animation
+	 */
 	private async showText():Promise<void> {
 		return new Promise((resolve) => {
 			this.split = new SplitType(this.$refs["text"] as HTMLElement, {split:["words","chars"], charClass:"char", wordClass:"word"})
@@ -474,9 +489,11 @@ class OverlayAnimatedText extends AbstractOverlay {
 		})
 	}
 
-
-	private async hideText():Promise<void> {
-		return new Promise((resolve) => {
+	/**
+	 * Closes current text
+	 */
+	private async hideText(queryId:string):Promise<void> {
+		const promise = new Promise<void>((resolve) => {
 			this.split = new SplitType(this.$refs["text"] as HTMLElement, {split:["words","chars"], charClass:"char", wordClass:"word"})
 			const ads = 2 - this.params.animDurationScale;
 			const amp = this.params.animStrength;
@@ -722,6 +739,12 @@ class OverlayAnimatedText extends AbstractOverlay {
 				}
 			}
 		})
+		promise.then(()=>{
+			if(this.currentEntry) {
+				PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_HIDE_COMPLETE, {queryId});
+			}
+		})
+		return promise
 	}
 
 }

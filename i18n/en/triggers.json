@@ -685,6 +685,16 @@
 			},
 			"trigger_stop": {
 				"info": "The trigger execution will stop here.\nThe following actions will not be executed."
+			},
+			"animated_text": {
+				"param_overlayId": "Overlay to control",
+				"param_action": "Action",
+				"param_text": "New text",
+				"param_autoHide": "Auto hide text after a delay based on message size",
+				"actions": {
+					"show": "Show text",
+					"hide": "Hide text"
+				}
 			}
 		},
 		"categories": {

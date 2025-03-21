@@ -44,7 +44,6 @@
 					<ParamItem :paramData="param_animStyle[entry.id]" v-model="entry.animStyle" @change="onChange(entry)" />
 					<ParamItem :paramData="param_animDurationScale[entry.id]" v-model="entry.animDurationScale" @change="onChange(entry)" />
 					<ParamItem :paramData="param_animStrength[entry.id]" v-model="entry.animStrength" @change="onChange(entry)" />
-					<ParamItem :paramData="param_autoHide[entry.id]" v-model="entry.autoHide" @change="onChange(entry)" />
 					<ParamItem :paramData="param_textFont[entry.id]" v-model="entry.textFont" @change="onChange(entry)" />
 					<ParamItem :paramData="param_textSize[entry.id]" v-model="entry.textSize" @change="onChange(entry)" />
 					<ParamItem :paramData="param_colorBase[entry.id]" v-model="entry.colorBase" @change="onChange(entry)" />
@@ -81,7 +80,6 @@ class OverlayParamsAnimatedText extends Vue {
 	public param_animDurationScale:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_animStrength:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_animStyle:{[key:string]:TwitchatDataTypes.ParameterData<TwitchatDataTypes.AnimatedTextData["animStyle"]>} = {};
-	public param_autoHide:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_colorBase:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_colorHighlights:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_textFont:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
@@ -102,7 +100,6 @@ class OverlayParamsAnimatedText extends Vue {
 			this.param_animDurationScale[id]	= {type:"slider", value:1, min: 0, step:.05, max:2, labelKey:"overlay.animatedText.param_animDurationScale", icon:"timer"};
 			this.param_animStrength[id]			= {type:"slider", value:1, min: 0, step:.05, max:2, labelKey:"overlay.animatedText.param_animStrength", icon:"scale"};
 			this.param_animStyle[id]			= {type:"list", value:"wave", labelKey:"overlay.animatedText.param_animStyle", icon:"easing"};
-			this.param_autoHide[id]				= {type:"boolean", value:true, labelKey:"overlay.animatedText.param_autoHide", icon:"show"};
 			this.param_colorBase[id]			= {type:"color", value:"", labelKey:"overlay.animatedText.param_colorBase", icon:"color"};
 			this.param_colorHighlights[id]		= {type:"color", value:"", labelKey:"overlay.animatedText.param_colorHighlights", icon:"color"};
 			this.param_textFont[id]				= {type:"font", value:"", labelKey:"overlay.animatedText.param_textFont", icon:"font"};
