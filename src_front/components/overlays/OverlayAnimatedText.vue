@@ -1,6 +1,7 @@
 <template>
 	<div class="overlayanimatedtext"
 	v-if="params"
+	:class="[params.animStyle]"
 	:style="{
 		fontFamily: params.textFont,
 		fontSize: params.textSize+'px',
@@ -56,9 +57,10 @@ class OverlayAnimatedText extends AbstractOverlay {
 	}
 
 	public mounted(): void {
-		// this.messageQueue.push({overlayId:this.id, queryId:"", text:"Coucou <strong>ceci</strong> est un test", autoHide:true});
-		// this.messageQueue.push({overlayId:this.id, queryId:"", text:"doudidou bidididibidbi bop bop wooop", autoHide:false});
-		// this.next();
+		this.messageQueue.push({overlayId:this.id, queryId:"", text:"<img src='https://cdn.bsky.app/img/avatar/plain/did:plc:wyzra6qiocq57qhfpc2bcfya/bafkreighvsiixoyiddhnq6gywu66gnnxod7zptemvb3xtllnr6bewha3fa@jpeg'>", autoHide:true});
+		this.messageQueue.push({overlayId:this.id, queryId:"", text:"Coucou <strong>ceci</strong> est un test", autoHide:true});
+		this.messageQueue.push({overlayId:this.id, queryId:"", text:"Hello, this is a random test message. Another random text for testing.", autoHide:false});
+		this.next();
 	}
 
 	public beforeUnmount():void {
@@ -102,6 +104,8 @@ class OverlayAnimatedText extends AbstractOverlay {
 				this.messageQueue.unshift(this.currentEntry);
 				this.next();
 			}
+		}else{
+			this.next();
 		}
 	}
 
@@ -128,27 +132,45 @@ class OverlayAnimatedText extends AbstractOverlay {
 	 * Animate next text
 	 */
 	public async next():Promise<void> {
+		if(!this.params) return;
+
 		this.ready = false;
 		if(this.messageQueue.length == 0) return;
+
+		// Grab next item in queue
 		const entry = this.messageQueue.shift();
 		if(!entry) return;
+
+		// Clear text
 		this.text = "";
 		await this.$nextTick();
+
 		this.currentEntry = entry;
+		// Render text
 		this.text = DOMPurify.sanitize(entry.text);
+
+		// Wait for text to render
 		await this.$nextTick();
-		if(!this.params) {
-			//Wait for params if not there yet
-			while(true) {
-				await Utils.promisedTimeout(50);
-				if(this.params) break;
-			}
-		}
+
+		// Start animation
 		await this.showText();
+
+		// If requesting to automatically hide text..
 		if(this.currentEntry.autoHide) {
-			const textLen = (this.$refs["text"] as HTMLElement)?.textContent?.length;
-			await Utils.promisedTimeout((textLen || 30) * 100);
+			// Compute wait duration based on text length
+			let textLen = (this.$refs["text"] as HTMLElement)?.textContent?.length;
+
+			// Exception for caterpillar animation that has no "hide" animation
+			// as the text simply passes through the screen
+			if(this.params.animStyle == "caterpillar") textLen = 0;
+
+			// Wait enough time for text to be read
+			await Utils.promisedTimeout((textLen || 0) * 100);
+
+			// Close text
 			await this.hideText(entry.queryId);
+
+			// Next text in queue
 			this.next();
 		}
 	}
@@ -158,7 +180,11 @@ class OverlayAnimatedText extends AbstractOverlay {
 	 */
 	private async showText():Promise<void> {
 		return new Promise((resolve) => {
-			this.split = new SplitType(this.$refs["text"] as HTMLElement, {split:["words","chars"], charClass:"char", wordClass:"word"})
+			this.split = new SplitType(this.$refs["text"] as HTMLElement, {split:["words","chars"], charClass:"char", wordClass:"word"});
+			if(this.split.chars?.length == 0) {
+				resolve();
+				return;
+			}
 			const ads = 2 - this.params.animDurationScale;
 			const amp = this.params.animStrength;
 			const chars = this.split.chars || [];
@@ -484,6 +510,56 @@ class OverlayAnimatedText extends AbstractOverlay {
 						}
 					};
 					renderFrame();
+					break;
+				}
+
+				case "caterpillar": {
+					const vw = window.innerWidth - 100;
+					let scroll = 0;
+					const scrollSpeed = (2 - ads)/2 * 3 + 1;
+					const points = chars.map((char, index) => {
+						const rect = char.getBoundingClientRect();
+						return {
+							x: rect.left + vw,
+							y: rect.top,
+							angle: index + .01,
+							freq: scrollSpeed * .1 + Math.random() * .01,
+						};
+					});
+					chars.forEach((char, index) => {
+						const point = points[index]
+						char.style.left = point.x+"px";
+						char.style.top = point.y+"px";
+						char.style.position = "fixed";
+						char.style.willChange = "transform";
+					});
+
+					const lastCharBounds = chars[chars.length-1].getBoundingClientRect().width;
+					const renderFrame = () => {
+						this.raf = requestAnimationFrame(() => renderFrame());
+						scroll += scrollSpeed;
+
+						for (let i = 0; i < chars.length; i++) {
+							// if(i == 1) break;
+							const char = chars[i];
+							const target = points[i];
+							let currX = parseFloat(char.style.left);
+							let currY = parseFloat(char.style.top);
+							currX = points[i].x + (Math.cos(target.angle+Math.PI)+1)/2 * ((2-amp) + (amp*4+10)) - scroll;
+							currY = points[i].y + Math.sin(target.angle) * amp * 10;
+							target.angle += target.freq;
+							char.style.left = `${currX}px`;
+							char.style.top = `${currY}px`;
+							char.style.transform = `rotate(${Math.cos(target.angle-Math.PI) * (amp * 5 + 10)}deg)`;
+
+							if(i === chars.length-1 && currX < -lastCharBounds * 2) {
+								resolve();
+								cancelAnimationFrame(this.raf);
+							}
+						}
+					};
+					renderFrame();
+					break;
 				}
 			}
 		})
@@ -493,8 +569,15 @@ class OverlayAnimatedText extends AbstractOverlay {
 	 * Closes current text
 	 */
 	private async hideText(queryId:string):Promise<void> {
-		const promise = new Promise<void>((resolve) => {
-			this.split = new SplitType(this.$refs["text"] as HTMLElement, {split:["words","chars"], charClass:"char", wordClass:"word"})
+		const promise = new Promise<void>(async (resolve) => {
+			await this.$nextTick();
+			if(!this.split) {
+				this.split = new SplitType(this.$refs["text"] as HTMLElement, {split:["words","chars"], charClass:"char", wordClass:"word"})
+			}
+			if(this.split.chars?.length == 0) {
+				resolve();
+				return;
+			}
 			const ads = 2 - this.params.animDurationScale;
 			const amp = this.params.animStrength;
 			const chars = this.split.chars || [];
@@ -703,7 +786,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 						char.style.left = point.x+"px";
 						char.style.top = point.y+"px";
 						char.style.position = "fixed";
-						char.style.willChange = "scale";
+						char.style.willChange = "transform";
 					});
 
 					const renderFrame = () => {
@@ -735,12 +818,21 @@ class OverlayAnimatedText extends AbstractOverlay {
 							resolve();
 						}
 					};
-					renderFrame();
+					break;
+				}
+
+				case "caterpillar": {
+					resolve();
+					break;
 				}
 			}
 		})
 		promise.then(()=>{
 			if(this.currentEntry) {
+				this.split!.chars = [];
+				this.split!.words = [];
+				this.split!.lines = []
+				this.split = null;
 				PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_HIDE_COMPLETE, {queryId});
 			}
 		})
@@ -765,6 +857,11 @@ export default toNative(OverlayAnimatedText);
 	// :deep(.word) {
 	// 	will-change: transform;
 	// }
+
+	&.caterpillar {
+		white-space: nowrap;
+		word-spacing: .25em;
+	}
 
 	:deep(strong) {
 		color: v-bind(strongColor)
