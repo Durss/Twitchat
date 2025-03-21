@@ -75,7 +75,7 @@ export const storeAnimatedText = defineStore('animatedtext', {
 				animDurationScale:1,
 				animStrength:1,
 				animStyle:"wave",
-				colorBase:"#ffffff",
+				colorBase:"#008667",
 				colorHighlights:"#e04e00",
 				textFont:"Inter",
 				textSize:30,
