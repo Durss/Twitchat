@@ -54,7 +54,7 @@ class TriggerConditionListItem extends Vue {
 	public placeholderList!:ITriggerPlaceholder<string>[];
 
 	public forceCustom:boolean = false;
-	public param_placeholder:TwitchatDataTypes.ParameterData<string, string> = {type:"list", value:""}
+	public param_placeholder:TwitchatDataTypes.ParameterData<string, string, void, void, ITriggerPlaceholder<string>> = {type:"list", value:""}
 	public param_operator:TwitchatDataTypes.ParameterData<TriggerConditionOperator, TriggerConditionOperator> = {type:"list", value:">"}
 	public param_value:TwitchatDataTypes.ParameterData<string, string> = {type:"string", value:"", longText:false}
 	public param_value_list:TwitchatDataTypes.ParameterData<string, unknown> = {type:"list", value:""}
@@ -81,7 +81,7 @@ class TriggerConditionListItem extends Vue {
 	 * Create the source list used as the first operator of the condition
 	 */
 	public buildSourceList():void {
-		let placeholderListLocal:ConditionListValues<string,ITriggerPlaceholder>[] =  [];
+		let placeholderListLocal:ConditionListValues<string,ITriggerPlaceholder<string>>[] =  [];
 		let placeholders: ITriggerPlaceholder<any, unknown, "">[] = [];
 		if(this.placeholderList.length == 0) {
 			//Add commmand params
@@ -168,7 +168,7 @@ class TriggerConditionListItem extends Vue {
 	 * isn't defined as number parsable.
 	 */
 	public updateOperators(inputOrigin:boolean = false):void {
-		if(inputOrigin && this.firstRender) return;
+		if(inputOrigin && this.firstRender || !this.param_placeholder.selectedListValue) return;
 
 		const placeholderRef = this.param_placeholder.selectedListValue.storage;
 		const cmdParamRef = this.triggerData.chatCommandParams?.find(v=> v.tag == this.condition.placeholder);
@@ -189,8 +189,8 @@ class TriggerConditionListItem extends Vue {
 		});
 
 		//If selected placeholder has fixed values
-		if(this.param_placeholder.selectedListValue && (this.param_placeholder.selectedListValue as ConditionListValues<string>).fixedValues) {
-			const list = (this.param_placeholder.selectedListValue as ConditionListValues<string>).fixedValues!.concat();
+		if(this.param_placeholder.selectedListValue && (this.param_placeholder.selectedListValue as ConditionListValues<string,ITriggerPlaceholder<string>>).fixedValues) {
+			const list = (this.param_placeholder.selectedListValue as ConditionListValues<string,ITriggerPlaceholder<string>>).fixedValues!.concat();
 			list.push({value:this.CUSTOM, labelKey:"triggers.condition.custom_value"});
 			this.param_value_list.listValues = list;
 			this.param_value_list.type = "imagelist";
