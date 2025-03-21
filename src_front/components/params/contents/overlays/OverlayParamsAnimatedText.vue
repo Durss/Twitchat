@@ -38,7 +38,8 @@
 				<div class="content">
 					<div class="card-item install">
 						<label><Icon name="obs" />{{$t('bingo_grid.form.install_title')}}</label>
-						<OverlayInstaller type="animatedtext" :sourceSuffix="entry.title" :id="entry.id" />
+						<OverlayInstaller type="animatedtext" :sourceSuffix="entry.title" :id="entry.id"
+						:sourceTransform="{width:900, height:350}" />
 					</div>
 
 					<ParamItem :paramData="param_animStyle[entry.id]" v-model="entry.animStyle" @change="onChange(entry)" />

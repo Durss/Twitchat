@@ -623,7 +623,7 @@
 			"param_animStrength": "Amplitude de l'animation",
 			"param_animStyle": "Type d'animation",
 			"param_colorBase": "Couleur du texte",
-			"param_colorHighlights": "Couleur des mots clés",
+			"param_colorHighlights": "Couleur de mise en avant (utilisez les balises <strong>&lt;b&gt;TEXT&lt;/&gt;</strong>)",
 			"param_textFont": "Police du texte",
 			"param_textSize": "Taille du texte",
 			"param_anim_styles": {

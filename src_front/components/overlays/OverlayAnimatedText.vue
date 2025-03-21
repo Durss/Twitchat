@@ -13,15 +13,14 @@
 </template>
 
 <script lang="ts">
-import { Component, toNative } from 'vue-facing-decorator';
-import AbstractOverlay from './AbstractOverlay';
-import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import SplitType from 'split-type'
-import Utils from '@/utils/Utils';
+import PublicAPI from '@/utils/PublicAPI';
 import gsap from 'gsap';
 import DOMPurify from 'isomorphic-dompurify';
+import SplitType from 'split-type';
+import { Component, toNative } from 'vue-facing-decorator';
+import AbstractOverlay from './AbstractOverlay';
 
 @Component({
 	components:{},
@@ -831,6 +830,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 							resolve();
 						}
 					};
+					renderFrame();
 					break;
 				}
 

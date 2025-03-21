@@ -624,7 +624,7 @@
 			"param_animStrength": "Animation amplitude",
 			"param_animStyle": "Animation type",
 			"param_colorBase": "Text color",
-			"param_colorHighlights": "Highlight color",
+			"param_colorHighlights": "Highlight color (use <strong>&lt;b&gt;TEXT&lt;/&gt;</strong> tags)",
 			"param_textFont": "Text font",
 			"param_textSize": "Text size",
 			"param_anim_styles": {
