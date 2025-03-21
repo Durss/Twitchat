@@ -45,6 +45,7 @@
 				["OVERLAY: Donation goals", "MAX_DONATION_GOALS", "MAX_DONATION_GOALS", "MAX_DONATION_GOALS_PREMIUM"],
 				["OVERLAY: Distorsions intéractives", "MAX_DISTORTION_OVERLAYS", "MAX_DISTORTION_OVERLAYS", "MAX_DISTORTION_OVERLAYS_PREMIUM"],
 				["OVERLAY: Labels", "MAX_LABELS", "MAX_LABELS", "MAX_LABELS_PREMIUM"],
+				["OVERLAY: Textes animés", "MAX_ANIMATED_TEXTS", "MAX_ANIMATED_TEXT", "MAX_ANIMATED_TEXT_PREMIUM"],
 				["OVERLAY: Générique de fin", "~", "~", 1],
 				["Grilles de bingo pour viewers", "-", "-", 1],
 				["Support Groq AI", 1, 1, 1],
@@ -113,6 +114,7 @@
 			"bingo_grids": "Grilles de bingo",
 			"labels": "Labels",
 			"timers": "Minuteurs",
+			"animated_text": "Textes animés",
 			"disable_more_items": "Désactivez ou supprimez des entrées dans les sections requises",
 			"completeBt": "Terminer"
 		}

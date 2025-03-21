@@ -10,8 +10,8 @@
 
 			<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.animatedText.animatedTextList.length < $config.MAX_ANIMATED_TEXT_PREMIUM">{{ $t("overlay.animatedText.premium_limit") }}</div>
 
-			<div class="premium" v-else>
-				<div>{{ $t("overlay.animatedText.non_premium_limit", {MAX:$config.MAX_BINGO_GRIDS_PREMIUM}) }}</div>
+			<div class="card-item premium maximumReached" v-else>
+				<div>{{ $t("overlay.animatedText.non_premium_limit", {MAX:$config.MAX_ANIMATED_TEXT_PREMIUM}) }}</div>
 				<TTButton icon="premium" @click="openPremium()" light premium>{{$t('premium.become_premiumBt')}}</TTButton>
 			</div>
 		</section>
@@ -179,6 +179,15 @@ export default toNative(OverlayParamsAnimatedText);
 			flex-shrink: 0;
 			padding: 0 .5em;
 		}
+	}
+
+	.maximumReached {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		white-space: pre-line;
 	}
 }
 </style>

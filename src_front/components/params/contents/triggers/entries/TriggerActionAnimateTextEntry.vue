@@ -48,14 +48,14 @@ class TriggerActionAnimateTextEntry extends AbstractTriggerActionEntry {
 		this.param_overlayId.listValues = this.$store.animatedText.animatedTextList.map(entry=> {
 			return {
 				value: entry.id,
-				label: entry.title || this.$t("overlay.animatedText.default_title")
+				label: entry.title || this.$t("overlay.animatedText.default_title"),
 			};
 		});
 
 		this.param_action.listValues = TriggerActionAnimatedTextData_ActionList.map(action=> {
 			return {
 				value: action,
-				label: this.$t(`triggers.actions.animated_text.actions.${action}`)
+				label: this.$t(`triggers.actions.animated_text.actions.${action}`),
 			};
 		})
 

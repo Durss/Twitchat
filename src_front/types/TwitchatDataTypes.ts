@@ -2134,6 +2134,7 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface AnimatedTextData {
 		id:string;
+		enabled:boolean;
 		/**
 		 * Optional overlay title
 		 */
@@ -2170,7 +2171,7 @@ export namespace TwitchatDataTypes {
 		 */
 		textSize:number;
 	}
-	export const AnimatedTextData_AnimStyles = ["wave","typewriter","bounce","wobble","rotate","elastic","neon","swarm"] as const
+	export const AnimatedTextData_AnimStyles = ["wave","typewriter","bounce","wobble","rotate","elastic","neon","swarm","parade"] as const
 
 	/**
 	 * Contains only the Array props from the StreamSummaryData

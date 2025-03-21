@@ -105,7 +105,7 @@
 								</div>
 							</div>
 							<div class="deleteBt">
-								<Icon name="trash" theme="alert" />
+								<Icon name="trash"/>
 							</div>
 						</div>
 					</div>
@@ -190,6 +190,22 @@
 					</div>
 				</ToggleBlock>
 
+				<ToggleBlock :icons="['animate']" :title="$t('premium.cleanup.animated_text')" :alert="!animatedTextsOK" :open="!animatedTextsOK"
+				v-if="$store.animatedText.animatedTextList.filter(v=>v.enabled).length > 0">
+					<template #right_actions>
+						<Icon :name="(labelsOK? 'checkmark' : 'alert')" />
+						<strong>{{$store.animatedText.animatedTextList.filter(v=>v.enabled).length}}/{{ $config.MAX_ANIMATED_TEXT }}</strong>
+					</template>
+					<div class="itemList">
+						<div class="rowItem" v-for="item in $store.animatedText.animatedTextList">
+							<span class="label">{{ item.title || $t("overlay.animatedText.default_title") }}</span>
+							<div class="toggle">
+								<ToggleButton v-model="item.enabled" @change="toggleAnimatedText(item)" />
+							</div>
+						</div>
+					</div>
+				</ToggleBlock>
+
 				<div class="card-item warning" v-if="!allOK">{{ $t("premium.cleanup.disable_more_items") }}</div>
 				<TTButton class="completeBt" icon="checkmark" v-else @click="close()">{{ $t("premium.cleanup.completeBt") }}</TTButton>
 			</div>
@@ -239,6 +255,7 @@ class NonPremiumCleanup extends Vue {
 	public get bingoGridsOK():boolean { return this.$store.bingoGrid.gridList.filter(v=>v.enabled).length <= this.$config.MAX_BINGO_GRIDS; }
 	public get labelsOK():boolean { return this.$store.labels.labelList.filter(v=>v.enabled).length <= this.$config.MAX_LABELS; }
 	public get timersOK():boolean { return this.$store.timers.timerList.filter(v=>v.enabled && !v.isDefault).length <= this.$config.MAX_TIMERS; }
+	public get animatedTextsOK():boolean { return this.$store.animatedText.animatedTextList.filter(v=>v.enabled).length <= this.$config.MAX_ANIMATED_TEXT; }
 	public get allOK():boolean {
 		return this.triggersOK
 			&& this.countersOK
@@ -250,7 +267,9 @@ class NonPremiumCleanup extends Vue {
 			&& this.distortionsOK
 			&& this.bingoGridsOK
 			&& this.labelsOK
-			&& this.timersOK;
+			&& this.timersOK
+			&& this.animatedTextsOK
+		;
 	}
 
 	public folderTriggerList:(TriggerListEntry|TriggerListFolderEntry)[] = [];
@@ -423,6 +442,10 @@ class NonPremiumCleanup extends Vue {
 
 	public toggleTimer(item:TwitchatDataTypes.TimerData):void {
 		this.$store.timers.saveData();
+	}
+
+	public toggleAnimatedText(item:TwitchatDataTypes.AnimatedTextData):void {
+		this.$store.animatedText.saveData();
 	}
 
 	public onToggleTrigger():void {

@@ -616,7 +616,7 @@
 			"add_bt": "Créer un overlay",
 			"default_title":"Texte animé",
 			"premium_limit":"Vous avez atteint le nombre maximum de textes animés que vous pouvez créer.",
-			"non_premium_limit":"Vous avez atteint le nombre maximum de textes animés que vous pouvez créer.\nDevenez premium pour créer jusqu'à {MAX} textes animés.",
+			"non_premium_limit":"Vous avez atteint le nombre maximum d'overlays de textes animés que vous pouvez créer.\nDevenez premium pour en créer jusqu'à {MAX}.",
 			"param_animDurationScale": "Vitesse de l'animation",
 			"param_animStrength": "Amplitude de l'animation",
 			"param_animStyle": "Type d'animation",
@@ -632,7 +632,8 @@
 				"neon": "Néon",
 				"elastic": "Élastique",
 				"rotate": "Rotation",
-				"swarm": "Essaim"
+				"swarm": "Essaim",
+				"parade": "Parade"
 			},
 			"delete_confirm": {
 				"title": "Supprimer cet entrée",

@@ -90,7 +90,9 @@ export const storeMain = defineStore("main", {
 				|| StoreProxy.heat.distortionList.filter(v=>v.enabled).length > Config.instance.MAX_DISTORTION_OVERLAYS
 				|| StoreProxy.bingoGrid.gridList.filter(v=>v.enabled).length > Config.instance.MAX_BINGO_GRIDS
 				|| StoreProxy.labels.labelList.filter(v=>v.enabled).length > Config.instance.MAX_LABELS
-				|| StoreProxy.timers.timerList.filter(v=>v.enabled && !v.isDefault).length > Config.instance.MAX_TIMERS;
+				|| StoreProxy.timers.timerList.filter(v=>v.enabled && !v.isDefault).length > Config.instance.MAX_TIMERS
+				|| StoreProxy.animatedText.animatedTextList.filter(v=>v.enabled).length > Config.instance.MAX_ANIMATED_TEXT
+				;
 		}
 	},
 

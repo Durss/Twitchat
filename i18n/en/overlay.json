@@ -633,7 +633,8 @@
 				"neon": "Neon",
 				"elastic": "Elastic",
 				"rotate": "Rotation",
-				"swarm": "Swarm"
+				"swarm": "Swarm",
+				"parade": "Parade"
 			},
 			"delete_confirm": {
 				"title": "Delete entry",

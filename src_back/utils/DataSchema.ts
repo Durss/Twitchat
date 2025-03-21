@@ -2453,6 +2453,7 @@ const UserDataSchema = {
 						type: "object",
 						properties: {
 							id: { type: "string" },
+							enabled: { type: "boolean" },
 							title: { type: "string", maxLength:30 },
 							animStyle: { type: "string", maxLength:20 },
 							animDurationScale: { type: "number", minimum:0, maximum:2 },

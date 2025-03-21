@@ -71,6 +71,7 @@ export const storeAnimatedText = defineStore('animatedtext', {
 			const data:TwitchatDataTypes.AnimatedTextData = {
 				id:Utils.getUUID(),
 				title:"",
+				enabled:true,
 				animDurationScale:1,
 				animStrength:1,
 				animStyle:"wave",
