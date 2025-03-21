@@ -48,6 +48,11 @@
 					<ParamItem :paramData="param_textSize[entry.id]" v-model="entry.textSize" @change="onChange(entry)" />
 					<ParamItem :paramData="param_colorBase[entry.id]" v-model="entry.colorBase" @change="onChange(entry)" />
 					<ParamItem :paramData="param_colorHighlights[entry.id]" v-model="entry.colorHighlights" @change="onChange(entry)" />
+
+					<form @submit.prevent="onTest(entry.id)">
+						<input type="text" v-model="testText" class="input-field" maxlength="100" />
+						<TTButton type="submit" icon="test" class="button">{{ $t("overlay.animatedText.test_bt") }}</TTButton>
+					</form>
 				</div>
 			</ToggleBlock>
 		</VueDraggable>
@@ -58,12 +63,12 @@
 <script lang="ts">
 import Icon from '@/components/Icon.vue';
 import { Component, toNative, Vue } from 'vue-facing-decorator';
-import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ParamItem from '../../ParamItem.vue';
 import { VueDraggable } from 'vue-draggable-plus';
+import TTButton from '../../../TTButton.vue';
 
 @Component({
 	components:{
@@ -77,6 +82,7 @@ import { VueDraggable } from 'vue-draggable-plus';
 })
 class OverlayParamsAnimatedText extends Vue {
 
+	public testText:string = "";
 	public param_animDurationScale:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_animStrength:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_animStyle:{[key:string]:TwitchatDataTypes.ParameterData<TwitchatDataTypes.AnimatedTextData["animStyle"]>} = {};
@@ -86,6 +92,7 @@ class OverlayParamsAnimatedText extends Vue {
 	public param_textSize:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 
 	public beforeMount():void {
+		this.testText = this.$t('overlay.animatedText.test_default');
 		this.initParams();
 	}
 
@@ -137,6 +144,13 @@ class OverlayParamsAnimatedText extends Vue {
 		this.$store.animatedText.createAnimatedText();
 		this.initParams();
 	}
+
+	/**
+	 * Tests the text
+	 */
+	public onTest(overlayId:string):void {
+		this.$store.animatedText.animateText(overlayId, this.testText, true, true);
+	}
 }
 export default toNative(OverlayParamsAnimatedText);
 </script>
@@ -147,6 +161,24 @@ export default toNative(OverlayParamsAnimatedText);
 		gap: .5em;
 		display: flex;
 		flex-direction: column;
+
+		form {
+			gap: 1px;
+			display: flex;
+			flex-direction: row;
+			* {
+				border-radius: 0;
+			}
+			*:first-child {
+				border-radius: var(--border-radius) 0 0 var(--border-radius);
+			}
+			*:last-child {
+				border-radius: 0 var(--border-radius) var(--border-radius) 0;
+			}
+			input {
+				flex-grow: 1;
+			}
+		}
 	}
 
 	.install {

@@ -3626,7 +3626,7 @@ export interface IAnimatedTextActions {
 	 * Starts the animation of the given text
 	 * Promise resolves after text is hidden
 	 */
-	animateText(overlayId:string, text:string, autoHide?:boolean):Promise<void>
+	animateText(overlayId:string, text:string, autoHide?:boolean, bypassAll?:boolean):Promise<void>
 	/**
 	 * Hide text currently displayed
 	 */

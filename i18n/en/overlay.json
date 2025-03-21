@@ -618,6 +618,8 @@
 			"default_title":"Animated text",
 			"premium_limit": "You reached the maximum number of overlays you can create",
 			"non_premium_limit":"You reached the maximum number of animated text overlays.\nBecome premium to set up to {MAX} overlays.",
+			"test_bt":"Test",
+			"test_default":"Salut la team !",
 			"param_animDurationScale": "Animation speed",
 			"param_animStrength": "Animation amplitude",
 			"param_animStyle": "Animation type",

@@ -36,12 +36,13 @@ class OverlayAnimatedText extends AbstractOverlay {
 
 	private id:string = "";
 	private configHandler!:(e:TwitchatEvent<TwitchatDataTypes.AnimatedTextData>)=>void;
-	private textHandler!:(e:TwitchatEvent<{overlayId:string, queryId:string, text:string, autoHide:boolean}>)=>void;
+	private textHandler!:(e:TwitchatEvent<{overlayId:string, queryId:string, text:string, autoHide?:boolean, bypassAll?:boolean}>)=>void;
 	private closeHandler!:(e:TwitchatEvent<{overlayId:string, queryId:string}>)=>void;
 	private currentEntry:NonNullable<Parameters<typeof this.textHandler>[0]["data"]>|null = null;
 	private messageQueue:(typeof this.currentEntry)[] = [];
 	private raf = -1;
 	private resolveTO = -1;
+	private autoHideTO = -1;
 	private split:SplitType|null = null;
 
 	public beforeMount():void {
@@ -57,14 +58,15 @@ class OverlayAnimatedText extends AbstractOverlay {
 	}
 
 	public mounted(): void {
-		this.messageQueue.push({overlayId:this.id, queryId:"", text:"<img src='https://cdn.bsky.app/img/avatar/plain/did:plc:wyzra6qiocq57qhfpc2bcfya/bafkreighvsiixoyiddhnq6gywu66gnnxod7zptemvb3xtllnr6bewha3fa@jpeg'>", autoHide:true});
-		this.messageQueue.push({overlayId:this.id, queryId:"", text:"Coucou <strong>ceci</strong> est un test", autoHide:true});
-		this.messageQueue.push({overlayId:this.id, queryId:"", text:"Hello, this is a random test message. Another random text for testing.", autoHide:false});
-		this.next();
+		// this.messageQueue.push({overlayId:this.id, queryId:"", text:"<img src='https://cdn.bsky.app/img/avatar/plain/did:plc:wyzra6qiocq57qhfpc2bcfya/bafkreighvsiixoyiddhnq6gywu66gnnxod7zptemvb3xtllnr6bewha3fa@jpeg'>", autoHide:true});
+		// this.messageQueue.push({overlayId:this.id, queryId:"", text:"Coucou <strong>ceci</strong> est un test", autoHide:true});
+		// this.messageQueue.push({overlayId:this.id, queryId:"", text:"Hello, this is a random test message. Another random text for testing.", autoHide:false});
+		// this.next();
 	}
 
 	public beforeUnmount():void {
 		clearTimeout(this.resolveTO);
+		clearTimeout(this.autoHideTO);
 		cancelAnimationFrame(this.raf);
 		super.beforeUnmount();
 		PublicAPI.instance.removeEventListener(TwitchatEvent.ANIMATED_TEXT_SET, this.textHandler);
@@ -96,11 +98,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 			shouldRender ||= this.params.animStyle != prevParams.animStyle;
 			shouldRender ||= this.params.textFont != prevParams.textFont;
 			if(this.text && shouldRender) {
-				clearTimeout(this.resolveTO);
-				this.split?.chars?.forEach(char=> {
-					gsap.killTweensOf(char);
-				})
-				if(this.raf > -1) cancelAnimationFrame(this.raf);
+				this.stopAll();
 				this.messageQueue.unshift(this.currentEntry);
 				this.next();
 			}
@@ -110,11 +108,27 @@ class OverlayAnimatedText extends AbstractOverlay {
 	}
 
 	/**
+	 * Stops all animations
+	 */
+	private stopAll():void {
+		clearTimeout(this.resolveTO);
+		clearTimeout(this.autoHideTO);
+		this.split?.chars?.forEach(char=> {
+			gsap.killTweensOf(char);
+		})
+		if(this.raf > -1) cancelAnimationFrame(this.raf);
+	}
+
+	/**
 	 * Called when requesting to display a new text
 	 * @param e
 	 */
 	public onText(e:Parameters<typeof this.textHandler>[0]):void {
 		if(!e.data || e.data.overlayId != this.id) return;
+		if(e.data.bypassAll) {
+			this.stopAll();
+			this.messageQueue = [];
+		}
 		this.messageQueue.push(e.data);
 		if(this.messageQueue.length == 1) this.next();
 	}
@@ -165,13 +179,12 @@ class OverlayAnimatedText extends AbstractOverlay {
 			if(this.params.animStyle == "caterpillar") textLen = 0;
 
 			// Wait enough time for text to be read
-			await Utils.promisedTimeout((textLen || 0) * 100);
-
-			// Close text
-			await this.hideText(entry.queryId);
-
-			// Next text in queue
-			this.next();
+			this.autoHideTO = window.setTimeout(async ()=>{
+				// Close text
+				await this.hideText(entry.queryId);
+				// Next text in queue
+				this.next();
+			}, (textLen || 0) * 1000);
 		}
 	}
 
@@ -523,7 +536,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 							x: rect.left + vw,
 							y: rect.top,
 							angle: index + .01,
-							freq: scrollSpeed * .1 + Math.random() * .01,
+							freq: scrollSpeed * .1 + Math.random() * .005,
 						};
 					});
 					chars.forEach((char, index) => {
@@ -863,6 +876,7 @@ export default toNative(OverlayAnimatedText);
 		word-spacing: .25em;
 	}
 
+	:deep(b),
 	:deep(strong) {
 		color: v-bind(strongColor)
 	}

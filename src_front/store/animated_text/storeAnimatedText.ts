@@ -101,11 +101,11 @@ export const storeAnimatedText = defineStore('animatedtext', {
 			DataStore.set(DataStore.ANIMATED_TEXT_CONFIGS, data);
 		},
 
-		async animateText(overlayId:string, text:string, autoHide:boolean = false):Promise<void> {
+		async animateText(overlayId:string, text:string, autoHide:boolean = false, bypassAll:boolean = false):Promise<void> {
 			return new Promise<void>((resolve, reject)=> {
 				const queryId:string = Utils.getUUID();
 				queryIdToResolver.set(queryId, resolve);
-				PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_SET, {overlayId, queryId, text, autoHide});
+				PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_SET, {overlayId, queryId, text, autoHide, bypassAll});
 			});
 		},
 
