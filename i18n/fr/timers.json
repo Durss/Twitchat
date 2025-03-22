@@ -21,6 +21,7 @@
 		},
 
 		"form": {
+			"disabled_tt": "Ce minuteur est désactivé",
 			"param_type_timer": "Chronomètre",
 			"param_type_countdown": "Compte à rebours",
 			"param_duration": "Durée",

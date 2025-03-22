@@ -21,6 +21,7 @@
 		},
 
 		"form": {
+			"disabled_tt": "This timer is disabled",
 			"param_type_timer": "Stopwatch",
 			"param_type_countdown": "Countdown",
 			"param_duration": "Duration",

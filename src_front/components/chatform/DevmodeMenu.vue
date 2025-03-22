@@ -114,8 +114,8 @@
 			<Button small @click="simulateHateRaid()" icon="raid">Hate raid</Button>
 			<Button small @click="openTriggersLogs()" icon="broadcast">Show triggers logs</Button>
 			<Button small @click="openOBSHeatLogs()" icon="obs">Show OBS logs</Button>
-			<Button small @click="exportPubsubHistory()" icon="download" :loading="generatingHistory" v-if="!pubsubHistoryLink">Export events history</Button>
 			<Button small secondary type="link" :href="pubsubHistoryLink" target="_blank" icon="download" v-if="pubsubHistoryLink">Download</Button>
+			<Button small @click="fakeConversation()" icon="whispers">Fake conversation</Button>
 		</div>
 	</div>
 </template>
@@ -420,19 +420,99 @@ class DevmodeMenu extends Vue {
 		this.$emit("obsHeatLogs");
 	}
 
-	public async exportPubsubHistory():Promise<void> {
-		this.generatingHistory = true;
-		const data = JSON.stringify(PubSub.instance.eventsHistory);
-		const blob = new Blob([data], { type: 'application/json' });
-		const url = window.URL.createObjectURL(blob)
-		await Utils.promisedTimeout(1000);
-		this.pubsubHistoryLink = url;
-		this.generatingHistory = false;
-	}
-
 	public simulateFollowbotRaid():void {
 		EventSub.instance.simulateFollowbotRaid();
 	}
+
+	public async fakeConversation():Promise<void> {
+		const messages = [
+			"w0k1ss:Elon Musk is just a billionaire who cosplays as an 'edgy free speech warrior' while banning anyone who criticizes him.",
+			"FUmsk:Dude literally reinstated Nazis on Twitter while banning journalists. How is that not fascist behavior?",
+			"n4z1Twump:Musk loves authoritarianism. He moved Tesla’s HQ to Texas for less regulations and openly supports right-wing leaders.",
+			"jdvater:He also fired employees for speaking out about workplace harassment. Classic fascist move—suppressing dissent.",
+			"magadeepthro4t3r:You guys are ridiculous. Musk is just a businessman. Free speech means letting all voices speak, even the ones you don’t like.",
+			"w0k1ss:@magadeepthro4t3r Then why did he ban left-wing accounts for making fun of him? That’s not free speech; that’s a fragile ego.",
+			"FUmsk:He literally said 'comedy is legal again' and then nuked an account for parodying him. Hypocrisy much?",
+			"n4z1Twump:Musk boosting conspiracy theories about Paul Pelosi's attack should tell you all you need to know.",
+			"jdvater:Let’s not forget him cozying up to authoritarian leaders like Modi and Erdogan for business deals.",
+			"magadeepthro4t3r:@jdvater It’s called diplomacy. He needs to work with world leaders to expand Tesla and SpaceX. It’s not political.",
+			"w0k1ss:Oh please, Musk is political. He’s pushing right-wing talking points and platforming fascists on Twitter.",
+			"FUmsk:@magadeepthro4t3r If it’s just business, why does he engage with far-right influencers and spread their narratives?",
+			"n4z1Twump:He’s literally pushing 'great replacement' rhetoric on Twitter. That’s white supremacist propaganda.",
+			"jdvater:He’s also anti-union, which is another major sign of fascism. Weakening worker rights is classic authoritarian capitalism.",
+			"magadeepthro4t3r:@jdvater LOL, so now being against unions makes you a fascist? He wants efficiency, not lazy workers striking all the time.",
+			"w0k1ss:Union-busting is straight from the fascist playbook. Tesla has had racial discrimination lawsuits too, not a good look.",
+			"FUmsk:Yeah, Black workers at Tesla literally had to work in a place called 'the plantation'. How is that not racist AF?",
+			"n4z1Twump:Musk wants to control everything—speech, labor, even politics. That’s why he’s pushing for a one-party system under the guise of centrism.",
+			"jdvater:He also promotes techno-feudalism. He wants a society where billionaires own everything and people are just serfs.",
+			"magadeepthro4t3r:@jdvater That’s ridiculous. He’s giving people jobs, pushing innovation, and making the world better.",
+			"w0k1ss:@magadeepthro4t3r Oh yeah, ‘making the world better’ by supporting coups in South America for lithium mining?",
+			"FUmsk:Exactly. Musk literally said 'we’ll coup whoever we want' when talking about Bolivia’s government. That’s imperialist fascism.",
+			"n4z1Twump:And let’s not forget him joking about having 'the night rope experience' with white nationalists. He knows exactly what he’s doing.",
+			"jdvater:Musk is normalizing fascism under the guise of 'free speech'. It’s always been about power, not principles.",
+			"magadeepthro4t3r:@jdvater The guy literally wants to colonize Mars. How is that fascist? He’s trying to save humanity.",
+			"w0k1ss:@magadeepthro4t3r You mean he wants to create a corporate dictatorship on Mars where workers have no rights?",
+			"FUmsk:Musk’s vision of the future is billionaire overlords ruling over indentured servants. That’s dystopian, not progressive.",
+			"n4z1Twump:He already does that on Earth—low pay, overwork, firing anyone who complains. Why wouldn’t he do it on Mars?",
+			"jdvater:Elon Musk is a textbook fascist—corporate control, suppression of dissent, and a cult of personality. Wake up.",
+			"magadeepthro4t3r:You guys are just jealous of his success. If being rich and powerful makes someone fascist, then everyone successful is one."
+		];
+		const channelId = this.$store.auth.twitch.user.id;
+		const userMap = new Map<string, TwitchatDataTypes.TwitchatUser>();
+		for (let i = 0; i < messages.length; i++) {
+			const [name, message] = messages[i].split(":");
+			const user = userMap.get(name) ?? {
+				id:Utils.getUUID(),
+				displayName:name,
+				displayNameOriginal:name,
+				login:name,
+				is_affiliate:false,
+				is_partner:false,
+				is_blocked:false,
+				is_bot:false,
+				is_tracked:false,
+				color:Utils.pickRand(["#ff0000","#0000ff","#008000","#b22222","#ff7f50","#9acd32","#ff4500","#2e8b57","#daa520","#d2691e","#5f9ea0","#1e90ff","#ff69b4","#8a2be2","#00ff7f"]),
+				platform:"twitch",
+				pronouns:"",
+				pronounsLabel:"",
+				pronounsTooltip:"",
+				channelInfo:{[channelId]:{
+					badges:[],
+					following_date_ms:Date.now(),
+					is_banned:false,
+					is_broadcaster:false,
+					is_following:true,
+					is_gifter:false,
+					is_moderator:false,
+					is_new:false,
+					is_raider:false,
+					is_subscriber:false,
+					is_vip:false,
+					online:true,
+				}}
+			};
+			userMap.set(name, user);
+			const messageData:TwitchatDataTypes.MessageChatData = {
+				channel_id: channelId,
+				id:Utils.getUUID(),
+				type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				date:Date.now() - (messages.length - i) * 1000,
+				platform:"twitch",
+				user,
+				message,
+				message_chunks: TwitchUtils.parseMessageToChunks(message, undefined, true),
+				message_html: "",
+				message_size: 0,
+				answers:[],
+				fake:false,
+				is_short:false,
+			};
+			this.$store.chat.addMessage(messageData, false);
+			await Utils.promisedTimeout(Math.random() * 500);
+
+		}
+	}
+
 	/**
 	 * Simulate a follow bot event by sending lots of fake follow events
 	 */
