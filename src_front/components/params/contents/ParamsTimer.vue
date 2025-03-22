@@ -68,11 +68,19 @@
 						</div>
 
 						<div class="ctas">
-							<TTButton icon="play" v-if="!entry.startAt_ms" @click="$store.timers.timerStart(entry.id); refreshTimers()">Start</TTButton>
+							<TTButton icon="play"
+							v-if="!entry.startAt_ms"
+							@click="$store.timers.timerStart(entry.id); refreshTimers()"
+							:disabled="!entry.enabled"
+							v-tooltip="entry.enabled? '' : $t('timers.form.disabled_tt')">Start</TTButton>
 
 							<template v-else>
-								<TTButton icon="pause" @click="$store.timers.timerPause(entry.id); refreshTimers()" v-if="!entry.paused">Pause</TTButton>
-								<TTButton icon="play" @click="$store.timers.timerUnpause(entry.id); refreshTimers()" v-else>Unpause</TTButton>
+								<TTButton icon="pause" v-if="!entry.paused"
+									@click="$store.timers.timerPause(entry.id); refreshTimers()">Pause</TTButton>
+								<TTButton icon="play"  v-else
+									@click="$store.timers.timerUnpause(entry.id); refreshTimers()"
+									:disabled="!entry.enabled"
+									v-tooltip="entry.enabled? '' : $t('timers.form.disabled_tt')">Unpause</TTButton>
 								<TTButton icon="stop" @click="$store.timers.timerStop(entry.id); refreshTimers()">Stop</TTButton>
 							</template>
 						</div>

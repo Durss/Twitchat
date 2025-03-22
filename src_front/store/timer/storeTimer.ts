@@ -149,7 +149,7 @@ export const storeTimer = defineStore('timer', {
 
 		timerStart(id:string) {
 			const entry = this.timerList.find(t=> t.id === id);
-			if(!entry) return;
+			if(!entry || !entry.enabled) return;
 
 			let message:TwitchatDataTypes.MessageTimerData|TwitchatDataTypes.MessageCountdownData|null = null;
 			this.resetTimer(id);
@@ -237,7 +237,7 @@ export const storeTimer = defineStore('timer', {
 
 		timerUnpause(id:string) {
 			const entry = this.timerList.find(t=> t.id === id);
-			if(!entry) return;
+			if(!entry || !entry.enabled) return;
 			if(entry.paused && entry.startAt_ms) {
 				entry.paused = false;
 				if(entry.type == "timer") {
