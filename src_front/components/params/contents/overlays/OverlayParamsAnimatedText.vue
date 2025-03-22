@@ -42,6 +42,11 @@
 						:sourceTransform="{width:900, height:350}" />
 					</div>
 
+					<form @submit.prevent="onTest(entry.id)">
+						<input type="text" v-model="testText" class="input-field" maxlength="100" />
+						<TTButton type="submit" icon="test" class="button">{{ $t("overlay.animatedText.test_bt") }}</TTButton>
+					</form>
+
 					<ParamItem :paramData="param_animStyle[entry.id]" v-model="entry.animStyle" @change="onChange(entry)" />
 					<ParamItem :paramData="param_animDurationScale[entry.id]" v-model="entry.animDurationScale" @change="onChange(entry)" />
 					<ParamItem :paramData="param_animStrength[entry.id]" v-model="entry.animStrength" @change="onChange(entry)" />
@@ -49,11 +54,6 @@
 					<ParamItem :paramData="param_textSize[entry.id]" v-model="entry.textSize" @change="onChange(entry)" />
 					<ParamItem :paramData="param_colorBase[entry.id]" v-model="entry.colorBase" @change="onChange(entry)" />
 					<ParamItem :paramData="param_colorHighlights[entry.id]" v-model="entry.colorHighlights" @change="onChange(entry)" />
-
-					<form @submit.prevent="onTest(entry.id)">
-						<input type="text" v-model="testText" class="input-field" maxlength="100" />
-						<TTButton type="submit" icon="test" class="button">{{ $t("overlay.animatedText.test_bt") }}</TTButton>
-					</form>
 				</div>
 			</ToggleBlock>
 		</VueDraggable>
@@ -167,6 +167,8 @@ export default toNative(OverlayParamsAnimatedText);
 			gap: 1px;
 			display: flex;
 			flex-direction: row;
+			max-width: 80%;
+			margin: auto;
 			* {
 				border-radius: 0;
 			}

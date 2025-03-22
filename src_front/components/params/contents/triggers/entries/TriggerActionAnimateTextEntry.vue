@@ -1,6 +1,6 @@
 <template>
 	<div class="triggeractionanimatetext triggerActionForm">
-		<ParamItem :paramData="param_overlayId" v-model="action.animatedTextData.overlayId" />
+		<ParamItem :paramData="param_overlayId" v-model="action.animatedTextData.overlayId" :error="!overlayExists" />
 		<ParamItem :paramData="param_action" v-model="action.animatedTextData.action" />
 		<template v-if="action.animatedTextData.action == 'show'">
 			<ParamItem :paramData="param_text" v-model="action.animatedTextData.text" />
@@ -15,9 +15,11 @@ import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ParamItem from '@/components/params/ParamItem.vue';
+import TTButton from '@/components/TTButton.vue';
 
 @Component({
 	components:{
+		TTButton,
 		ParamItem,
 	},
 	emits:[],
@@ -35,10 +37,14 @@ class TriggerActionAnimateTextEntry extends AbstractTriggerActionEntry {
 	public param_text:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.animated_text.param_text", value:"", longText:true, maxLength:100, icon:"font"}
 	public param_autoHide:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",  labelKey:"triggers.actions.animated_text.param_autoHide", value:true, icon:"hide"}
 
+	public get overlayExists():boolean {
+		return this.$store.animatedText.animatedTextList.some(entry=> entry.id == this.action.animatedTextData.overlayId);
+	}
+
 	public beforeMount():void {
 		if(!this.action.animatedTextData) {
 			this.action.animatedTextData = {
-				overlayId: "",
+				overlayId: this.$store.animatedText.animatedTextList[0]?.id || "",
 				action: "show",
 				text: "",
 				autoHide: true,
@@ -51,6 +57,7 @@ class TriggerActionAnimateTextEntry extends AbstractTriggerActionEntry {
 				label: entry.title || this.$t("overlay.animatedText.default_title"),
 			};
 		});
+		this.param_overlayId.listValues.unshift({value:"", label:this.$t("global.select_placeholder")});
 
 		this.param_action.listValues = TriggerActionAnimatedTextData_ActionList.map(action=> {
 			return {

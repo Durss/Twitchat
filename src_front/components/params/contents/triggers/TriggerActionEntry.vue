@@ -329,9 +329,10 @@ import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ChatSuggestionForm from '@/components/chatSugg/ChatSuggestionForm.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
+import ChatPollForm from '@/components/poll/ChatPollForm.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
-import { TriggerEventPlaceholders, TriggerTypes, type ITriggerPlaceholder, type TriggerActionObsData, type TriggerActionObsSourceDataAction, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerConditionGroup, type TriggerData } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, TriggerTypes, type ITriggerPlaceholder, type TriggerActionAnimatedTextData, type TriggerActionBingoGridData, type TriggerActionCounterData, type TriggerActionObsData, type TriggerActionObsSourceDataAction, type TriggerActionRewardData, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerConditionGroup, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -348,6 +349,7 @@ import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 import BingoForm from '../../../bingo/BingoForm.vue';
 import RaffleForm from '../../../raffle/RaffleForm.vue';
 import TriggerConditionList from './TriggerConditionList.vue';
+import TriggerActionAnimateTextEntry from './entries/TriggerActionAnimateTextEntry.vue';
 import TriggerActionBingoGridEntry from './entries/TriggerActionBingoGridEntry.vue';
 import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
 import TriggerActionClickHeatEntry from './entries/TriggerActionClickHeatEntry.vue';
@@ -371,20 +373,18 @@ import TriggerActionPlayAbilityEntry from './entries/TriggerActionPlayAbilityEnt
 import TriggerActionRandomEntry from './entries/TriggerActionRandomEntry.vue';
 import TriggerActionRewardEntry from './entries/TriggerActionRewardEntry.vue';
 import TriggerActionSammiEntry from './entries/TriggerActionSammiEntry.vue';
+import TriggerActionSpoilMessageEntry from './entries/TriggerActionSpoilMessageEntry.vue';
+import TriggerActionStopExecEntry from './entries/TriggerActionStopExecEntry.vue';
 import TriggerActionStreamInfoEntry from './entries/TriggerActionStreamInfoEntry.vue';
 import TriggerActionStreamerbotEntry from './entries/TriggerActionStreamerbotEntry.vue';
 import TriggerActionTTSEntry from './entries/TriggerActionTTSEntry.vue';
+import TriggerActionTimerEntry from './entries/TriggerActionTimerEntry.vue';
 import TriggerActionTriggerEntry from './entries/TriggerActionTriggerEntry.vue';
 import TriggerActionTriggerToggleEntry from './entries/TriggerActionTriggerToggleEntry.vue';
 import TriggerActionValueEntry from './entries/TriggerActionValueEntry.vue';
 import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneEntry.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
-import TriggerActionSpoilMessageEntry from './entries/TriggerActionSpoilMessageEntry.vue';
-import TriggerActionTimerEntry from './entries/TriggerActionTimerEntry.vue';
-import TriggerActionStopExecEntry from './entries/TriggerActionStopExecEntry.vue';
-import ChatPollForm from '@/components/poll/ChatPollForm.vue';
-import TriggerActionAnimateTextEntry from './entries/TriggerActionAnimateTextEntry.vue';
 
 @Component({
 	components:{
@@ -601,19 +601,33 @@ class TriggerActionEntry extends Vue {
 		else if(this.action.type == "playability") icons.push( 'playability' );
 		else if(this.action.type == "groq") icons.push( 'groq' );
 		else if(this.action.type == "timer") icons.push( 'timer' );
+		else if(this.action.type == "animated_text") icons.push( 'animate' );
 		return icons;
 	}
 
 	public get isError():boolean {
-		if(this.action.type != "obs") return false;
+		if(this.action.type == "obs" && this.action.sourceName) {
+			const action = this.action as TriggerActionObsData;
+			if(!this.obsConnected) return true;
+			return this.obsSources.findIndex(v=>v.sourceName == action.sourceName) == -1
+				&& this.obsScenes.findIndex(v=>v.sceneName == action.sourceName) == -1
+				&& this.obsInputs.findIndex(v=>v.inputName == action.sourceName) == -1
+				&& action.sourceName != this.$t("triggers.actions.obs.param_source_currentScene");
+		}
+		if(this.action.type === "animated_text" && this.action.animatedTextData) {
+			const action = this.action as TriggerActionAnimatedTextData;
+			return !this.$store.animatedText.animatedTextList.some(entry=> entry.id == action.animatedTextData.overlayId);
+		}
 
-		const action:TriggerActionObsData = this.action as TriggerActionObsData;
-		if(!action.sourceName) return false;
-		if(!this.obsConnected) return true;
-		return this.obsSources.findIndex(v=>v.sourceName == action.sourceName) == -1
-			&& this.obsScenes.findIndex(v=>v.sceneName == action.sourceName) == -1
-			&& this.obsInputs.findIndex(v=>v.inputName == action.sourceName) == -1
-			&& action.sourceName != this.$t("triggers.actions.obs.param_source_currentScene");
+		if(this.action.type === "reward" && this.action.rewardAction) {
+			const action = this.action as TriggerActionRewardData;
+			return this.rewards.findIndex(r => r.id === action.rewardAction?.rewardId) == -1;
+		}
+		if(this.action.type === "bingoGrid" && this.action.bingoGrid) {
+			const action = this.action as TriggerActionBingoGridData;
+			return this.$store.bingoGrid.gridList.findIndex(g => g.id === action.bingoGrid.grid) == -1;
+		}
+		return false;
 	}
 
 	public async beforeMount():Promise<void> {
