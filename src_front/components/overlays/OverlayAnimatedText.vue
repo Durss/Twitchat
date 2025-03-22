@@ -477,16 +477,16 @@ class OverlayAnimatedText extends AbstractOverlay {
 							// if(i < chars.length-1) continue
 							const char = chars[i];
 							const target = points[i];
-							let currX = parseFloat(char.style.left);
-							let currY = parseFloat(char.style.top);
+							let currX = parseFloat(char.style.left) + bounds.left;
+							let currY = parseFloat(char.style.top) + bounds.top;
 
 							if (leader.x <= target.x) {
 								// Follow the leader
 								target.dir += target.speed;
 								currX += (leader.x - currX) * 0.2;
 								currY += (leader.y - currY + Math.sin(leaderAngle) * leaderAmp) * 0.2;
-								char.style.left = `${currX + Math.cos(target.dir) * target.dist}px`;
-								char.style.top = `${currY + Math.sin(target.dir) * target.dist}px`;
+								char.style.left = `${currX + Math.cos(target.dir) * target.dist - bounds.left}px`;
+								char.style.top = `${currY + Math.sin(target.dir) * target.dist - bounds.top}px`;
 							} else {
 								// Gradually move to final position
 								const angle = Math.atan2(target.y - currY, target.x - currX);
@@ -496,14 +496,14 @@ class OverlayAnimatedText extends AbstractOverlay {
 									target.speedEnd *= .95;
 								}
 								if(dist <= target.speedEnd*1 + .5) {
-									char.style.left = `${target.x}px`;
-									char.style.top = `${target.y}px`;
+									char.style.left = `${target.x - bounds.left}px`;
+									char.style.top = `${target.y - bounds.top}px`;
 									placed[i] = true;
 								}else{
 									currX += Math.cos(target.dir) * target.speedEnd;
 									currY += Math.sin(target.dir) * target.speedEnd;
-									char.style.left = `${currX}px`;
-									char.style.top = `${currY}px`;
+									char.style.left = `${currX - bounds.left}px`;
+									char.style.top = `${currY - bounds.top}px`;
 								}
 							}
 						}
@@ -526,6 +526,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 				}
 
 				case "caterpillar": {
+					const bounds = this.$el.getBoundingClientRect();
 					const vw = window.innerWidth;
 					let scroll = 0;
 					const scrollSpeed = (2 - ads)/2 * 3 + 1;
@@ -555,13 +556,13 @@ class OverlayAnimatedText extends AbstractOverlay {
 							// if(i == 1) break;
 							const char = chars[i];
 							const target = points[i];
-							let currX = parseFloat(char.style.left);
-							let currY = parseFloat(char.style.top);
+							let currX = parseFloat(char.style.left) + bounds.left;
+							let currY = parseFloat(char.style.top) + bounds.top;
 							currX = points[i].x + (Math.cos(target.angle+Math.PI)+1)/2 * ((2-amp) + (amp*4+10)) - scroll;
 							currY = points[i].y + Math.sin(target.angle) * amp * 10;
 							target.angle += target.freq;
-							char.style.left = `${currX}px`;
-							char.style.top = `${currY}px`;
+							char.style.left = `${currX - bounds.left}px`;
+							char.style.top = `${currY - bounds.top}px`;
 							char.style.transform = `rotate(${Math.cos(target.angle-Math.PI) * (amp * 5 + 10)}deg)`;
 
 							if(i === chars.length-1 && currX < -lastCharBounds * 2) {
@@ -782,11 +783,12 @@ class OverlayAnimatedText extends AbstractOverlay {
 				}
 
 				case "swarm": {
+					const bounds = this.$el.getBoundingClientRect();
 					const points = chars.map(char => {
 						const rect = char.getBoundingClientRect();
 						return {
-							x: rect.left,
-							y: rect.top,
+							x: rect.left - bounds.left,
+							y: rect.top - bounds.top,
 							scale:1,
 							dir: Math.random() * Math.PI * 2,
 							speed: (Math.random()-Math.random()) * Math.max(.15, amp*.5) * 5,
@@ -809,12 +811,12 @@ class OverlayAnimatedText extends AbstractOverlay {
 							// if(i == 1) break;
 							const char = chars[i];
 							const target = points[i];
-							let currX = parseFloat(char.style.left);
-							let currY = parseFloat(char.style.top);
+							let currX = parseFloat(char.style.left) + bounds.left;
+							let currY = parseFloat(char.style.top) + bounds.top;
 							currX += Math.cos(target.dir) * target.speed;
 							currY += Math.sin(target.dir) * target.speed;
-							char.style.left = `${currX}px`;
-							char.style.top = `${currY}px`;
+							char.style.left = `${currX - bounds.left}px`;
+							char.style.top = `${currY - bounds.top}px`;
 							char.style.transform = `scale(${target.scale})`;
 
 							target.dir += target.freq
