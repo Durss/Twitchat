@@ -1,7 +1,7 @@
 {
 	"params": {
 		"sync_server": "Save all parameters to Twitchat server",
-		"more_params":"More params",
+		"more_params":"More settings",
 		"customize_sections":"Drag menu items in and out here",
 		"spoilersEnabled": "Enable spoiler tag",
 		"alertMode": "Enable chat alert",

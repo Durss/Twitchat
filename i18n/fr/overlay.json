@@ -612,7 +612,7 @@
 			}
 		},
 		"animatedText": {
-			"header": "Affiche du texte animé sur ton stream",
+			"header": "Affiche du texte animé sur ton stream\nContrôle-le depuis les {TRIGGERS}",
 			"add_bt": "Créer un overlay",
 			"default_title":"Texte animé",
 			"premium_limit":"Vous avez atteint le nombre maximum de textes animés que vous pouvez créer.",

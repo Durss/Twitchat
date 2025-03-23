@@ -61,7 +61,7 @@ export const storeAnimatedText = defineStore('animatedtext', {
 		broadcastStates(id?:string) {
 			for (let i = 0; i < this.animatedTextList.length; i++) {
 				const entry = this.animatedTextList[i];
-				if(id && entry.id !== id) continue;
+				if(id && entry.id !== id || !entry.enabled) continue;
 				PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_CONFIGS, entry);
 			}
 		},

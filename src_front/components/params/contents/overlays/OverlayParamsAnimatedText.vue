@@ -1,14 +1,18 @@
 <template>
 	<div class="overlayparamsanimatedtext overlayParamsSection">
 
-		<div class="header">{{ $t("overlay.animatedText.header") }}</div>
+		<i18n-t tag="div" class="header" keypath="overlay.animatedText.header">
+			<template #TRIGGERS>
+				<a href="#" @click.prevent="openTriggers()">{{ $t("params.categories.triggers") }}</a>
+			</template>
+		</i18n-t>
 
 		<section>
 			<TTButton class="addBt"
-			v-if="$store.auth.isPremium || $store.animatedText.animatedTextList.length < $config.MAX_ANIMATED_TEXT"
+			v-if="($store.auth.isPremium && $store.animatedText.animatedTextList.length < $config.MAX_ANIMATED_TEXT_PREMIUM) || $store.animatedText.animatedTextList.length < $config.MAX_ANIMATED_TEXT"
 			@click="addEntry()" icon="add">{{ $t("overlay.animatedText.add_bt") }}</TTButton>
 
-			<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.animatedText.animatedTextList.length < $config.MAX_ANIMATED_TEXT_PREMIUM">{{ $t("overlay.animatedText.premium_limit") }}</div>
+			<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.animatedText.animatedTextList.length >= $config.MAX_ANIMATED_TEXT_PREMIUM">{{ $t("overlay.animatedText.premium_limit") }}</div>
 
 			<div class="card-item premium maximumReached" v-else>
 				<div>{{ $t("overlay.animatedText.non_premium_limit", {MAX:$config.MAX_ANIMATED_TEXT_PREMIUM}) }}</div>
@@ -34,6 +38,10 @@
 						<TTButton @click.stop="$store.animatedText.deleteAnimatedText(entry.id)" icon="trash" alert />
 					</div>
 				</template>
+				<template #left_actions>
+					<ToggleButton v-model="entry.enabled" @change="onChange(entry)" @click.stop
+						v-if="$store.auth.isPremium || entry.enabled || $store.animatedText.animatedTextList.filter(v=>v.enabled).length < $config.MAX_ANIMATED_TEXT" />
+				</template>
 
 				<div class="content">
 					<div class="card-item install">
@@ -42,7 +50,7 @@
 						:sourceTransform="{width:900, height:350}" />
 					</div>
 
-					<form @submit.prevent="onTest(entry.id)">
+					<form class="card-item dark simulate" @submit.prevent="onTest(entry.id)">
 						<input type="text" v-model="testText" class="input-field" maxlength="100" />
 						<TTButton type="submit" icon="test" class="button">{{ $t("overlay.animatedText.test_bt") }}</TTButton>
 					</form>
@@ -70,6 +78,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ParamItem from '../../ParamItem.vue';
 import { VueDraggable } from 'vue-draggable-plus';
 import TTButton from '../../../TTButton.vue';
+import ToggleButton from '@/components/ToggleButton.vue';
 
 @Component({
 	components:{
@@ -78,6 +87,7 @@ import TTButton from '../../../TTButton.vue';
 		ParamItem,
 		ToggleBlock,
 		VueDraggable,
+		ToggleButton,
 		OverlayInstaller,
 	}
 })
@@ -139,6 +149,13 @@ class OverlayParamsAnimatedText extends Vue {
 	}
 
 	/**
+	 * Opens the triggers
+	 */
+	public openTriggers():void {
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
+	}
+
+	/**
 	 * Saves given label
 	 */
 	public addEntry():void {
@@ -163,23 +180,26 @@ export default toNative(OverlayParamsAnimatedText);
 		display: flex;
 		flex-direction: column;
 
-		form {
+		.simulate {
 			gap: 1px;
 			display: flex;
 			flex-direction: row;
-			max-width: 80%;
-			margin: auto;
-			* {
+			justify-content: center;
+			*{
 				border-radius: 0;
 			}
 			*:first-child {
-				border-radius: var(--border-radius) 0 0 var(--border-radius);
+				border-top-left-radius: var(--border-radius);
+				border-bottom-left-radius: var(--border-radius);
 			}
 			*:last-child {
-				border-radius: 0 var(--border-radius) var(--border-radius) 0;
+				border-top-right-radius: var(--border-radius);
+				border-bottom-right-radius: var(--border-radius);
 			}
 			input {
-				flex-grow: 1;
+				text-align: center;
+				width: 0;
+				flex-basis: 70%;
 			}
 		}
 	}

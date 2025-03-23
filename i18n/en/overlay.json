@@ -613,7 +613,7 @@
 			}
 		},
 		"animatedText": {
-			"header": "Show animated text on your stream",
+			"header": "Show animated text on your stream\nControl them from the {TRIGGERS}",
 			"add_bt": "Create overlay",
 			"default_title":"Animated text",
 			"premium_limit": "You reached the maximum number of overlays you can create",
