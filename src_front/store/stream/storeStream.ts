@@ -1039,10 +1039,13 @@ export const storeStream = defineStore('stream', {
 					= {
 						uid:v.id,
 						login:v.attributes.full_name,
-						months:v.relationships.pledge_history.data.filter(v=>/^(pledge_start|subscription):/.test(v.id)).length,
+						months:v.relationships.pledge_history.data.filter(v=>/^(subscription):/.test(v.id)).length,
 						tier:maxId || "",
 						lifetimeAmount: v.attributes.lifetime_support_cents / 100,
 					};
+					if(entry.login.trim() == "Noa") {
+						console.log(v.relationships.pledge_history.data)
+					}
 				return entry;
 			});
 
