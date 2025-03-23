@@ -3681,7 +3681,7 @@ export default class TriggerActionHandler {
 
 					}else if(step.animatedTextData.action == "show"){
 						const autohide = step.animatedTextData.autoHide === true;
-						const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.animatedTextData.text, subEvent);
+						const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.animatedTextData.text, subEvent, false, false, false);
 						logStep.messages.push({date:Date.now(), value:"Show animated text: "+ text});
 						logStep.messages.push({date:Date.now(), value:"Auto hide? "+ autohide});
 						const promise = StoreProxy.animatedText.animateText(overlay.id, text, autohide);
