@@ -2218,7 +2218,19 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Post progress on chat?
 		 */
-		postProgressOnChat:boolean;
+		postLevelUpOnChat:boolean;
+		/**
+		 * Message to post on chat on level up
+		 */
+		postLevelUpMessage:boolean;
+		/**
+		 * Post success on chat?
+		 */
+		postSuccessOnChat:boolean;
+		/**
+		 * Message to post on chat on success
+		 */
+		postSuccessMessage:boolean;
 		/**
 		 * Text for the "train appraoching"
 		 */

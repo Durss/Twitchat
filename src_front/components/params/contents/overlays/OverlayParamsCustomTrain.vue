@@ -55,6 +55,21 @@
 					<ParamItem :paramData="param_textFont[entry.id]" v-model="entry.textFont" @change="onChange(entry)" />
 					<ParamItem :paramData="param_textSize[entry.id]" v-model="entry.textSize" @change="onChange(entry)" />
 					<ParamItem :paramData="param_colorBase[entry.id]" v-model="entry.color" @change="onChange(entry)" />
+					<ParamItem :paramData="param_currency[entry.id]" v-model="entry.currency" @change="onChange(entry)"/>
+					<ParamItem :paramData="param_triggerEventCount[entry.id]" v-model="entry.triggerEventCount" @change="onChange(entry)"/>
+					<ParamItem :paramData="param_cooldownDuration_ms[entry.id]" v-model="entry.cooldownDuration_ms" @change="onChange(entry)"/>
+					<ParamItem :paramData="param_levelsDuration_ms[entry.id]" v-model="entry.levelsDuration_ms" @change="onChange(entry)"/>
+					<ParamItem :paramData="param_postLevelUpOnChat[entry.id]" v-model="entry.postLevelUpOnChat" @change="onChange(entry)"/>
+					<ParamItem :paramData="param_postLevelUpMessage[entry.id]" v-model="entry.postLevelUpMessage" @change="onChange(entry)"/>
+					<ParamItem :paramData="param_postSuccessOnChat[entry.id]" v-model="entry.postSuccessOnChat" @change="onChange(entry)"/>
+					<ParamItem :paramData="param_postSuccessMessage[entry.id]" v-model="entry.postSuccessMessage" @change="onChange(entry)"/>
+					<ParamItem :paramData="param_approachingLabel[entry.id]" v-model="entry.approachingLabel" @change="onChange(entry)"/>
+					<ParamItem :paramData="param_approachingEmote[entry.id]" v-model="entry.approachingEmote" @change="onChange(entry)"/>
+					<ParamItem :paramData="param_failedLabel[entry.id]" v-model="entry.failedLabel" @change="onChange(entry)"/>
+					<ParamItem :paramData="param_failedEmote[entry.id]" v-model="entry.failedEmote" @change="onChange(entry)"/>
+					<ParamItem :paramData="param_successLabel[entry.id]" v-model="entry.successLabel" @change="onChange(entry)"/>
+					<ParamItem :paramData="param_successEmote[entry.id]" v-model="entry.successEmote" @change="onChange(entry)"/>
+					<ParamItem :paramData="param_platforms[entry.id]" v-model="entry.platforms" @change="onChange(entry)"/>
 				</div>
 			</ToggleBlock>
 		</VueDraggable>
@@ -90,6 +105,21 @@ class OverlayParamsCustomTrain extends Vue {
 	public param_colorBase:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_textFont:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_textSize:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
+	public param_currency:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_triggerEventCount:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
+	public param_cooldownDuration_ms:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
+	public param_levelsDuration_ms:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
+	public param_postLevelUpOnChat:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_postLevelUpMessage:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_postSuccessOnChat:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_postSuccessMessage:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_approachingLabel:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_approachingEmote:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_failedLabel:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_failedEmote:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_successLabel:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_successEmote:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_platforms:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 
 	public beforeMount():void {
 		this.initParams();
@@ -106,6 +136,21 @@ class OverlayParamsCustomTrain extends Vue {
 			this.param_colorBase[id]			= {type:"color", value:"", labelKey:"overlay.customTrain.param_colorTheme", icon:"color"};
 			this.param_textFont[id]				= {type:"font", value:"", labelKey:"overlay.customTrain.param_textFont", icon:"font"};
 			this.param_textSize[id]				= {type:"slider", value:20, min:15, max:30, labelKey:"overlay.customTrain.param_textSize", icon:"fontSize"};
+			this.param_currency[id]				= {type:"string", value:"", labelKey:"overlay.customTrain.param_currency", icon:"color"};
+			this.param_triggerEventCount[id]	= {type:"number", value:3, labelKey:"overlay.customTrain.param_triggerEventCount", icon:"color"};
+			this.param_cooldownDuration_ms[id]	= {type:"duration", value:0, min:30*60000, max:24*360000, labelKey:"overlay.customTrain.param_cooldownDuration_ms", icon:"color"};
+			this.param_levelsDuration_ms[id]	= {type:"duration", value:5*6000, min:30000, max:30*60000, labelKey:"overlay.customTrain.param_levelsDuration_ms", icon:"color"};
+			this.param_postLevelUpOnChat[id]	= {type:"boolean", value:false, labelKey:"overlay.customTrain.param_postLevelUpOnChat", icon:"color"};
+			this.param_postLevelUpMessage[id]	= {type:"string", value:"", labelKey:"overlay.customTrain.param_postLevelUpOnChat", icon:"color"};
+			this.param_postSuccessOnChat[id]	= {type:"boolean", value:false, labelKey:"overlay.customTrain.param_postLevelUpOnChat", icon:"color"};
+			this.param_postSuccessMessage[id]	= {type:"string", value:"", labelKey:"overlay.customTrain.param_postLevelUpOnChat", icon:"color"};
+			this.param_approachingLabel[id]		= {type:"string", value:"", labelKey:"overlay.customTrain.param_approachingLabel", icon:"color"};
+			this.param_approachingEmote[id]		= {type:"string", value:"", labelKey:"overlay.customTrain.param_approachingEmote", icon:"color"};
+			this.param_failedLabel[id]			= {type:"string", value:"", labelKey:"overlay.customTrain.param_failedLabel", icon:"color"};
+			this.param_failedEmote[id]			= {type:"string", value:"", labelKey:"overlay.customTrain.param_failedEmote", icon:"color"};
+			this.param_successLabel[id]			= {type:"string", value:"", labelKey:"overlay.customTrain.param_successLabel", icon:"color"};
+			this.param_successEmote[id]			= {type:"string", value:"", labelKey:"overlay.customTrain.param_successEmote", icon:"color"};
+			this.param_platforms[id]			= {type:"string", value:"", labelKey:"overlay.customTrain.param_platforms", icon:"color"};
 		});
 	}
 
