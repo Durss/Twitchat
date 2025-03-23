@@ -661,16 +661,20 @@
 			"param_triggerEventCount": "Number of events to start the train",
 			"param_cooldownDuration_ms": "Duration to wait between 2 trains",
 			"param_levelsDuration_ms": "Duration to reach next level",
-			"param_postLevelUpOnChat": "Send a message",
-			"param_postSuccessOnChat": "Post message",
-			"param_postLevelUpMessage": "🚂 Tchoo tchooo, level complete! ${AMOUNT} to go for the next level!",
-			"param_postSuccessMessage": "🚂 Tchoo tchooo mission complete! Level {LEVEL} reached with ${AMOUNT}!",
-			"param_approachingLabel": "🚂 Tchoo tchooo Train approaching!",
-			"param_approachingEmote": "",
-			"param_failedLabel": "...train went away 😭...",
-			"param_failedEmote": "",
-			"param_successLabel": "MISSION COMPLETE",
-			"param_successEmote": ""
+			"param_postLevelUpOnChat": "Send a message on level up",
+			"param_postSuccessOnChat": "Post message when train completes",
+			"param_postLevelUpMessage_default": "🚂 Tchoo tchooo, level complete! ${AMOUNT} to go for the next level!",
+			"param_postSuccessMessage_default": "🚂 Tchoo tchooo mission complete! Level {LEVEL} reached with ${AMOUNT}!",
+			"param_approachingLabel": "Train approaching title",
+			"param_approachingLabel_default": "🚂 Tchoo tchooo Train approaching!",
+			"param_approachingEmote": "Emote",
+			"param_failedLabel": "Train failed title",
+			"param_failedLabel_default": "...train went away 😭...",
+			"param_failedEmote": "Emote",
+			"param_successLabel": "Train end title",
+			"param_successLabel_default": "MISSION COMPLETE",
+			"param_successEmote": "Emote",
+			"param_platforms": "Chose tip platforms accepted for this train"
 		}
 	}
 }
