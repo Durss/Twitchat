@@ -763,9 +763,10 @@ class RaffleForm extends AbstractSidePanel {
 	}
 
 	public onValueChange():void {
-		let cmd = "";
 		if(this.param_command.value === true) {
-			cmd = this.param_commandValue.value || this.$t("raffle.params.command_placeholder");
+			this.localData.command = this.param_commandValue.value || this.$t("raffle.params.command_placeholder");
+		}else{
+			this.localData.command = undefined;
 		}
 
 		if(this.param_ponderateVotes.value == false) {
@@ -791,10 +792,9 @@ class RaffleForm extends AbstractSidePanel {
 		}
 
 		if(this.param_reward.value == false) {
-			this.localData.reward_id = "";
+			this.localData.reward_id = undefined;
 		}
 
-		this.localData.command = cmd;
 		if(this.action) {
 			// this.param_rewardvalue.value = this.action.raffleData.reward_id || "";
 			this.action.raffleData = this.localData;
