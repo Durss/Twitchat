@@ -82,6 +82,7 @@ export default class StoreProxy {
 	public static twitchBot: ITwitchBotState & ITwitchBotGetters & ITwitchBotActions & { $state: ITwitchBotState, $reset: () => void };
 	public static groq: IGroqState & IGroqGetters & IGroqActions & { $state: IGroqState, $reset: () => void };
 	public static animatedText: IAnimatedTextState & IAnimatedTextGetters & IAnimatedTextActions & { $state: IAnimatedTextState, $reset: () => void };
+	public static customTrain: ICustomTrainState & ICustomTrainGetters & ICustomTrainActions & { $state: ICustomTrainState, $reset: () => void };
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static asset:(path: string) => string;
@@ -3607,7 +3608,7 @@ export interface IAnimatedTextActions {
 	 */
 	populateData():void;
 	/**
-	 * Braodcast current animatedText and countdown statesvia the PublicAPI
+	 * Braodcast current animatedText states via the PublicAPI
 	 */
 	broadcastStates(id?:string):void;
 	/**
@@ -3631,4 +3632,41 @@ export interface IAnimatedTextActions {
 	 * Hide text currently displayed
 	 */
 	hideText(overlayId:string):Promise<void>
+}
+
+
+
+
+
+export interface ICustomTrainState {
+	/**
+	 * Custom train's list
+	 */
+	customTrainList: TwitchatDataTypes.CustomTrainData[],
+}
+
+export interface ICustomTrainGetters {
+}
+
+export interface ICustomTrainActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
+	/**
+	 * Braodcast current custom train states via the PublicAPI
+	 */
+	broadcastStates(id?:string):void;
+	/**
+	 * Create a custom train
+	 */
+	createCustomTrain():void;
+	/**
+	 * Deletes given custom train
+	 */
+	deleteCustomTrain(id:string):void;
+	/**
+	 * Saves data to server
+	 */
+	saveData():void;
 }

@@ -206,6 +206,22 @@
 					</div>
 				</ToggleBlock>
 
+				<ToggleBlock :icons="['train']" :title="$t('premium.cleanup.custom_train')" :alert="!customTrainOK" :open="!customTrainOK"
+				v-if="$store.customTrain.customTrainList.filter(v=>v.enabled).length > 0">
+					<template #right_actions>
+						<Icon :name="(labelsOK? 'checkmark' : 'alert')" />
+						<strong>{{$store.customTrain.customTrainList.filter(v=>v.enabled).length}}/{{ $config.MAX_CUSTOM_TRAIN }}</strong>
+					</template>
+					<div class="itemList">
+						<div class="rowItem" v-for="item in $store.customTrain.customTrainList">
+							<span class="label">{{ item.title || $t("overlay.customTrain.default_title") }}</span>
+							<div class="toggle">
+								<ToggleButton v-model="item.enabled" @change="toggleCustomTrain(item)" />
+							</div>
+						</div>
+					</div>
+				</ToggleBlock>
+
 				<div class="card-item warning" v-if="!allOK">{{ $t("premium.cleanup.disable_more_items") }}</div>
 				<TTButton class="completeBt" icon="checkmark" v-else @click="close()">{{ $t("premium.cleanup.completeBt") }}</TTButton>
 			</div>
@@ -256,6 +272,7 @@ class NonPremiumCleanup extends Vue {
 	public get labelsOK():boolean { return this.$store.labels.labelList.filter(v=>v.enabled).length <= this.$config.MAX_LABELS; }
 	public get timersOK():boolean { return this.$store.timers.timerList.filter(v=>v.enabled && !v.isDefault).length <= this.$config.MAX_TIMERS; }
 	public get animatedTextsOK():boolean { return this.$store.animatedText.animatedTextList.filter(v=>v.enabled).length <= this.$config.MAX_ANIMATED_TEXT; }
+	public get customTrainOK():boolean { return this.$store.customTrain.customTrainList.filter(v=>v.enabled).length <= this.$config.MAX_CUSTOM_TRAIN; }
 	public get allOK():boolean {
 		return this.triggersOK
 			&& this.countersOK
@@ -269,6 +286,7 @@ class NonPremiumCleanup extends Vue {
 			&& this.labelsOK
 			&& this.timersOK
 			&& this.animatedTextsOK
+			&& this.customTrainOK
 		;
 	}
 
@@ -446,6 +464,10 @@ class NonPremiumCleanup extends Vue {
 
 	public toggleAnimatedText(item:TwitchatDataTypes.AnimatedTextData):void {
 		this.$store.animatedText.saveData();
+	}
+
+	public toggleCustomTrain(item:TwitchatDataTypes.CustomTrainData):void {
+		this.$store.customTrain.saveData();
 	}
 
 	public onToggleTrigger():void {

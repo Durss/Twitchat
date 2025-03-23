@@ -14,7 +14,7 @@ export namespace TwitchatDataTypes {
 
 	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "chatPoll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
 
-	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals' | "animatedtext";
+	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals' | "animatedtext" | "customtrain";
 
 	export const ParamDeepSections = {
 		AD: "ad",
@@ -2172,6 +2172,83 @@ export namespace TwitchatDataTypes {
 		textSize:number;
 	}
 	export const AnimatedTextData_AnimStyles = ["wave","typewriter","bounce","wobble","rotate","elastic","neon","swarm","caterpillar"] as const
+
+	/**
+	 * Represents a custom train params
+	 */
+	export interface CustomTrainData {
+		id:string;
+		enabled:boolean;
+		/**
+		 * Optional overlay title
+		 */
+		title:string;
+		/**
+		 * Text color
+		 */
+		color:string;
+		/**
+		 * Text font
+		 */
+		textFont:string;
+		/**
+		 * Text size
+		 */
+		textSize:number;
+		/**
+		 * Train unit currency
+		 */
+		currency:string;
+		/**
+		 * Number of events to trigger the train
+		 */
+		triggerEventCount:number;
+		/**
+		 * Duration to wait after a train before starting a new one
+		 */
+		cooldownDuration_ms:number;
+		/**
+		 * Levels amounts
+		 */
+		levels:{amount:number}[];
+		/**
+		 * Duration to complete a level
+		 */
+		levelsDuration_ms:number;
+		/**
+		 * Post progress on chat?
+		 */
+		postProgressOnChat:boolean;
+		/**
+		 * Text for the "train appraoching"
+		 */
+		approachingLabel:string;
+		/**
+		 * Emote for the "train appraoching"
+		 */
+		approachingEmote:string;
+		/**
+		 * Text displayed if train is failed
+		 */
+		failedLabel:string;
+		/**
+		 * Emote for the "train failed"
+		 */
+		failedEmote:string;
+		/**
+		 * Text displayed when train complete
+		 */
+		successLabel:string;
+		/**
+		 * Emote for the "train complete"
+		 */
+		successEmote:string;
+		/**
+		 * Platforms allowed to make train progress
+		 */
+		platforms:typeof CustomTrainData_Platforms[number][];
+	}
+	export const CustomTrainData_Platforms = ["kofi","streamelements","patreon","streamlabs","tipeee","tiltify","streamlabs_charity","twitch_charity","counter"] as const
 
 	/**
 	 * Contains only the Array props from the StreamSummaryData

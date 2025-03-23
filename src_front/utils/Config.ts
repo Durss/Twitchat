@@ -210,6 +210,14 @@ export default class Config {
 	 * Maximum number of animated texts for premium users
 	 */
 	public MAX_ANIMATED_TEXT_PREMIUM = 10;
+	/**
+	 * Maximum number of custom trains
+	 */
+	public MAX_CUSTOM_TRAIN = 1;
+	/**
+	 * Maximum number of custom trains for premium users
+	 */
+	public MAX_CUSTOM_TRAIN_PREMIUM = 10;
 
 	private _serverConfig!:ServerConfig;
 

@@ -46,6 +46,7 @@
 				["OVERLAY: Interactive distortion", "MAX_DISTORTION_OVERLAYS", "MAX_DISTORTION_OVERLAYS", "MAX_DISTORTION_OVERLAYS_PREMIUM"],
 				["OVERLAY: Labels", "MAX_LABELS", "MAX_LABELS", "MAX_LABELS_PREMIUM"],
 				["OVERLAY: Animated texts", "MAX_ANIMATED_TEXT", "MAX_ANIMATED_TEXT", "MAX_ANIMATED_TEXT_PREMIUM"],
+				["OVERLAY: Custom trains", "MAX_CUSTOM_TRAIN", "MAX_CUSTOM_TRAIN", "MAX_CUSTOM_TRAIN_PREMIUM"],
 				["OVERLAY: Ending credits", "~", "~", 1],
 				["Bingo grids for viewers", "-", "-", 1],
 				["Groq AI support", 1, 1, 1],
@@ -115,6 +116,7 @@
 			"labels": "Labels",
 			"timers": "Timers",
 			"animated_text": "Animated texts",
+			"custom_train": "Custom hype trains",
 			"disable_more_items": "Disable or delete items in required sections",
 			"completeBt": "Complete"
 		}

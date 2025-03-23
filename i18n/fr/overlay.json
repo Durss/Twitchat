@@ -641,6 +641,21 @@
 				"title": "Supprimer cet entrée",
 				"message": "Êtes-vous sûr de vouloir supprimer cette entrée ?"
 			}
+		},
+		"customTrain": {
+			"header": "Créez des train de la hype personnalisés",
+			"add_bt": "Créer un train personnalisé",
+			"default_title":"Hype train",
+			"premium_limit":"Vous avez atteint le nombre maximum de Trains personnalisés que vous pouvez créer.",
+			"non_premium_limit":"Vous avez atteint le nombre maximum de Trains personnalisés que vous pouvez créer.\nDevenez premium pour en créer jusqu'à {MAX}.",
+			"test_bt":"Test",
+			"approachingLabel": "Train en approche!",
+			"failedLabel": "Le train est parti 😭...",
+			"successLabel": "🎉🎉🎉 Mission accomplie 🎉🎉🎉",
+			"delete_confirm": {
+				"title": "Supprimer cet entrée",
+				"message": "Êtes-vous sûr de vouloir supprimer cette entrée ?"
+			}
 		}
 	}
 }
