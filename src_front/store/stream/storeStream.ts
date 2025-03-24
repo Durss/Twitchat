@@ -265,14 +265,14 @@ export const storeStream = defineStore('stream', {
 			}
 		},
 
-		setPlaybackState(channelId:string, value:PubSubDataTypes.PlaybackInfo|undefined) {
+		setPlaybackState(channelId:string, viewerCount:number|undefined) {
 			if(!this.currentStreamInfo[channelId]) return;
-			if(!value) {
+			if(!viewerCount) {
 				this.currentStreamInfo[channelId]!.live = false;
 				this.currentStreamInfo[channelId]!.viewers = 0;
 			}else{
 				this.currentStreamInfo[channelId]!.live = true;
-				this.currentStreamInfo[channelId]!.viewers = value?.viewers;
+				this.currentStreamInfo[channelId]!.viewers = viewerCount;
 			}
 		},
 

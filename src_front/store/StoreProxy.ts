@@ -1418,7 +1418,7 @@ export interface IStreamActions {
 	 * @param channelId
 	 * @param value
 	 */
-	setPlaybackState(channelId:string, value:PubSubDataTypes.PlaybackInfo|undefined):void;
+	setPlaybackState(channelId:string, viewerCount:number|undefined):void;
 	/**
 	 * Called when stream starts.
 	 * Disable emote-only if requested

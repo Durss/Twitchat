@@ -64,7 +64,7 @@ export const storeAuth = defineStore('auth', {
 				ApiHelper.accessToken			= this.twitch.access_token;
 				ApiHelper.refreshTokenCallback	= this.twitch_tokenRefresh;
 				TwitchUtils.updateAuthInfo(this.twitch.access_token, this.twitch.scopes, this.requestTwitchScopes, this.twitch_tokenRefresh);
-				
+
 				//Store auth data in cookies for later use
 				DataStore.set(DataStore.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
 
@@ -155,7 +155,7 @@ export const storeAuth = defineStore('auth', {
 						return;
 					}
 				}
-				
+
 				if(!TwitchUtils.hasScopes(Config.instance.MANDATORY_TWITCH_SCOPES)) {
 					if(cb) cb(false, false);
 					else router.push({name:"login", params:{betaReason:"false"}});
@@ -291,6 +291,18 @@ export const storeAuth = defineStore('auth', {
 					loadSubscribers();
 					SetIntervalWorker.instance.create(()=>loadSubscribers(), 5 * 60000);
 				}
+
+				//Refresh latest subscriber regularly
+				const loadViewerCount = async ()=>{
+					// const [res] = await TwitchUtils.getCurrentStreamInfo([this.twitch.user.id]);
+					const [res] = await TwitchUtils.getCurrentStreamInfo(["132501030"]);
+					if(res) {
+						StoreProxy.labels.updateLabelValue("VIEWER_COUNT", res.viewer_count);
+						StoreProxy.stream.setPlaybackState(this.twitch.user.id, res.viewer_count);
+					}
+				};
+				loadViewerCount();
+				SetIntervalWorker.instance.create(()=>loadViewerCount(), 30000);
 
 				//Preload moderators of the channel and flag them accordingly
 				TwitchUtils.getModerators().then(async res=> {

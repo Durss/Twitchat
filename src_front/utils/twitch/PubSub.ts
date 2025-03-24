@@ -207,7 +207,7 @@ export default class PubSub extends EventDispatcher {
 			const localObj = (data as unknown) as PubSubDataTypes.PlaybackInfo;
 			if(localObj.type == "viewcount") {
 				StoreProxy.labels.updateLabelValue("VIEWER_COUNT", localObj.viewers);
-				StoreProxy.stream.setPlaybackState(channelId, localObj);
+				StoreProxy.stream.setPlaybackState(channelId, localObj.viewers);
 			}
 
 
