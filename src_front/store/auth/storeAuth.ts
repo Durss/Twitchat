@@ -292,7 +292,7 @@ export const storeAuth = defineStore('auth', {
 					SetIntervalWorker.instance.create(()=>loadSubscribers(), 5 * 60000);
 				}
 
-				//Refresh latest subscriber regularly
+				//Refresh viewer count regularly
 				const loadViewerCount = async ()=>{
 					const [res] = await TwitchUtils.getCurrentStreamInfo([this.twitch.user.id]);
 					if(res) {
