@@ -2184,9 +2184,17 @@ export namespace TwitchatDataTypes {
 		 */
 		title:string;
 		/**
-		 * Text color
+		 * Level name "LVL" by default
 		 */
-		color:string;
+		levelName:string;
+		/**
+		 * Fill color
+		 */
+		colorFill:string;
+		/**
+		 * Background color
+		 */
+		colorBg:string;
 		/**
 		 * Text font
 		 */

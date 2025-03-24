@@ -1,13 +1,12 @@
+import TwitchatEvent from "@/events/TwitchatEvent";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import ApiHelper from '@/utils/ApiHelper';
+import PublicAPI from "@/utils/PublicAPI";
+import Utils from "@/utils/Utils";
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { ICustomTrainActions, ICustomTrainGetters, ICustomTrainState } from '../StoreProxy';
-import Utils from "@/utils/Utils";
 import StoreProxy from "../StoreProxy";
-import PublicAPI from "@/utils/PublicAPI";
-import TwitchatEvent from "@/events/TwitchatEvent";
 
 export const storeCustomTrain = defineStore('customTrain', {
 	state: () => ({
@@ -58,15 +57,17 @@ export const storeCustomTrain = defineStore('customTrain', {
 			this.customTrainList.push({
 				id: Utils.getUUID(),
 				enabled:true,
-				title:"",
+				title:StoreProxy.i18n.t("overlay.customTrain.default_title"),
+				levelName:"LVL",
 				currency:"",
-				color:"#000000",
+				colorFill:"#008667",
+				colorBg:"#ffffff",
 				levels:[{amount:50}, {amount:100}, {amount:200}],
 				triggerEventCount:3,
 				textSize:20,
 				textFont:"Inter",
 				postLevelUpOnChat:false,
-				approachingLabel:StoreProxy.i18n.t("overlay.customTrain.param_approachingLabel"),
+				approachingLabel:StoreProxy.i18n.t("overlay.customTrain.param_approachingLabel_default"),
 				approachingEmote:"",
 				failedLabel:StoreProxy.i18n.t("overlay.customTrain.param_failedLabel_default"),
 				failedEmote:"",
