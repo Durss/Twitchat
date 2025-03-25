@@ -58,6 +58,7 @@
 		"translation": "Translation",
 		"key":"Key",
 		"value":"Value",
+		"currency_pattern": "Currency",
 		"elapsed_duration":"{DURATION}s ago",
 		"elapsed_duration_now":"now",
 		"advanced_params": "Advanced parameters",

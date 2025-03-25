@@ -5,7 +5,7 @@
 				<div class="level">{{levelName}}{{level}}</div>
 				<div class="infoHolder">
 					<!-- <div class="title">{{ title }}</div> -->
-					<contenteditable tag="div" class="1 title editableField"
+					<contenteditable tag="div" class="title editableField"
 						v-model="localTitle"
 						:class="{isEmpty: (localTitle || '').trim().length === 0}"
 						:contenteditable="editable !== false"
@@ -14,7 +14,7 @@
 						@input="onChangeTitle()" />
 					<div class="progress">
 						<div class="time">03:12</div>
-						<div class="cost">{{ amountLeft }}</div>
+						<div class="cost">{{ formatedAmountLeft }}</div>
 					</div>
 					<div class="percent">{{ Math.round(percent*100) }}%</div>
 				</div>
@@ -29,7 +29,7 @@
 			</div>
 			<div class="holder">
 				<div class="level">
-					<contenteditable tag="div" class="2 editableField"
+					<contenteditable tag="div" class="editableField"
 						v-model="localLevelName"
 						:class="{isEmpty: (levelName || '').trim().length === 0}"
 						:contenteditable="editable !== false"
@@ -40,7 +40,7 @@
 				</div>
 				<div class="infoHolder">
 					<!-- <div class="title">{{ title }}</div> -->
-					<contenteditable tag="div" class="3 title editableField"
+					<contenteditable tag="div" class="title editableField"
 						v-model="localTitle"
 						:class="{isEmpty: (localTitle || '').trim().length === 0}"
 						:contenteditable="editable !== false"
@@ -49,7 +49,7 @@
 						@input="onChangeTitle()" />
 					<div class="progress">
 						<div class="time">03:12</div>
-						<div class="cost">{{ amountLeft }}</div>
+						<div class="cost">{{ formatedAmountLeft }}</div>
 					</div>
 					<div class="percent">{{ Math.round(percent*100) }}%</div>
 				</div>
@@ -57,8 +57,8 @@
 		</div>
 
 		<div class="approaching" v-if="showApproaching !== false">
-			<img class="emote" @click="onClickEmote()" src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_bf888b2af57b4abd80653dff26768ae5/animated/dark/3.0" alt="">
-			<contenteditable tag="div" class="4 title editableField"
+			<img class="emote" @click="onClickEmote" :src="approachingEmote" alt="emote">
+			<contenteditable tag="div" class="title editableField"
 				v-model="localTitleApproaching"
 				:class="{isEmpty: (localTitleApproaching || '').trim().length === 0}"
 				:contenteditable="editable !== false"
@@ -71,8 +71,9 @@
 		</div>
 
 		<div class="success" v-if="showSuccess !== false">
-			<img class="emote" @click="onClickEmote()" src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_7e56ef1fccf047c08deaec7e4ce9ac81/static/dark/3.0" alt="">
-			<contenteditable tag="div" class="5 title editableField"
+			<canvas class="emoteWall" ref="emoteWall"></canvas>
+			<img class="emote" @click="onClickEmote" :src="successEmote" alt="emote">
+			<contenteditable tag="div" class="title editableField"
 				v-model="localTitleSuccess"
 				:class="{isEmpty: (localTitleSuccess || '').trim().length === 0}"
 				:contenteditable="editable !== false"
@@ -81,9 +82,9 @@
 				@input="onChangeTitle()" />
 		</div>
 
-		<div class="success" v-if="showFail !== false">
-			<img class="emote" @click="onClickEmote()" src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_db3cd788399347a8b2ebfb8a85f5badb/static/light/3.0" alt="">
-			<contenteditable tag="div" class="6 title editableField"
+		<div class="fail" v-if="showFail !== false">
+			<img class="emote" @click="onClickEmote" :src="failedEmote" alt="emote">
+			<contenteditable tag="div" class="title editableField"
 				v-model="localTitleFail"
 				:class="{isEmpty: (localTitleFail || '').trim().length === 0}"
 				:contenteditable="editable !== false"
@@ -99,6 +100,7 @@ import gsap from 'gsap';
 import { watch } from 'vue';
 import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 import contenteditable from 'vue-contenteditable';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -158,8 +160,8 @@ class OverlayCustomTrainRenderer extends Vue {
 	@Prop({default: .2})
 	public percent!: number;
 
-	@Prop({default: ""})
-	public amountLeft!: string;
+	@Prop({default: 42})
+	public amountLeft!: number;
 
 	@Prop({default: false})
 	public showApproaching!:boolean;
@@ -170,6 +172,18 @@ class OverlayCustomTrainRenderer extends Vue {
 	@Prop({default: false})
 	public showFail!:boolean;
 
+	@Prop({default: "{AMOUNT}€"})
+	public currencyPattern!:string;
+
+	@Prop({default: ""})
+	public approachingEmote!:string;
+
+	@Prop({default: ""})
+	public successEmote!:string;
+
+	@Prop({default: ""})
+	public failedEmote!:string;
+
 	public easedPercent:number = 0;
 	public localTitle:string = "";
 	public localTitleApproaching:string = "";
@@ -179,7 +193,13 @@ class OverlayCustomTrainRenderer extends Vue {
 
 	public get cssSize(){ return this.size + 'px'; }
 
+	public get colorTextFade(){ return this.colorText+"80"; }
+
 	public get width():string { return (this.easedPercent*100)+'%'; }
+
+	public get formatedAmountLeft():string {
+		return Utils.formatCurrency(this.amountLeft, this.currencyPattern);
+	}
 
 	public mounted(){
 		this.easedPercent = this.percent;
@@ -228,8 +248,8 @@ class OverlayCustomTrainRenderer extends Vue {
 		this.$emit("update:levelName", this.localLevelName);
 	}
 
-	public onClickEmote():void {
-		this.$emit("selectEmote");
+	public onClickEmote(e:MouseEvent):void {
+		this.$emit("selectEmote", e);
 	}
 
 }
@@ -302,7 +322,7 @@ export default toNative(OverlayCustomTrainRenderer);
 		.level {
 			border-radius: 10em;
 			font-size: .65em;
-			padding: .4em .5em;
+			padding: .4em 1em;
 			margin: .5em;
 			font-weight: normal;
 			color: v-bind(colorText);
@@ -311,6 +331,7 @@ export default toNative(OverlayCustomTrainRenderer);
 			display: flex;
 			flex-direction: row;
 			pointer-events: all;
+			align-items: center;
 		}
 
 		.infoHolder {
@@ -378,8 +399,8 @@ export default toNative(OverlayCustomTrainRenderer);
 		align-items: center;
 		justify-content: center;
 		.emote {
-			margin-left: .5em;
-			height: 1em;
+			margin-left: .25em;
+			height: 2em;
 			cursor: pointer;
 		}
 
@@ -414,17 +435,29 @@ export default toNative(OverlayCustomTrainRenderer);
 
 	&.editable {
 		.editableField, .emote {
-			border: 1px dashed v-bind(colorText);
+			border: 1px dashed v-bind(colorTextFade);
 			border-radius: .5em;
+			padding: 0 2px;
 			&.isEmpty {
 				min-width: 2em;
 			}
 		}
 		.emote {
-			height: 1.2em;
+			height: 1.8em;
 			padding: .1em;
+			overflow: visible;
 			border-radius: 50%;
 		}
+	}
+
+	.emoteWall {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 0;
+		pointer-events: none;
 	}
 }
 </style>

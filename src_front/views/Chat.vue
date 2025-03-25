@@ -816,8 +816,8 @@ class Chat extends Vue {
 	/**
 	 * Called when selecting an emote from the emote selectors
 	 */
-	public onSelectEmote(item:string):void {
-		(this.$refs.chatForm as ChatFormClass).onSelectItem(item);
+	public onSelectEmote(item:TwitchatDataTypes.Emote):void {
+		(this.$refs.chatForm as ChatFormClass).onSelectItem(item.code);
 	}
 
 	/**

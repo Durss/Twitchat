@@ -1002,7 +1002,9 @@
 			"goal_step_amount":"Step amount",
 			"goal_overlay_id":"Goal overlay ID",
 			"goal_overlay_title":"Goal overlay title",
-			"current_vod_url":"URL of the current VOD"
+			"current_vod_url":"URL of the current VOD",
+			"customTrain_level": "Train level reached",
+			"customTrain_amount_left": "Ammount left to reach next level"
 		},
 		"events": {
 			"CHAT_COMMAND": {

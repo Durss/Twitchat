@@ -2214,7 +2214,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Duration to wait after a train before starting a new one
 		 */
-		cooldownDuration_ms:number;
+		cooldownDuration_s:number;
 		/**
 		 * Levels amounts
 		 */
@@ -2222,7 +2222,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Duration to complete a level
 		 */
-		levelsDuration_ms:number;
+		levelsDuration_s:number;
 		/**
 		 * Post progress on chat?
 		 */
@@ -2230,7 +2230,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Message to post on chat on level up
 		 */
-		postLevelUpMessage:boolean;
+		postLevelUpChatMessage:string;
 		/**
 		 * Post success on chat?
 		 */
@@ -2238,7 +2238,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Message to post on chat on success
 		 */
-		postSuccessMessage:boolean;
+		postSuccessChatMessage:string;
 		/**
 		 * Text for the "train appraoching"
 		 */
@@ -2266,9 +2266,18 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Platforms allowed to make train progress
 		 */
-		platforms:typeof CustomTrainData_Platforms[number][];
+		platforms:{
+			kofi:boolean;
+			streamelements:boolean;
+			patreon:boolean;
+			streamlabs:boolean;
+			tipeee:boolean;
+			tiltify:boolean;
+			streamlabs_charity:boolean;
+			twitch_charity:boolean;
+			counter:boolean;
+		}
 	}
-	export const CustomTrainData_Platforms = ["kofi","streamelements","patreon","streamlabs","tipeee","tiltify","streamlabs_charity","twitch_charity","counter"] as const
 
 	/**
 	 * Contains only the Array props from the StreamSummaryData

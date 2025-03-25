@@ -957,9 +957,11 @@ export default toNative(ParamItem);
 <style scoped lang="less">
 .paramitem{
 	overflow: unset;
-	transition: padding .25s;
 	position: relative;
-	transition: opacity .2s;
+	transition: padding .25s, opacity .2s;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 
 	label {
 		white-space: pre-line;

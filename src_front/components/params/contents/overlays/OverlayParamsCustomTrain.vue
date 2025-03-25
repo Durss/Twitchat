@@ -46,21 +46,65 @@
 						:sourceTransform="{width:1800, height:350}" />
 					</div>
 
-					<form class="card-item dark simulate" @submit.prevent="simulateAmount(entry.id)">
+					<!-- <form class="card-item dark simulate" @submit.prevent="simulateAmount(entry.id)">
 						<input type="number" step="any" v-model="simulatedAmount" />
-						<span class="currency" v-if="entry.currency">{{ entry.currency }}</span>
 						<TTButton icon="test" type="submit">{{ $t("donation_goals.simulate_bt") }}</TTButton>
-					</form>
+					</form> -->
 
-					<ParamItem :paramData="param_textFont[entry.id]" v-model="entry.textFont" @change="onChange(entry)" />
-					<ParamItem :paramData="param_textSize[entry.id]" v-model="entry.textSize" @change="onChange(entry)" />
-					<ParamItem :paramData="param_colorFill[entry.id]" v-model="entry.colorFill" @change="onChange(entry)" />
-					<ParamItem :paramData="param_colorBg[entry.id]" v-model="entry.colorBg" @change="onChange(entry)" />
-					<ParamItem :paramData="param_currency[entry.id]" v-model="entry.currency" @change="onChange(entry)"/>
+					<div class="card-item platforms">
+						<strong>{{ $t("overlay.customTrain.param_platforms") }}</strong>
+						<div class="platformsList">
+							<TTButton class="platform" small
+								:primary="entry.platforms.streamlabs"
+								@click="entry.platforms.streamlabs = !entry.platforms.streamlabs"
+								icon="streamlabs">Streamlabs</TTButton>
+							<TTButton class="platform" small
+								:primary="entry.platforms.streamelements"
+								@click="entry.platforms.streamelements = !entry.platforms.streamelements"
+								icon="streamelements">Streamelements</TTButton>
+							<TTButton class="platform" small
+								:primary="entry.platforms.tipeee"
+								@click="entry.platforms.tipeee = !entry.platforms.tipeee"
+								icon="tipeee">Tipeee</TTButton>
+							<TTButton class="platform" small
+								:primary="entry.platforms.kofi"
+								@click="entry.platforms.kofi = !entry.platforms.kofi"
+								icon="kofi">Ko-Fi</TTButton>
+							<TTButton class="platform" small
+								:primary="entry.platforms.patreon"
+								@click="entry.platforms.patreon = !entry.platforms.patreon"
+								icon="patreon">Patreon</TTButton>
+							<TTButton class="platform" small
+								:primary="entry.platforms.tiltify"
+								@click="entry.platforms.tiltify = !entry.platforms.tiltify"
+								icon="tiltify">Tiltify</TTButton>
+							<TTButton class="platform" small
+								:primary="entry.platforms.streamlabs_charity"
+								@click="entry.platforms.streamlabs_charity = !entry.platforms.streamlabs_charity"
+								icon="streamlabs">SL charity</TTButton>
+							<TTButton class="platform" small
+								:primary="entry.platforms.twitch_charity"
+								@click="entry.platforms.twitch_charity = !entry.platforms.twitch_charity"
+								icon="twitch_charity">Twitch Charity</TTButton>
+						</div>
+					</div>
+
+					<div class="themeBlock">
+						<div class="font">
+							<ParamItem :paramData="param_textFont[entry.id]" v-model="entry.textFont" @change="onChange(entry)" />
+							<ParamItem :paramData="param_textSize[entry.id]" v-model="entry.textSize" @change="onChange(entry)" />
+						</div>
+						<div class="colors">
+							<ParamItem :paramData="param_colorFill[entry.id]" v-model="entry.colorFill" @change="onChange(entry)" />
+							<ParamItem :paramData="param_colorBg[entry.id]" v-model="entry.colorBg" @change="onChange(entry)" />
+							<CurrencyPatternInput v-model="entry.currency" @change="onChange(entry)" />
+						</div>
+					</div>
+
 
 					<div class="card-item trainRender">
-						<strong>{{ $t("overlay.customTrain.param_approaching") }}</strong>
-						<OverlayCustomTrainRenderer
+						<strong><Icon name="train" />{{ $t("overlay.customTrain.param_approaching") }}</strong>
+						<OverlayCustomTrainRenderer class="train"
 							:showApproaching="true"
 							:size="entry.textSize"
 							:fontFamily="entry.textFont"
@@ -68,77 +112,87 @@
 							:colorBg="entry.colorBg"
 							:eventCount="param_triggerEventCount[entry.id].value"
 							:eventDone="1"
+							:approachingEmote="entry.approachingEmote"
+							:successEmote="entry.successEmote"
+							:failedEmote="entry.failedEmote"
 							v-model:titleApproaching="entry.approachingLabel"
 							v-model:title="entry.title"
 							v-model:levelName="entry.levelName"
-							@selectEmote="onSelectEmote('approaching')"
+							@selectEmote="($event:MouseEvent) => openEmoteSelector(entry, 'approaching', $event)"
 							editable
 							/>
+						<ParamItem :paramData="param_triggerEventCount[entry.id]" v-model="entry.triggerEventCount" @change="onChange(entry)" :childLevel="1" noBackground/>
 					</div>
 
 					<div class="card-item trainRender">
-						<strong>{{ $t("overlay.customTrain.param_progress") }}</strong>
-						<OverlayCustomTrainRenderer
+						<strong><Icon name="train_boost" />{{ $t("overlay.customTrain.param_progress") }}</strong>
+						<OverlayCustomTrainRenderer class="train"
 							:showProgress="true"
 							:size="entry.textSize"
 							:fontFamily="entry.textFont"
 							:colorText="entry.colorFill"
 							:colorBg="entry.colorBg"
-							:percent=".5"
-							:amountLeft="'42'+entry.currency"
+							:percent=".35"
+							:amountLeft="42"
+							:currencyPattern="entry.currency"
 							v-model:title="entry.title"
 							v-model:levelName="entry.levelName"
 							editable
 							/>
+						<ParamItem :paramData="param_levelsDuration_ms[entry.id]" v-model="entry.levelsDuration_s" @change="onChange(entry)" :childLevel="1" noBackground/>
+
+						<ParamItem :paramData="param_postLevelUpOnChat[entry.id]" v-model="entry.postLevelUpOnChat" @change="onChange(entry)" :childLevel="1" noBackground>
+							<ParamItem :paramData="param_postLevelUpMessage[entry.id]" v-model="entry.postLevelUpChatMessage" @change="onChange(entry)" :childLevel="1" noBackground/>
+						</ParamItem>
 					</div>
 
 					<div class="card-item trainRender">
-						<strong>{{ $t("overlay.customTrain.param_success") }}</strong>
-						<OverlayCustomTrainRenderer
+						<strong><Icon name="sub" />{{ $t("overlay.customTrain.param_success") }}</strong>
+						<OverlayCustomTrainRenderer class="train"
 							:showSuccess="true"
 							:size="entry.textSize"
 							:fontFamily="entry.textFont"
 							:colorText="entry.colorFill"
 							:colorBg="entry.colorBg"
+							:approachingEmote="entry.approachingEmote"
+							:successEmote="entry.successEmote"
+							:failedEmote="entry.failedEmote"
 							v-model:titleSuccess="entry.successLabel"
 							v-model:title="entry.title"
 							v-model:levelName="entry.levelName"
-							@selectEmote="onSelectEmote('success')"
+							@selectEmote="($event:MouseEvent) => openEmoteSelector(entry, 'success', $event)"
 							editable
 							/>
+						<ParamItem :paramData="param_cooldownDuration_ms[entry.id]" v-model="entry.cooldownDuration_s" @change="onChange(entry)" :childLevel="1" noBackground/>
+
+						<ParamItem :paramData="param_postSuccessOnChat[entry.id]" v-model="entry.postSuccessOnChat" @change="onChange(entry)" :childLevel="1" noBackground>
+							<ParamItem :paramData="param_postSuccessMessage[entry.id]" v-model="entry.postSuccessChatMessage" @change="onChange(entry)" :childLevel="1" noBackground/>
+						</ParamItem>
 					</div>
 
 					<div class="card-item trainRender">
-						<strong>{{ $t("overlay.customTrain.param_failed") }}</strong>
-						<OverlayCustomTrainRenderer
+						<strong><Icon name="sad" />{{ $t("overlay.customTrain.param_failed") }}</strong>
+						<OverlayCustomTrainRenderer class="train"
 							:showFail="true"
 							:size="entry.textSize"
 							:fontFamily="entry.textFont"
 							:colorText="entry.colorFill"
 							:colorBg="entry.colorBg"
+							:approachingEmote="entry.approachingEmote"
+							:successEmote="entry.successEmote"
+							:failedEmote="entry.failedEmote"
 							v-model:titleFail="entry.failedLabel"
 							v-model:title="entry.title"
 							v-model:levelName="entry.levelName"
-							@selectEmote="onSelectEmote('failed')"
+							@selectEmote="($event:MouseEvent) => openEmoteSelector(entry, 'failed', $event)"
 							editable
 							/>
 					</div>
 
-					<ParamItem :paramData="param_triggerEventCount[entry.id]" v-model="entry.triggerEventCount" @change="onChange(entry)"/>
-					<ParamItem :paramData="param_cooldownDuration_ms[entry.id]" v-model="entry.cooldownDuration_ms" @change="onChange(entry)"/>
-					<ParamItem :paramData="param_levelsDuration_ms[entry.id]" v-model="entry.levelsDuration_ms" @change="onChange(entry)"/>
-					<ParamItem :paramData="param_postLevelUpOnChat[entry.id]" v-model="entry.postLevelUpOnChat" @change="onChange(entry)">
-						<ParamItem :paramData="param_postLevelUpMessage[entry.id]" v-model="entry.postLevelUpMessage" @change="onChange(entry)" :childLevel="1" noBackground/>
-					</ParamItem>
-					<ParamItem :paramData="param_postSuccessOnChat[entry.id]" v-model="entry.postSuccessOnChat" @change="onChange(entry)">
-						<ParamItem :paramData="param_postSuccessMessage[entry.id]" v-model="entry.postSuccessMessage" @change="onChange(entry)" :childLevel="1" noBackground/>
-					</ParamItem>
-					<ParamItem :paramData="param_platforms[entry.id]" v-model="entry.platforms" @change="onChange(entry)"/>
-
 				</div>
 			</ToggleBlock>
 		</VueDraggable>
-
+		<EmoteSelector class="emoteSelector" popoutMode v-if="showEmoteSelector" @select="onSelectEmote" ref="emoteSelector" />
 	</div>
 </template>
 
@@ -153,6 +207,8 @@ import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
+import CurrencyPatternInput from '@/components/CurrencyPatternInput.vue';
+import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
 
 @Component({
 	components:{
@@ -162,13 +218,18 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		ToggleBlock,
 		VueDraggable,
 		ToggleButton,
+		EmoteSelector,
 		OverlayInstaller,
+		CurrencyPatternInput,
 		OverlayCustomTrainRenderer,
 	}
 })
 class OverlayParamsCustomTrain extends Vue {
 
 	public simulatedAmount:number = 10;
+	public showEmoteSelector:boolean = false;
+	public emoteSelector_y:string = "0";
+	public emoteSelector_x:string = "0";
 	public param_colorFill:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_colorBg:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_textFont:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
@@ -181,10 +242,19 @@ class OverlayParamsCustomTrain extends Vue {
 	public param_postLevelUpMessage:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_postSuccessOnChat:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_postSuccessMessage:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
-	public param_platforms:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+
+	private emoteSelectorTarget:{entry:TwitchatDataTypes.CustomTrainData, step:"approaching"|"success"|"failed"}|null = null;
+	private clickHandler!:(e:MouseEvent)=>void;
 
 	public beforeMount():void {
 		this.initParams();
+
+		this.clickHandler = (e:MouseEvent)=> this.onClick(e);
+		document.addEventListener("click", this.clickHandler, true);
+	}
+
+	public beforeUnmount():void {
+		document.removeEventListener("click", this.clickHandler, true);
 	}
 
 	/**
@@ -200,14 +270,19 @@ class OverlayParamsCustomTrain extends Vue {
 			this.param_textFont[id]				= {type:"font", value:"", labelKey:"overlay.customTrain.param_textFont", icon:"font"};
 			this.param_textSize[id]				= {type:"slider", value:20, min:15, max:40, labelKey:"overlay.customTrain.param_textSize", icon:"fontSize"};
 			this.param_currency[id]				= {type:"string", value:"", labelKey:"overlay.customTrain.param_currency", icon:"coin"};
-			this.param_triggerEventCount[id]	= {type:"number", value:3, labelKey:"overlay.customTrain.param_triggerEventCount", icon:"notification"};
-			this.param_cooldownDuration_ms[id]	= {type:"duration", value:0, min:30*60000, max:24*360000, labelKey:"overlay.customTrain.param_cooldownDuration_ms", icon:"timer"};
-			this.param_levelsDuration_ms[id]	= {type:"duration", value:5*6000, min:30000, max:30*60000, labelKey:"overlay.customTrain.param_levelsDuration_ms", icon:"countdown"};
+			this.param_triggerEventCount[id]	= {type:"number", value:3, min:1, max:3, labelKey:"overlay.customTrain.param_triggerEventCount", icon:"notification"};
+			this.param_cooldownDuration_ms[id]	= {type:"duration", value:0, min:30*60, max:24*3600, labelKey:"overlay.customTrain.param_cooldownDuration_ms", icon:"timer"};
+			this.param_levelsDuration_ms[id]	= {type:"duration", value:5*6, min:30, max:30*60, labelKey:"overlay.customTrain.param_levelsDuration_ms", icon:"countdown"};
 			this.param_postLevelUpOnChat[id]	= {type:"boolean", value:false, labelKey:"overlay.customTrain.param_postLevelUpOnChat", icon:"whispers"};
 			this.param_postLevelUpMessage[id]	= {type:"string", value:"", longText:true, maxLength:400};
 			this.param_postSuccessOnChat[id]	= {type:"boolean", value:false, labelKey:"overlay.customTrain.param_postSuccessOnChat", icon:"whispers"};
 			this.param_postSuccessMessage[id]	= {type:"string", value:"", longText:true, maxLength:400};
-			this.param_platforms[id]			= {type:"string", value:"", labelKey:"overlay.customTrain.param_platforms", icon:"color"};
+
+			this.param_postLevelUpMessage[id].placeholderList = [
+				{tag:"LEVEL", descKey:"triggers.placeholders.customTrain_level" },
+				{tag:"AMOUNT", descKey:"triggers.placeholders.customTrain_amount_left" },
+			];
+			this.param_postSuccessMessage[id].placeholderList = this.param_postLevelUpMessage[id].placeholderList.concat();
 		});
 	}
 
@@ -216,6 +291,9 @@ class OverlayParamsCustomTrain extends Vue {
 	 * @param entry
 	 */
 	public onChange(entry:TwitchatDataTypes.CustomTrainData):void {
+		//Make sure user doesn't hack this value
+		entry.triggerEventCount = Math.max(Math.min(entry.triggerEventCount, 3), 0);
+
 		this.$store.customTrain.saveData();
 		this.$store.customTrain.broadcastStates(entry.id);
 	}
@@ -243,10 +321,51 @@ class OverlayParamsCustomTrain extends Vue {
 	}
 
 	/**
+	 * Detect click outside emote selector
+	 */
+	public onClick(e:MouseEvent):void {
+		if (this.showEmoteSelector) {
+			const emoteSelector = (this.$refs["emoteSelector"] as Vue).$el;
+			if (!emoteSelector.contains(e.target as Node)) {
+				this.showEmoteSelector = false;
+			}
+		}
+	}
+
+	/**
 	 * Open emote selector
 	 */
-	public onSelectEmote(type:string):void {
-		console.log(type);
+	public async openEmoteSelector(entry:TwitchatDataTypes.CustomTrainData, step:NonNullable<typeof this.emoteSelectorTarget>["step"], event:MouseEvent):Promise<void> {
+		this.emoteSelectorTarget = {entry, step};
+		this.showEmoteSelector = true;
+		await this.$nextTick();
+
+		const bounds = (this.$refs["emoteSelector"] as Vue).$el.getBoundingClientRect();
+		let x = event.clientX < window.innerWidth/2? event.clientX : event.clientX - bounds.width;
+		let y = event.clientY < window.innerHeight/2? event.clientY : event.clientY - bounds.height;
+		const marginBottom = 70;
+		if(x + bounds.width > window.innerWidth) x = window.innerWidth - bounds.width;
+		if(y + bounds.height > window.innerHeight - marginBottom) y = window.innerHeight - marginBottom - bounds.height;
+		this.emoteSelector_x = x + "px";
+		this.emoteSelector_y = y + "px";
+	}
+
+	/**
+	 * Called after selecting an emote
+	 */
+	public async onSelectEmote(emote:TwitchatDataTypes.Emote):Promise<void> {
+		console.log(emote);
+		switch(this.emoteSelectorTarget?.step) {
+			case "approaching":
+				this.emoteSelectorTarget.entry.approachingEmote = emote.images.url_4x || emote.images.url_2x || emote.images.url_1x;
+				break;
+			case "failed":
+				this.emoteSelectorTarget.entry.failedEmote = emote.images.url_4x || emote.images.url_2x || emote.images.url_1x;
+				break;
+			case "success":
+				this.emoteSelectorTarget.entry.successEmote = emote.images.url_4x || emote.images.url_2x || emote.images.url_1x;
+				break;
+		}
 	}
 }
 export default toNative(OverlayParamsCustomTrain);
@@ -254,6 +373,14 @@ export default toNative(OverlayParamsCustomTrain);
 
 <style scoped lang="less">
 .overlayparamscustomtrain{
+
+	.emoteSelector {
+		position: absolute;
+		z-index: 100;
+		top: v-bind(emoteSelector_y);
+		left: v-bind(emoteSelector_x);
+	}
+
 	.entryList, .content {
 		gap: .5em;
 		display: flex;
@@ -280,6 +407,27 @@ export default toNative(OverlayParamsCustomTrain);
 				width: 0;
 				flex-basis: 100px;
 			}
+		}
+	}
+
+	.themeBlock {
+		margin: 1em 0;
+		gap: .25em;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		&>.font, &>.colors {
+			flex-grow: 10;
+			gap: .25em;
+			display: flex;
+			flex-direction: column;
+			flex-basis: 200px;
+			&>* {
+				flex-grow: 1;
+			}
+		}
+		&>.colors {
+			flex-grow: 1;
 		}
 	}
 
@@ -328,6 +476,42 @@ export default toNative(OverlayParamsCustomTrain);
 		gap: .5em;
 		display: flex;
 		flex-direction: column;
+		.train {
+			margin-bottom: .35em;
+		}
+		&>.paramitem {
+			margin-top: -.5em;
+			font-size: .9em;
+		}
+
+		strong {
+			.icon {
+				height: 1em;
+				width: 1em;
+				margin-right: .5em;
+			}
+		}
+	}
+
+	.platforms {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		.platformsList {
+			gap: .5em;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+
+			.platform {
+				flex-direction: column;
+				gap: .5em;
+				:deep(.icon) {
+					font-size: 4em;
+				}
+			}
+		}
 	}
 }
 </style>

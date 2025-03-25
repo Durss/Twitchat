@@ -1,5 +1,5 @@
 <template>
-	<div class="emoteselector blured-background-window">
+	<div class="emoteselector" :class="classes">
 		<div class="list" v-if="$store.stream.currentChatChannel.platform == 'youtube'">
 			<div class="emotes">
 				<img
@@ -7,7 +7,7 @@
 					v-for="e in youtubeEmotes"
 						:key="e.id+e.code"
 						:ref="e.id+e.code"
-						loading="lazy" 
+						loading="lazy"
 						:src="e.images.url_1x"
 						:alt="e.code"
 					@mouseover="openTooltip($event, e)"
@@ -29,7 +29,7 @@
 						v-for="e in filteredEmotes"
 						:key="e.id+e.code"
 						:ref="e.id+e.code"
-						loading="lazy" 
+						loading="lazy"
 						:src="e.images.url_1x"
 						:alt="e.code"
 						@mouseover="openTooltip($event, e)"
@@ -39,12 +39,12 @@
 		</div>
 
 		<div class="list" v-if="filteredUsers.length > 0 && !filter">
-			<div class="userEtry" v-for="u, index in filteredUsers" :key="u.user.id" :ref="'user_'+u.user.id" @click.ctrlKey="logEntry(u)">
+			<div class="userEtry" v-for="u, index in filteredUsers" :key="u.user.id" :ref="'user_'+u.user.id" @click.ctrl="logEntry(u)">
 				<div class="sticky">
 					<img class="icon" :src="u.user.avatarPath" alt="profile pic">
 					<div class="title">{{u.user.displayName}}</div>
 				</div>
-				
+
 				<template class="item" v-if="buildOffset >= index">
 					<div class="emotes">
 						<img
@@ -53,11 +53,11 @@
 							:key="e.id+e.code"
 							:ref="e.id+e.code"
 							:id="'emote_'+e.id+e.code"
-							loading="lazy" 
+							loading="lazy"
 							:src="e.images.url_1x"
 							:alt="e.code"
 							@mouseover="openTooltip($event, e)"
-							@click="$emit('select', e.code)">
+							@click="$emit('select', e)">
 					</div>
 				</template>
 			</div>
@@ -87,7 +87,7 @@ import FFZUtils from '@/utils/emotes/FFZUtils';
 import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { gsap } from 'gsap/gsap-core';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue, Prop } from 'vue-facing-decorator';
 import { useTippy } from 'vue-tippy';
 import Icon from '../Icon.vue';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
@@ -103,6 +103,9 @@ import { reactive } from 'vue';
 })
 class EmoteSelector extends Vue {
 
+	@Prop({type:Boolean, default:false})
+	public popoutMode!:boolean;
+
 	public users:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[] = [];
 	public filter = "";
 	public buildOffset = 0;
@@ -111,6 +114,13 @@ class EmoteSelector extends Vue {
 	private buildTimeout = -1;
 	private tooltipCreated:{[key:string]:boolean} = {};
 	private clickHandler!:(e:MouseEvent) => void;
+
+	public get classes():{[key:string]:boolean} {
+		return {
+			"blured-background-window":this.popoutMode === false,
+			"popout": this.popoutMode,
+		}
+	}
 
 	public get canListUserEmotes():boolean {
 		return TwitchUtils.hasScopes([TwitchScopes.READ_EMOTES]);
@@ -171,7 +181,7 @@ class EmoteSelector extends Vue {
 					platform:"youtube",
 				})
 			}
-			
+
 			this.youtubeEmotes = reactive(res);
 		})
 
@@ -187,14 +197,14 @@ class EmoteSelector extends Vue {
 			//Load all users details to get their names
 			const tmpList = await TwitchUtils.getUserInfo(users.map(v => v.owner!.id));
 			const userList:TwitchatDataTypes.TwitchatUser[] = [];
-			
+
 			for (let i = 0; i < tmpList.length; i++) {
 				const u = tmpList[i];
 				const user = this.$store.users.getUserFrom("twitch", undefined, u.id, u.login, u.display_name);
 				user.avatarPath = tmpList.find(v=>v.id == user.id)!.profile_image_url;
 				userList.push(user);
 			}
-			
+
 			//Sort them by name
 			userList.sort((a, b) => a.displayName > b.displayName?  1 : -1);
 			//Bring self to top
@@ -204,7 +214,7 @@ class EmoteSelector extends Vue {
 			for (let i = 0; i < userList.length; i++) {
 				uidToIndex[ userList[i].id ] = i;
 			}
-	
+
 			//Add global emotes
 			uidToIndex["0"] = userList.length;
 			userList.push({
@@ -224,7 +234,7 @@ class EmoteSelector extends Vue {
 				channelInfo:{},
 				is_bot:false,
 			});
-	
+
 			//Build emotes list for each sorted user
 			const sets:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[] = [];
 			for (let i = 0; i < emotes.length; i++) {
@@ -238,7 +248,7 @@ class EmoteSelector extends Vue {
 				}
 				sets[ index ].emotes.push(e);
 			}
-	
+
 			if(this.$store.params.appearance.bttvEmotes.value === true) {
 				//Add BTTV emotes
 				sets.push({
@@ -262,7 +272,7 @@ class EmoteSelector extends Vue {
 					emotes: BTTVUtils.instance.emotes,
 				});
 			}
-	
+
 			if(this.$store.params.appearance.sevenTVEmotes.value === true) {
 				//Add 7TV emotes
 				sets.push({
@@ -286,7 +296,7 @@ class EmoteSelector extends Vue {
 					emotes: SevenTVUtils.instance.emotes,
 				});
 			}
-	
+
 			if(this.$store.params.appearance.ffzEmotes.value === true) {
 				//Add FFZ emotes
 				sets.push({
@@ -310,7 +320,7 @@ class EmoteSelector extends Vue {
 					emotes: FFZUtils.instance.emotes,
 				});
 			}
-	
+
 			//Save it to storage to avoid loading everything back again
 			this.$store.chat.setEmoteSelectorCache(sets);
 			this.users = sets;
@@ -328,14 +338,14 @@ class EmoteSelector extends Vue {
 		clearTimeout(this.buildTimeout);
 		document.removeEventListener("mousedown", this.clickHandler);
 	}
-	
+
 	/**
 	 * Create tooltip only when hovering the image.
 	 * This avoids huge lag on build if creating tooltip on every items
 	 * at once.
-	 * 
-	 * @param event 
-	 * @param emote 
+	 *
+	 * @param event
+	 * @param emote
 	 */
 	public openTooltip(event:MouseEvent, emote:TwitchatDataTypes.Emote):void {
 		if(this.tooltipCreated[emote.code] === true) return;
@@ -347,7 +357,7 @@ class EmoteSelector extends Vue {
 
 	/**
 	 * Scrolls list ot a specific user
-	 * @param user 
+	 * @param user
 	 */
 	public scrollTo(user:TwitchatDataTypes.TwitchatUser):void {
 		const [holder] = this.$refs["user_"+user.id] as  HTMLDivElement[];
@@ -366,6 +376,7 @@ class EmoteSelector extends Vue {
 	}
 
 	private open():void {
+		if(this.popoutMode !== false) return;
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
 		gsap.from(ref, {duration:.1, translateX:"115%", delay:.2, ease:"sine.out"});
@@ -373,6 +384,7 @@ class EmoteSelector extends Vue {
 	}
 
 	private close():void {
+		if(this.popoutMode !== false) return;
 		clearTimeout(this.buildTimeout);
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
@@ -442,6 +454,7 @@ export default toNative(EmoteSelector);
 			padding: 0;
 			height: 2em;
 			width: 2em;
+			font-size: 1em;
 			border-radius: 50%;
 			.avatar {
 				width: 100%;
@@ -460,12 +473,12 @@ export default toNative(EmoteSelector);
 		text-align: center;
 		color: var(--color-light);
 		.icon {
-			width: 30px;
-			height: 30px;
+			width: 2em;
+			height: 2em;
 		}
 		p {
 			font-style: italic;
-			font-size: 16px;
+			font-size: 1em;
 		}
 	}
 
@@ -490,7 +503,8 @@ export default toNative(EmoteSelector);
 			background-color: var(--background-color-fader);
 			border-radius: 2em;
 			padding: .5em;
-			
+			backdrop-filter: blur(5px);
+
 			& > .icon {
 				height: 2em;
 				margin-top: -.5em;
@@ -515,8 +529,8 @@ export default toNative(EmoteSelector);
 			justify-content: center;
 			margin-bottom: 1em;
 			.emote {
-				height: 33px;
-				width: 33px;
+				height: 2em;
+				width: 2em;
 				padding: 2px;
 				cursor: pointer;
 				border: 1px solid transparent;
@@ -545,7 +559,22 @@ export default toNative(EmoteSelector);
 		}
 	}
 	input {
-		color:var(--color-text);
+		width: 100%;
+		color:var(--color-secon);
+	}
+
+	&.popout {
+		padding: .5em;
+		border-radius: var(--border-radius);
+		background-color: var(--background-color-primary);
+		font-size: .8em;
+		margin-left: unset;
+		.list {
+			max-height: 300px;
+		}
+		.userList {
+			max-height: 3em;
+		}
 	}
 }
 </style>

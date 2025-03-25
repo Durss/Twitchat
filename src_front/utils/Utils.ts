@@ -7,6 +7,17 @@ import type { JsonObject } from 'type-fest';
  */
 export default class Utils {
 
+	public static CURRENCY_AMOUNT_TOKEN = "{AMOUNT}";
+
+	/**
+	 * Formats a currency amount
+	 * @param amount
+	 * @param pattern must contain Utils.CURRENCY_AMOUNT_TOKEN token
+	 * @returns
+	 */
+	public static formatCurrency(amount:number, pattern:string):string {
+		return pattern.replace(Utils.CURRENCY_AMOUNT_TOKEN, amount.toString());
+	}
 
 	/**
 	 * Check if user browser them is light mode
