@@ -62,7 +62,6 @@ export const storeCustomTrain = defineStore('customTrain', {
 				currency:"$"+Utils.CURRENCY_AMOUNT_TOKEN,
 				colorFill:"#008667",
 				colorBg:"#ffffff",
-				levels:[{amount:50}, {amount:100}, {amount:200}],
 				triggerEventCount:2,
 				textSize:30,
 				textFont:"Inter",
@@ -79,6 +78,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 				postLevelUpChatMessage:StoreProxy.i18n.t("overlay.customTrain.param_postLevelUpChatMessage"),
 				postSuccessChatMessage:StoreProxy.i18n.t("overlay.customTrain.param_postSuccessChatMessage"),
 				postSuccessOnChat:false,
+				levelAmounts:"50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000, 9500, 10000",
 				platforms:{
 					kofi:true,
 					streamelements:true,

@@ -664,6 +664,8 @@
 			"param_cooldownDuration_ms": "Duration to wait between 2 trains",
 			"param_levelsDuration_ms": "Duration to reach next level",
 			"param_postLevelUpOnChat": "Send a message on level up",
+			"param_levelAmounts": "Define amounts for each level",
+			"param_levelAmounts_count": "{COUNT} levels defined",
 			"param_postLevelUpChatMessage": "🚂 Choo Choo Level {'{'}LEVEL{'}'} reached! {'{'}AMOUNT{'}'} to go for the next level!",
 			"param_postSuccessOnChat": "Post message when train completes",
 			"param_postSuccessChatMessage": "🚂 Choo Choo mission complete! Level {'{'}LEVEL{'}'} reached with {'{'}AMOUNT{'}'}!",

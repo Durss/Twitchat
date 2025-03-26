@@ -2216,10 +2216,6 @@ export namespace TwitchatDataTypes {
 		 */
 		cooldownDuration_s:number;
 		/**
-		 * Levels amounts
-		 */
-		levels:{amount:number}[];
-		/**
 		 * Duration to complete a level
 		 */
 		levelsDuration_s:number;
@@ -2267,6 +2263,11 @@ export namespace TwitchatDataTypes {
 		 * Emote for the "level up" sequence
 		 */
 		levelUpEmote:string;
+		/**
+		 * Levels amounts.
+		 * coma seperated numbers
+		 */
+		levelAmounts:string;
 		/**
 		 * Platforms allowed to make train progress
 		 */

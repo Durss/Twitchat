@@ -162,11 +162,8 @@
 							@edit="onChange(entry)"
 							editable
 							/>
-						<ParamItem :paramData="param_levelsDuration_ms[entry.id]" v-model="entry.levelsDuration_s" @change="onChange(entry)" :childLevel="1" noBackground/>
-
-						<ParamItem :paramData="param_postLevelUpOnChat[entry.id]" v-model="entry.postLevelUpOnChat" @change="onChange(entry)" :childLevel="1" noBackground>
-							<ParamItem :paramData="param_postLevelUpMessage[entry.id]" v-model="entry.postLevelUpChatMessage" @change="onChange(entry)" :childLevel="1" noBackground/>
-						</ParamItem>
+						<ParamItem :paramData="param_levelAmounts[entry.id]" v-model="entry.levelAmounts" @change="onChange(entry)" :childLevel="1" noBackground/>
+						<div class="paramitem levelCount">{{$t("overlay.customTrain.param_levelAmounts_count", {COUNT:entry.levelAmounts.split(/\W+/g).length})}}</div>
 					</div>
 
 					<div class="card-item trainRender">
@@ -184,6 +181,11 @@
 							@selectEmote="($event:MouseEvent) => openEmoteSelector(entry, 'levelUp', $event)"
 							editable
 							/>
+						<ParamItem :paramData="param_levelsDuration_ms[entry.id]" v-model="entry.levelsDuration_s" @change="onChange(entry)" :childLevel="1" noBackground/>
+
+						<ParamItem :paramData="param_postLevelUpOnChat[entry.id]" v-model="entry.postLevelUpOnChat" @change="onChange(entry)" :childLevel="1" noBackground>
+							<ParamItem :paramData="param_postLevelUpMessage[entry.id]" v-model="entry.postLevelUpChatMessage" @change="onChange(entry)" :childLevel="1" noBackground/>
+						</ParamItem>
 					</div>
 
 					<div class="card-item trainRender">
@@ -281,6 +283,7 @@ class OverlayParamsCustomTrain extends Vue {
 	public param_postLevelUpMessage:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_postSuccessOnChat:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_postSuccessMessage:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_levelAmounts:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 
 	private emoteSelectorTarget:{entry:TwitchatDataTypes.CustomTrainData, step:"approaching"|"success"|"failed"|"levelUp"}|null = null;
 	private clickHandler!:(e:MouseEvent)=>void;
@@ -316,6 +319,7 @@ class OverlayParamsCustomTrain extends Vue {
 			this.param_postLevelUpMessage[id]	= {type:"string", value:"", longText:true, maxLength:400};
 			this.param_postSuccessOnChat[id]	= {type:"boolean", value:false, labelKey:"overlay.customTrain.param_postSuccessOnChat", icon:"whispers"};
 			this.param_postSuccessMessage[id]	= {type:"string", value:"", longText:true, maxLength:400};
+			this.param_levelAmounts[id]			= {type:"string", value:"", longText:true, maxLength:1000, labelKey:"overlay.customTrain.param_levelAmounts"};
 
 			this.param_postLevelUpMessage[id].placeholderList = [
 				{tag:"LEVEL", descKey:"triggers.placeholders.customTrain_level" },
@@ -535,6 +539,11 @@ export default toNative(OverlayParamsCustomTrain);
 		&>.paramitem {
 			margin-top: -.5em;
 			font-size: .9em;
+			&.levelCount {
+				font-style: italic;
+				margin-left: 1.6em;
+				text-align: center;
+			}
 		}
 
 		strong {
