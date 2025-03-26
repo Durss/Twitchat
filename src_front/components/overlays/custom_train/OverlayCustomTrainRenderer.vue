@@ -57,6 +57,7 @@
 		</div>
 
 		<div class="approaching" v-if="showApproaching !== false">
+			<div class="emoteWall" ref="emoteWall"></div>
 			<img class="emote" @click="onClickEmote" :src="approachingEmote" alt="emote">
 			<contenteditable tag="div" class="title editableField"
 				v-model="localTitleApproaching"
@@ -71,7 +72,7 @@
 		</div>
 
 		<div class="success" v-if="showSuccess !== false">
-			<canvas class="emoteWall" ref="emoteWall"></canvas>
+			<div class="emoteWall" ref="emoteWall"></div>
 			<img class="emote" @click="onClickEmote" :src="successEmote" alt="emote">
 			<contenteditable tag="div" class="title editableField"
 				v-model="localTitleSuccess"
@@ -83,6 +84,7 @@
 		</div>
 
 		<div class="fail" v-if="showFail !== false">
+			<div class="emoteWall" ref="emoteWall"></div>
 			<img class="emote" @click="onClickEmote" :src="failedEmote" alt="emote">
 			<contenteditable tag="div" class="title editableField"
 				v-model="localTitleFail"
@@ -106,7 +108,7 @@ import Utils from '@/utils/Utils';
 	components:{
 		contenteditable,
 	},
-	emits:["update:title", "update:titleApproaching", "update:titleSuccess", "update:titleFail", "update:levelName", "selectEmote"],
+	emits:["edit", "update:title", "update:titleApproaching", "update:titleSuccess", "update:titleFail", "update:levelName", "selectEmote"],
 })
 class OverlayCustomTrainRenderer extends Vue {
 
@@ -191,6 +193,9 @@ class OverlayCustomTrainRenderer extends Vue {
 	public localTitleFail:string = "";
 	public localLevelName:string = "";
 
+	private _raf:number = 0;
+	private imageList:HTMLImageElement[] = [];
+
 	public get cssSize(){ return this.size + 'px'; }
 
 	public get colorTextFade(){ return this.colorText+"80"; }
@@ -226,30 +231,101 @@ class OverlayCustomTrainRenderer extends Vue {
 		watch(() => this.levelName,  () => {
 			this.localLevelName = this.levelName;
 		}, {immediate:true});
+
+		this.createEmoteWall();
+	}
+
+	public beforeUnmount(){
+		this.imageList.forEach(img => {
+			gsap.killTweensOf(img);
+			img.remove()
+		});
+		this.imageList = [];
+		cancelAnimationFrame(this._raf);
 	}
 
 	public onChangeTitle():void {
 		this.$emit("update:title", this.localTitle);
+		this.$emit("edit");
 	}
 
 	public onChangeTitleApproaching():void {
 		this.$emit("update:titleApproaching", this.localTitleApproaching);
+		this.$emit("edit");
 	}
 
 	public onChangeTitleSuccess():void {
 		this.$emit("update:titleSuccess", this.localTitleSuccess);
+		this.$emit("edit");
 	}
 
 	public onChangeTitleFail():void {
 		this.$emit("update:titleFail", this.localTitleFail);
+		this.$emit("edit");
 	}
 
 	public onChangeLevelName():void {
 		this.$emit("update:levelName", this.localLevelName);
+		this.$emit("edit");
 	}
 
 	public onClickEmote(e:MouseEvent):void {
 		this.$emit("selectEmote", e);
+	}
+
+	public createEmoteWall():void {
+		// if(!this.successEmote) return;
+
+		const filePath = this.successEmote || this.failedEmote || this.approachingEmote;
+		const bounds = this.$el.getBoundingClientRect();
+		const imgSize = bounds.height / 1.5;
+		const paddingScale = 4;
+		const paddingW = bounds.height / 2 * paddingScale;
+		const paddingH = -bounds.height / 5 * 1/paddingScale;
+		const rows = Math.ceil(bounds.height / (imgSize + paddingH)) + 2;
+		const cols = Math.ceil(bounds.width / (imgSize + paddingW));
+		const holder = this.$refs.emoteWall as HTMLElement;
+		this.imageList = [];
+		if(!holder) return;
+
+		for (let row = 0; row < rows; row++) {
+			for (let col = 0; col < cols; col++) {
+				const img = document.createElement('img');
+				img.src = filePath;
+				img.style.position = 'absolute';
+				img.style.width = `${imgSize}px`;
+				img.style.height = `${imgSize}px`;
+				img.style.opacity = `${Math.random()*.5}`;
+				img.style.transform = 'rotate('+(Math.random()-Math.random())*90+'deg)';
+				this.imageList.push(img);
+				holder.appendChild(img);
+				gsap.fromTo(img, {scale:.8}, {scale:1.25, delay: Math.random() * 2, repeat:-1, yoyo:true, duration: 1});
+			}
+		}
+		console.log(this.imageList.length)
+
+		let offset = 0;
+		const animate = ()=>{
+			this._raf = requestAnimationFrame(animate);
+			for (let i = 0; i < this.imageList.length; i++) {
+				const img = this.imageList[i];
+				const col = i % cols;
+				const row = Math.floor(i / cols);
+				let x = col * (imgSize + paddingW) + (row % 2 === 0 ? 0 : (imgSize+paddingW) / 2)
+				let y = row * (imgSize + paddingH) + offset;
+				if(y < -imgSize) {
+					y += rows * (imgSize + paddingH);
+				}
+				if(offset < -4*(imgSize+paddingH)) {
+					offset = 0;
+				}
+				img.style.left = `${x}px`;
+				img.style.top = `${y}px`;
+				offset -=.1;
+			}
+		}
+		animate();
+
 	}
 
 }
@@ -262,11 +338,13 @@ export default toNative(OverlayCustomTrainRenderer);
 	border-radius: 10em;
 	font-size: v-bind(cssSize);
 	font-family: v-bind(fontFamily);
-	color: v-bind(colorText);
-	background-color: v-bind(colorBg);
+	color: var(--colorText);
+	background-color: var(--colorBg);
 	width: 100%;
 	overflow: hidden;
 	--maskWidth: ~"max(0em, v-bind(width))";
+	--colorBg: v-bind(colorBg);
+	--colorText: v-bind(colorText);
 
 	&.editable {
 		font-size: calc(v-bind(cssSize) / 1.5);
@@ -294,7 +372,7 @@ export default toNative(OverlayCustomTrainRenderer);
 
 			.levelHolder {
 				flex-shrink: 0;
-				background-color: v-bind(colorText);
+				background-color: var(--colorText);
 				border-radius: 2em;
 				.level {
 					visibility: hidden;
@@ -314,7 +392,7 @@ export default toNative(OverlayCustomTrainRenderer);
 					height: 100%;
 					position: absolute;
 					left: -1.5em;
-					background-color: v-bind(colorText);
+					background-color: var(--colorText);
 				}
 			}
 		}
@@ -325,8 +403,8 @@ export default toNative(OverlayCustomTrainRenderer);
 			padding: .4em 1em;
 			margin: .5em;
 			font-weight: normal;
-			color: v-bind(colorText);
-			background-color: v-bind(colorBg);
+			color: var(--colorText);
+			background-color: var(--colorBg);
 			white-space: nowrap;
 			display: flex;
 			flex-direction: row;
@@ -359,10 +437,10 @@ export default toNative(OverlayCustomTrainRenderer);
 				z-index: 1;
 				.infoHolder {
 					clip-path: inset(0 calc(100% - var(--maskWidth)) 0 0 round 10em);
-					color: v-bind(colorBg);
+					color: var(--colorBg);
 
 					.editableField {
-						border-color: v-bind(colorBg);
+						border-color: var(--colorBg);
 					}
 				}
 			}
@@ -390,7 +468,7 @@ export default toNative(OverlayCustomTrainRenderer);
 		z-index: 10;
 		width: 100%;
 		height: 100%;
-		background-color: v-bind(colorBg);
+		background-color: var(--colorBg);
 		top: 0;
 		left: 0;
 		display: flex;
@@ -421,7 +499,7 @@ export default toNative(OverlayCustomTrainRenderer);
 			div {
 				width: 1em;
 				height: 1em;
-				background-color: v-bind(colorText);
+				background-color: var(--colorText);
 				border-radius: 50%;
 				opacity: .5;
 				transition: opacity .2s;
@@ -452,11 +530,11 @@ export default toNative(OverlayCustomTrainRenderer);
 
 	.emoteWall {
 		position: absolute;
+		z-index: -1;
 		top: 0;
 		left: 0;
 		width: 100%;
 		height: 100%;
-		z-index: 0;
 		pointer-events: none;
 	}
 }

@@ -17,6 +17,7 @@
 		<OverlayBingoGrid v-else-if="overlay=='bingogrid'" ref="bingoGrid" />
 		<OverlayDonationGoals v-else-if="overlay=='donationgoals'" />
 		<OverlayAnimatedText v-else-if="overlay=='animatedtext'" />
+		<OverlayCustomTrain v-else-if="overlay=='customtrain'" />
 	</div>
 </template>
 
@@ -45,6 +46,7 @@ const OverlayBingoGrid = defineAsyncComponent({loader: () => import('@/component
 const OverlayDonationGoals = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayDonationGoals.vue')});
 const OverlayChatPoll = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayChatPoll.vue')});
 const OverlayAnimatedText = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayAnimatedText.vue')});
+const OverlayCustomTrain = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayCustomTrain.vue')});
 
 @Component({
 	components:{
@@ -58,6 +60,7 @@ const OverlayAnimatedText = defineAsyncComponent({loader: () => import('@/compon
 		OverlayBitsWall,
 		OverlayHeatDebug,
 		OverlayBingoGrid,
+		OverlayCustomTrain,
 		OverlayPredictions,
 		OverlayMusicPlayer,
 		OverlaysRaffleWheel,

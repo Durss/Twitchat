@@ -99,7 +99,7 @@ import { reactive } from 'vue';
 		Icon,
 		TTButton,
 	},
-	emits:["close", "select"]
+	emits:["close", "select", "onLoad"]
 })
 class EmoteSelector extends Vue {
 
@@ -332,6 +332,7 @@ class EmoteSelector extends Vue {
 		document.addEventListener("mousedown", this.clickHandler);
 		this.open();
 		this.buildNextUser();
+		this.$emit("onLoad");
 	}
 
 	public beforeUnmount():void {

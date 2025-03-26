@@ -81,7 +81,7 @@
 							<TTButton class="platform" small
 								:primary="entry.platforms.streamlabs_charity"
 								@click="entry.platforms.streamlabs_charity = !entry.platforms.streamlabs_charity"
-								icon="streamlabs">SL charity</TTButton>
+								icon="streamlabs">Streamlabs<br>charity</TTButton>
 							<TTButton class="platform" small
 								:primary="entry.platforms.twitch_charity"
 								@click="entry.platforms.twitch_charity = !entry.platforms.twitch_charity"
@@ -110,14 +110,13 @@
 							:fontFamily="entry.textFont"
 							:colorText="entry.colorFill"
 							:colorBg="entry.colorBg"
-							:eventCount="param_triggerEventCount[entry.id].value"
+							:eventCount="entry.triggerEventCount"
 							:eventDone="1"
 							:approachingEmote="entry.approachingEmote"
-							:successEmote="entry.successEmote"
-							:failedEmote="entry.failedEmote"
 							v-model:titleApproaching="entry.approachingLabel"
 							v-model:title="entry.title"
 							v-model:levelName="entry.levelName"
+							@edit="onChange(entry)"
 							@selectEmote="($event:MouseEvent) => openEmoteSelector(entry, 'approaching', $event)"
 							editable
 							/>
@@ -137,6 +136,7 @@
 							:currencyPattern="entry.currency"
 							v-model:title="entry.title"
 							v-model:levelName="entry.levelName"
+							@edit="onChange(entry)"
 							editable
 							/>
 						<ParamItem :paramData="param_levelsDuration_ms[entry.id]" v-model="entry.levelsDuration_s" @change="onChange(entry)" :childLevel="1" noBackground/>
@@ -154,12 +154,11 @@
 							:fontFamily="entry.textFont"
 							:colorText="entry.colorFill"
 							:colorBg="entry.colorBg"
-							:approachingEmote="entry.approachingEmote"
 							:successEmote="entry.successEmote"
-							:failedEmote="entry.failedEmote"
 							v-model:titleSuccess="entry.successLabel"
 							v-model:title="entry.title"
 							v-model:levelName="entry.levelName"
+							@edit="onChange(entry)"
 							@selectEmote="($event:MouseEvent) => openEmoteSelector(entry, 'success', $event)"
 							editable
 							/>
@@ -178,12 +177,11 @@
 							:fontFamily="entry.textFont"
 							:colorText="entry.colorFill"
 							:colorBg="entry.colorBg"
-							:approachingEmote="entry.approachingEmote"
-							:successEmote="entry.successEmote"
 							:failedEmote="entry.failedEmote"
 							v-model:titleFail="entry.failedLabel"
 							v-model:title="entry.title"
 							v-model:levelName="entry.levelName"
+							@edit="onChange(entry)"
 							@selectEmote="($event:MouseEvent) => openEmoteSelector(entry, 'failed', $event)"
 							editable
 							/>
@@ -192,7 +190,7 @@
 				</div>
 			</ToggleBlock>
 		</VueDraggable>
-		<EmoteSelector class="emoteSelector" popoutMode v-if="showEmoteSelector" @select="onSelectEmote" ref="emoteSelector" />
+		<EmoteSelector class="emoteSelector" popoutMode v-if="showEmoteSelector" @select="onSelectEmote" ref="emoteSelector" @onLoad="replaceEmoteSelector()" />
 	</div>
 </template>
 
@@ -230,6 +228,7 @@ class OverlayParamsCustomTrain extends Vue {
 	public showEmoteSelector:boolean = false;
 	public emoteSelector_y:string = "0";
 	public emoteSelector_x:string = "0";
+	public emoteSelectorOrigin:{x:number, y:number} = {x:0, y:0};
 	public param_colorFill:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_colorBg:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_textFont:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
@@ -339,15 +338,20 @@ class OverlayParamsCustomTrain extends Vue {
 		this.emoteSelectorTarget = {entry, step};
 		this.showEmoteSelector = true;
 		await this.$nextTick();
+		this.emoteSelectorOrigin = {x:event.clientX, y:event.clientY};
+		this.replaceEmoteSelector();
+	}
 
+	public replaceEmoteSelector():void {
 		const bounds = (this.$refs["emoteSelector"] as Vue).$el.getBoundingClientRect();
-		let x = event.clientX < window.innerWidth/2? event.clientX : event.clientX - bounds.width;
-		let y = event.clientY < window.innerHeight/2? event.clientY : event.clientY - bounds.height;
+		let x = this.emoteSelectorOrigin.x < window.innerWidth/2? this.emoteSelectorOrigin.x : this.emoteSelectorOrigin.x - bounds.width;
+		let y = this.emoteSelectorOrigin.y < window.innerHeight/2? this.emoteSelectorOrigin.y : this.emoteSelectorOrigin.y - bounds.height;
 		const marginBottom = 70;
 		if(x + bounds.width > window.innerWidth) x = window.innerWidth - bounds.width;
 		if(y + bounds.height > window.innerHeight - marginBottom) y = window.innerHeight - marginBottom - bounds.height;
 		this.emoteSelector_x = x + "px";
 		this.emoteSelector_y = y + "px";
+
 	}
 
 	/**
