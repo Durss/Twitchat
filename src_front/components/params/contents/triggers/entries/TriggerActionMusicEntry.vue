@@ -73,7 +73,7 @@ class TriggerActionMusicEntry extends AbstractTriggerActionEntry {
 	public get showPlaylistInput():boolean { return this.param_actions.value == TriggerMusicTypes.START_PLAYLIST || this.param_actions.value == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST; }
 	public get isPlaylistEditAction():boolean { return this.param_actions.value == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST; }
 	public get contentOverlays():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OVERLAYS; }
-	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 	public get canEditSpotifyPlaylists():boolean { return SpotifyHelper.instance.hasScopes([SpotifyScopes.EDIT_PRIVATE_PLAYLISTS,SpotifyScopes.EDIT_PUBLIC_PLAYLISTS]); }
 
 	public beforeMount():void {

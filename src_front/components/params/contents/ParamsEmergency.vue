@@ -1,7 +1,7 @@
 <template>
 	<div class="paramsemergency parameterContent">
 		<Icon name="emergency" />
-		
+
 		<p class="head">{{ $t("emergency.header") }}</p>
 		<ParamItem class="enableBt" :paramData="param_enable" v-model="param_enable.value" />
 
@@ -49,7 +49,7 @@
 						</i18n-t>
 					</div>
 				</div>
-				
+
 				<template v-else>
 					<div class="card-item labeled">
 						<Icon name="list" class="paramIcon" />
@@ -62,7 +62,7 @@
 							appendToBody
 						></vue-select>
 					</div>
-					
+
 					<div class="card-item labeled">
 						<Icon name="show" class="paramIcon" />
 						<p>{{ $t("emergency.actions.obs_sources") }} <br><i>{{ $t("emergency.actions.obs_sources_example") }}</i></p>
@@ -119,7 +119,7 @@ class ParamsEmergency extends Vue implements IParameterContent {
 	public param_emotesOnly:TwitchatDataTypes.ParameterData<boolean>					= {type:"boolean", value:false,	icon:"emote", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS], labelKey:"emergency.params.emotesOnly"};
 	public param_autoTO:TwitchatDataTypes.ParameterData<string[], string>				= {type:"editablelist", value:[], longText:true, icon:"timeout", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS], labelKey:"emergency.params.autoTO", placeholderKey:"emergency.params.autoTO_placeholder", max:100, maxLength:25};
 	public param_noTrigger:TwitchatDataTypes.ParameterData<boolean>						= {type:"boolean", value:true, icon:"broadcast", labelKey:"emergency.params.noTrigger"};
-	public obsSources:OBSSourceItem[] = [];	
+	public obsSources:OBSSourceItem[] = [];
 	public selectedOBSSources:OBSSourceItem[] = [];
 	public selectedOBSScene:TwitchatDataTypes.ParameterDataListValue<string>|null = null;
 	public chatCommandPerms:TwitchatDataTypes.PermissionsData = {
@@ -140,13 +140,13 @@ class ParamsEmergency extends Vue implements IParameterContent {
 			pointerEvents:this.param_enable.value === true? "all" : "none",
 		};
 	}
-	
+
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
-	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; } 
-	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
-	public get contentAutomod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AUTOMOD; } 
-	public get userName():string { return this.$store.auth.twitch.user.login; } 
-	
+	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
+	public get contentAutomod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AUTOMOD; }
+	public get userName():string { return this.$store.auth.twitch.user.login; }
+
 	public get obsSources_filtered():OBSSourceItem[] {
 		let sources = this.obsSources.concat();
 		sources = sources.filter(v=> {
@@ -154,7 +154,7 @@ class ParamsEmergency extends Vue implements IParameterContent {
 		})
 		return sources;
 	}
-	
+
 	public get finalData():TwitchatDataTypes.EmergencyParamsData {
 		return {
 			enabled:this.param_enable.value,
@@ -214,8 +214,8 @@ class ParamsEmergency extends Vue implements IParameterContent {
 		watch(()=>this.finalData, ()=> {
 			this.$store.emergency.setEmergencyParams(this.finalData);
 		}, {deep:true});
-		
-		watch(()=> OBSWebsocket.instance.connected, () => { 
+
+		watch(()=> OBSWebsocket.instance.connected, () => {
 			this.listOBSScenes();
 			this.listOBSSources();
 		});

@@ -73,7 +73,7 @@ export namespace TwitchatDataTypes {
 		VOICE: "voice",
 		AUTOMOD: "automod",
 		AD: "ad",
-		CONNEXIONS: "connexions",
+		CONNECTIONS: "connexions",
 		PREMIUM: "premium",
 		TIMERS: "timers",
 	} as const;

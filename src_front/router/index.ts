@@ -128,7 +128,7 @@ const routes: Array<RouteRecordRaw> = [
 		name: 'twitchbot/auth',
 		redirect:() => {
 			if(window.opener) {
-				window.opener.postMessage({ 
+				window.opener.postMessage({
 					type: 'TWITCHBOT_AUTH_RESULT',
 					data: {
 						code: Utils.getQueryParameterByName("code"),
@@ -144,7 +144,7 @@ const routes: Array<RouteRecordRaw> = [
 				csrf:Utils.getQueryParameterByName("state") as string,
 			}
 			if(params.code && !Utils.getQueryParameterByName("error")) {
-				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.TWITCHBOT);
+				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.TWITCHBOT);
 				StoreProxy.twitchBot.completeOAuthProcess(params.code, params.csrf);
 			}else{
 				StoreProxy.common.alert( StoreProxy.i18n.t("twitch_bot.auth_refused") );
@@ -162,7 +162,7 @@ const routes: Array<RouteRecordRaw> = [
 			const sParams = StoreProxy.params;
 			const sMusic = StoreProxy.music;
 			if(!Utils.getQueryParameterByName("error")) {
-				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
+				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
 				const params:SpotifyAuthResult = {
 					code:Utils.getQueryParameterByName("code") as string,
 					csrf:Utils.getQueryParameterByName("state") as string,
@@ -189,13 +189,13 @@ const routes: Array<RouteRecordRaw> = [
 					code:Utils.getQueryParameterByName("code") as string,
 					csrf:Utils.getQueryParameterByName("state") as string,
 				}
-				
+
 				sPatreon.setPatreonAuthResult(params);
 
 				if(to.fullPath.indexOf("/premium") > -1) {
 					sParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 				}else{
-					sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.PATREON);
+					sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.PATREON);
 				}
 			}else{
 				StoreProxy.common.alert( StoreProxy.i18n.t("error.patreon_denied") );
@@ -218,7 +218,7 @@ const routes: Array<RouteRecordRaw> = [
 					csrf:Utils.getQueryParameterByName("state") as string,
 				}
 				sYoutube.setYoutubeAuthResult(params);
-				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.YOUTUBE);
+				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.YOUTUBE);
 			}else{
 				StoreProxy.common.alert( StoreProxy.i18n.t("error.youtube_denied") );
 			}
@@ -240,7 +240,7 @@ const routes: Array<RouteRecordRaw> = [
 					csrf:Utils.getQueryParameterByName("state") as string,
 				}
 				sStreamlabs.setAuthResult(params.code, params.csrf);
-				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.STREAMLABS);
+				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.STREAMLABS);
 			}else{
 				StoreProxy.common.alert( StoreProxy.i18n.t("error.streamlabs_denied") );
 			}
@@ -262,7 +262,7 @@ const routes: Array<RouteRecordRaw> = [
 					csrf:Utils.getQueryParameterByName("state") as string,
 				}
 				sTipeee.setAuthResult(params.code, params.csrf);
-				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.TIPEEE);
+				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.TIPEEE);
 			}else{
 				StoreProxy.common.alert( StoreProxy.i18n.t("error.tipeee_denied") );
 			}
@@ -307,7 +307,7 @@ const routes: Array<RouteRecordRaw> = [
 					document.location.href = "http://localhost:8080/streamelements/auth?" + new URLSearchParams(params);
 				}else{
 					sStreamelements.setAuthResult(params.code, params.csrf);
-					sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.STREAMELEMENTS);
+					sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.STREAMELEMENTS);
 				}
 			}else{
 				StoreProxy.common.alert( StoreProxy.i18n.t("error.streamelements_denied") );
@@ -330,7 +330,7 @@ const routes: Array<RouteRecordRaw> = [
 					csrf:Utils.getQueryParameterByName("state") as string,
 				}
 				sTiltify.setAuthResult(params.code, params.csrf);
-				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.TILTIFY);
+				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.TILTIFY);
 			}else{
 				StoreProxy.common.alert( StoreProxy.i18n.t("error.tiltify_denied") );
 			}

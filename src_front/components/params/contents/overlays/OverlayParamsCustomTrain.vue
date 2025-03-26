@@ -55,36 +55,59 @@
 						<strong>{{ $t("overlay.customTrain.param_platforms") }}</strong>
 						<div class="platformsList">
 							<TTButton class="platform" small
-								:primary="entry.platforms.streamlabs"
-								@click="entry.platforms.streamlabs = !entry.platforms.streamlabs"
+								v-tooltip="!$store.streamlabs.connected? $t('overlay.customTrain.connectPlatform_tt') : ''"
+								:disabled="!$store.streamlabs.connected"
+								:primary="$store.streamlabs.connected && entry.platforms.streamlabs"
+								@click.capture="!$store.streamlabs.connected? openConnections() : entry.platforms.streamlabs = !entry.platforms.streamlabs"
 								icon="streamlabs">Streamlabs</TTButton>
+
 							<TTButton class="platform" small
-								:primary="entry.platforms.streamelements"
-								@click="entry.platforms.streamelements = !entry.platforms.streamelements"
-								icon="streamelements">Streamelements</TTButton>
+								v-tooltip="!$store.streamelements.connected? $t('overlay.customTrain.connectPlatform_tt') : ''"
+								:disabled="!$store.streamelements.connected"
+								:primary="$store.streamelements.connected && entry.platforms.streamelements"
+								@click.capture="!$store.streamelements.connected? openConnections() : entry.platforms.streamelements = !entry.platforms.streamelements"
+								icon="streamelements">Stream<br>Elements</TTButton>
+
 							<TTButton class="platform" small
-								:primary="entry.platforms.tipeee"
-								@click="entry.platforms.tipeee = !entry.platforms.tipeee"
+								v-tooltip="!$store.tipeee.connected? $t('overlay.customTrain.connectPlatform_tt') : ''"
+								:disabled="!$store.tipeee.connected"
+								:primary="$store.tipeee.connected && entry.platforms.tipeee"
+								@click.capture="!$store.tipeee.connected? openConnections() : entry.platforms.tipeee = !entry.platforms.tipeee"
 								icon="tipeee">Tipeee</TTButton>
+
 							<TTButton class="platform" small
-								:primary="entry.platforms.kofi"
-								@click="entry.platforms.kofi = !entry.platforms.kofi"
+								v-tooltip="!$store.kofi.connected? $t('overlay.customTrain.connectPlatform_tt') : ''"
+								:disabled="!$store.kofi.connected"
+								:primary="$store.kofi.connected && entry.platforms.kofi"
+								@click.capture="!$store.kofi.connected? openConnections() : entry.platforms.kofi = !entry.platforms.kofi"
 								icon="kofi">Ko-Fi</TTButton>
+
 							<TTButton class="platform" small
-								:primary="entry.platforms.patreon"
-								@click="entry.platforms.patreon = !entry.platforms.patreon"
+								v-tooltip="!$store.patreon.connected? $t('overlay.customTrain.connectPlatform_tt') : ''"
+								:disabled="!$store.patreon.connected"
+								:primary="$store.patreon.connected && entry.platforms.patreon"
+								@click.capture="!$store.patreon.connected? openConnections() : entry.platforms.patreon = !entry.platforms.patreon"
 								icon="patreon">Patreon</TTButton>
+
 							<TTButton class="platform" small
-								:primary="entry.platforms.tiltify"
-								@click="entry.platforms.tiltify = !entry.platforms.tiltify"
+								v-tooltip="!$store.tiltify.connected? $t('overlay.customTrain.connectPlatform_tt') : ''"
+								:disabled="!$store.tiltify.connected"
+								:primary="$store.tiltify.connected && entry.platforms.tiltify"
+								@click.capture="!$store.tiltify.connected? openConnections() : entry.platforms.tiltify = !entry.platforms.tiltify"
 								icon="tiltify">Tiltify</TTButton>
+
 							<TTButton class="platform" small
-								:primary="entry.platforms.streamlabs_charity"
-								@click="entry.platforms.streamlabs_charity = !entry.platforms.streamlabs_charity"
+								v-tooltip="!$store.streamlabs.charityTeam? $t('overlay.customTrain.connectPlatform_tt') : ''"
+								:disabled="!$store.streamlabs.charityTeam"
+								:primary="$store.streamlabs.charityTeam != null && entry.platforms.streamlabs_charity"
+								@click.capture="!$store.streamlabs.charityTeam? openConnections() : entry.platforms.streamlabs_charity = !entry.platforms.streamlabs_charity"
 								icon="streamlabs">Streamlabs<br>charity</TTButton>
+
 							<TTButton class="platform" small
-								:primary="entry.platforms.twitch_charity"
-								@click="entry.platforms.twitch_charity = !entry.platforms.twitch_charity"
+								v-tooltip="!$store.twitchCharity.currentCharity? $t('overlay.customTrain.connectPlatform_tt') : ''"
+								:disabled="!$store.twitchCharity.currentCharity"
+								:primary="$store.twitchCharity.currentCharity && entry.platforms.twitch_charity"
+								@click.capture="!$store.twitchCharity.currentCharity? openConnections() : entry.platforms.twitch_charity = !entry.platforms.twitch_charity"
 								icon="twitch_charity">Twitch Charity</TTButton>
 						</div>
 					</div>
@@ -334,6 +357,13 @@ class OverlayParamsCustomTrain extends Vue {
 	 */
 	public simulateAmount(overlayId:string):void {
 		//TODO
+	}
+
+	/**
+	 * Opens connections params
+	 */
+	public openConnections():void {
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS);
 	}
 
 	/**

@@ -2,7 +2,7 @@
 	<div class="paramsvoicebot parameterContent">
 		<Icon name="voice" alt="voice icon" class="icon"/>
 		<div class="head">{{ $t("voice.header") }}</div>
-		
+
 		<div v-if="!voiceApiAvailable" class="card-item alert noApi">
 			<p>{{ $t("voice.unsupported_browser") }}</p>
 			<p>{{ $t("voice.unsupported_browser_detail") }}</p>
@@ -15,7 +15,7 @@
 		</div>
 
 		<VoiceControlForm v-if="obsConnected" class="form" :voiceApiAvailable="voiceApiAvailable" />
-		
+
 		<div class="card-item alert connectObs" v-if="!obsConnected">
 			<div>{{ $t("voice.need_OBS") }}</div>
 			<Button class="button" icon="obs" light alert @click="$store.params.openParamsPage(contentConnexions, subcontentObs)">{{ $t('voice.obs_connectBt') }}</Button>
@@ -41,9 +41,9 @@ import type IParameterContent from './IParameterContent';
 	emits:[]
 })
 class ParamsVoiceBot extends Vue implements IParameterContent {
-	
+
 	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
-	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get voiceApiAvailable():boolean { return VoiceController.instance.apiAvailable && !Config.instance.OBS_DOCK_CONTEXT; }
@@ -66,7 +66,7 @@ export default toNative(ParamsVoiceBot);
 		text-align: center;
 	}
 
-	.noApi, 
+	.noApi,
 	.connectObs {
 		text-align: center;
 		line-height: 1.3em;

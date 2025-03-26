@@ -584,13 +584,12 @@ export default toNative(OverlayCustomTrainRenderer);
 			overflow: visible;
 			border-radius: 50%;
 			cursor: pointer;
-			border: 1px dashed v-bind(colorBgFade);
 
 			&.picker {
 				position: absolute;
 				top: 0;
 				right: 0;
-				height: 1.2em;
+				height: 1.5rem;
 				transform: translate(25%, -50%);
 				background-color: var(--colorBg);
 			}

@@ -122,7 +122,7 @@ class ChatTipAndTrickAd extends Vue {
 
 	public get contentOverlays() { return TwitchatDataTypes.ParameterPages.OVERLAYS; }
 	public get contentChatHighlight() { return TwitchatDataTypes.ParamDeepSections.HIGHLIGHT; }
-	public get contentConnexions() { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
+	public get contentConnexions() { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 	public get contentTriggers() { return TwitchatDataTypes.ParameterPages.TRIGGERS; }
 	public get subcontentObs() { return TwitchatDataTypes.ParamDeepSections.OBS; }
 	public get subcontentSpotify() { return TwitchatDataTypes.ParamDeepSections.SPOTIFY; }

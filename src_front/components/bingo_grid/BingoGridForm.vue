@@ -460,7 +460,7 @@ class BingoGridForm extends AbstractSidePanel {
 	 * Open heat params
 	 */
 	public openHeatParams():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.HEAT);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.HEAT);
 	}
 
 	public async renderPreview(id:string, rawMessage:string):Promise<void> {
