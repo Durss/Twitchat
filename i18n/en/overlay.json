@@ -670,6 +670,7 @@
 			"param_postSuccessMessage_default": "🚂 Choo Choo mission complete! Level {'{'}LEVEL{'}'} reached with {'{'}AMOUNT{'}'}!",
 			"param_approaching": "Train approaching",
 			"param_progress": "Train progress",
+			"param_levelUp": "Train level up",
 			"param_failed": "Train failed",
 			"param_success": "Train complete",
 			"param_approachingLabel_default": "🚂 Choo Choo Train approaching!",

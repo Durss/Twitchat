@@ -103,7 +103,7 @@
 
 
 					<div class="card-item trainRender">
-						<strong><Icon name="train" />{{ $t("overlay.customTrain.param_approaching") }}</strong>
+						<strong><Icon name="timer" />{{ $t("overlay.customTrain.param_approaching") }}</strong>
 						<OverlayCustomTrainRenderer class="train"
 							:showApproaching="true"
 							:size="entry.textSize"
@@ -124,7 +124,7 @@
 					</div>
 
 					<div class="card-item trainRender">
-						<strong><Icon name="train_boost" />{{ $t("overlay.customTrain.param_progress") }}</strong>
+						<strong><Icon name="train" />{{ $t("overlay.customTrain.param_progress") }}</strong>
 						<OverlayCustomTrainRenderer class="train"
 							:showProgress="true"
 							:size="entry.textSize"
@@ -147,7 +147,24 @@
 					</div>
 
 					<div class="card-item trainRender">
-						<strong><Icon name="sub" />{{ $t("overlay.customTrain.param_success") }}</strong>
+						<strong><Icon name="train_boost" />{{ $t("overlay.customTrain.param_levelUp") }}</strong>
+						<OverlayCustomTrainRenderer class="train"
+							:showLevelUp="true"
+							:size="entry.textSize"
+							:fontFamily="entry.textFont"
+							:colorText="entry.colorFill"
+							:colorBg="entry.colorBg"
+							:levelUpEmote="entry.levelUpEmote"
+							v-model:title="entry.title"
+							v-model:levelName="entry.levelName"
+							@edit="onChange(entry)"
+							@selectEmote="($event:MouseEvent) => openEmoteSelector(entry, 'levelUp', $event)"
+							editable
+							/>
+					</div>
+
+					<div class="card-item trainRender">
+						<strong><Icon name="leaderboard" />{{ $t("overlay.customTrain.param_success") }}</strong>
 						<OverlayCustomTrainRenderer class="train"
 							:showSuccess="true"
 							:size="entry.textSize"
@@ -242,7 +259,7 @@ class OverlayParamsCustomTrain extends Vue {
 	public param_postSuccessOnChat:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_postSuccessMessage:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 
-	private emoteSelectorTarget:{entry:TwitchatDataTypes.CustomTrainData, step:"approaching"|"success"|"failed"}|null = null;
+	private emoteSelectorTarget:{entry:TwitchatDataTypes.CustomTrainData, step:"approaching"|"success"|"failed"|"levelUp"}|null = null;
 	private clickHandler!:(e:MouseEvent)=>void;
 
 	public beforeMount():void {
@@ -358,10 +375,12 @@ class OverlayParamsCustomTrain extends Vue {
 	 * Called after selecting an emote
 	 */
 	public async onSelectEmote(emote:TwitchatDataTypes.Emote):Promise<void> {
-		console.log(emote);
 		switch(this.emoteSelectorTarget?.step) {
 			case "approaching":
 				this.emoteSelectorTarget.entry.approachingEmote = emote.images.url_4x || emote.images.url_2x || emote.images.url_1x;
+				break;
+			case "levelUp":
+				this.emoteSelectorTarget.entry.levelUpEmote = emote.images.url_4x || emote.images.url_2x || emote.images.url_1x;
 				break;
 			case "failed":
 				this.emoteSelectorTarget.entry.failedEmote = emote.images.url_4x || emote.images.url_2x || emote.images.url_1x;

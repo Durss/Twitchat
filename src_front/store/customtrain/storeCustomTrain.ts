@@ -71,6 +71,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 				approachingEmote:"https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_c1f4899e65cf4f53b2fd98e15733973a/animated/light/3.0",
 				successLabel:StoreProxy.i18n.t("overlay.customTrain.param_successLabel_default"),
 				successEmote:"https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_bf888b2af57b4abd80653dff26768ae5/animated/dark/3.0",
+				levelUpEmote:"https://static-cdn.jtvnw.net/emoticons/v2/62836/static/light/3.0",
 				failedLabel:StoreProxy.i18n.t("overlay.customTrain.param_failedLabel_default"),
 				failedEmote:"https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_db3cd788399347a8b2ebfb8a85f5badb/static/light/3.0",
 				cooldownDuration_s:2*3600,

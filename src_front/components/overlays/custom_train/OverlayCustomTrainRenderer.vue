@@ -56,43 +56,55 @@
 			</div>
 		</div>
 
+		<div class="levelUp" v-if="showLevelUp !== false">
+			<div class="content">
+				<div class="emoteWall" ref="emoteWall"></div>
+				<div class="label">100%</div>
+			</div>
+			<img class="emote picker" @click="onClickEmote" :src="levelUpEmote" alt="emote">
+		</div>
+
 		<div class="approaching" v-if="showApproaching !== false">
-			<div class="emoteWall" ref="emoteWall"></div>
-			<img class="emote" @click="onClickEmote" :src="approachingEmote" alt="emote">
-			<contenteditable tag="div" class="title editableField"
-				v-model="localTitleApproaching"
-				:class="{isEmpty: (localTitleApproaching || '').trim().length === 0}"
-				:contenteditable="editable !== false"
-				:no-nl="true"
-				:no-html="true"
-				@input="onChangeTitle()" />
-			<div class="events">
-				<div v-for="i in eventCount" :key="i" :class="{done:i<=eventDone}"></div>
+			<div class="content">
+				<img class="emote" @click="onClickEmote" :src="approachingEmote" alt="emote">
+				<contenteditable tag="div" class="title editableField"
+					v-model="localTitleApproaching"
+					:class="{isEmpty: (localTitleApproaching || '').trim().length === 0}"
+					:contenteditable="editable !== false"
+					:no-nl="true"
+					:no-html="true"
+					@input="onChangeTitle()" />
+				<div class="events">
+					<div v-for="i in eventCount" :key="i" :class="{done:i<=eventDone}"></div>
+				</div>
 			</div>
 		</div>
 
 		<div class="success" v-if="showSuccess !== false">
-			<div class="emoteWall" ref="emoteWall"></div>
-			<img class="emote" @click="onClickEmote" :src="successEmote" alt="emote">
-			<contenteditable tag="div" class="title editableField"
-				v-model="localTitleSuccess"
-				:class="{isEmpty: (localTitleSuccess || '').trim().length === 0}"
-				:contenteditable="editable !== false"
-				:no-nl="true"
-				:no-html="true"
-				@input="onChangeTitle()" />
+			<div class="content">
+				<div class="emoteWall" ref="emoteWall"></div>
+				<contenteditable tag="div" class="title editableField"
+					v-model="localTitleSuccess"
+					:class="{isEmpty: (localTitleSuccess || '').trim().length === 0}"
+					:contenteditable="editable !== false"
+					:no-nl="true"
+					:no-html="true"
+					@input="onChangeTitle()" />
+			</div>
+			<img class="emote picker" @click="onClickEmote" :src="successEmote" alt="emote">
 		</div>
 
 		<div class="fail" v-if="showFail !== false">
-			<div class="emoteWall" ref="emoteWall"></div>
-			<img class="emote" @click="onClickEmote" :src="failedEmote" alt="emote">
-			<contenteditable tag="div" class="title editableField"
-				v-model="localTitleFail"
-				:class="{isEmpty: (localTitleFail || '').trim().length === 0}"
-				:contenteditable="editable !== false"
-				:no-nl="true"
-				:no-html="true"
-				@input="onChangeTitle()" />
+			<div class="content">
+				<img class="emote" @click="onClickEmote" :src="failedEmote" alt="emote">
+				<contenteditable tag="div" class="title editableField"
+					v-model="localTitleFail"
+					:class="{isEmpty: (localTitleFail || '').trim().length === 0}"
+					:contenteditable="editable !== false"
+					:no-nl="true"
+					:no-html="true"
+					@input="onChangeTitle()" />
+			</div>
 		</div>
 	</div>
 </template>
@@ -169,6 +181,9 @@ class OverlayCustomTrainRenderer extends Vue {
 	public showApproaching!:boolean;
 
 	@Prop({default: false})
+	public showLevelUp!:boolean;
+
+	@Prop({default: false})
 	public showSuccess!:boolean;
 
 	@Prop({default: false})
@@ -186,6 +201,9 @@ class OverlayCustomTrainRenderer extends Vue {
 	@Prop({default: ""})
 	public failedEmote!:string;
 
+	@Prop({default: ""})
+	public levelUpEmote!:string;
+
 	public easedPercent:number = 0;
 	public localTitle:string = "";
 	public localTitleApproaching:string = "";
@@ -199,6 +217,8 @@ class OverlayCustomTrainRenderer extends Vue {
 	public get cssSize(){ return this.size + 'px'; }
 
 	public get colorTextFade(){ return this.colorText+"80"; }
+
+	public get colorBgFade(){ return this.colorBg+"80"; }
 
 	public get width():string { return (this.easedPercent*100)+'%'; }
 
@@ -231,6 +251,24 @@ class OverlayCustomTrainRenderer extends Vue {
 		watch(() => this.levelName,  () => {
 			this.localLevelName = this.levelName;
 		}, {immediate:true});
+
+		watch(() => this.successEmote,  () => {
+			this.imageList.forEach(img => {
+				img.src = this.successEmote;
+			});
+		});
+
+		watch(() => this.levelUpEmote,  () => {
+			this.imageList.forEach(img => {
+				img.src = this.levelUpEmote;
+			});
+		});
+
+		watch(() => this.approachingEmote,  () => {
+			this.imageList.forEach(img => {
+				img.src = this.approachingEmote;
+			});
+		});
 
 		this.createEmoteWall();
 	}
@@ -275,8 +313,11 @@ class OverlayCustomTrainRenderer extends Vue {
 
 	public createEmoteWall():void {
 		// if(!this.successEmote) return;
+		const holder = this.$refs.emoteWall as HTMLElement;
+		if(!holder) return;
 
-		const filePath = this.successEmote || this.failedEmote || this.approachingEmote;
+		const filePath = this.successEmote || this.levelUpEmote || this.failedEmote || this.approachingEmote;
+
 		const bounds = this.$el.getBoundingClientRect();
 		const imgSize = bounds.height / 1.5;
 		const paddingScale = 4;
@@ -284,9 +325,7 @@ class OverlayCustomTrainRenderer extends Vue {
 		const paddingH = -bounds.height / 5 * 1/paddingScale;
 		const rows = Math.ceil(bounds.height / (imgSize + paddingH)) + 2;
 		const cols = Math.ceil(bounds.width / (imgSize + paddingW));
-		const holder = this.$refs.emoteWall as HTMLElement;
 		this.imageList = [];
-		if(!holder) return;
 
 		for (let row = 0; row < rows; row++) {
 			for (let col = 0; col < cols; col++) {
@@ -295,14 +334,13 @@ class OverlayCustomTrainRenderer extends Vue {
 				img.style.position = 'absolute';
 				img.style.width = `${imgSize}px`;
 				img.style.height = `${imgSize}px`;
-				img.style.opacity = `${Math.random()*.5}`;
+				img.style.opacity = `${Math.random()*.75}`;
 				img.style.transform = 'rotate('+(Math.random()-Math.random())*90+'deg)';
 				this.imageList.push(img);
 				holder.appendChild(img);
 				gsap.fromTo(img, {scale:.8}, {scale:1.25, delay: Math.random() * 2, repeat:-1, yoyo:true, duration: 1});
 			}
 		}
-		console.log(this.imageList.length)
 
 		let offset = 0;
 		const animate = ()=>{
@@ -341,7 +379,6 @@ export default toNative(OverlayCustomTrainRenderer);
 	color: var(--colorText);
 	background-color: var(--colorBg);
 	width: 100%;
-	overflow: hidden;
 	--maskWidth: ~"max(0em, v-bind(width))";
 	--colorBg: v-bind(colorBg);
 	--colorText: v-bind(colorText);
@@ -463,51 +500,72 @@ export default toNative(OverlayCustomTrainRenderer);
 		}
 	}
 
-	.approaching, .success, .fail {
+	.approaching, .success, .fail, .levelUp {
 		position: absolute;
+		top: 0;
+		left: 0;
 		z-index: 10;
 		width: 100%;
 		height: 100%;
-		background-color: var(--colorBg);
-		top: 0;
-		left: 0;
-		display: flex;
-		flex-direction: row;
-		gap: 1em;
-		align-items: center;
-		justify-content: center;
-		.emote {
-			margin-left: .25em;
-			height: 2em;
-			cursor: pointer;
-		}
-
-		.title {
-			flex: 1;
-			text-align: center;
-		}
-
-		&:not(.approaching) > .title {
-			margin-right: 1em;
-		}
-
-		.events {
-			gap: .2em;
+		.content {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			z-index: 0;
+			border-radius: 20em;
+			overflow: hidden;
+			background-color: var(--colorText);
+			color: var(--colorBg);
+			top: 0;
+			left: 0;
 			display: flex;
 			flex-direction: row;
-			margin-right: .5em;
-			div {
-				width: 1em;
-				height: 1em;
-				background-color: var(--colorText);
-				border-radius: 50%;
-				opacity: .5;
-				transition: opacity .2s;
+			gap: 1em;
+			align-items: center;
+			justify-content: center;
+			.emote {
+				margin-left: .25em;
+				height: 2em;
+			}
 
-				&.done {
-					opacity: 1;
+			.label {
+				font-weight: bold;
+				font-size: 1.5em;
+			}
+
+			.title {
+				flex: 1;
+				text-align: center;
+			}
+
+			.events {
+				gap: .2em;
+				display: flex;
+				flex-direction: row;
+				margin-right: .5em;
+				div {
+					width: 1em;
+					height: 1em;
+					background-color: var(--colorBg);
+					border-radius: 50%;
+					opacity: .5;
+					transition: opacity .2s;
+
+					&.done {
+						opacity: 1;
+					}
 				}
 			}
+		}
+
+		&.approaching > .content,
+		&.fail > .content {
+			background-color: var(--colorBg);
+			color: var(--colorText);
+		}
+
+		&:not(.approaching) > .content > .title {
+			margin-right: 1em;
 		}
 	}
 
@@ -525,6 +583,17 @@ export default toNative(OverlayCustomTrainRenderer);
 			padding: .1em;
 			overflow: visible;
 			border-radius: 50%;
+			cursor: pointer;
+			border: 1px dashed v-bind(colorBgFade);
+
+			&.picker {
+				position: absolute;
+				top: 0;
+				right: 0;
+				height: 1.2em;
+				transform: translate(25%, -50%);
+				background-color: var(--colorBg);
+			}
 		}
 	}
 

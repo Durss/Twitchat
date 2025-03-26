@@ -2264,6 +2264,10 @@ export namespace TwitchatDataTypes {
 		 */
 		successEmote:string;
 		/**
+		 * Emote for the "level up" sequence
+		 */
+		levelUpEmote:string;
+		/**
 		 * Platforms allowed to make train progress
 		 */
 		platforms:{
