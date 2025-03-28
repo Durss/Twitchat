@@ -2512,6 +2512,7 @@ const UserDataSchema = {
 							postLevelUpChatMessage:{ type: "string" },
 							postSuccessOnChat:{ type: "boolean" },
 							postSuccessChatMessage:{ type: "string" },
+							levelUpLabel:{ type: "string" },
 							approachingLabel:{ type: "string" },
 							approachingEmote:{ type: "string" },
 							failedLabel:{ type: "string" },

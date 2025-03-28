@@ -46,10 +46,11 @@
 						:sourceTransform="{width:1800, height:350}" />
 					</div>
 
-					<!-- <form class="card-item dark simulate" @submit.prevent="simulateAmount(entry.id)">
-						<input type="number" step="any" v-model="simulatedAmount" />
-						<TTButton icon="test" type="submit">{{ $t("donation_goals.simulate_bt") }}</TTButton>
-					</form> -->
+					<div class="ctas">
+						<TTButton icon="test"
+						@click="simulateTrain(entry.id)"
+						:disabled="(entry.levelAmounts.match(/(\d|\.)+/g) || []).length <= 1">{{ $t("overlay.customTrain.simulate_bt") }}</TTButton>
+					</div>
 
 					<div class="card-item platforms">
 						<strong>{{ $t("overlay.customTrain.param_platforms") }}</strong>
@@ -58,56 +59,59 @@
 								v-tooltip="!$store.streamlabs.connected? $t('overlay.customTrain.connectPlatform_tt') : ''"
 								:disabled="!$store.streamlabs.connected"
 								:primary="$store.streamlabs.connected && entry.platforms.streamlabs"
-								@click.capture="!$store.streamlabs.connected? openConnections() : entry.platforms.streamlabs = !entry.platforms.streamlabs"
+								@click.capture="!$store.streamlabs.connected? openConnections('streamlabs') : entry.platforms.streamlabs = !entry.platforms.streamlabs"
 								icon="streamlabs">Streamlabs</TTButton>
 
 							<TTButton class="platform" small
 								v-tooltip="!$store.streamelements.connected? $t('overlay.customTrain.connectPlatform_tt') : ''"
 								:disabled="!$store.streamelements.connected"
 								:primary="$store.streamelements.connected && entry.platforms.streamelements"
-								@click.capture="!$store.streamelements.connected? openConnections() : entry.platforms.streamelements = !entry.platforms.streamelements"
+								@click.capture="!$store.streamelements.connected? openConnections('streamelements') : entry.platforms.streamelements = !entry.platforms.streamelements"
 								icon="streamelements">Stream<br>Elements</TTButton>
 
 							<TTButton class="platform" small
 								v-tooltip="!$store.tipeee.connected? $t('overlay.customTrain.connectPlatform_tt') : ''"
 								:disabled="!$store.tipeee.connected"
 								:primary="$store.tipeee.connected && entry.platforms.tipeee"
-								@click.capture="!$store.tipeee.connected? openConnections() : entry.platforms.tipeee = !entry.platforms.tipeee"
+								@click.capture="!$store.tipeee.connected? openConnections('tipeee') : entry.platforms.tipeee = !entry.platforms.tipeee"
 								icon="tipeee">Tipeee</TTButton>
 
 							<TTButton class="platform" small
 								v-tooltip="!$store.kofi.connected? $t('overlay.customTrain.connectPlatform_tt') : ''"
 								:disabled="!$store.kofi.connected"
 								:primary="$store.kofi.connected && entry.platforms.kofi"
-								@click.capture="!$store.kofi.connected? openConnections() : entry.platforms.kofi = !entry.platforms.kofi"
+								@click.capture="!$store.kofi.connected? openConnections('kofi') : entry.platforms.kofi = !entry.platforms.kofi"
 								icon="kofi">Ko-Fi</TTButton>
 
 							<TTButton class="platform" small
 								v-tooltip="!$store.patreon.connected? $t('overlay.customTrain.connectPlatform_tt') : ''"
 								:disabled="!$store.patreon.connected"
 								:primary="$store.patreon.connected && entry.platforms.patreon"
-								@click.capture="!$store.patreon.connected? openConnections() : entry.platforms.patreon = !entry.platforms.patreon"
+								@click.capture="!$store.patreon.connected? openConnections('patreon') : entry.platforms.patreon = !entry.platforms.patreon"
 								icon="patreon">Patreon</TTButton>
 
 							<TTButton class="platform" small
 								v-tooltip="!$store.tiltify.connected? $t('overlay.customTrain.connectPlatform_tt') : ''"
 								:disabled="!$store.tiltify.connected"
 								:primary="$store.tiltify.connected && entry.platforms.tiltify"
-								@click.capture="!$store.tiltify.connected? openConnections() : entry.platforms.tiltify = !entry.platforms.tiltify"
+								@click.capture="!$store.tiltify.connected? openConnections('tiltify') : entry.platforms.tiltify = !entry.platforms.tiltify"
 								icon="tiltify">Tiltify</TTButton>
 
 							<TTButton class="platform" small
 								v-tooltip="!$store.streamlabs.charityTeam? $t('overlay.customTrain.connectPlatform_tt') : ''"
 								:disabled="!$store.streamlabs.charityTeam"
 								:primary="$store.streamlabs.charityTeam != null && entry.platforms.streamlabs_charity"
-								@click.capture="!$store.streamlabs.charityTeam? openConnections() : entry.platforms.streamlabs_charity = !entry.platforms.streamlabs_charity"
+								@click.capture="!$store.streamlabs.charityTeam? openConnections('streamlabs') : entry.platforms.streamlabs_charity = !entry.platforms.streamlabs_charity"
 								icon="streamlabs">Streamlabs<br>charity</TTButton>
 
 							<TTButton class="platform" small
-								v-tooltip="!$store.twitchCharity.currentCharity? $t('overlay.customTrain.connectPlatform_tt') : ''"
-								:disabled="!$store.twitchCharity.currentCharity"
+								target="_blank"
+								v-tooltip="!$store.twitchCharity.currentCharity? $t('overlay.customTrain.connectPlatform_twitchCharity_tt') : ''"
+								:class="{disabled:!$store.twitchCharity.currentCharity}"
 								:primary="$store.twitchCharity.currentCharity && entry.platforms.twitch_charity"
-								@click.capture="!$store.twitchCharity.currentCharity? openConnections() : entry.platforms.twitch_charity = !entry.platforms.twitch_charity"
+								:type="!$store.twitchCharity.currentCharity? 'link' : 'button'"
+								:href="!$store.twitchCharity.currentCharity? 'https://dashboard.twitch.tv/charity/' : null"
+								@click.capture="!$store.twitchCharity.currentCharity? null : entry.platforms.twitch_charity = !entry.platforms.twitch_charity"
 								icon="twitch_charity">Twitch Charity</TTButton>
 						</div>
 					</div>
@@ -163,7 +167,17 @@
 							editable
 							/>
 						<ParamItem :paramData="param_levelAmounts[entry.id]" v-model="entry.levelAmounts" @change="onChange(entry)" :childLevel="1" noBackground/>
-						<div class="paramitem levelCount">{{$t("overlay.customTrain.param_levelAmounts_count", {COUNT:entry.levelAmounts.split(/\W+/g).length})}}</div>
+						<div class="paramitem levelCount">{{$t("overlay.customTrain.param_levelAmounts_count", {COUNT:(entry.levelAmounts.match(/(\d|\.)+/g) || []).length})}}</div>
+						<i18n-t scope="global" class="card-item premium plz" tag="div"
+						keypath="overlay.customTrain.param_levelAmounts_plz"
+						v-if="parseFloat((entry.levelAmounts.match(/(\d|\.)+/g) || []).pop() || '') > 1000">
+							<template #LINK>
+								<a @click.prevent="openDonationForm()">{{ $t("overlay.customTrain.param_levelAmounts_plz_link") }}</a>
+							</template>
+							<template #EMOJI>
+								<br><span class="head">🥺</span><br>👉👈
+							</template>
+						</i18n-t>
 					</div>
 
 					<div class="card-item trainRender">
@@ -174,6 +188,7 @@
 							:fontFamily="entry.textFont"
 							:colorText="entry.colorFill"
 							:colorBg="entry.colorBg"
+							:titleLevelUp="entry.levelUpLabel"
 							:levelUpEmote="entry.levelUpEmote"
 							v-model:title="entry.title"
 							v-model:levelName="entry.levelName"
@@ -186,6 +201,31 @@
 						<ParamItem :paramData="param_postLevelUpOnChat[entry.id]" v-model="entry.postLevelUpOnChat" @change="onChange(entry)" :childLevel="1" noBackground>
 							<ParamItem :paramData="param_postLevelUpMessage[entry.id]" v-model="entry.postLevelUpChatMessage" @change="onChange(entry)" :childLevel="1" noBackground/>
 						</ParamItem>
+					</div>
+
+					<div class="card-item trainRender">
+						<strong><Icon name="sub" />{{ $t("overlay.customTrain.param_record") }}</strong>
+						<OverlayCustomTrainRenderer class="train"
+							:showRecord="true"
+							:size="entry.textSize"
+							:fontFamily="entry.textFont"
+							:colorText="entry.colorFill"
+							:colorBg="entry.colorBg"
+							:recordColorText="entry.recordColorFill"
+							:recordColorBg="entry.recordColorBg"
+							:titleRecord="entry.recordLabel"
+							:recordEmote="entry.recordEmote"
+							:isRecord="true"
+							v-model:title="entry.recordLabel"
+							v-model:levelName="entry.levelName"
+							@edit="onChange(entry)"
+							@selectEmote="($event:MouseEvent) => openEmoteSelector(entry, 'levelUp', $event)"
+							editable
+							/>
+						<div class="paramitem colors">
+							<ParamItem class="child" :paramData="param_recordColorFill[entry.id]" v-model="entry.recordColorFill" @change="onChange(entry)" noBackground />
+							<ParamItem :paramData="param_recordColorBg[entry.id]" v-model="entry.recordColorBg" @change="onChange(entry)" noBackground />
+						</div>
 					</div>
 
 					<div class="card-item trainRender">
@@ -228,7 +268,6 @@
 							editable
 							/>
 					</div>
-
 				</div>
 			</ToggleBlock>
 		</VueDraggable>
@@ -266,13 +305,14 @@ import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
 })
 class OverlayParamsCustomTrain extends Vue {
 
-	public simulatedAmount:number = 10;
 	public showEmoteSelector:boolean = false;
 	public emoteSelector_y:string = "0";
 	public emoteSelector_x:string = "0";
 	public emoteSelectorOrigin:{x:number, y:number} = {x:0, y:0};
 	public param_colorFill:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_colorBg:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_recordColorFill:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_recordColorBg:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_textFont:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_textSize:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_currency:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
@@ -309,10 +349,12 @@ class OverlayParamsCustomTrain extends Vue {
 			if(this.param_colorFill[id]) return;
 			this.param_colorFill[id]			= {type:"color", value:"", labelKey:"overlay.customTrain.param_colorFill", icon:"color"};
 			this.param_colorBg[id]				= {type:"color", value:"", labelKey:"overlay.customTrain.param_colorBg", icon:"color"};
+			this.param_recordColorFill[id]		= {type:"color", value:"", labelKey:"overlay.customTrain.param_recordColorFill", icon:"color"};
+			this.param_recordColorBg[id]		= {type:"color", value:"", labelKey:"overlay.customTrain.param_recordColorBg", icon:"color"};
 			this.param_textFont[id]				= {type:"font", value:"", labelKey:"overlay.customTrain.param_textFont", icon:"font"};
 			this.param_textSize[id]				= {type:"slider", value:20, min:15, max:40, labelKey:"overlay.customTrain.param_textSize", icon:"fontSize"};
 			this.param_currency[id]				= {type:"string", value:"", labelKey:"overlay.customTrain.param_currency", icon:"coin"};
-			this.param_triggerEventCount[id]	= {type:"number", value:3, min:1, max:3, labelKey:"overlay.customTrain.param_triggerEventCount", icon:"notification"};
+			this.param_triggerEventCount[id]	= {type:"number", value:3, min:1, max:5, labelKey:"overlay.customTrain.param_triggerEventCount", icon:"notification"};
 			this.param_cooldownDuration_ms[id]	= {type:"duration", value:0, min:30*60, max:24*3600, labelKey:"overlay.customTrain.param_cooldownDuration_ms", icon:"timer"};
 			this.param_levelsDuration_ms[id]	= {type:"duration", value:5*6, min:30, max:30*60, labelKey:"overlay.customTrain.param_levelsDuration_ms", icon:"countdown"};
 			this.param_postLevelUpOnChat[id]	= {type:"boolean", value:false, labelKey:"overlay.customTrain.param_postLevelUpOnChat", icon:"whispers"};
@@ -326,6 +368,11 @@ class OverlayParamsCustomTrain extends Vue {
 				{tag:"AMOUNT", descKey:"triggers.placeholders.customTrain_amount_left" },
 			];
 			this.param_postSuccessMessage[id].placeholderList = this.param_postLevelUpMessage[id].placeholderList.concat();
+
+			const levels = (entry.levelAmounts.match(/(\d|\.)+/g) || [])
+					.filter(v=> !isNaN(parseFloat(v)))
+					.sort((a,b)=>parseFloat(a) - parseFloat(b));
+			entry.levelAmounts = levels.join(", ");
 		});
 	}
 
@@ -335,7 +382,7 @@ class OverlayParamsCustomTrain extends Vue {
 	 */
 	public onChange(entry:TwitchatDataTypes.CustomTrainData):void {
 		//Make sure user doesn't hack this value
-		entry.triggerEventCount = Math.max(Math.min(entry.triggerEventCount, 3), 0);
+		entry.triggerEventCount = Math.max(Math.min(entry.triggerEventCount, this.param_triggerEventCount[entry.id].max!), 0);
 
 		this.$store.customTrain.saveData();
 		this.$store.customTrain.broadcastStates(entry.id);
@@ -359,15 +406,22 @@ class OverlayParamsCustomTrain extends Vue {
 	/**
 	 * Tests the text
 	 */
-	public simulateAmount(overlayId:string):void {
-		//TODO
+	public simulateTrain(overlayId:string):void {
+		this.$store.customTrain.simulateTrain(overlayId);
 	}
 
 	/**
 	 * Opens connections params
 	 */
-	public openConnections():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS);
+	public openConnections(subSection:TwitchatDataTypes.ParamDeepSectionsStringType):void {
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, subSection);
+	}
+
+	/**
+	 * Opens donation form
+	 */
+	public openDonationForm():void {
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.DONATE);
 	}
 
 	/**
@@ -393,6 +447,9 @@ class OverlayParamsCustomTrain extends Vue {
 		this.replaceEmoteSelector();
 	}
 
+	/**
+	 * Replaces emote selector position
+	 */
 	public replaceEmoteSelector():void {
 		const bounds = (this.$refs["emoteSelector"] as Vue).$el.getBoundingClientRect();
 		let x = this.emoteSelectorOrigin.x < window.innerWidth/2? this.emoteSelectorOrigin.x : this.emoteSelectorOrigin.x - bounds.width;
@@ -402,7 +459,6 @@ class OverlayParamsCustomTrain extends Vue {
 		if(y + bounds.height > window.innerHeight - marginBottom) y = window.innerHeight - marginBottom - bounds.height;
 		this.emoteSelector_x = x + "px";
 		this.emoteSelector_y = y + "px";
-
 	}
 
 	/**
@@ -545,12 +601,45 @@ export default toNative(OverlayParamsCustomTrain);
 				text-align: center;
 			}
 		}
+		.plz {
+			text-align: center;
+			white-space: pre-line;
+			background-color: var(--color-premium-fader);
+			.head {
+				display: block;
+				margin-top: .25em;
+				margin-bottom: -.9em;
+				font-size: 1.5em;
+			}
+		}
 
 		strong {
 			.icon {
 				height: 1em;
 				width: 1em;
 				margin-right: .5em;
+			}
+		}
+		.colors {
+			column-gap: 2em;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			align-items: center;
+			margin-left: 1.5em;
+			* {
+				margin: 0;
+				width: fit-content;
+				:deep(.holder) {
+					flex-wrap: nowrap;
+				}
+				:deep(label) {
+					flex: 0;
+				}
+				:deep(.inputHolder) {
+					width:50px;
+				}
 			}
 		}
 	}
@@ -574,6 +663,10 @@ export default toNative(OverlayParamsCustomTrain);
 				}
 			}
 		}
+	}
+
+	.ctas {
+		text-align: center;
 	}
 }
 </style>

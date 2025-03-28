@@ -2236,6 +2236,10 @@ export namespace TwitchatDataTypes {
 		 */
 		postSuccessChatMessage:string;
 		/**
+		 * Text for the "level X complete"
+		 */
+		levelUpLabel:string;
+		/**
 		 * Text for the "train appraoching"
 		 */
 		approachingLabel:string;
@@ -2260,6 +2264,22 @@ export namespace TwitchatDataTypes {
 		 */
 		successEmote:string;
 		/**
+		 * Text displayed on all time record
+		 */
+		recordLabel:string;
+		/**
+		 * Emote for all time record
+		 */
+		recordEmote:string;
+		/**
+		 * Fill color for all time record
+		 */
+		recordColorFill:string;
+		/**
+		 * Background color for all time record
+		 */
+		recordColorBg:string;
+		/**
 		 * Emote for the "level up" sequence
 		 */
 		levelUpEmote:string;
@@ -2268,6 +2288,15 @@ export namespace TwitchatDataTypes {
 		 * coma seperated numbers
 		 */
 		levelAmounts:string;
+		/**
+		 * Current all time record info
+		 */
+		allTimeRecord?: {
+			date:number;
+			amount:number;
+			level:number;
+			percent:number;
+		};
 		/**
 		 * Platforms allowed to make train progress
 		 */
@@ -2280,8 +2309,44 @@ export namespace TwitchatDataTypes {
 			tiltify:boolean;
 			streamlabs_charity:boolean;
 			twitch_charity:boolean;
-			counter:boolean;
 		}
+	}
+
+	export interface CustomTrainState {
+		/**
+		 * Date at which the train approached (0 if not yet)
+		 */
+		approached_at:number;
+		/**
+		 * Date at which the train started (0 if not yet)
+		 */
+		levelStarted_at:number;
+		/**
+		 * Current train amount
+		 */
+		amount:number;
+		/**
+		 * Activities for this train
+		 */
+		activities:{
+			id:string;
+			/**
+			 * Platform used to make the donation
+			 */
+			platform:keyof CustomTrainData["platforms"]|"trigger";
+			/**
+			 * Donation amount
+			 */
+			amount:number;
+			/**
+			 * Activity date
+			 */
+			created_at:number;
+			/**
+			 * Message that created this activity
+			 */
+			messageId:string;
+		}[];
 	}
 
 	/**

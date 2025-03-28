@@ -1488,11 +1488,13 @@ export const storeChat = defineStore('chat', {
 								StoreProxy.labels.updateLabelValue("KOFI_TIP_NAME", message.userName);
 								StoreProxy.labels.updateLabelValue("KOFI_TIP_AMOUNT", message.amountFormatted);
 								sRaffle.checkRaffleJoin(message);
+								StoreProxy.customTrain.registerActivity(message.id, "kofi", message.amount);
 							}else
 							if(message.eventType == "merch") {
 								StoreProxy.labels.updateLabelValue("KOFI_MERCH_USER", message.userName);
 								StoreProxy.labels.updateLabelValue("KOFI_MERCH_AMOUNT", message.amountFormatted);
 								StoreProxy.labels.updateLabelValue("KOFI_MERCH_NAME", message.products[0].name || "");
+								StoreProxy.customTrain.registerActivity(message.id, "kofi", message.amount);
 							}
 						}
 						break;
@@ -1506,6 +1508,7 @@ export const storeChat = defineStore('chat', {
 								StoreProxy.labels.updateLabelValue("STREAMELEMENTS_TIP_NAME", message.userName);
 								StoreProxy.labels.updateLabelValue("STREAMELEMENTS_TIP_AMOUNT", message.amountFormatted);
 								sRaffle.checkRaffleJoin(message);
+								StoreProxy.customTrain.registerActivity(message.id, "streamelements", message.amount);
 							}
 						}
 						break;
@@ -1519,6 +1522,7 @@ export const storeChat = defineStore('chat', {
 								StoreProxy.labels.updateLabelValue("STREAMLABS_TIP_NAME", message.userName);
 								StoreProxy.labels.updateLabelValue("STREAMLABS_TIP_AMOUNT", message.amountFormatted);
 								sRaffle.checkRaffleJoin(message);
+								StoreProxy.customTrain.registerActivity(message.id, "streamlabs", message.amount);
 							}else
 							if(message.eventType == "merch") {
 								StoreProxy.labels.updateLabelValue("STREAMLABS_MERCH_USER", message.userName);
@@ -1531,6 +1535,7 @@ export const storeChat = defineStore('chat', {
 								StoreProxy.donationGoals.onDonation(message.userName, message.amount.toString(), "streamlabs_charity");
 								StoreProxy.donationGoals.onSourceValueUpdate("streamlabs_charity", message.campaign.id);
 								sRaffle.checkRaffleJoin(message);
+								StoreProxy.customTrain.registerActivity(message.id, "streamlabs_charity", message.amount);
 							}
 						}
 						break;
@@ -1544,6 +1549,7 @@ export const storeChat = defineStore('chat', {
 								StoreProxy.labels.updateLabelValue("TIPEEE_TIP_NAME", message.userName);
 								StoreProxy.labels.updateLabelValue("TIPEEE_TIP_AMOUNT", message.amountFormatted);
 								sRaffle.checkRaffleJoin(message);
+								StoreProxy.customTrain.registerActivity(message.id, "tipeee", message.amount);
 							}
 						}
 						break;
@@ -1558,6 +1564,7 @@ export const storeChat = defineStore('chat', {
 							StoreProxy.labels.updateLabelValue("TWITCH_CHARITY_LAST_TIP_AMOUNT", message.amountFormatted);
 							sRaffle.checkRaffleJoin(message);
 							StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, message.amount.toString(), "twitch_charity");
+							StoreProxy.customTrain.registerActivity(message.id, "twitch_charity", message.amount);
 						}
 						break;
 					}
@@ -1593,6 +1600,7 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.updateLabelValue("PATREON_AVATAR", message.user.avatar);
 						StoreProxy.labels.updateLabelValue("PATREON_TITLE", message.tier.title);
 						StoreProxy.labels.updateLabelValue("PATREON_AMOUNT", message.tier.amount);
+						StoreProxy.customTrain.registerActivity(message.id, "patreon", message.tier.amount);
 						break;
 					}
 
@@ -1600,6 +1608,7 @@ export const storeChat = defineStore('chat', {
 					case TwitchatDataTypes.TwitchatMessageType.TILTIFY: {
 						StoreProxy.labels.updateLabelValue("TILTIFY_LAST_TIP_USER", message.userName);
 						StoreProxy.labels.updateLabelValue("TILTIFY_LAST_TIP_AMOUNT", message.amount);
+						StoreProxy.customTrain.registerActivity(message.id, "tiltify", message.amount);
 						break;
 					}
 

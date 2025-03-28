@@ -561,7 +561,7 @@ export default toNative(EmoteSelector);
 	}
 	input {
 		width: 100%;
-		color:var(--color-secon);
+		color:var(--color-text);
 	}
 
 	&.popout {
