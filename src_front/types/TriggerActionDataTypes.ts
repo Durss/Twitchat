@@ -2326,7 +2326,6 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	];
 
 	map[TriggerTypes.BINGO_GRID_LINE] =
-	map[TriggerTypes.BINGO_GRID_CELL] =
 	map[TriggerTypes.BINGO_GRID_ALL] = [
 		{tag:USER_NAME, descKey:'triggers.placeholders.user', pointer:"user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{tag:USER_DISPLAY_NAME, descKey:'triggers.placeholders.user_customName', pointer:"user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
@@ -2342,6 +2341,11 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"ROW_INDEX", descKey:'triggers.placeholders.bingo_grid_row', pointer:"rowIndex", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{tag:"DIAG_INDEX", descKey:'triggers.placeholders.bingo_grid_diag', pointer:"diagonal", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 	];
+
+	map[TriggerTypes.BINGO_GRID_CELL] = [...map[TriggerTypes.BINGO_GRID_ALL]!,
+		{tag:"CELL_LABEL", descKey:'triggers.placeholders.bingo_grid_cell_label', pointer:"cellLabel", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
+	];
+
 	map[TriggerTypes.BINGO_GRID_RESET] = [
 		{tag:"GRID_ID", descKey:'triggers.placeholders.bingo_grid_id', pointer:"bingoGridId", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{tag:"GRID_NAME", descKey:'triggers.placeholders.bingo_grid_name', pointer:"bingoGridName", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,

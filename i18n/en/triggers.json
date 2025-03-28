@@ -965,6 +965,7 @@
 			"bingo_grid_count": "Bingo count",
 			"bingo_grid_cell_x": "X coordinates of the ticked cell",
 			"bingo_grid_cell_y": "Y coordinates of the ticked cell",
+			"bingo_grid_cell_label": "Label of the ticked cell",
 			"bingo_grid_col": "Index of the filled column",
 			"bingo_grid_row": "Index of the filled row",
 			"bingo_grid_diag": "Index of the filled diagonal",

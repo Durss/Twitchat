@@ -965,6 +965,7 @@
 			"bingo_grid_count": "Nombre de bingos",
 			"bingo_grid_cell_x": "Coordonnée X de la case cochée",
 			"bingo_grid_cell_y": "Coordonnée Y de la case cochée",
+			"bingo_grid_cell_label": "Texte de la case cochée",
 			"bingo_grid_col": "Index de la colonne remplie",
 			"bingo_grid_row": "Index de la ligne remplie",
 			"bingo_grid_diag": "Diagonale remplie (0=↘ 1=↙)",

@@ -2180,6 +2180,10 @@ export namespace TwitchatDataTypes {
 		id:string;
 		enabled:boolean;
 		/**
+		 * Is train being tested ?
+		 */
+		testing:boolean;
+		/**
 		 * Optional overlay title
 		 */
 		title:string;
@@ -5422,6 +5426,10 @@ export namespace TwitchatDataTypes {
 			x:number;
 			y:number;
 		};
+		/**
+		 * Label of the ticked cell if any
+		 */
+		cellLabel:string;
 		/**
 		 * Col index that's been filled
 		 * -1 = none
