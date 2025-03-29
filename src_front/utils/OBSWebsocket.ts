@@ -1,5 +1,5 @@
 import StoreProxy from '@/store/StoreProxy';
-import {OBSWebSocket as ObsWS , RequestBatchExecutionType, type RequestBatchRequest } from 'obs-websocket-js';
+import { OBSWebSocket as ObsWS, RequestBatchExecutionType, type RequestBatchRequest } from 'obs-websocket-js';
 import type { JsonArray, JsonObject } from 'type-fest';
 import { reactive } from 'vue';
 import { EventDispatcher } from '../events/EventDispatcher';
@@ -7,8 +7,6 @@ import type { TwitchatActionType, TwitchatEventType } from '../events/TwitchatEv
 import TwitchatEvent from '../events/TwitchatEvent';
 import Logger from './Logger';
 import Utils from './Utils';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TriggerActionHandler from './triggers/TriggerActionHandler';
 
 /**
 * Created : 29/03/2022
@@ -1210,15 +1208,7 @@ export default class OBSWebSocket extends EventDispatcher {
 
 		this.obs.on("RecordStateChanged", async (e:{ outputActive: boolean; outputState: string; outputPath: string; }) => {
 			if(e.outputState != "OBS_WEBSOCKET_OUTPUT_STOPPED" && e.outputState != "OBS_WEBSOCKET_OUTPUT_STARTED") return;
-
-			const event = e.outputActive? TwitchatDataTypes.TwitchatMessageType.OBS_RECORDING_START : TwitchatDataTypes.TwitchatMessageType.OBS_RECORDING_STOP;
-			TriggerActionHandler.instance.execute({
-				id:Utils.getUUID(),
-				channel_id:StoreProxy.auth.twitch.user.id,
-				date:Date.now(),
-				platform:"twitchat",
-				type:event
-			}, false);
+			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_RECORD_STATE, e));
 		});
 	}
 

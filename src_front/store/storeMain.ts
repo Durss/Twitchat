@@ -670,6 +670,21 @@ export const storeMain = defineStore("main", {
 			});
 
 			/**
+			 * Called when streaming is started/stoped on OBS
+			 */
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_RECORD_STATE, (event:TwitchatEvent):void => {
+				const data = (event.data as unknown) as {outputActive: boolean; outputState: string; outputPath: string};
+				const type = data.outputActive? TwitchatDataTypes.TwitchatMessageType.OBS_RECORDING_START : TwitchatDataTypes.TwitchatMessageType.OBS_RECORDING_STOP;
+				TriggerActionHandler.instance.execute({
+					id:Utils.getUUID(),
+					channel_id:StoreProxy.auth.twitch.user.id,
+					date:Date.now(),
+					platform:"twitchat",
+					type:type
+				}, false);
+			});
+
+			/**
 			 * Called when a playback event occurs on a media source
 			 * @param event
 			 */
