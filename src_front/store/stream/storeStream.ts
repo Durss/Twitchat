@@ -7,7 +7,6 @@ import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import TriggerUtils from '@/utils/TriggerUtils';
 import Utils from '@/utils/Utils';
-import type { PubSubDataTypes } from '@/utils/twitch/PubSubDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonObject } from "type-fest";
