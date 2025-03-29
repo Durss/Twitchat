@@ -1170,7 +1170,7 @@ export const storeChat = defineStore('chat', {
 							}
 							//Reset ad schedule if necessary
 							if(!isFromRemoteChan) {
-								if(/\b(?:https?:\/\/)twitchat\.fr\b/gi.test(message.message)) {
+								if(/\b(?:https?:\/\/)?twitchat\.fr\b/gi.test(message.message)) {
 									SchedulerHelper.instance.resetAdSchedule(message);
 								}
 								if(!message.user.channelInfo[message.channel_id].is_broadcaster) {

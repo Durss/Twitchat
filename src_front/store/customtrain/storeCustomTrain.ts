@@ -8,6 +8,9 @@ import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { ICustomTrainActions, ICustomTrainGetters, ICustomTrainState } from '../StoreProxy';
 import StoreProxy from "../StoreProxy";
+import SetTimeoutWorker from "@/utils/SeTimeoutWorker";
+
+let simulationID = 0;
 
 export const storeCustomTrain = defineStore('customTrain', {
 	state: () => ({
@@ -52,13 +55,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 				const entry = this.customTrainList[i];
 				if(id && entry.id !== id || !entry.enabled) continue;
 				const state = this.customTrainStates[entry.id];
-				// Forcing levelup label to what's on labels.
-				// This value isn't editable yet, but might in the future.
-				// It's stored within the train configs just in anticipation
-				// for making it editable in the future.
-				// Meanwhile, we make sure it's always the same as the latest
-				// label for current language
-				entry.levelUpLabel = StoreProxy.i18n.t("overlay.customTrain.param_levelUpLabel_default");
+				if(!state || state.activities.length < 2) continue;
 
 				PublicAPI.instance.broadcast(TwitchatEvent.CUSTOM_TRAIN_STATE, {configs:entry, state:state as unknown as JsonObject});
 			}
@@ -68,11 +65,12 @@ export const storeCustomTrain = defineStore('customTrain', {
 			this.customTrainList.push({
 				id: Utils.getUUID(),
 				enabled:true,
+				testing:false,
 				title:StoreProxy.i18n.t("overlay.customTrain.default_title"),
-				levelName:"LVL",
+				levelName:"LVL ",
 				currency:"$"+Utils.CURRENCY_AMOUNT_TOKEN,
 				colorFill:"#008667",
-				colorBg:"#ffffff",
+				colorBg:"#cdfef2",
 				triggerEventCount:2,
 				textSize:30,
 				textFont:"Inter",
@@ -80,21 +78,24 @@ export const storeCustomTrain = defineStore('customTrain', {
 				approachingLabel:StoreProxy.i18n.t("overlay.customTrain.param_approachingLabel_default"),
 				approachingEmote:"https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_c1f4899e65cf4f53b2fd98e15733973a/animated/light/3.0",
 				successLabel:StoreProxy.i18n.t("overlay.customTrain.param_successLabel_default"),
+				successLabelSummary:StoreProxy.i18n.t("overlay.customTrain.param_successLabel_summary"),
 				successEmote:"https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_bf888b2af57b4abd80653dff26768ae5/animated/dark/3.0",
+				levelUpLabel:StoreProxy.i18n.t("overlay.customTrain.param_levelUpLabel_default"),
 				levelUpEmote:"https://static-cdn.jtvnw.net/emoticons/v2/62836/static/light/3.0",
 				failedLabel:StoreProxy.i18n.t("overlay.customTrain.param_failedLabel_default"),
 				failedEmote:"https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_db3cd788399347a8b2ebfb8a85f5badb/static/light/3.0",
 				recordLabel:StoreProxy.i18n.t("overlay.customTrain.param_recordLabel_default"),
 				recordEmote:"https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_dee4ecfb7f0940bead9765da02c57ca9/static/light/3.0",
-				recordColorBg:"#ffffff",
+				recordColorBg:"#fff7db",
 				recordColorFill:"#e6b400",
 				cooldownDuration_s:2*3600,
 				levelsDuration_s:5*60,
-				levelUpLabel:StoreProxy.i18n.t("overlay.customTrain.param_levelUpLabel_default"),
+				expires_at:0,
+				coolDownEnd_at:0,
 				postLevelUpChatMessage:StoreProxy.i18n.t("overlay.customTrain.param_postLevelUpChatMessage"),
 				postSuccessChatMessage:StoreProxy.i18n.t("overlay.customTrain.param_postSuccessChatMessage"),
 				postSuccessOnChat:false,
-				levelAmounts:"20, 50, 75, 100, 130, 170, 200, 250, 300, 350, 400, 500",
+				levelAmounts:[20, 50, 75, 100, 130, 170, 200, 250, 300, 350, 400, 500],
 				platforms:{
 					kofi:true,
 					streamelements:true,
@@ -127,15 +128,85 @@ export const storeCustomTrain = defineStore('customTrain', {
 				if(!train.enabled) continue;
 				// Platform not enabled, ignore it
 				if(platform != "trigger" && train.platforms[platform] !== true) continue;
+				// Check if train/level is expired and on cooldown
+				if(Date.now() > train.expires_at && Date.now() < train.coolDownEnd_at) {
+					if(train.testing) {
+						// Reset train if it was being tested
+						// Makes sure the train doesn't get stuck if reloading
+						// twitchat while a test is running
+						train.expires_at = 0;
+						train.testing = false;
+						delete this.customTrainStates[train.id];
+					}else {
+						continue;
+					}
+				}
 
-				// Init customTrain state if not already initialized
+				// Function called when train ends
+				const scheduleEnd = () => {
+					const state = this.customTrainStates[train.id];
+					if(state.timeoutRef) SetTimeoutWorker.instance.delete(state.timeoutRef)
+					state.timeoutRef = SetTimeoutWorker.instance.create(()=> {
+						const level = currentLevel();
+						train.coolDownEnd_at = Date.now() + train.cooldownDuration_s * 1000;
+						train.expires_at = 0;
+						delete this.customTrainStates[train.id];
+						// Set all time record if none exist yet
+						if(!train.testing && !train.allTimeRecord && level.index > 1) {
+							const total = state.activities.map(a=> a.amount).reduce((a,b)=> a + b, 0);
+							train.allTimeRecord = {
+								amount:total,
+								date: Date.now(),
+								level: level.index,
+								percent: (total - level.offset) / level.goal,
+							}
+						}
+						this.saveData();
+					}, train.expires_at - Date.now());
+				}
+
+				// Init train state if not already initialized
 				if(!this.customTrainStates[train.id]) {
 					this.customTrainStates[train.id] = {
-						approached_at:0,
+						approached_at:Date.now(),
 						levelStarted_at:0,
 						amount:0,
 						activities:[],
 					};
+					scheduleEnd();
+				}
+
+				// Get current level info
+				const currentLevel = () => {
+					const state = this.customTrainStates[train.id];
+					if(!state || !train) return {index:0, offset:0, goal:1};
+					if(state.activities.length <= train.triggerEventCount) return {index:0, offset:0, goal:1};
+
+					const levels = train.levelAmounts.concat().sort((a,b)=>a - b);
+					levels.unshift(0);
+
+					// Find neareset level
+					let offset = 0;
+					let goal = levels[0] || 0;
+					let i = 0;
+					for (i = 1; i < levels.length; i++) {
+						const level = levels[i];
+						if(level > state.amount || i === levels.length - 1) {
+							offset = levels[i-1];
+							goal = level - offset;
+							break;
+						}
+					}
+					return {index:i, offset, goal}
+				}
+
+				// Keep this above the amount update
+				const prevLevel = currentLevel();
+
+				if(this.customTrainStates[train.id].activities.length == 0) {
+					// static 2 min 30 s cooldown for "approaching" validation
+					train.expires_at = Date.now() + 2.5 * 60 * 1000;
+					scheduleEnd();
 				}
 
 				// Register activity
@@ -148,12 +219,18 @@ export const storeCustomTrain = defineStore('customTrain', {
 					messageId,
 				})
 
+				// Level up ?
+				const newLevel = currentLevel();
+				if(newLevel.index !== prevLevel.index) {
+					train.expires_at = Date.now() + train.levelsDuration_s * 1000;
+					scheduleEnd();
+				}
+
 				// New all time record ?
-				if(train.allTimeRecord && this.customTrainStates[train.id].amount > train.allTimeRecord.amount) {
-					const levels = (train.levelAmounts.match(/(\d|\.)+/g) || [])
-						.filter(v=> !isNaN(parseFloat(v)))
-						.map(v=>parseFloat(v))
-						.sort((a,b)=>a - b);
+				if(!train.testing // Don't register if testing a fake train
+				&& train.allTimeRecord
+				&& this.customTrainStates[train.id].amount > train.allTimeRecord.amount) {
+					const levels = train.levelAmounts.concat();
 					levels.unshift(0);
 
 					let offset = 0;
@@ -174,6 +251,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 					train.allTimeRecord.level = i;
 					train.allTimeRecord.percent = (amount - offset) / goal;
 				}
+				this.saveData();
 			}
 			this.broadcastStates();
 		},
@@ -182,35 +260,52 @@ export const storeCustomTrain = defineStore('customTrain', {
 			const train = this.customTrainList.find(t=> t.id === overlayId);
 			if(!train) return;
 
+			const state = this.customTrainStates[train.id];
+			if(state?.timeoutRef) SetTimeoutWorker.instance.delete(state.timeoutRef)
+
+			simulationID ++;
+			const simulationIDLocal = simulationID;
+			train.expires_at = 0;
+			train.coolDownEnd_at = 0;
+			train.testing = true;
+
 			delete this.customTrainStates[train.id];
 			this.broadcastStates(train.id);
 			await Utils.promisedTimeout(250);
-			const levels = (train.levelAmounts.match(/(\d|\.)+/g) || [])
-					.filter(v=> !isNaN(parseFloat(v)))
-					.map(v=>parseFloat(v))
-					.sort((a,b)=>a - b);
+			if(simulationIDLocal !== simulationID) return;
+			const levels = train.levelAmounts.concat();
 
 			for (let i = 0; i < train.triggerEventCount; i++) {
 				this.registerActivity("", "trigger", levels[0]/2/(train.triggerEventCount+1));
-				await Utils.promisedTimeout(1000);
+				await Utils.promisedTimeout(3000);
+				if(simulationIDLocal !== simulationID) return;
 			}
 			this.registerActivity("", "trigger", levels[0]/2/2);
 			await Utils.promisedTimeout(3000);
+			if(simulationIDLocal !== simulationID) return;
 			this.registerActivity("", "trigger", levels[0]/2/2);
 			await Utils.promisedTimeout(2000);
+			if(simulationIDLocal !== simulationID) return;
 			this.registerActivity("", "trigger", levels[0]/train.triggerEventCount + 1);
 			await Utils.promisedTimeout(1000);
-			for (let i = 1; i < levels.length; i++) {
-				let splits = Math.ceil(Math.random() * 5);
-				const goal = levels[i] - levels[i-1];
+			if(simulationIDLocal !== simulationID) return;
+			for (let i = 1; i < Math.min(levels.length, 3); i++) {
+				let splits = Math.ceil(Math.random() * 5 + 1);
+				const goal = levels[i] - levels[i-1] * (Math.random() * 0.75 + .25);
 				for (let i = 0; i < splits; i++) {
-					await Utils.promisedTimeout(5000 + Math.random() * 2000);
+					if(simulationIDLocal !== simulationID) return;
 					this.registerActivity("", "trigger", goal/splits);
+					await Utils.promisedTimeout(1000 + Math.random() * 5000);
 				}
 			}
+			train.expires_at = 0;
 		},
 
 		saveData():void {
+			this.customTrainList.forEach((train) => {
+				//Make sure levels are sorted by amount
+				train.levelAmounts.sort((a,b)=>a - b);
+			});
 			const data:CustomTrainStoreData = {
 				customTrainList:this.customTrainList,
 			};

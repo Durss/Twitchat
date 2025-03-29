@@ -43,13 +43,13 @@
 					<div class="card-item install">
 						<label><Icon name="obs" />{{$t('bingo_grid.form.install_title')}}</label>
 						<OverlayInstaller type="customtrain" :sourceSuffix="entry.title" :id="entry.id"
-						:sourceTransform="{width:1800, height:350}" />
+						:sourceTransform="{width:1200, height:80}" />
 					</div>
 
 					<div class="ctas">
 						<TTButton icon="test"
 						@click="simulateTrain(entry.id)"
-						:disabled="(entry.levelAmounts.match(/(\d|\.)+/g) || []).length <= 1">{{ $t("overlay.customTrain.simulate_bt") }}</TTButton>
+						:disabled="entry.levelAmounts.length <= 1">{{ $t("overlay.customTrain.simulate_bt") }}</TTButton>
 					</div>
 
 					<div class="card-item platforms">
@@ -159,18 +159,20 @@
 							:colorText="entry.colorFill"
 							:colorBg="entry.colorBg"
 							:percent=".35"
+							:expiresAt="Date.now()+entry.levelsDuration_s*1000"
 							:amountLeft="42"
-							:currencyPattern="entry.currency"
+							:amountLeftFormat="entry.currency"
 							v-model:title="entry.title"
 							v-model:levelName="entry.levelName"
 							@edit="onChange(entry)"
 							editable
 							/>
-						<ParamItem :paramData="param_levelAmounts[entry.id]" v-model="entry.levelAmounts" @change="onChange(entry)" :childLevel="1" noBackground/>
-						<div class="paramitem levelCount">{{$t("overlay.customTrain.param_levelAmounts_count", {COUNT:(entry.levelAmounts.match(/(\d|\.)+/g) || []).length})}}</div>
+						<ParamItem :paramData="param_levelsDuration_ms[entry.id]" v-model="entry.levelsDuration_s" @change="onChange(entry)" :childLevel="1" noBackground/>
+						<ParamItem :paramData="param_levelAmounts[entry.id]" v-model="param_levelAmounts[entry.id].value" @change="onChange(entry)" :childLevel="1" noBackground/>
+						<div class="offset info">{{$t("overlay.customTrain.param_levelAmounts_count", {COUNT:entry.levelAmounts.length})}}</div>
 						<i18n-t scope="global" class="card-item premium plz" tag="div"
 						keypath="overlay.customTrain.param_levelAmounts_plz"
-						v-if="parseFloat((entry.levelAmounts.match(/(\d|\.)+/g) || []).pop() || '') > 1000">
+						v-if="(entry.levelAmounts.concat().pop() || 0) > 1000">
 							<template #LINK>
 								<a @click.prevent="openDonationForm()">{{ $t("overlay.customTrain.param_levelAmounts_plz_link") }}</a>
 							</template>
@@ -196,8 +198,10 @@
 							@selectEmote="($event:MouseEvent) => openEmoteSelector(entry, 'levelUp', $event)"
 							editable
 							/>
-						<ParamItem :paramData="param_levelsDuration_ms[entry.id]" v-model="entry.levelsDuration_s" @change="onChange(entry)" :childLevel="1" noBackground/>
 
+						<i18n-t scope="global" tag="div" class="info" keypath="overlay.customTrain.param_levelUp_placeholder">
+							<template #PLACEHOLDER><strong v-click2Select>{X}</strong></template>
+						</i18n-t>
 						<ParamItem :paramData="param_postLevelUpOnChat[entry.id]" v-model="entry.postLevelUpOnChat" @change="onChange(entry)" :childLevel="1" noBackground>
 							<ParamItem :paramData="param_postLevelUpMessage[entry.id]" v-model="entry.postLevelUpChatMessage" @change="onChange(entry)" :childLevel="1" noBackground/>
 						</ParamItem>
@@ -219,10 +223,10 @@
 							v-model:title="entry.recordLabel"
 							v-model:levelName="entry.levelName"
 							@edit="onChange(entry)"
-							@selectEmote="($event:MouseEvent) => openEmoteSelector(entry, 'levelUp', $event)"
+							@selectEmote="($event:MouseEvent) => openEmoteSelector(entry, 'record', $event)"
 							editable
 							/>
-						<div class="paramitem colors">
+						<div class="colors">
 							<ParamItem class="child" :paramData="param_recordColorFill[entry.id]" v-model="entry.recordColorFill" @change="onChange(entry)" noBackground />
 							<ParamItem :paramData="param_recordColorBg[entry.id]" v-model="entry.recordColorBg" @change="onChange(entry)" noBackground />
 						</div>
@@ -325,18 +329,22 @@ class OverlayParamsCustomTrain extends Vue {
 	public param_postSuccessMessage:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_levelAmounts:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 
-	private emoteSelectorTarget:{entry:TwitchatDataTypes.CustomTrainData, step:"approaching"|"success"|"failed"|"levelUp"}|null = null;
+	private emoteSelectorTarget:{entry:TwitchatDataTypes.CustomTrainData, step:"approaching"|"success"|"failed"|"levelUp"|"record"}|null = null;
 	private clickHandler!:(e:MouseEvent)=>void;
+	private keyHandler!:(e:KeyboardEvent)=>void;
 
 	public beforeMount():void {
 		this.initParams();
 
 		this.clickHandler = (e:MouseEvent)=> this.onClick(e);
+		this.keyHandler = (e:KeyboardEvent)=> this.onKeyboardEvent(e);
 		document.addEventListener("click", this.clickHandler, true);
+		document.addEventListener("keydown", this.keyHandler, true);
 	}
 
 	public beforeUnmount():void {
 		document.removeEventListener("click", this.clickHandler, true);
+		document.removeEventListener("keydown", this.keyHandler, true);
 	}
 
 	/**
@@ -368,11 +376,7 @@ class OverlayParamsCustomTrain extends Vue {
 				{tag:"AMOUNT", descKey:"triggers.placeholders.customTrain_amount_left" },
 			];
 			this.param_postSuccessMessage[id].placeholderList = this.param_postLevelUpMessage[id].placeholderList.concat();
-
-			const levels = (entry.levelAmounts.match(/(\d|\.)+/g) || [])
-					.filter(v=> !isNaN(parseFloat(v)))
-					.sort((a,b)=>parseFloat(a) - parseFloat(b));
-			entry.levelAmounts = levels.join(", ");
+			this.param_levelAmounts[id].value = entry.levelAmounts.join(", ");
 		});
 	}
 
@@ -383,6 +387,12 @@ class OverlayParamsCustomTrain extends Vue {
 	public onChange(entry:TwitchatDataTypes.CustomTrainData):void {
 		//Make sure user doesn't hack this value
 		entry.triggerEventCount = Math.max(Math.min(entry.triggerEventCount, this.param_triggerEventCount[entry.id].max!), 0);
+
+		const levels = (this.param_levelAmounts[entry.id].value.match(/(\d|\.)+/g) || [])
+				.filter(v=> !isNaN(parseFloat(v)))
+				.map(v=>parseFloat(v))
+				.sort((a,b)=>a - b);
+		entry.levelAmounts = levels;
 
 		this.$store.customTrain.saveData();
 		this.$store.customTrain.broadcastStates(entry.id);
@@ -437,6 +447,17 @@ class OverlayParamsCustomTrain extends Vue {
 	}
 
 	/**
+	 * Close emote picker on escape
+	 */
+	public onKeyboardEvent(e:KeyboardEvent):void {
+		if (e.key === "Escape" && this.showEmoteSelector) {
+			this.showEmoteSelector = false;
+			e.stopPropagation();
+			e.preventDefault();
+		}
+	}
+
+	/**
 	 * Open emote selector
 	 */
 	public async openEmoteSelector(entry:TwitchatDataTypes.CustomTrainData, step:NonNullable<typeof this.emoteSelectorTarget>["step"], event:MouseEvent):Promise<void> {
@@ -477,6 +498,9 @@ class OverlayParamsCustomTrain extends Vue {
 				break;
 			case "success":
 				this.emoteSelectorTarget.entry.successEmote = emote.images.url_4x || emote.images.url_2x || emote.images.url_1x;
+				break;
+			case "record":
+				this.emoteSelectorTarget.entry.recordEmote = emote.images.url_4x || emote.images.url_2x || emote.images.url_1x;
 				break;
 		}
 	}
@@ -589,16 +613,17 @@ export default toNative(OverlayParamsCustomTrain);
 		gap: .5em;
 		display: flex;
 		flex-direction: column;
-		.train {
-			margin-bottom: .35em;
-		}
 		&>.paramitem {
-			margin-top: -.5em;
+			margin-top: -.25em;
 			font-size: .9em;
-			&.levelCount {
-				font-style: italic;
-				margin-left: 1.6em;
-				text-align: center;
+		}
+		.info {
+			margin-top: -.25em;
+			font-size: .9em;
+			font-style: italic;
+			text-align: center;
+			&.offset {
+				margin-left: 1.5em;
 			}
 		}
 		.plz {
@@ -656,6 +681,7 @@ export default toNative(OverlayParamsCustomTrain);
 			justify-content: center;
 
 			.platform {
+				min-width: 7em;
 				flex-direction: column;
 				gap: .5em;
 				:deep(.icon) {

@@ -1,7 +1,7 @@
 <template>
 	<div class="overlaycustomtrain">
 		<transition name="scaleY">
-			<OverlayCustomTrainRenderer class="train" v-if="configs && state && state.amount > 0"
+			<OverlayCustomTrainRenderer class="train" v-if="configs && state && state.amount > 0" key="train"
 				:showSuccess="false"
 				:showApproaching="showApproaching"
 				:showFail="false"
@@ -10,6 +10,8 @@
 				:colorText="configs.colorFill"
 				:colorBg="configs.colorBg"
 				:eventCount="configs.triggerEventCount"
+				:recordColorText="configs.recordColorFill"
+				:recordColorBg="configs.recordColorBg"
 
 				:titleLevelUp="configs.levelUpLabel"
 				:levelUpEmote="configs.levelUpEmote"
@@ -20,21 +22,30 @@
 				:title="configs.title"
 
 				:titleSuccess="configs.successLabel"
+				:titleSuccessSummary="configs.successLabelSummary"
 				:successEmote="configs.successEmote"
 
 				:titleFail="configs.failedLabel"
 				:failedEmote="configs.failedEmote"
 
+				:titleRecord="configs.recordLabel"
+				:recordEmote="configs.recordEmote"
+
 				:levelName="configs.levelName"
 
-				:isRecord="!configs.allTimeRecord? false : state.amount > configs.allTimeRecord.amount"
+				:isRecord="isRecord"
 				:eventDone="(state?.activities.length || 2) - 1"
 				:level="currentLevel.index"
 				:percent="progressPercent"
 				:amountLeft="Math.ceil(Math.max(0, 1-progressPercent) * currentLevel.goal)"
+				:amountLeftFormat="configs.currency"
+				:expiresAt="configs.expires_at"
+				:recordPercent="recordPercent"
+				:recordLevel="recordLevel"
+
+				@close="state = null"
 				/>
 		</transition>
-			{{ state?.amount.toFixed(1) }}
 	</div>
 </template>
 
@@ -54,6 +65,9 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 })
 class OverlayCustomTrain extends AbstractOverlay {
 
+	public isRecord = false;
+	public recordPercent = -1;
+	public recordLevel = -1;
 	public showApproaching = false;
 	public configs:TwitchatDataTypes.CustomTrainData | null = null;
 	public state:TwitchatDataTypes.CustomTrainState | null = null;
@@ -70,11 +84,7 @@ class OverlayCustomTrain extends AbstractOverlay {
 	public get currentLevel() {
 		if(!this.state || !this.configs) return {index:0, offset:0, goal:1};
 
-		const levels = (this.configs.levelAmounts.match(/(\d|\.)+/g) || [])
-				.filter(v=> !isNaN(parseFloat(v)))
-				.map(v=>parseFloat(v))
-				.sort((a,b)=>a - b);
-
+		const levels = this.configs.levelAmounts.concat().sort((a,b)=>a - b);
 		levels.unshift(0);
 
 		// Find neareset level
@@ -111,7 +121,6 @@ class OverlayCustomTrain extends AbstractOverlay {
 		if(!e.data || !e.data.configs) return;
 		if(e.data.configs.id !== this.overlayId) return;
 
-		const prevLevel = this.currentLevel;
 		this.configs = e.data.configs;
 		this.state = e.data.state;
 		if(this.state) {
@@ -121,6 +130,19 @@ class OverlayCustomTrain extends AbstractOverlay {
 				setTimeout(() => {
 					this.showApproaching = false;
 				}, 1000);
+			}
+
+			const wasRecord = this.isRecord;
+			this.isRecord = !this.configs.allTimeRecord? false : this.state.amount >= this.configs.allTimeRecord.amount
+
+			if(!wasRecord
+			&& this.configs.allTimeRecord
+			&& this.currentLevel.index == this.configs.allTimeRecord.level) {
+				this.recordLevel = this.configs.allTimeRecord.level;
+				this.recordPercent = this.configs.allTimeRecord.percent;
+			}else{
+				this.recordLevel = -1;
+				this.recordPercent = -1;
 			}
 		}
 	}

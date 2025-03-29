@@ -1,5 +1,5 @@
 <template>
-	<div class="overlaycustomtrainrenderer" :class="{editable: editable !== false}" @click="levelUpAnimation">
+	<div class="overlaycustomtrainrenderer" :class="{editable: editable !== false}">
 		<div class="progress">
 			<div class="holder back">
 				<div class="level">
@@ -10,10 +10,10 @@
 						:no-nl="true"
 						:no-html="true"
 						@input="onChangeLevelName()" />
-					<span>{{level}}</span>
+					<span>{{localLevelIndex}}</span>
 				</div>
 				<div class="infoHolder">
-					<!-- <div class="title">{{ title }}</div> -->
+					<div class="record" v-if="showIncomingRecord && !showLevelUp && !isRecord"></div>
 					<contenteditable tag="div" class="title editableField"
 						v-model="localTitle"
 						:class="{isEmpty: (localTitle || '').trim().length === 0}"
@@ -22,15 +22,22 @@
 						:no-html="true"
 						@input="onChangeTitle()" />
 					<div class="progress">
-						<div class="time">03:12</div>
+						<div class="time">{{ timeLeft }}</div>
 						<div class="cost">{{ formatedAmountLeft }}</div>
 					</div>
-					<div class="percent">{{ Math.round(percent_local*100) }}%</div>
+					<div class="percent">{{ Math.floor(easedPercent*100) }}%</div>
 				</div>
 			</div>
 			<div class="fillHolder">
-				<div class="levelHolder">
-					<div class="level">{{levelName}}{{level}}</div>
+				<div class="level">
+					<contenteditable tag="div" class="editableField"
+						v-model="localLevelName"
+						:class="{isEmpty: (levelName || '').trim().length === 0}"
+						:contenteditable="editable !== false"
+						:no-nl="true"
+						:no-html="true"
+						@input="onChangeLevelName()" />
+					<span>{{localLevelIndex}}</span>
 				</div>
 				<div class="fillHolder">
 					<div class="fill"></div>
@@ -45,7 +52,7 @@
 						:no-nl="true"
 						:no-html="true"
 						@input="onChangeLevelName()" />
-					<span>{{level}}</span>
+					<span>{{localLevelIndex}}</span>
 				</div>
 				<div class="infoHolder">
 					<!-- <div class="title">{{ title }}</div> -->
@@ -57,39 +64,13 @@
 						:no-html="true"
 						@input="onChangeTitle()" />
 					<div class="progress">
-						<div class="time">03:12</div>
+						<div class="time">{{ timeLeft }}</div>
 						<div class="cost">{{ formatedAmountLeft }}</div>
 					</div>
-					<div class="percent">{{ Math.round(percent_local*100) }}%</div>
+					<div class="percent">{{ Math.floor(easedPercent*100) }}%</div>
 				</div>
 			</div>
 		</div>
-
-		<transition name="fade">
-			<div class="levelUp" v-if="showLevelUp_local !== false">
-				<div class="content">
-					<div class="emoteWall" ref="emoteWall"></div>
-					<div class="title" ref="title">{{ levelUpLabel }}</div>
-				</div>
-				<img class="emote picker" v-if="editable !== false" @click="onClickEmote" :src="levelUpEmote" alt="emote">
-			</div>
-		</transition>
-
-		<transition name="fade">
-			<div class="record" v-if="showRecord_local !== false">
-				<div class="content">
-					<div class="emoteWall" ref="emoteWall"></div>
-					<contenteditable tag="div" class="title editableField"
-						v-model="localTitleRecord"
-						:class="{isEmpty: (localTitleRecord || '').trim().length === 0}"
-						:contenteditable="editable !== false"
-						:no-nl="true"
-						:no-html="true"
-						@input="onChangeTitleRecord()" />
-				</div>
-				<img class="emote picker" v-if="editable !== false" @click="onClickEmote" :src="recordEmote" alt="emote">
-			</div>
-		</transition>
 
 		<transition name="fade">
 			<div class="approaching" v-if="showApproaching !== false">
@@ -103,17 +84,51 @@
 						:no-html="true"
 						@input="onChangeTitleApproaching()" />
 					<div class="events">
-						<div v-for="i in eventCount" :key="i" :class="{done:i<=eventDone}"></div>
+						<div v-for="i in eventCount" :key="i" :class="{done:i<=eventDone}">
+							<Icon name="checkmark" v-if="i<=eventDone" />
+						</div>
 					</div>
 				</div>
 			</div>
 		</transition>
 
 		<transition name="fade">
-			<div class="success" v-if="showSuccess !== false">
+			<div class="levelUp" v-if="showLevelUp_local !== false && !showRecord_local">
 				<div class="content">
 					<div class="emoteWall" ref="emoteWall"></div>
-					<contenteditable tag="div" class="title editableField"
+					<contenteditable tag="div" ref="title" class="title editableField"
+						v-model="localTitleLevelUp"
+						:class="{isEmpty: (localTitleLevelUp || '').trim().length === 0}"
+						:contenteditable="editable !== false"
+						:no-nl="true"
+						:no-html="true"
+						@input="onChangeTitleLevelUp()" />
+				</div>
+				<img class="emote picker" v-if="editable !== false" @click="onClickEmote" :src="levelUpEmote" alt="emote">
+			</div>
+		</transition>
+
+		<transition name="fade">
+			<div class="record" v-if="showRecord_local !== false">
+				<div class="content">
+					<div class="emoteWall" ref="emoteWall"></div>
+					<contenteditable tag="div" ref="title" class="title editableField"
+						v-model="localTitleRecord"
+						:class="{isEmpty: (localTitleRecord || '').trim().length === 0}"
+						:contenteditable="editable !== false"
+						:no-nl="true"
+						:no-html="true"
+						@input="onChangeTitleRecord()" />
+				</div>
+				<img class="emote picker" v-if="editable !== false" @click="onClickEmote" :src="recordEmote" alt="emote">
+			</div>
+		</transition>
+
+		<transition name="fade">
+			<div class="success" v-if="showSuccess_local !== false">
+				<div class="content">
+					<div class="emoteWall" ref="emoteWall"></div>
+					<contenteditable tag="div" ref="title" class="title editableField"
 						v-model="localTitleSuccess"
 						:class="{isEmpty: (localTitleSuccess || '').trim().length === 0}"
 						:contenteditable="editable !== false"
@@ -126,10 +141,10 @@
 		</transition>
 
 		<transition name="fade">
-			<div class="fail" v-if="showFail !== false">
+			<div class="fail" v-if="showFail_local !== false">
 				<div class="content">
 					<img class="emote" @click="onClickEmote" :src="failedEmote" alt="emote">
-					<contenteditable tag="div" class="title editableField"
+					<contenteditable tag="div" ref="title" class="title editableField"
 						v-model="localTitleFail"
 						:class="{isEmpty: (localTitleFail || '').trim().length === 0}"
 						:contenteditable="editable !== false"
@@ -148,22 +163,37 @@ import { watch } from 'vue';
 import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 import contenteditable from 'vue-contenteditable';
 import Utils from '@/utils/Utils';
+import Icon from '@/components/Icon.vue';
+import SetIntervalWorker from '@/utils/SetIntervalWorker';
+import TrophyIcon from "@/assets/icons/sub.svg?raw"
 
 @Component({
 	components:{
+		Icon,
 		contenteditable,
 	},
-	emits:["edit", "update:title", "update:titleApproaching", "update:titleSuccess", "update:titleFail", "update:levelName", ":update:titleRecord", "selectEmote"],
+	emits:[
+		"edit",
+		"close",
+		"update:title",
+		"update:titleApproaching",
+		"update:titleSuccess",
+		"update:titleFail",
+		"update:levelName",
+		"update:titleRecord",
+		"update:titleLevelUp",
+		"selectEmote",
+	],
 })
 class OverlayCustomTrainRenderer extends Vue {
 
-	@Prop({default: 'blue'})
+	@Prop({default: 'white'})
 	public colorText!: string;
 
 	@Prop({default: 'white'})
 	public colorBg!: string;
 
-	@Prop({default: 'blue'})
+	@Prop({default: 'white'})
 	public recordColorText!: string;
 
 	@Prop({default: 'white'})
@@ -185,6 +215,9 @@ class OverlayCustomTrainRenderer extends Vue {
 
 	@Prop({default: ''})
 	public titleSuccess!: string;
+
+	@Prop({default: ''})
+	public titleSuccessSummary!: string;
 
 	@Prop({default: false})
 
@@ -236,7 +269,7 @@ class OverlayCustomTrainRenderer extends Vue {
 	public showRecord!:boolean;
 
 	@Prop({default: "{AMOUNT}€"})
-	public currencyPattern!:string;
+	public amountLeftFormat!:string;
 
 	@Prop({default: ""})
 	public approachingEmote!:string;
@@ -256,10 +289,21 @@ class OverlayCustomTrainRenderer extends Vue {
 	@Prop({default: false})
 	public isRecord!:boolean;
 
-	public levelUpLabel:string = "100%";
+	@Prop({default: 0})
+	public expiresAt!:number;
+
+	@Prop({default: -1})
+	public recordPercent!:number;
+
+	@Prop({default: -1})
+	public recordLevel!:number;
+
 	public showLevelUp_local:boolean = false;
 	public showRecord_local:boolean = false;
+	public showSuccess_local:boolean = false;
+	public showFail_local:boolean = false;
 	public percent_local:number = 0;
+	public forcedAmount_local:number|null = null;
 	public easedPercent:number = 0;
 	public localTitle:string = "";
 	public localTitleApproaching:string = "";
@@ -267,37 +311,80 @@ class OverlayCustomTrainRenderer extends Vue {
 	public localTitleFail:string = "";
 	public localTitleRecord:string = "";
 	public localLevelName:string = "";
+	public localLevelIndex:number = 0;
+	public localTitleLevelUp:string = "";
+	public timeLeft:string = "";
+	public trophyIcon:string = "";
 
-	private _raf:number = 0;
+	private raf:number = -1;
+	private timerTO:string = "";
 	private imageList:HTMLImageElement[] = [];
 
-	public get cssSize(){ return this.size + 'px'; }
+	public get cssFontSize(){ return this.size + 'px'; }
 
-	public get colorTextGeneric(){ return (this.isRecord? this.recordColorText : this.colorText); }
+	public get cssColorTextGeneric(){ return (this.isRecord? this.recordColorText : this.colorText); }
 
-	public get colorBgGeneric(){ return (this.isRecord? this.recordColorBg : this.colorBg); }
+	public get cssColorBgGeneric(){ return (this.isRecord? this.recordColorBg : this.colorBg); }
 
-	public get colorTextFade(){ return this.colorTextGeneric+"80"; }
+	public get cssColorRecordFade(){ return this.recordColorText+"40"; }
 
-	public get colorBgFade(){ return this.colorBgGeneric+"80"; }
+	public get cssColorTextFade(){ return this.cssColorTextGeneric+"80"; }
 
-	public get width():string { return (this.easedPercent*100)+'%'; }
+	public get cssColorBgFade(){ return this.cssColorBgGeneric+"80"; }
+
+	public get cssFillPercent():string { return (this.easedPercent*100)+'%'; }
+
+	public get cssRecordPercent():string { return (this.recordPercent*100)+'%'; }
+
+	public get showIncomingRecord():boolean {
+		return this.localLevelIndex == this.recordLevel && this.recordPercent > -1;
+	}
 
 	public get formatedAmountLeft():string {
-		return Utils.formatCurrency(this.amountLeft, this.currencyPattern);
+		const amount = this.forcedAmount_local ?? this.amountLeft;
+		return Utils.formatCurrency(amount, this.amountLeftFormat);
 	}
 
 	public mounted(){
 		this.easedPercent = this.percent;
 		this.percent_local = this.percent;
-		this.showLevelUp_local = this.showLevelUp === true;
-		this.showRecord_local = this.showRecord === true;
+		this.showLevelUp_local = this.showLevelUp != false;
+		this.showRecord_local = this.showRecord != false;
+		this.localLevelIndex = this.level;
+		this.localTitleRecord = this.titleRecord;
+		this.showSuccess_local = this.showSuccess != false;
+		this.showFail_local = this.showFail != false;
+
+		const parser = new DOMParser();
+		const svgDoc = parser.parseFromString(TrophyIcon, "image/svg+xml");
+		const svgElement = svgDoc.documentElement;
+		svgElement.setAttribute("class", "trophyIcon");
+		svgElement.querySelectorAll("path").forEach(v=> {
+			v.setAttribute("style", "fill: "+this.recordColorText+";")
+		})
+		let [x,y,w,h] = svgElement.getAttribute("viewBox")?.split(" ").map(v=>parseFloat(v)) || [0,0,0,0];
+		w *= 1.25;
+		// h *= 1.5;
+		svgElement.setAttribute("viewBox", `${x} ${y} ${w} ${h}`);
+
+		this.trophyIcon = `url(data:image/svg+xml;base64,${btoa(svgElement.outerHTML)})`;
+
+		// const url = this.$asset("icons/leaderboard.svg");
 		watch(() => this.percent,  async (newPercent, oldPercent) => {
+			if(this.showSuccess_local) return;
+			if(this.showFail_local) return;
+			if(this.recordPercent > -1 && newPercent > this.recordPercent) {
+				this.recordAnimation();
+				return
+			}
 			if(this.showLevelUp_local) return;
+			if(this.showRecord_local) return;
 			if(!this.showLevelUp && oldPercent > newPercent) {
-				await this.levelUpAnimation();
+				this.levelUpAnimation();
+				return;
 			}
 			this.percent_local = newPercent;
+			gsap.killTweensOf(this);
 			gsap.to(this, {easedPercent: this.percent_local, duration: 1})
 		});
 
@@ -321,8 +408,18 @@ class OverlayCustomTrainRenderer extends Vue {
 			this.localTitleRecord = this.titleRecord;
 		}, {immediate:true});
 
+		watch(() => this.titleLevelUp,  () => {
+			this.localTitleLevelUp = this.titleLevelUp;
+		}, {immediate:true});
+
 		watch(() => this.levelName,  () => {
 			this.localLevelName = this.levelName;
+		}, {immediate:true});
+
+		watch(() => this.isRecord,  () => {
+			if(this.isRecord && this.showRecord === false) {
+				this.recordAnimation();
+			}
 		}, {immediate:true});
 
 		watch(() => this.successEmote,  () => {
@@ -340,6 +437,12 @@ class OverlayCustomTrainRenderer extends Vue {
 		watch(() => this.approachingEmote,  () => {
 			this.imageList.forEach(img => {
 				img.src = this.approachingEmote;
+			});
+		});
+
+		watch(() => this.recordEmote,  () => {
+			this.imageList.forEach(img => {
+				img.src = this.recordEmote;
 			});
 		});
 
@@ -361,10 +464,31 @@ class OverlayCustomTrainRenderer extends Vue {
 		this.$nextTick().then(()=> {
 			this.createEmoteWall();
 		})
+
+		if(this.editable === false) {
+			this.timerTO = SetIntervalWorker.instance.create(() => {
+				if(this.expiresAt > 0) {
+					const timeLeft = Math.max(0, this.expiresAt - Date.now());
+					this.timeLeft = Utils.formatDuration(timeLeft, true);
+					if(timeLeft <= 0) {
+						if(this.level > 1) {
+							this.successAnimation();
+						}else{
+							this.failAnimation();
+						}
+						SetIntervalWorker.instance.delete(this.timerTO);
+					}
+				}
+			}, 200);
+		}else{
+			const timeLeft = Math.max(0, this.expiresAt - Date.now() + 1000);
+			this.timeLeft = Utils.formatDuration(timeLeft, true);
+		}
 	}
 
 	public beforeUnmount(){
 		this.clearEmoteWall()
+		SetIntervalWorker.instance.delete(this.timerTO)
 	}
 
 	public onChangeTitle():void {
@@ -392,6 +516,11 @@ class OverlayCustomTrainRenderer extends Vue {
 		this.$emit("edit");
 	}
 
+	public onChangeTitleLevelUp():void {
+		this.$emit("update:titleLevelUp", this.localTitleLevelUp);
+		this.$emit("edit");
+	}
+
 	public onChangeLevelName():void {
 		this.$emit("update:levelName", this.localLevelName);
 		this.$emit("edit");
@@ -403,29 +532,90 @@ class OverlayCustomTrainRenderer extends Vue {
 
 	public async levelUpAnimation():Promise<void> {
 		// Level UP
-		const currentLevel = this.level-1;
+		const currentLevel = this.localLevelIndex;
 		if(currentLevel === 0) return;
+
+		this.forcedAmount_local = 0;
+
 		gsap.to(this, {easedPercent: 1, duration: .5})
 		await Utils.promisedTimeout(300);
-		this.showLevelUp_local = true;
+		this.showLevelUp_local = !this.showRecord_local;
 		await this.$nextTick();
-		const labelHolder = this.$refs.title as HTMLElement;
-		this.levelUpLabel = "100%"
-		const animateTitle = async()=> {
-			gsap.fromTo(labelHolder, {x:300}, {x:-300, duration: 2, ease:"slow(0.5,0.8,false)", delay:.1});
-			gsap.fromTo(labelHolder, {opacity:0}, {opacity:1, duration: .25});
-			gsap.to(labelHolder, {opacity:0, duration: .25, delay:1.85});
-			await Utils.promisedTimeout(2100);
-		}
+		if(!this.showLevelUp_local) return; //This flag can be set back to false when reaching new record
+		const labelHolder = (this.$refs.title as typeof contenteditable).$el as HTMLElement;
+		this.localTitleLevelUp = "100%"
 		this.createEmoteWall();
-		await animateTitle();
-		labelHolder.classList.add("small");
-		this.levelUpLabel	= this.titleLevelUp.replace('{INDEX}', currentLevel.toString());
-		await animateTitle();
-		labelHolder.classList.remove("small");
+		labelHolder.classList.add("big");
+		await this.animateLabelSlowmo(labelHolder);
+		if(!this.showLevelUp_local) return; //This flag can be set back to false when reaching new record
+		labelHolder.classList.remove("big");
+		this.localTitleLevelUp	= this.titleLevelUp.replace('{X}', currentLevel.toString());
+		await this.animateLabelSlowmo(labelHolder);
+		if(!this.showLevelUp_local) return; //This flag can be set back to false when reaching new record
+		this.percent_local		=
+		this.easedPercent		= this.percent;
+		this.forcedAmount_local	= null;
+		this.localLevelIndex	= this.level;
+		this.showLevelUp_local	= false;
+	}
+
+	public async recordAnimation():Promise<void> {
+		this.showRecord_local = true;
 		this.showLevelUp_local = false;
-		this.percent_local	=
-		this.easedPercent	= this.percent;
+		await this.$nextTick();
+		this.createEmoteWall();
+		const labelHolder = (this.$refs.title as typeof contenteditable).$el as HTMLElement;
+		await this.animateLabelPaused(labelHolder);
+		this.percent_local		=
+		this.easedPercent		= this.percent;
+		this.forcedAmount_local	= null;
+		this.localLevelIndex	= this.level;
+		this.showRecord_local	= false;
+	}
+
+	public async successAnimation():Promise<void> {
+		this.showSuccess_local = true;
+		this.showRecord_local = false;
+		this.showLevelUp_local = false;
+		await this.$nextTick();
+		const labelHolder = (this.$refs.title as typeof contenteditable).$el as HTMLElement;
+		this.createEmoteWall();
+		this.localTitleSuccess = this.titleSuccess;
+		await this.animateLabelSlowmo(labelHolder);
+		this.localTitleSuccess = this.titleSuccessSummary.replace('{LEVEL}', this.localLevelIndex.toString()).replace('{PERCENT}', Math.floor(this.percent_local*100).toString());
+		await this.animateLabelPaused(labelHolder, true, 10000);
+		this.$emit("close");
+	}
+
+	public async failAnimation():Promise<void> {
+		this.showFail_local = true;
+		this.showRecord_local = false;
+		this.showLevelUp_local = false;
+		await this.$nextTick();
+		const labelHolder = (this.$refs.title as typeof contenteditable).$el as HTMLElement;
+		this.localTitleSuccess = this.titleFail;
+		await this.animateLabelPaused(labelHolder, false, 10000);
+		this.$emit("close");
+	}
+
+	private async animateLabelSlowmo(labelHolder:HTMLElement):Promise<void> {
+		gsap.fromTo(labelHolder, {x:"20%"}, {x:"-20%", duration: 2, ease:"slow(0.5,0.8,false)"});
+		gsap.fromTo(labelHolder, {opacity:0}, {opacity:1, duration: .25, ease:"sine.out"});
+		gsap.to(labelHolder, {opacity:0, duration: .25, delay:1.75, ease:"sine.in"});
+		await Utils.promisedTimeout(2000);
+	}
+
+	private async animateLabelPaused(labelHolder:HTMLElement, bounce:boolean = true, pauseDuration:number = 4000):Promise<void> {
+		gsap.fromTo(labelHolder, {x:"20%", opacity:0}, {x:"0", opacity:1, duration: .5, ease:"back.out", delay:.5});
+		if(bounce) {
+			const loops = (pauseDuration/1000 - .5)/.25;
+			const loopsRot = (pauseDuration/1000 - .5)/1;
+			gsap.to(labelHolder, {scaleY:1.2, duration: .25, ease:"sine.inOut", repeat:loops, yoyo:true});
+			gsap.to(labelHolder, {scaleX:1.1, duration: .25, ease:"sine.inOut", repeat:loops, yoyo:true, delay: .15});
+			gsap.fromTo(labelHolder, {rotate:"1deg"}, {rotate:"-1deg", duration: 1, ease:"sine.inOut", repeat:loopsRot, yoyo:true, delay: .15});
+		}
+		gsap.to(labelHolder, {x:"-20%", opacity:0, duration: .5, ease:"back.in", delay:pauseDuration/1000 - .5});
+		await Utils.promisedTimeout(pauseDuration);
 	}
 
 	private clearEmoteWall():void {
@@ -434,7 +624,7 @@ class OverlayCustomTrainRenderer extends Vue {
 			img.remove()
 		});
 		this.imageList = [];
-		cancelAnimationFrame(this._raf);
+		cancelAnimationFrame(this.raf);
 	}
 
 	private createEmoteWall():void {
@@ -449,7 +639,7 @@ class OverlayCustomTrainRenderer extends Vue {
 			filePath = this.approachingEmote;
 		}else if(this.showFail) {
 			filePath = this.failedEmote;
-		}else if(this.showSuccess) {
+		}else if(this.showSuccess_local) {
 			filePath = this.successEmote;
 		}else if(this.showRecord_local) {
 			filePath = this.recordEmote;
@@ -457,6 +647,16 @@ class OverlayCustomTrainRenderer extends Vue {
 		if(!filePath) return;
 
 		const bounds = this.$el.getBoundingClientRect();
+		if(bounds.height === 0) {
+			// This is mostly a workaround a live reload issue.
+			// On live reload, a new component is built and the parent
+			// makes a 250ms animation from scaleY:0 to scaleY:1.
+			// This makes it so the height isn't ready before 250ms
+			setTimeout(() => {
+				this.createEmoteWall();
+			}, 250);
+			return;
+		}
 		const imgSize = bounds.height / 1.5;
 		const paddingScale = 4;
 		const paddingW = bounds.height / 2 * paddingScale;
@@ -465,6 +665,8 @@ class OverlayCustomTrainRenderer extends Vue {
 		const cols = Math.ceil(bounds.width / (imgSize + paddingW));
 		this.imageList = [];
 
+		const props:{alpha:number, rotate:number}[] = []
+
 		for (let row = 0; row < rows; row++) {
 			for (let col = 0; col < cols; col++) {
 				const img = document.createElement('img');
@@ -472,35 +674,27 @@ class OverlayCustomTrainRenderer extends Vue {
 				img.style.position = 'absolute';
 				img.style.width = `${imgSize}px`;
 				img.style.height = `${imgSize}px`;
-				img.style.opacity = `${Math.random()*.75}`;
-				img.style.transform = 'rotate('+(Math.random()-Math.random())*90+'deg)';
-				this.imageList.push(img);
-				holder.appendChild(img);
-				gsap.fromTo(img, {scale:.8}, {scale:1.25, delay: Math.random() * 2, repeat:-1, yoyo:true, duration: 1});
-			}
-		}
+				let y = row * (imgSize + paddingH);
+				if(y < -imgSize) y += rows * (imgSize + paddingH);
+				let x = col * (imgSize + paddingW);
+				if(row%2 == 0) x += (imgSize+paddingW) / 2
 
-		let offset = 0;
-		const animate = ()=>{
-			this._raf = requestAnimationFrame(animate);
-			for (let i = 0; i < this.imageList.length; i++) {
-				const img = this.imageList[i];
-				const col = i % cols;
-				const row = Math.floor(i / cols);
-				let x = col * (imgSize + paddingW) + (row % 2 === 0 ? 0 : (imgSize+paddingW) / 2)
-				let y = row * (imgSize + paddingH) + offset;
-				if(y < -imgSize) {
-					y += rows * (imgSize + paddingH);
+				const index = (row*col)%((rows-2)*col);
+				if(!props[index]) {
+					props[index] = {
+						alpha: Math.random() * .5 + .15,
+						rotate: Math.random() * 360,
+					}
 				}
-				if(offset < -4*(imgSize+paddingH)) {
-					offset = 0;
-				}
+
 				img.style.left = `${x}px`;
 				img.style.top = `${y}px`;
-				offset -=.1;
+				img.style.opacity = `${props[index].alpha}`;
+				img.style.transform = 'rotate('+props[index].rotate+'deg)';
+				this.imageList.push(img);
+				holder.appendChild(img);
 			}
 		}
-		animate();
 
 	}
 
@@ -512,17 +706,17 @@ export default toNative(OverlayCustomTrainRenderer);
 .overlaycustomtrainrenderer {
 	position: relative;
 	border-radius: 10em;
-	font-size: v-bind(cssSize);
+	font-size: v-bind(cssFontSize);
 	font-family: v-bind(fontFamily);
 	color: var(--colorText);
 	background-color: var(--colorBg);
 	width: 100%;
-	--maskWidth: ~"max(0em, v-bind(width))";
-	--colorBg: v-bind(colorBgGeneric);
-	--colorText: v-bind(colorTextGeneric);
+	--maskWidth: ~"max(0em, v-bind(cssFillPercent))";
+	--colorBg: v-bind(cssColorBgGeneric);
+	--colorText: v-bind(cssColorTextGeneric);
 
 	&.editable {
-		font-size: calc(v-bind(cssSize) / 1.5);
+		font-size: calc(v-bind(cssFontSize) / 1.5);
 	}
 
 	.title {
@@ -549,14 +743,10 @@ export default toNative(OverlayCustomTrainRenderer);
 			height: 100%;
 			width: 100%;
 
-			.levelHolder {
+			.level {
 				flex-shrink: 0;
-				background-color: var(--colorText);
 				border-radius: 2em;
-				.level {
-					visibility: hidden;
-					flex-shrink: 0;
-				}
+				background-color: var(--colorText);
 			}
 
 			.fillHolder {
@@ -567,10 +757,10 @@ export default toNative(OverlayCustomTrainRenderer);
 				.fill {
 					border-top-right-radius: 10em;
 					border-bottom-right-radius: 10em;
-					width: ~"min(200%, calc(1.5em + var(--maskWidth)))";
+					width: ~"min(200%, calc(10em + var(--maskWidth)))";
 					height: 100%;
 					position: absolute;
-					left: -1.5em;
+					left: -10em;
 					background-color: var(--colorText);
 				}
 			}
@@ -598,6 +788,37 @@ export default toNative(OverlayCustomTrainRenderer);
 			justify-content: center;
 			align-items: center;
 			flex-grow: 1;
+			font-variant-numeric: tabular-nums;
+
+			.record {
+				position: absolute;
+				top: 0;
+				left: v-bind(cssRecordPercent);
+				z-index: 0;
+				border-left: 2px dashed v-bind(recordColorText);
+				background-color: v-bind(cssColorRecordFade);
+				&::before {
+					content: "";
+					background-image: v-bind(trophyIcon);
+					background-size: 1em;
+					position: absolute;
+					top: 0;
+					left: 0;
+					width: 100%;
+					height: 100%;
+					opacity: .25;
+					animation: scrollBackground .2s linear infinite;
+
+					@keyframes scrollBackground {
+						from {
+							background-position: 0 .4em;
+						}
+						to {
+							background-position: 1em .4em;
+						}
+					}
+				}
+			}
 		}
 
 		.holder {
@@ -619,7 +840,7 @@ export default toNative(OverlayCustomTrainRenderer);
 					color: var(--colorBg);
 
 					.editableField {
-						outline-color: v-bind(colorBgFade)
+						outline-color: v-bind(cssColorBgFade)
 					}
 				}
 			}
@@ -632,12 +853,15 @@ export default toNative(OverlayCustomTrainRenderer);
 				align-items: center;
 				font-size: .45em;
 				font-weight: bold;
+				z-index: 1;
 			}
 
 			.percent {
+				z-index: 1;
 				font-size: 1.25em;
 				font-weight: bold;
 				margin-right: .5em;
+				font-variant-numeric: tabular-nums;
 			}
 		}
 	}
@@ -666,7 +890,7 @@ export default toNative(OverlayCustomTrainRenderer);
 			justify-content: center;
 			.emote {
 				margin-left: .25em;
-				height: 2em;
+				height: 1.6em;
 			}
 
 			.title {
@@ -687,22 +911,26 @@ export default toNative(OverlayCustomTrainRenderer);
 					border-radius: 50%;
 					opacity: .5;
 					transition: opacity .2s;
+					display: flex;
+					justify-content: center;
+					align-items: center;
 
 					&.done {
 						opacity: 1;
+					}
+					.icon {
+						color: var(--colorBg);
+						width: 80%;
 					}
 				}
 			}
 
 		}
-		&.levelUp .title {
-			pointer-events: none;
-		}
 
 		&.levelUp,
 		&.record {
 			.content {
-				.title:not(.small) {
+				.title.big {
 					font-size: 1.5em;
 				}
 			}
@@ -724,7 +952,7 @@ export default toNative(OverlayCustomTrainRenderer);
 
 	&.editable {
 		.editableField, .emote {
-			outline: 1px dashed v-bind(colorTextFade);
+			outline: 1px dashed v-bind(cssColorTextFade);
 			border-radius: .5em;
 			padding: 0 2px;
 			&.isEmpty {
@@ -747,9 +975,9 @@ export default toNative(OverlayCustomTrainRenderer);
 				background-color: #ffffff;
 			}
 		}
-		.record, .success {
+		.record, .success, .levelUp {
 			.editableField, .emote {
-				outline-color: v-bind(colorBgFade);
+				outline-color: v-bind(cssColorBgFade);
 			}
 		}
 	}
@@ -762,6 +990,16 @@ export default toNative(OverlayCustomTrainRenderer);
 		width: 100%;
 		height: 100%;
 		pointer-events: none;
+		animation: scrollUp .35s linear infinite;
+
+		@keyframes scrollUp {
+			0% {
+				transform: translateY(0%);
+			}
+			100% {
+				transform: translateY(-125%);
+			}
+		}
 	}
 
 	.fade-enter-active {

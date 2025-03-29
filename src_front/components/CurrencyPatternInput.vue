@@ -33,7 +33,7 @@ import Utils from '@/utils/Utils';
 		Icon,
 		contenteditable,
 	},
-	emits:["update:modelValue"],
+	emits:["update:modelValue", "change"],
 })
 class CurrencyPatternInput extends Vue {
 
@@ -44,7 +44,7 @@ class CurrencyPatternInput extends Vue {
 	public suffix: string = '';
 
 	public mounted(){
-		const match = this.modelValue.match(new RegExp(`^(.*?)${Utils.CURRENCY_AMOUNT_TOKEN}(.*?)$`));
+		const match = this.modelValue.trim().match(new RegExp(`^(.*?)${Utils.CURRENCY_AMOUNT_TOKEN}(.*?)$`));
 		if(match){
 			this.prefix = match[1];
 			this.suffix = match[2];
@@ -54,6 +54,7 @@ class CurrencyPatternInput extends Vue {
 	public onChange(){
 		const pattern = this.prefix + Utils.CURRENCY_AMOUNT_TOKEN + this.suffix;
 		this.$emit('update:modelValue', pattern);
+		this.$emit('change', pattern);
 	}
 
 }

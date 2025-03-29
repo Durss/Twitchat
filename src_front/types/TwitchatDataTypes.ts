@@ -2224,6 +2224,14 @@ export namespace TwitchatDataTypes {
 		 */
 		levelsDuration_s:number;
 		/**
+		 * Date at which the current train/level expires
+		 */
+		expires_at:number;
+		/**
+		 * Contains the date at which the cooldown will end
+		 */
+		coolDownEnd_at:number;
+		/**
 		 * Post progress on chat?
 		 */
 		postLevelUpOnChat:boolean;
@@ -2264,6 +2272,10 @@ export namespace TwitchatDataTypes {
 		 */
 		successLabel:string;
 		/**
+		 * Text displayed when train complete with level and percent reached
+		 */
+		successLabelSummary:string;
+		/**
 		 * Emote for the "train complete"
 		 */
 		successEmote:string;
@@ -2291,7 +2303,7 @@ export namespace TwitchatDataTypes {
 		 * Levels amounts.
 		 * coma seperated numbers
 		 */
-		levelAmounts:string;
+		levelAmounts:number[];
 		/**
 		 * Current all time record info
 		 */
@@ -2329,6 +2341,10 @@ export namespace TwitchatDataTypes {
 		 * Current train amount
 		 */
 		amount:number;
+		/**
+		 * Reference to internal timeout
+		 */
+		timeoutRef?:string;
 		/**
 		 * Activities for this train
 		 */
