@@ -1,6 +1,6 @@
 {
 	"name": "twitchat",
-	"version": "15.15.0",
+	"version": "15.15.1-beta",
 	"private": false,
 	"author": "Durss",
 	"description": "Full featured alternative Twitch chat",
