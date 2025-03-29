@@ -589,6 +589,10 @@
 		"private_mod_message": {
 			"accepted": "accepté",
 			"refused": "refusé"
+		},
+		"custom_train_summary": {
+			"title": "\"{NAME}\" a terminé au niveau {LEVEL} à {PERCENT} pour un total de {AMOUNT}.",
+			"record": "record"
 		}
 	}
 }

@@ -589,6 +589,10 @@
 		"private_mod_message": {
 			"accepted": "accepted",
 			"refused": "refused"
+		},
+		"custom_train_summary": {
+			"title": "\"{NAME}\" completed at level {LEVEL} at {PERCENT} for a total of {AMOUNT}.",
+			"record": "record"
 		}
 	}
 }

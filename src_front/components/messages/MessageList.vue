@@ -642,7 +642,8 @@ class MessageList extends Vue {
 				return this.config.filters.raid === true;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY: {
+			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY:
+			case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_SUMMARY: {
 				return this.config.filters.hype_train_summary === true;
 			}
 

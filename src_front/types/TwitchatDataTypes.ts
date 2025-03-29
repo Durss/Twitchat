@@ -2701,10 +2701,12 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_PROGRESS:"hype_train_progress",
 		HYPE_TRAIN_COMPLETE:"hype_train_complete",
 		LOW_TRUST_TREATMENT:"low_trust_treatment",
+		CUSTOM_TRAIN_SUMMARY:"custom_train_summary",
 		CHAT_HIGHLIGHT_CLOSE:"chat_highlight_close",
 		YOUTUBE_SUBSCRIPTION:"youtube_subscription",
 		AD_BREAK_APPROACHING:"ad_break_approaching",
 		MUSIC_ADDED_TO_QUEUE:"music_added_to_queue",
+		CUSTOM_TRAIN_LEVEL_UP:"custom_train_level_up",
 		GOXLR_SAMPLE_COMPLETE:"goxlr_sample_complete",
 		OBS_INPUT_MUTE_TOGGLE:"obs_input_mute_toggle",
 		HYPE_TRAIN_APPROACHING:"hype_train_approaching",
@@ -2816,6 +2818,7 @@ export namespace TwitchatDataTypes {
 		ad_break_start_chat:true,
 		obs_recording_stop:false,
 		goal_step_complete:false,
+		custom_train_summary:true,
 		obs_recording_start:false,
 		youtube_subscription:true,
 		hype_train_progress:false,
@@ -2823,6 +2826,7 @@ export namespace TwitchatDataTypes {
 		music_added_to_queue:true,
 		ad_break_approaching:false,
 		chat_highlight_close:false,
+		custom_train_level_up:false,
 		goxlr_sample_complete:false,
 		obs_input_mute_toggle:false,
 		hype_train_cooled_down:true,
@@ -2985,6 +2989,8 @@ export namespace TwitchatDataTypes {
 									| MessagePlayabilityInputData
 									| MessageGoalStepCompleteData
 									| MessageChatPollData
+									| MessageCustomTrainLevelUpData
+									| MessageCustomTrainSummaryData
 	;
 
 	/**
@@ -3898,6 +3904,74 @@ export namespace TwitchatDataTypes {
 	export interface MessageHypeTrainCooledDownData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"hype_train_cooled_down";
+	}
+
+	/**
+	 * Represents a custom train result
+	 */
+	export interface MessageCustomTrainLevelUpData extends AbstractTwitchatMessage {
+		channel_id: string;
+		type:"custom_train_level_up";
+		/**
+		 * Current hype train level
+		 */
+		level:number;
+		/**
+		 * Current hyper train level percent
+		 */
+		percent:number;
+		/**
+		 * Amount reached
+		 */
+		amount:number;
+		/**
+		 * Train ID
+		 */
+		trainId:string;
+		/**
+		 * Train name
+		 */
+		trainName:string;
+		/**
+		 * Is new record?
+		 */
+		isRecord:boolean;
+	}
+
+	/**
+	 * Represents a custom train result
+	 */
+	export interface MessageCustomTrainSummaryData extends AbstractTwitchatMessage {
+		channel_id: string;
+		type:"custom_train_summary";
+		/**
+		 * Activities
+		 */
+		activities: CustomTrainState["activities"];
+		/**
+		 * Current hype train level
+		 */
+		level:number;
+		/**
+		 * Current hyper train level percent
+		 */
+		percent:number;
+		/**
+		 * Amount reached
+		 */
+		amount:number;
+		/**
+		 * Train ID
+		 */
+		trainId:string;
+		/**
+		 * Train name
+		 */
+		trainName:string;
+		/**
+		 * Is new record?
+		 */
+		isRecord:boolean;
 	}
 
 	/**

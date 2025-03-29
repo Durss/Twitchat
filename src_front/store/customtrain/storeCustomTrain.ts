@@ -148,20 +148,37 @@ export const storeCustomTrain = defineStore('customTrain', {
 					if(state.timeoutRef) SetTimeoutWorker.instance.delete(state.timeoutRef)
 					state.timeoutRef = SetTimeoutWorker.instance.create(()=> {
 						const level = currentLevel();
+						const total = state.activities.map(a=> a.amount).reduce((a,b)=> a + b, 0);
+						const percent = (total - level.offset) / level.goal;
 						train.coolDownEnd_at = Date.now() + train.cooldownDuration_s * 1000;
 						train.expires_at = 0;
 						delete this.customTrainStates[train.id];
 						// Set all time record if none exist yet
 						if(!train.testing && !train.allTimeRecord && level.index > 1) {
-							const total = state.activities.map(a=> a.amount).reduce((a,b)=> a + b, 0);
 							train.allTimeRecord = {
 								amount:total,
 								date: Date.now(),
 								level: level.index,
-								percent: (total - level.offset) / level.goal,
+								percent,
 							}
 						}
 						this.saveData();
+
+						const message:TwitchatDataTypes.MessageCustomTrainSummaryData = {
+							channel_id:StoreProxy.auth.twitch.user.id,
+							date:Date.now(),
+							id:Utils.getUUID(),
+							platform:"twitchat",
+							type:TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_SUMMARY,
+							trainId:train.id,
+							trainName:train.title,
+							amount:state.amount,
+							level:level.index,
+							percent,
+							isRecord:train.allTimeRecord?.amount === state.amount,
+							activities:state.activities.concat(),
+						};
+						StoreProxy.chat.addMessage(message);
 					}, train.expires_at - Date.now());
 				}
 
@@ -219,38 +236,55 @@ export const storeCustomTrain = defineStore('customTrain', {
 					messageId,
 				})
 
+				// New all time record ?
+				if(!train.testing // Don't register if testing a fake train
+					&& train.allTimeRecord
+					&& this.customTrainStates[train.id].amount > train.allTimeRecord.amount) {
+						const levels = train.levelAmounts.concat();
+						levels.unshift(0);
+
+						let offset = 0;
+						let goal = levels[0] || 0;
+						let i = 0;
+						const amount = this.customTrainStates[train.id].amount;
+						for (i = 1; i < levels.length; i++) {
+							const level = levels[i];
+							if(level > amount || i === levels.length - 1) {
+								offset = levels[i-1];
+								goal = level - offset;
+								break;
+							}
+						}
+
+						train.allTimeRecord.amount = amount;
+						train.allTimeRecord.date = Date.now();
+						train.allTimeRecord.level = i;
+						train.allTimeRecord.percent = (amount - offset) / goal;
+					}
+
 				// Level up ?
 				const newLevel = currentLevel();
 				if(newLevel.index !== prevLevel.index) {
 					train.expires_at = Date.now() + train.levelsDuration_s * 1000;
 					scheduleEnd();
+
+					const message:TwitchatDataTypes.MessageCustomTrainLevelUpData = {
+						channel_id:StoreProxy.auth.twitch.user.id,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_LEVEL_UP,
+						trainId:train.id,
+						trainName:train.title,
+						amount:this.customTrainStates[train.id].amount,
+						level:newLevel.index,
+						percent:(this.customTrainStates[train.id].amount - newLevel.offset) / newLevel.goal,
+						isRecord:train.allTimeRecord?.amount === this.customTrainStates[train.id].amount,
+					};
+
+					StoreProxy.chat.addMessage(message);
 				}
 
-				// New all time record ?
-				if(!train.testing // Don't register if testing a fake train
-				&& train.allTimeRecord
-				&& this.customTrainStates[train.id].amount > train.allTimeRecord.amount) {
-					const levels = train.levelAmounts.concat();
-					levels.unshift(0);
-
-					let offset = 0;
-					let goal = levels[0] || 0;
-					let i = 0;
-					const amount = this.customTrainStates[train.id].amount;
-					for (i = 1; i < levels.length; i++) {
-						const level = levels[i];
-						if(level > amount || i === levels.length - 1) {
-							offset = levels[i-1];
-							goal = level - offset;
-							break;
-						}
-					}
-
-					train.allTimeRecord.amount = amount;
-					train.allTimeRecord.date = Date.now();
-					train.allTimeRecord.level = i;
-					train.allTimeRecord.percent = (amount - offset) / goal;
-				}
 				this.saveData();
 			}
 			this.broadcastStates();
