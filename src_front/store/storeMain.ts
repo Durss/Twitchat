@@ -933,6 +933,7 @@ export const storeMain = defineStore("main", {
 			Database.instance.connect().then(async ()=> {
 				try {
 					await StoreProxy.chat.preloadMessageHistory();
+					await StoreProxy.groq.preloadMessageHistory();
 				}catch(error) {
 					console.error("An error occured when preloading chat history");
 					console.error(error);

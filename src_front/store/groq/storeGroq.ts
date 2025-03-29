@@ -1,15 +1,27 @@
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Utils from "@/utils/Utils";
 import Groq from "groq-sdk";
+import type { ChatCompletionCreateParamsNonStreaming } from "groq-sdk/resources/chat/completions";
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import { reactive, type UnwrapRef } from 'vue';
+import Database from "../Database";
 import DataStore from '../DataStore';
 import type { IGroqActions, IGroqGetters, IGroqState } from '../StoreProxy';
 import StoreProxy from "../StoreProxy";
-import Utils from "@/utils/Utils";
-import Database from "../Database";
-import type { ChatCompletionCreateParamsNonStreaming } from "groq-sdk/resources/chat/completions";
 
 let groq:Groq|null = null;
+const OPEN_TAG = "⟦";
+const CLOSE_TAG = "⟧";
+
+const getAnonUserName = (login:string, userMap:{[login:string]:string}):string => {
+	const key = Object.keys(userMap).find( v => v.toLowerCase() === login.toLowerCase())
+	let username = userMap[key || ""];
+	if(!key) {
+		username = OPEN_TAG + Object.keys(userMap).length + CLOSE_TAG;
+		userMap[login] = username;
+	}
+	return username;
+}
 
 export const storeGroq = defineStore('groq', {
 	state: () => ({
@@ -47,6 +59,7 @@ export const storeGroq = defineStore('groq', {
 
 		async preloadMessageHistory():Promise<void> {
 			Database.instance.getGroqHistoryList().then(res=>{
+				console.log("Groq history loaded", res);
 				if(res.length === 0) return;
 				this.answerHistory = res;
 			});
@@ -102,6 +115,7 @@ export const storeGroq = defineStore('groq', {
 				date:Date.now(),
 				prompt: "",
 				answer: "",
+				userMap: {},
 			});
 			const prompt:Groq.Chat.Completions.ChatCompletionMessageParam[] = [];
 			if(!repromptEntry) {
@@ -112,6 +126,20 @@ export const storeGroq = defineStore('groq', {
 			}
 
 			if(preprompt) {
+				if(repromptEntry) {
+					const userMap = repromptEntry.userMap || {};
+
+					//Replace usernames of the usermap with their anon equivalent
+					for (const key in userMap) {
+						preprompt = preprompt.replace(key, userMap[key]);
+					}
+
+					// Replace mentions in the form of @xxx with anonymized versions
+					const mentionRegex = /@(\w+)/g;
+					preprompt = preprompt.replace(mentionRegex, (_, mention:string) => {
+						return getAnonUserName(mention, userMap);
+					});
+				}
 				prompt.push({
 						role: "system",
 						content: preprompt,
@@ -126,12 +154,16 @@ export const storeGroq = defineStore('groq', {
 				const sortedList = messagesList.sort((a,b) => a.date - b.date);
 				let currentUser = "";
 				let split = false;
-				//Merge consecutive messages from same users to reduce token usage
+				// User name to anon name map
+				// {"login":"anon"}
+				let userMap:{[login:string]:string} = {};
+				// Merge consecutive messages from same users to reduce token usage
 				const splitter = " — ";
 				for (let i = 0; i < sortedList.length; i++) {
 					const m = sortedList[i];
-					if(currentUser != m.user.displayNameOriginal) {
-						currentUser = m.user.displayNameOriginal;
+					let anonUser = getAnonUserName(m.user.displayNameOriginal, userMap);
+					if(currentUser != anonUser) {
+						currentUser = anonUser;
 						mainPrompt += "\n" + currentUser + ": ";
 						split = false;
 					}
@@ -139,12 +171,25 @@ export const storeGroq = defineStore('groq', {
 					mainPrompt += m.message;
 					split = true;
 				}
+
+				//Replace usernames of the usermap with their anon equivalent
+				for (const key in userMap) {
+					mainPrompt = mainPrompt.replace(key, userMap[key]);
+				}
+
+				// Replace mentions in the form of @xxx with anonymized versions
+				const mentionRegex = /@(\w+)/g;
+				mainPrompt = mainPrompt.replace(mentionRegex, (_, mention:string) => {
+					return getAnonUserName(mention, userMap);
+				});
+
+				historyEntry.userMap = userMap;
 			}
 
 			prompt.push({
-					role: "user",
-					content: mainPrompt,
-				});
+				role: "user",
+				content: mainPrompt,
+			});
 
 			historyEntry.prompt = mainPrompt;
 			if(!repromptEntry) this.answerHistory.push(historyEntry);

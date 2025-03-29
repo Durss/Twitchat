@@ -54,7 +54,7 @@
 			{
 				"i": "sad",
 				"l": "Dîtes au revoir...",
-				"d": "Twitch ayant coupé un service j'utilisais pour obtenir des événements non documentés, il est temps de dire au revoir aux notifications de messages épinglés et de contributions aux défis communautaires ainsi qu'aux triggers associés.",
+				"d": "Twitch ayant coupé un service jusque là utilisé pour obtenir des événements non documentés, il est temps de dire au revoir aux notifications de messages épinglés et de contributions aux défis communautaires ainsi qu'aux triggers associés.\nLe viewer count ne se mettra plus à jour que toutes les 5 minutes.",
 				"g": "update_images/solong.png"
 			},
 			{
@@ -82,7 +82,7 @@
 			},
 			{
 				"i": "donate",
-				"d": "Twitchat est mon activité principale depuis maintenant +2 ans <b>sans aucune autre source de revenus</b>.\n\nSi vous pouvez vous le permettre, un don sur PayPal ou un soutient mensuel sur Patreon m'aidera énormément ❤️"
+				"d": "Bien que j'ai récemment accepté une offre d'emploi, Twitchat a été mon activité principale pendant presque 3 ans sans aucune autre source de revenus.\n\nSi vous en avez les moyens, un don unique sur PayPal ou un soutien mensuel sur Patreon serait super apprécié ❤️"
 			}
 		],
 		"forceRead": {

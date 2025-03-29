@@ -4,13 +4,13 @@
 	:class="{isNew:entry.date > Date.now() - 10000}">
 		<div class="wrapper">
 			<ToggleBlock v-if="entry.preprompt" :open="false" title="Preprompt" small>
-				<div class="preprompt">{{ entry.preprompt.trim() }}</div>
+				<div class="preprompt">{{ deanonymizeUsers(entry.preprompt.trim()) }}</div>
 			</ToggleBlock>
 			<ToggleBlock v-if="entry.prompt" :open="false" title="Prompt" small>
-				<div class="prompt">{{ entry.prompt.trim() }}</div>
+				<div class="prompt">{{ deanonymizeUsers(entry.prompt.trim()) }}</div>
 			</ToggleBlock>
 			<img v-if="entry.answer.length < 2 || reprompting" class="loader" src="@/assets/icons/loader.svg" />
-			<div class="answer" v-else>{{ entry.answer }}</div>
+			<div class="answer" v-else>{{ deanonymizeUsers(entry.answer) }}</div>
 			<div class="date">{{ date }}</div>
 
 			<form @submit.prevent="onSubmit">
@@ -100,6 +100,19 @@ class GroqHistoryItem extends Vue {
 		this.refreshTimeout = window.setTimeout(() => {
 			this.refreshDate();
 		}, 1000);
+	}
+
+	/**
+	 * Deanonimize username
+	 * @param text
+	 */
+	public deanonymizeUsers(text:string):string {
+		for (const login in this.entry.userMap) {
+			const anon = this.entry.userMap[login];
+			const reg = new RegExp(anon.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), "gi");
+			text = text.replace(reg, login);
+		}
+		return text
 	}
 
 	/**

@@ -2127,6 +2127,10 @@ export namespace TwitchatDataTypes {
 		 * Preprompt used
 		 */
 		preprompt?:string;
+		/**
+		 * Contains anonymised username map
+		 */
+		userMap:{[anonName:string]:string};
 	}
 
 	/**

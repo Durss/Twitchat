@@ -766,7 +766,6 @@ export const storeChat = defineStore('chat', {
 				}
 				messageList.unshift(splitter);
 
-				const uid = StoreProxy.auth.twitch.user.id;
 				let lastRaid = false;
 				let lastCheer = false;
 				let lastReward = false;

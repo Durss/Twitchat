@@ -13,7 +13,7 @@ export default class Database {
 
 	private static _instance:Database;
 
-	private DB_VERSION:number = 6;
+	private DB_VERSION:number = 7;
 
 	private _dbConnection!:IDBOpenDBRequest;
 	private _messageStore!:IDBObjectStore;
@@ -498,6 +498,19 @@ export default class Database {
 			this._groqStore.createIndex("id", "id", { unique: true });
 			await new Promise<void>((resolve)=>{
 				this._groqStore.transaction.oncomplete = (event) => {
+					console.log("GROQ_HISTORY_TABLE created", event);
+					resolve();
+				}
+				this._groqStore.transaction.onerror = (event) => {
+					const version = this._db.version;
+					Sentry.captureException(event);
+					Sentry.captureMessage("Groq table creation error. DB version: "+version);
+					resolve();
+				}
+				this._groqStore.transaction.onabort = (event) => {
+					const version = this._db.version;
+					Sentry.captureException(event);
+					Sentry.captureMessage("Groq table creation aborted. DB version: "+version);
 					resolve();
 				}
 			});
