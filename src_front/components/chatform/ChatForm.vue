@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<div class="holder">
 
-			<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" draggable="false" icon="params" @click="toggleParams()" :newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'chatform_params_5'}" />
+			<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" draggable="false" icon="params" @click="toggleParams()" :newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'chatform_params_6'}" />
 			<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" draggable="false" icon="commands" @click="$emit('update:showCommands', true)" :newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'chatform_cmds_2'}" />
 			<VueDraggable class="sortableItems"
 			v-model="$store.params.pinnedMenuItems"
