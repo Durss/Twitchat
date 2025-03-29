@@ -130,7 +130,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 				// Platform not enabled, ignore it
 				if(platform != "trigger" && train.platforms[platform] !== true) continue;
 				// Check if train/level is expired and on cooldown
-				if(Date.now() > train.expires_at && Date.now() < train.coolDownEnd_at) {
+				if(Date.now() < train.coolDownEnd_at) {
 					if(train.testing) {
 						// Reset train if it was being tested
 						// Makes sure the train doesn't get stuck if reloading
@@ -185,7 +185,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 						if(train.postSuccessOnChat && train.postSuccessChatMessage) {
 							const message = train.postSuccessChatMessage
 								.replace(/\{LEVEL\}/gi, level.index.toString())
-								.replace(/\{AMOUNT\}/gi, Math.floor(state.amount - level.offset).toString())
+								.replace(/\{AMOUNT\}/gi, Utils.formatCurrency(state.amount, train.currency))
 							MessengerProxy.instance.sendMessage(message);
 						}
 					}, train.expires_at - Date.now());
@@ -277,28 +277,30 @@ export const storeCustomTrain = defineStore('customTrain', {
 					train.expires_at = Date.now() + train.levelsDuration_s * 1000;
 					scheduleEnd();
 
-					const message:TwitchatDataTypes.MessageCustomTrainLevelUpData = {
-						channel_id:StoreProxy.auth.twitch.user.id,
-						date:Date.now(),
-						id:Utils.getUUID(),
-						platform:"twitchat",
-						type:TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_LEVEL_UP,
-						trainId:train.id,
-						trainName:train.title,
-						amount:this.customTrainStates[train.id].amount,
-						level:newLevel.index,
-						percent:(this.customTrainStates[train.id].amount - newLevel.offset) / newLevel.goal,
-						isRecord:train.allTimeRecord?.amount === this.customTrainStates[train.id].amount,
-					};
+					// if(prevLevel.index > 0) {
+						const message:TwitchatDataTypes.MessageCustomTrainLevelUpData = {
+							channel_id:StoreProxy.auth.twitch.user.id,
+							date:Date.now(),
+							id:Utils.getUUID(),
+							platform:"twitchat",
+							type:TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_LEVEL_UP,
+							trainId:train.id,
+							trainName:train.title,
+							amount:this.customTrainStates[train.id].amount,
+							level:newLevel.index,
+							percent:(this.customTrainStates[train.id].amount - newLevel.offset) / newLevel.goal,
+							isRecord:train.allTimeRecord?.amount === this.customTrainStates[train.id].amount,
+						};
 
-					StoreProxy.chat.addMessage(message);
+						StoreProxy.chat.addMessage(message);
 
-					if(train.postLevelUpOnChat && train.postLevelUpChatMessage) {
-						const message = train.postLevelUpChatMessage
-							.replace(/\{LEVEL\}/gi, newLevel.index.toString())
-							.replace(/\{AMOUNT\}/gi, Math.floor(this.customTrainStates[train.id].amount - newLevel.offset).toString())
-						MessengerProxy.instance.sendMessage(message);
-					}
+						if(train.postLevelUpOnChat && train.postLevelUpChatMessage) {
+							const message = train.postLevelUpChatMessage
+								.replace(/\{LEVEL\}/gi, newLevel.index.toString())
+								.replace(/\{AMOUNT\}/gi, Utils.formatCurrency(Math.ceil(train.levelAmounts[newLevel.index-1] - this.customTrainStates[train.id].amount), train.currency))
+							MessengerProxy.instance.sendMessage(message);
+						}
+					// }
 				}
 
 				this.saveData();

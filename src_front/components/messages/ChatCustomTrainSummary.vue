@@ -41,7 +41,7 @@ class ChatCustomTrainSummary extends AbstractChatMessage {
 	}
 
 	public get amount():string {
-		return Utils.formatCurrency(this.messageData.amount, this.train?.currency || "$"+Utils.CURRENCY_AMOUNT_TOKEN);
+		return Utils.formatCurrency(Math.round(this.messageData.amount), this.train?.currency || "$"+Utils.CURRENCY_AMOUNT_TOKEN);
 	}
 
 }
