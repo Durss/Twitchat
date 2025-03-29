@@ -11,7 +11,7 @@
 						:src="e.images.url_1x"
 						:alt="e.code"
 					@mouseover="openTooltip($event, e)"
-					@click="$emit('select', e.code)">
+					@click="$emit('select', e)">
 			</div>
 		</div>
 
@@ -33,7 +33,7 @@
 						:src="e.images.url_1x"
 						:alt="e.code"
 						@mouseover="openTooltip($event, e)"
-						@click="$emit('select', e.code)">
+						@click="$emit('select', e)">
 				</div>
 			</div>
 		</div>
