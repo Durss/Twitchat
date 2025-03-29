@@ -199,6 +199,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 			}
 			const ads = 2 - this.params.animDurationScale;
 			const amp = this.params.animStrength;
+			const sizeRatio =  (this.params.textSize-10)/70;
 			const chars = this.split.chars || [];
 			this.ready = true;
 
@@ -536,7 +537,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 							x: rect.left + vw,
 							y: rect.top,
 							angle: index + .01,
-							freq: scrollSpeed * .1 + Math.random() * .005,
+							freq: scrollSpeed * .1 + Math.random() * .005// + sizeRatio*.01,
 						};
 					});
 					chars.forEach((char, index) => {
@@ -550,7 +551,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 					const lastCharBounds = chars[chars.length-1].getBoundingClientRect().width;
 					const renderFrame = () => {
 						this.raf = requestAnimationFrame(() => renderFrame());
-						scroll += scrollSpeed;
+						scroll += scrollSpeed*(sizeRatio/2+1);
 
 						for (let i = 0; i < chars.length; i++) {
 							// if(i == 1) break;
@@ -559,7 +560,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 							let currX = parseFloat(char.style.left) + bounds.left;
 							let currY = parseFloat(char.style.top) + bounds.top;
 							currX = points[i].x + (Math.cos(target.angle+Math.PI)+1)/2 * ((2-amp) + (amp*4+10)) - scroll;
-							currY = points[i].y + Math.sin(target.angle) * amp * 10;
+							currY = points[i].y + Math.sin(target.angle) * amp * 10 * Math.pow(sizeRatio,2);
 							target.angle += target.freq;
 							char.style.left = `${currX - bounds.left}px`;
 							char.style.top = `${currY - bounds.top}px`;
