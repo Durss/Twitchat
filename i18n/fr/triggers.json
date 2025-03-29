@@ -965,6 +965,7 @@
 			"bingo_grid_count": "Nombre de bingos",
 			"bingo_grid_cell_x": "Coordonnée X de la case cochée",
 			"bingo_grid_cell_y": "Coordonnée Y de la case cochée",
+			"bingo_grid_cell_label": "Texte de la case cochée",
 			"bingo_grid_col": "Index de la colonne remplie",
 			"bingo_grid_row": "Index de la ligne remplie",
 			"bingo_grid_diag": "Diagonale remplie (0=↘ 1=↙)",
@@ -1002,7 +1003,9 @@
 			"goal_step_amount":"Montant de l'étape",
 			"goal_overlay_id":"ID de l'overlay d'objectifs",
 			"goal_overlay_title":"Titre de l'overlay d'objectifs",
-			"current_vod_url":"URL la VOD en cours"
+			"current_vod_url":"URL la VOD en cours",
+			"customTrain_level": "Niveau de train atteint",
+			"customTrain_amount_left": "Somme à récolter"
 		},
 		"events": {
 			"CHAT_COMMAND": {

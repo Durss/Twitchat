@@ -50,7 +50,6 @@
 </template>
 
 <script lang="ts">
-//TODO make sure the "canModerate" works
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';

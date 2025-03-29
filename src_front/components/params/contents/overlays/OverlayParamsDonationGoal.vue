@@ -273,14 +273,14 @@ class OverlayParamsDonationGoal extends Vue {
 	 * Opens Tiltify parameters
 	 */
 	public openTiltify():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.TILTIFY);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.TILTIFY);
 	}
 
 	/**
 	 * Opens Streamlabs parameters
 	 */
 	public openStreamlabs():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.STREAMLABS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.STREAMLABS);
 	}
 
 	/**

@@ -104,7 +104,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				if(!grid || !grid.enabled || !grid.heatClick) return;
 
 				const user = await StoreProxy.users.getUserFrom("twitch", data.click.channelId, data.click.uid, data.click.login, undefined, undefined, undefined, false, undefined, false);
-				
+
 				//Ignore banned users (but not timed out ones)
 				const chanInfo = user.channelInfo[StoreProxy.auth.twitch.user.id];
 				if(chanInfo.is_banned && !chanInfo.banEndDate) return;
@@ -127,7 +127,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				if(event.data.count <= 0) return;
 				const channelId = StoreProxy.auth.twitch.user.id;
 				const user = await StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, event.data.uid, event.data.login, event.data.login, undefined, undefined, false, undefined, false);
-				
+
 				//Ignore banned users (but not timed out ones)
 				const chanInfo = user.channelInfo[channelId];
 				if(chanInfo.is_banned && !chanInfo.banEndDate) return;
@@ -370,7 +370,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				if(entries[i].lock || entries[j].lock) continue;
 				[entries[i], entries[j]] = [entries[j], entries[i]];
 			}
-			
+
 			clearTimeout(debounceShuffle);
 			debounceShuffle = window.setTimeout(() => {
 				this.saveData(id, undefined, false);
@@ -420,6 +420,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				rowIndex:-1,
 				diagonal:-1,
 				coords:{x:-1,y:-1},
+				cellLabel:"",
 				complete:false,
 				reset:true,
 			}
@@ -469,7 +470,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 						if(!grid.additionalEntries) grid.additionalEntries = [];
 						grid.additionalEntries.push(...oldEntries);
 					}
-	
+
 					//Add missing items
 					while(grid.entries.length < count) {
 						//Pick from additional cells if any
@@ -484,14 +485,14 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 							});
 						}
 					}
-	
+
 					//Replace all spaces (but line breaks) with a normal space.
 					//Necessary because contenteditable sometimes adds non-breakable
 					//spaces in place of normal spaces.
 					grid.entries.forEach(entry => {
 						entry.label = entry.label.replace(/[^\S\r\n]/g, " ");
 					});
-	
+
 					//Check for new bingos
 					const newStates = grid.entries.map(v=>v.check);
 					const prevStates = prevGridStates[grid.id];
@@ -532,7 +533,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 							}
 							if(allTicked) prevHorizontalBingos.push(y);
 						}
-	
+
 						//Checking for diagonal bingos
 						if(grid.cols == grid.rows) {
 							//Top left to bottom right
@@ -546,7 +547,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 								allTicked &&= newStates[x + (grid.cols - 1 - x)*grid.cols];
 							}
 							if(allTicked) newDiagonalBingos.push(1);
-	
+
 							//Bottom left to top right
 							allTicked = true;
 							for (let x = 0; x < grid.cols; x++) {
@@ -559,18 +560,20 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 							}
 							if(allTicked) prevDiagonalBingos.push(1);
 						}
-	
+
 						newVerticalBingos = newVerticalBingos.filter(index => prevVerticalBingos.indexOf(index) == -1);
 						newHorizontalBingos = newHorizontalBingos.filter(index => prevHorizontalBingos.indexOf(index) == -1);
 						newDiagonalBingos = newDiagonalBingos.filter(index => prevDiagonalBingos.indexOf(index) == -1);
-	
+
 						const buildMessage = ():TwitchatDataTypes.MessageBingoGridData => {
 							let x = -1;
 							let y = -1;
+							let label = "";
 							if(cellId) {
 								const index = grid.entries.findIndex(e => e.id == cellId);
 								x = index%grid.cols;
 								y = Math.floor(index/grid.cols);
+								label = grid.entries[index].label;
 							}
 							return {
 								id:Utils.getUUID(),
@@ -584,6 +587,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 								rowIndex:-1,
 								diagonal:-1,
 								coords:{x,y},
+								cellLabel:label,
 								complete:false,
 								reset:false,
 								user:StoreProxy.auth.twitch.user,
@@ -604,7 +608,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 							message.diagonal = index;
 							StoreProxy.chat.addMessage(message);
 						});
-	
+
 						//All cells ticked?
 						if(grid.entries.filter(v=>v.check === true).length === grid.entries.length) {
 							const message = buildMessage();
@@ -613,9 +617,9 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 						}
 						PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:gridId, bingo:grid, newVerticalBingos, newHorizontalBingos,  newDiagonalBingos});
 					}
-	
+
 					prevGridStates[grid.id] = newStates;
-	
+
 					if(!grid.enabled) {
 						this.availableOverlayList = this.availableOverlayList.filter(v => v.id != grid.id);
 					}
@@ -681,6 +685,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 					rowIndex:-1,
 					diagonal:-1,
 					coords:{x,y},
+					cellLabel:cell.label,
 					complete:false,
 					reset:false,
 					user:StoreProxy.auth.twitch.user,

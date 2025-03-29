@@ -77,6 +77,7 @@ import { storeTwitchBot } from './store/twitchbot/storeTwitchBot';
 import { storeGroq } from './store/groq/storeGroq';
 import { storeChatPoll } from './store/chat_poll/storeChatPoll';
 import { storeAnimatedText } from './store/animated_text/storeAnimatedText';
+import { storeCustomTrain } from './store/customtrain/storeCustomTrain';
 
 window.setInitMessage("Booting app...");
 
@@ -293,6 +294,7 @@ function buildApp() {
 	StoreProxy.default.playability = storePlayability();
 	StoreProxy.default.twitchBot = storeTwitchBot();
 	StoreProxy.default.animatedText = storeAnimatedText();
+	StoreProxy.default.customTrain = storeCustomTrain();
 	StoreProxy.default.groq = storeGroq();
 
 	const keys = Object.keys(StoreProxy.default);

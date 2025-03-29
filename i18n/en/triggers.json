@@ -965,6 +965,7 @@
 			"bingo_grid_count": "Bingo count",
 			"bingo_grid_cell_x": "X coordinates of the ticked cell",
 			"bingo_grid_cell_y": "Y coordinates of the ticked cell",
+			"bingo_grid_cell_label": "Label of the ticked cell",
 			"bingo_grid_col": "Index of the filled column",
 			"bingo_grid_row": "Index of the filled row",
 			"bingo_grid_diag": "Index of the filled diagonal",
@@ -1002,7 +1003,9 @@
 			"goal_step_amount":"Step amount",
 			"goal_overlay_id":"Goal overlay ID",
 			"goal_overlay_title":"Goal overlay title",
-			"current_vod_url":"URL of the current VOD"
+			"current_vod_url":"URL of the current VOD",
+			"customTrain_level": "Train level reached",
+			"customTrain_amount_left": "Ammount left to reach next level"
 		},
 		"events": {
 			"CHAT_COMMAND": {

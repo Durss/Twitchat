@@ -121,6 +121,7 @@ export default class DataStoreCommon {
 	public static TWITCH_BOT:string = "twitchBot";
 	public static TIMERS_CONFIGS:string = "timersConfigs";
 	public static ANIMATED_TEXT_CONFIGS:string = "animatedTextConfigs";
+	public static CUSTOM_TRAIN_CONFIGS:string = "customTrainConfigs";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";

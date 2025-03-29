@@ -177,7 +177,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
-	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 	public get showPlaceholderWarning():boolean {
 		if(!this.isMediaSource || this.param_sourceAction_conf.value != "show") return false;
 		return /\{[^ }]+\}/gi.test(this.param_media_conf.value);

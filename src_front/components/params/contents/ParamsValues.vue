@@ -47,7 +47,7 @@
 					:open="false" noArrow
 					:key="entry.value.id"
 					:title="entry.value.name">
-					
+
 						<template #right_actions>
 							<div class="actions">
 								<TTButton class="actionBt" v-tooltip="$t('values.editBt')" icon="edit" @click.stop="editValue(entry.value)" />
@@ -60,26 +60,26 @@
 								v-if="!entry.value.perUser"
 								:paramData="entry.param"
 								@change="onChangeValue(entry)" />
-							
+
 							<div class="userList" v-else>
 								<template v-if="Object.keys(entry.value.users ?? {}).length > 0">
 									<div class="search">
 										<input type="text" :placeholder="$t('values.form.search')" v-model="entry.search[entry.value.id]" @input="searchUser(entry)">
 										<Icon name="loader" class="loader" v-show="entry.idToLoading[entry.value.id] === true" />
 									</div>
-										
+
 									<TTButton class="resetBt" v-if="entry.search[entry.value.id].length === 0"
 										secondary
 										@click="resetUsers(entry)">{{ $t('values.form.reset_all_users') }}</TTButton>
-									
+
 									<TTButton class="clearBt" v-if="entry.search[entry.value.id].length === 0"
 										alert
 										@click="clearUsers(entry)">{{ $t('values.form.clear_all_users') }}</TTButton>
-									
+
 									<TTButton class="loadAllBt" v-if="entry.search[entry.value.id].length === 0 && entry.idToAllLoaded[entry.value.id] !== true"
 										@click="loadUsers(entry)"
 										:loading="entry.idToLoading[entry.value.id]">{{ $t('values.form.load_all_users') }}</TTButton>
-				
+
 									<div class="noResult" v-if="entry.idToNoResult[entry.value.id] === true">{{ $t("values.user_not_found") }}</div>
 								</template>
 
@@ -282,7 +282,7 @@ class ParamsValues extends Vue implements IParameterContent {
 
 	/**
 	 * Called when requesting to delete a value
-	 * @param entry 
+	 * @param entry
 	 */
 	public deleteValue(entry:ValueEntry):void {
 		this.$confirm(this.$t("values.delete_confirm.title"), this.$t("values.delete_confirm.desc")).then(()=>{
@@ -340,7 +340,7 @@ class ParamsValues extends Vue implements IParameterContent {
 		entry.idToUsers[entry.value.id] = entry.idToUsers[entry.value.id]!.filter(v=>v.user.id != userEntry.user.id);
 		this.$store.values.updateValue(entry.value.id, entry.value.value);
 	}
-	
+
 	/**
 	 * Search for a user.
 	 * If all users are loaded, search within them.
@@ -432,23 +432,23 @@ class ParamsValues extends Vue implements IParameterContent {
 			}
 			entry.idToNoResult[value.id] = (entry.idToUsers[value.id] || []).filter(v=>!v.hide).length == 0;
 			entry.idToLoading[value.id] = false;
-			
+
 		}, 500);
 	}
 
 	/**
 	 * Load all users
-	 * @param valueItem 
+	 * @param valueItem
 	 */
 	public async loadUsers(valueItem:ValueEntry):Promise<void> {
 		if((valueItem.value.users || []).length == 0) return;
-		
+
 		valueItem.idToLoading[valueItem.value.id] = true;
 		let entries:UserEntry[] = [];
 		let loginUpdated:boolean = false;
 
 		clearTimeout(this.timeoutSearch);
-		
+
 		//Get Twitch users
 		const twitchUsers = await TwitchUtils.getUserInfo(Object.keys(valueItem.value.users!).filter(v=>valueItem.value.users![v].platform == "twitch"));
 		if(twitchUsers.length > 0) {
@@ -464,20 +464,20 @@ class ParamsValues extends Vue implements IParameterContent {
 					loginUpdated = true;
 				}
 				user.avatarPath = u.profile_image_url;
-				const res:UserEntry = { 
-					param, 
+				const res:UserEntry = {
+					param,
 					hide:false,
 					platform:"twitch",
 					user:{
 						id:user.id,
-						login:user.displayNameOriginal, 
+						login:user.displayNameOriginal,
 						avatar:user.avatarPath,
-					}, 
+					},
 				}
 				entries.push(res);
 			});
 		}
-		
+
 		//Get YouTube users
 		const youtubeIds = Object.keys(valueItem.value.users!).filter(v=>valueItem.value.users![v].platform == "youtube");
 		if(youtubeIds.length > 0) {
@@ -493,15 +493,15 @@ class ParamsValues extends Vue implements IParameterContent {
 							entry.login = user.login;//Refresh login
 							loginUpdated = true;
 						}
-						const res:UserEntry = { 
-							param, 
+						const res:UserEntry = {
+							param,
 							hide:false,
 							platform:"youtube",
 							user:{
 								id:user.id,
-								login:user.displayNameOriginal, 
+								login:user.displayNameOriginal,
 								avatar:user.avatarPath,
-							}, 
+							},
 						}
 						entries.push(res);
 					});
@@ -512,14 +512,14 @@ class ParamsValues extends Vue implements IParameterContent {
 					if(!entry) return null;
 					const value = entry.value || "";
 					const param:TwitchatDataTypes.ParameterData<string> = reactive({type:'string', longText:true, value});
-					const res:UserEntry = { 
-						param, 
+					const res:UserEntry = {
+						param,
 						hide:false,
 						platform:"youtube",
 						user:{
 							id:uid,
-							login:entry.login || "[Youtube User #"+uid.substring(0,5)+"...]", 
-						}, 
+							login:entry.login || "[Youtube User #"+uid.substring(0,5)+"...]",
+						},
 					}
 					entries.push(res);
 				});
@@ -527,7 +527,7 @@ class ParamsValues extends Vue implements IParameterContent {
 				valueItem.idToYoutubeConnect[valueItem.value.id] = true;
 			}
 		}
-		
+
 		for (const uid in valueItem.value.users) {
 			const user = valueItem.value.users[uid];
 			//If entry does not exists in the loaded list, push it
@@ -544,7 +544,7 @@ class ParamsValues extends Vue implements IParameterContent {
 				});
 			}
 		}
-		
+
 		if(entries.length > 0) {
 			valueItem.idToAllLoaded[valueItem.value.id] = true;
 			valueItem.idToUsers[valueItem.value.id] = entries;
@@ -556,7 +556,7 @@ class ParamsValues extends Vue implements IParameterContent {
 
 	/**
 	 * Reset all user values to empty string
-	 * @param entry 
+	 * @param entry
 	 */
 	public resetUsers(entry:ValueEntry):void {
 		this.$confirm(this.$t("values.reset_users_confirm.title"), this.$t("values.reset_users_confirm.desc"))
@@ -580,17 +580,17 @@ class ParamsValues extends Vue implements IParameterContent {
 
 	/**
 	 * Clears all users of a value
-	 * @param entry 
+	 * @param entry
 	 */
 	public clearUsers(entry:ValueEntry):void {
 		this.$confirm(this.$t("values.delete_users_confirm.title"), this.$t("values.delete_users_confirm.desc"))
 		.then(()=>{
 			//Reset value data
 			entry.value.users = {};
-	
+
 			//Reset view data
 			entry.idToUsers[entry.value.id] = [];
-	
+
 			this.$store.values.updateValue(entry.value.id, entry.value.value);
 		}).catch(()=>{});
 	}
@@ -609,7 +609,7 @@ class ParamsValues extends Vue implements IParameterContent {
 	 * Opens YouTube connect form
 	 */
 	public openYoutubeConnect():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.YOUTUBE);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.YOUTUBE);
 	}
 
 	/**

@@ -68,7 +68,6 @@
 			<Button small @click="simulateHypeTrain(true)" icon="train">Golden kappa train</Button>
 			<Button small @click="simulateEvent($event, 'hype_train_cooled_down')" icon="train">Hype train cooldown</Button>
 			<Button small @click="simulateEvent($event, 'hype_train_summary')" icon="train">Hype train summary</Button>
-			<Button small @click="simulateComunityBoost()" icon="boost">Community boost</Button>
 			<Button small @click="simulateAutomod()" icon="automod">Automod Twitch</Button>
 			<Button small @click="simulateAutomodTwitchat()" icon="automod">Automod Twitchat</Button>
 			<Button small @click="simulateEvent($event, 'autoban_join')" icon="automod">Automod Twitchat join</Button>
@@ -125,7 +124,6 @@ import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import EventSub from '@/utils/twitch/EventSub';
-import PubSub from '@/utils/twitch/PubSub';
 import staticEmotes from '@/utils/twitch/staticEmoteList.json';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -536,10 +534,6 @@ class DevmodeMenu extends Vue {
 
 	public async simulateHypeTrain(goldenKappa:boolean = false):Promise<void> {
 		EventSub.instance.simulateHypeTrain(goldenKappa);
-	}
-
-	public simulateComunityBoost():void {
-		PubSub.instance.simulateCommunityBoost();
 	}
 
 	/**

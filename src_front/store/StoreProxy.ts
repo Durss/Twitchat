@@ -7,12 +7,12 @@ import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/types/spotify/SpotifyDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { YoutubeAuthResult, YoutubeAuthToken } from "@/types/youtube/YoutubeDataTypes";
-import type { PubSubDataTypes } from "@/utils/twitch/PubSubDataTypes";
 import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type VoiceAction from "@/utils/voice/VoiceAction";
 import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 import type { YoutubeScopesString } from "@/utils/youtube/YoutubeScopes";
 import type { StreamerbotAction } from "@streamerbot/client";
+import type Groq from "groq-sdk";
 import type { Composer, VueI18n } from "vue-i18n";
 import type { Router } from "vue-router";
 import type { ElevenLabsModel, ElevenLabsVoice } from "./elevenlabs/storeElevenLabs";
@@ -21,7 +21,6 @@ import type { IPatreonMember, IPatreonTier } from "./patreon/storePatreon";
 import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/storeTiltify";
-import type Groq from "groq-sdk";
 
 /**
 * Created : 23/09/2022
@@ -82,6 +81,7 @@ export default class StoreProxy {
 	public static twitchBot: ITwitchBotState & ITwitchBotGetters & ITwitchBotActions & { $state: ITwitchBotState, $reset: () => void };
 	public static groq: IGroqState & IGroqGetters & IGroqActions & { $state: IGroqState, $reset: () => void };
 	public static animatedText: IAnimatedTextState & IAnimatedTextGetters & IAnimatedTextActions & { $state: IAnimatedTextState, $reset: () => void };
+	public static customTrain: ICustomTrainState & ICustomTrainGetters & ICustomTrainActions & { $state: ICustomTrainState, $reset: () => void };
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static asset:(path: string) => string;
@@ -3607,7 +3607,7 @@ export interface IAnimatedTextActions {
 	 */
 	populateData():void;
 	/**
-	 * Braodcast current animatedText and countdown statesvia the PublicAPI
+	 * Braodcast current animatedText states via the PublicAPI
 	 */
 	broadcastStates(id?:string):void;
 	/**
@@ -3631,4 +3631,54 @@ export interface IAnimatedTextActions {
 	 * Hide text currently displayed
 	 */
 	hideText(overlayId:string):Promise<void>
+}
+
+
+
+
+
+export interface ICustomTrainState {
+	/**
+	 * Custom train's list
+	 */
+	customTrainList: TwitchatDataTypes.CustomTrainData[],
+	/**
+	 * Custom train's states
+	 * This is a hash map of all custom trains currently running on the channel.
+	 */
+	customTrainStates: {[trainId:string]:TwitchatDataTypes.CustomTrainState}
+}
+
+export interface ICustomTrainGetters {
+}
+
+export interface ICustomTrainActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
+	/**
+	 * Braodcast current custom train states via the PublicAPI
+	 */
+	broadcastStates(id?:string):void;
+	/**
+	 * Create a custom train
+	 */
+	createCustomTrain():void;
+	/**
+	 * Deletes given custom train
+	 */
+	deleteCustomTrain(id:string):void;
+	/**
+	 * Registers an activity to any running custom train
+	 */
+	registerActivity(messageId:string, platform:ICustomTrainState["customTrainStates"][string]["activities"][number]["platform"], amount:number):void;
+	/**
+	 * Simulates a fake hype train
+	 */
+	simulateTrain(overlayId:string):Promise<void>;
+	/**
+	 * Saves data to server
+	 */
+	saveData():void;
 }

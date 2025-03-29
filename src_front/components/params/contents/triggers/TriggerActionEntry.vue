@@ -679,49 +679,49 @@ class TriggerActionEntry extends Vue {
 			}
 			case "music": {
 				if(!this.spotifyConnected) {
-					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
 					return;
 				}break
 			}
 			case "voicemod": {
 				if(!this.voicemodEnabled) {
-					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.VOICEMOD);
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.VOICEMOD);
 					return;
 				}break
 			}
 			case "goxlr": {
 				if(!this.goxlrEnabled) {
-					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.GOXLR);
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.GOXLR);
 					return;
 				}break
 			}
 			case "obs": {
 				if(!this.obsConnected) {
-					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS);
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.OBS);
 					return;
 				}break
 			}
 			case "ws": {
 				if(!this.wsConnected) {
-					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.WEBSOCKET);
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.WEBSOCKET);
 					return;
 				}break
 			}
 			case "streamerbot": {
 				if(!this.$store.streamerbot.connected) {
-					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.STREAMERBOT);
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.STREAMERBOT);
 					return;
 				}break
 			}
 			case "sammi": {
 				if(!this.$store.sammi.connected) {
-					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.SAMMI);
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.SAMMI);
 					return;
 				}break
 			}
 			case "mixitup": {
 				if(!this.$store.mixitup.connected) {
-					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.MIXITUP);
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.MIXITUP);
 					return;
 				}break
 			}
@@ -745,7 +745,7 @@ class TriggerActionEntry extends Vue {
 			}
 			case "groq": {
 				if(!this.$store.groq.connected) {
-					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.GROQ);
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.GROQ);
 					return;
 				}break;
 			}

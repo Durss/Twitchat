@@ -599,14 +599,14 @@ class TriggerCreateForm extends Vue {
 	 * Open connexions parameters
 	 */
 	public openConnexions():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
 	}
 
 	/**
 	 * Open OBS parameters
 	 */
 	public openOBS():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.OBS);
 	}
 
 	/**

@@ -710,6 +710,9 @@ export const storeDebug = defineStore('debug', {
 
 				case TwitchatDataTypes.TwitchatMessageType.BINGO_GRID: {
 					const grid = Utils.pickRand(StoreProxy.bingoGrid.gridList);
+					const x = Math.round(Math.random()*grid.cols);
+					const y = Math.round(Math.random()*grid.rows);
+					const label = grid.entries[x*y].label || "";
 					const m:TwitchatDataTypes.MessageBingoGridData = {
 						platform:"twitchat",
 						type,
@@ -726,6 +729,7 @@ export const storeDebug = defineStore('debug', {
 							x:Math.round(Math.random()*grid.cols),
 							y:Math.round(Math.random()*grid.rows),
 						},
+						cellLabel:label,
 						diagonal:Math.random() > .5? 1 : 0,
 						reset:Math.random() > .5,
 					};

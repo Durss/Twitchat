@@ -95,7 +95,7 @@ class TriggerActionWSEntry extends AbstractTriggerActionEntry {
 	}
 
 	public openConnectForm():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.WEBSOCKET);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.WEBSOCKET);
 	}
 
 }

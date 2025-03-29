@@ -58,6 +58,7 @@
 		"translation": "Traduction",
 		"key":"Clé",
 		"value":"Valeur",
+		"currency_pattern": "Devise",
 		"elapsed_duration":"il y a {DURATION}s",
 		"elapsed_duration_now":"maintenant",
 		"advanced_params": "Paramètres avancés",

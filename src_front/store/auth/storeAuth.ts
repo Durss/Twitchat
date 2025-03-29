@@ -7,7 +7,6 @@ import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
 import SetIntervalWorker from "@/utils/SetIntervalWorker";
 import EventSub from "@/utils/twitch/EventSub";
-import PubSub from "@/utils/twitch/PubSub";
 import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
@@ -232,7 +231,6 @@ export const storeAuth = defineStore('auth', {
 				});
 
 				MessengerProxy.instance.connect();
-				PubSub.instance.connect();
 				EventSub.instance.connect();
 				sRewards.loadRewards();
 				sExtension.init();

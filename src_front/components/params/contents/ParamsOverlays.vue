@@ -32,6 +32,8 @@
 		</div> -->
 
 		<div class="list" v-if="subContent == null">
+
+			<button class="item" @click="subContent = 'customtrain'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_overlays_customTrain'}"><img src="@/assets/img/overlays/custom_train.jpg" alt="Custom train"></button>
 			<button class="item" @click="subContent = 'donationgoals'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_7, id:'params_overlays_donationgoals'}"><img src="@/assets/img/overlays/donation_goals.jpg" alt="Goals"></button>
 			<button class="item" @click="subContent = 'bingogrid'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'params_overlays_bingogrid'}"><img src="@/assets/img/overlays/bingo_grids.jpg" alt="Bingo grid"></button>
 			<button class="item" @click="subContent = 'polls'" v-if="isAffiliate" v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_overlays_poll'}"><img src="@/assets/img/overlays/polls.jpg" alt="Polls"></button>
@@ -70,6 +72,7 @@
 			<OverlayParamsLabels class="block"			:open="subContent == 'labels'"			v-if="subContent == 'labels'" />
 			<OverlayParamsDonationGoal class="block"	:open="subContent == 'donationgoals'"	v-if="subContent == 'donationgoals'" />
 			<OverlayParamsAnimatedText class="block"	:open="subContent == 'animatedtext'"	v-if="subContent == 'animatedtext'" />
+			<OverlayParamsCustomTrain class="block"		:open="subContent == 'customtrain'"		v-if="subContent == 'customtrain'" />
 		</div>
 	</div>
 </template>
@@ -100,6 +103,7 @@ import OverlayParamsLabels from './overlays/OverlayParamsLabels.vue';
 import OverlayParamsDonationGoal from './overlays/OverlayParamsDonationGoal.vue';
 import OverlayParamsChatPoll from './overlays/OverlayParamsChatPoll.vue';
 import OverlayParamsAnimatedText from './overlays/OverlayParamsAnimatedText.vue';
+import OverlayParamsCustomTrain from './overlays/OverlayParamsCustomTrain.vue';
 
 @Component({
 	components:{
@@ -118,6 +122,7 @@ import OverlayParamsAnimatedText from './overlays/OverlayParamsAnimatedText.vue'
 		OverlayParamsBitswall,
 		OverlayParamsBingoGrid,
 		OverlayParamsHighlight,
+		OverlayParamsCustomTrain,
 		OverlayParamsPredictions,
 		OverlayParamsHeatDistort,
 		OverlayParamsDonationGoal,
@@ -139,7 +144,7 @@ class ParamsOverlays extends Vue implements IParameterContent {
 	public get exchangeChannelAvailable():boolean { return this.localConnectionAvailable || this.obsConnected; }
 	public get spotifyConfigured():boolean { return SpotifyHelper.instance.connected; }
 	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
-	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 	public get overlayUrl():string { return this.$overlayURL("unified"); }
 
 	public get classes():string[] {

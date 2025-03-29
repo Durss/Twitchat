@@ -722,7 +722,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 	 * Opens YouTube connect form
 	 */
 	public openYoutubeConnect():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.YOUTUBE);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.YOUTUBE);
 	}
 
 	/**

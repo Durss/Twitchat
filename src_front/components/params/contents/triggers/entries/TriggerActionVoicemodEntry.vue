@@ -53,7 +53,7 @@ class TriggerActionVoicemodEntry extends AbstractTriggerActionEntry {
 
 	public get vmConnected():boolean { return VoicemodWebSocket.instance.connected; }
 	public get subcontentVM():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.VOICEMOD; }
-	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 
 	public beforeMount():void {
 		this.param_action.listValues = TriggerActionVoicemodDataActionList.map((v):TwitchatDataTypes.ParameterDataListValue<TriggerActionVoicemodDataAction>=> {

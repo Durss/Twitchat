@@ -99,6 +99,7 @@ import ChatSuspendedTriggerStack from './ChatSuspendedTriggerStack.vue';
 import ChatTwitchCharityDonation from './ChatTwitchCharityDonation.vue';
 import ChatPrivateModerator from './ChatPrivateModerator.vue';
 import ChatChatPollResult from './ChatChatPollResult.vue';
+import ChatCustomTrainSummary from './ChatCustomTrainSummary.vue';
 
 @Component({
 	name:"MessageItem",
@@ -157,6 +158,7 @@ import ChatChatPollResult from './ChatChatPollResult.vue';
 		ChatTrackAddedToQueue,
 		ChatHypeTrainCooldown,
 		ChatLowTrustTreatment,
+		ChatCustomTrainSummary,
 		ChatAutomodTermsUpdate,
 		ChatMessageClipPending,
 		ChatWarnAcknowledgment,
@@ -264,7 +266,8 @@ class MessageItem extends Vue {
 			'private_mod_message':ChatPrivateModerator,
 			'connect':ChatConnect,
 			'disconnect':ChatConnect,
-			'gigantified_emote':ChatGiantEmote,
+			'gigantified_emote':ChatCustomTrainSummary,
+			'custom_train_summary':ChatCustomTrainSummary
 		};
 		if(!Object.hasOwn(map, this.messageData.type)) {
 			console.warn("MISSING MESSAGE COMPONENT FOR TYPE:", this.messageData.type);

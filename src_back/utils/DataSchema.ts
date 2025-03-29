@@ -2421,6 +2421,7 @@ const UserDataSchema = {
 					maxItems:100,
 					items:{
 						type: "object",
+						additionalProperties: false,
 						properties: {
 							id: { type: "string" },
 							enabled: { type: "boolean" },
@@ -2434,7 +2435,22 @@ const UserDataSchema = {
 							paused: { type: "boolean" },
 							pausedAt_ms: { type: "number", nullable: true },
 							endAt_ms: { type: "number", nullable: true },
-							duration_ms: { type: "number" }
+							duration_ms: { type: "number" },
+							overlayParams: {
+								type: "object",
+								additionalProperties: false,
+								properties: {
+									style: { enum: ["text", "bar"] },
+									bgColor: { type: "string", maxLength:20 },
+									bgEnabled: { type: "boolean" },
+									showIcon: { type: "boolean" },
+									textFont: { type: "string", maxLength:50 },
+									textSize: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+									textColor: { type: "string", maxLength:20 },
+									progressSize: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+									progressStyle:{ enum: ["fill", "empty"] },
+								}
+							}
 						}
 					}
 				},
@@ -2451,6 +2467,7 @@ const UserDataSchema = {
 					maxItems:10,
 					items:{
 						type: "object",
+						additionalProperties: false,
 						properties: {
 							id: { type: "string" },
 							enabled: { type: "boolean" },
@@ -2462,6 +2479,85 @@ const UserDataSchema = {
 							colorHighlights: {type:"string", maxLength:10},
 							textFont: {type:"string", maxLength:50},
 							textSize: {type:"number", minimum:1, maximum:300},
+						}
+					}
+				},
+			}
+		},
+
+		customTrainConfigs:{
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				customTrainList: {
+					type:"array",
+					minItems:0,
+					maxItems:10,
+					items:{
+						type: "object",
+						properties: {
+							id: { type: "string" },
+							enabled: { type: "boolean" },
+							testing: { type: "boolean" },
+							title: { type: "string" },
+							levelName: { type: "string" },
+							colorFill: { type: "string" },
+							colorBg: { type: "string" },
+							textFont: { type: "string" },
+							textSize: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+							currency: { type: "string" },
+							triggerEventCount: { type: "number", minimum:2, maximum:5 },
+							cooldownDuration_s: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+							levelsDuration_s: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+							expires_at: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+							coolDownEnd_at: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+							postLevelUpOnChat: { type: "boolean" },
+							postLevelUpChatMessage: { type: "string" },
+							postSuccessOnChat: { type: "boolean" },
+							postSuccessChatMessage: { type: "string" },
+							levelUpLabel: { type: "string" },
+							approachingLabel: { type: "string" },
+							approachingEmote: { type: "string" },
+							failedLabel: { type: "string" },
+							failedEmote: { type: "string" },
+							successLabel: { type: "string" },
+							successLabelSummary: { type: "string" },
+							successEmote: { type: "string" },
+							recordLabel: { type: "string" },
+							recordEmote: { type: "string" },
+							recordColorFill: { type: "string" },
+							recordColorBg: { type: "string" },
+							levelUpEmote: { type: "string" },
+							levelAmounts: {
+											type:"array",
+											minItems:0,
+											maxItems:1000,
+											items:{type:"number", minimum:0, maximum:Number.MAX_SAFE_INTEGER},
+										},
+							allTimeRecord:{
+								type: "object",
+								additionalProperties: false,
+								properties: {
+									date: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+									amount: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+									level: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+									percent: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+								}
+							},
+							platforms:{
+								type: "object",
+								additionalProperties: false,
+								properties: {
+									kofi:{ type: "boolean" },
+									streamelements:{ type: "boolean" },
+									patreon:{ type: "boolean" },
+									streamlabs:{ type: "boolean" },
+									tipeee:{ type: "boolean" },
+									tiltify:{ type: "boolean" },
+									streamlabs_charity:{ type: "boolean" },
+									twitch_charity:{ type: "boolean" },
+								}
+							}
 						}
 					}
 				},

@@ -5,7 +5,7 @@
 			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
 			<Icon name="newtab" theme="light" />
 		</a>
-		
+
 		<div class="card-item alert center" v-if="!obsConnected">
 			<p>{{ $t("heat.need_OBS") }}</p>
 			<TTButton class="button"
@@ -13,7 +13,7 @@
 				light alert
 				@click="openObs()">{{ $t('heat.need_OBS_connectBt') }}</TTButton>
 		</div>
-		
+
 		<template v-else>
 			<div class="header">{{ $t("overlay.heatDistort.description") }}</div>
 
@@ -22,17 +22,17 @@
 			</template>
 
 			<div class="card-item alert error" v-if="shaderstasticError" @click="shaderstasticError = false" ref="error">
-				<Icon name="alert" /> 
+				<Icon name="alert" />
 				<i18n-t scope="global" keypath="overlay.heatDistort.shadertastic_missing">
 					<template #URL>
 						<a href="https://www.shadertastic.com" target="_blank">{{ $t("overlay.heatDistort.shadertastic_missing_url") }}</a>
 					</template>
 				</i18n-t>
 			</div>
-			
+
 			<TTButton class="item center" icon="add" primary @click="addDistortion()"
 			v-if="distortionList.length < maxEntries">{{ $t("overlay.heatDistort.add_overlay") }}</TTButton>
-			
+
 			<TTButton class="item center" icon="add" premium @click="expandPremiumInfo = true"
 			v-else-if="!expandPremiumInfo && !isPremium">{{ $t("overlay.heatDistort.add_overlay") }}</TTButton>
 
@@ -85,7 +85,7 @@ class OverlayParamsHeatDistort extends Vue {
 
 	public expandPremiumInfo:boolean = false;
 	public shaderstasticError:boolean = false;
-	
+
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get isPremium():boolean{ return this.$store.auth.isPremium; }
 	public get maxEntries():number{ return this.isPremium? Config.instance.MAX_DISTORTION_OVERLAYS_PREMIUM : Config.instance.MAX_DISTORTION_OVERLAYS; }
@@ -97,11 +97,11 @@ class OverlayParamsHeatDistort extends Vue {
 	}
 
 	public openHeat():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.HEAT);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.HEAT);
 	}
 
 	public openObs():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.OBS);
 	}
 
 	public addDistortion():void {
@@ -135,7 +135,7 @@ class OverlayParamsHeatDistort extends Vue {
 				usersRefused:[],
 			},
 		});
-		
+
 		this.$nextTick().then(()=> {
 			const holder = this.$refs["distortion_"+id] as Vue[];
 			gsap.from(holder[0].$el, {height:0, paddingTop:0, paddingBottom:0, duration:.35, ease:"back.out", clearProps:"all"});
@@ -148,9 +148,9 @@ class OverlayParamsHeatDistort extends Vue {
 
 	/**
 	 * Called when a new distotion has been created and the overlay installed
-	 * @param sourceName 
-	 * @param vo 
-	 * @param suffix 
+	 * @param sourceName
+	 * @param vo
+	 * @param suffix
 	 */
 	public async distortionCreated(sourceName:string, vo:TwitchatDataTypes.HeatDistortionData, suffix:string):Promise<void> {
 		let filterTarget = "";
@@ -222,7 +222,7 @@ export default toNative(OverlayParamsHeatDistort);
 			line-height: 1.25em;
 		}
 	}
-	
+
 	&.alert {
 		align-items: center;
 	}

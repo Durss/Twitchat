@@ -119,7 +119,7 @@ export default class YoutubeHelper {
 	public requestScopes(scopes:YoutubeScopesString[]):boolean {
 		if(this.hasScopes(scopes)) return true;
 		StoreProxy.youtube.newScopesToRequest = scopes;
-		StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.YOUTUBE);
+		StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.YOUTUBE);
 		return false;
 	}
 

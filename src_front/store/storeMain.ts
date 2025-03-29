@@ -92,6 +92,7 @@ export const storeMain = defineStore("main", {
 				|| StoreProxy.labels.labelList.filter(v=>v.enabled).length > Config.instance.MAX_LABELS
 				|| StoreProxy.timers.timerList.filter(v=>v.enabled && !v.isDefault).length > Config.instance.MAX_TIMERS
 				|| StoreProxy.animatedText.animatedTextList.filter(v=>v.enabled).length > Config.instance.MAX_ANIMATED_TEXT
+				|| StoreProxy.customTrain.customTrainList.filter(v=>v.enabled).length > Config.instance.MAX_CUSTOM_TRAIN
 				;
 		}
 	},
@@ -894,6 +895,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.elevenLabs.populateData();
 			StoreProxy.streamlabs.populateData();
 			StoreProxy.prediction.populateData();
+			StoreProxy.customTrain.populateData();
 			StoreProxy.playability.populateData();
 			StoreProxy.streamerbot.populateData();
 			StoreProxy.animatedText.populateData();

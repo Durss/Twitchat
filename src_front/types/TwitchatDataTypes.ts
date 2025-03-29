@@ -14,7 +14,7 @@ export namespace TwitchatDataTypes {
 
 	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "chatPoll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
 
-	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals' | "animatedtext";
+	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals' | "animatedtext" | "customtrain";
 
 	export const ParamDeepSections = {
 		AD: "ad",
@@ -73,7 +73,7 @@ export namespace TwitchatDataTypes {
 		VOICE: "voice",
 		AUTOMOD: "automod",
 		AD: "ad",
-		CONNEXIONS: "connexions",
+		CONNECTIONS: "connexions",
 		PREMIUM: "premium",
 		TIMERS: "timers",
 	} as const;
@@ -2174,6 +2174,202 @@ export namespace TwitchatDataTypes {
 	export const AnimatedTextData_AnimStyles = ["wave","typewriter","bounce","wobble","rotate","elastic","neon","swarm","caterpillar"] as const
 
 	/**
+	 * Represents a custom train params
+	 */
+	export interface CustomTrainData {
+		id:string;
+		enabled:boolean;
+		/**
+		 * Is train being tested ?
+		 */
+		testing:boolean;
+		/**
+		 * Optional overlay title
+		 */
+		title:string;
+		/**
+		 * Level name "LVL" by default
+		 */
+		levelName:string;
+		/**
+		 * Fill color
+		 */
+		colorFill:string;
+		/**
+		 * Background color
+		 */
+		colorBg:string;
+		/**
+		 * Text font
+		 */
+		textFont:string;
+		/**
+		 * Text size
+		 */
+		textSize:number;
+		/**
+		 * Train unit currency
+		 */
+		currency:string;
+		/**
+		 * Number of events to trigger the train
+		 */
+		triggerEventCount:number;
+		/**
+		 * Duration to wait after a train before starting a new one
+		 */
+		cooldownDuration_s:number;
+		/**
+		 * Duration to complete a level
+		 */
+		levelsDuration_s:number;
+		/**
+		 * Date at which the current train/level expires
+		 */
+		expires_at:number;
+		/**
+		 * Contains the date at which the cooldown will end
+		 */
+		coolDownEnd_at:number;
+		/**
+		 * Post progress on chat?
+		 */
+		postLevelUpOnChat:boolean;
+		/**
+		 * Message to post on chat on level up
+		 */
+		postLevelUpChatMessage:string;
+		/**
+		 * Post success on chat?
+		 */
+		postSuccessOnChat:boolean;
+		/**
+		 * Message to post on chat on success
+		 */
+		postSuccessChatMessage:string;
+		/**
+		 * Text for the "level X complete"
+		 */
+		levelUpLabel:string;
+		/**
+		 * Text for the "train appraoching"
+		 */
+		approachingLabel:string;
+		/**
+		 * Emote for the "train appraoching"
+		 */
+		approachingEmote:string;
+		/**
+		 * Text displayed if train is failed
+		 */
+		failedLabel:string;
+		/**
+		 * Emote for the "train failed"
+		 */
+		failedEmote:string;
+		/**
+		 * Text displayed when train complete
+		 */
+		successLabel:string;
+		/**
+		 * Text displayed when train complete with level and percent reached
+		 */
+		successLabelSummary:string;
+		/**
+		 * Emote for the "train complete"
+		 */
+		successEmote:string;
+		/**
+		 * Text displayed on all time record
+		 */
+		recordLabel:string;
+		/**
+		 * Emote for all time record
+		 */
+		recordEmote:string;
+		/**
+		 * Fill color for all time record
+		 */
+		recordColorFill:string;
+		/**
+		 * Background color for all time record
+		 */
+		recordColorBg:string;
+		/**
+		 * Emote for the "level up" sequence
+		 */
+		levelUpEmote:string;
+		/**
+		 * Levels amounts.
+		 * coma seperated numbers
+		 */
+		levelAmounts:number[];
+		/**
+		 * Current all time record info
+		 */
+		allTimeRecord?: {
+			date:number;
+			amount:number;
+			level:number;
+			percent:number;
+		};
+		/**
+		 * Platforms allowed to make train progress
+		 */
+		platforms:{
+			kofi:boolean;
+			streamelements:boolean;
+			patreon:boolean;
+			streamlabs:boolean;
+			tipeee:boolean;
+			tiltify:boolean;
+			streamlabs_charity:boolean;
+			twitch_charity:boolean;
+		}
+	}
+
+	export interface CustomTrainState {
+		/**
+		 * Date at which the train approached (0 if not yet)
+		 */
+		approached_at:number;
+		/**
+		 * Date at which the train started (0 if not yet)
+		 */
+		levelStarted_at:number;
+		/**
+		 * Current train amount
+		 */
+		amount:number;
+		/**
+		 * Reference to internal timeout
+		 */
+		timeoutRef?:string;
+		/**
+		 * Activities for this train
+		 */
+		activities:{
+			id:string;
+			/**
+			 * Platform used to make the donation
+			 */
+			platform:keyof CustomTrainData["platforms"]|"trigger";
+			/**
+			 * Donation amount
+			 */
+			amount:number;
+			/**
+			 * Activity date
+			 */
+			created_at:number;
+			/**
+			 * Message that created this activity
+			 */
+			messageId:string;
+		}[];
+	}
+
+	/**
 	 * Contains only the Array props from the StreamSummaryData
 	 */
 	type ExtractArrayProps<T> = {[K in keyof T]: T[K] extends any[] ? ExcludeUndefined<T[K][number]> : never;}
@@ -2505,10 +2701,12 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_PROGRESS:"hype_train_progress",
 		HYPE_TRAIN_COMPLETE:"hype_train_complete",
 		LOW_TRUST_TREATMENT:"low_trust_treatment",
+		CUSTOM_TRAIN_SUMMARY:"custom_train_summary",
 		CHAT_HIGHLIGHT_CLOSE:"chat_highlight_close",
 		YOUTUBE_SUBSCRIPTION:"youtube_subscription",
 		AD_BREAK_APPROACHING:"ad_break_approaching",
 		MUSIC_ADDED_TO_QUEUE:"music_added_to_queue",
+		CUSTOM_TRAIN_LEVEL_UP:"custom_train_level_up",
 		GOXLR_SAMPLE_COMPLETE:"goxlr_sample_complete",
 		OBS_INPUT_MUTE_TOGGLE:"obs_input_mute_toggle",
 		HYPE_TRAIN_APPROACHING:"hype_train_approaching",
@@ -2620,6 +2818,7 @@ export namespace TwitchatDataTypes {
 		ad_break_start_chat:true,
 		obs_recording_stop:false,
 		goal_step_complete:false,
+		custom_train_summary:true,
 		obs_recording_start:false,
 		youtube_subscription:true,
 		hype_train_progress:false,
@@ -2627,6 +2826,7 @@ export namespace TwitchatDataTypes {
 		music_added_to_queue:true,
 		ad_break_approaching:false,
 		chat_highlight_close:false,
+		custom_train_level_up:false,
 		goxlr_sample_complete:false,
 		obs_input_mute_toggle:false,
 		hype_train_cooled_down:true,
@@ -2789,6 +2989,8 @@ export namespace TwitchatDataTypes {
 									| MessagePlayabilityInputData
 									| MessageGoalStepCompleteData
 									| MessageChatPollData
+									| MessageCustomTrainLevelUpData
+									| MessageCustomTrainSummaryData
 	;
 
 	/**
@@ -3702,6 +3904,74 @@ export namespace TwitchatDataTypes {
 	export interface MessageHypeTrainCooledDownData extends AbstractTwitchatMessage {
 		channel_id: string;
 		type:"hype_train_cooled_down";
+	}
+
+	/**
+	 * Represents a custom train result
+	 */
+	export interface MessageCustomTrainLevelUpData extends AbstractTwitchatMessage {
+		channel_id: string;
+		type:"custom_train_level_up";
+		/**
+		 * Current hype train level
+		 */
+		level:number;
+		/**
+		 * Current hyper train level percent
+		 */
+		percent:number;
+		/**
+		 * Amount reached
+		 */
+		amount:number;
+		/**
+		 * Train ID
+		 */
+		trainId:string;
+		/**
+		 * Train name
+		 */
+		trainName:string;
+		/**
+		 * Is new record?
+		 */
+		isRecord:boolean;
+	}
+
+	/**
+	 * Represents a custom train result
+	 */
+	export interface MessageCustomTrainSummaryData extends AbstractTwitchatMessage {
+		channel_id: string;
+		type:"custom_train_summary";
+		/**
+		 * Activities
+		 */
+		activities: CustomTrainState["activities"];
+		/**
+		 * Current hype train level
+		 */
+		level:number;
+		/**
+		 * Current hyper train level percent
+		 */
+		percent:number;
+		/**
+		 * Amount reached
+		 */
+		amount:number;
+		/**
+		 * Train ID
+		 */
+		trainId:string;
+		/**
+		 * Train name
+		 */
+		trainName:string;
+		/**
+		 * Is new record?
+		 */
+		isRecord:boolean;
 	}
 
 	/**
@@ -5246,6 +5516,10 @@ export namespace TwitchatDataTypes {
 			x:number;
 			y:number;
 		};
+		/**
+		 * Label of the ticked cell if any
+		 */
+		cellLabel:string;
 		/**
 		 * Col index that's been filled
 		 * -1 = none
