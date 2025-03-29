@@ -643,19 +643,38 @@
 			}
 		},
 		"customTrain": {
-			"header": "Créez des train de la hype personnalisés",
-			"add_bt": "Créer un train personnalisé",
-			"default_title":"Hype train",
-			"premium_limit":"Vous avez atteint le nombre maximum de Trains personnalisés que vous pouvez créer.",
-			"non_premium_limit":"Vous avez atteint le nombre maximum de Trains personnalisés que vous pouvez créer.\nDevenez premium pour en créer jusqu'à {MAX}.",
-			"test_bt":"Test",
-			"approachingLabel": "Train en approche!",
-			"failedLabel": "Le train est parti 😭...",
-			"successLabel": "🎉🎉🎉 Mission accomplie 🎉🎉🎉",
-			"delete_confirm": {
-				"title": "Supprimer cet entrée",
-				"message": "Êtes-vous sûr de vouloir supprimer cette entrée ?"
-			}
+			"param_colorFill": "Remplissage",
+			"param_colorBg": "Fond",
+			"param_recordColorFill": "Remplissage",
+			"param_recordColorBg": "Fond",
+			"param_textFont": "Police",
+			"param_textSize": "Taille",
+			"param_currency": "Devise",
+			"param_triggerEventCount": "Nombre d'événements pour démarrer le train",
+			"param_cooldownDuration_ms": "Durée d'attente avant le prochain train",
+			"param_levelsDuration_ms": "Délai pour atteindre le niveau suivant",
+			"param_levelAmounts": "Définir les montants pour chaque niveau",
+			"param_levelAmounts_plz": "Si vous atteignez ce montant, {LINK}{EMOJI}",
+			"param_levelAmounts_plz_link": "pensez à moi 🩷",
+			"param_levelAmounts_count": "{COUNT} niveaux",
+			"param_postLevelUpOnChat": "Envoyer un message lors d'un changement de niveau",
+			"param_postLevelUpChatMessage": "🚂 Choo Choo Niveau {'{'}LEVEL{'}'} atteint ! {'{'}AMOUNT{'}'} pour le prochain niveau !",
+			"param_postSuccessOnChat": "Envoyer un message lorsque le train est terminé",
+			"param_postSuccessChatMessage": "🚂 Choo Choo mission accomplie ! Niveau {'{'}LEVEL{'}'} atteint avec {'{'}AMOUNT{'}'} !",
+			"param_approaching": "Train en approche",
+			"param_progress": "Progression du train",
+			"param_levelUp": "Niveau du train augmenté",
+			"param_failed": "Train échoué",
+			"param_success": "Train terminé",
+			"param_record": "Nouveau record absolu",
+			"param_levelUpLabel_default": "Niveau {'{'}X{'}'} terminé !",
+			"param_levelUp_placeholder": "Utilisez {PLACEHOLDER} pour afficher l'index du niveau",
+			"param_approachingLabel_default": "Train Choo Choo en approche !",
+			"param_failedLabel_default": "...le train est parti 😭...",
+			"param_successLabel_default": "Train de la hype terminé !",
+			"param_successLabel_summary": "Niveau {'{'}LEVEL{'}'} atteint à {'{'}PERCENT{'}'}%",
+			"param_recordLabel_default": "🏆 Nouveau record absolu 🏆",
+			"param_platforms": "Choisissez les plateformes de dons acceptées pour ce train"
 		}
 	}
 }

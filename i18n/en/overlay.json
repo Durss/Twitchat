@@ -683,14 +683,10 @@
 			"param_levelUpLabel_default": "Level {'{'}X{'}'} complete!",
 			"param_levelUp_placeholder": "Use {PLACEHOLDER} to display level index",
 			"param_approachingLabel_default": "Choo Choo Train approaching!",
-			"param_approachingEmote": "Emote",
 			"param_failedLabel_default": "...train went away 😭...",
-			"param_failedEmote": "Emote",
 			"param_successLabel_default": "Hype Train complete!",
 			"param_successLabel_summary": "Level {'{'}LEVEL{'}'} reached at {'{'}PERCENT{'}'}%",
-			"param_successEmote": "Emote",
 			"param_recordLabel_default": "🏆 New all time record 🏆",
-			"param_recordEmote": "",
 			"param_platforms": "Chose tip platforms accepted for this train"
 		}
 	}

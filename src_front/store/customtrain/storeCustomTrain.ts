@@ -9,6 +9,7 @@ import DataStore from '../DataStore';
 import type { ICustomTrainActions, ICustomTrainGetters, ICustomTrainState } from '../StoreProxy';
 import StoreProxy from "../StoreProxy";
 import SetTimeoutWorker from "@/utils/SeTimeoutWorker";
+import MessengerProxy from "@/messaging/MessengerProxy";
 
 let simulationID = 0;
 
@@ -142,11 +143,12 @@ export const storeCustomTrain = defineStore('customTrain', {
 					}
 				}
 
-				// Function called when train ends
+				// Schedule train end
 				const scheduleEnd = () => {
 					const state = this.customTrainStates[train.id];
 					if(state.timeoutRef) SetTimeoutWorker.instance.delete(state.timeoutRef)
 					state.timeoutRef = SetTimeoutWorker.instance.create(()=> {
+						// Function called when train ends
 						const level = currentLevel();
 						const total = state.activities.map(a=> a.amount).reduce((a,b)=> a + b, 0);
 						const percent = (total - level.offset) / level.goal;
@@ -179,6 +181,13 @@ export const storeCustomTrain = defineStore('customTrain', {
 							activities:state.activities.concat(),
 						};
 						StoreProxy.chat.addMessage(message);
+
+						if(train.postSuccessOnChat && train.postSuccessChatMessage) {
+							const message = train.postSuccessChatMessage
+								.replace(/\{LEVEL\}/gi, level.index.toString())
+								.replace(/\{AMOUNT\}/gi, Math.floor(state.amount - level.offset).toString())
+							MessengerProxy.instance.sendMessage(message);
+						}
 					}, train.expires_at - Date.now());
 				}
 
@@ -283,6 +292,13 @@ export const storeCustomTrain = defineStore('customTrain', {
 					};
 
 					StoreProxy.chat.addMessage(message);
+
+					if(train.postLevelUpOnChat && train.postLevelUpChatMessage) {
+						const message = train.postLevelUpChatMessage
+							.replace(/\{LEVEL\}/gi, newLevel.index.toString())
+							.replace(/\{AMOUNT\}/gi, Math.floor(this.customTrainStates[train.id].amount - newLevel.offset).toString())
+						MessengerProxy.instance.sendMessage(message);
+					}
 				}
 
 				this.saveData();
