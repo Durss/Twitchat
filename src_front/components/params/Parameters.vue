@@ -32,7 +32,7 @@
 						:premium="element.theme == 'premium'">{{$t(element.labelKey)}}</TTButton>
 				</VueDraggable>
 
-				<ToggleBlock :icons="['add']" :title="$t('params.more_params')" small :open="false">
+				<ToggleBlock :title="$t('params.more_params')" small :open="false" v-newflag="newFlagMoreParams">
 					<div class="dragInfo"><Icon name="hand" />{{ $t("params.customize_sections") }}</div>
 					<VueDraggable class="buttonList"
 					v-model="unpinnedMenuEntries"
@@ -59,7 +59,7 @@
 						:primary="content==button_donate.page"
 						:secondary="button_donate.theme == 'secondary'"
 						:premium="button_donate.theme == 'premium'">{{$t(button_donate.labelKey)}}</TTButton>
-					
+
 					<TTButton @click="openPage(button_premium.page, true)"
 						class="menuItem"
 						v-newflag="button_premium.newflag"
@@ -109,6 +109,7 @@
 				<ParamsPremium v-if="content == contentPremium" ref="currentContent" />
 				<ParamsDonate v-if="content == contentDonate" ref="currentContent" />
 				<ParamsValues v-if="content == contentValues" ref="currentContent" />
+				<ParamsTimer v-if="content == contentTimers" ref="currentContent" />
 
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">{{ $t("params.search_no_result") }}</div>
@@ -158,6 +159,7 @@ import ToggleBlock from '../../components/ToggleBlock.vue';
 import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
 import { VueDraggable } from 'vue-draggable-plus';
+import ParamsTimer from './contents/ParamsTimer.vue';
 
 @Component({
 	components:{
@@ -169,6 +171,7 @@ import { VueDraggable } from 'vue-draggable-plus';
 		ClearButton,
 		ParamsAbout,
 		ParamsAlert,
+		ParamsTimer,
 		VueDraggable,
 		ParamsDonate,
 		ParamsValues,
@@ -195,7 +198,8 @@ class Parameters extends Vue {
 	public filteredParams:TwitchatDataTypes.ParameterData<unknown>[] = [];
 	public pinnedMenuEntries:MenuEntry[] = [];
 	public unpinnedMenuEntries:MenuEntry[] = [];
-	
+	public newFlagMoreParams:{id:string, date:number}|null = null;
+
 	public button_donate:MenuEntry = {pinned:true, icon:"coin", page:TwitchatDataTypes.ParameterPages.DONATE, labelKey:'params.categories.donate', newflag:{date:1693519200000, id:'params_donate'}, theme:"secondary"};
 	public button_premium:MenuEntry = {pinned:true, icon:"premium", page:TwitchatDataTypes.ParameterPages.PREMIUM, labelKey:'params.categories.premium', newflag:{date:1693519200000, id:'params_premium'}, theme:"premium"};
 
@@ -221,16 +225,17 @@ class Parameters extends Vue {
 	public get contentTts():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TTS; }
 	public get contentVoice():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VOICE; }
 	public get contentAutomod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AUTOMOD; }
-	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM; }
+	public get contentTimers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TIMERS; }
 
 	private keyDownHandler!:(e:KeyboardEvent) => void;
 	private keyDownCaptureHandler!:(e:KeyboardEvent) => void;
 	private menuEntries:MenuEntry[] = [
 		{pinned:true, icon:"params", page:TwitchatDataTypes.ParameterPages.FEATURES, labelKey:'params.categories.features', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_chatfeatures_1'}},
 		{pinned:true, icon:"show", page:TwitchatDataTypes.ParameterPages.APPEARANCE, labelKey:'params.categories.appearance', newflag:{date:Config.instance.NEW_FLAGS_DATE_V13, id:'params_chatappearance_1'}},
-		{pinned:true, icon:"overlay", page:TwitchatDataTypes.ParameterPages.OVERLAYS, labelKey:'params.categories.overlays', newflag:{date:Config.instance.NEW_FLAGS_DATE_V13, id:'params_overlays_3'}},
-		{pinned:true, icon:"offline", page:TwitchatDataTypes.ParameterPages.CONNEXIONS, labelKey:'params.categories.connexions', newflag:{date:Config.instance.NEW_FLAGS_DATE_V15, id:'params_connexion_1'}},
+		{pinned:true, icon:"overlay", page:TwitchatDataTypes.ParameterPages.OVERLAYS, labelKey:'params.categories.overlays', newflag:{date:Config.instance.NEW_FLAGS_DATE_V16, id:'params_overlays_4'}},
+		{pinned:true, icon:"offline", page:TwitchatDataTypes.ParameterPages.CONNECTIONS, labelKey:'params.categories.connexions', newflag:{date:Config.instance.NEW_FLAGS_DATE_V16, id:'params_connexion_2'}},
 		{pinned:false, icon:"broadcast", page:TwitchatDataTypes.ParameterPages.TRIGGERS, labelKey:'params.categories.triggers', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'paramsparams_triggers_1'}},
 		{pinned:false, icon:"placeholder", page:TwitchatDataTypes.ParameterPages.VALUES, labelKey:'params.categories.values', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'paramsparams_values'}},
 		{pinned:true, icon:"count", page:TwitchatDataTypes.ParameterPages.COUNTERS, labelKey:'params.categories.counters'},
@@ -240,6 +245,7 @@ class Parameters extends Vue {
 		{pinned:false, icon:"voice", page:TwitchatDataTypes.ParameterPages.VOICE, labelKey:'params.categories.voice'},
 		{pinned:true, icon:"user", page:TwitchatDataTypes.ParameterPages.ACCOUNT, labelKey:'params.categories.account'},
 		{pinned:false, icon:"info", page:TwitchatDataTypes.ParameterPages.ABOUT, labelKey:'params.categories.about', newflag:{date:1693519200000, id:'params_about'}},
+		{pinned:false, icon:"timer", page:TwitchatDataTypes.ParameterPages.TIMERS, labelKey:'params.categories.timers', newflag:{date:Config.instance.NEW_FLAGS_DATE_V16, id:'params_timers'}},
 	];
 
 	/**
@@ -285,19 +291,20 @@ class Parameters extends Vue {
 			}
 		}
 
-			//Check if any entry from the "menuEntries" is missing from the final
-			//list. Add them to the beginning if so.
-			for (let i = 0; i < this.menuEntries.length; i++) {
-				const item = this.menuEntries[i];
-				if(this.pinnedMenuEntries.findIndex(v=>v.page == item.page) > -1) continue;
-				if(this.unpinnedMenuEntries.findIndex(v=>v.page == item.page) > -1) continue;
-				//Missing item, add it to the top
-				if(item.pinned) {
-					this.pinnedMenuEntries.unshift(item);
-				}else{
-					this.unpinnedMenuEntries.unshift(item);
-				}
+		//Check if any entry from the "menuEntries" is missing from the final
+		//list. Add them to the beginning if so.
+		for (let i = 0; i < this.menuEntries.length; i++) {
+			const item = this.menuEntries[i];
+			if(this.pinnedMenuEntries.findIndex(v=>v.page == item.page) > -1) continue;
+			if(this.unpinnedMenuEntries.findIndex(v=>v.page == item.page) > -1) continue;
+			//Missing item, add it to the top
+			if(item.pinned) {
+				this.pinnedMenuEntries.unshift(item);
+			}else{
+				this.unpinnedMenuEntries.unshift(item);
+				this.newFlagMoreParams = item.newflag ?? null;
 			}
+		}
 	}
 
 	public async mounted():Promise<void> {

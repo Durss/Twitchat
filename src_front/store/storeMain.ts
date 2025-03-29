@@ -3,7 +3,7 @@ import HeatEvent from '@/events/HeatEvent';
 import SSEEvent from '@/events/SSEEvent';
 import TwitchatEvent, { type TwitchatEventType } from '@/events/TwitchatEvent';
 import router from '@/router';
-import { TriggerTypes, rebuildPlaceholdersCache, type SocketParams, type TriggerActionChatData, type TriggerData, type TriggerCallStack } from '@/types/TriggerActionDataTypes';
+import { TriggerTypes, rebuildPlaceholdersCache, type SocketParams, type TriggerActionChatData, type TriggerCallStack, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
@@ -89,7 +89,11 @@ export const storeMain = defineStore("main", {
 				|| Object.keys(StoreProxy.users.customUsernames).length > Config.instance.MAX_CUSTOM_USERNAMES
 				|| StoreProxy.heat.distortionList.filter(v=>v.enabled).length > Config.instance.MAX_DISTORTION_OVERLAYS
 				|| StoreProxy.bingoGrid.gridList.filter(v=>v.enabled).length > Config.instance.MAX_BINGO_GRIDS
-				|| StoreProxy.labels.labelList.filter(v=>v.enabled).length > Config.instance.MAX_LABELS;
+				|| StoreProxy.labels.labelList.filter(v=>v.enabled).length > Config.instance.MAX_LABELS
+				|| StoreProxy.timers.timerList.filter(v=>v.enabled && !v.isDefault).length > Config.instance.MAX_TIMERS
+				|| StoreProxy.animatedText.animatedTextList.filter(v=>v.enabled).length > Config.instance.MAX_ANIMATED_TEXT
+				|| StoreProxy.customTrain.customTrainList.filter(v=>v.enabled).length > Config.instance.MAX_CUSTOM_TRAIN
+				;
 		}
 	},
 
@@ -256,7 +260,7 @@ export const storeMain = defineStore("main", {
 			const sAuth = StoreProxy.auth;
 			const sChat = StoreProxy.chat;
 			const sUsers = StoreProxy.users;
-			const sTimer = StoreProxy.timer;
+			const sTimer = StoreProxy.timers;
 			const sStream = StoreProxy.stream;
 			const sEmergency = StoreProxy.emergency;
 			StoreProxy.discord.initialize();
@@ -467,7 +471,7 @@ export const storeMain = defineStore("main", {
 						alert: false,
 					}
 				};
-				let user!: Pick<TwitchatDataTypes.TwitchatUser, "id" | "login" | "channelInfo" | "anonymous">;
+				let user!: Pick<TwitchatDataTypes.TwitchatUser, "id" | "login" | "channelInfo" | "anonymous" | "platform">;
 				const channelId = StoreProxy.auth.twitch.user.id;
 				if (!data.anonymous) {
 					//Load user data
@@ -494,7 +498,7 @@ export const storeMain = defineStore("main", {
 						is_vip: false,
 						online: true,
 					};
-					user = { id: data.uid || "anon", login: "anon", channelInfo, anonymous: true };
+					user = { id: data.uid || "anon", login: "anon", channelInfo, anonymous: true, platform:"twitch" };
 				}
 				const message: TwitchatDataTypes.MessageHeatClickData = {
 					date: Date.now(),
@@ -548,31 +552,14 @@ export const storeMain = defineStore("main", {
 			});
 
 			/**
-			 * Called when prediction overlay request for its configs
-			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
-				StoreProxy.prediction.broadcastState();
-			});
-
-			/**
-			 * Called when poll overlay request for its configs
-			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_POLLS_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
-				StoreProxy.poll.broadcastState();
-			});
-
-			/**
-			 * Called when timer overlay requests for current timers
-			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
-				sTimer.broadcastStates();
-			});
-
-			/**
 			 * Listen for highlighted message to show up the "close highlighted message" button
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent<{message:string, message_id:string}|undefined>)=> {
-				sChat.highlightedMessageId = e.data?.message_id || null;
+				if(e.data?.message_id) {
+					sChat.highlightedMessageId = e.data?.message_id || null;
+				}else{
+					sChat.highlightChatMessageOverlay();
+				}
 			});
 
 			/**
@@ -879,12 +866,14 @@ export const storeMain = defineStore("main", {
 			StoreProxy.poll.populateData();
 			StoreProxy.chat.populateData();
 			StoreProxy.heat.populateData();
+			StoreProxy.groq.populateData();
 			StoreProxy.kofi.populateData();
 			StoreProxy.voice.populateData();
 			StoreProxy.music.populateData();
 			StoreProxy.lumia.populateData();
 			StoreProxy.users.populateData();
 			StoreProxy.sammi.populateData();
+			StoreProxy.timers.populateData();
 			StoreProxy.raffle.populateData();
 			StoreProxy.labels.populateData();
 			StoreProxy.stream.populateData();
@@ -897,6 +886,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.discord.populateData();
 			StoreProxy.automod.populateData();
 			StoreProxy.mixitup.populateData();
+			StoreProxy.chatPoll.populateData();
 			StoreProxy.triggers.populateData();
 			StoreProxy.counters.populateData();
 			StoreProxy.bingoGrid.populateData();
@@ -905,8 +895,10 @@ export const storeMain = defineStore("main", {
 			StoreProxy.elevenLabs.populateData();
 			StoreProxy.streamlabs.populateData();
 			StoreProxy.prediction.populateData();
+			StoreProxy.customTrain.populateData();
 			StoreProxy.playability.populateData();
 			StoreProxy.streamerbot.populateData();
+			StoreProxy.animatedText.populateData();
 			StoreProxy.twitchCharity.populateData();
 			StoreProxy.donationGoals.populateData();
 			StoreProxy.streamelements.populateData();

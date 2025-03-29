@@ -26,7 +26,7 @@
 				<div class="typescript"><pre><span class="keyword">window</span>.<span class="function">addEventListener</span>(<span class="string">"{{ action.browserEventName }}"</span>, (<span class="param">param</span>) => {
 	<span class="keyword">console</span>.<span class="function">log</span>(<span class="param">param.detail.data</span>);
 });</pre>
-					<TTButton class="copyBt" icon="copy" @click="copyBrowserEventCode()" transparent />
+					<TTButton class="copyBt" icon="copy" :copy="getBrowserEventCode()" transparent />
 				</div>
 			</div>
 		</template>
@@ -87,7 +87,11 @@
 			:values="['save', 'get']"
 			v-model="action.screenshotImgMode" />
 
-			<ParamItem v-if="action.screenshotImgMode == 'save'" :paramData="param_screenImgSavePath_conf" v-model="action.screenshotImgSavePath" />
+			<ParamItem v-if="action.screenshotImgMode == 'save'"
+				:paramData="param_screenImgSavePath_conf"
+				:error="isInvalidScreenFilePath"
+				v-model="action.screenshotImgSavePath" />
+
 			<template  v-if="action.screenshotImgMode == 'get'">
 				<ParamItem :paramData="param_screenImgSavePH_conf" v-model="action.screenshotImgSavePlaceholder" />
 
@@ -106,17 +110,16 @@
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
+import SwitchButton from '@/components/SwitchButton.vue';
+import TTButton from '@/components/TTButton.vue';
 import { type ITriggerPlaceholder, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerActionObsSourceDataAction, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { OBSFilter, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
-import OBSWebsocket, { type OBSInputItem } from '@/utils/OBSWebsocket';
+import { default as OBSWebsocket, default as OBSWebSocket, type OBSInputItem } from '@/utils/OBSWebsocket';
+import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
-import TTButton from '@/components/TTButton.vue';
-import Utils from '@/utils/Utils';
-import OBSWebSocket from '@/utils/OBSWebsocket';
-import SwitchButton from '@/components/SwitchButton.vue';
 
 @Component({
 	components:{
@@ -161,7 +164,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public param_browserEvent_param:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", maxLength:10000, longText:true, icon:"placeholder", labelKey:"triggers.actions.obs.param_browserEvent_param" };
 	public param_record_chapter_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", maxLength:100, icon:"label", labelKey:"triggers.actions.obs.param_record_chapter_name" };
 	public param_hotkeyAction_conf:TwitchatDataTypes.ParameterData<string, string> = { type:"list", value:"", icon:"press", labelKey:"triggers.actions.obs.param_record_hotkey_name" };
-	public param_screenImgFormat_conf:TwitchatDataTypes.ParameterData<string, string> = { type:"list", value:"jpeg", icon:"params", labelKey:"triggers.actions.obs.param_screenImgFormat_conf" };
+	public param_screenImgFormat_conf:TwitchatDataTypes.ParameterData<string, string> = { type:"list", value:"jpeg", icon:"screenshot", labelKey:"triggers.actions.obs.param_screenImgFormat_conf" };
 	public param_screenImgSize_toggle_conf:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"scale", labelKey:"triggers.actions.obs.param_screenImgSize_toggle_conf" };
 	public param_screenImgSize_width_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:1920, min:8, max:4096, icon:"coord_x", labelKey:"triggers.actions.obs.param_screenImgSize_width_conf" };
 	public param_screenImgSize_height_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:1080, min:8, max:4096, icon:"coord_y", labelKey:"triggers.actions.obs.param_screenImgSize_height_conf" };
@@ -174,7 +177,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
-	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 	public get showPlaceholderWarning():boolean {
 		if(!this.isMediaSource || this.param_sourceAction_conf.value != "show") return false;
 		return /\{[^ }]+\}/gi.test(this.param_media_conf.value);
@@ -212,6 +215,11 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public get canSetMediaPath():boolean { return this.isMediaSource && this.param_filter_conf.value == "" && this.param_sourceAction_conf.value == "show"; }
 
 	/**
+	 * Get if custom file path for source screen shot contains a file name or not
+	 */
+	public get isInvalidScreenFilePath():boolean { return !/[^\\/]+\.[^\\/]+$/.test(this.action.screenshotImgSavePath || ""); }
+
+	/**
 	 * Get if the selected source is a media source
 	 */
 	public get isMediaSource():boolean {
@@ -241,6 +249,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public async mounted():Promise<void> {
 		const sourceNameBackup = this.action.sourceName;
 		const actionBackup = this.action.action;
+		this.param_screenImgSavePath_conf.errorMessage = this.$t("triggers.actions.obs.param_screenImgSavePath_conf_error");
 
 		// this.transformAnimate_conf.children = [this.transformEasing_conf, this.transformDuration_conf];
 
@@ -321,7 +330,9 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		this.param_url_conf.placeholderList		=
 		this.param_media_conf.placeholderList	=
 		this.param_css_conf.placeholderList		=
-		this.param_browserEvent_param.placeholderList = list;
+		this.param_record_chapter_name.placeholderList	=
+		this.param_browserEvent_param.placeholderList	= list;
+		this.param_browserEvent_param.placeholderList	= list;
 
 		this.param_x_conf.placeholderList		=
 		this.param_y_conf.placeholderList		=
@@ -333,12 +344,10 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	/**
 	 * Called when copy button is clicked on browser event example
 	 */
-	public copyBrowserEventCode():void {
-		const code = `window.addEventListener("${this.action.browserEventName}", (param) => {
-			console.log(param.detail.data);
-		});
-		`;
-		Utils.copyToClipboard(code);
+	public getBrowserEventCode():string {
+		return `window.addEventListener("${this.action.browserEventName}", (param) => {
+	console.log(param.detail.data);
+});`;
 	}
 
 	/**
@@ -365,8 +374,11 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	 */
 	private async prefillForm(cleanData:boolean = true):Promise<void> {
 		let list:SourceItem[] = [];
-		//Get all OBS scenes
-		list.push({labelKey:"triggers.actions.obs.param_source_splitter_scenes", value:"__scenes__", disabled:true, name:"__scene__", type:"scene"});
+		//Add "--- Scenes ---" splitter
+		list.push({labelKey:"triggers.actions.obs.param_source_splitter_scenes", value:"__scenes__", disabled:true, type:"scene", name:"__scene__"});
+		//Add "current scene "item"
+		list.push({labelKey:"triggers.actions.obs.param_source_currentScene", value:"scene_"+this.$t("triggers.actions.obs.param_source_currentScene"), type:"scene", name:this.$t("triggers.actions.obs.param_source_currentScene")});
+		//Add existing OBS scenes
 		list = list.concat( this.obsScenes.map<SourceItem>(v=> {return {label:v.sceneName, value:"scene_"+v.sceneName, type:"scene", name:v.sceneName}}) );
 		//Get all OBS sources
 		if(this.obsSources.length > 0) {

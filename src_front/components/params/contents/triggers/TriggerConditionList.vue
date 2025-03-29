@@ -1,55 +1,87 @@
 <template>
-	<div class="triggerconditionlist">
-		<div>{{ $t("triggers.condition.title") }}</div>
+	<TTButton icon="merge" v-if="actionContext !== false && !expanded" class="collapsed" @click="expand"></TTButton>
 
-		<Button v-if="!triggerData.conditions || triggerData.conditions.conditions.length == 0"
-			icon="add" small
-			@click="addCondition()">{{ $t('triggers.condition.createBt') }}</Button>
+	<div v-else class="triggerconditionlist">
+		<div v-if="actionContext === false">{{ $t("triggers.condition.title") }}</div>
+
+		<TTButton v-if="!conditions || conditions.conditions.length == 0"
+			icon="add"
+			small
+			@click="addCondition()">{{
+			$t('triggers.condition.createBt') }}</TTButton>
 
 		<TriggerConditionListGroupItem v-else class="list"
 			:triggerData="triggerData"
-			:parentCondition="triggerData.conditions"
-			:condition="[triggerData.conditions]" />
+			:parentCondition="conditions"
+			:condition="[conditions]"
+			:placeholderList="placeholderList" />
 	</div>
 </template>
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
-import type { TriggerConditionGroup, TriggerData } from '@/types/TriggerActionDataTypes';
+import type { ITriggerPlaceholder, TriggerActionData, TriggerConditionGroup, TriggerData } from '@/types/TriggerActionDataTypes';
 import Utils from '@/utils/Utils';
 import { reactive, watch } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerConditionListGroupItem from './TriggerConditionListGroupItem.vue';
+import TriggerUtils from '@/utils/TriggerUtils';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		TriggerConditionListGroupItem,
 	},
-	emits:[],
+	emits:["empty"],
 })
 class TriggerConditionList extends Vue {
+	@Prop({ required: true })
+	public triggerData!: TriggerData;
 
-	@Prop
-	public triggerData!:TriggerData;
+	@Prop({required: false})
+	declare triggerAction: TriggerActionData;
+
+	@Prop({ required: true })
+	public conditions!:TriggerConditionGroup;
+
+	@Prop({default:false, type:Boolean})
+	public actionContext!:boolean;
+
+	public placeholderList!: ITriggerPlaceholder<unknown>[];
+	public expanded:boolean = false;
 
 	public beforeMount():void {
-		watch(()=> this.triggerData.conditions, ()=> {
-			if(this.triggerData.conditions) {
-				this.cleanEmptyConditionNodes(this.triggerData.conditions);
+		watch(()=> this.conditions, ()=> {
+			if(this.conditions) {
+				this.cleanEmptyConditionNodes(this.conditions);
+			}
+			if(this.conditions.conditions.length == 0) {
+				this.$emit("empty");
 			}
 		}, {deep:true});
+
+		if(this.actionContext !== false && this.conditions.conditions.length == 0) {
+			this.addCondition();
+			this.expand();
+		}
+	}
+
+	public beforeUnmount(): void {
+		if (this, this.actionContext !== false) {
+			document.removeEventListener('mousedown', this.handleClickOutside);
+		}
 	}
 
 	public addCondition():void {
-		if(this.triggerData.conditions) {
-			this.triggerData.conditions.conditions.push({
+		if(this.conditions) {
+			this.conditions.conditions.push({
 					id:Utils.getUUID(),
 					type:"condition",
 					operator:"=",
 					placeholder:"",
 					value:"",
 				})
-		}else{
+		}else if(this.actionContext === false){
+			//This will automatically mutate the "condition" prop
 			this.triggerData.conditions = reactive({
 				id:Utils.getUUID(),
 				type:"group",
@@ -94,6 +126,37 @@ class TriggerConditionList extends Vue {
 		}
 	}
 
+	public expand():void {
+		this.updatePlaceholderList();
+		this.expanded = true;
+		document.addEventListener('mousedown', this.handleClickOutside);
+	}
+
+	public handleClickOutside(event: MouseEvent): void {
+		const target = event.target as HTMLElement;
+		let parent = target.parentElement;
+		while (parent) {
+			//Don't close conditions if clicking on a tooltip's content
+			//a tooltip is used for the placeholder list on the condition's value input
+			if (parent.classList.contains('tippy-content')) return;
+			if (parent.classList.contains('vs__dropdown-menu')) return;
+			parent = parent.parentElement;
+		}
+		if (!this.$el.contains(target)) {
+			this.expanded = false;
+		}
+	}
+
+	/**
+	 * Get all placeholders available for the current trigger action
+	 * Loads up all trigger related placeholders, chat command params and looks
+	 * for any Random Value trigger action declaring a placeholder BEFORE the
+	 * current action.
+	 */
+	private updatePlaceholderList(): void {
+		this.placeholderList = TriggerUtils.getActionPlaceholderList(this.triggerAction, this.triggerData);
+	}
+
 }
 export default toNative(TriggerConditionList);
 </script>
@@ -103,7 +166,7 @@ export default toNative(TriggerConditionList);
 	display: flex;
 	flex-direction: column;
 	gap: .5em;
-	align-items: center;
+	align-items:center;
 
 	.list {
 		display: flex;
@@ -111,6 +174,21 @@ export default toNative(TriggerConditionList);
 		gap: .25em;
 		width: 100%;
 	}
+}
 
+.collapsed {
+	margin: auto;
+	padding: 0;
+	background-color: transparent;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	&:after {
+		// content: "";
+		display: block;
+		width: 2px;
+		background-color: var(--color-primary);
+		height: 10px;
+		margin: auto;
+	}
 }
 </style>

@@ -49,7 +49,7 @@ class TriggerActionSammiEntry extends AbstractTriggerActionEntry {
 	}
 
 	public openConnectForm():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.SAMMI);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.SAMMI);
 	}
 
 

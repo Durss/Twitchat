@@ -12,7 +12,7 @@ import { storeAutomod } from '@/store/automod/storeAutomod';
 import { storeBingo } from '@/store/bingo/storeBingo';
 import { storeBingoGrid } from '@/store/bingo_grid/storeBingoGrid';
 import { storeChat } from '@/store/chat/storeChat';
-import { storeChatSuggestion } from '@/store/chatSugg/storeChatSuggestion';
+import { storeChatSuggestion } from '@/store/chat_sugg/storeChatSuggestion';
 import { storeCounters } from '@/store/counters/storeCounters';
 import { storeDebug } from '@/store/debug/storeDebug';
 import { storeDiscord } from '@/store/discord/storeDiscord';
@@ -74,6 +74,12 @@ import { storeTiktok } from './store/tiktok/storeTiktok';
 import { storeTiltify } from './store/tiltify/storeTiltify';
 import { storeTwitchCharity } from './store/twitch_charity/storeTwitchCharity';
 import { storeTwitchBot } from './store/twitchbot/storeTwitchBot';
+import { storeGroq } from './store/groq/storeGroq';
+import { storeChatPoll } from './store/chat_poll/storeChatPoll';
+import { storeAnimatedText } from './store/animated_text/storeAnimatedText';
+import { storeCustomTrain } from './store/customtrain/storeCustomTrain';
+
+window.setInitMessage("Booting app...");
 
 setDefaultProps({
 	theme:"twitchat",
@@ -107,7 +113,7 @@ const i18n = createI18n({
 (async()=> {
 	try {
 		window.setInitMessage("loading labels");
-		const labelsRes = await fetch("/labels.json");
+		const labelsRes = await fetch("/labels.json?v="+import.meta.env.PACKAGE_VERSION);
 		const labelsJSON = await labelsRes.json();
 		for (const lang in labelsJSON) {
 			i18n.global.setLocaleMessage(lang, labelsJSON[lang]);
@@ -244,11 +250,12 @@ function buildApp() {
 	StoreProxy.default.obs = storeOBS();
 	StoreProxy.default.params = storeParams();
 	StoreProxy.default.poll = storePoll();
+	StoreProxy.default.chatPoll = storeChatPoll();
 	StoreProxy.default.prediction = storePrediction();
 	StoreProxy.default.raffle = storeRaffle();
 	StoreProxy.default.rewards = storeRewards();
 	StoreProxy.default.stream = storeStream();
-	StoreProxy.default.timer = storeTimer();
+	StoreProxy.default.timers = storeTimer();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.default.triggers = (storeTriggers() as unknown) as StoreProxy.ITriggersState & StoreProxy.ITriggersGetters & StoreProxy.ITriggersActions & { $state: StoreProxy.ITriggersState; $reset:()=>void };
 	StoreProxy.default.tts = storeTTS();
@@ -286,6 +293,9 @@ function buildApp() {
 	StoreProxy.default.elevenLabs = storeElevenLabs();
 	StoreProxy.default.playability = storePlayability();
 	StoreProxy.default.twitchBot = storeTwitchBot();
+	StoreProxy.default.animatedText = storeAnimatedText();
+	StoreProxy.default.customTrain = storeCustomTrain();
+	StoreProxy.default.groq = storeGroq();
 
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach(k => {
@@ -390,29 +400,7 @@ function buildApp() {
 		StoreProxy.default.main.setAhsInstaller(e as TwitchatDataTypes.InstallHandler);
 	});
 
-	const currentABVersion = 2;
-	const userRangeTargetRatio = .75;
-	let sentryParam = {v:currentABVersion, date:Date.now(), enabled:false};
-	let sentryParamSrc = DataStore.get(DataStore.AB_SENTRY);
-	//Reset old data format
-	if(sentryParamSrc === "true" || sentryParamSrc === "false") sentryParamSrc = null;
-	//Sentry params not yet defined, initialize it
-	if(!sentryParamSrc)  {
-		sentryParam.v = 2;
-		sentryParam.enabled = Math.random() < userRangeTargetRatio;
-		DataStore.set(DataStore.AB_SENTRY, sentryParam);
-	}else{
-		try {
-			const json = JSON.parse(sentryParamSrc);
-			sentryParam = json;
-			if(sentryParam.v != currentABVersion) {
-				sentryParam.v = currentABVersion;
-				sentryParam.enabled = Math.random() < userRangeTargetRatio;
-				DataStore.set(DataStore.AB_SENTRY, sentryParam);
-			}
-		}catch(error) { }
-	}
-	if((Config.instance.BETA_MODE || sentryParam.enabled) && document.location.hostname != "localhost") {
+	if(document.location.hostname != "localhost") {
 		Sentry.init({
 			app,
 			debug:false,

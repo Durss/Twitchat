@@ -56,6 +56,7 @@
 			"param_elevenlabs_style":"Exagération de style",
 			"param_elevenlabs_lang":"Langue",
 			"param_removeEmotes": "Supprimer les emotes",
+			"param_allRemoteChans": "Activer pour toutes les chaînes connectées",
 			"test_message": "Ceci est un test",
 			"test_placeholder": "message...",
 			"testBt": "Tester"

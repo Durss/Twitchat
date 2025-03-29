@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes">
+	<div class="pollform sidePanel" :class="{embedMode: triggerMode !== false}">
 		<div class="head" v-if="triggerMode === false">
 			<h1 class="title"><Icon name="poll" class="icon" />{{ $t("poll.form.title") }}</h1>
 			<ClearButton @click="close()" />
@@ -26,7 +26,7 @@
 						<input type="text" id="poll_answer" v-model="answers[index]" maxlength="25" v-autofocus="index == 0 && title != ''" :tabindex="index+2" @change="onValueChange()">
 						<div class="len">{{answers[index].length}}/25</div>
 					</div>
-					
+
 					<PlaceholderSelector class="child placeholders" v-if="placeholderList.length > 0"
 						copyMode
 						:placeholders="placeholderList"
@@ -36,10 +36,10 @@
 					<ParamItem :paramData="param_points" @change="onValueChange()" v-model="param_points.value" noBackground class="child" />
 				</ParamItem>
 				<ParamItem :paramData="param_duration" @change="onValueChange()" />
-				
+
 				<TTButton type="submit" v-if="triggerMode === false"
 				:loading="loading"
-				:disabled="title.length < 1 || answers.filter(v=> v.trim().length > 0).length < 2">{{ $t('global.submit') }}</TTButton>
+				:disabled="title.length < 1 || answers.filter(v=> v.trim().length > 0).length < 2">{{ $t('global.start') }}</TTButton>
 				<div class="errorCard" v-if="error" @click="error = ''">{{error}}</div>
 			</form>
 		</div>
@@ -91,7 +91,7 @@ class PollForm extends AbstractSidePanel {
 	public error = "";
 	public title = "";
 	public answers:string[] = ["","","","",""];
-	public param_title:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", maxLength:60, labelKey:"prediction.form.question", placeholderKey:"prediction.form.question_placeholder"};
+	public param_title:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", maxLength:60, labelKey:"poll.form.question", placeholderKey:"prediction.form.question_placeholder"};
 	public param_extraVotes:TwitchatDataTypes.ParameterData<boolean> = {value:false, type:"boolean", labelKey:"poll.form.additional_votes", icon:"add"};
 	public param_points:TwitchatDataTypes.ParameterData<number> = {value:100, type:"number", min:1, max:99999, step:1, icon:"channelPoints", labelKey:"poll.form.additional_votes_amount"};
 	public param_duration:TwitchatDataTypes.ParameterData<number> = {value:2*60, type:"duration", min:15, max:1800, labelKey:"poll.form.vote_duration", icon:"timer"};
@@ -100,12 +100,6 @@ class PollForm extends AbstractSidePanel {
 
 	private voiceController!:FormVoiceControllHelper;
 
-	public get classes():string[] {
-		const res = ["pollform", "sidePanel"];
-		if(this.triggerMode !== false) res.push("embedMode");
-		return res;
-	}
-
 	public async beforeMount():Promise<void> {
 
 		if(this.$store.main.tempStoreValue) {
@@ -113,9 +107,9 @@ class PollForm extends AbstractSidePanel {
 			if(titlePrefill) this.title = titlePrefill;
 			this.$store.main.tempStoreValue = null;
 		}
-		
+
 		if(this.triggerMode !== false) {
-			this.placeholderList = 
+			this.placeholderList =
 			this.param_title.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
 			if(this.action.pollData) {
 				this.param_extraVotes.value = this.action.pollData.pointsPerVote > 0;
@@ -151,7 +145,7 @@ class PollForm extends AbstractSidePanel {
 				this.voiceController = new FormVoiceControllHelper(this.$el, this.close, this.submitForm);
 			}
 		});
-		
+
 		if(this.triggerMode === false) {
 			super.open();
 		}
@@ -202,13 +196,13 @@ class PollForm extends AbstractSidePanel {
 				pointsPerVote:this.param_points.value,
 				voteDuration:this.param_duration.value,
 			};
-			
+
 		}
 	}
 
 	/**
 	 * Selects a poll's preset
-	 * @param params 
+	 * @param params
 	 */
 	public selectPreset(params:typeof this.pollHistory[number]):void {
 		this.param_title.value = params.title;

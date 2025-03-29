@@ -8,7 +8,7 @@
 			<img src="@/assets/img/chat_animation/cosmic-abyss_1.jpg" alt="cosmic abyss background 1">
 			<img src="@/assets/img/chat_animation/cosmic-abyss_2.jpg" alt="cosmic abyss background 2">
 		</div>
-		
+
 		<div v-if="automodReasons" class="automod">
 			<img src="@/assets/icons/automod.svg">
 			<div class="header"><strong>{{ $t('chat.message.automod') }}</strong> {{automodReasons}}</div>
@@ -54,8 +54,6 @@
 			<Icon name="tiktok" v-if="messageData.platform == 'tiktok'" v-tooltip="$t('chat.tiktok.platform_tiktok')" />
 
 			<div class="userBadges" v-if="filteredBadges.length > 0 || miniBadges.length > 0">
-
-		
 				<tooltip v-for="(b,index) in filteredBadges" :key="index"
 				:content="'<div style=\'text-align:center\'><img src='+(b.icon.hd || b.icon.sd)+' width=\'64\' class=\'emote\'><br>'+b.title+'</div>'">
 					<Icon v-if="b.icon.sd.indexOf('http') == -1" :name="b.icon.sd" class="badge" v-tooltip="b.title" />
@@ -140,7 +138,7 @@
 					<div class="subtitle">{{$t("chat.message.clip_channel")}} {{clipInfo.broadcaster_name}}</div>
 					<div class="subtitle">{{$t("chat.message.clip_duration")}} {{clipInfo.duration}}s</div>
 					<div class="subtitle">{{$t("chat.message.clip_views")}} {{clipInfo.view_count}}</div>
-					<Button class="highlightBt" small
+					<Button class="highlightBt"
 						:aria-label="$t('chat.message.highlightBt_aria')"
 						icon="highlight"
 						v-tooltip="$t('chat.message.highlightBt_tt')"
@@ -935,6 +933,7 @@ export default toNative(ChatMessage);
 
 		&.convBt {
 			cursor: pointer;
+			margin-bottom: -.4em;
 			:deep(svg) {
 				height: 1em;
 			}
@@ -1109,10 +1108,10 @@ export default toNative(ChatMessage);
 				font-size: .8em;
 			}
 			.highlightBt {
-				font-size: 1.25em;
+				font-size: .8rem;
 			}
 			.alertIcon {
-				height: 1.5em;
+				height: 1rem;
 				margin: 0 0 .5em .5em;
 			}
 		}
@@ -1191,11 +1190,11 @@ export default toNative(ChatMessage);
 	&.announcement {
 		border-radius: 0;
 		border-image-slice: 1;
-		border-left: .6em solid rgba(255, 255, 255, .5);
-		border-right: .6em solid rgba(255, 255, 255, .5);
+		border-left: .6em solid var(--background-color-fader);
+		border-right: .6em solid var(--background-color-fade);
 		padding-top: 0;
 		padding-bottom: .25em;
-		background-color: rgba(255, 255, 255, .1);
+		background-color: var(--background-color-fadest);
 
 		.announcementHolder {
 			display: flex;
@@ -1204,7 +1203,7 @@ export default toNative(ChatMessage);
 			margin-bottom: .25em;
 			flex-direction: row;
 			justify-content: center;
-			background-color: var(--background-color-fader);
+			background-color: var(--background-color-fadest);
 			width: calc(100% + .5em);
 			margin-left: -.25em;
 

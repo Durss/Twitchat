@@ -258,11 +258,6 @@ export default class TwitchUtils {
 		search = Utils.slugify(search).replace(/-/g, "_").trim().toLowerCase();
 		let users: TwitchDataTypes.UserInfo[] = [];
 		let liveStates:{[uid:string]:boolean} = {};
-		//The exact match may not be returned because it sorts results in the
-		//most terrible way.
-		//We first search for the exact match in case it exists to return it
-		//first later
-		const [bestResult] = await this.getUserInfo(undefined, [search]);
 		// const [bestResult] = await this.getChannelInfo([bestResult[0].id]);
 		if(signal.aborted) return {users, liveStates};
 
@@ -288,8 +283,18 @@ export default class TwitchUtils {
 				if (b.login.toLowerCase().toLowerCase() == search) return 1;
 				return a.login.localeCompare(b.login, 'en', { sensitivity: 'base' });
 			});
-			if(users.findIndex(v=>v.login.toLowerCase() === search) === -1 && bestResult) {
-				users.unshift(bestResult);
+			const bestIndex = users.findIndex(v=>v.login.toLowerCase() === search);
+			if(bestIndex > -1) {
+				//Bring best match to top
+				users.unshift( ...users.splice(bestIndex, 1) );
+			}else {
+				//The exact match may not be returned because it sorts results in the
+				//most terrible way.
+				//If exact match isn't on the result, try to search it specifically
+				const [bestResult] = await this.getUserInfo(undefined, [search]);
+				if(bestResult) {
+					users.unshift( bestResult );
+				}
 			}
 			return {users:users.slice(0, maxLength), liveStates};
 		} else if (result.status == 429) {
@@ -3089,6 +3094,28 @@ export default class TwitchUtils {
 		return [];
 	}
 
+	/**
+	 * Gets a user's VODs
+	 * @param uid user ID
+	 */
+	public static async getVODInfo(vodID:string): Promise<TwitchDataTypes.VOD|null> {
+		const url = new URL(Config.instance.TWITCH_API_PATH + "videos");
+		url.searchParams.append("id", vodID);
+
+		const res = await this.callApi(url, {
+			method: "GET",
+			headers: this.headers,
+		});
+		if (res.status == 200 || res.status == 204) {
+			const json = await res.json() as {data:TwitchDataTypes.VOD[]};
+			return json.data[0];
+		} else if (res.status == 429) {
+			await this.onRateLimit(res.headers, url.pathname);
+			return this.getVODInfo(vodID);
+		}
+		return null;
+	}
+
 
 
 
@@ -3711,7 +3738,6 @@ export default class TwitchUtils {
 			return await fetch(input, init);
 		} catch (error: any) {
 			if(init?.signal && init.signal.aborted) {
-				console.log("ABORTED")
 				return new Response(error.message, { status: 499 });
 			}else{
 				console.log(error);

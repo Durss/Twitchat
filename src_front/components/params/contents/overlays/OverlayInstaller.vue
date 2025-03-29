@@ -21,12 +21,12 @@
 			<TTButton class="draggable" draggable="true" type="link" :href="localURLOBS" :light="light === true" @click.prevent @dragstart="onDragButtonStart($event)">{{$t("overlay.drag_installBt")}}</TTButton>
 			<span>{{$t("global.or")}}</span>
 			<input class="primary" type="text" v-model="localURL" v-click2Select readonly :disabled="disabled">
-			<button class="copyBt" @click="copyUrl()" ref="copyButton"><Icon :name="confirmCopy? 'checkmark' : 'copy'" theme="light" /></button>
+			<TTButton class="copyBt" :copy="localURL" icon="copy" transparent />
 		</div>
 
 		<div v-if="error" class="card-item alert error" @click="error=''">{{ $t("overlay.install_error", {ERROR:error}) }}</div>
 
-		<div class="card-item instructions" v-if="showInput && $slots.default">
+		<div class="card-item instructions" v-if="(!obsConnected || showInput) && $slots.default">
 			<slot></slot>
 		</div>
 	</div>
@@ -87,7 +87,6 @@ class OverlayInstaller extends Vue {
 	public error:string = "";
 	public showInput:boolean = false;
 	public showSuccess:boolean = false;
-	public confirmCopy:boolean = false;
 	public isExistingSource:boolean = false;
 
 	private successTO:number = -1;
@@ -147,19 +146,6 @@ class OverlayInstaller extends Vue {
 		this.$emit("obsSourceCreated", {sourceName:this.obsSourceName});
 	}
 
-	/**
-	 * Called when copy button is clicked
-	 */
-	public copyUrl():void {
-		this.confirmCopy = true;
-		window.setTimeout(()=> {
-			this.confirmCopy = false;
-		}, 1500)
-		const holder = this.$refs.copyButton as HTMLDivElement;
-		gsap.fromTo(holder, {scale:2}, {duration: 1, ease:"elastic.out", scale:1});
-		Utils.copyToClipboard(this.localURL);
-	}
-
 	public onDragButtonStart(event:DragEvent):void {
 		if(!event.dataTransfer) return;
 		event.dataTransfer.setDragImage(document.querySelector('#logoForDraggableItems') as HTMLImageElement, 50, 50);
@@ -206,10 +192,8 @@ export default toNative(OverlayInstaller);
 		flex-wrap: wrap;
 		width: 100%;
 		.copyBt {
-			margin-left: -2.5em;
-			.icon {
-				padding-left: .75em;
-			}
+			margin-left: -1.85em;
+			padding: 0;
 		}
 		.icon {
 			display: block;
@@ -217,7 +201,7 @@ export default toNative(OverlayInstaller);
 			color: var(--color-text);
 		}
 		input {
-			padding-right: 1.5em;
+			padding-right: 1.75em;
 		}
 	}
 

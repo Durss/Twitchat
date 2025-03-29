@@ -1,40 +1,48 @@
 <template>
 	<div class="goxlrconnectform">
-		<form class="card-item" @submit.prevent="connect()" v-if="!connected">
-			<ParamItem :paramData="param_ip" v-model="param_ip.value" @change="onIpChange()" />
-			
-			<i18n-t scope="global" class="card-item secondary" tag="div" v-if="securityWarning" keypath="goxlr.connect_form.ip_security">
-				<template #LINK>
-					<a :href="discordURL" target="_blank">{{ $t("goxlr.connect_form.ip_security_link") }}</a>
-				</template>
-			</i18n-t>
+		<TTButton type="submit"
+			v-if="!connected"
+			@click="connect()"
+			:loading="connecting">{{ $t('global.connect') }}</TTButton>
 
-			<ParamItem :paramData="param_port" v-model="param_port.value" />
+		<ToggleBlock v-if="!connected" :title="$t('global.advanced_params')" small :open="false">
+			<form @submit.prevent="connect()">
+				<ParamItem :paramData="param_ip" v-model="param_ip.value" @change="onIpChange()" />
 
-			<Button type="submit" :loading="connecting"
-			:disabled="!isPremium"
-			v-tooltip="!isPremium? $t('premium.restricted_access') : ''">{{ $t("global.connect") }}</Button>
-			<div class="card-item alert message error" v-if="error" @click="error = false">{{ $t("goxlr.connect_failed") }}</div>
-		</form>
+				<i18n-t scope="global" class="card-item secondary" tag="div" v-if="securityWarning" keypath="goxlr.connect_form.ip_security">
+					<template #LINK>
+						<a :href="discordURL" target="_blank">{{ $t("goxlr.connect_form.ip_security_link") }}</a>
+					</template>
+				</i18n-t>
+
+				<ParamItem :paramData="param_port" v-model="param_port.value" />
+
+				<TTButton type="submit" :loading="connecting"
+					:disabled="!isPremium"
+					v-tooltip="!isPremium? $t('premium.restricted_access') : ''">{{ $t("global.connect") }}</TTButton>
+				<div class="card-item alert message error" v-if="error" @click="error = false">{{ $t("goxlr.connect_failed") }}</div>
+			</form>
+		</ToggleBlock>
+
 		<template v-else>
-			<Button class="disconnectBt" type="button"
-			@click="disconnect()" alert>{{ $t("global.disconnect") }}</Button>
+			<TTButton class="disconnectBt" type="button"
+				@click="disconnect()" alert>{{ $t("global.disconnect") }}</TTButton>
 		</template>
 	</div>
 </template>
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ParamItem,
 		ToggleBlock,
 	},
@@ -95,10 +103,14 @@ export default toNative(GoXLRConnectForm);
 
 <style scoped lang="less">
 .goxlrconnectform{
-	width: 100%;
+	// width: 100%;
 	max-width: 500px;
 	align-self: center;
-	
+	gap: 1em;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
 	.disconnectBt {
 		margin: auto;
 		display: flex;

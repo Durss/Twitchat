@@ -19,10 +19,12 @@
 			<label for="randomEntry_input">{{ $t("triggers.actions.random.list_label") }}</label>
 			<div class="itemForm" v-if="action.list.length < 10000">
 				<textarea rows="2" v-model="itemValue" ref="listinput" id="randomEntry_input"
-				:placeholder="$t('triggers.actions.random.list_entry_placeholder')"
-				@keyup.enter.ctrl="addListItem()"></textarea>
+					:placeholder="$t('triggers.actions.random.list_entry_placeholder')"
+					@keyup.enter.ctrl="addListItem()"></textarea>
 				<TTButton icon="add" class="addBt" primary @click="addListItem()" :disabled="!itemValue" />
 			</div>
+
+			<PlaceholderSelector :placeholders="placeholderList" v-model="itemValue" :target="$refs['listinput']" />
 
 			<div class="listItem list">
 				<div v-for="item, index in action.list" :key="'entry_'+index" class="entry"
@@ -89,6 +91,11 @@
 				<p>{{ $t("triggers.actions.random.value_no_values") }}</p>
 				<TTButton secondary light small @click="createValue()">{{ $t("values.addBt") }}</TTButton>
 			</div>
+
+			<ParamItem v-if="valueIdToValue[param_value.value]?.perUser !== true"
+				:paramData="param_valueSplitter"
+				:error="(action.valueSplitter || '').trim().length == 0"
+				v-model="action.valueSplitter" noBackground />
 		</template>
 
 		<template v-if="action.mode == 'counter'">
@@ -101,28 +108,25 @@
 			</div>
 		</template>
 
-		<ParamItem v-if="action.mode == 'value' && valueIdToValue[param_value.value]?.perUser !== true"
-			:paramData="param_valueSplitter"
-			:error="(action.valueSplitter || '').trim().length == 0"
-			v-model="action.valueSplitter" nobackground />
-
 		<div v-if="(action.mode=='value' && (param_value.listValues || []).length > 0) || (action.mode=='counter' && (param_counter.listValues || []).length > 0)" class="card-item listItem">
 			<p>{{ $t("triggers.actions.random.placeholder_tuto") }}</p>
 			<template v-if="action.mode=='counter' || valueIdToValue[param_value.value]?.perUser === true">
 				<ParamItem :paramData="param_placeholderUserId"
-				:error="(action.valueCounterPlaceholders!.userId || '').trim().length == 0"
-				v-model="action.valueCounterPlaceholders!.userId" nobackground />
+					:error="(action.valueCounterPlaceholders!.userId || '').trim().length == 0"
+					v-model="action.valueCounterPlaceholders!.userId" noBackground />
 				<ParamItem :paramData="param_placeholderUserName"
-				:error="(action.valueCounterPlaceholders!.userName || '').trim().length == 0"
-				v-model="action.valueCounterPlaceholders!.userName" nobackground />
+					:error="(action.valueCounterPlaceholders!.userName || '').trim().length == 0"
+					v-model="action.valueCounterPlaceholders!.userName" noBackground />
 			</template>
 
 			<ParamItem :paramData="param_placeholderValue"
 				:error="(action.valueCounterPlaceholders!.value || '').trim().length == 0"
-			v-model="action.valueCounterPlaceholders!.value" nobackground />
+				v-model="action.valueCounterPlaceholders!.value" noBackground />
 		</div>
 
-		<ParamItem v-if="action.mode != 'trigger' && action.mode != 'value' && action.mode != 'counter'" :paramData="param_placeholder" v-model="action.placeholder" :error="action.placeholder && action.placeholder.length === 0" />
+		<ParamItem v-if="action.mode == 'list' || action.mode == 'number'" :paramData="param_placeholder" v-model="action.placeholder" :error="action.placeholder && action.placeholder.length === 0" />
+
+		<ParamItem v-if="action.mode == 'list' || action.mode == 'trigger' || action.mode == 'value' || action.mode == 'counter'" :paramData="param_removePickedEntry" v-model="action.removePickedEntry" />
 
 		<i18n-t scope="global" class="card-item primary" tag="div"
 		keypath="triggers.actions.common.custom_placeholder_example"
@@ -140,7 +144,7 @@ import TabMenu from '@/components/TabMenu.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ChatMessageChunksParser from '@/components/messages/components/ChatMessageChunksParser.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
-import type { TriggerActionRandomData, TriggerData } from '@/types/TriggerActionDataTypes';
+import type { ITriggerPlaceholder, TriggerActionRandomData, TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -150,6 +154,7 @@ import SimpleTriggerList from '../SimpleTriggerList.vue';
 import TriggerList from '../TriggerList.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import TriggerUtils from '@/utils/TriggerUtils';
+import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
 
 @Component({
 	components:{
@@ -159,6 +164,7 @@ import TriggerUtils from '@/utils/TriggerUtils';
 		TriggerList,
 		ToggleBlock,
 		SimpleTriggerList,
+		PlaceholderSelector,
 		ChatMessageChunksParser,
 	},
 })
@@ -193,6 +199,7 @@ class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
 	public param_placeholderUserId:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.placeholder_user_id", value:"", icon:"label"};
 	public param_placeholderUserName:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.placeholder_user_name", value:"", icon:"user"};
 	public param_placeholderValue:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.placeholder_value", value:"", icon:"number"};
+	public param_removePickedEntry:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"triggers.actions.random.param_removePickedEntry", value:false, icon:"trash"};
 
 	public getTriggerInfo(triggerId:string):{label:string, icon:string, iconURL?:string, iconBgColor?:string} {
 		const t = this.$store.triggers.triggerList.find(v=>v.id === triggerId);
@@ -208,6 +215,7 @@ class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
 		if(this.action.disableAfterExec == undefined) this.action.disableAfterExec = this.param_disableAfterExec.value;
 		if(!this.action.triggers) this.action.triggers = [];
 		if(!this.action.list) this.action.list = [];
+		if(!this.action.valueSplitter) this.action.valueSplitter = ",";
 		this.buildIndex = 0;
 
 		this.valueIdToValue = {};
@@ -361,7 +369,7 @@ export default toNative(TriggerActionRandomEntry);
 		gap: .25em;
 		max-height: 300px;
 		overflow-y: auto;
-		margin-top: .25em;
+		margin-top: 1em;
 		.entry {
 			flex-shrink: 0;
 			display: flex;

@@ -12,6 +12,8 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
+import TwitchatEvent from '@/events/TwitchatEvent';
+import PublicAPI from '@/utils/PublicAPI';
 
 @Component({
 	components:{
@@ -21,6 +23,8 @@ import ChatMessageChunksParser from '../messages/components/ChatMessageChunksPar
 class ChatAlertMessage extends Vue {
 
 	public message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData | null = null;
+
+	private apiCloseHandler!:() => void;
 
 	public get chunks():TwitchatDataTypes.ParseMessageChunk[] {
 		let chunks = this.message!.message_chunks.concat();
@@ -38,6 +42,14 @@ class ChatAlertMessage extends Vue {
 				this.message = message;
 			}
 		})
+
+		this.apiCloseHandler = () => this.message = null;
+
+		PublicAPI.instance.addEventListener(TwitchatEvent.HIDE_ALERT, this.apiCloseHandler);
+	}
+
+	public beforeUnmount():void {
+		PublicAPI.instance.removeEventListener(TwitchatEvent.HIDE_ALERT, this.apiCloseHandler);
 	}
 
 }
@@ -66,7 +78,7 @@ export default toNative(ChatAlertMessage);
 		background-color: var(--color-light);
 		color: var(--color-alert);
 	}
-	
+
 	.message {
 		overflow: hidden;
 		text-align: center;

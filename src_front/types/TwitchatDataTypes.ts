@@ -10,17 +10,18 @@ export namespace TwitchatDataTypes {
 
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook"|"kick";
 
-	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "bingo_grid" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs" | "shareParams";
+	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatPoll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "bingo_grid" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs" | "shareParams" | "groqHistory";
 
-	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
+	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "chatPoll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
 
-	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "bingogrid" | "labels" | 'donationgoals';
+	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals' | "animatedtext" | "customtrain";
 
 	export const ParamDeepSections = {
 		AD: "ad",
 		OBS: "obs",
 		TTS: "tts",
 		HEAT: "heat",
+		GROQ: "groq",
 		KO_FI: "kofi",
 		GOXLR: "goxlr",
 		LUMIA: "lumia",
@@ -72,8 +73,9 @@ export namespace TwitchatDataTypes {
 		VOICE: "voice",
 		AUTOMOD: "automod",
 		AD: "ad",
-		CONNEXIONS: "connexions",
+		CONNECTIONS: "connexions",
 		PREMIUM: "premium",
+		TIMERS: "timers",
 	} as const;
 	export type ParameterPagesStringType = typeof ParameterPages[keyof typeof ParameterPages];
 
@@ -659,6 +661,10 @@ export namespace TwitchatDataTypes {
 		 * Just a field to allow storage of random data if necessary
 		 */
 		storage?:StorageType;
+		/**
+		 * Optional group containing sub entries
+		 */
+		group?:ParameterDataListValue<ValueType, StorageType>[];
 		// [parameter: string]: unknown;
 	}
 
@@ -780,7 +786,7 @@ export namespace TwitchatDataTypes {
 		 */
 		hideDelay:number;
 		/**
-		 * Number of items to display after the current goal
+		 * Should the number of items bellow the current one be limited
 		 */
 		limitEntryCount:boolean;
 		/**
@@ -1051,7 +1057,7 @@ export namespace TwitchatDataTypes {
 		descReplacedValues?:{[key:string]:string};
 		example?:string;
 		globalTag?:boolean;
-		category?:"stream"|"counter"|"value"|"timer"|"music"|"goxlr"|"twitch"|"streamlabs";
+		category?:"stream"|"counter"|"value"|"timer"|"music"|"goxlr"|"twitch"|"streamlabs"|string;
 		/**
 		 * Is placeholder private
 		 * Used for a deprecated placeholder that i don't want to simply break
@@ -1118,43 +1124,145 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Contains info about a countdown
+	 * Contains info about a timer/countdown
 	 */
-	export interface CountdownData {
-		startAt:string;
-		startAt_ms:number;
-		endAt?:string;
+	export interface TimerData {
+		id:string;
+		/**
+		 * Is timer/countdown enabled
+		 */
+		enabled:boolean;
+		/**
+		 * Is the default timer/countdown
+		 * These are static instances that cannot be deleted
+		 * for use with the /timer and /countdown commands
+		 */
+		isDefault:boolean;
+		/**
+		 * Name of the timer/countdown
+		 */
+		title:string
+		/**
+		 * Type of entry, timer or countdown
+		 */
+		type:"timer"|"countdown",
+		/**
+		 * Timer/countdown's placeholder for trigger
+		 */
+		placeholderKey:string
+		/**
+		 * Date in ms the timer/countdown has been started at
+		 */
+		startAt_ms?:number;
+		/**
+		 * Duration added to the timer/countdown
+		 */
+		offset_ms:number;
+		/**
+		 * Duration the countdown has been paused for
+		 */
+		pauseDuration_ms:number;
+		/**
+		 * Is timer/countdown paused
+		 */
+		paused:boolean;
+		/**
+		 * Date in ms the timer/countdown has been paused at
+		 */
+		pausedAt_ms?:number;
+		/**
+		 * Date in ms the countdown has ended
+		 */
 		endAt_ms?:number;
-		paused?:boolean;
-		aborted?:boolean;
-		pausedAt?:number;
-		pausedDuration:number;
-		duration:string;
+		/**
+		 * Duration of the countdown in ms
+		 */
 		duration_ms:number;
-		finalDuration?:string;
-		finalDuration_ms?:number;
-		timeoutRef:number;
-		labels:{
-			days:string;
+		/**
+		 * Contains overlay's params
+		 */
+		overlayParams: {
+			/**
+			 * Style of display
+			 * text: legacy mode
+			 * bar: new render style for countdown with a progress bar reducing
+			 */
+			style:"text"|"bar";
+			/**
+			 * Background color
+			 */
+			bgColor:string;
+			/**
+			 * Show background
+			 */
+			bgEnabled:boolean;
+			/**
+			 * Show icon
+			 */
+			showIcon:boolean;
+			/**
+			 * Text font
+			 */
+			textFont:string;
+			/**
+			 * Text size
+			 */
+			textSize:number;
+			/**
+			 * Text color
+			 */
+			textColor:string;
+			/**
+			 * Size of the progress bar
+			 */
+			progressSize:number;
+			/**
+			 * Progress style for "bar" style
+			 */
+			progressStyle:"fill"|"empty";
 		}
 	}
 
 	/**
-	 * Contains info about a timer
+	 * Chat poll data
 	 */
-	export interface TimerData {
-		startAt:string;
-		startAt_ms:number;
-		offset_ms:number;
-		paused?:boolean;
-		pausedAt?:number;
-		endAt?:string;
-		endAt_ms?:number;
-		duration?:string;
-		duration_ms?:number;
-		labels:{
-			days:string;
-		}
+	export interface ChatPollData {
+		/**
+		 * Poll title
+		 */
+		title: string;
+		/**
+		 * Poll choices
+		 */
+		choices: MessagePollDataChoice[];
+		/**
+		 * Poll duration in seconds
+		 */
+		duration_s: number;
+		/**
+		 * Timestamp when the poll has been started
+		 */
+		started_at: number;
+		/**
+		 * Timestamp when the poll has ended
+		 */
+		ended_at?: number;
+		/**
+		 * Winning choice
+		 */
+		winner?:MessagePollDataChoice;
+		/**
+		 * Permissions params
+		 */
+		permissions:PermissionsData;
+		/**
+		 * Stores the poll's votes
+		 */
+		votes:{[uid:string]:{indices:number[], login:string, platform:ChatPlatform}}
+		/**
+		 * Maximum answers a user can vote for
+		 */
+		maxVotePerUser:number;
 	}
 
 	/**
@@ -1233,6 +1341,7 @@ export namespace TwitchatDataTypes {
 			id:string;
 			platform:"system"|"elevenlabs";
 		};
+		allRemoteChans: boolean;
 		removeEmotes: boolean;
 		maxLength: number;
 		maxDuration: number;
@@ -1995,6 +2104,272 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
+	 * Represents a Groq history item
+	 */
+	export interface GroqHistoryItem {
+		/**
+		 * Item ID
+		 */
+		id:string;
+		/**
+		 * Prompt used
+		 */
+		prompt:string;
+		/**
+		 * Answer from groq
+		 */
+		answer:string;
+		/**
+		 * Date of the prompt
+		 */
+		date:number;
+		/**
+		 * Preprompt used
+		 */
+		preprompt?:string;
+	}
+
+	/**
+	 * Represents an Animated Text overlay params
+	 */
+	export interface AnimatedTextData {
+		id:string;
+		enabled:boolean;
+		/**
+		 * Optional overlay title
+		 */
+		title:string;
+		/**
+		 * Animation style
+		 */
+		animStyle: typeof AnimatedTextData_AnimStyles[number];
+		/**
+		 * Animation duration scale
+		 * The higher the slower.
+		 * Represents the delay between each letter
+		 */
+		animDurationScale:number;
+		/**
+		 * Animation strength
+		 * The higher the value, the strong the animation effect
+		 */
+		animStrength:number;
+		/**
+		 * Text color
+		 */
+		colorBase:string;
+		/**
+		 * Highlighted text color
+		 */
+		colorHighlights:string;
+		/**
+		 * Text font
+		 */
+		textFont:string;
+		/**
+		 * Text size
+		 */
+		textSize:number;
+	}
+	export const AnimatedTextData_AnimStyles = ["wave","typewriter","bounce","wobble","rotate","elastic","neon","swarm","caterpillar"] as const
+
+	/**
+	 * Represents a custom train params
+	 */
+	export interface CustomTrainData {
+		id:string;
+		enabled:boolean;
+		/**
+		 * Is train being tested ?
+		 */
+		testing:boolean;
+		/**
+		 * Optional overlay title
+		 */
+		title:string;
+		/**
+		 * Level name "LVL" by default
+		 */
+		levelName:string;
+		/**
+		 * Fill color
+		 */
+		colorFill:string;
+		/**
+		 * Background color
+		 */
+		colorBg:string;
+		/**
+		 * Text font
+		 */
+		textFont:string;
+		/**
+		 * Text size
+		 */
+		textSize:number;
+		/**
+		 * Train unit currency
+		 */
+		currency:string;
+		/**
+		 * Number of events to trigger the train
+		 */
+		triggerEventCount:number;
+		/**
+		 * Duration to wait after a train before starting a new one
+		 */
+		cooldownDuration_s:number;
+		/**
+		 * Duration to complete a level
+		 */
+		levelsDuration_s:number;
+		/**
+		 * Date at which the current train/level expires
+		 */
+		expires_at:number;
+		/**
+		 * Contains the date at which the cooldown will end
+		 */
+		coolDownEnd_at:number;
+		/**
+		 * Post progress on chat?
+		 */
+		postLevelUpOnChat:boolean;
+		/**
+		 * Message to post on chat on level up
+		 */
+		postLevelUpChatMessage:string;
+		/**
+		 * Post success on chat?
+		 */
+		postSuccessOnChat:boolean;
+		/**
+		 * Message to post on chat on success
+		 */
+		postSuccessChatMessage:string;
+		/**
+		 * Text for the "level X complete"
+		 */
+		levelUpLabel:string;
+		/**
+		 * Text for the "train appraoching"
+		 */
+		approachingLabel:string;
+		/**
+		 * Emote for the "train appraoching"
+		 */
+		approachingEmote:string;
+		/**
+		 * Text displayed if train is failed
+		 */
+		failedLabel:string;
+		/**
+		 * Emote for the "train failed"
+		 */
+		failedEmote:string;
+		/**
+		 * Text displayed when train complete
+		 */
+		successLabel:string;
+		/**
+		 * Text displayed when train complete with level and percent reached
+		 */
+		successLabelSummary:string;
+		/**
+		 * Emote for the "train complete"
+		 */
+		successEmote:string;
+		/**
+		 * Text displayed on all time record
+		 */
+		recordLabel:string;
+		/**
+		 * Emote for all time record
+		 */
+		recordEmote:string;
+		/**
+		 * Fill color for all time record
+		 */
+		recordColorFill:string;
+		/**
+		 * Background color for all time record
+		 */
+		recordColorBg:string;
+		/**
+		 * Emote for the "level up" sequence
+		 */
+		levelUpEmote:string;
+		/**
+		 * Levels amounts.
+		 * coma seperated numbers
+		 */
+		levelAmounts:number[];
+		/**
+		 * Current all time record info
+		 */
+		allTimeRecord?: {
+			date:number;
+			amount:number;
+			level:number;
+			percent:number;
+		};
+		/**
+		 * Platforms allowed to make train progress
+		 */
+		platforms:{
+			kofi:boolean;
+			streamelements:boolean;
+			patreon:boolean;
+			streamlabs:boolean;
+			tipeee:boolean;
+			tiltify:boolean;
+			streamlabs_charity:boolean;
+			twitch_charity:boolean;
+		}
+	}
+
+	export interface CustomTrainState {
+		/**
+		 * Date at which the train approached (0 if not yet)
+		 */
+		approached_at:number;
+		/**
+		 * Date at which the train started (0 if not yet)
+		 */
+		levelStarted_at:number;
+		/**
+		 * Current train amount
+		 */
+		amount:number;
+		/**
+		 * Reference to internal timeout
+		 */
+		timeoutRef?:string;
+		/**
+		 * Activities for this train
+		 */
+		activities:{
+			id:string;
+			/**
+			 * Platform used to make the donation
+			 */
+			platform:keyof CustomTrainData["platforms"]|"trigger";
+			/**
+			 * Donation amount
+			 */
+			amount:number;
+			/**
+			 * Activity date
+			 */
+			created_at:number;
+			/**
+			 * Message that created this activity
+			 */
+			messageId:string;
+		}[];
+	}
+
+	/**
 	 * Contains only the Array props from the StreamSummaryData
 	 */
 	type ExtractArrayProps<T> = {[K in keyof T]: T[K] extends any[] ? ExcludeUndefined<T[K][number]> : never;}
@@ -2205,15 +2580,16 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Defines the pinnable menu items
 	 */
-	type PinId = "poll" | "prediction" | "raffle" | "bingo" | "bingo_grid" | "qna" | "chatSugg" | "timer" | "streamInfo" | "extensions" | "clearChat" | "chatters" | "rewards";
+	type PinId = "poll" | "chatPoll" | "prediction" | "raffle" | "bingo" | "bingo_grid" | "qna" | "chatSugg" | "timer" | "streamInfo" | "extensions" | "clearChat" | "chatters" | "rewards";
 	export const PinnableMenuItems:{id:PinId, isModal:boolean, icon:string, modalId:TwitchatDataTypes.ModalTypes|"", modelValueName:string, labelKey:string}[] = [
 		{id:"poll",			isModal:true,	icon:"poll", 			modalId:"poll",			modelValueName:"",	 labelKey:"cmdmenu.poll"},
+		{id:"chatPoll",		isModal:true,	icon:"chatPoll", 		modalId:"chatPoll",		modelValueName:"",	 labelKey:"cmdmenu.chatPoll"},
 		{id:"prediction",	isModal:true,	icon:"prediction", 		modalId:"pred",			modelValueName:"",	 labelKey:"cmdmenu.prediction"},
 		{id:"raffle",		isModal:true,	icon:"ticket", 			modalId:"raffle",		modelValueName:"",	 labelKey:"cmdmenu.raffle"},
 		{id:"bingo",		isModal:true,	icon:"bingo", 			modalId:"bingo",		modelValueName:"",	 labelKey:"cmdmenu.bingo"},
 		{id:"bingo_grid",	isModal:true,	icon:"bingo_grid", 		modalId:"bingo_grid",	modelValueName:"",	 labelKey:"cmdmenu.bingo_grid"},
 		{id:"qna",			isModal:true,	icon:"qna", 			modalId:"qnaForm",		modelValueName:"",	 labelKey:"cmdmenu.qna"},
-		{id:"chatSugg",		isModal:true,	icon:"chatPoll", 		modalId:"chatsuggForm",	modelValueName:"",	 labelKey:"cmdmenu.suggestions"},
+		{id:"chatSugg",		isModal:true,	icon:"chatSugg", 		modalId:"chatsuggForm",	modelValueName:"",	 labelKey:"cmdmenu.suggestions"},
 		{id:"timer",		isModal:true,	icon:"timer", 			modalId:"timer",		modelValueName:"",	 labelKey:"cmdmenu.timer"},
 		{id:"streamInfo",	isModal:true,	icon:"info", 			modalId:"streamInfo",	modelValueName:"",	 labelKey:"cmdmenu.info"},
 		{id:"extensions",	isModal:true,	icon:"extension", 		modalId:"extensions",	modelValueName:"",	 labelKey:"cmdmenu.extensions"},
@@ -2253,6 +2629,7 @@ export namespace TwitchatDataTypes {
 		SHOUTOUT:"shoutout",
 		VOICEMOD:"voicemod",
 		QNA_STOP:"qna_stop",
+		CHAT_POLL:"chat_poll",
 		QNA_START:"qna_start",
 		HYPE_CHAT:"hype_chat",
 		FOLLOWING:"following",
@@ -2313,6 +2690,7 @@ export namespace TwitchatDataTypes {
 		OBS_SOURCE_TOGGLE:"obs_source_toggle",
 		OBS_FILTER_TOGGLE:"obs_filter_toggle",
 		HYPE_TRAIN_CANCEL:"hype_train_cancel",
+		GOAL_STEP_COMPLETE:"goal_step_complete",
 		TWITCH_CELEBRATION:"twitch_celebration",
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
 		RAFFLE_PICK_WINNER:"raffle_pick_winner",
@@ -2323,9 +2701,12 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_PROGRESS:"hype_train_progress",
 		HYPE_TRAIN_COMPLETE:"hype_train_complete",
 		LOW_TRUST_TREATMENT:"low_trust_treatment",
+		CUSTOM_TRAIN_SUMMARY:"custom_train_summary",
+		CHAT_HIGHLIGHT_CLOSE:"chat_highlight_close",
 		YOUTUBE_SUBSCRIPTION:"youtube_subscription",
 		AD_BREAK_APPROACHING:"ad_break_approaching",
 		MUSIC_ADDED_TO_QUEUE:"music_added_to_queue",
+		CUSTOM_TRAIN_LEVEL_UP:"custom_train_level_up",
 		GOXLR_SAMPLE_COMPLETE:"goxlr_sample_complete",
 		OBS_INPUT_MUTE_TOGGLE:"obs_input_mute_toggle",
 		HYPE_TRAIN_APPROACHING:"hype_train_approaching",
@@ -2342,7 +2723,7 @@ export namespace TwitchatDataTypes {
 	//Dynamically type TwitchatMessageStringType from TwitchatMessageType values
 	export type TwitchatMessageStringType = typeof TwitchatMessageType[keyof typeof TwitchatMessageType];
 
-	export const DisplayableMessageTypes:{[key in ChatMessageTypes["type"]]:boolean} = {
+	export const DisplayableMessageTypes = {
 		ban:true,
 		raid:true,
 		unban:true,
@@ -2367,6 +2748,7 @@ export namespace TwitchatDataTypes {
 		shoutout:true,
 		unpinned:true,
 		qna_stop:false,
+		chat_poll:true,
 		qna_start:false,
 		qna_delete:false,
 		warn_chatter:true,
@@ -2406,7 +2788,7 @@ export namespace TwitchatDataTypes {
 		streamelements:true,
 		stream_offline:true,
 		ad_break_start:false,
-		chat_highlight:false,//Used for "highlight on overlay" events
+		chat_highlight:false,
 		counter_update:false,
 		goxlr_fx_state:false,
 		youtube_subgift:true,
@@ -2435,12 +2817,16 @@ export namespace TwitchatDataTypes {
 		low_trust_treatment:true,
 		ad_break_start_chat:true,
 		obs_recording_stop:false,
+		goal_step_complete:false,
+		custom_train_summary:true,
 		obs_recording_start:false,
 		youtube_subscription:true,
 		hype_train_progress:false,
 		hype_train_complete:false,
-		ad_break_approaching:false,
 		music_added_to_queue:true,
+		ad_break_approaching:false,
+		chat_highlight_close:false,
+		custom_train_level_up:false,
 		goxlr_sample_complete:false,
 		obs_input_mute_toggle:false,
 		hype_train_cooled_down:true,
@@ -2452,7 +2838,7 @@ export namespace TwitchatDataTypes {
 		community_boost_complete:true,
 		obs_playback_state_update:false,
 		community_challenge_contribution:true,
-	} as const;
+	} as const satisfies Record<ChatMessageTypes["type"], boolean>;
 
 
 	/**
@@ -2529,6 +2915,7 @@ export namespace TwitchatDataTypes {
 									| MessageShoutoutData
 									| MessageVoicemodData
 									| MessageChatHighlightData
+									| MessageChatHighlightCloseData
 									| MessageConnectData
 									| MessageDisconnectData
 									| MessageFollowbotData
@@ -2600,6 +2987,10 @@ export namespace TwitchatDataTypes {
 									| MessageCharityDonationData
 									| MessagePrivateModeratorData
 									| MessagePlayabilityInputData
+									| MessageGoalStepCompleteData
+									| MessageChatPollData
+									| MessageCustomTrainLevelUpData
+									| MessageCustomTrainSummaryData
 	;
 
 	/**
@@ -3162,17 +3553,7 @@ export namespace TwitchatDataTypes {
 		 */
 		isFake?:boolean;
 	}
-	export interface MessagePollDataChoice {
-		id: string;
-		/**
-		 * Choice text
-		 */
-		label: string;
-		/**
-		 * Number of votes the choice got
-		 */
-		votes: number;
-	}
+	export type MessagePollDataChoice = Omit<MessagePredictionDataOutcome, "voters">
 
 	/**
 	 * Represents a prediction's data
@@ -3526,6 +3907,74 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
+	 * Represents a custom train result
+	 */
+	export interface MessageCustomTrainLevelUpData extends AbstractTwitchatMessage {
+		channel_id: string;
+		type:"custom_train_level_up";
+		/**
+		 * Current hype train level
+		 */
+		level:number;
+		/**
+		 * Current hyper train level percent
+		 */
+		percent:number;
+		/**
+		 * Amount reached
+		 */
+		amount:number;
+		/**
+		 * Train ID
+		 */
+		trainId:string;
+		/**
+		 * Train name
+		 */
+		trainName:string;
+		/**
+		 * Is new record?
+		 */
+		isRecord:boolean;
+	}
+
+	/**
+	 * Represents a custom train result
+	 */
+	export interface MessageCustomTrainSummaryData extends AbstractTwitchatMessage {
+		channel_id: string;
+		type:"custom_train_summary";
+		/**
+		 * Activities
+		 */
+		activities: CustomTrainState["activities"];
+		/**
+		 * Current hype train level
+		 */
+		level:number;
+		/**
+		 * Current hyper train level percent
+		 */
+		percent:number;
+		/**
+		 * Amount reached
+		 */
+		amount:number;
+		/**
+		 * Train ID
+		 */
+		trainId:string;
+		/**
+		 * Train name
+		 */
+		trainName:string;
+		/**
+		 * Is new record?
+		 */
+		isRecord:boolean;
+	}
+
+	/**
 	 * Represents a community boost data
 	 */
 	export interface MessageCommunityBoostData extends AbstractTwitchatMessage {
@@ -3562,6 +4011,10 @@ export namespace TwitchatDataTypes {
 			 * Stream duration in ms
 			 */
 			duration: number;
+			/**
+			 * Stream duration formatted
+			 */
+			duration_str: string;
 		}
 	}
 
@@ -3691,9 +4144,49 @@ export namespace TwitchatDataTypes {
 	export interface MessageCountdownData extends AbstractTwitchatMessage {
 		type:"countdown";
 		/**
-		 * Countdown's data
+		 * Timer ID
 		 */
-		countdown:CountdownData;
+		countdown_id:string;
+		/**
+		 * Is countdown completed
+		 */
+		complete:boolean;
+		/**
+		 * Is countdown aborted
+		 */
+		aborted:boolean;
+		/**
+		 * Timer duration in milliseconds
+		 */
+		startedAt_ms:number;
+		/**
+		 * Timer duration formatted
+		 */
+		startedAt_str:string;
+		/**
+		 * Countdown duration in milliseconds
+		 */
+		duration_ms:number;
+		/**
+		 * Countdown duration formatted
+		 */
+		duration_str:string;
+		/**
+		 * Final countdown duration in milliseconds
+		 */
+		finalDuration_ms?:number;
+		/**
+		 * Final countdown duration formatted
+		 */
+		finalDuration_str?:string;
+		/**
+		 * Countdown end date in milliseconds
+		 */
+		endedAt_ms?:number;
+		/**
+		 * Countdown end date formatted
+		 */
+		endedAt_str?:string;
 	}
 
 	/**
@@ -3702,13 +4195,29 @@ export namespace TwitchatDataTypes {
 	export interface MessageTimerData extends AbstractTwitchatMessage {
 		type:"timer";
 		/**
-		 * true if timer is running
+		 * Timer ID
 		 */
-		started:boolean,
+		timer_id:string;
 		/**
-		 * Timer's data
+		 * Timer duration in milliseconds
 		 */
-		timer:TimerData;
+		startedAt_ms:number;
+		/**
+		 * Timer duration formatted
+		 */
+		startedAt_str:string;
+		/**
+		 * Timer duration in milliseconds
+		 */
+		duration_ms:number;
+		/**
+		 * Timer duration formatted
+		 */
+		duration_str:string;
+		/**
+		 * Get if timer has been stopped
+		 */
+		stopped:boolean;
 	}
 
 	/**
@@ -4039,6 +4548,13 @@ export namespace TwitchatDataTypes {
 		 * Details about the highlight
 		 */
 		info:ChatHighlightInfo;
+	}
+
+	/**
+	 * Represents a chat highlight close message
+	 */
+	export interface MessageChatHighlightCloseData extends AbstractTwitchatMessage {
+		type:"chat_highlight_close";
 	}
 
 	/**
@@ -4432,7 +4948,7 @@ export namespace TwitchatDataTypes {
 		 * User that clicked.
 		 * "null" for anonymous users
 		 */
-		user:Pick<TwitchatDataTypes.TwitchatUser, "channelInfo" | "id" | "login"> | null;
+		user:Pick<TwitchatDataTypes.TwitchatUser, "channelInfo" | "id" | "login" | "platform"> | null;
 		/**
 		 * Is it an anonymous user?
 		 */
@@ -5001,6 +5517,10 @@ export namespace TwitchatDataTypes {
 			y:number;
 		};
 		/**
+		 * Label of the ticked cell if any
+		 */
+		cellLabel:string;
+		/**
 		 * Col index that's been filled
 		 * -1 = none
 		 */
@@ -5479,6 +5999,12 @@ export namespace TwitchatDataTypes {
 		user:TwitchatUser;
 	}
 
+	/**
+	 * Represents a stack of trigger that have been suspended.
+	 * This happens when an infinite recursive call stack is detected
+	 * This message is sent when execution is paused.
+	 * Users has a button to resume execution
+	 */
 	export interface MessageSuspendedTriggerStackData extends AbstractTwitchatMessage {
 		type:"suspended_trigger_stack";
 		/**
@@ -5487,6 +6013,9 @@ export namespace TwitchatDataTypes {
 		triggerStack:TriggerCallStack;
 	}
 
+	/**
+	 * Represents a donation made on twitch charity
+	 */
 	export interface MessageCharityDonationData extends AbstractTwitchatMessage {
 		type:"twitch_charity_donation";
 		/**
@@ -5531,6 +6060,9 @@ export namespace TwitchatDataTypes {
 		}
 	}
 
+	/**
+	 * Represents a private moderator message
+	 */
 	export interface MessagePrivateModeratorData extends TranslatableMessage {
 		type:"private_mod_message";
 		/**
@@ -5563,6 +6095,9 @@ export namespace TwitchatDataTypes {
 		toChannelId?:string;
 	}
 
+	/**
+	 * Represents a PlayAbility event
+	 */
 	export interface MessagePlayabilityInputData extends AbstractTwitchatMessage {
 		type:"playability_input";
 		/**
@@ -5577,6 +6112,36 @@ export namespace TwitchatDataTypes {
 		 * input value
 		 */
 		inputValue:number|boolean;
+	}
 
+	/**
+	 * Represents a Goal's overlay step completion
+	 */
+	export interface MessageGoalStepCompleteData extends AbstractTwitchatMessage {
+		type:"goal_step_complete";
+		/**
+		 * Index of the completed step
+		 */
+		stepIndex:number;
+		/**
+		 * Goal overlay data
+		 */
+		goalConfig:DonationGoalOverlayConfig
+		/**
+		 * Completed step info
+		 */
+		stepConfig:DonationGoalOverlayConfig["goalList"][number];
+	}
+
+	export interface MessageChatPollData extends AbstractTwitchatMessage {
+		type: "chat_poll";
+		/**
+		 * Poll's data
+		 */
+		poll: ChatPollData;
+		/**
+		 * Is poll just starting
+		 */
+		isStart:boolean;
 	}
 }

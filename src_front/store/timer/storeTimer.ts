@@ -1,20 +1,32 @@
 import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
+import DataStore from '../DataStore';
 import StoreProxy, { type ITimerActions, type ITimerGetters, type ITimerState } from '../StoreProxy';
+import SetTimeoutWorker from '@/utils/SeTimeoutWorker';
+
+const countdownTO:Record<string, string> = {};
+const getDefaultStyle = ():TwitchatDataTypes.TimerData["overlayParams"] => {
+	return {
+		style:"text",
+		bgColor:"#ffffff",
+		showIcon:true,
+		bgEnabled:true,
+		textFont:"Roboto",
+		textSize:32,
+		textColor:"#18181b",
+		progressSize:10,
+		progressStyle:"empty",
+	}
+}
 
 export const storeTimer = defineStore('timer', {
 	state: () => ({
-		// timerStartDate: -1,
-		// timerOffset: 0,
-		// timerPaused:false,
-		// timerPausedAt:0,
-		timer: null as TwitchatDataTypes.TimerData|null,
-		countdown: null as TwitchatDataTypes.CountdownData|null,
+		timerList: [] as TwitchatDataTypes.TimerData[],
 	} as ITimerState),
 
 
@@ -27,194 +39,350 @@ export const storeTimer = defineStore('timer', {
 
 
 	actions: {
-
-		broadcastStates() {
-			if(this.timer) {
-				PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, this.timer);
+		async populateData():Promise<void> {
+			const json = DataStore.get(DataStore.TIMERS_CONFIGS);
+			if(json) {
+				const data = JSON.parse(json) as IStoreData;
+				this.timerList = data.timerList
 			}
-			
-			if(this.countdown) {
-				PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, this.countdown);
-			}
-				
-			if(this.countdown) {
-				//Reset end timeout
-				const remaining = this.countdown.duration_ms - (Date.now() - this.countdown.startAt_ms) + this.countdown.pausedDuration;
-				clearTimeout(this.countdown.timeoutRef);
-				this.countdown.timeoutRef = window.setTimeout(()=> {
-					this.countdownStop(false);
-				}, remaining);
-			}
-		},
-
-		timerStart() {
-			this.timer = {
-				startAt:Utils.formatDate(new Date()),
-				startAt_ms:Date.now(),
+			const defaultTimer:TwitchatDataTypes.TimerData = {
+				id:Utils.getUUID(),
+				type:"timer",
+				placeholderKey:"DEFAULT",
+				title:StoreProxy.i18n.t("timers.default_timer_title"),
+				enabled:true,
+				isDefault:true,
+				paused:false,
+				startAt_ms:0,
 				offset_ms:0,
-				labels:{
-					days:StoreProxy.i18n.t("global.date_days")
-				}
-			};
-			
-			const message:TwitchatDataTypes.MessageTimerData = {
-				type:TwitchatDataTypes.TwitchatMessageType.TIMER,
-				platform:"twitchat",
-				started:true,
+				pauseDuration_ms:0,
+				duration_ms:0,
+				overlayParams: getDefaultStyle(),
+			}
+			const defaultCountdown:TwitchatDataTypes.TimerData = {
 				id:Utils.getUUID(),
-				date:Date.now(),
-				timer:JSON.parse(JSON.stringify(this.timer)),
-				channel_id:StoreProxy.auth.twitch.user.id,
-			};
-			StoreProxy.chat.addMessage(message);
-
-			this.broadcastStates();
-		},
-
-		timerAdd(duration:number) {
-			if(!this.timer) return;
-			this.timer.offset_ms += duration;
-			this.broadcastStates();
-		},
-
-		timerRemove(duration:number) {
-			if(!this.timer) return;
-			const elapsed = Date.now() - this.timer?.startAt_ms;
-			this.timer.offset_ms -= duration;
-			if(elapsed + this.timer.offset_ms < 0) this.timer.offset_ms = -elapsed;
-			this.broadcastStates();
-		},
-
-		timerPause() {
-			if(!this.timer) return;
-			this.timer.paused = true;
-			this.timer.pausedAt = Date.now();
-			this.broadcastStates();
-		},
-
-		timerUnpause() {
-			if(!this.timer) return;
-			this.timer.paused = false;
-			this.timer.offset_ms -= Date.now() - (this.timer.pausedAt || 0);
-			this.timer.pausedAt = 0;
-			this.broadcastStates();
-		},
-
-		timerStop() {
-			if(!this.timer) return;
-			if(this.timer.paused) this.timerUnpause();
-			this.timer.endAt = Utils.formatDate(new Date());
-			this.timer.endAt_ms = Date.now();
-			this.timer.duration_ms = Date.now() - this.timer.startAt_ms + this.timer.offset_ms;
-			this.timer.duration = Utils.formatDuration(this.timer.duration_ms, true);
-
-			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, (this.timer as unknown) as JsonObject);
-
-			const message:TwitchatDataTypes.MessageTimerData = {
-				type:TwitchatDataTypes.TwitchatMessageType.TIMER,
-				platform:"twitchat",
-				started:false,
-				id:Utils.getUUID(),
-				date:Date.now(),
-				timer:JSON.parse(JSON.stringify(this.timer)),
-				channel_id:StoreProxy.auth.twitch.user.id,
-			};
-			StoreProxy.chat.addMessage(message);
-
-			this.timer = null;
-		},
-
-		countdownStart(duration_ms:number) {
-			if(this.countdown) clearTimeout(this.countdown.timeoutRef);
-			const timeout = window.setTimeout(()=> {
-				this.countdownStop();
-			}, Math.max(duration_ms, 1000));
-
-			if(this.countdown) {
-				clearTimeout(this.countdown.timeoutRef);
+				type:"countdown",
+				placeholderKey:"DEFAULT",
+				title:StoreProxy.i18n.t("timers.default_countdown_title"),
+				duration_ms:60_000,
+				enabled:true,
+				isDefault:true,
+				paused:false,
+				startAt_ms:0,
+				offset_ms:0,
+				pauseDuration_ms:0,
+				overlayParams: getDefaultStyle(),
 			}
 
-			this.countdown = {
-				timeoutRef:timeout,
-				startAt:Utils.formatDate(new Date()),
-				startAt_ms:Date.now(),
-				duration:Utils.formatDuration(duration_ms, true),
-				duration_ms:duration_ms,
-				pausedDuration:0,
-				labels:{
-					days:StoreProxy.i18n.t("global.date_days")
-				}
-			};
+			// Create default time/countdown if missing
+			if (!this.timerList.some(timer => timer.isDefault && timer.type === "countdown")) {
+				this.timerList.unshift(defaultCountdown);
+			}
+			if (!this.timerList.some(timer => timer.isDefault && timer.type === "timer")) {
+				this.timerList.unshift(defaultTimer);
+			}
 
-			const message:TwitchatDataTypes.MessageCountdownData = {
-				type:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
-				platform:"twitchat",
-				id:Utils.getUUID(),
-				date:Date.now(),
-				countdown:JSON.parse(JSON.stringify(this.countdown)),
-				channel_id:StoreProxy.auth.twitch.user.id,
-			};
-			StoreProxy.chat.addMessage(message);
-			
-			this.broadcastStates();
+			this.saveData();
+
+			/**
+			 * Called when timer overlay requests for a timer info
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, (event:TwitchatEvent<{ id?:string }>)=> {
+				if(event.data?.id) {
+					this.broadcastStates(event.data.id);
+				}else{
+					//Broadcast default timers states
+					for (let i = 0; i < this.timerList.length; i++) {
+						const entry = this.timerList[i];
+						if(!entry.isDefault) continue;
+						this.broadcastStates(entry.id);
+					}
+				}
+			});
 		},
 
-		countdownAdd(duration:number) {
-			if(this.countdown) {
-				this.countdown.duration_ms += duration;
-				this.countdown.duration = Utils.formatDuration(this.countdown.duration_ms, true);
+		broadcastStates(id?:string) {
+			for (let i = 0; i < this.timerList.length; i++) {
+				const entry = this.timerList[i];
+				if(id && entry.id !== id) continue;
+
+				if(entry.type === "timer") {
+					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, entry);
+				}
+
+				if(entry.type === "countdown") {
+					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, entry);
+				}
+			}
+		},
+
+		createTimer() {
+			// +2 is to account for the default timer and countdown
+			if(!StoreProxy.auth.isPremium && this.timerList.filter(v=>!v.isDefault && v.enabled).length >= Config.instance.MAX_TIMERS + 2) return;
+			const data:TwitchatDataTypes.TimerData = {
+				id:Utils.getUUID(),
+				type:"timer",
+				placeholderKey:"",
+				title:"",
+				enabled:true,
+				isDefault:false,
+				paused:false,
+				startAt_ms:0,
+				offset_ms:0,
+				pauseDuration_ms:0,
+				duration_ms:0,
+				overlayParams: getDefaultStyle(),
+			}
+			this.timerList.push(data);
+			this.saveData();
+		},
+
+		deleteTimer(id:string) {
+			const index = this.timerList.findIndex(t=> t.id === id);
+			if(index == -1) return;
+			StoreProxy.main.confirm(StoreProxy.i18n.t("timers.delete_confirm.title"), StoreProxy.i18n.t("timers.delete_confirm.message"))
+			.then(()=> {
+				this.timerList.splice(index, 1);
+				this.saveData();
+			}).catch(_=> {});
+		},
+
+		timerStart(id:string) {
+			const entry = this.timerList.find(t=> t.id === id);
+			if(!entry || !entry.enabled) return;
+
+			let message:TwitchatDataTypes.MessageTimerData|TwitchatDataTypes.MessageCountdownData|null = null;
+			this.resetTimer(id);
+
+			entry.startAt_ms = Date.now();
+			switch(entry.type) {
+				case "timer": {
+					const data:TwitchatDataTypes.MessageTimerData = {
+						type:TwitchatDataTypes.TwitchatMessageType.TIMER,
+						platform:"twitchat",
+						id:Utils.getUUID(),
+						date:Date.now(),
+						timer_id:entry.id,
+						channel_id:StoreProxy.auth.twitch.user.id,
+						startedAt_ms:Date.now(),
+						startedAt_str:Utils.formatDate(new Date(), true),
+						duration_ms: 0,
+						duration_str: "0",
+						stopped:false,
+					};
+					message = data;
+					break;
+				}
+				case "countdown":{
+					const data:TwitchatDataTypes.MessageCountdownData = {
+						type:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
+						platform:"twitchat",
+						id:Utils.getUUID(),
+						date:Date.now(),
+						countdown_id:entry.id,
+						channel_id:StoreProxy.auth.twitch.user.id,
+						startedAt_ms:Date.now(),
+						startedAt_str:Utils.formatDate(new Date(), true),
+						duration_ms: entry.duration_ms,
+						duration_str: Utils.formatDuration(entry.duration_ms, true),
+						aborted:false,
+						complete:false,
+					};
+					message = data;
+				}
+			}
+			if(message) StoreProxy.chat.addMessage(message);
+
+			this.broadcastStates();
+			this.saveData();
+		},
+
+		timerAdd(id:string, duration:number) {
+			const entry = this.timerList.find(t=> t.id === id);
+			if(!entry) return;
+			if(entry.type == "timer") {
+				entry.offset_ms += duration;
+			}else if(entry.type == "countdown") {
+				entry.duration_ms += duration;
 				this.broadcastStates();
 			}
+			this.broadcastStates();
+			this.saveData();
 		},
 
-		countdownRemove(duration:number) {
-			if(this.countdown) {
-				this.countdown.duration_ms -= duration;
-				if(this.countdown.duration_ms < 0) this.countdown.duration_ms = 0;
-				this.countdown.duration = Utils.formatDuration(this.countdown.duration_ms, true);
+		timerRemove(id:string, duration:number) {
+			const entry = this.timerList.find(t=> t.id === id);
+			if(!entry || !entry.startAt_ms) return;
+			if(entry.type == "timer") {
+				const elapsed = Date.now() - entry.startAt_ms;
+				entry.offset_ms -= duration;
+				if(elapsed + entry.offset_ms < 0) entry.offset_ms = -elapsed;
+			}else if(entry.type == "countdown") {
+				entry.duration_ms -= duration;
+				if(entry.duration_ms < 0) entry.duration_ms = 0;
+			}
+			this.broadcastStates();
+			this.saveData();
+		},
+
+		timerPause(id:string) {
+			const entry = this.timerList.find(t=> t.id === id);
+			if(!entry || !entry.startAt_ms || entry.paused) return;
+			entry.paused = true;
+			entry.pausedAt_ms = Date.now();
+			if(entry.type == "countdown" && countdownTO[entry.id]) SetTimeoutWorker.instance.delete(countdownTO[entry.id]);
+			this.broadcastStates();
+			this.saveData();
+		},
+
+		timerUnpause(id:string) {
+			const entry = this.timerList.find(t=> t.id === id);
+			if(!entry || !entry.enabled) return;
+			if(entry.paused && entry.startAt_ms) {
+				entry.paused = false;
+				if(entry.type == "timer") {
+					entry.offset_ms -= Date.now() - (entry.pausedAt_ms || 0);
+				}else{
+					entry.pauseDuration_ms += Date.now() - (entry.pausedAt_ms || 0);
+				}
+				entry.pausedAt_ms = 0;
 				this.broadcastStates();
+				this.saveData();
+			}else{
+				this.timerStart(id);
 			}
 		},
 
-		countdownPause() {
-			if(!this.countdown) return;
-			this.countdown.paused = true;
-			this.countdown.pausedAt = Date.now();
-			this.broadcastStates();
-			clearTimeout(this.countdown.timeoutRef);
-		},
+		timerStop(id:string) {
+			const entry = this.timerList.find(t=> t.id === id);
+			if(!entry || !entry.startAt_ms) return;
+			if(entry.paused) this.timerUnpause(id);
+			entry.endAt_ms = Date.now();
+			const duration = this.getTimerComputedValue(id);
+			let message!:TwitchatDataTypes.MessageTimerData|TwitchatDataTypes.MessageCountdownData;
+			switch(entry.type) {
+				case "timer":{
+					const data:TwitchatDataTypes.MessageTimerData = {
+						type:TwitchatDataTypes.TwitchatMessageType.TIMER,
+						platform:"twitchat",
+						id:Utils.getUUID(),
+						date:Date.now(),
+						timer_id:entry.id,
+						channel_id:StoreProxy.auth.twitch.user.id,
+						startedAt_ms:entry.startAt_ms,
+						startedAt_str:Utils.formatDate(new Date(entry.startAt_ms), true),
+						duration_ms:duration.duration_ms,
+						duration_str:duration.duration_str,
+						stopped:true,
+					};
+					message = data;
+					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, entry);
+					break;
+				}
+				case "countdown":{
+					const aborted = duration.duration_ms > 0;
+					const finalDuration_ms = aborted? entry.endAt_ms - entry.startAt_ms - entry.pauseDuration_ms : entry.duration_ms;
+					const finalDuration_str = Utils.formatDuration(finalDuration_ms, true);
 
-		countdownUnpause() {
-			if(!this.countdown) return;
-			this.countdown.paused = false;
-			this.countdown.pausedDuration += Date.now() - (this.countdown.pausedAt || 0);
-			this.broadcastStates();
-		},
-
-		countdownStop(aborted:boolean = true) {
-			if(!this.countdown) return;
-			clearTimeout(this.countdown.timeoutRef);
-
-			this.countdown.endAt_ms = Date.now();
-			this.countdown.endAt = Utils.formatDate(new Date(this.countdown.endAt_ms));
-			this.countdown.finalDuration_ms = aborted? this.countdown.endAt_ms - this.countdown.startAt_ms - this.countdown.pausedDuration : this.countdown.duration_ms;
-			this.countdown.finalDuration = Utils.formatDuration(this.countdown.finalDuration_ms, true);
-			this.countdown.aborted = aborted;
-
-			const message:TwitchatDataTypes.MessageCountdownData = {
-				type:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
-				platform:"twitchat",
-				id:Utils.getUUID(),
-				date:Date.now(),
-				countdown:this.countdown,
-				channel_id:StoreProxy.auth.twitch.user.id,
-			};
+					const data:TwitchatDataTypes.MessageCountdownData = {
+						type:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
+						platform:"twitchat",
+						id:Utils.getUUID(),
+						date:Date.now(),
+						countdown_id:entry.id,
+						channel_id:StoreProxy.auth.twitch.user.id,
+						startedAt_ms:entry.startAt_ms,
+						startedAt_str:Utils.formatDate(new Date(entry.startAt_ms), true),
+						duration_ms:entry.duration_ms,
+						duration_str:Utils.formatDuration(entry.duration_ms, true),
+						aborted,
+						complete:true,
+						endedAt_ms:Date.now(),
+						endedAt_str:Utils.formatDate(new Date(), true),
+						finalDuration_ms,
+						finalDuration_str,
+					};
+					message = data;
+					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, entry);
+				}
+			}
 			StoreProxy.chat.addMessage(message);
 
-			PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, this.countdown);
-
-			this.countdown = null;
+			this.resetTimer(id);
+			this.saveData();
 		},
+
+		resetTimer(id:string) {
+			const entry = this.timerList.find(t=> t.id === id);
+			if(!entry) return;
+			if(countdownTO[entry.id]) SetTimeoutWorker.instance.delete(countdownTO[entry.id]);
+			if(entry.startAt_ms) {
+				PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, entry);
+				PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, entry);
+			}
+			delete entry.pausedAt_ms
+			delete entry.endAt_ms
+			delete entry.startAt_ms;
+			delete countdownTO[entry.id];
+			entry.offset_ms = 0;
+			entry.pauseDuration_ms = 0;
+		},
+
+		saveData() {
+			const data:IStoreData = {
+				timerList:this.timerList
+			};
+			DataStore.set(DataStore.TIMERS_CONFIGS, data);
+
+			// Schedule countdown ends
+			for (let i = 0; i < this.timerList.length; i++) {
+				const entry = this.timerList[i];
+				if(entry.type != "countdown") continue;
+				if(countdownTO[entry.id]) {
+					SetTimeoutWorker.instance.delete(countdownTO[entry.id]);
+					delete countdownTO[entry.id];
+				}
+				if(entry.paused || !entry.startAt_ms) continue;
+
+				countdownTO[entry.id] = SetTimeoutWorker.instance.create(()=> {
+					this.timerStop(entry.id);
+				}, this.getTimerComputedValue(entry.id).duration_ms);
+			}
+		},
+
+		getTimerComputedValue(id:string):{duration_ms:number, duration_str:string} {
+			const entry = this.timerList.find(t=> t.id === id);
+
+			// No timer found or timer not started
+			if(!entry || !entry.startAt_ms) return {duration_ms:0, duration_str:""};
+
+			if(entry.type === "timer")  {
+				let elapsed = Date.now() - entry.startAt_ms + entry.offset_ms;
+				if(entry.paused) {
+					elapsed -= Date.now() - entry.pausedAt_ms!;
+				}
+				return  {
+					duration_ms: elapsed,
+					duration_str: Utils.formatDuration(Math.ceil(elapsed/500)*500, true, StoreProxy.i18n.t("global.date_days"))
+				}
+			}
+
+			else if(entry.type === "countdown")  {
+				let elapsed = Date.now() - entry.startAt_ms + entry.offset_ms;
+				if(entry.paused) {
+					elapsed -= Date.now() - entry.pausedAt_ms!;
+				}
+				elapsed -= entry.pauseDuration_ms;
+				const remaining = Math.max(0, entry.duration_ms - elapsed);
+
+				return  {
+					duration_ms: remaining,
+					duration_str: Utils.formatDuration(Math.ceil(remaining/500)*500, true, StoreProxy.i18n.t("global.date_days"))
+				}
+			}
+
+			return {duration_ms:0, duration_str:""}
+		}
 	} as ITimerActions
 	& ThisType<ITimerActions
 		& UnwrapRef<ITimerState>
@@ -226,4 +394,8 @@ export const storeTimer = defineStore('timer', {
 
 if(import.meta.hot) {
 	import.meta.hot.accept(acceptHMRUpdate(storeTimer, import.meta.hot))
+}
+
+interface IStoreData {
+	timerList:TwitchatDataTypes.TimerData[];
 }

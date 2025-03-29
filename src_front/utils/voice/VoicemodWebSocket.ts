@@ -21,12 +21,17 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	private static ACTION_STOP_ALL_MEME_SOUNDS: string = "stopAllMemeSounds";
 	private static ACTION_BEEP_SOUND_ON_OFF: string = "setBeepSound";
 	private static ACTION_GET_BITMAP: string = "getBitmap";
+	private static ACTION_GET_HEAR_MYSELF: string = "getHearMyselfStatus";
+	private static ACTION_TOGGLE_HEAR_MYSELF: string = "toggleHearMyVoice";
+	private static ACTION_GET_VOICE_CHANGER: string = "getVoiceChangerStatus";
+	private static ACTION_TOGGLE_VOICE_CHANGER: string = "toggleVoiceChanger";
 
-	//Bellow events are captured but nothing is done with it so far
-	private static EVENT_TOGGLE_VOICE_CHANGER: string = "toggleVoiceChanger";
 	private static EVENT_VOICE_CHANGED_EVENT: string = "voiceLoadedEvent";
 	private static EVENT_VOICE_CHANGED_EVENT_V3: string = "voiceChangedEvent";
-	
+	//Below events are captured but nothing is done with it so far
+	private static EVENT_VOICE_CHANGER_ON: string = "voiceChangerEnabledEvent";
+	private static EVENT_VOICE_CHANGER_OFF: string = "voiceChangerDisabledEvent";
+
 	private static NO_FILTER_ID: string = "nofx";
 	private static NO_FILTER_ID_V3: string = "df6454f1-8eb2-4092-9ccc-fb51219f6291";
 
@@ -45,6 +50,8 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	private _reconnectTimeout: number = -1;
 	private _voiceIdImageToPromise:{[key:string]:{resolve:(base64:string)=>void, reject:()=>void}} = {};
 	private _voiceIdToImage:{[key:string]:string} = {};
+	private _hearMyselfState:boolean = false;
+	private _voiceChangerState:boolean = false;
 
 	static get instance():VoicemodWebSocket {
 		if(!VoicemodWebSocket._instance) {
@@ -276,6 +283,22 @@ export default class VoicemodWebSocket extends EventDispatcher {
 		});
 	}
 
+	/**
+	 * Enable or disable the voice changer
+	 * @param state
+	 */
+	public setVoiceChangerState(state:boolean):void {
+		if(this._voiceChangerState != state) {
+			this.send(VoicemodWebSocket.ACTION_TOGGLE_VOICE_CHANGER);
+		}
+	}
+
+	public setHearMyselfState(state:boolean):void {
+		if(this._hearMyselfState != state) {
+			this.send(VoicemodWebSocket.ACTION_TOGGLE_HEAR_MYSELF);
+		}
+	}
+
 
 
 	/*******************
@@ -322,7 +345,12 @@ export default class VoicemodWebSocket extends EventDispatcher {
 			}
 			//Request all available voice effect list
 			this.send(VoicemodWebSocket.ACTION_GET_VOICES);
+			//Request all available sound list
 			this.send(VoicemodWebSocket.ACTION_GET_SOUNDBOARDS);
+			//Request current "hear myself" state
+			this.send(VoicemodWebSocket.ACTION_GET_HEAR_MYSELF);
+			//Get current voice changer state
+			this.send(VoicemodWebSocket.ACTION_GET_VOICE_CHANGER);
 			// this.send(VoicemodWebSocket.ACTION_GET_BITMAP, {voiceID:"nofx"});
 			return;
 		}
@@ -375,7 +403,22 @@ export default class VoicemodWebSocket extends EventDispatcher {
 				break;
 			}
 
-			case VoicemodWebSocket.EVENT_TOGGLE_VOICE_CHANGER:
+			case VoicemodWebSocket.ACTION_TOGGLE_VOICE_CHANGER: {
+				this._voiceChangerState = json.actionObject.value === true;
+				break;
+			}
+			case VoicemodWebSocket.EVENT_VOICE_CHANGER_ON: {
+				this._voiceChangerState = true;
+				break;
+			}
+			case VoicemodWebSocket.EVENT_VOICE_CHANGER_OFF: {
+				this._voiceChangerState = false;
+				break;
+			}
+
+			case VoicemodWebSocket.ACTION_TOGGLE_HEAR_MYSELF:
+				//This is called both when we request the status and when we change it
+				this._hearMyselfState = json.actionObject.value === true;
 				break;
 
 			default:
@@ -396,7 +439,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 
 	/**
 	 * Populates given voice image
-	 * @param voice 
+	 * @param voice
 	 */
 	private async populateImageProp(voice:VoicemodTypes.Voice):Promise<void> {
 		for (let i = 0; i < this.voices.length; i++) {

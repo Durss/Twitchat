@@ -1,14 +1,16 @@
+import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import PublicAPI from '@/utils/PublicAPI';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import StoreProxy, { type IDonationGoalActions, type IDonationGoalGetters, type IDonationGoalState } from '../StoreProxy';
-import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/events/TwitchatEvent';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import ApiHelper from '@/utils/ApiHelper';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 
+
+const donationGoalStatesCache:Record<string, number> = {"coucou":0};
 
 export const storeDonationGoals = defineStore('donationGoals', {
 	state: () => ({
@@ -43,6 +45,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 				if(!event.data.overlayId) return;
 				this.broadcastData(event.data.overlayId);
 			});
+			this.broadcastData();
 		},
 
 		addOverlay():TwitchatDataTypes.DonationGoalOverlayConfig {
@@ -98,6 +101,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 			for (let i = 0; i < this.overlayList.length; i++) {
 				const overlay = this.overlayList[i];
 				if(overlayId && overlay.id != overlayId) continue;
+
 				let goal = 0;
 				let raisedTotal = 0;
 				let raisedPersonnal = 0;
@@ -108,23 +112,23 @@ export const storeDonationGoals = defineStore('donationGoals', {
 					raisedTotal = StoreProxy.streamlabs.charityTeam.amountRaised_cents/100;
 					raisedPersonnal = StoreProxy.streamlabs.charityTeam.amountRaisedPersonnal_cents/100;
 				}
-	
+
 				if(overlay.dataSource == "tiltify") {
 					if(!StoreProxy.tiltify.campaignList) continue;
 					const campaign = StoreProxy.tiltify.campaignList.find(v=>v.id == overlay.campaignId);
 					if(!campaign) continue;
-	
+
 					goal = parseFloat(campaign.goal.value);
 					raisedTotal = parseFloat(campaign.total_amount_raised.value);
 					raisedPersonnal = parseFloat(campaign.amount_raised.value);
 				}
-	
+
 				if(overlay.dataSource == "twitch_charity") {
 					const campaign = StoreProxy.twitchCharity.currentCharity;
 					if(!campaign) continue;
-	
+
 					goal = campaign.target_amount.value/Math.pow(10, campaign.target_amount.decimal_places);
-					raisedTotal = 
+					raisedTotal =
 					raisedPersonnal = campaign.current_amount.value/Math.pow(10, campaign.current_amount.decimal_places);
 				}
 
@@ -132,7 +136,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 					const counter = StoreProxy.counters.counterList.find(v=>v.id == overlay.counterId);
 					if(!counter) continue;
 					goal = counter.max || 0;
-					raisedTotal = 
+					raisedTotal =
 					raisedPersonnal = counter.value;
 				}
 
@@ -140,7 +144,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 					const subs = StoreProxy.labels.getLabelByKey("SUB_COUNT") as number || 0;
 					if(isNaN(subs)) continue;
 					goal = subs;
-					raisedTotal = 
+					raisedTotal =
 					raisedPersonnal = subs;
 				}
 
@@ -148,8 +152,27 @@ export const storeDonationGoals = defineStore('donationGoals', {
 					const followers = StoreProxy.labels.getLabelByKey("FOLLOWER_COUNT") as number || 0;
 					if(isNaN(followers)) continue;
 					goal = followers;
-					raisedTotal = 
+					raisedTotal =
 					raisedPersonnal = followers;
+				}
+
+				const currentStepIndex = overlay.goalList.concat().sort((a,b) => a.amount - b.amount).findLastIndex(v=>v.amount <= raisedTotal);
+				if(donationGoalStatesCache[overlay.id] != currentStepIndex) {
+					if(donationGoalStatesCache[overlay.id] < currentStepIndex) {
+						const currentStep = overlay.goalList[currentStepIndex];
+						const triggerEvent:TwitchatDataTypes.MessageGoalStepCompleteData = {
+							channel_id:StoreProxy.auth.twitch.user.id,
+							date:Date.now(),
+							id:Utils.getUUID(),
+							goalConfig:overlay,
+							platform:"twitchat",
+							type:TwitchatDataTypes.TwitchatMessageType.GOAL_STEP_COMPLETE,
+							stepConfig:currentStep,
+							stepIndex:currentStepIndex,
+						}
+						TriggerActionHandler.instance.execute(triggerEvent);
+					}
+					donationGoalStatesCache[overlay.id] = currentStepIndex;
 				}
 
 				PublicAPI.instance.broadcast(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, {params:overlay, goal, raisedTotal, raisedPersonnal, skin});
@@ -186,7 +209,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 			if(!overlay) return;
 
 			const users = await TwitchUtils.getFakeUsers();
-			
+
 			let goal = 0;
 			let raisedTotal = newAmount;
 			let raisedPersonnal = newAmount;

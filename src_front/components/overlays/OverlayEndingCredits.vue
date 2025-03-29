@@ -368,8 +368,9 @@ class OverlayEndingCredits extends AbstractOverlay {
 	}
 
 	public getPatreonMembers(params:TwitchatDataTypes.EndingCreditsSlotParams) {
+		const allTiers = !params.patreonTiers || params.patreonTiers.length == 0
 		let members:TwitchatDataTypes.StreamSummaryData["patreonMembers"][number][]
-		= (this.data?.patreonMembers || []).filter(v=>(params.patreonTiers || []).includes(v.tier)).concat();
+		= (this.data?.patreonMembers || []).filter(v=>(params.patreonTiers || []).includes(v.tier) || allTiers).concat();
 
 		if(params.anonLastNames == true) {
 			members = members.map(v=> {

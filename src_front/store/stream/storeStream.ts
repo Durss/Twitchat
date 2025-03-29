@@ -7,7 +7,6 @@ import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import TriggerUtils from '@/utils/TriggerUtils';
 import Utils from '@/utils/Utils';
-import type { PubSubDataTypes } from '@/utils/twitch/PubSubDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonObject } from "type-fest";
@@ -18,13 +17,15 @@ import EventSub from '@/utils/twitch/EventSub';
 import staticEmotes from '@/utils/twitch/staticEmoteList.json';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import SetIntervalWorker from '@/utils/SetIntervalWorker';
+import SetTimeoutWorker from '@/utils/SeTimeoutWorker';
 
 const commercialTimeouts:{[key:string]:number[]} = {};
-let hypeTrainCooldownTo = -1
+let hypeTrainCooldownTo = "";
 // Given a user's feedback, "hype train cooldown" notification is sent multiple times
 // dunno if i can actually trust them, but just in case this flag makes it so a
 // cooldown alert won't be sent again unless a hype train happened in between
-let ignoreHypeTrainCooldown = false;
+// Set to true by default to avoid sending a cooldown alert on first launch
+let ignoreHypeTrainCooldown = true;
 
 export const storeStream = defineStore('stream', {
 	state: () => ({
@@ -47,6 +48,7 @@ export const storeStream = defineStore('stream', {
 			platform:"twitch",
 		},
 		autoconnectChans:[],
+		currentVODUrl:"",
 	} as IStreamState),
 
 
@@ -84,10 +86,13 @@ export const storeStream = defineStore('stream', {
 				}
 			}catch(error) {}
 
-			// Get next hype train availability every hours just in case
+			// Get next hype train availability and current VOD URL every hours just in case
 			SetIntervalWorker.instance.create(()=>{
 				this.scheduleHypeTrainCooldownAlert();
+				this.grabCurrentStreamVOD()
 			}, 60 * 60 * 1000)
+			this.scheduleHypeTrainCooldownAlert();
+			this.grabCurrentStreamVOD()
 		},
 
 		async loadStreamInfo(platform:TwitchatDataTypes.ChatPlatform, channelId:string):Promise<void> {
@@ -215,6 +220,7 @@ export const storeStream = defineStore('stream', {
 		},
 
 		setHypeTrain(data:TwitchatDataTypes.HypeTrainStateData|undefined) {
+			if(ignoreHypeTrainCooldown) this.scheduleHypeTrainCooldownAlert();
 			ignoreHypeTrainCooldown = false;
 			this.hypeTrain = data;
 			if(data && data.state == "COMPLETED" && data.approached_at) {
@@ -245,7 +251,11 @@ export const storeStream = defineStore('stream', {
 					}
 					StoreProxy.chat.addMessage(res);
 				}
-				this.scheduleHypeTrainCooldownAlert();
+
+				// Wait half an hour and check for cooldown before next train
+				setTimeout(()=> {
+					this.scheduleHypeTrainCooldownAlert();
+				}, 30 * 60 *60);
 
 				window.setTimeout(()=> {
 					//Hide hype train popin
@@ -254,14 +264,14 @@ export const storeStream = defineStore('stream', {
 			}
 		},
 
-		setPlaybackState(channelId:string, value:PubSubDataTypes.PlaybackInfo|undefined) {
+		setPlaybackState(channelId:string, viewerCount:number|undefined) {
 			if(!this.currentStreamInfo[channelId]) return;
-			if(!value) {
+			if(!viewerCount) {
 				this.currentStreamInfo[channelId]!.live = false;
 				this.currentStreamInfo[channelId]!.viewers = 0;
 			}else{
 				this.currentStreamInfo[channelId]!.live = true;
-				this.currentStreamInfo[channelId]!.viewers = value?.viewers;
+				this.currentStreamInfo[channelId]!.viewers = viewerCount;
 			}
 		},
 
@@ -1028,10 +1038,13 @@ export const storeStream = defineStore('stream', {
 					= {
 						uid:v.id,
 						login:v.attributes.full_name,
-						months:v.relationships.pledge_history.data.filter(v=>/^(pledge_start|subscription):/.test(v.id)).length,
+						months:v.relationships.pledge_history.data.filter(v=>/^(subscription):/.test(v.id)).length,
 						tier:maxId || "",
 						lifetimeAmount: v.attributes.lifetime_support_cents / 100,
 					};
+					if(entry.login.trim() == "Noa") {
+						console.log(v.relationships.pledge_history.data)
+					}
 				return entry;
 			});
 
@@ -1089,8 +1102,12 @@ export const storeStream = defineStore('stream', {
 		async scheduleHypeTrainCooldownAlert():Promise<void> {
 			const [train] = await TwitchUtils.getHypeTrains(StoreProxy.auth.twitch.user.id);
 			if(train && train.event_data.cooldown_end_time) {
-				clearTimeout(hypeTrainCooldownTo)
-				hypeTrainCooldownTo = window.setTimeout(() => {
+				if(hypeTrainCooldownTo) SetTimeoutWorker.instance.delete(hypeTrainCooldownTo);
+
+				const remainingTime = new Date(train.event_data.cooldown_end_time).getTime() - Date.now();
+				if(remainingTime <= 0) return;
+
+				hypeTrainCooldownTo = SetTimeoutWorker.instance.create(() => {
 					if(ignoreHypeTrainCooldown) return;
 					const m:TwitchatDataTypes.MessageHypeTrainCooledDownData = {
 						id:Utils.getUUID(),
@@ -1101,8 +1118,19 @@ export const storeStream = defineStore('stream', {
 					};
 					StoreProxy.chat.addMessage(m)
 					ignoreHypeTrainCooldown = true;
-				}, new Date(train.event_data.cooldown_end_time).getTime() - Date.now());
+				}, remainingTime);
 			}
+		},
+
+		async grabCurrentStreamVOD():Promise<void> {
+			try {
+				const [currentStreamInfo] = await TwitchUtils.getCurrentStreamInfo([StoreProxy.auth.twitch.user.id]);
+				// Get current VOD's URL for trigger's placeholder
+				const vod = await TwitchUtils.getVODInfo(currentStreamInfo.id);
+				if(vod) {
+					StoreProxy.stream.currentVODUrl = vod.url;
+				}
+			}catch(error) {}
 		}
 
 	} as IStreamActions

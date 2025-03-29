@@ -121,6 +121,14 @@ class OverlayDonationGoals extends AbstractOverlay {
 		if(!state) return;
 		//Not an event for this overlay, ignore it
 		if(state.params.id != this.id) return;
+
+		//Deeply check if something changed.
+		//If not, ignore that update.
+		//This happens when twitchat refreshes the list of currently active subs.
+		//Sub count my not have changed but it will still trigger an oevrlay update
+		if(this.state) {
+			if(Utils.deepEqual(this.state, state)) return;
+		}
 		
 		//Show list if necessary
 		if(state!.params.autoDisplay && !this.show) {

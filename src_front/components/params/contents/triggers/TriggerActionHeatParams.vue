@@ -1,8 +1,8 @@
 <template>
 	<div class="TriggerActionHeatParams">
-		
+
 		<ParamItem noBackground :paramData="param_clickSource" v-model="triggerData.heatClickSource" @change="cleanupData" />
-		
+
 		<template v-if="param_clickSource.value=='area'">
 			<div>
 				<Icon name="polygon" />{{ $t("triggers.actions.heat.select_area") }}
@@ -15,7 +15,7 @@
 				:selectedAreas="triggerData.heatAreaIds"
 				:screen="screen" />
 			</div>
-	
+
 			<div class="card-item secondary noArea" v-else>
 				<span class="label">{{ $t("triggers.actions.heat.no_area") }}</span>
 				<Button secondary light @click="openHeatParams()">{{ $t("triggers.actions.heat.create_areaBt") }}</Button>
@@ -31,7 +31,7 @@
 					</i18n-t>
 				</ToggleBlock>
 			</template>
-	
+
 			<div v-else class="card-item alert error">
 				<p v-html="$t('heat.need_OBS')"></p>
 				<Button @click="openOBSParams()" alert light icon="obs">{{ $t("heat.need_OBS_connectBt") }}</Button>
@@ -42,7 +42,7 @@
 		<ParamItem secondary noBackground class="cooldown" :paramData="param_globalCD" v-model="triggerData.cooldown!.global" />
 		<ParamItem secondary noBackground class="cooldown" :paramData="param_userCD" v-model="triggerData.cooldown!.user" />
 
-		
+
 		<ToggleBlock class="permissions" :open="false"
 		:title="$t('triggers.actions.chat.allowed_users')" :icons="['lock_fit']" medium primary>
 			<PermissionsForm v-model="triggerData.permissions" />
@@ -81,7 +81,7 @@ class TriggerActionHeatParams extends Vue {
 	public triggerData!:TriggerData;
 	@Prop
 	public obsSources!:OBSSourceItem[];
-	
+
 	public param_clickSource:TwitchatDataTypes.ParameterData<TriggerData["heatClickSource"]> = {type:"list", value:"all", listValues:[], labelKey:"heat.click_source", icon:"click"};
 	public param_obsSources:TwitchatDataTypes.ParameterData<string, string> = {type:"list", value:"", listValues:[], labelKey:"heat.obs_source", icon:"obs"};
 	public param_allowAnon:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"heat.param_anon", icon:"anon", tooltipKey:"heat.anonymous"};
@@ -112,7 +112,7 @@ class TriggerActionHeatParams extends Vue {
 				alert:false,
 			}
 		}
-		
+
 		const entries:TwitchatDataTypes.ParameterDataListValue<TriggerData["heatClickSource"]>[] = [
 			{value:'obs', labelKey:"heat.click_source_obs"},
 			{value:'area', labelKey:"heat.click_source_area"},
@@ -126,7 +126,7 @@ class TriggerActionHeatParams extends Vue {
 	}
 
 	public mounted():void {
-		
+
 		//Cleanup any area ID from the trigger that does not exist anymore
 		//in the screens definitions
 		const screenList = this.$store.heat.screenList;
@@ -159,16 +159,16 @@ class TriggerActionHeatParams extends Vue {
 	}
 
 	public openHeatParams():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.HEAT_AREAS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.HEAT_AREAS);
 	}
 
 	public openOBSParams():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.OBS);
 	}
 
 	public cleanupData(prevValue:any, newValue:any):void {
 		if(prevValue === newValue) return;
-		
+
 		switch(this.param_clickSource.value) {
 			case "obs": {
 				this.triggerData.heatAreaIds = undefined;
@@ -202,7 +202,7 @@ export default toNative(TriggerActionHeatParams);
 	gap: .5em;
 	display: flex;
 	flex-direction: column;
-	
+
 	.icon {
 		height: 1em;
 		width: 1em;

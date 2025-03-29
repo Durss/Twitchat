@@ -28,6 +28,7 @@
 			"emoteBt_aria": "Emotes list",
 			"pollBt_aria": "Current poll",
 			"suggBt_aria": "Current chat suggestions",
+			"chatPollBt_aria": "Current chat poll",
 			"predictionBt_aria": "Current prediction",
 			"trackedBt_aria": "Tracked users",
 			"raffleBt_aria": "Current raffle",
@@ -55,10 +56,11 @@
 			"raidBt_aria": "Raiding",
 			"youtube_saving_token_aria": "YouTube chat disconnected to reduce API usage after a long period of inactivity.\nClick to reconnect.",
 			"bingoGridBt_aria": "Bingo grids",
+			"groqBt_aria": "Groq answers",
 			"connect_extra_chan": "Connect to another Twitch channel",
 			"extra_chan_tt": "Channel to write to: {USER}\n(right click for fast switch)",
 			"extra_chan_params_tt": "Parameters",
-			"extra_chan_info": "Triggers, TTS, emergency mode, automod,\netc... will execute only for your own channel",
+			"extra_chan_info": "Triggers, emergency mode, automod,\netc... will execute only for your own channel",
 			"youtube_not_connected": "Not connected to any YouTube live",
 			"youtube_missing_scope": "You haven't granted Twitchat permission to write on YouTube chat",
 			"twitch_missing_scope": "You haven't granted Twitchat permission to write on Twitch chat",
@@ -194,7 +196,7 @@
 			"clip_views": "Views:",
 			"highlightBt_aria": "Highlight clip",
 			"highlightBt_tt": "Show on stream<br><i>(needs overlay)</i>",
-			"highlightBt_alert_tt": "Twitch made a breaking change forcing us to use their player. A clip from an 18+ stream won't automatically play anymore :(",
+			"highlightBt_alert_tt": "Twitch made a breaking change forcing us to use their player.\nPlayback might be laggy and a clip from an 18+ stream won't play automatically",
 			"deleted": "<message deleted>",
 			"deleted_by": "<message deleted by {USER}>",
 			"disable_ad": "Disable",
@@ -474,17 +476,17 @@
 			"label": "{USER} started a {DURATION}s ad break"
 		},
 		"streamlabs": {
-			"donation": "{USER} made a {AMOUNT} donation on Streamlabs",
+			"donation": "{USER} sent a {AMOUNT} tip on Streamlabs",
 			"merch": "{USER} bought {PRODUCT} on Streamlabs",
 			"patreon_pledge": "{USER} subscribed on Patreon for {AMOUNT}",
 			"charity": "{USER} donated {AMOUNT} to {CAMPAIGN}"
 		},
 		"streamelements": {
-			"donation": "{USER} made a {AMOUNT} donation on Streamelements"
+			"donation": "{USER} sent a {AMOUNT} tip on Streamelements"
 		},
 		"kofi": {
 			"anonymous": "An anonymous user",
-			"donation": "{USER} made a {AMOUNT} donation on Ko-Fi",
+			"donation": "{USER} sent a {AMOUNT} tip on Ko-Fi",
 			"merch": "{USER} bought {PRODUCT} for {AMOUNT} on Ko-Fi",
 			"subscription": "{USER} subscribed for {AMOUNT} on Ko-fi",
 			"subscription_tier": "{USER} subscribed to tier {TIER} for {AMOUNT} on Ko-fi",
@@ -492,7 +494,7 @@
 			"commission_link": "commission"
 		},
 		"tipeee": {
-			"donation": "{USER} made a {AMOUNT} donation on Tipeee",
+			"donation": "{USER} sent a {AMOUNT} tip on Tipeee",
 			"donation_recurring": "{USER} donated {AMOUNT} for {MONTHS} months on Tipeee",
 			"monthly": "{USER} donates {AMOUNT} per month on Tipeee"
 		},
@@ -587,6 +589,10 @@
 		"private_mod_message": {
 			"accepted": "accepted",
 			"refused": "refused"
+		},
+		"custom_train_summary": {
+			"title": "\"{NAME}\" completed at level {LEVEL} at {PERCENT} for a total of {AMOUNT}.",
+			"record": "record"
 		}
 	}
 }

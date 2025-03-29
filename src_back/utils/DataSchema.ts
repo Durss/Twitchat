@@ -248,6 +248,25 @@ const UserDataSchema = {
 				},
 			},
 		},
+		pollOverlayData: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				listMode: {type:"boolean"},
+				listModeOnlyMore2: {type:"boolean"},
+				showTitle: {type:"boolean"},
+				showLabels: {type:"boolean"},
+				showVotes: {type:"boolean"},
+				showVoters: {type:"boolean"},
+				showPercent: {type:"boolean"},
+				showTimer: {type:"boolean"},
+				showOnlyResult: {type:"boolean"},
+				hideUntilResolved: {type:"boolean"},
+				resultDuration_s: {type:"number", minimum:1, maximum:10*60},
+				placement: {enum: ["tl", "t", "tr", "l", "m", "r", "bl", "b", "br"]},
+				permissions: { $ref: "defs.json#/definitions/permissions" },
+			}
+		}
 	},
 
 	type:"object",
@@ -387,6 +406,7 @@ const UserDataSchema = {
 							additionalProperties: false,
 							properties: {
 								id: {type:"string", maxLength:100},
+								conditionList: { $ref: "#/definitions/conditionGroup" },
 								sourceName: {type:"string", maxLength:100},
 								//remove this property after some time
 								show: {
@@ -521,6 +541,7 @@ const UserDataSchema = {
 								float: {type:"boolean"},
 								condition: {type:"boolean"},
 								skipDisabled: {type:"boolean"},
+								removePickedEntry: {type:"boolean"},
 								disableAfterExec: {type:"boolean"},
 								mode: {type:"string", maxLength:20},
 								title: {type:"string", maxLength:140},
@@ -661,6 +682,45 @@ const UserDataSchema = {
 										},
 									}
 								},
+								chatPollData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										title: {type:"string", maxLength:100},
+										duration_s: {type:"integer", minimum:0, maximum:999999999},
+										started_at: {type:"integer", minimum:0, maximum:Number.MAX_SAFE_INTEGER},
+										maxVotePerUser: {type:"integer", minimum:1, maximum:2},
+										permissions:{ $ref: "defs.json#/definitions/permissions" },
+										choices: {
+											type:"array",
+											minItems:0,
+											maxItems:20,
+											items:{
+												type: "object",
+												additionalProperties: false,
+												properties: {
+													id:{type:"string", maxLength:50},
+													votes:{type:"number", minimum:0, maximum:Number.MAX_SAFE_INTEGER},
+													label:{type:"string", maxLength:50},
+												}
+											}
+										},
+										votes: {
+											type:"object",
+											additionalProperties: true,
+											patternProperties: {
+												".{0,100}": {
+													type: "object",
+													additionalProperties: false,
+													properties: {
+														platform: {type:"string", maxLength:15},
+														index:{type:"number", minimum:0, maximum:1000},
+													}
+												},
+											}
+										},
+									}
+								},
 								predictionData: {
 									type: "object",
 									additionalProperties: false,
@@ -670,7 +730,7 @@ const UserDataSchema = {
 										answers: {
 											type:"array",
 											minItems:0,
-											maxItems:50,
+											maxItems:10,
 											items:{type:"string", maxLength:25},
 										},
 									}
@@ -711,7 +771,7 @@ const UserDataSchema = {
 											type: "object",
 											additionalProperties: false,
 											properties: {
-												name: {type:"string", maxLength:25},
+												name: {type:"string", maxLength:50},
 												color: {type:"string", maxLength:10},
 											}
 										},
@@ -903,6 +963,57 @@ const UserDataSchema = {
 										}
 									}
 								},
+								groqData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										jsonMode:{ type: "boolean" },
+										model:{ type: "string", maxLength:100 },
+										json:{ type: "string", maxLength:100000 },
+										prompt:{ type: "string", maxLength:100000 },
+										preprompt:{ type: "string", maxLength:100000 },
+										outputPlaceholderList:{
+											type:"array",
+											minItems:0,
+											maxItems:50,
+											items:{
+												type:"object",
+												additionalProperties: false,
+												properties: {
+													type: {type:"string", maxLength:20},
+													path: {type:"string", maxLength:500},
+													placeholder: {type:"string", maxLength:30},
+												}
+											}
+										},
+									}
+								},
+
+								timerData:{
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										timerId: {type:"string", maxLength:50},
+										action: { enum: ["start","pause","resume","stop","reset","add","remove","set"] },
+										duration: {
+											anyOf: [
+												{ type: "integer", minimum:0, maximum:Number.MAX_SAFE_INTEGER, nullable: true },
+												{ type: "string",  minLength: 0, maxLength: 100 }
+											]
+										}
+									}
+								},
+
+								animatedTextData:{
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										overlayId: {type:"string", maxLength:50},
+										action: { enum: ["show", "hide"] },
+										autoHide: { type: "boolean" },
+										text: { type: "string",  minLength: 0, maxLength: 1000 }
+									}
+								},
 							}
 						},
 					}
@@ -942,7 +1053,7 @@ const UserDataSchema = {
 				additionalProperties: false,
 				properties: {
 					id: {type:"string", maxLength:100},
-					sentences: {type:"string", maxLength:1000000},
+					sentences: {type:"string", maxLength:100000},
 				}
 			},
 		},
@@ -1201,6 +1312,7 @@ const UserDataSchema = {
 				},
 				removeURL: {type:"boolean"},
 				replaceURL: {type:"string", maxLength:100},
+				allRemoteChans: {type:"boolean"},
 				removeEmotes: {type:"boolean"},
 				readMessages:{type:"boolean"},
 				readMessagePatern: {type:"string", maxLength:300},
@@ -1905,40 +2017,9 @@ const UserDataSchema = {
 				},
 			}
 		},
-		predictionOverlayParams: {
-			type:"object",
-			additionalProperties: false,
-			properties: {
-				listMode: {type:"boolean"},
-				listModeOnlyMore2: {type:"boolean"},
-				showTitle: {type:"boolean"},
-				showLabels: {type:"boolean"},
-				showVotes: {type:"boolean"},
-				showVoters: {type:"boolean"},
-				showPercent: {type:"boolean"},
-				showTimer: {type:"boolean"},
-				showOnlyResult: {type:"boolean"},
-				hideUntilResolved: {type:"boolean"},
-				resultDuration_s: {type:"number", minimum:1, maximum:10*60},
-				placement: {enum: ["tl", "t", "tr", "l", "m", "r", "bl", "b", "br"]},
-			}
-		},
-		pollOverlayParams: {
-			type:"object",
-			additionalProperties: false,
-			properties: {
-				listMode: {type:"boolean"},
-				listModeOnlyMore2: {type:"boolean"},
-				showTitle: {type:"boolean"},
-				showLabels: {type:"boolean"},
-				showVotes: {type:"boolean"},
-				showPercent: {type:"boolean"},
-				showTimer: {type:"boolean"},
-				showOnlyResult: {type:"boolean"},
-				resultDuration_s: {type:"number", minimum:1, maximum:10*60},
-				placement: {enum: ["tl", "t", "tr", "l", "m", "r", "bl", "b", "br"]},
-			}
-		},
+		predictionOverlayParams: { $ref: "defs.json#/definitions/pollOverlayData" },
+		pollOverlayParams: { $ref: "defs.json#/definitions/pollOverlayData" },
+		chatPollOverlayParams: { $ref: "defs.json#/definitions/pollOverlayData" },
 		pinnedChatMenuItem:{
 			type:"array",
 			minItems:0,
@@ -2026,7 +2107,7 @@ const UserDataSchema = {
 				labelList: {
 					type:"array",
 					minItems:0,
-					maxItems:20,
+					maxItems:50,
 					items:{
 						type:"object",
 						additionalProperties: false,
@@ -2128,11 +2209,145 @@ const UserDataSchema = {
 			type:"array",
 			minItems:0,
 			maxItems:20,
-			items:{ $ref: "#/definitions/raffleData" },
+			items:{
+				type: "object",
+				properties: {
+					sessionId: { type: "string" },
+					mode: { enum: ["chat", "sub", "manual", "values", "tips"] },
+					command: { type: "string", maxLength:100 },
+					reward_id: { type: "string", maxLength:100 },
+					value_id: { type: "string", maxLength:100 },
+					value_splitter: { type: "string", maxLength:10 },
+					removeWinningEntry: { type: "boolean" },
+					duration_s: { type: "number" },
+					maxEntries: { type: "number" },
+					multipleJoin: { type: "boolean" },
+					autoClose: { type: "boolean" },
+					triggerWaitForWinner: {type:"boolean"},
+					created_at: { type: "number" },
+					entries: {
+						type:"array",
+						minItems:0,
+						maxItems:1000,
+						items:{
+							type: "object",
+							properties: {
+								id: { type: "string" },
+								label: { type: "string", maxLength:300 },
+								score: { type: "number" },
+								joinCount: { type: "number" },
+								user: {
+									type: "object",
+									properties: {
+										id: { type: "string", maxLength:100 },
+										channel_id: { type: "string", maxLength:100 },
+										platform: { type: "string", maxLength:20 }
+									},
+								},
+								tip: {
+									type: "object",
+									properties: {
+										amount: {
+											anyOf:[
+												{type:"string", maxLength:50},
+												{type:"number", minimum:0 , maximum:99999}
+											]
+										},
+										source: { type: "string", maxLength:20 }
+									},
+								},
+							},
+						},
+					},
+					vipRatio: { type: "number" },
+					followRatio: { type: "number" },
+					subRatio: { type: "number" },
+					subT2Ratio: { type: "number" },
+					subT3Ratio: { type: "number" },
+					subgiftRatio: { type: "number" },
+					subMode_includeGifters: { type: "boolean" },
+					subMode_excludeGifted: { type: "boolean" },
+					showCountdownOverlay: { type: "boolean" },
+					customEntries: { type: "string", maxLength:10000 },
+					tip_kofi: { type: "boolean" },
+					tip_streamlabs: { type: "boolean" },
+					tip_streamlabsCharity: { type: "boolean" },
+					tip_streamelements: { type: "boolean" },
+					tip_tipeee: { type: "boolean" },
+					tip_tiltify: { type: "boolean" },
+					tip_kofi_minAmount: { type: "number", minimum:0, maximum:999999 },
+					tip_streamlabs_minAmount: { type: "number", minimum:0, maximum:999999 },
+					tip_streamlabsCharity_minAmount: { type: "number", minimum:0, maximum:999999 },
+					tip_streamlements_minAmount: { type: "number", minimum:0, maximum:999999 },
+					tip_tipeee_minAmount: { type: "number", minimum:0, maximum:999999 },
+					tip_tiltify_minAmount: { type: "number", minimum:0, maximum:999999 },
+					winners: {
+						type:"array",
+						minItems:0,
+						maxItems:1000,
+						items:{
+							type: "object",
+							properties: {
+								id: { type: "string" },
+								label: { type: "string", maxLength:300 },
+								score: { type: "number" },
+								joinCount: { type: "number" },
+								user: {
+									type: "object",
+									properties: {
+										id: { type: "string", maxLength:100 },
+										channel_id: { type: "string", maxLength:100 },
+										platform: { type: "string", maxLength:20 }
+									},
+								},
+								tip: {
+									type: "object",
+									properties: {
+										amount: {
+											anyOf:[
+												{type:"string", maxLength:50},
+												{type:"number", minimum:0 , maximum:99999}
+											]
+										},
+										source: { type: "string", maxLength:20 }
+									},
+								},
+							},
+						},
+					},
+					messages: {
+						type: "object",
+						properties: {
+							raffleStart: {
+								type: "object",
+								properties: {
+									enabled: { type: "boolean" },
+									message: { type: "string", maxLength:500 }
+								},
+							},
+							raffleJoin: {
+								type: "object",
+								properties: {
+									enabled: { type: "boolean" },
+									message: { type: "string", maxLength:500 }
+								},
+							},
+							raffleWinner: {
+								type: "object",
+								properties: {
+									enabled: { type: "boolean" },
+									message: { type: "string", maxLength:500 }
+								},
+							}
+						},
+					}
+				}
+			}
 		},
 
 		tiktokConfigs:{
 			type: "object",
+			additionalProperties: false,
 			properties: {
 				ip: {type:"string", maxLength:100},
 				port: {type:"integer", minimum:0, maximum:65535},
@@ -2141,6 +2356,7 @@ const UserDataSchema = {
 
 		streamerbotConfigs:{
 			type: "object",
+			additionalProperties: false,
 			properties: {
 				ip: {type:"string", maxLength:100},
 				port: {type:"integer", minimum:0, maximum:65535},
@@ -2149,6 +2365,7 @@ const UserDataSchema = {
 
 		sammiConfigs:{
 			type: "object",
+			additionalProperties: false,
 			properties: {
 				ip: {type:"string", maxLength:100},
 				port: {type:"integer", minimum:0, maximum:65535},
@@ -2157,6 +2374,7 @@ const UserDataSchema = {
 
 		mixitupConfigs:{
 			type: "object",
+			additionalProperties: false,
 			properties: {
 				ip: {type:"string", maxLength:100},
 				port: {type:"integer", minimum:0, maximum:65535},
@@ -2165,6 +2383,7 @@ const UserDataSchema = {
 
 		playabilityConfigs:{
 			type: "object",
+			additionalProperties: false,
 			properties: {
 				ip: {type:"string", maxLength:100},
 				port: {type:"integer", minimum:0, maximum:65535},
@@ -2173,6 +2392,7 @@ const UserDataSchema = {
 
 		kofiConfigs: {
 			type: "object",
+			additionalProperties: false,
 			properties: {
 				webhooks: {
 					type:"array",
@@ -2181,7 +2401,168 @@ const UserDataSchema = {
 					items:{ type: "string", maxLength:300 }
 				}
 			}
-		}
+		},
+
+		groqConfigs:{
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				defaultModel: {type:"string", maxLength:100},
+			}
+		},
+
+		timersConfigs:{
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				timerList: {
+					type:"array",
+					minItems:0,
+					maxItems:100,
+					items:{
+						type: "object",
+						additionalProperties: false,
+						properties: {
+							id: { type: "string" },
+							enabled: { type: "boolean" },
+							isDefault: { type: "boolean" },
+							title: { type: "string" },
+							type: { enum: ["timer", "countdown"] },
+							placeholderKey: { type: "string", maxLength:50 },
+							startAt_ms: { type: "number", nullable: true },
+							offset_ms: { type: "number" },
+							pauseDuration_ms: { type: "number" },
+							paused: { type: "boolean" },
+							pausedAt_ms: { type: "number", nullable: true },
+							endAt_ms: { type: "number", nullable: true },
+							duration_ms: { type: "number" },
+							overlayParams: {
+								type: "object",
+								additionalProperties: false,
+								properties: {
+									style: { enum: ["text", "bar"] },
+									bgColor: { type: "string", maxLength:20 },
+									bgEnabled: { type: "boolean" },
+									showIcon: { type: "boolean" },
+									textFont: { type: "string", maxLength:50 },
+									textSize: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+									textColor: { type: "string", maxLength:20 },
+									progressSize: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+									progressStyle:{ enum: ["fill", "empty"] },
+								}
+							}
+						}
+					}
+				},
+			}
+		},
+
+		animatedTextConfigs:{
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				animatedTextList: {
+					type:"array",
+					minItems:0,
+					maxItems:10,
+					items:{
+						type: "object",
+						additionalProperties: false,
+						properties: {
+							id: { type: "string" },
+							enabled: { type: "boolean" },
+							title: { type: "string", maxLength:30 },
+							animStyle: { type: "string", maxLength:20 },
+							animDurationScale: { type: "number", minimum:0, maximum:2 },
+							animStrength: { type: "number", minimum:0, maximum:2 },
+							colorBase: {type:"string", maxLength:10},
+							colorHighlights: {type:"string", maxLength:10},
+							textFont: {type:"string", maxLength:50},
+							textSize: {type:"number", minimum:1, maximum:300},
+						}
+					}
+				},
+			}
+		},
+
+		customTrainConfigs:{
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				customTrainList: {
+					type:"array",
+					minItems:0,
+					maxItems:10,
+					items:{
+						type: "object",
+						properties: {
+							id: { type: "string" },
+							enabled: { type: "boolean" },
+							testing: { type: "boolean" },
+							title: { type: "string" },
+							levelName: { type: "string" },
+							colorFill: { type: "string" },
+							colorBg: { type: "string" },
+							textFont: { type: "string" },
+							textSize: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+							currency: { type: "string" },
+							triggerEventCount: { type: "number", minimum:2, maximum:5 },
+							cooldownDuration_s: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+							levelsDuration_s: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+							expires_at: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+							coolDownEnd_at: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+							postLevelUpOnChat: { type: "boolean" },
+							postLevelUpChatMessage: { type: "string" },
+							postSuccessOnChat: { type: "boolean" },
+							postSuccessChatMessage: { type: "string" },
+							levelUpLabel: { type: "string" },
+							approachingLabel: { type: "string" },
+							approachingEmote: { type: "string" },
+							failedLabel: { type: "string" },
+							failedEmote: { type: "string" },
+							successLabel: { type: "string" },
+							successLabelSummary: { type: "string" },
+							successEmote: { type: "string" },
+							recordLabel: { type: "string" },
+							recordEmote: { type: "string" },
+							recordColorFill: { type: "string" },
+							recordColorBg: { type: "string" },
+							levelUpEmote: { type: "string" },
+							levelAmounts: {
+											type:"array",
+											minItems:0,
+											maxItems:1000,
+											items:{type:"number", minimum:0, maximum:Number.MAX_SAFE_INTEGER},
+										},
+							allTimeRecord:{
+								type: "object",
+								additionalProperties: false,
+								properties: {
+									date: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+									amount: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+									level: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+									percent: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
+								}
+							},
+							platforms:{
+								type: "object",
+								additionalProperties: false,
+								properties: {
+									kofi:{ type: "boolean" },
+									streamelements:{ type: "boolean" },
+									patreon:{ type: "boolean" },
+									streamlabs:{ type: "boolean" },
+									tipeee:{ type: "boolean" },
+									tiltify:{ type: "boolean" },
+									streamlabs_charity:{ type: "boolean" },
+									twitch_charity:{ type: "boolean" },
+								}
+							}
+						}
+					}
+				},
+			}
+		},
 	}
 }
 

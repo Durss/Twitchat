@@ -64,14 +64,14 @@
 								<p class="url" v-click2Select>{{ getPublicURL(bingo.id) }}</p>
 								<TTButton icon="whispers" transparent v-if="!sendingOnChat[bingo.id]" @click="sendChatURL(bingo.id)" v-tooltip="$t('bingo_grid.form.send_chat_url_tt')" />
 								<Icon name="loader" v-else class="loader" />
-								<TTButton icon="copy" transparent @click="copyPublicURL(bingo.id)" v-tooltip="$t('global.copy')" />
+								<TTButton icon="copy" transparent :copy="getPublicURL(bingo.id)" v-tooltip="$t('global.copy')" />
 							</div>
 							<div class="info" v-if="!$store.auth.isPremium">
 								<Icon name="premium" />
 								<span>{{ $t("bingo_grid.form.premium_multiplayer") }}</span>
 								<TTButton @click="openPremium()" icon="premium" light premium>{{ $t("premium.become_premiumBt") }}</TTButton>
 							</div>
-							
+
 							<div v-else-if="viewerCount > 1000" class="perfAlert">
 								<img class="icon" src="@/assets/img/worried_face.svg" alt="worried face">
 								<p>{{ $t("bingo_grid.form.perf_alert") }}</p>
@@ -143,9 +143,9 @@
 							<template #custom><TTButton @click="$store.bingoGrid.addCustomCell(bingo.id)">{{ $t("bingo_grid.form.add_cellBt") }}</TTButton></template>
 							<div class="additionalItemList">
 								<div class="additionalItem" v-for="item in (bingo.additionalEntries || [])" :key="item.id">
-									
+
 									<TTButton @click="$store.bingoGrid.removeCustomCell(bingo.id, item.id)" alert icon="trash" />
-									
+
 									<contenteditable class="label" tag="div"
 										v-model="item.label"
 										:contenteditable="true"
@@ -159,7 +159,7 @@
 						</ParamItem>
 
 						<ParamItem :paramData="param_winSoundVolume[bingo.id]" @change="save(bingo, false, true)" v-model="bingo.winSoundVolume"></ParamItem>
-						
+
 						<ParamItem :paramData="param_autoHide[bingo.id]" @change="save(bingo)" v-model="bingo.autoShowHide"></ParamItem>
 
 						<ParamItem :paramData="param_overlayAnnouncement[bingo.id]" v-model="bingo.overlayAnnouncement" @change="save(bingo)">
@@ -169,7 +169,7 @@
 								</ToggleBlock>
 							</div>
 						</ParamItem>
-						
+
 						<ParamItem :paramData="param_chatAnnouncementEnabled[bingo.id]" v-model="bingo.chatAnnouncementEnabled" @change="save(bingo)">
 							<div class="parameter-child">
 								<ParamItem :paramData="param_chatAnnouncement[bingo.id]"
@@ -178,7 +178,7 @@
 								@change="save(bingo); renderPreview(bingo.id, bingo.chatAnnouncement)"
 								@focus="param_showMessage[bingo.id] = true; renderPreview(bingo.id, bingo.chatAnnouncement)"
 								@blur="param_showMessage[bingo.id] = false">
-								
+
 									<div class="parameter-child preview" ref="preview" v-if="param_showMessage[bingo.id]">
 										<ChatMessage class="message"
 											lightMode
@@ -299,7 +299,7 @@ class BingoGridForm extends AbstractSidePanel {
 	public isDragging:boolean = false;
 
 	private lockedItems:{[key:string]:{index:number, data:TwitchatDataTypes.BingoGridConfig["entries"][number]}[]} = {};
-	
+
 	public get viewerCount():number {
 		return this.$store.stream.currentStreamInfo[this.$store.auth.twitch.user.id]?.viewers || 0;
 	}
@@ -328,10 +328,6 @@ class BingoGridForm extends AbstractSidePanel {
 		const uid = this.$store.auth.twitch.user.id;
 		const baseURL = Config.instance.DEMO_MODE? "https://twitchat.fr" : document.location.origin;
 		return baseURL + this.$router.resolve({name:"bingo_grid_public", params:{uid, gridId}}).fullPath;
-	}
-
-	public copyPublicURL(gridId:string):void {
-		Utils.copyToClipboard(this.getPublicURL(gridId));
 	}
 
 	public async sendChatURL(gridId:string):Promise<void> {
@@ -401,7 +397,7 @@ class BingoGridForm extends AbstractSidePanel {
 	 * @param item
 	 */
 	public async limitLabelSize(entry:TwitchatDataTypes.BingoGridConfig["entries"][0]):Promise<void> {
-		const maxLength = 60;	
+		const maxLength = 60;
 		const sel = window.getSelection();
 		if(sel && sel.rangeCount > 0) {
 			//Save caret index
@@ -464,7 +460,7 @@ class BingoGridForm extends AbstractSidePanel {
 	 * Open heat params
 	 */
 	public openHeatParams():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.HEAT);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.HEAT);
 	}
 
 	public async renderPreview(id:string, rawMessage:string):Promise<void> {
@@ -478,7 +474,7 @@ class BingoGridForm extends AbstractSidePanel {
 		}
 
 		rawMessage = rawMessage.replace(/\{WINNERS\}/gi, this.param_chatAnnouncement[id]!.placeholderList![0].example!);
-		
+
 		const chunks = TwitchUtils.parseMessageToChunks(rawMessage, undefined, true);
 		const message_html = TwitchUtils.messageChunksToHTML(chunks);
 
@@ -518,7 +514,7 @@ class BingoGridForm extends AbstractSidePanel {
 			this.param_chatAnnouncement[id] = {type:"string", value:"", longText:true, labelKey:"bingo_grid.form.param_chatAnnouncement", icon:"whispers", placeholderList:winnersPlaceholder};
 			this.param_chatAnnouncementEnabled[id] = {type:"boolean", value:this.$store.auth.isPremium, labelKey:"bingo_grid.form.param_chatAnnouncementEnabled", icon:"announcement", premiumOnly:true};
 			this.param_overlayAnnouncement[id] = {type:"boolean", value:this.$store.auth.isPremium, labelKey:"bingo_grid.form.param_overlayAnnouncement", icon:"announcement", premiumOnly:true};
-			
+
 			const me = this.$store.auth.twitch.user;
 			this.param_messagePreview[id] = reactive({
 				id:Utils.getUUID(),
@@ -551,7 +547,7 @@ export default toNative(BingoGridForm);
 	.content {
 		gap: .5em;
 	}
-	
+
 	.createForm {
 		text-align: center;
 		.premium {
@@ -690,7 +686,7 @@ export default toNative(BingoGridForm);
 			background-color: var(--color-premium);
 			.icon {
 				margin-right: .5em;
-				vertical-align: middle;	
+				vertical-align: middle;
 			}
 			.button {
 				display: flex;

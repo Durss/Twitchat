@@ -139,7 +139,7 @@ export const storeHeat = defineStore('heat', {
 			const channelId = StoreProxy.auth.twitch.user.id;
 			const anonymous = parseInt(event.uid || "anon").toString() !== event.uid;
 			log.anonymous = anonymous;
-			let user!:Pick<TwitchatDataTypes.TwitchatUser, "id" | "login" | "channelInfo" | "anonymous">;
+			let user!:Pick<TwitchatDataTypes.TwitchatUser, "id" | "login" | "channelInfo" | "anonymous" | "platform">;
 			if(!anonymous) {
 				//Load user data
 				user = await new Promise((resolve)=> {
@@ -166,7 +166,7 @@ export const storeHeat = defineStore('heat', {
 					is_vip:false,
 					online:true,
 				}
-				user = { id:event.uid || "anon", login:"anon", channelInfo, anonymous:true };
+				user = { id:event.uid || "anon", login:"anon", channelInfo, anonymous:true, platform:"twitch" };
 			}
 
 			//If user is banned, ignore its click

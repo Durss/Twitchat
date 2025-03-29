@@ -50,7 +50,7 @@ export const storeRaffle = defineStore('raffle', {
 			while(this.raffleList.length > 20) {
 				this.raffleList.shift();
 			}
-			
+
 			payload.created_at = Date.now();
 			payload.sessionId = Utils.getUUID();
 
@@ -58,7 +58,11 @@ export const storeRaffle = defineStore('raffle', {
 				case "chat": {
 					//Start countdown if requested
 					if(payload.showCountdownOverlay) {
-						StoreProxy.timer.countdownStart(payload.duration_s * 1000);
+						const timer = StoreProxy.timers.timerList.find(v=>v.type == 'countdown' && v.isDefault);
+						if(timer) {
+							timer.duration_ms = payload.duration_s * 1000;
+							StoreProxy.timers.timerStart(timer.id);
+						}
 					}
 					//Announce start on chat
 					const messageParams = payload.messages?.raffleStart || StoreProxy.chat.botMessages.raffleStart;
@@ -269,7 +273,7 @@ export const storeRaffle = defineStore('raffle', {
 						const messageReward = message as TwitchatDataTypes.MessageRewardRedeemData;
 						if(messageReward.reward.id == raffle.reward_id) canJoin = true;
 					}
-		
+
 					//Check if can join from chat command
 					if(!canJoin && raffle.command && TwitchatDataTypes.IsTranslatableMessage[message.type]) {
 						const typedMessage = message as TwitchatDataTypes.TranslatableMessage;
@@ -338,10 +342,9 @@ export const storeRaffle = defineStore('raffle', {
 				}
 
 				if(!canJoin) return;
-	
-				const messageCast = message;// as TwitchatDataTypes.GreetableMessage;
+
 				const elapsed = Date.now() - new Date(raffle.created_at).getTime();
-	
+
 				//Check if within time frame and max users count isn't reached
 				if(elapsed <= raffle.duration_s * 1000
 				&& (raffle.maxEntries <= 0 || raffle.entries.length < raffle.maxEntries)) {
@@ -367,13 +370,13 @@ export const storeRaffle = defineStore('raffle', {
 							username = user.displayNameOriginal;
 							entry.user = {
 								id:user.id,
-								platform:messageCast.platform,
-								channel_id:messageCast.channel_id,
+								platform:message.platform,
+								channel_id:message.channel_id,
 							};
 						}
 						raffle.entries.push(entry);
 					}
-	
+
 					const messageParams = raffle.messages?.raffleJoin || StoreProxy.chat.botMessages.raffleJoin;
 					//Confirm join if requested.
 					//Confirmation is debounced to avoid spamming chat. Join events are
@@ -387,12 +390,12 @@ export const storeRaffle = defineStore('raffle', {
 							userCount++;
 							joinMessage = messageParams.message.replace(/\{USER\}/gi, confirmSpool.slice(0, userCount).join(", @"));
 						}
-						
+
 						if(joinMessage.length >= 500) {
 							joinMessage = messageParams.message;
 							joinMessage = joinMessage.replace(/\{USER\}/gi, confirmSpool.splice(0, userCount-1).join(", @"));
 							MessengerProxy.instance.sendMessage(joinMessage, [message.platform]);
-							
+
 						}else if(joinMessage) {
 							debounceConfirm = window.setTimeout(() => {
 								confirmSpool = [];
@@ -403,10 +406,10 @@ export const storeRaffle = defineStore('raffle', {
 					joined = true;
 				}
 			});
-			
+
 
 			this.saveData();
-			
+
 			return joined;
 		},
 
@@ -419,7 +422,7 @@ export const storeRaffle = defineStore('raffle', {
 			}
 
 			if(!data.sessionId) data.sessionId = Utils.getUUID();
-			
+
 			//Executes raffle pick winner related triggers
 			const message:TwitchatDataTypes.MessageRafflePickWinnerData = {
 				id:Utils.getUUID(),

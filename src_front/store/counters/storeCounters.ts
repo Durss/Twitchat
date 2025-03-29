@@ -73,7 +73,7 @@ export const storeCounters = defineStore('counters', {
 			broadcastTimeoutDebounce[id] = window.setTimeout(()=>{
 				let counter = this.counterList.find(v=> v.id == id);
 				if(!counter) return;
-				
+
 				if(counter.perUser) {
 					//Clone counter object
 					counter = JSON.parse(JSON.stringify(counter)) as TwitchatDataTypes.CounterData;
@@ -134,7 +134,7 @@ export const storeCounters = defineStore('counters', {
 				StoreProxy.donationGoals.onSourceValueUpdate("counter", id);
 			}, 250);
 		},
-		
+
 		delCounter(data:TwitchatDataTypes.CounterData):void {
 			for (let i = 0; i < this.counterList.length; i++) {
 				if(this.counterList[i].id == data.id) {
@@ -181,7 +181,7 @@ export const storeCounters = defineStore('counters', {
 			let maxed = false;
 			let mined = false;
 			let canReloop = false;
-			
+
 			if(c.max !== false && counterValue >= c.max) {
 				if(counterValue > c.max && c.loop) {
 					const min = c.min || 0;
@@ -205,7 +205,7 @@ export const storeCounters = defineStore('counters', {
 					mined = true;
 				}
 			}
-			
+
 			if(c.perUser) {
 				const uid = (user? user.id : userId) || "";
 				c.users![uid] = {
@@ -236,10 +236,10 @@ export const storeCounters = defineStore('counters', {
 					user,
 					channel_id:StoreProxy.auth.twitch.user.id,
 				};
-				
+
 				StoreProxy.chat.addMessage(message);
 			}
-			
+
 			this.saveCounters()
 
 			this.broadcastCounterValue(c.id);
@@ -269,10 +269,21 @@ export const storeCounters = defineStore('counters', {
 			this.saveCounters();
 		},
 
+		deleteAllCounterEntries(id:string):void {
+			for (let i = 0; i < this.counterList.length; i++) {
+				if(this.counterList[i].id == id) {
+					const entry = this.counterList[i];
+					entry.users = {};
+				}
+			}
+
+			this.saveCounters();
+		},
+
 		saveCounters():void {
 			DataStore.set(DataStore.COUNTERS, this.counterList);
 		}
-		
+
 	} as ICountersActions
 	& ThisType<ICountersActions
 		& UnwrapRef<ICountersState>

@@ -683,7 +683,7 @@ type ApiEndpoints =  {
 				success:boolean;
 				messageId:string;
 				error?:string;
-				errorCode?:string;
+				errorCode?:"POST_FAILED"|"MISSING_ACCESS"|"UNKNOWN_CHANNEL";
 				channelName?:string;
 			}
 		}

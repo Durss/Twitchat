@@ -415,7 +415,7 @@ class ParamsTriggers extends Vue implements IParameterContent {
 
 			//If it's any other message type
 			}else{
-				this.$store.debug.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(triggerEvent.testMessageType, (data)=> {
+				this.$store.debug.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(triggerEvent.testMessageType, async (data)=> {
 					let m = data
 					let amount = Math.round(Math.random() * 100 + 1);
 					let amountFormatted = "$"+amount;
@@ -425,7 +425,7 @@ class ParamsTriggers extends Vue implements IParameterContent {
 						const typedMessage = m as TwitchatDataTypes.MessageChatData;
 						TriggerActionHandler.instance.executeTrigger(trigger, typedMessage, false, trigger.chatCommand);
 					}else
-					
+
 					//Chat message simulation
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 						switch(triggerEvent.value) {
@@ -522,10 +522,23 @@ class ParamsTriggers extends Vue implements IParameterContent {
 						}
 					}
 
-					//Timer stop simulation
-					if(triggerEvent.value == TriggerTypes.TIMER_STOP) {
-						//Set the timer as stopped
-						(m as TwitchatDataTypes.MessageTimerData).started = false;
+					//Timer start simulation
+					if(triggerEvent.value == TriggerTypes.TIMER_START) {
+						//Set the timer as not stopped
+						(m as TwitchatDataTypes.MessageTimerData).stopped = false;
+					}else
+
+					/**
+					 * Countdown start simulation
+					 */
+					if(triggerEvent.value == TriggerTypes.COUNTDOWN_START) {
+						//Remove end date so it counts as a countdown start not an end
+						const cd = m as TwitchatDataTypes.MessageCountdownData;
+						cd.complete = false;
+						delete cd.endedAt_ms;
+						delete cd.endedAt_str;
+						delete cd.finalDuration_ms;
+						delete cd.finalDuration_str;
 					}else
 
 					//Subgift simulation
@@ -538,13 +551,6 @@ class ParamsTriggers extends Vue implements IParameterContent {
 						}while(Math.random()>.25);
 						sub.gift_recipients = recipients;
 						sub.gift_count = recipients.length;
-					}else
-
-					if(triggerEvent.value == TriggerTypes.COUNTDOWN_START) {
-						//Remove end date so it counts as a countdown start not an end
-						const cd = (m as TwitchatDataTypes.MessageCountdownData).countdown;
-						delete cd.endAt;
-						delete cd.endAt_ms;
 					}else
 
 					if(triggerEvent.value == TriggerTypes.TIMEOUT) {
@@ -645,11 +651,11 @@ class ParamsTriggers extends Vue implements IParameterContent {
 						(m as TwitchatDataTypes.MessageTipeeeDonationData).recurring = true;
 						(m as TwitchatDataTypes.MessageTipeeeDonationData).recurringCount = Math.round(Math.random() * 10);
 					} else
-					
+
 					if(triggerEvent.value == TriggerTypes.POWER_UP_MESSAGE) {
 						(m as TwitchatDataTypes.MessageChatData).twitch_animationId = Utils.pickRand(["rainbow-eclipse", "simmer"]);
 					} else
-					
+
 					if(triggerEvent.value == TriggerTypes.POWER_UP_GIANT_EMOTE) {
 						const emote = Utils.pickRand(staticEmotes);
 						(m as TwitchatDataTypes.MessageChatData).message_chunks.push({type:"emote", value:emote.name, emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/"+emote.id+"/default/light/3.0", emote:"https://static-cdn.jtvnw.net/emoticons/v2/"+emote.id+"/default/light/1.0"});
@@ -657,28 +663,45 @@ class ParamsTriggers extends Vue implements IParameterContent {
 						(m as TwitchatDataTypes.MessageChatData).twitch_gigantifiedEmote = emote.name;
 						(m as TwitchatDataTypes.MessageChatData).twitch_gigantifiedEmote_url = emote.images.url_4x || emote.images.url_2x || emote.images.url_1x;
 					} else
-					
+
 					if(triggerEvent.value == TriggerTypes.VOICEMOD) {
 						delete (m as TwitchatDataTypes.MessageVoicemodData).soundID;
 						delete (m as TwitchatDataTypes.MessageVoicemodData).soundName;
 					} else
-					
+
 					if(triggerEvent.value == TriggerTypes.VOICEMOD_SOUND_EFFECT) {
 						delete (m as TwitchatDataTypes.MessageVoicemodData).voiceID;
 						delete (m as TwitchatDataTypes.MessageVoicemodData).voiceName;
 					} else
-					
+
 					if(triggerEvent.value == TriggerTypes.MONITOR_RESTRICT_OFF) {
 						(m as TwitchatDataTypes.MessageLowtrustTreatmentData).restricted =
 						(m as TwitchatDataTypes.MessageLowtrustTreatmentData).monitored = false;
 					} else
-					
+
 					if(triggerEvent.value == TriggerTypes.MONITOR_ON) {
 						(m as TwitchatDataTypes.MessageLowtrustTreatmentData).monitored = true;
 					} else
-					
+
 					if(triggerEvent.value == TriggerTypes.RESTRICT_ON) {
 						(m as TwitchatDataTypes.MessageLowtrustTreatmentData).restricted = false;
+					}else
+
+					if(triggerEvent.value == TriggerTypes.MESSAGE_ANSWER) {
+						const fakeMessage = await this.$store.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE);
+						(m as TwitchatDataTypes.MessageChatData).answersTo = fakeMessage;
+					}else
+
+					if(triggerEvent.value == TriggerTypes.POLL_START) {
+						(m as TwitchatDataTypes.MessagePollData).isStart = true;
+					}else
+
+					if(triggerEvent.value == TriggerTypes.PREDICTION_START) {
+						(m as TwitchatDataTypes.MessagePredictionData).isStart = true;
+					}else
+
+					if(triggerEvent.value == TriggerTypes.CHAT_POLL_START) {
+						(m as TwitchatDataTypes.MessageChatPollData).isStart = true;
 					}
 
 					TriggerActionHandler.instance.execute(m, true, trigger.id);

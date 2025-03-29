@@ -37,8 +37,13 @@
 			<TTButton icon="pin" :primary="isPinned('qna')" @click="onTogglePin('qna')" />
 		</div>
 		<div class="menuItem">
+			<TTButton @click.capture="openModal('chatPoll');"
+				icon="chatPoll">{{$t('cmdmenu.chatPoll')}}</TTButton>
+			<TTButton icon="pin" :primary="isPinned('chatPoll')" @click="onTogglePin('chatPoll')" />
+		</div>
+		<div class="menuItem">
 			<TTButton @click.capture="openModal('chatsuggForm');"
-				icon="chatPoll">{{$t('cmdmenu.suggestions')}}</TTButton>
+				icon="chatSugg">{{$t('cmdmenu.suggestions')}}</TTButton>
 			<TTButton icon="pin" :primary="isPinned('chatSugg')" @click="onTogglePin('chatSugg')" />
 		</div>
 		<div class="menuItem">
@@ -86,7 +91,7 @@
 			<TTButton aria-label="Start a 120s ad"	v-if="adCooldown == 0" small @click.capture="startAd(120);"	:disabled="!canStartCommercial">2'00</TTButton>
 			<TTButton aria-label="Start a 150s ad"	v-if="adCooldown == 0" small @click.capture="startAd(150);"	:disabled="!canStartCommercial">2'30</TTButton>
 			<TTButton aria-label="Start a 180s ad"	v-if="adCooldown == 0" small @click.capture="startAd(180);"	:disabled="!canStartCommercial">3'00</TTButton>
-			<div v-if="adCooldown > 0" class="card-item alert cooldown">{{$t('cmdmenu.commercial', {DURATION:adCooldownFormated})}}</div>
+			<div v-if="adCooldown > 0" class="card-item alert cooldown">{{$t('cmdmenu.commercial', {DURATION:adCooldownFormatted})}}</div>
 		</div>
 
 		<ParamItem class="roomParam" :paramData="param_followOnly"	v-model="param_followOnly.value"	@change="setFollowOnly()"	@click="requestRoomSettingsScopes()"	noBackground />
@@ -106,13 +111,13 @@
 			<label class="title" for="raid_input">
 				<Icon name="raid" />{{$t('cmdmenu.raid')}}
 			</label>
-			<form @submit.prevent="raid()" v-if="canRaid">
-				<input id="raid_input" type="text" :placeholder="$t('cmdmenu.raid_placeholder')" v-model="raidUser" maxlength="50">
-				<TTButton class="button"
-					aria-label="Start raid"
-					type="submit"
-					icon="checkmark" :disabled="raidUser.length < 3" />
-			</form>
+
+			<SearchUserForm class="raidForm"
+				v-if="canRaid"
+				upwards
+				v-model="raidUser"
+				@select="raid"/>
+
 			<div v-else class="missingScope">
 				<p>{{ $t('cmdmenu.scope_grant') }}</p>
 				<TTButton icon="unlock" alert small @click="requestRaidScopes()" >{{$t('cmdmenu.scope_grantBt')}}</TTButton>
@@ -134,11 +139,14 @@ import TTButton from '../TTButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 import DataStore from '@/store/DataStore';
 import { watch } from 'vue';
+import SearchUserForm from '../params/contents/donate/SearchUserForm.vue';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 
 @Component({
 	components:{
 		TTButton,
 		ParamItem,
+		SearchUserForm,
 	},
 	emits:[
 		"close",
@@ -154,7 +162,7 @@ class CommandHelper extends Vue {
 	@Prop()
 	public showRewards!:boolean;
 
-	public raidUser:string = "";
+	public raidUser:TwitchDataTypes.UserInfo | null = null;
 	public channelId:string = "";
 	public adCooldown:number = 0;
 
@@ -174,7 +182,7 @@ class CommandHelper extends Vue {
 
 	private clickHandler!:(e:MouseEvent) => void;
 
-	public get adCooldownFormated():string { return Utils.formatDuration(this.adCooldown); }
+	public get adCooldownFormatted():string { return Utils.formatDuration(this.adCooldown); }
 	public get hasChannelPoints():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
 	public get canEditStreamInfos():boolean { return TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]); }
 	public get canStartCommercial():boolean { return TwitchUtils.hasScopes([TwitchScopes.START_COMMERCIAL]) && this.hasChannelPoints; }
@@ -375,13 +383,14 @@ class CommandHelper extends Vue {
 	}
 
 	public async raid():Promise<void> {
+		if(!this.raidUser) return;
 		//This timeout avoids auto confirmation if submitting the form
 		//with enter key
 		await Utils.promisedTimeout(100);
 
-		this.$confirm("Raid ?", "Are you sure you want to raid " + this.raidUser + " ?").then(async () => {
-			TwitchUtils.raidChannel(this.raidUser);
-			this.raidUser = "";
+		this.$confirm("Raid ?", "Are you sure you want to raid " + this.raidUser.login + " ?").then(async () => {
+			TwitchUtils.raidChannel(this.raidUser!.login);
+			this.raidUser = null;
 		}).catch(()=> { });
 	}
 
@@ -517,6 +526,7 @@ export default toNative(CommandHelper);
 		display: flex;
 		flex-direction: column;
 		gap: .5em;
+		overflow: visible;
 		.title {
 			align-self: center;
 			.icon {
@@ -525,19 +535,9 @@ export default toNative(CommandHelper);
 			}
 		}
 
-		form {
-			display: flex;
-			flex-direction: row;
-			border-radius: var(--border-radius);
-			input {
-				width: 100%;
-				border-top-right-radius: 0;
-				border-bottom-right-radius: 0;
-			}
-			.button {
-				flex-grow: 1;
-				border-top-left-radius: 0;
-				border-bottom-left-radius: 0;
+		.raidForm {
+			:deep(input) {
+				background-color: var(--background-color-fader);
 			}
 		}
 

@@ -307,6 +307,7 @@ export const storeDebug = defineStore('debug', {
 							title: chan.title,
 							category: chan.game_name,
 							duration: Date.now() - new Date(chan.started_at).getTime(),
+							duration_str: Utils.formatDuration(Date.now() - new Date(chan.started_at).getTime()),
 							wasLive: Math.random() > .5
 						}
 					};
@@ -611,6 +612,57 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.CHAT_POLL: {
+					const choices:TwitchatDataTypes.MessageChatPollData["poll"]["choices"] = [];
+					const count = Math.max(2, Math.ceil(Math.random()*5));
+					let winner!:TwitchatDataTypes.MessagePollDataChoice;
+					let winnerCount = 0;
+					for(let i=0; i < count; i++) {
+						const votes = Math.round(Math.random()*50);
+						const entry = {id:Utils.getUUID(), label:"Option "+(i+1), votes};
+						if(votes > winnerCount) {
+							winnerCount = votes;
+							winner = entry;
+						}
+						choices.push(entry);
+					}
+					const lorem = new LoremIpsum({
+						sentencesPerParagraph: { max: 8, min: 4 },
+						wordsPerSentence: { max: 5, min: 2 }
+					});
+					const m:TwitchatDataTypes.MessageChatPollData = {
+						id:Utils.getUUID(),
+						platform:"twitch",
+						channel_id:uid,
+						date:Date.now(),
+						type,
+						poll: {
+							choices,
+							duration_s:180,
+							title:lorem.generateSentences(1).replace(".","")+"?",
+							started_at:Date.now() - 2 * 60 * 1000,
+							ended_at:Date.now(),
+							winner,
+							maxVotePerUser:1,
+							permissions:{
+								broadcaster:true,
+								mods:true,
+								vips:false,
+								subs:false,
+								follower:false,
+								follower_duration_ms:0,
+								all:false,
+								usersAllowed:[],
+								usersRefused:[],
+							},
+							votes:{},
+						},
+						isStart:false,
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN: {
 					const m:TwitchatDataTypes.MessageAutobanJoinData = {
 						platform:"twitchat",
@@ -658,6 +710,9 @@ export const storeDebug = defineStore('debug', {
 
 				case TwitchatDataTypes.TwitchatMessageType.BINGO_GRID: {
 					const grid = Utils.pickRand(StoreProxy.bingoGrid.gridList);
+					const x = Math.round(Math.random()*grid.cols);
+					const y = Math.round(Math.random()*grid.rows);
+					const label = grid.entries[x*y].label || "";
 					const m:TwitchatDataTypes.MessageBingoGridData = {
 						platform:"twitchat",
 						type,
@@ -674,6 +729,7 @@ export const storeDebug = defineStore('debug', {
 							x:Math.round(Math.random()*grid.cols),
 							y:Math.round(Math.random()*grid.rows),
 						},
+						cellLabel:label,
 						diagonal:Math.random() > .5? 1 : 0,
 						reset:Math.random() > .5,
 					};
@@ -870,24 +926,17 @@ export const storeDebug = defineStore('debug', {
 					const duration = Math.round(Math.random()*60*10)*1000;
 					const start = new Date(Date.now() - duration);
 					const m:TwitchatDataTypes.MessageTimerData = {
-						platform:"twitch",
-						type,
+						type:TwitchatDataTypes.TwitchatMessageType.TIMER,
+						platform:"twitchat",
 						id:Utils.getUUID(),
 						date:Date.now(),
-						started:true,
-						timer:{
-							startAt:Utils.formatDate(start),
-							startAt_ms:start.getTime(),
-							duration:Utils.formatDuration(duration, true),
-							duration_ms:duration,
-							offset_ms:0,
-							endAt:Utils.formatDate(new Date()),
-							endAt_ms:Date.now(),
-							labels: {
-								days:StoreProxy.i18n.t("global.date_days"),
-							}
-						},
-						channel_id:uid,
+						channel_id:StoreProxy.auth.twitch.user.id,
+						startedAt_ms:start.getTime(),
+						startedAt_str:Utils.formatDate(new Date(start.getTime()), true),
+						duration_ms:duration,
+						duration_str:Utils.formatDuration(duration, true),
+						stopped:true,
+						timer_id:Utils.getUUID(),
 					};
 					data = m;
 					break;
@@ -897,27 +946,22 @@ export const storeDebug = defineStore('debug', {
 					const duration = Math.round(Math.random() *60*60)*1000;
 					const start = new Date(Date.now() - duration);
 					const m:TwitchatDataTypes.MessageCountdownData = {
+						type:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
 						platform:"twitchat",
-						type,
-						date:Date.now(),
 						id:Utils.getUUID(),
-						countdown: {
-							duration:Utils.formatDuration(duration, true),
-							duration_ms:duration,
-							startAt:Utils.formatDate(start),
-							startAt_ms:start.getTime(),
-							endAt:Utils.formatDate(new Date()),
-							endAt_ms:Date.now(),
-							timeoutRef:-1,
-							pausedDuration:0,
-							aborted:false,
-							finalDuration:Utils.formatDuration(duration, true),
-							finalDuration_ms:duration,
-							labels: {
-								days:StoreProxy.i18n.t("global.date_days"),
-							}
-						},
-						channel_id:uid,
+						date:Date.now(),
+						channel_id:StoreProxy.auth.twitch.user.id,
+						startedAt_ms:start.getTime(),
+						startedAt_str:Utils.formatDate(new Date(start.getTime()), true),
+						duration_ms:duration,
+						duration_str:Utils.formatDuration(duration, true),
+						aborted:false,
+						complete:true,
+						endedAt_ms:Date.now(),
+						endedAt_str:Utils.formatDate(new Date(), true),
+						finalDuration_ms:duration,
+						finalDuration_str:Utils.formatDuration(duration, true),
+						countdown_id:Utils.getUUID(),
 					};
 					data = m;
 					break;
@@ -1825,6 +1869,44 @@ export const storeDebug = defineStore('debug', {
 						message_chunks:chunks,
 						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						action:Utils.pickRand(["dm", "dm_mods", "question", "message"]),
+					};
+
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.GOAL_STEP_COMPLETE: {
+					const fakeStep:TwitchatDataTypes.DonationGoalOverlayConfig["goalList"][number] = {
+						amount:132,
+						id:"068bdae5-2936-4659-0000-cc2725ca63f8",
+						secret:false,
+						title:"My amazing step",
+					};
+					const m:TwitchatDataTypes.MessageGoalStepCompleteData = {
+						id:Utils.getUUID(),
+						type:TwitchatDataTypes.TwitchatMessageType.GOAL_STEP_COMPLETE,
+						date:Date.now(),
+						channel_id:StoreProxy.auth.twitch.user.id,
+						platform:"twitchat",
+						goalConfig: {
+							id:"068bdae5-2936-4659-0001-cc2725ca63f8",
+							autoDisplay:true,
+							color:"#6441a5",
+							currency:"USD",
+							dataSource:"counter",
+							enabled:true,
+							goalList: [
+								fakeStep,
+							],
+							hideDelay:0,
+							hideDone:true,
+							limitEntryCount:false,
+							maxDisplayedEntries:1,
+							notifyTips:true,
+							title:"My amazing goal",
+						},
+						stepConfig:fakeStep,
+						stepIndex:0,
 					};
 
 					data = m;

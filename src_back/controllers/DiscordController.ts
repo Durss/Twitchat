@@ -58,7 +58,7 @@ export default class DiscordController extends AbstractController {
 			this.buildTwitchHashmap();
 		}
 
-		//Cleanup expired tokens every 5s
+		//Cleanup expired tokens every 30s
 		setInterval(()=> {
 			const now = Date.now();
 			for (let i = 0; i < this._pendingTokens.length; i++) {
@@ -68,7 +68,7 @@ export default class DiscordController extends AbstractController {
 					i--;
 				}
 			}
-		}, 5000);
+		}, 30000);
 
 		return this;
 	}
@@ -167,10 +167,16 @@ export default class DiscordController extends AbstractController {
 		}catch(error) {
 			const channels = await this._rest.get(Routes.guildChannels(guard.guild.guildID)) as {id:string, name:string}[];
 			const channel = channels.find(v=>v.id == params.channelId);
-			console.log(error);
+			const typedError = error as {code:number, message:string};
+			Logger.error("Unable to send message image to discord")
+			let errorCode = "POST_FAILED";
+			if(typedError.code === 50001) errorCode = "MISSING_ACCESS";
+			if(typedError.code === 10003) errorCode = "UNKNOWN_CHANNEL";
+			console.log(guard.user.login+" misconfigured Discord. Cannot post to "+channel?.name);
+			console.log(typedError.message);
 			response.header('Content-Type', 'application/json')
 			.status(401)
-			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:"POST_FAILED", channelName:channel? channel.name : "", success:false}));
+			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode, channelName:channel? channel.name : "", success:false}));
 			return;
 		}
 	}
@@ -226,7 +232,8 @@ export default class DiscordController extends AbstractController {
 		}catch(error) {
 			const channels = await this._rest.get(Routes.guildChannels(guard.guild.guildID)) as {id:string, name:string}[];
 			const channel = channels.find(v=>v.id == params.channelId);
-			console.log(error);
+			const typedError = error as {code:number, message:string};
+			if(typedError.message) console.log(typedError.message);
 			response.header('Content-Type', 'application/json')
 			.status(401)
 			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:messageSent && !threadCreated? "CREATE_THREAD_FAILED" : "POST_FAILED", channelName:channel? channel.name : "", success:false}));
@@ -316,10 +323,15 @@ export default class DiscordController extends AbstractController {
 		}catch(error) {
 			const channels = await this._rest.get(Routes.guildChannels(guard.guild.guildID)) as {id:string, name:string}[];
 			const channel = channels.find(v=>v.id == params.channelId);
-			console.log(error);
+			const typedError = error as {code:number, message:string};
+			Logger.error("Unable to send message image to discord")
+			let errorCode = "POST_FAILED";
+			if(typedError.code === 50001) errorCode = "MISSING_ACCESS";
+			if(typedError.code === 10003) errorCode = "UNKNOWN_CHANNEL";
+			console.log(typedError.message);
 			response.header('Content-Type', 'application/json')
 			.status(401)
-			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:"POST_FAILED", channelName:channel? channel.name : "", success:false}));
+			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode, channelName:channel? channel.name : "", success:false}));
 			return;
 		}
 	}
@@ -418,6 +430,11 @@ export default class DiscordController extends AbstractController {
 				response.header('Content-Type', 'application/json')
 				.status(401)
 				.send(JSON.stringify({error:"Missing permission", errorCode:"MISSING_ACCESS", channelName:channel? channel.name : "", success:false}));
+
+			}else if(typedError.code == 10003) {
+				response.header('Content-Type', 'application/json')
+				.status(401)
+				.send(JSON.stringify({error:"Unknown channel", errorCode:"UNKNOWN_CHANNEL", success:false}));
 
 			}else{
 				response.header('Content-Type', 'application/json')
@@ -702,7 +719,7 @@ export default class DiscordController extends AbstractController {
 			ASK_CMD.setDescriptionLocalization(lang.discord, I18n.instance.get(lang.labels, "server.discord.commands.ask.description"));
 		})
 
-		const commandList:Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">[] = [LINK_CMD, SAY_CMD, ASK_CMD];
+		const commandList:SlashCommandBuilder[] = [LINK_CMD, SAY_CMD, ASK_CMD];
 
 
 		this._rest = new REST().setToken(Config.credentials.discord_bot_token);
@@ -712,7 +729,7 @@ export default class DiscordController extends AbstractController {
 		}else{
 			existingCmds = await this._rest.get(Routes.applicationGuildCommands(Config.credentials.discord_client_id, debugGuildID)) as SlashCommandDefinition[];
 		}
-		const missingCmds:Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">[] = [];
+		const missingCmds:SlashCommandBuilder[] = [];
 		const removedCmds:SlashCommandDefinition[] = [];
 		//Check which commands should be removed
 		for (let i = 0; i < existingCmds.length; i++) {
@@ -784,6 +801,7 @@ export default class DiscordController extends AbstractController {
 			try {
 				guildDetails = await this._rest.get(Routes.guildPreview(command.guild_id)) as GuildPreview;
 			}catch(error) {
+				console.log(error)
 				response.status(200)
 				.send({
 					type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -852,7 +870,7 @@ export default class DiscordController extends AbstractController {
 				response.status(200).send({
 					type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 					data: {
-						content: "**:white_check_mark:** `/"+command.data.name+"`"+ (params.length > 0? "`"+params.map(v=>v.value).join("` `")+"`" : ""),
+						content: "**:white_check_mark:** `/"+command.data.name+"` "+ (params.length > 0? "`"+params.map(v=>v.value).join("` `")+"`" : ""),
 					},
 				});
 

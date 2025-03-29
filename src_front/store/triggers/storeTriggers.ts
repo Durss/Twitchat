@@ -16,6 +16,8 @@ import SSEEvent from '@/events/SSEEvent';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 let discordCmdUpdateDebounce:number = -1;
+let wasDiscordCmds = false;
+let enabledStateCache:{[triggerId:string]:boolean} = {};
 
 export const storeTriggers = defineStore('triggers', {
 	state: () => ({
@@ -159,7 +161,7 @@ export const storeTriggers = defineStore('triggers', {
 				let name = clone.name || TriggerUtils.getTriggerDisplayInfo(clone).label;
 				name += " (CLONE)";
 				clone.name = name;
-				
+
 				//Add trigger to requested folder if necessary
 				if(parentId) {
 					const addToTreeItem = (items:TriggerTreeItemData[])=>{
@@ -230,6 +232,15 @@ export const storeTriggers = defineStore('triggers', {
 			const list = JSON.parse(JSON.stringify(this.triggerList));
 			list.forEach((data:TriggerData)=> {
 				data.actions = cleanEmptyActions(data.actions);
+				if(data.type == TriggerTypes.SCHEDULE && enabledStateCache[data.id] != data.enabled) {
+					enabledStateCache[data.id] = data.enabled;
+					//TODO should check if parent folder(s) are enabled as well but too lazy for now T_T
+					if(data.enabled) {
+						SchedulerHelper.instance.scheduleTrigger(data);
+					}else{
+						SchedulerHelper.instance.unscheduleTrigger(data);
+					}
+				}
 			})
 
 			//Create discord commands if requested by some slash commands
@@ -241,6 +252,7 @@ export const storeTriggers = defineStore('triggers', {
 					list.forEach((data:TriggerData)=> {
 						if(data.type == TriggerTypes.SLASH_COMMAND
 						&& data.chatCommand
+						&& data.enabled === true
 						&& data.addToDiscord === true) {
 							const params: typeof commands[number]["params"] = [];
 							if(data.chatCommandParams) {
@@ -254,13 +266,14 @@ export const storeTriggers = defineStore('triggers', {
 							});
 						}
 					})
-					if(commands.length > 0) {
+					if(commands.length > 0 || wasDiscordCmds) {
 						//Update discord commands
 						ApiHelper.call("discord/commands", "POST", {commands}, false).then(res=>{
 							//
 						});
 					}
-				}, 10000);
+					wasDiscordCmds = commands.length > 0;
+				}, 6000);
 			}
 
 			DataStore.set(DataStore.TRIGGERS, list);

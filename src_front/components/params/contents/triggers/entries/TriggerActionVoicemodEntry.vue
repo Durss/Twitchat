@@ -35,13 +35,13 @@ import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 	emits:["update"]
 })
 class TriggerActionVoicemodEntry extends AbstractTriggerActionEntry {
-	
+
 	@Prop
 	declare action:TriggerActionVoicemodData;
-	
+
 	@Prop
 	declare triggerData:TriggerData;
-	
+
 	public param_action:TwitchatDataTypes.ParameterData<TriggerActionVoicemodDataAction, TriggerActionVoicemodDataAction> = {type:"list", listValues:[], value:"voice", icon:"", labelKey:"triggers.actions.voicemod.param_action"}
 	public param_voiceList:TwitchatDataTypes.ParameterData<string, string> = {type:"list", listValues:[], value:"", icon:"voice", labelKey:"triggers.actions.voicemod.param_voice"}
 	public param_soundsList:TwitchatDataTypes.ParameterData<string, string> = {type:"list", listValues:[], value:"", icon:"unmute", labelKey:"triggers.actions.voicemod.param_sound"}
@@ -50,10 +50,10 @@ class TriggerActionVoicemodEntry extends AbstractTriggerActionEntry {
 	public soundItemID:string = "";
 	private voiceListItemIDToData:{[key:string]:{type:"id"|"placeholder", value:string}} = {};
 	private soundListItemIDToData:{[key:string]:{type:"id"|"placeholder", value:string}} = {};
-	
+
 	public get vmConnected():boolean { return VoicemodWebSocket.instance.connected; }
 	public get subcontentVM():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.VOICEMOD; }
-	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 
 	public beforeMount():void {
 		this.param_action.listValues = TriggerActionVoicemodDataActionList.map((v):TwitchatDataTypes.ParameterDataListValue<TriggerActionVoicemodDataAction>=> {
@@ -96,7 +96,7 @@ class TriggerActionVoicemodEntry extends AbstractTriggerActionEntry {
 	/**
 	 * Called when the available placeholder list is updated
 	 */
-	 public onPlaceholderUpdate(placeholders:ITriggerPlaceholder<any>[]):void {
+	public onPlaceholderUpdate(placeholders:ITriggerPlaceholder<any>[]):void {
 		if(!this.vmConnected) return;
 
 		//Add an entry per voice filter
@@ -145,9 +145,9 @@ class TriggerActionVoicemodEntry extends AbstractTriggerActionEntry {
 		this.param_voiceList.listValues = voiceList;
 		for (let i = 0; i < voiceList.length; i++) {
 			const v = voiceList[i];
-			
+
 			if(v.disabled === true) continue; //Ignore disabled entries used just as labels
-			
+
 			let data = this.voiceListItemIDToData[v.value];
 
 			if(!data) {
@@ -168,9 +168,9 @@ class TriggerActionVoicemodEntry extends AbstractTriggerActionEntry {
 		this.param_soundsList.listValues = soundList;
 		for (let i = 0; i < soundList.length; i++) {
 			const v = soundList[i];
-			
+
 			if(v.disabled === true) continue; //Ignore disabled entries used just as labels
-			
+
 			let data = this.soundListItemIDToData[v.value];
 
 			if(!data) {

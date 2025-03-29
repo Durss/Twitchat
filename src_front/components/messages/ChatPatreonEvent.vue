@@ -31,7 +31,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 	emits:["onRead"],
 })
 class ChatPatreonEvent extends AbstractChatMessage {
-	
+
 	@Prop
 	declare messageData:TwitchatDataTypes.MessagePatreonData;
 

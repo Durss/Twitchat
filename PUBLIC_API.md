@@ -51,7 +51,7 @@ OBS will act as a bridge to transmit Twitchat messages to any connected client.
 # Connect example
 To connect with OBS-Websocket you can use the [obs-websocket-js](https://github.com/obs-websocket-community-projects/obs-websocket-js) package that already handles everything.\
 \
-Bellow is a typescript example to use the API via `OBS-Websocket-js`.\
+Below is a typescript example to use the API via `OBS-Websocket-js`.\
 The example refers to `TwitchatActionType` and `TwitchatEventType`.\
 You can find their [signatures here](#available-events-and-actions).
 <br></br>
@@ -369,9 +369,9 @@ Sent when a countdown start
 ### JSON param
 ```typescript
 {
-	startAt:string,//formated date
+	startAt:string,//formatted date
 	startAt_ms:number,//Timestamp in ms
-	duration:number,//Duration formated
+	duration:number,//Duration formatted
 	duration_ms:number,//Duration in ms
 }
 ```
@@ -380,11 +380,11 @@ Sent when a countdown completes
 ### JSON param
 ```typescript
 {
-	startAt:string,//formated date
+	startAt:string,//formatted date
 	startAt_ms:number,//Timestamp in ms
-	endAt:string,//formated date
+	endAt:string,//formatted date
 	endAt_ms:number,//Timestamp in ms
-	duration:number,//Duration formated
+	duration:number,//Duration formatted
 	duration_ms:number,//Duration in ms
 }
 ```

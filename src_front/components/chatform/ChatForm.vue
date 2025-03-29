@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<div class="holder">
 
-			<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" draggable="false" icon="params" @click="toggleParams()" :newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'chatform_params_4'}" />
+			<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" draggable="false" icon="params" @click="toggleParams()" :newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'chatform_params_6'}" />
 			<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" draggable="false" icon="commands" @click="$emit('update:showCommands', true)" :newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'chatform_cmds_2'}" />
 			<VueDraggable class="sortableItems"
 			v-model="$store.params.pinnedMenuItems"
@@ -58,6 +58,9 @@
 								v-model:platform="$store.stream.currentChatChannel.platform" />
 
 							<ModeratorActionSwitcher v-if="isModeratedChannel" v-model:mode="$store.chat.messageMode" />
+
+							<GroqChannelAction v-if="$store.groq.connected" />
+
 						</div>
 
 						<button class="chatInputError"
@@ -71,7 +74,7 @@
 						<button class="chatInputError"
 							v-else-if="$store.stream.currentChatChannel.platform == 'twitch' && mustGrantTwitchScope"
 							@click="grantTwitchScopes()"><Icon name="lock_fit" />{{ $t('chat.form.twitch_missing_scope') }}</button>
-							
+
 						<!-- using @input instead of v-model so it works properly on mobile -->
 						<input v-else
 							type="text"
@@ -117,6 +120,14 @@
 				</transition>
 
 				<transition name="blink">
+					<ButtonNotification :aria-label="$t('chat.form.chatPollBt_aria')"
+						icon="chatPoll"
+						v-tooltip="{touch:'hold', content:$t('chat.form.chatPollBt_aria'), showOnCreate:shouldShowTooltip('chatPoll'), onHidden:()=>onHideTooltip('chatPoll')}"
+						@click="openNotifications('chatPoll')"
+						v-if="$store.chatPoll.data" />
+				</transition>
+
+				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.predictionBt_aria')"
 						icon="prediction"
 						v-tooltip="{touch:'hold', content:$t('chat.form.predictionBt_aria'), showOnCreate:shouldShowTooltip('prediction'), onHidden:()=>onHideTooltip('prediction')}"
@@ -159,7 +170,7 @@
 
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.suggBt_aria')"
-						icon="chatPoll"
+						icon="chatSugg"
 						:count="$store.chatSuggestion.data?.choices.length"
 						v-tooltip="{touch:'hold', content:$t('chat.form.suggBt_aria'), showOnCreate:shouldShowTooltip('chatsuggState'), onHidden:()=>onHideTooltip('chatsuggState')}"
 						@click="openModal('chatsuggState')"
@@ -211,7 +222,7 @@
 
 				<CommunityBoostInfo v-if="$store.stream.communityBoostState" />
 
-				<TimerCountDownInfo v-if="$store.timer.countdown || $store.timer.timer" />
+				<TimerCountDownInfo v-if="isActiveTimer" />
 
 				<CommercialTimer />
 
@@ -263,6 +274,15 @@
 						:aria-label="$t('chat.form.bingoGridBt_aria')"
 						v-tooltip="{touch:'hold', content:$t('chat.form.bingoGridBt_aria')}"
 						@click="$emit('update:showBingoGrid', true)" />
+				</transition>
+
+				<transition name="blink">
+					<ButtonNotification class="groq"
+						icon="groq"
+						v-if="$store.groq.answerHistory.length > 0"
+						:aria-label="$t('chat.form.groqBt_aria')"
+						v-tooltip="{touch:'hold', content:$t('chat.form.groqBt_aria')}"
+						@click="openModal('groqHistory')" />
 				</transition>
 
 				<transition name="blink">
@@ -397,12 +417,14 @@ import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import {YoutubeScopes} from "@/utils/youtube/YoutubeScopes";
 import ModeratorActionSwitcher from './ModeratorActionSwitcher.vue';
 import { VueDraggable } from 'vue-draggable-plus';
+import GroqChannelAction from './GroqChannelAction.vue';
 
 @Component({
 	components:{
 		TTButton,
 		ParamItem,
 		VueDraggable,
+		GroqChannelAction,
 		ChannelSwitcher,
 		CommercialTimer,
 		ButtonNotification,
@@ -421,6 +443,7 @@ import { VueDraggable } from 'vue-draggable-plus';
 		"update:showShoutout",
 		"update:showCredits",
 		"update:showBingoGrid",
+		"update:showGroqHistory",
 		"setCurrentNotification",
 		"update:showGazaFunds",
 		"update:showChatUsers",
@@ -504,8 +527,18 @@ export class ChatForm extends Vue {
 	public get showObsBtn():boolean { return this.$store.obs.connectionEnabled === true && !OBSWebsocket.instance.connected; }
 
 	public get qnaSessionActive():boolean { return this.$store.qna.activeSessions.length > 0; }
-	
+
 	public get raffleListActive():TwitchatDataTypes.RaffleData[] { return this.$store.raffle.raffleList.filter(v=>v.mode != 'manual' && v.mode != 'values' && v.mode != 'sub' && v.ghost !== true); }
+
+	public get isActiveTimer():boolean {
+		const defaults = this.$store.timers.timerList
+		for (let i = 0; i < defaults.length; i++) {
+			const entry = defaults[i];
+			if(entry.startAt_ms) return true;
+		}
+
+		return false;
+	}
 
 	public get voiceBotStarted():boolean { return VoiceController.instance.started; }
 	public get voiceBotConfigured():boolean {
@@ -645,7 +678,7 @@ export class ChatForm extends Vue {
 				}
 			}
 		});
-		
+
 		gsap.from(this.$el, {y:50, delay:.2, duration:1, ease:"sine.out"});
 		const btns = (this.$el as HTMLDivElement).querySelectorAll(".leftForm>*,.inputForm>*");
 		gsap.from(btns, {y:50, duration:.7, delay:.5, ease:"back.out(2)", stagger:.075});
@@ -661,9 +694,9 @@ export class ChatForm extends Vue {
 	public openNotifications(type:TwitchatDataTypes.NotificationTypes):void { this.$emit('setCurrentNotification', type); }
 
 	public openModal(modal:TwitchatDataTypes.ModalTypes):void { this.$store.params.openModal(modal); }
-	
-	public openOBSParams():void { this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS); }
-	
+
+	public openOBSParams():void { this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.OBS); }
+
 	public grantTwitchScopes():void { TwitchUtils.requestScopes(Config.instance.MANDATORY_TWITCH_SCOPES); }
 
 	public async closeAnnouncement():Promise<void> {
@@ -959,7 +992,7 @@ export class ChatForm extends Vue {
 
 				//Allows to display a message on chat from its raw JSON
 				const res = await ApiHelper.call("mod/privateMessage", "POST", {
-					message: chunks, 
+					message: chunks,
 					action: this.$store.chat.messageMode,
 					to_uid: this.$store.stream.currentChatChannel.id,
 					messageId: message.id,
@@ -987,7 +1020,7 @@ export class ChatForm extends Vue {
 					this.message = await TwitchCypherPlugin.instance.encrypt(this.message);
 				}
 				// this.loading = true;
-				
+
 				const replyTo = this.$store.chat.replyTo ?? undefined;
 				const messageLocal = this.message;
 				this.message = "";
@@ -1324,15 +1357,16 @@ export default toNative(ChatForm);
 						background:transparent;
 					}
 					.actions {
-						// gap: .25em;
 						display: flex;
 						flex-direction: row;
 						align-items: center;
 						z-index: 1;
 						.chanSwitcher {
-							// position: absolute;
 							margin: .15em;
 						}
+						// *:last-child {
+						// 	margin-right: -.5em;
+						// }
 					}
 
 					.chatInputError {

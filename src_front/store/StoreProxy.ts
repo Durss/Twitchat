@@ -7,21 +7,20 @@ import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/types/spotify/SpotifyDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { YoutubeAuthResult, YoutubeAuthToken } from "@/types/youtube/YoutubeDataTypes";
-import type { PubSubDataTypes } from "@/utils/twitch/PubSubDataTypes";
 import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type VoiceAction from "@/utils/voice/VoiceAction";
 import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 import type { YoutubeScopesString } from "@/utils/youtube/YoutubeScopes";
+import type { StreamerbotAction } from "@streamerbot/client";
+import type Groq from "groq-sdk";
 import type { Composer, VueI18n } from "vue-i18n";
 import type { Router } from "vue-router";
+import type { ElevenLabsModel, ElevenLabsVoice } from "./elevenlabs/storeElevenLabs";
 import type { LumiaVoiceList } from "./lumia/storeLumia";
+import type { IPatreonMember, IPatreonTier } from "./patreon/storePatreon";
 import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "./tiltify/storeTiltify";
-import type { PatreonDataTypes } from "@/utils/patreon/PatreonDataTypes";
-import type { StreamerbotAction } from "@streamerbot/client";
-import type { ElevenLabsModel, ElevenLabsVoice } from "./elevenlabs/storeElevenLabs";
-import type { IPatreonMember, IPatreonTier } from "./patreon/storePatreon";
 
 /**
 * Created : 23/09/2022
@@ -40,10 +39,11 @@ export default class StoreProxy {
 	public static obs:IOBSState & IOBSGetters & IOBSActions & {$state:IOBSState , $reset:()=>void};
 	public static params:IParamsState & IParamsGetters & IParamsActions & {$state:IParamsState, $reset:()=>void};
 	public static poll:IPollState & IPollGetters & IPollActions & {$state:IPollState, $reset:()=>void};
+	public static chatPoll:IChatPollState & IChatPollGetters & IChatPollActions & {$state:IChatPollState, $reset:()=>void};
 	public static prediction:IPredictionState & IPredictionGetters & IPredictionActions & {$state:IPredictionState, $reset:()=>void};
 	public static raffle:IRaffleState & IRaffleGetters & IRaffleActions & {$state:IRaffleState, $reset:()=>void};
 	public static stream:IStreamState & IStreamGetters & IStreamActions & {$state:IStreamState, $reset:()=>void};
-	public static timer:ITimerState & ITimerGetters & ITimerActions & {$state:ITimerState, $reset:()=>void};
+	public static timers:ITimerState & ITimerGetters & ITimerActions & {$state:ITimerState, $reset:()=>void};
 	public static triggers:ITriggersState & ITriggersGetters & ITriggersActions & {$state:ITriggersState, $reset:()=>void};
 	public static tts:ITTSState & ITTSGetters & ITTSActions & {$state:ITTSState , $reset:()=>void};
 	public static users:IUsersState & IUsersGetters & IUsersActions & {$state:IUsersState, $reset:()=>void};
@@ -79,6 +79,9 @@ export default class StoreProxy {
 	public static elevenLabs: IElevenLabsState & IElevenLabsGetters & IElevenLabsActions & { $state: IElevenLabsState, $reset: () => void };
 	public static playability: IPlayabilityState & IPlayabilityGetters & IPlayabilityActions & { $state: IPlayabilityState, $reset: () => void };
 	public static twitchBot: ITwitchBotState & ITwitchBotGetters & ITwitchBotActions & { $state: ITwitchBotState, $reset: () => void };
+	public static groq: IGroqState & IGroqGetters & IGroqActions & { $state: IGroqState, $reset: () => void };
+	public static animatedText: IAnimatedTextState & IAnimatedTextGetters & IAnimatedTextActions & { $state: IAnimatedTextState, $reset: () => void };
+	public static customTrain: ICustomTrainState & ICustomTrainGetters & ICustomTrainActions & { $state: ICustomTrainState, $reset: () => void };
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static asset:(path: string) => string;
@@ -748,6 +751,51 @@ export interface IChatActions {
 
 
 
+export interface IChatPollState {
+	/**
+	 * Current poll data
+	 */
+	data:TwitchatDataTypes.ChatPollData | null,
+	/**
+	 * Contains params about the prediction overlay
+	 */
+	overlayParams:PollOverlayParamStoreData;
+}
+
+export interface IChatPollGetters {
+}
+
+export interface IChatPollActions {
+	/**
+	 * Populates data from data store value
+	 */
+	populateData(params?:PollOverlayParamStoreData):void;
+	/**
+	 * Handles a chat command to check if it is linked to current poll
+	 * @param message
+	 * @param cmd
+	 */
+	handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):Promise<void>;
+	/**
+	 * Set current poll data
+	 * @param data
+	 */
+	setCurrentPoll(data:TwitchatDataTypes.ChatPollData|null):void;
+	/**
+	 * Updates overlay params
+	 * @param params
+	 */
+	setOverlayParams(params:PollOverlayParamStoreData):void;
+	/**
+	 * Broadcast current poll state.
+	 * Sends overlay parameters as well
+	 */
+	broadcastState():void;
+}
+
+
+
+
 export interface IChatSuggestionState {
 	/**
 	 * Current chat suggestion data
@@ -1150,7 +1198,7 @@ export interface IPollActions {
 	/**
 	 * Set current poll data
 	 * @param data
-	 * @param postOnChat
+	 * @param postOnChat post result on chat
 	 */
 	setCurrentPoll(data:TwitchatDataTypes.MessagePollData|null, postOnChat?:boolean):void;
 	/**
@@ -1314,6 +1362,10 @@ export interface IStreamState {
 		platform:TwitchatDataTypes.ChatPlatform;
 	};
 	/**
+	 * Gets current VOD URL
+	 */
+	currentVODUrl: string;
+	/**
 	 * Channels to autoconnect to on twitchat loading
 	 */
 	autoconnectChans:{id:string, platform:TwitchatDataTypes.ChatPlatform}[],
@@ -1366,7 +1418,7 @@ export interface IStreamActions {
 	 * @param channelId
 	 * @param value
 	 */
-	setPlaybackState(channelId:string, value:PubSubDataTypes.PlaybackInfo|undefined):void;
+	setPlaybackState(channelId:string, viewerCount:number|undefined):void;
 	/**
 	 * Called when stream starts.
 	 * Disable emote-only if requested
@@ -1436,37 +1488,21 @@ export interface IStreamActions {
 	 * Request cooldown duration before next hype train
 	 */
 	scheduleHypeTrainCooldownAlert():Promise<void>;
+	/**
+	 * Get current stream VOD URL
+	 * Just used to populate the placeholder {CURRENT_VOD_URL}
+	 */
+	grabCurrentStreamVOD():Promise<void>;
 }
 
 
 
 
 export interface ITimerState {
-	// /**
-	//  * Date at which the current timer started
-	//  */
-	// timerStartDate: number;
-	// /**
-	//  * Offset to apply to the current timer.
-	//  * Allows to add or remove time from a the timer
-	//  */
-	// timerOffset: number;
-	// /**
-	//  * Is the timer paused ?
-	//  */
-	// timerPaused: boolean;
-	// /**
-	//  * Date at which the timer was paused
-	//  */
-	// timerPausedAt: number;
 	/**
-	 * Current timer info
+	 * Timer's list
 	 */
-	timer: TwitchatDataTypes.TimerData|null;
-	/**
-	 * Current countdown info
-	 */
-	countdown: TwitchatDataTypes.CountdownData|null;
+	timerList: TwitchatDataTypes.TimerData[],
 }
 
 export interface ITimerGetters {
@@ -1474,62 +1510,60 @@ export interface ITimerGetters {
 
 export interface ITimerActions {
 	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
+	/**
 	 * Braodcast current timer and countdown statesvia the PublicAPI
 	 */
-	broadcastStates():void;
+	broadcastStates(id?:string):void;
+	/**
+	 * Create a timer
+	 */
+	createTimer():void;
+	/**
+	 * Deletes given timer
+	 */
+	deleteTimer(id:string):void;
 	/**
 	 * Start the timer
 	 */
-	timerStart():void;
+	timerStart(id:string):void;
 	/**
 	 * Add a duration to the timer
 	 * @param duration_ms
 	 */
-	timerAdd(duration_ms:number):void;
+	timerAdd(id:string, duration_ms:number):void;
 	/**
 	 * Remove a duration from the timer
 	 * @param duration_ms
 	 */
-	timerRemove(duration_ms:number):void;
+	timerRemove(id:string, duration_ms:number):void;
 	/**
 	 * Pauses the timer
 	 */
-	timerPause():void;
+	timerPause(id:string):void;
 	/**
 	 * Unpauses the timer
 	 */
-	timerUnpause():void;
+	timerUnpause(id:string):void;
 	/**
 	 * Stop the timer
 	 */
-	timerStop():void;
+	timerStop(id:string):void;
 	/**
-	 * Start the countdown
-	 * @param durEation_ms
+	 * Resets the timer
 	 */
-	countdownStart(durEation_ms:number):void;
+	resetTimer(id:string):void;
 	/**
-	 * Add a duration to the countdown
-	 * @param duration_ms
+	 * Saves data to server
 	 */
-	countdownAdd(duration_ms:number):void;
+	saveData():void;
 	/**
-	 * Remove a duration from the countdown
-	 * @param duration_ms
+	 * Gets current timer/countdown computed value
+	 * Remaining time for a countodwn, elasped time for a timer
 	 */
-	countdownRemove(duration_ms:number):void;
-	/**
-	 * Pauses the countdown
-	 */
-	countdownPause():void;
-	/**
-	 * Unpauses the countdown
-	 */
-	countdownUnpause():void;
-	/**
-	 * Stop the countdown
-	 */
-	countdownStop(aborted?:boolean):void;
+	getTimerComputedValue(id:string):{duration_ms:number, duration_str:string}
 }
 
 
@@ -2162,6 +2196,11 @@ export interface ICountersActions {
 	 * @param userId
 	 */
 	deleteCounterEntry(id:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void;
+	/**
+	 * Deletes all per-user counter entries
+	 * @param id
+	 */
+	deleteAllCounterEntries(id:string):void;
 	/**
 	 * Saves counters to server
 	 */
@@ -2966,6 +3005,7 @@ export interface ILabelsState {
 	labelList:LabelItemData[];
 	placeholders:Partial<{[key in LabelItemPlaceholder["tag"]]:{
 		value:string|number;
+		category:string;
 		placeholder:LabelItemPlaceholder
 	}}>;
 }
@@ -3365,7 +3405,7 @@ export interface IElevenLabsActions {
 	 */
 	connect(): Promise<boolean>;
 	/**
-	 * Disconnects to ElevenLabs
+	 * Disconnects from ElevenLabs
 	 */
 	disconnect(): void;
 	/**
@@ -3468,11 +3508,11 @@ export interface ITwitchBotActions {
 	 */
 	populateData(): Promise<void>;
 	/**
-	 * Connects to ElevenLabs
+	 * Connects Twitch bot account
 	 */
 	connect(): Promise<boolean>;
 	/**
-	 * Disconnects to ElevenLabs
+	 * Disconnects Twitch bot account
 	 */
 	disconnect(): void;
 	/**
@@ -3488,4 +3528,157 @@ export interface ITwitchBotActions {
 	 * Saves parameters
 	 */
 	saveParams():void;
+}
+
+
+
+
+export interface IGroqState {
+	connected:boolean;
+	apiKey:string;
+	creditsUsed:number;
+	creditsTotal:number;
+	defaultModel:string;
+	availableModels:(Groq.Models.Model & {active:boolean, context_window:number, type:"text"|"speech"|"vision"})[];
+	answerHistory:TwitchatDataTypes.GroqHistoryItem[];
+}
+
+export interface IGroqGetters {
+}
+
+export interface IGroqActions {
+	/**
+	 * Populates the store
+	 */
+	populateData(): Promise<void>;
+	/**
+	 * Preload message history from IndexedDB
+	 */
+	preloadMessageHistory():Promise<void>;
+	/**
+	 * Connects to Groq
+	 */
+	connect(): Promise<boolean>;
+	/**
+	 * Disconnects from Groq
+	 */
+	disconnect(): void;
+	/**
+	 * Saves current configs
+	 */
+	saveConfigs(): void;
+	/**
+	 * Ask for a summary about the given messages
+	 * @param messagesList
+	 * @param preprompt
+	 * @param repromptEntry
+	 */
+	getSummary(messagesList:TwitchatDataTypes.ChatMessageTypes[], preprompt?:string, repromptEntry?:TwitchatDataTypes.GroqHistoryItem):Promise<string>;
+	/**
+	 * Removes an answer from DB
+	 */
+	removeAnswer(id:string):Promise<void>;
+	/**
+	 * Reprompt an history entry
+	 */
+	repromptHistoryEntry(id:string, prompt:string):Promise<void>;
+	/**
+	 * Executes a query
+	 */
+	executeQuery(preprompt:string, prompt:string, model?:string, jsonSchema?:string):Promise<string|false>
+}
+
+
+
+
+export interface IAnimatedTextState {
+	/**
+	 * AnimatedText's list
+	 */
+	animatedTextList: TwitchatDataTypes.AnimatedTextData[],
+}
+
+export interface IAnimatedTextGetters {
+}
+
+export interface IAnimatedTextActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
+	/**
+	 * Braodcast current animatedText states via the PublicAPI
+	 */
+	broadcastStates(id?:string):void;
+	/**
+	 * Create a animatedText
+	 */
+	createAnimatedText():void;
+	/**
+	 * Deletes given animatedText
+	 */
+	deleteAnimatedText(id:string):void;
+	/**
+	 * Saves data to server
+	 */
+	saveData():void;
+	/**
+	 * Starts the animation of the given text
+	 * Promise resolves after text is hidden
+	 */
+	animateText(overlayId:string, text:string, autoHide?:boolean, bypassAll?:boolean):Promise<void>
+	/**
+	 * Hide text currently displayed
+	 */
+	hideText(overlayId:string):Promise<void>
+}
+
+
+
+
+
+export interface ICustomTrainState {
+	/**
+	 * Custom train's list
+	 */
+	customTrainList: TwitchatDataTypes.CustomTrainData[],
+	/**
+	 * Custom train's states
+	 * This is a hash map of all custom trains currently running on the channel.
+	 */
+	customTrainStates: {[trainId:string]:TwitchatDataTypes.CustomTrainState}
+}
+
+export interface ICustomTrainGetters {
+}
+
+export interface ICustomTrainActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
+	/**
+	 * Braodcast current custom train states via the PublicAPI
+	 */
+	broadcastStates(id?:string):void;
+	/**
+	 * Create a custom train
+	 */
+	createCustomTrain():void;
+	/**
+	 * Deletes given custom train
+	 */
+	deleteCustomTrain(id:string):void;
+	/**
+	 * Registers an activity to any running custom train
+	 */
+	registerActivity(messageId:string, platform:ICustomTrainState["customTrainStates"][string]["activities"][number]["platform"], amount:number):void;
+	/**
+	 * Simulates a fake hype train
+	 */
+	simulateTrain(overlayId:string):Promise<void>;
+	/**
+	 * Saves data to server
+	 */
+	saveData():void;
 }

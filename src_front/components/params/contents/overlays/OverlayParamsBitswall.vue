@@ -12,16 +12,16 @@
 			<div class="header">
 				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
 			</div>
-				
+
 			<div class="card-item" @mouseenter="showShaderEffect=true" @mouseleave="showShaderEffect=false">
 				<ParamItem :paramData="param_cristalEffect" v-model="param_cristalEffect.value" noBackground />
-	
+
 				<div :class="showShaderEffect? 'demo open' : 'demo'">
 					<img src="@/assets/img/bitswall/cheermotes_render.gif" :class="param_cristalEffect.value? 'shader' : ''">
 				</div>
-	
+
 				<div class="card-item alert error" v-if="shaderstasticError" @click="shaderstasticError = false" ref="error">
-					<Icon name="alert" /> 
+					<Icon name="alert" />
 					<i18n-t scope="global" keypath="overlay.heatDistort.shadertastic_missing">
 						<template #URL>
 							<a href="https://www.shadertastic.com" target="_blank">{{ $t("overlay.heatDistort.shadertastic_missing_url") }}</a>
@@ -44,13 +44,13 @@
 					</template>
 			</OverlayInstaller>
 		</section>
-		
+
 
 		<section class="card-item">
 			<div class="header">
 				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
 			</div>
-			
+
 			<ParamItem :paramData="param_textureAlpha" v-model="parameters.opacity" />
 
 			<ParamItem :paramData="param_size" v-model="parameters.size">
@@ -156,7 +156,7 @@ class OverlayParamsBitswall extends Vue {
 	private checkInterval:number = -1;
 	private subcheckTimeout:number = -1;
 	private overlayPresenceHandler!:()=>void;
-	
+
 	public beforeMount():void {
 		const paramsJSON = DataStore.get(DataStore.BITS_WALL_PARAMS);
 		if(paramsJSON) {
@@ -173,7 +173,7 @@ class OverlayParamsBitswall extends Vue {
 				this.parameters.break_durations!["10000"] = parsed.break_durations["10000"] ?? 50;
 			}
 		}
-		
+
 		this.overlayPresenceHandler = ()=> {
 			this.overlayExists = true;
 			this.checkingOverlayAtStart = false;
@@ -205,7 +205,7 @@ class OverlayParamsBitswall extends Vue {
 	}
 
 	public openHeat():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.HEAT);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.HEAT);
 	}
 
 	public testOverlay(pinLevel:number = -1):void {
@@ -229,9 +229,9 @@ class OverlayParamsBitswall extends Vue {
 
 	/**
 	 * Called when a new distotion has been created and the overlay installed
-	 * @param sourceName 
-	 * @param vo 
-	 * @param suffix 
+	 * @param sourceName
+	 * @param vo
+	 * @param suffix
 	 */
 	public async onObsSourceCreated(data:{sourceName:string}):Promise<void> {
 		if(this.param_cristalEffect.value !== true) return;
@@ -246,7 +246,7 @@ class OverlayParamsBitswall extends Vue {
 			"displacement_map_source.displacement_strength_x":.1,
 			"displacement_map_source.displacement_strength_y":.1,
 		};
-		
+
 		const filterName = ("BitsWall_shader ("+filterTarget+")").substring(0, 100);
 		const params = {
 						sourceName: filterTarget,

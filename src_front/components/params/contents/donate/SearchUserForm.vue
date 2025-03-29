@@ -1,5 +1,5 @@
 <template>
-	<div class="searchuserform" :class="inline !== false? 'inline' : ''">
+	<div class="searchuserform" :class="{inline: inline !== false, upwards: upwards !== false}">
 		<form @submit.prevent>
 			<input class="giftedInput" type="text"
 				maxlength="25"
@@ -9,17 +9,17 @@
 				@keydown.stop="onKeyDown($event)"
 				v-autofocus>
 			<Icon v-if="searching" name="loader" class="loader" />
-			<TTButton v-else icon="cross" class="cancel" transparent noBounce @click="$emit('close')"></TTButton>
+			<TTButton v-else-if="search" icon="cross" class="cancel" transparent noBounce @click="clearSearch()"></TTButton>
 		</form>
 		
 		<div class="userList" v-if="users.length > 0">
 			<TransitionGroup name="list"
 			:css="false"
 			@enter="onEnter">
-				<button class="user" type="button"
+				<button type="button"
 				v-for="(user, index) in users"
 				v-if="showResult"
-				:class="liveStates[user.id]? 'live' : ''"
+				:class="{user:true, selected:selectedindex === index, live:liveStates[user.id]}"
 				:key="user.id"
 				:data-index="index"
 				@click="selectUser(user)">
@@ -73,6 +73,9 @@ class SearchUserForm extends Vue {
 
 	@Prop({default:false})
 	public inline!:boolean;
+	
+	@Prop({default:false, type:Boolean})
+	public upwards!:boolean;
 
 	@Prop({default:[]})
 	public excludedUserIds!:string[];
@@ -81,6 +84,7 @@ class SearchUserForm extends Vue {
 	public staticUserList!:TwitchDataTypes.UserInfo[];
 
 	public search:string = "";
+	public selectedindex = 0;
 	public users:TwitchDataTypes.UserInfo[] = []
 	public noResult:boolean = false;
 	public searching:boolean = false;
@@ -107,7 +111,20 @@ class SearchUserForm extends Vue {
 	}
 
 	public onKeyDown(event:KeyboardEvent):void {
-		if(event.key == 'Escape') this.$emit("close");
+		if(event.key == 'Escape') {
+			this.clearSearch();
+		}
+		if(event.key == 'ArrowDown') {
+			this.selectedindex += this.upwards !== false? -1 : 1;
+		}
+		if(event.key == 'ArrowUp') {
+			this.selectedindex += this.upwards !== false? 1 : -1;
+		}
+		if(this.selectedindex < 0) this.selectedindex = this.users.length - 1;
+		if(this.selectedindex >= this.users.length) this.selectedindex = 0;
+		if(event.key == 'Enter') {
+			this.selectUser(this.users[this.selectedindex]);
+		}
 	}
 
 	public async onSearch():Promise<void> {
@@ -121,9 +138,12 @@ class SearchUserForm extends Vue {
 			this.liveStates = result.liveStates;
 			this.users = result.users.filter(user => (this.excludedUserIds || []).indexOf(user.id) === -1)
 						.sort((a,b) => {
-							if(this.moderatedChanIds.includes(a.id) && !this.moderatedChanIds.includes(b.id)) return -1;
-							if(!this.moderatedChanIds.includes(a.id) && this.moderatedChanIds.includes(b.id)) return 1;
-							return a.login.toLowerCase().localeCompare(b.login.toLowerCase())
+							const aMod = this.moderatedChanIds.includes(a.id);
+							const bMod = this.moderatedChanIds.includes(b.id);
+							if(aMod && !bMod) return -1;
+							if(!aMod && bMod) return 1;
+							if(aMod && bMod) return a.login.toLowerCase().toLowerCase().localeCompare(b.login.toLowerCase().toLowerCase())
+							return 0
 						});
 			if(!signal.aborted) {
 				this.searching = false;
@@ -131,10 +151,17 @@ class SearchUserForm extends Vue {
 				await this.$nextTick();
 				this.showResult = true;
 			}
+			this.selectedindex = 0;
 		}else{
 			this.users = [];
 			this.showResult = false;
 		}
+	}
+
+	public clearSearch():void {
+		this.search = "";
+		this.onSearch();
+		this.$emit("close");
 	}
 
 	public selectUser(user:TwitchDataTypes.UserInfo):void {
@@ -176,15 +203,13 @@ export default toNative(SearchUserForm);
 		background: unset;
 		backdrop-filter: unset;
 		box-shadow: unset;
-		.userList {
-			position: relative;
-			background: unset;
-		}
 		input {
 			background-color: var(--background-color-fader);
 		}
 
 		.userList{
+			position: relative;
+			background: unset;
 			.user:hover {
 				background-color: var(--background-color-fader);
 			}
@@ -228,6 +253,9 @@ export default toNative(SearchUserForm);
 		&:empty  {
 			display: none;
 		}
+		.user.live > img {
+			border: 1px solid #f00;
+		}
 		.user.live::after {
 			content:"";
 			width:7px;
@@ -241,6 +269,12 @@ export default toNative(SearchUserForm);
 		}
 	}
 
+	&.upwards {
+		.userList {
+			bottom: 100%;
+			flex-direction: column-reverse;
+		}
+	}
 
 	.user {
 		gap: .5em;
@@ -250,6 +284,7 @@ export default toNative(SearchUserForm);
 		color: var(--color-text);
 		border-radius: 50px;
 		position:relative;
+		border: 1px solid transparent;
 		.login {
 			text-overflow: ellipsis;
 			overflow: hidden;
@@ -264,6 +299,10 @@ export default toNative(SearchUserForm);
 			border-radius: 50%;
 		}
 		&:hover {
+			background-color: var(--grayout);
+		}
+		&.selected {
+			border-color: var(--color-text);
 			background-color: var(--grayout);
 		}
 	}

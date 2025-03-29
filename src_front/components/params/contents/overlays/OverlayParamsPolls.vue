@@ -76,28 +76,29 @@
 				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
 			</div>
 
-			<Icon class="center loader card-item" name="loader" v-if="checkingOverlayPresence" />
+			<ParamItem :paramData="param_listMode" v-model="params.listMode" @change="onChangeParam()">
+				<ParamItem :paramData="param_listModeOnlyMore2" class="child" noBackground v-model="params.listModeOnlyMore2" @change="onChangeParam()" />
+			</ParamItem>
+			<ParamItem :paramData="param_showTitle" v-model="params.showTitle" @change="onChangeParam()" />
+			<ParamItem :paramData="param_showLabels" v-model="params.showLabels" @change="onChangeParam()" />
+			<ParamItem :paramData="param_showVotes" v-model="params.showVotes" @change="onChangeParam()" />
+			<ParamItem :paramData="param_showPercent" v-model="params.showPercent" @change="onChangeParam()" />
+			<ParamItem :paramData="param_showProgress" v-model="params.showTimer" @change="onChangeParam()" />
+			<ParamItem :paramData="param_showOnlyResult" v-model="params.showOnlyResult" @change="onChangeParam()" />
+			<ParamItem :paramData="param_resultDuration" v-model="params.resultDuration_s" @change="onChangeParam()" />
 
-			<template v-else-if="overlayExists">
-				<ParamItem :paramData="param_listMode" v-model="params.listMode" @change="onChangeParam()">
-					<ParamItem :paramData="param_listModeOnlyMore2" class="child" noBackground v-model="params.listModeOnlyMore2" @change="onChangeParam()" />
-				</ParamItem>
-				<ParamItem :paramData="param_showTitle" v-model="params.showTitle" @change="onChangeParam()" />
-				<ParamItem :paramData="param_showLabels" v-model="params.showLabels" @change="onChangeParam()" />
-				<ParamItem :paramData="param_showVotes" v-model="params.showVotes" @change="onChangeParam()" />
-				<ParamItem :paramData="param_showPercent" v-model="params.showPercent" @change="onChangeParam()" />
-				<ParamItem :paramData="param_showProgress" v-model="params.showTimer" @change="onChangeParam()" />
-				<ParamItem :paramData="param_showOnlyResult" v-model="params.showOnlyResult" @change="onChangeParam()" />
-				<ParamItem :paramData="param_resultDuration" v-model="params.resultDuration_s" @change="onChangeParam()" />
+			<div class="card-item placement">
+				<p>{{ $t("overlay.polls.param_placement") }}</p>
+				<PlacementSelector v-model="params.placement" @change="onChangeParam()" />
+			</div>
 
-				<div class="card-item placement">
-					<p>{{ $t("overlay.polls.param_placement") }}</p>
-					<PlacementSelector v-model="params.placement" @change="onChangeParam()" />
-				</div>
-				<TTButton class="center" :loading="loading" @click="testOverlay()" icon="test">{{ $t('overlay.polls.testBt') }}</TTButton>
-			</template>
+			<TTButton class="center"
+				v-if="overlayExists || checkingOverlayPresence"
+				:loading="loading || checkingOverlayPresence"
+				@click="testOverlay()" icon="test">{{ $t('overlay.polls.testBt') }}</TTButton>
 
-			<div class="center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.overlay_not_configured") }}</div>
+			<div class="center card-item alert" v-else>{{ $t("overlay.overlay_not_configured") }}</div>
+
 		</section>
 	</div>
 </template>
@@ -137,7 +138,7 @@ class OverlayParamsPolls extends Vue {
 	public param_listModeOnlyMore2:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.polls.param_listModeOnlyMore2"};
 	public param_showTitle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"font", labelKey:"overlay.polls.param_showTitle"};
 	public param_showLabels:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"font", labelKey:"overlay.polls.param_showLabels"};
-	public param_showVotes:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"channelPoints", labelKey:"overlay.polls.param_showVotes"};
+	public param_showVotes:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"user", labelKey:"overlay.polls.param_showVotes"};
 	public param_showPercent:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"percent", labelKey:"overlay.polls.param_showPercent"};
 	public param_showProgress:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"timer", labelKey:"overlay.polls.param_showProgress"};
 	public param_showOnlyResult:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"poll", labelKey:"overlay.polls.param_showOnlyResult"};

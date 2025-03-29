@@ -1,7 +1,8 @@
 <template>
-	<div class="triggeractiondelayentry">
+	<div class="triggeractiondelayentry triggerActionLight">
 		<Icon name="dragZone"
 			class="orderBt"
+			data-noselect
 			v-tooltip="$t('triggers.reorder_tt')" />
 
 		<img src="@/assets/icons/timer.svg" class="icon">
@@ -9,15 +10,18 @@
 		<DurationForm v-if="isNumericValue" class="field" v-model="action.delay" allowMs />
 
 		<TTButton v-else icon="trash" small secondary @click="action.delay = 0">{{ action.delay }}</TTButton>
-		
-		<PlaceholderSelector class="placeholders" v-if="placeholderList?.length > 0"
-			:placeholders="placeholderList"
-			:secondary="true"
-			:popoutMode="true"
-			@insert="insertTag"
-		/>
 
-		<TTButton class="deleteBt" alert icon="trash" @click="$emit('delete')" />
+		<div class="actions">
+			<PlaceholderSelector class="placeholders" v-if="placeholderList?.length > 0"
+				:placeholders="placeholderList"
+				:secondary="true"
+				:popoutMode="true"
+				@insert="insertTag"
+			/>
+
+			<TTButton transparent icon="merge" @click="$emit('addCondition')" v-tooltip="$t('triggers.condition.add_tt')" />
+			<TTButton alert icon="trash" @click="$emit('delete')" />
+		</div>
 	</div>
 </template>
 
@@ -37,13 +41,13 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		DurationForm,
 		PlaceholderSelector,
 	},
-	emits:["delete"],
+	emits:["delete", "addCondition"],
 })
 class TriggerActionDelayEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionTypes;
-	
+
 	@Prop
 	declare triggerData:TriggerData;
 
@@ -62,58 +66,12 @@ class TriggerActionDelayEntry extends AbstractTriggerActionEntry {
 	public insertTag(tag:string):void {
 		this.action.delay = tag;
 	}
-	
+
 }
 export default toNative(TriggerActionDelayEntry);
 </script>
 
 <style scoped lang="less">
 .triggeractiondelayentry{
-	margin: auto;
-	width: fit-content;
-	border-radius: .5em;
-	background-color: var(--color-primary);
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	padding-left: .5em;
-	color: var(--color-light);
-	overflow: hidden;
-	gap: .5em;
-	line-height: 1.5em;
-	box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
-	position: relative;
-
-	.icon {
-		height: 1em;
-	}
-
-	.deleteBt {
-		align-self: stretch;
-		border-radius: 0;
-		flex-shrink: 0;
-	}
-
-	.field {
-		background: transparent;
-		padding: 0;
-	}
-
-	.orderBt {
-		cursor: grab;
-		height: .8em;
-		vertical-align: middle;
-		line-height: 1em;
-		user-select: none;
-		&:active {
-			cursor: grabbing;
-		}
-	}
-	.placeholders {
-		align-self: stretch;
-		border-radius: 0;
-		flex-shrink: 0;
-		margin-right: -.5em;
-	}
 }
 </style>

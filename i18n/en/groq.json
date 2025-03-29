@@ -1,0 +1,38 @@
+{
+	"groq": {
+		"header":"Groq is a cheap and super fast AI\nGenerate content from triggers or ask for a conversation summary",
+		"disclaimer":"{GROQ} is NOT related to {GROK} from the fascist nazi fucker called musk",
+		"instructions":"You need to create an account on Groq and request an API Key",
+		"install":"Create API Key",
+		"invalid_api_key": "Invalid API key",
+		"apiKey":"API Key",
+		"credits_usage":"Remaining credits: {REMAINING}/{LIMIT}",
+		"usage":"You can now use Groq AI to generate content from the {TRIGGERS}.\nAlso, when opening a conversation between users you'll get an option to generate a summary of the conversation so you don't have to read it all.",
+		"default_model": "Choose default model to use",
+		"models_pricing": "check pricing",
+		"models_limits": "check rate limits",
+		"conversation_preprompt": "Generate a very short summary of this Twitch chat conversation. {'@'}xxx are mentions of other users. Only answer the summary.",
+		"json_preprompt": "Answer format must be a JSON object that complies this schema: {SCHEMA}",
+		"summarize_bt": "Summarize with Groq",
+		"summarize_title": "Limit the number of messages to summarize",
+		"summarize_chat_title": "Generate chat summary with Groq\n @:groq.summarize_title",
+		"param_filter": "Limit",
+		"param_filter_duration": "Age",
+		"param_filter_count": "Count",
+		"param_filter_all": "All",
+		"param_duration": "Age",
+		"param_count": "Count",
+		"param_ignore_short": "Ignore short or mostly emote messages",
+		"param_preprompt": "Custom preprompt",
+		"param_preprompt_placeholder": "Give instructions on what you want Groq to analyse...",
+		"reprompt_placeholder": "Ask another question...",
+		"summarize_duration_bt": "Summarize {COUNT} message|Summarize {COUNT} messages",
+		"history":{
+			"title":"Generation history",
+			"delete_confirm":{
+				"title":"Delete entry?",
+				"message":"This cannot bu undone!"
+			}
+		}
+	}
+}

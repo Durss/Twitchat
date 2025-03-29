@@ -23,6 +23,9 @@
 		</div>
 
 		<div class="content">
+	
+			<TTButton class="connectBt" alert @click="disconnect()">{{ $t('global.disconnect') }}</TTButton>
+
 			<form class="card-item" v-if="!$store.elevenLabs.connected" @submit.prevent="connect()">
 				<ParamItem noBackground :paramData="param_apiKey" v-model="$store.elevenLabs.apiKey" autofocus/>
 
@@ -54,8 +57,6 @@
 						<strong>{{ $store.elevenLabs.creditsTotal - $store.elevenLabs.creditsUsed }}</strong>
 					</template>
 				</i18n-t>
-	
-				<TTButton class="connectBt" alert @click="disconnect()">{{ $t('global.disconnect') }}</TTButton>
 			</template>
 		</div>
 

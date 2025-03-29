@@ -52,6 +52,9 @@
 			"fr.twitchat.action.merge-toggle",
 			"fr.twitchat.action.automod-accept",
 			"fr.twitchat.action.automod-reject",
+			"fr.twitchat.action.qna-highlight",
+			"fr.twitchat.action.qna-skip",
+			"fr.twitchat.action.hide-alert",
 		];
 
 		const SELECT_ACTIONS = [
@@ -112,7 +115,7 @@
 				let actionName = action.UUID.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
 				let params;
 				const col = payload.settings.colIndex ?? 0;
-				
+
 				switch(actionName) {
 					case "CHAT_FEED_SCROLL":{
 						params = { col, scrollBy: payload.ticks };
@@ -150,7 +153,7 @@
 				}
 				callTwitchat(actionName, params);
 			},
-			
+
 			onDialUp: (action, payload, context) => {
 				let actionName = action.UUID.replace("fr.twitchat.action.", "").replace(/-/gi, "_").toUpperCase();
 				const col = payload.settings.colIndex ?? 0;
@@ -169,7 +172,7 @@
 				const py = payload.tapPos[1];
 				const col = payload.settings.colIndex ?? 0;
 				let params;
-				
+
 				switch(actionName) {
 					case "CHAT_FEED_SCROLL":{
 						// if(px < 200 / 3){
@@ -204,7 +207,7 @@
 						// }
 						return;
 					}
-					
+
 					case "CHAT_FEED_SELECT":{
 						if(payload.pressed) return;
 						switchSelectMode(action, payload, context, payload.hold === true);
@@ -226,7 +229,7 @@
 				settingsCache[context] = newSettings;
 			}
 		};
-		
+
 		window.onload = ()=> {
 
 			$SD.onDidReceiveGlobalSettings((e) => {
@@ -235,7 +238,7 @@
 				settingsCache.OBSWS_IP = e.payload.settings.OBSWS_IP;
 				obsConnect();
 			});
-			
+
 			$SD.onConnected(({ actionInfo, appInfo, connection, messageType, port, uuid }) => {
 
 				$SD.getGlobalSettings();
@@ -243,30 +246,31 @@
 
 			for (let i = 0; i < actionsList.length; i++) {
 				const uuid = actionsList[i];
-				
+
 				const myAction = new Action(uuid);
 				myAction.onKeyUp(({ action, context, device, event, payload }) => {
 					actions.onKeyUp(myAction, payload, context);
 				});
-		
+
 				myAction.onDialUp(({ action, context, device, event, payload }) => {
 					actions.onDialUp(myAction, payload, context);
 				});
-		
+
 				myAction.onDialRotate(({ action, context, device, event, payload }) => {
 					actions.onDialRotate(myAction, payload, context);
 				});
-		
+
 				myAction.onTouchTap(({ action, context, device, event, payload }) => {
 					actions.onTouchTap(myAction, payload, context);
 				});
-		
+
 				myAction.onPropertyInspectorDidAppear(({ action, context, device, event }) => {
 					callTwitchat("GET_COLS_COUNT");
 					callTwitchat("COUNTER_GET_ALL");
 					callTwitchat("TRIGGERS_GET_ALL");
+					callTwitchat("QNA_SESSION_GET_ALL");
 				});
-		
+
 				myAction.onSendToPlugin(({ action, context, device, event, payload }) => {
 
 					if(payload.OBSW_DO_CONNECT) {
@@ -327,12 +331,13 @@
 						obsConnect();
 					}, 5000);
 				});
-	
+
 				//Listen for Twitchat events.
+				console.log("Listening for Twitchat events");
 				websocketOBS.on("CustomEvent", (e) => {
 					if(e.type == undefined) return;
 					if(e.origin != "twitchat") return;
-					
+
 					switch(e.type) {
 						case "SET_COLS_COUNT":{
 							settingsCache.COLS_COUNT = e.data.count;
@@ -346,6 +351,11 @@
 						}
 						case "TRIGGER_LIST":{
 							settingsCache.TRIGGER_LIST = e.data.triggers;
+							actions.SetGlobalSettings(settingsCache);
+							break;
+						}
+						case "QNA_SESSION_LIST":{
+							settingsCache.QNA_LIST = e.data.qnaSessions;
 							actions.SetGlobalSettings(settingsCache);
 							break;
 						}

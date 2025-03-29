@@ -52,7 +52,7 @@
 				<ParamItem :paramData="param_readRestricted" v-model="param_readRestricted.value" />
 				<ParamItem :paramData="param_readAutomod" v-model="param_readAutomod.value" />
 			</section>
-			
+
 			<Splitter class="splitter">{{ $t("tts.params.title") }}</Splitter>
 
 			<section class="card-item">
@@ -62,6 +62,7 @@
 			<Splitter class="splitter">{{ $t("tts.filters.title") }}</Splitter>
 
 			<section>
+				<ParamItem :paramData="param_allRemoteChans" v-model="param_allRemoteChans.value" />
 				<ParamItem :paramData="param_removeEmotes" v-model="param_removeEmotes.value" />
 				<ParamItem class="shrinkInput" :paramData="param_removeURL" v-model="param_removeURL.value" />
 				<ParamItem :paramData="param_maxDurationToggle" v-model="param_maxDurationToggle.value" />
@@ -116,16 +117,17 @@ class ParamsTTS extends Vue implements IParameterContent {
 	};
 
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false};
-	public param_removeEmotes:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true};
+	public param_allRemoteChans:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, icon:"user"};
+	public param_removeEmotes:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, icon:"emote"};
 	public param_maxLengthToggle:TwitchatDataTypes.ParameterData<boolean, unknown, any> = {type:"boolean", value:false };
 	public param_maxLength:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:200, min:10, max:500, step:10};
-	public param_maxDurationToggle:TwitchatDataTypes.ParameterData<boolean, unknown, any> = {type:"boolean", value:false };
+	public param_maxDurationToggle:TwitchatDataTypes.ParameterData<boolean, unknown, any> = {type:"boolean", value:false, icon:"timer" };
 	public param_maxDuration:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:30, min:0, max:60, step:1};
 	public param_timeoutToggle:TwitchatDataTypes.ParameterData<boolean, unknown, any> = {type:"boolean", value:false };
 	public param_timeout:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:60, min:0, max:30, step:1};
 	public param_inactivityPeriodToggle:TwitchatDataTypes.ParameterData<boolean, unknown, any> = {type:"boolean", value:false };
 	public param_inactivityPeriod:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:0, min:0, max:60, step:1};
-	public param_removeURL:TwitchatDataTypes.ParameterData<boolean, unknown, any> = {type:"boolean", value:true};
+	public param_removeURL:TwitchatDataTypes.ParameterData<boolean, unknown, any> = {type:"boolean", value:true, icon:"url"};
 	public param_replaceURL:TwitchatDataTypes.ParameterData<string> = {type:"string", value:'link'};
 
 	public param_readMessages:TwitchatDataTypes.ParameterData<boolean, unknown, string> = {type:"boolean", value:false, icon:"user" };
@@ -222,6 +224,7 @@ class ParamsTTS extends Vue implements IParameterContent {
 				platform:this.$store.elevenLabs.voiceList?.findIndex(x => x.voice_id === this.voiceParams.voice) > -1? "elevenlabs" : "system",
 			},
 			ttsPerms:this.param_ttsPerms,
+			allRemoteChans:this.param_allRemoteChans.value,
 			removeEmotes:this.param_removeEmotes.value,
 			maxLength:this.param_maxLengthToggle.value === true? this.param_maxLength.value : 0,
 			maxDuration:this.param_maxDurationToggle.value === true? this.param_maxDuration.value : 0,
@@ -291,10 +294,11 @@ class ParamsTTS extends Vue implements IParameterContent {
 
 	public async beforeMount():Promise<void> {
 		let params: TwitchatDataTypes.TTSParamsData = this.$store.tts.params;
-		
+
 
 		this.param_enabled.labelKey							= "global.enable";
 		this.param_removeEmotes.labelKey					= "tts.params.param_removeEmotes";
+		this.param_allRemoteChans.labelKey					= "tts.params.param_allRemoteChans";
 
 		this.param_readMessages.labelKey					= "tts.messages.param_readMessages";
 		this.param_readWhispers.labelKey					= "tts.messages.param_readWhispers";
@@ -343,27 +347,27 @@ class ParamsTTS extends Vue implements IParameterContent {
 		this.param_removeURL.labelKey						= "tts.filters.param_removeURL";
 		this.param_replaceURL.labelKey						= "tts.filters.param_replaceURL";
 
-		this.param_readMessagesPattern.labelKey				= 
-		this.param_readWhispersPattern.labelKey				= 
-		this.param_readNoticesPattern.labelKey				= 
-		this.param_readRewardsPattern.labelKey				= 
-		this.param_readSubsPattern.labelKey					= 
-		this.param_readSubgiftsPattern.labelKey				= 
-		this.param_readBitsPattern.labelKey					= 
-		this.param_readRaidsPattern.labelKey				= 
-		this.param_readFollowPattern.labelKey				= 
-		this.param_readPollsPattern.labelKey				= 
-		this.param_readPredictionsPattern.labelKey			= 
-		this.param_readBingosPattern.labelKey				= 
-		this.param_readRafflePattern.labelKey				= 
-		this.param_readAutomodPattern.labelKey				= 
-		this.param_readMonitoredPattern.labelKey			= 
-		this.param_readRestrictedPattern.labelKey			= 
-		this.param_readTimeoutsPattern.labelKey				= 
-		this.param_readBansPattern.labelKey					= 
-		this.param_readUnbansPattern.labelKey				= 
-		this.param_read1stMessageTodayPattern.labelKey		= 
-		this.param_read1stTimeChattersPattern.labelKey		= 
+		this.param_readMessagesPattern.labelKey				=
+		this.param_readWhispersPattern.labelKey				=
+		this.param_readNoticesPattern.labelKey				=
+		this.param_readRewardsPattern.labelKey				=
+		this.param_readSubsPattern.labelKey					=
+		this.param_readSubgiftsPattern.labelKey				=
+		this.param_readBitsPattern.labelKey					=
+		this.param_readRaidsPattern.labelKey				=
+		this.param_readFollowPattern.labelKey				=
+		this.param_readPollsPattern.labelKey				=
+		this.param_readPredictionsPattern.labelKey			=
+		this.param_readBingosPattern.labelKey				=
+		this.param_readRafflePattern.labelKey				=
+		this.param_readAutomodPattern.labelKey				=
+		this.param_readMonitoredPattern.labelKey			=
+		this.param_readRestrictedPattern.labelKey			=
+		this.param_readTimeoutsPattern.labelKey				=
+		this.param_readBansPattern.labelKey					=
+		this.param_readUnbansPattern.labelKey				=
+		this.param_read1stMessageTodayPattern.labelKey		=
+		this.param_read1stTimeChattersPattern.labelKey		=
 		this.param_readKofiTipPattern.labelKey				=
 		this.param_readKofiMerchPattern.labelKey			=
 		this.param_readKofiSubPattern.labelKey				=
@@ -374,6 +378,7 @@ class ParamsTTS extends Vue implements IParameterContent {
 
 		this.param_enabled.value = params.enabled;
 		this.param_removeEmotes.value = params.removeEmotes;
+		this.param_allRemoteChans.value = params.allRemoteChans;
 		this.param_maxLength.value = params.maxLength;
 		this.param_maxDuration.value = params.maxDuration;
 		this.param_timeout.value = params.timeout;
@@ -381,7 +386,7 @@ class ParamsTTS extends Vue implements IParameterContent {
 		this.param_removeURL.value = params.removeURL;
 		this.param_replaceURL.value = params.replaceURL;
 		this.param_ttsPerms = params.ttsPerms;
-		
+
 		this.voiceParams.volume = params.volume;
 		this.voiceParams.rate = params.rate;
 		this.voiceParams.pitch = params.pitch;
@@ -456,7 +461,7 @@ class ParamsTTS extends Vue implements IParameterContent {
 		this.param_readStreamlabsPatreonPattern.value	= label(params.readStreamlabsPatreonPattern, this.$t("tts.patterns.readStreamlabsPatreonPattern"));
 		this.param_readStreamelementsTip.value			= params.readStreamelementsTip === true;
 		this.param_readStreamelementsTipPattern.value	= label(params.readStreamelementsTipPattern, this.$t("tts.patterns.readStreamelementsTipPattern"));
-		
+
 		this.param_readMessages.children				= [this.param_readMessagesPattern];
 		this.param_readWhispers.children				= [this.param_readWhispersPattern];
 		this.param_readNotices.children					= [this.param_readNoticesPattern];
@@ -538,7 +543,7 @@ export default toNative(ParamsTTS);
 			display: flex;
 			flex-direction: column;
 			gap: .5em;
-			
+
 			.card-item, &.card-item {
 				&.label {
 					i {
@@ -565,7 +570,7 @@ export default toNative(ParamsTTS);
 						flex-basis: 10px;
 					}
 				}
-	
+
 				:deep(input[type="range"]) {
 					width: 100%;
 				}

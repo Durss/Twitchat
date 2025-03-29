@@ -57,6 +57,13 @@ export const storePrediction = defineStore('prediction', {
 			this.overlayParams.hideUntilResolved =	params.hideUntilResolved !== false;
 			this.overlayParams.resultDuration_s =	params.resultDuration_s || 5;
 			this.overlayParams.placement =			params.placement || "br";
+
+			/**
+			 * Called when prediction overlay request for its configs
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
+				this.broadcastState();
+			});
 		},
 
 		setPrediction(data:TwitchatDataTypes.MessagePredictionData|null, postOnChat?:boolean) {

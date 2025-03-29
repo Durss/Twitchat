@@ -96,10 +96,16 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionLumiaData
 								| TriggerActionBingoGridData
 								| TriggerActionDeleteMessageData
+								| TriggerActionSpoilMessageData
 								| TriggerActionStreamerbotData
 								| TriggerActionSammiData
 								| TriggerActionMixitupData
 								| TriggerActionPlayabilityData
+								| TriggerActionGroqData
+								| TriggerActionTimerData
+								| TriggerActionStopExecData
+								| TriggerActionChatPollData
+								| TriggerActionAnimatedTextData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -197,7 +203,7 @@ export interface TriggerData {
 	 */
 	scheduleParams?:TriggerScheduleData;
 	/**
-	 * Conditions to be matched for the trigger ot be executed
+	 * Conditions to be matched for the trigger to be executed
 	 */
 	conditions?:TriggerConditionGroup;
 	/**
@@ -355,6 +361,10 @@ export interface TriggerActionData {
 	 * @deprecated moved to a dedicated action
 	 */
 	delay?:number|string;
+	/**
+	 * Conditions to be matched for the next action to be executed
+	 */
+	conditionList?:TriggerConditionGroup;
 }
 
 //Used for temporary trigger data before user selects the trigger type
@@ -604,7 +614,7 @@ export interface TriggerActionMixitupData extends TriggerActionData{
 export interface TriggerActionPlayabilityData extends TriggerActionData{
 	type:"playability";
 	/**
-	 * Mix It Up params
+	 * Playability params
 	 */
 	playabilityData?:{
 		outputs:{
@@ -615,6 +625,67 @@ export interface TriggerActionPlayabilityData extends TriggerActionData{
 	};
 }
 
+export interface TriggerActionGroqData extends TriggerActionData{
+	type:"groq";
+	/**
+	 * Groq params
+	 */
+	groqData?:{
+		/**
+		 * Prerompt
+		 */
+		preprompt:string;
+		/**
+		 * Prompt
+		 */
+		prompt:string;
+		/**
+		 * Groq model to use
+		 */
+		model:string;
+		/**
+		 * Use JSON mode to get formatted result
+		 */
+		jsonMode:boolean;
+		/**
+		 * JSON example
+		 */
+		json?:string;
+		/**
+		 * Extract placeholders as simple text or with JSONPath
+		 */
+		outputPlaceholderList?:IHttpPlaceholder[];
+	};
+}
+
+export const TriggerActionTimerData_ACTION = ["start", "pause", "resume", "stop", "add", "remove", "set"] as const;
+/**
+ * Represents a custom timer control action
+ */
+export interface TriggerActionTimerData extends TriggerActionData{
+	type:"timer";
+	/**
+	 * Timer params
+	 */
+	timerData:{
+		/**
+		 * Timer ID
+		 */
+		timerId:string;
+		/**
+		 * Action to perform
+		 */
+		action:typeof TriggerActionTimerData_ACTION[number];
+		/**
+		 * Duration to add
+		 */
+		duration?:string;
+	};
+}
+
+/**
+ * Represents a bingo grid action
+ */
 export interface TriggerActionBingoGridData extends TriggerActionData{
 	type:"bingoGrid";
 	/**
@@ -653,6 +724,9 @@ export interface TriggerActionBingoGridData extends TriggerActionData{
 	}
 }
 
+/**
+ * Custom badge updates
+ */
 export interface TriggerCustomBadgesData extends TriggerActionData{
 	type:"customBadges";
 	/**
@@ -669,6 +743,9 @@ export interface TriggerCustomBadgesData extends TriggerActionData{
 	customBadgeDel:string[];
 }
 
+/**
+ * Custom user name update
+ */
 export interface TriggerCustomUsernameData extends TriggerActionData{
 	type:"customUsername";
 	/**
@@ -681,7 +758,7 @@ export interface TriggerCustomUsernameData extends TriggerActionData{
 	customUsernameUserSource:string;
 }
 
-export const TriggerActionVoicemodDataActionList = ["voice", "sound", "beepOn", "beepOff"] as const;
+export const TriggerActionVoicemodDataActionList = ["voice", "sound", "beepOn", "beepOff", "hearMyselfOn", "hearMyselfOff", "voiceChangerOn", "voiceChangerOff"] as const;
 export type TriggerActionVoicemodDataAction = typeof TriggerActionVoicemodDataActionList[number];
 export interface TriggerActionVoicemodData extends TriggerActionData{
 	type:"voicemod";
@@ -827,11 +904,7 @@ export interface TriggerActionHTTPCallData extends TriggerActionData{
 	/**
 	 * Extract placeholders with JSONPath
 	 */
-	outputPlaceholderList?:{
-		type:"text"|"json",
-		path:string;
-		placeholder:string;
-	}[];
+	outputPlaceholderList?:IHttpPlaceholder[];
 	/**
 	 * Custom body value
 	 */
@@ -1145,6 +1218,11 @@ export interface TriggerActionRandomData extends TriggerActionData{
 	 */
 	placeholder:string;
 	/**
+	 * Removed entry from the list after randomly picking it
+	 * Works for "list", "trigger", "value", and "counter" modes
+	 */
+	removePickedEntry:boolean;
+	/**
 	 * List of custom textual items
 	 */
 	list:string[];
@@ -1234,11 +1312,72 @@ export interface TriggerActionDiscordData extends TriggerActionData {
 }
 
 /**
- * Represents a discord action data
+ * Represents a message delete request
  */
 export interface TriggerActionDeleteMessageData extends TriggerActionData {
 	type:"delete_message";
 }
+
+/**
+ * Represents a message spoil request
+ */
+export interface TriggerActionSpoilMessageData extends TriggerActionData {
+	type:"spoil_message";
+}
+
+/**
+ * Represents a trigger execution interrupt
+ */
+export interface TriggerActionStopExecData extends TriggerActionData{
+	type:"trigger_stop";
+}
+
+/**
+ * Contains a chat poll data
+ */
+export interface TriggerActionChatPollData extends TriggerActionData{
+	type:"chat_poll";
+	chatPollData:TwitchatDataTypes.ChatPollData;
+}
+
+/**
+ * Contains a animated text command data
+ */
+export interface TriggerActionAnimatedTextData extends TriggerActionData{
+	type:"animated_text";
+	animatedTextData: TriggerActionAnimatedTextData_ActionShow | TriggerActionAnimatedTextData_ActionHide
+}
+interface TriggerActionAnimatedTextData_ActionAbstract {
+	/**
+	 * Action to perform
+	 */
+	action: typeof TriggerActionAnimatedTextData_ActionList[number]
+	/**
+	 * Overlay to control
+	 */
+	overlayId:string;
+}
+interface TriggerActionAnimatedTextData_ActionShow extends TriggerActionAnimatedTextData_ActionAbstract {
+	/**
+	 * Action to perform
+	 */
+	action:"show";
+	/**
+	 * Text to display
+	 */
+	text:string;
+	/**
+	 * Automatically hide the text after a duration that depends on the text length
+	 */
+	autoHide:boolean;
+}
+interface TriggerActionAnimatedTextData_ActionHide extends TriggerActionAnimatedTextData_ActionAbstract {
+	/**
+	 * Action to perform
+	 */
+	action:"hide";
+}
+export const TriggerActionAnimatedTextData_ActionList = ["show", "hide"] as const;
 
 /**
  * Represents a tree structure item.
@@ -1442,6 +1581,11 @@ export const TriggerTypes = {
 	MONITOR_RESTRICT_OFF:"155",
 	TWITCH_CHARITY_DONATION:"156",
 	PLAYABILITY_INPUT:"157",
+	HIGHLIGHT_CHAT_MESSAGE_CLOSE:"158",
+	MESSAGE_ANSWER:"159",
+	GOAL_STEP_COMPLETE:"160",
+	CHAT_POLL_START:"161",
+	CHAT_POLL_RESULT:"162",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1452,12 +1596,32 @@ export const TriggerTypes = {
 export type TriggerTypesKey = keyof typeof TriggerTypes;
 export type TriggerTypesValue = typeof TriggerTypes[TriggerTypesKey];
 
-export interface ITriggerPlaceholder<T, U=unknown, V extends string=""> extends TwitchatDataTypes.PlaceholderEntry {
-	pointer:Path<T, V>;
+export interface IHttpPlaceholder {
+	type:"text"|"json",
+	path:string;
+	placeholder:string;
+};
+
+export interface ITriggerPlaceholder<Type, ListValueType=unknown, PointerPrefix extends string=""> extends TwitchatDataTypes.PlaceholderEntry {
+	pointer:Path<Type, PointerPrefix>;
+	/**
+	 * Is this a user ID ?
+	 * Triggers will use this to grab related user's data
+	 */
 	isUserID:boolean;
+	/**
+	 * Can placeholder be parsed as number?
+	 */
 	numberParsable:boolean;
-	customTag?:boolean;
-	values?:TwitchatDataTypes.ParameterDataListValue<U>[];
+	/**
+	 * Just a optional prop to store anything
+	 */
+	storage?:unknown;
+	/**
+	 * Values the placeholder can have
+	 * Used to provide a list of fixed entries under trigger conditions
+	 */
+	values?:TwitchatDataTypes.ParameterDataListValue<ListValueType>[];
 }
 
 export const USER_ID:string = "USER_ID";
@@ -1477,6 +1641,9 @@ export const COUNTER_VALUE_PLACEHOLDER_PREFIX:string = "COUNTER_VALUE_";
 export const COUNTER_EDIT_SOURCE_SENDER:string = "SENDER";
 export const COUNTER_EDIT_SOURCE_EVERYONE:string = "EVERYONE";
 export const COUNTER_EDIT_SOURCE_CHATTERS:string = "CHATTERS";
+export const STOPWATCH_PLACEHOLDER_PREFIX:string = "SW_";
+export const COUNTDOWN_PLACEHOLDER_PREFIX:string = "CD_";
+export const CURRENT_VOD_URL:string = "CURRENT_VOD_URL";
 
 /**
  * Placeholders related to a trigger action type
@@ -1542,7 +1709,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		map[trigger] = [];
 	}
 
-	type SafeMessage = Omit<TwitchatDataTypes.MessageChatData, "answers" | "answersTo" | "children">;
+	type SafeMessage = Omit<TwitchatDataTypes.MessageChatData, "answers" | "children" | "answersTo">;
 	type SafeReward = Omit<TwitchatDataTypes.MessageRewardRedeemData, "children">;
 
 	map[TriggerTypes.ANY_MESSAGE] =
@@ -1565,6 +1732,15 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 
 	map[TriggerTypes.POWER_UP_MESSAGE] = [...map[TriggerTypes.ANY_MESSAGE]!,
 		{tag:"SKIN", descKey:'triggers.placeholders.power_up_message', pointer:"twitch_animationId", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
+	];
+
+	map[TriggerTypes.MESSAGE_ANSWER] = [...map[TriggerTypes.ANY_MESSAGE]!,
+		{tag:"PARENT_"+USER_NAME, descKey:'triggers.placeholders.parent_user', pointer:"answersTo.user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {answersTo:SafeMessage}>,
+		{tag:"PARENT_"+USER_DISPLAY_NAME, descKey:'triggers.placeholders.parent_user_customName', pointer:"answersTo.user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {answersTo:SafeMessage}>,
+		{tag:"PARENT_"+USER_ID, descKey:'triggers.placeholders.parent_user_id', pointer:"answersTo.user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<SafeMessage & {answersTo:SafeMessage}>,
+		{tag:"PARENT_MESSAGE", descKey:'triggers.placeholders.parent_message', pointer:"answersTo.message", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {answersTo:SafeMessage}>,
+		{tag:"PARENT_MESSAGE_JSON", descKey:'triggers.placeholders.parent_message_json', pointer:"answersTo.message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {answersTo:SafeMessage}>,
+		{tag:"PARENT_MESSAGE_HTML", descKey:'triggers.placeholders.parent_message_html', pointer:"answersTo.message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {answersTo:SafeMessage}>,
 	];
 
 	map[TriggerTypes.POWER_UP_GIANT_EMOTE] = [...map[TriggerTypes.ANY_MESSAGE]!,
@@ -1591,16 +1767,6 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	map[TriggerTypes.ANNOUNCEMENTS] = [...map[TriggerTypes.ANY_MESSAGE]!,
 		{tag:"COLOR", descKey:'triggers.placeholders.announcement_color', pointer:"message.twitch_announcementColor", numberParsable:false, isUserID:false, values:[{label:"primary", value:"primary"}, {label:"purple", value:"purple"}, {label:"blue", value:"blue"}, {label:"green", value:"green"}, {label:"orange", value:"orange"}]} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageHypeChatData, "message"> & {message:SafeMessage}>,
 	];
-
-	// map[TriggerTypes.HYPE_CHAT] = [
-	// 	{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"message.user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageHypeChatData, "message"> & {message:SafeMessage}>,
-	// 	{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"message.user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageHypeChatData, "message"> & {message:SafeMessage}>,
-	// 	{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message.message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageHypeChatData, "message"> & {message:SafeMessage}>,
-	// 	{tag:"PAID_AMOUNT", descKey:'triggers.placeholders.hype_chat_paid', pointer:"message.twitch_hypeChat.amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageHypeChatData, "message"> & {message:SafeMessage}>,
-	// 	{tag:"PAID_CURRENCY", descKey:'triggers.placeholders.hype_chat_currency', pointer:"message.twitch_hypeChat.currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageHypeChatData, "message"> & {message:SafeMessage}>,
-	// 	{tag:"PAID_LEVEL", descKey:'triggers.placeholders.hype_chat_level', pointer:"message.twitch_hypeChat.level", numberParsable:true, isUserID:false, values:[{label:"1", value:0},{label:"2", value:1},{label:"3", value:2},{label:"4", value:3},{label:"5", value:4},{label:"6", value:4},{label:"7", value:6},{label:"8", value:7},{label:"9", value:8},{label:"10", value:9}]} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageHypeChatData, "message"> & {message:SafeMessage}>,
-	// 	{tag:"PIN_DURATION", descKey:'triggers.placeholders.hype_chat_duration', pointer:"message.twitch_hypeChat.duration_s", numberParsable:true, isUserID:false} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageHypeChatData, "message"> & {message:SafeMessage}>,
-	// ];
 
 	//Clone to break reference and add chat command specific placeholder
 	map[TriggerTypes.CHAT_COMMAND] = [...map[TriggerTypes.ANY_MESSAGE]!,
@@ -1639,6 +1805,10 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	map[TriggerTypes.POLL_RESULT] = [
 		{tag:"TITLE", descKey:'triggers.placeholders.poll_title', pointer:"title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessagePollData>,
 		{tag:"WIN", descKey:'triggers.placeholders.poll_win', pointer:"winner.label", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessagePollData>,
+	];
+	map[TriggerTypes.CHAT_POLL_RESULT] = [
+		{tag:"TITLE", descKey:'triggers.placeholders.poll_title', pointer:"poll.title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageChatPollData>,
+		{tag:"WIN", descKey:'triggers.placeholders.poll_win', pointer:"poll.winner.label", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageChatPollData>,
 	];
 
 	map[TriggerTypes.PREDICTION_START] = [
@@ -1736,6 +1906,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"stream.category", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{tag:"VIEWERS", descKey:'triggers.placeholders.stream_viewers', pointer:"viewers", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{tag:"DURATION", descKey:'triggers.placeholders.stream_duration', pointer:"stream.duration", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
+		{tag:"DURATION_TXT", descKey:'triggers.placeholders.stream_duration_str', pointer:"stream.duration_str", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{tag:"WAS_LIVE", descKey:'triggers.placeholders.stream_live', pointer:"stream.wasLive", numberParsable:false, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 	];
 
@@ -1781,6 +1952,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"DESCRIPTION", descKey:'triggers.placeholders.reward_description', pointer:"reward.description", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeReward>,
 		{tag:"COST", descKey:'triggers.placeholders.reward_cost', pointer:"reward.cost", numberParsable:true, isUserID:false} as ITriggerPlaceholder<SafeReward>,
 		{tag:"MESSAGE", descKey:"triggers.placeholders.reward_message", pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<SafeReward>,
+		{tag:"REWARD_ID", descKey:"triggers.placeholders.reward_id", pointer:"reward.id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeReward>,
 	];
 
 	map[TriggerTypes.TRACK_ADDED_TO_QUEUE] = [
@@ -1867,27 +2039,27 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:USER_FOLLOWAGE, descKey:'triggers.placeholders.followage', pointer:"user", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
 		{tag:USER_FOLLOWAGE_MS, descKey:'triggers.placeholders.followage_ms', pointer:"user", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
 		{tag:USER_AVATAR, descKey:'triggers.placeholders.user_avatar', pointer:"user.avatarPath", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
-		{tag:"DURATION", descKey:'triggers.placeholders.timer_duration', pointer:"duration_s", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
+		{tag:"DURATION", descKey:'triggers.placeholders.timer_duration_ms', pointer:"duration_s", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBanData>,
 	];
 
 	map[TriggerTypes.TIMER_START] = [
-		{tag:"START_DATE", descKey:'triggers.placeholders.start_date', pointer:"timer.startAt", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
+		{tag:"TIMER_ID", descKey:'triggers.placeholders.timer_id', pointer:"timer_id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
 	];
 	map[TriggerTypes.TIMER_STOP] = [
-		{tag:"START_DATE", descKey:'triggers.placeholders.start_date', pointer:"timer.startAt", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
-		{tag:"DURATION", descKey:'triggers.placeholders.timer_duration', pointer:"timer.duration", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
-		{tag:"DURATION_MS", descKey:'triggers.placeholders.timer_duration_ms', pointer:"timer.duration_ms", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
+		{tag:"TIMER_ID", descKey:'triggers.placeholders.timer_id', pointer:"timer_id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
+		{tag:"DURATION", descKey:'triggers.placeholders.timer_duration_formatted', pointer:"duration_str", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
+		{tag:"DURATION_MS", descKey:'triggers.placeholders.timer_duration_ms', pointer:"duration_ms", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
 	];
 
 	map[TriggerTypes.COUNTDOWN_START] = [
-		{tag:"START_AT", descKey:'triggers.placeholders.start_date', pointer:"countdown.startAt", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
-		{tag:"DURATION", descKey:'triggers.placeholders.countdown_duration_formated', pointer:"countdown.finalDuration", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
-		{tag:"DURATION_MS", descKey:'triggers.placeholders.countdown_duration_ms', pointer:"countdown.finalDuration_ms", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
+		{tag:"TIMER_ID", descKey:'triggers.placeholders.timer_id', pointer:"countdown_id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
+		{tag:"DURATION", descKey:'triggers.placeholders.countdown_duration_formatted', pointer:"duration_str", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
+		{tag:"DURATION_MS", descKey:'triggers.placeholders.countdown_duration_ms', pointer:"duration_ms", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
 	];
-	map[TriggerTypes.COUNTDOWN_STOP] = JSON.parse(JSON.stringify(map[TriggerTypes.COUNTDOWN_START]));
-	map[TriggerTypes.COUNTDOWN_STOP]!.push(
-		{tag:"END_AT", descKey:'triggers.placeholders.countdown_end_date', pointer:"countdown.endAt", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
-	)
+	map[TriggerTypes.COUNTDOWN_STOP] =  [...map[TriggerTypes.COUNTDOWN_START]!,
+		{tag:"REAL_DURATION", descKey:'triggers.placeholders.countdown_duration_formatted', pointer:"finalDuration_str", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
+		{tag:"REAL_DURATION_MS", descKey:'triggers.placeholders.countdown_duration_ms', pointer:"finalDuration_ms", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
+	];
 
 	map[TriggerTypes.VIP] =
 	map[TriggerTypes.UNVIP] =
@@ -2154,7 +2326,6 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	];
 
 	map[TriggerTypes.BINGO_GRID_LINE] =
-	map[TriggerTypes.BINGO_GRID_CELL] =
 	map[TriggerTypes.BINGO_GRID_ALL] = [
 		{tag:USER_NAME, descKey:'triggers.placeholders.user', pointer:"user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{tag:USER_DISPLAY_NAME, descKey:'triggers.placeholders.user_customName', pointer:"user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
@@ -2170,6 +2341,11 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"ROW_INDEX", descKey:'triggers.placeholders.bingo_grid_row', pointer:"rowIndex", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{tag:"DIAG_INDEX", descKey:'triggers.placeholders.bingo_grid_diag', pointer:"diagonal", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 	];
+
+	map[TriggerTypes.BINGO_GRID_CELL] = [...map[TriggerTypes.BINGO_GRID_ALL]!,
+		{tag:"CELL_LABEL", descKey:'triggers.placeholders.bingo_grid_cell_label', pointer:"cellLabel", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
+	];
+
 	map[TriggerTypes.BINGO_GRID_RESET] = [
 		{tag:"GRID_ID", descKey:'triggers.placeholders.bingo_grid_id', pointer:"bingoGridId", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
 		{tag:"GRID_NAME", descKey:'triggers.placeholders.bingo_grid_name', pointer:"bingoGridName", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
@@ -2331,6 +2507,16 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"INPUT_VALUE", descKey:'triggers.placeholders.playability_inputValue', pointer:"inputValue", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessagePlayabilityInputData>,
 	];
 
+	map[TriggerTypes.GOAL_STEP_COMPLETE] = [
+		{tag:"STEP_ID", descKey:'triggers.placeholders.goal_step_id', pointer:"stepConfig.id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
+		{tag:"STEP_INDEX", descKey:'triggers.placeholders.goal_step_index', pointer:"stepIndex", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
+		{tag:"STEP_TITLE", descKey:'triggers.placeholders.goal_step_title', pointer:"stepConfig.title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
+		{tag:"STEP_SECRET", descKey:'triggers.placeholders.goal_step_secret', pointer:"stepConfig.secret", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
+		{tag:"STEP_AMOUNT", descKey:'triggers.placeholders.goal_step_amount', pointer:"stepConfig.amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
+		{tag:"GOALS_ID", descKey:'triggers.placeholders.goal_overlay_id', pointer:"goalConfig.id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
+		{tag:"GOALS_TITLE", descKey:'triggers.placeholders.goal_overlay_title', pointer:"goalConfig.title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
+	];
+
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder<any>[] = [];
 	for (let i = 0; i < counters.length; i++) {
@@ -2346,6 +2532,27 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		const v = values[i];
 		if(v.placeholderKey) {
 			valuePlaceholders.push({category:"value", tag:VALUE_PLACEHOLDER_PREFIX + v.placeholderKey.toUpperCase(), descKey:'triggers.placeholders.value_global_value', descReplacedValues:{"NAME":v.name}, pointer:"__value__.value", numberParsable:true, isUserID:false, globalTag:true, example:"Lorem ipsum"} as ITriggerPlaceholder<TwitchatDataTypes.ValueData, string, "__value__">);
+		}
+	}
+
+	const timers = StoreProxy.timers.timerList;
+	const timersPlaceholders:ITriggerPlaceholder<any>[] = [];
+	for (let i = 0; i < timers.length; i++) {
+		const t = timers[i];
+		if(t.placeholderKey) {
+			const prefix = t.type == "timer"? STOPWATCH_PLACEHOLDER_PREFIX : COUNTDOWN_PLACEHOLDER_PREFIX;
+			const tagBase = prefix + t.placeholderKey.toUpperCase();
+			timersPlaceholders.push({category:"timer", tag:tagBase+"_PAUSED", descKey:'triggers.placeholders.timer_paused', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.paused", numberParsable:false, isUserID:false, globalTag:true, storage:t.id} as ITriggerPlaceholder<TwitchatDataTypes.TimerData, string, "__timer__">);
+			if(t.type == "timer") {
+				timersPlaceholders.push({category:"timer", tag:tagBase+"_ELAPSED", descKey:'triggers.placeholders.timer_duration_formatted', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.elapsed_formatted", numberParsable:true, isUserID:false, globalTag:true, example:"60000", storage:t.id});
+				timersPlaceholders.push({category:"timer", tag:tagBase+"_ELAPSED_MS", descKey:'triggers.placeholders.timer_duration_ms', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.elapsed_ms", numberParsable:true, isUserID:false, globalTag:true, example:"60", storage:t.id});
+			}
+			if(t.type == "countdown") {
+				timersPlaceholders.push({category:"timer", tag:tagBase+"_DURATION", descKey:'triggers.placeholders.countdown_duration_formatted', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.duration_formatted", numberParsable:true, isUserID:false, globalTag:true, example:"60000", storage:t.id});
+				timersPlaceholders.push({category:"timer", tag:tagBase+"_DURATION_MS", descKey:'triggers.placeholders.countdown_duration_ms', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.duration_ms", numberParsable:true, isUserID:false, globalTag:true, example:"60", storage:t.id});
+				timersPlaceholders.push({category:"timer", tag:tagBase+"_REMAINING", descKey:'triggers.placeholders.countdown_remaining_formatted', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.remaining_formatted", numberParsable:true, isUserID:false, globalTag:true, example:"60000", storage:t.id});
+				timersPlaceholders.push({category:"timer", tag:tagBase+"_REMAINING_MS", descKey:'triggers.placeholders.countdown_remaining_ms', descReplacedValues:{"NAME":t.title}, pointer:"__timer__.remaining_ms", numberParsable:true, isUserID:false, globalTag:true, example:"60", storage:t.id});
+			}
 		}
 	}
 
@@ -2378,6 +2585,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 			entry.push({category:"stream", tag:"MY_STREAM_DURATION", descKey:"triggers.placeholders.my_stream_duration", pointer:"__my_stream__.duration", numberParsable:false, isUserID:false, globalTag:true, example:"01:23:45"});
 			entry.push({category:"stream", tag:"MY_STREAM_DURATION_MS", descKey:"triggers.placeholders.my_stream_duration_ms", pointer:"__my_stream__.duration_ms", numberParsable:true, isUserID:false, globalTag:true, example:"16200000"});
 			entry.push({category:"stream", tag:"MY_STREAM_LIVE", descKey:"triggers.placeholders.my_stream_live", pointer:"__my_stream__.live", numberParsable:false, isUserID:false, globalTag:true, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}], example:"false"} as ITriggerPlaceholder<TwitchatDataTypes.StreamInfo, boolean, "__my_stream__">);
+			entry.push({category:"stream", tag:"CURRENT_VOD_URL", descKey:'triggers.placeholders.current_vod_url', pointer:"__current_vod__", numberParsable:false, isUserID:true, globalTag:true, example:"https://www.twitch.tv/videos/123456"});
 		}
 
 		if(entry.findIndex(v=>v.tag == "ULULE_CAMPAIGN_NAME") == -1 && hasUlule) {
@@ -2395,18 +2603,6 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 
 		if(entry.findIndex(v=>v.tag == "OBS_SCENE") == -1) {
 			entry.push({tag:"OBS_SCENE", descKey:"triggers.placeholders.obs_scene", pointer:"__obs__.scene", numberParsable:false, isUserID:false, globalTag:true, example:"OBS scene"});
-		}
-
-		if(entry.findIndex(v=>v.tag == "TIMER_F") == -1) {
-			entry.push({category:"timer", tag:"TIMER", descKey:"triggers.placeholders.timer_value", pointer:"__timer__.value", numberParsable:true, isUserID:false, globalTag:true, example:"123"});
-			entry.push({category:"timer", tag:"TIMER_F", descKey:"triggers.placeholders.timer_value_formated", pointer:"__timer__.value_formated", numberParsable:false, isUserID:false, globalTag:true, example:"1:23"});
-		}
-
-		if(entry.findIndex(v=>v.tag == "COUNTDOWN_VALUE") == -1) {
-			entry.push({category:"timer", tag:"COUNTDOWN_VALUE", descKey:"triggers.placeholders.countdown_value", pointer:"__countdown__.value", numberParsable:true, isUserID:false, globalTag:true, example:"123"});
-			entry.push({category:"timer", tag:"COUNTDOWN_VALUE_F", descKey:"triggers.placeholders.countdown_value_formated", pointer:"__countdown__.value_formated", numberParsable:false, isUserID:false, globalTag:true, example:"1:23"});
-			entry.push({category:"timer", tag:"COUNTDOWN_DURATION", descKey:"triggers.placeholders.countdown_duration", pointer:"__countdown__.duration", numberParsable:true, isUserID:false, globalTag:true, example:"123"});
-			entry.push({category:"timer", tag:"COUNTDOWN_DURATION_F", descKey:"triggers.placeholders.countdown_duration_formated", pointer:"__countdown__.duration_formated", numberParsable:false, isUserID:false, globalTag:true, example:"1:23"});
 		}
 
 		if(entry.findIndex(v=>v.tag == "TWITCH_LAST_SUB") == -1 && TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) {
@@ -2500,6 +2696,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 
 		entry = entry.concat(counterPlaceholders);
 		entry = entry.concat(valuePlaceholders);
+		entry = entry.concat(timersPlaceholders);
 		map[k] = entry;
 	}
 
@@ -2527,6 +2724,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"emergency", labelKey:"triggers.events.EMERGENCY_MODE_START.label", value:TriggerTypes.EMERGENCY_MODE_START, descriptionKey:"triggers.events.EMERGENCY_MODE_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"emergency", labelKey:"triggers.events.EMERGENCY_MODE_STOP.label", value:TriggerTypes.EMERGENCY_MODE_STOP, descriptionKey:"triggers.events.EMERGENCY_MODE_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"highlight", labelKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE.label", value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE, descriptionKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V16, category:TriggerEventTypeCategories.TWITCHAT, icon:"highlight", labelKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE_CLOSE.label", value:TriggerTypes.HIGHLIGHT_CHAT_MESSAGE_CLOSE, descriptionKey:"triggers.events.HIGHLIGHT_CHAT_MESSAGE_CLOSE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT_CLOSE},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"alert", labelKey:"triggers.events.CHAT_ALERT.label", value:TriggerTypes.CHAT_ALERT, descriptionKey:"triggers.events.CHAT_ALERT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"commands", labelKey:"triggers.events.SLASH_COMMAND.label", value:TriggerTypes.SLASH_COMMAND, descriptionKey:"triggers.events.SLASH_COMMAND.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13_7, category:TriggerEventTypeCategories.TWITCHAT, icon:"twitchat", labelKey:"triggers.events.TWITCHAT_STARTED.label", value:TriggerTypes.TWITCHAT_STARTED, descriptionKey:"triggers.events.TWITCHAT_STARTED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TWITCHAT_STARTED},
@@ -2534,6 +2732,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 
 		{category:TriggerEventTypeCategories.CHAT_REWARDS, icon:"chatCommand", labelKey:"triggers.events.CHAT_COMMAND.label", value:TriggerTypes.CHAT_COMMAND, isCategory:true, descriptionKey:"triggers.events.CHAT_COMMAND.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{category:TriggerEventTypeCategories.CHAT_REWARDS, icon:"whispers", labelKey:"triggers.events.ANY_MESSAGE.label", value:TriggerTypes.ANY_MESSAGE, descriptionKey:"triggers.events.ANY_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V16, category:TriggerEventTypeCategories.CHAT_REWARDS, icon:"reply", labelKey:"triggers.events.MESSAGE_ANSWER.label", value:TriggerTypes.MESSAGE_ANSWER, descriptionKey:"triggers.events.MESSAGE_ANSWER.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{category:TriggerEventTypeCategories.CHAT_REWARDS, icon:"channelPoints", labelKey:"triggers.events.REWARD_REDEEM.label", value:TriggerTypes.REWARD_REDEEM, isCategory:true, descriptionKey:"triggers.events.REWARD_REDEEM.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.REWARD},
 		{disabled:true, disabledReasonLabelKey:"triggers.events.COMMUNITY_CHALLENGE_PROGRESS.disabled_reason", category:TriggerEventTypeCategories.CHAT_REWARDS, icon:"channelPoints", labelKey:"triggers.events.COMMUNITY_CHALLENGE_PROGRESS.label", value:TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS, descriptionKey:"triggers.events.COMMUNITY_CHALLENGE_PROGRESS.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION},
 		{disabled:true, disabledReasonLabelKey:"triggers.events.COMMUNITY_CHALLENGE_COMPLETE.disabled_reason", category:TriggerEventTypeCategories.CHAT_REWARDS, icon:"channelPoints", labelKey:"triggers.events.COMMUNITY_CHALLENGE_COMPLETE.label", value:TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE, descriptionKey:"triggers.events.COMMUNITY_CHALLENGE_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION},
@@ -2561,6 +2760,8 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.GAMES, icon:"poll", labelKey:"triggers.events.POLL_RESULT.label", value:TriggerTypes.POLL_RESULT, descriptionKey:"triggers.events.POLL_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.POLL},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, category:TriggerEventTypeCategories.GAMES, icon:"prediction", labelKey:"triggers.events.PREDICTION_START.label", value:TriggerTypes.PREDICTION_START, descriptionKey:"triggers.events.PREDICTION_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.PREDICTION},
 		{category:TriggerEventTypeCategories.GAMES, icon:"prediction", labelKey:"triggers.events.PREDICTION_RESULT.label", value:TriggerTypes.PREDICTION_RESULT, descriptionKey:"triggers.events.PREDICTION_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.PREDICTION},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V16, category:TriggerEventTypeCategories.GAMES, icon:"chatPoll", labelKey:"triggers.events.CHAT_POLL_START.label", value:TriggerTypes.CHAT_POLL_START, descriptionKey:"triggers.events.CHAT_POLL_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_POLL},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V16, category:TriggerEventTypeCategories.GAMES, icon:"chatPoll", labelKey:"triggers.events.CHAT_POLL_RESULT.label", value:TriggerTypes.CHAT_POLL_RESULT, descriptionKey:"triggers.events.CHAT_POLL_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHAT_POLL},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.GAMES, icon:"ticket", labelKey:"triggers.events.RAFFLE_PICK_WINNER.label", value:TriggerTypes.RAFFLE_PICK_WINNER, descriptionKey:"triggers.events.RAFFLE_PICK_WINNER.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAFFLE},
 		{category:TriggerEventTypeCategories.GAMES, icon:"ticket", labelKey:"triggers.events.RAFFLE_RESULT.label", value:TriggerTypes.RAFFLE_RESULT, descriptionKey:"triggers.events.RAFFLE_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAFFLE},
 		{category:TriggerEventTypeCategories.GAMES, icon:"bingo", labelKey:"triggers.events.BINGO_RESULT.label", value:TriggerTypes.BINGO_RESULT, descriptionKey:"triggers.events.BINGO_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.BINGO},
@@ -2659,6 +2860,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.MISC, icon:"heat", labelKey:"triggers.events.HEAT_CLICK.label", value:TriggerTypes.HEAT_CLICK, descriptionKey:"triggers.events.HEAT_CLICK.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK},
 		{category:TriggerEventTypeCategories.MISC, icon:"credits", labelKey:"triggers.events.CREDITS_COMPLETE.label", value:TriggerTypes.CREDITS_COMPLETE, descriptionKey:"triggers.events.CREDITS_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CREDITS_COMPLETE},
 		{category:TriggerEventTypeCategories.MISC, icon:"playability", labelKey:"triggers.events.PLAYABILITY_INPUT.label", value:TriggerTypes.PLAYABILITY_INPUT, descriptionKey:"triggers.events.PLAYABILITY_INPUT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.PLAYABILITY_INPUT},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V16, category:TriggerEventTypeCategories.MISC, icon:"goal", labelKey:"triggers.events.GOAL_STEP_COMPLETE.label", value:TriggerTypes.GOAL_STEP_COMPLETE, descriptionKey:"triggers.events.GOAL_STEP_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOAL_STEP_COMPLETE},
 
 		{category:TriggerEventTypeCategories.COUNTER_VALUE, icon:"count", labelKey:"triggers.events.COUNTER_EDIT.label", value:TriggerTypes.COUNTER_EDIT, descriptionKey:"triggers.events.COUNTER_EDIT.description", isCategory:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
 		{category:TriggerEventTypeCategories.COUNTER_VALUE, icon:"add", labelKey:"triggers.events.COUNTER_ADD.label", value:TriggerTypes.COUNTER_ADD, descriptionKey:"triggers.events.COUNTER_ADD.description", isCategory:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
