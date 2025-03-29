@@ -600,9 +600,9 @@ export default class EventSub {
 				break;
 			}
 
-			case TwitchEventSubDataTypes.SubscriptionTypes.POLL_END:
 			case TwitchEventSubDataTypes.SubscriptionTypes.POLL_START:
-			case TwitchEventSubDataTypes.SubscriptionTypes.POLL_PROGRESS: {
+			case TwitchEventSubDataTypes.SubscriptionTypes.POLL_PROGRESS:
+			case TwitchEventSubDataTypes.SubscriptionTypes.POLL_END: {
 				this.pollEvent(topic, payload.event as TwitchEventSubDataTypes.PollStartEvent | TwitchEventSubDataTypes.PollProgressEvent | TwitchEventSubDataTypes.PollEndEvent);
 				break;
 			}
@@ -974,7 +974,6 @@ export default class EventSub {
 					title,
 					category,
 					duration,
-					duration_str:Utils.formatDuration(duration),
 				}
 			};
 			StoreProxy.chat.addMessage(message);
@@ -1136,8 +1135,6 @@ export default class EventSub {
 
 		//Stream online
 		}else if(topic === TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON) {
-			await StoreProxy.stream.grabCurrentStreamVOD();
-
 			//Load stream info
 			const [streamInfo] = await TwitchUtils.getCurrentStreamInfo([event.broadcaster_user_id]);
 			if(streamInfo) {
@@ -1824,10 +1821,6 @@ export default class EventSub {
 	 * @param event
 	 */
 	private async pollEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.PollStartEvent | TwitchEventSubDataTypes.PollProgressEvent | TwitchEventSubDataTypes.PollEndEvent):Promise<void> {
-		//Ignore archived event
-		if(topic === TwitchEventSubDataTypes.SubscriptionTypes.POLL_END
-		&& (event as TwitchEventSubDataTypes.PollEndEvent).status == "archived") return;
-
 		const choices:TwitchatDataTypes.MessagePollDataChoice[] = [];
 		let winner!:TwitchatDataTypes.MessagePollDataChoice;
 		let winnerValue = -1;
@@ -2117,7 +2110,7 @@ type HypeTrainEvent = {
 	data:TwitchEventSubDataTypes.HypeTrainStartEvent|TwitchEventSubDataTypes.HypeTrainProgressEvent|TwitchEventSubDataTypes.HypeTrainEndEvent
 };
 
-const fakeHypeTrain1:(string|HypeTrainEvent)[] = [
+export const fakeHypeTrain1:(string|HypeTrainEvent)[] = [
 	"Wed Feb 26 2025 11:02:24 GMT+0000 (Coordinated Universal Time)",
 	{"topic":"channel.hype_train.begin","tt_v":"15.8.0-beta","data":{"id":"981bd62e-cf77-4053-99bb-d74ac82f4ab7","broadcaster_user_id":"699725915","broadcaster_user_login":"cailloute","broadcaster_user_name":"Cailloute","total":1100,"top_contributions":[{"user_id":"46815369","user_login":"hommesoupe","user_name":"HOMMESOUPE","type":"subscription","total":500},{"user_id":"36500397","user_login":"is_lew","user_name":"is_lew","type":"bits","total":100}],"started_at":"2025-02-26T11:02:23.926325145Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"147803140","user_login":"meltox9","user_name":"Meltox9","type":"subscription","total":500},"level":1,"goal":1600,"progress":1100,"expires_at":"2025-02-26T11:07:23.926325145Z"}},
 	"Wed Feb 26 2025 11:02:24 GMT+0000 (Coordinated Universal Time)",
@@ -2135,7 +2128,7 @@ const fakeHypeTrain1:(string|HypeTrainEvent)[] = [
 ]
 
 
-const fakeHypeTrain2:(string|HypeTrainEvent)[] = [
+export const fakeHypeTrain2:(string|HypeTrainEvent)[] = [
 	"Wed Feb 26 2025 20:17:14 GMT+0000 (Coordinated Universal Time)",
 	{"topic":"channel.hype_train.begin","tt_v":"15.8.0-beta","data":{"id":"a97bc62c-9275-4b09-8cf1-60cf28638065","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":7500,"top_contributions":[{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":5000}],"started_at":"2025-02-26T20:17:13.902326119Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"535438760","user_login":"alflepro30","user_name":"alflepro30","type":"subscription","total":5000},"level":4,"goal":2300,"progress":2000,"expires_at":"2025-02-26T20:22:13.902326119Z"}},
 	"Wed Feb 26 2025 20:17:14 GMT+0000 (Coordinated Universal Time)",
@@ -2177,7 +2170,7 @@ const fakeHypeTrain2:(string|HypeTrainEvent)[] = [
 ]
 
 
-const fakeHypeTrain3:(string|HypeTrainEvent)[] = [
+export const fakeHypeTrain3:(string|HypeTrainEvent)[] = [
 	"Wed Feb 26 2025 20:20:38 GMT+0000 (Coordinated Universal Time)",
 	{"topic":"channel.hype_train.begin","tt_v":"15.8.0-beta","data":{"id":"0ee8f52b-9217-4387-9d02-bda736f7db6f","broadcaster_user_id":"83599745","broadcaster_user_login":"loxetv","broadcaster_user_name":"LoxeTV","total":6000,"top_contributions":[{"user_id":"162476051","user_login":"styrya","user_name":"styrya","type":"subscription","total":5500}],"started_at":"2025-02-26T20:20:38.15826255Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"162476051","user_login":"styrya","user_name":"styrya","type":"subscription","total":5000},"level":4,"goal":2300,"progress":500,"expires_at":"2025-02-26T20:25:38.15826255Z"}},
 	"Wed Feb 26 2025 20:20:38 GMT+0000 (Coordinated Universal Time)",
@@ -2198,7 +2191,7 @@ const fakeHypeTrain3:(string|HypeTrainEvent)[] = [
 	{"topic":"channel.hype_train.end","tt_v":"15.8.0-beta","data":{"id":"0ee8f52b-9217-4387-9d02-bda736f7db6f","broadcaster_user_id":"83599745","broadcaster_user_login":"loxetv","broadcaster_user_name":"LoxeTV","total":16700,"top_contributions":[{"user_id":"202330771","user_login":"b3riic","user_name":"B3riic","type":"bits","total":100},{"user_id":"162476051","user_login":"styrya","user_name":"styrya","type":"subscription","total":10500}],"started_at":"2025-02-26T20:20:38.15826255Z","is_golden_kappa_train":false,"level":7,"ended_at":"2025-02-26T20:29:34.48342558Z","cooldown_ends_at":"2025-02-26T21:29:34.48342558Z"}},
 ]
 
-const fakeHypeTrain4:(string|HypeTrainEvent)[] = [
+export const fakeHypeTrain4:(string|HypeTrainEvent)[] = [
 	"Thu Feb 27 2025 20:16:28 GMT+0000 (Coordinated Universal Time)",
 	{"topic":"channel.hype_train.begin","tt_v":"15.8.0-beta","data":{"id":"15337c23-4e8f-4620-b43d-45aa1326b70e","broadcaster_user_id":"115060112","broadcaster_user_login":"recalbox","broadcaster_user_name":"Recalbox","total":4000,"top_contributions":[{"user_id":"976047964","user_login":"dmeance91","user_name":"dmeance91","type":"subscription","total":2500}],"started_at":"2025-02-27T20:16:27.463858611Z","is_golden_kappa_train":false,"last_contribution":{"user_id":"404250363","user_login":"deselegies","user_name":"deselegies","type":"subscription","total":1000},"level":3,"goal":2100,"progress":600,"expires_at":"2025-02-27T20:21:27.463858611Z"}},
 	"Thu Feb 27 2025 20:16:28 GMT+0000 (Coordinated Universal Time)",

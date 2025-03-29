@@ -59,7 +59,7 @@
 			width: 30px;
 			height: 30px;
 			display: block;
-			margin: 10px auto;
+			margin: 20px auto 10px auto;
 		}
 		#loader-init>.logo {
 			user-select: none;
@@ -93,8 +93,7 @@
 			text-align: center;
 			opacity: .7;
 			color: #eee;
-			font-family: Inter, Verdana, Geneva, Tahoma, sans-serif;
-			margin-top: 10px;
+			font-family: Verdana, Geneva, Tahoma, sans-serif;
 		}
 		#error {
 			display: flex;
@@ -129,22 +128,6 @@
 			left: -100px;
 			width: 100px !important;
 			height: 100px !important;
-		}
-
-		#loader-init > .beta {
-			/* display: none; */
-			background-color: #e04e00;
-			color: #fff;
-			font-family: Inter, Verdana, Geneva, Tahoma, sans-serif;
-			display: inline-block;
-			padding: .2em .5em;
-			font-size: .5em;
-			border-radius: .5em;
-			position: absolute;
-			top: -.5em;
-			right: -1.5em;
-			z-index: 1;
-			transform: rotate(45deg);
 		}
 	</style>
 </head>
@@ -217,7 +200,6 @@
 	<img src="/logo.png" id="logoForDraggableItems">
 
 	<div id="loader-init" style="display: none;">
-		<div class="beta">BETA</div>
 		<div class="logo">
 			<svg class="letter t" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 				viewBox="0 0 182.4 260.3" xml:space="preserve"
@@ -340,8 +322,8 @@
 				</g>
 			</svg>
 		</div>
-		<div class="message" id="initMessage">loading scripts</div>
 		<img src="/loader.svg" alt="spinner" class="spinner" id="initLoader">
+		<div class="message" id="initMessage">loading scripts</div>
 	</div>
 
 	<div id="app"></div>

@@ -8,7 +8,7 @@
 	:invertSwap="true"
 	:swapThreshold="10"
 	:emptyInsertThreshold="0"
-	:disabled="noEdit !== false"
+	:disabled="noEdit"
 	@start="dragging = true"
 	@end="dragging = false; onChange($event)">
 		<template #item="{element: folder, index}:{element:TriggerListEntry|TriggerListFolderEntry, index:number}">
@@ -42,7 +42,7 @@
 				<template #right_actions>
 					<div class="blockActions">
 						<ToggleButton class="triggerToggle" v-model="folder.enabled" @click.stop @change="onToggleFolder(folder)" />
-						<TTButton class="deleteBt" icon="add" v-if="noEdit === false" @click.stop="addTrigger(folder)" v-tooltip="$t('triggers.add_triggerBt')" primary></TTButton>
+						<TTButton class="deleteBt" icon="add" @click.stop="addTrigger(folder)" v-tooltip="$t('triggers.add_triggerBt')" primary></TTButton>
 						<TTButton class="deleteBt" icon="trash" v-if="noEdit === false" @click.stop="deleteFolder(folder)" alert></TTButton>
 					</div>
 				</template>
@@ -132,7 +132,7 @@ class TriggerListFolderItem extends Vue {
 
 	public dragging:boolean = false;
 	public localItems:(TriggerListEntry|TriggerListFolderEntry)[] = [];
-
+	
 	private draggedEntry:TriggerListEntry|TriggerListFolderEntry|null = null;
 	public dragCounter:{[id:string]:number} = {};
 
@@ -169,7 +169,7 @@ class TriggerListFolderItem extends Vue {
 
 	/**
 	 * Called when starting to drag an item
-	 * @param entry
+	 * @param entry 
 	 */
 	public startDrag(entry:TriggerListEntry|TriggerListFolderEntry):void {
 		this.draggedEntry = entry;
@@ -178,7 +178,7 @@ class TriggerListFolderItem extends Vue {
 
 	/**
 	 * Called when starting to drag an item
-	 * @param entry
+	 * @param entry 
 	 */
 	public onDrop(folder:TriggerListFolderEntry):void {
 		if(!this.dragging) return;
@@ -202,7 +202,7 @@ class TriggerListFolderItem extends Vue {
 		this.dragCounter[entry.id] ++;
 		(event.currentTarget as HTMLElement).classList.add("over");
 	}
-
+	
 	public onDragLeave(event:MouseEvent, entry:TriggerListFolderEntry):void {
 		if(this.draggedEntry == entry) return;
 		if(!this.dragCounter[entry.id]) this.dragCounter[entry.id] = 0;
@@ -214,8 +214,8 @@ class TriggerListFolderItem extends Vue {
 
 	/**
 	 * Toggles a trigger state
-	 * @param item
-	 * @param el
+	 * @param item 
+	 * @param el 
 	 */
 	public onToggleTrigger(item:TriggerListEntry | TriggerListFolderEntry, el:HTMLElement):void {
 		if(item.type == "trigger" && item.trigger.enabled
@@ -258,7 +258,7 @@ class TriggerListFolderItem extends Vue {
 			this.vibrate((this.$refs["folder_"+folder.id] as Vue).$el as HTMLElement);
 		}
 	}
-
+	
 	public countTriggerItems(folder:TriggerListFolderEntry):number {
 		function parseFolder(folder:TriggerListFolderEntry):number {
 			let count = 0;

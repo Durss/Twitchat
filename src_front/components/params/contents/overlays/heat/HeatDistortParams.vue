@@ -3,7 +3,7 @@
 		<p>{{ $t("overlay.heatDistort.select_target") }}</p>
 
 		<OBSSceneItemSelector class="sceneSelector" v-model="modelValue.obsItemPath" @change="refreshState()" />
-
+			
 		<OverlayInstaller type="distort"
 		orderToBottom
 		:css="'html, body{ background-color:transparent;}'"
@@ -36,7 +36,7 @@
 		<template #right_actions>
 			<TTButton class="deleteBt" icon="trash" alert @click.stop="deleteEntry()" />
 		</template>
-
+							
 		<div class="heatdistortparams">
 			<ParamItem :paramData="param_shape" v-model="modelValue.effect" noBackground />
 			<ParamItem :paramData="param_triggerOnly" v-model="modelValue.triggerOnly" noBackground inverseChildrenCondition>
@@ -46,7 +46,7 @@
 			</ParamItem>
 
 			<TTButton class="center" v-if="modelValue.enabled" @click="simulateClicks()" icon="test">{{ $t("overlay.heatDistort.testBt") }}</TTButton>
-
+			
 			<div v-if="!heatEnabled" class="card-item alert">
 				<Icon name="alert" />
 				<i18n-t scope="global" keypath="overlay.heatDistort.heat_disabled">
@@ -88,12 +88,12 @@ import OverlayInstaller from '../OverlayInstaller.vue';
 	emits:["delete", "created"],
 })
 class HeatDistortParams extends Vue {
-
+	
 	@Prop
 	public modelValue!:TwitchatDataTypes.HeatDistortionData;
 
 	public overlayInstalled:boolean = false;
-
+	
 	public param_shape:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"", icon:"distort", labelKey:"overlay.heatDistort.param_shape"};
 	public param_triggerOnly:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"broadcast", labelKey:"overlay.heatDistort.param_triggerOnly", tooltipKey:"overlay.heatDistort.param_triggerOnly_tt"};
 	public param_anon:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"anon", labelKey:"overlay.heatDistort.param_anon", tooltipKey:"heat.anonymous"};
@@ -102,7 +102,7 @@ class HeatDistortParams extends Vue {
 	private obsEventHandler!:()=>void;
 
 	public get heatEnabled():boolean { return HeatSocket.instance.connected; }
-
+	
 	public get canEnable():boolean {
 		return this.modelValue.enabled
 			|| this.$store.auth.isPremium
@@ -116,7 +116,7 @@ class HeatDistortParams extends Vue {
 		if(this.modelValue.obsItemPath.source.name) chunks.push(this.modelValue.obsItemPath.source.name);
 		return chunks.join(" => ");
 	}
-
+	
 	public get sourceSuffix():string {
 		let suffix = "";
 		if(this.modelValue.obsItemPath.source.name) suffix = this.modelValue.obsItemPath.source.name;
@@ -127,7 +127,7 @@ class HeatDistortParams extends Vue {
 
 	public async beforeMount():Promise<void> {
 		if(!this.modelValue.name) this.modelValue.name = "";
-
+		
 		const values:TwitchatDataTypes.ParameterDataListValue<TwitchatDataTypes.HeatDistortionData["effect"]>[] = [
 			{value:"liquid", labelKey:"overlay.heatDistort.distorsions.ripples"},
 			{value:"expand", labelKey:"overlay.heatDistort.distorsions.expand"},
@@ -155,7 +155,7 @@ class HeatDistortParams extends Vue {
 	}
 
 	public openHeat():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.HEAT);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.HEAT);
 	}
 
 	public async onObsSourceCreated(data:{sourceName:string}):Promise<void> {
@@ -176,7 +176,7 @@ class HeatDistortParams extends Vue {
 
 	public async refreshState():Promise<void> {
 		clearTimeout(this.updateDebounce);
-
+		
 		const sceneName = this.modelValue.obsItemPath.groupName || this.modelValue.obsItemPath.sceneName;
 		if(!sceneName) return;
 

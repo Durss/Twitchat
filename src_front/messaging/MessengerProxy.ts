@@ -268,80 +268,67 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/countdown") {
-			const entry = StoreProxy.timers.timerList.find(v=>v.type == "countdown" && v.isDefault)!;
 			const duration = this.paramsToDuration(params[0]);
-			entry.duration_ms = duration * 1000;
-			StoreProxy.timers.timerStart(entry.id);
+			StoreProxy.timer.countdownStart(duration * 1000);
 			return true;
 		}else
 
 		if(cmd == "/countdownadd") {
-			const entry = StoreProxy.timers.timerList.find(v=>v.type == "countdown" && v.isDefault)!;
 			const duration = this.paramsToDuration(params[0]);
-			StoreProxy.timers.timerAdd(entry.id, duration * 1000);
+			StoreProxy.timer.countdownAdd(duration * 1000);
 			return true;
 		}else
 
 		if(cmd == "/countdownremove") {
-			const entry = StoreProxy.timers.timerList.find(v=>v.type == "countdown" && v.isDefault)!;
 			const duration = this.paramsToDuration(params[0]);
-			StoreProxy.timers.timerRemove(entry.id, duration * 1000);
+			StoreProxy.timer.countdownRemove(duration * 1000);
 			return true;
 		}else
 
 		if(cmd == "/countdownpause") {
-			const entry = StoreProxy.timers.timerList.find(v=>v.type == "countdown" && v.isDefault)!;
-			StoreProxy.timers.timerPause(entry.id);
+			StoreProxy.timer.countdownPause();
 			return true;
 		}else
 
 		if(cmd == "/countdownunpause") {
-			const entry = StoreProxy.timers.timerList.find(v=>v.type == "countdown" && v.isDefault)!;
-			StoreProxy.timers.timerUnpause(entry.id);
+			StoreProxy.timer.countdownUnpause();
 			return true;
 		}else
 
 		if(cmd == "/countdownstop") {
-			const entry = StoreProxy.timers.timerList.find(v=>v.type == "countdown" && v.isDefault)!;
-			StoreProxy.timers.timerStop(entry.id);
+			StoreProxy.timer.countdownStop();
 			return true;
 		}else
 
 		if(cmd == "/timerstart") {
-			const entry = StoreProxy.timers.timerList.find(v=>v.type == "timer" && v.isDefault)!;
-			StoreProxy.timers.timerStart(entry.id);
+			StoreProxy.timer.timerStart();
 			return true;
 		}else
 
 		if(cmd == "/timeradd") {
-			const entry = StoreProxy.timers.timerList.find(v=>v.type == "timer" && v.isDefault)!;
 			const duration = this.paramsToDuration(params[0]);
-			StoreProxy.timers.timerAdd(entry.id, duration * 1000);
+			StoreProxy.timer.timerAdd(duration * 1000);
 			return true;
 		}else
 
 		if(cmd == "/timerremove") {
-			const entry = StoreProxy.timers.timerList.find(v=>v.type == "timer" && v.isDefault)!;
 			const duration = this.paramsToDuration(params[0]);
-			StoreProxy.timers.timerRemove(entry.id, duration * 1000);
+			StoreProxy.timer.timerRemove(duration * 1000);
 			return true;
 		}else
 
 		if(cmd == "/timerpause") {
-			const entry = StoreProxy.timers.timerList.find(v=>v.type == "timer" && v.isDefault)!;
-			StoreProxy.timers.timerPause(entry.id);
+			StoreProxy.timer.timerPause();
 			return true;
 		}else
 
 		if(cmd == "/timerunpause") {
-			const entry = StoreProxy.timers.timerList.find(v=>v.type == "timer" && v.isDefault)!;
-			StoreProxy.timers.timerUnpause(entry.id);
+			StoreProxy.timer.timerUnpause();
 			return true;
 		}else
 
 		if(cmd == "/timerstop") {
-			const entry = StoreProxy.timers.timerList.find(v=>v.type == "timer" && v.isDefault)!;
-			StoreProxy.timers.timerStop(entry.id);
+			StoreProxy.timer.timerStop();
 			return true;
 		}else
 
@@ -653,13 +640,7 @@ export default class MessengerProxy {
 					if(res.status != 200) {
 						switch(res.json.errorCode) {
 							case "POST_FAILED":
-								error = StoreProxy.i18n.t("error.discord.POST_FAILED", {CHANNEL:res.json.channelName});
-								break;
-							case "MISSING_ACCESS":
 								error = StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:res.json.channelName});
-								break;
-							case "UNKNOWN_CHANNEL":
-								error = StoreProxy.i18n.t("error.discord.UNKNOWN_CHANNEL", {CHANNEL:res.json.channelName});
 								break;
 							default:
 								error = StoreProxy.i18n.t("error.discord.UNKNOWN");
@@ -779,7 +760,7 @@ export default class MessengerProxy {
 				});
 				params.shift();
 			}
-
+			
 			const forcedMessage = params.join(" ");
 			let inc = 0;
 			StoreProxy.chat.spamingFakeMessages = !countMode;
@@ -837,6 +818,7 @@ export default class MessengerProxy {
 			//Execute alert
 			message = message.replace(/\/alertstreamer\s*/gi, "");
 			const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+			console.log(chunks);
 			const messageData:TwitchatDataTypes.MessageChatData = {
 				platform:"twitchat",
 				type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
@@ -851,6 +833,7 @@ export default class MessengerProxy {
 				answers:[],
 				message_size:0,
 			}
+			console.log(messageData)
 			StoreProxy.main.chatAlert = messageData;
 
 			//Execute trigger
@@ -923,7 +906,7 @@ export default class MessengerProxy {
 	}
 
 	private paramsToDuration(param:string):number {
-		const chunks = param.split(/[^a-z0-9_]+/gi).filter(v => v != "");
+		const chunks = param.split(/[^a-z0-9_]+/gi);
 		let duration = 0;
 		for(let i = 0; i < chunks.length; i++) {
 			const value = parseInt(chunks[i]);

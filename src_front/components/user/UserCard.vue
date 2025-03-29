@@ -97,6 +97,7 @@
 
 						<div class="info" v-if="followersCount > -1"><Icon name="follow_outline" class="icon"/>{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
 
+
 						<template v-if="isOwnChannel">
 							<div class="info" v-if="subState && subStateLoaded">
 								<Icon name="gift" alt="subscribed" class="icon" v-if="subState.is_gift"/>
@@ -113,6 +114,11 @@
 
 							<div class="info" v-if="canListFollowers && followDate && !is_self" v-tooltip="$t('usercard.follow_date_tt')"><Icon name="follow" alt="follow date" class="icon"/>{{followDate}}</div>
 							<div class="info" v-else-if="canListFollowers && !is_self"><Icon name="unfollow" alt="no follow" class="icon"/>{{$t('usercard.not_following')}}</div>
+							<!-- <div class="info ban card-item alert" v-for="chan in bannedChannels">
+								<Icon :name="chan.duration? 'timeout' : 'ban'" class="icon"/>
+								<span>{{ chan.user.displayName }}</span>
+								<span class="timeoutDuration" v-if="chan.duration">{{ getFormatedTimeoutDuration(chan.duration) }}</span>
+							</div> -->
 						</template>
 					</div>
 
@@ -210,20 +216,6 @@
 							<h2 class="title">{{ $t("usercard.messages") }}</h2>
 						</div>
 
-						<div class="ctas" v-if="$store.groq.connected">
-							<TTButton v-if="!showGroqForm"
-								@click="showGroqForm = true"
-								icon="groq"
-								v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'usercard_groq'}"
-								small>{{ $t("groq.summarize_bt") }}</TTButton>
-
-							<GroqSummaryFilterForm class="groq" v-if="showGroqForm"
-								mode="all"
-								:messageList="messageHistory"
-								@close="showGroqForm = false"
-								@complete="closeCard()" />
-						</div>
-
 						<div class="list" ref="messagelist">
 							<div class="subholder" v-for="m in messageHistory" :key="m.id">
 								<MessageItem class="message"
@@ -267,7 +259,6 @@ import CustomBadgesManager from './CustomBadgesManager.vue';
 import CustomUserBadges from './CustomUserBadges.vue';
 import CustomUserNameManager from './CustomUserNameManager.vue';
 import AbstractSidePanel from '../AbstractSidePanel';
-import GroqSummaryFilterForm from '../GroqSummaryFilterForm.vue';
 
 @Component({
 	components:{
@@ -278,7 +269,6 @@ import GroqSummaryFilterForm from '../GroqSummaryFilterForm.vue';
 		CustomUserBadges,
 		CustomBadgeSelector,
 		CustomBadgesManager,
-		GroqSummaryFilterForm,
 		CustomUserNameManager,
 	},
 	emits:["close"],
@@ -288,7 +278,6 @@ class UserCard extends AbstractSidePanel {
 	public error:boolean = false;
 	public loading:boolean = true;
 	public edittingLogin:boolean = true;
-	public showGroqForm:boolean = false;
 	public manageBadges:boolean = false;
 	public sendingWarning:boolean = false;
 	public showWarningForm:boolean = false;
@@ -442,10 +431,10 @@ class UserCard extends AbstractSidePanel {
 	}
 
 	/**
-	 * Get a formatted timeout duration
+	 * Get a formated timeout duration
 	 * @param duration
 	 */
-	public getFormattedTimeoutDuration(duration:number):string {
+	public getFormatedTimeoutDuration(duration:number):string {
 		return Utils.formatDuration(Math.max(0, duration - this.dateOffset));
 	}
 
@@ -461,7 +450,7 @@ class UserCard extends AbstractSidePanel {
 			const chan = this.moderatedChannelList.find(v=>v.broadcaster_id == id);
 			if(!chan) return;
 			this.moderatedChannelList_pinned.push(chan);
-		});
+		})
 		watch(() => this.$store.users.userCard, async () => {
 			const card = this.$store.users.userCard;
 			if(card && card.user) {
@@ -546,7 +535,6 @@ class UserCard extends AbstractSidePanel {
 			const users = await TwitchUtils.getUserInfo(loadFromLogin? undefined : [user.id], loadFromLogin? [user.login] : undefined);
 			if(users.length > 0) {
 				const u = users[0];
-				const chanInfo = user.channelInfo[this.channel!.id];
 				user.login = u.login;
 				user.displayName = u.display_name;
 				user.displayNameOriginal = u.display_name;
@@ -565,19 +553,19 @@ class UserCard extends AbstractSidePanel {
 				if(!user.displayName) user.displayName = u.display_name;
 
 				//Adding partner badge if no badge is already specified
-				if(chanInfo && chanInfo.badges?.length == 0) {
+				if(user.channelInfo[this.channel!.id] && user.channelInfo[this.channel!.id].badges?.length == 0) {
 					const staticBadges:Badges = {};
 					staticBadges[u.broadcaster_type] = "1";
 					user.channelInfo[this.channel!.id].badges = TwitchUtils.getBadgesFromRawBadges(this.channel!.id, undefined, staticBadges);
 				}
-				if(chanInfo) this.badges = user.channelInfo[this.channel!.id].badges;
+				this.badges = user.channelInfo[this.channel!.id].badges;
 
 				//Async loading of data
 				TwitchUtils.getCurrentStreamInfo([u.id]).then(v=> {
 					this.currentStream = v[0];
 				});
-				if(chanInfo?.is_banned) {
-					this.banReason = chanInfo?.banReason || "";
+				if(user.channelInfo[this.channel!.id]?.is_banned) {
+					this.banReason = user.channelInfo[this.channel!.id]?.banReason || "";
 				}else{
 					TwitchUtils.getBannedUsers(this.channel!.id, [u.id]).then(res=> {
 						if(res.length > 0) {
@@ -1144,7 +1132,7 @@ export default toNative(UserCard);
 			display: flex;
 			flex-direction: column;
 			padding-bottom: .5em;//Avoid glitchy scroll when pressing down a button if at the bottom of the scrollable holder
-			.card-item:not(.groq) {
+			.card-item {
 				flex-shrink: 0;
 			}
 		}
@@ -1162,10 +1150,6 @@ export default toNative(UserCard);
 					.subholder {
 						margin-bottom: 3px;
 					}
-				}
-				.ctas {
-					align-self: center;
-					margin: .5em auto;
 				}
 			}
 

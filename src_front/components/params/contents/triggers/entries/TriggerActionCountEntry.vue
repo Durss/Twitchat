@@ -11,7 +11,7 @@
 				v-model="action.counters"
 				:options="param_counters.listValues"
 				:calculate-position="$placeDropdown"
-				:reduce="(v:TwitchatDataTypes.ParameterDataListValue<string>) => v.value"
+				:reduce="(v:TwitchatDataTypes.ParameterDataListValue<string>) => v.value" 
 				:selectable="(v:TwitchatDataTypes.ParameterDataListValue<string>) => action.counters.indexOf(v.value) == -1"
 				appendToBody
 				multiple
@@ -30,13 +30,13 @@
 				</select>
 			</div>
 		</div>
-
+		
 		<div class="card-item counterList" v-if="selectedPerUserCounters.length > 0 && userSourceOptions.length > 1">
 			<div class="head">
 				<Icon name="user" class="icon" />
 				<span>{{ $tc("triggers.actions.count.user_action_title", selectedPerUserCounters.length) }}</span>
 			</div>
-
+			
 			<div class="card-item dark" v-for="item in selectedPerUserCounters" :key="item.id">
 				<label :for="'select_'+item.id" class="name">{{ item.name }}</label>
 				<select :id="'select_'+item.id" v-model="action.userAction![item.id]">
@@ -45,10 +45,8 @@
 			</div>
 		</div>
 
-		<template v-if="showAction">
-			<ParamItem :paramData="param_action" v-model="action.action" />
-			<ParamItem :paramData="param_value" v-model="action.addValue" />
-		</template>
+		<ParamItem :paramData="param_action" v-model="action.action" />
+		<ParamItem :paramData="param_value" v-model="action.addValue" />
 	</div>
 </template>
 
@@ -79,22 +77,6 @@ class TriggerActionCountEntry extends AbstractTriggerActionEntry {
 	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.count.value_label", value:"", maxLength:100, icon:"add"}
 	public param_action:TwitchatDataTypes.ParameterData<string, string> = {type:"list", labelKey:"triggers.actions.count.select_action", value:"", listValues:[]}
 	public param_userAction:TwitchatDataTypes.ParameterData<NonNullable<TriggerActionCounterData["userAction"]>[string], NonNullable<TriggerActionCounterData["userAction"]>[string]> = {type:"list", labelKey:"triggers.actions.count.param_action", value:"update"}
-
-	/**
-	 * Define if global actions should be displayed.
-	 * If only per-user delete actions are selected, we should not display the global action
-	 */
-	public get showAction():boolean {
-		if(this.action.counters.length === 0) return true;
-		let deleteBatchActions = 0;
-		for (let i = 0; i < this.action.counters.length; i++) {
-			const cid = this.action.counters[i];
-			if(this.action.userAction
-			&& this.action.userAction[cid] === "delete") deleteBatchActions ++;
-		}
-
-		return deleteBatchActions < this.action.counters.length;
-	}
 
 	/**
 	 * Build user trigger source list
@@ -143,7 +125,7 @@ class TriggerActionCountEntry extends AbstractTriggerActionEntry {
 		}).filter(v=> {
 			return v.value != this.triggerData.counterId
 		});
-
+		
 		//Init counter's action if necessary
 		if(!this.action.action) this.action.action = "ADD";
 		//Init counter's list if necessary
@@ -159,7 +141,7 @@ class TriggerActionCountEntry extends AbstractTriggerActionEntry {
 				i--;
 			}
 		}
-
+		
 		this.param_counters.listValues = counters;
 
 		//Populate action list from types definition

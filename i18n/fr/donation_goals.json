@@ -4,7 +4,7 @@
 		"install_title": "Installer l'overlay",
 		"create_bt": "Créer des objectifs",
 		"add_goal_bt": "Ajouter un objectif",
-		"simulate_bt": "Simuler la progression",
+		"simulate_bt": "Simuler montant récolté",
 		"premium_limit": "Vous avez atteint le maxium de goals que vous pouvez créer.",
 		"non_premium_limit": "@:donation_goals.premium_limit \nDevenez membre premium pour créer jusqu'à {MAX} goals.",
 		"default_title": "Objectifs",

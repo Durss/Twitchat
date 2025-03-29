@@ -31,7 +31,6 @@
 			<VoiceTranscript class="tts" />
 
 			<PollForm				class="popin" v-if="$store.params.currentModal == 'poll'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
-			<ChatPollForm			class="popin" v-if="$store.params.currentModal == 'chatPoll'" @close="$store.params.closeModal()" />
 			<ChatSuggestionForm		class="popin" v-if="$store.params.currentModal == 'chatsuggForm'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
 			<RaffleForm				class="popin" v-if="$store.params.currentModal == 'raffle'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
 			<PredictionForm			class="popin" v-if="$store.params.currentModal == 'pred'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
@@ -54,7 +53,6 @@
 			<Extensions				class="popin" v-if="$store.params.currentModal == 'extensions'" @close="$store.params.closeModal()" />
 			<QnaForm				class="popin" v-if="$store.params.currentModal == 'qnaForm'" @close="$store.params.closeModal()" />
 			<QnaList				class="popin" v-if="$store.params.currentModal == 'qna'" @close="$store.params.closeModal()" />
-			<GroqHistory			class="popin" v-if="$store.params.currentModal == 'groqHistory'" @close="$store.params.closeModal()" />
 			<UserCard				class="popin"  />
 		</Teleport>
 
@@ -67,12 +65,20 @@
 		</Teleport>
 
 		<NonPremiumCleanup v-if="mustDisableItems" @close="mustDisableItems_precalc = false" />
-
+		
 		<OutdatedDataVersionAlert v-if="$store.main.outdatedDataVersion" />
 
 		<div class="bottom">
 			<ChatForm class="chatForm" ref="chatForm"
 				v-if="buildIndex >= 3 + $store.params.chatColumnsConfig.length"
+				@poll="$store.params.openModal('poll')"
+				@chatpoll="$store.params.openModal('chatsuggForm')"
+				@pred="$store.params.openModal('pred')"
+				@raffle="$store.params.openModal('raffle')"
+				@bingo="$store.params.openModal('bingo')"
+				@liveStreams="$store.params.openModal('liveStreams')"
+				@TTuserList="$store.params.openModal('TTuserList')"
+				@pins="$store.params.openModal('pins')"
 				@search="searchMessage"
 				@setCurrentNotification="setCurrentNotification"
 				v-model:showEmotes="showEmotes" @update:showEmotes="(v:boolean) => showEmotes = v"
@@ -213,8 +219,6 @@ import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
 import ShareParams from './ShareParams.vue';
 import Config from '@/utils/Config';
-import GroqHistory from '@/components/chatform/GroqHistory.vue';
-import ChatPollForm from '@/components/poll/ChatPollForm.vue';
 
 @Component({
 	components:{
@@ -238,14 +242,12 @@ import ChatPollForm from '@/components/poll/ChatPollForm.vue';
 		TTUserList,
 		ObsHeatLogs,
 		MessageList,
-		GroqHistory,
 		DevmodeMenu,
 		RewardsList,
 		ShareParams,
 		ShoutoutList,
 		TriggersLogs,
 		TrackedUsers,
-		ChatPollForm,
 		BingoGridForm,
 		MessageSearch,
 		StreamSummary,
@@ -376,13 +378,6 @@ class Chat extends Vue {
 			let poll = this.$store.poll.data;
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
 			if(poll && isNew) this.setCurrentNotification("poll", false);
-		});
-
-		//Auto opens the poll status if terminated
-		watch(() => this.$store.chatPoll.data, (newValue, prevValue) => {
-			let poll = this.$store.chatPoll.data;
-			const isNew = !prevValue || (newValue && prevValue);
-			if(poll && isNew) this.setCurrentNotification("chatPoll", false);
 		});
 
 		//Auto opens the bingo status when created
@@ -721,7 +716,6 @@ class Chat extends Vue {
 						case "toggle":	trigger.enabled = !trigger.enabled; break;
 					}
 				}
-				this.$store.triggers.saveTriggers();
 				break;
 			}
 
@@ -768,12 +762,10 @@ class Chat extends Vue {
 			case TwitchatEvent.TIMER_ADD: {
 				const durationStr = (e.data as JsonObject).timeAdd as string ?? "1";
 				const durationMs = isNaN(parseInt(durationStr))? 1000 : parseInt(durationStr) * 1000;
-				const timer = this.$store.timers.timerList.find(v=>v.type == 'timer' && v.isDefault);
-				if(!timer) return;
 				if(durationMs > 0) {
-					this.$store.timers.timerAdd(timer.id, durationMs);
+					this.$store.timer.timerAdd(durationMs);
 				}else{
-					this.$store.timers.timerRemove(timer.id, -durationMs);
+					this.$store.timer.timerRemove(-durationMs);
 				}
 				break;
 			}
@@ -781,12 +773,10 @@ class Chat extends Vue {
 			case TwitchatEvent.COUNTDOWN_ADD: {
 				const durationStr = (e.data as JsonObject).timeAdd as string ?? "1";
 				const durationMs = isNaN(parseInt(durationStr))? 1000 : parseInt(durationStr) * 1000;
-				const timer = this.$store.timers.timerList.find(v=>v.type == 'countdown' && v.isDefault);
-				if(!timer) return;
 				if(durationMs > 0) {
-					this.$store.timers.timerAdd(timer.id, durationMs);
+					this.$store.timer.countdownAdd(durationMs);
 				}else{
-					this.$store.timers.timerRemove(timer.id, -durationMs);
+					this.$store.timer.countdownRemove(-durationMs);
 				}
 				break;
 			}
@@ -816,8 +806,8 @@ class Chat extends Vue {
 	/**
 	 * Called when selecting an emote from the emote selectors
 	 */
-	public onSelectEmote(item:TwitchatDataTypes.Emote):void {
-		(this.$refs.chatForm as ChatFormClass).onSelectItem(item.code);
+	public onSelectEmote(item:string):void {
+		(this.$refs.chatForm as ChatFormClass).onSelectItem(item);
 	}
 
 	/**

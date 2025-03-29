@@ -98,7 +98,7 @@ Create a `data/credentials/credentials.json` file and set the following content 
 
 	"twitch_client_id": "",
 	"twitch_client_secret": "",
-	"twitch_redirect_uri": "http://localhost:8081/oauth",
+	"twitch_redirect_uri": "http://localhost:8080/oauth",
 	"twitch_scopes": [
 		"chat:read+user:read:chat",
 		"chat:edit+user:write:chat",
@@ -146,19 +146,18 @@ Create a `data/credentials/credentials.json` file and set the following content 
 	"spotify_client_id": "",
 	"spotify_client_secret": "",
 	"spotify_scopes": "user-read-currently-playing user-modify-playback-state playlist-read-private playlist-modify-public playlist-modify-private",
-	"spotify_redirect_uri": "http://localhost:8081/spotify/auth",
+	"spotify_redirect_uri": "http://localhost:8080/spotify/auth",
 
 	"patreon_client_id": "",
 	"patreon_client_secret": "",
 	"patreon_scopes": "identity campaigns campaigns.members w:campaigns.webhook",
-	"patreon_redirect_uri": "http://localhost:8081/patreon/auth",
+	"patreon_redirect_uri": "http://localhost:8080/patreon/auth",
 
 	"patreon_client_id_server": "",
 	"patreon_client_secret_server": "",
 	"patreon_redirect_uri_server": "http://localhost:3018/api/patreon/serverauth",
 	"patreon_webhook_secret": "",
-	"patreon_cipherKey":"", //64 chars hexadecimal
-	"patreon_webhook_url":"https://your_domain.com/api/patreon/user/webhook/{ID}",
+	"patreon_cipherKey":"", //64 chars
 
 	"tenor_secret": "",
 	"youtube_key": "path/to/key.json",
@@ -181,25 +180,25 @@ Create a `data/credentials/credentials.json` file and set the following content 
 
 	"streamelements_client_id":"",
 	"streamelements_client_secret":"",
+	
+	"tipeee_client_id":"",
+	"tipeee_client_secret":"",
+	"tipeee_redirect_uri":"http://localhost:8080/tipeee/auth",
 
-	"tipeee_client_id": "",
-	"tipeee_client_secret": "",
-	"tipeee_redirect_uri": "http://localhost:8081/tipeee/auth",
-
-	"tiltify_client_id": "",
-	"tiltify_client_secret": "",
-	"tiltify_webhook_verify": "",
-	"tiltify_webhook_id": "",
-	"tiltify_redirect_uri": "http://localhost:8081/tiltify/auth",
-	"tiltify_scopes": "public webhooks:write",
-	"tiltify_api_path": "https://v5api.tiltify.com"
+	"tiltify_client_id":"",
+	"tiltify_client_secret":"",
+	"tiltify_webhook_verify":"",
+	"tiltify_webhook_id":"",
+	"tiltify_redirect_uri":"http://localhost:8080/tiltify/auth",
+	"tiltify_scopes":"public webhooks:write",
+	"tiltify_api_path":"https://v5api.tiltify.com"
 }
 ```
 Create a [twitch application](https://dev.twitch.tv/console) and fill in the `client_id` and `client_secret` values.\
 Write anything you want in the `csrf_key` field, it will be used to secure twitch authentication from CSRF attacks.\
 Configure the redirect URI of the twitch application to:\
 ```
-http://localhost:8081/oauth
+http://localhost:8080/oauth
 ```
 *(adapt with the proper port and domain if deploying online)*\
 Set the same value to the `redirect_uri` property of the `credentials.json` file.\
@@ -279,7 +278,7 @@ To make localization as easy as possible, a dedicated interface has been made th
 Any update on this interface triggers a rebuild of the compiled file as well as an update on any twitchat page opened on the same browser.\
 \
 The interface is only accessible to adminitrators and can be found here:\
-[localhost:8081/labels](https://localhost:8081/labels)\
+[localhost:8080/labels](https://localhost:8080/labels)\
 To get admin rights you must set your twitch user ID under the `admin_ids` array in the `credentials.json` file.\
 
 # Adding new labels

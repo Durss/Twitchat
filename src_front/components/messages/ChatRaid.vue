@@ -2,7 +2,7 @@
 	<div :class="classes"
 	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
-
+		
 		<Icon name="raid" alt="raid" class="icon"/>
 
 		<div class="messageHolder">
@@ -23,7 +23,7 @@
 						<div class="details">
 							<p class="category" v-if="messageData.stream.category">{{messageData.stream.category}}</p>
 							<div class="duration" v-if="messageData.stream.wasLive">
-								<Icon name="timer" class="icon" />{{formattedDuration}}
+								<Icon name="timer" class="icon" />{{formatedDuration}}
 							</div>
 						</div>
 					</div>
@@ -37,7 +37,7 @@
 					v-if="showSOButton"
 					>{{ $t('chat.soBt') }}</Button>
 			</div>
-
+				
 			<Button v-else-if="showSOButton"
 				@click.stop="shoutout()"
 				small
@@ -50,6 +50,7 @@
 </template>
 
 <script lang="ts">
+//TODO make sure the "canModerate" works
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';
@@ -70,7 +71,7 @@ class ChatRaid extends AbstractChatMessage {
 	public shoutoutLoading = false;
 	public showCount = false;
 	public showSOButton = false;
-	public formattedDuration = "";
+	public formatedDuration = "";
 
 	public get classes():string[] {
 		const res = ["chatraid","chatMessage","highlight"];
@@ -86,7 +87,7 @@ class ChatRaid extends AbstractChatMessage {
 
 	public beforeMount():void {
 		this.showCount = this.$store.params.appearance.showRaidViewersCount.value !== false;
-		this.formattedDuration = Utils.formatDuration(this.messageData.stream.duration);
+		this.formatedDuration = Utils.formatDuration(this.messageData.stream.duration);
 		this.showSOButton = this.$store.auth.twitch.user.channelInfo[this.messageData.channel_id]?.is_moderator === true;
 	}
 
@@ -130,7 +131,7 @@ export default toNative(ChatRaid);
 				flex-grow: 1;
 				flex-basis: 150px;
 			}
-
+	
 			.soButton {
 				flex-shrink: 0;
 			}

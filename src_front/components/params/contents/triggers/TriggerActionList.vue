@@ -83,7 +83,7 @@
 			</div>
 		</div>
 
-		<TriggerConditionList class="card-item conditions" :triggerData="triggerData" :conditions="triggerData.conditions" data-noselect />
+		<TriggerConditionList class="card-item conditions" :triggerData="triggerData" data-noselect />
 
 		<div :class="listClasses">
 			<div v-if="hasCondition" class="conditionSelector" data-noselect>
@@ -99,12 +99,9 @@
 
 			<div class="dash long"></div>
 
-			<button class="addBt"
-			v-if="filteredActionList.length > 0"
-			@click="addActionAt(0)" data-noselect>
+			<button class="addBt" @click="addActionAt(0)" data-noselect>
 				<img src="@/assets/icons/add.svg" class="icon">
 			</button>
-			<TTButton v-else class="mainAddBt" icon="add" @click="addActionAt(0)" data-noselect primary big>{{ $t("triggers.add_action") }}</TTButton>
 
 			<draggable
 			v-model="filteredActionList"
@@ -117,9 +114,9 @@
 				<template #item="{element, index}:{element:TriggerActionTypes, index:number}">
 					<div class="listItem">
 						<div class="dash"></div>
-						<TriggerActionEntry
-							:class="getActionClasses(element)"
+						<TriggerActionEntry data-noselect
 							:ref="'actionEntry_'+element.id"
+							:class="getActionClasses(element)"
 							:data-actionid="element.id"
 							:action="element"
 							:index="index"
@@ -159,6 +156,7 @@ import draggable from 'vuedraggable';
 import ParamItem from '../../ParamItem.vue';
 import TriggerActionChatCommandParams from './TriggerActionChatCommandParams.vue';
 import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentParams.vue';
+import TriggerActionEntry from './TriggerActionEntry.vue';
 import TriggerActionHeatParams from './TriggerActionHeatParams.vue';
 import TriggerActionScheduleParams from './TriggerActionScheduleParams.vue';
 import TriggerActionSlashCommandParams from './TriggerActionSlashCommandParams.vue';
@@ -166,7 +164,6 @@ import TriggerAdApproachParams from './TriggerAdApproachParams.vue';
 import TriggerConditionList from './TriggerConditionList.vue';
 import TriggerGoXLRParams from './TriggerGoXLRParams.vue';
 import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
-import TriggerActionEntry from './TriggerActionEntry.vue';
 
 @Component({
 	components:{
@@ -414,11 +411,6 @@ class TriggerActionList extends Vue {
 		this.selectStyles.width = (x2 - x1)+"px";
 		this.selectStyles.height = (y2 - y1)+"px";
 
-		if(x2-x1 < 10 && y2-y1 < 10) {
-			this.selectedActions = [];
-			return;
-		}
-
 		// const entries = this.$refs.entry as TriggerActionEntry[];
 		const entries = (this.$el as HTMLElement).querySelectorAll(".actionItemEntry");
 		const selected:string[] = []
@@ -426,9 +418,9 @@ class TriggerActionList extends Vue {
 			const entry = entries[i] as HTMLElement;
 			const bounds = entry.getBoundingClientRect();
 			const overlap = !( x1 + offsetBounds.left > bounds.right
-			|| x2 + offsetBounds.left < bounds.left
-			|| y1 + offsetBounds.top > bounds.bottom
-			|| y2 + offsetBounds.top < bounds.top );
+							|| x2 + offsetBounds.left < bounds.left
+							|| y1 + offsetBounds.top > bounds.bottom
+							|| y2 + offsetBounds.top < bounds.top );
 			if(overlap) {
 				selected.push(entry.dataset.actionid as string);
 			}
@@ -456,10 +448,8 @@ class TriggerActionList extends Vue {
 	private onKeyDown(e:KeyboardEvent):void {
 		//Avoid closing parameters page if actions are selected
 		if(e.key == "Escape" && this.selectedActions.length > 0) {
-			this.selectedActions = [];
 			e.stopPropagation();
 		}
-		if(this.selectedActions.length > 0 && e.key == "Backspace") e.preventDefault();
 	}
 
 	private onKeyUp(e:KeyboardEvent):void {
@@ -468,7 +458,7 @@ class TriggerActionList extends Vue {
 		if(["TEXTAREA", "INPUT"].indexOf(nodeName) > -1) return;
 
 		//Delete selected actions
-		if((e.key == "Delete" || e.key == "Backspace") && this.selectedActions.length > 0) {
+		if(e.key == "Delete" && this.selectedActions.length > 0) {
 			const list = this.selectedActions;
 			this.$confirm(this.$t("triggers.delete_actions_confirm")).then(async ()=> {
 				for (let i = 0; i < this.triggerData.actions.length; i++) {
@@ -572,7 +562,6 @@ export default toNative(TriggerActionList);
 
 		.action.selected {
 			outline: 2px dashed var(--color-text);
-			border-radius: var(--border-radius);
 		}
 
 		.addBt {
@@ -591,11 +580,6 @@ export default toNative(TriggerActionList);
 			&:hover {
 				background-color: var(--color-primary-light);
 			}
-		}
-
-		.mainAddBt {
-			display: flex;
-			margin: auto;
 		}
 
 		&.alert {

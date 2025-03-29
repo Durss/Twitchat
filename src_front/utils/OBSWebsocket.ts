@@ -759,7 +759,7 @@ export default class OBSWebSocket extends EventDispatcher {
 			const cacheKey = target + this.sceneCacheKeySplitter + sourceName;
 			//Searching for a source in the scene tree may take quite much time depending on the number
 			//of sources and nested scenes. If the resource has already been queried, send back cached data
-			if(this.sceneSourceCache[cacheKey] && Date.now() > this.sceneSourceCache[cacheKey].ts + 60000) {
+			if(this.sceneSourceCache[cacheKey]) {
 				return this.sceneSourceCache[cacheKey].value;
 			}
 

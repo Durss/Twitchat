@@ -28,7 +28,6 @@
 			"emoteBt_aria": "Emotes",
 			"pollBt_aria": "Sondage",
 			"suggBt_aria": "Suggestions",
-			"chatPollBt_aria": "Sondage de tchat",
 			"predictionBt_aria": "Prédiction",
 			"trackedBt_aria": "Personnes suivies",
 			"raffleBt_aria": "Tirage au sort",
@@ -52,7 +51,6 @@
 			"spotify_down": "L'API Spotify est cassée.\nL'overlay et les triggers Spotify ne pourront fonctionner tant qu'ils ne l'auront pas réparée.",
 			"creditsBt_aria": "Générique de fin",
 			"bingoGridBt_aria": "Grilles de bingo",
-			"groqBt_aria": "Réponses Groq",
 			"qnaBt_aria": "Questions/Réponses",
 			"trainBt_aria": "Train de la hype",
 			"raidBt_aria": "Raiding",
@@ -60,7 +58,7 @@
 			"extra_chan_tt": "Ecrire chez : {USER}\n(clic droit pour changer)",
 			"connect_extra_chan": "Se connecter à une chaîne Twitch",
 			"extra_chan_params_tt": "Paramètres",
-			"extra_chan_info": "Les Triggers, le mode urgence, l'automod,\netc... ne s'exécuteront que pour votre propre chaîne",
+			"extra_chan_info": "Les Triggers, le TTS, le mode urgence, l'automod,\netc... ne s'exécuteront que pour votre propre chaîne",
 			"youtube_not_connected": "Vous n'êtes connecté·e à aucun live YouTube",
 			"youtube_missing_scope": "Vous n'avez pas autorisé Twitchat à envoyer des messages sur YouTube",
 			"twitch_missing_scope": "Vous n'avez pas autorisé Twitchat à envoyer des messages sur Twtich",
@@ -196,7 +194,7 @@
 			"clip_views": "Vues:",
 			"highlightBt_aria": "Mettre clip en avant",
 			"highlightBt_tt": "Afficher sur le stream<br><i>(nécessite l'overlay)</i>",
-			"highlightBt_alert_tt": "Suite à un changement majeur de Twitch, les clips doivent maintenant être joué via leur lecteur.\nLa lecture risque d'être saccadée et un clip venant d'un stream 18+ ne pourra plus jouer automatiquement.",
+			"highlightBt_alert_tt": "Suite à un changement majeur de Twitch, les clips doivent maintenant être joué via leur lecteur, et un clip venant d'un stream 18+ ne pourra plus jouer automatiquement :(",
 			"deleted": "<message supprimé>",
 			"deleted_by": "<message supprimé par {USER}>",
 			"disable_ad": "Désactiver",
@@ -275,7 +273,7 @@
 			"abort": "Le compte à rebours de {DURATION} a été arrêté après {ABORT_DURATION}"
 		},
 		"timer": {
-			"end": "Chronomètre terminé après {DURATION}"
+			"end": "Chronomètre terminé à {DURATION}"
 		},
 		"connect": {
 			"on": "Bienvenue sur la chaine {PLATFORM} de {ROOM}",
@@ -589,10 +587,6 @@
 		"private_mod_message": {
 			"accepted": "accepté",
 			"refused": "refusé"
-		},
-		"custom_train_summary": {
-			"title": "\"{NAME}\" a terminé au niveau {LEVEL} à {PERCENT} pour un total de {AMOUNT}.",
-			"record": "record"
 		}
 	}
 }

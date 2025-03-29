@@ -70,7 +70,7 @@ class TriggerActionBingoGridEntry extends AbstractTriggerActionEntry {
 				cellActionMode:"id",
 				x:1,
 				y:1,
-				grid:this.$store.bingoGrid.gridList[0]?.id || "",
+				grid:"",
 				label:"",
 				cellId:"",
 			}
@@ -83,7 +83,6 @@ class TriggerActionBingoGridEntry extends AbstractTriggerActionEntry {
 				disabled:!g.enabled
 			}
 		});
-		this.param_grid.listValues.unshift({value:"", label:this.$t("global.select_placeholder")});
 
 		this.param_action.listValues = [
 			{value:"tick", labelKey:"triggers.actions.bingoGrid.param_action_tick"},

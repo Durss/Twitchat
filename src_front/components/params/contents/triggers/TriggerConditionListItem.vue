@@ -11,12 +11,12 @@
 			<ParamItem class="value" v-if="needsValue && forceCustom !== true && param_value_list.listValues" noBackground :paramData="param_value_list" v-model="condition.value" :key="'vl_'+condition.id" @change="onSelectFixedValue()" />
 			<ParamItem class="value" v-else-if="needsValue" noBackground :paramData="param_value" v-model="condition.value" :key="'v_'+condition.id" placeholdersAsPopout />
 		</div>
-
+		
 		<div class="ctas">
 			<TTButton small icon="group"
 				@click="addItem()"
 				v-tooltip="$t('triggers.condition.group_tt')"
-				v-if="parentCondition.conditions.length > 1" />
+				v-if="triggerData.conditions && triggerData.conditions.conditions.length > 1" />
 			<TTButton alert small icon="cross"
 				@click="deleteItem()" />
 		</div>
@@ -25,7 +25,7 @@
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
-import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerConditionOperatorList, TriggerEventPlaceholders, type TriggerCondition, type TriggerConditionGroup, type TriggerData, VALUE_PLACEHOLDER_PREFIX, type TriggerConditionOperator, type ITriggerPlaceholder, STOPWATCH_PLACEHOLDER_PREFIX, COUNTDOWN_PLACEHOLDER_PREFIX } from '@/types/TriggerActionDataTypes';
+import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerConditionOperatorList, TriggerEventPlaceholders, type TriggerCondition, type TriggerConditionGroup, type TriggerData, VALUE_PLACEHOLDER_PREFIX, type TriggerConditionOperator } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
@@ -48,13 +48,10 @@ class TriggerConditionListItem extends Vue {
 	public condition!:TriggerCondition;
 
 	@Prop
-	public parentCondition!: TriggerConditionGroup;
-
-	@Prop({ default: [], type: Array })
-	public placeholderList!:ITriggerPlaceholder<string>[];
+	public parentCondition!:TriggerConditionGroup;
 
 	public forceCustom:boolean = false;
-	public param_placeholder:TwitchatDataTypes.ParameterData<string, string, void, void, ITriggerPlaceholder<string>> = {type:"list", value:""}
+	public param_placeholder:TwitchatDataTypes.ParameterData<string, string> = {type:"list", value:""}
 	public param_operator:TwitchatDataTypes.ParameterData<TriggerConditionOperator, TriggerConditionOperator> = {type:"list", value:">"}
 	public param_value:TwitchatDataTypes.ParameterData<string, string> = {type:"string", value:"", longText:false}
 	public param_value_list:TwitchatDataTypes.ParameterData<string, unknown> = {type:"list", value:""}
@@ -66,7 +63,7 @@ class TriggerConditionListItem extends Vue {
 		return this.param_operator.value != "empty" && this.param_operator.value != "not_empty";
 	}
 
-	public beforeMount(): void {
+	public beforeMount():void {
 		if(this.condition.placeholder) this.condition.placeholder = this.condition.placeholder.toUpperCase();
 
 		this.buildSourceList();
@@ -81,79 +78,53 @@ class TriggerConditionListItem extends Vue {
 	 * Create the source list used as the first operator of the condition
 	 */
 	public buildSourceList():void {
-		let placeholderListLocal:ConditionListValues<string,ITriggerPlaceholder<string>>[] =  [];
-		let placeholders: ITriggerPlaceholder<any, unknown, "">[] = [];
-		if(this.placeholderList.length == 0) {
-			//Add commmand params
-			if(this.triggerData.chatCommandParams) {
-				this.triggerData.chatCommandParams.forEach(v=> {
-					placeholderListLocal.push({
-						value:v.tag.toUpperCase(),
-						label: this.$t('triggers.condition.placeholder_cmd_param', {NAME:"{"+v.tag.toUpperCase()+"}"}),
-					});
-				})
-			}
-
-			//Add trigger's placeholders
-			placeholders = TriggerEventPlaceholders(this.triggerData.type).concat();
-			let debouncedRebuild = -1;
-			placeholderListLocal = placeholderListLocal.concat(placeholders.map(v=> {
-				let name = "";
-				//If it's a counter tag, get counter's name
-				if(v.tag.indexOf(COUNTER_VALUE_PLACEHOLDER_PREFIX) > -1) {
-					const counterTag = v.tag.replace(COUNTER_VALUE_PLACEHOLDER_PREFIX, "");
-					const counter = this.$store.counters.counterList.find(v=>v.placeholderKey?.toLowerCase() === counterTag.toLowerCase());
-					if(counter) name = counter.name;
-				}
-				if(v.tag.indexOf(VALUE_PLACEHOLDER_PREFIX) > -1) {
-					const valueTag = v.tag.replace(VALUE_PLACEHOLDER_PREFIX, "");
-					const counter = this.$store.values.valueList.find(v=>v.placeholderKey?.toLowerCase() === valueTag.toLowerCase());
-					if(counter) name = counter.name;
-				}
-				if(v.tag.indexOf(COUNTDOWN_PLACEHOLDER_PREFIX) > -1) {
-					const valueTag = v.tag.replace(COUNTDOWN_PLACEHOLDER_PREFIX, "");
-					const timer = this.$store.timers.timerList.find(v=>v.placeholderKey && valueTag.indexOf(v.placeholderKey) == 0);
-					if(timer) name = timer.title;
-				}
-				if(v.tag.indexOf(STOPWATCH_PLACEHOLDER_PREFIX) > -1) {
-					const valueTag = v.tag.replace(STOPWATCH_PLACEHOLDER_PREFIX, "");
-					const timer = this.$store.timers.timerList.find(v=>v.placeholderKey && valueTag.indexOf(v.placeholderKey) == 0);
-					if(timer) name = timer.title;
-				}
-				watch(()=>v.values, ()=> {
-					clearTimeout(debouncedRebuild);
-					debouncedRebuild = window.setTimeout(()=> {
-						this.buildSourceList();
-					}, 20);
-				}, {deep:true});
-				return {
-					label: this.$t(v.descKey, {NAME:name? "\""+name+"\"" : ""}),
+		//Add commmand params
+		let placeholderList:ConditionListValues<string>[] = [];
+		if(this.triggerData.chatCommandParams) {
+			this.triggerData.chatCommandParams.forEach(v=> {
+				placeholderList.push({
 					value:v.tag.toUpperCase(),
-					fixedValues:v.values,
-					storage:v,
-				}
-			}));
-		}else {
-			placeholders = this.placeholderList;
-			placeholderListLocal = placeholders.map(v => {
-				return {
-					label: this.$t(v.descKey, v.descReplacedValues ?? {}),
-					value: v.tag.toUpperCase(),
-					fixedValues: v.values,
-					storage:v,
-				}
+					label: this.$t('triggers.condition.placeholder_cmd_param', {NAME:"{"+v.tag.toUpperCase()+"}"}),
+				});
 			})
 		}
 
+		//Add trigger's placeholders
+		let placeholders = TriggerEventPlaceholders(this.triggerData.type).concat();
+		let debouncedRebuild = -1;
+		placeholderList = placeholderList.concat(placeholders.map(v=> {
+			let name = "";
+			//If it's a counter tag, get counter's name
+			if(v.tag.indexOf(COUNTER_VALUE_PLACEHOLDER_PREFIX) > -1) {
+				const counterTag = v.tag.replace(COUNTER_VALUE_PLACEHOLDER_PREFIX, "");
+				const counter = this.$store.counters.counterList.find(v=>v.placeholderKey?.toLowerCase() === counterTag.toLowerCase());
+				if(counter) name = counter.name;
+			}
+			if(v.tag.indexOf(VALUE_PLACEHOLDER_PREFIX) > -1) {
+				const valueTag = v.tag.replace(VALUE_PLACEHOLDER_PREFIX, "");
+				const counter = this.$store.values.valueList.find(v=>v.placeholderKey?.toLowerCase() === valueTag.toLowerCase());
+				if(counter) name = counter.name;
+			}
+			watch(()=>v.values, ()=> {
+				clearTimeout(debouncedRebuild);
+				debouncedRebuild = window.setTimeout(()=> {
+					this.buildSourceList();
+				}, 20);
+			}, {deep:true});
+			return {
+				label: this.$t(v.descKey, {NAME:"\""+name+"\""}),
+				value:v.tag.toUpperCase(),
+				fixedValues:v.values,
+			}
+		}));
+
 		//Fail safe, if the placeholder isn't found on the list, push it to avoid reseting it to another
 		//random one in case it's been deleted or I fuck up something in the futur
-		if(this.condition.placeholder != "" && placeholderListLocal.findIndex(v=>v.value == this.condition.placeholder) == -1) {
-			placeholderListLocal.push({label:this.condition.placeholder, value:this.condition.placeholder});
+		if(this.condition.placeholder != "" && placeholderList.findIndex(v=>v.value == this.condition.placeholder) == -1) {
+			placeholderList.push({label:this.condition.placeholder, value:this.condition.placeholder});
 		}
-
-		console.log(placeholderListLocal)
-		this.param_placeholder.listValues = placeholderListLocal;
-		this.param_value.placeholderList = placeholders.concat();
+		this.param_placeholder.listValues = placeholderList;
+		this.param_value.placeholderList = placeholders;
 		//Wait for list to render and update its internal "selectedListValue" value.
 		//Might be something fixable within the ParamItem component to avoid that
 		//async behavior, but too lazy for now :3
@@ -168,11 +139,11 @@ class TriggerConditionListItem extends Vue {
 	 * isn't defined as number parsable.
 	 */
 	public updateOperators(inputOrigin:boolean = false):void {
-		if(inputOrigin && this.firstRender || !this.param_placeholder.selectedListValue) return;
+		if(inputOrigin && this.firstRender) return;
 
-		const placeholderRef = this.param_placeholder.selectedListValue.storage;
+		let placeholders = TriggerEventPlaceholders(this.triggerData.type).concat();
+		const placeholderRef = placeholders.find(v=> v.tag.toLowerCase() === this.condition.placeholder.toLowerCase());
 		const cmdParamRef = this.triggerData.chatCommandParams?.find(v=> v.tag == this.condition.placeholder);
-		console.log(placeholderRef)
 
 		this.param_operator.listValues = TriggerConditionOperatorList.map(v=> {
 			return {
@@ -181,7 +152,6 @@ class TriggerConditionListItem extends Vue {
 			}
 		}).filter(v=> {
 			//Remove arithmetical operators if placeholder isn't parsable as number
-			// console.log(placeholderRef, v.value);
 			if((!placeholderRef || placeholderRef.numberParsable !== true) && !cmdParamRef) {
 				return ![">","<",">=","<="].includes(v.value);
 			}
@@ -189,8 +159,8 @@ class TriggerConditionListItem extends Vue {
 		});
 
 		//If selected placeholder has fixed values
-		if(this.param_placeholder.selectedListValue && (this.param_placeholder.selectedListValue as ConditionListValues<string,ITriggerPlaceholder<string>>).fixedValues) {
-			const list = (this.param_placeholder.selectedListValue as ConditionListValues<string,ITriggerPlaceholder<string>>).fixedValues!.concat();
+		if(this.param_placeholder.selectedListValue && (this.param_placeholder.selectedListValue as ConditionListValues<string>).fixedValues) {
+			const list = (this.param_placeholder.selectedListValue as ConditionListValues<string>).fixedValues!.concat();
 			list.push({value:this.CUSTOM, labelKey:"triggers.condition.custom_value"});
 			this.param_value_list.listValues = list;
 			this.param_value_list.type = "imagelist";
@@ -249,7 +219,7 @@ class TriggerConditionListItem extends Vue {
 	}
 }
 
-export interface ConditionListValues<T,U> extends TwitchatDataTypes.ParameterDataListValue<T,U> {
+export interface ConditionListValues<T> extends TwitchatDataTypes.ParameterDataListValue<T> {
 	fixedValues?:TwitchatDataTypes.ParameterDataListValue<unknown>[];
 }
 

@@ -3,24 +3,24 @@
 		<div class="head" v-if="triggerMode === false">
 			<ClearButton @click="close()" />
 
-			<h1><Icon name="chatSugg" class="icon" />{{ $t('suggestion.title') }}</h1>
+			<h1><Icon name="chatPoll" class="icon" />{{ $t('suggestion.title') }}</h1>
 
 			<div class="description">{{ $t('suggestion.info') }}</div>
 		</div>
 
 		<div class="content">
-			<form  @submit.prevent="submitChatSuggestion()">
+			<form  @submit.prevent="submitChatPoll()">
 				<div class="card-item">
 					<ParamItem noBackground :paramData="command" autofocus @change="changeValue()" />
 					<div class="example">
-						<span>{{ $t("global.example") }}</span>:
+						<span>{{ $t("global.example") }}</span>: 
 						<i18n-t scope="global" tag="mark" keypath="suggestion.example">
 							<template #CMD>{{example}}</template>
 							<template #SUGG>{{$t("suggestion.example_sugg")}}</template>
 						</i18n-t>
 					</div>
 				</div>
-
+			
 				<ParamItem :paramData="maxLength" @change="changeValue()" />
 
 				<ParamItem :paramData="duration" @change="changeValue()" />
@@ -80,14 +80,14 @@ class ChatSuggestionForm extends AbstractSidePanel {
 
 	@Prop({type: Boolean, default: false})
 	public triggerMode!:boolean;
-
+	
 	//This is used by the trigger action form.
 	@Prop({type: Object, default:{}})
 	public action!:TriggerActionChatSuggestionsData;
 
 	@Prop
 	public triggerData!:TriggerData;
-
+	
 	public command:TwitchatDataTypes.ParameterData<string>			= {type:"string", value:"!sugg", placeholder:"!sugg", maxLength:30, labelKey:"suggestion.command", icon:"commands"};
 	public maxLength:TwitchatDataTypes.ParameterData<number>		= {value:100, type:"number", min:1, max:500, labelKey:"suggestion.maxLength", icon:"font"};
 	public duration:TwitchatDataTypes.ParameterData<number>			= {value:2, type:"number", min:1, max:60 * 24, labelKey:"suggestion.duration", icon:"timer"};
@@ -105,7 +105,7 @@ class ChatSuggestionForm extends AbstractSidePanel {
 	}
 
 	public get classes():string[] {
-		const res = ["chatsuggform", "sidePanel"];
+		const res = ["chatpollform", "sidePanel"];
 		if(this.triggerMode !== false) res.push("embedMode");
 		return res;
 	}
@@ -157,7 +157,7 @@ class ChatSuggestionForm extends AbstractSidePanel {
 		}
 	}
 
-	public submitChatSuggestion():void {
+	public submitChatPoll():void {
 		this.$store.chatSuggestion.setChatSuggestion(this.dataObject);
 		this.close();
 	}
@@ -175,7 +175,7 @@ export default toNative(ChatSuggestionForm);
 </script>
 
 <style scoped lang="less">
-.chatsuggform{
+.chatpollform{
 	.example {
 		// .bevel();
 		// padding: .8em;

@@ -11,7 +11,7 @@
 		"authorization":"Authorizations",
 		"language":"Interface language",
 		"share": {
-			"info":"If you want to share your parameters between multiple accounts, click the \"Connect\" button below and authenticate with your secondary account.\n\nThe data from the second account will be replaced by the ones of your current \"{USER}\" account.",
+			"info":"If you want to share your parameters between multiple accounts, click the \"Connect\" button bellow and authenticate with your secondary account.\n\nThe data from the second account will be replaced by the ones of your current \"{USER}\" account.",
 			"connectBt": "Connect",
 			"sharingList": "Currently sharing with",
 			"unlinkBt": "Unlink",

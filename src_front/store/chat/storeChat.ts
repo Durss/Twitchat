@@ -781,7 +781,7 @@ export const storeChat = defineStore('chat', {
 					const m = res[i];
 
 					//Filter only entries for our own channel
-					// if(m.channel_id != uid) continue;
+					if(m.channel_id != uid) continue;
 
 					if(!lastPuEmote && m.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.twitch_gigantifiedEmote) {
 						lastPuEmote = true;
@@ -875,7 +875,7 @@ export const storeChat = defineStore('chat', {
 		clearHistory():void {
 			StoreProxy.main.confirm(StoreProxy.i18n.t("params.clearHistory"), StoreProxy.i18n.t("params.clearHistory_confirm"))
 			.then(()=> {
-				Database.instance.clearMessages();
+				Database.instance.clear();
 			}).catch(error=>{});
 		},
 
@@ -961,7 +961,6 @@ export const storeChat = defineStore('chat', {
 			const sMain = StoreProxy.main;
 			const sVoice = StoreProxy.voice;
 			const sBingoGrid = StoreProxy.bingoGrid;
-			const sChatPoll = StoreProxy.chatPoll;
 			const sAuth = StoreProxy.auth;
 			const s = Date.now();
 			const logTimings = false;//Enable to check for perf issues
@@ -1170,7 +1169,7 @@ export const storeChat = defineStore('chat', {
 							}
 							//Reset ad schedule if necessary
 							if(!isFromRemoteChan) {
-								if(/\b(?:https?:\/\/)?twitchat\.fr\b/gi.test(message.message)) {
+								if(/\b(?:https?:\/\/)twitchat\.fr\b/gi.test(message.message)) {
 									SchedulerHelper.instance.resetAdSchedule(message);
 								}
 								if(!message.user.channelInfo[message.channel_id].is_broadcaster) {
@@ -1488,13 +1487,11 @@ export const storeChat = defineStore('chat', {
 								StoreProxy.labels.updateLabelValue("KOFI_TIP_NAME", message.userName);
 								StoreProxy.labels.updateLabelValue("KOFI_TIP_AMOUNT", message.amountFormatted);
 								sRaffle.checkRaffleJoin(message);
-								StoreProxy.customTrain.registerActivity(message.id, "kofi", message.amount);
 							}else
 							if(message.eventType == "merch") {
 								StoreProxy.labels.updateLabelValue("KOFI_MERCH_USER", message.userName);
 								StoreProxy.labels.updateLabelValue("KOFI_MERCH_AMOUNT", message.amountFormatted);
 								StoreProxy.labels.updateLabelValue("KOFI_MERCH_NAME", message.products[0].name || "");
-								StoreProxy.customTrain.registerActivity(message.id, "kofi", message.amount);
 							}
 						}
 						break;
@@ -1508,7 +1505,6 @@ export const storeChat = defineStore('chat', {
 								StoreProxy.labels.updateLabelValue("STREAMELEMENTS_TIP_NAME", message.userName);
 								StoreProxy.labels.updateLabelValue("STREAMELEMENTS_TIP_AMOUNT", message.amountFormatted);
 								sRaffle.checkRaffleJoin(message);
-								StoreProxy.customTrain.registerActivity(message.id, "streamelements", message.amount);
 							}
 						}
 						break;
@@ -1522,7 +1518,6 @@ export const storeChat = defineStore('chat', {
 								StoreProxy.labels.updateLabelValue("STREAMLABS_TIP_NAME", message.userName);
 								StoreProxy.labels.updateLabelValue("STREAMLABS_TIP_AMOUNT", message.amountFormatted);
 								sRaffle.checkRaffleJoin(message);
-								StoreProxy.customTrain.registerActivity(message.id, "streamlabs", message.amount);
 							}else
 							if(message.eventType == "merch") {
 								StoreProxy.labels.updateLabelValue("STREAMLABS_MERCH_USER", message.userName);
@@ -1535,7 +1530,6 @@ export const storeChat = defineStore('chat', {
 								StoreProxy.donationGoals.onDonation(message.userName, message.amount.toString(), "streamlabs_charity");
 								StoreProxy.donationGoals.onSourceValueUpdate("streamlabs_charity", message.campaign.id);
 								sRaffle.checkRaffleJoin(message);
-								StoreProxy.customTrain.registerActivity(message.id, "streamlabs_charity", message.amount);
 							}
 						}
 						break;
@@ -1549,7 +1543,6 @@ export const storeChat = defineStore('chat', {
 								StoreProxy.labels.updateLabelValue("TIPEEE_TIP_NAME", message.userName);
 								StoreProxy.labels.updateLabelValue("TIPEEE_TIP_AMOUNT", message.amountFormatted);
 								sRaffle.checkRaffleJoin(message);
-								StoreProxy.customTrain.registerActivity(message.id, "tipeee", message.amount);
 							}
 						}
 						break;
@@ -1564,7 +1557,6 @@ export const storeChat = defineStore('chat', {
 							StoreProxy.labels.updateLabelValue("TWITCH_CHARITY_LAST_TIP_AMOUNT", message.amountFormatted);
 							sRaffle.checkRaffleJoin(message);
 							StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, message.amount.toString(), "twitch_charity");
-							StoreProxy.customTrain.registerActivity(message.id, "twitch_charity", message.amount);
 						}
 						break;
 					}
@@ -1600,7 +1592,6 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.updateLabelValue("PATREON_AVATAR", message.user.avatar);
 						StoreProxy.labels.updateLabelValue("PATREON_TITLE", message.tier.title);
 						StoreProxy.labels.updateLabelValue("PATREON_AMOUNT", message.tier.amount);
-						StoreProxy.customTrain.registerActivity(message.id, "patreon", message.tier.amount);
 						break;
 					}
 
@@ -1608,7 +1599,6 @@ export const storeChat = defineStore('chat', {
 					case TwitchatDataTypes.TwitchatMessageType.TILTIFY: {
 						StoreProxy.labels.updateLabelValue("TILTIFY_LAST_TIP_USER", message.userName);
 						StoreProxy.labels.updateLabelValue("TILTIFY_LAST_TIP_AMOUNT", message.amount);
-						StoreProxy.customTrain.registerActivity(message.id, "tiltify", message.amount);
 						break;
 					}
 
@@ -1783,24 +1773,11 @@ export const storeChat = defineStore('chat', {
 					case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
 						sUsers.flagAsFollower(message.user, message.channel_id);
 						if(!isFromRemoteChan) {
-							StoreProxy.labels.updateLabelValue("FOLLOWER_GENERIC_ID", message.user.id);
-							StoreProxy.labels.updateLabelValue("FOLLOWER_GENERIC_NAME", message.user.displayNameOriginal);
-							StoreProxy.labels.updateLabelValue("FOLLOWER_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
-							if(message.platform === "twitch") {
-								StoreProxy.labels.updateLabelValue("FOLLOWER_ID", message.user.id);
-								StoreProxy.labels.updateLabelValue("FOLLOWER_NAME", message.user.displayNameOriginal);
-								StoreProxy.labels.updateLabelValue("FOLLOWER_AVATAR", message.user.avatarPath || "", message.user.id);
-								StoreProxy.labels.incrementLabelValue("FOLLOWER_COUNT", 1);
-								StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, "1", "twitch_followers");
-							}else
-							if(message.platform === "tiktok") {
-								StoreProxy.labels.updateLabelValue("TIKTOK_FOLLOWER_USER", message.user.displayNameOriginal);
-								StoreProxy.labels.updateLabelValue("TIKTOK_FOLLOWER_AVATAR", message.user.avatarPath || "");
-							}else
-							if(message.platform === "youtube") {
-								StoreProxy.labels.updateLabelValue("FOLLOWER_YOUTUBE_USER", message.user.displayNameOriginal);
-								StoreProxy.labels.updateLabelValue("FOLLOWER_YOUTUBE_AVATAR", message.user.avatarPath || "");
-							}
+							StoreProxy.labels.updateLabelValue("FOLLOWER_ID", message.user.id);
+							StoreProxy.labels.updateLabelValue("FOLLOWER_NAME", message.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("FOLLOWER_AVATAR", message.user.avatarPath || "", message.user.id);
+							StoreProxy.labels.incrementLabelValue("FOLLOWER_COUNT", 1);
+							StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, "1", "twitch_followers");
 						}
 
 						//Merge all followbot events into one
@@ -1948,7 +1925,6 @@ export const storeChat = defineStore('chat', {
 
 				if(logTimings) console.log("2", message.id, Date.now() - s);
 
-				// If it's a message, check if it's a command
 				if(TwitchatDataTypes.IsTranslatableMessage[message.type] && !isFromRemoteChan) {
 					const typedMessage = message as TwitchatDataTypes.TranslatableMessage;
 					const cmd = (typedMessage.message || "").trim().split(" ")[0].toLowerCase();
@@ -1971,7 +1947,7 @@ export const storeChat = defineStore('chat', {
 					//Handle Emergency commands
 					sEmergency.handleChatCommand(typedMessage, cmd);
 
-					//Handle Q&A commands
+					//Handle Emergency commands
 					sQna.handleChatCommand(typedMessage, cmd);
 
 					//Handle Voicemod commands
@@ -1979,9 +1955,6 @@ export const storeChat = defineStore('chat', {
 
 					//Handle bingo grid commands
 					sBingoGrid.handleChatCommand(typedMessage, cmd);
-
-					//Handle chat poll commands
-					sChatPoll.handleChatCommand(typedMessage, cmd);
 				}
 
 				if(logTimings) console.log("3", message.id, Date.now() - s);
@@ -2165,9 +2138,7 @@ export const storeChat = defineStore('chat', {
 			}
 
 			TriggerActionHandler.instance.execute(message);
-			if(!isFromRemoteChan || StoreProxy.tts.params.allRemoteChans != false) {
-				TTSUtils.instance.addMessageToQueue(message);
-			}
+			TTSUtils.instance.addMessageToQueue(message);
 		},
 
 		deleteMessageByID(messageID:string, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint:boolean = true) {
@@ -2394,13 +2365,6 @@ export const storeChat = defineStore('chat', {
 			}else{
 				this.highlightedMessageId = null;
 				PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE);
-				TriggerActionHandler.instance.execute({
-					type:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT_CLOSE,
-					channel_id: StoreProxy.auth.twitch.user.id,
-					date: Date.now(),
-					id: Utils.getUUID(),
-					platform: "twitchat",
-				});
 			}
 
 		},

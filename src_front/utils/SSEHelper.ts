@@ -13,7 +13,6 @@ export default class SSEHelper extends EventDispatcher {
 	private _failCount = 0;
 	private _expectedPingInterval = 110*1000;
 	private _pingFailTimeout:number = -1;
-	private _reconnectDelay = 0
 
 	constructor() {
 		super();
@@ -55,7 +54,6 @@ export default class SSEHelper extends EventDispatcher {
 	 * Open SSE pipe
 	 */
 	private connect():void {
-		console.log("Connecting to SSE");
 		if(this._sse) {
 			this._sse.onmessage = null;
 			this._sse.onopen = null;
@@ -79,9 +77,8 @@ export default class SSEHelper extends EventDispatcher {
 				this.dispatchEvent(new SSEEvent(SSEEvent.FAILED_CONNECT));
 			}
 			window.setTimeout(() => {
-				this._reconnectDelay = 0;
 				this.connect();
-			}, this._reconnectDelay || Math.random()*5000);
+			}, Math.random()*5000);
 		};
 
 		window.addEventListener("beforeunload", ()=>{
@@ -98,8 +95,8 @@ export default class SSEHelper extends EventDispatcher {
 	private onMessage(event:MessageEvent<string>):void {
 		this._failCount = 0;
 		try {
-			let json = JSON.parse(event.data) as {code:keyof EventTypeMap, data:any};
-
+			let json = JSON.parse(event.data) as {code:string, data:any};
+			
 			clearTimeout(this._pingFailTimeout);
 			this._pingFailTimeout = window.setTimeout(()=>{
 				this.connect();
@@ -109,13 +106,7 @@ export default class SSEHelper extends EventDispatcher {
 				//Avoid autoreconnect
 				this._sse.close();
 			}
-
-			if(json.code == "SERVER_UPDATE") {
-				this._reconnectDelay = json.data.delay;
-				console.log("Server update received, reconnecting in "+this._reconnectDelay+"ms");
-				return;
-			}
-			this.dispatchEvent(new SSEEvent(json.code, json.data));
+			this.dispatchEvent(new SSEEvent(json.code as keyof EventTypeMap, json.data));
 		}catch(error) {
 			//ignore
 		}

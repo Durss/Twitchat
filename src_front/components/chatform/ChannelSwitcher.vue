@@ -153,11 +153,11 @@ class ChannelSwitcher extends Vue {
 		
 		this.loadLiveFollowing();
 		this.clickHandler = (e:MouseEvent) => this.onClickDOM(e);
-		document.addEventListener("click", this.clickHandler, true);
+		document.addEventListener("click", this.clickHandler);
 	}
 	
 	public async beforeUnmount():Promise<void> {
-		document.removeEventListener("click", this.clickHandler, true);
+		document.removeEventListener("click", this.clickHandler);
 	}
 
 	/**

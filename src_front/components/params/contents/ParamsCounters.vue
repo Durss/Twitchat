@@ -15,9 +15,9 @@
 
 		<section v-if="!showForm">
 			<TTButton icon="add" @click="showForm = true" v-if="canCreateCounters">{{ $t('counters.addBt') }}</TTButton>
-			<div class="card-item premium premiumLimit" v-else>
-				<span>{{$t("counters.premium_limit", {MAX:$config.MAX_COUNTERS, MAX_PREMIUM:$config.MAX_COUNTERS_PREMIUM})}}</span>
-				<TTButton icon="premium" premium light @click="openPremium()">{{ $t("premium.become_premiumBt") }}</TTButton>
+			<div class="card-item alert premiumLimit" v-else>
+				<span>{{$t("triggers.premium_limit", {MAX:$config.MAX_TRIGGERS, MAX_PREMIUM:$config.MAX_TRIGGERS_PREMIUM})}}</span>
+				<TTButton icon="premium" premium @click="openPremium()">{{ $t("premium.become_premiumBt") }}</TTButton>
 			</div>
 		</section>
 
@@ -53,7 +53,7 @@
 					:open="false" noArrow
 					:key="entry.counter.id"
 					:title="entry.counter.name">
-
+					
 						<template #right_actions>
 							<div class="actions">
 								<template v-if="entry.counter.enabled !== false">
@@ -76,7 +76,7 @@
 								:paramData="entry.param"
 								v-model="entry.param.value"
 								@change="onChangeValue(entry)" />
-
+							
 							<div class="userList" v-else>
 								<template v-if="Object.keys(entry.counter.users ?? {}).length > 0">
 									<div class="search">
@@ -84,19 +84,19 @@
 											v-model="entry.search[entry.counter.id]" @input="searchUser(entry)">
 										<Icon name="loader" class="loader" v-show="entry.idToLoading[entry.counter.id] === true" />
 									</div>
-
+										
 									<TTButton class="resetBt" v-if="entry.search[entry.counter.id].length === 0"
 										secondary
 										@click="resetUsers(entry)">{{ $t('counters.form.reset_all_users') }}</TTButton>
-
+									
 									<TTButton class="clearBt" v-if="entry.search[entry.counter.id].length === 0"
 										alert
 										@click="clearUsers(entry)">{{ $t('counters.form.clear_all_users') }}</TTButton>
-
+									
 									<TTButton class="loadAllBt" v-if="entry.search[entry.counter.id].length === 0 && entry.idToAllLoaded[entry.counter.id] !== true"
 										@click="loadUsers(entry)"
 										:loading="entry.idToLoading[entry.counter.id]">{{ $t('counters.form.load_all_users') }}</TTButton>
-
+				
 									<div class="noResult" v-if="entry.idToNoResult[entry.counter.id] === true">{{ $t("counters.user_not_found") }}</div>
 								</template>
 
@@ -230,7 +230,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 	}
 
 	public openOverlays():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "counter");
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
 	}
 
 	public mounted(): void {
@@ -326,7 +326,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 			this.$store.counters.updateCounter(data);
 		}else{
 			this.$store.counters.addCounter(data);
-			this.buildEntries();
+			this.buildEntries();	
 		}
 		this.showForm = false;
 		this.cancelForm();
@@ -350,7 +350,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 
 	/**
 	 * Called when requesting to delete a counter
-	 * @param counter
+	 * @param counter 
 	 */
 	public deleteCounter(entry:CounterEntry):void {
 		this.$confirm(this.$t("counters.delete_confirm.title"), this.$t("counters.delete_confirm.desc")).then(()=>{
@@ -412,7 +412,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 		counterEntry.idToUsers[counterEntry.counter.id] = counterEntry.idToUsers[counterEntry.counter.id]!.filter(v=>v.user.id != userEntry.user.id);
 		this.$store.counters.updateCounter(counterEntry.counter);
 	}
-
+	
 	/**
 	 * Search for a user.
 	 * If all users are loaded, search within them.
@@ -504,13 +504,13 @@ class ParamsCounters extends Vue implements IParameterContent {
 			}
 			entry.idToNoResult[counter.id] = (entry.idToUsers[counter.id] || []).filter(v=>!v.hide).length == 0;
 			entry.idToLoading[counter.id] = false;
-
+			
 		}, 500);
 	}
 
 	/**
 	 * Load all users
-	 * @param counterItem
+	 * @param counterItem 
 	 */
 	public async loadUsers(counterItem:CounterEntry):Promise<void> {
 		counterItem.idToLoading[counterItem.counter.id] = true;
@@ -533,20 +533,20 @@ class ParamsCounters extends Vue implements IParameterContent {
 					loginUpdated = true;
 				}
 				user.avatarPath = u.profile_image_url;
-				const res:UserEntry = {
-					param,
+				const res:UserEntry = { 
+					param, 
 					hide:false,
 					platform:"twitch",
 					user:{
 						id:user.id,
-						login:user.displayNameOriginal,
+						login:user.displayNameOriginal, 
 						avatar:user.avatarPath,
-					},
+					}, 
 				}
 				entries.push(res);
 			});
 		}
-
+		
 		const youtubeIds = Object.keys(counterItem.counter.users!).filter(v=>counterItem.counter.users![v].platform == "youtube");
 		if(youtubeIds.length > 0) {
 			if(YoutubeHelper.instance.connected) {
@@ -561,15 +561,15 @@ class ParamsCounters extends Vue implements IParameterContent {
 							entry.login = user.login;//Refresh login
 							loginUpdated = true;
 						}
-						const res:UserEntry = {
-							param,
+						const res:UserEntry = { 
+							param, 
 							hide:false,
 							platform:"youtube",
 							user:{
 								id:user.id,
-								login:user.displayNameOriginal,
+								login:user.displayNameOriginal, 
 								avatar:user.avatarPath,
-							},
+							}, 
 						}
 						entries.push(res);
 					});
@@ -580,21 +580,21 @@ class ParamsCounters extends Vue implements IParameterContent {
 					if(!entry) return null;
 					const value = entry.value || 0;
 					const param:TwitchatDataTypes.ParameterData<number> = reactive({type:'number', value, min:counterItem.counter.min || undefined, max:counterItem.counter.max || undefined});
-					const res:UserEntry = {
-						param,
+					const res:UserEntry = { 
+						param, 
 						hide:false,
 						platform:"youtube",
 						user:{
 							id:uid,
-							login:entry.login || "[Youtube User #"+uid.substring(0,5)+"...]",
-						},
+							login:entry.login || "[Youtube User #"+uid.substring(0,5)+"...]", 
+						}, 
 					}
 					entries.push(res);
 				});
 				counterItem.idToYoutubeConnect[counterItem.counter.id] = true;
 			}
 		}
-
+		
 		for (const uid in counterItem.counter.users) {
 			const user = counterItem.counter.users[uid];
 			//If entry does not exists in the loaded list, push it
@@ -610,7 +610,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 				});
 			}
 		}
-
+		
 		if(entries.length > 0) {
 			counterItem.idToAllLoaded[counterItem.counter.id] = true;
 			counterItem.idToUsers[counterItem.counter.id] = entries;
@@ -623,7 +623,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 
 	/**
 	 * Reset all user counters to 0 or min value
-	 * @param entry
+	 * @param entry 
 	 */
 	public resetUsers(entry:CounterEntry):void {
 		this.$confirm(this.$t("counters.reset_users_confirm.title"), this.$t("counters.reset_users_confirm.desc"))
@@ -648,17 +648,17 @@ class ParamsCounters extends Vue implements IParameterContent {
 
 	/**
 	 * Clears all users of a counter
-	 * @param entry
+	 * @param entry 
 	 */
 	public clearUsers(entry:CounterEntry):void {
 		this.$confirm(this.$t("counters.delete_users_confirm.title"), this.$t("counters.delete_users_confirm.desc"))
 		.then(()=>{
 			//Reset counter data
 			entry.counter.users = {};
-
+	
 			//Reset view data
 			entry.idToUsers[entry.counter.id] = [];
-
+	
 			this.$store.counters.updateCounter(entry.counter);
 		}).catch(()=>{});
 	}
@@ -667,8 +667,8 @@ class ParamsCounters extends Vue implements IParameterContent {
 	 * Sorts users on the requested field.
 	 * If sorting is already made on the specified field it reverses the order.
 	 * Otherwise it simply sorts on the specified field in the latest order direction
-	 * @param entry
-	 * @param type
+	 * @param entry 
+	 * @param type 
 	 */
 	public sortOn(entry:CounterEntry, type?:"name"|"points"):void {
 		if(type) {
@@ -697,7 +697,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 	/**
 	 * A counter can be disabled if the user created more counters than allowed
 	 * if not also premium. In which case they're invited to disable some counters.
-	 * @param counter
+	 * @param counter 
 	 */
 	public toggleCounterState(counter:TwitchatDataTypes.CounterData):void {
 		if(!this.canCreateCounters) {
@@ -722,7 +722,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 	 * Opens YouTube connect form
 	 */
 	public openYoutubeConnect():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.YOUTUBE);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.YOUTUBE);
 	}
 
 	/**

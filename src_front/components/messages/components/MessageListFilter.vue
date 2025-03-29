@@ -754,18 +754,14 @@ export class MessageListFilter extends Vue {
 	 * Called when clicking "all" toggle
 	 */
 	public toggleAll():void {
-		const select = this.param_toggleAll.value;
 		type messageFilterTypes = keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters;
 		for (let i = 0; i < this.filters.length; i++) {
-			const type = this.filters[i].storage?.type;
-			// Avoid enabling join/leave messages from "all" toggle
-			if(select && (type === "join" || type === "leave"))	continue;
-			this.filters[i].value = select;
+			this.filters[i].value = this.param_toggleAll.value;
 		}
 
 		for (const key in this.config.messageFilters) {
 			const k = key as messageFilterTypes;
-			this.config.messageFilters[k] = select;
+			this.config.messageFilters[k] = this.param_toggleAll.value;
 		}
 	}
 

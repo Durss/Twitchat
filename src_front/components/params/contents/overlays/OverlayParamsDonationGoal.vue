@@ -1,7 +1,7 @@
 <template>
 	<div class="overlayparamsdonationgoal overlayParamsSection">
 		<div class="header">{{ $t("donation_goals.header") }}</div>
-
+		
 		<!-- <a href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiEDuQ66YhtM6C8D3hZKL629" target="_blank" class="youtubeTutorialBt">
 			<Icon name="youtube" theme="light" />
 			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
@@ -44,7 +44,6 @@
 				<template #right_actions>
 					<div class="rightActions">
 						<TTButton @click.stop="duplicateGrid(overlay.id)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxOverlaysReached" />
-						<TTButton @click.stop :copy="overlay.id" icon="id" v-tooltip="$t('global.copy_id')" />
 						<TTButton @click.stop="$store.donationGoals.removeOverlay(overlay.id)" icon="trash" alert />
 					</div>
 				</template>
@@ -60,7 +59,7 @@
 						<span class="currency" v-if="overlay.currency">{{ overlay.currency }}</span>
 						<TTButton icon="test" type="submit">{{ $t("donation_goals.simulate_bt") }}</TTButton>
 					</form>
-
+					
 					<ParamItem :paramData="param_dataSource[overlay.id]" v-model="overlay.dataSource" @change="save(overlay.id)">
 						<div class="card-item alert missingCharity"
 						v-if="overlay.dataSource == 'streamlabs_charity' && $store.streamlabs.charityTeam == null">
@@ -150,7 +149,6 @@
 					<div class="goalItemList" v-if="overlay.goalList.length > 0">
 						<div class="card-item goalItem" v-for="goal in (overlay.goalList || [])" :key="goal.id">
 							<input class="amount" type="number" v-model="goal.amount" min="0" max="1000000000" @change="save(overlay.id)" step="any">
-							<TTButton @click.stop :copy="goal.id" icon="id" v-tooltip="$t('global.copy_id')" class="copyIdBt" small />
 							<span class="currency" v-if="overlay.currency">{{ overlay.currency }}</span>
 							<textarea class="title"
 								rows="1"
@@ -229,7 +227,7 @@ class OverlayParamsDonationGoal extends Vue {
 	public importingSLCGoals:boolean = false;
 	public showSLCGoalImport:boolean = false;
 	public showSLCGoalSuccess:boolean = false;
-
+	
 	public param_color:{[overlayId:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_showCurrency:{[overlayId:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_currency:{[overlayId:string]:TwitchatDataTypes.ParameterData<string>} = {};
@@ -273,14 +271,14 @@ class OverlayParamsDonationGoal extends Vue {
 	 * Opens Tiltify parameters
 	 */
 	public openTiltify():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.TILTIFY);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.TILTIFY);
 	}
 
 	/**
 	 * Opens Streamlabs parameters
 	 */
 	public openStreamlabs():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.STREAMLABS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.STREAMLABS);
 	}
 
 	/**
@@ -328,7 +326,7 @@ class OverlayParamsDonationGoal extends Vue {
 	}
 
 	/**
-	 * Add a goal entry
+	 * Opens the premium section
 	 */
 	public addGoal(overlay:TwitchatDataTypes.DonationGoalOverlayConfig, title:string = "", amount:number = 0):void {
 		const goal:TwitchatDataTypes.DonationGoalOverlayConfig["goalList"][number] = {
@@ -340,7 +338,7 @@ class OverlayParamsDonationGoal extends Vue {
 		};
 
 		this.param_goal_secret[goal.id]	= {type:"boolean", value:false, labelKey:"donation_goals.param_goal_secret", icon:"anon"};
-
+		
 		this.param_maxDisplayedEntries[overlay.id].max = overlay.goalList.length;
 
 		overlay.goalList.push(goal);
@@ -428,7 +426,7 @@ class OverlayParamsDonationGoal extends Vue {
 						this.param_campaignId[id].icon = "streamlabs";
 						break;
 					}
-
+					
 					case "tiltify": {
 						const list:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
 						this.$store.tiltify.campaignList.forEach(c=>{
@@ -441,7 +439,7 @@ class OverlayParamsDonationGoal extends Vue {
 						this.param_campaignId[id].icon = "tiltify";
 						break;
 					}
-
+					
 					case "counter": {
 						const list:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
 						this.$store.counters.counterList
@@ -523,7 +521,7 @@ export default toNative(OverlayParamsDonationGoal);
 				flex-direction: row;
 				flex-grow: 1;
 				margin-top: .25em;
-
+				
 				input {
 					width: 0;
 					flex-grow: 1;
@@ -649,8 +647,6 @@ export default toNative(OverlayParamsDonationGoal);
 			display: flex;
 			flex-direction: row;
 			flex-wrap: wrap;
-			position: relative;
-			overflow: visible;
 			*:not(:last-child) {
 				border-radius: 0;
 			}
@@ -693,21 +689,8 @@ export default toNative(OverlayParamsDonationGoal);
 				}
 			}
 
-			.copyIdBt {
-				position: absolute;
-				top: 0;
-				left: 0;
-				z-index: 1;
-				border-radius: var(--border-radius);
-				transform: translate(-25%, -25%);
-				opacity: 0;
-			}
-
 			&:hover {
 				background-color: var(--background-color-fader);
-				.copyIdBt {
-					opacity: 1;
-				}
 			}
 		}
 

@@ -4,7 +4,6 @@ import type { TwitchatActionType, TwitchatEventType } from "../events/TwitchatEv
 import TwitchatEvent from "../events/TwitchatEvent";
 import OBSWebsocket from "./OBSWebsocket";
 import Utils from "./Utils";
-// import StreamdeckSocket, { StreamdeckSocketEvent } from "./StreamdeckSocket";
 
 /**
 * Created : 14/04/2022
@@ -90,8 +89,6 @@ export default class PublicAPI extends EventDispatcher {
 			//Broadcast to any OBS Websocket connected client
 			OBSWebsocket.instance.broadcast(type, eventId, dataClone);
 		}
-
-		// StreamdeckSocket.instance.broadcast(type, eventId, dataClone);
 	}
 
 
@@ -118,13 +115,6 @@ export default class PublicAPI extends EventDispatcher {
 					this.onMessage(event.data, true);
 				}
 			});
-
-			// StreamdeckSocket.instance.addEventListener(StreamdeckSocketEvent.MESSAGE, (event:StreamdeckSocketEvent) => {
-			// 	if(event.data) {
-			// 		console.log("DATA FROM SD:", event.data)
-			// 		// this.onMessage(event.data, true);
-			// 	}
-			// });
 		});
 	}
 

@@ -63,7 +63,7 @@
 				</i18n-t>
 
 				<div v-for="e in c.events" :key="e.value" :class="getTriggerClasses(e)"
-				v-newflag="e.newDate? {date:e.newDate, id:'triggerEvent_'+e.value} : undefined">
+				v-newflag="e.newDate? {date:c.newDate, id:'triggerEvent_'+e.value} : undefined">
 					<TTButton class="triggerBt"
 						:icon="e.icon"
 						:premium="e.premium === true"
@@ -223,7 +223,6 @@ class TriggerCreateForm extends Vue {
 				newDate:v.newDate,
 			}
 		})
-
 		if(this.search && !showPrivate) {
 			const premiumSearch = this.search.toLowerCase() == "premium"
 			const reg = new RegExp(this.search, "i");
@@ -599,14 +598,14 @@ class TriggerCreateForm extends Vue {
 	 * Open connexions parameters
 	 */
 	public openConnexions():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
 	}
 
 	/**
 	 * Open OBS parameters
 	 */
 	public openOBS():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.OBS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS);
 	}
 
 	/**
@@ -757,9 +756,6 @@ export default toNative(TriggerCreateForm);
 					font-weight: bold;
 				}
 			}
-			&.newFlag {
-				border: 0;
-			}
 		}
 
 		.item {
@@ -882,7 +878,7 @@ export default toNative(TriggerCreateForm);
 			&:is(div) {
 				//Used for OBS filter section names
 				//Filters are listed by source item, this represents a source item
-				//that has all its filters listed below it
+				//that has all its filters listed bellow it
 				background-color: var(--color-light-fade);
 				&:not(:first-of-type) {
 					margin-top: 1em;

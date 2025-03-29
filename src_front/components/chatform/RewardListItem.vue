@@ -1,6 +1,5 @@
 <template>
 	<div :class="classes">
-		<TTButton @click.stop :copy="reward.id" icon="id" v-tooltip="$t('global.copy_id')" class="copyIdBt" small />
 		<div class="infos" :style="styles">
 			<img :src="icon" alt="reward icon">
 
@@ -25,7 +24,7 @@
 				v-model="localTitle"
 				:contenteditable="manageable !== false"
 				@blur="updateTitle()" />
-
+	
 			<TTButton v-if="manageable === true" class="settingsBt" small transparent @click="openMenu($event)" icon="settings" />
 		</div>
 		<TTButton v-if="manageable === false" icon="twitchat" @click="$emit('transfer', reward)" small secondary>{{$t("rewards.manage.transferBt")}}</TTButton>
@@ -123,7 +122,7 @@ class RewardListItem extends Vue {
 
 	/**
 	 * Called when enabling/disabling reward
-	 * @param reward
+	 * @param reward 
 	 */
 	public async updateRewardState():Promise<void> {
 		this.loading = true;
@@ -134,12 +133,12 @@ class RewardListItem extends Vue {
 
 	/**
 	 * Called when enabling/disabling reward
-	 * @param reward
+	 * @param reward 
 	 */
 	public async updateTitle():Promise<void> {
 		this.localTitle = this.localTitle.substring(0,45);
 		if(this.localTitle == this.reward.title) return;
-
+		
 		this.loading = true;
 		if(await TwitchUtils.updateReward(this.reward.id, {title: this.localTitle})) {
 			this.reward.title = this.localTitle;
@@ -152,7 +151,7 @@ class RewardListItem extends Vue {
 
 	/**
 	 * Increment/Decrement value with up and down keyboard arrows
-	 * @param event
+	 * @param event 
 	 */
 	public onKeyDown(event:KeyboardEvent):void {
 		let add = 0;
@@ -174,10 +173,10 @@ class RewardListItem extends Vue {
 
 	public async openMenu(e:MouseEvent):Promise<void> {
 		if(!TwitchUtils.requestScopes([TwitchScopes.MANAGE_REWARDS])) return;
-
+		
 		e.preventDefault();
 		const options:CMTypes.MenuItem[]= [];
-		options.push({
+		options.push({ 
 					label: (this.reward.is_paused)? this.$t("rewards.manage.contextmenu_unpause") : this.$t("rewards.manage.contextmenu_pause"),
 					icon: this.getIcon((this.reward.is_paused)? "icons/play.svg" : "icons/pause.svg"),
 					onClick: async () => {
@@ -188,7 +187,7 @@ class RewardListItem extends Vue {
 						this.loading = false;
 					}
 				});
-		options.push({
+		options.push({ 
 					label: (this.reward.is_enabled)? this.$t("rewards.manage.contextmenu_disable") : this.$t("rewards.manage.contextmenu_enable"),
 					icon: this.getIcon("icons/disable.svg"),
 					onClick: async () => {
@@ -199,14 +198,14 @@ class RewardListItem extends Vue {
 						this.loading = false;
 					}
 				});
-		options.push({
+		options.push({ 
 					label: this.$t("rewards.manage.contextmenu_edit"),
 					icon: this.getIcon("icons/edit.svg"),
 					onClick: () => {
 						this.$emit("edit", this.reward);
 					}
 				});
-		options.push({
+		options.push({ 
 					label: this.$t("rewards.manage.contextmenu_delete"),
 					icon: this.getIcon("icons/trash.svg"),
 					customClass:"alert",
@@ -221,7 +220,7 @@ class RewardListItem extends Vue {
 
 		const relatedTriggers = this.$store.triggers.triggerList.filter(v=>v.type == TriggerTypes.REWARD_REDEEM && v.rewardId == this.reward.id);
 		if(relatedTriggers.length > 0) {
-			options.push({
+			options.push({ 
 				label: this.$t("rewards.manage.contextmenu_trigger"),
 				icon: this.getIcon("icons/broadcast.svg"),
 				customClass:"alert",
@@ -329,7 +328,7 @@ export default toNative(RewardListItem);
 			height: 28px;
 			margin: 10px;
 		}
-
+		
 		.cost {
 			font-size: .7em;
 			padding: .5em;
@@ -379,21 +378,6 @@ export default toNative(RewardListItem);
 		.settingsBt {
 			width: 1.5em;
 			flex-shrink: 0;
-		}
-	}
-
-	.copyIdBt {
-		position: absolute;
-		top: 0;
-		left: 0;
-		z-index: 1;
-		border-radius: var(--border-radius);
-		opacity: 0;
-	}
-
-	&:hover {
-		.copyIdBt {
-			opacity: 1;
 		}
 	}
 }

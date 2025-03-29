@@ -4,7 +4,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Event } from './EventDispatcher';
 
 /**
-* Created : 21/06/2023
+* Created : 21/06/2023 
 */
 export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 
@@ -29,24 +29,23 @@ export default class SSEEvent<T extends keyof EventTypeMap> extends Event {
 	public static PATREON_MEMBER_CREATE = "PATREON_MEMBER_CREATE" as const;
 	public static PRIVATE_MOD_MESSAGE = "PRIVATE_MOD_MESSAGE" as const;
 	public static PRIVATE_MOD_MESSAGE_ANSWER = "PRIVATE_MOD_MESSAGE_ANSWER" as const;
-	public static SERVER_UPDATE = "SERVER_UPDATE" as const;
 
 	constructor(eventType:T, public data?:EventTypeMap[T]) {
 		super(eventType);
 	}
-
+	
 	/********************
 	* GETTER / SETTERS *
 	********************/
-
-
-
+	
+	
+	
 	/******************
 	* PUBLIC METHODS *
 	******************/
-
-
-
+	
+	
+	
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -144,9 +143,6 @@ export type EventTypeMap = {
 	PRIVATE_MOD_MESSAGE_ANSWER: {
 		messageId:string;
 		answer:boolean;
-	};
-	SERVER_UPDATE: {
-		delay:number;
 	};
 }
 

@@ -17,7 +17,6 @@ export default class DataStore extends DataStoreCommon{
 
 	protected static saveTO:number = -1;
 	private static abortQuery:AbortController|null = null;
-	private static savePromiseResolver:Function|null = null;
 
 
 	/********************
@@ -43,17 +42,12 @@ export default class DataStore extends DataStoreCommon{
 			if(StoreProxy.main.outdatedDataVersion) return;
 			if(StoreProxy.main.offlineMode) return;
 		}
-
-		if(this.savePromiseResolver) {
-			clearTimeout(this.saveTO);
-			this.savePromiseResolver();
-		}
-
+		
+		clearTimeout(this.saveTO);
 		//Abort current save if any
-		if(this.abortQuery && !this.abortQuery.signal.aborted) this.abortQuery.abort("new save");
+		if(this.abortQuery && !this.abortQuery.signal.aborted) this.abortQuery.abort("search update");
 
-		return new Promise((resolve) => {
-			this.savePromiseResolver = resolve;
+		return new Promise((resolve) => {;
 			this.saveTO = window.setTimeout(async () => {
 				const data = JSON.parse(JSON.stringify(this.rawStore));
 
@@ -77,8 +71,8 @@ export default class DataStore extends DataStoreCommon{
 				this.set(this.SAVE_VERSION, data.saveVersion, false);
 
 				this.abortQuery = new AbortController();
-				const saveRes = await ApiHelper.call("user/data", "POST", {data, forced:force}, false, undefined, undefined, this.abortQuery!.signal);
-				this.abortQuery = null;
+				const signal = this.abortQuery!.signal;
+				const saveRes = await ApiHelper.call("user/data", "POST", {data, forced:force}, false, undefined, undefined, signal);
 				if(saveRes.status == 409) {
 					StoreProxy.main.showOutdatedDataVersionAlert();
 				}
@@ -90,7 +84,6 @@ export default class DataStore extends DataStoreCommon{
 				//the same on local and remote. This will allow later automatic saves
 				if(force) this.dataImported = true;
 				resolve();
-				this.savePromiseResolver = null;
 			}, force? 0 : delay);
 		});
 	}
@@ -155,7 +148,7 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	static override async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 62;
+		const latestVersion = 61;
 
 		this.cleanupPreV7Data(data);
 
@@ -375,17 +368,13 @@ export default class DataStore extends DataStoreCommon{
 		}
 		if(v==60) {
 			this.cleanAndMigrateRunningRaffles(data);
-			v = 61;
-		}
-		if(v==61) {
-			this.migrateTimerPlaceholders(data);
 			v = latestVersion;
 		}
 
-		delete data["p:hideChat"];//TODO remove in a few months (added 08/08/2024)
-		delete data["antifa_hide"];//TODO remove in a few months (added 08/08/2024)
-		delete data["t4p_chat_cmd"];//TODO remove in a few months (added 26/10/2024)
-		//TODO remove in a few months (added 08/08/2024)
+		delete data["p:hideChat"];//TODO remove in a few months (added 08/08/204)
+		delete data["antifa_hide"];//TODO remove in a few months (added 08/08/204)
+		delete data["t4p_chat_cmd"];//TODO remove in a few months (added 26/10/204)
+		//TODO remove in a few months (added 08/08/204)
 		if(typeof data["p:autoTranslateFirstLang"] == "string") {
 			data["p:autoTranslateFirstLang"] = [data["p:autoTranslateFirstLang"]];
 		}
@@ -1471,11 +1460,11 @@ export default class DataStore extends DataStoreCommon{
 			data[DataStore.TRIGGERS_TREE] = tree;
 		}
 	}
-
+	
 	/**
 	 * Old failed trigger entry was storing full value data instead of its id
 	 * in the raffle trigger action data
-	 * @param data
+	 * @param data 
 	 */
 	private static fixRaffleTriggerEntry(data:any):void {
 		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
@@ -1490,12 +1479,12 @@ export default class DataStore extends DataStoreCommon{
 			data[DataStore.TRIGGERS] = triggers;
 		}
 	}
-
+	
 	/**
 	 * Removes "showPremiumWarning" prop from ending credits slots
 	 * this should have never been there in the first place as it's sent to server when
 	 * it's only here to alert the user
-	 * @param data
+	 * @param data 
 	 */
 	private static cleanPremiumWarningEndingCredits(data:any):void {
 		const credits:TwitchatDataTypes.EndingCreditsParams = data[DataStore.ENDING_CREDITS_PARAMS];
@@ -1506,10 +1495,10 @@ export default class DataStore extends DataStoreCommon{
 			data[DataStore.ENDING_CREDITS_PARAMS] = credits;
 		}
 	}
-
+	
 	/**
 	 * Fixing errors from users that managed to get invalid data
-	 * @param data
+	 * @param data 
 	 */
 	private static fixUserErrors(data:any):void {
 		//Limiting to max 1 language source
@@ -1546,11 +1535,11 @@ export default class DataStore extends DataStoreCommon{
 			});
 		}
 	}
-
+	
 	/**
 	 * Due to a mistake of mine, ghost values where added to per-user
 	 * values when clearing them.
-	 * @param data
+	 * @param data 
 	 */
 	private static clearGhostValueEntry(data:any):void {
 		const values = data[DataStore.VALUES] as TwitchatDataTypes.ValueData[];
@@ -1562,13 +1551,13 @@ export default class DataStore extends DataStoreCommon{
 			})
 		}
 	}
-
+	
 	/**
 	 * The HTTP trigger action only allowed to set the full result
 	 * of the query inside a placeholder.
 	 * Now any number of placeholders can be added with JSONPath
 	 * capabilities.
-	 * @param data
+	 * @param data 
 	 */
 	private static migrateHTTPTriggerOutputPlaceholer(data:any):void {
 		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
@@ -1588,7 +1577,7 @@ export default class DataStore extends DataStoreCommon{
 			});
 		}
 	}
-
+	
 	/**
 	 * Migrate WS trigger actions.
 	 * Until then there was a "topic" and "payload" options
@@ -1597,7 +1586,7 @@ export default class DataStore extends DataStoreCommon{
 	 * properly interface with third party apps.
 	 * Now there's only a "payload" property.
 	 * This method migrates previous format to new one
-	 * @param data
+	 * @param data 
 	 */
 	private static migrateWSTriggerActions(data:any):void {
 		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
@@ -1617,18 +1606,18 @@ export default class DataStore extends DataStoreCommon{
 			});
 		}
 	}
-
+	
 	/**
 	 * Migrate per-user counters and values to new "per-channel" items
 	 * Old counter/values types where :
 	 * {[uid:string]:string|number}
-	 *
+	 * 
 	 * Now it is:
 	 * {[userId:string]:{
 	 * 	platform:ChatPlatform,
 	 * 	value:string|number;
 	 * }}
-	 * @param data
+	 * @param data 
 	 */
 	private static migratePerUserCountersAndValues(data:any):void {
 		const values:TwitchatDataTypes.ValueData[] = data[DataStore.VALUES];
@@ -1644,7 +1633,7 @@ export default class DataStore extends DataStoreCommon{
 			}
 			console.log("Migrate value", value);
 		});
-
+		
 		const counters:TwitchatDataTypes.CounterData[] = data[DataStore.COUNTERS];
 		(counters || []).forEach(counter => {
 			if(counter.perUser !== true || !counter.users) return;
@@ -1659,12 +1648,12 @@ export default class DataStore extends DataStoreCommon{
 			console.log("Migrate counter", counter);
 		});
 	}
-
+	
 	/**
 	 * Cleanup all "manual" and "values" raffles that are still on user's data.
 	 * After this update they will automatically be removed from it. But not until then.
 	 * Also setting "autoClose" flag to true on all raffles started from triggers
-	 * @param data
+	 * @param data 
 	 */
 	private static cleanAndMigrateRunningRaffles(data:any):void {
 		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
@@ -1686,25 +1675,6 @@ export default class DataStore extends DataStoreCommon{
 				if(v.mode == "values") return false;
 				return true;
 			})
-		}
-	}
-
-	/**
-	 * Migrate old global timer/countdown placeholders to new ones
-	 * @param data
-	 */
-	private static migrateTimerPlaceholders(data:any):void {
-		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
-		if(triggers && Array.isArray(triggers)) {
-			let str = JSON.stringify(triggers);
-			str = str.replace(/\{TIMER_F\}/g, "{TIMER_DEFAULT_ELAPSED}");
-			str = str.replace(/\{TIMER\}/g, "{TIMER_DEFAULT_ELAPSED_MS}");
-			str = str.replace(/\{COUNTDOWN_VALUE_F\}/g, "{COUNTDOWN_DEFAULT_REMAINING}");
-			str = str.replace(/\{COUNTDOWN_VALUE\}/g, "{COUNTDOWN_DEFAULT_REMAINING_MS}");
-			str = str.replace(/\{COUNTDOWN_DURATION_F\}/g, "{COUNTDOWN_DEFAULT_DURATION}");
-			str = str.replace(/\{COUNTDOWN_DURATION\}/g, "{COUNTDOWN_DEFAULT_DURATION_MS}");
-
-			data[DataStore.TRIGGERS] = JSON.parse(str);
 		}
 	}
 }

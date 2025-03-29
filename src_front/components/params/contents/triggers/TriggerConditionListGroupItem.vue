@@ -1,47 +1,33 @@
 <template>
-	<div class="triggerconditionlistgroupitem">
-		<template v-for="c in condition " :key="c.id">
-			<div class="group" v-if="c.type == 'group'" :class="{'card-item':c.conditions.length > 1}">
+	<div class="triggerconditionlistgroupitem card-item">
+		<template v-for="c in  condition " :key="c.id">
+			<div class="group" v-if="c.type == 'group'">
 				<TTButton class="operator" small secondary noBounce v-if="c.conditions.length > 1" @click="toggleOperator(c)">{{
 					$t('triggers.condition.operators.' + c.operator) }}</TTButton>
 
 				<VueDraggable
-				class="list"
 				v-model="c.conditions"
 				:animation="250"
 				:forceFallback="false"
 				group="triggerCondition">
 					<div class="item" v-for="element in c.conditions" :key="element.id">
-						<TriggerConditionListGroupItem
-							:placeholderList="placeholderList"
-							:triggerData="triggerData"
-							:parentCondition="c"
-							:condition="[element]" />
+						<TriggerConditionListGroupItem :triggerData=" triggerData " :parentCondition=" c "
+							:condition=" [element] " />
 					</div>
 				</VueDraggable>
 
-				<TTButton class="addBt"
-				small
-				icon="add"
-				@click="addItem(c)"
-				v-tooltip=" $t('triggers.condition.add_tt') ">
-					{{ $t('triggers.condition.add_tt') }}
-				</TTButton>
+				<TTButton class="addBt" icon="add" @click="addItem(c)" v-tooltip=" $t('triggers.condition.add_tt') " />
 			</div>
 
-			<TriggerConditionListItem class="item" v-else-if=" c.type == 'condition' "
-				:triggerData="triggerData"
-				:placeholderList="placeholderList"
-				:parentCondition="parentCondition"
-				:condition="c" />
-
+			<TriggerConditionListItem class="item" v-else-if=" c.type == 'condition' " :triggerData=" triggerData "
+				:parentCondition=" parentCondition " :condition=" c " />
 		</template>
 	</div>
 </template>
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
-import type { ITriggerPlaceholder, TriggerCondition, TriggerConditionGroup, TriggerData } from '@/types/TriggerActionDataTypes';
+import type { TriggerCondition, TriggerConditionGroup, TriggerData } from '@/types/TriggerActionDataTypes';
 import Utils from '@/utils/Utils';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
@@ -68,9 +54,6 @@ class TriggerConditionListGroupItem extends Vue {
 
 	@Prop
 	public parentCondition!: TriggerConditionGroup;
-
-	@Prop
-	public placeholderList!: ITriggerPlaceholder<string>[];
 
 	public addItem(item: TriggerCondition | TriggerConditionGroup): void {
 		if (item.type == "condition") {
@@ -115,13 +98,7 @@ export default toNative(TriggerConditionListGroupItem);
 
 <style scoped lang="less">
 .triggerconditionlistgroupitem {
-	.list {
-		gap: .25em;
-		display: flex;
-		flex-direction: column;
-	}
 	.group {
-		overflow: visible;
 		flex-grow: 1;
 		position: relative;
 		padding-left: 1.25em;
@@ -138,7 +115,6 @@ export default toNative(TriggerConditionListGroupItem);
 
 		&>.addBt {
 			margin: auto;
-			margin-top: .25em;
 			display: none;
 		}
 

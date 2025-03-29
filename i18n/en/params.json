@@ -1,7 +1,7 @@
 {
 	"params": {
 		"sync_server": "Save all parameters to Twitchat server",
-		"more_params":"More settings",
+		"more_params":"More params",
 		"customize_sections":"Drag menu items in and out here",
 		"spoilersEnabled": "Enable spoiler tag",
 		"alertMode": "Enable chat alert",
@@ -120,8 +120,7 @@
 			"donate": "Donate",
 			"youtube": "YouTube",
 			"discord": "Discord",
-			"premium": "Premium",
-			"timers": "Timers"
+			"premium": "Premium"
 		},
 		"botMessages": {
 			"raffleStart": "/announce 🎉🎉🎉 Raffle has started 🎉🎉🎉 Use {CMD} command to enter!",

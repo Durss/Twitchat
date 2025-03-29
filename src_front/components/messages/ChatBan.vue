@@ -2,10 +2,10 @@
 	<div :class="classes"
 	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
-
+		
 		<Icon name="timeout" class="icon" v-if="messageData.duration_s" />
 		<Icon name="ban" class="icon" v-else theme="light" />
-
+		
 		<div class="content">
 			<div class="textContent">
 				<i18n-t scope="global" class="label" v-if="messageData.duration_s" tag="span" :keypath="messageData.moderator? 'global.moderation_action.timeout_by': 'global.moderation_action.timeout'">
@@ -16,7 +16,7 @@
 						<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!, messageData.channel_id)">{{messageData.moderator.displayName}}</a>
 					</template>
 					<template #DURATION>
-						<strong>{{ formattedBanDuration }}</strong>
+						<strong>{{ formatedBanDuration }}</strong>
 					</template>
 					<template #PLATFORM>
 						<strong>{{ messageData.platform }}</strong>
@@ -55,14 +55,14 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 	emits:["onRead"]
 })
 class ChatBan extends AbstractChatMessage {
-
-	@Prop
+	
+	@Prop	
 	declare messageData:TwitchatDataTypes.MessageBanData;
 
 	public unbanning:boolean = false;
 	public showUnbanBt:boolean = true;
 
-	public get formattedBanDuration():string{
+	public get formatedBanDuration():string{
 		return Utils.formatDuration(this.messageData.duration_s!*1000);
 	}
 

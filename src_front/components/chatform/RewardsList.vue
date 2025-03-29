@@ -135,6 +135,7 @@ class RewardsList extends Vue {
 	}
 
 	public async loadRewards(forceReload:boolean = false):Promise<void> {
+		console.log("REWARDS LIST LOAD");
 		this.loading = true;
 		try {
 			this.nonManageableRewards = await TwitchUtils.getRewards(forceReload);

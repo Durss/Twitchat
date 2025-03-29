@@ -108,7 +108,7 @@ class ConnectYoutube extends Vue {
 	public get selectedLiveIds() { return YoutubeHelper.instance.currentLiveIds; }
 	public get broadcastList() { return YoutubeHelper.instance.availableLiveBroadcasts; }
 
-	public getFormattedDate(date:string):string {
+	public getFormatedDate(date:string):string {
 		return Utils.formatDate(new Date(date));
 	}
 

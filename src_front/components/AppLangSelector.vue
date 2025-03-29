@@ -109,8 +109,8 @@ export default toNative(AppLangSelector);
 			}
 		}
 		input{
-			top: 0;
-			left: 0;
+			top:0;
+			left:0;
 			opacity: 0;
 			position: absolute;
 		}
