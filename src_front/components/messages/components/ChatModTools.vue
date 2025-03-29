@@ -13,7 +13,7 @@
 			<Button alert :aria-label="$t('chat.mod_tools.to1w_aria')"			@click.stop="timeoutUser(3600*24*7)" small>{{$t('chat.mod_tools.to1w')}}</Button>
 		</div>
 		<Icon name="trash" alt="trash" v-tooltip="$t('global.delete')" @click.stop="deleteMessage()" v-if="canDelete && messageData.deleted !== true"/>
-		<Icon name="block" alt="block" v-tooltip="$t('chat.mod_tools.blockBt')" @click.stop="blockUser()" v-if="canBlock !== false"/>
+		<Icon name="block" alt="trash" v-tooltip="$t('chat.mod_tools.blockBt')" @click.stop="blockUser()" v-if="canBlock !== false"/>
 	</div>
 </template>
 
@@ -146,7 +146,7 @@ export default toNative(ChatModTools);
 
 	.icon {
 		height: 1em;
-		// width: 1em;
+		width: 1em;
 		vertical-align: middle;
 		cursor: pointer;
 		&:not(:last-child) {

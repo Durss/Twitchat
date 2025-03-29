@@ -30,7 +30,6 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static BITS:TwitchatEventType = "BITS";
 	public static SUBSCRIPTION:TwitchatEventType = "SUBSCRIPTION";
 	public static POLL_PROGRESS:TwitchatEventType = "POLL_PROGRESS";
-	public static CHAT_POLL_PROGRESS:TwitchatEventType = "CHAT_POLL_PROGRESS";
 	public static PREDICTION_PROGRESS:TwitchatEventType = "PREDICTION_PROGRESS";
 	public static MENTION:TwitchatEventType = "MENTION";
 	public static CURRENT_TRACK:TwitchatEventType = "CURRENT_TRACK";
@@ -79,9 +78,7 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static PREDICTIONS_OVERLAY_PRESENCE:TwitchatEventType = "PREDICTIONS_OVERLAY_PRESENCE";
 	public static PREDICTIONS_OVERLAY_PARAMETERS:TwitchatEventType = "PREDICTIONS_OVERLAY_PARAMETERS";
 	public static POLLS_OVERLAY_PRESENCE:TwitchatEventType = "POLLS_OVERLAY_PRESENCE";
-	public static CHAT_POLL_OVERLAY_PRESENCE:TwitchatEventType = "CHAT_POLL_OVERLAY_PRESENCE";
 	public static POLLS_OVERLAY_PARAMETERS:TwitchatEventType = "POLLS_OVERLAY_PARAMETERS";
-	public static CHAT_POLL_OVERLAY_PARAMETERS:TwitchatEventType = "CHAT_POLL_OVERLAY_PARAMETERS";
 	public static BINGO_GRID_PARAMETERS:TwitchatEventType = "BINGO_GRID_PARAMETERS";
 	public static BINGO_GRID_OVERLAY_PRESENCE:TwitchatEventType = "BINGO_GRID_OVERLAY_PRESENCE";
 	public static BINGO_GRID_HEAT_CLICK:TwitchatEventType = "BINGO_GRID_HEAT_CLICK";
@@ -92,9 +89,6 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static DONATION_GOALS_OVERLAY_PARAMS:TwitchatEventType = "DONATION_GOALS_OVERLAY_PARAMS";
 	public static DONATION_EVENT:TwitchatEventType = "DONATION_EVENT";
 	public static QNA_SESSION_LIST:TwitchatEventType = "QNA_SESSION_LIST";
-	public static ANIMATED_TEXT_CONFIGS:TwitchatEventType = "ANIMATED_TEXT_CONFIGS";
-	public static ANIMATED_TEXT_HIDE_COMPLETE:TwitchatEventType = "ANIMATED_TEXT_HIDE_COMPLETE";
-	public static CUSTOM_TRAIN_STATE:TwitchatEventType = "CUSTOM_TRAIN_STATE";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -169,9 +163,7 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static GET_PREDICTIONS_OVERLAY_PRESENCE:TwitchatActionType = "GET_PREDICTIONS_OVERLAY_PRESENCE";
 	public static GET_PREDICTIONS_OVERLAY_PARAMETERS:TwitchatActionType = "GET_PREDICTIONS_OVERLAY_PARAMETERS";
 	public static GET_POLLS_OVERLAY_PRESENCE:TwitchatActionType = "GET_POLLS_OVERLAY_PRESENCE";
-	public static GET_CHAT_POLL_OVERLAY_PRESENCE:TwitchatActionType = "GET_CHAT_POLL_OVERLAY_PRESENCE";
 	public static GET_POLLS_OVERLAY_PARAMETERS:TwitchatActionType = "GET_POLLS_OVERLAY_PARAMETERS";
-	public static GET_CHAT_POLL_OVERLAY_PARAMETERS:TwitchatActionType = "GET_CHAT_POLL_OVERLAY_PARAMETERS";
 	public static GET_BINGO_GRID_PARAMETERS:TwitchatActionType = "GET_BINGO_GRID_PARAMETERS";
 	public static GET_LABEL_OVERLAY_PARAMS:TwitchatActionType = "GET_LABEL_OVERLAY_PARAMS";
 	public static GET_LABEL_OVERLAY_PLACEHOLDERS:TwitchatActionType = "GET_LABEL_OVERLAY_PLACEHOLDERS";
@@ -181,11 +173,6 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static QNA_HIGHLIGHT:TwitchatActionType = "QNA_HIGHLIGHT";
 	public static QNA_SKIP:TwitchatActionType = "QNA_SKIP";
 	public static QNA_SESSION_GET_ALL:TwitchatActionType = "QNA_SESSION_GET_ALL";
-	public static HIDE_ALERT:TwitchatActionType = "HIDE_ALERT";
-	public static GET_ANIMATED_TEXT_CONFIGS:TwitchatActionType = "GET_ANIMATED_TEXT_CONFIGS";
-	public static ANIMATED_TEXT_SET:TwitchatActionType = "ANIMATED_TEXT_SET";
-	public static ANIMATED_TEXT_CLOSE:TwitchatActionType = "ANIMATED_TEXT_CLOSE";
-	public static GET_CUSTOM_TRAIN_STATE:TwitchatActionType = "GET_CUSTOM_TRAIN_STATE";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:T) {
 		super(type);
@@ -224,7 +211,6 @@ export const TwitchatEventTypeList = [
 	"TIMER_STOP",
 	"TIMER_OVERLAY_PRESENCE",
 	"POLL_PROGRESS",
-	"CHAT_POLL_PROGRESS",
 	"PREDICTION_PROGRESS",
 	"RAFFLE_RESULT",
 	"EMERGENCY_MODE",
@@ -264,9 +250,7 @@ export const TwitchatEventTypeList = [
 	"PREDICTIONS_OVERLAY_PRESENCE",
 	"PREDICTIONS_OVERLAY_PARAMETERS",
 	"POLLS_OVERLAY_PRESENCE",
-	"CHAT_POLL_OVERLAY_PRESENCE",
 	"POLLS_OVERLAY_PARAMETERS",
-	"CHAT_POLL_OVERLAY_PARAMETERS",
 	"BINGO_GRID_PARAMETERS",
 	"BINGO_GRID_OVERLAY_PRESENCE",
 	"BINGO_GRID_HEAT_CLICK",
@@ -277,9 +261,6 @@ export const TwitchatEventTypeList = [
 	"DONATION_GOALS_OVERLAY_PARAMS",
 	"DONATION_EVENT",
 	"QNA_SESSION_LIST",
-	"ANIMATED_TEXT_CONFIGS",
-	"ANIMATED_TEXT_HIDE_COMPLETE",
-	"CUSTOM_TRAIN_STATE",
 ] as const;
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
 
@@ -356,9 +337,7 @@ export const TwitchatActionTypeList = [
 	"GET_PREDICTIONS_OVERLAY_PRESENCE",
 	"GET_PREDICTIONS_OVERLAY_PARAMETERS",
 	"GET_POLLS_OVERLAY_PRESENCE",
-	"GET_CHAT_POLL_OVERLAY_PRESENCE",
 	"GET_POLLS_OVERLAY_PARAMETERS",
-	"GET_CHAT_POLL_OVERLAY_PARAMETERS",
 	"GET_BINGO_GRID_PARAMETERS",
 	"GET_LABEL_OVERLAY_PARAMS",
 	"GET_LABEL_OVERLAY_PLACEHOLDERS",
@@ -368,10 +347,5 @@ export const TwitchatActionTypeList = [
 	"QNA_HIGHLIGHT",
 	"QNA_SKIP",
 	"QNA_SESSION_GET_ALL",
-	"HIDE_ALERT",
-	"GET_ANIMATED_TEXT_CONFIGS",
-	"ANIMATED_TEXT_SET",
-	"ANIMATED_TEXT_CLOSE",
-	"GET_CUSTOM_TRAIN_STATE",
 ] as const;
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

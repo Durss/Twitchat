@@ -1,18 +1,13 @@
 <template>
-	<div class="triggeractionspoilmessageentry triggerActionLight">
+	<div class="triggeractiondeletemessageentry">
 		<Icon name="dragZone"
 			class="orderBt"
-			data-noselect
 			v-tooltip="$t('triggers.reorder_tt')" />
 
-		<Icon name="trash" />
 
 		<span>{{ $t("triggers.actions.delete_message.info") }}</span>
 
-		<div class="actions">
-			<TTButton transparent icon="merge" @click="$emit('addCondition')" v-tooltip="$t('triggers.condition.add_tt')" />
-			<TTButton class="deleteBt" alert icon="trash" @click="$emit('delete')" />
-		</div>
+		<TTButton class="deleteBt" alert icon="trash" @click="$emit('delete')" />
 	</div>
 </template>
 
@@ -32,7 +27,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		DurationForm,
 		PlaceholderSelector,
 	},
-	emits:["delete", "addCondition"],
+	emits:["delete"],
 })
 class TriggerActionDeleteMessageEntry extends AbstractTriggerActionEntry {
 
@@ -47,6 +42,52 @@ export default toNative(TriggerActionDeleteMessageEntry);
 </script>
 
 <style scoped lang="less">
-.triggeractionspoilmessageentry{
+.triggeractiondeletemessageentry{
+	margin: auto;
+	width: fit-content;
+	border-radius: .5em;
+	background-color: var(--color-primary);
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding-left: .5em;
+	color: var(--color-light);
+	overflow: hidden;
+	gap: .5em;
+	line-height: 1.5em;
+	box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+	position: relative;
+
+	.icon {
+		height: 1em;
+	}
+
+	.deleteBt {
+		align-self: stretch;
+		border-radius: 0;
+		flex-shrink: 0;
+	}
+
+	.field {
+		background: transparent;
+		padding: 0;
+	}
+
+	.orderBt {
+		cursor: grab;
+		height: .8em;
+		vertical-align: middle;
+		line-height: 1em;
+		user-select: none;
+		&:active {
+			cursor: grabbing;
+		}
+	}
+	.placeholders {
+		align-self: stretch;
+		border-radius: 0;
+		flex-shrink: 0;
+		margin-right: -.5em;
+	}
 }
 </style>

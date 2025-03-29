@@ -18,7 +18,7 @@
 							:class="fillClasses(area)"
 							@contextmenu.prevent="onRightClickArea(area)"
 							@pointerdown.stop="startDragArea($event, area)" />
-
+	
 						<circle v-for="p, index in area.points" :key="screen.id+'_'+index"
 							:cx="(p.x*100)+'%'"
 							:cy="(p.y*100)+'%'"
@@ -63,7 +63,7 @@ class HeatScreenEditor extends Vue {
 
 	public params_showOBS:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:true, labelKey:"heat.areas.show_obs" };
 	public params_target:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", labelKey:"heat.areas.target" };
-
+	
 	private editMode:null | "add" | "append" | "delete" = null;
 	private currentArea:HeatArea | null = null;
 	private currentPointIndex:number = -1
@@ -91,7 +91,7 @@ class HeatScreenEditor extends Vue {
 	}
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
-
+	
 	public async beforeMount():Promise<void> {
 		if(this.screen.areas.length == 0) {
 			this.screen.areas.push({
@@ -107,7 +107,7 @@ class HeatScreenEditor extends Vue {
 		document.addEventListener("keydown", this.keyDownHandler, {capture:true});
 		document.addEventListener("pointerup", this.mouseUpHandler);
 		document.addEventListener("pointermove", this.mouseMoveHandler);
-
+		
 		watch(()=>OBSWebsocket.instance.connected, ()=>{
 			this.populateOBSScenes();
 		});
@@ -125,7 +125,7 @@ class HeatScreenEditor extends Vue {
 	public async populateOBSScenes():Promise<void> {
 
 		this.params_target.listValues = [{value:"", labelKey:"heat.areas.target_always"}];
-
+		
 		if(OBSWebsocket.instance.connected){
 			const scenes = await OBSWebsocket.instance.getScenes();
 			scenes.scenes.forEach(v=> {
@@ -139,7 +139,7 @@ class HeatScreenEditor extends Vue {
 
 	public onSelectOBSScene():void {
 		if(this.params_target.value == "obs") {
-			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.OBS);
+			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS);
 			return;
 		}
 		this.screen.activeOBSScene = this.params_target.value;
@@ -163,7 +163,7 @@ class HeatScreenEditor extends Vue {
 
 	public addPoint(event:PointerEvent):void {
 		if(this.draggedPoint) return;
-
+		
 		const editor = this.$refs.editor as HTMLDivElement;
 		const bounds = editor.getBoundingClientRect();
 		const x = (event.x - bounds.x)/bounds.width;
@@ -299,7 +299,7 @@ class HeatScreenEditor extends Vue {
 			if(event.key == "ArrowRight")	addX = 1/bounds.width * scale;
 			if(event.key == "ArrowUp")		addY = -1/bounds.height * scale;
 			if(event.key == "ArrowDown")	addY = 1/bounds.height * scale;
-
+			
 			if(addX != 0 || addY != 0) {
 				if(this.currentPointIndex > -1) {
 					this.currentArea.points[this.currentPointIndex].x += addX;
@@ -379,8 +379,8 @@ class HeatScreenEditor extends Vue {
 
 	/**
 	 * Checks if the given coordinates are near any of the areas segments
-	 * @param x
-	 * @param y
+	 * @param x 
+	 * @param y 
 	 */
 	private getSegmentUnderPoint(x:number, y:number):number[] {
 		const editor = this.$refs.editor as HTMLDivElement;
@@ -418,7 +418,7 @@ class HeatScreenEditor extends Vue {
 
 	/**
 	 * Compute the centroid coordinates of a polygon
-	 * @param points
+	 * @param points 
 	 */
 	private computeCentroid(points:{x:number, y:number}[]) {
 		let cx = 0;
@@ -469,7 +469,7 @@ export default toNative(HeatScreenEditor);
 		user-select: none;
 		position: relative;
 		width: 100%;
-		aspect-ratio: 16/9;
+		aspect-ratio: 16/9; 
 		.background {
 			top: 0;
 			left: 0;
@@ -529,7 +529,7 @@ export default toNative(HeatScreenEditor);
 		flex-direction: column;
 		gap: .25em;
 		margin-top: .5em;
-
+		
 		&:first-of-type {
 			margin-top: 0;
 			margin-bottom: .5em;

@@ -9,26 +9,20 @@
 	@click="onClick($event)"
 	@mouseup="onRelease($event)"
 	v-model="modelValue">
+		<span v-if="loading" class="loadingBorder"></span>
 		<span class="background"></span>
-		<Icon v-if="copySuccess" name="checkmark" />
 
-		<Icon v-else-if="copyFail" name="cross" theme="alert" />
+		<Icon v-if="icon && loading" name="loader" />
+	
+		<Icon class="icon" v-if="icon && !loading" :name="icon" alt="icon" />
+		<span class="icon" v-if="$slots.icon"><slot name="icon"></slot></span>
+		<span class="label" ref="label" v-if="$slots.default"><slot></slot></span>
 
-		<template v-else>
-			<span v-if="loading" class="loadingBorder"></span>
+		<div class="clickArea"></div>
 
-			<Icon v-if="icon && loading" name="loader" />
-
-			<Icon class="icon" v-if="icon && !loading" :name="icon" alt="icon" />
-			<span class="icon" v-if="$slots.icon"><slot name="icon"></slot></span>
-			<span class="label" ref="label" v-if="$slots.default"><slot></slot></span>
-
-			<div class="clickArea"></div>
-
-			<!-- <img v-if="selected" class="icon" src="@/assets/icons/checkmark.svg" alt="checkmark"> -->
-
-			<input type="file" v-if="type=='file'" class="browse" :accept="accept" ref="browse" @change="onBrowseFile()" />
-		</template>
+		<!-- <img v-if="selected" class="icon" src="@/assets/icons/checkmark.svg" alt="checkmark"> -->
+		
+		<input type="file" v-if="type=='file'" class="browse" :accept="accept" ref="browse" @change="onBrowseFile()" />
 	</component>
 </template>
 
@@ -37,7 +31,6 @@ import { watch } from '@vue/runtime-core';
 import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import Icon from './Icon.vue';
-import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -105,15 +98,10 @@ export class TTButton extends Vue {
 	@Prop({type:String, default: "image/*"})
 	public accept!:string;
 
-	@Prop({type:String, default: ""})
-	public copy!:string;
-
 	@Prop
 	public file!:string;
-
+	
 	public checked = false;
-	public copySuccess = false;
-	public copyFail = false;
 
 	public get nodeType():string {
 		if(this.to) return "router-link";
@@ -145,7 +133,7 @@ export class TTButton extends Vue {
 		watch(() => this.checked, (val:boolean) => {
 			this.$emit("update:modelValue", val);
 		});
-
+		
 		watch(() => this.modelValue, (val:boolean) => {
 			this.checked = val;
 		});
@@ -157,30 +145,18 @@ export class TTButton extends Vue {
 			this.$emit('update:file', input.files[0])
 		}
 	}
-
+	
 	public resetBrowse():void {
 		(this.$refs.browse as HTMLFormElement).value = null;
 	}
 
-	public async onClick(event:MouseEvent):Promise<void> {
+	public onClick(event:MouseEvent):void {
 		if(this.disabled !== false || this.loading) {
 			event.preventDefault();
 			event.stopPropagation();
 			return;
 		}
 		this.$emit("click", event);
-
-		if(this.copy) {
-			try {
-				await Utils.copyToClipboard(this.copy);
-				this.copySuccess = true;
-			}catch(e) {
-				this.copyFail = true;
-			}
-			await Utils.promisedTimeout(3000);
-			this.copySuccess = false;
-			this.copyFail = false;
-		}
 	}
 
 	public onRelease(event:MouseEvent):void {
@@ -236,13 +212,13 @@ export default toNative(TTButton);
 		width: calc(100% + @offset*2);
 		height: calc(100% + @offset*2);
 		animation: glowing 1s linear infinite;
-
+		
 		@keyframes glowing {
 			0% { background-position: 200% 0; }
 			100% { background-position: 0 0; }
 		}
 	}
-
+	
 	.background {
 		border-radius: inherit;
 		position: absolute;
@@ -274,7 +250,7 @@ export default toNative(TTButton);
 				background-color: var(--color-button-light);
 			}
 		}
-
+	
 		&:active{
 			transform: translateY(2px);
 			.clickArea{
@@ -304,7 +280,7 @@ export default toNative(TTButton);
 			display: none;
 		}
 	}
-
+	
 	.browse {
 		position: absolute;
 		top: -1em;

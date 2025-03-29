@@ -4,8 +4,9 @@
 		"open_dashboard":"Open your dashboard",
 		"find_key":"Expand the \"Advanced\" section and find the \"Verification token\"",
 		"set_url":"Set the following URL in the \"Webhook URL\" input",
-		"set_token":"Copy the verification token below",
+		"set_token":"Copy the verification token bellow",
 		"examples":"Message examples",
+		"advanced_params":"Advanced parameters",
 		"advanced_params_header":"Transmit Ko-Fi events to other webhooks",
 		"webhook_placeholder":"https://...",
 		"add_webhookBt":"Add webhook"

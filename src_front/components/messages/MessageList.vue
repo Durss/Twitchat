@@ -98,21 +98,9 @@
 					disableConversation
 				/>
 			</div>
-			<div class="ctas">
-				<TTButton v-if="$store.groq.connected && !showSummaryForm"
-					@click="showSummaryForm = true"
-					v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'chat_conversation_groq'}"
-					icon="groq"
-					small>{{ $t("groq.summarize_bt") }}</TTButton>
-
-				<GroqSummaryFilterForm v-if="showSummaryForm"
-					mode="all"
-					:messageList="conversation"
-					@close="showSummaryForm = false" />
-			</div>
 		</div>
 
-		<div v-if="showLoadingGradient && !lightMode" claconformess="noMessage">
+		<div v-if="showLoadingGradient && !lightMode" class="noMessage">
 			<div class="gradient"></div>
 		</div>
 	</div>
@@ -137,22 +125,23 @@ import MessageItem from './MessageItem.vue';
 import MessageListFilter, {MessageListFilter as MessageListFilterClass} from './components/MessageListFilter.vue';
 import { RoughEase } from 'gsap/all';
 import { Linear } from 'gsap/all';
-import GroqSummaryFilterForm from '../GroqSummaryFilterForm.vue';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 
 @Component({
 	components: {
-		TTButton,
+		Button: TTButton,
 		MessageItem,
 		ClearButton,
 		MessageListFilter,
-		GroqSummaryFilterForm,
 	},
 	emits: ["showModal", 'addColumn']
 })
 class MessageList extends Vue {
 
-	@Prop({ type: Boolean, default: false })
+	@Prop({
+			type: Boolean,
+			default: false,
+		})
 	public lightMode!: boolean;
 	@Prop
 	public filterId!: string;
@@ -165,7 +154,6 @@ class MessageList extends Vue {
 	public conversation: TwitchatDataTypes.MessageChatData[] = [];
 	public hovered = false;
 	public lockScroll = false;
-	public showSummaryForm = false;
 	public customActivitiesDisplayed = false;
 	public showLoadingGradient = false;
 	public conversationMode = true;//Used to change title between "History"/"Conversation"
@@ -614,6 +602,7 @@ class MessageList extends Vue {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION:
+			case TwitchatDataTypes.TwitchatMessageType.GIGANTIFIED_EMOTE:
 			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
 				return this.config.filters.reward === true;
 			}
@@ -622,8 +611,7 @@ class MessageList extends Vue {
 				return this.config.filters.prediction === true;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.POLL:
-			case TwitchatDataTypes.TwitchatMessageType.CHAT_POLL: {
+			case TwitchatDataTypes.TwitchatMessageType.POLL: {
 				return this.config.filters.poll === true;
 			}
 
@@ -642,8 +630,7 @@ class MessageList extends Vue {
 				return this.config.filters.raid === true;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY:
-			case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_SUMMARY: {
+			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY: {
 				return this.config.filters.hype_train_summary === true;
 			}
 
@@ -664,7 +651,7 @@ class MessageList extends Vue {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TIMER: {
-				return this.config.filters.countdown === true && m.stopped;
+				return this.config.filters.countdown === true && !m.started;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN: {
@@ -1464,30 +1451,36 @@ class MessageList extends Vue {
 		if (this.lightMode || !m || (!m.answersTo && !m.answers)) return;
 
 		this.conversationMode = true;
-		const conv:TwitchatDataTypes.MessageChatData[] = [];
-		const parsedIds:{[id:string]:true} = {};
+		this.conversation = [m];
 
-		//Recursive parsing of the conversation
-		//Go though all answers of all messages to get the full conversation
-		function parseMessage(m:TwitchatDataTypes.MessageChatData) {
-			if(parsedIds[m.id] === true) return;
-			parsedIds[m.id] = true;
-			conv.push(m);
+		if (m.answers.length > 0) {
+			this.conversation.push( ...m.answers );
+		}
 
-			if(m.answersTo) {
-				parseMessage(m.answersTo);
-			}
-			if(m.answers) {
-				m.answers.forEach((a) => {
-					if(parsedIds[a.id] === true) return;
-					parseMessage(a);
-				});
+		//answering to another message
+		if (m.answersTo) {
+			let ref = m;
+			while(ref.answersTo) {
+				this.conversation.push( ref.answersTo );
+				if(ref.answers) {
+					this.conversation.push( ...ref.answers );
+				}
+				ref = ref.answersTo;
 			}
 		}
-		parseMessage(m);
 
-		// Sort conversation items by date
-		this.conversation = conv.sort((a, b) => a.date - b.date);
+		// Dedupe conversation items based on their ID
+		const dedupedConversation = this.conversation.reduce((acc, current) => {
+			const x = acc.find(item => item.id === current.id);
+			if (!x) {
+				return acc.concat([current]);
+			} else {
+				return acc;
+			}
+		}, [] as TwitchatDataTypes.MessageChatData[]);
+
+		// Sort deduped conversation items by date
+		this.conversation = dedupedConversation.sort((a, b) => a.date - b.date);
 
 		this.openConversationHolder(idRef);
 	}
@@ -1544,6 +1537,7 @@ class MessageList extends Vue {
 		const conversationHolder = this.$refs.conversationHolder as HTMLDivElement;
 		const convMessagesholder = this.$refs.conversationMessages as HTMLDivElement;
 
+
 		this.conversationPos = Math.max(conversationHolder.getBoundingClientRect().height, messageBounds.top - holderBounds.top + 10);//+10 shouldn't be necessary but for some reason i couldn't figure out, it is... It makes sure holder is down enough so we can move mouse inside it without rolling out the message
 
 		//Scroll history to top
@@ -1564,16 +1558,11 @@ class MessageList extends Vue {
 	 */
 	public onLeaveMessage(): void {
 		clearTimeout(this.openConvTimeout);
-		//This avoids exception when closing content if a content-editable element currently has focus
-		const target = (document.activeElement as HTMLElement|undefined);
-		if (this.$el.contains(target)) {
-			target?.blur();
-		}
+		if (this.conversation.length == 0) return;
 		//Timeout avoids blinking when leaving the message but
 		//hovering another one or the conversation window
 		this.closeConvTimeout = window.setTimeout(() => {
 			this.conversation = [];
-			this.showSummaryForm = false;
 			const mainHolder = this.$refs.chatMessageHolder as HTMLDivElement;
 			gsap.to(mainHolder, { opacity: 1, duration: .25 });
 		}, 0);
@@ -1755,7 +1744,7 @@ class MessageList extends Vue {
 				gsap.killTweensOf(messageHolder)
 				// gsap.to(messageHolder, {duration:.25, ease:Linear.easeNone, scrollTop:this.virtualScrollY});
 
-				//If message is below 3/4 of the chat height, scroll down
+				//If message is bellow 3/4 of the chat height, scroll down
 			}else if(messageBounds.top > thresholdBottom) {
 				this.virtualScrollY += messageBounds.top - thresholdBottom;
 				messageHolder.scrollTop = this.virtualScrollY;
@@ -2068,8 +2057,7 @@ export default toNative(MessageList);
 		background: var(--color-primary);
 		color: #fff;
 		white-space: nowrap;
-		padding: .5em;
-		font-size: .8em;
+		padding: .7em;
 		transition: background-color .25s;
 		transform-origin: bottom center;
 		cursor: pointer;
@@ -2177,7 +2165,6 @@ export default toNative(MessageList);
 		max-width: 100%;
 		box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, .5);
 		transform: translateY(-100%);
-		color: var(--color-text);
 
 		.head {
 			display: flex;
@@ -2185,6 +2172,7 @@ export default toNative(MessageList);
 			border-bottom: 1px solid var(--splitter-color);
 			padding-bottom: 10px;
 			margin-bottom: 10px;
+			color: var(--color-text);
 
 			h1 {
 				text-align: center;
@@ -2198,16 +2186,6 @@ export default toNative(MessageList);
 			overflow-x: hidden;
 			.message:nth-child(odd) {
 				background-color: rgba(255, 255, 255, .025);
-			}
-		}
-
-		.ctas {
-			display: flex;
-			flex-direction: row;
-			justify-content: center;
-			margin-top: 10px;
-			button {
-				margin: 0 5px;
 			}
 		}
 	}

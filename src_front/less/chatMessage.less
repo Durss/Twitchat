@@ -125,7 +125,7 @@
 	.chatMessageTime + * {
 		margin-left: 3em;
 	}
-
+	
 	.userlink {
 		font-weight: bold;
 		color: var(--color-secondary);
@@ -135,7 +135,7 @@
 			background-color: var(--color-dark-fader);
 		}
 	}
-
+	
 	.cheermote, .emote {
 		height: 1.75em;
 		vertical-align: middle;
@@ -214,91 +214,6 @@ body.light {
 		&.error {
 			.userlink {
 				color: var(--color-alert);
-			}
-		}
-	}
-}
-
-.pollResult {
-
-	.content {
-		overflow: hidden;
-		flex-grow: 1;
-		.title {
-			font-weight: bold;
-			word-break: break-all;
-			margin-bottom: .5em;
-			text-align: center;
-		}
-		.creator {
-			font-size: .8em;
-			font-style: italic;
-		}
-		.choices {
-			display: flex;
-			flex-direction: column;
-			gap: .5em;
-			margin-bottom: .5em;
-			.choice {
-				display: flex;
-				flex-direction: column;
-				gap: .25em;
-				filter: contrast(0);
-				.infos {
-					display: flex;
-					flex-direction: row;
-
-					.check {
-						flex-shrink: 0;
-						opacity: 0;
-					}
-
-					.icon {
-						color: var(--color-text);
-						height: 1em;
-						margin-right: .25em;
-					}
-
-					.label {
-						overflow: hidden;
-						text-overflow: ellipsis;
-						white-space: nowrap;
-						flex: 1;
-					}
-
-					.users {
-						display: flex;
-						flex-direction: row;
-						align-items: center;
-						flex-shrink: 0;
-					}
-
-					.percent, .points, .users {
-						font-size: .8em;
-						font-variant-numeric: tabular-nums;
-						flex-shrink: 0;
-						margin-right: .5em;
-						&.points {
-							margin-right: 0;
-						}
-					}
-				}
-				.bar {
-					width: 100%;
-					height: 5px;
-					border-radius: 5px;
-					@c: var(--background-color-fade);
-					background: linear-gradient(to right, @c 100%, @c 100%);
-					background-color: var(--background-color-fader);
-					background-repeat: no-repeat;
-				}
-				&.winner {
-					font-weight: 400;
-					filter: unset;
-					.check {
-						opacity: 1;
-					}
-				}
 			}
 		}
 	}

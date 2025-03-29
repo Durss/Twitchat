@@ -20,7 +20,7 @@ const loadVersionPlugin = (loadVersion as any).default || loadVersion;
 export default defineConfig({
 	publicDir: "static",
 	server: {
-		port: 8081,
+		port: 8080,
 	},
 
 	plugins: [

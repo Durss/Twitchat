@@ -27,7 +27,7 @@ export default class AbstractDistortion extends Vue {
 
 	@Prop()
 	public params!:TwitchatDataTypes.HeatDistortionData;
-
+	
 	protected items:IDistortItem[] = [];
 	private maxInstances = 1000;
 	private uvOffsets:number[] = [];
@@ -41,13 +41,13 @@ export default class AbstractDistortion extends Vue {
 	private hasOverlay:boolean = false;
 
 	private clickHandler!:(e:MouseEvent) => void;
-
+	
 	private heatEventHandler!:(event:{detail:TwitchatDataTypes.HeatClickData}) => void;
 
 	public mounted():void {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		this.heatEventHandler = (e) => this.onHeatClick(e);
-
+		
 		//@ts-ignore
 		window.addEventListener("heat-click", this.heatEventHandler);
 		document.body.addEventListener("click", this.clickHandler);
@@ -83,7 +83,7 @@ export default class AbstractDistortion extends Vue {
 		const vec3 = this.screenToWorld(e.clientX, e.clientY);
 		this.addItem(this.buildItem(vec3.x, vec3.y));
 	}
-
+	
 	protected async onHeatClick(event:{detail:TwitchatDataTypes.HeatClickData}):Promise<void> {
 		if(this.params.enabled == false) return;
 		if(event.detail.twitchatOverlayID != this.params.id) return;
@@ -105,13 +105,12 @@ export default class AbstractDistortion extends Vue {
 		};
 		const channelInfo:{[key:string]:TwitchatDataTypes.UserChannelInfo} = {};
 		channelInfo[data.channelId] = infos;
-		const user:Pick<TwitchatDataTypes.TwitchatUser, "id" | "login" | "channelInfo" | "platform"> = {
+		const user:Pick<TwitchatDataTypes.TwitchatUser, "id" | "login" | "channelInfo"> = {
 			id:event.detail.uid,
 			login:event.detail.login,
-			channelInfo,
-			platform:"twitch",
+			channelInfo
 		}
-
+		
 		//Stop there if user isn't allowed
 		if(!event.detail.testMode && !await Utils.checkPermissions(this.params.permissions, user, data.channelId)) return
 
@@ -134,11 +133,11 @@ export default class AbstractDistortion extends Vue {
 		const aspectRatio = (window.innerWidth/2) / window.innerHeight;
 		const frustumSize = 10;
 		camera = new THREE.OrthographicCamera(
-			frustumSize * aspectRatio / -2,
-			frustumSize * aspectRatio / 2,
-			frustumSize / 2,
-			frustumSize / -2,
-			1,
+			frustumSize * aspectRatio / -2, 
+			frustumSize * aspectRatio / 2, 
+			frustumSize / 2, 
+			frustumSize / -2, 
+			1, 
 			100
 		);
 		camera.position.z = 10;
@@ -260,7 +259,7 @@ export default class AbstractDistortion extends Vue {
 
 		const offsetUvY = 1 - (this.uvScaleY * this.shRows);
 		// let screenW = this.screenToWorld(window.innerWidth,0).x;
-
+		
 		for (let i = 0; i < this.items.length; i++) {
 			const item = this.items[i];
 			if(!this.computeItem(item)) {
@@ -270,19 +269,19 @@ export default class AbstractDistortion extends Vue {
 			}
 			// item.angle += Math.PI/200;
 			rotationMatrix.makeRotationZ(item.angle);
-
+			
 			const frame = Math.max(0, Math.min(this.frames-1, Math.floor(item.frame)));
 			if(frame <= 0 && item.alphaSpeed < 0) {
 				item.alphaSpeed = -item.alphaSpeed*.5;
 			}
-
+			
 			const matrix = new THREE.Matrix4();
 			instancedDistortMesh.getMatrixAt(i, matrix );
 			matrix.makeTranslation(item.x, item.y, 0);
 			matrix.multiply(rotationMatrix);
 			matrix.scale(new THREE.Vector3(item.scale, item.scale, 1));
 			instancedDistortMesh.geometry.attributes.uvOffset.setXY(i, (frame%this.shCols)*this.uvScaleX, 1-offsetUvY - this.uvScaleY - Math.floor(frame/this.shCols)*this.uvScaleY);
-
+			
 			instancedDistortMesh.setMatrixAt(i, matrix);
 			if(this.hasOverlay) {
 				const matrix2 = new THREE.Matrix4();
@@ -296,7 +295,7 @@ export default class AbstractDistortion extends Vue {
 			}
 
 		}
-
+		
 		instancedDistortMesh.instanceMatrix.needsUpdate = true;
 		instancedDistortMesh.geometry.attributes.uvOffset.needsUpdate = true;
 		if(this.hasOverlay) {
@@ -340,7 +339,7 @@ export default class AbstractDistortion extends Vue {
 	protected removeItem(data:IDistortItem):void {
 		const index = this.items.findIndex(v=>v.id == data.id);
 		if(index == -1) return;
-
+		
 		instancedDistortMesh.setMatrixAt(index, this.offscreenMatrix);
 		instancedDistortMesh.count --;
 		if(this.hasOverlay) {
@@ -387,7 +386,7 @@ export default class AbstractDistortion extends Vue {
 
 		const canvas = document.createElement("canvas")
 		const ctx = canvas.getContext('2d');
-
+		
 		if(!ctx) {
 			console.error("Spritesheet generation failed. Cannot create canvas context 2D.");
 			return canvas;

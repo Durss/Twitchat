@@ -1,9 +1,9 @@
 <template>
 	<div :class="classes" v-if="showTimer">
 		<Icon name="ad" />
-
-		<div class="timer" ref="label" v-tooltip="isAdRunning? $t('global.tooltips.commercial') : $t('global.tooltips.commercial_soon')">{{timeLeftFormatted}}s</div>
-
+		
+		<div class="timer" ref="label" v-tooltip="isAdRunning? $t('global.tooltips.commercial') : $t('global.tooltips.commercial_soon')">{{timeLeftFormated}}s</div>
+		
 		<Button v-if="!isAdRunning && snoozeLeft > 0 && !error"
 		light primary small
 		icon="timeout"
@@ -41,10 +41,10 @@ class CommercialTimer extends Vue {
 	public isAdComing:boolean = true;
 	public isAdRunning:boolean = true;
 	public timeLeft:number = 0;
-	public timeLeftFormatted:string = "";
+	public timeLeftFormated:string = "";
 	public snoozeLeft:number = 3;
 	public snoozeMax:number = 3;
-
+	
 	private interval:number = -1;
 
 	public get classes():string[] {
@@ -87,7 +87,7 @@ class CommercialTimer extends Vue {
 			startDate			= infos.nextAdStart_at;
 		}
 		this.timeLeft			= Math.max(0, Math.round((startDate - Date.now())/1000));
-		this.timeLeftFormatted	= Utils.formatDuration(this.timeLeft * 1000);
+		this.timeLeftFormated	= Utils.formatDuration(this.timeLeft * 1000);
 
 		const prevShow = this.showTimer;
 		this.showTimer = (this.isAdRunning || this.isAdComing) && this.timeLeft > 0;
@@ -138,7 +138,7 @@ export default toNative(CommercialTimer);
 	padding: 0 .5em;
 	border-radius: var(--border-radius);
 	overflow: hidden;
-
+	
 	&.secondary {
 		background-color: var(--color-secondary);
 		text-shadow: 1px 1px 0 rgba(0, 0, 0, .5);

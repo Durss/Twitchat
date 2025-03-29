@@ -29,7 +29,6 @@ export const storeTTS = defineStore('tts', {
 			maxDuration:30,
 			timeout:0,
 			removeEmotes:true,
-			allRemoteChans:true,
 			removeURL:true,
 			replaceURL:'link',
 			inactivityPeriod:0,

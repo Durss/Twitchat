@@ -26,13 +26,13 @@
 				</div>
 
 				<div v-else-if="showFu" class="fu" ref="fu">🤬</div>
-
+				
 				<Carousel v-else class="carousel" :items-to-show="1" v-model="currentSlide" :wrap-around="true" @slide-start="onSlideStart">
 					<template #addons>
 						<Navigation />
 						<Pagination />
 					</template>
-
+					
 					<Slide v-for="(item, index) in items" :key="index" :class="currentSlide == index? 'item current' : 'item'">
 						<div v-if="item.i == 'toc'" class="inner">
 							<div class="head">
@@ -54,9 +54,9 @@
 							<Icon v-else-if="item.i" :name="item.i" class="icon" />
 
 							<p class="title" v-html="item.l"></p>
-
+							
 							<div class="description" v-html="parseCommonPlaceholders(item.d|| '')"></div>
-
+							
 							<TTButton v-if="item.a"
 								icon="test"
 								:light="item.p === true"
@@ -68,7 +68,7 @@
 								<div v-if="item.v" class="placeholder"><Icon name="play" /></div>
 								<video @click="$event => ($event.target as HTMLVideoElement).play()" v-if="item.v" lazy :src="item.v" autoplay loop></video>
 							</div>
-
+							
 							<div v-if="item.i=='heat'" class="card-item moreInfo">
 								<Icon name="info" />
 								<i18n-t scope="global" keypath="changelog.heat_details" tag="span">
@@ -77,25 +77,25 @@
 									</template>
 								</i18n-t>
 							</div>
-
+							
 							<div v-if="item.i=='tiktok'" class="card-item messageList">
 								<MessageItem v-for="mess in tikTokFakeMessages" :messageData="mess" lightMode disableConversation />
 							</div>
-
+							
 							<div v-if="item.i=='charity'" class="card-item messageList">
 								<MessageItem v-for="mess in charityFakeMessages" :messageData="mess" lightMode disableConversation />
 							</div>
-
+							
 							<!-- <ChangelogLabels v-if="item.i=='label' && currentSlide == index" /> -->
 							<Changelog3rdPartyAnim v-if="item.i=='offline' && currentSlide == index" />
-
+							
 							<template v-if="item.p === true || item.i == 'donate'">
 								<TTButton secondary icon="coin" @click="$store.params.openParamsPage(contentDonate)" v-if="item.i == 'donate'">{{ $t("params.categories.donate") }}</TTButton>
 								<TTButton premium icon="premium" @click="$store.params.openParamsPage(contentPremium)" v-if="!isPremium">{{ $t("premium.become_premiumBt") }}</TTButton>
 								<TTButton primary icon="sub" @click="showPremiumFeatures = true" v-if="!showPremiumFeatures && !isPremium">{{ $t("premium.features_title") }}</TTButton>
 								<SponsorTable class="premiumTable" v-if="showPremiumFeatures" expand />
 							</template>
-
+							
 							<template v-if="item.y">
 								<a :href="item.y" target="_blank" class="youtubeBt">
 									<Icon name="youtube" theme="light" />
@@ -161,15 +161,15 @@ class Changelog extends Vue {
 	public buildIndex:number = 0;
 	public tikTokFakeMessages:TwitchatDataTypes.ChatMessageTypes[] = [];
 	public charityFakeMessages:TwitchatDataTypes.ChatMessageTypes[] = [];
-
+	
 	private openedAt = 0;
 	private closing:boolean = false;
 	private slideCountRead = new Map();
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
-
+	
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 	public get isPremium():boolean { return this.$store.auth.isPremium; }
-
+	
 	public get classes():string[] {
 		const res:string[] = ["changelog", "modal"];
 		if(this.currentItem.p === true && !this.showReadAlert && !this.showFu) res.push("premium");
@@ -200,7 +200,7 @@ class Changelog extends Vue {
 
 	public mounted(): void {
 		this.openedAt = Date.now();
-
+		
 		gsap.set(this.$el as HTMLDivElement, {opacity:0});
 		//Leave the view a bit of time to render to avoid lag during transition
 		window.setTimeout(()=> {
@@ -241,7 +241,7 @@ class Changelog extends Vue {
 			this.charityFakeMessages.push(message);
 		}, false);
 	}
-
+	
 	public beforeUnmount():void {
 		document.removeEventListener("keyup", this.keyUpHandler);
 	}
@@ -265,7 +265,7 @@ class Changelog extends Vue {
 		}
 
 		this.closing = true;
-
+		
 		if(forceClose) {
 			this.showFu = fuMode;
 			this.showReadAlert = !fuMode;
@@ -289,9 +289,9 @@ class Changelog extends Vue {
 
 	/**
 	 * Called when sliding to a new card
-	 * @param currentSlideIndex
-	 * @param prevSlideIndex
-	 * @param slidesCount
+	 * @param currentSlideIndex 
+	 * @param prevSlideIndex 
+	 * @param slidesCount 
 	 */
 	public onSlideStart(data:{currentSlideIndex:number, prevSlideIndex:number, slidesCount:number, slidingToIndex:number}):void {
 		this.slideCountRead.set(data.slidingToIndex, true);
@@ -301,7 +301,7 @@ class Changelog extends Vue {
 
 	/**
 	 * Parses common placeholders like {HEAT} or {SHADERTASTIC}
-	 * @param str
+	 * @param str 
 	 */
 	public parseCommonPlaceholders(str:string):string {
 		str = str.replace(/\{HEAT\}/gi, `<a href="${this.$config.HEAT_EXTENSION}" target="_blank">Heat</a>`);
@@ -319,7 +319,7 @@ class Changelog extends Vue {
 
 	/**
 	 * Scroll carousel with keyboard
-	 * @param e
+	 * @param e 
 	 */
 	private onKeyUp(e:KeyboardEvent):void {
 		if(e.key == "ArrowLeft") {
@@ -364,7 +364,7 @@ export default toNative(Changelog);
 		&>.holder {
 			color: var(--color-light);
 			background-color: var(--color-premium-dark);
-
+			
 			*::-webkit-scrollbar-thumb {
 				background: transparent;
 				background-color: var(--color-premium-light);
@@ -375,7 +375,7 @@ export default toNative(Changelog);
 			}
 		}
 	}
-
+	
 	&>.holder {
 		width: 600px;
 		max-width: ~"min(600px, var(--vw))";
@@ -476,7 +476,7 @@ export default toNative(Changelog);
 
 				.demo {
 					max-width: calc(100% - 2em);
-					// max-height: 400px;
+					max-height: 400px;
 					transition: all .5s;
 					overflow: hidden;
 					border-radius: var(--border-radius);
@@ -580,7 +580,7 @@ export default toNative(Changelog);
 				}
 			}
 		}
-
+		
 		:deep(.carousel__next),
 		:deep(.carousel__prev) {
 			height: 100%;
@@ -687,7 +687,7 @@ export default toNative(Changelog);
 			white-space: pre-line;
 			text-align: center;
 		}
-
+		
 		.description {
 			font-size: 1.2em;
 			line-height: 1.2em;

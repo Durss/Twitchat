@@ -46,7 +46,6 @@
 		"raffle_placeholder": "Winning raffle entry",
 		"screenshot_placeholder": "OBS Screenshot",
 		"premium_limit": "You created the maximum number of {MAX} triggers. Become premium to create up to {MAX_PREMIUM} triggers. Or disable / delete some triggers to create new ones.",
-		"add_action": "Add action",
 		"delete_folder_confirm": {
 			"title": "Delete folder?",
 			"desc": "Triggers inside the folder will be moved to its parent."
@@ -126,8 +125,7 @@
 			"param_cmd_params_example": "Command usage example:",
 			"param_cmd_params_example_result": "Result:",
 			"param_cmd_params_type_tt": "Data type. Select \"User\" to make twitchat load user's data",
-			"format_error": "Command must start with a \" / \"",
-			"grant_discord_rights": "Grant permission to your discord members"
+			"format_error": "Command must start with a \" / \""
 		},
 		"actions": {
 			"common": {
@@ -139,7 +137,6 @@
 				"action_delay": "Delay",
 				"action_chat": "Send chat message",
 				"action_delete": "Delete chat message",
-				"action_spoil_message": "Spoil chat message",
 				"action_customChat": "Custom notification",
 				"action_reward": "Channel points reward",
 				"action_extension": "Twitch Extension",
@@ -164,7 +161,6 @@
 				"action_http": "HTTP call",
 				"action_ws": "Websocket message",
 				"action_poll": "Start poll",
-				"action_chat_poll": "Start chat poll",
 				"action_prediction": "Start prediction",
 				"action_count": "Update a counter",
 				"action_value": "Update a value",
@@ -172,7 +168,7 @@
 				"action_stream_infos": "Set stream infos",
 				"action_stream_infos_tt": "You need to allow Twitchat to update your stream info",
 				"action_vibrate": "Vibrate phone",
-				"custom_placeholder_example": "Use {PLACEHOLDER} keyword in any field of the actions below to get the placeholder's value.",
+				"custom_placeholder_example": "Use {PLACEHOLDER} keyword in any field of the actions bellow to get the placeholder's value.",
 				"action_goxlr": "Control GoXLR",
 				"action_goxlr_tt": "You need to connect your GoXLR",
 				"action_customBadges": "Custom user badges",
@@ -188,13 +184,7 @@
 				"action_mixitup": "Mix It Up action",
 				"action_mixitup_tt": "You first need to connect Twitchat with Mix It Up to use this action",
 				"action_playability": "PlayAbility action",
-				"action_playability_tt": "You first need to connect Twitchat with PlayAbility to use this action",
-				"action_groq": "Groq action",
-				"action_groq_tt": "You first need to connect Twitchat with Groqger to use this action",
-				"action_timer": "Timer",
-				"trigger_stop": "Stop trigger execution",
-				"action_animated_text": "Animate text",
-				"action_animated_text_tt": "You first need to create an animated text overlay to use this action"
+				"action_playability_tt": "You first need to connect Twitchat with PlayAbility to use this action"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -214,10 +204,7 @@
 				"reset_cooldown_tt": "Reset current cooldowns"
 			},
 			"delete_message": {
-				"info": "Delete the chat message that started this trigger"
-			},
-			"spoil_message": {
-				"info": "Flag the chat message that started this trigger as spoiler"
+				"info": "Delete the chat message that started this trigger."
 			},
 			"discord": {
 				"param_message": "Message to send to Discord",
@@ -301,14 +288,12 @@
 				"param_screenImgSize_modeSave_conf": "Save to disk",
 				"param_screenImgSize_modeGet_conf": "Get data",
 				"param_screenImgSavePath_conf": "File path to save the image to",
-				"param_screenImgSavePath_conf_error": "File path must contain the file name and extension (ex: image.jpg)",
 				"param_screenImgSavePH_conf": "Placeholder to save Base64 data to",
 				"param_browser_info": "This feature is for developpers. It allows to emit a javascript event on all browsser sources to send them data.",
 				"param_browser_usage": "Add this to your browser source to receive the data:",
 				"param_browserEvent_name": "Event name",
 				"param_browserEvent_param": "Event parameter",
 				"param_source": "OBS Element",
-				"param_source_currentScene": "Current scene",
 				"param_source_splitter_scenes": "━━━━━━ Scenes ━━━━━━",
 				"param_source_splitter_sources": "━━━━━━ Sources ━━━━━━",
 				"param_source_splitter_inputs": "━━━━━━ Inputs ━━━━━━",
@@ -397,11 +382,7 @@
 				"param_action_voice": "Enable a filter",
 				"param_action_sound": "Play a sound",
 				"param_action_beepOn": "Start beep",
-				"param_action_beepOff": "Stop beep",
-				"param_action_voiceChangerOn": "Start voice changer",
-				"param_action_voiceChangerOff": "Stop voice changer",
-				"param_action_hearMyselfOn": "Start hear my voice",
-				"param_action_hearMyselfOff": "Stop hear my voice"
+				"param_action_beepOff": "Stop beep"
 			},
 			"http_ws": {
 				"url": "URL to call",
@@ -414,7 +395,7 @@
 				"select_param": "Select parameters to send:",
 				"select_param_ws": "Select parameters to add to JSON body:",
 				"protocol_error": "Due to browser security restrictions, only 127.0.0.1 or localhost domains can be called with HTTP protocol. Use HTTPS for other domains.",
-				"send_as_body": "Send parameters selected below in the body as JSON\n(otherwise they're sent as query URL)",
+				"send_as_body": "Send parameters selected bellow in the body as JSON\n(otherwise they're sent as query URL)",
 				"custom_headers": "Custom headers",
 				"add_headerBt": "Add header",
 				"need_to_connect": "This action requires you to {LINK}",
@@ -486,8 +467,7 @@
 				"placeholder_tuto": "Define placeholders names to which extract corresponding data:",
 				"placeholder_user_id": "User ID",
 				"placeholder_user_name": "User name (Twitch only)",
-				"placeholder_value": "Value",
-				"param_removePickedEntry": "Remove picked up entry from list"
+				"placeholder_value": "Value"
 			},
 			"raffle_enter": {
 				"info": "The user triggering the current event will enter any currently running raffle. It will do nothing if no raffle has been created first."
@@ -502,7 +482,7 @@
 				"create_areaBt": "Create clickable areas"
 			},
 			"goxlr": {
-				"select_button": "Select which buttons should execute that trigger in the interface below",
+				"select_button": "Select which buttons should execute that trigger in the interface bellow",
 				"param_action": "Action type",
 				"param_fxPreset": "FX preset to enable",
 				"param_fxPreset_keep": "Keep current",
@@ -528,7 +508,7 @@
 				"action_sample_play": "Play sample",
 				"action_set_fader": "Set a volume",
 				"action_profile": "Switch profile",
-				"select_sampler": "Select the sample bank and button on the interface below"
+				"select_sampler": "Select the sample bank and button on the interface bellow"
 			},
 			"customBadge": {
 				"param_user": "Select user to edit tags of",
@@ -657,44 +637,6 @@
 				"output_press":"Press button",
 				"output_release":"Release button",
 				"output_press_release":"Press/Release button"
-			},
-			"groq": {
-				"preprompt": "Preprompt",
-				"prompt": "Prompt",
-				"model": "Model",
-				"model_default": "Default model",
-				"jsonMode": "Get answer as JSON",
-				"jsonMode_hint": "{LINK} on how to make Groq answer a JSON",
-				"jsonMode_hint_link": "See instructions",
-				"json": "{'{'}\n\t\"myKey\": \"Expected Groq result example\",\n\t\"myOtherKey\": \"Another Groq result\"\n{'}'}",
-				"jsonError": "Invalid JSON format:\n{ERROR}"
-			},
-			"timer": {
-				"no_timer": "You must first create a timer",
-				"createTimer_bt": "Create a timer",
-				"param_timer": "Timer to control",
-				"param_action": "Action",
-				"param_action_start": "Start",
-				"param_action_pause": "Pause",
-				"param_action_resume": "Resume",
-				"param_action_stop": "Stop",
-				"param_action_add": "Add time",
-				"param_action_remove": "Remove time",
-				"param_action_set": "Set duration",
-				"param_duration": "Duration (seconds)"
-			},
-			"trigger_stop": {
-				"info": "The trigger execution will stop here.\nThe following actions will not be executed."
-			},
-			"animated_text": {
-				"param_overlayId": "Overlay to control",
-				"param_action": "Action",
-				"param_text": "New text",
-				"param_autoHide": "Auto hide text after a delay based on message size",
-				"actions": {
-					"show": "Show text",
-					"hide": "Hide text"
-				}
 			}
 		},
 		"categories": {
@@ -726,10 +668,7 @@
 			"trigger_id": "Current trigger ID",
 			"user": "User name",
 			"user_customName": "User name custom",
-			"user_id": "Parent message - User ID",
-			"parent_user": "Parent message - User name",
-			"parent_user_customName": "Parent message - User name custom",
-			"parent_user_id": "User ID",
+			"user_id": "User ID",
 			"user_color": "User color",
 			"user_badges": "User badges as JSON",
 			"user_custom_badges": "Custom user badge IDs",
@@ -743,9 +682,6 @@
 			"message": "Message content",
 			"message_json": "Message content as JSON",
 			"message_html": "Message content as HTML",
-			"parent_message": "Parent message content",
-			"parent_message_json": "Parent message content as JSON",
-			"parent_message_html": "Parent message content as HTML",
 			"pinned_by": "User who pinned the mesage",
 			"pinned_by_id": "ID of the user who pinned the mesage",
 			"poll_title": "Poll title",
@@ -791,14 +727,12 @@
 			"stream_category": "Stream category",
 			"stream_viewers": "Viewers count",
 			"stream_duration": "Stream duration in milliseconds",
-			"stream_duration_str": "Stream duration formatted",
 			"stream_live": "\"true\" if user was live when raiding",
 			"viewers": "Viewers count",
 			"reward_title": "Reward name",
 			"reward_description": "Reward description",
 			"reward_cost": "Reward cost",
 			"reward_message": "User message if any",
-			"reward_id": "Reward ID",
 			"track_artist": "Current track artist name",
 			"track_title": "Current track's title",
 			"track_album": "Current track's album name",
@@ -825,8 +759,10 @@
 			"voicemod_voice": "Voice's ID",
 			"voicemod_voice_name": "Voice's name",
 			"timeout": "Timeout duration in seconds",
-			"start_date": "formatted start date",
-			"countdown_end_date": "formatted end date",
+			"start_date": "Formated start date",
+			"timer_duration": "Formated timer's final duration",
+			"timer_duration_ms": "Timer's final duration in milliseconds",
+			"countdown_end_date": "Formated end date",
 			"challenge_title": "Challenge title",
 			"challenge_description": "Challenge description",
 			"challenge_goal": "Challenge goal",
@@ -853,6 +789,10 @@
 			"obs_scene_name": "Name of the new OBS scene",
 			"obs_scene_name_previous": "Name of the previous OBS scene",
 			"command": "Command name",
+			"hype_chat_paid": "Paid amount",
+			"hype_chat_currency": "Currency used to pay (ex: USD, EUR, CHF, ...)",
+			"hype_chat_duration": "Display duration in seconds",
+			"hype_chat_level": "Paid level (from 0 to 9)",
 			"ulule_campaign_url": "Campaign URL",
 			"ulule_campaign_name": "Campaign name",
 			"ulule_campaign_name_example": "My awesome project",
@@ -863,16 +803,13 @@
 			"heat_key_shift": "Is SHIFT key pressed?",
 			"heat_key_ctrl": "Is CTRL key pressed?",
 			"clip_url": "Clip URL",
-			"timer_id": "{NAME} Timer ID",
-			"timer_paused": "{NAME} Timer paused ?",
-			"timer_duration_ms": "{NAME} Timer duration in milliseconds",
-			"timer_duration_formatted": "{NAME} Timer duration formatted",
-			"countdown_remaining_ms": "{NAME} Countdown remaining time in milliseconds",
-			"countdown_remaining_formatted": "{NAME} Countdown remaining time formatted",
-			"countdown_duration_ms": "{NAME} Countdown duration in milliseconds",
-			"countdown_duration_formatted": "{NAME} Countdown duration formatted",
-			"countdown_realDuration_ms": "{NAME} Elapsed duration in milliseconds",
-			"countdown_realDuration_formatted": "{NAME} Elapsed duration formatted",
+			"timer_value": "Timer's value in seconds",
+			"timer_value_formated": "Formated timer's value",
+			"countdown_value": "Countdown's remaining time in seconds",
+			"countdown_value_formated": "Formated countdown's remaining time",
+			"countdown_duration": "Countdown's duration in seconds",
+			"countdown_duration_ms": "Countdown's duration in milliseconds",
+			"countdown_duration_formated": "Formated countdown's duration",
 			"goxlr_button_id": "Id of the button",
 			"goxlr_fader_index": "Fader index (1 -> 4)",
 			"goxlr_preset_index": "Preset index (1 -> 6)",
@@ -965,7 +902,6 @@
 			"bingo_grid_count": "Bingo count",
 			"bingo_grid_cell_x": "X coordinates of the ticked cell",
 			"bingo_grid_cell_y": "Y coordinates of the ticked cell",
-			"bingo_grid_cell_label": "Label of the ticked cell",
 			"bingo_grid_col": "Index of the filled column",
 			"bingo_grid_row": "Index of the filled row",
 			"bingo_grid_diag": "Index of the filled diagonal",
@@ -995,17 +931,7 @@
 			"playability_inputType_button":"Gamepad Button",
 			"playability_inputType_keyboard":"Keyboard key",
 			"playability_inputType_mouseButton":"Mouse click",
-			"playability_inputType_trigger":"Gamepad Trigger",
-			"goal_step_id":"Step ID",
-			"goal_step_index":"Step index (fist is 0)",
-			"goal_step_title":"Step title",
-			"goal_step_secret":"Is secret step?",
-			"goal_step_amount":"Step amount",
-			"goal_overlay_id":"Goal overlay ID",
-			"goal_overlay_title":"Goal overlay title",
-			"current_vod_url":"URL of the current VOD",
-			"customTrain_level": "Train level reached",
-			"customTrain_amount_left": "Ammount left to reach next level"
+			"playability_inputType_trigger":"Gamepad Trigger"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1015,10 +941,6 @@
 			"ANY_MESSAGE": {
 				"label": "Any message",
 				"description": "Actions to execute everytime a message is received on chat"
-			},
-			"MESSAGE_ANSWER": {
-				"label": "Answer to a message",
-				"description": "Actions to execute when a message answers another message"
 			},
 			"REWARD_REDEEM": {
 				"label": "Channel point reward",
@@ -1087,14 +1009,6 @@
 			"PREDICTION_RESULT": {
 				"label": "Prediction result",
 				"description": "Actions to execute when a prediction completes"
-			},
-			"CHAT_POLL_START": {
-				"label": "Chat poll started",
-				"description": "Actions to execute when a chat poll starts"
-			},
-			"CHAT_POLL_RESULT": {
-				"label": "Chat poll result",
-				"description": "Actions to execute when a chat poll completes"
 			},
 			"RAFFLE_RESULT": {
 				"label": "Raffle result",
@@ -1254,10 +1168,6 @@
 			"HIGHLIGHT_CHAT_MESSAGE": {
 				"label": "Highlighted message",
 				"description": "Actions to execute when requesting to highlight a message"
-			},
-			"HIGHLIGHT_CHAT_MESSAGE_CLOSE": {
-				"label": "Highlighted message closed",
-				"description": "Actions to execute after closing an highlighted message"
 			},
 			"CHAT_ALERT": {
 				"label": "Chat alert",
@@ -1679,10 +1589,6 @@
 			"PLAYABILITY_INPUT": {
 				"label":"Action triggered on PlayAbility",
 				"description": "Actions to execute when an action is triggered by PlayAbility"
-			},
-			"GOAL_STEP_COMPLETE": {
-				"label":"Goal overlay step complete",
-				"description": "Actions to execute when a step of a Goal completes"
 			}
 		},
 		"musicEvents": {

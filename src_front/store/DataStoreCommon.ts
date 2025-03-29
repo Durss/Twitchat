@@ -93,7 +93,6 @@ export default class DataStoreCommon {
 	public static STREAMELEMENTS:string = "streamelements";
 	public static PREDICTION_OVERLAY_PARAMS:string = "predictionOverlayParams";
 	public static POLL_OVERLAY_PARAMS:string = "pollOverlayParams";
-	public static CHAT_POLL_OVERLAY_PARAMS:string = "chatPollOverlayParams";
 	public static TIPEEE:string = "tipeee";
 	public static PINNED_CHAT_MENU_ITEM:string = "pinnedChatMenuItem";
 	public static LUMIA:string = "lumia";
@@ -113,15 +112,10 @@ export default class DataStoreCommon {
 	public static SAMMI_CONFIGS:string = "sammiConfigs";
 	public static SAMMI_API_PASSWORD:string = "sammiApiPassword";
 	public static MIXITUP_CONFIGS:string = "mixitupConfigs";
-	public static GROQ_API_KEY:string = "groqApiKey";
-	public static GROQ_CONFIGS:string = "groqConfigs";
 	public static ELEVENLABS_API_KEY:string = "elevenlabsApiKey";
 	public static PLAYABILITY_CONFIGS:string = "playabilityConfigs";
 	public static KOFI_CONFIGS:string = "kofiConfigs";
 	public static TWITCH_BOT:string = "twitchBot";
-	public static TIMERS_CONFIGS:string = "timersConfigs";
-	public static ANIMATED_TEXT_CONFIGS:string = "animatedTextConfigs";
-	public static CUSTOM_TRAIN_CONFIGS:string = "customTrainConfigs";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";
@@ -159,10 +153,8 @@ export default class DataStoreCommon {
 		this.STREAMLABS_CHARITY_CACHE,
 		this.STREAMERBOT_WS_PASSWORD,
 		this.SAMMI_API_PASSWORD,
-		this.GROQ_API_KEY,
 		this.ELEVENLABS_API_KEY,
 		this.TWITCH_BOT,
-		this.EMERGENCY_FOLLOWERS,
 	];
 
 

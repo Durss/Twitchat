@@ -14,8 +14,6 @@
 	"windowsHide": true,
 	"kill_retry_time": 100,
 	"write": true,
-	"kill_timeout": 3000,
-	"shutdown_with_message": true,
 	"ignore_watch": [
 		"node_modules",
 		"static",

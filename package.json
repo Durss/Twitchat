@@ -1,6 +1,6 @@
 {
 	"name": "twitchat",
-	"version": "15.15.0",
+	"version": "15.3.3",
 	"private": false,
 	"author": "Durss",
 	"description": "Full featured alternative Twitch chat",
@@ -21,9 +21,11 @@
 		"i18n": "node src_labels/index.mjs",
 		"typecheck": "vue-tsc --noEmit",
 		"lint": "eslint . --ext .vue,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+		"streamdeck_package": "npm run streamdeck_package_clean && DistributionTool.exe -b -i streamdeck_plugin/fr.twitchat.sdPlugin -o streamdeck_plugin",
+		"streamdeck_package_clean": "shx rm streamdeck_plugin/fr.twitchat.streamDeckPlugin",
+		"streamdeck_deploy_local": "shx cp -r streamdeck_plugin/fr.twitchat.sdPlugin C:/Users/franc/AppData/Roaming/Elgato/StreamDeck/Plugins/",
 		"check-circular-dependencies": "dpdm ./src_front/main.ts",
-		"versionUpgrade": "node scripts/versionSuffix.mjs",
-		"analyse": "esbuild src_front/main.ts --bundle --analyze"
+		"versionUpgrade": "node scripts/versionSuffix.mjs"
 	},
 	"dependencies": {
 		"@fastify/cors": "^8.1.0",
@@ -81,11 +83,12 @@
 		"eslint": "^7.32.0",
 		"eslint-plugin-vue": "^8.0.3",
 		"grapheme-splitter": "^1.0.4",
-		"groq-sdk": "^0.9.1",
 		"gsap": "^3.10.4",
+		"i": "^0.3.7",
 		"isomorphic-dompurify": "^1.9.0",
 		"jsonpath": "^1.1.1",
 		"lande": "^1.0.10",
+		"less-loader": "^8.0.0",
 		"lorem-ipsum": "^2.0.8",
 		"mathjs": "^12.2.0",
 		"matter-js": "^0.19.0",
@@ -95,11 +98,11 @@
 		"pixi.js": "^7.3.3",
 		"rollup": "^4.18.0",
 		"rollup-plugin-typescript2": "^0.36.0",
-		"split-type": "^0.3.4",
+		"shx": "^0.3.4",
 		"three": "^0.158.0",
 		"tmi.js": "github:Durss/tmi.js",
 		"typescript": "^5.6.3",
-		"vite": "^5.4.14",
+		"vite": "^5.4.1",
 		"vite-plugin-package-version": "^1.1.0",
 		"vue": "^3.3.9",
 		"vue-contenteditable": "^4.1.0",
@@ -113,6 +116,7 @@
 		"vue-tsc": "^2.0.5",
 		"vue3-carousel": "^0.2.9",
 		"vue3-marquee": "^4.2.0",
-		"vuedraggable": "^4.1.0"
+		"vuedraggable": "^4.1.0",
+		"webpack-env": "^0.8.0"
 	}
 }

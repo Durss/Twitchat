@@ -46,7 +46,6 @@
 		"raffle_placeholder": "Entrée de tirage au sort gagnante",
 		"screenshot_placeholder": "Screenshot OBS",
 		"premium_limit": "Vous avez créé le maximum de {MAX} triggers actifs. Devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} triggers. Ou désactivez / supprimez des triggers pour en créer de nouveaux.",
-		"add_action": "Ajouter une action",
 		"delete_folder_confirm": {
 			"title": "Supprimer le dossier ?",
 			"desc": "Les triggers de ce dossier seront déplacé dans son parent."
@@ -72,7 +71,7 @@
 		},
 		"rewards": {
 			"require": "Ces événéments nécessitent de {URL}",
-			"require_url": "lister vos récompenses de points de chaîne",
+			"require_url": "lister vos récompenses de point de chaîne",
 			"all_rewards": "N'importe quelle récompense"
 		},
 		"schedule": {
@@ -118,16 +117,15 @@
 		"slash_cmd": {
 			"param_cmd": "Commande",
 			"param_cmd_placeholder": "/commande...",
-			"param_ctx_menu": "Ajouter aux options de modération (clic droit sur un message)",
+			"param_ctx_menu": "Ajouter aux options de modération (click droit sur un message)",
 			"param_discord": "Ajouter cette commande à votre Discord",
 			"param_cmd_params": "Paramètres de commande optionnels",
-			"param_cmd_params_tt": "Ceci permet d'extraire des portions du message et de les injecter dans les actions à exécuter par le biais de placeholders.",
+			"param_cmd_params_tt": "Ceci permet d'extraire des portions du message et de les injecter dans les actions à exécuter par le bais de placeholders.",
 			"param_cmd_params_placeholder": "ajouter un paramètre...",
-			"param_cmd_params_example": "Exemple d'utilisation de la commande :",
-			"param_cmd_params_example_result": "Résultat :",
+			"param_cmd_params_example": "Exemple d'utilisation de la commande :",
+			"param_cmd_params_example_result": "Resultat :",
 			"param_cmd_params_type_tt": "Type de donnée. Sélectionnez \"User\" pour que Twitchat charge les données de la personne",
-			"format_error": "La commande doit commencer par un \" / \"",
-			"grant_discord_rights": "Accorder les droits à vos membres Discord"
+			"format_error": "La commande doit commencer par un \" / \""
 		},
 		"actions": {
 			"common": {
@@ -139,9 +137,8 @@
 				"action_delay": "Pause",
 				"action_chat": "Envoyer un message",
 				"action_delete": "Supprimer le message",
-				"action_spoil_message": "Spoiler le message",
 				"action_customChat": "Notification personnalisée",
-				"action_reward": "Récompense de pts de chaîne",
+				"action_reward": "Récompense de points de chaîne",
 				"action_extension": "Extension Twitch",
 				"action_bingo": "Lancer un bingo",
 				"action_chatSugg": "Suggestions de tchat",
@@ -163,7 +160,6 @@
 				"action_http": "Appel HTTP",
 				"action_ws": "Message Websocket",
 				"action_poll": "Lancer un sondage",
-				"action_chat_poll": "Lancer un sondage de tchat",
 				"action_prediction": "Lancer une prédiction",
 				"action_count": "Modifier un compteur",
 				"action_value": "Modifier une valeur",
@@ -188,13 +184,7 @@
 				"action_mixitup": "Action Mix It Up",
 				"action_mixitup_tt": "Vous devez connecter Twitchat à Mix It Up pour utiliser cette action",
 				"action_playability": "Action PlayAbility",
-				"action_playability_tt": "Vous devez connecter Twitchat à PlayAbility pour utiliser cette action",
-				"action_groq": "Action Groq",
-				"action_groq_tt": "Vous devez connecter Twitchat à Groq pour utiliser cette action",
-				"action_timer": "Minuteur",
-				"trigger_stop": "Stopper le trigger",
-				"action_animated_text": "Animer du texte",
-				"action_animated_text_tt": "Vous devez d'abord créer un overlay de text animé pour utiliser cette action"
+				"action_playability_tt": "Vous devez connecter Twitchat à PlayAbility pour utiliser cette action"
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
@@ -215,9 +205,6 @@
 			},
 			"delete_message": {
 				"info": "Supprimer le message de tchat ayant déclenché ce trigger"
-			},
-			"spoil_message": {
-				"info": "Marquer le message de tchat ayant déclencher ce trigger comme spoiler"
 			},
 			"discord": {
 				"param_message": "Message à envoyer sur Discord",
@@ -301,14 +288,12 @@
 				"param_screenImgSize_modeSave_conf": "Enregistrer sur le disque",
 				"param_screenImgSize_modeGet_conf": "Récupérer les données",
 				"param_screenImgSavePath_conf": "Chemin du fichier où enregistrer",
-				"param_screenImgSavePath_conf_error": "Le chemin du fichier doit contenir un nom de fichier et son extension (ex: image.jpg)",
 				"param_screenImgSavePH_conf": "Placeholder dans lequel enregistrer les données au format Base64",
 				"param_browser_info": "Cette fonctionnalité est à destination des développeur·euses et permet de déclencher des évènement javascript directement dans les sources navigateur pour leur transmettre des données.",
 				"param_browser_usage": "Ajoutez ceci dans votre source navigateur pour recevoir l'évènement:",
 				"param_browserEvent_name": "Nom de l'évènement",
 				"param_browserEvent_param": "Paramètre de l'évènement",
 				"param_source": "Élément OBS",
-				"param_source_currentScene": "Scène courante",
 				"param_source_splitter_scenes": "━━━━━━ Scènes ━━━━━━",
 				"param_source_splitter_sources": "━━━━━━ Sources ━━━━━━",
 				"param_source_splitter_inputs": "━━━━━━ Inputs ━━━━━━",
@@ -397,11 +382,7 @@
 				"param_action_voice": "Activer un filtre",
 				"param_action_sound": "Jouer un son",
 				"param_action_beepOn": "Activer le beep",
-				"param_action_beepOff": "Désactiver le beep",
-				"param_action_voiceChangerOn": "Activer la changement de voix",
-				"param_action_voiceChangerOff": "Désactiver la changement de voix",
-				"param_action_hearMyselfOn": "Activer \"entendre ma voix\"",
-				"param_action_hearMyselfOff": "Désactiver \"entendre ma voix\""
+				"param_action_beepOff": "Désactiver le beep"
 			},
 			"http_ws": {
 				"url": "URL à appeler",
@@ -486,8 +467,7 @@
 				"placeholder_tuto": "Définissez le nom des placeholders dans lesquels extraire les données correspondantes:",
 				"placeholder_user_id": "ID de la personne",
 				"placeholder_user_name": "Pseudo de la personne (Twitch only)",
-				"placeholder_value": "Valeur",
-				"param_removePickedEntry": "Retirer l'entrée gagnante de la liste"
+				"placeholder_value": "Valeur"
 			},
 			"raffle_enter": {
 				"info": "La personne déclenchant l'évènement actuel participera au tirage au sort en cours. Cette action n'aura aucun effet si aucun tirage au sort n'a été démarré avant ça."
@@ -657,44 +637,6 @@
 				"output_press":"Appuyer le bouton",
 				"output_release":"Relâcher le bouton",
 				"output_press_release":"Appuyer/Relâcher le bouton"
-			},
-			"groq": {
-				"preprompt": "Preprompt",
-				"prompt": "Prompt",
-				"model": "Modèle",
-				"model_default": "Modèle par défaut",
-				"jsonMode": "Réponse au format JSON",
-				"jsonMode_hint": "{LINK} pour demander à Groq de renvoyer une réponse JSON dans le format que vous souhaitez",
-				"jsonMode_hint_link": "Voir les instructions",
-				"json": "Format JSON",
-				"jsonError": "Format JSON invalide:\n{ERROR}"
-			},
-			"timer": {
-				"no_timer": "Vous devez d'abord créer un minuteur",
-				"createTimer_bt": "Créer un minuteur",
-				"param_timer": "Minuteur",
-				"param_action": "Action",
-				"param_action_start": "Démarrer",
-				"param_action_pause": "Mettre en pause",
-				"param_action_resume": "Reprendre",
-				"param_action_stop": "Arrêter",
-				"param_action_add": "Ajouter du temps",
-				"param_action_remove": "Retirer du temps",
-				"param_action_set": "Changer la durée",
-				"param_duration": "Durée (secondes)"
-			},
-			"trigger_stop": {
-				"info": "L'exécution du trigger s'arrêtera ici.\nLes actions suivantes ne seront pas exécutées."
-			},
-			"animated_text": {
-				"param_overlayId": "Overlay à contrôler",
-				"param_action": "Action",
-				"param_text": "Nouveau texte",
-				"param_autoHide": "Masquer automatiquement le texte après un délai basé sur la taille du message",
-				"actions": {
-					"show": "Afficher du texte",
-					"hide": "Masquer le texte"
-				}
 			}
 		},
 		"categories": {
@@ -727,9 +669,6 @@
 			"user": "Pseudo",
 			"user_customName": "Pseudo personnalisé",
 			"user_id": "ID utilisateur",
-			"parent_user": "Message parent - Pseudo",
-			"parent_user_customName": "Message parent - Pseudo personnalisé",
-			"parent_user_id": "Message parent - ID utilisateur",
 			"user_color": "Couleur du pseudo",
 			"user_badges": "Badges au format JSON",
 			"user_custom_badges": "Badges personnalisés (IDs)",
@@ -743,9 +682,6 @@
 			"message": "Message",
 			"message_json": "Message au format JSON",
 			"message_html": "Message au format HTML",
-			"parent_message": "Message parent",
-			"parent_message_json": "Message parent au format JSON",
-			"parent_message_html": "Message parent au format HTML",
 			"pinned_by": "Pseudo de la personne ayant épinglé",
 			"pinned_by_id": "ID de la personne ayant épinglé",
 			"poll_title": "Titre du sondage",
@@ -791,14 +727,12 @@
 			"stream_category": "Catégorie du stream",
 			"stream_viewers": "Nombre de viewers",
 			"stream_duration": "Durée du stream en millisecondes",
-			"stream_duration_str": "Durée du stream formatée",
 			"stream_live": "\"true\" si la personne était en stream au moment du raid",
 			"viewers": "Nombre de viewers",
 			"reward_title": "Nom de la récompense",
 			"reward_description": "Description de la récompense",
 			"reward_cost": "Prix de la récompense",
 			"reward_message": "Message de la personne",
-			"reward_id": "ID de la récompense",
 			"track_artist": "Artiste du morceau en cours",
 			"track_title": "Titre du morceau en cours",
 			"track_album": "Album du morceau en cours",
@@ -826,6 +760,8 @@
 			"voicemod_voice_name": "Nom de la voix",
 			"timeout": "Duration du ban en secondes",
 			"start_date": "Date de début formatée",
+			"timer_duration": "Durée finale du Chronomètre formatée",
+			"timer_duration_ms": "Durée finale du Chronomètre en millisecondes",
 			"countdown_end_date": "Date de fin du compte à rebours",
 			"challenge_title": "Titre du défi",
 			"challenge_description": "Description du défi",
@@ -853,6 +789,10 @@
 			"obs_scene_name": "Nom de la nouvelle scène OBS",
 			"obs_scene_name_previous": "Nom de la scène OBS précédente",
 			"command": "Nom de la commande",
+			"hype_chat_paid": "Somme payée",
+			"hype_chat_currency": "Monnaie de paiement (ex: USD, EUR, CHF, ...)",
+			"hype_chat_duration": "Durée d'affichage du message en secondes",
+			"hype_chat_level": "Niveau du paiement (de 0 à 9)",
 			"ulule_campaign_url": "URL de la campagne",
 			"ulule_campaign_name": "Nom de la campagne",
 			"ulule_campaign_name_example": "Mon super projet",
@@ -863,16 +803,13 @@
 			"heat_key_shift": "Touche SHIFT enfoncée ?",
 			"heat_key_ctrl": "Touche CTRL enfoncée ?",
 			"clip_url": "URL du clip",
-			"timer_id": "{NAME} ID du minuteur",
-			"timer_paused": "{NAME} Chronomètre mis en pause ?",
-			"timer_duration_ms": "{NAME} Durée du chronomètre en millisecondes",
-			"timer_duration_formatted": "{NAME} Durée du chronomètre formatée",
-			"countdown_remaining_ms": "{NAME} Durée restante du compte à rebours en millisecondes",
-			"countdown_remaining_formatted": "{NAME} Durée restante du compte à rebours formatée",
-			"countdown_duration_ms": "{NAME} Durée du compte à rebours en millisecondes",
-			"countdown_duration_formatted": "{NAME} Durée du compte à rebours formatée",
-			"countdown_realDuration_ms": "{NAME} Durée écoulée en millisecondes",
-			"countdown_realDuration_formatted": "{NAME} Durée écoulée formatée",
+			"timer_value": "Durée du timer en secondes",
+			"timer_value_formated": "Durée du timer formatée",
+			"countdown_value": "Durée restante du compte à rebours en secondes",
+			"countdown_value_formated": "Durée restante du compte à rebours formatée",
+			"countdown_duration": "Durée du compte à rebours en secondes",
+			"countdown_duration_ms": "Durée du compte à rebours en millisecondes",
+			"countdown_duration_formated": "Durée du compte à rebours formatée",
 			"goxlr_button_id": "Id du boutton",
 			"goxlr_fader_index": "Index du fader (1 -> 4)",
 			"goxlr_preset_index": "Index du preset actif (0 -> 5)",
@@ -965,7 +902,6 @@
 			"bingo_grid_count": "Nombre de bingos",
 			"bingo_grid_cell_x": "Coordonnée X de la case cochée",
 			"bingo_grid_cell_y": "Coordonnée Y de la case cochée",
-			"bingo_grid_cell_label": "Texte de la case cochée",
 			"bingo_grid_col": "Index de la colonne remplie",
 			"bingo_grid_row": "Index de la ligne remplie",
 			"bingo_grid_diag": "Diagonale remplie (0=↘ 1=↙)",
@@ -988,24 +924,11 @@
 			"tiktok_like_total":"Nombtre de likes reçus durant ce stream",
 			"tiktok_diamonds":"Diamants reçus",
 			"tiktok_sub_month":"Mois d'abonnement",
-			"playability_inputName":"Nom de l'input",
-			"playability_inputType":"Type d'input",
-			"playability_inputValue":"Valeur de l'input",
 			"playability_inputType_axis":"Stick manette",
 			"playability_inputType_button":"Bouton manette",
 			"playability_inputType_keyboard":"Touche de clavier",
 			"playability_inputType_mouseButton":"Click souris",
-			"playability_inputType_trigger":"Gachette manette",
-			"goal_step_id":"ID de l'étape",
-			"goal_step_index":"Index de l'étape (débute à 0)",
-			"goal_step_title":"Titre de l'étape",
-			"goal_step_secret":"Étape secrète ?",
-			"goal_step_amount":"Montant de l'étape",
-			"goal_overlay_id":"ID de l'overlay d'objectifs",
-			"goal_overlay_title":"Titre de l'overlay d'objectifs",
-			"current_vod_url":"URL la VOD en cours",
-			"customTrain_level": "Niveau de train atteint",
-			"customTrain_amount_left": "Somme à récolter"
+			"playability_inputType_trigger":"Gachette manette"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1015,10 +938,6 @@
 			"ANY_MESSAGE": {
 				"label": "Tous les messages",
 				"description": "Actions à exécuter chaque fois qu'un message est reçu"
-			},
-			"MESSAGE_ANSWER": {
-				"label": "Réponse à un message",
-				"description": "Actions à exécuter lorsqu'un message répond à un autre"
 			},
 			"REWARD_REDEEM": {
 				"label": "Récompense de points de chaîne",
@@ -1087,14 +1006,6 @@
 			"PREDICTION_RESULT": {
 				"label": "Résultat de prédiction",
 				"description": "Actions à exécuter lorsqu'une prédiction termine"
-			},
-			"CHAT_POLL_START": {
-				"label": "Début d'un sondage de tchat",
-				"description": "Actions à exécuter lorsqu'un sondage de tchat débute"
-			},
-			"CHAT_POLL_RESULT": {
-				"label": "Résultat de sondage de tchat",
-				"description": "Actions à exécuter lorsqu'un sondage de tchat termine"
 			},
 			"RAFFLE_RESULT": {
 				"label": "Résultat de tirage au sort",
@@ -1220,26 +1131,26 @@
 				"description": "Actions à exécuter régulièrement ou à des dates spécifiques"
 			},
 			"TIMER_START": {
-				"label": "Lancement d'un chronomètre",
-				"description": "Actions à exécuter lorsqu'un chronomètre est lancé {INFO}",
+				"label": "Lancement du chronomètre",
+				"description": "Actions à exécuter lorsque le chronomètre est lancé {INFO}",
 				"description_info": "({CMD})",
 				"description_info_cmd": "/timerStart"
 			},
 			"TIMER_STOP": {
-				"label": "Arrêt d'un chronomètre",
-				"description": "Actions à exécuter lorsqu'un chronomètre est arrêté {INFO}",
+				"label": "Arrêt du chronomètre",
+				"description": "Actions à exécuter lorsque le chronomètre est arrêté {INFO}",
 				"description_info": "({CMD})",
 				"description_info_cmd": "/timerStop"
 			},
 			"COUNTDOWN_START": {
 				"label": "Lancement d'un compte à rebours",
-				"description": "Actions à exécuter lorsqu'un compte à rebours est lancé {INFO}",
+				"description": "Actions à exécuter lorsque le compte à rebours est lancé {INFO}",
 				"description_info": "({CMD})",
 				"description_info_cmd": "/countdown"
 			},
 			"COUNTDOWN_STOP": {
-				"label": "Arrêt d'un compte à rebours",
-				"description": "Actions à exécuter lorsqu'un compte à rebours termine"
+				"label": "Arrêt du compte à rebours",
+				"description": "Actions à exécuter lorsque le compte à rebours termine"
 			},
 			"SHOUTOUT": {
 				"label": "Shoutout (Twitchat)",
@@ -1256,10 +1167,6 @@
 			"HIGHLIGHT_CHAT_MESSAGE": {
 				"label": "Message mis en avant",
 				"description": "Actions à exécuter lorsqu'un message est mis en avant"
-			},
-			"HIGHLIGHT_CHAT_MESSAGE_CLOSE": {
-				"label": "Message mis en avant fermé",
-				"description": "Actions à exécuter lorsqu'un message est mis en avant est refermé"
 			},
 			"CHAT_ALERT": {
 				"label": "Alerte",
@@ -1681,10 +1588,6 @@
 			"PLAYABILITY_INPUT": {
 				"label":"Action déclenchée par PlayAbility",
 				"description": "Actions à exécuter lorsqu'une action est déclenchée par PlayAbility"
-			},
-			"GOAL_STEP_COMPLETE": {
-				"label":"Objectif remplit (overlay Goals)",
-				"description": "Actions à exécuter lorsqu'une étape d'un objectif est complétée"
 			}
 		},
 		"musicEvents": {

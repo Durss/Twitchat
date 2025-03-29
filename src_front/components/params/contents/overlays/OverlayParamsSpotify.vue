@@ -46,7 +46,7 @@ class OverlayParamsSpotify extends Vue {
 
 	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected; }
 	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; }
-	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
 
 	public async mounted():Promise<void> {
 		this.currentTrack.cover = this.$asset("img/musicExampleCover.jpg");

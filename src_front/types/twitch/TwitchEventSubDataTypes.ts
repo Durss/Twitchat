@@ -424,7 +424,7 @@ export namespace TwitchEventSubDataTypes {
 			channel_points_votes: number;
 			votes: number;
 		}[];
-		status: "completed"|"archived",
+		status: "completed",
 		ended_at: string,
 	}
 

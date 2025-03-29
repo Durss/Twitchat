@@ -26,7 +26,6 @@ export namespace VoicemodTypes {
 		result?: Result;
 		soundboards?: Soundboard[];
 		voiceID?: string | "nofx";
-		value?: boolean;
 	}
 
 	export interface Voice {

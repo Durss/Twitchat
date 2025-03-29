@@ -107,28 +107,17 @@ export default class ContextMenuHelper {
 					&& tMessage.channel_id != StoreProxy.stream.currentChatChannel.id) {
 						allowed = false;
 					}
-
-					if(tMessage.channel_id != StoreProxy.auth.twitch.user.id
-					&& !StoreProxy.stream.connectedTwitchChans.find(v=>v.user.id == tMessage.channel_id)) {
-						allowed = false;
-					}
-
 					if(allowed) {
 						options.push({
 									label: StoreProxy.chat.messageMode == "message"? t("chat.context_menu.answer") : t("chat.context_menu.quote"),
 									icon: StoreProxy.chat.messageMode == "message"? this.getIcon("icons/reply.svg") : this.getIcon("icons/quote.svg"),
 									onClick: () => {
-										StoreProxy.stream.currentChatChannel = {
-											id: tMessage.channel_id,
-											platform: message.platform,
-											name: StoreProxy.stream.connectedTwitchChans.find(v=>v.user.id == tMessage.channel_id)?.user.login || "",
-										}
 										StoreProxy.chat.replyTo = tMessage as TwitchatDataTypes.MessageChatData;
 									}
 								});
 					}
 				}
-
+				
 				//Whisper
 				if(user.id != myUID) {
 					options.push({
@@ -190,7 +179,7 @@ export default class ContextMenuHelper {
 								icon: this.getIcon("icons/save.svg"),
 								onClick: () => StoreProxy.chat.unsaveMessage(message),
 							});
-
+	
 				}else{
 					options.push({
 								label: t("chat.context_menu.save"),
@@ -240,7 +229,7 @@ export default class ContextMenuHelper {
 				const children:MenuItem[] = [];
 				for (let i = 0; i < qnaSessions.length; i++) {
 					const session = qnaSessions[i];
-
+					
 					let label = session.command;
 					if(session.ownerId != StoreProxy.auth.twitch.user.id) {
 						let user = await StoreProxy.users.getUserFrom("twitch", message.channel_id, session.ownerId);
@@ -264,7 +253,7 @@ export default class ContextMenuHelper {
 			//Moderation actions
 			if(canModerateMessage) {
 				const m:TwitchatDataTypes.MessageChatData = message as TwitchatDataTypes.MessageChatData;
-
+				
 				options.push({
 					label: t("chat.context_menu.spoil"),
 					icon: this.getIcon("icons/spoiler.svg"),
@@ -314,7 +303,7 @@ export default class ContextMenuHelper {
 							TwitchUtils.sendWarning(tMessage.user.id, t("chat.warn_chatter.default_reason"), message.channel_id);
 						},
 					});
-
+	
 					options.push({
 						label: t("chat.context_menu.add_blocked_terms"),
 						icon: this.getIcon("icons/block.svg"),
@@ -330,7 +319,7 @@ export default class ContextMenuHelper {
 								}
 								return v.value.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
 							}).join("");
-
+							
 							TwitchUtils.addBanword(str);
 						},
 					});
@@ -551,7 +540,7 @@ export default class ContextMenuHelper {
 				}
 			};
 		}
-
+		
 
 		//Update "highlight message" state according to overlay presence
 		this.getHighlightOverPresence().then(res => {

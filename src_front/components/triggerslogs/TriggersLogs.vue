@@ -28,7 +28,7 @@
 						<div class="status" v-tooltip="'skipped'" v-else-if="item.skipped"><img src="@/assets/icons/skip.svg"></div>
 						<div class="status" v-tooltip="'pending'" v-else><Icon name="loader" theme="light" /></div>
 						<div class="status" v-tooltip="'started from<br>Test button'" v-if="item.testMode"><img src="@/assets/icons/test.svg"></div>
-						<div class="date">{{ getFormattedTime(item.date) }}</div>
+						<div class="date">{{ getFormatedDime(item.date) }}</div>
 						<div class="title" v-if="getTriggerInfo(item.trigger).event?.labelKey">{{ $t(getTriggerInfo(item.trigger).event?.labelKey as string) }}</div>
 						<div class="subtitle" v-if="getTriggerInfo(item.trigger)?.label != $t(getTriggerInfo(item.trigger).event?.labelKey as string)">{{ getTriggerInfo(item.trigger)!.label }}</div>
 					</div>
@@ -38,19 +38,19 @@
 					<ul class="messages">
 						<li v-for="entry in item.entries">
 							<template v-if="entry.type == 'message'">
-								<span class="date">{{ getFormattedTime(entry.date) }}</span>
+								<span class="date">{{ getFormatedDime(entry.date) }}</span>
 								<span>{{ entry.value }}</span>
 							</template>
 							<template v-else>
 								<div :class="getStepClasses(entry)">
 									<div :class="getHeadClasses(entry)" @click="idToExpandState[entry.id] = !idToExpandState[entry.id]">
-										<span class="date">{{ getFormattedTime(entry.date) }}</span>
+										<span class="date">{{ getFormatedDime(entry.date) }}</span>
 										<span>{{ entry.data.type }}</span>
 										<Icon name="arrowRight" />
 									</div>
 									<ul class="messages" v-if="idToExpandState[entry.id]">
 										<li v-for="mess in entry.messages">
-											<span class="date">{{ getFormattedTime(mess.date) }}</span>
+											<span class="date">{{ getFormatedDime(mess.date) }}</span>
 											<span>{{ mess.value }}</span>
 										</li>
 									</ul>
@@ -118,7 +118,7 @@ class TriggersLogs extends AbstractSidePanel {
 		return TriggerUtils.getTriggerDisplayInfo(trigger);
 	}
 
-	public getFormattedTime(date:number):string {
+	public getFormatedDime(date:number):string {
 		const d = new Date(date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes())+":"+Utils.toDigits(d.getSeconds())+"."+Utils.toDigits(d.getMilliseconds(),3);
 	}
@@ -161,7 +161,6 @@ export default toNative(TriggersLogs);
 
 	.loader {
 		height: 2em;
-		margin: 0 auto;
 	}
 
 	.empty {

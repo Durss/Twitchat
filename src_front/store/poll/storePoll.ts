@@ -20,8 +20,6 @@ export const storePoll = defineStore('poll', {
 			showPercent:false,
 			showTimer:true,
 			placement:"bl",
-			resultDuration_s:5,
-			showOnlyResult:false,
 		},
 	} as IPollState),
 
@@ -55,13 +53,6 @@ export const storePoll = defineStore('poll', {
 			this.overlayParams.showOnlyResult =		params.showOnlyResult !== false;
 			this.overlayParams.resultDuration_s =	params.resultDuration_s || 5;
 			this.overlayParams.placement =			params.placement || "bl";
-
-			/**
-			 * Called when poll overlay request for its configs
-			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_POLLS_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
-				this.broadcastState();
-			});
 		},
 
 		setCurrentPoll(data:TwitchatDataTypes.MessagePollData|null, postOnChat?:boolean) {

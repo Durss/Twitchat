@@ -11,7 +11,7 @@
 		"step2": "Click \"View Team\" on the team to connect to",
 		"step3": "On the \"Charity Stream Alerts\" select \"Alerts\" to only get donation events made through your channel",
 		"step4": "Click \"Copy Link\" on at the top of the page",
-		"step5": "Paste the link in the field below:",
+		"step5": "Paste the link in the field bellow:",
 		"step6": "Set the active campaign on {LINK}",
 		"step6_link": "this page",
 		"step6_url": "https://streamlabs.com/dashboard#/settings/integrations",

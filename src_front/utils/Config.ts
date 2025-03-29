@@ -50,7 +50,6 @@ export default class Config {
 	public NEW_FLAGS_DATE_V13_7 = new Date("09 10 2024 01:00:00").getTime()
 	public NEW_FLAGS_DATE_V14_2 = new Date("10 15 2024 01:00:00").getTime()
 	public NEW_FLAGS_DATE_V15 = new Date("11 30 2024 01:00:00").getTime()
-	public NEW_FLAGS_DATE_V16 = new Date("04 01 2025 01:00:00").getTime()
 	/**
 	 * Get if twitchat is running on an OBS dock
 	 */
@@ -186,38 +185,6 @@ export default class Config {
 	 * Maximum bingo grids for premium users
 	 */
 	public MAX_DONATION_GOALS_PREMIUM = 50;
-	/**
-	 * Maximum number of timers
-	 */
-	public MAX_TIMERS = 2;
-	/**
-	 * Maximum number of timers for premium users
-	 */
-	public MAX_TIMERS_PREMIUM = 100;
-	/**
-	 * Maximum chat poll entries
-	 */
-	public MAX_CHAT_POLL_ENTRIES = 5;
-	/**
-	 * Maximum chat poll entries for premium users
-	 */
-	public MAX_CHAT_POLL_ENTRIES_PREMIUM = 20;
-	/**
-	 * Maximum number of animated texts
-	 */
-	public MAX_ANIMATED_TEXT = 1;
-	/**
-	 * Maximum number of animated texts for premium users
-	 */
-	public MAX_ANIMATED_TEXT_PREMIUM = 10;
-	/**
-	 * Maximum number of custom trains
-	 */
-	public MAX_CUSTOM_TRAIN = 1;
-	/**
-	 * Maximum number of custom trains for premium users
-	 */
-	public MAX_CUSTOM_TRAIN_PREMIUM = 10;
 
 	private _serverConfig!:ServerConfig;
 

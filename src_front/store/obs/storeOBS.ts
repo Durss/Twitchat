@@ -10,7 +10,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 
 export const storeOBS = defineStore('obs', {
 	state: () => ({
-		connectionEnabled: false,
+		connectionEnabled: null,
 		sceneCommands: [],
 		muteUnmuteCommands: {audioSourceName:"", muteCommand:"!mute", unmuteCommand:"!unmute"},
 		commandsPermissions: {

@@ -11,7 +11,7 @@
 				v-model="action.values"
 				:options="param_values.listValues"
 				:calculate-position="$placeDropdown"
-				:reduce="(v:TwitchatDataTypes.ParameterDataListValue<string>) => v.value"
+				:reduce="(v:TwitchatDataTypes.ParameterDataListValue<string>) => v.value" 
 				:selectable="(v:TwitchatDataTypes.ParameterDataListValue<string>) => action.values.indexOf(v.value) == -1"
 				appendToBody
 				multiple
@@ -23,7 +23,7 @@
 				<Icon name="user" class="icon" />
 				<span>{{ $tc("triggers.actions.value.user_source_title", selectedPerUserValue.length) }}</span>
 			</div>
-
+			
 			<div class="card-item dark" v-for="item in selectedPerUserValue" :key="item.id">
 				<label :for="'select_'+item.id" class="name">{{ item.name }}</label>
 				<select :id="'select_'+item.id" v-model="action.valueUserSources[item.id]">
@@ -31,13 +31,13 @@
 				</select>
 			</div>
 		</div>
-
+		
 		<div class="card-item valueList" v-if="selectedPerUserValue.length > 0 && userSourceOptions.length > 1">
 			<div class="head">
 				<Icon name="user" class="icon" />
 				<span>{{ $tc("triggers.actions.value.user_action_title", selectedPerUserValue.length) }}</span>
 			</div>
-
+			
 			<div class="card-item dark" v-for="item in selectedPerUserValue" :key="item.id">
 				<label :for="'select_'+item.id" class="name">{{ item.name }}</label>
 				<select :id="'select_'+item.id" v-model="action.userAction![item.id]">
@@ -46,10 +46,10 @@
 			</div>
 		</div>
 
-		<ParamItem v-if="showAction" :paramData="param_value" v-model="action.newValue" key="value" forceChildDisplay>
+		<ParamItem :paramData="param_value" v-model="action.newValue" key="value" forceChildDisplay>
 			<ParamItem :childLevel="1" :paramData="param_maths" v-model="action.interpretMaths" key="maths" noBackground />
 		</ParamItem>
-
+		
 	</div>
 </template>
 
@@ -82,22 +82,6 @@ class TriggerActionValueEntry extends AbstractTriggerActionEntry {
 	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.value.value_label", value:""};
 	public param_maths:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"triggers.actions.value.interpret_arithmetic", value:true};
 	public param_userAction:TwitchatDataTypes.ParameterData<NonNullable<TriggerActionValueData["userAction"]>[string], NonNullable<TriggerActionValueData["userAction"]>[string]> = {type:"list", labelKey:"triggers.actions.value.param_action", value:"update"};
-
-	/**
-	 * Define if global actions should be displayed.
-	 * If only per-user delete actions are selected, we should not display the global action
-	 */
-	public get showAction():boolean {
-		if(this.action.values.length === 0) return true;
-		let deleteBatchActions = 0;
-		for (let i = 0; i < this.action.values.length; i++) {
-			const cid = this.action.values[i];
-			if(this.action.userAction
-			&& this.action.userAction[cid] === "delete") deleteBatchActions ++;
-		}
-
-		return deleteBatchActions < this.action.values.length;
-	}
 
 	/**
 	 * Build user trigger source list
@@ -148,7 +132,7 @@ class TriggerActionValueEntry extends AbstractTriggerActionEntry {
 		}).filter(v=> {
 			return v.value != this.triggerData.valueId
 		});
-
+		
 		//Init value's list if necessary
 		if(!this.action.values) this.action.values = [];
 		if(!this.action.newValue) this.action.newValue = "";
@@ -162,7 +146,7 @@ class TriggerActionValueEntry extends AbstractTriggerActionEntry {
 				i--;
 			}
 		}
-
+		
 		this.param_values.listValues = values;
 
 		watch(()=>this.selectedPerUserValue, ()=> this.updatePerUserValueSources());

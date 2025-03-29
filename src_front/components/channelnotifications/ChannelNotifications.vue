@@ -3,7 +3,6 @@
 		<div ref="content" class="holder">
 			<transition name="slide">
 				<PollState class="content" v-if="showPoll" />
-				<ChatPollState class="content" v-else-if="showChatPoll" />
 				<PredictionState class="content" v-else-if="showPrediction" />
 				<RaffleState class="content" v-else-if="showRaffle" />
 				<BingoState class="content" v-else-if="showBingo" />
@@ -29,7 +28,6 @@ import PollState from './PollState.vue';
 import PredictionState from './PredictionState.vue';
 import RaffleState from './RaffleState.vue';
 import RaidState from './RaidState.vue';
-import ChatPollState from './ChatPollState.vue';
 
 @Component({
 	components:{
@@ -38,7 +36,6 @@ import ChatPollState from './ChatPollState.vue';
 		BingoState,
 		ClearButton,
 		RaffleState,
-		ChatPollState,
 		HypeTrainState,
 		PredictionState,
 	},
@@ -52,7 +49,6 @@ class ChannelNotifications extends AbstractSidePanel {
 	public get showRaid():boolean { return this.currentContent == 'raid' && this.$store.stream.currentRaid != undefined; }
 	public get showHypeTrain():boolean { return this.currentContent == 'train' && this.$store.stream.hypeTrain != undefined; }
 	public get showPoll():boolean { return this.currentContent == 'poll' && this.$store.poll.data?.id != null && this.$store.poll.data?.isFake != true; }
-	public get showChatPoll():boolean { return this.currentContent == 'chatPoll' && this.$store.chatPoll.data != null; }
 	public get showPrediction():boolean { return this.currentContent == 'prediction' && this.$store.prediction.data?.id != null && this.$store.prediction.data?.isFake != true; }
 	public get showRaffle():boolean { return this.currentContent == 'raffle' && this.$store.raffle.raffleList != null && this.$store.raffle.raffleList.filter(v=>v.mode === "chat" || v.mode === "tips").length > 0; }
 	public get showBingo():boolean { return this.currentContent == 'bingo' && this.$store.bingo.data != null; }
@@ -60,7 +56,6 @@ class ChannelNotifications extends AbstractSidePanel {
 	public get showClose():boolean {
 		return (this.showPoll
 			|| this.showPrediction
-			|| this.showChatPoll
 			|| this.showBingo
 			|| this.showRaffle
 			|| this.showRaid

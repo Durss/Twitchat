@@ -119,8 +119,8 @@ export default class SpotifyHelper {
 	 * Makes sure a track added to the queue will be skipped when it's started.
 	 * This is a workaround for the lack of "remove track from queue" API endpoint.
 	 * When the track starts it's automatically skipped
-	 * @param user
-	 * @param trackId
+	 * @param user 
+	 * @param trackId 
 	 */
 	public skipQueuedTrack(user:TwitchatDataTypes.TwitchatUser, trackId:string):void {
 		const entry = this._trackIdToRequest[trackId];
@@ -557,13 +557,13 @@ export default class SpotifyHelper {
 					};
 					StoreProxy.chat.addMessage(message);
 					delete this._trackIdToRequest[this.currentTrack.id];
-
+					
 					StoreProxy.labels.updateLabelValue("MUSIC_TITLE", this.currentTrack.title);
 					StoreProxy.labels.updateLabelValue("MUSIC_ARTIST", this.currentTrack.artist);
 					StoreProxy.labels.updateLabelValue("MUSIC_ALBUM", this.currentTrack.album);
 					StoreProxy.labels.updateLabelValue("MUSIC_COVER", this.currentTrack.cover);
 					this.resyncQueue();
-
+	
 				}
 
 				//If track changed or progress has moved by more than 10s
@@ -595,7 +595,7 @@ export default class SpotifyHelper {
 			}else{
 				//Broadcast to the overlays
 				if(this._lastTrackInfo != null) {
-
+			
 					StoreProxy.labels.updateLabelValue("MUSIC_TITLE", "");
 					StoreProxy.labels.updateLabelValue("MUSIC_ARTIST", "");
 					StoreProxy.labels.updateLabelValue("MUSIC_ALBUM", "");
@@ -749,18 +749,7 @@ export default class SpotifyHelper {
 	* PRIVATE METHODS *
 	*******************/
 	private initialize():void {
-		PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TRACK, ()=>{
-			if(!this._lastTrackInfo) return;
-			const apiData = {
-				trackName: this._lastTrackInfo.track.title,
-				artistName: this._lastTrackInfo.track.artist,
-				trackDuration: this._lastTrackInfo.track.duration,
-				trackPlaybackPos: this._lastTrackInfo.progress,
-				cover: this._lastTrackInfo.track.cover,
-				params: StoreProxy.music.musicPlayerParams,
-			}
-			PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, (apiData as unknown) as JsonObject);
-		});
+		PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TRACK, ()=>this.getCurrentTrack());
 	}
 
 	/**

@@ -11,7 +11,7 @@ You may want to **carefully read all the following** to properly understand what
 The way Twitchat asks you to connect with Spotify is not normal. There should only be a connect button and it should not ask you any credentials.\
 Problem is, `Spotify is refusing me to do that` because Twitchat is an app made for Twitch and they won't allow any tool linked to a streaming platform to use their API.\
 \
-Because of that, the only way for you to connect Twitchat with Spotify is by doing part of the job on your side, which is [`creating a Spotify application`](#create-a-spotify-application) as explained below.
+Because of that, the only way for you to connect Twitchat with Spotify is by doing part of the job on your side, which is [`creating a Spotify application`](#create-a-spotify-application) as explained bellow.
 <br><br>
 
 ## Is there any risk?

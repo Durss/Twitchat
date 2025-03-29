@@ -17,13 +17,13 @@
 				<div>{{ $t("global.key") }}</div>
 				<div>{{ $t("global.value") }}</div>
 			</div>
-
+	
 			<div class="header" v-for="(param, index) in action.mixitupData!.params">
 				<div v-click2Select class="key">$argdelimited{{index+1}}text</div>
 				<ParamItem :paramData="param_values[index]" v-model="param.value" noBackground placeholdersAsPopout />
 				<TTButton class="deleteBt" icon="trash" @click="deleteParam(index)" alert />
 			</div>
-
+	
 			<TTButton class="center" icon="add" v-if="(action.mixitupData!.params?.length || 0) < 40" @click="addParam()">{{ $t("triggers.actions.mixitup.add_arg_bt") }}</TTButton>
 		</div>
 	</div>
@@ -77,7 +77,7 @@ class TriggerActionMixitupEntry extends AbstractTriggerActionEntry {
 	}
 
 	public openConnectForm():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.MIXITUP);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.MIXITUP);
 	}
 
 	/**

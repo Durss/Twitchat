@@ -3,7 +3,7 @@
 		<Icon name="elgato" alt="stream deck logo" class="icon" />
 
 		<p class="head">{{ $t("streamdeck.header") }}</p>
-
+		
 		<ol>
 			<li class="card-item">
 				<span class="index">1.</span>
@@ -13,9 +13,9 @@
 					</template>
 				</i18n-t>
 			</li>
-
+			
 			<li class="card-item">
-				<span class="index">2.</span>
+				<span class="index">2.</span> 
 				<Button icon="elgato"
 					href="https://apps.elgato.com/plugins/fr.twitchat"
 					target="_blank"
@@ -63,9 +63,9 @@ import type IParameterContent from '../IParameterContent';
 	emits:[]
 })
 class ConnectStreamdeck extends Vue implements IParameterContent {
-
-	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
-	public get subcontentOBS():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
+	
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
+	public get subcontentOBS():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; } 
 
 	public onNavigateBack(): boolean { return false; }
 

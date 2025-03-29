@@ -104,7 +104,6 @@
 			"GUILD_COMMAND_CREATE_FAILED": "Une erreur est survenue lors de la création des commands Discord",
 			"MISSING_ACCESS": "Le bot Twitchat n'a pas la permission d'écrire dans le salon Discord \"{CHANNEL}\"",
 			"MISSING_ACCESS_THREAD": "Le bot Twitchat n'a pas la permission de créer de threads dans le salon Discord \"{CHANNEL}\".\nAssurez-vous que le bot possède également la permission \"Voir les anciens messages\".",
-			"UNKNOWN_CHANNEL": "Le salon Discord \"{CHANNEL}\" n'existe pas",
 			"EMPTY_MESSAGE": "Le message à envoyer ne peut être vide"
 		},
 		"streamlabs_denied": "Vous avez refusé l'accès à votre profil Streamlabs.",

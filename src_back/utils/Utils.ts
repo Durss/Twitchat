@@ -50,7 +50,7 @@ export default class Utils {
 			fs.writeFileSync(logPath, "", "utf-8");
 		}
 
-		fs.appendFileSync(logPath, "\r\n"+JSON.stringify({date:new Date().toString(), body:logData}));
+		fs.appendFileSync(logPath, "\r\n"+logData);
 		return true;
 	}
 

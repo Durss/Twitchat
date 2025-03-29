@@ -7,7 +7,7 @@
 		"bingo_grid":"Grilles de Bingo",
 		"qna":"Questions/réponses",
 		"suggestions":"Demander des suggestions",
-		"timer":"Minuteurs",
+		"timer":"Chronomètre & Décompte",
 		"chat":"Effacer le tchat",
 		"info":"Titre du stream",
 		"announcement":"Annonce Twitchat",
@@ -26,7 +26,6 @@
 		"start_ad": "Pub 30s",
 		"chatters": "Chatters",
 		"rewards": "Récompenses",
-		"chatPoll": "Sondage de tchat",
 		"not_affiliate": "Vous devez être Affilié·e ou Partenaire Twitch"
 	}
 }

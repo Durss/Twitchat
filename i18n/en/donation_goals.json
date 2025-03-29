@@ -41,7 +41,7 @@
 		"import_streamlabs_step1": "Copy your \"Milestones\" overlay URL from {LINK}.",
 		"import_streamlabs_step1_link": "this page",
 		"import_streamlabs_step1_url": "https://streamlabscharity.com/profile/user/milestones",
-		"import_streamlabs_step2": "Paste the URL below and import your milestones",
+		"import_streamlabs_step2": "Paste the URL bellow and import your milestones",
 		"import_streamlabs_complete": "Donation goals imported from Streamlabs Charity and added to your Goal list",
 		"delete_confirm": {
 			"description": "Goals overlay will be deleted\nThis cannot be undone.",

@@ -4,7 +4,7 @@
 		"unkinkBt":"Unlink from {GUILD}",
 		"refreshChansBt":"Refresh channels list",
 		"install_bt":"Install Twitchat on your Discord",
-		"install_code":"Use {CMD} command on Discord, and enter the given code below",
+		"install_code":"Use {CMD} command on Discord, and enter the given code bellow",
 		"install_warn":"Make sure Twitchat bot has write access to the chan you use {CMD} on and any other chan you'll want to use it",
 		"install_confirm":"Do you really want to link Twitchat with the following Discord server?",
 		"reactions":"Allow to react on messages received from Discord",

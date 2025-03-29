@@ -1,0 +1,13 @@
+{
+	"shareParams": {
+		"title": "Parameters sharing",
+		"description": "You requested to share parameters with {REMOTE_USER} account.\n\nIf you agree, parameters from current account, {CURRENT_USER}, will be replaced by the ones of {REMOTE_USER}.\nThen, any change from one account will be applied to the other.\n\nThis includes your triggers, chat column filters, chat features, chat appearances, counters, values, overlays, TTS, automod params, ... Everything.",
+		"agreeBt": "Agree",
+		"success": "You are now sharing your data with {USER}\nModifying data on one account will impact the other.\n\nReload Twitchat to get your shared data.",
+		"error": "Something went wrong when finishing data sharing process.\nYour data remain not shared.",
+		"error_cross_link": "These account are already linked the other way, there's not need to link your accounts the way you did.",
+		"error_csrf": "You took to long to complete linking.\nPlease try again.",
+		"wrongAccount": "You must log-in back with your secondary account.\nTo do so, when redirected to Twitch, switch account by clicking the link at the top of the page as shown bellow:",
+		"reloadBt": "Reload Twitchat"
+	}
+}

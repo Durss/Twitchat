@@ -2,7 +2,6 @@
 	<div :class="classes" :style="contentStyles" @dragenter="scheduleToggle()" @dragleave="cancelToggle()" @drop="">
 		<div class="header" @click.stop="toggle()">
 			<div class="customBg" v-if="customColor" :style="bgStyles"></div>
-			<button type="button" class="arrowBt" v-if="noArrow === false && small !== false"><Icon name="arrowRight" /></button>
 			<slot name="left_actions"></slot>
 
 			<Icon v-for="icon in localIcons" :key="icon" :alt="icon"
@@ -37,7 +36,7 @@
 			<div class="rightSlot">
 				<slot name="right_actions"></slot>
 
-				<button type="button" class="arrowBt" v-if="noArrow === false && small === false"><Icon name="arrowRight" /></button>
+				<button type="button" class="arrowBt" v-if="noArrow === false"><Icon name="arrowRight" /></button>
 			</div>
 		</div>
 		<div class="content" v-if="localOpen" ref="content">
@@ -212,7 +211,7 @@ export class ToggleBlock extends Vue {
 
 	/**
 	 * Toggles open state
-	 * @param forcedState
+	 * @param forcedState 
 	 */
 	public async toggle(forcedState?:boolean):Promise<void> {
 		if(forcedState === this.localOpen) return;
@@ -405,22 +404,20 @@ export default toNative(ToggleBlock);
 			flex-direction: row;
 			align-self: stretch;
 			flex-shrink: 0;
-		}
-
-		.arrowBt {
-			color: inherit;
-			transition: transform .25s;
-			transform: rotate(90deg);
-			flex-grow: 0;
-			flex-shrink: 1;
-			height: 1em;
-			width: 1em;
-			align-self: center;
-			margin-left: .5em;
-			flex-shrink: 0;
-			.icon {
-				display: inline-block;
+			.arrowBt {
+				color: inherit;
+				transition: transform .25s;
+				transform: rotate(90deg);
+				flex-grow: 0;
+				flex-shrink: 1;
 				height: 1em;
+				width: 1em;
+				align-self: center;
+				margin-left: .5em;
+				.icon {
+					display: inline-block;
+					height: 1em;
+				}
 			}
 		}
 

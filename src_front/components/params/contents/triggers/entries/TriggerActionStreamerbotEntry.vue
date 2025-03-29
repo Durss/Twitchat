@@ -16,13 +16,13 @@
 				<div>%{{ $t("global.key") }}%</div>
 				<div>{{ $t("global.value") }}</div>
 			</div>
-
+	
 			<div class="header" v-for="(param, index) in action.streamerbotData!.params">
 				<ParamItem :paramData="param_keys[index]" v-model="param.key" noBackground placeholdersAsPopout />
 				<ParamItem :paramData="param_values[index]" v-model="param.value" noBackground placeholdersAsPopout />
 				<TTButton class="deleteBt" icon="trash" @click="deleteParam(index)" alert />
 			</div>
-
+	
 			<TTButton class="center" icon="add" v-if="(action.streamerbotData!.params?.length || 0) < 40" @click="addParam()">{{ $t("triggers.actions.streamerbot.add_arg_bt") }}</TTButton>
 		</div>
 	</div>
@@ -77,7 +77,7 @@ class TriggerActionStreamerbotEntry extends AbstractTriggerActionEntry {
 	}
 
 	public openConnectForm():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.STREAMERBOT);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.STREAMERBOT);
 	}
 
 	/**

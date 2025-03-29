@@ -110,6 +110,7 @@ export const storeQna = defineStore('qna', {
 				}
 			});
 
+			console.log("QNA store initialized", TwitchatEvent.QNA_SESSION_GET_ALL);
 			PublicAPI.instance.addEventListener(TwitchatEvent.QNA_SESSION_GET_ALL, (event:TwitchatEvent) => {
 				this.broadcastQnaList();
 
@@ -202,20 +203,11 @@ export const storeQna = defineStore('qna', {
 		async addMessageToSession(message:TwitchatDataTypes.TranslatableMessage, session:TwitchatDataTypes.QnaSession):Promise<void>{
 			if(session.messages.find(v=>v.message.id === message.id)) return;//Message already added
 
-			let chunks = (JSON.parse(JSON.stringify(message.message_chunks)) || []) as NonNullable<typeof message.message_chunks>;
-			for (let i = 0; i < chunks.length; i++) {
-				const c = chunks[i];
-				if(c.type == "text") {
-					c.value = c.value.replace(session.command, "");
-					break;
-				}
-			}
-
 			const qnaMessage:TwitchatDataTypes.QnaSession["messages"][number] = {
 				channelId: message.channel_id,
 				message: {
 					id: message.id,
-					chunks
+					chunks: message.message_chunks || []
 				},
 				votes: 1,
 				platform: message.platform,
@@ -288,9 +280,6 @@ export const storeQna = defineStore('qna', {
 					if(index > -1) {
 						session.messages[index].votes ++;
 					}
-					if(session.shareWithMods && session.ownerId == StoreProxy.auth.twitch.user.id) {
-						this.shareSessionsWithMods();
-					}
 				}else{
 					//Ignore channel point rewards that are "highlight my message" as they are also
 					//sent as standard message with the "highlight" flag
@@ -298,7 +287,23 @@ export const storeQna = defineStore('qna', {
 					&& (message as TwitchatDataTypes.MessageRewardRedeemData).reward.id == Config.instance.highlightMyMessageReward.id;
 					if(isHighlightReward) return;
 
-					this.addMessageToSession(message, session);
+					session.messages.push({
+											channelId: message.channel_id,
+											message: {
+												id: message.id,
+												chunks: message.message_chunks || []
+											},
+											votes: 1,
+											platform: message.platform,
+											user: {
+												id: message.user.id,
+												name: message.user.displayNameOriginal,
+											}
+										});
+				}
+
+				if(session.shareWithMods && session.ownerId == StoreProxy.auth.twitch.user.id) {
+					this.shareSessionsWithMods();
 				}
 			}
 		},

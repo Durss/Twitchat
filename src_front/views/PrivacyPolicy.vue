@@ -6,39 +6,39 @@
 				<h1>PRIVACY POLICY</h1>
 				<p>Last updated January 25, 2024</p>
 			</div>
-
+	
 			<p>This privacy notice for <strong>François Dursus</strong> ("<strong>we</strong>," "<strong>us</strong>," or "<strong>our</strong>"), describes how and why we might collect, store, use, and/or share ("<strong>process</strong>") your information when you use our services ("<strong>Services</strong>"), such as when you:</p>
 			<ul>
 				<li>Visit our website at twitchat.fr, or any website of ours that links to this privacy notice</li>
 				<li>Engage with us in other related ways, including any sales, marketing, or events</li>
 			</ul>
-
+	
 			<p>
 				<strong>Questions or concerns?</strong> Reading this privacy notice will help you understand your privacy rights and choices. If you do not agree with our policies and practices, please do not use our Services. If you still have any questions or concerns, please contact us at {{ $config.CONTACT_MAIL }}.
 			</p>
-
+	
 			<h2>SUMMARY OF KEY POINTS</h2>
-
+	
 			<p><strong>This summary provides key points from our privacy notice, but you can find out more details about any of these topics by clicking the link following each key point or by using our <a href="#toc">table of contents</a> below to find the section you are looking for.</strong></p>
-
+	
 			<p><strong>What personal information do we process?</strong> When you visit, use, or navigate our Services, we may process personal information depending on how you interact with us and the Services, the choices you make, and the products and features you use. Learn more about <a href="#infocollect">personal information you disclose to us</a>.</p>
-
+	
 			<p><strong>Do we process any sensitive personal information?</strong> We do not process sensitive personal information.</p>
-
+	
 			<p><strong>Do we receive any information from third parties?</strong> We receive information you specifically grant us to access. This can include Twitch data like your login, your followers, your followings or your subscribers. If you connect with Yoube services, this also includes your Youtube profile name and your Youtube live broadcast sessions.</p>
-
+	
 			<p><strong>How do we process your information?</strong> We process your information to provide, improve, and administer our Services, communicate with you, for security and fraud prevention, and to comply with law. We may also process your information for other purposes with your consent. We process your information only when we have a valid legal reason to do so. Learn more about <a href="#infouse">how we process your information</a>.</p>
-
+	
 			<p><strong>In what situations and with which parties do we share personal information?</strong> We may share information in specific situations and with specific third parties. Learn more about <a href="#whoshare">when and with whom we share your personal information</a>.</p>
-
+	
 			<p><strong>How do we keep your information safe?</strong> We have organizational and technical processes and procedures in place to protect your personal information. However, no electronic transmission over the internet or information storage technology can be guaranteed to be 100% secure, so we cannot promise or guarantee that hackers, cybercriminals, or other unauthorized third parties will not be able to defeat our security and improperly collect, access, steal, or modify your information. Learn more about <a href="#infosafe">how we keep your information safe</a>.</p>
-
+	
 			<p><strong>What are your rights?</strong> Depending on where you are located geographically, the applicable privacy law may mean you have certain rights regarding your personal information. Learn more about <a href="#privacyrights" target="_blank">your privacy rights</a>.</p>
-
+	
 			<p><strong>How do you exercise your rights?</strong> The easiest way to exercise your rights is by <a @click="openDataMnagerForm()" target="_blank">opening data management form</a>.</p>
-
+	
 			<p>Want to learn more about what we do with any information we collect? <a href="#toc">Review the privacy notice in full</a>.</p>
-
+	
 			<h2 id="toc">TABLE OF CONTENTS</h2>
 			<ul class="index">
 				<li><a href="#infocollect">WHAT INFORMATION DO WE COLLECT?</a></li>
@@ -66,21 +66,21 @@
 
 			<h2 id="infocollect">1. WHAT INFORMATION DO WE COLLECT?</h2>
 			<p><strong>Personal information you disclose to us</strong></p>
-
+	
 			<p><strong>In Short:</strong> We collect personal information that you provide to us.</p>
-
+	
 			<p>We collect personal information that you voluntarily provide to us when you register on the Services, express an interest in obtaining information about us or our products and Services, when you participate in activities on the Services, or otherwise when you contact us.</p>
-
+	
 			<p><strong>Personal Information Provided by You.</strong> The personal information that we collect depends on the context of your interactions with us and the Services, the choices you make, and the products and features you use. The personal information we collect may include the following:</p>
 			<ul>
 				<li>Your Twitch user ID</li>
 				<li>Your Twitchat parameters</li>
 			</ul>
-
+	
 			<p><strong>Sensitive Information.</strong> We do not process sensitive information.</p>
-
+	
 			<p><strong>Social Media Login Data.</strong> We may provide you with the option to register with us using your existing social media account details, like Twitch, Youtube, or other social media account. If you choose to register in this way, we will collect the information described in the section called "<a href="#sociallogins">HOW DO WE HANDLE YOUR SOCIAL LOGINS?</a>" below.</p>
-
+	
 			<p>All personal information that you provide to us must be true, complete, and accurate, and you must notify us of any changes to such personal information.</p>
 
 			<p>By using Twitchat, you acknowledge and agree that our service may store, access, or collect information directly or indirectly on or from users' devices. This includes, but is not limited to, access tokens, cookies or similar technologies on users' devices or browsers.</p>
@@ -91,9 +91,9 @@
 
 			<h2 id="infouse">2. HOW DO WE PROCESS YOUR INFORMATION?</h2>
 			<p><strong>In Short:</strong> We process your information to provide, improve, and administer our Services, communicate with you, for security and fraud prevention, and to comply with law. We may also process your information for other purposes with your consent.</p>
-
+	
 			<strong>We process your personal information for a variety of reasons, depending on how you interact with our Services, including:</strong>
-
+	
 			<ul>
 				<li><strong>To facilitate account creation and authentication and otherwise manage user accounts.</strong> We may process your information so you can create and log in to your account, as well as keep your account in working order.</li>
 				<li><strong>To save or protect an individual's vital interest.</strong> We may process your information when necessary to save or protect an individual’s vital interest, such as to prevent harm.</li>
@@ -106,16 +106,16 @@
 
 			<h2 id="legalbases">3. WHAT LEGAL BASES DO WE RELY ON TO PROCESS YOUR INFORMATION?</h2>
 			<p><strong>In Short:</strong> We only process your personal information when we believe it is necessary and we have a valid legal reason (i.e. , legal basis) to do so under applicable law, like with your consent, to comply with laws, to provide you with services to enter into or fulfill our contractual obligations, to protect your rights, or to fulfill our legitimate business interests.</p>
-
+	
 			<p class="underline">If you are located in the EU or UK, this section applies to you.</p>
-
+	
 			<p>The General Data Protection Regulation (GDPR) and UK GDPR require us to explain the valid legal bases we rely on in order to process your personal information. As such, we may rely on the following legal bases to process your personal information:</p>
 			<ul>
 				<li><strong>Consent.</strong> We may process your information if you have given us permission (i.e. , consent) to use your personal information for a specific purpose. You can withdraw your consent at any time. Learn more about <a href="#withdrawconsent">withdrawing your consent</a>.</li>
 				<li><strong>Legal Obligations.</strong> We may process your information where we believe it is necessary for compliance with our legal obligations, such as to cooperate with a law enforcement body or regulatory agency, exercise or defend our legal rights, or disclose your information as evidence in litigation in which we are involved.</li>
 				<li><strong>Vital Interests.</strong> We may process your information where we believe it is necessary to protect your vital interests or the vital interests of a third party, such as situations involving potential threats to the safety of any person.</li>
 			</ul>
-
+	
 			<p class="underline">If you are located in Canada, this section applies to you.</p>
 
 			<p>We may process your information if you have given us specific permission (i.e. , express consent) to use your personal information for a specific purpose, or in situations where your permission can be inferred (i.e. , implied consent). You can <a href="#withdrawconsent">withdraw your consent</a> at any time.</p>
@@ -197,7 +197,7 @@
 			<p>In some regions (like the EEA, UK, and Canada ), you have certain rights under applicable data protection laws. These may include the right (i) to request access and obtain a copy of your personal information, (ii) to request rectification or erasure; (iii) to restrict the processing of your personal information; and (iv) if applicable, to data portability. In certain circumstances, you may also have the right to object to the processing of your personal information. You can make such a request by contacting us by using the contact details provided in the section "<a href="#contact">HOW CAN YOU CONTACT US ABOUT THIS NOTICE?</a>" below.</p>
 
 			<p>We will consider and act upon any request in accordance with applicable data protection laws.</p>
-
+ 
 			<p>If you are located in the EEA or UK and you believe we are unlawfully processing your personal information, you also have the right to complain to your <a href="https://ico.org.uk/make-a-complaint/data-protection-complaints/data-protection-complaints/" target="_blank">Member State data protection authority</a> or <a href="https://ico.org.uk/make-a-complaint/data-protection-complaints/data-protection-complaints/" target="_blank">UK data protection authority</a>.</p>
 
 			<p>If you are located in Switzerland, you may contact the <a href="https://www.edoeb.admin.ch/edoeb/en/home.html" target="_blank">Federal Data Protection and Information Commissioner</a>.</p>
@@ -334,7 +334,7 @@
 				</tr>
 			</table>
 
-
+			
 			<p>We may also collect other personal information outside of these categories through instances where you interact with us in person, online, or by phone or mail in the context of:</p>
 			<ul>
 				<li>Receiving help through our customer support channels;</li>
@@ -493,7 +493,7 @@
 					<div class="ctas">
 						<Button @click="downloadData()" icon="download" :loading="downloadingData">Download your personnal data</Button>
 						<Button v-if="!showDeleteInput" @click="showDeleteInput=true" icon="trash" alert>Delete your personnal data</Button>
-						<p v-if="showDeleteInput && !deleteDone && !deletingData" class="instructions">Please write "<strong>DELETE MY DATA</strong>" below and submit</p>
+						<p v-if="showDeleteInput && !deleteDone && !deletingData" class="instructions">Please write "<strong>DELETE MY DATA</strong>" bellow and submit</p>
 						<form v-if="showDeleteInput && !deleteDone && !deletingData" @submit.prevent="deleteData()">
 							<input type="text" placeholder="write DELETE MY DATA..." v-model="confirmation">
 							<Button type="submit" alert :disabled="confirmation.trim().toLowerCase() != 'delete my data'">DELETE</Button>
@@ -620,12 +620,12 @@ export default toNative(PrivacyPolicy);
 	&>.content {
 		line-height: 1.25em;
 		padding: 1em;
-
+		
 		&>.head {
 			margin-bottom: 1em;
 		}
-
-
+		
+	
 		&>p, &>ul {
 			margin-bottom: 1em;
 		}
@@ -681,7 +681,7 @@ export default toNative(PrivacyPolicy);
 				flex-wrap: wrap;
 				align-items: center;
 				justify-content: center;
-
+				
 				form {
 					display: flex;
 					flex-direction: row;

@@ -15,7 +15,7 @@
 					<Icon name="loader" v-if="getDelay(element.executeIn) <= 0" class="loader" />
 					<div class="infos">
 						<span class="user">{{ element.user.displayName }}</span>
-						<span class="delay"><img src="@/assets/icons/timer.svg" class="icon"> {{ getFormattedDuration(element.executeIn) }}s</span>
+						<span class="delay"><img src="@/assets/icons/timer.svg" class="icon"> {{ getFormatedDuration(element.executeIn) }}s</span>
 					</div>
 				</div>
 			</template>
@@ -49,7 +49,7 @@ class ShoutoutList extends Vue {
 
 	public getDelay(duration:number) { return Math.floor(duration - (this.timerOffset * 1000)); }
 
-	public getFormattedDuration(duration:number):string {
+	public getFormatedDuration(duration:number):string {
 		return Utils.formatDuration(Math.max(0, Math.floor(duration - (this.timerOffset * 1000))));
 	}
 

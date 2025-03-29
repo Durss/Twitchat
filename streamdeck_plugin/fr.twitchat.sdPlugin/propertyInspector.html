@@ -54,7 +54,7 @@
 		</div>
 		<form id="obsParams" class="obsParams" action="javascript:;" onsubmit="onConnect(event)">
 			<div class="sdpi-heading">OBS Websocket credentials</div>
-
+			
 			<div class="sdpi-item">
 				<div class="sdpi-item-label">Port</div>
 				<input class="sdpi-item-value" value="4455" placeholder="4455" id="OBSWS_PORT">
@@ -110,9 +110,6 @@
 				<strong class="hidden" data-execute-trigger>Execute a trigger. If the selected trigger uses placeholders they won't be available when executed from here</strong>
 				<strong class="hidden" data-toggle-trigger>Enable or disable any trigger.</strong>
 				<strong class="hidden" data-send-message>Send a message. You can use any Twitch or Twitchat commands as well as custom chat commands created on the triggers</strong>
-				<strong class="hidden" data-qna-highlight>Highlight top-most Q&A item</strong>
-				<strong class="hidden" data-qna-skip>Skip top-most Q&A item</strong>
-				<strong class="hidden" data-hide-alert>Hides current moderator Alert. See settings => "Chat features" => "Enable chat alert"</strong>
 			</div>
 		</div>
 
@@ -129,7 +126,7 @@
 				oninput="onChangeValue()"
 				data-greet-feed-read
 				data-chat-feed-read>
-
+				
 			<div class="sdpi-item-label hidden"
 				data-chat-feed-scroll-up
 				data-chat-feed-scroll-down>Scroll amount <i>(<span id="value"></span>px)</i></div>
@@ -175,7 +172,7 @@
 				oninput="onChangeValue()"
 				data-timer-add
 				data-countdown-add>
-
+				
 			<div class="sdpi-item-label hidden"
 				data-counter-add>Points</div>
 			<input class="sdpi-item-value hidden" data-sync value="0" type="number"
@@ -226,7 +223,7 @@
 		<div class="sdpi-item hidden" id="select_single"
 		data-execute-trigger>
 			<div class="sdpi-item-label" data-execute-trigger>Trigger to execute</div>
-				<select class="sdpi-item-value select"
+			<select class="sdpi-item-value select"
 				id="triggerId"
 				oninput="onChangeValue()"
 				data-execute-trigger
@@ -246,19 +243,6 @@
 		</div>
 
 		<div class="sdpi-item hidden" id="select_single"
-		data-qna-highlight
-		data-qna-skip>
-			<div class="sdpi-item-label">Q&A session</div>
-			<select class="sdpi-item-value select"
-				id="qnaId"
-				oninput="onChangeValue()"
-				data-qna-highlight
-				data-qna-skip
-				data-sync>
-			</select>
-		</div>
-
-		<div class="sdpi-item hidden" id="select_single"
 		data-send-message>
 			<div class="sdpi-item-label">Message</div>
 			<input class="sdpi-item-value hidden" data-sync type="text"
@@ -266,7 +250,7 @@
 				oninput="onChangeValue()"
 				data-send-message>
 		</div>
-
+		
 		<!-- <div class="sdpi-item">
 			<button class="sdpi-item-value" onclick="onTest()">Test action</button>
 		</div> -->
@@ -279,17 +263,14 @@
 		let wasConnected = true;
 		let prevLocalSettings = null;
 		if ($PI) {
-			console.log("Property Inspector initialized");
 
 			$PI.onConnected(({ actionInfo, appInfo, connection, messageType, port, uuid }) => {
-				console.log("Property Inspector connected", actionInfo, appInfo, connection, messageType, port, uuid);
 
 				$PI.onDidReceiveGlobalSettings((jsonObj) => {
 					const settings = jsonObj.payload.settings;
+					globalSettings = settings;
+					populateGlobalSettings(settings);
 					if(isFirstUpdate) {
-						console.log("onDidReceiveGlobalSettings", jsonObj);
-						globalSettings = settings;
-						populateGlobalSettings(settings);
 						$PI.getSettings();
 					}else if(settings.OBSWS_CONNECTED != wasConnected) {
 						document.location.reload();
@@ -331,18 +312,18 @@
 			const colSelector = document.getElementById("colIndex");
 			if(colSelector) {
 				colSelector.innerHTML = "";
-				for (let i = 0; i < settings.COLS_COUNT || 0; i++) {
+				for (let i = 0; i < settings.COLS_COUNT; i++) {
 					const opt = document.createElement("option");
 					opt.value = i,
 					opt.innerText = i+1;
 					colSelector.appendChild(opt);
 				}
 			}
-
+			
 			//Populate counter selector
 			const counterSelector = document.getElementById("counterId");
-			if(counterSelector && settings.COUNTER_LIST) {
-				counterSelector.innerHTML = "<option value=''>...select</option>";
+			if(counterSelector) {
+				counterSelector.innerHTML = "";
 				for (let i = 0; i < settings.COUNTER_LIST.length; i++) {
 					const counter = settings.COUNTER_LIST[i];
 
@@ -358,8 +339,8 @@
 
 			//Populate triggers selector
 			const triggerSelector = document.getElementById("triggerId");
-			if(triggerSelector && settings.TRIGGER_LIST) {
-				triggerSelector.innerHTML = "<option value=''>...select</option>";
+			if(triggerSelector) {
+				triggerSelector.innerHTML = "";
 				for (let i = 0; i < settings.TRIGGER_LIST.length; i++) {
 					const trigger = settings.TRIGGER_LIST[i];
 
@@ -367,20 +348,6 @@
 					opt.value = trigger.id;
 					opt.innerText = trigger.name;
 					triggerSelector.appendChild(opt);
-				}
-			}
-
-			//Populate Q&A selector
-			const qnaSelector = document.getElementById("qnaId");
-			if(qnaSelector && settings.QNA_LIST) {
-				qnaSelector.innerHTML = "<option value=''>...select</option>";
-				for (let i = 0; i < settings.QNA_LIST.length; i++) {
-					const session = settings.QNA_LIST[i];
-
-					const opt = document.createElement("option");
-					opt.value = session.id;
-					opt.innerText = session.command;
-					qnaSelector.appendChild(opt);
 				}
 			}
 
@@ -398,10 +365,10 @@
 			document.getElementById("obsParams").style.display = settings.OBSWS_CONNECTED? "none" : "block";
 			document.getElementById("infos").style.display = settings.OBSWS_CONNECTED? "none" : "block";
 
-			// populateLocalSettings();
-			// setTimeout(()=>{
-			// 	onChangeValue();
-			// },0)
+			populateLocalSettings();
+			setTimeout(()=>{
+				onChangeValue();
+			},0)
 		}
 
 		function populateLocalSettings(settings) {
@@ -413,9 +380,7 @@
 			for (const key in settings) {
 				const input = document.getElementById(key);
 				if(input && settings[key]) {
-					//Set input value
 					input.value = settings[key];
-					//If an HTML element with ID #value exists, update its content with the current value
 					if(input.dataset.hasOwnProperty("sync")) {
 						input.value = settings[key];
 						if(document.getElementById("value")) {
@@ -424,12 +389,12 @@
 					}
 				}
 			}
-
+			
 		}
 
 		function onChangeValue() {
 			const holders = document.querySelectorAll("[data-"+actionName+"]");
-
+			
 			const settings = {};
 			for (let i = 0; i < holders.length; i++) {
 				const element = holders[i];

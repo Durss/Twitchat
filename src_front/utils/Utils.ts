@@ -7,17 +7,6 @@ import type { JsonObject } from 'type-fest';
  */
 export default class Utils {
 
-	public static CURRENCY_AMOUNT_TOKEN = "{AMOUNT}";
-
-	/**
-	 * Formats a currency amount
-	 * @param amount
-	 * @param pattern must contain Utils.CURRENCY_AMOUNT_TOKEN token
-	 * @returns
-	 */
-	public static formatCurrency(amount:number, pattern:string):string {
-		return pattern.replace(Utils.CURRENCY_AMOUNT_TOKEN, amount.toString());
-	}
 
 	/**
 	 * Check if user browser them is light mode
@@ -65,13 +54,9 @@ export default class Utils {
 	 * Picks random entry
 	 *
 	 * @param a
-	 * @param removeFromSource
 	 */
-	public static pickRand<T>(a:T[], removeFromSource:boolean = false):T {
-		const index = Math.floor(Math.random() * a.length);
-		const res = a[index];
-		if(removeFromSource) a.splice(index, 1);
-		return res;
+	public static pickRand<T>(a:T[]):T {
+		return a[ Math.floor(Math.random() * a.length) ];
 	}
 
 	/**
@@ -184,7 +169,7 @@ export default class Utils {
 	 */
 	public static formatDate(date:Date, addTime:boolean = true, noDate:boolean = false):string {
 		let res = "";
-		if(!noDate && date.getTime() - Date.now() < 24 * 3600 * 1000) {
+		if(!noDate) {
 			res = Utils.toDigits(date.getDate())+ "/"
 				+ Utils.toDigits(date.getMonth() + 1) + "/"
 				+ date.getFullYear()
@@ -283,7 +268,7 @@ export default class Utils {
 	/**
 	 * Check if a user matches a permission criterias
 	 */
-	public static async checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:Pick<TwitchatDataTypes.TwitchatUser, "platform" | "id" | "login" | "channelInfo">, channelId:string):Promise<boolean> {
+	public static async checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:Pick<TwitchatDataTypes.TwitchatUser, "id" | "login" | "channelInfo">, channelId:string):Promise<boolean> {
 		const chanInfo = user.channelInfo[channelId];
 
 		if(permissions.usersAllowed && permissions.usersAllowed.findIndex(v=>v.toLowerCase() === user.login.toLowerCase()) > -1) {
@@ -867,8 +852,8 @@ export default class Utils {
 	/**
 	 * Returns a seeded random generator.
 	 * Just call the given function to get a new pseudo random number
-	 * @param seed
-	 * @returns
+	 * @param seed 
+	 * @returns 
 	 */
 	public static seededRandom =(seed:number):()=>number => {
 		return () => {
@@ -880,32 +865,5 @@ export default class Utils {
 			t = Math.imul(t, 0x735a2d97);
 			return ((t = t ^ t >>> 15) >>> 0) / 4294967296;
 		}
-	}
-
-	/**
-	 * Deeply checks for differences between 2 arbitrary objects
-	 * @param a
-	 * @param b
-	 * @returns
-	 */
-	public static deepEqual(a:unknown, b:unknown):boolean {
-		if(a === b) return true;
-		if(typeof a !== typeof b) return false;
-		if(typeof a !== "object") return false;
-		if(Array.isArray(a) !== Array.isArray(b)) return false;
-		if(Array.isArray(a)) {
-			if(a.length !== (b as any[]).length) return false;
-			for (let i = 0; i < a.length; i++) {
-				if(!this.deepEqual(a[i], (b as any[])[i])) return false;
-			}
-		}else{
-			const keysA = Object.keys(a as Object);
-			const keysB = Object.keys(b as Object);
-			if(keysA.length !== keysB.length) return false;
-			for (const key of keysA) {
-				if(!this.deepEqual((a as any)[key], (b as any)[key])) return false;
-			}
-		}
-		return true;
 	}
 }

@@ -10,7 +10,7 @@
 		</div>
 
 		<div class="actionList" v-else>
-
+	
 			<div class="action" v-for="(param, index) in action.playabilityData!.outputs">
 				<ParamItem :paramData="param_outputs[index]" v-model="param.code" noBackground @change="buildValueFields(index)" />
 				<div class="value">
@@ -62,7 +62,7 @@ class TriggerActionPlayabilityEntry extends AbstractTriggerActionEntry {
 
 	public param_outputs:TwitchatDataTypes.ParameterData<string, string, unknown, NonNullable<typeof this.action.playabilityData>["outputs"][0], NonNullable<typeof this.action.playabilityData>["outputs"][0]>[] = [];
 	public param_values:(TwitchatDataTypes.ParameterData<number> | TwitchatDataTypes.ParameterData<boolean>)[] = [];
-
+	
 	private availableOutputs:NonNullable<(typeof this.param_outputs)[number]["listValues"]> = [];
 
 	public beforeMount():void {
@@ -85,7 +85,7 @@ class TriggerActionPlayabilityEntry extends AbstractTriggerActionEntry {
 	}
 
 	public openConnectForm():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNECTIONS, TwitchatDataTypes.ParamDeepSections.PLAYABILITY);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.PLAYABILITY);
 	}
 
 	public addOutput():void {
@@ -120,7 +120,7 @@ class TriggerActionPlayabilityEntry extends AbstractTriggerActionEntry {
 		for (let index = 0; index < this.action.playabilityData!.outputs.length; index++) {
 			const output = this.action.playabilityData!.outputs[index];
 			const outputType = output.type = this.availableOutputs.find(v=>v.storage?.code === output.code)?.storage?.type || "mouseButton";
-
+			
 			if(["keyboard", "mouseButton", "button"].includes(outputType)) {
 				if(index == resetValueIndex) {
 					this.action.playabilityData!.outputs[index].value = true;
@@ -135,7 +135,7 @@ class TriggerActionPlayabilityEntry extends AbstractTriggerActionEntry {
 					],
 				};
 			}else
-
+	
 			if(["axis"].includes(outputType)) {
 				if(index == resetValueIndex) {
 					this.action.playabilityData!.outputs[index].value = 0;
@@ -149,7 +149,7 @@ class TriggerActionPlayabilityEntry extends AbstractTriggerActionEntry {
 					storage:Utils.getUUID(),//Used to force unmount/mount of the component
 				};
 			}else
-
+	
 			if(["trigger"].includes(outputType)) {
 				if(index == resetValueIndex) {
 					this.action.playabilityData!.outputs[index].value = 1;
@@ -163,7 +163,7 @@ class TriggerActionPlayabilityEntry extends AbstractTriggerActionEntry {
 					storage:Utils.getUUID(),//Used to force unmount/mount of the component
 				};
 			}else{
-
+				
 				if(index == resetValueIndex) {
 					this.action.playabilityData!.outputs[index].value = 1;
 				}

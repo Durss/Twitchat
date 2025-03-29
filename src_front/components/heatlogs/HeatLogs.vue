@@ -5,18 +5,18 @@
 			<div class="subtitle">{{ $t("heat.logs.subtitle") }}</div>
 			<ClearButton @click="close" />
 		</div>
-
+		
 		<div class="ctas">
 			<TTButton @click="refreshList()" icon="refresh" :loading="reloading">{{ $t("global.refresh") }}</TTButton>
 			<TTButton @click="clearList()" icon="trash" alert>{{ $t("global.clear") }}</TTButton>
 		</div>
-
+		
 		<div class="content empty" v-if="logs.length == 0 && !reloading">{{ $t("heat.logs.empty") }}</div>
-
+		
 		<div class="content empty" v-else-if="reloading">
 			<Icon class="loader" name="loader" />
 		</div>
-
+		
 		<div class="content entries" v-else-if="!reloading">
 			<div v-for="item in logs" :key="item.id" :class="getRowClasses(item)">
 				<div class="head" @click="idToExpandState[item.id] = !idToExpandState[item.id]">
@@ -24,7 +24,7 @@
 						<div class="status" v-tooltip="'started from<br>Test button'" v-if="item.testMode"><img src="@/assets/icons/test.svg"></div>
 						<div class="status" v-tooltip="'Anonymous click'" v-if="item.anonymous"><img src="@/assets/icons/anon.svg"></div>
 						<div class="status" v-if="item.user"><img src="@/assets/icons/user.svg"> {{ item.user.login }}</div>
-						<div class="date">{{ getFormattedDime(item.date) }}</div>
+						<div class="date">{{ getFormatedDime(item.date) }}</div>
 					</div>
 					<Icon name="arrowRight" class="arrow" />
 				</div>
@@ -43,13 +43,13 @@
 								<template v-if="entry.spotify"><Icon name="spotify" />Spotify overlay</template>
 								<template v-if="entry.ulule"><Icon name="ulule" />Ulule overlay</template>
 								<template v-if="entry.distortiontID"><Icon name="distort" />{{ getDistortionNameById(entry.distortiontID) }}</template>
-
+								
 								<HeatScreenPreview class="heatScreen" v-if="entry.customAreaID && getScreenByAreaId(entry.customAreaID)"
 								renderOnly
 								:selectedAreas="[entry.customAreaID]"
 								:screen="getScreenByAreaId(entry.customAreaID)" />
 								<template v-else-if="entry.customAreaID"><Icon name="polygon" /> &lt;UNKNOWN AREA ID {{ entry.customAreaID }}&gt;</template>
-
+								
 								<template v-if="entry.obsSource"><Icon name="obs" />{{ entry.obsSource }}</template>
 								<div class="coordinates">
 									<span><strong>X:</strong> {{ (entry.x * 100).toFixed(0) }}%</span>
@@ -132,7 +132,7 @@ class HeatLogs extends AbstractSidePanel {
 		return screen;
 	}
 
-	public getFormattedDime(date:number):string {
+	public getFormatedDime(date:number):string {
 		const d = new Date(date);
 		return Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes())+":"+Utils.toDigits(d.getSeconds())+"."+Utils.toDigits(d.getMilliseconds(),3);
 	}
@@ -260,7 +260,7 @@ export default toNative(HeatLogs);
 			display: flex;
 			flex-direction: column;
 			gap: .5em;
-
+			
 			li {
 				display: flex;
 				flex-direction: row;
@@ -292,6 +292,6 @@ export default toNative(HeatLogs);
 		}
 
 	}
-
+	
 }
 </style>

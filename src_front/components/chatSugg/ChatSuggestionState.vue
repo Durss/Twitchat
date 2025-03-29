@@ -2,7 +2,7 @@
 	<div class="chatsuggstate sidePanel">
 		<div class="head">
 			<ClearButton @click="close()" />
-			<h1 class="title"><Icon name="chatSugg" />{{ $t('suggestion.state_title') }} <mark>{{poll.command}}</mark></h1>
+			<h1 class="title"><Icon name="chatPoll" />{{ $t('suggestion.state_title') }} <mark>{{poll.command}}</mark></h1>
 		</div>
 		
 		<ProgressBar class="progress"
@@ -14,7 +14,7 @@
 			<div class="card-item actions">
 				<div>{{ $tc('suggestion.state_header', entries.length, [entries.length]) }}</div>
 				
-				<TTButton icon="chatSugg"
+				<TTButton icon="chatPoll"
 					@click="pickEntry()"
 					:disabled="poll.choices.length === 0">{{ $t('suggestion.state_pickBt') }}</TTButton>
 

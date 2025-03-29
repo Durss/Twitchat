@@ -1,7 +1,7 @@
 <template>
 	<div class="paramslist">
 		<div v-for="(p, key, index) in params"
-		:class="highlightId == p.id?.toString()? 'row blinkBorder blink' : 'row blinkBorder'"
+		:class="highlightId == p.id?.toString()? 'row blinkBorder blink' : 'row blinkBorder'" 
 		:key="key"
 		:ref="'entry_'+p.id"
 		v-newflag="(p.storage && (p.storage as any).vnew)? (p.storage as any).vnew : null">
@@ -17,7 +17,7 @@
 							</i18n-t>
 						</div>
 					</div>
-
+				
 					<div v-else-if="p.id == 201 && p.value === true" class="config">
 						<Button small secondary icon="date" @click="resetGreetHistory()">{{$t('greet.resetBt')}}</Button>
 						<i18n-t class="greetThem" scope="global" tag="div"
@@ -27,7 +27,7 @@
 							</template>
 						</i18n-t>
 					</div>
-
+					
 					<div v-else-if="p.id == 213 && p.value === true" class="config">
 						<i18n-t class="pronouns" scope="global" tag="div"
 						keypath="params.showUserPronouns_based_on">
@@ -39,7 +39,7 @@
 							</template>
 						</i18n-t>
 					</div>
-
+	
 					<div v-else-if="p.id == 215 && p.value === true" class="config">
 						<PostOnChatParam class="item"
 							botMessageKey="shoutout"
@@ -49,21 +49,21 @@
 							:placeholders="soPlaceholders"
 						/>
 					</div>
-
+	
 					<div v-else-if="p.id == 216 && p.value === true" class="config">
 						<Button small secondary @click="$store.params.openParamsPage(contentSpoiler)">{{$t('global.configure')}}</Button>
 					</div>
-
+	
 					<div v-else-if="p.id == 217 && p.value === true" class="config">
 						<Button small secondary @click="$store.params.openParamsPage(contentAlert)">{{$t('global.configure')}}</Button>
 					</div>
-
+	
 					<div v-else-if="p.id == 224 && p.value === true" class="config">
 						<Button small secondary
 						v-newflag="{date:1695691108070, id:'params_clearHistory'}"
 						@click="$store.chat.clearHistory()" icon="trash">{{$t('params.clearHistory')}}</Button>
 					</div>
-
+	
 					<div v-else-if="isMissingScope(p) && p.value == true" class="config">
 						<div class="card-item alert">
 							<img src="@/assets/icons/lock_fit.svg">
@@ -75,7 +75,7 @@
 						</div>
 					</div>
 				</ParamItem>
-
+	
 				<div v-if="p.id == 12 && fakeMessageData" class="config">
 					<ChatMessage class="chatMessage" :messageData="fakeMessageData" contextMenuOff />
 				</div>
@@ -119,7 +119,7 @@ class ParamsList extends Vue implements IParameterContent {
 	public highlightId:string = "";
 	public fakeMessageData:TwitchatDataTypes.MessageChatData|null = null;
 	public soPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [];
-
+	
 	private buildInterval:number = -1;
 	private buildBatch:number = 15;
 
@@ -143,11 +143,11 @@ class ParamsList extends Vue implements IParameterContent {
 		}
 		return res;
 	}
-
-	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
-	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
-	public get contentSpoiler():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPOILER; }
-	public get contentAlert():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ALERT; }
+	
+	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; } 
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
+	public get contentSpoiler():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPOILER; } 
+	public get contentAlert():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ALERT; } 
 
 	public async beforeMount(): Promise<void> {
 		this.buildIndex = 0;
@@ -232,7 +232,7 @@ class ParamsList extends Vue implements IParameterContent {
 			this.buildIndex ++;
 			if(this.buildIndex >= Object.keys(this.params).length) {
 				clearInterval(this.buildInterval);
-
+						
 				//If redirecting to a specific params, highlight it
 				const param = this.$store.main.tempStoreValue || this.$store.params.currentPageSubContent;
 				if(param) {
@@ -326,7 +326,7 @@ export default toNative(ParamsList);
 				height: 1em;
 				vertical-align: middle;
 			}
-
+	
 			.label {
 				display: inline;
 				strong {
@@ -336,7 +336,7 @@ export default toNative(ParamsList);
 					background: red;
 				}
 			}
-
+	
 			.alert {
 				margin-left: calc(@iconSize + .5em);
 				text-align: center;
