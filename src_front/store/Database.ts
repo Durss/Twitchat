@@ -13,7 +13,7 @@ export default class Database {
 
 	private static _instance:Database;
 
-	private DB_VERSION:number = 7;
+	private DB_VERSION:number = 8;
 
 	private _dbConnection!:IDBOpenDBRequest;
 	private _messageStore!:IDBObjectStore;
@@ -92,11 +92,11 @@ export default class Database {
 				}
 				resolve();
 			}
-			this._dbConnection.onupgradeneeded = async (event) => {
+			this._dbConnection.onupgradeneeded = (event) => {
 				this._ready = false;
 				this._db = (event.target as any)?.result;
-				await this.createMessageTable();
-				await this.createGroqTable();
+				this.createMessageTable();
+				this.createGroqTable();
 				this._versionUpgraded = (event.newVersion || 0) > event.oldVersion;
 				this._ready = true;
 			};
@@ -476,44 +476,47 @@ export default class Database {
 		return {data:clone, json};
 	}
 
-	private async createMessageTable():Promise<void> {
+	private createMessageTable():void {
 		const tableList = this._db.objectStoreNames;
 		// Create MESSAGES_TABLE if it doesn't exist
 		if (!tableList.contains(Database.MESSAGES_TABLE)) {
 			this._messageStore = this._db.createObjectStore(Database.MESSAGES_TABLE, { autoIncrement: true });
 			this._messageStore.createIndex("id", "id", { unique: true });
-			await new Promise<void>((resolve)=>{
-				this._messageStore.transaction.oncomplete = (event) => {
-					resolve();
-				}
-			});
+			this._messageStore.transaction.oncomplete = (event) => {
+				console.log("MESSAGES_TABLE created", event);
+			}
+			this._messageStore.transaction.onerror = (event) => {
+				const version = this._db.version;
+				Sentry.captureException(event);
+				Sentry.captureMessage("Groq table creation error. DB version: "+version);
+			}
+			this._messageStore.transaction.onabort = (event) => {
+				const version = this._db.version;
+				Sentry.captureException(event);
+				Sentry.captureMessage("Groq table creation aborted. DB version: "+version);
+			}
 		}
 	}
 
-	private async createGroqTable():Promise<void> {
+	private createGroqTable():void {
 		const tableList = this._db.objectStoreNames;
 		// Create GROQ_HISTORY_TABLE if it doesn't exist
 		if (!tableList.contains(Database.GROQ_HISTORY_TABLE)) {
 			this._groqStore = this._db.createObjectStore(Database.GROQ_HISTORY_TABLE, { autoIncrement: true });
 			this._groqStore.createIndex("id", "id", { unique: true });
-			await new Promise<void>((resolve)=>{
-				this._groqStore.transaction.oncomplete = (event) => {
-					console.log("GROQ_HISTORY_TABLE created", event);
-					resolve();
-				}
-				this._groqStore.transaction.onerror = (event) => {
-					const version = this._db.version;
-					Sentry.captureException(event);
-					Sentry.captureMessage("Groq table creation error. DB version: "+version);
-					resolve();
-				}
-				this._groqStore.transaction.onabort = (event) => {
-					const version = this._db.version;
-					Sentry.captureException(event);
-					Sentry.captureMessage("Groq table creation aborted. DB version: "+version);
-					resolve();
-				}
-			});
+			this._groqStore.transaction.oncomplete = (event) => {
+				console.log("GROQ_HISTORY_TABLE created", event);
+			}
+			this._groqStore.transaction.onerror = (event) => {
+				const version = this._db.version;
+				Sentry.captureException(event);
+				Sentry.captureMessage("Groq table creation error. DB version: "+version);
+			}
+			this._groqStore.transaction.onabort = (event) => {
+				const version = this._db.version;
+				Sentry.captureException(event);
+				Sentry.captureMessage("Groq table creation aborted. DB version: "+version);
+			}
 		}
 	}
 }
