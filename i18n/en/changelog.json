@@ -9,11 +9,22 @@
 				"i": "animate",
 				"l": "Animated Text",
 				"d": "Show animated text on your stream with the new dedicated overlay. A sort of equivalent to StreamElements alerts.\n\nUse Triggers to show any text you want when you want.",
-				"g": "update_images/textanim.gif",
+				"v": "update_images/text_anim.mp4",
 				"a": {
 					"l": "Try",
 					"param": "overlays",
 					"subparam": "animatedtext"
+				}
+			},
+			{
+				"i": "train",
+				"l": "Custom Hype Train",
+				"d": "Create custom Hype Trains based on tips from external platforms.\n\nMostly made for DJs that will soon lose most of their revenues, this allows them to benefit Hype Trains while actually earning money",
+				"v": "update_images/custom_train.mp4",
+				"a": {
+					"l": "Try",
+					"param": "overlays",
+					"subparam": "customtrain"
 				}
 			},
 			{
@@ -38,7 +49,7 @@
 			{
 				"i": "groq",
 				"l": "Groq AI",
-				"d": "⚠️ Not to confuse with gro<strong><u>k</u></strong> from the nazi fucker!\n\n<strong>DISCLAIMER</strong>: Nothing will be sent anywhere unless you specifically request it !\n\nThis integration allows you to request chat or conversations summaries in a blink or automate moderation tasks from the Triggers.",
+				"d": "⚠️ Not to confuse with gro<strong><u>k</u></strong> from the nazi fucker!\n\n<strong>DISCLAIMER</strong>: Nothing will be sent anywhere unless you specifically request it !\n\nThis integration allows you to request chat or conversations summaries in a blink or automate moderation tasks from the Triggers.\nUsernames are anonymised before being sent to Groq services.",
 				"g": "update_images/groq.gif",
 				"a": {
 					"l": "Try",

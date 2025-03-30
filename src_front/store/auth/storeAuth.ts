@@ -299,7 +299,7 @@ export const storeAuth = defineStore('auth', {
 					}
 				};
 				loadViewerCount();
-				SetIntervalWorker.instance.create(()=>loadViewerCount(), 30000);
+				SetIntervalWorker.instance.create(()=>loadViewerCount(), 60000);
 
 				//Preload moderators of the channel and flag them accordingly
 				TwitchUtils.getModerators().then(async res=> {

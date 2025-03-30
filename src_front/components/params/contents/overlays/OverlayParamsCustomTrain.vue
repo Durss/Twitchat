@@ -360,9 +360,9 @@ class OverlayParamsCustomTrain extends Vue {
 			this.param_recordColorFill[id]		= {type:"color", value:"", labelKey:"overlay.customTrain.param_recordColorFill", icon:"color"};
 			this.param_recordColorBg[id]		= {type:"color", value:"", labelKey:"overlay.customTrain.param_recordColorBg", icon:"color"};
 			this.param_textFont[id]				= {type:"font", value:"", labelKey:"overlay.customTrain.param_textFont", icon:"font"};
-			this.param_textSize[id]				= {type:"slider", value:20, min:15, max:40, labelKey:"overlay.customTrain.param_textSize", icon:"fontSize"};
+			this.param_textSize[id]				= {type:"slider", value:40, min:20, max:80, labelKey:"overlay.customTrain.param_textSize", icon:"fontSize"};
 			this.param_currency[id]				= {type:"string", value:"", labelKey:"overlay.customTrain.param_currency", icon:"coin"};
-			this.param_triggerEventCount[id]	= {type:"number", value:3, min:1, max:5, labelKey:"overlay.customTrain.param_triggerEventCount", icon:"notification"};
+			this.param_triggerEventCount[id]	= {type:"number", value:2, min:2, max:5, labelKey:"overlay.customTrain.param_triggerEventCount", icon:"notification"};
 			this.param_cooldownDuration_ms[id]	= {type:"duration", value:0, min:30*60, max:24*3600, labelKey:"overlay.customTrain.param_cooldownDuration_ms", icon:"timer"};
 			this.param_levelsDuration_ms[id]	= {type:"duration", value:5*6, min:30, max:30*60, labelKey:"overlay.customTrain.param_levelsDuration_ms", icon:"countdown"};
 			this.param_postLevelUpOnChat[id]	= {type:"boolean", value:false, labelKey:"overlay.customTrain.param_postLevelUpOnChat", icon:"whispers"};
@@ -486,21 +486,22 @@ class OverlayParamsCustomTrain extends Vue {
 	 * Called after selecting an emote
 	 */
 	public async onSelectEmote(emote:TwitchatDataTypes.Emote):Promise<void> {
+		const url = emote.images.url_2x || emote.images.url_4x || emote.images.url_1x;
 		switch(this.emoteSelectorTarget?.step) {
 			case "approaching":
-				this.emoteSelectorTarget.entry.approachingEmote = emote.images.url_4x || emote.images.url_2x || emote.images.url_1x;
+				this.emoteSelectorTarget.entry.approachingEmote = url;
 				break;
 			case "levelUp":
-				this.emoteSelectorTarget.entry.levelUpEmote = emote.images.url_4x || emote.images.url_2x || emote.images.url_1x;
+				this.emoteSelectorTarget.entry.levelUpEmote = url;
 				break;
 			case "failed":
-				this.emoteSelectorTarget.entry.failedEmote = emote.images.url_4x || emote.images.url_2x || emote.images.url_1x;
+				this.emoteSelectorTarget.entry.failedEmote = url;
 				break;
 			case "success":
-				this.emoteSelectorTarget.entry.successEmote = emote.images.url_4x || emote.images.url_2x || emote.images.url_1x;
+				this.emoteSelectorTarget.entry.successEmote = url;
 				break;
 			case "record":
-				this.emoteSelectorTarget.entry.recordEmote = emote.images.url_4x || emote.images.url_2x || emote.images.url_1x;
+				this.emoteSelectorTarget.entry.recordEmote = url;
 				break;
 		}
 	}

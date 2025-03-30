@@ -49,6 +49,8 @@ export const storeCustomTrain = defineStore('customTrain', {
 					}
 				}
 			});
+
+			this.broadcastStates();
 		},
 
 		broadcastStates(id?:string):void {
@@ -56,8 +58,6 @@ export const storeCustomTrain = defineStore('customTrain', {
 				const entry = this.customTrainList[i];
 				if(id && entry.id !== id || !entry.enabled) continue;
 				const state = this.customTrainStates[entry.id];
-				if(!state || state.activities.length < 2) continue;
-
 				PublicAPI.instance.broadcast(TwitchatEvent.CUSTOM_TRAIN_STATE, {configs:entry, state:state as unknown as JsonObject});
 			}
 		},
@@ -77,16 +77,16 @@ export const storeCustomTrain = defineStore('customTrain', {
 				textFont:"Inter",
 				postLevelUpOnChat:false,
 				approachingLabel:StoreProxy.i18n.t("overlay.customTrain.param_approachingLabel_default"),
-				approachingEmote:"https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_c1f4899e65cf4f53b2fd98e15733973a/animated/light/3.0",
+				approachingEmote:"https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_c1f4899e65cf4f53b2fd98e15733973a/animated/dark/2.0",
 				successLabel:StoreProxy.i18n.t("overlay.customTrain.param_successLabel_default"),
 				successLabelSummary:StoreProxy.i18n.t("overlay.customTrain.param_successLabel_summary"),
-				successEmote:"https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_bf888b2af57b4abd80653dff26768ae5/animated/dark/3.0",
+				successEmote:"https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_bf888b2af57b4abd80653dff26768ae5/animated/dark/2.0",
 				levelUpLabel:StoreProxy.i18n.t("overlay.customTrain.param_levelUpLabel_default"),
-				levelUpEmote:"https://static-cdn.jtvnw.net/emoticons/v2/62836/static/light/3.0",
+				levelUpEmote:"https://static-cdn.jtvnw.net/emoticons/v2/62836/static/dark/2.0",
 				failedLabel:StoreProxy.i18n.t("overlay.customTrain.param_failedLabel_default"),
-				failedEmote:"https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_db3cd788399347a8b2ebfb8a85f5badb/static/light/3.0",
+				failedEmote:"https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_db3cd788399347a8b2ebfb8a85f5badb/static/dark/2.0",
 				recordLabel:StoreProxy.i18n.t("overlay.customTrain.param_recordLabel_default"),
-				recordEmote:"https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_dee4ecfb7f0940bead9765da02c57ca9/static/light/3.0",
+				recordEmote:"https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_dee4ecfb7f0940bead9765da02c57ca9/static/dark/2.0",
 				recordColorBg:"#fff7db",
 				recordColorFill:"#e6b400",
 				cooldownDuration_s:2*3600,
@@ -321,36 +321,55 @@ export const storeCustomTrain = defineStore('customTrain', {
 			train.coolDownEnd_at = 0;
 			train.testing = true;
 
+			//TODO remove
+			train.allTimeRecord = {
+				amount:40,
+				date:0,
+				level:2,
+				percent:20/30,
+			}
+
 			delete this.customTrainStates[train.id];
 			this.broadcastStates(train.id);
 			await Utils.promisedTimeout(250);
 			if(simulationIDLocal !== simulationID) return;
 			const levels = train.levelAmounts.concat();
-
-			for (let i = 0; i < train.triggerEventCount; i++) {
-				this.registerActivity("", "trigger", levels[0]/2/(train.triggerEventCount+1));
-				await Utils.promisedTimeout(3000);
-				if(simulationIDLocal !== simulationID) return;
-			}
-			this.registerActivity("", "trigger", levels[0]/2/2);
-			await Utils.promisedTimeout(3000);
-			if(simulationIDLocal !== simulationID) return;
-			this.registerActivity("", "trigger", levels[0]/2/2);
-			await Utils.promisedTimeout(2000);
-			if(simulationIDLocal !== simulationID) return;
-			this.registerActivity("", "trigger", levels[0]/train.triggerEventCount + 1);
+			this.registerActivity("", "trigger", 1);
+			this.registerActivity("", "trigger", 1);
 			await Utils.promisedTimeout(1000);
-			if(simulationIDLocal !== simulationID) return;
-			for (let i = 1; i < Math.min(levels.length, 3); i++) {
-				let splits = Math.ceil(Math.random() * 5 + 1);
-				const goal = levels[i] - levels[i-1] * (Math.random() * 0.75 + .25);
-				for (let i = 0; i < splits; i++) {
-					if(simulationIDLocal !== simulationID) return;
-					this.registerActivity("", "trigger", goal/splits);
-					await Utils.promisedTimeout(1000 + Math.random() * 5000);
-				}
-			}
-			train.expires_at = 0;
+			this.registerActivity("", "trigger", 5);
+			await Utils.promisedTimeout(1000);
+			this.registerActivity("", "trigger", 8);//15
+			await Utils.promisedTimeout(1000);
+			this.registerActivity("", "trigger", 10);//25
+			await Utils.promisedTimeout(5000);
+			this.registerActivity("", "trigger", 10);//35
+			await Utils.promisedTimeout(1000);
+			this.registerActivity("", "trigger", 10);//45
+
+			// for (let i = 0; i < train.triggerEventCount; i++) {
+			// 	this.registerActivity("", "trigger", levels[0]/2/(train.triggerEventCount+1));
+			// 	if(i > 0) await Utils.promisedTimeout(3000);
+			// 	if(simulationIDLocal !== simulationID) return;
+			// }
+			// this.registerActivity("", "trigger", levels[0]/2/2);
+			// await Utils.promisedTimeout(3000);
+			// if(simulationIDLocal !== simulationID) return;
+			// this.registerActivity("", "trigger", levels[0]/2/2);
+			// await Utils.promisedTimeout(2000);
+			// if(simulationIDLocal !== simulationID) return;
+			// this.registerActivity("", "trigger", levels[0]/train.triggerEventCount + 1);
+			// await Utils.promisedTimeout(1000);
+			// if(simulationIDLocal !== simulationID) return;
+			// for (let i = 1; i < Math.min(levels.length, 3); i++) {
+			// 	let splits = Math.ceil(Math.random() * 5 + 1);
+			// 	const goal = levels[i] - levels[i-1] * (Math.random() * 0.75 + .25);
+			// 	for (let i = 0; i < splits; i++) {
+			// 		if(simulationIDLocal !== simulationID) return;
+			// 		this.registerActivity("", "trigger", goal/splits);
+			// 		await Utils.promisedTimeout(1000 + Math.random() * 5000);
+			// 	}
+			// }
 		},
 
 		saveData():void {

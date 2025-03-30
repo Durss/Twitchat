@@ -1,7 +1,7 @@
 <template>
 	<div class="overlaycustomtrain">
 		<transition name="scaleY">
-			<OverlayCustomTrainRenderer class="train" v-if="configs && state && state.amount > 0" key="train"
+			<OverlayCustomTrainRenderer class="train" v-if="configs && state && state.amount > 0 && state.activities.length > 1" key="train"
 				:showSuccess="false"
 				:showApproaching="showApproaching"
 				:showFail="false"
@@ -123,6 +123,7 @@ class OverlayCustomTrain extends AbstractOverlay {
 
 		this.configs = e.data.configs;
 		this.state = e.data.state;
+
 		if(this.state) {
 			if(this.state.activities.length - 1 < this.configs.triggerEventCount) {
 				this.showApproaching = true;
@@ -154,7 +155,7 @@ export default toNative(OverlayCustomTrain);
 <style scoped lang="less">
 .overlaycustomtrain{
 	.train {
-		transition: all 0.25s;
+		transition: all .35s;
 		transform: scaleY(1);
 	}
 

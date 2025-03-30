@@ -33,6 +33,7 @@
 
 		<div class="list" v-if="subContent == null">
 
+			<button class="item" @click="subContent = 'animatedtext'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_overlays_animatedText'}"><img src="@/assets/img/overlays/animated_text.jpg" alt="Animated text"></button>
 			<button class="item" @click="subContent = 'customtrain'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_overlays_customTrain'}"><img src="@/assets/img/overlays/custom_train.jpg" alt="Custom train"></button>
 			<button class="item" @click="subContent = 'donationgoals'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_7, id:'params_overlays_donationgoals'}"><img src="@/assets/img/overlays/donation_goals.jpg" alt="Goals"></button>
 			<button class="item" @click="subContent = 'bingogrid'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'params_overlays_bingogrid'}"><img src="@/assets/img/overlays/bingo_grids.jpg" alt="Bingo grid"></button>
@@ -46,7 +47,6 @@
 			<button class="item" @click="subContent = 'distort'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_distort'}"><img src="@/assets/img/overlays/interractive_distortions.jpg" alt="Interactive distortions"></button>
 			<button class="item" @click="subContent = 'adbreak'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_adbreak'}"><img src="@/assets/img/overlays/ad_break.jpg" alt="Ad break indicator"></button>
 			<button class="item" @click="subContent = 'chathighlight'"><img src="@/assets/img/overlays/highlights.jpg" alt="Chat highlight"></button>
-			<button class="item" @click="subContent = 'animatedtext'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_overlays_animatedText'}"><img src="@/assets/img/overlays/animated_text.jpg" alt="Animated text"></button>
 			<button class="item" @click="subContent = 'labels'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'params_overlays_labels'}"><img src="@/assets/img/overlays/labels.jpg" alt="Labels"></button>
 			<button class="item" @click="subContent = 'counter'"><img src="@/assets/img/overlays/counters.jpg" alt="Counters"></button>
 			<button class="item" @click="subContent = 'timer'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_overlays_timers'}"><img src="@/assets/img/overlays/timer.jpg" alt="Timers"></button>

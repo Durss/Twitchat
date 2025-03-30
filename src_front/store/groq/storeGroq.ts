@@ -59,7 +59,6 @@ export const storeGroq = defineStore('groq', {
 
 		async preloadMessageHistory():Promise<void> {
 			Database.instance.getGroqHistoryList().then(res=>{
-				console.log("Groq history loaded", res);
 				if(res.length === 0) return;
 				this.answerHistory = res;
 			});

@@ -9,11 +9,22 @@
 				"i": "animate",
 				"l": "Texte Animé",
 				"d": "Affichez du texte animé sur votre stream avec le nouvel overlay dédié. Une sorte d'équivalent aux alertes de StreamElements.\n\nUtilisez les Triggers pour afficher le texte que vous souhaitez, quand vous le voulez.",
-				"g": "update_images/textanim.gif",
+				"v": "update_images/text_anim.mp4",
 				"a": {
 					"l": "Essayer",
 					"param": "overlays",
 					"subparam": "animatedtext"
+				}
+			},
+			{
+				"i": "train",
+				"l": "Hype Train Personnalisé",
+				"d": "Créez des Trains de la Hype personnalisés basés sur les dons provenant de plateformes externes.\n\nPrincipalement conçu pour les DJs qui perdront bientôt la majorité de leurs revenus, cela leur permet de bénéficier des Trains de la Hype tout en gagnant réellement de l'argent",
+				"v": "update_images/custom_train.mp4",
+				"a": {
+					"l": "Essayer",
+					"param": "overlays",
+					"subparam": "customtrain"
 				}
 			},
 			{
@@ -38,7 +49,7 @@
 			{
 				"i": "groq",
 				"l": "Groq IA",
-				"d": "⚠️ À ne pas confondre avec gro<strong><u>k</u></strong> de l'autre nazi de merde!\n\n<strong>AVERTISSEMENT</strong> : Rien ne sera envoyé nulle part sans que vous le demandiez explicitement!\n\nCette intégration vous permet de demander des résumés de chat ou de conversations en un clin d'œil ou d'automatiser des tâches de modération depuis les Triggers.",
+				"d": "⚠️ À ne pas confondre avec gro<strong><u>k</u></strong> de l'autre nazi de merde!\n\n<strong>AVERTISSEMENT</strong> : Rien ne sera envoyé nulle part sans que vous le demandiez explicitement!\n\nCette intégration vous permet de demander des résumés de chat ou de conversations en un clin d'œil ou d'automatiser des tâches de modération depuis les Triggers.\nLes pseudonymes sont anonymisés avant d'être envoyés aux services Groq.",
 				"g": "update_images/groq.gif",
 				"a": {
 					"l": "Essayer",

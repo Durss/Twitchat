@@ -57,6 +57,7 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static OBS_MUTE_TOGGLE:TwitchatEventType = "OBS_MUTE_TOGGLE";
 	public static OBS_FILTER_TOGGLE:TwitchatEventType = "OBS_FILTER_TOGGLE";
 	public static OBS_STREAM_STATE:TwitchatEventType = "OBS_STREAM_STATE";
+	public static OBS_RECORD_STATE:TwitchatEventType = "OBS_RECORD_STATE";
 	public static OBS_PLAYBACK_ENDED:TwitchatEventType = "OBS_PLAYBACK_ENDED";
 	public static OBS_PLAYBACK_STARTED:TwitchatEventType = "OBS_PLAYBACK_STARTED";
 	public static OBS_PLAYBACK_PAUSED:TwitchatEventType = "OBS_PLAYBACK_PAUSED";
@@ -240,6 +241,7 @@ export const TwitchatEventTypeList = [
 	"OBS_MUTE_TOGGLE",
 	"OBS_FILTER_TOGGLE",
 	"OBS_STREAM_STATE",
+	"OBS_RECORD_STATE",
 	"OBS_PLAYBACK_ENDED",
 	"OBS_PLAYBACK_STARTED",
 	"OBS_PLAYBACK_PAUSED",
