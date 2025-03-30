@@ -49,7 +49,7 @@
 			{
 				"i": "groq",
 				"l": "Groq AI",
-				"d": "⚠️ Not to confuse with gro<strong><u>k</u></strong> from the nazi fucker!\n\n<strong>DISCLAIMER</strong>: Nothing will be sent anywhere unless you specifically request it !\n\nThis integration allows you to request chat or conversations summaries in a blink or automate moderation tasks from the Triggers.\nUsernames are anonymised before being sent to Groq services.",
+				"d": "⚠️ Not to confuse with gro<strong><u>k</u></strong> from the nazi fucker!\n\n<strong>DISCLAIMER</strong>: Nothing will be sent anywhere unless you specifically request it! Groq claims <strong>not</strong> to store nor use your prompts for training.\n\nThis integration allows you to request chat or conversations summaries in a blink or automate moderation tasks from the Triggers.\nTwitchat anonymises usernames before asking summaries.",
 				"g": "update_images/groq.gif",
 				"a": {
 					"l": "Try",
@@ -65,7 +65,7 @@
 			{
 				"i": "sad",
 				"l": "Say goodbye...",
-				"d": "As Twitch cut-off a service I was \"abusing\" to get undocumented events, it's time to say goodbye to pinned messages and community challenge contribution notifications as well as related triggers.",
+				"d": "Twitch cut-off a service Twitchat was \"abusing\" to receive undocumented events. It's time to say goodbye to pinned messages and community challenge contribution notifications as well as related triggers.\nViewer count will only update every 5 minutes.",
 				"g": "update_images/solong.png"
 			},
 			{
