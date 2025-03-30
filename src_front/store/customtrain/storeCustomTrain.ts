@@ -322,12 +322,12 @@ export const storeCustomTrain = defineStore('customTrain', {
 			train.testing = true;
 
 			//TODO remove
-			train.allTimeRecord = {
-				amount:40,
-				date:0,
-				level:2,
-				percent:20/30,
-			}
+			// train.allTimeRecord = {
+			// 	amount:40,
+			// 	date:0,
+			// 	level:2,
+			// 	percent:20/30,
+			// }
 
 			delete this.customTrainStates[train.id];
 			this.broadcastStates(train.id);
