@@ -4,6 +4,7 @@
 		"title": "Latest updates",
 		"heat_details": "{LINK} is a Twitch extensions allowing viewers to click on your stream. Twitchat makes it dead easy to use it.",
 		"heat_details_link": "Heat",
+		"streamdeck_plugin": "Get Stream Deck plugin",
 		"highlights": [
 			{
 				"i": "animate",
@@ -31,6 +32,7 @@
 				"i": "chatPoll",
 				"l": "Chat Polls",
 				"d": "Create quick polls chatters can vote on directly from the chat.\nDifferences with native Twitch polls:<ul><li>Title is optional</li><li>No automod</li><li>Up to 20 answers</li><li>Allow chatters to vote for multiple answers</li><li>Allow only subs/mods/vips/etc to vote</li></ul>Comes with a dedicated overlay.",
+				"v": "update_images/chat_poll.mp4",
 				"a": {
 					"l": "Try",
 					"param": "overlays",
@@ -40,7 +42,8 @@
 			{
 				"i": "timer",
 				"l": "Timers",
-				"d": "Create up to 100 timers and countdown.\nComes with <strong>new overlay</strong> for basic customization and a new render style for countdown.\nTimers's states will be restored after reloading Twitchat.\n\nYou could use it to create Subathon by adding time to a countdown everytime subs or bits are received.",
+				"d": "Create up to 100 timers and countdowns.\nComes with <strong>new overlay</strong> for basic customization and a new render style for countdowns.\nTimers's states will be restored after reloading Twitchat.\n\nYou could use it to create Subathon by adding time to a countdown everytime subs or bits are received.",
+				"g": "update_images/timers.png",
 				"a": {
 					"l": "Try",
 					"param": "timers"
@@ -60,7 +63,8 @@
 			{
 				"i": "elgato",
 				"l": "Stream Deck",
-				"d": "New buttons:<ul><li>Highlight top-most Q&A entry on overlay</li><li>Skip top-most Q&A entry</li><li>Close !alert message <i style='font-size:.7em'>(see settings => chat features => enable chat alerts)</i></li></ul><a href='https://marketplace.elgato.com/product/twitchat-820f1bb5-465d-408b-aabf-2d46a05a10d9' target='_blank'>Download Stream Deck plugin</a>"
+				"d": "New buttons:<ul><li>Highlight top-most Q&A entry on overlay</li><li>Skip top-most Q&A entry</li><li>Close !alert message <i style='font-size:.7em'>(see settings => chat features => enable chat alerts)</i></li></ul>",
+				"g": "update_images/stream_deck.png"
 			},
 			{
 				"i": "sad",

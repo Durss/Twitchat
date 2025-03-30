@@ -32,6 +32,7 @@
 		"timer": {
 			"header": "Créez des minuteurs, contrôlez-les depuis les Triggers, et affichez leur état sur votre stream",
 			"default_timer": "Cet overlay est lié aux commandes {CMD}",
+			"default_title": "Mon minuteur",
 			"css": "Changez l'apparence via ces sélecteurs CSS",
 			"createTimer_bt": "Créez un minuteur",
 			"param_style": "Style d'affichage",

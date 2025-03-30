@@ -32,6 +32,7 @@
 		"timer": {
 			"header": "Create timers, control them from Triggers, and display their status on your stream",
 			"default_timer": "This overlay is tied with {CMD} commands",
+			"default_title": "My timer",
 			"css": "Change the appearance of the timer with these CSS selectors",
 			"createTimer_bt": "Create a timer",
 			"param_style": "Overlay style",

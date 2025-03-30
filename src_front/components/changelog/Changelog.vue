@@ -86,8 +86,15 @@
 								<MessageItem v-for="mess in charityFakeMessages" :messageData="mess" lightMode disableConversation />
 							</div>
 
+							<TTButton type="link" class="elgato"
+								v-if="item.i == 'elgato'"
+								big
+								target="_blank"
+								href="https://marketplace.elgato.com/product/twitchat-820f1bb5-465d-408b-aabf-2d46a05a10d9"
+								icon="elgato">{{ $t("changelog.streamdeck_plugin") }}</TTButton>
+
 							<!-- <ChangelogLabels v-if="item.i=='label' && currentSlide == index" /> -->
-							<Changelog3rdPartyAnim v-if="item.i=='offline' && currentSlide == index" />
+							<!-- <Changelog3rdPartyAnim v-if="item.i=='offline' && currentSlide == index" /> -->
 
 							<template v-if="item.p === true || item.i == 'donate'">
 								<TTButton secondary icon="coin" @click="$store.params.openParamsPage(contentDonate)" v-if="item.i == 'donate'">{{ $t("params.categories.donate") }}</TTButton>
@@ -722,6 +729,17 @@ export default toNative(Changelog);
 		}
 		&:hover {
 			background-color: #ee0000;
+		}
+	}
+
+	.elgato {
+		:deep(.background) {
+			background-color: #1c40ff !important;
+		}
+		&:hover {
+			:deep(.background) {
+				background-color: lighten(#1c40ff, 10%) !important;
+			}
 		}
 	}
 

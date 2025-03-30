@@ -4,6 +4,7 @@
 		"title": "Nouveautés",
 		"heat_details": "{LINK} est une extensions Twitch permettant à vos viewers de cliquer sur votre stream.Twitchat vous simplifie désormais grandement son usage.",
 		"heat_details_link": "Heat",
+		"streamdeck_plugin": "Plugin Stream Deck",
 		"highlights": [
 			{
 				"i": "animate",
@@ -31,6 +32,7 @@
 				"i": "chatPoll",
 				"l": "Sondages de Chat",
 				"d": "Créez des sondages rapides auxquels les spectateurices peuvent voter directement depuis le chat.\n\nDifférences avec les sondages natifs de Twitch :<ul><li>Le titre est optionnel</li><li>Pas d'automod</li><li>Jusqu'à 20 réponses</li><li>Permettre aux spectateurices de voter pour plusieurs réponses</li><li>Permettre uniquement aux subs/mods/vips/etc de voter</li></ul>Propose un overlay dédié.",
+				"v": "update_images/chat_poll.mp4",
 				"a": {
 					"l": "Essayer",
 					"param": "overlays",
@@ -41,6 +43,7 @@
 				"i": "timer",
 				"l": "Minuteurs",
 				"d": "Créez jusqu'à 100 minuteurs et comptes à rebours.\nLivré avec un <strong>nouvel overlay</strong> pour une personnalisation basique et un nouveau style de rendu pour les comptes à rebours.\nLes états des minuteurs seront restaurés après rechargement de Twitchat.\n\nVous pourriez utiliser ce système pour créer un Subathon en ajoutant du temps à un compte à rebours à chaque fois que des subs ou bits sont reçus.",
+				"g": "update_images/timers.png",
 				"a": {
 					"l": "Essayer",
 					"param": "timers"
@@ -60,7 +63,8 @@
 			{
 				"i": "elgato",
 				"l": "Stream Deck",
-				"d": "Nouveaux boutons :<ul><li>Mettre en surbrillance l'entrée Q&R la plus haute sur l'overlay</li><li>Passer l'entrée Q&R la plus haute</li><li>Fermer le message !alert\n<i style='font-size:.7em; margin-top:-.35em; display:block'>(voir paramètres => fonctionnalités du chat => activer les alertes de chat)</i></li></ul><a href='https://marketplace.elgato.com/product/twitchat-820f1bb5-465d-408b-aabf-2d46a05a10d9' target='_blank'>Télécharger le plugin Stream Deck</a>"
+				"d": "Nouveaux boutons :<ul><li>Mettre en surbrillance l'entrée Q&R la plus haute sur l'overlay</li><li>Passer l'entrée Q&R la plus haute</li><li>Fermer le message !alert\n<i style='font-size:.7em; margin-top:-.35em; display:block'>(voir paramètres => fonctionnalités du chat => activer les alertes de chat)</i></li></ul>",
+				"g": "update_images/stream_deck.png"
 			},
 			{
 				"i": "sad",
