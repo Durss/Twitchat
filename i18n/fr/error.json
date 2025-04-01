@@ -120,7 +120,7 @@
 		"streamelements_connect_failed": "Authentification Streamelements échouée.",
 		"patreon_connect_failed": "Authentification Patreon échouée.",
 		"twitch_bot_connect_failed": "Authentification avec votre ccompte Twitch de bot échouée.",
-		"bingo_grid_404": "Grille de bingo introuvable",
+		"bingo_grid_404": "Grille de bingo introuvable ou désactivée",
 		"qna_action": "Une erreur est survenue lors de l'exécution d'une action de modération de questions/réponses",
 		"spoil_action": "Une erreur est survenue lors du marquage comme spoiler du message chez la/le streamer",
 		"sse_error": "Une erreur est survenue lors de la connexion aux évènements temps réel.\nLe {APP} risque de ne pas fonctionner correctement.\nDésactivez vos ad-blockers pour cette page et rechargez-la.",

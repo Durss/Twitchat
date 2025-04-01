@@ -789,7 +789,7 @@
 			"my_stream_live": "Suis-je en live ?",
 			"stream_title": "Titre du stream",
 			"stream_category": "Catégorie du stream",
-			"stream_viewers": "Nombre de viewers",
+			"stream_viewers": "Nombre de raiders",
 			"stream_duration": "Durée du stream en millisecondes",
 			"stream_duration_str": "Durée du stream formatée",
 			"stream_live": "\"true\" si la personne était en stream au moment du raid",

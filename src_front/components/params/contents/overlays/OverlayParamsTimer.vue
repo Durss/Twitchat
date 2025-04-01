@@ -15,7 +15,7 @@
 		<section class="timerList">
 			<ToggleBlock v-for="entry in $store.timers.timerList"
 			:title="entry.title"
-			:titleDefault="$t('overlay.labels.default_title')"
+				:titleDefault="$t('overlay.timer.default_title')"
 			:titleMaxLengh="30"
 			:open="false"
 			:key="entry.id">

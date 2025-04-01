@@ -117,7 +117,7 @@
 		"kofi_disconnect_failed": "Something went wrong when disconnecting from Ko-fi.",
 		"lumia_connect_failed": "Connection to Lumia Stream failed.\nMake sure Lumia Stream is started and token is valid.",
 		"streamelements_denied": "You refused access to your Streamelements profile.",
-		"bingo_grid_404": "Bingo grid not found",
+		"bingo_grid_404": "Bingo grid not found or disabled",
 		"streamelements_connect_failed": "Streamelements authentication failed",
 		"patreon_connect_failed": "Patreon authentication failed",
 		"twitch_bot_connect_failed": "Failed connecting to your Twitch bot account",
