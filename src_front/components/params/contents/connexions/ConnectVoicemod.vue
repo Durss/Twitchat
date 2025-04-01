@@ -43,6 +43,7 @@
 							<a @click="$store.params.openParamsPage(contentTriggers)">{{ $t("voicemod.voices_triggers_link") }}</a>
 						</template>
 					</i18n-t>
+					<div class="loader center" v-if="loadingList"><Icon name="loader" /></div>
 					<ParamItem class="item param voiceEffect" v-for="p in voiceParams" :paramData="p" @change="saveData()" />
 				</section>
 			</template>
@@ -62,6 +63,7 @@ import PermissionsForm from '../../../PermissionsForm.vue';
 import type { VoicemodTypes } from '@/utils/voice/VoicemodTypes';
 import Icon from '@/components/Icon.vue';
 import type IParameterContent from '../IParameterContent';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -74,6 +76,7 @@ import type IParameterContent from '../IParameterContent';
 })
 class ConnectVoicemod extends Vue implements IParameterContent {
 
+	public loadingList:boolean = false;
 	public connected:boolean = false;
 	public connecting:boolean = false;
 	public connectionFailed:boolean = false;
@@ -157,6 +160,7 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 	public async populate():Promise<void> {
 		this.voices = VoicemodWebSocket.instance.voices;
 		this.voiceParams = [];
+		this.loadingList = true;
 		const storeParams = this.$store.voice.voicemodParams as TwitchatDataTypes.VoicemodParamsData;
 
 		//Build hashmap for faster access
@@ -166,18 +170,23 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 
 		this.loadTotal = this.voices.length;
 		this.loadCount = 0;
+		let prevBatchIndex = 0;
 		for (let i = 0; i < this.loadTotal; i++) {
 			const v = this.voices[i];
+			const batchIndex = Math.floor(i / 20);
+			if(prevBatchIndex !== batchIndex) {
+				prevBatchIndex = batchIndex;
+				await Utils.promisedTimeout(100);
+			}
 			this.addVoiceTolist(v);
 		}
-		this.saveData();
+		this.loadingList = false;
 	}
 
 	/**
 	 * Save current configs
 	 */
 	public saveData():void {
-		console.log("SAVE")
 		let commandToVoiceID:{[key:string]:string} = {};
 
 		for (let i = 0; i < this.voiceParams.length; i++) {
@@ -314,6 +323,14 @@ export default toNative(ConnectVoicemod);
 
 		&.error {
 			text-align: center;
+		}
+	}
+
+	.loader {
+		margin: auto;
+		height: 1.5em;
+		.icon {
+			height: 100%;
 		}
 	}
 
