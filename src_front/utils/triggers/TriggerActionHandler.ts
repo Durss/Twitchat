@@ -1683,7 +1683,7 @@ export default class TriggerActionHandler {
 							}
 
 							if(step.screenshotImgMode == "save") {
-								const path = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.screenshotImgSavePath || "", subEvent);
+								const path = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.screenshotImgSavePath || "", subEvent, true, true);
 								if(!path) {
 									logStep.messages.push({date:Date.now(), value:"❌ Cannot save screenshot, File Path information is missing."});
 									log.error = true;
@@ -3723,7 +3723,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	public async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholders:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false, removeHTMLtags:boolean = true, escapeDoubleQuotes:boolean = false):Promise<string> {
+	public async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholders:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, sanitizeFolderPath:boolean = false, removeHTMLtags:boolean = true, escapeDoubleQuotes:boolean = false):Promise<string> {
 		let res = src.toString();
 		if(!res) return "";
 		//If there are no placeholder, ignore
@@ -3744,7 +3744,9 @@ export default class TriggerActionHandler {
 		//Here we use that value
 		for (const key in dynamicPlaceholders) {
 			const keySafe = key.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-			res = res.replace(new RegExp("\\{"+keySafe+"\\}", "gi"), (dynamicPlaceholders[key] || "").toString() ?? "");
+			let replacement = (dynamicPlaceholders[key] || "").toString();
+			if(sanitizeFolderPath) replacement = Utils.makeFileSafe(replacement);
+			res = res.replace(new RegExp("\\{"+keySafe+"\\}", "gi"), replacement);
 		}
 
 		try {
@@ -4110,9 +4112,7 @@ export default class TriggerActionHandler {
 					value = value.replace(new RegExp(subEvent_regSafe, "i"), "").trim();
 				}
 
-				if(typeof value == "string" && removeFolderNavigation) {
-					value = value.replace(/(\.\.|\/|\\)/gi, "");//Avoid folders navigation
-				}
+				if(typeof value == "string" && sanitizeFolderPath) value = Utils.makeFileSafe(value);
 
 				if(typeof value != "string") value = JSON.stringify(value);
 

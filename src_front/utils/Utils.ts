@@ -908,4 +908,22 @@ export default class Utils {
 		}
 		return true;
 	}
+
+	/**
+	 * Make string "file name" safe by removing invalid characters
+	 */
+	public static makeFileSafe(str: string): string {
+		// Remove or replace invalid filename characters
+		return str
+			// Replace characters invalid in Windows filenames
+			.replace(/[<>:"/\\|?*]/g, '')
+			// Replace spaces and dots with underscores
+			.replace(/[\s.]+/g, '_')
+			// Remove non-printable characters
+			.replace(/[^\x20-\x7E]/g, '')
+			// Trim underscores and dashes from start/end
+			.replace(/^[-_]+|[-_]+$/g, '')
+			// Ensure the string is not empty
+			|| 'unnamed';
+	}
 }
