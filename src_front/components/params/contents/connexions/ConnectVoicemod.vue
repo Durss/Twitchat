@@ -210,12 +210,15 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 		this.param_voiceIndicator.value = params.voiceIndicator;
 
 		const storedPermissions = params.chatCmdPerms;
-		this.permissions.mods = storedPermissions?.mods;
-		this.permissions.vips = storedPermissions?.vips;
-		this.permissions.subs = storedPermissions?.subs;
-		this.permissions.all = storedPermissions?.all;
-		this.permissions.usersAllowed = storedPermissions?.usersAllowed;
-		this.permissions.usersRefused = storedPermissions?.usersRefused;
+		this.permissions.broadcaster = storedPermissions.broadcaster;
+		this.permissions.mods = storedPermissions.mods;
+		this.permissions.vips = storedPermissions.vips;
+		this.permissions.subs = storedPermissions.subs;
+		this.permissions.all = storedPermissions.all;
+		this.permissions.follower = storedPermissions.follower;
+		this.permissions.follower_duration_ms = storedPermissions.follower_duration_ms;
+		this.permissions.usersAllowed = storedPermissions.usersAllowed;
+		this.permissions.usersRefused = storedPermissions.usersRefused;
 	}
 
 	private addVoiceTolist(v:VoicemodTypes.Voice):void {
