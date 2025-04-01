@@ -1,7 +1,7 @@
 <template>
 	<div class="paramsvoicemod parameterContent">
 		<Icon name="voicemod" class="icon" />
-		
+
 		<div class="head">
 			<i18n-t scope="global" tag="div" keypath="voicemod.header">
 				<template #LINK>
@@ -25,7 +25,7 @@
 
 			<template v-if="connected">
 				<Splitter>{{ $t("voicemod.params_title") }}</Splitter>
-	
+
 				<section>
 					<ParamItem class="item" :paramData="param_voiceIndicator" v-model="param_voiceIndicator.value" @change="saveData()" />
 					<div class="card-item">
@@ -33,9 +33,9 @@
 						<PermissionsForm class="item users" v-model="permissions" @change="saveData()" />
 					</div>
 				</section>
-	
+
 				<Splitter>{{ $t("voicemod.voices_title") }}</Splitter>
-	
+
 				<section>
 					<div class="item center">{{ $t("voicemod.voices_infos") }}</div>
 					<i18n-t scope="global" tag="div" class="item small" keypath="voicemod.voices_triggers">
@@ -54,7 +54,7 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
-import type { CSSProperties } from 'vue';
+import { reactive, type CSSProperties } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import Splitter from '../../../Splitter.vue';
 import ParamItem from '../../ParamItem.vue';
@@ -96,8 +96,8 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 	private loadCount:number = 0;
 	private loadTotal:number = 0;
 	private voiceIdToCommand:{[key:string]:string} = {};
-	
-	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; } 
+
+	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; }
 
 	public get holderStyles():CSSProperties {
 		return {
@@ -134,18 +134,18 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 		this.connected = false;
 		this.connecting = true;
 		this.connectionFailed = false;
-		let res = false;
+		let connected = false;
 		try {
 			await VoicemodWebSocket.instance.connect();
-			res = true;
+			connected = true;
 		}catch(error) {}
 
-		this.connected = res;
+		this.connected = connected;
 		this.connecting = false;
-		if(res) {
+		if(connected) {
 			this.populate();
 		}
-		if(!res) {
+		if(!connected) {
 			this.connectionFailed = true;
 		}
 	}
@@ -168,22 +168,17 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 		this.loadCount = 0;
 		for (let i = 0; i < this.loadTotal; i++) {
 			const v = this.voices[i];
-			if(!v.bitmapChecksum) {
-				this.addVoiceTolist(v);
-				continue;
-			}
-			VoicemodWebSocket.instance.getBitmapForVoice(v.id).then((img:string)=>{
-				this.addVoiceTolist(v, img);
-			});
+			this.addVoiceTolist(v);
 		}
 		this.saveData();
 	}
-	
+
 	/**
 	 * Save current configs
 	 */
 	public saveData():void {
-		const commandToVoiceID:{[key:string]:string} = {};
+		console.log("SAVE")
+		let commandToVoiceID:{[key:string]:string} = {};
 
 		for (let i = 0; i < this.voiceParams.length; i++) {
 			const p = this.voiceParams[i];
@@ -191,6 +186,9 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 			if(cmd.length > 0) {
 				commandToVoiceID[cmd] = p.storage!.id;
 			}
+		}
+		if(Object.keys(commandToVoiceID).length === 0) {
+			commandToVoiceID = this.$store.voice.voicemodParams.commandToVoiceID
 		}
 
 		const data:TwitchatDataTypes.VoicemodParamsData = {
@@ -208,7 +206,7 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 	private prefill():void {
 		const params:TwitchatDataTypes.VoicemodParamsData = this.$store.voice.voicemodParams;
 		this.param_enabled.value = params.enabled === true;
-		
+
 		this.param_voiceIndicator.value = params.voiceIndicator;
 
 		const storedPermissions = params.chatCmdPerms;
@@ -220,16 +218,20 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 		this.permissions.usersRefused = storedPermissions?.usersRefused;
 	}
 
-	private addVoiceTolist(v:VoicemodTypes.Voice, img?:string):void {
-		const data:TwitchatDataTypes.ParameterData<string> = {
+	private addVoiceTolist(v:VoicemodTypes.Voice):void {
+		const data:TwitchatDataTypes.ParameterData<string> = reactive({
 			type: "string",
 			storage: v,
 			label: v.friendlyName,
 			value: this.voiceIdToCommand[v.id] ?? "",
 			placeholder: "!command",
 			maxLength: 50,
-			iconURL: img? "data:image/png;base64," + img : ""
-		};
+			icon: "loader",
+		});
+		VoicemodWebSocket.instance.getBitmapForVoice(v.id).then((img:string)=>{
+			data.icon = undefined;
+			data.iconURL = "data:image/png;base64," + img;
+		});
 		this.voiceParams.push( data );
 		this.voiceParams.sort((a, b)=> {
 			if(a.storage!.friendlyName < b.storage!.friendlyName) return -1;
@@ -251,7 +253,7 @@ export default toNative(ConnectVoicemod);
 	}
 
 	section {
-		
+
 		.item {
 			&:not(:first-child) {
 				margin-top: .5em;
@@ -288,11 +290,8 @@ export default toNative(ConnectVoicemod);
 				:deep(.inputHolder) {
 					max-width: 150px;
 				}
-				:deep(input) {
-					max-width: 150px;
-				}
 				:deep(.paramIcon) {
-					height: 4em;
+					height: 2em;
 				}
 			}
 			&.param {
@@ -314,6 +313,6 @@ export default toNative(ConnectVoicemod);
 			text-align: center;
 		}
 	}
-	
+
 }
 </style>
