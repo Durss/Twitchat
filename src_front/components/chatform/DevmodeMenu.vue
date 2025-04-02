@@ -86,7 +86,7 @@
 			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_merch')" icon="streamlabs">Streamlabs merch</Button>
 			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_patreon')" icon="streamlabs">Streamlabs Patreon</Button>
 			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_charity')" icon="streamlabs">Streamlabs Charity</Button>
-			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_charity_spam')" icon="streamlabs">Streamlabs Charity spam</Button>
+			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_charity_spam')" icon="streamlabs">Streamlabs Ch. spam</Button>
 			<Button small @click="simulateEvent($event, 'kofi', 'kofi_donation')" icon="kofi">Kofi donation</Button>
 			<Button small @click="simulateEvent($event, 'kofi', 'kofi_merch')" icon="kofi">Kofi merch</Button>
 			<Button small @click="simulateEvent($event, 'kofi', 'kofi_sub')" icon="kofi">Kofi Sub</Button>
