@@ -3681,4 +3681,8 @@ export interface ICustomTrainActions {
 	 * Saves data to server
 	 */
 	saveData():void;
+	/**
+	 * Resets cooldown of given train
+	 */
+	resetCooldown(trainId:string):void;
 }

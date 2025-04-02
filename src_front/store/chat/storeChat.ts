@@ -1019,7 +1019,7 @@ export const storeChat = defineStore('chat', {
 					const translatable = message as TwitchatDataTypes.TranslatableMessage;
 					const text = translatable.message_chunks?.filter(v=>v.type == 'text').map(v=>v.value).join("").trim() || "";
 					if(text.length >= 4 && spokenLanguages.length > 0) {
-						//Check language of the message from the work
+						//Check language of the message from the worker
 						LandeWorker.instance.lande(text, (langs)=>{
 							const iso3 = langs[0][0] as keyof typeof TranslatableLanguagesMap;
 							//Force to english if confidence is too low as it tends to detect weird languages for basic english messages

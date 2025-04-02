@@ -155,6 +155,10 @@ export const storeCustomTrain = defineStore('customTrain', {
 						train.coolDownEnd_at = Date.now() + train.cooldownDuration_s * 1000;
 						train.expires_at = 0;
 						delete this.customTrainStates[train.id];
+
+						// Not enough activities to trigger the train
+						if(state.activities.length <= train.triggerEventCount) return;
+
 						// Set all time record if none exist yet
 						if(!train.testing && !train.allTimeRecord && level.index > 1) {
 							train.allTimeRecord = {
@@ -166,7 +170,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 						}
 						this.saveData();
 
-						const message:TwitchatDataTypes.MessageCustomTrainSummaryData = {
+						const notification:TwitchatDataTypes.MessageCustomTrainSummaryData = {
 							channel_id:StoreProxy.auth.twitch.user.id,
 							date:Date.now(),
 							id:Utils.getUUID(),
@@ -180,7 +184,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 							isRecord:train.allTimeRecord?.amount === state.amount,
 							activities:state.activities.concat(),
 						};
-						StoreProxy.chat.addMessage(message);
+						StoreProxy.chat.addMessage(notification);
 
 						if(train.postSuccessOnChat && train.postSuccessChatMessage) {
 							const message = train.postSuccessChatMessage
@@ -189,6 +193,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 							MessengerProxy.instance.sendMessage(message);
 						}
 					}, train.expires_at - Date.now());
+					console.log(train.expires_at)
 				}
 
 				// Init train state if not already initialized
@@ -199,7 +204,6 @@ export const storeCustomTrain = defineStore('customTrain', {
 						amount:0,
 						activities:[],
 					};
-					scheduleEnd();
 				}
 
 				// Get current level info
@@ -231,7 +235,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 
 				if(this.customTrainStates[train.id].activities.length == 0) {
 					// static 2 min 30 s cooldown for "approaching" validation
-					train.expires_at = Date.now() + 2.5 * 60 * 1000;
+					train.expires_at = Date.now() + 10 * 1000;
 					scheduleEnd();
 				}
 
@@ -381,6 +385,13 @@ export const storeCustomTrain = defineStore('customTrain', {
 				customTrainList:this.customTrainList,
 			};
 			DataStore.set(DataStore.CUSTOM_TRAIN_CONFIGS, data);
+		},
+
+		resetCooldown(trainId:string):void {
+			const train = this.customTrainList.find(t => t.id === trainId);
+			if(train) {
+				train.coolDownEnd_at = 0;
+			}
 		},
 
 	} as ICustomTrainActions

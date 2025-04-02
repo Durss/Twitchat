@@ -406,6 +406,7 @@ class OverlayCustomTrainRenderer extends Vue {
 
 		// const url = this.$asset("icons/leaderboard.svg");
 		watch(() => this.percent,  async (newPercent, oldPercent) => {
+			if(this.showApproaching) return;
 			if(this.showSuccess_local) return;
 			if(this.showFail_local) return;
 			if(this.recordPercent > -1 && newPercent > this.recordPercent) {

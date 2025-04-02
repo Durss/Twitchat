@@ -33,11 +33,11 @@
 
 				:levelName="configs.levelName"
 
-				:isRecord="isRecord"
+				:isRecord="!showApproaching && isRecord"
 				:eventDone="(state?.activities.length || 2) - 1"
-				:level="currentLevel.index"
-				:percent="progressPercent"
-				:amountLeft="Math.ceil(Math.max(0, 1-progressPercent) * currentLevel.goal)"
+				:level="showApproaching? 0 : currentLevel.index"
+				:percent="showApproaching? 0 : progressPercent"
+				:amountLeft="showApproaching? 0 : Math.ceil(Math.max(0, 1-progressPercent) * currentLevel.goal)"
 				:amountLeftFormat="configs.currency"
 				:expiresAt="configs.expires_at"
 				:recordPercent="recordPercent"

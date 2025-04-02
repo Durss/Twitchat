@@ -29,14 +29,26 @@
 			:open="false"
 			:key="entry.id"
 			@update:title="onChange(entry)">
+
+				<template #left_actions>
+					<ToggleButton v-model="entry.enabled" @change="onChange(entry)" @click.stop
+						v-if="$store.auth.isPremium || entry.enabled || $store.customTrain.customTrainList.filter(v=>v.enabled).length < $config.MAX_CUSTOM_TRAIN" />
+
+					<template v-if="train2Timer[entry.id]">
+						<div v-tooltip="train2Timer[entry.id].tooltip"
+						class="timer"
+						:class="{cooldown: train2Timer[entry.id].cooldown}"
+						@click.stop="train2Timer[entry.id].cooldown? $store.customTrain.resetCooldown(entry.id) : null">
+							<Icon name="timer" class="icon" />
+							<div class="value">{{ train2Timer[entry.id].timer }}</div>
+						</div>
+					</template>
+				</template>
+
 				<template #right_actions>
 					<div class="rightActions">
 						<TTButton @click.stop="$store.customTrain.deleteCustomTrain(entry.id)" icon="trash" alert />
 					</div>
-				</template>
-				<template #left_actions>
-					<ToggleButton v-model="entry.enabled" @change="onChange(entry)" @click.stop
-						v-if="$store.auth.isPremium || entry.enabled || $store.customTrain.customTrainList.filter(v=>v.enabled).length < $config.MAX_CUSTOM_TRAIN" />
 				</template>
 
 				<div class="content">
@@ -292,6 +304,7 @@ import ParamItem from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
 import CurrencyPatternInput from '@/components/CurrencyPatternInput.vue';
 import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -313,6 +326,8 @@ class OverlayParamsCustomTrain extends Vue {
 	public emoteSelector_y:string = "0";
 	public emoteSelector_x:string = "0";
 	public emoteSelectorOrigin:{x:number, y:number} = {x:0, y:0};
+	public train2Timer:Record<string, {timer:string, tooltip:string, cooldown:boolean}> = {};
+
 	public param_colorFill:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_colorBg:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_recordColorFill:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
@@ -332,10 +347,12 @@ class OverlayParamsCustomTrain extends Vue {
 	private emoteSelectorTarget:{entry:TwitchatDataTypes.CustomTrainData, step:"approaching"|"success"|"failed"|"levelUp"|"record"}|null = null;
 	private clickHandler!:(e:MouseEvent)=>void;
 	private keyHandler!:(e:KeyboardEvent)=>void;
+	private refreshInterval:number = -1;
 
 	public beforeMount():void {
 		this.initParams();
 
+		this.refreshInterval = window.setInterval(()=>this.refreshTimers(), 100);
 		this.clickHandler = (e:MouseEvent)=> this.onClick(e);
 		this.keyHandler = (e:KeyboardEvent)=> this.onKeyboardEvent(e);
 		document.addEventListener("click", this.clickHandler, true);
@@ -343,6 +360,7 @@ class OverlayParamsCustomTrain extends Vue {
 	}
 
 	public beforeUnmount():void {
+		clearInterval(this.refreshInterval);
 		document.removeEventListener("click", this.clickHandler, true);
 		document.removeEventListener("keydown", this.keyHandler, true);
 	}
@@ -503,6 +521,30 @@ class OverlayParamsCustomTrain extends Vue {
 			case "record":
 				this.emoteSelectorTarget.entry.recordEmote = url;
 				break;
+		}
+	}
+
+	/**
+	 * Refreshes the running timers values
+	 */
+	public refreshTimers():void {
+		for (const id in this.$store.customTrain.customTrainStates) {
+			const state = this.$store.customTrain.customTrainStates[id];
+		}
+		for (let i = 0; i < this.$store.customTrain.customTrainList.length; i++) {
+			const train = this.$store.customTrain.customTrainList[i];
+
+			const date = train.coolDownEnd_at > Date.now() ? train.coolDownEnd_at : train.expires_at;
+			if(date > Date.now()) {
+				const isCooldown = date == train.coolDownEnd_at;
+				this.train2Timer[train.id] = {
+					timer: Utils.formatDuration(date-Date.now(), true),
+					tooltip: isCooldown? this.$t("overlay.customTrain.state_cooldown_tt") : this.$t("overlay.customTrain.state_expire_tt"),
+					cooldown: isCooldown,
+				};
+			}else{
+				delete this.train2Timer[train.id];
+			}
 		}
 	}
 }
@@ -694,6 +736,27 @@ export default toNative(OverlayParamsCustomTrain);
 
 	.ctas {
 		text-align: center;
+	}
+
+	.timer {
+		gap: .5em;
+		display: flex;
+		text-align: center;
+		font-variant-numeric: tabular-nums;
+		align-self: stretch;
+		align-items: center;
+		margin: -.5em 0;
+		padding: 0 .5em;
+		font-size: .75em;
+		background-color: var(--color-primary-fade);
+
+		.icon {
+			width: 1em;
+		}
+
+		&.cooldown {
+			background-color: var(--color-secondary-fader);
+		}
 	}
 }
 </style>
