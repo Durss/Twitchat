@@ -73,7 +73,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 				colorFill:"#008667",
 				colorBg:"#cdfef2",
 				triggerEventCount:2,
-				textSize:30,
+				textSize:50,
 				textFont:"Inter",
 				postLevelUpOnChat:false,
 				approachingLabel:StoreProxy.i18n.t("overlay.customTrain.param_approachingLabel_default"),
@@ -168,7 +168,6 @@ export const storeCustomTrain = defineStore('customTrain', {
 								percent,
 							}
 						}
-						this.saveData();
 
 						const notification:TwitchatDataTypes.MessageCustomTrainSummaryData = {
 							channel_id:StoreProxy.auth.twitch.user.id,
@@ -183,6 +182,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 							percent,
 							isRecord:train.allTimeRecord?.amount === state.amount,
 							activities:state.activities.concat(),
+							fake:train.testing,
 						};
 						StoreProxy.chat.addMessage(notification);
 
@@ -192,6 +192,9 @@ export const storeCustomTrain = defineStore('customTrain', {
 								.replace(/\{AMOUNT\}/gi, Utils.formatCurrency(state.amount, train.currency))
 							MessengerProxy.instance.sendMessage(message);
 						}
+
+						train.testing = false;
+						this.saveData();
 					}, train.expires_at - Date.now());
 					console.log(train.expires_at)
 				}

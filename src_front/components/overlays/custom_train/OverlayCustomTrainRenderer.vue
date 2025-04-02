@@ -452,6 +452,10 @@ class OverlayCustomTrainRenderer extends Vue {
 			this.localLevelName = this.levelName;
 		}, {immediate:true});
 
+		watch(() => this.size,  () => {
+			this.createEmoteWall();
+		}, {immediate:true});
+
 		watch(() => this.isRecord,  () => {
 			if(this.isRecord && this.showRecord === false) {
 				this.recordAnimation();
