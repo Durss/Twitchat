@@ -24,7 +24,7 @@ export const storeTiktok = defineStore('tiktok', {
 
 
 	getters: {
-		
+
 	} as ITiktokGetters
 	& ThisType<UnwrapRef<ITiktokState> & _StoreWithGetters<ITiktokGetters> & PiniaCustomProperties>
 	& _GettersTree<ITiktokState>,
@@ -42,23 +42,23 @@ export const storeTiktok = defineStore('tiktok', {
 				this.connect();
 			}
 		},
-		
+
 		async connect():Promise<boolean> {
 			if(this.connected) return Promise.resolve(true);
 			clearTimeout(reconnectTimeout);
 			return new Promise<boolean>((resolve, reject) => {
 				initResolver = resolve;
 				socket = new WebSocket(`ws://${this.ip}:${this.port}/`);
-	
+
 				socket.onopen = () => {
 					// console.log('🎤 TikTok connection succeed');
 					this.connected = true;
 					initResolver(true);
 					this.saveConfigs();
 				};
-	
+
 				socket.onmessage = (event:any) => this.onEvent(event);
-	
+
 				socket.onclose = (e) => {
 					if(autoreconnect) {
 						// console.log('🎤 TikTok connection lost');
@@ -74,7 +74,7 @@ export const storeTiktok = defineStore('tiktok', {
 					this.connected = false;
 					initResolver(false);
 				}
-	
+
 				socket.onerror = (e) => {
 					this.connected = false;
 					initResolver(false);
@@ -82,7 +82,7 @@ export const storeTiktok = defineStore('tiktok', {
 				}
 			});
 		},
-		
+
 		disconnect():void {
 			clearTimeout(reconnectTimeout);
 			autoreconnect = false;
@@ -93,7 +93,7 @@ export const storeTiktok = defineStore('tiktok', {
 			}
 			DataStore.remove(DataStore.TIKTOK_CONFIGS)
 		},
-		
+
 		onEvent(event:MessageEvent):void {
 			let json:TikTokMessage
 			| TikTokGift
@@ -104,7 +104,7 @@ export const storeTiktok = defineStore('tiktok', {
 			| TikTokSub
 			| TikTokFollower = JSON.parse(event.data || ""); // Parse the JSON data
 			let user:TwitchatDataTypes.TwitchatUser|null = null;
-			
+
 			//join event with actionId=1 are empty objects, ignore them
 			//Particularly, there's an actionId=26 that regularly comes up
 			if(json.event == "member" && json.data.actionId != 1) return;
@@ -141,7 +141,7 @@ export const storeTiktok = defineStore('tiktok', {
 								id:"moderator",
 							});
 						}
-					} 
+					}
 				}catch(error) {
 					console.log(error);
 					console.log(json);
@@ -185,7 +185,7 @@ export const storeTiktok = defineStore('tiktok', {
 }
 */
 					let messageChunks:TwitchatDataTypes.ParseMessageChunk[] = [];//TwitchUtils.parseMessageToChunks(messageStr, [], false, "tiktok", true);
-					
+
 					// const parsedEmotes = TwitchUtils.parsedEmoteDataToRawEmoteData(json.data.emotes.map(e=>{
 					// 	return {
 					// 		emote_id:e.emoteId,
@@ -208,7 +208,7 @@ export const storeTiktok = defineStore('tiktok', {
 									});
 								}
 							}
-						
+
 							// Add the emote chunk
 							messageChunks.push({
 								type: "emote",
@@ -216,11 +216,11 @@ export const storeTiktok = defineStore('tiktok', {
 								emote: emote.emoteImageUrl,
 								emoteHD: emote.emoteImageUrl,
 							});
-						
+
 							// Update the current index to the position after the emote
 							currentIndex = emoteIndex;
 						});
-						
+
 						// Add the remaining text after the last emote
 						if (currentIndex < messageStr.length) {
 							messageChunks.push({
@@ -340,7 +340,7 @@ export const storeTiktok = defineStore('tiktok', {
 				}
 
 				case "roomUser": {
-					StoreProxy.stream.currentStreamInfo["tiktok"] = {//SUper dirty ""user""" ID I know :3
+					StoreProxy.stream.currentStreamInfo["tiktok"] = {//Super dirty """user""" ID I know :3. It should be an actual ID instead of "tiktok"
 						category:"",
 						lastSoDoneDate:0,
 						live:true,
@@ -358,7 +358,7 @@ export const storeTiktok = defineStore('tiktok', {
 				}
 			}
 		},
-		
+
 		saveConfigs():void {
 			const data:IStoreData = {
 				ip:this.ip,
@@ -366,7 +366,7 @@ export const storeTiktok = defineStore('tiktok', {
 			};
 			DataStore.set(DataStore.TIKTOK_CONFIGS, data);
 		},
-	
+
 	} as ITiktokActions
 	& ThisType<ITiktokActions
 		& UnwrapRef<ITiktokState>

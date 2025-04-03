@@ -226,25 +226,37 @@
 
 				<CommercialTimer />
 
-				<div v-if="$store.params.appearance.showViewersCount.value === true
-					&& (twitchViewerCount > 0 || tiktokViewerCount > 0)"
-					v-tooltip="{touch:'hold', content:$t('chat.form.viewer_count')}"
+				<tooltip v-if="$store.params.appearance.showViewersCount.value === true
+					&& (twitchViewerCount > 0 || tiktokViewerCount > 0 || youtubeViewerCount > 0)"
 					class="viewCount"
-					@click="censoredViewCount = !censoredViewCount"
-				>
-					<Icon class="icon" name="show"/>
-					<div v-if="twitchViewerCount > 0" class="platform">
-						<Icon name="twitch" v-if="tiktokViewerCount > 0" />
+					@click="censoredViewCount = !censoredViewCount">
+					<template #default="{ state }">
+						<Icon class="icon" name="show"/>
 						<p v-if="censoredViewCount" class="censor">xx</p>
-						<p v-if="!censoredViewCount">{{twitchViewerCount}}</p>
-					</div>
+						<p v-if="!censoredViewCount">{{ twitchViewerCount + tiktokViewerCount + youtubeViewerCount }}</p>
+					</template>
+					<template #content="{ hide }">
+						<div class="viewersCountList_tooltip">
+							<div v-if="twitchViewerCount > 0" class="platform">
+								<Icon name="twitch" v-if="tiktokViewerCount > 0" />
+								<p v-if="censoredViewCount" class="censor">xx</p>
+								<p v-if="!censoredViewCount">{{twitchViewerCount}}</p>
+							</div>
 
-					<div v-if="tiktokViewerCount > 0" class="platform">
-						<Icon name="tiktok" />
-						<p v-if="censoredViewCount" class="censor">xx</p>
-						<p v-if="!censoredViewCount">{{tiktokViewerCount}}</p>
-					</div>
-				</div>
+							<div v-if="tiktokViewerCount > 0" class="platform">
+								<Icon name="tiktok" />
+								<p v-if="censoredViewCount" class="censor">xx</p>
+								<p v-if="!censoredViewCount">{{tiktokViewerCount}}</p>
+							</div>
+
+							<div v-if="youtubeViewerCount > 0" class="platform">
+								<Icon name="youtube" />
+								<p v-if="censoredViewCount" class="censor">xx</p>
+								<p v-if="!censoredViewCount">{{youtubeViewerCount}}</p>
+							</div>
+						</div>
+					</template>
+				</tooltip>
 
 				<transition name="blink">
 					<ButtonNotification class="qna"
@@ -510,6 +522,13 @@ export class ChatForm extends Vue {
 		if(infos) return infos.viewers;
 		return 0;
 	}
+
+	public get youtubeViewerCount():number {
+		const infos = this.$store.stream.currentStreamInfo["youtube"];
+		if(infos) return infos.viewers;
+		return 0;
+	}
+
 	public get hasChannelPoints():boolean {
 		return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner;
 	}
@@ -644,6 +663,10 @@ export class ChatForm extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		this.censoredViewCount = DataStore.get(DataStore.CENSOR_VIEWER_COUNT) !== "false";
+		watch(()=>this.censoredViewCount, ()=> {
+			DataStore.set(DataStore.CENSOR_VIEWER_COUNT, this.censoredViewCount);
+		})
 		watch(()=>this.$store.chat.replyTo, ()=>{
 			if(this.$store.chat.replyTo) {
 				(this.$refs.input as HTMLInputElement).focus();
@@ -1546,13 +1569,6 @@ export default toNative(ChatForm);
 					height: 1em;
 					margin-right: .25em;
 				}
-				.platform {
-					display: flex;
-					flex-direction: row;
-					.icon {
-						margin-right: .15em;
-					}
-				}
 				.censor {
 					filter: blur(3px)
 				}
@@ -1635,6 +1651,26 @@ export default toNative(ChatForm);
 		&.slide-enter-from,
 		&.slide-leave-to {
 			transform: translate(-50%, 0);
+		}
+	}
+
+}
+
+// Keep it outside chatform scope
+.viewersCountList_tooltip {
+	display: flex;
+	flex-direction: column;
+	.platform {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		.icon {
+			height: 1em;
+			max-width: 1em;
+			margin-right: .25em;
+		}
+		.censor {
+			filter: blur(3px)
 		}
 	}
 }

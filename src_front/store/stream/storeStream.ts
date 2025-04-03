@@ -135,7 +135,7 @@ export const storeStream = defineStore('stream', {
 							StoreProxy.labels.updateLabelValue("STREAM_TITLE", infos.title);
 							StoreProxy.labels.updateLabelValue("STREAM_CATEGORY_NAME", categoryData.name);
 							StoreProxy.labels.updateLabelValue("STREAM_CATEGORY_COVER", categoryData.box_art_url.replace("{width}", "138").replace("{height}", "190"));
-							StoreProxy.labels.updateLabelValue("VIEWER_COUNT", infos.viewers);
+							StoreProxy.labels.updateLabelValue("VIEWER_COUNT_TWITCH", infos.viewers);
 						}
 					}
 				});

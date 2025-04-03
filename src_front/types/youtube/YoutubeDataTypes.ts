@@ -19,6 +19,9 @@ export interface YoutubeLiveBroadcast {
 		kind: string;
 		etag: string;
 		id: string;
+		statistics: {
+			concurrentViewers: string;
+		};
 		snippet: {
 			publishedAt: string;
 			channelId: string;
@@ -104,7 +107,7 @@ export interface YoutubeFollowerResult {
 /**
  * LiveChatMessage reference:
  * https://developers.google.com/youtube/v3/live/docs/liveChatMessages
- * 
+ *
  */
 export interface YoutubeMessages {
 	kind: string;
@@ -251,7 +254,7 @@ interface YoutubeSuperChatMessage extends AbstractYoutubeTextMessage {
 		 */
 		amountMicros: number;
 		/**
-		 * From 1 to 
+		 * From 1 to 11
 		 */
 		tier: number;
 		currency: string;
@@ -268,7 +271,7 @@ interface YoutubeSuperStickerMessage extends AbstractYoutubeTextMessage {
 		 */
 		amountMicros: number;
 		/**
-		 * From 1 to 10
+		 * From 1 to 11
 		 */
 		tier: number;
 		currency: string;

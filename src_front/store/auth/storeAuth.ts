@@ -294,7 +294,7 @@ export const storeAuth = defineStore('auth', {
 				const loadViewerCount = async ()=>{
 					const [res] = await TwitchUtils.getCurrentStreamInfo([this.twitch.user.id]);
 					if(res) {
-						StoreProxy.labels.updateLabelValue("VIEWER_COUNT", res.viewer_count);
+						StoreProxy.labels.updateLabelValue("VIEWER_COUNT_TWITCH", res.viewer_count);
 						StoreProxy.stream.setPlaybackState(this.twitch.user.id, res.viewer_count);
 					}
 				};

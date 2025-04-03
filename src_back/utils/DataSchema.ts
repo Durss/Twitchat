@@ -1184,6 +1184,7 @@ const UserDataSchema = {
 		},
 		v: {type:"number"},
 		saveVersion: {type:"number"},
+		censorViewerCount: {type:"boolean"},
 		collapseParamAdInfo: {type:"boolean"},
 		lang: {type:"string", maxLength:4},
 		theme: {type:"string", maxLength:10},

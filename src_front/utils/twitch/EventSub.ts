@@ -768,7 +768,7 @@ export default class EventSub {
 			}else{
 				StoreProxy.labels.updateLabelValue("STREAM_CATEGORY_COVER", "https://static-cdn.jtvnw.net/ttv-boxart/498566-138x190.jpg");
 			}
-			StoreProxy.labels.updateLabelValue("VIEWER_COUNT", viewers);
+			StoreProxy.labels.updateLabelValue("VIEWER_COUNT_TWITCH", viewers);
 		}
 
 		//This flag is here as a workaround for a sporadical twitch issue

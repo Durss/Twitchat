@@ -122,6 +122,7 @@ export default class DataStoreCommon {
 	public static TIMERS_CONFIGS:string = "timersConfigs";
 	public static ANIMATED_TEXT_CONFIGS:string = "animatedTextConfigs";
 	public static CUSTOM_TRAIN_CONFIGS:string = "customTrainConfigs";
+	public static CENSOR_VIEWER_COUNT:string = "censorViewerCount";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";

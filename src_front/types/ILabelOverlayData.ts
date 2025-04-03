@@ -47,6 +47,9 @@ export const LabelItemPlaceholderList = [
 	{tag:"SECONDS",								type:"seconds",	category:"date", descriptionKey:"overlay.labels.placeholders.SECONDS", backup:true} as const,
 
 	{tag:"VIEWER_COUNT",						type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.VIEWER_COUNT", backup:true} as const,
+	{tag:"VIEWER_COUNT_TWITCH",					type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.VIEWER_COUNT_TWITCH", backup:true} as const,
+	{tag:"VIEWER_COUNT_YOUTUBE",				type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.VIEWER_COUNT_YOUTUBE", backup:true} as const,
+	{tag:"VIEWER_COUNT_TIKTOK",					type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.VIEWER_COUNT_TIKTOK", backup:true} as const,
 	{tag:"FOLLOWER_COUNT",						type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.FOLLOWER_COUNT", backup:true} as const,
 	{tag:"SUB_COUNT",							type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUB_COUNT", backup:true} as const,
 	{tag:"SUB_POINTS",							type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUB_POINTS", backup:true} as const,

@@ -561,6 +561,9 @@
 				"STREAM_DURATION": "Durée du stream en cours",
 				"STREAM_TITLE": "Titre du stream en cours",
 				"VIEWER_COUNT": "Viewers total",
+				"VIEWER_COUNT_TWITCH": "Viewers Twitch",
+				"VIEWER_COUNT_YOUTUBE": "Viewers YouTube",
+				"VIEWER_COUNT_TIKTOK": "Viewers TikTok",
 				"STREAM_CATEGORY_NAME": "Catégorie du stream - Titre",
 				"STREAM_CATEGORY_COVER": "Catégorie du stream - Image",
 

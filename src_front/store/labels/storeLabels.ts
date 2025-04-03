@@ -113,6 +113,13 @@ export const storeLabels = defineStore('labels', {
 		},
 
 		getLabelByKey(key:typeof LabelItemPlaceholderList[number]["tag"]):string|number|undefined {
+			// Special case for generic viewer count, return the sum of all platforms
+			if(key == "VIEWER_COUNT") {
+				let twitch = this.getLabelByKey("VIEWER_COUNT_TWITCH") as number || 0;
+				let youtube = this.getLabelByKey("VIEWER_COUNT_YOUTUBE") as number || 0;
+				let tiktok = this.getLabelByKey("VIEWER_COUNT_TIKTOK") as number || 0;
+				return twitch + youtube + tiktok;
+			}
 			return this.placeholders[key]?.value;
 		},
 

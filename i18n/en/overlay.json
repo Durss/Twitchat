@@ -562,6 +562,9 @@
 				"STREAM_DURATION": "Stream duration",
 				"STREAM_TITLE": "Stream title",
 				"VIEWER_COUNT": "Viewer count",
+				"VIEWER_COUNT_TWITCH": "Viewer count Twitch",
+				"VIEWER_COUNT_YOUTUBE": "Viewer count YouTube",
+				"VIEWER_COUNT_TIKTOK": "Viewer count TikTok",
 				"STREAM_CATEGORY_NAME": "Stream category - Title",
 				"STREAM_CATEGORY_COVER": "Stream category - Image",
 
