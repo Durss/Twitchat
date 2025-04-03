@@ -238,7 +238,7 @@
 					<template #content="{ hide }">
 						<div class="viewersCountList_tooltip">
 							<div v-if="twitchViewerCount > 0" class="platform">
-								<Icon name="twitch" v-if="tiktokViewerCount > 0" />
+								<Icon name="twitch" />
 								<p v-if="censoredViewCount" class="censor">xx</p>
 								<p v-if="!censoredViewCount">{{twitchViewerCount}}</p>
 							</div>
