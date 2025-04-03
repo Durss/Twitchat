@@ -75,7 +75,7 @@
 			{
 				"i": "label",
 				"l": "Labels",
-				"d": "7 new labels available on the Labels overlay.<ul><li>Generic follower ID, name and avatar <i>(last follower for all platforms)</i></li><li>TkTok follower name and avatar</li><li>YouTube follower name and avatar</li></ul>",
+				"d": "10 new labels available on the Labels overlay.<ul><li>Generic follower ID, name and avatar <i style='font-size:.7em; margin-top:-.35em; display:block'>(last follower for all platforms)</i></li><li>TkTok follower name and avatar</li><li>YouTube follower name and avatar</li><li>Twitch/YouTube/TikTok viewer counts</li></ul>",
 				"a": {
 					"l": "Try",
 					"param": "overlays",

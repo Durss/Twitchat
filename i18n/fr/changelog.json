@@ -20,7 +20,7 @@
 			{
 				"i": "train",
 				"l": "Hype Train Personnalisé",
-				"d": "Créez des Trains de la Hype personnalisés basés sur les dons provenant de plateformes externes.\n\nPrincipalement conçu pour les DJs qui perdront bientôt la majorité de leurs revenus, cela leur permet de bénéficier des Trains de la Hype tout en gagnant réellement de l'argent",
+				"d": "Créez des Trains de la Hype personnalisés basés sur les dons provenant de plateformes externes.\n\nPrincipalement conçu pour les DJs qui perdront bientôt la majorité de leurs revenus, cela leur permet de bénéficier du système de Trains de la Hype sans donner tous leurs revenus à Twitch.",
 				"v": "update_images/custom_train.mp4",
 				"a": {
 					"l": "Essayer",
@@ -75,7 +75,7 @@
 			{
 				"i": "label",
 				"l": "Labels",
-				"d": "7 nouvelles informations disponibles pour l'overlay de Labels.<ul><li>ID, nom et avatar génériques du dernier follower \n<i style='font-size:.7em; margin-top:-.35em; display:block'>(dernier follower pour toutes les plateformes)</i></li><li>Nom et avatar du dernier follower TikTok</li><li>Nom et avatar du dernier follower YouTube</li></ul>",
+				"d": "10 nouvelles informations disponibles pour l'overlay de Labels.<ul><li>ID, nom et avatar génériques du dernier follower \n<i style='font-size:.7em; margin-top:-.35em; display:block'>(dernier follower pour toutes les plateformes)</i></li><li>Nom et avatar du dernier follower TikTok</li><li>Nom et avatar du dernier follower YouTube</li><li>Nombre de viewers Twitch/YouTube/TikTok</li></ul>",
 				"a": {
 					"l": "Essayer",
 					"param": "overlays",

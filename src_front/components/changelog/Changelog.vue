@@ -78,14 +78,6 @@
 								</i18n-t>
 							</div>
 
-							<div v-if="item.i=='tiktok'" class="card-item messageList">
-								<MessageItem v-for="mess in tikTokFakeMessages" :messageData="mess" lightMode disableConversation />
-							</div>
-
-							<div v-if="item.i=='charity'" class="card-item messageList">
-								<MessageItem v-for="mess in charityFakeMessages" :messageData="mess" lightMode disableConversation />
-							</div>
-
 							<TTButton type="link" class="elgato"
 								v-if="item.i == 'elgato'"
 								big
@@ -166,12 +158,12 @@ class Changelog extends Vue {
 	public readAtSpeedOfLight:boolean = false;
 	public currentSlide:number = 0;
 	public buildIndex:number = 0;
-	public tikTokFakeMessages:TwitchatDataTypes.ChatMessageTypes[] = [];
-	public charityFakeMessages:TwitchatDataTypes.ChatMessageTypes[] = [];
 
 	private openedAt = 0;
 	private closing:boolean = false;
-	private slideCountRead = new Map();
+	private slideCountRead = new Map<number, boolean>();
+	private slideIndexToDuration = new Map<number, number>();
+	private durationsUpdateTO = -1;
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
 
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
@@ -220,7 +212,7 @@ class Changelog extends Vue {
 		document.addEventListener("keyup", this.keyUpHandler);
 		this.skinPagination();
 
-		//Stagger items build ot avoid lag on open
+		//Stagger items build to avoid lag on open
 		let interval = window.setInterval(()=> {
 			this.buildIndex += 2;
 			if(this.buildIndex >= this.items.length) {
@@ -228,28 +220,14 @@ class Changelog extends Vue {
 			}
 		}, 200);
 
-		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=>{
-			message.platform = "tiktok";
-			this.tikTokFakeMessages.push(message);
-		}, false);
-		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.TIKTOK_SUB, (message)=>{
-			this.tikTokFakeMessages.push(message);
-		}, false);
-		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT, (message)=>{
-			this.tikTokFakeMessages.push(message);
-		}, false);
-		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.TIKTOK_LIKE, (message)=>{
-			this.tikTokFakeMessages.push(message);
-		}, false);
-		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.TIKTOK_SHARE, (message)=>{
-			this.tikTokFakeMessages.push(message);
-		}, false);
-		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION, (message)=>{
-			this.charityFakeMessages.push(message);
-		}, false);
+		this.durationsUpdateTO = window.setInterval(() => {
+			const duration = this.slideIndexToDuration.get(this.currentSlide) || 0;
+			this.slideIndexToDuration.set(this.currentSlide, duration + 250);
+		}, 250);
 	}
 
 	public beforeUnmount():void {
+		window.clearInterval(this.durationsUpdateTO);
 		document.removeEventListener("keyup", this.keyUpHandler);
 	}
 
