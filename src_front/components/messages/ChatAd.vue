@@ -9,10 +9,10 @@
 				<div class="content" v-html="isDonateReminder? $t('chat.sponsor.head_reminder') : $t('chat.sponsor.head')"></div>
 				<div class="ctas">
 					<img @click.stop="openParamPage(contentDonate)" src="@/assets/img/eating.gif" alt="nomnom" class="sponsorGif">
-					
+
 					<TTButton primary light :aria-label="$t('chat.sponsor.tipBt_aria')"
 					@click.stop="openParamPage(contentDonate)">{{ $t('chat.sponsor.tipBt') }}</TTButton>
-					
+
 					<template v-if="!isDonateReminder">
 						<TTButton v-if="!$store.params.donationReminderEnabled" light primary
 							@click.stop="$store.params.donationReminderEnabled = true" icon="timer">{{ $t('chat.sponsor.remind_meBt') }}</TTButton>
@@ -20,17 +20,15 @@
 					</template>
 				</div>
 			</div>
-	
+
 			<div v-if="isTip" class="card-item primary tip">
 				<div class="header">
 					<ClearButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" />
 					<div class="title">{{ $t("tips.title") }}</div>
 				</div>
-				<ChatTipAndTrickAd class="content"
-					@showModal="(v:string)=> $emit('showModal', v)"
-				/>
+				<ChatTipAndTrickAd class="content" />
 			</div>
-	
+
 			<div v-if="isDiscord" class="card-item primary discord">
 				<div class="header">
 					<ClearButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" />
@@ -47,7 +45,7 @@
 						type="link">{{ $t('chat.discord.joinBt') }}</TTButton>
 				</div>
 			</div>
-	
+
 			<div v-if="isAdWarning" class="card-item primary">
 				<div class="header">
 					<ClearButton :aria-label="$t('chat.closeBt_aria')" @click.stop="showConfirm? showConfirm = false : confirmGngngnClose()" />
@@ -67,7 +65,7 @@
 					<TTButton primary @click="openModal('gngngn')">{{ $t('chat.adalert.unacceptableBt') }}</TTButton>
 				</div>
 			</div>
-	
+
 			<div v-if="isSponsorPublicPrompt" class="card-item primary sponsorPrompt">
 				<div class="header">
 					<ClearButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" />
@@ -95,7 +93,7 @@
 						v-if="!madeDonationPublic">{{ $t('chat.donor.publicBt') }}</TTButton>
 				</div>
 			</div>
-	
+
 			<div v-if="isUpdateReminder" class="card-item primary updateReminder">
 				<div class="content">
 					<img src="@/assets/icons/firstTime.svg" class="icon small">
@@ -109,7 +107,7 @@
 					<TTButton @click="openModal('updates')" icon="firstTime" primary light>/updates</TTButton>
 				</div>
 			</div>
-	
+
 			<div v-if="isAdBreakScopeRequest" class="card-item primary adBreak">
 				<div class="header">
 					<ClearButton @click.stop="deleteMessage()" />
@@ -121,7 +119,7 @@
 				<div class="ctas">
 					<TTButton icon="lock_fit" light @click="grantAdScopes()">{{ $t('chat.adBreakScope.grantBt') }}</TTButton>
 				</div>
-				
+
 				<div class="card-item secondary infos">
 					<Icon name="info" />
 					<i18n-t tag="span" scope="global" keypath="chat.adBreakScope.infos">
@@ -131,7 +129,7 @@
 					</i18n-t>
 				</div>
 			</div>
-	
+
 			<div class="confirmClose" ref="confirmClose" v-if="showConfirm">
 				<p class="label">{{ $t('chat.donor.close_confirm.info_1') }}</p>
 				<p class="label">{{ $t('chat.donor.close_confirm.info_2') }}</p>
@@ -166,13 +164,13 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 		ToggleBlock,
 		ChatTipAndTrickAd,
 	},
-	emits:["showModal", "onRead"]
+	emits:["onRead"]
 })
 class ChatAd extends Vue {
 
 	@Prop
 	public messageData!:TwitchatDataTypes.MessageTwitchatAdData;
-	
+
 	public voiceIcon:string = "";
 	public ttsIcon:string = "";
 	public pinIcon:string = "";
@@ -192,11 +190,11 @@ class ChatAd extends Vue {
 	public get isSponsorPublicPrompt():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT; }
 	public get isUpdateReminder():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.UPDATE_REMINDER; }
 	public get isAdBreakScopeRequest():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.AD_BREAK_SCOPE_REQUEST; }
-	
+
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
-	public get contentDonate():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE; } 
-	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM; } 
-	public get contentMainMenu():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.MAIN_MENU; } 
+	public get contentDonate():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE; }
+	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM; }
+	public get contentMainMenu():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.MAIN_MENU; }
 
 	public async getSvgIcon(name:string) {
 		const module = await import(`../../assets/icons/${name}.svg`);
@@ -212,7 +210,7 @@ class ChatAd extends Vue {
 		this.kofiIcon = await this.getSvgIcon("kofi");
 	}
 
-	public openModal(modal:TwitchatDataTypes.ModalTypes):void { this.$emit("showModal", modal); }
+	public openModal(modal:TwitchatDataTypes.ModalTypes):void { StoreProxy.params.openModal(modal); }
 	public openParamItem(paramPath:string):void { this.$store.params.searchParamByPath(paramPath); }
 	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType, subContent?:TwitchatDataTypes.ParamDeepSectionsStringType):void { this.$store.params.openParamsPage(page, subContent); }
 
@@ -226,7 +224,7 @@ class ChatAd extends Vue {
 		if(this.isSponsorPublicPrompt) {
 			DataStore.set(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT, true);
 		}
-		
+
 		this.$store.chat.deleteMessage(this.messageData);
 	}
 
@@ -300,7 +298,7 @@ export default toNative(ChatAd);
 				justify-content: space-evenly;
 			}
 		}
-	
+
 		.header {
 			position: relative;
 			&>.title {
@@ -318,7 +316,7 @@ export default toNative(ChatAd);
 			&:not(.left) {
 				text-align: center;
 			}
-			
+
 			&>.icon {
 				height: 4em;
 				width: 4em;
@@ -333,7 +331,7 @@ export default toNative(ChatAd);
 					margin-right: .5em;
 				}
 			}
-	
+
 			:deep(mark) {
 				border: 1px dashed fade(#000, 20);
 				background-color: fade(#000, 5);
@@ -344,7 +342,7 @@ export default toNative(ChatAd);
 				white-space: pre-line;
 			}
 		}
-		
+
 		.infos {
 			margin: auto;
 			width: fit-content;
@@ -359,14 +357,14 @@ export default toNative(ChatAd);
 		.center {
 			text-align: center;
 		}
-	
+
 		.ctas {
 			padding: .5em;
 			gap: .5em;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-	
+
 			.sponsorGif {
 				width: 8em;
 				margin-bottom: -.5em;//Compensate for flex gap

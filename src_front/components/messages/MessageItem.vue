@@ -169,7 +169,7 @@ import ChatCustomTrainSummary from './ChatCustomTrainSummary.vue';
 		ChatTwitchCharityDonation,
 		ChatCommunityChallengeContribution,
 	},
-	emits:["onRead", "showConversation", "showUserMessages", "unscheduleMessageOpen", "setCustomActivities", "showModal", "openFilters", "onOverMessage"],
+	emits:["onRead", "showConversation", "showUserMessages", "unscheduleMessageOpen", "setCustomActivities", "openFilters", "onOverMessage"],
 })
 class MessageItem extends Vue {
 

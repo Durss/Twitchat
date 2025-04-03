@@ -113,7 +113,6 @@ import TTButton from '../TTButton.vue';
 	components:{
 		TTButton,
 	},
-	emits:["showModal"]
 })
 class ChatTipAndTrickAd extends Vue {
 

@@ -24,7 +24,6 @@
 					@onOverMessage="onEnterMessage"
 					@mouseleave="onLeaveMessage"
 					@setCustomActivities="setCustomActivities"
-					@showModal="(v: string) => $emit('showModal', v)"
 					@openFilters="openFilters()"
 					:colIndex="config.order"
 					:lightMode="lightMode"
@@ -148,7 +147,7 @@ import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 		MessageListFilter,
 		GroqSummaryFilterForm,
 	},
-	emits: ["showModal", 'addColumn']
+	emits: ['addColumn']
 })
 class MessageList extends Vue {
 

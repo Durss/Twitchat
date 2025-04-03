@@ -10,7 +10,6 @@
 						<GreetThem class="greetThem" v-if="greetColIndexTarget == c.order && $store.params.features.firstMessage.value === true" />
 
 						<MessageList ref="messages" class="messages"
-							@showModal="(v:TwitchatDataTypes.ModalTypes) => $store.params.openModal(v)"
 							@addColumn="addColumn"
 							:config="c"
 							filterId="chat"/>
