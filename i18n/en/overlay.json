@@ -669,7 +669,7 @@
 			"param_textFont": "Text font",
 			"param_textSize": "Size",
 			"param_currency": "Currency",
-			"param_triggerEventCount": "Number of events to start the train",
+			"param_triggerEventCount": "Number of events to start the train\n(",
 			"param_cooldownDuration_ms": "Duration to wait before next train",
 			"param_levelsDuration_ms": "Delay to reach next level",
 			"param_levelAmounts": "Define amounts for each level",
@@ -693,7 +693,8 @@
 			"param_successLabel_default": "Hype Train complete!",
 			"param_successLabel_summary": "Level {'{'}LEVEL{'}'} reached at {'{'}PERCENT{'}'}%",
 			"param_recordLabel_default": "🏆 New all time record 🏆",
-			"param_platforms": "Chose tip platforms accepted for this train"
+			"param_platforms": "Chose tip platforms accepted for this train",
+			"allTimeRecord_title":"All time record on the {DATE}, level {LEVEL} at {PERCENT} with {AMOUNT}"
 		}
 	}
 }

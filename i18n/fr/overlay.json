@@ -678,7 +678,8 @@
 			"param_successLabel_default": "Train de la hype terminé !",
 			"param_successLabel_summary": "Niveau {'{'}LEVEL{'}'} atteint à {'{'}PERCENT{'}'}%",
 			"param_recordLabel_default": "🏆 Nouveau record absolu 🏆",
-			"param_platforms": "Choisissez les plateformes de dons acceptées pour ce train"
+			"param_platforms": "Choisissez les plateformes de dons acceptées pour ce train",
+			"allTimeRecord_title":"Record absolu le {DATE}, {LEVEL} à {PERCENT} avec {AMOUNT}"
 		}
 	}
 }

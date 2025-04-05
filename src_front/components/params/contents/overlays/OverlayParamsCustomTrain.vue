@@ -52,6 +52,15 @@
 				</template>
 
 				<div class="content">
+					<div v-if="entry.allTimeRecord" class="card-item primary center record">
+						<Icon name="leaderboard" />
+						<i18n-t scope="global" keypath="overlay.customTrain.allTimeRecord_title">
+							<template #LEVEL><strong>{{ entry.allTimeRecord.level }}</strong></template>
+							<template #DATE><i>{{ getAllTimeRecordDateFormated(entry.allTimeRecord.date) }}</i></template>
+							<template #PERCENT><strong>{{ Math.floor(entry.allTimeRecord.percent * 100) }}%</strong></template>
+							<template #AMOUNT><strong>{{ getAllTimeRecordAmount(entry.allTimeRecord.amount, entry.currency) }}</strong></template>
+						</i18n-t>
+					</div>
 					<div class="card-item install">
 						<label><Icon name="obs" />{{$t('bingo_grid.form.install_title')}}</label>
 						<OverlayInstaller type="customtrain" :sourceSuffix="entry.title" :id="entry.id"
@@ -547,6 +556,14 @@ class OverlayParamsCustomTrain extends Vue {
 			}
 		}
 	}
+
+	public getAllTimeRecordDateFormated(timestamp:number):string {
+		return Utils.formatDate(new Date(timestamp), false)
+	}
+
+	public getAllTimeRecordAmount(amount:number, format:string):string {
+		return Utils.formatCurrency(amount, format);
+	}
 }
 export default toNative(OverlayParamsCustomTrain);
 </script>
@@ -756,6 +773,15 @@ export default toNative(OverlayParamsCustomTrain);
 
 		&.cooldown {
 			background-color: var(--color-secondary-fader);
+		}
+	}
+
+	.record {
+		text-align: center;
+		.icon {
+			height: 1em;
+			margin-right: .5em;
+			vertical-align: middle;
 		}
 	}
 }
