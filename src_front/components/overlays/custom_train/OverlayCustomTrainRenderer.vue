@@ -420,6 +420,7 @@ class OverlayCustomTrainRenderer extends Vue {
 				return;
 			}
 			this.percent_local = newPercent;
+			this.localLevelIndex = this.level;
 			gsap.killTweensOf(this);
 			gsap.to(this, {easedPercent: this.percent_local, duration: 1})
 		});
@@ -721,7 +722,7 @@ export default toNative(OverlayCustomTrainRenderer);
 	--colorText: v-bind(cssColorTextGeneric);
 
 	&.editable {
-		font-size: calc(v-bind(cssFontSize) / 3);
+		font-size: calc(v-bind(cssFontSize) / 2);
 	}
 
 	.title {

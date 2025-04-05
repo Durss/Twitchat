@@ -144,7 +144,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 				}
 
 				// Schedule train end
-				const scheduleEnd = () => {
+				const scheduleEnd = (isMissedTrain:boolean = false) => {
 					const state = this.customTrainStates[train.id];
 					if(state.timeoutRef) SetTimeoutWorker.instance.delete(state.timeoutRef)
 					state.timeoutRef = SetTimeoutWorker.instance.create(()=> {
@@ -152,7 +152,9 @@ export const storeCustomTrain = defineStore('customTrain', {
 						const level = currentLevel();
 						const total = state.activities.map(a=> a.amount).reduce((a,b)=> a + b, 0);
 						const percent = (total - level.offset) / level.goal;
-						train.coolDownEnd_at = Date.now() + train.cooldownDuration_s * 1000;
+						// If train went away before starting, only set a 1min cooldown,
+						// otherwise set the cooldown to the normal duration
+						train.coolDownEnd_at = isMissedTrain? Date.now() + 60_000 : Date.now() + train.cooldownDuration_s * 1000;
 						train.expires_at = 0;
 						delete this.customTrainStates[train.id];
 
@@ -196,7 +198,6 @@ export const storeCustomTrain = defineStore('customTrain', {
 						train.testing = false;
 						this.saveData();
 					}, train.expires_at - Date.now());
-					console.log(train.expires_at)
 				}
 
 				// Init train state if not already initialized
@@ -238,8 +239,8 @@ export const storeCustomTrain = defineStore('customTrain', {
 
 				if(this.customTrainStates[train.id].activities.length == 0) {
 					// static 2 min 30 s cooldown for "approaching" validation
-					train.expires_at = Date.now() + 10 * 1000;
-					scheduleEnd();
+					train.expires_at = Date.now() + 60 * 2.5 * 1000;
+					scheduleEnd(true);
 				}
 
 				// Register activity
@@ -341,42 +342,33 @@ export const storeCustomTrain = defineStore('customTrain', {
 			await Utils.promisedTimeout(250);
 			if(simulationIDLocal !== simulationID) return;
 			const levels = train.levelAmounts.concat();
-			this.registerActivity("", "trigger", 1);
-			this.registerActivity("", "trigger", 1);
-			await Utils.promisedTimeout(1000);
-			this.registerActivity("", "trigger", 5);
-			await Utils.promisedTimeout(1000);
-			this.registerActivity("", "trigger", 8);//15
-			await Utils.promisedTimeout(1000);
-			this.registerActivity("", "trigger", 10);//25
-			await Utils.promisedTimeout(5000);
-			this.registerActivity("", "trigger", 10);//35
-			await Utils.promisedTimeout(1000);
-			this.registerActivity("", "trigger", 10);//45
 
-			// for (let i = 0; i < train.triggerEventCount; i++) {
-			// 	this.registerActivity("", "trigger", levels[0]/2/(train.triggerEventCount+1));
-			// 	if(i > 0) await Utils.promisedTimeout(3000);
-			// 	if(simulationIDLocal !== simulationID) return;
-			// }
-			// this.registerActivity("", "trigger", levels[0]/2/2);
-			// await Utils.promisedTimeout(3000);
-			// if(simulationIDLocal !== simulationID) return;
-			// this.registerActivity("", "trigger", levels[0]/2/2);
-			// await Utils.promisedTimeout(2000);
-			// if(simulationIDLocal !== simulationID) return;
-			// this.registerActivity("", "trigger", levels[0]/train.triggerEventCount + 1);
-			// await Utils.promisedTimeout(1000);
-			// if(simulationIDLocal !== simulationID) return;
-			// for (let i = 1; i < Math.min(levels.length, 3); i++) {
-			// 	let splits = Math.ceil(Math.random() * 5 + 1);
-			// 	const goal = levels[i] - levels[i-1] * (Math.random() * 0.75 + .25);
-			// 	for (let i = 0; i < splits; i++) {
-			// 		if(simulationIDLocal !== simulationID) return;
-			// 		this.registerActivity("", "trigger", goal/splits);
-			// 		await Utils.promisedTimeout(1000 + Math.random() * 5000);
-			// 	}
-			// }
+			// Fill half of the first level
+			for (let i = 0; i < train.triggerEventCount; i++) {
+				this.registerActivity("", "trigger", levels[0]/2/(train.triggerEventCount+1));
+				if(i > 0) await Utils.promisedTimeout(3000);
+				if(simulationIDLocal !== simulationID) return;
+			}
+
+			// Fill the rest of the first level
+			this.registerActivity("", "trigger", levels[0]/2/2);
+			await Utils.promisedTimeout(3000);
+			if(simulationIDLocal !== simulationID) return;
+			this.registerActivity("", "trigger", levels[0]/2/2);
+			await Utils.promisedTimeout(2000);
+			if(simulationIDLocal !== simulationID) return;
+			this.registerActivity("", "trigger", levels[0]/train.triggerEventCount + 1);
+			await Utils.promisedTimeout(1000);
+			if(simulationIDLocal !== simulationID) return;
+			for (let i = 1; i < Math.min(levels.length, 3); i++) {
+				let splits = Math.ceil(Math.random() * 5 + 1);
+				const goal = levels[i] - levels[i-1] * (Math.random() * 0.75 + .25);
+				for (let i = 0; i < splits; i++) {
+					if(simulationIDLocal !== simulationID) return;
+					this.registerActivity("", "trigger", goal/splits);
+					await Utils.promisedTimeout(1000 + Math.random() * 5000);
+				}
+			}
 		},
 
 		saveData():void {
