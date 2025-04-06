@@ -85,7 +85,7 @@
 			{
 				"i": "broadcast",
 				"l": "Triggers",
-				"d": "Each action can now have its own conditions.\n\n9 new trigger events:<ul><li>Start/end of a Chat Poll</li><li>Overlay highlighted message closed</li><li>Someone answers a message</li><li>Goal complete <i>(see Goals overlay)</i></li><li>Voicemod: Enable/disable \"Hear my voice\"</li><li>Voicemod: Enable/disable \"Voice changer\"</li></ul>6 new trigger actions:<ul><li>Groq AI action</li><li>Mark message as spoiler</li><li>Control timers</li><li>Stop trigger execution</li><li>Start chat poll</li><li>Show/hide animated text</li></ul>",
+				"d": "Each action can now have its own conditions.\n\n14 new trigger events:<ul><li>Start/end of a Chat Poll</li><li>Overlay highlighted message closed</li><li>Someone answers a message</li><li>Goal complete <i>(see Goals overlay)</i></li><li>Voicemod: Enable/disable \"Hear my voice\"</li><li>Voicemod: Enable/disable \"Voice changer\"</li><li>Custom hype train start</li><li>Custom hype train level up</li><li>Custom hype train completed</li><li>Custom hype train failed</li><li>Custom hype train cooldown end</li></ul>6 new trigger actions:<ul><li>Groq AI action</li><li>Mark message as spoiler</li><li>Control timers</li><li>Stop trigger execution</li><li>Start chat poll</li><li>Show/hide animated text</li></ul>",
 				"a": {
 					"l": "Try",
 					"param": "triggers"
