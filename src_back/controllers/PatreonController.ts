@@ -653,7 +653,7 @@ export default class PatreonController extends AbstractController {
 			});
 
 			if(verbose) Logger.info("[PATREON][SERVICE] "+filteredMembers.length+" active members");
-			// fs.writeFileSync(Config.patreonMembers.replace(".json", "_src.json"), JSON.stringify(json.data), "utf-8");
+			// fs.writeFileSync(Config.patreonMembers.replace(".json", "_src.json"), JSON.stringify(members), "utf-8");
 			fs.writeFileSync(Config.patreonMembers, JSON.stringify(filteredMembers), "utf-8");
 		}
 	}

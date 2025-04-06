@@ -6,11 +6,11 @@ import AbstractController from "./AbstractController.js";
 import TwitchUtils, { TwitchUserInfos } from "../utils/TwitchUtils.js";
 
 /**
-* Created : 17/08/2023 
+* Created : 17/08/2023
 */
 export default class PaypalController extends AbstractController {
 
-	
+
 	constructor(public server:FastifyInstance) {
 		super();
 	}
@@ -18,9 +18,9 @@ export default class PaypalController extends AbstractController {
 	/********************
 	* GETTER / SETTERS *
 	********************/
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
@@ -28,10 +28,10 @@ export default class PaypalController extends AbstractController {
 		this.server.post('/api/paypal/create_order', async (request, response) => await this.postCreateOrder(request, response));
 		this.server.post('/api/paypal/complete_order', async (request, response) => await this.postCompleteOrder(request, response));
 	}
-	
-	
-	
-	
+
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -100,7 +100,7 @@ export default class PaypalController extends AbstractController {
 	private async postCompleteOrder(request:FastifyRequest, response:FastifyReply):Promise<void> {
 		const twitchUser = await super.twitchUserGuard(request, response);
 		if(twitchUser == false) return;
-		
+
 		const token = await this.getToken();
 		const body:any = request.body;
 		const giftedUserId = body.giftUserId;
@@ -170,7 +170,7 @@ export default class PaypalController extends AbstractController {
 						return;
 					}
 				}
-				
+
 				//Add donor to donor list via remote service
 				const resRemote = await fetch(Config.DONORS_REMOTE_ENDPOINT+"api/donate", {
 					method: 'POST',
@@ -185,7 +185,7 @@ export default class PaypalController extends AbstractController {
 					//Failed adding user to list :(
 					Logger.error("Failed adding user \""+twitchUser.login+"\" to remote donor list ("+params.amount+"€)");
 					console.log(params);
-					errorMessage = "Your payment has been successfully processed but something went wrong when registering you to the donors list. It should be done soon but feel free to ping me at twitchatofficial@gmail.com"
+					errorMessage = "Your payment has been successfully processed but something went wrong when registering you to the donors list. It should be done soon but feel free to ping me at durss@twitchat.fr"
 				}else{
 					//User properly added to list
 					if(params.gifterLogin) {
@@ -194,7 +194,7 @@ export default class PaypalController extends AbstractController {
 						Logger.success("User \""+twitchUser.login+"\" added to donors ("+params.amount+"€)");
 					}
 					const donorLevel = Config.donorsLevels.findIndex(v=> v > params.amount) - 1;
-					
+
 					response.header('Content-Type', 'application/json');
 					response.status(200);
 					response.send(JSON.stringify({success:true, data:{orderId:json.id, donorLevel}}));
@@ -209,7 +209,7 @@ export default class PaypalController extends AbstractController {
 			response.send(JSON.stringify({success:false, error}));
 			return;
 		}
-		
+
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(JSON.stringify({success:false, error:errorMessage || "an unknown error has occured"}));
@@ -217,7 +217,7 @@ export default class PaypalController extends AbstractController {
 
 	/**
 	 * Get an order details from its ID
-	 * @param orderID 
+	 * @param orderID
 	 */
 	private async getOrderDetails(token:string, orderID:string):Promise<PaypalOrder> {
 		const json = await fetch(Config.PAYPAL_ENDPOINT + '/v2/checkout/orders/' + orderID, {

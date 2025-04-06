@@ -942,7 +942,7 @@ type ApiEndpoints =  {
 			parameters: {
 				uid:string;
 				gridid:string;
-				grid:{
+				grid?:{
 					cols: number;
 					rows: number;
 					title: string;
