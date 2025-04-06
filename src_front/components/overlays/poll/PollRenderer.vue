@@ -5,7 +5,7 @@
 		<h1 id="title" v-if="title">{{ title }}</h1>
 		<div id="list" class="list" v-if="mode == 'list'">
 			<div id="list_choice" class="choice" :class="getWinClasses(c)" v-for="(c, index) in entries" ref="bar">
-				<div class="index" v-if="showIndex !== false"><span>{{ index }}</span></div>
+				<div class="index" v-if="showIndex !== false"><span>{{ index+1 }}</span></div>
 				<div class="subContent">
 					<h2 id="list_choice_label" v-if="showLabels">{{c.label}}</h2>
 					<div class="bar" id="list_choice_bar" :style="getAnswerStyles(c)">
@@ -23,7 +23,7 @@
 				<h2 id="line_labelList_label" class="outcomeTitle"
 				:class="getWinClasses(c)"
 				v-for="(c, index) in entries" :style="{flexBasis:getPercent(c)+'%'}">
-					{{ c.label }}
+					{{ showIndex !== false? index+1 : c.label }}
 				</h2>
 			</div>
 			<div class="chunks" id="line_bar" ref="bar">
