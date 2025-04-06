@@ -2685,6 +2685,7 @@ export namespace TwitchatDataTypes {
 		OBS_START_STREAM:"obs_start_stream",
 		HYPE_TRAIN_START:"hype_train_start",
 		OBS_SCENE_CHANGE:"obs_scene_change",
+		CUSTOM_TRAIN_FAIL:"custom_train_fail",
 		GIGANTIFIED_EMOTE:"gigantified_emote",
 		PLAYABILITY_INPUT:"playability_input",
 		BINGO_GRID_VIEWER:"bingo_grid_viewer",
@@ -2694,6 +2695,7 @@ export namespace TwitchatDataTypes {
 		OBS_SOURCE_TOGGLE:"obs_source_toggle",
 		OBS_FILTER_TOGGLE:"obs_filter_toggle",
 		HYPE_TRAIN_CANCEL:"hype_train_cancel",
+		CUSTOM_TRAIN_START:"custom_train_start",
 		GOAL_STEP_COMPLETE:"goal_step_complete",
 		TWITCH_CELEBRATION:"twitch_celebration",
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
@@ -2710,6 +2712,7 @@ export namespace TwitchatDataTypes {
 		YOUTUBE_SUBSCRIPTION:"youtube_subscription",
 		AD_BREAK_APPROACHING:"ad_break_approaching",
 		MUSIC_ADDED_TO_QUEUE:"music_added_to_queue",
+		CUSTOM_TRAIN_COOLDOWN:"custom_train_cooldown",
 		CUSTOM_TRAIN_LEVEL_UP:"custom_train_level_up",
 		GOXLR_SAMPLE_COMPLETE:"goxlr_sample_complete",
 		OBS_INPUT_MUTE_TOGGLE:"obs_input_mute_toggle",
@@ -2807,6 +2810,7 @@ export namespace TwitchatDataTypes {
 		hype_train_start:false,
 		obs_scene_change:false,
 		obs_start_stream:false,
+		custom_train_fail:false,
 		playability_input:false,
 		bingo_grid_viewer:false,
 		twitch_celebration:true,
@@ -2822,6 +2826,7 @@ export namespace TwitchatDataTypes {
 		ad_break_start_chat:true,
 		obs_recording_stop:false,
 		goal_step_complete:false,
+		custom_train_start:false,
 		custom_train_summary:true,
 		obs_recording_start:false,
 		youtube_subscription:true,
@@ -2834,6 +2839,7 @@ export namespace TwitchatDataTypes {
 		goxlr_sample_complete:false,
 		obs_input_mute_toggle:false,
 		hype_train_cooled_down:true,
+		custom_train_cooldown:false,
 		twitch_charity_donation:true,
 		suspended_trigger_stack:true,
 		hype_train_approaching:false,
@@ -2993,8 +2999,11 @@ export namespace TwitchatDataTypes {
 									| MessagePlayabilityInputData
 									| MessageGoalStepCompleteData
 									| MessageChatPollData
+									| MessageCustomTrainCooldownData
+									| MessageCustomTrainLevelStartData
 									| MessageCustomTrainLevelUpData
 									| MessageCustomTrainSummaryData
+									| MessageCustomTrainFailData
 	;
 
 	/**
@@ -3911,7 +3920,39 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Represents a custom train result
+	 * Represents a custom train cooldown end
+	 */
+	export interface MessageCustomTrainCooldownData extends AbstractTwitchatMessage {
+		channel_id: string;
+		type:"custom_train_cooldown";
+		/**
+		 * Train ID
+		 */
+		trainId:string;
+		/**
+		 * Train name
+		 */
+		trainName:string;
+	}
+
+	/**
+	 * Represents a custom train start
+	 */
+	export interface MessageCustomTrainLevelStartData extends AbstractTwitchatMessage {
+		channel_id: string;
+		type:"custom_train_start";
+		/**
+		 * Train ID
+		 */
+		trainId:string;
+		/**
+		 * Train name
+		 */
+		trainName:string;
+	}
+
+	/**
+	 * Represents a custom train level up
 	 */
 	export interface MessageCustomTrainLevelUpData extends AbstractTwitchatMessage {
 		channel_id: string;
@@ -3929,6 +3970,18 @@ export namespace TwitchatDataTypes {
 		 */
 		amount:number;
 		/**
+		 * Amount reached formatted
+		 */
+		amountFormatted:string;
+		/**
+		 * Amount left
+		 */
+		amountLeft:number;
+		/**
+		 * Amount left formatted
+		 */
+		amountLeftFormatted:string;
+		/**
 		 * Train ID
 		 */
 		trainId:string;
@@ -3940,6 +3993,22 @@ export namespace TwitchatDataTypes {
 		 * Is new record?
 		 */
 		isRecord:boolean;
+	}
+
+	/**
+	 * Represents a custom train failed
+	 */
+	export interface MessageCustomTrainFailData extends AbstractTwitchatMessage {
+		channel_id: string;
+		type:"custom_train_fail";
+		/**
+		 * Train ID
+		 */
+		trainId:string;
+		/**
+		 * Train name
+		 */
+		trainName:string;
 	}
 
 	/**
@@ -3964,6 +4033,10 @@ export namespace TwitchatDataTypes {
 		 * Amount reached
 		 */
 		amount:number;
+		/**
+		 * Amount reached formatted
+		 */
+		amountFormatted:string;
 		/**
 		 * Train ID
 		 */

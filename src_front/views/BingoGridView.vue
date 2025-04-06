@@ -1,6 +1,6 @@
 <template>
 	<div class="bingogridview">
-		
+
 		<a href="/"><img src="@/assets/logo.svg" alt="logo" class="logo"></a>
 
 		<Icon v-if="loading" name="loader" class="loader" />
@@ -12,7 +12,7 @@
 
 		<template v-else >
 			<div class="grid">
-	
+
 				<template v-if="multiplayerMode">
 					<TTButton @click.capture.prevent="generateCSRF(true)"
 						v-if="!$store.public.authenticated"
@@ -21,26 +21,33 @@
 						:loading="generatingCSRF"
 						v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
 						bounce twitch>{{ $t("bingo_grid.state.auth_bt") }}</TTButton>
-		
+
 					<TTButton v-else icon="offline" @click="unauth()" alert small>{{ $t("global.disconnect") }} - {{ $store.public.twitchLogin }}</TTButton>
 				</template>
-				
+
 				<h1>{{ title }}</h1>
-	
+
 				<template v-if="isModerator && multiplayerMode">
 					<div class="card-item moderator">
 						<Icon class="icon" name="mod" />
 						<span>{{ $t("bingo_grid.state.mod_info") }}</span>
 					</div>
-					
+
 					<SwitchButton :icons="['bingo_grid', 'list']" :labels="[$t('bingo_grid.public.grid'), $t('bingo_grid.public.list')]" :values="['grid', 'list']" v-model="template" />
+
+					<!--
+					<div class="actions">
+						<TTButton icon="shuffle" @click="shuffle()">{{ $t("bingo_grid.form.shuffle_bt") }}</TTButton>
+						<TTButton icon="refresh" @click="reset()">{{ $t("bingo_grid.form.reset_bt") }}</TTButton>
+					</div>
+					-->
 				</template>
-	
+
 				<div v-if="sseError" class="card-item error" @click="sseError = false">
 					<Icon class="icon" name="alert" />
 					<span>{{ $t("error.sse_error", {APP: "Bingo"}) }}</span>
 				</div>
-	
+
 				<div class="cells"
 				v-if="template == 'grid'"
 				ref="cellsHolder"
@@ -60,34 +67,36 @@
 					</TransitionGroup>
 				</div>
 			</div>
-	
-			<div class="card-item additional"
-			v-if="template == 'grid' && isModerator && multiplayerMode && additionalEntries.length > 0">
-				<strong>{{ $t("bingo_grid.state.additional_cells") }}</strong>
-				<div v-for="entry in additionalEntries" class="additionalEntry">
-					<Checkbox class="entry"
-						:key="entry.id"
-						v-model="entry.check"
-						@click="tickCell(entry)">{{ entry.label }}</Checkbox>
-				</div>
-			</div>
-	
-			<div class="card-item listTemplate"
-			v-if="template == 'list' && isModerator && multiplayerMode">
-				<form @submit.prevent="">
-					<input type="text" v-model="search"
-					@keydown.capture="onKeyUp($event)"
-					:placeholder="$t('global.search_placeholder')">
-				</form>
 
-				<div class="list">
-					<Checkbox class="entry" :class="entry.check? 'checked' : ''"
-						v-for="entry in [...entries, ...additionalEntries].filter(v=>new RegExp(search.trim(),'gi').test(v.label))"
-						:key="entry.id"
-						v-model="entry.check"
-						@click="tickCell(entry)">{{ entry.label }}</Checkbox>
+			<template v-if="isModerator && multiplayerMode">
+				<div class="card-item additional"
+				v-if="template == 'grid' && additionalEntries.length > 0">
+					<strong>{{ $t("bingo_grid.state.additional_cells") }}</strong>
+					<div v-for="entry in additionalEntries" class="additionalEntry">
+						<Checkbox class="entry"
+							:key="entry.id"
+							v-model="entry.check"
+							@click="tickCell(entry)">{{ entry.label }}</Checkbox>
+					</div>
 				</div>
-			</div>
+
+				<div class="card-item listTemplate"
+				v-if="template == 'list'">
+					<form @submit.prevent="">
+						<input type="text" v-model="search"
+						@keydown.capture="onKeyUp($event)"
+						:placeholder="$t('global.search_placeholder')">
+					</form>
+
+					<div class="list">
+						<Checkbox class="entry" :class="entry.check? 'checked' : ''"
+							v-for="entry in shuffledEntries"
+							:key="entry.id"
+							v-model="entry.check"
+							@click="tickCell(entry)">{{ entry.label }}</Checkbox>
+					</div>
+				</div>
+			</template>
 		</template>
 
 		<div class="stars">
@@ -113,6 +122,7 @@ import DataStoreCommon from '@/store/DataStoreCommon';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import SSEHelper from '@/utils/SSEHelper';
+import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { gsap } from 'gsap/gsap-core';
@@ -161,11 +171,21 @@ class BingoGridView extends Vue {
 	private sseCellStatesHandler!:(e:SSEEvent<"BINGO_GRID_CELL_STATES">) => void;
 	private sseGridUpdateHandler!:(e:SSEEvent<"BINGO_GRID_UPDATE">) => void;
 	private sseFailedConnectingHandler!:(e:SSEEvent<"FAILED_CONNECT">) => void;
+	private seededRnd = Utils.seededRandom(Date.now());
 
 	public cellClasses(entry:typeof this.entries[number]):string[] {
 		let res:string[] = ["cell"];
 		if(entry.enabled !== true && this.$store.public.authenticated && this.multiplayerMode) res.push("disabled")
 		return res;
+	}
+
+	public get shuffledEntries():typeof this.entries[number][] {
+		let a = [...this.entries, ...this.additionalEntries].filter(v=>new RegExp(this.search.trim(),'gi').test(v.label))
+		for (let i = a.length - 1; i > 0; i--) {
+			const j = Math.floor(this.seededRnd() * (i + 1));
+			[a[i], a[j]] = [a[j], a[i]];
+		}
+		return a;
 	}
 
 	public async mounted():Promise<void> {
@@ -195,6 +215,7 @@ class BingoGridView extends Vue {
 		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_UPDATE, this.sseGridUpdateHandler);
 		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_CELL_STATES, this.sseCellStatesHandler);
 		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_UNTICK_ALL, this.sseUntickAllHandler);
+
 	}
 
 	public beforeUnmount():void {
@@ -216,7 +237,7 @@ class BingoGridView extends Vue {
 
 	/**
 	 * Generates a CSRF token
-	 * @param redirect 
+	 * @param redirect
 	 */
 	public async generateCSRF(redirect:boolean = false):Promise<void> {
 		this.generatingCSRF = true;
@@ -233,6 +254,15 @@ class BingoGridView extends Vue {
 		}else{
 			this.generatingCSRF = false;
 		}
+	}
+
+	public shuffle():void {
+		// const infos = await ApiHelper.call("bingogrid/shuffle", "POST", {uid:this.param_uid, gridid:this.param_gridId}, false);
+
+	}
+
+	public reset():void {
+
 	}
 
 	/**
@@ -298,7 +328,7 @@ class BingoGridView extends Vue {
 	/**
 	 * Check if rows/cols/diagonals are filled
 	 */
-	public checkBingos():void {
+	private checkBingos():void {
 		const newStates = this.entries.map(v=>v.check);
 		const prevStates = this.prevGridStates;
 		let newVerticalBingos:number[] = [];
@@ -397,7 +427,7 @@ class BingoGridView extends Vue {
 					}
 					delay += .4;
 				});
-	
+
 				newVerticalBingos.forEach(x=>{
 					for (let y = 0; y < this.rows; y++) {
 						const cell = this.getCellByCoords(x, y);
@@ -405,10 +435,10 @@ class BingoGridView extends Vue {
 						delay += .05;
 						animateCell(cell);
 					}
-	
+
 					delay += .4;
 				});
-	
+
 				newDiagonalBingos.forEach(dir=>{
 					for (let x = 0; x < this.cols; x++) {
 						const px = dir === 0? x : this.rows - 1 - x;
@@ -453,7 +483,7 @@ class BingoGridView extends Vue {
 
 		return new Promise((resolve)=> {
 			const spiralOrder: number[] = [];
-	
+
 			let x = 0;
 			let y = 0;
 			let delta = [0, -1];
@@ -461,27 +491,27 @@ class BingoGridView extends Vue {
 			const height = this.rows;
 			const cx = Math.ceil(this.cols/2)-1;
 			const cy = Math.ceil(this.rows/2)-1;
-	
+
 			//Spiral algorithm from:
 			//https://stackoverflow.com/a/13413224/3813220
 			for (let i = Math.pow(Math.max(width, height), 2); i>0; i--) {
-				if ((-width/2 < x && x <= width/2) 
+				if ((-width/2 < x && x <= width/2)
 				&& (-height/2 < y && y <= height/2)) {
 					let index = (x+cx) + (y+cy) * this.cols;
 					spiralOrder.push(index);
-				}	
-	
-				if (x === y 
-				|| (x < 0 && x === -y) 
+				}
+
+				if (x === y
+				|| (x < 0 && x === -y)
 				|| (x > 0 && x === 1-y)){
 					// change direction
-					delta = [-delta[1], delta[0]]            
+					delta = [-delta[1], delta[0]]
 				}
-	
+
 				x += delta[0];
-				y += delta[1];        
+				y += delta[1];
 			}
-	
+
 			const cells = this.$refs.cell as HTMLElement[];
 			//Animate items from center
 			cells.forEach((cell, index) => {
@@ -534,7 +564,7 @@ class BingoGridView extends Vue {
 
 	/**
 	 * Called when streamer updates grid params and on first loading
-	 * @param e 
+	 * @param e
 	 */
 	private async onUntickAll(event:SSEEvent<"BINGO_GRID_UNTICK_ALL">):Promise<void> {
 		this.entries.forEach(cell => {
@@ -550,7 +580,7 @@ class BingoGridView extends Vue {
 
 	/**
 	 * Called when streamer updates grid params and on first loading
-	 * @param e 
+	 * @param e
 	 */
 	private async onGridUpdate(data:SSEEvent<"BINGO_GRID_UPDATE">["data"]):Promise<void> {
 		if(!data) return;
@@ -583,7 +613,7 @@ class BingoGridView extends Vue {
 
 	/**
 	 * Called when streamer un/ticks a cell
-	 * @param e 
+	 * @param e
 	 */
 	private async onCellsStates(e:SSEEvent<"BINGO_GRID_CELL_STATES">):Promise<void> {
 		if(!e.data) return;
@@ -691,6 +721,13 @@ export default toNative(BingoGridView);
 		}
 	}
 
+	.actions {
+		gap: 1em;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+
 	.grid {
 		gap: 1em;
 		display: flex;
@@ -717,7 +754,7 @@ export default toNative(BingoGridView);
 				align-items: center;
 				justify-content: center;
 				overflow: hidden;
-				font-weight: bold;
+				// font-weight: bold;
 				white-space: pre-line;
 				text-align: center;
 				word-wrap: break-word;

@@ -1832,7 +1832,7 @@ export const storeDebug = defineStore('debug', {
 					const raised = !StoreProxy.twitchCharity.currentCharity? amount*5 : StoreProxy.twitchCharity.currentCharity.current_amount.value/Math.pow(10, StoreProxy.twitchCharity.currentCharity.current_amount.decimal_places);
 					const message:TwitchatDataTypes.MessageCharityDonationData = {
 						id:Utils.getUUID(),
-						type:TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION,
+						type,
 						date:Date.now(),
 						channel_id:StoreProxy.auth.twitch.user.id,
 						platform:"twitch",
@@ -1860,7 +1860,7 @@ export const storeDebug = defineStore('debug', {
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const m:TwitchatDataTypes.MessagePrivateModeratorData = {
 						id:Utils.getUUID(),
-						type:TwitchatDataTypes.TwitchatMessageType.PRIVATE_MOD_MESSAGE,
+						type,
 						date:Date.now(),
 						channel_id:StoreProxy.auth.twitch.user.id,
 						platform:"twitch",
@@ -1884,7 +1884,7 @@ export const storeDebug = defineStore('debug', {
 					};
 					const m:TwitchatDataTypes.MessageGoalStepCompleteData = {
 						id:Utils.getUUID(),
-						type:TwitchatDataTypes.TwitchatMessageType.GOAL_STEP_COMPLETE,
+						type,
 						date:Date.now(),
 						channel_id:StoreProxy.auth.twitch.user.id,
 						platform:"twitchat",
@@ -1907,6 +1907,99 @@ export const storeDebug = defineStore('debug', {
 						},
 						stepConfig:fakeStep,
 						stepIndex:0,
+					};
+
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_COOLDOWN: {
+					const m:TwitchatDataTypes.MessageCustomTrainCooldownData = {
+						id:Utils.getUUID(),
+						type,
+						date:Date.now(),
+						channel_id:StoreProxy.auth.twitch.user.id,
+						platform:"twitchat",
+						trainId:StoreProxy.customTrain.customTrainList[0]?.id || "3f2504e0-4f89-11d3-9a0c-0305e82c3301",
+						trainName:StoreProxy.customTrain.customTrainList[0]?.title || "My custom train",
+					};
+
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_START: {
+					const m:TwitchatDataTypes.MessageCustomTrainLevelStartData = {
+						id:Utils.getUUID(),
+						type,
+						date:Date.now(),
+						channel_id:StoreProxy.auth.twitch.user.id,
+						platform:"twitchat",
+						trainId:StoreProxy.customTrain.customTrainList[0]?.id || "3f2504e0-4f89-11d3-9a0c-0305e82c3301",
+						trainName:StoreProxy.customTrain.customTrainList[0]?.title || "My custom train",
+					};
+
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_LEVEL_UP: {
+					const train = StoreProxy.customTrain.customTrainList[0]
+					const amount = Math.round(Math.random()*100);
+					const amountLeft = Math.round(Math.random()*100);
+					const m:TwitchatDataTypes.MessageCustomTrainLevelUpData = {
+						id:Utils.getUUID(),
+						type,
+						date:Date.now(),
+						channel_id:StoreProxy.auth.twitch.user.id,
+						platform:"twitchat",
+						trainId:train?.id || "3f2504e0-4f89-11d3-9a0c-0305e82c3301",
+						trainName:train?.title || "My custom train",
+						amount,
+						amountFormatted: Utils.formatCurrency(amount, train.currency || "USD"),
+						amountLeft,
+						amountLeftFormatted: Utils.formatCurrency(amountLeft, train.currency || "USD"),
+						isRecord:Math.random() > .95,
+						level:Math.ceil(Math.random()*15),
+						percent: Math.round(Math.random()*100),
+					};
+
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_SUMMARY: {
+					const train = StoreProxy.customTrain.customTrainList[0]
+					const amount = Math.round(Math.random()*100);
+					const m:TwitchatDataTypes.MessageCustomTrainSummaryData = {
+						id:Utils.getUUID(),
+						type,
+						date:Date.now(),
+						channel_id:StoreProxy.auth.twitch.user.id,
+						platform:"twitchat",
+						trainId:train?.id || "3f2504e0-4f89-11d3-9a0c-0305e82c3301",
+						trainName:train?.title || "My custom train",
+						amount,
+						amountFormatted: Utils.formatCurrency(amount, train.currency || "USD"),
+						isRecord:Math.random() > .95,
+						level:Math.ceil(Math.random()*15),
+						percent: Math.round(Math.random()*100),
+						activities: [],
+					};
+
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_FAIL: {
+					const m:TwitchatDataTypes.MessageCustomTrainFailData = {
+						id:Utils.getUUID(),
+						type,
+						date:Date.now(),
+						channel_id:StoreProxy.auth.twitch.user.id,
+						platform:"twitchat",
+						trainId:StoreProxy.customTrain.customTrainList[0]?.id || "3f2504e0-4f89-11d3-9a0c-0305e82c3301",
+						trainName:StoreProxy.customTrain.customTrainList[0]?.title || "My custom train",
 					};
 
 					data = m;

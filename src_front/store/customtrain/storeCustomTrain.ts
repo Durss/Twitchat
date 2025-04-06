@@ -159,7 +159,20 @@ export const storeCustomTrain = defineStore('customTrain', {
 						delete this.customTrainStates[train.id];
 
 						// Not enough activities to trigger the train
-						if(state.activities.length <= train.triggerEventCount) return;
+						if(state.activities.length <= train.triggerEventCount) {
+							const notification:TwitchatDataTypes.MessageCustomTrainFailData = {
+								channel_id:StoreProxy.auth.twitch.user.id,
+								date:Date.now(),
+								id:Utils.getUUID(),
+								platform:"twitchat",
+								type:TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_FAIL,
+								trainId:train.id,
+								trainName:train.title,
+								fake:train.testing,
+							};
+							StoreProxy.chat.addMessage(notification);
+							return;
+						}
 
 						// Set all time record if none exist yet
 						if(!train.testing && !train.allTimeRecord && level.index > 1) {
@@ -180,8 +193,9 @@ export const storeCustomTrain = defineStore('customTrain', {
 							trainId:train.id,
 							trainName:train.title,
 							amount:state.amount,
+							amountFormatted:Utils.formatCurrency(state.amount, train.currency),
 							level:level.index,
-							percent,
+							percent:Math.floor(percent * 100),
 							isRecord:train.allTimeRecord?.amount === state.amount,
 							activities:state.activities.concat(),
 							fake:train.testing,
@@ -284,6 +298,8 @@ export const storeCustomTrain = defineStore('customTrain', {
 				if(newLevel.index !== prevLevel.index) {
 					train.expires_at = Date.now() + train.levelsDuration_s * 1000;
 					scheduleEnd();
+					const amountLeft = Math.ceil(train.levelAmounts[newLevel.index-1] - this.customTrainStates[train.id].amount);
+					const amountLeftFormatted = Utils.formatCurrency(amountLeft, train.currency);
 
 					// if(prevLevel.index > 0) {
 						const message:TwitchatDataTypes.MessageCustomTrainLevelUpData = {
@@ -295,8 +311,11 @@ export const storeCustomTrain = defineStore('customTrain', {
 							trainId:train.id,
 							trainName:train.title,
 							amount:this.customTrainStates[train.id].amount,
+							amountFormatted:Utils.formatCurrency(this.customTrainStates[train.id].amount, train.currency),
+							amountLeft,
+							amountLeftFormatted,
 							level:newLevel.index,
-							percent:(this.customTrainStates[train.id].amount - newLevel.offset) / newLevel.goal,
+							percent:Math.floor((this.customTrainStates[train.id].amount - newLevel.offset) / newLevel.goal * 100),
 							isRecord:train.allTimeRecord?.amount === this.customTrainStates[train.id].amount,
 						};
 
@@ -305,7 +324,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 						if(train.postLevelUpOnChat && train.postLevelUpChatMessage) {
 							const message = train.postLevelUpChatMessage
 								.replace(/\{LEVEL\}/gi, newLevel.index.toString())
-								.replace(/\{AMOUNT\}/gi, Utils.formatCurrency(Math.ceil(train.levelAmounts[newLevel.index-1] - this.customTrainStates[train.id].amount), train.currency))
+								.replace(/\{AMOUNT\}/gi, amountLeftFormatted)
 							MessengerProxy.instance.sendMessage(message);
 						}
 					// }

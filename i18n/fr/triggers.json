@@ -704,6 +704,7 @@
 			"mod": "Actions de modération",
 			"twitchat": "Twitchat",
 			"hypetrain": "Train de la hype",
+			"custom_train": "Train de la hype personnalisés",
 			"games": "Jeux",
 			"music": "Spotify",
 			"timer": "Évènements temporels",
@@ -1004,8 +1005,15 @@
 			"goal_overlay_id":"ID de l'overlay d'objectifs",
 			"goal_overlay_title":"Titre de l'overlay d'objectifs",
 			"current_vod_url":"URL la VOD en cours",
-			"customTrain_level": "Niveau de train atteint",
-			"customTrain_amount_left": "Somme à récolter"
+			"custom_train_id": "ID du train",
+			"custom_train_name": "Nom du train",
+			"custom_train_level": "Niveau atteint",
+			"custom_train_percent": "Pourcentage atteint",
+			"custom_train_amount": "Montant atteint",
+			"custom_train_amountFormatted": "Montant atteint formaté",
+			"custom_train_amountLeft": "Montant restant pour atteindre le niveau suivant",
+			"custom_train_amountLeftFormatted": "Montant restant formaté pour atteindre le niveau suivant",
+			"custom_train_record": "Est-ce un record du train ?"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1685,6 +1693,26 @@
 			"GOAL_STEP_COMPLETE": {
 				"label":"Objectif remplit (overlay Goals)",
 				"description": "Actions à exécuter lorsqu'une étape d'un objectif est complétée"
+			},
+			"CUSTOM_TRAIN_START": {
+				"label": "Début d'un train de la hype personnalisé",
+				"description": "Actions à exécuter lorsqu'un train de la hype personnalisé débute"
+			},
+			"CUSTOM_TRAIN_LEVEL_UP": {
+				"label":"Niveau supérieur d'un train de la hype personnalisé",
+				"description": "Actions à exécuter lorsqu'un train de la hype personnalisé change de niveau"
+			},
+			"CUSTOM_TRAIN_COMPLETE": {
+				"label":"Fin d'un train de la hype personnalisé",
+				"description": "Actions à exécuter lorsqu'un train de la hype personnalisé termine"
+			},
+			"CUSTOM_TRAIN_FAIL": {
+				"label":"Échec d'un train de la hype personnalisé",
+				"description": "Actions à exécuter lorsqu'un train de la hype personnalisé échoue"
+			},
+			"CUSTOM_TRAIN_COOLDOWN": {
+				"label":"Cooldown d'un train de la hype personnalisé écoulé",
+				"description": "Actions à exécuter lorsque le cooldown d'un train de la hype personnalisé est écoulé"
 			}
 		},
 		"musicEvents": {

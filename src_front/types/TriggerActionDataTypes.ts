@@ -305,21 +305,22 @@ export const TriggerEventTypeCategories = {
 	SUBITS:			{id:5, labelKey:"triggers.categories.subits", icons:["coin"]} as TriggerEventTypeCategory,
 	MOD:			{id:6, labelKey:"triggers.categories.mod", icons:["mod"]} as TriggerEventTypeCategory,
 	HYPETRAIN:		{id:7, labelKey:"triggers.categories.hypetrain", icons:["train"]} as TriggerEventTypeCategory,
-	GAMES:			{id:8, labelKey:"triggers.categories.games", icons:["ticket"]} as TriggerEventTypeCategory,
-	MUSIC:			{id:9, labelKey:"triggers.categories.music", icons:["spotify"]} as TriggerEventTypeCategory,
-	OBS:			{id:10, labelKey:"triggers.categories.obs", icons:["obs"]} as TriggerEventTypeCategory,
-	MISC:			{id:11, labelKey:"triggers.categories.misc", icons:["broadcast"]} as TriggerEventTypeCategory,
-	COUNTER_VALUE:	{id:12, labelKey:"triggers.categories.count_and_values", icons:["count", "placeholder"]} as TriggerEventTypeCategory,
-	GOXLR:			{id:13, labelKey:"triggers.categories.goxlr", icons:["goxlr"]} as TriggerEventTypeCategory,
-	STREAMLABS:		{id:14, labelKey:"triggers.categories.streamlabs", icons:["streamlabs"]} as TriggerEventTypeCategory,
-	KOFI:			{id:15, labelKey:"triggers.categories.kofi", icons:["kofi"]} as TriggerEventTypeCategory,
-	STREAMELEMENTS:	{id:16, labelKey:"triggers.categories.streamelements", icons:["streamelements"]} as TriggerEventTypeCategory,
-	TIPEEE:			{id:17, labelKey:"triggers.categories.tipeee", icons:["tipeee"]} as TriggerEventTypeCategory,
-	TWITCH_CHARITY:	{id:18, labelKey:"triggers.categories.twitch_charity", icons:["twitch_charity"]} as TriggerEventTypeCategory,
-	TILTIFY:		{id:19, labelKey:"triggers.categories.tiltify", icons:["tiltify"]} as TriggerEventTypeCategory,
-	PATREON:		{id:20, labelKey:"triggers.categories.patreon", icons:["patreon"]} as TriggerEventTypeCategory,
-	YOUTUBE:		{id:21, labelKey:"triggers.categories.youtube", icons:["youtube"]} as TriggerEventTypeCategory,
-	TIKTOK:			{id:22, labelKey:"triggers.categories.tiktok", icons:["tiktok"]} as TriggerEventTypeCategory,
+	CUSTOM_TRAIN:	{id:8, labelKey:"triggers.categories.custom_train", icons:["train"]} as TriggerEventTypeCategory,
+	GAMES:			{id:9, labelKey:"triggers.categories.games", icons:["ticket"]} as TriggerEventTypeCategory,
+	MUSIC:			{id:10, labelKey:"triggers.categories.music", icons:["spotify"]} as TriggerEventTypeCategory,
+	OBS:			{id:11, labelKey:"triggers.categories.obs", icons:["obs"]} as TriggerEventTypeCategory,
+	MISC:			{id:12, labelKey:"triggers.categories.misc", icons:["broadcast"]} as TriggerEventTypeCategory,
+	COUNTER_VALUE:	{id:13, labelKey:"triggers.categories.count_and_values", icons:["count", "placeholder"]} as TriggerEventTypeCategory,
+	GOXLR:			{id:14, labelKey:"triggers.categories.goxlr", icons:["goxlr"]} as TriggerEventTypeCategory,
+	STREAMLABS:		{id:15, labelKey:"triggers.categories.streamlabs", icons:["streamlabs"]} as TriggerEventTypeCategory,
+	KOFI:			{id:16, labelKey:"triggers.categories.kofi", icons:["kofi"]} as TriggerEventTypeCategory,
+	STREAMELEMENTS:	{id:17, labelKey:"triggers.categories.streamelements", icons:["streamelements"]} as TriggerEventTypeCategory,
+	TIPEEE:			{id:18, labelKey:"triggers.categories.tipeee", icons:["tipeee"]} as TriggerEventTypeCategory,
+	TWITCH_CHARITY:	{id:19, labelKey:"triggers.categories.twitch_charity", icons:["twitch_charity"]} as TriggerEventTypeCategory,
+	TILTIFY:		{id:20, labelKey:"triggers.categories.tiltify", icons:["tiltify"]} as TriggerEventTypeCategory,
+	PATREON:		{id:21, labelKey:"triggers.categories.patreon", icons:["patreon"]} as TriggerEventTypeCategory,
+	YOUTUBE:		{id:22, labelKey:"triggers.categories.youtube", icons:["youtube"]} as TriggerEventTypeCategory,
+	TIKTOK:			{id:23, labelKey:"triggers.categories.tiktok", icons:["tiktok"]} as TriggerEventTypeCategory,
 };
 export type TriggerEventTypeCategoryID = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories]['id'];
 
@@ -1586,6 +1587,11 @@ export const TriggerTypes = {
 	GOAL_STEP_COMPLETE:"160",
 	CHAT_POLL_START:"161",
 	CHAT_POLL_RESULT:"162",
+	CUSTOM_TRAIN_START:"163",
+	CUSTOM_TRAIN_LEVEL_UP:"164",
+	CUSTOM_TRAIN_COMPLETE:"165",
+	CUSTOM_TRAIN_FAIL:"166",
+	CUSTOM_TRAIN_COOLDOWN:"167",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -2517,6 +2523,28 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"GOALS_TITLE", descKey:'triggers.placeholders.goal_overlay_title', pointer:"goalConfig.title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoalStepCompleteData>,
 	];
 
+	map[TriggerTypes.CUSTOM_TRAIN_COMPLETE] = [
+		{tag:"TRAIN_ID", descKey:'triggers.placeholders.custom_train_id', pointer:"trainId", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
+		{tag:"TRAIN_NAME", descKey:'triggers.placeholders.custom_train_name', pointer:"trainName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
+		{tag:"TRAIN_LEVEL", descKey:'triggers.placeholders.custom_train_level', pointer:"level", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
+		{tag:"TRAIN_PERCENT", descKey:'triggers.placeholders.custom_train_percent', pointer:"percent", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
+		{tag:"TRAIN_AMOUNT", descKey:'triggers.placeholders.custom_train_amount', pointer:"amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
+		{tag:"TRAIN_AMOUNT_FORMATTED", descKey:'triggers.placeholders.custom_train_amountFormatted', pointer:"amountFormatted", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
+		{tag:"TRAIN_RECORD", descKey:'triggers.placeholders.custom_train_record', pointer:"isRecord", numberParsable:false, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
+	];
+
+	map[TriggerTypes.CUSTOM_TRAIN_LEVEL_UP] = [ ...map[TriggerTypes.CUSTOM_TRAIN_COMPLETE]!,
+		{tag:"TRAIN_AMOUNT_LEFT", descKey:'triggers.placeholders.custom_train_amountLeft', pointer:"amountLeft", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
+		{tag:"TRAIN_AMOUNT_LEFT_FORMATTED", descKey:'triggers.placeholders.custom_train_amountLeftFormatted', pointer:"amountLeftFormatted", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
+	]
+
+	map[TriggerTypes.CUSTOM_TRAIN_START] =
+	map[TriggerTypes.CUSTOM_TRAIN_FAIL] =
+	map[TriggerTypes.CUSTOM_TRAIN_COOLDOWN] = [
+		{tag:"TRAIN_ID", descKey:'triggers.placeholders.custom_train_id', pointer:"trainId", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
+		{tag:"TRAIN_NAME", descKey:'triggers.placeholders.custom_train_name', pointer:"trainName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
+	];
+
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder<any>[] = [];
 	for (let i = 0; i < counters.length; i++) {
@@ -2785,6 +2813,12 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", labelKey:"triggers.events.HYPE_TRAIN_END.label", value:TriggerTypes.HYPE_TRAIN_END, descriptionKey:"triggers.events.HYPE_TRAIN_END.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COMPLETE},
 		{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", labelKey:"triggers.events.HYPE_TRAIN_CANCELED.label", value:TriggerTypes.HYPE_TRAIN_CANCELED, descriptionKey:"triggers.events.HYPE_TRAIN_CANCELED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_CANCEL},
 		{category:TriggerEventTypeCategories.HYPETRAIN, icon:"train", labelKey:"triggers.events.HYPE_TRAIN_COOLDOWN.label", value:TriggerTypes.HYPE_TRAIN_COOLDOWN, descriptionKey:"triggers.events.HYPE_TRAIN_COOLDOWN.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN},
+
+		{category:TriggerEventTypeCategories.CUSTOM_TRAIN, icon:"train", labelKey:"triggers.events.CUSTOM_TRAIN_START.label", value:TriggerTypes.CUSTOM_TRAIN_START, descriptionKey:"triggers.events.CUSTOM_TRAIN_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_START},
+		{category:TriggerEventTypeCategories.CUSTOM_TRAIN, icon:"train", labelKey:"triggers.events.CUSTOM_TRAIN_LEVEL_UP.label", value:TriggerTypes.CUSTOM_TRAIN_LEVEL_UP, descriptionKey:"triggers.events.CUSTOM_TRAIN_LEVEL_UP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_LEVEL_UP},
+		{category:TriggerEventTypeCategories.CUSTOM_TRAIN, icon:"train", labelKey:"triggers.events.CUSTOM_TRAIN_COMPLETE.label", value:TriggerTypes.CUSTOM_TRAIN_COMPLETE, descriptionKey:"triggers.events.CUSTOM_TRAIN_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_SUMMARY},
+		{category:TriggerEventTypeCategories.CUSTOM_TRAIN, icon:"train", labelKey:"triggers.events.CUSTOM_TRAIN_FAIL.label", value:TriggerTypes.CUSTOM_TRAIN_FAIL, descriptionKey:"triggers.events.CUSTOM_TRAIN_FAIL.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_FAIL},
+		{category:TriggerEventTypeCategories.CUSTOM_TRAIN, icon:"train", labelKey:"triggers.events.CUSTOM_TRAIN_COOLDOWN.label", value:TriggerTypes.CUSTOM_TRAIN_COOLDOWN, descriptionKey:"triggers.events.CUSTOM_TRAIN_COOLDOWN.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_COOLDOWN},
 
 		{category:TriggerEventTypeCategories.MOD, icon:"info", labelKey:"triggers.events.STREAM_INFO_UPDATE.label", value:TriggerTypes.STREAM_INFO_UPDATE, descriptionKey:"triggers.events.STREAM_INFO_UPDATE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE},
 		{category:TriggerEventTypeCategories.MOD, icon:"shoutout", labelKey:"triggers.events.SHOUTOUT_OUT.label", value:TriggerTypes.SHOUTOUT_OUT, descriptionKey:"triggers.events.SHOUTOUT_OUT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.SHOUTOUT},

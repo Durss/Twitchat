@@ -11,7 +11,7 @@
 			<i18n-t scope="global" keypath="chat.custom_train_summary.title" tag="span">
 				<template #NAME><strong>{{ train?.title || messageData.trainName }}</strong></template>
 				<template #LEVEL><strong>{{ messageData.level }}</strong></template>
-				<template #PERCENT><strong>{{ Math.round(messageData.percent*100) }}%</strong></template>
+				<template #PERCENT><strong>{{ messageData.percent }}%</strong></template>
 				<template #AMOUNT><strong>{{ amount }}</strong></template>
 			</i18n-t>
 		</div>

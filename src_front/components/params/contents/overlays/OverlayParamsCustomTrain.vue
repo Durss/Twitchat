@@ -64,7 +64,7 @@
 					<div class="card-item install">
 						<label><Icon name="obs" />{{$t('bingo_grid.form.install_title')}}</label>
 						<OverlayInstaller type="customtrain" :sourceSuffix="entry.title" :id="entry.id"
-						:sourceTransform="{width:1200, height:80}" />
+						:sourceTransform="{width:1200, height:100}" />
 					</div>
 
 					<div class="ctas">
@@ -399,8 +399,8 @@ class OverlayParamsCustomTrain extends Vue {
 			this.param_levelAmounts[id]			= {type:"string", value:"", longText:true, maxLength:1000, labelKey:"overlay.customTrain.param_levelAmounts"};
 
 			this.param_postLevelUpMessage[id].placeholderList = [
-				{tag:"LEVEL", descKey:"triggers.placeholders.customTrain_level" },
-				{tag:"AMOUNT", descKey:"triggers.placeholders.customTrain_amount_left" },
+				{tag:"LEVEL", descKey:"triggers.placeholders.custom_train_level" },
+				{tag:"AMOUNT", descKey:"triggers.placeholders.custom_train_amountLeft" },
 			];
 			this.param_postSuccessMessage[id].placeholderList = this.param_postLevelUpMessage[id].placeholderList.concat();
 			this.param_levelAmounts[id].value = entry.levelAmounts.join(", ");

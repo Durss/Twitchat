@@ -16,7 +16,7 @@ export default class Utils {
 	 * @returns
 	 */
 	public static formatCurrency(amount:number, pattern:string):string {
-		return pattern.replace(Utils.CURRENCY_AMOUNT_TOKEN, amount.toString());
+		return pattern.replace(Utils.CURRENCY_AMOUNT_TOKEN, (Math.round(amount*10)/10).toString());
 	}
 
 	/**

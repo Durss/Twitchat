@@ -704,6 +704,7 @@
 			"mod": "Moderation actions",
 			"twitchat": "Twitchat",
 			"hypetrain": "Hype train",
+			"custom_train": "Custom Hype train",
 			"games": "Games",
 			"music": "Spotify",
 			"timer": "Temporal events",
@@ -1004,8 +1005,15 @@
 			"goal_overlay_id":"Goal overlay ID",
 			"goal_overlay_title":"Goal overlay title",
 			"current_vod_url":"URL of the current VOD",
-			"customTrain_level": "Train level reached",
-			"customTrain_amount_left": "Ammount left to reach next level"
+			"custom_train_id": "Train ID",
+			"custom_train_name": "Train name",
+			"custom_train_level": "Level reached",
+			"custom_train_percent": "Percent reached",
+			"custom_train_amount": "Amount reached",
+			"custom_train_amountFormatted": "Amount reached formatted",
+			"custom_train_amountLeft": "Ammount left to reach next level",
+			"custom_train_amountLeftFormatted": "Amount left formatted to reach next level",
+			"custom_train_record": "Is train record?"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1683,6 +1691,26 @@
 			"GOAL_STEP_COMPLETE": {
 				"label":"Goal overlay step complete",
 				"description": "Actions to execute when a step of a Goal completes"
+			},
+			"CUSTOM_TRAIN_START": {
+				"label":"Custom train starts",
+				"description": "Actions to execute when a custom train starts"
+			},
+			"CUSTOM_TRAIN_LEVEL_UP": {
+				"label":"Custom train level up",
+				"description": "Actions to execute when a custom train levels up"
+			},
+			"CUSTOM_TRAIN_COMPLETE": {
+				"label":"Custom train completed",
+				"description": "Actions to execute when a custom train completes"
+			},
+			"CUSTOM_TRAIN_FAIL": {
+				"label":"Custom train failed",
+				"description": "Actions to execute when a custom train fails"
+			},
+			"CUSTOM_TRAIN_COOLDOWN": {
+				"label":"Custom train cooldown end",
+				"description": "Actions to execute when a custom train cooldown ends"
 			}
 		},
 		"musicEvents": {

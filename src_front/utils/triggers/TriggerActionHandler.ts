@@ -752,6 +752,36 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_COOLDOWN: {
+				if(await this.executeTriggersByType(TriggerTypes.CUSTOM_TRAIN_COOLDOWN, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_FAIL: {
+				if(await this.executeTriggersByType(TriggerTypes.CUSTOM_TRAIN_FAIL, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_LEVEL_UP: {
+				if(await this.executeTriggersByType(TriggerTypes.CUSTOM_TRAIN_LEVEL_UP, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_START: {
+				if(await this.executeTriggersByType(TriggerTypes.CUSTOM_TRAIN_START, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.CUSTOM_TRAIN_SUMMARY: {
+				if(await this.executeTriggersByType(TriggerTypes.CUSTOM_TRAIN_COMPLETE, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				switch(message.noticeId) {
 					case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE:{
