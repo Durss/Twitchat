@@ -2,13 +2,6 @@
 	<div class="overlayparamschatpolls overlayParamsSection">
 
 		<div class="header">{{ $t("overlay.chatPoll.head") }}</div>
-
-		<a href="https://www.youtube.com/watch?v=IcX-KnYJuCA" target="_blank" class="youtubeTutorialBt">
-			<Icon name="youtube" theme="light" />
-			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
-			<Icon name="newtab" theme="light" />
-		</a>
-
 		<section class="card-item">
 			<div class="header">
 				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>

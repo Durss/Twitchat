@@ -130,7 +130,7 @@ class ConnectElevenLabs extends Vue {
 		const res:{name:string, models:modesType}[] = [];
 		const sorted = this.$store.groq.availableModels
 						.sort((a,b)=>a.owned_by.localeCompare(b.owned_by))
-						// .filter(m=>m.type == "text");
+						.filter(m=>m.type == "text");
 		let category:typeof res[0] = {name:sorted[0].owned_by, models:[]};
 		for (let i = 0; i < sorted.length; i++) {
 			const model = sorted[i];

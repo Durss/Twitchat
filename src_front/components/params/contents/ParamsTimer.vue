@@ -31,7 +31,7 @@
 		@sort="rebuildParams()">
 			<template #item="{element:entry, index}:{element:TwitchatDataTypes.TimerData, index:number}">
 				<ToggleBlock class="timerEntry"
-				:open="false" noArrow
+				:open="false"
 				:key="entry.id"
 				:editableTitle="!entry.isDefault"
 				v-model:title="entry.title"
@@ -296,7 +296,7 @@ export default toNative(ParamsTimer);
 			display: flex;
 			flex-direction: row;
 			align-items: center;
-			margin: calc(-.5em - 1px);
+			margin: -.25em 0;
 			align-self: stretch;
 			.actionBt {
 				width: 1.5em;
@@ -322,7 +322,7 @@ export default toNative(ParamsTimer);
 			border-radius: 0;
 			align-self: stretch;
 			align-items: center;
-			margin: calc(-.5em - 1px) 0;
+			margin: -.25em 0;
 			margin-left: -2em;
 			padding: 0 .5em;
 			padding-left: 2em;

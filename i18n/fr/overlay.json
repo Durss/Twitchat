@@ -34,7 +34,7 @@
 			"default_timer": "Cet overlay est lié aux commandes {CMD}",
 			"default_title": "Mon minuteur",
 			"css": "Changez l'apparence via ces sélecteurs CSS",
-			"createTimer_bt": "Créez un minuteur",
+			"createTimer_bt": "Editer les minuteurs",
 			"param_style": "Style d'affichage",
 			"param_style_text":"Texte",
 			"param_style_bar":"Barre de progression",
@@ -386,7 +386,7 @@
 		},
 		"chatPoll": {
 			"title": "Sondage de tchat",
-			"head": "Afficher le sondage en cours sur votre stream",
+			"head": "Afficher le sondage de tchat en cours sur votre stream",
 			"css": "@:overlay.polls.css",
 			"testBt": "@:overlay.polls.testBt",
 			"param_listMode": "@:overlay.polls.param_listMode",
@@ -679,7 +679,7 @@
 			"param_successLabel_summary": "Niveau {'{'}LEVEL{'}'} atteint à {'{'}PERCENT{'}'}%",
 			"param_recordLabel_default": "🏆 Nouveau record absolu 🏆",
 			"param_platforms": "Choisissez les plateformes de dons acceptées pour ce train",
-			"allTimeRecord_title":"Record absolu le {DATE}, {LEVEL} à {PERCENT} avec {AMOUNT}"
+			"allTimeRecord_title":"Record absolu le {DATE}, niveau {LEVEL} à {PERCENT} avec {AMOUNT}"
 		}
 	}
 }

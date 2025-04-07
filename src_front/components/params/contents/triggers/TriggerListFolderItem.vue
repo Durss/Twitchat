@@ -334,7 +334,7 @@ export default toNative(TriggerListFolderItem);
 		display: flex;
 		flex-direction: row;
 		align-self: stretch;
-		margin: calc(-.5em - 1px) 0;
+		margin: -1em 0;
 		align-items: center;
 		z-index: 1;
 		&>.icon {

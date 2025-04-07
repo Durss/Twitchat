@@ -47,6 +47,7 @@
 
 				<template #right_actions>
 					<div class="rightActions">
+						<TTButton class="actionBt" @click.stop :copy="entry.id" icon="id" v-tooltip="$t('global.copy_id')" small />
 						<TTButton @click.stop="$store.customTrain.deleteCustomTrain(entry.id)" icon="trash" alert />
 					</div>
 				</template>
@@ -67,7 +68,7 @@
 						:sourceTransform="{width:1200, height:100}" />
 					</div>
 
-					<div class="ctas">
+					<div class="card-item dark ctas">
 						<TTButton icon="test"
 						@click="simulateTrain(entry.id)"
 						:disabled="entry.levelAmounts.length <= 1">{{ $t("overlay.customTrain.simulate_bt") }}</TTButton>

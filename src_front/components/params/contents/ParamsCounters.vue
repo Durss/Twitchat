@@ -50,7 +50,7 @@
 				<template #item="{element:entry, index}:{element:CounterEntry, index:number}">
 					<ToggleBlock class="counterEntry"
 					v-if="counterEntries.length > 0"
-					:open="false" noArrow
+					:open="false"
 					:key="entry.counter.id"
 					:title="entry.counter.name">
 
@@ -836,7 +836,7 @@ export default toNative(ParamsCounters);
 			display: flex;
 			flex-direction: row;
 			align-items: center;
-			margin: calc(-.5em - 1px);
+			margin: -.25em 0;
 			align-self: stretch;
 			.actionBt {
 				width: 1.5em;

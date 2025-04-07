@@ -34,7 +34,7 @@
 			"default_timer": "This overlay is tied with {CMD} commands",
 			"default_title": "My timer",
 			"css": "Change the appearance of the timer with these CSS selectors",
-			"createTimer_bt": "Create a timer",
+			"createTimer_bt": "Edit timers",
 			"param_style": "Overlay style",
 			"param_style_text":"Text",
 			"param_style_bar":"Progress bar",

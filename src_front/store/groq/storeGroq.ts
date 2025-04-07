@@ -74,8 +74,14 @@ export const storeGroq = defineStore('groq', {
 						this.availableModels.forEach((model) => {
 							if(model.id.indexOf("vision") > -1) {
 								model.type = "vision";
+							}else
+							if(model.id.indexOf("tts") > -1) {
+								model.type = "tts";
+							}else
+							if(model.id.indexOf("whisper") > -1) {
+								model.type = "stt";
 							}else{
-								model.type = model.context_window >= 1024? "text" : "speech";
+								model.type = "text";
 							}
 						});
 						this.connected = true;

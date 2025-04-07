@@ -9,7 +9,7 @@
 		<div class="header">{{ $t("overlay.timer.header") }}</div>
 
 		<section>
-			<TTButton @click="openTimerParams" icon="add">{{ $t("overlay.timer.createTimer_bt") }}</TTButton>
+			<TTButton @click="openTimerParams" icon="edit">{{ $t("overlay.timer.createTimer_bt") }}</TTButton>
 		</section>
 
 		<section class="timerList">

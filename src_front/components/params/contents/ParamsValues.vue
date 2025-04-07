@@ -44,7 +44,7 @@
 			@sort="onSortItems()">
 				<template #item="{element:entry, index}:{element:ValueEntry, index:number}">
 					<ToggleBlock class="valueEntry"
-					:open="false" noArrow
+					:open="false"
 					:key="entry.value.id"
 					:title="entry.value.name">
 
@@ -719,7 +719,7 @@ export default toNative(ParamsValues);
 			display: flex;
 			flex-direction: row;
 			align-items: center;
-			margin: calc(-.5em - 1px);
+			margin: -.25em 0;
 			align-self: stretch;
 			.actionBt {
 				width: 1.5em;
