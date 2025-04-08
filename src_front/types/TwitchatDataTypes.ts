@@ -46,6 +46,7 @@ export namespace TwitchatDataTypes {
 		PLAYABILITY: "playability",
 		HIGHLIGHT: "chathighlight",
 		STREAMERBOT: "streamerbot",
+		STREAMSOCKET: "streamsocket",
 		STREAMELEMENTS: "streamelements",
 	} as const;
 	export type ParamDeepSectionsStringType = typeof ParamDeepSections[keyof typeof ParamDeepSections] | OverlayTypes;
@@ -2701,6 +2702,7 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
 		RAFFLE_PICK_WINNER:"raffle_pick_winner",
 		OBS_RECORDING_STOP:"obs_recording_stop",
+		STREAMSOCKET_ACTION:"streamsocket_action",
 		PRIVATE_MOD_MESSAGE:"private_mod_message",
 		OBS_RECORDING_START:"obs_recording_start",
 		AD_BREAK_START_CHAT:"ad_break_start_chat",
@@ -2827,6 +2829,7 @@ export namespace TwitchatDataTypes {
 		obs_recording_stop:false,
 		goal_step_complete:false,
 		custom_train_start:false,
+		streamsocket_action:true,
 		custom_train_summary:true,
 		obs_recording_start:false,
 		youtube_subscription:true,
@@ -3004,6 +3007,7 @@ export namespace TwitchatDataTypes {
 									| MessageCustomTrainLevelUpData
 									| MessageCustomTrainSummaryData
 									| MessageCustomTrainFailData
+									| MessageStreamSocketActionData
 	;
 
 	/**
@@ -3056,7 +3060,9 @@ export namespace TwitchatDataTypes {
 							| typeof TwitchatMessageType.TWITCHAT_AD
 							| typeof TwitchatMessageType.WHISPER
 							| typeof TwitchatMessageType.MESSAGE
-							| typeof TwitchatMessageType.PRIVATE_MOD_MESSAGE;
+							| typeof TwitchatMessageType.PRIVATE_MOD_MESSAGE
+							| typeof TwitchatMessageType.STREAMSOCKET_ACTION
+							;
 
 	export const MessageListFilterTypes:{type:AllowFilterTypes, labelKey:string, icon:string, scopes:TwitchScopesString[], newFlag:number}[] = [
 		{type:TwitchatMessageType.FOLLOWING,							labelKey:"chat.filters.message_types.following",							icon:"follow",			scopes:[TwitchScopes.LIST_FOLLOWERS],	newFlag:0},
@@ -3093,6 +3099,7 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.STREAM_ONLINE,						labelKey:"chat.filters.message_types.stream_online",						icon:"online",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,					labelKey:"chat.filters.message_types.music_added_to_queue",					icon:"music",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.AD_BREAK_START_CHAT,					labelKey:"chat.filters.message_types.ad_break_start_chat",					icon:"ad",				scopes:[TwitchScopes.ADS_READ],	newFlag:0},
+		{type:TwitchatMessageType.STREAMSOCKET_ACTION,					labelKey:"chat.filters.message_types.stream_socket_action",					icon:"streamsocket",	scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V16},
 		{type:TwitchatMessageType.JOIN,									labelKey:"chat.filters.message_types.join",									icon:"enter",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.LEAVE,								labelKey:"chat.filters.message_types.leave",								icon:"leave",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.USER_WATCH_STREAK,					labelKey:"chat.filters.message_types.user_watch_streak",					icon:"watchStreak",		scopes:[],	newFlag:0},
@@ -6210,6 +6217,9 @@ export namespace TwitchatDataTypes {
 		stepConfig:DonationGoalOverlayConfig["goalList"][number];
 	}
 
+	/**
+	 * Message sent when a new poll starts or completes
+	 */
 	export interface MessageChatPollData extends AbstractTwitchatMessage {
 		type: "chat_poll";
 		/**
@@ -6220,5 +6230,32 @@ export namespace TwitchatDataTypes {
 		 * Is poll just starting
 		 */
 		isStart:boolean;
+	}
+
+	/**
+	 * Message sent when an action is received from StreamSocket Twitch extension
+	 */
+	export interface MessageStreamSocketActionData extends AbstractTwitchatMessage {
+		type: "streamsocket_action";
+		/**
+		 * Action ID
+		 */
+		actionId: string;
+		/**
+		 * Action Name
+		 */
+        actionName: string;
+		/**
+		 * Product sku for paid actions
+		 */
+		sku: string;
+		/**
+		 * Product cost in bits for paid actions
+		 */
+        bits: number;
+		/**
+		 * User that triggered the action
+		 */
+        user: TwitchatUser;
 	}
 }

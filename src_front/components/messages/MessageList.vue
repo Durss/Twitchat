@@ -98,7 +98,7 @@
 				/>
 			</div>
 			<div class="ctas">
-				<TTButton v-if="$store.groq.connected && !showSummaryForm"
+				<TTButton v-if="$store.groq.enabled && $store.groq.connected && !showSummaryForm"
 					@click="showSummaryForm = true"
 					v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'chat_conversation_groq'}"
 					icon="groq"
@@ -808,6 +808,10 @@ class MessageList extends Vue {
 
 			case TwitchatDataTypes.TwitchatMessageType.TWITCH_CHARITY_DONATION: {
 				return this.config.filters.twitch_charity_donation !== false;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.STREAMSOCKET_ACTION: {
+				return this.config.filters.streamsocket_action !== false;
 			}
 
 			default: return false;

@@ -59,7 +59,7 @@
 
 							<ModeratorActionSwitcher v-if="isModeratedChannel" v-model:mode="$store.chat.messageMode" />
 
-							<GroqChannelAction v-if="$store.groq.connected" />
+							<GroqChannelAction v-if="$store.groq.connected && $store.groq.enabled" />
 
 						</div>
 
@@ -291,7 +291,7 @@
 				<transition name="blink">
 					<ButtonNotification class="groq"
 						icon="groq"
-						v-if="$store.groq.connected && $store.groq.answerHistory.length > 0"
+						v-if="$store.groq.enabled && $store.groq.connected && $store.groq.answerHistory.length > 0"
 						:aria-label="$t('chat.form.groqBt_aria')"
 						v-tooltip="{touch:'hold', content:$t('chat.form.groqBt_aria')}"
 						@click="openModal('groqHistory')" />

@@ -82,6 +82,7 @@ export default class StoreProxy {
 	public static groq: IGroqState & IGroqGetters & IGroqActions & { $state: IGroqState, $reset: () => void };
 	public static animatedText: IAnimatedTextState & IAnimatedTextGetters & IAnimatedTextActions & { $state: IAnimatedTextState, $reset: () => void };
 	public static customTrain: ICustomTrainState & ICustomTrainGetters & ICustomTrainActions & { $state: ICustomTrainState, $reset: () => void };
+	public static streamSocket: IStreamSocketState & IStreamSocketGetters & IStreamSocketActions & { $state: IStreamSocketState, $reset: () => void };
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static asset:(path: string) => string;
@@ -3534,6 +3535,7 @@ export interface ITwitchBotActions {
 
 
 export interface IGroqState {
+	enabled:boolean;
 	connected:boolean;
 	apiKey:string;
 	creditsUsed:number;
@@ -3685,4 +3687,38 @@ export interface ICustomTrainActions {
 	 * Resets cooldown of given train
 	 */
 	resetCooldown(trainId:string):void;
+}
+
+
+
+
+
+export interface IStreamSocketState {
+	connected:boolean;
+	invalidSecret:boolean;
+	connecting:boolean;
+	socketSecret:string;
+}
+
+export interface IStreamSocketGetters {
+}
+
+export interface IStreamSocketActions {
+	/**
+	 * Populates the store from user's data
+	 * @param data
+	 */
+	populateData():void;
+	/**
+	 * Connect to WS with given token
+	 */
+	connect(secret:string, isReconnect?:boolean):Promise<boolean>;
+	/**
+	 * Disconnects from streamlabs
+	 */
+	disconnect(clearStore?:boolean):void;
+	/**
+	 * Saves current data to server
+	 */
+	saveData():void;
 }

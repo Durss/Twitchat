@@ -25,6 +25,7 @@ const getAnonUserName = (login:string, userMap:{[login:string]:string}):string =
 
 export const storeGroq = defineStore('groq', {
 	state: () => ({
+		enabled: false,
 		apiKey: "",
 		connected: false,
 		creditsTotal: 0,

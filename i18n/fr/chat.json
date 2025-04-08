@@ -132,6 +132,7 @@
 				"stream_online": "Stream commencé/arrêté",
 				"hype_chat": "Hype chat",
 				"ad_break_start_chat": "Lancement manuel de publicité",
+				"stream_socket_action": "Action StreamSocket",
 				"streamlabs": "Alertes Streamlabs",
 				"streamelements": "Alertes Streamelements",
 				"kofi": "Alertes Ko-fi",
@@ -593,6 +594,9 @@
 		"custom_train_summary": {
 			"title": "\"{NAME}\" a terminé au niveau {LEVEL} à {PERCENT} pour un total de {AMOUNT}.",
 			"record": "record"
+		},
+		"stream_socket": {
+			"action": "{USER} a utilisé l'action StreamSocket \"{ACTION}\""
 		}
 	}
 }

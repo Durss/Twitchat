@@ -210,7 +210,7 @@
 							<h2 class="title">{{ $t("usercard.messages") }}</h2>
 						</div>
 
-						<div class="ctas" v-if="$store.groq.connected">
+						<div class="ctas" v-if="$store.groq.enabled && $store.groq.connected">
 							<TTButton v-if="!showGroqForm"
 								@click="showGroqForm = true"
 								icon="groq"

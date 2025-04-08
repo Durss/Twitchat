@@ -34,7 +34,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 
 
 	getters: {
-		
+
 	} as IStreamlabsGetters
 	& ThisType<UnwrapRef<IStreamlabsState> & _StoreWithGetters<IStreamlabsGetters> & PiniaCustomProperties>
 	& _GettersTree<IStreamlabsState>,
@@ -84,12 +84,12 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			url.searchParams.set("state", csrfToken.json.token);
 			return url.href;
 		},
-		
+
 		setAuthResult(code:string, csrf:string):void {
 			this.authResult.code = code;
 			this.authResult.csrf = csrf;
 		},
-		
+
 		async getAccessToken():Promise<boolean> {
 			try {
 				const csrfResult = await ApiHelper.call("auth/CSRFToken", "POST", {token:this.authResult.csrf});
@@ -112,7 +112,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 
 			//Token changed
 			if(isReconnect && token != this.socketToken) return Promise.resolve(false);
-			
+
 			this.disconnect(false);
 
 			if(!isReconnect) {
@@ -123,14 +123,14 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			autoReconnect = true;
 
 			return new Promise<boolean>((resolve, reject)=> {
-	
+
 				socket = new WebSocket(`wss://sockets.streamlabs.com/socket.io/?EIO=3&transport=websocket&token=${this.socketToken}`);
-	
+
 				socket.onopen = async () => {
 					reconnectAttempts = 0;
 					clearTimeout(reconnectTimeout);
 				};
-				
+
 				socket.onmessage = (event:MessageEvent<string>) => {
 					//PONG messages
 					if(event.data == "3") return;
@@ -305,12 +305,12 @@ export const storeStreamlabs = defineStore('streamlabs', {
 					}
 					isAutoInit = false;
 				};
-			
+
 				socket.onclose = (event) => {
 					//Do not reconnect if token changed
 					if(token != this.socketToken) return;
 					if(!autoReconnect) return;
-	
+
 					this.connected = false;
 					if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
 					clearTimeout(reconnectTimeout);
@@ -320,7 +320,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 						this.connect(token, true);
 					}, 500 * reconnectAttempts);
 				};
-				
+
 				socket.onerror = (error) => {
 					resolve(false);
 					this.connected = false;
@@ -338,7 +338,6 @@ export const storeStreamlabs = defineStore('streamlabs', {
 
 		disconnect(clearStore:boolean = true):void {
 			autoReconnect = false;
-			this.connected = false;
 			if(clearStore) {
 				this.socketToken = "";
 				this.accessToken = "";
@@ -348,6 +347,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
 			clearTimeout(reconnectTimeout);
 			if(socket && !this.connected) socket.close();
+			this.connected = false;
 		},
 
 		saveData():void {
@@ -433,9 +433,9 @@ export const storeStreamlabs = defineStore('streamlabs', {
 				this.saveData();
 				StoreProxy.donationGoals.onSourceValueUpdate("streamlabs_charity", this.charityTeam.campaignId);
 			}
-			
+
 			StoreProxy.donationGoals.broadcastData();
-			
+
 			//Start full resync
 			this.resyncFromDonationList();
 
@@ -532,7 +532,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 
 				//Ignore if not for currently configure campaign ID
 				if(message.campaignId != this.charityTeam!.campaignId) continue;
-				
+
 				const chunks = TwitchUtils.parseMessageToChunks(message.message, undefined, true);
 				const to = message.to?.name || me.login;
 				const isToSelf = to.toLowerCase() == me.login.toLowerCase() || to.toLowerCase() == me.displayNameOriginal.toLowerCase();
@@ -608,7 +608,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 				pageIndex ++;
 			}while(hasResults);
 
-			//Cache all previous pages result (last one excluded) to avoid calling them all again 
+			//Cache all previous pages result (last one excluded) to avoid calling them all again
 			donationPageIndex = pageIndex - 1;
 			donationPrevPagesTotal = total - lastPageTotal;
 
@@ -630,7 +630,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 
 			resyncInProgress = false;
 		}
-	
+
 	} as IStreamlabsActions
 	& ThisType<IStreamlabsActions
 		& UnwrapRef<IStreamlabsState>

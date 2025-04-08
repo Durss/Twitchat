@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 556.1 556.1">
+  <!-- Generator: Adobe Illustrator 29.4.0, SVG Export Plug-In . SVG Version: 2.1.0 Build 152)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: #fff;
+      }
+    </style>
+  </defs>
+  <sodipodi:namedview id="namedview1" bordercolor="#000000" borderopacity="0.25" pagecolor="#ffffff"/>
+  <g id="_x3C_defs">
+    <inkscape:path-effect id="path-effect88" apply_no_radius="true" apply_with_radius="true" chamfer_steps="1" effect="fillet_chamfer" flexible="false" hide_knots="false" is_visible="true" lpeversion="1" method="auto" mode="F" nodesatellites_param="F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1" only_selected="false" radius="0" unit="px" use_knot_distance="true"/>
+    <inkscape:path-effect id="path-effect87" apply_no_radius="true" apply_with_radius="true" chamfer_steps="1" effect="fillet_chamfer" flexible="false" hide_knots="false" is_visible="true" lpeversion="1" method="auto" mode="F" nodesatellites_param="F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1" only_selected="false" radius="0" unit="px" use_knot_distance="true"/>
+  </g>
+  <path class="st0" d="M485.7,0H70.4C31.5,0,0,31.5,0,70.4v415.4c0,38.9,31.5,70.4,70.4,70.4h415.4c38.9,0,70.4-31.5,70.4-70.4V70.4c0-38.9-31.5-70.4-70.4-70.4ZM254.9,416.9l-37.1,37.1L41.9,278.1,217.8,102.1l37.1,37.1-138.8,138.8,138.8,138.8ZM338.3,454l-37.1-37.1,138.8-138.8-138.8-138.8,37.1-37.1,175.9,175.9-175.9,175.9Z"/>
+</svg>

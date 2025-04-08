@@ -2006,6 +2006,24 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.STREAMSOCKET_ACTION: {
+					const m:TwitchatDataTypes.MessageStreamSocketActionData = {
+						id:Utils.getUUID(),
+						type,
+						date:Date.now(),
+						channel_id:StoreProxy.auth.twitch.user.id,
+						platform:"twitch",
+						actionId:"my_action_id",
+						actionName:"My action name",
+						bits:Math.round(Math.random()*100),
+						sku:"my_sku_id",
+						user:fakeUser,
+					};
+
+					data = m;
+					break;
+				}
+
 				default: {
 					let message = "The request message type \""+type+"\" is lacking implementation on storeDebug."
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);

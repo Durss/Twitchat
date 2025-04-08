@@ -888,6 +888,11 @@ export default class MessengerProxy {
 			return true;
 		}else
 
+		if(await Utils.sha256(cmd||'') == "bc65801f9bd87286a84409d0c8a33d1ada366e703bfc41c09e9f166f7905594e") {
+			StoreProxy.groq.enabled = !StoreProxy.groq.enabled;
+			return true;
+		}else
+
 		if(isAdmin && (cmd == "/userdata" || cmd == "/loaduserdata")) {
 			if(params.length == 0) {
 				StoreProxy.common.alert(StoreProxy.i18n.t('error.user_param_missing'));

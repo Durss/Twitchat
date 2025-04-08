@@ -1013,7 +1013,10 @@
 			"custom_train_amountFormatted": "Montant atteint formaté",
 			"custom_train_amountLeft": "Montant restant pour atteindre le niveau suivant",
 			"custom_train_amountLeftFormatted": "Montant restant formaté pour atteindre le niveau suivant",
-			"custom_train_record": "Est-ce un record du train ?"
+			"custom_train_record": "Est-ce un record du train ?",
+			"streamsocket_action_id": "ID de l'action",
+			"streamsocket_action_name": "Nom de l'action",
+			"streamsocket_action_bits": "Prix de l'action en bits"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1713,6 +1716,10 @@
 			"CUSTOM_TRAIN_COOLDOWN": {
 				"label":"Cooldown d'un train de la hype personnalisé écoulé",
 				"description": "Actions à exécuter lorsque le cooldown d'un train de la hype personnalisé est écoulé"
+			},
+			"STREAMSOCKET_ACTION": {
+				"label":"Action StreamSocket déclenchée",
+				"description": "Actions à exécuter lorsqu'une action StreamSocket est déclenchée"
 			}
 		},
 		"musicEvents": {

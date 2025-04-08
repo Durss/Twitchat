@@ -132,6 +132,7 @@
 				"stream_online": "Stream online/offline",
 				"hype_chat": "Hype chat",
 				"ad_break_start_chat": "Ad break started manually",
+				"stream_socket_action": "StreamSocket actions",
 				"streamlabs": "Streamlabs alerts",
 				"streamelements": "Streamelements alerts",
 				"kofi": "Ko-fi alerts",
@@ -593,6 +594,9 @@
 		"custom_train_summary": {
 			"title": "\"{NAME}\" completed at level {LEVEL} at {PERCENT} for a total of {AMOUNT}.",
 			"record": "record"
+		},
+		"stream_socket": {
+			"action": "{USER} used StreamSocket action \"{ACTION}\""
 		}
 	}
 }

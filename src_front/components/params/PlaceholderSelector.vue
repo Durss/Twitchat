@@ -82,9 +82,7 @@
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
-import { gsap } from 'gsap';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
 import TTButton from '../TTButton.vue';
 

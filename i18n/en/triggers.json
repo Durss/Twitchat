@@ -1013,7 +1013,10 @@
 			"custom_train_amountFormatted": "Amount reached formatted",
 			"custom_train_amountLeft": "Ammount left to reach next level",
 			"custom_train_amountLeftFormatted": "Amount left formatted to reach next level",
-			"custom_train_record": "Is train record?"
+			"custom_train_record": "Is train record?",
+			"streamsocket_action_id": "Action ID",
+			"streamsocket_action_name": "Action Name",
+			"streamsocket_action_bits": "Action price in bits"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1711,6 +1714,10 @@
 			"CUSTOM_TRAIN_COOLDOWN": {
 				"label":"Custom train cooldown end",
 				"description": "Actions to execute when a custom train cooldown ends"
+			},
+			"STREAMSOCKET_ACTION": {
+				"label":"StreamSocket action triggered",
+				"description": "Actions to execute when a StreamSocket action is triggered"
 			}
 		},
 		"musicEvents": {

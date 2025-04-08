@@ -782,6 +782,12 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.STREAMSOCKET_ACTION: {
+				if(await this.executeTriggersByType(TriggerTypes.STREAMSOCKET_ACTION, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				switch(message.noticeId) {
 					case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE:{

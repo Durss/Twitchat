@@ -913,6 +913,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.customTrain.populateData();
 			StoreProxy.playability.populateData();
 			StoreProxy.streamerbot.populateData();
+			StoreProxy.streamSocket.populateData();
 			StoreProxy.animatedText.populateData();
 			StoreProxy.twitchCharity.populateData();
 			StoreProxy.donationGoals.populateData();

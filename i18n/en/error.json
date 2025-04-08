@@ -124,6 +124,7 @@
 		"qna_action": "Something went wrong when performing requested Q&A moderation action",
 		"spoil_action": "Something went wrong when asking to spoil the message on streamer's chat",
 		"sse_error": "Failed establishing connexion to live events, {APP} may not work properly.\nDisable all adblockers for this page and try reloading it.",
-		"patreon_max_linked": "You cannot link more than 2 Twitch accounts to the same Patreon account"
+		"patreon_max_linked": "You cannot link more than 2 Twitch accounts to the same Patreon account",
+		"streamSocket_connect_failed": "Could not connect with Twitch extension.\nMake sure you installed it on your channel and that you set proper secret."
 	}
 }

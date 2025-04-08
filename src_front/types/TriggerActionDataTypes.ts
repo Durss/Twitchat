@@ -1592,6 +1592,7 @@ export const TriggerTypes = {
 	CUSTOM_TRAIN_COMPLETE:"165",
 	CUSTOM_TRAIN_FAIL:"166",
 	CUSTOM_TRAIN_COOLDOWN:"167",
+	STREAMSOCKET_ACTION:"168",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -2545,6 +2546,17 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"TRAIN_NAME", descKey:'triggers.placeholders.custom_train_name', pointer:"trainName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCustomTrainLevelUpData>,
 	];
 
+	map[TriggerTypes.STREAMSOCKET_ACTION] = [
+		{tag:USER_NAME, descKey:'triggers.placeholders.user', pointer:"user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
+		{tag:USER_DISPLAY_NAME, descKey:'triggers.placeholders.user_customName', pointer:"user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
+		{tag:USER_ID, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
+		{tag:USER_AVATAR, descKey:'triggers.placeholders.user_avatar', pointer:"user.avatarPath", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
+		{tag:USER_CUSTOM_BADGES, descKey:'triggers.placeholders.user_custom_badges', pointer:"__user_custom_badges__", numberParsable:false, isUserID:false},
+		{tag:"ACTION_ID", descKey:'triggers.placeholders.streamsocket_action_id', pointer:"actionId", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
+		{tag:"ACTION_NAME", descKey:'triggers.placeholders.streamsocket_action_name', pointer:"actionName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
+		{tag:"ACTION_BITS", descKey:'triggers.placeholders.streamsocket_action_bits', pointer:"bits", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
+	];
+
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder<any>[] = [];
 	for (let i = 0; i < counters.length; i++) {
@@ -2894,6 +2906,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.MISC, icon:"heat", labelKey:"triggers.events.HEAT_CLICK.label", value:TriggerTypes.HEAT_CLICK, descriptionKey:"triggers.events.HEAT_CLICK.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK},
 		{category:TriggerEventTypeCategories.MISC, icon:"credits", labelKey:"triggers.events.CREDITS_COMPLETE.label", value:TriggerTypes.CREDITS_COMPLETE, descriptionKey:"triggers.events.CREDITS_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CREDITS_COMPLETE},
 		{category:TriggerEventTypeCategories.MISC, icon:"playability", labelKey:"triggers.events.PLAYABILITY_INPUT.label", value:TriggerTypes.PLAYABILITY_INPUT, descriptionKey:"triggers.events.PLAYABILITY_INPUT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.PLAYABILITY_INPUT},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V16, category:TriggerEventTypeCategories.MISC, icon:"streamsocket", labelKey:"triggers.events.STREAMSOCKET_ACTION.label", value:TriggerTypes.STREAMSOCKET_ACTION, descriptionKey:"triggers.events.STREAMSOCKET_ACTION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAMSOCKET_ACTION},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V16, category:TriggerEventTypeCategories.MISC, icon:"goal", labelKey:"triggers.events.GOAL_STEP_COMPLETE.label", value:TriggerTypes.GOAL_STEP_COMPLETE, descriptionKey:"triggers.events.GOAL_STEP_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOAL_STEP_COMPLETE},
 
 		{category:TriggerEventTypeCategories.COUNTER_VALUE, icon:"count", labelKey:"triggers.events.COUNTER_EDIT.label", value:TriggerTypes.COUNTER_EDIT, descriptionKey:"triggers.events.COUNTER_EDIT.description", isCategory:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},

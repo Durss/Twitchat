@@ -50,14 +50,14 @@
 				}
 			},
 			{
-				"i": "groq",
-				"l": "Groq IA",
-				"d": "⚠️ À ne pas confondre avec gro<strong><u>k</u></strong> de l'autre nazi de merde!\n\n<strong>AVERTISSEMENT</strong> : Rien ne sera envoyé nulle part sans que vous le demandiez explicitement!\n\nCette intégration vous permet de demander des résumés de chat ou de conversations en un clin d'œil ou d'automatiser des tâches de modération depuis les Triggers.\nLes pseudonymes sont anonymisés avant d'être envoyés aux services Groq.",
-				"g": "update_images/groq.gif",
+				"i": "streamsocket",
+				"l": "Extension StreamSocket Events",
+				"d": "Créez des actions personnalisées gratuites ou payantes grâce à l'extension Twitch StreamSocket.\n\nCela vous permet de proposer des interactions gratuites ou payantes sur votre stream que les spectateurices peuvent déclencher depuis un panneau Twitch.",
+				"g": "update_images/streamsocket.png",
 				"a": {
 					"l": "Essayer",
 					"param": "connexions",
-					"subparam": "groq"
+					"subparam": "streamsocket"
 				}
 			},
 			{
@@ -85,7 +85,7 @@
 			{
 				"i": "broadcast",
 				"l": "Triggers",
-				"d": "Chaque action peut désormais avoir ses propres conditions.\n\n14 nouveaux événements de trigger :<ul><li>Début/fin d'un sondage de tchat</li><li>Message mis en avant sur l'overlay fermé</li><li>Quelqu'un répond à un message</li><li>Étape de Goal remplit <i>(voir overlay Goals)</i></li><li>Voicemod : Activer/désactiver \"Entendre ma voix\"</li><li>Voicemod : Activer/désactiver \"Changeur de voix\"</li><li>Train de la hype personnalisé débute</li><li>Train de la hype personnalisé level up</li><li>Train de la hype personnalisé terminé</li><li>Train de la hype personnalisé échoué</li><li>Train de la hype personnalisé cooldown écoulé</li></ul>6 nouvelles actions de trigger :<ul><li>Action Groq IA</li><li>Marquer un message comme spoiler</li><li>Contrôler les minuteurs</li><li>Arrêter l'exécution du trigger</li><li>Démarrer un sondage de tchat</li><li>Afficher/masquer du texte animé</li></ul>",
+				"d": "Chaque action peut désormais avoir ses propres conditions.\n\n15 nouveaux événements de trigger :<ul><li>Début/fin d'un sondage de tchat</li><li>Message mis en avant sur l'overlay fermé</li><li>Quelqu'un répond à un message</li><li>Étape de Goal remplit <i>(voir overlay Goals)</i></li><li>Voicemod : Activer/désactiver \"Entendre ma voix\"</li><li>Voicemod : Activer/désactiver \"Changeur de voix\"</li><li>Train de la hype personnalisé débute</li><li>Train de la hype personnalisé level up</li><li>Train de la hype personnalisé terminé</li><li>Train de la hype personnalisé échoué</li><li>Train de la hype personnalisé cooldown écoulé</li><li>Action StreamSocket déclenchée</li></ul>5 nouvelles actions de trigger :<ul><li>Marquer un message comme spoiler</li><li>Contrôler les minuteurs</li><li>Arrêter l'exécution du trigger</li><li>Démarrer un sondage de tchat</li><li>Afficher/masquer du texte animé</li></ul>",
 				"a": {
 					"l": "Essayer",
 					"param": "triggers"

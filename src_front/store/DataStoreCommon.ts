@@ -123,6 +123,7 @@ export default class DataStoreCommon {
 	public static ANIMATED_TEXT_CONFIGS:string = "animatedTextConfigs";
 	public static CUSTOM_TRAIN_CONFIGS:string = "customTrainConfigs";
 	public static CENSOR_VIEWER_COUNT:string = "censorViewerCount";
+	public static STREAM_SOCKET_SECRET:string = "streamSocketSecret";
 
 	protected static store:Storage;
 	protected static dataPrefix:string = "twitchat_";
@@ -164,6 +165,7 @@ export default class DataStoreCommon {
 		this.ELEVENLABS_API_KEY,
 		this.TWITCH_BOT,
 		this.EMERGENCY_FOLLOWERS,
+		this.STREAM_SOCKET_SECRET,
 	];
 
 

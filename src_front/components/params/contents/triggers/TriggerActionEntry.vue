@@ -234,6 +234,7 @@
 						icon="playability">{{ $t('triggers.actions.common.action_playability') }}</TTButton>
 
 					<TTButton class="button" @click.capture="selectActionType('groq')"
+						v-if="$store.groq.enabled"
 						:disabled="!$store.groq.connected"
 						v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_triggerAction_groq'}"
 						v-tooltip="$store.groq.connected? '' : $t('triggers.actions.common.action_groq_tt')"

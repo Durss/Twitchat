@@ -114,6 +114,13 @@
 			</button>
 
 			<button class="card-item"
+			:class="{connected:$store.streamSocket.connected}"
+			@click="subContent='streamsocket'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_connect.streamsocket'}">
+				<Icon name="streamsocket" />
+				<p>StreamSocket Events</p>
+			</button>
+
+			<button class="card-item"
 			:class="{connected:$store.streamerbot.connected}"
 			@click="subContent='streamerbot'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.stramerbot'}">
 				<Icon name="streamerbot" />
@@ -149,7 +156,7 @@
 				<p>ElevenLabs</p>
 			</button>
 
-			<button class="card-item"
+			<button class="card-item" v-if="$store.groq.enabled"
 			:class="{connected:$store.groq.connected}"
 			@click="subContent='groq'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_connect.groq'}">
 				<Icon name="groq" />
@@ -178,7 +185,7 @@
 			</button>
 		</div>
 	</div>
-	
+
 	<ConnectVoicemod v-else-if="subContent == 'voicemod'" />
 	<ConnectYoutube v-else-if="subContent == 'youtube'" />
 	<ConnectGoXLR v-else-if="subContent == 'goxlr'" />
@@ -203,6 +210,7 @@
 	<ConnectPlayability v-else-if="subContent == 'playability'" />
 	<ConnectTwitchBot v-else-if="subContent == 'twitchbot'" />
 	<ConnectGroq v-else-if="subContent == 'groq'" />
+	<ConnectStreamSocket v-else-if="subContent == 'streamsocket'" />
 
 </template>
 
@@ -241,6 +249,7 @@ import ConnectWebsocket from './connexions/ConnectWebsocket.vue';
 import ConnectYoutube from './connexions/ConnectYoutube.vue';
 import ConnectTwitchBot from './connexions/ConnectTwitchBot.vue';
 import ConnectGroq from './connexions/ConnectGroq.vue';
+import ConnectStreamSocket from './connexions/ConnectStreamSocket.vue';
 
 @Component({
 	components:{
@@ -267,6 +276,7 @@ import ConnectGroq from './connexions/ConnectGroq.vue';
 		ConnectElevenLabs,
 		ConnectPlayability,
 		ConnectStreamerBot,
+		ConnectStreamSocket,
 		ConnectStreamelements,
 	},
 	emits:[],
@@ -337,7 +347,7 @@ export default toNative(ParamsConnections);
 			}
 			&.premium {
 				background-color: var(--color-premium-fadest);
-				
+
 				&.half {
 					background-color: transparent;
 					background-image: linear-gradient(162deg, var(--color-premium-fadest) 30%, var(--background-color-fadest) 60%);

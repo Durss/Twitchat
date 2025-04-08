@@ -151,7 +151,6 @@ class TriggerConditionListItem extends Vue {
 			placeholderListLocal.push({label:this.condition.placeholder, value:this.condition.placeholder});
 		}
 
-		console.log(placeholderListLocal)
 		this.param_placeholder.listValues = placeholderListLocal;
 		this.param_value.placeholderList = placeholders.concat();
 		//Wait for list to render and update its internal "selectedListValue" value.
@@ -172,7 +171,6 @@ class TriggerConditionListItem extends Vue {
 
 		const placeholderRef = this.param_placeholder.selectedListValue.storage;
 		const cmdParamRef = this.triggerData.chatCommandParams?.find(v=> v.tag == this.condition.placeholder);
-		console.log(placeholderRef)
 
 		this.param_operator.listValues = TriggerConditionOperatorList.map(v=> {
 			return {

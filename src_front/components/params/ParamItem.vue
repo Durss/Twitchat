@@ -317,12 +317,13 @@
 		</div>
 
 		<PlaceholderSelector class="placeholders" v-if="paramData.placeholderList"
-			:placeholders="paramData.placeholderList"
 			v-model="paramData.value"
+			:placeholders="paramData.placeholderList"
 			:secondary="secondary"
 			:premium="premiumOnlyLocal"
 			:popoutMode="placeholdersAsPopout"
 			:alert="alert || errorLocal"
+			:target="placeholderTarget"
 			@insert="insertPlaceholder"
 		/>
 

@@ -50,14 +50,14 @@
 				}
 			},
 			{
-				"i": "groq",
-				"l": "Groq AI",
-				"d": "⚠️ Not to confuse with gro<strong><u>k</u></strong> from the nazi fucker!\n\n<strong>DISCLAIMER</strong>: Nothing will be sent anywhere unless you specifically request it! Groq claims <strong>not</strong> to store nor use your prompts for training.\n\nThis integration allows you to request chat or conversations summaries in a blink or automate moderation tasks from the Triggers.\nTwitchat anonymises usernames before asking summaries.",
-				"g": "update_images/groq.gif",
+				"i": "streamsocket",
+				"l": "StreamSocket Events extension",
+				"d": "Create custom free or paid actions thanks to StreamSocket Twitch Extension\n\nThis allows you to provide free or paid interactions on your stream the viewers can trigger from a Twitch panel.",
+				"g": "update_images/streamsocket.png",
 				"a": {
 					"l": "Try",
 					"param": "connexions",
-					"subparam": "groq"
+					"subparam": "streamsocket"
 				}
 			},
 			{
@@ -85,7 +85,7 @@
 			{
 				"i": "broadcast",
 				"l": "Triggers",
-				"d": "Each action can now have its own conditions.\n\n14 new trigger events:<ul><li>Start/end of a Chat Poll</li><li>Overlay highlighted message closed</li><li>Someone answers a message</li><li>Goal complete <i>(see Goals overlay)</i></li><li>Voicemod: Enable/disable \"Hear my voice\"</li><li>Voicemod: Enable/disable \"Voice changer\"</li><li>Custom hype train start</li><li>Custom hype train level up</li><li>Custom hype train completed</li><li>Custom hype train failed</li><li>Custom hype train cooldown end</li></ul>6 new trigger actions:<ul><li>Groq AI action</li><li>Mark message as spoiler</li><li>Control timers</li><li>Stop trigger execution</li><li>Start chat poll</li><li>Show/hide animated text</li></ul>",
+				"d": "Each action can now have its own conditions.\n\n15 new trigger events:<ul><li>Start/end of a Chat Poll</li><li>Overlay highlighted message closed</li><li>Someone answers a message</li><li>Goal complete <i>(see Goals overlay)</i></li><li>Voicemod: Enable/disable \"Hear my voice\"</li><li>Voicemod: Enable/disable \"Voice changer\"</li><li>Custom hype train start</li><li>Custom hype train level up</li><li>Custom hype train completed</li><li>Custom hype train failed</li><li>Custom hype train cooldown end</li><li>StreamSocket action</li></ul>5 new trigger actions:<ul><li>Mark message as spoiler</li><li>Control timers</li><li>Stop trigger execution</li><li>Start chat poll</li><li>Show/hide animated text</li></ul>",
 				"a": {
 					"l": "Try",
 					"param": "triggers"
