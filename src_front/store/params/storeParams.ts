@@ -161,6 +161,7 @@ export const storeParams = defineStore('params', {
 					private_mod_message:false,
 					ad_break_start_chat:false,
 					music_added_to_queue:false,
+					streamsocket_action: false,
 					hype_train_cooled_down: false,
 					twitch_charity_donation:false,
 					community_boost_complete: false,
@@ -238,6 +239,7 @@ export const storeParams = defineStore('params', {
 					private_mod_message:true,
 					hype_train_summary: true,
 					ad_break_start_chat:true,
+					streamsocket_action:true,
 					music_added_to_queue:true,
 					hype_train_cooled_down: true,
 					twitch_charity_donation:true,
@@ -306,7 +308,7 @@ export const storeParams = defineStore('params', {
 								pointer.value = JSON.parse(v);
 							}catch(error) {
 								console.log("[STORE:PARAMS]Cannot JSON parse value:", v);
-							} 
+							}
 						}
 					}
 				}
@@ -443,6 +445,7 @@ export const storeParams = defineStore('params', {
 					hype_train_summary:false,
 					private_mod_message:true,
 					ad_break_start_chat:false,
+					streamsocket_action:false,
 					music_added_to_queue:false,
 					hype_train_cooled_down:false,
 					twitch_charity_donation:false,
@@ -499,7 +502,7 @@ export const storeParams = defineStore('params', {
 			//on the deleted col
 			if(column.showPanelsHere) this.chatColumnsConfig[this.chatColumnsConfig.length-1].showPanelsHere = true;
 			if(column.showGreetHere) this.chatColumnsConfig[this.chatColumnsConfig.length-1].showGreetHere = true;
-			
+
 			this.saveChatColumnConfs();
 			PublicAPI.instance.broadcast(TwitchatEvent.SET_COLS_COUNT, {count:this.chatColumnsConfig.length});
 		},
