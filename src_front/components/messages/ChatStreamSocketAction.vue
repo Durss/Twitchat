@@ -17,9 +17,9 @@
 			</template>
 		</i18n-t>
 
-		<div class="bits" v-if="messageData.bits || 10">
+		<div class="bits" v-if="messageData.bits">
 			<Icon name="bits" />
-			<strong>{{ messageData.bits || 10 }}</strong>
+			<strong>{{ messageData.bits }}</strong>
 		</div>
 	</div>
 </template>
