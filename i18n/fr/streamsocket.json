@@ -2,8 +2,9 @@
 	"streamsocket": {
 		"header": "{LINK} est une extension Twitch permettant à vos spectateurices d'exécuter des actions sur votre stream depuis un panneau Twitch",
 		"installBt": "Installer l'extension Twitch",
+		"help": "Où trouver le secret ?",
 		"find_secret": "Le secret peut être trouvé dans les paramètres de l'extension après l'avoir installée sur votre chaîne",
-		"secret_input": "Secret",
+		"secret_input": "Set secret",
 		"next_step": "Vous pouvez maintenant créer des {TRIGGERS} StreamSocket pour exécuter tout ce que vous voulez sur votre stream en réponse aux clics des spectateurs sur les boutons du panneau de l'extension."
 	}
 }

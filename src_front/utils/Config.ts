@@ -137,7 +137,7 @@ export default class Config {
 	/**
 	 * Maxium number of values that can be created when premium
 	 */
-	public MAX_VALUES_PREMIUM = 10000;
+	public MAX_VALUES_PREMIUM = 1000;
 	/**
 	 * Maxium number of triggers that can be created without being premium
 	 */
@@ -145,7 +145,7 @@ export default class Config {
 	/**
 	 * Maxium number of triggers that can be created when premium
 	 */
-	public MAX_TRIGGERS_PREMIUM = 1000;//TODO limit triggers count for premium. Unlimitted for now
+	public MAX_TRIGGERS_PREMIUM = 1000;
 	/**
 	 * Maxium number of triggers that can be created without being premium
 	 */
@@ -153,7 +153,7 @@ export default class Config {
 	/**
 	 * Maxium number of triggers that can be created when premium
 	 */
-	public MAX_COUNTERS_PREMIUM = 10000;//TODO limit counters count for premium. Unlimitted for now
+	public MAX_COUNTERS_PREMIUM = 1000;
 	/**
 	 * Maxium number of distortion overlays
 	 */

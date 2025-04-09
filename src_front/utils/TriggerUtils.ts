@@ -303,6 +303,16 @@ export default class TriggerUtils {
 
 	}
 
+	/**
+	 * Gets if a trigger is enabled.
+	 * Also checks for folders inheritences
+	 * @param trigger
+	 * @returns
+	 */
+	public static isTriggerEnabled(trigger:TriggerData):boolean {
+		return trigger.enabled && StoreProxy.triggers.triggerIdToFolderEnabled[trigger.id] === true
+	}
+
 
 
 	/*******************

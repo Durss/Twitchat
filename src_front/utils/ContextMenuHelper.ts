@@ -821,6 +821,7 @@ export default class ContextMenuHelper {
 		const children:MenuItem[] = [];
 		for (let i = 0; i < items.length; i++) {
 			const trigger = items[i];
+			if(!TriggerUtils.isTriggerEnabled(trigger)) return;
 			if(i===0) {
 				options[options.length-1].divided = true;
 			}

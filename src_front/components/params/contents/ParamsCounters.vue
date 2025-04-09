@@ -15,9 +15,14 @@
 
 		<section v-if="!showForm">
 			<TTButton icon="add" @click="showForm = true" v-if="canCreateCounters">{{ $t('counters.addBt') }}</TTButton>
-			<div class="card-item premium premiumLimit" v-else>
-				<span>{{$t("counters.premium_limit", {MAX:$config.MAX_COUNTERS, MAX_PREMIUM:$config.MAX_COUNTERS_PREMIUM})}}</span>
+
+			<div class="card-item premium premiumLimit" v-else-if="$store.auth.isPremium">
+				<span>{{$t("counters.nonpremium_limit", {MAX:$config.MAX_COUNTERS, MAX_PREMIUM:$config.MAX_COUNTERS_PREMIUM})}}</span>
 				<TTButton icon="premium" premium light @click="openPremium()">{{ $t("premium.become_premiumBt") }}</TTButton>
+			</div>
+
+			<div class="card-item premium premiumLimit" v-else>
+				<span>{{$t("counters.premium_limit", {MAX:$config.MAX_COUNTERS_PREMIUM})}}</span>
 			</div>
 		</section>
 
@@ -813,6 +818,7 @@ export default toNative(ParamsCounters);
 	}
 
 	.premiumLimit {
+		text-align: center;
 		.button {
 			display: flex;
 			margin: auto;

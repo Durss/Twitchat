@@ -234,8 +234,7 @@ export const storeTriggers = defineStore('triggers', {
 				data.actions = cleanEmptyActions(data.actions);
 				if(data.type == TriggerTypes.SCHEDULE && enabledStateCache[data.id] != data.enabled) {
 					enabledStateCache[data.id] = data.enabled;
-					//TODO should check if parent folder(s) are enabled as well but too lazy for now T_T
-					if(data.enabled) {
+					if(TriggerUtils.isTriggerEnabled(data)) {
 						SchedulerHelper.instance.scheduleTrigger(data);
 					}else{
 						SchedulerHelper.instance.unscheduleTrigger(data);
@@ -252,8 +251,8 @@ export const storeTriggers = defineStore('triggers', {
 					list.forEach((data:TriggerData)=> {
 						if(data.type == TriggerTypes.SLASH_COMMAND
 						&& data.chatCommand
-						&& data.enabled === true
-						&& data.addToDiscord === true) {
+						&& data.addToDiscord === true
+						&& TriggerUtils.isTriggerEnabled(data)) {
 							const params: typeof commands[number]["params"] = [];
 							if(data.chatCommandParams) {
 								data.chatCommandParams.forEach(p => {

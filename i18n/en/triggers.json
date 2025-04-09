@@ -45,7 +45,8 @@
 		"http_placeholder": "HTTP placeholder {NAME}",
 		"raffle_placeholder": "Winning raffle entry",
 		"screenshot_placeholder": "OBS Screenshot",
-		"premium_limit": "You created the maximum number of {MAX} triggers. Become premium to create up to {MAX_PREMIUM} triggers. Or disable / delete some triggers to create new ones.",
+		"nonpremium_limit": "You created the maximum number of {MAX} triggers. Become premium to create up to {MAX_PREMIUM} triggers. Or disable / delete some triggers to create new ones.",
+		"premium_limit": "You created the maximum number of {MAX} triggers.",
 		"add_action": "Add action",
 		"delete_folder_confirm": {
 			"title": "Delete folder?",

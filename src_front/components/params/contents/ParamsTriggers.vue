@@ -57,14 +57,17 @@
 
 		<template v-if="showList && !showForm">
 			<Button class="createBt"
-				v-if="$store.auth.isPremium || $store.triggers.triggerList.filter(v=>v.enabled !== false).length < $config.MAX_TRIGGERS"
+				v-if="activeTriggerCount < $config.MAX_TRIGGERS || ($store.auth.isPremium && activeTriggerCount < $config.MAX_TRIGGERS_PREMIUM)"
 				icon="add" primary
 				v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'paramsparams_triggers_1'}"
 				@click="openForm();">{{ $t('triggers.add_triggerBt') }}</Button>
 
-			<div class="card-item alert premiumLimit" v-else>
-				<span>{{$t("triggers.premium_limit", {MAX:$config.MAX_TRIGGERS, MAX_PREMIUM:$config.MAX_TRIGGERS_PREMIUM})}}</span>
-				<Button icon="premium" premium @click="openPremium()">{{ $t("premium.become_premiumBt") }}</Button>
+			<div class="card-item premium premiumLimit" v-else-if="!$store.auth.isPremium">
+				<span>{{$t("triggers.nonpremium_limit", {MAX:$config.MAX_TRIGGERS, MAX_PREMIUM:$config.MAX_TRIGGERS_PREMIUM})}}</span>
+				<Button icon="premium" premium light @click="openPremium()">{{ $t("premium.become_premiumBt") }}</Button>
+			</div>
+			<div class="card-item premium premiumLimit" v-else>
+				<span>{{$t("triggers.premium_limit", {MAX:$config.MAX_TRIGGERS_PREMIUM})}}</span>
 			</div>
 		</template>
 
@@ -160,6 +163,10 @@ class ParamsTriggers extends Vue implements IParameterContent {
 		let events:TriggerTypeDefinition[] = TriggerTypesDefinitionList().concat();
 		const e = events.find(v=>v.value == this.currentTriggerData?.type);
 		return e?.testMessageType != undefined;
+	}
+
+	public get activeTriggerCount():number {
+		return this.$store.triggers.triggerList.filter(v=>v.enabled !== false).length;
 	}
 
 	public get noTrigger():boolean {
@@ -734,6 +741,7 @@ export default toNative(ParamsTriggers);
 	}
 
 	.premiumLimit {
+		text-align: center;
 		.button {
 			display: flex;
 			margin: auto;

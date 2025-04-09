@@ -2,6 +2,7 @@
 	"streamsocket": {
 		"header": "{LINK} is a Twitch extension that allows your viewers to execute actions on your stream from a Twitch panel",
 		"installBt": "Install Twitch extension",
+		"help": "Where to find the secret?",
 		"find_secret": "The secret can be found on the extension's parameters after installing it on your channel",
 		"secret_input": "Secret",
 		"next_step": "You can now create StreamSocket {TRIGGERS} to execute anything you want on your stream in response to viewers clicking buttons on the extension's panel."

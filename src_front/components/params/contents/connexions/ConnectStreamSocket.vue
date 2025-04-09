@@ -10,29 +10,40 @@
 			</i18n-t>
 		</div>
 
-		<section class="card-item form" v-if="!$store.streamSocket.connected">
-			<form @submit.prevent="$store.streamSocket.connect(secretField.value)">
+		<tempalte v-if="!$store.streamSocket.connected">
+			<section>
 				<TTButton icon="newtab" type="link" href="https://streamsocket.kadokta.com" target="_blank"
 					@click="$store.streamSocket.disconnect(true)">{{ $t("streamsocket.installBt") }}</TTButton>
+			</section>
 
-				<ParamItem :paramData="secretField" v-model="secretField.value" noBackground />
+			<section class="card-item form">
+				<form @submit.prevent="$store.streamSocket.connect(secretField.value)">
 
-				<TTButton
-					icon="online"
-					type="submit"
-					:loading="$store.streamSocket.connecting"
-					:disabled="secretField.value.length < 100">{{ $t("global.connect") }}</TTButton>
+					<ParamItem :paramData="secretField" v-model="secretField.value" noBackground />
 
-				<div class="card-item alert error"
-					v-if="$store.streamSocket.invalidSecret"
-					@click="$store.streamSocket.invalidSecret = false">{{ $t("error.streamSocket_connect_failed") }}</div>
+					<ToggleBlock small :title="$t('streamsocket.help')" :open="false">
+						<div class="infos">
+							<span>{{ $t("streamsocket.find_secret") }}</span>
+							<img src="@/assets/img/streamsocket_secret.png" width="330" />
+						</div>
+					</ToggleBlock>
 
-				<div class="infos">
-					<span>{{ $t("streamsocket.find_secret") }}</span>
-					<img src="@/assets/img/streamsocket_secret.png" width="330" />
-				</div>
-			</form>
-		</section>
+					<TTButton
+						icon="online"
+						type="submit"
+						:loading="$store.streamSocket.connecting"
+						:disabled="secretField.value.length < 100">{{ $t("global.connect") }}</TTButton>
+
+					<div class="card-item alert error"
+						v-if="$store.streamSocket.invalidSecret"
+						@click="$store.streamSocket.invalidSecret = false">{{ $t("error.streamSocket_connect_failed") }}</div>
+				</form>
+			</section>
+
+			<section class="card-item connected">
+				<img class="graph" src="@/assets/img/streamsocket_graph.png" />
+			</section>
+		</tempalte>
 
 		<section class="card-item connected" v-else>
 			<TTButton alert icon="offline" class="disconnectBt"
@@ -43,6 +54,8 @@
 					<a @click="openTriggers()">{{$t("params.categories.triggers")}}</a>
 				</template>
 			</i18n-t>
+
+			<img class="graph" src="@/assets/img/streamsocket_graph.png" />
 		</section>
 	</div>
 </template>
@@ -52,11 +65,13 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import TTButton from '@/components/TTButton.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 
 @Component({
 	components:{
 		TTButton,
 		ParamItem,
+		ToggleBlock,
 	},
 	emits:[],
 })
@@ -79,7 +94,7 @@ export default toNative(ConnectStreamSocket);
 <style scoped lang="less">
 .connectstreamsocket{
 	form {
-		max-width: 400px;
+		// max-width: 400px;
 		gap: .5em;
 		display: flex;
 		flex-direction: column;
@@ -106,6 +121,13 @@ export default toNative(ConnectStreamSocket);
 		.disconnectBt {
 			margin: auto;
 		}
+	}
+
+	.graph {
+		margin: auto;
+		margin-top: 2em;
+		display: block;
+		max-width:500px;
 	}
 }
 </style>
