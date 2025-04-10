@@ -8,6 +8,7 @@ import Utils from "../Utils";
 import { TwitchScopes } from "./TwitchScopes";
 import TwitchUtils from "./TwitchUtils";
 import ApiHelper from "../ApiHelper";
+import MessengerProxy from "@/messaging/MessengerProxy";
 
 /**
 * Created : 02/12/2022
@@ -1222,6 +1223,15 @@ export default class EventSub {
 				list.splice(index, 1);
 			}
 			StoreProxy.users.pendingShoutouts[channel_id] = list;
+
+			if(StoreProxy.params.features.chatShoutout.value === true){
+				let message = StoreProxy.chat.botMessages.shoutout.message;
+				message = message.replace(/\{USER\}/gi, user.displayName);
+				message = message.replace(/\{URL\}/gi, "twitch.tv/"+user.login);
+				message = message.replace(/\{TITLE\}/gi, title);
+				message = message.replace(/\{CATEGORY\}/gi, category);
+				await MessengerProxy.instance.sendMessage(message);
+			}
 		}
 	}
 

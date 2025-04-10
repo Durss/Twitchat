@@ -972,7 +972,6 @@ export const storeUsers = defineStore('users', {
 			let streamCategory = "";
 			let executed = false;
 			let canExecute = true;
-			let sendChatSO = true;
 
 			//Init queue if necessary
 			if(!this.pendingShoutouts[channelId]) this.pendingShoutouts[channelId] = [];
@@ -981,7 +980,6 @@ export const storeUsers = defineStore('users', {
 			if(user.errored) {
 				StoreProxy.common.alert(StoreProxy.i18n.t("error.user_not_found"));
 				canExecute = false;
-				sendChatSO = false;
 			}
 
 			//Check if we're live
@@ -1016,7 +1014,6 @@ export const storeUsers = defineStore('users', {
 								addToQueue = !fromQueue;
 							}else if(res === true){
 								executed = true;
-								sendChatSO = true;
 								addToQueue = false;
 							}
 							//Set the last SO date offset for this user to now
@@ -1047,30 +1044,6 @@ export const storeUsers = defineStore('users', {
 							//Force timers refresh
 							this.executePendingShoutouts();
 						}
-					}
-				}
-			}
-
-			if(sendChatSO && StoreProxy.params.features.chatShoutout.value === true){
-				if(user.platform == "twitch") {
-					const userInfos = await TwitchUtils.getUserInfo(user.id? [user.id] : undefined, user.login? [user.login] : undefined);
-					if(userInfos?.length > 0) {
-						const userLoc = userInfos[0];
-						const channelInfo = await TwitchUtils.getChannelInfo([userLoc.id]);
-						let message = StoreProxy.chat.botMessages.shoutout.message;
-						streamTitle = channelInfo[0].title;
-						streamCategory = channelInfo[0].game_name;
-						if(!streamTitle) streamTitle = StoreProxy.i18n.t("error.no_stream");
-						if(!streamCategory) streamCategory = StoreProxy.i18n.t("error.no_stream");
-						message = message.replace(/\{USER\}/gi, userLoc.display_name);
-						message = message.replace(/\{URL\}/gi, "twitch.tv/"+userLoc.login);
-						message = message.replace(/\{TITLE\}/gi, streamTitle);
-						message = message.replace(/\{CATEGORY\}/gi, streamCategory);
-						user.avatarPath = userLoc.profile_image_url;
-						await MessengerProxy.instance.sendMessage(message);
-					}else{
-						//Warn user doesn't exist
-						StoreProxy.common.alert(StoreProxy.i18n.t("error.user_param_not_found", {USER:user}));
 					}
 				}
 			}
