@@ -68,7 +68,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 				enabled:true,
 				testing:false,
 				title:StoreProxy.i18n.t("overlay.customTrain.default_title"),
-				levelName:"LVL ",
+				levelName:"LVL ",
 				currency:"$"+Utils.CURRENCY_AMOUNT_TOKEN,
 				colorFill:"#008667",
 				colorBg:"#cdfef2",
@@ -89,14 +89,14 @@ export const storeCustomTrain = defineStore('customTrain', {
 				recordEmote:"https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_dee4ecfb7f0940bead9765da02c57ca9/static/dark/2.0",
 				recordColorBg:"#fff7db",
 				recordColorFill:"#e6b400",
-				cooldownDuration_s:2*3600,
+				cooldownDuration_s:1*3600,
 				levelsDuration_s:5*60,
 				expires_at:0,
 				coolDownEnd_at:0,
 				postLevelUpChatMessage:StoreProxy.i18n.t("overlay.customTrain.param_postLevelUpChatMessage"),
 				postSuccessChatMessage:StoreProxy.i18n.t("overlay.customTrain.param_postSuccessChatMessage"),
 				postSuccessOnChat:false,
-				levelAmounts:[20, 50, 75, 100, 130, 170, 200, 250, 300, 350, 400, 500],
+				levelAmounts:[20, 50, 75, 100, 130, 170, 200, 250, 300, 350, 400, 500, 600, 700, 800, 900],
 				platforms:{
 					kofi:true,
 					streamelements:true,
@@ -252,8 +252,8 @@ export const storeCustomTrain = defineStore('customTrain', {
 				const prevLevel = currentLevel();
 
 				if(this.customTrainStates[train.id].activities.length == 0) {
-					// static 2 min 30 s cooldown for "approaching" validation
-					train.expires_at = Date.now() + 60 * 2.5 * 1000;
+					// static 5min cooldown for "approaching" validation
+					train.expires_at = Date.now() + 60 * 5 * 1000;
 					scheduleEnd(true);
 				}
 

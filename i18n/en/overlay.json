@@ -669,7 +669,7 @@
 			"param_textFont": "Text font",
 			"param_textSize": "Size",
 			"param_currency": "Currency",
-			"param_triggerEventCount": "Number of events to start the train\n(",
+			"param_triggerEventCount": "Number of events to start the train",
 			"param_cooldownDuration_ms": "Duration to wait before next train",
 			"param_levelsDuration_ms": "Delay to reach next level",
 			"param_levelAmounts": "Define amounts for each level",
