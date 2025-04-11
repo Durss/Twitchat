@@ -119,7 +119,7 @@
 		"slash_cmd": {
 			"param_cmd": "Commande",
 			"param_cmd_placeholder": "/commande...",
-			"param_ctx_menu": "Ajouter aux options de modération (clic droit sur un message)",
+			"param_ctx_menu": "Ajouter aux options de modération\n(clic droit sur un message. Option ignorée si le trigger est désactivé)",
 			"param_discord": "Ajouter cette commande à votre Discord",
 			"param_cmd_params": "Paramètres de commande optionnels",
 			"param_cmd_params_tt": "Ceci permet d'extraire des portions du message et de les injecter dans les actions à exécuter par le biais de placeholders.",
