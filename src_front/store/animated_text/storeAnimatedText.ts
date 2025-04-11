@@ -33,7 +33,7 @@ export const storeAnimatedText = defineStore('animatedtext', {
 			}
 
 			/**
-			 * Called when animatedtext overlay requests for a animatedtext info
+			 * Called when animated text overlay requests for a animated text configs
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_ANIMATED_TEXT_CONFIGS, (event:TwitchatEvent<{ id?:string }>)=> {
 				if(event.data?.id) {
@@ -48,9 +48,19 @@ export const storeAnimatedText = defineStore('animatedtext', {
 			});
 
 			/**
-			 * Called when animatedtext overlay requests for a animatedtext info
+			 * Called when animated text overlay completes hide animation
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.ANIMATED_TEXT_HIDE_COMPLETE, (event:TwitchatEvent<{ queryId?:string }>)=> {
+				if(event.data?.queryId) {
+					const resolver = queryIdToResolver.get(event.data?.queryId);
+					if(resolver) resolver();
+				}
+			});
+
+			/**
+			 * Called when animated text overlay completes show animation
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.ANIMATED_TEXT_SHOW_COMPLETE, (event:TwitchatEvent<{ queryId?:string }>)=> {
 				if(event.data?.queryId) {
 					const resolver = queryIdToResolver.get(event.data?.queryId);
 					if(resolver) resolver();

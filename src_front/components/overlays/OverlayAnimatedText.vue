@@ -43,6 +43,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 	private resolveTO = -1;
 	private autoHideTO = -1;
 	private split:SplitType|null = null;
+	private currentState: "opened" | "closed" = "closed";
 
 	public beforeMount():void {
 		this.id = this.$route.query.twitchat_overlay_id as string ?? "";
@@ -136,9 +137,10 @@ class OverlayAnimatedText extends AbstractOverlay {
 	 * Called when requesting to display a new text
 	 * @param e
 	 */
-	public onClose(e:Parameters<typeof this.closeHandler>[0]):void {
+	public async onClose(e:Parameters<typeof this.closeHandler>[0]):Promise<void> {
 		if(!e.data || e.data.overlayId != this.id) return;
-		this.hideText(e.data?.queryId);
+		await this.hideText();
+		PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_HIDE_COMPLETE, {queryId:e.data.queryId});
 	}
 
 	/**
@@ -180,10 +182,13 @@ class OverlayAnimatedText extends AbstractOverlay {
 			// Wait enough time for text to be read
 			this.autoHideTO = window.setTimeout(async ()=>{
 				// Close text
-				await this.hideText(entry.queryId);
+				await this.hideText();
+				PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_HIDE_COMPLETE, {queryId:entry.queryId});
 				// Next text in queue
 				this.next();
 			}, (textLen || 0) * 100);
+		}else{
+			PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_SHOW_COMPLETE, {queryId:entry.queryId});
 		}
 	}
 
@@ -191,6 +196,8 @@ class OverlayAnimatedText extends AbstractOverlay {
 	 * Starts text animation
 	 */
 	private async showText():Promise<void> {
+		if(this.currentState == "opened") return;
+		this.currentState = "opened";
 		return new Promise((resolve) => {
 			this.split = new SplitType(this.$refs["text"] as HTMLElement, {split:["words","chars"], charClass:"char", wordClass:"word"});
 			if(this.split.chars?.length == 0) {
@@ -582,7 +589,10 @@ class OverlayAnimatedText extends AbstractOverlay {
 	/**
 	 * Closes current text
 	 */
-	private async hideText(queryId:string):Promise<void> {
+	private async hideText():Promise<void> {
+		if(this.currentState == "closed") return;
+		this.currentState = "closed";
+
 		const promise = new Promise<void>(async (resolve) => {
 			await this.$nextTick();
 			if(!this.split) {
@@ -849,7 +859,6 @@ class OverlayAnimatedText extends AbstractOverlay {
 				this.split!.words = [];
 				this.split!.lines = []
 				this.split = null;
-				PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_HIDE_COMPLETE, {queryId});
 			}
 		})
 		return promise
