@@ -692,6 +692,7 @@
 				"param_action": "Action",
 				"param_text": "Nouveau texte",
 				"param_autoHide": "Masquer automatiquement le texte après un délai basé sur la taille du message",
+				"param_waitForComplete": "Attrendre que l'animatimation termine\n(l'exécution du trigger sera mise en pause le temps que l'animation termine)",
 				"actions": {
 					"show": "Afficher du texte",
 					"hide": "Masquer le texte"

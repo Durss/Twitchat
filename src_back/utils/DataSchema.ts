@@ -1011,6 +1011,7 @@ const UserDataSchema = {
 										overlayId: {type:"string", maxLength:50},
 										action: { enum: ["show", "hide"] },
 										autoHide: { type: "boolean" },
+										pauseUntilComplete: { type: "boolean" },
 										text: { type: "string",  minLength: 0, maxLength: 1000 }
 									}
 								},

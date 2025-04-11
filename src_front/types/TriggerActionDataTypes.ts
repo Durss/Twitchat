@@ -1371,12 +1371,20 @@ interface TriggerActionAnimatedTextData_ActionShow extends TriggerActionAnimated
 	 * Automatically hide the text after a duration that depends on the text length
 	 */
 	autoHide:boolean;
+	/**
+	 * Pause trigger's execution until the text animation completes
+	 */
+	pauseUntilComplete?:boolean
 }
 interface TriggerActionAnimatedTextData_ActionHide extends TriggerActionAnimatedTextData_ActionAbstract {
 	/**
 	 * Action to perform
 	 */
 	action:"hide";
+	/**
+	 * Pause trigger's execution until the text animation completes
+	 */
+	pauseUntilComplete?:boolean
 }
 export const TriggerActionAnimatedTextData_ActionList = ["show", "hide"] as const;
 

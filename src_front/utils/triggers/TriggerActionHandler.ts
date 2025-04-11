@@ -3721,7 +3721,7 @@ export default class TriggerActionHandler {
 						logStep.messages.push({date:Date.now(), value:"Show animated text: "+ text});
 						logStep.messages.push({date:Date.now(), value:"Auto hide? "+ autohide});
 						const promise = StoreProxy.animatedText.animateText(overlay.id, text, autohide);
-						if(autohide) {
+						if(step.animatedTextData.pauseUntilComplete) {
 							logStep.messages.push({date:Date.now(), value:"⌛ Wait for animation to complete..."});
 							await promise;
 							logStep.messages.push({date:Date.now(), value:"✔ Animation completed"});
@@ -3729,7 +3729,12 @@ export default class TriggerActionHandler {
 
 					}else if(step.animatedTextData.action == "hide"){
 						logStep.messages.push({date:Date.now(), value:"Hide animated text"});
-						await StoreProxy.animatedText.hideText(overlay.id);
+						const promise =  StoreProxy.animatedText.hideText(overlay.id);
+						if(step.animatedTextData.pauseUntilComplete) {
+							logStep.messages.push({date:Date.now(), value:"⌛ Wait for animation to complete..."});
+							await promise;
+							logStep.messages.push({date:Date.now(), value:"✔ Animation completed"});
+						}
 					}
 				}
 
