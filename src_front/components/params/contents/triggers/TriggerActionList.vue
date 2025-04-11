@@ -23,6 +23,11 @@
 
 		<div class="card-item params" data-noselect>
 			<ParamItem noBackground :paramData="param_enabled" v-model="triggerData.enabled" />
+			<ParamItem noBackground :paramData="param_enableForRemoteChans"
+				v-if="allowedOnRemoteChans"
+				v-model="triggerData.enableForRemoteChans"
+				v-tooltip="{content:$t('triggers.enableForRemoteChans_tt'), placement:'bottom'}"
+				class="premiumOption" />
 			<ParamItem noBackground :paramData="param_name" v-model="triggerData.name" />
 
 			<TriggerActionChatCommandParams
@@ -207,6 +212,7 @@ class TriggerActionList extends Vue {
 	public selectedActions:string[] = [];
 	public matchingCondition:boolean = true;
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:true, icon:"disable", labelKey:"global.enabled" };
+	public param_enableForRemoteChans:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:true, icon:"disable", labelKey:"triggers.enableForRemoteChans" };
 	public param_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"label", placeholder:"...", labelKey:"triggers.trigger_name" };
 	public param_queue:TwitchatDataTypes.ParameterData<string> = {type:"editablelist", value:"", maxLength:100, max:1, placeholderKey:"triggers.trigger_queue_input_placeholder"}
 	public param_queue_priority:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0, min:-100, max:100}
@@ -219,6 +225,48 @@ class TriggerActionList extends Vue {
 	private pointerUpHandler!:(e:PointerEvent) => void;
 	private keyDownHandler!:(e:KeyboardEvent) => void;
 	private keyUpHandler!:(e:KeyboardEvent) => void;
+
+	/**
+	 * Get if the trigger can be active on remote channels
+	 */
+	public get allowedOnRemoteChans():boolean {
+		const allowList:TriggerTypesValue[] = [
+			TriggerTypes.CHAT_COMMAND,
+			TriggerTypes.ANY_MESSAGE,
+			TriggerTypes.REWARD_REDEEM,
+			TriggerTypes.FIRST_TODAY,
+			TriggerTypes.FIRST_ALL_TIME,
+			TriggerTypes.FOLLOW,
+			TriggerTypes.USER_WATCH_STREAK,
+			TriggerTypes.POLL_START,
+			TriggerTypes.POLL_RESULT,
+			TriggerTypes.PREDICTION_START,
+			TriggerTypes.PREDICTION_RESULT,
+			TriggerTypes.SUB,
+			TriggerTypes.SUBGIFT,
+			TriggerTypes.CHEER,
+			TriggerTypes.POWER_UP_MESSAGE,
+			TriggerTypes.POWER_UP_GIANT_EMOTE,
+			TriggerTypes.POWER_UP_CELEBRATION,
+			TriggerTypes.SHOUTOUT_IN,
+			TriggerTypes.SHOUTOUT_OUT,
+			TriggerTypes.PIN_MESSAGE,
+			TriggerTypes.UNPIN_MESSAGE,
+			TriggerTypes.BAN,
+			TriggerTypes.UNBAN,
+			TriggerTypes.TIMEOUT,
+			TriggerTypes.CLEAR_CHAT,
+			TriggerTypes.SUB_ONLY_ON,
+			TriggerTypes.SUB_ONLY_OFF,
+			TriggerTypes.EMOTE_ONLY_ON,
+			TriggerTypes.EMOTE_ONLY_OFF,
+			TriggerTypes.SLOW_MODE_ON,
+			TriggerTypes.SLOW_MODE_OFF,
+			TriggerTypes.RAID,
+			TriggerTypes.RAID_STARTED,
+		]
+		return allowList.includes(this.triggerData.type);
+	}
 
 	/**
 	 * Get a trigger's description
@@ -297,9 +345,11 @@ class TriggerActionList extends Vue {
 
 	public beforeMount():void {
 		this.param_queue.options = this.$store.triggers.queues;
-		// if(this.triggerData.actions.length === 0) {
-		// 	this.addActionAt(0);
-		// }
+
+		// Init new prop if not existing
+		if(this.triggerData.enableForRemoteChans === undefined) {
+			this.triggerData.enableForRemoteChans = false;
+		}
 
 		//Not super clean way of getting the param content holder but don't
 		//know any cleaner one.
@@ -531,6 +581,12 @@ export default toNative(TriggerActionList);
 	flex-direction: column;
 	gap: 1em;
 	position: relative;
+
+	.premiumOption {
+		outline:4px solid var(--color-premium-fader);
+		background-color:var(--color-premium-fader);
+		border-radius: var(--border-radius);
+	}
 
 	.list {
 		.conditionSelector {

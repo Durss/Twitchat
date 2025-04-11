@@ -11,6 +11,8 @@
 		"header_select_obs_filter": "Select the OBS filter to monitor",
 		"usage": "Triggers allow you to execute many sort of actions in response to many kind of events. You can create simple things like chat commands, or more complex ones like a song request system if you connected Spotify.",
 		"trigger_name": "Custom name",
+		"enableForRemoteChans": "Enabled for other channels",
+		"enableForRemoteChans_tt": "This option allows the trigger to be active on channels other than your own",
 		"add_triggerBt": "Create a trigger",
 		"testBt": "Test trigger",
 		"deleteBt": "Delete trigger",

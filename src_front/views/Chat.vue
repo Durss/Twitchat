@@ -577,6 +577,7 @@ class Chat extends Vue {
 
 	/**
 	 * Called when requesting an action from the public API
+	 * //TODO move this store, this has nothing to do here for the most part
 	 */
 	private async onPublicApiEvent(e:TwitchatEvent):Promise<void> {
 		let notif:TwitchatDataTypes.NotificationTypes = "";

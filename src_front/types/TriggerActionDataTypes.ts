@@ -125,6 +125,12 @@ export interface TriggerData {
 	 */
 	enabled:boolean;
 	/**
+	 * Trigger enabled for events coming from remote channels ?
+	 * Defaults to false.
+	 * Premium-only feature
+	 */
+	enableForRemoteChans?:boolean;
+	/**
 	 * Trigger action list
 	 */
 	actions:TriggerActionTypes[];
@@ -132,12 +138,10 @@ export interface TriggerData {
 	 * Trigger's custom name
 	 */
 	name?:string;
-
 	/**
 	 * Reward ID for reward related events
 	 */
 	rewardId?:string;
-
 	/**
 	 * Delay before an ad starts
 	 */

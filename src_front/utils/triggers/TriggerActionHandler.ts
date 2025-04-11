@@ -82,10 +82,6 @@ export default class TriggerActionHandler {
 	 * @param testMode
 	 */
 	public async execute(message:TwitchatDataTypes.ChatMessageTypes, testMode = false, forcedTriggerId?:string):Promise<void> {
-		//Allow trigger exec only for our own chan or from tiktok
-		if(message.channel_id != StoreProxy.auth.twitch.user.id
-		&& message.channel_id != StoreProxy.auth.youtube.user?.id
-		&& message.platform != "tiktok") return;
 
 		//Check if it's a greetable message
 		if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
@@ -1043,6 +1039,7 @@ export default class TriggerActionHandler {
 		if(subEvent) key += this.HASHMAP_KEY_SPLITTER + subEvent;
 		key = key.toLowerCase();
 
+		const isPremium = StoreProxy.auth.isPremium;
 		const triggers = this.triggerType2Triggers[ key ];
 		if(!triggers || triggers.length == 0) return false;
 		triggers.sort((a,b)=> (b.queuePriority || 0) - (a.queuePriority || 0));
@@ -1050,6 +1047,12 @@ export default class TriggerActionHandler {
 		//Execute all triggers related to the current trigger event type
 		for (const trigger of triggers) {
 			if(forcedTriggerId && trigger.id != forcedTriggerId) continue;
+			if(trigger.enableForRemoteChans !== true || !isPremium) {
+				//Allow trigger exec only for our own chan or from tiktok
+				if(message.channel_id != StoreProxy.auth.twitch.user.id
+				&& message.channel_id != StoreProxy.auth.youtube.user?.id
+				&& message.platform != "tiktok") continue;
+			}
 			if(await this.executeTrigger(trigger, message, testMode, subEvent, ttsID)) {
 				executed = true;
 			}
@@ -1115,6 +1118,7 @@ export default class TriggerActionHandler {
 		};
 
 		const sTriggers = StoreProxy.triggers;
+		const isPremium = StoreProxy.auth.isPremium;
 		//Check if trigger is within a disabled folder, stop there if so
 		if(sTriggers.triggerIdToFolderEnabled[trigger.id] === false) {
 			log.entries.push({date:Date.now(), type:"message", value:"❌ Trigger is within a disabled folder. Ignore it."});
@@ -1132,8 +1136,6 @@ export default class TriggerActionHandler {
 			message.message_chunks = [];
 			message.message_html = "";
 		}
-
-		const isPremium = StoreProxy.auth.isPremium;
 
 		//Avoid polluting trigger execution history for Twitchat internal triggers
 		const noLogs:TriggerTypesValue[] = [TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE,TriggerTypes.TWITCHAT_AD,TriggerTypes.TWITCHAT_LIVE_FRIENDS,TriggerTypes.TWITCHAT_MESSAGE]
