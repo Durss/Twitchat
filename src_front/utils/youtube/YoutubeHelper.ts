@@ -364,7 +364,6 @@ export default class YoutubeHelper {
 	public async getMessages():Promise<void> {
 		clearTimeout(this._pollMessageTimeout);
 		let maxDelay = 1000;
-		console.log("Get messages", this._currentLiveChatIds)
 		for (let i = 0; i < this._currentLiveChatIds.length; i++) {
 			const liveId = this._currentLiveChatIds[i];
 			const pageToken = this._lastMessagePage[liveId];
