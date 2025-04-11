@@ -8,7 +8,7 @@ import TwitchUtils from "../utils/TwitchUtils.js";
 import AbstractController from "./AbstractController.js";
 
 /**
-* Created : 21/11/2023 
+* Created : 21/11/2023
 */
 export default class GoogleController extends AbstractController {
 
@@ -16,7 +16,7 @@ export default class GoogleController extends AbstractController {
 	private _userTotranslations:{[key:string]:{date:number, count:number}} = {}
 	private _allowedLanguages:string[] = ["af", "sq", "am", "ar", "hy", "as", "ay", "az", "bm", "eu", "be", "bn", "bho", "bs", "bg", "ca", "ceb", "zh-CN", "zh", "zh-TW", "co", "hr", "cs", "da", "dv", "doi", "nl", "en", "eo", "et", "ee", "fil", "fi", "fr", "fy", "gl", "ka", "de", "el", "gn", "gu", "ht", "ha", "haw", "he", "iw", "hi", "hmn", "hu", "is", "ig", "ilo", "id", "ga", "it", "ja", "jv", "jw", "kn", "kk", "km", "rw", "gom", "ko", "kri", "ku", "ckb", "ky", "lo", "la", "lv", "ln", "lt", "lg", "lb", "mk", "mai", "mg", "ms", "ml", "mt", "mi", "mr", "mni-Mtei", "lus", "mn", "my", "ne", "no", "ny", "or", "om", "ps", "fa", "pl", "pt", "pa", "qu", "ro", "ru", "sm", "sa", "gd", "nso", "sr", "st", "sn", "sd", "si", "sk", "sl", "so", "es", "su", "sw", "sv", "tl", "tg", "ta", "tt", "te", "th", "ti", "ts", "tr", "tk", "ak", "uk", "ur", "ug", "uz", "vi", "cy", "xh", "yi", "yo", "zu"];
 	private _allowedLanguagesMap:{[key:string]:boolean} = {};
-	
+
 
 	constructor(public server: FastifyInstance) {
 		super();
@@ -38,7 +38,7 @@ export default class GoogleController extends AbstractController {
 		this.server.post('/api/youtube/refreshtoken', async (request, response) => await this.postYoutubeRefreshToken(request, response));
 
 		this.preloadData();
-		
+
 		if(Config.credentials.google_key) {
 			//Authenticate with google API for translation API
 			const auth: Auth.GoogleAuth = new Auth.GoogleAuth({
@@ -80,8 +80,8 @@ export default class GoogleController extends AbstractController {
 	*******************/
 	/**
 	 * Get oAuth URL for youtube
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	private async getYoutubeOauthURL(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		if(!this.premiumGuard(request, response)) return;
@@ -109,7 +109,7 @@ export default class GoogleController extends AbstractController {
 			response.send(JSON.stringify({success:false, error:"Given redirect URI is invalid", errorCode:"INVALID_REDIRECT_URI"}));
 			return;
 		}
-		
+
 		// Generate a url that asks permissions for the Drive activity scope
 		const oauth2Client = new google.auth.OAuth2({
 			clientId:credentials.client_id,
@@ -135,8 +135,8 @@ export default class GoogleController extends AbstractController {
 
 	/**
 	 * Authenticates a youtube user
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	private async postYoutubeAuthenticate(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		if(!this.premiumGuard(request, response)) return;
@@ -178,12 +178,12 @@ export default class GoogleController extends AbstractController {
 
 	/**
 	 * Refreshes youtube token
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	private async postYoutubeRefreshToken(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		if(!this.premiumGuard(request, response)) return;
-		
+
 		const credentials = Config.YOUTUBE_CREDENTIALS;
 		const params:any = request.body;
 
@@ -233,8 +233,8 @@ export default class GoogleController extends AbstractController {
 
 	/**
 	 * Request for a text translation
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	private async getTranslation(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		//Check if user is premium
@@ -245,14 +245,14 @@ export default class GoogleController extends AbstractController {
 		const dateTs = currentDate.getTime();
 
 		const userInfo = (await TwitchUtils.getUserFromToken(request.headers.authorization || ""))!;
-		
+
 		if(!this._userTotranslations[userInfo.user_id]) {
 			this._userTotranslations[userInfo.user_id] = {
 				count:0,
 				date:dateTs,
 			}
 		}
-		
+
 		if(this._userTotranslations[userInfo.user_id].date == dateTs
 		&& this._userTotranslations[userInfo.user_id].count >= Config.maxTranslationsPerDay) {
 			Logger.warn("Maximum daily translations reached for "+userInfo.login+" #"+userInfo.user_id+" with "+this._userTotranslations[userInfo.user_id].count+" translations");

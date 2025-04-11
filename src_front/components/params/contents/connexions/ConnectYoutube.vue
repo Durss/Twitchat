@@ -105,7 +105,7 @@ class ConnectYoutube extends Vue {
 	public param_scope_moderate:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", icon:"mod", value:false, labelKey:"connexions.youtube.scope_moderate"};
 
 	public get connected():boolean { return YoutubeHelper.instance.connected && !this.requestNewScopes; }
-	public get selectedLiveIds() { return YoutubeHelper.instance.currentLiveIds; }
+	public get selectedLiveIds() { return YoutubeHelper.instance.currentLiveChatIds; }
 	public get broadcastList() { return YoutubeHelper.instance.availableLiveBroadcasts; }
 
 	public getFormattedDate(date:string):string {
@@ -176,12 +176,12 @@ class ConnectYoutube extends Vue {
 	}
 
 	public toggleLiveId(id:string):void {
-		if(YoutubeHelper.instance.currentLiveIds.includes(id)) {
-			YoutubeHelper.instance.currentLiveIds = YoutubeHelper.instance.currentLiveIds.filter(v => v !== id);
+		if(YoutubeHelper.instance.currentLiveChatIds.includes(id)) {
+			YoutubeHelper.instance.currentLiveChatIds = YoutubeHelper.instance.currentLiveChatIds.filter(v => v !== id);
 		}else{
-			YoutubeHelper.instance.currentLiveIds.push(id);
-			if(YoutubeHelper.instance.currentLiveIds.length > 3) {
-				YoutubeHelper.instance.currentLiveIds.shift();
+			YoutubeHelper.instance.currentLiveChatIds.push(id);
+			if(YoutubeHelper.instance.currentLiveChatIds.length > 3) {
+				YoutubeHelper.instance.currentLiveChatIds.shift();
 			}
 		}
 	}

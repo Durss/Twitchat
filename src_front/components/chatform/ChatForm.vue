@@ -615,7 +615,7 @@ export class ChatForm extends Vue {
 	}
 
 	public get mustConnectYoutubeChan():boolean {
-		return this.$store.stream.currentChatChannel.platform == "youtube" && YoutubeHelper.instance.currentLiveIds.length === 0;
+		return this.$store.stream.currentChatChannel.platform == "youtube" && YoutubeHelper.instance.currentLiveChatIds.length === 0;
 	}
 
 	public get mustGrantYoutubeScope():boolean {

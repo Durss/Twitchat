@@ -39,6 +39,7 @@ export default class YoutubeHelper {
 	private _lastFollowerList:{[key:string]:boolean} = {};
 	private _liveIdToChanId:{[liveId:string]:string} = {};
 	private _consecutiveApiFails:number = 0;
+	private _viewerCountInterval:number = -1;
 	private _giftBombs:{[giftId:string]:TwitchatDataTypes.MessageYoutubeSubgiftData} = {};
 
 	constructor() {
@@ -65,9 +66,9 @@ export default class YoutubeHelper {
 
 	public get viewerCounts() { return this._viewerCount.concat(); }
 
-	public get currentLiveIds() { return this._currentLiveChatIds; }
+	public get currentLiveChatIds() { return this._currentLiveChatIds; }
 
-	public set currentLiveIds(value:string[]) { this._currentLiveChatIds = value; }
+	public set currentLiveChatIds(value:string[]) { this._currentLiveChatIds = value; }
 
 
 
@@ -272,7 +273,8 @@ export default class YoutubeHelper {
 				Logger.instance.log("youtube", {log:"Select live \""+item.snippet.title+"\"", credits: this._creditsUsed, liveID:this._currentLiveChatIds});
 				//Start polling messages
 				this.getMessages();
-				setInterval(()=> {
+				clearTimeout(this._viewerCountInterval);
+				this._viewerCountInterval = window.setInterval(()=> {
 					this.refreshViewerCount();
 				}, 1000*60);
 				this.refreshViewerCount();
@@ -320,8 +322,6 @@ export default class YoutubeHelper {
 	 * Refreshes the viewer counts
 	 */
 	public async refreshViewerCount():Promise<void> {
-		clearTimeout(this._pollMessageTimeout);
-
 		this._creditsUsed ++;
 		Logger.instance.log("youtube", {log:"Loading current live broadcast", credits: this._creditsUsed, liveID:this._currentLiveChatIds});
 		const url = new URL(this.API_PATH+"liveBroadcasts");
@@ -364,6 +364,7 @@ export default class YoutubeHelper {
 	public async getMessages():Promise<void> {
 		clearTimeout(this._pollMessageTimeout);
 		let maxDelay = 1000;
+		console.log("Get messages", this._currentLiveChatIds)
 		for (let i = 0; i < this._currentLiveChatIds.length; i++) {
 			const liveId = this._currentLiveChatIds[i];
 			const pageToken = this._lastMessagePage[liveId];
@@ -396,11 +397,9 @@ export default class YoutubeHelper {
 					let i = Math.max(0, json.items.length - 50);//Only keep 50 last messages
 					for (; i < json.items.length; i++) {
 						const m = json.items[i];
+
 						//Message already registered? Skip it
-						if(idsDone[m.id]) {
-							console.log("SKIP", m.id, m);
-							continue;
-						}
+						if(idsDone[m.id]) continue;
 
 						const data = await this.parseMessage(m, this._liveIdToChanId[liveId], liveId);
 						if(data) {
@@ -453,7 +452,7 @@ export default class YoutubeHelper {
 								//Just youtube failing
 							}
 							StoreProxy.common.alert(errorReason);
-							this.currentLiveIds.splice(i, 1);
+							this.currentLiveChatIds.splice(i, 1);
 							i--;
 						}
 					}
@@ -750,7 +749,7 @@ export default class YoutubeHelper {
 		}
 
 		let success = false;
-		const lives = liveId? [liveId] : this.currentLiveIds;
+		const lives = liveId? [liveId] : this.currentLiveChatIds;
 		for (let i = 0; i < lives.length; i++) {
 			const live = lives[i];
 			const body = {
