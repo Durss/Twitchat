@@ -197,7 +197,9 @@
 				"action_timer": "Minuteur",
 				"trigger_stop": "Stopper le trigger",
 				"action_animated_text": "Animer du texte",
-				"action_animated_text_tt": "Vous devez d'abord créer un overlay de text animé pour utiliser cette action"
+				"action_animated_text_tt": "Vous devez d'abord créer un overlay de text animé pour utiliser cette action",
+				"action_custom_train": "Train personnalisé",
+				"action_custom_train_tt": "Vous devez d'abord créer un overlay de train personnalisé pour utiliser cette action"
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
@@ -698,6 +700,15 @@
 				"actions": {
 					"show": "Afficher du texte",
 					"hide": "Masquer le texte"
+				}
+			},
+			"custom_train": {
+				"param_trainId": "Train",
+				"param_action": "Action",
+				"param_value": "Valeur",
+				"actions": {
+					"add": "Ajouter un montant",
+					"del": "Soustraire un montant"
 				}
 			}
 		},

@@ -3738,6 +3738,35 @@ export default class TriggerActionHandler {
 							logStep.messages.push({date:Date.now(), value:"✔ Animation completed"});
 						}
 					}
+				}else
+
+				if(step.type == "custom_train") {
+					logStep.messages.push({date:Date.now(), value:"Execute action \""+step.customTrainData.action+"\" on train ID \""+step.customTrainData.trainId+"\""});
+					const train = StoreProxy.customTrain.customTrainList.find(t=>t.id == step.customTrainData.trainId);
+					if(!train) {
+						logStep.messages.push({date:Date.now(), value:"❌ Requested train not found"});
+						log.error = true;
+						logStep.error = true;
+					}else{
+						const amount = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.customTrainData.value.toString() || "0", subEvent);
+						const amountNum = MathEval(amount);
+						if(isNaN(amountNum)) {
+							logStep.messages.push({date:Date.now(), value:"❌ Invalid amount \""+amount+"\""});
+							log.error = true;
+							logStep.error = true;
+						}else{
+							switch(step.customTrainData.action) {
+								case "add": {
+									StoreProxy.customTrain.registerActivity("", "trigger", amountNum)
+									break;
+								}
+								case "del": {
+									StoreProxy.customTrain.registerActivity("", "trigger", -amountNum)
+									break;
+								}
+							}
+						}
+					}
 				}
 
 			}catch(error:any) {

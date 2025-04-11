@@ -197,7 +197,9 @@
 				"action_timer": "Timer",
 				"trigger_stop": "Stop trigger execution",
 				"action_animated_text": "Animate text",
-				"action_animated_text_tt": "You first need to create an animated text overlay to use this action"
+				"action_animated_text_tt": "You first need to create an animated text overlay to use this action",
+				"action_custom_train": "Custom train",
+				"action_custom_train_tt": "You first need to create a custom train overlay to use this action"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -698,6 +700,15 @@
 				"actions": {
 					"show": "Show text",
 					"hide": "Hide text"
+				}
+			},
+			"custom_train": {
+				"param_trainId": "Train",
+				"param_action": "Action",
+				"param_value": "Value",
+				"actions": {
+					"add": "Add amount",
+					"del": "Remove amount"
 				}
 			}
 		},

@@ -435,9 +435,12 @@ class OverlayCustomTrainRenderer extends Vue {
 			}
 			if(this.showLevelUp_local) return;
 			if(this.showRecord_local) return;
-			if(!this.showLevelUp && oldPercent > newPercent) {
-				this.levelUpAnimation();
-				return;
+			if(oldPercent > newPercent) {
+				await this.$nextTick();
+				if(!this.showLevelUp && this.localLevelIndex < this.level) {
+					this.levelUpAnimation();
+					return;
+				}
 			}
 			this.percent_local = newPercent;
 			this.localLevelIndex = this.level;

@@ -248,6 +248,18 @@
 						v-newflag="{date:1693519200000, id:'params_triggerAction_customusername'}"
 						icon="user">{{ $t('triggers.actions.common.action_customUsername') }}</TTButton>
 
+					<TTButton class="button" @click.capture="selectActionType('animated_text')"
+						:disabled="!canAnimateText"
+						v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_triggerAction_animateText'}"
+						v-tooltip="canAnimateText? '' : $t('triggers.actions.common.action_animated_text_tt')"
+						icon="animate">{{ $t('triggers.actions.common.action_animated_text') }}</TTButton>
+
+					<TTButton class="button" @click.capture="selectActionType('custom_train')"
+						:disabled="!canControlCustomTrain"
+						v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_triggerAction_customTrain'}"
+						v-tooltip="canControlCustomTrain? '' : $t('triggers.actions.common.action_custom_train_tt')"
+						icon="train">{{ $t('triggers.actions.common.action_custom_train') }}</TTButton>
+
 					<TTButton class="button" @click="selectActionType('trigger')"
 						icon="broadcast" >{{ $t('triggers.actions.common.action_trigger') }}</TTButton>
 
@@ -273,12 +285,6 @@
 						v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'params_triggerAction_clickHeat'}"
 						v-tooltip="heatClickEnabled? '' : $t('triggers.actions.common.action_heat_click_tt')"
 						icon="distort">{{ $t('triggers.actions.common.action_heat_click') }}</TTButton>
-
-					<TTButton class="button" @click.capture="selectActionType('animated_text')"
-						:disabled="!canAnimateText"
-						v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_triggerAction_animateText'}"
-						v-tooltip="canAnimateText? '' : $t('triggers.actions.common.action_animated_text_tt')"
-						icon="animate">{{ $t('triggers.actions.common.action_animated_text') }}</TTButton>
 				</div>
 			</div>
 
@@ -314,6 +320,7 @@
 			<TriggerActionGroqEntry v-else-if="action.type=='groq'" :action="action" :triggerData="triggerData" />
 			<TriggerActionTimerEntry v-else-if="action.type=='timer'" :action="action" :triggerData="triggerData" />
 			<TriggerActionAnimateTextEntry v-else-if="action.type=='animated_text'" :action="action" :triggerData="triggerData" />
+			<TriggerActionCustomTrainEntry v-else-if="action.type=='custom_train'" :action="action" :triggerData="triggerData" />
 			<RaffleForm v-else-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 			<BingoForm v-else-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 			<PollForm v-else-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -333,7 +340,7 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import ChatPollForm from '@/components/poll/ChatPollForm.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
-import { TriggerEventPlaceholders, TriggerTypes, type ITriggerPlaceholder, type TriggerActionAnimatedTextData, type TriggerActionBingoGridData, type TriggerActionCounterData, type TriggerActionObsData, type TriggerActionObsSourceDataAction, type TriggerActionRewardData, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerConditionGroup, type TriggerData } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, TriggerTypes, type ITriggerPlaceholder, type TriggerActionAnimatedTextData, type TriggerActionBingoGridData, type TriggerActionCounterData, type TriggerActionCustomTrainData, type TriggerActionObsData, type TriggerActionObsSourceDataAction, type TriggerActionRewardData, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerConditionGroup, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -386,6 +393,7 @@ import TriggerActionValueEntry from './entries/TriggerActionValueEntry.vue';
 import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneEntry.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
+import TriggerActionCustomTrainEntry from './entries/TriggerActionCustomTrainEntry.vue';
 
 @Component({
 	components:{
@@ -413,7 +421,6 @@ import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 		TriggerActionSammiEntry,
 		TriggerActionGoXLREntry,
 		TriggerActionTimerEntry,
-		TriggerActionAnimateTextEntry,
 		TriggerActionRewardEntry,
 		TriggerActionCustomBadge,
 		TriggerActionRandomEntry,
@@ -429,8 +436,10 @@ import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 		TriggerActionCustomUsername,
 		TriggerActionCustomChatEntry,
 		TriggerActionStreamInfoEntry,
+		TriggerActionCustomTrainEntry,
 		TriggerActionPlayAbilityEntry,
 		TriggerActionStreamerbotEntry,
+		TriggerActionAnimateTextEntry,
 		TriggerActionVibratePhoneEntry,
 		TriggerActionSpoilMessageEntry,
 		TriggerActionDeleteMessageEntry,
@@ -475,6 +484,7 @@ class TriggerActionEntry extends Vue {
 	public get canEditStreamInfo():boolean { return TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]); }
 	public get heatClickEnabled():boolean { return (this.$store.heat.distortionList || []).length > 0; }
 	public get canAnimateText():boolean { return this.$store.animatedText.animatedTextList.length > 0; }
+	public get canControlCustomTrain():boolean { return this.$store.customTrain.customTrainList.length > 0; }
 	public get isAffiliate():boolean {
 		return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner;
 	}
@@ -603,6 +613,7 @@ class TriggerActionEntry extends Vue {
 		else if(this.action.type == "groq") icons.push( 'groq' );
 		else if(this.action.type == "timer") icons.push( 'timer' );
 		else if(this.action.type == "animated_text") icons.push( 'animate' );
+		else if(this.action.type == "custom_train") icons.push( 'train' );
 		return icons;
 	}
 
@@ -618,6 +629,11 @@ class TriggerActionEntry extends Vue {
 		if(this.action.type === "animated_text" && this.action.animatedTextData) {
 			const action = this.action as TriggerActionAnimatedTextData;
 			return !this.$store.animatedText.animatedTextList.some(entry=> entry.id == action.animatedTextData.overlayId);
+		}
+
+		if(this.action.type === "custom_train" && this.action.customTrainData) {
+			const action = this.action as TriggerActionCustomTrainData;
+			return !this.$store.customTrain.customTrainList.some(entry=> entry.id == action.customTrainData.trainId);
 		}
 
 		if(this.action.type === "reward" && this.action.rewardAction) {
@@ -657,6 +673,12 @@ class TriggerActionEntry extends Vue {
 			case "animated_text": {
 				if(!this.canAnimateText) {
 					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "animatedtext");
+					return;
+				}break
+			}
+			case "custom_train": {
+				if(!this.canControlCustomTrain) {
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "customtrain");
 					return;
 				}break
 			}

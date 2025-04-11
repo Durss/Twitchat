@@ -1016,6 +1016,16 @@ const UserDataSchema = {
 										text: { type: "string",  minLength: 0, maxLength: 1000 }
 									}
 								},
+
+								customTrainData:{
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										trainId: {type:"string", maxLength:50},
+										action: { enum: ["add", "del"] },
+										value: { type: "string",  minLength: 0, maxLength: 1000 }
+									}
+								},
 							}
 						},
 					}

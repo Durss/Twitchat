@@ -106,6 +106,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionStopExecData
 								| TriggerActionChatPollData
 								| TriggerActionAnimatedTextData
+								| TriggerActionCustomTrainData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -1352,6 +1353,7 @@ export interface TriggerActionAnimatedTextData extends TriggerActionData{
 	type:"animated_text";
 	animatedTextData: TriggerActionAnimatedTextData_ActionShow | TriggerActionAnimatedTextData_ActionHide
 }
+export const TriggerActionAnimatedTextData_ActionList = ["show", "hide"] as const;
 interface TriggerActionAnimatedTextData_ActionAbstract {
 	/**
 	 * Action to perform
@@ -1390,7 +1392,30 @@ interface TriggerActionAnimatedTextData_ActionHide extends TriggerActionAnimated
 	 */
 	pauseUntilComplete?:boolean
 }
-export const TriggerActionAnimatedTextData_ActionList = ["show", "hide"] as const;
+
+/**
+ * Contains actions to perform on custom train
+ */
+export interface TriggerActionCustomTrainData extends TriggerActionData{
+	type:"custom_train";
+	customTrainData: {
+		/**
+		 * Train ID to control
+		 */
+		trainId:string;
+		/**
+		 * Action to perform
+		 */
+		action: typeof TriggerActionCustomTrainData_ActionList[number];
+		/**
+		 * Value to add/remove
+		 * It's a string because it can contain placeholders and math operations
+		 */
+		value:string;
+
+	}
+}
+export const TriggerActionCustomTrainData_ActionList = ["add", "del"] as const;
 
 /**
  * Represents a tree structure item.
