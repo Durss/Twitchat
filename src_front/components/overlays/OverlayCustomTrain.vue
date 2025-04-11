@@ -1,7 +1,7 @@
 <template>
 	<div class="overlaycustomtrain">
 		<transition name="scaleY">
-			<OverlayCustomTrainRenderer class="train" v-if="configs && state && state.amount > 0 && state.activities.length > 1" key="train"
+			<OverlayCustomTrainRenderer class="train" v-if="configs && state && state.amount > 0 && state.activities.length >= configs.approachEventCount" key="train"
 				:showSuccess="false"
 				:showApproaching="showApproaching"
 				:showFail="false"
@@ -34,7 +34,7 @@
 				:levelName="configs.levelName"
 
 				:isRecord="!showApproaching && isRecord"
-				:eventDone="(state?.activities.length || 2) - 1"
+				:eventDone="state?.activities.length || 2"
 				:level="showApproaching? 0 : currentLevel.index"
 				:percent="showApproaching? 0 : progressPercent"
 				:amountLeft="showApproaching? 0 : Math.ceil(Math.max(0, 1-progressPercent) * currentLevel.goal)"
@@ -44,6 +44,8 @@
 				:recordLevel="recordLevel"
 
 				@close="state = null"
+				@lock="locked = true"
+				@unlock="locked = false"
 				/>
 		</transition>
 	</div>
@@ -56,6 +58,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import OverlayCustomTrainRenderer from './custom_train/OverlayCustomTrainRenderer.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -65,6 +68,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 })
 class OverlayCustomTrain extends AbstractOverlay {
 
+	public locked = false;
 	public isRecord = false;
 	public recordPercent = -1;
 	public recordLevel = -1;
@@ -120,27 +124,30 @@ class OverlayCustomTrain extends AbstractOverlay {
 	public onCustomTrainState(e:TwitchatEvent<{configs:TwitchatDataTypes.CustomTrainData, state:TwitchatDataTypes.CustomTrainState}>):void {
 		if(!e.data || !e.data.configs) return;
 		if(e.data.configs.id !== this.overlayId) return;
+		if(this.locked) return;
 
 		this.configs = e.data.configs;
 		this.state = e.data.state;
 
 		if(this.state) {
-			if(this.state.activities.length - 1 < this.configs.triggerEventCount) {
+			if(this.state.activities.length < this.configs.triggerEventCount) {
 				this.showApproaching = true;
 			}else if(this.showApproaching) {
+				// Show last ticked cell for 1 second
 				setTimeout(() => {
 					this.showApproaching = false;
 				}, 1000);
 			}
 
 			const wasRecord = this.isRecord;
-			this.isRecord = !this.configs.allTimeRecord? false : this.state.amount >= this.configs.allTimeRecord.amount
 
+			const record = Utils.getAllTimeRecord(this.configs);
+			this.isRecord = !this.configs.allTimeRecord || !record? false : this.state.amount >= record?.amount
 			if(!wasRecord
-			&& this.configs.allTimeRecord
-			&& this.currentLevel.index == this.configs.allTimeRecord.level) {
-				this.recordLevel = this.configs.allTimeRecord.level;
-				this.recordPercent = this.configs.allTimeRecord.percent;
+			&& record
+			&& this.currentLevel.index == record.level+1) {
+				this.recordLevel = record.level+1;
+				this.recordPercent = record.percent;
 			}else{
 				this.recordLevel = -1;
 				this.recordPercent = -1;

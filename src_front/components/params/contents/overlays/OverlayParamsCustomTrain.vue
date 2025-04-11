@@ -53,13 +53,13 @@
 				</template>
 
 				<div class="content">
-					<div v-if="entry.allTimeRecord" class="card-item primary center record">
+					<div v-if="train2Record[entry.id]" class="card-item primary center record">
 						<Icon name="leaderboard" />
 						<i18n-t scope="global" keypath="overlay.customTrain.allTimeRecord_title">
-							<template #LEVEL><strong>{{ entry.allTimeRecord.level }}</strong></template>
-							<template #DATE><i>{{ getAllTimeRecordDateFormated(entry.allTimeRecord.date) }}</i></template>
-							<template #PERCENT><strong>{{ Math.floor(entry.allTimeRecord.percent * 100) }}%</strong></template>
-							<template #AMOUNT><strong>{{ getAllTimeRecordAmount(entry.allTimeRecord.amount, entry.currency) }}</strong></template>
+							<template #LEVEL><strong>{{ train2Record[entry.id]!.level }}</strong></template>
+							<template #DATE><i>{{ train2Record[entry.id]!.dateFormatted }}</i></template>
+							<template #PERCENT><strong>{{ Math.floor(train2Record[entry.id]!.percent * 100) }}%</strong></template>
+							<template #AMOUNT><strong>{{ train2Record[entry.id]!.amountFormatted }}</strong></template>
 						</i18n-t>
 					</div>
 					<div class="card-item install">
@@ -160,7 +160,7 @@
 							:colorText="entry.colorFill"
 							:colorBg="entry.colorBg"
 							:eventCount="entry.triggerEventCount"
-							:eventDone="1"
+							:eventDone="entry.approachEventCount"
 							:approachingEmote="entry.approachingEmote"
 							v-model:titleApproaching="entry.approachingLabel"
 							v-model:title="entry.title"
@@ -169,6 +169,7 @@
 							@selectEmote="($event:MouseEvent) => openEmoteSelector(entry, 'approaching', $event)"
 							editable
 							/>
+						<ParamItem :paramData="param_approachEventCount[entry.id]" v-model="entry.approachEventCount" @change="onChange(entry)" :childLevel="1" noBackground/>
 						<ParamItem :paramData="param_triggerEventCount[entry.id]" v-model="entry.triggerEventCount" @change="onChange(entry)" :childLevel="1" noBackground/>
 					</div>
 
@@ -190,7 +191,7 @@
 							editable
 							/>
 						<ParamItem :paramData="param_levelsDuration_ms[entry.id]" v-model="entry.levelsDuration_s" @change="onChange(entry)" :childLevel="1" noBackground/>
-						<ParamItem :paramData="param_levelAmounts[entry.id]" v-model="param_levelAmounts[entry.id].value" @change="onChange(entry)" :childLevel="1" noBackground/>
+						<ParamItem :paramData="param_levelAmounts[entry.id]" v-model="param_levelAmounts[entry.id].value" @change="onChange(entry, true)" :childLevel="1" noBackground/>
 						<div class="offset info">{{$t("overlay.customTrain.param_levelAmounts_count", {COUNT:entry.levelAmounts.length})}}</div>
 						<i18n-t scope="global" class="card-item premium plz" tag="div"
 						keypath="overlay.customTrain.param_levelAmounts_plz"
@@ -315,6 +316,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 import CurrencyPatternInput from '@/components/CurrencyPatternInput.vue';
 import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
 import Utils from '@/utils/Utils';
+import { watch } from 'vue';
 
 @Component({
 	components:{
@@ -337,6 +339,7 @@ class OverlayParamsCustomTrain extends Vue {
 	public emoteSelector_x:string = "0";
 	public emoteSelectorOrigin:{x:number, y:number} = {x:0, y:0};
 	public train2Timer:Record<string, {timer:string, tooltip:string, cooldown:boolean}> = {};
+	public train2Record:Record<string, ReturnType<typeof Utils.getAllTimeRecord>> = {};
 
 	public param_colorFill:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_colorBg:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
@@ -345,6 +348,7 @@ class OverlayParamsCustomTrain extends Vue {
 	public param_textFont:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_textSize:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_currency:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_approachEventCount:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_triggerEventCount:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_cooldownDuration_ms:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_levelsDuration_ms:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
@@ -367,6 +371,13 @@ class OverlayParamsCustomTrain extends Vue {
 		this.keyHandler = (e:KeyboardEvent)=> this.onKeyboardEvent(e);
 		document.addEventListener("click", this.clickHandler, true);
 		document.addEventListener("keydown", this.keyHandler, true);
+
+		watch(() => this.$store.customTrain.customTrainList.length, (newLength, oldLength) => {
+			if (newLength != oldLength) {
+				this.rebuildRecordsMap()
+			}
+		});
+		this.rebuildRecordsMap()
 	}
 
 	public beforeUnmount():void {
@@ -390,7 +401,8 @@ class OverlayParamsCustomTrain extends Vue {
 			this.param_textFont[id]				= {type:"font", value:"", labelKey:"overlay.customTrain.param_textFont", icon:"font"};
 			this.param_textSize[id]				= {type:"slider", value:40, min:20, max:80, labelKey:"overlay.customTrain.param_textSize", icon:"fontSize"};
 			this.param_currency[id]				= {type:"string", value:"", labelKey:"overlay.customTrain.param_currency", icon:"coin"};
-			this.param_triggerEventCount[id]	= {type:"number", value:2, min:2, max:5, labelKey:"overlay.customTrain.param_triggerEventCount", icon:"notification"};
+			this.param_approachEventCount[id]	= {type:"number", value:2, min:2, max:25, labelKey:"overlay.customTrain.param_approachEventCount", icon:"notification"};
+			this.param_triggerEventCount[id]	= {type:"number", value:2, min:2, max:11, labelKey:"overlay.customTrain.param_triggerEventCount", icon:"notification"};
 			this.param_cooldownDuration_ms[id]	= {type:"duration", value:0, min:30*60, max:24*3600, labelKey:"overlay.customTrain.param_cooldownDuration_ms", icon:"timer"};
 			this.param_levelsDuration_ms[id]	= {type:"duration", value:5*6, min:30, max:30*60, labelKey:"overlay.customTrain.param_levelsDuration_ms", icon:"countdown"};
 			this.param_postLevelUpOnChat[id]	= {type:"boolean", value:false, labelKey:"overlay.customTrain.param_postLevelUpOnChat", icon:"whispers"};
@@ -412,7 +424,7 @@ class OverlayParamsCustomTrain extends Vue {
 	 * Saves data on change
 	 * @param entry
 	 */
-	public onChange(entry:TwitchatDataTypes.CustomTrainData):void {
+	public onChange(entry:TwitchatDataTypes.CustomTrainData, rebuildRecord:boolean = false):void {
 		//Make sure user doesn't hack this value
 		entry.triggerEventCount = Math.max(Math.min(entry.triggerEventCount, this.param_triggerEventCount[entry.id].max!), 0);
 
@@ -424,6 +436,9 @@ class OverlayParamsCustomTrain extends Vue {
 
 		this.$store.customTrain.saveData();
 		this.$store.customTrain.broadcastStates(entry.id);
+		if(rebuildRecord) {
+			this.rebuildRecordsMap();
+		}
 	}
 
 	/**
@@ -558,12 +573,15 @@ class OverlayParamsCustomTrain extends Vue {
 		}
 	}
 
-	public getAllTimeRecordDateFormated(timestamp:number):string {
-		return Utils.formatDate(new Date(timestamp), false)
-	}
-
-	public getAllTimeRecordAmount(amount:number, format:string):string {
-		return Utils.formatCurrency(amount, format);
+	/**
+	 * Builds up an hashmap of all time records for each custom train
+	 */
+	private rebuildRecordsMap():void {
+		for (const id in this.$store.customTrain.customTrainList) {
+			const entry = this.$store.customTrain.customTrainList[id];
+			const record = Utils.getAllTimeRecord(entry);
+			if(record) this.train2Record[entry.id] = record;
+		}
 	}
 }
 export default toNative(OverlayParamsCustomTrain);

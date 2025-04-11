@@ -83,9 +83,23 @@
 						:no-nl="true"
 						:no-html="true"
 						@input="onChangeTitleApproaching()" />
-					<div class="events">
-						<div v-for="i in eventCount" :key="i" :class="{done:i<=eventDone}">
-							<Icon name="checkmark" v-if="i<=eventDone" />
+					<div class="events" v-if="eventCount < 6">
+						<div class="wrapper">
+							<div v-for="i in eventCount" :key="i" :class="{done:i<=eventDone}">
+								<Icon name="checkmark" v-if="i<=eventDone" />
+							</div>
+						</div>
+					</div>
+					<div class="events wrap" v-else>
+						<div class="wrapper">
+							<div v-for="i in Math.ceil(eventCount/2)" :key="i" :class="{done:i<=eventDone}">
+								<Icon name="checkmark" v-if="i<=eventDone" />
+							</div>
+						</div>
+						<div class="wrapper">
+							<div v-for="i in Math.floor(eventCount/2)" :key="i" :class="{done:(i+Math.ceil(eventCount/2))<=eventDone}">
+								<Icon name="checkmark" v-if="(i+Math.ceil(eventCount/2))<=eventDone" />
+							</div>
 						</div>
 					</div>
 				</div>
@@ -209,6 +223,8 @@ import TrophyIcon from "@/assets/icons/sub.svg?raw"
 		contenteditable,
 	},
 	emits:[
+		"lock",
+		"unlock",
 		"edit",
 		"close",
 		"update:title",
@@ -409,6 +425,8 @@ class OverlayCustomTrainRenderer extends Vue {
 			if(this.showApproaching) return;
 			if(this.showSuccess_local) return;
 			if(this.showFail_local) return;
+			// This is necessary to avoid conflicting animations if reaching a new
+			// record while leveling up
 			if(this.recordPercent > -1 && newPercent > this.recordPercent) {
 				this.recordAnimation();
 				return
@@ -589,6 +607,7 @@ class OverlayCustomTrainRenderer extends Vue {
 	}
 
 	public async recordAnimation():Promise<void> {
+		console.log("Show record")
 		this.showLevelUp_local = false;
 		gsap.to(this, {easedPercent: this.percent, duration: .5})
 		await Utils.promisedTimeout(500);
@@ -604,6 +623,7 @@ class OverlayCustomTrainRenderer extends Vue {
 	}
 
 	public async successAnimation():Promise<void> {
+		this.$emit("lock")
 		this.showSuccess_local = true;
 		this.showRecord_local = false;
 		this.showLevelUp_local = false;
@@ -614,9 +634,11 @@ class OverlayCustomTrainRenderer extends Vue {
 		this.localTitleSuccess = this.titleSuccessSummary.replace('{LEVEL}', this.localLevelIndex.toString()).replace('{PERCENT}', Math.floor(this.percent_local*100).toString());
 		await this.animateLabelPaused(labelHolder, true, 10000);
 		this.$emit("close");
+		this.$emit("unlock")
 	}
 
 	public async failAnimation():Promise<void> {
+		this.$emit("lock")
 		this.showFail_local = true;
 		this.showRecord_local = false;
 		this.showLevelUp_local = false;
@@ -625,6 +647,7 @@ class OverlayCustomTrainRenderer extends Vue {
 		this.localTitleSuccess = this.titleFail;
 		await this.animateLabelPaused(labelHolder, false, 10000);
 		this.$emit("close");
+		this.$emit("unlock")
 	}
 
 	private async animateLabelSlowmo(labelHolder:HTMLElement):Promise<void> {
@@ -688,7 +711,7 @@ class OverlayCustomTrainRenderer extends Vue {
 				const index = (row*col)%((rows-2)*col);
 				if(!props[index]) {
 					props[index] = {
-						alpha: Math.random() * .5 + .15,
+						alpha: Math.random() * .7 + .2,
 						angle: Math.random() * 360,
 					}
 				}
@@ -906,27 +929,42 @@ export default toNative(OverlayCustomTrainRenderer);
 			}
 
 			.events {
-				gap: .2em;
-				display: flex;
-				flex-direction: row;
-				margin-right: .5em;
-				div {
-					width: 1em;
-					height: 1em;
-					background-color: var(--colorText);
-					border-radius: 50%;
-					opacity: .5;
-					transition: opacity .2s;
+				.wrapper {
+					gap: .2em;
+					row-gap: 0;
 					display: flex;
-					justify-content: center;
-					align-items: center;
+					flex-direction: row;
+					margin-right: .5em;
+					flex-wrap: wrap;
+					div {
+						width: 1em;
+						height: 1em;
+						background-color: var(--colorText);
+						border-radius: 50%;
+						opacity: .5;
+						transition: opacity .2s;
+						display: flex;
+						justify-content: center;
+						align-items: center;
 
-					&.done {
-						opacity: 1;
+						&.done {
+							opacity: 1;
+						}
+						.icon {
+							color: var(--colorBg);
+							width: 80%;
+						}
 					}
-					.icon {
-						color: var(--colorBg);
-						width: 80%;
+					&:nth-child(even) {
+						margin-left: .5em;
+					}
+				}
+				&.wrap {
+					.wrapper {
+						div {
+							width: .8em;
+							height: .8em;
+						}
 					}
 				}
 			}

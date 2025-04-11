@@ -926,4 +926,35 @@ export default class Utils {
 			// Ensure the string is not empty
 			|| 'unnamed';
 	}
+
+	/**
+	 * Get all time record details of given custom train
+	 * @param train
+	 * @returns
+	 */
+	public static getAllTimeRecord(train:TwitchatDataTypes.CustomTrainData):{amount:number, amountFormatted:string, level:number, percent:number, date:Date, dateFormatted:string} | null {
+		if(train && train.allTimeRecord) {
+			const levels = train.levelAmounts.sort((a,b)=>a - b);
+			let offset = 0;
+			let goal = levels[0] || 0;
+			let i = 0;
+			for (i = 1; i < levels.length; i++) {
+				const level = levels[i];
+				if(level > train.allTimeRecord.amount || i === levels.length - 1) {
+					offset = levels[i-1];
+					goal = level - offset;
+					break;
+				}
+			}
+			return {
+				level:i,
+				amount:train.allTimeRecord.amount,
+				amountFormatted:Utils.formatCurrency(train.allTimeRecord.amount, train.currency),
+				percent:(train.allTimeRecord.amount - offset) / goal,
+				date:new Date(train.allTimeRecord.date),
+				dateFormatted:Utils.formatDate(new Date(train.allTimeRecord.date), false),
+			}
+		}
+		return null;
+	}
 }

@@ -2217,7 +2217,11 @@ export namespace TwitchatDataTypes {
 		 */
 		currency:string;
 		/**
-		 * Number of events to trigger the train
+		 * Number of events to get the train approaching
+		 */
+		approachEventCount:number;
+		/**
+		 * Number of events to start the train
 		 */
 		triggerEventCount:number;
 		/**
@@ -2315,8 +2319,6 @@ export namespace TwitchatDataTypes {
 		allTimeRecord?: {
 			date:number;
 			amount:number;
-			level:number;
-			percent:number;
 		};
 		/**
 		 * Platforms allowed to make train progress

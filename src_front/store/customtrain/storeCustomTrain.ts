@@ -72,7 +72,8 @@ export const storeCustomTrain = defineStore('customTrain', {
 				currency:"$"+Utils.CURRENCY_AMOUNT_TOKEN,
 				colorFill:"#008667",
 				colorBg:"#cdfef2",
-				triggerEventCount:2,
+				approachEventCount:2,
+				triggerEventCount:3,
 				textSize:50,
 				textFont:"Inter",
 				postLevelUpOnChat:false,
@@ -158,7 +159,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 						train.expires_at = 0;
 						delete this.customTrainStates[train.id];
 
-						// Not enough activities to trigger the train
+						// Not enough activities to trigger the train, send "fail" message
 						if(state.activities.length <= train.triggerEventCount) {
 							const notification:TwitchatDataTypes.MessageCustomTrainFailData = {
 								channel_id:StoreProxy.auth.twitch.user.id,
@@ -179,8 +180,6 @@ export const storeCustomTrain = defineStore('customTrain', {
 							train.allTimeRecord = {
 								amount:total,
 								date: Date.now(),
-								level: level.index,
-								percent,
 							}
 						}
 
@@ -248,14 +247,15 @@ export const storeCustomTrain = defineStore('customTrain', {
 					return {index:i, offset, goal}
 				}
 
-				// Keep this above the amount update
-				const prevLevel = currentLevel();
-
-				if(this.customTrainStates[train.id].activities.length == 0) {
-					// static 5min cooldown for "approaching" validation
+				if(this.customTrainStates[train.id].activities.length == 0
+				|| this.customTrainStates[train.id].activities.length + 1 == train.approachEventCount) {
+					// static 5min cooldown to get approaching train or to start it
 					train.expires_at = Date.now() + 60 * 5 * 1000;
 					scheduleEnd(true);
 				}
+
+				// Keep this above the amount update
+				const prevLevel = currentLevel();
 
 				// Register activity
 				this.customTrainStates[train.id].amount += amount;
@@ -269,29 +269,14 @@ export const storeCustomTrain = defineStore('customTrain', {
 
 				// New all time record ?
 				if(!train.testing // Don't register if testing a fake train
-					&& train.allTimeRecord
-					&& this.customTrainStates[train.id].amount > train.allTimeRecord.amount) {
-						const levels = train.levelAmounts.concat();
-						levels.unshift(0);
+				&& train.allTimeRecord
+				&& this.customTrainStates[train.id].amount > train.allTimeRecord.amount) {
+					const levels = train.levelAmounts.concat();
+					levels.unshift(0);
 
-						let offset = 0;
-						let goal = levels[0] || 0;
-						let i = 0;
-						const amount = this.customTrainStates[train.id].amount;
-						for (i = 1; i < levels.length; i++) {
-							const level = levels[i];
-							if(level > amount || i === levels.length - 1) {
-								offset = levels[i-1];
-								goal = level - offset;
-								break;
-							}
-						}
-
-						train.allTimeRecord.amount = amount;
-						train.allTimeRecord.date = Date.now();
-						train.allTimeRecord.level = i;
-						train.allTimeRecord.percent = (amount - offset) / goal;
-					}
+					train.allTimeRecord.amount = this.customTrainStates[train.id].amount;
+					train.allTimeRecord.date = Date.now();
+				}
 
 				// Level up ?
 				const newLevel = currentLevel();
@@ -352,8 +337,6 @@ export const storeCustomTrain = defineStore('customTrain', {
 			// train.allTimeRecord = {
 			// 	amount:40,
 			// 	date:0,
-			// 	level:2,
-			// 	percent:20/30,
 			// }
 
 			delete this.customTrainStates[train.id];
@@ -362,23 +345,30 @@ export const storeCustomTrain = defineStore('customTrain', {
 			if(simulationIDLocal !== simulationID) return;
 			const levels = train.levelAmounts.concat();
 
-			// Fill half of the first level
-			for (let i = 0; i < train.triggerEventCount; i++) {
-				this.registerActivity("", "trigger", levels[0]/2/(train.triggerEventCount+1));
-				if(i > 0) await Utils.promisedTimeout(3000);
+			// Fill required event counts with 1/4 of the first level amount
+			for (let i = 0; i < train.approachEventCount; i++) {
+				this.registerActivity("", "trigger", levels[0]/4/train.approachEventCount);
+			}
+
+			await Utils.promisedTimeout(500);
+			// Fill another 1/4 of the first level amount for the trigger event count
+			let remaining = Math.max(1, train.triggerEventCount - train.approachEventCount);
+			for (let i = 0; i < remaining; i++) {
+				this.registerActivity("", "trigger", levels[0]/4/remaining);
+				await Utils.promisedTimeout(500);
 				if(simulationIDLocal !== simulationID) return;
 			}
 
 			// Fill the rest of the first level
-			this.registerActivity("", "trigger", levels[0]/2/2);
+			await Utils.promisedTimeout(3000);
+			this.registerActivity("", "trigger", levels[0]/4);
 			await Utils.promisedTimeout(3000);
 			if(simulationIDLocal !== simulationID) return;
-			this.registerActivity("", "trigger", levels[0]/2/2);
-			await Utils.promisedTimeout(2000);
+			this.registerActivity("", "trigger", levels[0]/4);
+			await Utils.promisedTimeout(5000);
 			if(simulationIDLocal !== simulationID) return;
-			this.registerActivity("", "trigger", levels[0]/train.triggerEventCount + 1);
-			await Utils.promisedTimeout(1000);
-			if(simulationIDLocal !== simulationID) return;
+			await Utils.promisedTimeout(26000);
+			this.registerActivity("", "trigger", 500);
 			for (let i = 1; i < Math.min(levels.length, 3); i++) {
 				let splits = Math.ceil(Math.random() * 5 + 1);
 				const goal = levels[i] - levels[i-1] * (Math.random() * 0.75 + .25);

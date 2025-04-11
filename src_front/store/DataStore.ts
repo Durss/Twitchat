@@ -8,6 +8,7 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import type { JsonValue } from "type-fest";
 import DataStoreCommon from "./DataStoreCommon";
 import StoreProxy from "./StoreProxy";
+import type { CustomTrainStoreData } from "./customtrain/storeCustomTrain";
 
 /**
  * Fallback to sessionStorage if localStorage isn't available
@@ -155,7 +156,7 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	static override async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 62;
+		const latestVersion = 63;
 
 		this.cleanupPreV7Data(data);
 
@@ -379,6 +380,10 @@ export default class DataStore extends DataStoreCommon{
 		}
 		if(v==61) {
 			this.migrateTimerPlaceholders(data);
+			v = 62;
+		}
+		if(v==62) {
+			this.addApproachEventCountToCustomTrain(data);
 			v = latestVersion;
 		}
 
@@ -1705,6 +1710,21 @@ export default class DataStore extends DataStoreCommon{
 			str = str.replace(/\{COUNTDOWN_DURATION\}/g, "{COUNTDOWN_DEFAULT_DURATION_MS}");
 
 			data[DataStore.TRIGGERS] = JSON.parse(str);
+		}
+	}
+
+	/**
+	 * Add new "approachEventCount" to custom trains
+	 * @param data
+	 */
+	private static addApproachEventCountToCustomTrain(data:any):void {
+		const trains:CustomTrainStoreData = data[DataStore.CUSTOM_TRAIN_CONFIGS];
+		if(trains) {
+			trains.customTrainList.forEach(t => {
+				if(!t.approachEventCount) {
+					t.approachEventCount = 2;
+				}
+			})
 		}
 	}
 }
