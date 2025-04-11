@@ -89,6 +89,7 @@
 								<Icon name="checkmark" v-if="i<=eventDone" />
 							</div>
 						</div>
+						<div class="time">{{ timeLeft }}</div>
 					</div>
 					<div class="events wrap" v-else>
 						<div class="wrapper">
@@ -101,6 +102,7 @@
 								<Icon name="checkmark" v-if="(i+Math.ceil(eventCount/2))<=eventDone" />
 							</div>
 						</div>
+						<div class="time">{{ timeLeft }}</div>
 					</div>
 				</div>
 			</div>
@@ -817,7 +819,6 @@ export default toNative(OverlayCustomTrainRenderer);
 			justify-content: center;
 			align-items: center;
 			flex-grow: 1;
-			font-variant-numeric: tabular-nums;
 
 			.record {
 				position: absolute;
@@ -883,6 +884,7 @@ export default toNative(OverlayCustomTrainRenderer);
 				font-size: .45em;
 				font-weight: bold;
 				z-index: 1;
+				font-variant-numeric: tabular-nums;
 			}
 
 			.percent {
@@ -929,12 +931,12 @@ export default toNative(OverlayCustomTrainRenderer);
 			}
 
 			.events {
+				margin-right: .5em;
 				.wrapper {
 					gap: .2em;
 					row-gap: 0;
 					display: flex;
 					flex-direction: row;
-					margin-right: .5em;
 					flex-wrap: wrap;
 					div {
 						width: 1em;
@@ -959,12 +961,31 @@ export default toNative(OverlayCustomTrainRenderer);
 						margin-left: .5em;
 					}
 				}
+				.time {
+					font-size: .45em;
+					font-weight: bold;
+					text-align: center;
+					margin-top: .5em;
+					z-index: 1;
+					font-variant-numeric: tabular-nums;
+				}
 				&.wrap {
+					position: relative;
 					.wrapper {
 						div {
 							width: .8em;
 							height: .8em;
 						}
+					}
+					.time {
+						position: absolute;
+						top: 50%;
+						left: 50%;
+						margin: 0;
+						transform: translate(-50%, -50%);
+						background-color: var(--colorBg);
+						padding: .25em .5em;
+						border-radius: 1em;
 					}
 				}
 			}

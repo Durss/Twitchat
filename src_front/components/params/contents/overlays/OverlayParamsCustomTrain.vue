@@ -162,6 +162,7 @@
 							:eventCount="entry.triggerEventCount"
 							:eventDone="entry.approachEventCount"
 							:approachingEmote="entry.approachingEmote"
+							:expiresAt="Date.now()+entry.levelsDuration_s*1000"
 							v-model:titleApproaching="entry.approachingLabel"
 							v-model:title="entry.title"
 							v-model:levelName="entry.levelName"
