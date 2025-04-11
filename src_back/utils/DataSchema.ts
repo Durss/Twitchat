@@ -315,6 +315,7 @@ const UserDataSchema = {
 					id: {type:"string", maxLength:50},
 					type: {type:"string", maxLength:5},
 					enabled: {type:"boolean"},
+					enableForRemoteChans: {type:"boolean"},
 					addToContextMenu: {type:"boolean"},
 					addToDiscord: {type:"boolean"},
 					rewardId:{type:"string", maxLength:100},
@@ -2497,6 +2498,7 @@ const UserDataSchema = {
 					maxItems:10,
 					items:{
 						type: "object",
+						additionalProperties: false,
 						properties: {
 							id: { type: "string" },
 							enabled: { type: "boolean" },
@@ -2508,6 +2510,7 @@ const UserDataSchema = {
 							textFont: { type: "string" },
 							textSize: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
 							currency: { type: "string" },
+							approachEventCount: { type: "number", minimum:2, maximum:5 },
 							triggerEventCount: { type: "number", minimum:2, maximum:5 },
 							cooldownDuration_s: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
 							levelsDuration_s: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
