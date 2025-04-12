@@ -1148,7 +1148,8 @@
 			},
 			"HYPE_TRAIN_APPROACHING": {
 				"label": "Hype train approach",
-				"description": "Actions to execute when a hype train approaches"
+				"description": "Actions to execute when a hype train approaches",
+				"disabled_reason": "Twitch restricted access to this information. Twitchat cannot use it anymore :("
 			},
 			"HYPE_TRAIN_START": {
 				"label": "Hype train start",

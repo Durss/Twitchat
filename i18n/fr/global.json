@@ -178,8 +178,9 @@
 		"twitch_scopes": {
 			"bits:read": "Recevoir les notifications de bits",
 			"chat:read": "Lire le tchat",
-			"user:read:chat": "Lire le tchat (v2)",
+			"user:read:chat": "Lire le tchat",
 			"chat:edit": "Ecrire dans le tchat",
+			"user:write:chat": "Ecrire dans le tchat",
 			"whispers:edit": "Envoyer des chuchotements",
 			"whispers:read": "Recevoir des chuchotements",
 			"user:read:blocked_users": "Lister les personnes bloquées",

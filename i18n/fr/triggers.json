@@ -1169,8 +1169,7 @@
 			},
 			"HYPE_TRAIN_COOLDOWN": {
 				"label": "Cooldown du train de la hype",
-				"description": "Actions à exécuter lorsque le train de la hype peut à nouveau être lancé",
-				"disabled_reason": "Twitch a restreint la possibilité de recevoir cette information. Twitchat ne peut plus\nl'utiliser :("
+				"description": "Actions à exécuter lorsque le train de la hype peut à nouveau être lancé"
 			},
 			"TIMEOUT": {
 				"label": "Bannissement temporaire",
