@@ -310,6 +310,18 @@ type ApiEndpoints =  {
 			};
 		};
 	};
+	"user/gift_premium": {
+		POST: {
+			parameters: {
+				code:string;
+			},
+			response: {
+				success:boolean;
+				result: "success" | "invalid_code" | "empty_credits";
+				alreadyPremium:boolean;
+			}
+		};
+	};
 	"script": {
 		GET: {
 			parameters: void;
@@ -1001,7 +1013,6 @@ type ApiEndpoints =  {
 			};
 			response:{
 				success:boolean;
-				uids?:string[];
 				error?:string;
 				errorCode?:string;
 			}
@@ -1013,7 +1024,6 @@ type ApiEndpoints =  {
 			};
 			response:{
 				success:boolean;
-				uids?:string[];
 				error?:string;
 				errorCode?:string;
 			}

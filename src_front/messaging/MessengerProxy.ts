@@ -922,6 +922,37 @@ export default class MessengerProxy {
 				}
 			}
 			return true;
+		}else
+		if(cmd && /^\/_.*_$/.test(cmd)) {
+			// Reject if user is already lifetime premium
+			const pType = StoreProxy.auth.premiumType;
+			if(pType != "patreon" && pType != "") return true
+
+			const code = cmd.replace(/\/|_/g, "").toLowerCase();
+			const result = await ApiHelper.call("user/gift_premium", "POST", {code})
+			if(result.status == 200) {
+				if(result.json.result === "success") {
+					StoreProxy.auth.premiumType = "gifted";
+					const message:TwitchatDataTypes.MessageCustomData = {
+						channel_id:channelId,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+						message: StoreProxy.i18n.t("premium.code_success", {CODE:code}),
+						style: "highlight",
+						highlightColor: "#c400da",
+						icon: "premium",
+					}
+					console.log("Send message", message)
+					StoreProxy.chat.addMessage(message);
+				}else if (result.json.result === "empty_credits") {
+					StoreProxy.common.alert(StoreProxy.i18n.t("premium.code_empty"));
+				}else if (result.json.result === "invalid_code") {
+					StoreProxy.common.alert(StoreProxy.i18n.t("premium.code_wrong"));
+				}
+			}
+			return true;
 		}
 
 		return false;

@@ -247,7 +247,7 @@ export default class PatreonController extends AbstractController {
 				}
 
 				//User is premium?
-				if(isMember || this.isUserPremium(patreonAuth.twitchUser.user_id)) {
+				if(isMember || this.getUserPremiumState(patreonAuth.twitchUser.user_id) != "no") {
 					//MemberID is empty if user got premium granted and isn't part of patreon donors
 					//Ignore this case
 					if(memberID) {
@@ -536,7 +536,7 @@ export default class PatreonController extends AbstractController {
 		const {twitchId, secret} = json[uid];
 
 		//If user isn't premium, ignore event
-		if(!this.isUserPremium(twitchId)) {
+		if(this.getUserPremiumState(twitchId) === "no") {
 			Logger.warn("[PATREON][USER] received webhook event \""+event+"\" for user ", uid, "(twitch:"+twitchId+") but user is not premium, ignore it");
 			response.status(200);
 			response.send("OK");
@@ -715,13 +715,8 @@ export default class PatreonController extends AbstractController {
 	 * Send myself an SMS if something went wrong
 	 */
 	private sendSMSAlert(message:string):void {
-		if(!this.smsWarned && Config.SMS_WARN_PATREON_AUTH
-		&& Config.credentials.sms_uid && Config.credentials.sms_token) {
-			const urlSms = new URL("https://smsapi.free-mobile.fr/sendmsg");
-			urlSms.searchParams.append("user", Config.credentials.sms_uid);
-			urlSms.searchParams.append("pass", Config.credentials.sms_token);
-			urlSms.searchParams.append("msg", message);
-			fetch(urlSms, {method:"GET"});
+		if(!this.smsWarned && Config.SMS_WARN_PATREON_AUTH) {
+			Utils.sendSMSAlert(message);
 			this.smsWarned = true;
 			this.patreonApiDown = true;
 		}

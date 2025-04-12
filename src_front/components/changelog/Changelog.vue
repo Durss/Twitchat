@@ -55,7 +55,13 @@
 
 							<p class="title" v-html="item.l"></p>
 
-							<div class="description" v-html="parseCommonPlaceholders(item.d|| '')"></div>
+							<div class="description" v-html="item.html"></div>
+
+							<TTButton type="link"
+								v-if="item.i == 'streamsocket'"
+								target="_blank"
+								href="https://dashboard.twitch.tv/extensions/1lpj3883m4u6exlgdwzuk627bvpabj"
+								icon="streamsocket">{{ $t("changelog.streamsocket_plugin") }}</TTButton>
 
 							<TTButton v-if="item.a"
 								icon="test"
@@ -127,7 +133,7 @@ import SponsorTable from '../premium/SponsorTable.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import MessageItem from '../messages/MessageItem.vue';
-import { defineAsyncComponent } from 'vue';
+import { defineAsyncComponent, markRaw } from 'vue';
 const ChangelogLabels = defineAsyncComponent({loader: () => import('@/components/changelog/ChangelogLabels.vue')})
 const Changelog3rdPartyAnim = defineAsyncComponent({loader: () => import('@/components/changelog/Changelog3rdPartyAnim.vue')})
 
@@ -152,17 +158,19 @@ const Changelog3rdPartyAnim = defineAsyncComponent({loader: () => import('@/comp
 class Changelog extends Vue {
 
 	public showFu:boolean = false;
+	public showCode:boolean = false;
 	public showMrBean:boolean = false;
 	public showReadAlert:boolean = false;
 	public showPremiumFeatures:boolean = false;
 	public readAtSpeedOfLight:boolean = false;
 	public currentSlide:number = 0;
 	public buildIndex:number = 0;
+	public items:(TwitchatDataTypes.ChangelogEntry & {html:string})[] = []
 
 	private openedAt = 0;
 	private closing:boolean = false;
-	private slideCountRead = new Map<number, boolean>();
-	private slideIndexToDuration = new Map<number, number>();
+	private slideCountRead = markRaw(new Map<number, boolean>());
+	private slideIndexToDuration = markRaw(new Map<number, number>());
 	private durationsUpdateTO = -1;
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
 
@@ -171,6 +179,7 @@ class Changelog extends Vue {
 
 	public get classes():string[] {
 		const res:string[] = ["changelog", "modal"];
+		if(this.showCode) res.push("showCode");
 		if(this.currentItem.p === true && !this.showReadAlert && !this.showFu) res.push("premium");
 		return res;
 	}
@@ -179,23 +188,27 @@ class Changelog extends Vue {
 	 * Get currently displayed item data
 	 */
 	public get currentItem():TwitchatDataTypes.ChangelogEntry { return this.items[this.currentSlide]; }
-
-	/**
-	 * Get carousel items
-	 */
-	public get items():TwitchatDataTypes.ChangelogEntry[] {
-		let list = (this.$tm("changelog.highlights") as TwitchatDataTypes.ChangelogEntry[]).concat();
-		list.unshift({
-			l:"",
-			i:"toc"
-		})
-		return list;
-	}
-
 	public get contentDonate():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE }
 	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM }
 	public get hasEmoteScope():boolean { return TwitchUtils.hasScopes([TwitchScopes.READ_EMOTES]); }
 	public get hasUnbanRequestScope():boolean { return TwitchUtils.hasScopes([TwitchScopes.UNBAN_REQUESTS]); }
+
+	public beforeMount(): void {
+		let list = (this.$tm("changelog.highlights") as TwitchatDataTypes.ChangelogEntry[])
+				.map( v=> ({
+					...v,
+					html: ""
+				}));
+		list.forEach(v=> {
+			v.html = this.parseCommonPlaceholders(v.d|| '')
+		})
+		list.unshift({
+			l:"",
+			i:"toc",
+			html:"",
+		})
+		this.items = list;
+	}
 
 	public mounted(): void {
 		this.openedAt = Date.now();
@@ -214,7 +227,7 @@ class Changelog extends Vue {
 
 		//Stagger items build to avoid lag on open
 		let interval = window.setInterval(()=> {
-			this.buildIndex += 2;
+			this.buildIndex += 5;
 			if(this.buildIndex >= this.items.length) {
 				clearInterval(interval);
 			}
@@ -223,6 +236,16 @@ class Changelog extends Vue {
 		this.durationsUpdateTO = window.setInterval(() => {
 			const duration = this.slideIndexToDuration.get(this.currentSlide) || 0;
 			this.slideIndexToDuration.set(this.currentSlide, duration + 250);
+			let totalRead = 0;
+			let totalDuration = 0;
+			for (let i = 0; i < this.items.length; i++) {
+				totalRead += this.slideCountRead.get(i) === true? 1 : 0;
+				totalDuration += this.slideIndexToDuration.get(i) || 0;
+			}
+			const pType = this.$store.auth.premiumType;
+			if((pType == "patreon" || pType == "") && totalDuration > 40_000 && totalRead > 5) {
+				this.showCode = true;
+			}
 		}, 250);
 	}
 
@@ -289,8 +312,11 @@ class Changelog extends Vue {
 	 * @param str
 	 */
 	public parseCommonPlaceholders(str:string):string {
+		const message = "Congrats for reading! Use command <input readonly value='/_hYUZ8S5_' />";
 		str = str.replace(/\{HEAT\}/gi, `<a href="${this.$config.HEAT_EXTENSION}" target="_blank">Heat</a>`);
 		str = str.replace(/\{SHADERTASTIC\}/gi, `<a href="https://shadertastic.com" target="_blank">Shadertastic</a>`);
+		str = str.replace(/\{_LI\}/gi, `<li class="_code_">${message}</li>`);
+		str = str.replace(/\{_.*?\}/gi, `<span class="_code_">${message}</span>`);
 		return str;
 	}
 
@@ -725,6 +751,39 @@ export default toNative(Changelog);
 @media only screen and (max-width: 600px) {
 	.changelog {
 		font-size: .9em;
+	}
+}
+</style>
+
+<style lang="less">
+.changelog{
+	._code_ {
+		visibility: hidden;
+		width: 0;
+		height: 0;
+		overflow: hidden;
+		margin: 0;
+		input {
+			background: none;
+			width: 100Px;
+			border: none;
+			padding: 0;
+			border-radius: 0;
+			margin: 0;
+			font-size: .9em;
+			outline: none;
+			color: var(--color-text);
+			font-weight: 300;
+		}
+	}
+	&.showCode {
+		._code_ {
+			visibility: visible;
+			width: unset;
+			height: unset;
+			overflow: visible;
+			margin: unset;
+		}
 	}
 }
 </style>

@@ -6,21 +6,21 @@ import TwitchUtils from "../utils/TwitchUtils.js";
 import SSEController, { SSECode } from "./SSEController.js";
 
 /**
-* Created : 13/07/2024 
+* Created : 13/07/2024
 */
 export default class RemoteModController extends AbstractController {
 
-	
+
 	constructor(public server:FastifyInstance) {
 		super();
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
@@ -33,17 +33,17 @@ export default class RemoteModController extends AbstractController {
 		this.server.put('/api/mod/privateMessage', async (request, response) => await this.putPrivateMessage(request, response));
 		this.server.delete('/api/mod/qna/message', async (request, response) => await this.deleteQnaMessage(request, response));
 	}
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
 
 	/**
 	 * Request streamer any available shared mod params
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	private async getModParams(request:FastifyRequest, response:FastifyReply) {
 		const user = await this.twitchUserGuard(request, response);
@@ -51,7 +51,7 @@ export default class RemoteModController extends AbstractController {
 
 		const channels = await TwitchUtils.getModeratedChannels(user.user_id, request.headers.authorization!);
 		channels.forEach(chan => {
-			if(!this.isUserPremium(chan.broadcaster_id)) return;
+			if(this.getUserPremiumState(chan.broadcaster_id) == "no") return;
 			SSEController.sendToUser(chan.broadcaster_id, SSECode.SHARED_MOD_INFO_REQUEST);
 		});
 
@@ -62,8 +62,8 @@ export default class RemoteModController extends AbstractController {
 
 	/**
 	 * Share given Q&A params to connected mods
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	private async postQnaParams(request:FastifyRequest, response:FastifyReply) {
 		const user = await this.premiumGuard(request, response);
@@ -81,8 +81,8 @@ export default class RemoteModController extends AbstractController {
 
 	/**
 	 * Sends a private message to given mod
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	private async postPrivateMessage(request:FastifyRequest, response:FastifyReply) {
 		const user = await this.twitchUserGuard(request, response);
@@ -136,8 +136,8 @@ export default class RemoteModController extends AbstractController {
 
 	/**
 	 * Adds a message to an existing Q&A session
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	private async putQnaMessage(request:FastifyRequest, response:FastifyReply) {
 		const user = await this.twitchUserGuard(request, response);
@@ -163,7 +163,7 @@ export default class RemoteModController extends AbstractController {
 
 		//Make sure user is a mod and broadcaster is premium
 		const channels = await TwitchUtils.getModeratedChannels(user.user_id, request.headers.authorization!);
-		if(channels.findIndex(v=>v.broadcaster_id == body.ownerId) == -1 || !this.isUserPremium(body.ownerId)) {
+		if(channels.findIndex(v=>v.broadcaster_id == body.ownerId) == -1 || this.getUserPremiumState(body.ownerId) === "no") {
 			response.header('Content-Type', 'application/json');
 			response.status(400);
 			response.send(JSON.stringify({success:false, error:"cannot remotely add a message to a private Q&A session", errorCode:"PRIVATE_QNA_SESSION"}));
@@ -184,9 +184,9 @@ export default class RemoteModController extends AbstractController {
 
 	/**
 	 * Called when a mod requests to flag a message as a spoiler
-	 * @param request 
-	 * @param response 
-	 * @returns 
+	 * @param request
+	 * @param response
+	 * @returns
 	 */
 	private async putSpoilMessage(request:FastifyRequest, response:FastifyReply) {
 		const user = await this.twitchUserGuard(request, response);
@@ -203,7 +203,7 @@ export default class RemoteModController extends AbstractController {
 		//Make sure user is a mod
 		const channels = await TwitchUtils.getModeratedChannels(user.user_id, request.headers.authorization!);
 		if(channels.findIndex(v=>v.broadcaster_id == body.ownerId) == -1
-		// || !this.isUserPremium(body.ownerId)
+		// || this.getUserPremiumState(body.ownerId) === "no"
 		) {
 			response.header('Content-Type', 'application/json');
 			response.status(400);
@@ -223,9 +223,9 @@ export default class RemoteModController extends AbstractController {
 
 	/**
 	 * Called when answering a moderator's question sent in private
-	 * @param request 
-	 * @param response 
-	 * @returns 
+	 * @param request
+	 * @param response
+	 * @returns
 	 */
 	private async putPrivateMessage(request:FastifyRequest, response:FastifyReply) {
 		const user = await this.twitchUserGuard(request, response);
@@ -256,8 +256,8 @@ export default class RemoteModController extends AbstractController {
 
 	/**
 	 * Deletes a message from an existing Q&A session
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	private async deleteQnaMessage(request:FastifyRequest, response:FastifyReply) {
 		const user = await this.twitchUserGuard(request, response);
@@ -274,10 +274,10 @@ export default class RemoteModController extends AbstractController {
 		}
 
 		const channels = await TwitchUtils.getModeratedChannels(user.user_id, request.headers.authorization!);
-		if(channels.findIndex(v=>v.broadcaster_id == body.ownerId) == -1 || !this.isUserPremium(body.ownerId)) {
+		if(channels.findIndex(v=>v.broadcaster_id == body.ownerId) == -1 || this.getUserPremiumState(body.ownerId) === "no") {
 			response.header('Content-Type', 'application/json');
 			response.status(400);
-			response.send(JSON.stringify({success:false, error:"invalid parameters", errorCode:"INVALID_PARAMETERS_2"}));
+			response.send(JSON.stringify({success:false, error:"invalid parameters", errorCode:"INVALID_PARAMETERS"}));
 			return
 		}
 

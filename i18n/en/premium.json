@@ -13,6 +13,9 @@
 		"premium_only_tt":"Premium only",
 		"no_ad_info":"(only applies to streamers with +{FOLLOWERS} followers)",
 		"progress":"Your past donations get you closer to lifetime premium",
+		"code_empty":"This code to get a lifetime premium subscription has already been used by someone else, sorry 😟.\nMaybe next time!",
+		"code_wrong":"Invalid code",
+		"code_success":"Congratulations!\nTo thank you for being one of the few to read my updates in detail, you now are a lifetime premium Twitchat user 🥳",
 		"supportTable":{
 			"headers":[
 				"Feature",
@@ -49,7 +52,7 @@
 				["OVERLAY: Custom trains", "MAX_CUSTOM_TRAIN", "MAX_CUSTOM_TRAIN", "MAX_CUSTOM_TRAIN_PREMIUM"],
 				["OVERLAY: Ending credits", "~", "~", 1],
 				["Bingo grids for viewers", "-", "-", 1],
-				["Groq AI support", 1, 1, 1],
+				["StreamSocket extension", 1, 1, 1],
 				["Streamer.bot support", 1, 1, 1],
 				["SAMMI support", 1, 1, 1],
 				["Mix It Up support", 1, 1, 1],

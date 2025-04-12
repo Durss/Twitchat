@@ -5,14 +5,14 @@
 		<div class="head">
 			<i18n-t scope="global" tag="span" keypath="streamsocket.header">
 				<template #LINK>
-					<a href="https://streamsocket.kadokta.com" target="_blank"><Icon name="newtab" />StreamSocket Events</a>
+					<a href="https://dashboard.twitch.tv/extensions/1lpj3883m4u6exlgdwzuk627bvpabj" target="_blank"><Icon name="newtab" />StreamSocket Events</a>
 				</template>
 			</i18n-t>
 		</div>
 
-		<tempalte v-if="!$store.streamSocket.connected">
+		<template v-if="!$store.streamSocket.connected">
 			<section>
-				<TTButton icon="newtab" type="link" href="https://streamsocket.kadokta.com" target="_blank"
+				<TTButton icon="newtab" type="link" href="https://dashboard.twitch.tv/extensions/1lpj3883m4u6exlgdwzuk627bvpabj" target="_blank"
 					@click="$store.streamSocket.disconnect(true)">{{ $t("streamsocket.installBt") }}</TTButton>
 			</section>
 
@@ -43,7 +43,7 @@
 			<section class="card-item connected">
 				<img class="graph" src="@/assets/img/streamsocket_graph.png" />
 			</section>
-		</tempalte>
+		</template>
 
 		<section class="card-item connected" v-else>
 			<TTButton alert icon="offline" class="disconnectBt"

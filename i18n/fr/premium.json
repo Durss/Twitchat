@@ -13,6 +13,9 @@
 		"premium_only_tt":"Premium only",
 		"no_ad_info":"(ne concerne que les streamers avec +{FOLLOWERS} followers)",
 		"progress":"Vos soutiens passés vous rapprochent du premium à vie",
+		"code_empty":"Ce code pour obtenir un abonnement premium à vie a déjà été utilisé par quelqu'un d'autre désolé 😟.\nPeut-être une prochaine fois!",
+		"code_wrong":"Code invalide",
+		"code_success":"Bravo !\nPour vous remercier de faire partie des rares à lire mes mises à jour en détail, vous avez gagné un abonnement Twitchat premium à vie 🥳",
 		"supportTable":{
 			"headers":[
 				"Fonctionnalité",
@@ -49,7 +52,7 @@
 				["OVERLAY: Hype trains personnalisés", "MAX_CUSTOM_TRAIN", "MAX_CUSTOM_TRAIN", "MAX_CUSTOM_TRAIN_PREMIUM"],
 				["OVERLAY: Générique de fin", "~", "~", 1],
 				["Grilles de bingo pour viewers", "-", "-", 1],
-				["Support Groq AI", 1, 1, 1],
+				["Extension StreamSocket", 1, 1, 1],
 				["Support Streamer.bot", 1, 1, 1],
 				["Support SAMMI", 1, 1, 1],
 				["Support Mix It Up", 1, 1, 1],

@@ -103,7 +103,7 @@ export default class BingoGridController extends AbstractController {
 		let data = originalGrid.data;
 		let multiplayerMode = false;
 
-		if(await super.isUserPremium(uid)) {
+		if(super.getUserPremiumState(uid) != "no") {
 			multiplayerMode = true;
 			//If user is authenticated, generate a unique randomized grid for them
 			const user = await super.twitchUserGuard(request, response, false);

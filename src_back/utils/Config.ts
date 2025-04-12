@@ -211,6 +211,32 @@ export default class Config {
 	}
 
 	/**
+	 * File containing premium gift credits
+	 * @returns {boolean|null} true if credits were used, false if no more credits, null if invalid code
+	 */
+	public static USE_PREMIUM_CREDITS(code:string): boolean | null {
+		const filepath = this.getEnvData({
+			dev: path.join(this.DONORS_DATA_FOLDER, "/premium_credits.json"),
+			beta: path.join(this.DONORS_DATA_FOLDER, "/premium_credits.json"),
+			prod: path.join(this.DONORS_DATA_FOLDER, "/premium_credits.json"),
+		});
+
+		if(fs.existsSync(filepath)) {
+			const json = JSON.parse(fs.readFileSync(filepath, "utf-8")) as {[code:string]:number};
+			if(json[code] != undefined) {//Code exists
+				if(json[code] > 0) {//No more credits
+					json[code] --;
+					fs.writeFileSync(filepath, JSON.stringify(json, null, "\t"));
+					return true;
+				}
+				return false;
+			}
+		}
+		return null;
+	}
+
+
+	/**
 	 * List of beta users
 	 */
 	public static get BETA_USER_LIST(): string {

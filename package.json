@@ -111,7 +111,7 @@
 		"vue-select": "github:Durss/vue-select#beta",
 		"vue-tippy": "^6.0.0",
 		"vue-tsc": "^2.0.5",
-		"vue3-carousel": "^0.2.9",
+		"vue3-carousel": "^0.15.0",
 		"vue3-marquee": "^4.2.0",
 		"vuedraggable": "^4.1.0"
 	}

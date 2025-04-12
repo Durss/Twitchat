@@ -111,4 +111,18 @@ export default class Utils {
 
 		return decryptedBuffer.toString('utf8');
 	}
+
+	/**
+	 * Send an SMS alert
+	 * @param message
+	 */
+	public static sendSMSAlert(message:string):void {
+		if(Config.credentials.sms_uid && Config.credentials.sms_token) {
+			const urlSms = new URL("https://smsapi.free-mobile.fr/sendmsg");
+			urlSms.searchParams.append("user", Config.credentials.sms_uid);
+			urlSms.searchParams.append("pass", Config.credentials.sms_token);
+			urlSms.searchParams.append("msg", message);
+			fetch(urlSms, {method:"GET"});
+		}
+	}
 }

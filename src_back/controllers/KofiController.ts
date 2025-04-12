@@ -9,10 +9,10 @@ import fetch from "node-fetch";
 import Utils from "../utils/Utils.js";
 
 /**
-* Created : 04/03/2024 
+* Created : 04/03/2024
 */
 export default class KofiController extends AbstractController {
-	
+
 	/**
 	 * Kofi token to twitch user
 	 */
@@ -21,22 +21,22 @@ export default class KofiController extends AbstractController {
 	 * Twitch user to kofi token
 	 */
 	private hashmapInverseCache:{[key:string]:string} = {};
-	
+
 	/**
 	 * Stores a merch item name
 	 */
 	private merchIdToNameCache:{[key:string]:string|false} = {};
-	
+
 	constructor(public server:FastifyInstance) {
 		super();
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
@@ -64,22 +64,22 @@ export default class KofiController extends AbstractController {
 			this.merchIdToNameCache = JSON.parse(fs.readFileSync(Config.KO_FI_PRODUCT_CACHE, "utf-8"));
 		}
 	}
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
 	/**
 	 * Called when receiving data from ko-fi
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	private async postWebhook(request:FastifyRequest, response:FastifyReply) {
 		try {
 			const data = JSON.parse((request.body as any).data) as KofiData;
 			const user = this.hashmapCache[data.verification_token];
-			if(!user || !super.isUserPremium(user.twitch)) {
+			if(!user || super.getUserPremiumState(user.twitch) === "no") {
 				response.header('Content-Type', 'application/json')
 				.status(200)
 				.send("ok");
@@ -122,7 +122,7 @@ export default class KofiController extends AbstractController {
 				// 			"Cache-Control": "max-age=0",
 				// 		};
 				// 		const result = await fetch("https://ko-fi.com/s/"+item.direct_link_code, {method:"GET", headers});
-						
+
 				// 		if(result.status == 200) {
 				// 			const html = await result.text();
 				// 			const productName = html.replace(/.*shop-item-title.*?>(.*?)<\/.*/gis, "$1");
@@ -222,7 +222,7 @@ export default class KofiController extends AbstractController {
 			Logger.error("Failed parsing kofi event");
 			console.log(error);
 		}
-	
+
 		response.header('Content-Type', 'application/json')
 		.status(200)
 		.send("ok");
@@ -230,8 +230,8 @@ export default class KofiController extends AbstractController {
 
 	/**
 	 * Called when requesting to get current token
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	private async getToken(request:FastifyRequest, response:FastifyReply) {
 		const guard = await super.twitchUserGuard(request, response);
@@ -246,7 +246,7 @@ export default class KofiController extends AbstractController {
 		}catch(error) {
 			Logger.error("Failed getting kofi token");
 			console.log(error);
-			
+
 			response.header('Content-Type', 'application/json')
 			.status(500)
 			.send(JSON.stringify({success:false}));
@@ -255,8 +255,8 @@ export default class KofiController extends AbstractController {
 
 	/**
 	 * Called when requesting to set current token
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	private async postToken(request:FastifyRequest, response:FastifyReply) {
 		const guard = await super.premiumGuard(request, response);
@@ -267,9 +267,9 @@ export default class KofiController extends AbstractController {
 		try {
 			this.hashmapCache[token] = {twitch:guard.user_id};
 			this.hashmapInverseCache[guard.user_id] = token;
-	
+
 			fs.writeFileSync(Config.KO_FI_USERS, JSON.stringify(this.hashmapCache), "utf-8");
-	
+
 			response.header('Content-Type', 'application/json')
 			.status(200)
 			.send(JSON.stringify({success:true}));
@@ -285,8 +285,8 @@ export default class KofiController extends AbstractController {
 
 	/**
 	 * Called when requesting to delete current token
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	private async deleteToken(request:FastifyRequest, response:FastifyReply) {
 		const guard = await super.twitchUserGuard(request, response);
@@ -304,7 +304,7 @@ export default class KofiController extends AbstractController {
 		}catch(error) {
 			Logger.error("Failed deleting kofi token");
 			console.log(error);
-			
+
 			response.header('Content-Type', 'application/json')
 			.status(500)
 			.send(JSON.stringify({success:false}));

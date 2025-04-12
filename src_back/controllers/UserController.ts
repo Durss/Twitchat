@@ -8,6 +8,7 @@ import AbstractController from "./AbstractController.js";
 import DiscordController from './DiscordController.js';
 import { PatreonMember } from './PatreonController.js';
 import SSEController from './SSEController.js';
+import Utils from '../utils/Utils.js';
 
 /**
 * Created : 13/03/2022
@@ -35,6 +36,7 @@ export default class UserController extends AbstractController {
 		this.server.get('/api/user/data', async (request, response) => await this.getUserData(request, response));
 		this.server.post('/api/user/data', async (request, response) => await this.postUserData(request, response));
 		this.server.post('/api/user/data/backup', async (request, response) => await this.postUserDataBackup(request, response));
+		this.server.post('/api/user/gift_premium', async (request, response) => await this.postGiftPremium(request, response));
 		this.server.delete('/api/user/data', async (request, response) => await this.deleteUserData(request, response));
 		this.server.delete('/api/auth/dataShare', async (request, response) => await this.deleteDataShare(request, response));
 
@@ -313,6 +315,34 @@ export default class UserController extends AbstractController {
 	}
 
 	/**
+	 * Allows users to get premium gift from code
+	 */
+	private async postGiftPremium(request:FastifyRequest, response:FastifyReply) {
+		const userInfo = await super.twitchUserGuard(request, response);
+		if(userInfo == false) return;
+
+		let codeValid:boolean|null = false;
+		let premiumState = super.getUserPremiumState(userInfo.user_id);
+		let alreadyLifetimePremium = premiumState == "lifetime" || premiumState == "early_gift" || premiumState == "gift";
+		// If user isn't lifetime premium already, check if code is valid
+		if(!alreadyLifetimePremium) {
+			const body:any = (request.body as {code:string});
+			codeValid = Config.USE_PREMIUM_CREDITS(body.code);
+			if(codeValid) {
+				super.giftPremium(userInfo.user_id);
+				try {
+					Utils.sendSMSAlert("🎁 "+userInfo.login+" got premium membership with code "+body.code);
+				}catch(_){}
+			}
+		}
+
+		const result = codeValid === true? "success" : codeValid === false? "empty_credits" : "invalid_code";
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send(JSON.stringify({success:true, result, alreadyPremium: alreadyLifetimePremium}));
+	}
+
+	/**
 	 * Delete a user's data
 	 */
 	private async deleteUserData(request:FastifyRequest, response:FastifyReply) {
@@ -352,9 +382,9 @@ export default class UserController extends AbstractController {
 
 	/**
 	 * Unlinks a user data sharing
-	 * 
-	 * @param {*} request 
-	 * @param {*} response 
+	 *
+	 * @param {*} request
+	 * @param {*} response
 	 */
 	private async deleteDataShare(request:FastifyRequest, response:FastifyReply) {
 		const user = await super.twitchUserGuard(request, response);
