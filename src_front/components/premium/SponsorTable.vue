@@ -1,6 +1,6 @@
 <template>
 	<div class="sponsortable card-item">
-		<table ref="list" @wheel="scrollList($event)">
+		<table ref="list">
 			<tr>
 				<th v-for="(h, index) in $tm('premium.supportTable.headers')"
 				:class="'card-item '+['', 'primary', 'secondary','premium'][index as number]"
@@ -101,7 +101,7 @@ class SponsorTable extends Vue {
 	public expandRows(rowIndex:number, animate:boolean = true):void {
 		if(this.dispose) return;
 
-		this.currentRowIndex = Math.max(11, Math.min(this.entries.length-1, rowIndex));
+		this.currentRowIndex = Math.max(29, Math.min(this.entries.length-1, rowIndex));
 		const list = this.$refs.list as HTMLTableRowElement;
 		const item = (this.$refs["row_"+this.currentRowIndex] as HTMLTableRowElement[])[0];
 		const boundsList = list.getBoundingClientRect();
@@ -125,18 +125,6 @@ class SponsorTable extends Vue {
 			if(!scrollableHolder) scrollableHolder = (this.$el as HTMLElement).parentElement as HTMLDivElement;
 			gsap.killTweensOf(scrollableHolder);
 			gsap.to(scrollableHolder, {duration, scrollTop:scrollableHolder.scrollTop + added});
-		}
-	}
-
-	public scrollList(event:WheelEvent):void {
-		if(this.expand !== false) return;
-
-		const add = event.deltaY > 0? 3 : -3;
-		const newRow = this.currentRowIndex + add;
-		this.expandRows(newRow, true);
-
-		if(newRow == this.currentRowIndex) {
-			event.preventDefault();
 		}
 	}
 
@@ -191,7 +179,7 @@ export default toNative(SponsorTable);
 					display: block;
 				}
 			}
-			
+
 			td {
 				padding: .5em;
 				text-align: center;
