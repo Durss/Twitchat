@@ -46,44 +46,43 @@ export const LabelItemPlaceholderList = [
 	{tag:"MINUTES",								type:"minutes",	category:"date", descriptionKey:"overlay.labels.placeholders.MINUTES", backup:true} as const,
 	{tag:"SECONDS",								type:"seconds",	category:"date", descriptionKey:"overlay.labels.placeholders.SECONDS", backup:true} as const,
 
-	{tag:"VIEWER_COUNT",						type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.VIEWER_COUNT", backup:true} as const,
 	{tag:"VIEWER_COUNT_TWITCH",					type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.VIEWER_COUNT_TWITCH", backup:true} as const,
-	{tag:"VIEWER_COUNT_YOUTUBE",				type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.VIEWER_COUNT_YOUTUBE", backup:true} as const,
-	{tag:"VIEWER_COUNT_TIKTOK",					type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.VIEWER_COUNT_TIKTOK", backup:true} as const,
 	{tag:"FOLLOWER_COUNT",						type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.FOLLOWER_COUNT", backup:true} as const,
 	{tag:"SUB_COUNT",							type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUB_COUNT", backup:true} as const,
 	{tag:"SUB_POINTS",							type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUB_POINTS", backup:true} as const,
-
+	
 	{tag:"STREAM_DURATION",						type:"duration",category:"twitch", descriptionKey:"overlay.labels.placeholders.STREAM_DURATION", backup:true} as const,
 	{tag:"STREAM_TITLE",						type:"string",	category:"twitch", descriptionKey:"overlay.labels.placeholders.STREAM_TITLE", backup:true} as const,
 	{tag:"STREAM_CATEGORY_NAME",				type:"string",	category:"twitch", descriptionKey:"overlay.labels.placeholders.STREAM_CATEGORY_NAME", backup:true} as const,
 	{tag:"STREAM_CATEGORY_COVER",				type:"image",	category:"twitch", descriptionKey:"overlay.labels.placeholders.STREAM_CATEGORY_COVER", backup:true} as const,
-
+	
 	{tag:"SUB_NAME",							type:"string",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUB_NAME", backup:true} as const,
 	{tag:"SUB_ID",								type:"string",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUB_ID", backup:true} as const,
 	{tag:"SUB_AVATAR",							type:"image",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUB_AVATAR", backup:true} as const,
 	{tag:"SUB_TIER",							type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUB_TIER", backup:true} as const,
-
+	
 	{tag:"SUBGIFT_NAME",						type:"string",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUBGIFT_NAME", backup:true} as const,
 	{tag:"SUBGIFT_ID",							type:"string",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUBGIFT_ID", backup:true} as const,
 	{tag:"SUBGIFT_AVATAR",						type:"image",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUBGIFT_AVATAR", backup:true} as const,
 	{tag:"SUBGIFT_TIER",						type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUBGIFT_TIER", backup:true} as const,
 	{tag:"SUBGIFT_COUNT",						type:"number",	category:"twitch", descriptionKey:"overlay.labels.placeholders.SUBGIFT_COUNT", backup:true} as const,
-
+	
+	{tag:"VIEWER_COUNT_YOUTUBE",				type:"number",	category:"youtube", descriptionKey:"overlay.labels.placeholders.VIEWER_COUNT_YOUTUBE", backup:true} as const,
 	{tag:"SUB_YOUTUBE_NAME",					type:"string",	category:"youtube", descriptionKey:"overlay.labels.placeholders.SUB_YOUTUBE_NAME", backup:true} as const,
 	{tag:"SUB_YOUTUBE_ID",						type:"string",	category:"youtube", descriptionKey:"overlay.labels.placeholders.SUB_YOUTUBE_ID", backup:true} as const,
 	{tag:"SUB_YOUTUBE_AVATAR",					type:"image",	category:"youtube", descriptionKey:"overlay.labels.placeholders.SUB_YOUTUBE_AVATAR", backup:true} as const,
 	{tag:"SUB_YOUTUBE_TIER",					type:"string",	category:"youtube", descriptionKey:"overlay.labels.placeholders.SUB_YOUTUBE_TIER", backup:true} as const,
-
+	
 	{tag:"SUBGIFT_YOUTUBE_NAME",				type:"string",	category:"youtube", descriptionKey:"overlay.labels.placeholders.SUBGIFT_YOUTUBE_NAME", backup:true} as const,
 	{tag:"SUBGIFT_YOUTUBE_ID",					type:"string",	category:"youtube", descriptionKey:"overlay.labels.placeholders.SUBGIFT_YOUTUBE_ID", backup:true} as const,
 	{tag:"SUBGIFT_YOUTUBE_AVATAR",				type:"image",	category:"youtube", descriptionKey:"overlay.labels.placeholders.SUBGIFT_YOUTUBE_AVATAR", backup:true} as const,
 	{tag:"SUBGIFT_YOUTUBE_TIER",				type:"string",	category:"youtube", descriptionKey:"overlay.labels.placeholders.SUBGIFT_YOUTUBE_TIER", backup:true} as const,
 	{tag:"SUBGIFT_YOUTUBE_COUNT",				type:"number",	category:"youtube", descriptionKey:"overlay.labels.placeholders.SUBGIFT_YOUTUBE_COUNT", backup:true} as const,
-
+	
 	{tag:"FOLLOWER_YOUTUBE_USER",				type:"string",	category:"youtube", descriptionKey:"overlay.labels.placeholders.FOLLOWER_YOUTUBE_USER", backup:true} as const,
 	{tag:"FOLLOWER_YOUTUBE_AVATAR",				type:"number",	category:"youtube", descriptionKey:"overlay.labels.placeholders.FOLLOWER_YOUTUBE_AVATAR", backup:true} as const,
-
+	
+	{tag:"VIEWER_COUNT",						type:"number",	category:"generic", descriptionKey:"overlay.labels.placeholders.VIEWER_COUNT", backup:true} as const,
 	{tag:"SUB_GENERIC_NAME",					type:"string",	category:"generic", descriptionKey:"overlay.labels.placeholders.SUB_GENERIC_NAME", backup:true} as const,
 	{tag:"SUB_GENERIC_ID",						type:"string",	category:"generic", descriptionKey:"overlay.labels.placeholders.SUB_GENERIC_ID", backup:true} as const,
 	{tag:"SUB_GENERIC_AVATAR",					type:"image",	category:"generic", descriptionKey:"overlay.labels.placeholders.SUB_GENERIC_AVATAR", backup:true} as const,
@@ -200,7 +199,7 @@ export const LabelItemPlaceholderList = [
 	{tag:"MUSIC_ALBUM",							type:"string",	category:"music", descriptionKey:"overlay.labels.placeholders.MUSIC_ALBUM", backup:true} as const,
 	{tag:"MUSIC_COVER",							type:"image",	category:"music", descriptionKey:"overlay.labels.placeholders.MUSIC_COVER", backup:true} as const,
 
-	{tag:"TIKTOK_VIEWER_COUNT",					type:"number",	category:"tiktok", descriptionKey:"overlay.labels.placeholders.TIKTOK_VIEWER_COUNT", backup:true} as const,
+	{tag:"VIEWER_COUNT_TIKTOK",					type:"number",	category:"tiktok", descriptionKey:"overlay.labels.placeholders.VIEWER_COUNT_TIKTOK", backup:true} as const,
 	{tag:"TIKTOK_LIKE_TOTAL",					type:"number",	category:"tiktok", descriptionKey:"overlay.labels.placeholders.TIKTOK_LIKE_TOTAL", backup:true} as const,
 	{tag:"TIKTOK_LIKE_USER",					type:"string",	category:"tiktok", descriptionKey:"overlay.labels.placeholders.TIKTOK_LIKE_USER", backup:true} as const,
 	{tag:"TIKTOK_LIKE_AVATAR",					type:"image",	category:"tiktok", descriptionKey:"overlay.labels.placeholders.TIKTOK_LIKE_AVATAR", backup:true} as const,
