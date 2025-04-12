@@ -647,7 +647,7 @@
 			}
 		},
 		"customTrain": {
-			"header": "Create custom hype trains",
+			"header": "Create custom hype trains linked to tips from external platforms",
 			"add_bt": "Create custom train",
 			"default_title":"Hype Train",
 			"premium_limit": "You reached the maximum number of custom trains you can create",

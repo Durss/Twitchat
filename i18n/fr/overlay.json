@@ -646,6 +646,21 @@
 			}
 		},
 		"customTrain": {
+			"header": "Créer des trains de la hype personnalisés liés aux dons sur des plateformes externes",
+			"add_bt": "Créer un train personnalisé",
+			"default_title": "Train de la hype",
+			"premium_limit": "Vous avez atteint le nombre maximum de trains personnalisés que vous pouvez créer",
+			"non_premium_limit": "Vous avez atteint le nombre maximum de trains personnalisés.\nDevenez premium pour en créer jusqu'à {MAX}.",
+			"simulate_bt": "Simuler un faux train",
+			"state_cooldown_tt": "Le train est en cooldown\nCliquez pour réinitialiser.",
+			"state_expire_tt": "Le train se termine dans...",
+			"connectPlatform_tt": "Cette plateforme n'a pas été connectée",
+			"connectPlatform_twitchCharity_tt": "Vous n'avez lié aucune campagne caritative à votre compte Twitch",
+			"delete_confirm": {
+				"title": "Supprimer l'entrée",
+				"message": "Êtes-vous sûr de vouloir supprimer cette entrée ?"
+			},
+
 			"param_colorFill": "Remplissage",
 			"param_colorBg": "Fond",
 			"param_recordColorFill": "Remplissage",
