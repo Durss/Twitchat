@@ -816,12 +816,11 @@ export default class ContextMenuHelper {
 	 * @param message
 	 */
 	private addCustomTriggerEntries(options:MenuItem[], message:TwitchatDataTypes.TranslatableMessage):void {
-		const items = StoreProxy.triggers.triggerList.filter(v=> v.addToContextMenu === true);
+		const items = StoreProxy.triggers.triggerList.filter(v=> v.addToContextMenu === true && TriggerUtils.isTriggerEnabled(v));
 		if(items.length === 0) return;
 		const children:MenuItem[] = [];
 		for (let i = 0; i < items.length; i++) {
 			const trigger = items[i];
-			if(!TriggerUtils.isTriggerEnabled(trigger)) return;
 			if(i===0) {
 				options[options.length-1].divided = true;
 			}
