@@ -621,31 +621,28 @@ export default toNative(Changelog);
 		}
 		:deep(.carousel__pagination) {
 			position: sticky;
+			transform: unset;
 			bottom: 0;
 		}
 		:deep(.carousel__pagination-button) {
-			&:after {
-				border-radius: 4px;
-				background-color: var(--color-text);
+			border-radius: 4px;
+			background-color: var(--color-text);
 				transition: height .25s, margin-top .25s;
-			}
 		}
 		:deep(.carousel__pagination-button--active) {
-			&:after {
-				border-radius: 2px;
-				height: .75em;
-				margin-top: -.5em;
-				transform-origin: bottom center;
-			}
+			border-radius: 2px;
+			height: .75em !important;
+			margin-top: -.5em !important;
+			transform-origin: bottom center;
 		}
 		:deep(.carousel__pagination-item.premium) {
-			button:after {
+			button {
 				background-color: var(--color-premium);
 			}
 		}
 		:deep(.carousel__pagination-item.rainbow) {
-			button:after {
-    			// background: linear-gradient(90deg in hsl longer hue, red 0 50%) 0/800%;
+			button {
+				// background: linear-gradient(90deg in hsl longer hue, red 0 50%) 0/800%;
 				// animation: rainbowAnimation 20s linear infinite;
 				// @keyframes rainbowAnimation {
 				// 	to {background-position: 400%}
