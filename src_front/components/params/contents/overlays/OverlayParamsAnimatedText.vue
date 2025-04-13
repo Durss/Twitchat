@@ -137,6 +137,9 @@ class OverlayParamsAnimatedText extends Vue {
 	 * @param entry
 	 */
 	public onChange(entry:TwitchatDataTypes.AnimatedTextData):void {
+		if(!entry.textFont) {
+			entry.textFont = "Inter";
+		}
 		this.$store.animatedText.saveData();
 		this.$store.animatedText.broadcastStates(entry.id);
 	}
