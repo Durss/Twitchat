@@ -331,7 +331,7 @@ export default class UserController extends AbstractController {
 			if(codeValid) {
 				super.giftPremium(userInfo.user_id);
 				try {
-					Utils.sendSMSAlert("🎁 "+userInfo.login+" got premium membership with code "+body.code);
+					Utils.sendSMSAlert("[TWITCHAT] "+userInfo.login+" got premium membership with code "+body.code);
 				}catch(_){}
 			}
 		}

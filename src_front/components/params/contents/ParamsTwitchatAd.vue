@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes"
 	@click="open()"
-	v-if="$store.auth.donorLevel > -1 || !$store.auth.noAd">
+	v-if="$store.auth.donorLevel > -1 || $store.auth.isPremium || !$store.auth.noAd">
 		<ClearButton v-if="!collapse" :aria-label="$t('params.ad_collapse_aria')" @click.stop="close()" theme="light" />
 
 		<img src="@/assets/icons/twitchat.svg"
@@ -16,12 +16,12 @@
 					noBackground
 					titleKey="params.ad_info"
 				/>
-		
+
 				<template v-if="!isDonor">
 					<ToggleBlock class="tip" :open="false" :title="$t('params.ad_bot_info_title')" small>
 						<div class="tipContent" v-html="$t('params.ad_bot_info_content')"></div>
 					</ToggleBlock>
-			
+
 					<div class="card-item dark disableinstructions">
 						<p v-html="$t('params.ad_disable_info')"></p>
 						<Button @click="openDonate()" light secondary icon="coin">{{ $t('params.ad_disableBt') }}</Button>
@@ -60,7 +60,7 @@ class ParamsTwitchatAd extends Vue {
 
 	public collapse:boolean = true;
 	public blink:boolean = false;
-	
+
 	public get isDonor():boolean { return this.$store.auth.donorLevel > -1 || this.$store.auth.isPremium; }
 	public get adMinFollowersCount():number { return Config.instance.AD_MIN_FOLLOWERS_COUNT; }
 
