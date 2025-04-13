@@ -689,7 +689,7 @@
 			"param_record": "Nouveau record absolu",
 			"param_levelUpLabel_default": "Niveau {'{'}X{'}'} terminé !",
 			"param_levelUp_placeholder": "Utilisez {PLACEHOLDER} pour afficher l'index du niveau",
-			"param_approachingLabel_default": "Train Choo Choo en approche !",
+			"param_approachingLabel_default": "Choo Choo train en approche !",
 			"param_failedLabel_default": "...le train est parti 😭...",
 			"param_successLabel_default": "Train de la hype terminé !",
 			"param_successLabel_summary": "Niveau {'{'}LEVEL{'}'} atteint à {'{'}PERCENT{'}'}%",

@@ -132,11 +132,10 @@
 		}
 
 		#loader-init > .beta {
-			/* display: none; */
+			display: none;
 			background-color: #e04e00;
 			color: #fff;
 			font-family: Inter, Verdana, Geneva, Tahoma, sans-serif;
-			display: inline-block;
 			padding: .2em .5em;
 			font-size: .5em;
 			border-radius: .5em;
@@ -507,6 +506,11 @@
 			const div = document.getElementById("initMessage");
 			if(!div) return;
 			div.innerText = message;
+		}
+
+		// SHow beta tag if on beta or localhost
+		if(document.location.host.indexOf("beta") > -1 || document.location.host.indexOf("localhost") > -1) {
+			document.querySelector(".beta").style.display = "inline-block";
 		}
 
 	</script>

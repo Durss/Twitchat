@@ -801,7 +801,7 @@ const UserDataSchema = {
 									type: "object",
 									additionalProperties: false,
 									properties: {
-										voice: {type:"string", maxLength:50},
+										voice: {type:"string", maxLength:100},
 										volume: {type:"number", minimum:0, maximum:1},
 										rate: {type:"number", minimum:0, maximum:5},
 										pitch: {type:"number", minimum:0, maximum:2},

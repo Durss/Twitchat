@@ -38,6 +38,7 @@
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="openModal('chatPoll');"
+				v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'cmdhelper.chat_poll'}"
 				icon="chatPoll">{{$t('cmdmenu.chatPoll')}}</TTButton>
 			<TTButton icon="pin" :primary="isPinned('chatPoll')" @click="onTogglePin('chatPoll')" />
 		</div>
@@ -48,6 +49,7 @@
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="openModal('timer');"
+				v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'cmdhelper.timers'}"
 				icon="timer">{{$t('cmdmenu.timer')}}</TTButton>
 			<TTButton icon="pin" :primary="isPinned('timer')" @click="onTogglePin('timer')" />
 		</div>
