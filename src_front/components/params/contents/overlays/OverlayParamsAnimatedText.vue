@@ -185,14 +185,14 @@ export default toNative(OverlayParamsAnimatedText);
 			display: flex;
 			flex-direction: row;
 			justify-content: center;
-			*{
+			&>*{
 				border-radius: 0;
 			}
-			*:first-child {
+			&>*:first-child {
 				border-top-left-radius: var(--border-radius);
 				border-bottom-left-radius: var(--border-radius);
 			}
-			*:last-child {
+			&>*:last-child {
 				border-top-right-radius: var(--border-radius);
 				border-bottom-right-radius: var(--border-radius);
 			}

@@ -111,6 +111,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 	 * Stops all animations
 	 */
 	private stopAll():void {
+		this.currentState = "closed";
 		clearTimeout(this.resolveTO);
 		clearTimeout(this.autoHideTO);
 		this.split?.chars?.forEach(char=> {
