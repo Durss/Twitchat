@@ -1,5 +1,7 @@
 <template>
 	<div :class="classes">
+		<div class="offlineTitle" v-if="$store.main.offlineMode"
+		v-tooltip="{content:$t('global.offlineMode'), placement:'bottom'}"><Icon name="alert"/></div>
 		<div class="top" ref="top">
 			<div class="scrollable" ref="scrollable" @scroll="onScrollColumns()">
 				<div class="column" v-for="c, index in $store.params.chatColumnsConfig"
@@ -214,6 +216,7 @@ import ShareParams from './ShareParams.vue';
 import Config from '@/utils/Config';
 import GroqHistory from '@/components/chatform/GroqHistory.vue';
 import ChatPollForm from '@/components/poll/ChatPollForm.vue';
+import type { placements } from '@popperjs/core';
 
 @Component({
 	components:{
@@ -314,6 +317,7 @@ class Chat extends Vue {
 		const res = ["chat"];
 		if(this.splitViewVertical) res.push("splitVertical");
 		if(Config.instance.DEMO_MODE) res.push("demo");
+		if(this.$store.main.offlineMode) res.push("offlineMode");
 		return res;
 	}
 
@@ -1020,6 +1024,26 @@ export default toNative(Chat);
 		z-index: 10;
 	}
 
+	&.offlineMode {
+		border: 3px solid var(--color-secondary);
+		border-radius: .5em;
+
+		.offlineTitle {
+			background-color: var(--color-secondary);
+			position: fixed;
+			top: 0;
+			left: 50%;
+			transform: translateX(-50%);
+			color: var(--color-light);
+			z-index: 1000;
+			padding: .25em;
+			border-bottom-right-radius: var(--border-radius);
+			border-bottom-left-radius: var(--border-radius);
+			.icon {
+				height: 1em;
+			}
+		}
+	}
 
 	&.splitVertical {
 		.top {

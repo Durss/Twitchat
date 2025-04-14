@@ -67,6 +67,7 @@
 		"ask_supportBt": "Demander de l'aide",
 		"obs_connect": "Cette fonctionnalité nécessite de {LINK}",
 		"obs_connect_link": "se connecter à OBS",
+		"offlineMode": "Vous avez activé le mode hors ligne pour cette fenêtre.\nTout changement que vous effectuez dans vos paramètres seront perdus après avoir fermé cette fenêtre.",
 		"placeholder_selector_title": "Tag spéciaux remplacés dynamiquement",
 		"placeholder_selector_insert": "Insérer",
 		"placeholder_selector_categories": {

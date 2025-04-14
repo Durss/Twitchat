@@ -595,6 +595,7 @@ export class ChatForm extends Vue {
 		let res = ["chatform"];
 		if(this.loading) res.push("loading");
 		if(this.$store.main.cypherEnabled) res.push("cypherMode");
+		if(this.$store.main.offlineMode) res.push("offlineMode");
 		if(this.$store.emergency.emergencyStarted) res.push("emergencyMode");
 		return res;
 	}
@@ -1321,6 +1322,14 @@ export default toNative(ChatForm);
 			background-image: repeating-linear-gradient(-45deg, #00000020, #00000020 20px, #ffffff10 20px, #ffffff10 40px);
 		}
 	}
+
+	&.offlineMode {
+		.holder {
+			background-color: var(--background-color-secondary);
+			background-image: repeating-linear-gradient(-45deg, var(--color-secondary-fader), var(--color-secondary-fader) 20px, var(--color-secondary-fadest) 20px, var(--color-secondary-fadest) 40px);
+		}
+	}
+
 	&.emergencyMode {
 		.holder {
 			background-color: var(--color-alert);

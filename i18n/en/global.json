@@ -67,6 +67,7 @@
 		"ask_supportBt": "Ask for help",
 		"obs_connect": "This feature needs you to {LINK}",
 		"obs_connect_link": "connect with OBS",
+		"offlineMode": "You enabled offline mode for this window.\nAnything you change will be lost after closing this window.",
 		"placeholder_selector_title": "Special placeholders dynamically replaced",
 		"placeholder_selector_insert": "Insert",
 		"placeholder_selector_categories": {
