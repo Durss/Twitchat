@@ -2470,7 +2470,7 @@ const UserDataSchema = {
 							paused: { type: "boolean" },
 							pausedAt_ms: { type: "number", nullable: true },
 							endAt_ms: { type: "number", nullable: true },
-							duration_ms: { type: "number" },
+							duration_ms: { type: "number", nullable: true },
 							overlayParams: {
 								type: "object",
 								additionalProperties: false,
@@ -2479,7 +2479,7 @@ const UserDataSchema = {
 									bgColor: { type: "string", maxLength:20 },
 									bgEnabled: { type: "boolean" },
 									showIcon: { type: "boolean" },
-									textFont: { type: "string", maxLength:50 },
+									textFont: { type: "string", maxLength:50, nullable: true },
 									textSize: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
 									textColor: { type: "string", maxLength:20 },
 									progressSize: { type: "number", minimum:0, maximum:Number.MAX_SAFE_INTEGER },
