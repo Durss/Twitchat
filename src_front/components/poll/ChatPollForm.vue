@@ -185,7 +185,7 @@ class ChatPollForm extends AbstractSidePanel {
 			duration_s:this.param_duration.value,
 			started_at:Date.now(),
 			votes:{},
-			maxVotePerUser:2,
+			maxVotePerUser:this.param_allowMultiVote.value,
 		})
 		this.close();
 	}
