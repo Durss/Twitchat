@@ -74,8 +74,11 @@ export default class PatreonController extends AbstractController {
 			if (!/https:.*\/api\/patreon\/user\/webhook\/\{ID\}/gi.test(Config.credentials.patreon_webhook_url)) {
 				Logger.error('Credential\'s "patreon_webhook_url" must be a valid URL. Must be secured (https) and end with "/api/patreon/user/webhook/{ID}". Got: '+Config.credentials.patreon_webhook_url);
 			}
-			this.rebuildUserWebhooks();
 			this.authenticateLocal();
+			// Give it time to the server before make bunch of requests
+			setTimeout(() => {
+				this.rebuildUserWebhooks();
+			}, 2*60000);
 		}
 
 		// const res = await this.loadCampaign("9093199");
@@ -1077,10 +1080,9 @@ export default class PatreonController extends AbstractController {
 							webhookExists = true;
 							Logger.info("[PATREON][USER] Webhook found for user "+twitchId);
 
-							const filePath = Config.patreonUid2WebhookSecret;
-							const json = JSON.parse(fs.existsSync(filePath)? fs.readFileSync(filePath, "utf8") : "{}");
+							const json = JSON.parse(fs.existsSync(secretsFile)? fs.readFileSync(secretsFile, "utf8") : "{}");
 							json[campaign.id] = {twitchId, secret:entry.attributes.secret};
-							fs.writeFileSync(filePath, JSON.stringify(json), "utf8");
+							fs.writeFileSync(secretsFile, JSON.stringify(json), "utf8");
 
 							if(entry.attributes.paused) {
 								this.resumeWebhook(token, campaign.id, entry.id);
@@ -1131,6 +1133,8 @@ export default class PatreonController extends AbstractController {
 					}
 				}
 			}
+			// Wait a little not clog my server
+			await Utils.promisedTimeout(2000);
 		}
 	}
 
