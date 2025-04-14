@@ -81,7 +81,6 @@ export const storeChatPoll = defineStore('chatPoll', {
 			// Check permission
 			if(!await Utils.checkPermissions(this.data.permissions, message.user, message.channel_id)) return;
 
-			console.log(JSON.parse(JSON.stringify(this.data)))
 			if(this.data.votes[message.user.id]) {
 				// Check if the user has already voted for this index
 				if (this.data.votes[message.user.id].indices.includes(index)) return;
