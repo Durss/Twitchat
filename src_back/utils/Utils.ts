@@ -1,6 +1,7 @@
 import Config from "./Config.js";
 import * as fs from "fs";
 import * as crypto from "crypto";
+import fetch from "node-fetch";
 
 /**
 * Created : 20/07/2023
