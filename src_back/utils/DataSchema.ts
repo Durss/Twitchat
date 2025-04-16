@@ -649,10 +649,32 @@ const UserDataSchema = {
 										guessNumber: {type:"boolean"},
 										guessEmote: {type:"boolean"},
 										guessCustom: {type:"boolean"},
-										min: {type:"integer", minimum:0, maximum:999999999},
-										max: {type:"integer", minimum:0, maximum:999999999},
+										min: {type:"integer", minimum:0, maximum:Number.MAX_SAFE_INTEGER},
+										max: {type:"integer", minimum:0, maximum:Number.MAX_SAFE_INTEGER},
+										numberValue: {type:"number", maximum:Number.MAX_SAFE_INTEGER},
 										customValue: {type:"string", maxLength:500},
 										customValueTolerance: {type:"number", minimum:0, maximum:10},
+										genericValue: {
+											anyOf:[
+												{type:"string", maxLength:500},
+												{type:"number", minimum:1, maximum:Number.MAX_SAFE_INTEGER},
+											]
+										},
+										emoteValue: {
+											type: "object",
+											additionalProperties: false,
+											properties: {
+												code:{type:"string", maxLength:500},
+												image:{
+													type: "object",
+													additionalProperties: false,
+													properties: {
+														sd:{type:"string", maxLength:500},
+														hd:{type:"string", maxLength:500},
+													}
+												}
+											}
+										}
 									}
 								},
 								bingoGrid: {
