@@ -161,6 +161,7 @@ export const storeTriggers = defineStore('triggers', {
 				let name = clone.name || TriggerUtils.getTriggerDisplayInfo(clone).label;
 				name += " (CLONE)";
 				clone.name = name;
+				clone.created_at = Date.now();
 
 				//Add trigger to requested folder if necessary
 				if(parentId) {
