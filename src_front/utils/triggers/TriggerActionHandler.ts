@@ -1565,6 +1565,9 @@ export default class TriggerActionHandler {
 														params.duration = step.animateDuration! / 1000;
 														params.ease = step.animateEasing!;
 
+														// Fix wrong "linear" easing name used since forever
+														if(params.ease == "linear.none") params.ease = "none";
+
 														//Compute animation frames
 														//from: https://gsap.com/community/forums/topic/16782-get-array-of-resulting-values/?do=findComment&comment=74424
 														function summarizeTweenValues(tween:gsap.core.Tween, fps:number = 60) {
