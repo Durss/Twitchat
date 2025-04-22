@@ -310,7 +310,8 @@ export default class TriggerUtils {
 	 * @returns
 	 */
 	public static isTriggerEnabled(trigger:TriggerData):boolean {
-		return trigger.enabled && StoreProxy.triggers.triggerIdToFolderEnabled[trigger.id] === true
+		const parentsEnabled = StoreProxy.triggers.triggerIdToFolderEnabled[trigger.id] !== false;
+		return trigger.enabled && parentsEnabled
 	}
 
 

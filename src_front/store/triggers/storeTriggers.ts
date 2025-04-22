@@ -278,6 +278,7 @@ export const storeTriggers = defineStore('triggers', {
 
 			DataStore.set(DataStore.TRIGGERS, list);
 			TriggerActionHandler.instance.populate(list);
+			this.computeTriggerTreeEnabledStates();
 		},
 
 		renameOBSSource(oldName:string, newName:string):void {
@@ -378,7 +379,6 @@ export const storeTriggers = defineStore('triggers', {
 
 		computeTriggerTreeEnabledStates():void {
 			this.triggerIdToFolderEnabled = {};
-
 			/**
 			 * Defines if a a trigger is enabled depending on its parent folder/s
 			 * @param root
