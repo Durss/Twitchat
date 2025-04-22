@@ -43,7 +43,7 @@ const UserDataSchema = {
 				conditions:{
 					type:"array",
 					minItems:0,
-					maxItems:100,
+					maxItems:200,
 					items:{
 						type: "object",
 						if: { properties: { type: {const:"group"} } },
