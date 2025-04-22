@@ -9,6 +9,7 @@ import type { JsonValue } from "type-fest";
 import DataStoreCommon from "./DataStoreCommon";
 import StoreProxy from "./StoreProxy";
 import type { CustomTrainStoreData } from "./customtrain/storeCustomTrain";
+import Config from "@/utils/Config";
 
 /**
  * Fallback to sessionStorage if localStorage isn't available
@@ -156,7 +157,7 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	static override async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 63;
+		const latestVersion = 64;
 
 		this.cleanupPreV7Data(data);
 
@@ -384,6 +385,10 @@ export default class DataStore extends DataStoreCommon{
 		}
 		if(v==62) {
 			this.addApproachEventCountToCustomTrain(data);
+			v = 63;
+		}
+		if(v==63) {
+			this.limitTriggerActionCount(data);
 			v = latestVersion;
 		}
 
@@ -1725,6 +1730,21 @@ export default class DataStore extends DataStoreCommon{
 					t.approachEventCount = 2;
 				}
 			})
+		}
+	}
+
+	/**
+	 * Limit number of trigger actions to 100
+	 * @param data
+	 */
+	private static limitTriggerActionCount(data:any):void {
+		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+		if(triggers && Array.isArray(triggers)) {
+			triggers.forEach(t => {
+				if(t.actions.length > Config.instance.MAX_TRIGGER_ACTIONS) {
+					t.actions = t.actions.slice(0, 100);
+				}
+			});
 		}
 	}
 }

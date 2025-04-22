@@ -105,9 +105,10 @@
 			<div class="dash long"></div>
 
 			<button class="addBt"
+			:disabled="filteredActionList.length >= $config.MAX_TRIGGER_ACTIONS"
 			v-if="filteredActionList.length > 0"
 			@click="addActionAt(0)" data-noselect>
-				<img src="@/assets/icons/add.svg" class="icon">
+				<Icon name="add" class="icon" />
 			</button>
 			<TTButton v-else class="mainAddBt" icon="add" @click="addActionAt(0)" data-noselect primary big>{{ $t("triggers.add_action") }}</TTButton>
 
@@ -138,8 +139,11 @@
 							@duplicate="duplicateAction(element, index)"
 						/>
 						<div class="dash"></div>
-						<button class="addBt" @click="addActionAfter(element.id)" data-noselect>
-							<img src="@/assets/icons/add.svg" class="icon">
+						<button class="addBt"
+						@click="addActionAfter(element.id)"
+						:disabled="filteredActionList.length >= $config.MAX_TRIGGER_ACTIONS"
+						data-noselect>
+							<Icon name="add" class="icon" />
 						</button>
 					</div>
 				</template>
@@ -172,9 +176,11 @@ import TriggerConditionList from './TriggerConditionList.vue';
 import TriggerGoXLRParams from './TriggerGoXLRParams.vue';
 import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
 import TriggerActionEntry from './TriggerActionEntry.vue';
+import Icon from '@/components/Icon.vue';
 
 @Component({
 	components:{
+		Icon,
 		TTButton,
 		draggable,
 		ParamItem,
@@ -639,6 +645,7 @@ export default toNative(TriggerActionList);
 			height: 2em;
 			background-color: var(--color-primary);
 			transition: background-color .25s;
+			color: white;
 			.icon {
 				padding: .35em;
 				height: 100%;
@@ -646,6 +653,12 @@ export default toNative(TriggerActionList);
 			}
 			&:hover {
 				background-color: var(--color-primary-light);
+			}
+			&:disabled {
+				cursor: not-allowed;
+				opacity: .5;
+				background-color: var(--color-text);
+				color: var(--color-text-inverse);
 			}
 		}
 

@@ -147,6 +147,10 @@ export default class Config {
 	 */
 	public MAX_TRIGGERS_PREMIUM = 1000;
 	/**
+	 * Maximum number of trigger actions
+	 */
+	public MAX_TRIGGER_ACTIONS = 100;
+	/**
 	 * Maxium number of triggers that can be created without being premium
 	 */
 	public MAX_COUNTERS = 20;
