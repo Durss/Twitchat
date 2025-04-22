@@ -100,11 +100,11 @@ class ChatPollForm extends AbstractSidePanel {
 	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
-		vips:false,
-		subs:false,
-		follower:false,
+		vips:true,
+		subs:true,
+		follower:true,
 		follower_duration_ms:0,
-		all:false,
+		all:true,
 		usersAllowed:[],
 		usersRefused:[],
 	};
