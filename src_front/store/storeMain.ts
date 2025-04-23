@@ -855,6 +855,30 @@ export const storeMain = defineStore("main", {
 			if(DataStore.get(DataStore.HEAT_ENABLED) === "true" && StoreProxy.auth.twitch.user) {
 				HeatSocket.instance.connect( StoreProxy.auth.twitch.user.id );
 			}
+
+			/**
+			 * Start triggers scheduler
+			 */
+			SchedulerHelper.instance.start();
+			/**
+			 * Connect to Youtube (won't do anything if no credentials are available)
+			 */
+			YoutubeHelper.instance.connect();
+			/**
+			 * Tell overlays twitchat is ready
+			 */
+			StoreProxy.common.initialize(true);
+
+			/**
+			 * Execute twitchat start trigger
+			 */
+			TriggerActionHandler.instance.execute({
+								id:Utils.getUUID(),
+								channel_id:StoreProxy.auth.twitch.user.id,
+								date:Date.now(),
+								platform:"twitchat",
+								type:TwitchatDataTypes.TwitchatMessageType.TWITCHAT_STARTED
+							}, false);
 		},
 
 		loadDataFromStorage() {
@@ -945,30 +969,6 @@ export const storeMain = defineStore("main", {
 					console.error(error);
 				}
 			});
-
-			/**
-			 * Start triggers scheduler
-			 */
-			SchedulerHelper.instance.start();
-			/**
-			 * Connect to Youtube (won't do anything if no credentials are available)
-			 */
-			YoutubeHelper.instance.connect();
-			/**
-			 * Tell overlays twitchat is ready
-			 */
-			StoreProxy.common.initialize(true);
-
-			/**
-			 * Execute twitchat start trigger
-			 */
-			TriggerActionHandler.instance.execute({
-								id:Utils.getUUID(),
-								channel_id:StoreProxy.auth.twitch.user.id,
-								date:Date.now(),
-								platform:"twitchat",
-								type:TwitchatDataTypes.TwitchatMessageType.TWITCHAT_STARTED
-							}, false);
 		},
 
 		confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string, STTOrigin?:boolean): Promise<T|undefined> {
@@ -1065,7 +1065,6 @@ export const storeMain = defineStore("main", {
 					triggerStack:callStack,
 				}
 				StoreProxy.chat.addMessage(message);
-				console.log("OFKDSOKFDOKFODKOF")
 			}
 		},
 

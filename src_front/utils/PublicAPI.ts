@@ -66,7 +66,7 @@ export default class PublicAPI extends EventDispatcher {
 	 * @param data
 	 */
 	public async broadcast<T extends JsonObject>(type:TwitchatEventType|TwitchatActionType, data?:T, broadcastToSelf:boolean = false, onlyLocal:boolean = false):Promise<void> {
-		// console.log("Broadcasting", type, data);
+		// console.log("[PUBLIC API] Broadcasting", type, data);
 		const eventId = Utils.getUUID();
 		if(!broadcastToSelf) this._idsDone[eventId] = true;//Avoid receiving self-broadcast events
 
@@ -121,7 +121,7 @@ export default class PublicAPI extends EventDispatcher {
 
 			// StreamdeckSocket.instance.addEventListener(StreamdeckSocketEvent.MESSAGE, (event:StreamdeckSocketEvent) => {
 			// 	if(event.data) {
-			// 		console.log("DATA FROM SD:", event.data)
+			// 		console.log("[PUBLIC API] DATA FROM SD:", event.data)
 			// 		// this.onMessage(event.data, true);
 			// 	}
 			// });
@@ -135,7 +135,7 @@ export default class PublicAPI extends EventDispatcher {
 	 * @returns
 	 */
 	private onMessage(event:IEnvelope, checkOrigin:boolean = false):void {
-		// console.log("On message", event);
+		console.log("[PUBLIC API] On message", event);
 		if(checkOrigin && event.origin != "twitchat") return;
 		if(event.type == undefined) return;
 
