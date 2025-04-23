@@ -32,6 +32,7 @@
 				<ParamItem :paramData="param_readRaids" v-model="param_readRaids.value" />
 				<ParamItem :paramData="param_readRewards" v-model="param_readRewards.value" />
 				<ParamItem :paramData="param_readPolls" v-model="param_readPolls.value" />
+				<ParamItem :paramData="param_readChatPolls" v-model="param_readChatPolls.value" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'tts_chatpolls'}" />
 				<ParamItem :paramData="param_readPredictions" v-model="param_readPredictions.value" />
 				<ParamItem :paramData="param_readBingos" v-model="param_readBingos.value" />
 				<ParamItem :paramData="param_readRaffle" v-model="param_readRaffle.value" />
@@ -158,6 +159,8 @@ class ParamsTTS extends Vue implements IParameterContent {
 	public param_readFollowPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, placeholderList:TTSUtils.placeholderFollows, maxLength:300};
 	public param_readPolls:TwitchatDataTypes.ParameterData<boolean, unknown, string> = {type:"boolean", value:false, icon:"poll" };
 	public param_readPollsPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, placeholderList:TTSUtils.placeholderPolls, maxLength:300};
+	public param_readChatPolls:TwitchatDataTypes.ParameterData<boolean, unknown, string> = {type:"boolean", value:false, icon:"chatPoll" };
+	public param_readChatPollsPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, placeholderList:TTSUtils.placeholderChatPolls, maxLength:300};
 	public param_readPredictions:TwitchatDataTypes.ParameterData<boolean, unknown, string> = {type:"boolean", value:false, icon:"prediction" };
 	public param_readPredictionsPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, placeholderList:TTSUtils.placeholderPredictions, maxLength:300};
 	public param_readBingos:TwitchatDataTypes.ParameterData<boolean, unknown, string> = {type:"boolean", value:false, icon:"bingo" };
@@ -244,6 +247,8 @@ class ParamsTTS extends Vue implements IParameterContent {
 			readFollowPattern:this.param_readFollowPattern.value,
 			readPolls:this.param_readPolls.value,
 			readPollsPattern:this.param_readPollsPattern.value,
+			readChatPolls:this.param_readChatPolls.value,
+			readChatPollsPattern:this.param_readChatPollsPattern.value,
 			readBingos:this.param_readBingos.value,
 			readBingosPattern:this.param_readBingosPattern.value,
 			readRaffle:this.param_readRaffle.value,
@@ -301,6 +306,7 @@ class ParamsTTS extends Vue implements IParameterContent {
 		this.param_readRaids.labelKey						= "tts.messages.param_readRaids";
 		this.param_readFollow.labelKey						= "tts.messages.param_readFollow";
 		this.param_readPolls.labelKey						= "tts.messages.param_readPolls";
+		this.param_readChatPolls.labelKey					= "tts.messages.param_readChatPolls";
 		this.param_readPredictions.labelKey					= "tts.messages.param_readPredictions";
 		this.param_readBingos.labelKey						= "tts.messages.param_readBingos";
 		this.param_readRaffle.labelKey						= "tts.messages.param_readRaffle";
@@ -348,6 +354,7 @@ class ParamsTTS extends Vue implements IParameterContent {
 		this.param_readRaidsPattern.labelKey				=
 		this.param_readFollowPattern.labelKey				=
 		this.param_readPollsPattern.labelKey				=
+		this.param_readChatPollsPattern.labelKey				=
 		this.param_readPredictionsPattern.labelKey			=
 		this.param_readBingosPattern.labelKey				=
 		this.param_readRafflePattern.labelKey				=
@@ -389,8 +396,8 @@ class ParamsTTS extends Vue implements IParameterContent {
 		this.voiceParams.elevenlabs_lang = params.elevenlabs_lang;
 
 		function label(label1:string, label2:string):string {
-			if(label1.length > 0) return label1;
-			if(label2.length > 0) return label2;
+			if(label1?.length > 0) return label1;
+			if(label2?.length > 0) return label2;
 			return "";
 		}
 
@@ -415,6 +422,8 @@ class ParamsTTS extends Vue implements IParameterContent {
 		this.param_readFollowPattern.value				= label(params.readFollowPattern, this.$t("tts.patterns.readFollowPattern"));
 		this.param_readPolls.value						= params.readPolls === true;
 		this.param_readPollsPattern.value				= label(params.readPollsPattern, this.$t("tts.patterns.readPollsPattern"));
+		this.param_readChatPolls.value					= params.readChatPolls === true;
+		this.param_readChatPollsPattern.value			= label(params.readChatPollsPattern, this.$t("tts.patterns.readChatPollsPattern"));
 		this.param_readBingos.value						= params.readBingos === true;
 		this.param_readBingosPattern.value				= label(params.readBingosPattern, this.$t("tts.patterns.readBingosPattern"));
 		this.param_readRaffle.value						= params.readRaffle === true;
@@ -463,6 +472,7 @@ class ParamsTTS extends Vue implements IParameterContent {
 		this.param_readRaids.children					= [this.param_readRaidsPattern];
 		this.param_readFollow.children					= [this.param_readFollowPattern];
 		this.param_readPolls.children					= [this.param_readPollsPattern];
+		this.param_readChatPolls.children				= [this.param_readChatPollsPattern];
 		this.param_readBingos.children					= [this.param_readBingosPattern];
 		this.param_readRaffle.children					= [this.param_readRafflePattern];
 		this.param_readPredictions.children				= [this.param_readPredictionsPattern];

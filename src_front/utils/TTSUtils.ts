@@ -28,6 +28,7 @@ export default class TTSUtils {
 	public static placeholderRewards:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholderBits:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholderPolls:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderChatPolls:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholderPredictions:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholderRaffles:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholderBingo:TwitchatDataTypes.PlaceholderEntry[];
@@ -63,7 +64,7 @@ export default class TTSUtils {
 	constructor() {
 		this.initialize()
 	}
-	
+
 	/********************
 	 * GETTER / SETTERS *
 	 ********************/
@@ -135,8 +136,8 @@ export default class TTSUtils {
 			}
 		}
 	}
-	
-	
+
+
 	/******************
 	 * PUBLIC METHODS *
 	 ******************/
@@ -166,17 +167,17 @@ export default class TTSUtils {
 	/**
 	 * Reads a message now.
 	 * Stops any currently playing message and add it next on the queue
-	 * @param message 
+	 * @param message
 	 */
 	public async readNow(message:TwitchatDataTypes.ChatMessageTypes, id?:string, params?:TwitchatDataTypes.TTSVoiceParamsData):Promise<void> {
 		if (!this._enabled) return;
 		if(id) this.cleanupPrevIDs(id);
 		if(!id) id = Utils.getUUID();
-		
-		
+
+
 		const text = await this.parseMessage(message, true);
 		if(text.trim().length === 0) return;
-		
+
 		const m:SpokenMessage = {message, id, params, text, force:true, date: Date.now()};
 		this._pendingMessages.splice(1, 0, m);
 		if(StoreProxy.tts.speaking) {
@@ -189,7 +190,7 @@ export default class TTSUtils {
 
 	/**
 	 * Reads a string message after the current one.
-	 * @param text 
+	 * @param text
 	 */
 	public readNext(text: string, id?:string, params?:TwitchatDataTypes.TTSVoiceParamsData):void {
 		if (!this._enabled) return;
@@ -208,10 +209,10 @@ export default class TTSUtils {
 
 	/**
 	 * Adds a string message to the TTS queue
-	 * 
-	 * @param text 
-	 * @param id 
-	 * @returns 
+	 *
+	 * @param text
+	 * @param id
+	 * @returns
 	 */
 	public async addMessageToQueue(message:TwitchatDataTypes.ChatMessageTypes, id?:string, params?:TwitchatDataTypes.TTSVoiceParamsData):Promise<void> {
 		if (!this._enabled) return;
@@ -252,8 +253,8 @@ export default class TTSUtils {
 		}
 	}
 
-	
-	
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -310,6 +311,11 @@ export default class TTSUtils {
 			{ tag:"WINNER", descKey:"tts.placeholders.winning_choice" },
 		];
 
+		TTSUtils.placeholderChatPolls = [
+			{ tag:"TITLE", descKey:"tts.placeholders.poll_title" },
+			{ tag:"WINNER", descKey:"tts.placeholders.winning_choice" },
+		];
+
 		TTSUtils.placeholderPredictions = [
 			{ tag:"TITLE", descKey:"tts.placeholders.prediction_title" },
 			{ tag:"WINNER", descKey:"tts.placeholders.winning_choice" },
@@ -338,7 +344,7 @@ export default class TTSUtils {
 			{ tag:"MESSAGE", descKey:"tts.placeholders.message" },
 		];
 
-		TTSUtils.placeholderBans = 
+		TTSUtils.placeholderBans =
 		TTSUtils.placeholderUnbans = [
 			{ tag:"USER", descKey:"tts.placeholders.user" },
 		];
@@ -387,7 +393,7 @@ export default class TTSUtils {
 			{ tag:"PRODUCT", descKey:"tts.placeholders.merch_product" },
 			{ tag:"MESSAGE", descKey:"tts.placeholders.message" },
 		];
-		
+
 		TTSUtils.placeholderStreamlabsPatreon = [
 			{ tag:"USER", descKey:"tts.placeholders.user" },
 			{ tag:"AMOUNT", descKey:"tts.placeholders.donation_amount" },
@@ -404,9 +410,9 @@ export default class TTSUtils {
 
 	/**
 	 * Parse a message and add it to the queue
-	 * 
-	 * @param message 
-	 * @returns 
+	 *
+	 * @param message
+	 * @returns
 	 */
 	private async parseMessage(message:TwitchatDataTypes.ChatMessageTypes, force?:boolean):Promise<string> {
 		const paramsTTS = StoreProxy.tts.params;
@@ -428,10 +434,10 @@ export default class TTSUtils {
 							|| is_automod
 							|| is_monitored
 							|| is_restricted;
-				
+
 				//Stop if didn't ask to read this kind of message
 				if(!canRead && !force) return "";
-					
+
 				//Stop there if the user isn't part of the permissions and message isn't forced
 				if(force !== true
 				&& is_simpleMessage
@@ -464,14 +470,14 @@ export default class TTSUtils {
 				if(paramsTTS.maxLength > 0) {
 					mess = mess.trim().substring(0, paramsTTS.maxLength);
 				}
-				
+
 				//Remove unicode emotes
 				if(paramsTTS.removeEmotes===true) {
 					mess = mess.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, "");
 				}
 
 				if(mess.trim().length == 0) return "";//Avoids reading empty message
-				
+
 				let pattern	= paramsTTS.readMessagePatern;
 				if(is_automod)				pattern = paramsTTS.readAutomodPattern;
 				else if(is_monitored)		pattern = paramsTTS.readMonitoredPattern;
@@ -534,7 +540,7 @@ export default class TTSUtils {
 				if(!message.is_gift) {
 					//Stop if didn't ask to read this kind of message
 					if(!paramsTTS.readSubs && force!==true) return "";
-					
+
 					let txt = paramsTTS.readSubsPattern.replace(/\{USER\}/gi, message.user.displayName);
 					txt = txt.replace(/\{MESSAGE\}/gi, message.message ?? "");
 					txt = txt.replace(/\{TIER\}/gi, message.tier.toString());
@@ -542,20 +548,20 @@ export default class TTSUtils {
 				}else{
 					//Stop if didn't ask to read this kind of message
 					if(!paramsTTS.readSubgifts && force!==true) return "";
-	
+
 					return new Promise((resolve) => {
 						let prevCount = (message.gift_recipients?.length ?? 0) + 1;
-		
+
 						//Wait a little for potential subgift streak to complete
 						const checkComplete = () => {
 							const recipients = message.gift_recipients ?? [];
-							
+
 							//If count has changed, wait a little there might be more subgifts coming
 							if(prevCount != recipients.length) {
 								prevCount = recipients.length;
 								return;
 							}
-			
+
 							clearInterval(checkCompleteInterval);
 
 							let txt = paramsTTS.readSubgiftsPattern.replace(/\{USER\}/gi, message.user.displayName);
@@ -564,7 +570,7 @@ export default class TTSUtils {
 							txt = txt.replace(/\{COUNT\}/gi, recipients.length.toString());
 							resolve(txt);
 						}
-		
+
 						const checkCompleteInterval = window.setInterval(()=>checkComplete(), 500);
 					})
 				}
@@ -575,10 +581,10 @@ export default class TTSUtils {
 				if(!paramsTTS.readBits && force!==true) return "";
 
 				const bits = message.bits;
-				
+
 				//Has enough bits been sent ?
 				if(bits < paramsTTS.readBitsMinAmount) return "";
-				
+
 				let mess: string = message.message || "";
 				if(paramsTTS.removeEmotes===true) {
 					mess = Utils.stripHTMLTags(message.message_html);
@@ -626,6 +632,23 @@ export default class TTSUtils {
 				return txt;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.CHAT_POLL: {
+				//Stop if didn't ask to read this kind of message
+				if(!paramsTTS.readChatPolls && force!==true) return "";
+
+				let winner = "";
+				let max = 0;
+				message.poll.choices.forEach(v =>{
+					if(v.votes > max) {
+						max = v.votes;
+						winner = v.label;
+					}
+				})
+				let txt = paramsTTS.readChatPollsPattern.replace(/\{TITLE\}/gi, message.poll.title);
+				txt = txt.replace(/\{WINNER\}/gi, winner);
+				return txt;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.PREDICTION: {
 				//Stop if didn't ask to read this kind of message
 				if(!paramsTTS.readPredictions && force!==true) return "";
@@ -636,7 +659,7 @@ export default class TTSUtils {
 						winner = v.label;
 					}
 				})
-				
+
 				let txt = paramsTTS.readPredictionsPattern.replace(/\{TITLE\}/gi, message.title);
 				txt = txt.replace(/\{WINNER\}/gi, winner);
 				return txt;
@@ -761,7 +784,7 @@ export default class TTSUtils {
 				}
 			}
 		}
-		
+
 		return "";
 	}
 
@@ -770,7 +793,7 @@ export default class TTSUtils {
 	 */
 	private async readNextMessage():Promise<void> {
 		if(this._pendingMessages.length === 0 || !this._enabled) return;
-		
+
 		const messageEntry = this._pendingMessages[0];
 		let skipMessage = false;
 
@@ -783,7 +806,7 @@ export default class TTSUtils {
 		}
 		const paramsTTS = StoreProxy.tts.params;
 		this._lastMessageTime = Date.now();
-		
+
 		//Timeout reached for this message?
 		if (paramsTTS.timeout > 0 && Date.now() - messageEntry.date > paramsTTS.timeout * 1000 * 60) {
 			skipMessage = true;
@@ -799,7 +822,7 @@ export default class TTSUtils {
 			}, 0);
 			return;
 		}
-		
+
 		messageEntry.reading = true;
 		const voice = this.voiceList.find(v => v.id == (messageEntry.params?.voice || paramsTTS.voice.id));
 		let fallbackToSystem = false;
@@ -827,7 +850,7 @@ export default class TTSUtils {
 					const audio = new Audio(audioUrl);
 					audio.volume = messageEntry.params?.volume || paramsTTS.volume;
 					audio.play();
-					
+
 					// Optionally, clean up the object URL after the audio is done playing
 					audio.onended = () => {
 						URL.revokeObjectURL(audioUrl);
@@ -857,7 +880,7 @@ export default class TTSUtils {
 			mess.onend = (ev: SpeechSynthesisEvent) => {
 				this.onReadComplete();
 			}
-	
+
 			if(window.speechSynthesis) window.speechSynthesis.speak(mess);
 		}
 
@@ -871,7 +894,7 @@ export default class TTSUtils {
 
 	/**
 	 * Cleans up any existing message with the same ID
-	 * @param id 
+	 * @param id
 	 */
 	private cleanupPrevIDs(id:string):void {
 		//Only clean after the first one as it's the one currently playing

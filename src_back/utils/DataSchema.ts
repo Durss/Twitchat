@@ -1371,6 +1371,8 @@ const UserDataSchema = {
 				readFollowPattern:{type:"string", maxLength:300},
 				readPolls: {type:"boolean"},
 				readPollsPattern:{type:"string", maxLength:300},
+				readChatPolls: {type:"boolean"},
+				readChatPollsPattern:{type:"string", maxLength:300},
 				readPredictions: {type:"boolean"},
 				readPredictionsPattern:{type:"string", maxLength:300},
 				readBingos: {type:"boolean"},
@@ -2066,7 +2068,7 @@ const UserDataSchema = {
 				history: {
 					type:"array",
 					minItems:0,
-					maxItems:5,
+					maxItems:10,
 					items:{ $ref: "defs.json#/definitions/chatPollData" },
 				}
 			}

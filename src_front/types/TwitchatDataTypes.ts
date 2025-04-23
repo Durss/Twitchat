@@ -1381,6 +1381,8 @@ export namespace TwitchatDataTypes {
 		readFollowPattern:string;
 		readPolls: boolean;
 		readPollsPattern:string;
+		readChatPolls: boolean;
+		readChatPollsPattern:string;
 		readBingos: boolean;
 		readBingosPattern:string;
 		readRaffle: boolean;

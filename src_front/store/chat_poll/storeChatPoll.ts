@@ -140,7 +140,7 @@ export const storeChatPoll = defineStore('chatPoll', {
 					this.presets.duration_s = data.duration_s;
 					this.presets.voteCount = data.maxVotePerUser;
 					this.presets.permissions = data.permissions;
-					this.presets.history.unshift(data);
+					this.presets.history.unshift(JSON.parse(JSON.stringify(data)));
 
 					const done:{[key:string]:boolean} = {};
 					this.presets.history = this.presets.history.map(v => {
