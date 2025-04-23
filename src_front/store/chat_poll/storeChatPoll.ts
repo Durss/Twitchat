@@ -140,10 +140,20 @@ export const storeChatPoll = defineStore('chatPoll', {
 					this.presets.duration_s = data.duration_s;
 					this.presets.voteCount = data.maxVotePerUser;
 					this.presets.permissions = data.permissions;
-					this.presets.history.push(data);
+					this.presets.history.unshift(data);
+
+					const done:{[key:string]:boolean} = {};
+					this.presets.history = this.presets.history.map(v => {
+						const options = v.choices.map(c=>c.label);
+						let key = v.title+v.duration_s+v.maxVotePerUser+options.join(",");
+						if(done[key]) return null;
+						done[key] = true;
+						return v;
+					}).filter(v=> v != null);
+
 					// Keep only the last 10 polls
 					if(this.presets.history.length > 10) {
-						this.presets.history.shift();
+						this.presets.history.pop();
 					}
 					DataStore.set(DataStore.CHAT_POLL_PRESETS, this.presets);
 				}
