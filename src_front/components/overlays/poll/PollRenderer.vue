@@ -23,7 +23,8 @@
 				<h2 id="line_labelList_label" class="outcomeTitle"
 				:class="getWinClasses(c)"
 				v-for="(c, index) in entries" :style="{flexBasis:getPercent(c)+'%'}">
-					{{ showIndex !== false? index+1 : c.label }}
+					<div class="index" v-if="showIndex !== false"><span>{{ index+1 }}</span></div>
+					<div class="label">{{ c.label }}</div>
 				</h2>
 			</div>
 			<div class="chunks" id="line_bar" ref="bar">
@@ -268,7 +269,7 @@ export default toNative(PollRenderer);
 
 	.battle {
 		width: 100%;
-		max-width: 800px;
+		max-width: min(80vw, 800px);
 		overflow: hidden;
 		.labels {
 			display: flex;
@@ -276,12 +277,16 @@ export default toNative(PollRenderer);
 			margin-bottom: .25em;
 			text-align: center;
 			.outcomeTitle {
-				display: block;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				white-space: nowrap;
+				gap: .5em;
+				display: flex;
+				align-items: center;
 				transition: flex-basis .3s;
 				min-width: 2px;
+				.label {
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+				}
 			}
 			.outcomeTitle:first-child:nth-last-child(2),
 			.outcomeTitle:first-child:nth-last-child(2) ~ .outcomeTitle {
@@ -322,6 +327,25 @@ export default toNative(PollRenderer);
 		}
 	}
 
+	.index {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: bold;
+		flex-shrink: 0;
+		width: 1.5em;
+		height: 1.5em;
+		border-radius: 50%;
+		background-color: var(--color1);
+		color: var(--color-light);
+		span {
+			filter: drop-shadow(-2px 0 0 var(--color1))
+					drop-shadow(2px 0 0 var(--color1))
+					drop-shadow(0 -2px 0 var(--color1))
+					drop-shadow(0 2px 0 var(--color1));
+		}
+	}
+
 	.list {
 		align-self: stretch;
 		.choice {
@@ -332,25 +356,6 @@ export default toNative(PollRenderer);
 			align-items: center;
 			transform-origin: top center;
 			margin: auto;
-
-			.index {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				font-weight: bold;
-				flex-shrink: 0;
-				width: 1.5em;
-				height: 1.5em;
-				border-radius: 50%;
-				background-color: var(--color1);
-				color: var(--color-light);
-				span {
-					filter: drop-shadow(-2px 0 0 var(--color1))
-							drop-shadow(2px 0 0 var(--color1))
-							drop-shadow(0 -2px 0 var(--color1))
-							drop-shadow(0 2px 0 var(--color1));
-				}
-			}
 
 			.subContent {
 				width: 100%;
