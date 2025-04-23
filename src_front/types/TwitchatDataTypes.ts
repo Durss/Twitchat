@@ -1225,6 +1225,16 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
+	 * Chat poll presets
+	 */
+	export interface ChatPollPresets {
+		duration_s:number;
+		voteCount:number;
+		permissions:PermissionsData;
+		history:ChatPollData[];
+	}
+
+	/**
 	 * Chat poll data
 	 */
 	export interface ChatPollData {

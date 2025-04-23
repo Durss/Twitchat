@@ -655,17 +655,7 @@ export const storeChat = defineStore('chat', {
 		],
 
 		spoilerParams: {
-			permissions:{
-				broadcaster:true,
-				mods:true,
-				vips:false,
-				subs:false,
-				all:false,
-				follower:false,
-				follower_duration_ms:0,
-				usersAllowed:[],
-				usersRefused:[],
-			},
+			permissions:Utils.getDefaultPermissions(true, true, false, false, false, false),
 			autoSpoilNewUsers:false,
 		},
 

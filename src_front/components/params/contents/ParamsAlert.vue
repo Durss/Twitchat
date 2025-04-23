@@ -1,12 +1,12 @@
 <template>
 	<div class="paramsalert parameterContent">
 		<Icon name="alert" class="icon" />
-		
+
 		<div class="head">{{ $t("alert.header") }}</div>
 
 		<Splitter class="splitter">{{$t('alert.command_title') }}</Splitter>
 		<section class="card-item">
-			
+
 			<div>
 				<ParamItem :paramData="param_chatCommand" />
 				<ToggleBlock :title="$t('global.allowed_users')" :open="false" small>
@@ -17,19 +17,19 @@
 
 		<Splitter class="splitter">{{ $t('alert.actions') }}</Splitter>
 		<section class="card-item">
-	
+
 			<ParamItem :paramData="param_message" v-model="param_message.value" />
 			<ParamItem :paramData="param_shake" v-model="param_shake.value" />
 			<ParamItem :paramData="param_sound" v-model="param_sound.value" />
 			<ParamItem :paramData="param_blink" v-model="param_blink.value" />
 			<ParamItem :paramData="param_vibrate" v-model="param_vibrate.value" />
-	
+
 			<i18n-t scope="global" tag="div" class="infos" keypath="alert.actions_triggers">
 				<template #LINK>
 					<a @click="$store.params.openParamsPage(contentTriggers)">{{ $t("alert.actions_triggers_link") }}</a>
 				</template>
 			</i18n-t>
-	
+
 			<Button class="testBt" icon="test" @click="testAlert()">{{ $t('alert.testBt') }}</Button>
 		</section>
 	</div>
@@ -59,25 +59,15 @@ import type IParameterContent from './IParameterContent';
 	}
 })
 class ParamsAlert extends Vue implements IParameterContent {
-	
+
 	public param_chatCommand:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"alert.command", value:"!alert"};
 	public param_message:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_popin", value:true};
 	public param_shake:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_shake", value:true};
 	public param_blink:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_blink", value:false};
 	public param_sound:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_sound", value:true};
 	public param_vibrate:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_vibrate", value:true};
-	public chatCommandPerms:TwitchatDataTypes.PermissionsData = {
-		broadcaster:true,
-		mods:true,
-		vips:false,
-		subs:false,
-		all:false,
-		follower:true,
-		follower_duration_ms:0,
-		usersAllowed:[],
-		usersRefused:[],
-	};
-	
+	public chatCommandPerms:TwitchatDataTypes.PermissionsData = Utils.getDefaultPermissions(true, true, false, false, false, false);
+
 	public get finalData():TwitchatDataTypes.AlertParamsData {
 		return {
 			chatCmd: this.param_chatCommand.value,
@@ -89,8 +79,8 @@ class ParamsAlert extends Vue implements IParameterContent {
 			permissions: this.chatCommandPerms,
 		};
 	}
-	
-	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; } 
+
+	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; }
 
 	public beforeMount():void {
 		let params:TwitchatDataTypes.AlertParamsData = JSON.parse(JSON.stringify(this.$store.main.chatAlertParams));

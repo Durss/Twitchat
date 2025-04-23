@@ -7,6 +7,11 @@
 		</div>
 
 		<div class="content">
+
+			<div class="presets" v-if="$store.chatPoll.presets.history.length > 0">
+				<TTButton @click="selectPreset(item)" v-for="item in $store.chatPoll.presets.history" v-tooltip="'•'+item.choices.map(v=>v.label).join('\n•')+'\n(⏱️'+item.duration_s+'s)\n(🎫'+item.maxVotePerUser+')'">{{item.title || [...item.choices].splice(0,2).map(v=>v.label).join(', ')+'...'}}</TTButton>
+			</div>
+
 			<form @submit.prevent="submitForm()">
 				<ParamItem :paramData="param_title"
 					v-model="title"
@@ -95,19 +100,9 @@ class ChatPollForm extends AbstractSidePanel {
 	public choices:TwitchatDataTypes.ChatPollData["choices"] = [];
 	public param_title:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", maxLength:100, labelKey:"chatPoll.form.question", placeholderKey:"prediction.form.question_placeholder"};
 	public param_duration:TwitchatDataTypes.ParameterData<number> = {value:2*60, type:"duration", min:5, max:3600, labelKey:"chatPoll.form.voteDuration", icon:"timer"};
-	public param_allowMultiVote:TwitchatDataTypes.ParameterData<number> = {value:1, type:"number", min:1, max:2, labelKey:"chatPoll.form.allowMultiVote", icon:"user"};
+	public param_allowMultiVote:TwitchatDataTypes.ParameterData<number> = {value:1, type:"number", min:1, max:20, labelKey:"chatPoll.form.allowMultiVote", icon:"user"};
 	public placeholderList:ITriggerPlaceholder<any>[] = [];
-	public permissions:TwitchatDataTypes.PermissionsData = {
-		broadcaster:true,
-		mods:true,
-		vips:true,
-		subs:true,
-		follower:true,
-		follower_duration_ms:0,
-		all:true,
-		usersAllowed:[],
-		usersRefused:[],
-	};
+	public permissions:TwitchatDataTypes.PermissionsData = Utils.getDefaultPermissions();
 
 	public async beforeMount():Promise<void> {
 
@@ -130,6 +125,10 @@ class ChatPollForm extends AbstractSidePanel {
 			}else{
 				this.onValueChange();
 			}
+		}else{
+			this.permissions = this.$store.chatPoll.presets.permissions;
+			this.param_duration.value = this.$store.chatPoll.presets.duration_s
+			this.param_allowMultiVote.value = this.$store.chatPoll.presets.voteCount;
 		}
 
 		// Add 2 empty choices if less than 2 choices exist
@@ -173,7 +172,7 @@ class ChatPollForm extends AbstractSidePanel {
 			}
 
 			this.showPremiumLimit = (this.choices.length-emptyCount) == maxEntries && maxEntries < Config.instance.MAX_CHAT_POLL_ENTRIES_PREMIUM;
-			this.param_allowMultiVote.max = this.choices.length
+			// this.param_allowMultiVote.max = this.choices.filter(v=>v.label.trim().length > 0).length
 		}, {deep:true});
 	}
 
@@ -186,7 +185,7 @@ class ChatPollForm extends AbstractSidePanel {
 			started_at:Date.now(),
 			votes:{},
 			maxVotePerUser:this.param_allowMultiVote.value,
-		})
+		}, true)
 		this.close();
 	}
 
@@ -214,6 +213,20 @@ class ChatPollForm extends AbstractSidePanel {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
+	/**
+	 * Selects a poll's preset
+	 * @param params
+	 */
+	public selectPreset(params:TwitchatDataTypes.ChatPollData):void {
+		this.param_title.value = params.title;
+		this.param_duration.value = params.duration_s;
+		this.title = params.title;
+		this.choices = params.choices.filter(v=>v.label.trim().length > 0).map(v=> {return {...v}});
+		this.permissions = params.permissions;
+		this.param_duration.value = params.duration_s;
+		this.param_allowMultiVote.value = params.maxVotePerUser;
+		// this.submitForm();
+	}
 }
 export default toNative(ChatPollForm);
 </script>
@@ -221,6 +234,18 @@ export default toNative(ChatPollForm);
 <style scoped lang="less">
 .chatpollform{
 	.content{
+		.presets {
+			row-gap: .5em;
+			column-gap: .2em;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: center;
+			max-height: 5em;
+			overflow-y: auto;
+			min-height: 2em;
+		}
 		form > .card-item {
 			.field {
 				flex-grow: 1;

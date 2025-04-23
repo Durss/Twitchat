@@ -64,6 +64,7 @@ import ToggleBlock from '../ToggleBlock.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import type { TriggerActionChatSuggestionsData, TriggerData } from '@/types/TriggerActionDataTypes';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -92,17 +93,7 @@ class ChatSuggestionForm extends AbstractSidePanel {
 	public maxLength:TwitchatDataTypes.ParameterData<number>		= {value:100, type:"number", min:1, max:500, labelKey:"suggestion.maxLength", icon:"font"};
 	public duration:TwitchatDataTypes.ParameterData<number>			= {value:2, type:"number", min:1, max:60 * 24, labelKey:"suggestion.duration", icon:"timer"};
 	public multiAnswers:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", labelKey:"suggestion.multiAnswers", icon:"user"};
-	public permissions:TwitchatDataTypes.PermissionsData = {
-		broadcaster:true,
-		mods:true,
-		vips:true,
-		subs:true,
-		all:true,
-		follower:true,
-		follower_duration_ms:0,
-		usersAllowed:[],
-		usersRefused:[],
-	}
+	public permissions:TwitchatDataTypes.PermissionsData			= Utils.getDefaultPermissions()
 
 	public get classes():string[] {
 		const res = ["chatsuggform", "sidePanel"];

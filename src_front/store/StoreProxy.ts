@@ -758,6 +758,10 @@ export interface IChatPollState {
 	 */
 	data:TwitchatDataTypes.ChatPollData | null,
 	/**
+	 * Chat poll form presets
+	 */
+	presets:TwitchatDataTypes.ChatPollPresets,
+	/**
 	 * Contains params about the prediction overlay
 	 */
 	overlayParams:PollOverlayParamStoreData;
@@ -780,8 +784,9 @@ export interface IChatPollActions {
 	/**
 	 * Set current poll data
 	 * @param data
+	 * @param replacePresets if true the presets won't be overriden
 	 */
-	setCurrentPoll(data:TwitchatDataTypes.ChatPollData|null):void;
+	setCurrentPoll(data:TwitchatDataTypes.ChatPollData|null, replacePresets?:boolean):void;
 	/**
 	 * Updates overlay params
 	 * @param params

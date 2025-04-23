@@ -13,17 +13,7 @@ export const storeOBS = defineStore('obs', {
 		connectionEnabled: false,
 		sceneCommands: [],
 		muteUnmuteCommands: {audioSourceName:"", muteCommand:"!mute", unmuteCommand:"!unmute"},
-		commandsPermissions: {
-			broadcaster:true,
-			mods:false,
-			vips:false,
-			subs:false,
-			all:false,
-			follower:false,
-			follower_duration_ms:0,
-			usersAllowed:[],
-			usersRefused:[],
-		},
+		commandsPermissions: Utils.getDefaultPermissions(true, true, false, false, false, false),
 	} as IOBSState),
 
 
@@ -42,21 +32,21 @@ export const storeOBS = defineStore('obs', {
 			if(obsSceneCommands) {
 				this.sceneCommands = JSON.parse(obsSceneCommands);
 			}
-			
+
 			//Init OBS command params
 			const obsMuteUnmuteCommands = DataStore.get(DataStore.OBS_CONF_MUTE_UNMUTE);
 			if(obsMuteUnmuteCommands) {
 				Utils.mergeRemoteObject(JSON.parse(obsMuteUnmuteCommands), (this.muteUnmuteCommands as unknown) as JsonObject);
 				// this.muteUnmuteCommands = JSON.parse(obsMuteUnmuteCommands);
 			}
-			
+
 			//Init OBS permissions
 			const obsCommandsPermissions = DataStore.get(DataStore.OBS_CONF_PERMISSIONS);
 			if(obsCommandsPermissions) {
 				Utils.mergeRemoteObject(JSON.parse(obsCommandsPermissions), (this.commandsPermissions as unknown) as JsonObject);
 				// this.commandsPermissions = JSON.parse(obsCommandsPermissions);
 			}
-			
+
 			//Initialise the new toggle param for OBS connection.
 			//If any OBS param exists, set it to true because the
 			//user probably configured it. Otherwise set it to false
@@ -70,7 +60,7 @@ export const storeOBS = defineStore('obs', {
 			}else{
 				this.connectionEnabled = DataStore.get(DataStore.OBS_CONNECTION_ENABLED) === "true";
 			}
-			
+
 			//Init OBS connection
 			//If params are specified on URL, use them (used by overlays)
 			const port = DataStore.get(DataStore.OBS_PORT);

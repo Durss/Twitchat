@@ -32,17 +32,7 @@ export const storeEmergency = defineStore('emergency', {
 			obsScene:"",
 			obsSources:[],
 			chatCmd:"",
-			chatCmdPerms:{
-				broadcaster:true,
-				mods:true,
-				vips:false,
-				subs:false,
-				all:false,
-				follower:false,
-				follower_duration_ms:0,
-				usersAllowed:[],
-				usersRefused:[],
-			},
+			chatCmdPerms:Utils.getDefaultPermissions(true, true, false, false, false, false),
 			autoEnableOnShieldmode:true,
 			autoEnableOnFollowbot:true,
 			enableShieldMode:false,
@@ -76,7 +66,7 @@ export const storeEmergency = defineStore('emergency', {
 			if(emergencyFollows) {
 				this.reloadFollowbotList(JSON.parse(emergencyFollows));
 			}
-			
+
 		},
 
 		setEmergencyParams(params:TwitchatDataTypes.EmergencyParamsData) {

@@ -89,6 +89,7 @@ import ToggleBlock from '../../ToggleBlock.vue';
 import TTButton from '../../TTButton.vue';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -189,17 +190,7 @@ class ParamsTTS extends Vue implements IParameterContent {
 	public param_readStreamelementsTip:TwitchatDataTypes.ParameterData<boolean, unknown, string> = {type:"boolean", value:false, icon:"streamelements" };
 	public param_readStreamelementsTipPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, placeholderList:TTSUtils.placeholderStreamelementsTip, maxLength:300};
 
-	public param_ttsPerms:TwitchatDataTypes.PermissionsData = {
-		broadcaster:true,
-		mods:true,
-		vips:false,
-		subs:false,
-		all:false,
-		follower:true,
-		follower_duration_ms:0,
-		usersAllowed:[],
-		usersRefused:[],
-	};
+	public param_ttsPerms:TwitchatDataTypes.PermissionsData = Utils.getDefaultPermissions(true, true, false, true, false, false)
 
 	public get holderStyles():CSSProperties {
 		return {

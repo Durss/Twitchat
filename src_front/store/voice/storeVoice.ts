@@ -27,17 +27,7 @@ export const storeVoice = defineStore('voice', {
 			enabled:false,
 			voiceIndicator:true,
 			commandToVoiceID:{},
-			chatCmdPerms:{
-				broadcaster:true,
-				mods:true,
-				vips:false,
-				subs:false,
-				all:false,
-				follower:false,
-				follower_duration_ms:0,
-				usersAllowed:[],
-				usersRefused:[],
-			},
+			chatCmdPerms:Utils.getDefaultPermissions(true, true, false, false, false, false),
 		},
 	} as IVoiceState),
 

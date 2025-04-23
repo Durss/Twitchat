@@ -13,17 +13,7 @@ export const storeAutomod = defineStore('automod', {
 			enabled:false,
 			banUserNames:false,
 			keywordsFilters:[],
-			exludedUsers:{
-				broadcaster:true,
-				mods:true,
-				vips:true,
-				subs:false,
-				all:false,
-				follower:false,
-				follower_duration_ms:0,
-				usersAllowed:[],
-				usersRefused:[],
-			},
+			exludedUsers:Utils.getDefaultPermissions(true, true, true, false, false, false),
 		}
 	} as IAutomodState),
 

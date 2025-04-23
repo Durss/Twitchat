@@ -36,7 +36,7 @@
 				<div class="head">
 					<h1 class="title">{{ $t('chat.filters.title') }}</h1>
 				</div>
-				
+
 				<div class="info" v-if="expand">{{ $t('chat.filters.header') }}</div>
 
 				<tooltip interactive
@@ -61,7 +61,7 @@
 						</div>
 					</template>
 				</tooltip>
-				
+
 				<div class="paramsList">
 
 					<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" v-model="param_toggleAll.value" @change="toggleAll()" />
@@ -89,7 +89,7 @@
 								<div class="subFilters">
 									<div class="item">
 										<div class="preview"></div>
-										
+
 										<ParamItem
 											v-if="config.filters.message === true"
 											key="subfilter_blockUsers"
@@ -97,14 +97,14 @@
 											@change="saveData()"
 											v-model="config.userBlockList" />
 									</div>
-									
+
 									<div class="item" v-for="messageFilter in messageFilters">
 										<Icon name="show" class="preview"
 											v-if="messageFilter.storage!.hasPreview"
 											@mouseleave="mouseLeaveItem()"
 											@mouseenter="previewSubMessage(messageFilter.storage!)" />
 										<div v-else class="preview"></div>
-											
+
 										<ParamItem autoFade
 											v-if="config.filters.message === true"
 											:key="'subfilter_'+messageFilter.storage"
@@ -121,7 +121,7 @@
 												v-model="config.mandatoryBadges_flag"
 												:paramData="param_showBadges"
 												@change="saveData()">
-											
+
 												<div class="badgeList">
 													<button v-for="badge in $store.users.customBadgeList"
 													@click="onToggleBadge(badge.id, true)"
@@ -133,7 +133,7 @@
 												</div>
 											</ParamItem>
 										</div>
-	
+
 										<div class="item" v-if="$store.users.customBadgeList.length > 0">
 											<div class="preview"></div>
 											<ParamItem
@@ -141,7 +141,7 @@
 												v-model="config.forbiddenBadges_flag"
 												:paramData="param_hideBadges"
 												@change="saveData()">
-											
+
 												<div class="badgeList">
 													<button v-for="badge in $store.users.customBadgeList"
 													@click="onToggleBadge(badge.id, false)"
@@ -159,7 +159,7 @@
 						</ParamItem>
 
 					</div>
-						
+
 				</div>
 
 				<div class="card-item alert error" v-if="error" @click="error=false">{{ $t('chat.filters.no_selection') }}</div>
@@ -205,7 +205,7 @@
 				<div class="channelList card-item" v-if="channels.length > 1">
 					<Icon name="user" />
 					<span>{{ $t("chat.filters.channels") }}</span>
-					
+
 					<tooltip interactive
 					theme="twitchat"
 					trigger="click"
@@ -240,7 +240,7 @@
 					<div class="preview" v-if="loadingPreview">
 						<Icon name="loader" class="loader" />
 					</div>
-		
+
 					<div class="preview" v-for="m in previewData" :key="'preview_'+m.id" @click="clickPreview($event)">
 						<MessageItem :messageData="m"
 							lightMode
@@ -285,12 +285,12 @@ import MessageItem from '../MessageItem.vue';
 	emits: ['submit', 'add', 'change'],
 })
 export class MessageListFilter extends Vue {
-	
+
 	@Prop({type:Boolean, default: false})
 	public open!:boolean;
 	@Prop
 	public config!:TwitchatDataTypes.ChatColumnsConfig;
-	
+
 	public previewIndex:number = 0;
 	public error:boolean = false;
 	public expand:boolean = false;
@@ -308,7 +308,7 @@ export class MessageListFilter extends Vue {
 	public param_showGreetHere:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.show_greet_here"};
 	public param_backgroundColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:""};
 	public messageKeyToScope:{[key in keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters]:TwitchScopesString[]}|null = null;
-	
+
 	private mouseY = 0;
 	private disposed = false;
 	private touchMode = false;
@@ -335,18 +335,18 @@ export class MessageListFilter extends Vue {
 
 	public get channels() {
 		let chans:{platform:TwitchatDataTypes.ChatPlatform, user:TwitchatDataTypes.TwitchatUser, color:string, isRemoteChan:boolean}[] = [];
-		
+
 		chans.push({platform:"twitch", user:this.$store.auth.twitch.user, isRemoteChan:false, color:"transparent"});
 		if(this.$store.auth.youtube.user) {
 			chans.push({platform:"youtube", user:this.$store.auth.youtube.user, isRemoteChan:false, color:"transparent"});
 		}
-		
+
 		if(this.$store.tiktok.connected) {
 			const user:TwitchatDataTypes.TwitchatUser = JSON.parse(JSON.stringify(this.$store.auth.twitch.user));
 			user.id = "tiktok";
 			chans.push({platform:"tiktok", user, isRemoteChan:false, color:"transparent"});
 		}
-		
+
 		this.$store.stream.connectedTwitchChans.forEach(entry=> {
 			chans.push({platform:"twitch", user:entry.user, isRemoteChan:true, color:entry.color});
 		})
@@ -368,17 +368,7 @@ export class MessageListFilter extends Vue {
 		this.showCTA = DataStore.get(DataStore.CHAT_COL_CTA) !== "true" && this.config.order == 0;
 
 		if(!this.config.whispersPermissions) {
-			this.config.whispersPermissions = {
-				broadcaster:true,
-				follower:true,
-				mods:true,
-				subs:true,
-				vips:true,
-				all:true,
-				follower_duration_ms:0,
-				usersAllowed:[],
-				usersRefused:[],
-			}
+			this.config.whispersPermissions = Utils.getDefaultPermissions()
 		}
 
 		this.filters = [];
@@ -398,7 +388,7 @@ export class MessageListFilter extends Vue {
 			if(this.config.filters[f.type] == undefined) {
 				this.config.filters[f.type] = true;
 			}
-			
+
 			this.filters.push(paramData);
 
 			//Add sub-filters to the message types so we can filter mods, new users, automod, etc...
@@ -418,7 +408,7 @@ export class MessageListFilter extends Vue {
 						storage:entry,
 						icon:entry.icon,
 					};
-					
+
 					if(entry.scopes.length > 0) paramData.twitch_scopes = entry.scopes;
 
 					if(type == 'commands') {
@@ -449,14 +439,14 @@ export class MessageListFilter extends Vue {
 		}
 
 		this.checkForMissingScopes();
-		
+
 		this.clickHandler		= (e:MouseEvent|TouchEvent) => this.onMouseDown(e);
 		this.mouseMoveHandler	= (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
 		document.addEventListener("touchstart", this.clickHandler);
 		document.addEventListener("mousedown", this.clickHandler);
 		document.addEventListener("mousemove", this.mouseMoveHandler);
 		document.addEventListener("touchmove", this.mouseMoveHandler);
-		
+
 		//Force focus out of input when rolling out
 		watch(()=>this.open, ()=>{
 			//This makes sure any data written on a text input is saved.
@@ -497,7 +487,7 @@ export class MessageListFilter extends Vue {
 				})
 			}
 		});
-		
+
 		requestAnimationFrame(()=>this.renderFrame());
 	}
 
@@ -513,7 +503,7 @@ export class MessageListFilter extends Vue {
 		this.mouseOverToggle = true;
 		this.previewMessage(data);
 	}
-	
+
 	public mouseLeaveItem():void {
 		if(this.touchMode) return;
 		this.mouseOverToggle = false;
@@ -739,11 +729,11 @@ export class MessageListFilter extends Vue {
 
 			this.$store.debug.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(filter.type, (data)=> {
 				this.loadingPreview = false;
-	
+
 				if(!data || !this.mouseOverToggle) return;
 
 				this.messagesCache[filter.type] = [data];
-	
+
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData = [data];
 			}, false, false);
@@ -793,7 +783,7 @@ export class MessageListFilter extends Vue {
 		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 			this.loadingPreview = false;
 			if(!data || !this.mouseOverToggle) return;
-			
+
 			const dataCast = data as TwitchatDataTypes.MessageChatData;
 
 			if(entry.type == "automod") {
@@ -818,7 +808,7 @@ export class MessageListFilter extends Vue {
 			this.subMessagesCache[entry.type] = this.previewData;
 
 		}, false, false);
-		
+
 		if(entry.type == "automod") {
 			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
@@ -998,7 +988,7 @@ export class MessageListFilter extends Vue {
 				}
 				break;
 			}
-			case "moderation&activities": 
+			case "moderation&activities":
 			case "moderation": {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.BAN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.UNBAN );
@@ -1157,7 +1147,7 @@ export class MessageListFilter extends Vue {
 	 */
 	private onMouseDown(e:MouseEvent|TouchEvent):void {
 		if(!this.open) return;
-		
+
 		let target = e.target as HTMLDivElement;
 		const ref = this.$el as HTMLDivElement;
 		this.touchMode = e.type == "touchstart";
@@ -1175,12 +1165,12 @@ export class MessageListFilter extends Vue {
 	private renderFrame():void {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
-		
+
 		if(!this.open) return;
-		
+
 		const holder = this.$refs.previewList as HTMLDivElement;
 		if(!holder) return;
-		
+
 		const parentBounds = (this.$el as HTMLDivElement).getBoundingClientRect()
 		const bounds = holder.getBoundingClientRect();
 		const margin = 50;
@@ -1543,7 +1533,7 @@ export default toNative(MessageListFilter);
 							border-radius: 50%;
 							border: 2px solid currentColor;
 						}
-					
+
 						.icon {
 							height: 1em;
 							max-width: 1em;
@@ -1704,7 +1694,7 @@ export default toNative(MessageListFilter);
 				font-size: .8em;
 				font-weight: bold;
 				cursor: pointer;
-				
+
 			}
 			.ctas {
 				margin-top: .5em;
@@ -1742,7 +1732,7 @@ export default toNative(MessageListFilter);
 					display: block;
 					height: 2em;
 				}
-	
+
 				&:not(:last-child) {
 					margin-bottom: .25em;
 				}

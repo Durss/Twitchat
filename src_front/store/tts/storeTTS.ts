@@ -90,17 +90,7 @@ export const storeTTS = defineStore('tts', {
 			readStreamlabsPatreonPattern:"",
 			readStreamelementsTip:false,
 			readStreamelementsTipPattern:"",
-			ttsPerms:{
-				broadcaster:true,
-				mods:true,
-				vips:true,
-				subs:true,
-				all:true,
-				follower:true,
-				follower_duration_ms:0,
-				usersAllowed:[],
-				usersRefused:[],
-			},
+			ttsPerms:Utils.getDefaultPermissions(),
 		},
 	} as ITTSState),
 

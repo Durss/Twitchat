@@ -94,6 +94,7 @@ import ToggleBlock from '../../ToggleBlock.vue';
 import ParamItem from '../ParamItem.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
 import type IParameterContent from './IParameterContent';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -122,17 +123,7 @@ class ParamsEmergency extends Vue implements IParameterContent {
 	public obsSources:OBSSourceItem[] = [];
 	public selectedOBSSources:OBSSourceItem[] = [];
 	public selectedOBSScene:TwitchatDataTypes.ParameterDataListValue<string>|null = null;
-	public chatCommandPerms:TwitchatDataTypes.PermissionsData = {
-		broadcaster:true,
-		mods:true,
-		vips:false,
-		subs:false,
-		all:false,
-		follower:true,
-		follower_duration_ms:0,
-		usersAllowed:[],
-		usersRefused:[],
-	};
+	public chatCommandPerms:TwitchatDataTypes.PermissionsData = Utils.getDefaultPermissions(true, true, false, false, false, false);
 
 	public get holderStyles():CSSProperties {
 		return {

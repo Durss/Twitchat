@@ -123,17 +123,7 @@ class OverlayParamsHeatDistort extends Vue {
 					name:"",
 				}
 			},
-			permissions:{
-				all:true,
-				broadcaster:true,
-				follower:true,
-				follower_duration_ms:0,
-				mods:true,
-				vips:true,
-				subs:true,
-				usersAllowed:[],
-				usersRefused:[],
-			},
+			permissions:Utils.getDefaultPermissions(),
 		});
 
 		this.$nextTick().then(()=> {

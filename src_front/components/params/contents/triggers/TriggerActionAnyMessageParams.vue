@@ -11,6 +11,7 @@
 import PermissionsForm from '@/components/PermissionsForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { TriggerData } from '@/types/TriggerActionDataTypes';
+import Utils from '@/utils/Utils';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -27,17 +28,7 @@ class TriggerActionAnyMessageParams extends Vue {
 
 	public beforeMount():void {
 		if(!this.triggerData.permissions) {
-			this.triggerData.permissions = {
-				broadcaster:true,
-				follower:true,
-				follower_duration_ms:0,
-				mods:true,
-				vips:true,
-				subs:true,
-				all:true,
-				usersAllowed:[],
-				usersRefused:[],
-			}
+			this.triggerData.permissions = Utils.getDefaultPermissions()
 		}
 	}
 

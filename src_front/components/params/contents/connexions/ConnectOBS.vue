@@ -70,6 +70,7 @@ import OBSConnectForm from '../obs/OBSConnectForm.vue';
 import OBSScenes from '../obs/OBSScenes.vue';
 import OBSBrowserSources from '../obs/OBSBrowserSources.vue';
 import type IParameterContent from '../IParameterContent';
+import Utils from '@/utils/Utils';
 
 
 @Component({
@@ -93,17 +94,7 @@ class ConnectOBS extends Vue implements IParameterContent {
 	public showPermissions = false;
 	public openConnectForm = false;
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"global.enabled", value:false};
-	public permissions:TwitchatDataTypes.PermissionsData = {
-		broadcaster:true,
-		mods: false,
-		vips: false,
-		subs: false,
-		all: false,
-		follower:true,
-		follower_duration_ms:0,
-		usersAllowed:[],
-		usersRefused:[],
-	}
+	public permissions:TwitchatDataTypes.PermissionsData = Utils.getDefaultPermissions(true, true, false, false, false, false)
 
 	public get holderStyles():CSSProperties {
 		return {
@@ -123,14 +114,14 @@ class ConnectOBS extends Vue implements IParameterContent {
 		}else{
 			this.openConnectForm = true;
 		}
-		
+
 		const storedPermissions = this.$store.obs.commandsPermissions;
 		this.permissions = JSON.parse(JSON.stringify(storedPermissions));//Clone object to break ref
 		this.param_enabled.value = this.$store.obs.connectionEnabled ?? false;
 
 		watch(()=> this.param_enabled.value, () => { this.paramUpdate(); })
 		watch(()=> this.permissions, () => { this.onPermissionChange(); }, { deep:true })
-		watch(()=> OBSWebsocket.instance.connected, () => { 
+		watch(()=> OBSWebsocket.instance.connected, () => {
 			this.connected = OBSWebsocket.instance.connected;
 			if(!this.connected) this.openConnectForm = true;
 		});
@@ -169,7 +160,7 @@ export default toNative(ConnectOBS);
 		display: flex;
 		flex-direction: column;
 	}
-	
+
 	.install {
 		margin-top: 1em;
 		font-size: .8em;
@@ -193,7 +184,7 @@ export default toNative(ConnectOBS);
 	.conf {
 		display: flex;
 		flex-direction: column;
-		
+
 		.info {
 			margin-bottom: 1em;
 		}

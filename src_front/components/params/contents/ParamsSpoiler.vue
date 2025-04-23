@@ -44,6 +44,7 @@ import Splitter from '../../Splitter.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
 import type IParameterContent from './IParameterContent';
 import ParamItem from '../ParamItem.vue';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components: {
@@ -58,18 +59,7 @@ class ParamsSpoiler extends Vue implements IParameterContent {
 	public spoilerExample!: TwitchatDataTypes.MessageChatData;
 	public param_autospoil:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"spoiler.autospoil_new_users", icon:"firstTime"};
 
-	public chatCommandPerms: TwitchatDataTypes.PermissionsData = {
-		broadcaster: true,
-		mods: true,
-		vips: false,
-		subs: false,
-		all: false,
-		follower: true,
-		follower_duration_ms: 0,
-		usersAllowed: [],
-		usersRefused: [],
-	};
-
+	public chatCommandPerms: TwitchatDataTypes.PermissionsData = Utils.getDefaultPermissions(true, true, false, false, false, false)
 	public beforeMount(): void {
 
 		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data) => {

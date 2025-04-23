@@ -7,13 +7,13 @@
 			:autofocus="true"
 			:error="cmdNameConflict || slashCmdAlert"
 			:errorMessage="$t(slashCmdAlert? 'triggers.actions.chat.use_slash_cmd' : 'triggers.actions.chat.conflict')" />
-		
+
 		<div class="moreOptions">
 			<ToggleBlock class="block permissions" :open="false"
 			:title="$t('triggers.actions.chat.allowed_users')" :icons="['user']" medium primary>
 				<PermissionsForm v-model="triggerData.permissions" />
 			</ToggleBlock>
-			
+
 			<ToggleBlock class="block" secondary :icons="['params']" :open="false"
 			:title="$t('triggers.actions.chat.advanced_params')" primary medium>
 				<div class="advancedParams">
@@ -23,7 +23,7 @@
 						:paramData="param_cmdAliases"
 						:error="cmdAliasConflict"
 						:errorMessage="$t('triggers.actions.chat.conflict')" />
-			
+
 					<ParamItem secondary noBackground class="cooldown" :paramData="param_globalCD" v-model="triggerData.cooldown!.global">
 						<template #composite>
 							<TTButton class="resetBt"
@@ -43,7 +43,7 @@
 						</template>
 					</ParamItem>
 					<ParamItem secondary noBackground class="cooldown" :paramData="param_alertCD" v-model="triggerData.cooldown!.alert" />
-					
+
 					<TriggerActionCommandArgumentParams :triggerData="triggerData" />
 				</div>
 			</ToggleBlock>
@@ -61,6 +61,7 @@ import PermissionsForm from '../../../PermissionsForm.vue';
 import ParamItem from '../../ParamItem.vue';
 import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentParams.vue';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -87,17 +88,7 @@ class TriggerActionChatCommandParams extends Vue {
 
 	public beforeMount():void {
 		if(!this.triggerData.permissions) {
-			this.triggerData.permissions = {
-				broadcaster:true,
-				mods:true,
-				vips:true,
-				subs:true,
-				all:true,
-				follower:true,
-				follower_duration_ms:0,
-				usersAllowed:[],
-				usersRefused:[],
-			}
+			this.triggerData.permissions = Utils.getDefaultPermissions()
 		}
 		if(!this.triggerData.cooldown) {
 			this.triggerData.cooldown = {
@@ -131,13 +122,13 @@ class TriggerActionChatCommandParams extends Vue {
 			aliases = this.triggerData.chatCommandAliases.concat().filter(v=>v.length > 0);
 		}
 		const mainCmd = this.triggerData.chatCommand?.toLowerCase() || "";
-		
+
 		//Check if aliases contain the main command
 		if(mainCmd && aliases.indexOf(mainCmd) > -1) {
 			this.cmdAliasConflict = true;
 			return;
 		}
-		
+
 		//Check if any other trigger contain the same command
 		let cmdListLocal = aliases.concat();
 		if(mainCmd) cmdListLocal.push(mainCmd);
@@ -153,7 +144,7 @@ class TriggerActionChatCommandParams extends Vue {
 				if(cmdList.findIndex(v=> v === mainCmd) > -1) {
 					this.cmdNameConflict = true;
 				}
-				
+
 				//Check if trigger contains an alias of the current trigger
 				for (let j = 0; j < aliases.length; j++) {
 					const alias = aliases[j];

@@ -84,17 +84,7 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 	public voiceParams:TwitchatDataTypes.ParameterData<string, unknown, unknown, VoicemodTypes.Voice>[] = [];
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enable"};
 	public param_voiceIndicator:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, example:"voicemod_reset.png", labelKey:"voicemod.show_indicator"};
-	public permissions:TwitchatDataTypes.PermissionsData = {
-		broadcaster:true,
-		mods: false,
-		vips: false,
-		subs: false,
-		all: false,
-		follower:true,
-		follower_duration_ms:0,
-		usersAllowed:[],
-		usersRefused:[],
-	}
+	public permissions:TwitchatDataTypes.PermissionsData = Utils.getDefaultPermissions(true, true, false, false, false, false)
 
 	private loadCount:number = 0;
 	private loadTotal:number = 0;

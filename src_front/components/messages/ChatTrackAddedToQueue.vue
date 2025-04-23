@@ -116,17 +116,7 @@ class ChatTrackAddedToQueue extends AbstractChatMessage {
 		if(!trigger) return;
 
 		if(!trigger.permissions) {
-			trigger.permissions = {
-				all:true,
-				vips:true,
-				subs:true,
-				mods:true,
-				follower:true,
-				broadcaster:true,
-				follower_duration_ms:0,
-				usersAllowed:[],
-				usersRefused:[],
-			}
+			trigger.permissions = Utils.getDefaultPermissions()
 		}
 
 		trigger.permissions.usersRefused.push(this.messageData.user.login);

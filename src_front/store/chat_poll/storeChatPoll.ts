@@ -15,6 +15,12 @@ let timeoutEnd = "";
 export const storeChatPoll = defineStore('chatPoll', {
 	state: () => ({
 		data: null,
+		presets: {
+			duration_s: 2 * 60,
+			voteCount: 1,
+			permissions: Utils.getDefaultPermissions(),
+			history:[],
+		},
 		overlayParams: {
 			showTitle:true,
 			listMode:true,
@@ -47,7 +53,12 @@ export const storeChatPoll = defineStore('chatPoll', {
 				if(pollParams) {
 					params = JSON.parse(pollParams);
 				}
-			}
+				//Init poll presets
+				const pollPresets = DataStore.get(DataStore.CHAT_POLL_PRESETS);
+				if(pollPresets) {
+					this.presets = JSON.parse(pollPresets) as TwitchatDataTypes.ChatPollPresets;
+				}
+			}else
 			if(params) {
 				this.overlayParams.showTitle =			params.showTitle !== false;
 				this.overlayParams.listMode =			params.listMode !== false;
@@ -100,7 +111,7 @@ export const storeChatPoll = defineStore('chatPoll', {
 			PublicAPI.instance.broadcast(TwitchatEvent.CHAT_POLL_PROGRESS, {poll: this.data});
 		},
 
-		setCurrentPoll(data:typeof this.data) {
+		setCurrentPoll(data:typeof this.data, replacePresets:boolean = false) {
 			SetTimeoutWorker.instance.delete(timeoutEnd);
 			if(data != null) {
 				timeoutEnd = SetTimeoutWorker.instance.create(()=>this.setCurrentPoll(null), data.duration_s * 1000);
@@ -124,6 +135,18 @@ export const storeChatPoll = defineStore('chatPoll', {
 				this.data = data;
 
 				PublicAPI.instance.broadcast(TwitchatEvent.CHAT_POLL_PROGRESS, {poll: (data as unknown) as JsonObject});
+
+				if(replacePresets) {
+					this.presets.duration_s = data.duration_s;
+					this.presets.voteCount = data.maxVotePerUser;
+					this.presets.permissions = data.permissions;
+					this.presets.history.push(data);
+					// Keep only the last 10 polls
+					if(this.presets.history.length > 10) {
+						this.presets.history.shift();
+					}
+					DataStore.set(DataStore.CHAT_POLL_PRESETS, this.presets);
+				}
 
 			}else if(this.data){
 				const message:TwitchatDataTypes.MessageChatPollData = {

@@ -63,6 +63,7 @@ import ParamItem from '../../ParamItem.vue';
 import HeatScreenPreview from '../heat/areas/HeatScreenPreview.vue';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -93,17 +94,7 @@ class TriggerActionHeatParams extends Vue {
 	public beforeMount():void {
 		if(!this.triggerData.heatAreaIds) this.triggerData.heatAreaIds = [];
 		if(!this.triggerData.permissions) {
-			this.triggerData.permissions = {
-				broadcaster:true,
-				mods:true,
-				vips:true,
-				subs:true,
-				all:true,
-				follower:true,
-				follower_duration_ms:0,
-				usersAllowed:[],
-				usersRefused:[],
-			}
+			this.triggerData.permissions = Utils.getDefaultPermissions()
 		}
 		if(!this.triggerData.cooldown) {
 			this.triggerData.cooldown = {

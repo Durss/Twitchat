@@ -957,4 +957,22 @@ export default class Utils {
 		}
 		return null;
 	}
+
+	/**
+	 * Gets default permissions
+	 * @returns
+	 */
+	public static getDefaultPermissions(broadcaster = true, mods = true, vips = true, subs = true, all = true, follower = true):TwitchatDataTypes.PermissionsData {
+		return {
+			broadcaster,
+			mods,
+			vips,
+			subs,
+			all,
+			follower,
+			follower_duration_ms:0,
+			usersAllowed:[],
+			usersRefused:[],
+		}
+	}
 }

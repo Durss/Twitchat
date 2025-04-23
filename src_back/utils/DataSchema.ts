@@ -266,6 +266,45 @@ const UserDataSchema = {
 				placement: {enum: ["tl", "t", "tr", "l", "m", "r", "bl", "b", "br"]},
 				permissions: { $ref: "defs.json#/definitions/permissions" },
 			}
+		},
+		chatPollData: {
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				title: {type:"string", maxLength:100},
+				duration_s: {type:"integer", minimum:0, maximum:999999999},
+				started_at: {type:"integer", minimum:0, maximum:Number.MAX_SAFE_INTEGER},
+				maxVotePerUser: {type:"integer", minimum:1, maximum:20},
+				permissions:{ $ref: "defs.json#/definitions/permissions" },
+				choices: {
+					type:"array",
+					minItems:0,
+					maxItems:20,
+					items:{
+						type: "object",
+						additionalProperties: false,
+						properties: {
+							id:{type:"string", maxLength:50},
+							votes:{type:"number", minimum:0, maximum:Number.MAX_SAFE_INTEGER},
+							label:{type:"string", maxLength:50},
+						}
+					}
+				},
+				votes: {
+					type:"object",
+					additionalProperties: true,
+					patternProperties: {
+						".{0,100}": {
+							type: "object",
+							additionalProperties: false,
+							properties: {
+								platform: {type:"string", maxLength:15},
+								index:{type:"number", minimum:0, maximum:1000},
+							}
+						},
+					}
+				},
+			}
 		}
 	},
 
@@ -705,45 +744,7 @@ const UserDataSchema = {
 										},
 									}
 								},
-								chatPollData: {
-									type: "object",
-									additionalProperties: false,
-									properties: {
-										title: {type:"string", maxLength:100},
-										duration_s: {type:"integer", minimum:0, maximum:999999999},
-										started_at: {type:"integer", minimum:0, maximum:Number.MAX_SAFE_INTEGER},
-										maxVotePerUser: {type:"integer", minimum:1, maximum:2},
-										permissions:{ $ref: "defs.json#/definitions/permissions" },
-										choices: {
-											type:"array",
-											minItems:0,
-											maxItems:20,
-											items:{
-												type: "object",
-												additionalProperties: false,
-												properties: {
-													id:{type:"string", maxLength:50},
-													votes:{type:"number", minimum:0, maximum:Number.MAX_SAFE_INTEGER},
-													label:{type:"string", maxLength:50},
-												}
-											}
-										},
-										votes: {
-											type:"object",
-											additionalProperties: true,
-											patternProperties: {
-												".{0,100}": {
-													type: "object",
-													additionalProperties: false,
-													properties: {
-														platform: {type:"string", maxLength:15},
-														index:{type:"number", minimum:0, maximum:1000},
-													}
-												},
-											}
-										},
-									}
-								},
+								chatPollData: { $ref: "defs.json#/definitions/chatPollData" },
 								predictionData: {
 									type: "object",
 									additionalProperties: false,
@@ -2055,6 +2056,21 @@ const UserDataSchema = {
 		predictionOverlayParams: { $ref: "defs.json#/definitions/pollOverlayData" },
 		pollOverlayParams: { $ref: "defs.json#/definitions/pollOverlayData" },
 		chatPollOverlayParams: { $ref: "defs.json#/definitions/pollOverlayData" },
+		chatPollPresets:{
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				duration_s: {type:"integer", minimum:5, maximum:3600},
+				voteCount: {type:"integer", minimum:1, maximum:20},
+				permissions: { $ref: "defs.json#/definitions/permissions" },
+				history: {
+					type:"array",
+					minItems:0,
+					maxItems:5,
+					items:{ $ref: "defs.json#/definitions/chatPollData" },
+				}
+			}
+		},
 		pinnedChatMenuItem:{
 			type:"array",
 			minItems:0,
