@@ -8,7 +8,7 @@
 					<TTButton style="position:absolute; z-index: 9;" ref="noCareFloating" big alert @click="close(true)">{{ $t("changelog.forceRead.fuBt") }}</TTButton>
 				</Teleport>
 			</template>
-			<ClearButton @click="close()" v-if="!showReadAlert && !showFu" />
+			<ClearButton @click="close()" v-if="!showReadAlert && !showFu" style="z-index:100" />
 			<ClearButton icon="back" class="backBt" @click="currentSlide = 0" v-if="currentSlide != 0 && !showReadAlert && !showFu" />
 
 			<div class="content" ref="scrollable">
