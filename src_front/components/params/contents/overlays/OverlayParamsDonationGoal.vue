@@ -566,14 +566,14 @@ export default toNative(OverlayParamsDonationGoal);
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
-		*{
+		&>*{
 			border-radius: 0;
 		}
-		*:first-child {
+		&>:first-child {
 			border-top-left-radius: var(--border-radius);
 			border-bottom-left-radius: var(--border-radius);
 		}
-		*:last-child {
+		&>:last-child {
 			border-top-right-radius: var(--border-radius);
 			border-bottom-right-radius: var(--border-radius);
 		}
@@ -651,12 +651,16 @@ export default toNative(OverlayParamsDonationGoal);
 			flex-wrap: wrap;
 			position: relative;
 			overflow: visible;
-			*:not(:last-child) {
+			&>*{
 				border-radius: 0;
 			}
-			*:first-child {
+			&>:first-child {
 				border-top-left-radius: var(--border-radius);
 				border-bottom-left-radius: var(--border-radius);
+			}
+			.button {
+				border-top-right-radius: var(--border-radius);
+				border-bottom-right-radius: var(--border-radius);
 			}
 			.amount {
 				min-width: 3em;
@@ -670,10 +674,6 @@ export default toNative(OverlayParamsDonationGoal);
 				resize: vertical;
 				min-height: 1.75em;
 				field-sizing: content;
-			}
-			.button {
-				border-top-right-radius: var(--border-radius);
-				border-bottom-right-radius: var(--border-radius);
 			}
 			.secret {
 				flex-basis: 100%;
