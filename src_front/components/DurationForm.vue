@@ -168,7 +168,7 @@ class DurationForm extends Vue {
 	public clamp(field:"d"|"h"|"m"|"s"):void {
 		const f = this.allowMs !== false? parseFloat : parseInt;
 		switch(field){
-			case "d": this.days = Utils.toDigits(this.loop(parseInt(this.days), 999), 2).toString(); break;
+			case "d": this.days = Utils.toDigits(this.loop(parseInt(this.days), 999), 1).toString(); break;
 			case "h": this.hours = Utils.toDigits(this.loop(parseInt(this.hours), 24), 2).toString(); break;
 			case "m": this.minutes = Utils.toDigits(this.loop(parseInt(this.minutes), 59), 2).toString(); break;
 			case "s": this.seconds = Utils.toDigits(this.loop(f(this.seconds), 59), 2).toString(); break;

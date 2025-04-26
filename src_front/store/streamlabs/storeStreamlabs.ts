@@ -415,10 +415,9 @@ export const storeStreamlabs = defineStore('streamlabs', {
 				const leaderboardJSON = await leaderBoardRes.json() as StreamlabsCharityLeaderboardData;
 				const myName = StoreProxy.auth.twitch.user.displayNameOriginal.toLowerCase();
 				leaderboardAmountCents = parseFloat(leaderboardJSON.top_streamers.find(v=>v.display_name.toLowerCase() == myName)?.amount || "0");
+				this.charityTeam.amountRaisedPersonnal_cents = leaderboardAmountCents;
 			}
 
-			//Keep only the highest value between current and leadeboard amounts
-			this.charityTeam.amountRaisedPersonnal_cents = Math.max(this.charityTeam.amountRaisedPersonnal_cents, leaderboardAmountCents);
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED_PERSONNAL", this.charityTeam.amountRaisedPersonnal_cents/100);
 
 			const newValues = [];
