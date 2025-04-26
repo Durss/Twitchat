@@ -102,7 +102,7 @@
 						@blur="clampValue(); $emit('blur')"
 						@input="$emit('input')">
 
-					<div class="maxlength" v-if="paramData.maxLength">{{(paramData.value as string).length}}/{{paramData.maxLength}}</div>
+					<div class="maxlength" v-if="showMaxLength">{{(paramData.value as string).length}}/{{paramData.maxLength}}</div>
 				</div>
 				<slot name="composite" />
 			</div>
@@ -529,6 +529,11 @@ export class ParamItem extends Vue {
 		if(this.paramData.tooltip) return this.paramData.tooltip;
 		if(this.paramData.tooltipKey) return this.$t(this.paramData.tooltipKey)
 		return ""
+	}
+
+	public get showMaxLength():boolean {
+		return !!this.paramData.maxLength
+		&& ((this.paramData.value as string).length/this.paramData.maxLength > .8 || this.paramData.maxLength < 50);
 	}
 
 	public get textValue():string {

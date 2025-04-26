@@ -397,7 +397,7 @@ class RaffleForm extends AbstractSidePanel {
 	public param_tip_tipeee_ponderate:TwitchatDataTypes.ParameterData<number>			= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_ponderate"};
 	public param_tip_tiltify_ponderate:TwitchatDataTypes.ParameterData<number>			= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_ponderate"};
 	public param_tip_twitchCharity_ponderate:TwitchatDataTypes.ParameterData<number>	= {value:1, type:"number", min:0, max:999999, labelKey:"raffle.params.tip_ponderate"};
-	public param_enterDuration:TwitchatDataTypes.ParameterData<number>					= {value:600, type:"duration", min:1, max:24*60*60, labelKey:"raffle.params.duration", icon:"timer"};
+	public param_enterDuration:TwitchatDataTypes.ParameterData<number>					= {value:600, type:"duration", min:1, max:365*24*60*60, labelKey:"raffle.params.duration", icon:"timer"};
 	public param_maxUsersToggle:TwitchatDataTypes.ParameterData<boolean, any, any>		= {value:false, type:"boolean", labelKey:"raffle.params.limit_users", icon:"user"};
 	public param_maxEntries:TwitchatDataTypes.ParameterData<number>						= {value:10, type:"number", min:0, max:1000000, labelKey:"raffle.params.max_users", icon:"user"};
 	public param_multipleJoin:TwitchatDataTypes.ParameterData<boolean>					= {value:false, type:"boolean", labelKey:"raffle.params.multiple_join", icon:"user"};

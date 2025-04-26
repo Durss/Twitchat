@@ -1,15 +1,27 @@
 <template>
 	<div class="durationform input-field">
+		<contenteditable class="input" v-if="showDays" tag="span" ref="inputD"
+			v-model="days"
+			:contenteditable="true"
+			:no-nl="true"
+			:no-html="true"
+			maxLength="3"
+			@keydown="onKeyDown($event, 'd')"
+			@focus="onFocus($event)"
+			@blur="clamp('d'); onChange()" />
+
+		<p class="split days" v-if="showDays">{{ $t("global.date_days") }}</p>
+
 		<contenteditable class="input" v-if="showHours" tag="span" ref="inputH"
 			v-model="hours"
 			:contenteditable="true"
 			:no-nl="true"
 			:no-html="true"
-			maxLength="9"
+			maxLength="2"
 			@keydown="onKeyDown($event, 'h')"
 			@focus="onFocus($event)"
 			@blur="clamp('h'); onChange()" />
-		
+
 		<p class="split" v-if="showHours">h</p>
 
 		<contenteditable class="input" v-if="showMinutes" tag="span" ref="inputM"
@@ -72,9 +84,14 @@ class DurationForm extends Vue {
 	@Prop({default:false, type:Boolean})
 	public allowMs!:boolean;
 
+	public days:string = "0";
 	public hours:string = "0";
 	public minutes:string = "0";
 	public seconds:string = "0";
+
+	public get showDays():boolean {
+		return this.max > 24*60*60;
+	}
 
 	public get showHours():boolean {
 		return this.max > 60*60;
@@ -86,7 +103,7 @@ class DurationForm extends Vue {
 
 	public beforeMount():void {
 		this.initValue(this.modelValue)
-		
+
 		watch(()=>this.modelValue, ()=>{
 			this.initValue(this.modelValue)
 		})
@@ -94,7 +111,7 @@ class DurationForm extends Vue {
 
 	public onChange():void {
 		const f = this.allowMs !== false? parseFloat : parseInt;
-		let v = (f(this.seconds) || 0) + (parseInt(this.minutes) || 0) * 60 + (parseInt(this.hours) || 0) * 3600;
+		let v = (f(this.seconds) || 0) + (parseInt(this.minutes) || 0) * 60 + (parseInt(this.hours) || 0) * 3600 + (parseInt(this.days) || 0) * 24*3600;
 		const prevV = v;
 		if(v > this.max) v = this.max;
 		if(v < this.min) v = this.min;
@@ -103,12 +120,13 @@ class DurationForm extends Vue {
 		this.$emit("change", v);
 	}
 
-	public onKeyDown(event:KeyboardEvent, field:"h"|"m"|"s"):void {
+	public onKeyDown(event:KeyboardEvent, field:"d"|"h"|"m"|"s"):void {
 		let add = event.key == "ArrowUp"? 1 : event.key == "ArrowDown"? -1 : 0
 		if(event.shiftKey) add *= 10;
 		const f = this.allowMs !== false? parseFloat : parseInt;
 		if(add != 0) {
 			switch(field){
+				case "d": this.days = (parseInt(this.days) + add).toString(); break;
 				case "h": this.hours = (parseInt(this.hours) + add).toString(); break;
 				case "m": this.minutes = (parseInt(this.minutes) + add).toString(); break;
 				case "s": this.seconds = (f(this.seconds) + add).toString(); break;
@@ -124,13 +142,13 @@ class DurationForm extends Vue {
 				//Save caret index
 				var range = sel.getRangeAt(0);
 				let caretIndex = range.startOffset;
-				let inputs = [this.$refs.inputH as Vue, this.$refs.inputM as Vue, this.$refs.inputS as Vue]
+				let inputs = [this.$refs.inputD as Vue, this.$refs.inputH as Vue, this.$refs.inputM as Vue, this.$refs.inputS as Vue]
 				if(dir == 1 && caretIndex == input.innerText.length
 				|| dir == -1 && caretIndex == 0) {
 					let index = inputs.findIndex(v=>v.$el == input);
 					index += dir;
-					if(index > 2) index = 0;
-					if(index < 0) index = 2;
+					if(index > inputs.length-1) index = 0;
+					if(index < 0) index = inputs.length-1;
 					(inputs[index].$el as HTMLSpanElement).focus();
 				}
 			}
@@ -147,23 +165,27 @@ class DurationForm extends Vue {
 		}
 	}
 
-	public clamp(field:"h"|"m"|"s"):void {
+	public clamp(field:"d"|"h"|"m"|"s"):void {
 		const f = this.allowMs !== false? parseFloat : parseInt;
 		switch(field){
-			case "h": this.hours = Utils.toDigits(this.loop(parseInt(this.hours), 999), 2).toString(); break;
+			case "d": this.days = Utils.toDigits(this.loop(parseInt(this.days), 999), 2).toString(); break;
+			case "h": this.hours = Utils.toDigits(this.loop(parseInt(this.hours), 24), 2).toString(); break;
 			case "m": this.minutes = Utils.toDigits(this.loop(parseInt(this.minutes), 59), 2).toString(); break;
 			case "s": this.seconds = Utils.toDigits(this.loop(f(this.seconds), 59), 2).toString(); break;
 		}
 	}
 
 	private initValue(value:number):number {
-		const h = Math.floor(value/3600);
-		const m = Math.floor((value-h*3600)/60);
-		const s = value-m*60-h*3600;
+		const d = Math.floor(value / (24*3600));
+		const h = Math.floor((value - d*24*3600) / 3600);
+		const m = Math.floor((value - d*24*3600 - h*3600) / 60);
+		const s = value - m*60 - h*3600 - d*24*3600;
+		this.days = d.toString();
 		this.hours = h.toString();
 		this.minutes = m.toString();
 		this.seconds = s.toString();
-		value = h * 3600 + m *60 + s;
+		value = d * 24 * 3600 + h * 3600 + m *60 + s;
+		this.clamp("d");
 		this.clamp("h");
 		this.clamp("m");
 		this.clamp("s");
@@ -200,6 +222,10 @@ export default toNative(DurationForm);
 		flex-shrink: 1;
 		&:not(:last-child) {
 			margin-right: 2px;
+		}
+
+		&.days {
+			margin-right: .5em;
 		}
 	}
 }
