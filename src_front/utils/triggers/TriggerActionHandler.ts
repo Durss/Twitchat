@@ -1510,30 +1510,32 @@ export default class TriggerActionHandler {
 														//Move source
 														if(step.pos_x) {
 															let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pos_x, subEvent);
-															text = text.replace(/,/gi, ".");
+															text = text.replace(/\d,\d/gi, ".");
 															result.positionX = MathEval(text);
 														}
 														if(step.pos_y) {
 															let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pos_y, subEvent);
-															text = text.replace(/,/gi, ".");
+															text = text.replace(/\d,\d/gi, ".");
 															result.positionY = MathEval(text);
 														}
 													}else if(action == "resize") {
 														//Resize source
 														if(step.width) {
 															let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.width, subEvent);
-															text = text.replace(/,/gi, ".");
+															text = text.replace(/\d,\d/gi, ".");
 															result.width = MathEval(text);
+															console.log("RESIZE X:", text, result.width);
 														}
 														if(step.height) {
 															let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.height, subEvent);
-															text = text.replace(/,/gi, ".");
+															text = text.replace(/\d,\d/gi, ".");
 															result.height = MathEval(text);
+															console.log("RESIZE Y:", text, result.height);
 														}
 													}else if(action == "rotate" && step.angle) {
 														//Rotate source
 															let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.angle, subEvent);
-															text = text.replace(/,/gi, ".");
+															text = text.replace(/\d,\d/gi, ".");
 															result.rotation = MathEval(text);
 													}
 
@@ -2334,7 +2336,7 @@ export default class TriggerActionHandler {
 				//Handle counter update trigger action
 				if(step.type == "count") {
 					let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.addValue as string, subEvent);
-					text = text.replace(/,/gi, ".");
+					text = text.replace(/\d,\d/gi, ".");
 					logStep.messages.push({date:Date.now(), value:"Executing arithmetic operation: \""+step.addValue+"\" => \""+text+"\""});
 					let value:any = "";
 					try {
