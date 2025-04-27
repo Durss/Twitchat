@@ -832,6 +832,7 @@ export default class EventSub {
 		}
 
 		if(this.lastRecentFollowers.length > 20
+		&& Date.now() > StoreProxy.chat.securityRaidGraceEndDate
 		&& StoreProxy.emergency.params.enabled === true
 		&& StoreProxy.emergency.emergencyStarted !== true
 		&& StoreProxy.emergency.params.autoEnableOnFollowbot === true) {

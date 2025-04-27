@@ -591,6 +591,11 @@ export interface IChatState {
 	 * True when using /spam command to send fake messages on chat
 	 */
 	spamingFakeMessages:boolean;
+	/**
+	 * Date until which securities like anti hate raid or followbot raid
+	 * should be disabled.
+	 */
+	securityRaidGraceEndDate:number;
 }
 
 export interface IChatGetters {

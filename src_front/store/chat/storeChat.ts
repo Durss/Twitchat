@@ -30,7 +30,6 @@ let greetedUsersExpire_at:{[key:string]:number} = {};
 let greetedUsersInitialized:boolean = false;
 let subgiftHistory:TwitchatDataTypes.MessageSubscriptionData[] = [];
 let antiHateRaidCounter:{[message:string]:{messages:TwitchatDataTypes.MessageChatData[], date:number, ignore:boolean}} = {};
-let antiHateRaidGraceEndDate = -1;
 let currentHateRaidAlert!:TwitchatDataTypes.MessageHateRaidData;
 let parsedMessageIds:Record<string, boolean> = {};
 
@@ -45,6 +44,7 @@ export const storeChat = defineStore('chat', {
 		replyTo: null,
 		messageMode: "message",
 		spamingFakeMessages: false,
+		securityRaidGraceEndDate: 0,
 
 		botMessages: {
 			raffleStart: {
@@ -1167,7 +1167,7 @@ export const storeChat = defineStore('chat', {
 								}
 
 								//Detect hate raid.
-								if(sParams.features.antiHateRaid.value === true && Date.now() > antiHateRaidGraceEndDate) {
+								if(sParams.features.antiHateRaid.value === true && Date.now() > this.securityRaidGraceEndDate) {
 									const key = message.message_chunks.filter(v=>v.type == "text").join("").toLowerCase();
 									if(message.twitch_isFirstMessage === true || message.user.channelInfo[message.channel_id].is_new) {
 										//It's a first time chatter, log their message
@@ -1432,7 +1432,7 @@ export const storeChat = defineStore('chat', {
 
 					//Incomming raid
 					case TwitchatDataTypes.TwitchatMessageType.RAID: {
-						antiHateRaidGraceEndDate = Date.now() + 3 * 60 * 1000;
+						this.securityRaidGraceEndDate = Date.now() + 5 * 60 * 1000;
 						if(!isFromRemoteChan) {
 							sStream.lastRaider = message.user;
 							StoreProxy.labels.updateLabelValue("RAID_ID", message.user.id);
