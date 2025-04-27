@@ -245,10 +245,10 @@ export const storeLabels = defineStore('labels', {
 			const data = this.labelList.find(v=>v.id == labelId) || null;
 			const tag = data?.placeholder;
 			const validTag = data?.mode == "placeholder" && tag && this.allPlaceholders[tag];
-			if(data && data.enabled === true && (validTag || data.mode == "html")) {
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, data:data as unknown as JsonObject});
+			if(data && data.enabled === true) {
+				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, data:data as unknown as JsonObject, exists:true, isValid:(validTag || data.mode == "html")});
 			}else{
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, data:null, disabled:data?.enabled === false});
+				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, data:null, exists:false});
 			}
 		},
 

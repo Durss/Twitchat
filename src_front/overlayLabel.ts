@@ -119,7 +119,7 @@ async function broadcast<T>(type:TwitchatEventType|TwitchatActionType, parameter
 
 /**
  * Generate a UUID
- * @returns 
+ * @returns
  */
 function getUUID():string {
 	if(crypto.randomUUID) {
@@ -151,7 +151,7 @@ function requestInitialInfo():void {
 
 /**
  * Replaces placeholders by their values
- * @param src 
+ * @param src
  */
 function parsePlaceholders(src:string):string {
 	for (const tag in placeholders) {
@@ -180,7 +180,7 @@ function parsePlaceholders(src:string):string {
 
 /**
  * Called when receiving an event from either Obs-WS or BroadcastChannel
- * @param message 
+ * @param message
  */
 function onMessage(message:IEnvelope<unknown>):void {
 	if(message.id){
@@ -217,15 +217,18 @@ function onMessage(message:IEnvelope<unknown>):void {
 	}else
 
 	if(message.type == TwitchatEvent.LABEL_OVERLAY_PARAMS) {
-		const json = message.data as {id:string, data:typeof parameters, disabled?:true};
+		const json = message.data as {id:string, data:typeof parameters, disabled?:true, exists:boolean, isValid:boolean};
 		if(json.id == urlParams.get("twitchat_overlay_id")) {
 			parameters = json.data;
 			labelDisabled = json.disabled === true;
 
 			document.getElementById("error")!.style.display = "none";
 
-			if(!parameters && labelDisabled !== true) {
+			if(!parameters && labelDisabled !== true && !json.exists) {
 				document.getElementById("error")!.style.display = "flex";
+
+			}else if(!json.isValid){
+				parameters = null;
 
 			}else if(labelDisabled === true){
 				const holder = document.getElementById("app")!;
@@ -239,7 +242,7 @@ function onMessage(message:IEnvelope<unknown>):void {
 				holder.style.fontFamily = parameters.fontFamily || "Inter";
 				holder.style.fontSize = parameters.fontSize+"px";
 				holder.style.color = parameters.fontColor;
-			
+
 				if(parameters.backgroundEnabled) {
 					holder.style.padding = ".5em";
 					holder.style.backgroundColor = parameters.backgroundColor;
@@ -252,7 +255,7 @@ function onMessage(message:IEnvelope<unknown>):void {
 						holder.style.textOverflow	= "ellipsis";
 					}
 				}
-				
+
 				renderValue();
 				setScrollSpeed();
 			}
@@ -262,12 +265,12 @@ function onMessage(message:IEnvelope<unknown>):void {
 			}
 		}
 	}
-	
+
 }
 
 /**
  * Dynamically apply global CSS styles
- * @param css 
+ * @param css
  */
 function setDynamicStyles(css:string):void {
     let styleElement = document.getElementById('customCSS');
@@ -281,7 +284,7 @@ function setDynamicStyles(css:string):void {
 
 /**
  * Renders current value
- * @returns 
+ * @returns
  */
 function renderValue():void {
 	if(!parameters || Object.keys(placeholders).length === 0) return;
@@ -392,9 +395,9 @@ function formatDate(date:Date, addTime:boolean = true, noDate:boolean = false):s
 
 /**
  * Adds digits to a number so it's at least "digits" long
- * @param num 
- * @param digits 
- * @returns 
+ * @param num
+ * @param digits
+ * @returns
  */
 function toDigits(num:number, digits = 2):string {
 	let res = num.toString();
@@ -419,7 +422,7 @@ function setScrollSpeed(attempts = 0) {
 			//completely rendered yet. This function is called on image
 			//loading complete, but the reflow might take a few frames
 			//before being done
-			
+
 			//if tried more than 100 times, give up to avoid looping for nothing
 			if(attempts > 100) return;
 			//Try again
