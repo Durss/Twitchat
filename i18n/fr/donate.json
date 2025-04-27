@@ -2,7 +2,7 @@
 	"donate":{
 		"header": "Aidez à rendre Twitchat meilleur",
 		"infos":[
-			"Twitchat a nécessité +2 ans de travail à temps plein non rémunéré."
+			"Twitchat a nécessité +3 ans de travail à temps plein non rémunéré."
 		],
 		"amount":"Montant",
 		"success":"Merci pour votre don de {AMOUNT}€ 💝",

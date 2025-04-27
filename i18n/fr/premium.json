@@ -48,7 +48,7 @@
 				["OVERLAY: Donation goals", "MAX_DONATION_GOALS", "MAX_DONATION_GOALS", "MAX_DONATION_GOALS_PREMIUM"],
 				["OVERLAY: Distorsions intéractives", "MAX_DISTORTION_OVERLAYS", "MAX_DISTORTION_OVERLAYS", "MAX_DISTORTION_OVERLAYS_PREMIUM"],
 				["OVERLAY: Labels", "MAX_LABELS", "MAX_LABELS", "MAX_LABELS_PREMIUM"],
-				["OVERLAY: Textes animés", "MAX_ANIMATED_TEXTS", "MAX_ANIMATED_TEXT", "MAX_ANIMATED_TEXT_PREMIUM"],
+				["OVERLAY: Textes animés", "MAX_ANIMATED_TEXT", "MAX_ANIMATED_TEXT", "MAX_ANIMATED_TEXT_PREMIUM"],
 				["OVERLAY: Hype trains personnalisés", "MAX_CUSTOM_TRAIN", "MAX_CUSTOM_TRAIN", "MAX_CUSTOM_TRAIN_PREMIUM"],
 				["OVERLAY: Générique de fin", "~", "~", 1],
 				["Grilles de bingo pour viewers", "-", "-", 1],

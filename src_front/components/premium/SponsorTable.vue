@@ -155,6 +155,7 @@ export default toNative(SponsorTable);
 				border-radius: 0;
 				vertical-align: middle;
 				color: var(--color-text);
+				text-align: center;
 				&:nth-child(2) {
 					background-color: var(--color-light-fade);
 				}
@@ -176,7 +177,7 @@ export default toNative(SponsorTable);
 				.icon {
 					height: 1em;
 					margin-bottom: .25em;
-					display: block;
+					display: inline-block;
 				}
 			}
 

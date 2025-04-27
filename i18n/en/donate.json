@@ -2,7 +2,7 @@
 	"donate":{
 		"header": "Help making Twitchat better",
 		"infos":[
-			"Twitchat took +2 years of unpaid full time work to create."
+			"Twitchat took +3 years of unpaid full time work to create."
 		],
 		"amount":"Amount",
 		"success":"Thank you for your {AMOUNT}€ donation 💝",
