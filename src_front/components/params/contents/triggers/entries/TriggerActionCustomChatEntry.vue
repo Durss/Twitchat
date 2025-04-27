@@ -278,11 +278,6 @@ export default toNative(TriggerActionCustomChatEntry);
 		background-color: var(--grayout);
 		padding: .5em;
 		border-radius: var(--border-radius);
-		* > {
-			min-height: 2.2em;
-			flex-grow: 1;
-			position: relative;
-		}
 	}
 	.iconField {
 		:deep(.listField) {
