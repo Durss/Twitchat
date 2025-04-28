@@ -373,6 +373,7 @@ import Slider from '../Slider.vue';
 import TTButton from '../TTButton.vue';
 import ToggleButton from '../ToggleButton.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
+import Config from '@/utils/Config';
 
 @Component({
 	name:"ParamItem",//This is needed so recursion works properly
@@ -635,7 +636,8 @@ export class ParamItem extends Vue {
 						{ name: "local-fonts" }
 					).then(granted => {
 						if(granted.state == "prompt") {
-							this.askForSystemFontAccess = true;
+							// Ask for font access if not running in OBS as they doesn't support Font API
+							this.askForSystemFontAccess = !Config.instance.OBS_DOCK_CONTEXT;
 						}else
 						if(granted.state == "granted") {
 							this.grantSystemFontRead();
