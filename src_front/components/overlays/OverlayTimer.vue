@@ -7,7 +7,7 @@
 				fontFamily: configTimer.textFont,
 				fontSize: configTimer.textSize + 'px',
 				color: configTimer.textColor,
-				backgroundColor: configTimer.bgColor,
+				backgroundColor: configTimer.bgEnabled? configTimer.bgColor : 'transparent',
 			}">
 				<Icon id="timer_icon" name="timer" v-if="configTimer.showIcon" />
 				<div id="timer_label">{{timerValue}}</div>
@@ -22,7 +22,7 @@
 				fontFamily: configCountdown.textFont,
 				fontSize: configCountdown.textSize + 'px',
 				color: configCountdown.textColor,
-				backgroundColor: configCountdown.bgColor,
+				backgroundColor: configCountdown.bgEnabled? configCountdown.bgColor : 'transparent',
 			}">
 				<Icon id="countdown_icon" name="countdown" v-if="configCountdown.showIcon" />
 				<div id="countdown_label">{{countdownValue}}</div>
@@ -146,7 +146,7 @@ class OverlayTimer extends AbstractOverlay {
 				if(this.$refs.countdown) gsap.from(this.$refs.countdown as HTMLDivElement, {duration:.5, y:"-100%"});
 			}
 			this.countdownHidding = false;
-			
+
 		}else if(this.$refs.countdown) {
 			this.countdownHidding = true;
 			gsap.to(this.$refs.countdown as HTMLDivElement, {duration:.5, y:"-100%", onComplete:()=>{
