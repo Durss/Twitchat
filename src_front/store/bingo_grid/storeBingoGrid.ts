@@ -53,6 +53,16 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				//Caching cells states
 				this.gridList.forEach(grid => {
 					prevGridStates[grid.id] = grid.entries.filter(v=>!!v).map(v=>v.check);
+					// Deduplicate entries based on their id
+					const uniqueEntries = new Map<string, TwitchatDataTypes.BingoGridConfig["entries"][number]>();
+					grid.entries.forEach(entry => {
+						if (entry && !uniqueEntries.has(entry.id)) {
+							uniqueEntries.set(entry.id, entry);
+						}else{
+							console.warn("Duplicate entry found in bingo grid", entry);
+						}
+					});
+					grid.entries = Array.from(uniqueEntries.values());
 				})
 			}
 
@@ -431,8 +441,8 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 
 					const count = grid.cols*grid.rows;
 					//Remove useless items
-					const newEntries = grid.entries.filter(v=>!!v).splice(0, count);
-					const oldEntries = grid.entries.concat().filter(v=>!!v && v.label.trim().length > 0);
+					const newEntries = grid.entries.splice(0, count);
+					const oldEntries = grid.entries.concat().filter(v=> v.label.trim().length > 0);
 					grid.entries = newEntries;
 
 					//If entries are gonna get lost, put them in the additional cells
