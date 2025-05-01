@@ -52,7 +52,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 
 				//Caching cells states
 				this.gridList.forEach(grid => {
-					prevGridStates[grid.id] = grid.entries.map(v=>v.check);
+					prevGridStates[grid.id] = grid.entries.filter(v=>!!v).map(v=>v.check);
 				})
 			}
 
@@ -258,7 +258,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				if(!grid) return;
 
 				for (const cellId in eventData.states) {
-					let entry = grid.entries.find(v=>v.id==cellId);
+					let entry = grid.entries.filter(v=>!!v).find(v=>v.id==cellId);
 					if(!entry && grid.additionalEntries) entry = grid.additionalEntries.find(v=>v.id==cellId);
 					if(!entry) continue
 					entry.check = eventData.states[cellId];
@@ -334,7 +334,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			}
 
 			//Shuffle entries
-			const entries = grid.entries;
+			const entries = grid.entries.filter(v=>!!v);
 			for (let i = entries.length - 1; i > 0; i--) {
 				const j = Math.floor(Math.random() * (i + 1));
 				if(entries[i].lock || entries[j].lock) continue;
@@ -357,7 +357,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			).then(()=>{
 				const grid = this.gridList.find(g => g.id === id);
 				if(!grid) return;
-				const entries = grid.entries;
+				const entries = grid.entries.filter(v=>!!v);
 				for (let i = 0; i < entries.length; i++) {
 					if(entries[i].lock) continue;
 					entries[i].label = "";
@@ -431,8 +431,8 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 
 					const count = grid.cols*grid.rows;
 					//Remove useless items
-					const newEntries = grid.entries.splice(0, count);
-					const oldEntries = grid.entries.concat().filter(v=>v.label.trim().length > 0);
+					const newEntries = grid.entries.filter(v=>!!v).splice(0, count);
+					const oldEntries = grid.entries.concat().filter(v=>!!v && v.label.trim().length > 0);
 					grid.entries = newEntries;
 
 					//If entries are gonna get lost, put them in the additional cells
