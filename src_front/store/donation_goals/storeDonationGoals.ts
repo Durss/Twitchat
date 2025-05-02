@@ -183,7 +183,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 			for (let i = 0; i < this.overlayList.length; i++) {
 				const overlay = this.overlayList[i];
 				if(overlay.dataSource == platform) {
-					if( (platform == "streamlabs_charity" && overlay.campaignId == StoreProxy.streamlabs.charityTeam?.id)
+					if( platform == "streamlabs_charity"
 					|| platform == "twitch_charity"
 					|| overlay.campaignId == sourceId
 					|| overlay.counterId == sourceId
