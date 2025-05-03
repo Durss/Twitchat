@@ -301,6 +301,7 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE: {
+				await this.executeTriggersByType(TriggerTypes.OBS_SCENE, message, testMode, TriggerActionDataTypes.ANY_OBS_SCENE, undefined, forcedTriggerId)
 				if(await this.executeTriggersByType(TriggerTypes.OBS_SCENE, message, testMode, message.sceneName.toLowerCase(), undefined, forcedTriggerId)) {
 					return;
 				}break;

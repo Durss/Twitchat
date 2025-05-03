@@ -1450,6 +1450,7 @@ export interface TriggerTreeItemData{
 	children?:TriggerTreeItemData[];
 }
 
+export const ANY_OBS_SCENE = "any_obs_scene";
 export const AD_APPROACHING_INTERVALS = [5*60000, 4*60000, 3*60000, 2*60000, 1*60000, 30000, 20000, 10000, 5000];
 
 export const VIBRATION_PATTERNS = [

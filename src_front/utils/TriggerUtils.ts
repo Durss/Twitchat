@@ -1,5 +1,5 @@
 import StoreProxy from "@/store/StoreProxy";
-import { TriggerEventPlaceholders, TriggerTypes, TriggerTypesDefinitionList, type ITriggerPlaceholder, type TriggerActionData, type TriggerData, type TriggerTypeDefinition } from "@/types/TriggerActionDataTypes";
+import { ANY_OBS_SCENE, TriggerEventPlaceholders, TriggerTypes, TriggerTypesDefinitionList, type ITriggerPlaceholder, type TriggerActionData, type TriggerData, type TriggerTypeDefinition } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import TriggerActionHandler from "./triggers/TriggerActionHandler";
 import { TwitchScopes } from "./twitch/TwitchScopes";
@@ -65,9 +65,9 @@ export default class TriggerUtils {
 	 * Gets the label of a trigger
 	 * @param trigger
 	 */
-	public static getTriggerDisplayInfo(trigger:TriggerData):{label:string, icon:string, iconURL?:string, iconBgColor?:string, event?:TriggerTypeDefinition} {
+	public static getTriggerDisplayInfo(trigger:TriggerData):{label:string, labelKey?:string, descriptionKey?:string, icon:string, iconURL?:string, iconBgColor?:string, event?:TriggerTypeDefinition} {
 		const ref = TriggerTypesDefinitionList().find(v => v.value == trigger.type);
-		const result:{label:string, icon:string, iconURL?:string, iconBgColor?:string, event?:TriggerTypeDefinition} = {label:"", icon:"alert"}
+		const result:{label:string, labelKey?:string, descriptionKey?:string, icon:string, iconURL?:string, iconBgColor?:string, event?:TriggerTypeDefinition} = {label:"", labelKey:ref?.labelKey, descriptionKey:ref?.descriptionKey, icon:"alert"}
 		if(!ref) return result
 		result.event = ref;
 		if(ref.icon) result.icon = ref.icon;
@@ -104,6 +104,12 @@ export default class TriggerUtils {
 
 			case TriggerTypes.OBS_SCENE: {
 				if(!result.label && trigger.obsScene) result.label = trigger.obsScene;
+
+				if(trigger.type == TriggerTypes.OBS_SCENE && trigger.obsScene == ANY_OBS_SCENE) {
+					result.labelKey = "triggers.obs.anyScene";
+					result.descriptionKey = "triggers.events.OBS_SCENE.description_any";
+					result.label = StoreProxy.i18n.t(result.labelKey);
+				}
 				break;
 			}
 

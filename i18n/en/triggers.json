@@ -66,7 +66,8 @@
 		},
 		"obs": {
 			"require": "This trigger need you to {URL}",
-			"require_url": "connect with OBS"
+			"require_url": "connect with OBS",
+			"anyScene": "Any scene"
 		},
 		"count": {
 			"require": "These triggers need you to first {URL_COUNTERS} or  {URL_VALUES}",
@@ -1301,7 +1302,8 @@
 			},
 			"OBS_SCENE": {
 				"label": "Switch to scene",
-				"description": "Actions to execute when switching to {SUB_ITEM_NAME} OBS scene"
+				"description": "Actions to execute when switching to {SUB_ITEM_NAME} OBS scene",
+				"description_any": "Actions to execute when switching to any OBS scene"
 			},
 			"OBS_SOURCE_ON": {
 				"label": "Source show",

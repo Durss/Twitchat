@@ -66,7 +66,8 @@
 		},
 		"obs": {
 			"require": "Ces événéments nécessitent de {URL}",
-			"require_url": "lier twitchat à OBS"
+			"require_url": "lier twitchat à OBS",
+			"anyScene": "N'importe quelle scène"
 		},
 		"count": {
 			"require": "Ces événéments nécessitent de d'abord {URL_COUNTERS} ou de {URL_VALUES}",
@@ -1301,7 +1302,8 @@
 			},
 			"OBS_SCENE": {
 				"label": "Changement de scène",
-				"description": "Actions à exécuter lorsque la scène OBS {SUB_ITEM_NAME} devient active"
+				"description": "Actions à exécuter lorsque la scène OBS {SUB_ITEM_NAME} devient active",
+				"description_any": "Actions à exécuter lorsque n'importe quelle scène OBS devient active"
 			},
 			"OBS_SOURCE_ON": {
 				"label": "Source affichée",

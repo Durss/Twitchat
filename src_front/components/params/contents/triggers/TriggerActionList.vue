@@ -157,7 +157,7 @@
 <script lang="ts">
 import PermissionsForm from '@/components/PermissionsForm.vue';
 import TTButton from '@/components/TTButton.vue';
-import { TriggerSubTypeLabel, TriggerTypes, TriggerTypesDefinitionList, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import { ANY_OBS_SCENE, TriggerSubTypeLabel, TriggerTypes, TriggerTypesDefinitionList, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -177,6 +177,7 @@ import TriggerGoXLRParams from './TriggerGoXLRParams.vue';
 import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
 import TriggerActionEntry from './TriggerActionEntry.vue';
 import Icon from '@/components/Icon.vue';
+import TriggerUtils from '@/utils/TriggerUtils';
 
 @Component({
 	components:{
@@ -278,7 +279,11 @@ class TriggerActionList extends Vue {
 	 * Get a trigger's description
 	 */
 	public get triggerDescriptionLabel():string|undefined {
+		return TriggerUtils.getTriggerDisplayInfo(this.triggerData).descriptionKey;
 		const item = TriggerTypesDefinitionList().find(v => v.value == this.triggerData.type) as TriggerTypeDefinition|null;
+		if(this.triggerData.type == TriggerTypes.OBS_SCENE && this.triggerData.obsScene == ANY_OBS_SCENE) {
+			return "triggers.events.OBS_SCENE.description_any"
+		}
 		return item?.descriptionKey;
 	}
 
