@@ -37,6 +37,7 @@
 		"param_dataSource": "Data source",
 		"param_campaignId": "Fundraising campaign",
 		"param_counterId": "Counter source",
+		"import_streamlabs_resync": "Resync donations",
 		"import_streamlabs_goals": "Import donation goals created on Streamlabs Charity",
 		"import_streamlabs_step1": "Copy your \"Milestones\" overlay URL from {LINK}.",
 		"import_streamlabs_step1_link": "this page",

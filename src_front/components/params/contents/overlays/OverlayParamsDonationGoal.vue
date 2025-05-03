@@ -111,6 +111,7 @@
 								<span><Icon name="streamlabs"/>{{ $t("donation_goals.param_campaignId") }}:</span>
 								<a :href="$store.streamlabs.charityTeam.pageUrl" target="_blank"><Icon name="newtab"/>{{ $store.streamlabs.charityTeam.title }}</a>
 							</div>
+							<TTButton icon="refresh" @click="resyncTips()">{{ $t("donation_goals.import_streamlabs_resync") }}</TTButton>
 							<TTButton icon="download" v-if="!showSLCGoalImport" @click="showSLCGoalImport = true">{{ $t("donation_goals.import_streamlabs_goals") }}</TTButton>
 							<ul v-else-if="!showSLCGoalSuccess">
 								<i18n-t scope="global" keypath="donation_goals.import_streamlabs_step1" tag="li">
@@ -396,6 +397,10 @@ class OverlayParamsDonationGoal extends Vue {
 		if(goal.secret && !goal.secret_type) {
 			goal.secret_type = "blur";
 		}
+	}
+
+	public resyncTips():void {
+		this.$store.streamlabs.resyncCharityTips();
 	}
 
 	/**

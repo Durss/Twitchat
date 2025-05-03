@@ -443,6 +443,12 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			return true;
 		},
 
+		async resyncCharityTips():Promise<void> {
+			if(!this.charityTeam) return;
+			this.charityTeam.amountRaisedPersonnal_cents = 0;
+			await this.loadCharityCampaignInfo();
+		},
+
 		disconnectCharityCampaign():void {
 			this.charityTeam = null;
 			this.saveData();

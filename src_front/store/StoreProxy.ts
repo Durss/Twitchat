@@ -2670,6 +2670,10 @@ export interface IStreamlabsActions {
 	 */
 	loadCharityCampaignInfo(url?:string):Promise<boolean>;
 	/**
+	 * Fully resync the charity campaign amount
+	 */
+	resyncCharityTips():Promise<void>;
+	/**
 	 * Disconnects from current campaign
 	 */
 	disconnectCharityCampaign():void;
