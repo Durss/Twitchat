@@ -918,7 +918,7 @@ export default class Utils {
 			// Replace characters invalid in Windows filenames
 			.replace(/[<>:"/\\|?*]/g, '')
 			// Replace spaces and dots with underscores
-			.replace(/[\s.]+/g, '_')
+			// .replace(/[\s.]+/g, '_')
 			// Remove non-printable characters
 			.replace(/[^\x20-\x7E]/g, '')
 			// Trim underscores and dashes from start/end
