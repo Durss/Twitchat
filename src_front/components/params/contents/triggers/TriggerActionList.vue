@@ -555,6 +555,7 @@ class TriggerActionList extends Vue {
 		}else
 		if(e.key == "v" && e.ctrlKey && this.$store.triggers.clipboard.length > 0) {
 			for (let i = 0; i < this.$store.triggers.clipboard.length; i++) {
+				if(this.triggerData.actions.length >= this.$config.MAX_TRIGGER_ACTIONS) break;
 				const action = JSON.parse(JSON.stringify(this.$store.triggers.clipboard[i])) as TriggerActionTypes;
 				action.id = Utils.getUUID();//Override ID by a new one to avoid conflicts
 				action.condition = this.matchingCondition;

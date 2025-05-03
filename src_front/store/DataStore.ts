@@ -157,7 +157,7 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	static override async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 64;
+		const latestVersion = 65;
 
 		this.cleanupPreV7Data(data);
 
@@ -388,6 +388,11 @@ export default class DataStore extends DataStoreCommon{
 			v = 63;
 		}
 		if(v==63) {
+			this.limitTriggerActionCount(data);
+			v = 64;
+		}
+		if(v==64) {
+			// Same as before but i also blocked the possibility to "ctrl+v" actions which i forgot before
 			this.limitTriggerActionCount(data);
 			v = latestVersion;
 		}
