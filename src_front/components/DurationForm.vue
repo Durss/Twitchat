@@ -1,6 +1,8 @@
 <template>
 	<div class="durationform input-field">
-		<contenteditable class="input" v-if="showDays" tag="span" ref="inputD"
+		<contenteditable class="input" v-if="showDays"
+			tag="span"
+			ref="inputD"
 			v-model="days"
 			:contenteditable="true"
 			:no-nl="true"
@@ -12,7 +14,9 @@
 
 		<p class="split days" v-if="showDays">{{ $t("global.date_days") }}</p>
 
-		<contenteditable class="input" v-if="showHours" tag="span" ref="inputH"
+		<contenteditable class="input" v-if="showHours"
+			tag="span"
+			ref="inputH"
 			v-model="hours"
 			:contenteditable="true"
 			:no-nl="true"
@@ -24,7 +28,9 @@
 
 		<p class="split" v-if="showHours">h</p>
 
-		<contenteditable class="input" v-if="showMinutes" tag="span" ref="inputM"
+		<contenteditable class="input" v-if="showMinutes"
+			tag="span"
+			ref="inputM"
 			v-model="minutes"
 			:contenteditable="true"
 			:no-nl="true"
@@ -36,7 +42,9 @@
 
 		<p class="split" v-if="showMinutes">m</p>
 
-		<contenteditable class="input" tag="span" ref="inputS"
+		<contenteditable class="input"
+			tag="span"
+			ref="inputS"
 			v-model="seconds"
 			v-autofocus="autofocus"
 			:contenteditable="true"
@@ -121,18 +129,20 @@ class DurationForm extends Vue {
 	}
 
 	public onKeyDown(event:KeyboardEvent, field:"d"|"h"|"m"|"s"):void {
-		let add = event.key == "ArrowUp"? 1 : event.key == "ArrowDown"? -1 : 0
-		if(event.shiftKey) add *= 10;
-		const f = this.allowMs !== false? parseFloat : parseInt;
-		if(add != 0) {
-			switch(field){
-				case "d": this.days = (parseInt(this.days) + add).toString(); break;
-				case "h": this.hours = (parseInt(this.hours) + add).toString(); break;
-				case "m": this.minutes = (parseInt(this.minutes) + add).toString(); break;
-				case "s": this.seconds = (f(this.seconds) + add).toString(); break;
+		if(event.key == "ArrowUp" || event.key == "ArrowDown") {
+			let add = event.key == "ArrowUp"? 1 : -1;
+			if(event.shiftKey) add *= 10;
+			const f = this.allowMs !== false? parseFloat : parseInt;
+			if(add != 0) {
+				switch(field){
+					case "d": this.days = (parseInt(this.days) + add).toString(); break;
+					case "h": this.hours = (parseInt(this.hours) + add).toString(); break;
+					case "m": this.minutes = (parseInt(this.minutes) + add).toString(); break;
+					case "s": this.seconds = (f(this.seconds) + add).toString(); break;
+				}
+				this.clamp(field);
+				this.onChange();
 			}
-			this.clamp(field);
-			this.onChange();
 		}
 		const input = event.target as HTMLElement;
 		if(event.key == "ArrowRight" || event.key == "ArrowLeft") {
@@ -142,7 +152,7 @@ class DurationForm extends Vue {
 				//Save caret index
 				var range = sel.getRangeAt(0);
 				let caretIndex = range.startOffset;
-				let inputs = [this.$refs.inputD as Vue, this.$refs.inputH as Vue, this.$refs.inputM as Vue, this.$refs.inputS as Vue]
+				let inputs = [this.$refs.inputD as Vue, this.$refs.inputH as Vue, this.$refs.inputM as Vue, this.$refs.inputS as Vue].filter(v=>v && v.$el != undefined);
 				if(dir == 1 && caretIndex == input.innerText.length
 				|| dir == -1 && caretIndex == 0) {
 					let index = inputs.findIndex(v=>v.$el == input);
