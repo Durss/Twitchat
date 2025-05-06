@@ -12,6 +12,7 @@ import SetTimeoutWorker from "@/utils/SeTimeoutWorker";
 import MessengerProxy from "@/messaging/MessengerProxy";
 
 let simulationID = 0;
+const APPROACHING_TIMEOUT_PER_ACTION = 10 * 60_000;
 
 export const storeCustomTrain = defineStore('customTrain', {
 	state: () => ({
@@ -153,9 +154,9 @@ export const storeCustomTrain = defineStore('customTrain', {
 						const level = currentLevel();
 						const total = state.activities.map(a=> a.amount).reduce((a,b)=> a + b, 0);
 						const percent = (total - level.offset) / level.goal;
-						// If train went away before starting, only set a 1min cooldown,
+						// If train went away before starting, only set a 10s cooldown for the fail animation to complete,
 						// otherwise set the cooldown to the normal duration
-						train.coolDownEnd_at = isMissedTrain? Date.now() + 60_000 : Date.now() + train.cooldownDuration_s * 1000;
+						train.coolDownEnd_at = isMissedTrain? Date.now() + 10_000 : Date.now() + train.cooldownDuration_s * 1000;
 						train.expires_at = 0;
 						delete this.customTrainStates[train.id];
 
@@ -249,8 +250,8 @@ export const storeCustomTrain = defineStore('customTrain', {
 
 				if(this.customTrainStates[train.id].activities.length == 0
 				|| this.customTrainStates[train.id].activities.length + 1 == train.approachEventCount) {
-					// static 5min cooldown to get approaching train or to start it
-					train.expires_at = Date.now() + 60 * 5 * 1000;
+					// static cooldown to get approaching train or to start it
+					train.expires_at = Date.now() + APPROACHING_TIMEOUT_PER_ACTION;
 					scheduleEnd(true);
 				}
 
