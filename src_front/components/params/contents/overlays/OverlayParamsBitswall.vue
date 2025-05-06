@@ -134,11 +134,11 @@ class OverlayParamsBitswall extends Vue {
 	public param_cristalEffect:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.bitswall.param_cristalEffect"};
 	public param_textureAlpha:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:75, min:0, max:100, labelKey:"overlay.bitswall.param_textureAlpha"};
 	public param_durations:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, noInput:true, labelKey:"overlay.bitswall.param_durations", icon:"timer", premiumOnly:true};
-	public param_duration_1:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:10, min:1, max:3600*24, iconURL:StoreProxy.asset("img/bitswall/1_tex.png"), premiumOnly:true};
-	public param_duration_100:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:20, min:1, max:3600*24, iconURL:StoreProxy.asset("img/bitswall/100_tex.png"), premiumOnly:true};
-	public param_duration_1000:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:30, min:1, max:3600*24, iconURL:StoreProxy.asset("img/bitswall/1000_tex.png"), premiumOnly:true};
-	public param_duration_5000:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:40, min:1, max:3600*24, iconURL:StoreProxy.asset("img/bitswall/5000_tex.png"), premiumOnly:true};
-	public param_duration_10000:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:50, min:1, max:3600*24, iconURL:StoreProxy.asset("img/bitswall/10000_tex.png"), premiumOnly:true};
+	public param_duration_1:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:10, min:1, max:3600*24 - 1, iconURL:StoreProxy.asset("img/bitswall/1_tex.png"), premiumOnly:true};
+	public param_duration_100:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:20, min:1, max:3600*24 - 1, iconURL:StoreProxy.asset("img/bitswall/100_tex.png"), premiumOnly:true};
+	public param_duration_1000:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:30, min:1, max:3600*24 - 1, iconURL:StoreProxy.asset("img/bitswall/1000_tex.png"), premiumOnly:true};
+	public param_duration_5000:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:40, min:1, max:3600*24 - 1, iconURL:StoreProxy.asset("img/bitswall/5000_tex.png"), premiumOnly:true};
+	public param_duration_10000:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:50, min:1, max:3600*24 - 1, iconURL:StoreProxy.asset("img/bitswall/10000_tex.png"), premiumOnly:true};
 	public parameters:TwitchatDataTypes.BitsWallOverlayData = {
 		size:25,
 		opacity:25,
