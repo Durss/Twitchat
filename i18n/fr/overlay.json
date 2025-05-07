@@ -669,7 +669,7 @@
 			"param_textFont": "Police",
 			"param_textSize": "Taille",
 			"param_currency": "Devise",
-			"param_approachEventCount": "Nombre d'évènements pour que le train approche\n(en l'espace de 5min)",
+			"param_approachEventCount": "Nombre d'évènements pour que le train approche\n(en l'espace de 10min)",
 			"param_triggerEventCount": "Nombre d'événements pour démarrer le train\n(les évènements d'approche précédents compteront)",
 			"param_cooldownDuration_ms": "Durée d'attente avant le prochain train",
 			"param_levelsDuration_ms": "Délai pour atteindre le niveau suivant",
