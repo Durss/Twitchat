@@ -267,7 +267,7 @@ class MessageItem extends Vue {
 			private_mod_message:			ChatPrivateModerator,
 			connect:						ChatConnect,
 			disconnect:						ChatConnect,
-			gigantified_emote:				ChatCustomTrainSummary,
+			gigantified_emote:				ChatGiantEmote,
 			custom_train_summary:			ChatCustomTrainSummary,
 			streamsocket_action:			ChatStreamSocketAction,
 		};
