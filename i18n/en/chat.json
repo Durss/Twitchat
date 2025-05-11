@@ -486,7 +486,6 @@
 			"donation": "{USER} sent a {AMOUNT} tip on Streamelements"
 		},
 		"kofi": {
-			"anonymous": "An anonymous user",
 			"donation": "{USER} sent a {AMOUNT} tip on Ko-Fi",
 			"merch": "{USER} bought {PRODUCT} for {AMOUNT} on Ko-Fi",
 			"subscription": "{USER} subscribed for {AMOUNT} on Ko-fi",

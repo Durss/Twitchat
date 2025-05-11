@@ -1128,7 +1128,7 @@ export default class TriggerActionHandler {
 			return false;
 		}
 
-		//If Ko-fi user requested to make their comment private, remove it so
+		//If Ko-fi user requested to make their comment and amouunt private, remove them so
 		//triggers cannot use it
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.KOFI && message.isPublic !== true) {
 			log.entries.push({date:Date.now(), type:"message", value:"🫥 Ko-Fi user requested their message to be private. Removing it before executing triggers."});
@@ -1136,6 +1136,8 @@ export default class TriggerActionHandler {
 			message.message = "";
 			message.message_chunks = [];
 			message.message_html = "";
+			message.amount = -1;
+			message.amountFormatted = message.amountFormatted.replace(/[0-9.]+/, "-1");
 		}
 
 		//Avoid polluting trigger execution history for Twitchat internal triggers

@@ -8,8 +8,7 @@
 		<div class="messageHolder">
 			<i18n-t scope="global" tag="span" :keypath="labelKey">
 				<template #USER>
-					<strong v-if="messageData.isPublic">{{ messageData.userName }}</strong>
-					<strong v-else>{{ $t("chat.kofi.anonymous") }}</strong>
+					<strong>{{ messageData.userName }}</strong>
 				</template>
 
 				<template #AMOUNT>
