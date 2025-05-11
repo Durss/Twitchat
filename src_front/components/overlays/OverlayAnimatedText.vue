@@ -150,11 +150,17 @@ class OverlayAnimatedText extends AbstractOverlay {
 	public async next():Promise<void> {
 		if(!this.params) return;
 
-		this.ready = false;
+		if(this.currentEntry) {
+			await this.hideText();
+			PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_HIDE_COMPLETE, {queryId:this.currentEntry.queryId});
+			this.currentEntry = null;
+		}
+
 		if(this.messageQueue.length == 0) return;
+		this.ready = false;
 
 		// Grab next item in queue
-		const entry = this.messageQueue.shift();
+		const entry = this.messageQueue[0];
 		if(!entry) return;
 
 		// Clear text
@@ -171,6 +177,9 @@ class OverlayAnimatedText extends AbstractOverlay {
 		// Start animation
 		await this.showText();
 
+		// Remove text from queue once displayed
+		this.messageQueue.shift();
+
 		// If requesting to automatically hide text..
 		if(this.currentEntry.autoHide) {
 			// Compute wait duration based on text length
@@ -184,12 +193,13 @@ class OverlayAnimatedText extends AbstractOverlay {
 			this.autoHideTO = window.setTimeout(async ()=>{
 				// Close text
 				await this.hideText();
+				this.currentEntry = null;
 				PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_HIDE_COMPLETE, {queryId:entry.queryId});
 				// Next text in queue
-				this.next();
 			}, (textLen || 0) * 100);
 		}else{
 			PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_SHOW_COMPLETE, {queryId:entry.queryId});
+			if(this.messageQueue.length > 0) this.next();
 		}
 	}
 
