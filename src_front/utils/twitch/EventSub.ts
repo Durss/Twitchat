@@ -23,6 +23,7 @@ export default class EventSub {
 	private lastRecentFollowers:TwitchatDataTypes.MessageFollowingData[] = [];
 	private debounceAutomodTermsUpdate:number = -1;
 	private debouncedAutomodTerms:TwitchEventSubDataTypes.AutomodTermsUpdateEvent[] = [];
+	private debouncedCombos:{[uid:string]:{bits:number, to:number}} = {};
 	private sessionID:string = "";
 	private connectURL:string = "";
 	private chanSubscriptions:{[chanId:string]:{topic:string, uid:string, id:string}[]} = {};
@@ -217,6 +218,25 @@ export default class EventSub {
 				// console.log(entry.data.level, entry.data.expires_at);
 				this.hypeTrainEvent(entry.topic, entry.data);
 			}
+		}
+	}
+
+	public simulateComboSpam():void {
+		const me = StoreProxy.auth.twitch.user;
+		const obj:TwitchEventSubDataTypes.BitsUseEvent = {
+			"broadcaster_user_id":me.id,
+			"broadcaster_user_login":me.login,
+			"broadcaster_user_name":me.displayNameOriginal,
+			"user_id":me.id,
+			"user_login":me.login,
+			"user_name":me.displayNameOriginal,
+			"bits":Utils.pickRand([5, 10, 25, 50, 100]),
+			"type":"combo",
+			"power_up":null,
+			"message":null
+		};
+		for (let i = 0; i < 10; i++) {
+			this.bitsUsed(TwitchEventSubDataTypes.SubscriptionTypes.BITS_USE, obj);
 		}
 	}
 
@@ -2005,41 +2025,66 @@ export default class EventSub {
 	 * Called when bits are used on the channel
 	 */
 	private async bitsUsed(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.BitsUseEvent):Promise<void> {
-		if(!event.power_up) return;
 		const user = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name, undefined, undefined, false, undefined, false);
-		if(event.power_up.type == "celebration") {
-			const m:TwitchatDataTypes.MessageTwitchCelebrationData = {
-				id:Utils.getUUID(),
-				date:Date.now(),
-				platform:"twitch",
-				channel_id:event.broadcaster_user_id,
-				type:TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION,
-				user,
-				cost: event.bits,
-				emoteID: event.power_up.emote.id,
-				emoteURL:"https://static-cdn.jtvnw.net/emoticons/v2/" + event.power_up.emote.id + "/default/light/3.0"
-			};
-			StoreProxy.chat.addMessage(m);
-		}else
-		if(event.power_up.type == "gigantify_an_emote") {
-			const messageChunks:TwitchatDataTypes.ParseMessageChunk[] = await TwitchUtils.eventsubFragmentsToTwitchatChunks(event.message.fragments, event.broadcaster_user_id);
-			const messageHTML = TwitchUtils.messageChunksToHTML(messageChunks);
-			const m:TwitchatDataTypes.MessageTwitchGigantifiedEmoteData = {
-				id:Utils.getUUID(),
-				date:Date.now(),
-				platform:"twitch",
-				channel_id:event.broadcaster_user_id,
-				type:TwitchatDataTypes.TwitchatMessageType.GIGANTIFIED_EMOTE,
-				user,
-				cost: event.bits,
-				emoteID: event.power_up.emote.id,
-				emoteURL:"https://static-cdn.jtvnw.net/emoticons/v2/" + event.power_up.emote.id + "/default/light/3.0",
-				message:event.message.text,
-				message_chunks:messageChunks,
-				message_html:messageHTML,
-				message_size:0,
-			};
-			StoreProxy.chat.addMessage(m);
+		switch(event.type) {
+			case "combo": {
+				let debounced =  this.debouncedCombos[user.id];
+				if(!debounced) this.debouncedCombos[user.id] = debounced = { bits: 0, to: -1 }
+				else window.clearTimeout(debounced.to);
+				debounced.bits += event.bits || 0;
+				debounced.to = window.setTimeout(() => {
+					const m:TwitchatDataTypes.MessageTwitchComboData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitch",
+						channel_id:event.broadcaster_user_id,
+						type:TwitchatDataTypes.TwitchatMessageType.TWITCH_COMBO,
+						user,
+						bits: debounced.bits,
+					};
+					delete this.debouncedCombos[user.id];
+					StoreProxy.chat.addMessage(m);
+				}, 5_000);
+				break;
+			}
+			case "power": {
+				if(!event.power_up) return;
+				if(event.power_up.type == "celebration") {
+					const m:TwitchatDataTypes.MessageTwitchCelebrationData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitch",
+						channel_id:event.broadcaster_user_id,
+						type:TwitchatDataTypes.TwitchatMessageType.TWITCH_CELEBRATION,
+						user,
+						cost: event.bits,
+						emoteID: event.power_up.emote.id,
+						emoteURL:"https://static-cdn.jtvnw.net/emoticons/v2/" + event.power_up.emote.id + "/default/light/3.0"
+					};
+					StoreProxy.chat.addMessage(m);
+				}else
+				if(event.power_up.type == "gigantify_an_emote") {
+					const messageChunks:TwitchatDataTypes.ParseMessageChunk[] = await TwitchUtils.eventsubFragmentsToTwitchatChunks(event.message?.fragments || [], event.broadcaster_user_id);
+					const messageHTML = TwitchUtils.messageChunksToHTML(messageChunks);
+					const m:TwitchatDataTypes.MessageTwitchGigantifiedEmoteData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitch",
+						channel_id:event.broadcaster_user_id,
+						type:TwitchatDataTypes.TwitchatMessageType.GIGANTIFIED_EMOTE,
+						user,
+						cost: event.bits,
+						emoteID: event.power_up.emote.id,
+						emoteURL:"https://static-cdn.jtvnw.net/emoticons/v2/" + event.power_up.emote.id + "/default/light/3.0",
+						message:event.message?.text || "",
+						message_chunks:messageChunks,
+						message_html:messageHTML,
+						message_size:0,
+					};
+					StoreProxy.chat.addMessage(m);
+				}
+				break;
+			}
 		}
 	}
 

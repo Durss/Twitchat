@@ -35,6 +35,8 @@
 			<Button small @click="simulateEvent($event, 'message', 'skin3')" icon="watchStreak">Power Up skin 3</Button>
 			<Button small @click="simulateEvent($event, 'gigantified_emote')" icon="watchStreak">Power Up Giant emote</Button>
 			<Button small @click="simulateEvent($event, 'twitch_celebration')" icon="watchStreak">Power Up celebration</Button>
+			<Button small @click="simulateEvent($event, 'twitch_combo')" icon="bits">Combo</Button>
+			<Button small @click="simulateComboSpam()" icon="bits">Combo spam</Button>
 			<Button small @click="simulateEvent($event, 'user_watch_streak')" icon="watchStreak">Watch streak</Button>
 			<Button small @click="simulateEvent($event, 'raid', 'raidOffline')" icon="raid">Incoming raid offline</Button>
 			<Button small @click="simulateEvent($event, 'raid', 'raidOnline')" icon="raid">Incoming raid online</Button>
@@ -723,6 +725,10 @@ class DevmodeMenu extends Vue {
 			});
 			await Utils.promisedTimeout(100);
 		}
+	}
+
+	public async simulateComboSpam():Promise<void> {
+		EventSub.instance.simulateComboSpam();
 	}
 
 	public simulateCommercialSequence():void {

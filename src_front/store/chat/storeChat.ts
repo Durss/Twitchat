@@ -758,6 +758,7 @@ export const storeChat = defineStore('chat', {
 
 				let lastRaid = false;
 				let lastCheer = false;
+				let lastCombo = false;
 				let lastReward = false;
 				let lastPuEmote = false;
 				let lastPuCelebration = false;
@@ -804,6 +805,13 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.updateLabelValue("CHEER_NAME", m.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("CHEER_AVATAR", m.user.avatarPath || "", m.user.id);
 						StoreProxy.labels.updateLabelValue("CHEER_AMOUNT", m.bits);
+					}
+					if(!lastCombo && m.type === TwitchatDataTypes.TwitchatMessageType.TWITCH_COMBO) {
+						lastCombo = true;
+						StoreProxy.labels.updateLabelValue("COMBO_ID", m.user.id);
+						StoreProxy.labels.updateLabelValue("COMBO_NAME", m.user.displayNameOriginal);
+						StoreProxy.labels.updateLabelValue("COMBO_AVATAR", m.user.avatarPath || "", m.user.id);
+						StoreProxy.labels.updateLabelValue("COMBO_AMOUNT", m.bits);
 					}
 					if(!lastReward && m.type === TwitchatDataTypes.TwitchatMessageType.REWARD) {
 						lastReward = true;
@@ -1465,6 +1473,18 @@ export const storeChat = defineStore('chat', {
 							StoreProxy.labels.updateLabelValue("CHEER_NAME", message.user.displayNameOriginal);
 							StoreProxy.labels.updateLabelValue("CHEER_AVATAR", message.user.avatarPath || "", message.user.id);
 							StoreProxy.labels.updateLabelValue("CHEER_AMOUNT", message.bits);
+						}
+						break;
+					}
+
+					//New combo cheer
+					case TwitchatDataTypes.TwitchatMessageType.TWITCH_COMBO: {
+						if(!isFromRemoteChan) {
+							message = message as TwitchatDataTypes.MessageTwitchComboData;
+							StoreProxy.labels.updateLabelValue("COMBO_ID", message.user.id);
+							StoreProxy.labels.updateLabelValue("COMBO_NAME", message.user.displayNameOriginal);
+							StoreProxy.labels.updateLabelValue("COMBO_AVATAR", message.user.avatarPath || "", message.user.id);
+							StoreProxy.labels.updateLabelValue("COMBO_AMOUNT", message.bits);
 						}
 						break;
 					}

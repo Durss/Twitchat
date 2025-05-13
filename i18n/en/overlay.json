@@ -448,6 +448,11 @@
 				"CHEER_AVATAR": "Bits received - Avatar",
 				"CHEER_AMOUNT": "Bits received - Amount",
 
+				"COMBO_ID": "Combo Bits received - User ID",
+				"COMBO_NAME": "Combo Bits received - Username",
+				"COMBO_AVATAR": "Combo Bits received - Avatar",
+				"COMBO_AMOUNT": "Combo Bits received - Amount",
+
 				"FOLLOWER_COUNT": "Followers - total",
 
 				"FOLLOWER_ID": "Follower - User ID",

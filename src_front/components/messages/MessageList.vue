@@ -629,6 +629,7 @@ class MessageList extends Vue {
 			case TwitchatDataTypes.TwitchatMessageType.SUPER_STICKER:
 			case TwitchatDataTypes.TwitchatMessageType.SUPER_CHAT:
 			case TwitchatDataTypes.TwitchatMessageType.GIGANTIFIED_EMOTE:
+			case TwitchatDataTypes.TwitchatMessageType.TWITCH_COMBO:
 			case TwitchatDataTypes.TwitchatMessageType.CHEER: {
 				return this.config.filters.cheer === true;
 			}

@@ -3,9 +3,9 @@
 	@contextmenu="onContextMenu($event, messageData, $el)">
 		<div class="fader" ref="fader" v-if="messageData.pinned"></div>
 		<div class="fill" ref="fill" v-if="messageData.pinned"></div>
-		
+
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
-		
+
 		<Icon name="bits" alt="bits" class="icon"/>
 
 		<div class="holder">
@@ -17,7 +17,7 @@
 					<strong>{{ totalBits }}</strong>
 				</template>
 			</i18n-t>
-	
+
 			<div class="quote" v-if="messages.length > 0">
 				<span v-tooltip="messages.length > 1? mess.bits+' bits' : null" v-for="mess in messages"><ChatMessageChunksParser :chunks="mess.message_chunks" :channel="mess.channel_id" :platform="mess.platform" /></span>
 			</div>
@@ -95,12 +95,12 @@ class ChatBits extends AbstractChatMessage {
 		this.computeClasses();
 
 		if(!this.messageData.pinned) return;
-		
+
 		await this.$nextTick();
 
 		const fill = this.$refs.fill as HTMLDivElement;
 		if(!fill) return;
-		
+
 		const duration = this.messageData.pinDuration_ms / 1000;
 		const remainingDuration = Math.max(0, duration - (Date.now() - this.messageData.date)/1000);
 		fill.style.transition = "transform "+remainingDuration+"s linear";
@@ -125,7 +125,7 @@ export default toNative(ChatBits);
 
 	&.pinned {
 		padding: .5em;
-	
+
 		* {
 			z-index: 0;
 		}

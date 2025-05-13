@@ -243,6 +243,7 @@
 			"sub_gift_upgrade_anon": "{USER} is continuing the Gift Sub they got from an anonymous user"
 		},
 		"bits": "{USER} sent {BITS} bit | {USER} sent {BITS} bits",
+		"combo": "{USER} sent {BITS} bit from Combos | {USER} sent {BITS} bits from Combos",
 		"boosted": "Your channel has been boosted to {COUNT} people",
 		"train_cooldown": "Hype train can be started again by your viewers!",
 		"follow": "{USER} follows the channel",

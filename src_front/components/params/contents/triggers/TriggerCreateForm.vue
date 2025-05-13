@@ -63,7 +63,7 @@
 				</i18n-t>
 
 				<div v-for="e in c.events" :key="e.value" :class="getTriggerClasses(e)"
-				v-newflag="e.newDate? {date:e.newDate, id:'triggerEvent_'+e.value} : undefined">
+				v-newflag="e.newDate? {date:e.newDate, id:'triggerEvent_'+e.value+'_'+e.newDate} : undefined">
 					<TTButton class="triggerBt"
 						:icon="e.icon"
 						:premium="e.premium === true"
@@ -767,6 +767,9 @@ export default toNative(TriggerCreateForm);
 			}
 			&.newFlag {
 				border: 0;
+				border-radius: var(--border-radius);
+				padding: .25em;
+				background-color: var(--color-secondary-fader);
 			}
 		}
 

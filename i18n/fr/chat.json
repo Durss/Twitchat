@@ -243,6 +243,7 @@
 			"sub_gift_upgrade_anon": "{USER} continue l'abonnement offert par une personne anonyme"
 		},
 		"bits": "{USER} a envoyé 1 bit | {USER} a envoyé {BITS} bits",
+		"combo": "{USER} a envoyé 1 bit depuis les Combos | {USER} a envoyé {BITS} bits depuis les Combos",
 		"boosted": "Votre chaîne a été mise en avant auprès de {COUNT} personnes",
 		"train_cooldown": "Le train de la hype peut à nouveau être déclenché !",
 		"follow": "{USER} suit la chaîne",

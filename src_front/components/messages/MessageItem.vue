@@ -101,6 +101,7 @@ import ChatPrivateModerator from './ChatPrivateModerator.vue';
 import ChatChatPollResult from './ChatChatPollResult.vue';
 import ChatCustomTrainSummary from './ChatCustomTrainSummary.vue';
 import ChatStreamSocketAction from './ChatStreamSocketAction.vue';
+import ChatTwitchCombo from './ChatTwitchCombo.vue';
 
 @Component({
 	name:"MessageItem",
@@ -268,6 +269,7 @@ class MessageItem extends Vue {
 			connect:						ChatConnect,
 			disconnect:						ChatConnect,
 			gigantified_emote:				ChatGiantEmote,
+			twitch_combo:					ChatTwitchCombo,
 			custom_train_summary:			ChatCustomTrainSummary,
 			streamsocket_action:			ChatStreamSocketAction,
 		};

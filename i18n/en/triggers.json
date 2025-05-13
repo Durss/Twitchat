@@ -1736,6 +1736,10 @@
 			"STREAMSOCKET_ACTION": {
 				"label":"StreamSocket action triggered",
 				"description": "Actions to execute when a StreamSocket action is triggered"
+			},
+			"TWITCH_COMBO": {
+				"label":"Twitch Combo",
+				"description": "Actions to execute when a viewer sends bits from Twitch Combo"
 			}
 		},
 		"musicEvents": {
