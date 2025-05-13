@@ -1144,8 +1144,6 @@ export default class TriggerActionHandler {
 			message.message = "";
 			message.message_chunks = [];
 			message.message_html = "";
-			message.amount = -1;
-			message.amountFormatted = message.amountFormatted.replace(/[0-9.]+/, "-1");
 		}
 
 		//Avoid polluting trigger execution history for Twitchat internal triggers
