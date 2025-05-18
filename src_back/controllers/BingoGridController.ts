@@ -272,7 +272,16 @@ export default class BingoGridController extends AbstractController {
 		const gridId:string = body.gridid;
 		const states:{[cellId:string]:boolean} = body.states;
 
-		await this.setTickStates(user.user_id, gridId, states);
+		try {
+			await this.setTickStates(user.user_id, gridId, states);
+		}catch(error) {
+			Logger.error("Failed updating tick states");
+			Logger.log(error);
+			response.header('Content-Type', 'application/json');
+			response.status(500);
+			response.send({success:false, error:"failed to update grid", errorCode:"GRID_UPDATE_FAILED"});
+			return;
+		}
 
 		response.header('Content-Type', 'application/json');
 		response.status(200);
@@ -499,25 +508,27 @@ export default class BingoGridController extends AbstractController {
 
 			//Update viewers caches
 			const folder = Config.BINGO_GRID_ROOT(streamerId, gridId);
-			const files = fs.readdirSync(folder);
-			files.forEach(file => {
-				const viewerId = file.split(".")[0];
-				const cache = JSON.parse(fs.readFileSync(folder+"/"+file, "utf-8")) as IGridCacheData;
-				cache.date = Date.now();
-				const grid = cache.data;
-				for (const cellId in states) {
-					const state = states[cellId];
-					let entry = grid.entries.find(v=>v.id === cellId);
-					if(entry) entry.check = state;
-					if(grid.additionalEntries) {
-						entry = grid.additionalEntries.find(v=>v.id === cellId);
+			if(fs.existsSync(folder)) {
+				const files = fs.readdirSync(folder);
+				files.forEach(file => {
+					const viewerId = file.split(".")[0];
+					const cache = JSON.parse(fs.readFileSync(folder+"/"+file, "utf-8")) as IGridCacheData;
+					cache.date = Date.now();
+					const grid = cache.data;
+					for (const cellId in states) {
+						const state = states[cellId];
+						let entry = grid.entries.find(v=>v.id === cellId);
 						if(entry) entry.check = state;
+						if(grid.additionalEntries) {
+							entry = grid.additionalEntries.find(v=>v.id === cellId);
+							if(entry) entry.check = state;
+						}
 					}
-				}
-				this.saveViewerGrid(streamerId, gridId, viewerId, cache);
-				//Send new states to viewer
-				SSEController.sendToUser(viewerId, SSETopic.BINGO_GRID_CELL_STATES, {gridId, states});
-			});
+					this.saveViewerGrid(streamerId, gridId, viewerId, cache);
+					//Send new states to viewer
+					SSEController.sendToUser(viewerId, SSETopic.BINGO_GRID_CELL_STATES, {gridId, states});
+				});
+			}
 		}
 	}
 }

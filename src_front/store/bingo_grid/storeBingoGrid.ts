@@ -350,6 +350,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				if(entries[i].lock || entries[j].lock) continue;
 				[entries[i], entries[j]] = [entries[j], entries[i]];
 			}
+			grid.entries = entries;
 
 			clearTimeout(debounceShuffle);
 			debounceShuffle = window.setTimeout(() => {
