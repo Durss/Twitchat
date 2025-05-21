@@ -1,21 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 27.9.4, SVG Export Plug-In . SVG Version: 9.03 Build 54784)  -->
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 474.7 474.7" style="enable-background:new 0 0 474.7 474.7;" xml:space="preserve">
-<style type="text/css">
-	.st0{fill:#FFFFFF;}
-</style>
-<rect x="0" y="0" class="st0" width="125.3" height="125.3"/>
-<rect x="174.7" y="0" class="st0" width="125.3" height="125.3"/>
-<rect x="349.4" y="174.7" class="st0" width="125.3" height="125.3"/>
-<rect x="0" y="349.4" class="st0" width="125.3" height="125.3"/>
-<rect x="174.7" y="349.4" class="st0" width="125.3" height="125.3"/>
-<path class="st0" d="M349.4,0v125.3h125.3V0H349.4z M412,103.5c-22.5,0-40.8-18.3-40.8-40.8s18.3-40.8,40.8-40.8
+<rect x="0" y="0" width="125.3" height="125.3"/>
+<rect x="174.7" y="0" width="125.3" height="125.3"/>
+<rect x="349.4" y="174.7" width="125.3" height="125.3"/>
+<rect x="0" y="349.4" width="125.3" height="125.3"/>
+<rect x="174.7" y="349.4" width="125.3" height="125.3"/>
+<path d="M349.4,0v125.3h125.3V0H349.4z M412,103.5c-22.5,0-40.8-18.3-40.8-40.8s18.3-40.8,40.8-40.8
 	c22.5,0,40.8,18.3,40.8,40.8S434.6,103.5,412,103.5z"/>
-<path class="st0" d="M349.4,349.4v125.3h125.3V349.4H349.4z M412,452.8c-22.5,0-40.8-18.3-40.8-40.8s18.3-40.8,40.8-40.8
+<path d="M349.4,349.4v125.3h125.3V349.4H349.4z M412,452.8c-22.5,0-40.8-18.3-40.8-40.8s18.3-40.8,40.8-40.8
 	c22.5,0,40.8,18.3,40.8,40.8S434.6,452.8,412,452.8z"/>
-<path class="st0" d="M0,174.7V300h125.3V174.7H0z M62.7,278.1c-22.5,0-40.8-18.3-40.8-40.8s18.3-40.8,40.8-40.8
+<path d="M0,174.7V300h125.3V174.7H0z M62.7,278.1c-22.5,0-40.8-18.3-40.8-40.8s18.3-40.8,40.8-40.8
 	c22.5,0,40.8,18.3,40.8,40.8S85.2,278.1,62.7,278.1z"/>
-<path class="st0" d="M174.7,174.7V300H300V174.7H174.7z M237.3,278.1c-22.5,0-40.8-18.3-40.8-40.8s18.3-40.8,40.8-40.8
+<path d="M174.7,174.7V300H300V174.7H174.7z M237.3,278.1c-22.5,0-40.8-18.3-40.8-40.8s18.3-40.8,40.8-40.8
 	c22.5,0,40.8,18.3,40.8,40.8S259.9,278.1,237.3,278.1z"/>
 </svg>

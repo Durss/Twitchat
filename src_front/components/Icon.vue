@@ -77,7 +77,7 @@ class Icon extends Vue {
 					this.error = true;
 				}else{
 					this.svg = (await imgRes.text())
-					.replace(/<style[^<keep]*<\/ ?style>/gim, "")//Cleanup styles
+					// .replace(/<style[^<keep]*<\/ ?style>/gim, "")//Cleanup styles
 					.replace(/<!--[^<]*-->/g, "")//Cleanup comments
 					.replace(/<\?xml[^<]*>/g, "")//cleanup <xml> header
 					.replace(/\s+/g, ' ') // Replace multiple spaces with a single space
