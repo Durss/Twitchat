@@ -1,14 +1,14 @@
 <template>
 	<div class="chattipandtrickad" @contextmenu="onRightClick($event)">
 		<div v-if="tipIndex===0" class="entry">
-			<img src="@/assets/icons/obs.svg" alt="elgato" class="icon">
+			<Icon name="obs" alt="elgato" class="icon" theme="light" />
 			<h1>{{ $t("tips.alerts.title") }}</h1>
 			<div>{{ $t("tips.alerts.info_1") }}</div>
 			<TTButton primary light @click.stop="openParamPage(contentTriggers)" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
 
 		<div v-if="tipIndex===1" class="entry">
-			<img src="@/assets/icons/elgato.svg" alt="elgato" class="icon">
+			<Icon name="elgato" alt="elgato" class="icon" theme="light" />
 			<h1>{{ $t('tips.streamdeck.title') }}</h1>
 			<div>{{ $t('tips.streamdeck.info_1') }}</div>
 			<div>{{ $t('tips.streamdeck.info_2') }}</div>
@@ -16,21 +16,21 @@
 		</div>
 
 		<div v-if="tipIndex===2" class="entry">
-			<img src="@/assets/icons/raid.svg" alt="raid" class="icon">
+			<Icon name="raid" alt="raid" class="icon" theme="light" />
 			<h1>{{ $t('tips.obs_stop.title') }}</h1>
 			<div>{{ $t('tips.obs_stop.info_1') }}</div>
 			<TTButton primary light @click.stop="openParamItem('features.stopStreamOnRaid')" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
 
 		<div v-if="tipIndex===3" class="entry">
-			<img src="@/assets/icons/bingo.svg" alt="bingo" class="icon">
+			<Icon name="bingo" alt="bingo" class="icon" theme="light" />
 			<h1>{{ $t('tips.bingo.title') }}</h1>
 			<div>{{ $t('tips.bingo.info_1') }}</div>
 			<TTButton primary light @click.stop="openModal('bingo')" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
 
 		<div v-if="tipIndex===4" class="entry">
-			<img src="@/assets/icons/ticket.svg" alt="raffle" class="icon">
+			<Icon name="ticket" alt="raffle" class="icon" theme="light" />
 			<h1>{{ $t('tips.raffle.title') }}</h1>
 			<div>{{ $t('tips.raffle.info_1') }}</div>
 			<div>{{ $t('tips.raffle.info_2') }}</div>
@@ -38,7 +38,7 @@
 		</div>
 
 		<div v-if="tipIndex===5" class="entry">
-			<img src="@/assets/icons/obs.svg" alt="obs" class="icon">
+			<Icon name="obs" alt="obs" class="icon" theme="light" />
 			<h1>{{ $t('tips.obs.title') }}</h1>
 			<div>{{ $t('tips.obs.info_1') }}</div>
 			<div>{{ $t('tips.obs.info_2') }}</div>
@@ -46,7 +46,7 @@
 		</div>
 
 		<div v-if="tipIndex===6" class="entry">
-			<img src="@/assets/icons/api.svg" alt="api" class="icon">
+			<Icon name="api" alt="api" class="icon" theme="light" />
 			<h1>{{ $t('tips.api.title') }}</h1>
 			<div>{{ $t('tips.api.info_1') }}</div>
 			<div>{{ $t('tips.api.info_2') }}</div>
@@ -57,7 +57,7 @@
 		</div>
 
 		<div v-if="tipIndex===7" class="entry">
-			<img src="@/assets/icons/music.svg" alt="music" class="icon">
+			<Icon name="music" alt="music" class="icon" theme="light" />
 			<h1>{{ $t('tips.music.title') }}</h1>
 			<div v-html="$t('tips.music.info_1')"></div>
 			<div>{{ $t('tips.music.info_2') }}</div>
@@ -65,7 +65,7 @@
 		</div>
 
 		<div v-if="tipIndex===8" class="entry">
-			<img src="@/assets/icons/overlay.svg" alt="overlay" class="icon">
+			<Icon name="overlay" alt="overlay" class="icon" theme="light" />
 			<h1>{{ $t('tips.overlays.title') }}</h1>
 			<div v-html="$t('tips.overlays.info_1')"></div>
 			<div v-html="$t('tips.overlays.info_2')"></div>
@@ -73,7 +73,7 @@
 		</div>
 
 		<div v-if="tipIndex===9" class="entry">
-			<img src="@/assets/icons/countdown.svg" alt="timer" class="icon">
+			<Icon name="countdown" alt="timer" class="icon" theme="light" />
 			<h1>{{ $t('tips.countdown.title') }}</h1>
 			<i18n-t scope="global" tag="div" keypath="tips.countdown.info_1">
 				<template #CMD1><mark class="cmd">/timerStart</mark></template>
@@ -83,7 +83,7 @@
 		</div>
 
 		<div v-if="tipIndex===10" class="entry">
-			<img src="@/assets/icons/obs.svg" alt="obs dock" class="icon">
+			<Icon name="obs" alt="obs dock" class="icon" theme="light" />
 			<h1>{{ $t('tips.dock.title') }}</h1>
 			<div v-html="$t('tips.dock.info_1')"></div>
 			<div v-html="$t('tips.dock.info_2')"></div>
@@ -91,7 +91,7 @@
 		</div>
 
 		<div v-if="tipIndex===11" class="entry">
-			<img src="@/assets/icons/highlight.svg" alt="chat highlight" class="icon">
+			<Icon name="highlight" alt="chat highlight" class="icon" theme="light" />
 			<h1>{{ $t('tips.highlight.title') }}</h1>
 			<div>{{ $t('tips.highlight.info') }}</div>
 
@@ -108,9 +108,11 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
+		Icon,
 		TTButton,
 	},
 })
@@ -155,11 +157,8 @@ export default toNative(ChatTipAndTrickAd);
 		.icon {
 			height: 4em;
 			width: 4em;
-			margin-bottom: .5em;
-		}
-
-		img {
 			max-width: 100%;
+			margin-bottom: .5em;
 		}
 
 		.demo {

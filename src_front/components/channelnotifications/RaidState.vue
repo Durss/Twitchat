@@ -14,7 +14,7 @@
 			<i18n-t scope="global" tag="span" keypath="raid.raiding">
 				<template #USER>
 					<a :href="'https://twitch.tv/'+raidInfo.user.login" target="_blank" class="userLink">
-						<img src="@/assets/icons/newtab.svg" alt="open in new tab">
+						<Icon name="newtab" alt="open in new tab"/>
 						{{raidInfo.user.displayName}}
 					</a>
 				</template>
@@ -40,7 +40,7 @@
 		alert medium :open="false"
 		:title="$tc('raid.banned_users_title', (bannedOnline.length + timedoutOnline.length), {COUNT:(bannedOnline.length + timedoutOnline.length)})">
 			<template #left_actions>
-				<img src="@/assets/icons/alert.svg" class="icon">
+				<Icon name="alert" class="icon"/>
 			</template>
 			<i18n-t scope="global" tag="div" keypath="raid.banned_users" class="head">
 				<template #USER>
@@ -49,12 +49,12 @@
 			</i18n-t>
 			<ul class="list">
 				<li class="user" v-for="(u, index) in bannedOnline" :key="index + u.id">
-					<img src="@/assets/icons/ban.svg" v-tooltip="'Ban'">
+					<Icon name="ban" v-tooltip="'Ban'"/>
 					<a :href="'https://twitch.tv/'+u.login" target="_blank"
 					@click.stop.prevent="openUserCard(u)" class="login">{{ u.login }}</a>
 				</li>
 				<li class="user" v-for="(u, index) in timedoutOnline" :key="index + u.id">
-					<img src="@/assets/icons/timeout.svg" v-tooltip="'Timeout'">
+					<Icon name="timeout" v-tooltip="'Timeout'"/>
 					<a :href="'https://twitch.tv/'+u.login" target="_blank"
 					@click.stop.prevent="openUserCard(u)" class="login">{{ u.login }}</a>
 					<span class="duration">({{ getBanDuration(u) }})</span>
@@ -262,7 +262,7 @@ export default toNative(RaidState);
 				width: 3em;
 				border-radius: 50%;
 				margin: auto;
-	
+
 				&.mini {
 					width: 1.5em;
 					height: 1.5em;
@@ -277,7 +277,7 @@ export default toNative(RaidState);
 		.userLink {
 			display: inline;
 			color: var(--color-text-light);
-			img {
+			.icon {
 				height: 1em;
 				vertical-align: middle;
 			}

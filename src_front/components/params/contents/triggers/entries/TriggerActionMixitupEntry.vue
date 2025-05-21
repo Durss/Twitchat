@@ -1,7 +1,7 @@
 <template>
 	<div class="triggeractionmixitupentry triggerActionForm">
 		<div class="card-item info warn" v-if="!$store.mixitup.connected">
-			<img src="@/assets/icons/info.svg" alt="info">
+			<Icon name="info" alt="info" theme="light" />
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.mixitup.need_to_connect">
 				<template #LINK>
 					<a @click="openConnectForm()">{{ $t("triggers.actions.mixitup.need_to_connect_link") }}</a>
@@ -39,9 +39,11 @@ import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import { watch } from 'vue';
 import TTButton from '@/components/TTButton.vue';
+import Icon from '@/components/Icon.vue';
 
 @Component({
 	components:{
+		Icon,
 		TTButton,
 		ParamItem,
 		ToggleButton,

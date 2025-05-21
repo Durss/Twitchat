@@ -1,8 +1,8 @@
 <template>
 	<div class="chatautobanjoin chatMessage highlight">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
-		
-		<img src="@/assets/icons/mod.svg" alt="mod" class="icon">
+
+		<Icon name="mod" alt="mod" />
 
 		<div class="holder">
 			<i18n-t scope="global" tag="span" keypath="chat.autoban_join.message">
@@ -13,14 +13,14 @@
 					<mark>{{ messageData.rule.label }}</mark>
 				</template>
 			</i18n-t>
-	
+
 			<div class="ctas" v-if="canUnban || canBlock">
 				<Button  v-if="canUnban"
 					small light
 					:loading="moderating"
 					icon="unban"
 					@click.stop="unbanUser()">{{ $t('chat.autoban_join.unbanBt') }}</Button>
-	
+
 				<Button alert v-if="canBlock"
 					small
 					:loading="moderating"
@@ -38,6 +38,7 @@ import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import AbstractChatMessage from './AbstractChatMessage';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{

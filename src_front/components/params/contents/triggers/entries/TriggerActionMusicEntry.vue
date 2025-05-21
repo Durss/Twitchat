@@ -1,7 +1,7 @@
 <template>
 	<div class="TriggerActionMusicEntry triggerActionForm" v-if="!spotifyConnected">
 		<div class="info warn">
-			<img src="@/assets/icons/info.svg" alt="info">
+			<Icon name="info" alt="info" theme="light" />
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.music.header">
 				<template #LINK>
 					<a @click="$store.params.openParamsPage(contentConnexions, 'spotify')">{{ $t("triggers.actions.music.header_link") }}</a>
@@ -41,10 +41,12 @@ import ParamItem from '../../../ParamItem.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import { SpotifyScopes } from '@/types/spotify/SpotifyDataTypes';
 import TTButton from '@/components/TTButton.vue';
+import Icon from '@/components/Icon.vue';
 
 
 @Component({
 	components:{
+		Icon,
 		TTButton,
 		ParamItem,
 	},

@@ -1,7 +1,7 @@
 <template>
 	<div class="chatmessageinfobadges">
 		<div v-for="i in infos" :class="['item', i.type].join(' ')" v-tooltip="getTooltip(i)">
-			<img :src="getIcon(i)" :alt="i.label" v-if="getIcon(i)">
+			<Icon :name="getIcon(i)" :alt="i.label" v-if="getIcon(i)" />
 			<span class="label" v-if="getLabel(i)">{{getLabel(i)}}</span>
 		</div>
 	</div>
@@ -9,7 +9,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{}
@@ -52,7 +52,7 @@ class ChatMessageInfoBadges extends Vue {
 			watchStreak:"watchStreak",
 		};
 		if(hashmap[info.type]) {
-			return this.$asset("icons/"+hashmap[info.type]+".svg");
+			return hashmap[info.type] || "";
 		}
 		return "";
 	}
@@ -102,7 +102,7 @@ export default toNative(ChatMessageInfoBadges);
 			font-weight: 300;
 		}
 
-		img {
+		.icon {
 			height: .8em;
 		}
 

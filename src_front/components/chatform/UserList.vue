@@ -17,10 +17,10 @@
 						v-for="u in currentChan.users[key]" :key="u.id">
 							<Icon name="unfollow" v-if="canListFollowers && u.channelInfo[currentChanId!]?.is_following === false" theme="secondary" />
 							<div v-if="currentChanId && u.channelInfo[currentChanId].is_banned" class="icon">
-								<img v-if="currentChanId && u.channelInfo[currentChanId].banEndDate"
-									src="@/assets/icons/timeout.svg"
-									v-tooltip="getBanDuration(u.channelInfo[currentChanId])">
-								<img v-else src="@/assets/icons/ban.svg" v-tooltip="$t('userlist.banned_tt')">
+								<Icon v-if="currentChanId && u.channelInfo[currentChanId].banEndDate"
+									name="timeout"
+									v-tooltip="getBanDuration(u.channelInfo[currentChanId])" />
+								<Icon v-else name="ban" v-tooltip="$t('userlist.banned_tt')" />
 							</div>
 							<span>{{u.displayName}}</span>
 						</a>
@@ -299,7 +299,7 @@ export default toNative(UserList);
 			grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
 			
 			.user {
-				display: inline-block;
+				display: inline-flex;
 				text-overflow: ellipsis;
 				overflow: hidden;
 				width: @itemWidth;
@@ -309,6 +309,7 @@ export default toNative(UserList);
 				width: 100%;
 				padding: .25em;
 				color: var(--color-text);
+				align-items: center;
 				&:hover {
 					text-decoration: underline;
 				}
@@ -333,9 +334,9 @@ export default toNative(UserList);
 				}
 
 				.icon {
-					display: inline-block;
+					display: block;
 					vertical-align: middle;
-					margin-right: .5em;
+					margin-right: .25em;
 					height: 1em;
 				}
 			}

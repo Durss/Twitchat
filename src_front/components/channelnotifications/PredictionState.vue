@@ -1,19 +1,19 @@
 <template>
 	<div :class="classes">
-		<h1 class="title"><img src="@/assets/icons/prediction.svg">{{prediction.title}}</h1>
-		
+		<h1 class="title"><Icon name="prediction" />{{prediction.title}}</h1>
+
 		<ProgressBar class="progress"
 			secondary
 			:percent="progressPercent"
 			:duration="prediction.duration_s*1000"
 			v-if="!prediction.pendingAnswer" />
-		
+
 		<div class="chooseOutcomeTitle" v-if="prediction.pendingAnswer && canAnswer"><span class="arrow">⤺</span> {{ $t('prediction.state.choose_outcome') }}</div>
-		
+
 		<div class="choices">
 			<div class="choice" v-for="(c, index) in prediction.outcomes" :key="index">
 				<div class="color" v-if="!prediction.pendingAnswer || !canAnswer"></div>
-				<Button class="winBt"
+				<TTButton class="winBt"
 					secondary
 					@click="setOutcome(c)"
 					icon="checkmark"
@@ -24,8 +24,8 @@
 					<div>{{c.label}}</div>
 					<div class="details">
 						<span class="percent">{{getPercent(c)}}%</span>
-						<span class="votes"><img src="@/assets/icons/user.svg" alt="user" class="icon">{{c.voters}}</span>
-						<span class="points"><img src="@/assets/icons/channelPoints.svg" alt="channelPoints" class="icon">{{c.votes}}</span>
+						<span class="votes"><Icon name="user" alt="user" class="icon" />{{c.voters}}</span>
+						<span class="points"><Icon name="channelPoints" alt="channelPoints" class="icon" />{{c.votes}}</span>
 					</div>
 				</div>
 			</div>
@@ -38,7 +38,7 @@
 			</template>
 		</i18n-t>
 
-		<Button v-if="canAnswer" @click="deletePrediction()" :loading="loading" alert>{{ $t('prediction.state.cancelBt') }}</Button>
+		<TTButton v-if="canAnswer" @click="deletePrediction()" :loading="loading" alert>{{ $t('prediction.state.cancelBt') }}</TTButton>
 	</div>
 </template>
 
@@ -48,10 +48,12 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ProgressBar from '../ProgressBar.vue';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		Icon,
+		TTButton,
 		ProgressBar,
 	}
 })
@@ -59,7 +61,7 @@ class PredictionState extends Vue {
 
 	public loading = false;
 	public progressPercent = 0;
-	
+
 	private disposed = false;
 
 	public get me():TwitchatDataTypes.TwitchatUser { return this.$store.auth.twitch.user; }
@@ -165,7 +167,7 @@ export default toNative(PredictionState);
 		width: calc(100% - 1em - 10px);
 		font-style: italic;
 	}
-	
+
 	.chooseOutcomeTitle {
 		align-self: stretch;
 		margin-left: 1em;
@@ -240,7 +242,7 @@ export default toNative(PredictionState);
 					height: 18px;
 				}
 			}
-			
+
 			.bar {
 				.emboss();
 				flex-grow: 1;

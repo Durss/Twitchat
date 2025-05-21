@@ -10,7 +10,7 @@
 		</div>
 
 		<div v-if="automodReasons" class="automod">
-			<img src="@/assets/icons/automod.svg">
+			<Icon name="automod" theme="light" />
 			<div class="header"><strong>{{ $t('chat.message.automod') }}</strong> {{automodReasons}}</div>
 			<div class="actions">
 				<Button :aria-label="$t('chat.message.automod_acceptBt_aria')"
@@ -40,6 +40,9 @@
 
 			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools" :canDelete="messageData.type != 'whisper'" />
 
+			<Icon name="youtube" v-if="messageData.platform == 'youtube'" v-tooltip="$t('chat.youtube.platform_youtube')" />
+			<Icon name="tiktok" v-if="messageData.platform == 'tiktok'" v-tooltip="$t('chat.tiktok.platform_tiktok')" />
+
 			<Icon v-if="!disableConversation && isConversation && $store.params.features.conversationsEnabled.value && !lightMode"
 				class="icon convBt"
 				name="conversation"
@@ -49,9 +52,6 @@
 			@click.stop="stopAutoSpoil()" alert small icon="show" v-tooltip="$t('chat.message.stop_autospoil')" />
 
 			<ChatMessageInfoBadges class="infoBadges" :infos="infoBadges" v-if="infoBadges.length > 0" />
-
-			<Icon name="youtube" v-if="messageData.platform == 'youtube'" v-tooltip="$t('chat.youtube.platform_youtube')" />
-			<Icon name="tiktok" v-if="messageData.platform == 'tiktok'" v-tooltip="$t('chat.tiktok.platform_tiktok')" />
 
 			<div class="userBadges" v-if="filteredBadges.length > 0 || miniBadges.length > 0">
 				<tooltip v-for="(b,index) in filteredBadges" :key="index"

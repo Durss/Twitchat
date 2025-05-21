@@ -2,8 +2,8 @@
 	<div class="chatfollowbotevents chatMessage highlight">
 		<div class="head" @click.stop="expand = !expand">
 			<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
-			<img src="@/assets/icons/shield.svg" class="icon">
-			<img src="@/assets/icons/follow.svg" class="icon">
+			<Icon name="shield" class="icon" theme="light" />
+			<Icon name="follow" class="icon" theme="light" />
 			<span class="label">{{  $t("chat.followbot.title", {COUNT:messageData?.users.length}) }}</span>
 		</div>
 		<div v-if="expand" class="userList">
@@ -46,7 +46,7 @@ export default toNative(ChatFollowbotEvents);
 	&:hover {
 		background-color: var(--color-alert-light);
 	}
-	
+
 	.head {
 		cursor: pointer;
 		display: flex;

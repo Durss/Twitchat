@@ -1,7 +1,7 @@
 <template>
 	<div class="triggeractionlist">
 		<div class="card-item secondary description" data-noselect>
-			<img src="@/assets/icons/info.svg" class="icon">
+			<Icon name="info" class="icon" theme="light" />
 			<i18n-t scope="global" tag="span" v-if="triggerDescriptionLabel" :keypath="triggerDescriptionLabel">
 				<template #SUB_ITEM_NAME>
 					<mark>{{ subTypeLabel }}</mark>
@@ -93,7 +93,7 @@
 		<div :class="listClasses">
 			<div v-if="hasCondition" class="conditionSelector" data-noselect>
 				<TTButton icon="cross" alert @click="matchingCondition = false" :selected="matchingCondition == false" />
-				<img src="@/assets/icons/condition.svg" class="conditionLink" />
+				<Icon name="condition" class="conditionLink" />
 				<TTButton icon="checkmark" @click="matchingCondition = true" :selected="matchingCondition == true" primary />
 			</div>
 			<svg class="conditionJoint" v-if="hasCondition" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"

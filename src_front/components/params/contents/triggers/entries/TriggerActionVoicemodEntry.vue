@@ -1,7 +1,7 @@
 <template>
 	<div class="triggeractionvoicemodentry triggerActionForm" v-if="!vmConnected">
 		<div class="item info warn">
-			<img src="@/assets/icons/info.svg" alt="info">
+			<Icon name="info" alt="info" theme="light" />
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.voicemod.header">
 				<template #LINK>
 					<a @click="$store.params.openParamsPage(contentConnexions, subcontentVM)">{{ $t("triggers.actions.voicemod.header_link") }}</a>
@@ -18,18 +18,20 @@
 </template>
 
 <script lang="ts">
+import Icon from '@/components/Icon.vue';
 import type { TriggerActionVoicemodDataAction } from '@/types/TriggerActionDataTypes';
 import { TriggerActionVoicemodDataActionList, type ITriggerPlaceholder, type TriggerActionVoicemodData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
+import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
+import { Component, Prop, toNative } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
-import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 
 @Component({
 	components:{
+		Icon,
 		ParamItem,
 	},
 	emits:["update"]

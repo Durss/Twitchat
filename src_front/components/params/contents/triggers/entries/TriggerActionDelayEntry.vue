@@ -5,9 +5,9 @@
 			data-noselect
 			v-tooltip="$t('triggers.reorder_tt')" />
 
-		<img src="@/assets/icons/timer.svg" class="icon">
+		<Icon name="timer" class="icon" theme="light" />
 
-		<DurationForm v-if="isNumericValue" class="field" v-model="action.delay" allowMs />
+		<DurationForm style="color:#fff" v-if="isNumericValue" class="field" v-model="action.delay" allowMs />
 
 		<TTButton v-else icon="trash" small secondary @click="action.delay = 0">{{ action.delay }}</TTButton>
 
@@ -19,7 +19,7 @@
 				@insert="insertTag"
 			/>
 
-			<TTButton transparent icon="merge" @click="$emit('addCondition')" v-tooltip="$t('triggers.condition.add_tt')" />
+			<TTButton transparent icon="merge" light @click="$emit('addCondition')" v-tooltip="$t('triggers.condition.add_tt')" />
 			<TTButton alert icon="trash" @click="$emit('delete')" />
 		</div>
 	</div>

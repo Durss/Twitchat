@@ -35,7 +35,7 @@
 					<div class="title">{{ $t('chat.discord.title') }}</div>
 				</div>
 				<div class="content">
-					<img src="@/assets/icons/discord.svg" alt="discord" class="icon">
+					<Icon name="discord" alt="discord" class="icon" theme="light" />
 					<div v-html="$t('chat.discord.content')"></div>
 				</div>
 				<div class="ctas">
@@ -52,7 +52,7 @@
 					<div class="title">{{ $t('chat.adalert.title') }}</div>
 				</div>
 				<div class="content left">
-					<img src="@/assets/icons/twitchat.svg" alt="twitchat" class="icon">
+					<Icon name="twitchat" alt="twitchat" class="icon" theme="light" />
 					<div v-for="e in $tm('chat.adalert.contents')" v-html="e"></div>
 				</div>
 				<div class="ctas">
@@ -72,7 +72,7 @@
 					<div class="title">{{$t('chat.donor.title')}}</div>
 				</div>
 				<div class="content">
-					<img src="@/assets/icons/follow.svg" alt="heart" class="icon">
+					<Icon name="follow" alt="heart" class="icon" theme="light" />
 					<div>{{ $t('chat.donor.info_1') }}</div>
 					<i18n-t scope="global" tag="div" keypath="chat.donor.info_2">
 						<template #LINK><a @click="openParamPage(contentDonate)">{{ $t('chat.donor.info_2_link') }}</a></template>
@@ -96,7 +96,7 @@
 
 			<div v-if="isUpdateReminder" class="card-item primary updateReminder">
 				<div class="content">
-					<img src="@/assets/icons/firstTime.svg" class="icon small">
+					<Icon name="firstTime" class="small" theme="light" />
 					<i18n-t scope="global" tag="span" keypath="chat.updateReminder.content">
 						<template #CMD>
 							<mark>/updates</mark>
@@ -111,7 +111,7 @@
 			<div v-if="isAdBreakScopeRequest" class="card-item primary adBreak">
 				<div class="header">
 					<ClearButton @click.stop="deleteMessage()" />
-					<div class="title"><img src="@/assets/icons/ad.svg" class="icon small"> {{ $t('chat.adBreakScope.header') }}</div>
+					<div class="title"><Icon name="ad" class="icon small" theme="light" /> {{ $t('chat.adBreakScope.header') }}</div>
 				</div>
 				<div class="content">
 					<span>{{ $t("chat.adBreakScope.content") }}</span>
@@ -325,7 +325,7 @@ export default toNative(ChatAd);
 
 				&.small {
 					height: 1em;
-					display: inline;
+					display: inline-block;
 					width: auto;
 					vertical-align: middle;
 					margin-right: .5em;

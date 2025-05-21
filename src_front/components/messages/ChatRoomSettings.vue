@@ -1,7 +1,7 @@
 <template>
 	<div class="chatroomsettings chatMessage highlight primary">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
-		<img class="icon lock" src="@/assets/icons/lock.svg" />
+		<Icon class="icon lock" name="lock" />
 		<div class="content">
 			<div>
 				<i18n-t scope="global" tag="span" keypath="chat.room_settings.title">
@@ -9,24 +9,24 @@
 				</i18n-t>
 			</div>
 			<div class="restriction" v-if="messageData.settings.subOnly" ref="sub">
-				<span><img class="icon" src="@/assets/icons/sub.svg" />{{$t("chat.room_settings.sub_only")}}</span>
-				<Button v-if="isMod" class="unsetBt" @click="unset('sub')" small light>{{$t("chat.room_settings.unsetBt")}}</Button>
+				<span><Icon class="icon" name="sub" />{{$t("chat.room_settings.sub_only")}}</span>
+				<TTButton v-if="isMod" class="unsetBt" @click="unset('sub')" small light>{{$t("chat.room_settings.unsetBt")}}</TTButton>
 			</div>
 			<div class="restriction" v-if="messageData.settings.emotesOnly" ref="emote">
-				<span><img class="icon" src="@/assets/icons/emote.svg" />{{$t("chat.room_settings.emote_only")}}</span>
-				<Button v-if="isMod" class="unsetBt" @click="unset('emote')" small light>{{$t("chat.room_settings.unsetBt")}}</Button>
+				<span><Icon class="icon" name="emote" />{{$t("chat.room_settings.emote_only")}}</span>
+				<TTButton v-if="isMod" class="unsetBt" @click="unset('emote')" small light>{{$t("chat.room_settings.unsetBt")}}</TTButton>
 			</div>
 			<div class="restriction" v-if="typeof messageData.settings.followOnly == 'number'" ref="follow">
-				<span><img class="icon" src="@/assets/icons/follow.svg" />{{$t("chat.room_settings.follow_only")}}</span>
-				<Button v-if="isMod" class="unsetBt" @click="unset('follow')" small light>{{$t("chat.room_settings.unsetBt")}}</Button>
+				<span><Icon class="icon" name="follow" />{{$t("chat.room_settings.follow_only")}}</span>
+				<TTButton v-if="isMod" class="unsetBt" @click="unset('follow')" small light>{{$t("chat.room_settings.unsetBt")}}</TTButton>
 			</div>
 			<div class="restriction" v-if="messageData.settings.slowMode" ref="slow">
-				<span><img class="icon" src="@/assets/icons/slow.svg" />{{$t("chat.room_settings.slow_mode")}} ({{messageData.settings.slowMode}}s)</span>
-				<Button v-if="isMod" class="unsetBt" @click="unset('slow')" small light>{{$t("chat.room_settings.unsetBt")}}</Button>
+				<span><Icon class="icon" name="slow" />{{$t("chat.room_settings.slow_mode")}} ({{messageData.settings.slowMode}}s)</span>
+				<TTButton v-if="isMod" class="unsetBt" @click="unset('slow')" small light>{{$t("chat.room_settings.unsetBt")}}</TTButton>
 			</div>
 			<div class="restriction" v-if="messageData.settings.chatDelay" ref="delay">
-				<span><img class="icon" src="@/assets/icons/timer.svg" />{{$t("chat.room_settings.chat_delay")}} ({{messageData.settings.chatDelay}}s)</span>
-				<Button v-if="isMod" class="unsetBt" @click="unset('delay')" small light>{{$t("chat.room_settings.unsetBt")}}</Button>
+				<span><Icon class="icon" name="timer" />{{$t("chat.room_settings.chat_delay")}} ({{messageData.settings.chatDelay}}s)</span>
+				<TTButton v-if="isMod" class="unsetBt" @click="unset('delay')" small light>{{$t("chat.room_settings.unsetBt")}}</TTButton>
 			</div>
 		</div>
 	</div>
@@ -42,10 +42,12 @@ import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import AbstractChatMessage from './AbstractChatMessage';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		Icon,
+		TTButton,
 		Splitter,
 		ToggleBlock,
 		ChatTipAndTrickAd,

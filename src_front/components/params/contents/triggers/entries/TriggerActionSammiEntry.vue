@@ -1,7 +1,7 @@
 <template>
 	<div class="triggeractionwsentry triggerActionForm">
 		<div class="card-item info warn" v-if="!$store.sammi.connected">
-			<img src="@/assets/icons/info.svg" alt="info">
+			<Icon name="info" alt="info" theme="light" />
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.sammi.need_to_connect">
 				<template #LINK>
 					<a @click="openConnectForm()">{{ $t("triggers.actions.sammi.need_to_connect_link") }}</a>
@@ -21,9 +21,11 @@ import type { TriggerActionSammiData, TriggerData } from '@/types/TriggerActionD
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
+import Icon from '@/components/Icon.vue';
 
 @Component({
 	components:{
+		Icon,
 		ParamItem,
 		ToggleButton,
 		PlaceholderSelector,

@@ -1,6 +1,6 @@
 <template>
 	<div class="voiceglobalcommandshelper">
-		<img src="@/assets/icons/voice.svg" alt="voice control enabled" class="icon">
+		<Icon name="voice" alt="voice control enabled" class="icon" />
 		
 		<div class="list">
 			<template v-for="a in actions" :key="a.action.id">

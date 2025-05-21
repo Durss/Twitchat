@@ -1,7 +1,7 @@
 <template>
 	<div class="triggeractionttsentry triggerActionForm" v-if="!$store.tts.params.enabled">
 		<div class="info warn">
-			<img src="@/assets/icons/info.svg" alt="info">
+			<Icon name="info" alt="info" theme="light" />
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.tts.header">
 				<template #LINK>
 					<a @click="$store.params.openParamsPage(contentTTS)">{{ $t("triggers.actions.tts.header_link") }}</a>
@@ -25,10 +25,11 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
-import TTSUtils from '@/utils/TTSUtils';
+import Icon from '@/components/Icon.vue';
 
 @Component({
 	components:{
+		Icon,
 		ParamItem,
 		TTSVoiceParams,
 	},

@@ -6,11 +6,12 @@
 <template>
 	<form :class="classes" @click="onClick()" @submit.prevent="">
 		<div class="field" @keyup.enter.capture="timeoutUser"><input type="text" v-model="duration">s</div>
-		<button @click="timeoutUser" class="submit" type="submit"><img src="@/assets/icons/checkmark.svg" alt="check"></button>
+		<button @click="timeoutUser" class="submit" type="submit"><Icon name="checkmark" alt="check" theme="light" /></button>
 	</form>
 </template>
 
 <script lang="ts">
+import Icon from '@/components/Icon.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -18,7 +19,9 @@ import ContextMenu from "@imengyu/vue3-context-menu";
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
-	components:{},
+	components:{
+		Icon,
+	},
 	emits:[],
 })
 class ContextMenuTimeoutDuration extends Vue {
@@ -91,7 +94,7 @@ export default toNative(ContextMenuTimeoutDuration);
 		background-color: rgba(0, 0, 0, .6);
 		margin: 0;
 		padding: 0 .5em 0 0;
-	
+
 		&::placeholder {
 			font-style: italic;
 		}
@@ -109,7 +112,7 @@ export default toNative(ContextMenuTimeoutDuration);
 		border-top-right-radius: var(--border-radius);
 		border-bottom-right-radius: var(--border-radius);
 		padding: .25em;
-		img {
+		.icon {
 			height: .8em;
 		}
 	}

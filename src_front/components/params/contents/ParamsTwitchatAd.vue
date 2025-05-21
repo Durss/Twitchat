@@ -4,9 +4,10 @@
 	v-if="$store.auth.donorLevel > -1 || $store.auth.isPremium || !$store.auth.noAd">
 		<ClearButton v-if="!collapse" :aria-label="$t('params.ad_collapse_aria')" @click.stop="close()" theme="light" />
 
-		<img src="@/assets/icons/twitchat.svg"
+		<Icon name="twitchat"
 			alt="twitchat"
-			style="height:2em;">
+			theme="light"
+			class="icon" />
 
 			<div class="content" ref="content" v-if="!collapse">
 				<PostOnChatParam class="param"
@@ -24,8 +25,8 @@
 
 					<div class="card-item dark disableinstructions">
 						<p v-html="$t('params.ad_disable_info')"></p>
-						<Button @click="openDonate()" light secondary icon="coin">{{ $t('params.ad_disableBt') }}</Button>
-						<Button @click="openPremium()" premium icon="premium">{{ $t('premium.become_premiumBt') }}</Button>
+						<TTButton @click="openDonate()" light secondary icon="coin">{{ $t('params.ad_disableBt') }}</TTButton>
+						<TTButton @click="openPremium()" premium icon="premium">{{ $t('premium.become_premiumBt') }}</TTButton>
 					</div>
 				</template>
 			</div>
@@ -43,10 +44,12 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import PostOnChatParam from '../PostOnChatParam.vue';
 import ClearButton from '@/components/ClearButton.vue';
 import { gsap } from 'gsap';
+import Icon from '@/components/Icon.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		Icon,
+		TTButton,
 		ClearButton,
 		ToggleBlock,
 		PostOnChatParam,
@@ -179,10 +182,14 @@ export default toNative(ParamsTwitchatAd);
 	.param {
 		margin-top: .5em;
 	}
-	img {
+
+	.icon {
 		display: block;
 		margin: auto;
+		width:2em;
+		height:2em;
 	}
+	
 	.disableinstructions {
 		text-align: center;
 		line-height: 1.25em;

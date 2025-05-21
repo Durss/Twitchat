@@ -2,7 +2,7 @@
 	<div class="voicetranscript">
 		<div class="holder" ref="holder" v-if="show" @click="hide(true)">
 			<div class="padder">
-				<img src="@/assets/icons/microphone.svg" alt="mic" class="icon">
+				<Icon name="microphone" alt="mic" class="icon" theme="light" />
 				<div class="text">{{text}}</div>
 			</div>
 		</div>

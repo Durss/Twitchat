@@ -7,7 +7,7 @@
 		<div class="head">
 			<img src="@/assets/img/goldenKappa.png" alt="golden kappa" class="icon kappa" v-if="goldenKappaMode">
 			<Icon name="train" alt="train" class="icon" v-else-if="!boostMode" />
-			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-else-if="boostMode">
+			<Icon name="train_boost.svg" alt="boost" class="icon" v-else-if="boostMode" />
 			<template v-if="trainData.state == 'APPROACHING'">
 				<h1 v-if="!boostMode">{{ $t("train.hype_approaching") }}</h1>
 				<h1 v-else-if="goldenKappaMode">{{ $t("train.golden_approaching") }}</h1>

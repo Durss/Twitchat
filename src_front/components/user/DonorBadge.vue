@@ -13,7 +13,7 @@
 
 		<div ref="heart" class="beatingHeart" @click="burstStars(true);">
 			<div class="level" v-if="premium === false"><span class="small" v-if="light === false">{{ $t("donor.level") }}</span><br v-if="light === false">{{(donorLevel as string)+1}}</div>
-			<div class="level" v-if="premium !== false"><img src="@/assets/icons/premium.svg" alt="premium" class="icon"></div>
+			<div class="level" v-if="premium !== false"><Icon name="premium" alt="premium" class="icon" theme="light" /></div>
 			<svg class="image" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 				viewBox="0 0 208.6 202.5" xml:space="preserve">
 				<defs>
@@ -89,13 +89,15 @@ C62.5,8,58.7,17.2,64.8,19.2L64.8,19.2z"/>
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import { gsap } from 'gsap/gsap-core';
 import { watch, type CSSProperties } from 'vue';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
+import Icon from '../Icon.vue';
 
 @Component({
-	components:{}
+	components:{
+		Icon,
+	}
 })
 class DonorBadge extends Vue {
 

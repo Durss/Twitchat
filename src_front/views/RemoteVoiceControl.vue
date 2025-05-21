@@ -1,7 +1,7 @@
 <template>
 	<div class="voicecontrol">
 		<div class="card-item primary block head">
-			<img src="@/assets/icons/voice.svg" alt="voice icon" class="icon">
+			<Icon name="voice" alt="voice icon" class="icon" />
 			<p>{{ $t("voice.remote.title") }}</p>
 			<p class="install"><span>{{ $t("obs.install") }}</span> <strong>OBS v28+</strong></p>
 		</div>

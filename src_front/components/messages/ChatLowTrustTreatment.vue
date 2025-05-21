@@ -4,8 +4,8 @@
 	>
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
-		<img v-if="messageData.restricted" src="@/assets/icons/lock_fit.svg" alt="notice" class="icon">
-		<Icon v-else name="shield" alt="notice" class="icon" />
+		<Icon v-if="messageData.restricted" name="lock_fit" alt="notice" />
+		<Icon v-else name="shield" alt="notice" />
 		
 		<i18n-t scope="global" v-if="messageData.restricted"
 		keypath="global.moderation_action.user_restricted" tag="p">

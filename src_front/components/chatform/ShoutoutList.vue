@@ -9,13 +9,13 @@
 		@end="onMoveItem">
 			<template #item="{element, index}:{element:TwitchatDataTypes.ShoutoutHistoryItem, index:number}">
 				<div class="item">
-					<img src="@/assets/icons/dragZone.svg" class="drag" v-if="$store.users.pendingShoutouts[channelId]!.length > 1" >
+					<Icon name="dragZone" class="drag" v-if="$store.users.pendingShoutouts[channelId]!.length > 1" />
 					<Button class="deleteBt" icon="cross" small alert @click="deleteItem(element)" />
 					<img v-if="element.user.avatarPath && getDelay(element.executeIn) > 0" :src="element.user.avatarPath" class="avatar">
 					<Icon name="loader" v-if="getDelay(element.executeIn) <= 0" class="loader" />
 					<div class="infos">
 						<span class="user">{{ element.user.displayName }}</span>
-						<span class="delay"><img src="@/assets/icons/timer.svg" class="icon"> {{ getFormattedDuration(element.executeIn) }}s</span>
+						<span class="delay"><Icon name="timer" class="icon" /> {{ getFormattedDuration(element.executeIn) }}s</span>
 					</div>
 				</div>
 			</template>

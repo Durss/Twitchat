@@ -33,7 +33,7 @@
 					<button class="action button"
 					v-tooltip="$t('global.delete')"
 					@click.capture.stop="deleteListItem(index)">
-						<img src="@/assets/icons/trash.svg" alt="delete">
+						<Icon name="trash" theme="light" />
 					</button>
 
 					<div class="content">
@@ -69,7 +69,7 @@
 					<button class="action button"
 						v-tooltip="$t('global.delete')"
 						@click.capture.stop="deleteTriggerItem(index)">
-						<img src="@/assets/icons/trash.svg" alt="delete">
+						<Icon name="trash" alt="delete" theme="light" />
 					</button>
 
 					<!-- <div class="content">
@@ -139,27 +139,29 @@
 </template>
 
 <script lang="ts">
+import Icon from '@/components/Icon.vue';
 import TTButton from '@/components/TTButton.vue';
 import TabMenu from '@/components/TabMenu.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ChatMessageChunksParser from '@/components/messages/components/ChatMessageChunksParser.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
-import type { ITriggerPlaceholder, TriggerActionRandomData, TriggerData } from '@/types/TriggerActionDataTypes';
+import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
+import type { TriggerActionRandomData, TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import TriggerUtils from '@/utils/TriggerUtils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
+import { Component, Prop, toNative } from 'vue-facing-decorator';
 import SimpleTriggerList from '../SimpleTriggerList.vue';
 import TriggerList from '../TriggerList.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
-import TriggerUtils from '@/utils/TriggerUtils';
-import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
 
 @Component({
 	components:{
-		TTButton,
+		Icon,
 		TabMenu,
+		TTButton,
 		ParamItem,
 		TriggerList,
 		ToggleBlock,
@@ -385,10 +387,10 @@ export default toNative(TriggerActionRandomEntry);
 				right: 0;
 				border-top-left-radius: .5em;
 				border-bottom-left-radius: .5em;
-				img {
-					width: 100%;
-					height: 1em;
-					max-height: 1em;
+				.icon {
+					height: 1.2em;
+					margin: auto;
+					vertical-align: text-top;
 				}
 			}
 			.content {
@@ -441,6 +443,7 @@ export default toNative(TriggerActionRandomEntry);
 				border-top-left-radius: 0;
 				border-bottom-left-radius: 0;
 				padding-left: .5em;
+				color: var(--color-light);
 			}
 		}
 	}

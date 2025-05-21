@@ -46,7 +46,7 @@
 				</div>
 
 				<div class="migrate" v-if="transferComplete">
-					<img src="@/assets/icons/checkmark.svg" class="icon">
+					<Icon name="checkmark" class="icon" />
 					<div>{{ $t("login.transfer_complete") }}</div>
 				</div>
 			</div>
@@ -423,6 +423,7 @@ export default toNative(Login);
 					color: var(--color-light);
 					.icon {
 						height: 2em;
+						margin: auto;
 					}
 					.envs {
 						display: table;

@@ -24,7 +24,7 @@
 
 			<div class="topForm" v-if="showList" @click.stop>
 				<form class="row">
-					<label for="greetThem_duration"><img src="@/assets/icons/timeout.svg" alt="timer">{{ $t("greet.auto_delete") }}</label>
+					<label for="greetThem_duration"><Icon name="timeout" theme="light" alt="timer" />{{ $t("greet.auto_delete") }}</label>
 					<select id="greetThem_duration" v-model.number="$store.params.greetThemAutoDelete">
 						<option v-for="v in autoDeleteOptions" :value="v.seconds">{{v.label}}</option>
 					</select>
@@ -60,15 +60,16 @@ import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import { watch } from '@vue/runtime-core';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
 import ButtonNotification from '../ButtonNotification.vue';
+import Icon from '../Icon.vue';
 import MessageItem from '../messages/MessageItem.vue';
-import Config from '@/utils/Config';
 
 @Component({
 	components:{
-		ButtonNotification,
+		Icon,
 		MessageItem,
+		ButtonNotification,
 	}
 })
 class NewUsers extends Vue {
@@ -438,6 +439,7 @@ export default toNative(NewUsers);
 					color: var(--color-light);
 					background-color: rgba(0,0,0,.5);
 					option {
+						color: var(--color-light);
 						background-color: var(--color-dark);
 					}
 				}

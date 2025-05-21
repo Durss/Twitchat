@@ -1,7 +1,7 @@
 <template>
 	<div class="communityboostinfo" v-tooltip="$t('global.tooltips.boost')" @click="smallMode=!smallMode">
 		<div class="col">
-			<img src="@/assets/icons/boost.svg" alt="boost">{{roundProgressPercent}}%
+			<Icon name="boost" alt="boost" />{{roundProgressPercent}}%
 		</div>
 		<div class="col count" v-if="!smallMode">
 			<p>{{roundProgressValue}}</p>
@@ -14,16 +14,19 @@
 import { watch } from '@vue/runtime-core';
 import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import Icon from '../Icon.vue';
 
 @Component({
-	components:{}
+	components:{
+		Icon,
+	}
 })
 class CommunityBoostInfo extends Vue {
 
 	public interpolatedPercent = 0;
 	public interpolatedProgress = 0;
 	public smallMode = false;
-	
+
 	public get roundProgressPercent():number { return Math.floor(this.interpolatedPercent); }
 	public get roundProgressValue():number { return Math.floor(this.interpolatedProgress); }
 
@@ -74,7 +77,7 @@ export default toNative(CommunityBoostInfo);
 	font-family: var(--font-azeret);
 	cursor:pointer;
 
-	img {
+	.icon {
 		height: .9em;
 		margin-right: 2px;
 	}

@@ -1,7 +1,7 @@
 <template>
 	<div class="triggeractionstreamerbotentry triggerActionForm">
 		<div class="card-item info warn" v-if="!$store.streamerbot.connected">
-			<img src="@/assets/icons/info.svg" alt="info">
+			<Icon name="info" alt="info" theme="light" />
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.streamerbot.need_to_connect">
 				<template #LINK>
 					<a @click="openConnectForm()">{{ $t("triggers.actions.streamerbot.need_to_connect_link") }}</a>
@@ -29,18 +29,20 @@
 </template>
 
 <script lang="ts">
+import Icon from '@/components/Icon.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import TTButton from '@/components/TTButton.vue';
 import type { TriggerActionStreamerbotData, TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { watch } from 'vue';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
-import { watch } from 'vue';
 
 @Component({
 	components:{
+		Icon,
 		TTButton,
 		ParamItem,
 		ToggleButton,

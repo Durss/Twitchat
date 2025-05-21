@@ -25,8 +25,6 @@
 
 			<div class="clickArea"></div>
 
-			<!-- <img v-if="selected" class="icon" src="@/assets/icons/checkmark.svg" alt="checkmark"> -->
-
 			<input type="file" v-if="type=='file'" class="browse" :accept="accept" ref="browse" @change="onBrowseFile()" />
 		</template>
 	</component>

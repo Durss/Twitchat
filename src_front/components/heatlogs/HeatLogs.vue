@@ -21,9 +21,9 @@
 			<div v-for="item in logs" :key="item.id" :class="getRowClasses(item)">
 				<div class="head" @click="idToExpandState[item.id] = !idToExpandState[item.id]">
 					<div class="infos">
-						<div class="status" v-tooltip="'started from<br>Test button'" v-if="item.testMode"><img src="@/assets/icons/test.svg"></div>
-						<div class="status" v-tooltip="'Anonymous click'" v-if="item.anonymous"><img src="@/assets/icons/anon.svg"></div>
-						<div class="status" v-if="item.user"><img src="@/assets/icons/user.svg"> {{ item.user.login }}</div>
+						<div class="status" v-tooltip="'started from<br>Test button'" v-if="item.testMode"><Icon name="test" /></div>
+						<div class="status" v-tooltip="'Anonymous click'" v-if="item.anonymous"><Icon name="anon" /></div>
+						<div class="status" v-if="item.user"><Icon name="user" /> {{ item.user.login }}</div>
 						<div class="date">{{ getFormattedDime(item.date) }}</div>
 					</div>
 					<Icon name="arrowRight" class="arrow" />
@@ -210,7 +210,7 @@ export default toNative(HeatLogs);
 					height: 1em;
 				}
 				.status {
-					img {
+					.icon {
 						height: 1em;
 						vertical-align: middle;
 					}

@@ -51,7 +51,7 @@ export default toNative(Logout);
 .logout{
 	.holder {
 		.center();
-		color: var(--color-light);
+		color: var(--color-text);
 		position: fixed;
 		z-index: 1;
 		display: flex;

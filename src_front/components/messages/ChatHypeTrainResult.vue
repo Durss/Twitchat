@@ -10,17 +10,17 @@
 
 			<div class="details">
 				<div class="row" v-if="bits > 0" v-tooltip="$t('global.tooltips.bits')">
-					<img src="@/assets/icons/bits.svg" class="icon" key="bits">
+					<Icon name="bits" class="icon" key="bits" />
 					<span class="label">{{bits}}</span>
 				</div>
 
 				<div class="row subs" v-if="subs1 > 0 || subs2 > 0 || subs3 > 0 || primes > 0" key="subs">
 					<div class="sum">
-						<img src="@/assets/icons/sub.svg" class="icon">
+						<Icon name="sub" class="icon" />
 						<span class="label">{{subs1 + subs2 + subs3 + primes}}</span>
 					</div>
 					<div class="info prime" v-if="primes > 0" v-tooltip="$t('global.tooltips.primes')">
-						<img src="@/assets/icons/prime.svg" class="icon">
+						<Icon name="prime" class="icon" />
 						<span class="label">{{primes}}</span>
 					</div>
 					<div class="info t1" v-if="subs1 > 0"  v-tooltip="$t('global.tooltips.subs1')">
@@ -38,7 +38,7 @@
 				</div>
 
 				<div class="row" v-if="subgifts > 0" v-tooltip="$t('global.tooltips.subgifts')" key="subgifts">
-					<img src="@/assets/icons/gift.svg" class="icon">
+					<Icon name="gift" class="icon" />
 					<span class="label">{{subgifts}}</span>
 				</div>
 

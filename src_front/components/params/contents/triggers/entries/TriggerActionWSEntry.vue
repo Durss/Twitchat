@@ -1,7 +1,7 @@
 <template>
 	<div class="triggeractionwsentry triggerActionForm">
 		<div class="card-item info warn" v-if="!websocketConnected">
-			<img src="@/assets/icons/info.svg" alt="info">
+			<Icon name="info" alt="info" theme="light" />
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.http_ws.need_to_connect">
 				<template #LINK>
 					<a @click="openConnectForm()">{{ $t("triggers.actions.http_ws.need_to_connect_link") }}</a>
@@ -38,9 +38,11 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
+import Icon from '@/components/Icon.vue';
 
 @Component({
 	components:{
+		Icon,
 		ParamItem,
 		ToggleButton,
 		PlaceholderSelector,

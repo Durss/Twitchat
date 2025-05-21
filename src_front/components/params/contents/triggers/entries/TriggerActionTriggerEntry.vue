@@ -45,7 +45,7 @@
 
 <script lang="ts">
 import Icon from '@/components/Icon.vue';
-import type { TriggerActionTriggerData, TriggerData, TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
+import type { TriggerActionTriggerData, TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Config from '@/utils/Config';
 import TriggerUtils from '@/utils/TriggerUtils';
@@ -75,17 +75,6 @@ class TriggerActionTriggerEntry extends Vue {
 	public dependencyLoopInfos:{label: string, icon: string, iconURL?: string | undefined, iconBgColor?: string | undefined}[] = [];
 
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
-
-	/**
-	 * Gets a trigger's icon
-	 */
-	public getIcon(e:TriggerTypeDefinition):string {
-		if(!e.icon) return "";
-		if(e.icon.indexOf("/") > -1) {
-			return e.icon as string;
-		}
-		return this.$asset("icons/"+e.icon+".svg");
-	}
 
 	public mounted():void {
 		watch(()=>this.action.triggerId, ()=> {

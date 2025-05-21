@@ -159,15 +159,6 @@ class TriggerCreateForm extends Vue {
 	public get hasChannelPoints():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
 
 	/**
-	 * Gets a trigger's icon
-	 */
-	public getTriggerIcon(e:TriggerTypeDefinition):string {
-		if(!e.icon) return "";
-		if(e.icon.indexOf("/") > -1) return e.icon as string;
-		return this.$asset("icons/"+e.icon+".svg");
-	}
-
-	/**
 	 * Gets a trigger's classes
 	 */
 	public getTriggerClasses(e:TriggerTypeDefinition):string[] {

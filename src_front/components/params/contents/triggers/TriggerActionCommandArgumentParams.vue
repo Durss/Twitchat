@@ -14,7 +14,7 @@
 			<div class="tags" v-if="triggerData.chatCommandParams && triggerData.chatCommandParams.length > 0">
 				<div class="tag" v-for="item, index in triggerData.chatCommandParams" :key="item.tag">
 					<button class="deleteBt" @click="triggerData.chatCommandParams!.splice(index, 1)">
-						<img src="@/assets/icons/cross.svg" alt="delete" class="deleteIcon">
+						<Icon name="cross" alt="delete" class="deleteIcon" theme="light" />
 					</button>
 					<span v-click2Select @click="copy($event, item)" class="label">{{ "{" }}{{ item.tag }}{{ "}" }}</span>
 					<!-- <select class="typeSelector" v-model="item.type" v-tooltip="$t('triggers.slash_cmd.param_cmd_params_type_tt')">

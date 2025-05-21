@@ -2,29 +2,29 @@
 	<div :class="classes" v-show="open || expand" @wheel.stop>
 		<div class="cta" v-if="showCTA" @click="hideCTA()">
 			<span class="label">{{ $t("chat.filters.cta") }}</span>
-			<img src="@/assets/icons/right.svg">
+			<Icon name="right" />
 		</div>
 
 		<transition name="fade">
 		<div class="hoverActions" v-if="!expand">
 			<button class="openBt" @click="openFilters(true)" v-tooltip="{content:$t('global.tooltips.column_edit'), placement:'left' }"
 			v-newflag="{id:'messagefilters_'+Math.max(...filters.map(v=>v.storage!.newFlag)), date:Math.max(...filters.map(v=>v.storage!.newFlag))}">
-				<img src="@/assets/icons/filters.svg" alt="open filters" class="icon">
+				<Icon name="filters" alt="open filters" class="icon" theme="light" />
 			</button>
 			<button class="addBt" @click="$emit('add')" v-tooltip="{content:$t('global.tooltips.column_add'), placement:'left' }"
 			v-if="$store.params.chatColumnsConfig.length < $config.MAX_CHAT_COLUMNS">
-				<img src="@/assets/icons/add.svg" alt="add column" class="icon">
+				<Icon name="add" alt="add column" class="icon" theme="light" />
 			</button>
 			<button class="addBt" @click="moveColumn(-1)" v-tooltip="{content:$t('global.tooltips.column_move'), placement:'left' }"
 			v-if="config.order > 0">
-				<img src="@/assets/icons/left.svg" alt="add column" class="icon">
+				<Icon name="left" alt="add column" class="icon" theme="light" />
 			</button>
 			<button class="addBt" @click="moveColumn(1)" v-tooltip="{content:$t('global.tooltips.column_move'), placement:'left' }"
 			v-if="config.order < $store.params.chatColumnsConfig.length-1">
-				<img src="@/assets/icons/right.svg" alt="add column" class="icon">
+				<Icon name="right" alt="add column" class="icon" theme="light" />
 			</button>
 			<button class="deleteBt" @click="deleteColumn()" v-if="canDelete" v-tooltip="{content:$t('global.tooltips.column_delete'), placement:'left' }">
-				<img src="@/assets/icons/trash.svg" alt="delete column" class="icon">
+				<Icon name="trash" alt="delete column" class="icon" theme="light" />
 			</button>
 		</div>
 		</transition>
@@ -1355,8 +1355,8 @@ export default toNative(MessageListFilter);
 			min-height: @actionSizes;
 			border-radius: .25em;
 			.icon {
-				width: 100%;
-				max-height: 100%;
+				height: 100%;
+				margin: auto;
 			}
 			&:hover {
 				background-color: var(--color-primary-light);
@@ -1426,7 +1426,7 @@ export default toNative(MessageListFilter);
 		.label {
 			font-size: .8em;
 		}
-		img {
+		&>.icon {
 			height: .8em;
 			margin-left: .5em;
 		}

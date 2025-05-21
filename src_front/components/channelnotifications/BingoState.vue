@@ -1,16 +1,16 @@
 <template>
 	<div class="bingostate gameStateWindow">
-		<h1 class="title"><img src="@/assets/icons/bingo.svg">{{ $t("bingo.state.title") }}</h1>
+		<h1 class="title"><Icon name="bingo" />{{ $t("bingo.state.title") }}</h1>
 
 		<div class="card-item goal" v-if="bingoData.guessNumber">
 			<strong class="guess">{{bingoData.numberValue}}</strong>
 		</div>
-		
+
 		<div class="card-item goal" v-else-if="bingoData.guessEmote">
 			<img class="emote" :src="bingoData.emoteValue?.twitch?.image.hd">
 			<span class="code">{{bingoData.emoteValue?.twitch?.code}}</span>
 		</div>
-		
+
 		<div class="card-item goal" v-if="bingoData.guessCustom">
 			<span class="guess">{{bingoData.customValue}}</span>
 		</div>

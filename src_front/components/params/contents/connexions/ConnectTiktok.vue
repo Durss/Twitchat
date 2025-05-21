@@ -89,7 +89,7 @@ class ConnectTiktok extends Vue {
 	public showSuccess = false;
 	public connecting = false;
 
-	public param_ip:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"connexions.triggerSocket.ip", maxLength:100};
+	public param_ip:TwitchatDataTypes.ParameterData<string> = {value:"127.0.0.1", type:"string", labelKey:"connexions.triggerSocket.ip", maxLength:100};
 	public param_port:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", labelKey:"connexions.triggerSocket.port", min:0, max:65535};
 
 	public get canConnect():boolean {

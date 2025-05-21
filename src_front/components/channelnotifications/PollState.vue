@@ -1,12 +1,12 @@
 <template>
 	<div class="pollstate gameStateWindow">
-		<h1 class="title"><img src="@/assets/icons/poll.svg">{{poll.title}}</h1>
-		
+		<h1 class="title"><Icon name="poll" />{{poll.title}}</h1>
+
 		<ProgressBar class="progress"
 			secondary
 			:percent="progressPercent"
 			:duration="poll.duration_s*1000" />
-		
+
 		<div class="choices">
 			<div v-for="(c, index) in poll.choices"
 				:key="index"
@@ -26,7 +26,7 @@
 		</i18n-t>
 
 		<div class="item actions" v-if="me.channelInfo[poll.channel_id]?.is_moderator">
-			<Button alert @click="endPoll()" :loading="loading">{{ $t("poll.state.endBt") }}</Button>
+			<TTButton alert @click="endPoll()" :loading="loading">{{ $t("poll.state.endBt") }}</TTButton>
 		</div>
 	</div>
 </template>
@@ -37,10 +37,12 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ProgressBar from '../ProgressBar.vue';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		Icon,
+		TTButton,
 		ProgressBar,
 	}
 })
@@ -48,7 +50,7 @@ class PollState extends Vue {
 
 	public loading = false;
 	public progressPercent = 0;
-	
+
 	private disposed = false;
 
 	public get poll():TwitchatDataTypes.MessagePollData { return this.$store.poll.data!; }
@@ -73,7 +75,7 @@ class PollState extends Vue {
 
 	public getAnswerClasses(c:TwitchatDataTypes.MessagePollDataChoice):string[] {
 		let res:string[] = ["choice"];
-	
+
 		let max = 0;
 		this.poll.choices.forEach(v => { max = Math.max(max, v.votes); });
 		if(c.votes == max) res.push("win");

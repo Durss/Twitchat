@@ -157,18 +157,18 @@ export default toNative(SponsorTable);
 				color: var(--color-text);
 				text-align: center;
 				&:nth-child(2) {
-					background-color: var(--color-light-fade);
-				}
-				&:nth-child(2) {
+					color: var(--color-light);
 					background-color: var(--color-primary-fade);
 				}
 				&:nth-child(3) {
+					color: var(--color-light);
 					cursor: pointer;
 					&:hover {
 						background-color: var(--color-secondary-light);
 					}
 				}
 				&:nth-child(4) {
+					color: var(--color-light);
 					cursor: pointer;
 					&:hover {
 						background-color: var(--color-premium-light);

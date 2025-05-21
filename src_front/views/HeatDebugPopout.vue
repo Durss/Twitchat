@@ -7,8 +7,8 @@
 		<div v-for="click in clicks" class="click" :style="getClickStyles(click)" :key="click.id"></div>
 
 		<div class="ctas">
-			<button class="fsBt" @click="goFullscreen()" v-tooltip="$t('heat.debug.popout')" v-if="!isPopout"><img src="@/assets/icons/newtab.svg" alt=""></button>
-			<button class="cacheBt" @click="clearOBSCache()" v-tooltip="$t('heat.debug.obs')" v-if="obsConnected"><img src="@/assets/icons/obs.svg" alt=""></button>
+			<button class="fsBt" @click="goFullscreen()" v-tooltip="$t('heat.debug.popout')" v-if="!isPopout"><Icon name="newtab" theme="light" /></button>
+			<button class="cacheBt" @click="clearOBSCache()" v-tooltip="$t('heat.debug.obs')" v-if="obsConnected"><Icon name="obs" theme="light" /></button>
 		</div>
 	</div>
 </template>

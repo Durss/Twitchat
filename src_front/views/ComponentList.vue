@@ -14,63 +14,63 @@
 				<Checkbox v-model="selected">selected mode</Checkbox>
 				<Checkbox v-model="disabled">disabled</Checkbox>
 			</div>
-			
+
 			<div class="list">
 				<Button href="https://twitchat.fr" target="_blank" :type="type" big :disabled="disabled" :loading="loading" :selected="selected">Normal big</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" primary big :disabled="disabled" :loading="loading" :selected="selected">Primary big</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary big :disabled="disabled" :loading="loading" :selected="selected">Secondary big</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" alert big :disabled="disabled" :loading="loading" :selected="selected">Alert big</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" premium big :disabled="disabled" :loading="loading" :selected="selected">Alert big</Button>
-				
+
 				<Button href="https://twitchat.fr" target="_blank" :type="type" :disabled="disabled" :loading="loading" :selected="selected">Normal</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" primary :disabled="disabled" :loading="loading" :selected="selected">Primary</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary :disabled="disabled" :loading="loading" :selected="selected">Secondary</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" alert :disabled="disabled" :loading="loading" :selected="selected">Alert</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" premium :disabled="disabled" :loading="loading" :selected="selected">Alert</Button>
-				
+
 				<Button href="https://twitchat.fr" target="_blank" :type="type" small :disabled="disabled" :loading="loading" :selected="selected">Normal small</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" primary small :disabled="disabled" :loading="loading" :selected="selected">Primary small</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" secondary small :disabled="disabled" :loading="loading" :selected="selected">Secondary small</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" alert small :disabled="disabled" :loading="loading" :selected="selected">Alert small</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" premium small :disabled="disabled" :loading="loading" :selected="selected">Alert small</Button>
-				
+
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :disabled="disabled" :loading="loading" :selected="selected">Normal big icon</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary big :disabled="disabled" :loading="loading" :selected="selected">Primary big icon</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :disabled="disabled" :loading="loading" :selected="selected">Secondary big icon</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :disabled="disabled" :loading="loading" :selected="selected">Alert big icon</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium big :disabled="disabled" :loading="loading" :selected="selected">Alert big icon</Button>
-				
+
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :disabled="disabled" :loading="loading" :selected="selected">Normal icon</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary :disabled="disabled" :loading="loading" :selected="selected">Primary icon</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :disabled="disabled" :loading="loading" :selected="selected">Secondary icon</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :disabled="disabled" :loading="loading" :selected="selected">Alert icon</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium :disabled="disabled" :loading="loading" :selected="selected">Alert icon</Button>
-				
+
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :disabled="disabled" :loading="loading" :selected="selected">Normal small icon</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary small :disabled="disabled" :loading="loading" :selected="selected">Primary small icon</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :disabled="disabled" :loading="loading" :selected="selected">Secondary small icon</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :disabled="disabled" :loading="loading" :selected="selected">Alert small icon</Button>
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium small :disabled="disabled" :loading="loading" :selected="selected">Alert small icon</Button>
-				
+
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :disabled="disabled" :loading="loading" :selected="selected" />
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary big :disabled="disabled" :loading="loading" :selected="selected" />
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary big :disabled="disabled" :loading="loading" :selected="selected" />
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert big :disabled="disabled" :loading="loading" :selected="selected" />
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium big :disabled="disabled" :loading="loading" :selected="selected" />
-				
+
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :disabled="disabled" :loading="loading" :selected="selected" />
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary :disabled="disabled" :loading="loading" :selected="selected" />
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary :disabled="disabled" :loading="loading" :selected="selected" />
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert :disabled="disabled" :loading="loading" :selected="selected" />
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium :disabled="disabled" :loading="loading" :selected="selected" />
-				
+
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :disabled="disabled" :loading="loading" :selected="selected" />
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" primary small :disabled="disabled" :loading="loading" :selected="selected" />
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" secondary small :disabled="disabled" :loading="loading" :selected="selected" />
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" alert small :disabled="disabled" :loading="loading" :selected="selected" />
 				<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" premium small :disabled="disabled" :loading="loading" :selected="selected" />
 			</div>
-			
+
 			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" big :disabled="disabled" :loading="loading" :selected="selected">Full width button</Button>
 			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" :disabled="disabled" :loading="loading" :selected="selected">Full width button</Button>
 			<Button href="https://twitchat.fr" target="_blank" :type="type" icon="twitchat" small :disabled="disabled" :loading="loading" :selected="selected">Full width button</Button>
@@ -120,7 +120,7 @@
 				</template>
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
-			
+
 			<ToggleBlock title="Medium box" medium key="toggle2">
 				<template #left_actions>
 					<Icon name="dragZone" class="icon" />
@@ -134,85 +134,85 @@
 			<ToggleBlock title="Small box" subtitle="subtitle" small key="toggle3">
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
-			
+
 			<ToggleBlock title="Title" primary subtitle="subtitle" key="toggle4">
 				<template #left_actions>
-					<img src="@/assets/icons/dragZone.svg" class="icon">
+					<Icon name="dragZone" class="icon" />
 				</template>
 				<template #right_actions>
-					<img src="@/assets/icons/cross.svg" class="icon">
+					<Icon name="cross" class="icon" />
 				</template>
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
-			
+
 			<ToggleBlock title="Medium box" primary medium key="toggle5">
 				<template #left_actions>
-					<img src="@/assets/icons/dragZone.svg" class="icon">
+					<Icon name="dragZone" class="icon" />
 				</template>
 				<template #right_actions>
-					<img src="@/assets/icons/cross.svg" class="icon">
+					<Icon name="cross" class="icon" />
 				</template>
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
-			
+
 			<ToggleBlock title="Small box" small medium primary key="toggle6">
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
-			
+
 			<ToggleBlock title="Title" secondary subtitle="subtitle" key="toggle7">
 				<template #left_actions>
-					<img src="@/assets/icons/dragZone.svg" class="icon">
+					<Icon name="dragZone" class="icon" />
 				</template>
 				<template #right_actions>
-					<img src="@/assets/icons/cross.svg" class="icon">
+					<Icon name="cross" class="icon" />
 				</template>
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
-			
+
 			<ToggleBlock title="Medium box" secondary medium key="toggle8">
 				<template #left_actions>
-					<img src="@/assets/icons/dragZone.svg" class="icon">
+					<Icon name="dragZone" class="icon" />
 				</template>
 				<template #right_actions>
-					<img src="@/assets/icons/cross.svg" class="icon">
+					<Icon name="cross" class="icon" />
 				</template>
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
-			
+
 			<ToggleBlock title="Small box" small medium secondary key="toggle9">
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
-			
+
 			<ToggleBlock title="Title" premium subtitle="subtitle" key="toggle10">
 				<template #left_actions>
-					<img src="@/assets/icons/dragZone.svg" class="icon">
+					<Icon name="dragZone" class="icon" />
 				</template>
 				<template #right_actions>
-					<img src="@/assets/icons/cross.svg" class="icon">
+					<Icon name="cross" class="icon" />
 				</template>
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
-			
+
 			<ToggleBlock title="Medium box" premium medium key="toggle11">
 				<template #left_actions>
-					<img src="@/assets/icons/dragZone.svg" class="icon">
+					<Icon name="dragZone" class="icon" />
 				</template>
 				<template #right_actions>
-					<img src="@/assets/icons/cross.svg" class="icon">
+					<Icon name="cross" class="icon" />
 				</template>
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
-			
+
 			<ToggleBlock title="Small box" small medium premium key="toggle12">
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
-			
+
 			<ToggleBlock title="Error" error key="toggle13">
 				<template #left_actions>
-					<img src="@/assets/icons/dragZone.svg" class="icon">
+					<Icon name="dragZone" class="icon" />
 				</template>
 				<template #right_actions>
-					<img src="@/assets/icons/cross.svg" class="icon">
+					<Icon name="cross" class="icon" />
 				</template>
 				<div>Laboris tempor velit incididunt velit enim. Lorem laboris nisi nostrud cupidatat mollit nostrud excepteur pariatur deserunt veniam ipsum minim ut. Reprehenderit ipsum voluptate tempor anim duis laborum veniam sint consectetur. Laboris Lorem laboris eu labore sit elit veniam in dolor velit sit sunt sint id. Ipsum sunt magna cupidatat reprehenderit.</div>
 			</ToggleBlock>
@@ -363,7 +363,7 @@ class ComponentList extends Vue {
 	public param_duration:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:10*60, label:"Duration ({VALUE}s)"};
 
 	private tooltipCreated:{[key:string]:boolean} = {};
-	
+
 	public async mounted():Promise<void> {
 		this.resetProgressbars();
 		this.renderFrame();
@@ -377,29 +377,29 @@ class ComponentList extends Vue {
 			// this.messageChunks = TwitchUtils.parseMessageToChunks("/announcepurple Are you a Twitch streamer? I'm using GivePLZ twitchat.fr TakeNRG, a full featured chat alternative for streamers. Take a look at it if you wish KomodoHype", undefined, true);
 		})
 	}
-	
+
 	public beforeUnmount():void {
 		this.disposed = true;
 	}
-	
+
 	public resetProgressbars():void {
 		this.progresses = [.25,.25,.25,.25,.95];
 	}
-	
+
 	public async reloadIcon(index:number):Promise<void> {
 		let prevName = this.iconList[index];
 		this.iconList[index] = "";
 		await this.$nextTick();
 		this.iconList[index] = prevName;
 	}
-	
+
 	/**
 	 * Create tooltip only when hovering the image.
 	 * This avoids huge lag on build if creating tooltip on every items
 	 * at once.
-	 * 
-	 * @param event 
-	 * @param iconName 
+	 *
+	 * @param event
+	 * @param iconName
 	 */
 	public openTooltip(event:MouseEvent, iconName:string):void {
 		if(this.tooltipCreated[iconName] === true) return;

@@ -422,7 +422,6 @@ class OverlayCustomTrainRenderer extends Vue {
 
 		this.trophyIcon = `url(data:image/svg+xml;base64,${btoa(svgElement.outerHTML)})`;
 
-		// const url = this.$asset("icons/leaderboard.svg");
 		watch(() => this.percent,  async (newPercent, oldPercent) => {
 			if(this.showApproaching) return;
 			if(this.showSuccess_local) return;

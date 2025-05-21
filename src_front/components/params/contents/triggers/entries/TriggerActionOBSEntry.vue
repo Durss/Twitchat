@@ -1,7 +1,7 @@
 <template>
 	<div class="triggeractionobsentry triggerActionForm" v-if="!obsConnected">
 		<div class="info warn">
-			<img src="@/assets/icons/info.svg" alt="info">
+			<Icon name="info" alt="info" theme="light" />
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.obs.header">
 				<template #LINK>
 					<a @click="$store.params.openParamsPage(contentConnexions, subcontentObs)">{{ $t("triggers.actions.obs.header_link") }}</a>
@@ -55,7 +55,7 @@
 			<ParamItem class="url" :paramData="param_mediaEndEvent_conf" v-model="action.waitMediaEnd" v-if="canWaitForMediaEnd" />
 
 			<div v-if="showPlaceholderWarning" class="info">
-				<img src="@/assets/icons/alert.svg" alt="info" class="">
+				<Icon name="alert" alt="info" theme="light" />
 				<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.obs.media_source">
 					<template #CMD1><mark>..</mark></template>
 					<template #CMD2><mark>/</mark></template>
@@ -71,7 +71,7 @@
 		</template>
 
 		<template v-else-if="action.obsAction === 'hotKey'">
-			<img src="@/assets/icons/loader.svg" alt="loader" class="card-item loading" v-if="(param_hotkeyAction_conf.listValues || []).length == 0" />
+			<Icon name="loader" alt="loader" class="card-item loading" v-if="(param_hotkeyAction_conf.listValues || []).length == 0" />
 			<ParamItem class="url" :paramData="param_hotkeyAction_conf" v-model="action.hotKeyAction" v-else />
 		</template>
 
@@ -116,7 +116,6 @@ import { type ITriggerPlaceholder, type TriggerActionObsData, type TriggerAction
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { OBSFilter, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import { default as OBSWebsocket, default as OBSWebSocket, type OBSInputItem } from '@/utils/OBSWebsocket';
-import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
@@ -623,6 +622,7 @@ export default toNative(TriggerActionOBSEntry);
 
 	.loading {
 		height: 2em;
+		margin: auto;
 	}
 }
 </style>

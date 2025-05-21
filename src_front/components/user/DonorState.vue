@@ -4,10 +4,10 @@
 		<div class="badgesList">
 			<DonorBadge class="badge" v-for="i in donorLevel+1" :level="i-1" light />
 			<DonorBadge class="badge" v-if="isPremium" light :premium="isPremium" />
-			<img src="@/assets/icons/donor_placeholder.svg" class="badge" v-for="i in 9-donorLevel" />
+			<Icon name="donor_placeholder" class="badge" v-for="i in 9-donorLevel" />
 			<button class="premiumDisabled" @click="openPremium">
-				<img v-if="!isPremium" src="@/assets/icons/donor_placeholder.svg" class="badge" />
-				<Icon name="premium" />
+				<Icon v-if="!isPremium" name="donor_placeholder" class="badge" />
+				<Icon name="premium" class="premiumIcon" />
 			</button>
 		</div>
 
@@ -34,7 +34,7 @@ import DonorPublicState from './DonorPublicState.vue';
 })
 class DonorState extends Vue {
 
-	public get isPremium():boolean { return this.$store.auth.isPremium; }
+	public get isPremium():boolean { return false && this.$store.auth.isPremium; }
 	public get donorLevel():number { return this.$store.auth.donorLevel; }
 
 	public openPremium():void {
@@ -70,19 +70,21 @@ export default toNative(DonorState);
 	.premiumDisabled {
 		cursor: pointer;
 		position: relative;
-		.icon {
+		.badge {
+			height: 3em;
+		}
+		.premiumIcon {
 			height: 1.4em;
-			opacity: .5;
 			position: absolute;
 			top: 50%;
 			left: 50%;
-			transform: translate(-50%, -60%);
+			transform: translate(-50%, -70%);
 			transition: transform .2s;
 			color: #808080;
 		}
 		&:hover {
-			.icon {
-				transform: translate(-50%, -60%) scale(1.2, 1.2);
+			.premiumIcon {
+				transform: translate(-50%, -70%) scale(1.2, 1.2);
 			}
 		}
 	}

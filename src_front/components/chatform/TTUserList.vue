@@ -7,7 +7,7 @@
 
 		<div class="content" ref="content">
 			<div class="noResult" v-if="!loading && userCount == 0">no user found :(</div>
-		
+
 			<div class="card-item stats">
 				<div class="table">
 					<p>Active users last 24h :</p><p>{{activeLast24h}}</p>
@@ -22,7 +22,7 @@
 					<TTButton small :disabled="loading" title="Load 30d" icon="user" @click="loadTimeframe(30)" /> -->
 				</div>
 			</div>
-	
+
 			<div class="list" ref="list">
 				<a v-for="u in filteredItems"
 					:key="u.id"
@@ -33,26 +33,26 @@
 				>
 					<div class="header" v-if="u.user">
 						<img :src="getProfilePicURL(u)" alt="profile" class="icon">
-						
+
 						<span class="title">
 							{{u.user.login}}
-							<img src="@/assets/icons/partner.svg" alt="partner" class="partner" v-if="u.user.broadcaster_type == 'partner'">
+							<Icon name="partner" alt="partner" class="partner" v-if="u.user.broadcaster_type == 'partner'" />
 						</span>
 					</div>
 					<div class="header error" v-else>
-						<img src="@/assets/icons/user.svg" alt="profile" class="icon">
+						<Icon name="user" alt="profile" class="icon" theme="light" />
 						<span class="title">#{{u.id}}</span>
 					</div>
 					<div class="details">{{formatDate(u)}}</div>
-	
+
 				</a>
 			</div>
-			
+
 			<TTButton class="loadBt" v-if="!loading && showLoadMoreBt && users.length > 0"
 			small title="Load more"
 			icon="add"
 			@click="loadNextUsers()" />
-	
+
 			<Icon class="loader" name="loader" v-if="loading" />
 		</div>
 	</div>
@@ -164,7 +164,7 @@ class TTUserList extends AbstractSidePanel {
 			const u = this.users[i];
 			if(u.date < limit) break;
 		}
-		
+
 		if(i > 0) {
 			this.loadNextUsers(i);
 		}
@@ -226,7 +226,7 @@ export default toNative(TTUserList);
 					font-weight: bold;
 				}
 			}
-			
+
 			.ctas {
 				margin-top: .5em;
 				display: flex;
@@ -260,13 +260,13 @@ export default toNative(TTUserList);
 						background-color: var(--color-primary-light);
 					}
 				}
-	
+
 				.header {
 					.partner {
 						width: .8em;
 						vertical-align: middle;
 					}
-					
+
 					&.error {
 						background-color: var(--color-alert);
 						.icon {
@@ -274,7 +274,7 @@ export default toNative(TTUserList);
 						}
 					}
 				}
-	
+
 				.details {
 					font-size: .8em;
 				}

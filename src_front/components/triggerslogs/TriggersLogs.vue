@@ -22,12 +22,12 @@
 				<div class="head" @click="idToExpandState[item.id] = !idToExpandState[item.id]">
 					<div class="infos">
 						<img class="icon" :src="$asset('icons/'+getTriggerInfo(item.trigger)?.icon+'.svg')">
-						<div class="status" v-tooltip="'error'" v-if="item.error"><img src="@/assets/icons/cross.svg"></div>
-						<div class="status" v-tooltip="'critical error'" v-else-if="item.criticalError"><img src="@/assets/icons/alert.svg"></div>
-						<div class="status" v-tooltip="'complete'" v-else-if="item.complete"><img src="@/assets/icons/checkmark.svg"></div>
-						<div class="status" v-tooltip="'skipped'" v-else-if="item.skipped"><img src="@/assets/icons/skip.svg"></div>
+						<div class="status" v-tooltip="'error'" v-if="item.error"><Icon theme="light" name="cross" /></div>
+						<div class="status" v-tooltip="'critical error'" v-else-if="item.criticalError"><Icon theme="light" name="alert" /></div>
+						<div class="status" v-tooltip="'complete'" v-else-if="item.complete"><Icon theme="light" name="checkmark" /></div>
+						<div class="status" v-tooltip="'skipped'" v-else-if="item.skipped"><Icon theme="light" name="skip" /></div>
 						<div class="status" v-tooltip="'pending'" v-else><Icon name="loader" theme="light" /></div>
-						<div class="status" v-tooltip="'started from<br>Test button'" v-if="item.testMode"><img src="@/assets/icons/test.svg"></div>
+						<div class="status" v-tooltip="'started from<br>Test button'" v-if="item.testMode"><Icon theme="light" name="test" /></div>
 						<div class="date">{{ getFormattedTime(item.date) }}</div>
 						<div class="title" v-if="getTriggerInfo(item.trigger).event?.labelKey">{{ $t(getTriggerInfo(item.trigger).event?.labelKey as string) }}</div>
 						<div class="subtitle" v-if="getTriggerInfo(item.trigger)?.label != $t(getTriggerInfo(item.trigger).event?.labelKey as string)">{{ getTriggerInfo(item.trigger)!.label }}</div>

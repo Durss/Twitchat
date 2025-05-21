@@ -1,7 +1,7 @@
 <template>
 	<div class="rafflestate gameStateWindow" v-if="raffleData">
 		<h1 class="title">
-			<img src="@/assets/icons/ticket.svg">
+			<Icon name="ticket" />
 			<span>{{ $t('raffle.state_title') }}</span>
 			<div class="methods" ref="methods">
 				<mark v-if="raffleData.mode == 'chat' && raffleData.command">{{raffleData.command}}</mark>
@@ -18,7 +18,7 @@
 			<div class="card-item secondary warning" v-if="$store.raffle.raffleList.length >= 10"><Icon name="alert" />{{$t("raffle.state_many_raffles", {COUNT:$store.raffle.raffleList.length})}}</div>
 
 			<div class="entries">
-				<img src="@/assets/icons/user.svg" alt="user">
+				<Icon name="user" alt="user" />
 				<i18n-t scope="global" tag="p" keypath="raffle.state_users" :plural="raffleData.entries?.length">
 					<template #COUNT>
 						<span>{{raffleData.entries?.length}}</span>
@@ -28,7 +28,7 @@
 			</div>
 
 			<div class="entries" v-if="cumulatedEntryCount != raffleData.entries?.length">
-				<img src="@/assets/icons/ticket.svg" alt="ticket">
+				<Icon name="ticket" alt="ticket" />
 				<i18n-t scope="global" tag="p" keypath="raffle.state_users_cumulated" :plural="cumulatedEntryCount"
 				v-if="cumulatedEntryCount != raffleData.maxEntries">
 					<template #COUNT>
@@ -98,10 +98,12 @@ import TTButton from '../TTButton.vue';
 import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 import { gsap } from 'gsap/gsap-core';
 import ParamItem from '../params/ParamItem.vue';
+import Icon from '../Icon.vue';
 
 
 @Component({
 	components:{
+		Icon,
 		TTButton,
 		ParamItem,
 		ProgressBar,
@@ -377,7 +379,7 @@ export default toNative(RaffleState);
 		flex-direction: row;
 		align-items: center;
 		font-style: italic;
-		img {
+		.icon {
 			height: 1em;
 			width: 1em;
 			object-fit: fill;

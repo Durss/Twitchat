@@ -1,6 +1,6 @@
 <template>
 	<div class="volumebar">
-		<img src="@/assets/icons/volume.svg" alt="volume" class="icon">
+		<Icon name="volume" alt="volume" class="icon" />
 		<div class="holder"
 		ref="holder"
 		@mousedown="mousePressed = true"
@@ -13,9 +13,12 @@
 
 <script lang="ts">
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import Icon from './Icon.vue';
 
 @Component({
-	components:{},
+	components:{
+		Icon,
+	},
 	emits:["update:modelValue"]
 })
 class VolumeBar extends Vue {

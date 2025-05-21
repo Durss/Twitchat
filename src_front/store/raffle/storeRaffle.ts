@@ -31,8 +31,8 @@ export const storeRaffle = defineStore('raffle', {
 	actions: {
 
 		populateData() {
-			const rafflesRunning = JSON.parse(DataStore.get(DataStore.RAFFLES_RUNNING) || "[]");
-			if(rafflesRunning) {
+			const rafflesRunning = JSON.parse(DataStore.get(DataStore.RAFFLES_RUNNING) || "[]") as TwitchatDataTypes.RaffleData[];
+			if(rafflesRunning && Array.isArray(rafflesRunning)) {
 				this.raffleList = rafflesRunning.splice(0, 20);
 			}
 

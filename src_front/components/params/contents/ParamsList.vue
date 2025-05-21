@@ -9,7 +9,7 @@
 				<ParamItem :paramData="p" noBackground autoFade v-model="p.value" @change="$store.params.updateParams();">
 					<div v-if="p.id == 212 && p.value === true && !isOBSConnected && !isMissingScope(p)" class="config">
 						<div class="card-item alert">
-							<img src="@/assets/icons/alert.svg">
+							<Icon name="alert" theme="light" />
 							<i18n-t scope="global" class="label" tag="p" keypath="global.obs_connect">
 								<template #LINK>
 									<a @click="$store.params.openParamsPage(contentConnexions ,subcontentObs)">{{ $t("global.obs_connect_link") }}</a>
@@ -66,9 +66,9 @@
 
 					<div v-else-if="isMissingScope(p) && p.value == true" class="config">
 						<div class="card-item alert">
-							<img src="@/assets/icons/lock_fit.svg">
+							<Icon name="lock_fit" theme="light" />
 							<p class="label">{{ $t("params.scope_missing") }}</p>
-							<Button small alert
+							<Button small alert light
 								class="grantBt"
 								icon="unlock"
 								@click="requestPermission(p.twitch_scopes!)">{{ $t('global.grant_scope') }}</Button>
@@ -344,7 +344,7 @@ export default toNative(ParamsList);
 				p {
 					font-size: .8em;
 				}
-				img {
+				.icon {
 					height: .8em;
 					margin-right: .25em;
 					vertical-align: middle;
