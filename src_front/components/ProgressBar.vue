@@ -33,7 +33,7 @@ class ProgressBar extends Vue {
 	@Prop({type:Boolean, default: false})
 	public alert!:boolean;
 
-	public get timeLeft():string { return Utils.formatDuration(this.duration * this.elapsedPercent) }
+	public get timeLeft():string { return Utils.formatDuration(this.duration * Math.max(0, Math.min(1, (1-this.percent)))) }
 
 	public get elapsedPercent():number { return Math.max(0, Math.min(1, (1-this.percent))); }
 
@@ -87,7 +87,7 @@ export default toNative(ProgressBar);
 	background: @bg;
 	position: relative;
 	@shadow: 0 4px 4px rgba(0, 0, 0, .5);
-	
+
 	.fill {
 		box-shadow: @shadow;
 		height: 4px;
@@ -95,7 +95,7 @@ export default toNative(ProgressBar);
 		background-color: var(--color-primary);
 		transform-origin: left;
 		will-change: transform;
-		position: relative;
+		position: absolute;
 	}
 
 	.timer {

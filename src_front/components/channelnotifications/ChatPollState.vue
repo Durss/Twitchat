@@ -2,7 +2,7 @@
 	<div class="pollstate gameStateWindow">
 		<h1 class="title"><img src="@/assets/icons/chatPoll.svg"><span>{{poll.title}}</span></h1>
 
-		<ProgressBar class="progress"
+		<ProgressBar
 			secondary
 			:percent="progressPercent"
 			:duration="poll.duration_s*1000" />
@@ -26,10 +26,9 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import TTButton from '../TTButton.vue';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
 import ProgressBar from '../ProgressBar.vue';
+import TTButton from '../TTButton.vue';
 
 @Component({
 	components:{
