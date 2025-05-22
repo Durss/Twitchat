@@ -283,17 +283,29 @@ export default class Utils {
 	/**
 	 * Check if a user matches a permission criterias
 	 */
-	public static async checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:Pick<TwitchatDataTypes.TwitchatUser, "platform" | "id" | "login" | "channelInfo">, channelId:string):Promise<boolean> {
+	public static async checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:Pick<TwitchatDataTypes.TwitchatUser, "platform" | "id" | "login" | "channelInfo">, channelId:string, logToConsole:boolean = false):Promise<boolean> {
 		const chanInfo = user.channelInfo[channelId];
+		if(logToConsole) {
+			console.log("checkPermissions", permissions, user, channelId, chanInfo);
+		}
 
 		if(permissions.usersAllowed && permissions.usersAllowed.findIndex(v=>v.toLowerCase() === user.login.toLowerCase()) > -1) {
-			return true;
+			if(logToConsole) console.log("User specifically allowed")
+				return true;
 		}
 
 		if(permissions.usersRefused && permissions.usersRefused.findIndex(v=>v.toLowerCase() === user.login.toLowerCase()) > -1) {
+			if(logToConsole) console.log("User specifically refused")
 			return false;
 		}
 
+		if(logToConsole) {
+			console.log(chanInfo.is_broadcaster, permissions.broadcaster !== false);
+			console.log(chanInfo.is_moderator, permissions.mods !== false, !chanInfo.is_broadcaster);
+			console.log(chanInfo.is_vip, permissions.vips !== false);
+			console.log(chanInfo.is_subscriber, permissions.subs !== false, !chanInfo.is_broadcaster);
+			console.log(chanInfo.is_following, permissions.follower);
+		}
 		if(chanInfo.is_broadcaster && permissions.broadcaster !== false) return true;
 		if(chanInfo.is_moderator && permissions.mods !== false && !chanInfo.is_broadcaster) return true;
 		if(chanInfo.is_vip && permissions.vips !== false) return true;

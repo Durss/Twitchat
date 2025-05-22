@@ -962,7 +962,10 @@ export const storeChat = defineStore('chat', {
 			const sAuth = StoreProxy.auth;
 			const s = Date.now();
 			const logTimings = false;//Enable to check for perf issues
-			const isFromRemoteChan = message.channel_id != sAuth.twitch.user.id && message.channel_id != sAuth.youtube.user?.id;
+			const isFromRemoteChan = message.channel_id != sAuth.twitch.user.id
+									&& message.channel_id != sAuth.youtube.user?.id
+									// Consider tiktok messages as "own" because there's no auth
+									&& message.platform !== "tiktok";
 
 			if(parsedMessageIds[message.id]) return;
 			parsedMessageIds[message.id] = true;
