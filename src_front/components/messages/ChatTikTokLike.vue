@@ -2,8 +2,8 @@
 	<div class="chattiktoklike chatMessage highlight"
 	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
-		
-		<Icon name="follow" alt="follow" class="icon"/>
+
+		<Icon name="likes" alt="follow" class="icon"/>
 		<Icon name="tiktok" alt="tiktok" class="icon"/>
 
 		<i18n-t scope="global" keypath="chat.tiktok_like.new" tag="span">
@@ -52,6 +52,6 @@ export default toNative(ChatTikTokLike);
 
 <style scoped lang="less">
 .chattiktoklike{
-	
+
 }
 </style>
