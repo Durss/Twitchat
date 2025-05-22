@@ -48,10 +48,7 @@ class ProgressBar extends Vue {
 
 	public get barStyles():CSSProperties {
 		return {
-			width: (this.elapsedPercent*100)+"%",
-			//Using a transform causes a weird glitch with the box-shadow.
-			//Under a certain width the shadow appears over its holder
-			// transform: `scaleX(${this.elapsedPercent*100}%)`,
+			transform: `scaleX(${this.elapsedPercent*100}%)`,
 		}
 	}
 
