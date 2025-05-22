@@ -84,10 +84,10 @@ export const storeChatPoll = defineStore('chatPoll', {
 			// Check if a poll is running
 			if(!this.data) return;
 
-			const trimedMsg = (message.message || "").trim()
+			const voteMsg = (message.message || "").trim().split(" ")[0]
 			// Check if message matches a valid index
-			const index = parseInt(trimedMsg);
-			if(isNaN(index) || index < 1 || index > this.data.choices.length || index.toString().trim() != trimedMsg) return;
+			const index = parseInt(voteMsg);
+			if(index < 1 || index > this.data.choices.length || isNaN(index) || index.toString().trim() != voteMsg) return;
 
 			// Check permission
 			if(!await Utils.checkPermissions(this.data.permissions, message.user, message.channel_id)) return;
