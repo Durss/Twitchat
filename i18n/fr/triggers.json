@@ -434,7 +434,7 @@
 				"extract_data_type_json": "JSON",
 				"extract_data_jsonpath": "JSON path (ex: $)",
 				"extract_data_placeholder": "Placeholder...",
-				"add_placeholder_bt": "Ajouter un palceholder"
+				"add_placeholder_bt": "Ajouter un placeholder"
 			},
 			"count": {
 				"value_label": "Valeur",
