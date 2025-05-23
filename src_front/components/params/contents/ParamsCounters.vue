@@ -72,6 +72,7 @@
 									<ToggleButton v-model="entry.counter.enabled" />
 								</div>
 								<TTButton class="actionBt" alert icon="trash" @click.stop="deleteCounter(entry)" />
+								<TTButton class="actionBt" @click.stop :copy="entry.counter.id" icon="id" v-tooltip="$t('global.copy_id')" small />
 							</div>
 						</template>
 

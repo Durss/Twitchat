@@ -262,6 +262,7 @@ export const storeTiktok = defineStore('tiktok', {
 							image:json.data.giftPictureUrl,
 							diamonds:json.data.diamondCount * json.data.repeatCount,
 							giftId:json.data.giftId.toString(),
+							giftName:json.data.giftName,
 							raw_data:json.data,
 						}
 						StoreProxy.chat.addMessage(message);

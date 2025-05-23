@@ -1451,6 +1451,8 @@ export interface TriggerTreeItemData{
 }
 
 export const ANY_OBS_SCENE = "any_obs_scene";
+export const ANY_COUNTER = "any_counter";
+export const ANY_VALUE = "any_value";
 export const AD_APPROACHING_INTERVALS = [5*60000, 4*60000, 3*60000, 2*60000, 1*60000, 30000, 20000, 10000, 5000];
 
 export const VIBRATION_PATTERNS = [
@@ -2188,6 +2190,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	map[TriggerTypes.COUNTER_LOOPED] =
 	map[TriggerTypes.COUNTER_MINED] =
 	map[TriggerTypes.COUNTER_MAXED] = [
+		{tag:"COUNTER_ID", descKey:'triggers.placeholders.counter_id', pointer:"counter.id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
 		{tag:"NAME", descKey:'triggers.placeholders.counter_name', pointer:"counter.name", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
 		{tag:"VALUE", descKey:'triggers.placeholders.counter_value', pointer:"value", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
 		{tag:"UPDATE", descKey:'triggers.placeholders.counter_update', pointer:"added", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
@@ -2199,6 +2202,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	];
 
 	map[TriggerTypes.VALUE_UPDATE] = [
+		{tag:"VALUE_ID", descKey:'triggers.placeholders.counter_id', pointer:"value.id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageValueUpdateData>,
 		{tag:"VALUE_NAME", descKey:'triggers.placeholders.value_name', pointer:"value.name", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageValueUpdateData>,
 		{tag:"NEW_VALUE", descKey:'triggers.placeholders.new_value', pointer:"newValue", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageValueUpdateData>,
 		{tag:"OLD_VALUE", descKey:'triggers.placeholders.old_value', pointer:"oldValue", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageValueUpdateData>,
@@ -2520,6 +2524,8 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:USER_CUSTOM_BADGES, descKey:'triggers.placeholders.user_custom_badges', pointer:"__user_custom_badges__", numberParsable:false, isUserID:false},
 		{tag:"GIFT_COUNT", descKey:'triggers.placeholders.tiktok_gift_count', pointer:"count", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 		{tag:"GIFT_ID", descKey:'triggers.placeholders.tiktok_gift_id', pointer:"giftId", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
+		{tag:"GIFT_NAME", descKey:'triggers.placeholders.tiktok_gift_name', pointer:"giftName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
+		{tag:"GIFT_IMAGE", descKey:'triggers.placeholders.tiktok_gift_image', pointer:"image", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 		{tag:"DIAMONDS", descKey:'triggers.placeholders.tiktok_diamonds', pointer:"diamonds", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTikTokGiftData>,
 	];
 

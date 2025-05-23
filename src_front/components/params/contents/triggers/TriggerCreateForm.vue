@@ -103,7 +103,7 @@
 import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { TriggerEventTypeCategory } from '@/types/TriggerActionDataTypes';
-import { ANY_OBS_SCENE, TriggerEventTypeCategories, TriggerTypes, TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
+import { ANY_COUNTER, ANY_OBS_SCENE, TriggerEventTypeCategories, TriggerTypes, TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -116,6 +116,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerActionList from './TriggerActionList.vue';
+import { ANY_VALUE } from '../../../../types/TriggerActionDataTypes';
 
 @Component({
 	components:{
@@ -646,6 +647,14 @@ class TriggerCreateForm extends Vue {
 				isCategory:false,
 			};
 		});
+		const defaultName = this.$t("triggers.count.any_counter");
+		list.unshift({
+			label:defaultName,
+			searchTerms:[defaultName],
+			value:ANY_COUNTER,
+			icon:"",
+			isCategory:false,
+		})
 		this.subtriggerList = list;
 	}
 
@@ -666,6 +675,14 @@ class TriggerCreateForm extends Vue {
 				isCategory:false,
 			};
 		});
+		const defaultName = this.$t("triggers.count.any_value");
+		list.unshift({
+			label:defaultName,
+			searchTerms:[defaultName],
+			value:ANY_VALUE,
+			icon:"",
+			isCategory:false,
+		})
 		this.subtriggerList = list;
 	}
 

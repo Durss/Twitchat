@@ -72,7 +72,9 @@
 		"count": {
 			"require": "Ces événéments nécessitent de d'abord {URL_COUNTERS} ou de {URL_VALUES}",
 			"require_counters": "créer des compteurs",
-			"require_values": "créer des Valeurs"
+			"require_values": "créer des Valeurs",
+			"any_counter": "N'importe quel compteur",
+			"any_value": "N'importe quelle valeur"
 		},
 		"rewards": {
 			"require": "Ces événéments nécessitent de {URL}",
@@ -852,6 +854,7 @@
 			"challenge_contribution_total": "Contribution totale de la personne",
 			"shoutout_in": "Chaîne vous ayant fait un shoutout",
 			"shoutout_out": "Chaîne que vous avez shoutout",
+			"counter_id": "ID du compteur",
 			"counter_name": "Nom du compteur",
 			"counter_value": "Nouvelle valeur du compteur",
 			"counter_update": "Valeur ajoutée",
@@ -1001,6 +1004,8 @@
 			"platform":"Platforme ayant déclenché le trigger\n(twitch, youtube, ...)",
 			"tiktok_gift_count":"Nombre de cadeaux",
 			"tiktok_gift_id":"ID du cadeau",
+			"tiktok_gift_name":"Nom du cadeau",
+			"tiktok_gift_image":"Image du cadeau",
 			"tiktok_like_count":"Nombre de likes",
 			"tiktok_like_total":"Nombtre de likes reçus durant ce stream",
 			"tiktok_diamonds":"Diamants reçus",
@@ -1397,27 +1402,33 @@
 			},
 			"COUNTER_EDIT": {
 				"label": "Compteur modifié",
-				"description": "Actions à exécuter lorsque le compteur {SUB_ITEM_NAME} est modifié"
+				"description": "Actions à exécuter lorsque le compteur {SUB_ITEM_NAME} est modifié",
+				"description_any": "Actions à exécuter lorsqu'un compteur est modifié"
 			},
 			"COUNTER_ADD": {
 				"label": "Ajout à un compteur",
-				"description": "Actions à exécuter lorsqu'une valeur est ajoutée au compteur {SUB_ITEM_NAME}"
+				"description": "Actions à exécuter lorsqu'une valeur est ajoutée au compteur {SUB_ITEM_NAME}",
+				"description_any": "Actions à exécuter lorsqu'un compteur augmente"
 			},
 			"COUNTER_DEL": {
 				"label": "Retrait d'un compteur",
-				"description": "Actions à exécuter lorsqu'une valeur est soustraite au compteur {SUB_ITEM_NAME}"
+				"description": "Actions à exécuter lorsqu'une valeur est soustraite au compteur {SUB_ITEM_NAME}",
+				"description_any": "Actions à exécuter lorsqu'un compteur diminue"
 			},
 			"COUNTER_MAXED": {
 				"label": "Valeur de compteur max atteinte",
-				"description": "Actions à exécuter lorsque le compteur {SUB_ITEM_NAME} atteint sa valeur maximale"
+				"description": "Actions à exécuter lorsque le compteur {SUB_ITEM_NAME} atteint sa valeur maximale",
+				"description_any": "Actions à exécuter lorsqu'un compteur atteint sa valeur maximale"
 			},
 			"COUNTER_MINED": {
 				"label": "Valeur de compteur min atteinte",
-				"description": "Actions à exécuter lorsque le compteur {SUB_ITEM_NAME} atteint sa valeur minimale"
+				"description": "Actions à exécuter lorsque le compteur {SUB_ITEM_NAME} atteint sa valeur minimale",
+				"description_any": "Actions à exécuter lorsqu'un compteur atteint sa valeur minimale"
 			},
 			"COUNTER_LOOPED": {
 				"label": "Valeur de compteur bouclée",
 				"description": "Actions à exécuter lorsque la valeur du compteur {SUB_ITEM_NAME} est bouclée {INFO}",
+				"description_any": "Actions à exécuter lorsqu'un compteur boucle {INFO}",
 				"description_info": "(Si l'option \"boucler\" est activée et que la valeur max est atteinte, la valeur sera remplacée par la valeur min, et inversement)"
 			},
 			"RAID_STARTED": {
@@ -1477,7 +1488,9 @@
 			},
 			"VALUE_UPDATE": {
 				"label": "Valeur modifiée",
-				"description": "Actions à exécuter lorsque la valeur {SUB_ITEM_NAME} est modifiée"
+				"label_any": "N'importe quelle valeur modifiée",
+				"description": "Actions à exécuter lorsque la valeur {SUB_ITEM_NAME} est modifiée",
+				"description_any": "Actions à exécuter lorsqu'une Valeur est modifiée"
 			},
 			"ANNOUNCEMENTS": {
 				"label": "/announce",

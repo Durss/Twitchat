@@ -52,6 +52,7 @@
 							<div class="actions">
 								<TTButton class="actionBt" v-tooltip="$t('values.editBt')" icon="edit" @click.stop="editValue(entry.value)" />
 								<TTButton class="actionBt" alert icon="trash" @click.stop="deleteValue(entry)" />
+								<TTButton class="actionBt" @click.stop :copy="entry.value.id" icon="id" v-tooltip="$t('global.copy_id')" small />
 							</div>
 						</template>
 

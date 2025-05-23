@@ -1,5 +1,5 @@
 import StoreProxy from "@/store/StoreProxy";
-import { ANY_OBS_SCENE, TriggerEventPlaceholders, TriggerTypes, TriggerTypesDefinitionList, type ITriggerPlaceholder, type TriggerActionData, type TriggerData, type TriggerTypeDefinition } from "@/types/TriggerActionDataTypes";
+import { ANY_COUNTER, ANY_OBS_SCENE, ANY_VALUE, TriggerEventPlaceholders, TriggerTypes, TriggerTypesDefinitionList, type ITriggerPlaceholder, type TriggerActionData, type TriggerData, type TriggerTypeDefinition } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import TriggerActionHandler from "./triggers/TriggerActionHandler";
 import { TwitchScopes } from "./twitch/TwitchScopes";
@@ -105,7 +105,7 @@ export default class TriggerUtils {
 			case TriggerTypes.OBS_SCENE: {
 				if(!result.label && trigger.obsScene) result.label = trigger.obsScene;
 
-				if(trigger.type == TriggerTypes.OBS_SCENE && trigger.obsScene == ANY_OBS_SCENE) {
+				if(trigger.obsScene == ANY_OBS_SCENE) {
 					result.labelKey = "triggers.obs.anyScene";
 					result.descriptionKey = "triggers.events.OBS_SCENE.description_any";
 					result.label = StoreProxy.i18n.t(result.labelKey);
@@ -144,7 +144,25 @@ export default class TriggerUtils {
 				}else if(!counter) {
 					result.label = StoreProxy.i18n.t("triggers.missing_counter");
 				}
+
+				if(trigger.counterId == ANY_COUNTER) {
+					result.labelKey = "triggers.count.any_counter";
+					result.descriptionKey += "_any";
+					result.label = StoreProxy.i18n.t(result.labelKey);
+				}
+
 				result.label = "("+prefix+") "+result.label;
+				break;
+			}
+
+			case TriggerTypes.VALUE_UPDATE: {
+				if(trigger.valueId == ANY_VALUE) {
+					result.labelKey = "triggers.events.VALUE_UPDATE.label_any";
+					result.descriptionKey = "triggers.events.VALUE_UPDATE.description_any";
+					result.label = StoreProxy.i18n.t(result.labelKey);
+				}
+
+				result.label = result.label;
 				break;
 			}
 		}

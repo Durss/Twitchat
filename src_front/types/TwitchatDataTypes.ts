@@ -6065,6 +6065,10 @@ export namespace TwitchatDataTypes {
 		 */
 		giftId:string;
 		/**
+		 * Name of the gift
+		 */
+		giftName:string;
+		/**
 		 * Raw data of the original message
 		 */
 		raw_data?:any;

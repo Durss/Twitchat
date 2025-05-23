@@ -497,25 +497,31 @@ export default class TriggerActionHandler {
 			case TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE:{
 				let executed = false;
 				if(message.added > 0) {
+					await this.executeTriggersByType(TriggerTypes.COUNTER_ADD, message, testMode, TriggerActionDataTypes.ANY_COUNTER, undefined, forcedTriggerId)
 					const result = await this.executeTriggersByType(TriggerTypes.COUNTER_ADD, message, testMode, message.counter.id, undefined, forcedTriggerId);
 					executed ||= result;
 				}
 				if(message.added < 0) {
+					await this.executeTriggersByType(TriggerTypes.COUNTER_DEL, message, testMode, TriggerActionDataTypes.ANY_COUNTER, undefined, forcedTriggerId)
 					const result = await this.executeTriggersByType(TriggerTypes.COUNTER_DEL, message, testMode, message.counter.id, undefined, forcedTriggerId);
 					executed ||= result;
 				}
 				if(message.maxed) {
+					await this.executeTriggersByType(TriggerTypes.COUNTER_MAXED, message, testMode, TriggerActionDataTypes.ANY_COUNTER, undefined, forcedTriggerId)
 					const result = await this.executeTriggersByType(TriggerTypes.COUNTER_MAXED, message, testMode, message.counter.id, undefined, forcedTriggerId);
 					executed ||= result;
 				}
 				if(message.mined) {
+					await this.executeTriggersByType(TriggerTypes.COUNTER_MINED, message, testMode, TriggerActionDataTypes.ANY_COUNTER, undefined, forcedTriggerId)
 					const result = await this.executeTriggersByType(TriggerTypes.COUNTER_MINED, message, testMode, message.counter.id, undefined, forcedTriggerId);
 					executed ||= result;
 				}
 				if(message.looped) {
+					await this.executeTriggersByType(TriggerTypes.COUNTER_LOOPED, message, testMode, TriggerActionDataTypes.ANY_COUNTER, undefined, forcedTriggerId)
 					const result = await this.executeTriggersByType(TriggerTypes.COUNTER_LOOPED, message, testMode, message.counter.id, undefined, forcedTriggerId)
 					executed ||= result;
 				}
+				await this.executeTriggersByType(TriggerTypes.COUNTER_EDIT, message, testMode, TriggerActionDataTypes.ANY_COUNTER, undefined, forcedTriggerId)
 				const result = await this.executeTriggersByType(TriggerTypes.COUNTER_EDIT, message, testMode, message.counter.id, undefined, forcedTriggerId);
 				executed ||= result;
 				if(executed) {
@@ -524,6 +530,7 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE:{
+				await this.executeTriggersByType(TriggerTypes.VALUE_UPDATE, message, testMode, TriggerActionDataTypes.ANY_VALUE, undefined, forcedTriggerId)
 				if(await this.executeTriggersByType(TriggerTypes.VALUE_UPDATE, message, testMode, message.value.id, undefined, forcedTriggerId)) {
 					return;
 				}break;

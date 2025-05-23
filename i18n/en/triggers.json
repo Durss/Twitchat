@@ -70,9 +70,11 @@
 			"anyScene": "Any scene"
 		},
 		"count": {
-			"require": "These triggers need you to first {URL_COUNTERS} or  {URL_VALUES}",
+			"require": "These triggers need you to first {URL_COUNTERS} or {URL_VALUES}",
 			"require_counters": "create counters",
-			"require_values": "create values"
+			"require_values": "create values",
+			"any_counter": "Any counter",
+			"any_value": "Any value"
 		},
 		"rewards": {
 			"require": "This trigger needs to {URL}",
@@ -852,6 +854,7 @@
 			"challenge_contribution_total": "User total contribution",
 			"shoutout_in": "User that gave you a shoutout",
 			"shoutout_out": "User you gave a shoutout to",
+			"counter_id": "Counter ID",
 			"counter_name": "Name of the counter",
 			"counter_value": "New counter's value",
 			"counter_update": "Value added",
@@ -1001,6 +1004,8 @@
 			"platform":"Platform that started the trigger\n(twitch, youtube, ...)",
 			"tiktok_gift_count":"Number of gifts",
 			"tiktok_gift_id":"ID of the gift",
+			"tiktok_gift_name":"Name of the gift",
+			"tiktok_gift_image":"Image of the gift",
 			"tiktok_like_count":"Number of likes",
 			"tiktok_like_total":"Total likes received during current stream",
 			"tiktok_diamonds":"Diamonds received",

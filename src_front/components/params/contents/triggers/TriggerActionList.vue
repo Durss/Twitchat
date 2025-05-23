@@ -155,29 +155,29 @@
 </template>
 
 <script lang="ts">
+import Icon from '@/components/Icon.vue';
 import PermissionsForm from '@/components/PermissionsForm.vue';
 import TTButton from '@/components/TTButton.vue';
-import { ANY_OBS_SCENE, TriggerSubTypeLabel, TriggerTypes, TriggerTypesDefinitionList, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import { TriggerSubTypeLabel, TriggerTypes, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
+import TriggerUtils from '@/utils/TriggerUtils';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/gsap-core';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ParamItem from '../../ParamItem.vue';
+import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
 import TriggerActionChatCommandParams from './TriggerActionChatCommandParams.vue';
 import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentParams.vue';
+import TriggerActionEntry from './TriggerActionEntry.vue';
 import TriggerActionHeatParams from './TriggerActionHeatParams.vue';
 import TriggerActionScheduleParams from './TriggerActionScheduleParams.vue';
 import TriggerActionSlashCommandParams from './TriggerActionSlashCommandParams.vue';
 import TriggerAdApproachParams from './TriggerAdApproachParams.vue';
 import TriggerConditionList from './TriggerConditionList.vue';
 import TriggerGoXLRParams from './TriggerGoXLRParams.vue';
-import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
-import TriggerActionEntry from './TriggerActionEntry.vue';
-import Icon from '@/components/Icon.vue';
-import TriggerUtils from '@/utils/TriggerUtils';
 
 @Component({
 	components:{
@@ -280,11 +280,6 @@ class TriggerActionList extends Vue {
 	 */
 	public get triggerDescriptionLabel():string|undefined {
 		return TriggerUtils.getTriggerDisplayInfo(this.triggerData).descriptionKey;
-		const item = TriggerTypesDefinitionList().find(v => v.value == this.triggerData.type) as TriggerTypeDefinition|null;
-		if(this.triggerData.type == TriggerTypes.OBS_SCENE && this.triggerData.obsScene == ANY_OBS_SCENE) {
-			return "triggers.events.OBS_SCENE.description_any"
-		}
-		return item?.descriptionKey;
 	}
 
 	/**
