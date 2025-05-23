@@ -1767,6 +1767,7 @@ export const storeDebug = defineStore('debug', {
 						count,
 						diamonds:count,
 						giftId:"123456",
+						giftName:"Roses"
 					};
 					data = m;
 					break;
