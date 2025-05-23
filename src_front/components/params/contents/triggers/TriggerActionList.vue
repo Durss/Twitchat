@@ -769,6 +769,7 @@ export default toNative(TriggerActionList);
 
 	.selectRect {
 		z-index: 1;
+		pointer-events: none;
 		position: absolute;
 		border: 1px solid var(--color-text);
 		background-color: var(--background-color-fader);

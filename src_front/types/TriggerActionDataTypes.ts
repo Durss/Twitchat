@@ -62,7 +62,8 @@ export interface TriggerCallStack {
 // const e: Path<Test, "myPrefix"> = "myPrefix.blabla"; // invalid
 // const f: Path<Test, "myPrefix"> = "myPrefix.name"; // valid
 
-export type TriggerActionTypes =  TriggerActionEmptyData
+export type TriggerActionTypes = {enabled?:boolean} &
+								( TriggerActionEmptyData
 								| TriggerActionDelayData
 								| TriggerActionObsData
 								| TriggerActionChatData
@@ -107,7 +108,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionChatPollData
 								| TriggerActionAnimatedTextData
 								| TriggerActionCustomTrainData
-;
+							);
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
 

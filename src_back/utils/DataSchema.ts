@@ -448,6 +448,7 @@ const UserDataSchema = {
 								id: {type:"string", maxLength:100},
 								conditionList: { $ref: "#/definitions/conditionGroup" },
 								sourceName: {type:"string", maxLength:100},
+								enabled: {type:"boolean"},
 								//remove this property after some time
 								show: {
 									anyOf:[

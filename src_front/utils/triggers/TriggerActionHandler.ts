@@ -1369,8 +1369,15 @@ export default class TriggerActionHandler {
 		}
 
 		for (const step of actions) {
+
 			const logStep:LogTriggerStep = {id:Utils.getUUID(), type:"step", date:Date.now(), data:step, messages:[] as {date:number, value:string}[], error:false};
 			log.entries.push(logStep);
+
+			if(step.enabled === false) {
+				logStep.messages.push({date:Date.now(), value:"❌ Action disabled. Skip it"});
+				logStep.error = true;
+				continue;
+			}
 
 			const actionPlaceholders = TriggerActionPlaceholders(step.type);
 

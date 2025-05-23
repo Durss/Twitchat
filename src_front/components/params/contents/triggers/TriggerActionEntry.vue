@@ -1,5 +1,5 @@
 <template>
-	<div class="triggerActionWrapper">
+	<div class="triggerActionWrapper" :class="{disabledAction:!action.enabled}">
 		<TriggerConditionList v-if="action.conditionList"
 			class="card-item conditions"
 			actionContext
@@ -53,7 +53,8 @@
 						class="action orderBt"
 						v-tooltip="$t('triggers.reorder_tt')"
 						@click.stop
-					/>
+						/>
+					<ToggleButton v-model="action.enabled" @click.stop small />
 				</div>
 			</template>
 			<template #right_actions>
@@ -334,6 +335,7 @@
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
+import ToggleButton from '@/components/ToggleButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ChatSuggestionForm from '@/components/chatSugg/ChatSuggestionForm.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
@@ -403,6 +405,7 @@ import TriggerActionCustomTrainEntry from './entries/TriggerActionCustomTrainEnt
 		BingoForm,
 		RaffleForm,
 		ToggleBlock,
+		ToggleButton,
 		ChatPollForm,
 		PredictionForm,
 		ChatSuggestionForm,
@@ -649,13 +652,9 @@ class TriggerActionEntry extends Vue {
 
 	public async beforeMount():Promise<void> {
 		this.opened = !this.action.type;
-	}
-
-	/**
-	 * Called when submitting the form
-	 */
-	public onSubmit():void {
-		this.$emit("update");
+		if(this.action.enabled === undefined) {
+			this.action.enabled = true;
+		}
 	}
 
 	/**
@@ -835,6 +834,11 @@ export default toNative(TriggerActionEntry);
 			width: 1.5em;
 		}
 	}
+
+	&.disabledAction {
+		opacity: .75;
+		filter: grayscale();
+	}
 }
 
 .triggeractionentry{
@@ -880,6 +884,7 @@ export default toNative(TriggerActionEntry);
 	.actionList {
 		display: flex;
 		align-self: stretch;
+		align-items: center;
 		.action {
 			border-radius: 0;
 			padding: .5em;

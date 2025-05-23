@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes">
+	<div :class="classes" data-noselect>
 		<Icon name="checkmark" class="checkmark" />
 		<div class="circle">
 			<Icon v-if="loading === true" name="loader" class="loading" />

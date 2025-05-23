@@ -5,6 +5,8 @@
 			data-noselect
 			v-tooltip="$t('triggers.reorder_tt')" />
 
+		<ToggleButton class="field" v-model="action.enabled" small />
+
 		<Icon name="stop" />
 
 		<span class="label">{{ $t("triggers.actions.trigger_stop.info") }}</span>
@@ -24,11 +26,13 @@ import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
 import type { TriggerActionTypes, TriggerData } from '@/types/TriggerActionDataTypes';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
+import ToggleButton from '@/components/ToggleButton.vue';
 
 @Component({
 	components:{
 		TTButton,
 		ParamItem,
+		ToggleButton,
 		DurationForm,
 		PlaceholderSelector,
 	},

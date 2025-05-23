@@ -5,7 +5,9 @@
 			data-noselect
 			v-tooltip="$t('triggers.reorder_tt')" />
 
-		<Icon name="timer" class="icon" theme="light" />
+		<ToggleButton v-model="action.enabled" small />
+
+		<Icon name="timer" class="icon" theme="light" @click="action.enabled = !action.enabled" />
 
 		<DurationForm style="color:#fff" v-if="isNumericValue" class="field" v-model="action.delay" allowMs />
 
@@ -28,6 +30,7 @@
 <script lang="ts">
 import DurationForm from '@/components/DurationForm.vue';
 import TTButton from '@/components/TTButton.vue';
+import ToggleButton from '@/components/ToggleButton.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
 import type { TriggerActionTypes, TriggerData } from '@/types/TriggerActionDataTypes';
@@ -38,6 +41,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	components:{
 		TTButton,
 		ParamItem,
+		ToggleButton,
 		DurationForm,
 		PlaceholderSelector,
 	},
