@@ -2047,9 +2047,8 @@ export default class EventSub {
 				}, 5_000);
 				break;
 			}
-			case "power": {
-				if(!event.power_up) return;
-				if(event.power_up.type == "celebration") {
+			case "cheer": {
+				if(event.power_up && event.power_up.type == "celebration") {
 					const m:TwitchatDataTypes.MessageTwitchCelebrationData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
@@ -2063,7 +2062,7 @@ export default class EventSub {
 					};
 					StoreProxy.chat.addMessage(m);
 				}else
-				if(event.power_up.type == "gigantify_an_emote") {
+				if(event.power_up && event.power_up.type == "gigantify_an_emote") {
 					const messageChunks:TwitchatDataTypes.ParseMessageChunk[] = await TwitchUtils.eventsubFragmentsToTwitchatChunks(event.message?.fragments || [], event.broadcaster_user_id);
 					const messageHTML = TwitchUtils.messageChunksToHTML(messageChunks);
 					const m:TwitchatDataTypes.MessageTwitchGigantifiedEmoteData = {

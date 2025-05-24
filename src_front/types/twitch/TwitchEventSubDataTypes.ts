@@ -1106,7 +1106,7 @@ export namespace TwitchEventSubDataTypes {
 		broadcaster_user_login: string;
 		broadcaster_user_name: string;
 		bits: number;
-		type: "cheer"|"power"|"combo";
+		type: "cheer"|"combo";
 		power_up: null | {
 			type: "gigantify_an_emote" | "celebration";
 			emote: {
