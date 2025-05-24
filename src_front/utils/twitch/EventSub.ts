@@ -2047,7 +2047,7 @@ export default class EventSub {
 				}, 5_000);
 				break;
 			}
-			case "cheer": {
+			case "power_up": {
 				if(event.power_up && event.power_up.type == "celebration") {
 					const m:TwitchatDataTypes.MessageTwitchCelebrationData = {
 						id:Utils.getUUID(),
