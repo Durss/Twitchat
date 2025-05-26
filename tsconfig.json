@@ -8,6 +8,7 @@
 		"moduleResolution": "node",
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
+		"incremental": true,
 		"skipLibCheck": true,
 		"allowJs": true,
 		"esModuleInterop": true,

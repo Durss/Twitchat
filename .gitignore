@@ -8,6 +8,7 @@ node_modules
 /updates_graphics
 /data
 env.conf
+tsconfig.tsbuildinfo
 
 credentials/*
 !credentials.default.json
