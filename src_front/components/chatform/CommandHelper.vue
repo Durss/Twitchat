@@ -5,14 +5,14 @@
 				icon="poll"
 				:disabled="!canCreatePoll"
 				v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.poll')}}</TTButton>
-			<TTButton icon="pin" :primary="isPinned('poll')" @click="onTogglePin('poll')" />
+			<TTButton icon="pin" :primary="isPinned('poll')" @click="onTogglePin('poll')" :disabled="!canCreatePoll" />
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="openModal('pred');"
 				icon="prediction"
 				:disabled="!canCreatePrediction"
 				v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.prediction')}}</TTButton>
-			<TTButton icon="pin" :primary="isPinned('prediction')" @click="onTogglePin('prediction')" />
+			<TTButton icon="pin" :primary="isPinned('prediction')" @click="onTogglePin('prediction')" :disabled="!canCreatePrediction" />
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="openModal('raffle');"
@@ -78,8 +78,9 @@
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="$emit('update:showRewards', true); close()"
-				icon="channelPoints">{{$t('cmdmenu.rewards')}}</TTButton>
-			<TTButton icon="pin" :primary="isPinned('rewards')" @click="onTogglePin('rewards')" />
+				icon="channelPoints"
+				:disabled="!hasChannelPoints">{{$t('cmdmenu.rewards')}}</TTButton>
+			<TTButton icon="pin" :primary="isPinned('rewards')" @click="onTogglePin('rewards')" :disabled="!hasChannelPoints" />
 		</div>
 
 		<TTButton @click.capture="openModal('twitchatAnnouncement');"
