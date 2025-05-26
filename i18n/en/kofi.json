@@ -8,6 +8,9 @@
 		"examples":"Message examples",
 		"advanced_params_header":"Transmit Ko-Fi events to other webhooks",
 		"webhook_placeholder":"https://...",
-		"add_webhookBt":"Add webhook"
+		"add_webhookBt":"Add webhook",
+		"disabled":"This webhook has been disabled because it returned too many errors.\nYou can enable it back manually.",
+		"disabled_notification":"The following Ko-Fi webhook returned too many errors and has been disabled:\n{URL}.\n\nYou can enable it back manually from the settings.",
+		"restartBt":"restart webhook"
 	}
 }

@@ -516,7 +516,7 @@
 		},
 		"youtube": {
 			"platform_youtube": "Message reçu\nsur YouTube",
-			"connected_to": "Vous êtes maintenant connecté·e au tchat du live \"{TITLE}\""
+			"connected_to": "Vous êtes connecté·e au tchat du live \"{TITLE}\""
 		},
 		"tiktok": {
 			"platform_youtube": "Message reçu\nsur TikTok"

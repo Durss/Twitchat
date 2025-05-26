@@ -215,6 +215,12 @@ export default toNative(ChatCustomMessage);
 				.username {
 					color: var(--color-light) !important;
 				}
+				:deep(a) {
+					color: var(--color-light) !important;
+				}
+				:deep(.icon) {
+					color: var(--color-light) !important;
+				}
 			}
 		}
 	}

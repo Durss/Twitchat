@@ -21,7 +21,7 @@ export const storeKofi = defineStore('kofi', {
 
 
 	getters: {
-		
+
 	} as IKofiGetters
 	& ThisType<UnwrapRef<IKofiState> & _StoreWithGetters<IKofiGetters> & PiniaCustomProperties>
 	& _GettersTree<IKofiState>,
@@ -46,11 +46,38 @@ export const storeKofi = defineStore('kofi', {
 			SSEHelper.instance.addEventListener(SSEEvent.KO_FI_EVENT, (event) => {
 				this.onEvent(event.data);
 			});
-
-			SSEHelper.instance.addEventListener(SSEEvent.KO_FI_DELETE_WEBHOOK, (webhook) => {
-				this.webhooks = this.webhooks.filter(w=>w != webhook.data);
+			SSEHelper.instance.addEventListener(SSEEvent.KO_FI_FAILED_WEBHOOK, (webhook) => {
+				const entry = this.webhooks.find(v=>v.url == webhook.data);
+				if(entry) entry.fails ++;
 				this.saveConfigs();
 			});
+
+			SSEHelper.instance.addEventListener(SSEEvent.KO_FI_DELETE_WEBHOOK, (webhook) => {
+				const entry = this.webhooks.find(v=>v.url == webhook.data);
+				if(entry) entry.enabled = false;
+				this.saveConfigs();
+
+				const message = StoreProxy.i18n.t("kofi.disabled_notification", {URL:webhook.data});
+				const message_chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+				const m:TwitchatDataTypes.MessageCustomData = {
+					id:Utils.getUUID(),
+					channel_id:StoreProxy.auth.twitch.user.id,
+					type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+					date:Date.now(),
+					platform:"twitchat",
+					user:{
+						name: "Ko-Fi",
+						color: "#ff5a16",
+					},
+					style: "error",
+					icon:"kofi",
+					message,
+					message_chunks,
+					message_html: TwitchUtils.messageChunksToHTML(message_chunks),
+				};
+				StoreProxy.chat.addMessage(m);
+			});
+
 		},
 
 		async connect(token:string):Promise<boolean> {
@@ -99,7 +126,7 @@ export const storeKofi = defineStore('kofi', {
 					StoreProxy.chat.addMessage(message);
 					break;
 				}
-				
+
 				case "Subscription": {
 					const chunks = TwitchUtils.parseMessageToChunks(data.message || "", undefined, true);
 					const message:TwitchatDataTypes.KofiSubscriptionData = {
@@ -123,7 +150,7 @@ export const storeKofi = defineStore('kofi', {
 					StoreProxy.chat.addMessage(message);
 					break;
 				}
-				
+
 				case "Shop Order": {
 					const chunks = TwitchUtils.parseMessageToChunks(data.message || "", undefined, true);
 					const message:TwitchatDataTypes.KofiMerchData = {
@@ -152,7 +179,7 @@ export const storeKofi = defineStore('kofi', {
 					StoreProxy.chat.addMessage(message);
 					break;
 				}
-				
+
 				case "Commission": {
 					const chunks = TwitchUtils.parseMessageToChunks(data.message || "", undefined, true);
 					const message:TwitchatDataTypes.KofiCommissionData = {
@@ -178,6 +205,32 @@ export const storeKofi = defineStore('kofi', {
 			}
 		},
 		
+		addWebhook(url:string):void {
+			this.webhooks.push({
+				enabled: true,
+				url,
+				fails: 0
+			});
+			this.saveConfigs();
+		},
+
+		removeWebhook(webhook:IKofiState["webhooks"][number]):void {
+			const index = this.webhooks.findIndex(v=> v.url == webhook.url);
+			if(index >= 0) {
+				this.webhooks.splice(index, 1);
+				this.saveConfigs();
+			}
+		},
+
+		async restartWebhook(webhook:IKofiState["webhooks"][number]):Promise<void> {
+			const wh = this.webhooks.find(v=> v.url == webhook.url);
+			if(wh) {
+				wh.fails = 0;
+				wh.enabled = true;
+				this.saveConfigs();
+			}
+		},
+
 		saveConfigs():void {
 			this.webhooks = this.webhooks.splice(0, 5)//Limit to 5 webhooks
 			const data:IStoreData = {
@@ -185,7 +238,7 @@ export const storeKofi = defineStore('kofi', {
 			};
 			DataStore.set(DataStore.KOFI_CONFIGS, data);
 		},
-	
+
 	} as IKofiActions
 	& ThisType<IKofiActions
 		& UnwrapRef<IKofiState>
@@ -199,7 +252,7 @@ if(import.meta.hot) {
 	import.meta.hot.accept(acceptHMRUpdate(storeKofi, import.meta.hot))
 }
 interface IStoreData {
-	webhooks:string[];
+	webhooks:{url:string, fails:number, enabled:boolean}[];
 }
 
 export interface KofiEventData {

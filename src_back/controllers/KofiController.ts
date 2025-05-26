@@ -196,9 +196,17 @@ export default class KofiController extends AbstractController {
 				const data = JSON.parse(fs.readFileSync(userFilePath, {encoding:"utf8"}));
 				if(data.kofiConfigs?.webhooks && Array.isArray(data.kofiConfigs?.webhooks)) {
 					for (let i = 0; i < data.kofiConfigs.webhooks.length; i++) {
-						const webhook = data.kofiConfigs.webhooks[i];
-						let url = new URL(Config.credentials.kofi_proxy);
-						url.searchParams.append("url", webhook);
+						const webhook = data.kofiConfigs.webhooks[i] as {url:string, fails:number, enabled:boolean};
+						const url = new URL(Config.credentials.kofi_proxy);
+						let webhookPath = "";
+						if(typeof webhook === "string") {
+							//This is just a fallback to old data structure until user migrates it
+							webhookPath = webhook;
+						}else{
+							webhookPath = webhook.url;
+							if(webhook.enabled === false) continue; //Skip disabled webhooks
+						}
+						url.searchParams.append("url", webhookPath);
 						let success = false;
 						try {
 							let res = await fetch(url, {
@@ -209,11 +217,18 @@ export default class KofiController extends AbstractController {
 								},
 								body: new URLSearchParams(request.body as URLSearchParams).toString(),
 							})
-							if(res.status === 200) success = true;
+							if(res.status >= 200 && res.status <= 206) success = true;
+							console.log(res.status)
 						}catch(error) {
+							console.log(error)
 						}
 						if(!success) {
-							SSEController.sendToUser(user.twitch, SSECode.KO_FI_DELETE_WEBHOOK, webhook);
+							if(typeof webhook != "string" && ++webhook.fails >=5) {
+								webhook.enabled = false;
+								SSEController.sendToUser(user.twitch, SSECode.KO_FI_DELETE_WEBHOOK, webhookPath);
+							}else{
+								SSEController.sendToUser(user.twitch, SSECode.KO_FI_FAILED_WEBHOOK, webhookPath);
+							}
 						}
 					}
 				}

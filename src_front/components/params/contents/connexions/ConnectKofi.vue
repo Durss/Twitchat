@@ -1,7 +1,7 @@
 <template>
 	<div class="connectkofi parameterContent">
 		<Icon name="kofi" class="icon" />
-		
+
 		<div class="head">
 			<i18n-t scope="global" tag="span" keypath="kofi.header">
 				<template #LINK>
@@ -26,7 +26,7 @@
 					<span>{{ $t("kofi.set_url") }}</span>
 					<input type="text" :value="webhookURL" v-click2Select readonly>
 				</li>
-				
+
 				<li class="card-item">
 					<span class="index">3.</span>
 					<span>{{ $t("kofi.find_key") }}</span>
@@ -46,25 +46,31 @@
 
 			<div class="card-item alert error" v-if="error" @click="error = ''">{{ error }}</div>
 		</template>
-		
+
 
 		<section class="connected" v-else>
 			<TTButton alert @click="disconnect()" :loading="loading">{{ $t("global.disconnect") }}</TTButton>
-			
+
 			<ToggleBlock :title="$t('global.advanced_params')" class="advancedParams" small :open="false">
-				<form @submit.prevent="" class="additionalWebhooks">
+				<div @submit.prevent="" class="additionalWebhooks">
 					<div>{{ $t('kofi.advanced_params_header') }}</div>
-					<div class="entry" v-for="(url, index) in $store.kofi.webhooks">
-						<input type="text"
-							@blur="$store.kofi.saveConfigs()"
-							pattern="https?:\/\/.*"
-							v-model="$store.kofi.webhooks[index]"
-							:placeholder="$t('kofi.webhook_placeholder')">
-						
-						<TTButton icon="trash" alert @click="$store.kofi.webhooks.splice(index,1); $store.kofi.saveConfigs()" />
+					<div v-for="(wh, index) in $store.kofi.webhooks" :class="['entry', {disabled: !wh.enabled}]" :key="index">
+						<div class="form">
+							<input type="text"
+								@blur="$store.kofi.saveConfigs()"
+								pattern="https?:\/\/.*"
+								v-model="wh.url"
+								:placeholder="$t('kofi.webhook_placeholder')">
+	
+							<TTButton icon="trash" alert @click="$store.kofi.removeWebhook(wh); $store.kofi.saveConfigs()" />
+						</div>
+						<div v-if="!wh.enabled" class="error">
+							<div><Icon name="alert"/>{{ $t("kofi.disabled") }}</div>
+								<TTButton icon="offline" @click="$store.kofi.restartWebhook(wh)" alert light>{{ $t("kofi.restartBt") }}</TTButton>
+						</div>
 					</div>
 					<TTButton @click="addWebhook()" v-if="$store.kofi.webhooks.length < 5" icon="add">{{ $t("kofi.add_webhookBt") }}</TTButton>
-				</form>
+				</div>
 			</ToggleBlock>
 		</section>
 
@@ -81,10 +87,11 @@
 </template>
 
 <script lang="ts">
-import { TTButton } from '@/components/TTButton.vue';
+import Icon from '@/components/Icon.vue';
+import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
+import ToggleButton from '@/components/ToggleButton.vue';
 import MessageItem from '@/components/messages/MessageItem.vue';
-import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
@@ -92,6 +99,7 @@ import { Component, Vue, toNative } from 'vue-facing-decorator';
 @Component({
 	components:{
 		TTButton,
+		ToggleButton,
 		MessageItem,
 		ToggleBlock,
 	},
@@ -158,7 +166,7 @@ class ConnectKofi extends Vue {
 	 * Opens the premium param page
 	 */
 	public addWebhook():void{
-		this.$store.kofi.webhooks.push("");
+		this.$store.kofi.addWebhook("");
 	}
 
 }
@@ -173,7 +181,7 @@ export default toNative(ConnectKofi);
 		text-align: center;
 		white-space: pre-line;
 	}
-	
+
 	ol {
 		gap: 1em;
 		display: flex;
@@ -197,7 +205,7 @@ export default toNative(ConnectKofi);
 				flex-basis: 100%;
 				margin-top: .5em;
 			}
-	
+
 			.button {
 				display: flex;
 				margin: 0 auto;
@@ -235,21 +243,54 @@ export default toNative(ConnectKofi);
 		.entry {
 			gap: 1px;
 			display: flex;
-			flex-direction: row;
-			input {
-				width: 0;
-				flex-grow: 1;
-				border-top-right-radius: 0;
-				border-bottom-right-radius: 0;
-				border: 1px solid transparent;
+			flex-direction: column;
+			align-items: center;
+			flex-wrap: wrap;
+			row-gap: .5em;
+			overflow: hidden;
+			.form {
+				gap: 1px;
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				flex-wrap: wrap;
+				row-gap: .5em;
+				overflow: hidden;
+				width: 100%;
+				input {
+					width: 0;
+					flex-grow: 1;
+					border-top-right-radius: 0;
+					border-bottom-right-radius: 0;
+					border: 1px solid transparent;
+				}
+				input:invalid {
+					border-color: var(--color-alert);
+					background-color: var(--color-alert-fadest);
+				}
+				.button {
+					border-top-left-radius: 0;
+					border-bottom-left-radius: 0;
+					align-self: stretch;
+				}
 			}
-			input:invalid {
-				border-color: var(--color-alert);
-				background-color: var(--color-alert-fadest);
+			.error {
+				background-color: var(--color-alert);
+				padding: .5em;
+				display: flex;
+				align-items: center;
+				flex-direction: column;
+				gap: .5em;
+				.icon {
+					height: 1em;
+					margin-right: .5em;
+				}
 			}
-			.button {
-				border-top-left-radius: 0;
-				border-bottom-left-radius: 0;
+
+			&.disabled {
+				border: 1px solid var(--color-alert);
+				border-radius: var(--border-radius);
+				background-color: var(--color-alert-fader);
 			}
 		}
 	}

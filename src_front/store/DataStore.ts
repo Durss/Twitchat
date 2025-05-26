@@ -157,7 +157,7 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	static override async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 65;
+		const latestVersion = 66;
 
 		this.cleanupPreV7Data(data);
 
@@ -394,6 +394,10 @@ export default class DataStore extends DataStoreCommon{
 		if(v==64) {
 			// Same as before but i also blocked the possibility to "ctrl+v" actions which i forgot before
 			this.limitTriggerActionCount(data);
+			v = 65;
+		}
+		if(v==65) {
+			this.migrateKofiWebhooksData(data);
 			v = latestVersion;
 		}
 
@@ -1750,6 +1754,27 @@ export default class DataStore extends DataStoreCommon{
 					t.actions = t.actions.slice(0, 100);
 				}
 			});
+		}
+	}
+
+	/**
+	 * Migrates kofi webhooks structure from simple strings to complex objects
+	 * @param data
+	 */
+	private static migrateKofiWebhooksData(data:any):void {
+		const webhooks = data[DataStore.KOFI_CONFIGS]?.webhooks;
+		if(webhooks && Array.isArray(webhooks) && webhooks.length > 0 && typeof webhooks[0] == "string") {
+			for (let i = 0; i < webhooks.length; i++) {
+				if(typeof webhooks[i] === "string") {
+					const url = webhooks[i];
+					webhooks[i] = {
+						url,
+						fails:0,
+						enabled:true
+					};
+				}
+			}
+			console.log("Migrated Kofi webhooks data", webhooks);
 		}
 	}
 }

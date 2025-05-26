@@ -516,7 +516,7 @@
 		},
 		"youtube": {
 			"platform_youtube": "Message received\non YouTube",
-			"connected_to": "Now connected to live chat \"{TITLE}\""
+			"connected_to": "Connected to \"{TITLE}\" live chat"
 		},
 		"tiktok": {
 			"platform_tiktok": "Message received\non TikTok"

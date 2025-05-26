@@ -8,6 +8,9 @@
 		"examples":"Messages d'exemple",
 		"advanced_params_header":"Transmettez les évènements Ko-Fi vers d'autres webhooks",
 		"webhook_placeholder":"https://...",
-		"add_webhookBt":"Ajouter un webhook"
+		"add_webhookBt":"Ajouter un webhook",
+		"disabled":"Ce webhook a été désactivé car il a renvoyé trop d'erreurs.\nVous pouvez le réactiver manuellement.",
+		"disabled_notification":"Le webhook Ko-Fi suivant a retourné trop d'erreurs et a été désactivé :\n{URL}.\n\nVous pouvez le réactiver manuellement depuis les paramètres.",
+		"restartBt":"Redémarrer le webhook"
 	}
 }
