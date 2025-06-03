@@ -32,7 +32,7 @@
 			</h1>
 
 			<template v-else-if="trainData.state == 'EXPIRED'">
-				<h1 v-if="!boostMode">{{ $t("train.boost_cancel") }}</h1>
+				<h1 v-if="!boostMode">{{ $t("train.hype_cancel") }}</h1>
 				<h1 v-else-if="goldenKappaMode">{{ $t("train.golden_cancel") }}</h1>
 				<h1 v-else>{{ $t("train.boost_cancel") }}</h1>
 			</template>
