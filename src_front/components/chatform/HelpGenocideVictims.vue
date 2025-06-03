@@ -9,23 +9,36 @@
 			<div class="content">
 				<p v-for="e in $tm('gaza.description')">{{ e }}</p>
 
+				<div class="ctas" v-newflag="{date:1759253466000, id:'gaza:araborg'}">
+					<div class="head">
+						<a href="https://arab.org/fr/click-to-help/palestine/" target="_blank"><strong>Arab.org <Icon name="newtab"/></strong></a>
+						<i>{{ $t("gaza.araborg_head") }}</i>
+					</div>
+					<TTButton icon="whispers"
+						:loading="sendingAraborg"
+						v-if="!sentAraborg"
+						@click="sendOnChat('https://arab.org/fr/click-to-help/palestine')">{{ $t("gaza.send_bt") }}</TTButton>
+						<div v-else class="card-item thanks">{{ $t("gaza.thanks") }}</div>
+				</div>
+
 				<div class="ctas">
 					
-					<TTButton type="link"
-					icon="newtab"
-					:href="url"
-					target="_blank">{{ $t("gaza.open_bt") }}</TTButton>
+					<div class="head">
+						<a href="https://gazafunds.com" target="_blank"><strong>Gazafunds.com <Icon name="newtab"/></strong></a>
+						<i>{{ $t("gaza.gazafunds_head") }}</i>
+					</div>
 
 					<TTButton icon="whispers"
-					:loading="sending"
-					v-if="!sent"
-					@click="sendOnChat()">{{ $t("gaza.send_bt") }}</TTButton>
-					<div v-else class="card-item thanks">{{ $t("gaza.thanks") }}</div>
+						:loading="sendingGazafunds"
+						v-if="!sentGazafunds"
+						@click="sendOnChat('https://gazafunds.com')">{{ $t("gaza.send_bt") }}</TTButton>
+						<div v-else class="card-item thanks">{{ $t("gaza.thanks") }}</div>
 					
+
 					<TTButton type="link"
-					icon="newtab" transparent secondary
-					href="https://docs.google.com/spreadsheets/d/1-DDMFyn-ttboPXrz1bB3MFk7BlzCwfugh4259Wh7U1s/htmlview"
-					target="_blank">{{ $t("gaza.allFunds_bt") }}</TTButton>
+						icon="newtab" transparent secondary
+						href="https://docs.google.com/spreadsheets/d/1-DDMFyn-ttboPXrz1bB3MFk7BlzCwfugh4259Wh7U1s/htmlview"
+						target="_blank">{{ $t("gaza.allFunds_bt") }}</TTButton>
 				</div>
 			</div>
 		</div>
@@ -33,19 +46,16 @@
 </template>
 
 <script lang="ts">
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import ClearButton from '../ClearButton.vue';
-import { gsap } from 'gsap/gsap-core';
-import TTButton from '../TTButton.vue';
+import ParamItem from '@/components/params/ParamItem.vue';
 import MessengerProxy from '@/messaging/MessengerProxy';
 import Utils from '@/utils/Utils';
+import { gsap } from 'gsap/gsap-core';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
+import ClearButton from '../ClearButton.vue';
+import Icon from '../Icon.vue';
 import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 import Splitter from '../Splitter.vue';
-import Icon from '../Icon.vue';
-import ParamItem from '@/components/params/ParamItem.vue';
-import {type TwitchatDataTypes} from '@/types/TwitchatDataTypes';
-import DataStore from '@/store/DataStore';
-import { watch } from 'vue';
+import TTButton from '../TTButton.vue';
 
 @Component({
 	components:{
@@ -60,9 +70,10 @@ import { watch } from 'vue';
 })
 class HelpGenocideVictims extends Vue {
 
-	public sent:boolean = false;
-	public sending:boolean = false;
-	public url:string = "https://gazafunds.com";
+	public sentGazafunds:boolean = false;
+	public sendingGazafunds:boolean = false;
+	public sentAraborg:boolean = false;
+	public sendingAraborg:boolean = false;
 
 	public mounted():void {
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
@@ -78,12 +89,26 @@ class HelpGenocideVictims extends Vue {
 		}});
 	}
 
-	public async sendOnChat():Promise<void> {
-		this.sending = true;
-		MessengerProxy.instance.sendMessage("💖 🍉 => "+this.url);
+	public async sendOnChat(url:string):Promise<void> {
+		let message = "";
+		if(url.indexOf("arab.org") > -1) {
+			this.sentAraborg = false;
+			this.sendingAraborg = true;
+			message = this.$t("gaza.araborg_message");
+		} else {
+			this.sentGazafunds = false;
+			this.sendingGazafunds = true;
+			message = this.$t("gaza.gazafunds_message");
+		}
+		MessengerProxy.instance.sendMessage(message + url);
 		await Utils.promisedTimeout(500);
-		this.sending = false;
-		this.sent = true;
+		if(url.indexOf("arab.org") > -1) {
+			this.sentAraborg = true;
+			this.sendingAraborg = false;
+		} else {
+			this.sentGazafunds = true;
+			this.sendingGazafunds = false;
+		}
 	}
 
 }
@@ -113,7 +138,25 @@ export default toNative(HelpGenocideVictims);
 			gap:.5em;
 			display: flex;
 			flex-direction: column;
-			align-items: center;
+			align-items: flex-start;
+			align-self: center;
+			justify-self: center;
+			min-width: 280px;
+			border-radius: var(--border-radius);
+
+			&.newFlag {
+				padding: .5em;
+			}
+
+			.head {
+				display: flex;
+				flex-direction: column;
+				white-space: pre-line;
+			}
+
+			.button {
+				align-self: center;
+			}
 		}
 
 		.thanks {
