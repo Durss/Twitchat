@@ -319,15 +319,16 @@
 				</transition>
 
 				<ButtonNotification
-				v-if="showObsBtn" icon="obs"
-				class="error"
-				v-tooltip="{touch:'hold', content:$t('chat.form.obs_disconnected_tt'), showOnCreate:true}"
-				@click="openOBSParams()"></ButtonNotification>
+					v-if="showObsBtn" icon="obs"
+					class="error"
+					v-tooltip="{touch:'hold', content:$t('chat.form.obs_disconnected_tt'), showOnCreate:true}"
+					@click="openOBSParams()"></ButtonNotification>
 
 				<ButtonNotification
-				v-if="showGazaBtn"
-				v-tooltip="{touch:'hold', content:$t('gaza.tooltip'), showOnCreate:shouldShowTooltip('gaza'), onHidden:()=>onHideTooltip('gaza')}"
-				@click="$emit('update:showGazaFunds', true)">🍉</ButtonNotification>
+					v-if="showGazaBtn"
+					v-newflag="{date:1759253466000, id:'gaza'}"
+					v-tooltip="{touch:'hold', content:$t('gaza.tooltip'), showOnCreate:shouldShowTooltip('gaza'), onHidden:()=>onHideTooltip('gaza')}"
+					@click="$emit('update:showGazaFunds', true)">🍉</ButtonNotification>
 
 				<transition name="blink">
 					<TTButton class="emergency"

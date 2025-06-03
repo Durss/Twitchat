@@ -9,10 +9,12 @@
 			"\n",
 			"If you can't afford giving money, please share the following link with your viewers, it's as important 💖"
 		],
-		"send_bt":"Share GazaFunds.com on chat",
-		"open_bt":"Open GazaFunds.com",
-		"allFunds_bt":"See all existing funds",
-		"thanks":"💖 Thank you 💖",
-		"gazafunds":"https://gazafunds.com"
+		"araborg_head":"Just click a button every day",
+		"araborg_message":"💖🍉 1 free click per day to help =>",
+		"gazafunds_head":"Donate to a randomly selected campaign",
+		"gazafunds_message":"💖🍉 Donate to a selected fundraiser =>",
+		"allFunds_bt":"View all fundraisers",
+		"send_bt":"Send link in chat",
+		"thanks":"💖 Thank you 💖"
 	}
 }
