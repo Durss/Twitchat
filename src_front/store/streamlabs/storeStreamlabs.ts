@@ -404,7 +404,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_GOAL", this.charityTeam.amountGoal_cents/100);
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED", this.charityTeam.amountRaised_cents/100);
-			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_IMAGE", teamJSON.campaign.causable.avatar.url);
+			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_IMAGE", teamJSON.campaign.causable.avatar?.url || "");
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_NAME", this.charityTeam.title);
 
 			let leaderboardAmountCents = 0;
@@ -840,7 +840,7 @@ export interface StreamlabsCharityTeamData {
 				benevity: boolean;
 				platform_id?: any;
 			};
-			avatar: {
+			avatar?: {
 				url: string;
 			};
 			page_settings: {
