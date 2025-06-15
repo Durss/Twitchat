@@ -894,6 +894,7 @@ export default toNative(OverlayBingoGrid);
 				top: 50%;
 				left: 50%;
 				width: 70%;
+				height: 70%;
 				color: #00cc00;
 				transform-origin: center center;
 				margin-left: -35%;
