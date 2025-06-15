@@ -553,10 +553,21 @@ class MessageList extends Vue {
 				//Ignore specific commands
 				if (this.config.messageFilters.commands === true && this.config.commandsBlockList.length > 0) {
 					const cleanMess = m.message.trim().toLowerCase();
+					const userCmd = cleanMess.split(" ")[0];
 					for (let i = 0; i < this.config.commandsBlockList.length; i++) {
 						const cmd = this.config.commandsBlockList[i];
-						if(cmd.length > 0 && cleanMess.indexOf(cmd) > -1) {
-							return false;
+						if(cmd.length > 0) {
+							// If command contains a space, check if the message starts with the whole thing
+							if(cmd.indexOf(" ") > -1) {
+								if(cleanMess.indexOf(cmd) == 0) {
+									return false;
+								}
+
+							// If command does not contain a space, check if the message starts with the exact
+							// command. It does not match "!command2" if the user types "!command"
+							}else if(userCmd === cmd) {
+								return false;
+							}
 						}
 					}
 				}
@@ -1798,6 +1809,8 @@ class MessageList extends Vue {
 			if(newMessage.message_size > maxSize) return false;
 			//don't merge messages with multiple occurences flag
 			if((newMessage.occurrenceCount || 0) > 0) return false;
+			//don't merge deleted messages
+			if(newMessage.deleted) return false;
 			//don't merge announcements and power ups
 			if(newMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 			&& (newMessage.twitch_announcementColor
@@ -1842,6 +1855,8 @@ class MessageList extends Vue {
 					|| prevMessage.twitch_gigantifiedEmote
 					|| prevMessage.twitch_animationId
 				)) return false;
+				//don't merge deleted
+				if(isMessage && prevMessage.deleted) return false;
 
 				//If message is too big, don't merge
 				//Check forward for when doing a full chat refresh
