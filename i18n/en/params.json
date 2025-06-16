@@ -119,10 +119,11 @@
 			"counters": "Counters",
 			"donate": "Donate",
 			"youtube": "YouTube",
-			"discord": "Discord",
-			"premium": "Premium",
-			"timers": "Timers"
-		},
+                        "discord": "Discord",
+                        "premium": "Premium",
+                        "queues": "Queues",
+                        "timers": "Timers"
+                },
 		"botMessages": {
 			"raffleStart": "/announce 🎉🎉🎉 Raffle has started 🎉🎉🎉 Use {CMD} command to enter!",
 			"raffleJoin": "VoteYea @{USER} you entered the raffle.",
@@ -161,6 +162,12 @@
 			"userinfo": "Opens a user's profile info",
 			"userfromid": "Get a user from their ID",
 			"raffle": "Start a raffle",
+			"queuepause": "Pause a queue",
+			"queueresume": "Resume a queue",
+			"queueclear": "Clear a queue, in-progress list or recently removed list",
+			"queuepick": "Pick a user from the queue (first or random)",
+			"queuemove": "Move a user from queue to in-progress",
+			"queueremove": "Remove a user from queue or in-progress",
 			"bingo": "Create a bingo session",
 			"raid": "Raid someone",
 			"so": "Shoutout a user",

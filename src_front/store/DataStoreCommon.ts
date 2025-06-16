@@ -119,9 +119,10 @@ export default class DataStoreCommon {
 	public static ELEVENLABS_API_KEY:string = "elevenlabsApiKey";
 	public static PLAYABILITY_CONFIGS:string = "playabilityConfigs";
 	public static KOFI_CONFIGS:string = "kofiConfigs";
-	public static TWITCH_BOT:string = "twitchBot";
-	public static TIMERS_CONFIGS:string = "timersConfigs";
-	public static ANIMATED_TEXT_CONFIGS:string = "animatedTextConfigs";
+        public static TWITCH_BOT:string = "twitchBot";
+        public static TIMERS_CONFIGS:string = "timersConfigs";
+        public static QUEUE_CONFIGS:string = "queueConfigs";
+        public static ANIMATED_TEXT_CONFIGS:string = "animatedTextConfigs";
 	public static CUSTOM_TRAIN_CONFIGS:string = "customTrainConfigs";
 	public static CENSOR_VIEWER_COUNT:string = "censorViewerCount";
 	public static STREAM_SOCKET_SECRET:string = "streamSocketSecret";

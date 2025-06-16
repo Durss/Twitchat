@@ -12,6 +12,8 @@ export default class GlobalEvent extends Event {
 	public static PIN_MESSAGE = "PIN_MESSAGE";
 	public static UNPIN_MESSAGE = "UNPIN_MESSAGE";
 	public static RELOAD_MESSAGES = "RELOAD_MESSAGES";
+	public static QUEUE_USER_REMOVED = "QUEUE_USER_REMOVED";
+	public static QUEUE_CLEAR_REMOVED = "QUEUE_CLEAR_REMOVED";
 	
 	constructor(eventType:string, public data?:any) {
 		super(eventType);

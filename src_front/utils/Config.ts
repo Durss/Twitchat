@@ -194,14 +194,22 @@ export default class Config {
 	/**
 	 * Maximum number of timers
 	 */
-	public MAX_TIMERS = 2;
-	/**
-	 * Maximum number of timers for premium users
-	 */
-	public MAX_TIMERS_PREMIUM = 100;
-	/**
-	 * Maximum chat poll entries
-	 */
+        public MAX_TIMERS = 2;
+        /**
+         * Maximum number of timers for premium users
+         */
+        public MAX_TIMERS_PREMIUM = 100;
+        /**
+         * Maximum number of queues
+         */
+        public MAX_QUEUES = 1;
+        /**
+         * Maximum number of queues for premium users
+         */
+        public MAX_QUEUES_PREMIUM = 10;
+        /**
+         * Maximum chat poll entries
+         */
 	public MAX_CHAT_POLL_ENTRIES = 5;
 	/**
 	 * Maximum chat poll entries for premium users

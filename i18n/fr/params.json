@@ -119,10 +119,11 @@
 			"counters": "Compteurs",
 			"donate": "Faire un don",
 			"youtube": "YouTube",
-			"discord": "Discord",
-			"premium": "Premium",
-			"timers": "Minuteurs"
-		},
+                        "discord": "Discord",
+                        "premium": "Premium",
+                        "queues": "Files d'attente",
+                        "timers": "Minuteurs"
+                },
 		"botMessages": {
 			"raffleStart": "/announce 🎉🎉🎉 Le tirage au sort a commencé 🎉🎉🎉 Rejoignez le tirage avec la commande {CMD} ?",
 			"raffleJoin": "VoteYea {USER} tu as rejoint le tirage au sort.",
@@ -161,6 +162,12 @@
 			"userinfo": "Ouvre un profil utilisateur",
 			"userfromid": "Recherche un profil utilisateur par son ID",
 			"raffle": "Lance un tirage au sort",
+			"queuepause": "Mettre en pause une file d'attente",
+			"queueresume": "Reprendre une file d'attente",
+			"queueclear": "Vider une file d'attente, la liste des en cours ou des récemment supprimés",
+			"queuepick": "Sélectionner un utilisateur de la file (premier ou aléatoire)",
+			"queuemove": "Déplacer un utilisateur de la file vers les en cours",
+			"queueremove": "Retirer un utilisateur de la file ou des en cours",
 			"bingo": "Lance un bingo",
 			"raid": "Lance un raid",
 			"so": "Faire un shoutout",

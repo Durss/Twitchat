@@ -718,9 +718,10 @@ export const storeMain = defineStore("main", {
 			StoreProxy.music.populateData();
 			StoreProxy.lumia.populateData();
 			StoreProxy.users.populateData();
-			StoreProxy.sammi.populateData();
-			StoreProxy.timers.populateData();
-			StoreProxy.raffle.populateData();
+                        StoreProxy.sammi.populateData();
+                        StoreProxy.timers.populateData();
+                        StoreProxy.queue.populateData();
+                        StoreProxy.raffle.populateData();
 			StoreProxy.labels.populateData();
 			StoreProxy.stream.populateData();
 			StoreProxy.params.populateData();

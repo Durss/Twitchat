@@ -178,6 +178,28 @@
 					v-model="config.showGreetHere"
 					v-if="$store.params.chatColumnsConfig.length > 1" />
 
+				<div class="queueList card-item" v-if="activeQueues.length > 0">
+					<Icon name="list" />
+					<span class="title">{{ $t("chat.filters.queues") }}</span>
+					<div class="queues">
+						<div v-for="queue in activeQueues" :key="queue.id" class="queueItem">
+							<ParamItem
+								:paramData="queueParams[queue.id]"
+								:modelValue="queueParams[queue.id].value"
+								@update:modelValue="(value: boolean) => { queueParams[queue.id].value = value; toggleQueueSelection(queue.id); }"
+								noBackground
+								autoFade>
+								<template #label>
+									<div class="queueToggle">
+										<span class="label">{{ queue.title || $t('queue.default_title') }}</span>
+										<span class="count" v-if="queue.entries.length > 0">({{ queue.entries.length }})</span>
+									</div>
+								</template>
+							</ParamItem>
+						</div>
+					</div>
+				</div>
+
 				<div class="bgColor card-item">
 					<Icon name="color" />
 					<span class="title">{{ $t("chat.filters.background_color") }}</span>
@@ -308,6 +330,7 @@ export class MessageListFilter extends Vue {
 	public param_showGreetHere:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.show_greet_here"};
 	public param_backgroundColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:""};
 	public messageKeyToScope:{[key in keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters]:TwitchScopesString[]}|null = null;
+	public queueParams:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 
 	private mouseY = 0;
 	private disposed = false;
@@ -331,6 +354,10 @@ export class MessageListFilter extends Vue {
 
 	public get canDelete():boolean {
 		return this.$store.params.chatColumnsConfig.length > 1;
+	}
+
+	public get activeQueues():TwitchatDataTypes.QueueData[] {
+		return this.$store.queue.queueList.filter(q => q.enabled);
 	}
 
 	public get channels() {
@@ -363,6 +390,7 @@ export class MessageListFilter extends Vue {
 			}
 		}
 		if(this.config.showGreetHere || this.config.showPanelsHere) noConfig = false;
+		if(this.config.queueIds && this.config.queueIds.length > 0) noConfig = false;
 		this.expand = noConfig;
 
 		this.showCTA = DataStore.get(DataStore.CHAT_COL_CTA) !== "true" && this.config.order == 0;
@@ -370,6 +398,7 @@ export class MessageListFilter extends Vue {
 		if(!this.config.whispersPermissions) {
 			this.config.whispersPermissions = Utils.getDefaultPermissions()
 		}
+
 
 		this.filters = [];
 		const filterList = TwitchatDataTypes.MessageListFilterTypes;
@@ -488,7 +517,57 @@ export class MessageListFilter extends Vue {
 			}
 		});
 
+
+		// Watch for queue changes to update params
+		watch(() => this.activeQueues, () => {
+			this.updateQueueParams();
+		}, { deep: true, immediate: true });
+
+		// Watch for config.queueIds changes
+		watch(() => this.config.queueIds, () => {
+			this.updateQueueParams();
+		}, { deep: true });
+
 		requestAnimationFrame(()=>this.renderFrame());
+	}
+
+	private updateQueueParams():void {
+		// Clear old params
+		for(const key in this.queueParams) {
+			if(!this.activeQueues.find(q => q.id === key)) {
+				delete this.queueParams[key];
+			}
+		}
+		
+		// Clean up invalid queue IDs from config
+		if(this.config.queueIds) {
+			const validQueueIds = this.config.queueIds.filter(id => 
+				this.$store.queue.queueList.find(q => q.id === id)
+			);
+			if(validQueueIds.length !== this.config.queueIds.length) {
+				this.config.queueIds = validQueueIds;
+				this.$store.params.saveChatColumnConfs();
+			}
+		}
+		
+		// Update or create params for active queues
+		for(const queue of this.activeQueues) {
+			const isSelected = this.config.queueIds ? this.config.queueIds.includes(queue.id) : false;
+			
+			if(!this.queueParams[queue.id]) {
+				// Create new param object
+				this.queueParams[queue.id] = {
+					type: "boolean",
+					value: isSelected,
+					icon: "list",
+					label: queue.title || this.$t('queue.default_title')
+				};
+			} else {
+				// Update existing value
+				this.queueParams[queue.id].value = isSelected;
+				this.queueParams[queue.id].label = queue.title || this.$t('queue.default_title');
+			}
+		}
 	}
 
 	public beforeUnmount():void {
@@ -1183,6 +1262,42 @@ export class MessageListFilter extends Vue {
 	}
 
 	/**
+	 * Toggle queue selection
+	 */
+	public toggleQueueSelection(queueId:string):void {
+		// Initialize queueIds array if it doesn't exist
+		if(!this.config.queueIds) {
+			this.config.queueIds = [];
+		}
+		
+		// Get the NEW value that was just set by v-model
+		const isSelected = this.queueParams[queueId]?.value === true;
+		
+		// Create a new array to ensure reactivity
+		let newQueueIds = [...(this.config.queueIds || [])];
+		
+		const index = newQueueIds.indexOf(queueId);
+		if(isSelected && index === -1) {
+			// Add to selected queues if checked and not already in array
+			newQueueIds.push(queueId);
+			// When adding a queue, ensure it's not collapsed by default
+			this.config.queueCollapsed = false;
+		} else if(!isSelected && index > -1) {
+			// Remove from selected queues if unchecked
+			newQueueIds.splice(index, 1);
+		}
+		
+		// Update the config object with the new array
+		this.config.queueIds = newQueueIds;
+		
+		// Directly save the changes
+		this.$store.params.saveChatColumnConfs();
+		
+		// Emit change event to notify parent
+		this.$emit('change');
+	}
+
+	/**
 	 * Check if a filter that requires a missing scope is enabled
 	 * If so, it will be highlighted and a message will be posted
 	 * on chat to warn the user
@@ -1478,7 +1593,7 @@ export default toNative(MessageListFilter);
 			.showPanelsHere, .showGreetHere, .bgColor {
 				font-size: .9em;
 			}
-			.channelList, .bgColor {
+			.channelList, .bgColor, .queueList {
 				gap: .5em;
 				display: flex;
 				flex-direction: row;
@@ -1495,6 +1610,28 @@ export default toNative(MessageListFilter);
 					width: 1em;
 					height: 1em;
 					vertical-align: middle;
+				}
+			}
+			.queueList {
+				.queues {
+					width: 100%;
+					display: flex;
+					flex-direction: column;
+					gap: .25em;
+					margin-top: .25em;
+					.queueItem {
+						margin-left: 1.5em;
+						font-size: .9em;
+						.queueToggle {
+							display: flex;
+							align-items: center;
+							justify-content: space-between;
+							gap: .5em;
+							.label {
+								flex-grow: 1;
+							}
+						}
+					}
 				}
 			}
 			.channelList {

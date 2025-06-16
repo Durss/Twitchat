@@ -248,10 +248,10 @@ node server/boostrap.js
 <br>
 
 # Install server
-All the following MUST be done on a seperate folder from the GIT project.\
+All the following MUST be done on a separate folder from the GIT project.\
 [Compile the project](#compile-project) and push the content of the `server` folder on your server root.\
 Next to this file, create a `public` folder and push the content of your local `dist` folder inside it.\
-Also add the `credentials` folder inside a `data` older at the root of the project.\
+Also add the `credentials` folder inside a `data` folder at the root of the project.\
 Create an `env.conf` file, just write `prod` inside, and push it at the root of the project.\
 Install all the production dependencies and [run the server](#run-server).
 \

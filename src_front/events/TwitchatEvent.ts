@@ -96,7 +96,9 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static ANIMATED_TEXT_CONFIGS:TwitchatEventType = "ANIMATED_TEXT_CONFIGS";
 	public static ANIMATED_TEXT_SHOW_COMPLETE:TwitchatEventType = "ANIMATED_TEXT_SHOW_COMPLETE";
 	public static ANIMATED_TEXT_HIDE_COMPLETE:TwitchatEventType = "ANIMATED_TEXT_HIDE_COMPLETE";
-	public static CUSTOM_TRAIN_STATE:TwitchatEventType = "CUSTOM_TRAIN_STATE";
+        public static CUSTOM_TRAIN_STATE:TwitchatEventType = "CUSTOM_TRAIN_STATE";
+        public static QUEUE_STATE:TwitchatEventType = "QUEUE_STATE";
+        public static QUEUE_OVERLAY_PRESENCE:TwitchatEventType = "QUEUE_OVERLAY_PRESENCE";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -186,8 +188,10 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static HIDE_ALERT:TwitchatActionType = "HIDE_ALERT";
 	public static GET_ANIMATED_TEXT_CONFIGS:TwitchatActionType = "GET_ANIMATED_TEXT_CONFIGS";
 	public static ANIMATED_TEXT_SET:TwitchatActionType = "ANIMATED_TEXT_SET";
-	public static ANIMATED_TEXT_CLOSE:TwitchatActionType = "ANIMATED_TEXT_CLOSE";
-	public static GET_CUSTOM_TRAIN_STATE:TwitchatActionType = "GET_CUSTOM_TRAIN_STATE";
+        public static ANIMATED_TEXT_CLOSE:TwitchatActionType = "ANIMATED_TEXT_CLOSE";
+        public static GET_CUSTOM_TRAIN_STATE:TwitchatActionType = "GET_CUSTOM_TRAIN_STATE";
+        public static GET_QUEUE_STATE:TwitchatActionType = "GET_QUEUE_STATE";
+        public static GET_QUEUE_OVERLAY_PRESENCE:TwitchatActionType = "GET_QUEUE_OVERLAY_PRESENCE";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:T) {
 		super(type);
@@ -281,9 +285,11 @@ export const TwitchatEventTypeList = [
 	"DONATION_EVENT",
 	"QNA_SESSION_LIST",
 	"ANIMATED_TEXT_CONFIGS",
-	"ANIMATED_TEXT_SHOW_COMPLETE",
-	"ANIMATED_TEXT_HIDE_COMPLETE",
-	"CUSTOM_TRAIN_STATE",
+        "ANIMATED_TEXT_SHOW_COMPLETE",
+        "ANIMATED_TEXT_HIDE_COMPLETE",
+        "CUSTOM_TRAIN_STATE",
+        "QUEUE_STATE",
+        "QUEUE_OVERLAY_PRESENCE",
 ] as const;
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
 
@@ -374,8 +380,10 @@ export const TwitchatActionTypeList = [
 	"QNA_SESSION_GET_ALL",
 	"HIDE_ALERT",
 	"GET_ANIMATED_TEXT_CONFIGS",
-	"ANIMATED_TEXT_SET",
-	"ANIMATED_TEXT_CLOSE",
-	"GET_CUSTOM_TRAIN_STATE",
+        "ANIMATED_TEXT_SET",
+        "ANIMATED_TEXT_CLOSE",
+        "GET_CUSTOM_TRAIN_STATE",
+        "GET_QUEUE_STATE",
+        "GET_QUEUE_OVERLAY_PRESENCE",
 ] as const;
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

@@ -71,6 +71,7 @@ export type TriggerActionTypes = {enabled?:boolean} &
 								| TriggerActionMusicEntryData
 								| TriggerActionRaffleData
 								| TriggerActionRaffleEnterData
+								| TriggerActionQueueData
 								| TriggerActionBingoData
 								| TriggerActionVoicemodData
 								| TriggerActionHighlightData
@@ -327,6 +328,7 @@ export const TriggerEventTypeCategories = {
 	PATREON:		{id:21, labelKey:"triggers.categories.patreon", icons:["patreon"]} as TriggerEventTypeCategory,
 	YOUTUBE:		{id:22, labelKey:"triggers.categories.youtube", icons:["youtube"]} as TriggerEventTypeCategory,
 	TIKTOK:			{id:23, labelKey:"triggers.categories.tiktok", icons:["tiktok"]} as TriggerEventTypeCategory,
+	QUEUE:			{id:24, labelKey:"triggers.categories.queue", icons:["list"]} as TriggerEventTypeCategory,
 };
 export type TriggerEventTypeCategoryID = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories]['id'];
 
@@ -571,6 +573,22 @@ export interface TriggerActionRaffleData extends TriggerActionData{
 
 export interface TriggerActionRaffleEnterData extends TriggerActionData{
 	type:"raffle_enter";
+}
+
+export interface TriggerActionQueueData extends TriggerActionData{
+	type:"queue";
+	/**
+	 * Action to perform on the queue
+	 */
+	action:"join"|"leave"|"move_to_progress"|"remove"|"pause"|"resume"|"clear"|"clear_progress"|"clear_removed"|"pick_first"|"pick_random";
+	/**
+	 * Queue ID to perform action on
+	 */
+	queueId:string;
+	/**
+	 * User placeholder (used for join/leave/move_to_progress/remove actions)
+	 */
+	userPlaceholder?:string;
 }
 
 export interface TriggerActionBingoData extends TriggerActionData{
@@ -1635,6 +1653,10 @@ export const TriggerTypes = {
 	CUSTOM_TRAIN_COOLDOWN:"167",
 	STREAMSOCKET_ACTION:"168",
 	TWITCH_COMBO:"169",
+	QUEUE_JOIN:"170",
+	QUEUE_LEAVE:"171",
+	QUEUE_MOVE_TO_PROGRESS:"172",
+	QUEUE_COMPLETE:"173",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -2614,6 +2636,29 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"ACTION_BITS", descKey:'triggers.placeholders.streamsocket_action_bits', pointer:"bits", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamSocketActionData>,
 	];
 
+	// Queue placeholders for all queue events
+	map[TriggerTypes.QUEUE_JOIN] =
+	map[TriggerTypes.QUEUE_LEAVE] =
+	map[TriggerTypes.QUEUE_MOVE_TO_PROGRESS] =
+	map[TriggerTypes.QUEUE_COMPLETE] = [
+		{tag:USER_NAME, descKey:'triggers.placeholders.user', pointer:"user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageQueueJoinData>,
+		{tag:USER_DISPLAY_NAME, descKey:'triggers.placeholders.user_customName', pointer:"user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageQueueJoinData>,
+		{tag:USER_ID, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<TwitchatDataTypes.MessageQueueJoinData>,
+		{tag:USER_AVATAR, descKey:'triggers.placeholders.user_avatar', pointer:"user.avatarPath", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageQueueJoinData>,
+		{tag:USER_FOLLOWAGE, descKey:'triggers.placeholders.followage', pointer:"user", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageQueueJoinData>,
+		{tag:USER_FOLLOWAGE_MS, descKey:'triggers.placeholders.followage_ms', pointer:"user", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageQueueJoinData>,
+		{tag:"QUEUE_ID", descKey:'triggers.placeholders.queue_id', pointer:"queueId", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageQueueJoinData>,
+		{tag:"QUEUE_NAME", descKey:'triggers.placeholders.queue_name', pointer:"queueTitle", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageQueueJoinData>,
+		// Queue-specific conditional placeholders that will be used in conditions
+		{tag:"QUEUE_ENABLED", descKey:'triggers.placeholders.queue_enabled', pointer:"__queue_enabled__", numberParsable:false, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageQueueJoinData>,
+		{tag:"QUEUE_PAUSED", descKey:'triggers.placeholders.queue_paused', pointer:"__queue_paused__", numberParsable:false, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageQueueJoinData>,
+	];
+
+	// Additional placeholder for QUEUE_JOIN only
+	map[TriggerTypes.QUEUE_JOIN]!.push(
+		{tag:"QUEUE_POSITION", descKey:'triggers.placeholders.queue_position', pointer:"position", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageQueueJoinData>
+	);
+
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder<any>[] = [];
 	for (let i = 0; i < counters.length; i++) {
@@ -2867,6 +2912,10 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.GAMES, icon:"bingo_grid", labelKey:"triggers.events.BINGO_GRID_ALL.label", value:TriggerTypes.BINGO_GRID_ALL, descriptionKey:"triggers.events.BINGO_GRID_ALL.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.BINGO_GRID},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.GAMES, icon:"bingo_grid", labelKey:"triggers.events.BINGO_GRID_CELL.label", value:TriggerTypes.BINGO_GRID_CELL, descriptionKey:"triggers.events.BINGO_GRID_CELL.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.BINGO_GRID},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.GAMES, icon:"bingo_grid", labelKey:"triggers.events.BINGO_GRID_RESET.label", value:TriggerTypes.BINGO_GRID_RESET, descriptionKey:"triggers.events.BINGO_GRID_RESET.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.BINGO_GRID},
+		{category:TriggerEventTypeCategories.QUEUE, icon:"list", labelKey:"triggers.events.QUEUE_JOIN.label", value:TriggerTypes.QUEUE_JOIN, descriptionKey:"triggers.events.QUEUE_JOIN.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.QUEUE_JOIN},
+		{category:TriggerEventTypeCategories.QUEUE, icon:"list", labelKey:"triggers.events.QUEUE_LEAVE.label", value:TriggerTypes.QUEUE_LEAVE, descriptionKey:"triggers.events.QUEUE_LEAVE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.QUEUE_LEAVE},
+		{category:TriggerEventTypeCategories.QUEUE, icon:"list", labelKey:"triggers.events.QUEUE_MOVE_TO_PROGRESS.label", value:TriggerTypes.QUEUE_MOVE_TO_PROGRESS, descriptionKey:"triggers.events.QUEUE_MOVE_TO_PROGRESS.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.QUEUE_MOVE_TO_PROGRESS},
+		{category:TriggerEventTypeCategories.QUEUE, icon:"list", labelKey:"triggers.events.QUEUE_COMPLETE.label", value:TriggerTypes.QUEUE_COMPLETE, descriptionKey:"triggers.events.QUEUE_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.QUEUE_COMPLETE},
 
 		{category:TriggerEventTypeCategories.SUBITS, icon:"sub", labelKey:"triggers.events.SUB.label", value:TriggerTypes.SUB, descriptionKey:"triggers.events.SUB.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION},
 		{category:TriggerEventTypeCategories.SUBITS, icon:"gift", labelKey:"triggers.events.SUBGIFT.label", value:TriggerTypes.SUBGIFT, descriptionKey:"triggers.events.SUBGIFT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION},

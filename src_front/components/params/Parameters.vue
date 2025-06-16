@@ -110,6 +110,7 @@
 				<ParamsDonate v-if="content == contentDonate" ref="currentContent" />
 				<ParamsValues v-if="content == contentValues" ref="currentContent" />
 				<ParamsTimer v-if="content == contentTimers" ref="currentContent" />
+                                <ParamsQueue v-if="content == contentQueues" ref="currentContent" />
 
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">{{ $t("params.search_no_result") }}</div>
@@ -160,6 +161,7 @@ import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
 import { VueDraggable } from 'vue-draggable-plus';
 import ParamsTimer from './contents/ParamsTimer.vue';
+import ParamsQueue from './contents/ParamsQueue.vue';
 
 @Component({
 	components:{
@@ -175,6 +177,7 @@ import ParamsTimer from './contents/ParamsTimer.vue';
 		VueDraggable,
 		ParamsDonate,
 		ParamsValues,
+                ParamsQueue,
 		ParamsPremium,
 		ParamsAutomod,
 		ParamsSpoiler,
@@ -231,6 +234,7 @@ class Parameters extends Vue {
 
 	private keyDownHandler!:(e:KeyboardEvent) => void;
 	private keyDownCaptureHandler!:(e:KeyboardEvent) => void;
+        public get contentQueues():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.QUEUES; }
 	private menuEntries:MenuEntry[] = [
 		{pinned:true, icon:"params", page:TwitchatDataTypes.ParameterPages.FEATURES, labelKey:'params.categories.features', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_chatfeatures_1'}},
 		{pinned:true, icon:"show", page:TwitchatDataTypes.ParameterPages.APPEARANCE, labelKey:'params.categories.appearance', newflag:{date:Config.instance.NEW_FLAGS_DATE_V13, id:'params_chatappearance_1'}},
@@ -244,9 +248,10 @@ class Parameters extends Vue {
 		{pinned:false, icon:"mod", page:TwitchatDataTypes.ParameterPages.AUTOMOD, labelKey:'params.categories.automod'},
 		{pinned:false, icon:"voice", page:TwitchatDataTypes.ParameterPages.VOICE, labelKey:'params.categories.voice'},
 		{pinned:true, icon:"user", page:TwitchatDataTypes.ParameterPages.ACCOUNT, labelKey:'params.categories.account'},
-		{pinned:false, icon:"info", page:TwitchatDataTypes.ParameterPages.ABOUT, labelKey:'params.categories.about', newflag:{date:1693519200000, id:'params_about'}},
-		{pinned:false, icon:"timer", page:TwitchatDataTypes.ParameterPages.TIMERS, labelKey:'params.categories.timers', newflag:{date:Config.instance.NEW_FLAGS_DATE_V16, id:'params_timers'}},
-	];
+                {pinned:false, icon:"info", page:TwitchatDataTypes.ParameterPages.ABOUT, labelKey:'params.categories.about', newflag:{date:1693519200000, id:'params_about'}},
+                {pinned:false, icon:"list", page:TwitchatDataTypes.ParameterPages.QUEUES, labelKey:'params.categories.queues', newflag:{date:Config.instance.NEW_FLAGS_DATE_V16, id:'params_queues'}},
+                {pinned:false, icon:"timer", page:TwitchatDataTypes.ParameterPages.TIMERS, labelKey:'params.categories.timers', newflag:{date:Config.instance.NEW_FLAGS_DATE_V16, id:'params_timers'}},
+        ];
 
 	/**
 	 * If true, will display a search field at the top of the view to

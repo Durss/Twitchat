@@ -171,6 +171,9 @@
 						v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_triggerAction_timer'}"
 						icon="timer">{{ $t('triggers.actions.common.action_timer') }}</TTButton>
 
+					<TTButton class="button" @click="selectActionType('queue')"
+						icon="list">{{ $t('triggers.actions.common.action_queue') }}</TTButton>
+
 					<TTButton class="button" @click.capture="selectActionType('obs')"
 						icon="obs"
 						:disabled="!obsConnected"
@@ -322,6 +325,7 @@
 			<TriggerActionTimerEntry v-else-if="action.type=='timer'" :action="action" :triggerData="triggerData" />
 			<TriggerActionAnimateTextEntry v-else-if="action.type=='animated_text'" :action="action" :triggerData="triggerData" />
 			<TriggerActionCustomTrainEntry v-else-if="action.type=='custom_train'" :action="action" :triggerData="triggerData" />
+			<TriggerActionQueueEntry v-else-if="action.type=='queue'" :action="action" :triggerData="triggerData" />
 			<RaffleForm v-else-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 			<BingoForm v-else-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 			<PollForm v-else-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -396,6 +400,7 @@ import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneE
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 import TriggerActionCustomTrainEntry from './entries/TriggerActionCustomTrainEntry.vue';
+import TriggerActionQueueEntry from './entries/TriggerActionQueueEntry.vue';
 
 @Component({
 	components:{
@@ -447,6 +452,7 @@ import TriggerActionCustomTrainEntry from './entries/TriggerActionCustomTrainEnt
 		TriggerActionSpoilMessageEntry,
 		TriggerActionDeleteMessageEntry,
 		TriggerActionTriggerToggleEntry,
+		TriggerActionQueueEntry,
 	},
 	emits:["delete", "duplicate"]
 })
@@ -617,6 +623,7 @@ class TriggerActionEntry extends Vue {
 		else if(this.action.type == "timer") icons.push( 'timer' );
 		else if(this.action.type == "animated_text") icons.push( 'animate' );
 		else if(this.action.type == "custom_train") icons.push( 'train' );
+		else if(this.action.type == "queue") icons.push( 'list' );
 		return icons;
 	}
 

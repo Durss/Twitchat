@@ -309,7 +309,7 @@ const UserDataSchema = {
 	},
 
 	type:"object",
-	additionalProperties: false,
+	additionalProperties: true, // Temporarily allow other properties to avoid breaking existing data
 	properties:{
 		obsConnectionEnabled: {type:"boolean"},
 		obsConf_muteUnmute: {
@@ -1585,6 +1585,13 @@ const UserDataSchema = {
 					whispersPermissions: { $ref: "defs.json#/definitions/permissions" },
 					showPanelsHere: { type:"boolean" },
 					showGreetHere: { type:"boolean" },
+					queueIds: {
+						type:"array",
+						minItems:0,
+						maxItems:100,
+						items:{type:"string", maxLength:40},
+					},
+					queueCollapsed: { type:"boolean" },
 					backgroundColor: { type:"string", maxLength:11 },
 					mandatoryBadges_flag: { type:"boolean" },
 					forbiddenBadges_flag: { type:"boolean" },
@@ -2547,17 +2554,17 @@ const UserDataSchema = {
 			}
 		},
 
-		customTrainConfigs:{
-			type: "object",
-			additionalProperties: false,
-			properties: {
-				customTrainList: {
-					type:"array",
-					minItems:0,
-					maxItems:10,
-					items:{
-						type: "object",
-						additionalProperties: false,
+                customTrainConfigs:{
+                        type: "object",
+                        additionalProperties: false,
+                        properties: {
+                                customTrainList: {
+                                        type:"array",
+                                        minItems:0,
+                                        maxItems:10,
+                                        items:{
+                                                type: "object",
+                                                additionalProperties: false,
 						properties: {
 							id: { type: "string" },
 							enabled: { type: "boolean" },
@@ -2621,10 +2628,94 @@ const UserDataSchema = {
 									streamlabs_charity:{ type: "boolean" },
 									twitch_charity:{ type: "boolean" },
 								}
-							}
-						}
-					}
-				},
+                                        }
+                                }
+                        }
+                },
+
+                queueConfigs:{
+                        type: "object",
+                        additionalProperties: false,
+                        properties: {
+                                queueList: {
+                                        type:"array",
+                                        minItems:0,
+                                        maxItems:10,
+                                        items:{
+                                                type: "object",
+                                                additionalProperties: false,
+                                                properties: {
+                                                        id:{type:"string"},
+                                                        enabled:{type:"boolean"},
+                                                        title:{type:"string"},
+                                                        placeholderKey:{type:"string", maxLength:50},
+                                                        maxPerUser:{type:"number", minimum:1, maximum:100},
+                                                        maxEntries:{type:"number", minimum:0, maximum:100},
+                                                        inProgressEnabled:{type:"boolean"},
+                                                        paused:{type:"boolean"},
+                                                        entries:{
+                                                                type:"array",
+                                                                minItems:0,
+                                                                maxItems:1000,
+                                                                items:{
+                                                                        type:"object",
+                                                                        additionalProperties:false,
+                                                                        properties:{
+                                                                                user:{type:"object"},
+                                                                                joined_at:{type:"number"}
+                                                                        }
+                                                                }
+                                                        },
+                                                        inProgress:{
+                                                                type:"array",
+                                                                minItems:0,
+                                                                maxItems:1000,
+                                                                items:{
+                                                                        type:"object",
+                                                                        additionalProperties:false,
+                                                                        properties:{
+                                                                                user:{type:"object"},
+                                                                                joined_at:{type:"number"}
+                                                                        }
+                                                                },
+                                                                nullable:true
+                                                        },
+                                                        overlayParams:{
+                                                                type:"object",
+                                                                additionalProperties:false,
+                                                                properties:{
+                                                                        showInProgress:{type:"boolean"},
+                                                                        rotateDelay:{type:"number", minimum:0, maximum:60},
+                                                                        position:{type:"string", enum:["tl","t","tr","l","m","r","bl","b","br"]},
+                                                                        titleFont:{type:"string", maxLength:50},
+                                                                        titleSize:{type:"number", minimum:10, maximum:150},
+                                                                        titleColor:{type:"string", maxLength:10},
+                                                                        subTitleFont:{type:"string", maxLength:50},
+                                                                        subTitleSize:{type:"number", minimum:10, maximum:150},
+                                                                        subTitleColor:{type:"string", maxLength:10},
+                                                                        queueLabelFont:{type:"string", maxLength:50},
+                                                                        queueLabelSize:{type:"number", minimum:10, maximum:150},
+                                                                        queueLabelColor:{type:"string", maxLength:10},
+                                                                        queueEntryFont:{type:"string", maxLength:50},
+                                                                        queueEntrySize:{type:"number", minimum:10, maximum:150},
+                                                                        queueEntryColor:{type:"string", maxLength:10},
+                                                                        progressEntryFont:{type:"string", maxLength:50},
+                                                                        progressEntrySize:{type:"number", minimum:10, maximum:150},
+                                                                        progressEntryColor:{type:"string", maxLength:10},
+                                                                        stateFont:{type:"string", maxLength:50},
+                                                                        stateSize:{type:"number", minimum:10, maximum:150},
+                                                                        stateColor:{type:"string", maxLength:10},
+                                                                        title:{type:"string", maxLength:50},
+                                                                        subTitle:{type:"string", maxLength:50},
+                                                                        queueLabel:{type:"string", maxLength:50},
+                                                                        progressLabel:{type:"string", maxLength:50}
+                                                                }
+                                                        }
+                                               }
+                                       }
+                               },
+                        }
+                },
 			}
 		},
 	}

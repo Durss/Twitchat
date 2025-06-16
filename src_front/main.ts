@@ -35,6 +35,7 @@ import { storeStream } from '@/store/stream/storeStream';
 import { storeStreamelements } from '@/store/streamelements/storeStreamelements';
 import { storeStreamlabs } from '@/store/streamlabs/storeStreamlabs';
 import { storeTimer } from '@/store/timer/storeTimer';
+import { storeQueue } from '@/store/queue/storeQueue';
 import { storeTipeee } from '@/store/tipeee/storeTipeee';
 import { storeTriggers } from '@/store/triggers/storeTriggers';
 import { storeTTS } from '@/store/tts/storeTTS';
@@ -255,9 +256,10 @@ function buildApp() {
 	StoreProxy.default.prediction = storePrediction();
 	StoreProxy.default.raffle = storeRaffle();
 	StoreProxy.default.rewards = storeRewards();
-	StoreProxy.default.stream = storeStream();
-	StoreProxy.default.timers = storeTimer();
-	//Dirty typing. Couldn't figure out how to properly type pinia getters
+        StoreProxy.default.stream = storeStream();
+        StoreProxy.default.timers = storeTimer();
+        StoreProxy.default.queue = (storeQueue() as unknown) as StoreProxy.IQueueState & StoreProxy.IQueueGetters & StoreProxy.IQueueActions & { $state: StoreProxy.IQueueState; $reset:()=>void };
+        //Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.default.triggers = (storeTriggers() as unknown) as StoreProxy.ITriggersState & StoreProxy.ITriggersGetters & StoreProxy.ITriggersActions & { $state: StoreProxy.ITriggersState; $reset:()=>void };
 	StoreProxy.default.tts = storeTTS();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters

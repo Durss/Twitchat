@@ -110,6 +110,8 @@ export const storeParams = defineStore('params', {
 				liveLockCount: 3,
 				showPanelsHere:false,
 				showGreetHere:false,
+				queueIds: [],
+				queueCollapsed: false,
 				commandsBlockList: [],
 				userBlockList: [],
 				whispersPermissions:Utils.getDefaultPermissions(),
@@ -156,6 +158,7 @@ export const storeParams = defineStore('params', {
 					twitch_charity_donation:false,
 					community_boost_complete: false,
 					community_challenge_contribution: false,
+					queue_command: false,
 				},
 				messageFilters: {
 					automod: false,
@@ -180,6 +183,8 @@ export const storeParams = defineStore('params', {
 				liveLockCount: 3,
 				showPanelsHere:true,
 				showGreetHere:true,
+				queueIds: [],
+				queueCollapsed: false,
 				commandsBlockList: [],
 				userBlockList: [],
 				whispersPermissions:Utils.getDefaultPermissions(),
@@ -225,6 +230,7 @@ export const storeParams = defineStore('params', {
 					twitch_charity_donation:true,
 					community_boost_complete: true,
 					community_challenge_contribution: true,
+					queue_command: true,
 				},
 				messageFilters: {
 					automod: true,
@@ -300,6 +306,14 @@ export const storeParams = defineStore('params', {
 				this.chatColumnsConfig = JSON.parse(chatColConfs);
 				for (let i = 0; i < this.chatColumnsConfig.length; i++) {
 					this.chatColumnsConfig[i].id = Utils.getUUID();
+					// Add queueIds if missing (migration)
+					if(this.chatColumnsConfig[i].queueIds === undefined) {
+						this.chatColumnsConfig[i].queueIds = [];
+					}
+					// Add queueCollapsed if missing (migration)
+					if(this.chatColumnsConfig[i].queueCollapsed === undefined) {
+						this.chatColumnsConfig[i].queueCollapsed = false;
+					}
 				}
 				DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig);
 			}
@@ -376,6 +390,8 @@ export const storeParams = defineStore('params', {
 				liveLockCount:3,
 				showPanelsHere:false,
 				showGreetHere:false,
+				queueIds:[],
+				queueCollapsed:false,
 				commandsBlockList:[],
 				userBlockList:[],
 				whispersPermissions:Utils.getDefaultPermissions(),
@@ -421,6 +437,7 @@ export const storeParams = defineStore('params', {
 					twitch_charity_donation:false,
 					community_boost_complete:false,
 					community_challenge_contribution:false,
+					queue_command:true,
 				},
 				messageFilters:{
 					automod:true,

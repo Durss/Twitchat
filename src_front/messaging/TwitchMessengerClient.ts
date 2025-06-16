@@ -814,6 +814,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			this.dispatchEvent(new MessengerClientEvent("REWARD", reward));
 		}
 
+		// Queue commands are now handled centrally in storeChat.ts for all platforms
 		this.dispatchEvent(new MessengerClientEvent("MESSAGE", data));
 	}
 
@@ -1230,5 +1231,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		if(typeof val == "number") return val;
 		return defaultValue;
 	}
+
 
 }

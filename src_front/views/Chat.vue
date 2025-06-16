@@ -11,6 +11,14 @@
 					<div class="subHolder" v-if="buildIndex >= index">
 						<GreetThem class="greetThem" v-if="greetColIndexTarget == c.order && $store.params.features.firstMessage.value === true" />
 
+						<QueueState class="queueState" 
+							v-if="c.queueIds && c.queueIds.length > 0" 
+							:queueIds="c.queueIds"
+							:collapsed="c.queueCollapsed || false"
+							@update:collapsed="updateQueueCollapsed(c.id, $event)"
+							@remove="removeQueuesFromColumn(c.id, $event)" 
+							:key="'queue_'+c.id+'_'+(c.queueIds ? c.queueIds.join(',') : '')" />
+
 						<MessageList ref="messages" class="messages"
 							@addColumn="addColumn"
 							:config="c"
@@ -43,6 +51,7 @@
 			<TTUserList				class="popin" v-if="$store.params.currentModal == 'TTuserList'" @close="$store.params.closeModal()" />
 			<PinedMessages			class="popin" v-if="$store.params.currentModal == 'pins'" @close="$store.params.closeModal()" />
 			<TimerForm				class="popin" v-if="$store.params.currentModal == 'timer'" @close="$store.params.closeModal()" />
+			<QueueForm				class="popin" v-if="$store.params.currentModal == 'queue'" @close="$store.params.closeModal()" />
 			<TriggersLogs			class="popin" v-if="$store.params.currentModal == 'triggersLogs'" @close="$store.params.closeModal()" />
 			<HeatLogs				class="popin" v-if="$store.params.currentModal == 'heatLogs'" @close="$store.params.closeModal()" />
 			<ObsHeatLogs			class="popin" v-if="$store.params.currentModal == 'obsHeatLogs'" @close="$store.params.closeModal()" />
@@ -208,6 +217,8 @@ import Gngngn from '../components/chatform/Gngngn.vue';
 import PinedMessages from '../components/chatform/PinedMessages.vue';
 import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsListModal.vue';
 import TimerForm from '../components/timer/TimerForm.vue';
+import QueueForm from '../components/queue/QueueForm.vue';
+import QueueState from '../components/queue/QueueState.vue';
 import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
@@ -231,6 +242,8 @@ import type { placements } from '@popperjs/core';
 		PollForm,
 		Changelog,
 		TimerForm,
+		QueueForm,
+		QueueState,
 		GreetThem,
 		BingoForm,
 		Extensions,
@@ -898,6 +911,28 @@ class Chat extends Vue {
 	}
 
 	/**
+	 * Update queue collapsed state
+	 */
+	public updateQueueCollapsed(colId:string, collapsed:boolean):void {
+		const col = this.$store.params.chatColumnsConfig.find(c => c.id === colId);
+		if (col) {
+			col.queueCollapsed = collapsed;
+			this.$store.params.saveChatColumnConfs();
+		}
+	}
+
+	/**
+	 * Remove queues from column
+	 */
+	public removeQueuesFromColumn(colId:string, queueIds:string[]):void {
+		const col = this.$store.params.chatColumnsConfig.find(c => c.id === colId);
+		if (col) {
+			col.queueIds = [];
+			this.$store.params.saveChatColumnConfs();
+		}
+	}
+
+	/**
 	 * Called when the mouse moves
 	 */
 	private async onMouseMove(e:MouseEvent|TouchEvent|PointerEvent):Promise<void> {
@@ -976,8 +1011,8 @@ class Chat extends Vue {
 		const cols = this.$store.params.chatColumnsConfig;
 		cols.sort((a,b)=> a.order - b.order);
 		let colId = "";
-		let indexPanels = 0;
-		let indexGreet = 0;
+		let indexPanels = -1;
+		let indexGreet = -1;
 		for (let i = 0; i < cols.length; i++) {
 			const c = cols[i];
 			if(c.showPanelsHere == true) {
@@ -995,9 +1030,14 @@ class Chat extends Vue {
 		if(!selectedCol) {
 			//Fallback to last col if none is selected
 			indexPanels = cols.length-1;
-			indexGreet = cols.length-1;
 			selectedCol = (this.$refs["column_"+cols[indexPanels].id] as HTMLDivElement[])[0];
 		}
+		
+		// Set default values for greet if not specified
+		if(indexGreet === -1) {
+			indexGreet = cols.length-1;
+		}
+		
 		this.greetColIndexTarget = indexGreet;
 		this.panelsColIndexTarget = indexPanels;
 		this.panelsColumnTarget = selectedCol.getElementsByClassName("subHolder")[0] as HTMLDivElement;
@@ -1128,6 +1168,12 @@ export default toNative(Chat);
 					flex-direction: column;
 					width: 100%;
 					position: relative;
+					
+					.queueState {
+						width: 100%;
+						flex-shrink: 0;
+					}
+					
 					.messages {
 						flex-grow: 1;
 						overflow: hidden;

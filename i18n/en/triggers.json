@@ -198,6 +198,7 @@
 				"action_groq": "Groq action",
 				"action_groq_tt": "You first need to connect Twitchat with Groqger to use this action",
 				"action_timer": "Timer",
+				"action_queue": "Queue",
 				"trigger_stop": "Stop trigger execution",
 				"action_animated_text": "Animate text",
 				"action_animated_text_tt": "You first need to create an animated text overlay to use this action",
@@ -691,6 +692,25 @@
 				"param_action_set": "Set duration",
 				"param_duration": "Duration (seconds)"
 			},
+			"queue": {
+				"no_queue": "You must first create a queue",
+				"createQueue_bt": "Create a queue",
+				"param_queue": "Queue to control",
+				"param_action": "Action",
+				"param_action_join": "Join queue",
+				"param_action_leave": "Leave queue",
+				"param_action_move_to_progress": "Move to progress",
+				"param_action_remove": "Remove from queue",
+				"param_action_pause": "Pause queue",
+				"param_action_resume": "Resume queue",
+				"param_action_clear": "Clear queue",
+				"param_action_clear_progress": "Clear in-progress list",
+				"param_action_clear_removed": "Clear recently removed list",
+				"param_action_pick_first": "Pick first user",
+				"param_action_pick_random": "Pick random user",
+				"param_user": "User to affect",
+				"param_user_placeholder": "Enter a user placeholder"
+			},
 			"trigger_stop": {
 				"info": "The trigger execution will stop here.\nThe following actions will not be executed."
 			},
@@ -738,7 +758,8 @@
 			"tiltify": "Titlitfy",
 			"patreon": "Patreon",
 			"tiktok": "TikTok",
-			"twitch_charity": "Twitch Charity"
+			"twitch_charity": "Twitch Charity",
+			"queue": "Queues"
 		},
 		"placeholders": {
 			"trigger_name": "Current trigger name",
@@ -1037,7 +1058,12 @@
 			"custom_train_record": "Is train record?",
 			"streamsocket_action_id": "Action ID",
 			"streamsocket_action_name": "Action Name",
-			"streamsocket_action_bits": "Action price in bits"
+			"streamsocket_action_bits": "Action price in bits",
+			"queue_id": "Queue ID",
+			"queue_name": "Queue name",
+			"queue_enabled": "Queue enabled",
+			"queue_paused": "Queue paused",
+			"queue_position": "Position in queue"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1592,6 +1618,22 @@
 			"BINGO_GRID_RESET": {
 				"label": "Bingo grid is reset",
 				"description": "Actions to execute when you reset a bingo grid"
+			},
+			"QUEUE_JOIN": {
+				"label": "User joins queue",
+				"description": "Actions to execute when a user joins a queue"
+			},
+			"QUEUE_LEAVE": {
+				"label": "User leaves queue",
+				"description": "Actions to execute when a user leaves a queue"
+			},
+			"QUEUE_MOVE_TO_PROGRESS": {
+				"label": "User moved to in progress",
+				"description": "Actions to execute when a user is moved to the in progress list"
+			},
+			"QUEUE_COMPLETE": {
+				"label": "User completes queue",
+				"description": "Actions to execute when a user completes their queue session"
 			},
 			"BINGO_GRID_VIEWER_LINE": {
 				"label": "A viewer completed one or more bingo grid lines",

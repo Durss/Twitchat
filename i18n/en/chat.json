@@ -95,6 +95,8 @@
 			"whispers_permissions": "Filter allowed users",
 			"show_panels_here": "Poll, prediction, ..., forms",
 			"show_greet_here": "Show \" @:greet.title \" on this column",
+			"show_queues_here": "Show viewer queues on this column",
+			"queues": "Select queues to display",
 			"show_user_badges": "Show only users with badges...",
 			"hide_user_badges": "Hide users with badges...",
 			"background_color": "Background color",
@@ -127,6 +129,7 @@
 				"community_boost_complete": "Community boosts",
 				"community_challenge_contribution": "Community challenge",
 				"music_added_to_queue": "Song request items",
+				"queue_command": "Queue commands",
 				"pinned": "Un/Pinned message notices",
 				"user_watch_streak": "Consecutive watch streak",
 				"stream_online": "Stream online/offline",
@@ -597,6 +600,32 @@
 		},
 		"stream_socket": {
 			"action": "{USER} used StreamSocket action \"{ACTION}\""
+		},
+		"commands": {
+			"queue_pause_usage": "Usage: /queuepause {queue name, id or placeholder}",
+			"queue_resume_usage": "Usage: /queueresume {queue name, id or placeholder}",
+			"queue_clear_usage": "Usage: /queueclear {queue} [queue|progress|removed]",
+			"queue_pick_usage": "Usage: /queuepick {queue} [first|random]",
+			"queue_move_usage": "Usage: /queuemove {queue} {username}",
+			"queue_remove_usage": "Usage: /queueremove {queue} {username} [queue|progress|all]",
+			"queue_not_found": "Queue \"{queue}\" not found.",
+			"queue_unavailable": "Queue \"{queue}\" is currently unavailable.",
+			"queue_paused": "Queue \"{queue}\" has been paused.",
+			"queue_resumed": "Queue \"{queue}\" has been resumed.",
+			"queue_cleared": "Queue \"{queue}\" has been cleared.",
+			"queue_progress_cleared": "In-progress list of \"{queue}\" has been cleared.",
+			"queue_removed_cleared": "Recently removed list for \"{queue}\" has been cleared.",
+			"queue_empty": "Queue \"{queue}\" is empty.",
+			"queue_no_progress": "Queue \"{queue}\" doesn't have in-progress list enabled.",
+			"queue_picked_first": "Picked {user} from \"{queue}\" (first in line).",
+			"queue_picked_random": "Randomly picked {user} from \"{queue}\".",
+			"user_not_in_queue": "{user} is not in the queue \"{queue}\".",
+			"user_not_in_progress": "{user} is not in the in-progress list of \"{queue}\".",
+			"user_not_found": "{user} not found in \"{queue}\".",
+			"queue_moved_progress": "Moved {user} to in-progress in \"{queue}\".",
+			"queue_removed": "Removed {user} from queue \"{queue}\".",
+			"queue_removed_progress": "Removed {user} from in-progress list of \"{queue}\".",
+			"queue_removed_all": "Removed {user} from all lists of \"{queue}\"."
 		}
 	}
 }

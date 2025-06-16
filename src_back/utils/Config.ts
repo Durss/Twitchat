@@ -317,14 +317,14 @@ export default class Config {
 		});
 	}
 
-	/**
-	 * Folder containing ko-fi data
-	 */
-	public static get LOGS_FOLDER(): string {
-		return this.getEnvData({
-			dev: path.join(this.DATA_ROOT, "/logs/"),
-			beta: path.join(this.DATA_ROOT, "/logs/"),
-			prod: path.join(this.DATA_ROOT, "/logs/"),
+        /**
+         * Folder containing log files
+         */
+        public static get LOGS_FOLDER(): string {
+                return this.getEnvData({
+                        dev: path.join(this.DATA_ROOT, "/logs/"),
+                        beta: path.join(this.DATA_ROOT, "/logs/"),
+                        prod: path.join(this.DATA_ROOT, "/logs/"),
 		});
 	}
 

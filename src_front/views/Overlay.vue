@@ -15,10 +15,11 @@
 		<OverlayPoll v-else-if="overlay=='polls'" />
 		<OverlayChatPoll v-else-if="overlay=='chatPoll'" />
 		<OverlayBingoGrid v-else-if="overlay=='bingogrid'" ref="bingoGrid" />
-		<OverlayDonationGoals v-else-if="overlay=='donationgoals'" />
-		<OverlayAnimatedText v-else-if="overlay=='animatedtext'" />
-		<OverlayCustomTrain v-else-if="overlay=='customtrain'" />
-	</div>
+                <OverlayDonationGoals v-else-if="overlay=='donationgoals'" />
+                <OverlayAnimatedText v-else-if="overlay=='animatedtext'" />
+                <OverlayCustomTrain v-else-if="overlay=='customtrain'" />
+                <OverlayQueue v-else-if="overlay=='queue'" />
+        </div>
 </template>
 
 <script lang="ts">
@@ -47,6 +48,7 @@ const OverlayDonationGoals = defineAsyncComponent({loader: () => import('@/compo
 const OverlayChatPoll = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayChatPoll.vue')});
 const OverlayAnimatedText = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayAnimatedText.vue')});
 const OverlayCustomTrain = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayCustomTrain.vue')});
+const OverlayQueue = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayQueue.vue')});
 
 @Component({
 	components:{
@@ -60,15 +62,16 @@ const OverlayCustomTrain = defineAsyncComponent({loader: () => import('@/compone
 		OverlayBitsWall,
 		OverlayHeatDebug,
 		OverlayBingoGrid,
-		OverlayCustomTrain,
-		OverlayPredictions,
-		OverlayMusicPlayer,
-		OverlaysRaffleWheel,
-		OverlayDonationGoals,
-		OverlayEndingCredits,
-		OverlayChatHighlight,
-		OverlayAnimatedText,
-	}
+                OverlayCustomTrain,
+                OverlayPredictions,
+                OverlayMusicPlayer,
+                OverlaysRaffleWheel,
+                OverlayDonationGoals,
+                OverlayEndingCredits,
+                OverlayChatHighlight,
+                OverlayAnimatedText,
+                OverlayQueue,
+        }
 })
 class Overlay extends Vue {
 

@@ -1989,6 +1989,106 @@ export default class TriggerActionHandler {
 					}
 				}else
 
+				//Handle queue action
+				if(step.type == "queue") {
+					const queue = StoreProxy.queue.queueList.find(q => q.id === step.queueId);
+					if(!queue) {
+						logStep.messages.push({date:Date.now(), value:"❌ Queue not found: "+step.queueId});
+						log.error = true;
+						logStep.error = true;
+					} else if(!queue.enabled && (step.action !== "pause" && step.action !== "resume")) {
+						logStep.messages.push({date:Date.now(), value:"❌ Queue \""+queue.title+"\" is disabled"});
+						log.error = true;
+						logStep.error = true;
+					} else {
+						let user = message.user;
+						
+						// If user placeholder is provided, parse it to get user
+						if(step.userPlaceholder && (step.action === "join" || step.action === "leave" || step.action === "move_to_progress" || step.action === "remove")) {
+							const parsedUser = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.userPlaceholder, subEvent);
+							// Try to parse as JSON to get user object
+							try {
+								const userObj = JSON.parse(parsedUser);
+								if(userObj && userObj.id) {
+									// Get the actual user object from store
+									const foundUser = StoreProxy.users.getUserFrom(userObj.platform || message.platform, userObj.channelInfo?.id || message.channel_id, userObj.id);
+									if(foundUser) user = foundUser;
+								}
+							} catch(e) {
+								// If not JSON, might be a user ID string
+								const userMatch = parsedUser.match(/^[a-zA-Z0-9_-]+$/);
+								if(userMatch) {
+									const foundUser = StoreProxy.users.getUserFrom(message.platform, message.channel_id, parsedUser);
+									if(foundUser) user = foundUser;
+								}
+							}
+						}
+						
+						switch(step.action) {
+							case "join":
+								StoreProxy.queue.addViewer(queue.id, user);
+								logStep.messages.push({date:Date.now(), value:"✔ Added "+user.displayNameOriginal+" to queue \""+queue.title+"\""});
+								break;
+							case "leave":
+								StoreProxy.queue.removeViewer(queue.id, user.id);
+								logStep.messages.push({date:Date.now(), value:"✔ Removed "+user.displayNameOriginal+" from queue \""+queue.title+"\""});
+								break;
+							case "move_to_progress":
+								StoreProxy.queue.moveToInProgress(queue.id, user.id);
+								logStep.messages.push({date:Date.now(), value:"✔ Moved "+user.displayNameOriginal+" to in progress in queue \""+queue.title+"\""});
+								break;
+							case "remove":
+								StoreProxy.queue.removeViewer(queue.id, user.id);
+								logStep.messages.push({date:Date.now(), value:"✔ Forcefully removed "+user.displayNameOriginal+" from queue \""+queue.title+"\""});
+								break;
+							case "pause":
+								StoreProxy.queue.pauseQueue(queue.id);
+								logStep.messages.push({date:Date.now(), value:"✔ Paused queue \""+queue.title+"\""});
+								break;
+							case "resume":
+								StoreProxy.queue.resumeQueue(queue.id);
+								logStep.messages.push({date:Date.now(), value:"✔ Resumed queue \""+queue.title+"\""});
+								break;
+							case "clear":
+								StoreProxy.queue.clearQueue(queue.id);
+								logStep.messages.push({date:Date.now(), value:"✔ Cleared queue \""+queue.title+"\""});
+								break;
+							case "clear_progress":
+								StoreProxy.queue.clearInProgress(queue.id);
+								logStep.messages.push({date:Date.now(), value:"✔ Cleared in-progress list of queue \""+queue.title+"\""});
+								break;
+							case "clear_removed":
+								StoreProxy.queue.broadcastClearRemoved(queue.id);
+								logStep.messages.push({date:Date.now(), value:"✔ Cleared recently removed list of queue \""+queue.title+"\""});
+								break;
+							case "pick_first":
+								const firstUser = StoreProxy.queue.pickFirstUser(queue.id);
+								if(firstUser) {
+									logStep.messages.push({date:Date.now(), value:"✔ Picked first user "+firstUser.displayNameOriginal+" from queue \""+queue.title+"\""});
+								} else {
+									logStep.messages.push({date:Date.now(), value:"❌ Queue \""+queue.title+"\" is empty"});
+									log.error = true;
+									logStep.error = true;
+								}
+								break;
+							case "pick_random":
+								const randomUser = StoreProxy.queue.pickRandomUser(queue.id);
+								if(randomUser) {
+									logStep.messages.push({date:Date.now(), value:"✔ Randomly picked "+randomUser.displayNameOriginal+" from queue \""+queue.title+"\""});
+								} else {
+									logStep.messages.push({date:Date.now(), value:"❌ Queue \""+queue.title+"\" is empty"});
+									log.error = true;
+									logStep.error = true;
+								}
+								break;
+							default:
+								logStep.messages.push({date:Date.now(), value:"❌ Unknown queue action: "+step.action});
+								log.error = true;
+								logStep.error = true;
+						}
+					}
+				}else
+
 				//Handle bingo action
 				if(step.type == "bingo") {
 					const data:TwitchatDataTypes.BingoConfig = JSON.parse(JSON.stringify(step.bingoData));

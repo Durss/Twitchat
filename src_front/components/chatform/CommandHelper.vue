@@ -54,6 +54,11 @@
 			<TTButton icon="pin" :primary="isPinned('timer')" @click="onTogglePin('timer')" />
 		</div>
 		<div class="menuItem">
+			<TTButton @click.capture="openModal('queue');"
+				icon="list">{{$t('cmdmenu.queue')}}</TTButton>
+			<TTButton icon="pin" :primary="isPinned('queue')" @click="onTogglePin('queue')" />
+		</div>
+		<div class="menuItem">
 			<TTButton @click.capture="clearChat();"
 				icon="clearChat"
 				:disabled="!canClearChat">{{$t('cmdmenu.chat')}}</TTButton>

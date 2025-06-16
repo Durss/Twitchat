@@ -9,6 +9,7 @@
 				<BingoState class="content" v-else-if="showBingo" />
 				<HypeTrainState class="content" v-else-if="showHypeTrain" />
 				<RaidState class="content" v-else-if="showRaid" />
+				<QueueState class="content" v-else-if="showQueues" :collapsible="false" />
 			</transition>
 
 			<ClearButton class="closeBt clearButton" v-if="showClose"
@@ -30,6 +31,7 @@ import PredictionState from './PredictionState.vue';
 import RaffleState from './RaffleState.vue';
 import RaidState from './RaidState.vue';
 import ChatPollState from './ChatPollState.vue';
+import QueueState from '../queue/QueueState.vue';
 
 @Component({
 	components:{
@@ -41,6 +43,7 @@ import ChatPollState from './ChatPollState.vue';
 		ChatPollState,
 		HypeTrainState,
 		PredictionState,
+		QueueState,
 	},
 	emits:['close'],
 })
@@ -56,6 +59,7 @@ class ChannelNotifications extends AbstractSidePanel {
 	public get showPrediction():boolean { return this.currentContent == 'prediction' && this.$store.prediction.data?.id != null && this.$store.prediction.data?.isFake != true; }
 	public get showRaffle():boolean { return this.currentContent == 'raffle' && this.$store.raffle.raffleList != null && this.$store.raffle.raffleList.filter(v=>v.mode === "chat" || v.mode === "tips").length > 0; }
 	public get showBingo():boolean { return this.currentContent == 'bingo' && this.$store.bingo.data != null; }
+	public get showQueues():boolean { return this.currentContent == 'queue' && this.$store.queue.queueList.filter(q => q.enabled).length > 0; }
 
 	public get showClose():boolean {
 		return (this.showPoll
@@ -65,6 +69,7 @@ class ChannelNotifications extends AbstractSidePanel {
 			|| this.showRaffle
 			|| this.showRaid
 			|| this.showHypeTrain
+			|| this.showQueues
 			|| this.$store.chat.searchMessages != "")
 		;
 	}

@@ -54,6 +54,7 @@ import ChatJoinLeave from './ChatJoinLeave.vue';
 import ChatLowTrustTreatment from './ChatLowTrustTreatment.vue';
 import ChatMessageClipPending from './ChatMessageClipPending.vue';
 import ChatNotice from './ChatNotice.vue';
+import ChatQueueCommand from './ChatQueueCommand.vue';
 import ChatPinNotice from './ChatPinNotice.vue';
 import ChatPollResult from './ChatPollResult.vue';
 import ChatPredictionResult from './ChatPredictionResult.vue';
@@ -115,6 +116,7 @@ import ChatTwitchCombo from './ChatTwitchCombo.vue';
 		ChatFollow,
 		ChatReward,
 		ChatNotice,
+		ChatQueueCommand,
 		ChatConnect,
 		ChatMessage,
 		ChatWarnUser,
@@ -207,6 +209,7 @@ class MessageItem extends Vue {
 			message:						ChatMessage,
 			whisper:						ChatMessage,
 			notice:							ChatNotice,
+			queue_command:					ChatQueueCommand,
 			poll:							ChatPollResult,
 			chat_poll:						ChatChatPollResult,
 			prediction:						ChatPredictionResult,
@@ -272,6 +275,10 @@ class MessageItem extends Vue {
 			twitch_combo:					ChatTwitchCombo,
 			custom_train_summary:			ChatCustomTrainSummary,
 			streamsocket_action:			ChatStreamSocketAction,
+			queue_join:						ChatNotice,
+			queue_leave:					ChatNotice,
+			queue_move_to_progress:			ChatNotice,
+			queue_complete:					ChatNotice,
 		};
 		if(!Object.hasOwn(map, this.messageData.type)) {
 			console.warn("MISSING MESSAGE COMPONENT FOR TYPE:", this.messageData.type);

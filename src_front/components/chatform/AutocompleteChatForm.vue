@@ -312,19 +312,45 @@ class AutocompleteChatForm extends Vue {
 					}
 				}
 
-				// //Search on chat commands in the triggers
-				// for (let i = 0; i < this.triggerCommands.length; i++) {
-				// 	const t = this.triggerCommands[i];
-				// 	if(t.chatCommand && t.chatCommand.toLowerCase().indexOf(s) > -1) {
-				// 		res.push({
-				// 			type:"cmd",
-				// 			label:t.chatCommand,
-				// 			cmd:t.chatCommand,
-				// 			infos:t.name ?? "",
-				// 			id:t.id,
-				// 		});
-				// 	}
-				// }
+				// Search for queue commands
+				const queues = this.$store.queue.queueList;
+				for (let i = 0; i < queues.length; i++) {
+					const queue = queues[i];
+					if(!queue.enabled || !queue.commands) continue;
+					
+					// Check join command
+					if(queue.commands.join && queue.commands.join.toLowerCase().indexOf(s) > -1) {
+						res.push({
+							type:"cmdC",
+							label:queue.commands.join,
+							cmd:queue.commands.join,
+							infos:this.$t("queue.form.cmd_join") + " - " + queue.title,
+							id:"queue_join_" + queue.id,
+						});
+					}
+					
+					// Check leave command
+					if(queue.commands.leave && queue.commands.leave.toLowerCase().indexOf(s) > -1) {
+						res.push({
+							type:"cmdC",
+							label:queue.commands.leave,
+							cmd:queue.commands.leave,
+							infos:this.$t("queue.form.cmd_leave") + " - " + queue.title,
+							id:"queue_leave_" + queue.id,
+						});
+					}
+					
+					// Check position command
+					if(queue.commands.position && queue.commands.position.toLowerCase().indexOf(s) > -1) {
+						res.push({
+							type:"cmdC",
+							label:queue.commands.position,
+							cmd:queue.commands.position,
+							infos:this.$t("queue.form.cmd_position") + " - " + queue.title,
+							id:"queue_position_" + queue.id,
+						});
+					}
+				}
 			}
 
 			res.sort((a,b)=> {
@@ -486,6 +512,19 @@ export default toNative(AutocompleteChatForm);
 			margin-left: 3em;
 			font-style: italic;
 			opacity: .8;
+		}
+	}
+}
+
+/* Safari-specific fix for icon spacing */
+@supports (-webkit-appearance: none) {
+	.autocompletechatform {
+		.item {
+			.icon {
+				display: inline-flex;
+				align-items: center;
+				line-height: 1;
+			}
 		}
 	}
 }

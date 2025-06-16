@@ -215,6 +215,42 @@ export const storeChat = defineStore('chat', {
 				detailsKey:"params.commands.raffle",
 			},
 			{
+				id:"queuepause",
+				cmd:"/queuepause {queue}",
+				detailsKey:"params.commands.queuepause",
+				needModerator:true,
+			},
+			{
+				id:"queueresume", 
+				cmd:"/queueresume {queue}",
+				detailsKey:"params.commands.queueresume",
+				needModerator:true,
+			},
+			{
+				id:"queueclear",
+				cmd:"/queueclear {queue} [queue|progress|removed]",
+				detailsKey:"params.commands.queueclear",
+				needModerator:true,
+			},
+			{
+				id:"queuepick",
+				cmd:"/queuepick {queue} [first|random]",
+				detailsKey:"params.commands.queuepick",
+				needModerator:true,
+			},
+			{
+				id:"queuemove",
+				cmd:"/queuemove {queue} {user}",
+				detailsKey:"params.commands.queuemove",
+				needModerator:true,
+			},
+			{
+				id:"queueremove",
+				cmd:"/queueremove {queue} {user} [queue|progress|all]",
+				detailsKey:"params.commands.queueremove",
+				needModerator:true,
+			},
+			{
 				id:"bingoemote",
 				cmd:"/bingo emote",
 				detailsKey:"params.commands.bingo",
@@ -1096,6 +1132,11 @@ export const storeChat = defineStore('chat', {
 							let words = [sAuth.twitch.user.login, ...(sParams.appearance.highlightMentions_custom.value as string[] || [])];
 							message.hasMention = new RegExp(words.map(word=> "\\b"+word+"\\b").join("|"), "gim")
 												.test(message.message ?? "");
+							
+							// Check if this is a queue command
+							await StoreProxy.queue.handleQueueCommand(message);
+							// Continue processing the message even if it's a queue command
+							// This allows the command to be displayed in chat like trigger commands
 						}
 
 						//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)

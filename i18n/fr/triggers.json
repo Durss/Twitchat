@@ -198,6 +198,7 @@
 				"action_groq": "Action Groq",
 				"action_groq_tt": "Vous devez connecter Twitchat à Groq pour utiliser cette action",
 				"action_timer": "Minuteur",
+				"action_queue": "File d'attente",
 				"trigger_stop": "Stopper le trigger",
 				"action_animated_text": "Animer du texte",
 				"action_animated_text_tt": "Vous devez d'abord créer un overlay de text animé pour utiliser cette action",
@@ -691,6 +692,25 @@
 				"param_action_set": "Changer la durée",
 				"param_duration": "Durée (secondes)"
 			},
+			"queue": {
+				"no_queue": "Vous devez d'abord créer une file d'attente",
+				"createQueue_bt": "Créer une file d'attente",
+				"param_queue": "File d'attente à contrôler",
+				"param_action": "Action",
+				"param_action_join": "Rejoindre la file",
+				"param_action_leave": "Quitter la file",
+				"param_action_move_to_progress": "Déplacer vers en cours",
+				"param_action_remove": "Retirer de la file",
+				"param_action_pause": "Mettre en pause",
+				"param_action_resume": "Reprendre",
+				"param_action_clear": "Vider la file",
+				"param_action_clear_progress": "Vider la liste des en cours",
+				"param_action_clear_removed": "Vider la liste des récemment supprimés",
+				"param_action_pick_first": "Sélectionner le premier",
+				"param_action_pick_random": "Sélectionner aléatoirement",
+				"param_user": "Utilisateur à affecter",
+				"param_user_placeholder": "Entrer un placeholder utilisateur"
+			},
 			"trigger_stop": {
 				"info": "L'exécution du trigger s'arrêtera ici.\nLes actions suivantes ne seront pas exécutées."
 			},
@@ -738,7 +758,8 @@
 			"tiltify": "Titlitfy",
 			"patreon": "Patreon",
 			"tiktok": "TikTok",
-			"twitch_charity": "Campagne caritative Twitch"
+			"twitch_charity": "Campagne caritative Twitch",
+			"queue": "Files d'attente"
 		},
 		"placeholders": {
 			"trigger_name": "Nom du trigger actuel",
@@ -1037,7 +1058,12 @@
 			"custom_train_record": "Est-ce un record du train ?",
 			"streamsocket_action_id": "ID de l'action",
 			"streamsocket_action_name": "Nom de l'action",
-			"streamsocket_action_bits": "Prix de l'action en bits"
+			"streamsocket_action_bits": "Prix de l'action en bits",
+			"queue_id": "ID de la file",
+			"queue_name": "Nom de la file",
+			"queue_enabled": "File activée",
+			"queue_paused": "File en pause",
+			"queue_position": "Position dans la file"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1596,6 +1622,22 @@
 			"BINGO_GRID_RESET": {
 				"label": "Grille de bingo réinitialisée",
 				"description": "Actions à exécuter lorsque vous réinitialisez une grille de bingo"
+			},
+			"QUEUE_JOIN": {
+				"label": "Utilisateur rejoint une file",
+				"description": "Actions à exécuter lorsqu'un utilisateur rejoint une file d'attente"
+			},
+			"QUEUE_LEAVE": {
+				"label": "Utilisateur quitte une file",
+				"description": "Actions à exécuter lorsqu'un utilisateur quitte une file d'attente"
+			},
+			"QUEUE_MOVE_TO_PROGRESS": {
+				"label": "Utilisateur déplacé en cours",
+				"description": "Actions à exécuter lorsqu'un utilisateur est déplacé dans la liste en cours"
+			},
+			"QUEUE_COMPLETE": {
+				"label": "Utilisateur termine sa session",
+				"description": "Actions à exécuter lorsqu'un utilisateur termine sa session dans la file"
 			},
 			"BINGO_GRID_VIEWER_LINE": {
 				"label": "Un·e viewer rempli une ou plusieurs lignes de bingo",

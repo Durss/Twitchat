@@ -53,6 +53,13 @@ export default class PublicAPI extends EventDispatcher {
 			}
 		}
 
+		// Listen for postMessage events for iframe communication
+		window.addEventListener("message", (e: MessageEvent) => {
+			if (e.data && e.data.origin === "twitchat") {
+				this.onMessage(e.data);
+			}
+		});
+
 		//Broadcast twitchat ready state
 		if(isMainApp) this.broadcast(TwitchatEvent.TWITCHAT_READY, undefined, false);
 
@@ -80,6 +87,23 @@ export default class PublicAPI extends EventDispatcher {
 			}
 		}catch(error) {
 			console.error(error);
+		}
+
+		// Broadcast via postMessage for iframe communication
+		try {
+			// If we're in an iframe, send to parent
+			if (window.parent && window.parent !== window) {
+				window.parent.postMessage({origin: "twitchat", type, id:eventId, data:dataClone}, "*");
+			}
+			// If we're the parent, send to all iframes
+			const iframes = document.querySelectorAll("iframe");
+			iframes.forEach(iframe => {
+				if (iframe.contentWindow) {
+					iframe.contentWindow.postMessage({origin: "twitchat", type, id:eventId, data:dataClone}, "*");
+				}
+			});
+		} catch(error) {
+			console.error("PostMessage error:", error);
 		}
 
 		if(!OBSWebsocket.instance.connected || onlyLocal) {

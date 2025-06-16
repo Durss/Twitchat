@@ -43,8 +43,9 @@ export default class StoreProxy {
 	public static prediction:IPredictionState & IPredictionGetters & IPredictionActions & {$state:IPredictionState, $reset:()=>void};
 	public static raffle:IRaffleState & IRaffleGetters & IRaffleActions & {$state:IRaffleState, $reset:()=>void};
 	public static stream:IStreamState & IStreamGetters & IStreamActions & {$state:IStreamState, $reset:()=>void};
-	public static timers:ITimerState & ITimerGetters & ITimerActions & {$state:ITimerState, $reset:()=>void};
-	public static triggers:ITriggersState & ITriggersGetters & ITriggersActions & {$state:ITriggersState, $reset:()=>void};
+        public static timers:ITimerState & ITimerGetters & ITimerActions & {$state:ITimerState, $reset:()=>void};
+        public static queue:IQueueState & IQueueGetters & IQueueActions & {$state:IQueueState, $reset:()=>void};
+        public static triggers:ITriggersState & ITriggersGetters & ITriggersActions & {$state:ITriggersState, $reset:()=>void};
 	public static tts:ITTSState & ITTSGetters & ITTSActions & {$state:ITTSState , $reset:()=>void};
 	public static users:IUsersState & IUsersGetters & IUsersActions & {$state:IUsersState, $reset:()=>void};
 	public static voice:IVoiceState & IVoiceGetters & IVoiceActions & {$state:IVoiceState, $reset:()=>void};
@@ -1574,7 +1575,41 @@ export interface ITimerActions {
 	 * Gets current timer/countdown computed value
 	 * Remaining time for a countodwn, elasped time for a timer
 	 */
-	getTimerComputedValue(id:string):{duration_ms:number, duration_str:string}
+        getTimerComputedValue(id:string):{duration_ms:number, duration_str:string}
+}
+
+export interface IQueueState {
+        queueList:TwitchatDataTypes.QueueData[],
+}
+
+export interface IQueueGetters {
+        queues:string[];
+        runningEntries:number;
+}
+
+export interface IQueueActions {
+        populateData():void;
+        broadcastStates(id?:string):void;
+        createQueue():void;
+        deleteQueue(id:string):void;
+        addViewer(id:string, user:TwitchatDataTypes.TwitchatUser):void;
+        removeViewer(id:string, userId:string):void;
+        removeViewerFromQueue(id:string, userId:string):void;
+        removeViewerFromInProgress(id:string, userId:string):void;
+        moveToInProgress(id:string, userId:string):void;
+        pauseQueue(id:string):void;
+        resumeQueue(id:string):void;
+        saveData():void;
+        handleQueueCommand(message: TwitchatDataTypes.MessageChatData): Promise<boolean>;
+        executeQueueJoin(queue: TwitchatDataTypes.QueueData, message: TwitchatDataTypes.MessageChatData): Promise<void>;
+        executeQueueLeave(queue: TwitchatDataTypes.QueueData, message: TwitchatDataTypes.MessageChatData): Promise<void>;
+        executeQueuePosition(queue: TwitchatDataTypes.QueueData, message: TwitchatDataTypes.MessageChatData): Promise<void>;
+        replacePlaceholders(template: string, values: {[key:string]:string}): string;
+        sendQueueResponse(originalMessage: TwitchatDataTypes.MessageChatData, responseText: string): Promise<void>;
+        clearQueue(id:string):void;
+        clearInProgress(id:string):void;
+        pickFirstUser(id:string):TwitchatDataTypes.TwitchatUser;
+        pickRandomUser(id:string):TwitchatDataTypes.TwitchatUser;
 }
 
 

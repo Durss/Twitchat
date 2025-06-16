@@ -136,6 +136,32 @@
 
 					<div class="ctas">
 						<TTButton type="link" small icon="newtab" :href="profilePage" target="_blank">{{$t('usercard.profileBt')}}</TTButton>
+						<tooltip v-if="activeQueues.length > 0" 
+							interactive
+							trigger="click"
+							:maxWidth="300"
+							:interactiveDebounce="1000"
+							:theme="$store.common.theme"
+							class="queueButton">
+							<template #default>
+								<TTButton small icon="list">{{$t('usercard.queueBt')}}</TTButton>
+							</template>
+							<template #content>
+								<div class="queueList">
+									<div class="queue" v-for="queue in activeQueues" :key="queue.id">
+										<TTButton 
+											small
+											@click="addToQueue(queue.id)"
+											:disabled="hasReachedQueueLimit(queue.id) || isQueueFull(queue)"
+											:icon="getUserQueueCount(queue.id) > 0 ? 'checkmark' : 'add'">
+											{{ queue.title || queue.placeholderKey }}
+											<span v-if="getUserQueueCount(queue.id) > 0"> ({{ getUserQueueCount(queue.id) }}/{{ queue.maxPerUser }})</span>
+											<span v-else-if="isQueueFull(queue)"> ({{ $t('usercard.queueBt_full') }})</span>
+										</TTButton>
+									</div>
+								</div>
+							</template>
+						</tooltip>
 						<template v-if="isTwitchProfile">
 							<TTButton small
 								type="link"
@@ -439,6 +465,13 @@ class UserCard extends AbstractSidePanel {
 			return card.platform || card.user?.platform || "twitch";
 		}
 		return "twitch";
+	}
+
+	/**
+	 * Get active queues that are enabled and not paused
+	 */
+	public get activeQueues():TwitchatDataTypes.QueueData[] {
+		return this.$store.queue.queueList.filter(q => q.enabled && !q.paused);
 	}
 
 	/**
@@ -750,6 +783,44 @@ class UserCard extends AbstractSidePanel {
 
 	public grantModeratedScope():void {
 		TwitchUtils.requestScopes([TwitchScopes.LIST_MODERATED_CHANS]);
+	}
+
+	/**
+	 * Check if user has reached the maximum entries allowed in a queue
+	 */
+	public hasReachedQueueLimit(queueId:string):boolean {
+		const queue = this.$store.queue.queueList.find(q => q.id === queueId);
+		if(!queue || !this.user) return false;
+		const countInQueue = queue.entries.filter(e => e.user.id === this.user!.id).length;
+		const countInProgress = (queue.inProgress || []).filter(e => e.user.id === this.user!.id).length;
+		const totalCount = countInQueue + countInProgress;
+		return totalCount >= queue.maxPerUser;
+	}
+
+	/**
+	 * Get user entry count in a queue
+	 */
+	public getUserQueueCount(queueId:string):number {
+		const queue = this.$store.queue.queueList.find(q => q.id === queueId);
+		if(!queue || !this.user) return 0;
+		const countInQueue = queue.entries.filter(e => e.user.id === this.user!.id).length;
+		const countInProgress = (queue.inProgress || []).filter(e => e.user.id === this.user!.id).length;
+		return countInQueue + countInProgress;
+	}
+
+	/**
+	 * Check if a queue is full
+	 */
+	public isQueueFull(queue:TwitchatDataTypes.QueueData):boolean {
+		return queue.maxEntries > 0 && queue.entries.length >= queue.maxEntries;
+	}
+
+	/**
+	 * Add user to a queue
+	 */
+	public addToQueue(queueId:string):void {
+		if(!this.user) return;
+		this.$store.queue.addViewer(queueId, this.user);
 	}
 
 	/**
@@ -1169,6 +1240,20 @@ export default toNative(UserCard);
 				}
 			}
 
+		}
+	}
+
+	.queueList {
+		display: flex;
+		flex-direction: column;
+		gap: .5em;
+		padding: .5em;
+		
+		.queue {
+			button {
+				width: 100%;
+				justify-content: center;
+			}
 		}
 	}
 }

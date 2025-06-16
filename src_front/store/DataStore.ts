@@ -157,7 +157,7 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	static override async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 66;
+		const latestVersion = 67;
 
 		this.cleanupPreV7Data(data);
 
@@ -398,6 +398,10 @@ export default class DataStore extends DataStoreCommon{
 		}
 		if(v==65) {
 			this.migrateKofiWebhooksData(data);
+			v = 66;
+		}
+		if(v==66) {
+			this.cleanupQueueConfigsFromColumns(data);
 			v = latestVersion;
 		}
 
@@ -1391,6 +1395,23 @@ export default class DataStore extends DataStoreCommon{
 				}
 			});
 			data[DataStore.TRIGGERS] = triggers;
+		}
+	}
+
+	/**
+	 * Removes any accidentally added queueConfigs property from chat columns
+	 */
+	private static cleanupQueueConfigsFromColumns(data:any):void {
+		const chatCols:TwitchatDataTypes.ChatColumnsConfig[] = data[DataStore.CHAT_COLUMNS_CONF];
+
+		if(chatCols) {
+			chatCols.forEach(c => {
+				// Remove any accidentally added queueConfigs property
+				if((c as any).queueConfigs) {
+					delete (c as any).queueConfigs;
+				}
+			});
+			data[DataStore.CHAT_COLUMNS_CONF] = chatCols;
 		}
 	}
 

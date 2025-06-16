@@ -34,7 +34,8 @@
 		<div class="list" v-if="subContent == null">
 
 			<button class="item" @click="subContent = 'animatedtext'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_overlays_animatedText'}"><img src="@/assets/img/overlays/animated_text.jpg" alt="Animated text"></button>
-			<button class="item" @click="subContent = 'customtrain'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_overlays_customTrain'}"><img src="@/assets/img/overlays/custom_train.jpg" alt="Custom train"></button>
+                        <button class="item" @click="subContent = 'customtrain'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_overlays_customTrain'}"><img src="@/assets/img/overlays/custom_train.jpg" alt="Custom train"></button>
+                        <button class="item" @click="subContent = 'queue'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_overlays_queue'}"><img src="@/assets/img/overlays/queue.jpg" alt="Queue"></button>
 			<button class="item" @click="subContent = 'donationgoals'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13_7, id:'params_overlays_donationgoals'}"><img src="@/assets/img/overlays/donation_goals.jpg" alt="Goals"></button>
 			<button class="item" @click="subContent = 'bingogrid'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'params_overlays_bingogrid'}"><img src="@/assets/img/overlays/bingo_grids.jpg" alt="Bingo grid"></button>
 			<button class="item" @click="subContent = 'polls'" v-if="isAffiliate" v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_overlays_poll'}"><img src="@/assets/img/overlays/polls.jpg" alt="Polls"></button>
@@ -73,6 +74,7 @@
 			<OverlayParamsDonationGoal class="block"	:open="subContent == 'donationgoals'"	v-if="subContent == 'donationgoals'" />
 			<OverlayParamsAnimatedText class="block"	:open="subContent == 'animatedtext'"	v-if="subContent == 'animatedtext'" />
 			<OverlayParamsCustomTrain class="block"		:open="subContent == 'customtrain'"		v-if="subContent == 'customtrain'" />
+                        <OverlayParamsQueue class="block"                :open="subContent == 'queue'"                v-if="subContent == 'queue'" />
 		</div>
 	</div>
 </template>
@@ -104,6 +106,7 @@ import OverlayParamsDonationGoal from './overlays/OverlayParamsDonationGoal.vue'
 import OverlayParamsChatPoll from './overlays/OverlayParamsChatPoll.vue';
 import OverlayParamsAnimatedText from './overlays/OverlayParamsAnimatedText.vue';
 import OverlayParamsCustomTrain from './overlays/OverlayParamsCustomTrain.vue';
+import OverlayParamsQueue from './overlays/OverlayParamsQueue.vue';
 
 @Component({
 	components:{
@@ -125,10 +128,11 @@ import OverlayParamsCustomTrain from './overlays/OverlayParamsCustomTrain.vue';
 		OverlayParamsCustomTrain,
 		OverlayParamsPredictions,
 		OverlayParamsHeatDistort,
-		OverlayParamsDonationGoal,
-		OverlayParamsAnimatedText,
-	},
-	emits:[]
+                OverlayParamsDonationGoal,
+                OverlayParamsAnimatedText,
+                OverlayParamsQueue,
+        },
+        emits:[]
 })
 class ParamsOverlays extends Vue implements IParameterContent {
 

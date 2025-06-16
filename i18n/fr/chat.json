@@ -95,6 +95,8 @@
 			"whispers_permissions": "Filtrer les personnes autorisées",
 			"show_panels_here": "Formulaires de sondage, prédiction, ...",
 			"show_greet_here": "Afficher \" @:greet.title \" dans cette colonne",
+			"show_queues_here": "Afficher les files d'attente dans cette colonne",
+			"queues": "Sélectionner les files d'attente à afficher",
 			"show_user_badges": "Afficher uniquement les personnes ayant le badge...",
 			"hide_user_badges": "Masquer les personnes ayant le badge...",
 			"background_color": "Couleur de fond",
@@ -127,6 +129,7 @@
 				"community_boost_complete": "Boost de stream",
 				"community_challenge_contribution": "Défis de communauté",
 				"music_added_to_queue": "Ajout de morceau via song request",
+				"queue_command": "Commandes de file d'attente",
 				"pinned": "Alertes de messages épinglés",
 				"user_watch_streak": "Streams consécutifs vus",
 				"stream_online": "Stream commencé/arrêté",
@@ -597,6 +600,32 @@
 		},
 		"stream_socket": {
 			"action": "{USER} a utilisé l'action StreamSocket \"{ACTION}\""
+		},
+		"commands": {
+			"queue_pause_usage": "Usage : /queuepause {nom, id ou placeholder de la file}",
+			"queue_resume_usage": "Usage : /queueresume {nom, id ou placeholder de la file}",
+			"queue_clear_usage": "Usage : /queueclear {file} [queue|progress|removed]",
+			"queue_pick_usage": "Usage : /queuepick {file} [first|random]",
+			"queue_move_usage": "Usage : /queuemove {file} {utilisateur}",
+			"queue_remove_usage": "Usage : /queueremove {file} {utilisateur} [queue|progress|all]",
+			"queue_not_found": "File d'attente \"{queue}\" introuvable.",
+			"queue_unavailable": "La file d'attente \"{queue}\" n'est pas disponible actuellement.",
+			"queue_paused": "La file \"{queue}\" a été mise en pause.",
+			"queue_resumed": "La file \"{queue}\" a été relancée.",
+			"queue_cleared": "La file \"{queue}\" a été vidée.",
+			"queue_progress_cleared": "La liste des en cours de \"{queue}\" a été vidée.",
+			"queue_removed_cleared": "La liste des récemment supprimés de \"{queue}\" a été vidée.",
+			"queue_empty": "La file \"{queue}\" est vide.",
+			"queue_no_progress": "La file \"{queue}\" n'a pas la liste en cours activée.",
+			"queue_picked_first": "{user} a été sélectionné depuis \"{queue}\" (premier de la file).",
+			"queue_picked_random": "{user} a été sélectionné aléatoirement depuis \"{queue}\".",
+			"user_not_in_queue": "{user} n'est pas dans la file \"{queue}\".",
+			"user_not_in_progress": "{user} n'est pas dans la liste en cours de \"{queue}\".",
+			"user_not_found": "{user} introuvable dans \"{queue}\".",
+			"queue_moved_progress": "{user} a été déplacé vers les en cours dans \"{queue}\".",
+			"queue_removed": "{user} a été retiré de la file \"{queue}\".",
+			"queue_removed_progress": "{user} a été retiré de la liste en cours de \"{queue}\".",
+			"queue_removed_all": "{user} a été retiré de toutes les listes de \"{queue}\"."
 		}
 	}
 }
