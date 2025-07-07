@@ -513,7 +513,7 @@ export class ParamItem extends Vue {
 			txt = txt.replace(/\{VALUE\}/gi, (v || 0).toString());
 		}
 		if(!txt) return "";
-		//Puts anything between parenthesis inside <span> elements
+		//Puts anything that's between parenthesis inside <span> elements
 		return txt.replace(/((\(|\{)[^)]+(\)|\}))/gi, "<span class='small'>$1</span>");
 	}
 
