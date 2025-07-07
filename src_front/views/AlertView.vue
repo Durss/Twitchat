@@ -15,6 +15,7 @@ import Config from '@/utils/Config';
 import { watch } from '@vue/runtime-core';
 import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import DOMPurify from 'isomorphic-dompurify';
 
 @Component({
 	components:{
@@ -42,7 +43,7 @@ class AlertView extends Vue {
 
 		let mess = this.$store.common.alertData;
 		if(mess && mess.message.length > 0) {
-			this.message = mess.message;
+			this.message = DOMPurify.sanitize(mess.message);
 			await this.$nextTick();
 			this.$el.removeAttribute("style");
 			gsap.killTweensOf(this.$el);

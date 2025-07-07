@@ -2,11 +2,11 @@
 	<div class="confirmView modal" v-if="confirmData">
 		<div class="dimmer" ref="dimmer" @click="answer(false)"></div>
 		<div class="holder" ref="holder">
-			<div class="title" v-html="confirmData.title"></div>
+			<div class="title" v-html="htmlSafe(confirmData.title)"></div>
 			
 			<VoiceGlobalCommandsHelper v-if="voiceControl" :confirmMode="true" />
 
-			<div class="description" v-if="confirmData.description" v-html="confirmData.description"></div>
+			<div class="description" v-if="confirmData.description" v-html="htmlSafe(confirmData.description)"></div>
 			<div class="buttons">
 				<Button class="button" @click.stop="answer()" type="cancel" alert>{{ confirmData.noLabel ?? $t('global.cancel') }}</Button>
 				<Button class="button" @click.stop="answer(true)" primary>{{ confirmData.yesLabel ?? $t('global.yes') }}</Button>
@@ -24,6 +24,7 @@ import { watch } from '@vue/runtime-core';
 import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import VoiceGlobalCommandsHelper from '../components/voice/VoiceGlobalCommandsHelper.vue';
+import DOMPurify from 'isomorphic-dompurify';
 
 @Component({
 	components:{
@@ -55,6 +56,10 @@ class Confirm extends Vue {
 	public beforeUnmount():void {
 		document.removeEventListener("keyup", this.keyUpHandler);
 		document.removeEventListener("keydown", this.keyDownHandler, {capture:true});
+	}
+
+	public htmlSafe(html:string):string {
+		return DOMPurify.sanitize(html);
 	}
 
 	public async onConfirmChanged():Promise<void> {

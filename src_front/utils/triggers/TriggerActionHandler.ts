@@ -4221,9 +4221,10 @@ export default class TriggerActionHandler {
 				res = res.replace(new RegExp("\\{"+placeholder.tag+"\\}", "gi"), value ?? "");
 			}
 
-			if(removeRemainingTags) {
-				res = res.replace(/\{[a-z0-9]+\}/gi, "");
-			}
+			// Disabled for now, not sure if I want to keep it. It's theoretically not useful
+			// if(removeRemainingTags) {
+			// 	res = res.replace(/\{[a-z0-9_-]+\}/gi, "");
+			// }
 
 			// console.log("RESULT = ",res);
 			return removeHTMLtags? Utils.stripHTMLTags(res) : res;
