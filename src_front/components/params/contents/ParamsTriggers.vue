@@ -652,6 +652,13 @@ class ParamsTriggers extends Vue implements IParameterContent {
 						(m as TwitchatDataTypes.KofiSubscriptionData).tier = Utils.pickRand(["Gold", "Bronze", "Silver", "Poop"]);
 					}else
 
+					if(triggerEvent.value == TriggerTypes.KOFI_COMMISSION) {
+						(m as TwitchatDataTypes.KofiCommissionData).eventType = "commission";
+						(m as TwitchatDataTypes.KofiCommissionData).amount = amount;
+						(m as TwitchatDataTypes.KofiCommissionData).amountFormatted = amountFormatted;
+						(m as TwitchatDataTypes.KofiCommissionData).currency = "EUR";
+					}else
+
 					if(triggerEvent.value == TriggerTypes.TIPEEE_SUB) {
 						(m as TwitchatDataTypes.MessageTipeeeDonationData).recurring = true;
 					} else if(triggerEvent.value == TriggerTypes.TIPEEE_RESUB) {
