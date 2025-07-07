@@ -138,6 +138,7 @@ export const storeLabels = defineStore('labels', {
 				backgroundEnabled:true,
 				fontColor:"#000000",
 				scrollContent:false,
+				textAlign:"left",
 			});
 			this.saveData();
 		},

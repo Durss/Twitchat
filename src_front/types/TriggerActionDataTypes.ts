@@ -1760,6 +1760,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 
 	type SafeMessage = Omit<TwitchatDataTypes.MessageChatData, "answers" | "children" | "answersTo">;
 	type SafeReward = Omit<TwitchatDataTypes.MessageRewardRedeemData, "children">;
+	type SafeHypeTrain = Omit<TwitchatDataTypes.MessageHypeTrainEventData, "train">;
 
 	map[TriggerTypes.ANY_MESSAGE] =
 	map[TriggerTypes.FIRST_TODAY] =
@@ -2077,9 +2078,10 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 
 	map[TriggerTypes.HYPE_TRAIN_START] =
 	map[TriggerTypes.HYPE_TRAIN_PROGRESS] =
-		map[TriggerTypes.HYPE_TRAIN_END] = [
-		{tag:"LEVEL", descKey:'triggers.placeholders.train_level', pointer:"level", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageHypeTrainEventData>,
-		{tag:"PERCENT", descKey:'triggers.placeholders.train_percent', pointer:"percent", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageHypeTrainEventData>,
+	map[TriggerTypes.HYPE_TRAIN_END] = [
+		{tag:"LEVEL", descKey:'triggers.placeholders.train_level', pointer:"level", numberParsable:true, isUserID:false} as ITriggerPlaceholder<SafeHypeTrain>,
+		{tag:"PERCENT", descKey:'triggers.placeholders.train_percent', pointer:"percent", numberParsable:true, isUserID:false} as ITriggerPlaceholder<SafeHypeTrain>,
+		{tag:"TRAIN_TYPE", descKey:'triggers.placeholders.train_type', pointer:"type", numberParsable:false, isUserID:false, values:[{label:"regular", value:"regular"}, {label:"golden_kappa", value:"golden_kappa"}, {labelKey:"treasure", value:"treasure"}]} as ITriggerPlaceholder<SafeHypeTrain>,
 	];
 
 	map[TriggerTypes.VOICEMOD] = [

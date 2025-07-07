@@ -76,7 +76,6 @@ For developpers, **Twitchat exposes an API** to receive events and control some 
 - [x] See live viewers count
 - [x] Keep or remove deleted messages
 - [x] See all your followings that are live to raid them easily
-- [x] Supports boost trains
 - [x] Supports `/announce message` feature
 - [x] Allow your mods to control your OBS scenes or mute/unmute your mic from chat
 - [x] Expose an API to control some stuff remotely

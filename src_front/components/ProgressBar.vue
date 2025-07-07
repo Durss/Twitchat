@@ -21,9 +21,6 @@ class ProgressBar extends Vue {
 	@Prop({ type:Number, default:1})
 	public duration!:number;//In ms
 
-	@Prop({type:Boolean, default:false})
-	public boostMode!:boolean;
-
 	@Prop({type:Boolean, default: false})
 	public secondary!:boolean;
 
@@ -39,7 +36,6 @@ class ProgressBar extends Vue {
 
 	public get classes():string[] {
 		const list = ["progressbar"];
-		if(this.boostMode !== false) list.push('boostMode');
 		if(this.secondary !== false) list.push("secondary");
 		if(this.premium !== false) list.push("premium");
 		if(this.alert !== false) list.push("alert");
@@ -128,18 +124,6 @@ export default toNative(ProgressBar);
 
 	&.alert {
 		@c: var(--color-alert);
-		.fill {
-			background-color: @c;
-		}
-		.timer {
-			background-color: @c;
-			background: linear-gradient(90deg, @c 0%, @c 50%, @bg 50%, @bg 100%);
-			background-size: 200% 100%;
-		}
-	}
-
-	&.boostMode {
-		@c: darken(#00f0f0, 15%);
 		.fill {
 			background-color: @c;
 		}

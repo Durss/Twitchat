@@ -66,8 +66,9 @@
 			<Button small @click="simulateEvent($event, 'following')" icon="follow">Follow</Button>
 			<Button small @click="simulateEvent($event, 'reward')" icon="channelPoints">Reward redeem</Button>
 			<Button small @click="simulateEvent($event, 'community_challenge_contribution')" icon="channelPoints">Challenge contribution</Button>
-			<Button small @click="simulateHypeTrain()" icon="train">Hype train</Button>
-			<Button small @click="simulateHypeTrain(true)" icon="train">Golden kappa train</Button>
+			<Button small @click="simulateHypeTrain('regular')" icon="train">Hype train</Button>
+			<Button small @click="simulateHypeTrain('golden_kappa')" icon="train">Golden kappa train</Button>
+			<Button small @click="simulateHypeTrain('treasure')" icon="train">Treasure train</Button>
 			<Button small @click="simulateEvent($event, 'hype_train_cooled_down')" icon="train">Hype train cooldown</Button>
 			<Button small @click="simulateEvent($event, 'hype_train_summary')" icon="train">Hype train summary</Button>
 			<Button small @click="simulateAutomod()" icon="automod">Automod Twitch</Button>
@@ -134,6 +135,7 @@ import { LoremIpsum } from "lorem-ipsum";
 import { reactive } from 'vue';
 import { Component, toNative, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
+import type { TwitchEventSubDataTypes } from '@/types/twitch/TwitchEventSubDataTypes';
 
 @Component({
 	components:{
@@ -534,8 +536,8 @@ class DevmodeMenu extends Vue {
 		StoreProxy.chat.addMessage(message);
 	}
 
-	public async simulateHypeTrain(goldenKappa:boolean = false):Promise<void> {
-		EventSub.instance.simulateHypeTrain(goldenKappa);
+	public async simulateHypeTrain(type:TwitchEventSubDataTypes.HypeTrainStartEvent["type"]):Promise<void> {
+		EventSub.instance.simulateHypeTrain(type);
 	}
 
 	/**

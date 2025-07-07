@@ -839,6 +839,7 @@
 			"spotify_is_playing": "Spotify est en cours de lecture?",
 			"train_level": "Niveau actuel",
 			"train_percent": "Progression du niveau actuel (0 -> 100)",
+			"train_type": "Type de train (regular, golden_kappa, treasure)",
 			"train_end_level": "Niveau atteint",
 			"train_end_percent": "Pourcentage atteint (0 -> 100)",
 			"voicemod_voice": "ID de la voix",

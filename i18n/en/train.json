@@ -4,10 +4,10 @@
 		"hype_progress": "Hype train level {LEVEL} {PERCENT}",
 		"hype_complete": "Hype train complete",
 		"hype_cancel": "Hype train went away",
-		"boost_approaching": "Boost train Approaching!",
-		"boost_progress": "Boost train level {LEVEL} {PERCENT}",
-		"boost_complete": "Boost train complete",
-		"boost_cancel": "Boost train went away",
+		"treasure_approaching": "Treasure train Approaching!",
+		"treasure_progress": "Treasure train level {LEVEL} {PERCENT}",
+		"treasure_complete": "Treasure train complete",
+		"treasure_cancel": "Treasure train went away",
 		"golden_approaching": "Kappa train Approaching!",
 		"golden_progress": "Kappa train level {LEVEL} {PERCENT}",
 		"golden_complete": "Kappa train complete",
@@ -17,6 +17,7 @@
 		"conductor_subs_tt": "subs leader",
 		"conductor_bits": "{COUNT} bit | {COUNT} bits",
 		"conductor_bits_tt": "bits leader",
-		"ending_credits": "Level {LEVEL} at {PERCENT}%"
+		"ending_credits": "Level {LEVEL} at {PERCENT}%",
+		"all_time_record": "All time record"
 	}
 }

@@ -989,14 +989,16 @@ export namespace TwitchatDataTypes {
 		updated_at:number;
 		ends_at:number;
 		state:"APPROACHING" | "START" | "PROGRESS" | "LEVEL_UP" | "COMPLETED" | "EXPIRED";
-		is_golden_kappa:boolean;
-		is_new_record:boolean;
+		type:"regular"|"treasure"|"golden_kappa";
+		isSharedTrain:boolean;
+		isAllTimeRecord:boolean;
+		allTimeHighLevel: number;
+		allTimeHighTotal: number;
 		conductor_subs?:HypeTrainConductorData;
 		conductor_bits?:HypeTrainConductorData;
-		/**
-		 * @deprecated doesn't seem to exist anymore
-		 */
-		is_boost_train:boolean;
+		sharedStates?:{
+			[channelId:string]:HypeTrainStateData;
+		};
 	}
 
 	/**

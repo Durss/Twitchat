@@ -470,54 +470,48 @@ export namespace TwitchEventSubDataTypes {
 		winning_outcome_id: string;
 	}
 
-	export interface HypeTrainStartEvent {
-		id: string;
-		broadcaster_user_id: string;
-		broadcaster_user_login: string;
-		broadcaster_user_name: string;
-		total: number;
+	interface AbstractHypeTrainEvent {
+		id: string
+		broadcaster_user_id: string
+		broadcaster_user_login: string
+		broadcaster_user_name: string
 		top_contributions: {
-			user_id: string;
-			user_login: string;
-			user_name: string;
-			type: "subscription" | "bits";
-			total: number;
-		}[];
-		started_at: string;
-		is_golden_kappa_train: boolean;
-		last_contribution: {
-			user_id: string;
-			user_login: string;
-			user_name: string;
-			type: string;
-			total: number;
-		};
-		level: number;
-		goal: number;
-		progress: number;
-		expires_at: string;
+			user_id: string
+			user_login: string
+			user_name: string
+			type: string
+			total: number
+		}[]
+		is_shared_train: boolean
+		type: "regular"|"treasure"|"golden_kappa"
+		started_at: string
+		total: number
+		level: number
+		shared_train_participants: {
+			broadcaster_user_id: string
+			broadcaster_user_login: string
+			broadcaster_user_name: string
+		}[] | null
 	}
 
-	export interface HypeTrainProgressEvent extends HypeTrainStartEvent {}
+	export interface HypeTrainStartEvent extends AbstractHypeTrainEvent{
+		progress: number
+		goal: number
+		all_time_high_level: number
+		all_time_high_total: number
+		expires_at: string
+	}
 
-	export interface HypeTrainEndEvent {
-		id: string;
-		broadcaster_user_id: string;
-		broadcaster_user_login: string;
-		broadcaster_user_name: string;
-		total: number;
-		top_contributions: {
-			user_id: string;
-			user_login: string;
-			user_name: string;
-			type: "subscription" | "bits";
-			total: number;
-		}[];
-		started_at: string;
-		is_golden_kappa_train: boolean;
-		level: number;
-		ended_at: string;
-		cooldown_ends_at: string;
+	export interface HypeTrainProgressEvent extends AbstractHypeTrainEvent{
+		progress: number
+		goal: number
+		level: number
+		expires_at: string
+	}
+
+	export interface HypeTrainEndEvent extends AbstractHypeTrainEvent{
+		ended_at: string
+		cooldown_ends_at: string
 	}
 
 	export interface ShieldModeEvent {

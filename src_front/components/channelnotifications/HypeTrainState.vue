@@ -1,28 +1,28 @@
 
 <template>
 	<div :class="classes">
-
 		<div class="fill" :style="{width: (100 - roundProgressPercent)+'%'}"></div>
 
 		<div class="head">
-			<img src="@/assets/img/goldenKappa.png" alt="golden kappa" class="icon kappa" v-if="goldenKappaMode">
-			<Icon name="train_boost.svg" alt="boost" class="icon" v-if="boostMode" />
+			<img src="@/assets/img/goldenKappa.png" alt="golden kappa" class="icon kappa" v-if="trainData.type == 'golden_kappa'" />
+			<img src="@/assets/img/coin.png" alt="golden kappa" class="icon coin" v-if="trainData.type == 'treasure'" />
 			<Icon name="train" alt="train" class="icon" v-else />
+
 			<template v-if="trainData.state == 'APPROACHING'">
-				<h1 v-if="!boostMode">{{ $t("train.hype_approaching") }}</h1>
-				<h1 v-else-if="goldenKappaMode">{{ $t("train.golden_approaching") }}</h1>
-				<h1 v-else>{{ $t("train.boost_approaching") }}</h1>
+				<h1 v-if="trainData.type == 'treasure'">{{ $t("train.treasure_approaching") }}</h1>
+				<h1 v-else-if="trainData.type == 'golden_kappa'">{{ $t("train.golden_approaching") }}</h1>
+				<h1 v-else>{{ $t("train.hype_approaching") }}</h1>
 			</template>
 
 			<i18n-t scope="global" tag="h1" v-else-if="trainProgress"
-			:keypath="boostMode?'train.boost_progress': goldenKappaMode?'train.golden_progress':'train.hype_progress'">
+			:keypath="trainData.type == 'treasure'?'train.treasure_progress': trainData.type == 'golden_kappa'?'train.golden_progress':'train.hype_progress'">
 				<template #LEVEL>{{ trainData.level }}</template>
 				<template #PERCENT><span class="percent">{{roundProgressPercent}}%</span></template>
 			</i18n-t>
 
 			<h1 v-else-if="trainData.state == 'COMPLETED'">
-				<span v-if="boostMode">{{ $t("train.boost_complete") }}</span>
-				<span v-else-if="goldenKappaMode">{{ $t("train.golden_complete") }}</span>
+				<span v-if="trainData.type == 'treasure'">{{ $t("train.treasure_complete") }}</span>
+				<span v-else-if="trainData.type == 'golden_kappa'">{{ $t("train.golden_complete") }}</span>
 				<span v-else>{{ $t("train.hype_complete") }}</span>
 				<br />
 				<i18n-t scope="global" tag="span" class="subtitle"
@@ -32,8 +32,8 @@
 			</h1>
 
 			<template v-else-if="trainData.state == 'EXPIRED'">
-				<h1 v-if="boostMode">{{ $t("train.boost_cancel") }}</h1>
-				<h1 v-else-if="goldenKappaMode">{{ $t("train.golden_cancel") }}</h1>
+				<h1 v-if="trainData.type == 'treasure'">{{ $t("train.treasure_cancel") }}</h1>
+				<h1 v-else-if="trainData.type == 'golden_kappa'">{{ $t("train.golden_cancel") }}</h1>
 				<h1 v-else>{{ $t("train.hype_cancel") }}</h1>
 			</template>
 		</div>
@@ -43,12 +43,14 @@
 			secondary
 			:duration="timerDuration"
 			:percent="timerPercent"
-			:boostMode="boostMode"
 		/>
+
+		<div v-if="trainData.isAllTimeRecord" class="record"><Icon name="leaderboard" />{{ $t("train.all_time_record") }}</div>
 
 		<div class="content conductors">
 			<a @click.stop="openUserCard(conductor_subs!.user)"
 			v-if="conductor_subs" class="conductor" ref="conductor_subs_holder" v-tooltip="$t('train.conductor_subs_tt')">
+				<Icon name="sub" class="icon" />
 				<img :src="conductor_subs.user.avatarPath" class="avatar">
 				<span class="userlink">{{conductor_subs.user.displayName}}</span>
 
@@ -61,6 +63,7 @@
 
 			<a @click.stop="openUserCard(conductor_bits!.user)"
 			v-if="conductor_bits" class="conductor" ref="conductor_bits_holder" v-tooltip="$t('train.conductor_bits_tt')">
+				<Icon name="bits" class="icon" />
 				<img :src="conductor_bits.user.avatarPath" class="avatar">
 				<span class="userlink">{{conductor_bits.user.displayName}}</span>
 
@@ -70,21 +73,17 @@
 					</template>
 				</i18n-t>
 			</a>
-
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { gsap } from 'gsap/gsap-core';
-import type { CSSProperties } from 'vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import ProgressBar from '../ProgressBar.vue';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
-import ApiHelper from '@/utils/ApiHelper';
+import ProgressBar from '../ProgressBar.vue';
 
 @Component({
 	components:{
@@ -100,9 +99,6 @@ class HypeTrainState extends Vue {
 	public conductor_bits:TwitchatDataTypes.HypeTrainConductorData | null = null;
 
 	private disposed:boolean = false;
-
-	public get boostMode():boolean { return this.trainData.is_boost_train; }
-	public get goldenKappaMode():boolean { return this.trainData.is_golden_kappa; }
 
 	public get completeLevel():number {
 		let level = this.trainData.level;
@@ -125,8 +121,7 @@ class HypeTrainState extends Vue {
 
 	public get classes():string[] {
 		const res = ["hypetrainstate", "gameStateWindow"];
-		if(this.boostMode) res.push("boost");
-		if(this.goldenKappaMode) res.push("golden");
+		res.push(this.trainData.type);
 		return res;
 	}
 
@@ -175,38 +170,6 @@ class HypeTrainState extends Vue {
 			}
 		}, {deep:true});
 
-		watch(() => this.trainData, () => {
-			try {
-				if(this.conductor_bits && this.trainData.conductor_bits && JSON.stringify(this.conductor_bits) == JSON.stringify(this.trainData.conductor_bits)) return;
-
-				if(this.conductor_bits) {
-					gsap.killTweensOf(this.$refs.conductor_bits_holder as HTMLDivElement);
-					gsap.to(this.$refs.conductor_bits_holder as HTMLDivElement, {
-						duration:.25,
-						scale:0,
-						ease:"sine.in",
-						onComplete:()=> {
-							this.conductor_bits = this.trainData?.conductor_bits ?? null;
-							if(!this.conductor_bits) return;
-							this.$nextTick().then(()=>{
-								gsap.to(this.$refs.conductor_bits_holder as HTMLDivElement, {
-									duration:.25,
-									scale:1,
-									ease:"sine.out",
-								});
-							});
-						}
-					});
-				}else if(this.trainData.conductor_bits){
-					this.conductor_bits = this.trainData.conductor_bits;
-				}else {
-					this.conductor_bits = null;
-				}
-			}catch(error){
-				console.log(error);
-			}
-		}, {deep:true});
-
 		this.renderFrame();
 	}
 
@@ -239,12 +202,6 @@ export default toNative(HypeTrainState);
 
 <style scoped lang="less">
 .hypetrainstate{
-
-	&.boost {
-		@c: darken(#00f0f0, 15%);
-		background-color: @c !important;
-	}
-
 	.fill {
 		position: absolute;
 		top: 0;
@@ -281,8 +238,10 @@ export default toNative(HypeTrainState);
 		}
 
 		&>.icon {
-			width: 2em;
-			&.kappa {
+			height: 2em;
+			margin-right: .5em;
+			&.kappa,
+			&.coin {
 				transform: scale(1.5) rotate(-15deg);
 				animation: shake 5s linear infinite;
 
@@ -313,7 +272,7 @@ export default toNative(HypeTrainState);
 		}
 	}
 
-	&.golden {
+	&.golden_kappa {
 		@c: #f2b027;
 		h1, .icon {
 			color: black;
@@ -322,6 +281,31 @@ export default toNative(HypeTrainState);
 			color: black !important;
 		}
 		background-image: linear-gradient(25-10deg, @c 0%, #ffe64c 100%);
+	}
+
+	&.treasure {
+		@c: #f29d27;
+		h1, .icon {
+			color: black;
+		}
+		.head .percent {
+			color: black !important;
+		}
+		background-image: linear-gradient(25-10deg, @c 0%, #e7ff4c 100%);
+	}
+
+	.record {
+		display: flex;
+		align-items: center;
+		gap: .5em;
+		font-weight: bold;
+		color: #dd9400;
+		padding: .5em;
+		background-color: #ffeecd;
+		border-radius: var(--border-radius);
+		.icon {
+			height: 1em;
+		}
 	}
 
 	.content {
@@ -349,6 +333,13 @@ export default toNative(HypeTrainState);
 				padding: .5em;
 				min-width: 6em;
 				color: var(--color-light);
+
+				.icon {
+					height: 2em;
+					width: 2em;
+					padding: .25em;
+					object-fit: fill;
+				}
 
 				.avatar {
 					width: 2em;

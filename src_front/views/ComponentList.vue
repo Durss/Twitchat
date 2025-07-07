@@ -225,8 +225,7 @@
 			<ProgressBar :percent="progresses[1]" :duration="100 * 60 * 1000" secondary />
 			<ProgressBar :percent="progresses[2]" :duration="100 * 60 * 1000" alert />
 			<ProgressBar :percent="progresses[2]" :duration="100 * 60 * 1000" premium />
-			<ProgressBar :percent="progresses[3]" :duration="100 * 60 * 1000" boostMode />
-			<ProgressBar :percent="progresses[4]" :duration="100 * 60 * 1000" />
+			<ProgressBar :percent="progresses[3]" :duration="100 * 60 * 1000" />
 			<Button class="restartBt" @click="resetProgressbars()" icon="refresh">Restart</Button>
 		</div>
 
@@ -383,7 +382,7 @@ class ComponentList extends Vue {
 	}
 
 	public resetProgressbars():void {
-		this.progresses = [.25,.25,.25,.25,.95];
+		this.progresses = [.25,.25,.25,.95];
 	}
 
 	public async reloadIcon(index:number):Promise<void> {
