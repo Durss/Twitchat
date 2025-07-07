@@ -423,7 +423,8 @@
 			"param_labelValueSize": "Taille du texte",
 			"param_textColor": "Couleur du texte",
 			"param_backgroundEnabled": "Fond",
-			"param_backgroundColor": "couleur",
+			"param_backgroundColor": "Couleur",
+			"param_textAlign": "Alignement du texte",
 			"param_scrollable": "Faire défiler le texte",
 			"placeholders": {
 				"COUNTER": "Compteur - {NAME}",

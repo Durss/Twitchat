@@ -424,6 +424,7 @@
 			"param_textColor": "Text color",
 			"param_backgroundEnabled": "Background",
 			"param_backgroundColor": "Color",
+			"param_textAlign": "Text alignment",
 			"param_scrollable": "Make text scroll horizontally",
 			"placeholders": {
 				"COUNTER": "Counter - {NAME}",

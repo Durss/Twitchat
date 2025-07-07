@@ -66,6 +66,15 @@
 						</template>
 					</ParamItem>
 					<ParamItem :paramData="param_labelValueSize[label.id]" v-model="label.fontSize" @change="save(label)" />
+					<div class="card-item layout" v-if="label.mode == 'placeholder'">
+						<Icon name="layout" />
+						<label>{{ $t("overlay.labels.param_textAlign") }}</label>
+						<div class="layoutBtns">
+							<TTButton icon="layout_colLeft" :selected="label.textAlign == 'left' || !label.textAlign" @click="label.textAlign = 'left'; save(label)" />
+							<TTButton icon="layout_col" :selected="label.textAlign == 'center'" @click="label.textAlign = 'center'; save(label)" />
+							<TTButton icon="layout_colRight" :selected="label.textAlign == 'right'" @click="label.textAlign = 'right'; save(label)" />
+						</div>
+					</div>
 					<ParamItem :paramData="param_scrollable[label.id]" v-model="label.scrollContent" @change="save(label)" v-if="label.mode == 'placeholder'" />
 					<ParamItem :paramData="param_backgroundEnabled[label.id]" v-model="label.backgroundEnabled" @change="save(label)">
 						<ParamItem :childLevel="1" :paramData="param_backgroundColor[label.id]" v-model="label.backgroundColor" @change="save(label)" noBackground />
@@ -77,16 +86,16 @@
 </template>
 
 <script lang="ts">
-import { TTButton } from '@/components/TTButton.vue';
+import SwitchButton from '@/components/SwitchButton.vue';
+import TTButton from '@/components/TTButton.vue';
 import { ToggleBlock } from '@/components/ToggleBlock.vue';
+import ToggleButton from '@/components/ToggleButton.vue';
 import { type LabelItemData } from '@/types/ILabelOverlayData';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { VueDraggable } from 'vue-draggable-plus';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import { ParamItem } from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
-import ToggleButton from '@/components/ToggleButton.vue';
-import SwitchButton from '@/components/SwitchButton.vue';
 
 @Component({
 	components:{
@@ -110,6 +119,7 @@ class OverlayParamsLabels extends Vue {
 	public param_textColor:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_backgroundEnabled:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_backgroundColor:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_textAlign:{[key:string]:TwitchatDataTypes.ParameterData<LabelItemData["textAlign"]>} = {};
 	public param_scrollable:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 
 	private placeholders:TwitchatDataTypes.PlaceholderEntry[] = [];
@@ -266,6 +276,31 @@ export default toNative(OverlayParamsLabels);
 		gap: .5em;
 		display: flex;
 		flex-direction: column;
+
+		.layout {
+			gap: .5em;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			.icon {
+				height: 1em;
+			}
+			label {
+				flex-grow: 1;
+			}
+		}
+
+		.layoutBtns {
+			gap: .5em;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: flex-end;
+			.button {
+				width: 2em;
+				opacity: 1;//Do not fade when disabled as its holder will already be faded
+			}
+		}
 	}
 
 	.install {

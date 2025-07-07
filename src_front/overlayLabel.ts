@@ -254,6 +254,9 @@ function onMessage(message:IEnvelope<unknown>):void {
 					if(!parameters.scrollContent) {
 						holder.style.textOverflow	= "ellipsis";
 					}
+
+					const align = parameters.textAlign || "left";
+					holder.style.textAlign	= align;
 				}
 
 				renderValue();

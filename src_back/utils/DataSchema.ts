@@ -2176,6 +2176,7 @@ const UserDataSchema = {
 							fontSize: {type:"number", minimum:0, maximum:300},
 							fontFamily: {type:"string", maxLength:200},
 							fontColor: {type:"string", maxLength:10},
+							textAlign: {enum: ["left", "center", "right"]},
 							scrollContent: {type:"boolean"},
 							backgroundEnabled: {type:"boolean"},
 							backgroundColor: {type:"string", maxLength:10},
