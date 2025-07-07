@@ -110,17 +110,39 @@ class TriggerActionMixitupEntry extends AbstractTriggerActionEntry {
 	}
 
 	private buildCommandList():void {
-		const list:TwitchatDataTypes.ParameterDataListValue<string>[]
-		= this.$store.mixitup.commandList.map(action =>{
-			return {
-				value:action.ID,
-				label:action.Name,
+		// Group commands by GroupName
+		const grouped = this.$store.mixitup.commandList.reduce((acc, action) => {
+			const groupName = action.GroupName || 'Other';
+			if (!acc[groupName]) {
+				acc[groupName] = [];
 			}
-		}).sort((a, b) => a.label.localeCompare(b.label));
-		list.unshift({
-			value:"",
-			labelKey:"global.select_placeholder"
-		})
+			acc[groupName].push(action);
+			return acc;
+		}, {} as Record<string, typeof this.$store.mixitup.commandList>);
+
+		const list: TwitchatDataTypes.ParameterDataListValue<string>[] = [];
+		
+		// Add placeholder option first
+		list.push({
+			value: "",
+			labelKey: "global.select_placeholder"
+		});
+
+		// Sort groups alphabetically and add commands
+		Object.keys(grouped).sort().forEach(groupName => {
+			// Add group with children
+			list.push({
+				value: "",
+				label: groupName,
+				group: grouped[groupName]
+					.sort((a, b) => a.Name.localeCompare(b.Name))
+					.map(action => ({
+						value: action.ID,
+						label: action.Name,
+					}))
+			});
+		});
+
 		if(list.findIndex(v=> v.value == this.action.mixitupData!.commandId) == -1) {
 			this.action.mixitupData!.commandId = "";
 		}
@@ -144,7 +166,7 @@ export default toNative(TriggerActionMixitupEntry);
 		display: flex;
 		flex-direction: column;
 		.header {
-			gap: .5em;
+			gap: 0;
 			display: flex;
 			flex-direction: row;
 			flex: 1;
@@ -192,6 +214,5 @@ export default toNative(TriggerActionMixitupEntry);
 			align-self: center;
 		}
 	}
-
 }
 </style>
