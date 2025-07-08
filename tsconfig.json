@@ -9,6 +9,7 @@
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"incremental": true,
+		"tsBuildInfoFile": "./.tsbuildinfo",
 		"skipLibCheck": true,
 		"allowJs": true,
 		"esModuleInterop": true,

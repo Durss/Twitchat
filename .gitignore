@@ -9,6 +9,8 @@ node_modules
 /data
 env.conf
 tsconfig.tsbuildinfo
+.tsbuildinfo
+server/.tsbuildinfo
 
 credentials/*
 !credentials.default.json
