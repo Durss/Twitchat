@@ -306,9 +306,6 @@ export default class EventSub {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.POLL_END, "1");
 			}
 			if(TwitchUtils.hasScopes([TwitchScopes.READ_HYPE_TRAIN])) {
-				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_START, "1");
-				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_PROGRESS, "1");
-				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_END, "1");
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_START, "2");
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_PROGRESS, "2");
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_END, "2");
@@ -692,11 +689,7 @@ export default class EventSub {
 			case TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_START:
 			case TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_PROGRESS:
 			case TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_END: {
-				if(payload.subscription.version == "1") {
-					this.hypeTrainEvent(topic, payload.event as TwitchEventSubDataTypes.HypeTrainStartEvent | TwitchEventSubDataTypes.HypeTrainProgressEvent | TwitchEventSubDataTypes.HypeTrainEndEvent);
-				}else{
-					ApiHelper.call("log", "POST", {cat:"eventsub", log:{topic, tt_v:import.meta.env.PACKAGE_VERSION, data:payload.event}});
-				}
+				this.hypeTrainEvent(topic, payload.event as TwitchEventSubDataTypes.HypeTrainStartEvent | TwitchEventSubDataTypes.HypeTrainProgressEvent | TwitchEventSubDataTypes.HypeTrainEndEvent);
 				break;
 			}
 		}
