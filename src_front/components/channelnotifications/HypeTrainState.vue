@@ -1,8 +1,12 @@
 
 <template>
 	<div :class="classes">
+		<div class="sharedUsers" v-if="sharedUserList.length > 0">
+			<a v-for="user in sharedUserList" :key="user.id" :href="'https://twitch.tv/'+user.login" @click.prevent="openUserCard(user)" target="_blank" v-tooltip="user.displayName">
+				<img :src="user.avatarPath?.replace('300x300', '50x50')" class="avatar hide" onload="this.classList.remove('hide')">
+			</a>
+		</div>
 		<div class="fill" :style="{width: (100 - roundProgressPercent)+'%'}"></div>
-
 		<div class="head">
 			<img src="@/assets/img/goldenKappa.png" alt="golden kappa" class="icon kappa" v-if="trainData.type == 'golden_kappa'" />
 			<img src="@/assets/img/coin.png" alt="golden kappa" class="icon coin" v-if="trainData.type == 'treasure'" />
@@ -95,6 +99,7 @@ class HypeTrainState extends Vue {
 	public timerPercent:number = 0;
 	public timerDuration:number = 0;
 	public progressPercent:number = 0;
+	public sharedUserList:TwitchatDataTypes.TwitchatUser[] = [];
 	public conductor_subs:TwitchatDataTypes.HypeTrainConductorData | null = null;
 	public conductor_bits:TwitchatDataTypes.HypeTrainConductorData | null = null;
 
@@ -126,9 +131,6 @@ class HypeTrainState extends Vue {
 	}
 
 	public mounted():void {
-		this.dataChange();
-		watch(()=>this.$store.stream.hypeTrain, ()=>this.dataChange());
-
 		if(this.trainData.conductor_subs) {
 			this.conductor_subs = this.trainData.conductor_subs;
 		}
@@ -137,6 +139,8 @@ class HypeTrainState extends Vue {
 		}
 
 		watch(() => this.trainData, () => {
+			this.dataChange();
+
 			if(!this.trainData) return;
 
 			try {
@@ -171,6 +175,7 @@ class HypeTrainState extends Vue {
 		}, {deep:true});
 
 		this.renderFrame();
+		this.dataChange();
 	}
 
 	public beforeUnmount():void {
@@ -182,6 +187,19 @@ class HypeTrainState extends Vue {
 
 		const p = Math.floor(this.trainData.currentValue/this.trainData.goal * 100);
 		gsap.to(this, {progressPercent:p, ease:"sine.inOut", duration:.5});
+
+		const me = this.$store.auth.twitch.user
+		const uids = Object.keys(this.trainData.sharedStates || {});
+		if(uids.length > 0) {
+			uids.push(me.id);
+		}
+		uids.forEach((uid) => {
+			if(!this.sharedUserList.find(u => u.id == uid)) {
+				this.$store.users.getUserFrom("twitch", me.id, uid, undefined, undefined, (user) => {
+					this.sharedUserList.push(user);
+				});
+			}
+		});
 	}
 
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
@@ -202,6 +220,24 @@ export default toNative(HypeTrainState);
 
 <style scoped lang="less">
 .hypetrainstate{
+	.sharedUsers {
+		position: absolute;
+		top: 0;
+		transform: translateY(-50%);
+		z-index: 1;
+		a {
+			width: 30px;
+			height: 30px;
+			img {
+				width: 30px;
+				height: 30px;
+				border-radius: 50%;
+				background-color: var(--color-primary);
+				border: 2px solid var(--color-primary);
+			}
+		}
+	}
+
 	.fill {
 		position: absolute;
 		top: 0;
@@ -346,6 +382,9 @@ export default toNative(HypeTrainState);
 					border-radius: 50%;
 					margin: auto;
 					display: block;
+					&.hide {
+						display: none;
+					}
 				}
 				.label {
 					.count {

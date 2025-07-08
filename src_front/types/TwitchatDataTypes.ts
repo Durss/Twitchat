@@ -983,6 +983,7 @@ export namespace TwitchatDataTypes {
 		channel_id:string;
 		level:number;
 		currentValue:number;
+		total:number;
 		goal:number;
 		approached_at:number;
 		started_at:number;
@@ -996,7 +997,7 @@ export namespace TwitchatDataTypes {
 		allTimeHighTotal: number;
 		conductor_subs?:HypeTrainConductorData;
 		conductor_bits?:HypeTrainConductorData;
-		sharedStates?:{
+		sharedStates:{
 			[channelId:string]:HypeTrainStateData;
 		};
 	}

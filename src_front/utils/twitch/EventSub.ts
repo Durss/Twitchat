@@ -2116,7 +2116,8 @@ export default class EventSub {
 		const train:TwitchatDataTypes.HypeTrainStateData = {
 			channel_id: event.broadcaster_user_id,
 			level: event.level,
-			currentValue: event.total,
+			currentValue: 0,
+			total: event.total || 0,
 			goal: storeTrain?.goal || 0,
 			approached_at: dateStart,
 			started_at: dateStart,
@@ -2125,16 +2126,22 @@ export default class EventSub {
 			state: "START",
 			type: event.type,
 			isSharedTrain: event.is_shared_train,
-			allTimeHighLevel: storeTrain?.allTimeHighLevel || 0,
-			allTimeHighTotal: storeTrain?.allTimeHighTotal || 0,
+			allTimeHighLevel: storeTrain?.allTimeHighLevel || Number.MAX_SAFE_INTEGER,
+			allTimeHighTotal: storeTrain?.allTimeHighTotal || Number.MAX_SAFE_INTEGER,
 			isAllTimeRecord: storeTrain?.isAllTimeRecord || false,
 			conductor_bits: getConductor(event.top_contributions, "bits"),
 			conductor_subs: getConductor(event.top_contributions, "subscription"),
+			sharedStates: storeTrain?.sharedStates || {},
 		};
 		switch(topic) {
-			case TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_START:
-			case TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_PROGRESS: {
+			case TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_START:{
 				const typedEvent = event as TwitchEventSubDataTypes.HypeTrainStartEvent;
+				train.allTimeHighLevel = typedEvent.all_time_high_level || Number.MAX_SAFE_INTEGER;
+				train.allTimeHighTotal = typedEvent.all_time_high_total || Number.MAX_SAFE_INTEGER;
+				// DO NOT BREAK THIS CASE
+			}
+			case TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_PROGRESS: {
+				const typedEvent = event as TwitchEventSubDataTypes.HypeTrainProgressEvent;
 				train.goal = typedEvent.goal;
 				train.state = topic === TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_START? "START" : "PROGRESS";
 				train.currentValue = typedEvent.progress;
@@ -2143,9 +2150,7 @@ export default class EventSub {
 					train.state = "LEVEL_UP";
 					train.updated_at = Date.now();
 				}
-				train.allTimeHighLevel = typedEvent.all_time_high_level || storeTrain?.allTimeHighLevel || 0;
-				train.allTimeHighTotal = typedEvent.all_time_high_total || storeTrain?.allTimeHighTotal || 0;
-				train.isAllTimeRecord = typedEvent.level >= train.allTimeHighLevel && typedEvent.progress >= train.allTimeHighTotal;
+				train.isAllTimeRecord = train.allTimeHighLevel > 1 && typedEvent.level >= train.allTimeHighLevel && typedEvent.total >= train.allTimeHighTotal;
 				break;
 			}
 
@@ -2191,8 +2196,6 @@ export default class EventSub {
 		}else{
 			if(!StoreProxy.stream.hypeTrain.sharedStates) StoreProxy.stream.hypeTrain.sharedStates = {};
 			StoreProxy.stream.hypeTrain.sharedStates[event.broadcaster_user_id] = train;
-
-			StoreProxy.stream.setHypeTrain(StoreProxy.stream.hypeTrain);
 		}
 	}
 
@@ -2270,7 +2273,7 @@ const train_shared:(string|HypeTrainEvent)[] = [
 	"Tue Jun 17 2025 04:00:54 GMT+0000 (Coordinated Universal Time)",
 	{"topic":"channel.hype_train.begin","tt_v":"16.2.5","data":{"id":"72f8c818-1c1e-48fe-bfe6-89aa2c2b9565","broadcaster_user_id":"647389082","broadcaster_user_login":"durssbot","broadcaster_user_name":"DurssBot","total":5400,"progress":2000,"goal":2100,"top_contributions":[],"level":3,"all_time_high_level":1,"all_time_high_total":1100,"shared_train_participants":[{"broadcaster_user_id":"MY_UID","broadcaster_user_login":"MY_LOGIN","broadcaster_user_name":"MY_NAME"}],"started_at":"2025-06-17T04:00:53.830536296Z","expires_at":"2025-06-17T04:05:53.830536296Z","type":"regular","is_shared_train":true}},
 	"Tue Jun 17 2025 04:00:54 GMT+0000 (Coordinated Universal Time)",
-	{"topic":"channel.hype_train.begin","tt_v":"16.2.5","data":{"id":"72f8c818-1c1e-48fe-bfe6-89aa2c2b9565","broadcaster_user_id":"MY_UID","broadcaster_user_login":"MY_LOGIN","broadcaster_user_name":"MY_NAME","total":5400,"progress":2000,"goal":2100,"top_contributions":[{"user_id":"647389082","user_login":"durssbot","user_name":"DurssBot","type":"subscription","total":5000},{"user_id":"40203552","user_login":"twitchat","user_name":"Twitchat","type":"bits","total":400}],"level":3,"all_time_high_level":1,"all_time_high_total":22800,"shared_train_participants":[{"broadcaster_user_id":"MY_UID","broadcaster_user_login":"MY_LOGIN","broadcaster_user_name":"MY_NAME"}],"started_at":"2025-06-17T04:00:53.830536296Z","expires_at":"2025-06-17T04:05:53.830536296Z","type":"regular","is_shared_train":true}},
+	{"topic":"channel.hype_train.begin","tt_v":"16.2.5","data":{"id":"72f8c818-1c1e-48fe-bfe6-89aa2c2b9565","broadcaster_user_id":"MY_UID","broadcaster_user_login":"MY_LOGIN","broadcaster_user_name":"MY_NAME","total":5400,"progress":2000,"goal":2100,"top_contributions":[{"user_id":"647389082","user_login":"durssbot","user_name":"DurssBot","type":"subscription","total":5000},{"user_id":"40203552","user_login":"twitchat","user_name":"Twitchat","type":"bits","total":400}],"level":3,"all_time_high_level":5,"all_time_high_total":7800,"shared_train_participants":[{"broadcaster_user_id":"MY_UID","broadcaster_user_login":"MY_LOGIN","broadcaster_user_name":"MY_NAME"}],"started_at":"2025-06-17T04:00:53.830536296Z","expires_at":"2025-06-17T04:05:53.830536296Z","type":"regular","is_shared_train":true}},
 	"Tue Jun 17 2025 04:00:54 GMT+0000 (Coordinated Universal Time)",
 	{"topic":"channel.hype_train.begin","tt_v":"16.2.5","data":{"id":"72f8c818-1c1e-48fe-bfe6-89aa2c2b9565","broadcaster_user_id":"40203552","broadcaster_user_login":"twitchat","broadcaster_user_name":"Twitchat","total":5400,"progress":2000,"goal":2100,"top_contributions":[],"level":3,"all_time_high_level":1,"all_time_high_total":1000,"shared_train_participants":[{"broadcaster_user_id":"MY_UID","broadcaster_user_login":"MY_LOGIN","broadcaster_user_name":"MY_NAME"}],"started_at":"2025-06-17T04:00:53.830536296Z","expires_at":"2025-06-17T04:05:53.830536296Z","type":"regular","is_shared_train":true}},
 	"Tue Jun 17 2025 04:01:21 GMT+0000 (Coordinated Universal Time)",

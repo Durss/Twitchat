@@ -327,6 +327,7 @@ export const storeDebug = defineStore('debug', {
 						channel_id:uid,
 						level,
 						currentValue,
+						total: currentValue,
 						goal:value,
 						approached_at:Date.now() - 3 * 60000,
 						started_at:Date.now() - Math.round(Math.random() * 2 * 60000),
@@ -338,6 +339,7 @@ export const storeDebug = defineStore('debug', {
 						isAllTimeRecord: Math.random() > .5,
 						isSharedTrain: Math.random() > .5,
 						type: Utils.pickRand(["regular", "golden_kappa", "treasure"]),
+						sharedStates: {},
 					};
 					const m:TwitchatDataTypes.MessageHypeTrainEventData = {
 						id:Utils.getUUID(),
@@ -448,7 +450,7 @@ export const storeDebug = defineStore('debug', {
 						conductor_bits.avatarPath = profile[0].profile_image_url;
 					}
 
-
+					const currentValue = Math.round(sum * Math.random());
 					const m:TwitchatDataTypes.MessageHypeTrainSummaryData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -462,7 +464,8 @@ export const storeDebug = defineStore('debug', {
 							updated_at:approached_at + 30000,
 							ends_at:approached_at + 30000,
 							goal:100,
-							currentValue:Math.floor(Math.random() * 100),
+							currentValue,
+							total: currentValue,
 							level:Math.round(sum/8000),
 							allTimeHighLevel: 10,
 							allTimeHighTotal: 100000,
@@ -478,6 +481,7 @@ export const storeDebug = defineStore('debug', {
 								user:conductor_bits,
 								amount:Math.round(Math.random()*10000),
 							},
+							sharedStates: {},
 						},
 						activities,
 					};
