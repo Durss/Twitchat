@@ -5,82 +5,82 @@
 				icon="poll"
 				:disabled="!canCreatePoll"
 				v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.poll')}}</TTButton>
-			<TTButton icon="pin" :primary="isPinned('poll')" @click="onTogglePin('poll')" :disabled="!canCreatePoll" />
+			<!-- <TTButton icon="pin" :primary="isPinned('poll')" @click="onTogglePin('poll')" :disabled="!canCreatePoll" /> -->
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="openModal('pred');"
 				icon="prediction"
 				:disabled="!canCreatePrediction"
 				v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.prediction')}}</TTButton>
-			<TTButton icon="pin" :primary="isPinned('prediction')" @click="onTogglePin('prediction')" :disabled="!canCreatePrediction" />
+			<!-- <TTButton icon="pin" :primary="isPinned('prediction')" @click="onTogglePin('prediction')" :disabled="!canCreatePrediction" /> -->
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="openModal('raffle');"
 				icon="ticket">{{$t('cmdmenu.raffle')}}</TTButton>
-			<TTButton icon="pin" :primary="isPinned('raffle')" @click="onTogglePin('raffle')" />
+			<!-- <TTButton icon="pin" :primary="isPinned('raffle')" @click="onTogglePin('raffle')" /> -->
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="openModal('bingo');"
 				icon="bingo">{{$t('cmdmenu.bingo')}}</TTButton>
-			<TTButton icon="pin" :primary="isPinned('bingo')" @click="onTogglePin('bingo')" />
+			<!-- <TTButton icon="pin" :primary="isPinned('bingo')" @click="onTogglePin('bingo')" /> -->
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="openModal('bingo_grid');"
 				icon="bingo_grid"
 				v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'cmdhelper.bingo_grid'}">{{$t('cmdmenu.bingo_grid')}}</TTButton>
-			<TTButton icon="pin" :primary="isPinned('bingo_grid')" @click="onTogglePin('bingo_grid')" />
+			<!-- <TTButton icon="pin" :primary="isPinned('bingo_grid')" @click="onTogglePin('bingo_grid')" /> -->
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="openModal('qnaForm');"
 				icon="qna"
 				v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'cmdhelper.qna'}">{{$t('cmdmenu.qna')}}</TTButton>
-			<TTButton icon="pin" :primary="isPinned('qna')" @click="onTogglePin('qna')" />
+			<!-- <TTButton icon="pin" :primary="isPinned('qna')" @click="onTogglePin('qna')" /> -->
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="openModal('chatPoll');"
 				v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'cmdhelper.chat_poll'}"
 				icon="chatPoll">{{$t('cmdmenu.chatPoll')}}</TTButton>
-			<TTButton icon="pin" :primary="isPinned('chatPoll')" @click="onTogglePin('chatPoll')" />
+			<!-- <TTButton icon="pin" :primary="isPinned('chatPoll')" @click="onTogglePin('chatPoll')" /> -->
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="openModal('chatsuggForm');"
 				icon="chatSugg">{{$t('cmdmenu.suggestions')}}</TTButton>
-			<TTButton icon="pin" :primary="isPinned('chatSugg')" @click="onTogglePin('chatSugg')" />
+			<!-- <TTButton icon="pin" :primary="isPinned('chatSugg')" @click="onTogglePin('chatSugg')" /> -->
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="openModal('timer');"
 				v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'cmdhelper.timers'}"
 				icon="timer">{{$t('cmdmenu.timer')}}</TTButton>
-			<TTButton icon="pin" :primary="isPinned('timer')" @click="onTogglePin('timer')" />
+			<!-- <TTButton icon="pin" :primary="isPinned('timer')" @click="onTogglePin('timer')" /> -->
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="clearChat();"
 				icon="clearChat"
 				:disabled="!canClearChat">{{$t('cmdmenu.chat')}}</TTButton>
-			<TTButton icon="pin" :primary="isPinned('clearChat')" @click="onTogglePin('clearChat')" />
+			<!-- <TTButton icon="pin" :primary="isPinned('clearChat')" @click="onTogglePin('clearChat')" /> -->
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="openModal('streamInfo');"
 				icon="info"
 				:disabled="!canEditStreamInfos">{{$t('cmdmenu.info')}}</TTButton>
-			<TTButton icon="pin" :primary="isPinned('streamInfo')" @click="onTogglePin('streamInfo')" />
+			<!-- <TTButton icon="pin" :primary="isPinned('streamInfo')" @click="onTogglePin('streamInfo')" /> -->
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="openModal('extensions');"
 				icon="extension"
 				v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'cmdhelper.extensions'}" :disabled="!canEditStreamInfos">{{$t('cmdmenu.extensions')}}</TTButton>
-			<TTButton icon="pin" :primary="isPinned('extensions')" @click="onTogglePin('extensions')" />
+			<!-- <TTButton icon="pin" :primary="isPinned('extensions')" @click="onTogglePin('extensions')" /> -->
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="$emit('update:showChatUsers', true); close()"
 				icon="user">{{$t('cmdmenu.chatters')}}</TTButton>
-			<TTButton icon="pin" :primary="isPinned('chatters')" @click="onTogglePin('chatters')" />
+			<!-- <TTButton icon="pin" :primary="isPinned('chatters')" @click="onTogglePin('chatters')" /> -->
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="$emit('update:showRewards', true); close()"
 				icon="channelPoints"
 				:disabled="!hasChannelPoints">{{$t('cmdmenu.rewards')}}</TTButton>
-			<TTButton icon="pin" :primary="isPinned('rewards')" @click="onTogglePin('rewards')" :disabled="!hasChannelPoints" />
+			<!-- <TTButton icon="pin" :primary="isPinned('rewards')" @click="onTogglePin('rewards')" :disabled="!hasChannelPoints" /> -->
 		</div>
 
 		<TTButton @click.capture="openModal('twitchatAnnouncement');"
@@ -478,16 +478,8 @@ export default toNative(CommandHelper);
 		flex-direction: row;
 		flex: 1;
 		justify-content: stretch;
-		.button:first-child {
+		.button {
 			flex: 1;
-			border-top-right-radius: 0;
-			border-bottom-right-radius: 0;
-		}
-		.button:last-child {
-			flex-shrink: 0;
-			margin-left: 1px;
-			border-top-left-radius: 0;
-			border-bottom-left-radius: 0;
 		}
 	}
 

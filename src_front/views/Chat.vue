@@ -85,6 +85,7 @@
 				v-model:showCredits="showCredits" @update:showCredits="(v:boolean) => showCredits = v"
 				v-model:showBingoGrid="showBingoGrid" @update:showBingoGrid="(v:boolean) => showBingoGrid = v"
 				v-model:showGazaFunds="showGazaFunds" @update:showGazaFunds="(v:boolean) => showGazaFunds = v"
+				v-model:showPins="showPins" @update:showPins="(v:boolean) => showPins = v"
 			/>
 		</div>
 
@@ -126,6 +127,10 @@
 			v-if="showBingoGrid"
 			@close="showBingoGrid = false" />
 
+		<PinsList class="contentWindows mpins"
+			v-if="showPins"
+			@close="showPins = false" />
+
 		<Parameters v-if="buildIndex >= 5 + $store.params.chatColumnsConfig.length" />
 
 		<EmergencyFollowsListModal v-if="showEmergencyFollows && !forceEmergencyFollowClose" @close="forceEmergencyFollowClose=true" />
@@ -164,11 +169,13 @@ import DevmodeMenu from '@/components/chatform/DevmodeMenu.vue';
 import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
 import EndingCreditsControls from '@/components/chatform/EndingCreditsControls.vue';
 import Extensions from '@/components/chatform/Extensions.vue';
+import GroqHistory from '@/components/chatform/GroqHistory.vue';
 import HelpGenocideVictims from '@/components/chatform/HelpGenocideVictims.vue';
 import LiveFollowings from '@/components/chatform/LiveFollowings.vue';
 import MessageSearch from '@/components/chatform/MessageSearch.vue';
 import NonPremiumCleanup from '@/components/chatform/NonPremiumCleanup.vue';
 import OutdatedDataVersionAlert from '@/components/chatform/OutdatedDataVersionAlert.vue';
+import PinsList from '@/components/chatform/PinsList.vue';
 import QnaForm from '@/components/chatform/QnaForm.vue';
 import QnaList from '@/components/chatform/QnaList.vue';
 import RewardsList from '@/components/chatform/RewardsList.vue';
@@ -182,6 +189,7 @@ import MessageList from '@/components/messages/MessageList.vue';
 import GreetThem from '@/components/newusers/GreetThem.vue';
 import ObsHeatLogs from '@/components/obs/ObsHeatLogs.vue';
 import Parameters from '@/components/params/Parameters.vue';
+import ChatPollForm from '@/components/poll/ChatPollForm.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import RaffleForm from '@/components/raffle/RaffleForm.vue';
@@ -194,6 +202,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import MessengerProxy from '@/messaging/MessengerProxy';
 import type { TriggerActionCountDataAction } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
 import TriggerUtils from '@/utils/TriggerUtils';
 import Utils from '@/utils/Utils';
@@ -213,10 +222,6 @@ import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
 import ShareParams from './ShareParams.vue';
-import Config from '@/utils/Config';
-import GroqHistory from '@/components/chatform/GroqHistory.vue';
-import ChatPollForm from '@/components/poll/ChatPollForm.vue';
-import type { placements } from '@popperjs/core';
 
 @Component({
 	components:{
@@ -229,6 +234,7 @@ import type { placements } from '@popperjs/core';
 		UserCard,
 		HeatLogs,
 		PollForm,
+		PinsList,
 		Changelog,
 		TimerForm,
 		GreetThem,
@@ -277,6 +283,7 @@ class Chat extends Vue {
 
 	public buildIndex = 0;
 	public showQna = false;
+	public showPins = false;
 	public showEmotes = false;
 	public showRewards = false;
 	public showDevMenu = false;

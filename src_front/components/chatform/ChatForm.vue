@@ -2,23 +2,47 @@
 	<div :class="classes">
 		<div class="holder">
 
-			<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" draggable="false" icon="params" @click="toggleParams()" :newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'chatform_params_6'}" />
-			<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" draggable="false" icon="commands" @click="$emit('update:showCommands', true)" :newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'chatform_cmds_3'}" />
-			<VueDraggable class="sortableItems"
-			v-model="$store.params.pinnedMenuItems"
-			:group="{name:'items'}"
-			animation="250"
-			@end="$store.params.saveChatMenuPins()">
-				<ButtonNotification v-for="element in $store.params.pinnedMenuItems" :key="element"
-					@mouseenter="element == 'chatters'? updateOnlineUsersTooltip($event) : ()=>{}"
-					v-tooltip="{
-						touch:'hold',
-						content: element == 'chatters' && $store.params.appearance.showViewersCount.value === true? onlineUsersTooltip : $t(getPinnedMenuItemFromId(element).labelKey)
-					}"
-					:aria-label="$t(getPinnedMenuItemFromId(element).labelKey)"
-					:icon="getPinnedMenuItemFromId(element).icon"
-					@click="onClickMenuItem(getPinnedMenuItemFromId(element))" />
-			</VueDraggable>
+			<div class="leftForm">
+				<ButtonNotification
+					:aria-label="$t('chat.form.paramsBt_aria')"
+					v-tooltip="$t('chat.form.paramsBt_aria')"
+					draggable="false"
+					icon="params"
+					@click="toggleParams()"
+					:newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'chatform_params_6'}" />
+				
+				<ButtonNotification
+					:aria-label="$t('chat.form.cmdsBt_aria')"
+					v-tooltip="$t('chat.form.cmdsBt_aria')"
+					draggable="false"
+					icon="commands"
+					@click="$emit('update:showCommands', true)"
+					:newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'chatform_cmds_3'}" />
+				
+				<VueDraggable class="sortableItems"
+				v-if="pinnedMenuItems.length > 0"
+				v-model="$store.params.pinnedMenuItems"
+				:group="{name:'items'}"
+				animation="250"
+				@end="$store.params.saveChatMenuPins()">
+					<ButtonNotification v-for="element in pinnedMenuItems" :key="element"
+						@mouseenter="element.item.id == 'chatters'? updateOnlineUsersTooltip($event) : ()=>{}"
+						v-tooltip="{
+							touch:'hold',
+							content: element.item.id == 'chatters' && $store.params.appearance.showViewersCount.value === true? onlineUsersTooltip : element.tooltip
+						}"
+						:aria-label="element.tooltip"
+						:icon="element.icon"
+						@click="onClickMenuItem(element.item)" />
+				</VueDraggable>
+				
+				<ButtonNotification :aria-label="$t('chat.form.addPinBt_aria')"
+					class="addPinBt"
+					icon="add"
+					v-tooltip="{touch:'hold', content:$t('chat.form.addPinBt_aria')}"
+					@click="$emit('update:showPins', true)" />
+			</div>
+
 
 			<form @submit.prevent="" class="inputForm" name="messageform">
 				<Icon class="loader" name="loader" v-if="loading" />
@@ -431,6 +455,8 @@ import {YoutubeScopes} from "@/utils/youtube/YoutubeScopes";
 import ModeratorActionSwitcher from './ModeratorActionSwitcher.vue';
 import { VueDraggable } from 'vue-draggable-plus';
 import GroqChannelAction from './GroqChannelAction.vue';
+import TriggerUtils from '@/utils/TriggerUtils';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 
 @Component({
 	components:{
@@ -460,20 +486,10 @@ import GroqChannelAction from './GroqChannelAction.vue';
 		"setCurrentNotification",
 		"update:showGazaFunds",
 		"update:showChatUsers",
+		"update:showPins",
 	],
 })
 export class ChatForm extends Vue {
-
-	@Prop
-	public showFeed!:boolean;
-	@Prop
-	public showEmotes!:boolean;
-	@Prop
-	public showCommands!:boolean;
-	@Prop
-	public showRewards!:boolean;
-	@Prop
-	public showGazaFunds!:boolean;
 
 	public message = "";
 	public error = false;
@@ -504,8 +520,38 @@ export class ChatForm extends Vue {
 		}
 	}
 
-	public getPinnedMenuItemFromId(id:string):typeof TwitchatDataTypes.PinnableMenuItems[number] {
+	public getPinnedMenuItemFromId(id:typeof TwitchatDataTypes.PinnableMenuItems[number]["id"]):typeof TwitchatDataTypes.PinnableMenuItems[number] {
+		if(id.indexOf("trigger:") === 0) {
+			const trigger = this.$store.triggers.triggerList.find(trigger=>trigger.id == id.replace("trigger:",""));
+			if(!trigger) {
+				return {
+					id,
+					icon: "broadcast",
+					labelKey: "chat.form.trigger_menu_item",
+					isModal: false,
+					modalId: "",
+					modelValueName: "",
+				};
+			}
+			const triggerInfo = TriggerUtils.getTriggerDisplayInfo(trigger);
+			return {
+				id,
+				icon: "broadcast",
+				labelKey: triggerInfo.labelKey || "",
+				label: triggerInfo.label,
+				isModal: false,
+				modalId: "",
+				modelValueName: "",
+			};
+		}
 		return TwitchatDataTypes.PinnableMenuItems.find(v=>v.id == id)!;
+	}
+
+	public getMenuItemEnabled(item:typeof TwitchatDataTypes.PinnableMenuItems[number]) {
+		if(item.id == "rewards" || item.id == "poll" || item.id == 'prediction') {
+			return this.hasChannelPoints;
+		}
+		return true;
 	}
 
 	public get emergencyButtonEnabled():boolean {
@@ -639,6 +685,20 @@ export class ChatForm extends Vue {
 		if(chanId == this.$store.auth.twitch.user.id) return true;
 		return chanId != this.$store.auth.twitch.user.id
 			&& this.$store.auth.twitchModeratedChannels.findIndex(v=>v.broadcaster_id == chanId) > -1;
+	}
+
+	public get pinnedMenuItems() {
+		const items = this.$store.params.pinnedMenuItems;
+		const result:{item:typeof TwitchatDataTypes.PinnableMenuItems[number], icon:string, tooltip:string}[] = [];
+		for (let i = 0; i < items.length; i++) {
+			const item = items[i];
+			const menuItem = this.getPinnedMenuItemFromId(item);
+			if(!menuItem) continue;
+			if(!this.getMenuItemEnabled(menuItem)) continue;
+			const tooltip = menuItem.label || this.$t(menuItem.labelKey);
+			result.push({item:menuItem, tooltip, icon: menuItem.icon});
+		}
+		return result;
 	}
 
 	public beforeMount(): void {
@@ -1270,6 +1330,26 @@ export class ChatForm extends Vue {
 					TwitchUtils.deleteMessages(this.$store.auth.twitch.user.id);
 				}).catch(()=>{});
 			}
+		}else if(item.id.indexOf("trigger:") === 0) {
+			const trigger = this.$store.triggers.triggerList.find(trigger=>trigger.id == item.id.replace("trigger:",""));
+			if(trigger) {
+				const me = StoreProxy.auth.twitch.user;
+				const messageData:TwitchatDataTypes.MessageChatData = {
+					platform:"twitch",
+					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+					channel_id:me.id,
+					date:Date.now(),
+					id:Utils.getUUID(),
+					message:"",
+					message_chunks:[],
+					message_html:"",
+					user:me,
+					is_short:false,
+					answers:[],
+					message_size:0,
+				}
+				TriggerActionHandler.instance.executeTrigger(trigger, messageData, false);
+			}
 		}else if(item.modelValueName) {
 			this.$emit("update:"+item.modelValueName, true)
 		}
@@ -1344,6 +1424,19 @@ export default toNative(ChatForm);
 		}
 	}
 
+	.leftForm {
+		display: flex;
+		flex-direction: row;
+		
+		&:hover,
+		&:focus-within {
+			.addPinBt {
+				width: 2em;
+				max-width: 2em;
+				min-width: 2em;
+			}
+		}
+	}
 	.holder {
 		position: absolute;
 		width: 100%;
@@ -1359,6 +1452,28 @@ export default toNative(ChatForm);
 			display: flex;
 			flex-direction: row;
 			align-self: center;
+			position: relative;
+
+			&::before{
+				content: "";
+				width: 1px;
+				height: 1em;
+				display: block;
+				position: relative;
+				top: .5em;
+				background: var(--color-text-fader);
+			}
+
+			&>:first-child {
+				margin-left: 1px;
+			}
+		}
+
+		.addPinBt {
+			width: 0px;
+			max-width: 0px;
+			min-width: 0px;
+			transition: width 0.2s, max-width 0.2s, min-width 0.2s;
 		}
 
 		.inputForm {

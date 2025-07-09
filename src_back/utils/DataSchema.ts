@@ -2078,7 +2078,7 @@ const UserDataSchema = {
 			type:"array",
 			minItems:0,
 			maxItems:100,
-			items: {type:"string", maxLength:20},
+			items: {type:"string", maxLength:100},
 		},
 		lumia: {
 			type:"object",

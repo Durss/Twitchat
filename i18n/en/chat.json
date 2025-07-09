@@ -19,6 +19,7 @@
 		"form": {
 			"paramsBt_aria": "Parameters",
 			"cmdsBt_aria": "Chat commands",
+			"addPinBt_aria": "Add menu item",
 			"usersBt_aria": "Users list",
 			"rewardsBt_aria": "Rewards list",
 			"input_placeholder": "message to send on {CHANNEL}...",

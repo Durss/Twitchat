@@ -1,5 +1,5 @@
 <template>
-	<div class="buttonnotification" @click="onClick($event)" v-newflag="newflag">
+	<div class="buttonnotification" :class="{disabled}" @click="onClick($event)" v-newflag="newflag">
 		<Icon :name="icon" class="icon" v-if="icon" />
 		<span class="label" v-if="$slots.default != undefined"><slot></slot></span>
 		<span v-if="count > 0" class="count">{{ count }}</span>
@@ -21,6 +21,9 @@ class ButtonNotification extends Vue {
 
 	@Prop({type:Number, default:0})
 	public count!:number;
+
+	@Prop({type:Boolean, default:false})
+	public disabled!:boolean;
 
 	@Prop({type:Object})
 	public newflag!:{date:number, id:string};
@@ -49,6 +52,12 @@ export default toNative(ButtonNotification);
 		//Offset "new flag" so it's closer to the icon
 		top: .25em;
 		left: .25em;
+	}
+
+	&.disabled {
+		cursor: not-allowed;
+		opacity: 0.5;
+		pointer-events: none;
 	}
 
 	.icon {

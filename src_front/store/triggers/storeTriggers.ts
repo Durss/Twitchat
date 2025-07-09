@@ -151,6 +151,14 @@ export const storeTriggers = defineStore('triggers', {
 		deleteTrigger(id:string) {
 			this.triggerList = this.triggerList.filter(v=> v.id != id);
 			this.saveTriggers();
+
+			// Unpin from pinned menu items if necessary
+			for(let i = 0; i < StoreProxy.params.pinnedMenuItems.length; i++) {
+				if(StoreProxy.params.pinnedMenuItems[i] == `trigger:${id}`) {
+					StoreProxy.params.pinnedMenuItems.splice(i, 1);
+					i--;
+				}
+			}
 		},
 
 		duplicateTrigger(id:string, parentId?:string) {

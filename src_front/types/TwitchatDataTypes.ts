@@ -2602,8 +2602,24 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Defines the pinnable menu items
 	 */
-	type PinId = "poll" | "chatPoll" | "prediction" | "raffle" | "bingo" | "bingo_grid" | "qna" | "chatSugg" | "timer" | "streamInfo" | "extensions" | "clearChat" | "chatters" | "rewards";
-	export const PinnableMenuItems:{id:PinId, isModal:boolean, icon:string, modalId:TwitchatDataTypes.ModalTypes|"", modelValueName:string, labelKey:string}[] = [
+	// Allow PinId to be one of the fixed strings or a pattern like "trigger:TRIGGER_ID"
+	type PinId =
+		| "poll"
+		| "chatPoll"
+		| "prediction"
+		| "raffle"
+		| "bingo"
+		| "bingo_grid"
+		| "qna"
+		| "chatSugg"
+		| "timer"
+		| "streamInfo"
+		| "extensions"
+		| "clearChat"
+		| "chatters"
+		| "rewards"
+		| `trigger:${string}`;
+	export const PinnableMenuItems:{id:PinId, isModal:boolean, icon:string, modalId:TwitchatDataTypes.ModalTypes|"", modelValueName:string, labelKey:string, label?:string}[] = [
 		{id:"poll",			isModal:true,	icon:"poll", 			modalId:"poll",			modelValueName:"",	 labelKey:"cmdmenu.poll"},
 		{id:"chatPoll",		isModal:true,	icon:"chatPoll", 		modalId:"chatPoll",		modelValueName:"",	 labelKey:"cmdmenu.chatPoll"},
 		{id:"prediction",	isModal:true,	icon:"prediction", 		modalId:"pred",			modelValueName:"",	 labelKey:"cmdmenu.prediction"},

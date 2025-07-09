@@ -71,6 +71,7 @@ class UserList extends Vue {
 	public get canListFollowers():boolean { return this.$store.params.appearance.highlightNonFollowers.value === true && TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS]); }
 
 	private debounceTo:number = -1;
+	private clickHandler!:(e:MouseEvent) => void;
 
 	public get userList():TwitchatDataTypes.TwitchatUser[] {
 		const list:TwitchatDataTypes.TwitchatUser[] = [];
@@ -104,8 +105,6 @@ class UserList extends Vue {
 		&& user.channelInfo[this.currentChanId!]?.is_following === false) res.push("noFollow");
 		return res;
 	}
-
-	private clickHandler!:(e:MouseEvent) => void;
 
 	public beforeMount():void {
 		this.myChannelId = StoreProxy.auth.twitch.user.id;

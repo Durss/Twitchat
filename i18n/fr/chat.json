@@ -17,8 +17,9 @@
 		"right_click_hint_highlight": "clic droit",
 		"right_click_hint": "PogChamp PogChamp PogChamp Hey ? Essaie de faire un @:chat.right_click_hint_highlight sur ce message pour découvrir plein d'options ?",
 		"form": {
-			"paramsBt_aria": "Parameters",
+			"paramsBt_aria": "Paramètres",
 			"cmdsBt_aria": "Commandes",
+			"addPinBt_aria": "Ajouter un\nélément au menu",
 			"usersBt_aria": "Liste des viewers",
 			"rewardsBt_aria": "Liste des récompenses",
 			"input_placeholder": "message à envoyer chez {CHANNEL}...",
