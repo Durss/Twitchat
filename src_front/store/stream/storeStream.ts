@@ -251,7 +251,8 @@ export const storeStream = defineStore('stream', {
 					}
 					StoreProxy.chat.addMessage(res);
 				}
-
+			}
+			if(data && (data.state == "EXPIRED" || data.state == "COMPLETED")) {
 				// Wait half an hour and check for cooldown before next train
 				setTimeout(()=> {
 					this.scheduleHypeTrainCooldownAlert();
