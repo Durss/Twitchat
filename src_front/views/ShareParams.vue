@@ -27,15 +27,13 @@
 				<img v-if="$i18n.locale == 'fr'" src="@/assets/img/data_sharing/switchAccount_fr.png" alt="tutorial">
 				<img v-else src="@/assets/img/data_sharing/switchAccount_en.png" alt="tutorial">
 				<TTButton @click="close()" light alert>{{ $t("global.close") }}</TTButton>
-				<!-- <ClearButton @click="close()" /> -->
 			</div>
 
-			<div class="content error" v-if="error">
+			<div class="content error" v-else-if="error">
 				<Icon name="alert" />
 				<div v-if="errorDetails">{{ errorDetails }}</div>
 				<div v-else>{{ $t("shareParams.error") }}</div>
 				<TTButton @click="close()" light alert>{{ $t("global.close") }}</TTButton>
-				<!-- <ClearButton @click="close()" /> -->
 			</div>
 
 			<div class="content" v-else>
@@ -80,9 +78,9 @@ import { Component, Vue, toNative } from 'vue-facing-decorator';
 })
 class ShareParams extends Vue {
 
-	public error:boolean = true;
+	public error:boolean = false;
 	public success:boolean = false;
-	public errorDetails:string = "Vous avez mis trop de temps à finaliser le lien.\nVeuillez recommencer la prodécdure.";
+	public errorDetails:string = "";
 	public confirming:boolean = false;
 	public wrongAccount:boolean = false;
 	public remoteUser:TwitchDataTypes.UserInfo|null = null;
@@ -205,7 +203,7 @@ export default toNative(ShareParams);
 		flex-direction: column;
 		white-space: pre-line;
 		strong {
-			color: var(--color-primary);
+			color: var(--color-secondary);
 		}
 		.ctas {
 			gap: 1em;

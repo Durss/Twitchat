@@ -394,10 +394,8 @@ export default class UserController extends AbstractController {
 
 		const params:any = request.query;
 		const uid = params.uid;
-		const sharedUid = this.getSharedUID(uid);
-		if(uid != sharedUid) {
-			super.disableUserDataSharing(uid);
-		}
+		super.disableUserDataSharing(uid, user.user_id);
+		super.disableUserDataSharing(user.user_id, uid);
 
 		response.header('Content-Type', 'application/json');
 		response.status(200);

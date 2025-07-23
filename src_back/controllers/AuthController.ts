@@ -86,7 +86,7 @@ export default class AuthController extends AbstractController {
 		const params:any = request.body;
 		const result:CSRFToken = jwt.verify(params.token, Config.credentials.csrf_key);
 		if(result) {
-			//Token valid only for 5 minutes
+			//Token valid only for 10 minutes
 			if(result.date > Date.now() - 10*60*1000) {
 				const jsonRes:{success:boolean, uidShare?:string} = {success:true};
 				//If in the process of linking two accounts together, return ref account ID

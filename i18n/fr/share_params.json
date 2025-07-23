@@ -1,6 +1,6 @@
 {
 	"shareParams": {
-		"title": "Paratage de paramètres",
+		"title": "Partage de paramètres",
 		"description": "Vous avez demandé à partager les paramètres avec {REMOTE_USER}.\n\nSi vous acceptez, tous les paramètres du compte actuel, {CURRENT_USER}, seront remplacés par ceux du compte {REMOTE_USER}.\nPar la suite, tout changement effectué sur un compte sera répercuté sur l'autre.\n\nCeci inclus vos triggers, colones de tchat, fonctionnalités de tchat, Compteurs, Valeurs, vos paramètres d'overlays, d'automod ou encore TTS. Tout!",
 		"agreeBt": "Accepter",
 		"success": "Vous partagez désormais vos paramètres avec le compte {USER}\nModifier des paramètres sur un compte impactera l'autre.\n\nRechargez Twitchat pour finaliser la synchronisation.",
