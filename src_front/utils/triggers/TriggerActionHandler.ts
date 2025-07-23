@@ -3970,10 +3970,10 @@ export default class TriggerActionHandler {
 								case "timer_paused": value = timer.paused? "true" : "false"; break;
 
 								case "remaining_formatted":
-								case "elapsed_formatted": value = duration.duration_ms.toString(); break;
+								case "elapsed_formatted": value = duration.duration_str; break;
 
 								case "remaining_ms":
-								case "elapsed_ms": value = duration.duration_str; break;
+								case "elapsed_ms": value = duration.duration_ms.toString(); break;
 
 								case "duration_formatted": value = Utils.formatDuration(timer.duration_ms, true); break;
 								case "duration_ms": value = timer.duration_ms.toString(); break;
