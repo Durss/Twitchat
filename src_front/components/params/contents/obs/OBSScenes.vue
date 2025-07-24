@@ -16,7 +16,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
-import { watch } from '@vue/runtime-core';
+import { watch, type ComponentPublicInstance } from '@vue/runtime-core';
 import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
@@ -31,7 +31,7 @@ class OBSScenes extends Vue {
 	public sceneParams:TwitchatDataTypes.ParameterData<string, unknown, unknown, {sceneIndex:number, sceneName:string}>[] = [];
 
 	public mounted():void {
-		watch(()=> OBSWebsocket.instance.connected, () => { 
+		watch(()=> OBSWebsocket.instance.connected, () => {
 			this.listScenes();
 		});
 		this.listScenes();
@@ -57,7 +57,7 @@ class OBSScenes extends Vue {
 			);
 		}
 		await this.$nextTick();
-		const items = (this.$refs.param as Vue[]).map(v => v.$el);
+		const items = (this.$refs.param as ComponentPublicInstance[]).map(v => v.$el);
 		gsap.from(items, {height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.05, clearProps:"all"});
 	}
 
@@ -79,7 +79,7 @@ export default toNative(OBSScenes);
 		.row {
 			align-items: center;
 			overflow: hidden;
-	
+
 			:deep(input), :deep(.inputHolder) {
 				flex-basis: 150px;
 				width: 150px;

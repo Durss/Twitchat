@@ -1345,7 +1345,7 @@ export const storeChat = defineStore('chat', {
 							if(/@\w/gi.test(message.message) && !message.answersTo) {
 								// console.log("Mention found");
 								const ts = Date.now();
-								const messages = this.messages;
+								const messages = messageList;
 								const timeframe = 5*60*1000;//Check if a massage answers another within this timeframe
 								const matches = message.message.match(/@\w+/gi) as RegExpMatchArray;
 								for (let i = 0; i < matches.length; i++) {
@@ -2419,9 +2419,8 @@ export const storeChat = defineStore('chat', {
 		},
 
 		async flagSuspiciousMessage(messageId:string, flaggedChans:string[], retryCount?:number):Promise<void> {
-			const list = this.messages;
-			for (let i = 0; i < list.length; i++) {
-				const message = list[i];
+			for (let i = 0; i < messageList.length; i++) {
+				const message = messageList[i];
 				if(message.id == messageId && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 					if(flaggedChans?.length > 0) {
 						const users = await TwitchUtils.getUserInfo(flaggedChans);

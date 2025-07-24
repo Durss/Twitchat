@@ -59,7 +59,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import { watch } from '@vue/runtime-core';
+import { watch, type ComponentPublicInstance } from '@vue/runtime-core';
 import { Component, toNative, Vue } from 'vue-facing-decorator';
 import ButtonNotification from '../ButtonNotification.vue';
 import Icon from '../Icon.vue';
@@ -262,7 +262,7 @@ class NewUsers extends Vue {
 	 */
 	public deleteMessage(m:TwitchatDataTypes.GreetableMessage | TwitchatDataTypes.MessageCustomData, index:number, singleMode = false):void {
 		if(singleMode) {
-			let el = (this.$refs["message"] as Vue[])[index];
+			let el = (this.$refs["message"] as ComponentPublicInstance[])[index];
 			this.indexOffset = parseInt((el.$el as HTMLElement).dataset.index as string);
 			this.messages.splice(index, 1);
 		}else{
@@ -330,7 +330,7 @@ class NewUsers extends Vue {
 	 */
 	public onMouseOut():void {
 		this.overIndex = -1;
-		let items = this.$refs.message as Vue[];
+		let items = this.$refs.message as ComponentPublicInstance[];
 		for (let i = 0; i < items.length; i++) {
 			(items[i].$el as HTMLDivElement).removeAttribute("style");
 		}

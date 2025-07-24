@@ -66,6 +66,7 @@ import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import SponsorTable from '@/components/premium/SponsorTable.vue';
+import type { ComponentPublicInstance } from 'vue';
 
 @Component({
 	components:{
@@ -114,11 +115,11 @@ class ParamsSponsor extends Vue implements IParameterContent {
 				}
 				for (let j = 0; j < list.length; j++) {
 					let item = list[j];
-					if((item as Vue).$el) item = (item as Vue).$el as HTMLElement;
+					if((item as ComponentPublicInstance).$el) item = (item as ComponentPublicInstance).$el as HTMLElement;
 					const delay = (i+j)*.1;
 					gsap.set(item as HTMLElement, { opacity:0, y:-20, scale:.85 });
 					gsap.to(item as HTMLElement, { duration:.5, scale:1, opacity:1, y:0, clearProps:"all", ease: "back.out", delay });
-					
+
 				}
 			}
 		}
@@ -166,7 +167,7 @@ export default toNative(ParamsSponsor);
 			vertical-align: middle;
 		}
 	}
-	
+
 	.patrick {
 		margin: auto;
 		display: block;
@@ -227,7 +228,7 @@ export default toNative(ParamsSponsor);
 					align-self: center;
 				}
 			}
-			
+
 			:deep(.erase) {
 				text-decoration: line-through;
 				font-style: normal;

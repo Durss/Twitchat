@@ -99,7 +99,7 @@ class CommercialTimer extends Vue {
 	}
 
 	public openAnimation():void {
-		// const snooze = (this.$refs.snoozeBt as Vue).$el as HTMLDivElement | undefined;
+		// const snooze = (this.$refs.snoozeBt as ComponentPublicInstance).$el as HTMLDivElement | undefined;
 		// if(snooze) {
 		// 	gsap.from(snooze, {duration:.25, width:0, padding:0, clearProps:"all", delay: 1.5, ease:"sine.inOut"});
 		// }

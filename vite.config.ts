@@ -30,6 +30,7 @@ export default defineConfig({
 			/* options */
 			// locale messages resource pre-compile option
 			include: resolve(dirname(fileURLToPath(import.meta.url)), './i18n/**'),
+			runtimeOnly: false,
 		}),
 		{
 			/**
@@ -75,7 +76,13 @@ export default defineConfig({
 		// exclude: ['tmi.js'],
 		esbuildOptions: {
 			target: 'es2020'
-		}
+		},
+		exclude: ['vue-facing-decorator'],
+		entries: []
+	},
+
+	esbuild: {
+		target: 'es2020'
 	},
 
 	build: {
@@ -103,7 +110,7 @@ export default defineConfig({
 			},
 			{
 				find: 'vue-i18n',
-				replacement: 'vue-i18n/dist/vue-i18n.cjs.js',
+				replacement: 'vue-i18n/dist/vue-i18n.esm-bundler.js',
 			}
 		]
 	},

@@ -363,7 +363,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { watch } from '@vue/runtime-core';
+import { watch, type ComponentPublicInstance } from '@vue/runtime-core';
 import { gsap } from 'gsap/gsap-core';
 import CountryFlag from 'vue-country-flag-next';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
@@ -508,7 +508,7 @@ export class ParamItem extends Vue {
 			v = Utils.formatDuration(parseFloat(v.toString()) * 1000);
 		}
 		if(this.paramData.labelKey) {
-			txt += this.$tc(this.paramData.labelKey, count, {VALUE:v});
+			txt += this.$t(this.paramData.labelKey, {VALUE:v}, count);
 		}else{
 			txt = txt.replace(/\{VALUE\}/gi, (v || 0).toString());
 		}
@@ -815,7 +815,7 @@ export class ParamItem extends Vue {
 			this.childrenExpanded = false;
 			if(this.children.length > 0) {
 				//Hide transition
-				const childrenItems = this.$refs.param_child as Vue[];
+				const childrenItems = this.$refs.param_child as ComponentPublicInstance[];
 				if(childrenItems) {
 					let divs:HTMLDivElement[] = childrenItems.map(v => v.$el) as HTMLDivElement[];
 					gsap.killTweensOf(divs);
@@ -850,7 +850,7 @@ export class ParamItem extends Vue {
 
 		if(children.length > 0 && !this.childrenExpanded && this.$refs.param_child){
 			//Show transitions
-			const childrenItems = this.$refs.param_child as Vue[];
+			const childrenItems = this.$refs.param_child as ComponentPublicInstance[];
 			let divs:HTMLDivElement[] = childrenItems.map(v => v.$el) as HTMLDivElement[];
 			gsap.killTweensOf(divs);
 			gsap.from(divs, {overflow:"hidden", height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.025, clearProps:"all"});

@@ -38,7 +38,7 @@
 
 		<ToggleBlock class="bannedAlert" v-if="isModeratedChan && bannedOnline.length > 0 || timedoutOnline.length > 0"
 		alert medium :open="false"
-		:title="$tc('raid.banned_users_title', (bannedOnline.length + timedoutOnline.length), {COUNT:(bannedOnline.length + timedoutOnline.length)})">
+		:title="$t('raid.banned_users_title', {COUNT:(bannedOnline.length + timedoutOnline.length)}, (bannedOnline.length + timedoutOnline.length))">
 			<template #left_actions>
 				<Icon name="alert" class="icon"/>
 			</template>
@@ -81,14 +81,15 @@
 </template>
 
 <script lang="ts">
+import MessengerProxy from '@/messaging/MessengerProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import TTButton from '../TTButton.vue';
-import ToggleBlock from '../ToggleBlock.vue';
 import { gsap } from 'gsap';
-import MessengerProxy from '@/messaging/MessengerProxy';
+import type { ComponentPublicInstance } from 'vue';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
+import ToggleBlock from '../ToggleBlock.vue';
+import TTButton from '../TTButton.vue';
 
 @Component({
 	components:{
@@ -230,7 +231,7 @@ class RaidState extends Vue {
 	public copybannedUsers():void {
 		const list = this.bannedOnline.concat().concat(this.timedoutOnline);
 		Utils.copyToClipboard(list.map(v=>v.login).join(", "));
-		const bt = this.$refs.copyBt as Vue;
+		const bt = this.$refs.copyBt as ComponentPublicInstance;
 		gsap.fromTo(bt.$el, {filter:"brightness(3)"}, {filter:"brightness(1)", duration:.25});
 	}
 

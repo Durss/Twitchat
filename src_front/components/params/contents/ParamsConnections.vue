@@ -298,7 +298,7 @@ class ParamsConnections extends Vue implements IParameterContent {
 		await this.$nextTick();
 		this.subContent = this.$store.params.currentPageSubContent;
 		// if(this.subContent) {
-		// 	const holder = (this.$refs[this.subContent] as Vue)?.$el;
+		// 	const holder = (this.$refs[this.subContent] as ComponentPublicInstance)?.$el;
 		// 	if(holder) holder.scrollIntoView();
 		// }
 	}

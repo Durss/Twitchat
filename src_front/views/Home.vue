@@ -19,7 +19,7 @@
 				<div class="description" ref="description">
 					<p>{{ $t("home.head") }}</p>
 				</div>
-				
+
 				<Button class="loginBt"
 					light
 					big
@@ -48,7 +48,7 @@
 						ref="streamDeckBt"
 						v-tooltip="{content:$t('home.streamdeckBt'), placement:'bottom'}"
 					></Button>
-			
+
 					<Button icon="youtube"
 						big
 						:href="youtubeURL"
@@ -58,7 +58,7 @@
 						ref="youtubeBt"
 						v-tooltip="{content:$t('home.youtubeBt'), placement:'bottom'}"
 					></Button>
-			
+
 					<!-- <Button
 						big light
 						:to="{name:'sponsor'}"
@@ -68,7 +68,7 @@
 					>💝</Button> -->
 				</div>
 			</div>
-	
+
 			<div class="splitter" ref="featuresTitle" @click="onSelectAnchor(anchors[0])">
 				<div>{{ $t("home.features.title") }}</div>
 				<Icon name="arrowDown" alt="scroll down" class="icon" />
@@ -93,7 +93,7 @@
 						<div class="description" v-html="s.description"></div>
 					</div>
 				</div>
-				
+
 				<div class="content" v-else>
 					<Icon :name="s.icon" :alt="s.icon" class="icon" />
 					<div class="infos">
@@ -123,7 +123,7 @@
 			:key="i"
 			:src="$asset('img/homepage/letters/'+getLetter()+'.svg')">
 		</div>
-		
+
 		<AnchorsMenu class="anchors" :items="anchors" @select="onSelectAnchor" openAnimaton :openDelay="1" />
 
 		<Login v-show="showLogin" :show="showLogin" @close="showLogin = false" />
@@ -142,7 +142,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import AnchorsMenu from '../components/AnchorsMenu.vue';
 import Splitter from '../components/Splitter.vue';
 import Login from './Login.vue';
-import { watch } from 'vue';
+import { watch, type ComponentPublicInstance } from 'vue';
 import StoreProxy from '@/store/StoreProxy';
 
 @Component({
@@ -200,17 +200,17 @@ class Home extends Vue {
 		if(this.$route.name == "login" || this.$route.name == "oauth") {
 			this.showLogin = true;
 		}
-		
+
 		this.updateAnchors(true);
 
 		//Opening transition ATF elements
 		const refs = ["loginBt", "logo", "description", "discordBt", "streamDeckBt", "youtubeBt", "featuresTitle"];
 		await this.$nextTick();
 		for (let i = 0; i < refs.length; i++) {
-			let el = this.$refs[refs[i]] as HTMLElement | Vue;
-			if((el as Vue).$el) el = (el as Vue).$el as HTMLElement;
+			let el = this.$refs[refs[i]] as HTMLElement | ComponentPublicInstance;
+			if ((el as ComponentPublicInstance).$el) el = (el as ComponentPublicInstance).$el as HTMLElement;
 			const delay = i*.1+.5;
-			gsap.fromTo(el, {opacity:0, y:-20, scale:.85}, 
+			gsap.fromTo(el, {opacity:0, y:-20, scale:.85},
 							{duration:.5, scale:1, opacity:1, y:0, clearProps:"all", ease: "back.out", delay});
 		}
 
@@ -286,15 +286,15 @@ class Home extends Vue {
 			if(e.isIntersecting) {
 				if(!target.dataset["done"]) {
 					target.dataset["done"] = "1";
-					
+
 					gsap.to(target.getElementsByClassName("infos")[0], {duration:1, opacity:1, y:0, ease:"back.out(2)"});
 					gsap.to(target.getElementsByClassName("icon")[0], {duration:1, scale:1, ease:"back.out(3)"});
 					const screen = target.getElementsByClassName("screen")[0];
-	
+
 					if(screen) {
 						gsap.to(screen, {duration:1.5, opacity:1, y:0, ease:"back.out(2)"});
 					}
-	
+
 					const video = target.getElementsByTagName("video")[0];
 					if(video) {
 						video.play().catch(()=>{
@@ -463,13 +463,13 @@ body.light {
 				max-width: min(80vw, 800px);
 				line-height: 1.25em;
 			}
-	
+
 			.loginBt {
 				margin-bottom: 1em;
 				border-radius: 100px;
 				font-weight: bold;
 			}
-	
+
 			.ctas {
 				// background-color: var(--color-primary);
 				// padding: 2em 1em;
@@ -635,7 +635,7 @@ body.light {
 			margin: auto;
 			align-items: center;
 			position: relative;
-	
+
 			.screen {
 				width: 42%;
 				max-width: 42%;
@@ -677,7 +677,7 @@ body.light {
 					position: absolute;
 				}
 			}
-	
+
 			.infos {
 				width: 42%;
 				max-width: 42%;
@@ -693,7 +693,7 @@ body.light {
 				.description {
 					font-size: 1.25em;
 					line-height: 1.25em;
-					
+
 					:deep(mark) {
 						background-color: var(--color-secondary);
 						border-radius: .5em;

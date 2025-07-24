@@ -79,7 +79,7 @@
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import VoiceAction from '@/utils/voice/VoiceAction';
-import { watch } from 'vue';
+import { watch, type ComponentPublicInstance } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import TTButton from '../TTButton.vue';
@@ -237,7 +237,7 @@ class VoiceTriggerList extends Vue {
 	 * @param e
 	 */
 	public onTrigger(e:TwitchatEvent):void {
-		const el = this.$refs[e.type] as Vue[] | undefined;
+		const el = this.$refs[e.type] as ComponentPublicInstance[] | undefined;
 		if(el && el.length > 0 && el[0].$el != null) {
 			const div = (el[0].$el as HTMLDivElement).getElementsByClassName("header")[0];
 			console.log(div);

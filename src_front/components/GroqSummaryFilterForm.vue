@@ -3,7 +3,7 @@
 		<ClearButton aria-label="close" @click="$emit('close')" class="closeBt" v-if="standalone === false" />
 		<div class="title" v-if="standalone === false">{{$t("groq.summarize_title")}}</div>
 		<div class="title" v-else>{{$t("groq.summarize_chat_title")}}</div>
-		
+
 		<ParamItem :paramData="param_filter" v-model="modeLocal" noBackground />
 		<ParamItem v-if="modeLocal == 'duration'" :paramData="param_duration" v-model="duration" noBackground />
 		<ParamItem v-if="modeLocal == 'count'" :paramData="param_count" v-model="count" noBackground />
@@ -13,9 +13,9 @@
 				<ParamItem :paramData="param_preprompt_toggle" v-model="param_preprompt_toggle.value" noBackground>
 					<ParamItem :childLevel="1" :paramData="param_preprompt_value" v-model="preprompt" noBackground />
 				</ParamItem>
-	
+
 				<ParamItem :paramData="param_ignore_short" v-model="param_ignore_short.value" noBackground />
-		
+
 				<div class="channelList" v-if="channelList.size > 1">
 					<button :class="{channel: true, selected: selectedChannels.includes(chan?.name)}"
 					v-for="[key, chan] in channelList"
@@ -34,7 +34,7 @@
 			:primary="standalone === false"
 			:light="standalone === false"
 			:loading="loading"
-			:disabled="filteredMessageList.length === 0">{{ $tc("groq.summarize_duration_bt", filteredMessageList.length, {COUNT:filteredMessageList.length}) }}</TTButton>
+			:disabled="filteredMessageList.length === 0">{{ $t("groq.summarize_duration_bt", {COUNT:filteredMessageList.length}, filteredMessageList.length) }}</TTButton>
 	</div>
 </template>
 

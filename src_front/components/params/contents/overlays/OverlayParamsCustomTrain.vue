@@ -317,7 +317,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 import CurrencyPatternInput from '@/components/CurrencyPatternInput.vue';
 import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
 import Utils from '@/utils/Utils';
-import { watch } from 'vue';
+import { watch, type ComponentPublicInstance } from 'vue';
 
 @Component({
 	components:{
@@ -483,7 +483,7 @@ class OverlayParamsCustomTrain extends Vue {
 	 */
 	public onClick(e:MouseEvent):void {
 		if (this.showEmoteSelector) {
-			const emoteSelector = (this.$refs["emoteSelector"] as Vue).$el;
+			const emoteSelector = (this.$refs["emoteSelector"] as ComponentPublicInstance).$el;
 			if (!emoteSelector.contains(e.target as Node)) {
 				this.showEmoteSelector = false;
 			}
@@ -516,7 +516,7 @@ class OverlayParamsCustomTrain extends Vue {
 	 * Replaces emote selector position
 	 */
 	public replaceEmoteSelector():void {
-		const bounds = (this.$refs["emoteSelector"] as Vue).$el.getBoundingClientRect();
+		const bounds = (this.$refs["emoteSelector"] as ComponentPublicInstance).$el.getBoundingClientRect();
 		let x = this.emoteSelectorOrigin.x < window.innerWidth/2? this.emoteSelectorOrigin.x : this.emoteSelectorOrigin.x - bounds.width;
 		let y = this.emoteSelectorOrigin.y < window.innerHeight/2? this.emoteSelectorOrigin.y : this.emoteSelectorOrigin.y - bounds.height;
 		const marginBottom = 70;

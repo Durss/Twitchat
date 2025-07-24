@@ -2,7 +2,7 @@
 	<div class="scopeselector">
 		<div class="forced" v-if="param_items_requested.length > 0">
 			<Icon name="unlock" class="unlockIcon" />
-			<p class="head">{{ $tc("login.specific_scope", param_items_requested.length) }}</p>
+			<p class="head">{{ $t("login.specific_scope", param_items_requested.length) }}</p>
 			<div class="optionList">
 				<ParamItem class="item" :class="getClasses(p)" v-for="p in param_items_requested"
 					v-model="p.value"
@@ -11,7 +11,7 @@
 					@change="onSelectionUpdate()" noBackground />
 			</div>
 		</div>
-		
+
 		<TTButton v-if="!forceFullList && param_items_requested.length > 0"
 			icon="lock_fit"
 			small secondary
@@ -87,7 +87,7 @@ class ScopeSelector extends Vue {
 			if(this.requestedScopes.indexOf(a) > -1) return -1;
 			return 0;
 		});
-		
+
 		const forceSelect = !userScopes || userScopes.length <= disabled.length && (!this.requestedScopes || this.requestedScopes.length == 0);
 		let allSelected = true;
 		for (let i = 0; i < scopes.length; i++) {

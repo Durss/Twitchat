@@ -4,7 +4,7 @@
 			<ClearButton @click="close()" />
 			<h1 class="title"><Icon name="chatSugg" />{{ $t('suggestion.state_title') }} <mark>{{poll.command}}</mark></h1>
 		</div>
-		
+
 		<ProgressBar class="progress"
 		v-if="progressPercent < 1"
 		:percent="progressPercent"
@@ -12,8 +12,8 @@
 
 		<div class="content">
 			<div class="card-item actions">
-				<div>{{ $tc('suggestion.state_header', entries.length, [entries.length]) }}</div>
-				
+				<div>{{ $t('suggestion.state_header', [entries.length], entries.length) }}</div>
+
 				<TTButton icon="chatSugg"
 					@click="pickEntry()"
 					:disabled="poll.choices.length === 0">{{ $t('suggestion.state_pickBt') }}</TTButton>
@@ -21,16 +21,16 @@
 				<TTButton icon="cross" alert
 					@click="closePoll()">{{ $t('suggestion.state_closeBt') }}</TTButton>
 			</div>
-			
+
 			<div class="splitter" v-if="entries.length > 0"></div>
 
 			<TransitionGroup name="list" tag="div" ref="list" class="itemList" v-if="entries.length > 0">
 			<div :class="c.selected? 'card-item secondary win' : 'card-item'" v-for="(c,index) in entries" :key="c.data.id">
 				<div class="header">
 					<Icon v-if="c.selected" name="sub" ref="selected" />
-					
+
 					<button class="deleteBt" v-else @click="deleteEntery(c.data)"><Icon name="trash" /></button>
-					
+
 					<a class="title" target="_blank"
 					:href="'https://twitch.tv/'+c.data.user.login"
 					@click.prevent="openUserCard(c.data.user)">{{c.data.user.displayNameOriginal}}</a>
@@ -54,6 +54,7 @@ import Icon from '../Icon.vue';
 import ProgressBar from '../ProgressBar.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import TTButton from '../TTButton.vue';
+import type { ComponentPublicInstance } from 'vue';
 
 @Component({
 	components:{
@@ -129,7 +130,7 @@ class ChatSuggestionState extends AbstractSidePanel {
 					if(entry) {
 						this.poll.winners.push( entry );
 						//Scroll back to top
-						const doneList = (this.$refs["selected"] as Vue[]).map(v=>v.$el);
+						const doneList = (this.$refs["selected"] as ComponentPublicInstance[]).map(v=>v.$el);
 						if(doneList.length > 0) {
 							doneList[doneList.length-1].scrollIntoView();
 						}
@@ -190,7 +191,7 @@ export default toNative(ChatSuggestionState);
 		gap: .5em;
 		min-width: 300px;
 		max-width: 600px;
-		
+
 		.card-item {
 			.title {
 				text-decoration: none;

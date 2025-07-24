@@ -178,6 +178,7 @@ import TriggerActionSlashCommandParams from './TriggerActionSlashCommandParams.v
 import TriggerAdApproachParams from './TriggerAdApproachParams.vue';
 import TriggerConditionList from './TriggerConditionList.vue';
 import TriggerGoXLRParams from './TriggerGoXLRParams.vue';
+import type { ComponentPublicInstance } from 'vue';
 
 @Component({
 	components:{
@@ -571,7 +572,7 @@ class TriggerActionList extends Vue {
 
 	private async highlightItemById(id:string):Promise<void> {
 		await this.$nextTick();
-		const ref = (this.$refs["actionEntry_"+id] as Vue).$el;
+		const ref = (this.$refs["actionEntry_" + id] as ComponentPublicInstance).$el;
 		if(ref){
 			gsap.from(ref, {duration:.5, overflow:"hidden", width:0, height:0, ease:"back.out", clearProps:"all", onUpdate:()=>{
 				ref.scrollIntoView();

@@ -41,7 +41,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import InfiniteList from '../InfiniteList.vue';
 import type { JsonObject } from "type-fest";
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { CSSProperties } from 'vue';
+import type { ComponentPublicInstance, CSSProperties } from 'vue';
 
 @Component({
 	components:{
@@ -333,7 +333,7 @@ class OverlaysRaffleWheel extends Vue {
 	}
 
 	public burstStars(heart:HTMLDivElement):void {
-		const holder = (this.$refs.listHolder as Vue).$el as HTMLDivElement;
+		const holder = (this.$refs.listHolder as ComponentPublicInstance).$el as HTMLDivElement;
 		const bounds = heart.getBoundingClientRect();
 
 		// console.log(bounds);
@@ -461,7 +461,7 @@ export default toNative(OverlaysRaffleWheel);
 				}
 			}
 		}
-		
+
 	}
 }
 </style>

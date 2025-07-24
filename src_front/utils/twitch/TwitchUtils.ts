@@ -3170,30 +3170,30 @@ export default class TwitchUtils {
 			//Create title from the number of months
 			if (years > 0) {
 				months = (months - years * 12);
-				let duration = years + " " + i18n.tc("global.date.year", years);
-				if (months > 0) duration += " " + i18n.t("global.and") + " " + months + " " + i18n.tc("global.date.month", months);
-				title = i18n.tc("global.badges.subscriber", { "DURATION": duration });
+				let duration = years + " " + i18n.t("global.date.year", years);
+				if (months > 0) duration += " " + i18n.t("global.and") + " " + months + " " + i18n.t("global.date.month", months);
+				title = i18n.t("global.badges.subscriber", { "DURATION": duration });
 			} else {
-				const duration = months + " " + i18n.tc("global.date.month", months);
-				title = i18n.tc("global.badges.subscriber", { "DURATION": duration });
+				const duration = months + " " + i18n.t("global.date.month", months);
+				title = i18n.t("global.badges.subscriber", { "DURATION": duration });
 			}
 		} else
 			//If it's the prediction badge, use the ID as the title.
 			//ID is like "blue-6". We replace the dashes by spaces
 			if (setId === "predictions") {
-				title = i18n.tc("global.badges.prediction", { "VALUE": versionID.replace("-", " ") });
+				title = i18n.t("global.badges.prediction", { "VALUE": versionID.replace("-", " ") });
 			} else
 				//If it's the sub-gift badge, use the ID as the number of gifts
 				if (setId === "sub-gifter") {
-					title = i18n.tc("global.badges.subgift", { "COUNT": versionID });
+					title = i18n.t("global.badges.subgift", { "COUNT": versionID });
 				} else
 					//If it's the bits badge, use the ID as the number of bits
 					if (setId === "bits") {
-						title = i18n.tc("global.badges.bits", { "COUNT": versionID });
+						title = i18n.t("global.badges.bits", { "COUNT": versionID });
 					} else
 						//If it's the moments badge, use the ID as the number of moments
 						if (setId === "moments") {
-							title = i18n.tc("global.badges.moments", { "COUNT": versionID });
+							title = i18n.t("global.badges.moments", { "COUNT": versionID });
 						} else {
 							//Use the set ID as the title after.
 							//It's in the form "this-is-the-label_X". Remove "_X" value if it's a number

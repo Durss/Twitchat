@@ -246,7 +246,7 @@ import Utils from '@/utils/Utils';
 import ChatMessage from '../messages/ChatMessage.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import MessengerProxy from '@/messaging/MessengerProxy';
-import { reactive } from 'vue';
+import { reactive, type ComponentPublicInstance } from 'vue';
 import Config from "@/utils/Config";
 
 @Component({
@@ -453,7 +453,7 @@ class BingoGridForm extends AbstractSidePanel {
 	 * Called when clicking a cell to reroute focus to editable element
 	 */
 	public focusLabel(id:string):void {
-		((this.$refs["label_"+id] as Vue[])[0].$el as HTMLElement).focus();
+		((this.$refs["label_"+id] as ComponentPublicInstance[])[0].$el as HTMLElement).focus();
 	}
 
 	/**

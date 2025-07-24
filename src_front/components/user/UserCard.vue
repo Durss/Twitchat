@@ -95,7 +95,7 @@
 							{{createDateElapsed}}
 						</div>
 
-						<div class="info" v-if="followersCount > -1"><Icon name="follow_outline" class="icon"/>{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
+						<div class="info" v-if="followersCount > -1"><Icon name="follow_outline" class="icon"/>{{ $t("usercard.followers", {COUNT:followersCount}, followersCount) }}</div>
 
 						<template v-if="isOwnChannel">
 							<div class="info" v-if="subState && subStateLoaded">

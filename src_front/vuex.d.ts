@@ -1,9 +1,9 @@
+import type { RouteRecordRaw } from "vue-router";
 import type { IStore } from "./store/StoreProxy";
 import type { TwitchatDataTypes } from "./types/TwitchatDataTypes";
 import type Config from "./utils/Config";
 
 declare module '@vue/runtime-core' {
-
 	interface ComponentCustomProperties {
 		$store: IStore,
 		$config: Config,
@@ -18,6 +18,7 @@ declare module '@vue/runtime-core' {
 			STTOrigin?:boolean) => Promise<T|undefined>,
 	}
 }
+
 declare global {
 	interface Window {
 		obsstudio?: any;

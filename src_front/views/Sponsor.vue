@@ -1,11 +1,11 @@
 <template>
 	<div class="sponsor">
 		<div class="gradient"></div>
-		
+
 		<div class="logo" ref="logo">
 			<img src="@/assets/logo.svg" alt="Twitchat">
 		</div>
-	
+
 		<div class="lang">
 			<select v-model="$i18n.locale">
 				<option :value="lang" v-for="lang in enabledLocales" :key="lang">{{ $t('global.lang_label', lang)}}</option>
@@ -26,6 +26,7 @@ import { gsap } from 'gsap';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../components/TTButton.vue';
 import ParamsSponsor from '../components/params/contents/ParamsSponsor.vue';
+import type { ComponentPublicInstance } from 'vue';
 
 @Component({
 	components:{
@@ -46,10 +47,10 @@ class Sponsor extends Vue {
 	public async mounted():Promise<void> {
 		const refs = ["backBt"];
 		for (let i = 0; i < refs.length; i++) {
-			let el = this.$refs[refs[i]] as HTMLElement | Vue;
-			if((el as Vue).$el) el = (el as Vue).$el as HTMLElement;
+			let el = this.$refs[refs[i]] as HTMLElement | ComponentPublicInstance;
+			if((el as ComponentPublicInstance).$el) el = (el as ComponentPublicInstance).$el as HTMLElement;
 			const delay = i*.1+.5;
-			gsap.fromTo(el, {opacity:0, y:-20, scale:.85}, 
+			gsap.fromTo(el, {opacity:0, y:-20, scale:.85},
 							{duration:.5, scale:1, opacity:1, y:0, clearProps:"all", ease: "back.out", delay});
 		}
 	}

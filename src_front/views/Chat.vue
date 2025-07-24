@@ -208,7 +208,7 @@ import TriggerUtils from '@/utils/TriggerUtils';
 import Utils from '@/utils/Utils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { watch } from '@vue/runtime-core';
+import { watch, type ComponentPublicInstance } from '@vue/runtime-core';
 import { gsap } from 'gsap/gsap-core';
 import type { JsonObject } from 'type-fest';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
@@ -222,6 +222,7 @@ import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
 import ShareParams from './ShareParams.vue';
+import StoreProxy from '@/store/StoreProxy';
 
 @Component({
 	components:{
@@ -530,7 +531,7 @@ class Chat extends Vue {
 	public mounted():void {
 		if(this.showDonorBadge) {
 			//Show donor badge
-			const el = (this.$refs.donor as Vue).$el as HTMLDivElement;
+			const el = (this.$refs.donor as ComponentPublicInstance).$el as HTMLDivElement;
 			gsap.from(el, {bottom:"-350px", duration:2, ease:"back.out", delay:1});
 		}
 		this.computeWindowsSizes();
@@ -580,7 +581,7 @@ class Chat extends Vue {
 		if(this.closingDonorState) return;
 		//Show donor badge
 		this.closingDonorState = true;
-		const el = (this.$refs.donor as Vue).$el as HTMLDivElement;
+		const el = (this.$refs.donor as ComponentPublicInstance).$el as HTMLDivElement;
 		gsap.to(el, {bottom:"-350px", duration:1, ease:"back.in", onComplete:()=>{
 			this.showDonorBadge = false;
 		}});
@@ -926,7 +927,7 @@ class Chat extends Vue {
 
 		if(this.$refs.chatForm && (this.frameIndex++)%60 == 0) {
 			//Compute chat form height every 60 frames
-			const chatForm = (this.$refs.chatForm as Vue).$el as HTMLDivElement;
+			const chatForm = (this.$refs.chatForm as ComponentPublicInstance).$el as HTMLDivElement;
 			const bounds = chatForm.getBoundingClientRect();
 			if(bounds.height != this.prevFormHeight) {
 				this.prevFormHeight = bounds.height;

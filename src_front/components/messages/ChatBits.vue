@@ -75,7 +75,7 @@ class ChatBits extends AbstractChatMessage {
 	}
 
 	public mounted():void {
-		const reason = this.$tc("chat.bits", {COUNT:this.totalBits, USER:this.messageData.user.displayName});
+		const reason = this.$t("chat.bits", {COUNT:this.totalBits, USER:this.messageData.user.displayName}, this.totalBits);
 		this.$store.accessibility.setAriaPolite(reason+" "+this.messageData.message);
 		this.computeState();
 		watch(()=>this.messageData.pinned, ()=> this.computeState() );

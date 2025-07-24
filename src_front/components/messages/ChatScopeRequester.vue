@@ -7,7 +7,7 @@
 		<Icon  name="lock_fit" />
 
 		<div class="info">
-			<p class="title">{{ $tc("chat.scope_request.title", messageData.twitch_scopes.length) }}</p>
+			<p class="title">{{ $t("chat.scope_request.title", messageData.twitch_scopes.length) }}</p>
 
 			<ul class="scopes">
 				<li v-for="s in messageData.twitch_scopes" :key="s">
@@ -38,7 +38,7 @@ import ClearButton from '../ClearButton.vue';
 	emits:["onRead", "openFilters"]
 })
 class ChatScopeRequester extends AbstractChatMessage {
-	
+
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageScopeRequestData;
 
@@ -47,7 +47,7 @@ class ChatScopeRequester extends AbstractChatMessage {
 	}
 
 	public mounted():void {
-		
+
 	}
 
 	public requestScopes():void {

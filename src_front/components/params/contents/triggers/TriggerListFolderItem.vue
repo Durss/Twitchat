@@ -91,7 +91,7 @@ import ToggleButton from '@/components/ToggleButton.vue';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { RoughEase } from 'gsap/EasePack';
 import { Linear, gsap } from 'gsap/gsap-core';
-import { watch } from 'vue';
+import { watch, type ComponentPublicInstance } from 'vue';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ParamItem from '../../ParamItem.vue';
@@ -255,7 +255,7 @@ class TriggerListFolderItem extends Vue {
 				//Emit the revert
 				this.$emit('change');
 			}, 200);
-			this.vibrate((this.$refs["folder_"+folder.id] as Vue).$el as HTMLElement);
+			this.vibrate((this.$refs["folder_" + folder.id] as ComponentPublicInstance).$el as HTMLElement);
 		}
 	}
 

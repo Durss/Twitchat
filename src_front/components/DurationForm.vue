@@ -62,7 +62,7 @@
 
 <script lang="ts">
 import Utils from '@/utils/Utils';
-import { watch } from 'vue';
+import { watch, type ComponentPublicInstance } from 'vue';
 import contenteditable from 'vue-contenteditable';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 
@@ -152,7 +152,7 @@ class DurationForm extends Vue {
 				//Save caret index
 				var range = sel.getRangeAt(0);
 				let caretIndex = range.startOffset;
-				let inputs = [this.$refs.inputD as Vue, this.$refs.inputH as Vue, this.$refs.inputM as Vue, this.$refs.inputS as Vue].filter(v=>v && v.$el != undefined);
+				let inputs = [this.$refs.inputD as ComponentPublicInstance, this.$refs.inputH as ComponentPublicInstance, this.$refs.inputM as ComponentPublicInstance, this.$refs.inputS as ComponentPublicInstance].filter(v=>v && v.$el != undefined);
 				if(dir == 1 && caretIndex == input.innerText.length
 				|| dir == -1 && caretIndex == 0) {
 					let index = inputs.findIndex(v=>v.$el == input);
