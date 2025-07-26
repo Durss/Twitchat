@@ -1,11 +1,11 @@
+import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
+import VuePlugin from '@vitejs/plugin-vue';
+import * as fs from 'fs';
+import { dirname, resolve } from 'node:path';
+import * as path from 'path';
 import { fileURLToPath, URL } from 'url';
-import vue from '@vitejs/plugin-vue';
 import { createLogger, defineConfig } from 'vite';
 import loadVersion from 'vite-plugin-package-version';
-import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
-import { resolve, dirname } from 'node:path';
-import * as path from 'path';
-import *as fs from 'fs';
 
 /**
  * Plugin is not bundled properly.
@@ -24,7 +24,7 @@ export default defineConfig({
 	},
 
 	plugins: [
-		vue(),
+		VuePlugin(),
 		loadVersionPlugin(),
 		VueI18nPlugin({
 			/* options */
@@ -133,6 +133,11 @@ export default defineConfig({
 		logger.warn = (message, options) => {
 			// Ignore specific warning
 			if (message.includes('dynamic import will not move module into another chunk')) {
+				return;
+			}
+					
+			// Filter out wrong warning from Vite on <table> content
+			if (typeof message === 'string' && message.includes('<tr> cannot be child of <table>')) {
 				return;
 			}
 
