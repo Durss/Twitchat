@@ -72,6 +72,7 @@ class HeatDebugPopout extends Vue {
 			event.preventDefault();
 			this.clearOBSCache();
 		}
+		const metaKey = event.metaKey || event.ctrlKey;
 		const bounds = (this.$refs.area as HTMLDivElement).getBoundingClientRect();
 		let px = event.clientX - bounds.x;
 		let py = event.clientY - bounds.y;
@@ -79,7 +80,7 @@ class HeatDebugPopout extends Vue {
 			id:Math.random(),
 			px:event.clientX,
 			py:event.clientY,
-			color:event.altKey || event.ctrlKey || event.shiftKey? "#12c7d0" : "#e55a37",
+			color:event.altKey || metaKey || event.shiftKey? "#12c7d0" : "#e55a37",
 		});
 		window.setTimeout(()=>{
 			this.clicks.shift();
@@ -88,11 +89,11 @@ class HeatDebugPopout extends Vue {
 		py = py/bounds.height
 		if(HeatSocket.instance.connected) {
 			const uid = this.$store.auth.twitch.user.id
-			HeatSocket.instance.fireEvent(uid, px, py, event.altKey, event.ctrlKey, event.shiftKey, true);
+			HeatSocket.instance.fireEvent(uid, px, py, event.altKey, metaKey, event.shiftKey, true);
 		}
 
 		if(window.opener?.simulateHeatClick) {
-			window.opener.simulateHeatClick(px, py, event.altKey, event.ctrlKey, event.shiftKey);
+			window.opener.simulateHeatClick(px, py, event.altKey, metaKey, event.shiftKey);
 		}
 	}
 

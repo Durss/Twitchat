@@ -138,7 +138,7 @@ class ChatTipAndTrickAd extends Vue {
 	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType, subContent?:TwitchatDataTypes.ParamDeepSectionsStringType):void { this.$store.params.openParamsPage(page, subContent); }
 
 	public onRightClick(e:MouseEvent):void {
-		if(e.ctrlKey) {
+		if(e.ctrlKey || e.metaKey) {
 			e.preventDefault();
 			this.tipIndex = (this.tipIndex + 1)%(this.maxIndex+1)
 		}

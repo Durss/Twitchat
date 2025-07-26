@@ -121,9 +121,10 @@ function buildApp() {
 		//Given a Sentry error, a user apparently succeeded to have an
 		//"undefined" e.key value on an up to date Edge browser
 		if(!e.key) return;
+		const metaKey = e.metaKey || e.ctrlKey;
 
 		//Toggle light/dark mode on CTRL+Shift+K
-		if(e.key.toLowerCase() == "k" && e.ctrlKey && e.altKey) {
+		if(e.key.toLowerCase() == "k" && metaKey && e.altKey) {
 			const list = document.body.classList;
 			if(list.contains("dark")) {
 				list.remove("dark");
@@ -135,13 +136,13 @@ function buildApp() {
 		}
 
 		//Reload labels on CTRL+Shift+L
-		if(e.key.toLowerCase() == "l" && e.ctrlKey && e.altKey) {
+		if(e.key.toLowerCase() == "l" && metaKey && e.altKey) {
 			StoreProxy.default.public.reloadLabels();
 			e.preventDefault();
 		}
 
 		//Walk through available locales on CTRL+Shift+M
-		if(e.key.toLowerCase() == "m" && e.ctrlKey && e.altKey) {
+		if(e.key.toLowerCase() == "m" && metaKey && e.altKey) {
 			const locales = i18n.global.availableLocales;
 			i18n.global.locale = locales[(locales.indexOf(i18n.global.locale) + 1)%locales.length];
 			e.preventDefault();

@@ -1252,7 +1252,7 @@ export class ChatForm extends Vue {
 	 */
 	public onKeyDown(e:KeyboardEvent):void {
 		if(e.shiftKey) return;//Avoid blocking browser tab navigation
-		if(e.ctrlKey) return;//Avoid blocking browser tab navigation
+		if(e.ctrlKey || e.metaKey) return;//Avoid blocking browser tab navigation
 		//Avoid leaving the input form
 		if(e.key == "Tab") e.preventDefault();
 

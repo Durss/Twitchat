@@ -80,7 +80,7 @@ export default class AbstractChatMessage extends Vue {
 
 	public mounted():void {
 		this.clickHandler = (e:MouseEvent)=> {
-			if(e.ctrlKey) {
+			if(e.ctrlKey || e.metaKey) {
 				this.copyJSON();
 				e.stopPropagation();
 			}else{

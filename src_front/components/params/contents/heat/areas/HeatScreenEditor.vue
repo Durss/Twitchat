@@ -217,7 +217,7 @@ class HeatScreenEditor extends Vue {
 	}
 
 	public startDragPoint(event:PointerEvent, point:{x:number, y:number}, area:HeatArea, index:number):void {
-		if(event.ctrlKey) {
+		if(event.ctrlKey || event.metaKey) {
 			area.points.splice(index, 1);
 			this.currentPointIndex = -1;
 		}else{
@@ -240,6 +240,8 @@ class HeatScreenEditor extends Vue {
 	}
 
 	public onKeyDown(event:KeyboardEvent):void {
+		const metaKey = event.metaKey || event.ctrlKey;
+
 		//Delete an area or a point
 		if((event.key == "Delete" || event.key == "Backspace") && this.currentArea) {
 			const index = this.screen.areas.findIndex(v=>v.id == this.currentArea!.id);
@@ -263,7 +265,7 @@ class HeatScreenEditor extends Vue {
 		}
 
 		//Copy current area to clipboard
-		if(event.key == "c" && event.ctrlKey && this.currentArea) {
+		if(event.key == "c" && metaKey && this.currentArea) {
 			const wrapper = {
 				dataType:"heatarea",
 				data:this.currentArea,
@@ -272,7 +274,7 @@ class HeatScreenEditor extends Vue {
 		}
 
 		//Paste an area from clipboard
-		if(event.key == "v" && event.ctrlKey) {
+		if(event.key == "v" && metaKey) {
 			navigator.clipboard.readText().then(text=> {
 				try {
 					const json = JSON.parse(text);
@@ -292,7 +294,7 @@ class HeatScreenEditor extends Vue {
 		if(this.currentArea) {
 			const editor = this.$refs.editor as HTMLDivElement;
 			const bounds = editor.getBoundingClientRect();
-			const scale = event.ctrlKey? 50 : event.shiftKey? 10 : 1;
+			const scale = metaKey? 50 : event.shiftKey? 10 : 1;
 			let addX = 0;
 			let addY = 0;
 			if(event.key == "ArrowLeft")	addX = -1/bounds.width * scale;
@@ -319,7 +321,7 @@ class HeatScreenEditor extends Vue {
 
 	public onMouseWheel(event:WheelEvent):void {
 		if(event.deltaY == 0) return;
-		if(!event.ctrlKey) return; //require ctrl key to be pressed
+		if(!event.ctrlKey && !event.metaKey) return; //require ctrl key or meta key to be pressed
 		let delta = event.deltaY > 0? .9 : 1.1;
 		let scale = this.editorScale;
 		scale *= delta;

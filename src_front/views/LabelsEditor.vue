@@ -134,7 +134,7 @@ class LabelsEditor extends Vue {
 	}
 
 	public onSelectSection(key:string, pathToSelect:string[] = [], force:boolean = false, event?:MouseEvent):void {
-		if(event && event.ctrlKey) {
+		if(event && (event.ctrlKey || event.metaKey)) {
 			this.langRef = key;
 			this.computeProgresses();
 			return;

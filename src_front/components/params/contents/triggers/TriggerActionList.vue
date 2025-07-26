@@ -523,6 +523,7 @@ class TriggerActionList extends Vue {
 		//Do not copy/past actions if focus is on a form input
 		const nodeName = (e.target as HTMLElement).nodeName;
 		if(["TEXTAREA", "INPUT"].indexOf(nodeName) > -1) return;
+		const metaKey = e.metaKey || e.ctrlKey;
 
 		//Delete selected actions
 		if((e.key == "Delete" || e.key == "Backspace") && this.selectedActions.length > 0) {
@@ -538,7 +539,7 @@ class TriggerActionList extends Vue {
 			}).catch(()=> {});
 		}
 
-		if(e.key == "c" && e.ctrlKey && this.selectedActions.length > 0) {
+		if(e.key == "c" && metaKey && this.selectedActions.length > 0) {
 			const clipboar:TriggerActionTypes[] = [];
 			for (let i = 0; i < this.triggerData.actions.length; i++) {
 				const a = this.triggerData.actions[i];
@@ -549,7 +550,7 @@ class TriggerActionList extends Vue {
 			this.selectedActions = [];
 			this.$store.triggers.clipboard = clipboar;
 		}else
-		if(e.key == "v" && e.ctrlKey && this.$store.triggers.clipboard.length > 0) {
+		if(e.key == "v" && metaKey && this.$store.triggers.clipboard.length > 0) {
 			for (let i = 0; i < this.$store.triggers.clipboard.length; i++) {
 				if(this.triggerData.actions.length >= this.$config.MAX_TRIGGER_ACTIONS) break;
 				const action = JSON.parse(JSON.stringify(this.$store.triggers.clipboard[i])) as TriggerActionTypes;

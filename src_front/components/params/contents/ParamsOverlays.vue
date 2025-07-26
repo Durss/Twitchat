@@ -132,11 +132,8 @@ import OverlayParamsCustomTrain from './overlays/OverlayParamsCustomTrain.vue';
 })
 class ParamsOverlays extends Vue implements IParameterContent {
 
-	public debugMode:boolean = false;
 	public showDockTutorial:boolean = false;
 	public subContent:TwitchatDataTypes.OverlayTypes|null = null;
-
-	private keyupHandler!:(e:KeyboardEvent) => void;
 
 	public get isAffiliate():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
@@ -157,13 +154,6 @@ class ParamsOverlays extends Vue implements IParameterContent {
 		if(this.$store.params.currentPageSubContent) {
 			this.subContent = this.$store.params.currentPageSubContent as TwitchatDataTypes.OverlayTypes;
 		}
-
-		this.keyupHandler = (e:KeyboardEvent) => this.onKeyUp(e);
-		document.addEventListener("keyup", this.keyupHandler);
-	}
-
-	public beforeUnmount():void {
-		document.removeEventListener("keyup", this.keyupHandler);
 	}
 
 	public reload():void {
@@ -176,17 +166,6 @@ class ParamsOverlays extends Vue implements IParameterContent {
 			return true;
 		}
 		return false;
-	}
-
-	/**
-	 * Show a debug field on CTRL+ALT+D
-	 * @param e
-	 */
-	public onKeyUp(e:KeyboardEvent):void {
-		if(e.key.toUpperCase() == "D" && e.ctrlKey && e.altKey) {
-			this.debugMode = !this.debugMode;
-			e.preventDefault();
-		}
 	}
 }
 
