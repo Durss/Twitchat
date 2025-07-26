@@ -16,7 +16,7 @@ declare module '@vue/runtime-core' {
 		$i18n: VueI18n;
 		$t: {
 			(key: string): string;
-			(key: string, locale: string): string;
+			(key: string, value:number, {locale: string}): string;
 			(key: string, values: Record<string, unknown>): string;
 			(key: string, values: Record<string, unknown>, locale: string): string;
 			// Support for pluralization with count as second parameter
@@ -33,7 +33,7 @@ declare module '@vue/runtime-core' {
 			(key: string, choice: number, values: Record<string, unknown>, locale: string): string;
 		};
 		$tm: (key: string) => unknown;
-		$te: (key: string) => boolean;
+		$te: (key: string, locale?:string) => boolean;
 		$d: (value: number | Date, key?: string) => string;
 		$n: (value: number, key?: string) => string;
 

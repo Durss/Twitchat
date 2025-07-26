@@ -68,19 +68,18 @@
 import AppLangSelector from '@/components/AppLangSelector.vue';
 import LabelsEditorEntry from '@/components/LabelsEditorEntry.vue';
 import TTButton from '@/components/TTButton.vue';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import StoreProxy from '@/store/StoreProxy';
 import ApiHelper from '@/utils/ApiHelper';
-import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import type { RemoveIndexSignature } from '@intlify/core-base';
 import { gsap } from 'gsap/gsap-core';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import type { LocaleMessageValue, VueMessageType } from 'vue-i18n';
+
 //@ts-ignore
 import { BlobWriter, TextReader, ZipWriter } from "https://deno.land/x/zipjs@v2.7.32/index.js";
-import { watch } from 'vue';
 import type { JsonObject } from "type-fest";
+import { watch } from 'vue';
 
 @Component({
 	components:{

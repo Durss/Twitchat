@@ -31,7 +31,7 @@
 				
 			<div class="sources" v-if="showSources">
 				<div v-for="lang in $i18n.availableLocales.filter(v=>v != $i18n.locale)">
-					<CountryFlag :country="$t('global.lang_flag', lang)" class="flag" />
+					<CountryFlag :country="$t('global.lang_flag', 1, {locale:lang})" class="flag" />
 					<TTButton transparent icon="copy" v-tooltip="'Copy value'" @click="copyValue(getUnparsedLabel(lang) || '')"></TTButton>
 					<span>{{ getUnparsedLabel(lang) }}</span>
 				</div>
@@ -193,6 +193,7 @@ class LabelsEditorEntry extends Vue {
 	}
 
 	public onEditLabel(reinit:boolean = true, deleteMode:boolean = false):void {
+		let rootRef = StoreProxy.i18n.getLocaleMessage(this.langRef);
 		let root = StoreProxy.i18n.getLocaleMessage(this.$i18n.locale);
 		let messages:any = root;
 		let path:string[] = [];
@@ -200,10 +201,25 @@ class LabelsEditorEntry extends Vue {
 		for (let i = 0; i < chunks.length; i++) {
 			const key = chunks[i];
 			path.push(key);
+			// If not the last chunk (i.e. not the label itself)
 			if(i < chunks.length-1) {
-				if(this.$te(path.join("."))) {
+		
+				// Check if current path exists on reference locale
+				let refExists = true;
+				let obj: any = rootRef;
+				for (const k of path) {
+					if (obj && k in obj) {
+						obj = obj[k];
+					} else {
+						refExists = false;
+						break;
+					}
+				}
+
+				if(refExists) {
 					messages = messages[key as keyof typeof messages];
 				}else{
+					// If chunk does not exist, we create it (for new locales)
 					let v = this.$tm(path.join("."));
 					if(Array.isArray(v)) {
 						messages = messages[key] = [];
@@ -214,12 +230,13 @@ class LabelsEditorEntry extends Vue {
 					}
 				}
 			}else{
+				// If it's the last chunk, we set the label value
 				if(deleteMode) {
 					delete messages[key];
 					continue;
 				}else
 				if(this.labelValue != this.defaultLabel) {
-					let v:any = this.labelValue.replace(/\n/gi, "\n");
+					let v:string|number|boolean = this.labelValue.replace(/\n/gi, "\n");
 					if(this.originalType == "boolean") v = v === "true"
 					else if(this.originalType == "number") v = parseFloat(v);
 					messages[key] = v;

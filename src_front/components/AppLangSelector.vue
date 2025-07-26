@@ -3,7 +3,7 @@
 		<div class="row" v-for="lang in enabledLocales" @click.ctrl.stop.prevent="onCtrlClick(lang)">
 			<input type="radio" name="language" :id="'lang_'+lang" :value="lang" v-model="$i18n.locale">
 			<label :for="'lang_'+lang">
-				<CountryFlag :country="$t('global.lang_flag', lang)" class="flag" /><span class="text">{{ $t('global.lang_label', lang)}}</span>
+				<CountryFlag :country="$t('global.lang_flag', 1, {locale:lang})" class="flag" /><span class="text">{{ $t('global.lang_label', 1, {locale:lang})}}</span>
 				<Icon name="highlight" v-if="showRef !== false && langRef == lang" v-tooltip="'CTRL+click a language\nto make it the reference'" />
 			</label>
 		</div>
@@ -47,6 +47,7 @@ class AppLangSelector extends Vue {
 	}
 
 	public mounted():void {
+		console.log(this.$t)
 		watch(()=>this.$i18n.locale, ()=> {
 			DataStore.set(DataStore.LANGUAGE, this.$i18n.locale);
 		});

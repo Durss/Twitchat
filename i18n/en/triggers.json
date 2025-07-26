@@ -265,7 +265,7 @@
 					"top40": "Random track among the first 40 results",
 					"top50": "Random track among the first 50 results"
 				},
-				"missing_playlist_edit_scopes":"Twitchat needs permissions to edit your playlists",
+				"missing_playlist_edit_scopes": "Twitchat needs permissions to edit your playlists",
 				"spotify_only": "Only works with Spotify",
 				"fail_reasons": {
 					"spotify_max_per_user_reached": "{USER} reached the maximum number of tracks allowed in the queue",
@@ -300,8 +300,8 @@
 				"param_obs_action_createchapter": "Add chapter marker to current record",
 				"param_obs_action_hotkey": "Trigger hotkey action",
 				"param_obs_action_screenshot": "Source screenshot",
-				"param_record_chapter_name":"Chapter name",
-				"param_record_hotkey_name":"Action",
+				"param_record_chapter_name": "Chapter name",
+				"param_record_hotkey_name": "Action",
 				"param_screenImgFormat_conf": "Image format",
 				"param_screenImgSize_toggle_conf": "Custom image size",
 				"param_screenImgSize_width_conf": "Width: {VALUE}px",
@@ -623,48 +623,48 @@
 				"param_transition": "Transition duration"
 			},
 			"bingoGrid": {
-				"param_grid":"Grid",
-				"param_x":"Cell X position",
-				"param_y":"Cell Y position",
-				"param_name":"Text",
-				"param_action":"Action",
-				"param_action_tick":"Tick cell",
-				"param_action_untick":"Untick cell",
-				"param_action_toggle":"toggle cell",
-				"param_action_tick_all":"Tick all cells",
-				"param_action_untick_all":"Untick all cells",
-				"param_action_rename":"Rename a cell",
-				"param_action_add_cell":"Add a cell",
-				"param_action_shuffle":"Shuffle grid",
-				"param_cell_coordinates":"Cell coordinates",
-				"param_cell_id":"Specific cell",
-				"param_cell":"Cell",
-				"no_grid":"You must first create a bingo grid"
+				"param_grid": "Grid",
+				"param_x": "Cell X position",
+				"param_y": "Cell Y position",
+				"param_name": "Text",
+				"param_action": "Action",
+				"param_action_tick": "Tick cell",
+				"param_action_untick": "Untick cell",
+				"param_action_toggle": "toggle cell",
+				"param_action_tick_all": "Tick all cells",
+				"param_action_untick_all": "Untick all cells",
+				"param_action_rename": "Rename a cell",
+				"param_action_add_cell": "Add a cell",
+				"param_action_shuffle": "Shuffle grid",
+				"param_cell_coordinates": "Cell coordinates",
+				"param_cell_id": "Specific cell",
+				"param_cell": "Cell",
+				"no_grid": "You must first create a bingo grid"
 			},
-			"streamerbot":{
-				"param_action":"Action to execute",
+			"streamerbot": {
+				"param_action": "Action to execute",
 				"need_to_connect": "This action requires you to {LINK}",
 				"need_to_connect_link": "connect with Streamer.bot",
-				"add_arg_bt":"Add parameter"
+				"add_arg_bt": "Add parameter"
 			},
-			"sammi":{
-				"param_buttonId":"Button ID to trigger",
+			"sammi": {
+				"param_buttonId": "Button ID to trigger",
 				"need_to_connect": "This action requires you to {LINK}",
 				"need_to_connect_link": "connect with SAMMI"
 			},
-			"mixitup":{
-				"param_commandId":"Command to trigger",
+			"mixitup": {
+				"param_commandId": "Command to trigger",
 				"need_to_connect": "This action requires you to {LINK}",
 				"need_to_connect_link": "connect with Mix It Up",
-				"add_arg_bt":"Add parameter"
+				"add_arg_bt": "Add parameter"
 			},
-			"playability":{
+			"playability": {
 				"need_to_connect": "This action requires you to {LINK}",
 				"need_to_connect_link": "connect with PlayAbility",
 				"add_output_bt": "Add action",
-				"output_press":"Press button",
-				"output_release":"Release button",
-				"output_press_release":"Press/Release button"
+				"output_press": "Press button",
+				"output_release": "Release button",
+				"output_press_release": "Press/Release button"
 			},
 			"groq": {
 				"preprompt": "Preprompt",
@@ -926,9 +926,9 @@
 			"announcement_color": "Couleur de l'annonce",
 			"track_add_fail_reason": "Track add fail reason",
 			"now": "Date in milliseconds",
-			"date":"Current date formatted",
-			"time":"Current time formatted",
-			"datetime":"Current date and time formatted",
+			"date": "Current date formatted",
+			"time": "Current time formatted",
+			"datetime": "Current date and time formatted",
 			"last_sub": "Last subscriber",
 			"last_sub_id": "Last subscriber ID",
 			"last_subgifter": "Last subgifter",
@@ -994,39 +994,39 @@
 			"power_up_emote": "Gigantified emote code",
 			"power_up_emote_url": "Gigantified emote URL",
 			"power_up_message": "Effect: 'simmer' or 'rainbow-eclipse'",
-			"superchat_tier":"Superchat tier (1 => 11)",
-			"supersticker_tier":"Super stciker tier (1 => 6)",
-			"supersticker_id":"Sticker's ID",
-			"supersticker_url":"Sticker's URL",
-			"youtube_sub_tier":"Membership level name",
-			"youtube_sub_months":"Membership duration in months",
-			"ws_topic":"Websocket topic",
-			"ws_message":"All message data",
-			"platform":"Platform that started the trigger\n(twitch, youtube, ...)",
-			"tiktok_gift_count":"Number of gifts",
-			"tiktok_gift_id":"ID of the gift",
-			"tiktok_gift_name":"Name of the gift",
-			"tiktok_gift_image":"Image of the gift",
-			"tiktok_like_count":"Number of likes",
-			"tiktok_like_total":"Total likes received during current stream",
-			"tiktok_diamonds":"Diamonds received",
-			"tiktok_sub_month":"Sub months",
-			"playability_inputName":"Input name",
-			"playability_inputType":"Input type",
-			"playability_inputValue":"Input value",
-			"playability_inputType_axis":"Gamepad Stick",
-			"playability_inputType_button":"Gamepad Button",
-			"playability_inputType_keyboard":"Keyboard key",
-			"playability_inputType_mouseButton":"Mouse click",
-			"playability_inputType_trigger":"Gamepad Trigger",
-			"goal_step_id":"Step ID",
-			"goal_step_index":"Step index (fist is 0)",
-			"goal_step_title":"Step title",
-			"goal_step_secret":"Is secret step?",
-			"goal_step_amount":"Step amount",
-			"goal_overlay_id":"Goal overlay ID",
-			"goal_overlay_title":"Goal overlay title",
-			"current_vod_url":"URL of the current VOD",
+			"superchat_tier": "Superchat tier (1 => 11)",
+			"supersticker_tier": "Super stciker tier (1 => 6)",
+			"supersticker_id": "Sticker's ID",
+			"supersticker_url": "Sticker's URL",
+			"youtube_sub_tier": "Membership level name",
+			"youtube_sub_months": "Membership duration in months",
+			"ws_topic": "Websocket topic",
+			"ws_message": "All message data",
+			"platform": "Platform that started the trigger\n(twitch, youtube, ...)",
+			"tiktok_gift_count": "Number of gifts",
+			"tiktok_gift_id": "ID of the gift",
+			"tiktok_gift_name": "Name of the gift",
+			"tiktok_gift_image": "Image of the gift",
+			"tiktok_like_count": "Number of likes",
+			"tiktok_like_total": "Total likes received during current stream",
+			"tiktok_diamonds": "Diamonds received",
+			"tiktok_sub_month": "Sub months",
+			"playability_inputName": "Input name",
+			"playability_inputType": "Input type",
+			"playability_inputValue": "Input value",
+			"playability_inputType_axis": "Gamepad Stick",
+			"playability_inputType_button": "Gamepad Button",
+			"playability_inputType_keyboard": "Keyboard key",
+			"playability_inputType_mouseButton": "Mouse click",
+			"playability_inputType_trigger": "Gamepad Trigger",
+			"goal_step_id": "Step ID",
+			"goal_step_index": "Step index (fist is 0)",
+			"goal_step_title": "Step title",
+			"goal_step_secret": "Is secret step?",
+			"goal_step_amount": "Step amount",
+			"goal_overlay_id": "Goal overlay ID",
+			"goal_overlay_title": "Goal overlay title",
+			"current_vod_url": "URL of the current VOD",
 			"custom_train_id": "Train ID",
 			"custom_train_name": "Train name",
 			"custom_train_level": "Level reached",
@@ -1403,28 +1403,34 @@
 			},
 			"COUNTER_EDIT": {
 				"label": "A counter is modified",
-				"description": "Actions to execute when value of the counter {SUB_ITEM_NAME} is modified"
+				"description": "Actions to execute when value of the counter {SUB_ITEM_NAME} is modified",
+				"description_any": "Actions to execute when the value of the counter is modified"
 			},
 			"COUNTER_ADD": {
 				"label": "Value added to a counter",
-				"description": "Actions to execute when a value is added to the {SUB_ITEM_NAME} counter"
+				"description": "Actions to execute when a value is added to the {SUB_ITEM_NAME} counter",
+				"description_any": "Actions to execute when a counter increments"
 			},
 			"COUNTER_DEL": {
 				"label": "Value removed from a counter",
-				"description": "Actions to execute when a value is substracted from the {SUB_ITEM_NAME} counter"
+				"description": "Actions to execute when a value is substracted from the {SUB_ITEM_NAME} counter",
+				"description_any": "Actions to execute when a counter decrements"
 			},
 			"COUNTER_MAXED": {
 				"label": "Max counter value reached",
-				"description": "Actions to execute when {SUB_ITEM_NAME} counter reaches its maximum value"
+				"description": "Actions to execute when {SUB_ITEM_NAME} counter reaches its maximum value",
+				"description_any": "Actions to execute when a counter reaches its maximum value"
 			},
 			"COUNTER_MINED": {
 				"label": "Min counter value reached",
-				"description": "Actions to execute when {SUB_ITEM_NAME} counter reaches its minimum value"
+				"description": "Actions to execute when {SUB_ITEM_NAME} counter reaches its minimum value",
+				"description_any": "Actions to execute when a counter reaches its minimum value"
 			},
 			"COUNTER_LOOPED": {
 				"label": "Counter value looped",
 				"description": "Actions to execute when the {SUB_ITEM_NAME} counter value is looped {INFO}",
-				"description_info": "(if \"loop\" option is enabled and value reaches max, value will switch to min and vice versa)"
+				"description_info": "(if \"loop\" option is enabled and value reaches max, value will switch to min and vice versa)",
+				"description_any": "Actions to execute when a counter value loops {INFO}"
 			},
 			"RAID_STARTED": {
 				"label": "Started a raid",
@@ -1483,7 +1489,9 @@
 			},
 			"VALUE_UPDATE": {
 				"label": "Value updated",
-				"description": "Actions to execute when the value {SUB_ITEM_NAME} is updated"
+				"description": "Actions to execute when the value {SUB_ITEM_NAME} is updated",
+				"label_any": "Any Value updated",
+				"description_any": "Actions to execute when any Value is updated"
 			},
 			"ANNOUNCEMENTS": {
 				"label": "/announce",
@@ -1648,103 +1656,103 @@
 				"description": "Actions to execute when a new member subscribes on Patreon"
 			},
 			"TIKTOK_SUB": {
-				"label":"TikTok subscriber",
-				"description":"A member subscribed on TikTok"
+				"label": "TikTok subscriber",
+				"description": "A member subscribed on TikTok"
 			},
 			"TIKTOK_GIFT": {
-				"label":"TikTok gift",
-				"description":"A viewer sent a gift on TikTok"
+				"label": "TikTok gift",
+				"description": "A viewer sent a gift on TikTok"
 			},
 			"TIKTOK_LIKE": {
-				"label":"Tiktok like",
-				"description":"A viewer sent a like on TikTok"
+				"label": "Tiktok like",
+				"description": "A viewer sent a like on TikTok"
 			},
 			"TIKTOK_SHARE": {
-				"label":"Tiktok share",
-				"description":"A viewer shared your TikTok stream"
+				"label": "Tiktok share",
+				"description": "A viewer shared your TikTok stream"
 			},
 			"CLEAR_CHAT": {
-				"label":"Chat cleared",
+				"label": "Chat cleared",
 				"description": "Actions to execute when the chat is cleared"
 			},
 			"SUB_ONLY_ON": {
-				"label":"Sub-only enabled",
+				"label": "Sub-only enabled",
 				"description": "Actions to execute when sub-only mode is enabled"
 			},
 			"SUB_ONLY_OFF": {
-				"label":"Sub-only disabled",
+				"label": "Sub-only disabled",
 				"description": "Actions to execute when sub-only mode is disabled"
 			},
 			"FOLLOW_ONLY_ON": {
-				"label":"Follow-only enabled",
+				"label": "Follow-only enabled",
 				"description": "Actions to execute when follow-only mode is enabled"
 			},
 			"FOLLOW_ONLY_OFF": {
-				"label":"Follow-only disabled",
+				"label": "Follow-only disabled",
 				"description": "Actions to execute when follow-only mode is disabled"
 			},
 			"EMOTE_ONLY_ON": {
-				"label":"Emote-only enabled",
+				"label": "Emote-only enabled",
 				"description": "Actions to execute when emote-only mode is enabled"
 			},
 			"EMOTE_ONLY_OFF": {
-				"label":"Emote-only disabled",
+				"label": "Emote-only disabled",
 				"description": "Actions to execute when emote-only mode is disabled"
 			},
 			"SLOW_MODE_ON": {
-				"label":"Slow mode enabled",
+				"label": "Slow mode enabled",
 				"description": "Actions to execute when slow mode is enabled"
 			},
 			"SLOW_MODE_OFF": {
-				"label":"Slow mode disabled",
+				"label": "Slow mode disabled",
 				"description": "Actions to execute when slow mode is disabled"
 			},
 			"MONITOR_ON": {
-				"label":"User monitored",
+				"label": "User monitored",
 				"description": "Actions to execute when a user is monitored"
 			},
 			"RESTRICT_ON": {
-				"label":"User restricted",
+				"label": "User restricted",
 				"description": "Actions to execute when a user is restricted from chatting"
 			},
 			"MONITOR_RESTRICT_OFF": {
-				"label":"User not monitored or restricted anymore",
+				"label": "User not monitored or restricted anymore",
 				"description": "Actions to execute when a user stops being monitored or restricted from chatting"
 			},
 			"PLAYABILITY_INPUT": {
-				"label":"Action triggered on PlayAbility",
+				"label": "Action triggered on PlayAbility",
 				"description": "Actions to execute when an action is triggered by PlayAbility"
 			},
 			"GOAL_STEP_COMPLETE": {
-				"label":"Goal overlay step complete",
+				"label": "Goal overlay step complete",
 				"description": "Actions to execute when a step of a Goal completes"
 			},
 			"CUSTOM_TRAIN_START": {
-				"label":"Custom train starts",
+				"label": "Custom train starts",
 				"description": "Actions to execute when a custom train starts"
 			},
 			"CUSTOM_TRAIN_LEVEL_UP": {
-				"label":"Custom train level up",
+				"label": "Custom train level up",
 				"description": "Actions to execute when a custom train levels up"
 			},
 			"CUSTOM_TRAIN_COMPLETE": {
-				"label":"Custom train completed",
+				"label": "Custom train completed",
 				"description": "Actions to execute when a custom train completes"
 			},
 			"CUSTOM_TRAIN_FAIL": {
-				"label":"Custom train failed",
+				"label": "Custom train failed",
 				"description": "Actions to execute when a custom train fails"
 			},
 			"CUSTOM_TRAIN_COOLDOWN": {
-				"label":"Custom train cooldown end",
+				"label": "Custom train cooldown end",
 				"description": "Actions to execute when a custom train cooldown ends"
 			},
 			"STREAMSOCKET_ACTION": {
-				"label":"StreamSocket action triggered",
+				"label": "StreamSocket action triggered",
 				"description": "Actions to execute when a StreamSocket action is triggered"
 			},
 			"TWITCH_COMBO": {
-				"label":"Twitch Combo",
+				"label": "Twitch Combo",
 				"description": "Actions to execute when a viewer sends bits from Twitch Combo"
 			}
 		},

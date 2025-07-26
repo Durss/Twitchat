@@ -8,7 +8,7 @@
 
 		<div class="lang">
 			<select v-model="$i18n.locale">
-				<option :value="lang" v-for="lang in enabledLocales" :key="lang">{{ $t('global.lang_label', lang)}}</option>
+				<option :value="lang" v-for="lang in enabledLocales" :key="lang">{{ $t('global.lang_label', 1, {locale:lang})}}</option>
 			</select>
 		</div>
 
