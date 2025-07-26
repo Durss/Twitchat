@@ -21,6 +21,7 @@ import { Component, Vue, toNative } from 'vue-facing-decorator';
 import { TTButton } from '../TTButton.vue';
 import { gsap } from 'gsap/gsap-core';
 import Utils from '@/utils/Utils';
+import type { ComponentPublicInstance } from 'vue';
 
 @Component({
 	components:{
@@ -49,8 +50,8 @@ class Changelog3rdPartyAnim extends Vue {
 						];
 
 	public mounted():void {
-		const items = (this.$refs.item as Vue[]).map( i => i.$el as HTMLElement);
-		const target = (this.$refs.target as Vue).$el as HTMLElement;
+		const items = (this.$refs.item as ComponentPublicInstance[]).map( i => i.$el as HTMLElement);
+		const target = (this.$refs.target as ComponentPublicInstance).$el as HTMLElement;
 
 		gsap.from(target, {duration:.5, scale:0, ease:"back.out", delay:.1});
 
@@ -63,11 +64,11 @@ class Changelog3rdPartyAnim extends Vue {
 			for (let i = 0; i < items.length; i++) {
 				const el = items[i];
 				await Utils.promisedTimeout(200);
-				
+
 				const boundsParent = target.getBoundingClientRect();
 				const tX = boundsParent.x + boundsParent.width / 2;
 				const tY = boundsParent.y + boundsParent.height / 2;
-				
+
 				let bounds = el.getBoundingClientRect();
 				const dist = 300;
 				let angle = Math.random() * Math.PI/2 + Math.PI/4;
@@ -75,14 +76,14 @@ class Changelog3rdPartyAnim extends Vue {
 				const x = tX + Math.cos(angle) * dist;
 				const y = tY + Math.sin(angle) * dist;
 				const duration = 1;
-	
+
 				gsap.fromTo(el, {opacity:0}, {duration:.1, opacity:1});
 				gsap.fromTo(el, {x, y}, {duration, x:tX - bounds.width / 2, y:tY - bounds.height / 2, ease:"sine.easeIn"});
 				const delayHide = duration * .8;
 				gsap.to(el, {delay:delayHide, duration:duration*.2, scale:2, opacity:0, onComplete:()=>{
 					el.style.display = "none";
 				}});
-				
+
 				gsap.delayedCall(delayHide, ()=> {
 					this.childIndex ++;
 					gsap.fromTo(target, {scaleX:1.5}, {scaleX:1, ease:"elastic.out", duration:.75});

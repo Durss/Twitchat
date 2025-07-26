@@ -126,7 +126,7 @@ export default class ChatCypherPlugin {
 			const salt = window.crypto.getRandomValues(new Uint8Array(16));
 			const iv = window.crypto.getRandomValues(new Uint8Array(12));
 			const passwordKey = await this.getPasswordKey(password);
-			const aesKey = await this.deriveKey(passwordKey, salt, ["encrypt"]);
+			const aesKey = await this.deriveKey(passwordKey, salt.buffer, ["encrypt"]);
 			const encryptedContent = await window.crypto.subtle.encrypt(
 				{
 					name: "AES-GCM",
@@ -158,7 +158,7 @@ export default class ChatCypherPlugin {
 			const iv = encryptedDataBuff.slice(16, 16 + 12);
 			const data = encryptedDataBuff.slice(16 + 12);
 			const passwordKey = await this.getPasswordKey(password);
-			const aesKey = await this.deriveKey(passwordKey, salt, ["decrypt"]);
+			const aesKey = await this.deriveKey(passwordKey, salt.buffer, ["decrypt"]);
 			const decryptedContent = await window.crypto.subtle.decrypt(
 				{
 					name: "AES-GCM",

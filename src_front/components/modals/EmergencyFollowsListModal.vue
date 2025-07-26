@@ -91,7 +91,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
-import { watch } from 'vue';
+import { watch, type ComponentPublicInstance } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import InfiniteList from '../InfiniteList.vue';
@@ -124,7 +124,7 @@ class EmergencyFollowsListModal extends Vue {
 	public async mounted():Promise<void> {
 		//Load users by batch to avoid potential lag on open
 		this.followers = this.$store.emergency.follows;
-		
+
 		watch(()=>this.search, ()=> {
 			const list = this.$store.emergency.follows;
 			const reg = new RegExp(this.search, "gi");
@@ -158,19 +158,19 @@ class EmergencyFollowsListModal extends Vue {
 	public openCard(follower:TwitchatDataTypes.MessageFollowingData):void {
 		this.$store.users.openUserCard(follower.user, follower.channel_id);
 	}
-	
+
 	public async ban(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
 		follow.loading = true;
 		await TwitchUtils.banUser(follow.user, follow.channel_id, undefined, "Automatically banned by Twitchat emergency mode on " + Utils.formatDate(new Date()));
 		follow.loading = false;
 	}
-		
+
 	public async unban(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
 		follow.loading = true;
 		await TwitchUtils.unbanUser(follow.user, follow.channel_id);
 		follow.loading = false;
 	}
-	
+
 	public async unfollow(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
 		if(follow.user.channelInfo[follow.channel_id].is_following != true) return;
 		follow.loading = true;
@@ -183,12 +183,12 @@ class EmergencyFollowsListModal extends Vue {
 	public async removeEntry(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
 		this.$store.emergency.ignoreEmergencyFollower(follow);
 	}
-		
+
 	public async banAll():Promise<void> {
 		this.$confirm(this.$t("followbot.ban_all_confirm_title"), this.$t("followbot.ban_all_confirm_desc")).then(async ()=>{
 			this.batchActionInProgress = true;
 			const list = this.followers;
-			const bounds = (this.$refs["list"] as Vue).$el.getBoundingClientRect();
+			const bounds = (this.$refs["list"] as ComponentPublicInstance).$el.getBoundingClientRect();
 			for (let i = 0; i < list.length; i++) {
 				if(this.disposed) break;
 				this.scrollOffset = Math.max(0, i * (this.itemSize + this.itemMargin) - bounds.height / 2);
@@ -197,12 +197,12 @@ class EmergencyFollowsListModal extends Vue {
 			this.batchActionInProgress = false;
 		}).catch(()=>{});
 	}
-	
+
 	public unfollowAll():void {
 		this.$confirm(this.$t("followbot.unfollow_confirm_title"), this.$t("followbot.unfollow_confirm_desc")).then(async ()=>{
 			this.batchActionInProgress = true;
 			const list = this.followers;
-			const bounds = (this.$refs["list"] as Vue).$el.getBoundingClientRect();
+			const bounds = (this.$refs["list"] as ComponentPublicInstance).$el.getBoundingClientRect();
 			for (let i = 0; i < list.length; i++) {
 				if(this.disposed) break;
 				this.scrollOffset = Math.max(0, i * (this.itemSize + this.itemMargin) - bounds.height / 2);
@@ -235,7 +235,7 @@ class EmergencyFollowsListModal extends Vue {
 			csv += "," + (this.followers[i].user.channelInfo[this.followers[i].channel_id].is_banned === true? 1 : 0);
 			if(i < len -1) csv += "\n";
 		}
-		
+
 		//Start download session
 		const blob = new Blob([csv], { type: 'application/json' });
 		const url = window.URL.createObjectURL(blob);
@@ -262,7 +262,7 @@ export default toNative(EmergencyFollowsListModal);
 
 	.holder {
 		max-width: 600px;
-		
+
 		& > .icon {
 			margin: auto;
 			width: 3em;
@@ -317,7 +317,7 @@ export default toNative(EmergencyFollowsListModal);
 							flex-grow: 1;
 							max-width: 50vw;
 						}
-	
+
 						.icon {
 							height: 1em;
 						}

@@ -102,7 +102,7 @@ export default toNative(TriggerActionChatEntry);
 			display: grid;
 			grid-gap: 4px;
 			background-color: transparent;
-			grid-template-columns: repeat(auto-fill, minmax(max(calc(50%-.5em), 200px), 1fr));
+			grid-template-columns: repeat(auto-fill, minmax(max(calc(50% - .5em), 200px), 1fr));
 		}
 		.cmd {
 			font-size: .8em;

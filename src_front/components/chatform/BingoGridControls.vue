@@ -30,7 +30,7 @@
 							@click.capture.stop="$store.bingoGrid.toggleCell(grid.id, entry.id)" />
 					</TransitionGroup>
 				</div>
-	
+
 				<ToggleBlock v-if="grid.additionalEntries && grid.additionalEntries.length > 0" small :title="$t('bingo_grid.form.additional_cells')" :open="false">
 					<div v-for="entry in grid.additionalEntries" class="additionalEntry">
 						<Checkbox class="entry"
@@ -52,7 +52,7 @@
 				small
 				v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'bingogrid_leaderboard'}"
 				v-tooltip="$t('bingo_grid.form.leaderBoard.open_bt_tt')"
-				@click="openLeaderBoard(grid)">{{ $tc("bingo_grid.form.leaderBoard.open_bt", Object.keys($store.bingoGrid.viewersBingoCount[grid.id]).length, {COUNT:Object.keys($store.bingoGrid.viewersBingoCount[grid.id]).length}) }}</TTButton>
+				@click="openLeaderBoard(grid)">{{ $t("bingo_grid.form.leaderBoard.open_bt", {COUNT:Object.keys($store.bingoGrid.viewersBingoCount[grid.id]).length}, Object.keys($store.bingoGrid.viewersBingoCount[grid.id]).length) }}</TTButton>
 			</div>
 		</div>
 
@@ -111,7 +111,7 @@ class BingoGridControls extends Vue {
 
 	/**
 	 * Open grid's leaderboard
-	 * @param gridId 
+	 * @param gridId
 	 */
 	public openLeaderBoard(grid:TwitchatDataTypes.BingoGridConfig):void {
 		this.leaderBoardID = grid.id;
@@ -119,7 +119,7 @@ class BingoGridControls extends Vue {
 
 	/**
 	 * Opens up a user card
-	 * @param user 
+	 * @param user
 	 */
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser, chanId?:string):void {
 		this.$store.users.openUserCard(user, chanId, "twitch");

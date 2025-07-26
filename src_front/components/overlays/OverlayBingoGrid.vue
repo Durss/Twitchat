@@ -92,6 +92,7 @@ import { gsap } from 'gsap/gsap-core';
 import { Component, toNative } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
 import AbstractOverlay from './AbstractOverlay';
+import type { ComponentPublicInstance } from 'vue';
 
 @Component({
 	components:{
@@ -758,7 +759,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			const cellsHolder = this.$refs.cellsHolder as HTMLElement;
 			const userInfos = this.$refs.userInfo as HTMLElement;
 			const userCount = this.$refs.userCount as HTMLElement;
-			const userStars = this.$refs.userStars as Vue[];
+			const userStars = this.$refs.userStars as ComponentPublicInstance[];
 
 			if(!cellsHolder) {
 				resolve();
@@ -771,8 +772,8 @@ export class OverlayBingoGrid extends AbstractOverlay {
 
 			const boundsUser = userInfos.getBoundingClientRect();
 
-			gsap.to((this.$refs.alertsBg as Vue).$el, {rotate:"360deg", duration:1, ease:"none"});
-			gsap.to((this.$refs.alertsBg as Vue).$el, {scale:10, duration:1, ease:"circ.in"});
+			gsap.to((this.$refs.alertsBg as ComponentPublicInstance).$el, {rotate:"360deg", duration:1, ease:"none"});
+			gsap.to((this.$refs.alertsBg as ComponentPublicInstance).$el, {scale:10, duration:1, ease:"circ.in"});
 			gsap.fromTo(userInfos,
 				{top:boundsHolder.height/this.debugScale + boundsUser.height/this.debugScale/2},
 				{top:-boundsUser.height/this.debugScale, duration:1.5, ease:"slow(0.5,0.8,false)", delay:.7});
@@ -844,8 +845,8 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			delay = duration;
 			//Close background only if next event isn't a user one
 			if(this.pendingEvents.length <= 1 || this.pendingEvents[1].type!="user"){
-				gsap.to((this.$refs.alertsBg as Vue).$el, {delay:duration*.8, rotate:"0deg", duration:.5, ease:"none"});
-				gsap.to((this.$refs.alertsBg as Vue).$el, {delay:duration*.8, scale:0, duration:.5, ease:"circ.out"});
+				gsap.to((this.$refs.alertsBg as ComponentPublicInstance).$el, {delay:duration*.8, rotate:"0deg", duration:.5, ease:"none"});
+				gsap.to((this.$refs.alertsBg as ComponentPublicInstance).$el, {delay:duration*.8, scale:0, duration:.5, ease:"circ.out"});
 				delay += duration * .8;
 				this.canPlayWinSound = true;
 			}

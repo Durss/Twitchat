@@ -1,0 +1,48 @@
+# Set default behavior to automatically normalize line endings
+* text=auto
+
+# Files to be normalized and converted line endings 
+*.vue text
+*.ts text
+*.js text
+*.json text
+*.md text
+*.html text
+*.css text
+*.less text
+*.scss text
+*.txt text
+*.xml text
+*.yml text
+*.yaml text
+
+# Declare files that will always have CRLF line endings on checkout
+*.bat text eol=crlf
+
+# Declare files that will always have LF line endings on checkout
+*.sh text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mov binary
+*.mp4 binary
+*.mp3 binary
+*.flv binary
+*.fla binary
+*.swf binary
+*.gz binary
+*.zip binary
+*.7z binary
+*.ttf binary
+*.eot binary
+*.woff binary
+*.woff2 binary
+*.pyc binary
+*.pdf binary
+*.so binary
+*.dll binary
+*.exe binary

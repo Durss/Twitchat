@@ -27,7 +27,7 @@ import Utils from '@/utils/Utils';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { defineAsyncComponent } from 'vue';
+import { defineAsyncComponent, type ComponentPublicInstance } from 'vue';
 import { type OverlayBingoGrid as OverlayBingoGridClass } from '@/components/overlays/OverlayBingoGrid.vue';
 const OverlayBitsWall = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayBitsWall.vue')})
 const OverlayHeatDebug = defineAsyncComponent({loader: () => import('../components/overlays/OverlayHeatDebug.vue')});
@@ -105,7 +105,7 @@ class Overlay extends Vue {
 		const px = event.detail.x * document.body.clientWidth;
 		const py = event.detail.y * document.body.clientHeight;
 
-		const player = this.$refs.music as Vue;
+		const player = this.$refs.music as ComponentPublicInstance;
 		const bingoGrid = this.$refs.bingoGrid as OverlayBingoGridClass;
 
 		//Check if it matches the player's bounds

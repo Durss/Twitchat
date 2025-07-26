@@ -34,7 +34,10 @@ lang = lang.substring(0, 2).toLowerCase();
 const i18n = createI18n({
 	locale:lang,
 	fallbackLocale: 'en',
-	warnHtmlInMessage:'off',
+	legacy: true,
+	globalInjection: true,
+	warnHtmlInMessage: false,
+	warnHtmlMessage: false,
 	silentFallbackWarn:!Config.instance.IS_PROD,
 	silentTranslationWarn:!Config.instance.IS_PROD,
 	// modifiers:{

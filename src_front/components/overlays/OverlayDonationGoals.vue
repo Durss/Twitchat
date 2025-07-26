@@ -38,6 +38,7 @@ import { Component, toNative } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
 import OverlayDonationGoalAlert from './donation_goals/OverlayDonationGoalAlert.vue';
 import OverlayDonationGoalItem from './donation_goals/OverlayDonationGoalItem.vue';
+import type { ComponentPublicInstance } from 'vue';
 
 @Component({
 	components:{
@@ -276,14 +277,14 @@ class OverlayDonationGoals extends AbstractOverlay {
 
 		this.currentAlert = this.poolAlerts[0]!;
 		await this.$nextTick();
-		let holder = this.$refs.notification as HTMLElement | Vue[];
+		let holder = this.$refs.notification as HTMLElement | ComponentPublicInstance[];
 		if(Array.isArray(holder)) holder = holder[0].$el as HTMLElement;
 		
 		//Show notification
 		gsap.fromTo(holder, {y:"100%"}, {y:"0%", duration:.15, ease:"sine.out", onComplete:()=>{
 			let showDuration = Math.max(.15, 10 - Math.pow(this.poolAlerts.length, .75));
 			//Holder might have changed between show and hide
-			let holder = this.$refs.notification as HTMLElement | Vue[];
+			let holder = this.$refs.notification as HTMLElement | ComponentPublicInstance[];
 			if(Array.isArray(holder) && holder.length > 0) holder = holder[0].$el as HTMLElement;
 			if(!holder) return;
 			//Hide notification

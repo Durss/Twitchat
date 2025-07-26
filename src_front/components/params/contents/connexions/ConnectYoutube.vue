@@ -65,6 +65,7 @@ import { Sine } from 'gsap';
 import { gsap } from 'gsap/gsap-core';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
+import type { ComponentPublicInstance } from 'vue';
 
 @Component({
 	components:{
@@ -156,7 +157,7 @@ class ConnectYoutube extends Vue {
 
 	public mounted():void {
 		if(this.requestNewScopes) {
-			const el = (this.$refs["moderateScope"] as Vue).$el as HTMLElement;
+			const el = (this.$refs["moderateScope"] as ComponentPublicInstance).$el as HTMLElement;
 			gsap.fromTo(el, {backgroundColor:"#ffffff00"}, {backgroundColor:"#ffffff50", repeat:6, yoyo:true, ease:Sine.easeInOut, duration:.2, immediateRender:false, delay:2, clearProps:"all"});
 		}
 	}

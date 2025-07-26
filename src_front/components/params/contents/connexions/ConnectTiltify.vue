@@ -1,7 +1,7 @@
 <template>
 	<div class="connecttiltify parameterContent">
 		<Icon name="tiltify" class="icon" />
-		
+
 		<div class="head">
 			<i18n-t scope="global" tag="span" keypath="tiltify.header">
 				<template #LINK>
@@ -25,7 +25,7 @@
 					</div>
 				</TTButton>
 			</section>
-	
+
 			<section class="card-item secondary noCampaign" v-if="$store.tiltify.campaignList.length == 0">
 				<Icon name="alert" />
 				<span>{{ $t("tiltify.no_campaign") }}</span>
@@ -33,7 +33,7 @@
 			</section>
 			<template v-else>
 				<section class="card-item infos">
-					<strong>{{ $tc("tiltify.campaign_list", $store.tiltify.campaignList.length) }}</strong>
+					<strong>{{ $t("tiltify.campaign_list", $store.tiltify.campaignList.length) }}</strong>
 					<div class="campaignList">
 						<div v-for="campaign in $store.tiltify.campaignList" class="campaign">
 							<a :href="campaign.donate_url" target="_blank"><Icon name="newtab" />{{campaign.name}}</a>

@@ -68,7 +68,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
-import { watch } from 'vue';
+import { watch, type ComponentPublicInstance } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import HeatDistortParams from './heat/HeatDistortParams.vue';
 import { gsap } from 'gsap/gsap-core';
@@ -127,7 +127,7 @@ class OverlayParamsHeatDistort extends Vue {
 		});
 
 		this.$nextTick().then(()=> {
-			const holder = this.$refs["distortion_"+id] as Vue[];
+			const holder = this.$refs["distortion_"+id] as ComponentPublicInstance[];
 			gsap.from(holder[0].$el, {height:0, paddingTop:0, paddingBottom:0, duration:.35, ease:"back.out", clearProps:"all"});
 		})
 	}
@@ -182,7 +182,7 @@ class OverlayParamsHeatDistort extends Vue {
 	}
 
 	public deleteDistorsion(data:TwitchatDataTypes.HeatDistortionData):void {
-		const holder = this.$refs["distortion_"+data.id] as Vue[];
+		const holder = this.$refs["distortion_"+data.id] as ComponentPublicInstance[];
 		gsap.to(holder[0].$el, {height:0, paddingTop:0, paddingBottom:0, duration:.35, ease:"back.in", onComplete:()=>{
 			(async()=> {
 				this.$store.heat.deleteDistorsion(data);

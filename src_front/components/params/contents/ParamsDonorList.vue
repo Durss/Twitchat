@@ -41,7 +41,7 @@ import DonorPublicState from '@/components/user/DonorPublicState.vue';
 import StoreProxy from '@/store/StoreProxy';
 import ApiHelper from '@/utils/ApiHelper';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { watch } from 'vue';
+import { watch, type ComponentPublicInstance } from 'vue';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import InfiniteList from '../../InfiniteList.vue';
 import DonorBadge from '../../user/DonorBadge.vue';
@@ -63,7 +63,7 @@ class ParamsDonorList extends Vue {
 	public scrollOffset = 0;
 	public loading = true;
 	public disposed = false;
-	
+
 	private loadingNextPage = false;
 	private localList:{uid:string, v:number}[] = [];
 
@@ -73,9 +73,9 @@ class ParamsDonorList extends Vue {
 		this.loadList();
 
 		watch(()=>this.scrollOffset, ()=> {
-			const bounds = (this.$refs.list as Vue).$el.getBoundingClientRect();
+			const bounds = (this.$refs.list as ComponentPublicInstance).$el.getBoundingClientRect();
 			const scrollMax = this.itemList.length*(this.itemSize+0) - bounds.height;
-			
+
 			if(this.scrollOffset > scrollMax - 500) {
 				this.loadNext();
 			}
@@ -85,7 +85,7 @@ class ParamsDonorList extends Vue {
 	public beforeUnmount():void {
 		this.disposed = true;
 	}
-	
+
 	public async loadList():Promise<void> {
 		this.loading = true;
 		this.error = false;
@@ -95,7 +95,7 @@ class ParamsDonorList extends Vue {
 			headers['App-Version'] = import.meta.env.PACKAGE_VERSION;
 			const {json} = await ApiHelper.call("user/donor/all", "GET");
 			if(this.disposed) return;
-			
+
 			this.localList = json.data.list;
 			this.computeStats();
 			await this.loadNext();

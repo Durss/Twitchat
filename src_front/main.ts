@@ -101,7 +101,10 @@ if(sLang) lang = sLang;
 const i18n = createI18n({
 	locale:lang,
 	fallbackLocale: 'en',
-	warnHtmlInMessage:'off',
+	legacy: true,
+	globalInjection: true,
+	warnHtmlInMessage: false,
+	warnHtmlMessage: false,
 	silentFallbackWarn:!Config.instance.IS_PROD,
 	silentTranslationWarn:!Config.instance.IS_PROD,
 	// modifiers:{
@@ -179,7 +182,8 @@ function buildApp() {
 	 * Include an image from the asset folder
 	 */
 	const asset = (path:string):string => {
-		return new URL(`/src_front/assets/${path}`, import.meta.url).href;
+		const map = import.meta.glob('/src_front/assets/**/*', { eager: true, import: 'default' });
+		return map[`/src_front/assets/${path}`] as string;
 	}
 
 	/**

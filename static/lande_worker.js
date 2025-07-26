@@ -811,12 +811,6 @@
     /* IMPRT */
     /* MAIN */
     const Layers = {
-        /* ABSTRACT */
-        Abstract,
-        AbstractActivation,
-        AbstractHidden,
-        AbstractInput,
-        AbstractOutput,
         /* INPUT */
         Input,
         /* HIDDEN */

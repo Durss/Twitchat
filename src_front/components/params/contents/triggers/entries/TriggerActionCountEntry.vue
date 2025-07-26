@@ -21,7 +21,7 @@
 		<div class="card-item counterList" v-if="selectedPerUserCounters.length > 0 && userSourceOptions.length > 1">
 			<div class="head">
 				<Icon name="user" class="icon" />
-				<span>{{ $tc("triggers.actions.count.user_source_title", selectedPerUserCounters.length) }}</span>
+				<span>{{ $t("triggers.actions.count.user_source_title", selectedPerUserCounters.length) }}</span>
 			</div>
 			<div class="card-item dark" v-for="item in selectedPerUserCounters" :key="item.id">
 				<label :for="'select_'+item.id" class="name">{{ item.name }}</label>
@@ -34,7 +34,7 @@
 		<div class="card-item counterList" v-if="selectedPerUserCounters.length > 0 && userSourceOptions.length > 1">
 			<div class="head">
 				<Icon name="user" class="icon" />
-				<span>{{ $tc("triggers.actions.count.user_action_title", selectedPerUserCounters.length) }}</span>
+				<span>{{ $t("triggers.actions.count.user_action_title", selectedPerUserCounters.length) }}</span>
 			</div>
 
 			<div class="card-item dark" v-for="item in selectedPerUserCounters" :key="item.id">

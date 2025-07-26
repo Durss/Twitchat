@@ -21,7 +21,7 @@
 		<div class="card-item valueList" v-if="selectedPerUserValue.length > 0 && userSourceOptions.length > 1">
 			<div class="head">
 				<Icon name="user" class="icon" />
-				<span>{{ $tc("triggers.actions.value.user_source_title", selectedPerUserValue.length) }}</span>
+				<span>{{ $t("triggers.actions.value.user_source_title", selectedPerUserValue.length) }}</span>
 			</div>
 
 			<div class="card-item dark" v-for="item in selectedPerUserValue" :key="item.id">
@@ -35,7 +35,7 @@
 		<div class="card-item valueList" v-if="selectedPerUserValue.length > 0 && userSourceOptions.length > 1">
 			<div class="head">
 				<Icon name="user" class="icon" />
-				<span>{{ $tc("triggers.actions.value.user_action_title", selectedPerUserValue.length) }}</span>
+				<span>{{ $t("triggers.actions.value.user_action_title", selectedPerUserValue.length) }}</span>
 			</div>
 
 			<div class="card-item dark" v-for="item in selectedPerUserValue" :key="item.id">

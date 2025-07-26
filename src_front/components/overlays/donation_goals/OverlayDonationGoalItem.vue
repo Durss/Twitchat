@@ -23,7 +23,7 @@
 				<div class="hideTimer" id="timer" v-if="data.hidePercent > 0" :style="{width:data.hidePercent+'%'}"></div>
 				<div class="shine" ref="shines" v-for="i in 2"></div>
 			</div>
-		
+
 			<template v-for="(p, i) in particles">
 				<svg v-if="i%2==0" :key="'star_'+i" ref="particle"
 				class="particle"
@@ -51,7 +51,7 @@ import TextSplitter from '@/components/chatform/TextSplitter.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/gsap-core';
-import { watch, type CSSProperties } from 'vue';
+import { watch, type ComponentPublicInstance, type CSSProperties } from 'vue';
 import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -79,7 +79,7 @@ class OverlayDonationGoalItem extends Vue {
 
 	@Prop()
 	public colors!:{base:string, fill:string, background:string};
-	
+
 	public localPercent:number = 0;
 	public state:""|"opened"|"opening"|"closed"|"closing" = "";
 	public particles:{x:number, y:number, r:number, s:number, a:number, v:number}[] = [];
@@ -89,7 +89,7 @@ class OverlayDonationGoalItem extends Vue {
 	public get color():string { return this.colors.base; }
 	public get color_fill():string { return this.colors.fill; }
 	public get color_background():string { return this.colors.background; }
-	
+
 	public get styles():CSSProperties {
 		return {
 			backgroundPositionX: (1 - this.localPercent)*100+"%",
@@ -149,7 +149,7 @@ class OverlayDonationGoalItem extends Vue {
 		this.stopParticles();
 		if(this.state == "opened") return Promise.resolve();
 		if(this.state == "opening") return Promise.resolve();
-		
+
 		this.state = "opening";
 		this.data.visible = true;
 		await this.$nextTick();
@@ -275,7 +275,7 @@ class OverlayDonationGoalItem extends Vue {
 			const shine = shines[i];
 			gsap.fromTo(shine, {opacity:Math.random()*.5+.5, left:-(Math.random()*100 + 100)+"%"}, {left:"100%", duration:.5 + Math.random()*.8, ease:"sine.inOut", delay:.5})
 		}
-		
+
 		gsap.killTweensOf(holder);
 		gsap.fromTo(holder, {scaleX:1.15}, {scaleX:1, ease:"elastic.out", duration:1, clearProps:"scaleX"});
 		gsap.fromTo(holder, {scaleY:1.25}, {scaleY:1, ease:"elastic.out", duration:1, clearProps:"scaleY", delay:.07});
@@ -286,21 +286,21 @@ class OverlayDonationGoalItem extends Vue {
 			const params = this.particles[index];
 			const particle = (this.$refs.particle as HTMLOrSVGElement[])[index];
 			gsap.killTweensOf(particle);
-			
+
 			// params.a = percent*Math.PI*2;
 			// params.x = bounds.width * .5 + Math.cos(params.a) * bounds.width * .25 * Math.random();
 			// params.y = bounds.height * .5 + Math.sin(params.a) * bounds.height * .25 * Math.random();
-			
+
 			// const endX = params.x + Math.cos(params.a) * params.v * bounds.width * .75;
 			// const endY = params.y + Math.sin(params.a) * params.v * bounds.height;
 			// const endR = params.r + (Math.random()-Math.random()) * Math.PI;
 			// const delay = Math.random() * .1;
 			// const duration = Math.random() * .5 + .75;
-			
+
 			params.a = percent*Math.PI*2;
 			params.x = -bounds.width * .25;
 			params.y = (Math.random()-Math.random()) * bounds.height + bounds.height*.5;
-			
+
 			// const endX = params.x + Math.cos(params.a) * params.v * bounds.width * .75;
 			// const endY = params.y + Math.sin(params.a) * params.v * bounds.height;
 			const endX = params.x + bounds.width * 2;
@@ -310,7 +310,7 @@ class OverlayDonationGoalItem extends Vue {
 			const delay = i/this.particles.length * 5;
 			const opacity = Math.random()*.8 + .2;
 
-			
+
 			gsap.fromTo(particle,
 						{left:params.x, top:params.y, scale:params.s, opacity},
 						{left:endX, top:endY, ease:"none", duration, delay, repeat:Math.max(2, hideDelay)});
@@ -333,7 +333,7 @@ class OverlayDonationGoalItem extends Vue {
 			await this.$nextTick();
 
 			const prng = Utils.seededRandom(this.prngSeed);
-			let letters = [...(this.$refs.textSplitter as Vue).$el.querySelectorAll(".letter")];
+			let letters = [...(this.$refs.textSplitter as ComponentPublicInstance).$el.querySelectorAll(".letter")];
 			for (let i = letters.length - 1; i > 0; i--) {
 				const j = Math.floor(prng() * (i + 1));
 				[letters[i], letters[j]] = [letters[j], letters[i]];
@@ -421,7 +421,7 @@ export default toNative(OverlayDonationGoalItem);
 					transition: opacity 1s;
 				}
 			}
-		
+
 			.hideTimer {
 				position: absolute;
 				bottom: 0;
@@ -439,11 +439,11 @@ export default toNative(OverlayDonationGoalItem);
 				width: 100%;
 				height: 100%;
 				z-index: 3;
-				// background-color: red;	
+				// background-color: red;
 				background-image: linear-gradient(120deg, transparent 0, transparent 17%, #ffffffA0 20%, #ffffffA0 30%, transparent 100%);
 			}
 		}
-	
+
 		&.secret {
 			.label {
 				.title {
@@ -518,13 +518,13 @@ export default toNative(OverlayDonationGoalItem);
 			.amount {
 				font-size: 1.5em;
 			}
-		
+
 			.hideTimer {
 				background: #92ffff;
 			}
 			.particle {
 				color: #a26cf3;
-				
+
 				&:nth-child(odd) {
 					color: white;
 				}

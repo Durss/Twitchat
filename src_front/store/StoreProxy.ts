@@ -83,7 +83,25 @@ export default class StoreProxy {
 	public static animatedText: IAnimatedTextState & IAnimatedTextGetters & IAnimatedTextActions & { $state: IAnimatedTextState, $reset: () => void };
 	public static customTrain: ICustomTrainState & ICustomTrainGetters & ICustomTrainActions & { $state: ICustomTrainState, $reset: () => void };
 	public static streamSocket: IStreamSocketState & IStreamSocketGetters & IStreamSocketActions & { $state: IStreamSocketState, $reset: () => void };
-	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
+	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>> & {
+		// Dirty typing override.
+		// For some reason (may the "legacy" flag on main.ts ?) the VueI18n interface
+		// doesn't match the actual API.
+		// I couldn't find a way to make it understand the t() function now supports
+		// pluralization
+		t: {
+			(key: string): string;
+			(key: string, locale: string): string;
+			(key: string, values: Record<string, unknown>): string;
+			(key: string, values: Record<string, unknown>, locale: string): string;
+			// Support for pluralization with count as second parameter
+			(key: string, count: number): string;
+			// Support for pluralization with values and count
+			(key: string, values: Record<string, unknown>, count: number): string;
+			// Support for pluralization with values and count
+			(key: string, values: (string | number)[], count: number): string;
+		};
+	};
 	public static router:Router;
 	public static asset:(path: string) => string;
 }

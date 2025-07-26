@@ -8,6 +8,8 @@
 		"target": "esnext",
 		"module": "esnext",
 		"moduleResolution": "node",
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
 		"types": [
 			"node"
 		]

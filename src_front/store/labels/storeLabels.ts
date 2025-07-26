@@ -247,7 +247,7 @@ export const storeLabels = defineStore('labels', {
 			const tag = data?.placeholder;
 			const validTag = data?.mode == "placeholder" && tag && this.allPlaceholders[tag];
 			if(data && data.enabled === true) {
-				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, data:data as unknown as JsonObject, exists:true, isValid:(validTag || data.mode == "html")});
+				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, data:data as unknown as JsonObject, exists:true, isValid:(!!validTag || data.mode == "html")});
 			}else{
 				PublicAPI.instance.broadcast(TwitchatEvent.LABEL_OVERLAY_PARAMS, {id:labelId, data:null, exists:false});
 			}
@@ -268,8 +268,8 @@ export const storeLabels = defineStore('labels', {
 	} as ILabelsActions
 	& ThisType<ILabelsActions
 		& UnwrapRef<ILabelsState>
-		& _StoreWithState<"raffle", ILabelsState, ILabelsGetters, ILabelsActions>
-		& _StoreWithGetters<ILabelsGetters>
+		& _StoreWithState<"labels", ILabelsState, ILabelsGetters, ILabelsActions>
+		& ILabelsGetters
 		& PiniaCustomProperties
 	>,
 })
