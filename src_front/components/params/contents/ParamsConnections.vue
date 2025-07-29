@@ -288,7 +288,7 @@ class ParamsConnections extends Vue implements IParameterContent {
 
 	public get youtubeConnected():boolean { return YoutubeHelper.instance.connected }
 	public get goxlrConnected():boolean { return GoXLRSocket.instance.connected }
-	public get voicemodConnected():boolean { return VoicemodWebSocket.instance.connected }
+	public get voicemodConnected():boolean { return VoicemodWebSocket.instance.connected.value }
 	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected }
 	public get heatConnected():boolean { return HeatSocket.instance.connected }
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected }

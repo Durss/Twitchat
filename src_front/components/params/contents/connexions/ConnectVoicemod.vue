@@ -55,7 +55,7 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
-import { reactive, type CSSProperties } from 'vue';
+import { reactive, watch, type CSSProperties } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import Splitter from '../../../Splitter.vue';
 import ParamItem from '../../ParamItem.vue';
@@ -77,7 +77,6 @@ import Utils from '@/utils/Utils';
 class ConnectVoicemod extends Vue implements IParameterContent {
 
 	public loadingList:boolean = false;
-	public connected:boolean = false;
 	public connecting:boolean = false;
 	public connectionFailed:boolean = false;
 	public voices:VoicemodTypes.Voice[] = [];
@@ -91,6 +90,7 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 	private voiceIdToCommand:{[key:string]:string} = {};
 
 	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; }
+	public get connected() { return VoicemodWebSocket.instance.connected.value; }
 
 	public get holderStyles():CSSProperties {
 		return {
@@ -101,6 +101,14 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 
 	public mounted():void {
 		this.prefill();
+		watch(VoicemodWebSocket.instance.connected, ()=>{
+			if(this.connected) {
+				this.connecting = false;
+				this.populate();
+			} else if(this.connected && !VoicemodWebSocket.instance.connected.value) {
+				this.connecting = false;
+			}
+		}, { immediate:true });
 	}
 
 	public onNavigateBack(): boolean { return false; }
@@ -110,10 +118,8 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 	 */
 	public toggleState():void {
 		if(this.param_enabled.value === true) {
-			// this.prefill();
 			this.connect();
 		} else {
-			this.connected = false;
 			this.connecting = false;
 			this.saveData();
 			VoicemodWebSocket.instance.disconnect();
@@ -124,7 +130,6 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 	 * Connect to Voicemod
 	 */
 	public async connect():Promise<void> {
-		this.connected = false;
 		this.connecting = true;
 		this.connectionFailed = false;
 		let connected = false;
@@ -133,11 +138,6 @@ class ConnectVoicemod extends Vue implements IParameterContent {
 			connected = true;
 		}catch(error) {}
 
-		this.connected = connected;
-		this.connecting = false;
-		if(connected) {
-			this.populate();
-		}
 		if(!connected) {
 			this.connectionFailed = true;
 		}
