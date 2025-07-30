@@ -31,12 +31,11 @@ const pinia = createPinia();
 
 let lang: string = navigator.language || (<any>navigator)['userLanguage'];
 lang = lang.substring(0, 2).toLowerCase();
-const i18n = createI18n({
+const i18n = createI18n<true>({
 	locale:lang,
 	fallbackLocale: 'en',
 	legacy: true,
 	globalInjection: true,
-	warnHtmlInMessage: false,
 	warnHtmlMessage: false,
 	silentFallbackWarn:!Config.instance.IS_PROD,
 	silentTranslationWarn:!Config.instance.IS_PROD,
@@ -144,7 +143,8 @@ function buildApp() {
 		//Walk through available locales on CTRL+Shift+M
 		if(e.key.toLowerCase() == "m" && metaKey && e.altKey) {
 			const locales = i18n.global.availableLocales;
-			i18n.global.locale = locales[(locales.indexOf(i18n.global.locale) + 1)%locales.length];
+			// @ts-expect-error lib doesn't adapt "locale" typing based on "legacy" option
+			i18n.global.locale.value = locales[(locales.indexOf(i18n.global.locale.value) + 1)%locales.length];
 			e.preventDefault();
 		}
 	}, true);

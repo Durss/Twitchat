@@ -928,7 +928,6 @@ export class ChatForm extends Vue {
 			res += ` / <img src="${this.$asset('icons/follow.svg').replace(/"/g, '\\\'')}" height='15px' style='vertical-align:middle'> ${followCount}`;
 			res += ` / <img src="${this.$asset('icons/unfollow.svg').replace(/"/g, '\\\'')}" height='15px' style='vertical-align:middle'> ${(onlineCount - followCount)}`;
 		}
-		console.log(res)
 		this.onlineUsersTooltip = res;
 	}
 
