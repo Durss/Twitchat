@@ -170,9 +170,8 @@ class TriggerActionCustomBadge extends AbstractTriggerActionEntry {
 	 * Called when the available placeholder list is updated
 	 */
 	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
-		this.userPLaceholders = list.filter(v=>v.numberParsable !== true);
+		this.userPLaceholders = list;
 		this.param_userSource.listValues = this.userSourceOptions;
-		// this.param_value.placeholderList = list.filter(v=>v.numberParsable == true);
 	}
 }
 export default toNative(TriggerActionCustomBadge);
