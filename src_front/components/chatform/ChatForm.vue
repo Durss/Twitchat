@@ -1,7 +1,6 @@
 <template>
 	<div :class="classes">
 		<div class="holder">
-
 			<div class="leftForm">
 				<ButtonNotification
 					:aria-label="$t('chat.form.paramsBt_aria')"
@@ -887,6 +886,9 @@ export class ChatForm extends Vue {
 	 * Toggle parameters display
 	 */
 	public toggleParams():void {
+		const sound = window.jsfxr.sfxr.generate("click");
+		window.jsfxr.sfxr.play(sound);
+
 		if(this.$store.params.currentPage == TwitchatDataTypes.ParameterPages.CLOSE) {
 			this.$store.params.openParamsPage( TwitchatDataTypes.ParameterPages.MAIN_MENU );
 		}else{
@@ -920,12 +922,13 @@ export class ChatForm extends Vue {
 			}
 		}
 
-		let res = "<img src='"+this.$asset('icons/user.svg').replace(/"/g, '\\\'')+"' height='15px' style='vertical-align:middle'> "+onlineCount;
+		let res = `<img src="${this.$asset('icons/user.svg').replace(/"/g, '\\\'')}" height='15px' style='vertical-align:middle'> ${onlineCount}`;
 
 		if(this.$store.params.appearance.highlightNonFollowers.value === true) {
-			res += " / <img src='"+this.$asset('icons/follow.svg').replace(/"/g, '\\\'')+"' height='15px' style='vertical-align:middle'> "+followCount;
-			res += " / <img src='"+this.$asset('icons/unfollow.svg').replace(/"/g, '\\\'')+"' height='15px' style='vertical-align:middle'> "+(onlineCount - followCount);
+			res += ` / <img src="${this.$asset('icons/follow.svg').replace(/"/g, '\\\'')}" height='15px' style='vertical-align:middle'> ${followCount}`;
+			res += ` / <img src="${this.$asset('icons/unfollow.svg').replace(/"/g, '\\\'')}" height='15px' style='vertical-align:middle'> ${(onlineCount - followCount)}`;
 		}
+		console.log(res)
 		this.onlineUsersTooltip = res;
 	}
 
