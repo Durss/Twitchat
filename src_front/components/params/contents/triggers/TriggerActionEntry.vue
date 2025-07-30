@@ -274,6 +274,9 @@
 					<TTButton class="button" @click="selectActionType('vibrate')"
 						icon="vibrate" >{{ $t('triggers.actions.common.action_vibrate') }}</TTButton>
 
+					<TTButton class="button" @click="selectActionType('sfxr')"
+						icon="unmute" >{{ $t('triggers.actions.common.action_sfxr') }}</TTButton>
+
 					<TTButton class="button" @click="selectActionType('http')"
 						icon="url">{{ $t('triggers.actions.common.action_http') }}</TTButton>
 
@@ -322,6 +325,7 @@
 			<TriggerActionTimerEntry v-else-if="action.type=='timer'" :action="action" :triggerData="triggerData" />
 			<TriggerActionAnimateTextEntry v-else-if="action.type=='animated_text'" :action="action" :triggerData="triggerData" />
 			<TriggerActionCustomTrainEntry v-else-if="action.type=='custom_train'" :action="action" :triggerData="triggerData" />
+			<TriggerActionSFXREntry v-else-if="action.type=='sfxr'" :action="action" :triggerData="triggerData" />
 			<RaffleForm v-else-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 			<BingoForm v-else-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 			<PollForm v-else-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -396,6 +400,7 @@ import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneE
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 import TriggerActionCustomTrainEntry from './entries/TriggerActionCustomTrainEntry.vue';
+import TriggerActionSFXREntry from './TriggerActionSFXREntry.vue';
 
 @Component({
 	components:{
@@ -416,6 +421,7 @@ import TriggerActionCustomTrainEntry from './entries/TriggerActionCustomTrainEnt
 		TriggerActionHTTPCall,
 		TriggerActionGroqEntry,
 		TriggerActionChatEntry,
+		TriggerActionSFXREntry,
 		TriggerActionLumiaEntry,
 		TriggerActionDelayEntry,
 		TriggerActionValueEntry,

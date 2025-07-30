@@ -1,15 +1,16 @@
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import Config from "@/utils/Config";
+import Utils from "@/utils/Utils";
 import GoXLRSocket from "@/utils/goxlr/GoXLRSocket";
 import SpotifyHelper from "@/utils/music/SpotifyHelper";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { reactive } from "vue";
 import type { GoXLRTypes } from "./GoXLRTypes";
 import { TwitchatDataTypes } from "./TwitchatDataTypes";
+import type { JSFXRSoundPreset, SFXRSoundParams } from "./jsfxr";
 import type { TwitchDataTypes } from "./twitch/TwitchDataTypes";
-import Utils from "@/utils/Utils";
-import { reactive } from "vue";
 
 /**
  * Util to strongly type string object paths.
@@ -108,6 +109,7 @@ export type TriggerActionTypes = {enabled?:boolean} &
 								| TriggerActionChatPollData
 								| TriggerActionAnimatedTextData
 								| TriggerActionCustomTrainData
+								| TriggerActionSFXRData
 							);
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -1417,6 +1419,24 @@ export interface TriggerActionCustomTrainData extends TriggerActionData{
 	}
 }
 export const TriggerActionCustomTrainData_ActionList = ["add", "del"] as const;
+
+/**
+ * Beep action details
+ */
+export interface TriggerActionSFXRData extends TriggerActionData{
+	type:"sfxr";
+	sfxr: {
+		/**
+		 * Sound effect preset ID to use
+		 */
+		presetId:typeof JSFXRSoundPreset[number] | "custom";
+		/**
+		 * Raw configuration of the JSFXR sound effect
+		 */
+		rawConfig?:string;
+
+	}
+}
 
 /**
  * Represents a tree structure item.

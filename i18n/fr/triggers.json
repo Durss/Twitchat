@@ -177,6 +177,7 @@
 				"action_stream_infos": "Changer les infos de stream",
 				"action_stream_infos_tt": "Vous devez autoriser Twitchat à modifier vos informations de stream",
 				"action_vibrate": "Vibrer téléphone",
+				"action_sfxr": "Jouer un effet sonore",
 				"custom_placeholder_example": "Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur du placeholder.",
 				"action_goxlr": "Contrôler la GoXLR",
 				"action_goxlr_tt": "Vous devez connecter votre GoXLR dans les paramètres",
@@ -713,6 +714,22 @@
 					"add": "Ajouter un montant",
 					"del": "Soustraire un montant"
 				}
+			},
+			"sfxr": {
+				"preset_pickupCoin":"Pièce",
+				"preset_laserShoot":"Tir laser",
+				"preset_explosion":"Explosion",
+				"preset_powerUp":"Power up",
+				"preset_hitHurt":"Touché/blessé",
+				"preset_jump":"Saut",
+				"preset_blipSelect":"Bip sélection",
+				"preset_synth":"Synthé",
+				"preset_tone":"Tonalité",
+				"preset_click":"Clic",
+				"preset_random":"Aléatoire",
+				"preset_custom": "Configuration personnalisée...",
+				"param_custom": "Exportez une configuration depuis <a href='https://tsfxr.jdmnk.dev' target='_blank'>ce site</a> ou <a href='https://sfxr.me' target='_blank'>celui-ci</a>",
+				"param_custom_error": "Données invalides"
 			}
 		},
 		"categories": {

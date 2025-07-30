@@ -178,6 +178,7 @@
 				"action_stream_infos": "Set stream infos",
 				"action_stream_infos_tt": "You need to allow Twitchat to update your stream info",
 				"action_vibrate": "Vibrate phone",
+				"action_sfxr": "Play a sound effect",
 				"custom_placeholder_example": "Use {PLACEHOLDER} keyword in any field of the actions below to get the placeholder's value.",
 				"action_goxlr": "Control GoXLR",
 				"action_goxlr_tt": "You need to connect your GoXLR",
@@ -713,6 +714,22 @@
 					"add": "Add amount",
 					"del": "Remove amount"
 				}
+			},
+			"sfxr": {
+				"preset_pickupCoin":"Pickup coin",
+				"preset_laserShoot":"Laser shoot",
+				"preset_explosion":"Explosion",
+				"preset_powerUp":"Power up",
+				"preset_hitHurt":"Hit hurt",
+				"preset_jump":"Jump",
+				"preset_blipSelect":"Blip select",
+				"preset_synth":"Synth",
+				"preset_tone":"Tone",
+				"preset_click":"Click",
+				"preset_random":"Random",
+				"preset_custom":"Custom...",
+				"param_custom": "Export a configuration from <a href='https://tsfxr.jdmnk.dev' target='_blank'>this site</a> or <a href='https://sfxr.me' target='_blank'>this one</a>",
+				"param_custom_error": "Invalid data"
 			}
 		},
 		"categories": {

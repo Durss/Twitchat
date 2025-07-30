@@ -1050,6 +1050,15 @@ const UserDataSchema = {
 										value: { type: "string",  minLength: 0, maxLength: 1000 }
 									}
 								},
+
+								sfxr: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										presetId: {enum: ["random", "custom", "pickupCoin", "laserShoot", "explosion", "powerUp", "hitHurt", "jump", "blipSelect", "synth", "tone", "click"]},
+										rawConfig: {type:"string", maxLength:1000},
+									}
+								}
 							}
 						},
 					}

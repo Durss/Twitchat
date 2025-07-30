@@ -3795,6 +3795,29 @@ export default class TriggerActionHandler {
 							}
 						}
 					}
+				}else
+
+				if(step.type == "sfxr") {
+					logStep.messages.push({date:Date.now(), value:"Play SFXR preset "+step.sfxr.presetId});
+					if(step.sfxr.presetId === "custom") {
+						if(!step.sfxr.rawConfig) {
+							logStep.messages.push({date:Date.now(), value:"❌ Custom SFXR preset is empty"});
+							log.error = true;
+							logStep.error = true;
+						}else {
+							const success = await Utils.playSFXRFromString(step.sfxr.rawConfig);
+							if(!success) {
+								logStep.messages.push({date:Date.now(), value:"❌ Failed to play custom SFXR sound"});
+								log.error = true;
+								logStep.error = true;
+							}else{
+								logStep.messages.push({date:Date.now(), value:"✔ Successfully played custom SFXR sound"});
+							}
+						}
+					}else{
+						const sound = window.jsfxr.sfxr.generate(step.sfxr.presetId);
+						window.jsfxr.sfxr.play(sound);
+					}
 				}
 
 			}catch(error:any) {

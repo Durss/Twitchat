@@ -886,9 +886,6 @@ export class ChatForm extends Vue {
 	 * Toggle parameters display
 	 */
 	public toggleParams():void {
-		const sound = window.jsfxr.sfxr.generate("click");
-		window.jsfxr.sfxr.play(sound);
-
 		if(this.$store.params.currentPage == TwitchatDataTypes.ParameterPages.CLOSE) {
 			this.$store.params.openParamsPage( TwitchatDataTypes.ParameterPages.MAIN_MENU );
 		}else{

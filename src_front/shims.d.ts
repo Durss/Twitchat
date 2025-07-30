@@ -2,6 +2,7 @@ import type { RouteRecordRaw } from "vue-router";
 import type { IStore } from "./store/StoreProxy";
 import type { TwitchatDataTypes } from "./types/TwitchatDataTypes";
 import type Config from "./utils/Config";
+import type { SFXR } from "./types/jsfxr";
 
 declare module '*.vue' {
 	import type { DefineComponent } from 'vue';

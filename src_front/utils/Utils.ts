@@ -1,6 +1,7 @@
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { JsonObject } from 'type-fest';
+import SetTimeoutWorker from './SeTimeoutWorker';
 
 /**
  * Created by Durss
@@ -986,5 +987,38 @@ export default class Utils {
 			usersAllowed:[],
 			usersRefused:[],
 		}
+	}
+
+	/**
+	 * Plays a SFXR sound from a stringified JSON object or encoded string
+	 * @param data 
+	 * @returns 
+	 */
+	public static playSFXRFromString(data:string): Promise<boolean> {
+		return new Promise((resolve, reject)=>{
+			let parsed = "";
+			// If a sharable URL is given, extract the sound data
+			if(data.indexOf("http") === 0) {
+				parsed = data.split("#")[1];
+			}
+			if(!parsed) {
+				// Check if it's a JSON string and parse it
+				try {
+					parsed = JSON.parse(data);
+				}catch(e) {
+					// Not a JSON string, assume it's an encoded string
+					parsed = data;
+				}
+			}
+			try {
+				const sound = window.jsfxr.sfxr.toAudio(parsed);
+				const handler = sound.play();
+				const d = handler.buffer?.duration || 0.1;
+				SetTimeoutWorker.instance.create(()=>resolve(true), d * 1000);
+			}catch(e) {
+				console.error(e);
+				resolve(false);
+			}
+		});
 	}
 }
