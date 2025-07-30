@@ -3,6 +3,14 @@ import type { IStore } from "./store/StoreProxy";
 import type { TwitchatDataTypes } from "./types/TwitchatDataTypes";
 import type Config from "./utils/Config";
 
+declare module '*.vue' {
+	import type { DefineComponent } from 'vue';
+	const component: DefineComponent<Record<string, unknown>, Record<string, unknown>, unknown>;
+	export default component;
+	interface ElementAttrs extends AriaAttributes, DOMAttributes<T> {
+	}
+}
+
 declare module '@vue/runtime-core' {
 	interface ComponentCustomProperties {
 		$store: IStore,
@@ -24,7 +32,9 @@ declare global {
 		obsstudio?: any;
 		queryLocalFonts?(options?:{postscriptNames?:string[]}):Promise<{family:string, fullName:string, postscriptName:string, style:""}[]>;
 		setInitMessage(message:string):void;
+    	jsfxr: {sfxr:SFXR};
 	}
+
 	interface Array<T> {
 		findLastIndex(
 			predicate: (value: T, index: number, obj: T[]) => unknown,
