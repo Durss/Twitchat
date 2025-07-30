@@ -207,7 +207,7 @@ class TriggerCreateForm extends Vue {
 		.map( v=> {
 			return {
 				label:this.$t(v.labelKey),
-				searchTerms:locales.map(l => this.$t(v.labelKey, l)),
+				searchTerms:locales.map(l => this.$t(v.labelKey, {locale:l})),
 				value:v.value,
 				trigger:v,
 				icon:this.$asset('icons/'+v.icon+'.svg'),

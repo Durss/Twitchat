@@ -53,7 +53,7 @@ class TriggerActionVoicemodEntry extends AbstractTriggerActionEntry {
 	private voiceListItemIDToData:{[key:string]:{type:"id"|"placeholder", value:string}} = {};
 	private soundListItemIDToData:{[key:string]:{type:"id"|"placeholder", value:string}} = {};
 
-	public get vmConnected():boolean { return VoicemodWebSocket.instance.connected; }
+	public get vmConnected():boolean { return VoicemodWebSocket.instance.connected.value; }
 	public get subcontentVM():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.VOICEMOD; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 
