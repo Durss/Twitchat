@@ -1431,10 +1431,13 @@ export interface TriggerActionSFXRData extends TriggerActionData{
 		 */
 		presetId:typeof JSFXRSoundPreset[number] | "custom";
 		/**
+		 * Should trigger execution be paused until the sound effect is played?
+		 */
+		waitForEnd:boolean;
+		/**
 		 * Raw configuration of the JSFXR sound effect
 		 */
 		rawConfig?:string;
-
 	}
 }
 

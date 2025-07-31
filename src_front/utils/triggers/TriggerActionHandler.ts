@@ -30,6 +30,7 @@ import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import YoutubeHelper from "../youtube/YoutubeHelper";
 import OBSWebSocket from "../OBSWebsocket";
+import SFXRUtils from "../SFXRUtils";
 
 /**
 * Created : 22/04/2022
@@ -3798,25 +3799,36 @@ export default class TriggerActionHandler {
 				}else
 
 				if(step.type == "sfxr") {
-					logStep.messages.push({date:Date.now(), value:"Play SFXR preset "+step.sfxr.presetId});
-					if(step.sfxr.presetId === "custom") {
-						if(!step.sfxr.rawConfig) {
-							logStep.messages.push({date:Date.now(), value:"❌ Custom SFXR preset is empty"});
-							log.error = true;
-							logStep.error = true;
-						}else {
-							const success = await Utils.playSFXRFromString(step.sfxr.rawConfig);
+					let message = "Play SFXR preset \""+step.sfxr.presetId+"\"";
+					if(step.sfxr.waitForEnd) message += " and wait for its playback to complete";
+					logStep.messages.push({date:Date.now(), value:message});
+					if(step.sfxr.presetId === "custom" && !step.sfxr.rawConfig) {
+						logStep.messages.push({date:Date.now(), value:"❌ Custom SFXR preset is empty"});
+						log.error = true;
+						logStep.error = true;
+					}else {
+						const data = step.sfxr.presetId === "custom"? step.sfxr.rawConfig! : step.sfxr.presetId;
+						const {promise} = SFXRUtils.playSFXRFromString(data);
+						if(step.sfxr.waitForEnd) {
+							const success = await promise;
 							if(!success) {
-								logStep.messages.push({date:Date.now(), value:"❌ Failed to play custom SFXR sound"});
+								logStep.messages.push({date:Date.now(), value:"❌ Failed to play SFXR sound"});
 								log.error = true;
 								logStep.error = true;
 							}else{
-								logStep.messages.push({date:Date.now(), value:"✔ Successfully played custom SFXR sound"});
+								logStep.messages.push({date:Date.now(), value:"✔ Successfully played SFXR sound"});
 							}
+						}else{
+							promise.then(success => {
+								if(!success) {
+									logStep.messages.push({date:Date.now(), value:"❌ Failed to play SFXR sound"});
+									log.error = true;
+									logStep.error = true;
+								}else{
+									logStep.messages.push({date:Date.now(), value:"✔ Successfully played SFXR sound"});
+								}
+							});
 						}
-					}else{
-						const sound = window.jsfxr.sfxr.generate(step.sfxr.presetId);
-						window.jsfxr.sfxr.play(sound);
 					}
 				}
 

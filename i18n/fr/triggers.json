@@ -728,6 +728,7 @@
 				"preset_click":"Clic",
 				"preset_random":"Aléatoire",
 				"preset_custom": "Configuration personnalisée...",
+				"param_waitForComplete": "Attendre la fin de l'audio\n(l'exécution du trigger sera mise en pause jusqu'à ce que l'audio termine)",
 				"param_custom": "Exportez une configuration depuis <a href='https://tsfxr.jdmnk.dev' target='_blank'>ce site</a> ou <a href='https://sfxr.me' target='_blank'>celui-ci</a>",
 				"param_custom_error": "Données invalides"
 			}

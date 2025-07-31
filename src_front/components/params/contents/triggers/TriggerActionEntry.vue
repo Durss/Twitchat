@@ -623,6 +623,7 @@ class TriggerActionEntry extends Vue {
 		else if(this.action.type == "timer") icons.push( 'timer' );
 		else if(this.action.type == "animated_text") icons.push( 'animate' );
 		else if(this.action.type == "custom_train") icons.push( 'train' );
+		else if(this.action.type == "sfxr") icons.push( 'unmute' );
 		return icons;
 	}
 

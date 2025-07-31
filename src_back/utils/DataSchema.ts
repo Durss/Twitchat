@@ -1057,6 +1057,7 @@ const UserDataSchema = {
 									properties: {
 										presetId: {enum: ["random", "custom", "pickupCoin", "laserShoot", "explosion", "powerUp", "hitHurt", "jump", "blipSelect", "synth", "tone", "click"]},
 										rawConfig: {type:"string", maxLength:1000},
+										waitForEnd: { type: "boolean" },
 									}
 								}
 							}

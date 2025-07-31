@@ -98,12 +98,21 @@ button {
 		display: inline-block;
 		margin: 0;
 		cursor: pointer;
-		background: rgba(255, 255, 255, .5);
 		transition: background .3s;
 		border-radius: 50%;
+		background: rgba(0, 0, 0, .5);
 		&:checked {
 			opacity: 1;
 			background: var(--color-secondary);
+		}
+	}
+
+	body.dark {
+		input[type='radio'] {
+		background: rgba(255, 255, 255, .5);
+			&:checked {
+				background: var(--color-secondary);
+			}
 		}
 	}
 }

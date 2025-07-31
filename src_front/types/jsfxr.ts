@@ -105,7 +105,7 @@ export interface SFXR {
    * Play a sound using the Web Audio API
    * @param sound - Sound parameters or base58 encoded string
    */
-  play(sound: SFXRSoundParams | string): void;
+  play(sound: SFXRSoundParams | string): AudioBufferSourceNode;
 
   /**
    * Convert sound parameters to an HTML5 Audio element
