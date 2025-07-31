@@ -13,10 +13,12 @@
 		</div>
 
 		<div class="custom" v-if="action.sfxr.presetId == 'custom'">
-			<ParamItem class="params" :paramData="param_custom" v-model="action.sfxr.rawConfig" :error="error" :errorMessage="$t('triggers.actions.sfxr.param_custom_error')" />
-			<TTButton icon="test" @click="testCustomSound">Test</TTButton>
+			<ParamItem class="params" :paramData="param_custom" v-model="action.sfxr.rawConfig" :error="error" :errorMessage="$t('triggers.actions.sfxr.param_custom_error')">
+				<TTButton class="testBt" icon="test" @click="testCustomSound">Test</TTButton>
+			</ParamItem>
 		</div>
-		
+
+		<ParamItem class="params" :paramData="param_volume" v-model="action.sfxr.volume" />
 		<ParamItem class="params" :paramData="param_waitForEnd" v-model="action.sfxr.waitForEnd" />
 	</div>
 </template>
@@ -50,6 +52,7 @@ class TriggerActionSFXREntry extends AbstractTriggerActionEntry {
 
 	public error:boolean = false;
 	public param_custom:TwitchatDataTypes.ParameterData<string> = { type: "string", labelKey: "triggers.actions.sfxr.param_custom", value: "", placeholder: "{...}", longText: true }
+	public param_volume:TwitchatDataTypes.ParameterData<number> = { type: "slider", min:0, max:100, labelKey: "triggers.actions.sfxr.param_volume", value:25 }
 	public param_waitForEnd:TwitchatDataTypes.ParameterData<boolean> = { type: "boolean", labelKey: "triggers.actions.sfxr.param_waitForComplete", value: true }
 
 	private prevSound : AudioBufferSourceNode | null = null;
@@ -63,6 +66,7 @@ class TriggerActionSFXREntry extends AbstractTriggerActionEntry {
 			this.action.sfxr = {
 				presetId: "blipSelect",
 				waitForEnd: true,
+				volume: 100,
 			};
 		}
 		this.param_custom.value = this.action.sfxr.rawConfig || "";
@@ -72,14 +76,14 @@ class TriggerActionSFXREntry extends AbstractTriggerActionEntry {
 		if(this.prevSound) this.prevSound.stop()
 		this.error = false;
 		if (this.action.sfxr.rawConfig) {
-			this.prevSound = (await SFXRUtils.playSFXRFromString(this.action.sfxr.rawConfig)).audio;
+			this.prevSound = (await SFXRUtils.playSFXRFromString(this.action.sfxr.rawConfig, this.param_volume.value)).audio;
 		}
 	}
 
 	public async playSample(id: TriggerActionSFXRData['sfxr']["presetId"]):Promise<void> {
 		if(this.prevSound) this.prevSound.stop()
 		if (id === "custom") return;
-		this.prevSound = (await SFXRUtils.playSFXRFromString(id)).audio;
+		this.prevSound = (await SFXRUtils.playSFXRFromString(id, this.param_volume.value)).audio;
 	}
 
 }
@@ -124,12 +128,9 @@ export default toNative(TriggerActionSFXREntry);
 
 	.custom {
 		margin-top: .5rem;
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-		align-items: center;
-		.params {
-			width: 100%;
+		.testBt {
+			margin: .25em auto 0 auto;
+			display: flex;
 		}
 	}
 }

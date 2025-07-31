@@ -728,6 +728,7 @@
 				"preset_click":"Click",
 				"preset_random":"Random",
 				"preset_custom":"Custom...",
+				"param_volume": "Volume",
 				"param_waitForComplete": "Wait for audio to complete\n(trigger's execution will be paused until audio completes)",
 				"param_custom": "Export a configuration from <a href='https://tsfxr.jdmnk.dev' target='_blank'>this site</a> or <a href='https://sfxr.me' target='_blank'>this one</a>",
 				"param_custom_error": "Invalid data"

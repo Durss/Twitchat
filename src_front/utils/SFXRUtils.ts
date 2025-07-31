@@ -87,9 +87,10 @@ export default class SFXRUtils {
 	/**
 	 * Plays a SFXR sound from a stringified JSON object or encoded string
 	 * @param data 
+	 * @param volume 0-100
 	 * @returns 
 	 */
-	public static async playSFXRFromString(data:typeof JSFXRSoundPreset[number] | string): Promise<{completePromise:Promise<boolean>, audio:AudioBufferSourceNode | null}> {
+	public static async playSFXRFromString(data:typeof JSFXRSoundPreset[number] | string, volume:number = 100): Promise<{completePromise:Promise<boolean>, audio:AudioBufferSourceNode | null}> {
 		try {
 			// Ensure scripts are loaded before proceeding
 			await SFXRUtils.loadScripts();
@@ -106,6 +107,7 @@ export default class SFXRUtils {
 
 		if(JSFXRSoundPreset.includes(data as typeof JSFXRSoundPreset[number])) {
 			const params = window.jsfxr.sfxr.generate(data as typeof JSFXRSoundPreset[number]);
+			params.sound_vol = (params.sound_vol ||.25) * volume / 100;
 			audio = window.jsfxr.sfxr.play(params);
 			duration_s = audio.buffer?.duration || 0.1;
 		}else{
@@ -125,6 +127,7 @@ export default class SFXRUtils {
 			}
 			try {
 				const sound = window.jsfxr.sfxr.toAudio(parsed);
+				sound.setVolume(volume / 100);
 				audio = sound.play();
 				duration_s = audio.buffer?.duration || 0.1;
 			}catch(e) {
