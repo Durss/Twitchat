@@ -65,13 +65,14 @@ export default class TriggerUtils {
 	 * Gets the label of a trigger
 	 * @param trigger
 	 */
-	public static getTriggerDisplayInfo(trigger:TriggerData):{label:string, labelKey?:string, descriptionKey?:string, icon:string, iconURL?:string, iconBgColor?:string, event?:TriggerTypeDefinition} {
+	public static getTriggerDisplayInfo(trigger:TriggerData) {
 		const ref = TriggerTypesDefinitionList().find(v => v.value == trigger.type);
-		const result:{label:string, labelKey?:string, descriptionKey?:string, icon:string, iconURL?:string, iconBgColor?:string, event?:TriggerTypeDefinition} = {label:"", labelKey:ref?.labelKey, descriptionKey:ref?.descriptionKey, icon:"alert"}
+		const result:{label:string, labelKey?:string, descriptionKey?:string, disabledReasonKey?:string, icon:string, iconURL?:string, iconBgColor?:string, event?:TriggerTypeDefinition} = {label:"", labelKey:ref?.labelKey, descriptionKey:ref?.descriptionKey, icon:"alert"}
 		if(!ref) return result
 		result.event = ref;
 		if(ref.icon) result.icon = ref.icon;
 		if(trigger.name) result.label = trigger.name;
+		if(ref.disabled) result.disabledReasonKey = ref.disabledReasonLabelKey;
 		let prefix = "";
 
 		switch(trigger.type) {

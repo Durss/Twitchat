@@ -1,10 +1,11 @@
 <template>
 	<div class="triggerlistitem"
+	:class="{disabled:triggerTypeDef?.disabled === true}"
 	@mouseenter="over=true" @mouseleave="over=false"
 	v-newflag="{date:(entryData.trigger.created_at || 0), duration:2 * 60000, id:'trigger_'+entryData.trigger.id}">
 		<button class="button"
 		@click="$emit('select', entryData.trigger)"
-		v-tooltip="{content:getCategoryLabel(entryData),placement:'left'}">
+		v-tooltip="{content:tooltipText,placement:'left',theme:triggerTypeDef?.disabled? 'alert' : 'twitchat'}">
 			<img v-if="entryData.iconURL" :src="entryData.iconURL" class="icon" :style="{backgroundColor:entryData.iconBgColor}">
 			<Icon v-else-if="entryData.icon" :name="entryData.icon" class="icon" :style="{backgroundColor:entryData.iconBgColor}" />
 			<div class="label">
@@ -48,9 +49,10 @@
 
 <script lang="ts">
 import ToggleButton from '@/components/ToggleButton.vue';
-import { TriggerSubTypeLabel, TriggerTypesDefinitionList } from '@/types/TriggerActionDataTypes';
+import { TriggerSubTypeLabel, TriggerTypesDefinitionList, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import type { TriggerListEntry } from "./TriggerList.vue";
+import TriggerUtils from '@/utils/TriggerUtils';
 
 @Component({
 	components:{
@@ -73,11 +75,17 @@ class TriggerListItem extends Vue {
 	public toggleMode!:boolean;
 
 	public over:boolean = false;
-
-	public getCategoryLabel(entry:TriggerListEntry):string {
-		const event = TriggerTypesDefinitionList().find(v=> v.value === entry.trigger.type);
-		if(!event) return "unknown category"
-		return this.$t(event?.descriptionKey || event?.labelKey, {SUB_ITEM_NAME: TriggerSubTypeLabel(entry.trigger)});
+	public tooltipText:string = "";
+	public triggerDisplayInfo:ReturnType<typeof TriggerUtils.getTriggerDisplayInfo>|undefined = undefined
+	public triggerTypeDef:TriggerTypeDefinition|undefined = undefined;
+	
+	public beforeMount(): void {
+		this.triggerTypeDef = TriggerTypesDefinitionList().find(v=> v.value === this.entryData.trigger.type);
+		this.triggerDisplayInfo = TriggerUtils.getTriggerDisplayInfo(this.entryData.trigger);
+		const event = TriggerTypesDefinitionList().find(v=> v.value === this.entryData.trigger.type);
+		if(this.triggerTypeDef?.disabled === true && this.triggerTypeDef.disabledReasonLabelKey) this.tooltipText = this.$t(this.triggerTypeDef.disabledReasonLabelKey, {SUB_ITEM_NAME: TriggerSubTypeLabel(this.entryData.trigger)});
+		else if(!event) this.tooltipText = "unknown category"
+		else this.tooltipText = this.$t(this.triggerDisplayInfo.descriptionKey ||event?.descriptionKey || event?.labelKey, {SUB_ITEM_NAME: TriggerSubTypeLabel(this.entryData.trigger)});
 	}
 
 }
@@ -99,6 +107,13 @@ export default toNative(TriggerListItem);
 
 	&:hover {
 		background-color: var(--background-color-fader);
+	}
+
+	&.disabled {
+		background-color: var(--color-alert);
+		&:hover {
+			background-color: var(--color-alert-light);
+		}
 	}
 	.label {
 		display: flex;

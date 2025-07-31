@@ -86,7 +86,7 @@
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
-import ToggleBlock, { ToggleBlock as ToggleBlockClass } from '@/components/ToggleBlock.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { RoughEase } from 'gsap/EasePack';

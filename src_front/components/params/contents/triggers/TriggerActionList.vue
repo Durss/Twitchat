@@ -1,22 +1,27 @@
 <template>
 	<div class="triggeractionlist">
+		<div class="card-item alert description" v-if="triggerDef?.disabledReasonKey" data-noselect>
+			<Icon name="alert" class="icon" theme="light" />
+			{{ $t(triggerDef.disabledReasonKey) }}
+		</div>
+		
 		<div class="card-item secondary description" data-noselect>
 			<Icon name="info" class="icon" theme="light" />
-			<i18n-t scope="global" tag="span" v-if="triggerDescriptionLabel" :keypath="triggerDescriptionLabel">
+			<i18n-t scope="global" tag="span" v-if="triggerDef?.descriptionKey" :keypath="triggerDef?.descriptionKey">
 				<template #SUB_ITEM_NAME>
 					<mark>{{ subTypeLabel }}</mark>
 				</template>
-				<template #INFO v-if="$te(triggerDescriptionLabel+'_info')">
+				<template #INFO v-if="$te(triggerDef?.descriptionKey+'_info')">
 					<i18n-t tag="i" class="details" scope="global"
-					v-if="$te(triggerDescriptionLabel+'_info')"
-					:keypath="triggerDescriptionLabel+'_info'">
-						<template #CMD v-if="$te(triggerDescriptionLabel+'_info_cmd')">
-							<mark>{{ $t(triggerDescriptionLabel+'_info_cmd') }}</mark>
+					v-if="$te(triggerDef?.descriptionKey+'_info')"
+					:keypath="triggerDef?.descriptionKey+'_info'">
+						<template #CMD v-if="$te(triggerDef?.descriptionKey+'_info_cmd')">
+							<mark>{{ $t(triggerDef?.descriptionKey+'_info_cmd') }}</mark>
 						</template>
 					</i18n-t>
 				</template>
-				<template #CMD v-if="$te(triggerDescriptionLabel+'_cmd')">
-					<mark v-html="$t(triggerDescriptionLabel+'_cmd')"></mark>
+				<template #CMD v-if="$te(triggerDef?.descriptionKey+'_cmd')">
+					<mark v-html="$t(triggerDef?.descriptionKey+'_cmd')"></mark>
 				</template>
 			</i18n-t>
 		</div>
@@ -219,6 +224,7 @@ class TriggerActionList extends Vue {
 	public selectStyles:{[key:string]:string} = {};
 	public selectedActions:string[] = [];
 	public matchingCondition:boolean = true;
+	public triggerDef:ReturnType<typeof TriggerUtils.getTriggerDisplayInfo>|undefined = undefined
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:true, icon:"disable", labelKey:"global.enabled" };
 	public param_enableForRemoteChans:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:true, icon:"disable", labelKey:"triggers.enableForRemoteChans" };
 	public param_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"label", placeholder:"...", labelKey:"triggers.trigger_name" };
@@ -274,13 +280,6 @@ class TriggerActionList extends Vue {
 			TriggerTypes.RAID_STARTED,
 		]
 		return allowList.includes(this.triggerData.type);
-	}
-
-	/**
-	 * Get a trigger's description
-	 */
-	public get triggerDescriptionLabel():string|undefined {
-		return TriggerUtils.getTriggerDisplayInfo(this.triggerData).descriptionKey;
 	}
 
 	/**
@@ -352,6 +351,7 @@ class TriggerActionList extends Vue {
 
 	public beforeMount():void {
 		this.param_queue.options = this.$store.triggers.queues;
+		this.triggerDef = TriggerUtils.getTriggerDisplayInfo(this.triggerData)
 
 		// Init new prop if not existing
 		if(this.triggerData.enableForRemoteChans === undefined) {
