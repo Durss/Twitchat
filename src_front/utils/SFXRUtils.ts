@@ -7,6 +7,8 @@ import SetTimeoutWorker from "./SeTimeoutWorker";
 export default class SFXRUtils {
 
 	private static _instance:SFXRUtils;
+	private static _scriptsLoaded: boolean = false;
+	private static _loadingPromise: Promise<void> | null = null;
 	
 	constructor() {
 	
@@ -29,11 +31,76 @@ export default class SFXRUtils {
 	******************/
 
 	/**
+	 * Dynamically loads the required JSFXR and RiffWave scripts
+	 * @returns Promise that resolves when both scripts are loaded
+	 */
+	public static async loadScripts(): Promise<void> {
+		if (SFXRUtils._scriptsLoaded) {
+			return Promise.resolve();
+		}
+
+		if (SFXRUtils._loadingPromise) {
+			return SFXRUtils._loadingPromise;
+		}
+
+		SFXRUtils._loadingPromise = new Promise<void>((resolve, reject) => {
+			const scriptsToLoad = ['/riffwave.js', '/jsfxr.js'];
+			let loadedCount = 0;
+			let hasError = false;
+
+			const onScriptLoad = () => {
+				loadedCount++;
+				if (loadedCount === scriptsToLoad.length && !hasError) {
+					SFXRUtils._scriptsLoaded = true;
+					SFXRUtils._loadingPromise = null;
+					resolve();
+				}
+			};
+
+			const onScriptError = (error: any) => {
+				if (!hasError) {
+					hasError = true;
+					SFXRUtils._loadingPromise = null;
+					reject(new Error(`Failed to load JSFXR scripts: ${error}`));
+				}
+			};
+
+			scriptsToLoad.forEach(src => {
+				// Check if script is already loaded
+				if (document.querySelector(`script[src="${src}"]`)) {
+					onScriptLoad();
+					return;
+				}
+
+				const script = document.createElement('script');
+				script.src = src;
+				script.type = 'text/javascript';
+				script.onload = onScriptLoad;
+				script.onerror = onScriptError;
+				document.head.appendChild(script);
+			});
+		});
+
+		return SFXRUtils._loadingPromise;
+	}
+
+	/**
 	 * Plays a SFXR sound from a stringified JSON object or encoded string
 	 * @param data 
 	 * @returns 
 	 */
-	public static playSFXRFromString(data:typeof JSFXRSoundPreset[number] | string): {promise:Promise<boolean>, audio:AudioBufferSourceNode} {
+	public static async playSFXRFromString(data:typeof JSFXRSoundPreset[number] | string): Promise<{completePromise:Promise<boolean>, audio:AudioBufferSourceNode | null}> {
+		try {
+			// Ensure scripts are loaded before proceeding
+			await SFXRUtils.loadScripts();
+		} catch (error) {
+			console.error('Failed to load JSFXR scripts:', error);
+			return { 
+				completePromise: Promise.resolve(false), 
+				audio: null 
+			};
+		}
+
 		let duration_s = 0;
 		let audio!: AudioBufferSourceNode
 
@@ -68,7 +135,16 @@ export default class SFXRUtils {
 			SetTimeoutWorker.instance.create(()=>resolve(true), duration_s * 1000);
 		});
 
-		return { promise, audio };
+		return { completePromise: promise, audio };
+	}
+
+	/**
+	 * Preloads the required JSFXR and RiffWave scripts
+	 * Call this method early in your application lifecycle to avoid delays on first sound playback
+	 * @returns Promise that resolves when both scripts are loaded
+	 */
+	public static async preloadScripts(): Promise<void> {
+		return SFXRUtils.loadScripts();
 	}
 	
 	

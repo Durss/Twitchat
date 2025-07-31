@@ -72,14 +72,14 @@ class TriggerActionSFXREntry extends AbstractTriggerActionEntry {
 		if(this.prevSound) this.prevSound.stop()
 		this.error = false;
 		if (this.action.sfxr.rawConfig) {
-			this.prevSound = SFXRUtils.playSFXRFromString(this.action.sfxr.rawConfig).audio;
+			this.prevSound = (await SFXRUtils.playSFXRFromString(this.action.sfxr.rawConfig)).audio;
 		}
 	}
 
-	public playSample(id: TriggerActionSFXRData['sfxr']["presetId"]): void {
+	public async playSample(id: TriggerActionSFXRData['sfxr']["presetId"]):Promise<void> {
 		if(this.prevSound) this.prevSound.stop()
 		if (id === "custom") return;
-		this.prevSound = SFXRUtils.playSFXRFromString(id).audio;
+		this.prevSound = (await SFXRUtils.playSFXRFromString(id)).audio;
 	}
 
 }

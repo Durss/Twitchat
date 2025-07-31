@@ -3808,9 +3808,9 @@ export default class TriggerActionHandler {
 						logStep.error = true;
 					}else {
 						const data = step.sfxr.presetId === "custom"? step.sfxr.rawConfig! : step.sfxr.presetId;
-						const {promise} = SFXRUtils.playSFXRFromString(data);
+						const {completePromise} = await SFXRUtils.playSFXRFromString(data);
 						if(step.sfxr.waitForEnd) {
-							const success = await promise;
+							const success = await completePromise;
 							if(!success) {
 								logStep.messages.push({date:Date.now(), value:"❌ Failed to play SFXR sound"});
 								log.error = true;
@@ -3819,7 +3819,7 @@ export default class TriggerActionHandler {
 								logStep.messages.push({date:Date.now(), value:"✔ Successfully played SFXR sound"});
 							}
 						}else{
-							promise.then(success => {
+							completePromise.then(success => {
 								if(!success) {
 									logStep.messages.push({date:Date.now(), value:"❌ Failed to play SFXR sound"});
 									log.error = true;
