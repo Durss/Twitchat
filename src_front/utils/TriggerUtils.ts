@@ -109,7 +109,7 @@ export default class TriggerUtils {
 				if(trigger.obsScene == ANY_OBS_SCENE) {
 					result.labelKey = "triggers.obs.anyScene";
 					result.descriptionKey = "triggers.events.OBS_SCENE.description_any";
-					result.label = StoreProxy.i18n.t(result.labelKey);
+					result.label = trigger.name || StoreProxy.i18n.t(result.labelKey);
 				}
 				break;
 			}
@@ -149,7 +149,7 @@ export default class TriggerUtils {
 				if(trigger.counterId == ANY_COUNTER) {
 					result.labelKey = "triggers.count.any_counter";
 					result.descriptionKey += "_any";
-					result.label = StoreProxy.i18n.t(result.labelKey);
+					result.label = trigger.name || StoreProxy.i18n.t(result.labelKey);
 				}
 
 				result.label = "("+prefix+") "+result.label;
@@ -160,7 +160,7 @@ export default class TriggerUtils {
 				if(trigger.valueId == ANY_VALUE) {
 					result.labelKey = "triggers.events.VALUE_UPDATE.label_any";
 					result.descriptionKey = "triggers.events.VALUE_UPDATE.description_any";
-					result.label = StoreProxy.i18n.t(result.labelKey);
+					result.label = trigger.name || StoreProxy.i18n.t(result.labelKey);
 				}
 
 				result.label = result.label;

@@ -1423,7 +1423,7 @@
 			"COUNTER_EDIT": {
 				"label": "A counter is modified",
 				"description": "Actions to execute when value of the counter {SUB_ITEM_NAME} is modified",
-				"description_any": "Actions to execute when the value of the counter is modified"
+				"description_any": "Actions to execute when the value of a counter is modified"
 			},
 			"COUNTER_ADD": {
 				"label": "Value added to a counter",
