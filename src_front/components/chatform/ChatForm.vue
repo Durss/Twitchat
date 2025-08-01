@@ -999,6 +999,13 @@ export class ChatForm extends Vue {
 
 		if(cmd == "/youtubelogs") {
 			Logger.instance.download("youtube");
+			ApiHelper.call("log", "POST", {cat:"youtube", log:{
+				user:{
+					id:this.$store.auth.twitch.user.id,
+					login:this.$store.auth.twitch.user.login,
+				},
+				logs:Logger.instance.getLogs("youtube")
+			}})
 			this.message = "";
 		}else
 

@@ -363,6 +363,17 @@ export default class YoutubeHelper {
 	 */
 	public async getMessages():Promise<void> {
 		clearTimeout(this._pollMessageTimeout);
+		
+		// Cleanup live that do not exist anymore
+		for (let i = this._currentLiveChatIds.length - 1; i >= 0; i--) {
+			const liveId = this._currentLiveChatIds[i];
+			const found = this.availableLiveBroadcasts.some(broadcast => broadcast.snippet.liveChatId === liveId);
+			if (!found) {
+				this._currentLiveChatIds.splice(i, 1);
+				i--;
+			}
+		}
+		
 		let maxDelay = 1000;
 		for (let i = 0; i < this._currentLiveChatIds.length; i++) {
 			const liveId = this._currentLiveChatIds[i];

@@ -997,7 +997,7 @@ type ApiEndpoints =  {
 		POST: {
 			parameters: {
 				log:unknown;
-					cat:"streamlabs"|"hypetrain"|"tiltify"|"kofi"|"patreon"|"random"|"eventsub";
+					cat:"streamlabs"|"hypetrain"|"tiltify"|"kofi"|"patreon"|"random"|"eventsub"|"youtube";
 			};
 			response:{
 				success:boolean;

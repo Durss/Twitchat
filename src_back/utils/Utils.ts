@@ -34,7 +34,7 @@ export default class Utils {
 		return code;
 	}
 
-	public static allowedLogCategories = ["streamlabs", "hypetrain", "tiltify", "kofi", "patreon", "random", "eventsub"] as const;
+	public static allowedLogCategories = ["streamlabs", "hypetrain", "tiltify", "kofi", "patreon", "random", "eventsub", "youtube"] as const;
 	/**
 	 * Saves a log
 	 * @param logType
