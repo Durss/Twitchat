@@ -1,7 +1,6 @@
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { JsonObject } from 'type-fest';
-import SetTimeoutWorker from './SeTimeoutWorker';
 
 /**
  * Created by Durss

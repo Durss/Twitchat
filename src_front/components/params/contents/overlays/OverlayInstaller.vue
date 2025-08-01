@@ -36,8 +36,6 @@
 import TTButton from '@/components/TTButton.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket, { type SourceTransform } from '@/utils/OBSWebsocket';
-import Utils from '@/utils/Utils';
-import { gsap } from 'gsap/gsap-core';
 import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 
 @Component({

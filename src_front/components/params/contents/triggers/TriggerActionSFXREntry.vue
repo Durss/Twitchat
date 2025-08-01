@@ -20,6 +20,11 @@
 
 		<ParamItem class="params" :paramData="param_volume" v-model="action.sfxr.volume" />
 		<ParamItem class="params" :paramData="param_waitForEnd" v-model="action.sfxr.waitForEnd" />
+		<ParamItem class="params" :paramData="param_playOnOverlay" v-model="action.sfxr.playOnOverlay">
+			<div class="info secondary parameter-child">{{ $t("triggers.actions.sfxr.param_playOnOverlay_info") }}
+			</div>
+			<OverlayInstaller class="parameter-child" type="sfxr" sourceSuffix="sound effect" :sourceTransform="{width:100, height:100}" light />
+		</ParamItem>
 	</div>
 </template>
 
@@ -33,12 +38,14 @@ import SFXRUtils from '@/utils/SFXRUtils';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import AbstractTriggerActionEntry from './entries/AbstractTriggerActionEntry';
+import OverlayInstaller from '../overlays/OverlayInstaller.vue';
 
 @Component({
 	components:{
 		Icon,
 		TTButton,
 		ParamItem,
+		OverlayInstaller,
 	},
 	emits:[],
 })
@@ -52,8 +59,9 @@ class TriggerActionSFXREntry extends AbstractTriggerActionEntry {
 
 	public error:boolean = false;
 	public param_custom:TwitchatDataTypes.ParameterData<string> = { type: "string", labelKey: "triggers.actions.sfxr.param_custom", value: "", placeholder: "{...}", longText: true }
-	public param_volume:TwitchatDataTypes.ParameterData<number> = { type: "slider", min:0, max:100, labelKey: "triggers.actions.sfxr.param_volume", value:25 }
-	public param_waitForEnd:TwitchatDataTypes.ParameterData<boolean> = { type: "boolean", labelKey: "triggers.actions.sfxr.param_waitForComplete", value: true }
+	public param_volume:TwitchatDataTypes.ParameterData<number> = { type: "slider", min:0, max:100, labelKey: "triggers.actions.sfxr.param_volume", value:25, icon:"volume" }
+	public param_waitForEnd:TwitchatDataTypes.ParameterData<boolean> = { type: "boolean", labelKey: "triggers.actions.sfxr.param_waitForComplete", value: true, icon:"countdown" }
+	public param_playOnOverlay:TwitchatDataTypes.ParameterData<boolean> = { type: "boolean", labelKey: "triggers.actions.sfxr.param_playOnOverlay", value: false, icon:"overlay" }
 
 	private prevSound : AudioBufferSourceNode | null = null;
 
@@ -66,6 +74,7 @@ class TriggerActionSFXREntry extends AbstractTriggerActionEntry {
 			this.action.sfxr = {
 				presetId: "blipSelect",
 				waitForEnd: true,
+				playOnOverlay: false,
 				volume: 100,
 			};
 		}

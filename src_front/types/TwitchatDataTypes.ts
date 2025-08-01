@@ -3395,8 +3395,14 @@ export namespace TwitchatDataTypes {
 		automod?: AutomodParamsKeywordFilterData;
 		/**
 		 * The message this message answers to if any
+		 * This contains the root message of a conversation
 		 */
 		answersTo?: MessageChatData;
+		/**
+		 * The message this message answers to if any
+		 * contains the direct message it answers to
+		 */
+		directlyAnswersTo?: MessageChatData;
 		/**
 		 * Is the message content cyphered ?
 		 */

@@ -8,7 +8,7 @@ import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { ICustomTrainActions, ICustomTrainGetters, ICustomTrainState } from '../StoreProxy';
 import StoreProxy from "../StoreProxy";
-import SetTimeoutWorker from "@/utils/SeTimeoutWorker";
+import SetTimeoutWorker from "@/utils/SetTimeoutWorker";
 import MessengerProxy from "@/messaging/MessengerProxy";
 
 let simulationID = 0;

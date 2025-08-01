@@ -100,6 +100,10 @@ export default class MiddlewareController extends AbstractController {
 				staticFile = path.join(Config.PUBLIC_ROOT, "overlayLabel.html");
 			}else
 
+			if(/^\/overlay\/sfxr/gi.test(request.url)) {
+				staticFile = path.join(Config.PUBLIC_ROOT, "overlaySfxr.html");
+			}else
+
 			//Redirect /overlay/ route to overlay's html page
 			if(/^\/overlay\//gi.test(request.url)) {
 				staticFile = path.join(Config.PUBLIC_ROOT, "overlay.html");

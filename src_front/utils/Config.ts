@@ -1,5 +1,3 @@
-import channelPointsImg from '@/assets/icons/channelPoints.svg';
-import rewardImg from '@/assets/icons/reward_highlight.svg';
 import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { reactive } from "vue";
@@ -326,7 +324,8 @@ export default class Config {
 	 * Fake Twitch "highlight my message" reward
 	 */
 	public get highlightMyMessageReward():TwitchDataTypes.Reward {
-		const img = rewardImg;
+		const img = StoreProxy.asset("icons/reward_highlight.svg");
+		const defaultImg = StoreProxy.asset("icons/channelPoints.svg");
 		return {
 			broadcaster_name: "Durss",
 			broadcaster_login: "durss",
@@ -358,9 +357,9 @@ export default class Config {
 			is_paused: false,
 			is_in_stock: true,
 			default_image: {
-				url_1x:channelPointsImg,
-				url_2x:channelPointsImg,
-				url_4x:channelPointsImg,
+				url_1x:defaultImg,
+				url_2x:defaultImg,
+				url_4x:defaultImg,
 			},
 			should_redemptions_skip_request_queue: false,
 		}
@@ -370,7 +369,7 @@ export default class Config {
 	 * Fake Twitch "highlight my message" reward
 	 */
 	public get allRewards():TwitchDataTypes.Reward {
-		const img = channelPointsImg;
+		const img = StoreProxy.asset("icons/channelPoints.svg");
 		return {
 			broadcaster_name: "Durss",
 			broadcaster_login: "durss",

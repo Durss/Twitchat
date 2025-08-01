@@ -188,6 +188,7 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static ANIMATED_TEXT_SET:TwitchatActionType = "ANIMATED_TEXT_SET";
 	public static ANIMATED_TEXT_CLOSE:TwitchatActionType = "ANIMATED_TEXT_CLOSE";
 	public static GET_CUSTOM_TRAIN_STATE:TwitchatActionType = "GET_CUSTOM_TRAIN_STATE";
+	public static PLAY_SFXR:TwitchatActionType = "PLAY_SFXR";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:T) {
 		super(type);
@@ -377,5 +378,6 @@ export const TwitchatActionTypeList = [
 	"ANIMATED_TEXT_SET",
 	"ANIMATED_TEXT_CLOSE",
 	"GET_CUSTOM_TRAIN_STATE",
+	"PLAY_SFXR",
 ] as const;
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

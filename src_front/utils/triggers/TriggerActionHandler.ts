@@ -3807,8 +3807,16 @@ export default class TriggerActionHandler {
 						log.error = true;
 						logStep.error = true;
 					}else {
+						let volume = step.sfxr.volume || 1;
 						const data = step.sfxr.presetId === "custom"? step.sfxr.rawConfig! : step.sfxr.presetId;
-						const {completePromise} = await SFXRUtils.playSFXRFromString(data);
+						if(step.sfxr.playOnOverlay) {
+							logStep.messages.push({date:Date.now(), value:"Tell the overlay to play the sound effect"});
+							PublicAPI.instance.broadcast(TwitchatEvent.PLAY_SFXR, {params:data, volume})
+							// Mute local playing but still play it so trigger is properly paused while the
+							// sound is playing if user requested it
+							volume = 0;
+						}
+						const {completePromise} = await SFXRUtils.playSFXRFromString(data, volume);
 						if(step.sfxr.waitForEnd) {
 							const success = await completePromise;
 							if(!success) {

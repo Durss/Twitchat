@@ -49,6 +49,14 @@ export default defineConfig({
 							return;
 						}
 					}else
+					if (url.startsWith('/overlay/sfxr')) {
+						const overlaySfxrHtmlPath = path.resolve(__dirname, 'overlaySfxr.html');
+						if (fs.existsSync(overlaySfxrHtmlPath)) {
+							res.setHeader('Content-Type', 'text/html');
+							res.end(fs.readFileSync(overlaySfxrHtmlPath));
+							return;
+						}
+					}else
 					if (url.startsWith('/overlay/')) {
 						const overlayHtmlPath = path.resolve(__dirname, 'overlay.html');
 						if (fs.existsSync(overlayHtmlPath)) {
@@ -94,7 +102,8 @@ export default defineConfig({
 				main: resolve(__dirname, 'index.html'),
 				overlay: resolve(__dirname, 'overlay.html'),
 				public: resolve(__dirname, 'public.html'),
-				overlayLabel: resolve(__dirname, 'overlayLabel.html')
+				overlayLabel: resolve(__dirname, 'overlayLabel.html'),
+				overlaySfxr: resolve(__dirname, 'overlaySfxr.html'),
 			},
 			output: {
 				entryFileNames: "assets/[name]-[hash]-" + process.env.npm_package_version + ".js",

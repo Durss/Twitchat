@@ -30,7 +30,7 @@
 			font-weight: normal;
 			background-color: var(--color-secondary);
 		}
-		a {
+		a:not(.button) {
 			color: var(--color-light) !important;
 			text-decoration: underline;
 			&:hover {
@@ -46,7 +46,7 @@
 
 /**
  * Contains the style about "light" trigger actions.
- * A trigger action ic considered as "light" when it only contains a label
+ * A trigger action is considered as "light" when it only contains a label
  * and global actions (ex: delay, delete message, or spoil message).
  */
 .triggerActionLight {

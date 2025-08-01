@@ -7,7 +7,7 @@ import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _Getters
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import StoreProxy, { type ITimerActions, type ITimerGetters, type ITimerState } from '../StoreProxy';
-import SetTimeoutWorker from '@/utils/SeTimeoutWorker';
+import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
 
 const countdownTO:Record<string, string> = {};
 const getDefaultStyle = ():TwitchatDataTypes.TimerData["overlayParams"] => {

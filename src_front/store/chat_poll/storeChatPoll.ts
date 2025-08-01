@@ -7,7 +7,7 @@ import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { PollOverlayParamStoreData } from '../poll/storePoll';
 import StoreProxy, { type IChatPollActions, type IChatPollGetters, type IChatPollState } from '../StoreProxy';
-import SetTimeoutWorker from '@/utils/SeTimeoutWorker';
+import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
 import Utils from '@/utils/Utils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 

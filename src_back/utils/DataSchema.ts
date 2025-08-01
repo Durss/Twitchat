@@ -1058,6 +1058,7 @@ const UserDataSchema = {
 										presetId: {enum: ["random", "custom", "pickupCoin", "laserShoot", "explosion", "powerUp", "hitHurt", "jump", "blipSelect", "synth", "tone", "click"]},
 										rawConfig: {type:"string", maxLength:1000},
 										waitForEnd: { type: "boolean" },
+										playOnOverlay: { type: "boolean" },
 										volume: {type:"number", minimum:0, maximum:100},
 									}
 								}

@@ -1,5 +1,5 @@
 import { JSFXRSoundPreset } from "@/types/jsfxr";
-import SetTimeoutWorker from "./SeTimeoutWorker";
+import SetTimeoutWorker from "./SetTimeoutWorker";
 
 /**
 * Created : 31/07/2025 
@@ -90,27 +90,32 @@ export default class SFXRUtils {
 	 * @param volume 0-100
 	 * @returns 
 	 */
-	public static async playSFXRFromString(data:typeof JSFXRSoundPreset[number] | string, volume:number = 100): Promise<{completePromise:Promise<boolean>, audio:AudioBufferSourceNode | null}> {
-		try {
-			// Ensure scripts are loaded before proceeding
-			await SFXRUtils.loadScripts();
-		} catch (error) {
-			console.error('Failed to load JSFXR scripts:', error);
-			return { 
-				completePromise: Promise.resolve(false), 
-				audio: null 
-			};
+	public static async playSFXRFromString(data:Exclude<typeof JSFXRSoundPreset[number], "custom"> | string, volume:number = 100, autoLoadScripts:boolean = true): Promise<{completePromise:Promise<boolean>, audio:AudioBufferSourceNode | null}> {
+		if(autoLoadScripts) {
+			console.log("Preloading JSFXR scripts before playing sound");
+			try {
+				// Ensure scripts are loaded before proceeding
+				await SFXRUtils.loadScripts();
+			} catch (error) {
+				console.error('Failed to load JSFXR scripts:', error);
+				return { 
+					completePromise: Promise.resolve(false), 
+					audio: null 
+				};
+			}
 		}
 
 		let duration_s = 0;
 		let audio!: AudioBufferSourceNode
 
 		if(JSFXRSoundPreset.includes(data as typeof JSFXRSoundPreset[number])) {
+			console.log("Playing SFXR sound from preset:", data);
 			const params = window.jsfxr.sfxr.generate(data as typeof JSFXRSoundPreset[number]);
 			params.sound_vol = (params.sound_vol ||.25) * volume / 100;
 			audio = window.jsfxr.sfxr.play(params);
 			duration_s = audio.buffer?.duration || 0.1;
 		}else{
+			console.log("Playing SFXR sound from string data:", data);
 			let parsed = "";
 			// If a sharable URL is given, extract the sound data
 			if(data.indexOf("http") === 0) {

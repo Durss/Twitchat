@@ -1439,6 +1439,10 @@ export interface TriggerActionSFXRData extends TriggerActionData{
 		 */
 		waitForEnd:boolean;
 		/**
+		 * Should audio be played on overlay?
+		 */
+		playOnOverlay:boolean;
+		/**
 		 * Raw configuration of the JSFXR sound effect
 		 */
 		rawConfig?:string;
@@ -1785,7 +1789,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		map[trigger] = [];
 	}
 
-	type SafeMessage = Omit<TwitchatDataTypes.MessageChatData, "answers" | "children" | "answersTo">;
+	type SafeMessage = Omit<TwitchatDataTypes.MessageChatData, "answers" | "children" | "answersTo" | "directlyAnswersTo">;
 	type SafeReward = Omit<TwitchatDataTypes.MessageRewardRedeemData, "children">;
 	type SafeHypeTrain = TwitchatDataTypes.MessageHypeTrainEventData & {train:Omit<TwitchatDataTypes.MessageHypeTrainEventData["train"], "sharedStates">};
 
@@ -1812,12 +1816,12 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	];
 
 	map[TriggerTypes.MESSAGE_ANSWER] = [...map[TriggerTypes.ANY_MESSAGE]!,
-		{tag:"PARENT_"+USER_NAME, descKey:'triggers.placeholders.parent_user', pointer:"answersTo.user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {answersTo:SafeMessage}>,
-		{tag:"PARENT_"+USER_DISPLAY_NAME, descKey:'triggers.placeholders.parent_user_customName', pointer:"answersTo.user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {answersTo:SafeMessage}>,
-		{tag:"PARENT_"+USER_ID, descKey:'triggers.placeholders.parent_user_id', pointer:"answersTo.user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<SafeMessage & {answersTo:SafeMessage}>,
-		{tag:"PARENT_MESSAGE", descKey:'triggers.placeholders.parent_message', pointer:"answersTo.message", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {answersTo:SafeMessage}>,
-		{tag:"PARENT_MESSAGE_JSON", descKey:'triggers.placeholders.parent_message_json', pointer:"answersTo.message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {answersTo:SafeMessage}>,
-		{tag:"PARENT_MESSAGE_HTML", descKey:'triggers.placeholders.parent_message_html', pointer:"answersTo.message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {answersTo:SafeMessage}>,
+		{tag:"PARENT_"+USER_NAME, descKey:'triggers.placeholders.parent_user', pointer:"directlyAnswersTo.user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {directlyAnswersTo:SafeMessage}>,
+		{tag:"PARENT_"+USER_DISPLAY_NAME, descKey:'triggers.placeholders.parent_user_customName', pointer:"directlyAnswersTo.user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {directlyAnswersTo:SafeMessage}>,
+		{tag:"PARENT_"+USER_ID, descKey:'triggers.placeholders.parent_user_id', pointer:"directlyAnswersTo.user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<SafeMessage & {directlyAnswersTo:SafeMessage}>,
+		{tag:"PARENT_MESSAGE", descKey:'triggers.placeholders.parent_message', pointer:"directlyAnswersTo.message", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {directlyAnswersTo:SafeMessage}>,
+		{tag:"PARENT_MESSAGE_JSON", descKey:'triggers.placeholders.parent_message_json', pointer:"directlyAnswersTo.message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {directlyAnswersTo:SafeMessage}>,
+		{tag:"PARENT_MESSAGE_HTML", descKey:'triggers.placeholders.parent_message_html', pointer:"directlyAnswersTo.message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {directlyAnswersTo:SafeMessage}>,
 	];
 
 	map[TriggerTypes.POWER_UP_GIANT_EMOTE] = [...map[TriggerTypes.ANY_MESSAGE]!,

@@ -17,7 +17,7 @@ import EventSub from '@/utils/twitch/EventSub';
 import staticEmotes from '@/utils/twitch/staticEmoteList.json';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import SetIntervalWorker from '@/utils/SetIntervalWorker';
-import SetTimeoutWorker from '@/utils/SeTimeoutWorker';
+import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
 
 const commercialTimeouts:{[key:string]:number[]} = {};
 let hypeTrainCooldownTo = "";

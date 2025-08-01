@@ -764,10 +764,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				let m = messages[i];
 				if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
 				if(m.id === tags["reply-parent-msg-id"]) {
-					if(m.answersTo) m = m.answersTo;
 					if(!m.answers) m.answers = [];
 					m.answers.push( data );
-					data.answersTo = m;
+					data.answersTo = m.answersTo || m;
+					data.directlyAnswersTo = m
 					break;
 				}
 			}

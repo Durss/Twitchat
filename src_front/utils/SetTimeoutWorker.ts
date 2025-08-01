@@ -1,5 +1,3 @@
-import Utils from "./Utils";
-
 /**
  * This provides a way to get a setInterval that keeps executing even when
  * the tab is in the background
@@ -10,6 +8,7 @@ export default class SetTimeoutWorker {
 	private static _instance:SetTimeoutWorker;
 
 	private _worker!:Worker;
+	private _increment:number = 0;
 	private _idToCallback:{[key:string]:()=>void} = {};
 
 	constructor() {
@@ -36,7 +35,7 @@ export default class SetTimeoutWorker {
 	 * Starts an interval
 	 */
 	public create(callback:()=>void, duration:number):string {
-		const id = Utils.getUUID();
+		const id = "tow_"+(this._increment ++);
 		this._idToCallback[id] = callback;
 		this._worker.postMessage({ command: "startTimeout", timeout: duration, id });
 		return id;
