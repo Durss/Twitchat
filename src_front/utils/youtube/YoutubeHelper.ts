@@ -932,7 +932,7 @@ export default class YoutubeHelper {
 	private async loadEmotesAndUser():Promise<void> {
 		if(Object.keys(this._emotes).length == 0) {
 			await this.getCurrentUserInfo();
-			const emotesQuery = await fetch(StoreProxy.asset("youtube/emote_list.json"));
+			const emotesQuery = await fetch("/youtube/emote_list.json");
 			const json = await emotesQuery.json();
 			this._emotes = json;
 		}
