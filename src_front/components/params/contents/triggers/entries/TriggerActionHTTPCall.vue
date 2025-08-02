@@ -27,10 +27,15 @@
 		<div class="card-item tags">
 			<p class="title" v-if="parameters.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
 
+			<div class="searchContainer" v-if="parameters.length > 8">
+				<input class="searchField" type="text" v-model="searchText" autocomplete="off" :placeholder="$t('global.search_placeholder')" @keydown.capture="onSearchKeydown" />
+				<TTButton class="clearButton" transparent icon="cross" @click="searchText = ''" v-if="searchText.length > 0"></TTButton>
+			</div>
+			
 			<div class="params">
 				<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" v-model="param_toggleAll.value" @click.native="toggleAll()" v-if="parameters.length > 3" />
 
-				<div class="card-item" v-for="p in parameters" :key="p.placeholder.tag" @click="p.enabled = !p.enabled; onToggleParam()">
+				<div class="card-item" v-for="p in filteredParameters" :key="p.placeholder.tag" @click="p.enabled = !p.enabled; onToggleParam()">
 					<div class="taginfo">
 						<div class="tag"><mark>{{ p.placeholder.tag }}</mark></div>
 						<span>{{ $t(p.placeholder.descKey, p.placeholder.descReplacedValues || {}) }}</span>
@@ -40,27 +45,36 @@
 			</div>
 		</div>
 
-		<TriggerActionHttpPlaceholder :placeholderList="action.outputPlaceholderList" />
+		<ParamItem :paramData="param_outputPlaceholder" v-model="action.outputPlaceholder" />
+		
+		<i18n-t scope="global" class="card-item info" tag="div"
+		keypath="triggers.actions.common.custom_placeholder_example"
+		v-if="action.outputPlaceholder && action.outputPlaceholder.length > 0">
+			<template #PLACEHOLDER>
+				<mark v-click2Select>{{"{" + action.outputPlaceholder + "}"}}</mark>
+			</template>
+		</i18n-t>
 	</div>
 </template>
 
 <script lang="ts">
+import TTButton from '@/components/TTButton.vue';
+import Icon from '@/components/Icon.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import type { ITriggerPlaceholder, TriggerActionHTTPCallData, TriggerActionHTTPCallDataAction, TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
+import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
-import TTButton from '@/components/TTButton.vue';
-import TriggerActionHttpPlaceholder from './common/TriggerActionHttpPlaceholder.vue';
+import ClearButton from '@/components/ClearButton.vue';
 
 @Component({
 	components:{
 		TTButton,
+		Icon,
 		ParamItem,
 		ToggleButton,
-		TriggerActionHttpPlaceholder,
 	},
 	emits:["update"]
 })
@@ -73,16 +87,28 @@ class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 	declare triggerData:TriggerData;
 
 	public securityError:boolean = false;
+	public searchText:string = "";
 	public placeholderList:ITriggerPlaceholder<any>[] = [];
 	public parameters:{placeholder:ITriggerPlaceholder<any>, enabled:boolean}[] = [];
 	public param_url:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", placeholder:"https://...", labelKey:"triggers.actions.http_ws.url"};
 	public param_method:TwitchatDataTypes.ParameterData<TriggerActionHTTPCallDataAction, TriggerActionHTTPCallDataAction> = {type:"list", value:"GET", listValues:[], labelKey:"triggers.actions.http_ws.method"};
-	public param_outputPlaceholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", labelKey:"triggers.actions.http_ws.output_placeholder", maxLength:30, allowedCharsRegex:"A-z0-9_"};
+	public param_outputPlaceholder:TwitchatDataTypes.ParameterData<string> = {type:"placeholder", value:"", labelKey:"triggers.actions.http_ws.output_placeholder", maxLength:30};
 	public param_custom_body:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, labelKey:"triggers.actions.http_ws.custom_body", placeholderKey:"triggers.actions.http_ws.custom_body_placeholder", maxLength:5000};
 	public param_toggleAll:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.select_all" };
 	public param_sendAsBody:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"triggers.actions.http_ws.send_as_body" };
 	public param_customHeaders:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"triggers.actions.http_ws.custom_headers" };
 	public param_headerValues:TwitchatDataTypes.ParameterData<string>[] = [];
+
+	public get filteredParameters():{placeholder:ITriggerPlaceholder<any>, enabled:boolean}[] {
+		if(!this.searchText.trim()) return this.parameters;
+		
+		const searchTerm = this.searchText.toLowerCase().trim();
+		return this.parameters.filter(p => {
+			const tag = p.placeholder.tag.toLowerCase();
+			const description = this.$t(p.placeholder.descKey, p.placeholder.descReplacedValues || {}).toLowerCase();
+			return tag.includes(searchTerm) || description.includes(searchTerm);
+		});
+	}
 
 	public getParamHeaderValue(index:number):TwitchatDataTypes.ParameterData<string> {
 		if(this.param_headerValues.length>index) return this.param_headerValues[index];
@@ -92,7 +118,7 @@ class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 	}
 
 	public beforeMount():void {
-		if(!this.action.outputPlaceholderList) this.action.outputPlaceholderList = [];
+		if(!this.action.outputPlaceholder) this.action.outputPlaceholder = "";
 		this.param_method.listValues	= (["GET","PUT","POST","PATCH","DELETE"] as TriggerActionHTTPCallDataAction[]).map(v=> {return {value:v, label:v}});
 
 		watch(()=>this.action.url, ()=> {
@@ -110,8 +136,10 @@ class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 		this.action.queryParams = params;
 
 		let allSelected = true;
-		this.parameters.forEach(v=> allSelected &&= v.enabled);
-		this.param_toggleAll.value = allSelected
+		// Check if all visible (filtered) parameters are selected
+		const visibleParams = this.filteredParameters;
+		visibleParams.forEach(v=> allSelected &&= v.enabled);
+		this.param_toggleAll.value = allSelected && visibleParams.length > 0;
 	}
 
 	/**
@@ -123,9 +151,22 @@ class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 		//on currently enabled parameters which would conflict with this handler
 		//if it was using @change.
 		window.setTimeout(() => {
-			this.parameters.forEach(v=> v.enabled = this.param_toggleAll.value);
+			// Only toggle visible (filtered) parameters
+			const visibleParams = this.filteredParameters;
+			visibleParams.forEach(v=> v.enabled = this.param_toggleAll.value);
 			this.onToggleParam();
 		}, 0);
+	}
+
+	/**
+	 * Called when a key is pressed in the search field
+	 */
+	public onSearchKeydown(event: KeyboardEvent): void {
+		if (event.key === 'Escape') {
+			this.searchText = '';
+			event.preventDefault();
+			event.stopPropagation();
+		}
 	}
 
 	/**
@@ -173,6 +214,23 @@ export default toNative(TriggerActionHTTPCall);
 		.title {
 			margin-bottom: .5em;
 		}
+		
+		.searchContainer {
+			position: relative;
+			margin-bottom: .5em;
+			
+			.searchField {
+				width: 100%;
+				padding: .5em;
+			}
+			
+			.clearButton {
+				position: absolute;
+				right: .5em;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+		}
 	}
 
 	.params {
@@ -206,7 +264,6 @@ export default toNative(TriggerActionHTTPCall);
 			justify-self: flex-end;
 			align-self: flex-end;
 			margin-bottom: 2px;
-			// margin-right: 2.25em;
 			width: fit-content;
 			margin-right: .5em;
 			margin-bottom: .5em;
@@ -216,6 +273,7 @@ export default toNative(TriggerActionHTTPCall);
 		gap: .5em;
 		display: flex;
 		flex-direction: column;
+		margin-top: .5em;
 		.header {
 			gap: .5em;
 			display: flex;
@@ -234,18 +292,14 @@ export default toNative(TriggerActionHTTPCall);
 						border-top-left-radius: var(--border-radius);
 						border-bottom-left-radius: var(--border-radius);
 					}
-					&:not(:first-child){
+					&:last-child{
 						border-top-right-radius: var(--border-radius);
 						border-bottom-right-radius: var(--border-radius);
 					}
 				}
 			}
 			*:not(.button) {
-				width: 50%;
 				flex-grow: 1;
-				// width: 100%;
-				// min-width: unset;
-				// max-width: unset;
 			}
 			.deleteBt {
 				flex-shrink: 0;

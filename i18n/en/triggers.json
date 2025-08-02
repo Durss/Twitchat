@@ -45,6 +45,7 @@
 		"missing_reward_scope": "CANNOT LOAD REWARD INFO",
 		"random_placeholder": "Random value placeholder {NAME}",
 		"http_placeholder": "HTTP placeholder {NAME}",
+		"json_placeholder": "JSON placeholder {NAME}",
 		"raffle_placeholder": "Winning raffle entry",
 		"screenshot_placeholder": "OBS Screenshot",
 		"nonpremium_limit": "You created the maximum number of {MAX} triggers. Become premium to create up to {MAX_PREMIUM} triggers. Or disable / delete some triggers to create new ones.",
@@ -168,6 +169,7 @@
 				"action_discord": "Discord",
 				"action_discord_tt": "You need to link Twitchat with Discord",
 				"action_http": "HTTP call",
+				"action_json_extract": "Extract JSON data",
 				"action_ws": "Websocket message",
 				"action_poll": "Start poll",
 				"action_chat_poll": "Start chat poll",
@@ -416,7 +418,7 @@
 				"url": "URL to call",
 				"method": "Method",
 				"topic_placeholder": "custom value...",
-				"output_placeholder": "Store query result on this placeholder",
+				"output_placeholder": "Store result in placeholder",
 				"output_placeholder_placeholder": "placeholder...",
 				"custom_body": "Custom body",
 				"custom_body_placeholder": "{'{'}\n...\n{'}'}",
@@ -436,6 +438,9 @@
 				"extract_data_jsonpath": "JSON path (ex: $)",
 				"extract_data_placeholder": "Placeholder name...",
 				"add_placeholder_bt": "Add placeholder"
+			},
+			"json_extract": {
+				"source_placeholder": "Source placeholder containing JSON data"
 			},
 			"count": {
 				"value_label": "Value",
@@ -672,6 +677,7 @@
 				"prompt": "Prompt",
 				"model": "Model",
 				"model_default": "Default model",
+				"output_placeholder": "Store result in placeholder",
 				"jsonMode": "Get answer as JSON",
 				"jsonMode_hint": "{LINK} on how to make Groq answer a JSON",
 				"jsonMode_hint_link": "See instructions",

@@ -31,6 +31,9 @@ class PlaceholderField extends Vue {
 	@Prop({required:false, type:String, default:""})
 	public prefix!:string;
 
+	@Prop({required:false, type:Number, default:30})
+	public maxLength!:number;
+
 	public localValue:string = "";
 
 	public mounted():void {
@@ -54,12 +57,12 @@ class PlaceholderField extends Vue {
 			let caretIndex = range.startOffset;
 			await this.$nextTick();
 			//Normalize label and limit its size
-			this.localValue = this.localValue.toUpperCase().trim().replace(/\W/gi, "").substring(0, 30);
+			this.localValue = this.localValue.toUpperCase().trim().replace(/\W/gi, "").substring(0, this.maxLength);
 			await this.$nextTick();
 			//Reset caret to previous position
 			if(range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.min(this.localValue.length, caretIndex));
 		}else{
-			this.localValue = this.localValue.toUpperCase().trim().replace(/\W/gi, "").substring(0, 30);
+			this.localValue = this.localValue.toUpperCase().trim().replace(/\W/gi, "").substring(0, this.maxLength);
 		}
 
 		this.$emit("update:modelValue", this.localValue);
@@ -80,8 +83,6 @@ export default toNative(PlaceholderField);
 	flex-direction: row;
 	align-items: center;
 	justify-content: center;
-	background: var(--background-color-fader);
-	border-radius: var(--border-radius);
 	text-transform: uppercase;
 	.input {
 		margin: 0 .25em;

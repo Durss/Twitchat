@@ -280,6 +280,9 @@
 					<TTButton class="button" @click="selectActionType('http')"
 						icon="url">{{ $t('triggers.actions.common.action_http') }}</TTButton>
 
+					<TTButton class="button" @click="selectActionType('json_extract')"
+						icon="placeholder">{{ $t('triggers.actions.common.action_json_extract') }}</TTButton>
+
 					<TTButton class="button" @click.capture="selectActionType('ws')"
 						:disabled="!wsConnected"
 						icon="url">{{ $t('triggers.actions.common.action_ws') }}</TTButton>
@@ -302,6 +305,7 @@
 			<TriggerActionTriggerEntry v-else-if="action.type=='trigger'" :action="action" :triggerData="triggerData" :rewards="rewards" />
 			<TriggerActionTriggerToggleEntry v-else-if="action.type=='triggerToggle'" :action="action" :triggerData="triggerData" :rewards="rewards" />
 			<TriggerActionHTTPCall v-else-if="action.type=='http'" :action="action" :triggerData="triggerData" />
+			<TriggerActionJSONExtract v-else-if="action.type=='json_extract'" :action="action" :triggerData="triggerData" />
 			<TriggerActionWSEntry v-else-if="action.type=='ws'" :action="action" :triggerData="triggerData" />
 			<TriggerActionValueEntry v-else-if="action.type=='value'" :action="action" :triggerData="triggerData" />
 			<TriggerActionCountEntry v-else-if="action.type=='count'" :action="action" :triggerData="triggerData" />
@@ -378,6 +382,7 @@ import TriggerActionExtensionEntry from './entries/TriggerActionExtensionEntry.v
 import TriggerActionGoXLREntry from './entries/TriggerActionGoXLREntry.vue';
 import TriggerActionGroqEntry from './entries/TriggerActionGroqEntry.vue';
 import TriggerActionHTTPCall from './entries/TriggerActionHTTPCall.vue';
+import TriggerActionJSONExtract from './entries/TriggerActionJSONExtract.vue';
 import TriggerActionHighlightEntry from './entries/TriggerActionHighlightEntry.vue';
 import TriggerActionLumiaEntry from './entries/TriggerActionLumiaEntry.vue';
 import TriggerActionMixitupEntry from './entries/TriggerActionMixitupEntry.vue';
@@ -419,6 +424,7 @@ import TriggerActionSFXREntry from './TriggerActionSFXREntry.vue';
 		TriggerActionOBSEntry,
 		TriggerActionTTSEntry,
 		TriggerActionHTTPCall,
+		TriggerActionJSONExtract,
 		TriggerActionGroqEntry,
 		TriggerActionChatEntry,
 		TriggerActionSFXREntry,

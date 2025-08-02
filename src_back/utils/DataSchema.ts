@@ -562,20 +562,6 @@ const UserDataSchema = {
 								},
 								placeholder:{type:"string", maxLength:50},
 								outputPlaceholder:{type:"string", maxLength:30},
-								outputPlaceholderList:{
-									type:"array",
-									minItems:0,
-									maxItems:50,
-									items:{
-										type:"object",
-										additionalProperties: false,
-										properties: {
-											type: {type:"string", maxLength:20},
-											path: {type:"string", maxLength:500},
-											placeholder: {type:"string", maxLength:30},
-										}
-									}
-								},
 								customBody:{type:"string", maxLength:5000},
 								min: {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 								max: {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
@@ -997,20 +983,7 @@ const UserDataSchema = {
 										json:{ type: "string", maxLength:100000 },
 										prompt:{ type: "string", maxLength:100000 },
 										preprompt:{ type: "string", maxLength:100000 },
-										outputPlaceholderList:{
-											type:"array",
-											minItems:0,
-											maxItems:50,
-											items:{
-												type:"object",
-												additionalProperties: false,
-												properties: {
-													type: {type:"string", maxLength:20},
-													path: {type:"string", maxLength:500},
-													placeholder: {type:"string", maxLength:30},
-												}
-											}
-										},
+										outputPlaceholder:{type:"string", maxLength:30},
 									}
 								},
 
@@ -1060,6 +1033,28 @@ const UserDataSchema = {
 										waitForEnd: { type: "boolean" },
 										playOnOverlay: { type: "boolean" },
 										volume: {type:"number", minimum:0, maximum:100},
+									}
+								},
+
+								jsonExtractData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										sourcePlaceholder:{type:"string", maxLength:50},
+										outputPlaceholderList:{
+											type:"array",
+											minItems:0,
+											maxItems:50,
+											items:{
+												type:"object",
+												additionalProperties: false,
+												properties: {
+													type: {type:"string", maxLength:20},
+													path: {type:"string", maxLength:500},
+													placeholder: {type:"string", maxLength:30},
+												}
+											}
+										},
 									}
 								}
 							}

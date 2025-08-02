@@ -16,7 +16,15 @@
 			</i18n-t>
 		</ParamItem>
 
-		<TriggerActionHttpPlaceholder :placeholderList="action.groqData?.outputPlaceholderList" />
+		<ParamItem :paramData="param_outputPlaceholder" v-model="action.groqData!.outputPlaceholder" />
+		
+		<i18n-t scope="global" class="card-item info" tag="div"
+		keypath="triggers.actions.common.custom_placeholder_example"
+		v-if="action.groqData!.outputPlaceholder && action.groqData!.outputPlaceholder.length > 0">
+			<template #PLACEHOLDER>
+				<mark v-click2Select>{{"{" + action.groqData!.outputPlaceholder + "}"}}</mark>
+			</template>
+		</i18n-t>
 	</div>
 </template>
 
@@ -25,13 +33,11 @@ import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import type { ITriggerPlaceholder, TriggerActionGroqData, TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TriggerActionHttpPlaceholder from './common/TriggerActionHttpPlaceholder.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 
 @Component({
 	components:{
 		ParamItem,
-		TriggerActionHttpPlaceholder,
 	},
 	emits:[],
 })
@@ -42,6 +48,7 @@ class TriggerActionGroqEntry extends AbstractTriggerActionEntry {
 	public param_jsonMode:TwitchatDataTypes.ParameterData<boolean> = {type:'boolean', value:false, labelKey:"triggers.actions.groq.jsonMode"};
 	public param_json:TwitchatDataTypes.ParameterData<string> = {type:'string', value:'', longText:true, placeholderKey:"triggers.actions.groq.json"};
 	public param_model:TwitchatDataTypes.ParameterData<string, string> = {type:'list', value:'', longText:true, placeholderKey:"triggers.actions.groq.model"};
+	public param_outputPlaceholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", labelKey:"triggers.actions.groq.output_placeholder", maxLength:30, allowedCharsRegex:"A-z0-9_"};
 	public jsonError:string = "";
 
 	@Prop
@@ -56,7 +63,7 @@ class TriggerActionGroqEntry extends AbstractTriggerActionEntry {
 			prompt:"",
 			model:"",
 			jsonMode:false,
-			outputPlaceholderList:[],
+			outputPlaceholder:"",
 		};
 
 		this.param_model.listValues = this.$store.groq.availableModels.map(m => ({

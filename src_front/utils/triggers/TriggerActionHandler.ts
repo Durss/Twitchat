@@ -2282,28 +2282,6 @@ export default class TriggerActionHandler {
 									json = null;
 								}
 
-								if(step.outputPlaceholderList && step.outputPlaceholderList.length > 0) {
-									for (let i = 0; i < step.outputPlaceholderList.length; i++) {
-										const ph = step.outputPlaceholderList[i];
-										if(!ph.placeholder || ph.placeholder.length === 0) continue;
-
-										if(ph.type == "text") {
-											logStep.messages.push({date:Date.now(), value:"Store full query result to placeholder {"+ph.placeholder+"}"});
-											dynamicPlaceholders[ph.placeholder] = text;
-										}else
-										if(ph.type == "json" && json) {
-											const results = jsonpath.query(json, ph.path);
-											if(results.length == 0) {
-												logStep.messages.push({date:Date.now(), value:"JSONPath expression did not return any result: "+ph.path});
-												log.error = true;
-												logStep.error = true;
-											}else{
-												logStep.messages.push({date:Date.now(), value:"Store JSONPath result to placeholder {"+ph.placeholder+"}: "+results[0]});
-												dynamicPlaceholders[ph.placeholder] = results.length == 1 && typeof results[0] === "string"? results[0] : results.join(", ");
-											}
-										}
-									}
-								}else
 								if(step.outputPlaceholder) {
 									logStep.messages.push({date:Date.now(), value:"Store result to placeholder: "+step.outputPlaceholder});
 									dynamicPlaceholders[step.outputPlaceholder] = text;
@@ -2318,6 +2296,60 @@ export default class TriggerActionHandler {
 							log.error = true;
 							logStep.error = true;
 							logStep.messages.push({date:Date.now(), value:"HTTP call failed. URL might be invalid: "+urlSrc});
+						}
+					}
+				}else
+
+				//Handle JSON extract trigger action
+				if(step.type == "json_extract") {
+					if(!step.jsonExtractData.sourcePlaceholder || step.jsonExtractData.sourcePlaceholder.trim().length === 0) {
+						log.error = true;
+						logStep.error = true;
+						logStep.messages.push({date:Date.now(), value:"JSON extract failed because source placeholder is empty"});
+					}else{
+						try {
+							// Get the JSON content from the source placeholder
+							const jsonContent = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.jsonExtractData.sourcePlaceholder+"}", subEvent);
+							logStep.messages.push({date:Date.now(), value:"Extracting JSON from placeholder {"+step.jsonExtractData.sourcePlaceholder+"}: "+jsonContent.substring(0, 500)+(jsonContent.length > 500 ? "..." : "")});
+
+							let json:any|null = null;
+							try {
+								json = JSON.parse(jsonContent);
+							}catch(error){
+								log.error = true;
+								logStep.error = true;
+								logStep.messages.push({date:Date.now(), value:"Failed to parse JSON content from placeholder {"+step.jsonExtractData.sourcePlaceholder+"}: "+error});
+								json = null;
+							}
+
+							if(json && step.jsonExtractData.outputPlaceholderList && step.jsonExtractData.outputPlaceholderList.length > 0) {
+								for (let i = 0; i < step.jsonExtractData.outputPlaceholderList.length; i++) {
+									const ph = step.jsonExtractData.outputPlaceholderList[i];
+									if(!ph.placeholder || ph.placeholder.length === 0) continue;
+
+									// if(ph.type == "text") {
+									// 	logStep.messages.push({date:Date.now(), value:"Store full JSON content to placeholder {"+ph.placeholder+"}"});
+									// 	dynamicPlaceholders[ph.placeholder] = jsonContent;
+									// }else
+									if(ph.type == "json") {
+										const results = jsonpath.query(json, ph.path);
+										if(results.length == 0) {
+											logStep.messages.push({date:Date.now(), value:"JSONPath expression did not return any result: "+ph.path});
+											log.error = true;
+											logStep.error = true;
+										}else{
+											const result = results.length == 1 && typeof results[0] === "string"? results[0] : results.join(", ");
+											logStep.messages.push({date:Date.now(), value:"Store JSONPath result to placeholder {"+ph.placeholder+"}: "+result});
+											dynamicPlaceholders[ph.placeholder] = result;
+										}
+									}
+								}
+							}
+						}catch(error) {
+							console.error(error);
+							log.error = true;
+							logStep.error = true;
+							logStep.messages.push({date:Date.now(), value:"JSON extract failed. Error: "+error});
 						}
 					}
 				}else
@@ -3645,27 +3677,9 @@ export default class TriggerActionHandler {
 								json = null;
 							}
 
-							if(step.groqData?.outputPlaceholderList && step.groqData.outputPlaceholderList.length > 0) {
-								for (let i = 0; i < step.groqData.outputPlaceholderList.length; i++) {
-									const ph = step.groqData.outputPlaceholderList[i];
-									if(!ph.placeholder || ph.placeholder.length === 0) continue;
-
-									if(ph.type == "text") {
-										logStep.messages.push({date:Date.now(), value:"Store full query result to placeholder {"+ph.placeholder+"}"});
-										dynamicPlaceholders[ph.placeholder] = text;
-									}else
-									if(ph.type == "json" && json) {
-										const results = jsonpath.query(json, ph.path);
-										if(results.length == 0) {
-											logStep.messages.push({date:Date.now(), value:"JSONPath expression did not return any result: "+ph.path});
-											log.error = true;
-											logStep.error = true;
-										}else{
-											logStep.messages.push({date:Date.now(), value:"Store JSONPath result to placeholder {"+ph.placeholder+"}: "+results[0]});
-											dynamicPlaceholders[ph.placeholder] = results.length == 1 && typeof results[0] === "string"? results[0] : results.join(", ");
-										}
-									}
-								}
+							if(step.groqData?.outputPlaceholder) {
+								logStep.messages.push({date:Date.now(), value:"Store result to placeholder: "+step.groqData.outputPlaceholder});
+								dynamicPlaceholders[step.groqData.outputPlaceholder] = text;
 							}
 						}
 					}

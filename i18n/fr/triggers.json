@@ -45,6 +45,7 @@
 		"missing_reward_scope": "CHARGEMENT DE LA RECOMPENSE IMPOSSIBLE",
 		"random_placeholder": "Placeholder de valeur aléatoire {NAME}",
 		"http_placeholder": "Placeholder HTTP {NAME}",
+		"json_placeholder": "Placeholder JSON {NAME}",
 		"raffle_placeholder": "Entrée de tirage au sort gagnante",
 		"screenshot_placeholder": "Screenshot OBS",
 		"nonpremium_limit": "Vous avez créé le maximum de {MAX} triggers actifs. Devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} triggers. Ou désactivez / supprimez des triggers pour en créer de nouveaux.",
@@ -167,6 +168,7 @@
 				"action_discord": "Discord",
 				"action_discord_tt": "Vous devez lier Twitchat à Discord",
 				"action_http": "Appel HTTP",
+				"action_json_extract": "Extraire des données JSON",
 				"action_ws": "Message Websocket",
 				"action_poll": "Lancer un sondage",
 				"action_chat_poll": "Lancer un sondage de tchat",
@@ -416,7 +418,7 @@
 				"url": "URL à appeler",
 				"method": "Méthode",
 				"topic_placeholder": "valeur personnalisée...",
-				"output_placeholder": "Enregistrer le résultat de la requête dans le placeholder",
+				"output_placeholder": "Stocker le résultat dans le placeholder",
 				"output_placeholder_placeholder": "placeholder...",
 				"custom_body": "Body personnalisé",
 				"custom_body_placeholder": "{'{'}\n...\n{'}'}",
@@ -436,6 +438,9 @@
 				"extract_data_jsonpath": "JSON path (ex: $)",
 				"extract_data_placeholder": "Placeholder...",
 				"add_placeholder_bt": "Ajouter un placeholder"
+			},
+			"json_extract": {
+				"source_placeholder": "Placeholder source contenant les données JSON"
 			},
 			"count": {
 				"value_label": "Valeur",
@@ -672,6 +677,7 @@
 				"prompt": "Prompt",
 				"model": "Modèle",
 				"model_default": "Modèle par défaut",
+				"output_placeholder": "Stocker le résultat dans le placeholder",
 				"jsonMode": "Réponse au format JSON",
 				"jsonMode_hint": "{LINK} pour demander à Groq de renvoyer une réponse JSON dans le format que vous souhaitez",
 				"jsonMode_hint_link": "Voir les instructions",

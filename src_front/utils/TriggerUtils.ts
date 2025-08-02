@@ -213,7 +213,12 @@ export default class TriggerUtils {
 			&& (a.condition !== undefined || action.condition === false)
 			&& (a.condition === false || action.condition !== undefined)) continue;
 			//If its anything but a "random" or "http" action, skip it (only these ones create custom placeholders for now)
-			if(a.type != "random" && a.type != "http" && a.type != "raffle" && a.type != "obs" && a.type != "groq") continue;
+			if(a.type != "random"
+			&& a.type != "http"
+			&& a.type != "raffle"
+			&& a.type != "obs"
+			&& a.type != "groq"
+			&& a.type != "json_extract") continue;
 
 			if(a.type == "random"){
 				//If it's not a list or number random value mode, ignore it (onlye these have a custom placeholder)
@@ -266,33 +271,45 @@ export default class TriggerUtils {
 			}else
 
 			if(a.type == "groq") {
-				if(a.groqData?.outputPlaceholderList && a.groqData?.outputPlaceholderList.length > 0) {
-					for (let i = 0; i < a.groqData?.outputPlaceholderList.length; i++) {
-						const ph = a.groqData?.outputPlaceholderList[i];
-						if(!ph.placeholder || ph.placeholder.length === 0) continue;
-						placeholdersList.push({
-							tag:ph.placeholder.toUpperCase(),
-							pointer:"",
-							isUserID:false,
-							numberParsable:true,
-							descKey:'triggers.http_placeholder',
-							descReplacedValues:{NAME:"{"+ph.placeholder.toUpperCase()+"}"},
-						});
-					}
+				// Handle new simple outputPlaceholder
+				if(a.groqData?.outputPlaceholder && a.groqData.outputPlaceholder.trim().length > 0) {
+					placeholdersList.push({
+						tag:a.groqData.outputPlaceholder.toUpperCase(),
+						pointer:"",
+						isUserID:false,
+						numberParsable:true,
+						descKey:'triggers.http_placeholder',
+						descReplacedValues:{NAME:"{"+a.groqData.outputPlaceholder.toUpperCase()+"}"},
+					});
 				}
 
 			}else
+
 			if(a.type == "http") {
-				if(a.outputPlaceholderList && a.outputPlaceholderList.length > 0) {
-					for (let i = 0; i < a.outputPlaceholderList.length; i++) {
-						const ph = a.outputPlaceholderList[i];
+				// Handle new simple outputPlaceholder
+				if(a.outputPlaceholder && a.outputPlaceholder.trim().length > 0) {
+					placeholdersList.push({
+						tag:a.outputPlaceholder.toUpperCase(),
+						pointer:"",
+						isUserID:false,
+						numberParsable:true,
+						descKey:'triggers.http_placeholder',
+						descReplacedValues:{NAME:"{"+a.outputPlaceholder.toUpperCase()+"}"},
+					});
+				}
+			}else
+
+			if(a.type == "json_extract") {
+				if(a.jsonExtractData.outputPlaceholderList && a.jsonExtractData.outputPlaceholderList.length > 0) {
+					for (let i = 0; i < a.jsonExtractData.outputPlaceholderList.length; i++) {
+						const ph = a.jsonExtractData.outputPlaceholderList[i];
 						if(!ph.placeholder || ph.placeholder.length === 0) continue;
 						placeholdersList.push({
 							tag:ph.placeholder.toUpperCase(),
 							pointer:"",
 							isUserID:false,
 							numberParsable:true,
-							descKey:'triggers.http_placeholder',
+							descKey:'triggers.json_placeholder',
 							descReplacedValues:{NAME:"{"+ph.placeholder.toUpperCase()+"}"},
 						});
 					}

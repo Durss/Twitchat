@@ -104,7 +104,7 @@
 							v-tooltip="$t('timers.form.param_placeholder_tt')">
 								<Icon name="placeholder"/>
 								<span class="label">{{ $t("timers.form.param_placeholder") }}</span>
-								<PlaceholderField class="field"
+								<PlaceholderField class="input-field field"
 									v-model="entry.placeholderKey"
 									:prefix="entry.type == 'timer'? 'TIMER_' : 'COUNTDOWN_'"
 									@change="checkForPlaceholderDuplicates()" />

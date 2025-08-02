@@ -476,7 +476,24 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Parameter type
 		 */
-		type:"boolean"|"number"|"integer"|"string"|"slider"|"password"|"list"|"browse"|"editablelist"|"color"|"date"|"datetime"|"time"|"imagelist"|"duration"|"custom"|"font";
+		type:"boolean"
+		|"number"
+		|"integer"
+		|"string"
+		|"slider"
+		|"password"
+		|"list"
+		|"browse"
+		|"editablelist"
+		|"color"
+		|"date"
+		|"datetime"
+		|"time"
+		|"imagelist"
+		|"duration"
+		|"custom"
+		|"font"
+		|"placeholder";
 		/**
 		 * Parameter value
 		 */

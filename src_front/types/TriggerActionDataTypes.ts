@@ -110,6 +110,7 @@ export type TriggerActionTypes = {enabled?:boolean} &
 								| TriggerActionAnimatedTextData
 								| TriggerActionCustomTrainData
 								| TriggerActionSFXRData
+								| TriggerActionJSONExtractData
 							);
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -661,7 +662,12 @@ export interface TriggerActionGroqData extends TriggerActionData{
 		 */
 		json?:string;
 		/**
+		 * Placeholder containing the Groq response result
+		 */
+		outputPlaceholder?:string;
+		/**
 		 * Extract placeholders as simple text or with JSONPath
+		 * @deprecated Use outputPlaceholder + TriggerActionJSONExtractData for JSON extraction
 		 */
 		outputPlaceholderList?:IHttpPlaceholder[];
 	};
@@ -907,11 +913,11 @@ export interface TriggerActionHTTPCallData extends TriggerActionData{
 	headers?:{key:string, value:string}[];
 	/**
 	 * Placeholder containing the request result
-	 * @deprecated replaced with outputPlaceholderList
 	 */
 	outputPlaceholder?:string;
 	/**
 	 * Extract placeholders with JSONPath
+	 * @deprecated Use outputPlaceholder + TriggerActionJSONExtractData for JSON extraction
 	 */
 	outputPlaceholderList?:IHttpPlaceholder[];
 	/**
@@ -1450,6 +1456,23 @@ export interface TriggerActionSFXRData extends TriggerActionData{
 }
 
 /**
+ * Extract data from JSON using JSONPath from a placeholder
+ */
+export interface TriggerActionJSONExtractData extends TriggerActionData{
+	type:"json_extract";
+	jsonExtractData:{
+		/**
+		 * Placeholder containing the JSON data to extract from
+		 */
+		sourcePlaceholder:string;
+		/**
+		 * Extract placeholders with JSONPath
+		 */
+		outputPlaceholderList?:IHttpPlaceholder[];
+	}
+}
+
+/**
  * Represents a tree structure item.
  * Either a trigger folder or a trigger item entry
  */
@@ -1677,7 +1700,7 @@ export type TriggerTypesKey = keyof typeof TriggerTypes;
 export type TriggerTypesValue = typeof TriggerTypes[TriggerTypesKey];
 
 export interface IHttpPlaceholder {
-	type:"text"|"json",
+	type:"json",
 	path:string;
 	placeholder:string;
 };

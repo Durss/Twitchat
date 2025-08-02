@@ -4,32 +4,20 @@
 		<div class="card-item placeholderList">
 			<p icon="add">{{ $t("triggers.actions.http_ws.extract_data") }}</p>
 			<div v-for="(item, index) in placeholderList" class="item">
-				<select v-model="item.type">
+				<!-- <select v-model="item.type">
 					<option value="text">{{ $t("triggers.actions.http_ws.extract_data_type_text") }}</option>
 					<option value="json">{{ $t("triggers.actions.http_ws.extract_data_type_json") }}</option>
-				</select>
+				</select> -->
 				<div class="jsonpath" v-if="item.type == 'json'">
 					<input type="text" maxlength="500" v-model="item.path" :placeholder="$t('triggers.actions.http_ws.extract_data_jsonpath')">
 					<TTButton class="helpBt" icon="help" secondary type="link" target="_blank" href="https://wikipedia.org/wiki/JSONPath" />
 				</div>
-				<div class="placeholder" :class="{error:isDuplicate(item)}" @click.stop="focusInput('input_'+index)">
-					<span>{</span>
-					<contenteditable tag="span"
-						:ref="'input_'+index"
-						:class="{input:true, empty:item.placeholder.length === 0}"
-						:contenteditable="true"
-						:no-nl="true"
-						:no-html="true"
-						v-model="item.placeholder"
-						@input="limitPlaceholderSize(item)" />
-					<span>}</span>
-				</div>
+				<PlaceholderField class="input-field" :class="{error:isDuplicate(item)}" v-model="item.placeholder" :maxLength="30" />
 				<TTButton class="deleteBt" icon="trash" alert @click="removeOutputPlacholder(index)" />
 			</div>
 			<TTButton icon="add" @click="addOutputPlaceholder" v-if="(placeholderList || []).length < 50">{{ $t("triggers.actions.http_ws.add_placeholder_bt") }}</TTButton>
 		</div>
 
-		<!-- <ParamItem :paramData="param_outputPlaceholder" v-model="action.outputPlaceholder" /> -->
 
 		<i18n-t scope="global" class="card-item info" tag="div"
 		keypath="triggers.actions.common.custom_placeholder_example"
@@ -49,11 +37,13 @@ import TTButton from '@/components/TTButton.vue';
 import type { IHttpPlaceholder } from '@/types/TriggerActionDataTypes';
 import {toNative,  Component, Vue, Prop } from 'vue-facing-decorator';
 import contenteditable from 'vue-contenteditable';
+import PlaceholderField from '@/components/PlaceholderField.vue';
 
 @Component({
 	components:{
 		TTButton,
 		contenteditable,
+		PlaceholderField,
 	},
 	emits:[],
 })
@@ -81,7 +71,7 @@ class TriggerActionHttpPlaceholder extends Vue {
 	 */
 	public addOutputPlaceholder():void {
 		this.placeholderList.push({
-			type:"text",
+			type:"json",
 			path:"",
 			placeholder:"",
 		})
@@ -92,32 +82,6 @@ class TriggerActionHttpPlaceholder extends Vue {
 	 */
 	public removeOutputPlacholder(index:number):void {
 		this.placeholderList.splice(index, 1);
-	}
-
-	public focusInput(id:string):void {
-		(this.$refs[id] as typeof contenteditable[])[0].$el.focus();
-	}
-
-	/**
-	 * Limit the size of the label.
-	 * Can't use maxLength because it's a content-editable tag.
-	 * @param item
-	 */
-	public async limitPlaceholderSize(item:IHttpPlaceholder):Promise<void> {
-		const sel = window.getSelection();
-		if(sel && sel.rangeCount > 0) {
-			//Save caret index
-			var range = sel.getRangeAt(0);
-			let caretIndex = range.startOffset;
-			await this.$nextTick();
-			//Normalize label and limit its size
-			item.placeholder = item.placeholder.toUpperCase().trim().replace(/\W/gi, "").substring(0, 30);
-			await this.$nextTick();
-			//Reset caret to previous position
-			if(range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.min(item.placeholder.length, caretIndex));
-		}else{
-			item.placeholder = item.placeholder.toUpperCase().trim().replace(/\W/gi, "").substring(0, 30);
-		}
 	}
 
 }
@@ -151,9 +115,8 @@ export default toNative(TriggerActionHttpPlaceholder);
 		.jsonpath {
 			display: flex;
 			flex-direction: row;
-			// flex-grow: 1;
-			// flex-shrink: 1;
-			* {
+			flex-basis: 60%;
+			&>* {
 				border-radius: 0;
 				&:first-child {
 					border-top-left-radius: var(--border-radius);
@@ -166,31 +129,6 @@ export default toNative(TriggerActionHttpPlaceholder);
 			}
 			.helpBt {
 				flex-shrink: 0;
-			}
-		}
-		.placeholder {
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			justify-content: center;
-			background: var(--background-color-fader);
-			border-radius: var(--border-radius);
-			text-transform: uppercase;
-			.input {
-				margin: 0 .25em;
-				min-width: 1em;
-				text-align: center;
-				cursor: text;
-				&.empty::before {
-					content: "...";
-				}
-			}
-			span:first-child,
-			span:last-child {
-				font-size: 1.5em;
-			}
-			&.error {
-				background-color: var(--color-alert-fader);
 			}
 		}
 		.deleteBt {

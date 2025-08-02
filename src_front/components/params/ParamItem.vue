@@ -4,7 +4,7 @@
 	@mouseleave="$emit('mouseleave', $event, paramData)"
 	@click="clickItem($event)">
 		<div class="content">
-			<Icon :theme="paramData.iconTheme" :name="paramData.icon" v-if="paramData.icon" class="paramIcon" />
+			<Icon :theme="paramData.iconTheme" :name="icon" v-if="icon" class="paramIcon" />
 			<img :src="paramData.iconURL" v-if="paramData.iconURL" class="paramIcon">
 
 			<div v-if="paramData.type == 'custom'" class="holder custom">
@@ -314,6 +314,13 @@
 					icon="upload"
 				/>
 			</div>
+
+			<div v-if="paramData.type == 'placeholder'" class="holder placeholder">
+				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
+				<div class="inputHolder input-field">
+					<PlaceholderField v-model="paramData.value" :maxLength="paramData.maxLength" />
+				</div>
+			</div>
 		</div>
 
 		<PlaceholderSelector class="placeholders" v-if="paramData.placeholderList"
@@ -374,6 +381,7 @@ import TTButton from '../TTButton.vue';
 import ToggleButton from '../ToggleButton.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
 import Config from '@/utils/Config';
+import PlaceholderField from '../PlaceholderField.vue';
 
 @Component({
 	name:"ParamItem",//This is needed so recursion works properly
@@ -384,6 +392,7 @@ import Config from '@/utils/Config';
 		DurationForm,
 		ToggleButton,
 		PremiumLockLayer,
+		PlaceholderField,
 		PlaceholderSelector,
 	},
 	emits: ["change", "update:modelValue", "mouseenter", "mouseleave", "input", "focus", "blur"]
@@ -465,6 +474,12 @@ export class ParamItem extends Vue {
 	}
 
 	public get premiumLocked():boolean { return this.premiumOnlyLocal !== false && !this.$store.auth.isPremium && this.noPremiumLock === false; }
+	
+	public get icon():string {
+		let defaultIcon = "";
+		if(this.paramData.type == "placeholder") defaultIcon = "placeholder";
+		return this.paramData.icon ?? defaultIcon ?? "";
+	 }
 
 	public get classes():string[] {
 		const res = ["paramitem"];
@@ -481,7 +496,7 @@ export class ParamItem extends Vue {
 		if(this.label == '') res.push("noLabel");
 		if(this.autoFade !== false) res.push("autoFade");
 		if(this.childLevel > 0) res.push("child");
-		if(this.paramData.icon) res.push("hasIcon");
+		if(this.icon) res.push("hasIcon");
 		if(this.paramData.maxLength) res.push("maxLength");
 		if(this.paramData.disabled || this.disabled == true) res.push("disabled");
 		if(this.premiumLocked) res.push("cantUse");
@@ -1108,7 +1123,7 @@ export default toNative(ParamItem);
 			align-self: flex-start;
 		}
 
-		.toggle, .number, .text, .list, .browse, .color{
+		.toggle, .number, .text, .list, .browse, .color, .placeholder {
 			flex-grow: 1;
 			display: flex;
 			flex-direction: row;
