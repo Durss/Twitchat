@@ -47,7 +47,6 @@ class AppLangSelector extends Vue {
 	}
 
 	public mounted():void {
-		console.log(this.$t)
 		watch(()=>this.$i18n.locale, ()=> {
 			DataStore.set(DataStore.LANGUAGE, this.$i18n.locale);
 		});

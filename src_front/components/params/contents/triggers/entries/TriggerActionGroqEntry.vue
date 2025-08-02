@@ -8,7 +8,7 @@
 			<ParamItem :paramData="param_json" v-model="action.groqData!.json" noBackground @blur="onBlurJSON"
 			:childLevel="1"
 			:error="jsonError != ''"
-			:errorMessage="$t('', {ERROR:jsonError})" />
+			:errorMessage="jsonError" />
 			<i18n-t scope="global" class="infos" tag="div" keypath="triggers.actions.groq.jsonMode_hint">
 				<template #LINK>
 					<a href="https://console.groq.com/docs/text-chat#json-mode-object-object" target="_blank">{{ $t("triggers.actions.groq.jsonMode_hint_link") }}</a>
@@ -17,7 +17,7 @@
 		</ParamItem>
 
 		<ParamItem :paramData="param_outputPlaceholder" v-model="action.groqData!.outputPlaceholder" />
-		
+
 		<i18n-t scope="global" class="card-item info" tag="div"
 		keypath="triggers.actions.common.custom_placeholder_example"
 		v-if="action.groqData!.outputPlaceholder && action.groqData!.outputPlaceholder.length > 0">

@@ -1821,7 +1821,7 @@ export default class DataStore extends DataStoreCommon{
 						delete httpAction.outputPlaceholderList;
 						
 						// Add the JSON extract action right after the HTTP action
-						actionsToAdd.push({action: jsonExtractAction, index: i + 1});
+						trigger.actions.splice(i+1, 0, jsonExtractAction);
 					}
 				}
 				
@@ -1849,16 +1849,9 @@ export default class DataStore extends DataStoreCommon{
 						delete groqAction.groqData.outputPlaceholderList;
 						
 						// Add the JSON extract action right after the Groq action
-						actionsToAdd.push({action: jsonExtractAction, index: i + 1});
+						trigger.actions.splice(i+1, 0, jsonExtractAction);
 					}
 				}
-			}
-			
-			// Insert the new JSON Extract actions at their specified positions
-			// Sort by index in reverse order to maintain correct insertion positions
-			actionsToAdd.sort((a, b) => b.index - a.index);
-			for (const actionToAdd of actionsToAdd) {
-				trigger.actions.splice(actionToAdd.index, 0, actionToAdd.action);
 			}
 		}
 		
