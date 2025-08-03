@@ -168,7 +168,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public param_screenImgSize_width_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:1920, min:8, max:4096, icon:"coord_x", labelKey:"triggers.actions.obs.param_screenImgSize_width_conf" };
 	public param_screenImgSize_height_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:1080, min:8, max:4096, icon:"coord_y", labelKey:"triggers.actions.obs.param_screenImgSize_height_conf" };
 	public param_screenImgSavePath_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", placeholder:"D:/image.jpeg", maxLength:500, icon:"save", labelKey:"triggers.actions.obs.param_screenImgSavePath_conf" };
-	public param_screenImgSavePH_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", maxLength:30, allowedCharsRegex:"a-z0-9_", icon:"placeholder", labelKey:"triggers.actions.obs.param_screenImgSavePH_conf" };
+	public param_screenImgSavePH_conf:TwitchatDataTypes.ParameterData<string> = { type:"placeholder", value:"", maxLength:30, allowedCharsRegex:"a-z0-9_", icon:"placeholder", labelKey:"triggers.actions.obs.param_screenImgSavePH_conf" };
 
 	public selectedSourceName:string = "";
 

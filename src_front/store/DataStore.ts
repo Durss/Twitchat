@@ -157,7 +157,7 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	static override async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 67;
+		const latestVersion = 67.1;
 
 		this.cleanupPreV7Data(data);
 
@@ -402,6 +402,10 @@ export default class DataStore extends DataStoreCommon{
 		}
 		if(v==66) {
 			this.migrateHttpAndGroqToJsonExtract(data);
+			v = 67;
+		}
+		if(v==67) {
+			this.cleanupOutputPlaceholderList(data);
 			v = latestVersion;
 		}
 
@@ -1802,26 +1806,28 @@ export default class DataStore extends DataStoreCommon{
 					const httpAction = action as TriggerActionDataTypes.TriggerActionHTTPCallData;
 					
 					// If it has complex JSON extraction, migrate it
-					if(httpAction.outputPlaceholderList && httpAction.outputPlaceholderList.length > 0) {
-						// Create a new simple placeholder name for the full HTTP response
-						const baseHttpPlaceholder = this.generateUniquePlaceholderName(trigger, "HTTP_RESULT");
-						
-						// Create JSON Extract action with the same extraction configuration
-						const jsonExtractAction:TriggerActionDataTypes.TriggerActionJSONExtractData = {
-							id: Utils.getUUID(),
-							type: "json_extract",
-							jsonExtractData:{
-								sourcePlaceholder: baseHttpPlaceholder,
-								outputPlaceholderList: [...httpAction.outputPlaceholderList.filter(v=>v.type =='json')],
-							}
-						};
-						
-						// Simplify the HTTP action to only output the full response
-						httpAction.outputPlaceholder = baseHttpPlaceholder;
+					if(httpAction.outputPlaceholderList) {
+						if(httpAction.outputPlaceholderList.length > 0) {
+							// Create a new simple placeholder name for the full HTTP response
+							const baseHttpPlaceholder = this.generateUniquePlaceholderName(trigger, "HTTP_RESULT");
+							
+							// Create JSON Extract action with the same extraction configuration
+							const jsonExtractAction:TriggerActionDataTypes.TriggerActionJSONExtractData = {
+								id: Utils.getUUID(),
+								type: "json_extract",
+								jsonExtractData:{
+									sourcePlaceholder: baseHttpPlaceholder,
+									outputPlaceholderList: [...httpAction.outputPlaceholderList.filter(v=>v.type =='json')],
+								}
+							};
+							
+							// Simplify the HTTP action to only output the full response
+							httpAction.outputPlaceholder = baseHttpPlaceholder;
+							
+							// Add the JSON extract action right after the HTTP action
+							trigger.actions.splice(i+1, 0, jsonExtractAction);
+						}
 						delete httpAction.outputPlaceholderList;
-						
-						// Add the JSON extract action right after the HTTP action
-						trigger.actions.splice(i+1, 0, jsonExtractAction);
 					}
 				}
 				
@@ -1830,26 +1836,28 @@ export default class DataStore extends DataStoreCommon{
 					const groqAction = action as TriggerActionDataTypes.TriggerActionGroqData;
 					
 					// If it has complex JSON extraction, migrate it
-					if(groqAction.groqData?.outputPlaceholderList && groqAction.groqData.outputPlaceholderList.length > 0) {
-						// Create a new simple placeholder name for the full Groq response
-						const baseGroqPlaceholder = this.generateUniquePlaceholderName(trigger, "GROQ_RESULT");
-						
-						// Create JSON Extract action with the same extraction configuration
-						const jsonExtractAction:TriggerActionDataTypes.TriggerActionJSONExtractData = {
-							id: Utils.getUUID(),
-							type: "json_extract",
-							jsonExtractData: {
-								sourcePlaceholder: baseGroqPlaceholder,
-								outputPlaceholderList: [...groqAction.groqData.outputPlaceholderList.filter(v=>v.type =='json')],
-							}
-						};
-						
-						// Simplify the Groq action to only output the full response
-						groqAction.groqData.outputPlaceholder = baseGroqPlaceholder;
+					if(groqAction.groqData?.outputPlaceholderList){
+						if(groqAction.groqData.outputPlaceholderList.length > 0) {
+							// Create a new simple placeholder name for the full Groq response
+							const baseGroqPlaceholder = this.generateUniquePlaceholderName(trigger, "GROQ_RESULT");
+							
+							// Create JSON Extract action with the same extraction configuration
+							const jsonExtractAction:TriggerActionDataTypes.TriggerActionJSONExtractData = {
+								id: Utils.getUUID(),
+								type: "json_extract",
+								jsonExtractData: {
+									sourcePlaceholder: baseGroqPlaceholder,
+									outputPlaceholderList: [...groqAction.groqData.outputPlaceholderList.filter(v=>v.type =='json')],
+								}
+							};
+							
+							// Simplify the Groq action to only output the full response
+							groqAction.groqData.outputPlaceholder = baseGroqPlaceholder;
+							
+							// Add the JSON extract action right after the Groq action
+							trigger.actions.splice(i+1, 0, jsonExtractAction);
+						}
 						delete groqAction.groqData.outputPlaceholderList;
-						
-						// Add the JSON extract action right after the Groq action
-						trigger.actions.splice(i+1, 0, jsonExtractAction);
 					}
 				}
 			}
@@ -1888,5 +1896,29 @@ export default class DataStore extends DataStoreCommon{
 		}
 		
 		return candidateName;
+	}
+
+	/**
+	 * Cleanup remaining outputPlaceholderList from HTTP and Groq actions
+	 * Previous migration removed them only if they were not empty.
+	 * Empty ones still remained.
+	 * @param data 
+	 * @returns 
+	 */
+	private static cleanupOutputPlaceholderList(data:any):void {
+		const triggers:TriggerActionDataTypes.TriggerData[] = data[DataStore.TRIGGERS];
+		if(!triggers || !Array.isArray(triggers)) return;
+
+		for (const trigger of triggers) {
+			for (let i = 0; i < trigger.actions.length; i++) {
+				const action = trigger.actions[i];
+				if(action.type === "http" || action.type === "groq") {
+					if('outputPlaceholderList' in action && action.outputPlaceholderList) {
+						// Remove any empty output placeholders
+						delete action.outputPlaceholderList
+					}
+				}
+			}
+		}
 	}
 }

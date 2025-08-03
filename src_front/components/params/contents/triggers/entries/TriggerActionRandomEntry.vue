@@ -192,7 +192,7 @@ class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
 	public param_min:TwitchatDataTypes.ParameterData<number> = {type:"number", labelKey:"triggers.actions.random.min_label", value:0, min:Number.MIN_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"min"};
 	public param_max:TwitchatDataTypes.ParameterData<number> = {type:"number", labelKey:"triggers.actions.random.max_label", value:10, min:Number.MIN_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"max"};
 	public param_float:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"triggers.actions.random.float_label", value:false, icon:"dice"};
-	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.placeholder_label", value:"", maxLength:20, icon:"placeholder", allowedCharsRegex:"A-z0-9-_"};
+	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"placeholder", labelKey:"triggers.actions.random.placeholder_label", value:"", maxLength:20, icon:"placeholder", allowedCharsRegex:"A-z0-9-_"};
 	public param_skipDisabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"triggers.actions.random.trigger_skipDisabled", value:true, icon:"skip"};
 	public param_disableAfterExec:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"triggers.actions.random.trigger_disableAfterExec", value:false, icon:"disable"};
 	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"list", labelKey:"triggers.actions.random.value_id", value:"", icon:"placeholder"};
