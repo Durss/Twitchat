@@ -116,6 +116,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						user:u,
 						viewers:0,
 						lastSoDoneDate:0,
+						previewUrl: "",
 					}
 				}
 

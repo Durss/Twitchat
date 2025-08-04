@@ -4378,6 +4378,7 @@ export default class TriggerActionHandler {
 					viewers:c.viewer_count,
 					started_at:new Date(c.started_at).getTime(),
 					lastSoDoneDate:0,
+					previewUrl:c.thumbnail_url.replace("{width}", "1920").replace("{height}", "1080"),
 				}
 			}
 

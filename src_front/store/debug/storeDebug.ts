@@ -1142,6 +1142,7 @@ export const storeDebug = defineStore('debug', {
 							live:false,
 							viewers:0,
 							lastSoDoneDate:0,
+							previewUrl:document.location.origin+"/share.png",
 						},
 						channel_id:uid,
 					};
@@ -1164,6 +1165,7 @@ export const storeDebug = defineStore('debug', {
 							live:false,
 							viewers:0,
 							lastSoDoneDate:0,
+							previewUrl:document.location.origin+"/share.png",
 						},
 						channel_id:uid,
 					};

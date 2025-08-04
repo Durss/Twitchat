@@ -2220,6 +2220,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:USER_CUSTOM_BADGES, descKey:'triggers.placeholders.user_custom_badges', pointer:"__user_custom_badges__", numberParsable:false, isUserID:false},
 		{tag:"TITLE", descKey:'triggers.placeholders.stream_title', pointer:"info.title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamOnlineData | TwitchatDataTypes.MessageStreamOfflineData>,
 		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"info.category", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamOnlineData | TwitchatDataTypes.MessageStreamOfflineData>,
+		{tag:"PREVIEW_URL", descKey:'triggers.placeholders.stream_previewUrl', pointer:"info.previewUrl", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamOnlineData | TwitchatDataTypes.MessageStreamOfflineData>,
 	];
 
 

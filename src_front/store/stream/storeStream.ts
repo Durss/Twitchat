@@ -105,6 +105,7 @@ export const storeStream = defineStore('stream', {
 				viewers:0,
 				lastSoDoneDate:0,
 				user:StoreProxy.users.getUserFrom(platform, channelId, channelId, undefined, undefined, undefined, undefined, false, undefined, false),
+				previewUrl: "",
 			};
 
 			if(platform == "twitch") {
@@ -119,6 +120,7 @@ export const storeStream = defineStore('stream', {
 						infos.tags		= chanInfos.tags;
 						infos.category	= chanInfos.game_name;
 						infos.viewers	= 0;
+						infos.previewUrl= "";
 						categoryId		= chanInfos.game_id;
 					}else{
 						infos.live		= true;
@@ -127,6 +129,7 @@ export const storeStream = defineStore('stream', {
 						infos.category	= v[0].game_name;
 						infos.viewers	= v[0].viewer_count;
 						infos.started_at= new Date(v[0].started_at).getTime();
+						infos.previewUrl= v[0].thumbnail_url.replace("{width}", "1920").replace("{height}", "1080");
 						categoryId		= v[0].game_id;
 					}
 					if(StoreProxy.auth.twitch.user.id == channelId) {

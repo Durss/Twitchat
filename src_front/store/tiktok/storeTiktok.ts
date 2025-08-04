@@ -349,6 +349,7 @@ export const storeTiktok = defineStore('tiktok', {
 						tags:[],
 						title:"",
 						viewers:json.data.viewerCount,
+						previewUrl:"",
 					}
 					StoreProxy.labels.updateLabelValue("VIEWER_COUNT_TIKTOK", json.data.viewerCount);
 					return;

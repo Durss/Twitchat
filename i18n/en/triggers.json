@@ -835,6 +835,7 @@
 			"my_stream_live": "Is my stream live?",
 			"stream_title": "Stream title",
 			"stream_category": "Stream category",
+			"stream_previewUrl": "Stream preview URL",
 			"stream_viewers": "Raiders count",
 			"stream_duration": "Stream duration in milliseconds",
 			"stream_duration_str": "Stream duration formatted",

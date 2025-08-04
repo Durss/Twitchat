@@ -1116,6 +1116,7 @@ export namespace TwitchatDataTypes {
 		live:boolean;
 		viewers:number;
 		lastSoDoneDate:number;
+		previewUrl:string;
 	}
 
 	/**

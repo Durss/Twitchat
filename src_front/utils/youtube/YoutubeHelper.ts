@@ -354,6 +354,7 @@ export default class YoutubeHelper {
 				tags:[],
 				title:"",
 				viewers:total,
+				previewUrl:"",
 			}
 		}
 	}

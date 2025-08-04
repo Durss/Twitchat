@@ -765,6 +765,7 @@ export default class EventSub {
 				live,
 				user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name, undefined, undefined, false, undefined, false),
 				lastSoDoneDate:0,
+				previewUrl: streamInfos?.thumbnail_url.replace("{width}", "1920").replace("{height}", "1080") || "",
 			}
 		}
 		infos.title = title;
@@ -1173,6 +1174,7 @@ export default class EventSub {
 				message.info.live = true;
 				message.info.title = streamInfo.title;
 				message.info.category = streamInfo.game_name;
+				message.info.previewUrl = streamInfo.thumbnail_url.replace("{width}", "1920").replace("{height}", "1080");
 			}else{
 				//Fallback to channel info if API isn't synchronized yet
 				const [chanInfo] = await TwitchUtils.getChannelInfo([event.broadcaster_user_id]);
@@ -1180,6 +1182,7 @@ export default class EventSub {
 				message.info.live = true;
 				message.info.title = chanInfo.title;
 				message.info.category = chanInfo.game_name;
+				message.info.previewUrl = "";
 			}
 			StoreProxy.stream.setStreamStart(event.broadcaster_user_id, message.info.started_at);
 		}
