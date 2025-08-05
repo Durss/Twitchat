@@ -1145,6 +1145,7 @@ const UserDataSchema = {
 		"p:displayTime": {type:"boolean"},
 		"p:displayTimeRelative": {type:"boolean"},
 		"p:dyslexicFont": {type:"boolean"},
+		"p:adhdFont": {type:"boolean"},
 		"p:firstMessage": {type:"boolean"},
 		"p:firstUserBadge": {type:"boolean"},
 		"p:groupIdenticalMessage": {type:"boolean"},
