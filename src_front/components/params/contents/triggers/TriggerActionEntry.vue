@@ -275,12 +275,14 @@
 						icon="vibrate" >{{ $t('triggers.actions.common.action_vibrate') }}</TTButton>
 
 					<TTButton class="button" @click="selectActionType('sfxr')"
+						v-newflag="{date:$config.NEW_FLAGS_DATE_V16_5, id:'params_triggerAction_sfxr'}"
 						icon="unmute" >{{ $t('triggers.actions.common.action_sfxr') }}</TTButton>
 
 					<TTButton class="button" @click="selectActionType('http')"
 						icon="url">{{ $t('triggers.actions.common.action_http') }}</TTButton>
 
 					<TTButton class="button" @click="selectActionType('json_extract')"
+						v-newflag="{date:$config.NEW_FLAGS_DATE_V16_5, id:'params_triggerAction_jsonExtract'}"
 						icon="placeholder">{{ $t('triggers.actions.common.action_json_extract') }}</TTButton>
 
 					<TTButton class="button" @click.capture="selectActionType('ws')"

@@ -8,7 +8,7 @@
 					draggable="false"
 					icon="params"
 					@click="toggleParams()"
-					:newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'chatform_params_6'}" />
+					:newflag="{date:$config.NEW_FLAGS_DATE_V16_5, id:'chatform_params_7'}" />
 				
 				<ButtonNotification
 					:aria-label="$t('chat.form.cmdsBt_aria')"
