@@ -100,6 +100,7 @@ export const storeParams = defineStore('params', {
 			displayTime: 				{type:"boolean", value:false, labelKey:"params.displayTime", id:6, icon:"timeout"},
 			displayTimeRelative: 		{type:"boolean", value:false, labelKey:"params.displayTimeRelative", id:27, parent:6},
 			dyslexicFont: 				{type:"boolean", value:false, labelKey:"params.dyslexicFont", id:24, icon:"font"},
+			adhdFont: 					{type:"boolean", value:false, labelKey:"params.adhdFont", id:50, icon:"font"},
 			defaultSize: 				{type:"slider", value:4, labelKey:"params.defaultSize", min:1, max:20, step:1, id:12},
 		},
 		chatColumnsConfig:[

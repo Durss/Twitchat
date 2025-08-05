@@ -70,6 +70,7 @@
 		"displayTimeRelative": "Afficher la durée écoulée depuis réception au lieu de l'heure de réception",
 		"splitViewVertical": "Disposition verticale",
 		"dyslexicFont": "Police pour dyslexiques",
+		"adhdFont": "Police TDAH friendly",
 		"defaultSize": "Taille du texte ({VALUE})",
 		"backBt_aria": "Retour",
 		"closeBt_aria": "Fermer",

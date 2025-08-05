@@ -44,10 +44,12 @@ class App extends Vue {
 	private keyDownHandler!:(e:KeyboardEvent) => void;
 
 	public get dyslexicFont():boolean { return this.$store.params.appearance.dyslexicFont.value as boolean; }
+	public get adhdFont():boolean { return this.$store.params.appearance.adhdFont.value as boolean; }
 
 	public get classes():string[] {
 		let res = ["app"];
 		if(this.dyslexicFont === true) res.push("dyslexicFont");
+		if(this.adhdFont === true) res.push("adhdFont");
 		if(this.$route.meta.overflow === true) res.push("overflow");
 		if(this.demoMode === true) res.push("demoMode");
 		res.push("messageSize_"+this.$store.params.appearance.defaultSize.value);
@@ -234,6 +236,14 @@ export default toNative(App);
 		--font-nunito: "OpenDyslexic";
 		--font-roboto: "OpenDyslexic";
 		--font-azeret: "OpenDyslexic";
+	}
+
+	&.adhdFont {
+		font-size: .9em;
+		--font-inter: "FastMono";
+		--font-nunito: "FastMono";
+		--font-roboto: "FastMono";
+		--font-azeret: "FastMono";
 	}
 
 	&.overflow {
