@@ -4,11 +4,13 @@
 			<TTButton class="createBt" icon="obs" primary
 			@click="createBrowserSource()"
 			v-tooltip="$t('overlay.1click_install_tt')"
+			:light="light != false"
+			:secondary="secondary != false"
 			:disabled="disabled">{{ $t("overlay.1click_install") }}</TTButton>
 
 			<span>{{$t("global.or")}}</span>
 
-			<TTButton class="createBt" icon="edit" @click="showInput = true" small :light="light === true" :disabled="disabled">{{ $t("overlay.manual_installBt") }}</TTButton>
+			<TTButton class="createBt" icon="edit" @click="showInput = true" small :light="light != false" :secondary="secondary != false" :disabled="disabled">{{ $t("overlay.manual_installBt") }}</TTButton>
 		</template>
 
 		<template v-else-if="showSuccess">
@@ -18,10 +20,10 @@
 
 		<div v-else class="field">
 			<button class="backBt" v-if="obsConnected" @click="showInput = false"><Icon name="back" /></button>
-			<TTButton class="draggable" draggable="true" type="link" :href="localURLOBS" :light="light === true" @click.prevent @dragstart="onDragButtonStart($event)">{{$t("overlay.drag_installBt")}}</TTButton>
+			<TTButton class="draggable" draggable="true" type="link" :href="localURLOBS" :light="light != false" :secondary="secondary != false" @click.prevent @dragstart="onDragButtonStart($event)">{{$t("overlay.drag_installBt")}}</TTButton>
 			<span>{{$t("global.or")}}</span>
-			<input class="primary" type="text" v-model="localURL" v-click2Select readonly :disabled="disabled">
-			<TTButton class="copyBt" :copy="localURL" icon="copy" transparent />
+			<input :class="{primary: !secondary, secondary: secondary, light: light}" type="text" name="url" v-model="localURL" v-click2Select readonly :disabled="disabled">
+			<TTButton class="copyBt" :copy="localURL" icon="copy" transparent :secondary="secondary" />
 		</div>
 
 		<div v-if="error" class="card-item alert error" @click="error=''">{{ $t("overlay.install_error", {ERROR:error}) }}</div>
@@ -81,6 +83,9 @@ class OverlayInstaller extends Vue {
 
 	@Prop({default:false, type:Boolean})
 	public light!:boolean;
+
+	@Prop({default:false, type:Boolean})
+	public secondary!:boolean;
 
 	public error:string = "";
 	public showInput:boolean = false;

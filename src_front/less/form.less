@@ -11,16 +11,31 @@ input, textarea, select, .input-field {
 	&.primary {
 		color: var(--color-light);
 		background-color: var(--color-primary);
+
+		&.light {
+			background-color: var(--color-light);
+			color: var(--color-primary);
+		}
 	}
 
 	&.secondary {
 		color: var(--color-light);
-		background-color: var(--color-primary);
+		background-color: var(--color-secondary);
+
+		&.light {
+			color: var(--color-secondary);
+			background-color: var(--color-light);
+		}
 	}
 
 	&.premium {
 		color: var(--color-light);
 		background-color: var(--color-premium);
+
+		&.light {
+			color: var(--color-premium);
+			background-color: var(--color-light);
+		}
 	}
 
 	option {

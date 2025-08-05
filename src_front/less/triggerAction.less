@@ -15,7 +15,7 @@
 		border-radius: .5em;
 		font-size: .8em;
 		gap: .5em;
-		img, .icon {
+		img, .icon:not(.button .icon) {
 			height: 1em;
 			margin-right: .5em;
 			vertical-align: text-top;
@@ -37,9 +37,13 @@
 				text-decoration: none;
 			}
 		}
-		.button {
+		// Only style .button if none of its ancestors is .overlayinstaller
+		.button:not(.overlayinstaller .button):not(.card-item .button) {
 			display: flex;
 			margin: auto;
+		}
+		input {
+			font-size: 1rem;
 		}
 	}
 }

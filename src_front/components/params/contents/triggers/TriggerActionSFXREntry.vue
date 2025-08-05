@@ -21,9 +21,20 @@
 		<ParamItem class="params" :paramData="param_volume" v-model="action.sfxr.volume" />
 		<ParamItem class="params" :paramData="param_waitForEnd" v-model="action.sfxr.waitForEnd" />
 		<ParamItem class="params" :paramData="param_playOnOverlay" v-model="action.sfxr.playOnOverlay">
-			<div class="info secondary parameter-child">{{ $t("triggers.actions.sfxr.param_playOnOverlay_info") }}
+			<div class="card-item alert connectObs" v-if="!exchangeChannelAvailable">
+				<i18n-t scope="global" keypath="overlay.connection.title">
+					<template #OBS>
+						<TTButton icon="obs"
+							light alert small
+							@click="$store.params.openParamsPage(contentConnexions, subcontentObs)">{{ $t('overlay.connection.obsBt') }}</TTButton>
+					</template>
+					<template #DOCK>{{ $t('overlay.connection.dockBt') }}</template>
+				</i18n-t>
 			</div>
-			<OverlayInstaller class="parameter-child" type="sfxr" sourceSuffix="sound effect" :sourceTransform="{width:100, height:100}" light />
+			<div v-else class="info parameter-child">
+				<span>{{ $t("triggers.actions.sfxr.param_playOnOverlay_info") }}</span>
+				<OverlayInstaller class="parameter-child" type="sfxr" sourceSuffix="sound effect" :sourceTransform="{width:100, height:100}" light />
+			</div>
 		</ParamItem>
 	</div>
 </template>
@@ -33,12 +44,14 @@ import Icon from '@/components/Icon.vue';
 import { TTButton } from '@/components/TTButton.vue';
 import { JSFXRSoundPreset } from '@/types/jsfxr';
 import type { TriggerActionSFXRData, TriggerData } from '@/types/TriggerActionDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import SFXRUtils from '@/utils/SFXRUtils';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import AbstractTriggerActionEntry from './entries/AbstractTriggerActionEntry';
 import OverlayInstaller from '../overlays/OverlayInstaller.vue';
+import Config from '@/utils/Config';
+import OBSWebSocket from '@/utils/OBSWebsocket';
 
 @Component({
 	components:{
@@ -64,6 +77,10 @@ class TriggerActionSFXREntry extends AbstractTriggerActionEntry {
 	public param_playOnOverlay:TwitchatDataTypes.ParameterData<boolean> = { type: "boolean", labelKey: "triggers.actions.sfxr.param_playOnOverlay", value: false, icon:"overlay" }
 
 	private prevSound : AudioBufferSourceNode | null = null;
+	
+	public get exchangeChannelAvailable():boolean { return Config.instance.OBS_DOCK_CONTEXT || OBSWebSocket.instance.connected; }
+	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 
 	public get actions():TriggerActionSFXRData['sfxr']["presetId"][] {
 		return [...JSFXRSoundPreset, "custom"]
