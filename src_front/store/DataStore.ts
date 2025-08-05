@@ -1605,7 +1605,6 @@ export default class DataStore extends DataStoreCommon{
 					if(a.type == "http" && a.outputPlaceholder) {
 						a.outputPlaceholderList = [
 							{
-								// @ts-expect-error "text" is not a valid type since v66
 								type:"text",
 								path:"",
 								placeholder:a.outputPlaceholder,
@@ -1808,24 +1807,30 @@ export default class DataStore extends DataStoreCommon{
 					// If it has complex JSON extraction, migrate it
 					if(httpAction.outputPlaceholderList) {
 						if(httpAction.outputPlaceholderList.length > 0) {
-							// Create a new simple placeholder name for the full HTTP response
-							const baseHttpPlaceholder = this.generateUniquePlaceholderName(trigger, "HTTP_RESULT");
-							
-							// Create JSON Extract action with the same extraction configuration
-							const jsonExtractAction:TriggerActionDataTypes.TriggerActionJSONExtractData = {
-								id: Utils.getUUID(),
-								type: "json_extract",
-								jsonExtractData:{
-									sourcePlaceholder: baseHttpPlaceholder,
-									outputPlaceholderList: [...httpAction.outputPlaceholderList.filter(v=>v.type =='json')],
-								}
-							};
-							
-							// Simplify the HTTP action to only output the full response
-							httpAction.outputPlaceholder = baseHttpPlaceholder;
-							
-							// Add the JSON extract action right after the HTTP action
-							trigger.actions.splice(i+1, 0, jsonExtractAction);
+							if(httpAction.outputPlaceholderList.length === 1 && httpAction.outputPlaceholderList[0].type === 'text') {
+								// If it only has a single text output, keep it as is
+								httpAction.outputPlaceholder = httpAction.outputPlaceholderList[0].placeholder;
+								delete httpAction.outputPlaceholderList;
+							}else{
+								// Create a new simple placeholder name for the full HTTP response
+								const baseHttpPlaceholder = this.generateUniquePlaceholderName(trigger, "HTTP_RESULT");
+								
+								// Create JSON Extract action with the same extraction configuration
+								const jsonExtractAction:TriggerActionDataTypes.TriggerActionJSONExtractData = {
+									id: Utils.getUUID(),
+									type: "json_extract",
+									jsonExtractData:{
+										sourcePlaceholder: baseHttpPlaceholder,
+										outputPlaceholderList: [...httpAction.outputPlaceholderList.filter(v=>v.type =='json')] as TriggerActionDataTypes.IHttpPlaceholder[],
+									}
+								};
+								
+								// Simplify the HTTP action to only output the full response
+								httpAction.outputPlaceholder = baseHttpPlaceholder;
+								
+								// Add the JSON extract action right after the HTTP action
+								trigger.actions.splice(i+1, 0, jsonExtractAction);
+							}
 						}
 						delete httpAction.outputPlaceholderList;
 					}

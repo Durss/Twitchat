@@ -919,7 +919,7 @@ export interface TriggerActionHTTPCallData extends TriggerActionData{
 	 * Extract placeholders with JSONPath
 	 * @deprecated Use outputPlaceholder + TriggerActionJSONExtractData for JSON extraction
 	 */
-	outputPlaceholderList?:IHttpPlaceholder[];
+	outputPlaceholderList?: (Omit<IHttpPlaceholder, "type"> & { type: "json" | "text" })[];
 	/**
 	 * Custom body value
 	 */
