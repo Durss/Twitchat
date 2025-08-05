@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<div class="form">
+		<div class="formHolder">
 			<label :for="key">{{title}}</label>
 			<div class="inputHolder">
 				<Icon name="loader" class="loader" v-if="loading" />
@@ -150,7 +150,7 @@ export default toNative(AutoCompleteForm);
 
 <style scoped lang="less">
 .autocompleteform{
-	.form {
+	.formHolder {
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
@@ -178,7 +178,7 @@ export default toNative(AutoCompleteForm);
 	}
 
 	&.loading {
-		.form {
+		.formHolder {
 			.inputHolder {
 				input {
 					padding-left: calc(1em + 10px);
