@@ -2766,6 +2766,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 			entry.push({category:"twitch", tag:"TWITCH_LAST_SUBGIFTER", descKey:"triggers.placeholders.last_subgifter", pointer:"__twitch__.lastsubgifter_login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"});
 			entry.push({category:"twitch", tag:"TWITCH_LAST_SUBGIFTER_ID", descKey:"triggers.placeholders.last_subgifter_id", pointer:"__twitch__.lastsubgifter_id", numberParsable:false, isUserID:true, globalTag:true, example:"29961813"});
 			entry.push({category:"twitch", tag:"TWITCH_LAST_SUBGIFTER_TIER", descKey:"triggers.placeholders.last_subgifter_tier", pointer:"__twitch__.lastsubgifter_tier", numberParsable:false, isUserID:true, globalTag:true, example:"1"});
+			entry.push({category:"twitch", tag:"TWITCH_LAST_SUBGIFT_COUNT", descKey:"triggers.placeholders.last_subgift_count", pointer:"__twitch__.lastsubgift_count", numberParsable:false, isUserID:true, globalTag:true, example:"1"});
 			entry.push({category:"twitch", tag:"TWITCH_TOTAL_SUBS_ACTIVE", descKey:"triggers.placeholders.total_sub", pointer:"__twitch__.totalsubs", numberParsable:true, isUserID:false, globalTag:true, example:"1312"});
 			entry.push({category:"twitch", tag:"TWITCH_PARTNER_PLUS_POINTS", descKey:"triggers.placeholders.partner_plus_points", pointer:"__twitch__.partnerpluspoints", numberParsable:true, isUserID:false, globalTag:true, example:"1312", private:true});
 		}

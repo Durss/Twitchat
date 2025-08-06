@@ -959,6 +959,7 @@
 			"datetime": "Current date and time formatted",
 			"last_sub": "Last subscriber",
 			"last_sub_id": "Last subscriber ID",
+			"last_subgift_count": "Last subgift count",
 			"last_subgifter": "Last subgifter",
 			"last_subgifter_id": "Last subgifter ID",
 			"total_sub": "Active subscriber count",

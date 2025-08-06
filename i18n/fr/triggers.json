@@ -959,6 +959,7 @@
 			"datetime":"Date et heure formatées",
 			"last_sub": "Nom du dernier sub",
 			"last_sub_id": "ID du dernier sub",
+			"last_subgift_count": "Nombre d'abonnements du dernier subgift",
 			"last_sub_tier": "Tier du dernier sub",
 			"last_subgifter": "Nom du dernier subgifter",
 			"last_subgifter_id": "ID du dernier subgifter",

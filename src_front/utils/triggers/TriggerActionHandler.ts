@@ -4184,6 +4184,7 @@ export default class TriggerActionHandler {
 							case "lastsubgifter_id": value = (StoreProxy.labels.getLabelByKey("SUBGIFT_ID") || "").toString(); break;
 							case "lastsubgifter_login": value = (StoreProxy.labels.getLabelByKey("SUBGIFT_NAME") || "").toString(); break;
 							case "lastsubgifter_tier": value = (StoreProxy.labels.getLabelByKey("SUBGIFT_TIER") || "").toString(); break;
+							case "lastsubgift_count": value = (StoreProxy.labels.getLabelByKey("SUBGIFT_COUNT") || "0").toString(); break;
 							case "totalsubs": value = (StoreProxy.labels.getLabelByKey("SUB_COUNT") || "0").toString(); break;
 							case "lastfollow_id": value = (StoreProxy.labels.getLabelByKey("FOLLOWER_ID") || "").toString(); break;
 							case "lastfollow_login": value = (StoreProxy.labels.getLabelByKey("FOLLOWER_NAME") || "").toString(); break;
