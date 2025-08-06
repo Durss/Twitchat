@@ -913,8 +913,8 @@ export class MessageListFilter extends Vue {
 			if(selectedPanelIndex == -1) {
 				selectedPanelIndex = (this.config.order == cols.length-1)? 0 : cols.length-1;
 				cols[selectedPanelIndex].showPanelsHere = true;
-				cols[selectedGreetIndex].showGreetHere = true;
 			}
+			if(selectedGreetIndex == -1) cols[selectedGreetIndex].showGreetHere = true;
 		});
 
 		//Delay save to avoid UI lag during toggle
