@@ -9,6 +9,7 @@ import DiscordController from './DiscordController.js';
 import { PatreonMember } from './PatreonController.js';
 import SSEController from './SSEController.js';
 import Utils from '../utils/Utils.js';
+import path from 'path';
 
 /**
 * Created : 13/03/2022
@@ -32,8 +33,10 @@ export default class UserController extends AbstractController {
 	******************/
 	public async initialize():Promise<void> {
 		this.server.get('/api/user', async (request, response) => await this.getUserState(request, response));
+		this.server.get('/api/user', async (request, response) => await this.getUserState(request, response));
 		this.server.get('/api/user/all', async (request, response) => await this.getAllUsers(request, response));
-		this.server.get('/api/user/data', async (request, response) => await this.getUserData(request, response));
+		this.server.get('/api/user/data', async (request, response) => await this.getUserData(request, response, true));
+		this.server.get('/api/user/data/backup', async (request, response) => await this.getUserData(request, response));
 		this.server.post('/api/user/data', async (request, response) => await this.postUserData(request, response));
 		this.server.post('/api/user/data/backup', async (request, response) => await this.postUserDataBackup(request, response));
 		this.server.post('/api/user/gift_premium', async (request, response) => await this.postGiftPremium(request, response));
@@ -166,14 +169,17 @@ export default class UserController extends AbstractController {
 	/**
 	 * Get/set a user's data
 	 */
-	private async getUserData(request:FastifyRequest, response:FastifyReply) {
+	private async getUserData(request:FastifyRequest, response:FastifyReply, backup = false) {
 		const userInfo = await super.twitchUserGuard(request, response);
 		if(userInfo == false) return;
 
 		const uid:string = super.getSharedUID((request.query as any).uid ?? userInfo.user_id);
 
 		//Get users' data
-		const userFilePath = Config.USER_DATA_PATH + uid+".json";
+		let userFilePath = path.join(Config.USER_DATA_PATH, `${uid}.json`);
+		if(backup) {
+			userFilePath = path.join(Config.USER_DATA_BACKUP_PATH, `${uid}.json`);
+		}
 		if(!fs.existsSync(userFilePath)) {
 			response.header('Content-Type', 'application/json');
 			response.status(404);
@@ -192,11 +198,11 @@ export default class UserController extends AbstractController {
 	private async postUserDataBackup(request:FastifyRequest, response:FastifyReply) {
 		const userInfo = await super.twitchUserGuard(request, response);
 		if(userInfo == false) return;
-		const body:any = request.body;
-
+		
 		//Get users' data
 		const userFilePath = Config.USER_DATA_BACKUP_PATH + userInfo.user_id+".json";
 		if(!fs.existsSync(userFilePath)) {
+			const body:any = request.body;
 			fs.writeFileSync(userFilePath, JSON.stringify(body), "utf8");
 		}
 		response.header('Content-Type', 'application/json');
@@ -210,12 +216,8 @@ export default class UserController extends AbstractController {
 	private async postUserData(request:FastifyRequest, response:FastifyReply) {
 		const userInfo = await super.twitchUserGuard(request, response);
 		if(userInfo == false) return;
-		//V13 revamped the data format of this service.
-		//Until then body contained all user data at its root.
-		//Since V13 it is now under the "data" prop.
-		//The following line acts as a temporary switch
 		const body:any = (request.body as any);
-		const data:any = body.hasOwnProperty("data")? body.data : body;
+		const data:any = body.data;
 		const forcedUpload = body.forced === true;
 
 		//Get users' data
