@@ -30,19 +30,23 @@ export default class Utils {
 	 * Generates a random UUID
 	 */
 	public static getUUID():string {
-		if(crypto.randomUUID) {
-			return crypto.randomUUID();
-		}
 		let uuid = "";
-		const chars = "0123456789abcdef";
-		for (let i = 0; i < 36; i++) {
-			if (i === 8 || i === 13 || i === 18 || i === 23) {
-				uuid += "-";
-			} else if (i === 14) {
-				uuid += "4";
-			} else {
-				const randomNum = Math.floor(Math.random() * chars.length);
-				uuid += chars[randomNum];
+		try {
+			if(crypto.randomUUID) {
+				uuid = crypto.randomUUID();
+			}
+		} catch (error) {}
+		if(!uuid) {
+			const chars = "0123456789abcdef";
+			for (let i = 0; i < 36; i++) {
+				if (i === 8 || i === 13 || i === 18 || i === 23) {
+					uuid += "-";
+				} else if (i === 14) {
+					uuid += "4";
+				} else {
+					const randomNum = Math.floor(Math.random() * chars.length);
+					uuid += chars[randomNum];
+				}
 			}
 		}
 		return uuid;

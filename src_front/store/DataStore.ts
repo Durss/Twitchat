@@ -401,7 +401,7 @@ export default class DataStore extends DataStoreCommon{
 			v = 66;
 		}
 		if(v==66) {
-			this.migrateHttpAndGroqToJsonExtract(data);
+			this.migrateHttpToJsonExtract(data);
 			v = 67;
 		}
 		if(v==67) {
@@ -1787,16 +1787,14 @@ export default class DataStore extends DataStoreCommon{
 	}
 
 	/**
-	 * Migrates HTTP Call and Groq actions to use simple text output + JSON Extract action
+	 * Migrates HTTP Call actions to use simple text output + JSON Extract action
 	 * This simplifies the UI and provides better separation of concerns
 	 */
-	private static migrateHttpAndGroqToJsonExtract(data:any):void {
+	private static migrateHttpToJsonExtract(data:any):void {
 		const triggers:TriggerActionDataTypes.TriggerData[] = data[DataStore.TRIGGERS];
 		if(!triggers || !Array.isArray(triggers)) return;
 
 		for (const trigger of triggers) {
-			const actionsToAdd:{action: TriggerActionDataTypes.TriggerActionTypes, index: number}[] = [];
-			
 			for (let i = 0; i < trigger.actions.length; i++) {
 				const action = trigger.actions[i];
 				
@@ -1809,67 +1807,41 @@ export default class DataStore extends DataStoreCommon{
 						if(httpAction.outputPlaceholderList.length > 0) {
 							if(httpAction.outputPlaceholderList.length === 1 && httpAction.outputPlaceholderList[0].type === 'text') {
 								// If it only has a single text output, keep it as is
-								httpAction.outputPlaceholder = httpAction.outputPlaceholderList[0].placeholder;
-								delete httpAction.outputPlaceholderList;
+								if(httpAction.outputPlaceholderList[0].placeholder) {
+									httpAction.outputPlaceholder = httpAction.outputPlaceholderList[0].placeholder;
+								}
 							}else{
-								// Create a new simple placeholder name for the full HTTP response
-								const baseHttpPlaceholder = this.generateUniquePlaceholderName(trigger, "HTTP_RESULT");
+								// Filter only JSON placeholders for the extract action
+								const jsonPlaceholders = httpAction.outputPlaceholderList.filter(v=>v.type === 'json');
 								
-								// Create JSON Extract action with the same extraction configuration
-								const jsonExtractAction:TriggerActionDataTypes.TriggerActionJSONExtractData = {
-									id: Utils.getUUID(),
-									type: "json_extract",
-									jsonExtractData:{
-										sourcePlaceholder: baseHttpPlaceholder,
-										outputPlaceholderList: [...httpAction.outputPlaceholderList.filter(v=>v.type =='json')] as TriggerActionDataTypes.IHttpPlaceholder[],
-									}
-								};
-								
-								// Simplify the HTTP action to only output the full response
-								httpAction.outputPlaceholder = baseHttpPlaceholder;
-								
-								// Add the JSON extract action right after the HTTP action
-								trigger.actions.splice(i+1, 0, jsonExtractAction);
+								// Only create JSON Extract action if there are actual JSON placeholders
+								if(jsonPlaceholders.length > 0) {
+									const baseHttpPlaceholder = this.generateUniquePlaceholderName(trigger, "HTTP_RESULT");
+
+									const jsonExtractAction:TriggerActionDataTypes.TriggerActionJSONExtractData = {
+										id: Utils.getUUID(),
+										type: "json_extract",
+										jsonExtractData:{
+											sourcePlaceholder: baseHttpPlaceholder,
+											outputPlaceholderList: [...jsonPlaceholders] as TriggerActionDataTypes.IHttpPlaceholder[],
+										}
+									};
+									
+									// Add the JSON extract action right after the HTTP action
+									trigger.actions.splice(i+1, 0, jsonExtractAction);
+									
+									// Simplify the HTTP action to only output the full response
+									httpAction.outputPlaceholder = baseHttpPlaceholder;
+								}
 							}
 						}
 						delete httpAction.outputPlaceholderList;
 					}
 				}
-				
-				// Handle Groq actions  
-				else if(action.type === "groq") {
-					const groqAction = action as TriggerActionDataTypes.TriggerActionGroqData;
-					
-					// If it has complex JSON extraction, migrate it
-					if(groqAction.groqData?.outputPlaceholderList){
-						if(groqAction.groqData.outputPlaceholderList.length > 0) {
-							// Create a new simple placeholder name for the full Groq response
-							const baseGroqPlaceholder = this.generateUniquePlaceholderName(trigger, "GROQ_RESULT");
-							
-							// Create JSON Extract action with the same extraction configuration
-							const jsonExtractAction:TriggerActionDataTypes.TriggerActionJSONExtractData = {
-								id: Utils.getUUID(),
-								type: "json_extract",
-								jsonExtractData: {
-									sourcePlaceholder: baseGroqPlaceholder,
-									outputPlaceholderList: [...groqAction.groqData.outputPlaceholderList.filter(v=>v.type =='json')],
-								}
-							};
-							
-							// Simplify the Groq action to only output the full response
-							groqAction.groqData.outputPlaceholder = baseGroqPlaceholder;
-							
-							// Add the JSON extract action right after the Groq action
-							trigger.actions.splice(i+1, 0, jsonExtractAction);
-						}
-						delete groqAction.groqData.outputPlaceholderList;
-					}
-				}
 			}
 		}
 		
-		
-		console.log("Migrated HTTP Call and Groq actions to use JSON Extract pattern");
+		console.log("Migrated HTTP Call actions to use JSON Extract pattern");
 	}
 
 	/**

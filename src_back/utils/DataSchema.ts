@@ -562,6 +562,21 @@ const UserDataSchema = {
 								},
 								placeholder:{type:"string", maxLength:50},
 								outputPlaceholder:{type:"string", maxLength:30},
+								// TODO remove this later once everyone had move to v16.5.3+
+								outputPlaceholderList:{
+									type:"array",
+									minItems:0,
+									maxItems:50,
+									items:{
+										type:"object",
+										additionalProperties: false,
+										properties: {
+											type: {type:"string", maxLength:20},
+											path: {type:"string", maxLength:500},
+											placeholder: {type:"string", maxLength:30},
+										}
+									}
+								},
 								customBody:{type:"string", maxLength:5000},
 								min: {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 								max: {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
