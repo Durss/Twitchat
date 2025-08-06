@@ -1745,6 +1745,7 @@ export const storeChat = defineStore('chat', {
 							//for future subgift events
 							subgiftHistory.push(message);
 						}else if(!isFromRemoteChan){
+							// If it's a regular sub, update labels and donation goals
 							StoreProxy.labels.updateLabelValue("SUB_ID", message.user.id);
 							StoreProxy.labels.updateLabelValue("SUB_NAME", message.user.displayNameOriginal);
 							StoreProxy.labels.updateLabelValue("SUB_AVATAR", message.user.avatarPath || "", message.user.id);
@@ -2127,7 +2128,7 @@ export const storeChat = defineStore('chat', {
 
 						StoreProxy.labels.incrementLabelValue("SUB_COUNT", message.gift_count || 1);
 						StoreProxy.labels.incrementLabelValue("SUB_POINTS", {prime:1, 1:2, 2:3, 3:6}[message.tier] * (message.gift_count || 1));
-						StoreProxy.labels.incrementLabelValue("SUBGIFT_COUNT", message.gift_count || 1);
+						StoreProxy.labels.updateLabelValue("SUBGIFT_COUNT", message.gift_count || 1);
 
 						StoreProxy.donationGoals.onSourceValueUpdate("twitch_subs");
 						const tierLabel = {prime:"prime", 1:"tier 1", 2:"tier 2", 3:"tier 3"}[message.tier];
@@ -2137,12 +2138,10 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.labels.updateLabelValue("SUBGIFT_YOUTUBE_NAME", message.user.displayNameOriginal);
 						StoreProxy.labels.updateLabelValue("SUBGIFT_YOUTUBE_AVATAR", message.user.avatarPath || "");
 						StoreProxy.labels.updateLabelValue("SUBGIFT_YOUTUBE_TIER", message.levelName);
+						StoreProxy.labels.updateLabelValue("SUBGIFT_YOUTUBE_COUNT", message.gift_count || 1);
 
 						StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_TIER", message.levelName);
 						StoreProxy.labels.updateLabelValue("SUB_GENERIC_TIER", message.levelName);
-
-						// StoreProxy.labels.incrementLabelValue("SUBGIFT_YOUTUBE_COUNT", message.gift_count || 1);
-						// StoreProxy.donationGoals.onDonation(message.user.displayNameOriginal, message.gift_count+" "+message.levelName, "twitch_subs");
 					}
 
 					StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_ID", message.user.id);
@@ -2153,7 +2152,7 @@ export const storeChat = defineStore('chat', {
 					StoreProxy.labels.updateLabelValue("SUB_GENERIC_NAME", message.user.displayNameOriginal);
 					StoreProxy.labels.updateLabelValue("SUB_GENERIC_AVATAR", message.user.avatarPath || "", message.user.id);
 
-					StoreProxy.labels.incrementLabelValue("SUBGIFT_GENERIC_COUNT", message.gift_count || 1);
+					StoreProxy.labels.updateLabelValue("SUBGIFT_GENERIC_COUNT", message.gift_count || 1);
 				}
 			}
 
