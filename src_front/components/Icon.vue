@@ -30,6 +30,7 @@ class Icon extends Vue {
 
 	public svg:string = "";
 	public error:boolean = false;
+	private disposed:boolean = false;
 
 	public get classes():string[] {
 		let res = ["icon"];
@@ -49,11 +50,16 @@ class Icon extends Vue {
 		watch(()=>this.name, ()=>this.loadImage());
 	}
 
+	public beforeUnmount():void {
+		this.disposed = true;
+	}
+
 	private async loadImage():Promise<void> {
+		if(this.disposed) return;
 		// this.$store.common.iconCache = {};//Disable cache for debug
 		let cache = this.$store.common.iconCache[this.name];
+		
 		//Icon is pending for loading, wait for it
-
 		if(cache && typeof cache != "string") {
 			await cache;
 			cache = this.$store.common.iconCache[this.name];
