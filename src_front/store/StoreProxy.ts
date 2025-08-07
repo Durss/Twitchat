@@ -2,7 +2,7 @@ import type HeatEvent from "@/events/HeatEvent";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import type { HeatScreen } from "@/types/HeatDataTypes";
 import type { LabelItemData, LabelItemPlaceholder, LabelItemPlaceholderList } from "@/types/ILabelOverlayData";
-import type { TriggerActionCountDataAction, TriggerActionPlayabilityData, TriggerActionTypes, TriggerCallStack, TriggerData, TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
+import type { IHttpPlaceholder, TriggerActionCountDataAction, TriggerActionHTTPCallData, TriggerActionPlayabilityData, TriggerActionTypes, TriggerCallStack, TriggerData, TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/types/spotify/SpotifyDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
@@ -178,6 +178,16 @@ export interface IMainState {
 	 * and loop
 	 */
 	suspendedTriggerStacks:TriggerCallStack[];
+	/**
+	 * HTTP migration fix data
+	 */
+	httpMigrationFixData:{
+					oldTriggerData: TriggerData,
+					oldTriggerAction: TriggerActionHTTPCallData,
+					triggerId: string,
+					httpActionId: string,
+					jsonPlaceholders: IHttpPlaceholder[]
+				}[];
 }
 
 export interface IMainGetters {
@@ -265,12 +275,19 @@ export interface IMainActions {
 	 */
 	showOutdatedDataVersionAlert():void;
 	hideOutdatedDataVersionAlert(offlineMode:boolean):void;
-
 	/**
 	 * Called when a trigger's exec stack is suspended
 	 * @param callstack
 	 */
-	suspendedTriggerStack(callstack:TriggerCallStack):void
+	suspendedTriggerStack(callstack:TriggerCallStack):void;
+	/**
+	 * initilizes data for trigger migration fix UI
+	 * When adding "Extract JSON data" trigger action, migration
+	 * of existing "HTTP Call" to extract data with the new action
+	 * failed on some users.
+	 * This initializes the data for that UI
+	 */
+	initHttpMigrationFixer(): Promise<void>;
 }
 
 

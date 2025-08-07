@@ -1,0 +1,20 @@
+{
+	"migrationFix":{
+		"title1":"🚨 THIS IS IMPORTANT 🚨",
+		"title2":"What failed?",
+		"title3": "Fixe complete",
+		"intro":"Lastest Twitchat update failed properly migrating some of your triggers, losing configurations.\n\nLet's attempt to fix that.",
+		"info":"Until then, the <strong>\" @:triggers.actions.common.action_http \"</strong> trigger action allowed to extract JSON data from the data received.\n\nNow, that JSON extraction is done with a new dedicated <strong>\" @:triggers.actions.common.action_json_extract \"</strong> trigger action.\n\nThat conversion seem to have failed for <strong>{COUNT}</strong> of your trigger actions.",
+		"change1": "The {TRIGGER_ACTION} action of your trigger {TRIGGER_NAME} will be updated as bellow:",
+		"change2": "The following action will be added right after the {TRIGGER_ACTION} action to extract the data as it should:",
+		"end": "You can now close this window.\n\nIf you rejected some fixes that you want to review, restart Twitchat without clicking on \" @:migrationFix.close \".",
+		"expand":"(click to expand)",
+		"fix":"Fix N° {INDEX}/{TOTAL}",
+		"next":"Next",
+		"close":"Close",
+		"updated":"UPDATED",
+		"new":"ADDED",
+		"accept":"Accept changes",
+		"reject":"Reject changes"
+	}
+}

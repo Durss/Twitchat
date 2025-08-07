@@ -24,14 +24,15 @@
 			</div>
 		</ParamItem>
 
-		<div class="card-item tags">
-			<p class="title" v-if="parameters.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
-
+		<ToggleBlock class="tags" v-if="parameters.length > 0"
+		:title="$t('triggers.actions.http_ws.select_param')"
+		:open="false"
+		medium>
 			<div class="searchContainer" v-if="parameters.length > 8">
 				<input class="searchField" type="text" v-model="searchText" autocomplete="off" :placeholder="$t('global.search_placeholder')" @keydown.capture="onSearchKeydown" />
 				<TTButton class="clearButton" transparent icon="cross" @click="searchText = ''" v-if="searchText.length > 0"></TTButton>
 			</div>
-			
+
 			<div class="params">
 				<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" v-model="param_toggleAll.value" @click.native="toggleAll()" v-if="parameters.length > 3" />
 
@@ -43,10 +44,10 @@
 					<ToggleButton v-model="p.enabled" @change="onToggleParam()" />
 				</div>
 			</div>
-		</div>
+		</ToggleBlock>
 
 		<ParamItem :paramData="param_outputPlaceholder" v-model="action.outputPlaceholder" />
-		
+
 		<i18n-t scope="global" class="card-item info" tag="div"
 		keypath="triggers.actions.common.custom_placeholder_example"
 		v-if="action.outputPlaceholder && action.outputPlaceholder.length > 0">
@@ -58,8 +59,8 @@
 </template>
 
 <script lang="ts">
-import TTButton from '@/components/TTButton.vue';
 import Icon from '@/components/Icon.vue';
+import TTButton from '@/components/TTButton.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import type { ITriggerPlaceholder, TriggerActionHTTPCallData, TriggerActionHTTPCallDataAction, TriggerData } from '@/types/TriggerActionDataTypes';
@@ -67,13 +68,14 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
-import ClearButton from '@/components/ClearButton.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 
 @Component({
 	components:{
 		TTButton,
 		Icon,
 		ParamItem,
+		ToggleBlock,
 		ToggleButton,
 	},
 	emits:["update"]
@@ -101,7 +103,7 @@ class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 
 	public get filteredParameters():{placeholder:ITriggerPlaceholder<any>, enabled:boolean}[] {
 		if(!this.searchText.trim()) return this.parameters;
-		
+
 		const searchTerm = this.searchText.toLowerCase().trim();
 		return this.parameters.filter(p => {
 			const tag = p.placeholder.tag.toLowerCase();
@@ -211,19 +213,20 @@ export default toNative(TriggerActionHTTPCall);
 .triggeractionhttpcall{
 
 	.tags {
-		.title {
-			margin-bottom: .5em;
+		:deep(.title) {
+			padding: .35em;
+			text-align: left;
 		}
-		
+
 		.searchContainer {
 			position: relative;
 			margin-bottom: .5em;
-			
+
 			.searchField {
 				width: 100%;
 				padding: .5em;
 			}
-			
+
 			.clearButton {
 				position: absolute;
 				right: .5em;

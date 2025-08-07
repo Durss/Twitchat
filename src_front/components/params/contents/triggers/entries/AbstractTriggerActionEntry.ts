@@ -1,5 +1,4 @@
-import StoreProxy from '@/store/StoreProxy';
-import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionData, type TriggerData } from '@/types/TriggerActionDataTypes';
+import { type ITriggerPlaceholder, type TriggerActionData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import TriggerUtils from '@/utils/TriggerUtils';
 import { watch } from 'vue';
 import { ComponentBase, Prop, Vue } from 'vue-facing-decorator';

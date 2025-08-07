@@ -126,7 +126,7 @@ export default class DataStore extends DataStoreCommon{
 	/**
 	 * Emergency backup
 	 */
-	public static async emergencyBackupStorage():Promise<void> {
+	public static async emergencyBackupStorage(force:boolean = false):Promise<void> {
 		try {
 			const data = JSON.parse(JSON.stringify(this.rawStore));
 
@@ -146,7 +146,8 @@ export default class DataStore extends DataStoreCommon{
 				}
 			}
 
-			await ApiHelper.call("user/data/backup", "POST", data);
+			const headers:{ [key: string]: string } = force? { "force": "true" } : {};
+			await ApiHelper.call("user/data/backup", "POST", data, true, 0, headers);
 		}catch(error) {
 			console.error(error);
 		}
@@ -156,7 +157,7 @@ export default class DataStore extends DataStoreCommon{
 	 * Makes asynchronous data migrations after being authenticated
 	 */
 	static override async migrateData(data:any):Promise<any> {
-		let v = parseInt(data[this.DATA_VERSION]) || 12;
+		let v = parseFloat(data[this.DATA_VERSION]) || 12;
 		const latestVersion = 67.1;
 
 		this.cleanupPreV7Data(data);
@@ -1797,11 +1798,11 @@ export default class DataStore extends DataStoreCommon{
 		for (const trigger of triggers) {
 			for (let i = 0; i < trigger.actions.length; i++) {
 				const action = trigger.actions[i];
-				
+
 				// Handle HTTP Call actions
 				if(action.type === "http") {
 					const httpAction = action as TriggerActionDataTypes.TriggerActionHTTPCallData;
-					
+
 					// If it has complex JSON extraction, migrate it
 					if(httpAction.outputPlaceholderList) {
 						if(httpAction.outputPlaceholderList.length > 0) {
@@ -1813,7 +1814,7 @@ export default class DataStore extends DataStoreCommon{
 							}else{
 								// Filter only JSON placeholders for the extract action
 								const jsonPlaceholders = httpAction.outputPlaceholderList.filter(v=>v.type === 'json');
-								
+
 								// Only create JSON Extract action if there are actual JSON placeholders
 								if(jsonPlaceholders.length > 0) {
 									const baseHttpPlaceholder = this.generateUniquePlaceholderName(trigger, "HTTP_RESULT");
@@ -1826,10 +1827,10 @@ export default class DataStore extends DataStoreCommon{
 											outputPlaceholderList: [...jsonPlaceholders] as TriggerActionDataTypes.IHttpPlaceholder[],
 										}
 									};
-									
+
 									// Add the JSON extract action right after the HTTP action
 									trigger.actions.splice(i+1, 0, jsonExtractAction);
-									
+
 									// Simplify the HTTP action to only output the full response
 									httpAction.outputPlaceholder = baseHttpPlaceholder;
 								}
@@ -1840,7 +1841,7 @@ export default class DataStore extends DataStoreCommon{
 				}
 			}
 		}
-		
+
 		console.log("Migrated HTTP Call actions to use JSON Extract pattern");
 	}
 
@@ -1849,7 +1850,7 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	private static generateUniquePlaceholderName(trigger:TriggerActionDataTypes.TriggerData, prefix:string):string {
 		const existingPlaceholders = new Set<string>();
-		
+
 		// Collect all existing placeholder names from all actions
 		for (const action of trigger.actions) {
 			if('outputPlaceholderList' in action && action.outputPlaceholderList) {
@@ -1863,7 +1864,7 @@ export default class DataStore extends DataStoreCommon{
 				existingPlaceholders.add(action.outputPlaceholder.toUpperCase());
 			}
 		}
-		
+
 		// Generate a unique name
 		let counter = 1;
 		let candidateName = prefix;
@@ -1871,7 +1872,7 @@ export default class DataStore extends DataStoreCommon{
 			candidateName = `${prefix}_${counter}`;
 			counter++;
 		}
-		
+
 		return candidateName;
 	}
 
@@ -1879,8 +1880,8 @@ export default class DataStore extends DataStoreCommon{
 	 * Cleanup remaining outputPlaceholderList from HTTP and Groq actions
 	 * Previous migration removed them only if they were not empty.
 	 * Empty ones still remained.
-	 * @param data 
-	 * @returns 
+	 * @param data
+	 * @returns
 	 */
 	private static cleanupOutputPlaceholderList(data:any):void {
 		const triggers:TriggerActionDataTypes.TriggerData[] = data[DataStore.TRIGGERS];

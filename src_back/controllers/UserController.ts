@@ -34,8 +34,8 @@ export default class UserController extends AbstractController {
 	public async initialize():Promise<void> {
 		this.server.get('/api/user', async (request, response) => await this.getUserState(request, response));
 		this.server.get('/api/user/all', async (request, response) => await this.getAllUsers(request, response));
-		this.server.get('/api/user/data', async (request, response) => await this.getUserData(request, response, true));
-		this.server.get('/api/user/data/backup', async (request, response) => await this.getUserData(request, response));
+		this.server.get('/api/user/data', async (request, response) => await this.getUserData(request, response));
+		this.server.get('/api/user/data/backup', async (request, response) => await this.getUserData(request, response, true));
 		this.server.post('/api/user/data', async (request, response) => await this.postUserData(request, response));
 		this.server.post('/api/user/data/backup', async (request, response) => await this.postUserDataBackup(request, response));
 		this.server.post('/api/user/gift_premium', async (request, response) => await this.postGiftPremium(request, response));
@@ -176,9 +176,10 @@ export default class UserController extends AbstractController {
 
 		//Get users' data
 		let userFilePath = path.join(Config.USER_DATA_PATH, `${uid}.json`);
-		if(backup) {
+		if(backup == true) {
 			userFilePath = path.join(Config.USER_DATA_BACKUP_PATH, `${uid}.json`);
 		}
+		console.log("LOADING", request.routeOptions.url, userFilePath);
 		if(!fs.existsSync(userFilePath)) {
 			response.header('Content-Type', 'application/json');
 			response.status(404);
@@ -197,10 +198,12 @@ export default class UserController extends AbstractController {
 	private async postUserDataBackup(request:FastifyRequest, response:FastifyReply) {
 		const userInfo = await super.twitchUserGuard(request, response);
 		if(userInfo == false) return;
-		
+
+		if (request.headers["force"]) Logger.info("FORCE BACKUP", userInfo.login);
+
 		//Get users' data
 		const userFilePath = Config.USER_DATA_BACKUP_PATH + userInfo.user_id+".json";
-		if(!fs.existsSync(userFilePath)) {
+		if(!fs.existsSync(userFilePath) || request.headers["force"] == "true") {
 			const body:any = request.body;
 			fs.writeFileSync(userFilePath, JSON.stringify(body), "utf8");
 		}

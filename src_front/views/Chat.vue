@@ -135,6 +135,8 @@
 
 		<EmergencyFollowsListModal v-if="showEmergencyFollows && !forceEmergencyFollowClose" @close="forceEmergencyFollowClose=true" />
 
+		<MigrationFixerModal v-if="$store.main.httpMigrationFixData.length > 0 && !forceHttpFixerClose" @close="forceHttpFixerClose =true" />
+
 		<DonorBadge ref="donor" class="donorState" v-if="showDonorBadge" @click="closeDonorCard()" />
 
 		<Changelog v-if="$store.params.currentModal == 'updates'" @close="$store.params.closeModal()" />
@@ -222,7 +224,7 @@ import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
 import ShareParams from './ShareParams.vue';
-import StoreProxy from '@/store/StoreProxy';
+import MigrationFixerModal from '@/components/modals/MigrationFixerModal.vue';
 
 @Component({
 	components:{
@@ -273,6 +275,7 @@ import StoreProxy from '@/store/StoreProxy';
 		ChatSuggestionForm,
 		ChatSuggestionState,
 		HelpGenocideVictims,
+		MigrationFixerModal,
 		TwitchatAnnouncement,
 		ChannelNotifications,
 		EndingCreditsControls,
@@ -299,6 +302,7 @@ class Chat extends Vue {
 	public showBlinkLayer = false;
 	public greetColIndexTarget = 0;
 	public panelsColIndexTarget = 0;
+	public forceHttpFixerClose = false;
 	public forceEmergencyFollowClose = false;
 	public panelsColumnTarget:HTMLDivElement|null = null;
 	public currentNotificationContent:TwitchatDataTypes.NotificationTypes = "";

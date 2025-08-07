@@ -1,6 +1,6 @@
 <template>
 	<div class="triggerActionWrapper" :class="{disabledAction:!action.enabled}">
-		<TriggerConditionList v-if="action.conditionList"
+		<TriggerConditionList v-if="action.conditionList && readonly != false"
 			class="card-item conditions"
 			actionContext
 			:triggerData="triggerData"
@@ -51,10 +51,11 @@
 					<TTButton small
 						icon="dragZone"
 						class="action orderBt"
+						v-if="noHeaderOptions === false && readonly === false"
 						v-tooltip="$t('triggers.reorder_tt')"
 						@click.stop
 						/>
-					<ToggleButton v-model="action.enabled" @click.stop small />
+					<ToggleButton v-model="action.enabled" v-if="noHeaderOptions === false && readonly === false" @click.stop small />
 				</div>
 			</template>
 			<template #right_actions>
@@ -63,7 +64,7 @@
 						icon="merge"
 						class="action"
 						@click.stop="addCondition()"
-						v-if="!action.conditionList"
+						v-if="!action.conditionList && noHeaderOptions === false && readonly === false"
 						v-tooltip="$t('triggers.condition.add_tt')"
 						/>
 
@@ -71,6 +72,7 @@
 						icon="copy"
 						class="action"
 						@click.stop="$emit('duplicate')"
+						v-if="noHeaderOptions === false && readonly === false"
 						v-tooltip="$t('triggers.actions.common.duplicate_tt')"
 						/>
 
@@ -78,6 +80,7 @@
 						icon="trash"
 						class="action delete"
 						@click.stop="$emit('delete')"
+						v-if="noHeaderOptions === false && readonly === false"
 						v-tooltip="$t('global.delete')"
 					/>
 				</div>
@@ -364,7 +367,7 @@ import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
-import { reactive } from 'vue';
+import { reactive, readonly } from 'vue';
 import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 import BingoForm from '../../../bingo/BingoForm.vue';
 import RaffleForm from '../../../raffle/RaffleForm.vue';
@@ -482,6 +485,10 @@ class TriggerActionEntry extends Vue {
 	public extensions!:TwitchDataTypes.Extension[];
 	@Prop
 	public index!:number;
+	@Prop({default:false})
+	public readonly!:boolean;
+	@Prop({default:false})
+	public noHeaderOptions!:boolean;
 
 	public opened = false;
 	public search = "";
@@ -516,6 +523,7 @@ class TriggerActionEntry extends Vue {
 	public get classes():string[] {
 		const res = ["triggeractionentry"];
 		if(this.isError) res.push("error");
+		if(this.readonly !== false) res.push("readonly");
 		return res;
 	}
 
@@ -870,6 +878,26 @@ export default toNative(TriggerActionEntry);
 			padding: .15em 0;
 			width: unset !important;
 			vertical-align: middle;
+		}
+	}
+
+	&.readonly {
+		&>:deep(.content) {
+			filter: saturate(25%);
+			* {
+				//Disable focus on any possible child
+				pointer-events: none;
+				*:focus {
+					outline: none;
+				}
+				*:focus-visible {
+					outline: none;
+				}
+				&[contenteditable] {
+					-webkit-user-modify: read-only;
+					user-modify: read-only;
+				}
+			}
 		}
 	}
 
