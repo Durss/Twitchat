@@ -179,7 +179,6 @@ export default class UserController extends AbstractController {
 		if(backup == true) {
 			userFilePath = path.join(Config.USER_DATA_BACKUP_PATH, `${uid}.json`);
 		}
-		console.log("LOADING", request.routeOptions.url, userFilePath);
 		if(!fs.existsSync(userFilePath)) {
 			response.header('Content-Type', 'application/json');
 			response.status(404);
