@@ -1,6 +1,6 @@
 <template>
 	<div class="triggerActionWrapper" :class="{disabledAction:!action.enabled}">
-		<TriggerConditionList v-if="action.conditionList && readonly != false"
+		<TriggerConditionList v-if="action.conditionList"
 			class="card-item conditions"
 			actionContext
 			:triggerData="triggerData"
