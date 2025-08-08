@@ -1,5 +1,6 @@
 <template>
 	<div :class="classes"
+	:data-type="paramData.type"
 	@mouseenter="$emit('mouseenter', $event, paramData)"
 	@mouseleave="$emit('mouseleave', $event, paramData)"
 	@click="clickItem($event)">
@@ -474,7 +475,7 @@ export class ParamItem extends Vue {
 	}
 
 	public get premiumLocked():boolean { return this.premiumOnlyLocal !== false && !this.$store.auth.isPremium && this.noPremiumLock === false; }
-	
+
 	public get icon():string {
 		let defaultIcon = "";
 		if(this.paramData.type == "placeholder") defaultIcon = "placeholder";

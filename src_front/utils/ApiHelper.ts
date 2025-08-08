@@ -418,6 +418,13 @@ type ApiEndpoints =  {
 		};
 	};
 	"user/data/backup": {
+		GET: {
+			parameters: void;
+			response: {
+				success: boolean;
+				data: any;
+			};
+		};
 		POST: {
 			parameters: void;
 			response: {

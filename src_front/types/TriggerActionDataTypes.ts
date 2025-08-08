@@ -63,8 +63,7 @@ export interface TriggerCallStack {
 // const e: Path<Test, "myPrefix"> = "myPrefix.blabla"; // invalid
 // const f: Path<Test, "myPrefix"> = "myPrefix.name"; // valid
 
-export type TriggerActionTypes = {enabled?:boolean} &
-								( TriggerActionEmptyData
+export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionDelayData
 								| TriggerActionObsData
 								| TriggerActionChatData
@@ -111,7 +110,7 @@ export type TriggerActionTypes = {enabled?:boolean} &
 								| TriggerActionCustomTrainData
 								| TriggerActionSFXRData
 								| TriggerActionJSONExtractData
-							);
+							;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
 
@@ -361,6 +360,11 @@ export interface TriggerScheduleEventType extends Omit<TriggerTypeDefinition, "v
 export interface TriggerActionData {
 	type:TriggerActionStringTypes;
 	id:string;
+	/**
+	 * Is trigger enabled?
+	 * true by default
+	 */
+	enabled?: boolean;
 	/**
 	 * If true, the trigger's conditions must be matched
 	 * If not defined or false, the trigger must ahve no condition
