@@ -9,6 +9,14 @@
 		"change2": "L'action suivante sera ajoutée juste après l'action {TRIGGER_ACTION} pour extraire les données comme il se doit :",
 		"end": "Vous pouvez maintenant fermer cette fenêtre.\n\nSi vous avez refusé des correctifs que vous souhaitez revoir, relancez Twitchat sans cliquer sur \" @:migrationFix.close \".",
 		"expand":"(cliquez pour développer)",
+		"splitter_triggers":"Triggers modifiés",
+		"splitter_summary":"Résumé",
+		"summary": {
+			"call": "Appeler l'URL : {CALL_URL}",
+			"save": "Enregistrer le résultat dans : {SAVE_RESULT}",
+			"extract": "Extraire les données JSON de : {EXTRACT_JSON}",
+			"json": "Enregistrer {JSON_PATH} dans {PLACEHOLDER}"
+		},
 		"fix":"Correctif N° {INDEX}/{TOTAL}",
 		"next":"Suivant",
 		"close":"Fermer",

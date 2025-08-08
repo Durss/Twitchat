@@ -21,42 +21,67 @@
 
 			<Transition name="fade">
 				<div class="content" v-if="step == 'trigger' && !fadeTrigger">
-					<i18n-t tag="p" scope="global" keypath="migrationFix.change1">
-						<template #TRIGGER_ACTION>
-							<strong>{{ $t('triggers.actions.common.action_http') }}</strong>
-						</template>
-						<template #TRIGGER_NAME>
-							<mark v-tooltip="currentTrigger.tooltip">{{ currentTrigger.triggerInfo?.label }}</mark>
-						</template>
-					</i18n-t>
-					<TriggerActionEntry
-						noHeaderOptions
-						class="httpAction"
-						:readonly="false"
-						:action="currentTrigger.action"
-						:index="0"
-						:obsScenes="[]"
-						:obsSources="[]"
-						:obsInputs="[]"
-						:rewards="[]"
-						:extensions="[]"
-						:triggerData="currentTrigger.trigger" />
-					<span class="center"><i>{{ $t('migrationFix.expand') }}</i></span>
-					<span class="gap"></span>
-					<span v-html="$t('migrationFix.change2')"></span>
-					<TriggerActionEntry
-						noHeaderOptions
-						class="jsonAction"
-						:readonly="false"
-						:action="currentTrigger.jsonAction"
-						:index="0"
-						:obsScenes="[]"
-						:obsSources="[]"
-						:obsInputs="[]"
-						:rewards="[]"
-						:extensions="[]"
-						:triggerData="currentTrigger.trigger" />
-					<span class="center"><i>{{ $t('migrationFix.expand') }}</i></span>
+					<Splitter theme="secondary">{{ $t('migrationFix.splitter_triggers') }}</Splitter>
+					<div class="triggers">
+						<i18n-t tag="p" scope="global" keypath="migrationFix.change1">
+							<template #TRIGGER_ACTION>
+								<strong>{{ $t('triggers.actions.common.action_http') }}</strong>
+							</template>
+							<template #TRIGGER_NAME>
+								<mark v-tooltip="currentTrigger.tooltip">{{ currentTrigger.triggerInfo?.label }}</mark>
+							</template>
+						</i18n-t>
+						<TriggerActionEntry
+							noHeaderOptions
+							class="httpAction"
+							:readonly="false"
+							:action="currentTrigger.action"
+							:index="0"
+							:obsScenes="[]"
+							:obsSources="[]"
+							:obsInputs="[]"
+							:rewards="[]"
+							:extensions="[]"
+							:triggerData="currentTrigger.trigger" />
+						<span class="center"><i>{{ $t('migrationFix.expand') }}</i></span>
+						<span class="gap"></span>
+						<span v-html="$t('migrationFix.change2')"></span>
+						<TriggerActionEntry
+							noHeaderOptions
+							class="jsonAction"
+							:readonly="false"
+							:action="currentTrigger.jsonAction"
+							:index="0"
+							:obsScenes="[]"
+							:obsSources="[]"
+							:obsInputs="[]"
+							:rewards="[]"
+							:extensions="[]"
+							:triggerData="currentTrigger.trigger" />
+						<span class="center"><i>{{ $t('migrationFix.expand') }}</i></span>
+					</div>
+
+					<Splitter theme="secondary">{{ $t('migrationFix.splitter_summary') }}</Splitter>
+					<div class="summary">
+						<ul>
+							<li>{{ $t('migrationFix.summary.call') }}<mark>{{ currentTrigger.action.url }}</mark></li>
+							<li>{{ $t('migrationFix.summary.save') }}<mark>{{ currentTrigger.action.outputPlaceholder }}</mark></li>
+							<li>
+								<span>{{ $t('migrationFix.summary.extract') }}<mark>{{ currentTrigger.action.outputPlaceholder }}</mark></span>
+								<ul>
+									<i18n-t scope="global" keypath="migrationFix.summary.json" tag="li"
+									v-for="p in currentTrigger.jsonAction.jsonExtractData.outputPlaceholderList" :key="p.placeholder">
+										<template #JSON_PATH>
+											<mark>{{ p.path }}</mark>
+										</template>
+										<template #PLACEHOLDER>
+											<mark>{{ p.placeholder }}</mark>
+										</template>
+									</i18n-t>
+								</ul>
+							</li>
+						</ul>
+					</div>
 
 					<div class="ctas">
 						<TTButton icon="cross" @click="nextTrigger()" alert>{{ $t('migrationFix.reject') }}</TTButton>
@@ -83,10 +108,12 @@ import { Component, toNative, Vue } from 'vue-facing-decorator';
 import InfiniteList from '../InfiniteList.vue';
 import TTButton from '../TTButton.vue';
 import TriggerActionEntry from '../params/contents/triggers/TriggerActionEntry.vue';
+import Splitter from '../Splitter.vue';
 
 @Component({
 	components: {
 		TTButton,
+		Splitter,
 		InfiniteList,
 		TriggerActionEntry,
 	},
@@ -227,10 +254,24 @@ export default toNative(MigrationFixerModal);
 		}
 
 		.content {
-			padding-top: 0;
 			gap: .5em;
 			display: flex;
 			flex-direction: column;
+
+			.triggers, .summary {
+				width: 90%;
+				margin: auto;
+			}
+			.triggers {
+				gap: .5em;
+				display: flex;
+				flex-direction: column;
+				margin-bottom: 1em;
+			}
+			
+			h1 {
+				margin-bottom: .5em;
+			}
 
 			.info {
 				white-space: pre-line;
@@ -269,6 +310,22 @@ export default toNative(MigrationFixerModal);
 			.jsonAction:deep([data-type="list"]):not(:hover),
 			.jsonAction:deep(.item):not(:hover) {
 				.highlightField(v-bind(NEW));
+			}
+
+			mark {
+				font-size: .8em;
+				word-break: break-all;
+			}
+
+			ul {
+				list-style-position: inside;
+				display: flex;
+				flex-direction: column;
+				gap: .35em;
+				ul {
+					padding-left: 1em;
+					margin-top: .35em;
+				}
 			}
 		}
 	}

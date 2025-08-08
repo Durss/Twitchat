@@ -9,6 +9,14 @@
 		"change2": "The following action will be added right after the {TRIGGER_ACTION} action to extract the data as it should:",
 		"end": "You can now close this window.\n\nIf you rejected some fixes that you want to review, restart Twitchat without clicking on \" @:migrationFix.close \".",
 		"expand":"(click to expand)",
+		"splitter_triggers":"Modified Triggers",
+		"splitter_summary":"Summary",
+		"summary": {
+			"call": "Call URL: {CALL_URL}",
+			"save": "Save result to: {SAVE_RESULT}",
+			"extract": "Extract JSON data from: {EXTRACT_JSON}",
+			"json": "Save {JSON_PATH} to {PLACEHOLDER}"
+		},
 		"fix":"Fix N° {INDEX}/{TOTAL}",
 		"next":"Next",
 		"close":"Close",
