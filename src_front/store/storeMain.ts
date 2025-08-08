@@ -195,7 +195,7 @@ export const storeMain = defineStore("main", {
 							if(success) {
 								resolve(null);
 							}else{
-								reject();
+								reject("[StoreMain] Authentication failed");
 							}
 						});
 					});

@@ -208,7 +208,7 @@ export default class GoXLRSocket extends EventDispatcher {
 			reverb:"SetReverbAmount",
 		}
 		const cmd = idToCommand[id];
-		if(!cmd) return Promise.reject();
+		if(!cmd) return Promise.reject("[GoXLRSocket] Command "+cmd+" not found");
 		let min = 0;
 		let max = 100;
 		//Define custom ranges for pitch and gender depending on configurations.
@@ -277,7 +277,7 @@ export default class GoXLRSocket extends EventDispatcher {
 			reverb:"SetReverbAmount",
 		}
 		const cmd = idToCommand[id];
-		if(!cmd) return Promise.reject();
+		if(!cmd) return Promise.reject("[GoXLRSocket] Command "+cmd+" not found");
 		return this.execCommand(cmd, value);
 	}
 

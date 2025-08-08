@@ -97,7 +97,7 @@ export default class WebsocketTrigger {
 			
 			this.socket.onerror = (error) => {
 				console.log(error);
-				reject();
+				reject("[Websocket trigger] Connection error");
 			};
 		})
 	}

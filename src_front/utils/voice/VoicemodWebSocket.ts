@@ -125,14 +125,14 @@ export default class VoicemodWebSocket extends EventDispatcher {
 						}, 1000)
 					}catch(error) {
 						console.log(error);
-						reject();
+						reject("[VoicemodWebSocket] Reconnection failed");
 					}
 				}
 			}
 
 			this._socket.onerror = (e) => {
 				this._connecting = false;
-				reject();
+				reject("[VoicemodWebSocket] Socket error");
 			}
 		});
 	}

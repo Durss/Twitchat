@@ -188,7 +188,7 @@ export default class Database {
 			query.addEventListener("error", event => {
 				console.error("Get message list error");
 				console.error(event);
-				reject();
+				reject("[Database] Get message list error");
 			});
 			query.addEventListener("onabort", event => {
 				const error = (event.target as IDBRequest).error;
@@ -341,7 +341,7 @@ export default class Database {
 			query.addEventListener("error", event => {
 				console.error("Add groq history error");
 				console.error(event);
-				reject();
+				reject("[Database] Add groq history error");
 			});
 			query.addEventListener("onabort", event => {
 				const error = (event.target as IDBRequest).error;
