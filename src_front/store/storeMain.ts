@@ -240,8 +240,6 @@ export const storeMain = defineStore("main", {
 				StoreProxy.common.initialize(authenticate);
 			}
 
-			this.initHttpMigrationFixer();
-
 			callback(null);
 		},
 
@@ -257,6 +255,7 @@ export const storeMain = defineStore("main", {
 			const sEmergency = StoreProxy.emergency;
 			StoreProxy.discord.initialize();
 			SSEHelper.instance.initialize();
+			this.initHttpMigrationFixer();
 
 			//Once SSE is connected, request any stream we're a mod for to
 			//send any shared mode stuff (ex: q&a sessions)
@@ -907,30 +906,35 @@ export const storeMain = defineStore("main", {
 						const actionNew = triggerNew.actions[j];
 						const actionNext = triggerNew.actions[j + 1];
 						const actionOld = triggerOld?.actions.find(v => v.id == actionNew.id);
+						// If it's an http action and its backup has outputPlaceholderList items
 						if (actionNew.type == "http"
-							&& actionOld && actionOld.type == "http"
-							&& !actionNew.outputPlaceholder
-							&& actionOld?.outputPlaceholderList
-							&& actionOld.outputPlaceholderList.length > 0
-							&& (!actionNext || actionNext.type != "json_extract")) {
+						&& actionOld && actionOld.type == "http"
+						&& actionOld?.outputPlaceholderList
+						&& actionOld.outputPlaceholderList.length > 0) {
+							// Get only JSON placeholders
 							const jsonPlaceholders = actionOld.outputPlaceholderList.filter(v => v.type === 'json');
-							if (jsonPlaceholders.length === 0) {
-								//Only one "text" placeholder, just reuse the same placeholder
-								actionNew.outputPlaceholder = jsonPlaceholders[0].placeholder;
+							
+							// IF it has no JSON placeholder just reuse the same placeholder
+							if (!actionNew.outputPlaceholder && jsonPlaceholders.length === 0) {
+								actionNew.outputPlaceholder = actionOld.outputPlaceholderList[0].placeholder;
 								saveRightAway = true;
+								// console.log("FIX RIGHT AWAY", actionNew.id)
 								continue;
 							}
 
-							// console.log("MIGRATE", triggerNew.name || triggerNew.chatCommand);
-							// console.log("Must set output to HTTP_RESULT")
-							// console.log("Must add JSON extract action at position", j + 1, "with", actionOld.outputPlaceholderList);
-							this.httpMigrationFixData.push({
-								oldTriggerData: triggerOld,
-								oldTriggerAction: actionOld,
-								triggerId: triggerNew.id,
-								httpActionId: actionNew.id,
-								jsonPlaceholders: actionOld.outputPlaceholderList as IHttpPlaceholder[],
-							});
+							// If there are JSON placeholders and next action isn't a json_extract
+							if((!actionNext || actionNext.type != "json_extract") && jsonPlaceholders.length > 0) {
+								// console.log("MIGRATE", triggerNew.name || triggerNew.chatCommand);
+								// console.log("Must set output to HTTP_RESULT")
+								// console.log("Must add JSON extract action at position", j + 1, "with", actionOld.outputPlaceholderList);
+								this.httpMigrationFixData.push({
+									oldTriggerData: triggerOld,
+									oldTriggerAction: actionOld,
+									triggerId: triggerNew.id,
+									httpActionId: actionNew.id,
+									jsonPlaceholders: actionOld.outputPlaceholderList as IHttpPlaceholder[],
+								});
+							}
 						}
 					}
 				}
