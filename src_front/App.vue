@@ -239,7 +239,6 @@ export default toNative(App);
 	}
 
 	&.adhdFont {
-		font-size: .9em;
 		--font-inter: "FastMono";
 		--font-nunito: "FastMono";
 		--font-roboto: "FastMono";
