@@ -84,7 +84,7 @@ class ChatPollState extends Vue {
 	}
 
 	public endPoll():void {
-		this.$confirm("End Poll", "Are you sure you want to end this poll now? ")
+		this.$confirm(this.$t("poll.state.closeConfirm.title"), this.$t("poll.state.closeConfirm.message"))
 		.then(async ()=> {
 			this.$store.chatPoll.setCurrentPoll(null)
 		}).catch(()=> {

@@ -11,7 +11,11 @@
 			"vote_duration":"Vote duration (minutes)"
 		},
 		"state":{
-			"endBt":"End poll"
+			"endBt":"End poll",
+			"closeConfirm": {
+				"title": "End Poll",
+				"message": "Are you sure you want to end the poll?"
+			}
 		}
 	}
 }
