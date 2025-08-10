@@ -159,6 +159,9 @@ export const storeChatPoll = defineStore('chatPoll', {
 				}
 
 			}else if(this.data){
+				this.data.winner = this.data.choices.reduce((prev, curr) => {
+					return (prev.votes > curr.votes) ? prev : curr;
+				});
 				const message:TwitchatDataTypes.MessageChatPollData = {
 					id: Utils.getUUID(),
 					type: TwitchatDataTypes.TwitchatMessageType.CHAT_POLL,
