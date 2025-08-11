@@ -3,7 +3,7 @@
 		"header":"Connectez Twitchat à {LINK} pour déclencher des actions depuis les Triggers",
 		"install":"Installer Streamer.bot",
 		"instructions":"Dans Streamer.bot, rendez-vous dans \"Servers/Clients\" => \"WebSocket server\", cochez l'option \"Auto Start WebSocket server\" et cliquez sur \"Start server\"",
-		"connect_error":"La connexion à Streamber.bot a échouée.\nAssurez-vous que Streamer.bot est bien lancé et que le serveur HTTP est activé.",
+		"connect_error":"La connexion à Streamber.bot a échouée.\nAssurez-vous que Streamer.bot est bien lancé et que le serveur Websocket est activé.",
 		"ip":"IP",
 		"port":"Port",
 		"pass":"Password (optionnel)"
