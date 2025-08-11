@@ -17,7 +17,7 @@
 				<div>{{ $t("global.value") }}</div>
 			</div>
 
-			<div class="header" v-for="(param, index) in action.streamerbotData!.params">
+			<div class="parameter" v-for="(param, index) in action.streamerbotData!.params">
 				<ParamItem :paramData="param_keys[index]" v-model="param.key" noBackground placeholdersAsPopout />
 				<ParamItem :paramData="param_values[index]" v-model="param.value" noBackground placeholdersAsPopout />
 				<TTButton class="deleteBt" icon="trash" @click="deleteParam(index)" alert />
@@ -178,6 +178,13 @@ export default toNative(TriggerActionStreamerbotEntry);
 			.deleteBt {
 				flex-shrink: 0;
 			}
+		}
+		.parameter {
+			gap: .5em;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			flex: 1;
 		}
 		.addBt {
 			align-self: center;
