@@ -518,13 +518,15 @@ mark {
 #mx-menu-default-container {
 	top: 0;//necessery for shit old safari -_-
 	overflow: unset;//necessery for shit old safari -_-
-	.mx-menu-ghost-host{
+	&.mx-menu-ghost-host{
 		overflow: unset;//necessery for shit old safari -_-
 		.mx-context-menu {
+			padding-top: 0 !important;
+			padding-bottom: 0 !important;
 			box-shadow: rgba(0, 0, 0, 0.5) 1px 1px 2px 2px;
-			.mx-context-menu-scroll {
-				display: none;
-			}
+			// .mx-context-menu-scroll {
+			// 	display: none;
+			// }
 			.mx-context-menu-items {
 				cursor: pointer;
 				.mx-context-menu-item.alert {
@@ -558,11 +560,10 @@ mark {
 						color:var(--color-light);
 						background: rgba(255,255,255,.2);
 						background: var(--color-primary);
-						margin: -10px 0 0 0;
+						margin: 0;
 						border-bottom-left-radius: 0;
 						border-bottom-right-radius: 0;
 						padding: .5em;
-						margin-bottom: .25em;
 						cursor: default;
 						.mx-item-row:nth-child(1) {
 							flex-grow: 1;
