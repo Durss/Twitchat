@@ -345,6 +345,7 @@ export const storeTiktok = defineStore('tiktok', {
 				}
 
 				case "roomUser": {
+					const count = json.data.viewerCount || 0;
 					StoreProxy.stream.currentStreamInfo["tiktok"] = {//Super dirty """user""" ID I know :3. It should be an actual ID instead of "tiktok"
 						category:"",
 						lastSoDoneDate:0,
@@ -352,10 +353,10 @@ export const storeTiktok = defineStore('tiktok', {
 						started_at:0,
 						tags:[],
 						title:"",
-						viewers:json.data.viewerCount,
+						viewers:count,
 						previewUrl:"",
 					}
-					StoreProxy.labels.updateLabelValue("VIEWER_COUNT_TIKTOK", json.data.viewerCount);
+					StoreProxy.labels.updateLabelValue("VIEWER_COUNT_TIKTOK", count);
 					return;
 				}
 
