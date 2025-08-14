@@ -116,6 +116,8 @@ class OverlayTimer extends AbstractOverlay {
 			if(!wasVisible || this.timerHidding) {
 				await this.$nextTick();
 				if(this.$refs.timer) gsap.fromTo(this.$refs.timer as HTMLDivElement, {y:"-100%"}, {duration:.5, y:"0%"});
+			}else{
+				gsap.to(this.$refs.timer as HTMLDivElement, {duration:.5, y:"0%"});
 			}
 			this.timerHidding = false;
 
@@ -144,6 +146,8 @@ class OverlayTimer extends AbstractOverlay {
 			if(!wasVisible || this.countdownHidding){
 				await this.$nextTick();
 				if(this.$refs.countdown) gsap.fromTo(this.$refs.countdown as HTMLDivElement, {y:"-100%"}, {duration:.5, y:"0%"});
+			}else{
+				gsap.to(this.$refs.countdown as HTMLDivElement, {duration:.5, y:"0%"});
 			}
 			this.countdownHidding = false;
 

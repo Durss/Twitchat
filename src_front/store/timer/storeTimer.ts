@@ -304,6 +304,7 @@ export const storeTimer = defineStore('timer', {
 					};
 					message = data;
 					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, entry);
+					break;
 				}
 			}
 			StoreProxy.chat.addMessage(message);
@@ -317,8 +318,11 @@ export const storeTimer = defineStore('timer', {
 			if(!entry) return;
 			if(countdownTO[entry.id]) SetTimeoutWorker.instance.delete(countdownTO[entry.id]);
 			if(entry.startAt_ms) {
-				PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, entry);
-				PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, entry);
+				if(entry.type == "timer") {
+					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, entry);
+				}else if(entry.type == "countdown") {
+					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, entry);
+				}
 			}
 			delete entry.pausedAt_ms
 			delete entry.endAt_ms
@@ -357,9 +361,11 @@ export const storeTimer = defineStore('timer', {
 			if(!entry || !entry.startAt_ms) return {duration_ms:0, duration_str:""};
 
 			if(entry.type === "timer")  {
-				let elapsed = Date.now() - entry.startAt_ms + entry.offset_ms;
+				let elapsed = 0;
 				if(entry.paused) {
-					elapsed -= Date.now() - entry.pausedAt_ms!;
+					elapsed = entry.pausedAt_ms! - entry.startAt_ms + entry.offset_ms;
+				}else{
+					elapsed = Date.now() - entry.startAt_ms + entry.offset_ms;
 				}
 				return  {
 					duration_ms: elapsed,
@@ -368,9 +374,11 @@ export const storeTimer = defineStore('timer', {
 			}
 
 			else if(entry.type === "countdown")  {
-				let elapsed = Date.now() - entry.startAt_ms + entry.offset_ms;
+				let elapsed = 0
 				if(entry.paused) {
-					elapsed -= Date.now() - entry.pausedAt_ms!;
+					elapsed = entry.pausedAt_ms! - entry.startAt_ms + entry.offset_ms;
+				}else{
+					elapsed = Date.now() - entry.startAt_ms + entry.offset_ms;
 				}
 				elapsed -= entry.pauseDuration_ms;
 				const remaining = Math.max(0, entry.duration_ms - elapsed);

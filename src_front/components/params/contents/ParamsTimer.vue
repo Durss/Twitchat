@@ -72,16 +72,17 @@
 							v-if="!entry.startAt_ms"
 							@click="$store.timers.timerStart(entry.id); refreshTimers()"
 							:disabled="!entry.enabled"
-							v-tooltip="entry.enabled? '' : $t('timers.form.disabled_tt')">Start</TTButton>
+							v-tooltip="entry.enabled? '' : $t('timers.form.disabled_tt')">{{ $t('timers.form.start') }}</TTButton>
 
 							<template v-else>
 								<TTButton icon="pause" v-if="!entry.paused"
-									@click="$store.timers.timerPause(entry.id); refreshTimers()">Pause</TTButton>
+									@click="$store.timers.timerPause(entry.id); refreshTimers()">{{ $t('timers.form.pause') }}</TTButton>
 								<TTButton icon="play"  v-else
 									@click="$store.timers.timerUnpause(entry.id); refreshTimers()"
 									:disabled="!entry.enabled"
-									v-tooltip="entry.enabled? '' : $t('timers.form.disabled_tt')">Unpause</TTButton>
-								<TTButton icon="stop" @click="$store.timers.timerStop(entry.id); refreshTimers()">Stop</TTButton>
+									v-tooltip="entry.enabled? '' : $t('timers.form.disabled_tt')">{{ $t('timers.form.unpause') }}</TTButton>
+								<TTButton icon="stop" @click="$store.timers.timerStop(entry.id); refreshTimers()">{{ $t('timers.form.stop') }}</TTButton>
+								{{ entry.id }}
 							</template>
 						</div>
 
