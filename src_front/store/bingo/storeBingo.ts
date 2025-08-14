@@ -116,7 +116,7 @@ export const storeBingo = defineStore('bingo', {
 				const m:TwitchatDataTypes.MessageBingoData = {
 					id:Utils.getUUID(),
 					date:Date.now(),
-					platform:"twitchat",
+					platform:message.user.platform,
 					type:TwitchatDataTypes.TwitchatMessageType.BINGO,
 					user:message.user,
 					bingoData:bingo,
