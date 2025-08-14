@@ -143,7 +143,7 @@ class OverlayTimer extends AbstractOverlay {
 			this.computeValues();
 			if(!wasVisible || this.countdownHidding){
 				await this.$nextTick();
-				if(this.$refs.countdown) gsap.from(this.$refs.countdown as HTMLDivElement, {duration:.5, y:"-100%"});
+				if(this.$refs.countdown) gsap.fromTo(this.$refs.countdown as HTMLDivElement, {y:"-100%"}, {duration:.5, y:"0%"});
 			}
 			this.countdownHidding = false;
 
@@ -160,9 +160,11 @@ class OverlayTimer extends AbstractOverlay {
 
 	public computeValues():void {
 		if(this.countdownData && this.countdownData.startAt_ms) {
-			let elapsed = Date.now() - this.countdownData.startAt_ms;
+			let elapsed = 0;
 			if(this.countdownData.paused) {
-				elapsed -= Date.now() - this.countdownData.pausedAt_ms!;
+				elapsed = (this.countdownData.pausedAt_ms! - this.countdownData.startAt_ms + this.countdownData.offset_ms);
+			}else{
+				elapsed = Date.now() - this.countdownData.startAt_ms
 			}
 			elapsed -= this.countdownData.pauseDuration_ms;
 			const remaining = Math.round((this.countdownData.duration_ms - elapsed)/1000)*1000;
@@ -179,9 +181,11 @@ class OverlayTimer extends AbstractOverlay {
 		}
 
 		if(this.timerData && this.timerData.startAt_ms) {
-			let elapsed = Math.floor((Date.now() - this.timerData.startAt_ms + this.timerData.offset_ms)/1000)*1000;
+			let elapsed = 0
 			if(this.timerData.paused) {
-				elapsed -= Date.now() - this.timerData.pausedAt_ms!;
+				elapsed = Math.floor((this.timerData.pausedAt_ms! - this.timerData.startAt_ms + this.timerData.offset_ms)/1000)*1000;
+			}else{
+				elapsed = Math.floor((Date.now() - this.timerData.startAt_ms + this.timerData.offset_ms)/1000)*1000;
 			}
 			this.timerValue = Utils.formatDuration(elapsed, false, "d");
 		}else{
