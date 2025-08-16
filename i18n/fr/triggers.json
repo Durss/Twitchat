@@ -11,7 +11,7 @@
 		"header_select_obs_filter": "Choisissez le filtre OBS",
 		"usage": "Les Triggers permettent d'exécuter des actions en réponse à des évènements. Vous pouvez créer des choses simples comme des commandes de tchat et d'autres plus complexes comme un système de song request si vous avez lié Spotify à Twitchat.",
 		"trigger_name": "Nom personnalisé",
-		"enableForRemoteChans": "Activer pour sur les autres chaînes",
+		"enableForRemoteChans": "Activer sur les autres chaînes",
 		"enableForRemoteChans_tt": "Cette option permet de rendre le trigger actif sur d'autres chaînes que la vôtre",
 		"add_triggerBt": "Ajouter un trigger",
 		"testBt": "Tester le trigger",
