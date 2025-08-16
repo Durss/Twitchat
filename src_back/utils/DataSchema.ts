@@ -477,6 +477,8 @@ const UserDataSchema = {
 													"createchapter",
 													"hotKey",
 													"screenshot",
+													"setPersistedData",
+													"getPersistedData",
 												]},
 								triggerId: {type:"string", maxLength:50},
 								filterName: {type:"string", maxLength:100},
@@ -522,6 +524,9 @@ const UserDataSchema = {
 								screenshotImgHeight: {type:"number", minimum:8 , maximum:4096},
 								screenshotImgSavePath: {type:"string", maxLength:500},
 								screenshotImgSavePlaceholder: {type:"string", maxLength:30},
+								persistedDataPlaceholder: {type:"string", maxLength:30},
+								persistedDataKey: {type:"string", maxLength:100},
+								persistedDataValue: {type:"string", maxLength:1000},
 								headers:{
 									type:"array",
 									minItems:0,
