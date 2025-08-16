@@ -604,6 +604,8 @@ class TriggerActionEntry extends Vue {
 			else if(this.action.obsAction === "startrecord") icons.push( "recordStart" );
 			else if(this.action.obsAction === "stoprecord") icons.push( "recordStop" );
 			else if(this.action.obsAction === "pauserecord") icons.push( "pause" );
+			else if(this.action.obsAction === "setPersistedData") icons.push( "save" );
+			else if(this.action.obsAction === "getPersistedData") icons.push( "save" );
 		}
 		else if(this.action.type == "music") icons.push( 'spotify' );
 		else if(this.action.type == "chat") icons.push( 'whispers' );

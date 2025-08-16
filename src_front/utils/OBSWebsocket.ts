@@ -1,6 +1,6 @@
 import StoreProxy from '@/store/StoreProxy';
 import { OBSWebSocket as ObsWS, RequestBatchExecutionType, type RequestBatchRequest } from 'obs-websocket-js';
-import type { JsonArray, JsonObject } from 'type-fest';
+import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { reactive } from 'vue';
 import { EventDispatcher } from '../events/EventDispatcher';
 import type { TwitchatActionType, TwitchatEventType } from '../events/TwitchatEvent';
@@ -1068,7 +1068,27 @@ export default class OBSWebSocket extends EventDispatcher {
 		return res.hotkeys;
 	}
 
+	/**
+	 * Get a persisted key
+	 * @param key The key to retrieve
+	 * @returns The value of the persisted key
+	 */
+	public async getPersistedValue(key:string):Promise<JsonValue> {
+		if(!this.connected) return "";
+		const res = await this.obs.call("GetPersistentData", {realm:"OBS_WEBSOCKET_DATA_REALM_GLOBAL", slotName:key});
+		return res.slotValue;
+	}
 
+	/**
+	 * Set a persisted value
+	 * @param key The key to set
+	 * @param value The value to set
+	 * @returns
+	 */
+	public async setPersistedValue(key:string, value:JsonValue):Promise<void> {
+		if(!this.connected) return;
+		await this.obs.call("SetPersistentData", {realm:"OBS_WEBSOCKET_DATA_REALM_GLOBAL", slotName:key, slotValue:value});
+	}
 
 	/*******************
 	* PRIVATE METHODS *

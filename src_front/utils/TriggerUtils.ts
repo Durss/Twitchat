@@ -329,7 +329,8 @@ export default class TriggerUtils {
 				}
 			}else
 
-			if(a.type == "obs" && a.obsAction == "screenshot" && a.screenshotImgMode == "get" && a.screenshotImgSavePlaceholder) {
+			if(a.type == "obs") {
+				if(a.obsAction == "screenshot" && a.screenshotImgMode == "get" && a.screenshotImgSavePlaceholder) {
 					placeholdersList.push({
 						tag:a.screenshotImgSavePlaceholder.toUpperCase(),
 						pointer:"",
@@ -338,6 +339,19 @@ export default class TriggerUtils {
 						descKey:'triggers.screenshot_placeholder',
 						example:"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAyADIDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDx2iiimeYFFFFABRRRQAUUUUAWrWwlvLed4Bvki24j4G7J55J4wBmmLZzsisseQyxsDkdHOF/M02K9ntI5RCkMqyDDRTJuVv8AP9aIdb1OCCOEWVmwjREDMuSQv3c/N2PP1oN4Qpyjq9TX/wCEck+z7/P/AHuzPl7O+Omc/rVS30S9mlQSRGKMsQznHy4z2zk8j9c1A/iLWJAQ9taFCpVoyuQwPr83+c1Guuaiskcg02w8yNdiP5fKr6A7uBSNOSl3/Ekj02+kmeH7MwljVWddw4znGDnB6Hp6UkmnX0NuJ5oNkeWB+b5lIOOR79iM1Xj1fVYwoEEDEJEmWG7IjJIPJ689fyxVmXXdTvYmt7iC3SJupUHPBzxyaCZQppOzKtFFFM5gooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/2Q=="
 					});
+				}
+
+				if(a.obsAction == "getPersistedData" && a.persistedDataPlaceholder) {
+					placeholdersList.push({
+						tag:a.persistedDataPlaceholder.toUpperCase(),
+						pointer:"",
+						isUserID:false,
+						numberParsable:true,
+						descKey:'triggers.persistentData_placeholder',
+						descReplacedValues:{NAME:"{"+a.persistedDataPlaceholder.toUpperCase()+"}"},
+						example:"Hello world"
+					});
+				}
 			}
 		}
 

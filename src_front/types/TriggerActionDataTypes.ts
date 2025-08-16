@@ -394,7 +394,7 @@ export interface TriggerActionDelayData extends TriggerActionData{
 	delay:number;
 }
 
-export type TriggerActionObsDataAction = "sources"|"startstream"|"stopstream"|"startrecord"|"pauserecord"|"resumerecord"|"stoprecord"|"emitevent"|"startvirtualcam"|"stopvirtualcam"|"createchapter"|"hotKey"|"screenshot";
+export type TriggerActionObsDataAction = "sources"|"startstream"|"stopstream"|"startrecord"|"pauserecord"|"resumerecord"|"stoprecord"|"emitevent"|"startvirtualcam"|"stopvirtualcam"|"createchapter"|"hotKey"|"screenshot"|"getPersistedData"|"setPersistedData";
 export type TriggerActionObsSourceDataAction = "show"|"hide"|"mute"|"unmute"|"replay"|"stop"|"next"|"prev"|"switch_to"|"move"|"rotate"|"resize"|"toggle_visibility";
 export interface TriggerActionObsData extends TriggerActionData{
 	type:"obs";
@@ -534,6 +534,18 @@ export interface TriggerActionObsData extends TriggerActionData{
 	 * Placeholder to save the screenshot to
 	 */
 	screenshotImgSavePlaceholder?:string;
+	/**
+	 * Key of the data to read/write on persistent OBS storage
+	 */
+	persistedDataKey?:string
+	/**
+	 * Value to store to persistent OBS storage
+	 */
+	persistedDataValue?:string
+	/**
+	 * Placeholder to save the persisted data to
+	 */
+	persistedDataPlaceholder?:string
 }
 
 export interface TriggerActionChatData extends TriggerActionData{

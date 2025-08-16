@@ -48,6 +48,7 @@
 		"json_placeholder": "JSON placeholder {NAME}",
 		"raffle_placeholder": "Winning raffle entry",
 		"screenshot_placeholder": "OBS Screenshot",
+		"persistentData_placeholder": "Persistent data placeholder {NAME}",
 		"nonpremium_limit": "You created the maximum number of {MAX} triggers. Become premium to create up to {MAX_PREMIUM} triggers. Or disable / delete some triggers to create new ones.",
 		"premium_limit": "You created the maximum number of {MAX} triggers.",
 		"add_action": "Add action",
@@ -303,6 +304,8 @@
 				"param_obs_action_createchapter": "Add chapter marker to current record",
 				"param_obs_action_hotkey": "Trigger hotkey action",
 				"param_obs_action_screenshot": "Source screenshot",
+				"param_obs_action_getPersistedData": "Get persisted data",
+				"param_obs_action_setPersistedData": "Set persisted data",
 				"param_record_chapter_name": "Chapter name",
 				"param_record_hotkey_name": "Action",
 				"param_screenImgFormat_conf": "Image format",
@@ -372,7 +375,9 @@
 				"param_action_prev": "Previous playlist item",
 				"param_action_move": "Move source",
 				"param_action_rotate": "Rotate source",
-				"param_action_resize": "Resize source"
+				"param_action_resize": "Resize source",
+				"param_persistedKey_conf": "Key name",
+				"param_persistedValue_conf": "Value to store"
 			},
 			"trigger": {
 				"beta": "This is a beta feature!{BR} If you experience any unexpected behavior with it please {LINK}",

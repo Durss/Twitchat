@@ -1767,6 +1767,20 @@ export default class TriggerActionHandler {
 								}
 							}
 						}
+					}else
+
+					if(step.obsAction == "getPersistedData") {
+						logStep.messages.push({date:Date.now(), value:"Get persisted data \""+step.persistedDataKey+"\" from OBS"});
+						const key = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.persistedDataKey || "", subEvent);
+						const value = await OBSWebsocket.instance.getPersistedValue(key);
+						dynamicPlaceholders[step.persistedDataPlaceholder || ""] = value?.toString() || "";
+					}else
+
+					if(step.obsAction == "setPersistedData") {
+						logStep.messages.push({date:Date.now(), value:"Set persisted data \""+step.persistedDataKey+"\" to \""+step.persistedDataValue+"\" in OBS"});
+						const key = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.persistedDataKey || "", subEvent);
+						const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.persistedDataValue || "", subEvent);
+						await OBSWebsocket.instance.setPersistedValue(key, value);
 					}
 				}else
 

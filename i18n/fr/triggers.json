@@ -48,6 +48,7 @@
 		"json_placeholder": "Placeholder JSON {NAME}",
 		"raffle_placeholder": "Entrée de tirage au sort gagnante",
 		"screenshot_placeholder": "Screenshot OBS",
+		"persistentData_placeholder": "Placeholder de données persistantes {NAME}",
 		"nonpremium_limit": "Vous avez créé le maximum de {MAX} triggers actifs. Devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} triggers. Ou désactivez / supprimez des triggers pour en créer de nouveaux.",
 		"premium_limit": "Vous avez créé le maximum de {MAX} triggers actifs.",
 		"add_action": "Ajouter une action",
@@ -303,6 +304,8 @@
 				"param_obs_action_createchapter": "Ajouter un chapitre à l'enregistrement en cours",
 				"param_obs_action_hotkey": "Déclencher une action de raccourci clavier",
 				"param_obs_action_screenshot": "Faire un screenshot de source",
+				"param_obs_action_getPersistedData": "Récupérer une donnée persistante",
+				"param_obs_action_setPersistedData": "Définir une donnée persistante",
 				"param_record_chapter_name":"Nom du chapitre",
 				"param_record_hotkey_name":"Action",
 				"param_screenImgFormat_conf": "Format d'image",
@@ -372,7 +375,9 @@
 				"param_action_prev": "Media de playlist précédent",
 				"param_action_move": "Déplacer la source",
 				"param_action_rotate": "Rotation de la source",
-				"param_action_resize": "Redimensionner la source"
+				"param_action_resize": "Redimensionner la source",
+				"param_persistedKey_conf": "Nom de la clé",
+				"param_persistedValue_conf": "Valeur à stocker"
 			},
 			"trigger": {
 				"beta": "Fonctionnalité expérimentale ?{BR} Si vous rencontrez un problème {LINK}",

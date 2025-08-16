@@ -105,6 +105,12 @@
 			</template>
 		</template>
 
+		<template v-if="action.obsAction === 'setPersistedData' || action.obsAction === 'getPersistedData'">
+			<ParamItem :paramData="param_persistedKey_conf" v-model="action.persistedDataKey" />
+			<ParamItem :paramData="param_persistedValue_conf" v-model="action.persistedDataValue" v-if="action.obsAction === 'setPersistedData'" />
+			<ParamItem :paramData="param_persistedKeyPH_conf" v-model="action.persistedDataPlaceholder" v-if="action.obsAction === 'getPersistedData'" />
+		</template>
+
 	</div>
 </template>
 
@@ -169,6 +175,9 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public param_screenImgSize_height_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:1080, min:8, max:4096, icon:"coord_y", labelKey:"triggers.actions.obs.param_screenImgSize_height_conf" };
 	public param_screenImgSavePath_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", placeholder:"D:/image.jpeg", maxLength:500, icon:"save", labelKey:"triggers.actions.obs.param_screenImgSavePath_conf" };
 	public param_screenImgSavePH_conf:TwitchatDataTypes.ParameterData<string> = { type:"placeholder", value:"", maxLength:30, allowedCharsRegex:"a-z0-9_", icon:"placeholder", labelKey:"triggers.actions.obs.param_screenImgSavePH_conf" };
+	public param_persistedKey_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", maxLength:100, icon:"key", labelKey:"triggers.actions.obs.param_persistedKey_conf" };
+	public param_persistedValue_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", maxLength:1000, icon:"font", labelKey:"triggers.actions.obs.param_persistedValue_conf" };
+	public param_persistedKeyPH_conf:TwitchatDataTypes.ParameterData<string> = { type:"placeholder", value:"", maxLength:30, allowedCharsRegex:"a-z0-9_", icon:"placeholder", labelKey:"triggers.actions.obs.param_screenImgSavePH_conf" };
 
 	public selectedSourceName:string = "";
 
@@ -302,6 +311,8 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_emitevent", value:"emitevent"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_hotkey", value:"hotKey"});
 		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_screenshot", value:"screenshot"});
+		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_getPersistedData", value:"getPersistedData"});
+		actionList.push({labelKey:"triggers.actions.obs.param_obs_action_setPersistedData", value:"setPersistedData"});
 		this.param_obsAction_conf.listValues	= actionList;
 
 		watch(()=>this.action.obsAction, ()=> { this.onActionChange(); });
@@ -331,7 +342,8 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		this.param_css_conf.placeholderList		=
 		this.param_record_chapter_name.placeholderList	=
 		this.param_screenImgSavePath_conf.placeholderList	=
-		this.param_browserEvent_param.placeholderList	= list;
+		this.param_browserEvent_param.placeholderList	=
+		this.param_persistedValue_conf.placeholderList	= list;
 
 		this.param_x_conf.placeholderList		=
 		this.param_y_conf.placeholderList		=
