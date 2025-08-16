@@ -4204,7 +4204,7 @@ export default class TriggerActionHandler {
 					/**
 					 * If the placeholder requests for a user's custom badges
 					 */
-					}else if(pointer.indexOf("__user_custom_badges__") == 0 && Object.hasOwn(message, "user")) {
+					}else if(pointer.indexOf("__user_custom_badges__") == 0) {
 						const user = this.extractUserFromTrigger(trigger, message);
 						if(user){
 							const badges = StoreProxy.users.customUserBadges[user.id];
