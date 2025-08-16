@@ -704,7 +704,7 @@
 			"animated_text": {
 				"param_overlayId": "Overlay to control",
 				"param_action": "Action",
-				"param_text": "New text",
+				"param_text": "New text (supports HTML)",
 				"param_autoHide": "Auto hide text after a delay based on message size",
 				"param_waitForComplete": "Wait for animation to complete\n(trigger's execution will be paused until animation completes)",
 				"actions": {

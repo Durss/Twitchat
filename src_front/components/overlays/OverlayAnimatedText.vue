@@ -8,7 +8,7 @@
 		color:params.colorBase,
 		opacity:ready? '1' : '0',
 	}">
-		<div ref="text" v-if="text" v-html="text"></div>
+		<div ref="text" v-if="text" v-html="text" class="textHolder"></div>
 	</div>
 </template>
 
@@ -196,6 +196,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 				this.currentEntry = null;
 				PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_HIDE_COMPLETE, {queryId:entry.queryId});
 				// Next text in queue
+				this.next();
 			}, (textLen || 0) * 100);
 		}else{
 			PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_SHOW_COMPLETE, {queryId:entry.queryId});
@@ -209,7 +210,26 @@ class OverlayAnimatedText extends AbstractOverlay {
 	private async showText():Promise<void> {
 		if(this.currentState == "opened") return;
 		this.currentState = "opened";
-		return new Promise((resolve) => {
+		return new Promise(async (resolve) => {
+			// Wait for potential included images to complete loading
+			await new Promise<void>(allImagesLoaded => {
+				const images = Array.from((this.$refs["text"] as HTMLElement).querySelectorAll("img"));
+				if (images.length > 0) {
+					const imagePromises = images.map(img => {
+						return new Promise<void>(resolveImg => {
+							if (img.complete && img.naturalHeight !== 0) {
+								resolveImg();
+							} else {
+								img.addEventListener("load", () => resolveImg(), { once: true });
+								img.addEventListener("error", () => resolveImg(), { once: true });
+							}
+						});
+					});
+					Promise.all(imagePromises).then(() => allImagesLoaded());
+				} else {
+					allImagesLoaded();
+				}
+			})
 			this.split = new SplitType(this.$refs["text"] as HTMLElement, {split:["words","chars"], charClass:"char", wordClass:"word"});
 			if(this.split.chars?.length == 0) {
 				resolve();
@@ -218,7 +238,9 @@ class OverlayAnimatedText extends AbstractOverlay {
 			const ads = 2 - this.params.animDurationScale;
 			const amp = this.params.animStrength;
 			const sizeRatio =  (this.params.textSize-10)/70;
-			const chars = this.split.chars || [];
+			// const chars = this.split.chars || [];
+			const chars = Array.from((this.$refs["text"] as HTMLElement).querySelectorAll("*"))
+				.filter(el => el.children.length === 0) as HTMLElement[] || [];
 			this.ready = true;
 
 			if(this.raf > -1) cancelAnimationFrame(this.raf);
@@ -606,16 +628,19 @@ class OverlayAnimatedText extends AbstractOverlay {
 
 		const promise = new Promise<void>(async (resolve) => {
 			await this.$nextTick();
+
 			if(!this.split) {
 				this.split = new SplitType(this.$refs["text"] as HTMLElement, {split:["words","chars"], charClass:"char", wordClass:"word"})
 			}
-			if(this.split.chars?.length == 0) {
+			const chars = Array.from((this.$refs["text"] as HTMLElement).querySelectorAll("*"))
+				.filter(el => el.children.length === 0) as HTMLElement[] || [];
+
+			if(chars?.length == 0) {
 				resolve();
 				return;
 			}
 			const ads = 2 - this.params.animDurationScale;
 			const amp = this.params.animStrength;
-			const chars = this.split.chars || [];
 			this.ready = true;
 
 			if(this.raf > -1) cancelAnimationFrame(this.raf);
@@ -903,6 +928,10 @@ export default toNative(OverlayAnimatedText);
 	:deep(b),
 	:deep(strong) {
 		color: v-bind(strongColor)
+	}
+
+	:deep(.emote) {
+		height: 1.2em;
 	}
 }
 </style>

@@ -35,7 +35,7 @@ class TriggerActionAnimateTextEntry extends AbstractTriggerActionEntry {
 
 	public param_overlayId:TwitchatDataTypes.ParameterData<string[], string> = {type:"list", labelKey:"triggers.actions.animated_text.param_overlayId", value:[], listValues:[]}
 	public param_action:TwitchatDataTypes.ParameterData<TriggerActionAnimatedTextData["animatedTextData"]["action"], string> = {type:"list", labelKey:"triggers.actions.animated_text.param_action", value:"show", listValues:[]}
-	public param_text:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.animated_text.param_text", value:"", longText:true, maxLength:1000, icon:"font"}
+	public param_text:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.animated_text.param_text", value:"", longText:true, maxLength:1000, icon:"font"}
 	public param_autoHide:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",  labelKey:"triggers.actions.animated_text.param_autoHide", value:true, icon:"hide"}
 	public param_waitForComplete:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",  labelKey:"triggers.actions.animated_text.param_waitForComplete", value:true, icon:"timer"}
 
