@@ -446,6 +446,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 		async resyncCharityTips():Promise<void> {
 			if(!this.charityTeam) return;
 			this.charityTeam.amountRaisedPersonnal_cents = 0;
+			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED_PERSONNAL", 0);
 			await this.loadCharityCampaignInfo();
 		},
 
@@ -589,6 +590,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			let hasResults = false;
 			let total = donationPrevPagesTotal;
 			let lastPageTotal = 0;
+			const idsDone:Record<string, boolean> = {}
 			let prevValue = this.charityTeam.amountRaisedPersonnal_cents;
 			let lastTip:StreamlabsCharityDonationHistoryEntry|undefined = undefined;
 			do {
@@ -599,10 +601,12 @@ export const storeStreamlabs = defineStore('streamlabs', {
 					hasResults = donationsJSON.length > 0;
 					lastPageTotal = 0;
 					if(hasResults) {
-						let filtered = donationsJSON.filter(v => v.member && (
-							v.member.user.display_name.toLowerCase() === me.login.toLowerCase()
-							|| v.member.user.display_name.toLowerCase() === me.displayNameOriginal.toLowerCase()
-						));
+						let filtered = donationsJSON.filter(v => {
+							if(idsDone[v.id] == true) return false
+							idsDone[v.id] = true;
+							return v.member && (v.member.user.display_name.toLowerCase() === me.login.toLowerCase()
+							|| v.member.user.display_name.toLowerCase() === me.displayNameOriginal.toLowerCase())
+						});
 						filtered.forEach(v => {
 							total += v.donation.converted_amount;
 							lastPageTotal += v.donation.converted_amount;
