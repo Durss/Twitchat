@@ -11,7 +11,6 @@
 
 		<ParamItem :paramData="param_commandId" v-model="action.mixitupData!.commandId" />
 
-
 		<div class="headerList">
 			<div class="header head" v-if="action.mixitupData!.params && action.mixitupData!.params.length > 0">
 				<div>{{ $t("global.key") }}</div>
@@ -74,6 +73,7 @@ class TriggerActionMixitupEntry extends AbstractTriggerActionEntry {
 		}
 		this.buildCommandList();
 		this.buildParams();
+		console.log("MIXITUP ENTRY MOUNT", this.action.mixitupData.commandId);
 
 		watch(()=>this.$store.mixitup.commandList, () => this.buildCommandList());
 	}
@@ -128,6 +128,8 @@ class TriggerActionMixitupEntry extends AbstractTriggerActionEntry {
 			labelKey: "global.select_placeholder"
 		});
 
+		let idFound = false;
+
 		// Sort groups alphabetically and add commands
 		Object.keys(grouped).sort().forEach(groupName => {
 			// Add group with children
@@ -136,17 +138,23 @@ class TriggerActionMixitupEntry extends AbstractTriggerActionEntry {
 				label: groupName,
 				group: grouped[groupName]
 					.sort((a, b) => a.Name.localeCompare(b.Name))
-					.map(action => ({
-						value: action.ID,
-						label: action.Name,
-					}))
+					.map(action => {
+						if(action.ID === this.action.mixitupData!.commandId) {
+							idFound = true;
+						}
+						return{
+							value: action.ID,
+							label: action.Name,
+						}
+					})
 			});
 		});
 
-		if(list.findIndex(v=> v.value == this.action.mixitupData!.commandId) == -1) {
+		if(!idFound) {
 			this.action.mixitupData!.commandId = "";
 		}
 		this.param_commandId.listValues = list;
+		this.param_commandId.value = this.action.mixitupData!.commandId;
 	}
 
 
@@ -191,7 +199,7 @@ export default toNative(TriggerActionMixitupEntry);
 					}
 				}
 			}
-			*:not(.button) {
+			&>*:not(.button) {
 				width: 50%;
 				flex-grow: 1;
 				// width: 100%;
@@ -200,6 +208,7 @@ export default toNative(TriggerActionMixitupEntry);
 			}
 			.deleteBt {
 				flex-shrink: 0;
+				margin-left: 1px;
 			}
 			.key {
 				text-align: center;
