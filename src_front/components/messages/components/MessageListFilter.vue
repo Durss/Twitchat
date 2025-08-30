@@ -487,8 +487,6 @@ export class MessageListFilter extends Vue {
 				})
 			}
 		});
-
-		requestAnimationFrame(()=>this.renderFrame());
 	}
 
 	public beforeUnmount():void {
@@ -1117,6 +1115,8 @@ export class MessageListFilter extends Vue {
 	public openFilters(viaButton:boolean = false):void {
 		this.expand = true;
 		if(viaButton) this.hideCTA();
+
+		requestAnimationFrame(()=>this.renderFrame());
 	}
 
 	/**
@@ -1163,10 +1163,8 @@ export class MessageListFilter extends Vue {
 	 * Move message previews
 	 */
 	private renderFrame():void {
-		if(this.disposed) return;
+		if(this.disposed || !this.expand) return;
 		requestAnimationFrame(()=>this.renderFrame());
-
-		if(!this.open) return;
 
 		const holder = this.$refs.previewList as HTMLDivElement;
 		if(!holder) return;

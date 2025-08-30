@@ -311,14 +311,15 @@ class Chat extends Vue {
 	private disposed = false;
 	private mouseX = 0;
 	private mouseY = 0;
-	private frameIndex = 0;
 	private prevFormHeight = 0;
+	private resizeDebounce = -1;
 	private resizing = false;
 	private closingDonorState = false;
 	private draggedCol:TwitchatDataTypes.ChatColumnsConfig|null = null;
 
 	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
+	private windowResizeHandler!:(e:Event)=> void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 
 	public get splitViewVertical():boolean { return this.$store.params.appearance.splitViewVertical.value as boolean; }
@@ -487,11 +488,13 @@ class Chat extends Vue {
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 		this.mouseUpHandler = () => this.resizing = false;
 		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
+		this.windowResizeHandler = (e:Event) => this.computeChatFormHeight();
 
 		document.addEventListener("mouseup", this.mouseUpHandler);
 		document.addEventListener("touchend", this.mouseUpHandler);
 		document.addEventListener("mousemove", this.mouseMoveHandler);
 		document.addEventListener("touchmove", this.mouseMoveHandler);
+		window.addEventListener("resize", this.windowResizeHandler)
 		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_TOGGLE, this.publicApiEventHandler);
@@ -520,7 +523,6 @@ class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_PREDICTION, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.SEND_MESSAGE, this.publicApiEventHandler);
-		this.renderFrame();
 		requestWakeLock();
 
 		for (let i = 0; i < this.$store.params.chatColumnsConfig.length + 10; i++) {
@@ -552,6 +554,7 @@ class Chat extends Vue {
 		document.removeEventListener("touchend", this.mouseUpHandler);
 		document.removeEventListener("mousemove", this.mouseMoveHandler);
 		document.removeEventListener("touchmove", this.mouseMoveHandler);
+		window.removeEventListener("resize", this.windowResizeHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTION_TOGGLE, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.BINGO_TOGGLE, this.publicApiEventHandler);
@@ -929,16 +932,6 @@ class Chat extends Vue {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
 
-		if(this.$refs.chatForm && (this.frameIndex++)%60 == 0) {
-			//Compute chat form height every 60 frames
-			const chatForm = (this.$refs.chatForm as ComponentPublicInstance).$el as HTMLDivElement;
-			const bounds = chatForm.getBoundingClientRect();
-			if(bounds.height != this.prevFormHeight) {
-				this.prevFormHeight = bounds.height;
-				(document.querySelector(':root') as HTMLHtmlElement).style.setProperty('--chat-form-height', bounds.height + 'px');
-			}
-		}
-
 		if(!this.resizing) return;
 
 		const cols = this.$store.params.chatColumnsConfig;
@@ -1014,9 +1007,22 @@ class Chat extends Vue {
 		this.panelsColIndexTarget = indexPanels;
 		this.panelsColumnTarget = selectedCol.getElementsByClassName("subHolder")[0] as HTMLDivElement;
 	}
+
+	private computeChatFormHeight():void {
+		clearTimeout(this.resizeDebounce);
+		this.resizeDebounce = window.setTimeout(() => {
+			if(this.$refs.chatForm) {
+				//Compute chat form height every 60 frames
+				const chatForm = (this.$refs.chatForm as ComponentPublicInstance).$el as HTMLDivElement;
+				const bounds = chatForm.getBoundingClientRect();
+				if(bounds.height != this.prevFormHeight) {
+					this.prevFormHeight = bounds.height;
+					(document.querySelector(':root') as HTMLHtmlElement).style.setProperty('--chat-form-height', bounds.height + 'px');
+				}
+			}
+		}, 200);
+	}
 }
-
-
 
 export default toNative(Chat);
 </script>

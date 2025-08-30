@@ -177,8 +177,6 @@ class NewUsers extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.publicApiEventHandler);
 		EventBus.instance.addEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 		EventBus.instance.addEventListener(GlobalEvent.DELETE_MESSAGE, this.deleteMessageHandler);
-
-		this.renderFrame();
 	}
 
 	public beforeUnmount():void {
@@ -199,6 +197,7 @@ class NewUsers extends Vue {
 	 */
 	public startDrag():void {
 		this.resizing = true;
+		this.renderFrame();
 	}
 
 	/**
@@ -360,10 +359,8 @@ class NewUsers extends Vue {
 	}
 
 	private renderFrame():void {
-		if(this.disposed) return;
+		if(this.disposed || !this.resizing) return;
 		requestAnimationFrame(()=>this.renderFrame());
-
-		if(!this.resizing) return;
 
 		const bounds = ((this.$el as HTMLDivElement).parentElement as HTMLDivElement).getBoundingClientRect();
 		const maxHeight = .8;

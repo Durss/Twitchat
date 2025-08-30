@@ -1285,7 +1285,7 @@ class MessageList extends Vue {
 			this.prevHeight = holderHeight;
 		}
 
-		if (!this.lockScroll) {
+		if (!this.lockScroll && messageHolder.scrollTop < maxScroll) {
 			//On init the virtualscroll is -1, scroll to the bottom and init the virtualscroll
 			if (this.virtualScrollY == -1) this.virtualScrollY = maxScroll;
 			const dist = Math.abs(maxScroll - this.virtualScrollY);
