@@ -174,7 +174,7 @@ export const storeUsers = defineStore('users', {
 			if(displayName && displayName != this.tmpDisplayName)	displayName = displayName.replace("@", "").trim();
 
 			//Search user on hashmaps
-			if(id && hashmaps.idToUser[id])									user = hashmaps.idToUser[id];
+			if(id)															user = hashmaps.idToUser[id];
 			else if(login && hashmaps.loginToUser[login])					user = hashmaps.loginToUser[login];
 			else if(displayName && hashmaps.displayNameToUser[displayName])	user = hashmaps.displayNameToUser[displayName];
 
