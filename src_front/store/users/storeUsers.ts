@@ -347,8 +347,12 @@ export const storeUsers = defineStore('users', {
 								let fallbackLogin = userLocal.login || userLocal.displayNameOriginal;
 								if(fallbackLogin == this.tmpDisplayName) fallbackLogin = "#"+userLocal.id;
 								userLocal.displayName =
-								userLocal.login = "❌("+fallbackLogin+")";
+								// userLocal.login = "❌("+fallbackLogin+")";
+								userLocal.login = fallbackLogin;
 								userLocal.errored = true;
+								console.log("Twitch did not return user data for:", userLocal);
+								console.log("Requested these IDs/Logins:", ids, logins);
+								console.log("Received:", res);
 
 							}else{
 

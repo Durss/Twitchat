@@ -2,15 +2,16 @@
 	<div class="holder">
 		<img v-if="messageData.channelSource?.pic && $store.params.appearance.multiChatAvatar.value === true"
 			class="avatar"
-			:style="{color:messageData.channelSource.color+'99'}"
 			v-tooltip="messageData.channelSource.name"
+			:style="{color:messageData.channelSource.color+'99'}"
 			:src="messageData.channelSource.pic" />
 
-		<template v-else-if="messageData.channelSource">
+		<template v-if="($store.params.appearance.multiChatAvatar.value === false || $store.params.appearance.multiChatColor.value === true) && messageData.channelSource">
 			<span class="border"
 				:style="{color:messageData.channelSource.color+'99'}"></span>
 
 			<span class="side"
+				v-if="$store.params.appearance.multiChatAvatar.value !== true"
 				v-tooltip="messageData.channelSource.name"
 				:style="{color:messageData.channelSource.color}"></span>
 		</template>
