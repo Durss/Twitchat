@@ -45,42 +45,54 @@ export const storeTimer = defineStore('timer', {
 				const data = JSON.parse(json) as IStoreData;
 				this.timerList = data.timerList
 			}
-			const defaultTimer:TwitchatDataTypes.TimerData = {
-				id:Utils.getUUID(),
-				type:"timer",
-				placeholderKey:"DEFAULT",
-				title:StoreProxy.i18n.t("timers.default_timer_title"),
-				enabled:true,
-				isDefault:true,
-				paused:false,
-				startAt_ms:0,
-				offset_ms:0,
-				pauseDuration_ms:0,
-				duration_ms:0,
-				overlayParams: getDefaultStyle(),
-			}
-			const defaultCountdown:TwitchatDataTypes.TimerData = {
-				id:Utils.getUUID(),
-				type:"countdown",
-				placeholderKey:"DEFAULT",
-				title:StoreProxy.i18n.t("timers.default_countdown_title"),
-				duration_ms:60_000,
-				enabled:true,
-				isDefault:true,
-				paused:false,
-				startAt_ms:0,
-				offset_ms:0,
-				pauseDuration_ms:0,
-				overlayParams: getDefaultStyle(),
-			}
 
 			// Create default time/countdown if missing
 			if (!this.timerList.some(timer => timer.isDefault && timer.type === "countdown")) {
+				const defaultCountdown:TwitchatDataTypes.TimerData = {
+					id:Utils.getUUID(),
+					type:"countdown",
+					placeholderKey:"DEFAULT",
+					title:StoreProxy.i18n.t("timers.default_countdown_title"),
+					duration_ms:60_000,
+					enabled:true,
+					isDefault:true,
+					paused:false,
+					startAt_ms:0,
+					offset_ms:0,
+					pauseDuration_ms:0,
+					overlayParams: getDefaultStyle(),
+				}
 				this.timerList.unshift(defaultCountdown);
 			}
 			if (!this.timerList.some(timer => timer.isDefault && timer.type === "timer")) {
+				const defaultTimer:TwitchatDataTypes.TimerData = {
+					id:Utils.getUUID(),
+					type:"timer",
+					placeholderKey:"DEFAULT",
+					title:StoreProxy.i18n.t("timers.default_timer_title"),
+					enabled:true,
+					isDefault:true,
+					paused:false,
+					startAt_ms:0,
+					offset_ms:0,
+					pauseDuration_ms:0,
+					duration_ms:0,
+					overlayParams: getDefaultStyle(),
+				}
 				this.timerList.unshift(defaultTimer);
 			}
+
+			// Temporary fix. Few users got their timers initialized with old labels
+			// that were missing the required labels. This fixes it.
+			// TODO: remove this in the future (added 30/08/25)
+			this.timerList.forEach(v=> {
+				if(v.title == "timers.default_countdown_title") {
+					v.title = StoreProxy.i18n.t("timers.default_countdown_title");
+				}
+				if(v.title == "timers.default_timer_title") {
+					v.title = StoreProxy.i18n.t("timers.default_timer_title");
+				}
+			})
 
 			this.saveData();
 
