@@ -121,7 +121,6 @@ export default toNative(HelpGenocideVictims);
 	z-index: 2;
 
 	.holder {
-		line-height: 1.2em;
 		width: calc(100% - 2em);
 		max-width: 600px;
 		height: fit-content;
@@ -129,7 +128,7 @@ export default toNative(HelpGenocideVictims);
 		max-height: var(--vh);
 
 		p {
-			line-height: 1.5em;
+			line-height: 1.25em;
 			white-space: pre-line;
 		}
 
