@@ -81,8 +81,8 @@ export const storeCounters = defineStore('counters', {
 					const list = counter.users ?? {};
 					let users = Object.keys(list).map(v=> ({uid:v, value:list[v]}));
 					users.sort((a,b)=>{
-						if(a.value > b.value) return -1;
-						if(a.value < b.value) return 1;
+						if(a.value.value > b.value.value) return -1;
+						if(a.value.value < b.value.value) return 1;
 						return 0;
 					})
 					//Only keep top 20 users to avoid clogging WS tunnel
