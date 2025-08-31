@@ -853,6 +853,7 @@ class Chat extends Vue {
 		this.resizing = true;
 		this.draggedCol = col;
 		this.onMouseMove(event);
+		this.renderFrame();
 		(event.target as HTMLDivElement).setPointerCapture(event.pointerId);
 	}
 
@@ -929,10 +930,8 @@ class Chat extends Vue {
 	 * Manage colmumns resize
 	 */
 	private async renderFrame():Promise<void> {
-		if(this.disposed) return;
+		if(this.disposed || !this.resizing) return;
 		requestAnimationFrame(()=>this.renderFrame());
-
-		if(!this.resizing) return;
 
 		const cols = this.$store.params.chatColumnsConfig;
 		const holder = this.$refs.scrollable as HTMLDivElement;
