@@ -1233,6 +1233,7 @@ const UserDataSchema = {
 		"p:antiHateRaidDeleteMessage": {type:"boolean"},
 		"p:antiHateRaidEmergency": {type:"boolean"},
 		"p:multiChatAvatar": {type:"boolean"},
+		"p:multiChatColor": {type:"boolean"},
 		"p:sharedChatHide": {type:"boolean"},
 		"p:autoTranslateFirstLang":{
 			type:"array",
