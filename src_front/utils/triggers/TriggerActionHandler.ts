@@ -1476,7 +1476,7 @@ export default class TriggerActionHandler {
 							}
 							if(step.mediaPath) {
 								try {
-									const url = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.mediaPath as string, subEvent, true, true);
+									const url = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.mediaPath as string, subEvent, true);
 									logStep.messages.push({date:Date.now(), value:"Update Media source url to \""+url+"\""});
 									await OBSWebsocket.instance.setMediaSourceURL(sourceName, url);
 								}catch(error) {
@@ -1750,7 +1750,7 @@ export default class TriggerActionHandler {
 							}
 
 							if(step.screenshotImgMode == "save") {
-								const path = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.screenshotImgSavePath || "", subEvent, true, true);
+								const path = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.screenshotImgSavePath || "", subEvent, true);
 								if(!path) {
 									logStep.messages.push({date:Date.now(), value:"❌ Cannot save screenshot, File Path information is missing."});
 									log.error = true;
@@ -1807,7 +1807,7 @@ export default class TriggerActionHandler {
 				//Handle highlight action
 				if(step.type == "highlight") {
 					if(step.show) {
-						let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent, true, false, false);
+						let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent, false, false);
 						const chunks = TwitchUtils.parseMessageToChunks(text, undefined, true, message.platform, false);
 						text = TwitchUtils.messageChunksToHTML(chunks, false);
 						let user:TwitchatDataTypes.TwitchatUser|undefined = undefined;
@@ -2239,7 +2239,7 @@ export default class TriggerActionHandler {
 					let body:{[key:string]:string} = {};
 					let customBody:string = "";
 					if(step.customBody) {
-						customBody = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.customBody, subEvent, false, false, false, true);
+						customBody = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.customBody, subEvent, false, false, true);
 						if(step.sendAsBody) {
 							try {
 								body = JSON.parse(customBody);
@@ -2260,7 +2260,7 @@ export default class TriggerActionHandler {
 						try {
 							//Add protocol if missing
 							if(!/https?:\/\//gi.test(urlSrc) && !/.*:\/\/.*/gi.test(urlSrc)) urlSrc = "https://"+urlSrc;
-							urlSrc = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, urlSrc, subEvent, false);
+							urlSrc = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, urlSrc, subEvent);
 							const url = new URL(urlSrc);
 							for (const tag of step.queryParams) {
 								const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent);
@@ -2373,7 +2373,7 @@ export default class TriggerActionHandler {
 					let jsonSrc = step.payload || "{}";
 					let json:{[key:string]:number|string|boolean} = {};
 					try {
-						jsonSrc = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, jsonSrc, subEvent, false, false, false, true);
+						jsonSrc = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, jsonSrc, subEvent, false, false, true);
 						json = JSON.parse(jsonSrc);
 					}catch(error) {
 						json = {
@@ -2386,7 +2386,7 @@ export default class TriggerActionHandler {
 						logStep.error = true;
 					}
 					for (const tag of step.params) {
-						const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent, false, false, false);
+						const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent, false, false);
 						json[tag.toLowerCase()] = value;
 					}
 					try {
@@ -2442,7 +2442,7 @@ export default class TriggerActionHandler {
 							&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_CHATTERS) {
 								logStep.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.counterUserSources[c.id].toUpperCase()+"}\"..."})
 
-								const users = await this.extractUserFromPlaceholder(channel_id, step.counterUserSources[c.id], dynamicPlaceholders, actionPlaceholders, trigger, message, log);
+								const users = await this.extractUserFromPlaceholder(channel_id, step.counterUserSources[c.id], dynamicPlaceholders, actionPlaceholders, trigger, message, logStep);
 								for (let i = 0; i < users.length; i++) {
 									const user = users[i];
 									if(!c.perUser || (user && !user.temporary && !user.errored && !user.anonymous)) {
@@ -2558,14 +2558,13 @@ export default class TriggerActionHandler {
 
 				//Handle Value update trigger action
 				if(step.type == "value") {
-					const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.newValue as string, subEvent);
 					const ids = step.values;
 					let action:NonNullable<TriggerActionDataTypes.TriggerActionValueData["userAction"]>[string] = "update";
 					for (const v of StoreProxy.values.valueList) {
 						action = step.userAction? step.userAction[v.id] : "update";
 						if(ids.indexOf(v.id) > -1) {
 							if(v.enabled == false && !isPremium) {
-								const logMessage = "❌ Not premium and value \""+v.name+"\" is disabled. Not updated to: "+text;
+								const logMessage = "❌ Not premium and value \""+v.name+"\" is disabled. Not updated to: "+step.newValue;
 								logStep.messages.push({date:Date.now(), value:logMessage});
 								log.error = true;
 								logStep.error = true;
@@ -2579,10 +2578,22 @@ export default class TriggerActionHandler {
 							&& step.valueUserSources[v.id] != TriggerActionDataTypes.VALUE_EDIT_SOURCE_EVERYONE
 							&& step.valueUserSources[v.id] != TriggerActionDataTypes.VALUE_EDIT_SOURCE_CHATTERS) {
 								logStep.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.valueUserSources[v.id].toUpperCase()+"}\"..."})
-
-								const users = await this.extractUserFromPlaceholder(channel_id, step.valueUserSources[v.id], dynamicPlaceholders, actionPlaceholders, trigger, message, log);
+								
+								const users = await this.extractUserFromPlaceholder(channel_id, step.valueUserSources[v.id], dynamicPlaceholders, actionPlaceholders, trigger, message, logStep);
 								for (let i = 0; i < users.length; i++) {
 									const user = users[i];
+									const text = await this.parsePlaceholders(
+										dynamicPlaceholders,
+										actionPlaceholders,
+										trigger,
+										message,
+										step.newValue as string,
+										subEvent,
+										false,
+										true,
+										false,
+										user.id
+									);
 									if(!v.perUser || (user && !user.temporary && !user.errored && !user.anonymous)) {
 										if(action == "delete") {
 											StoreProxy.values.deleteValueEntry(v.id, user);
@@ -2608,11 +2619,34 @@ export default class TriggerActionHandler {
 							&& step.valueUserSources
 							&& step.valueUserSources[v.id]
 							&& step.valueUserSources[v.id] == TriggerActionDataTypes.VALUE_EDIT_SOURCE_EVERYONE){
-								logStep.messages.push({date:Date.now(), value:action+" all existing users, "+text});
+								logStep.messages.push({date:Date.now(), value:action+" all existing users"});
+								let hasUserSpecificPlaceholders = step.newValue.includes("{COUNTER_") || step.newValue.includes("{VALUE_");
+								let text = "";
+								if(!hasUserSpecificPlaceholders) {
+									text = await this.parsePlaceholders( dynamicPlaceholders, actionPlaceholders, trigger, message, step.newValue as string, subEvent);
+								}
 								for (const uid in v.users) {
 									if(action == "delete") {
 										StoreProxy.values.deleteValueEntry(v.id, undefined, uid);
 									}else{
+										if(hasUserSpecificPlaceholders) {
+											// If the text has user specific placeholders, we need to parse it for each user separately
+											// This allows to have different values for each user
+											// This is potentially process intensive if there is a lot of users
+											// but this is the only way to achieve this
+											text = await this.parsePlaceholders(
+												dynamicPlaceholders,
+												actionPlaceholders,
+												trigger,
+												message,
+												step.newValue as string,
+												subEvent,
+												false,
+												true,
+												false,
+												uid
+											);
+										}
 										StoreProxy.values.updateValue(v.id, text, undefined, uid, step.interpretMaths);
 									}
 								}
@@ -2623,7 +2657,12 @@ export default class TriggerActionHandler {
 							&& step.valueUserSources
 							&& step.valueUserSources[v.id]
 							&& step.valueUserSources[v.id] == TriggerActionDataTypes.VALUE_EDIT_SOURCE_CHATTERS){
-								logStep.messages.push({date:Date.now(), value:action+" all chatters, "+text});
+								logStep.messages.push({date:Date.now(), value:action+" all chatters"});
+								let hasUserSpecificPlaceholders = step.newValue.includes("{COUNTER_") || step.newValue.includes("{VALUE_");
+								let text = "";
+								if(!hasUserSpecificPlaceholders) {
+									text = await this.parsePlaceholders( dynamicPlaceholders, actionPlaceholders, trigger, message, step.newValue as string, subEvent);
+								}
 								const list = StoreProxy.users.users
 								for (let i = 0; i < list.length; i++) {
 									const user = list[i];
@@ -2634,6 +2673,24 @@ export default class TriggerActionHandler {
 										if(action == "delete") {
 											StoreProxy.values.deleteValueEntry(v.id, undefined, user.id);
 										}else{
+											if(hasUserSpecificPlaceholders) {
+												// If the text has user specific placeholders, we need to parse it for each user separately
+												// This allows to have different values for each user
+												// This is potentially process intensive if there is a lot of users
+												// but this is the only way to achieve this
+												text = await this.parsePlaceholders(
+													dynamicPlaceholders,
+													actionPlaceholders,
+													trigger,
+													message,
+													step.newValue as string,
+													subEvent,
+													false,
+													true,
+													false,
+													user.id
+												);
+											}
 											StoreProxy.values.updateValue(v.id, text, undefined, user.id, step.interpretMaths);
 										}
 									}
@@ -2642,6 +2699,18 @@ export default class TriggerActionHandler {
 							//Standard value edition (either current user or a non-per-user value)
 							}else {
 								const user = v.perUser? this.extractUserFromTrigger(trigger, message) : undefined;
+								const text = await this.parsePlaceholders(
+									dynamicPlaceholders,
+									actionPlaceholders,
+									trigger,
+									message,
+									step.newValue as string,
+									subEvent,
+									false,
+									true,
+									false,
+									user?.id
+								);
 								if(!v.perUser || (user && !user.temporary && !user.errored && !user.anonymous)) {
 									if(action == "delete") {
 										StoreProxy.values.deleteValueEntry(v.id, user);
@@ -3088,7 +3157,7 @@ export default class TriggerActionHandler {
 								//The step is requesting to confirm on chat when a track has been added
 								if(step.confirmMessage) {
 									const confirmPH = TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE);
-									const chatMessage = await this.parsePlaceholders(dynamicPlaceholders, confirmPH, trigger, trackAddedMesssageData, step.confirmMessage, subEvent, false);
+									const chatMessage = await this.parsePlaceholders(dynamicPlaceholders, confirmPH, trigger, trackAddedMesssageData, step.confirmMessage, subEvent);
 									if(!await MessengerProxy.instance.sendMessage(chatMessage)) {
 										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] following message was not sent: "+chatMessage});
 									}
@@ -3098,7 +3167,7 @@ export default class TriggerActionHandler {
 								//The step is requesting to send message if track failed to be added
 								if(step.failMessage) {
 									const confirmPH = TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE);
-									let chatMessage = await this.parsePlaceholders(dynamicPlaceholders, confirmPH, trigger, trackAddedMesssageData, step.failMessage, subEvent, false);
+									let chatMessage = await this.parsePlaceholders(dynamicPlaceholders, confirmPH, trigger, trackAddedMesssageData, step.failMessage, subEvent);
 									chatMessage = chatMessage.replace(/\{FAIL_REASON\}/gi, failReason);
 									if(!await MessengerProxy.instance.sendMessage(chatMessage)) {
 										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] following message was not sent: "+chatMessage});
@@ -3180,7 +3249,7 @@ export default class TriggerActionHandler {
 							return {id:uid, platform:badges[uid].length > 0? badges[uid][0].platform : null};
 						}).filter(v=>v.platform != null);
 					}else{
-						users = await this.extractUserFromPlaceholder(channel_id, step.customBadgeUserSource, dynamicPlaceholders, actionPlaceholders, trigger, message, log);
+						users = await this.extractUserFromPlaceholder(channel_id, step.customBadgeUserSource, dynamicPlaceholders, actionPlaceholders, trigger, message, logStep);
 					}
 					if(users) {
 						for (let i = 0; i < users.length; i++) {
@@ -3238,7 +3307,7 @@ export default class TriggerActionHandler {
 							logStep.messages.push({date:Date.now(), value:"❌ There is currently no existing entry to edit"});
 						}
 					}else{
-						users = await this.extractUserFromPlaceholder(channel_id, step.customUsernameUserSource, dynamicPlaceholders, actionPlaceholders, trigger, message, log);
+						users = await this.extractUserFromPlaceholder(channel_id, step.customUsernameUserSource, dynamicPlaceholders, actionPlaceholders, trigger, message, logStep);
 					}
 
 					for (let i = 0; i < users.length; i++) {
@@ -3507,7 +3576,7 @@ export default class TriggerActionHandler {
 				//Handle Discord action
 				if(step.type == "discord") {
 					logStep.messages.push({date:Date.now(), value:"Execute discord action \""+step.discordAction.action+"\""});
-					const messageText = (await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.discordAction.message, subEvent, false, false, false)).trim();
+					const messageText = (await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.discordAction.message, subEvent, false, false)).trim();
 					logStep.messages.push({date:Date.now(), value:"Sending message: "+messageText});
 					if(messageText.length > 0) {
 						try {
@@ -3776,7 +3845,7 @@ export default class TriggerActionHandler {
 
 					}else if(step.animatedTextData.action == "show"){
 						const autohide = step.animatedTextData.autoHide === true;
-						const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.animatedTextData.text, subEvent, false, false, false);
+						const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.animatedTextData.text, subEvent, false, false);
 						logStep.messages.push({date:Date.now(), value:"Show animated text: "+ text});
 						logStep.messages.push({date:Date.now(), value:"Auto hide? "+ autohide});
 						const promise = StoreProxy.animatedText.animateText(overlay.id, text, autohide);
@@ -3894,7 +3963,16 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	public async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholders:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, sanitizeFolderPath:boolean = false, removeHTMLtags:boolean = true, escapeDoubleQuotes:boolean = false):Promise<string> {
+	public async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number},
+	actionPlaceholders:ITriggerPlaceholder<any>[],
+	trigger:TriggerData,
+	message:TwitchatDataTypes.ChatMessageTypes,
+	src:string,
+	subEvent?:string|null,
+	sanitizeFolderPath:boolean = false,
+	removeHTMLtags:boolean = true,
+	escapeDoubleQuotes:boolean = false,
+	userIdForValueCounterGetters?:string):Promise<string> {
 		let res = src.toString();
 		if(!res) return "";
 		//If there are no placeholder, ignore
@@ -4122,9 +4200,12 @@ export default class TriggerActionHandler {
 							}else
 							if(counter.perUser === true) {
 								//If it's a per-user counter, get the user's value
-								const user = this.extractUserFromTrigger(trigger, message);
-								if(user && counter.users && counter.users[user.id]) {
-									value = counter.users[user.id].value.toString();
+								if(!userIdForValueCounterGetters) {
+									const user = this.extractUserFromTrigger(trigger, message);
+									if(user && user.id) userIdForValueCounterGetters = user.id;
+								}
+								if(userIdForValueCounterGetters && counter.users && counter.users[userIdForValueCounterGetters]) {
+									value = counter.users[userIdForValueCounterGetters].value.toString();
 								}else{
 									value = "0";
 								}
@@ -4146,9 +4227,12 @@ export default class TriggerActionHandler {
 							}else
 							if(valueEntry.perUser === true) {
 								//If it's a per-user counter, get the user's value
-								const user = this.extractUserFromTrigger(trigger, message);
-								if(user && valueEntry.users && valueEntry.users[user.id]) {
-									value = valueEntry.users[user.id].value.toString();
+								if(!userIdForValueCounterGetters) {
+									const user = this.extractUserFromTrigger(trigger, message);
+									if(user && user.id) userIdForValueCounterGetters = user.id;
+								}
+								if(userIdForValueCounterGetters && valueEntry.users && valueEntry.users[userIdForValueCounterGetters]) {
+									value = valueEntry.users[userIdForValueCounterGetters].value.toString();
 								}else{
 									value = "";
 								}
@@ -4293,11 +4377,6 @@ export default class TriggerActionHandler {
 				res = res.replace(new RegExp("\\{"+placeholder.tag+"\\}", "gi"), value ?? "");
 			}
 
-			// Disabled for now, not sure if I want to keep it. It's theoretically not useful
-			// if(removeRemainingTags) {
-			// 	res = res.replace(/\{[a-z0-9_-]+\}/gi, "");
-			// }
-
 			// console.log("RESULT = ",res);
 			return removeHTMLtags? Utils.stripHTMLTags(res) : res;
 
@@ -4334,7 +4413,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Converts a placeholder to a user by search a user from their display name
 	 */
-	private async extractUserFromPlaceholder(channel_id:string, placeholder:string, dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholders:TriggerActionDataTypes.ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:Omit<LogTrigger, "date">):Promise<TwitchatDataTypes.TwitchatUser[]> {
+	private async extractUserFromPlaceholder(channel_id:string, placeholder:string, dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholders:TriggerActionDataTypes.ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:Omit<LogTriggerStep, "date">):Promise<TwitchatDataTypes.TwitchatUser[]> {
 		const displayName = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+placeholder.toUpperCase()+"}");
 
 		//Not ideal but if there are multiple users they're concatenated in
@@ -4354,11 +4433,11 @@ export default class TriggerActionHandler {
 				StoreProxy.users.getUserFrom(platform, channel_id, undefined, undefined, displayName.trim(), (userData)=>{
 					let user:TwitchatDataTypes.TwitchatUser|undefined;
 					if(userData.errored || userData.temporary) {
-						log.entries.push({date:Date.now(), type:"message", value:"❌ Custom user loading failed!"});
+						log.messages.push({date:Date.now(), value:"❌ Custom user loading failed!"});
 						user = undefined;
 					}else{
 						user = userData;
-						log.entries.push({date:Date.now(), type:"message", value:"✔ Custom user loading complete: "+user.displayName+"(#"+user.id+")"});
+						log.messages.push({date:Date.now(), value:"✔ Custom user loading complete: "+user.displayName+"(#"+user.id+")"});
 					}
 					resolve(user);
 				}, undefined, undefined, undefined, false);
