@@ -1,5 +1,5 @@
 import DataStore from '@/store/DataStore';
-import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerTypes, VALUE_PLACEHOLDER_PREFIX, type TriggerActionTypes, type TriggerData, type TriggerTreeItemData } from '@/types/TriggerActionDataTypes';
+import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerTypes, VALUE_PLACEHOLDER_PREFIX, type TriggerActionTypes, type TriggerData, type TriggerTreeItemData, type TriggerExportData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import SchedulerHelper from '@/utils/SchedulerHelper';
@@ -26,6 +26,8 @@ export const storeTriggers = defineStore('triggers', {
 		triggerTree: [],
 		currentEditTriggerData: null,
 		triggerIdToFolderEnabled: {},
+		selectedTriggerIDs: [],
+		exportingSelectedTriggers: false,
 	} as ITriggersState),
 
 
@@ -404,6 +406,29 @@ export const storeTriggers = defineStore('triggers', {
 			}
 
 			parseItem(this.triggerTree);
+		},
+
+		setTriggerSelectState(trigger:TriggerData, selected:boolean) {
+			if(selected) {
+				if(!this.selectedTriggerIDs.find(v=> v == trigger.id)) {
+					this.selectedTriggerIDs.push(trigger.id);
+				}
+			}else{
+				this.selectedTriggerIDs = this.selectedTriggerIDs.filter(v=> v != trigger.id);
+			}
+		},
+
+		async exportSelectedTriggers(exportName:string, data:TriggerExportData):Promise<void> {
+			if(this.selectedTriggerIDs.length == 0) return Promise.resolve();
+			this.exportingSelectedTriggers = true;
+			try {
+				await ApiHelper.call("admin/triggersPreset", "POST", {name:exportName, data});
+			} catch (error) {
+				console.error("Error exporting triggers:", error);
+				StoreProxy.common.alert("Failed to export triggers");
+			}
+			await Utils.promisedTimeout(250);
+			this.exportingSelectedTriggers = false;
 		}
 
 	} as ITriggersActions

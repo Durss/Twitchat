@@ -3,6 +3,10 @@
 	:class="{disabled:triggerTypeDef?.disabled === true}"
 	@mouseenter="over=true" @mouseleave="over=false"
 	v-newflag="{date:(entryData.trigger.created_at || 0), duration:2 * 60000, id:'trigger_'+entryData.trigger.id}">
+		<Checkbox v-if="$store.auth.isAdmin" class="selectCb" small
+		@change="(value:boolean) => $store.triggers.setTriggerSelectState(entryData.trigger, value)"
+		></Checkbox>
+
 		<button class="button"
 		@click="$emit('select', entryData.trigger)"
 		v-tooltip="{content:tooltipText,placement:'left',theme:triggerTypeDef?.disabled? 'alert' : 'twitchat'}">
@@ -53,9 +57,11 @@ import { TriggerSubTypeLabel, TriggerTypesDefinitionList, type TriggerTypeDefini
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import type { TriggerListEntry } from "./TriggerList.vue";
 import TriggerUtils from '@/utils/TriggerUtils';
+import Checkbox from '@/components/Checkbox.vue';
 
 @Component({
 	components:{
+		Checkbox,
 		ToggleButton,
 	},
 	emits:["changeState", "delete", "testTrigger", "select", "duplicate"],
@@ -119,6 +125,9 @@ export default toNative(TriggerListItem);
 		display: flex;
 		align-items: flex-start;
 		flex-direction: column;
+	}
+	.selectCb {
+		margin: auto .25em;
 	}
 
 	.button {

@@ -1,7 +1,7 @@
 <template>
 	<TTButton icon="merge" v-if="actionContext !== false && !expanded" class="collapsed" @click="expand"></TTButton>
 
-	<div v-else class="triggerconditionlist">
+	<div v-else class="triggerconditionlist" data-noselect>
 		<div v-if="actionContext === false">{{ $t("triggers.condition.title") }}</div>
 
 		<TTButton v-if="!conditions || conditions.conditions.length == 0"

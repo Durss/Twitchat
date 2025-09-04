@@ -53,6 +53,7 @@
 						class="action orderBt"
 						v-if="noHeaderOptions === false && readonly === false"
 						v-tooltip="$t('triggers.reorder_tt')"
+						data-noselect
 						@click.stop
 						/>
 					<ToggleButton v-model="action.enabled" v-if="noHeaderOptions === false && readonly === false" @click.stop small />
