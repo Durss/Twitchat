@@ -155,7 +155,7 @@ export const storeTriggers = defineStore('triggers', {
 			// Unpin from pinned menu items if necessary
 			for(let i = 0; i < StoreProxy.params.pinnedMenuItems.length; i++) {
 				if(StoreProxy.params.pinnedMenuItems[i] == `trigger:${id}`) {
-					StoreProxy.params.pinnedMenuItems.splice(i, 1);
+					StoreProxy.params.toggleChatMenuPin(`trigger:${id}`);
 					i--;
 				}
 			}

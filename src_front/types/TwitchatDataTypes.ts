@@ -2619,8 +2619,9 @@ export namespace TwitchatDataTypes {
 
 	/**
 	 * Defines the pinnable menu items
+	 * 
+	 * Allow PinId to be one of the fixed strings or a pattern like "trigger:TRIGGER_ID"
 	 */
-	// Allow PinId to be one of the fixed strings or a pattern like "trigger:TRIGGER_ID"
 	type PinId =
 		| "poll"
 		| "chatPoll"

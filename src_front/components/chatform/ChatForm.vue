@@ -519,33 +519,6 @@ export class ChatForm extends Vue {
 		}
 	}
 
-	public getPinnedMenuItemFromId(id:typeof TwitchatDataTypes.PinnableMenuItems[number]["id"]):typeof TwitchatDataTypes.PinnableMenuItems[number] {
-		if(id.indexOf("trigger:") === 0) {
-			const trigger = this.$store.triggers.triggerList.find(trigger=>trigger.id == id.replace("trigger:",""));
-			if(!trigger) {
-				return {
-					id,
-					icon: "broadcast",
-					labelKey: "chat.form.trigger_menu_item",
-					isModal: false,
-					modalId: "",
-					modelValueName: "",
-				};
-			}
-			const triggerInfo = TriggerUtils.getTriggerDisplayInfo(trigger);
-			return {
-				id,
-				icon: "broadcast",
-				labelKey: triggerInfo.labelKey || "",
-				label: triggerInfo.label,
-				isModal: false,
-				modalId: "",
-				modelValueName: "",
-			};
-		}
-		return TwitchatDataTypes.PinnableMenuItems.find(v=>v.id == id)!;
-	}
-
 	public getMenuItemEnabled(item:typeof TwitchatDataTypes.PinnableMenuItems[number]) {
 		if(item.id == "rewards" || item.id == "poll" || item.id == 'prediction') {
 			return this.hasChannelPoints;
@@ -1382,6 +1355,28 @@ export class ChatForm extends Vue {
 			if(u.is_tracked) res.push(u);
 		}
 		this.trackedUserCount = res.length;
+	}
+
+	private getPinnedMenuItemFromId(id:typeof TwitchatDataTypes.PinnableMenuItems[number]["id"]):typeof TwitchatDataTypes.PinnableMenuItems[number]|null {
+		if(id.indexOf("trigger:") === 0) {
+			const trigger = this.$store.triggers.triggerList.find(trigger=>trigger.id == id.replace("trigger:",""));
+			if(!trigger) {
+				// Trigger not found, remove from pinned items
+				this.$store.params.toggleChatMenuPin(id);
+				return null
+			}
+			const triggerInfo = TriggerUtils.getTriggerDisplayInfo(trigger);
+			return {
+				id,
+				icon: "broadcast",
+				labelKey: triggerInfo.labelKey || "",
+				label: triggerInfo.label,
+				isModal: false,
+				modalId: "",
+				modelValueName: "",
+			};
+		}
+		return TwitchatDataTypes.PinnableMenuItems.find(v=>v.id == id)!;
 	}
 
 }
