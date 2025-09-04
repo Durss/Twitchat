@@ -558,7 +558,7 @@
 	"Name": "Twitchat",
 	"Icon": "icons/pluginIcon",
 	"URL": "https://twitchat.fr",
-	"Version": "2.8.2.0",
+	"Version": "2.8.3.0",
 	"UUID": "fr.twitchat",
 	"OS": [
 		{

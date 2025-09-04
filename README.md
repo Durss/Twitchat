@@ -330,8 +330,13 @@ This will output this JSON file:
 <br>
 
 # Package Stream Deck™ plugin
-Run the following command:
+Run the following command from the "streamdeck_plugin" folder:
 ```
-npm run streamdeck_package
+streamdeck pack .\fr.twitchat.sdPlugin\ -f
 ```
-The compiled plugin will be there `streamdeck_plugin/fr.twitchat.streamDeckPlugin`.
+The compiled plugin will be there `streamdeck_plugin/fr.twitchat.streamDeckPlugin`.  
+\
+Eventually make sure everyting's ok first with this:
+```
+streamdeck validate .\fr.twitchat.sdPlugin\
+```

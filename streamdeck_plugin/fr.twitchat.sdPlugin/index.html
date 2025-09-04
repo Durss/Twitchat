@@ -236,6 +236,7 @@
 				settingsCache.OBSWS_PASS = e.payload.settings.OBSWS_PASS;
 				settingsCache.OBSWS_PORT = e.payload.settings.OBSWS_PORT;
 				settingsCache.OBSWS_IP = e.payload.settings.OBSWS_IP;
+				settingsCache.OBSWS_CONNECTED = false;
 				obsConnect();
 			});
 
@@ -277,6 +278,7 @@
 						settingsCache.OBSWS_PASS = payload.OBSW_DO_CONNECT.pass;
 						settingsCache.OBSWS_PORT = payload.OBSW_DO_CONNECT.port;
 						settingsCache.OBSWS_IP = payload.OBSW_DO_CONNECT.ip;
+						settingsCache.OBSWS_CONNECTED = false;
 						actions.SetGlobalSettings(settingsCache);
 						obsConnect();
 					}
@@ -297,17 +299,21 @@
 			if(!settingsCache.OBSWS_PORT) return;
 			if(connecting || settingsCache.OBSWS_CONNECTED === true) return;
 			connecting = true;//Avoid double websocketOBS.connect() calls that messes up obs-ws
+			clearTimeout(reconnectTimeout);
 			try {
 				const ip = settingsCache.OBSWS_IP? settingsCache.OBSWS_IP : "127.0.0.1";
 				websocketOBS.connect("ws://"+ip+":"+settingsCache.OBSWS_PORT, settingsCache.OBSWS_PASS, {rpcVersion:1})
 				.then(()=> {
+					console.log("✅ Connected to OBS");
 					connecting = false;
 					const changed = settingsCache.OBSWS_CONNECTED != true;
 					settingsCache.OBSWS_CONNECTED = true;
+					console.log("Braodcast state change to PI?", changed)
 					//If state has changed, tell the property inspector
 					if(changed) actions.SetGlobalSettings(settingsCache);
 				});
 			}catch(error) {
+				console.log("❌ Failed to connect to OBS");
 				connecting = false;
 				clearTimeout(reconnectTimeout);
 				reconnectTimeout = setTimeout(()=> {
@@ -321,6 +327,7 @@
 
 				//Listen for socket connection close to auto reconnect
 				websocketOBS.addListener("ConnectionClosed", (e)=> {
+					console.log("❌ Disconnected from OBS", e);
 					connecting = false;
 					const changed = settingsCache.OBSWS_CONNECTED == true;
 					settingsCache.OBSWS_CONNECTED = false;
@@ -333,7 +340,6 @@
 				});
 
 				//Listen for Twitchat events.
-				console.log("Listening for Twitchat events");
 				websocketOBS.on("CustomEvent", (e) => {
 					if(e.type == undefined) return;
 					if(e.origin != "twitchat") return;
