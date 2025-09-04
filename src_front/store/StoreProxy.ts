@@ -2,7 +2,7 @@ import type HeatEvent from "@/events/HeatEvent";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import type { HeatScreen } from "@/types/HeatDataTypes";
 import type { LabelItemData, LabelItemPlaceholder, LabelItemPlaceholderList } from "@/types/ILabelOverlayData";
-import type { IHttpPlaceholder, TriggerActionCountDataAction, TriggerActionHTTPCallData, TriggerActionPlayabilityData, TriggerActionTypes, TriggerCallStack, TriggerData, TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
+import type { IHttpPlaceholder, TriggerActionCountDataAction, TriggerActionHTTPCallData, TriggerActionPlayabilityData, TriggerActionTypes, TriggerCallStack, TriggerData, TriggerExportData, TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/types/spotify/SpotifyDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
@@ -1649,6 +1649,16 @@ export interface ITriggersState {
 	 * this value will be set to false
 	 */
 	triggerIdToFolderEnabled:{[key:string]:boolean}
+	/**
+	 * Selected trigger items in the trigger list
+	 * Used for easy export of sharable presets
+	 * Only admin is allowed to use this.
+	 */
+	selectedTriggerIDs:string[];
+	/**
+	 * True when exporting selected triggers
+	 */
+	exportingSelectedTriggers:boolean;
 }
 
 export interface ITriggersGetters {
@@ -1744,6 +1754,16 @@ export interface ITriggersActions {
 	 * trigger will be flagged as disabled
 	 */
 	computeTriggerTreeEnabledStates():void;
+	/**
+	 * Set the selected state of a trigger
+	 * @param trigger 
+	 * @param selected 
+	 */
+	setTriggerSelectState(trigger:TriggerData, selected:boolean):void
+	/**
+	 * Export the selected triggers to a sharable preset file
+	 */
+	exportSelectedTriggers(exportName:string, data:TriggerExportData):Promise<void>
 }
 
 

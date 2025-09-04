@@ -33,10 +33,12 @@ export default class AdminController extends AbstractController {
 	public async initialize():Promise<void> {
 		this.server.get('/api/beta/user', async (request, response) => await this.getUser(request, response));
 		this.server.get('/api/beta/user/hasData', async (request, response) => await this.getUserHasData(request, response));
+		this.server.get('/api/triggersPreset', async (request, response) => await this.getTriggersPresets(request, response));
 		this.server.post('/api/beta/user/migrateToProduction', async (request, response) => await this.migrateUser(request, response));
 		this.server.post('/api/admin/beta/user', async (request, response) => await this.addUser(request, response));
 		this.server.post('/api/admin/beta/user/migrateToProduction', async (request, response) => await this.migrateUserAdmin(request, response));
 		this.server.post('/api/admin/premium', async (request, response) => await this.postPremium(request, response));
+		this.server.post('/api/admin/triggersPreset', async (request, response) => await this.postTriggersPresets(request, response));
 		this.server.delete('/api/admin/premium', async (request, response) => await this.deletePremium(request, response));
 		this.server.delete('/api/admin/beta/user', async (request, response) => await this.delUser(request, response));
 		this.server.delete('/api/admin/beta/user/all', async (request, response) => await this.removeAllUsers(request, response));
@@ -226,6 +228,60 @@ export default class AdminController extends AbstractController {
 
 		const params:any = request.body;
 		super.giftPremium(params.uid);
+
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send(JSON.stringify({success:true}));
+	}
+
+	/**
+	 * Get a trigger presets
+	 */
+	private async getTriggersPresets(request:FastifyRequest, response:FastifyReply) {
+		if(!await this.twitchUserGuard(request, response)) return;
+
+		const params:any = request.query;
+		if(!params.name || typeof params.name !== "string" || params.name.trim().length === 0) {
+			response.header('Content-Type', 'application/json');
+			response.status(400);
+			response.send(JSON.stringify({success:false, error:"Invalid name or data", errorCode:"INVALID_NAME_OR_DATA"}));
+			return;
+		}
+		
+		const folder = Config.TRIGGER_PRESETS_FOLDER;
+		if(!fs.existsSync(folder)) {
+			fs.mkdirSync(folder, { recursive: true });
+		}
+
+		const filePath = path.join(folder, params.name.toLowerCase()+".json")
+		const json = fs.readFileSync(filePath, "utf8");
+
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send(JSON.stringify({success:true, data:JSON.parse(json)}));
+	}
+
+	/**
+	 * Creates trigger presets
+	 */
+	private async postTriggersPresets(request:FastifyRequest, response:FastifyReply) {
+		if(!await this.adminGuard(request, response)) return;
+
+		const params:any = request.body;
+		if(!params.name || typeof params.name !== "string" || params.name.trim().length === 0
+		|| !params.data || !Array.isArray(params.data.triggers) || !Array.isArray(params.data.params)) {
+			response.header('Content-Type', 'application/json');
+			response.status(400);
+			response.send(JSON.stringify({success:false, error:"Invalid name or data", errorCode:"INVALID_NAME_OR_DATA"}));
+			return;
+		}
+		
+		const folder = Config.TRIGGER_PRESETS_FOLDER;
+		if(!fs.existsSync(folder)) {
+			fs.mkdirSync(folder, { recursive: true });
+		}
+
+		fs.writeFileSync(path.join(folder, params.name.toLowerCase()+".json"), JSON.stringify(params.data), "utf8");
 
 		response.header('Content-Type', 'application/json');
 		response.status(200);

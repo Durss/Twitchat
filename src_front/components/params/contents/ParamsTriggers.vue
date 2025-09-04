@@ -11,7 +11,6 @@
 			</i18n-t>
 		</div>
 
-
 		<div class="card-item" v-if="noTrigger">{{ $t("triggers.usage") }}</div>
 
 		<div class="ctas" v-if="showForm || currentTriggerData">
@@ -69,6 +68,8 @@
 			<div class="card-item premium premiumLimit" v-else>
 				<span>{{$t("triggers.premium_limit", {MAX:$config.MAX_TRIGGERS_PREMIUM})}}</span>
 			</div>
+
+			<TriggerExportForm v-if="$store.triggers.selectedTriggerIDs.length > 0 && $store.main.devmode" />
 		</template>
 
 		<TriggerCreateForm
@@ -112,12 +113,12 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
 import type IParameterContent from './IParameterContent';
 import TriggerActionList from './triggers/TriggerActionList.vue';
 import TriggerCreateForm from './triggers/TriggerCreateForm.vue';
+import TriggerExportForm from './triggers/TriggerExportForm.vue';
 import TriggerList from './triggers/TriggerList.vue';
-import staticEmotes from '@/utils/twitch/staticEmoteList.json';
 
 @Component({
 	components:{
@@ -125,6 +126,7 @@ import staticEmotes from '@/utils/twitch/staticEmoteList.json';
 		TriggerList,
 		TriggerActionList,
 		TriggerCreateForm,
+		TriggerExportForm,
 	},
 	emits:[],
 })
@@ -763,6 +765,10 @@ export default toNative(ParamsTriggers);
 		justify-content: center;
 		margin-top: .5em;
 		flex-wrap: wrap;
+	}
+
+	.exportForm {
+		margin: auto;
 	}
 }
 </style>

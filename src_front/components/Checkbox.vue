@@ -17,7 +17,7 @@ import Icon from './Icon.vue';
 	components:{
 		Icon,
 	},
-	emits:["update:modelValue"],
+	emits:["update:modelValue", "change"],
 })
 class Checkbox extends Vue {
 
@@ -56,6 +56,7 @@ class Checkbox extends Vue {
 
 	public onChange():void {
 		this.$emit("update:modelValue", this.checked? this.values[0] : this.values[1]);
+		this.$emit("change", this.checked? this.values[0] : this.values[1]);
 	}
 
 }

@@ -9,6 +9,7 @@ import type { ServerConfig } from "./Config";
 import Config from "./Config";
 import Utils from "./Utils";
 import type { IPatreonMember, IPatreonTier } from "@/store/patreon/storePatreon";
+import type { TriggerData, TriggerExportData } from "@/types/TriggerActionDataTypes";
 
 /**
 * Created : 13/07/2023
@@ -276,6 +277,69 @@ type ApiEndpoints =  {
 			};
 		};
 	};
+	"admin/labels": {
+		POST: {
+			parameters: {
+				section:string;
+				lang:string;
+				labels:unknown;
+			};
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		}
+	};
+	"admin/premium": {
+		POST: {
+			parameters: {
+				uid:string;
+			};
+			response:{
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		},
+
+		DELETE: {
+			parameters: {
+				uid:string;
+			};
+			response:{
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		}
+	};
+	"admin/triggersPreset": {
+		POST: {
+			parameters: {
+				name:string;
+				data:TriggerExportData;
+			};
+			response:{
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		},
+	};
+	"triggersPreset": {
+		GET: {
+			parameters: {
+				name:string;
+			};
+			response:{
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+				data:TriggerExportData;
+			}
+		},
+	}
 	"user/donor/all": {
 		GET: {
 			parameters: void;
@@ -585,20 +649,6 @@ type ApiEndpoints =  {
 				error?:string;
 				errorCode?:string;
 				data:{token?:YoutubeAuthToken};
-			}
-		}
-	};
-	"admin/labels": {
-		POST: {
-			parameters: {
-				section:string;
-				lang:string;
-				labels:unknown;
-			};
-			response: {
-				success:boolean;
-				error?:string;
-				errorCode?:string;
 			}
 		}
 	};
@@ -1005,29 +1055,6 @@ type ApiEndpoints =  {
 			parameters: {
 				log:unknown;
 					cat:"streamlabs"|"hypetrain"|"tiltify"|"kofi"|"patreon"|"random"|"eventsub"|"youtube";
-			};
-			response:{
-				success:boolean;
-				error?:string;
-				errorCode?:string;
-			}
-		}
-	};
-	"admin/premium": {
-		POST: {
-			parameters: {
-				uid:string;
-			};
-			response:{
-				success:boolean;
-				error?:string;
-				errorCode?:string;
-			}
-		},
-
-		DELETE: {
-			parameters: {
-				uid:string;
 			};
 			response:{
 				success:boolean;

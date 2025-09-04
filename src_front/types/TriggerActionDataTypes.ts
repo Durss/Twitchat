@@ -1521,6 +1521,19 @@ export interface TriggerTreeItemData{
 	children?:TriggerTreeItemData[];
 }
 
+/**
+ * Contains exportable trigger data
+ */
+export interface TriggerExportData {
+	triggers:TriggerData[];
+	version:number;
+	params:{
+		key:string;
+		description:string;
+		valueType:"string"|"number"|"boolean";
+	}[]
+}
+
 export const ANY_OBS_SCENE = "any_obs_scene";
 export const ANY_COUNTER = "any_counter";
 export const ANY_VALUE = "any_value";

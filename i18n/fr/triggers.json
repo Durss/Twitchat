@@ -1806,6 +1806,9 @@
 			"NO_ACTION": "Selectionnez une action...",
 			"REGULAR_REPEAT": "Répéter régulièrement",
 			"SPECIFIC_DATES": "Dates specifiques"
+		},
+		"importer": {
+			"title": "Importer des données"
 		}
 	}
 }

@@ -163,6 +163,14 @@ export default class Config {
 		});
 	}
 
+	public static get TRIGGER_PRESETS_FOLDER(): string {
+		return this.getEnvData({
+			dev: path.join(this.DATA_ROOT, "/triggers/"),
+			beta: path.join(this.DATA_ROOT, "/triggers/"),
+			prod: path.join(this.DATA_ROOT, "/triggers/"),
+		});
+	}
+
 	public static LOGS_PATH(category:typeof Utils.allowedLogCategories[number]): string {
 		return this.getEnvData({
 			dev: path.join(this.LOGS_FOLDER, "/"+category+".json"),
