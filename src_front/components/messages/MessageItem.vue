@@ -315,6 +315,7 @@ export default toNative(MessageItem);
 	}
 	.message {
 		width: 100%;
+		position: relative;
 	}
 }
 </style>
