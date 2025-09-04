@@ -86,10 +86,12 @@ export const storeTimer = defineStore('timer', {
 			// that were missing the required labels. This fixes it.
 			// TODO: remove this in the future (added 30/08/25)
 			this.timerList.forEach(v=> {
-				if(v.title == "timers.default_countdown_title") {
+				if(v.title == "timers.default_countdown_title"
+				|| v.title == "timers.default.countdown_title") {
 					v.title = StoreProxy.i18n.t("timers.default_countdown_title");
 				}
-				if(v.title == "timers.default_timer_title") {
+				if(v.title == "timers.default_timer_title"
+				|| v.title == "timers.default.timer_title") {
 					v.title = StoreProxy.i18n.t("timers.default_timer_title");
 				}
 			})
