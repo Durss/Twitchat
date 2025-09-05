@@ -1,33 +1,48 @@
 <template>
 	<div class="triggerexportform card-item">
 		<p><Icon name="share" class="icon" />Make selected triggers sharable</p>
-		<div class="paramList">
-			<div v-for="(param, index) in paramList" :key="index" class="paramItem">
-				<div class="head">
-					<span class="label">{{ param.valueType }}</span>
-					<TTButton icon="trash" @click="removeParam(index)" transparent />
-				</div>
-				<input type="text" v-model="param.key" placeholder="param key" />
-				<input type="text" v-model="param.description" placeholder="param description" />
-			</div>
-		</div>
-		<div class="paramForm">
-			<select v-model="paramType">
-				<option value="string">string</option>
-				<option value="number">number</option>
-				<option value="boolean">boolean</option>
-			</select>
-			<TTButton icon="add" @click="addParam">Add param</TTButton>
-		</div>
 		<form @submit.prevent="submit">
-			<input type="text" placeholder="export name" v-model="exportName" required />
-			<TTButton small icon="checkmark" type="submit" :loading="$store.triggers.exportingSelectedTriggers" />
+			<input type="text" placeholder="export name" v-model="exportName" required maxlength="20" />
+
+			<textarea rows="3" v-model="description" placeholder="Enter a description of the imported data" maxlength="1000"></textarea>
+
+			<div class="paramList">
+				<div v-for="(param, index) in paramList" :key="index" class="paramItem">
+					<div class="head">
+						<span class="label">{{ param.valueType }}</span>
+						<TTButton icon="trash" @click="removeParam(index)" transparent />
+					</div>
+					<input type="text" v-model="param.key" placeholder="param key" />
+					<input type="text" v-model="param.description" placeholder="param description" />
+				</div>
+			</div>
+
+			<div class="paramForm">
+				<select v-model="paramType">
+					<option value="string">string</option>
+					<option value="number">number</option>
+					<option value="boolean">boolean</option>
+					<option value="list">list</option>
+				</select>
+				<TTButton icon="add" small @click="addParam">Add param</TTButton>
+			</div>
+
+			<div class="autoDeleteToggle">
+				<label for="autoDeleteToggle">Auto delete settings</label> <ToggleButton inputId="autoDeleteToggle" v-model="autoDelete" />
+			</div>
+
+			<div class="autoDeleteValue" v-if="autoDelete">
+				Auto delete at <input type="datetime-local" v-model="autoDeleteDate" />
+			</div>
+			
+			<TTButton class="submitBt" small icon="checkmark" type="submit" :loading="$store.triggers.exportingSelectedTriggers">Create</TTButton>
 		</form>
 	</div>
 </template>
 
 <script lang="ts">
 import Icon from '@/components/Icon.vue';
+import ToggleButton from '@/components/ToggleButton.vue';
 import TTButton from '@/components/TTButton.vue';
 import type { TriggerData, TriggerExportData } from '@/types/TriggerActionDataTypes';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
@@ -36,12 +51,16 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 	components:{
 		Icon,
 		TTButton,
+		ToggleButton,
 	},
 	emits:[],
 })
 class TriggerExportForm extends Vue {
 
+	public description:string = "";
 	public exportName:string = "";
+	public autoDelete:boolean = false;
+	public autoDeleteDate:string = "";
 	public paramType:TriggerExportData["params"][number]["valueType"] = "string";
 	public paramList:TriggerExportData["params"][number][] = [];
 
@@ -53,11 +72,17 @@ class TriggerExportForm extends Vue {
 				triggers.push(t);
 			}
 		});
-		const data:TriggerExportData = {
+		const data:Omit<TriggerExportData, "authorId"> = {
 			version: 1,
 			triggers,
+			info: this.description,
+			autoDelete_at: this.autoDeleteDate? new Date(this.autoDeleteDate).getTime() : 0,
 			params: this.paramList,
+			name: this.exportName,
 		};
+		if(isNaN(data.autoDelete_at)){
+			data.autoDelete_at = 0;
+		}
 		this.$store.triggers.exportSelectedTriggers(this.exportName, data);
 	}
 
@@ -76,15 +101,31 @@ export default toNative(TriggerExportForm);
 .triggerexportform{
 	display: flex;
 	flex-direction: column;
-	align-items: center;
-	justify-content: center;
 	gap: .5em;
 	width: fit-content;
 	margin: auto;
 	.icon {
 		height: 1em;
-		margin-right: .25em;
+		margin-right: .5em;
+		vertical-align: bottom;
 	}
+
+	textarea {
+		width: 100%;
+		resize: vertical;
+	}
+
+	.autoDeleteToggle {
+		flex: 1;
+		gap: 1em;
+		display: flex;
+		flex-direction: row;
+		label {
+			flex: 1;
+			cursor: pointer;
+		}
+	}
+
 	.paramList {
 		display: flex;
 		flex-direction: column;
@@ -118,22 +159,19 @@ export default toNative(TriggerExportForm);
 		gap: .5em;
 		width: fit-content;
 		margin: auto;
+		select {
+			font-size: .8em;
+		}
 	}
 	form {
+		gap: .5em;
 		display: flex;
-		flex-direction: row;
+		flex-direction: column;
 		justify-content: center;
-		&>*{
-			border-radius: 0;
-		}
-		&>*:first-child{
-			border-top-left-radius: var(--border-radius);
-			border-bottom-left-radius: var(--border-radius);
-		}
-		&>*:last-child{
-			border-top-right-radius: var(--border-radius);
-			border-bottom-right-radius: var(--border-radius);
-		}
+	}
+
+	.submitBt {
+		align-self: center;
 	}
 }
 </style>

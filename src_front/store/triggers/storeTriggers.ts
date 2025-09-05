@@ -14,6 +14,8 @@ import StoreProxy from '../StoreProxy';
 import SSEHelper from '@/utils/SSEHelper';
 import SSEEvent from '@/events/SSEEvent';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import * as Sentry from "@sentry/vue";
+import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
 
 let discordCmdUpdateDebounce:number = -1;
 let wasDiscordCmds = false;
@@ -67,6 +69,23 @@ export const storeTriggers = defineStore('triggers', {
 				Utils.mergeRemoteObject(JSON.parse(triggerTree), (this.triggerTree as unknown) as JsonObject);
 				this.computeTriggerTreeEnabledStates();
 			}
+
+			// Delete or schedule deletion for triggers with autoDelete_at
+			this.triggerList.forEach(t=>{
+				// Check if trigger should be automatically deleted at some point
+				if(t.autoDelete_at && t.autoDelete_at > 0) {
+					if(t.autoDelete_at < Date.now() + 10000) {
+						//Trigger is expired (with 10s margin), delete it
+						this.deleteTrigger(t.id);
+	
+					}else if(t.autoDelete_at > Date.now()) {
+						// Schedule trigger for deletion at given date
+						SetTimeoutWorker.instance.create(()=>{
+							this.deleteTrigger(t.id);
+						}, t.autoDelete_at - Date.now());
+					}
+				}
+			});
 
 			/**
 			 * Listen for triggers executed from Discord
@@ -418,7 +437,7 @@ export const storeTriggers = defineStore('triggers', {
 			}
 		},
 
-		async exportSelectedTriggers(exportName:string, data:TriggerExportData):Promise<void> {
+		async exportSelectedTriggers(exportName:string, data:Omit<TriggerExportData, "authorId">):Promise<void> {
 			if(this.selectedTriggerIDs.length == 0) return Promise.resolve();
 			this.exportingSelectedTriggers = true;
 			try {
@@ -429,6 +448,55 @@ export const storeTriggers = defineStore('triggers', {
 			}
 			await Utils.promisedTimeout(250);
 			this.exportingSelectedTriggers = false;
+		},
+
+		importTriggerData(data:TriggerExportData):void {
+			try {
+				const replaceList = data.params.map(v=> {
+					let escapedKey = v.key.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+					// Enforce default boolean values to false
+					if(v.value === undefined && v.valueType === 'boolean') v.value = false;
+					if(v.valueType == "boolean") {
+						// Remove surrounding quotes if any
+						escapedKey = `("|')?${escapedKey}("|')?`;
+					}
+					return {
+						reg: new RegExp(escapedKey, "gi"),
+						value: v.value
+					}
+				})
+				const triggerList:TriggerData[] = [];
+				data.triggers.forEach(t => {
+					if(data.autoDelete_at > 0) {
+						console.log("Setting autoDelete_at for trigger:", t.id);
+						t.autoDelete_at = data.autoDelete_at;
+					}
+					t.importedInfo = {
+						author: data.authorId,
+						name: data.name,
+					}
+					console.log(t.importedInfo)
+					let str = JSON.stringify(t);
+					replaceList.forEach(r => {
+						str = str.replace(r.reg, r.value?.toString() || "");
+					});
+					triggerList.push(JSON.parse(str));
+					
+					const existsAt = this.triggerList.findIndex(v=> v.id == t.id);
+					if(existsAt !== -1) {
+						//If the trigger already exists just update it
+						this.triggerList[existsAt] = JSON.parse(str);
+					}else{
+						//Add the new trigger
+						this.triggerList.push(JSON.parse(str));
+					}
+				});
+				
+				this.saveTriggers();
+			}catch(e) {
+				console.error("Error importing triggers:", e);
+				Sentry.captureException("Failed importing triggers", { attachments: [{ filename: "imported_data", data: JSON.stringify(data) }] });
+			}
 		}
 
 	} as ITriggersActions

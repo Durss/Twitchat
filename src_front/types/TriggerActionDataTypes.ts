@@ -9,7 +9,7 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { reactive } from "vue";
 import type { GoXLRTypes } from "./GoXLRTypes";
 import { TwitchatDataTypes } from "./TwitchatDataTypes";
-import type { JSFXRSoundPreset, SFXRSoundParams } from "./jsfxr";
+import type { JSFXRSoundPreset } from "./jsfxr";
 import type { TwitchDataTypes } from "./twitch/TwitchDataTypes";
 
 /**
@@ -38,6 +38,7 @@ type RecursivePath<T> = T extends Array<infer U>
 // 	arrayProp?:{test:string}[];
 // }
 
+export const TRIGGER_SHARED_VERSION = 1;
 
 export interface TriggerCallStack {
 	id:string;
@@ -240,11 +241,19 @@ export interface TriggerData {
 	 * Defines if user must click on an OBS source or a custom zone
 	 */
 	heatClickSource?:"obs" | "area" | "all";
-
 	/**
-	 * @deprecated Only here for typings on data migration.
-	*/
-	prevKey?:string;
+	 * Auto delete the trigger at given date
+	 * Used for imported triggers with an expiry date
+	 */
+	autoDelete_at?:number;
+	/**
+	 * Information about the imported trigger
+	 * Used for imported triggers
+	 */
+	importedInfo?:{
+		author?:string;
+		name?:string;
+	};
 }
 
 export interface TriggerScheduleData {
@@ -1525,12 +1534,55 @@ export interface TriggerTreeItemData{
  * Contains exportable trigger data
  */
 export interface TriggerExportData {
-	triggers:TriggerData[];
+	/**
+	 * Imported data description
+	 */
+	info:string;
+	/**
+	 * Author ID.
+	 * Filled by the server
+	 */
+	authorId:string;
+	/**
+	 * Name of the shared settings
+	 */
+	name:string;
+	/**
+	 * If greater than 0, the trigger will be automatically deleted after
+	 * the given date
+	 */
+	autoDelete_at:number;
+	/**
+	 * Data version
+	 */
 	version:number;
+	/**
+	 * Trigger list
+	 */
+	triggers:TriggerData[];
+	/**
+	 * Parameters of the imported data
+	 * Consists of keys that user will be invited to fill in.
+	 * They will be searched/replaces in trigger's data
+	 */
 	params:{
+		/**
+		 * Key to replace
+		 */
 		key:string;
+		/**
+		 * Description of the key
+		 */
 		description:string;
-		valueType:"string"|"number"|"boolean";
+		/**
+		 * Type of value to expect
+		 */
+		valueType:"string"|"number"|"boolean"|"list";
+		/**
+		 * Value of the key
+		 * Only used at import time to temporarily store the custom user's value
+		 */
+		value?:string|number|boolean|string[];
 	}[]
 }
 

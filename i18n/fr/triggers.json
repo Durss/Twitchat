@@ -1808,7 +1808,11 @@
 			"SPECIFIC_DATES": "Dates specifiques"
 		},
 		"importer": {
-			"title": "Importer des données"
+			"title": "Importer des configurations",
+			"parameters": "Configurations",
+			"autoDelete": "Ces paramètres seront automatiquement supprimés le :",
+			"dataOld": "Les paramètres que vous essayez d'importer sont obsolètes.",
+			"dataExpired": "Les paramètres que vous essayez d'importer ont expiré."
 		}
 	}
 }

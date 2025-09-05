@@ -186,9 +186,9 @@ export default class Utils {
 	 * @param addTime
 	 * @returns
 	 */
-	public static formatDate(date:Date, addTime:boolean = true, noDate:boolean = false):string {
+	public static formatDate(date:Date, addTime:boolean = true, noDate:boolean = false, elapsedMode:boolean = true):string {
 		let res = "";
-		if(!noDate && date.getTime() - Date.now() < 24 * 3600 * 1000) {
+		if(!noDate && (!elapsedMode || (date.getTime() - Date.now() < 24 * 3600 * 1000))) {
 			res = Utils.toDigits(date.getDate())+ "/"
 				+ Utils.toDigits(date.getMonth() + 1) + "/"
 				+ date.getFullYear()
