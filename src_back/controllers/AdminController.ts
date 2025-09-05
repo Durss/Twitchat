@@ -265,7 +265,8 @@ export default class AdminController extends AbstractController {
 	 * Creates trigger presets
 	 */
 	private async postTriggersPresets(request:FastifyRequest, response:FastifyReply) {
-		if(!await this.adminGuard(request, response)) return;
+		const user = await this.adminGuard(request, response);
+		if(!user) return;
 
 		const params:any = request.body;
 		if(!params.name || typeof params.name !== "string" || params.name.trim().length === 0
@@ -281,6 +282,7 @@ export default class AdminController extends AbstractController {
 			fs.mkdirSync(folder, { recursive: true });
 		}
 
+		params.data.authorId = user.user_id;
 		fs.writeFileSync(path.join(folder, params.name.toLowerCase()+".json"), JSON.stringify(params.data), "utf8");
 
 		response.header('Content-Type', 'application/json');

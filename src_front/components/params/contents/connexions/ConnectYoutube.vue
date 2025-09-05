@@ -63,9 +63,9 @@ import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import { YoutubeScopes } from '@/utils/youtube/YoutubeScopes';
 import { Sine } from 'gsap';
 import { gsap } from 'gsap/gsap-core';
+import type { ComponentPublicInstance } from 'vue';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
-import type { ComponentPublicInstance } from 'vue';
 
 @Component({
 	components:{
@@ -108,10 +108,6 @@ class ConnectYoutube extends Vue {
 	public get connected():boolean { return YoutubeHelper.instance.connected && !this.requestNewScopes; }
 	public get selectedLiveIds() { return YoutubeHelper.instance.currentLiveChatIds; }
 	public get broadcastList() { return YoutubeHelper.instance.availableLiveBroadcasts; }
-
-	public getFormattedDate(date:string):string {
-		return Utils.formatDate(new Date(date));
-	}
 
 	public getLiveClasses(live:YoutubeLiveBroadcast["items"][0]):string[] {
 		const classes:string[] = ["card-item", "live"];

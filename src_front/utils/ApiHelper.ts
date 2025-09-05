@@ -318,7 +318,7 @@ type ApiEndpoints =  {
 		POST: {
 			parameters: {
 				name:string;
-				data:TriggerExportData;
+				data:Omit<TriggerExportData, "authorId">;
 			};
 			response:{
 				success:boolean;

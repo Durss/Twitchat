@@ -353,6 +353,15 @@ const UserDataSchema = {
 				properties: {
 					id: {type:"string", maxLength:50},
 					type: {type:"string", maxLength:5},
+					autoDelete_at: {type:"number", maximum:9999999999999, minimum:0},
+					importedInfo: {
+						type: "object",
+						additionalProperties: false,
+						properties: {
+							author: {type:"string", maxLength:50},
+							name: {type:"string", maxLength:20},
+						}
+					},
 					enabled: {type:"boolean"},
 					enableForRemoteChans: {type:"boolean"},
 					addToContextMenu: {type:"boolean"},
