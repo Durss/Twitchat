@@ -975,6 +975,11 @@ export class ChatForm extends Vue {
 			this.message = "";
 		}else
 
+		if(cmd == "/obslogs") {
+			Logger.instance.download("obs");
+			this.message = "";
+		}else
+
 		if(cmd == "/youtubelogs") {
 			Logger.instance.download("youtube");
 			ApiHelper.call("log", "POST", {cat:"youtube", log:{

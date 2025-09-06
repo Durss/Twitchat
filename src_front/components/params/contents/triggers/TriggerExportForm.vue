@@ -27,12 +27,24 @@
 				<TTButton icon="add" small @click="addParam">Add param</TTButton>
 			</div>
 
-			<div class="autoDeleteToggle">
-				<label for="autoDeleteToggle">Auto delete settings</label> <ToggleButton inputId="autoDeleteToggle" v-model="autoDelete" />
+			<div class="block">
+				<div class="autoDeleteToggle">
+					<label for="autoDeleteToggle">Auto delete settings</label> <ToggleButton inputId="autoDeleteToggle" v-model="autoDelete" />
+				</div>
+	
+				<div class="autoDeleteValue" v-if="autoDelete">
+					<label for="autoDeleteDate">Auto delete at</label> <input type="datetime-local" id="autoDeleteDate" v-model="autoDeleteDate" />
+				</div>
 			</div>
 
-			<div class="autoDeleteValue" v-if="autoDelete">
-				Auto delete at <input type="datetime-local" v-model="autoDeleteDate" />
+			<div class="block">
+				<div class="protectToggle">
+					<label for="protectToggle">Protect with password</label> <ToggleButton inputId="protectToggle" v-model="protect" />
+				</div>
+
+				<div class="protectPass" v-if="protect">
+					<label for="protectPass">Password</label> <input type="password" id="protectPass" v-model="password" />
+				</div>
 			</div>
 			
 			<TTButton class="submitBt" small icon="checkmark" type="submit" :loading="$store.triggers.exportingSelectedTriggers">Create</TTButton>
@@ -45,6 +57,7 @@ import Icon from '@/components/Icon.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import TTButton from '@/components/TTButton.vue';
 import type { TriggerData, TriggerExportData } from '@/types/TriggerActionDataTypes';
+import Utils from '@/utils/Utils';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -59,6 +72,8 @@ class TriggerExportForm extends Vue {
 
 	public description:string = "";
 	public exportName:string = "";
+	public password:string = "";
+	public protect:boolean = false;
 	public autoDelete:boolean = false;
 	public autoDeleteDate:string = "";
 	public paramType:TriggerExportData["params"][number]["valueType"] = "string";
@@ -83,7 +98,7 @@ class TriggerExportForm extends Vue {
 		if(isNaN(data.autoDelete_at)){
 			data.autoDelete_at = 0;
 		}
-		this.$store.triggers.exportSelectedTriggers(this.exportName, data);
+		this.$store.triggers.exportSelectedTriggers(this.exportName, data, this.protect? this.password : undefined);
 	}
 
 	public addParam(){
@@ -115,7 +130,7 @@ export default toNative(TriggerExportForm);
 		resize: vertical;
 	}
 
-	.autoDeleteToggle {
+	.autoDeleteToggle, .protectToggle {
 		flex: 1;
 		gap: 1em;
 		display: flex;
@@ -172,6 +187,24 @@ export default toNative(TriggerExportForm);
 
 	.submitBt {
 		align-self: center;
+	}
+
+	.block {
+		gap: .25em;
+		display: flex;
+		flex-direction: column;
+		&>*:not(:first-child) {
+			margin-left: 1em;
+			position: relative;
+			&::before {
+				position: absolute;
+				left: -1em;
+				top: .1em;
+				font-size: 1em;
+				content: "⤷";
+				display: block;
+			}
+		}
 	}
 }
 </style>

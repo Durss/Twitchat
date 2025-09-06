@@ -1763,7 +1763,7 @@ export interface ITriggersActions {
 	/**
 	 * Export the selected triggers to a sharable preset file
 	 */
-	exportSelectedTriggers(exportName:string, data:Omit<TriggerExportData, "authorId">):Promise<void>
+	exportSelectedTriggers(exportName:string, data:Omit<TriggerExportData, "authorId">, password?:string):Promise<void>
 	/**
 	 * Imports trigger data from a sharable preset file
 	 * @param data 

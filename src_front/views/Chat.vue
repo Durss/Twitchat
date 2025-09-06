@@ -86,7 +86,7 @@
 				v-model:showBingoGrid="showBingoGrid" @update:showBingoGrid="(v:boolean) => showBingoGrid = v"
 				v-model:showGazaFunds="showGazaFunds" @update:showGazaFunds="(v:boolean) => showGazaFunds = v"
 				v-model:showPins="showPins" @update:showPins="(v:boolean) => showPins = v"
-				v-model:showTriggerImport="showTriggerImport" @update:showTriggerImport="(v:TriggerExportData|null) => showTriggerImport = v"
+				v-model:showTriggerImport="showTriggerImport" @update:showTriggerImport="(v:TriggerImportData|null) => showTriggerImport = v"
 			/>
 		</div>
 
@@ -205,7 +205,7 @@ import DonorBadge from '@/components/user/DonorBadge.vue';
 import WhispersState from '@/components/whispers/WhispersState.vue';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import MessengerProxy from '@/messaging/MessengerProxy';
-import type { TriggerActionCountDataAction, TriggerExportData } from '@/types/TriggerActionDataTypes';
+import type { TriggerActionCountDataAction, TriggerExportData, TriggerImportData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
@@ -305,7 +305,7 @@ class Chat extends Vue {
 	public showChatUsers = false;
 	public showDonorBadge = true;
 	public showBlinkLayer = false;
-	public showTriggerImport:TriggerExportData|null = null;
+	public showTriggerImport:TriggerImportData|null = null;
 	public greetColIndexTarget = 0;
 	public panelsColIndexTarget = 0;
 	public forceHttpFixerClose = false;
@@ -547,7 +547,6 @@ class Chat extends Vue {
 			gsap.from(el, {bottom:"-350px", duration:2, ease:"back.out", delay:1});
 		}
 		this.computeWindowsSizes();
-
 
 		// window.setTimeout(() => {
 		// 	this.$store.params.openModal("shareParams");

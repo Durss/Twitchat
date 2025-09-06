@@ -270,7 +270,7 @@ export default class AdminController extends AbstractController {
 
 		const params:any = request.body;
 		if(!params.name || typeof params.name !== "string" || params.name.trim().length === 0
-		|| !params.data || !Array.isArray(params.data.triggers) || !Array.isArray(params.data.params)) {
+		|| (!params.encrypted && (!params.data || !Array.isArray(params.data.triggers) || !Array.isArray(params.data.params)))) {
 			response.header('Content-Type', 'application/json');
 			response.status(400);
 			response.send(JSON.stringify({success:false, error:"Invalid name or data", errorCode:"INVALID_NAME_OR_DATA"}));
@@ -282,8 +282,8 @@ export default class AdminController extends AbstractController {
 			fs.mkdirSync(folder, { recursive: true });
 		}
 
-		params.data.authorId = user.user_id;
-		fs.writeFileSync(path.join(folder, params.name.toLowerCase()+".json"), JSON.stringify(params.data), "utf8");
+		const content = params.data? JSON.stringify({authorId:user.user_id, data:params.data}) : JSON.stringify({authorId:user.user_id, data:params.encrypted});
+		fs.writeFileSync(path.join(folder, params.name.toLowerCase()+".json"), content, "utf8");
 
 		response.header('Content-Type', 'application/json');
 		response.status(200);

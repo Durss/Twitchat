@@ -9,7 +9,7 @@ import type { ServerConfig } from "./Config";
 import Config from "./Config";
 import Utils from "./Utils";
 import type { IPatreonMember, IPatreonTier } from "@/store/patreon/storePatreon";
-import type { TriggerData, TriggerExportData } from "@/types/TriggerActionDataTypes";
+import type { TriggerData, TriggerExportData, TriggerImportData } from "@/types/TriggerActionDataTypes";
 
 /**
 * Created : 13/07/2023
@@ -318,7 +318,8 @@ type ApiEndpoints =  {
 		POST: {
 			parameters: {
 				name:string;
-				data:Omit<TriggerExportData, "authorId">;
+				data?:Omit<TriggerExportData, "authorId">;
+				encrypted?:string
 			};
 			response:{
 				success:boolean;
@@ -336,7 +337,7 @@ type ApiEndpoints =  {
 				success:boolean;
 				error?:string;
 				errorCode?:string;
-				data:TriggerExportData;
+				data:TriggerImportData;
 			}
 		},
 	}

@@ -1586,6 +1586,20 @@ export interface TriggerExportData {
 	}[]
 }
 
+/**
+ * Contains importable trigger data
+ */
+export interface TriggerImportData {
+	/**
+	 * Twitch user id of the author of the shared trigger
+	 */
+	authorId:string;
+	/**
+	 * Either a TriggerExportData object or a base64 encrypted string if password protected
+	 */
+	data:TriggerExportData|string;
+}
+
 export const ANY_OBS_SCENE = "any_obs_scene";
 export const ANY_COUNTER = "any_counter";
 export const ANY_VALUE = "any_value";

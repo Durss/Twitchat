@@ -437,11 +437,16 @@ export const storeTriggers = defineStore('triggers', {
 			}
 		},
 
-		async exportSelectedTriggers(exportName:string, data:Omit<TriggerExportData, "authorId">):Promise<void> {
+		async exportSelectedTriggers(exportName:string, data:Omit<TriggerExportData, "authorId">, password?:string):Promise<void> {
 			if(this.selectedTriggerIDs.length == 0) return Promise.resolve();
 			this.exportingSelectedTriggers = true;
+			let encrypted:string | undefined = undefined;
+			if(password && password.length > 0) {
+				const dataStr = JSON.stringify(data);
+				encrypted = await Utils.encryptMessage(dataStr, password);
+			}
 			try {
-				await ApiHelper.call("admin/triggersPreset", "POST", {name:exportName, data});
+				await ApiHelper.call("admin/triggersPreset", "POST", {name:exportName, data:encrypted? undefined : data, encrypted}, false);
 			} catch (error) {
 				console.error("Error exporting triggers:", error);
 				StoreProxy.common.alert("Failed to export triggers");
@@ -468,20 +473,21 @@ export const storeTriggers = defineStore('triggers', {
 				const triggerList:TriggerData[] = [];
 				data.triggers.forEach(t => {
 					if(data.autoDelete_at > 0) {
-						console.log("Setting autoDelete_at for trigger:", t.id);
+						// console.log("Setting autoDelete_at for trigger:", t.id);
 						t.autoDelete_at = data.autoDelete_at;
 					}
 					t.importedInfo = {
 						author: data.authorId,
 						name: data.name,
 					}
-					console.log(t.importedInfo)
+					// console.log(t.importedInfo)
 					let str = JSON.stringify(t);
 					replaceList.forEach(r => {
 						str = str.replace(r.reg, r.value?.toString() || "");
 					});
 					triggerList.push(JSON.parse(str));
 					
+					// console.log(JSON.parse(str));
 					const existsAt = this.triggerList.findIndex(v=> v.id == t.id);
 					if(existsAt !== -1) {
 						//If the trigger already exists just update it

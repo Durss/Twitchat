@@ -1812,7 +1812,10 @@
 			"parameters": "Configurations",
 			"autoDelete": "Ces paramètres seront automatiquement supprimés le :",
 			"dataOld": "Les paramètres que vous essayez d'importer sont obsolètes.",
-			"dataExpired": "Les paramètres que vous essayez d'importer ont expiré."
+			"dataExpired": "Les paramètres que vous essayez d'importer ont expiré.",
+			"dataProtected": "Les paramètres que vous essayez d'importer sont protégés.",
+			"dataPassword": "Mot de passe...",
+			"dataInvalidPassword": "Mot de passe invalide"
 		}
 	}
 }

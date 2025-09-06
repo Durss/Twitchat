@@ -58,6 +58,8 @@
 		"translation": "Translation",
 		"key":"Key",
 		"value":"Value",
+		"mandatory":"Mandatory field",
+		"mandatory_fill":"Missing mandatory fields",
 		"currency_pattern": "Currency",
 		"elapsed_duration":"{DURATION}s ago",
 		"elapsed_duration_now":"now",
