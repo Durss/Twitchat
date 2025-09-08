@@ -49,11 +49,6 @@
 			<div class="incompatibleSelection" ref="incompatibleSelection">⛔</div>
 		</teleport>
 
-		<div class="locked" ref="locked" v-if="!lightMode && lockScroll && !customActivitiesDisplayed" @click.stop="unPause">
-			<span v-if="lockScroll">{{ $t("chat.paused") }}</span>
-			<span v-if="pendingMessages.length > 0">(+{{ pendingMessages.length }})</span>
-		</div>
-
 		<div class="lockedLiveHolder" v-if="!lightMode && lockScroll && lockedLiveMessages.length > 0">
 			<div class="subHolder" v-for="m in lockedLiveMessages"
 			:key="m.id" :ref="'message_live_' + m.id">
@@ -73,6 +68,11 @@
 					:disabled="config.liveLockCount == 10 || config.liveLockCount>=pendingMessages.length"
 					@click="incrementLockedLiveCount(1)"><Icon name="add" /></button>
 			</div>
+		</div>
+
+		<div class="locked" ref="locked" v-if="!lightMode && lockScroll && !customActivitiesDisplayed" @click.stop="unPause">
+			<span v-if="lockScroll">{{ $t("chat.paused") }}</span>
+			<span v-if="pendingMessages.length > 0">(+{{ pendingMessages.length }})</span>
 		</div>
 
 		<button class="filteredMessages" v-if="customActivitiesDisplayed" @click="unlockListRefresh()">
@@ -2083,8 +2083,7 @@ export default toNative(MessageList);
 		margin: 0;
 		text-align: center;
 		border-radius: 5px;
-		border-bottom-left-radius: 0;
-		border-bottom-right-radius: 0;
+		border-radius: 0;
 		background: var(--color-primary);
 		color: #fff;
 		white-space: nowrap;
@@ -2101,7 +2100,10 @@ export default toNative(MessageList);
 
 	.lockedLiveHolder {
 		background: var(--color-primary-fadest);
-		border-top: 1px solid fade(#000, 50%);
+		border: 1px solid var(--color-primary);
+		border-bottom: none;
+		border-top-left-radius: var(--border-radius);
+		border-top-right-radius: var(--border-radius);
 		padding-top: .25em;
 
 		.footer {
