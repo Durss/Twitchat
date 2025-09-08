@@ -36,8 +36,8 @@ class PermissionsForm extends Vue {
 	public param_subs:TwitchatDataTypes.ParameterData<boolean>				= { type:"boolean", labelKey:"global.permissions.subs", value:false, icon:"sub" };
 	public param_followers_ms:TwitchatDataTypes.ParameterData<number>		= { type:"integer", labelKey:"global.permissions.follow_duration", value:0, min:0, max:50000, icon:"timer" };
 	public param_all:TwitchatDataTypes.ParameterData<boolean>				= { type:"boolean", labelKey:"global.permissions.all", value:false, icon:"user" };
-	public param_allowed:TwitchatDataTypes.ParameterData<string, string>	= { type:"editablelist", labelKey:"global.permissions.users_allowed", placeholderKey:"global.permissions.users_placeholder", value:"", icon:"checkmark" };
-	public param_refused:TwitchatDataTypes.ParameterData<string, string>	= { type:"editablelist", labelKey:"global.permissions.users_refused", placeholderKey:"global.permissions.users_placeholder", value:"", icon:"cross" };
+	public param_allowed:TwitchatDataTypes.ParameterData<string, string>	= { type:"editablelist", labelKey:"global.permissions.users_allowed", placeholderKey:"global.permissions.users_placeholder", value:"", icon:"checkmark", maxLength:40 };
+	public param_refused:TwitchatDataTypes.ParameterData<string, string>	= { type:"editablelist", labelKey:"global.permissions.users_refused", placeholderKey:"global.permissions.users_placeholder", value:"", icon:"cross", maxLength:40 };
 	public param_followers:TwitchatDataTypes.ParameterData<boolean, unknown, number> = { type:"boolean", labelKey:"global.permissions.follow", value:false, icon:"follow", twitch_scopes:[TwitchScopes.LIST_FOLLOWERS] };
 
 	public get noSelection():boolean {
@@ -72,6 +72,27 @@ class PermissionsForm extends Vue {
 			// 	this.modelValue.follower = true;
 			// }
 		});
+	}
+
+	public mounted():void {
+		let hasChanged = false;
+		if(this.modelValue.usersAllowed) {
+			this.modelValue.usersAllowed.forEach((v, i)=> {
+				const trimmed = v.slice(0, this.param_allowed.maxLength!);
+				this.modelValue.usersAllowed[i] = trimmed;
+				hasChanged ||= trimmed !== v;
+			});
+		}
+		if(this.modelValue.usersRefused) {
+			this.modelValue.usersRefused.forEach((v, i)=> {
+				const trimmed = v.slice(0, this.param_refused.maxLength!);
+				this.modelValue.usersRefused[i] = trimmed;
+				hasChanged ||= trimmed !== v;
+			});
+		}
+		if(hasChanged) {
+			this.$emit('update:modelValue', this.modelValue);
+		}
 	}
 
 }
