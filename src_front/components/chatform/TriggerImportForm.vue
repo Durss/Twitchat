@@ -45,7 +45,7 @@
 				</template>
 				<p class="timer" v-if="triggerImportData.data.autoDelete_at > 0">
 					<Icon name="info" />{{ $t('triggers.importer.autoDelete') }}<br />
-					<p>{{endAt }}</p>
+					<span>{{endAt }}</span>
 				</p>
 				<TTButton class="submitBt" icon="checkmark" @click="doImport" :disabled="!isFormValid" v-tooltip="isFormValid? '' : $t('global.mandatory_fill')" :loading="isLoading">{{ $t('global.import') }}</TTButton>
 			</div>
