@@ -167,6 +167,7 @@
 			"raid": "Raid someone",
 			"so": "Shoutout a user",
 			"poll": "Start a poll",
+			"chat_poll": "Start a chat poll",
 			"chatsugg": "Start a chat suggestion",
 			"prediction": "Start a prediction",
 			"simulatechat": "Simulate fake chat activity",

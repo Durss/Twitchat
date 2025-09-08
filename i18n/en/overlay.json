@@ -387,7 +387,7 @@
 		},
 		"chatPoll": {
 			"title": "Chat polls",
-			"head": "Show current chat poll on your stream",
+			"head": "Show current chat poll on your stream.\nTo start a chat poll use {CMD} command or the commands menu{MENU}at the bottom of the screen.",
 			"css": "@:overlay.polls.css",
 			"testBt": "@:overlay.polls.testBt",
 			"param_listMode": "@:overlay.polls.param_listMode",

@@ -437,7 +437,7 @@ import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';
 import { gsap } from 'gsap/gsap-core';
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ButtonNotification from '../ButtonNotification.vue';
 import TTButton from '../TTButton.vue';
 import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';

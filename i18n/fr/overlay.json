@@ -387,7 +387,7 @@
 		},
 		"chatPoll": {
 			"title": "Sondage de tchat",
-			"head": "Afficher le sondage de tchat en cours sur votre stream",
+			"head": "Afficher le sondage de tchat en cours sur votre stream.\nPour démarrer un sondage de tchat, utilisez la commande {CMD} ou le menu{MENU}en bas de l'écran.",
 			"css": "@:overlay.polls.css",
 			"testBt": "@:overlay.polls.testBt",
 			"param_listMode": "@:overlay.polls.param_listMode",

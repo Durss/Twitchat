@@ -264,6 +264,11 @@ export const storeChat = defineStore('chat', {
 				twitch_scopes:[TwitchScopes.MANAGE_POLLS],
 			},
 			{
+				id:"chatpoll",
+				cmd:"/chatPoll {title}",
+				detailsKey:"params.commands.chat_poll"
+			},
+			{
 				id:"chatsugg",
 				cmd:"/suggestion",
 				detailsKey:"params.commands.chatsugg",

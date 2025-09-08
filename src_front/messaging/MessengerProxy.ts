@@ -389,6 +389,16 @@ export default class MessengerProxy {
 			}
 		}else
 
+		if(cmd == "/chatpoll") {
+			//Open chat poll form
+			const title = params.join(" ");
+			if(title != "title") {
+				StoreProxy.main.tempStoreValue = title;
+			}
+			StoreProxy.params.openModal("chatPoll")
+			return true;
+		}else
+
 		if(cmd == "/prediction") {
 			if(TwitchUtils.requestScopes([TwitchScopes.MANAGE_PREDICTIONS]) && hasChannelPoints) {
 				//Open prediction form

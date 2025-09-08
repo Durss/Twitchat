@@ -1,7 +1,11 @@
 <template>
 	<div class="overlayparamschatpolls overlayParamsSection">
 
-		<div class="header">{{ $t("overlay.chatPoll.head") }}</div>
+		<i18n-t scope="global" tag="div" keypath="overlay.chatPoll.head" class="header">
+			<template #CMD><mark>/chatpoll</mark></template>
+			<template #MENU><Icon name="commands" /></template>
+		</i18n-t>
+
 		<section class="card-item">
 			<div class="header">
 				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
