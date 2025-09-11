@@ -1,5 +1,5 @@
 import DataStore from '@/store/DataStore';
-import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerTypes, VALUE_PLACEHOLDER_PREFIX, type TriggerActionTypes, type TriggerData, type TriggerTreeItemData, type TriggerExportData } from '@/types/TriggerActionDataTypes';
+import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerTypes, VALUE_PLACEHOLDER_PREFIX, type TriggerActionTypes, type TriggerData, type TriggerTreeItemData, type TriggerExportData, type SocketParams } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import SchedulerHelper from '@/utils/SchedulerHelper';
@@ -16,6 +16,7 @@ import SSEEvent from '@/events/SSEEvent';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import * as Sentry from "@sentry/vue";
 import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
+import WebsocketTrigger from '@/utils/WebsocketTrigger';
 
 let discordCmdUpdateDebounce:number = -1;
 let wasDiscordCmds = false;
@@ -86,6 +87,14 @@ export const storeTriggers = defineStore('triggers', {
 					}
 				}
 			});
+
+			//Init trigger websocket
+			const triggerSocketParams = DataStore.get(DataStore.WEBSOCKET_TRIGGER);
+			if(triggerSocketParams) {
+				const params = JSON.parse(triggerSocketParams) as SocketParams;
+
+				WebsocketTrigger.instance.connect(params.ip, params.port, params.secured).then(()=>{}).catch(()=> {});
+			}
 
 			/**
 			 * Listen for triggers executed from Discord

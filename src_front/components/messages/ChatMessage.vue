@@ -542,7 +542,6 @@ class ChatMessage extends AbstractChatMessage {
 			(async()=> {
 				let clip = await TwitchUtils.getClipById(clipId, 5);
 				if(clip) {
-					clip.broadcaster_id = this.$store.auth.twitch.user.id;// TODO: REMOVE!
 					this.clipInfo = clip;
 					if(clip.broadcaster_id == this.$store.auth.twitch.user.id && !TwitchUtils.hasScopes([TwitchScopes.MANAGE_CLIPS])) {
 						this.requestClipDLPermission = true;
