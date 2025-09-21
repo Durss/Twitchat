@@ -58,7 +58,6 @@ class ScopeSelector extends Vue {
 		})
 	public requestedScopes!:TwitchScopesString[];
 
-	public buildIndex = 0;
 	public forceFullList:boolean = false;
 	public params_all:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"login.grant_all"};
 	public param_items:TwitchatDataTypes.ParameterData<boolean, unknown, unknown, TwitchScopesString[]>[] = [];
@@ -73,59 +72,7 @@ class ScopeSelector extends Vue {
 	}
 
 	public beforeMount():void {
-		const scopes:TwitchScopesString[] = JSON.parse(JSON.stringify(Config.instance.TWITCH_APP_SCOPES));
-
-		const disabled = Config.instance.MANDATORY_TWITCH_SCOPES;
-		const userScopes = this.$store.auth.twitch.scopes ?? [];
-		for (let i = 0; i < disabled.length; i++) {
-			if(userScopes.indexOf(disabled[i]) == -1) {
-				userScopes.unshift(disabled[i]);
-			}
-		}
-
-		scopes.sort((a, b)=> {
-			if(this.requestedScopes.indexOf(a) > -1) return -1;
-			return 0;
-		});
-
-		const forceSelect = !userScopes || userScopes.length <= disabled.length && (!this.requestedScopes || this.requestedScopes.length == 0);
-		let allSelected = true;
-		for (let i = 0; i < scopes.length; i++) {
-			const localScopes:TwitchScopesString[] = scopes[i].split("+") as TwitchScopesString[];
-			const requested = localScopes.filter(s=> this.requestedScopes.indexOf(s) > -1);
-			if(requested.length > 0) {
-				this.param_items_requested.push({
-					labelKey:"global.twitch_scopes."+localScopes[0],
-					type:"boolean",
-					value:true,
-					icon:TwitchScope2Icon[localScopes[0]],
-					iconTheme:"light",
-					storage:localScopes,
-				});
-			}else{
-				const selected = forceSelect? true : TwitchUtils.hasScopes(localScopes);
-				if(!selected) allSelected = false;
-				this.param_items.push({
-					labelKey:"global.twitch_scopes."+localScopes[0],
-					type:"boolean",
-					value:selected,
-					icon:TwitchScope2Icon[localScopes[0]],
-					iconTheme:"light",
-					disabled:localScopes.filter(s => disabled.indexOf(s) > -1).length > 0,
-					storage:localScopes,
-				});
-			}
-		}
-
-		//Move non-granted scopes tot he top
-		this.param_items.sort((a,b)=> {
-			if(a.disabled) return -1;
-			if(b.disabled) return 1;
-			if(a.value && !b.value) return 1;
-			if(!a.value && b.value) return -1;
-			return 0
-		})
-		this.params_all.value = allSelected;
+		this.buildList();
 	}
 
 	public mounted(): void {
@@ -135,6 +82,10 @@ class ScopeSelector extends Vue {
 				if(p.disabled === true) continue;
 				p.value = this.params_all.value;
 			}
+		});
+
+		watch(()=>this.$store.auth.twitch.scopes, (newVal, oldVal) => {
+			this.buildList();
 		});
 
 		this.onSelectionUpdate();
@@ -163,6 +114,66 @@ class ScopeSelector extends Vue {
 
 		gsap.from(this.$refs.permsList as HTMLDivElement, {height:"1.5em", duration:.5, ease:"sine.inOut", clearProps:"all"});
 	}
+
+	private buildList():void {
+		const scopes:TwitchScopesString[] = JSON.parse(JSON.stringify(Config.instance.TWITCH_APP_SCOPES));
+
+		const disabled = Config.instance.MANDATORY_TWITCH_SCOPES;
+		const userScopes = this.$store.auth.twitch.scopes ?? [];
+		for (let i = 0; i < disabled.length; i++) {
+			if(userScopes.indexOf(disabled[i]) == -1) {
+				userScopes.unshift(disabled[i]);
+			}
+		}
+
+		scopes.sort((a, b)=> {
+			if(this.requestedScopes.indexOf(a) > -1) return -1;
+			return 0;
+		});
+
+		const requestedList:TwitchatDataTypes.ParameterData<boolean, unknown, unknown, TwitchScopesString[], unknown>[] = [];
+		const availableList:TwitchatDataTypes.ParameterData<boolean, unknown, unknown, TwitchScopesString[], unknown>[] = [];
+		const forceSelect = !userScopes || userScopes.length < disabled.length && (!this.requestedScopes || this.requestedScopes.length == 0);
+		let allSelected = true;
+		for (let i = 0; i < scopes.length; i++) {
+			const localScopes:TwitchScopesString[] = scopes[i].split("+") as TwitchScopesString[];
+			const requested = localScopes.filter(s=> this.requestedScopes.indexOf(s) > -1);
+			if(requested.length > 0) {
+				requestedList.push({
+					labelKey:"global.twitch_scopes."+localScopes[0],
+					type:"boolean",
+					value:true,
+					icon:TwitchScope2Icon[localScopes[0]],
+					iconTheme:"light",
+					storage:localScopes,
+				});
+			}else{
+				const selected = forceSelect? true : TwitchUtils.hasScopes(localScopes);
+				if(!selected) allSelected = false;
+				availableList.push({
+					labelKey:"global.twitch_scopes."+localScopes[0],
+					type:"boolean",
+					value:selected,
+					icon:TwitchScope2Icon[localScopes[0]],
+					iconTheme:"light",
+					disabled:localScopes.filter(s => disabled.indexOf(s) > -1).length > 0,
+					storage:localScopes,
+				});
+			}
+		}
+
+		//Move non-granted scopes tot he top
+		availableList.sort((a,b)=> {
+			if(a.disabled) return -1;
+			if(b.disabled) return 1;
+			if(a.value && !b.value) return 1;
+			if(!a.value && b.value) return -1;
+			return 0
+		})
+		this.params_all.value = allSelected;
+		this.param_items_requested = requestedList;
+		this.param_items = availableList;
+	}
 }
 export default toNative(ScopeSelector);
 </script>
@@ -173,6 +184,10 @@ export default toNative(ScopeSelector);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+
+	.icon {
+		margin: auto;
+	}
 
 	.permsHolder {
 		overflow: hidden;

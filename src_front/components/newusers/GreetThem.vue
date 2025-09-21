@@ -414,7 +414,6 @@ export default toNative(NewUsers);
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			margin-top: .5em;
 			.row {
 				display: flex;
 				flex-direction: row;
@@ -425,7 +424,7 @@ export default toNative(NewUsers);
 					margin: 0;
 					margin-right: 5px;
 					color: var(--color-light);
-					img {
+					.icon {
 						height: .8em;
 						margin-right: 3px;
 					}

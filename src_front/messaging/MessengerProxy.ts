@@ -8,12 +8,12 @@ import Config from "@/utils/Config";
 import OBSWebsocket from "@/utils/OBSWebsocket";
 import Utils from "@/utils/Utils";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
-import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
+import { TwitchChannelModerateV2Scopes, TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
 import { LoremIpsum } from "lorem-ipsum";
 import MessengerClientEvent from "./MessengerClientEvent";
 import TwitchMessengerClient from "./TwitchMessengerClient";
-import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
 /**
 * Created : 26/09/2022
 */
@@ -361,15 +361,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/raid" && (!params[0] || params[0] == "user")) {
-			if(TwitchUtils.requestScopes([TwitchScopes.START_RAID,
-			TwitchScopes.BLOCKED_TERMS,
-			TwitchScopes.SET_ROOM_SETTINGS,
-			TwitchScopes.UNBAN_REQUESTS,
-			TwitchScopes.EDIT_BANNED,
-			TwitchScopes.DELETE_MESSAGES,
-			TwitchScopes.CHAT_WARNING,
-			TwitchScopes.READ_MODERATORS,
-			TwitchScopes.READ_VIPS])) {
+			if(TwitchUtils.requestScopes([TwitchScopes.START_RAID, ...TwitchChannelModerateV2Scopes])) {
 				//If starting a raid with /raid without specifying a user
 				//open live followings list
 				StoreProxy.params.openModal("liveStreams")

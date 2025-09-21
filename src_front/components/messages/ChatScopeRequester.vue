@@ -25,10 +25,10 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScope2Icon, type TwitchScopesString } from '@/utils/twitch/TwitchScopes';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
+import { Component, Prop, toNative } from 'vue-facing-decorator';
+import ClearButton from '../ClearButton.vue';
 import TTButton from '../TTButton.vue';
 import AbstractChatMessage from './AbstractChatMessage';
-import ClearButton from '../ClearButton.vue';
 
 @Component({
 	components:{

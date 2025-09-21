@@ -72,6 +72,14 @@ export default defineConfig({
 							res.end(fs.readFileSync(publicHtmlPath));
 							return;
 						}
+					}else
+					if (url.startsWith('/popup/oauth')) {
+						const publicHtmlPath = path.resolve(__dirname, 'popupAuthResult.html');
+						if (fs.existsSync(publicHtmlPath)) {
+							res.setHeader('Content-Type', 'text/html');
+							res.end(fs.readFileSync(publicHtmlPath));
+							return;
+						}
 					}
 
 					next();

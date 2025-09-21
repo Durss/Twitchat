@@ -12,14 +12,9 @@
 
 		<ParamItem :paramData="param_state" v-if="param_action.value == 'toggle' && param_reward.listValues!.length > 0" v-model="action.rewardAction.state" />
 
-		<RewardListEditForm v-if="param_action.value == 'create'" v-model="action.rewardAction.rewardEdit" :placeholderList="placeholderList" />
+		<RewardListEditForm v-if="param_action.value == 'create'" v-model="action.rewardAction.rewardEdit" :placeholderList="placeholderList" triggerMode />
 
-		<template v-if="param_action.value == 'edit'">
-			<RewardListEditForm v-if="selectedRewardData" :reward="selectedRewardData" v-model="action.rewardAction.rewardEdit" :placeholderList="placeholderList" triggerMode />
-			<i18n-t scope="global" tag="div" class="card-item alert" keypath="triggers.actions.reward.no_manageable_reward" v-else>
-				<template #ICON><Icon name="channelPoints" /></template>
-			</i18n-t>
-		</template>
+		<RewardListEditForm  v-if="param_action.value == 'edit' && selectedRewardData" :reward="selectedRewardData" v-model="action.rewardAction.rewardEdit" :placeholderList="placeholderList" triggerMode />
 	</div>
 </template>
 
@@ -133,8 +128,11 @@ export default toNative(TriggerActionRewardEntry);
 .triggeractionrewardentry{
 	.alert {
 		white-space: pre-line;
+		line-height: 1.1em;
 		.icon {
 			margin-right: 0;
+			height: 1em;
+			vertical-align: bottom;
 		}
 	}
 

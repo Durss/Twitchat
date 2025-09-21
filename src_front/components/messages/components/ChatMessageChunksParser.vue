@@ -136,6 +136,7 @@ export default toNative(ChatMessageChunksParser);
 		}
 	}
 }
+
 .emote {
 	img {
 		height: 100%;

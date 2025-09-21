@@ -16,7 +16,7 @@
 		"raid_placeholder":"pseudo...",
 		"whoslive":"Qui stream ?",
 		"whoslive_title":"Personnes suivies en live",
-		"scope_grant": "Vous devez autoriser Twitchat à lancer un raid et être notifié lorsqu'un raid et lancé ou annulé.",
+		"scope_grant": "Vous devez autoriser Twitchat à lancer un raid et être notifié lorsqu'un raid est lancé ou annulé.",
 		"scope_grantBt": "Accorder les permissions",
 		"slowMode": "Mode lent",
 		"followersOnly": "Followers uniquement",

@@ -33,7 +33,8 @@ export const TwitchScopes = {
 	AUTOMOD: "moderator:manage:automod",
 	SHIELD_MODE: "moderator:manage:shield_mode",
 	UNBAN_REQUESTS: "moderator:manage:unban_requests",
-	CLIPS: "clips:edit",
+	CLIPS_EDIT: "clips:edit",
+	MANAGE_CLIPS: "channel:manage:clips",
 	ADS_READ: "channel:read:ads",
 	ADS_SNOOZE: "channel:manage:ads",
 	EXTENSIONS: "user:edit:broadcast",
@@ -80,7 +81,8 @@ TwitchScope2Icon[TwitchScopes.EDIT_BLOCKED]				= "block";
 TwitchScope2Icon[TwitchScopes.EDIT_BANNED]				= "ban";
 TwitchScope2Icon[TwitchScopes.AUTOMOD]					= "automod";
 TwitchScope2Icon[TwitchScopes.SHIELD_MODE]				= "shield";
-TwitchScope2Icon[TwitchScopes.CLIPS]					= "clip";
+TwitchScope2Icon[TwitchScopes.CLIPS_EDIT]				= "clip";
+TwitchScope2Icon[TwitchScopes.MANAGE_CLIPS]				= "clip";
 TwitchScope2Icon[TwitchScopes.ADS_READ]					= "ad";
 TwitchScope2Icon[TwitchScopes.ADS_SNOOZE]				= "ad";
 TwitchScope2Icon[TwitchScopes.READ_EMOTES]				= "emote";
@@ -91,3 +93,17 @@ TwitchScope2Icon[TwitchScopes.READ_VIPS]				= "vip";
 TwitchScope2Icon[TwitchScopes.READ_MODERATORS]			= "mod";
 TwitchScope2Icon[TwitchScopes.SUSPICIOUS_USERS]			= "shield";
 TwitchScope2Icon[TwitchScopes.CHARITY_READ]				= "twitch_charity";
+TwitchScope2Icon[TwitchScopes.EXTENSIONS]				= "extension";
+
+// Lists all scopes required for channel.moderate v2 eventsub topic to be granted.
+// This is also used for raid persmissions check.
+// It's not technically necessary to start a raid, but it is to get notified when
+// the raid starts/ends so we require these all as well as the START_RAID scope.
+export const TwitchChannelModerateV2Scopes = [TwitchScopes.BLOCKED_TERMS,
+											TwitchScopes.SET_ROOM_SETTINGS,
+											TwitchScopes.UNBAN_REQUESTS,
+											TwitchScopes.EDIT_BANNED,
+											TwitchScopes.DELETE_MESSAGES,
+											TwitchScopes.CHAT_WARNING,
+											TwitchScopes.READ_MODERATORS,
+											TwitchScopes.READ_VIPS];

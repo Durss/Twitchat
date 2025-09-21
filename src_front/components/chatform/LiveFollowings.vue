@@ -77,16 +77,19 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
-import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import { TwitchChannelModerateV2Scopes, TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { gsap } from 'gsap/gsap-core';
-import {toNative,  Component } from 'vue-facing-decorator';
+import { Component, toNative } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
-import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
+import TTButton from '../TTButton.vue';
+import { watch } from 'vue';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
+		Icon,
 		TTButton,
 		ClearButton,
 	},
@@ -100,6 +103,7 @@ class LiveFollowings extends AbstractSidePanel {
 	public needScope = false;
 	public showRaidHistory = false;
 	public disposed = false;
+	public canRaid = false;
 
 	public get lastRaidedUserID():string {
 		if(this.$store.stream.raidHistory.length == 0) return "";
@@ -119,19 +123,6 @@ class LiveFollowings extends AbstractSidePanel {
 		});
 	}
 
-	public get canRaid():boolean {
-		//Check for all permissions required by channel.moderate v2
-		return TwitchUtils.hasScopes([TwitchScopes.START_RAID,
-								TwitchScopes.BLOCKED_TERMS,
-								TwitchScopes.SET_ROOM_SETTINGS,
-								TwitchScopes.UNBAN_REQUESTS,
-								TwitchScopes.EDIT_BANNED,
-								TwitchScopes.DELETE_MESSAGES,
-								TwitchScopes.CHAT_WARNING,
-								TwitchScopes.READ_MODERATORS,
-								TwitchScopes.READ_VIPS
-		]);
-	}
 
 	public getLastRaidElapsedDuration(uid:string):string {
 		const last = this.sortedRaidHistory.find(v => v.uid == uid);
@@ -144,10 +135,18 @@ class LiveFollowings extends AbstractSidePanel {
 	}
 
 	public mounted():void {
+		this.buildContent();
+		super.open();
+		watch(()=>this.$store.auth.twitch.scopes, () => {
+			this.buildContent();
+		});
+	}
+
+	private buildContent():void {
 		this.needScope = !TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS]);
 		if(!this.needScope) this.updateList();
 		else this.loading = false;
-		super.open();
+		this.canRaid = TwitchUtils.hasScopes([TwitchScopes.START_RAID, ...TwitchChannelModerateV2Scopes]);
 	}
 
 	public beforeUnmount(): void {
@@ -205,16 +204,7 @@ class LiveFollowings extends AbstractSidePanel {
 				this.close();
 			}).catch(()=> { });
 		}else{
-			TwitchUtils.requestScopes([TwitchScopes.START_RAID,
-										TwitchScopes.BLOCKED_TERMS,
-										TwitchScopes.SET_ROOM_SETTINGS,
-										TwitchScopes.UNBAN_REQUESTS,
-										TwitchScopes.EDIT_BANNED,
-										TwitchScopes.DELETE_MESSAGES,
-										TwitchScopes.CHAT_WARNING,
-										TwitchScopes.READ_MODERATORS,
-										TwitchScopes.READ_VIPS
-			]);
+			TwitchUtils.requestScopes([TwitchScopes.START_RAID, ...TwitchChannelModerateV2Scopes]);
 		}
 	}
 }
@@ -329,6 +319,7 @@ export default toNative(LiveFollowings);
 					flex-grow: 1;
 					transition: all .2s;
 					position: relative;
+					margin-top: .5em;
 					.title {
 						font-size: 1em;
 						max-width: 100%;
@@ -379,7 +370,7 @@ export default toNative(LiveFollowings);
 						}
 					}
 
-					.raidBt, permissionBt{
+					.raidBt, .permissionBt{
 						.center();
 						position: absolute;
 						opacity: 0;

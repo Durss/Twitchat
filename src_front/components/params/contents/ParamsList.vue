@@ -5,9 +5,9 @@
 		:key="key"
 		:ref="'entry_'+p.id"
 		v-newflag="(p.storage && (p.storage as any).vnew)? (p.storage as any).vnew : null">
-			<div :class="getClasses(p, key as string)" v-if="buildIndex > index">
+			<div :class="classes[p.id!]" v-if="buildIndex > index">
 				<ParamItem :paramData="p" noBackground autoFade v-model="p.value" @change="$store.params.updateParams();">
-					<div v-if="p.id == 212 && p.value === true && !isOBSConnected && !isMissingScope(p)" class="config">
+					<div v-if="p.id == 212 && p.value === true && !isOBSConnected && !missingScopeStates[p.id!]" class="config">
 						<div class="card-item alert">
 							<Icon name="alert" theme="light" />
 							<i18n-t scope="global" class="label" tag="p" keypath="global.obs_connect">
@@ -64,18 +64,18 @@
 						@click="$store.chat.clearHistory()" icon="trash">{{$t('params.clearHistory')}}</Button>
 					</div>
 
-					<div v-else-if="isMissingScope(p) && p.value == true" class="config">
+					<div v-else-if="missingScopeStates[p.id!] && p.value == true" class="config">
 						<div class="card-item alert">
 							<Icon name="lock_fit" theme="light" />
 							<p class="label">{{ $t("params.scope_missing") }}</p>
 							<Button small alert light
-								class="grantBt"
-								icon="unlock"
-								@click="requestPermission(p.twitch_scopes!)">{{ $t('global.grant_scope') }}</Button>
+							class="grantBt"
+							icon="unlock"
+							@click.capture.stop="requestPermission(p.twitch_scopes!)">{{ $t('global.grant_scope') }}</Button>
 						</div>
 					</div>
 				</ParamItem>
-
+				
 				<div v-if="p.id == 12 && fakeMessageData" class="config">
 					<ChatMessage class="chatMessage" :messageData="fakeMessageData" contextMenuOff />
 				</div>
@@ -119,6 +119,9 @@ class ParamsList extends Vue implements IParameterContent {
 	public highlightId:string = "";
 	public fakeMessageData:TwitchatDataTypes.MessageChatData|null = null;
 	public soPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [];
+	public classes:{[key:number]:string[]} = [];
+	public disabledStates:{[key:number]:boolean} = {};
+	public missingScopeStates:{[key:number]:boolean} = {};
 
 	private buildInterval:number = -1;
 	private buildBatch:number = 15;
@@ -183,9 +186,11 @@ class ParamsList extends Vue implements IParameterContent {
 			},
 		];
 
-		watch(()=>this.category, () => this.startSequentialBuild());
-		watch(()=>this.filteredParams, () => this.startSequentialBuild());
+		watch(()=>this.category, () => { this.startSequentialBuild(); this.computeMissingScopeStates();});
+		watch(()=>this.filteredParams, () => { this.startSequentialBuild(); this.computeMissingScopeStates();});
+		watch(()=>this.$store.auth.twitch.scopes, () => this.computeMissingScopeStates());
 
+		this.computeMissingScopeStates();
 		this.startSequentialBuild();
 	}
 
@@ -194,26 +199,6 @@ class ParamsList extends Vue implements IParameterContent {
 	}
 
 	public onNavigateBack(): boolean { return false; }
-
-	public isDisabled(p:TwitchatDataTypes.ParameterData<unknown>):boolean {
-		if(p.id == 212 && !this.isOBSConnected) return true;
-		if(!TwitchUtils.hasScopes(p.twitch_scopes ?? [])) return true;
-		return false;
-	}
-
-	public isMissingScope(p:TwitchatDataTypes.ParameterData<unknown>):boolean {
-		if(!p.twitch_scopes) return false;
-		return !TwitchUtils.hasScopes(p.twitch_scopes);
-	}
-
-	public getClasses(p:TwitchatDataTypes.ParameterData<unknown>, key:string):string[] {
-		let res = ["item", key];
-		if(p.icon) res.push("hasIcon");
-		if(p.value === false) res.push("off");
-		if(p.premiumOnly === true) res.push("premium");
-		if(this.isDisabled(p)) res.push("disabled");
-		return res;
-	}
 
 	public requestPermission(scopes:TwitchScopesString[]):void {
 		this.$store.auth.requestTwitchScopes(scopes);
@@ -256,6 +241,26 @@ class ParamsList extends Vue implements IParameterContent {
 				}
 			}
 		}, 30);
+	}
+
+	private computeMissingScopeStates():void {
+		for (const key in this.params) {
+			const p = this.params[key];
+			const id = this.params[key].id!;
+			if(p.twitch_scopes) {
+				this.missingScopeStates[id] = !TwitchUtils.hasScopes(p.twitch_scopes);
+			}else{
+				this.missingScopeStates[id] = false;
+			}
+			this.disabledStates[id] = (p.id == 212 && !this.isOBSConnected) || this.missingScopeStates[id];
+
+			let res = ["item", key];
+			if(p.icon) res.push("hasIcon");
+			if(p.value === false) res.push("off");
+			if(p.premiumOnly === true) res.push("premium");
+			if(this.disabledStates[id]) res.push("disabled");
+			this.classes[id] = res;
+		}
 	}
 
 }

@@ -372,6 +372,45 @@ export const storeAuth = defineStore('auth', {
 			const followers	= await TwitchUtils.getFollowersCount([this.twitch.user.id]);
 			this.noAd		= followers[this.twitch.user.id] < Config.instance.AD_MIN_FOLLOWERS_COUNT;
 			StoreProxy.labels.updateLabelValue("FOLLOWER_COUNT", followers[this.twitch.user.id]);
+		},
+
+		twitch_updateAuthScopes(code:string):Promise<boolean> {
+			return new Promise(async (resolve)=>{
+				if(!code) {
+					StoreProxy.common.alert(StoreProxy.i18n.t("login.auth_failed"));
+					resolve(false);
+					return;
+				}
+				if(code) {
+					//Convert oAuth code to access_token
+					try {
+						const res = await ApiHelper.call("auth/twitch", "GET", {code});
+						if(res.status != 200) throw("invalid auth result");
+						if(!res.json || !res.json.access_token) throw("invalid auth result");
+						
+						const twitchAuthResult = res.json;
+						twitchAuthResult.expires_at	= Date.now() + twitchAuthResult.expires_in * 1000;
+						DataStore.set(DataStore.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
+						clearTimeout(refreshTokenTO);
+						//Schedule refresh
+						refreshTokenTO = window.setTimeout(()=>{
+							this.twitch_tokenRefresh();
+						}, twitchAuthResult.expires_in*1000 - 60000 * 5);
+						EventSub.instance.connect();
+	
+						this.twitch.access_token		= twitchAuthResult.access_token;
+						this.twitch.scopes				= twitchAuthResult.scope;
+						this.twitch.expires_in			= twitchAuthResult.expires_in;
+						ApiHelper.accessToken			= this.twitch.access_token;
+						ApiHelper.refreshTokenCallback	= this.twitch_tokenRefresh;
+						TwitchUtils.updateAuthInfo(this.twitch.access_token, this.twitch.scopes, this.requestTwitchScopes, this.twitch_tokenRefresh, this.twitch.user.id);
+						resolve(true);
+					}catch(error) {
+						StoreProxy.common.alert(StoreProxy.i18n.t("login.auth_failed"));
+						resolve(false);
+					}
+				}
+			})
 		}
 	} as IAuthActions
 	& ThisType<IAuthActions

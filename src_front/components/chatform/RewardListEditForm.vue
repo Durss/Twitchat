@@ -200,11 +200,11 @@ export default toNative(RewardListEditForm);
 		align-self: stretch;
 		position: sticky;
 		bottom: 0;
-		background: linear-gradient(0, var(--color-text-inverse) 20%, var(--color-text-inverse-fadest) 100%);
 		padding: .5em 0;
 		padding-top: 2em;
 		margin-top: -1em;
 		text-align: center;
+		background: linear-gradient(0, var(--color-text-inverse) 20%, var(--color-text-inverse-fadest) 100%);
 	}
 }
 </style>

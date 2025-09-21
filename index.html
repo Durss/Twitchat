@@ -390,6 +390,26 @@
 		let startTime = [];
 		let offsetMax = [];
 
+		const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+		function playBeep(frequency = 440, duration = 200, volume = 0.1) {
+			
+			const oscillator = audioContext.createOscillator();
+			const gainNode = audioContext.createGain();
+			
+			oscillator.connect(gainNode);
+			gainNode.connect(audioContext.destination);
+			
+			oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+			oscillator.type = 'sine';
+			
+			gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+			gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + 0.01);
+			gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration / 1000 - 0.01);
+			
+			oscillator.start(audioContext.currentTime);
+			oscillator.stop(audioContext.currentTime + duration / 1000);
+		}
+
 		//eleastic ease out maths
 		function easeOutElastic (t, b, c, d) {
 			let s = 1.70158;
@@ -412,6 +432,8 @@
 			startTime[index] = virtualDate;
 			directions[index] = -1;
 			offsetMax[index] = 25 * scale;
+			const notes = [130.81, 146.83, 164.81, 174.61, 196.00, 220.00, 246.94, 261.63]; // C3-C4 chromatic
+			if(scale > 1) playBeep(notes[index % 8], 300, 0.2)
 		}
 
 		//Animate loader

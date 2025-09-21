@@ -232,6 +232,12 @@ class ParamsTriggers extends Vue implements IParameterContent {
 				await this.listOBSSources();
 			}
 		})
+		
+		watch(()=>this.$store.auth.newScopesToRequest, () => {
+			if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
+				this.listRewards();
+			}
+		});
 	}
 
 	public beforeUnmount():void {

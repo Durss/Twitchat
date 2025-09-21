@@ -318,7 +318,8 @@ class DevmodeMenu extends Vue {
 				}
 				case "clip": {
 					const m = message as TwitchatDataTypes.MessageChatData;
-					let str = "Check out this clip https://www.twitch.tv/twitch/clip/UnusualFriendlyLasagnaOpieOP-ot8P67E0N6trA6hW";
+					// let str = "Check out this clip https://www.twitch.tv/twitch/clip/UnusualFriendlyLasagnaOpieOP-ot8P67E0N6trA6hW";
+					let str = "Check out this clip twitch.tv/marinopesto/clip/LittleDarlingDiscBIRB-OXO094VAZeWIoe5a";
 					let chunks = TwitchUtils.parseMessageToChunks(str, undefined, true);
 					m.message = str;
 					m.message_chunks = chunks;

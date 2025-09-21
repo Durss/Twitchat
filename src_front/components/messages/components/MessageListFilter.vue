@@ -487,6 +487,10 @@ export class MessageListFilter extends Vue {
 				})
 			}
 		});
+		
+		watch(()=>this.$store.auth.newScopesToRequest, () => {
+			this.checkForMissingScopes();
+		});
 	}
 
 	public beforeUnmount():void {

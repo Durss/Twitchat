@@ -21,6 +21,7 @@
 		"generatingCSRF":"Patientez...",
 		"retryBt":"Réessayer",
 		"grant_all":"Accorder toutes les permissions",
-		"authenticating":"authentification..."
+		"authenticating":"authentification...",
+		"auth_failed":"Authentification échouée"
 	}
 }

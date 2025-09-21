@@ -3,6 +3,7 @@ import type { IStore } from "./store/StoreProxy";
 import type { TwitchatDataTypes } from "./types/TwitchatDataTypes";
 import type Config from "./utils/Config";
 import type { SFXR } from "./types/jsfxr";
+import type { TwitchScopesString } from "./utils/twitch/TwitchScopes";
 
 declare module '*.vue' {
 	import type { DefineComponent } from 'vue';
@@ -33,6 +34,7 @@ declare global {
 		obsstudio?: any;
 		queryLocalFonts?(options?:{postscriptNames?:string[]}):Promise<{family:string, fullName:string, postscriptName:string, style:""}[]>;
 		setInitMessage(message:string):void;
+		authCallback(code:string, scopes:TwitchScopesString[]):void;
     	jsfxr: {sfxr:SFXR};
 	}
 

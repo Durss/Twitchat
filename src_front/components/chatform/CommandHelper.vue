@@ -134,7 +134,7 @@
 import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import { TwitchChannelModerateV2Scopes, TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Vue, Prop } from 'vue-facing-decorator';
@@ -168,6 +168,12 @@ class CommandHelper extends Vue {
 	public raidUser:TwitchDataTypes.UserInfo | null = null;
 	public channelId:string = "";
 	public adCooldown:number = 0;
+	public canEditStreamInfos:boolean = false;
+	public canStartCommercial:boolean = false;
+	public canClearChat:boolean = false;
+	public canRaid:boolean = false;
+	public canCreatePrediction:boolean = false;
+	public canCreatePoll:boolean = false;
 
 	public param_followOnly:TwitchatDataTypes.ParameterData<boolean>			= { type:"boolean", value:false, twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS] };
 	public param_subOnly:TwitchatDataTypes.ParameterData<boolean|undefined>		= { type:"boolean", value:false, twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS] };
@@ -187,40 +193,7 @@ class CommandHelper extends Vue {
 
 	public get adCooldownFormatted():string { return Utils.formatDuration(this.adCooldown); }
 	public get hasChannelPoints():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
-	public get canEditStreamInfos():boolean { return TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]); }
-	public get canStartCommercial():boolean { return TwitchUtils.hasScopes([TwitchScopes.START_COMMERCIAL]) && this.hasChannelPoints; }
-	public get canClearChat():boolean { return TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES]); }
-	public get canRaid():boolean {
-		//First check for channel.moderate v1 scope
-		// TwitchUtils.hasScopes([TwitchScopes.START_RAID, TwitchScopes.MODERATION_EVENTS])
-		//Alternatively check for all permissions required by channel.moderate v2
-		// ||
-		return TwitchUtils.hasScopes([TwitchScopes.START_RAID,
-								TwitchScopes.BLOCKED_TERMS,
-								TwitchScopes.SET_ROOM_SETTINGS,
-								TwitchScopes.UNBAN_REQUESTS,
-								TwitchScopes.EDIT_BANNED,
-								TwitchScopes.DELETE_MESSAGES,
-								TwitchScopes.CHAT_WARNING,
-								TwitchScopes.READ_MODERATORS,
-								TwitchScopes.READ_VIPS
-		]);
-	}
 	public get isAdmin():boolean { return this.$store.auth.twitch.user.is_admin === true; }
-
-	public get canCreatePrediction():boolean {
-		if(!this.hasChannelPoints) return false;
-		if(!TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS])) return false;
-		return this.$store.prediction.data?.id == undefined
-			|| this.$store.prediction.data?.channel_id !== StoreProxy.auth.twitch.user.id;
-	}
-
-	public get canCreatePoll():boolean {
-		if(!this.hasChannelPoints) return false;
-		if(!TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS])) return false;
-		return this.$store.poll.data?.id == undefined
-			|| this.$store.poll.data?.channel_id !== StoreProxy.auth.twitch.user.id;
-	}
 
 	public async beforeMount():Promise<void> {
 		//Fake raid to test "raiding" card
@@ -257,6 +230,28 @@ class CommandHelper extends Vue {
 			this.adCooldown -= 1000;
 			if(this.adCooldown < 0) this.adCooldown = 0;
 		}, 1000);
+
+		watch(()=> this.$store.auth.twitch.scopes, ()=>{
+			this.canEditStreamInfos	= TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]);
+			this.canStartCommercial	= TwitchUtils.hasScopes([TwitchScopes.START_COMMERCIAL]);
+			this.canClearChat		= TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES]);
+			this.canRaid			= TwitchUtils.hasScopes([TwitchScopes.START_RAID, ...TwitchChannelModerateV2Scopes]);
+			this.canCreatePrediction= TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]);
+			this.canCreatePoll		= TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]);
+
+			this.canEditStreamInfos=  TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]); 
+			this.canStartCommercial=  TwitchUtils.hasScopes([TwitchScopes.START_COMMERCIAL]) && this.hasChannelPoints; 
+			this.canClearChat=  TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES]); 
+			this.canRaid = TwitchUtils.hasScopes([TwitchScopes.START_RAID, ...TwitchChannelModerateV2Scopes]);
+
+			this.canCreatePrediction = this.hasChannelPoints && TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS])
+									&& (this.$store.prediction.data?.id == undefined
+									|| this.$store.prediction.data?.channel_id !== StoreProxy.auth.twitch.user.id);
+
+			this.canCreatePoll = this.hasChannelPoints && TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS])
+								&& (this.$store.poll.data?.id == undefined
+								|| this.$store.poll.data?.channel_id !== StoreProxy.auth.twitch.user.id);
+		}, {immediate:true});
 
 		this.populateSettings();
 	}
@@ -381,7 +376,7 @@ class CommandHelper extends Vue {
 			target = target.parentElement as HTMLDivElement;
 		}
 		if(target != ref) {
-			this.close();
+			// this.close();
 		}
 	}
 
@@ -443,17 +438,8 @@ class CommandHelper extends Vue {
 	}
 
 	public requestRaidScopes():void {
-		const scopes = [TwitchScopes.START_RAID,
-						TwitchScopes.BLOCKED_TERMS,
-						TwitchScopes.SET_ROOM_SETTINGS,
-						TwitchScopes.UNBAN_REQUESTS,
-						TwitchScopes.EDIT_BANNED,
-						TwitchScopes.DELETE_MESSAGES,
-						TwitchScopes.CHAT_WARNING,
-						TwitchScopes.READ_MODERATORS,
-						TwitchScopes.READ_VIPS]
-		if(TwitchUtils.hasScopes(scopes)) return;
-		this.$store.auth.requestTwitchScopes(scopes);
+		if(TwitchUtils.hasScopes([TwitchScopes.START_RAID, ...TwitchChannelModerateV2Scopes])) return;
+		this.$store.auth.requestTwitchScopes([TwitchScopes.START_RAID, ...TwitchChannelModerateV2Scopes]);
 	}
 
 	public onTogglePin(pinId:typeof TwitchatDataTypes.PinnableMenuItems[number]["id"]):void {

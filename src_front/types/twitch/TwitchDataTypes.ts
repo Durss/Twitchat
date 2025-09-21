@@ -548,4 +548,10 @@ export namespace TwitchDataTypes {
 			offset: number;
 		}[];
 	}
+
+	export interface ClipDL {
+		clip_id:string;
+		landscape_download_url:string;
+		portrait_download_url:string|null;
+	}
 }

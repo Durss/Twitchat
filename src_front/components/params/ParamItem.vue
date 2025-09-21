@@ -458,6 +458,7 @@ export class ParamItem extends Vue {
 	public premiumOnlyLocal:boolean = false;
 	public autofocusLocal:boolean = false;
 	public askForSystemFontAccess:boolean = false;
+	public isMissingScope:boolean = false;
 
 	private isLocalUpdate:boolean = false;
 	private childrenExpanded:boolean = false;
@@ -492,7 +493,7 @@ export class ParamItem extends Vue {
 		if(this.paramData.type == "boolean" && this.paramData.value !== true) res.push("unselected");
 		if(this.paramData.type == "string" && this.paramData.value !== "") res.push("unselected");
 		if(this.errorLocal !== false) res.push("error");
-		else if(this.paramData.twitch_scopes && !TwitchUtils.hasScopes(this.paramData.twitch_scopes)) res.push("error");
+		else if(this.isMissingScope) res.push("error");
 		if(this.longText) res.push("longText");
 		if(this.label == '') res.push("noLabel");
 		if(this.autoFade !== false) res.push("autoFade");
@@ -675,6 +676,13 @@ export class ParamItem extends Vue {
 				this.getLocalFonts();
 			}
 		}
+
+		watch(()=>this.$store.auth.twitch.scopes, ()=>{
+			this.isMissingScope = this.paramData.twitch_scopes !== undefined
+				&& this.paramData.twitch_scopes.length > 0
+				&& !TwitchUtils.hasScopes(this.paramData.twitch_scopes);
+			this.setErrorState(this.error || this.isMissingScope);
+		}, {immediate:true});
 	}
 
 	public mounted():void {

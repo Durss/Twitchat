@@ -5,7 +5,7 @@ import { LoremIpsum } from "lorem-ipsum";
 import Config from "../Config";
 import Logger from "../Logger";
 import Utils from "../Utils";
-import { TwitchScopes } from "./TwitchScopes";
+import { TwitchChannelModerateV2Scopes, TwitchScopes } from "./TwitchScopes";
 import TwitchUtils from "./TwitchUtils";
 import ApiHelper from "../ApiHelper";
 import MessengerProxy from "@/messaging/MessengerProxy";
@@ -257,19 +257,10 @@ export default class EventSub {
 		const isBroadcaster	= me.id == user.id;
 		const isMod	= me.channelInfo[channelId]?.is_moderator === true || isBroadcaster;
 		this.chanSubscriptions[channelId] = [];
-		const hasChannelModerateV2Permissions = TwitchUtils.hasScopes([TwitchScopes.BLOCKED_TERMS,
-																TwitchScopes.SET_ROOM_SETTINGS,
-																TwitchScopes.UNBAN_REQUESTS,
-																TwitchScopes.EDIT_BANNED,
-																TwitchScopes.DELETE_MESSAGES,
-																TwitchScopes.CHAT_WARNING,
-																TwitchScopes.READ_MODERATORS,
-																TwitchScopes.READ_VIPS]);
 
 		if(isBroadcaster){
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_UPDATE, "2");
 
-			//Don't need to listen for this event for anyone else but the broadcaster
 			this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {from_broadcaster_user_id:channelId});
 
 			//Used by online/offline triggers
@@ -343,7 +334,7 @@ export default class EventSub {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, "2");
 			}
 
-			if(hasChannelModerateV2Permissions) {
+			if(TwitchUtils.hasScopes(TwitchChannelModerateV2Scopes)) {
 				this.createSubscription(channelId, myUID, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_MODERATE, "2");
 			}else{
 				//This topic does not support moderator token

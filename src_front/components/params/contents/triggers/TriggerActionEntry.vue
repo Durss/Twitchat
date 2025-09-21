@@ -348,14 +348,14 @@
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
-import ToggleButton from '@/components/ToggleButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
+import ToggleButton from '@/components/ToggleButton.vue';
 import ChatSuggestionForm from '@/components/chatSugg/ChatSuggestionForm.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import ChatPollForm from '@/components/poll/ChatPollForm.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
-import { TriggerEventPlaceholders, TriggerTypes, type ITriggerPlaceholder, type TriggerActionAnimatedTextData, type TriggerActionBingoGridData, type TriggerActionCounterData, type TriggerActionCustomTrainData, type TriggerActionObsData, type TriggerActionObsSourceDataAction, type TriggerActionRewardData, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerConditionGroup, type TriggerData } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, TriggerTypes, type ITriggerPlaceholder, type TriggerActionAnimatedTextData, type TriggerActionBingoGridData, type TriggerActionCustomTrainData, type TriggerActionObsData, type TriggerActionObsSourceDataAction, type TriggerActionRewardData, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerConditionGroup, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -371,6 +371,7 @@ import { reactive, readonly } from 'vue';
 import { Component, Prop, toNative, Vue } from 'vue-facing-decorator';
 import BingoForm from '../../../bingo/BingoForm.vue';
 import RaffleForm from '../../../raffle/RaffleForm.vue';
+import TriggerActionSFXREntry from './TriggerActionSFXREntry.vue';
 import TriggerConditionList from './TriggerConditionList.vue';
 import TriggerActionAnimateTextEntry from './entries/TriggerActionAnimateTextEntry.vue';
 import TriggerActionBingoGridEntry from './entries/TriggerActionBingoGridEntry.vue';
@@ -379,6 +380,7 @@ import TriggerActionClickHeatEntry from './entries/TriggerActionClickHeatEntry.v
 import TriggerActionCountEntry from './entries/TriggerActionCountEntry.vue';
 import TriggerActionCustomBadge from './entries/TriggerActionCustomBadge.vue';
 import TriggerActionCustomChatEntry from './entries/TriggerActionCustomChatEntry.vue';
+import TriggerActionCustomTrainEntry from './entries/TriggerActionCustomTrainEntry.vue';
 import TriggerActionCustomUsername from './entries/TriggerActionCustomUsername.vue';
 import TriggerActionDelayEntry from './entries/TriggerActionDelayEntry.vue';
 import TriggerActionDeleteMessageEntry from './entries/TriggerActionDeleteMessageEntry.vue';
@@ -387,8 +389,8 @@ import TriggerActionExtensionEntry from './entries/TriggerActionExtensionEntry.v
 import TriggerActionGoXLREntry from './entries/TriggerActionGoXLREntry.vue';
 import TriggerActionGroqEntry from './entries/TriggerActionGroqEntry.vue';
 import TriggerActionHTTPCall from './entries/TriggerActionHTTPCall.vue';
-import TriggerActionJSONExtract from './entries/TriggerActionJSONExtract.vue';
 import TriggerActionHighlightEntry from './entries/TriggerActionHighlightEntry.vue';
+import TriggerActionJSONExtract from './entries/TriggerActionJSONExtract.vue';
 import TriggerActionLumiaEntry from './entries/TriggerActionLumiaEntry.vue';
 import TriggerActionMixitupEntry from './entries/TriggerActionMixitupEntry.vue';
 import TriggerActionMusicEntry from './entries/TriggerActionMusicEntry.vue';
@@ -409,8 +411,6 @@ import TriggerActionValueEntry from './entries/TriggerActionValueEntry.vue';
 import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneEntry.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
-import TriggerActionCustomTrainEntry from './entries/TriggerActionCustomTrainEntry.vue';
-import TriggerActionSFXREntry from './TriggerActionSFXREntry.vue';
 
 @Component({
 	components:{
@@ -493,7 +493,12 @@ class TriggerActionEntry extends Vue {
 	public opened = false;
 	public search = "";
 	public placeholderList: ITriggerPlaceholder<unknown>[] = [];
-
+	public canManageRewards:boolean = false;
+	public canManageExtensions:boolean = false;
+	public canCreatePoll:boolean = false;
+	public canCreatePrediction:boolean = false;
+	public canEditStreamInfo:boolean = false;
+		
 	public get lumiaConnected():boolean { return this.$store.lumia.connected; }
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected; }
@@ -501,11 +506,6 @@ class TriggerActionEntry extends Vue {
 	public get discordEnabled():boolean { return this.$store.discord.discordLinked === true; }
 	public get goxlrEnabled():boolean { return GoXLRSocket.instance.connected; }
 	public get wsConnected():boolean { return WebsocketTrigger.instance.connected; }
-	public get canManageRewards():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_REWARDS]); }
-	public get canManageExtensions():boolean { return TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS]); }
-	public get canCreatePoll():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]); }
-	public get canCreatePrediction():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]); }
-	public get canEditStreamInfo():boolean { return TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]); }
 	public get heatClickEnabled():boolean { return (this.$store.heat.distortionList || []).length > 0; }
 	public get canAnimateText():boolean { return this.$store.animatedText.animatedTextList.length > 0; }
 	public get canControlCustomTrain():boolean { return this.$store.customTrain.customTrainList.length > 0; }
@@ -666,6 +666,7 @@ class TriggerActionEntry extends Vue {
 
 		if(this.action.type === "reward" && this.action.rewardAction) {
 			const action = this.action as TriggerActionRewardData;
+			if(action.rewardAction.action == "create") return false;
 			return this.rewards.findIndex(r => r.id === action.rewardAction?.rewardId) == -1;
 		}
 		if(this.action.type === "bingoGrid" && this.action.bingoGrid) {
@@ -680,6 +681,8 @@ class TriggerActionEntry extends Vue {
 		if(this.action.enabled === undefined) {
 			this.action.enabled = true;
 		}
+		this.updateTwitchPermissionStates();
+		this.$watch( ()=> this.$store.auth.twitch.scopes, ()=>this.updateTwitchPermissionStates() );
 	}
 
 	/**
@@ -828,6 +831,14 @@ class TriggerActionEntry extends Vue {
 				el.style.display = "none";
 			}
 		});
+	}
+
+	public updateTwitchPermissionStates():void {
+		this.canManageRewards = TwitchUtils.hasScopes([TwitchScopes.MANAGE_REWARDS]);
+		this.canManageExtensions = TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS]);
+		this.canCreatePoll = TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]);
+		this.canCreatePrediction = TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]);
+		this.canEditStreamInfo = TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]);
 	}
 
 }

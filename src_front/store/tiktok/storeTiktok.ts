@@ -190,13 +190,6 @@ export const storeTiktok = defineStore('tiktok', {
 */
 					let messageChunks:TwitchatDataTypes.ParseMessageChunk[] = [];//TwitchUtils.parseMessageToChunks(messageStr, [], false, "tiktok", true);
 
-					// const parsedEmotes = TwitchUtils.parsedEmoteDataToRawEmoteData(json.data.emotes.map(e=>{
-					// 	return {
-					// 		emote_id:e.emoteId,
-					// 		end:e.placeInComment,
-					// 		start:e.placeInComment,
-					// 	}
-					// }));
 					if(json.data.emotes) {
 						let currentIndex = 0;
 						json.data.emotes.sort((a, b) => a.placeInComment - b.placeInComment)

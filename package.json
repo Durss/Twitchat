@@ -61,6 +61,7 @@
 		"@types/gsap": "^3.0.0",
 		"@types/jsonpath": "^0.2.4",
 		"@types/matter-js": "^0.19.5",
+		"@types/mime-types": "^3.0.1",
 		"@types/node": "^22.9.0",
 		"@types/three": "^0.158.0",
 		"@types/tmi.js": "^1.8.1",

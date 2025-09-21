@@ -519,7 +519,7 @@ export const storeChat = defineStore('chat', {
 				detailsKey:"params.commands.clips",
 				twitchCmd:true,
 				needModerator:true,
-				twitch_scopes:[TwitchScopes.CLIPS],
+				twitch_scopes:[TwitchScopes.CLIPS_EDIT],
 			},
 			{
 				id:"marker",

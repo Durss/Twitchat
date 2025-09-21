@@ -193,6 +193,10 @@ class TriggerCreateForm extends Vue {
 				this.selectTriggerType(this.selectedTriggerType);
 			}
 		});
+		
+		watch(()=>this.$store.auth.newScopesToRequest, () => {
+			this.populate();
+		});
 	}
 
 	/**

@@ -1089,16 +1089,20 @@ export default toNative(ChatMessage);
 		padding: .5em;
 		cursor: pointer;
 		position: relative;
+		flex-wrap: wrap;
 
 		img {
 			cursor: pointer;
 			object-fit: cover;
-			max-width: min(50%, 200px);
+			width: max(50%, 190px);
+			min-width: 190px;
+			flex-basis: 190px;
 		}
 
 		.infos {
 			padding: 0 .5em;
 			min-width: 150px;
+			flex: 1;
 			.title {
 				font-weight: bold;
 				margin-bottom: .25em;

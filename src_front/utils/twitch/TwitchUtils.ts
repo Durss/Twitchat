@@ -1695,7 +1695,7 @@ export default class TwitchUtils {
 	 * Create a clip
 	 */
 	public static async createClip(): Promise<boolean> {
-		if (!this.hasScopes([TwitchScopes.CLIPS])) return false;
+		if (!this.hasScopes([TwitchScopes.CLIPS_EDIT])) return false;
 
 		const channel_id = this.uid;
 		let message: TwitchatDataTypes.MessageClipCreate = {
@@ -1768,7 +1768,7 @@ export default class TwitchUtils {
 			if (res.status == 429) {
 				//Rate limit reached, try again after it's reset to full
 				await this.onRateLimit(res.headers);
-				return await this.raidCancel();
+				return await this.createClip();
 			} else {
 				message.error = true;
 				message.loading = false;
@@ -3116,6 +3116,31 @@ export default class TwitchUtils {
 		return null;
 	}
 
+	/**
+	 * Gets clips download URLs
+	 */
+	public static async getClipsSrcPath(clipIds:string[]): Promise<TwitchDataTypes.ClipDL[]> {
+		if (!this.hasScopes([TwitchScopes.BLOCKED_TERMS])) return [];
+		const url = new URL(Config.instance.TWITCH_API_PATH + "clips/downloads");
+		url.searchParams.append("editor_id", this.uid);
+		url.searchParams.append("clip_id", clipIds.join(","));
+		url.searchParams.append("broadcaster_id", "201904476");
+		// url.searchParams.append("broadcaster_id", this.uid);
+
+		const res = await this.callApi(url, {
+			method: "GET",
+			headers: this.headers,
+		});
+		if (res.status == 200 || res.status == 204) {
+			const json = await res.json() as {data:TwitchDataTypes.ClipDL[]};
+			return json.data;
+		} else if (res.status == 429) {
+			await this.onRateLimit(res.headers);
+			return this.getClipsSrcPath(clipIds);
+		}
+		return [];
+	}
+
 
 
 
@@ -3449,7 +3474,7 @@ export default class TwitchUtils {
 		}
 
 		//Parse username chunks
-		//only for twitch ash we cannot retrive the actual user profile for other platforms
+		//only for twitch as we cannot retrive the actual user profile for other platforms
 		if(platform == "twitch") {
 			for (let i = 0; i < result.length; i++) {
 				const chunk = result[i];
@@ -3565,30 +3590,6 @@ export default class TwitchUtils {
 		//TODO parse links on text chunks
 
 		return chunks;
-	}
-
-	/**
-	 * Converts parsed emote data to raw IRC compatible emote data.
-	 * PubSub only returns parsed emote data but the parser expect
-	 * raw IRC data to work. This method allows to convert one format
-	 * to the other.
-	 *
-	 * @param data
-	 * @returns
-	 */
-	public static parsedEmoteDataToRawEmoteData(data: { emote_id: string, start: number, end: number }[]): string {
-		let result: string = "";
-		const hashmap: { [key: string]: string[] } = {};
-		for (let i = 0; i < data.length; i++) {
-			const e = data[i];
-			if (!hashmap[e.emote_id]) hashmap[e.emote_id] = [];
-			hashmap[e.emote_id].push(e.start + "-" + e.end);
-		}
-		for (const emote in hashmap) {
-			if (result.length > 0) result += "/";
-			result += emote + ":" + hashmap[emote].join(",")
-		}
-		return result;
 	}
 
 	/**

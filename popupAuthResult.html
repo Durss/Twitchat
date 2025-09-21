@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Twitchat authorization</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Inter, Arial, sans-serif;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			height: 100vh;
+			width: 100vw;
+			padding: 0;
+			font-size: 2em;
+        }
+
+		img {
+			height: 1.5em;
+			margin: 1em auto 0 auto;
+		}
+
+		.result {
+			flex-grow: 1;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+        
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #18181b;
+                color: white;
+            }
+        }
+    </style>
+</head>
+<body>
+	<img src="/twitchat.svg" id="logoForDraggableItems">
+	<div class="result">✅ Connected</div>
+	<script>
+		// Notify the opener window that the auth is complete
+		if (window.opener) {
+			let url = "";
+			if(!url) url = document.location.search;
+			const params = new URLSearchParams(url);
+			window.opener.authCallback(params.get("code"), decodeURIComponent(params.getAll("scope")).split(" "));
+		} else {
+			console.error("No opener window found.");
+			document.body.innerText = "No opener window found. Please close this tab and return to the main application.";
+		}
+	</script>
+</body>
+</html>

@@ -221,6 +221,7 @@
 			"moderator:manage:shoutouts": "Send shoutouts",
 			"moderator:manage:unban_requests": "Receive/Edit unban requests",
 			"clips:edit": "Create clips",
+			"channel:manage:clips": "Download your clips",
 			"channel:read:ads":"Read ad break info",
 			"channel:manage:ads":"Snooze an incoming ad break",
 			"moderator:manage:warnings":"Send warning to users",

@@ -1970,12 +1970,15 @@ export default toNative(MessageList);
 		padding: .5em;
 		display: flex;
 		align-items: center;
+		justify-content: center;
+		gap: 0;
 		margin-right: .5em;
 		z-index: 1;
-		.icon {
+		&>.icon {
 			height: 1em;
+			width: 1em;
 		}
-		span {
+		span:not(.icon) {
 			flex-grow: 1;
 			text-align: center;
 			.icon {

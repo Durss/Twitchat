@@ -448,7 +448,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					return await TwitchUtils.raidCancel();
 				}
 				case "/clip":  {
-					if(!TwitchUtils.requestScopes([TwitchScopes.CLIPS])) return false;
+					if(!TwitchUtils.requestScopes([TwitchScopes.CLIPS_EDIT])) return false;
 					return await TwitchUtils.createClip();
 				}
 				case "/whisper":

@@ -245,7 +245,32 @@ class Login extends Vue {
 			this.$store.common.alert(this.$t("error.csrf_failed"));
 		}
 		if(redirect) {
-			document.location.href = this.oAuthURL;
+			if(this.$store.auth.authenticated) {
+				this.oAuthURL = TwitchUtils.getOAuthURL(this.CSRFToken, this.scopes, "/popup");
+				const win = window.open(this.oAuthURL, "twitchAuth", "width=600,height=800");
+				if(win) {
+					const interval = setInterval(() => {
+						if (win.closed) {
+							clearInterval(interval);
+							this.generatingCSRF = false;
+						}
+					}, 500);
+					window.authCallback = (code:string, scopes:TwitchScopesString[])=> {
+						clearInterval(interval);
+						win?.close();
+						this.$store.auth.twitch_updateAuthScopes(code).then(success=>{
+							if(success) {
+								this.close();
+							}
+						}).finally(() => {
+							this.generatingCSRF = false;
+						});
+					}
+					win.focus();
+					return;
+				}
+			}
+			window.location.href = this.oAuthURL;
 		}
 	}
 

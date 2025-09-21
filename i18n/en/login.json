@@ -21,6 +21,7 @@
 		"generatingCSRF":"Generating CSRF token...",
 		"retryBt":"Try again",
 		"grant_all":"Grant all permissions",
-		"authenticating":"Authenticating..."
+		"authenticating":"Authenticating...",
+		"auth_failed":"Authentication failed"
 	}
 }

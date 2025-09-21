@@ -26,10 +26,10 @@
 			<ScopeSelector @update="onScopesUpdate" />
 
 			<TTButton class="authorizeBt"
-				type="link" primary
-				:href="oAuthURL"
+				primary
+				@click.stop="authorize()"
 				v-if="showAuthorizeBt"
-				:loading="generatingCSRF"
+				:loading="generatingCSRF || authenticating"
 				v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
 				icon="twitch">{{ $t('login.authorizeBt') }}</TTButton>
 		</section>
@@ -87,6 +87,7 @@ import DonorState from '@/components/user/DonorState.vue';
 import ParamsAccountPatreon from './account/ParamsAccountPatreon.vue';
 import ApiHelper from '@/utils/ApiHelper';
 import Splitter from '@/components/Splitter.vue';
+import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 
 @Component({
 	components:{
@@ -246,6 +247,30 @@ class ParamsAccount extends Vue implements IParameterContent {
 			}
 			//DO unlink
 		}).catch(()=>{});
+	}
+
+	public authorize():void {
+		this.oAuthURL = TwitchUtils.getOAuthURL(this.CSRFToken, this.scopes, "/popup");
+		const win = window.open(this.oAuthURL, "twitchAuth", "width=600,height=800");
+		if(win) {
+			this.authenticating = true;
+			const interval = setInterval(() => {
+				if (win.closed) {
+					clearInterval(interval);
+					this.authenticating = false;
+				}
+			}, 500);
+			window.authCallback = (code:string, scopes:TwitchScopesString[])=> {
+				clearInterval(interval);
+				win?.close();
+				this.$store.auth.twitch_updateAuthScopes(code).finally(() => {
+					this.authenticating = false;
+				});
+			}
+			win.focus();
+			return;
+		}
+		window.location.href = this.oAuthURL;
 	}
 
 	private updateSharedUserList():void {

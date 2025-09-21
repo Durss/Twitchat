@@ -400,6 +400,14 @@ export interface IAuthActions {
 	 * Loads the specified user ID profile and donor state
 	 */
 	loadUserState(uid:string):Promise<void>;
+	/**
+	 * Called after requesting new scopes.
+	 * If authenticated from popup, the code and scopes are given here
+	 * to update the app auth state
+	 * @param code 
+	 * @param scopes 
+	 */
+	twitch_updateAuthScopes(code:string):Promise<boolean>
 }
 
 
