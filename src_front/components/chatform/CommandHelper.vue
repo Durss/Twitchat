@@ -376,7 +376,7 @@ class CommandHelper extends Vue {
 			target = target.parentElement as HTMLDivElement;
 		}
 		if(target != ref) {
-			// this.close();
+			this.close();
 		}
 	}
 

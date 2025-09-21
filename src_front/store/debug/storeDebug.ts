@@ -2169,8 +2169,12 @@ export const storeDebug = defineStore('debug', {
 						noticeId:noticeType,
 						message:StoreProxy.i18n.t("global.moderation_action.stream_title_changed", {TITLE:title}),
 						channel_id:uid,
+						tags:"twitch, streaming, french",
 						title,
 						category,
+						titleChanged: false,
+						categoryChanged: false,
+						tagsChanged: false,
 					};
 					data = m;
 					break;
@@ -2237,7 +2241,11 @@ export const storeDebug = defineStore('debug', {
 						message:StoreProxy.i18n.t("stream.notification", {TITLE:title}),
 						channel_id:uid,
 						category:"Just chatting",
+						tags:"twitch, streaming, french",
 						title,
+						titleChanged: false,
+						categoryChanged: false,
+						tagsChanged: false,
 					};
 					data = m;
 					break;

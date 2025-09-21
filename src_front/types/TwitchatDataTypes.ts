@@ -4452,6 +4452,22 @@ export namespace TwitchatDataTypes {
 		 * Stream category
 		 */
 		category:string;
+		/**
+		 * Concatenated tags (comma+space separated)
+		 */
+		tags:string;
+		/**
+		 * true if title changed
+		 */
+		titleChanged:boolean;
+		/**
+		 * true if category changed
+		 */
+		categoryChanged:boolean;
+		/**
+		 * true if tags changed
+		 */
+		tagsChanged:boolean;
 	}
 
 	/**

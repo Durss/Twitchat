@@ -2125,6 +2125,10 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	map[TriggerTypes.STREAM_INFO_UPDATE] = [
 		{tag:"TITLE", descKey:'triggers.placeholders.stream_title', pointer:"title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamInfoUpdate>,
 		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"category", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamInfoUpdate>,
+		{tag:"TAGS", descKey:'triggers.placeholders.stream_tags', pointer:"tags", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamInfoUpdate>,
+		{tag:"TITLE_CHANGED", descKey:'triggers.placeholders.title_changed', pointer:"titleChanged", numberParsable:false, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamInfoUpdate>,
+		{tag:"CATEGORY_CHANGED", descKey:'triggers.placeholders.category_changed', pointer:"categoryChanged", numberParsable:false, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamInfoUpdate>,
+		{tag:"TAGS_CHANGED", descKey:'triggers.placeholders.tags_changed', pointer:"tagsChanged", numberParsable:false, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageStreamInfoUpdate>,
 	];
 
 	map[TriggerTypes.HIGHLIGHT_CHAT_MESSAGE] = [

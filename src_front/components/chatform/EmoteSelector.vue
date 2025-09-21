@@ -73,7 +73,7 @@
 			</TTButton>
 		</div>
 
-		<TTButton v-if="!canListUserEmotes" secondary icon="lock_fit" @click="grantEmoteScope()">{{ $t("global.emote_scope") }}</TTButton>
+		<TTButton class="grantBt" v-if="!canListUserEmotes" secondary icon="lock_fit" @click="grantEmoteScope()">{{ $t("global.emote_scope") }}</TTButton>
 
 		<input v-if="filteredUsers.length > 0" type="text" v-autofocus v-model="filter" :placeholder="$t('global.search_placeholder')" class="dark">
 	</div>
@@ -164,7 +164,7 @@ class EmoteSelector extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		fetch(this.$asset("youtube/emote_list.json")).then(async query=> {
+		fetch("/youtube/emote_list.json").then(async query=> {
 			const youtubeEmotes:{[code:string]:string} = await query.json();
 			const res:TwitchatDataTypes.Emote[] = [];
 			for (const key in youtubeEmotes) {
@@ -469,7 +469,7 @@ export default toNative(EmoteSelector);
 		}
 	}
 
-	.loader {
+	&>.loader {
 		margin: auto;
 		text-align: center;
 		color: var(--color-light);
@@ -576,6 +576,10 @@ export default toNative(EmoteSelector);
 		.userList {
 			max-height: 3em;
 		}
+	}
+
+	.grantBt {
+		margin-top: 1em;
 	}
 }
 </style>

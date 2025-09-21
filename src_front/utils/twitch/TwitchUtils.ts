@@ -29,6 +29,7 @@ export default class TwitchUtils {
 	private static uid:string = "";
 	private static scopes:string[] = [];
 	private static accessToken:string = "";
+	private static loadingEmotes:boolean = false;
 	private static loadedChannelEmotes:{[uid:string]:boolean} = {};
 	private static requestScopesCallback:(scopes:TwitchScopesString[])=>void;
 	private static refreshTokenCallback:()=>Promise<false | TwitchDataTypes.AuthTokenResult>;
@@ -62,6 +63,12 @@ export default class TwitchUtils {
 			if(uid) this.uid = uid;
 			this.scopes = scopes;
 			this.accessToken = accessToken;
+			this.emotesCache = [];
+			this.emotesCacheHashmap = {};
+			this.cheermoteCache = {};
+			this.loadedChannelEmotes = {};
+			this.loadingEmotes = false;
+			StoreProxy.chat.setEmoteSelectorCache([]);
 			this.refreshTokenCallback = refreshTokenCallback;
 			this.requestScopesCallback = requestScopesCallback;
 	}
@@ -644,6 +651,9 @@ export default class TwitchUtils {
 	 * Get the emotes list
 	 */
 	public static async getEmotes(): Promise<TwitchatDataTypes.Emote[]> {
+		if(!this.loadingEmotes) {
+			await this.loadEmoteSets(this.uid);
+		}
 		while (this.emotesCache.length == 0) {
 			await Utils.promisedTimeout(100);
 		}
@@ -655,6 +665,8 @@ export default class TwitchUtils {
 	 */
 	public static async loadEmoteSets(channelId: string, staticEmotes?: TwitchDataTypes.Emote[]): Promise<void> {
 		if(this.loadedChannelEmotes[channelId] === true) return;
+		if(this.loadingEmotes) return;
+		this.loadingEmotes = true;
 
 		let emotesTwitch: TwitchDataTypes.Emote[] = [];
 		if (!staticEmotes) {
@@ -754,6 +766,7 @@ export default class TwitchUtils {
 		this.emotesCache.sort((a, b) => b.code.length - a.code.length);
 
 		this.loadedChannelEmotes[channelId] = true;
+		this.loadingEmotes = false;
 		//Invalidate cache
 		StoreProxy.chat.setEmoteSelectorCache([]);
 	}
@@ -3035,7 +3048,7 @@ export default class TwitchUtils {
 	 * @param reason warning message
 	 */
 	public static async sendMessage(channelID: string, message:string, replyToID?:string, sendAsBot:boolean = true): Promise<boolean> {
-		if (!this.hasScopes([TwitchScopes.BLOCKED_TERMS])) return false;
+		if (!this.hasScopes([TwitchScopes.CHAT_WRITE_EVENTSUB])) return false;
 
 		while(message.length > 0) {
 			const url = new URL(Config.instance.TWITCH_API_PATH + "chat/messages");

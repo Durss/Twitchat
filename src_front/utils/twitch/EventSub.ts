@@ -765,12 +765,18 @@ export default class EventSub {
 		infos.viewers = viewers;
 		infos.live = live;
 
+		let titleChanged = infos.title != this.lastChannelUpdateInfos.title
+		let categoryChanged = infos.category != this.lastChannelUpdateInfos.category
+		let tagsChanged = infos.tags.map(v=>v.toLowerCase()).sort().toString() != this.lastChannelUpdateInfos.tags.map(v=>v.toLowerCase()).sort().toString()
+		let viewersChanged = infos.viewers != this.lastChannelUpdateInfos.viewers
+		let liveChanged = infos.live != this.lastChannelUpdateInfos.live;
+
 		//Allows to dedupe update events
-		const isChange = infos.title != this.lastChannelUpdateInfos.title
-				|| infos.category != this.lastChannelUpdateInfos.category
-				|| infos.tags.toString() != this.lastChannelUpdateInfos.tags.toString()
-				|| infos.viewers != this.lastChannelUpdateInfos.viewers
-				|| infos.live != this.lastChannelUpdateInfos.live;
+		const isChange = titleChanged
+				|| categoryChanged
+				|| tagsChanged
+				|| viewersChanged
+				|| liveChanged;
 
 		this.lastChannelUpdateInfos.title = infos.title;
 		this.lastChannelUpdateInfos.category = infos.category;
@@ -802,7 +808,11 @@ export default class EventSub {
 				message:StoreProxy.i18n.t("stream.notification", {TITLE:event.title, CATEGORY:event.category_name}),
 				noticeId:TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE,
 				title:infos.title,
-				category:infos.category
+				category:infos.category,
+				tags:infos.tags.join(", "),
+				titleChanged,
+				categoryChanged,
+				tagsChanged,
 			}
 
 			StoreProxy.chat.addMessage(message);
