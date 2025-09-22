@@ -112,6 +112,7 @@ export default defineConfig({
 				public: resolve(__dirname, 'public.html'),
 				overlayLabel: resolve(__dirname, 'overlayLabel.html'),
 				overlaySfxr: resolve(__dirname, 'overlaySfxr.html'),
+				popupAuthResult: resolve(__dirname, 'popupAuthResult.html'),
 			},
 			output: {
 				entryFileNames: "assets/[name]-[hash]-" + process.env.npm_package_version + ".js",
