@@ -4374,11 +4374,14 @@ export default class TriggerActionHandler {
 
 				if(escapeDoubleQuotes) value = value.replace(/\"/g, "\\\"");
 
+				if(removeHTMLtags !== true) value = Utils.stripHTMLTags(value);
+
 				res = res.replace(new RegExp("\\{"+placeholder.tag+"\\}", "gi"), value ?? "");
+
 			}
 
 			// console.log("RESULT = ",res);
-			return removeHTMLtags? Utils.stripHTMLTags(res) : res;
+			return res;
 
 		}catch(error) {
 			console.error(error);

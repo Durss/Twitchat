@@ -1737,6 +1737,10 @@ export interface ITriggerPlaceholder<Type, ListValueType=unknown, PointerPrefix 
 	 */
 	storage?:unknown;
 	/**
+	 * Should HTML tags be kept in the value when replacing the placeholder?
+	 */
+	keepHTML?:true;
+	/**
 	 * Values the placeholder can have
 	 * Used to provide a list of fixed entries under trigger conditions
 	 */
@@ -1846,8 +1850,8 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:USER_BADGES, descKey:'triggers.placeholders.user_badges', pointer:"__user_badges__", numberParsable:false, isUserID:false},
 		{tag:USER_CUSTOM_BADGES, descKey:'triggers.placeholders.user_custom_badges', pointer:"__user_custom_badges__", numberParsable:false, isUserID:false},
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
-		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
-		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
+		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
+		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
 	];
 
 	map[TriggerTypes.POWER_UP_MESSAGE] = [...map[TriggerTypes.ANY_MESSAGE]!,
@@ -1859,8 +1863,8 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"PARENT_"+USER_DISPLAY_NAME, descKey:'triggers.placeholders.parent_user_customName', pointer:"directlyAnswersTo.user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {directlyAnswersTo:SafeMessage}>,
 		{tag:"PARENT_"+USER_ID, descKey:'triggers.placeholders.parent_user_id', pointer:"directlyAnswersTo.user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<SafeMessage & {directlyAnswersTo:SafeMessage}>,
 		{tag:"PARENT_MESSAGE", descKey:'triggers.placeholders.parent_message', pointer:"directlyAnswersTo.message", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {directlyAnswersTo:SafeMessage}>,
-		{tag:"PARENT_MESSAGE_JSON", descKey:'triggers.placeholders.parent_message_json', pointer:"directlyAnswersTo.message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {directlyAnswersTo:SafeMessage}>,
-		{tag:"PARENT_MESSAGE_HTML", descKey:'triggers.placeholders.parent_message_html', pointer:"directlyAnswersTo.message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {directlyAnswersTo:SafeMessage}>,
+		{tag:"PARENT_MESSAGE_JSON", descKey:'triggers.placeholders.parent_message_json', pointer:"directlyAnswersTo.message_chunks", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {directlyAnswersTo:SafeMessage}>,
+		{tag:"PARENT_MESSAGE_HTML", descKey:'triggers.placeholders.parent_message_html', pointer:"directlyAnswersTo.message_html", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage & {directlyAnswersTo:SafeMessage}>,
 	];
 
 	map[TriggerTypes.POWER_UP_GIANT_EMOTE] = [...map[TriggerTypes.ANY_MESSAGE]!,
@@ -2372,15 +2376,15 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"AMOUNT_FORMATTED", descKey:'triggers.placeholders.donation_amount_formatted', pointer:"amountFormatted", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
 		{tag:"CURRENCY", descKey:'triggers.placeholders.currency', pointer:"currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
-		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
-		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
+		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
+		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
 	];
 	map[TriggerTypes.STREAMLABS_MERCH] = [
 		{tag:"USER_NAME", descKey:'triggers.placeholders.user', pointer:"userName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsMerchData>,
 		{tag:"PRODUCT", descKey:'triggers.placeholders.merch_product', pointer:"product", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsMerchData>,
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsMerchData>,
-		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsMerchData>,
-		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsMerchData>,
+		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsMerchData>,
+		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsMerchData>,
 	];
 	map[TriggerTypes.STREAMLABS_PATREON_PLEDGE] = [
 		{tag:"USER_NAME", descKey:'triggers.placeholders.user', pointer:"userName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsPatreonPledgeData>,
@@ -2394,8 +2398,8 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"AMOUNT", descKey:'triggers.placeholders.donation_amount', pointer:"amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
 		{tag:"CURRENCY", descKey:'triggers.placeholders.currency', pointer:"currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
-		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
-		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
+		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
+		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
 		{tag:"IS_PUBLIC", descKey:'triggers.placeholders.kofi_public', pointer:"isPublic", numberParsable:true, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
 	];
 	map[TriggerTypes.KOFI_MERCH] = [
@@ -2406,8 +2410,8 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"CURRENCY", descKey:'triggers.placeholders.currency', pointer:"currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
 		{tag:"AMOUNT_FORMATTED", descKey:'triggers.placeholders.merch_amount_formatted', pointer:"amountFormatted", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
-		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
-		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
+		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
+		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
 		{tag:"IS_PUBLIC", descKey:'triggers.placeholders.kofi_public', pointer:"isPublic", numberParsable:true, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
 	];
 	map[TriggerTypes.KOFI_SUBSCRIPTION] = [
@@ -2417,8 +2421,8 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"TIER", descKey:'triggers.placeholders.kofi_tier', pointer:"tier", numberParsable:true, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 		{tag:"FIRST_TIME_SUB", descKey:'triggers.placeholders.kofi_first_time_sub', pointer:"firstTimeSub", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
-		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
-		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
+		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
+		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 		{tag:"IS_PUBLIC", descKey:'triggers.placeholders.kofi_public', pointer:"isPublic", numberParsable:true, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
 	];
 	map[TriggerTypes.KOFI_COMMISSION] = [
@@ -2433,8 +2437,8 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"AMOUNT", descKey:'triggers.placeholders.donation_amount', pointer:"amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamelementsDonationData>,
 		{tag:"CURRENCY", descKey:'triggers.placeholders.currency', pointer:"currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamelementsDonationData>,
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamelementsDonationData>,
-		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamelementsDonationData>,
-		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamelementsDonationData>,
+		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamelementsDonationData>,
+		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamelementsDonationData>,
 	];
 
 	map[TriggerTypes.TIPEEE_DONATION] =
@@ -2443,8 +2447,8 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"AMOUNT", descKey:'triggers.placeholders.donation_amount', pointer:"amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
 		{tag:"CURRENCY", descKey:'triggers.placeholders.currency', pointer:"currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
-		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
-		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
+		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
+		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
 	];
 
 	map[TriggerTypes.TIPEEE_RESUB] = [...map[TriggerTypes.TIPEEE_DONATION]!,
@@ -2499,8 +2503,8 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"AMOUNT", descKey:'triggers.placeholders.donation_amount', pointer:"amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
 		{tag:"CURRENCY", descKey:'triggers.placeholders.currency', pointer:"currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
-		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
-		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
+		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
+		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
 		{tag:"TIER", descKey:'triggers.placeholders.superchat_tier', pointer:"tier", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSuperChatData>,
 	];
 
@@ -2524,8 +2528,8 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:USER_AVATAR, descKey:'triggers.placeholders.user_avatar', pointer:"user.avatarPath", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
 		{tag:USER_CUSTOM_BADGES, descKey:'triggers.placeholders.user_custom_badges', pointer:"__user_custom_badges__", numberParsable:false, isUserID:false},
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
-		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
-		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
+		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
+		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
 		{tag:"LEVEL", descKey:'triggers.placeholders.youtube_sub_tier', pointer:"levelName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
 		{tag:"MONTHS", descKey:'triggers.placeholders.youtube_sub_months', pointer:"months", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageYoutubeSubscriptionData>,
 	];
