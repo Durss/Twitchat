@@ -14,7 +14,9 @@ import MessengerProxy from "@/messaging/MessengerProxy";
 * Created : 02/12/2022
 */
 export default class EventSub {
-
+	
+	public lastChannelUpdateInfos = {title:"", category:"", tags:[""], viewers:0, live:false};
+	
 	private static _instance:EventSub;
 	private socket!:WebSocket;
 	private oldSocket!:WebSocket;
@@ -27,8 +29,7 @@ export default class EventSub {
 	private sessionID:string = "";
 	private connectURL:string = "";
 	private chanSubscriptions:{[chanId:string]:{topic:string, uid:string, id:string}[]} = {};
-	private lastChannelUpdateInfos = {title:"", category:"", tags:[""], viewers:0, live:false};
-
+	
 	constructor() {
 		this.connectURL = Config.instance.TWITCH_EVENTSUB_PATH;
 		window.addEventListener("beforeunload", ()=>{

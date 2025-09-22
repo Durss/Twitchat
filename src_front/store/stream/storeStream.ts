@@ -132,6 +132,7 @@ export const storeStream = defineStore('stream', {
 						infos.previewUrl= v[0].thumbnail_url.replace("{width}", "1920").replace("{height}", "1080");
 						categoryId		= v[0].game_id;
 					}
+
 					if(StoreProxy.auth.twitch.user.id == channelId) {
 						const categoryData = await TwitchUtils.getCategoryByID(categoryId);
 						if(categoryData) {
@@ -140,6 +141,11 @@ export const storeStream = defineStore('stream', {
 							StoreProxy.labels.updateLabelValue("STREAM_CATEGORY_COVER", categoryData.box_art_url.replace("{width}", "138").replace("{height}", "190"));
 							StoreProxy.labels.updateLabelValue("VIEWER_COUNT_TWITCH", infos.viewers);
 						}
+						EventSub.instance.lastChannelUpdateInfos.title = infos.title;
+						EventSub.instance.lastChannelUpdateInfos.category = infos.category;
+						EventSub.instance.lastChannelUpdateInfos.tags = infos.tags;
+						EventSub.instance.lastChannelUpdateInfos.viewers = infos.viewers;
+						EventSub.instance.lastChannelUpdateInfos.live = infos.live;
 					}
 				});
 			}
