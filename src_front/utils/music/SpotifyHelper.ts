@@ -515,7 +515,7 @@ export default class SpotifyHelper {
 			else if(json.item.album && json.item.album.images?.length > 0) cover = json.item.album.images[0].url;
 			this.currentTrack = {
 				title:json.item.name,
-				artist:json.item.show? json.item.show.name : json.item.artists[0].name,
+				artist:json.item.show? json.item.show.name : json.item.artists.map(a=>a.name).join(", "),
 				album:json.item.album? json.item.album.name : "",
 				cover,
 				duration:json.item.duration_ms,
