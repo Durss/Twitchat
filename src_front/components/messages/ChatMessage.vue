@@ -13,14 +13,14 @@
 			<Icon name="automod" theme="light" />
 			<div class="header"><strong>{{ $t('chat.message.automod') }}</strong> {{automodReasons}}</div>
 			<div class="actions">
-				<Button :aria-label="$t('chat.message.automod_acceptBt_aria')"
+				<TTButton :aria-label="$t('chat.message.automod_acceptBt_aria')"
 					v-tooltip="$t('chat.message.automod_acceptBt_aria')"
 					icon="checkmark"
 					light
 					@click.stop="modMessage(true)"
 					:loading="automodInProgress" />
 
-				<Button :aria-label="$t('chat.message.automod_rejectBt_aria')"
+				<TTButton :aria-label="$t('chat.message.automod_rejectBt_aria')"
 					v-tooltip="$t('chat.message.automod_rejectBt_aria')"
 					light alert
 					icon="cross"
@@ -48,7 +48,7 @@
 				name="conversation"
 				@click.stop="$emit('showConversation', messageData)" />
 
-			<Button class="noAutospoilBt" v-if="messageData.type == 'message' && messageData.autospoiled === true"
+			<TTButton class="noAutospoilBt" v-if="messageData.type == 'message' && messageData.autospoiled === true"
 			@click.stop="stopAutoSpoil()" alert small icon="show" v-tooltip="$t('chat.message.stop_autospoil')" />
 
 			<ChatMessageInfoBadges class="infoBadges" :infos="infoBadges" v-if="infoBadges.length > 0" />
@@ -138,14 +138,15 @@
 					<div class="subtitle">{{$t("chat.message.clip_channel")}} {{clipInfo.broadcaster_name}}</div>
 					<div class="subtitle">{{$t("chat.message.clip_duration")}} {{clipInfo.duration}}s</div>
 					<div class="subtitle">{{$t("chat.message.clip_views")}} {{clipInfo.view_count}}</div>
-					<Button class="highlightBt"
+					<TTButton class="highlightBt"
 						:aria-label="$t('chat.message.highlightBt_aria')"
 						icon="highlight"
 						v-tooltip="$t('chat.message.highlightBt_tt')"
 						:loading="clipHighlightLoading"
 						@click.stop="clipHighlight()"
-					>{{ $t('chat.message.highlightBt_aria') }}</Button>
-					<Icon class="alertIcon" name="alert" theme="alert" v-tooltip="{theme:'alert', content:$t('chat.message.highlightBt_alert_tt')}" />
+					>{{ $t('chat.message.highlightBt_aria') }}</TTButton>
+					<Icon v-if="clipInfo.broadcaster_id != $store.auth.twitch.user.id" class="alertIcon" name="alert" theme="alert" v-tooltip="{theme:'alert', content:$t('chat.message.highlightBt_alert_tt')}" />
+					<TTButton v-else-if="requestClipDLPermission" @click="grantClipDLScope()" v-tooltip="$t('chat.message.clip_permission_tt')" secondary small icon="unlock">{{ $t('chat.message.clip_permission') }}</TTButton>
 				</div>
 			</div>
 		</template>
@@ -155,8 +156,8 @@
 		@click.stop="messageData.user.stop_block_censor = true">{{ $t("chat.message.blocked_user") }}</span>
 
 		<div class="ctas" v-if="isAd">
-			<Button @click="disableAd()" alert icon="cross">{{ $t('chat.message.disable_ad') }}</Button>
-			<Button @click="openAdParams()" icon="edit">{{ $t('chat.message.customize_ad') }}</Button>
+			<TTButton @click="disableAd()" alert icon="cross">{{ $t('chat.message.disable_ad') }}</TTButton>
+			<TTButton @click="openAdParams()" icon="edit">{{ $t('chat.message.customize_ad') }}</TTButton>
 		</div>
 	</div>
 
@@ -182,10 +183,11 @@ import MessageTranslation from './MessageTranslation.vue';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 import ChatModTools from './components/ChatModTools.vue';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ChatModTools,
 		CustomUserBadges,
 		MessageTranslation,
@@ -232,6 +234,7 @@ class ChatMessage extends AbstractChatMessage {
 	public automodInProgress:boolean = false;
 	public userBannedOnChannels:string = "";
 	public localMessageChunks:TwitchatDataTypes.ParseMessageChunk[] = [];
+	public requestClipDLPermission:boolean = false;
 
 	private staticClasses:string[] = [];
 	private showModToolsPreCalc:boolean = false;
@@ -540,6 +543,9 @@ class ChatMessage extends AbstractChatMessage {
 				let clip = await TwitchUtils.getClipById(clipId, 5);
 				if(clip) {
 					this.clipInfo = clip;
+					if(clip.broadcaster_id == this.$store.auth.twitch.user.id && !TwitchUtils.hasScopes([TwitchScopes.MANAGE_CLIPS])) {
+						this.requestClipDLPermission = true;
+					}
 				}
 			})();
 		}
@@ -625,6 +631,7 @@ class ChatMessage extends AbstractChatMessage {
 			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "chathighlight");
 			return;
 		}
+
 		this.clipHighlightLoading = true;
 		const data:TwitchatDataTypes.ChatHighlightInfo = {
 			date:this.messageData.date,
@@ -636,6 +643,10 @@ class ChatMessage extends AbstractChatMessage {
 			},
 			params:this.$store.chat.chatHighlightOverlayParams,
 			dateLabel:this.$store.i18n.tm("global.date_ago"),
+		}
+		if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_CLIPS])) {
+			const clipSrcPath = await TwitchUtils.getClipsSrcPath([this.clipInfo!.id]);
+			data.clip!.mp4 = clipSrcPath[0].landscape_download_url;
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
 		this.$store.chat.highlightedMessageId = this.messageData.id;
@@ -650,6 +661,17 @@ class ChatMessage extends AbstractChatMessage {
 
 	public onMouseEnter():void{
 		this.showTools = true;
+	}
+
+	/**
+	 * Requests for emote scope
+	 */
+	public grantClipDLScope():void {
+		TwitchUtils.requestScopes([TwitchScopes.MANAGE_CLIPS]);
+		console.log("ok")
+		watch(() => this.$store.auth.twitch.scopes, () => {
+			this.requestClipDLPermission = !TwitchUtils.hasScopes([TwitchScopes.MANAGE_CLIPS]);
+		}, {once:true});
 	}
 
 	/**
@@ -1087,7 +1109,6 @@ export default toNative(ChatMessage);
 		flex-direction: row;
 		border-radius: .25em;
 		padding: .5em;
-		cursor: pointer;
 		position: relative;
 		flex-wrap: wrap;
 

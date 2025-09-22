@@ -488,7 +488,7 @@ export class MessageListFilter extends Vue {
 			}
 		});
 		
-		watch(()=>this.$store.auth.newScopesToRequest, () => {
+		watch(()=>this.$store.auth.twitch.scopes, () => {
 			this.checkForMissingScopes();
 		});
 	}

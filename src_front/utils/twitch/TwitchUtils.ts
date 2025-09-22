@@ -3017,7 +3017,7 @@ export default class TwitchUtils {
 	 * @param reason warning message
 	 */
 	public static async sendWarning(uid: string, reason:string, channelID?:string): Promise<boolean> {
-		if (!this.hasScopes([TwitchScopes.BLOCKED_TERMS])) return false;
+		if (!this.hasScopes([TwitchScopes.CHAT_WARNING])) return false;
 
 		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/warnings");
 		url.searchParams.append("broadcaster_id", channelID ?? this.uid);
@@ -3133,7 +3133,7 @@ export default class TwitchUtils {
 	 * Gets clips download URLs
 	 */
 	public static async getClipsSrcPath(clipIds:string[]): Promise<TwitchDataTypes.ClipDL[]> {
-		if (!this.hasScopes([TwitchScopes.BLOCKED_TERMS])) return [];
+		if (!this.hasScopes([TwitchScopes.MANAGE_CLIPS])) return [];
 		const url = new URL(Config.instance.TWITCH_API_PATH + "clips/downloads");
 		url.searchParams.append("editor_id", this.uid);
 		url.searchParams.append("clip_id", clipIds.join(","));
