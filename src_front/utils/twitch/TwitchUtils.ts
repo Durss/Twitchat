@@ -68,7 +68,7 @@ export default class TwitchUtils {
 			this.cheermoteCache = {};
 			this.loadedChannelEmotes = {};
 			this.loadingEmotes = false;
-			StoreProxy.chat.setEmoteSelectorCache([]);
+			if(StoreProxy.chat) StoreProxy.chat.setEmoteSelectorCache([]);
 			this.refreshTokenCallback = refreshTokenCallback;
 			this.requestScopesCallback = requestScopesCallback;
 	}
