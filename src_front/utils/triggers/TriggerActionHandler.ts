@@ -1483,6 +1483,14 @@ export default class TriggerActionHandler {
 									console.error(error);
 								}
 							}
+							if(step.colorSource_color) {
+								try {
+									logStep.messages.push({date:Date.now(), value:"Update color source to \""+step.colorSource_color+"\" "+step.colorSource_alpha+"%"});
+									await OBSWebsocket.instance.setColorSourceColor(sourceName, ((step.colorSource_alpha!/100 * 0xff) << 24 | (parseInt(step.colorSource_color.replace("#", ""), 16))) >>> 0);
+								}catch(error) {
+									console.error(error);
+								}
+							}
 
 							if(step.filterName) {
 								try {

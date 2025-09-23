@@ -972,8 +972,6 @@ export const storeUsers = defineStore('users', {
 		},
 
 		async shoutout(channelId:string, user:TwitchatDataTypes.TwitchatUser, fromQueue:boolean = false):Promise<boolean> {
-			let streamTitle = "";
-			let streamCategory = "";
 			let executed = false;
 			let canExecute = true;
 

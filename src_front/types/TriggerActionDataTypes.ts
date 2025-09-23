@@ -438,6 +438,14 @@ export interface TriggerActionObsData extends TriggerActionData{
 	 */
 	browserSourceCss?:string;
 	/**
+	 * New color for a color source
+	 */
+	colorSource_color?:string;
+	/**
+	 * New alpha for a color source
+	 */
+	colorSource_alpha?:number;
+	/**
 	 * New position X in pixels
 	 */
 	pos_x?:string;

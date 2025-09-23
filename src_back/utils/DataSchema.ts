@@ -495,6 +495,8 @@ const UserDataSchema = {
 								sendAsReply: {type:"boolean"},
 								url: {type:"string", maxLength:1000},
 								browserSourceCss: {type:"string", maxLength:10000},
+								colorSource_color: {type:"string", maxLength:10},
+								colorSource_alpha: {type:"number", minimum:0, maximum:100},
 								mediaPath: {type:"string", maxLength:1000},
 								waitMediaEnd: {type:"boolean"},
 								pos_x: {type:"string", maxLength:500},

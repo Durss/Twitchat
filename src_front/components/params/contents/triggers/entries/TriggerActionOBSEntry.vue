@@ -37,6 +37,11 @@
 			<ParamItem :paramData="param_text_conf" v-model="action.text" v-if="isTextSource" />
 			<ParamItem :paramData="param_url_conf" v-model="action.url" v-if="isBrowserSource" />
 			<ParamItem :paramData="param_css_conf" v-model="action.browserSourceCss" v-if="isBrowserSource" />
+			<ParamItem :paramData="param_css_conf" v-model="action.browserSourceCss" v-if="isBrowserSource" />
+			<ParamItem :paramData="param_colorToggle_conf" v-model="param_colorToggle_conf.value" v-if="isColorSource" @change="changeColorToggle">
+				<ParamItem :paramData="param_color_conf" v-model="action.colorSource_color" noBackground class="child" />
+				<ParamItem :paramData="param_colorAlpha_conf" v-model="action.colorSource_alpha" noBackground class="child" />
+			</ParamItem>
 			<ParamItem :paramData="param_x_conf" v-model="action.pos_x" v-if="action.action == 'move'" />
 			<ParamItem :paramData="param_y_conf" v-model="action.pos_y" v-if="action.action == 'move'" />
 			<ParamItem :paramData="param_width_conf" v-model="action.width" v-if="action.action == 'resize'" />
@@ -178,6 +183,9 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public param_persistedKey_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", maxLength:100, icon:"key", labelKey:"triggers.actions.obs.param_persistedKey_conf" };
 	public param_persistedValue_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", maxLength:1000, icon:"font", labelKey:"triggers.actions.obs.param_persistedValue_conf" };
 	public param_persistedKeyPH_conf:TwitchatDataTypes.ParameterData<string> = { type:"placeholder", value:"", maxLength:30, allowedCharsRegex:"a-z0-9_", icon:"placeholder", labelKey:"triggers.actions.obs.param_screenImgSavePH_conf" };
+	public param_colorToggle_conf:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"color", labelKey:"triggers.actions.obs.param_colorToggle_conf" };
+	public param_color_conf:TwitchatDataTypes.ParameterData<string> = { type:"color", value:"", labelKey:"triggers.actions.obs.param_color_conf" };
+	public param_colorAlpha_conf:TwitchatDataTypes.ParameterData<number> = { type:"slider", value:100, min:0, max:100, labelKey:"triggers.actions.obs.param_colorAlpha_conf" };
 
 	public selectedSourceName:string = "";
 
@@ -208,6 +216,15 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	 */
 	public get isBrowserSource():boolean {
 		return this.obsSources.find(v=> "source_"+v.sourceName == this.param_source_conf.value)?.inputKind == 'browser_source'
+				&& this.param_filter_conf.value == ""
+				&& this.param_sourceAction_conf.value == "show";
+	}
+
+	/**
+	 * Get if the selected source is a color source
+	 */
+	public get isColorSource():boolean {
+		return this.obsSources.find(v=> "source_"+v.sourceName == this.param_source_conf.value)?.inputKind == 'color_source_v3'
 				&& this.param_filter_conf.value == ""
 				&& this.param_sourceAction_conf.value == "show";
 	}
@@ -258,6 +275,7 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		const sourceNameBackup = this.action.sourceName;
 		const actionBackup = this.action.action;
 		this.param_screenImgSavePath_conf.errorMessage = this.$t("triggers.actions.obs.param_screenImgSavePath_conf_error");
+		this.param_colorToggle_conf.value = !!this.action.colorSource_color;
 
 		// this.transformAnimate_conf.children = [this.transformEasing_conf, this.transformDuration_conf];
 
@@ -359,6 +377,17 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		return `window.addEventListener("${this.action.browserEventName}", (param) => {
 	console.log(param.detail.data);
 });`;
+	}
+
+	public changeColorToggle():void {
+		if(!this.param_colorToggle_conf.value) {
+			this.action.colorSource_color = "";
+			this.action.colorSource_alpha = 100;
+
+		}else if(!this.action.colorSource_color) {
+			this.action.colorSource_color = "#ffffff";
+			this.action.colorSource_alpha = 100;
+		}
 	}
 
 	/**
