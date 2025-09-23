@@ -206,9 +206,6 @@ class ParamsAccount extends Vue implements IParameterContent {
 		this.generatingCSRF = true;
 		this.showAuthorizeBt = true;
 		try {
-			const headers = {
-				'App-Version': import.meta.env.PACKAGE_VERSION,
-			};
 			const {json} = await ApiHelper.call("auth/CSRFToken", "GET");
 			this.CSRFToken = json.token;
 		}catch(e) {
@@ -260,9 +257,15 @@ class ParamsAccount extends Vue implements IParameterContent {
 					this.authenticating = false;
 				}
 			}, 500);
-			window.authCallback = (code:string, scopes:TwitchScopesString[])=> {
+			window.authCallback = async (code:string, csrfToken:string)=> {
 				clearInterval(interval);
 				win?.close();
+				const {json:csrf} = await ApiHelper.call("auth/CSRFToken", "POST", {token:csrfToken});
+				if(!csrf.success) {
+					this.$store.common.alert(this.$t("error.csrf_invalid"));
+					this.authenticating = false;
+					return;
+				}
 				this.$store.auth.twitch_updateAuthScopes(code).finally(() => {
 					this.authenticating = false;
 				});

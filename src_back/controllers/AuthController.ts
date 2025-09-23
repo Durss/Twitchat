@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import Logger from '../utils/Logger.js';
 import * as URL from "url";
 import Config from '../utils/Config.js';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import fetch from "node-fetch";
 import AbstractController from "./AbstractController.js";
 
@@ -84,7 +84,7 @@ export default class AuthController extends AbstractController {
 	private async validateCSRFToken(request:FastifyRequest, response:FastifyReply, respondOnSuccess:boolean = true):Promise<false|CSRFToken> {
 		//Verifies a CSRF token
 		const params:any = request.body;
-		const result:CSRFToken = jwt.verify(params.token, Config.credentials.csrf_key);
+		const result = jwt.verify(params.token, Config.credentials.csrf_key) as CSRFToken;
 		if(result) {
 			//Token valid only for 10 minutes
 			if(result.date > Date.now() - 10*60*1000) {
@@ -228,4 +228,4 @@ export default class AuthController extends AbstractController {
 	}
 }
 
-interface CSRFToken {date:number, uidShare?:string}
+interface CSRFToken extends JwtPayload {date:number, uidShare?:string}

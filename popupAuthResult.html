@@ -49,7 +49,7 @@
 			let url = "";
 			if(!url) url = document.location.search;
 			const params = new URLSearchParams(url);
-			window.opener.authCallback(params.get("code"), decodeURIComponent(params.getAll("scope")).split(" "));
+			window.opener.authCallback(params.get("code"), decodeURIComponent(params.get("state")));
 		} else {
 			console.error("No opener window found.");
 			document.body.innerText = "No opener window found. Please close this tab and return to the main application.";

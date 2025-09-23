@@ -34,7 +34,7 @@ declare global {
 		obsstudio?: any;
 		queryLocalFonts?(options?:{postscriptNames?:string[]}):Promise<{family:string, fullName:string, postscriptName:string, style:""}[]>;
 		setInitMessage(message:string):void;
-		authCallback(code:string, scopes:TwitchScopesString[]):void;
+		authCallback(code:string, csrfToken:string):void;
     	jsfxr: {sfxr:SFXR};
 	}
 

@@ -5,6 +5,7 @@
 		"authorization_refused": "Vous avez refusé l'accès à l'application Twitch",
 		"invalid_credentials": "Identifiants invalides",
 		"csrf_failed": "Une erreur est survenue lors de la génération du token de sécurité (CSRF)",
+		"csrf_invalid": "Token CSRF invalide",
 		"obs_ws_connect": "Connexion à OBS échouée. Assurez-vous d'utiliser OBS 28 ou supérieur",
 		"twitch_auth_fail": "Une erreur est survenue lors de la connexion",
 		"twitch_poll_delete": "Une erreur est survenue lors de la suppression du sondage",
