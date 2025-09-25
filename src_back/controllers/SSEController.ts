@@ -3,6 +3,13 @@ import TwitchUtils from "../utils/TwitchUtils.js";
 import Utils from "../utils/Utils.js";
 import AbstractController from "./AbstractController.js";
 
+// Type augmentation for FastifyReply to include 'sse' method
+declare module 'fastify' {
+  interface FastifyReply {
+	sse(payload: { id: string; data: string }): void;
+  }
+}
+
 /**
 * Created : 23/02/2024
 */
@@ -28,7 +35,7 @@ export default class SSEController extends AbstractController {
 
 		// Broadcast an event to all connected peers before server restarts.
 		// This tells clients not to reconnect right away
-		async function exitHandler(options, exitCode) {
+		async function exitHandler(options:{cleanup?:boolean, exit?:boolean}, exitCode?:number) {
 			let i = 0;
 			Object.keys(SSEController.uidToResponse).forEach(uid => {
 				const entry = SSEController.uidToResponse[uid];

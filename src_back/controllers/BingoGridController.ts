@@ -463,14 +463,14 @@ export default class BingoGridController extends AbstractController {
 			if(found){
 				const users = await TwitchUtils.getUsers(undefined, [uid]);
 				const username = users && users.length > 0? users[0].display_name : "???";
-				const data = JSON.parse(fs.readFileSync(userFilePath, {encoding:"utf8"}));
+				const data = JSON.parse(fs.readFileSync(userFilePath, {encoding:"utf8"})) as {bingoGrids:{gridList:IGridCacheData["data"][]}};
 				if(!data.bingoGrids) {
 					return null;
 				}
 				//TODO strongly type user data for safer read here
-				const grid = data.bingoGrids.gridList.find(v=>v.id == gridId) as IGridCacheData["data"];
+				const grid = data.bingoGrids.gridList.find(v=>v.id == gridId);
 				found = grid != undefined;
-				if(found) {
+				if(found && grid) {
 					const data:IGridCacheData["data"] = {
 						enabled:grid.enabled,
 						title:grid.title,
@@ -538,6 +538,7 @@ interface IGridCacheData {
 	ownerId:string;
 	ownerName:string;
 	data:{
+		id?:string;
 		enabled:boolean;
 		title:string;
 		rows:number;

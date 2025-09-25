@@ -75,7 +75,7 @@ export default class DonorController extends AbstractController {
 		if(userInfo == false) return;
 	
 		//Get current state
-		let json = {};
+		let json:Record<string, boolean> = {};
 		try {
 			json = JSON.parse(fs.readFileSync(Config.donorsAnonStates, "utf8"));
 		}catch(error){
@@ -101,7 +101,7 @@ export default class DonorController extends AbstractController {
 		if(userInfo == false) return;
 	
 		if(fs.existsSync( Config.donorsAnonStates )) {
-			let json = {};
+			let json:Record<string, boolean> = {};
 			try {
 				json = JSON.parse(fs.readFileSync(Config.donorsAnonStates, "utf8"));
 			}catch(error){
