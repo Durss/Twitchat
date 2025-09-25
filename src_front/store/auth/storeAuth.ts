@@ -404,6 +404,9 @@ export const storeAuth = defineStore('auth', {
 						ApiHelper.accessToken			= this.twitch.access_token;
 						ApiHelper.refreshTokenCallback	= this.twitch_tokenRefresh;
 						TwitchUtils.updateAuthInfo(this.twitch.access_token, this.twitch.scopes, this.requestTwitchScopes, this.twitch_tokenRefresh, this.twitch.user.id);
+						TwitchUtils.getModeratedChannels().then(async moderatedChans=> {
+							this.twitchModeratedChannels = moderatedChans;
+						});
 						resolve(true);
 					}catch(error) {
 						StoreProxy.common.alert(StoreProxy.i18n.t("login.auth_failed"));

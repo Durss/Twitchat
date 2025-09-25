@@ -317,8 +317,17 @@ class UserCard extends AbstractSidePanel {
 	public dateOffset:number = 0;
 	public dateOffsetTimeout:number = -1;
 	public moderatedChannelList_pinned:TwitchDataTypes.ModeratedUser[] = [];
+	public canListFollowings: boolean = false;
+	public canListFollowers: boolean = false;
+	public canListModeratedChans: boolean = false;
+	public canShoutout: boolean = false;
+	public canWarn: boolean = false;
+	
+	public get canWhisper():boolean {
+		return this.hasWhisperPerms && this.user!.id != this.$store.auth.twitch.user.id;
+	}
 
-	private popup:Window|null = null;
+	private hasWhisperPerms: boolean = false;
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
 	private messageBuildInterval:number = -1;
 
@@ -343,36 +352,6 @@ class UserCard extends AbstractSidePanel {
 	 * Get if user is being tracked or not
 	 */
 	public get is_tracked():boolean { return this.user!.is_tracked; }
-
-	/**
-	 * Get if our followings can be listed
-	 */
-	public get canListFollowings():boolean { return TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS]); }
-
-	/**
-	 * Get if our followers can be listed
-	 */
-	public get canListFollowers():boolean { return TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS]); }
-
-	/**
-	 * Get if channels we moderate can be listed
-	 */
-	public get canListModeratedChans():boolean { return TwitchUtils.hasScopes([TwitchScopes.LIST_MODERATED_CHANS]); }
-
-	/**
-	 * Get if we can whisper
-	 */
-	public get canWhisper():boolean { return this.user!.id != this.$store.auth.twitch.user.id &&  TwitchUtils.hasScopes([TwitchScopes.WHISPER_READ && TwitchScopes.WHISPER_MANAGE]); }
-
-	/**
-	 * Get if we can shoutout
-	 */
-	public get canShoutout():boolean { return TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT]); }
-
-	/**
-	 * Get if we can send warnings
-	 */
-	public get canWarn():boolean { return TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING]); }
 
 	/**
 	 * Get a list of the channels we're a moderator on
@@ -494,6 +473,16 @@ class UserCard extends AbstractSidePanel {
 				this.user = null;
 			}
 		});
+
+		watch(()=> this.$store.auth.twitch.scopes, () => {
+			this.canListFollowings = TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS]);
+			this.canListFollowers = TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS]);
+			this.canListModeratedChans = TwitchUtils.hasScopes([TwitchScopes.LIST_MODERATED_CHANS]);
+			this.canShoutout = TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT]);
+			this.canWarn = TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING]);
+			this.hasWhisperPerms = TwitchUtils.hasScopes([TwitchScopes.WHISPER_READ && TwitchScopes.WHISPER_MANAGE]);
+			this.loadUserInfo();
+		}, {immediate:true});
 
 		this.keyUpHandler = (e:KeyboardEvent):void => this.onKeyUp(e);
 		document.body.addEventListener("keyup", this.keyUpHandler);
@@ -645,16 +634,11 @@ class UserCard extends AbstractSidePanel {
 		let params = `scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,
 		width=350,height=${screen.availHeight},left=0,top=0`;
 		const url ="https://www.twitch.tv/popout/"+channelName+"/viewercard/"+this.user!.login;
-		// console.log("OKKOKOKK");
-		// if(this.popup) {
-		// 	this.popup.location.href = url;
-		// }else{
-			try {
-				this.popup = window.open(url, 'profilePage', params);
-			}catch(error) {
-				//Ignore it
-			}
-		// }
+		try {
+			window.open(url, 'profilePage', params);
+		}catch(error) {
+			//Ignore it
+		}
 		if(event) {
 			event.preventDefault();
 			event.stopPropagation();
