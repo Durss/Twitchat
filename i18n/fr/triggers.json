@@ -119,7 +119,12 @@
 				"empty": "est vide",
 				"not_empty": "n'est pas vide",
 				"longer_than": "plus long que",
-				"shorter_than": "plus court que"
+				"shorter_than": "plus court que",
+				"modulo": "%",
+				"is_boolean": "est un booléen",
+				"is_number": "est un nombre",
+				"is_not_boolean": "n'est pas un booléen",
+				"is_not_number": "n'est pas un nombre"
 			},
 			"custom_value": "Valeur personnalisée..."
 		},

@@ -4628,6 +4628,11 @@ export default class TriggerActionHandler {
 					case "not_empty": localRes = value != null && value != undefined && value.toString().trim().length > 0; break;
 					case "longer_than": localRes = value == null || value == undefined? false : value.toString().trim().length > valueNum; break;
 					case "shorter_than": localRes = value == null || value == undefined? true : value.toString().trim().length < valueNum; break;
+					case "is_boolean": localRes = typeof value === "boolean" || value == "true" || value == "false"; break;
+					case "is_not_boolean": localRes = !(typeof value === "boolean" || value == "true" || value == "false"); break;
+					case "is_number": localRes = !isNaN(valueNum); break;
+					case "is_not_number": localRes = isNaN(valueNum); break;
+					case "modulo": localRes = (parseFloat(value) % parseFloat(c.operatorVal || "0")) == valueNum; break;
 					default: localRes = false;
 				}
 

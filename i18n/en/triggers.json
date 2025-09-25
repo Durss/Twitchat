@@ -119,7 +119,12 @@
 				"empty": "is empty",
 				"not_empty": "not empty",
 				"longer_than": "longer than",
-				"shorter_than": "shorter than"
+				"shorter_than": "shorter than",
+				"modulo": "%",
+				"is_boolean": "is boolean",
+				"is_number": "is number",
+				"is_not_boolean": "is not boolean",
+				"is_not_number": "is not number"
 			},
 			"custom_value": "Custom value..."
 		},

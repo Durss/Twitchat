@@ -6,6 +6,11 @@
 		<ParamItem class="placeholder" v-else noBackground :paramData="param_placeholder_list" @change="onSelectPlaceholder()" v-model="condition.placeholder" :key="'ph_'+condition.id" />
 
 		<ParamItem class="operator" noBackground :paramData="param_operator" v-model="condition.operator" :key="'op_'+condition.id" />
+		
+		<div v-if="condition.operator == 'modulo'" class="operatorValHolder">
+			<ParamItem class="operator" noBackground :paramData="param_operatorVal" v-model="condition.operatorVal" :key="'opv_'+condition.id" />
+			<p>=</p>
+		</div>
 
 		<div class="valueHolder" :class="{isCustomValue:forceCustomValue}">
 			<TTButton class="clearCustomBt" v-if="forceCustomValue" @click="forceCustomValue = false" icon="cross" secondary small></TTButton>
@@ -59,6 +64,7 @@ class TriggerConditionListItem extends Vue {
 	public param_placeholder:TwitchatDataTypes.ParameterData<string, string> = {type:"string", value:"", longText:false}
 	public param_placeholder_list:TwitchatDataTypes.ParameterData<string, string, void, void, ITriggerPlaceholder<string>> = {type:"list", value:""}
 	public param_operator:TwitchatDataTypes.ParameterData<TriggerConditionOperator, TriggerConditionOperator> = {type:"list", value:">"}
+	public param_operatorVal:TwitchatDataTypes.ParameterData<string, string> = {type:"string", value:"", maxLength:500}
 	public param_value:TwitchatDataTypes.ParameterData<string, string> = {type:"string", value:"", longText:false}
 	public param_value_list:TwitchatDataTypes.ParameterData<string, unknown> = {type:"list", value:""}
 
@@ -303,6 +309,13 @@ export default toNative(TriggerConditionListItem);
 	.operator {
 		flex-basis: 80px;
 		flex-shrink: 0;
+	}
+
+	.operatorValHolder {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 2px;
 	}
 
 	.valueHolder {
