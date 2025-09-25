@@ -198,9 +198,9 @@ class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
 	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"list", labelKey:"triggers.actions.random.value_id", value:"", icon:"placeholder"};
 	public param_counter:TwitchatDataTypes.ParameterData<string> = {type:"list", labelKey:"triggers.actions.random.counter_id", value:"", icon:"placeholder"};
 	public param_valueSplitter:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.value_splitter", value:",", icon:"split", maxLength:5};
-	public param_placeholderUserId:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.placeholder_user_id", value:"", icon:"label"};
-	public param_placeholderUserName:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.placeholder_user_name", value:"", icon:"user"};
-	public param_placeholderValue:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.placeholder_value", value:"", icon:"number"};
+	public param_placeholderUserId:TwitchatDataTypes.ParameterData<string> = {type:"placeholder", labelKey:"triggers.actions.random.placeholder_user_id", value:"", icon:"label"};
+	public param_placeholderUserName:TwitchatDataTypes.ParameterData<string> = {type:"placeholder", labelKey:"triggers.actions.random.placeholder_user_name", value:"", icon:"user"};
+	public param_placeholderValue:TwitchatDataTypes.ParameterData<string> = {type:"placeholder", labelKey:"triggers.actions.random.placeholder_value", value:"", icon:"number"};
 	public param_removePickedEntry:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"triggers.actions.random.param_removePickedEntry", value:false, icon:"trash"};
 
 	public getTriggerInfo(triggerId:string):{label:string, icon:string, iconURL?:string, iconBgColor?:string} {
@@ -372,6 +372,9 @@ export default toNative(TriggerActionRandomEntry);
 		max-height: 300px;
 		overflow-y: auto;
 		margin-top: 1em;
+		&>p {
+			margin-bottom: .5em;
+		}
 		.entry {
 			flex-shrink: 0;
 			display: flex;

@@ -67,7 +67,6 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static OBS_INPUT_NAME_CHANGED:TwitchatEventType = "OBS_INPUT_NAME_CHANGED";
 	public static OBS_SCENE_NAME_CHANGED:TwitchatEventType = "OBS_SCENE_NAME_CHANGED";
 	public static OBS_FILTER_NAME_CHANGED:TwitchatEventType = "OBS_FILTER_NAME_CHANGED";
-	public static MERGE_TOGGLE:TwitchatEventType = "MERGE_TOGGLE";
 	public static SUMMARY_DATA:TwitchatEventType = "SUMMARY_DATA";
 	public static ENDING_CREDITS_CONFIGS:TwitchatEventType = "ENDING_CREDITS_CONFIGS";
 	public static ENDING_CREDITS_CONTROL:TwitchatEventType = "ENDING_CREDITS_CONTROL";
@@ -118,6 +117,7 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static CHAT_FEED_SELECT_ACTION_HIGHLIGHT:TwitchatActionType = "CHAT_FEED_SELECT_ACTION_HIGHLIGHT";
 	public static CHAT_FEED_SELECT_ACTION_SHOUTOUT:TwitchatActionType = "CHAT_FEED_SELECT_ACTION_SHOUTOUT";
 	public static CLEAR_CHAT_HIGHLIGHT:TwitchatActionType = "CLEAR_CHAT_HIGHLIGHT";
+	public static MERGE_TOGGLE:TwitchatActionType = "MERGE_TOGGLE";
 	public static POLL_TOGGLE:TwitchatActionType = "POLL_TOGGLE";
 	public static POLL_CREATE:TwitchatActionType = "POLL_CREATE";
 	public static PREDICTION_TOGGLE:TwitchatActionType = "PREDICTION_TOGGLE";
@@ -255,7 +255,6 @@ export const TwitchatEventTypeList = [
 	"OBS_FILTER_NAME_CHANGED",
 	"MUSIC_PLAYER_HEAT_CLICK",
 	"LABELS_UPDATE",
-	"MERGE_TOGGLE",
 	"SUMMARY_DATA",
 	"ENDING_CREDITS_CONFIGS",
 	"ENDING_CREDITS_CONTROL",
@@ -308,6 +307,7 @@ export const TwitchatActionTypeList = [
 	"CHAT_FEED_SELECT_ACTION_HIGHLIGHT",
 	"CHAT_FEED_SELECT_ACTION_SHOUTOUT",
 	"CLEAR_CHAT_HIGHLIGHT",
+	"MERGE_TOGGLE",
 	"POLL_TOGGLE",
 	"POLL_CREATE",
 	"PREDICTION_TOGGLE",

@@ -438,6 +438,11 @@ export interface TriggerActionObsData extends TriggerActionData{
 	 */
 	browserSourceCss?:string;
 	/**
+	 * Type of color source modification
+	 * Indicates whether colorSource_color contains a color or a placeholder
+	 */
+	colorSource_mode?:"color"|"placeholder";
+	/**
 	 * New color for a color source
 	 */
 	colorSource_color?:string;

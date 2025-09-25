@@ -1485,8 +1485,21 @@ export default class TriggerActionHandler {
 							}
 							if(step.colorSource_color) {
 								try {
-									logStep.messages.push({date:Date.now(), value:"Update color source to \""+step.colorSource_color+"\" "+step.colorSource_alpha+"%"});
-									await OBSWebsocket.instance.setColorSourceColor(sourceName, ((step.colorSource_alpha!/100 * 0xff) << 24 | (parseInt(step.colorSource_color.replace("#", ""), 16))) >>> 0);
+									if(step.colorSource_mode === "color") {
+										logStep.messages.push({date:Date.now(), value:"Update color source to \""+step.colorSource_color+"\" "+step.colorSource_alpha+"%"});
+										await OBSWebsocket.instance.setColorSourceColor(sourceName, ((step.colorSource_alpha!/100 * 0xff) << 24 | (parseInt(step.colorSource_color.replace("#", ""), 16))) >>> 0);
+									}else{
+										const colorStr = (await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.colorSource_color+"}", subEvent)).replace(/[^0-9a-f]/gi, "");
+										let colorNum = parseInt(colorStr.padStart(8, "ff"), 16) >>> 0;
+										if(isNaN(colorNum)) {
+											logStep.messages.push({date:Date.now(), value:"Invalid color \""+colorStr+"\" (src: \""+step.colorSource_color+"\")"});
+											log.error = true;
+											logStep.error = true;
+										}else{
+											logStep.messages.push({date:Date.now(), value:"Update color source to \""+colorStr+"\" (src: \""+step.colorSource_color+"\")"});
+											await OBSWebsocket.instance.setColorSourceColor(sourceName, colorNum);
+										}
+									}
 								}catch(error) {
 									console.error(error);
 								}
