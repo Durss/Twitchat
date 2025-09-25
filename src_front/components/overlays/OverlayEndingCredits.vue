@@ -1741,6 +1741,9 @@ export default toNative(OverlayEndingCredits);
 				}
 			}
 			&.layout_colRight {
+				h1 {
+					text-align: right;
+				}
 				.list {
 					text-align: right;
 					.item {
@@ -1766,6 +1769,9 @@ export default toNative(OverlayEndingCredits);
 				}
 			}
 			&.layout_colRight {
+				h1 {
+					text-align: right;
+				}
 				.list {
 					text-align: right;
 				}
@@ -1779,6 +1785,7 @@ export default toNative(OverlayEndingCredits);
 		&.layout_left {
 			h1 {
 				align-self: flex-start;
+				text-align: left;
 			}
 			.list {
 				column-gap: 2em;
@@ -1814,6 +1821,7 @@ export default toNative(OverlayEndingCredits);
 		&.layout_right {
 			h1 {
 				align-self: flex-end;
+				text-align: right;
 			}
 			.list {
 				column-gap: 2em;
@@ -1835,6 +1843,7 @@ export default toNative(OverlayEndingCredits);
 		&.layout_colRight {
 			h1 {
 				align-self: flex-end;
+				text-align: right;
 			}
 			.list {
 				align-items: flex-end;
@@ -1860,6 +1869,7 @@ export default toNative(OverlayEndingCredits);
 		&.layout_colLeft {
 			h1 {
 				align-self: flex-start;
+				text-align: left;
 			}
 			.list {
 				align-items: flex-start;
