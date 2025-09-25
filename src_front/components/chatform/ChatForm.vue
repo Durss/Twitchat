@@ -700,8 +700,6 @@ export class ChatForm extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		TwitchUtils.getClipsSrcPath(["LittleDarlingDiscBIRB-OXO094VAZeWIoe5a"]);
-		console.log("ok")
 		this.censoredViewCount = DataStore.get(DataStore.CENSOR_VIEWER_COUNT) !== "false";
 		watch(()=>this.censoredViewCount, ()=> {
 			DataStore.set(DataStore.CENSOR_VIEWER_COUNT, this.censoredViewCount);

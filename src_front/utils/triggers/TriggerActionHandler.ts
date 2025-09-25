@@ -31,7 +31,6 @@ import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import YoutubeHelper from "../youtube/YoutubeHelper";
 import OBSWebSocket from "../OBSWebsocket";
 import SFXRUtils from "../SFXRUtils";
-import type { b } from "obs-websocket-js/dist/base-DKN2XRg2";
 
 /**
 * Created : 22/04/2022
@@ -2761,9 +2760,23 @@ export default class TriggerActionHandler {
 
 					//Generate random number
 					if(step.mode == "number" && step.placeholder) {
-						const min = Math.min(step.min, step.max);
-						const max = Math.max(step.min, step.max);
-						let value = Math.random() * (max-min) + min;
+						let min = step.min;
+						let max = step.max;
+						if(typeof min == "string") {
+							const parsedMin = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, min, subEvent);
+							console.log("min", min, parsedMin);
+							min = parseFloat(parsedMin.replace(/,/g, "."));
+							logStep.messages.push({date:Date.now(), value:"Parsed placeholder \""+min+"\" to "+min});
+						}
+						if(typeof max == "string") {
+							const parsedMax = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, max, subEvent);
+							console.log("max", max, parsedMax);
+							max = parseFloat(parsedMax.replace(/,/g, "."));
+							logStep.messages.push({date:Date.now(), value:"Parsed placeholder \""+max+"\" to "+max});
+						}
+						const finalMin = Math.min(min, max);
+						const finalMax = Math.max(min, max);
+						let value = Math.random() * (finalMax-finalMin) + finalMin;
 						if(step.float !== true) {
 							value = Math.round(value);
 						}

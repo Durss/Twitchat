@@ -10,8 +10,8 @@
 		:labels="[$t('triggers.actions.random.number'), $t('triggers.actions.random.list'), $t('triggers.actions.random.trigger'), $t('triggers.actions.random.value'), $t('triggers.actions.random.counter')]" />
 
 		<template v-if="action.mode == 'number'">
-			<ParamItem :paramData="param_max" v-model="action.max" />
-			<ParamItem :paramData="param_min" v-model="action.min" />
+			<ParamItem :paramData="param_max" v-model="action.max" placeholdersAsPopout />
+			<ParamItem :paramData="param_min" v-model="action.min" placeholdersAsPopout />
 			<ParamItem :paramData="param_float" v-model="action.float" />
 		</template>
 
@@ -146,7 +146,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import ChatMessageChunksParser from '@/components/messages/components/ChatMessageChunksParser.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
-import type { TriggerActionRandomData, TriggerData } from '@/types/TriggerActionDataTypes';
+import type { ITriggerPlaceholder, TriggerActionRandomData, TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TriggerUtils from '@/utils/TriggerUtils';
@@ -270,6 +270,11 @@ class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
 			delete this.action.valueCounterPlaceholders;
 		}
 		this.buildNextListBatch();
+	}
+
+	public onPlaceholderUpdate(list:ITriggerPlaceholder<unknown>[]):void {
+		this.param_min.placeholderList = list;
+		this.param_max.placeholderList = list;
 	}
 
 	public getChunksFromItem(src:string):TwitchatDataTypes.ParseMessageChunk[] {

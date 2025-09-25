@@ -1363,16 +1363,20 @@ export default toNative(ParamItem);
 			transform: translateY(-50%);
 			height: calc(100% - 4px);
 		}
-		.inputHolder {
-			input {
-				padding-right: 1.5em !important;
+		&:not(.no-bg) {
+			.placeholders {
+				height: calc(100% - 1em);
 			}
+		}
+		input, .button {
+			padding-right: 1.25em !important;
 		}
 		.maxlength {
 			margin-right: 2.15em !important;
 			right: 0 !important;
 		}
 	}
+
 
 	&.premium {
 		color: var(--color-text);

@@ -597,8 +597,18 @@ const UserDataSchema = {
 									}
 								},
 								customBody:{type:"string", maxLength:5000},
-								min: {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
-								max: {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+								min: {
+									anyOf:[
+										{type:"string", maxLength:500},
+										{type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+									]
+								},
+								max: {
+									anyOf:[
+										{type:"string", maxLength:500},
+										{type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+									]
+								},
 								float: {type:"boolean"},
 								condition: {type:"boolean"},
 								skipDisabled: {type:"boolean"},
