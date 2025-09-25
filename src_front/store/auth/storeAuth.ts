@@ -242,6 +242,7 @@ export const storeAuth = defineStore('auth', {
 				TwitchUtils.loadGlobalBadges();
 				StoreProxy.users.loadMyFollowings();
 				StoreProxy.users.loadMyFollowers();
+				StoreProxy.users.loadMyVIPs();
 				StoreProxy.users.initBlockedUsers();
 				StoreProxy.stream.currentChatChannel = {
 					id:userRes.user_id,

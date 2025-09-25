@@ -50,6 +50,24 @@ export const storeUsers = defineStore('users', {
 		customUsernames: {},
 		customUserBadges: {},
 		customBadgeList:[],
+		myMods: {
+			twitchat:{},
+			twitch:{},
+			instagram:{},
+			youtube:{},
+			tiktok:{},
+			facebook:{},
+			kick:{},
+		},
+		myVIPs: {
+			twitchat:{},
+			twitch:{},
+			instagram:{},
+			youtube:{},
+			tiktok:{},
+			facebook:{},
+			kick:{},
+		},
 		blockedUsers: {
 			twitchat:{},
 			twitch:{},
@@ -267,7 +285,7 @@ export const storeUsers = defineStore('users', {
 						is_following,
 						is_raider:false,
 						is_banned:false,
-						is_vip:false,
+						is_vip:this.myVIPs[platform][user.id],
 						is_moderator:moderatorsCache[channelId] && moderatorsCache[channelId][user.id] === true || channelId == user.id,
 						is_broadcaster:channelId == user.id,
 						is_subscriber:forcedSubscriberState,
@@ -959,6 +977,15 @@ export const storeUsers = defineStore('users', {
 					await this.getUserFrom("twitch", uid, list[0].user_id, list[0].user_login, list[0].user_name, undefined, true, undefined, undefined, false);
 				})
 			}catch(error) {}
+		},
+
+		async loadMyVIPs():Promise<void> {
+			if(!TwitchUtils.hasScopes([TwitchScopes.READ_VIPS])) return;
+
+			const vips = await TwitchUtils.getVIPs();
+			const hashmap:{[key:string]:boolean} = {};
+			vips.forEach(v => { hashmap[v.user_id] = true; });
+			this.myVIPs["twitch"] = hashmap;
 		},
 
 		trackUser(user:TwitchatDataTypes.TwitchatUser):void {

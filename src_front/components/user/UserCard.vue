@@ -481,7 +481,7 @@ class UserCard extends AbstractSidePanel {
 			this.canShoutout = TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT]);
 			this.canWarn = TwitchUtils.hasScopes([TwitchScopes.CHAT_WARNING]);
 			this.hasWhisperPerms = TwitchUtils.hasScopes([TwitchScopes.WHISPER_READ && TwitchScopes.WHISPER_MANAGE]);
-			this.loadUserInfo();
+			if(this.user) this.loadUserInfo();
 		}, {immediate:true});
 
 		this.keyUpHandler = (e:KeyboardEvent):void => this.onKeyUp(e);

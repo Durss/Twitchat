@@ -31,6 +31,7 @@ import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import YoutubeHelper from "../youtube/YoutubeHelper";
 import OBSWebSocket from "../OBSWebsocket";
 import SFXRUtils from "../SFXRUtils";
+import type { b } from "obs-websocket-js/dist/base-DKN2XRg2";
 
 /**
 * Created : 22/04/2022
@@ -4330,6 +4331,25 @@ export default class TriggerActionHandler {
 							value = (badges || []).map(v=>v.id).join(", ");
 						}else {
 							value = "";
+						}
+
+					/**
+					 * If the placeholder requests for a user's VIP status
+					 */
+					}else if(pointer.indexOf("__user_vip__") == 0
+					|| pointer.indexOf("__user_mod__") == 0
+					|| pointer.indexOf("__user_broadcaster__") == 0) {
+						const user = this.extractUserFromTrigger(trigger, message);
+						if(user){
+							const propVal = pointer.replace(/__user_(.*)__/gi, "$1");
+							const keyToProp:{[key:string]:keyof TwitchatDataTypes.UserChannelInfo} = {
+								vip:"is_vip",
+								mod:"is_moderator",
+								broadcaster:"is_broadcaster",
+							}
+							value = (user.channelInfo[message.channel_id][keyToProp[propVal]] === true)? "true" : "false";
+						}else {
+							value = "false";
 						}
 					}
 				}else{

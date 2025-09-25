@@ -1846,6 +1846,14 @@ export interface IUsersState {
 	 */
 	myFollowings: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
 	/**
+	 * List of moderators by platform
+	 */
+	myMods: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
+	/**
+	 * List of users with VIP status by platform
+	 */
+	myVIPs: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
+	/**
 	 * List of users follwing me by platform
 	 */
 	myFollowers: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:number}};
@@ -2018,6 +2026,10 @@ export interface IUsersActions {
 	 * Load my followers list
 	 */
 	loadMyFollowers():Promise<void>;
+	/**
+	 * Load my VIPs list
+	 */
+	loadMyVIPs():Promise<void>;
 	/**
 	 * Start track a user's messages
 	 * All their messages will be highlighted on chat
