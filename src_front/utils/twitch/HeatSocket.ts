@@ -67,8 +67,8 @@ export default class HeatSocket extends EventDispatcher {
 				const data = JSON.parse(message.data);
 				if(data.type==="click") {
 					this.fireEvent(data.id, data.x as number, data.y as number,
-						data.modifiers?.ctrl === true,
 						data.modifiers?.alt === true,
+						data.modifiers?.ctrl === true,
 						data.modifiers?.shift === true);
 				}
 	
