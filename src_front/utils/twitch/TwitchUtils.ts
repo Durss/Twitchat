@@ -68,7 +68,7 @@ export default class TwitchUtils {
 			this.cheermoteCache = {};
 			this.loadedChannelEmotes = {};
 			this.loadingEmotes = false;
-			StoreProxy.chat.setEmoteSelectorCache([]);
+			if(StoreProxy.chat) StoreProxy.chat.setEmoteSelectorCache([]);
 			this.refreshTokenCallback = refreshTokenCallback;
 			this.requestScopesCallback = requestScopesCallback;
 	}
@@ -3137,8 +3137,7 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH + "clips/downloads");
 		url.searchParams.append("editor_id", this.uid);
 		url.searchParams.append("clip_id", clipIds.join(","));
-		url.searchParams.append("broadcaster_id", "201904476");
-		// url.searchParams.append("broadcaster_id", this.uid);
+		url.searchParams.append("broadcaster_id", this.uid);
 
 		const res = await this.callApi(url, {
 			method: "GET",

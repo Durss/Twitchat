@@ -186,9 +186,9 @@ export default class Utils {
 	 * @param addTime
 	 * @returns
 	 */
-	public static formatDate(date:Date, addTime:boolean = true, noDate:boolean = false):string {
+	public static formatDate(date:Date, addTime:boolean = true, noDate:boolean = false, elapsedMode:boolean = true):string {
 		let res = "";
-		if(!noDate && date.getTime() - Date.now() < 24 * 3600 * 1000) {
+		if(!noDate && (!elapsedMode || (date.getTime() - Date.now() < 24 * 3600 * 1000))) {
 			res = Utils.toDigits(date.getDate())+ "/"
 				+ Utils.toDigits(date.getMonth() + 1) + "/"
 				+ date.getFullYear()
@@ -835,16 +835,26 @@ export default class Utils {
 		}
 	}
 
-	private static fontsCache:string[] = [];
+	private static fontsCache:{fonts:string[], systemGranted:boolean}|null = null;
 	/**
 	 * Gets some of the available fonts
 	 */
-	public static async listAvailableFonts():Promise<string[]> {
-		if(this.fontsCache.length > 0) return this.fontsCache;
+	public static async listAvailableFonts(requestPermission:boolean = false):Promise<{fonts:string[], systemGranted:boolean}> {
+		if(this.fontsCache && this.fontsCache.fonts.length > 0 && !requestPermission) return this.fontsCache;
 
 		await document.fonts.ready;
 
 		const fontAvailable = new Set<string>();
+		let systemGranted = false;
+		if(requestPermission) {
+			try {
+				const fontList = await window.queryLocalFonts!();
+				systemGranted = fontList.length > 0;
+			}catch(error){
+				//Refused fonts access. Not actually called apparently...
+				systemGranted = false;
+			}
+		}
 
 		try {
 			const granted = await navigator.permissions.query(
@@ -853,8 +863,9 @@ export default class Utils {
 			);
 			if(granted.state == "granted") {
 				(await window.queryLocalFonts!()).forEach(font=>{
-					fontAvailable.add(font.family);
+					fontAvailable.add(font.postscriptName);
 				})
+				systemGranted = true;
 			}
 		}catch(error) {}
 
@@ -876,7 +887,7 @@ export default class Utils {
 		}catch(error) {
 			//old firefox browser version have issue with document.fonts not being an iterable
 		}
-		this.fontsCache = [...fontAvailable.values()];
+		this.fontsCache = {fonts:[...fontAvailable.values()], systemGranted};
 		return this.fontsCache;
 	}
 
@@ -989,6 +1000,113 @@ export default class Utils {
 			follower_duration_ms:0,
 			usersAllowed:[],
 			usersRefused:[],
+		}
+	}
+	
+	/**
+	 * Encrypt a message with a password using AES-GCM
+	 * @param message 
+	 * @param password 
+	 * @returns base64 encoded encrypted data with IV prepended
+	 */
+	public static async encryptMessage(message: string, password: string): Promise<string> {
+		// Convert password to key
+		const passwordBuffer = new TextEncoder().encode(password);
+		const passwordKey = await crypto.subtle.importKey(
+			'raw',
+			passwordBuffer,
+			{ name: 'PBKDF2' },
+			false,
+			['deriveKey']
+		);
+
+		// Generate salt and derive key
+		const salt = crypto.getRandomValues(new Uint8Array(16));
+		const key = await crypto.subtle.deriveKey(
+			{
+				name: 'PBKDF2',
+				salt: salt,
+				iterations: 100000,
+				hash: 'SHA-256'
+			},
+			passwordKey,
+			{ name: 'AES-GCM', length: 256 },
+			false,
+			['encrypt']
+		);
+
+		// Generate IV and encrypt
+		const iv = crypto.getRandomValues(new Uint8Array(12));
+		const messageBuffer = new TextEncoder().encode(message);
+		const encryptedBuffer = await crypto.subtle.encrypt(
+			{ name: 'AES-GCM', iv: iv },
+			key,
+			messageBuffer
+		);
+
+		// Combine salt + iv + encrypted data
+		const combined = new Uint8Array(salt.length + iv.length + encryptedBuffer.byteLength);
+		combined.set(salt, 0);
+		combined.set(iv, salt.length);
+		combined.set(new Uint8Array(encryptedBuffer), salt.length + iv.length);
+
+		// Convert to base64
+		return btoa(String.fromCharCode(...combined));
+	}
+
+	/**
+	 * Decrypt a message with a password
+	 * @param encryptedData base64 encoded encrypted data with salt and IV prepended
+	 * @param password 
+	 * @returns decrypted message
+	 */
+	public static async decryptMessage(encryptedData: string, password: string): Promise<string> {
+		try {
+			// Convert from base64
+			const combined = new Uint8Array(
+				atob(encryptedData).split('').map(char => char.charCodeAt(0))
+			);
+
+			// Extract salt, IV, and encrypted data
+			const salt = combined.slice(0, 16);
+			const iv = combined.slice(16, 28);
+			const encrypted = combined.slice(28);
+
+			// Convert password to key
+			const passwordBuffer = new TextEncoder().encode(password);
+			const passwordKey = await crypto.subtle.importKey(
+				'raw',
+				passwordBuffer,
+				{ name: 'PBKDF2' },
+				false,
+				['deriveKey']
+			);
+
+			// Derive the same key using the extracted salt
+			const key = await crypto.subtle.deriveKey(
+				{
+					name: 'PBKDF2',
+					salt: salt,
+					iterations: 100000,
+					hash: 'SHA-256'
+				},
+				passwordKey,
+				{ name: 'AES-GCM', length: 256 },
+				false,
+				['decrypt']
+			);
+
+			// Decrypt
+			const decryptedBuffer = await crypto.subtle.decrypt(
+				{ name: 'AES-GCM', iv: iv },
+				key,
+				encrypted
+			);
+
+			// Convert back to string
+			return new TextDecoder().decode(decryptedBuffer);
+		} catch (error) {
+			throw new Error('Decryption failed: Invalid password or corrupted data');
 		}
 	}
 }

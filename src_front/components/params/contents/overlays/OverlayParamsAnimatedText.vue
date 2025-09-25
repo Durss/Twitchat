@@ -101,7 +101,7 @@ class OverlayParamsAnimatedText extends Vue {
 	public param_colorHighlights:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_textFont:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_textSize:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
-
+		
 	public beforeMount():void {
 		this.testText = this.$t('overlay.animatedText.test_default');
 		this.initParams();

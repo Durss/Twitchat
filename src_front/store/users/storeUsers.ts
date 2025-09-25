@@ -50,6 +50,24 @@ export const storeUsers = defineStore('users', {
 		customUsernames: {},
 		customUserBadges: {},
 		customBadgeList:[],
+		myMods: {
+			twitchat:{},
+			twitch:{},
+			instagram:{},
+			youtube:{},
+			tiktok:{},
+			facebook:{},
+			kick:{},
+		},
+		myVIPs: {
+			twitchat:{},
+			twitch:{},
+			instagram:{},
+			youtube:{},
+			tiktok:{},
+			facebook:{},
+			kick:{},
+		},
 		blockedUsers: {
 			twitchat:{},
 			twitch:{},
@@ -267,7 +285,7 @@ export const storeUsers = defineStore('users', {
 						is_following,
 						is_raider:false,
 						is_banned:false,
-						is_vip:false,
+						is_vip:this.myVIPs[platform][user.id],
 						is_moderator:moderatorsCache[channelId] && moderatorsCache[channelId][user.id] === true || channelId == user.id,
 						is_broadcaster:channelId == user.id,
 						is_subscriber:forcedSubscriberState,
@@ -961,6 +979,15 @@ export const storeUsers = defineStore('users', {
 			}catch(error) {}
 		},
 
+		async loadMyVIPs():Promise<void> {
+			if(!TwitchUtils.hasScopes([TwitchScopes.READ_VIPS])) return;
+
+			const vips = await TwitchUtils.getVIPs();
+			const hashmap:{[key:string]:boolean} = {};
+			vips.forEach(v => { hashmap[v.user_id] = true; });
+			this.myVIPs["twitch"] = hashmap;
+		},
+
 		trackUser(user:TwitchatDataTypes.TwitchatUser):void {
 			user.is_tracked = true;
 			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.TRACK_USER, user));
@@ -972,8 +999,6 @@ export const storeUsers = defineStore('users', {
 		},
 
 		async shoutout(channelId:string, user:TwitchatDataTypes.TwitchatUser, fromQueue:boolean = false):Promise<boolean> {
-			let streamTitle = "";
-			let streamCategory = "";
 			let executed = false;
 			let canExecute = true;
 

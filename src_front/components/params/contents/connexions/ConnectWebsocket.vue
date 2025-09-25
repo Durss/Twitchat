@@ -80,13 +80,8 @@ class ConnectWebsocket extends Vue {
 	}
 
 	public connect():void {
-		let url = this.param_secured.value === true? "wss://" : "ws://";
-		url += this.param_ip.value;
-		const port = this.param_port.value;
-		if(port > 0) url += ":"+port;
 		this.connecting = true;
-
-		WebsocketTrigger.instance.connect(url, false).then(()=> {
+		WebsocketTrigger.instance.connect(this.param_ip.value, this.param_port.value, this.param_secured.value).then(()=> {
 			this.connecting = false;
 			this.showSuccess = true;
 		}).catch(()=> {

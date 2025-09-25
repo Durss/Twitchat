@@ -3,7 +3,7 @@ import HeatEvent from '@/events/HeatEvent';
 import SSEEvent from '@/events/SSEEvent';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import router from '@/router';
-import { TriggerTypes, rebuildPlaceholdersCache, type IHttpPlaceholder, type SocketParams, type TriggerActionChatData, type TriggerCallStack, type TriggerData } from '@/types/TriggerActionDataTypes';
+import { TriggerTypes, rebuildPlaceholdersCache, type IHttpPlaceholder, type TriggerActionChatData, type TriggerCallStack, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
@@ -12,7 +12,6 @@ import PublicAPI from '@/utils/PublicAPI';
 import SSEHelper from '@/utils/SSEHelper';
 import SchedulerHelper from '@/utils/SchedulerHelper';
 import Utils from '@/utils/Utils';
-import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import BTTVUtils from '@/utils/emotes/BTTVUtils';
 import FFZUtils from '@/utils/emotes/FFZUtils';
 import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
@@ -763,17 +762,6 @@ export const storeMain = defineStore("main", {
 			const alert = DataStore.get(DataStore.ALERT_PARAMS);
 			if(alert) {
 				Utils.mergeRemoteObject(JSON.parse(alert), (this.chatAlertParams as unknown) as JsonObject);
-			}
-
-			//Init trigger websocket
-			const triggerSocketParams = DataStore.get(DataStore.WEBSOCKET_TRIGGER);
-			if(triggerSocketParams) {
-				const params = JSON.parse(triggerSocketParams) as SocketParams;
-				let url = params.secured === true? "wss://" : "ws://";
-				url += params.ip;
-				if(params.port) url += ":"+params.port;
-
-				WebsocketTrigger.instance.connect(url).then(()=>{}).catch(()=> {});
 			}
 
 			//Reload devmode state

@@ -1483,6 +1483,27 @@ export default class TriggerActionHandler {
 									console.error(error);
 								}
 							}
+							if(step.colorSource_color) {
+								try {
+									if(step.colorSource_mode === "color") {
+										logStep.messages.push({date:Date.now(), value:"Update color source to \""+step.colorSource_color+"\" "+step.colorSource_alpha+"%"});
+										await OBSWebsocket.instance.setColorSourceColor(sourceName, ((step.colorSource_alpha!/100 * 0xff) << 24 | (parseInt(step.colorSource_color.replace("#", ""), 16))) >>> 0);
+									}else{
+										const colorStr = (await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.colorSource_color+"}", subEvent)).replace(/[^0-9a-f]/gi, "");
+										let colorNum = parseInt(colorStr.padStart(8, "ff"), 16) >>> 0;
+										if(isNaN(colorNum)) {
+											logStep.messages.push({date:Date.now(), value:"Invalid color \""+colorStr+"\" (src: \""+step.colorSource_color+"\")"});
+											log.error = true;
+											logStep.error = true;
+										}else{
+											logStep.messages.push({date:Date.now(), value:"Update color source to \""+colorStr+"\" (src: \""+step.colorSource_color+"\")"});
+											await OBSWebsocket.instance.setColorSourceColor(sourceName, colorNum);
+										}
+									}
+								}catch(error) {
+									console.error(error);
+								}
+							}
 
 							if(step.filterName) {
 								try {
@@ -2739,9 +2760,23 @@ export default class TriggerActionHandler {
 
 					//Generate random number
 					if(step.mode == "number" && step.placeholder) {
-						const min = Math.min(step.min, step.max);
-						const max = Math.max(step.min, step.max);
-						let value = Math.random() * (max-min) + min;
+						let min = step.min;
+						let max = step.max;
+						if(typeof min == "string") {
+							const parsedMin = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, min, subEvent);
+							console.log("min", min, parsedMin);
+							min = parseFloat(parsedMin.replace(/,/g, "."));
+							logStep.messages.push({date:Date.now(), value:"Parsed placeholder \""+min+"\" to "+min});
+						}
+						if(typeof max == "string") {
+							const parsedMax = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, max, subEvent);
+							console.log("max", max, parsedMax);
+							max = parseFloat(parsedMax.replace(/,/g, "."));
+							logStep.messages.push({date:Date.now(), value:"Parsed placeholder \""+max+"\" to "+max});
+						}
+						const finalMin = Math.min(min, max);
+						const finalMax = Math.max(min, max);
+						let value = Math.random() * (finalMax-finalMin) + finalMin;
 						if(step.float !== true) {
 							value = Math.round(value);
 						}
@@ -4310,6 +4345,25 @@ export default class TriggerActionHandler {
 						}else {
 							value = "";
 						}
+
+					/**
+					 * If the placeholder requests for a user's VIP status
+					 */
+					}else if(pointer.indexOf("__user_vip__") == 0
+					|| pointer.indexOf("__user_mod__") == 0
+					|| pointer.indexOf("__user_broadcaster__") == 0) {
+						const user = this.extractUserFromTrigger(trigger, message);
+						if(user){
+							const propVal = pointer.replace(/__user_(.*)__/gi, "$1");
+							const keyToProp:{[key:string]:keyof TwitchatDataTypes.UserChannelInfo} = {
+								vip:"is_vip",
+								mod:"is_moderator",
+								broadcaster:"is_broadcaster",
+							}
+							value = (user.channelInfo[message.channel_id][keyToProp[propVal]] === true)? "true" : "false";
+						}else {
+							value = "false";
+						}
 					}
 				}else{
 					const chunks:string[] = placeholder.pointer.split(".");
@@ -4587,6 +4641,11 @@ export default class TriggerActionHandler {
 					case "not_empty": localRes = value != null && value != undefined && value.toString().trim().length > 0; break;
 					case "longer_than": localRes = value == null || value == undefined? false : value.toString().trim().length > valueNum; break;
 					case "shorter_than": localRes = value == null || value == undefined? true : value.toString().trim().length < valueNum; break;
+					case "is_boolean": localRes = typeof value === "boolean" || value == "true" || value == "false"; break;
+					case "is_not_boolean": localRes = !(typeof value === "boolean" || value == "true" || value == "false"); break;
+					case "is_number": localRes = !isNaN(valueNum); break;
+					case "is_not_number": localRes = isNaN(valueNum); break;
+					case "modulo": localRes = (parseFloat(value) % parseFloat(c.operatorVal || "0")) == valueNum; break;
 					default: localRes = false;
 				}
 

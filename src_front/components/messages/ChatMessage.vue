@@ -646,7 +646,9 @@ class ChatMessage extends AbstractChatMessage {
 		}
 		if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_CLIPS])) {
 			const clipSrcPath = await TwitchUtils.getClipsSrcPath([this.clipInfo!.id]);
-			data.clip!.mp4 = clipSrcPath[0].landscape_download_url;
+			if(clipSrcPath.length > 0) {
+				data.clip!.mp4 = clipSrcPath[0].landscape_download_url;
+			}
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
 		this.$store.chat.highlightedMessageId = this.messageData.id;

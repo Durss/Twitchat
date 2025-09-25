@@ -109,8 +109,8 @@ export default class MiddlewareController extends AbstractController {
 				staticFile = path.join(Config.PUBLIC_ROOT, "overlay.html");
 			}else
 
-			//Redirect /public/ route to overlay's html page
-			if(/^\/popup\/oauth\//gi.test(request.url)) {
+			//Redirect /popup/oauth/ route to overlay's html page
+			if(/^\/popup\/oauth/gi.test(request.url)) {
 				staticFile = path.join(Config.PUBLIC_ROOT, "popupAuthResult.html");
 			}else
 

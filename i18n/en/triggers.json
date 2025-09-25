@@ -119,7 +119,12 @@
 				"empty": "is empty",
 				"not_empty": "not empty",
 				"longer_than": "longer than",
-				"shorter_than": "shorter than"
+				"shorter_than": "shorter than",
+				"modulo": "%",
+				"is_boolean": "is boolean",
+				"is_number": "is number",
+				"is_not_boolean": "is not boolean",
+				"is_not_number": "is not number"
 			},
 			"custom_value": "Custom value..."
 		},
@@ -317,6 +322,12 @@
 				"param_screenImgSavePath_conf": "File path to save the image to",
 				"param_screenImgSavePath_conf_error": "File path must contain the file name and extension (ex: image.jpg)",
 				"param_screenImgSavePH_conf": "Placeholder to save Base64 data to",
+				"param_colorToggle_conf": "Change color",
+				"param_colorMode_color": "Color",
+				"param_colorMode_placeholder": "Placeholder",
+				"param_color_conf": "New Color",
+				"param_colorPlaceholder_conf": "Placeholder",
+				"param_colorAlpha_conf": "Alpha ({VALUE}%)",
 				"param_browser_info": "This feature is for developpers. It allows to emit a javascript event on all browsser sources to send them data.",
 				"param_browser_usage": "Add this to your browser source to receive the data:",
 				"param_browserEvent_name": "Event name",
@@ -784,6 +795,9 @@
 			"user_color": "User color",
 			"user_badges": "User badges as JSON",
 			"user_custom_badges": "Custom user badge IDs",
+			"user_vip": "User VIP status",
+			"user_mod": "User moderator status",
+			"user_broadcaster": "User broadcaster status",
 			"my_user": "My user name",
 			"my_user_id": "My user ID",
 			"user_avatar": "User avatar URL",
@@ -1806,6 +1820,16 @@
 			"NO_ACTION": "Select an action...",
 			"REGULAR_REPEAT": "Regular repeat",
 			"SPECIFIC_DATES": "Specific dates"
+		},
+		"importer": {
+			"title": "Import settings",
+			"parameters": "Configurations",
+			"autoDelete": "These settings will automatically be deleted at:",
+			"dataOld": "The settings you're trying to import are outdated.",
+			"dataExpired": "The settings you're trying to import has expired.",
+			"dataProtected": "The settings you're trying to import are protected.",
+			"dataPassword": "Password...",
+			"dataInvalidPassword": "Invalid password"
 		}
 	}
 }

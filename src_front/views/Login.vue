@@ -255,9 +255,15 @@ class Login extends Vue {
 							this.generatingCSRF = false;
 						}
 					}, 500);
-					window.authCallback = (code:string, scopes:TwitchScopesString[])=> {
+					window.authCallback = async (code:string, csrfToken:string)=> {
 						clearInterval(interval);
 						win?.close();
+						const {json:csrf} = await ApiHelper.call("auth/CSRFToken", "POST", {token:csrfToken});
+						if(!csrf.success) {
+							this.$store.common.alert(this.$t("error.csrf_invalid"));
+							this.generatingCSRF = false;
+							return;
+						}
 						this.$store.auth.twitch_updateAuthScopes(code).then(success=>{
 							if(success) {
 								this.close();

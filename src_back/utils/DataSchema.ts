@@ -40,6 +40,7 @@ const UserDataSchema = {
 				id: {type:"string", maxLength:50},
 				type: {const:"group"},
 				operator: {type:"string", maxLength:20},
+				operatorVal: {type:"string", maxLength:500},
 				conditions:{
 					type:"array",
 					minItems:0,
@@ -61,6 +62,7 @@ const UserDataSchema = {
 				type: {const:"condition"},
 				placeholder: {type:"string", maxLength:100},
 				operator: {type:"string", maxLength:20},
+				operatorVal: {type:"string", maxLength:500},
 				value: {
 					anyOf:[
 						{type:"string", maxLength:500},
@@ -353,6 +355,15 @@ const UserDataSchema = {
 				properties: {
 					id: {type:"string", maxLength:50},
 					type: {type:"string", maxLength:5},
+					autoDelete_at: {type:"number", maximum:9999999999999, minimum:0},
+					importedInfo: {
+						type: "object",
+						additionalProperties: false,
+						properties: {
+							author: {type:"string", maxLength:50},
+							name: {type:"string", maxLength:20},
+						}
+					},
 					enabled: {type:"boolean"},
 					enableForRemoteChans: {type:"boolean"},
 					addToContextMenu: {type:"boolean"},
@@ -486,6 +497,9 @@ const UserDataSchema = {
 								sendAsReply: {type:"boolean"},
 								url: {type:"string", maxLength:1000},
 								browserSourceCss: {type:"string", maxLength:10000},
+								colorSource_mode: {enum: ["color","placeholder"]},
+								colorSource_color: {type:"string", maxLength:10},
+								colorSource_alpha: {type:"number", minimum:0, maximum:100},
 								mediaPath: {type:"string", maxLength:1000},
 								waitMediaEnd: {type:"boolean"},
 								pos_x: {type:"string", maxLength:500},
@@ -583,8 +597,18 @@ const UserDataSchema = {
 									}
 								},
 								customBody:{type:"string", maxLength:5000},
-								min: {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
-								max: {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+								min: {
+									anyOf:[
+										{type:"string", maxLength:500},
+										{type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+									]
+								},
+								max: {
+									anyOf:[
+										{type:"string", maxLength:500},
+										{type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+									]
+								},
 								float: {type:"boolean"},
 								condition: {type:"boolean"},
 								skipDisabled: {type:"boolean"},

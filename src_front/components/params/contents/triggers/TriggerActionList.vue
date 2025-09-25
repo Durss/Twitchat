@@ -470,8 +470,9 @@ class TriggerActionList extends Vue {
 		this.selectStyles.top = y1+"px";
 		this.selectStyles.width = (x2 - x1)+"px";
 		this.selectStyles.height = (y2 - y1)+"px";
+		this.selectStyles.display = Math.abs(x2 - x1) < 2 || Math.abs(y2 - y1) < 2 ? "none" : "block";
 
-		if(x2-x1 < 10 && y2-y1 < 10) {
+		if(x2-x1 < 10 && y2-y1 < 5) {
 			this.selectedActions = [];
 			return;
 		}

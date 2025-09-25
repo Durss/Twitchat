@@ -118,11 +118,11 @@ class ScopeSelector extends Vue {
 	private buildList():void {
 		const scopes:TwitchScopesString[] = JSON.parse(JSON.stringify(Config.instance.TWITCH_APP_SCOPES));
 
-		const disabled = Config.instance.MANDATORY_TWITCH_SCOPES;
+		const mandatory = Config.instance.MANDATORY_TWITCH_SCOPES;
 		const userScopes = this.$store.auth.twitch.scopes ?? [];
-		for (let i = 0; i < disabled.length; i++) {
-			if(userScopes.indexOf(disabled[i]) == -1) {
-				userScopes.unshift(disabled[i]);
+		for (let i = 0; i < mandatory.length; i++) {
+			if(userScopes.indexOf(mandatory[i]) == -1) {
+				userScopes.unshift(mandatory[i]);
 			}
 		}
 
@@ -133,7 +133,9 @@ class ScopeSelector extends Vue {
 
 		const requestedList:TwitchatDataTypes.ParameterData<boolean, unknown, unknown, TwitchScopesString[], unknown>[] = [];
 		const availableList:TwitchatDataTypes.ParameterData<boolean, unknown, unknown, TwitchScopesString[], unknown>[] = [];
-		const forceSelect = !userScopes || userScopes.length < disabled.length && (!this.requestedScopes || this.requestedScopes.length == 0);
+		const forceSelect = (!userScopes
+						|| userScopes.length < mandatory.length)
+						&& (!this.requestedScopes || this.requestedScopes.length == 0);
 		let allSelected = true;
 		for (let i = 0; i < scopes.length; i++) {
 			const localScopes:TwitchScopesString[] = scopes[i].split("+") as TwitchScopesString[];
@@ -148,7 +150,8 @@ class ScopeSelector extends Vue {
 					storage:localScopes,
 				});
 			}else{
-				const selected = forceSelect? true : TwitchUtils.hasScopes(localScopes);
+				const disabled = localScopes.filter(s => mandatory.indexOf(s) > -1).length > 0
+				const selected = forceSelect || disabled? true : TwitchUtils.hasScopes(localScopes);
 				if(!selected) allSelected = false;
 				availableList.push({
 					labelKey:"global.twitch_scopes."+localScopes[0],
@@ -156,7 +159,7 @@ class ScopeSelector extends Vue {
 					value:selected,
 					icon:TwitchScope2Icon[localScopes[0]],
 					iconTheme:"light",
-					disabled:localScopes.filter(s => disabled.indexOf(s) > -1).length > 0,
+					disabled,
 					storage:localScopes,
 				});
 			}

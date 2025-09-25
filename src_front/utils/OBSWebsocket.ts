@@ -132,26 +132,28 @@ export default class OBSWebSocket extends EventDispatcher {
 		// const res = await this.getSourceOnCurrentScene("TTImage");
 		// console.log(res);
 
-		const loop = async ()=>{
-			// loop();
-			const frames:RequestBatchRequest[] = [];
-			frames.push({
-				requestType:"SetSceneItemEnabled",
-				requestData: {sceneName:"Scene 2", sceneItemId:37, sceneItemEnabled:false}
-			});
-			frames.push({
-				requestType:"Sleep",
-				requestData:{sleepFrames:2},
-			})
-			frames.push({
-				requestType:"SetSceneItemEnabled",
-				requestData: {sceneName:"Scene 2", sceneItemId:37, sceneItemEnabled:true}
-			});
+		// const loop = async ()=>{
+		// 	// loop();
+		// 	const frames:RequestBatchRequest[] = [];
+		// 	frames.push({
+		// 		requestType:"SetSceneItemEnabled",
+		// 		requestData: {sceneName:"Scene 2", sceneItemId:37, sceneItemEnabled:false}
+		// 	});
+		// 	frames.push({
+		// 		requestType:"Sleep",
+		// 		requestData:{sleepFrames:2},
+		// 	})
+		// 	frames.push({
+		// 		requestType:"SetSceneItemEnabled",
+		// 		requestData: {sceneName:"Scene 2", sceneItemId:37, sceneItemEnabled:true}
+		// 	});
 
-			await this.socket.callBatch(frames, {executionType:RequestBatchExecutionType.SerialFrame, haltOnFailure:false});
-			await Utils.promisedTimeout(1000);
-			loop();
-		}
+		// 	await this.socket.callBatch(frames, {executionType:RequestBatchExecutionType.SerialFrame, haltOnFailure:false});
+		// 	await Utils.promisedTimeout(1000);
+		// 	loop();
+		// }
+
+		// this.getSourceSettings("COLOR_Source_test").then(console.log).catch(console.error);
 
 		this.versionInfo = await this.socket.call("GetVersion");
 
@@ -1088,6 +1090,19 @@ export default class OBSWebSocket extends EventDispatcher {
 	public async setPersistedValue(key:string, value:JsonValue):Promise<void> {
 		if(!this.connected) return;
 		await this.obs.call("SetPersistentData", {realm:"OBS_WEBSOCKET_DATA_REALM_GLOBAL", slotName:key, slotValue:value});
+	}
+	
+	/**
+	 * Changes the color of a color source
+	 * @param sourceName 
+	 * @param color 
+	 * @returns 
+	 */
+	public async setColorSourceColor(sourceName:string, color:number):Promise<void> {
+		if(!this.connected) return;
+		//Convert from 0xAARRGGBB to 0xAABBGGRR
+		color = ((color & 0xFF00FF00) | ((color & 0xFF) << 16) | ((color >> 16) & 0xFF));
+		await this.obs.call("SetInputSettings", {inputName:sourceName as string, inputSettings:{color}});
 	}
 
 	/*******************

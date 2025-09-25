@@ -58,6 +58,8 @@
 		"translation": "Traduction",
 		"key":"Clé",
 		"value":"Valeur",
+		"mandatory":"Champ obligatoire",
+		"mandatory_fill":"Champs obligatoires manquants",
 		"currency_pattern": "Devise",
 		"elapsed_duration":"il y a {DURATION}s",
 		"elapsed_duration_now":"maintenant",

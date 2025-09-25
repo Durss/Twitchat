@@ -1,5 +1,5 @@
 import DataStore from '@/store/DataStore';
-import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerTypes, VALUE_PLACEHOLDER_PREFIX, type TriggerActionTypes, type TriggerData, type TriggerTreeItemData } from '@/types/TriggerActionDataTypes';
+import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerTypes, VALUE_PLACEHOLDER_PREFIX, type TriggerActionTypes, type TriggerData, type TriggerTreeItemData, type TriggerExportData, type SocketParams } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import SchedulerHelper from '@/utils/SchedulerHelper';
@@ -14,6 +14,9 @@ import StoreProxy from '../StoreProxy';
 import SSEHelper from '@/utils/SSEHelper';
 import SSEEvent from '@/events/SSEEvent';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import * as Sentry from "@sentry/vue";
+import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
+import WebsocketTrigger from '@/utils/WebsocketTrigger';
 
 let discordCmdUpdateDebounce:number = -1;
 let wasDiscordCmds = false;
@@ -26,6 +29,8 @@ export const storeTriggers = defineStore('triggers', {
 		triggerTree: [],
 		currentEditTriggerData: null,
 		triggerIdToFolderEnabled: {},
+		selectedTriggerIDs: [],
+		exportingSelectedTriggers: false,
 	} as ITriggersState),
 
 
@@ -64,6 +69,31 @@ export const storeTriggers = defineStore('triggers', {
 			if(triggerTree) {
 				Utils.mergeRemoteObject(JSON.parse(triggerTree), (this.triggerTree as unknown) as JsonObject);
 				this.computeTriggerTreeEnabledStates();
+			}
+
+			// Delete or schedule deletion for triggers with autoDelete_at
+			this.triggerList.forEach(t=>{
+				// Check if trigger should be automatically deleted at some point
+				if(t.autoDelete_at && t.autoDelete_at > 0) {
+					if(t.autoDelete_at < Date.now() + 10000) {
+						//Trigger is expired (with 10s margin), delete it
+						this.deleteTrigger(t.id);
+	
+					}else if(t.autoDelete_at > Date.now()) {
+						// Schedule trigger for deletion at given date
+						SetTimeoutWorker.instance.create(()=>{
+							this.deleteTrigger(t.id);
+						}, t.autoDelete_at - Date.now());
+					}
+				}
+			});
+
+			//Init trigger websocket
+			const triggerSocketParams = DataStore.get(DataStore.WEBSOCKET_TRIGGER);
+			if(triggerSocketParams) {
+				const params = JSON.parse(triggerSocketParams) as SocketParams;
+
+				WebsocketTrigger.instance.connect(params.ip, params.port, params.secured).then(()=>{}).catch(()=> {});
 			}
 
 			/**
@@ -404,6 +434,84 @@ export const storeTriggers = defineStore('triggers', {
 			}
 
 			parseItem(this.triggerTree);
+		},
+
+		setTriggerSelectState(trigger:TriggerData, selected:boolean) {
+			if(selected) {
+				if(!this.selectedTriggerIDs.find(v=> v == trigger.id)) {
+					this.selectedTriggerIDs.push(trigger.id);
+				}
+			}else{
+				this.selectedTriggerIDs = this.selectedTriggerIDs.filter(v=> v != trigger.id);
+			}
+		},
+
+		async exportSelectedTriggers(exportName:string, data:Omit<TriggerExportData, "authorId">, password?:string):Promise<void> {
+			if(this.selectedTriggerIDs.length == 0) return Promise.resolve();
+			this.exportingSelectedTriggers = true;
+			let encrypted:string | undefined = undefined;
+			if(password && password.length > 0) {
+				const dataStr = JSON.stringify(data);
+				encrypted = await Utils.encryptMessage(dataStr, password);
+			}
+			try {
+				await ApiHelper.call("admin/triggersPreset", "POST", {name:exportName, data:encrypted? undefined : data, encrypted}, false);
+			} catch (error) {
+				console.error("Error exporting triggers:", error);
+				StoreProxy.common.alert("Failed to export triggers");
+			}
+			await Utils.promisedTimeout(250);
+			this.exportingSelectedTriggers = false;
+		},
+
+		importTriggerData(data:TriggerExportData):void {
+			try {
+				const replaceList = data.params.map(v=> {
+					let escapedKey = v.key.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+					// Enforce default boolean values to false
+					if(v.value === undefined && v.valueType === 'boolean') v.value = false;
+					if(v.valueType == "boolean") {
+						// Remove surrounding quotes if any
+						escapedKey = `("|')?${escapedKey}("|')?`;
+					}
+					return {
+						reg: new RegExp(escapedKey, "gi"),
+						value: v.value
+					}
+				})
+				const triggerList:TriggerData[] = [];
+				data.triggers.forEach(t => {
+					if(data.autoDelete_at > 0) {
+						// console.log("Setting autoDelete_at for trigger:", t.id);
+						t.autoDelete_at = data.autoDelete_at;
+					}
+					t.importedInfo = {
+						author: data.authorId,
+						name: data.name,
+					}
+					// console.log(t.importedInfo)
+					let str = JSON.stringify(t);
+					replaceList.forEach(r => {
+						str = str.replace(r.reg, r.value?.toString() || "");
+					});
+					triggerList.push(JSON.parse(str));
+					
+					// console.log(JSON.parse(str));
+					const existsAt = this.triggerList.findIndex(v=> v.id == t.id);
+					if(existsAt !== -1) {
+						//If the trigger already exists just update it
+						this.triggerList[existsAt] = JSON.parse(str);
+					}else{
+						//Add the new trigger
+						this.triggerList.push(JSON.parse(str));
+					}
+				});
+				
+				this.saveTriggers();
+			}catch(e) {
+				console.error("Error importing triggers:", e);
+				Sentry.captureException("Failed importing triggers", { attachments: [{ filename: "imported_data", data: JSON.stringify(data) }] });
+			}
 		}
 
 	} as ITriggersActions

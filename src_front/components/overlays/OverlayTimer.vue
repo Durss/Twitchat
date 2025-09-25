@@ -4,7 +4,7 @@
 			<div class="timer" id="timer" ref="timer"
 			:class="{noBg:!configTimer.bgEnabled}"
 			:style="{
-				fontFamily: configTimer.textFont,
+				fontFamily: 'custom-font',
 				fontSize: configTimer.textSize + 'px',
 				color: configTimer.textColor,
 				backgroundColor: configTimer.bgEnabled? configTimer.bgColor : 'transparent',
@@ -19,7 +19,7 @@
 			v-if="configCountdown.style == 'text'"
 			:class="{noBg:!configCountdown.bgEnabled}"
 			:style="{
-				fontFamily: configCountdown.textFont,
+				fontFamily: 'custom-font',
 				fontSize: configCountdown.textSize + 'px',
 				color: configCountdown.textColor,
 				backgroundColor: configCountdown.bgEnabled? configCountdown.bgColor : 'transparent',
@@ -66,6 +66,7 @@ class OverlayTimer extends AbstractOverlay {
 	private timerHidding:boolean = false;
 	private countdownHidding:boolean = false;
 	private intervalUpdate:number = -1;
+	private styleNode:HTMLStyleElement|null = null;
 	private timerData:TwitchatDataTypes.TimerData|null = null;
 	private countdownData:TwitchatDataTypes.TimerData|null = null;
 
@@ -87,6 +88,9 @@ class OverlayTimer extends AbstractOverlay {
 		this.intervalUpdate = window.setInterval(()=>{ this.computeValues() }, 100);
 
 		this.overlayId = this.$route.query.twitchat_overlay_id as string ?? "";
+
+		this.styleNode = document.createElement("style");
+		document.head.appendChild(this.styleNode);
 	}
 
 	public beforeUnmount():void {
@@ -96,6 +100,10 @@ class OverlayTimer extends AbstractOverlay {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTDOWN_START, this.countdownEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTDOWN_COMPLETE, this.countdownEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_TIMER_OVERLAY_PRESENCE, this.timerPresenceHandler);
+		if(this.styleNode) {
+			document.head.removeChild(this.styleNode);
+			this.styleNode = null;
+		}
 	}
 
 	public requestInfo():void {
@@ -130,6 +138,12 @@ class OverlayTimer extends AbstractOverlay {
 		}
 
 		this.configTimer = data.overlayParams;
+
+		this.styleNode!.innerHTML = `
+		@font-face {
+			font-family: "custom-font";
+			src: local("${this.configTimer.textFont}");
+		}`;
 	}
 
 	public async onCountdownEvent(e:TwitchatEvent):Promise<void> {
@@ -160,6 +174,12 @@ class OverlayTimer extends AbstractOverlay {
 		}
 
 		this.configCountdown = data.overlayParams;
+
+		this.styleNode!.innerHTML = `
+		@font-face {
+			font-family: "custom-font";
+			src: local("${this.configCountdown.textFont}");
+		}`;
 	}
 
 	public computeValues():void {

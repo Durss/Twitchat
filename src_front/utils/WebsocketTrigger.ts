@@ -52,11 +52,21 @@ export default class WebsocketTrigger {
 	/**
 	 * Connect to Eventsub
 	 */
-	public async connect(url:string, keepTringToConnect:boolean = true):Promise<void> {
+	public async connect(ip:string, port:number, securedConnection:boolean = false, keepTringToConnect:boolean = true):Promise<void> {
 
 		return new Promise((resolve, reject)=> {
 			clearTimeout(this.reconnectTimeout);
-	
+			
+			let url = "";
+			// If IP contains full url (ws:// or wss://), use it directly
+			if(/wss?:\/\//.test(ip)) {
+				url = ip
+			}else{
+				url = securedConnection === true? "wss://" : "ws://";
+				url += ip;
+				if(port) url += ":"+port;
+			}
+
 			this.socket = new WebSocket(url);
 	
 			this.socket.onopen = async () => {
@@ -91,7 +101,7 @@ export default class WebsocketTrigger {
 				this.connected = false;
 				clearTimeout(this.reconnectTimeout)
 				this.reconnectTimeout = window.setTimeout(()=>{
-					this.connect(url);
+					this.connect(ip, port, securedConnection);
 				}, 5000);
 			};
 			
