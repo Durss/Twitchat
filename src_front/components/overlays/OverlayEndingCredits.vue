@@ -238,6 +238,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 	private scrollStarted_at:number = 0;
 	private fixedScrollId:string = "";
 	private creditsComplete:boolean = false;
+	private styleNode:HTMLStyleElement|null = null;
 
 	private keyupHandler!:(e:KeyboardEvent)=>void;
 	private controlHandler!:(e:TwitchatEvent) => void;
@@ -675,6 +676,9 @@ class OverlayEndingCredits extends AbstractOverlay {
 		window.setInterval(()=> {
 			PublicAPI.instance.broadcast(TwitchatEvent.CREDITS_OVERLAY_PRESENCE);
 		}, 20000);
+
+		this.styleNode = document.createElement("style");
+		document.head.appendChild(this.styleNode);
 	}
 
 	public beforeUnmount(): void {
@@ -1003,6 +1007,16 @@ class OverlayEndingCredits extends AbstractOverlay {
 
 			this.buildSlots();
 			this.reset(resetScroll);
+
+			this.styleNode!.innerHTML = `
+			@font-face {
+				font-family: "title-font";
+				 src: local("${this.data?.params?.fontTitle}");
+			}
+			@font-face {
+				font-family: "entry-font";
+				 src: local("${this.data?.params?.fontEntry}");
+			}`;
 		}
 	}
 
@@ -1298,7 +1312,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 	private getTitleStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):CSSProperties {
 		const res:CSSProperties = {
 			color: this.data?.params?.colorTitle,
-			fontFamily: "\""+this.data?.params?.fontTitle+"\", \"Inter\"",
+			fontFamily: "\"title-font\", \"Inter\"",
 			filter: "drop-shadow(2px 2px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
 			marginBottom: this.data?.params?.paddingTitle+"px",
 		}
@@ -1308,7 +1322,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 	private getEntryStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):CSSProperties {
 		const res:CSSProperties = {
 			color: this.data?.params?.colorEntry,
-			fontFamily: "\""+this.data?.params?.fontEntry+"\", \"Inter\"",
+			fontFamily: "\"entry-font\", \"Inter\"",
 			filter: "drop-shadow(1px 1px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
 			// marginBottom: ((this.data?.params?.padding||0)/100*7)+"em",
 		}

@@ -835,16 +835,26 @@ export default class Utils {
 		}
 	}
 
-	private static fontsCache:string[] = [];
+	private static fontsCache:{fonts:string[], systemGranted:boolean}|null = null;
 	/**
 	 * Gets some of the available fonts
 	 */
-	public static async listAvailableFonts():Promise<string[]> {
-		if(this.fontsCache.length > 0) return this.fontsCache;
+	public static async listAvailableFonts(requestPermission:boolean = false):Promise<{fonts:string[], systemGranted:boolean}> {
+		if(this.fontsCache && this.fontsCache.fonts.length > 0 && !requestPermission) return this.fontsCache;
 
 		await document.fonts.ready;
 
 		const fontAvailable = new Set<string>();
+		let systemGranted = false;
+		if(requestPermission) {
+			try {
+				const fontList = await window.queryLocalFonts!();
+				systemGranted = fontList.length > 0;
+			}catch(error){
+				//Refused fonts access. Not actually called apparently...
+				systemGranted = false;
+			}
+		}
 
 		try {
 			const granted = await navigator.permissions.query(
@@ -853,8 +863,9 @@ export default class Utils {
 			);
 			if(granted.state == "granted") {
 				(await window.queryLocalFonts!()).forEach(font=>{
-					fontAvailable.add(font.family);
+					fontAvailable.add(font.postscriptName);
 				})
+				systemGranted = true;
 			}
 		}catch(error) {}
 
@@ -876,7 +887,7 @@ export default class Utils {
 		}catch(error) {
 			//old firefox browser version have issue with document.fonts not being an iterable
 		}
-		this.fontsCache = [...fontAvailable.values()];
+		this.fontsCache = {fonts:[...fontAvailable.values()], systemGranted};
 		return this.fontsCache;
 	}
 

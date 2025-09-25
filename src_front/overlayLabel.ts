@@ -28,6 +28,8 @@ let placeholders:{[tag:string]:{value:string|number, type:LabelItemPlaceholder["
 let timerPlaceholder:{tag:string, params:(typeof placeholders[string])}[] = [];
 let timerOffsets:{[key:string]:{dateOffset:number, type:LabelItemPlaceholder["type"]}} = {};
 let mustRefreshRegularly = false;
+let styleNode = document.createElement("style");
+document.head.appendChild(styleNode);
 
 interface IEnvelope<T = undefined> {
 	origin:"twitchat";
@@ -239,7 +241,7 @@ function onMessage(message:IEnvelope<unknown>):void {
 			}else if(parameters){
 				const holder = document.getElementById("app")!;
 				holder.removeAttribute("style");
-				holder.style.fontFamily = parameters.fontFamily || "Inter";
+				holder.style.fontFamily = "custom-font";
 				holder.style.fontSize = parameters.fontSize+"px";
 				holder.style.color = parameters.fontColor;
 
@@ -258,6 +260,12 @@ function onMessage(message:IEnvelope<unknown>):void {
 					const align = parameters.textAlign || "left";
 					holder.style.textAlign	= align;
 				}
+					
+				styleNode!.innerHTML = `
+				@font-face {
+					font-family: "custom-font";
+					src: local("${parameters.fontFamily || 'Inter'}");
+				}`;
 
 				renderValue();
 				setScrollSpeed();

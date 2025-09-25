@@ -268,27 +268,29 @@
 
 				<label :for="'editablelist'+key" v-html="label" v-tooltip="tooltip"></label>
 
-				<vue-select class="listField"
-					label="label"
-					ref="vueSelect"
-					:id="'editablelist'+key"
-					:placeholder="placeholder"
-					v-model="paramData.value"
-					:calculate-position="$placeDropdown"
-					appendToBody
-					taggable
-					v-if="(paramData.type == 'font' && paramData.options) || paramData.type != 'font'"
-					:submitSearchOnBlur="true"
-					:multiple="paramData.options === undefined"
-					:noDrop="paramData.options === undefined"
-					:push-tags="paramData.options != undefined"
-					:options="paramData.options"
-				>
-					<template #no-options="{ search, searching, loading }">
-						<div>{{ $t("global.empty_list1") }}</div>
-						<div>{{ $t("global.empty_list2") }}</div>
-					</template>
-				</vue-select>
+				<div class="listField">
+					<vue-select class="listField"
+						label="label"
+						ref="vueSelect"
+						:id="'editablelist'+key"
+						:placeholder="placeholder"
+						v-model="paramData.value"
+						:calculate-position="$placeDropdown"
+						appendToBody
+						taggable
+						v-if="(paramData.type == 'font' && paramData.options) || paramData.type != 'font'"
+						:submitSearchOnBlur="true"
+						:multiple="paramData.options === undefined"
+						:noDrop="paramData.options === undefined"
+						:push-tags="paramData.options != undefined"
+						:options="paramData.options"
+					>
+						<template #no-options="{ search, searching, loading }">
+							<div>{{ $t("global.empty_list1") }}</div>
+							<div>{{ $t("global.empty_list2") }}</div>
+						</template>
+					</vue-select>
+				</div>
 				<slot name="composite" />
 			</div>
 
@@ -652,6 +654,7 @@ export class ParamItem extends Vue {
 						//@ts-ignore
 						{ name: "local-fonts" }
 					).then(granted => {
+						console.log("FONT PERMISSION STATE", granted.state);
 						if(granted.state == "prompt") {
 							// Ask for font access if not running in OBS as they doesn't support Font API
 							this.askForSystemFontAccess = !Config.instance.OBS_DOCK_CONTEXT;
@@ -940,8 +943,8 @@ export class ParamItem extends Vue {
 	 * Get local fonts
 	 */
 	public async getLocalFonts():Promise<void>{
-		Utils.listAvailableFonts().then(fonts => {
-			this.paramData.options = fonts.concat();
+		Utils.listAvailableFonts().then(result => {
+			this.paramData.options = result.fonts.concat();
 			if(this.paramData.options.indexOf(this.paramData.value as string) == -1) {
 				this.paramData.options.push(this.paramData.value as string);
 			}
@@ -953,34 +956,13 @@ export class ParamItem extends Vue {
 	 * Grant access to system fonts
 	 */
 	public async grantSystemFontRead():Promise<void>{
-		let f = window.queryLocalFonts!;
-		let fontList:Awaited<ReturnType<typeof f>> = [];
-		let granted = true;
-		try {
-			fontList = await window.queryLocalFonts!();
-			granted = fontList.length > 0;
-		}catch(error){
-			//Refused fonts access. Not actually called apparently...
-			granted = false;
-		}
-
-		if(granted) {
-			const fontNames:string[] = ["Inter"];
-			const done:{[key:string]:boolean} = {"Inter":true};
-			fontList.forEach(f => {
-				if(done[f.family]) return;
-				done[f.family] = true;
-				fontNames.push(f.family);
-			});
-			if(this.paramData.value && fontNames.indexOf(this.paramData.value as string) == -1) {
-				fontNames.push(this.paramData.value as string);
-			}
-			this.paramData.options = fontNames.sort();
-			this.askForSystemFontAccess = false;
+		Utils.listAvailableFonts(true).then(result => {
+			this.paramData.options = result.fonts.sort();
+			this.askForSystemFontAccess = result?.systemGranted !== true;
 			if(!this.paramData.value) {
 				this.paramData.value = "Inter";
 			}
-		}
+		});
 	}
 }
 export default toNative(ParamItem);
