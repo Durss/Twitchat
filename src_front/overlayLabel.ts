@@ -241,7 +241,7 @@ function onMessage(message:IEnvelope<unknown>):void {
 			}else if(parameters){
 				const holder = document.getElementById("app")!;
 				holder.removeAttribute("style");
-				holder.style.fontFamily = "custom-font";
+				holder.style.fontFamily = `custom-font, ${parameters.fontFamily || 'Inter'}, sans-serif`;
 				holder.style.fontSize = parameters.fontSize+"px";
 				holder.style.color = parameters.fontColor;
 

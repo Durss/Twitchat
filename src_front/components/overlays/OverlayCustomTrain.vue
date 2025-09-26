@@ -138,11 +138,12 @@ class OverlayCustomTrain extends AbstractOverlay {
 		this.configs = e.data.configs;
 		this.state = e.data.state;
 		
-		this.fontName = "train-font-"+this.configs.id;
+		const customFont = `train-font-${this.configs.id}`
+		this.fontName = `${customFont}, "${this.configs.textFont}"`;
 
 		this.styleNode!.innerHTML = `
 		@font-face {
-			font-family: "${this.fontName}";
+			font-family: "${customFont}";
 			src: local("${this.configs.textFont}");
 		}`;
 

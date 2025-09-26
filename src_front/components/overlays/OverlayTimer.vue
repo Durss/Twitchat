@@ -4,7 +4,7 @@
 			<div class="timer" id="timer" ref="timer"
 			:class="{noBg:!configTimer.bgEnabled}"
 			:style="{
-				fontFamily: 'custom-font',
+				fontFamily: 'custom-font, \''+configTimer.textFont+'\', Inter',
 				fontSize: configTimer.textSize + 'px',
 				color: configTimer.textColor,
 				backgroundColor: configTimer.bgEnabled? configTimer.bgColor : 'transparent',
@@ -19,7 +19,7 @@
 			v-if="configCountdown.style == 'text'"
 			:class="{noBg:!configCountdown.bgEnabled}"
 			:style="{
-				fontFamily: 'custom-font',
+				fontFamily: 'custom-font, \''+configCountdown.textFont+'\', Inter',
 				fontSize: configCountdown.textSize + 'px',
 				color: configCountdown.textColor,
 				backgroundColor: configCountdown.bgEnabled? configCountdown.bgColor : 'transparent',

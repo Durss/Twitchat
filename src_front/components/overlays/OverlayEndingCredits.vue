@@ -1312,9 +1312,9 @@ class OverlayEndingCredits extends AbstractOverlay {
 	private getTitleStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):CSSProperties {
 		const res:CSSProperties = {
 			color: this.data?.params?.colorTitle,
-			fontFamily: "\"title-font\", \"Inter\"",
-			filter: "drop-shadow(2px 2px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
-			marginBottom: this.data?.params?.paddingTitle+"px",
+			fontFamily: `title-font, ${this.data?.params?.fontTitle || "Inter"}, Inter`,
+			filter: `drop-shadow(2px 2px 0 rgba(0, 0, 0, ${(this.data?.params?.textShadow || 0) / 100}))`,
+			marginBottom: `${this.data?.params?.paddingTitle}px`,
 		}
 		return res;
 	}
@@ -1322,8 +1322,8 @@ class OverlayEndingCredits extends AbstractOverlay {
 	private getEntryStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):CSSProperties {
 		const res:CSSProperties = {
 			color: this.data?.params?.colorEntry,
-			fontFamily: "\"entry-font\", \"Inter\"",
-			filter: "drop-shadow(1px 1px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
+			fontFamily: `entry-font, ${this.data?.params?.fontEntry || "Inter"}, Inter`,
+			filter: `drop-shadow(1px 1px 0 rgba(0, 0, 0, ${(this.data?.params?.textShadow || 0) / 100}))`,
 			// marginBottom: ((this.data?.params?.padding||0)/100*7)+"em",
 		}
 		return res;

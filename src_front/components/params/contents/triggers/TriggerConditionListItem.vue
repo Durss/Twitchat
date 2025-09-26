@@ -12,7 +12,7 @@
 			<p>=</p>
 		</div>
 
-		<div class="valueHolder" :class="{isCustomValue:forceCustomValue}">
+		<div class="valueHolder" :class="{isCustomValue:forceCustomValue}" v-if="needsValue">
 			<TTButton class="clearCustomBt" v-if="forceCustomValue" @click="forceCustomValue = false" icon="cross" secondary small></TTButton>
 			<ParamItem class="value" v-if="needsValue && forceCustomValue !== true && param_value_list.listValues" noBackground :paramData="param_value_list" v-model="condition.value" :key="'vl_'+condition.id" @change="onSelectFixedValue()" />
 			<ParamItem class="value" v-else-if="needsValue" noBackground :paramData="param_value" v-model="condition.value" :key="'v_'+condition.id" placeholdersAsPopout />
@@ -72,7 +72,8 @@ class TriggerConditionListItem extends Vue {
 	private CUSTOM:string = "@___CUSTOM_VALUE___@";
 
 	public get needsValue():boolean {
-		return this.param_operator.value != "empty" && this.param_operator.value != "not_empty";
+		const noValueOperators:TriggerCondition["operator"][] = ["empty", "not_empty", "is_boolean", "is_not_boolean", "is_number", "is_not_number"];
+		return !noValueOperators.includes(this.param_operator.value);
 	}
 
 	public beforeMount(): void {
