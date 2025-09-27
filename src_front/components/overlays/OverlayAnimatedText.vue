@@ -895,6 +895,7 @@ class OverlayAnimatedText extends AbstractOverlay {
 				this.split!.words = [];
 				this.split!.lines = []
 				this.split = null;
+				this.text = "";
 			}
 		})
 		return promise
