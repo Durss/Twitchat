@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes"
 	@click="open()"
-	v-if="$store.auth.donorLevel > -1 || $store.auth.isPremium || !$store.auth.noAd">
+	v-if="$store.auth.donorLevel == -1 || $store.auth.isPremium || !$store.auth.noAd">
 		<ClearButton v-if="!collapse" :aria-label="$t('params.ad_collapse_aria')" @click.stop="close()" theme="light" />
 
 		<Icon name="twitchat"
