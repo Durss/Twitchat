@@ -2,7 +2,7 @@ import type HeatEvent from "@/events/HeatEvent";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import type { HeatScreen } from "@/types/HeatDataTypes";
 import type { LabelItemData, LabelItemPlaceholder, LabelItemPlaceholderList } from "@/types/ILabelOverlayData";
-import type { IHttpPlaceholder, TriggerActionCountDataAction, TriggerActionHTTPCallData, TriggerActionPlayabilityData, TriggerActionTypes, TriggerCallStack, TriggerData, TriggerExportData, TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
+import type { IHttpPlaceholder, TriggerActionCountDataAction, TriggerActionHTTPCallData, TriggerActionPlayabilityData, TriggerActionTypes, TriggerCallStack, TriggerData, SettingsExportData, TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/types/spotify/SpotifyDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
@@ -83,6 +83,8 @@ export default class StoreProxy {
 	public static animatedText: IAnimatedTextState & IAnimatedTextGetters & IAnimatedTextActions & { $state: IAnimatedTextState, $reset: () => void };
 	public static customTrain: ICustomTrainState & ICustomTrainGetters & ICustomTrainActions & { $state: ICustomTrainState, $reset: () => void };
 	public static streamSocket: IStreamSocketState & IStreamSocketGetters & IStreamSocketActions & { $state: IStreamSocketState, $reset: () => void };
+	public static exporter: IExporterState & IExporterGetters & IExporterActions & { $state: IExporterState, $reset: () => void };
+	public static endingCredits: IEndingCreditsState & IEndingCreditsGetters & IEndingCreditsActions & { $state: IEndingCreditsState, $reset: () => void };
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>> & {
 		// Dirty typing override.
 		// For some reason (may the "legacy" flag on main.ts ?) the VueI18n interface
@@ -349,6 +351,10 @@ export type IAuthState = {
 	 * Percentage reached before lifetime premium
 	 */
 	lifetimePremiumPercent:number;
+	/**
+	 * List of Twitchat feature flags enabled for this user
+	 */
+	features:"export_configs"[];
 } & {
 	/**
 	 * Platforms sessions
@@ -1649,16 +1655,6 @@ export interface ITriggersState {
 	 * this value will be set to false
 	 */
 	triggerIdToFolderEnabled:{[key:string]:boolean}
-	/**
-	 * Selected trigger items in the trigger list
-	 * Used for easy export of sharable presets
-	 * Only admin is allowed to use this.
-	 */
-	selectedTriggerIDs:string[];
-	/**
-	 * True when exporting selected triggers
-	 */
-	exportingSelectedTriggers:boolean;
 }
 
 export interface ITriggersGetters {
@@ -1754,21 +1750,6 @@ export interface ITriggersActions {
 	 * trigger will be flagged as disabled
 	 */
 	computeTriggerTreeEnabledStates():void;
-	/**
-	 * Set the selected state of a trigger
-	 * @param trigger 
-	 * @param selected 
-	 */
-	setTriggerSelectState(trigger:TriggerData, selected:boolean):void
-	/**
-	 * Export the selected triggers to a sharable preset file
-	 */
-	exportSelectedTriggers(exportName:string, data:Omit<TriggerExportData, "authorId">, password?:string):Promise<void>
-	/**
-	 * Imports trigger data from a sharable preset file
-	 * @param data 
-	 */
-	importTriggerData(data:TriggerExportData):void;
 }
 
 
@@ -3827,4 +3808,71 @@ export interface IStreamSocketActions {
 	 * Saves current data to server
 	 */
 	saveData():void;
+}
+
+
+
+
+
+export interface IExporterState {
+	/**
+	 * True when exporting selected settings
+	 */
+	exportingSelectedSettings:boolean;
+
+	selectedTriggerIDs:string[];
+	selectedTimerIDs:string[];
+	selectedCounterIDs:string[];
+	selectedValueIDs:string[];
+	selectedLabelIDs:string[];
+	selectedAnimatedTextIDs:string[];
+	selectedCustomTrainIDs:string[];
+	selectedEndingCreditsSlotIDs:string[];
+	selectedBingoGridIDs:string[];
+}
+
+export interface IExporterGetters {
+}
+
+export interface IExporterActions {
+	/**
+	 * Export the selected triggers to a sharable preset file
+	 */
+	exportSelectedSettings(
+		exportName:string,
+		description:string,
+		autoDeleteDate:string|undefined,
+		paramList:SettingsExportData["params"],
+		password?:string
+	):Promise<string|false>;
+	/**
+	 * Imports settings from a sharable preset file
+	 * @param data 
+	 */
+	importSettings(data:SettingsExportData):void;
+}
+
+
+
+
+
+export interface IEndingCreditsState {
+	/**
+	 * True when exporting selected settings
+	 */
+	overlayData:TwitchatDataTypes.EndingCreditsParams;
+}
+
+export interface IEndingCreditsGetters {
+}
+
+export interface IEndingCreditsActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
+	/**
+	 * Save current ending credits params
+	 */
+	saveParams():Promise<void>;
 }

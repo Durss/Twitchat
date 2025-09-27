@@ -28,12 +28,12 @@
 				<ToggleBlock :icons="['count']" :title="$t('params.categories.counters')" :alert="!countersOK" :open="!countersOK"
 				v-if="$store.counters.counterList.length > 0">
 					<template #right_actions>
-						<Icon :name="(triggersOK? 'checkmark' : 'alert')" />
+						<Icon :name="(countersOK? 'checkmark' : 'alert')" />
 						<strong>{{$store.counters.counterList.filter(v=>v.enabled !== false).length}}/{{ $config.MAX_COUNTERS }}</strong>
 					</template>
 					<div class="itemList">
 						<div class="rowItem" v-for="item in $store.counters.counterList" @click="toggleCounter(item)">
-							<span class="label"><Icon name="count" />{{ item.name }} {{ item.enabled }}</span>
+							<span class="label"><Icon name="count" />{{ item.name }}</span>
 							<div class="toggle">
 								<ToggleButton v-model="item.enabled" @change="toggleCounter()" />
 							</div>
@@ -177,7 +177,7 @@
 				<ToggleBlock :icons="['timer']" :title="$t('premium.cleanup.timers')" :alert="!timersOK" :open="!timersOK"
 				v-if="$store.timers.timerList.filter(v=>!v.isDefault).length > 0">
 					<template #right_actions>
-						<Icon :name="(labelsOK? 'checkmark' : 'alert')" />
+						<Icon :name="(timersOK? 'checkmark' : 'alert')" />
 						<strong>{{$store.timers.timerList.filter(v=>v.enabled && !v.isDefault).length}}/{{ $config.MAX_TIMERS }}</strong>
 					</template>
 					<div class="itemList">
@@ -193,7 +193,7 @@
 				<ToggleBlock :icons="['animate']" :title="$t('premium.cleanup.animated_text')" :alert="!animatedTextsOK" :open="!animatedTextsOK"
 				v-if="$store.animatedText.animatedTextList.filter(v=>v.enabled).length > 0">
 					<template #right_actions>
-						<Icon :name="(labelsOK? 'checkmark' : 'alert')" />
+						<Icon :name="(animatedTextsOK? 'checkmark' : 'alert')" />
 						<strong>{{$store.animatedText.animatedTextList.filter(v=>v.enabled).length}}/{{ $config.MAX_ANIMATED_TEXT }}</strong>
 					</template>
 					<div class="itemList">
@@ -209,7 +209,7 @@
 				<ToggleBlock :icons="['train']" :title="$t('premium.cleanup.custom_train')" :alert="!customTrainOK" :open="!customTrainOK"
 				v-if="$store.customTrain.customTrainList.filter(v=>v.enabled).length > 0">
 					<template #right_actions>
-						<Icon :name="(labelsOK? 'checkmark' : 'alert')" />
+						<Icon :name="(customTrainOK? 'checkmark' : 'alert')" />
 						<strong>{{$store.customTrain.customTrainList.filter(v=>v.enabled).length}}/{{ $config.MAX_CUSTOM_TRAIN }}</strong>
 					</template>
 					<div class="itemList">

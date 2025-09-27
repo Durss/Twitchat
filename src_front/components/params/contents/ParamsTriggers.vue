@@ -68,8 +68,6 @@
 			<div class="card-item premium premiumLimit" v-else>
 				<span>{{$t("triggers.premium_limit", {MAX:$config.MAX_TRIGGERS_PREMIUM})}}</span>
 			</div>
-
-			<TriggerExportForm v-if="$store.triggers.selectedTriggerIDs.length > 0 && $store.main.devmode" />
 		</template>
 
 		<TriggerCreateForm
@@ -117,7 +115,6 @@ import { Component, toNative, Vue } from 'vue-facing-decorator';
 import type IParameterContent from './IParameterContent';
 import TriggerActionList from './triggers/TriggerActionList.vue';
 import TriggerCreateForm from './triggers/TriggerCreateForm.vue';
-import TriggerExportForm from './triggers/TriggerExportForm.vue';
 import TriggerList from './triggers/TriggerList.vue';
 
 @Component({
@@ -126,7 +123,6 @@ import TriggerList from './triggers/TriggerList.vue';
 		TriggerList,
 		TriggerActionList,
 		TriggerCreateForm,
-		TriggerExportForm,
 	},
 	emits:[],
 })

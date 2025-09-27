@@ -13,6 +13,7 @@ import type {JsonObject} from "type-fest";
 export const storeValues = defineStore('values', {
 	state: () => ({
 		valueList: [],
+		selectedValueIDs: [],
 	} as IValuesState),
 
 

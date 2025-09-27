@@ -456,7 +456,7 @@ import { VueDraggable } from 'vue-draggable-plus';
 import GroqChannelAction from './GroqChannelAction.vue';
 import TriggerUtils from '@/utils/TriggerUtils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
-import type { TriggerExportData } from '@/types/TriggerActionDataTypes';
+import type { SettingsExportData } from '@/types/TriggerActionDataTypes';
 
 @Component({
 	components:{
@@ -486,7 +486,7 @@ import type { TriggerExportData } from '@/types/TriggerActionDataTypes';
 		"update:showGazaFunds",
 		"update:showChatUsers",
 		"update:showPins",
-		"update:showTriggerImport",
+		"update:showSettingsImport",
 		"setCurrentNotification",
 	],
 })
@@ -507,7 +507,7 @@ export class ChatForm extends Vue {
 	public sendHistory:string[] = [];
 	public onlineUsersTooltip:string = "";
 	public announcement:TwitchatDataTypes.TwitchatAnnouncementData | null = null;
-	public triggerImportData:TriggerExportData | null = null;
+	public triggerImportData:SettingsExportData | null = null;
 
 	private announcementInterval:number = -1;
 	private creditsOverlayPresenceHandlerTimeout:number = -1;
@@ -1038,12 +1038,12 @@ export class ChatForm extends Vue {
 			sChat.addMessage(message);
 		}else
 
-		if(cmd == "/__importtriggers__") {
+		if(cmd == "/__import__") {
 			this.loading = true;
 			try {
-				const result = await ApiHelper.call("triggersPreset", "GET", {name:params[0]}, false);
+				const result = await ApiHelper.call("user/settingsPreset", "GET", {name:params[0]}, false);
 				if(result.json.success) {
-					this.$emit("update:showTriggerImport", result.json.data);
+					this.$emit("update:showSettingsImport", result.json.data);
 				}else{
 					this.error = true;
 				}

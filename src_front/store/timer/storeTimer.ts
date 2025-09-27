@@ -27,6 +27,7 @@ const getDefaultStyle = ():TwitchatDataTypes.TimerData["overlayParams"] => {
 export const storeTimer = defineStore('timer', {
 	state: () => ({
 		timerList: [] as TwitchatDataTypes.TimerData[],
+		selectedTimerIDs:[],
 	} as ITimerState),
 
 

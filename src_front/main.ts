@@ -79,6 +79,8 @@ import { storeChatPoll } from './store/chat_poll/storeChatPoll';
 import { storeAnimatedText } from './store/animated_text/storeAnimatedText';
 import { storeCustomTrain } from './store/customtrain/storeCustomTrain';
 import { storeStreamSocket } from './store/streamsocket/storeStreamSocket';
+import { storeExporter } from './store/exporter/storeExporter';
+import { storeEndingCredits } from './store/ending_credits/storeEndingCredits';
 
 window.setInitMessage("Booting app...");
 
@@ -300,7 +302,9 @@ function buildApp() {
 	StoreProxy.default.animatedText = storeAnimatedText();
 	StoreProxy.default.customTrain = storeCustomTrain();
 	StoreProxy.default.streamSocket = storeStreamSocket();
+	StoreProxy.default.exporter = storeExporter();
 	StoreProxy.default.groq = storeGroq();
+	StoreProxy.default.endingCredits = storeEndingCredits();
 
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach(k => {

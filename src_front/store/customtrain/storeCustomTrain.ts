@@ -18,6 +18,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 	state: () => ({
 		customTrainList:[],
 		customTrainStates:{},
+		selectedCustomTrainIDs:[],
 	} as ICustomTrainState),
 
 

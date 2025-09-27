@@ -123,7 +123,8 @@
 			"youtube": "YouTube",
 			"discord": "Discord",
 			"premium": "Premium",
-			"timers": "Minuteurs"
+			"timers": "Minuteurs",
+			"exporter": "Export params"
 		},
 		"botMessages": {
 			"raffleStart": "/announce 🎉🎉🎉 Le tirage au sort a commencé 🎉🎉🎉 Rejoignez le tirage avec la commande {CMD} ?",

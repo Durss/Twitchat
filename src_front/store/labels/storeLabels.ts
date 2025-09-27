@@ -22,6 +22,7 @@ export const storeLabels = defineStore('labels', {
 	state: () => ({
 		labelList:[],
 		placeholders:{},
+		selectedLabelIDs:[],
 	} as ILabelsState),
 
 

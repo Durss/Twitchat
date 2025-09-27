@@ -1,4 +1,4 @@
-import StoreProxy from "@/store/StoreProxy";
+import StoreProxy, { type IAuthState } from "@/store/StoreProxy";
 import type { TiltifyCampaign, TiltifyToken, TiltifyUser } from "@/store/tiltify/storeTiltify";
 import type { TenorGif } from "@/types/TenorDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
@@ -9,7 +9,7 @@ import type { ServerConfig } from "./Config";
 import Config from "./Config";
 import Utils from "./Utils";
 import type { IPatreonMember, IPatreonTier } from "@/store/patreon/storePatreon";
-import type { TriggerData, TriggerExportData, TriggerImportData } from "@/types/TriggerActionDataTypes";
+import type { TriggerData, SettingsExportData, TriggerImportData } from "@/types/TriggerActionDataTypes";
 
 /**
 * Created : 13/07/2023
@@ -314,21 +314,7 @@ type ApiEndpoints =  {
 			}
 		}
 	};
-	"admin/triggersPreset": {
-		POST: {
-			parameters: {
-				name:string;
-				data?:Omit<TriggerExportData, "authorId">;
-				encrypted?:string
-			};
-			response:{
-				success:boolean;
-				error?:string;
-				errorCode?:string;
-			}
-		},
-	};
-	"triggersPreset": {
+	"user/settingsPreset": {
 		GET: {
 			parameters: {
 				name:string;
@@ -338,6 +324,19 @@ type ApiEndpoints =  {
 				error?:string;
 				errorCode?:string;
 				data:TriggerImportData;
+			}
+		},
+		POST: {
+			parameters: {
+				name:string;
+				data?:Omit<SettingsExportData, "authorId">;
+				encrypted?:string
+			};
+			response:{
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+				fileName?:string;
 			}
 		},
 	}
@@ -432,6 +431,7 @@ type ApiEndpoints =  {
 					discordLinked:boolean;
 					patreonLinked:string;
 					dataSharing:string[];
+					features?:IAuthState["features"];
 				}
 			}
 		};

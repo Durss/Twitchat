@@ -40,20 +40,21 @@
 					</div>
 				</template>
 				<template #right_actions>
-					<div class="blockActions">
+					<div class="blockActions" v-if="selectMode === false">
 						<ToggleButton class="triggerToggle" v-model="folder.enabled" @click.stop @change="onToggleFolder(folder)" />
 						<TTButton class="deleteBt" icon="add" v-if="noEdit === false" @click.stop="addTrigger(folder)" v-tooltip="$t('triggers.add_triggerBt')" primary></TTButton>
 						<TTButton class="deleteBt" icon="trash" v-if="noEdit === false" @click.stop="deleteFolder(folder)" alert></TTButton>
 					</div>
 				</template>
 
-				<div :class="folder.enabled === false? 'childList disabled' : 'childList'">
+				<div :class="folder.enabled === false && selectMode === false? 'childList disabled' : 'childList'">
 					<TriggerListFolderItem
 						:class="!folder.items || folder.items.length == 0? 'emptyChildren' : ''"
 						v-model:items="folder.items"
 						:level="level + 1"
 						:rewards="rewards"
 						:noEdit="noEdit"
+						:selectMode="selectMode"
 						:forceDisableOption="forceDisableOption"
 						:triggerId="triggerId"
 						@change="onChange"
@@ -71,6 +72,7 @@
 
 			<TriggerListItem v-else
 				:noEdit="noEdit"
+				:selectMode="selectMode"
 				:forceDisableOption="forceDisableOption"
 				:entryData="folder"
 				@dragstart="startDrag(folder)"
@@ -120,6 +122,9 @@ class TriggerListFolderItem extends Vue {
 
 	@Prop({default:false})
 	public forceDisableOption!:boolean;
+
+	@Prop({default:false})
+	public selectMode!:boolean;
 
 	@Prop({default:null})
 	public triggerId!:string|null;

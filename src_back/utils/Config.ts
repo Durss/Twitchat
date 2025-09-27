@@ -163,11 +163,11 @@ export default class Config {
 		});
 	}
 
-	public static get TRIGGER_PRESETS_FOLDER(): string {
+	public static get SETTINGS_PRESETS_FOLDER(): string {
 		return this.getEnvData({
-			dev: path.join(this.DATA_ROOT, "/triggers/"),
-			beta: path.join(this.DATA_ROOT, "/triggers/"),
-			prod: path.join(this.DATA_ROOT, "/triggers/"),
+			dev: path.join(this.DATA_ROOT, "/sharedSettings/"),
+			beta: path.join(this.DATA_ROOT, "/sharedSettings/"),
+			prod: path.join(this.DATA_ROOT, "/sharedSettings/"),
 		});
 	}
 
@@ -427,6 +427,9 @@ interface Credentials {
 	sms_token?:string;
 
 	admin_ids: string[];
+	feature_flags?: {
+		export_configs: string[]
+	};
 	csrf_key: string;
 
 	twitch_client_id: string;

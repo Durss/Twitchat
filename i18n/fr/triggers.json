@@ -1820,16 +1820,6 @@
 			"NO_ACTION": "Selectionnez une action...",
 			"REGULAR_REPEAT": "Répéter régulièrement",
 			"SPECIFIC_DATES": "Dates specifiques"
-		},
-		"importer": {
-			"title": "Importer des configurations",
-			"parameters": "Configurations",
-			"autoDelete": "Ces paramètres seront automatiquement supprimés le :",
-			"dataOld": "Les paramètres que vous essayez d'importer sont obsolètes.",
-			"dataExpired": "Les paramètres que vous essayez d'importer ont expiré.",
-			"dataProtected": "Les paramètres que vous essayez d'importer sont protégés.",
-			"dataPassword": "Mot de passe...",
-			"dataInvalidPassword": "Mot de passe invalide"
 		}
 	}
 }

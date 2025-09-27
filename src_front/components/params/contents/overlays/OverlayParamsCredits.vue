@@ -29,7 +29,7 @@
 				ghostClass="ghost"
 				item-key="id"
 				handle=".slotHolder>.header"
-				v-model="data.slots">
+				v-model="$store.endingCredits.overlayData.slots">
 					<template #item="{element, index}:{element:TwitchatDataTypes.EndingCreditsSlotParams, index:number}">
 						<ToggleBlock class="slotHolder"
 						medium
@@ -231,33 +231,33 @@
 			<div class="header">
 				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
 			</div>
-			<ParamItem :paramData="param_scale" v-model="data.scale" />
-			<ParamItem :paramData="param_padding" v-model="data.padding" />
-			<ParamItem :paramData="param_paddingTitle" v-model="data.paddingTitle" />
-			<ParamItem :paramData="param_fadeSize" v-model="data.fadeSize" />
-			<ParamItem :paramData="param_stickyTitle" v-model="data.stickyTitle" />
-			<ParamItem :paramData="param_fontTitle" v-model="data.fontTitle" class="fontStyle">
+			<ParamItem :paramData="param_scale" v-model="$store.endingCredits.overlayData.scale" />
+			<ParamItem :paramData="param_padding" v-model="$store.endingCredits.overlayData.padding" />
+			<ParamItem :paramData="param_paddingTitle" v-model="$store.endingCredits.overlayData.paddingTitle" />
+			<ParamItem :paramData="param_fadeSize" v-model="$store.endingCredits.overlayData.fadeSize" />
+			<ParamItem :paramData="param_stickyTitle" v-model="$store.endingCredits.overlayData.stickyTitle" />
+			<ParamItem :paramData="param_fontTitle" v-model="$store.endingCredits.overlayData.fontTitle" class="fontStyle">
 				<template #composite>
-					<ParamItem :paramData="param_titleColor" v-model="data.colorTitle" noBackground class="colorPicker" />
+					<ParamItem :paramData="param_titleColor" v-model="$store.endingCredits.overlayData.colorTitle" noBackground class="colorPicker" />
 				</template>
 			</ParamItem>
-			<ParamItem :paramData="param_fontEntry" v-model="data.fontEntry" class="fontStyle">
+			<ParamItem :paramData="param_fontEntry" v-model="$store.endingCredits.overlayData.fontEntry" class="fontStyle">
 				<template #composite>
-					<ParamItem :paramData="param_entryColor" v-model="data.colorEntry" noBackground class="colorPicker" />
+					<ParamItem :paramData="param_entryColor" v-model="$store.endingCredits.overlayData.colorEntry" noBackground class="colorPicker" />
 				</template>
 			</ParamItem>
-			<ParamItem :paramData="param_textShadow" v-model="data.textShadow" />
-			<ParamItem :paramData="param_ignoreBots" v-model="data.ignoreBots">
-				<ParamItem :paramData="param_ignoreCustomBots" v-model="data.ignoreCustomBots" noBackground class="child" />
+			<ParamItem :paramData="param_textShadow" v-model="$store.endingCredits.overlayData.textShadow" />
+			<ParamItem :paramData="param_ignoreBots" v-model="$store.endingCredits.overlayData.ignoreBots">
+				<ParamItem :paramData="param_ignoreCustomBots" v-model="$store.endingCredits.overlayData.ignoreCustomBots" noBackground class="child" />
 			</ParamItem>
-			<ParamItem :paramData="param_hideEmptySlots" v-model="data.hideEmptySlots" />
-			<ParamItem :paramData="param_powerUpEmotes" v-model="data.powerUpEmotes" />
-			<ParamItem :paramData="param_showIcons" v-model="data.showIcons" />
-			<ParamItem :paramData="param_startDelay" v-model="data.startDelay" />
-			<ParamItem :paramData="param_loop" v-model="data.loop" />
-			<ParamItem :paramData="param_timing" v-model="data.timing">
-				<ParamItem class="child" noBackground :paramData="param_duration" v-model="data.duration" v-if="param_timing.value == 'duration'" noPremiumLock />
-				<ParamItem class="child" noBackground :paramData="param_speed" v-model="data.speed" v-if="param_timing.value == 'speed'" noPremiumLock />
+			<ParamItem :paramData="param_hideEmptySlots" v-model="$store.endingCredits.overlayData.hideEmptySlots" />
+			<ParamItem :paramData="param_powerUpEmotes" v-model="$store.endingCredits.overlayData.powerUpEmotes" />
+			<ParamItem :paramData="param_showIcons" v-model="$store.endingCredits.overlayData.showIcons" />
+			<ParamItem :paramData="param_startDelay" v-model="$store.endingCredits.overlayData.startDelay" />
+			<ParamItem :paramData="param_loop" v-model="$store.endingCredits.overlayData.loop" />
+			<ParamItem :paramData="param_timing" v-model="$store.endingCredits.overlayData.timing">
+				<ParamItem class="child" noBackground :paramData="param_duration" v-model="$store.endingCredits.overlayData.duration" v-if="param_timing.value == 'duration'" noPremiumLock />
+				<ParamItem class="child" noBackground :paramData="param_speed" v-model="$store.endingCredits.overlayData.speed" v-if="param_timing.value == 'speed'" noPremiumLock />
 			</ParamItem>
 		</section>
 		<!-- <ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
@@ -385,29 +385,6 @@ class OverlayParamsCredits extends Vue {
 	public sendingSummaryData = false;
 	public showSlotOptions:boolean = false;
 	public checkingOverlayPresence:boolean = true;
-	public data:TwitchatDataTypes.EndingCreditsParams = {
-		scale:30,
-		padding:100,
-		paddingTitle:30,
-		fontTitle:"Inter",
-		fontEntry:"Inter",
-		colorTitle:"#e04e00",
-		colorEntry:"#039372",
-		textShadow:50,
-		timing:"speed",
-		startDelay:0,
-		duration:60,
-		speed:200,
-		fadeSize:50,
-		loop:true,
-		showIcons:true,
-		stickyTitle:false,
-		hideEmptySlots:true,
-		ignoreBots:true,
-		powerUpEmotes:true,
-		ignoreCustomBots:[],
-		slots:[],
-	};
 
 	private checkInterval:number = -1;
 	private subcheckTimeout:number = -1;
@@ -426,12 +403,7 @@ class OverlayParamsCredits extends Vue {
 	}
 
 	public beforeMount():void {
-		const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
-		if(json) {
-			Utils.mergeRemoteObject(JSON.parse(json), (this.data as unknown) as JsonObject);
-		}
-
-		if(this.data.slots.length == 0) {
+		if(this.$store.endingCredits.overlayData.slots.length == 0) {
 			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "follows")!, undefined, true);
 			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "subs")!, undefined, true);
 			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "cheers")!, undefined, true);
@@ -439,12 +411,12 @@ class OverlayParamsCredits extends Vue {
 			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "chatters")!, undefined, true);
 		}else{
 
-			for (let i = 0; i < this.data.slots.length; i++) {
-				const slot = this.data.slots[i];
+			for (let i = 0; i < this.$store.endingCredits.overlayData.slots.length; i++) {
+				const slot = this.$store.endingCredits.overlayData.slots[i];
 				const defaultSlot = TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == slot.slotType);
 				if(!defaultSlot) {
 					//Remove deleted slot
-					this.data.slots.splice(i, 1);
+					this.$store.endingCredits.overlayData.slots.splice(i, 1);
 					i--;
 				}else{
 					if(this.getDefinitionFromSlot(slot.slotType).premium) {
@@ -460,8 +432,8 @@ class OverlayParamsCredits extends Vue {
 				}
 			}
 
-			for (let i = 0; i < this.data.slots.length; i++) {
-				const slot = this.data.slots[i];
+			for (let i = 0; i < this.$store.endingCredits.overlayData.slots.length; i++) {
+				const slot = this.$store.endingCredits.overlayData.slots[i];
 				this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == slot.slotType)!, slot);
 			}
 		}
@@ -472,18 +444,18 @@ class OverlayParamsCredits extends Vue {
 		];
 
 		if(!this.isPremium) {
-			this.data.showIcons = true;
-			this.data.loop = true;
-			this.data.powerUpEmotes = false;
-			this.data.timing = "speed";
-			this.data.startDelay = 0;
-			this.data.duration = 60;
-			this.data.speed = 200;
+			this.$store.endingCredits.overlayData.showIcons = true;
+			this.$store.endingCredits.overlayData.loop = true;
+			this.$store.endingCredits.overlayData.powerUpEmotes = false;
+			this.$store.endingCredits.overlayData.timing = "speed";
+			this.$store.endingCredits.overlayData.startDelay = 0;
+			this.$store.endingCredits.overlayData.duration = 60;
+			this.$store.endingCredits.overlayData.speed = 200;
 		}else{
-			if(this.data.powerUpEmotes === undefined) this.data.powerUpEmotes = true;
+			if(this.$store.endingCredits.overlayData.powerUpEmotes === undefined) this.$store.endingCredits.overlayData.powerUpEmotes = true;
 		}
 
-		watch(()=>this.data, ()=>this.saveParams(), {deep:true});
+		watch(()=>this.$store.endingCredits.overlayData, ()=>this.saveParams(), {deep:true});
 
 		this.overlayPresenceHandler = ()=> {
 			this.overlayExists = true;
@@ -531,8 +503,8 @@ class OverlayParamsCredits extends Vue {
 	 */
 	public deleteSlot(slot:TwitchatDataTypes.EndingCreditsSlotParams):void {
 		this.$confirm( this.$t("overlay.credits.delete_confirm_title") ).then(()=> {
-			const index = this.data.slots.findIndex(v=>v.id == slot.id);
-			this.data.slots.splice(index, 1);
+			const index = this.$store.endingCredits.overlayData.slots.findIndex(v=>v.id == slot.id);
+			this.$store.endingCredits.overlayData.slots.splice(index, 1);
 			delete this.param_customHTML[slot.id];
 			delete this.param_htmlTemplate[slot.id];
 			delete this.param_maxItems[slot.id];
@@ -781,7 +753,7 @@ class OverlayParamsCredits extends Vue {
 			if(entry.uniqueUsers === undefined || !this.isPremium) entry.uniqueUsers = false;
 			this.param_uniqueUsers[id]	= {type:"boolean", value:false, icon:"merge", labelKey:"overlay.credits.param_uniqueUsers", premiumOnly:true};
 		}
-		if(!data) this.data.slots.push(entry);
+		if(!data) this.$store.endingCredits.overlayData.slots.push(entry);
 		this.saveParams();
 	}
 
@@ -806,26 +778,7 @@ class OverlayParamsCredits extends Vue {
 	 * Saves current parameters
 	 */
 	private async saveParams():Promise<void> {
-		this.data.fontTitle = this.data.fontTitle ?? "Inter";
-		this.data.fontEntry = this.data.fontEntry ?? "Inter";
-
-		DataStore.set(DataStore.ENDING_CREDITS_PARAMS, this.data);
-
-		//Parse "text" slots placholders
-		const result = JSON.parse(JSON.stringify(this.data)) as TwitchatDataTypes.EndingCreditsParams;
-		const channelId = this.$store.auth.twitch.user.id
-		let fakeStartDate = this.$store.stream.currentStreamInfo[channelId]?.started_at;
-		if(!fakeStartDate) fakeStartDate = Date.now() - (60 * 60000);
-		for (let i = 0; i < result.slots.length; i++) {
-			const slot = result.slots[i];
-			if(slot.slotType !== "text") continue;
-			slot.text = (slot.text || "").replace(/\{MY_STREAM_DURATION\}/gi, Utils.formatDuration(Date.now() - fakeStartDate));
-			slot.text = slot.text.replace(/\{MY_STREAM_DURATION_MS\}/gi, (Date.now() - fakeStartDate).toString());
-			if(slot.text) {
-				slot.text = await TriggerUtils.parseGlobalPlaceholders(slot.text, false);
-			}
-		}
-		PublicAPI.instance.broadcast(TwitchatEvent.ENDING_CREDITS_CONFIGS, (result as unknown) as JsonObject);
+		this.$store.endingCredits.saveParams();
 	}
 
 }

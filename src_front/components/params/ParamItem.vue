@@ -654,7 +654,6 @@ export class ParamItem extends Vue {
 						//@ts-ignore
 						{ name: "local-fonts" }
 					).then(granted => {
-						console.log("FONT PERMISSION STATE", granted.state);
 						if(granted.state == "prompt") {
 							// Ask for font access if not running in OBS as they doesn't support Font API
 							this.askForSystemFontAccess = !Config.instance.OBS_DOCK_CONTEXT;

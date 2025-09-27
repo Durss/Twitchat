@@ -13,6 +13,7 @@ const queryIdToResolver = new Map<string, ()=>void>();
 export const storeAnimatedText = defineStore('animatedtext', {
 	state: () => ({
 		animatedTextList: [] as TwitchatDataTypes.AnimatedTextData[],
+		selectedAnimatedTextIDs: [],
 	} as IAnimatedTextState),
 
 

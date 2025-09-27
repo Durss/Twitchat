@@ -11,6 +11,7 @@ import type { GoXLRTypes } from "./GoXLRTypes";
 import { TwitchatDataTypes } from "./TwitchatDataTypes";
 import type { JSFXRSoundPreset } from "./jsfxr";
 import type { TwitchDataTypes } from "./twitch/TwitchDataTypes";
+import type { LabelItemData } from "./ILabelOverlayData";
 
 /**
  * Util to strongly type string object paths.
@@ -1566,9 +1567,9 @@ export interface TriggerTreeItemData{
 }
 
 /**
- * Contains exportable trigger data
+ * Contains exportable settings data
  */
-export interface TriggerExportData {
+export interface SettingsExportData {
 	/**
 	 * Imported data description
 	 */
@@ -1596,6 +1597,34 @@ export interface TriggerExportData {
 	 */
 	triggers:TriggerData[];
 	/**
+	 * Timer list
+	 */
+	timers:TwitchatDataTypes.TimerData[];
+	/**
+	 * Counter grids list
+	 */
+	counters:TwitchatDataTypes.CounterData[];
+	/**
+	 * Value grids list
+	 */
+	values:TwitchatDataTypes.ValueData[];
+	/**
+	 * Label overlays list
+	 */
+	labels:LabelItemData[];
+	/**
+	 * Animated texts list
+	 */
+	animatedTexts:TwitchatDataTypes.AnimatedTextData[];
+	/**
+	 * Custom train list
+	 */
+	customTrains:TwitchatDataTypes.CustomTrainData[];
+	/**
+	 * Ending credits slots list
+	 */
+	endingCreditsSlots:TwitchatDataTypes.EndingCreditsSlotParams[];
+	/**
 	 * Parameters of the imported data
 	 * Consists of keys that user will be invited to fill in.
 	 * They will be searched/replaces in trigger's data
@@ -1609,6 +1638,10 @@ export interface TriggerExportData {
 		 * Description of the key
 		 */
 		description:string;
+		/**
+		 * Optional list of items to pick from if valueType is "list"
+		 */
+		listItems?:string[];
 		/**
 		 * Type of value to expect
 		 */
@@ -1632,7 +1665,7 @@ export interface TriggerImportData {
 	/**
 	 * Either a TriggerExportData object or a base64 encrypted string if password protected
 	 */
-	data:TriggerExportData|string;
+	data:SettingsExportData|string;
 }
 
 export const ANY_OBS_SCENE = "any_obs_scene";

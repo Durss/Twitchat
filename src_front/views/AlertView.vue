@@ -3,7 +3,7 @@
 		<ClearButton v-if="!locked" />
 		<div v-html="message" class="label"></div>
 		<div v-if="$store.common.alertData.showContact" class="contact">
-			<Button :href="discordUrl" type="link" target="_blank" icon="discord" light alert>{{ $t("global.ask_supportBt") }}</Button>
+			<Button @click.stop :href="discordUrl" type="link" target="_blank" icon="discord" light alert>{{ $t("global.ask_supportBt") }}</Button>
 		</div>
 	</div>
 </template>

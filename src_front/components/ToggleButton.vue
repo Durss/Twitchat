@@ -80,7 +80,7 @@ class ToggleButton extends Vue {
 	public onChange():void {
 		if(this.disabled) return;
 		this.$emit('update:modelValue', this.localValue);
-		this.$emit('change');
+		this.$emit('change', this.localValue);
 	}
 
 }

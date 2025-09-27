@@ -1,11 +1,12 @@
 <template>
 	<div class="triggerlistitem"
+	@click="selectMode !== false ? (selected = !selected) : null"
 	:class="{disabled:triggerTypeDef?.disabled === true}"
 	@mouseenter="over=true" @mouseleave="over=false"
 	v-newflag="{date:(entryData.trigger.created_at || 0), duration:2 * 60000, id:'trigger_'+entryData.trigger.id}">
-		<Checkbox v-if="$store.auth.isAdmin" class="selectCb" small
+		<!-- <Checkbox v-if="$store.auth.isAdmin" class="selectCb" small
 		@change="(value:boolean) => $store.triggers.setTriggerSelectState(entryData.trigger, value)"
-		></Checkbox>
+		></Checkbox> -->
 
 		<button class="button"
 		@click="$emit('select', entryData.trigger)"
@@ -17,7 +18,7 @@
 				<slot></slot>
 				<span class="triggerId"
 					v-click2Select
-					v-if="$store.main.devmode && over"
+					v-if="$store.main.devmode && over && selectMode === false"
 					@click.stop="">{{ entryData.trigger.id }}</span>
 			</div>
 		</button>
@@ -27,6 +28,13 @@
 			<ToggleButton v-model="entryData.trigger.enabled"
 			@change="$emit('changeState', $el)"
 			:aria-label="entryData.trigger.enabled? 'trigger enabled' : 'trigger disabled'"/>
+		</div>
+
+		<div class="toggle"
+		v-if="noEdit === false || selectMode !== false">
+			<ToggleButton
+			v-model="selected"
+			:aria-label="entryData.trigger.enabled? 'trigger selected' : 'trigger unselected'"/>
 		</div>
 
 		<button class="testBt" @click="$emit('testTrigger',entryData.trigger)"
@@ -57,11 +65,12 @@ import { TriggerSubTypeLabel, TriggerTypesDefinitionList, type TriggerTypeDefini
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import type { TriggerListEntry } from "./TriggerList.vue";
 import TriggerUtils from '@/utils/TriggerUtils';
-import Checkbox from '@/components/Checkbox.vue';
+import { watch } from 'vue';
+// import Checkbox from '@/components/Checkbox.vue';
 
 @Component({
 	components:{
-		Checkbox,
+		// Checkbox,
 		ToggleButton,
 	},
 	emits:["changeState", "delete", "testTrigger", "select", "duplicate"],
@@ -78,9 +87,13 @@ class TriggerListItem extends Vue {
 	public forceDisableOption!:boolean;
 
 	@Prop({default:false})
+	public selectMode!:boolean;
+
+	@Prop({default:false})
 	public toggleMode!:boolean;
 
 	public over:boolean = false;
+	public selected:boolean = false;
 	public tooltipText:string = "";
 	public triggerDisplayInfo:ReturnType<typeof TriggerUtils.getTriggerDisplayInfo>|undefined = undefined
 	public triggerTypeDef:TriggerTypeDefinition|undefined = undefined;
@@ -92,6 +105,13 @@ class TriggerListItem extends Vue {
 		if(this.triggerTypeDef?.disabled === true && this.triggerTypeDef.disabledReasonLabelKey) this.tooltipText = this.$t(this.triggerTypeDef.disabledReasonLabelKey, {SUB_ITEM_NAME: TriggerSubTypeLabel(this.entryData.trigger)});
 		else if(!event) this.tooltipText = "unknown category"
 		else this.tooltipText = this.$t(this.triggerDisplayInfo.descriptionKey ||event?.descriptionKey || event?.labelKey, {SUB_ITEM_NAME: TriggerSubTypeLabel(this.entryData.trigger)});
+
+		this.selected = this.$store.exporter.selectedTriggerIDs.includes(this.entryData.trigger.id);
+
+		watch(() => this.selected, (newVal) => {
+			if(newVal) this.$store.exporter.selectedTriggerIDs.push(this.entryData.trigger.id);
+			else this.$store.exporter.selectedTriggerIDs.splice(this.$store.exporter.selectedTriggerIDs.indexOf(this.entryData.trigger.id), 1);
+		});
 	}
 
 }

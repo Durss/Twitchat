@@ -16,6 +16,7 @@ const broadcastTimeoutDebounce:{[key:string]:number} = {};
 export const storeCounters = defineStore('counters', {
 	state: () => ({
 		counterList: [],
+		selectedCounterIDs: [],
 	} as ICountersState),
 
 

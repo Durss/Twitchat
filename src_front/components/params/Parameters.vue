@@ -1,14 +1,14 @@
 <template>
 	<div :class="classes" v-show="!closed">
 		<div class="menu">
-			<div class="head" v-if="content == contentMain && !search || content == contentAd">
+			<div class="head" v-if="content == ParameterPages.MAIN_MENU && !search || content == ParameterPages.AD">
 				<h1 class="title">{{$t('params.categories.'+content)}}</h1>
 				<ClearButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
 			</div>
 
 			<div class="static">
-				<div class="automaticMessageHolder" v-if="!isDonor && !closed">
-					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
+				<div class="automaticMessageHolder margin" v-if="!isDonor && !closed">
+					<ParamsTwitchatAd :expand="content == ParameterPages.AD" @collapse="openPage('main')" />
 				</div>
 
 				<div class="search">
@@ -71,7 +71,7 @@
 				</div>
 
 				<div class="automaticMessageHolder" v-if="isDonor && !closed">
-					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
+					<ParamsTwitchatAd :expand="content == ParameterPages.AD" @collapse="openPage('main')" />
 				</div>
 
 				<ThemeSelector class="themeSelector" />
@@ -84,32 +84,33 @@
 
 		<div class="contentHolder" id="paramContentHolder">
 			<div class="head">
-				<ClearButton class="backBt" icon="back" @click="back()" v-if="content != contentMain || search.length > 0" />
+				<ClearButton class="backBt" icon="back" @click="back()" v-if="content != ParameterPages.MAIN_MENU || search.length > 0" />
 				<h1 class="title" v-if="content">{{$t('params.categories.'+content)}}</h1>
 				<ClearButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
 			</div>
 
-			<div class="content" v-if="(content != contentMain && content != contentAd) || search" id="paramContentScrollableHolder">
-				<div class="search" v-if="search || content == contentAppearance || content == contentFeatures">
+			<div class="content" v-if="(content != ParameterPages.MAIN_MENU && content != ParameterPages.AD) || search" id="paramContentScrollableHolder">
+				<div class="search" v-if="search || content == ParameterPages.APPEARANCE || content == ParameterPages.FEATURES">
 					<input type="text" :placeholder="$t('params.search')" v-model="$store.params.currentParamSearch" v-autofocus ref="searchField">
 				</div>
 				<ParamsList v-if="isGenericListContent || filteredParams.length > 0" :category="content" :filteredParams="filteredParams" ref="currentContent" />
-				<ParamsEmergency v-if="content == contentEmergency" ref="currentContent" />
-				<ParamsTTS v-if="content == contentTts" ref="currentContent" />
-				<ParamsSpoiler v-if="content == contentSpoiler" ref="currentContent" />
-				<ParamsAlert v-if="content == contentAlert" ref="currentContent" />
-				<ParamsAccount v-if="content == contentAccount" ref="currentContent" />
-				<ParamsAbout v-if="content == contentAbout" ref="currentContent" />
-				<ParamsOverlays v-if="content == contentOverlays" ref="currentContent" />
-				<ParamsTriggers v-if="content == contentTriggers" ref="currentContent" />
-				<ParamsVoiceBot v-if="content == contentVoice" ref="currentContent" />
-				<ParamsAutomod v-if="content == contentAutomod" ref="currentContent" />
-				<ParamsCounters v-if="content == contentCounters" ref="currentContent" />
-				<ParamsConnections v-if="content == contentConnexions" ref="currentContent" />
-				<ParamsPremium v-if="content == contentPremium" ref="currentContent" />
-				<ParamsDonate v-if="content == contentDonate" ref="currentContent" />
-				<ParamsValues v-if="content == contentValues" ref="currentContent" />
-				<ParamsTimer v-if="content == contentTimers" ref="currentContent" />
+				<ParamsEmergency v-if="content == ParameterPages.EMERGENCY" ref="currentContent" />
+				<ParamsTTS v-if="content == ParameterPages.TTS" ref="currentContent" />
+				<ParamsSpoiler v-if="content == ParameterPages.SPOILER" ref="currentContent" />
+				<ParamsAlert v-if="content == ParameterPages.ALERT" ref="currentContent" />
+				<ParamsAccount v-if="content == ParameterPages.ACCOUNT" ref="currentContent" />
+				<ParamsAbout v-if="content == ParameterPages.ABOUT" ref="currentContent" />
+				<ParamsOverlays v-if="content == ParameterPages.OVERLAYS" ref="currentContent" />
+				<ParamsTriggers v-if="content == ParameterPages.TRIGGERS" ref="currentContent" />
+				<ParamsVoiceBot v-if="content == ParameterPages.VOICE" ref="currentContent" />
+				<ParamsAutomod v-if="content == ParameterPages.AUTOMOD" ref="currentContent" />
+				<ParamsCounters v-if="content == ParameterPages.COUNTERS" ref="currentContent" />
+				<ParamsConnections v-if="content == ParameterPages.CONNECTIONS" ref="currentContent" />
+				<ParamsPremium v-if="content == ParameterPages.PREMIUM" ref="currentContent" />
+				<ParamsDonate v-if="content == ParameterPages.DONATE" ref="currentContent" />
+				<ParamsValues v-if="content == ParameterPages.VALUES" ref="currentContent" />
+				<ParamsTimer v-if="content == ParameterPages.TIMERS" ref="currentContent" />
+				<ParamsExporter v-if="content == ParameterPages.EXPORTER" ref="currentContent" />
 
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">{{ $t("params.search_no_result") }}</div>
@@ -119,10 +120,10 @@
 			<!-- default content for large screen -->
 			<div class="content default" v-else>
 				<div class="automaticMessageHolder">
-					<ParamsTwitchatAd :expand="content == contentAd && !closed" @collapse="openPage('main')" />
+					<ParamsTwitchatAd :expand="content == ParameterPages.AD && !closed" @collapse="openPage('main')" />
 				</div>
-				<DonorState class="donorState" v-if="isDonor && content != contentAd" />
-				<ParamsPremium v-else-if="content != contentAd" />
+				<DonorState class="donorState" v-if="isDonor && content != ParameterPages.AD" />
+				<ParamsPremium v-else-if="content != ParameterPages.AD" />
 			</div>
 		</div>
 	</div>
@@ -160,6 +161,7 @@ import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
 import { VueDraggable } from 'vue-draggable-plus';
 import ParamsTimer from './contents/ParamsTimer.vue';
+import ParamsExporter from './contents/ParamsExporter.vue';
 
 @Component({
 	components:{
@@ -183,6 +185,7 @@ import ParamsTimer from './contents/ParamsTimer.vue';
 		ParamsCounters,
 		ParamsOverlays,
 		ParamsTriggers,
+		ParamsExporter,
 		ParamsVoiceBot,
 		ParamsEmergency,
 		ParamsTwitchatAd,
@@ -199,6 +202,7 @@ class Parameters extends Vue {
 	public pinnedMenuEntries:MenuEntry[] = [];
 	public unpinnedMenuEntries:MenuEntry[] = [];
 	public newFlagMoreParams:{id:string, date:number}|null = null;
+	public ParameterPages = TwitchatDataTypes.ParameterPages;
 
 	public button_donate:MenuEntry = {pinned:true, icon:"coin", page:TwitchatDataTypes.ParameterPages.DONATE, labelKey:'params.categories.donate', newflag:{date:1693519200000, id:'params_donate'}, theme:"secondary"};
 	public button_premium:MenuEntry = {pinned:true, icon:"premium", page:TwitchatDataTypes.ParameterPages.PREMIUM, labelKey:'params.categories.premium', newflag:{date:1693519200000, id:'params_premium'}, theme:"premium"};
@@ -208,26 +212,6 @@ class Parameters extends Vue {
 	private history:TwitchatDataTypes.ParameterPagesStringType[] = [];
 
 	public get isDonor():boolean { return this.$store.auth.donorLevel > -1 || this.$store.auth.isPremium; }
-	public get contentMain():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.MAIN_MENU; }
-	public get contentAd():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AD; }
-	public get contentAppearance():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.APPEARANCE; }
-	public get contentAccount():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ACCOUNT; }
-	public get contentAbout():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ABOUT; }
-	public get contentFeatures():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.FEATURES; }
-	public get contentDonate():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE; }
-	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; }
-	public get contentCounters():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.COUNTERS; }
-	public get contentValues():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VALUES; }
-	public get contentOverlays():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OVERLAYS; }
-	public get contentEmergency():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.EMERGENCY; }
-	public get contentSpoiler():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPOILER; }
-	public get contentAlert():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ALERT; }
-	public get contentTts():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TTS; }
-	public get contentVoice():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VOICE; }
-	public get contentAutomod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AUTOMOD; }
-	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
-	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM; }
-	public get contentTimers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TIMERS; }
 
 	private keyDownHandler!:(e:KeyboardEvent) => void;
 	private keyDownCaptureHandler!:(e:KeyboardEvent) => void;
@@ -272,6 +256,10 @@ class Parameters extends Vue {
 
 	public async beforeMount():Promise<void> {
 		this.showCTA = DataStore.get(DataStore.PARAMS_SECTIONS_CTA) !== "true";
+
+		if(this.$store.auth.features.includes("export_configs")) {
+			this.menuEntries.push({pinned:true, icon:"save", page:TwitchatDataTypes.ParameterPages.EXPORTER, labelKey:'params.categories.exporter'})
+		}
 
 		const sectionsJSON = DataStore.get(DataStore.PARAMS_SECTIONS);
 		if(sectionsJSON) {
@@ -326,7 +314,7 @@ class Parameters extends Vue {
 		});
 
 		watch(() => this.$store.params.currentParamSearch, (value:string) => {
-			if(value) this.openPage(this.contentMain);
+			if(value) this.openPage(this.ParameterPages.MAIN_MENU);
 			this.filterParams(value);
 		});
 
@@ -361,7 +349,7 @@ class Parameters extends Vue {
 
 		if(this.search) {
 			await this.$nextTick();
-			this.openPage(this.contentMain);
+			this.openPage(this.ParameterPages.MAIN_MENU);
 			this.filterParams(this.search);
 		}
 	}
@@ -561,10 +549,6 @@ export default toNative(Parameters);
 	}
 	.automaticMessageHolder {
 		display: none !important;
-		margin: 0 auto;
-		&:empty {
-			display: none;
-		}
 	}
 	.search{
 		margin:auto;
@@ -773,6 +757,9 @@ export default toNative(Parameters);
 			.automaticMessageHolder {
 				display: block !important;
 				margin: 0 auto;
+				&.margin {
+					margin-bottom: 1em;
+				}
 			}
 			.scrollable {
 				.buttonList {

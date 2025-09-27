@@ -77,6 +77,7 @@ export namespace TwitchatDataTypes {
 		CONNECTIONS: "connexions",
 		PREMIUM: "premium",
 		TIMERS: "timers",
+		EXPORTER: "exporter",
 	} as const;
 	export type ParameterPagesStringType = typeof ParameterPages[keyof typeof ParameterPages];
 

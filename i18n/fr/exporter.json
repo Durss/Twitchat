@@ -1,0 +1,27 @@
+{
+	"exporter": {
+		"importForm":{
+			"title": "Importer des configurations",
+			"parameters": "Configurations",
+			"autoDelete": "Ces paramètres seront automatiquement supprimés le :",
+			"dataOld": "Les paramètres que vous essayez d'importer sont obsolètes.",
+			"dataExpired": "Les paramètres que vous essayez d'importer ont expiré.",
+			"dataProtected": "Les paramètres que vous essayez d'importer sont protégés.",
+			"dataPassword": "Mot de passe...",
+			"dataInvalidPassword": "Mot de passe invalide",
+			"details": "Détails",
+			"details_head": "Vous êtes sur le point d'importer les paramètres suivants :",
+			"importTypes": {
+				"triggers":"Trigger|Triggers",
+				"timers":"Minuteur|Minuteurs",
+				"counters":"Compteur|Compteurs",
+				"values":"Valeur|Valeurs",
+				"labels":"Label|Labels",
+				"animatedTexts":"Texte animé|Textes animés",
+				"customTrains":"Train personnalisé|Trains personnalisés",
+				"endingCreditsSlots":"Entrée de crédits de fin|Entrées de crédits de fin"
+			}
+		}
+
+	}
+}

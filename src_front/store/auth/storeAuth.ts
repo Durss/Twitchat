@@ -191,7 +191,7 @@ export const storeAuth = defineStore('auth', {
 							//Force data sync popup to show up if remote
 							//data have been deleted
 							// DataStore.remove(DataStore.SYNC_DATA_TO_SERVER);
-							StoreProxy.common.alert("An error occured when loading your parameters. Please try with another browser.", false, true);
+							StoreProxy.common.alert("An error occured when loading your parameters. Please try with another browser.", true, true);
 							return;
 						}
 					}
@@ -199,7 +199,7 @@ export const storeAuth = defineStore('auth', {
 					//Parse data from storage
 					await sMain.loadDataFromStorage();
 				}catch(error) {
-					StoreProxy.common.alert("An error occured when loading your parameters. Please try with another browser.", false, true);
+					StoreProxy.common.alert("An error occured when loading your parameters. Please try with another browser.", true, true);
 					console.log(error);
 					return;
 				}
@@ -358,6 +358,7 @@ export const storeAuth = defineStore('auth', {
 			this.premiumType				= res.json.data.premiumType;
 			this.lifetimePremiumPercent		= res.json.data.lifetimePercent || 0;
 			this.dataSharingUserList		= res.json.data.dataSharing || [];
+			this.features					= res.json.data.features || [];
 			StoreProxy.discord.discordLinked= res.json.data.discordLinked === true;
 			if(res.json.data.patreonLinked) StoreProxy.patreon.loadMemberState();
 			this.twitch.user.channelInfo[user.id].following_date_ms = user.created_at_ms || 0;

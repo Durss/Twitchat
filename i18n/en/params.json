@@ -123,7 +123,8 @@
 			"youtube": "YouTube",
 			"discord": "Discord",
 			"premium": "Premium",
-			"timers": "Timers"
+			"timers": "Timers",
+			"exporter": "Export settings"
 		},
 		"botMessages": {
 			"raffleStart": "/announce 🎉🎉🎉 Raffle has started 🎉🎉🎉 Use {CMD} command to enter!",
