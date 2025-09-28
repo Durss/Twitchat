@@ -164,8 +164,8 @@ export const storeExporter = defineStore('Exporter', {
 				const replaceList = data.params.map(v=> {
 					let escapedKey = v.key.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 					// Enforce default boolean values to false
-					if(v.value === undefined && v.valueType === 'boolean') v.value = false;
 					if(v.valueType == "boolean") {
+						if(v.value === undefined ) v.value = false;
 						// Remove surrounding quotes if any
 						escapedKey = `("|')?${escapedKey}("|')?`;
 					}
@@ -174,10 +174,15 @@ export const storeExporter = defineStore('Exporter', {
 						value: v.value
 					}
 				})
+				
+				let str = JSON.stringify(data);
+				replaceList.forEach(r => {
+					str = str.replace(r.reg, r.value?.toString() || "");
+				});
+				data = JSON.parse(str) as SettingsExportData;
 
 				//Import triggers
 				if(data.triggers.length > 0) {
-					const triggerList:TriggerData[] = [];
 					data.triggers.forEach(t => {
 						if(data.autoDelete_at > 0) {
 							t.autoDelete_at = data.autoDelete_at;
@@ -186,19 +191,14 @@ export const storeExporter = defineStore('Exporter', {
 							author: data.authorId,
 							name: data.name,
 						}
-						let str = JSON.stringify(t);
-						replaceList.forEach(r => {
-							str = str.replace(r.reg, r.value?.toString() || "");
-						});
-						triggerList.push(JSON.parse(str));
 						
 						const existsAt = StoreProxy.triggers.triggerList.findIndex(v=> v.id == t.id);
 						if(existsAt !== -1) {
 							//If the trigger already exists just update it
-							StoreProxy.triggers.triggerList[existsAt] = JSON.parse(str);
+							StoreProxy.triggers.triggerList[existsAt] = t;
 						}else{
 							//Add the new trigger
-							StoreProxy.triggers.triggerList.push(JSON.parse(str));
+							StoreProxy.triggers.triggerList.push(t);
 						}
 					});
 					

@@ -24,24 +24,32 @@
 				<p class="info">{{ importedSettings.data.info }}</p>
 				<template v-if="importedSettings.data.params.length > 0">
 					<h2><Icon name="params" />{{ $t('exporter.importForm.parameters') }}</h2>
-					<div class="paramList">
-						<div v-for="(param, index) in importedSettings.data.params" :key="index"
+					<ul class="paramList">
+						<li v-for="(param, index) in importedSettings.data.params" :key="index"
 						:class="{paramItem:true, [param.valueType]:true}">
-							<p class="label">
-								<Icon name="alert" theme="secondary" v-tooltip="$t('global.mandatory')" v-if="isErroredField(param)" />
-								<label :for="'field_' + index" v-html="param.description.replace(/(\(.*?\))/gi, '<i>$1</i>')"></label>
-							</p>
-							<template v-if="param.valueType === 'string'">
-								<input type="text" :id="'field_' + index" v-model="param.value" />
-							</template>
-							<template v-else-if="param.valueType === 'number'">
-								<input type="number" :id="'field_' + index" v-model="param.value" />
-							</template>
-							<template v-else-if="param.valueType === 'boolean'">
-								<ToggleButton :inputId="'field_' + index" v-model="param.value" />
-							</template>
-						</div>
-					</div>
+							<div class="holder">
+								<p class="label">
+									<Icon name="alert" theme="secondary" v-tooltip="$t('global.mandatory')" v-if="isErroredField(param)" />
+									<label :for="'field_' + index" v-html="param.description.replace(/(\(.*?\))/gi, '<i>$1</i>')"></label>
+								</p>
+								<template v-if="param.valueType === 'string'">
+									<input type="text" :id="'field_' + index" v-model="param.value" />
+								</template>
+								<template v-else-if="param.valueType === 'number'">
+									<input type="number" :id="'field_' + index" v-model="param.value" />
+								</template>
+								<template v-else-if="param.valueType === 'boolean'">
+									<ToggleButton :inputId="'field_' + index" v-model="param.value" />
+								</template>
+								<template v-else-if="param.valueType === 'list'">
+									<select :inputId="'field_' + index" v-model="param.value">
+										<option :value="undefined" disabled>{{ $t('global.select_placeholder') }}</option>
+										<option v-for="(item, idx) in param.listItems!" :key="idx" :value="item">{{ item }}</option>
+									</select>
+								</template>
+							</div>
+						</li>
+					</ul>
 				</template>
 				<p class="timer" v-if="importedSettings.data.autoDelete_at > 0">
 					<Icon name="info" />{{ $t('exporter.importForm.autoDelete') }}<br />
@@ -112,12 +120,15 @@ class TriggerImportForm extends Vue {
 		for(const p of this.importedSettings.data.params) {
 			if(p.valueType === "string" && (typeof p.value !== "string" || p.value.trim().length === 0)) return false;
 			if(p.valueType === "number" && (typeof p.value !== "number" || isNaN(p.value))) return false;
+			if(p.valueType === "list" && !p.value) return false;
 		}
 		return true;
 	}
 
 	public isErroredField(param:SettingsExportData["params"][number]):boolean {
-		return param.valueType === "string" && (typeof param.value !== "string" || param.value.trim().length === 0);
+		if(param.valueType === "string" && (typeof param.value !== "string" || param.value.trim().length === 0)) return true;
+		if(param.valueType === "list" && !param.value) return true;
+		return false;
 	}
 
 	public mounted():void {
@@ -224,45 +235,53 @@ export default toNative(TriggerImportForm);
 		flex-direction:column;
 		gap:1em;
 		max-height:400px;
-		padding-right:5px;
-		margin-top:.5em;
-		width: calc(100% - 2em);
-		align-self: center;
+		counter-reset:index;
 
 		.paramItem {
-			display:flex;
-			flex-direction:column;
-			gap: .25em;
-			margin-left: .5em;
-			position: relative;
-
-			&::before {
-				content: "•";
-				display: inline;
-				position: absolute;
-				left: -1em;
+			list-style-type: none;
+			display: flex;
+			flex-direction: row;
+			padding-right: 1.25em;
+			&:before {  
+				color: var(--color-text-inverse);
+				background-color: var(--color-text);
+				border-radius: var(--border-radius);
+				font-family: "Azeret";
+				align-items: center;
+				justify-content: center;
+				margin-right: 5px;
+				padding: 0 5px;
+				counter-increment:index;
+				content: counter(index);
 			}
-
-			label {
-				cursor: pointer;
-				position: relative;
-				white-space: pre-line;
-
-				:deep(i) {
-					font-size: .85em;
-				}
-
-				&:hover::before {
-					content: "";
-					top: 0;
-					left: 0;
-					width: 100%;
-					height: 100%;
-					position: absolute;
-					filter: blur(5px);
-					pointer-events: none;
-					background-color: var(--background-color-fadest);
-					background: linear-gradient(170deg, var(--background-color-fadest) 0%, transparent 100%);
+			.holder {
+				display:inline-flex;
+				flex-direction:column;
+				gap: .25em;
+				margin-left: .5em;
+				flex: 1;
+	
+				label {
+					cursor: pointer;
+					position: relative;
+					white-space: pre-line;
+	
+					:deep(i) {
+						font-size: .85em;
+					}
+	
+					&:hover::before {
+						content: "";
+						top: 0;
+						left: 0;
+						width: 100%;
+						height: 100%;
+						position: absolute;
+						filter: blur(5px);
+						pointer-events: none;
+						background-color: var(--background-color-fadest);
+						background: linear-gradient(170deg, var(--background-color-fadest) 0%, transparent 100%);
+					}
 				}
 			}
 
@@ -274,11 +293,16 @@ export default toNative(TriggerImportForm);
 				width:150px;
 			}
 
-			&.boolean, &.number{
-				gap: 1em;
-				flex-direction: row;
-				label {
-					flex:1;
+			&.boolean, &.number, &.list {
+				.holder { 
+					gap: 1em;
+					flex-direction: row;
+					.label {
+						flex:1;
+					}
+					select {
+						flex-basis: 30%;
+					}
 				}
 			}
 		}

@@ -14,8 +14,8 @@
 					</div>
 					<input type="text" v-model="param.key" placeholder="param key" />
 					<input type="text" v-model="param.description" placeholder="param description" />
-					
-					<ParamItem noBackground :paramData="param_list" v-model="itemList" />
+
+					<ParamItem noBackground :paramData="param_list" v-model="param.listItems" v-if="param.valueType === 'list'" />
 				</div>
 			</div>
 
@@ -96,7 +96,6 @@ class SettingsExportForm extends Vue {
 	public autoDeleteDate:string = "";
 	public paramType:SettingsExportData["params"][number]["valueType"]|"" = "";
 	public paramList:SettingsExportData["params"][number][] = [];
-	public itemList:string[] = [];
 	public result:string|false|null = null;
 
 	public param_name:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", placeholder:"Enter export name", label:"Name", allowedCharsRegex:"a-z0-9_-", maxLength:20};
