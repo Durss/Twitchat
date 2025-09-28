@@ -88,12 +88,17 @@ export const storeDonationGoals = defineStore('donationGoals', {
 		},
 
 		saveData(updatedOverlayId?:string):void {
-			const data:IStoreData = {
-				overlayList:this.overlayList,
-			};
+			this.overlayList.forEach(overlay => {
+				overlay.goalList.forEach(goal => {
+					goal.amount = Math.max(0, Math.min(1000000000, goal.amount));
+				});
+			});
 			if(updatedOverlayId) {
 				this.broadcastData(updatedOverlayId);
 			}
+			const data:IStoreData = {
+				overlayList:this.overlayList,
+			};
 			DataStore.set(DataStore.DONATION_GOALS, data);
 		},
 

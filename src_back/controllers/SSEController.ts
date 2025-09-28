@@ -37,13 +37,15 @@ export default class SSEController extends AbstractController {
 		// This tells clients not to reconnect right away
 		async function exitHandler(options:{cleanup?:boolean, exit?:boolean}, exitCode?:number) {
 			let i = 0;
-			Object.keys(SSEController.uidToResponse).forEach(uid => {
+			const keys = Object.keys(SSEController.uidToResponse);
+			keys.forEach(uid => {
 				const entry = SSEController.uidToResponse[uid];
 				if(!entry || entry.length === 0) return;
 
 				console.log("Sending SERVER_UPDATE to", uid);
 				SSEController.sendToUser(uid, "SERVER_UPDATE", {delay: 5000 + i * 50});
 			});
+			Logger.info("Sent SERVER_UPDATE to", keys.length, "users");
 
 			await Utils.promisedTimeout(3000);
 			if (options.cleanup) console.log('clean');

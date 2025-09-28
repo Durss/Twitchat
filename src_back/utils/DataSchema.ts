@@ -458,7 +458,7 @@ const UserDataSchema = {
 							properties: {
 								id: {type:"string", maxLength:100},
 								conditionList: { $ref: "#/definitions/conditionGroup" },
-								sourceName: {type:"string", maxLength:100},
+								sourceName: {type:"string", maxLength:500},
 								enabled: {type:"boolean"},
 								//remove this property after some time
 								show: {
@@ -495,12 +495,12 @@ const UserDataSchema = {
 								filterName: {type:"string", maxLength:100},
 								text: {type:"string", maxLength:1000},
 								sendAsReply: {type:"boolean"},
-								url: {type:"string", maxLength:1000},
+								url: {type:"string", maxLength:10000},
 								browserSourceCss: {type:"string", maxLength:10000},
 								colorSource_mode: {enum: ["color","placeholder"]},
 								colorSource_color: {type:"string", maxLength:10},
 								colorSource_alpha: {type:"number", minimum:0, maximum:100},
-								mediaPath: {type:"string", maxLength:1000},
+								mediaPath: {type:"string", maxLength:10000},
 								waitMediaEnd: {type:"boolean"},
 								pos_x: {type:"string", maxLength:500},
 								pos_y: {type:"string", maxLength:500},
@@ -1211,7 +1211,7 @@ const UserDataSchema = {
 		"p:highlight1stEver_color": {type:"string", maxLength:7, minLength:7},
 		"p:raidHighlightUser": {type:"boolean"},
 		"p:raidHighlightUserTrack": {type:"boolean"},
-		"p:raidHighlightUserDuration": {type:"integer"},
+		"p:raidHighlightUserDuration": {type:"number", minimum:0, maximum:60*24*30},
 		"p:raidHighlightUser_color": {type:"string", maxLength:7, minLength:7},
 		"p:raffleHighlightUser": {type:"boolean"},
 		"p:raffleHighlightUserDuration": {type:"integer"},

@@ -3,8 +3,6 @@ import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _Getters
 import type { UnwrapRef } from 'vue';
 import type { IMixitupActions, IMixitupGetters, IMixitupState } from '../StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { log } from 'mathjs';
-
 
 let initResolver!:(value: boolean) => void;
 

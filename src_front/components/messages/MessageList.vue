@@ -475,8 +475,6 @@ class MessageList extends Vue {
 			return false;
 		}
 
-		if(m.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST) return true;
-
 		if(this.lightMode) {
 			//If in light mode, only allow normal chat messages that are not deleted/moded/...
 			return m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
@@ -496,6 +494,8 @@ class MessageList extends Vue {
 						:
 							m.col == undefined || m.col == this.config.order || m.col < 0;
 		if(!colValid) return false;
+		
+		if(m.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST) return true;
 
 		//Filter by channel ID if necessary
 		if(this.filteredChanIDs) {

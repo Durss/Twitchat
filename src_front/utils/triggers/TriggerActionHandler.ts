@@ -1556,32 +1556,32 @@ export default class TriggerActionHandler {
 														if(step.pos_x) {
 															let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pos_x, subEvent);
 															text = text.replace(/\d,\d/gi, ".");
-															result.positionX = MathEval(text);
+															result.positionX = Utils.evalMath(text) || 0;
 														}
 														if(step.pos_y) {
 															let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pos_y, subEvent);
 															text = text.replace(/\d,\d/gi, ".");
-															result.positionY = MathEval(text);
+															result.positionY = Utils.evalMath(text) || 0;
 														}
 													}else if(action == "resize") {
 														//Resize source
 														if(step.width) {
 															let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.width, subEvent);
 															text = text.replace(/\d,\d/gi, ".");
-															result.width = MathEval(text);
+															result.width = Utils.evalMath(text) || 0;
 															console.log("RESIZE X:", text, result.width);
 														}
 														if(step.height) {
 															let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.height, subEvent);
 															text = text.replace(/\d,\d/gi, ".");
-															result.height = MathEval(text);
+															result.height = Utils.evalMath(text) || 0;
 															console.log("RESIZE Y:", text, result.height);
 														}
 													}else if(action == "rotate" && step.angle) {
 														//Rotate source
 															let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.angle, subEvent);
 															text = text.replace(/\d,\d/gi, ".");
-															result.rotation = MathEval(text);
+															result.rotation = Utils.evalMath(text) || 0;
 													}
 
 													//Handle relative transform mode
@@ -2429,15 +2429,12 @@ export default class TriggerActionHandler {
 					let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.addValue as string, subEvent);
 					text = text.replace(/\d,\d/gi, ".");
 					logStep.messages.push({date:Date.now(), value:"Executing arithmetic operation: \""+step.addValue+"\" => \""+text+"\""});
-					let value:any = "";
-					try {
-						value = MathEval(text);
-					}catch(error) {
+					let value = Utils.evalMath(text);
+					if(value === null) {
 						const logMessage = "❌ Invalid arithmetic operation: \""+step.addValue+"\"";
 						logStep.messages.push({date:Date.now(), value:logMessage});
 						log.error = true;
 						logStep.error = true;
-
 					}
 					if(!step.action) step.action = "ADD";
 
@@ -2470,7 +2467,7 @@ export default class TriggerActionHandler {
 										if(action == "delete") {
 											StoreProxy.counters.deleteCounterEntry(c.id, user);
 										}else{
-											if(!isNaN(value) && value != null && value != Infinity) {
+											if(value != null && !isNaN(value)) {
 												StoreProxy.counters.increment(c.id, step.action, value, user);
 											}else{
 												logStep.messages.push({date:Date.now(), value:"New value is invalid: \""+value+"\""});
@@ -2502,7 +2499,7 @@ export default class TriggerActionHandler {
 								if(action == "delete") {
 									StoreProxy.counters.deleteAllCounterEntries(c.id);
 								}else{
-									if(!isNaN(value) && value != null && value != Infinity) {
+									if(value != null && !isNaN(value)) {
 										for (const uid in c.users) {
 											StoreProxy.counters.increment(c.id, step.action, value, undefined, uid);
 										}
@@ -2529,7 +2526,7 @@ export default class TriggerActionHandler {
 										if(action == "delete") {
 											StoreProxy.counters.deleteCounterEntry(c.id, undefined, user.id);
 										}else{
-											if(!isNaN(value) && value != null && value != Infinity) {
+											if(value != null && !isNaN(value)) {
 												StoreProxy.counters.increment(c.id, step.action, value, undefined, user.id);
 											}else{
 												logStep.messages.push({date:Date.now(), value:"New value is invalid: \""+value+"\""});
@@ -2549,7 +2546,7 @@ export default class TriggerActionHandler {
 										logStep.messages.push({date:Date.now(), value:logMessage});
 										StoreProxy.counters.deleteCounterEntry(c.id, user);
 									}else{
-										if(!isNaN(value) && value != null && value != Infinity) {
+										if(value != null && !isNaN(value)) {
 											const newValue = StoreProxy.counters.increment(c.id, step.action, value, user);
 											let logMessage = "";
 											if(step.action == "ADD") logMessage = "Add "+value+" ("+text+") to \""+c.name+"\"";
@@ -3418,16 +3415,16 @@ export default class TriggerActionHandler {
 						alt = message.alt;
 						shift = message.shift;
 					}else{
-						try {
-							x = MathEval(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.heatClickData.x, subEvent));
-						}catch(error){
+						const parsedX = Utils.evalMath(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.heatClickData.x, subEvent));
+						if(parsedX != null) x = parsedX.toString();
+						else{
 							logStep.messages.push({date:Date.now(), value:"❌ Failed to interpret arithmetic expression for X coordinate \""+step.heatClickData.x+"\""});
 							log.error = true;
 							logStep.error = true;
 						}
-						try {
-							y = MathEval(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.heatClickData.y, subEvent));
-						}catch(error){
+						const parsedY = Utils.evalMath(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.heatClickData.y, subEvent));
+						if(parsedY != null) y = parsedY.toString();
+						else{
 							logStep.messages.push({date:Date.now(), value:"❌ Failed to interpret arithmetic expression for Y coordinate \""+step.heatClickData.y+"\""});
 							log.error = true;
 							logStep.error = true;
@@ -3501,12 +3498,10 @@ export default class TriggerActionHandler {
 						}
 						if(rewardData!.cost) {
 							const cost = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, rewardData!.cost.toString(), subEvent);
-							try {
-								const num = MathEval(cost);
-								if(!isNaN(num)) {
-									rewardData!.cost = num;
-								}
-							}catch(error) {}
+							const num = Utils.evalMath(cost);
+							if(num != null) {
+								rewardData!.cost = num;
+							}
 						}
 					}
 					switch(step.rewardAction.action) {
@@ -3814,10 +3809,11 @@ export default class TriggerActionHandler {
 							case "remove": {
 								let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.timerData.duration || "0", subEvent);
 								let value = 0;
-								try {
-									value = MathEval(text);
+								const parsed = Utils.evalMath(text);
+								if(parsed != null) {
+									value = parsed;
 									logStep.messages.push({date:Date.now(), value:"Math evaluation result: "+value});
-								}catch(error){
+								}else{
 									value = 0;
 									logStep.messages.push({date:Date.now(), value:"❌ Failed to interpret arithmetic expression for duration \""+step.timerData.duration+"\""});
 									log.error = true;
@@ -3910,8 +3906,8 @@ export default class TriggerActionHandler {
 						logStep.error = true;
 					}else{
 						const amount = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.customTrainData.value.toString() || "0", subEvent);
-						const amountNum = MathEval(amount);
-						if(isNaN(amountNum)) {
+						const amountNum = Utils.evalMath(amount);
+						if(amountNum == null) {
 							logStep.messages.push({date:Date.now(), value:"❌ Invalid amount \""+amount+"\""});
 							log.error = true;
 							logStep.error = true;
@@ -4600,6 +4596,7 @@ export default class TriggerActionHandler {
 		//If there are no conditions consider it passes check
 		if(!conditions || !Array.isArray(conditions)) return true;
 
+
 		let res = false;
 		let index = 0;
 		for (const c of conditions) {
@@ -4612,13 +4609,8 @@ export default class TriggerActionHandler {
 				if(c.operator == undefined || c.value == undefined || c.placeholder == undefined) continue;
 				const value = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, "{"+c.placeholder+"}", subEvent);
 				const expectation = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, c.value.toString(), subEvent);
-				let valueNum = null;
-				try {
-					const num = MathEval(expectation);
-					if(!isNaN(num)) valueNum = num;
-				}catch(error) {
-					valueNum = value;
-				}
+				let valueNum:number = Utils.evalMath(expectation) || NaN;
+				
 				switch(c.operator) {
 					case "<": localRes = parseFloat(value) < valueNum; break;
 					case "<=": localRes = parseFloat(value) <= valueNum; break;
@@ -4649,7 +4641,7 @@ export default class TriggerActionHandler {
 					default: localRes = false;
 				}
 
-				const logMessage = "Executing operator \"" + c.operator + "\" between \"" + value + "\" and \"" + expectation + "\" => " + localRes.toString();
+				const logMessage = "Executed operator \"" + c.operator + "\" between \"" + value + "\" and \"" + expectation + "\" => " + localRes.toString();
 				if(logStep) {
 					logStep.messages.push({ date: Date.now(), value: logMessage });
 				}else {
@@ -4662,6 +4654,7 @@ export default class TriggerActionHandler {
 			else if(operator == "OR") res ||= localRes;
 			index ++;
 		}
+
 		return res;
 	}
 }

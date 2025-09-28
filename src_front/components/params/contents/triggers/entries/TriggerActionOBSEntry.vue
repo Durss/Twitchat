@@ -165,9 +165,9 @@ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public param_source_conf:TwitchatDataTypes.ParameterData<string, string, string> = { type:"list", value:"", listValues:[], icon:"list", children:[], labelKey:"triggers.actions.obs.param_source" };
 	public param_filter_conf:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", listValues:[], labelKey:"triggers.actions.obs.param_filter" };
 	public param_text_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:500, labelKey:"triggers.actions.obs.param_text" };
-	public param_url_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url", placeholder:"http://...", labelKey:"triggers.actions.obs.param_url" };
+	public param_url_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url", maxLength:10000, placeholder:"http://...", labelKey:"triggers.actions.obs.param_url" };
 	public param_css_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", longText:true, maxLength:10000, icon:"color", placeholder:"", labelKey:"triggers.actions.obs.param_css" };
-	public param_media_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url", placeholder:"C:/...", labelKey:"triggers.actions.obs.param_media" };
+	public param_media_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url", maxLength:10000, placeholder:"C:/...", labelKey:"triggers.actions.obs.param_media" };
 	public param_mediaEndEvent_conf:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"countdown", labelKey:"triggers.actions.obs.param_mediaEvent" };
 	public param_x_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"coord_x", maxLength:500, labelKey:"triggers.actions.obs.param_x" };
 	public param_y_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"coord_y", maxLength:500, labelKey:"triggers.actions.obs.param_y" };

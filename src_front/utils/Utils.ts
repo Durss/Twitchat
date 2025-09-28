@@ -1,6 +1,7 @@
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { JsonObject } from 'type-fest';
+import {evaluate as MathEval} from 'mathjs';
 
 /**
  * Created by Durss
@@ -1108,5 +1109,24 @@ export default class Utils {
 		} catch (error) {
 			throw new Error('Decryption failed: Invalid password or corrupted data');
 		}
+	}
+
+	/**
+	 * Evaluate mathematical expressions
+	 * @param expr 
+	 * @returns 
+	 */
+	public static evalMath(expr: string): number | null {
+		expr = expr.replace(/e/g, '.');
+		if(
+			//Ignore ranges notation as somthing like "1:0:0" kills CPU for a few seconds 
+			!/\d(:\d)+/.test(expr.trim())
+		) {
+			try {
+				const num = MathEval(expr);
+				if(!isNaN(num) && num != Infinity) return num;
+			}catch(error) {}
+		}
+		return null;
 	}
 }

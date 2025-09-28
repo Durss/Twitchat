@@ -7,7 +7,6 @@ import type { IValuesActions, IValuesGetters, IValuesState } from '../StoreProxy
 import StoreProxy from '../StoreProxy';
 import Utils from '@/utils/Utils';
 import Config from '@/utils/Config';
-import {evaluate as MathEval} from 'mathjs';
 import type {JsonObject} from "type-fest";
 
 export const storeValues = defineStore('values', {
@@ -82,12 +81,8 @@ export const storeValues = defineStore('values', {
 
 		updateValue(id:string, value:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string, interpretMaths?:boolean):void {
 			let prevValue = "";
-			if(interpretMaths !== false && value != undefined && value.trim() != "e") {//Ignore euler notation
-				try {
-					const num = MathEval(value);
-					if(!isNaN(num)) value = num.toString();
-				}catch(error) {}
-			}
+			const num = Utils.evalMath(value);
+			if(num) value = num.toString();
 			for (let i = 0; i < this.valueList.length; i++) {
 				if(this.valueList[i].id == id) {
 					const entry = this.valueList[i];
