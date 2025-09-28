@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import TwitchUtils from "../utils/TwitchUtils.js";
 import Utils from "../utils/Utils.js";
 import AbstractController from "./AbstractController.js";
+import Logger from "@/utils/Logger.js";
 
 // Type augmentation for FastifyReply to include 'sse' method
 declare module 'fastify' {

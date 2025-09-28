@@ -50,6 +50,9 @@
 	"references": [
 		{
 			"path": "./tsconfig.vite-config.json"
+		},
+		{
+			"path": "./tsconfig_server.json"
 		}
 	]
 }
