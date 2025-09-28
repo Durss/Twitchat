@@ -475,6 +475,8 @@ class MessageList extends Vue {
 			return false;
 		}
 
+		if(m.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST) return true;
+
 		if(this.lightMode) {
 			//If in light mode, only allow normal chat messages that are not deleted/moded/...
 			return m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
@@ -507,6 +509,13 @@ class MessageList extends Vue {
 		}
 
 		switch (m.type) {
+			case TwitchatDataTypes.TwitchatMessageType.HISTORY_SPLITTER:
+			case TwitchatDataTypes.TwitchatMessageType.CUSTOM:
+			case TwitchatDataTypes.TwitchatMessageType.SUSPENDED_TRIGGER_STACK:
+			case TwitchatDataTypes.TwitchatMessageType.HATE_RAID: {
+				return true;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
 				if(this.config.filters.message === false) return false;
 
@@ -764,11 +773,6 @@ class MessageList extends Vue {
 				return this.config.filters.music_added_to_queue == true;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST:
-			case TwitchatDataTypes.TwitchatMessageType.HISTORY_SPLITTER: {
-				return true;
-			}
-
 			case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START: {
 				return this.config.filters.ad_break_start_chat === true;
 			}
@@ -795,16 +799,6 @@ class MessageList extends Vue {
 
 			case TwitchatDataTypes.TwitchatMessageType.PATREON: {
 				return this.config.filters.patreon !== false;
-			}
-
-			case TwitchatDataTypes.TwitchatMessageType.CUSTOM: {
-				//Column filter is made earlier
-				return true;
-			}
-
-			case TwitchatDataTypes.TwitchatMessageType.SUSPENDED_TRIGGER_STACK:
-			case TwitchatDataTypes.TwitchatMessageType.HATE_RAID: {
-				return true;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TIKTOK_GIFT: {

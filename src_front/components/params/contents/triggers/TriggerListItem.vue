@@ -4,9 +4,6 @@
 	:class="{disabled:triggerTypeDef?.disabled === true}"
 	@mouseenter="over=true" @mouseleave="over=false"
 	v-newflag="{date:(entryData.trigger.created_at || 0), duration:2 * 60000, id:'trigger_'+entryData.trigger.id}">
-		<!-- <Checkbox v-if="$store.auth.isAdmin" class="selectCb" small
-		@change="(value:boolean) => $store.triggers.setTriggerSelectState(entryData.trigger, value)"
-		></Checkbox> -->
 
 		<button class="button"
 		@click="$emit('select', entryData.trigger)"
@@ -31,7 +28,7 @@
 		</div>
 
 		<div class="toggle"
-		v-if="noEdit === false || selectMode !== false">
+		v-if="noEdit !== false || selectMode !== false">
 			<ToggleButton
 			v-model="selected"
 			:aria-label="entryData.trigger.enabled? 'trigger selected' : 'trigger unselected'"/>
