@@ -17,9 +17,9 @@
 		<ParamItem :paramData="param_tags"
 			v-model="localTags"
 			@change="onTagsUpdate()"
-			v-if="param_tags.value!.length < 10" />
+			v-show="param_tags.value!.length < 10" />
 
-		<div class="tagList" v-else>
+		<div class="tagList" v-if="param_tags.value!.length == 10">
 			<div>{{ $t(param_tags.labelKey!) }}</div>
 			<button type="button" class="tagItem" aria-label="delete tag"
 			v-for="i in param_tags.value"
@@ -48,7 +48,6 @@ import type { ITriggerPlaceholder } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
@@ -90,7 +89,7 @@ class StreamInfoSubForm extends Vue {
 	public placeholderList!:ITriggerPlaceholder<any>[];
 
 	public param_title:TwitchatDataTypes.ParameterData<string>	= {value:"", type:"string", maxLength:140, labelKey:"stream.form_stream_title", placeholderKey:"stream.form_stream_title_placeholder"};
-	public param_tags:TwitchatDataTypes.ParameterData<string[]>	= {value:[], type:"editablelist", labelKey:"stream.form_stream_tags", max:100, maxLength:25};
+	public param_tags:TwitchatDataTypes.ParameterData<string[]>	= {value:[], type:"editablelist", labelKey:"stream.form_stream_tags", max:10, maxLength:25};
 	public param_branded:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", labelKey:"stream.form_branded"};
 	public param_labels:TwitchatDataTypes.ParameterData<boolean, unknown, unknown, string>[]	= [];
 
@@ -157,6 +156,7 @@ class StreamInfoSubForm extends Vue {
 		for (let i = 0; i < this.localTags.length; i++) {
 			this.localTags[i] = this.sanitizeTag(this.localTags[i]);
 		}
+		console.log(">", this.localTags);
 		this.$emit('update:tags', this.localTags.filter(v=>v.trim().length > 0))
 	}
 
@@ -289,7 +289,6 @@ export default toNative(StreamInfoSubForm);
 	}
 
 	.tagList {
-		margin-top: .8em;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
