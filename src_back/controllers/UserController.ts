@@ -456,8 +456,14 @@ export default class UserController extends AbstractController {
 	 * Creates settings presets
 	 */
 	private async postSettingsPresets(request:FastifyRequest, response:FastifyReply) {
-		const user = await this.adminGuard(request, response);
+		const user = await this.twitchUserGuard(request, response);
 		if(!user) return;
+		if(Config.credentials.feature_flags.export_configs?.includes(user.user_id) !== true) {
+			response.header('Content-Type', 'application/json');
+			response.status(403);
+			response.send(JSON.stringify({success:false, error:"User is not allowed to export settings", errorCode:"USER_NOT_ALLOWED"}));
+			return;
+		}
 
 		const params:any = request.body;
 		if(!params.name || typeof params.name !== "string" || params.name.trim().length === 0

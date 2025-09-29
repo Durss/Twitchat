@@ -16,7 +16,6 @@
 		"outDir": "./server",
 		"skipLibCheck": true,
 		"incremental": true,
-		"composite": true,
 		"tsBuildInfoFile": "./server/.tsbuildinfo",
 		"paths": {
 			"@/*": [
