@@ -1223,9 +1223,12 @@ export default class TriggerActionHandler {
 			&& "channel_id" in message && message.channel_id
 			&& message.type !== TwitchatDataTypes.TwitchatMessageType.CUSTOM
 			&& message.type !== TwitchatDataTypes.TwitchatMessageType.PATREON) {
+				//Special case for Heat click messages that have a limited type definition.
 				if(message.type == TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK) {
-					//Heat click messages have a limited type definition.
 					//Get the full user from those limited data
+					if(message.anonymous && trigger.heatAllowAnon !== true) {
+						return false;
+					}
 					executingUser = await StoreProxy.users.getUserFrom(message.platform, message.channel_id, message.user.id, message.user.login, undefined, undefined, undefined, false, undefined, false);
 				}else{
 					executingUser = message.user;
@@ -3401,7 +3404,7 @@ export default class TriggerActionHandler {
 					StoreProxy.chat.addMessage(customMessage);
 				}else
 
-				//Handle custom chat messages
+				//Handle heat click action
 				if(step.type == "heat_click") {
 					let x = "0";
 					let y = "0";
@@ -4347,7 +4350,8 @@ export default class TriggerActionHandler {
 					 */
 					}else if(pointer.indexOf("__user_vip__") == 0
 					|| pointer.indexOf("__user_mod__") == 0
-					|| pointer.indexOf("__user_broadcaster__") == 0) {
+					|| pointer.indexOf("__user_broadcaster__") == 0
+					|| pointer.indexOf("__user_sub__") == 0) {
 						const user = this.extractUserFromTrigger(trigger, message);
 						if(user){
 							const propVal = pointer.replace(/__user_(.*)__/gi, "$1");
@@ -4355,8 +4359,11 @@ export default class TriggerActionHandler {
 								vip:"is_vip",
 								mod:"is_moderator",
 								broadcaster:"is_broadcaster",
+								sub:"is_subscriber",
 							}
+							const key = keyToProp[propVal];
 							value = (user.channelInfo[message.channel_id][keyToProp[propVal]] === true)? "true" : "false";
+							// if(key == "is_broadcaster" && value === undefined)
 						}else {
 							value = "false";
 						}
