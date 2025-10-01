@@ -522,7 +522,7 @@
 			"connected_to": "Vous êtes connecté·e au tchat du live \"{TITLE}\""
 		},
 		"tiktok": {
-			"platform_youtube": "Message reçu\nsur TikTok"
+			"platform_tiktok": "Message reçu\nsur TikTok"
 		},
 		"celebration": {
 			"message": "{USER} a acheté le Power-Up \"Célébration de chaîne\" pour {PRICE}",
