@@ -269,7 +269,7 @@ export const storeHeat = defineStore('heat', {
 						scaleX:0,
 						scaleY:0,
 						isBroadcaster:user.channelInfo[channelId].is_broadcaster,
-						isSub:user.channelInfo[channelId].is_subscriber,
+						isSub:user.channelInfo[channelId].is_subscriber || false,
 						isBan:user.channelInfo[channelId].is_banned,
 						isMod:user.channelInfo[channelId].is_moderator,
 						isVip:user.channelInfo[channelId].is_vip,

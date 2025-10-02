@@ -4616,13 +4616,14 @@ export default class TriggerActionHandler {
 				if(c.operator == undefined || c.value == undefined || c.placeholder == undefined) continue;
 				const value = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, "{"+c.placeholder+"}", subEvent);
 				const expectation = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, c.value.toString(), subEvent);
-				let valueNum:number = Utils.evalMath(expectation) || NaN;
+				let valueNum:number = Utils.evalMath(value) ?? NaN;
+				let expectationNum:number = Utils.evalMath(expectation) ?? NaN;
 				
 				switch(c.operator) {
-					case "<": localRes = parseFloat(value) < valueNum; break;
-					case "<=": localRes = parseFloat(value) <= valueNum; break;
-					case ">": localRes = parseFloat(value) > valueNum; break;
-					case ">=": localRes = parseFloat(value) >= valueNum; break;
+					case "<": localRes = valueNum < expectationNum; break;
+					case "<=": localRes = valueNum <= expectationNum; break;
+					case ">": localRes = valueNum > expectationNum; break;
+					case ">=": localRes = valueNum >= expectationNum; break;
 					case "=": localRes = value == expectation || value.toLowerCase() == expectation.toLowerCase()
 							|| (value == "1" && expectation == "true")
 							|| (value == "true" && expectation == "1")
@@ -4638,17 +4639,17 @@ export default class TriggerActionHandler {
 					case "not_starts_with": localRes = !value.toLowerCase().startsWith(expectation.toLowerCase()); break;
 					case "empty": localRes = value == null || value == undefined || value.toString().trim().length === 0; break;
 					case "not_empty": localRes = value != null && value != undefined && value.toString().trim().length > 0; break;
-					case "longer_than": localRes = value == null || value == undefined? false : value.toString().trim().length > valueNum; break;
-					case "shorter_than": localRes = value == null || value == undefined? true : value.toString().trim().length < valueNum; break;
+					case "longer_than": localRes = value == null || value == undefined? false : value.toString().trim().length > expectationNum; break;
+					case "shorter_than": localRes = value == null || value == undefined? true : value.toString().trim().length < expectationNum; break;
 					case "is_boolean": localRes = typeof value === "boolean" || value == "true" || value == "false"; break;
 					case "is_not_boolean": localRes = !(typeof value === "boolean" || value == "true" || value == "false"); break;
 					case "is_number": localRes = !isNaN(valueNum); break;
 					case "is_not_number": localRes = isNaN(valueNum); break;
-					case "modulo": localRes = (parseFloat(value) % parseFloat(c.operatorVal || "0")) == valueNum; break;
+					case "modulo": localRes = (valueNum % parseFloat(c.operatorVal || "0")) == expectationNum; break;
 					default: localRes = false;
 				}
 
-				const logMessage = "Executed operator \"" + c.operator + "\" between \"" + value + "\" and \"" + expectation + "\" => " + localRes.toString();
+				const logMessage = "Executed operator \"" + c.operator + "\" between \"" + value + "\" (num:" + valueNum + ") and \"" + expectation + "\" (num:" + expectationNum + ") => " + localRes.toString();
 				if(logStep) {
 					logStep.messages.push({ date: Date.now(), value: logMessage });
 				}else {

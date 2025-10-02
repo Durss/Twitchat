@@ -1764,7 +1764,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * true if user is subscribed to the channel
 		 */
-		is_subscriber:boolean;
+		is_subscriber?:boolean;
 		/**
 		 * true if user has gifted subs on the channel
 		 */
