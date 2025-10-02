@@ -295,13 +295,17 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatMessageType.RAID: {
 					const res = await TwitchUtils.searchLiveChannels(Utils.pickRand(["just chatting", "valorant", "minecraft", "art", "makers & crafting"]));
 					const chan = Utils.pickRand(res);
+					const user = await new Promise<TwitchatDataTypes.TwitchatUser>(async (resolve)=> {
+						await StoreProxy.users.getUserFrom("twitch", uid, chan.id, undefined, undefined, resolve)
+					});
+					console.log("USER LOADED", user.avatarPath)
 					const m:TwitchatDataTypes.MessageRaidData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
 						channel_id:uid,
 						date:Date.now(),
 						type,
-						user:StoreProxy.users.getUserFrom("twitch", uid, chan.id, chan.broadcaster_login, chan.display_name),
+						user,
 						viewers:Math.round(Math.random() * 1500),
 						stream:{
 							title: chan.title,
