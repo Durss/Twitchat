@@ -72,11 +72,13 @@ class OverlayChatHighlight extends Vue {
 	private iFrameInitTimeout:number = -1;
 	private progressBarInterval:number = -1;
 	private dateTemplate:string = "";
+	private skin:string = "";
 
 	public get classes():string[] {
 		return [
 			"holder",
-			"position-"+this.params?.position
+			"position-"+this.params?.position,
+			this.skin,
 		];
 	}
 
@@ -150,6 +152,7 @@ class OverlayChatHighlight extends Vue {
 		this.clipData = null;
 		this.loadingClip = true;
 		this.clipPercent = 0;
+		this.skin = data.skin || "";
 
 		if(this.message && this.params) {
 			await this.$nextTick();
@@ -432,6 +435,84 @@ export default toNative(OverlayChatHighlight);
 			position: absolute;
 			left: 0;
 			bottom: 0;
+		}
+	}
+
+	.holder.etc {
+		background-color: #fff;
+		border-radius: 1em;
+		filter: drop-shadow(.35em .35em 0px #6bf9ff);
+		box-shadow: none;
+		z-index: 1;
+		padding: 2em;
+		@margin: 5vh;
+		
+		.profilePic::after {
+			content: "";
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			z-index: -1;
+			border: .25em solid #000;
+			background-color: #aa45e5;
+			border-radius: 1em;
+		}
+		.infos::after {
+			content: "";
+			position: absolute;
+			top: .75em;
+			left: .75em;
+			right: .25em;
+			bottom: .25em;
+			z-index: -1;
+			border: .25em solid #000;
+			background-color: #fff;
+			border-radius: .5em;
+		}
+	
+		&.position-tl {
+			top: @margin;
+		}
+	
+		&.position-t {
+			top: 0;
+		}
+	
+		&.position-tr {
+			top: @margin;
+			right: 1vw;
+		}
+	
+		&.position-l {
+			top: 50%;
+			left: 0;
+		}
+	
+		&.position-m {
+			top: 50%;
+			left: 50%;
+		}
+	
+		&.position-r {
+			top: 50%;
+			right: 1vw;
+		}
+	
+		&.position-bl {
+			bottom: @margin;
+			left: 0;
+		}
+	
+		&.position-b {
+			bottom: 1vw;
+			right: 50%;
+		}
+	
+		&.position-br {
+			bottom: @margin;
+			right: 1vw;
 		}
 	}
 }

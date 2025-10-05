@@ -509,27 +509,29 @@ export default toNative(OverlayDonationGoalItem);
 
 	&.etc {
 		.holder{
-			color: white;
-			border: 2px solid #92ffff;
-			background-color: #020617;
+			color: #fff;
+			font-weight: bold;
+			border: 5px solid #000000;
+			background-color: #aa45e5;
+			border-radius: 15px;
+			filter: drop-shadow(5px 5px 0px #6bf9ff);
 			&.active {
-				background-image: linear-gradient(90deg, #92ffff50 50%, transparent 50%);
+				background-image: linear-gradient(90deg, #64009f 60%, transparent 50%);
 			}
 			.amount {
 				font-size: 1.5em;
 			}
 
 			.hideTimer {
-				background: #92ffff;
+				background: #6bf9ff;
+				opacity: 1;
 			}
 			.particle {
-				color: #a26cf3;
+				color: #6bf9ff;
 
 				&:nth-child(odd) {
 					color: white;
-				}
-				path, polygon {
-					fill: currentColor;
+					filter: none;
 				}
 			}
 		}

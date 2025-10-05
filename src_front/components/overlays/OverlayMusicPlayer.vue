@@ -72,6 +72,7 @@ class OverlayMusicPlayer extends AbstractOverlay {
 	public artist = "";
 	public title = "";
 	public cover = "";
+	public skin = "";
 	public customTrackInfo = "";
 	public progress = 0;
 	public isPlaying = false;
@@ -96,6 +97,7 @@ class OverlayMusicPlayer extends AbstractOverlay {
 			if(this.params.noScroll === true) res.push("noScroll")
 			if(this.params.openFromLeft === true) res.push("left")
 		}
+		if(this.skin) res.push(this.skin);
 		return res;
 	}
 
@@ -125,11 +127,14 @@ class OverlayMusicPlayer extends AbstractOverlay {
 								trackDuration:number,
 								trackPlaybackPos:number,
 								cover:string,
+								skin:string,
 								params:TwitchatDataTypes.MusicPlayerParamsData,
 							}
 				this.artist = obj.artistName;
 				this.title = obj.trackName;
 				this.cover = obj.cover;
+				this.skin = obj.skin;
+				console.log(obj)
 				this.isPlaying = true;
 				let customTrackInfo = obj.params.customInfoTemplate;
 				customTrackInfo = customTrackInfo.replace(/\{ARTIST\}/gi, this.artist || "no music");
@@ -392,5 +397,31 @@ export default toNative(OverlayMusicPlayer);
 		}
 	}
 
+	&.etc {
+		@maxHeight: ~"min(calc(100vh - 5vw), 25vw)";
+		max-height: @maxHeight;
+		max-width: calc(100% - 1.5vw);
+
+		.cover {
+			width: @maxHeight;
+			height: @maxHeight;
+		}
+
+		.content {
+			font-weight: bold;
+			border: 1.5vw solid #000000;
+			background-color: #aa45e5;
+			border-radius: 5vw;
+			filter: drop-shadow(1vw 1vw 0px #6bf9ff);
+			.infos {
+				color: #000;
+			}
+		}
+		.progressbar {
+			.fill {
+				background-color: #6bf9ff;
+			}
+		}
+	}
 }
 </style>

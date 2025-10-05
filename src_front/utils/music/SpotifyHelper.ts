@@ -577,6 +577,7 @@ export default class SpotifyHelper {
 						trackPlaybackPos: json.progress_ms,
 						cover: this.currentTrack.cover,
 						params: StoreProxy.music.musicPlayerParams,
+						skin: StoreProxy.streamlabs.charityTeam?.id === "837342991965360522"? "etc" : "default",
 					}
 					PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, (apiData as unknown) as JsonObject);
 				}
@@ -758,6 +759,7 @@ export default class SpotifyHelper {
 				trackPlaybackPos: this._lastTrackInfo.progress,
 				cover: this._lastTrackInfo.track.cover,
 				params: StoreProxy.music.musicPlayerParams,
+				skin: StoreProxy.streamlabs.charityTeam?.id === "837342991965360522"? "etc" : "default",
 			}
 			PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, (apiData as unknown) as JsonObject);
 		});

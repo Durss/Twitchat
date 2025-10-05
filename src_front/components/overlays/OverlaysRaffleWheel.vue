@@ -450,14 +450,17 @@ export default toNative(OverlaysRaffleWheel);
 		:deep(.list-item) {
 			.wheel-item {
 				color: white;
-				border: 2px solid #92ffff;
-				background-color: #020617;
+				font-weight: bold;
+				border: 5px solid #000000;
 				border-left-width: 0;
+				background-color: #aa45e5;
+				filter: drop-shadow(5px 5px 0px #6bf9ff);
 			}
 			&.selected {
 				&>.wheel-item {
 					color: #020617;
 					background-color: #92ffff;
+					filter: drop-shadow(5px 5px 0px #aa45e5);
 				}
 			}
 		}

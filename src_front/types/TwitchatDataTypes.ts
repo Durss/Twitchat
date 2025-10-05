@@ -1319,6 +1319,7 @@ export namespace TwitchatDataTypes {
 		params:ChatHighlightParams,
 		dateLabel:string,
 		message_id:string;
+		skin?:string;
 	}
 	export interface ChatHighlightParams {
 		position:ScreenPosition;

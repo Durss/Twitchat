@@ -2395,6 +2395,7 @@ export const storeChat = defineStore('chat', {
 					user:message.user,
 					params:this.chatHighlightOverlayParams,
 					dateLabel:StoreProxy.i18n.tm("global.date_ago"),
+					skin: StoreProxy.streamlabs.charityTeam?.id === "837342991965360522"? "etc" : "default",
 				};
 				this.highlightedMessageId = message.id;
 
