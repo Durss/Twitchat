@@ -995,6 +995,9 @@
 			"last_cheer": "Nom du dernier cheer",
 			"last_cheer_id": "ID du dernier cheer",
 			"last_cheer_amount": "Valeur du dernier cheer",
+			"last_raid": "Dernier raider",
+			"last_raid_id": "ID du dernier raider",
+			"last_raid_viewers": "Nombre de raiders",
 			"qna_command": "Commande pour soumettre une question",
 			"merch_product": "Nom du produit acheté",
 			"currency": "Devise",
@@ -1806,6 +1809,14 @@
 			"TWITCH_COMBO": {
 				"label":"Twitch Combo",
 				"description": "Actions à exécuter lorsque quelqu'un envoie des bits depuis les Combos Twitch"
+			},
+			"OBS_CONNECTED":{
+				"label": "OBS connecté",
+				"description": "Actions à exécuter lorsque Twitchat se connecte à OBS websocket"
+			},
+			"OBS_DISCONNECTED":{
+				"label": "OBS déconnecté",
+				"description": "Actions à exécuter lorsque Twitchat se déconnecte d'OBS websocket"
 			}
 		},
 		"musicEvents": {

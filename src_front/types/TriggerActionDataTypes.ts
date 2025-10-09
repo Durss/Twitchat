@@ -1852,6 +1852,8 @@ export const TriggerTypes = {
 	CUSTOM_TRAIN_COOLDOWN:"167",
 	STREAMSOCKET_ACTION:"168",
 	TWITCH_COMBO:"169",
+	OBS_CONNECTED:"170",
+	OBS_DISCONNECTED:"171",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1906,6 +1908,7 @@ export const USER_CUSTOM_BADGES:string = "USER_CUSTOM_BADGES";
 export const USER_ROLE_VIP:string = "USER_ROLE_VIP";
 export const USER_ROLE_MOD:string = "USER_ROLE_MOD";
 export const USER_ROLE_BROADCASTER:string = "USER_ROLE_BROADCASTER";
+export const USER_ROLE_SUB:string = "USER_ROLE_SUB";
 export const VALUE_PLACEHOLDER_PREFIX:string = "VALUE_";
 export const VALUE_EDIT_SOURCE_SENDER:string = "SENDER";
 export const VALUE_EDIT_SOURCE_EVERYONE:string = "EVERYONE";
@@ -1991,6 +1994,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:USER_ROLE_VIP, descKey:'triggers.placeholders.user_vip', pointer:"__user_vip__", numberParsable:false, isUserID:false, example:"true", values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]},
 		{tag:USER_ROLE_MOD, descKey:'triggers.placeholders.user_mod', pointer:"__user_mod__", numberParsable:false, isUserID:false, example:"true", values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]},
 		{tag:USER_ROLE_BROADCASTER, descKey:'triggers.placeholders.user_broadcaster', pointer:"__user_broadcaster__", numberParsable:false, isUserID:false, example:"true", values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]},
+		{tag:USER_ROLE_SUB, descKey:'triggers.placeholders.user_sub', pointer:"__user_sub__", numberParsable:false, isUserID:false, example:"true", values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]},
 	];
 
 	map[TriggerTypes.ANY_MESSAGE] =
@@ -2961,6 +2965,11 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 			entry.push({category:"twitch", tag:"TWITCH_LAST_CHEER_ID", descKey:"triggers.placeholders.last_cheer_id", pointer:"__twitch__.lastcheer_id", numberParsable:false, isUserID:true, globalTag:true, example:"29961813"});
 			entry.push({category:"twitch", tag:"TWITCH_LAST_CHEER_AMOUNT", descKey:"triggers.placeholders.last_cheer_amount", pointer:"__twitch__.lastcheer_amount", numberParsable:true, isUserID:false, globalTag:true, example:"1312"});
 		}
+		if(entry.findIndex(v=>v.tag == "TWITCH_LAST_RAID") == -1) {
+			entry.push({category:"twitch", tag:"TWITCH_LAST_RAID", descKey:"triggers.placeholders.last_raid", pointer:"__twitch__.lastraid_login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"});
+			entry.push({category:"twitch", tag:"TWITCH_LAST_RAID_ID", descKey:"triggers.placeholders.last_raid_id", pointer:"__twitch__.lastraid_id", numberParsable:false, isUserID:true, globalTag:true, example:"29961813"});
+			entry.push({category:"twitch", tag:"TWITCH_LAST_RAID_VIEWERS", descKey:"triggers.placeholders.last_raid_viewers", pointer:"__twitch__.lastraid_viewers", numberParsable:true, isUserID:false, globalTag:true, example:"1312"});
+		}
 
 		//If a music service is available, concat the music service helpers
 		if(SpotifyHelper.instance.connected && entry.findIndex(v=>v.tag == "CURRENT_TRACK_ARTIST") == -1) {
@@ -3173,6 +3182,8 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.TIMER, icon:"countdown", labelKey:"triggers.events.COUNTDOWN_START.label", value:TriggerTypes.COUNTDOWN_START, descriptionKey:"triggers.events.COUNTDOWN_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN},
 		{category:TriggerEventTypeCategories.TIMER, icon:"countdown", labelKey:"triggers.events.COUNTDOWN_STOP.label", value:TriggerTypes.COUNTDOWN_STOP, descriptionKey:"triggers.events.COUNTDOWN_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTDOWN},
 
+		{category:TriggerEventTypeCategories.OBS, icon:"online", labelKey:"triggers.events.OBS_CONNECTED.label", value:TriggerTypes.OBS_CONNECTED, descriptionKey:"triggers.events.OBS_CONNECTED.description", isCategory:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_WS_CONNECT_STATE_CHANGE},
+		{category:TriggerEventTypeCategories.OBS, icon:"offline", labelKey:"triggers.events.OBS_DISCONNECTED.label", value:TriggerTypes.OBS_DISCONNECTED, descriptionKey:"triggers.events.OBS_DISCONNECTED.description", isCategory:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_WS_CONNECT_STATE_CHANGE},
 		{category:TriggerEventTypeCategories.OBS, icon:"list", labelKey:"triggers.events.OBS_SCENE.label", value:TriggerTypes.OBS_SCENE, descriptionKey:"triggers.events.OBS_SCENE.description", isCategory:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE},
 		{category:TriggerEventTypeCategories.OBS, icon:"show", labelKey:"triggers.events.OBS_SOURCE_ON.label", value:TriggerTypes.OBS_SOURCE_ON, descriptionKey:"triggers.events.OBS_SOURCE_ON.description", isCategory:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE},
 		{category:TriggerEventTypeCategories.OBS, icon:"hide", labelKey:"triggers.events.OBS_SOURCE_OFF.label", value:TriggerTypes.OBS_SOURCE_OFF, descriptionKey:"triggers.events.OBS_SOURCE_OFF.description", isCategory:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE},

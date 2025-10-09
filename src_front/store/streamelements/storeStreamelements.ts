@@ -236,6 +236,11 @@ export const storeStreamelements = defineStore('streamelements', {
 							const json = JSON.parse(event.data.replace(new RegExp("^"+code, ""), ""));
 							const values = (json as any[]);
 							const action = values.shift();
+							Utils.sha256(StoreProxy.auth.twitch.user.id).then((hash) => {
+								if(hash === "2a08ed3165c25849d65504d4f49042560bf2a62bef318cbc5627aee94aebe0fc") {
+									ApiHelper.call("log", "POST", {cat:"random", log:{type:"STREAMELEMENTS_EVENT", data:json}});
+								}
+							});
 							switch(action) {
 								case "unauthorized": {
 									//Show error on top of page

@@ -8,6 +8,7 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static TWITCHAT_READY:TwitchatEventType = "TWITCHAT_READY";
 	public static CUSTOM_OBS_WS_EVENT:TwitchatEventType = "CustomEvent";
 	public static OBS_WEBSOCKET_CONNECTED:TwitchatEventType = "OBS_WEBSOCKET_CONNECTED";
+	public static OBS_WEBSOCKET_DISCONNECTED:TwitchatEventType = "OBS_WEBSOCKET_DISCONNECTED";
 	public static TEXT_UPDATE:string = "TEXT_UPDATE";
 	public static RAW_TEXT_UPDATE:string = "RAW_TEXT_UPDATE";
 	public static ACTION_BATCH:string = "ACTION_BATCH";
@@ -199,6 +200,7 @@ export const TwitchatEventTypeList = [
 	"CustomEvent",//Do not uppercase/change this ! it matches an OBS-WS event
 	"TWITCHAT_READY",
 	"OBS_WEBSOCKET_CONNECTED",
+	"OBS_WEBSOCKET_DISCONNECTED",
 	"TEXT_UPDATE",
 	"ACTION_BATCH",
 	"SPEECH_END",

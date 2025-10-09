@@ -2781,6 +2781,7 @@ export namespace TwitchatDataTypes {
 		CLIP_PENDING_PUBLICATION:"clip_pending_publication",
 		COMMUNITY_BOOST_COMPLETE:"community_boost_complete",
 		OBS_PLAYBACK_STATE_UPDATE:"obs_playback_state_update",
+		OBS_WS_CONNECT_STATE_CHANGE:"obs_ws_connect_state_change",
 		COMMUNITY_CHALLENGE_CONTRIBUTION:"community_challenge_contribution",
 	} as const;
 
@@ -2906,6 +2907,7 @@ export namespace TwitchatDataTypes {
 		clip_pending_publication:true,
 		community_boost_complete:true,
 		obs_playback_state_update:false,
+		obs_ws_connect_state_change:false,
 		community_challenge_contribution:true,
 	} as const satisfies Record<ChatMessageTypes["type"], boolean>;
 
@@ -3065,6 +3067,7 @@ export namespace TwitchatDataTypes {
 									| MessageCustomTrainFailData
 									| MessageStreamSocketActionData
 									| MessageTwitchComboData
+									| MessageObsWsConnectStateChangeData
 	;
 
 	/**
@@ -6355,5 +6358,16 @@ export namespace TwitchatDataTypes {
 		 * User that made the combo
 		 */
         user: TwitchatUser;
+	}
+
+	/**
+	 * Called when OBS Websocket connection state changes
+	 */
+	export interface MessageObsWsConnectStateChangeData extends AbstractTwitchatMessage {
+		type: "obs_ws_connect_state_change";
+		/**
+		 * New connection state
+		 */
+		state: "connected" | "disconnected";
 	}
 }

@@ -885,6 +885,13 @@ export default class TriggerActionHandler {
 				}
 				break;
 			}
+
+			case TwitchatDataTypes.TwitchatMessageType.OBS_WS_CONNECT_STATE_CHANGE: {
+				const event = message.state == 'connected'? TriggerTypes.OBS_CONNECTED : TriggerTypes.OBS_DISCONNECTED;
+				if(await this.executeTriggersByType(event, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
 		}
 	}
 
@@ -4324,6 +4331,9 @@ export default class TriggerActionHandler {
 							case "lastcheer_id": value = (StoreProxy.labels.getLabelByKey("CHEER_ID") || "").toString(); break;
 							case "lastcheer_login": value = (StoreProxy.labels.getLabelByKey("CHEER_NAME") || "").toString(); break;
 							case "lastcheer_amount": value = (StoreProxy.labels.getLabelByKey("CHEER_AMOUNT") || "0").toString(); break;
+							case "lastraid_id": value = (StoreProxy.labels.getLabelByKey("RAID_ID") || "").toString(); break;
+							case "lastraid_login": value = (StoreProxy.labels.getLabelByKey("RAID_NAME") || "").toString(); break;
+							case "lastraid_viewers": value = (StoreProxy.labels.getLabelByKey("RAID_COUNT") || "0").toString(); break;
 						}
 
 					/**

@@ -75,12 +75,34 @@ export const storeOBS = defineStore('obs', {
 				OBSWebsocket.instance.connect(port || "4455", pass || "", true, ip || "127.0.0.1");
 			}
 
-			//Updates all twitchat browser sources with current OBS credentials
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_WEBSOCKET_DISCONNECTED, async ()=>{
+				const m:TwitchatDataTypes.MessageObsWsConnectStateChangeData = {
+					type:"obs_ws_connect_state_change",
+					state: "disconnected",
+					channel_id: StoreProxy.auth.twitch.user.id,
+					date: Date.now(),
+					id: Utils.getUUID(),
+					platform: "twitchat",
+				};
+				TriggerActionHandler.instance.execute(m)
+			})
+
 			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_WEBSOCKET_CONNECTED, async ()=>{
+				const m:TwitchatDataTypes.MessageObsWsConnectStateChangeData = {
+					type:"obs_ws_connect_state_change",
+					state: "connected",
+					channel_id: StoreProxy.auth.twitch.user.id,
+					date: Date.now(),
+					id: Utils.getUUID(),
+					platform: "twitchat",
+				};
+				TriggerActionHandler.instance.execute(m)
+				
 				const res = await OBSWebsocket.instance.socket.call("GetInputList", {inputKind:"browser_source"});
 				const sources = (res.inputs as unknown) as OBSInputItem[];
 				const filteredSources = sources.filter(v=> v.inputKind == "browser_source");
-
+				
+				//Updates all twitchat browser sources with current OBS credentials
 				filteredSources.forEach(browserSource=> {
 					OBSWebsocket.instance.getSourceSettings<{is_local_file:boolean, url:string, local_file:string}>(browserSource.inputName)
 					.then(browserSourceSettings => {

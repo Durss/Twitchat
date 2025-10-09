@@ -1,5 +1,5 @@
 import StoreProxy from '@/store/StoreProxy';
-import { OBSWebSocket as ObsWS, RequestBatchExecutionType, type RequestBatchRequest } from 'obs-websocket-js';
+import { OBSWebSocket as ObsWS } from 'obs-websocket-js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { reactive } from 'vue';
 import { EventDispatcher } from '../events/EventDispatcher';
@@ -96,8 +96,10 @@ export default class OBSWebSocket extends EventDispatcher {
 			}
 			const portValue = port && port?.length > 0 && port != "0"? ":"+port : "";
 			await this.obs.connect(protocol + ip + portValue, pass, {rpcVersion: 1});
+			if(!this.connected) {
+				this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_WEBSOCKET_CONNECTED));
+			}
 			this.connected = true;
-			this.dispatchEvent(new TwitchatEvent("OBS_WEBSOCKET_CONNECTED"));
 		}catch(error) {
 			console.log(error);
 			if(this.autoReconnect) {
@@ -1112,6 +1114,9 @@ export default class OBSWebSocket extends EventDispatcher {
 		this.obs = new ObsWS();
 
 		this.obs.addListener("ConnectionClosed", ()=> {
+			if(this.connected) {
+				this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_WEBSOCKET_DISCONNECTED));
+			}
 			this.connected = false;
 			if(this.autoReconnect) {
 				clearTimeout(this.reconnectTimeout);
