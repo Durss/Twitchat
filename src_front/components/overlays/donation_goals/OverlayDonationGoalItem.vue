@@ -516,7 +516,7 @@ export default toNative(OverlayDonationGoalItem);
 			border-radius: 15px;
 			filter: drop-shadow(5px 5px 0px #6bf9ff);
 			&.active {
-				background-image: linear-gradient(90deg, #64009f 60%, transparent 50%);
+				background-image: linear-gradient(90deg, #64009f 50%, transparent 50%);
 			}
 			.amount {
 				font-size: 1.5em;

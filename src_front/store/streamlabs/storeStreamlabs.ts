@@ -18,7 +18,6 @@ let reconnectAttempts:number = 0;
 let charityRefreshTimeout:number = -1;
 let isAutoInit:boolean = false;
 let autoReconnect:boolean = false;
-let resyncInProgress:boolean = false;
 let donationPageIndex:number = 0;
 let donationPrevPagesTotal:number = 0;
 
@@ -29,15 +28,18 @@ export const storeStreamlabs = defineStore('streamlabs', {
 		connected:false,
 		authResult:{code:"", csrf:""},
 		charityTeam:null,
+		syncingTips:false,
+		syncingCampaign:false,
+		syncingLeaderboard:false,
 	} as IStreamlabsState),
 
 
 
 	getters: {
-
-	} as IStreamlabsGetters
-	& ThisType<UnwrapRef<IStreamlabsState> & _StoreWithGetters<IStreamlabsGetters> & PiniaCustomProperties>
-	& _GettersTree<IStreamlabsState>,
+		isLoading:() => {
+			return StoreProxy.streamlabs.syncingTips || StoreProxy.streamlabs.syncingCampaign || StoreProxy.streamlabs.syncingLeaderboard;
+		}
+	},
 
 
 
@@ -362,6 +364,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 		async loadCharityCampaignInfo(url?:string):Promise<boolean> {
 			if(!url && this.charityTeam) url = this.charityTeam.teamURL;
 			if(!url) return false;
+			this.syncingCampaign = true;
 
 			let memberId = "";
 			try {
@@ -406,6 +409,9 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED", this.charityTeam.amountRaised_cents/100);
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_IMAGE", teamJSON.campaign.causable.avatar?.url || "");
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_NAME", this.charityTeam.title);
+			
+			this.syncingCampaign = false;
+			this.syncingLeaderboard = true;
 
 			let leaderboardAmountCents = 0;
 
@@ -436,6 +442,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			}
 
 			StoreProxy.donationGoals.broadcastData();
+			this.syncingLeaderboard = false;
 
 			//Start full resync
 			this.resyncFromDonationList();
@@ -445,6 +452,8 @@ export const storeStreamlabs = defineStore('streamlabs', {
 
 		async resyncCharityTips():Promise<void> {
 			if(!this.charityTeam) return;
+			donationPageIndex = 0;
+			donationPrevPagesTotal = 0;
 			this.charityTeam.amountRaisedPersonnal_cents = 0;
 			StoreProxy.labels.updateLabelValue("STREAMLABS_CHARITY_RAISED_PERSONNAL", 0);
 			await this.loadCharityCampaignInfo();
@@ -582,8 +591,12 @@ export const storeStreamlabs = defineStore('streamlabs', {
 		},
 
 		async resyncFromDonationList():Promise<void> {
-			if(resyncInProgress || !this.charityTeam) return;
-			resyncInProgress = true;
+			if(this.syncingTips) return;
+			if(!this.charityTeam) {
+				this.syncingTips = false;
+				return
+			}
+			this.syncingTips = true;
 
 			const me = StoreProxy.auth.twitch.user;
 			let pageIndex = donationPageIndex;
@@ -595,7 +608,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			let lastTip:StreamlabsCharityDonationHistoryEntry|undefined = undefined;
 			do {
 				hasResults = false;
-				const donationsRes = await fetch("https://streamlabscharity.com/api/v1/teams/"+this.charityTeam.id+"/donations?page="+pageIndex);
+				const donationsRes = await fetch("https://streamlabscharity.com/api/v1/teams/"+this.charityTeam.id+"/donations?page="+pageIndex+"&ck="+Date.now());
 				if(donationsRes.status == 200) {
 					const donationsJSON = await donationsRes.json() as StreamlabsCharityDonationHistoryEntry[];
 					hasResults = donationsJSON.length > 0;
@@ -639,7 +652,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 				this.saveData();
 			}
 
-			resyncInProgress = false;
+			this.syncingTips = false;
 		}
 
 	} as IStreamlabsActions

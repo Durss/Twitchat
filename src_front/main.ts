@@ -281,7 +281,7 @@ function buildApp() {
 	StoreProxy.default.qna = storeQna();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.default.discord = (storeDiscord() as unknown) as StoreProxy.IDiscordState & StoreProxy.IDiscordGetters & StoreProxy.IDiscordActions & { $state: StoreProxy.IDiscordState; $reset:()=>void };
-	StoreProxy.default.streamlabs = storeStreamlabs();
+	StoreProxy.default.streamlabs = (storeStreamlabs() as unknown) as StoreProxy.IStreamlabsState & StoreProxy.IStreamlabsGetters & StoreProxy.IStreamlabsActions & { $state: StoreProxy.IStreamlabsState; $reset:()=>void };
 	StoreProxy.default.streamelements = storeStreamelements();
 	StoreProxy.default.kofi = storeKofi();
 	StoreProxy.default.lumia = storeLumia();

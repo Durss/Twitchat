@@ -2690,9 +2690,13 @@ export interface IStreamlabsState {
 			website:string;
 		}
 	} | null;
+	syncingTips:boolean;
+	syncingCampaign:boolean;
+	syncingLeaderboard:boolean;
 }
 
 export interface IStreamlabsGetters {
+	isLoading:boolean;
 }
 
 export interface IStreamlabsActions {
