@@ -16,6 +16,8 @@
 		"step6_link": "cette page",
 		"step6_url": "https://streamlabs.com/dashboard#/settings/integrations",
 		"charity_error": "Impossible de récupérer les infos de la campagne.\nAssurez-vous que vous avez spécifié la bonne URL.\nL'URL doit avoir ce format \"https://streamlabscharity.com/teams/{'@'}...\"",
-		"charity_connected": "Vous êtes connecté·e à la campagne {NAME}"
+		"charity_connected": "Vous êtes connecté·e à la campagne {NAME}",
+		"raised_personnal": "Montant collecté personnel:",
+		"raised_team": "Montant collecté équipe:"
 	}
 }

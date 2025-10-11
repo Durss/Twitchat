@@ -16,6 +16,8 @@
 		"step6_link": "this page",
 		"step6_url": "https://streamlabs.com/dashboard#/settings/integrations",
 		"charity_error": "Cannot get campaign details.\nMake sure you specified the right URL.\nURL must look like this \"https://streamlabscharity.com/teams/{'@'}...\"",
-		"charity_connected": "Connected to campaign {NAME}"
+		"charity_connected": "Connected to campaign {NAME}",
+		"raised_personnal": "Amount raised personnal:",
+		"raised_team": "Amount raised team:"
 	}
 }

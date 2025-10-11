@@ -111,6 +111,16 @@
 								<span><Icon name="streamlabs"/>{{ $t("donation_goals.param_campaignId") }}:</span>
 								<a :href="$store.streamlabs.charityTeam.pageUrl" target="_blank"><Icon name="newtab"/>{{ $store.streamlabs.charityTeam.title }}</a>
 							</div>
+							<div class="amount">
+								<p>{{ $t("streamlabs.raised_personnal") }}</p>
+								<strong>{{ $store.streamlabs.charityTeam.amountRaisedPersonnal_cents/100 }}</strong><span class="currency">{{ $store.streamlabs.charityTeam.currency }}</span>
+								<template v-if="$store.streamlabs.charityTeam.amountGoal_cents > 0">
+									 / <strong>{{ $store.streamlabs.charityTeam.amountGoal_cents/100 }}</strong><span class="currency">{{ $store.streamlabs.charityTeam.currency }}</span>
+								</template>
+							</div>
+							<div class="amount">
+								<p>{{ $t("streamlabs.raised_team") }}</p>
+								<strong>{{ $store.streamlabs.charityTeam.amountRaised_cents/100 }}</strong><span class="currency">{{ $store.streamlabs.charityTeam.currency }}</span></div>
 							<TTButton icon="refresh" @click="resyncTips()" :loading="$store.streamlabs.isLoading">{{ $t("donation_goals.import_streamlabs_resync") }}</TTButton>
 							<TTButton icon="download" v-if="!showSLCGoalImport" @click="showSLCGoalImport = true">{{ $t("donation_goals.import_streamlabs_goals") }}</TTButton>
 							<ul v-else-if="!showSLCGoalSuccess">
@@ -509,6 +519,14 @@ export default toNative(OverlayParamsDonationGoal);
 			margin-right: .25em;
 			vertical-align: middle;
 		}
+		.amount {
+			gap: .5em;
+			display: flex;
+			flex-direction: row;
+			.currency {
+				margin-left: -.25em;
+			}
+		}
 		.holder {
 			display: flex;
 			flex-direction: row;
@@ -719,7 +737,8 @@ export default toNative(OverlayParamsDonationGoal);
 		.addGoalBt {
 			align-self: center;
 		}
-		.currency {
+		.simulate .currency,
+		.goalItem .currency {
 			background-color: var(--background-color-fader);
 			margin-left: -1px;
 			display: flex;
