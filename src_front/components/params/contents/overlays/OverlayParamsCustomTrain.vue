@@ -154,6 +154,7 @@
 					<div class="card-item trainRender">
 						<strong><Icon name="timer" />{{ $t("overlay.customTrain.param_approaching") }}</strong>
 						<OverlayCustomTrainRenderer class="train"
+							id="approaching"
 							:showApproaching="true"
 							:size="entry.textSize"
 							:fontFamily="entry.textFont"
@@ -177,6 +178,7 @@
 					<div class="card-item trainRender">
 						<strong><Icon name="train" />{{ $t("overlay.customTrain.param_progress") }}</strong>
 						<OverlayCustomTrainRenderer class="train"
+							id="progress"
 							:showProgress="true"
 							:size="entry.textSize"
 							:fontFamily="entry.textFont"
@@ -209,6 +211,7 @@
 					<div class="card-item trainRender">
 						<strong><Icon name="train_boost" />{{ $t("overlay.customTrain.param_levelUp") }}</strong>
 						<OverlayCustomTrainRenderer class="train"
+							id="levelUp"
 							:showLevelUp="true"
 							:size="entry.textSize"
 							:fontFamily="entry.textFont"
@@ -234,6 +237,7 @@
 					<div class="card-item trainRender">
 						<strong><Icon name="sub" />{{ $t("overlay.customTrain.param_record") }}</strong>
 						<OverlayCustomTrainRenderer class="train"
+							id="record"
 							:showRecord="true"
 							:size="entry.textSize"
 							:fontFamily="entry.textFont"
@@ -259,6 +263,7 @@
 					<div class="card-item trainRender">
 						<strong><Icon name="leaderboard" />{{ $t("overlay.customTrain.param_success") }}</strong>
 						<OverlayCustomTrainRenderer class="train"
+							id="success"
 							:showSuccess="true"
 							:size="entry.textSize"
 							:fontFamily="entry.textFont"
@@ -282,6 +287,7 @@
 					<div class="card-item trainRender">
 						<strong><Icon name="sad" />{{ $t("overlay.customTrain.param_failed") }}</strong>
 						<OverlayCustomTrainRenderer class="train"
+							id="failed"
 							:showFail="true"
 							:size="entry.textSize"
 							:fontFamily="entry.textFont"

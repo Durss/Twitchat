@@ -5,8 +5,9 @@
 				:showSuccess="false"
 				:showApproaching="showApproaching"
 				:showFail="false"
+				:id="configs.id"
 				:size="configs.textSize"
-				:fontFamily="fontName"
+				:fontFamily="configs.textFont"
 				:colorText="configs.colorFill"
 				:colorBg="configs.colorBg"
 				:eventCount="configs.triggerEventCount"
@@ -73,12 +74,10 @@ class OverlayCustomTrain extends AbstractOverlay {
 	public recordPercent = -1;
 	public recordLevel = -1;
 	public showApproaching = false;
-	public fontName = "";
 	public configs:TwitchatDataTypes.CustomTrainData | null = null;
 	public state:TwitchatDataTypes.CustomTrainState | null = null;
 
 	private overlayId:string = "";
-	private styleNode:HTMLStyleElement|null = null;
 	private customTrainStateHandler!:(e:TwitchatEvent<{configs:TwitchatDataTypes.CustomTrainData, state:TwitchatDataTypes.CustomTrainState}>) => void;
 
 
@@ -113,17 +112,10 @@ class OverlayCustomTrain extends AbstractOverlay {
 		PublicAPI.instance.addEventListener(TwitchatEvent.CUSTOM_TRAIN_STATE, this.customTrainStateHandler);
 
 		this.overlayId = this.$route.query.twitchat_overlay_id as string ?? "";
-
-		this.styleNode = document.createElement("style");
-		document.head.appendChild(this.styleNode);
 	}
 
 	public beforeUnmount():void {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CUSTOM_TRAIN_STATE, this.customTrainStateHandler);
-		if(this.styleNode) {
-			document.head.removeChild(this.styleNode);
-			this.styleNode = null;
-		}
 	}
 
 	public requestInfo():void {
@@ -138,15 +130,6 @@ class OverlayCustomTrain extends AbstractOverlay {
 		this.configs = e.data.configs;
 		this.state = e.data.state;
 		
-		const customFont = `train-font-${this.configs.id}`
-		this.fontName = `${customFont}, "${this.configs.textFont}"`;
-
-		this.styleNode!.innerHTML = `
-		@font-face {
-			font-family: "${customFont}";
-			src: local("${this.configs.textFont}");
-		}`;
-
 		if(this.state) {
 			if(this.state.activities.length < this.configs.triggerEventCount) {
 				this.showApproaching = true;

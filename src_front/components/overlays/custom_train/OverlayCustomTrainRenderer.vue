@@ -352,6 +352,9 @@ class OverlayCustomTrainRenderer extends Vue {
 	@Prop({default: -1})
 	public recordLevel!:number;
 
+	@Prop({default: ""})
+	public id!:string;
+
 	public showLevelUp_local:boolean = false;
 	public showRecord_local:boolean = false;
 	public showSuccess_local:boolean = false;
@@ -370,8 +373,10 @@ class OverlayCustomTrainRenderer extends Vue {
 	public timeLeft:string = "";
 	public trophyIcon:string = "";
 	public emoteList:{x:number, y:number, size:number, angle:number, alpha:number}[] = [];
+	public cssFontName:string = ""
 
 	private timerTO:string = "";
+	private styleNode:HTMLStyleElement|null = null;
 
 	public get cssFontSize(){ return this.size + 'px'; }
 
@@ -396,6 +401,11 @@ class OverlayCustomTrainRenderer extends Vue {
 	public get formatedAmountLeft():string {
 		const amount = this.forcedAmount_local ?? this.amountLeft;
 		return Utils.formatCurrency(amount, this.amountLeftFormat);
+	}
+
+	public beforeMount(){
+		this.styleNode = document.createElement("style");
+		document.head.appendChild(this.styleNode);
 	}
 
 	public mounted(){
@@ -475,6 +485,17 @@ class OverlayCustomTrainRenderer extends Vue {
 			this.localLevelName = this.levelName;
 		}, {immediate:true});
 
+		watch(() => this.fontFamily,  () => {
+			const customFont = `train-font-${this.id}`
+			this.cssFontName = `${customFont}, "${this.fontFamily}"`
+
+			this.styleNode!.innerHTML = `
+			@font-face {
+				font-family: "${customFont}";
+				src: local("${this.fontFamily}");
+			}`;
+		}, {immediate:true});
+
 		watch(() => this.size,  () => {
 			this.createEmoteWall();
 		}, {immediate:true});
@@ -540,6 +561,10 @@ class OverlayCustomTrainRenderer extends Vue {
 
 	public beforeUnmount(){
 		// this.clearEmoteWall()
+		if(this.styleNode) {
+			document.head.removeChild(this.styleNode);
+			this.styleNode = null;
+		}
 		SetIntervalWorker.instance.delete(this.timerTO)
 	}
 
@@ -740,7 +765,7 @@ export default toNative(OverlayCustomTrainRenderer);
 	position: relative;
 	border-radius: 10em;
 	font-size: v-bind(cssFontSize);
-	font-family: v-bind(fontFamily);
+	font-family: v-bind(cssFontName);
 	color: var(--colorText);
 	background-color: var(--colorBg);
 	width: 100%;
