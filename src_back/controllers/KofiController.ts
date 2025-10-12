@@ -16,16 +16,22 @@ export default class KofiController extends AbstractController {
 	/**
 	 * Kofi token to twitch user
 	 */
-	private hashmapCache:{[key:string]:{twitch:string}} = {};
+	private hashmapCache:{[verificationKey:string]:{twitch:string}} = {};
+
 	/**
 	 * Twitch user to kofi token
 	 */
-	private hashmapInverseCache:{[key:string]:string} = {};
+	private hashmapInverseCache:{[twitchId:string]:string} = {};
 
 	/**
 	 * Stores a merch item name
 	 */
-	private merchIdToNameCache:{[key:string]:string|false} = {};
+	private merchIdToNameCache:{[merchId:string]:string|false} = {};
+
+	/**
+	 * Stores already parsed events to avoid duplicates
+	 */
+	private parsedEvents:{[eventId:string]:boolean} = {};
 
 	constructor(public server:FastifyInstance) {
 		super();
@@ -78,6 +84,15 @@ export default class KofiController extends AbstractController {
 	private async postWebhook(request:FastifyRequest, response:FastifyReply) {
 		try {
 			const data = JSON.parse((request.body as any).data) as KofiData;
+
+			if(this.parsedEvents[data.message_id]) return; //Event already parsed
+			this.parsedEvents[data.message_id] = true;
+
+			//Dispose data after a day to free unneccessary memory
+			setTimeout(() => {
+				delete this.parsedEvents[data.verification_token];
+			}, 24 * 3600 * 1000);
+
 			const user = this.hashmapCache[data.verification_token];
 			if(!user || super.getUserPremiumState(user.twitch) === "no") {
 				response.header('Content-Type', 'application/json')
@@ -361,4 +376,6 @@ interface KofiData {
 		country_code: string;
 		telephone: string;
 	};
+	discord_username: string | null,
+	discord_userid: string | null
 }
