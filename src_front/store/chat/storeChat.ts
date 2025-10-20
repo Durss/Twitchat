@@ -23,6 +23,7 @@ import { reactive, watch, type UnwrapRef } from 'vue';
 import Database from '../Database';
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy';
 import Logger from '@/utils/Logger';
+import Config from '@/utils/Config';
 
 //Don't make this reactive, it kills performances on the long run
 let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -2395,7 +2396,7 @@ export const storeChat = defineStore('chat', {
 					user:message.user,
 					params:this.chatHighlightOverlayParams,
 					dateLabel:StoreProxy.i18n.tm("global.date_ago"),
-					skin: StoreProxy.streamlabs.charityTeam?.id === "837342991965360522"? "etc" : "default",
+					skin: Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default",
 				};
 				this.highlightedMessageId = message.id;
 

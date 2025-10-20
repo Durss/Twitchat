@@ -11,6 +11,34 @@ export default class Config {
 	private static _instance:Config;
 
 	/**
+	 * Defines automatic skin changes based on Streamlabs Charity teams and dates
+	 * the "skin" value will be applied as class attribute to some overlays so their style can be changed
+	 */
+	public AUTO_SKIN_CONFIGS:Record<string, { skin: string, dateStart: Date, dateEnd: Date, disableAds:boolean }> = {
+		"837342991965360522": {
+			skin:"etc",
+			disableAds: true,
+			dateStart:new Date("10/10/2025 17:00:00 GMT+0200 (Central European Summer Time)"),
+			dateEnd:new Date("10/12/2025 23:59:59 GMT+0200 (Central European Summer Time)"),
+		}
+	}
+
+	/**
+	 * Get current auto skin config based on connected Streamlabs Charity team and date
+	 * @returns 
+	 */
+	public GET_CURRENT_AUTO_SKIN_CONFIG() {
+		const now = new Date();
+		for(const key in this.AUTO_SKIN_CONFIGS) {
+			const config = this.AUTO_SKIN_CONFIGS[key];
+			if(now >= config.dateStart && now <= config.dateEnd) {
+				return config;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Port for the twitchat's server services
 	 */
 	public SERVER_PORT = 3018;

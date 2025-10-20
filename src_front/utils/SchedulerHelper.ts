@@ -5,6 +5,7 @@ import { TriggerScheduleTypes, TriggerTypes, type TriggerData } from "../types/T
 import Utils from "./Utils";
 import TriggerActionHandler from "./triggers/TriggerActionHandler";
 import SetIntervalWorker from "./SetIntervalWorker";
+import Config from "./Config";
 
 /**
 * Created : 02/09/2022 
@@ -264,10 +265,9 @@ export default class SchedulerHelper {
 				//Special case for users that have too few followers
 				if(StoreProxy.auth.noAd) continue;
 				
-				//Disable for EtTaCause members
-				if(StoreProxy.streamlabs.charityTeam
-				&& StoreProxy.streamlabs.charityTeam.id === "837342991965360522"
-				&& Date.now() >= 1760047200000 && Date.now() <= 1760306400000) return;
+				//Disable for EtTaCause members*
+				const autoSkin = Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG();
+				if(autoSkin?.disableAds) continue;
 			}
 
 			let execute = true;

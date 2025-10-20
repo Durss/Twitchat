@@ -8,6 +8,7 @@ import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import StoreProxy, { type IDonationGoalActions, type IDonationGoalGetters, type IDonationGoalState } from '../StoreProxy';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
+import Config from '@/utils/Config';
 
 
 const donationGoalStatesCache:Record<string, number> = {"coucou":0};
@@ -110,12 +111,9 @@ export const storeDonationGoals = defineStore('donationGoals', {
 				let goal = 0;
 				let raisedTotal = 0;
 				let raisedPersonnal = 0;
-				let skin = "default"
+				let skin = Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default";
 				if(overlay.dataSource == "streamlabs_charity") {
 					if(!StoreProxy.streamlabs.charityTeam) continue;
-					if(StoreProxy.streamlabs.charityTeam.id === "837342991965360522") {
-						skin = "etc";
-					}
 					goal = StoreProxy.streamlabs.charityTeam.amountGoal_cents/100;
 					raisedTotal = StoreProxy.streamlabs.charityTeam.amountRaised_cents/100;
 					raisedPersonnal = StoreProxy.streamlabs.charityTeam.amountRaisedPersonnal_cents/100;
@@ -221,10 +219,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 			let goal = 0;
 			let raisedTotal = newAmount;
 			let raisedPersonnal = newAmount;
-			let skin = "default";
-			if(StoreProxy.streamlabs.charityTeam?.id === "837342991965360522") {
-				skin = "etc";
-			}
+			let skin = Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default";
 			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, {params:overlay, goal, raisedTotal, raisedPersonnal, skin});
 			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_EVENT, {username:Utils.pickRand(users).displayName, amount:addedAmount.toString(), overlayId:overlay.id});
 		}
