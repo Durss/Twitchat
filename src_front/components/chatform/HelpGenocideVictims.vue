@@ -11,13 +11,13 @@
 
 				<div class="ctas" v-newflag="{date:1759253466000, id:'gaza:araborg'}">
 					<div class="head">
-						<a href="https://arab.org/fr/click-to-help/palestine/" target="_blank"><strong>Arab.org <Icon name="newtab"/></strong></a>
+						<a href="https://arab.org/click-to-help/palestine/" target="_blank"><strong>Arab.org <Icon name="newtab"/></strong></a>
 						<i>{{ $t("gaza.araborg_head") }}</i>
 					</div>
 					<TTButton icon="whispers"
 						:loading="sendingAraborg"
 						v-if="!sentAraborg"
-						@click="sendOnChat('https://arab.org/fr/click-to-help/palestine')">{{ $t("gaza.send_bt") }}</TTButton>
+						@click="sendOnChat('https://arab.org/click-to-help/palestine')">{{ $t("gaza.send_bt") }}</TTButton>
 						<div v-else class="card-item thanks">{{ $t("gaza.thanks") }}</div>
 				</div>
 
