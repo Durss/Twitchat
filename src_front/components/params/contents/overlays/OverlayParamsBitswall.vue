@@ -32,7 +32,7 @@
 
 			<OverlayInstaller type="bitswall"
 				:id="param_cristalEffect.value? 'twitchat_bitswall_overlay_shader' : 'twitchat_bitswall_overlay'"
-				:orderToBottom="false && param_cristalEffect.value"
+				:orderToBottom="param_cristalEffect.value"
 				:sourceSuffix="param_cristalEffect.value? '_shader' : ''"
 				:queryParams="{mode:param_cristalEffect.value? 'shader' : 'normal'}"
 				:css="'html, body{ background-color:transparent;}'"

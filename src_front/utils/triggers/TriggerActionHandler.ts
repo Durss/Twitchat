@@ -4356,7 +4356,7 @@ export default class TriggerActionHandler {
 						}
 
 					/**
-					 * If the placeholder requests for a user's VIP status
+					 * If the placeholder requests for a user's VIP, mod, broadcaster or sub status
 					 */
 					}else if(pointer.indexOf("__user_vip__") == 0
 					|| pointer.indexOf("__user_mod__") == 0

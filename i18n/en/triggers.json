@@ -798,6 +798,7 @@
 			"user_vip": "User VIP status",
 			"user_mod": "User moderator status",
 			"user_broadcaster": "User broadcaster status",
+			"user_sub": "User sub status",
 			"my_user": "My user name",
 			"my_user_id": "My user ID",
 			"user_avatar": "User avatar URL",
