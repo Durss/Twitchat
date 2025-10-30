@@ -82,7 +82,6 @@
 									:disabled="!entry.enabled"
 									v-tooltip="entry.enabled? '' : $t('timers.form.disabled_tt')">{{ $t('timers.form.unpause') }}</TTButton>
 								<TTButton icon="stop" @click="$store.timers.timerStop(entry.id); refreshTimers()">{{ $t('timers.form.stop') }}</TTButton>
-								{{ entry.id }}
 							</template>
 						</div>
 
