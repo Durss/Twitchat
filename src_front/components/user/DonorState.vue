@@ -34,7 +34,7 @@ import DonorPublicState from './DonorPublicState.vue';
 })
 class DonorState extends Vue {
 
-	public get isPremium():boolean { return false && this.$store.auth.isPremium; }
+	public get isPremium():boolean { return this.$store.auth.isPremium; }
 	public get donorLevel():number { return this.$store.auth.donorLevel; }
 
 	public openPremium():void {
