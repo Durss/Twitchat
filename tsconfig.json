@@ -49,7 +49,7 @@
 	],
 	"references": [
 		{
-			"path": "./tsconfig.vite-config.json"
+			"path": "./tsconfig.vite.json"
 		}
 	]
 }

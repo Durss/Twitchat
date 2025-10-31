@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
-		"module": "NodeNext",
-		"target": "ESNext",
-		"moduleResolution": "NodeNext",
+		"module": "nodenext",
+		"target": "esnext",
+		"moduleResolution": "nodenext",
 		"strict": true,
 		"noImplicitAny": false,
 		"noImplicitThis": false,
@@ -13,13 +13,13 @@
 		"isolatedModules": true,
 		"esModuleInterop": true,
 		"baseUrl": ".",
-		"outDir": "./server",
+		"outDir": "../server",
 		"skipLibCheck": true,
 		"incremental": true,
-		"tsBuildInfoFile": "./server/.tsbuildinfo",
+		"tsBuildInfoFile": "../server/.tsbuildinfo",
 		"paths": {
 			"@/*": [
-				"src_back/*"
+				"./*"
 			]
 		},
 		"lib": [
@@ -30,8 +30,8 @@
 		]
 	},
 	"include": [
-		"src_back/**/*.ts",
-		"src_back/**/*.tsx"
+		"./**/*.ts",
+		"./**/*.tsx"
 	],
 	"exclude": [
 		"node_modules",

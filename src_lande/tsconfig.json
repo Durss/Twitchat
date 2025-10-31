@@ -16,10 +16,10 @@
 		"ignoreDeprecations": "5.0",
 		"baseUrl": ".",
 		"types": [],
-		"outDir":"./static/lande",
+		"outDir":"../static/lande",
 		"paths": {
 			"@/*": [
-				"src_lande/*"
+				"./*"
 			]
 		},
 		"lib": [
@@ -30,7 +30,7 @@
 		]
 	},
 	"include": [
-		"src_lande/**/*.ts"
+		"./**/*.ts"
 	],
 	"exclude": [
 		"node_modules"

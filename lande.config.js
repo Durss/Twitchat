@@ -12,7 +12,7 @@ export default {
 		resolve(),       // Locate and bundle dependencies in node_modules
 		commonjs(),      // Convert CommonJS modules to ES6
 		typescript({     // Compile TypeScript files
-			tsconfig: './tsconfig_lande.json',
+			tsconfig: './src_lande/tsconfig.json',
 		}),
 	],
 };
