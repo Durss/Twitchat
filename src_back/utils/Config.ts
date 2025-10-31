@@ -166,7 +166,7 @@ export default class Config {
 	public static get SETTINGS_PRESETS_FOLDER(): string {
 		return this.getEnvData({
 			dev: path.join(this.DATA_ROOT, "/sharedSettings/"),
-			beta: path.join(this.DATA_ROOT, "/sharedSettings/"),
+			beta: path.join(this.DATA_ROOT, "../../twitchat/data/sharedSettings/"),
 			prod: path.join(this.DATA_ROOT, "/sharedSettings/"),
 		});
 	}
@@ -266,17 +266,9 @@ export default class Config {
 	 * Folder containing donors infos
 	 */
 	public static get DONORS_DATA_FOLDER(): string {
-		let betaPath = path.join(this.DATA_ROOT, "../../twitchat/donors/");
-		//Remp automatic switch to new data structure if available.
-		//remove this once production is migrated
-		if(this.envName == "beta") {
-			if(fs.existsSync(path.join(this.DATA_ROOT, "../../twitchat/data/donors/"))) {
-				betaPath = path.join(this.DATA_ROOT, "../../twitchat/data/donors/");
-			}
-		}
 		return this.getEnvData({
 			dev: path.join(this.DATA_ROOT, "/donors/"),
-			beta: betaPath,
+			beta: path.join(this.DATA_ROOT, "../../twitchat/data/donors/"),
 			prod: path.join(this.DATA_ROOT, "/donors/"),
 		});
 	}

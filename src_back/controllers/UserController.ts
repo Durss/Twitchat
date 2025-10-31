@@ -1,15 +1,15 @@
 import JsonPatch from 'fast-json-patch';
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
+import * as path from 'path';
 import Config from '../utils/Config.js';
 import { schemaValidator } from '../utils/DataSchema.js';
 import Logger from '../utils/Logger.js';
+import Utils from '../utils/Utils.js';
 import AbstractController from "./AbstractController.js";
 import DiscordController from './DiscordController.js';
 import { PatreonMember } from './PatreonController.js';
 import SSEController from './SSEController.js';
-import Utils from '../utils/Utils.js';
-import path from 'path';
 
 /**
 * Created : 13/03/2022
@@ -431,7 +431,7 @@ export default class UserController extends AbstractController {
 	private async getSettingsPresets(request:FastifyRequest, response:FastifyReply) {
 		if(!await this.twitchUserGuard(request, response)) return;
 
-		const params:any = request.query;
+		const params = request.query as {name:string};
 		if(!params.name || typeof params.name !== "string" || params.name.trim().length === 0) {
 			response.header('Content-Type', 'application/json');
 			response.status(400);
@@ -444,7 +444,16 @@ export default class UserController extends AbstractController {
 			fs.mkdirSync(folder, { recursive: true });
 		}
 
-		const filePath = path.join(folder, params.name.toLowerCase()+".json")
+		const normalizedName = params.name.toLowerCase()
+			// Avoid navigating to parent/child folder. This is also filtered by next regex
+			// but better being extra safe here in case next regex is updated at some point
+			.replace(/[\/\\\.]/g, "")
+			// Only keep alpha numeric, dash and underscore chars
+			.replace(/[^a-z0-9_\-]/gi, "_");
+		const parts = normalizedName.split('_');
+		const userId = parts.pop() || "";
+		const presetName = parts.join('_');
+		const filePath = path.join(folder, userId, presetName+".json")
 		const json = fs.readFileSync(filePath, "utf8");
 
 		response.header('Content-Type', 'application/json');
@@ -458,7 +467,7 @@ export default class UserController extends AbstractController {
 	private async postSettingsPresets(request:FastifyRequest, response:FastifyReply) {
 		const user = await this.twitchUserGuard(request, response);
 		if(!user) return;
-		if(Config.credentials.feature_flags.export_configs?.includes(user.user_id) !== true) {
+		if(Config.credentials.feature_flags?.export_configs?.includes(user.user_id) !== true) {
 			response.header('Content-Type', 'application/json');
 			response.status(403);
 			response.send(JSON.stringify({success:false, error:"User is not allowed to export settings", errorCode:"USER_NOT_ALLOWED"}));
@@ -474,13 +483,20 @@ export default class UserController extends AbstractController {
 			return;
 		}
 		
-		const folder = Config.SETTINGS_PRESETS_FOLDER;
+		const folder = path.join(Config.SETTINGS_PRESETS_FOLDER, user.user_id);
 		if(!fs.existsSync(folder)) {
 			fs.mkdirSync(folder, { recursive: true });
 		}
 
 		const content = params.data? JSON.stringify({authorId:user.user_id, data:params.data}) : JSON.stringify({authorId:user.user_id, data:params.encrypted});
-		const fileName = params.name.toLowerCase().replace(/[^a-z0-9_\-]/gi, "_").substring(0, 20)+"_"+user.user_id;
+		const fileName = params.name.toLowerCase()
+			// Avoid navigating to parent/child folder. This is also filtered by next regex
+			// but better being extra safe here in case next regex is updated at some point
+			.replace(/[\/\\\.]/g, "")
+			// Only keep alpha numeric, dash and underscore chars
+			.replace(/[^a-z0-9_\-]/gi, "_")
+			// Limit topo 20 chars long
+			.substring(0, 20);
 		fs.writeFileSync(path.join(folder, fileName+".json"), content, "utf8");
 
 		response.header('Content-Type', 'application/json');
