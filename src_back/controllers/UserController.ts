@@ -501,6 +501,6 @@ export default class UserController extends AbstractController {
 
 		response.header('Content-Type', 'application/json');
 		response.status(200);
-		response.send(JSON.stringify({success:true, fileName}));
+		response.send(JSON.stringify({success:true, fileName:fileName+"_"+user.user_id}));
 	}
 }
