@@ -161,6 +161,7 @@ export const storeExporter = defineStore('Exporter', {
 
 		importSettings(data:SettingsExportData):void {
 			try {
+				// Parse parameters
 				const replaceList = data.params.map(v=> {
 					let escapedKey = v.key.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 					// Enforce default boolean values to false
@@ -175,6 +176,7 @@ export const storeExporter = defineStore('Exporter', {
 					}
 				})
 				
+				// Inject parameters
 				let str = JSON.stringify(data);
 				replaceList.forEach(r => {
 					str = str.replace(r.reg, r.value?.toString() || "");
@@ -201,7 +203,6 @@ export const storeExporter = defineStore('Exporter', {
 							StoreProxy.triggers.triggerList.push(t);
 						}
 					});
-					
 					StoreProxy.triggers.saveTriggers();
 				}
 
@@ -218,6 +219,7 @@ export const storeExporter = defineStore('Exporter', {
 							timerList.push(t);
 						}
 					});
+					StoreProxy.timers.saveData();
 				}
 
 				// Import Counters
@@ -233,6 +235,7 @@ export const storeExporter = defineStore('Exporter', {
 							counterList.push(c);
 						}
 					});
+					StoreProxy.counters.saveCounters();
 				}
 
 				// Import Values
@@ -248,6 +251,7 @@ export const storeExporter = defineStore('Exporter', {
 							valueList.push(v);
 						}
 					});
+					StoreProxy.values.saveValues();
 				}
 
 				// Import Labels
@@ -263,6 +267,7 @@ export const storeExporter = defineStore('Exporter', {
 							labelList.push(l);
 						}
 					});
+					StoreProxy.labels.saveData();
 				}
 				
 				// Import Animated Texts
@@ -278,6 +283,7 @@ export const storeExporter = defineStore('Exporter', {
 							animatedTextList.push(a);
 						}
 					});
+					StoreProxy.animatedText.saveData();
 				}
 				
 				// Import Custom Trains
@@ -293,6 +299,7 @@ export const storeExporter = defineStore('Exporter', {
 							customTrainList.push(ct);
 						}
 					});
+					StoreProxy.customTrain.saveData();
 				}
 
 				// Import Ending Credits slots
@@ -308,6 +315,7 @@ export const storeExporter = defineStore('Exporter', {
 							creditsData.slots.push(slot);
 						}
 					});
+					StoreProxy.endingCredits.saveParams();
 				}
 			}catch(e) {
 				console.error("Error importing triggers:", e);
