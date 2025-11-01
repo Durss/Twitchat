@@ -81,8 +81,10 @@ export const storeValues = defineStore('values', {
 
 		updateValue(id:string, value:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string, interpretMaths?:boolean):void {
 			let prevValue = "";
-			const num = Utils.evalMath(value);
-			if(num) value = num.toString();
+			if(interpretMaths) {
+				const num = Utils.evalMath(value);
+				if(num !== null && !isNaN(num)) value = num.toString();
+			}
 			for (let i = 0; i < this.valueList.length; i++) {
 				if(this.valueList[i].id == id) {
 					const entry = this.valueList[i];
