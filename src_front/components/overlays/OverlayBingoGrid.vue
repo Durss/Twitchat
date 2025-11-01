@@ -320,7 +320,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			//@ts-ignore
 			window.fakeUserEvents = ()=>{
 
-				this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
+				this.onBingoViewer(new TwitchatEvent("BINGO_GRID_OVERLAY_VIEWER_EVENT", {
 						"gridId": this.id,
 						"user": {
 							"name": "DurssBot",
@@ -329,7 +329,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 						},
 						"count": 1
 					}));
-				this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
+				this.onBingoViewer(new TwitchatEvent("BINGO_GRID_OVERLAY_VIEWER_EVENT", {
 						"gridId": this.id,
 						"user": {
 							"name": "JohanRelpek",
@@ -339,7 +339,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 						"count": 9
 					}));
 
-				this.onBingoViewer(new TwitchatEvent("ACTION_BATCH", {
+				this.onBingoViewer(new TwitchatEvent("BINGO_GRID_OVERLAY_VIEWER_EVENT", {
 						"gridId": this.id,
 						"user": {
 							"name": "Durss",
