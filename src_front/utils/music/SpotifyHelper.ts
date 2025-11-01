@@ -406,12 +406,13 @@ export default class SpotifyHelper {
 	 * @param isRetry is trying again to execute the add to queue command?
 	 * @returns if a track has been added or not
 	 */
-	public async addToPlaylist(track:SearchTrackItem, playlistId:string, isRetry:boolean = false):Promise<boolean|"NO_ACTIVE_DEVICE"> {
+	public async addToPlaylist(track:SearchTrackItem, playlistId:string, isRetry:boolean = false, position?:number):Promise<boolean|"NO_ACTIVE_DEVICE"> {
 		const options = {
 			headers:this._headers,
 			method:"POST",
 			body:JSON.stringify({
 				uris:[track.uri],
+				position
 			})
 		}
 		const res = await fetch("https://api.spotify.com/v1/playlists/"+playlistId+"/tracks", options);
@@ -631,15 +632,14 @@ export default class SpotifyHelper {
 	 *
 	 * @returns track info
 	 */
-	public async getPlaylistById(id:string):Promise<PlaylistCachedIdItem|null> {
-		if(this._playlistsIdCache[id]) return this._playlistsIdCache[id];
+	public async getPlaylistById(id:string, forceReload:boolean = false):Promise<PlaylistCachedIdItem|null> {
+		if(this._playlistsIdCache[id] && !forceReload) return this._playlistsIdCache[id];
 		const options = {
-
 			headers:this._headers
 		}
 		let json:PlaylistCachedIdItem;
 		const url = new URL("https://api.spotify.com/v1/playlists/"+id);
-		url.searchParams.set("fields", "name,external_urls,uri,images");
+		url.searchParams.set("fields", "name,description,href,id,public,external_urls,uri,images,tracks.total");
 		const res = await fetch(url, options);
 		try {
 			json = await res.json();

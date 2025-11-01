@@ -257,6 +257,8 @@
 				"param_limit_duration": "Limit allowed track duration",
 				"param_max_duration": "Only allow tracks shorter than {VALUE}s",
 				"param_playlist": "Playlist\n(name, link or ID)",
+				"param_playlistPos": "Add track at the end of the playlist",
+				"param_playlistPosIndex": "Position to add the track to (0=first)",
 				"param_selection": "Track result to select\n(for textual searches)",
 				"param_limit_perUser": "Limit number of tracks per user in the queue",
 				"param_max_perUser": "Users can have {VALUE} track in the queue at max|Users can have {VALUE} track in the queue at max|Users can have {VALUE} tracks in the queue at max",

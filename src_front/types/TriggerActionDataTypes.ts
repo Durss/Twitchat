@@ -905,6 +905,16 @@ export interface TriggerActionMusicEntryData extends TriggerActionData{
 	 * Playlist to start or to add a track to
 	 */
 	playlist:string;
+	/**
+	 * Defines if the track should be added at the end of the playlist
+	 * Defaults to "true" if undefined for backward compatibility
+	 */
+	playlistAddToEnd?:boolean;
+	/**
+	 * Position to add the track to.
+	 * Can be a placeholder or a number index
+	 */
+	playlistAddAt?:number|string;
 }
 
 export interface TriggerActionHighlightData extends TriggerActionData{

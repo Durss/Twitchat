@@ -257,6 +257,8 @@
 				"param_limit_duration": "Limiter la durée maximum autorisée",
 				"param_max_duration": "N'autoriser que les morceaux de moins de {VALUE}s",
 				"param_playlist": "Playlist\n(nom, URL ou ID)",
+				"param_playlistPos": "Ajouter le morceau à la fin de la playlist",
+				"param_playlistPosIndex": "Position à laquelle ajouter le morceau (0=premier)",
 				"param_selection": "Morceau à sélectionner\n(dans le cas d'une recherche textuelle)",
 				"param_limit_perUser": "Limiter le nombre de morceau par personne dans la file d'attente",
 				"param_max_perUser": "Une personne peut avoir {VALUE} morceau max en attente|Une personne peut avoir {VALUE} morceau max en attente|Une personne peut avoir {VALUE} morceaux max en attente",

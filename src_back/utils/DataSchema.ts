@@ -521,6 +521,13 @@ const UserDataSchema = {
 								failMessage: {type:"string", maxLength:500},
 								confirmMessage: {type:"string", maxLength:500},
 								playlist: {type:"string", maxLength:500},
+								playlistAddToEnd: {type:"boolean"},
+								playlistAddAt: {
+									anyOf:[
+										{type:"string", maxLength:50},
+										{type:"number", minimum:0 , maximum:9999999}
+									]
+								},
 								voiceID: {type:"string", maxLength:100},
 								soundID: {type:"string", maxLength:100},
 								triggerKey: {type:"string", maxLength:100},

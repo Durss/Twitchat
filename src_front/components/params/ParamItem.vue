@@ -324,9 +324,20 @@
 					<PlaceholderField v-model="paramData.value" :maxLength="paramData.maxLength" />
 				</div>
 			</div>
+	
+			<PlaceholderSelector class="placeholders" v-if="placeholdersAsPopout && paramData.placeholderList"
+				v-model="paramData.value"
+				:placeholders="paramData.placeholderList"
+				:secondary="secondary"
+				:premium="premiumOnlyLocal"
+				:popoutMode="placeholdersAsPopout"
+				:alert="alert || errorLocal"
+				:target="placeholderTarget"
+				@insert="insertPlaceholder"
+			/>
 		</div>
 
-		<PlaceholderSelector class="placeholders" v-if="paramData.placeholderList"
+		<PlaceholderSelector class="placeholders" v-if="!placeholdersAsPopout && paramData.placeholderList"
 			v-model="paramData.value"
 			:placeholders="paramData.placeholderList"
 			:secondary="secondary"
@@ -1368,7 +1379,7 @@ export default toNative(ParamItem);
 			}
 		}
 		input, .button {
-			padding-right: 1.25em !important;
+			padding-right: 1.5em;
 		}
 		.maxlength {
 			margin-right: 2.15em !important;

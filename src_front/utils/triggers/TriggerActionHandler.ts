@@ -3021,13 +3021,14 @@ export default class TriggerActionHandler {
 							failCode = "spotify_not_connected";
 						}
 
-						//Adding a track to the queue
+						//Adding a track to the queue or playlist
 						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE || step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_PLAYLIST) {
 							const maxDuration = (step.maxDuration || 0)*1000;
 							//Convert placeholders if any
 							const m = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.track, subEvent);
 							let searchTerms = "";
 							let playlistTarget:TwitchatDataTypes.MessageMusicAddedToQueueData["playlistTarget"] = undefined;
+							let playlistTargetPos:number = -1;
 							let trackData:TwitchatDataTypes.MusicTrackData|undefined = undefined;
 							let allowSR = true;
 							if(SpotifyHelper.instance.connected) {
@@ -3073,8 +3074,24 @@ export default class TriggerActionHandler {
 												url:playlist.external_urls?.spotify,
 												cover:playlist.images && playlist.images.length > 0? playlist.images[0].url : "",
 											};
-
+											
 											logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Playlist found: "+(playlistTarget.title)+" : ID "+playlistTarget.id});
+											
+											if(step.playlistAddToEnd === false && step.playlistAddAt != undefined) {
+												if(typeof step.playlistAddAt === "string") {
+													const res = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.playlistAddAt, subEvent);
+													if(parseInt(res).toString() == res) {
+														playlistTargetPos = parseInt(res);
+													}
+												}else{
+													playlistTargetPos = step.playlistAddAt;
+												}
+												const freshPlaylistInfo = await SpotifyHelper.instance.getPlaylistById(playlist.id, true);
+												console.log(freshPlaylistInfo)
+												playlistTargetPos = Math.max(0, Math.min(playlistTargetPos, freshPlaylistInfo?.tracks.total || 0));
+												logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Add track at position: "+playlistTargetPos+" (src: "+step.playlistAddAt+")"});
+											}
+
 										}
 									}
 
@@ -3130,7 +3147,7 @@ export default class TriggerActionHandler {
 										}else {
 											let success:string|boolean = false;
 											if(playlistMode && playlistTarget) {
-												success = await SpotifyHelper.instance.addToPlaylist(track, playlistTarget.id);
+												success = await SpotifyHelper.instance.addToPlaylist(track, playlistTarget.id, false, playlistTargetPos == -1? undefined : playlistTargetPos);
 											}else{
 												success = await SpotifyHelper.instance.addToQueue(track, false, executingUser, searchTerms);
 											}

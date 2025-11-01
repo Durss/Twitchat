@@ -8,30 +8,30 @@ export const SpotifyScopes = {
 export type SpotifyScopesString = typeof SpotifyScopes[keyof typeof SpotifyScopes];
 
 export interface SpotifyAuthResult {
-	code:string;
-	csrf:string;
+	code: string;
+	csrf: string;
 }
 
 export interface SpotifyAuthToken {
-	access_token:string;
-	token_type:string;//Bearer
-	scope:string;
-	expires_at:number;//In milliseconds
-	expires_in:number;//In seconds
-	refresh_token:string;
+	access_token: string;
+	token_type: string;//Bearer
+	scope: string;
+	expires_at: number;//In milliseconds
+	expires_in: number;//In seconds
+	refresh_token: string;
 }
 
 export interface SpotifyTrack {
 	timestamp: number;
 	context?: {
-		external_urls:ExternalUrls[];
-		type:"artist"|"playlist";
-		uri:string
-		href:string
+		external_urls: ExternalUrls[];
+		type: "artist" | "playlist";
+		uri: string
+		href: string
 	};
 	progress_ms: number;
 	item: Item;
-	currently_playing_type: "track"|"episode";
+	currently_playing_type: "track" | "episode";
 	actions: Actions;
 	is_playing: boolean;
 
@@ -181,15 +181,68 @@ export interface SearchTrackItem {
 
 export interface PlaylistCachedIdItem {
 	external_urls: {
-		spotify:string;
+		spotify: string;
 	};
-	images:  {
+	images: {
 		url: string;
 		height: number;
 		width: number;
 	}[];
 	name: string;
 	uri: string;
+	description: string
+	href: string
+	id: string
+	public: boolean
+	tracks: {
+		total: number
+		/*
+		href: string
+		limit: number
+		next: string
+		offset: number
+		previous: string
+		items: {
+			added_at: string
+			added_by: {
+				external_urls: {
+					spotify: string;
+				}
+				href: string
+				id: string
+				type: string
+				uri: string
+			}
+			is_local: boolean
+			track: {
+				album: Album
+				artists: Artist[]
+				available_markets: string[]
+				disc_number: number
+				duration_ms: number
+				explicit: boolean
+				external_ids: ExternalIds
+				external_urls: {
+					spotify: string;
+				}
+				href: string
+				id: string
+				is_playable: boolean
+				linked_from: unknown
+				restrictions: {
+					reason: string
+				}
+				name: string
+				popularity: number
+				preview_url: string
+				track_number: number
+				type: string
+				uri: string
+				is_local: boolean
+			}
+		}[]
+		*/
+	}
 }
 
 export interface SearchPlaylistItem {
