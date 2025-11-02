@@ -398,6 +398,7 @@ export default toNative(OverlayChatHighlight);
 			.message {
 				color:var(--color-dark);
 				white-space: pre-wrap;
+				word-break: break-word;
 				:deep(.emote) {
 					max-height: 1.25em;
 					vertical-align: middle;
