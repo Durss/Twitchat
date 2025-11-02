@@ -348,10 +348,90 @@ export namespace TwitchatDataTypes {
 	 * Generic parameter categories types
 	 */
 	export interface IParameterCategory {
-		appearance:{[key:string]:ParameterData<string|number|boolean>};
-		features:{[key:string]:ParameterData<string|number|boolean>};
+		features:{[key in
+			"spoilersEnabled" |
+			"alertMode" |
+			"firstMessage" |
+			"saveHistory" |
+			"antiHateRaid" |
+			"antiHateRaidDeleteMessage" |
+			"antiHateRaidEmergency" |
+			"autoTranslate" |
+			"autoTranslateFirst" |
+			"autoTranslateLang" |
+			"autoTranslateSpoken" |
+			"manyRepliesAlert" |
+			"manyRepliesAlertThreshold" |
+			"mergeConsecutive" |
+			"mergeConsecutive_maxSize" |
+			"mergeConsecutive_maxSizeTotal" |
+			"mergeConsecutive_minDuration" |
+			"groupIdenticalMessage" |
+			"markAsRead" |
+			"conversationsEnabled" |
+			"userHistoryEnabled" |
+			"lockAutoScroll" |
+			"liveMessages" |
+			"liveAlerts" |
+			"autoRemod" |
+			"showModTools" |
+			"raffleHighlightUser" |
+			"raffleHighlightUserDuration" |
+			"offlineEmoteOnly" |
+			"stopStreamOnRaid" |
+			"showUserPronouns" |
+			"chatShoutout"
+		]:ParameterData<string|number|boolean|string[]>};
+		appearance:{[key in
+			"splitViewVertical" |
+			"censorDeletedMessages" |
+			"multiChatAvatar" |
+			"multiChatColor" |
+			"sharedChatHide" |
+			"highlightusernames" |
+			"highlightMods" |
+			"highlightMods_color" |
+			"highlightVips" |
+			"highlightVips_color" |
+			"highlightSubs" |
+			"highlightSubs_color" |
+			"highlightPartners" |
+			"highlightPartners_color" |
+			"highlightMentions" |
+			"highlightMentions_color" |
+			"highlightMentions_custom" |
+			"raidHighlightUser" |
+			"raidHighlightUser_color" |
+			"raidHighlightUserDuration" |
+			"raidHighlightUserTrack" |
+			"highlight1stEver" |
+			"highlight1stEver_color" |
+			"highlight1stToday" |
+			"highlight1stToday_color" |
+			"highlightNonFollowers" |
+			"firstUserBadge" |
+			"recentAccountUserBadge" |
+			"translateNames" |
+			"showRewardsInfos" |
+			"showViewersCount" |
+			"showRaidViewersCount" |
+			"showRaidStreamInfo" |
+			"alternateMessageBackground" |
+			"showEmotes" |
+			"bttvEmotes" |
+			"ffzEmotes" |
+			"sevenTVEmotes" |
+			"showBadges" |
+			"minimalistBadges" |
+			"displayTime" |
+			"displayTimeRelative" |
+			"dyslexicFont" |
+			"adhdFont" |
+			"defaultSize"
+		]:ParameterData<string|number|boolean|string[]>};
 	}
 	export type ParameterCategory = keyof IParameterCategory;
+	export type ParameterSubCategory = keyof IParameterCategory["appearance"] | keyof IParameterCategory["features"];
 
 	/**
 	 * Account params types

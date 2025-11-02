@@ -1017,12 +1017,12 @@ export const storeChat = defineStore('chat', {
 
 				//Live translation if first message ever on the channel
 				if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-				&& message.twitch_isFirstMessage
 				&& sAuth.isPremium
-				&& sParams.features.autoTranslateFirst.value === true
-				&& sParams.features.autoTranslateFirstLang.value
-				&& (sParams.features.autoTranslateFirstLang.value as string[]).length > 0) {
-					const spokenLanguages = sParams.features.autoTranslateFirstSpoken.value as string[] || [];
+				&& sParams.features.autoTranslate.value === true
+				&& (sParams.features.autoTranslateFirst.value === false || message.twitch_isFirstMessage)
+				&& sParams.features.autoTranslateLang.value
+				&& (sParams.features.autoTranslateLang.value as string[]).length > 0) {
+					const spokenLanguages = sParams.features.autoTranslateSpoken.value as string[] || [];
 					const translatable = message as TwitchatDataTypes.TranslatableMessage;
 					const text = translatable.message_chunks?.filter(v=>v.type == 'text').map(v=>v.value).join("").trim() || "";
 					if(text.length >= 4 && spokenLanguages.length > 0) {
@@ -1034,7 +1034,7 @@ export const storeChat = defineStore('chat', {
 							//It detects most english messages as Afrikaan.
 							const lang = (langs[0][1] < .6 || (langs[0][0] == "afr" && langs[1][0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
 							if(lang && !spokenLanguages.includes(lang.iso1)) {
-								const langTarget = (sParams.features.autoTranslateFirstLang.value as string[])[0];
+								const langTarget = (sParams.features.autoTranslateLang.value as string[])[0];
 								if(lang.iso1 != langTarget) {
 									ApiHelper.call("google/translate", "GET", {langSource:lang.iso1, langTarget, text:text}, false)
 									.then(res=>{

@@ -140,8 +140,12 @@ class ParamsList extends Vue implements IParameterContent {
 			if(!this.category) return {};
 
 			for (const key in this.$store.params.$state[this.category]) {
-				if(this.$store.params.$state[this.category][key].parent) continue;
-				res[key] = (this.$store.params.$state[this.category] as {[key:string]:TwitchatDataTypes.ParameterData<unknown>})[key] as TwitchatDataTypes.ParameterData<unknown>;
+				const cat = this.$store.params.$state[this.category];
+				if(this.category == "appearance" || this.category == "features") {
+					const param = cat[key as keyof typeof cat] as TwitchatDataTypes.ParameterData<unknown>;
+					if(param.parent) continue;
+					res[key] = param;
+				}
 			}
 		}
 		return res;

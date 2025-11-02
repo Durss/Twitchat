@@ -868,10 +868,14 @@ export class ParamItem extends Vue {
 		const list = this.$store.params.$state;
 		let children:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
 		for (const key in list) {
-			const params = list[key as TwitchatDataTypes.ParameterCategory];
+			const typedKey = key as keyof typeof list;
+			if(typedKey != "appearance" && typedKey !="features") continue
+			const params = list[typedKey];
 			for (const key2 in params) {
-				if(params[key2].parent != undefined && params[key2].parent == this.paramData.id) {
-					children.push(params[key2]);
+				const typedKey = key2 as TwitchatDataTypes.ParameterSubCategory;
+				const param = params[typedKey as keyof typeof params] as TwitchatDataTypes.ParameterData<unknown>;
+				if(param && param.parent != undefined && param.parent == this.paramData.id) {
+					children.push(param);
 				}
 			}
 		}

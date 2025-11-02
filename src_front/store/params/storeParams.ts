@@ -34,9 +34,12 @@ export const storeParams = defineStore('params', {
 			antiHateRaid: 				{type:"boolean", value:false, labelKey:"params.antiHateRaid", id:232, icon:"block", storage:{vnew:{date:Config.instance.NEW_FLAGS_DATE_V13, id:'params_antihateraid'}}, twitch_scopes:[TwitchScopes.BLOCKED_TERMS] },
 			antiHateRaidDeleteMessage: 	{type:"boolean", value:false, labelKey:"params.antiHateRaidDeleteMessage", id:234, parent:232, icon:"trash", storage:{vnew:{date:Config.instance.NEW_FLAGS_DATE_V13, id:'params_antihateraiddelete'}}},
 			antiHateRaidEmergency:	 	{type:"boolean", value:false, labelKey:"params.antiHateRaidEmergency", id:235, parent:232, icon:"emergency", storage:{vnew:{date:Config.instance.NEW_FLAGS_DATE_V13, id:'params_antihateraidemergency'}}},
-			autoTranslateFirst: 		{type:"boolean", value:false, labelKey:"params.autoTranslateFirst", id:229, icon:"translate", storage:{vnew:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_translate'}}, premiumOnly:true, example:"translate_messages.png"},
-			autoTranslateFirstLang:		{type:"list", value:["en"] as string[], multiple:true, max:1, listValues:Object.values(TranslatableLanguagesMap).map(v=> {return {value:v.iso1, flag:v.flag, label:v.name}}), labelKey:"params.autoTranslateFirst_lang", id:231, parent:229, icon:"voice"},
-			autoTranslateFirstSpoken:	{type:"list", value:["en"] as string[], multiple:true, listValues:Object.values(TranslatableLanguagesMap).map(v=> {return {value:v.iso1, flag:v.flag, label:v.name}}), labelKey:"params.autoTranslateFirst_spoken", id:230, parent:229, icon:"voice"},
+			autoTranslate: 				{type:"boolean", value:false, labelKey:"params.autoTranslate", id:229, icon:"translate", storage:{vnew:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_translate'}}, premiumOnly:true, example:"translate_messages.png"},
+			autoTranslateFirst:			{type:"boolean", value:true, labelKey:"params.autoTranslate_first", id:238, parent:229, icon:"firstTime"},
+			autoTranslateLang:			{type:"list", value:["en"] as string[], multiple:true, max:1, listValues:Object.values(TranslatableLanguagesMap).map(v=> {return {value:v.iso1, flag:v.flag, label:v.name}}), labelKey:"params.autoTranslate_lang", id:231, parent:229, icon:"voice"},
+			autoTranslateSpoken:		{type:"list", value:["en"] as string[], multiple:true, listValues:Object.values(TranslatableLanguagesMap).map(v=> {return {value:v.iso1, flag:v.flag, label:v.name}}), labelKey:"params.autoTranslate_spoken", id:230, parent:229, icon:"voice"},
+			manyRepliesAlert:	 		{type:"boolean", value:true, labelKey:"params.manyRepliesAlert", id:236, icon:"reply", storage:{vnew:{date:1762112404519, id:'manyRepliesAlert'}}},
+			manyRepliesAlertThreshold:	{type:"number", value:5, labelKey:"params.manyRepliesAlertThreshold", id:237, parent:236, min:1, max:20},
 			mergeConsecutive:	 		{type:"boolean", value:true, labelKey:"params.mergeConsecutive", id:225, icon:"merge", example:"merge_messages.gif", storage:{vnew:{date:1693519200000, id:'params_chatmerge'}}},
 			mergeConsecutive_maxSize:	{type:"number", value:100, labelKey:"params.mergeConsecutive_maxSize", id:226, parent:225, min:1, max:500},
 			mergeConsecutive_maxSizeTotal:{type:"number", value:1000, labelKey:"params.mergeConsecutive_maxSizeTotal", id:227, parent:225, min:10, max:2000},
@@ -268,15 +271,14 @@ export const storeParams = defineStore('params', {
 			//Loading parameters from local storage and pushing them to current store
 			const props = DataStore.getAll();
 			for (const cat in this.$state) {
-				const c = cat as TwitchatDataTypes.ParameterCategory;
+				const c = cat as keyof IParamsState;
 				for (const key in props) {
-					const k = key.replace(/^p:/gi, "");
+					const k = key.replace(/^p:/gi, "") as TwitchatDataTypes.ParameterCategory;
 					if(props[key] == null) continue;
-					const t = typeof this.$state[c];
-					if(t == "object" && /^p:/gi.test(key) && k in this.$state[c]) {
+					const stateValue = this.$state[c];
+					if(stateValue !== null && typeof stateValue === "object" && /^p:/gi.test(key) && k in stateValue) {
 						const v:string = props[key] as string;
-						/* eslint-disable-next-line */
-						const pointer = this.$state[c][k as TwitchatDataTypes.ParameterCategory];
+						const pointer = (stateValue as Record<string, any>)[k] as TwitchatDataTypes.ParameterData<unknown>; // Lazy typing...
 						if(typeof pointer.value === 'boolean') {
 							pointer.value = (v == "true");
 						}else
@@ -337,9 +339,9 @@ export const storeParams = defineStore('params', {
 		updateParams() {
 			for (const cat in this.$state) {
 				const c = cat as TwitchatDataTypes.ParameterCategory;
-				for (const key in this[c]) {
-					/* eslint-disable-next-line */
-					const v = this[c][key as TwitchatDataTypes.ParameterCategory].value;
+				const categoryData = this[c] as Record<string, any>; // Lazy typing...
+				for (const key in categoryData) {
+					const v = categoryData[key].value;
 					DataStore.set("p:"+key, v);
 					if(key=="bttvEmotes") {
 						if(v === true && this.appearance.showEmotes.value === true) {

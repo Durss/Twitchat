@@ -159,7 +159,7 @@ export const storeMain = defineStore("main", {
 			for (let i = 0; i < pointers.length; i++) {
 				const values = pointers[i];
 				for (const key in values) {
-					const p = values[key] as TwitchatDataTypes.ParameterData<unknown>;
+					const p = values[key as keyof typeof values] as TwitchatDataTypes.ParameterData<unknown>;
 					if(uniqueIdsCheck[p.id as number] === true) {
 						StoreProxy.common.alert("Duplicate parameter id (" + p.id + ") found for parameter \"" + key + "\"");
 						break;

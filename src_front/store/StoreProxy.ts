@@ -1112,11 +1112,11 @@ export interface IParamsState {
 	/**
 	 * Chat features parameters
 	 */
-	features:{[key:string]:TwitchatDataTypes.ParameterData<unknown>};
+	features:TwitchatDataTypes.IParameterCategory["features"]
 	/**
 	 * Chat appaearance parameters
 	 */
-	appearance:{[key:string]:TwitchatDataTypes.ParameterData<unknown>};
+	appearance:TwitchatDataTypes.IParameterCategory["appearance"];
 	/**
 	 * Chat columns definitions
 	 */

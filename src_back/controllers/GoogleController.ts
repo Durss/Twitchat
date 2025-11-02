@@ -13,6 +13,7 @@ import AbstractController from "./AbstractController.js";
 export default class GoogleController extends AbstractController {
 
 	private _translater!:translate_v2.Translate;
+	private _translationCache:Record<string, string> = {};
 	private _userTotranslations:{[key:string]:{date:number, count:number}} = {}
 	private _allowedLanguages:string[] = ["af", "sq", "am", "ar", "hy", "as", "ay", "az", "bm", "eu", "be", "bn", "bho", "bs", "bg", "ca", "ceb", "zh-CN", "zh", "zh-TW", "co", "hr", "cs", "da", "dv", "doi", "nl", "en", "eo", "et", "ee", "fil", "fi", "fr", "fy", "gl", "ka", "de", "el", "gn", "gu", "ht", "ha", "haw", "he", "iw", "hi", "hmn", "hu", "is", "ig", "ilo", "id", "ga", "it", "ja", "jv", "jw", "kn", "kk", "km", "rw", "gom", "ko", "kri", "ku", "ckb", "ky", "lo", "la", "lv", "ln", "lt", "lg", "lb", "mk", "mai", "mg", "ms", "ml", "mt", "mi", "mr", "mni-Mtei", "lus", "mn", "my", "ne", "no", "ny", "or", "om", "ps", "fa", "pl", "pt", "pa", "qu", "ro", "ru", "sm", "sa", "gd", "nso", "sr", "st", "sn", "sd", "si", "sk", "sl", "so", "es", "su", "sw", "sv", "tl", "tg", "ta", "tt", "te", "th", "ti", "ts", "tr", "tk", "ak", "uk", "ur", "ug", "uz", "vi", "cy", "xh", "yi", "yo", "zu"];
 	private _allowedLanguagesMap:{[key:string]:boolean} = {};
@@ -240,11 +241,20 @@ export default class GoogleController extends AbstractController {
 		//Check if user is premium
 		if(!await this.premiumGuard(request, response)) return;
 
+		const params = request.query as {text:string, langSource:string, langTarget:string};
 		const currentDate = new Date();
 		currentDate.setHours(0, 0, 0, 0);
 		const dateTs = currentDate.getTime();
 
 		const userInfo = (await TwitchUtils.getUserFromToken(request.headers.authorization || ""))!;
+
+		if(this._translationCache[params.text]) {
+			const translation = this._translationCache[params.text];
+			Logger.info("Load translation from cache:", translation);
+			response.header('Content-Type', 'application/json');
+			response.status(200);
+			response.send(JSON.stringify({success:true, data:{translation}}));
+		}
 
 		if(!this._userTotranslations[userInfo.user_id]) {
 			this._userTotranslations[userInfo.user_id] = {
@@ -262,7 +272,6 @@ export default class GoogleController extends AbstractController {
 			return;
 		}
 
-		const params:any = request.query;
 		if(params.langSource == params.langTarget) {
 			Logger.info("Translation impossible because of same language target and source:", params.langSource);
 			response.header('Content-Type', 'application/json');
@@ -308,14 +317,20 @@ export default class GoogleController extends AbstractController {
 					response.status(200);
 					response.send(JSON.stringify({success:true, data:{translation}}));
 				}
+				this._translationCache[params.text] = translation;
+				setTimeout(() => {
+					delete this._translationCache[params.text];
+				}, 30 * 24 * 60 * 60 * 1000); //Cache for 30 days
 			}else{
 				Logger.error("Translate failed");
 				response.header('Content-Type', 'application/json');
 				response.status(204);
 				response.send(JSON.stringify({success:true, data:{translation:""}}));
+				this._translationCache[params.text] = "";
 			}
 
 		}catch(error) {
+			this._translationCache[params.text] = "";
 			Logger.error("Translate failed for language "+params.langSource);
 			console.log(error);
 			response.header('Content-Type', 'application/json');

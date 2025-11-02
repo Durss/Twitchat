@@ -1259,20 +1259,33 @@ const UserDataSchema = {
 		"p:mergeConsecutive_maxSize": {type:"integer", minimum:1, maximum:500},
 		"p:mergeConsecutive_maxSizeTotal": {type:"integer", minimum:10, maximum:2000},
 		"p:mergeConsecutive_minDuration": {type:"integer", minimum:0, maximum:3600},
-		"p:autoTranslateFirst": {type:"boolean"},
 		"p:antiHateRaid": {type:"boolean"},
 		"p:antiHateRaidDeleteMessage": {type:"boolean"},
 		"p:antiHateRaidEmergency": {type:"boolean"},
 		"p:multiChatAvatar": {type:"boolean"},
 		"p:multiChatColor": {type:"boolean"},
 		"p:sharedChatHide": {type:"boolean"},
-		"p:autoTranslateFirstLang":{
+		"p:autoTranslate": {type:"boolean"},
+		"p:autoTranslateFirst": {type:"boolean"},
+		"p:autoTranslateLang":{
 			type:"array",
 			minItems:0,
 			maxItems:1,
 			items:{type:"string", maxLength:3},
 		},
-		"p:autoTranslateFirstSpoken":{
+		"p:autoTranslateSpoken":{
+			type:"array",
+			minItems:0,
+			maxItems:60,
+			items:{type:"string", maxLength:3},
+		},
+		"p:autoTranslateFirstLang":{ //Delete after some time, updated to "autoTranslateLang"
+			type:"array",
+			minItems:0,
+			maxItems:1,
+			items:{type:"string", maxLength:3},
+		},
+		"p:autoTranslateFirstSpoken":{ //Delete after some time, updated to "autoTranslateSpoken"
 			type:"array",
 			minItems:0,
 			maxItems:60,

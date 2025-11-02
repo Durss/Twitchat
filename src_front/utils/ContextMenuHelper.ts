@@ -562,8 +562,8 @@ export default class ContextMenuHelper {
 			if(!res) item.customClass = "no_overlay";//Dirty way of knowing if overlay exists on the click handler of the item
 		});
 
-		const spokenLanguages = StoreProxy.params.features.autoTranslateFirstSpoken.value as string[] || [];
-		const langTarget = (StoreProxy.params.features.autoTranslateFirstLang.value as string[] || [])[0];
+		const spokenLanguages = StoreProxy.params.features.autoTranslateSpoken.value as string[] || [];
+		const langTarget = (StoreProxy.params.features.autoTranslateLang.value as string[] || [])[0];
 		// if(StoreProxy.auth.isRealPremium
 		if(StoreProxy.auth.isPremium
 		&& langTarget
@@ -580,7 +580,7 @@ export default class ContextMenuHelper {
 					//Also force english if first returned lang is Affrikaan and second is english.
 					//It detects most inglish messages as Afrikaan.
 					const lang = (langs[0][1] < .6 || (langs[0][0] == "afr" && langs[1][0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
-					const langTarget = (StoreProxy.params.features.autoTranslateFirstLang.value as string[])[0];
+					const langTarget = (StoreProxy.params.features.autoTranslateLang.value as string[])[0];
 					if(lang.iso1 != langTarget && lang && !spokenLanguages.includes(lang.iso1)) {
 						options.push({
 									label: t("chat.context_menu.translate"),
@@ -766,7 +766,7 @@ export default class ContextMenuHelper {
 	 * Translates a message
 	 */
 	private translate(message:TwitchatDataTypes.TranslatableMessage, langSource:typeof TranslatableLanguagesMap[keyof typeof TranslatableLanguagesMap], text:string):void {
-		const langTarget = (StoreProxy.params.features.autoTranslateFirstLang.value as string[])[0];
+		const langTarget = (StoreProxy.params.features.autoTranslateLang.value as string[])[0];
 		ApiHelper.call("google/translate", "GET", {langSource:langSource.iso1, langTarget, text:text}, false)
 		.then(res=>{
 			if(res.status == 401) {
