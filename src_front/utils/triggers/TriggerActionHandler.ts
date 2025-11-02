@@ -4645,25 +4645,27 @@ export default class TriggerActionHandler {
 				const expectation = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, c.value.toString(), subEvent);
 				let valueNum:number = Utils.evalMath(value) ?? NaN;
 				let expectationNum:number = Utils.evalMath(expectation) ?? NaN;
+				const v1 = c.caseSensitive === true? value : value.toLowerCase();
+				const v2 = c.caseSensitive === true? expectation : expectation.toLowerCase();
 				
 				switch(c.operator) {
 					case "<": localRes = valueNum < expectationNum; break;
 					case "<=": localRes = valueNum <= expectationNum; break;
 					case ">": localRes = valueNum > expectationNum; break;
 					case ">=": localRes = valueNum >= expectationNum; break;
-					case "=": localRes = value == expectation || value.toLowerCase() == expectation.toLowerCase()
+					case "=": localRes = v1 == v2
 							|| (value == "1" && expectation == "true")
 							|| (value == "true" && expectation == "1")
 							|| (value == "0" && expectation == "false")
 							|| (value == "false" && expectation == "0");
 							break;
-					case "!=": localRes = value.toLowerCase() != expectation.toLowerCase(); break;
-					case "contains": localRes = value.toLowerCase().indexOf(expectation.toLowerCase()) > -1; break;
-					case "not_contains": localRes = value.toLowerCase().indexOf(expectation.toLowerCase()) == -1; break;
-					case "ends_with": localRes = value.toLowerCase().endsWith(expectation.toLowerCase()); break;
-					case "not_ends_with": localRes = !value.toLowerCase().endsWith(expectation.toLowerCase()); break;
-					case "starts_with": localRes = value.toLowerCase().startsWith(expectation.toLowerCase()); break;
-					case "not_starts_with": localRes = !value.toLowerCase().startsWith(expectation.toLowerCase()); break;
+					case "!=": localRes = v1 != v2; break;
+					case "contains": localRes = v1.indexOf(v2) > -1; break;
+					case "not_contains": localRes = v1.indexOf(v2) == -1; break;
+					case "ends_with": localRes = v1.endsWith(v2); break;
+					case "not_ends_with": localRes = !v1.endsWith(v2); break;
+					case "starts_with": localRes = v1.startsWith(v2); break;
+					case "not_starts_with": localRes = !v1.startsWith(v2); break;
 					case "empty": localRes = value == null || value == undefined || value.toString().trim().length === 0; break;
 					case "not_empty": localRes = value != null && value != undefined && value.toString().trim().length > 0; break;
 					case "longer_than": localRes = value == null || value == undefined? false : value.toString().trim().length > expectationNum; break;

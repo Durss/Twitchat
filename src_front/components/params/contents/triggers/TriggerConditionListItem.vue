@@ -12,19 +12,26 @@
 			<p>=</p>
 		</div>
 
-		<div class="valueHolder" :class="{isCustomValue:forceCustomValue}" v-if="needsValue">
+		<div class="valueHolder" :class="{isCustomValue:forceCustomValue, showCaseSensitiveToggle:showCaseSensitiveToggle}" v-if="needsValue">
 			<TTButton class="clearCustomBt" v-if="forceCustomValue" @click="forceCustomValue = false" icon="cross" secondary small></TTButton>
-			<ParamItem @mousedown.capture.stop class="value" v-if="needsValue && forceCustomValue !== true && param_value_list.listValues" noBackground :paramData="param_value_list" v-model="condition.value" :key="'vl_'+condition.id" @change="onSelectFixedValue()" />
-			<ParamItem @mousedown.capture.stop class="value" v-else-if="needsValue" noBackground :paramData="param_value" v-model="condition.value" :key="'v_'+condition.id" placeholdersAsPopout />
+			<TTButton v-if="showCaseSensitiveToggle"
+				class="casebt"
+				@click="condition.caseSensitive = !condition.caseSensitive"
+				:icon="condition.caseSensitive === true? 'case_sensitive': 'case_insensitive'"
+				:secondary="condition.caseSensitive === true"
+				v-tooltip="$t('triggers.condition.'+(condition.caseSensitive === true? 'param_caseSensitive' : 'param_caseInsensitive'))"
+				noBounce />
+			<ParamItem class="value" v-if="needsValue && forceCustomValue !== true && param_value_list.listValues" noBackground :paramData="param_value_list" v-model="condition.value" :key="'vl_'+condition.id" @change="onSelectFixedValue()" />
+			<ParamItem class="value" v-else-if="needsValue" noBackground :paramData="param_value" v-model="condition.value" :key="'v_'+condition.id" placeholdersAsPopout />
 		</div>
-
+		
 		<div class="ctas">
 			<TTButton small icon="group"
-				@click="addItem()"
-				v-tooltip="$t('triggers.condition.group_tt')"
-				v-if="parentCondition.conditions.length > 1" />
+			@click="addItem()"
+			v-tooltip="$t('triggers.condition.group_tt')"
+			v-if="parentCondition.conditions.length > 1" />
 			<TTButton alert small icon="cross"
-				@click="deleteItem()" />
+			@click="deleteItem()" />
 		</div>
 	</div>
 </template>
@@ -76,8 +83,14 @@ class TriggerConditionListItem extends Vue {
 		return !noValueOperators.includes(this.param_operator.value);
 	}
 
+	public get showCaseSensitiveToggle():boolean {
+		const csOperators:TriggerCondition["operator"][] = ["=", "!=", "contains", "not_contains", "starts_with", "ends_with", "not_starts_with", "not_ends_with"];
+		return csOperators.includes(this.param_operator.value);
+	}
+
 	public beforeMount(): void {
 		if(this.condition.placeholder) this.condition.placeholder = this.condition.placeholder.toUpperCase();
+		if(this.condition.caseSensitive == undefined) this.condition.caseSensitive = false;
 
 		this.buildSourceList();
 
@@ -155,13 +168,13 @@ class TriggerConditionListItem extends Vue {
 			})
 		}
 
-		if(this.$store.auth.isAdmin && this.$store.main.devmode) {
-			//Add custom placeholder for devs
-			placeholderListLocal.push({
-				label: "Custom",
-				value:this.CUSTOM,
-			});
-		}
+		// if(this.$store.auth.isAdmin && this.$store.main.devmode) {
+		// 	//Add custom placeholder for devs
+		// 	placeholderListLocal.push({
+		// 		label: "Custom",
+		// 		value:this.CUSTOM,
+		// 	});
+		// }
 
 		//Fail safe, if the placeholder isn't found on the list, push it to avoid reseting it to another
 		//random one in case it's been deleted or I fuck up something in the futur
@@ -217,9 +230,10 @@ class TriggerConditionListItem extends Vue {
 			if(this.condition.value && !item) {
 				this.forceCustomValue = true;
 			}
-
+			
 			if(item) this.condition.value = item.value as string;
 		}else{
+			this.forceCustomValue = false;
 			delete this.param_value_list.listValues;
 		}
 	}
@@ -325,21 +339,44 @@ export default toNative(TriggerConditionListItem);
 		flex-direction: row;
 		.value {
 			width: 100%;
+			:deep(.popoutMode) {
+				height: 100%;
+			}
+			:deep(.content) {
+				height: 100%;
+				.holder,
+				.inputHolder {
+					height: 100%;
+					input {
+						height: 100%;
+					}
+				}
+			}
 		}
 		.clearCustomBt {
+			height: 100%;
 			border-top-right-radius: 0;
 			border-bottom-right-radius: 0;
 		}
+		.casebt {
+			z-index: 1;
+			width: 1.5em;
+			margin-right: -1.5em;
+			border-top-right-radius: 0;
+			border-bottom-right-radius: 0;
+			border-right: 1px solid var(--color-text-fade);
+		}
+		&.showCaseSensitiveToggle {
+			:deep(input) {
+				padding-left: 1.6em;
+			}
+			:deep(.vs__selected-options) {
+				padding-left: 1em;
+			}
+		}
 		&.isCustomValue{
 			.value {
-				:deep(.popoutMode) {
-					height: 100%;
-				}
 				:deep(.content) {
-					height: 100%;
-					.holder {
-						height: 100%;
-					}
 					.inputHolder, input {
 						height: 100%;
 						border-top-left-radius: 0;

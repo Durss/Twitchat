@@ -283,6 +283,11 @@ export interface TriggerCondition {
 	operator:TriggerConditionOperator;
 	operatorVal?:string;
 	value:string;
+	/**
+	 * Should text comparison be case sensitive?
+	 * Defaults to "false" for backward compatibility
+	 */
+	caseSensitive?:boolean;
 }
 
 export const TriggerConditionOperatorList = [

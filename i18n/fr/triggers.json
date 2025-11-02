@@ -101,6 +101,8 @@
 			"add_tt": "Ajouter une condition",
 			"group_tt": "Créer un sous groupe et ajouter une condition",
 			"placeholder_cmd_param": "Paramètre de commande {NAME}",
+			"param_caseSensitive": "Sensible à la casse",
+			"param_caseInsensitive": "Non sensible à la casse",
 			"operators": {
 				">": ">",
 				"<": "<",

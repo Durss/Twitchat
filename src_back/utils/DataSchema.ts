@@ -40,7 +40,6 @@ const UserDataSchema = {
 				id: {type:"string", maxLength:50},
 				type: {const:"group"},
 				operator: {type:"string", maxLength:20},
-				operatorVal: {type:"string", maxLength:500},
 				conditions:{
 					type:"array",
 					minItems:0,
@@ -63,6 +62,7 @@ const UserDataSchema = {
 				placeholder: {type:"string", maxLength:100},
 				operator: {type:"string", maxLength:20},
 				operatorVal: {type:"string", maxLength:500},
+				caseSensitive: {type:"boolean"},
 				value: {
 					anyOf:[
 						{type:"string", maxLength:500},
