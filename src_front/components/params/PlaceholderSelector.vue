@@ -1,7 +1,6 @@
 <template>
 	<component tag="div" :is="popoutMode !== false? 'tooltip' : 'ToggleBlock'" small
-	:title="popoutMode !== false? '' : $t('global.placeholder_selector_title')"
-	v-tooltip="popoutMode !== false? $t('global.placeholder_selector_title') : ''"
+	:title="$t('global.placeholder_selector_title')"
 	:open="false"
 	:inlinePositioning='false'
 	:maxWidth="600"

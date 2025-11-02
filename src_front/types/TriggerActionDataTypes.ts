@@ -305,8 +305,10 @@ export const TriggerConditionOperatorList = [
 	"modulo",
 	"is_boolean",
 	"is_number",
+	"is_float",
 	"is_not_boolean",
-	"is_not_number"] as const;
+	"is_not_number",
+	"is_not_float"] as const;
 export type TriggerConditionOperator = typeof TriggerConditionOperatorList[keyof typeof TriggerConditionOperatorList];
 
 export interface TriggerCooldownData {

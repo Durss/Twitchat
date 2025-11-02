@@ -4671,7 +4671,9 @@ export default class TriggerActionHandler {
 					case "is_boolean": localRes = typeof value === "boolean" || value == "true" || value == "false"; break;
 					case "is_not_boolean": localRes = !(typeof value === "boolean" || value == "true" || value == "false"); break;
 					case "is_number": localRes = !isNaN(valueNum); break;
+					case "is_float": localRes = !isNaN(valueNum) && Math.floor(valueNum) !== valueNum; break;
 					case "is_not_number": localRes = isNaN(valueNum); break;
+					case "is_not_float": localRes = isNaN(valueNum) || Math.floor(valueNum) === valueNum; break;
 					case "modulo": localRes = (valueNum % parseFloat(c.operatorVal || "0")) == expectationNum; break;
 					default: localRes = false;
 				}

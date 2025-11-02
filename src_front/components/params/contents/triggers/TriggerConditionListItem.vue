@@ -14,8 +14,8 @@
 
 		<div class="valueHolder" :class="{isCustomValue:forceCustomValue}" v-if="needsValue">
 			<TTButton class="clearCustomBt" v-if="forceCustomValue" @click="forceCustomValue = false" icon="cross" secondary small></TTButton>
-			<ParamItem class="value" v-if="needsValue && forceCustomValue !== true && param_value_list.listValues" noBackground :paramData="param_value_list" v-model="condition.value" :key="'vl_'+condition.id" @change="onSelectFixedValue()" />
-			<ParamItem class="value" v-else-if="needsValue" noBackground :paramData="param_value" v-model="condition.value" :key="'v_'+condition.id" placeholdersAsPopout />
+			<ParamItem @mousedown.capture.stop class="value" v-if="needsValue && forceCustomValue !== true && param_value_list.listValues" noBackground :paramData="param_value_list" v-model="condition.value" :key="'vl_'+condition.id" @change="onSelectFixedValue()" />
+			<ParamItem @mousedown.capture.stop class="value" v-else-if="needsValue" noBackground :paramData="param_value" v-model="condition.value" :key="'v_'+condition.id" placeholdersAsPopout />
 		</div>
 
 		<div class="ctas">
@@ -72,7 +72,7 @@ class TriggerConditionListItem extends Vue {
 	private CUSTOM:string = "@___CUSTOM_VALUE___@";
 
 	public get needsValue():boolean {
-		const noValueOperators:TriggerCondition["operator"][] = ["empty", "not_empty", "is_boolean", "is_not_boolean", "is_number", "is_not_number"];
+		const noValueOperators:TriggerCondition["operator"][] = ["empty", "not_empty", "is_boolean", "is_not_boolean", "is_number", "is_not_number", "is_float", "is_not_float"];
 		return !noValueOperators.includes(this.param_operator.value);
 	}
 
@@ -288,10 +288,9 @@ export default toNative(TriggerConditionListItem);
 	gap: 2px;
 	&:hover, &:active, &:focus-within {
 		.dragIcon {
-			// width: 15px;
+			flex-shrink: 0;
 			height: 1.5em;
-			width: auto;
-			vertical-align: middle;
+			width: 1em;
 			opacity: 1;
 			margin-right: 0;
 		}
@@ -301,7 +300,8 @@ export default toNative(TriggerConditionListItem);
 		opacity: 0;
 		transition: all .1s;
 		align-self: center;
-		margin-right: -5px;
+		margin-right: -.5em;
+		padding: .4em .25em;
 		cursor: grab;
 		&:active {
 			cursor: grabbing;
@@ -320,7 +320,7 @@ export default toNative(TriggerConditionListItem);
 	}
 
 	.valueHolder {
-		min-width: 100px;
+		min-width: 50%;
 		display: flex;
 		flex-direction: row;
 		.value {

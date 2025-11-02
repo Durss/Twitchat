@@ -743,7 +743,7 @@ export default toNative(TriggerActionList);
 					flex-direction: row;
 					justify-content: stretch;
 					align-items: stretch;
-					.v-select {
+					.listField {
 						flex: 1;
 					}
 					.vs__dropdown-toggle {

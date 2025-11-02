@@ -123,8 +123,10 @@
 				"modulo": "%",
 				"is_boolean": "is boolean",
 				"is_number": "is number",
+				"is_float": "is float",
 				"is_not_boolean": "is not boolean",
-				"is_not_number": "is not number"
+				"is_not_number": "is not number",
+				"is_not_float": "is not float"
 			},
 			"custom_value": "Custom value..."
 		},

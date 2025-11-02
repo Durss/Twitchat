@@ -10,6 +10,7 @@
 				v-model="c.conditions"
 				:animation="250"
 				:forceFallback="false"
+				:handle="'.dragIcon'"
 				group="triggerCondition">
 					<div class="item" v-for="element in c.conditions" :key="element.id">
 						<TriggerConditionListGroupItem
@@ -124,7 +125,7 @@ export default toNative(TriggerConditionListGroupItem);
 		overflow: visible;
 		flex-grow: 1;
 		position: relative;
-		padding-left: 1.25em;
+		padding-left: .5em;
 		border-left: 1px solid var(--color-text);
 		border-top-left-radius: 10px;
 		border-bottom-left-radius: 10px;
@@ -166,14 +167,13 @@ export default toNative(TriggerConditionListGroupItem);
 		}
 
 		.item {
-
--webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Chrome/Safari/Opera */
-     -khtml-user-select: none; /* Konqueror */
-       -moz-user-select: none; /* Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently
-                                  not supported by any browser */
+			-webkit-touch-callout: none; /* iOS Safari */
+			-webkit-user-select: none; /* Chrome/Safari/Opera */
+			-khtml-user-select: none; /* Konqueror */
+			-moz-user-select: none; /* Firefox */
+			-ms-user-select: none; /* Internet Explorer/Edge */
+			user-select: none; /* Non-prefixed version, currently
+									not supported by any browser */
 		}
 	}
 }

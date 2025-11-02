@@ -123,8 +123,10 @@
 				"modulo": "%",
 				"is_boolean": "est un booléen",
 				"is_number": "est un nombre",
+				"is_float": "est un nombre à virgule",
 				"is_not_boolean": "n'est pas un booléen",
-				"is_not_number": "n'est pas un nombre"
+				"is_not_number": "n'est pas un nombre",
+				"is_not_float": "n'est pas un nombre à virgule"
 			},
 			"custom_value": "Valeur personnalisée..."
 		},
