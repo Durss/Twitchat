@@ -5,6 +5,7 @@
 		<AutoCompleteForm class="card-item category"
 		:title="$t('stream.form_stream_category')"
 		:maxItems="1"
+		:maxAutocompleteItems="50"
 		@search="searchCategory" v-slot="{ item }"
 		v-model="localCategories"
 		idKey="id">
@@ -129,11 +130,7 @@ class StreamInfoSubForm extends Vue {
 	 * @param callback 
 	 */
 	public async searchCategory(search:string, callback:(data:unknown[])=>{}):Promise<void> {
-		const res = await TwitchUtils.searchCategory(search);
-		res.sort((a, b) => {
-			return a.name > b.name ? 1 : -1;
-		});
-		callback(res);
+		callback( await TwitchUtils.searchCategory(search) );
 	}
 
 	/**
