@@ -1328,7 +1328,7 @@ export default class TriggerActionHandler {
 		let passesCondition = true;
 		//If trigger has conditions, check if the condition passes or not
 		if(trigger.conditions && trigger.conditions.conditions.length > 0) {
-			log.entries.push({date:Date.now(), type:"message", value:"Checking if conditions are fulfilled or not"});
+			log.entries.push({date:Date.now(), type:"message", value:"Checking if conditions are fulfilled or not (test mode? "+(testMode? "yes":"no")+")"});
 			try {
 				if(!testMode
 				&& !await this.checkConditions(trigger.conditions!.operator, [trigger.conditions!], trigger, message, log, dynamicPlaceholders, subEvent)) {
@@ -2178,6 +2178,12 @@ export default class TriggerActionHandler {
 								logStep.messages.push({date:Date.now(), value:"[VOICEMOD] play sound with name \""+voiceName+"\""});
 								VoicemodWebSocket.instance.playSound(voiceName);
 							}
+							break;
+						}
+
+						case "soundOff": {
+							logStep.messages.push({date:Date.now(), value:"[VOICEMOD] Stop currently playing sound"});
+							VoicemodWebSocket.instance.stopSound();
 							break;
 						}
 

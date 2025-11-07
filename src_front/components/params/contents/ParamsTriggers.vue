@@ -434,7 +434,7 @@ class ParamsTriggers extends Vue implements IParameterContent {
 					//Slash commands simulation
 					if(trigger.type == TriggerTypes.SLASH_COMMAND) {
 						const typedMessage = m as TwitchatDataTypes.MessageChatData;
-						TriggerActionHandler.instance.executeTrigger(trigger, typedMessage, false, trigger.chatCommand);
+						TriggerActionHandler.instance.executeTrigger(trigger, typedMessage, true, trigger.chatCommand);
 					}else
 
 					//Chat message simulation

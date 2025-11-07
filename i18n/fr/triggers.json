@@ -429,6 +429,7 @@
 				"param_action": "Action",
 				"param_action_voice": "Activer un filtre",
 				"param_action_sound": "Jouer un son",
+				"param_action_soundOff": "Arrêter le son en cours",
 				"param_action_beepOn": "Activer le beep",
 				"param_action_beepOff": "Désactiver le beep",
 				"param_action_voiceChangerOn": "Activer la changement de voix",
