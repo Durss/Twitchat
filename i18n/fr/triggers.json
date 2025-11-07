@@ -1825,6 +1825,11 @@
 			"OBS_DISCONNECTED":{
 				"label": "OBS déconnecté",
 				"description": "Actions à exécuter lorsque Twitchat se déconnecte d'OBS websocket"
+			},
+			"MANY_REPLIES":{
+				"label": "Un message a reçu de nombreuses réponses",
+				"description": "Actions à exécuter lorsqu'un message reçoit de nombreuses réponses",
+				"disabled_reason": "Vous devez d'abord activer cette fonctionnalité dans la section @:params.categories.features"
 			}
 		},
 		"musicEvents": {

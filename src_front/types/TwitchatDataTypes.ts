@@ -2784,12 +2784,13 @@ export namespace TwitchatDataTypes {
 		MUSIC_STOP:"music_stop",
 		STREAMLABS:"streamlabs",
 		SUPER_CHAT:"super_chat",
-		MUSIC_START:"music_start",
-		TWITCHAT_AD:"twitchat_ad",
-		YOUTUBE_BAN:"youtube_ban",
 		TIKTOK_SUB:"tiktok_sub",
 		TIKTOK_GIFT:"tiktok_gift",
 		TIKTOK_LIKE:"tiktok_like",
+		MUSIC_START:"music_start",
+		TWITCHAT_AD:"twitchat_ad",
+		YOUTUBE_BAN:"youtube_ban",
+		MANY_REPLIES:"many_replies",
 		TWITCH_COMBO:"twitch_combo",
 		TIKTOK_SHARE:"tiktok_share",
 		VALUE_UPDATE:"value_update",
@@ -2921,6 +2922,7 @@ export namespace TwitchatDataTypes {
 		tiktok_like:true,
 		tiktok_share:true,
 		twitch_combo:true,
+		many_replies:true,
 		super_sticker:true,
 		value_update:false,
 		unban_request:true,
@@ -3148,6 +3150,7 @@ export namespace TwitchatDataTypes {
 									| MessageStreamSocketActionData
 									| MessageTwitchComboData
 									| MessageObsWsConnectStateChangeData
+									| MessageManyRepliesData
 	;
 
 	/**
@@ -6449,5 +6452,17 @@ export namespace TwitchatDataTypes {
 		 * New connection state
 		 */
 		state: "connected" | "disconnected";
+	}
+
+	/**
+	 * Called when OBS Websocket connection state changes
+	 */
+	export interface MessageManyRepliesData extends AbstractTwitchatMessage {
+		type: "many_replies";
+		/**
+		 * New connection state
+		 */
+		message: MessageChatData;
+
 	}
 }

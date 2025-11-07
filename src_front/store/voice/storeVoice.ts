@@ -45,7 +45,11 @@ export const storeVoice = defineStore('voice', {
 			//Init Voice control actions
 			const voiceActions = DataStore.get("voiceActions");
 			if(voiceActions) {
-				this.voiceActions = JSON.parse(voiceActions);
+				try {
+					this.voiceActions = (JSON.parse(voiceActions) as VoiceAction[]).filter(va=> va.id && va.sentences);
+				}catch(e) {
+					this.voiceActions = [];
+				}
 			}
 
 			//Init Voice control language

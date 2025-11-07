@@ -13,6 +13,7 @@ import * as tmi from "tmi.js";
 import MessengerClientEvent from "./MessengerClientEvent";
 import * as Sentry from "@sentry/vue";
 import Logger from '@/utils/Logger';
+import Database from '@/store/Database';
 
 /**
 * Created : 25/09/2022
@@ -761,14 +762,16 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		if(tags["reply-parent-msg-id"]) {
 			const messages = StoreProxy.chat.messages;
 			//Search for original message the user answered to
-			for (let i = messages.length-1; i >= 0; i--) {
+			for (let i = messages.length-1; i >= Math.max(0, messages.length-1000); i--) {
 				let m = messages[i];
 				if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
 				if(m.id === tags["reply-parent-msg-id"]) {
 					if(!m.answers) m.answers = [];
 					m.answers.push( data );
+					StoreProxy.chat.notifyManyReplies(m);
 					data.answersTo = m.answersTo || m;
 					data.directlyAnswersTo = m
+					Database.instance.updateMessage(m);
 					break;
 				}
 			}

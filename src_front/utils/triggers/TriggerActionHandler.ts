@@ -892,6 +892,12 @@ export default class TriggerActionHandler {
 					return;
 				}break;
 			}
+
+			case TwitchatDataTypes.TwitchatMessageType.MANY_REPLIES: {
+				if(await this.executeTriggersByType(TriggerTypes.MANY_REPLIES, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
 		}
 	}
 

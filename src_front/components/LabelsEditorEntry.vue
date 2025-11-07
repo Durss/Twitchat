@@ -137,7 +137,7 @@ class LabelsEditorEntry extends Vue {
 
 	public mounted():void {
 		if(this.path.join(".") == (this.pathToSelect || []).join(".")) {
-			(this.$el as HTMLElement).scrollIntoView();
+			(this.$el as HTMLElement).scrollIntoView({behavior:"auto", block:"center"});
 			gsap.fromTo(this.$el, {scaleY:1.5, filter:"brightness(4)"}, {duration:.5, scaleY:1, ease:"sine.in", filter:"brightness(1)", clearProps:"filter,scaleY", delay:.25, immediateRender:false});
 		}
 	}

@@ -1267,6 +1267,8 @@ const UserDataSchema = {
 		"p:sharedChatHide": {type:"boolean"},
 		"p:autoTranslate": {type:"boolean"},
 		"p:autoTranslateFirst": {type:"boolean"},
+		"p:manyRepliesAlert": {type:"boolean"},
+		"p:manyRepliesAlertThreshold": {type:"integer", minimum:1, maximum:20},
 		"p:autoTranslateLang":{
 			type:"array",
 			minItems:0,

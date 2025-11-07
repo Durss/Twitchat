@@ -841,7 +841,7 @@ export interface TriggerCustomUsernameData extends TriggerActionData{
 	customUsernameUserSource:string;
 }
 
-export const TriggerActionVoicemodDataActionList = ["voice", "sound", "beepOn", "beepOff", "hearMyselfOn", "hearMyselfOff", "voiceChangerOn", "voiceChangerOff"] as const;
+export const TriggerActionVoicemodDataActionList = ["voice", "sound", "soundOff", "beepOn", "beepOff", "hearMyselfOn", "hearMyselfOff", "voiceChangerOn", "voiceChangerOff"] as const;
 export type TriggerActionVoicemodDataAction = typeof TriggerActionVoicemodDataActionList[number];
 export interface TriggerActionVoicemodData extends TriggerActionData{
 	type:"voicemod";
@@ -1871,6 +1871,7 @@ export const TriggerTypes = {
 	TWITCH_COMBO:"169",
 	OBS_CONNECTED:"170",
 	OBS_DISCONNECTED:"171",
+	MANY_REPLIES:"172",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -2030,6 +2031,15 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
 		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
 		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
+	];
+	
+	map[TriggerTypes.MANY_REPLIES] = [
+		{tag:USER_NAME, descKey:'triggers.placeholders.user', pointer:"message.user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageManyRepliesData, "message"> & {message:SafeMessage}>,
+		{tag:USER_DISPLAY_NAME, descKey:'triggers.placeholders.user_customName', pointer:"message.user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageManyRepliesData, "message"> & {message:SafeMessage}>,
+		{tag:USER_ID, descKey:'triggers.placeholders.user_id', pointer:"message.user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageManyRepliesData, "message"> & {message:SafeMessage}>,
+		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message.message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageManyRepliesData, "message"> & {message:SafeMessage}>,
+		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message.message_chunks", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageManyRepliesData, "message"> & {message:SafeMessage}>,
+		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message.message_html", keepHTML:true, numberParsable:false, isUserID:false} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageManyRepliesData, "message"> & {message:SafeMessage}>,
 	];
 
 	map[TriggerTypes.POWER_UP_MESSAGE] = [...map[TriggerTypes.ANY_MESSAGE]!,
@@ -3091,6 +3101,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"commands", labelKey:"triggers.events.SLASH_COMMAND.label", value:TriggerTypes.SLASH_COMMAND, descriptionKey:"triggers.events.SLASH_COMMAND.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13_7, category:TriggerEventTypeCategories.TWITCHAT, icon:"twitchat", labelKey:"triggers.events.TWITCHAT_STARTED.label", value:TriggerTypes.TWITCHAT_STARTED, descriptionKey:"triggers.events.TWITCHAT_STARTED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TWITCHAT_STARTED},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V13_1, category:TriggerEventTypeCategories.TWITCHAT, icon:"broadcast", labelKey:"triggers.events.WEBSOCKET_TOPIC.label", value:TriggerTypes.WEBSOCKET_TOPIC, descriptionKey:"triggers.events.WEBSOCKET_TOPIC.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.WEBSOCKET_TOPIC},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V16_12, disabledReasonLabelKey:"triggers.events.MANY_REPLIES.disabled_reason", category:TriggerEventTypeCategories.TWITCHAT, icon:"reply_many", labelKey:"triggers.events.MANY_REPLIES.label", value:TriggerTypes.MANY_REPLIES, descriptionKey:"triggers.events.MANY_REPLIES.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MANY_REPLIES},
 
 		{category:TriggerEventTypeCategories.CHAT_REWARDS, icon:"chatCommand", labelKey:"triggers.events.CHAT_COMMAND.label", value:TriggerTypes.CHAT_COMMAND, isCategory:true, descriptionKey:"triggers.events.CHAT_COMMAND.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{category:TriggerEventTypeCategories.CHAT_REWARDS, icon:"whispers", labelKey:"triggers.events.ANY_MESSAGE.label", value:TriggerTypes.ANY_MESSAGE, descriptionKey:"triggers.events.ANY_MESSAGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},

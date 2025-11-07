@@ -9,6 +9,7 @@ import { TwitchChannelModerateV2Scopes, TwitchScopes } from "./TwitchScopes";
 import TwitchUtils from "./TwitchUtils";
 import ApiHelper from "../ApiHelper";
 import MessengerProxy from "@/messaging/MessengerProxy";
+import Database from "@/store/Database";
 
 /**
 * Created : 02/12/2022
@@ -1968,14 +1969,16 @@ export default class EventSub {
 				if(event.reply) {
 					let messageList = StoreProxy.chat.messages;
 					//Search for original message the user answered to
-					for (let i = messageList.length-1; i >= Math.max(0, messageList.length-50); i--) {
+					for (let i = messageList.length-1; i >= Math.max(0, messageList.length-1000); i--) {
 						let m = messageList[i];
 						if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
 						if(m.id === event.reply.parent_message_id) {
-							if(m.answersTo) m = m.answersTo;
 							if(!m.answers) m.answers = [];
 							m.answers.push( message );
-							message.answersTo = m;
+							StoreProxy.chat.notifyManyReplies(m);
+							message.answersTo = m.answersTo || m;
+							message.directlyAnswersTo = m
+							Database.instance.updateMessage(m);
 							break;
 						}
 					}

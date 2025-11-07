@@ -1480,7 +1480,7 @@ export default class TwitchUtils {
 					list.unshift(match[0]);
 				}
 			}
-			return json.data;
+			return list;
 		}
 	}
 

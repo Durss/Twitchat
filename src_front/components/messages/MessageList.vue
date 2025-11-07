@@ -730,6 +730,7 @@ class MessageList extends Vue {
 				return this.config.filters.private_mod_message !== false;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.MANY_REPLIES:
 			case TwitchatDataTypes.TwitchatMessageType.WARN_CHATTER:
 			case TwitchatDataTypes.TwitchatMessageType.WARN_ACKNOWLEDGE:
 			case TwitchatDataTypes.TwitchatMessageType.BLOCKED_TERMS:

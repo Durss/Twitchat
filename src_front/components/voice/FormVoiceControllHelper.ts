@@ -145,7 +145,7 @@ export default class FormVoiceControllHelper {
 		this.voiceInputs.forEach(v=> {
 			if(v.tabIndex == this.tabIndex) {
 				v.focus();
-				v.scrollIntoView({inline:"center"})
+				v.scrollIntoView({behavior:"auto", block:"center"})
 				v.classList.add("voiceFocus");
 			}
 			else v.classList.remove("voiceFocus");

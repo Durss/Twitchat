@@ -26,6 +26,10 @@ declare module '@vue/runtime-core' {
 			// Support for pluralization with values and count
 			(key: string, values: (string|number)[], count: number): string;
 		};
+		/**
+		 * @deprecated Use $t with count parameter instead
+		 * $t("labelKey", count, { ...params })
+		 */
 		$tc: {
 			(key: string, choice?: number): string;
 			(key: string, choice: number, values: Record<string, unknown>): string;

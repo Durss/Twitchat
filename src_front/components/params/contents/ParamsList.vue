@@ -232,7 +232,7 @@ class ParamsList extends Vue implements IParameterContent {
 							const holder = holders[0];
 							if(holder) {
 								const interval = window.setInterval(()=>{
-									holder.scrollIntoView();
+									holder.scrollIntoView({behavior:"auto", block:"center"});
 								},30);
 								window.setTimeout(() => {
 									clearInterval(interval);

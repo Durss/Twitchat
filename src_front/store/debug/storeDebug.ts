@@ -1063,7 +1063,7 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.PINNED: {
-					const pin = await this.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false) ;
+					const pin = await this.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false);
 					const m:TwitchatDataTypes.MessagePinData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
@@ -1081,7 +1081,7 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.UNPINNED: {
-					const pin = await this.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false) ;
+					const pin = await this.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false);
 					const m:TwitchatDataTypes.MessageUnpinData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
@@ -2038,6 +2038,28 @@ export const storeDebug = defineStore('debug', {
 						platform:"twitch",
 						bits:Math.round(Math.random()*100),
 						user:fakeUser,
+					};
+
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.MANY_REPLIES: {
+					const message = await this.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false);
+					message.answers = [
+						await this.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false),
+						await this.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false),
+						await this.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false),
+						await this.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false),
+						await this.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false),
+					];
+					const m:TwitchatDataTypes.MessageManyRepliesData = {
+						id:Utils.getUUID(),
+						type,
+						date:Date.now(),
+						channel_id:StoreProxy.auth.twitch.user.id,
+						platform:"twitch",
+						message
 					};
 
 					data = m;

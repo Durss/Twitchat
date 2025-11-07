@@ -1318,6 +1318,7 @@ export const storeChat = defineStore('chat', {
 								const cmd = message.message.replace(/@[^\s]+\s?/, "").trim().toLowerCase();
 								if(cmd.indexOf("!spoiler") === 0) {
 									message.answersTo.spoiler = true;
+									Database.instance.updateMessage(message.answersTo);
 								}
 							}
 
@@ -1370,13 +1371,17 @@ export const storeChat = defineStore('chat', {
 										if(m.answers) {
 											//Add current message to its answers
 											m.answers.push( message );
+											this.notifyManyReplies(m);
 											message.answersTo = m;
+											Database.instance.updateMessage(m);
 
 										//If the messages answers to a message itself
 										}else if(m.answersTo && m.answersTo.answers) {
 											//answering to another message
 											m.answersTo.answers.push( message );
+											this.notifyManyReplies(m.answersTo);
 											message.answersTo = m.answersTo;
+											Database.instance.updateMessage(m);
 
 										//If message answers to a message that is not part a conversation
 										}else{
@@ -1384,6 +1389,8 @@ export const storeChat = defineStore('chat', {
 											message.answersTo = m;
 											if(!m.answers) m.answers = [];
 											m.answers.push( message );
+											this.notifyManyReplies(m);
+											Database.instance.updateMessage(m);
 										}
 										break;
 									}
@@ -2567,6 +2574,21 @@ export const storeChat = defineStore('chat', {
 			}
 			this.addMessage(message);
 			return message
+		},
+
+		notifyManyReplies(message:TwitchatDataTypes.MessageChatData):void {
+			if(message.answers.length !== StoreProxy.params.features.manyRepliesAlertThreshold.value) return;
+
+			const notif:TwitchatDataTypes.MessageManyRepliesData = {
+				platform:message.platform,
+				channel_id:message.channel_id,
+				date:Date.now(),
+				id:Utils.getUUID(),
+				type:TwitchatDataTypes.TwitchatMessageType.MANY_REPLIES,
+				channelSource:message.channelSource,
+				message,
+			};
+			this.addMessage(notif);
 		},
 
 	} as IChatActions

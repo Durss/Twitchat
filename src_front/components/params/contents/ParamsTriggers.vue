@@ -412,7 +412,6 @@ class ParamsTriggers extends Vue implements IParameterContent {
 					const m = data as TwitchatDataTypes.MessageNoticeData;
 					switch(m.noticeId) {
 						case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE:{
-							console.log("?§.?§?§§?§?", triggerEvent.value == TriggerTypes.EMERGENCY_MODE_START);
 							(m as TwitchatDataTypes.MessageEmergencyModeInfo).enabled = (triggerEvent.value == TriggerTypes.EMERGENCY_MODE_START);
 							break;
 						}

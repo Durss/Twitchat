@@ -24,12 +24,15 @@
 				</template>
 
 				<template #PRODUCT v-if="messageData.eventType == 'merch' && messageData.products">
-					<template v-for="(p, index) in messageData.products" :key="p.id">
-						<a :href="'https://ko-fi.com/s/'+p.id" target="_blank"><Icon name="newtab" />{{ p.name || p.id }}</a>
-						<span class="count" v-if="p.quantity">(x{{ p.quantity }})</span>
-						<span v-if="index == messageData.products.length-2">&nbsp;{{ $t("global.and") }}&nbsp;</span>
-						<span v-else-if="index < messageData.products.length-2 && index > 0">, </span>
-					</template>
+					<strong>{{ $t("chat.kofi.merch_product", { COUNT: messageData.products.length }, messageData.products.length) }}</strong>
+					<i>(
+						<template v-for="(p, index) in messageData.products" :key="p.id">
+							<a :href="'https://ko-fi.com/s/'+p.id" target="_blank"><Icon name="newtab" />🎁</a>
+							<!-- <span class="count" v-if="p.quantity">(x{{ p.quantity }})</span> -->
+							<span v-if="index == messageData.products.length-2">&nbsp;{{ $t("global.and") }}&nbsp;</span>
+							<span v-else-if="index < messageData.products.length-1 && index >= 0">, </span>
+						</template>
+					)</i>
 				</template>
 			</i18n-t>
 			<div class="quote" v-if="(messageData.eventType == 'donation' || messageData.eventType == 'merch') && messageData.message">
@@ -86,7 +89,6 @@ export default toNative(ChatKofiEvent);
 	.messageHolder .icon {
 		height: 1em;
 		vertical-align: middle;
-		margin-right: .25em;
 	}
 }
 </style>

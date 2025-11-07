@@ -7,6 +7,7 @@
 			<Button small @click="simulateEvent($event, 'ad_break_approaching')" icon="ad">Commercial approach</Button> -->
 			<Button small @click="simulateCommercialSequence()" icon="ad">Commercial sequence</Button>
 			<Button small @click="simulateCustomMessage()" icon="edit">Custom message</Button>
+			<Button small @click="simulateEvent($event, 'many_replies')" icon="reply">Many replies</Button>
 			<Button small @click="simulateEvent($event, 'message', 'clip')" icon="clip">Clip link</Button>
 			<Button small @click="simulateEvent($event, 'clip_pending_publication')" icon="clip">Clip creation</Button>
 			<Button small @click="simulateEvent($event, 'twitchat_ad', 'discord')" icon="whispers">Discord</Button>
@@ -262,7 +263,14 @@ class DevmodeMenu extends Vue {
 				case "kofi_donation":			(message as TwitchatDataTypes.KofiDonationData).eventType = "donation"; break;
 				case "kofi_merch": {
 					(message as TwitchatDataTypes.KofiMerchData).eventType = "merch";
-					(message as TwitchatDataTypes.KofiMerchData).products = [{name:"T-shirt", quantity:1, id:"123456"}]; break;
+					(message as TwitchatDataTypes.KofiMerchData).products = [{name:"T-shirt", quantity:1, id:"123456"}];
+					if(Math.random() > .25) {
+						(message as TwitchatDataTypes.KofiMerchData).products.push({name:"Mug", quantity:2, id:"123456"});
+						if(Math.random() > .25) {
+							(message as TwitchatDataTypes.KofiMerchData).products.push({name:"Shoes", quantity:2, id:"123456"});
+						}
+					}
+					break;
 				}
 				case "kofi_sub":{
 					(message as TwitchatDataTypes.KofiSubscriptionData).eventType = "subscription";
@@ -388,8 +396,8 @@ class DevmodeMenu extends Vue {
 			//Pressing CTRL while clicking a button will force the user to self
 			if((event.ctrlKey || event.metaKey) && message.hasOwnProperty("user")) {
 				(message as TwitchatDataTypes.MessageChatData).user = StoreProxy.auth.twitch.user;
-				// (message as TwitchatDataTypes.MessageChatData).user = StoreProxy.users.getUserFrom("twitch", me.id, "647389082", "durssbot", "DurssBot");
 			}
+			
 			this.$store.chat.addMessage(message);
 		}, false);
 	}

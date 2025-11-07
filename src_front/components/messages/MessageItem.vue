@@ -105,6 +105,7 @@ import ChatChatPollResult from './ChatChatPollResult.vue';
 import ChatCustomTrainSummary from './ChatCustomTrainSummary.vue';
 import ChatStreamSocketAction from './ChatStreamSocketAction.vue';
 import ChatTwitchCombo from './ChatTwitchCombo.vue';
+import ChatManyReplies from './ChatManyReplies.vue';
 
 @Component({
 	name:"MessageItem",
@@ -140,6 +141,7 @@ import ChatTwitchCombo from './ChatTwitchCombo.vue';
 		ChatCelebration,
 		ChatTimerResult,
 		ChatAutobanJoin,
+		ChatManyReplies,
 		ChatTiltifyEvent,
 		ChatUnbanRequest,
 		ChatRoomSettings,
@@ -275,6 +277,7 @@ class MessageItem extends Vue {
 			twitch_combo:					ChatTwitchCombo,
 			custom_train_summary:			ChatCustomTrainSummary,
 			streamsocket_action:			ChatStreamSocketAction,
+			many_replies:					ChatManyReplies,
 		};
 		if(!Object.hasOwn(map, this.messageData.type)) {
 			console.warn("MISSING MESSAGE COMPONENT FOR TYPE:", this.messageData.type);

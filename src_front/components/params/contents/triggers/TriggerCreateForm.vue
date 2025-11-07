@@ -309,6 +309,8 @@ class TriggerCreateForm extends Vue {
 		|| e.value == TriggerTypes.HYPE_TRAIN_END
 		|| e.value == TriggerTypes.HYPE_TRAIN_PROGRESS
 		|| e.value == TriggerTypes.HYPE_TRAIN_START)) return true;
+		
+		if(e.value == TriggerTypes.MANY_REPLIES && this.$store.params.features.manyRepliesAlert.value !== true) return true;
 
 		return false;
 	}
@@ -344,6 +346,12 @@ class TriggerCreateForm extends Vue {
 			|| e.value == TriggerTypes.HYPE_TRAIN_PROGRESS
 			|| e.value == TriggerTypes.HYPE_TRAIN_START)
 		&& !TwitchUtils.requestScopes([TwitchScopes.READ_HYPE_TRAIN])) return;
+
+		
+		if(e.value == TriggerTypes.MANY_REPLIES && this.$store.params.features.manyRepliesAlert.value !== true) {
+			this.$store.main.tempStoreValue = this.$store.params.features.manyRepliesAlert.id;
+			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.FEATURES);
+		}
 	}
 
 	/**

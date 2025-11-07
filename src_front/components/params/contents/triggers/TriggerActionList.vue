@@ -577,7 +577,7 @@ class TriggerActionList extends Vue {
 		const ref = (this.$refs["actionEntry_" + id] as ComponentPublicInstance).$el;
 		if(ref){
 			gsap.from(ref, {duration:.5, overflow:"hidden", width:0, height:0, ease:"back.out", clearProps:"all", onUpdate:()=>{
-				ref.scrollIntoView();
+				ref.scrollIntoView({behavior:"auto", block:"center"});
 			}});
 		}
 	}

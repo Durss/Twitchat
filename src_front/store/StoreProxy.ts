@@ -801,6 +801,11 @@ export interface IChatActions {
 		message_parent_ref?:TwitchatDataTypes.MessageChatData,
 		message_parent_fallback?:TwitchatDataTypes.MessagePrivateModeratorData["parentMessageFallback"],
 	):TwitchatDataTypes.MessagePrivateModeratorData;
+	/**
+	 * When a message gets lots of replies notify
+	 * @param message 
+	 */
+	notifyManyReplies(message:TwitchatDataTypes.MessageChatData):void;
 }
 
 

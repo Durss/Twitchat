@@ -492,6 +492,7 @@
 		"kofi": {
 			"donation": "{USER} sent a {AMOUNT} tip on Ko-Fi",
 			"merch": "{USER} bought {PRODUCT} for {AMOUNT} on Ko-Fi",
+			"merch_product": "{COUNT} product|{COUNT} products",
 			"subscription": "{USER} subscribed for {AMOUNT} on Ko-fi",
 			"subscription_tier": "{USER} subscribed to tier {TIER} for {AMOUNT} on Ko-fi",
 			"commission": "{USER} requested a {AMOUNT} {COMMISSION_LINK} on Ko-fi",
@@ -600,6 +601,9 @@
 		},
 		"stream_socket": {
 			"action": "{USER} used StreamSocket action \"{ACTION}\""
+		},
+		"many_replies": {
+			"label": "This message is getting attention with {COUNT} direct or indirect replies"
 		}
 	}
 }

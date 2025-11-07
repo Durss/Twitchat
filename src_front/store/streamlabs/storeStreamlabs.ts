@@ -242,7 +242,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 													channel_id:me.id,
 													type:TwitchatDataTypes.TwitchatMessageType.STREAMLABS,
 													date:Date.now(),
-													amount:message.amount,
+													amount:parseFloat(message.amount.toString()),
 													amountFormatted:message.formatted_amount || message.formattedAmount,
 													currency:message.currency ?? "",
 													message:message.message,
@@ -688,7 +688,7 @@ interface StreamlabsDonationData {
 		priority: number;
 		isTest: boolean;
 		name:string;
-		amount:number;
+		amount:number|string;//Thanks SL for your consistency..
 		formatted_amount:string;
 		formattedAmount:string;
 		message:string;
@@ -736,7 +736,7 @@ interface StreamlabsPatreonPledgeData {
 		 * @deprecated apparently they changed for "formattedAmount"
 		 */
 		formatted_amount:string;
-		amount: 22;
+		amount: number;
 		currency:string;
 		to: {
 			name:string;

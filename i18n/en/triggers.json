@@ -795,10 +795,10 @@
 			"trigger_id": "Current trigger ID",
 			"user": "User name",
 			"user_customName": "User name custom",
-			"user_id": "Parent message - User ID",
+			"user_id": "User ID",
 			"parent_user": "Parent message - User name",
 			"parent_user_customName": "Parent message - User name custom",
-			"parent_user_id": "User ID",
+			"parent_user_id": "Parent message - User ID",
 			"user_color": "User color",
 			"user_badges": "User badges as JSON",
 			"user_custom_badges": "Custom user badge IDs",
@@ -1825,6 +1825,11 @@
 			"OBS_DISCONNECTED":{
 				"label": "OBS disconnected",
 				"description": "Actions to execute when Twitchat disconnects from OBS websocket"
+			},
+			"MANY_REPLIES":{
+				"label": "A message received many replies",
+				"description": "Actions to execute when a message receives many replies",
+				"disabled_reason": "You need to enable this feature first in @:params.categories.features section"
 			}
 		},
 		"musicEvents": {

@@ -459,18 +459,56 @@ export default class Database {
 
 	/**
 	 * Remove some props known for being potential source of circular references
-	 * @param value
+	 * @param message
 	 */
-	private removeCircularReferences<T>(value:T):{data:T, json:string} {
+	private removeCircularReferences<T extends TwitchatDataTypes.ChatMessageTypes>(message:T):{data:T, json:string} {
 		type KeysOfUnion<T> = T extends T ? keyof T: never;
 		type keys = KeysOfUnion<TwitchatDataTypes.ChatMessageTypes>;
 
-		const json = JSON.stringify(value, (key, value)=>{
-			const typedKey = key as keys;
-			if(typedKey == "answers") return [];
-			if(typedKey == "answersTo") return undefined;
-			return value;
-		})
+		let rootMessage = message.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE? message : undefined;
+
+		if(!rootMessage) {
+			// Find the first instance of message type that is "MESSAGE" in message object and its sub-properties
+			// This won't work properly if multiple props referrence message instances at the root level, only
+			// the first found will be considered the root message
+			const findMessageType = (obj: any): T|undefined => {
+				if (obj && typeof obj === 'object') {
+					// Check if current object has type property with MESSAGE value
+					if (obj.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+						return obj;
+					}
+					// Recursively check all properties
+					for (const key in obj) {
+						const result = findMessageType(obj[key]);
+						if (result) return result;
+					}
+				}
+				return undefined;
+			};
+			
+			rootMessage = findMessageType(message);
+		}
+
+		let json = "";
+		try {
+			json = JSON.stringify(message, function (key, value) {
+				// Cleanup circular references induced by chat message referencing
+				// each other circularly through answers/answersTo/directlyAnswersTo props
+				// But only do this for messages that are not the root message itself
+				if(this === rootMessage) return value;
+				
+				const typedKey = key as keys;
+				if(typedKey == "answers") return [];
+				if(typedKey == "answersTo") return undefined;
+				if(typedKey == "directlyAnswersTo") return undefined;
+				
+				return value;
+			})
+		}catch(error) {
+			const log = "Failed stringifying message for DB storage for message type "+message.type;
+			console.error(log, error);
+			Sentry.captureException(log);
+		}
 		const clone = JSON.parse(json);
 
 		return {data:clone, json};

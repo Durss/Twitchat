@@ -548,7 +548,7 @@ class PrivacyPolicy extends Vue {
 		let hash = window.location.hash;
 		if (hash) {
 			let elem = document.getElementById(hash.substring(1));
-			if (elem) elem.scrollIntoView();
+			if (elem) elem.scrollIntoView({behavior:"auto", block:"center"});
 		}
 	}
 

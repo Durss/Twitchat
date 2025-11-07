@@ -53,7 +53,6 @@ export const storeEndingCredits = defineStore('EndingCredits', {
 			const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
 			if(json) {
 				Utils.mergeRemoteObject(JSON.parse(json), (this.overlayData as unknown) as JsonObject);
-				console.log(this.overlayData);
 			}
 		},
 

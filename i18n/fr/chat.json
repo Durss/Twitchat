@@ -492,6 +492,7 @@
 		"kofi": {
 			"donation": "{USER} a fait un don de {AMOUNT} sur Ko-fi",
 			"merch": "{USER} a acheté {PRODUCT} pour {AMOUNT} sur Ko-fi",
+			"merch_product": "{COUNT} produit|{COUNT} produits",
 			"subscription": "{USER} s'est abonné pour {AMOUNT} sur Ko-fi",
 			"subscription_tier": "{USER} a pris l'abonnement {TIER} pour {AMOUNT} sur Ko-fi",
 			"commission": "{USER} a passé {COMMISSION_LINK} de {AMOUNT} sur Ko-fi",
@@ -600,6 +601,9 @@
 		},
 		"stream_socket": {
 			"action": "{USER} a utilisé l'action StreamSocket \"{ACTION}\""
+		},
+		"many_replies": {
+			"label": "Ce message attire l'attention avec {COUNT} réponses directes ou indirectes"
 		}
 	}
 }
