@@ -126,6 +126,13 @@ export const storeCustomTrain = defineStore('customTrain', {
 		},
 
 		registerActivity(messageId:string, platform:ICustomTrainState["customTrainStates"][string]["activities"][number]["platform"], amount:number):void {
+			//Just a failsafe to avoid crashing train if a platform sends shitty data (hey streamlabs o/)
+			//that's not properly filtered earlier in the chain
+			amount = parseFloat(amount as unknown as string);
+			if(typeof amount !== "number" || isNaN(amount)) {
+				console.warn("CustomTrain: Ignoring invalid activity amount", amount, "from platform", platform);
+				return;
+			}
 			for (let i = 0; i < this.customTrainList.length; i++) {
 				const train = this.customTrainList[i];
 				// Train disabled, ignore it
