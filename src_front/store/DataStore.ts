@@ -1,15 +1,14 @@
 import * as TriggerActionDataTypes from "@/types/TriggerActionDataTypes";
-import { TriggerTypes, TriggerTypesDefinitionList, type TriggerActionDelayData, type TriggerActionObsSourceDataAction, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from "@/types/TriggerActionDataTypes";
+import { TriggerTypes, type TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
+import Config from "@/utils/Config";
 import TriggerUtils from "@/utils/TriggerUtils";
 import Utils from "@/utils/Utils";
-import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import type { JsonValue } from "type-fest";
 import DataStoreCommon from "./DataStoreCommon";
 import StoreProxy from "./StoreProxy";
 import type { CustomTrainStoreData } from "./customtrain/storeCustomTrain";
-import Config from "@/utils/Config";
 
 /**
  * Fallback to sessionStorage if localStorage isn't available
@@ -158,7 +157,7 @@ export default class DataStore extends DataStoreCommon{
 	 */
 	static override async migrateData(data:any):Promise<any> {
 		let v = parseFloat(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 68;
+		const latestVersion = 69;
 
 		if(v < 44) {
 			const res:{[key:string]:unknown} = {};
@@ -278,6 +277,10 @@ export default class DataStore extends DataStoreCommon{
 		}
 		if(v==67.1) {
 			this.migrateAutoTranslateKey(data);
+			v = 68;
+		}
+		if(v==68) {
+			this.fixCustomHypeTrainRecord(data);
 			v = latestVersion;
 		}
 
@@ -1042,7 +1045,23 @@ export default class DataStore extends DataStoreCommon{
 			delete data["p:autoTranslateFirst"];
 			delete data["p:autoTranslateFirstLang"];
 			delete data["p:autoTranslateFirstSpoken"];
-			console.log(JSON.parse(JSON.stringify(data)))
+		}
+	}
+
+	/**
+	 * Fixes custom hype train record data that are broken due to
+	 * shit data from Streamlabs corrupting everything
+	 * @param data
+	 * @returns
+	 */
+	private static fixCustomHypeTrainRecord(data:any):void {
+		const trains:CustomTrainStoreData = data[DataStore.CUSTOM_TRAIN_CONFIGS];
+		if(trains) {
+			trains.customTrainList.forEach(t => {
+				if(t.allTimeRecord && (isNaN(t.allTimeRecord.amount) || t.allTimeRecord.amount < 0 || typeof t.allTimeRecord.amount !== "number")) {
+					delete t.allTimeRecord;
+				}
+			})
 		}
 	}
 }
