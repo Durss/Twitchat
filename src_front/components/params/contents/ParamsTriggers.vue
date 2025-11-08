@@ -58,7 +58,7 @@
 			<Button class="createBt"
 				v-if="activeTriggerCount < $config.MAX_TRIGGERS || ($store.auth.isPremium && activeTriggerCount < $config.MAX_TRIGGERS_PREMIUM)"
 				icon="add" primary
-				v-newflag="{date:$config.NEW_FLAGS_DATE_V16_1, id:'paramsparams_triggers_2'}"
+				v-newflag="{date:$config.NEW_FLAGS_DATE_V16_12, id:'paramsparams_triggers_3'}"
 				@click="openForm();">{{ $t('triggers.add_triggerBt') }}</Button>
 
 			<div class="card-item premium premiumLimit" v-else-if="!$store.auth.isPremium">

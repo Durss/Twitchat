@@ -320,7 +320,7 @@ export default class GoogleController extends AbstractController {
 				this._translationCache[params.text] = translation;
 				setTimeout(() => {
 					delete this._translationCache[params.text];
-				}, 30 * 24 * 60 * 60 * 1000); //Cache for 30 days
+				}, 2147483647 ); //Cache for as much time as node allows (about 24 days)
 			}else{
 				Logger.error("Translate failed");
 				response.header('Content-Type', 'application/json');
