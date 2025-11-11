@@ -1,13 +1,18 @@
 <template>
 	<div class="placeholderfield" @click.stop="focusInput">
-		<span>{</span><span class="prefix" v-if="prefix">{{ prefix }}</span>
-		<contenteditable tag="span" ref="input"
-			:class="{input:true, empty:modelValue.length === 0}"
-			:contenteditable="true"
-			:no-nl="true"
-			:no-html="true"
-			v-model="localValue"
-			@input="limitPlaceholderSize()" />
+		<span>{</span>
+			<span class="prefix" v-if="prefix">{{ prefix }}</span>
+			<p :class="{inputHolder:true, empty:modelValue.length === 0}">
+				<span class="placeholder" v-if="modelValue.length === 0">{{ placeholder }}</span>
+				<contenteditable tag="span" ref="input"
+					:class="{input:true}"
+					:contenteditable="true"
+					:no-nl="true"
+					:no-html="true"
+					v-model="localValue"
+					@input="limitPlaceholderSize()"
+					@blur="$emit('blur')" />
+			</p>
 		<span>}</span>
 	</div>
 </template>
@@ -21,7 +26,7 @@ import contenteditable from 'vue-contenteditable';
 	components:{
 		contenteditable,
 	},
-	emits:["update:modelValue", "change"],
+	emits:["update:modelValue", "change", "blur"],
 })
 class PlaceholderField extends Vue {
 
@@ -33,6 +38,9 @@ class PlaceholderField extends Vue {
 
 	@Prop({required:false, type:Number, default:30})
 	public maxLength!:number;
+
+	@Prop({required:false, type:String, default:"..."})
+	public placeholder!:string;
 
 	public localValue:string = "";
 
@@ -84,21 +92,37 @@ export default toNative(PlaceholderField);
 	align-items: center;
 	justify-content: center;
 	text-transform: uppercase;
+	.inputHolder {
+		margin: 0 .25em;
+		.input {
+			margin: 0;
+		}
+		&.empty {
+			position: relative;
+			display: block;
+			.input {
+				position: absolute;
+				left: 50%;
+				transform: translate(-50%);
+			}
+		}
+		.placeholder {
+			font-style: italic;
+			opacity: .5;
+			text-transform: initial;
+		}
+	}
 	.input {
 		margin: 0 .25em;
 		min-width: 1em;
 		text-align: center;
 		cursor: text;
-		&.empty::before {
-			content: "...";
-		}
 	}
 	.prefix {
-		margin-right: -.25em;
 		opacity: .7;
 	}
-	span:first-child,
-	span:last-child {
+	&>*:first-child,
+	&>*:last-child {
 		font-size: 1.5em;
 	}
 	&.error {

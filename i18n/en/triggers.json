@@ -139,7 +139,7 @@
 			"param_discord": "Add it to your Discord commands",
 			"param_cmd_params": "Optional command params",
 			"param_cmd_params_tt": "This allows you to extract parts of the user's message to custom placeholders for later use on any action of the trigger",
-			"param_cmd_params_placeholder": "add a parameter...",
+			"param_cmd_params_placeholder": "parameter",
 			"param_cmd_params_example": "Command usage example:",
 			"param_cmd_params_example_result": "Result:",
 			"param_cmd_params_type_tt": "Data type. Select \"User\" to make twitchat load user's data",

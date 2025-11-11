@@ -1,16 +1,17 @@
 <template>
 	<div class="triggeractioncommandargumentparams">
 		<div class="form">
-			<div>
+			<div class="inputHolder">
 				<Icon name="placeholder" class="icon" />
 				<label for="chatcmdparam" v-tooltip="$t('triggers.slash_cmd.param_cmd_params_tt')">{{ $t("triggers.slash_cmd.param_cmd_params") }}</label>
+				<div class="input-field">
+					<PlaceholderField class="inputField"
+					v-model="newTag"
+					:placeholder="$t('triggers.slash_cmd.param_cmd_params_placeholder')"
+					@keyup.enter="createItem()"
+					@blur="createItem()" />
+				</div>
 			</div>
-			<input type="text" id="chatcmdparam" v-model="newTag"
-				@keyup.enter="createItem()"
-				@keydown.capture="filterChars($event)"
-				@blur="createItem()"
-				:placeholder="$t('triggers.slash_cmd.param_cmd_params_placeholder')"
-				maxlength="20">
 			<div class="tags" v-if="triggerData.chatCommandParams && triggerData.chatCommandParams.length > 0">
 				<div class="tag" v-for="item, index in triggerData.chatCommandParams" :key="item.tag">
 					<button class="deleteBt" @click="triggerData.chatCommandParams!.splice(index, 1)">
@@ -50,10 +51,12 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap';
+import PlaceholderField from '@/components/PlaceholderField.vue';
 
 @Component({
 	components:{
 		ParamItem,
+		PlaceholderField,
 	},
 	emits:[],
 })
@@ -115,6 +118,16 @@ export default toNative(TriggerActionCommandArgumentParams);
 		display: flex;
 		flex-direction: column;
 		gap: .5em;
+		.inputHolder  {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+
+			flex-grow: 1;
+			label {
+				flex-grow: 1;
+			}
+		}
 		.icon {
 			height: 1em;
 			width: 1em;
