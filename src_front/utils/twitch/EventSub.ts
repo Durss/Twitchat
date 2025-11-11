@@ -1434,7 +1434,7 @@ export default class EventSub {
 			platform:"twitch",
 			user:userData,
 			answers:[],
-			message:event.message_id,
+			message:event.message.text,
 			message_chunks:chunks,
 			message_html:messageHtml,
 			message_size:0,
