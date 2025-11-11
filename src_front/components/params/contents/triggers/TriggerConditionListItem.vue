@@ -201,7 +201,7 @@ class TriggerConditionListItem extends Vue {
 		if(inputOrigin && this.firstRender || !this.param_placeholder_list.selectedListValue) return;
 
 		const placeholderRef = this.param_placeholder_list.selectedListValue.storage;
-		const cmdParamRef = this.triggerData.chatCommandParams?.find(v=> v.tag == this.condition.placeholder);
+		const cmdParamRef = this.triggerData.chatCommandParams?.find(v=> v.tag.toLowerCase() == this.condition.placeholder.toLowerCase());
 
 		this.param_operator.listValues = TriggerConditionOperatorList.map(v=> {
 			return {
@@ -210,7 +210,6 @@ class TriggerConditionListItem extends Vue {
 			}
 		}).filter(v=> {
 			//Remove arithmetical operators if placeholder isn't parsable as number
-			// console.log(placeholderRef, v.value);
 			if((!placeholderRef || placeholderRef.numberParsable !== true) && !cmdParamRef) {
 				return ![">","<",">=","<="].includes(v.value);
 			}
