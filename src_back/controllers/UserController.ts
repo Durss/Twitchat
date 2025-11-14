@@ -355,6 +355,7 @@ export default class UserController extends AbstractController {
 				super.giftPremium(userInfo.user_id);
 				try {
 					Utils.sendSMSAlert("[TWITCHAT] "+userInfo.login+" got premium membership with code "+body.code);
+					Utils.sendDashboardNotification("Gift code redeemed", userInfo.login+" got premium membership with code "+body.code, undefined, "success");	
 				}catch(_){
 					Logger.error("Unable to send SMS alert for premium code usage.");
 				}

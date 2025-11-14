@@ -408,7 +408,7 @@ export default class PatreonController extends AbstractController {
 
 		if (!token) {
 			Logger.warn("[PATREON][SERVICE] Please connect to patreon !", this.authURL);
-			this.sendSMSAlert("Patreon authentication is down server-side! Click to auth " + this.authURL);
+			this.sendSMSAlert("Patreon auth is down", "Patreon authentication is down server-side! "+this.authURL, {text:"Authenticate", url:this.authURL});
 		}
 
 		return false;
@@ -497,7 +497,7 @@ export default class PatreonController extends AbstractController {
 			response.status(401);
 			response.send("Unauthorized");
 			this.patreonApiDown = true;
-			this.sendSMSAlert("Patreon Webhook failed, invalid signature " + signature);
+			this.sendSMSAlert("patreon signature", "Patreon Webhook failed, invalid signature " + signature);
 			return;
 		}
 
@@ -645,11 +645,13 @@ export default class PatreonController extends AbstractController {
 
 			//Only keep active patrons
 			const filteredMembers = members.filter(v => v.attributes.patron_status === "active_patron")
-				.filter(v => v.relationships.currently_entitled_tiers.data.length > 0
-					//If current tier value is greater than the minimum (to refuse custom amounts lower than that)
-					|| v.attributes.currently_entitled_amount_cents > this.MIN_AMOUNT
-					//Specific tier exception
-					|| v.relationships.currently_entitled_tiers.data.find(v => v.id == this.MIN_AMOUNT_TIER_ID_EXCEPTION))
+				.filter(v => v.attributes.patron_status === "active_patron"
+					&& v.relationships.currently_entitled_tiers.data.length > 0)
+				// .filter(v => v.relationships.currently_entitled_tiers.data.length > 0
+				// 	//If current tier value is greater than the minimum (to refuse custom amounts lower than that)
+				// 	|| v.attributes.currently_entitled_amount_cents > this.MIN_AMOUNT
+				// 	//Specific tier exception
+				// 	|| v.relationships.currently_entitled_tiers.data.find(v => v.id == this.MIN_AMOUNT_TIER_ID_EXCEPTION))
 				.map(v => {
 					const member: PatreonMember = {
 						id: v.id,
@@ -661,6 +663,7 @@ export default class PatreonController extends AbstractController {
 
 			if (verbose) Logger.info("[PATREON][SERVICE] " + filteredMembers.length + " active members");
 			// fs.writeFileSync(Config.patreonMembers.replace(".json", "_src.json"), JSON.stringify(members), "utf-8");
+			// fs.writeFileSync(Config.patreonMembers.replace(".json", "_filtered2.json"), JSON.stringify(filteredMembers), "utf-8");
 			fs.writeFileSync(Config.patreonMembers, JSON.stringify(filteredMembers), "utf-8");
 		}
 	}
@@ -712,9 +715,10 @@ export default class PatreonController extends AbstractController {
 	/**
 	 * Send myself an SMS if something went wrong
 	 */
-	private sendSMSAlert(message: string): void {
+	private sendSMSAlert(title:string, message: string, action?:{text:string, url:string}): void {
 		if (!this.smsWarned && Config.SMS_WARN_PATREON_AUTH) {
 			Utils.sendSMSAlert(message);
+			Utils.sendDashboardNotification(title, message, action);
 			this.smsWarned = true;
 			this.patreonApiDown = true;
 		}

@@ -212,7 +212,7 @@ export default class TriggerUtils {
 			if(a.condition !== action.condition
 			&& (a.condition !== undefined || action.condition === false)
 			&& (a.condition === false || action.condition !== undefined)) continue;
-			//If its anything but a "random" or "http" action, skip it (only these ones create custom placeholders for now)
+			//If it's anything but an action that exports custom placeholder, skip it
 			if(a.type != "random"
 			&& a.type != "http"
 			&& a.type != "raffle"

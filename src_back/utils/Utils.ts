@@ -126,4 +126,30 @@ export default class Utils {
 			fetch(urlSms, {method:"GET"});
 		}
 	}
+
+	/**
+	 * Sands a dashboard notification
+	 * @param title 
+	 * @param message 
+	 * @param action 
+	 */
+	public static sendDashboardNotification(title:string, message: string, action?:{text:string, url:string}, status:'error'|'neutral'|'success' = 'neutral'): void {
+		if(!Config.credentials.dashboard_url || !Config.credentials.dashboard_token) return;
+		
+		fetch(Config.credentials.dashboard_url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-API-Key': Config.credentials.dashboard_token
+			},
+			body: JSON.stringify({
+				title,
+				source: 'Twitchat',
+				description: message,
+				status,
+				buttonText: action?.text,
+				buttonUrl: action?.url
+			})
+		})
+	}
 }

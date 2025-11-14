@@ -417,6 +417,8 @@ interface Credentials {
 	server_port:number;
 	sms_uid?:string;
 	sms_token?:string;
+	dashboard_url: string;
+	dashboard_token: string;
 
 	admin_ids: string[];
 	feature_flags?: {
