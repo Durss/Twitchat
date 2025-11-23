@@ -2024,7 +2024,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:USER_ID, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<SafeMessage>,
 		{tag:USER_FOLLOWAGE, descKey:'triggers.placeholders.followage', pointer:"user", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
 		{tag:USER_FOLLOWAGE_MS, descKey:'triggers.placeholders.followage_ms', pointer:"user", numberParsable:true, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
-		{tag:USER_AVATAR, descKey:'triggers.placeholders.user_avatar', pointer:"user", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
+		{tag:USER_AVATAR, descKey:'triggers.placeholders.user_avatar', pointer:"user.avatarPath", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
 		{tag:USER_COLOR, descKey:'triggers.placeholders.user_color', pointer:"user.color", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeMessage>,
 		{tag:USER_BADGES, descKey:'triggers.placeholders.user_badges', pointer:"__user_badges__", numberParsable:false, isUserID:false},
 		...commonUserTags,
