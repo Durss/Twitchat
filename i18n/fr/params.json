@@ -94,7 +94,7 @@
 		"mergeConsecutive_maxSize": "Ne pas fusionner le message s'il fait plus de {VALUE} caractères",
 		"mergeConsecutive_maxSizeTotal": "Longueur maximale totale des messages fusionnés",
 		"mergeConsecutive_minDuration": "Fusionner uniquement si moins de {VALUE}s séparent les messages",
-		"autoTranslate": "Traduire le 1er message d'une personne si nécessaire",
+		"autoTranslate": "Traduire les messages si nécessaire",
 		"autoTranslate_first": "Traduire uniquement le 1er message sur votre chaîne",
 		"autoTranslate_lang": "Langue dans laquelle traduire",
 		"autoTranslate_spoken": "Langues que vous savez lire\n(ces messages ne seront pas traduits)",
