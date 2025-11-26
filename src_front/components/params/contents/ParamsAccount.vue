@@ -104,7 +104,6 @@ import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 })
 class ParamsAccount extends Vue implements IParameterContent {
 
-	public oAuthURL = "";
 	public showObs = false;
 	public disposed = false;
 	public showCredits = true;
@@ -217,7 +216,6 @@ class ParamsAccount extends Vue implements IParameterContent {
 	public async onScopesUpdate(list:string[]):Promise<void> {
 		await this.generateCSRF();
 		this.scopes = list;
-		this.oAuthURL = TwitchUtils.getOAuthURL(this.CSRFToken, this.scopes);
 	}
 
 	public async startParamsShareFlow():Promise<void> {
@@ -247,8 +245,8 @@ class ParamsAccount extends Vue implements IParameterContent {
 	}
 
 	public authorize():void {
-		this.oAuthURL = TwitchUtils.getOAuthURL(this.CSRFToken, this.scopes, "/popup");
-		const win = window.open(this.oAuthURL, "twitchAuth", "width=600,height=800");
+		let oAuthURL = TwitchUtils.getOAuthURL(this.CSRFToken, this.scopes, "/popup");
+		const win = window.open(oAuthURL, "twitchAuth", "width=600,height=800");
 		if(win) {
 			this.authenticating = true;
 			const interval = setInterval(() => {
@@ -273,7 +271,8 @@ class ParamsAccount extends Vue implements IParameterContent {
 			win.focus();
 			return;
 		}
-		window.location.href = this.oAuthURL;
+		oAuthURL = TwitchUtils.getOAuthURL(this.CSRFToken, this.scopes);
+		window.location.href = oAuthURL;
 	}
 
 	private updateSharedUserList():void {

@@ -146,7 +146,7 @@
 			@click="subContent='playability'" v-newflag="{date:$config.NEW_FLAGS_DATE_V15, id:'params_connect.playability'}">
 				<Icon name="playability" />
 				<p>PlayAbility</p>
-				<div class="beta"></div>
+				<!-- <div class="beta"></div> -->
 			</button>
 
 			<button class="card-item"

@@ -1,5 +1,5 @@
 <template>
-	<div class="connectpatreon parameterContent beta">
+	<div class="connectpatreon parameterContent">
 		<Icon name="patreon" alt="patreon icon" class="icon" />
 
 		<div class="head">

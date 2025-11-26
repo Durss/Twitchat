@@ -276,6 +276,7 @@ class Login extends Vue {
 					return;
 				}
 			}
+			this.oAuthURL = TwitchUtils.getOAuthURL(this.CSRFToken, this.scopes);
 			window.location.href = this.oAuthURL;
 		}
 	}

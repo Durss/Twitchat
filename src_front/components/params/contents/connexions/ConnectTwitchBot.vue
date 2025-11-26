@@ -1,5 +1,5 @@
 <template>
-	<div class="connecttwitchbot parameterContent beta">
+	<div class="connecttwitchbot parameterContent">
 		<Icon name="twitch" alt="twitchbot icon" class="icon" />
 
 		<div class="head">

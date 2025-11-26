@@ -114,7 +114,7 @@ export const storeOBS = defineStore('obs', {
 							let prevURL = url.toString();
 							//Check if overlay's URL is a twitchat domain
 							if(/.*twitchat.fr$/gi.test(url.hostname)
-							|| (/^\/overlay\/.+$/gi.test(url.pathname) && url.port == "8080" && url.hostname == "localhost")) {
+							|| (/^\/overlay\/.+$/gi.test(url.pathname) && url.port == "8081" && url.hostname == "localhost")) {
 
 								//Update OBS-websocket credentials if necessary
 								const portUrl = url.searchParams.get("obs_port");
