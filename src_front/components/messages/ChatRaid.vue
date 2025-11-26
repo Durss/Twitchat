@@ -16,7 +16,7 @@
 				</template>
 			</i18n-t>
 
-			<div class="streamInfo" v-if="$store.params.appearance.showRaidStreamInfo.value == true">
+			<div class="streamInfo" v-if="$store.params.appearance.showRaidStreamInfo.value == true && (messageData.stream.title || messageData.stream.category)">
 				<div class="infos">
 					<div class="title quote">
 						<span>{{messageData.stream.title}}</span>
