@@ -75,7 +75,8 @@
 			"mode_private_mods": "Envoyez un message uniquement à {USER} et aux modos",
 			"mode_private_mods_details": "Envoyez un message que seul·e {USER} et les modos verront\n\nNe fonctionne que si {USER} et les modos utilisent Twitchat !",
 			"mode_private_mods_only": "Envoyez un message uniquement à vos modos",
-			"mode_private_mods_only_details": "Envoyez un message que seul·es vos modos verront\n\nVos modos doivent utiliser Twitchat pour les recevoir !"
+			"mode_private_mods_only_details": "Envoyez un message que seul·es vos modos verront\n\nVos modos doivent utiliser Twitchat pour les recevoir !",
+			"loading_emotes": "Chargement des emotes..."
 		},
 		"filters": {
 			"cta": "Options importantes ici",

@@ -75,7 +75,8 @@
 			"mode_private_mods": "Privately send message to {USER} and mods",
 			"mode_private_mods_details": "Send a message only {USER} and mods will see.\n\nOnly works if they use Twitchat!",
 			"mode_private_mods_only": "Privately send message to your mods",
-			"mode_private_mods_only_details": "Send a message only your mods will see.\n\nOnly works if they use Twitchat!"
+			"mode_private_mods_only_details": "Send a message only your mods will see.\n\nOnly works if they use Twitchat!",
+			"loading_emotes": "Loading emotes..."
 		},
 		"filters": {
 			"cta": "Important options here",

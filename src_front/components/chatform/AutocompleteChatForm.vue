@@ -27,6 +27,9 @@
 			<div class="infos" v-if="i.type == 'cmdS' && (i.infos || i.infosKey)">{{i.infos || $t(i.infosKey || "")}}</div>
 			<div class="name alias" v-else-if="i.type=='cmdS' && i.alias">(alias: {{i.alias}})</div>
 		</div>
+		<div v-if="showEmotesLoading" class="item">
+			<Icon class="image loader" name="loader" /> <i>{{ $t("chat.form.loading_emotes") }}</i>
+		</div>
 	</div>
 </template>
 
@@ -60,11 +63,13 @@ class AutocompleteChatForm extends Vue {
 	public commands!:boolean;
 
 	public selectedIndex = 0;
+	public showEmotesLoading = false;
 	public filteredItems:ListItem[] = [];
 	public triggerCommands:TriggerData[] = [];
 
 	private keyUpHandler!:(e:KeyboardEvent) => void;
 	private keyDownHandler!:(e:KeyboardEvent) => void;
+	private emotesRequestToken = 0;
 
 	public getClasses(index:number, item:ListItem):string[] {
 		let res = ["item"];
@@ -96,6 +101,7 @@ class AutocompleteChatForm extends Vue {
 	}
 
 	public beforeUnmount():void {
+		this.emotesRequestToken = -1;
 		document.removeEventListener("keyup", this.keyUpHandler);
 		document.removeEventListener("keydown", this.keyDownHandler);
 	}
@@ -212,6 +218,22 @@ class AutocompleteChatForm extends Vue {
 			//Search for emotes
 			if(this.emotes) {
 				let emotes = TwitchUtils.emotesCache ?? [];
+				if(emotes.length === 0) {
+					// Emotes not loaded yet, load them or wait for them to load
+					this.showEmotesLoading = true;
+					this.emotesRequestToken++;
+					const currentToken = this.emotesRequestToken;
+					TwitchUtils.getEmotes().then(()=> {
+						if (this.emotesRequestToken === currentToken) {
+							this.showEmotesLoading = false;
+							this.onSearchChange();
+						}
+					}).catch(() => {
+						if (this.emotesRequestToken === currentToken) {
+							this.showEmotesLoading = false;
+						}
+					})
+				}
 				if(this.$store.params.appearance.bttvEmotes.value === true) {
 					emotes = emotes.concat(BTTVUtils.instance.emotes);
 				}
@@ -311,20 +333,6 @@ class AutocompleteChatForm extends Vue {
 						});
 					}
 				}
-
-				// //Search on chat commands in the triggers
-				// for (let i = 0; i < this.triggerCommands.length; i++) {
-				// 	const t = this.triggerCommands[i];
-				// 	if(t.chatCommand && t.chatCommand.toLowerCase().indexOf(s) > -1) {
-				// 		res.push({
-				// 			type:"cmd",
-				// 			label:t.chatCommand,
-				// 			cmd:t.chatCommand,
-				// 			infos:t.name ?? "",
-				// 			id:t.id,
-				// 		});
-				// 	}
-				// }
 			}
 
 			res.sort((a,b)=> {
@@ -350,7 +358,7 @@ class AutocompleteChatForm extends Vue {
 			this.filteredItems = res;
 		}
 
-		if(this.filteredItems.length == 0) {
+		if(this.filteredItems.length == 0 && !this.showEmotesLoading) {
 			this.$emit("close");
 		}
 	}
