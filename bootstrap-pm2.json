@@ -1,6 +1,6 @@
 {
-	"script": "./server/bootstrap.js",
 	"name": "Twitchat",
+	"script": "./server/bootstrap.js",
 	"env": {},
 	"merge_logs": true,
 	"vizion": true,
