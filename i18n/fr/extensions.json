@@ -8,6 +8,7 @@
 		"type_overlay":"Overlay",
 		"type_mobile":"Mobile",
 		"type_component":"Composant",
-		"update_error":"Une erreur est survenue lors de la mise à jour de l'extension"
+		"update_error":"Une erreur est survenue lors de la mise à jour de l'extension",
+		"scope_grant":"Twitchat nécessite une autorisation manquante pour gérer vos extensions"
 	}
 }

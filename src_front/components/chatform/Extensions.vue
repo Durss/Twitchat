@@ -5,7 +5,12 @@
 			<h1 class="title"><Icon :name="reloading? 'loader' : 'extension'" />{{ $t("extensions.title") }}</h1>
 		</div>
 
-		<div class="content" ref="content">
+		<div class="content scope" ref="content" v-if="!hasPermissions">
+			<p>{{ $t("extensions.scope_grant") }}</p>
+			<TTButton icon="lock_fit" primary @click="grantScopes()">{{ $t("global.grant_scope") }}</TTButton>
+		</div>
+
+		<div class="content" ref="content" v-else>
 			<Icon class="spinner" name="loader" v-if="loading" />
 
 			<TransitionGroup name="list" tag="div" ref="list" class="list"  v-if="!loading && extensionList.length > 0">
@@ -63,6 +68,7 @@ import Icon from '../Icon.vue';
 import TTButton from '../TTButton.vue';
 import ToggleButton from '../ToggleButton.vue';
 import ParamItem from '../params/ParamItem.vue';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 @Component({
 	components:{
@@ -79,9 +85,11 @@ class Extensions extends AbstractSidePanel {
 	public error:boolean = false;
 	public loading:boolean = true;
 	public reloading:boolean = false;
+	public hasPermissions:boolean = false;
 	public extensionList:ExtensionItem[] = [];
 
 	public mounted():void {
+		this.hasPermissions = TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS]);
 		super.open();
 	}
 
@@ -172,6 +180,10 @@ class Extensions extends AbstractSidePanel {
 		await this.loadList();
 		this.reloading = false;
 	}
+
+	public grantScopes():void {
+		TwitchUtils.requestScopes([TwitchScopes.EXTENSIONS]);
+	}
 }
 
 interface ExtensionItem {
@@ -188,6 +200,7 @@ export default toNative(Extensions);
 
 <style scoped lang="less">
 .extensions{
+
 	.spinner {
 		height: 2em;
 	}
@@ -198,6 +211,16 @@ export default toNative(Extensions);
 
 	.content {
 		max-width: 100%;
+
+		&.scope {
+			align-items: center;
+			justify-content: center;
+			margin: 0 auto;
+			p {
+				max-width: 80%;
+				text-align: center;
+			}
+		}
 	}
 
 	.list {

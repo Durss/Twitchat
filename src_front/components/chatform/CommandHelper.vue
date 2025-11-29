@@ -232,13 +232,6 @@ class CommandHelper extends Vue {
 		}, 1000);
 
 		watch(()=> this.$store.auth.twitch.scopes, ()=>{
-			this.canEditStreamInfos	= TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]);
-			this.canStartCommercial	= TwitchUtils.hasScopes([TwitchScopes.START_COMMERCIAL]);
-			this.canClearChat		= TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES]);
-			this.canRaid			= TwitchUtils.hasScopes([TwitchScopes.START_RAID, ...TwitchChannelModerateV2Scopes]);
-			this.canCreatePrediction= TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]);
-			this.canCreatePoll		= TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]);
-
 			this.canEditStreamInfos=  TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]); 
 			this.canStartCommercial=  TwitchUtils.hasScopes([TwitchScopes.START_COMMERCIAL]) && this.hasChannelPoints; 
 			this.canClearChat=  TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES]); 

@@ -57,7 +57,7 @@ export default toNative(ButtonNotification);
 	&.disabled {
 		cursor: not-allowed;
 		opacity: 0.5;
-		pointer-events: none;
+		// pointer-events: none;
 	}
 
 	.icon {

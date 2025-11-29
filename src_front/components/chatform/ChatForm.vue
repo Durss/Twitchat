@@ -30,9 +30,10 @@
 							touch:'hold',
 							content: element.item.id == 'chatters' && $store.params.appearance.showViewersCount.value === true? onlineUsersTooltip : element.tooltip
 						}"
+						:disabled="pinDisableState(element).disabled"
 						:aria-label="element.tooltip"
 						:icon="element.icon"
-						@click="onClickMenuItem(element.item)" />
+						@click="onClickMenuItem(element)" />
 				</VueDraggable>
 				
 				<ButtonNotification :aria-label="$t('chat.form.addPinBt_aria')"
@@ -430,7 +431,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
 import HeatSocket from '@/utils/twitch/HeatSocket';
-import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import { TwitchScopes, type TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import VoiceAction from '@/utils/voice/VoiceAction';
 import VoiceController from '@/utils/voice/VoiceController';
@@ -670,10 +671,34 @@ export class ChatForm extends Vue {
 			const menuItem = this.getPinnedMenuItemFromId(item);
 			if(!menuItem) continue;
 			if(!this.getMenuItemEnabled(menuItem)) continue;
-			const tooltip = menuItem.label || this.$t(menuItem.labelKey);
-			result.push({item:menuItem, tooltip, icon: menuItem.icon});
+			const resultItem = {item:menuItem, tooltip:"", icon: menuItem.icon};
+			const tooltip = this.pinDisableState(resultItem).disabled? this.$t("global.grant_scope") : menuItem.label || this.$t(menuItem.labelKey);
+			resultItem.tooltip = tooltip;
+			result.push(resultItem);
 		}
 		return result;
+	}
+
+	public pinDisableState(item:typeof this.pinnedMenuItems[number]):{disabled:boolean, scopes:TwitchScopesString[]} {
+		let disabled = false;
+		let scopes:TwitchScopesString[] = [];
+		switch(item.item.id) {
+			case "prediction":{
+				scopes = [TwitchScopes.MANAGE_PREDICTIONS];
+				disabled = !!this.$store.prediction.data;
+				break;
+			}
+			case "poll":{
+				scopes = [TwitchScopes.MANAGE_POLLS];
+				disabled = !!this.$store.poll.data;
+				break;
+			}
+			case "streamInfo":{
+				scopes = [TwitchScopes.SET_STREAM_INFOS];
+				break;
+			}
+		}
+		return {disabled: disabled || !TwitchUtils.hasScopes(scopes), scopes};
 	}
 
 	public beforeMount(): void {
@@ -1321,7 +1346,14 @@ export class ChatForm extends Vue {
 	/**
 	 * Called when clicking a pinnable menu item
 	 */
-	public onClickMenuItem(item:typeof TwitchatDataTypes.PinnableMenuItems[number]):void {
+	public onClickMenuItem(entry:typeof this.pinnedMenuItems[number]):void {
+		const disabledState = this.pinDisableState(entry);
+		if(disabledState.disabled) {
+			if(disabledState.scopes.length == 0) return;
+			TwitchUtils.requestScopes(disabledState.scopes);
+			return;
+		}
+		const item = entry.item;
 		if(item.isModal) {
 			this.$store.params.openModal(item.modalId);
 		}else if(item.id=="clearChat"){
