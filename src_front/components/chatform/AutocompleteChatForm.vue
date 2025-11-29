@@ -8,7 +8,7 @@
 		@click="selectItem(i)"
 		v-tooltip="{content:i.type=='cmdS'? i.tooltipKey : ''}">
 			<img
-				class="image emote"
+				class="image"
 				loading="lazy"
 				:src="i.emote"
 				:alt="i.label"
@@ -27,8 +27,11 @@
 			<div class="infos" v-if="i.type == 'cmdS' && (i.infos || i.infosKey)">{{i.infos || $t(i.infosKey || "")}}</div>
 			<div class="name alias" v-else-if="i.type=='cmdS' && i.alias">(alias: {{i.alias}})</div>
 		</div>
-		<div v-if="showEmotesLoading" class="item">
-			<Icon class="image loader" name="loader" /> <i>{{ $t("chat.form.loading_emotes") }}</i>
+		<div v-if="showGrantEmotesPermission" class="item grantPermission" @click="grantEmoteScope()">
+			<Icon class="image" name="lock_fit" /> <div class="name">{{ $t("global.emote_scope") }}</div>
+		</div>
+		<div v-else-if="showEmotesLoading" class="item">
+			<Icon class="image" name="loader" /> <i>{{ $t("chat.form.loading_emotes") }}</i>
 		</div>
 	</div>
 </template>
@@ -39,12 +42,16 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import BTTVUtils from '@/utils/emotes/BTTVUtils';
 import FFZUtils from '@/utils/emotes/FFZUtils';
 import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { TTButton } from '../TTButton.vue';
 
 @Component({
-	components:{},
+	components:{
+		TTButton,
+	},
 	emits:["selectItem", "close"]
 })
 /**
@@ -64,6 +71,7 @@ class AutocompleteChatForm extends Vue {
 
 	public selectedIndex = 0;
 	public showEmotesLoading = false;
+	public showGrantEmotesPermission = false;
 	public filteredItems:ListItem[] = [];
 	public triggerCommands:TriggerData[] = [];
 
@@ -188,6 +196,14 @@ class AutocompleteChatForm extends Vue {
 	}
 
 	/**
+	 * Requests for emote scope
+	 */
+	public grantEmoteScope():void {
+		TwitchUtils.requestScopes([TwitchScopes.READ_EMOTES]);
+		this.$emit("close")
+	}
+
+	/**
 	 * Called when writing somehting.
 	 * Search any item matching the search
 	 */
@@ -218,22 +234,27 @@ class AutocompleteChatForm extends Vue {
 			//Search for emotes
 			if(this.emotes) {
 				let emotes = TwitchUtils.emotesCache ?? [];
-				if(emotes.length === 0) {
-					// Emotes not loaded yet, load them or wait for them to load
-					this.showEmotesLoading = true;
-					this.emotesRequestToken++;
-					const currentToken = this.emotesRequestToken;
-					TwitchUtils.getEmotes().then(()=> {
-						if (this.emotesRequestToken === currentToken) {
-							this.showEmotesLoading = false;
-							this.onSearchChange();
+				if(TwitchUtils.hasScopes([TwitchScopes.READ_EMOTES])) {
+						if(emotes.length === 0) {
+							// Emotes not loaded yet, load them or wait for them to load
+							this.showEmotesLoading = true;
+							this.emotesRequestToken++;
+							const currentToken = this.emotesRequestToken;
+							TwitchUtils.getEmotes().then(()=> {
+								if (this.emotesRequestToken === currentToken) {
+									this.showEmotesLoading = false;
+									this.onSearchChange();
+								}
+							}).catch(() => {
+								if (this.emotesRequestToken === currentToken) {
+									this.showEmotesLoading = false;
+								}
+							})
+							this.showGrantEmotesPermission = false;
 						}
-					}).catch(() => {
-						if (this.emotesRequestToken === currentToken) {
-							this.showEmotesLoading = false;
-						}
-					})
-				}
+					}else{
+						this.showGrantEmotesPermission = true;
+					}
 				if(this.$store.params.appearance.bttvEmotes.value === true) {
 					emotes = emotes.concat(BTTVUtils.instance.emotes);
 				}
@@ -461,6 +482,16 @@ export default toNative(AutocompleteChatForm);
 			}
 		}
 
+		&.grantPermission {
+			background-color: var(--color-secondary);
+			border-radius: var(--border-radius);
+			.image {
+				width: auto;
+				height: 1.5em;
+				margin: 0 .25em;
+			}
+		}
+
 		.name, .source {
 			font-size: .8em;
 			flex-grow:1;
@@ -481,6 +512,7 @@ export default toNative(AutocompleteChatForm);
 
 		.image {
 			width: 1.75em;
+			height: 1.5em;
 			padding: .2em;
 			object-fit: fill;
 			&.small {

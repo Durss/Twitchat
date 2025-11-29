@@ -653,12 +653,7 @@ export default class TwitchUtils {
 	 * Get the emotes list
 	 */
 	public static async getEmotes(): Promise<TwitchatDataTypes.Emote[]> {
-		if(!this.loadingChannelEmotes) {
-			await this.loadEmoteSets(this.uid);
-		}
-		while (this.emotesCache.length == 0) {
-			await Utils.promisedTimeout(100);
-		}
+		if(this.emotesCache.length === 0) await this.loadEmoteSets(this.uid);
 		return this.emotesCache;
 	}
 

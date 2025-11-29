@@ -15,7 +15,7 @@
 			</div>
 		</div>
 
-		<div v-else-if="filteredUsers.length == 0" class="loader">
+		<div class="loader" v-else-if="filteredUsers.length == 0">
 			<Icon class="loader" name="loader" />
 			<p>{{ $t("global.loading") }}</p>
 		</div>
@@ -164,6 +164,9 @@ class EmoteSelector extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		this.clickHandler = (e:MouseEvent) => this.onClick(e);
+		document.addEventListener("mousedown", this.clickHandler);
+		
 		fetch("/youtube/emote_list.json").then(async query=> {
 			const youtubeEmotes:{[code:string]:string} = await query.json();
 			const res:TwitchatDataTypes.Emote[] = [];
@@ -328,14 +331,13 @@ class EmoteSelector extends Vue {
 
 		this.buildOffset = 0;
 		await this.$nextTick();
-		this.clickHandler = (e:MouseEvent) => this.onClick(e);
-		document.addEventListener("mousedown", this.clickHandler);
 		this.open();
 		this.buildNextUser();
 		this.$emit("onLoad");
 	}
 
 	public beforeUnmount():void {
+		console.log("EmoteSelector unmount");
 		clearTimeout(this.buildTimeout);
 		document.removeEventListener("mousedown", this.clickHandler);
 	}
@@ -385,17 +387,22 @@ class EmoteSelector extends Vue {
 	}
 
 	private close():void {
-		if(this.popoutMode !== false) return;
+		if(this.popoutMode !== false) {
+			this.$emit("close");
+			return;
+		}
 		clearTimeout(this.buildTimeout);
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
 		gsap.to(ref, {duration:.1, scaleX:1.1, ease:"sin.in"});
 		gsap.to(ref, {duration:.1, translateX:"100%", scaleX:1, delay:.1, clearProps:"translateX", ease:"sin.out", onComplete:() => {
 			this.$emit("close");
+			console.log("closed")
 		}});
 	}
 
 	private onClick(e:MouseEvent):void {
+		console.log("click", e.target);
 		let target = e.target as HTMLDivElement;
 		const ref = this.$el as HTMLDivElement;
 		while(target != document.body && target != ref && target) {
