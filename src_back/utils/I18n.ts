@@ -30,8 +30,8 @@ export default class I18n {
 	/**
 	 * Get available languages
 	 */
-	public get discordLanguages():{discord:LocaleString, labels:string}[] {
-		let result:{discord:LocaleString, labels:string}[] = [];
+	public get discordLanguages():{discord:Locale, labels:string}[] {
+		let result:{discord:Locale, labels:string}[] = [];
 		const langs = Object.keys(this._labels);
 		langs.forEach(lang=> {
 			const code = I18n.instance.get(lang, "global.lang");
