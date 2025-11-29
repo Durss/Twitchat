@@ -123,6 +123,7 @@ export default class PatreonController extends AbstractController {
 					response.header('Content-Type', 'application/json');
 					response.status(500);
 					response.send({ success: false, message: token.error });
+					Logger.error("[PATREON][USER] " + twitchUser.login + " failed authenticating with Patreon with error:", token.error);
 				} else {
 					let json: Record<string, string> = {};
 					if (fs.existsSync(Config.twitch2PatreonToken)) {
@@ -134,6 +135,7 @@ export default class PatreonController extends AbstractController {
 					response.header('Content-Type', 'application/json');
 					response.status(200);
 					response.send(JSON.stringify({ success: true }));
+					Logger.success("[PATREON][USER] " + twitchUser.login + " successfully authenticated with Patreon");
 				}
 			} else {
 				Logger.error("[PATREON][USER] " + twitchUser.login + " failed authenticating with Patreon with status:", result.status);
