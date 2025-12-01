@@ -884,7 +884,7 @@ export const storeMain = defineStore("main", {
 				if (backup.status != 200 || !backup.json.success) return;
 
 				const triggers = StoreProxy.triggers.triggerList;
-				const triggersBackup = backup.json.data[DataStore.TRIGGERS] as TriggerData[];
+				const triggersBackup = (backup.json.data[DataStore.TRIGGERS] || []) as TriggerData[];
 				if (!triggers) return;
 				for (let i = 0; i < triggers.length; i++) {
 					const triggerNew = triggers[i];

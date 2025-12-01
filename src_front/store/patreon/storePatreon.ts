@@ -142,8 +142,8 @@ export const storePatreon = defineStore('patreon', {
 				this.isMember = res.json.data?.isMember === true;
 				if(StoreProxy.auth.isPremium) {
 					StoreProxy.chat.cleanupDonationRelatedMessages();
-					this.loadMemberList();
 				}
+				this.loadMemberList();
 			}
 		},
 
