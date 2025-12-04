@@ -8,11 +8,23 @@ import ScrollToPlugin from "gsap/ScrollToPlugin";
 import { gsap } from 'gsap/gsap-core';
 import { createPinia } from 'pinia';
 import { createApp } from "vue";
+import { createI18n } from 'vue-i18n';
+import Config from '@/utils/Config';
 import { storeCommon } from './store/common/storeCommon';
 import { SlowMo } from "gsap/all";
 
 gsap.registerPlugin(ScrollToPlugin, CustomEase, CSSPlugin, SlowMo);
 const pinia = createPinia();
+
+let lang: string = navigator.language || (navigator as any)['userLanguage'];
+lang = lang.substring(0, 2).toLowerCase();
+const i18n = createI18n({
+    locale: lang,
+    fallbackLocale: 'en',
+    warnHtmlInMessage: 'off',
+    silentFallbackWarn: !Config.instance.IS_PROD,
+    silentTranslationWarn: !Config.instance.IS_PROD,
+});
 
 /**
  * Include an image from the asset folder
@@ -22,15 +34,31 @@ const asset = (path:string):string => {
 	return map[`/src_front/assets/${path}`] as string;
 }
 
-const app = createApp(AppOverlay);
-app.use(pinia)
-.use(router)
-.provide("$asset", asset);
+async function buildApp() {
+    const app = createApp(AppOverlay);
+    app.use(pinia)
+        .use(router)
+        .use(i18n)
+        .provide("$asset", asset);
 
-StoreProxy.default.common = storeCommon();
-app.config.globalProperties.$asset = asset;
-app.config.globalProperties.$store = StoreProxy.default;
+    StoreProxy.default.i18n = i18n.global;
+    StoreProxy.default.common = storeCommon();
+    app.config.globalProperties.$asset = asset;
+    app.config.globalProperties.$store = StoreProxy.default;
 
-StoreProxy.default.common.initialize(false).then(()=>{
-	app.mount('#app');
-});
+    await StoreProxy.default.common.initialize(false);
+    app.mount('#app');
+}
+
+(async()=>{
+    try {
+        const res = await fetch('/labels.json?v='+import.meta.env.PACKAGE_VERSION);
+        const labelsJSON = await res.json();
+        for (const lang in labelsJSON) {
+            i18n.global.setLocaleMessage(lang, labelsJSON[lang]);
+        }
+    }catch(e){
+        console.log(e);
+    }
+    buildApp();
+})();

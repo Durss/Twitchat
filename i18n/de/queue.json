@@ -1,0 +1,23 @@
+{
+    "queue":{
+        "default_title":"Queue",
+        "addBt":"Create queue",
+        "overlayBt":"Configure overlay",
+        "header":"Create viewer queues, manage them from {LINK_OVERLAY}.",
+        "header_link_overlay":"the overlay",
+        "premium_limit":"You created the maximum number of {MAX} queues.\nBecome premium to create up to {MAX_PREMIUM} queues.\nOr disable / delete some queues to create new ones.",
+        "pauseBt":"Pause",
+        "resumeBt":"Resume",
+        "form":{
+            "param_placeholder":"Placeholder name",
+            "param_max_per_user":"Max entries per user",
+            "param_max_entries":"Max viewers",
+            "param_enable_in_progress":"Enable in progress list",
+            "param_show_in_progress":"Show in progress list",
+            "param_rotate_delay":"Rotation delay (s)",
+            "list_entries":"Viewers in queue",
+            "list_in_progress":"Viewers in progress"
+        },
+        "copy_id_tt":"Copy queue ID"
+    }
+}

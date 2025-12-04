@@ -11,6 +11,11 @@
 					<div class="subHolder" v-if="buildIndex >= index">
 						<GreetThem class="greetThem" v-if="greetColIndexTarget == c.order && $store.params.features.firstMessage.value === true" />
 
+						<QueueState class="queueState"
+							v-if="getSelectedQueueIds(c).length > 0"
+							:queueIds="getSelectedQueueIds(c)"
+							@remove="onRemoveQueuesFromColumn(c, $event)" />
+
 						<MessageList ref="messages" class="messages"
 							@addColumn="addColumn"
 							:config="c"
@@ -43,6 +48,7 @@
 			<TTUserList				class="popin" v-if="$store.params.currentModal == 'TTuserList'" @close="$store.params.closeModal()" />
 			<PinedMessages			class="popin" v-if="$store.params.currentModal == 'pins'" @close="$store.params.closeModal()" />
 			<TimerForm				class="popin" v-if="$store.params.currentModal == 'timer'" @close="$store.params.closeModal()" />
+			<QueueForm				class="popin" v-if="$store.params.currentModal == 'queue'" @close="$store.params.closeModal()" />
 			<TriggersLogs			class="popin" v-if="$store.params.currentModal == 'triggersLogs'" @close="$store.params.closeModal()" />
 			<HeatLogs				class="popin" v-if="$store.params.currentModal == 'heatLogs'" @close="$store.params.closeModal()" />
 			<ObsHeatLogs			class="popin" v-if="$store.params.currentModal == 'obsHeatLogs'" @close="$store.params.closeModal()" />
@@ -222,6 +228,8 @@ import Gngngn from '../components/chatform/Gngngn.vue';
 import PinedMessages from '../components/chatform/PinedMessages.vue';
 import EmergencyFollowsListModal from '../components/modals/EmergencyFollowsListModal.vue';
 import TimerForm from '../components/timer/TimerForm.vue';
+import QueueForm from '../components/queue/QueueForm.vue';
+import QueueState from '../components/queue/QueueState.vue';
 import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
@@ -244,6 +252,8 @@ import SettingsImportForm from '@/components/params/contents/exporter/SettingsIm
 		PinsList,
 		Changelog,
 		TimerForm,
+		QueueForm,
+		QueueState,
 		GreetThem,
 		BingoForm,
 		Extensions,
@@ -852,6 +862,27 @@ class Chat extends Vue {
 	}
 
 	/**
+	 * Gets selected queue IDs for a column from its queueIDs config
+	 */
+	public getSelectedQueueIds(col:TwitchatDataTypes.ChatColumnsConfig):string[] {
+		if(!col.queueIDs) return [];
+		return Object.entries(col.queueIDs)
+			.filter(([id, enabled]) => enabled === true)
+			.map(([id]) => id);
+	}
+
+	/**
+	 * Called when user removes queues from column via QueueState close button
+	 */
+	public onRemoveQueuesFromColumn(col:TwitchatDataTypes.ChatColumnsConfig, queueIds:string[]):void {
+		if(!col.queueIDs) return;
+		for(const id of queueIds) {
+			col.queueIDs[id] = false;
+		}
+		this.$store.params.saveChatColumnConfs();
+	}
+
+	/**
 	 * Called when starting window resize
 	 */
 	public startDrag(event:PointerEvent, col:TwitchatDataTypes.ChatColumnsConfig):void {
@@ -1150,6 +1181,11 @@ export default toNative(Chat);
 					flex-direction: column;
 					width: 100%;
 					position: relative;
+					.queueState {
+						max-height: 40vh;
+						overflow: auto;
+						flex-shrink: 0;
+					}
 					.messages {
 						flex-grow: 1;
 						overflow: hidden;

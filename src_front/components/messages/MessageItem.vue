@@ -106,6 +106,7 @@ import ChatCustomTrainSummary from './ChatCustomTrainSummary.vue';
 import ChatStreamSocketAction from './ChatStreamSocketAction.vue';
 import ChatTwitchCombo from './ChatTwitchCombo.vue';
 import ChatManyReplies from './ChatManyReplies.vue';
+import ChatQueueCommand from './ChatQueueCommand.vue';
 
 @Component({
 	name:"MessageItem",
@@ -175,6 +176,7 @@ import ChatManyReplies from './ChatManyReplies.vue';
 		ChatSuspendedTriggerStack,
 		ChatTwitchCharityDonation,
 		ChatCommunityChallengeContribution,
+		ChatQueueCommand,
 	},
 	emits:["onRead", "showConversation", "showUserMessages", "unscheduleMessageOpen", "setCustomActivities", "openFilters", "onOverMessage"],
 })
@@ -278,6 +280,21 @@ class MessageItem extends Vue {
 			custom_train_summary:			ChatCustomTrainSummary,
 			streamsocket_action:			ChatStreamSocketAction,
 			many_replies:					ChatManyReplies,
+			queue_join:						ChatQueueCommand,
+			queue_leave:					ChatQueueCommand,
+			queue_move_to_progress:			ChatQueueCommand,
+			queue_complete:					ChatQueueCommand,
+			queue_command:					ChatQueueCommand,
+			queue_pause:					ChatQueueCommand,
+			queue_resume:					ChatQueueCommand,
+			queue_user_picked:				ChatQueueCommand,
+			queue_user_removed:				ChatQueueCommand,
+			queue_in_progress_user_removed:	ChatQueueCommand,
+			queue_cleared:					ChatQueueCommand,
+			queue_in_progress_cleared:		ChatQueueCommand,
+			queue_user_moved_up:			ChatQueueCommand,
+			queue_user_moved_down:			ChatQueueCommand,
+			queue_user_moved_back:			ChatQueueCommand,
 		};
 		if(!Object.hasOwn(map, this.messageData.type)) {
 			console.warn("MISSING MESSAGE COMPONENT FOR TYPE:", this.messageData.type);
