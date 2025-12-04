@@ -18,6 +18,7 @@
 		<OverlayDonationGoals v-else-if="overlay=='donationgoals'" />
 		<OverlayAnimatedText v-else-if="overlay=='animatedtext'" />
 		<OverlayCustomTrain v-else-if="overlay=='customtrain'" />
+		<OverlayQueue v-else-if="overlay=='queue'" />
 	</div>
 </template>
 
@@ -47,6 +48,7 @@ const OverlayDonationGoals = defineAsyncComponent({loader: () => import('@/compo
 const OverlayChatPoll = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayChatPoll.vue')});
 const OverlayAnimatedText = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayAnimatedText.vue')});
 const OverlayCustomTrain = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayCustomTrain.vue')});
+const OverlayQueue = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayQueue.vue')});
 
 @Component({
 	components:{
@@ -68,6 +70,7 @@ const OverlayCustomTrain = defineAsyncComponent({loader: () => import('@/compone
 		OverlayEndingCredits,
 		OverlayChatHighlight,
 		OverlayAnimatedText,
+		OverlayQueue,
 	}
 })
 class Overlay extends Vue {

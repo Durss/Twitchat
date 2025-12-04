@@ -101,6 +101,7 @@
 			"hide_user_badges": "Hide users with badges...",
 			"background_color": "Background color",
 			"channels": "Filter channels to display",
+			"queues": "Filter queues to display",
 			"select_all": "All",
 			"message_types": {
 				"twitchat_ad": "Twitchat tips & tricks",
@@ -144,7 +145,8 @@
 				"tiktok_like": "Tiktok likes",
 				"tiktok_gift": "Tiktok gifts",
 				"tiktok_share": "Tiktok share",
-				"private_mod_message": "Private mod messages"
+				"private_mod_message": "Private mod messages",
+				"queue_command": "Queue commands"
 			},
 			"message_filters": {
 				"viewers": "Sent by viewers",
@@ -605,6 +607,22 @@
 		},
 		"many_replies": {
 			"label": "This message is getting attention with {COUNT} direct or indirect replies"
+		},
+		"queue": {
+			"join": "joined at position {POSITION}",
+			"leave": "left the queue",
+			"move_to_progress": "moved to in progress",
+			"complete": "completed",
+			"pause": "queue paused",
+			"resume": "queue resumed",
+			"user_picked": "picked ({METHOD})",
+			"user_removed": "removed from queue",
+			"in_progress_user_removed": "removed from in progress",
+			"cleared": "queue cleared ({COUNT} entries)",
+			"in_progress_cleared": "in progress cleared ({COUNT} entries)",
+			"user_moved_up": "moved up to position {POSITION}",
+			"user_moved_down": "moved down to position {POSITION}",
+			"user_moved_back": "moved back to queue at position {POSITION}"
 		}
 	}
 }

@@ -236,6 +236,16 @@
 					</tooltip>
 				</div>
 
+				<ToggleBlock class="queueList" small :title="$t('chat.filters.queues')" :open="false" v-if="queueList.length > 0 && config.filters.queue_command">
+					<div class="queueEntries">
+						<div class="queueEntry" v-for="queue in queueList" :key="queue.id">
+							<Icon name="list" />
+							<span class="label">{{ queue.title }}</span>
+							<ToggleButton v-model="queueToggleStates[queue.id]" @change="onQueueToggle(queue.id)" />
+						</div>
+					</div>
+				</ToggleBlock>
+
 				<div class="previewList" ref="previewList" v-if="loadingPreview || previewData.length > 0">
 					<div class="preview" v-if="loadingPreview">
 						<Icon name="loader" class="loader" />
@@ -331,6 +341,18 @@ export class MessageListFilter extends Vue {
 
 	public get canDelete():boolean {
 		return this.$store.params.chatColumnsConfig.length > 1;
+	}
+
+	public get queueList():TwitchatDataTypes.QueueData[] {
+		return this.$store.queue.queueList;
+	}
+
+	public get queueToggleStates():{[queueId:string]:boolean} {
+		const states:{[queueId:string]:boolean} = {};
+		for(const queue of this.queueList) {
+			states[queue.id] = this.isQueueSelected(queue.id);
+		}
+		return states;
 	}
 
 	public get channels() {
@@ -871,6 +893,30 @@ export class MessageListFilter extends Vue {
 			}
 			if(olderKey) delete this.config.channelIDs[olderKey]
 		}
+		this.saveData();
+	}
+
+	/**
+	 * Check if a queue is selected in the filter
+	 */
+	public isQueueSelected(queueId:string):boolean {
+		if(!this.config.queueIDs) return true; // All queues selected by default
+		return this.config.queueIDs[queueId] === true;
+	}
+
+	/**
+	 * Called when a queue toggle is changed.
+	 */
+	public onQueueToggle(queueId:string):void {
+		//Toggle queue's state
+		if(!this.config.queueIDs) {
+			// Initialize with all queues selected
+			this.config.queueIDs = {};
+			this.queueList.forEach(q => {
+				this.config.queueIDs![q.id] = true;
+			});
+		}
+		this.config.queueIDs[queueId] = !this.config.queueIDs[queueId];
 		this.saveData();
 	}
 
@@ -1497,6 +1543,27 @@ export default toNative(MessageListFilter);
 					width: 1em;
 					height: 1em;
 					vertical-align: middle;
+				}
+			}
+			.queueList {
+				.queueEntries {
+					display: flex;
+					flex-direction: column;
+					gap: .25em;
+					.queueEntry {
+						display: flex;
+						flex-direction: row;
+						align-items: center;
+						gap: .5em;
+						.icon {
+							width: 1em;
+							height: 1em;
+							flex-shrink: 0;
+						}
+						.label {
+							flex-grow: 1;
+						}
+					}
 				}
 			}
 			.channelList {

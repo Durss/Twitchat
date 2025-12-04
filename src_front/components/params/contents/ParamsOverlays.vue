@@ -50,6 +50,7 @@
 			<button class="item" @click="subContent = 'labels'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'params_overlays_labels'}"><img src="@/assets/img/overlays/labels.jpg" alt="Labels"></button>
 			<button class="item" @click="subContent = 'counter'"><img src="@/assets/img/overlays/counters.jpg" alt="Counters"></button>
 			<button class="item" @click="subContent = 'timer'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_overlays_timers'}"><img src="@/assets/img/overlays/timer.jpg" alt="Timers"></button>
+			<button class="item" @click="subContent = 'queue'"><img src="@/assets/img/overlays/queue.jpg" alt="Queue"></button>
 			<button class="item" @click="subContent = 'ulule'"><img src="@/assets/img/overlays/ulule.jpg" alt="Ulule"></button>
 		</div>
 
@@ -73,6 +74,7 @@
 			<OverlayParamsDonationGoal class="block"	:open="subContent == 'donationgoals'"	v-if="subContent == 'donationgoals'" />
 			<OverlayParamsAnimatedText class="block"	:open="subContent == 'animatedtext'"	v-if="subContent == 'animatedtext'" />
 			<OverlayParamsCustomTrain class="block"		:open="subContent == 'customtrain'"		v-if="subContent == 'customtrain'" />
+			<OverlayParamsQueue class="block"			:open="subContent == 'queue'"			v-if="subContent == 'queue'" />
 		</div>
 	</div>
 </template>
@@ -104,6 +106,7 @@ import OverlayParamsDonationGoal from './overlays/OverlayParamsDonationGoal.vue'
 import OverlayParamsChatPoll from './overlays/OverlayParamsChatPoll.vue';
 import OverlayParamsAnimatedText from './overlays/OverlayParamsAnimatedText.vue';
 import OverlayParamsCustomTrain from './overlays/OverlayParamsCustomTrain.vue';
+import OverlayParamsQueue from './overlays/OverlayParamsQueue.vue';
 
 @Component({
 	components:{
@@ -127,6 +130,7 @@ import OverlayParamsCustomTrain from './overlays/OverlayParamsCustomTrain.vue';
 		OverlayParamsHeatDistort,
 		OverlayParamsDonationGoal,
 		OverlayParamsAnimatedText,
+		OverlayParamsQueue,
 	},
 	emits:[]
 })

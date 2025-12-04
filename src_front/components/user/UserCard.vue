@@ -134,6 +134,72 @@
 						</template>
 					</div>
 
+					<div class="ctas queueCtas" v-if="enabledQueues.length > 0">
+						<!-- Single queue: simple button -->
+						<template v-if="enabledQueues.length === 1">
+							<TTButton v-if="!isUserInQueue(enabledQueues[0].id)"
+								small
+								icon="list"
+								@click="addUserToQueue(enabledQueues[0].id)"
+								v-tooltip="$t('usercard.addToQueueBt_tt', {QUEUE: enabledQueues[0].title || $t('queue.default_title')})">
+								{{$t('usercard.addToQueueBt')}}
+							</TTButton>
+							<TTButton v-else-if="confirmingQueueRemove === enabledQueues[0].id"
+								small
+								icon="trash"
+								alert
+								@click="removeUserFromQueue(enabledQueues[0].id)"
+								v-tooltip="$t('usercard.removeFromQueueBt_confirm')">
+								{{$t('usercard.removeFromQueueBt_confirm')}}
+							</TTButton>
+							<TTButton v-else
+								small
+								icon="checkmark"
+								secondary
+								@click="confirmRemoveFromQueue(enabledQueues[0].id)"
+								v-tooltip="$t('usercard.inQueueBt_tt', {QUEUE: enabledQueues[0].title || $t('queue.default_title')})">
+								{{$t('usercard.inQueueBt')}}
+							</TTButton>
+						</template>
+						<!-- Multiple queues: dropdown menu -->
+						<tooltip v-else
+							interactive
+							trigger="click"
+							:maxWidth="300"
+							:interactiveDebounce="500"
+							:theme="$store.common.theme">
+							<template #default>
+								<TTButton small icon="list">{{$t('usercard.addToQueueBt')}}</TTButton>
+							</template>
+							<template #content>
+								<div class="queueList">
+									<template v-for="queue in enabledQueues" :key="queue.id">
+										<TTButton v-if="!isUserInQueue(queue.id)"
+											small
+											icon="add"
+											@click="addUserToQueue(queue.id)">
+											{{ queue.title || $t('queue.default_title') }}
+										</TTButton>
+										<TTButton v-else-if="confirmingQueueRemove === queue.id"
+											small
+											icon="trash"
+											alert
+											@click="removeUserFromQueue(queue.id)">
+											{{$t('usercard.removeFromQueueBt_confirm')}}
+										</TTButton>
+										<TTButton v-else
+											small
+											icon="checkmark"
+											secondary
+											@click="confirmRemoveFromQueue(queue.id)">
+											{{ queue.title || $t('queue.default_title') }}
+										</TTButton>
+									</template>
+								</div>
+							</template>
+						</tooltip>
+					</div>
+
 					<div class="ctas">
 						<TTButton type="link" small icon="newtab" :href="profilePage" target="_blank">{{$t('usercard.profileBt')}}</TTButton>
 						<template v-if="isTwitchProfile">
@@ -322,6 +388,9 @@ class UserCard extends AbstractSidePanel {
 	public canListModeratedChans: boolean = false;
 	public canShoutout: boolean = false;
 	public canWarn: boolean = false;
+	public confirmingQueueRemove: string | null = null;
+
+	private confirmingQueueRemoveTimeout: number = -1;
 	
 	public get canWhisper():boolean {
 		return this.hasWhisperPerms && this.user!.id != this.$store.auth.twitch.user.id;
@@ -418,6 +487,13 @@ class UserCard extends AbstractSidePanel {
 			return card.platform || card.user?.platform || "twitch";
 		}
 		return "twitch";
+	}
+
+	/**
+	 * Get enabled queues
+	 */
+	public get enabledQueues():TwitchatDataTypes.QueueData[] {
+		return this.$store.queue.queueList.filter(q => q.enabled);
 	}
 
 	/**
@@ -737,6 +813,55 @@ class UserCard extends AbstractSidePanel {
 	}
 
 	/**
+	 * Check if user is already in the specified queue
+	 */
+	public isUserInQueue(queueId:string):boolean {
+		if(!this.user) return false;
+		const queue = this.$store.queue.queueList.find(q => q.id === queueId);
+		if(!queue) return false;
+		return queue.entries.some(e => e.user.id === this.user!.id) ||
+			(queue.inProgress?.some(e => e.user.id === this.user!.id) ?? false);
+	}
+
+	/**
+	 * Add user to a queue
+	 */
+	public addUserToQueue(queueId:string):void {
+		if(!this.user) return;
+		this.$store.queue.addViewer(queueId, this.user);
+	}
+
+	/**
+	 * Show confirmation for removing user from queue
+	 */
+	public confirmRemoveFromQueue(queueId:string):void {
+		// Clear any existing timeout
+		if(this.confirmingQueueRemoveTimeout !== -1) {
+			clearTimeout(this.confirmingQueueRemoveTimeout);
+		}
+		this.confirmingQueueRemove = queueId;
+		// Auto-cancel confirmation after 3 seconds
+		this.confirmingQueueRemoveTimeout = window.setTimeout(() => {
+			this.confirmingQueueRemove = null;
+			this.confirmingQueueRemoveTimeout = -1;
+		}, 3000);
+	}
+
+	/**
+	 * Remove user from a queue
+	 */
+	public removeUserFromQueue(queueId:string):void {
+		if(!this.user) return;
+		// Clear timeout
+		if(this.confirmingQueueRemoveTimeout !== -1) {
+			clearTimeout(this.confirmingQueueRemoveTimeout);
+			this.confirmingQueueRemoveTimeout = -1;
+		}
+		this.confirmingQueueRemove = null;
+		this.$store.queue.removeViewer(queueId, this.user.id);
+	}
+
+	/**
 	 * Detect ESC key to close window
 	 */
 	private onKeyUp(e:KeyboardEvent):void {
@@ -842,7 +967,7 @@ export default toNative(UserCard);
 			padding: 1em;
 		}
 
-		.modList {
+		.modList, .queueList {
 			gap: .5em;
 			display: flex;
 			flex-direction: row;
@@ -850,6 +975,11 @@ export default toNative(UserCard);
 			justify-content: center;
 			max-width: 400px;
 			padding: .5em;
+		}
+
+		.queueList {
+			flex-direction: column;
+			max-width: 250px;
 		}
 		.modItem {
 			gap: 1px;

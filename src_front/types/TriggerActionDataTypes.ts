@@ -112,6 +112,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionCustomTrainData
 								| TriggerActionSFXRData
 								| TriggerActionJSONExtractData
+								| TriggerActionQueueData
 							;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -1551,6 +1552,25 @@ export interface TriggerActionJSONExtractData extends TriggerActionData{
 }
 
 /**
+ * Queue action trigger data
+ */
+export interface TriggerActionQueueData extends TriggerActionData{
+	type:"queue";
+	/**
+	 * Action to perform on the queue
+	 */
+	action:"join"|"leave"|"move_to_progress"|"remove"|"pause"|"resume"|"clear"|"clear_progress"|"clear_removed"|"pick_first"|"pick_random";
+	/**
+	 * Queue ID to perform action on
+	 */
+	queueId:string;
+	/**
+	 * User placeholder (used for join/leave/move_to_progress/remove actions)
+	 */
+	userPlaceholder?:string;
+}
+
+/**
  * Represents a tree structure item.
  * Either a trigger folder or a trigger item entry
  */
@@ -1872,6 +1892,10 @@ export const TriggerTypes = {
 	OBS_CONNECTED:"170",
 	OBS_DISCONNECTED:"171",
 	MANY_REPLIES:"172",
+	QUEUE_JOIN:"173",
+	QUEUE_LEAVE:"174",
+	QUEUE_MOVE_TO_PROGRESS:"175",
+	QUEUE_COMPLETE:"176",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",

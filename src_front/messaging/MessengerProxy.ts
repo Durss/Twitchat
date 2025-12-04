@@ -31,6 +31,60 @@ export default class MessengerProxy {
 
 	}
 
+	/**
+	 * Parse command arguments respecting quoted strings
+	 * Example: 'arg1 "arg with spaces" arg3' => ['arg1', 'arg with spaces', 'arg3']
+	 */
+	private parseCommandArgs(message:string):string[] {
+		const args:string[] = [];
+		let current = "";
+		let inQuotes = false;
+		let quoteChar = "";
+
+		// Remove the command part (first word)
+		const spaceIndex = message.indexOf(" ");
+		if(spaceIndex === -1) return args;
+		const argsStr = message.substring(spaceIndex + 1).trim();
+
+		for(let i = 0; i < argsStr.length; i++) {
+			const char = argsStr[i];
+
+			if((char === '"' || char === "'") && !inQuotes) {
+				inQuotes = true;
+				quoteChar = char;
+			} else if(char === quoteChar && inQuotes) {
+				inQuotes = false;
+				quoteChar = "";
+			} else if(char === " " && !inQuotes) {
+				if(current.length > 0) {
+					args.push(current);
+					current = "";
+				}
+			} else {
+				current += char;
+			}
+		}
+
+		if(current.length > 0) {
+			args.push(current);
+		}
+
+		return args;
+	}
+
+	/**
+	 * Find a queue by title or ID
+	 */
+	private findQueueByTitleOrId(identifier:string):TwitchatDataTypes.QueueData | undefined {
+		// First try to find by ID (exact match)
+		let queue = StoreProxy.queue.queueList.find(q => q.id === identifier);
+		if(queue) return queue;
+
+		// Then try to find by title (case-insensitive)
+		queue = StoreProxy.queue.queueList.find(q => q.title.toLowerCase() === identifier.toLowerCase());
+		return queue;
+	}
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
@@ -407,6 +461,292 @@ export default class MessengerProxy {
 			//Open raffle form
 			StoreProxy.params.openModal("raffle")
 			return true
+		}else
+
+		if(cmd == "/queue") {
+			//Open queue form
+			StoreProxy.params.openModal("queue")
+			return true
+		}else
+
+		if(cmd == "/queuepause") {
+			//Pause a queue
+			const queueArgs = this.parseCommandArgs(message);
+			const queueIdentifier = queueArgs[0];
+			if(!queueIdentifier) {
+				const notice:TwitchatDataTypes.MessageNoticeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					platform:"twitchat",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+					message:StoreProxy.i18n.t("error.queue_name_missing"),
+					channel_id:channelId
+				}
+				StoreProxy.chat.addMessage(notice);
+				return true;
+			}
+			const queue = this.findQueueByTitleOrId(queueIdentifier);
+			if(!queue) {
+				const notice:TwitchatDataTypes.MessageNoticeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					platform:"twitchat",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+					message:StoreProxy.i18n.t("error.queue_not_found", {QUEUE: queueIdentifier}),
+					channel_id:channelId
+				}
+				StoreProxy.chat.addMessage(notice);
+				return true;
+			}
+			StoreProxy.queue.pauseQueue(queue.id);
+			return true;
+		}else
+
+		if(cmd == "/queueresume") {
+			//Resume a queue
+			const queueArgs = this.parseCommandArgs(message);
+			const queueIdentifier = queueArgs[0];
+			if(!queueIdentifier) {
+				const notice:TwitchatDataTypes.MessageNoticeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					platform:"twitchat",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+					message:StoreProxy.i18n.t("error.queue_name_missing"),
+					channel_id:channelId
+				}
+				StoreProxy.chat.addMessage(notice);
+				return true;
+			}
+			const queue = this.findQueueByTitleOrId(queueIdentifier);
+			if(!queue) {
+				const notice:TwitchatDataTypes.MessageNoticeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					platform:"twitchat",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+					message:StoreProxy.i18n.t("error.queue_not_found", {QUEUE: queueIdentifier}),
+					channel_id:channelId
+				}
+				StoreProxy.chat.addMessage(notice);
+				return true;
+			}
+			StoreProxy.queue.resumeQueue(queue.id);
+			return true;
+		}else
+
+		if(cmd == "/queueclear") {
+			//Clear a queue
+			const queueArgs = this.parseCommandArgs(message);
+			const queueIdentifier = queueArgs[0];
+			const target = queueArgs[1]?.toLowerCase() || "queue"; // queue, progress, or removed
+			if(!queueIdentifier) {
+				const notice:TwitchatDataTypes.MessageNoticeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					platform:"twitchat",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+					message:StoreProxy.i18n.t("error.queue_name_missing"),
+					channel_id:channelId
+				}
+				StoreProxy.chat.addMessage(notice);
+				return true;
+			}
+			const queue = this.findQueueByTitleOrId(queueIdentifier);
+			if(!queue) {
+				const notice:TwitchatDataTypes.MessageNoticeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					platform:"twitchat",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+					message:StoreProxy.i18n.t("error.queue_not_found", {QUEUE: queueIdentifier}),
+					channel_id:channelId
+				}
+				StoreProxy.chat.addMessage(notice);
+				return true;
+			}
+			if(target === "progress") {
+				StoreProxy.queue.clearInProgress(queue.id);
+			} else if(target === "removed") {
+				StoreProxy.queue.broadcastClearRemoved(queue.id);
+			} else {
+				StoreProxy.queue.clearQueue(queue.id);
+			}
+			return true;
+		}else
+
+		if(cmd == "/queuepick") {
+			//Pick a user from queue (first or random)
+			const queueArgs = this.parseCommandArgs(message);
+			const queueIdentifier = queueArgs[0];
+			const mode = queueArgs[1]?.toLowerCase() || "first"; // first or random
+			if(!queueIdentifier) {
+				const notice:TwitchatDataTypes.MessageNoticeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					platform:"twitchat",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+					message:StoreProxy.i18n.t("error.queue_name_missing"),
+					channel_id:channelId
+				}
+				StoreProxy.chat.addMessage(notice);
+				return true;
+			}
+			const queue = this.findQueueByTitleOrId(queueIdentifier);
+			if(!queue) {
+				const notice:TwitchatDataTypes.MessageNoticeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					platform:"twitchat",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+					message:StoreProxy.i18n.t("error.queue_not_found", {QUEUE: queueIdentifier}),
+					channel_id:channelId
+				}
+				StoreProxy.chat.addMessage(notice);
+				return true;
+			}
+			try {
+				if(mode === "random") {
+					StoreProxy.queue.pickRandomUser(queue.id);
+				} else {
+					StoreProxy.queue.pickFirstUser(queue.id);
+				}
+			} catch(error) {
+				const notice:TwitchatDataTypes.MessageNoticeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					platform:"twitchat",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+					message:StoreProxy.i18n.t("error.queue_pick_failed"),
+					channel_id:channelId
+				}
+				StoreProxy.chat.addMessage(notice);
+			}
+			return true;
+		}else
+
+		if(cmd == "/queuemove") {
+			//Move a user to in-progress
+			const queueArgs = this.parseCommandArgs(message);
+			const queueIdentifier = queueArgs[0];
+			const username = queueArgs[1];
+			if(!queueIdentifier || !username) {
+				const notice:TwitchatDataTypes.MessageNoticeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					platform:"twitchat",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+					message:StoreProxy.i18n.t("error.queue_move_params_missing"),
+					channel_id:channelId
+				}
+				StoreProxy.chat.addMessage(notice);
+				return true;
+			}
+			const queue = this.findQueueByTitleOrId(queueIdentifier);
+			if(!queue) {
+				const notice:TwitchatDataTypes.MessageNoticeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					platform:"twitchat",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+					message:StoreProxy.i18n.t("error.queue_not_found", {QUEUE: queueIdentifier}),
+					channel_id:channelId
+				}
+				StoreProxy.chat.addMessage(notice);
+				return true;
+			}
+			const cleanUsername = username.toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim();
+			const entry = queue.entries.find(e => e.user.login.toLowerCase() === cleanUsername);
+			if(!entry) {
+				const notice:TwitchatDataTypes.MessageNoticeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					platform:"twitchat",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+					message:StoreProxy.i18n.t("error.queue_user_not_found", {USER: username}),
+					channel_id:channelId
+				}
+				StoreProxy.chat.addMessage(notice);
+				return true;
+			}
+			StoreProxy.queue.moveToInProgress(queue.id, entry.user.id);
+			return true;
+		}else
+
+		if(cmd == "/queueremove") {
+			//Remove a user from queue
+			const queueArgs = this.parseCommandArgs(message);
+			const queueIdentifier = queueArgs[0];
+			const username = queueArgs[1];
+			const target = queueArgs[2]?.toLowerCase() || "queue"; // queue, progress, or all
+			if(!queueIdentifier || !username) {
+				const notice:TwitchatDataTypes.MessageNoticeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					platform:"twitchat",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+					message:StoreProxy.i18n.t("error.queue_remove_params_missing"),
+					channel_id:channelId
+				}
+				StoreProxy.chat.addMessage(notice);
+				return true;
+			}
+			const queue = this.findQueueByTitleOrId(queueIdentifier);
+			if(!queue) {
+				const notice:TwitchatDataTypes.MessageNoticeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					platform:"twitchat",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+					message:StoreProxy.i18n.t("error.queue_not_found", {QUEUE: queueIdentifier}),
+					channel_id:channelId
+				}
+				StoreProxy.chat.addMessage(notice);
+				return true;
+			}
+			const cleanUsername = username.toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim();
+			// Find user in queue entries or in-progress
+			const entryInQueue = queue.entries.find(e => e.user.login.toLowerCase() === cleanUsername);
+			const entryInProgress = queue.inProgress?.find(e => e.user.login.toLowerCase() === cleanUsername);
+
+			if(!entryInQueue && !entryInProgress) {
+				const notice:TwitchatDataTypes.MessageNoticeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					platform:"twitchat",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+					message:StoreProxy.i18n.t("error.queue_user_not_found", {USER: username}),
+					channel_id:channelId
+				}
+				StoreProxy.chat.addMessage(notice);
+				return true;
+			}
+
+			const userId = entryInQueue?.user.id || entryInProgress?.user.id || "";
+			if(target === "progress" && entryInProgress) {
+				StoreProxy.queue.removeViewerFromInProgress(queue.id, userId);
+			} else if(target === "all") {
+				if(entryInQueue) StoreProxy.queue.removeViewerFromQueue(queue.id, userId);
+				if(entryInProgress) StoreProxy.queue.removeViewerFromInProgress(queue.id, userId);
+			} else if(entryInQueue) {
+				StoreProxy.queue.removeViewerFromQueue(queue.id, userId);
+			}
+			return true;
 		}else
 
 		if(cmd == "/search") {

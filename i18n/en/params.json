@@ -127,6 +127,7 @@
 			"discord": "Discord",
 			"premium": "Premium",
 			"timers": "Timers",
+			"queues": "Queues",
 			"exporter": "Export settings"
 		},
 		"botMessages": {
@@ -167,6 +168,13 @@
 			"userinfo": "Opens a user's profile info",
 			"userfromid": "Get a user from their ID",
 			"raffle": "Start a raffle",
+			"queue": "Open the viewer queue",
+			"queuepause": "Pause a queue",
+			"queueresume": "Resume a queue",
+			"queueclear": "Clear a queue, in-progress, or removed list",
+			"queuepick": "Pick a user from the queue (first or random)",
+			"queuemove": "Move a user to in-progress",
+			"queueremove": "Remove a user from queue or in-progress",
 			"bingo": "Create a bingo session",
 			"raid": "Raid someone",
 			"so": "Shoutout a user",

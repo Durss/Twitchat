@@ -101,6 +101,7 @@
 			"hide_user_badges": "Masquer les personnes ayant le badge...",
 			"background_color": "Couleur de fond",
 			"channels": "Filtrer les chaînes à afficher",
+			"queues": "Sélectionner les files d'attente à afficher",
 			"select_all": "Tout",
 			"message_types": {
 				"twitchat_ad": "Astuces Twitchat",
@@ -144,7 +145,8 @@
 				"tiktok_like": "Tiktok likes",
 				"tiktok_gift": "Tiktok cadeaux",
 				"tiktok_share": "Tiktok partages",
-				"private_mod_message": "Messages de modération privés"
+				"private_mod_message": "Messages de modération privés",
+				"queue_command": "Commandes de file d'attente"
 			},
 			"message_filters": {
 				"viewers": "Envoyé par des viewers",
@@ -605,6 +607,22 @@
 		},
 		"many_replies": {
 			"label": "Ce message attire l'attention avec {COUNT} réponses directes ou indirectes"
+		},
+		"queue": {
+			"join": "a rejoint à la position {POSITION}",
+			"leave": "a quitté la file d'attente",
+			"move_to_progress": "passé en cours",
+			"complete": "terminé",
+			"pause": "file en pause",
+			"resume": "file reprise",
+			"user_picked": "sélectionné ({METHOD})",
+			"user_removed": "retiré de la file",
+			"in_progress_user_removed": "retiré des en cours",
+			"cleared": "file vidée ({COUNT} entrées)",
+			"in_progress_cleared": "encours vidés ({COUNT} entrées)",
+			"user_moved_up": "monté à la position {POSITION}",
+			"user_moved_down": "descendu à la position {POSITION}",
+			"user_moved_back": "remis dans la file à la position {POSITION}"
 		}
 	}
 }

@@ -251,6 +251,14 @@ export default class Config {
 	 * Maximum number of custom trains for premium users
 	 */
 	public MAX_CUSTOM_TRAIN_PREMIUM = 10;
+	/**
+	 * Maximum number of queues
+	 */
+	public MAX_QUEUES = 2;
+	/**
+	 * Maximum number of queues for premium users
+	 */
+	public MAX_QUEUES_PREMIUM = 50;
 
 	private _serverConfig!:ServerConfig;
 

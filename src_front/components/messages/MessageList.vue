@@ -822,6 +822,39 @@ class MessageList extends Vue {
 				return this.config.filters.streamsocket_action !== false;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.QUEUE_COMMAND:
+			case TwitchatDataTypes.TwitchatMessageType.QUEUE_JOIN:
+			case TwitchatDataTypes.TwitchatMessageType.QUEUE_LEAVE:
+			case TwitchatDataTypes.TwitchatMessageType.QUEUE_MOVE_TO_PROGRESS:
+			case TwitchatDataTypes.TwitchatMessageType.QUEUE_COMPLETE:
+			case TwitchatDataTypes.TwitchatMessageType.QUEUE_PAUSE:
+			case TwitchatDataTypes.TwitchatMessageType.QUEUE_RESUME:
+			case TwitchatDataTypes.TwitchatMessageType.QUEUE_USER_PICKED:
+			case TwitchatDataTypes.TwitchatMessageType.QUEUE_USER_REMOVED:
+			case TwitchatDataTypes.TwitchatMessageType.QUEUE_IN_PROGRESS_USER_REMOVED:
+			case TwitchatDataTypes.TwitchatMessageType.QUEUE_CLEARED:
+			case TwitchatDataTypes.TwitchatMessageType.QUEUE_IN_PROGRESS_CLEARED:
+			case TwitchatDataTypes.TwitchatMessageType.QUEUE_USER_MOVED_UP:
+			case TwitchatDataTypes.TwitchatMessageType.QUEUE_USER_MOVED_DOWN:
+			case TwitchatDataTypes.TwitchatMessageType.QUEUE_USER_MOVED_BACK: {
+				console.log("[Queue Debug] shouldShowMessage queue type:", m.type, "filter:", this.config.filters.queue_command, "col:", this.config.order);
+				if(this.config.filters.queue_command !== true) {
+					console.log("[Queue Debug] Rejected: queue_command filter is not true");
+					return false;
+				}
+				// Filter by specific queue if queueIDs is set
+				if(this.config.queueIDs) {
+					const queueMessage = m as { queueId?: string };
+					console.log("[Queue Debug] queueIDs filter:", this.config.queueIDs, "messageQueueId:", queueMessage.queueId);
+					if(queueMessage.queueId && this.config.queueIDs[queueMessage.queueId] === false) {
+						console.log("[Queue Debug] Rejected: queueID is false");
+						return false;
+					}
+				}
+				console.log("[Queue Debug] Accepted queue message");
+				return true;
+			}
+
 			default: return false;
 		}
 	}
@@ -835,7 +868,19 @@ class MessageList extends Vue {
 		// const el = this.$refs.chatMessageHolder as HTMLDivElement;
 		// const maxScroll = (el.scrollHeight - el.offsetHeight);
 		const m = e.data as TwitchatDataTypes.ChatMessageTypes;
-		if (!await this.shouldShowMessage(m)) return;
+		// Debug queue messages
+		if(m.type.startsWith("queue_")) {
+			console.log("[Queue Debug] onAddMessage received:", m.type, "col:", this.config.order);
+		}
+		if (!await this.shouldShowMessage(m)) {
+			if(m.type.startsWith("queue_")) {
+				console.log("[Queue Debug] Message filtered out:", m.type, "col:", this.config.order);
+			}
+			return;
+		}
+		if(m.type.startsWith("queue_")) {
+			console.log("[Queue Debug] Message accepted:", m.type, "col:", this.config.order);
+		}
 
 		if(await this.mergeWithPrevious(m)) return;
 

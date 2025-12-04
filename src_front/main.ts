@@ -81,6 +81,7 @@ import { storeCustomTrain } from './store/customtrain/storeCustomTrain';
 import { storeStreamSocket } from './store/streamsocket/storeStreamSocket';
 import { storeExporter } from './store/exporter/storeExporter';
 import { storeEndingCredits } from './store/ending_credits/storeEndingCredits';
+import { storeQueue } from './store/queue/storeQueue';
 
 window.setInitMessage("Booting app...");
 
@@ -305,6 +306,7 @@ function buildApp() {
 	StoreProxy.default.exporter = storeExporter();
 	StoreProxy.default.groq = storeGroq();
 	StoreProxy.default.endingCredits = storeEndingCredits();
+	StoreProxy.default.queue = storeQueue();
 
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach(k => {

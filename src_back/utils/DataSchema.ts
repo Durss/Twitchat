@@ -1704,6 +1704,14 @@ const UserDataSchema = {
 							}
 						}
 					},
+					queueIDs: {
+						type:"object",
+						additionalProperties: true,
+						maxProperties:100,
+						patternProperties: {
+							".{1,100}": { type:"boolean" }
+						}
+					},
 				}
 			}
 		},
@@ -2222,6 +2230,171 @@ const UserDataSchema = {
 										check: {type:"boolean"},
 										label: {type:"string", maxLength:60},
 									}
+								}
+							}
+						}
+					},
+				}
+			}
+		},
+		queueConfigs: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				queueList: {
+					type:"array",
+					minItems:0,
+					maxItems:50,
+					items:{
+						type:"object",
+						additionalProperties: false,
+						properties: {
+							id: {type:"string", maxLength:40},
+							enabled: {type:"boolean"},
+							title: {type:"string", maxLength:100},
+							placeholderKey: {type:"string", maxLength:100},
+							maxPerUser: {type:"number", minimum:0, maximum:1000},
+							maxEntries: {type:"number", minimum:0, maximum:10000},
+							inProgressEnabled: {type:"boolean"},
+							paused: {type:"boolean"},
+							entries: {
+								type:"array",
+								minItems:0,
+								maxItems:10000,
+								items:{
+									type:"object",
+									additionalProperties: false,
+									properties: {
+										odometer: {type:"number", minimum:0},
+										joinedAt: {type:"number", minimum:0},
+										user: {
+											type:"object",
+											additionalProperties: true,
+											properties: {
+												id: {type:"string", maxLength:40},
+												login: {type:"string", maxLength:100},
+												displayName: {type:"string", maxLength:100},
+											}
+										}
+									}
+								}
+							},
+							inProgress: {
+								type:"array",
+								minItems:0,
+								maxItems:10000,
+								items:{
+									type:"object",
+									additionalProperties: false,
+									properties: {
+										odometer: {type:"number", minimum:0},
+										joinedAt: {type:"number", minimum:0},
+										user: {
+											type:"object",
+											additionalProperties: true,
+											properties: {
+												id: {type:"string", maxLength:40},
+												login: {type:"string", maxLength:100},
+												displayName: {type:"string", maxLength:100},
+											}
+										}
+									}
+								}
+							},
+							commands: {
+								type:"object",
+								additionalProperties: false,
+								properties: {
+									join: {type:"string", maxLength:100},
+									leave: {type:"string", maxLength:100},
+									position: {type:"string", maxLength:100},
+								}
+							},
+							messages: {
+								type:"object",
+								additionalProperties: false,
+								properties: {
+									joinSuccess: {type:"string", maxLength:500},
+									joinAlreadyIn: {type:"string", maxLength:500},
+									joinFull: {type:"string", maxLength:500},
+									joinMaxPerUser: {type:"string", maxLength:500},
+									joinPaused: {type:"string", maxLength:500},
+									joinDisabled: {type:"string", maxLength:500},
+									leaveSuccess: {type:"string", maxLength:500},
+									leaveNotIn: {type:"string", maxLength:500},
+									position: {type:"string", maxLength:500},
+									positionNotIn: {type:"string", maxLength:500},
+									positionPaused: {type:"string", maxLength:500},
+								}
+							},
+							overlayParams: {
+								type:"object",
+								additionalProperties: false,
+								properties: {
+									showInProgress: {type:"boolean"},
+									rotateDelay: {type:"number", minimum:0, maximum:3600},
+									position: {enum: ["tl","t","tr","l","m","r","bl","b","br"]},
+									titleFont: {type:"string", maxLength:200},
+									titleSize: {type:"number", minimum:0, maximum:300},
+									titleColor: {type:"string", maxLength:10},
+									titleBgColor: {type:"string", maxLength:10},
+									titleBgOpacity: {type:"number", minimum:0, maximum:100},
+									subTitleFont: {type:"string", maxLength:200},
+									subTitleSize: {type:"number", minimum:0, maximum:300},
+									subTitleColor: {type:"string", maxLength:10},
+									subTitleBgColor: {type:"string", maxLength:10},
+									subTitleBgOpacity: {type:"number", minimum:0, maximum:100},
+									queueLabelFont: {type:"string", maxLength:200},
+									queueLabelSize: {type:"number", minimum:0, maximum:300},
+									queueLabelColor: {type:"string", maxLength:10},
+									queueBgColor: {type:"string", maxLength:10},
+									queueBgOpacity: {type:"number", minimum:0, maximum:100},
+									queueEntryFont: {type:"string", maxLength:200},
+									queueEntrySize: {type:"number", minimum:0, maximum:300},
+									queueEntryColor: {type:"string", maxLength:10},
+									queueEntryBgColor: {type:"string", maxLength:10},
+									queueEntryBgOpacity: {type:"number", minimum:0, maximum:100},
+									progressEntryFont: {type:"string", maxLength:200},
+									progressEntrySize: {type:"number", minimum:0, maximum:300},
+									progressEntryColor: {type:"string", maxLength:10},
+									progressBgColor: {type:"string", maxLength:10},
+									progressBgOpacity: {type:"number", minimum:0, maximum:100},
+									stateFont: {type:"string", maxLength:200},
+									stateSize: {type:"number", minimum:0, maximum:300},
+									stateColor: {type:"string", maxLength:10},
+									stateBgColor: {type:"string", maxLength:10},
+									stateBgOpacity: {type:"number", minimum:0, maximum:100},
+									statePausedFont: {type:"string", maxLength:200},
+									statePausedSize: {type:"number", minimum:0, maximum:300},
+									statePausedColor: {type:"string", maxLength:10},
+									statePausedBgColor: {type:"string", maxLength:10},
+									statePausedBgOpacity: {type:"number", minimum:0, maximum:100},
+									stateRunningFont: {type:"string", maxLength:200},
+									stateRunningSize: {type:"number", minimum:0, maximum:300},
+									stateRunningColor: {type:"string", maxLength:10},
+									stateRunningBgColor: {type:"string", maxLength:10},
+									stateRunningBgOpacity: {type:"number", minimum:0, maximum:100},
+									title: {type:"string", maxLength:200},
+									subTitle: {type:"string", maxLength:200},
+									queueLabel: {type:"string", maxLength:200},
+									progressLabel: {type:"string", maxLength:200},
+									showEmptyQueueMessage: {type:"boolean"},
+									emptyQueueMessage: {type:"string", maxLength:500},
+									emptyQueueFont: {type:"string", maxLength:200},
+									emptyQueueSize: {type:"number", minimum:0, maximum:300},
+									emptyQueueColor: {type:"string", maxLength:10},
+									emptyQueueBgColor: {type:"string", maxLength:10},
+									emptyQueueBgOpacity: {type:"number", minimum:0, maximum:100},
+									statePaused: {type:"string", maxLength:200},
+									stateRunning: {type:"string", maxLength:200},
+									showPausedState: {type:"boolean"},
+									showRunningState: {type:"boolean"},
+									sectionsOrder: {
+										type:"array",
+										minItems:0,
+										maxItems:10,
+										items: {type:"string", maxLength:50}
+									},
 								}
 							}
 						}

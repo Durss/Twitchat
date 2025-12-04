@@ -216,6 +216,41 @@ export const storeChat = defineStore('chat', {
 				detailsKey:"params.commands.raffle",
 			},
 			{
+				id:"queue",
+				cmd:"/queue",
+				detailsKey:"params.commands.queue",
+			},
+			{
+				id:"queuepause",
+				cmd:"/queuepause {queue}",
+				detailsKey:"params.commands.queuepause",
+			},
+			{
+				id:"queueresume",
+				cmd:"/queueresume {queue}",
+				detailsKey:"params.commands.queueresume",
+			},
+			{
+				id:"queueclear",
+				cmd:"/queueclear {queue} [queue|progress|removed]",
+				detailsKey:"params.commands.queueclear",
+			},
+			{
+				id:"queuepick",
+				cmd:"/queuepick {queue} [first|random]",
+				detailsKey:"params.commands.queuepick",
+			},
+			{
+				id:"queuemove",
+				cmd:"/queuemove {queue} {user}",
+				detailsKey:"params.commands.queuemove",
+			},
+			{
+				id:"queueremove",
+				cmd:"/queueremove {queue} {user} [queue|progress|all]",
+				detailsKey:"params.commands.queueremove",
+			},
+			{
 				id:"bingoemote",
 				cmd:"/bingo emote",
 				detailsKey:"params.commands.bingo",
@@ -2187,6 +2222,11 @@ export const storeChat = defineStore('chat', {
 					pinLevel:message.pinLevel,
 				} as JsonObject;
 				PublicAPI.instance.broadcast(TwitchatEvent.BITS, wsMessage);
+			}
+
+			// Handle queue commands (join, leave, position)
+			if(message.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+				StoreProxy.queue.handleQueueCommand(message as TwitchatDataTypes.MessageChatData);
 			}
 
 			TriggerActionHandler.instance.execute(message);

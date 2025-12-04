@@ -1,26 +1,73 @@
 {
-	"name": "Twitchat Node.js Development",
-	"image": "mcr.microsoft.com/devcontainers/javascript-node:18",
-	"features": {},
-	"forwardPorts": [3018, 8081],
-	"postCreateCommand": "npm install -g pm2 && npm install && mkdir -p ./data/credentials && if [ ! -f ./data/credentials/credentials.json ]; then cp ./.devcontainer/credentials.template.json ./data/credentials/credentials.json; fi",
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"vivaxy.vscode-conventional-commits",
-				"dbaeumer.vscode-eslint",
-				"esbenp.prettier-vscode",
-				"lokalise.i18n-ally",
-				"Vue.volar"
-			],
-			"settings": {
-				"editor.formatOnSave": true,
-				"editor.codeActionsOnSave": {
-					"source.fixAll.eslint": "explicit"
-				},
-				"files.autoSave": "onFocusChange"
-			}
-		}
-	}
+  "name": "Twitchat",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "TZ": "${localEnv:TZ:Europe/Paris}",
+      "CLAUDE_CODE_VERSION": "latest",
+      "GIT_DELTA_VERSION": "0.18.2",
+      "ZSH_IN_DOCKER_VERSION": "1.2.0"
+    }
+  },
+  "runArgs": [
+    "--cap-add=NET_ADMIN",
+    "--cap-add=NET_RAW",
+    "--name=vsc-${localWorkspaceFolderBasename}-devcontainer"
+  ],
+  "forwardPorts": [3018, 8081],
+  "portsAttributes": {
+    "3018": {
+      "label": "Twitchat Frontend",
+      "onAutoForward": "notify"
+    },
+    "8081": {
+      "label": "Twitchat Backend",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "npm install && mkdir -p ./data/credentials && if [ ! -f ./data/credentials/credentials.json ]; then cp ./.devcontainer/credentials.template.json ./data/credentials/credentials.json; fi && sudo /usr/local/bin/init-firewall.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vivaxy.vscode-conventional-commits",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "lokalise.i18n-ally",
+        "Vue.volar",
+        "anthropic.claude-code",
+        "mhutchie.git-graph",
+        "cweijan.vscode-office"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "files.autoSave": "onFocusChange",
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "bash",
+            "icon": "terminal-bash"
+          },
+          "zsh": {
+            "path": "zsh"
+          }
+        }
+      }
+    }
+  },
+  "remoteUser": "node",
+  "mounts": [
+    "source=claude-code-bashhistory-${devcontainerId},target=/commandhistory,type=volume",
+    "source=${localEnv:HOME}/.claude,target=/home/node/.claude,type=bind"
+  ],
+  "containerEnv": {
+    "NODE_OPTIONS": "--max-old-space-size=4096",
+    "CLAUDE_CONFIG_DIR": "/home/node/.claude",
+    "POWERLEVEL9K_DISABLE_GITSTATUS": "true"
+  },
+  "workspaceMount": "source=${localWorkspaceFolder},target=/${localWorkspaceFolderBasename},type=bind,consistency=delegated",
+  "workspaceFolder": "/${localWorkspaceFolderBasename}"
 }
-

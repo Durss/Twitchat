@@ -43,6 +43,11 @@
 		"badge_users":"Users associated to this badge",
 		"badge_users_none":"none",
 		"badge_users_reactivate":"Reactivate badge",
-		"ban_reason":"Ban reason"
+		"ban_reason":"Ban reason",
+		"addToQueueBt":"Add to queue",
+		"addToQueueBt_tt":"Add user to queue \"{QUEUE}\"",
+		"inQueueBt":"In queue",
+		"inQueueBt_tt":"User is in queue \"{QUEUE}\"",
+		"removeFromQueueBt_confirm":"Remove?"
 	}
 }

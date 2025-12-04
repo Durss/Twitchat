@@ -43,6 +43,11 @@
 		"badge_users":"Personnes associées à ce badge",
 		"badge_users_none":"aucune",
 		"badge_users_reactivate":"Réactiver le badge",
-		"ban_reason":"Raison du ban"
+		"ban_reason":"Raison du ban",
+		"addToQueueBt":"Ajouter à la file",
+		"addToQueueBt_tt":"Ajouter l'utilisateur à la file \"{QUEUE}\"",
+		"inQueueBt":"Dans la file",
+		"inQueueBt_tt":"L'utilisateur est dans la file \"{QUEUE}\"",
+		"removeFromQueueBt_confirm":"Retirer ?"
 	}
 }

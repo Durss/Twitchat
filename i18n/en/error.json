@@ -58,6 +58,12 @@
 			"pick_winner_no_subs": "You cannot start a raffle amongst your subs. No user is subscribed to your channel at the moment.",
 			"pick_winner_no_entry": "No user entered current raffle"
 		},
+		"queue_name_missing": "Missing queue name parameter",
+		"queue_not_found": "Queue \"{QUEUE}\" not found",
+		"queue_pick_failed": "Failed to pick user from queue (queue may be empty or in-progress not enabled)",
+		"queue_move_params_missing": "Missing queue name or user name parameter",
+		"queue_remove_params_missing": "Missing queue name or user name parameter",
+		"queue_user_not_found": "User \"{USER}\" not found in queue",
 		"youtube_denied": "You refused to grant access to your YouTube account",
 		"patreon_denied": "You refused to grant access to your Patreon profile",
 		"patreon_disconected": "Your Patreon account has been disconected",
