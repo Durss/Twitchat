@@ -97,6 +97,10 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static ANIMATED_TEXT_SHOW_COMPLETE:TwitchatEventType = "ANIMATED_TEXT_SHOW_COMPLETE";
 	public static ANIMATED_TEXT_HIDE_COMPLETE:TwitchatEventType = "ANIMATED_TEXT_HIDE_COMPLETE";
 	public static CUSTOM_TRAIN_STATE:TwitchatEventType = "CUSTOM_TRAIN_STATE";
+	public static CHAT_OVERLAY_PRESENCE:TwitchatEventType = "CHAT_OVERLAY_PRESENCE";
+	public static CHAT_OVERLAY_PARAMETERS:TwitchatEventType = "CHAT_OVERLAY_PARAMETERS";
+	public static CHAT_OVERLAY_MESSAGE:TwitchatEventType = "CHAT_OVERLAY_MESSAGE";
+	public static CHAT_OVERLAY_DELETE_MESSAGE:TwitchatEventType = "CHAT_OVERLAY_DELETE_MESSAGE";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -137,6 +141,8 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static SET_EMERGENCY_MODE:TwitchatActionType = "SET_EMERGENCY_MODE";
 	public static GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE:TwitchatActionType = "GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE";
 	public static SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE:TwitchatActionType = "SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE";
+	public static GET_CHAT_OVERLAY_PRESENCE:TwitchatActionType = "GET_CHAT_OVERLAY_PRESENCE";
+	public static GET_CHAT_OVERLAY_PARAMETERS:TwitchatActionType = "GET_CHAT_OVERLAY_PARAMETERS";
 	public static SHOW_CLIP:TwitchatActionType = "SHOW_CLIP";
 	public static START_EMERGENCY:TwitchatActionType = "START_EMERGENCY";
 	public static STOP_EMERGENCY:TwitchatActionType = "STOP_EMERGENCY";
@@ -286,6 +292,10 @@ export const TwitchatEventTypeList = [
 	"ANIMATED_TEXT_SHOW_COMPLETE",
 	"ANIMATED_TEXT_HIDE_COMPLETE",
 	"CUSTOM_TRAIN_STATE",
+	"CHAT_OVERLAY_PRESENCE",
+	"CHAT_OVERLAY_PARAMETERS",
+	"CHAT_OVERLAY_MESSAGE",
+	"CHAT_OVERLAY_DELETE_MESSAGE",
 ] as const;
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
 
@@ -328,6 +338,8 @@ export const TwitchatActionTypeList = [
 	"SET_EMERGENCY_MODE",
 	"GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE",
 	"SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE",
+	"GET_CHAT_OVERLAY_PRESENCE",
+	"GET_CHAT_OVERLAY_PARAMETERS",
 	"SHOW_CLIP",
 	"START_EMERGENCY",
 	"STOP_EMERGENCY",

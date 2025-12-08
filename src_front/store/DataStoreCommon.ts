@@ -95,6 +95,7 @@ export default class DataStoreCommon {
 	public static POLL_OVERLAY_PARAMS:string = "pollOverlayParams";
 	public static CHAT_POLL_PRESETS:string = "chatPollPresets";
 	public static CHAT_POLL_OVERLAY_PARAMS:string = "chatPollOverlayParams";
+	public static CHAT_OVERLAY_PARAMS:string = "chatOverlayParams";
 	public static TIPEEE:string = "tipeee";
 	public static PINNED_CHAT_MENU_ITEM:string = "pinnedChatMenuItem";
 	public static LUMIA:string = "lumia";

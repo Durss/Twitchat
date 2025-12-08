@@ -51,6 +51,7 @@
 			<button class="item" @click="subContent = 'counter'"><img src="@/assets/img/overlays/counters.jpg" alt="Counters"></button>
 			<button class="item" @click="subContent = 'timer'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16, id:'params_overlays_timers'}"><img src="@/assets/img/overlays/timer.jpg" alt="Timers"></button>
 			<button class="item" @click="subContent = 'ulule'"><img src="@/assets/img/overlays/ulule.jpg" alt="Ulule"></button>
+			<button class="item" @click="subContent = 'chat'" v-newflag="{date:$config.NEW_FLAGS_DATE_V16_12, id:'params_overlays_chat'}"><img src="@/assets/img/overlays/chat.jpg" alt="Chat"></button>
 		</div>
 
 		<div class="form">
@@ -73,6 +74,7 @@
 			<OverlayParamsDonationGoal class="block"	:open="subContent == 'donationgoals'"	v-if="subContent == 'donationgoals'" />
 			<OverlayParamsAnimatedText class="block"	:open="subContent == 'animatedtext'"	v-if="subContent == 'animatedtext'" />
 			<OverlayParamsCustomTrain class="block"		:open="subContent == 'customtrain'"		v-if="subContent == 'customtrain'" />
+			<OverlayParamsChat class="block"			:open="subContent == 'chat'"			v-if="subContent == 'chat'" />
 		</div>
 	</div>
 </template>
@@ -104,6 +106,7 @@ import OverlayParamsDonationGoal from './overlays/OverlayParamsDonationGoal.vue'
 import OverlayParamsChatPoll from './overlays/OverlayParamsChatPoll.vue';
 import OverlayParamsAnimatedText from './overlays/OverlayParamsAnimatedText.vue';
 import OverlayParamsCustomTrain from './overlays/OverlayParamsCustomTrain.vue';
+import OverlayParamsChat from './overlays/OverlayParamsChat.vue';
 
 @Component({
 	components:{
@@ -127,6 +130,7 @@ import OverlayParamsCustomTrain from './overlays/OverlayParamsCustomTrain.vue';
 		OverlayParamsHeatDistort,
 		OverlayParamsDonationGoal,
 		OverlayParamsAnimatedText,
+		OverlayParamsChat,
 	},
 	emits:[]
 })
