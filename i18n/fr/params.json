@@ -127,6 +127,7 @@
 			"discord": "Discord",
 			"premium": "Premium",
 			"timers": "Minuteurs",
+			"queues": "Files d'attente",
 			"exporter": "Export params"
 		},
 		"botMessages": {
@@ -167,6 +168,13 @@
 			"userinfo": "Ouvre un profil utilisateur",
 			"userfromid": "Recherche un profil utilisateur par son ID",
 			"raffle": "Lance un tirage au sort",
+			"queue": "Ouvre la file d'attente des viewers",
+			"queuepause": "Mettre en pause une file d'attente",
+			"queueresume": "Reprendre une file d'attente",
+			"queueclear": "Vider une file d'attente, les en cours ou les supprimés",
+			"queuepick": "Sélectionner un utilisateur de la file (premier ou aléatoire)",
+			"queuemove": "Déplacer un utilisateur vers les en cours",
+			"queueremove": "Retirer un utilisateur de la file ou des en cours",
 			"bingo": "Lance un bingo",
 			"raid": "Lance un raid",
 			"so": "Faire un shoutout",

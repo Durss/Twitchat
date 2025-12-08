@@ -85,6 +85,7 @@ export default class StoreProxy {
 	public static streamSocket: IStreamSocketState & IStreamSocketGetters & IStreamSocketActions & { $state: IStreamSocketState, $reset: () => void };
 	public static exporter: IExporterState & IExporterGetters & IExporterActions & { $state: IExporterState, $reset: () => void };
 	public static endingCredits: IEndingCreditsState & IEndingCreditsGetters & IEndingCreditsActions & { $state: IEndingCreditsState, $reset: () => void };
+	public static queue: IQueueState & IQueueGetters & IQueueActions & { $state: IQueueState, $reset: () => void };
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>> & {
 		// Dirty typing override.
 		// For some reason (may the "legacy" flag on main.ts ?) the VueI18n interface
@@ -3884,4 +3885,121 @@ export interface IEndingCreditsActions {
 	 * Save current ending credits params
 	 */
 	saveParams():Promise<void>;
+}
+
+export interface IQueueState {
+	/**
+	 * Queue list
+	 */
+	queueList: TwitchatDataTypes.QueueData[];
+}
+
+export interface IQueueGetters {
+}
+
+export interface IQueueActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
+	/**
+	 * Broadcast clear removed event
+	 */
+	broadcastClearRemoved(queueId:string):void;
+	/**
+	 * Broadcast queue states via PublicAPI
+	 */
+	broadcastStates(id?:string):void;
+	/**
+	 * Create a new queue
+	 */
+	createQueue():void;
+	/**
+	 * Delete a queue
+	 */
+	deleteQueue(id:string):void;
+	/**
+	 * Add a viewer to a queue
+	 */
+	addViewer(id:string, user:TwitchatDataTypes.TwitchatUser):void;
+	/**
+	 * Remove a viewer from both queue and in-progress
+	 */
+	removeViewer(id:string, userId:string):void;
+	/**
+	 * Remove a viewer from queue only
+	 */
+	removeViewerFromQueue(id:string, userId:string):void;
+	/**
+	 * Remove a viewer from in-progress only
+	 */
+	removeViewerFromInProgress(id:string, userId:string):void;
+	/**
+	 * Move a viewer to in progress
+	 */
+	moveToInProgress(id:string, userId:string):void;
+	/**
+	 * Pause a queue
+	 */
+	pauseQueue(id:string):void;
+	/**
+	 * Resume a queue
+	 */
+	resumeQueue(id:string):void;
+	/**
+	 * Save queue data to storage
+	 */
+	saveData():void;
+	/**
+	 * Handle queue command from chat message
+	 */
+	handleQueueCommand(message:TwitchatDataTypes.MessageChatData):Promise<boolean>;
+	/**
+	 * Execute queue join command
+	 */
+	executeQueueJoin(queue:TwitchatDataTypes.QueueData, message:TwitchatDataTypes.MessageChatData):Promise<void>;
+	/**
+	 * Execute queue leave command
+	 */
+	executeQueueLeave(queue:TwitchatDataTypes.QueueData, message:TwitchatDataTypes.MessageChatData):Promise<void>;
+	/**
+	 * Execute queue position command
+	 */
+	executeQueuePosition(queue:TwitchatDataTypes.QueueData, message:TwitchatDataTypes.MessageChatData):Promise<void>;
+	/**
+	 * Replace placeholders in a template string
+	 */
+	replacePlaceholders(template:string, values:{[key:string]:string}):string;
+	/**
+	 * Send queue response message
+	 */
+	sendQueueResponse(originalMessage:TwitchatDataTypes.MessageChatData, responseText:string):Promise<void>;
+	/**
+	 * Clear all entries from a queue
+	 */
+	clearQueue(id:string):void;
+	/**
+	 * Clear all in-progress entries from a queue
+	 */
+	clearInProgress(id:string):void;
+	/**
+	 * Pick the first user from queue and move to progress
+	 */
+	pickFirstUser(id:string):TwitchatDataTypes.TwitchatUser;
+	/**
+	 * Pick a random user from queue and move to progress
+	 */
+	pickRandomUser(id:string):TwitchatDataTypes.TwitchatUser;
+	/**
+	 * Move a user up in the queue
+	 */
+	moveUserUp(id:string, userId:string):void;
+	/**
+	 * Move a user down in the queue
+	 */
+	moveUserDown(id:string, userId:string):void;
+	/**
+	 * Move a user back to queue from in-progress
+	 */
+	moveUserBackToQueue(id:string, userId:string):void;
 }

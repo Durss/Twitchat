@@ -58,6 +58,12 @@
 			"pick_winner_no_subs": "Vous ne pouvez lancer un tirage au sort parmi vos subs. Aucune personne n'est abonnée à votre chaîne actuellement.",
 			"pick_winner_no_entry": "Aucune personne n'a rejoint le tirage au sort"
 		},
+		"queue_name_missing": "Paramètre du nom de file manquant",
+		"queue_not_found": "File \"{QUEUE}\" introuvable",
+		"queue_pick_failed": "Impossible de sélectionner un utilisateur (la file est peut-être vide ou les en cours non activés)",
+		"queue_move_params_missing": "Paramètre du nom de file ou d'utilisateur manquant",
+		"queue_remove_params_missing": "Paramètre du nom de file ou d'utilisateur manquant",
+		"queue_user_not_found": "Utilisateur \"{USER}\" introuvable dans la file",
 		"youtube_denied": "Vous avez refusé l'accès à votre compte YouTube",
 		"patreon_denied": "Vous avez refusé l'accès à votre profil Patreon",
 		"patreon_disconected": "Votre compte Patreon a été deconnecté",
