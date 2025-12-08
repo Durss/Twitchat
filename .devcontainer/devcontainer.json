@@ -1,6 +1,7 @@
 {
 	"name": "Twitchat Node.js Development",
 	"image": "mcr.microsoft.com/devcontainers/javascript-node:18",
+	"remoteUser": "node",
 	"features": {},
 	"forwardPorts": [3018, 8081],
 	"postCreateCommand": "npm install -g pm2 && npm install && mkdir -p ./data/credentials && if [ ! -f ./data/credentials/credentials.json ]; then cp ./.devcontainer/credentials.template.json ./data/credentials/credentials.json; fi",
