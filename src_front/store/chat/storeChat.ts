@@ -670,6 +670,7 @@ export const storeChat = defineStore('chat', {
 			position:"bl",
 			dateLabel:"",
 		},
+		chatOverlayList: [] as TwitchatDataTypes.ChatOverlayParams[],
 	} as IChatState),
 
 
@@ -693,6 +694,63 @@ export const storeChat = defineStore('chat', {
 			if(chatHighlight) {
 				Utils.mergeRemoteObject(JSON.parse(chatHighlight), (this.chatHighlightOverlayParams as unknown) as JsonObject);
 			}
+
+			//Init chat overlay list
+			const chatOverlay = DataStore.get(DataStore.CHAT_OVERLAY_PARAMS);
+			if(chatOverlay) {
+				const data = JSON.parse(chatOverlay);
+				// Migration: if it's a single object (old format), convert to array
+				if(data && !Array.isArray(data)) {
+					this.chatOverlayList = [data];
+				} else {
+					this.chatOverlayList = data || [];
+				}
+				// Migration: add default title if missing
+				for(let i = 0; i < this.chatOverlayList.length; i++) {
+					const overlay = this.chatOverlayList[i];
+					if(!overlay.title) {
+						overlay.title = StoreProxy.i18n.t('overlay.chat.default_title', { num: i + 1 });
+					}
+				}
+			}
+
+			//Listen for chat overlay parameter requests (with overlay ID)
+			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CHAT_OVERLAY_PARAMETERS, (event:TwitchatEvent) => {
+				const overlayId = (event.data as {overlayId?:string})?.overlayId;
+				if(overlayId) {
+					const overlay = this.chatOverlayList.find(o => o.id === overlayId);
+					if(overlay) {
+						// Add localized labels for the overlay
+						const labels: TwitchatDataTypes.ChatOverlayLabels = {
+							event_follow: StoreProxy.i18n.t('overlay.chat.event_follow'),
+							event_sub_gift: StoreProxy.i18n.t('overlay.chat.event_sub_gift'),
+							event_sub_resub: StoreProxy.i18n.t('overlay.chat.event_sub_resub'),
+							event_sub_new: StoreProxy.i18n.t('overlay.chat.event_sub_new'),
+							event_cheer: StoreProxy.i18n.t('overlay.chat.event_cheer'),
+							event_raid: StoreProxy.i18n.t('overlay.chat.event_raid'),
+							event_reward: StoreProxy.i18n.t('overlay.chat.event_reward'),
+							event_ban: StoreProxy.i18n.t('overlay.chat.event_ban'),
+							event_ban_duration: StoreProxy.i18n.t('overlay.chat.event_ban_duration'),
+							event_unban: StoreProxy.i18n.t('overlay.chat.event_unban'),
+							event_shoutout: StoreProxy.i18n.t('overlay.chat.event_shoutout'),
+							event_join: StoreProxy.i18n.t('overlay.chat.event_join'),
+							event_join_multiple: StoreProxy.i18n.t('overlay.chat.event_join_multiple'),
+							event_leave: StoreProxy.i18n.t('overlay.chat.event_leave'),
+							event_leave_multiple: StoreProxy.i18n.t('overlay.chat.event_leave_multiple'),
+							event_kofi: StoreProxy.i18n.t('overlay.chat.event_kofi'),
+							event_streamlabs: StoreProxy.i18n.t('overlay.chat.event_streamlabs'),
+							event_streamelements: StoreProxy.i18n.t('overlay.chat.event_streamelements'),
+							event_tipeee: StoreProxy.i18n.t('overlay.chat.event_tipeee'),
+							event_tiltify: StoreProxy.i18n.t('overlay.chat.event_tiltify'),
+							event_patreon: StoreProxy.i18n.t('overlay.chat.event_patreon'),
+							event_connect: StoreProxy.i18n.t('overlay.chat.event_connect'),
+							event_disconnect: StoreProxy.i18n.t('overlay.chat.event_disconnect'),
+						};
+						const paramsWithLabels = { ...overlay, labels };
+						PublicAPI.instance.broadcast(TwitchatEvent.CHAT_OVERLAY_PARAMETERS, { parameters: paramsWithLabels, overlayId } as unknown as JsonObject);
+					}
+				}
+			});
 
 			//Init bot messages
 			const botMessages = DataStore.get(DataStore.BOT_MESSAGES);
@@ -2112,6 +2170,22 @@ export const storeChat = defineStore('chat', {
 				}
 
 				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, message));
+
+				//Broadcast message to chat overlay if it's a displayable message type
+				const displayableTypes = TwitchatDataTypes.MessageListFilterTypes.map(f => f.type);
+				const extraTypes = [
+					TwitchatDataTypes.TwitchatMessageType.CONNECT,
+					TwitchatDataTypes.TwitchatMessageType.DISCONNECT,
+				];
+				if(displayableTypes.includes(message.type as typeof displayableTypes[number])
+				|| extraTypes.includes(message.type as typeof extraTypes[number])) {
+					// Enrich message with channel user info for source identification
+					const channelUser = StoreProxy.users.getUserFrom(message.platform, message.channel_id, message.channel_id);
+					const broadcastMessage = channelUser
+						? { ...message, channelUser } as unknown as JsonObject
+						: message as unknown as JsonObject;
+					PublicAPI.instance.broadcast(TwitchatEvent.CHAT_OVERLAY_MESSAGE, broadcastMessage);
+				}
 			}
 
 			const e = Date.now();
@@ -2236,6 +2310,7 @@ export const storeChat = defineStore('chat', {
 					}
 				}
 				PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
+				PublicAPI.instance.broadcast(TwitchatEvent.CHAT_OVERLAY_DELETE_MESSAGE, { id: message.id });
 
 				//Don't keep automod accept/reject message
 				if(message.twitch_automod) {

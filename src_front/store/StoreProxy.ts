@@ -637,6 +637,10 @@ export interface IChatState {
 	 */
 	chatHighlightOverlayParams: TwitchatDataTypes.ChatHighlightParams;
 	/**
+	 * List of chat overlay configurations.
+	 */
+	chatOverlayList: TwitchatDataTypes.ChatOverlayParams[];
+	/**
 	 * True when using /spam command to send fake messages on chat
 	 */
 	spamingFakeMessages:boolean;

@@ -14,7 +14,7 @@ export namespace TwitchatDataTypes {
 
 	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "chatPoll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
 
-	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals' | "animatedtext" | "customtrain";
+	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "chatPoll" | "bingogrid" | "labels" | 'donationgoals' | "animatedtext" | "customtrain" | "chat";
 
 	export const ParamDeepSections = {
 		AD: "ad",
@@ -1404,6 +1404,130 @@ export namespace TwitchatDataTypes {
 	export interface ChatHighlightParams {
 		position:ScreenPosition;
 	}
+	/**
+	 * Parameters for the chat overlay
+	 */
+	export interface ChatOverlayParams {
+		/**
+		 * Unique ID of the overlay
+		 */
+		id:string;
+		/**
+		 * Title of the overlay for display in the list
+		 */
+		title:string;
+		/**
+		 * Filter params of the overlay
+		 */
+		filters:{[key in typeof MessageListFilterTypes[number]["type"]]:boolean};
+		/**
+		 * Filter params of the "messages" sub section
+		 */
+		messageFilters:ChatColumnsConfigMessageFilters;
+		/**
+		 * Specific commands that should be hidden
+		 */
+		commandsBlockList:string[];
+		/**
+		 * Specific users that should be hidden
+		 */
+		userBlockList:string[];
+		/**
+		 * Custom permissions for the whispers
+		 */
+		whispersPermissions:PermissionsData;
+		/**
+		 * Should filter on mandatory badges
+		 */
+		mandatoryBadges_flag?:boolean;
+		/**
+		 * Should filter on forbidden badges
+		 */
+		forbiddenBadges_flag?:boolean;
+		/**
+		 * Badges user must have
+		 */
+		mandatoryBadges?:string[];
+		/**
+		 * Badges user must not have
+		 */
+		forbiddenBadges?:string[];
+		/**
+		 * Maximum number of messages to show
+		 */
+		maxMessages:number;
+		/**
+		 * Duration before a message disappears (in seconds). 0 = never
+		 */
+		messageDuration:number;
+		/**
+		 * Delay between messages appearing (in ms)
+		 */
+		messageDelay:number;
+		/**
+		 * Show user avatars
+		 */
+		showAvatars:boolean;
+		/**
+		 * Show badges
+		 */
+		showBadges:boolean;
+		/**
+		 * Show platform logo (Twitch, YouTube, etc.)
+		 */
+		showPlatformLogo:boolean;
+		/**
+		 * Direction of the chat: 'bottom_to_top' (newest at bottom) or 'top_to_bottom' (newest at top)
+		 */
+		direction:'bottom_to_top'|'top_to_bottom';
+		/**
+		 * Size of the chat messages
+		 */
+		size:'xs'|'s'|'m'|'l'|'xl'|'xxl';
+		/**
+		 * Visual style/theme of the chat
+		 */
+		style:'default'|'twitch'|'bubbles'|'gradient'|'neon'|'minimal'|'glass';
+		/**
+		 * Platforms filter - true = show messages from this platform
+		 */
+		platformsFilter:{[key:string]:boolean};
+		/**
+		 * Entrance animation for new messages
+		 */
+		entranceAnimation:'none'|'wipe'|'elastic'|'flip'|'glitch'|'slide'|'fade';
+		/**
+		 * Localized labels for events (only sent to overlay, not stored)
+		 */
+		labels?:ChatOverlayLabels;
+	}
+
+	export interface ChatOverlayLabels {
+		event_follow:string;
+		event_sub_gift:string;
+		event_sub_resub:string;
+		event_sub_new:string;
+		event_cheer:string;
+		event_raid:string;
+		event_reward:string;
+		event_ban:string;
+		event_ban_duration:string;
+		event_unban:string;
+		event_shoutout:string;
+		event_join:string;
+		event_join_multiple:string;
+		event_leave:string;
+		event_leave_multiple:string;
+		event_kofi:string;
+		event_streamlabs:string;
+		event_streamelements:string;
+		event_tipeee:string;
+		event_tiltify:string;
+		event_patreon:string;
+		event_connect:string;
+		event_disconnect:string;
+	}
+
 	export interface ClipInfo {
 		duration:number;
 		url:string;
