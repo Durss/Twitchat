@@ -1254,7 +1254,7 @@ export class ChatForm extends Vue {
 		}
 
 		if(/\{.*?\}/gi.test(item)) {
-			localMessage = localMessage.replace(/{(.*?)\}/gi, "$1");
+			localMessage = localMessage.replace(/{(.*?)\}/gi, "[$1]");
 		}
 		this.message = localMessage;
 
@@ -1262,7 +1262,7 @@ export class ChatForm extends Vue {
 
 		//Pre select commands placeholder
 		if(/\{.*?\}/gi.test(item)) {
-			input.setSelectionRange(item.indexOf("{"), item.indexOf("}"), "forward");
+			input.setSelectionRange(item.indexOf("{"), item.indexOf("}")+1, "forward");
 		}else{
 			input.setSelectionRange(caretPos, caretPos, "forward");
 			input.focus();

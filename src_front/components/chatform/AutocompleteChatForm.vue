@@ -6,7 +6,7 @@
 		:ref="'item_'+i.id"
 		:class="getClasses(index, i)"
 		@click="selectItem(i)"
-		v-tooltip="{content:i.type=='cmdS'? i.tooltipKey : ''}">
+		v-tooltip="{content:i.type=='slashCommand'? i.tooltipKey : ''}">
 			<img
 				class="image"
 				loading="lazy"
@@ -16,16 +16,16 @@
 				v-if="i.type=='emote'">
 
 			<Icon v-else-if="i.type == 'user'" class="image" name="user" />
-			<Icon v-else-if="i.type == 'cmdS'" class="image" name="commands" alt="cmd" />
-			<Icon v-else-if="i.type == 'cmdC'" class="image" name="chatCommand" alt="cmd" />
-			<Icon v-if="i.type == 'cmdS' && i.rawCmd && i.rawCmd.needAdmin" class="image small" name="lock_fit" alt="user" v-tooltip="$t('global.cmd_admin')" />
-			<Icon v-if="i.type == 'cmdS' && i.rawCmd && i.rawCmd.twitchCmd" class="image small" name="twitch" alt="user" v-tooltip="$t('global.cmd_twitch')" />
-			<Icon v-if="i.type == 'cmdS' && i.rawCmd && i.rawCmd.needModerator" class="image small" name="mod" alt="user" v-tooltip="$t('global.cmd_mod')" />
+			<Icon v-else-if="i.type == 'slashCommand'" class="image" name="commands" alt="cmd" />
+			<Icon v-else-if="i.type == 'chatCommand'" class="image" name="chatCommand" alt="cmd" />
+			<Icon v-if="i.type == 'slashCommand' && i.rawCmd && i.rawCmd.needAdmin" class="image small" name="lock_fit" alt="user" v-tooltip="$t('global.cmd_admin')" />
+			<Icon v-if="i.type == 'slashCommand' && i.rawCmd && i.rawCmd.twitchCmd" class="image small" name="twitch" alt="user" v-tooltip="$t('global.cmd_twitch')" />
+			<Icon v-if="i.type == 'slashCommand' && i.rawCmd && i.rawCmd.needModerator" class="image small" name="mod" alt="user" v-tooltip="$t('global.cmd_mod')" />
 
 			<div class="name">{{i.label}}</div>
 			<div class="source" v-if="i.type == 'emote' && i.source">( {{ i.source }} )</div>
-			<div class="infos" v-if="i.type == 'cmdS' && (i.infos || i.infosKey)">{{i.infos || $t(i.infosKey || "")}}</div>
-			<div class="name alias" v-else-if="i.type=='cmdS' && i.alias">(alias: {{i.alias}})</div>
+			<div class="infos" v-if="i.type == 'slashCommand' && (i.infos || i.infosKey)">{{i.infos || $t(i.infosKey || "")}}</div>
+			<div class="name alias" v-else-if="i.type=='slashCommand' && i.alias">(alias: {{i.alias}})</div>
 		</div>
 		<div v-if="showGrantEmotesPermission" class="item grantPermission" @click="grantEmoteScope()">
 			<Icon class="image" name="lock_fit" /> <div class="name">{{ $t("global.emote_scope") }}</div>
@@ -82,8 +82,8 @@ class AutocompleteChatForm extends Vue {
 	public getClasses(index:number, item:ListItem):string[] {
 		let res = ["item"];
 		if(index == this.selectedIndex)				res.push('selected');
-		if(item.type == "cmdS" && item.disabled)	res.push('disabled');
-		if(item.type == "cmdS" && item.rawCmd) {
+		if(item.type == "slashCommand" && item.disabled)	res.push('disabled');
+		if(item.type == "slashCommand" && item.rawCmd) {
 			if(item.rawCmd.needAdmin)		res.push('admin');
 			if(item.rawCmd.needModerator)	res.push('mod');
 			if(item.rawCmd.needBroadcaster)	res.push('mod');
@@ -119,7 +119,7 @@ class AutocompleteChatForm extends Vue {
 	 * @param item
 	 */
 	public selectItem(item:ListItem):void {
-		if(item.type == "cmdS") {
+		if(item.type == "slashCommand") {
 			if(item.disabled) {
 				if(item.rawCmd && item.rawCmd.twitch_scopes) {
 					this.$store.auth.requestTwitchScopes(item.rawCmd.twitch_scopes);
@@ -319,7 +319,7 @@ class AutocompleteChatForm extends Vue {
 						if(e.needDiscordChan === true && !hasDiscordCmd) continue;
 
 						res.push({
-							type:"cmdS",
+							type:"slashCommand",
 							label:e.cmd.replace(/{(.*?)\}/gi, "$1"),
 							cmd:e.cmd,
 							infos:e.details,
@@ -344,7 +344,7 @@ class AutocompleteChatForm extends Vue {
 						}
 
 						res.push({
-							type:t.type == TriggerTypes.CHAT_COMMAND? "cmdC" : "cmdS",
+							type:t.type == TriggerTypes.CHAT_COMMAND? "chatCommand" : "slashCommand",
 							label:t.chatCommand + paramsTxt,
 							cmd:t.chatCommand + paramsTxt,
 							infos:t.name ?? "",
@@ -357,7 +357,7 @@ class AutocompleteChatForm extends Vue {
 			}
 
 			res.sort((a,b)=> {
-				if(a.type == "cmdS" && b.type == "cmdS") {
+				if(a.type == "slashCommand" && b.type == "slashCommand") {
 					if(a.disabled && !b.disabled) return 1;
 					if(!a.disabled && b.disabled) return -1;
 					if(a.rawCmd && !b.rawCmd) return -1;
@@ -402,7 +402,10 @@ interface EmoteItem {
 }
 
 interface CommandItem {
-	type:"cmdS"|"cmdC";
+	/**
+	 * chatCommand starts with "!" and slashCommand starts with "/"
+	 */
+	type:"slashCommand"|"chatCommand";
 	id:string;
 	label:string;
 	cmd:string;
@@ -446,7 +449,7 @@ export default toNative(AutocompleteChatForm);
 			background-color: var(--background-color-fader);
 		}
 
-		&.cmdS, &.cmdC {
+		&.slashCommand, &.chatCommand {
 			// display: flex;
 			// flex-direction: row;
 			// justify-content: space-between;

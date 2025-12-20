@@ -1708,8 +1708,14 @@ export default class TwitchUtils {
 	/**
 	 * Create a clip
 	 */
-	public static async createClip(): Promise<boolean> {
+	public static async createClip(duration?:number, title?:string): Promise<boolean> {
 		if (!this.hasScopes([TwitchScopes.CLIPS_EDIT])) return false;
+
+		// Clamp duration between 5 and 60 seconds if specified
+		if(duration) {
+			if(duration < 5) duration = 5;
+			if(duration > 60) duration = 60;
+		}
 
 		const channel_id = this.uid;
 		let message: TwitchatDataTypes.MessageClipCreate = {
@@ -1732,6 +1738,9 @@ export default class TwitchUtils {
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH + "clips");
 		url.searchParams.append("broadcaster_id", channel_id);
+		if(duration) url.searchParams.append("duration", duration.toString());
+		if(title) url.searchParams.append("title", title);
+		
 		const res = await this.callApi(url, options);
 		if (res.status > 200 && res.status < 204) {
 			const json = await res.json();
@@ -2094,7 +2103,7 @@ export default class TwitchUtils {
 			headers: this.headers,
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH + "moderation/moderators");
-		url.searchParams.append("broadcaster_id", this.uid);
+		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("user_id", user.id);
 		const res = await this.callApi(url, options);
 		if (res.status == 200 || res.status == 204) {

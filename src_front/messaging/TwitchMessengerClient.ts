@@ -363,6 +363,38 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					if(user) return await TwitchUtils.addRemoveModerator(false, channelId, user);
 					return false;
 				}
+				case "/mods": {
+					if(!TwitchUtils.requestScopes([TwitchScopes.READ_MODERATORS])) return false;
+					const mods = await TwitchUtils.getModerators();
+					if(mods.length === 0) mods.push({user_login:"none", user_id:"0", user_name:"None"});
+					const m:TwitchatDataTypes.MessageNoticeData = {
+						channel_id:channelId,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						message:"Moderators: "+ mods.map(u=> u.user_login).join(", "),
+						noticeId:TwitchatDataTypes.TwitchatNoticeType.GENERIC,
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					}
+					StoreProxy.chat.addMessage(m)
+					return true;
+				}
+				case "/vips": {
+					if(!TwitchUtils.requestScopes([TwitchScopes.READ_VIPS])) return false;
+					const vips = await TwitchUtils.getVIPs();
+					if(vips.length === 0) vips.push({user_login:"none", user_id:"0", user_name:"None"});
+					const m:TwitchatDataTypes.MessageNoticeData = {
+						channel_id:channelId,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						message:"VIPs: "+ vips.map(u=> u.user_login).join(", "),
+						noticeId:TwitchatDataTypes.TwitchatNoticeType.GENERIC,
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					}
+					StoreProxy.chat.addMessage(m)
+					return true;
+				}
 				case "/unmod": {
 					if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_MODS])) return false;
 					const user = await getUserFromLogin(chunks[0], channelId);
@@ -449,8 +481,17 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					return await TwitchUtils.raidCancel();
 				}
 				case "/clip":  {
+					let title = "";
+					let duration = parseInt(chunks[0]);
+					if(isNaN(duration)) {
+						if(chunks.length > 0) {
+							title = chunks.join(" ");
+						}
+					}else{
+						title = chunks.splice(1).join(" ");
+					}
 					if(!TwitchUtils.requestScopes([TwitchScopes.CLIPS_EDIT])) return false;
-					return await TwitchUtils.createClip();
+					return await TwitchUtils.createClip(duration, title);
 				}
 				case "/whisper":
 				case "/w": {
@@ -467,8 +508,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				//TODO
 				case "/uniquechat": return false;
 				case "/uniquechatoff": return false;
-				case "/mods": return false;
-				case "/vips": return false;
 			}
 
 		}

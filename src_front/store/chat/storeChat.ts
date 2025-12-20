@@ -483,6 +483,14 @@ export const storeChat = defineStore('chat', {
 				twitch_scopes:[TwitchScopes.SHIELD_MODE],
 			},
 			{
+				id:"modList",
+				cmd:"/mods",
+				detailsKey:"params.commands.mods",
+				twitchCmd:true,
+				needBroadcaster:true,
+				twitch_scopes:[TwitchScopes.READ_MODERATORS],
+			},
+			{
 				id:"mod",
 				cmd:"/mod {user}",
 				detailsKey:"params.commands.mod",
@@ -497,6 +505,14 @@ export const storeChat = defineStore('chat', {
 				twitchCmd:true,
 				needBroadcaster:true,
 				twitch_scopes:[TwitchScopes.EDIT_MODS],
+			},
+			{
+				id:"vipList",
+				cmd:"/vips",
+				detailsKey:"params.commands.vips",
+				twitchCmd:true,
+				needBroadcaster:true,
+				twitch_scopes:[TwitchScopes.EDIT_VIPS],
 			},
 			{
 				id:"vip",
@@ -516,7 +532,7 @@ export const storeChat = defineStore('chat', {
 			},
 			{
 				id:"clip",
-				cmd:"/clip",
+				cmd:"/clip {duration} {title}",
 				detailsKey:"params.commands.clips",
 				twitchCmd:true,
 				needModerator:true,
