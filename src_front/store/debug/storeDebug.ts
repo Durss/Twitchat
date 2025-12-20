@@ -1536,7 +1536,7 @@ export const storeDebug = defineStore('debug', {
 						amountFormatted:amount+"€",
 						currency:"EUR",
 						eventType:"donation",
-						isPublic:true,
+						isPublic:Math.random() > .5,
 						message,
 						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						message_chunks:chunks,
@@ -1758,7 +1758,7 @@ export const storeDebug = defineStore('debug', {
 					const m:TwitchatDataTypes.MessageWebsocketTopicData = {
 						date:Date.now(),
 						id:Utils.getUUID(),
-						platform:"youtube",
+						platform:"twitchat",
 						type,
 						channel_id:uid,
 						topic,
@@ -1773,7 +1773,7 @@ export const storeDebug = defineStore('debug', {
 					const m:TwitchatDataTypes.MessageTikTokGiftData = {
 						date:Date.now(),
 						id:Utils.getUUID(),
-						platform:"youtube",
+						platform:"tiktok",
 						type,
 						channel_id:uid,
 						image:"https://p19-webcast.tiktokcdn.com/img/maliva/webcast-va/eba3a9bb85c33e017f3648eaf88d7189~tplv-obj.png",
@@ -1792,7 +1792,7 @@ export const storeDebug = defineStore('debug', {
 					const m:TwitchatDataTypes.MessageTikTokLikeData = {
 						date:Date.now(),
 						id:Utils.getUUID(),
-						platform:"youtube",
+						platform:"tiktok",
 						type,
 						channel_id:uid,
 						user:fakeUser,
@@ -1807,7 +1807,7 @@ export const storeDebug = defineStore('debug', {
 					const m:TwitchatDataTypes.MessageTikTokShareData = {
 						date:Date.now(),
 						id:Utils.getUUID(),
-						platform:"youtube",
+						platform:"tiktok",
 						type,
 						channel_id:uid,
 						user:fakeUser,
@@ -1820,7 +1820,7 @@ export const storeDebug = defineStore('debug', {
 					const m:TwitchatDataTypes.MessageTikTokSubData = {
 						date:Date.now(),
 						id:Utils.getUUID(),
-						platform:"youtube",
+						platform:"tiktok",
 						type,
 						channel_id:uid,
 						user:fakeUser,
@@ -1868,7 +1868,7 @@ export const storeDebug = defineStore('debug', {
 						type,
 						date:Date.now(),
 						channel_id:StoreProxy.auth.twitch.user.id,
-						platform:"twitch",
+						platform:"twitchat",
 						user:fakeUser,
 						message:message,
 						message_chunks:chunks,
@@ -2067,7 +2067,7 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				default: {
-					let message = "The request message type \""+type+"\" is lacking implementation on storeDebug."
+					let message = "The request message type \""+type+"\" is missing implementation on storeDebug."
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const m:TwitchatDataTypes.MessageCustomData = {
 						platform:"twitch",
