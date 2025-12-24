@@ -285,14 +285,14 @@ export const storeChat = defineStore('chat', {
 			},
 			{
 				id:"tts",
-				cmd:"/tts {user}",
+				cmd:"/tts {message}",
 				detailsKey:"params.commands.tts",
 				needTTS:true,
 			},
 			{
-				id:"ttsoff",
-				cmd:"/ttsoff {user}",
-				detailsKey:"params.commands.ttsoff",
+				id:"ttsuser",
+				cmd:"/ttsuser {user}",
+				detailsKey:"params.commands.ttsuser",
 				needTTS:true,
 			},
 			{
