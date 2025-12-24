@@ -39,7 +39,7 @@
 
 <script lang="ts">
 import { TriggerTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import BTTVUtils from '@/utils/emotes/BTTVUtils';
 import FFZUtils from '@/utils/emotes/FFZUtils';
 import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
@@ -124,6 +124,9 @@ class AutocompleteChatForm extends Vue {
 			if(item.disabled) {
 				if(item.rawCmd && item.rawCmd.twitch_scopes) {
 					this.$store.auth.requestTwitchScopes(item.rawCmd.twitch_scopes);
+				}else
+				if(item.rawCmd && item.rawCmd.needTTS) {
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TTS);
 				}
 			}else{
 				this.$emit("selectItem", item.cmd);
@@ -302,9 +305,10 @@ class AutocompleteChatForm extends Vue {
 					const e = cmds[j] as TwitchatDataTypes.CommandData;
 					if(e.cmd.toLowerCase().indexOf(s) > -1
 					|| e.alias?.toLowerCase().indexOf(s) > -1) {
+						let disabled = false;
 
 						//Remove TTS related commands if TTS isn't enabled
-						if(e.needTTS === true && !sTTS.params.enabled) continue;
+						if(e.needTTS === true && !sTTS.params.enabled) disabled = true;
 
 						//Remove admin specific commands if we're not an admin
 						if(e.needAdmin === true && !isAdmin) continue;
@@ -329,7 +333,7 @@ class AutocompleteChatForm extends Vue {
 							infosKey:e.detailsKey,
 							id:e.id,
 							alias:e.alias?.replace(/{(.*?)\}/gi, "$1"),
-							disabled: e.twitch_scopes !== undefined && !TwitchUtils.hasScopes(e.twitch_scopes),
+							disabled: disabled || (e.twitch_scopes !== undefined && !TwitchUtils.hasScopes(e.twitch_scopes)),
 							rawCmd:e,
 						});
 					}
