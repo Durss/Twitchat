@@ -14,6 +14,7 @@ import YoutubeHelper from "@/utils/youtube/YoutubeHelper";
 import { LoremIpsum } from "lorem-ipsum";
 import MessengerClientEvent from "./MessengerClientEvent";
 import TwitchMessengerClient from "./TwitchMessengerClient";
+import TTSUtils from "@/utils/TTSUtils";
 /**
 * Created : 26/09/2022
 */
@@ -487,8 +488,32 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(cmd == "/ttsoff" || cmd == "/tts") {
-			const username = params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim();
+		if(cmd == "/tts") {
+			const message = params.join(" ").trim();
+			if(!message) return false;
+
+			const uid = StoreProxy.auth.twitch.user.id;
+			const chunks = TwitchUtils.parseMessageToChunks(message);
+			const m:TwitchatDataTypes.MessageChatData = {
+				id:Utils.getUUID(),
+				date:Date.now(),
+				platform:"twitchat",
+				channel_id: uid,
+				type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				user: StoreProxy.users.getUserFrom("twitch", uid, uid),
+				message: message,
+				message_chunks: chunks,
+				message_html: TwitchUtils.messageChunksToHTML(chunks),
+				message_size: TwitchUtils.computeMessageSize(chunks),
+				answers: [],
+				is_short:false,
+			};
+			TTSUtils.instance.readNow(m);
+			return true
+		}else
+
+		if(cmd == "/ttsuser") {
+			const username = params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim();
 			try {
 				const res = await TwitchUtils.getUserInfo(undefined, [username]);
 				if(res.length == 0) {
@@ -503,8 +528,8 @@ export default class MessengerProxy {
 					}
 					StoreProxy.chat.addMessage(notice);
 				}else{
-					const user = StoreProxy.users.getUserFrom("twitch", channelId, res[0]!.id, res[0]!.login, res[0]!.display_name, undefined, undefined, false, undefined, false);
-					StoreProxy.tts.ttsReadUser(user, cmd == "/tts");
+					const user = StoreProxy.users.getUserFrom("twitch", channelId, res[0]!.id, res[0].login, res[0].display_name, undefined, undefined, false, undefined, false);
+					StoreProxy.tts.ttsReadUser(user);
 				}
 			}catch(error) {}
 			return true;
