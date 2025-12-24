@@ -1755,6 +1755,10 @@ export interface ITriggersActions {
 	 * trigger will be flagged as disabled
 	 */
 	computeTriggerTreeEnabledStates():void;
+	/**
+	 * Broadcasts current trigger list on Public API
+	 */
+	broadcastTriggerList():void;
 }
 
 
@@ -1787,9 +1791,9 @@ export interface ITTSActions {
 	/**
 	 * Start/stop reading any incoming message of a user
 	 * @param user
-	 * @param read
+	 * @param forceRead
 	 */
-	ttsReadUser(user:TwitchatDataTypes.TwitchatUser, read:boolean):void
+	ttsReadUser(user:TwitchatDataTypes.TwitchatUser, forceRead?:boolean):void
 	/**
 	 * Set text to speech params
 	 * @param params
