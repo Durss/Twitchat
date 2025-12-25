@@ -35,7 +35,7 @@ class HeatDebugPopout extends Vue {
 
 	public mounted():void {
 		this.isPopout = this.$route.name == "heatDebug";
-		if(OBSWebsocket.instance.connected){
+		if(OBSWebsocket.instance.connected.value){
 			this.refreshImage();
 		}else{
 			watch(()=>OBSWebsocket.instance.connected, ()=>{
@@ -87,7 +87,7 @@ class HeatDebugPopout extends Vue {
 		}, 500)
 		px = px/bounds.width
 		py = py/bounds.height
-		if(HeatSocket.instance.connected) {
+		if(HeatSocket.instance.connected.value) {
 			const uid = this.$store.auth.twitch.user.id
 			HeatSocket.instance.fireEvent(uid, px, py, event.altKey, metaKey, event.shiftKey, true);
 		}
@@ -97,7 +97,7 @@ class HeatDebugPopout extends Vue {
 		}
 	}
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
 
 	public goFullscreen():void {
 		let params = `scrollbars=no,resizable=yes,status=no,location=no,toolbar=no,directories=no,menubar=no,width=1080,height=800,left=600,top=100`;

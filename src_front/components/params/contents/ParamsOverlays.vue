@@ -185,10 +185,10 @@ class ParamsOverlays extends Vue implements IParameterContent {
 	public subContent:TwitchatDataTypes.OverlayTypes|null = null;
 
 	public get isAffiliate():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
 	public get localConnectionAvailable():boolean { return Config.instance.OBS_DOCK_CONTEXT; }
 	public get exchangeChannelAvailable():boolean { return this.localConnectionAvailable || this.obsConnected; }
-	public get spotifyConfigured():boolean { return SpotifyHelper.instance.connected; }
+	public get spotifyConfigured():boolean { return SpotifyHelper.instance.connected.value; }
 	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 	public get overlayUrl():string { return this.$overlayURL("unified"); }

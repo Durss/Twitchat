@@ -89,7 +89,7 @@ class TriggerActionHeatParams extends Vue {
 	public param_globalCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_globalCD" };
 	public param_userCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_userCD" };
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
 
 	public beforeMount():void {
 		if(!this.triggerData.heatAreaIds) this.triggerData.heatAreaIds = [];

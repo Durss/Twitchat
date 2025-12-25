@@ -1467,7 +1467,7 @@ export default class TriggerActionHandler {
 
 						logStep.messages.push({date:Date.now(), value:"Execute OBS action \""+step.action+"\" on source \""+sourceName+"\""});
 
-						if(!OBSWebsocket.instance.connected) {
+						if(!OBSWebsocket.instance.connected.value) {
 							logStep.messages.push({date:Date.now(), value:"❌ OBS-Websocket NOT CONNECTED! Cannot execute requested action."});
 							log.error = true;
 							logStep.error = true;
@@ -2450,7 +2450,7 @@ export default class TriggerActionHandler {
 						json[tag.toLowerCase()] = value;
 					}
 					try {
-						if(WebsocketTrigger.instance.connected) {
+						if(WebsocketTrigger.instance.connected.value) {
 							logStep.messages.push({date:Date.now(), value:"Sending WS message: "+JSON.stringify(json)});
 							WebsocketTrigger.instance.sendMessage(json);
 						}else{
@@ -3052,7 +3052,7 @@ export default class TriggerActionHandler {
 					try {
 						let failCode:TwitchatDataTypes.MessageMusicAddedToQueueData["failCode"] = undefined;
 						logStep.messages.push({date:Date.now(), value:"[MUSIC] Execute music action: "+step.musicAction});
-						if(SpotifyHelper.instance.connected) {
+						if(SpotifyHelper.instance.connected.value) {
 							logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Spotify connected"});
 						}else{
 							logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Spotify NOT connected"});
@@ -3071,7 +3071,7 @@ export default class TriggerActionHandler {
 							let playlistTargetPos:number = -1;
 							let trackData:TwitchatDataTypes.MusicTrackData|undefined = undefined;
 							let allowSR = true;
-							if(SpotifyHelper.instance.connected) {
+							if(SpotifyHelper.instance.connected.value) {
 								const maxPerUser = step.maxPerUser || 0;
 								let pendingCount = 0;
 								if(executingUser && maxPerUser > 0) {
@@ -3277,7 +3277,7 @@ export default class TriggerActionHandler {
 						}else
 
 						if(step.musicAction == TriggerMusicTypes.NEXT_TRACK) {
-							if(SpotifyHelper.instance.connected) {
+							if(SpotifyHelper.instance.connected.value) {
 								await SpotifyHelper.instance.nextTrack().then(res=>{
 									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Next track success: "+res});
 								});
@@ -3285,7 +3285,7 @@ export default class TriggerActionHandler {
 						}else
 
 						if(step.musicAction == TriggerMusicTypes.PAUSE_PLAYBACK) {
-							if(SpotifyHelper.instance.connected) {
+							if(SpotifyHelper.instance.connected.value) {
 								await SpotifyHelper.instance.pause().then(res=> {
 									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Pause success: "+res});
 								});
@@ -3293,7 +3293,7 @@ export default class TriggerActionHandler {
 						}else
 
 						if(step.musicAction == TriggerMusicTypes.RESUME_PLAYBACK) {
-							if(SpotifyHelper.instance.connected) {
+							if(SpotifyHelper.instance.connected.value) {
 								await SpotifyHelper.instance.resume().then(res=> {
 									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Resume success: "+res});
 								});
@@ -3305,7 +3305,7 @@ export default class TriggerActionHandler {
 							if(message.type == "message") {
 								m = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, m, subEvent);
 							}
-							if(SpotifyHelper.instance.connected) {
+							if(SpotifyHelper.instance.connected.value) {
 								let id:string|null = null;
 								if(/open\.spotify\.com\/playlist\/.*/gi.test(m)) {
 									const chunks = m.replace(/https?:\/\//gi,"").split(/\/|\?/gi)
@@ -3547,7 +3547,7 @@ export default class TriggerActionHandler {
 						}
 					};
 					logStep.messages.push({date:Date.now(), value:`Send click to ${clickEventData.requestData.event_data.twitchatOverlayID}: x=${clickEventData.requestData.event_data.x} y=${clickEventData.requestData.event_data.y}`});
-					if(OBSWebsocket.instance.connected) {
+					if(OBSWebsocket.instance.connected.value) {
 						OBSWebsocket.instance.socket.call("CallVendorRequest", clickEventData);
 					}
 				}else
@@ -4268,7 +4268,7 @@ export default class TriggerActionHandler {
 						}else
 						if(pointerLocal[0] == "fx") {
 							switch(pointerLocal[1]) {
-								case "enabled": value = GoXLRSocket.instance.fxEnabled===true? "true" : "false"; break;
+								case "enabled": value = GoXLRSocket.instance.fxEnabled.value===true? "true" : "false"; break;
 								case "preset": value = (GoXLRSocket.instance.activeEffectPreset + 1).toString(); break;
 								case "megaphone": value = GoXLRSocket.instance.getIsToggleButtonActive("EffectMegaphone")===true? "true" : "false"; break;
 								case "robot": value = GoXLRSocket.instance.getIsToggleButtonActive("EffectRobot")===true? "true" : "false"; break;

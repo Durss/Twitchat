@@ -901,7 +901,6 @@ export default toNative(ChatMessage);
 	}
 
 	&.censor {
-
 		&.deleted, .messageChild.deleted {
 			.message, &.messageChild.deleted {
 				.text, .textTranslation { display: none; }
@@ -916,12 +915,13 @@ export default toNative(ChatMessage);
 		}
 	}
 
-	&.deleted:not(.censor) {
-
+	&.deleted {
 		opacity: .35;
 		transition: opacity .2s;
-		.message, &.messageChild.deleted {
-			text-decoration: line-through;
+		&:not(.censor) {
+			.message, &.messageChild.deleted {
+				text-decoration: line-through;
+			}
 		}
 		&:hover{
 			opacity: 1;

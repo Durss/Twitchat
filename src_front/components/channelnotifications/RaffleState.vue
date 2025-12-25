@@ -127,7 +127,7 @@ class RaffleState extends Vue {
 	private validRaffleTypes:TwitchatDataTypes.RaffleData["mode"][] = ["chat", "tips", "sub"];
 	private overlaySource:OBSSourceItem|null = null;
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
 
 	public get canPick():boolean {
 		if(!this.raffleData) return false;
