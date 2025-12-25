@@ -98,6 +98,7 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static ANIMATED_TEXT_SHOW_COMPLETE:TwitchatEventType = "ANIMATED_TEXT_SHOW_COMPLETE";
 	public static ANIMATED_TEXT_HIDE_COMPLETE:TwitchatEventType = "ANIMATED_TEXT_HIDE_COMPLETE";
 	public static CUSTOM_TRAIN_STATE:TwitchatEventType = "CUSTOM_TRAIN_STATE";
+	public static TIMER_LIST:TwitchatEventType = "TIMER_LIST";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -191,6 +192,7 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static ANIMATED_TEXT_CLOSE:TwitchatActionType = "ANIMATED_TEXT_CLOSE";
 	public static GET_CUSTOM_TRAIN_STATE:TwitchatActionType = "GET_CUSTOM_TRAIN_STATE";
 	public static PLAY_SFXR:TwitchatActionType = "PLAY_SFXR";
+	public static GET_TIMER_LIST:TwitchatActionType = "GET_TIMER_LIST";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:T) {
 		super(type);
@@ -288,6 +290,8 @@ export const TwitchatEventTypeList = [
 	"ANIMATED_TEXT_HIDE_COMPLETE",
 	"CUSTOM_TRAIN_STATE",
 	"CHAT_HIGHLIGHT_OVERLAY_CLOSE",
+	'TIMER_LIST',
+	'QNA_LIST',
 ] as const;
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
 
@@ -383,5 +387,7 @@ export const TwitchatActionTypeList = [
 	"ANIMATED_TEXT_CLOSE",
 	"GET_CUSTOM_TRAIN_STATE",
 	"PLAY_SFXR",
+	'GET_TIMER_LIST',
+	'GET_QNA_LIST',
 ] as const;
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

@@ -64,7 +64,7 @@ class ConnectWebsocket extends Vue {
 	public param_port:TwitchatDataTypes.ParameterData<number> = {value:3000, type:"number", labelKey:"connexions.triggerSocket.port", min:0, max:65535};
 	public param_secured:TwitchatDataTypes.ParameterData<boolean> = {value:false, type:"boolean", labelKey:"connexions.triggerSocket.secured"};
 
-	public get connected() { return WebsocketTrigger.instance.connected; }
+	public get connected() { return WebsocketTrigger.instance.connected.value; }
 	public get canConnect():boolean {
 		return this.param_ip.value.length >= 7;// && this.param_port.value > 0;
 	}

@@ -1,6 +1,6 @@
 import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
-import { reactive } from "vue";
+import { reactive, type Reactive } from "vue";
 import { TwitchScopes, type TwitchScopesString } from './twitch/TwitchScopes';
 
 /**
@@ -8,7 +8,7 @@ import { TwitchScopes, type TwitchScopesString } from './twitch/TwitchScopes';
  */
 export default class Config {
 
-	private static _instance:Config;
+	private static _instance:Reactive<Config>;
 
 	/**
 	 * Defines automatic skin changes based on Streamlabs Charity teams and dates
@@ -261,9 +261,9 @@ export default class Config {
 	/********************
 	* GETTER / SETTERS *
 	********************/
-	static get instance():Config {
+	static get instance():Reactive<Config> {
 		if(!Config._instance) {
-			Config._instance = reactive(new Config()) as Config;
+			Config._instance = reactive(new Config());
 		}
 		return Config._instance;
 	}

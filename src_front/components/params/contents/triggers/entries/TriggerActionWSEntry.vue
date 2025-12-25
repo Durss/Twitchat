@@ -62,7 +62,7 @@ class TriggerActionWSEntry extends AbstractTriggerActionEntry {
 	public param_toggleAll:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.select_all" };
 	public param_payload:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, maxLength:10000, labelKey:"triggers.actions.http_ws.payload_description" };
 
-	public get websocketConnected():boolean { return WebsocketTrigger.instance.connected; }
+	public get websocketConnected():boolean { return WebsocketTrigger.instance.connected.value; }
 
 	public beforeMount():void {
 

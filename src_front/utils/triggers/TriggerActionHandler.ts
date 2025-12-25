@@ -2463,7 +2463,7 @@ export default class TriggerActionHandler {
 						json[tag.toLowerCase()] = value;
 					}
 					try {
-						if(WebsocketTrigger.instance.connected) {
+						if(WebsocketTrigger.instance.connected.value) {
 							logStep.messages.push({date:Date.now(), value:"Sending WS message: "+JSON.stringify(json)});
 							WebsocketTrigger.instance.sendMessage(json);
 						}else{

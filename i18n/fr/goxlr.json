@@ -22,7 +22,7 @@
 		],
 		"connect_form":{
 			"title":"Identifiants de connexion",
-			"ip_security":"Dû à des restrictions de sécurité de la part des navigateurs web, utiliser une IP autre que \"127.0.0.1\" ou \"localhost\" nécessite une connexion sécurisée. Si vous souhaitez vous connecter à un PC distant vous devrez utiliser un tunnel https (ex: Ngrok). Venez demander de l'aide sur {LINK} si vous ne savez pas comment faire. Si votre GoXLR est sur cet ordinateur, mettez 127.0.0.1 comme IP.",
+			"ip_security":"Dû à des restrictions de sécurité de la part des navigateurs web, utiliser une IP autre que \"127.0.0.1\" ou \"localhost\" nécessite une connexion sécurisée.\nSi vous souhaitez vous connecter à un PC distant vous devrez utiliser un tunnel https (ex: Ngrok).\n Venez demander de l'aide sur {LINK} si vous ne savez pas comment faire.\n\nSi votre GoXLR est sur cet ordinateur, mettez 127.0.0.1 comme IP.",
 			"ip_security_link":"Discord"
 		}
 	}

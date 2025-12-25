@@ -506,7 +506,7 @@ class TriggerActionEntry extends Vue {
 	public get voicemodEnabled():boolean { return VoicemodWebSocket.instance.connected.value; }
 	public get discordEnabled():boolean { return this.$store.discord.discordLinked === true; }
 	public get goxlrEnabled():boolean { return GoXLRSocket.instance.connected.value; }
-	public get wsConnected():boolean { return WebsocketTrigger.instance.connected; }
+	public get wsConnected():boolean { return WebsocketTrigger.instance.connected.value; }
 	public get heatClickEnabled():boolean { return (this.$store.heat.distortionList || []).length > 0; }
 	public get canAnimateText():boolean { return this.$store.animatedText.animatedTextList.length > 0; }
 	public get canControlCustomTrain():boolean { return this.$store.customTrain.customTrainList.length > 0; }

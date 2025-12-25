@@ -550,7 +550,7 @@ class ParamsCounters extends Vue implements IParameterContent {
 
 		const youtubeIds = Object.keys(counterItem.counter.users!).filter(v=>counterItem.counter.users![v]!.platform == "youtube");
 		if(youtubeIds.length > 0) {
-			if(YoutubeHelper.instance.connected) {
+			if(YoutubeHelper.instance.connected.value) {
 				const youtubeUsers = await YoutubeHelper.instance.getUserListInfo(youtubeIds);
 				if(youtubeUsers.length > 0) {
 					youtubeUsers.forEach((user) => {
