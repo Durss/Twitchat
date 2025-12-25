@@ -1,18 +1,14 @@
 {
 	"streamdeck":{
 		"header":"A Stream Deck™ plugin allows you to control some Twitchat features with the push of a button",
-		"step_1":{
-			"install":"This plugin needs {OBS_VERSION}"
-		},
-		
-		"step_2":"Download Stream Deck™ plugin",
-		
-		"step_3":"Head over the {TAB_LINK} and set the OBS-Websocket credentials to link Twitchat with OBS.",
-		"step_3_tab_link":"OBS tab",
-		
-		"step_4_1":"On your Stream Deck™ software, drop any action from the Twitchat library, and watch the properties panel.",
-		"step_4_2":"You should be prompted to set OBS-Websocket credentials:",
-		
-		"step_5":"Once everything is done you should be able to control Twitchat from your Stream Deck™ 🥳🎉"
+		"download_bt":"Download Stream Deck™ plugin",
+		"connected":"Stream Deck connected",
+		"connecting":"connecting to Stream Deck...",
+		"connect_failed":"Failed connecting to Stream Deck",
+		"connect_form":{
+			"title":"Credentials",
+			"ip_security":"Due to web browsers security, if you set an IP other than \"127.0.0.1\" or \"localhost\" the connection must be secured.\nIf you want to connect to a remote desktop you must use an https tunnel (like Ngrok).\nCome ask for help on {LINK} if you don't know how to do that.\n\nIf your Stream Deck is on this computer, set 127.0.0.1 as IP.",
+			"ip_security_link":"Discord"
+		}
 	}
 }

@@ -175,7 +175,7 @@ class ParamsTriggers extends Vue implements IParameterContent {
 		//List all available trigger types
 		let events:TriggerTypeDefinition[] = TriggerTypesDefinitionList().concat();
 		this.eventsCount = events.length;
-		if(OBSWebsocket.instance.connected.value) {
+		if(OBSWebsocket.instance.connected) {
 			this.listOBSScenes();
 			this.listOBSSources();
 		}
