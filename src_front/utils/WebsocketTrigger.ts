@@ -1,7 +1,7 @@
-import { reactive } from "vue";
-import TriggerActionHandler from "./triggers/TriggerActionHandler";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import StoreProxy from "@/store/StoreProxy";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { ref } from "vue";
+import TriggerActionHandler from "./triggers/TriggerActionHandler";
 import Utils from "./Utils";
 
 /**
@@ -9,7 +9,7 @@ import Utils from "./Utils";
 */
 export default class WebsocketTrigger {
 	
-	public connected:boolean = false;
+	public connected = ref(false);
 
 	private reconnectTimeout!:number;
 	private socket!:WebSocket;
@@ -18,7 +18,7 @@ export default class WebsocketTrigger {
 	
 	constructor() {
 		window.addEventListener("beforeunload", ()=>{
-			if(this.connected) this.disconnect();
+			if(this.connected.value) this.disconnect();
 		});
 	}
 	
@@ -27,7 +27,7 @@ export default class WebsocketTrigger {
 	********************/
 	static get instance():WebsocketTrigger {
 		if(!WebsocketTrigger._instance) {
-			WebsocketTrigger._instance = reactive(new WebsocketTrigger()) as WebsocketTrigger;
+			WebsocketTrigger._instance = new WebsocketTrigger();
 		}
 		return WebsocketTrigger._instance;
 	}
@@ -43,10 +43,10 @@ export default class WebsocketTrigger {
 	 */
 	public async disconnect():Promise<void> {
 		this.autoReconnect = false;
-		if(this.connected) {
+		if(this.connected.value) {
 			this.socket.close();
 		}
-		this.connected = false;
+		this.connected.value = false;
 	}
 
 	/**
@@ -71,7 +71,7 @@ export default class WebsocketTrigger {
 	
 			this.socket.onopen = async () => {
 				resolve();
-				this.connected = true;
+				this.connected.value = true;
 				this.autoReconnect = true;
 				keepTringToConnect = false;
 			};
@@ -98,7 +98,7 @@ export default class WebsocketTrigger {
 			this.socket.onclose = (event) => {
 				if(!this.autoReconnect && !keepTringToConnect) return;
 	
-				this.connected = false;
+				this.connected.value = false;
 				clearTimeout(this.reconnectTimeout)
 				this.reconnectTimeout = window.setTimeout(()=>{
 					this.connect(ip, port, securedConnection);

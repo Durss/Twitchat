@@ -17,6 +17,7 @@ import { Component, Vue, toNative } from 'vue-facing-decorator';
 import Config from './utils/Config';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
+import StreamdeckSocket from './utils/StreamdeckSocket';
 
 
 @Component({
@@ -86,6 +87,8 @@ class App extends Vue {
 				window.removeEventListener("keydown", this.keyDownHandler);
 			}
 		})
+
+		StreamdeckSocket.instance.connect();
 	}
 
 	public beforeUnmount():void {

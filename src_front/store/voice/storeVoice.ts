@@ -56,7 +56,7 @@ export const storeVoice = defineStore('voice', {
 			const voiceLang = DataStore.get("voiceLang");
 			if(voiceLang) {
 				this.voiceLang = voiceLang;
-				VoiceController.instance.lang = voiceLang;
+				VoiceController.instance.lang.value = voiceLang;
 			}
 
 			//Init voicemod

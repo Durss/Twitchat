@@ -1,5 +1,7 @@
 import { Event, EventDispatcher } from "@/events/EventDispatcher";
 import type { TwitchatActionType, TwitchatEventType } from "@/events/TwitchatEvent";
+import DataStore from "@/store/DataStore";
+import { ref } from "vue";
 
 /**
 * Created : 26/02/2025
@@ -7,8 +9,8 @@ import type { TwitchatActionType, TwitchatEventType } from "@/events/TwitchatEve
 export default class StreamdeckSocket extends EventDispatcher {
 
 	private static _instance:StreamdeckSocket;
+	public connected = ref(false);
 	private _socket!:WebSocket;
-	private _connected:boolean = false;
 
 	constructor() {
 		super();
@@ -20,9 +22,13 @@ export default class StreamdeckSocket extends EventDispatcher {
 	static get instance():StreamdeckSocket {
 		if(!StreamdeckSocket._instance) {
 			StreamdeckSocket._instance = new StreamdeckSocket();
-			StreamdeckSocket._instance.initialize();
 		}
 		return StreamdeckSocket._instance;
+	}
+
+	public get ip():string {
+		const params = JSON.parse(DataStore.get(DataStore.STREAMDECK_PARAMS) || '{}');
+		return params?.ip || "127.0.0.1";
 	}
 
 
@@ -31,13 +37,73 @@ export default class StreamdeckSocket extends EventDispatcher {
 	* PUBLIC METHODS *
 	******************/
 	/**
+	 * Initialize the socket connection
+	 */
+	public connect(ip?:string):Promise<boolean> {
+		const isManualConnect = !!ip;
+		if(!ip && this.ip) {
+			ip = this.ip;
+		}
+
+		if(this._socket) {
+			this._socket.onopen = null;
+			this._socket.onclose = null;
+			this._socket.onerror = null;
+			this._socket.onmessage = null;
+			this._socket.close();
+		}
+		return new Promise((resolve, reject) => {
+			const port = 30385;
+			let protocol = (ip == "127.0.0.1" || ip == "localhost") ? "ws://" : "wss://";
+			if(ip?.indexOf("ws") === 0) protocol = "";
+			const address = ip ? `${protocol}${ip}:${port}` : `ws://127.0.0.1:${port}`;
+			if(isManualConnect) {
+				if(ip != "127.0.0.1") {
+					DataStore.set(DataStore.STREAMDECK_PARAMS, {
+						ip: ip || "",
+					});
+				}else{
+					DataStore.remove(DataStore.STREAMDECK_PARAMS);
+				}
+			}
+			this._socket = new WebSocket(address);
+
+			this._socket.onopen = () => {
+				this.connected.value = true;
+				resolve(true);
+			};
+
+			this._socket.onmessage = (event) => {
+				// console.log('Message from server ', event.data);
+				const args:{action:TwitchatActionType, data?:unknown} = JSON.parse(event.data);
+				this.dispatchEvent(new StreamdeckSocketEvent(StreamdeckSocketEvent.MESSAGE, args));
+			};
+
+			this._socket.onclose = () => {
+				this.connected.value = false;
+				if(!isManualConnect) {
+					setTimeout(() => {
+						this.connect();
+					}, 5000); // Reconnect after 5 seconds
+				}
+				reject()
+			};
+			
+			this._socket.onerror = (error) => {
+				console.error('Socket encountered error: ', error);
+				reject()
+			};
+		});
+	}
+	
+	/**
 	 * Broadcast a message
 	 *
 	 * @param message
 	 */
 	public broadcast(type:TwitchatEventType|TwitchatActionType, eventId:string, data?:unknown):void {
-		if(!this._connected) return;
-		console.log('Broadcasting message ', type);
+		if(!this.connected.value) return;
+		// console.log('Broadcast message ', type);
 		this._socket.send(JSON.stringify({ type, data, id:eventId }));
 	}
 
@@ -46,47 +112,17 @@ export default class StreamdeckSocket extends EventDispatcher {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
-	private initialize():void {
-		console.log('Connect to streamdeck socket');
-		if(this._socket) {
-			this._socket.close();
-			this._socket.onopen = null;
-			this._socket.onclose = null;
-			this._socket.onerror = null;
-			this._socket.onmessage = null;
-		}
-
-		this._socket = new WebSocket('ws://localhost:30385');
-
-		this._socket.onopen = () => {
-			console.log('Socket connection established');
-		};
-
-		this._socket.onmessage = (event) => {
-			this._connected = true;
-			console.log('Message from server ', event.data);
-			this.dispatchEvent(new StreamdeckSocketEvent(StreamdeckSocketEvent.MESSAGE, { data: event.data }));
-		};
-
-		this._socket.onclose = () => {
-			console.log('Socket connection closed');
-			this._connected = false;
-			setTimeout(() => {
-				this.initialize();
-			}, 5000); // Reconnect after 5 seconds
-		};
-
-		this._socket.onerror = (error) => {
-			console.error('Socket encountered error: ', error);
-		};
-	}
 }
 
 export class StreamdeckSocketEvent extends Event {
 	public static readonly MESSAGE = 'message';
 
-	constructor(type:string, public data?:unknown) {
+	constructor(type:string, public data?:{action:TwitchatActionType, data?:unknown}) {
 		super(type);
 	}
 
 }
+
+type StoreData = {
+	ip: string;
+};

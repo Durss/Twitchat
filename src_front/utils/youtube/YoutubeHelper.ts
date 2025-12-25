@@ -2,7 +2,7 @@ import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { YoutubeAuthToken, YoutubeChannelInfo, YoutubeFollowerResult, YoutubeLiveBroadcast, YoutubeMessages } from "@/types/youtube/YoutubeDataTypes";
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 import ApiHelper from "../ApiHelper";
 import Logger from "../Logger";
 import Utils from "../Utils";
@@ -15,7 +15,7 @@ import StickerList from "./sticker_list.json";
 */
 export default class YoutubeHelper {
 
-	public connected:boolean = false;
+	public connected = ref(false);
 	public liveFound:boolean = false;
 	public availableLiveBroadcasts:YoutubeLiveBroadcast["items"] = [];
 
@@ -51,7 +51,7 @@ export default class YoutubeHelper {
 	********************/
 	static get instance():YoutubeHelper {
 		if(!YoutubeHelper._instance) {
-			YoutubeHelper._instance = reactive(new YoutubeHelper()) as YoutubeHelper;
+			YoutubeHelper._instance = new YoutubeHelper();
 			YoutubeHelper._instance.initialize();
 		}
 		return YoutubeHelper._instance;
@@ -161,7 +161,7 @@ export default class YoutubeHelper {
 			this._refreshTimeout = window.setTimeout(()=> {
 				this.refreshToken();
 			}, refreshDelay);
-			this.connected = true;
+			this.connected.value = true;
 			//This will start automatic polling session
 			await this.loadEmotesAndUser();
 			await this.getCurrentLiveBroadcast();
@@ -169,7 +169,7 @@ export default class YoutubeHelper {
 			return token;
 		}else {
 			this._token = null;
-			this.connected = false;
+			this.connected.value = false;
 			Logger.instance.log("youtube", {log:"Failed refreshing auth token", error:await res.json, credits: this._creditsUsed, liveID:this._currentLiveChatIds});
 			throw new Error("unknown error occured when loging in to Youtube");
 		}
@@ -179,7 +179,7 @@ export default class YoutubeHelper {
 	 * Get the current user info
 	 */
 	public async getCurrentUserInfo():Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 		this._creditsUsed ++;
 		Logger.instance.log("youtube", {log:"Loading user infos...", credits: this._creditsUsed, liveID:this._currentLiveChatIds});
 		const url = new URL(this.API_PATH+"channels");
@@ -207,7 +207,7 @@ export default class YoutubeHelper {
 	 * Get the current live broadcast
 	 */
 	public async getCurrentLiveBroadcast():Promise<YoutubeLiveBroadcast|null> {
-		if(!this.connected) return null;
+		if(!this.connected.value) return null;
 		clearTimeout(this._pollMessageTimeout);
 
 		this._creditsUsed ++;
@@ -329,7 +329,7 @@ export default class YoutubeHelper {
 	 * Refreshes the viewer counts
 	 */
 	public async refreshViewerCount():Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 		this._creditsUsed ++;
 		Logger.instance.log("youtube", {log:"Loading current live broadcast", credits: this._creditsUsed, liveID:this._currentLiveChatIds});
 		const url = new URL(this.API_PATH+"liveBroadcasts");
@@ -374,7 +374,7 @@ export default class YoutubeHelper {
 	 */
 	public async getMessages():Promise<void> {
 		clearTimeout(this._pollMessageTimeout);
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 		
 		// Cleanup live that do not exist anymore
 		for (let i = this._currentLiveChatIds.length - 1; i >= 0; i--) {
@@ -514,7 +514,7 @@ export default class YoutubeHelper {
 	public async getLastestFollowers(isInit:boolean = true):Promise<YoutubeFollowerResult["items"]> {
 		this._creditsUsed ++;
 		clearTimeout(this._pollFollowersTimeout);
-		if(!this.connected) return [];
+		if(!this.connected.value) return [];
 		const url = new URL(this.API_PATH+"subscriptions");
 		url.searchParams.append("part", "id");
 		url.searchParams.append("part", "subscriberSnippet");
@@ -574,7 +574,7 @@ export default class YoutubeHelper {
 	public async getLastestSubscribers(isInit:boolean = true):Promise<YoutubeFollowerResult["items"]> {
 		this._creditsUsed ++;
 		clearTimeout(this._pollSubscribersTimeout);
-		if(!this.connected) return [];
+		if(!this.connected.value) return [];
 		const url = new URL(this.API_PATH+"members");
 		url.searchParams.append("part", "snippet");
 		url.searchParams.append("maxResults", "50");
@@ -608,7 +608,7 @@ export default class YoutubeHelper {
 	 */
 	public disconnect():void {
 		Logger.instance.log("youtube", {log:"Disconnect from Youtube", credits: this._creditsUsed, liveID:this._currentLiveChatIds});
-		this.connected = false;
+		this.connected.value = false;
 		this._currentLiveChatIds = [];
 		this.availableLiveBroadcasts = [];
 		clearTimeout(this._pollMessageTimeout);
@@ -625,7 +625,7 @@ export default class YoutubeHelper {
 	 * @returns
 	 */
 	public async banUser(userId:string, liveId:string, duration_s:number = 0):Promise<string> {
-		if(!this.connected) return "";
+		if(!this.connected.value) return "";
 
 		this._creditsUsed += 50;
 		const params:{snippet:{liveChatId:string, type:string, bannedUserDetails:{channelId:string}, banDurationSeconds?:number}} = {
@@ -665,7 +665,7 @@ export default class YoutubeHelper {
 	 * @returns
 	 */
 	public async unbanUser(userId:string, liveId:string):Promise<void> {
-		if(!this.connected) return;
+		if(!this.connected.value) return;
 		this._creditsUsed += 50;
 		Logger.instance.log("youtube", {log:"Unban user ID #"+userId, credits: this._creditsUsed, liveID:this._currentLiveChatIds});
 
@@ -701,7 +701,7 @@ export default class YoutubeHelper {
 	 * @returns
 	 */
 	public async deleteMessage(messageId:string):Promise<boolean> {
-		if(!this.connected) return false;
+		if(!this.connected.value) return false;
 
 		const url = new URL(this.API_PATH+"liveChat/messages");
 		url.searchParams.append("id", messageId);
@@ -722,7 +722,7 @@ export default class YoutubeHelper {
 	 * Send a message to given live ID or all if omited
 	 */
 	public async sendMessage(message:string, liveId?:string):Promise<boolean> {
-		if(!this.connected) return false;
+		if(!this.connected.value) return false;
 
 		const url = new URL(this.API_PATH+"liveChat/messages");
 		url.searchParams.append("part", "snippet");
@@ -811,7 +811,7 @@ export default class YoutubeHelper {
 	 * @param url
 	 */
 	public async connectToLiveByURL(videoUrl:string):Promise<boolean> {
-		if(!this.connected) return false;
+		if(!this.connected.value) return false;
 
 		const extractID = (url:string):string|false => {
 			let regExp = /(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*)/g;
@@ -852,7 +852,7 @@ export default class YoutubeHelper {
 	}
 
 	public async getUserListInfo(ids:string[]):Promise<TwitchatDataTypes.TwitchatUser[]> {
-		if(!this.connected) return [];
+		if(!this.connected.value) return [];
 		
 		let users:TwitchatDataTypes.TwitchatUser[] = [];
 		while(ids.length > 0) {
@@ -917,7 +917,7 @@ export default class YoutubeHelper {
 			this._refreshTimeout = window.setTimeout(()=> {
 				this.refreshToken();
 			}, refreshDelay);
-			this.connected = true;
+			this.connected.value = true;
 			return true;
 		}else {
 			this._token = null;
@@ -925,7 +925,7 @@ export default class YoutubeHelper {
 			Logger.instance.log("youtube", {log:"An error occured when refreshing auth token", credits: this._creditsUsed, liveID:this._currentLiveChatIds});
 			StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_connect_expired"));
 		}
-		this.connected = false;
+		this.connected.value = false;
 		return false;
 	}
 

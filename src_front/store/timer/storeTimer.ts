@@ -113,6 +113,26 @@ export const storeTimer = defineStore('timer', {
 					}
 				}
 			});
+
+
+			const timerAddHandler = (event:TwitchatEvent<{ timeAdd:string, timerId?:string }>)=> {
+				const durationStr = event.data?.timeAdd ?? "0";
+				const defaultTimer = this.timerList.find(v=>v.type == 'timer' && v.isDefault);
+				const timerId = event.data?.timerId ?? defaultTimer?.id;
+				const timer = this.timerList.find(v=>v.id == timerId);
+				const durationMs = isNaN(parseInt(durationStr))? 1000 : parseInt(durationStr) * 1000;
+				if(!timer) return;
+				if(durationMs > 0) {
+					this.timerAdd(timer.id, durationMs);
+				}else{
+					this.timerRemove(timer.id, -durationMs);
+				}
+			}
+
+			PublicAPI.instance.addEventListener(TwitchatEvent.TIMER_ADD, timerAddHandler);
+			PublicAPI.instance.addEventListener(TwitchatEvent.COUNTDOWN_ADD, timerAddHandler);
+
+			PublicAPI.instance.addEventListener(TwitchatEvent.GET_TIMER_LIST, ()=> this.broadcastTimerList());
 		},
 
 		broadcastStates(id?:string) {
@@ -143,7 +163,7 @@ export const storeTimer = defineStore('timer', {
 				startAt_ms:0,
 				offset_ms:0,
 				pauseDuration_ms:0,
-				duration_ms:0,
+				duration_ms:60_000,
 				overlayParams: getDefaultStyle(),
 			}
 			this.timerList.push(data);
@@ -364,6 +384,7 @@ export const storeTimer = defineStore('timer', {
 					this.timerStop(entry.id);
 				}, this.getTimerComputedValue(entry.id).duration_ms);
 			}
+			this.broadcastTimerList();
 		},
 
 		getTimerComputedValue(id:string):{duration_ms:number, duration_str:string} {
@@ -402,6 +423,15 @@ export const storeTimer = defineStore('timer', {
 			}
 
 			return {duration_ms:0, duration_str:""}
+		},
+
+		broadcastTimerList() {
+			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_LIST, {timers:this.timerList.map(c=> ({
+				id:c.id,
+				title:c.title,
+				enabled:c.enabled,
+				type:c.type,
+			}))});
 		}
 	} as ITimerActions
 	& ThisType<ITimerActions

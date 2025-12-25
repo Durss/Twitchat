@@ -89,7 +89,8 @@ export default class GoXLRSocket extends EventDispatcher {
 		StoreProxy.params.setGoXLRConnectParams(ip, port);
 		this._connectingPromise = new Promise((resolve, reject) => {
 			this._initResolver = resolve;
-			this._socket = new WebSocket(`ws://${ip}:${port}/api/websocket`);
+			let protocol = (ip == "127.0.0.1" || ip == "localhost") ? "ws" : "wss";
+			this._socket = new WebSocket(`${protocol}://${ip}:${port}/api/websocket`);
 
 			this._socket.onopen = () => {
 				console.log("🎤 GoXLR connection succeed");
