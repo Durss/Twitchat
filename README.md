@@ -333,13 +333,5 @@ This will output this JSON file:
 <br>
 
 # Package Stream Deck™ plugin
-Run the following command from the "streamdeck_plugin" folder:
-```
-streamdeck pack .\fr.twitchat.sdPlugin\ -f
-```
-The compiled plugin will be there `streamdeck_plugin/fr.twitchat.streamDeckPlugin`.  
-\
-Eventually make sure everyting's ok first with this:
-```
-streamdeck validate .\fr.twitchat.sdPlugin\
-```
+Sources for Stream Deck plugin are located here:
+https://github.com/Durss/Twitchat_Streamdeck_plugin

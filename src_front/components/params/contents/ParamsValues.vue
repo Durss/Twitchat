@@ -478,7 +478,7 @@ class ParamsValues extends Vue implements IParameterContent {
 		//Get YouTube users
 		const youtubeIds = Object.keys(valueItem.value.users!).filter(v=>valueItem.value.users![v]!.platform == "youtube");
 		if(youtubeIds.length > 0) {
-			if(YoutubeHelper.instance.connected) {
+			if(YoutubeHelper.instance.connected.value) {
 				const youtubeUsers = await YoutubeHelper.instance.getUserListInfo(youtubeIds);
 				if(youtubeUsers.length > 0) {
 					youtubeUsers.forEach((user) => {
