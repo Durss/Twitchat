@@ -2705,6 +2705,14 @@ const UserDataSchema = {
 				},
 			}
 		},
+
+		streamDeckParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				ip: {type:"string", maxLength:100},
+			}
+		}
 	}
 }
 
