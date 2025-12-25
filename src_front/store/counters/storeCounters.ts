@@ -35,6 +35,34 @@ export const storeCounters = defineStore('counters', {
 			if(countersParams) {
 				Utils.mergeRemoteObject(JSON.parse(countersParams), (this.counterList as unknown) as JsonObject);
 			}
+			
+			PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_ADD, (e:TwitchatEvent) => {
+				const id = (e.data as JsonObject).counterId as string;
+				const action = (e.data as JsonObject).counterAction as TriggerActionCountDataAction;
+				const value = parseInt((e.data as JsonObject).countAdd as string);
+				const counter = this.counterList.find(v=>v.id == id);
+				if(counter && !isNaN(value)) {
+					this.increment(id, action || "ADD", value);
+				}
+			});
+
+			PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_GET, (e:TwitchatEvent) => {
+				const id = (e.data as JsonObject).cid as string;
+				this.broadcastCounterValue(id);
+			});
+			
+			PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_GET_ALL, (e:TwitchatEvent) => {
+				const counters = this.counterList.map(v=> {
+					return {
+						id:v.id,
+						name:v.name,
+						perUser:v.perUser === true,
+					}
+				});
+				if(counters) {
+					PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_LIST, {counters});
+				}
+			});
 		},
 
 		addCounter(data:TwitchatDataTypes.CounterData):void {
@@ -281,6 +309,16 @@ export const storeCounters = defineStore('counters', {
 
 		saveCounters():void {
 			DataStore.set(DataStore.COUNTERS, this.counterList);
+			const counters = this.counterList.map(v=> {
+				return {
+					id:v.id,
+					name:v.name,
+					perUser:v.perUser === true,
+				}
+			});
+			if(counters) {
+				PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_LIST, {counters});
+			}
 		}
 
 	} as ICountersActions

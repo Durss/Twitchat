@@ -9,9 +9,9 @@
 			<form @submit.prevent="connect()">
 				<ParamItem :paramData="param_ip" v-model="param_ip.value" @change="onIpChange()" />
 
-				<i18n-t scope="global" class="card-item secondary" tag="div" v-if="securityWarning" keypath="goxlr.connect_form.ip_security">
+				<i18n-t scope="global" class="card-item secondary security" tag="div" v-if="securityWarning" keypath="goxlr.connect_form.ip_security">
 					<template #LINK>
-						<a :href="discordURL" target="_blank">{{ $t("goxlr.connect_form.ip_security_link") }}</a>
+						<a :href="$config.DISCORD_URL" target="_blank">{{ $t("goxlr.connect_form.ip_security_link") }}</a>
 					</template>
 				</i18n-t>
 
@@ -32,13 +32,12 @@
 </template>
 
 <script lang="ts">
+import ToggleBlock from '@/components/ToggleBlock.vue';
 import TTButton from '@/components/TTButton.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
 
 @Component({
 	components:{
@@ -60,7 +59,6 @@ class GoXLRConnectForm extends Vue {
 	public param_port:TwitchatDataTypes.ParameterData<number> = {type:"number", value:14564, label:"Port"};
 
 	public get connected():boolean { return GoXLRSocket.instance.connected.value; }
-	public get discordURL():string { return Config.instance.DISCORD_URL; }
 	public get isPremium():boolean { return this.$store.auth.isPremium; }
 
 	public async connect():Promise<void> {
@@ -125,6 +123,10 @@ export default toNative(GoXLRConnectForm);
 		:deep(.inputHolder), :deep(input) {
 			flex-basis: 150px !important;
 			flex-grow: unset;
+		}
+
+		.security {
+			white-space: pre-line;
 		}
 	}
 	.message {

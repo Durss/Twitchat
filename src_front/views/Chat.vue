@@ -189,9 +189,11 @@ import TwitchatAnnouncement from '@/components/chatform/TwitchatAnnouncement.vue
 import UserList from '@/components/chatform/UserList.vue';
 import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 import MessageList from '@/components/messages/MessageList.vue';
+import MigrationFixerModal from '@/components/modals/MigrationFixerModal.vue';
 import GreetThem from '@/components/newusers/GreetThem.vue';
 import ObsHeatLogs from '@/components/obs/ObsHeatLogs.vue';
 import Parameters from '@/components/params/Parameters.vue';
+import SettingsImportForm from '@/components/params/contents/exporter/SettingsImportForm.vue';
 import ChatPollForm from '@/components/poll/ChatPollForm.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
@@ -203,7 +205,7 @@ import DonorBadge from '@/components/user/DonorBadge.vue';
 import WhispersState from '@/components/whispers/WhispersState.vue';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import MessengerProxy from '@/messaging/MessengerProxy';
-import type { TriggerActionCountDataAction, SettingsExportData, TriggerImportData } from '@/types/TriggerActionDataTypes';
+import type { TriggerImportData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
@@ -225,8 +227,6 @@ import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
 import ShareParams from './ShareParams.vue';
-import MigrationFixerModal from '@/components/modals/MigrationFixerModal.vue';
-import SettingsImportForm from '@/components/params/contents/exporter/SettingsImportForm.vue';
 
 @Component({
 	components:{
@@ -513,15 +513,7 @@ class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GET_COLS_COUNT, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_ADD, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_GET, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_GET_ALL, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.EXECUTE_TRIGGER, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.TOGGLE_TRIGGER, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.TRIGGERS_GET_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CLEAR_CHAT_HIGHLIGHT, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.TIMER_ADD, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTDOWN_ADD, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_POLL, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
@@ -571,15 +563,7 @@ class Chat extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_COLS_COUNT, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTER_ADD, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTER_GET, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTER_GET_ALL, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.EXECUTE_TRIGGER, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.TOGGLE_TRIGGER, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.TRIGGERS_GET_ALL, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CLEAR_CHAT_HIGHLIGHT, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.TIMER_ADD, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTDOWN_ADD, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_POLL, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
@@ -691,89 +675,6 @@ class Chat extends Vue {
 				break;
 			}
 
-			case TwitchatEvent.COUNTER_GET: {
-				const id = (e.data as JsonObject).cid as string;
-				this.$store.counters.broadcastCounterValue(id);
-				break;
-			}
-
-			case TwitchatEvent.COUNTER_ADD: {
-				const id = (e.data as JsonObject).counterId as string;
-				const action = (e.data as JsonObject).counterAction as TriggerActionCountDataAction;
-				const value = parseInt((e.data as JsonObject).countAdd as string);
-				const counter = this.$store.counters.counterList.find(v=>v.id == id);
-				if(counter && !isNaN(value)) {
-					this.$store.counters.increment(id, action || "ADD", value);
-				}
-				break;
-			}
-
-			case TwitchatEvent.EXECUTE_TRIGGER: {
-				const id = (e.data as JsonObject).triggerId as string;
-				const trigger = this.$store.triggers.triggerList.find(v=>v.id == id);
-				if(trigger) {
-					const me = this.$store.auth.twitch.user;
-					const fakeMessage:TwitchatDataTypes.MessageChatData = {
-						platform:"twitch",
-						type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-						channel_id:me.id,
-						date:Date.now(),
-						id:Utils.getUUID(),
-						message:"",
-						message_chunks:[],
-						message_html:"",
-						message_size:0,
-						user:me,
-						is_short:false,
-						answers:[],
-					}
-					TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, false);
-				}
-				break;
-			}
-
-			case TwitchatEvent.TOGGLE_TRIGGER: {
-				const id = (e.data as JsonObject).triggerId as string;
-				const action = (e.data as JsonObject).triggerAction as string || "enable";
-				const trigger = this.$store.triggers.triggerList.find(v=>v.id == id);
-				if(trigger) {
-					switch(action.toLowerCase()){
-						case "enable":	trigger.enabled = true; break;
-						case "disable":	trigger.enabled = false; break;
-						case "toggle":	trigger.enabled = !trigger.enabled; break;
-					}
-				}
-				this.$store.triggers.saveTriggers();
-				break;
-			}
-
-			case TwitchatEvent.COUNTER_GET_ALL: {
-				const counters = this.$store.counters.counterList.map(v=> {
-					return {
-						id:v.id,
-						name:v.name,
-						perUser:v.perUser === true,
-					}
-				});
-				if(counters) {
-					PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_LIST, {counters});
-				}
-				break;
-			}
-
-			case TwitchatEvent.TRIGGERS_GET_ALL: {
-				const triggers = this.$store.triggers.triggerList.map(v=> {
-					return {
-						id:v.id,
-						name:TriggerUtils.getTriggerDisplayInfo(v).label,
-					}
-				});
-				if(triggers) {
-					PublicAPI.instance.broadcast(TwitchatEvent.TRIGGER_LIST, {triggers});
-				}
-				break;
-			}
-
 			case TwitchatEvent.CLEAR_CHAT_HIGHLIGHT: {
 				this.$store.chat.highlightChatMessageOverlay();
 				break;
@@ -783,32 +684,6 @@ class Chat extends Vue {
 				const message = (e.data as JsonObject).message as string;
 				if(message) {
 					MessengerProxy.instance.sendMessage(message);
-				}
-				break;
-			}
-
-			case TwitchatEvent.TIMER_ADD: {
-				const durationStr = (e.data as JsonObject).timeAdd as string ?? "1";
-				const durationMs = isNaN(parseInt(durationStr))? 1000 : parseInt(durationStr) * 1000;
-				const timer = this.$store.timers.timerList.find(v=>v.type == 'timer' && v.isDefault);
-				if(!timer) return;
-				if(durationMs > 0) {
-					this.$store.timers.timerAdd(timer.id, durationMs);
-				}else{
-					this.$store.timers.timerRemove(timer.id, -durationMs);
-				}
-				break;
-			}
-
-			case TwitchatEvent.COUNTDOWN_ADD: {
-				const durationStr = (e.data as JsonObject).timeAdd as string ?? "1";
-				const durationMs = isNaN(parseInt(durationStr))? 1000 : parseInt(durationStr) * 1000;
-				const timer = this.$store.timers.timerList.find(v=>v.type == 'countdown' && v.isDefault);
-				if(!timer) return;
-				if(durationMs > 0) {
-					this.$store.timers.timerAdd(timer.id, durationMs);
-				}else{
-					this.$store.timers.timerRemove(timer.id, -durationMs);
 				}
 				break;
 			}
