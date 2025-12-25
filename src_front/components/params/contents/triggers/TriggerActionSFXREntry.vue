@@ -78,7 +78,7 @@ class TriggerActionSFXREntry extends AbstractTriggerActionEntry {
 
 	private prevSound : AudioBufferSourceNode | null = null;
 	
-	public get exchangeChannelAvailable():boolean { return Config.instance.OBS_DOCK_CONTEXT || OBSWebSocket.instance.connected; }
+	public get exchangeChannelAvailable():boolean { return Config.instance.OBS_DOCK_CONTEXT || OBSWebSocket.instance.connected.value; }
 	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNECTIONS; }
 

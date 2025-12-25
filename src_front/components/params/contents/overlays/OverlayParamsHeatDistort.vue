@@ -86,7 +86,7 @@ class OverlayParamsHeatDistort extends Vue {
 	public expandPremiumInfo:boolean = false;
 	public shaderstasticError:boolean = false;
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
 	public get isPremium():boolean{ return this.$store.auth.isPremium; }
 	public get maxEntries():number{ return this.isPremium? Config.instance.MAX_DISTORTION_OVERLAYS_PREMIUM : Config.instance.MAX_DISTORTION_OVERLAYS; }
 	public get premiumCount():number{ return Config.instance.MAX_DISTORTION_OVERLAYS_PREMIUM; }

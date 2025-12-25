@@ -4,6 +4,7 @@ import type { TwitchatActionType, TwitchatEventType } from "../events/TwitchatEv
 import TwitchatEvent from "../events/TwitchatEvent";
 import OBSWebsocket from "./OBSWebsocket";
 import Utils from "./Utils";
+import StreamdeckSocket, { StreamdeckSocketEvent } from "./StreamdeckSocket";
 // import StreamdeckSocket, { StreamdeckSocketEvent } from "./StreamdeckSocket";
 
 /**
@@ -53,10 +54,11 @@ export default class PublicAPI extends EventDispatcher {
 			}
 		}
 
+		this.listenStreamdeck();
+		this.listenOBS(isMainApp);
+
 		//Broadcast twitchat ready state
 		if(isMainApp) this.broadcast(TwitchatEvent.TWITCHAT_READY, undefined, false);
-
-		await this.listenOBS(isMainApp);
 	}
 
 	/**
@@ -82,7 +84,7 @@ export default class PublicAPI extends EventDispatcher {
 			console.error(error);
 		}
 
-		if(!OBSWebsocket.instance.connected || onlyLocal) {
+		if(!OBSWebsocket.instance.connected.value || onlyLocal) {
 			//OBS not connected and asked to broadcast to self, just
 			//broadcast to self right away
 			if(broadcastToSelf) this.dispatchEvent(new TwitchatEvent(type, dataClone));
@@ -91,7 +93,7 @@ export default class PublicAPI extends EventDispatcher {
 			OBSWebsocket.instance.broadcast(type, eventId, dataClone);
 		}
 
-		// StreamdeckSocket.instance.broadcast(type, eventId, dataClone);
+		StreamdeckSocket.instance.broadcast(type, eventId, dataClone);
 	}
 
 
@@ -102,7 +104,7 @@ export default class PublicAPI extends EventDispatcher {
 	private listenOBS(isMainApp:boolean):Promise<void> {
 		return new Promise((resolve,reject):void => {
 			//OBS api not ready yet, wait for it
-			if(!OBSWebsocket.instance.connected) {
+			if(!OBSWebsocket.instance.connected.value) {
 				const connectHandler = () => {
 					OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_WEBSOCKET_CONNECTED, connectHandler);
 					if(isMainApp) this.broadcast(TwitchatEvent.TWITCHAT_READY, undefined, false);
@@ -118,13 +120,6 @@ export default class PublicAPI extends EventDispatcher {
 					this.onMessage(event.data, true);
 				}
 			});
-
-			// StreamdeckSocket.instance.addEventListener(StreamdeckSocketEvent.MESSAGE, (event:StreamdeckSocketEvent) => {
-			// 	if(event.data) {
-			// 		console.log("[PUBLIC API] DATA FROM SD:", event.data)
-			// 		// this.onMessage(event.data, true);
-			// 	}
-			// });
 		});
 	}
 
@@ -145,9 +140,23 @@ export default class PublicAPI extends EventDispatcher {
 		}
 		this.dispatchEvent(new TwitchatEvent(event.type, event.data));
 	}
+
+	private listenStreamdeck():void {
+		StreamdeckSocket.instance.addEventListener(StreamdeckSocketEvent.MESSAGE, (e:StreamdeckSocketEvent) => {
+			if(e.data) {
+				const event:IEnvelope<unknown> = {
+					id: Utils.getUUID(),
+					origin: "twitchat",
+					type: e.data.action,
+					data: e.data.data
+				}
+				this.onMessage(event, true);
+			}
+		});
+	}
 }
 
-interface IEnvelope<T extends JsonObject | undefined = undefined> {
+interface IEnvelope<T extends JsonObject | unknown = unknown> {
 	origin:"twitchat";
 	id:string;
 	type:TwitchatActionType;
