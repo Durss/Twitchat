@@ -2,7 +2,6 @@ import type { TriggerActionTypes, TriggerData } from "@/types/TriggerActionDataT
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { TwitchEventSubDataTypes } from "@/types/twitch/TwitchEventSubDataTypes";
-import { reactive } from "vue";
 
 /**
 * Created : 30/11/2023
@@ -11,7 +10,7 @@ export default class Logger {
 
 	private static _instance:Logger;
 
-    private logs:LogsHistory = reactive({
+    private logs:LogsHistory = {
         "ads": [],
         "obs": [],
         "irc": [],
@@ -19,7 +18,7 @@ export default class Logger {
         "youtube": [],
         "triggers": [],
         "subgifts": [],
-    });
+    };
 
 	constructor() {
 
