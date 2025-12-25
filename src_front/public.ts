@@ -105,7 +105,6 @@ function buildApp() {
 	.provide("$store", StoreProxy.default);
 
 	StoreProxy.default.i18n = i18n.global;
-	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.default.public = storePublic();
 	StoreProxy.default.common = storeCommon();
 	app.config.globalProperties.$asset = asset;
