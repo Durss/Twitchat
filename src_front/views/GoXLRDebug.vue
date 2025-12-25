@@ -61,7 +61,7 @@ class GoXLRDebug extends Vue {
 	public param_echoStyle:TwitchatDataTypes.ParameterData<"Quarter"|"Eighth"|"MultiTap"|"Triplet"|"PingPong"|"ClassicSlap"> = {type:"list", listValues:["Quarter","Eighth","MultiTap","Triplet","PingPong","ClassicSlap"].map(v=>{ return {label:v, value:v}; }), value:"Quarter", label:"Echo style"};
 	public param_echoAmount:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:0, min:0, max:100, step:1, label:"Echo amount {VALUE}"};
 
-	public get connected():boolean { return GoXLRSocket.instance.connected; }
+	public get connected():boolean { return GoXLRSocket.instance.connected.value; }
 
 	public mounted():void {
 		watch(()=>this.param_genderStyle.value, ()=> {
@@ -80,7 +80,7 @@ class GoXLRDebug extends Vue {
 			console.log(error);
 			this.error = true;
 		}
-		const state = GoXLRSocket.instance.status;
+		const state = GoXLRSocket.instance.status.value;
 		if(state) {
 			this.fxEnabled = state.effects.is_enabled;
 			this.selectedPresetIndex = parseInt(state.effects.active_preset.replace(/\D/gi, ""));

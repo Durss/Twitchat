@@ -84,7 +84,7 @@ class ConnectSpotify extends Vue {
 	public paramClient:TwitchatDataTypes.ParameterData<string> = {label:"Client ID", value:"", type:"string", fieldName:"spotifyClient", maxLength:32, isPrivate:true};
 	public paramSecret:TwitchatDataTypes.ParameterData<string> = {label:"Client secret", value:"", type:"password", fieldName:"spotifySecret", maxLength:32, isPrivate:true};
 
-	public get connected():boolean { return SpotifyHelper.instance.connected; }
+	public get connected():boolean { return SpotifyHelper.instance.connected.value; }
 	public get canConnect():boolean {
 		return this.paramClient.value.length >= 30 && this.paramSecret.value.length >= 30;
 	}

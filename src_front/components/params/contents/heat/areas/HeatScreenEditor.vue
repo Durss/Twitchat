@@ -90,7 +90,7 @@ class HeatScreenEditor extends Vue {
 		return res;
 	}
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
 
 	public async beforeMount():Promise<void> {
 		if(this.screen.areas.length == 0) {
@@ -126,7 +126,7 @@ class HeatScreenEditor extends Vue {
 
 		this.params_target.listValues = [{value:"", labelKey:"heat.areas.target_always"}];
 
-		if(OBSWebsocket.instance.connected){
+		if(OBSWebsocket.instance.connected.value){
 			const scenes = await OBSWebsocket.instance.getScenes();
 			scenes.scenes.forEach(v=> {
 				this.params_target.listValues!.push({value:v.sceneName, label:v.sceneName});
@@ -443,7 +443,7 @@ class HeatScreenEditor extends Vue {
 		if(this.disposed) return;
 		const area = (this.$refs.background as HTMLDivElement);
 		//@ts-ignore
-		if(area && this.params_showOBS.value == true && OBSWebsocket.instance.connected) {
+		if(area && this.params_showOBS.value == true && OBSWebsocket.instance.connected.value) {
 			const scene = this.params_target.value? this.params_target.value : undefined;
 			const image = await OBSWebsocket.instance.getScreenshot(scene);
 			area.style.backgroundImage = "url("+image+")";

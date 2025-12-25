@@ -67,7 +67,7 @@ class PublicApiTest extends Vue {
 	private idsDone:{[key:string]:boolean} = {};
 
 	public beforeMount(): void {
-		this.connected = OBSWebsocket.instance.connected;
+		this.connected = OBSWebsocket.instance.connected.value;
 		this.eventList = TwitchatEventTypeList.concat().map(v=>{
 			return {key:v, active:false, data:null};
 		}).sort((a,b)=> {

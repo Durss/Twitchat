@@ -566,7 +566,7 @@ export class ChatForm extends Vue {
 		return TwitchUtils.parseMessageToChunks(text, undefined, true);
 	}
 
-	public get showObsBtn():boolean { return this.$store.obs.connectionEnabled === true && !OBSWebsocket.instance.connected; }
+	public get showObsBtn():boolean { return this.$store.obs.connectionEnabled === true && !OBSWebsocket.instance.connected.value; }
 
 	public get qnaSessionActive():boolean { return this.$store.qna.activeSessions.length > 0; }
 
@@ -582,7 +582,7 @@ export class ChatForm extends Vue {
 		return false;
 	}
 
-	public get voiceBotStarted():boolean { return VoiceController.instance.started; }
+	public get voiceBotStarted():boolean { return VoiceController.instance.started.value; }
 	public get voiceBotConfigured():boolean {
 		if(Config.instance.OBS_DOCK_CONTEXT) return false;
 		const actions = Object.keys(VoiceAction);
@@ -832,7 +832,7 @@ export class ChatForm extends Vue {
 					//Check patreon only condition
 					if(a.patreonOnly === true && !this.$store.patreon.isMember) continue;
 					//Check patreon only condition
-					if(a.heatOnly === true && !HeatSocket.instance.connected) continue;
+					if(a.heatOnly === true && !HeatSocket.instance.connected.value) continue;
 					//Check if within date frame
 					if(Date.now() < new Date(a.dateStart).getTime()) continue;
 					if(a.dateEnd && Date.now() > new Date(a.dateEnd).getTime()) continue;
@@ -1196,7 +1196,7 @@ export class ChatForm extends Vue {
 	 * Start the voice bot
 	 */
 	public toggleVoiceBot():void {
-		if(VoiceController.instance.started) {
+		if(VoiceController.instance.started.value) {
 			VoiceController.instance.stop();
 		}else{
 			VoiceController.instance.start(false);

@@ -118,9 +118,9 @@ class ConnectGoXLR extends Vue {
 	public param_chatColIndexScroll:TwitchatDataTypes.ParameterData<number> = {type:"list", value:-1, labelKey:"goxlr.param_chat_col"};
 	public param_chatColIndexMarkRead:TwitchatDataTypes.ParameterData<number> = {type:"list", value:-1, labelKey:"goxlr.param_chat_col"};
 
-	public get connected():boolean { return GoXLRSocket.instance.connected === true; }
-	public get noDevice():boolean { return GoXLRSocket.instance.status == null; }
-	public get isGoXLRMini():boolean { return GoXLRSocket.instance.isGoXLRMini; }
+	public get connected():boolean { return GoXLRSocket.instance.connected.value === true; }
+	public get noDevice():boolean { return GoXLRSocket.instance.status.value == null; }
+	public get isGoXLRMini():boolean { return GoXLRSocket.instance.isGoXLRMini.value; }
 
 	public get holderStyles():CSSProperties {
 		return {

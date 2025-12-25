@@ -149,13 +149,13 @@ class TriggerCreateForm extends Vue {
 
 	private temporaryTrigger:TriggerData|null = null;
 
-	public get musicServiceAvailable():boolean { return SpotifyHelper.instance.connected; }
+	public get musicServiceAvailable():boolean { return SpotifyHelper.instance.connected.value; }
 
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
 
 	public get hasCounterOrValue():boolean { return this.$store.counters.counterList.length > 0 || this.$store.values.valueList.length > 0; }
 
-	public get isGoxlrMini():boolean { return GoXLRSocket.instance.isGoXLRMini; }
+	public get isGoxlrMini():boolean { return GoXLRSocket.instance.isGoXLRMini.value; }
 
 	public get hasChannelPoints():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
 
@@ -386,7 +386,7 @@ class TriggerCreateForm extends Vue {
 		}else
 
 		if(e.value == TriggerTypes.OBS_SCENE) {
-			if(!OBSWebsocket.instance.connected) {
+			if(!OBSWebsocket.instance.connected.value) {
 				this.needObsConnect = true;
 				return;
 			}else{
@@ -416,7 +416,7 @@ class TriggerCreateForm extends Vue {
 
 		if(e.value == TriggerTypes.OBS_SOURCE_OFF
 		|| e.value == TriggerTypes.OBS_SOURCE_ON) {
-			if(!OBSWebsocket.instance.connected) {
+			if(!OBSWebsocket.instance.connected.value) {
 				this.needObsConnect = true;
 				return;
 			}else{
@@ -438,7 +438,7 @@ class TriggerCreateForm extends Vue {
 
 		if(e.value == TriggerTypes.OBS_FILTER_OFF
 		|| e.value == TriggerTypes.OBS_FILTER_ON) {
-			if(!OBSWebsocket.instance.connected) {
+			if(!OBSWebsocket.instance.connected.value) {
 				this.needObsConnect = true;
 				return;
 			}else{
@@ -494,7 +494,7 @@ class TriggerCreateForm extends Vue {
 		|| e.value == TriggerTypes.OBS_PLAYBACK_PREVIOUS
 		|| e.value == TriggerTypes.OBS_PLAYBACK_STARTED
 		|| e.value == TriggerTypes.OBS_PLAYBACK_ENDED) {
-			if(!OBSWebsocket.instance.connected) {
+			if(!OBSWebsocket.instance.connected.value) {
 				this.needObsConnect = true;
 				return;
 			}else{

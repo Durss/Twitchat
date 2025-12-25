@@ -43,7 +43,7 @@ class RemoteVoiceControl extends Vue {
 	public connectSuccess:boolean = false;
 	public showStorageModal:boolean = false;
 
-	public get connected():boolean { return OBSWebsocket.instance.connected; }
+	public get connected():boolean { return OBSWebsocket.instance.connected.value; }
 
 	public mounted():void {
 		this.showStorageModal = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == null;
