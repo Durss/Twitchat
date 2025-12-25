@@ -53,9 +53,9 @@ class VoiceControlForm extends Vue {
 
 	public lang:string = "";
 
-	public get started():boolean { return VoiceController.instance.started; }
-	public get tempText():string { return this.sttOnly === false? this.$store.voice.voiceText.tempText : VoiceController.instance.tempText; }
-	public get finalText():string { return this.sttOnly === false? this.$store.voice.voiceText.finalText : VoiceController.instance.finalText; }
+	public get started():boolean { return VoiceController.instance.started.value; }
+	public get tempText():string { return this.sttOnly === false? this.$store.voice.voiceText.tempText : VoiceController.instance.tempText.value; }
+	public get finalText():string { return this.sttOnly === false? this.$store.voice.voiceText.finalText : VoiceController.instance.finalText.value; }
 
 	public beforeMount():void {
 		let userLang = navigator.language;
@@ -78,7 +78,7 @@ class VoiceControlForm extends Vue {
 	}
 
 	private updateLang():void {
-		VoiceController.instance.lang = this.lang;
+		VoiceController.instance.lang.value = this.lang;
 		this.$store.voice.setVoiceLang(this.lang);
 	}
 

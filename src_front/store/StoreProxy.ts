@@ -1628,7 +1628,11 @@ export interface ITimerActions {
 	 * Gets current timer/countdown computed value
 	 * Remaining time for a countodwn, elasped time for a timer
 	 */
-	getTimerComputedValue(id:string):{duration_ms:number, duration_str:string}
+	getTimerComputedValue(id:string):{duration_ms:number, duration_str:string};
+	/**
+	 * Broadcasts the timer list on Public API
+	 */
+	broadcastTimerList():void;
 }
 
 
@@ -2616,6 +2620,10 @@ export interface IQnaActions {
 	 * Broadcasts Q&A list to public API
 	 */
 	broadcastQnaList():void
+	/**
+	 * Broadcasts Q&A list on Public API
+	 */
+	broadcastQnAList():void;
 }
 
 

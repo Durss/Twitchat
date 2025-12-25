@@ -1,7 +1,7 @@
 import type SpeechRecognition from "@/ISpeechRecognition";
 import { storeVoice } from "@/store/voice/storeVoice";
 import type { JsonObject } from "type-fest";
-import { reactive, watch } from "vue";
+import { reactive, ref, watch } from "vue";
 import PublicAPI from "../PublicAPI";
 import TwitchatEvent, { type TwitchatActionType, type TwitchatEventType } from "../../events/TwitchatEvent";
 import VoiceAction from "./VoiceAction";
@@ -13,10 +13,10 @@ export default class VoiceController {
 
 	private static _instance:VoiceController;
 	
-	public lang:string = "en-US";
-	public started:boolean = false;
-	public finalText:string = "";
-	public tempText:string = "";
+	public lang = ref("en-US");
+	public started = ref(false);
+	public finalText = ref("");
+	public tempText = ref("");
 	
 	private lastTriggerKey:string = "";
 	private remoteControlMode:boolean = false;
@@ -40,15 +40,15 @@ export default class VoiceController {
 	********************/
 	static get instance():VoiceController {
 		if(!VoiceController._instance) {
-			VoiceController._instance = reactive(new VoiceController()) as VoiceController;
+			VoiceController._instance = new VoiceController();
 			VoiceController._instance.initialize();
 		}
 		return VoiceController._instance;
 	}
 
 	public get currentText():string {
-		if(this.tempText) return this.tempText;
-		return this.finalText;
+		if(this.tempText.value) return this.tempText.value;
+		return this.finalText.value;
 	}
 
 	public get apiAvailable():boolean {
@@ -64,9 +64,9 @@ export default class VoiceController {
 
 	public async start(remoteControlMode:boolean):Promise<void> {
 		this.remoteControlMode = remoteControlMode;
-		if(this.started) return;
+		if(this.started.value) return;
 		if(this.recognition) {
-			this.started = true;
+			this.started.value = true;
 			this.recognition.start();
 			return;
 		}
@@ -85,28 +85,28 @@ export default class VoiceController {
 		this.recognition = new SRConstructor() as SpeechRecognition;
 		this.recognition.continuous = true;
 		this.recognition.interimResults = true;
-		this.recognition.lang = this.lang;
+		this.recognition.lang = this.lang.value;
 		this.recognition.onresult = async (event) => {
-			this.tempText = "";
+			this.tempText.value = "";
 			let tempText_loc = "";
 			for (let i = event.resultIndex; i < event.results.length; ++i) {
 				if(event.results[i]!.isFinal) {
 					const finalText = event.results[i]![0]!.transcript.replace(this.lastTriggerKey, "");
 					if(this.remoteControlMode) {
-						this.finalText = tempText_loc;
+						this.finalText.value = tempText_loc;
 						PublicAPI.instance.broadcast(TwitchatEvent.REMOTE_FINAL_TEXT_EVENT, {text:finalText})
 					}else{
 						this.onFinalText( finalText );
 					}
 					return;
 				}else{
-					this.finalText = "";
+					this.finalText.value = "";
 					tempText_loc += event.results[i]![0]!.transcript;
 				}
 			}
 
 			if(this.remoteControlMode) {
-				this.tempText = tempText_loc;
+				this.tempText.value = tempText_loc;
 				PublicAPI.instance.broadcast(TwitchatEvent.REMOTE_TEMP_TEXT_EVENT, {text:tempText_loc});
 			}else{
 				this.onTempText(tempText_loc);
@@ -114,7 +114,7 @@ export default class VoiceController {
 		}
 		
 		this.recognition.onend = () => {
-			if(!this.started) return;
+			if(!this.started.value) return;
 			this.recognition.start();
 		};
 
@@ -127,16 +127,16 @@ export default class VoiceController {
 		}
 
 		this.recognition.start();
-		this.started = true;
+		this.started.value = true;
 	}
 
 	public stop():void {
-		this.started = false;
+		this.started.value = false;
 		this.recognition.stop();
 	}
 
 	public dispose():void {
-		this.started = false;
+		this.started.value = false;
 		try {
 			this.recognition.stop();
 		}catch(e) {
@@ -157,7 +157,7 @@ export default class VoiceController {
 	private initialize():void {
 		watch(()=>this.lang, ()=> {
 			if(this.recognition) {
-				this.recognition.lang = this.lang;
+				this.recognition.lang = this.lang.value;
 				this.recognition.stop();
 				//onend callback will restart the recognition automatically
 			}
@@ -172,7 +172,7 @@ export default class VoiceController {
 		})
 		
 		PublicAPI.instance.addEventListener(TwitchatEvent.REMOTE_TEMP_TEXT_EVENT, (e:TwitchatEvent)=> {
-			this.finalText = "";
+			this.finalText.value = "";
 			// //@ts-ignore
 			// console.log("REMOTE TEMP", e.data.text);
 			this.onTempText((e.data as {text:string}).text);
@@ -246,12 +246,12 @@ export default class VoiceController {
 	}
 
 	private onFinalText(text:string) {
-		this.finalText = text.trim();
+		this.finalText.value = text.trim();
 		if(!this.wasIncludingGlobalCommand) {
-			this.triggerAction(VoiceAction.TEXT_UPDATE, {text:this.finalText});
+			this.triggerAction(VoiceAction.TEXT_UPDATE, {text:this.finalText.value});
 		}
 		if(this.triggersCountDone === 0) {
-			this.parseSentence(this.finalText.toLowerCase());
+			this.parseSentence(this.finalText.value.toLowerCase());
 		}
 		this.triggerAction(VoiceAction.SPEECH_END, {text});
 		this.wasIncludingGlobalCommand = false;
@@ -309,8 +309,8 @@ export default class VoiceController {
 			tempText_loc = this.parseSentence(tempText_loc);
 		}
 
-		this.tempText = tempText_loc;
-		if(!this.finalText) {
+		this.tempText.value = tempText_loc;
+		if(!this.finalText.value) {
 			this.triggerAction(VoiceAction.RAW_TEXT_UPDATE, {text:tempText_loc});
 		}
 	}

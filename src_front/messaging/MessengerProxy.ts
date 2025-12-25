@@ -513,7 +513,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/ttsuser") {
-			const username = params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim();
+			const username = params[0]!.toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim();
 			try {
 				const res = await TwitchUtils.getUserInfo(undefined, [username]);
 				if(res.length == 0) {
@@ -528,7 +528,7 @@ export default class MessengerProxy {
 					}
 					StoreProxy.chat.addMessage(notice);
 				}else{
-					const user = StoreProxy.users.getUserFrom("twitch", channelId, res[0]!.id, res[0].login, res[0].display_name, undefined, undefined, false, undefined, false);
+					const user = StoreProxy.users.getUserFrom("twitch", channelId, res[0]!.id, res[0]!.login, res[0]!.display_name, undefined, undefined, false, undefined, false);
 					StoreProxy.tts.ttsReadUser(user);
 				}
 			}catch(error) {}

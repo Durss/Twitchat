@@ -112,7 +112,6 @@ export const storeQna = defineStore('qna', {
 
 			PublicAPI.instance.addEventListener(TwitchatEvent.QNA_SESSION_GET_ALL, (event:TwitchatEvent) => {
 				this.broadcastQnaList();
-
 			});
 		},
 
@@ -355,7 +354,7 @@ export const storeQna = defineStore('qna', {
 
 		broadcastQnaList():void {
 			PublicAPI.instance.broadcast(TwitchatEvent.QNA_SESSION_LIST, {qnaSessions:this.activeSessions.map(v=>({id:v.id, command:v.command, open:v.open}))});
-		}
+		},
 
 
 	} as IQnaActions

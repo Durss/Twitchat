@@ -101,7 +101,7 @@ class HeatDistortParams extends Vue {
 	private updateDebounce:number = -1;
 	private obsEventHandler!:()=>void;
 
-	public get heatEnabled():boolean { return HeatSocket.instance.connected; }
+	public get heatEnabled():boolean { return HeatSocket.instance.connected.value; }
 
 	public get canEnable():boolean {
 		return this.modelValue.enabled
@@ -192,7 +192,7 @@ class HeatDistortParams extends Vue {
 	}
 
 	public simulateClicks():void {
-		if(HeatSocket.instance.connected) {
+		if(HeatSocket.instance.connected.value) {
 			const uid = this.$store.auth.twitch.user.id
 			for (let i = 0; i < 5; i++) {
 				const px = Math.random();

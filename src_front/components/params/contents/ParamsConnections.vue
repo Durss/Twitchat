@@ -86,7 +86,7 @@
 			</button>
 
 			<button class="card-item"
-			:class="{noConnectInfo:true}"
+			:class="{connected:streamdeckConnected}"
 			@click="subContent='streamdeck'">
 				<Icon name="elgato" />
 				<p>Stream Deck</p>
@@ -250,6 +250,7 @@ import ConnectYoutube from './connexions/ConnectYoutube.vue';
 import ConnectTwitchBot from './connexions/ConnectTwitchBot.vue';
 import ConnectGroq from './connexions/ConnectGroq.vue';
 import ConnectStreamSocket from './connexions/ConnectStreamSocket.vue';
+import StreamdeckSocket from '@/utils/StreamdeckSocket';
 
 @Component({
 	components:{
@@ -286,13 +287,14 @@ class ParamsConnections extends Vue implements IParameterContent {
 	public allowHighlight:boolean = true;
 	public subContent:TwitchatDataTypes.ParamDeepSectionsStringType|"" = "";
 
-	public get youtubeConnected():boolean { return YoutubeHelper.instance.connected; }
-	public get goxlrConnected():boolean { return GoXLRSocket.instance.connected.value; }
-	public get voicemodConnected():boolean { return VoicemodWebSocket.instance.connected.value; }
-	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected.value; }
-	public get heatConnected():boolean { return HeatSocket.instance.connected; }
-	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value; }
-	public get wsCustomConnected():boolean { return WebsocketTrigger.instance.connected; }
+	public get youtubeConnected():boolean { return YoutubeHelper.instance.connected.value }
+	public get goxlrConnected():boolean { return GoXLRSocket.instance.connected.value }
+	public get voicemodConnected():boolean { return VoicemodWebSocket.instance.connected.value }
+	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected.value }
+	public get heatConnected():boolean { return HeatSocket.instance.connected.value }
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected.value }
+	public get wsCustomConnected():boolean { return WebsocketTrigger.instance.connected.value }
+	public get streamdeckConnected():boolean { return StreamdeckSocket.instance.connected.value }
 
 	public async beforeMount():Promise<void> {
 		await this.$nextTick();
