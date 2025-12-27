@@ -11,6 +11,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 	private static _instance:StreamdeckSocket;
 	public connected = ref(false);
 	private _socket!:WebSocket;
+	private _tryAgainTo:number = -1
 
 	constructor() {
 		super();
@@ -41,21 +42,23 @@ export default class StreamdeckSocket extends EventDispatcher {
 	 */
 	public connect(ip?:string):Promise<boolean> {
 		const isManualConnect = !!ip;
+		this.connected.value = false;
 		if(!ip && this.ip) {
 			ip = this.ip;
 		}
+		window.clearTimeout(this._tryAgainTo);
 
-		if(this._socket) {
+		if(this._socket && this._socket.readyState === WebSocket.OPEN) {
+			this._socket.close();
 			this._socket.onopen = null;
 			this._socket.onclose = null;
 			this._socket.onerror = null;
 			this._socket.onmessage = null;
-			this._socket.close();
 		}
 		return new Promise((resolve, reject) => {
-			const port = 30385;
 			let protocol = (ip == "127.0.0.1" || ip == "localhost") ? "ws://" : "wss://";
 			if(ip?.indexOf("ws") === 0) protocol = "";
+			let port = protocol == "ws://" ? 30385 : 30386;
 			const address = ip ? `${protocol}${ip}:${port}` : `ws://127.0.0.1:${port}`;
 			if(isManualConnect) {
 				if(ip != "127.0.0.1") {
@@ -82,7 +85,8 @@ export default class StreamdeckSocket extends EventDispatcher {
 			this._socket.onclose = () => {
 				this.connected.value = false;
 				if(!isManualConnect) {
-					setTimeout(() => {
+					window.clearTimeout(this._tryAgainTo);
+					this._tryAgainTo = window.setTimeout(() => {
 						this.connect();
 					}, 5000); // Reconnect after 5 seconds
 				}
