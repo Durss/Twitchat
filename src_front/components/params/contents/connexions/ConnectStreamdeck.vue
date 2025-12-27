@@ -27,13 +27,19 @@
 		<section>
 			<ToggleBlock :title="$t('global.advanced_params')" small :open="false">
 				<form @submit.prevent="connect()">
-					<ParamItem :paramData="param_ip" v-model="param_ip.value" @focus="onFocus()" @blur="connect()" @change="onIpChange()" noBackground />
+					<ParamItem :paramData="param_ip" v-model="param_ip.value" @change="onIpChange()" noBackground />
+					<TTButton type="submit" :disabled="connecting" icon="online">{{ $t("global.connect") }}</TTButton>
 	
-					<i18n-t scope="global" class="card-item secondary security" tag="div" v-if="securityWarning" keypath="streamdeck.connect_form.ip_security">
-						<template #LINK>
-							<a :href="$config.DISCORD_URL" target="_blank">{{ $t("streamdeck.connect_form.ip_security_link") }}</a>
-						</template>
-					</i18n-t>
+					<div v-if="securityWarning" class="card-item secondary security"><icon name="info" />
+						<i18n-t scope="global" keypath="streamdeck.connect_form.info">
+							<template #URL><a :href="`https://${param_ip.value}:30386`" target="_blank">https://{{ param_ip.value }}:30386</a></template>
+						</i18n-t>
+					<ul>
+						<li><img class="logo" src="@/assets/icons/logo-chrome.svg"><img class="logo" src="@/assets/icons/logo-vivaldi.svg"><img class="logo" src="@/assets/icons/logo-edge.svg"><img class="logo" src="@/assets/icons/logo-brave.svg"> — <span v-html="$t('streamdeck.connect_form.chromium', { IP: param_ip.value })"></span></li>
+						<li><img class="logo" src="@/assets/icons/logo-firefox.svg"> — <span v-html="$t('streamdeck.connect_form.firefox', { IP: param_ip.value })"></span></li>
+						<li><img class="logo" src="@/assets/icons/logo-opera.svg"> — <span v-html="$t('streamdeck.connect_form.opera', { IP: param_ip.value })"></span></li>
+						<li><img class="logo" src="@/assets/icons/logo-safari.svg"> — <span v-html="$t('streamdeck.connect_form.safari', { IP: param_ip.value })"></span></li>
+					</ul></div>
 				</form>
 			</ToggleBlock>
 		</section>
@@ -71,23 +77,20 @@ class ConnectStreamdeck extends Vue implements IParameterContent {
 	public get subcontentOBS():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
 	public get connected():boolean { return StreamdeckSocket.instance.connected.value }
 
-	private prevValue:string = "";
-
 	public onNavigateBack(): boolean { return false; }
 
 	public mounted():void {
 		this.param_ip.value = StreamdeckSocket.instance.ip;
-		console.log("Mounted Streamdeck params with ip", this.param_ip.value);
+		this.onIpChange();
 	}
 
 	public async connect():Promise<void> {
-		if(this.param_ip.value == this.prevValue) return;
-
 		this.error = false;
 		this.connecting = true;
 		await Utils.promisedTimeout(100);
 		StreamdeckSocket.instance.connect(this.param_ip.value).then((res) => {
 			if(!res) this.error = true;
+			else this.error = false;
 		}).catch(() => {
 			this.error = true;
 		}).finally(() => {
@@ -95,9 +98,6 @@ class ConnectStreamdeck extends Vue implements IParameterContent {
 		});
 	}
 
-	public onFocus():void {
-		this.prevValue = this.param_ip.value;
-	}
 
 	public onIpChange():void {
 		this.securityWarning = (this.param_ip.value.trim() != "127.0.0.1" && this.param_ip.value.trim() != "localhost")
@@ -132,6 +132,19 @@ export default toNative(ConnectStreamdeck);
 
 		.security {
 			white-space: pre-line;
+			line-height: 1.25em;
+
+			.logo {
+				height: 1.5em;
+				margin-right: .25em;
+				vertical-align: middle;
+				filter:drop-shadow(0 0 4px rgba(0,0,0,.7));
+			}
+
+			.icon {
+				height: 1em;
+				margin-right: .5em;
+			}
 		}
 	}
 
@@ -143,6 +156,19 @@ export default toNative(ConnectStreamdeck);
 	.error {
 		cursor: pointer;
 		margin: auto;
+	}
+
+	ul {
+		list-style: disc;
+		list-style-position: inside;
+		padding-left: 1em;
+		li:not(:last-child) {
+			margin-bottom: .5em;
+		}
+		::v-deep(mark) {
+			padding: 0;
+			font-weight: normal;
+		}
 	}
 }
 </style>
