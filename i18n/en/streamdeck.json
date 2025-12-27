@@ -1,14 +1,16 @@
 {
 	"streamdeck":{
-		"header":"A Stream Deck™ plugin allows you to control some Twitchat features with the push of a button",
+		"header":"The Stream Deck™ plugin allows you to control Twitchat with the push of a button",
 		"download_bt":"Download Stream Deck™ plugin",
 		"connected":"Stream Deck connected",
 		"connecting":"connecting to Stream Deck...",
 		"connect_failed":"Failed connecting to Stream Deck",
 		"connect_form":{
-			"title":"Credentials",
-			"ip_security":"Due to web browsers security, if you set an IP other than \"127.0.0.1\" or \"localhost\" the connection must be secured.\nIf you want to connect to a remote desktop you must use an https tunnel (like Ngrok).\nCome ask for help on {LINK} if you don't know how to do that.\n\nIf your Stream Deck is on this computer, set 127.0.0.1 as IP.",
-			"ip_security_link":"Discord"
+			"info":"To allow connection, open {URL} then, depending on your browser:",
+			"chromium":"click \"<mark>advanced</mark>\", then \"<mark>Proceed to {IP} (unsafe)</mark>\"",
+			"firefox":"click \"<mark>Advanced...</mark>\", then \"<mark>Accept the Risk and Continue</mark>\"",
+			"opera":"click \"<mark>Help me understand</mark>\", then \"<mark>Proceed to {IP} (unsafe)</mark>\"",
+			"safari":"click \"<mark>Visit this website</mark>\""
 		}
 	}
 }
