@@ -1,5 +1,4 @@
 import fastifyFormbody from '@fastify/formbody';
-import fastifyMultipart from '@fastify/multipart';
 import Fastify, { FastifyInstance } from 'fastify';
 import fastifyRawBody from 'fastify-raw-body';
 import * as fs from "fs";
@@ -58,17 +57,17 @@ fs.mkdirSync(Config.BINGO_ROOT, { recursive: true });
 
 I18n.instance.initialize();
 
-const server:FastifyInstance = Fastify({logger: false});
+const server:FastifyInstance = Fastify({logger: false, bodyLimit:20*1024*1024});
 server.register(fastifyFormbody)
 server.register(FastifySSEPlugin)
-.register(fastifyMultipart,{
-	attachFieldsToBody: 'keyValues',
-	limits: {
-		fileSize: 2000000,  // For multipart forms, the max file size in bytes
-		files: 2,           // Max number of file fields
-		parts: 100         // For multipart forms, the max number of parts (fields + files)
-	}
-})
+// .register(fastifyMultipart,{
+// 	attachFieldsToBody: 'keyValues',
+// 	limits: {
+// 		fileSize: 2000000,  // For multipart forms, the max file size in bytes
+// 		files: 2,           // Max number of file fields
+// 		parts: 10           // For multipart forms, the max number of parts (fields + files)
+// 	}
+// })
 .register(fastifyRawBody, {
   runFirst: true, // get the body before any preParsing hook change/uncompress it. **Default false**
 }).then(async ()=> {

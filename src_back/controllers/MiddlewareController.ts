@@ -49,10 +49,14 @@ export default class MiddlewareController extends AbstractController {
 				'retry-after': false
 			},
 			allowList: (request, key) => {
+				//Apply stricter rate limit to auth endpoints
+				if(/\/api\/auth\/*/.test(request.url)) {
+					return false; //Force rate limiting on auth endpoints
+				}
 				//Apply rate limit only to API endpoints except config and SSE
 				return !/\/api\//.test(request.url)
 					|| request.url == "/api/configs"
-					|| request.url == "/api/configs";
+					|| request.url == "/api/sse/register";
 			},
 			onBanReach: (request, key) => {
 				this.expandCustomRateLimitDuration(request);
@@ -68,10 +72,18 @@ export default class MiddlewareController extends AbstractController {
 
 		//CORS headers
 		await this.server.register(cors, {
-			origin:[/localhost/i, /twitchat\.fr/i, /192\.168\.1\.10/, /127\.0\.0\.1/],
+			origin:[/^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.1\.10)(:\d+)?$/i, /^https?:\/\/([a-z0-9-]+\.)?twitchat\.fr$/i],
 			methods:['GET', 'PUT', 'POST', 'DELETE'],
 			// decorateReply: true,
 			exposedHeaders:["x-ratelimit-reset"],
+		});
+
+		//Security headers
+		//Note: X-Frame-Options not set to allow overlay embedding in OBS/StreamElements
+		this.server.addHook('onSend', async (request, response) => {
+			response.header('X-Content-Type-Options', 'nosniff');
+			response.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+			response.header('Permissions-Policy', 'geolocation=(), camera=()');
 		});
 
 		//Static files
@@ -181,10 +193,21 @@ export default class MiddlewareController extends AbstractController {
 		}
 
 		let file = path.join(Config.PUBLIC_ROOT, request.url);
+		
+		//Prevent directory traversal - ensure file is within PUBLIC_ROOT
+		const normalizedFile = path.normalize(file);
+		const normalizedRoot = path.normalize(Config.PUBLIC_ROOT);
+		if(!normalizedFile.startsWith(normalizedRoot)) {
+			response.code(403).send({success:false, error:"Forbidden"});
+			return;
+		}
+		
 		//No file exists at specified path, send index file
-		if(!fs.existsSync(file)) {
+		if(!fs.existsSync(normalizedFile)) {
 			file = path.join(Config.PUBLIC_ROOT, "index.html");
 			this.disableCache(response);
+		}else{
+			file = normalizedFile;
 		}
 		const stream = fs.createReadStream(file, 'utf8' );
 

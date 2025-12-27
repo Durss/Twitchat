@@ -119,6 +119,15 @@ export default class AdminController extends AbstractController {
 		if(!await this.adminGuard(request, response)) return;
 
 		const params = request.body as any;
+		
+		//Validate UID to prevent path traversal
+		if(!params.uid || !/^[0-9]+$/.test(params.uid)) {
+			response.header('Content-Type', 'application/json');
+			response.status(400);
+			response.send(JSON.stringify({success:false, error:"Invalid user ID", errorCode:"INVALID_UID"}));
+			return;
+		}
+		
 		let userList:string[] = [];
 		if(fs.existsSync(Config.BETA_USER_LIST)) {
 			userList = JSON.parse(fs.readFileSync(Config.BETA_USER_LIST, "utf8"));
@@ -169,6 +178,14 @@ export default class AdminController extends AbstractController {
 		if(!await this.adminGuard(request, response)) return;
 
 		const params:any = request.body;
+		
+		//Validate UID to prevent path traversal
+		if(!params.uid || !/^[0-9]+$/.test(params.uid)) {
+			response.header('Content-Type', 'application/json');
+			response.status(400);
+			response.send(JSON.stringify({success:false, error:"Invalid user ID", errorCode:"INVALID_UID"}));
+			return;
+		}
 
 		const prodFile = path.join(Config.PRODUCTION_USER_DATA_PATH_FROM_BETA, params.uid+".json");
 		const betaFile = path.join(Config.USER_DATA_PATH, params.uid+".json");
@@ -189,6 +206,15 @@ export default class AdminController extends AbstractController {
 		if(!await this.adminGuard(request, response)) return;
 
 		const params = request.query as any;
+		
+		//Validate UID to prevent path traversal
+		if(!params.uid || !/^[0-9]+$/.test(params.uid)) {
+			response.header('Content-Type', 'application/json');
+			response.status(400);
+			response.send(JSON.stringify({success:false, error:"Invalid user ID", errorCode:"INVALID_UID"}));
+			return;
+		}
+		
 		let userList:string[] = [];
 		if(fs.existsSync(Config.BETA_USER_LIST)) {
 			userList = JSON.parse(fs.readFileSync(Config.BETA_USER_LIST, "utf8"));

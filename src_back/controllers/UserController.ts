@@ -193,6 +193,14 @@ export default class UserController extends AbstractController {
 		if(userInfo == false) return;
 
 		const uid:string = super.getSharedUID((request.query as any).uid ?? userInfo.user_id);
+		
+		//Validate UID to prevent path traversal
+		if(!/^[0-9]+$/.test(uid)) {
+			response.header('Content-Type', 'application/json');
+			response.status(400);
+			response.send(JSON.stringify({success:false, error:"Invalid user ID", errorCode:"INVALID_UID"}));
+			return;
+		}
 
 		//Get users' data
 		let userFilePath = path.join(Config.USER_DATA_PATH, `${uid}.json`);
@@ -243,6 +251,14 @@ export default class UserController extends AbstractController {
 
 		//Get users' data
 		const uid = super.getSharedUID(userInfo.user_id);
+		
+		//Validate UID to prevent path traversal
+		if(!/^[0-9]+$/.test(uid)) {
+			response.header('Content-Type', 'application/json');
+			response.status(400);
+			response.send(JSON.stringify({success:false, error:"Invalid user ID", errorCode:"INVALID_UID"}));
+			return;
+		}
 		const userFilePath = Config.USER_DATA_PATH + uid+".json";
 		const version = request.headers["app-version"];
 
@@ -454,6 +470,15 @@ export default class UserController extends AbstractController {
 		const parts = normalizedName.split('_');
 		const userId = parts.pop() || "";
 		const presetName = parts.join('_');
+		
+		//Validate userId to prevent path traversal
+		if(!/^[0-9]+$/.test(userId)) {
+			response.header('Content-Type', 'application/json');
+			response.status(400);
+			response.send(JSON.stringify({success:false, error:"Invalid preset name format", errorCode:"INVALID_NAME_FORMAT"}));
+			return;
+		}
+		
 		const filePath = path.join(folder, userId, presetName+".json")
 		const json = fs.readFileSync(filePath, "utf8");
 

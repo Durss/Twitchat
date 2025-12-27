@@ -12,6 +12,7 @@ import AbstractController from "./AbstractController.js";
 export default class AuthController extends AbstractController {
 
 	private pendingDataSharingAuth:{[jwt:string]:boolean} = {}
+	private usedCSRFTokens:{[jwt:string]:boolean} = {}
 	
 	constructor(public server:FastifyInstance) {
 		super();
@@ -84,13 +85,31 @@ export default class AuthController extends AbstractController {
 	private async validateCSRFToken(request:FastifyRequest, response:FastifyReply, respondOnSuccess:boolean = true):Promise<false|CSRFToken> {
 		//Verifies a CSRF token
 		const params:any = request.body;
-		const result = jwt.verify(params.token, Config.credentials.csrf_key) as CSRFToken;
+		const token = params.token;
+		
+		//Check if token was already used
+		if(this.usedCSRFTokens[token]) {
+			response.header('Content-Type', 'application/json');
+			response.status(401);
+			response.send(JSON.stringify({success:false, message:"CSRF token already used", errorCode:"TOKEN_ALREADY_USED"}));
+			return false;
+		}
+		
+		const result = jwt.verify(token, Config.credentials.csrf_key) as CSRFToken;
 		if(result) {
-			//Token valid only for 10 minutes
-			if(result.date > Date.now() - 10*60*1000) {
+			//Token valid only for 5 minutes
+			if(result.date > Date.now() - 5*60*1000) {
+				//Mark token as used immediately
+				this.usedCSRFTokens[token] = true;
+				//Cleanup used token after expiration
+				setTimeout(() => {
+					delete this.usedCSRFTokens[token];
+					delete this.pendingDataSharingAuth[token];
+				}, 5*60*1000);
+				
 				const jsonRes:{success:boolean, uidShare?:string} = {success:true};
 				//If in the process of linking two accounts together, return ref account ID
-				if(result.uidShare && this.pendingDataSharingAuth[params.token]) {
+				if(result.uidShare && this.pendingDataSharingAuth[token]) {
 					jsonRes.uidShare = result.uidShare;
 				}
 				if(!respondOnSuccess) return result;

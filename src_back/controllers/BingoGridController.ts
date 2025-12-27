@@ -90,6 +90,14 @@ export default class BingoGridController extends AbstractController {
 	private async getBingoGrid(request:FastifyRequest, response:FastifyReply) {
 		const uid:string = (request.query as any).uid;
 		const gridId:string = (request.query as any).gridid;
+		
+		//Validate UID and gridId to prevent path traversal
+		if(!uid || !/^[0-9]+$/.test(uid) || !gridId || !/^[a-zA-Z0-9_-]+$/.test(gridId)) {
+			response.header('Content-Type', 'application/json');
+			response.status(400);
+			response.send(JSON.stringify({success:false, error:"Invalid user ID or grid ID", errorCode:"INVALID_PARAMS"}));
+			return;
+		}
 
 		const gridCache = await this.getStreamerGrid(uid, gridId);
 		if(!gridCache || !gridCache.data.enabled) {
