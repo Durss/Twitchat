@@ -93,6 +93,7 @@ const routes: Array<RouteRecordRaw> = [
 		component: PublicApiTest,
 		meta: {
 			overflow:true,
+			needAuth:false,
 		}
 	},
 	{
