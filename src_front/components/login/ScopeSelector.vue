@@ -131,7 +131,7 @@ class ScopeSelector extends Vue {
 		const requestedList:TwitchatDataTypes.ParameterData<boolean, unknown, unknown, TwitchScopesString[], unknown>[] = [];
 		const availableList:TwitchatDataTypes.ParameterData<boolean, unknown, unknown, TwitchScopesString[], unknown>[] = [];
 		const forceSelect = (!userScopes
-						|| userScopes.length < mandatory.length)
+						|| userScopes.length <= mandatory.length)
 						&& (!this.requestedScopes || this.requestedScopes.length == 0);
 		let allSelected = true;
 		for (const scope of scopes) {
@@ -162,7 +162,7 @@ class ScopeSelector extends Vue {
 			}
 		}
 
-		//Move non-granted scopes tot he top
+		//Move non-granted scopes to the top
 		availableList.sort((a,b)=> {
 			if(a.disabled) return -1;
 			if(b.disabled) return 1;
