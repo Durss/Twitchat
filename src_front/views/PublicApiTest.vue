@@ -1,15 +1,5 @@
 <template>
 	<div class="publicapitest">
-		<div class="connectForm blured-background-window">
-			<form @submit.prevent="connect()" v-if="!connected">
-				<ParamItem :paramData="obsPort_conf" class="param" />
-				<ParamItem :paramData="obsPass_conf" class="param" />
-				<ParamItem :paramData="obsIP_conf" class="param" />
-				<TTButton type="submit" class="connectBt" :loading="loading">Connect</TTButton>
-			</form>
-			<TTButton v-else @click="disconnect()" class="connectBt" :loading="loading" alert icon="cross">Disconnect</TTButton>
-		</div>
-
 		<div class="lists">
 			<div class="list events">
 				<div class="head">Events received</div>
@@ -18,9 +8,16 @@
 					:key="e.key"
 					:icons="e.active? ['checkmark'] : []"
 					:title="e.key"
-					:open="false">
-						<div v-if="e.data">{{e.data}}</div>
-						<div v-else class="empty">- no data -</div>
+					:open="false"
+					medium>
+						<div class="container">
+							<div class="ctas" v-if="e.data">
+								<TTButton small icon="copy" :copy="JSON.stringify(e.data, null, 4)">JSON</TTButton>
+								<TTButton small icon="copy" :copy="e.ts">TS</TTButton>
+							</div>
+							<div class="json" v-if="e.data">{{JSON.stringify(e.data, null, 2)}}</div>
+							<div v-else class="empty">- no data -</div>
+						</div>
 					</ToggleBlock>
 				</transition-group>
 			</div>
@@ -36,11 +33,10 @@
 import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
-import { TwitchatActionTypeList, TwitchatEventTypeList, type TwitchatActionType, type TwitchatEventType } from '@/events/TwitchatEvent';
+import TwitchatEvent, { TwitchatActionTypeList, TwitchatEventTypeList, type TwitchatActionType, type TwitchatEventType } from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
-import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
+import Utils from '@/utils/Utils';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
@@ -52,11 +48,10 @@ import { Component, Vue, toNative } from 'vue-facing-decorator';
 })
 class PublicApiTest extends Vue {
 
-	public eventList:{key:TwitchatEventType, active:boolean, data:any|null}[] = [];
+	public eventList:{key:TwitchatEventType, active:boolean, data:any|null, ts:string}[] = [];
 	public actionList:{key:TwitchatActionType}[] = [];
 	
 	public loading = false;
-	public connected = false;
 	public connectError = false;
 	public connectSuccess = false;
 	public openConnectForm = false;
@@ -67,9 +62,8 @@ class PublicApiTest extends Vue {
 	private idsDone:{[key:string]:boolean} = {};
 
 	public beforeMount(): void {
-		this.connected = OBSWebsocket.instance.connected.value;
 		this.eventList = TwitchatEventTypeList.concat().map(v=>{
-			return {key:v, active:false, data:null};
+			return {key:v, active:false, data:null, ts:""};
 		}).sort((a,b)=> {
 			if(a.key < b.key) return -1;
 			if(a.key > b.key) return 1;
@@ -85,9 +79,7 @@ class PublicApiTest extends Vue {
 			if(a.key > b.key) return 1;
 			return 0;
 		});
-		if(this.connected) {
-			this.initAPI();
-		}
+		this.initAPI();
 	}
 
 	/**
@@ -101,28 +93,12 @@ class PublicApiTest extends Vue {
 		//Make sure OBS will connect
 		this.$store.obs.connectionEnabled = true;
 		
-		const connected = await OBSWebsocket.instance.connect(
-							this.obsPort_conf.value.toString(),
-							this.obsPass_conf.value,
-							false,
-							this.obsIP_conf.value
-						);
-		if(connected) {
-			this.connected = true;
-			this.connectSuccess = true;
-			this.initAPI();
-			window.setTimeout(()=> {
-				this.connectSuccess = false;
-				this.openConnectForm = false;
-			}, 3000);
-		}else{
-			this.connectError = true;
-		}
-		this.loading = false;
-	}
-
-	public async disconnect():Promise<void> {
-		OBSWebsocket.instance.disconnect();
+		this.connectSuccess = true;
+		this.initAPI();
+		window.setTimeout(()=> {
+			this.connectSuccess = false;
+			this.openConnectForm = false;
+		}, 3000);
 	}
 
 	public async executeAction(action:{key:TwitchatEventType|TwitchatActionType}):Promise<void> {
@@ -139,26 +115,22 @@ class PublicApiTest extends Vue {
 
 	private initAPI():void {
 		//@ts-ignore
-		OBSWebsocket.instance.socket.on("CustomEvent", (e:{origin:"twitchat", id:string, type:TwitchatEventType, data:JsonObject | JsonArray | JsonValue}) => {
-			if(e.type == undefined) return;
-			if(e.origin != "twitchat") return;
-			if(e.id){
+		this.eventList.forEach(v=> {
+			PublicAPI.instance.addEventListener(v.key, (e:TwitchatEvent) => {
 				try {
-					if(this.idsDone[e.id] === true) return;
-					this.idsDone[e.id] = true;
 					const index = this.eventList.findIndex(v=>v.key === e.type);
 					if(index == -1) return;
 					const obj = this.eventList.splice(index, 1)[0];
 					if(obj) {
 						obj.active = true;
 						obj.data = e.data;
-						this.eventList.unshift(obj);//Bring to top
+						obj.ts = Utils.jsonToTS(e.data);
 					}
 				}catch(error) {
 					console.log(error)
 				}
-			}
-		})
+			})
+		});
 	}
 
 }
@@ -215,14 +187,29 @@ export default toNative(PublicApiTest);
 			.event {
 				opacity: .5;
 				margin-bottom: 5px;
-				font-size: .7em;
 				flex-grow: 1;
 				&.active {
 					opacity: 1;
 				}
-				.empty {
-					text-align: center;
-					font-style: italic;
+				.container {
+					position: relative;
+					.empty {
+						text-align: center;
+						font-style: italic;
+					}
+					.json {
+						white-space: pre-wrap;
+						font-family: monospace;
+					}
+		
+					.ctas {
+						position: absolute;
+						top: 5px;
+						right: 5px;
+						display: flex;
+						flex-direction: row;
+						gap: .25em;
+					}
 				}
 			}
 		}
