@@ -4,8 +4,8 @@
  */
 
 import OBSWebSocket from 'obs-websocket-js';
-import TwitchatEvent, { type TwitchatActionType, type TwitchatEventType } from './events/TwitchatEvent';
 import SFXRUtils from './utils/SFXRUtils';
+import type { TwitchatEventMap } from '@/events/TwitchatEvent';
 
 
 const urlParams = new URLSearchParams(document.location.search);
@@ -19,7 +19,7 @@ let obsSocket!:OBSWebSocket;
 interface IEnvelope<T = undefined> {
 	origin:"twitchat";
 	id:string;
-	type:TwitchatEventType | TwitchatActionType;
+	type:keyof TwitchatEventMap;
 	data?:T
 }
 
@@ -102,12 +102,12 @@ function onMessage(message:IEnvelope<IPlayMessage>):void {
 		messageIdsDone[message.id] = true;
 	}
 
-	if(message.type == TwitchatEvent.TWITCHAT_READY || message.type == TwitchatEvent.OBS_WEBSOCKET_CONNECTED) {
+	if(message.type == "TWITCHAT_READY" || message.type == "OBS_WEBSOCKET_CONNECTED") {
 		if(connected) return;
 		requestInitialInfo();
 		connected = true;
 	}else
-	if(message.type == TwitchatEvent.PLAY_SFXR && message.data?.params) {
+	if(message.type == "PLAY_SFXR" && message.data?.params) {
 		SFXRUtils.playSFXRFromString(message.data.params, message.data.volume || 1, false);
 	}
 

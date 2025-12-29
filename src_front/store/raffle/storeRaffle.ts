@@ -1,16 +1,14 @@
-import TwitchatEvent from '@/events/TwitchatEvent';
 import MessengerProxy from '@/messaging/MessengerProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
-import StoreProxy, { type IRaffleActions, type IRaffleGetters, type IRaffleState } from '../StoreProxy';
 import DataStore from '../DataStore';
-import Config from '@/utils/Config';
+import StoreProxy, { type IRaffleActions, type IRaffleGetters, type IRaffleState } from '../StoreProxy';
 
 let confirmSpool:string[] = [];
 let debounceConfirm:number = -1;
@@ -40,9 +38,13 @@ export const storeRaffle = defineStore('raffle', {
 			/**
 			 * Called when a raffle animation (the wheel) completes
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_RESULT, (e:TwitchatEvent<{winner:TwitchatDataTypes.RaffleEntry, sessionId:string, delay?:number}>)=> {
+			PublicAPI.instance.addEventListener("WHEEL_OVERLAY_ANIMATION_COMPLETE", (e)=> {
 				if(!e.data) return;
-				this.onRaffleComplete(e.data.sessionId, e.data.winner, false, e.data.delay);
+				let raffleEntry = this.raffleList.find(v=>v.sessionId === e.data.sessionId);
+				if(!raffleEntry) return;
+				const winner = raffleEntry.entries.find(v=>v.id === e.data.winner.id);
+				if(!winner) return;
+				this.onRaffleComplete(e.data.sessionId, winner, false, e.data.delay);
 			});
 		},
 
@@ -246,7 +248,7 @@ export const storeRaffle = defineStore('raffle', {
 
 			//Publish the result on the public API
 			if(publish !== false) {
-				PublicAPI.instance.broadcast(TwitchatEvent.RAFFLE_RESULT, (winner as unknown) as JsonObject);
+				PublicAPI.instance.broadcast("WHEEL_OVERLAY_ANIMATION_COMPLETE", {winner, sessionId});
 			}
 
 			if(raffleEntry.resultCallback) raffleEntry.resultCallback(winner);
@@ -642,11 +644,11 @@ export const storeRaffle = defineStore('raffle', {
 			let wheelOverlayExists = false;
 
 			const wheelOverlayPresenceHandler = ()=> { wheelOverlayExists = true; };
-			PublicAPI.instance.addEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, wheelOverlayPresenceHandler);
+			PublicAPI.instance.addEventListener("WHEEL_OVERLAY_PRESENCE", wheelOverlayPresenceHandler);
 
-			PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
+			PublicAPI.instance.broadcast("GET_WHEEL_OVERLAY_PRESENCE");
 			await Utils.promisedTimeout(500);//Give the overlay some time to answer
-			PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, wheelOverlayPresenceHandler);
+			PublicAPI.instance.removeEventListener("WHEEL_OVERLAY_PRESENCE", wheelOverlayPresenceHandler);
 
 			//A wheel overlay exists, send it data and wait for it to complete
 			if(wheelOverlayExists){
@@ -662,7 +664,7 @@ export const storeRaffle = defineStore('raffle', {
 					sessionId:data.sessionId,
 					skin: Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default",
 				}
-				PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (apiData as unknown) as JsonObject);
+				PublicAPI.instance.broadcast("WHEEL_OVERLAY_START", apiData);
 
 			}else{
 

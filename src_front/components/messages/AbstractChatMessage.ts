@@ -1,4 +1,3 @@
-import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ContextMenuHelper from '@/utils/ContextMenuHelper';
 import PublicAPI from '@/utils/PublicAPI';

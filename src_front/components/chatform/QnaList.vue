@@ -61,17 +61,16 @@
 </template>
 
 <script lang="ts">
-import { watch } from 'vue';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import {toNative,  Component } from 'vue-facing-decorator';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import { watch } from 'vue';
+import { Component, toNative } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import ClearButton from '../ClearButton.vue';
 import TTButton from '../TTButton.vue';
 import MessageItem from '../messages/MessageItem.vue';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Component({
 	components:{
@@ -194,7 +193,6 @@ class QnaList extends AbstractSidePanel {
 			user: this.$store.users.getUserFrom(m.platform, m.channelId, m.user.id, undefined, m.user.name),
 		}
 	}
-
 }
 export default toNative(QnaList);
 </script>

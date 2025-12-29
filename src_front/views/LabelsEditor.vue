@@ -141,10 +141,10 @@ class LabelsEditor extends Vue {
 		}
 		if(this.selectedSectionKey === key && !force) return;
 		let labelsRef = this.labelsRef[key as keyof typeof this.labelsRef];
-		let labelsCurrent = this.labelsCurrent[key as keyof typeof this.labelsCurrent] as JsonObject;
+		let labelsCurrent = this.labelsCurrent[key as keyof typeof this.labelsCurrent];
 
 		const mergeJSON = (json1:JsonObject, json2:JsonObject) => {
-			let mergedJSON = { ...json1 } as JsonObject;
+			let mergedJSON = { ...json1 };
 
 			for (let key in json2) {
 				if (json2.hasOwnProperty(key)) {

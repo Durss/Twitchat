@@ -2,12 +2,13 @@ import { TranslatableLanguagesMap } from '@/TranslatableLanguages';
 import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
 import SSEEvent from '@/events/SSEEvent';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
+import Config from '@/utils/Config';
 import LandeWorker from '@/utils/LandeWorker';
+import Logger from '@/utils/Logger';
 import PublicAPI from '@/utils/PublicAPI';
 import SSEHelper from '@/utils/SSEHelper';
 import SchedulerHelper from '@/utils/SchedulerHelper';
@@ -18,12 +19,10 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { JsonArray, JsonObject } from 'type-fest';
+import type { JsonObject } from 'type-fest';
 import { reactive, watch, type UnwrapRef } from 'vue';
 import Database from '../Database';
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy';
-import Logger from '@/utils/Logger';
-import Config from '@/utils/Config';
 
 //Don't make this reactive, it kills performances on the long run
 let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -759,8 +758,8 @@ export const storeChat = defineStore('chat', {
 					break;
 				}
 			};
-			PublicAPI.instance.addEventListener(TwitchatEvent.AUTOMOD_ACCEPT, ()=> findAndFlagAutomod(true));
-			PublicAPI.instance.addEventListener(TwitchatEvent.AUTOMOD_REJECT, ()=> findAndFlagAutomod(false));
+			PublicAPI.instance.addEventListener("AUTOMOD_ACCEPT", ()=> findAndFlagAutomod(true));
+			PublicAPI.instance.addEventListener("AUTOMOD_REJECT", ()=> findAndFlagAutomod(false));
 
 			//Listen for moderator event spoiling messages remotely
 			SSEHelper.instance.addEventListener(SSEEvent.SPOIL_MESSAGE, (event)=>{
@@ -1130,7 +1129,7 @@ export const storeChat = defineStore('chat', {
 								login:message.user.login,
 								displayName:message.user.displayNameOriginal,
 							};
-							PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:this.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
+							PublicAPI.instance.broadcast("MESSAGE_WHISPER", {unreadCount:this.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
 
 						}else {
 
@@ -1351,24 +1350,24 @@ export const storeChat = defineStore('chat', {
 
 							//If it's a text message and user isn't a follower, broadcast to WS
 							if(message.user.channelInfo[message.channel_id]!.is_following === false) {
-								PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, wsMessage);
+								PublicAPI.instance.broadcast("MESSAGE_NON_FOLLOWER", wsMessage);
 							}
 
 							//Check if the message contains a mention
 							if(message.hasMention) {
-								PublicAPI.instance.broadcast(TwitchatEvent.MENTION, wsMessage);
+								PublicAPI.instance.broadcast("MENTION", wsMessage);
 							}
 
 							//If it's the first message today for this user
 							if(message.todayFirst === true) {
-								PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST, wsMessage);
+								PublicAPI.instance.broadcast("MESSAGE_FIRST", wsMessage);
 							}
 
 							//If it's the first message all time of the user
 							if(message.twitch_isFirstMessage) {
 								//Flag user as new chatter
 								message.user.channelInfo[message.channel_id]!.is_new = true;
-								// PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, wsMessage);
+								// PublicAPI.instance.broadcast("MESSAGE_FIRST_ALL_TIME", wsMessage);
 							}
 
 							//Handle spoiler command
@@ -1488,7 +1487,7 @@ export const storeChat = defineStore('chat', {
 						const wsMessage = {
 							channel:message.channel_id,
 							message:message.message,
-							message_chunks:(message.message_chunks as unknown) as JsonArray,
+							message_chunks:message.message_chunks,
 							user: {
 								id:message.user.id,
 								login:message.user.login,
@@ -1499,8 +1498,8 @@ export const storeChat = defineStore('chat', {
 								cost:message.reward.cost,
 								title:message.reward.title,
 							},
-						} as JsonObject;
-						PublicAPI.instance.broadcast(TwitchatEvent.REWARD_REDEEM, wsMessage);
+						} ;
+						PublicAPI.instance.broadcast("REWARD_REDEEM", wsMessage);
 						if(!isFromRemoteChan) {
 							StoreProxy.labels.updateLabelValue("REWARD_ID", message.user.id);
 							StoreProxy.labels.updateLabelValue("REWARD_NAME", message.user.displayNameOriginal);
@@ -1696,15 +1695,17 @@ export const storeChat = defineStore('chat', {
 
 					//New sub
 					case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
-						PublicAPI.instance.broadcast(TwitchatEvent.SUBSCRIPTION, {
+						PublicAPI.instance.broadcast("SUBSCRIPTION", {
+							channel:message.channel_id,
 							tier:message.tier,
 							months:message.months,
 							user:{
 								id:message.user.id,
 								login:message.user.login,
+								displayName:message.user.displayNameOriginal,
 							},
 							message:message.message || "",
-							message_chunks:(message.message_chunks as unknown) as JsonObject || [],
+							message_chunks:message.message_chunks || [],
 							recipients:message.gift_recipients?.map(u=>{return {uid:u.id, login:u.login}}) || [],
 							streakMonths:message.streakMonths,
 							totalSubDuration:message.totalSubDuration,
@@ -1943,13 +1944,14 @@ export const storeChat = defineStore('chat', {
 							if(!postMessage) return;
 						}else{
 							const wsMessage = {
+								channel:message.channel_id,
 								user:{
 									id: message.user.id,
 									login: message.user.login,
 									displayName: message.user.displayNameOriginal,
 								}
 							}
-							PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, wsMessage);
+							PublicAPI.instance.broadcast("FOLLOW", wsMessage);
 						}
 						break;
 					}
@@ -2232,7 +2234,7 @@ export const storeChat = defineStore('chat', {
 				const wsMessage = {
 					channel:message.channel_id,
 					message:message.message,
-					message_chunks:(message.message_chunks as unknown) as JsonArray,
+					message_chunks:message.message_chunks,
 					user: {
 						id:message.user.id,
 						login:message.user.login,
@@ -2241,8 +2243,8 @@ export const storeChat = defineStore('chat', {
 					bits:message.bits,
 					pinned:message.pinned,
 					pinLevel:message.pinLevel,
-				} as JsonObject;
-				PublicAPI.instance.broadcast(TwitchatEvent.BITS, wsMessage);
+				};
+				PublicAPI.instance.broadcast("BITS", wsMessage);
 			}
 
 			TriggerActionHandler.instance.execute(message);
@@ -2291,7 +2293,7 @@ export const storeChat = defineStore('chat', {
 						displayName:message.user.displayNameOriginal,
 					}
 				}
-				PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
+				PublicAPI.instance.broadcast("MESSAGE_DELETED", wsMessage);
 
 				//Don't keep automod accept/reject message
 				if(message.twitch_automod) {
@@ -2352,7 +2354,7 @@ export const storeChat = defineStore('chat', {
 								displayName:mTyped.user.displayNameOriginal,
 							}
 						}
-						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
+						PublicAPI.instance.broadcast("MESSAGE_DELETED", wsMessage);
 					}, Math.floor(i/5)*50)
 
 					mTyped.cleared = true;
@@ -2381,7 +2383,7 @@ export const storeChat = defineStore('chat', {
 								displayName:mTyped.user.displayNameOriginal,
 							}
 						}
-						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
+						PublicAPI.instance.broadcast("MESSAGE_DELETED", wsMessage);
 					}, Math.floor(i/5)*50)
 
 					mTyped.cleared = true;
@@ -2475,10 +2477,10 @@ export const storeChat = defineStore('chat', {
 					channel_id:message.channel_id,
 				};
 				this.addMessage(m);
-				PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (info as unknown) as JsonObject);
+				PublicAPI.instance.broadcast("SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE", info);
 			}else{
 				this.highlightedMessageId = null;
-				PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE);
+				PublicAPI.instance.broadcast("SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE", undefined);
 				TriggerActionHandler.instance.execute({
 					type:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT_CLOSE,
 					channel_id: StoreProxy.auth.twitch.user.id,

@@ -1,23 +1,22 @@
-import TwitchatEvent from '@/events/TwitchatEvent';
+import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
 import DataStore from '@/store/DataStore';
 import { AD_APPROACHING_INTERVALS } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Logger from '@/utils/Logger';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
-import TriggerUtils from '@/utils/TriggerUtils';
-import Utils from '@/utils/Utils';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { JsonObject } from "type-fest";
-import type { UnwrapRef } from 'vue';
-import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
-import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
-import EventSub from '@/utils/twitch/EventSub';
-import staticEmotes from '@/utils/twitch/staticEmoteList.json';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import SetIntervalWorker from '@/utils/SetIntervalWorker';
 import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
+import TriggerUtils from '@/utils/TriggerUtils';
+import Utils from '@/utils/Utils';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
+import EventSub from '@/utils/twitch/EventSub';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import staticEmotes from '@/utils/twitch/staticEmoteList.json';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { UnwrapRef } from 'vue';
+import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
 
 const commercialTimeouts:{[key:string]:number[]} = {};
 let hypeTrainCooldownTo = "";
@@ -93,6 +92,33 @@ export const storeStream = defineStore('stream', {
 			}, 60 * 60 * 1000)
 			this.scheduleHypeTrainCooldownAlert();
 			this.grabCurrentStreamVOD()
+
+			/**
+			 * Called when asking to toggle message merging
+			 */
+			PublicAPI.instance.addEventListener("ENDING_CREDITS_COMPLETE", ()=> {
+				const message:TwitchatDataTypes.MessageCreditsCompleteData = {
+					channel_id:StoreProxy.auth.twitch.user.id,
+					date:Date.now(),
+					id:Utils.getUUID(),
+					platform:"twitchat",
+					type:TwitchatDataTypes.TwitchatMessageType.CREDITS_COMPLETE,
+				}
+				TriggerActionHandler.instance.execute(message);
+			});
+
+			/**
+			 * Called when requesting stream summary data
+			 */
+			PublicAPI.instance.addEventListener("GET_SUMMARY_DATA", async (e)=> {
+				try {
+					const summary = await StoreProxy.stream.getSummary(e.data?.offset, e.data?.includeParams === true);
+					PublicAPI.instance.broadcast("SUMMARY_DATA", summary)
+				}catch(error) {
+					console.error("An error occured when computing summary data");
+					console.error(error);
+				}
+			});
 		},
 
 		async loadStreamInfo(platform:TwitchatDataTypes.ChatPlatform, channelId:string):Promise<void> {
@@ -465,7 +491,7 @@ export const storeStream = defineStore('stream', {
 				});
 			}
 
-			PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_DATA, (data as unknown) as JsonObject);
+			PublicAPI.instance.broadcast("AD_BREAK_DATA", data);
 		},
 
 		async startCommercial(channelId:string, duration:number, noConfirm:boolean = false):Promise<void> {

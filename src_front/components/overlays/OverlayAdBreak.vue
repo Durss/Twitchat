@@ -31,11 +31,11 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import type { CSSProperties } from 'vue';
-import {toNative,  Component } from 'vue-facing-decorator';
-import AbstractOverlay from './AbstractOverlay';
-import DOMPurify from 'isomorphic-dompurify';
 import { gsap } from 'gsap/gsap-core';
+import DOMPurify from 'isomorphic-dompurify';
+import type { CSSProperties } from 'vue';
+import { Component, toNative } from 'vue-facing-decorator';
+import AbstractOverlay from './AbstractOverlay';
 
 @Component({
 	components:{},
@@ -54,9 +54,9 @@ class OverlayAdBreak extends AbstractOverlay {
 	private hidding:boolean = false;
 	private progressPercent:number = 0;
 
-	private adBreakDataHandler!:(e:TwitchatEvent<TwitchatDataTypes.CommercialData>) => void;
-	private adBreakParamsHandler!:(e:TwitchatEvent<TwitchatDataTypes.AdBreakOverlayData>) => void;
-	private overlayPresenceHandler!:(e:TwitchatEvent)=>void;
+	private adBreakDataHandler!:(e:TwitchatEvent<"AD_BREAK_DATA">) => void;
+	private adBreakParamsHandler!:(e:TwitchatEvent<"AD_BREAK_OVERLAY_PARAMETERS">) => void;
+	private overlayPresenceHandler!:()=>void;
 
 	public get progressClasses():string[] {
 		const res:string[] = [this.adType];
@@ -134,12 +134,12 @@ class OverlayAdBreak extends AbstractOverlay {
 	}
 
 	public beforeMount(): void {
-		this.adBreakDataHandler = (e) => this.onAdBreak(e);
-		this.adBreakParamsHandler = (e) => this.onParameters(e);
-		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_OVERLAY_PRESENCE); }
-		PublicAPI.instance.addEventListener(TwitchatEvent.AD_BREAK_DATA, this.adBreakDataHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.AD_BREAK_OVERLAY_PARAMETERS, this.adBreakParamsHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.GET_AD_BREAK_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		this.adBreakDataHandler = (e:TwitchatEvent<"AD_BREAK_DATA">) => this.onAdBreak(e);
+		this.adBreakParamsHandler = (e:TwitchatEvent<"AD_BREAK_OVERLAY_PARAMETERS">) => this.onParameters(e);
+		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast("AD_BREAK_OVERLAY_PRESENCE"); }
+		PublicAPI.instance.addEventListener("AD_BREAK_DATA", this.adBreakDataHandler);
+		PublicAPI.instance.addEventListener("AD_BREAK_OVERLAY_PARAMETERS", this.adBreakParamsHandler);
+		PublicAPI.instance.addEventListener("GET_AD_BREAK_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 		this.renderFrame();
 
 		/*
@@ -168,20 +168,20 @@ class OverlayAdBreak extends AbstractOverlay {
 	}
 
 	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_AD_BREAK_OVERLAY_PARAMETERS);
+		PublicAPI.instance.broadcast("GET_AD_BREAK_OVERLAY_PARAMETERS");
 	}
 
 	public beforeUnmount(): void {
 		this.disposed = true;
-		PublicAPI.instance.removeEventListener(TwitchatEvent.AD_BREAK_DATA, this.adBreakDataHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.AD_BREAK_OVERLAY_PARAMETERS, this.adBreakParamsHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_AD_BREAK_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("AD_BREAK_DATA", this.adBreakDataHandler);
+		PublicAPI.instance.removeEventListener("AD_BREAK_OVERLAY_PARAMETERS", this.adBreakParamsHandler);
+		PublicAPI.instance.removeEventListener("GET_AD_BREAK_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 	}
 
 	/**
 	 * Called when API sends fresh overlay parameters
 	 */
-	private async onParameters(e:TwitchatEvent<TwitchatDataTypes.AdBreakOverlayData>):Promise<void> {
+	private async onParameters(e:TwitchatEvent<"AD_BREAK_OVERLAY_PARAMETERS">):Promise<void> {
 		if(e.data) {
 			this.parameters = e.data;
 		}
@@ -190,7 +190,7 @@ class OverlayAdBreak extends AbstractOverlay {
 	/**
 	 * Called when API sends an ad break info
 	 */
-	private onAdBreak(e:TwitchatEvent<TwitchatDataTypes.CommercialData>):void {
+	private onAdBreak(e:TwitchatEvent<"AD_BREAK_DATA">):void {
 		if(e.data) {
 			this.show = false;
 			this.adData = e.data;

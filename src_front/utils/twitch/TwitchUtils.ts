@@ -712,7 +712,7 @@ export default class TwitchUtils {
 				//Extract latest format available.
 				//Should be aither "static" or "animated" but doing it this way will load
 				//any potential new kind of emote in the future.
-				const flag = (((e.format as unknown) as string[]).splice(-1)[0] ?? "static");
+				const flag = e.format.splice(-1)[0] ?? "static";
 				let owner!: TwitchatDataTypes.TwitchatUser;
 				if (e.owner_id == "0") {
 					//Create a fake user for the "global" emotes.
@@ -1571,15 +1571,15 @@ export default class TwitchUtils {
 	/**
 	 * Bans a user
 	 */
-	public static async banUser(user: TwitchatDataTypes.TwitchatUser, channelId: string, duration?: number, reason?: string): Promise<boolean> {
+	public static async banUser(user: TwitchatDataTypes.TwitchatUser, channelId: string, duration_s?: number, reason?: string): Promise<boolean> {
 		if (!this.hasScopes([TwitchScopes.EDIT_BANNED])) return false;
 
-		if (duration != undefined && duration === 0) return false;
+		if (duration_s != undefined && duration_s === 0) return false;
 
 		const body: { [key: string]: string | number } = {
 			user_id: user.id,
 		};
-		if (duration) body.duration = duration;
+		if (duration_s) body.duration = duration_s;
 		if (reason) body.reason = reason;
 
 		const options = {
@@ -1595,10 +1595,10 @@ export default class TwitchUtils {
 		if (res.status == 429) {
 			//Rate limit reached, try again after it's reset to full
 			await this.onRateLimit(res.headers);
-			return await this.banUser(user, channelId, duration, reason);
+			return await this.banUser(user, channelId, duration_s, reason);
 		}
 		if (res.status == 200) {
-			StoreProxy.users.flagBanned("twitch", channelId, user.id, duration);
+			StoreProxy.users.flagBanned("twitch", channelId, user.id, duration_s);
 			return true;
 		} else {
 			const json = await res.json();

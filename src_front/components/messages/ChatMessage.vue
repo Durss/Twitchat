@@ -184,18 +184,17 @@
 </template>
 
 <script lang="ts">
-import TwitchatEvent from '@/events/TwitchatEvent';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import { gsap } from 'gsap/gsap-core';
-import type { JsonObject } from 'type-fest';
 import type { CSSProperties } from 'vue';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
+import { Component, Prop, toNative } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import CustomUserBadges from '../user/CustomUserBadges.vue';
 import AbstractChatMessage from './AbstractChatMessage';
@@ -203,7 +202,6 @@ import MessageTranslation from './MessageTranslation.vue';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 import ChatModTools from './components/ChatModTools.vue';
-import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 @Component({
 	components:{
@@ -604,7 +602,7 @@ class ChatMessage extends AbstractChatMessage {
 		}
 
 		this.clipHighlightLoading = true;
-		const data:TwitchatDataTypes.ChatHighlightInfo = {
+		const clipInfo:TwitchatDataTypes.ChatHighlightInfo = {
 			date:this.messageData.date,
 			message_id:this.messageData.id,
 			clip:{
@@ -618,10 +616,10 @@ class ChatMessage extends AbstractChatMessage {
 		if(TwitchUtils.hasScopes([TwitchScopes.MANAGE_CLIPS])) {
 			const clipSrcPath = await TwitchUtils.getClipsSrcPath([this.clipInfo!.id]);
 			if(clipSrcPath.length > 0) {
-				data.clip!.mp4 = clipSrcPath[0]!.landscape_download_url;
+				clipInfo.clip!.mp4 = clipSrcPath[0]!.landscape_download_url;
 			}
 		}
-		PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
+		PublicAPI.instance.broadcast("SHOW_CLIP", clipInfo);
 		this.$store.chat.highlightedMessageId = this.messageData.id;
 		await Utils.promisedTimeout(1000);
 		this.clipHighlightLoading = false;
