@@ -1,6 +1,5 @@
 import { TranslatableLanguagesMap } from "@/TranslatableLanguages";
 import ContextMenuTimeoutDuration from "@/components/messages/components/ContextMenuTimeoutDuration.vue";
-import TwitchatEvent from "@/events/TwitchatEvent";
 import MessengerProxy from "@/messaging/MessengerProxy";
 import DataStore from "@/store/DataStore";
 import Database from "@/store/Database";
@@ -798,15 +797,15 @@ export default class ContextMenuHelper {
 		return new Promise((resolve, reject)=> {
 			const timeout = window.setTimeout(() =>{
 				resolve(false);
-				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
+				PublicAPI.instance.removeEventListener("CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
 			}, 1000)
-			const handler = (e:TwitchatEvent)=> {
+			const handler = ()=> {
 				clearTimeout(timeout)
 				resolve(true);
-				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
+				PublicAPI.instance.removeEventListener("CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
 			}
-			PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
-			PublicAPI.instance.broadcast(TwitchatEvent.GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE);
+			PublicAPI.instance.addEventListener("CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
+			PublicAPI.instance.broadcast("GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE");
 		})
 	}
 

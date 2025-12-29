@@ -61,17 +61,16 @@
 </template>
 
 <script lang="ts">
-import { watch } from 'vue';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import {toNative,  Component } from 'vue-facing-decorator';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import { watch } from 'vue';
+import { Component, toNative } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import ClearButton from '../ClearButton.vue';
 import TTButton from '../TTButton.vue';
 import MessageItem from '../messages/MessageItem.vue';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Component({
 	components:{
@@ -202,15 +201,15 @@ class QnaList extends AbstractSidePanel {
 		return new Promise((resolve, reject)=> {
 			const timeout = window.setTimeout(() =>{
 				resolve(false);
-				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
+				PublicAPI.instance.removeEventListener("CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
 			}, 1000)
-			let handler = (e:TwitchatEvent)=> {
+			let handler = ()=> {
 				clearTimeout(timeout)
 				resolve(true);
-				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
+				PublicAPI.instance.removeEventListener("CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
 			}
-			PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
-			PublicAPI.instance.broadcast(TwitchatEvent.GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE);
+			PublicAPI.instance.addEventListener("CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
+			PublicAPI.instance.broadcast("GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE");
 		})
 	}
 }

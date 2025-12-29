@@ -64,7 +64,7 @@ class OverlayCounter extends AbstractOverlay {
 	private id:string = "";
 	private firstRender:boolean = true;
 
-	private counterUpdateHandler!:(e:TwitchatEvent) => void;
+	private counterUpdateHandler!:(e:TwitchatEvent<"COUNTER_UPDATE">) => void;
 
 	public getFormattedValue(decimals:number = 0):string {
 		//This fixes the javascript number
@@ -92,8 +92,8 @@ class OverlayCounter extends AbstractOverlay {
 		}else{
 			this.id = this.$route.query.cid as string ?? "";
 			if(this.id) {
-				this.counterUpdateHandler = (e:TwitchatEvent) => this.onCounterUpdate(e);
-				PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_UPDATE, this.counterUpdateHandler);
+				this.counterUpdateHandler = (e) => this.onCounterUpdate(e);
+				PublicAPI.instance.addEventListener("COUNTER_UPDATE", this.counterUpdateHandler);
 			}
 		}
 
@@ -103,19 +103,19 @@ class OverlayCounter extends AbstractOverlay {
 	}
 
 	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_GET, {cid:this.id});
+		PublicAPI.instance.broadcast("COUNTER_GET", {cid:this.id});
 	}
 
 	public beforeUnmount(): void {
-		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTER_UPDATE, this.counterUpdateHandler);
+		PublicAPI.instance.removeEventListener("COUNTER_UPDATE", this.counterUpdateHandler);
 	}
 
 	/**
 	 * Called when API sends fresh counter data
 	 */
-	private async onCounterUpdate(e:TwitchatEvent):Promise<void> {
+	private async onCounterUpdate(e:TwitchatEvent<"COUNTER_UPDATE">):Promise<void> {
 		if(e.data) {
-			const c = ((e.data as unknown) as {counter:TwitchatDataTypes.CounterData}).counter;
+			const c = e.data.counter;
 			if(c.id != this.id) return;
 			this.setCounterData(c);
 		}
