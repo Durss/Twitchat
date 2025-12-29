@@ -1366,7 +1366,7 @@ export const storeDebug = defineStore('debug', {
 						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
-						button:Utils.pickRand((GoXLRTypes.ButtonTypes as unknown) as GoXLRTypes.ButtonTypesData[]),
+						button:Utils.pickRand(GoXLRTypes.ButtonTypes.concat()),
 						pressed:Math.random() > .5,
 						channel_id:uid,
 					};

@@ -92,18 +92,16 @@
 import Icon from '@/components/Icon.vue';
 import PlacementSelector from '@/components/PlacementSelector.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import TwitchatEvent from '@/events/TwitchatEvent';
+import TTButton from '@/components/TTButton.vue';
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import type { JsonObject } from "type-fest";
-import { watch } from 'vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import OverlayInstaller from './OverlayInstaller.vue';
-import ParamItem from '../../ParamItem.vue';
-import TTButton from '@/components/TTButton.vue';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import { watch } from 'vue';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
+import ParamItem from '../../ParamItem.vue';
+import OverlayInstaller from './OverlayInstaller.vue';
 
 @Component({
 	components:{
@@ -185,11 +183,11 @@ class OverlayParamsAdBreak extends Vue {
 			this.overlayExists = true;
 			clearTimeout(this.subcheckTimeout);
 		};
-		PublicAPI.instance.addEventListener(TwitchatEvent.AD_BREAK_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.addEventListener("AD_BREAK_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 
 		//Regularly check if the overlay exists
 		this.checkInterval = window.setInterval(()=>{
-			PublicAPI.instance.broadcast(TwitchatEvent.GET_AD_BREAK_OVERLAY_PRESENCE);
+			PublicAPI.instance.broadcast("GET_AD_BREAK_OVERLAY_PRESENCE");
 			clearTimeout(this.subcheckTimeout);
 			//If after 1,5s the overlay didn't answer, assume it doesn't exist
 			this.subcheckTimeout = window.setTimeout(()=>{
@@ -204,7 +202,7 @@ class OverlayParamsAdBreak extends Vue {
 	public beforeUnmount():void {
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.AD_BREAK_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("AD_BREAK_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 	}
 
 	public grantScopes():void {
@@ -213,7 +211,7 @@ class OverlayParamsAdBreak extends Vue {
 
 	public onChange():void {
 		DataStore.set(DataStore.AD_BREAK_OVERLAY_PARAMS, this.localData);
-		PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_OVERLAY_PARAMETERS, (this.localData as unknown) as JsonObject);
+		PublicAPI.instance.broadcast("AD_BREAK_OVERLAY_PARAMETERS", this.localData);
 	}
 
 	public testApproaching():void {
@@ -225,7 +223,7 @@ class OverlayParamsAdBreak extends Vue {
 			nextSnooze_at: 0,
 			remainingSnooze: 3,
 		}
-		PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_DATA, (data as unknown) as JsonObject);
+		PublicAPI.instance.broadcast("AD_BREAK_DATA", data);
 		window.setTimeout(()=> {
 			this.testingApproaching = false;
 		}, 250);
@@ -240,7 +238,7 @@ class OverlayParamsAdBreak extends Vue {
 			nextSnooze_at: 0,
 			remainingSnooze: 3,
 		}
-		PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_DATA, (data as unknown) as JsonObject);
+		PublicAPI.instance.broadcast("AD_BREAK_DATA", data);
 		window.setTimeout(()=> {
 			this.testingRunning = false;
 		}, 250);

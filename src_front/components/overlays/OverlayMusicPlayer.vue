@@ -71,8 +71,8 @@ class OverlayMusicPlayer extends AbstractOverlay {
 
 	public artist = "";
 	public title = "";
-	public cover = "";
-	public skin = "";
+	public cover: string|undefined = undefined;
+	public skin: string|undefined = undefined
 	public customTrackInfo = "";
 	public progress = 0;
 	public isPlaying = false;
@@ -87,7 +87,7 @@ class OverlayMusicPlayer extends AbstractOverlay {
 		return false;
 	}
 
-	private onTrackHandler!:(e:TwitchatEvent) => void;
+	private onTrackHandler!:(e:TwitchatEvent<"CURRENT_TRACK">) => void;
 
 	public get classes():string[] {
 		let res = ["overlaymusicplayer"];
@@ -112,39 +112,27 @@ class OverlayMusicPlayer extends AbstractOverlay {
 	}
 
 	public mounted():void {
-		this.onTrackHandler = async (e:TwitchatEvent) => {
-			if(e.data && ((e.data as unknown) as {params:TwitchatDataTypes.MusicPlayerParamsData}).params){
-				const obj = (e.data as unknown) as  { params:TwitchatDataTypes.MusicPlayerParamsData }
-				this.params = obj.params;
+		this.onTrackHandler = async (e:TwitchatEvent<"CURRENT_TRACK">) => {
+			if(e.data && e.data.params){
+				this.params = e.data.params;
 			}
-			if((e.data as {trackName?:string}).trackName) {
+			if(e.data.trackName && e.data.artistName) {
 				const prevArtist = this.artist;
 				const prevTitle = this.title;
-				const obj = (e.data as unknown) as
-							{
-								trackName:string,
-								artistName:string,
-								trackDuration:number,
-								trackPlaybackPos:number,
-								cover:string,
-								skin:string,
-								params:TwitchatDataTypes.MusicPlayerParamsData,
-							}
-				this.artist = obj.artistName;
-				this.title = obj.trackName;
-				this.cover = obj.cover;
-				this.skin = obj.skin;
-				console.log(obj)
+				this.artist = e.data.artistName;
+				this.title = e.data.trackName;
+				this.cover = e.data.cover;
+				this.skin = e.data.skin;
 				this.isPlaying = true;
-				let customTrackInfo = obj.params.customInfoTemplate;
+				let customTrackInfo = this.params?.customInfoTemplate || "";
 				customTrackInfo = customTrackInfo.replace(/\{ARTIST\}/gi, this.artist || "no music");
 				customTrackInfo = customTrackInfo.replace(/\{TITLE\}/gi, this.title || "no music");
-				customTrackInfo = customTrackInfo.replace(/\{COVER\}/gi, this.cover);
+				customTrackInfo = customTrackInfo.replace(/\{COVER\}/gi, this.cover || "");
 				this.customTrackInfo = DOMPurify.sanitize(customTrackInfo);
 
-				const newProgress = (obj.trackPlaybackPos/obj.trackDuration);
+				const newProgress = (e.data.trackPlaybackPos!/e.data.trackDuration!);
 				this.progress = newProgress;
-				const duration = (obj.trackDuration*(1-newProgress))/1000;
+				const duration = (e.data.trackDuration!*(1-newProgress))/1000;
 				gsap.killTweensOf(this);
 				gsap.to(this, {duration, progress:1, ease:"linear"});
 
@@ -168,13 +156,13 @@ class OverlayMusicPlayer extends AbstractOverlay {
 					this.params.showProgressbar = false;
 				}
 			}
-			if(!/http?s:\/\/.{5,}/.test(this.cover)) {
+			if(!/http?s:\/\/.{5,}/.test(this.cover || "")) {
 				this.cover = this.$asset("img/defaultCover.svg");
 			}
 		};
 
 		if(!this.staticTrackData) {
-			PublicAPI.instance.addEventListener(TwitchatEvent.CURRENT_TRACK, this.onTrackHandler);
+			PublicAPI.instance.addEventListener("CURRENT_TRACK", this.onTrackHandler);
 			//Wait a little to give it time to OBS websocket to establish connexion
 		}else{
 			this.onTrackChangeLocal();
@@ -188,11 +176,11 @@ class OverlayMusicPlayer extends AbstractOverlay {
 	}
 
 	public beforeUnmount():void {
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CURRENT_TRACK, this.onTrackHandler);
+		PublicAPI.instance.removeEventListener("CURRENT_TRACK", this.onTrackHandler);
 	}
 
 	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_CURRENT_TRACK);
+		PublicAPI.instance.broadcast("GET_CURRENT_TRACK");
 	}
 
 	public onSeek(e:MouseEvent):void {

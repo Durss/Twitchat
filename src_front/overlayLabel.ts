@@ -8,8 +8,8 @@
 import '@/less/index.less';
 import OBSWebSocket from 'obs-websocket-js';
 import type { JsonObject } from 'type-fest';
-import TwitchatEvent, { type TwitchatActionType, type TwitchatEventType } from './events/TwitchatEvent';
 import type { LabelItemData, LabelItemPlaceholder } from './types/ILabelOverlayData';
+import type { TwitchatEventMap } from '@/events/TwitchatEvent';
 
 
 const urlParams = new URLSearchParams(document.location.search);
@@ -34,7 +34,7 @@ document.head.appendChild(styleNode);
 interface IEnvelope<T = undefined> {
 	origin:"twitchat";
 	id:string;
-	type:TwitchatEventType | TwitchatActionType;
+	type:keyof TwitchatEventMap;
 	data?:T
 }
 
@@ -101,7 +101,12 @@ function createConnectionTunnel():void {
  * @param type
  * @param parameters
  */
-async function broadcast<T>(type:TwitchatEventType|TwitchatActionType, parameters?:T):Promise<void> {
+async function broadcast<Event extends keyof TwitchatEventMap>(
+		type: Event,
+		...args: TwitchatEventMap[Event] extends undefined
+			? [broadcastToSelf?: boolean, onlyLocal?: boolean]
+			: [data: TwitchatEventMap[Event], broadcastToSelf?: boolean, onlyLocal?: boolean]
+	):Promise<void> {
 	// console.log("Broadcasting", type, data);
 	const eventId = getUUID();
 	messageIdsDone[eventId] = true;//Avoid receiving self-broadcast events
@@ -147,8 +152,8 @@ function getUUID():string {
  */
 function requestInitialInfo():void {
 	if(parameters) return;//Already initialized, no need to ask again
-	broadcast(TwitchatEvent.GET_LABEL_OVERLAY_PLACEHOLDERS);
-	broadcast(TwitchatEvent.GET_LABEL_OVERLAY_PARAMS, {id:urlParams.get("twitchat_overlay_id")});
+	broadcast("GET_LABEL_OVERLAY_PLACEHOLDERS");
+	broadcast("GET_LABEL_OVERLAY_PARAMS", {id:urlParams.get("twitchat_overlay_id")!});
 }
 
 /**
@@ -191,13 +196,13 @@ function onMessage(message:IEnvelope<unknown>):void {
 		messageIdsDone[message.id] = true;
 	}
 
-	if(message.type == TwitchatEvent.TWITCHAT_READY || message.type == TwitchatEvent.OBS_WEBSOCKET_CONNECTED) {
+	if(message.type == "TWITCHAT_READY" || message.type == "OBS_WEBSOCKET_CONNECTED") {
 		if(connected) return;
 		requestInitialInfo();
 		connected = true;
 	}else
 
-	if(message.type == TwitchatEvent.LABEL_OVERLAY_PLACEHOLDERS) {
+	if(message.type == "LABEL_OVERLAY_PLACEHOLDERS") {
 		const data = message.data as {[tag:string]:{value:string|number, type:LabelItemPlaceholder["type"]}};
 		for (const key in data) {
 			const tag = data[key]!
@@ -219,7 +224,7 @@ function onMessage(message:IEnvelope<unknown>):void {
 		renderValue();
 	}else
 
-	if(message.type == TwitchatEvent.LABEL_OVERLAY_PARAMS) {
+	if(message.type == "LABEL_OVERLAY_PARAMS") {
 		const json = message.data as {id:string, data:typeof parameters, disabled?:true, exists:boolean, isValid:boolean};
 		if(json.id == urlParams.get("twitchat_overlay_id")) {
 			parameters = json.data;

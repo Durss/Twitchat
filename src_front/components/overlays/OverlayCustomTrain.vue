@@ -78,7 +78,7 @@ class OverlayCustomTrain extends AbstractOverlay {
 	public state:TwitchatDataTypes.CustomTrainState | null = null;
 
 	private overlayId:string = "";
-	private customTrainStateHandler!:(e:TwitchatEvent<{configs:TwitchatDataTypes.CustomTrainData, state:TwitchatDataTypes.CustomTrainState}>) => void;
+	private customTrainStateHandler!:(e:TwitchatEvent<"CUSTOM_TRAIN_STATE">) => void;
 
 
 	public get progressPercent():number {
@@ -109,20 +109,20 @@ class OverlayCustomTrain extends AbstractOverlay {
 
 	public beforeMount():void {
 		this.customTrainStateHandler = (e) => this.onCustomTrainState(e)
-		PublicAPI.instance.addEventListener(TwitchatEvent.CUSTOM_TRAIN_STATE, this.customTrainStateHandler);
+		PublicAPI.instance.addEventListener("CUSTOM_TRAIN_STATE", this.customTrainStateHandler);
 
 		this.overlayId = this.$route.query.twitchat_overlay_id as string ?? "";
 	}
 
 	public beforeUnmount():void {
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CUSTOM_TRAIN_STATE, this.customTrainStateHandler);
+		PublicAPI.instance.removeEventListener("CUSTOM_TRAIN_STATE", this.customTrainStateHandler);
 	}
 
 	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_CUSTOM_TRAIN_STATE, {id:this.overlayId});
+		PublicAPI.instance.broadcast("GET_CUSTOM_TRAIN_STATE", {id:this.overlayId});
 	}
 
-	public onCustomTrainState(e:TwitchatEvent<{configs:TwitchatDataTypes.CustomTrainData, state:TwitchatDataTypes.CustomTrainState}>):void {
+	public onCustomTrainState(e:TwitchatEvent<"CUSTOM_TRAIN_STATE">):void {
 		if(!e.data || !e.data.configs) return;
 		if(e.data.configs.id !== this.overlayId) return;
 		if(this.locked) return;

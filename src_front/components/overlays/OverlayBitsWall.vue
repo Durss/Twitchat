@@ -59,9 +59,9 @@ class OverlayBitsWall extends AbstractOverlay {
 	private frameCount:number = 0;
 	private fps:number = 0;
 	private disposed:boolean = false;
-	private bitsHandler!:(e:TwitchatEvent)=>void;
-	private paramsDataHandler!:(e:TwitchatEvent)=>void;
-	private overlayPresenceHandler!:(e:TwitchatEvent)=>void;
+	private bitsHandler!:(e:TwitchatEvent<"BITS">)=>void;
+	private paramsDataHandler!:(e:TwitchatEvent<"BITSWALL_OVERLAY_PARAMETERS">)=>void;
+	private overlayPresenceHandler!:(e:TwitchatEvent<"GET_BITSWALL_OVERLAY_PRESENCE">)=>void;
 	private heatEventHandler!:(event:{detail:TwitchatDataTypes.HeatClickData}) => void;
 	private resizeHandler!:(e:Event) => void;
 
@@ -72,15 +72,15 @@ class OverlayBitsWall extends AbstractOverlay {
 	}
 
 	public beforeMount():void {
-		this.bitsHandler = (e:TwitchatEvent) => this.onBits(e);
-		this.paramsDataHandler = (e:TwitchatEvent) => this.onParamsData(e);
+		this.bitsHandler = (e) => this.onBits(e);
+		this.paramsDataHandler = (e) => this.onParamsData(e);
 		this.heatEventHandler = (e) => this.onHeatClick(e);
 		this.resizeHandler = (e) => this.onResize(e);
 		//@ts-ignore
 		window.addEventListener("heat-click", this.heatEventHandler);
 		window.addEventListener("resize", this.resizeHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.BITSWALL_OVERLAY_PARAMETERS, this.paramsDataHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.BITS, this.bitsHandler);
+		PublicAPI.instance.addEventListener("BITSWALL_OVERLAY_PARAMETERS", this.paramsDataHandler);
+		PublicAPI.instance.addEventListener("BITS", this.bitsHandler);
 	}
 
 	public async mounted():Promise<void> {
@@ -110,10 +110,10 @@ class OverlayBitsWall extends AbstractOverlay {
 			}));
 		//*/
 
-		PublicAPI.instance.broadcast(TwitchatEvent.BITSWALL_OVERLAY_PRESENCE);
+		PublicAPI.instance.broadcast("BITSWALL_OVERLAY_PRESENCE");
 		
-		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.BITSWALL_OVERLAY_PRESENCE); }
-		PublicAPI.instance.addEventListener(TwitchatEvent.GET_BITSWALL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast("BITSWALL_OVERLAY_PRESENCE"); }
+		PublicAPI.instance.addEventListener("GET_BITSWALL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 
 
 		//@ts-ignore
@@ -154,31 +154,19 @@ class OverlayBitsWall extends AbstractOverlay {
 		//@ts-ignore
 		window.removeEventListener("heat-click", this.heatEventHandler);
 		window.removeEventListener("resize", this.resizeHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.BITS, this.bitsHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_BITSWALL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("BITS", this.bitsHandler);
+		PublicAPI.instance.removeEventListener("GET_BITSWALL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 	}
 	
 	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_BITS_WALL_OVERLAY_PARAMETERS);
+		PublicAPI.instance.broadcast("GET_BITSWALL_OVERLAY_PARAMETERS");
 	}
 
 	/**
 	 * Called when bits are received
 	 */
-	public async onBits(e:TwitchatEvent):Promise<void> {
-		const data = (e.data as unknown) as {
-			channel:string;
-			message:string;
-			message_chunks:TwitchatDataTypes.ParseMessageChunk[] | undefined;
-			user: {
-				id:string;
-				login:string;
-				displayName:string;
-			},
-			bits:number;
-			pinned:boolean;
-			pinLevel:number;
-		};
+	public async onBits(e:TwitchatEvent<"BITS">):Promise<void> {
+		const data = e.data
 		const bits = data.bits;
 		function decomposeNumber(number: number, values: number[]): number[] {
 			values.sort((a, b) => b - a); // Sort the values in descending order
@@ -265,9 +253,9 @@ class OverlayBitsWall extends AbstractOverlay {
 	/**
 	 * Called when API sends fresh overlay parameters
 	 */
-	private async onParamsData(e:TwitchatEvent):Promise<void> {
+	private async onParamsData(e:TwitchatEvent<"BITSWALL_OVERLAY_PARAMETERS">):Promise<void> {
 		if(e.data) {
-			this.parameters = (e.data as unknown) as TwitchatDataTypes.BitsWallOverlayData;
+			this.parameters = e.data;
 			if(this.shaderMode) {
 				this.sceneWidth = document.body.clientWidth/2;
 			}else{
