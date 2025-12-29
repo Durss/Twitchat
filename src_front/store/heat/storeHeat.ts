@@ -1,5 +1,4 @@
 import type HeatEvent from '@/events/HeatEvent';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import type { HeatScreen } from '@/types/HeatDataTypes';
 import { TriggerTypes, type TriggerActionChatData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -522,10 +521,9 @@ export const storeHeat = defineStore('heat', {
 			DataStore.set(DataStore.OVERLAY_DISTORTIONS, this.distortionList);
 
 			for (let i = 0; i < this.distortionList.length; i++) {
-				const data = {
-					params:(this.distortionList[i] as unknown) as JsonObject,
-				};
-				PublicAPI.instance.broadcast(TwitchatEvent.DISTORT_OVERLAY_PARAMETERS, data);
+				PublicAPI.instance.broadcast("DISTORT_OVERLAY_PARAMETERS", {
+					params:this.distortionList[i]!,
+				});
 			}
 		}
 

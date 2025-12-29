@@ -3,9 +3,9 @@ import { OBSWebSocket as ObsWS } from 'obs-websocket-js';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
 import { ref } from 'vue';
 import { EventDispatcher } from '../events/EventDispatcher';
-import type { TwitchatActionType, TwitchatEventType } from '../events/TwitchatEvent';
 import TwitchatEvent from '../events/TwitchatEvent';
 import Logger from './Logger';
+import type { TwitchatEventMap } from '@/events/TwitchatEvent';
 import Utils from './Utils';
 
 /**
@@ -58,6 +58,17 @@ export default class OBSWebSocket extends EventDispatcher {
 	/******************
 	* PUBLIC METHODS *
 	******************/
+
+	public override addEventListener<Event extends keyof TwitchatEventMap>(typeStr:Event, listenerFunc:(e:TwitchatEvent<Event>)=>void):void {
+		// @ts-ignore
+		super.addEventListener(typeStr, listenerFunc);
+	}
+
+	public override removeEventListener<Event extends keyof TwitchatEventMap>(typeStr:Event, listenerFunc:(e:TwitchatEvent<Event>)=>void):void {
+		// @ts-ignore
+		super.removeEventListener(typeStr, listenerFunc);
+	}
+
 	/**
 	 * Disconnect from OBS Websocket
 	 */
@@ -66,7 +77,6 @@ export default class OBSWebSocket extends EventDispatcher {
 		if(this.connected.value) {
 			this.obs.disconnect();
 		}
-		this.connected.value = false;
 	}
 
 	/**
@@ -97,7 +107,7 @@ export default class OBSWebSocket extends EventDispatcher {
 			const portValue = port && port?.length > 0 && port != "0"? ":"+port : "";
 			await this.obs.connect(protocol + ip + portValue, pass, {rpcVersion: 1});
 			if(!this.connected.value) {
-				this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_WEBSOCKET_CONNECTED));
+				this.dispatchEvent(new TwitchatEvent("OBS_WEBSOCKET_CONNECTED", undefined));
 			}
 			this.connected.value = true;
 		}catch(error) {
@@ -195,7 +205,7 @@ export default class OBSWebSocket extends EventDispatcher {
 	 * Broadcast a message to all the connected clients
 	 * @param data
 	 */
-	public async broadcast(type:TwitchatEventType|TwitchatActionType, eventId:string, data?:JsonObject, retryCount:number = 0):Promise<void> {
+	public async broadcast(type:keyof TwitchatEventMap, eventId:string, data?:JsonObject, retryCount:number = 0):Promise<void> {
 		if(!this.connected.value) {
 			//Try again
 			if(retryCount == 30) return;
@@ -532,7 +542,7 @@ export default class OBSWebSocket extends EventDispatcher {
 		if(!this.connected.value) return;
 		//Rmove props not supported by obs-websocket. like width/height.
 		const filtered = Object.keys(transform).reduce<{[key in keyof Partial<SourceTransform>]:any}>((filteredObject, key) => {
-			const typedKey = (key as unknown) as keyof SourceTransform;
+			const typedKey = key as keyof SourceTransform;
 			const allowedKeys:(keyof SourceTransform)[] = ["alignment","boundsAlignment","cropBottom","cropLeft","cropRight","cropTop","positionX","positionY","rotation","scaleX","scaleY"];
 			if (allowedKeys.includes(typedKey)) {
 				filteredObject[typedKey] = transform[typedKey];
@@ -1114,7 +1124,7 @@ export default class OBSWebSocket extends EventDispatcher {
 
 		this.obs.addListener("ConnectionClosed", ()=> {
 			if(this.connected.value) {
-				this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_WEBSOCKET_DISCONNECTED));
+				this.dispatchEvent(new TwitchatEvent("OBS_WEBSOCKET_DISCONNECTED", undefined));
 			}
 			this.connected.value = false;
 			if(this.autoReconnect) {
@@ -1125,21 +1135,20 @@ export default class OBSWebSocket extends EventDispatcher {
 			}
 		});
 
-		//@ts-ignore "CustomEvent" not yet defined on OBS-ws signatures
-		this.obs.on("CustomEvent", (e:{origin:"twitchat", type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}) => {
-			if(e.type == undefined) return;
-			if(e.origin != "twitchat") return;
-			this.dispatchEvent(new TwitchatEvent(e.type, e.data));
-			this.dispatchEvent(new TwitchatEvent("CustomEvent", e));
+		this.obs.on("CustomEvent", (eventData:JsonObject) => {
+			const eventDataTyped = eventData as {origin:"twitchat", type:keyof TwitchatEventMap, data:TwitchatEventMap[keyof TwitchatEventMap]};
+			if(eventDataTyped.type == undefined) return;
+			if(eventDataTyped.origin != "twitchat") return;
+			this.dispatchEvent(new TwitchatEvent(eventDataTyped.type, eventDataTyped.data));
 		});
 
 		this.obs.on("CurrentProgramSceneChanged", (e:{sceneName:string}) => {
 			this.clearSourceTransformCache();
-			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SCENE_CHANGE, e));
+			this.dispatchEvent(new TwitchatEvent("OBS_SCENE_CHANGE", e));
 		});
 
 		this.obs.on("InputMuteStateChanged", (e:{inputName:string, inputMuted:boolean}) => {
-			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_MUTE_TOGGLE, e));
+			this.dispatchEvent(new TwitchatEvent("OBS_MUTE_TOGGLE", e));
 		});
 
 		//This event is disabled as it's very specific to media sources with playback control
@@ -1150,19 +1159,19 @@ export default class OBSWebSocket extends EventDispatcher {
 			let event:string = "";
 			switch(action) {
 				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NONE": return;//Ignore
-				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY": event = TwitchatEvent.OBS_PLAYBACK_STARTED; break;
-				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PAUSE": event = TwitchatEvent.OBS_PLAYBACK_PAUSED; break;
-				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_STOP": event = TwitchatEvent.OBS_PLAYBACK_ENDED; break;
-				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART": event = TwitchatEvent.OBS_PLAYBACK_RESTARTED; break;
-				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NEXT": event = TwitchatEvent.OBS_PLAYBACK_NEXT; break;
-				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PREVIOUS": event = TwitchatEvent.OBS_PLAYBACK_PREVIOUS; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY": event = "OBS_PLAYBACK_STARTED"; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PAUSE": event = "OBS_PLAYBACK_PAUSED"; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_STOP": event = "OBS_PLAYBACK_ENDED"; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART": event = "OBS_PLAYBACK_RESTARTED"; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NEXT": event = "OBS_PLAYBACK_NEXT"; break;
+				case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PREVIOUS": event = "OBS_PLAYBACK_PREVIOUS"; break;
 			}
 			this.dispatchEvent(new TwitchatEvent(event, e));
 		});
 		//*/
 
 		this.obs.on("MediaInputPlaybackStarted", async (e:{inputName:string}) => {
-			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_PLAYBACK_STARTED, e));
+			this.dispatchEvent(new TwitchatEvent("OBS_PLAYBACK_STARTED", e));
 		});
 
 		this.obs.on("MediaInputPlaybackEnded", async (e:{inputName:string}) => {
@@ -1177,7 +1186,7 @@ export default class OBSWebSocket extends EventDispatcher {
 			//the media completes before being able to restart its playback by
 			//showing the source
 			await Utils.promisedTimeout(1500);
-			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_PLAYBACK_ENDED, e));
+			this.dispatchEvent(new TwitchatEvent("OBS_PLAYBACK_ENDED", e));
 		});
 
 		this.obs.on("SceneItemEnableStateChanged", async (e:{sceneName:string, sceneItemId:number, sceneItemEnabled:boolean}) => {
@@ -1200,7 +1209,7 @@ export default class OBSWebSocket extends EventDispatcher {
 			const items = (res.sceneItems as unknown) as OBSSourceItem[];
 			for (const item of items) {
 				if(item.sceneItemId == e.sceneItemId) {
-					this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SOURCE_TOGGLE, {item, event:e} as unknown as JsonObject));
+					this.dispatchEvent(new TwitchatEvent("OBS_SOURCE_TOGGLE", {item, event:e}));
 					break;
 				}
 			}
@@ -1215,7 +1224,7 @@ export default class OBSWebSocket extends EventDispatcher {
 					delete this.sceneSourceCache[key];
 				}
 			}
-			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_INPUT_NAME_CHANGED, e));
+			this.dispatchEvent(new TwitchatEvent("OBS_INPUT_NAME_CHANGED", e));
 		});
 
 		this.obs.on("SceneNameChanged", async (e:{oldSceneName:string, sceneName:string}) => {
@@ -1227,26 +1236,26 @@ export default class OBSWebSocket extends EventDispatcher {
 					delete this.sceneSourceCache[key];
 				}
 			}
-			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SCENE_NAME_CHANGED, e));
+			this.dispatchEvent(new TwitchatEvent("OBS_SCENE_NAME_CHANGED", e));
 		});
 
 		this.obs.on("SourceFilterNameChanged", async (e:{sourceName: string, oldFilterName: string, filterName: string}) => {
-			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_FILTER_NAME_CHANGED, e));
+			this.dispatchEvent(new TwitchatEvent("OBS_FILTER_NAME_CHANGED", e));
 		});
 
 		this.obs.on("SourceFilterEnableStateChanged", async (e:{sourceName: string, filterName: string, filterEnabled: boolean}) => {
-			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_FILTER_TOGGLE, e));
+			this.dispatchEvent(new TwitchatEvent("OBS_FILTER_TOGGLE", e));
 		});
 
 		this.obs.on("StreamStateChanged", async (e:{outputActive: boolean, outputState: string}) => {
 			if(e.outputState == "OBS_WEBSOCKET_OUTPUT_STARTED" || e.outputState == "OBS_WEBSOCKET_OUTPUT_STOPPED") {
-				this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_STREAM_STATE, e));
+				this.dispatchEvent(new TwitchatEvent("OBS_STREAM_STATE", e));
 			}
 		});
 
 		this.obs.on("RecordStateChanged", async (e:{ outputActive: boolean; outputState: string; outputPath: string; }) => {
 			if(e.outputState != "OBS_WEBSOCKET_OUTPUT_STOPPED" && e.outputState != "OBS_WEBSOCKET_OUTPUT_STARTED") return;
-			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_RECORD_STATE, e));
+			this.dispatchEvent(new TwitchatEvent("OBS_RECORD_STATE", e));
 		});
 	}
 

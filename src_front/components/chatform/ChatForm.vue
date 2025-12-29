@@ -428,7 +428,6 @@
 <script lang="ts">
 import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import MessengerProxy from '@/messaging/MessengerProxy';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
@@ -524,7 +523,7 @@ export class ChatForm extends Vue {
 	private announcementInterval:number = -1;
 	private creditsOverlayPresenceHandlerTimeout:number = -1;
 	private updateTrackedUserListHandler!:(e:GlobalEvent)=>void;
-	private creditsOverlayPresenceHandler!:(e:TwitchatEvent)=>void;
+	private creditsOverlayPresenceHandler!:() => void;
 
 	public get maxLength():number {
 		if(this.message.indexOf("/raw") === 0) {
@@ -720,11 +719,11 @@ export class ChatForm extends Vue {
 			this.sendHistory = JSON.parse(history) as string[];
 			this.sendHistoryIndex = this.sendHistory.length;
 		}
-		this.updateTrackedUserListHandler = (e:GlobalEvent) => this.onUpdateTrackedUserList();
-		this.creditsOverlayPresenceHandler = (e:TwitchatEvent) => this.onCreditsOverlayPresence();
+		this.updateTrackedUserListHandler = (_e:GlobalEvent) => this.onUpdateTrackedUserList();
+		this.creditsOverlayPresenceHandler = () => this.onCreditsOverlayPresence();
 		EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 		EventBus.instance.addEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CREDITS_OVERLAY_PRESENCE, this.creditsOverlayPresenceHandler);
+		PublicAPI.instance.addEventListener("CREDITS_OVERLAY_PRESENCE", this.creditsOverlayPresenceHandler);
 		this.onUpdateTrackedUserList();
 		//Leave some time to open transition to complete before showing announcements
 		window.setTimeout(()=> {
@@ -786,7 +785,7 @@ export class ChatForm extends Vue {
 		clearTimeout(this.announcementInterval);
 		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CREDITS_OVERLAY_PRESENCE, this.creditsOverlayPresenceHandler);
+		PublicAPI.instance.addEventListener("CREDITS_OVERLAY_PRESENCE", this.creditsOverlayPresenceHandler);
 	}
 
 	public openNotifications(type:TwitchatDataTypes.NotificationTypes):void { this.$emit('setCurrentNotification', type); }

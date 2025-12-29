@@ -1,15 +1,13 @@
-import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
+import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
+import Utils from '@/utils/Utils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { PollOverlayParamStoreData } from '../poll/storePoll';
 import StoreProxy, { type IChatPollActions, type IChatPollGetters, type IChatPollState } from '../StoreProxy';
-import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
-import Utils from '@/utils/Utils';
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 
 let timeoutEnd = "";
 export const storeChatPoll = defineStore('chatPoll', {
@@ -75,7 +73,7 @@ export const storeChatPoll = defineStore('chatPoll', {
 			/**
 			 * Called when poll overlay request for its configs
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CHAT_POLL_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
+			PublicAPI.instance.addEventListener("GET_CHAT_POLL_OVERLAY_PARAMETERS", ()=> {
 				this.broadcastState();
 			});
 		},
@@ -108,7 +106,7 @@ export const storeChatPoll = defineStore('chatPoll', {
 			this.data.votes[message.user.id]!.indices.push(index);
 
 			this.data.choices[index-1]!.votes ++;
-			PublicAPI.instance.broadcast(TwitchatEvent.CHAT_POLL_PROGRESS, {poll: this.data});
+			PublicAPI.instance.broadcast("CHAT_POLL_PROGRESS", {poll: this.data});
 		},
 
 		setCurrentPoll(data:typeof this.data, replacePresets:boolean = false) {
@@ -134,7 +132,7 @@ export const storeChatPoll = defineStore('chatPoll', {
 
 				this.data = data;
 
-				PublicAPI.instance.broadcast(TwitchatEvent.CHAT_POLL_PROGRESS, {poll: (data as unknown) as JsonObject});
+				PublicAPI.instance.broadcast("CHAT_POLL_PROGRESS", {poll: this.data});
 
 				if(replacePresets) {
 					this.presets.duration_s = data.duration_s;
@@ -176,7 +174,7 @@ export const storeChatPoll = defineStore('chatPoll', {
 				StoreProxy.chat.addMessage(message);
 
 				//Clear overlay
-				PublicAPI.instance.broadcast(TwitchatEvent.CHAT_POLL_PROGRESS, {});
+				PublicAPI.instance.broadcast("CHAT_POLL_PROGRESS", undefined);
 			}
 
 			this.data = data;
@@ -185,14 +183,14 @@ export const storeChatPoll = defineStore('chatPoll', {
 		setOverlayParams(params:PollOverlayParamStoreData):void {
 			this.populateData(params);
 			DataStore.set(DataStore.CHAT_POLL_OVERLAY_PARAMS, this.overlayParams);
-			PublicAPI.instance.broadcast(TwitchatEvent.CHAT_POLL_OVERLAY_PARAMETERS, {parameters: (this.overlayParams as unknown) as JsonObject});
+			PublicAPI.instance.broadcast("CHAT_POLL_OVERLAY_PARAMETERS", {parameters: this.overlayParams});
 		},
 
 		broadcastState():void {
 			if(this.data) {
-				PublicAPI.instance.broadcast(TwitchatEvent.CHAT_POLL_PROGRESS, {poll: (this.data as unknown) as JsonObject});
+				PublicAPI.instance.broadcast("CHAT_POLL_PROGRESS", {poll: this.data});
 			}
-			PublicAPI.instance.broadcast(TwitchatEvent.CHAT_POLL_OVERLAY_PARAMETERS, {parameters: (this.overlayParams as unknown) as JsonObject});
+			PublicAPI.instance.broadcast("CHAT_POLL_OVERLAY_PARAMETERS", {parameters: this.overlayParams});
 		},
 	} as IChatPollActions
 	& ThisType<IChatPollActions

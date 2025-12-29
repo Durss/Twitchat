@@ -1,6 +1,5 @@
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import TwitchatEvent from "../events/TwitchatEvent";
 import PublicAPI from "./PublicAPI";
 import Utils from "./Utils";
 
@@ -259,7 +258,7 @@ export default class TTSUtils {
 	* PRIVATE METHODS *
 	*******************/
 	private initialize():void {
-		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_TTS, ()=> {
+		PublicAPI.instance.addEventListener("STOP_TTS", ()=> {
 			this.stop();
 		});
 

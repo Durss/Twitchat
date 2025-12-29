@@ -113,7 +113,6 @@
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import { TriggerTypes, TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
@@ -158,7 +157,7 @@ class ParamsTriggers extends Vue implements IParameterContent {
 	public extensions:TwitchDataTypes.Extension[] = [];
 	public powerUps:TwitchDataTypes.CustomPowerUp[] = [];
 
-	private renameOBSElementHandler!:(e:TwitchatEvent) => void;
+	private renameOBSElementHandler!:() => void;
 	public get currentTriggerData():TriggerData|null { return this.$store.triggers.currentEditTriggerData; }
 	public get showList():boolean { return this.currentTriggerData == null; }
 	public get isAffiliate():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
@@ -222,9 +221,9 @@ class ParamsTriggers extends Vue implements IParameterContent {
 			await this.listOBSSources();
 			await this.listOBSSources();
 		};
-		OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_INPUT_NAME_CHANGED, this.renameOBSElementHandler);
-		OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_NAME_CHANGED, this.renameOBSElementHandler);
-		OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_FILTER_NAME_CHANGED, this.renameOBSElementHandler);
+		OBSWebsocket.instance.addEventListener("OBS_INPUT_NAME_CHANGED", this.renameOBSElementHandler);
+		OBSWebsocket.instance.addEventListener("OBS_SCENE_NAME_CHANGED", this.renameOBSElementHandler);
+		OBSWebsocket.instance.addEventListener("OBS_FILTER_NAME_CHANGED", this.renameOBSElementHandler);
 
 
 		let debounceTimeout = -1;
@@ -262,9 +261,9 @@ class ParamsTriggers extends Vue implements IParameterContent {
 	}
 
 	public beforeUnmount():void {
-		OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_INPUT_NAME_CHANGED, this.renameOBSElementHandler);
-		OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_SCENE_NAME_CHANGED, this.renameOBSElementHandler);
-		OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_FILTER_NAME_CHANGED, this.renameOBSElementHandler);
+		OBSWebsocket.instance.removeEventListener("OBS_INPUT_NAME_CHANGED", this.renameOBSElementHandler);
+		OBSWebsocket.instance.removeEventListener("OBS_SCENE_NAME_CHANGED", this.renameOBSElementHandler);
+		OBSWebsocket.instance.removeEventListener("OBS_FILTER_NAME_CHANGED", this.renameOBSElementHandler);
 	}
 
 	/**
@@ -355,7 +354,7 @@ class ParamsTriggers extends Vue implements IParameterContent {
 	public async listOBSScenes():Promise<void> {
 		let scenes:OBSSceneItem[] = [];
 		try {
-			scenes = ((await OBSWebsocket.instance.getScenes()).scenes as unknown) as OBSSceneItem[];
+			scenes = (await OBSWebsocket.instance.getScenes()).scenes
 		}catch(error) {
 			this.obsScenes = [];
 			this.$store.common.alert(this.$t('error.obs_scenes_loading'));
