@@ -100,7 +100,6 @@
 import PlacementSelector from '@/components/PlacementSelector.vue';
 import { ToggleBlock } from '@/components/ToggleBlock.vue';
 import { TTButton } from '@/components/TTButton.vue';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import type { PollOverlayParamStoreData } from '@/store/poll/storePoll';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
@@ -163,7 +162,7 @@ class OverlayParamsPoll extends Vue {
 			this.checkingOverlayPresence = false;
 			clearTimeout(this.subcheckTimeout);
 		};
-		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_POLL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.addEventListener("CHAT_POLL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 
 		//Regularly check if the overlay exists
 		this.checkInterval = window.setInterval(()=>this.getOverlayPresence(), 2000);
@@ -175,7 +174,7 @@ class OverlayParamsPoll extends Vue {
 		clearTimeout(this.simulateEndTimeout);
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_POLL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("CHAT_POLL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 	}
 
 	/**
@@ -183,7 +182,7 @@ class OverlayParamsPoll extends Vue {
 	 */
 	public getOverlayPresence(showLoader:boolean = false):void {
 		if(showLoader) this.checkingOverlayPresence = true;
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_CHAT_POLL_OVERLAY_PRESENCE);
+		PublicAPI.instance.broadcast("GET_CHAT_POLL_OVERLAY_PRESENCE");
 		clearTimeout(this.subcheckTimeout);
 		//If after 1,5s the overlay didn't answer, assume it doesn't exist
 		this.subcheckTimeout = window.setTimeout(()=>{
