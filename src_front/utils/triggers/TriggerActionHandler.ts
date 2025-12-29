@@ -6,9 +6,7 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import { gsap } from "gsap/gsap-core";
 import jsonpath from "jsonpath";
-import { evaluate as MathEval } from 'mathjs';
 import { RequestBatchExecutionType, type RequestBatchRequest } from "obs-websocket-js";
-import type { JsonObject } from "type-fest";
 import TwitchatEvent from "../../events/TwitchatEvent";
 import * as TriggerActionDataTypes from "../../types/TriggerActionDataTypes";
 import { TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerMusicTypes, TriggerTypes, TriggerTypesDefinitionList, type ITriggerPlaceholder, type TriggerData, type TriggerTypesKey, type TriggerTypesValue } from "../../types/TriggerActionDataTypes";
@@ -17,8 +15,9 @@ import ApiHelper from "../ApiHelper";
 import Config from "../Config";
 import type { LogTrigger, LogTriggerStep } from "../Logger";
 import Logger from "../Logger";
-import OBSWebsocket, { type SourceTransform } from "../OBSWebsocket";
+import { default as OBSWebsocket, default as OBSWebSocket, type SourceTransform } from "../OBSWebsocket";
 import PublicAPI from "../PublicAPI";
+import SFXRUtils from "../SFXRUtils";
 import TTSUtils from "../TTSUtils";
 import TriggerUtils from "../TriggerUtils";
 import Utils from "../Utils";
@@ -29,8 +28,6 @@ import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import YoutubeHelper from "../youtube/YoutubeHelper";
-import OBSWebSocket from "../OBSWebsocket";
-import SFXRUtils from "../SFXRUtils";
 
 /**
 * Created : 22/04/2022
@@ -1708,15 +1705,14 @@ export default class TriggerActionHandler {
 									if(step.waitMediaEnd === true && (action == "show" || action == "replay")) {
 										logStep.messages.push({date:Date.now(), value:"🕙 Wait for media \""+sourceName+"\" to complete playing..."});
 										await new Promise<void>((resolve, reject)=> {
-											const handler = (e:TwitchatEvent) => {
-												const d = e.data as {inputName:string};
-												if(d.inputName != sourceName) return;
+											const handler = (e:TwitchatEvent<"OBS_PLAYBACK_ENDED">) => {
+												if(e.data.inputName != sourceName) return;
 												logStep.messages.push({date:Date.now(), value:"Media \""+sourceName+"\" playing complete."});
-												OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, handler);
+												OBSWebsocket.instance.removeEventListener("OBS_PLAYBACK_ENDED", handler);
 												resolve();
 											}
 											logStep.messages.push({date:Date.now(), value:"Handler created..."});
-											OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, handler);
+											OBSWebsocket.instance.addEventListener("OBS_PLAYBACK_ENDED", handler);
 										})
 									}
 								}catch(error:any) {
@@ -1956,7 +1952,7 @@ export default class TriggerActionHandler {
 								params:StoreProxy.chat.chatHighlightOverlayParams,
 							}
 							logStep.messages.push({date:Date.now(), value:"Highlight clip ID \""+clipId+"\""});
-							PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
+							PublicAPI.instance.broadcast("SHOW_CLIP", data);
 
 						}else{
 							//Highlight user message as text
@@ -1969,11 +1965,11 @@ export default class TriggerActionHandler {
 								params:StoreProxy.chat.chatHighlightOverlayParams,
 							};
 							logStep.messages.push({date:Date.now(), value:"Highlight message \""+text+"\""});
-							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (info as unknown) as JsonObject)
+							PublicAPI.instance.broadcast("SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE", info);
 						}
 						StoreProxy.chat.highlightedMessageId = message_id;
 					}else{
-						PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, {})
+						PublicAPI.instance.broadcast("SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE", undefined)
 						StoreProxy.chat.highlightedMessageId = null;
 					}
 				}else
@@ -3265,7 +3261,7 @@ export default class TriggerActionHandler {
 
 							//A track has been found and added
 							if(trackData) {
-								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, (trackData as unknown) as JsonObject);
+								PublicAPI.instance.broadcast("TRACK_ADDED_TO_QUEUE", trackData);
 
 								//The step is requesting to confirm on chat when a track has been added
 								if(step.confirmMessage) {
@@ -4022,7 +4018,7 @@ export default class TriggerActionHandler {
 						const data = step.sfxr.presetId === "custom"? step.sfxr.rawConfig! : step.sfxr.presetId;
 						if(step.sfxr.playOnOverlay) {
 							logStep.messages.push({date:Date.now(), value:"Tell the overlay to play the sound effect"});
-							PublicAPI.instance.broadcast(TwitchatEvent.PLAY_SFXR, {params:data, volume})
+							PublicAPI.instance.broadcast("PLAY_SFXR", {params:data, volume})
 							// Mute local playing but still play it so trigger is properly paused while the
 							// sound is playing if user requested it
 							volume = 0;

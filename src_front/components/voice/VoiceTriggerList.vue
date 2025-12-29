@@ -76,11 +76,11 @@
 </template>
 
 <script lang="ts">
+import TwitchatEvent, { type TwitchatEventMap } from '@/events/TwitchatEvent';
 import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import VoiceAction from '@/utils/voice/VoiceAction';
 import { watch, type ComponentPublicInstance } from 'vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import TTButton from '../TTButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
@@ -101,7 +101,7 @@ class VoiceTriggerList extends Vue {
 	public openStates:{[id:string]:boolean} = {};
 	public globalCommandsOK:boolean = false;
 
-	private triggerHandler!:(e:TwitchatEvent)=>void;
+	private triggerHandler!:(e:unknown)=>void;
 
 	public reduceSelectData(option:{label:string, value:string}){ return option.value; }
 
@@ -130,34 +130,34 @@ class VoiceTriggerList extends Vue {
 			this.saveActions();
 		}, {deep:true});
 
-		this.triggerHandler = (e:TwitchatEvent) => this.onTrigger(e);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_PAUSE, this.triggerHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_UNPAUSE, this.triggerHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SCROLL_UP, this.triggerHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, this.triggerHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ, this.triggerHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ, this.triggerHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ_ALL, this.triggerHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.triggerHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.triggerHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.triggerHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_CREATE, this.triggerHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_PREDICTION, this.triggerHandler);
+		this.triggerHandler = (e) => this.onTrigger(e as any);
+		PublicAPI.instance.addEventListener("CHAT_FEED_PAUSE", this.triggerHandler);
+		PublicAPI.instance.addEventListener("CHAT_FEED_UNPAUSE", this.triggerHandler);
+		PublicAPI.instance.addEventListener("CHAT_FEED_SCROLL_UP", this.triggerHandler);
+		PublicAPI.instance.addEventListener("CHAT_FEED_SCROLL_DOWN", this.triggerHandler);
+		PublicAPI.instance.addEventListener("CHAT_FEED_READ", this.triggerHandler);
+		PublicAPI.instance.addEventListener("GREET_FEED_READ", this.triggerHandler);
+		PublicAPI.instance.addEventListener("CHAT_FEED_READ_ALL", this.triggerHandler);
+		PublicAPI.instance.addEventListener("GREET_FEED_READ_ALL", this.triggerHandler);
+		PublicAPI.instance.addEventListener("VIEWERS_COUNT_TOGGLE", this.triggerHandler);
+		PublicAPI.instance.addEventListener("CENSOR_DELETED_MESSAGES_TOGGLE", this.triggerHandler);
+		PublicAPI.instance.addEventListener("POLL_CREATE", this.triggerHandler);
+		PublicAPI.instance.addEventListener("CREATE_PREDICTION", this.triggerHandler);
 	}
 
 	public beforeUnmount():void {
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_PAUSE, this.triggerHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_UNPAUSE, this.triggerHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SCROLL_UP, this.triggerHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, this.triggerHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_READ, this.triggerHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ, this.triggerHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_READ_ALL, this.triggerHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.GREET_FEED_READ_ALL, this.triggerHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.triggerHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.triggerHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_CREATE, this.triggerHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_PREDICTION, this.triggerHandler);
+		PublicAPI.instance.removeEventListener("CHAT_FEED_PAUSE", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("CHAT_FEED_UNPAUSE", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("CHAT_FEED_SCROLL_UP", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("CHAT_FEED_SCROLL_DOWN", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("CHAT_FEED_READ", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("GREET_FEED_READ", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("CHAT_FEED_READ_ALL", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("GREET_FEED_READ_ALL", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("VIEWERS_COUNT_TOGGLE", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("CENSOR_DELETED_MESSAGES_TOGGLE", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("POLL_CREATE", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("CREATE_PREDICTION", this.triggerHandler);
 	}
 
 	public addAction():void {
@@ -236,7 +236,7 @@ class VoiceTriggerList extends Vue {
 	 *
 	 * @param e
 	 */
-	public onTrigger(e:TwitchatEvent):void {
+	public onTrigger(e:TwitchatEvent<keyof TwitchatEventMap, TwitchatEventMap[keyof TwitchatEventMap]>):void {
 		const el = this.$refs[e.type] as ComponentPublicInstance[] | undefined;
 		if(el && el.length > 0 && el[0]!.$el != null) {
 			const div = (el[0]!.$el as HTMLDivElement).getElementsByClassName("header")[0]!;

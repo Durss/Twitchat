@@ -1,12 +1,10 @@
-import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { JsonObject } from 'type-fest';
-import type { UnwrapRef } from 'vue';
-import StoreProxy, { type IPredictionActions, type IPredictionGetters, type IPredictionState } from '../StoreProxy';
-import DataStore from '../DataStore';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
+import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { UnwrapRef } from 'vue';
+import DataStore from '../DataStore';
+import StoreProxy, { type IPredictionActions, type IPredictionGetters, type IPredictionState } from '../StoreProxy';
 
 export const storePrediction = defineStore('prediction', {
 	state: () => ({
@@ -61,7 +59,7 @@ export const storePrediction = defineStore('prediction', {
 			/**
 			 * Called when prediction overlay request for its configs
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
+			PublicAPI.instance.addEventListener("GET_PREDICTIONS_OVERLAY_PARAMETERS", ()=> {
 				this.broadcastState();
 			});
 		},
@@ -78,9 +76,9 @@ export const storePrediction = defineStore('prediction', {
 					StoreProxy.chat.addMessage(data);
 				}
 
-				PublicAPI.instance.broadcast(TwitchatEvent.PREDICTION_PROGRESS, {prediction: (data as unknown) as JsonObject});
+				PublicAPI.instance.broadcast("PREDICTION_PROGRESS", {prediction: data});
 			}else if(this.data){
-				PublicAPI.instance.broadcast(TwitchatEvent.PREDICTION_PROGRESS, {});
+				PublicAPI.instance.broadcast("PREDICTION_PROGRESS", undefined);
 			}
 
 			this.data = data;
@@ -89,14 +87,14 @@ export const storePrediction = defineStore('prediction', {
 		setOverlayParams(params:PredictionOverlayParamStoreData):void {
 			this.populateData(params);
 			DataStore.set(DataStore.PREDICTION_OVERLAY_PARAMS, this.overlayParams);
-			PublicAPI.instance.broadcast(TwitchatEvent.PREDICTIONS_OVERLAY_PARAMETERS, {parameters: (this.overlayParams as unknown) as JsonObject});
+			PublicAPI.instance.broadcast("PREDICTIONS_OVERLAY_PARAMETERS", {parameters: this.overlayParams});
 		},
 
 		broadcastState():void {
 			if(this.data) {
-				PublicAPI.instance.broadcast(TwitchatEvent.PREDICTION_PROGRESS, {prediction: (this.data as unknown) as JsonObject});
+				PublicAPI.instance.broadcast("PREDICTION_PROGRESS", {prediction: this.data});
 			}
-			PublicAPI.instance.broadcast(TwitchatEvent.PREDICTIONS_OVERLAY_PARAMETERS, {parameters: (this.overlayParams as unknown) as JsonObject});
+			PublicAPI.instance.broadcast("PREDICTIONS_OVERLAY_PARAMETERS", {parameters: this.overlayParams});
 		}
 	} as IPredictionActions
 	& ThisType<IPredictionActions
