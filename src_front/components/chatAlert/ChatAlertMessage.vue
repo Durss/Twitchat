@@ -9,11 +9,10 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { watch } from 'vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import PublicAPI from '@/utils/PublicAPI';
+import { watch } from 'vue';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
+import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
 
 @Component({
 	components:{
@@ -45,11 +44,11 @@ class ChatAlertMessage extends Vue {
 
 		this.apiCloseHandler = () => this.message = null;
 
-		PublicAPI.instance.addEventListener(TwitchatEvent.HIDE_ALERT, this.apiCloseHandler);
+		PublicAPI.instance.addEventListener("HIDE_ALERT", this.apiCloseHandler);
 	}
 
 	public beforeUnmount():void {
-		PublicAPI.instance.removeEventListener(TwitchatEvent.HIDE_ALERT, this.apiCloseHandler);
+		PublicAPI.instance.removeEventListener("HIDE_ALERT", this.apiCloseHandler);
 	}
 
 }

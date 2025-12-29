@@ -1,5 +1,5 @@
 import { Event, EventDispatcher } from "@/events/EventDispatcher";
-import type { TwitchatActionType, TwitchatEventType } from "@/events/TwitchatEvent";
+import type { TwitchatEventMap } from "@/events/TwitchatEvent";
 import DataStore from "@/store/DataStore";
 import { ref } from "vue";
 
@@ -28,7 +28,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 	}
 
 	public get ip():string {
-		const params = JSON.parse(DataStore.get(DataStore.STREAMDECK_PARAMS) || '{}');
+		const params:StoreData = JSON.parse(DataStore.get(DataStore.STREAMDECK_PARAMS) || '{}');
 		return params?.ip || "127.0.0.1";
 	}
 
@@ -62,9 +62,10 @@ export default class StreamdeckSocket extends EventDispatcher {
 			const address = ip ? `${protocol}${ip}:${port}` : `ws://127.0.0.1:${port}`;
 			if(isManualConnect) {
 				if(ip != "127.0.0.1") {
-					DataStore.set(DataStore.STREAMDECK_PARAMS, {
+					const data:StoreData = {
 						ip: ip || "",
-					});
+					}
+					DataStore.set(DataStore.STREAMDECK_PARAMS, data);
 				}else{
 					DataStore.remove(DataStore.STREAMDECK_PARAMS);
 				}
@@ -78,7 +79,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 
 			this._socket.onmessage = (event) => {
 				// console.log('Message from server ', event.data);
-				const args:{action:TwitchatActionType, data?:unknown} = JSON.parse(event.data);
+				const args:{action:keyof TwitchatEventMap, data?:TwitchatEventMap[keyof TwitchatEventMap]} = JSON.parse(event.data);
 				this.dispatchEvent(new StreamdeckSocketEvent(StreamdeckSocketEvent.MESSAGE, args));
 			};
 
@@ -105,10 +106,11 @@ export default class StreamdeckSocket extends EventDispatcher {
 	 *
 	 * @param message
 	 */
-	public broadcast(type:TwitchatEventType|TwitchatActionType, eventId:string, data?:unknown):void {
+	// public broadcast(type:TwitchatEventType|TwitchatActionType, eventId:string, data?:unknown):void {
+	public broadcast<Event extends keyof TwitchatEventMap>(type: Event, eventId:string, data?: TwitchatEventMap[Event]):void {
 		if(!this.connected.value) return;
 		// console.log('Broadcast message ', type);
-		this._socket.send(JSON.stringify({ type, data, id:eventId }));
+		this._socket.send(JSON.stringify({ type, data:data ? JSON.parse(JSON.stringify(data)) : undefined, id:eventId }));
 	}
 
 
@@ -118,10 +120,10 @@ export default class StreamdeckSocket extends EventDispatcher {
 	*******************/
 }
 
-export class StreamdeckSocketEvent extends Event {
+export class StreamdeckSocketEvent<Event extends keyof TwitchatEventMap> extends Event {
 	public static readonly MESSAGE = 'message';
 
-	constructor(type:string, public data?:{action:TwitchatActionType, data?:unknown}) {
+	constructor(type:string, public data?:{action:Event, data?:TwitchatEventMap[Event]}) {
 		super(type);
 	}
 
