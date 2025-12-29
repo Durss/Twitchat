@@ -1,4 +1,3 @@
-import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
@@ -7,10 +6,10 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import type { IEmergencyActions, IEmergencyGetters, IEmergencyState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
-import type {JsonObject} from 'type-fest';
 
 const userToPrevModState:{[key:string]:{[key:string]:boolean}} = {}
 
@@ -162,7 +161,7 @@ export const storeEmergency = defineStore('emergency', {
 			}
 
 			//Broadcast to any connected peers
-			PublicAPI.instance.broadcast(TwitchatEvent.EMERGENCY_MODE, {enabled:enable});
+			PublicAPI.instance.broadcast("EMERGENCY_MODE", {enabled:enable});
 		},
 
 		ignoreEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData) {

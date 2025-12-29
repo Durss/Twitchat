@@ -23,11 +23,10 @@
 </template>
 
 <script lang="ts">
-import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
-import type { JsonObject } from 'type-fest';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import AbstractChatMessage from './AbstractChatMessage';
@@ -85,16 +84,26 @@ class ChatMessageClipPending extends AbstractChatMessage {
 
 	public async highlight():Promise<void> {
 		this.highlighting = true;
-		const data:TwitchatDataTypes.ChatHighlightInfo = {
-			clip:this.messageData.clipData,
+		let clip:TwitchatDataTypes.ClipInfo|undefined = undefined;
+		let infos = await TwitchUtils.getClipById(this.messageData.clipID);
+		if(infos) {
+			clip = {
+				duration:infos.duration,
+				url:infos.embed_url,
+				// mp4:infos.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
+			}
+		}
+		const clipInfo:TwitchatDataTypes.ChatHighlightInfo = {
+			clip,
 			date:this.messageData.date,
 			message_id:this.messageData.id,
 			params:this.$store.chat.chatHighlightOverlayParams,
 			dateLabel:this.$store.i18n.tm("global.date_ago"),
 		}
+		
 		const exists = await Utils.getHighlightOverPresence();
 		if(exists) {
-			PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
+			PublicAPI.instance.broadcast("SHOW_CLIP", clipInfo);
 			this.$store.chat.highlightedMessageId = this.messageData.id;
 		}else{
 			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HIGHLIGHT);

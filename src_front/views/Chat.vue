@@ -203,19 +203,14 @@ import TrackedUsers from '@/components/tracked/TrackedUsers.vue';
 import TriggersLogs from '@/components/triggerslogs/TriggersLogs.vue';
 import DonorBadge from '@/components/user/DonorBadge.vue';
 import WhispersState from '@/components/whispers/WhispersState.vue';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import MessengerProxy from '@/messaging/MessengerProxy';
 import type { TriggerImportData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
-import PublicAPI from '@/utils/PublicAPI';
-import TriggerUtils from '@/utils/TriggerUtils';
 import Utils from '@/utils/Utils';
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch, type ComponentPublicInstance } from '@vue/runtime-core';
 import { gsap } from 'gsap/gsap-core';
-import type { JsonObject } from 'type-fest';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ChatAlertMessage from '../components/chatAlert/ChatAlertMessage.vue';
 import Gngngn from '../components/chatform/Gngngn.vue';
@@ -227,6 +222,8 @@ import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
 import ShareParams from './ShareParams.vue';
+import PublicAPI from '@/utils/PublicAPI';
+import type { TwitchatEventMap } from '@/events/TwitchatEvent';
 
 @Component({
 	components:{
@@ -324,7 +321,7 @@ class Chat extends Vue {
 	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private windowResizeHandler!:(e:Event)=> void;
-	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
+	private publicApiEventHandler!:(e:unknown)=> void;
 
 	public get splitViewVertical():boolean { return this.$store.params.appearance.splitViewVertical.value as boolean; }
 	public get showEmergencyFollows():boolean { return this.$store.emergency.follows.length > 0 && !this.$store.emergency.emergencyStarted; }
@@ -489,7 +486,7 @@ class Chat extends Vue {
 			this.$store.chat.emoteSelectorCache = [];
 		})
 
-		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
+		this.publicApiEventHandler = (e) => this.onPublicApiEvent(e as any);
 		this.mouseUpHandler = () => this.resizing = false;
 		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
 		this.windowResizeHandler = (e:Event) => this.computeChatFormHeight();
@@ -499,26 +496,26 @@ class Chat extends Vue {
 		document.addEventListener("mousemove", this.mouseMoveHandler);
 		document.addEventListener("touchmove", this.mouseMoveHandler);
 		window.addEventListener("resize", this.windowResizeHandler)
-		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.PREDICTION_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_CREATE, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_START, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_END, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.GET_COLS_COUNT, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CLEAR_CHAT_HIGHLIGHT, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_POLL, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_PREDICTION, this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.SEND_MESSAGE, this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("POLL_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("PREDICTION_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("BINGO_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("RAFFLE_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("VIEWERS_COUNT_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("MOD_TOOLS_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("CENSOR_DELETED_MESSAGES_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("POLL_CREATE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("RAFFLE_START", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("RAFFLE_END", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("START_EMERGENCY", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("STOP_EMERGENCY", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SHOUTOUT", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("GET_COLS_COUNT", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("CLEAR_CHAT_HIGHLIGHT", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("CREATE_POLL", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("CREATE_PREDICTION", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("STOP_POLL", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("STOP_PREDICTION", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SEND_MESSAGE", this.publicApiEventHandler);
 		requestWakeLock();
 
 		for (let i = 0; i < this.$store.params.chatColumnsConfig.length + 10; i++) {
@@ -550,25 +547,25 @@ class Chat extends Vue {
 		document.removeEventListener("mousemove", this.mouseMoveHandler);
 		document.removeEventListener("touchmove", this.mouseMoveHandler);
 		window.removeEventListener("resize", this.windowResizeHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTION_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.BINGO_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.RAFFLE_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.VIEWERS_COUNT_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.MOD_TOOLS_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.RAFFLE_START, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.RAFFLE_END, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.START_EMERGENCY, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_EMERGENCY, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.SHOUTOUT, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_COLS_COUNT, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CLEAR_CHAT_HIGHLIGHT, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_POLL, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CREATE_PREDICTION, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_POLL, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.STOP_PREDICTION, this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.SEND_MESSAGE, this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("POLL_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("PREDICTION_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("BINGO_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("RAFFLE_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("VIEWERS_COUNT_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("MOD_TOOLS_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("CENSOR_DELETED_MESSAGES_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("RAFFLE_START", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("RAFFLE_END", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("START_EMERGENCY", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("STOP_EMERGENCY", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SHOUTOUT", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("GET_COLS_COUNT", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("CLEAR_CHAT_HIGHLIGHT", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("CREATE_POLL", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("CREATE_PREDICTION", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("STOP_POLL", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("STOP_PREDICTION", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SEND_MESSAGE", this.publicApiEventHandler);
 	}
 
 	public closeDonorCard():void {
@@ -585,40 +582,59 @@ class Chat extends Vue {
 	 * Called when requesting an action from the public API
 	 * //TODO move this store, this has nothing to do here for the most part
 	 */
-	private async onPublicApiEvent(e:TwitchatEvent):Promise<void> {
+	private async onPublicApiEvent(e:{type:"POLL_TOGGLE", data:TwitchatEventMap["POLL_TOGGLE"]}
+| {type:"PREDICTION_TOGGLE", data:TwitchatEventMap["PREDICTION_TOGGLE"]}
+| {type:"BINGO_TOGGLE", data:TwitchatEventMap["BINGO_TOGGLE"]}
+| {type:"RAFFLE_TOGGLE", data:TwitchatEventMap["RAFFLE_TOGGLE"]}
+| {type:"VIEWERS_COUNT_TOGGLE", data:TwitchatEventMap["VIEWERS_COUNT_TOGGLE"]}
+| {type:"MOD_TOOLS_TOGGLE", data:TwitchatEventMap["MOD_TOOLS_TOGGLE"]}
+| {type:"CENSOR_DELETED_MESSAGES_TOGGLE", data:TwitchatEventMap["CENSOR_DELETED_MESSAGES_TOGGLE"]}
+| {type:"POLL_CREATE", data:TwitchatEventMap["POLL_CREATE"]}
+| {type:"RAFFLE_START", data:TwitchatEventMap["RAFFLE_START"]}
+| {type:"RAFFLE_END", data:TwitchatEventMap["RAFFLE_END"]}
+| {type:"START_EMERGENCY", data:TwitchatEventMap["START_EMERGENCY"]}
+| {type:"STOP_EMERGENCY", data:TwitchatEventMap["STOP_EMERGENCY"]}
+| {type:"SHOUTOUT", data:TwitchatEventMap["SHOUTOUT"]}
+| {type:"GET_COLS_COUNT", data:TwitchatEventMap["GET_COLS_COUNT"]}
+| {type:"CLEAR_CHAT_HIGHLIGHT", data:TwitchatEventMap["CLEAR_CHAT_HIGHLIGHT"]}
+| {type:"CREATE_POLL", data:TwitchatEventMap["CREATE_POLL"]}
+| {type:"CREATE_PREDICTION", data:TwitchatEventMap["CREATE_PREDICTION"]}
+| {type:"STOP_POLL", data:TwitchatEventMap["STOP_POLL"]}
+| {type:"STOP_PREDICTION", data:TwitchatEventMap["STOP_PREDICTION"]}
+| {type:"SEND_MESSAGE", data:TwitchatEventMap["SEND_MESSAGE"]}):Promise<void> {
 		let notif:TwitchatDataTypes.NotificationTypes = "";
 		let modal:TwitchatDataTypes.ModalTypes = "";
 
 		switch(e.type) {
-			case TwitchatEvent.POLL_TOGGLE: notif = 'poll'; break;
-			case TwitchatEvent.PREDICTION_TOGGLE: notif = 'prediction'; break;
-			case TwitchatEvent.BINGO_TOGGLE: notif = 'bingo'; break;
-			case TwitchatEvent.RAFFLE_TOGGLE: notif = 'raffle'; break;
-			case TwitchatEvent.VIEWERS_COUNT_TOGGLE:
+			case "POLL_TOGGLE": notif = 'poll'; break;
+			case "PREDICTION_TOGGLE": notif = 'prediction'; break;
+			case "BINGO_TOGGLE": notif = 'bingo'; break;
+			case "RAFFLE_TOGGLE": notif = 'raffle'; break;
+			case "VIEWERS_COUNT_TOGGLE":
 				this.$store.params.appearance.showViewersCount.value = !this.$store.params.appearance.showViewersCount.value;
 				this.$store.params.updateParams();
 				break;
 
-			case TwitchatEvent.MOD_TOOLS_TOGGLE:
+			case "MOD_TOOLS_TOGGLE":
 				this.$store.params.features.showModTools.value = !this.$store.params.features.showModTools.value;
 				this.$store.params.updateParams();
 				break;
 
-			case TwitchatEvent.GET_COLS_COUNT:
-				PublicAPI.instance.broadcast(TwitchatEvent.SET_COLS_COUNT,{count:this.$store.params.chatColumnsConfig.length});
+			case "GET_COLS_COUNT":
+				PublicAPI.instance.broadcast("SET_COLS_COUNT", {count:this.$store.params.chatColumnsConfig.length});
 				break;
 
-			case TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE:
+			case "CENSOR_DELETED_MESSAGES_TOGGLE":
 				this.$store.params.appearance.censorDeletedMessages.value = !this.$store.params.appearance.censorDeletedMessages.value;
 				this.$store.params.updateParams();
 				break;
 
-			case TwitchatEvent.CREATE_POLL:
+			case "CREATE_POLL":
 				this.$store.params.openModal('poll');
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
-			case TwitchatEvent.STOP_POLL:{
+			case "STOP_POLL":{
 				const poll = this.$store.poll.data;
 				if(!poll) return;
 				try {
@@ -629,12 +645,12 @@ class Chat extends Vue {
 				break;
 			}
 
-			case TwitchatEvent.CREATE_PREDICTION:
+			case "CREATE_PREDICTION":
 				this.$store.params.openModal('pred');
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
-			case TwitchatEvent.STOP_PREDICTION:{
+			case "STOP_PREDICTION":{
 				const prediction = this.$store.prediction.data;
 				if(!prediction) return;
 				try {
@@ -645,13 +661,13 @@ class Chat extends Vue {
 				break;
 			}
 
-			case TwitchatEvent.RAFFLE_START:{
+			case "RAFFLE_START":{
 				this.$store.params.openModal('raffle');
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
 			}
-			case TwitchatEvent.RAFFLE_END:{
+			case "RAFFLE_END":{
 				this.$confirm(this.$t("raffle.delete_confirm.title"), this.$t("raffle.delete_confirm.description"), undefined, undefined, undefined, true)
 				.then(async ()=> {
 					//TODO see if i can adapt this to the new system allowing to create
@@ -664,26 +680,25 @@ class Chat extends Vue {
 				break;
 			}
 
-			case TwitchatEvent.START_EMERGENCY:{
+			case "START_EMERGENCY":{
 				this.$confirm(this.$t("emergency.enable_confirm"), undefined, undefined, undefined, undefined, true).then(()=>{
 					this.$store.emergency.setEmergencyMode(true);
 				}).catch(()=>{});
 				break;
 			}
-			case TwitchatEvent.STOP_EMERGENCY:{
+			case "STOP_EMERGENCY":{
 				this.$store.emergency.setEmergencyMode(false);
 				break;
 			}
 
-			case TwitchatEvent.CLEAR_CHAT_HIGHLIGHT: {
+			case "CLEAR_CHAT_HIGHLIGHT": {
 				this.$store.chat.highlightChatMessageOverlay();
 				break;
 			}
 
-			case TwitchatEvent.SEND_MESSAGE: {
-				const message = (e.data as JsonObject).message as string;
-				if(message) {
-					MessengerProxy.instance.sendMessage(message);
+			case "SEND_MESSAGE": {
+				if(e.data.message && e.data.message.trim().length > 0) {
+					MessengerProxy.instance.sendMessage(e.data.message);
 				}
 				break;
 			}
