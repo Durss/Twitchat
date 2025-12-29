@@ -1,6 +1,5 @@
 import { TranslatableLanguagesMap } from "@/TranslatableLanguages";
 import ContextMenuTimeoutDuration from "@/components/messages/components/ContextMenuTimeoutDuration.vue";
-import TwitchatEvent from "@/events/TwitchatEvent";
 import MessengerProxy from "@/messaging/MessengerProxy";
 import DataStore from "@/store/DataStore";
 import Database from "@/store/Database";

@@ -1,5 +1,4 @@
 import SSEEvent from '@/events/SSEEvent';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
 import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerTypes, VALUE_PLACEHOLDER_PREFIX, type SocketParams, type TriggerActionTypes, type TriggerData, type TriggerTreeItemData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -140,9 +139,8 @@ export const storeTriggers = defineStore('triggers', {
 				TriggerActionHandler.instance.executeTrigger(trigger, message, false, undefined, undefined, placeholders);
 			});
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.EXECUTE_TRIGGER, (e:TwitchatEvent) => {
-				const id = (e.data as JsonObject).triggerId as string;
-				const trigger = this.triggerList.find(v=>v.id == id);
+			PublicAPI.instance.addEventListener("EXECUTE_TRIGGER", (e) => {
+				const trigger = this.triggerList.find(v=>v.id == e.data.triggerId);
 				if(trigger) {
 					const me = StoreProxy.auth.twitch.user;
 					const fakeMessage:TwitchatDataTypes.MessageChatData = {
@@ -162,9 +160,9 @@ export const storeTriggers = defineStore('triggers', {
 					TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, false);
 				}
 			});
-			PublicAPI.instance.addEventListener(TwitchatEvent.TOGGLE_TRIGGER, (e:TwitchatEvent) => {
-				const id = (e.data as JsonObject).triggerId as string;
-				const action = (e.data as JsonObject).triggerAction as string || "enable";
+			PublicAPI.instance.addEventListener("TOGGLE_TRIGGER", (e) => {
+				const id = e.data.triggerId;
+				const action = e.data.triggerAction || "enable";
 				const trigger = this.triggerList.find(v=>v.id == id);
 				if(trigger) {
 					switch(action.toLowerCase()){
@@ -175,7 +173,7 @@ export const storeTriggers = defineStore('triggers', {
 				}
 				this.saveTriggers();
 			});
-			PublicAPI.instance.addEventListener(TwitchatEvent.TRIGGERS_GET_ALL, (e:TwitchatEvent) => this.broadcastTriggerList());
+			PublicAPI.instance.addEventListener("TRIGGERS_GET_ALL", () => this.broadcastTriggerList());
 		},
 
 		openTriggerEdition(data:TriggerData) {
@@ -475,7 +473,7 @@ export const storeTriggers = defineStore('triggers', {
 					name:TriggerUtils.getTriggerDisplayInfo(v).label,
 				}
 			});
-			PublicAPI.instance.broadcast(TwitchatEvent.TRIGGER_LIST, {triggers});
+			PublicAPI.instance.broadcast("TRIGGER_LIST", {triggers});
 		},
 
 	} as ITriggersActions

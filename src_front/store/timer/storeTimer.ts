@@ -2,12 +2,12 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
+import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
 import Utils from '@/utils/Utils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import StoreProxy, { type ITimerActions, type ITimerGetters, type ITimerState } from '../StoreProxy';
-import SetTimeoutWorker from '@/utils/SetTimeoutWorker';
 
 const countdownTO:Record<string, string> = {};
 const getDefaultStyle = ():TwitchatDataTypes.TimerData["overlayParams"] => {
@@ -102,7 +102,7 @@ export const storeTimer = defineStore('timer', {
 			/**
 			 * Called when timer overlay requests for a timer info
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, (event:TwitchatEvent<{ id?:string }>)=> {
+			PublicAPI.instance.addEventListener("GET_CURRENT_TIMERS", (event)=> {
 				if(event.data?.id) {
 					this.broadcastStates(event.data.id);
 				}else{
@@ -115,7 +115,7 @@ export const storeTimer = defineStore('timer', {
 			});
 
 
-			const timerAddHandler = (event:TwitchatEvent<{ timeAdd:string, timerId?:string }>)=> {
+			const timerAddHandler = (event:TwitchatEvent<"TIMER_ADD" | "COUNTDOWN_ADD">)=> {
 				const durationStr = event.data?.timeAdd ?? "0";
 				const defaultTimer = this.timerList.find(v=>v.type == 'timer' && v.isDefault);
 				const timerId = event.data?.timerId ?? defaultTimer?.id;
@@ -129,10 +129,10 @@ export const storeTimer = defineStore('timer', {
 				}
 			}
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.TIMER_ADD, timerAddHandler);
-			PublicAPI.instance.addEventListener(TwitchatEvent.COUNTDOWN_ADD, timerAddHandler);
+			PublicAPI.instance.addEventListener("TIMER_ADD", timerAddHandler);
+			PublicAPI.instance.addEventListener("COUNTDOWN_ADD", timerAddHandler);
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_TIMER_LIST, ()=> this.broadcastTimerList());
+			PublicAPI.instance.addEventListener("GET_TIMER_LIST", ()=> this.broadcastTimerList());
 		},
 
 		broadcastStates(id?:string) {
@@ -140,11 +140,11 @@ export const storeTimer = defineStore('timer', {
 				if(id && entry.id !== id) continue;
 
 				if(entry.type === "timer") {
-					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, entry);
+					PublicAPI.instance.broadcast("TIMER_START", entry);
 				}
 
 				if(entry.type === "countdown") {
-					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_START, entry);
+					PublicAPI.instance.broadcast("COUNTDOWN_START", entry);
 				}
 			}
 		},
@@ -309,7 +309,7 @@ export const storeTimer = defineStore('timer', {
 						stopped:true,
 					};
 					message = data;
-					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, entry);
+					PublicAPI.instance.broadcast("TIMER_STOP", entry);
 					break;
 				}
 				case "countdown":{
@@ -336,7 +336,7 @@ export const storeTimer = defineStore('timer', {
 						finalDuration_str,
 					};
 					message = data;
-					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, entry);
+					PublicAPI.instance.broadcast("COUNTDOWN_COMPLETE", entry);
 					break;
 				}
 			}
@@ -352,9 +352,9 @@ export const storeTimer = defineStore('timer', {
 			if(countdownTO[entry.id]) SetTimeoutWorker.instance.delete(countdownTO[entry.id]!);
 			if(entry.startAt_ms) {
 				if(entry.type == "timer") {
-					PublicAPI.instance.broadcast(TwitchatEvent.TIMER_STOP, entry);
+					PublicAPI.instance.broadcast("TIMER_STOP", entry);
 				}else if(entry.type == "countdown") {
-					PublicAPI.instance.broadcast(TwitchatEvent.COUNTDOWN_COMPLETE, entry);
+					PublicAPI.instance.broadcast("COUNTDOWN_COMPLETE", entry);
 				}
 			}
 			delete entry.pausedAt_ms
@@ -426,7 +426,7 @@ export const storeTimer = defineStore('timer', {
 		},
 
 		broadcastTimerList() {
-			PublicAPI.instance.broadcast(TwitchatEvent.TIMER_LIST, {timers:this.timerList.map(c=> ({
+			PublicAPI.instance.broadcast("TIMER_LIST", {timers:this.timerList.map(c=> ({
 				id:c.id,
 				title:c.title,
 				enabled:c.enabled,
