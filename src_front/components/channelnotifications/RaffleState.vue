@@ -88,17 +88,16 @@
 </template>
 
 <script lang="ts">
-import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket, {type OBSSourceItem} from '@/utils/OBSWebsocket';
+import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import { gsap } from 'gsap/gsap-core';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
+import Icon from '../Icon.vue';
 import ProgressBar from '../ProgressBar.vue';
 import TTButton from '../TTButton.vue';
-import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
-import { gsap } from 'gsap/gsap-core';
 import ParamItem from '../params/ParamItem.vue';
-import Icon from '../Icon.vue';
+import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 
 
 @Component({
@@ -200,7 +199,7 @@ class RaffleState extends Vue {
 		this.winnerPlaceholders	= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store.auth.twitch.user.displayName}];
 		this.raffleData			= this.availableRaffleList.length > 0? this.availableRaffleList[0]! : null;
 		//Check if wheel's overlay exists
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
+		PublicAPI.instance.broadcast("GET_WHEEL_OVERLAY_PRESENCE");
 	}
 
 	public mounted():void {

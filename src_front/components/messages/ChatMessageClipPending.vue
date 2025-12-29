@@ -23,14 +23,12 @@
 </template>
 
 <script lang="ts">
-import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import type { JsonObject } from 'type-fest';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import { Component, Prop, toNative } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import AbstractChatMessage from './AbstractChatMessage';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Component({
 	components:{
@@ -92,14 +90,14 @@ class ChatMessageClipPending extends AbstractChatMessage {
 				// mp4:infos.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
 			}
 		}
-		const data:TwitchatDataTypes.ChatHighlightInfo = {
+		const clipInfo:TwitchatDataTypes.ChatHighlightInfo = {
 			clip,
 			date:this.messageData.date,
 			message_id:this.messageData.id,
 			params:this.$store.chat.chatHighlightOverlayParams,
 			dateLabel:this.$store.i18n.tm("global.date_ago"),
 		}
-		PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
+		PublicAPI.instance.broadcast("SHOW_CLIP", clipInfo);
 		this.$store.chat.highlightedMessageId = this.messageData.id;
 	}
 

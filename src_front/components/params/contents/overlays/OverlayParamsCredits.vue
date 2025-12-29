@@ -275,17 +275,15 @@ import Icon from '@/components/Icon.vue';
 import PremiumLockLayer from '@/components/PremiumLockLayer.vue';
 import Splitter from '@/components/Splitter.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
-import TwitchatEvent from '@/events/TwitchatEvent';
-import DataStore from '@/store/DataStore';
+import StoreProxy from '@/store/StoreProxy';
+import type { IPatreonTier } from '@/store/patreon/storePatreon';
 import { TriggerEventPlaceholders, TriggerTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import TriggerUtils from '@/utils/TriggerUtils';
 import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import type { JsonObject } from "type-fest";
 import { watch } from 'vue';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
@@ -293,8 +291,6 @@ import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
-import type { IPatreonTier } from '@/store/patreon/storePatreon';
-import StoreProxy from '@/store/StoreProxy';
 
 @Component({
 	components:{
@@ -461,7 +457,7 @@ class OverlayParamsCredits extends Vue {
 			this.checkingOverlayPresence = false;
 			clearTimeout(this.subcheckTimeout);
 		};
-		PublicAPI.instance.addEventListener(TwitchatEvent.CREDITS_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.addEventListener("CREDITS_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 
 		//Regularly check if the overlay exists
 		this.getOverlayPresence(true);
@@ -473,7 +469,7 @@ class OverlayParamsCredits extends Vue {
 	public beforeUnmount():void {
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.CREDITS_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("CREDITS_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 	}
 
 	/**
@@ -481,7 +477,7 @@ class OverlayParamsCredits extends Vue {
 	 */
 	public getOverlayPresence(showLoader:boolean = false):void {
 		if(showLoader) this.checkingOverlayPresence = true;
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_CREDITS_OVERLAY_PRESENCE);
+		PublicAPI.instance.broadcast("GET_CREDITS_OVERLAY_PRESENCE");
 		clearTimeout(this.subcheckTimeout);
 		//If after 1,5s the overlay didn't answer, assume it doesn't exist
 		this.subcheckTimeout = window.setTimeout(()=>{
@@ -760,7 +756,7 @@ class OverlayParamsCredits extends Vue {
 	public async testCredits():Promise<void> {
 		this.sendingSummaryData = true;
 		const summary = await this.$store.stream.getSummary(undefined, true, true);
-		PublicAPI.instance.broadcast(TwitchatEvent.SUMMARY_DATA, (summary as unknown) as JsonObject);
+		PublicAPI.instance.broadcast("SUMMARY_DATA", summary);
 		this.sendingSummaryData = false;
 	}
 
@@ -768,7 +764,7 @@ class OverlayParamsCredits extends Vue {
 	 * Scrolls to
 	 */
 	public async scrollTo(id:string):Promise<void> {
-		PublicAPI.instance.broadcast(TwitchatEvent.ENDING_CREDITS_CONTROL, {scrollTo:id});
+		PublicAPI.instance.broadcast("ENDING_CREDITS_CONTROL", {scrollTo:id});
 	}
 
 	/**
