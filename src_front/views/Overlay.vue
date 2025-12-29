@@ -22,13 +22,12 @@
 </template>
 
 <script lang="ts">
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import Utils from '@/utils/Utils';
-import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/events/TwitchatEvent';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { defineAsyncComponent, type ComponentPublicInstance } from 'vue';
 import { type OverlayBingoGrid as OverlayBingoGridClass } from '@/components/overlays/OverlayBingoGrid.vue';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import PublicAPI from '@/utils/PublicAPI';
+import Utils from '@/utils/Utils';
+import { defineAsyncComponent, type ComponentPublicInstance } from 'vue';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
 const OverlayBitsWall = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayBitsWall.vue')})
 const OverlayHeatDebug = defineAsyncComponent({loader: () => import('../components/overlays/OverlayHeatDebug.vue')});
 const OverlayEndingCredits = defineAsyncComponent({loader: () => import('../components/overlays/OverlayEndingCredits.vue')});
@@ -116,7 +115,7 @@ class Overlay extends Vue {
 			px <= bounds.right &&
 			py >= bounds.top &&
 			py <= bounds.bottom) {
-				PublicAPI.instance.broadcast(TwitchatEvent.MUSIC_PLAYER_HEAT_CLICK, event.detail);
+				PublicAPI.instance.broadcast("MUSIC_PLAYER_HEAT_CLICK", event.detail);
 			}
 		}
 

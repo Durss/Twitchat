@@ -70,20 +70,20 @@ class OverlayTimer extends AbstractOverlay {
 	private timerData:TwitchatDataTypes.TimerData|null = null;
 	private countdownData:TwitchatDataTypes.TimerData|null = null;
 
-	private timerEventHandler!:(e:TwitchatEvent)=>void;
-	private countdownEventHandler!:(e:TwitchatEvent)=>void;
-	private timerPresenceHandler!:(e:TwitchatEvent)=>void;
+	private timerEventHandler!:(e:TwitchatEvent<"TIMER_START" | "TIMER_STOP">)=>void;
+	private countdownEventHandler!:(e:TwitchatEvent<"COUNTDOWN_START" | "COUNTDOWN_COMPLETE">)=>void;
+	private timerPresenceHandler!:()=>void;
 
 	public beforeMount():void {
-		this.timerEventHandler = (e:TwitchatEvent)=>this.onTimerEvent(e);
-		this.countdownEventHandler = (e:TwitchatEvent)=>this.onCountdownEvent(e);
-		this.timerPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.TIMER_OVERLAY_PRESENCE); }
+		this.timerEventHandler = (e)=>this.onTimerEvent(e);
+		this.countdownEventHandler = (e)=>this.onCountdownEvent(e);
+		this.timerPresenceHandler = ()=>{ PublicAPI.instance.broadcast("TIMER_OVERLAY_PRESENCE"); }
 
-		PublicAPI.instance.addEventListener(TwitchatEvent.TIMER_START, this.timerEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.TIMER_STOP, this.timerEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTDOWN_START, this.countdownEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.COUNTDOWN_COMPLETE, this.countdownEventHandler);
-		PublicAPI.instance.addEventListener(TwitchatEvent.GET_TIMER_OVERLAY_PRESENCE, this.timerPresenceHandler);
+		PublicAPI.instance.addEventListener("TIMER_START", this.timerEventHandler);
+		PublicAPI.instance.addEventListener("TIMER_STOP", this.timerEventHandler);
+		PublicAPI.instance.addEventListener("COUNTDOWN_START", this.countdownEventHandler);
+		PublicAPI.instance.addEventListener("COUNTDOWN_COMPLETE", this.countdownEventHandler);
+		PublicAPI.instance.addEventListener("GET_TIMER_OVERLAY_PRESENCE", this.timerPresenceHandler);
 
 		this.intervalUpdate = window.setInterval(()=>{ this.computeValues() }, 100);
 
@@ -95,11 +95,11 @@ class OverlayTimer extends AbstractOverlay {
 
 	public beforeUnmount():void {
 		clearTimeout(this.intervalUpdate);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.TIMER_START, this.timerEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.TIMER_STOP, this.timerEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTDOWN_START, this.countdownEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.COUNTDOWN_COMPLETE, this.countdownEventHandler);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_TIMER_OVERLAY_PRESENCE, this.timerPresenceHandler);
+		PublicAPI.instance.removeEventListener("TIMER_START", this.timerEventHandler);
+		PublicAPI.instance.removeEventListener("TIMER_STOP", this.timerEventHandler);
+		PublicAPI.instance.removeEventListener("COUNTDOWN_START", this.countdownEventHandler);
+		PublicAPI.instance.removeEventListener("COUNTDOWN_COMPLETE", this.countdownEventHandler);
+		PublicAPI.instance.removeEventListener("GET_TIMER_OVERLAY_PRESENCE", this.timerPresenceHandler);
 		if(this.styleNode) {
 			document.head.removeChild(this.styleNode);
 			this.styleNode = null;
@@ -107,17 +107,17 @@ class OverlayTimer extends AbstractOverlay {
 	}
 
 	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_CURRENT_TIMERS, {id:this.overlayId});
+		PublicAPI.instance.broadcast("GET_CURRENT_TIMERS", {id:this.overlayId});
 	}
 
-	public async onTimerEvent(e:TwitchatEvent):Promise<void> {
-		const data = (e.data as unknown) as TwitchatDataTypes.TimerData;
+	public async onTimerEvent(e:TwitchatEvent<"TIMER_START" | "TIMER_STOP">):Promise<void> {
+		const data = e.data;
 		if(data.id != this.overlayId
 		&& !(data.isDefault && this.overlayId == "")) return;
 
 		if(this.$refs.timer) gsap.killTweensOf(this.$refs.timer as HTMLDivElement);
 
-		if(e.type == TwitchatEvent.TIMER_START) {
+		if(e.type == "TIMER_START") {
 			this.timerData = data;
 			const wasVisible = this.timerValue != "";
 			this.computeValues();
@@ -146,15 +146,14 @@ class OverlayTimer extends AbstractOverlay {
 		}`;
 	}
 
-	public async onCountdownEvent(e:TwitchatEvent):Promise<void> {
-		const data = (e.data as unknown) as TwitchatDataTypes.TimerData;
-		if(data.id != this.overlayId
-		&& !(data.isDefault && this.overlayId == ""))	return;
+	public async onCountdownEvent(e:TwitchatEvent<"COUNTDOWN_START" | "COUNTDOWN_COMPLETE">):Promise<void> {
+		if(e.data.id != this.overlayId
+		&& !(e.data.isDefault && this.overlayId == ""))	return;
 
 		if(this.$refs.countdown) gsap.killTweensOf(this.$refs.countdown as HTMLDivElement);
 
-		if(e.type == TwitchatEvent.COUNTDOWN_START) {
-			this.countdownData = data;
+		if(e.type == "COUNTDOWN_START") {
+			this.countdownData = e.data;
 			const wasVisible = this.countdownValue != "";
 			this.computeValues();
 			if(!wasVisible || this.countdownHidding){
@@ -173,7 +172,7 @@ class OverlayTimer extends AbstractOverlay {
 			}});
 		}
 
-		this.configCountdown = data.overlayParams;
+		this.configCountdown = e.data.overlayParams;
 
 		this.styleNode!.innerHTML = `
 		@font-face {

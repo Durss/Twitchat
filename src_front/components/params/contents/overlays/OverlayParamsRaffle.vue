@@ -47,19 +47,16 @@
 
 <script lang="ts">
 import Icon from '@/components/Icon.vue';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import type { JsonObject } from "type-fest";
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import { Component, toNative, Vue } from 'vue-facing-decorator';
 import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
-import StoreProxy from '@/store/StoreProxy';
-import Config from '@/utils/Config';
 
 @Component({
 	components:{
@@ -85,7 +82,7 @@ class OverlayParamsRaffle extends Vue {
 			this.checkingOverlayPresence = false;
 			clearTimeout(this.subcheckTimeout);
 		};
-		PublicAPI.instance.addEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.addEventListener("WHEEL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 
 		//Regularly check if the overlay exists
 		this.checkInterval = window.setInterval(()=>this.getOverlayPresence(), 2000);
@@ -94,7 +91,7 @@ class OverlayParamsRaffle extends Vue {
 	public beforeUnmount():void {
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
-		PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("WHEEL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 	}
 
 	/**
@@ -102,7 +99,7 @@ class OverlayParamsRaffle extends Vue {
 	 */
 	public getOverlayPresence(showLoader:boolean = false):void {
 		if(showLoader) this.checkingOverlayPresence = true;
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
+		PublicAPI.instance.broadcast("GET_WHEEL_OVERLAY_PRESENCE");
 		clearTimeout(this.subcheckTimeout);
 		//If after 1,5s the overlay didn't answer, assume it doesn't exist
 		this.subcheckTimeout = window.setTimeout(()=>{
@@ -132,7 +129,7 @@ class OverlayParamsRaffle extends Vue {
 			winner: Utils.pickRand(items).id,
 			skin: Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default",
 		}
-		PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (data as unknown) as JsonObject);
+		PublicAPI.instance.broadcast("WHEEL_OVERLAY_START", data);
 		await Utils.promisedTimeout(100);
 		this.loading = false;
 	}

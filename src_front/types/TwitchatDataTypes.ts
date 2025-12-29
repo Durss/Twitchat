@@ -1910,7 +1910,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Available user badge types
 	 */
-	export type TwitchatUserBadgeType = "predictions" | "subscriber" | "vip" | "premium" | "moderator" | "staff" | "broadcaster" | "partner" | "founder" | "ambassador";
+	export type TwitchatUserBadgeType = "predictions" | "subscriber" | "vip" | "premium" | "moderator" | "lead_moderator" | "staff" | "broadcaster" | "partner" | "founder" | "ambassador";
 
 	/**
 	 * Represents the info about a a custom user's badge

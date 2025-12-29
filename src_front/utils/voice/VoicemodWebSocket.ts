@@ -1,11 +1,10 @@
-import TwitchatEvent from "@/events/TwitchatEvent";
-import { reactive, ref } from "vue";
+import StoreProxy from "@/store/StoreProxy";
+import { ref } from "vue";
 import { EventDispatcher } from "../../events/EventDispatcher";
 import PublicAPI from "../PublicAPI";
 import Utils from "../Utils";
 import VoicemodEvent from "./VoicemodEvent";
 import type { VoicemodTypes } from "./VoicemodTypes";
-import StoreProxy from "@/store/StoreProxy";
 
 /**
 * Created : 25/07/2021
@@ -464,7 +463,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 		StoreProxy.voice.voicemodCurrentVoice = this._currentVoiceEffect;
 		StoreProxy.labels.updateLabelValue("VOICEMOD_EFFECT_TITLE", voice.friendlyName);
 		StoreProxy.labels.updateLabelValue("VOICEMOD_EFFECT_ICON",  "data:image/png;base64,"+voice.image || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==");
-		PublicAPI.instance.broadcast(TwitchatEvent.VOICEMOD_CHANGE, {voice:voice.id});
+		PublicAPI.instance.broadcast("VOICEMOD_VOICE_CHANGE", {voice:voice.id});
 		this.dispatchEvent(new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, voice.id, voice.friendlyName));
 	}
 
