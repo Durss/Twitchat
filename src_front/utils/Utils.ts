@@ -1144,15 +1144,15 @@ export default class Utils {
 		return new Promise((resolve, reject)=> {
 			const timeout = window.setTimeout(() =>{
 				resolve(false);
-				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
+				PublicAPI.instance.removeEventListener("GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
 			}, 1000)
-			let handler = (e:TwitchatEvent)=> {
+			let handler = ()=> {
 				clearTimeout(timeout)
 				resolve(true);
-				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
+				PublicAPI.instance.removeEventListener("GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
 			}
-			PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
-			PublicAPI.instance.broadcast(TwitchatEvent.GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE);
+			PublicAPI.instance.addEventListener("CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
+			PublicAPI.instance.broadcast("GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE");
 		})
 	}
 	

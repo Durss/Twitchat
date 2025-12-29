@@ -1,4 +1,3 @@
-import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
@@ -36,7 +35,7 @@ export const storeAnimatedText = defineStore('animatedtext', {
 			/**
 			 * Called when animated text overlay requests for a animated text configs
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_ANIMATED_TEXT_CONFIGS, (event:TwitchatEvent<{ id?:string }>)=> {
+			PublicAPI.instance.addEventListener("GET_ANIMATED_TEXT_CONFIGS", (event)=> {
 				if(event.data?.id) {
 					this.broadcastStates(event.data.id);
 				}else{
@@ -50,7 +49,7 @@ export const storeAnimatedText = defineStore('animatedtext', {
 			/**
 			 * Called when animated text overlay completes hide animation
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.ANIMATED_TEXT_HIDE_COMPLETE, (event:TwitchatEvent<{ queryId?:string }>)=> {
+			PublicAPI.instance.addEventListener("ANIMATED_TEXT_HIDE_COMPLETE", (event)=> {
 				if(event.data?.queryId) {
 					const resolver = queryIdToResolver.get(event.data?.queryId);
 					if(resolver) resolver();
@@ -60,7 +59,7 @@ export const storeAnimatedText = defineStore('animatedtext', {
 			/**
 			 * Called when animated text overlay completes show animation
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.ANIMATED_TEXT_SHOW_COMPLETE, (event:TwitchatEvent<{ queryId?:string }>)=> {
+			PublicAPI.instance.addEventListener("ANIMATED_TEXT_SHOW_COMPLETE", (event)=> {
 				if(event.data?.queryId) {
 					const resolver = queryIdToResolver.get(event.data?.queryId);
 					if(resolver) resolver();
@@ -71,7 +70,7 @@ export const storeAnimatedText = defineStore('animatedtext', {
 		broadcastStates(id?:string) {
 			for (const entry of this.animatedTextList) {
 				if(id && entry.id !== id || !entry.enabled) continue;
-				PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_CONFIGS, entry);
+				PublicAPI.instance.broadcast("ANIMATED_TEXT_CONFIGS", entry);
 			}
 		},
 
@@ -114,7 +113,7 @@ export const storeAnimatedText = defineStore('animatedtext', {
 			return new Promise<void>((resolve, reject)=> {
 				const queryId:string = Utils.getUUID();
 				queryIdToResolver.set(queryId, resolve);
-				PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_SET, {overlayId, queryId, text, autoHide, bypassAll});
+				PublicAPI.instance.broadcast("ANIMATED_TEXT_SET", {overlayId, queryId, text, autoHide, bypassAll});
 			});
 		},
 
@@ -122,7 +121,7 @@ export const storeAnimatedText = defineStore('animatedtext', {
 			return new Promise<void>((resolve, reject)=> {
 				const queryId:string = Utils.getUUID();
 				queryIdToResolver.set(queryId, resolve);
-				PublicAPI.instance.broadcast(TwitchatEvent.ANIMATED_TEXT_CLOSE, {overlayId, queryId});
+				PublicAPI.instance.broadcast("ANIMATED_TEXT_CLOSE", {overlayId, queryId});
 		});
 		},
 	} as IAnimatedTextActions

@@ -1,4 +1,3 @@
-import TwitchatEvent from '@/events/TwitchatEvent';
 import { rebuildPlaceholdersCache, type TriggerActionCountDataAction } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
@@ -36,22 +35,21 @@ export const storeCounters = defineStore('counters', {
 				Utils.mergeRemoteObject(JSON.parse(countersParams), (this.counterList as unknown) as JsonObject);
 			}
 			
-			PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_ADD, (e:TwitchatEvent) => {
-				const id = (e.data as JsonObject).counterId as string;
-				const action = (e.data as JsonObject).counterAction as TriggerActionCountDataAction;
-				const value = parseInt((e.data as JsonObject).countAdd as string);
+			PublicAPI.instance.addEventListener("COUNTER_ADD", (e) => {
+				const id = e.data.counterId;
+				const action = e.data.counterAction;
+				const value = parseInt(e.data.countAdd);
 				const counter = this.counterList.find(v=>v.id == id);
 				if(counter && !isNaN(value)) {
 					this.increment(id, action || "ADD", value);
 				}
 			});
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_GET, (e:TwitchatEvent) => {
-				const id = (e.data as JsonObject).cid as string;
-				this.broadcastCounterValue(id);
+			PublicAPI.instance.addEventListener("COUNTER_GET", (e) => {
+				this.broadcastCounterValue(e.data.cid);
 			});
 			
-			PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_GET_ALL, (e:TwitchatEvent) => {
+			PublicAPI.instance.addEventListener("COUNTER_GET_ALL", () => {
 				const counters = this.counterList.map(v=> {
 					return {
 						id:v.id,
@@ -60,7 +58,7 @@ export const storeCounters = defineStore('counters', {
 					}
 				});
 				if(counters) {
-					PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_LIST, {counters});
+					PublicAPI.instance.broadcast("COUNTER_LIST", {counters});
 				}
 			});
 		},
@@ -122,7 +120,7 @@ export const storeCounters = defineStore('counters', {
 					counter.leaderboard = [];
 					if(users.length == 0) {
 						//If there are no user, broadcast right away
-						PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter} as unknown as JsonObject);
+						PublicAPI.instance.broadcast("COUNTER_UPDATE", {counter});
 					}else{
 						///...otherwise load users details
 						users.forEach(v=> {
@@ -151,7 +149,7 @@ export const storeCounters = defineStore('counters', {
 										if(a.points < b.points) return 1;
 										return 0;
 									})
-									PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter} as unknown as JsonObject);
+									PublicAPI.instance.broadcast("COUNTER_UPDATE", {counter:counter!});
 								}
 							}, undefined, undefined, undefined, false);
 						})
@@ -159,7 +157,7 @@ export const storeCounters = defineStore('counters', {
 				}else{
 					//Tell overlays potentially using this value to update
 					StoreProxy.labels.broadcastPlaceholders();
-					PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_UPDATE, {counter} as unknown as JsonObject);
+					PublicAPI.instance.broadcast("COUNTER_UPDATE", {counter});
 				}
 				StoreProxy.donationGoals.onSourceValueUpdate("counter", id);
 			}, 250);
@@ -317,7 +315,7 @@ export const storeCounters = defineStore('counters', {
 				}
 			});
 			if(counters) {
-				PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_LIST, {counters});
+				PublicAPI.instance.broadcast("COUNTER_LIST", {counters});
 			}
 		}
 

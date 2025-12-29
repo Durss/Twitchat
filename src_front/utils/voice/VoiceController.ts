@@ -1,9 +1,9 @@
+import type { TwitchatEventMap } from "@/events/TwitchatEvent";
 import type SpeechRecognition from "@/ISpeechRecognition";
 import { storeVoice } from "@/store/voice/storeVoice";
 import type { JsonObject } from "type-fest";
-import { reactive, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import PublicAPI from "../PublicAPI";
-import TwitchatEvent, { type TwitchatActionType, type TwitchatEventType } from "../../events/TwitchatEvent";
 import VoiceAction from "./VoiceAction";
 
 /**
@@ -18,14 +18,14 @@ export default class VoiceController {
 	public finalText = ref("");
 	public tempText = ref("");
 	
-	private lastTriggerKey:string = "";
+	private lastTriggerKey:(keyof TwitchatEventMap | "") = "";
 	private remoteControlMode:boolean = false;
 	private wasIncludingGlobalCommand:boolean = false;
 	private lastTriggerAction:VoiceAction|null = null;
 	private timeoutNoAnswer:number = -1;
 	private recognition!:SpeechRecognition;
-	private hashmap:{[key:string]:VoiceAction} = {};
-	private hashmapGlobalActions:{[key:string]:VoiceAction} = {};
+	private hashmap:Partial<{[key in keyof TwitchatEventMap]:VoiceAction}> = {};
+	private hashmapGlobalActions:Partial<{[key in keyof TwitchatEventMap]:VoiceAction}> = {};
 	private splitRegGlobalActions!:RegExp;
 	private triggersCountDone:number = 0;
 
@@ -94,7 +94,7 @@ export default class VoiceController {
 					const finalText = event.results[i]![0]!.transcript.replace(this.lastTriggerKey, "");
 					if(this.remoteControlMode) {
 						this.finalText.value = tempText_loc;
-						PublicAPI.instance.broadcast(TwitchatEvent.REMOTE_FINAL_TEXT_EVENT, {text:finalText})
+						PublicAPI.instance.broadcast("STT_REMOTE_FINAL_TEXT_EVENT", {text:finalText})
 					}else{
 						this.onFinalText( finalText );
 					}
@@ -107,7 +107,7 @@ export default class VoiceController {
 
 			if(this.remoteControlMode) {
 				this.tempText.value = tempText_loc;
-				PublicAPI.instance.broadcast(TwitchatEvent.REMOTE_TEMP_TEXT_EVENT, {text:tempText_loc});
+				PublicAPI.instance.broadcast("STT_REMOTE_TEMP_TEXT_EVENT", {text:tempText_loc});
 			}else{
 				this.onTempText(tempText_loc);
 			}
@@ -163,22 +163,22 @@ export default class VoiceController {
 			}
 		});
 
-		PublicAPI.instance.addEventListener(TwitchatEvent.ENABLE_STT, ()=> {
+		PublicAPI.instance.addEventListener("ENABLE_STT", ()=> {
 			this.start(this.remoteControlMode);
 		})
 
-		PublicAPI.instance.addEventListener(TwitchatEvent.DISABLE_STT, ()=> {
+		PublicAPI.instance.addEventListener("DISABLE_STT", ()=> {
 			this.stop();
 		})
 		
-		PublicAPI.instance.addEventListener(TwitchatEvent.REMOTE_TEMP_TEXT_EVENT, (e:TwitchatEvent)=> {
+		PublicAPI.instance.addEventListener("STT_REMOTE_TEMP_TEXT_EVENT", (e)=> {
 			this.finalText.value = "";
 			// //@ts-ignore
 			// console.log("REMOTE TEMP", e.data.text);
-			this.onTempText((e.data as {text:string}).text);
+			this.onTempText(e.data.text);
 		});
-		PublicAPI.instance.addEventListener(TwitchatEvent.REMOTE_FINAL_TEXT_EVENT, (e:TwitchatEvent)=> {
-			this.onFinalText((e.data as {text:string}).text);
+		PublicAPI.instance.addEventListener("STT_REMOTE_FINAL_TEXT_EVENT", (e)=> {
+			this.onFinalText(e.data.text);
 		});
 	}
 
@@ -186,12 +186,13 @@ export default class VoiceController {
 		//Handle non-global commands
 		for (const key in this.hashmap) {
 			const index = str.toLowerCase().indexOf(key);
+			const typedKey = key as keyof TwitchatEventMap;
 			if(index > -1) {
-				this.lastTriggerKey = key;
+				this.lastTriggerKey = typedKey;
 				// str = str.replace(key, "");
-				const action = this.hashmap[key]!;
+				const action = this.hashmap[typedKey]!;
 				//Make sure event is broadcasted only once
-				if(this.lastTriggerAction?.id !== action.id) {
+				if(action && this.lastTriggerAction?.id !== action.id) {
 					this.lastTriggerAction = action;
 					this.triggerAction(action.id as string);
 				}
@@ -214,12 +215,13 @@ export default class VoiceController {
 			const sentences = a.sentences?.split(/\r|\n/gi);
 			sentences?.forEach(v => {
 				const key = v.trim().toLowerCase();
+				const typedKey = key as keyof TwitchatEventMap;
 				if(key.length > 1) {
 					if(VoiceAction[a.id+"_IS_GLOBAL" as VAKeys] === true) {
-						this.hashmapGlobalActions[key] = a;
+						this.hashmapGlobalActions[typedKey] = a;
 						regChunks.push( a.sentences?.replace(/[^a-z0-9 ]/gi, "") as string );
 					}else{
-						this.hashmap[key] = a;
+						this.hashmap[typedKey] = a;
 					}
 				}
 			}) 
@@ -234,14 +236,15 @@ export default class VoiceController {
 		// console.log("TRIGGER ACTION", action, data);
 		
 		switch(action) {
-			case VoiceAction.CHAT_FEED_SCROLL_UP:	PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_UP, {scrollBy:500}, true, true); return;
-			case VoiceAction.CHAT_FEED_SCROLL_DOWN:	PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL_DOWN, {scrollBy:500}, true, true); return;
-			case VoiceAction.CHAT_FEED_READ:		PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_READ, {count:10}, true, true); return;
-			case VoiceAction.GREET_FEED_READ:		PublicAPI.instance.broadcast(TwitchatEvent.GREET_FEED_READ, {count:10}, true, true); return;
+			case VoiceAction.CHAT_FEED_SCROLL_UP:	PublicAPI.instance.broadcast("CHAT_FEED_SCROLL_UP", {scrollBy:500, colIndex:0}, true, true); return;
+			case VoiceAction.CHAT_FEED_SCROLL_DOWN:	PublicAPI.instance.broadcast("CHAT_FEED_SCROLL_DOWN", {scrollBy:500, colIndex:0}, true, true); return;
+			case VoiceAction.CHAT_FEED_READ:		PublicAPI.instance.broadcast("CHAT_FEED_READ", {count:10, colIndex:0}, true, true); return;
+			case VoiceAction.GREET_FEED_READ:		PublicAPI.instance.broadcast("GREET_FEED_READ", {count:10}, true, true); return;
 		}
 		if(action != VoiceAction.TEXT_UPDATE) {
 			this.triggersCountDone ++;
 		}
+		// @ts-ignore
 		PublicAPI.instance.broadcast(action as TwitchatActionType|TwitchatEventType, data, true, true);
 	}
 
@@ -265,7 +268,7 @@ export default class VoiceController {
 		
 		//while talking, split the current text with all the global commands so
 		//we get multiple chunks of actions
-		const actionsList:{id:TwitchatActionType, value?:string|JsonObject}[] = [];
+		const actionsList:{id:keyof TwitchatEventMap, value?:{text:string}}[] = [];
 		let hasGlobalAction = false;
 		if(tempText_loc.length > 0) {
 			//Force first build of hashmap if necessary
@@ -280,14 +283,17 @@ export default class VoiceController {
 				const v = chunk.trim();
 				let matchAction = false;
 				for (const key in this.hashmapGlobalActions) {
-					if(v?.toLowerCase() == (this.hashmapGlobalActions[key]!.sentences || "___").toLowerCase()) {
-						actionsList.push({id:this.hashmapGlobalActions[key]!.id as TwitchatActionType});
+					const typedKey = key as keyof TwitchatEventMap;
+					if(this.hashmapGlobalActions[typedKey]
+					&& this.hashmapGlobalActions[typedKey].id
+					&& v?.toLowerCase() == (this.hashmapGlobalActions[typedKey].sentences || "___").toLowerCase()) {
+						actionsList.push({id:this.hashmapGlobalActions[typedKey].id});
 						matchAction = true;
 						break;
 					}
 				}
 				if(!matchAction && v.length > 0) {
-					actionsList.push({id:VoiceAction.TEXT_UPDATE as TwitchatActionType, value:{text:v}});
+					actionsList.push({id:VoiceAction.TEXT_UPDATE, value:{text:v}});
 				}else{
 					hasGlobalAction = true;
 					this.wasIncludingGlobalCommand = true;
