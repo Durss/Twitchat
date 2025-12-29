@@ -1,14 +1,13 @@
-import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import StoreProxy, { type IDonationGoalActions, type IDonationGoalGetters, type IDonationGoalState } from '../StoreProxy';
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
-import Config from '@/utils/Config';
 
 
 const donationGoalStatesCache:Record<string, number> = {"coucou":0};
@@ -41,7 +40,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 			/**
 			 * Listen for overlays requesting their parameters
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_DONATION_GOALS_OVERLAY_PARAMS, (event:TwitchatEvent<{overlayId:string}>)=>{
+			PublicAPI.instance.addEventListener("GET_DONATION_GOALS_OVERLAY_PARAMS", (event)=>{
 				if(!event.data) return;
 				if(!event.data.overlayId) return;
 				this.broadcastData(event.data.overlayId);
@@ -180,7 +179,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 					donationGoalStatesCache[overlay.id] = currentStepIndex;
 				}
 
-				PublicAPI.instance.broadcast(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, {params:overlay, goal, raisedTotal, raisedPersonnal, skin});
+				PublicAPI.instance.broadcast("DONATION_GOALS_OVERLAY_PARAMS", {params:overlay, goal, raisedTotal, raisedPersonnal, skin});
 			}
 		},
 
@@ -202,7 +201,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 			for (const overlay of this.overlayList) {
 				if(overlay.dataSource == platform
 				&& (!campaignId || !overlay.campaignId || overlay.campaignId == campaignId)) {
-					PublicAPI.instance.broadcast(TwitchatEvent.DONATION_EVENT, {username, amount, overlayId:overlay.id});
+					PublicAPI.instance.broadcast("DONATION_EVENT", {username, amount, overlayId:overlay.id});
 				}
 			}
 		},
@@ -217,8 +216,8 @@ export const storeDonationGoals = defineStore('donationGoals', {
 			let raisedTotal = newAmount;
 			let raisedPersonnal = newAmount;
 			let skin = Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default";
-			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_GOALS_OVERLAY_PARAMS, {params:overlay, goal, raisedTotal, raisedPersonnal, skin});
-			PublicAPI.instance.broadcast(TwitchatEvent.DONATION_EVENT, {username:Utils.pickRand(users).displayName, amount:addedAmount.toString(), overlayId:overlay.id});
+			PublicAPI.instance.broadcast("DONATION_GOALS_OVERLAY_PARAMS", {params:overlay, goal, raisedTotal, raisedPersonnal, skin});
+			PublicAPI.instance.broadcast("DONATION_EVENT", {username:Utils.pickRand(users).displayName, amount:addedAmount.toString(), overlayId:overlay.id});
 		}
 
 

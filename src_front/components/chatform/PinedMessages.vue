@@ -95,7 +95,6 @@ class PinedMessages extends AbstractSidePanel {
 			this.highlightLoading = false;
 		}
 	}
-
 }
 export default toNative(PinedMessages);
 </script>

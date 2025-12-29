@@ -1,9 +1,12 @@
-import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
-import {TwitchatDataTypes} from '@/types/TwitchatDataTypes';
+import { TranslatableLanguagesMap } from '@/TranslatableLanguages';
+import type { GoXLRTypes } from '@/types/GoXLRTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Config from '@/utils/Config';
 import BTTVUtils from '@/utils/emotes/BTTVUtils';
 import FFZUtils from '@/utils/emotes/FFZUtils';
 import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
+import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import PublicAPI from '@/utils/PublicAPI';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import Utils from '@/utils/Utils';
@@ -11,10 +14,6 @@ import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _Getters
 import type { UnwrapRef } from 'vue';
 import type { IParamsActions, IParamsGetters, IParamsState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
-import type { GoXLRTypes } from '@/types/GoXLRTypes';
-import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
-import { TranslatableLanguagesMap } from '@/TranslatableLanguages';
-import Config from '@/utils/Config';
 
 export const storeParams = defineStore('params', {
 	state: () => ({
@@ -456,7 +455,7 @@ export const storeParams = defineStore('params', {
 			}
 			DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig, true);
 
-			PublicAPI.instance.broadcast(TwitchatEvent.SET_COLS_COUNT, {count:this.chatColumnsConfig.length});
+			PublicAPI.instance.broadcast("SET_COLS_COUNT", {count:this.chatColumnsConfig.length});
 			return col;
 		},
 
@@ -481,7 +480,7 @@ export const storeParams = defineStore('params', {
 			if(column.showGreetHere) this.chatColumnsConfig[this.chatColumnsConfig.length-1]!.showGreetHere = true;
 
 			this.saveChatColumnConfs();
-			PublicAPI.instance.broadcast(TwitchatEvent.SET_COLS_COUNT, {count:this.chatColumnsConfig.length});
+			PublicAPI.instance.broadcast("SET_COLS_COUNT", {count:this.chatColumnsConfig.length});
 		},
 
 		moveChatColumn(column:TwitchatDataTypes.ChatColumnsConfig, direction:-1|1):void {
