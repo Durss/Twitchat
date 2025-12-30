@@ -2,7 +2,6 @@ import type { IChatState } from "@/store/StoreProxy";
 import Config from "@/utils/Config";
 import type { OBSItemPath } from "@/utils/OBSWebsocket";
 import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScopes";
-import type { JsonObject } from 'type-fest';
 import type { GoXLRTypes } from "./GoXLRTypes";
 import type { TriggerActionPlayabilityData, TriggerCallStack } from "./TriggerActionDataTypes";
 
@@ -1682,7 +1681,6 @@ export namespace TwitchatDataTypes {
 		cancelCallback?:()=>void,
 		yesLabel?:string,
 		noLabel?:string,
-		STTOrigin?:boolean,
 	}
 
 	/**
@@ -2156,7 +2154,7 @@ export namespace TwitchatDataTypes {
 	 * Represents a click event sent to the browser sources when
 	 * a click occurs on heat
 	 */
-	export interface HeatClickData extends JsonObject{
+	export interface HeatClickData {
 		id:string;
 		channelId:string;
 		anonymous:boolean;

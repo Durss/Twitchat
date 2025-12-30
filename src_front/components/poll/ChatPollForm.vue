@@ -83,9 +83,6 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 class ChatPollForm extends AbstractSidePanel {
 
 	@Prop({type: Boolean, default: false})
-	public voiceControl!:boolean;
-
-	@Prop({type: Boolean, default: false})
 	public triggerMode!:boolean;
 
 	//This is used by the trigger action form.
