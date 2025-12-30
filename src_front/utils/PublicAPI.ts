@@ -52,11 +52,11 @@ export default class PublicAPI extends EventDispatcher {
 			}
 		}
 
-		this.listenStreamdeck();
+		this.listenStreamdeck(isMainApp);
 		this.listenOBS(isMainApp);
 
 		//Broadcast twitchat ready state
-		if(isMainApp) this.broadcast("TWITCHAT_READY", undefined, false);
+		if(isMainApp) this.broadcast("ON_TWITCHAT_READY", undefined, false);
 	}
 
 	/**
@@ -92,25 +92,42 @@ export default class PublicAPI extends EventDispatcher {
 			console.error(error);
 		}
 
-		if(!OBSWebsocket.instance.connected.value || onlyLocal) {
+		if(onlyLocal) {
 			// @ts-ignore
 			if(broadcastToSelf) this.dispatchEvent(new TwitchatEvent(type, dataClone));
 		} else {
-			// @ts-ignore
-			OBSWebsocket.instance.broadcast(type, eventId, dataClone);
+			if(OBSWebsocket.instance.connected.value) {
+				// @ts-ignore
+				OBSWebsocket.instance.broadcast(type, eventId, dataClone);
+			}
+			if(StreamdeckSocket.instance.connected.value) {
+				// @ts-ignore
+				StreamdeckSocket.instance.broadcast(type, eventId, data);
+			}
 		}
 		
-		StreamdeckSocket.instance.broadcast(type, eventId, data);
 	}
 
 	public override addEventListener<Event extends keyof TwitchatEventMap>(typeStr:Event, listenerFunc:(e:TwitchatEvent<Event>)=>void):void {
 		// @ts-ignore
 		super.addEventListener(typeStr, listenerFunc);
+		// This is a fallback to avoid breaking existing implementations before massive refactor.
+		// For more clarity I renamed "CUSTOM_CHAT_MESSAGE" envet to "SET_SEND_CUSTOM_CHAT_MESSAGE".
+		// But as there are multiple tools using that event, we register also register to the old
+		// event name when requesting the new one.
+		if(typeStr == "SET_SEND_CUSTOM_CHAT_MESSAGE") {
+			// @ts-ignore
+			super.addEventListener("ON_CUSTOM_CHAT_MESSAGE", listenerFunc);
+		}
 	}
 
 	public override removeEventListener<Event extends keyof TwitchatEventMap>(typeStr:Event, listenerFunc:(e:TwitchatEvent<Event>)=>void):void {
 		// @ts-ignore
 		super.removeEventListener(typeStr, listenerFunc);
+		if(typeStr == "SET_SEND_CUSTOM_CHAT_MESSAGE") {
+			// @ts-ignore
+			super.removeEventListener("ON_CUSTOM_CHAT_MESSAGE", listenerFunc);
+		}
 	}
 
 
@@ -124,23 +141,37 @@ export default class PublicAPI extends EventDispatcher {
 			//OBS api not ready yet, wait for it
 			if(!OBSWebsocket.instance.connected.value) {
 				const connectHandler = () => {
-					OBSWebsocket.instance.removeEventListener("OBS_WEBSOCKET_CONNECTED", connectHandler);
-					if(isMainApp) this.broadcast("TWITCHAT_READY", undefined, false);
+					OBSWebsocket.instance.removeEventListener("ON_OBS_WEBSOCKET_CONNECTED", connectHandler);
+					if(isMainApp) this.broadcast("ON_TWITCHAT_READY", undefined, false);
 					resolve();
 				};
-				OBSWebsocket.instance.addEventListener("OBS_WEBSOCKET_CONNECTED", connectHandler);
+				OBSWebsocket.instance.addEventListener("ON_OBS_WEBSOCKET_CONNECTED", connectHandler);
 			}else{
 				resolve();
 			}
 			
-			OBSWebsocket.instance.addEventListener("OBS_WEBSOCKET_CONNECTED", (e) => this.broadcast("OBS_WEBSOCKET_CONNECTED", undefined, false));
-			OBSWebsocket.instance.addEventListener("OBS_WEBSOCKET_DISCONNECTED", (e) => this.broadcast("OBS_WEBSOCKET_DISCONNECTED", undefined, false));
+			OBSWebsocket.instance.addEventListener("ON_OBS_WEBSOCKET_CONNECTED", (e) => this.broadcast("ON_OBS_WEBSOCKET_CONNECTED", undefined, false));
+			OBSWebsocket.instance.addEventListener("ON_OBS_WEBSOCKET_DISCONNECTED", (e) => this.broadcast("ON_OBS_WEBSOCKET_DISCONNECTED", undefined, false));
 			OBSWebsocket.instance.socket.on("CustomEvent", (eventData:JsonObject) => {
 				const eventDataTyped = eventData as unknown as IEnvelope;
 				if(eventDataTyped.data) {
 					this.onMessage(eventDataTyped, true);
 				}
 			});
+		});
+	}
+
+	private listenStreamdeck(isMainApp:boolean):void {
+		StreamdeckSocket.instance.addEventListener(StreamdeckSocketEvent.MESSAGE, (e:StreamdeckSocketEvent<keyof TwitchatEventMap>) => {
+			if(e.data) {
+				const event:IEnvelope = {
+					id: Utils.getUUID(),
+					origin: "twitchat",
+					type: e.data.action,
+					data: e.data.data
+				}
+				this.onMessage(event, true);
+			}
 		});
 	}
 
@@ -160,20 +191,6 @@ export default class PublicAPI extends EventDispatcher {
 			this._idsDone[event.id] = true;
 		}
 		this.dispatchEvent(new TwitchatEvent(event.type, event.data));
-	}
-
-	private listenStreamdeck():void {
-		StreamdeckSocket.instance.addEventListener(StreamdeckSocketEvent.MESSAGE, (e:StreamdeckSocketEvent<keyof TwitchatEventMap>) => {
-			if(e.data) {
-				const event:IEnvelope = {
-					id: Utils.getUUID(),
-					origin: "twitchat",
-					type: e.data.action,
-					data: e.data.data
-				}
-				this.onMessage(event, true);
-			}
-		});
 	}
 }
 

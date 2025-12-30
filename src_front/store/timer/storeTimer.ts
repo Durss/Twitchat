@@ -102,7 +102,7 @@ export const storeTimer = defineStore('timer', {
 			/**
 			 * Called when timer overlay requests for a timer info
 			 */
-			PublicAPI.instance.addEventListener("GET_CURRENT_TIMERS", (event)=> {
+			PublicAPI.instance.addEventListener("GET_TIMER", (event)=> {
 				if(event.data?.id) {
 					this.broadcastStates(event.data.id);
 				}else{
@@ -116,10 +116,10 @@ export const storeTimer = defineStore('timer', {
 			});
 
 
-			const timerAddHandler = (event:TwitchatEvent<"TIMER_ADD" | "COUNTDOWN_ADD">)=> {
-				const durationStr = event.data?.timeAdd ?? "0";
+			const timerAddHandler = (event:TwitchatEvent<"SET_TIMER_ADD" | "SET_COUNTDOWN_ADD">)=> {
+				const durationStr = event.data?.value ?? "0";
 				const defaultTimer = this.timerList.find(v=>v.type == 'timer' && v.isDefault);
-				const timerId = event.data?.timerId ?? defaultTimer?.id;
+				const timerId = event.data?.id ?? defaultTimer?.id;
 				const timer = this.timerList.find(v=>v.id == timerId);
 				const durationMs = isNaN(parseInt(durationStr))? 1000 : parseInt(durationStr) * 1000;
 				if(!timer) return;
@@ -130,8 +130,8 @@ export const storeTimer = defineStore('timer', {
 				}
 			}
 
-			PublicAPI.instance.addEventListener("TIMER_ADD", timerAddHandler);
-			PublicAPI.instance.addEventListener("COUNTDOWN_ADD", timerAddHandler);
+			PublicAPI.instance.addEventListener("SET_TIMER_ADD", timerAddHandler);
+			PublicAPI.instance.addEventListener("SET_COUNTDOWN_ADD", timerAddHandler);
 
 			PublicAPI.instance.addEventListener("GET_TIMER_LIST", ()=> this.broadcastTimerList());
 		},
@@ -142,11 +142,11 @@ export const storeTimer = defineStore('timer', {
 				if(id && entry.id !== id) continue;
 
 				if(entry.type === "timer") {
-					PublicAPI.instance.broadcast("TIMER_START", entry);
+					PublicAPI.instance.broadcast("ON_TIMER_START", entry);
 				}
 
 				if(entry.type === "countdown") {
-					PublicAPI.instance.broadcast("COUNTDOWN_START", entry);
+					PublicAPI.instance.broadcast("ON_COUNTDOWN_START", entry);
 				}
 			}
 		},
@@ -228,7 +228,7 @@ export const storeTimer = defineStore('timer', {
 			}
 			if(message) StoreProxy.chat.addMessage(message);
 
-			this.broadcastStates();
+			this.broadcastStates(id);
 			this.saveData();
 		},
 
@@ -239,9 +239,8 @@ export const storeTimer = defineStore('timer', {
 				entry.offset_ms += duration;
 			}else if(entry.type == "countdown") {
 				entry.duration_ms += duration;
-				this.broadcastStates();
 			}
-			this.broadcastStates();
+			this.broadcastStates(id);
 			this.saveData();
 		},
 
@@ -256,7 +255,7 @@ export const storeTimer = defineStore('timer', {
 				entry.duration_ms -= duration;
 				if(entry.duration_ms < 0) entry.duration_ms = 0;
 			}
-			this.broadcastStates();
+			this.broadcastStates(id);
 			this.saveData();
 		},
 
@@ -266,7 +265,7 @@ export const storeTimer = defineStore('timer', {
 			entry.paused = true;
 			entry.pausedAt_ms = Date.now();
 			if(entry.type == "countdown" && countdownTO[entry.id]) SetTimeoutWorker.instance.delete(countdownTO[entry.id]);
-			this.broadcastStates();
+			this.broadcastStates(id);
 			this.saveData();
 		},
 
@@ -281,7 +280,7 @@ export const storeTimer = defineStore('timer', {
 					entry.pauseDuration_ms += Date.now() - (entry.pausedAt_ms || 0);
 				}
 				entry.pausedAt_ms = 0;
-				this.broadcastStates();
+				this.broadcastStates(id);
 				this.saveData();
 			}else{
 				this.timerStart(id);
@@ -311,7 +310,7 @@ export const storeTimer = defineStore('timer', {
 						stopped:true,
 					};
 					message = data;
-					PublicAPI.instance.broadcast("TIMER_STOP", entry);
+					PublicAPI.instance.broadcast("ON_TIMER_STOP", entry);
 					break;
 				}
 				case "countdown":{
@@ -338,7 +337,7 @@ export const storeTimer = defineStore('timer', {
 						finalDuration_str,
 					};
 					message = data;
-					PublicAPI.instance.broadcast("COUNTDOWN_COMPLETE", entry);
+					PublicAPI.instance.broadcast("ON_COUNTDOWN_COMPLETE", entry);
 					break;
 				}
 			}
@@ -354,9 +353,9 @@ export const storeTimer = defineStore('timer', {
 			if(countdownTO[entry.id]) SetTimeoutWorker.instance.delete(countdownTO[entry.id]);
 			if(entry.startAt_ms) {
 				if(entry.type == "timer") {
-					PublicAPI.instance.broadcast("TIMER_STOP", entry);
+					PublicAPI.instance.broadcast("ON_TIMER_STOP", entry);
 				}else if(entry.type == "countdown") {
-					PublicAPI.instance.broadcast("COUNTDOWN_COMPLETE", entry);
+					PublicAPI.instance.broadcast("ON_COUNTDOWN_COMPLETE", entry);
 				}
 			}
 			delete entry.pausedAt_ms
@@ -429,7 +428,7 @@ export const storeTimer = defineStore('timer', {
 		},
 
 		broadcastTimerList() {
-			PublicAPI.instance.broadcast("TIMER_LIST", {timers:this.timerList.map(c=> ({
+			PublicAPI.instance.broadcast("ON_TIMER_LIST", {timerList:this.timerList.map(c=> ({
 				id:c.id,
 				title:c.title,
 				enabled:c.enabled,

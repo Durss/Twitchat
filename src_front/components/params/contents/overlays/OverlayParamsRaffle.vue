@@ -82,7 +82,7 @@ class OverlayParamsRaffle extends Vue {
 			this.checkingOverlayPresence = false;
 			clearTimeout(this.subcheckTimeout);
 		};
-		PublicAPI.instance.addEventListener("WHEEL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.addEventListener("ON_WHEEL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 
 		//Regularly check if the overlay exists
 		this.checkInterval = window.setInterval(()=>this.getOverlayPresence(), 2000);
@@ -91,7 +91,7 @@ class OverlayParamsRaffle extends Vue {
 	public beforeUnmount():void {
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
-		PublicAPI.instance.removeEventListener("WHEEL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("ON_WHEEL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 	}
 
 	/**
@@ -129,7 +129,7 @@ class OverlayParamsRaffle extends Vue {
 			winner: Utils.pickRand(items).id,
 			skin: Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default",
 		}
-		PublicAPI.instance.broadcast("WHEEL_OVERLAY_START", data);
+		PublicAPI.instance.broadcast("ON_WHEEL_OVERLAY_START", data);
 		await Utils.promisedTimeout(100);
 		this.loading = false;
 	}

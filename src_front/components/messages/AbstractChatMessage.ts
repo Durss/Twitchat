@@ -49,7 +49,7 @@ export default class AbstractChatMessage extends Vue {
 	}
 
 	// public beforeUpdate() {
-	// 	console.log("UPDATE", this.messageData.type);
+	// 	console.log("ON_UPDATE", this.messageData.type);
 	// }
 
 	public beforeMount() {
@@ -209,14 +209,14 @@ export default class AbstractChatMessage extends Vue {
 		return new Promise((resolve, reject)=> {
 			const timeout = window.setTimeout(() =>{
 				resolve(false);
-				PublicAPI.instance.removeEventListener("CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
+				PublicAPI.instance.removeEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
 			}, 1000)
 			const handler = ()=> {
 				clearTimeout(timeout)
 				resolve(true);
-				PublicAPI.instance.removeEventListener("CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
+				PublicAPI.instance.removeEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
 			}
-			PublicAPI.instance.addEventListener("CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
+			PublicAPI.instance.addEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
 			PublicAPI.instance.broadcast("GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE");
 		})
 	}

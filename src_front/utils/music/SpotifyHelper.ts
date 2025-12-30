@@ -579,7 +579,7 @@ export default class SpotifyHelper {
 						params: StoreProxy.music.musicPlayerParams,
 						skin: Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default",
 					}
-					PublicAPI.instance.broadcast("CURRENT_TRACK", apiData);
+					PublicAPI.instance.broadcast("ON_CURRENT_TRACK", apiData);
 				}
 
 				this._lastTrackInfo = {
@@ -602,7 +602,7 @@ export default class SpotifyHelper {
 					StoreProxy.labels.updateLabelValue("MUSIC_ALBUM", "");
 					StoreProxy.labels.updateLabelValue("MUSIC_COVER", "");
 
-					PublicAPI.instance.broadcast("CURRENT_TRACK", {
+					PublicAPI.instance.broadcast("ON_CURRENT_TRACK", {
 						params: StoreProxy.music.musicPlayerParams,
 					});
 
@@ -760,7 +760,7 @@ export default class SpotifyHelper {
 				params: StoreProxy.music.musicPlayerParams,
 				skin: Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default",
 			}
-			PublicAPI.instance.broadcast("CURRENT_TRACK", apiData);
+			PublicAPI.instance.broadcast("ON_CURRENT_TRACK", apiData);
 		});
 	}
 

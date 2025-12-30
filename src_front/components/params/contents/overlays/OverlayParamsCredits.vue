@@ -458,7 +458,7 @@ class OverlayParamsCredits extends Vue {
 			this.checkingOverlayPresence = false;
 			clearTimeout(this.subcheckTimeout);
 		};
-		PublicAPI.instance.addEventListener("CREDITS_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.addEventListener("SET_ENDING_CREDITS_PRESENCE", this.overlayPresenceHandler);
 
 		//Regularly check if the overlay exists
 		this.getOverlayPresence(true);
@@ -470,7 +470,7 @@ class OverlayParamsCredits extends Vue {
 	public beforeUnmount():void {
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
-		PublicAPI.instance.removeEventListener("CREDITS_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("SET_ENDING_CREDITS_PRESENCE", this.overlayPresenceHandler);
 	}
 
 	/**
@@ -478,7 +478,7 @@ class OverlayParamsCredits extends Vue {
 	 */
 	public getOverlayPresence(showLoader:boolean = false):void {
 		if(showLoader) this.checkingOverlayPresence = true;
-		PublicAPI.instance.broadcast("GET_CREDITS_OVERLAY_PRESENCE");
+		PublicAPI.instance.broadcast("GET_ENDING_CREDITS_PRESENCE");
 		clearTimeout(this.subcheckTimeout);
 		//If after 1,5s the overlay didn't answer, assume it doesn't exist
 		this.subcheckTimeout = window.setTimeout(()=>{
@@ -759,7 +759,7 @@ class OverlayParamsCredits extends Vue {
 	public async testCredits():Promise<void> {
 		this.sendingSummaryData = true;
 		const summary = await this.$store.stream.getSummary(undefined, true, true);
-		PublicAPI.instance.broadcast("SUMMARY_DATA", summary);
+		PublicAPI.instance.broadcast("SET_ENDING_CREDITS_DATA", summary);
 		this.sendingSummaryData = false;
 	}
 
@@ -767,7 +767,7 @@ class OverlayParamsCredits extends Vue {
 	 * Scrolls to
 	 */
 	public async scrollTo(id:string):Promise<void> {
-		PublicAPI.instance.broadcast("ENDING_CREDITS_CONTROL", {scrollTo:id});
+		PublicAPI.instance.broadcast("SET_ENDING_CREDITS_CONTROL", {scrollToSectionID:id});
 	}
 
 	/**
