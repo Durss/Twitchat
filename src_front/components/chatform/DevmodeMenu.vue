@@ -37,8 +37,7 @@
 				user</Button>
 			<Button small @click="simulateEvent($event, 'message', 'presentation')"
 				icon="firstTime">Presentation</Button>
-			<Button small @click="simulateEvent($event, 'user_modiversary')"
-				icon="modiversary">Modiversary</Button>
+			<Button small @click="simulateEvent($event, 'user_modiversary')" icon="modiversary">Modiversary</Button>
 			<Button small @click="simulateEvent($event, 'message', 'recent')" icon="alert">Recent account</Button>
 			<Button small @click="simulateEvent($event, 'message', 'skin1')" icon="watchStreak">Power Up skin 1</Button>
 			<Button small @click="simulateEvent($event, 'message', 'skin2')" icon="watchStreak">Power Up skin 2</Button>
@@ -561,7 +560,7 @@ class DevmodeMenu extends Vue {
 	 */
 	public async simulateFollowbotItem(): Promise<void> {
 		const lorem = new LoremIpsum({ wordsPerSentence: { max: 40, min: 40 } });
-		const login = lorem.generateWords(Math.round(Math.random() * 2) + 1).split(" ").join("_");
+		const login = lorem.generateWords(Math.round(Math.random() * 2) + 1).split(" ").join("ON__");
 		const channelId = StoreProxy.auth.twitch.user.id;
 		const uid = Math.round(Math.random() * 99999999999).toString();
 		const message: TwitchatDataTypes.MessageFollowingData = {

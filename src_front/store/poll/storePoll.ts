@@ -57,7 +57,7 @@ export const storePoll = defineStore('poll', {
 			/**
 			 * Called when poll overlay request for its configs
 			 */
-			PublicAPI.instance.addEventListener("GET_POLLS_OVERLAY_PARAMETERS", ()=> {
+			PublicAPI.instance.addEventListener("GET_POLLS_OVERLAY_CONFIGS", ()=> {
 				this.broadcastState();
 			});
 		},
@@ -75,9 +75,9 @@ export const storePoll = defineStore('poll', {
 					StoreProxy.chat.addMessage(data);
 				}
 
-				PublicAPI.instance.broadcast("POLL_PROGRESS", {poll:data});
+				PublicAPI.instance.broadcast("ON_POLL_PROGRESS", {poll:data});
 			}else if(this.data){
-				PublicAPI.instance.broadcast("POLL_PROGRESS", undefined);
+				PublicAPI.instance.broadcast("ON_POLL_PROGRESS", undefined);
 			}
 
 			this.data = data;
@@ -86,14 +86,14 @@ export const storePoll = defineStore('poll', {
 		setOverlayParams(params:PollOverlayParamStoreData):void {
 			this.populateData(params);
 			DataStore.set(DataStore.POLL_OVERLAY_PARAMS, this.overlayParams);
-			PublicAPI.instance.broadcast("POLLS_OVERLAY_PARAMETERS", {parameters: this.overlayParams});
+			PublicAPI.instance.broadcast("ON_POLL_OVERLAY_CONFIGS", {parameters: this.overlayParams});
 		},
 
 		broadcastState():void {
 			if(this.data) {
-				PublicAPI.instance.broadcast("POLL_PROGRESS", {poll: this.data});
+				PublicAPI.instance.broadcast("ON_POLL_PROGRESS", {poll: this.data});
 			}
-			PublicAPI.instance.broadcast("POLLS_OVERLAY_PARAMETERS", {parameters: this.overlayParams});
+			PublicAPI.instance.broadcast("ON_POLL_OVERLAY_CONFIGS", {parameters: this.overlayParams});
 		}
 	} as IPollActions
 	& ThisType<IPollActions

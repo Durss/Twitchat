@@ -59,8 +59,8 @@ class OverlayBitsWall extends AbstractOverlay {
 	private frameCount:number = 0;
 	private fps:number = 0;
 	private disposed:boolean = false;
-	private bitsHandler!:(e:TwitchatEvent<"BITS">)=>void;
-	private paramsDataHandler!:(e:TwitchatEvent<"BITSWALL_OVERLAY_PARAMETERS">)=>void;
+	private bitsHandler!:(e:TwitchatEvent<"ON_BITS">)=>void;
+	private paramsDataHandler!:(e:TwitchatEvent<"ON_BITSWALL_OVERLAY_CONFIGS">)=>void;
 	private overlayPresenceHandler!:(e:TwitchatEvent<"GET_BITSWALL_OVERLAY_PRESENCE">)=>void;
 	private heatEventHandler!:(event:{detail:TwitchatDataTypes.HeatClickData}) => void;
 	private resizeHandler!:(e:Event) => void;
@@ -79,8 +79,8 @@ class OverlayBitsWall extends AbstractOverlay {
 		//@ts-ignore
 		window.addEventListener("heat-click", this.heatEventHandler);
 		window.addEventListener("resize", this.resizeHandler);
-		PublicAPI.instance.addEventListener("BITSWALL_OVERLAY_PARAMETERS", this.paramsDataHandler);
-		PublicAPI.instance.addEventListener("BITS", this.bitsHandler);
+		PublicAPI.instance.addEventListener("ON_BITSWALL_OVERLAY_CONFIGS", this.paramsDataHandler);
+		PublicAPI.instance.addEventListener("ON_BITS", this.bitsHandler);
 	}
 
 	public async mounted():Promise<void> {
@@ -93,7 +93,7 @@ class OverlayBitsWall extends AbstractOverlay {
 		await this.preloadTextures();
 
 		/*
-		this.onBits(new TwitchatEvent("BITS",{
+		this.onBits(new TwitchatEvent("ON_BITS",{
 				channel:"",
 				message:"",
 				message_chunks:[],
@@ -110,9 +110,9 @@ class OverlayBitsWall extends AbstractOverlay {
 			}));
 		//*/
 
-		PublicAPI.instance.broadcast("BITSWALL_OVERLAY_PRESENCE");
+		PublicAPI.instance.broadcast("ON_BITSWALL_OVERLAY_PRESENCE");
 		
-		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast("BITSWALL_OVERLAY_PRESENCE"); }
+		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast("ON_BITSWALL_OVERLAY_PRESENCE"); }
 		PublicAPI.instance.addEventListener("GET_BITSWALL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 
 
@@ -154,18 +154,18 @@ class OverlayBitsWall extends AbstractOverlay {
 		//@ts-ignore
 		window.removeEventListener("heat-click", this.heatEventHandler);
 		window.removeEventListener("resize", this.resizeHandler);
-		PublicAPI.instance.removeEventListener("BITS", this.bitsHandler);
+		PublicAPI.instance.removeEventListener("ON_BITS", this.bitsHandler);
 		PublicAPI.instance.removeEventListener("GET_BITSWALL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 	}
 	
 	public requestInfo():void {
-		PublicAPI.instance.broadcast("GET_BITSWALL_OVERLAY_PARAMETERS");
+		PublicAPI.instance.broadcast("GET_BITSWALL_OVERLAY_CONFIGS");
 	}
 
 	/**
 	 * Called when bits are received
 	 */
-	public async onBits(e:TwitchatEvent<"BITS">):Promise<void> {
+	public async onBits(e:TwitchatEvent<"ON_BITS">):Promise<void> {
 		const data = e.data
 		const bits = data.bits;
 		function decomposeNumber(number: number, values: number[]): number[] {
@@ -253,7 +253,7 @@ class OverlayBitsWall extends AbstractOverlay {
 	/**
 	 * Called when API sends fresh overlay parameters
 	 */
-	private async onParamsData(e:TwitchatEvent<"BITSWALL_OVERLAY_PARAMETERS">):Promise<void> {
+	private async onParamsData(e:TwitchatEvent<"ON_BITSWALL_OVERLAY_CONFIGS">):Promise<void> {
 		if(e.data) {
 			this.parameters = e.data;
 			if(this.shaderMode) {

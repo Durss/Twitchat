@@ -304,7 +304,7 @@ export default toNative(MigrationFixerModal);
 			}
 
 			.jsonAction:deep([data-type="list"]):not(:hover) {
-				.highlightField("NEW");
+				.highlightField("ON_NEW");
 			}
 
 			.jsonAction:deep([data-type="list"]):not(:hover),

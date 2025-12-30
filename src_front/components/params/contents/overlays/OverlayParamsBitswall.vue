@@ -177,7 +177,7 @@ class OverlayParamsBitswall extends Vue {
 			this.checkingOverlayAtStart = false;
 			clearTimeout(this.subcheckTimeout);
 		};
-		PublicAPI.instance.addEventListener("BITSWALL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.addEventListener("ON_BITSWALL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 
 		//Regularly check if the overlay exists
 		this.checkInterval = window.setInterval(()=>{
@@ -192,14 +192,14 @@ class OverlayParamsBitswall extends Vue {
 
 		watch(()=>this.parameters, ()=> {
 			DataStore.set(DataStore.BITS_WALL_PARAMS, this.parameters);
-			PublicAPI.instance.broadcast("BITSWALL_OVERLAY_PARAMETERS", this.parameters);
+			PublicAPI.instance.broadcast("ON_BITSWALL_OVERLAY_CONFIGS", this.parameters);
 		}, {deep:true});
 	}
 
 	public beforeUnmount():void {
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
-		PublicAPI.instance.removeEventListener("BITSWALL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("ON_BITSWALL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 	}
 
 	public openHeat():void {
@@ -222,7 +222,7 @@ class OverlayParamsBitswall extends Vue {
 			pinLevel:pinLevel - 1,
 		};
 
-		PublicAPI.instance.broadcast("BITS", wsMessage);
+		PublicAPI.instance.broadcast("ON_BITS", wsMessage);
 	}
 
 	/**

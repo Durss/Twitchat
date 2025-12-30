@@ -73,7 +73,7 @@ export const storeChatPoll = defineStore('chatPoll', {
 			/**
 			 * Called when poll overlay request for its configs
 			 */
-			PublicAPI.instance.addEventListener("GET_CHAT_POLL_OVERLAY_PARAMETERS", ()=> {
+			PublicAPI.instance.addEventListener("GET_CHAT_POLL_OVERLAY_CONFIGS", ()=> {
 				this.broadcastState();
 			});
 		},
@@ -106,7 +106,7 @@ export const storeChatPoll = defineStore('chatPoll', {
 			this.data.votes[message.user.id]!.indices.push(index);
 
 			this.data.choices[index-1]!.votes ++;
-			PublicAPI.instance.broadcast("CHAT_POLL_PROGRESS", {poll: this.data});
+			PublicAPI.instance.broadcast("ON_CHAT_POLL_PROGRESS", {poll: this.data});
 		},
 
 		setCurrentPoll(data:typeof this.data, replacePresets:boolean = false) {
@@ -132,7 +132,7 @@ export const storeChatPoll = defineStore('chatPoll', {
 
 				this.data = data;
 
-				PublicAPI.instance.broadcast("CHAT_POLL_PROGRESS", {poll: this.data});
+				PublicAPI.instance.broadcast("ON_CHAT_POLL_PROGRESS", {poll: this.data});
 
 				if(replacePresets) {
 					this.presets.duration_s = data.duration_s;
@@ -174,7 +174,7 @@ export const storeChatPoll = defineStore('chatPoll', {
 				StoreProxy.chat.addMessage(message);
 
 				//Clear overlay
-				PublicAPI.instance.broadcast("CHAT_POLL_PROGRESS", undefined);
+				PublicAPI.instance.broadcast("ON_CHAT_POLL_PROGRESS", undefined);
 			}
 
 			this.data = data;
@@ -183,14 +183,14 @@ export const storeChatPoll = defineStore('chatPoll', {
 		setOverlayParams(params:PollOverlayParamStoreData):void {
 			this.populateData(params);
 			DataStore.set(DataStore.CHAT_POLL_OVERLAY_PARAMS, this.overlayParams);
-			PublicAPI.instance.broadcast("CHAT_POLL_OVERLAY_PARAMETERS", {parameters: this.overlayParams});
+			PublicAPI.instance.broadcast("ON_CHAT_POLL_OVERLAY_CONFIGS", {parameters: this.overlayParams});
 		},
 
 		broadcastState():void {
 			if(this.data) {
-				PublicAPI.instance.broadcast("CHAT_POLL_PROGRESS", {poll: this.data});
+				PublicAPI.instance.broadcast("ON_CHAT_POLL_PROGRESS", {poll: this.data});
 			}
-			PublicAPI.instance.broadcast("CHAT_POLL_OVERLAY_PARAMETERS", {parameters: this.overlayParams});
+			PublicAPI.instance.broadcast("ON_CHAT_POLL_OVERLAY_CONFIGS", {parameters: this.overlayParams});
 		},
 	} as IChatPollActions
 	& ThisType<IChatPollActions

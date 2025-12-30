@@ -33,7 +33,6 @@ export default toNative(PremiumLockLayer);
 
 <style scoped lang="less">
 .premiumlocklayer{
-	// outline: 1px solid red;
 	position: absolute;
 	top: 0;
 	left: 0;

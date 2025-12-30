@@ -10,6 +10,8 @@ import OBSWebSocket from 'obs-websocket-js';
 import type { JsonObject } from 'type-fest';
 import type { LabelItemData, LabelItemPlaceholder } from './types/ILabelOverlayData';
 import type { TwitchatEventMap } from '@/events/TwitchatEvent';
+import StreamdeckSocket, { StreamdeckSocketEvent } from './utils/StreamdeckSocket';
+import Utils from './utils/Utils';
 
 
 const urlParams = new URLSearchParams(document.location.search);
@@ -31,13 +33,14 @@ let mustRefreshRegularly = false;
 let styleNode = document.createElement("style");
 document.head.appendChild(styleNode);
 
-interface IEnvelope<T = undefined> {
-	origin:"twitchat";
-	id:string;
-	type:keyof TwitchatEventMap;
-	data?:T
-}
-
+type IEnvelope = {
+    [K in keyof TwitchatEventMap]: {
+        origin: "twitchat";
+        id: string;
+        type: K;
+        data: TwitchatEventMap[K];
+    }
+}[keyof TwitchatEventMap];
 
 /**
  * Connects and automatically reconnects to OBS websocket
@@ -82,6 +85,20 @@ async function connectToOBS():Promise<void> {
 	}
 }
 
+function connectToStreamDeck():void {
+	StreamdeckSocket.instance.addEventListener(StreamdeckSocketEvent.MESSAGE, (e:StreamdeckSocketEvent) => {
+		if(e.data) {
+			const event = {
+				id: Utils.getUUID(),
+				origin: "twitchat",
+				type: e.data.action,
+				data: e.data.data
+			} as IEnvelope
+			onMessage(event);
+		}
+	});
+}
+
 /**
  * initialize connection with twitchat
  */
@@ -93,6 +110,7 @@ function createConnectionTunnel():void {
 		}
 	}
 	connectToOBS();
+	connectToStreamDeck();
 }
 
 /**
@@ -104,14 +122,20 @@ function createConnectionTunnel():void {
 async function broadcast<Event extends keyof TwitchatEventMap>(
 		type: Event,
 		...args: TwitchatEventMap[Event] extends undefined
-			? [broadcastToSelf?: boolean, onlyLocal?: boolean]
-			: [data: TwitchatEventMap[Event], broadcastToSelf?: boolean, onlyLocal?: boolean]
+			? []
+			: [data: TwitchatEventMap[Event]]
 	):Promise<void> {
+
+	const [data] =
+		(args.length && typeof args[0] === "object")
+			? [args[0] as TwitchatEventMap[Event]]
+			: [undefined];
+
 	// console.log("Broadcasting", type, data);
 	const eventId = getUUID();
 	messageIdsDone[eventId] = true;//Avoid receiving self-broadcast events
 
-	let eventData:IEnvelope<typeof parameters> = {origin:"twitchat", type:type, id:eventId, data: parameters};
+	let eventData = {origin:"twitchat", id:eventId, type:type, data};
 
 	//Broadcast to other browser's tabs
 	try {
@@ -153,7 +177,7 @@ function getUUID():string {
 function requestInitialInfo():void {
 	if(parameters) return;//Already initialized, no need to ask again
 	broadcast("GET_LABEL_OVERLAY_PLACEHOLDERS");
-	broadcast("GET_LABEL_OVERLAY_PARAMS", {id:urlParams.get("twitchat_overlay_id")!});
+	broadcast("GET_LABEL_OVERLAY_CONFIGS", {id:urlParams.get("twitchat_overlay_id")!});
 }
 
 /**
@@ -189,20 +213,20 @@ function parsePlaceholders(src:string):string {
  * Called when receiving an event from either Obs-WS or BroadcastChannel
  * @param message
  */
-function onMessage(message:IEnvelope<unknown>):void {
+function onMessage(message:IEnvelope):void {
 	if(message.id){
 		//Dedupe events in case they come from both OBS and BroadcastChannel
 		if(messageIdsDone[message.id] === true) return;
 		messageIdsDone[message.id] = true;
 	}
 
-	if(message.type == "TWITCHAT_READY" || message.type == "OBS_WEBSOCKET_CONNECTED") {
+	if(message.type == "ON_TWITCHAT_READY" || message.type == "ON_OBS_WEBSOCKET_CONNECTED") {
 		if(connected) return;
 		requestInitialInfo();
 		connected = true;
 	}else
 
-	if(message.type == "LABEL_OVERLAY_PLACEHOLDERS") {
+	if(message.type == "ON_LABEL_OVERLAY_PLACEHOLDERS") {
 		const data = message.data as {[tag:string]:{value:string|number, type:LabelItemPlaceholder["type"]}};
 		for (const key in data) {
 			const tag = data[key]!
@@ -224,7 +248,7 @@ function onMessage(message:IEnvelope<unknown>):void {
 		renderValue();
 	}else
 
-	if(message.type == "LABEL_OVERLAY_PARAMS") {
+	if(message.type == "ON_LABEL_OVERLAY_CONFIGS") {
 		const json = message.data as {id:string, data:typeof parameters, disabled?:true, exists:boolean, isValid:boolean};
 		if(json.id == urlParams.get("twitchat_overlay_id")) {
 			parameters = json.data;
@@ -464,16 +488,16 @@ window.setInterval(()=>{
 }, 1000);
 
 /*
-onMessage({"origin":"twitchat","type":"LABEL_OVERLAY_PLACEHOLDERS","id":"9f9d0eff-04cc-4c9e-8f47-6cb4773a6d31","data":
+onMessage({"origin":"twitchat","type":"ON_LABEL_OVERLAY_PLACEHOLDERS","id":"9f9d0eff-04cc-4c9e-8f47-6cb4773a6d31","data":
 	{
-		"FOLLOWER_NAME":{
+		"ON_FOLLOWER_NAME":{
 			"value":"AmazingTwitchUserName",
 			"placeholder":{
 				"tag":"FOLLOWER_NAME",
 				"type":"string",
 			},
 		},
-		"FOLLOWER_AVATAR":{
+		"ON_FOLLOWER_AVATAR":{
 			"value":"https://static-cdn.jtvnw.net/jtv_user_pictures/06e9055c-7225-4bef-9949-2e0079a2dd9d-profile_image-300x300.png",
 			"placeholder":{
 				"tag":"FOLLOWER_AVATAR",
@@ -485,7 +509,7 @@ onMessage({"origin":"twitchat","type":"LABEL_OVERLAY_PLACEHOLDERS","id":"9f9d0ef
 
 onMessage({
     "origin": "twitchat",
-    "type": "LABEL_OVERLAY_PARAMS",
+    "type": "ON_LABEL_OVERLAY_CONFIGS",
     "id": "cb1cb8a0-7712-46e6-a2ef-5a3798288d2a",
     "data": {
         "id": "0e83c6a3-80f6-4656-99b3-167e849404a0",

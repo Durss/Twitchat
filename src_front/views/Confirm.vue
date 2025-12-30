@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="title" v-html="htmlSafe(confirmData.title)"></div>
 			
-			<VoiceGlobalCommandsHelper v-if="voiceControl" :confirmMode="true" />
+			<VoiceGlobalCommandsHelper v-if="voiceController" :confirmMode="true" />
 
 			<div class="description" v-if="confirmData.description" v-html="htmlSafe(confirmData.description)"></div>
 			<div class="buttons">
@@ -25,6 +25,7 @@ import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import VoiceGlobalCommandsHelper from '../components/voice/VoiceGlobalCommandsHelper.vue';
 import DOMPurify from 'isomorphic-dompurify';
+import VoiceController from '@/utils/voice/VoiceController';
 
 @Component({
 	components:{
@@ -36,11 +37,10 @@ class Confirm extends Vue {
 	
 	public confirmData:TwitchatDataTypes.ConfirmData|null = null;
 	public submitPressed = false;
-	public voiceControl = false;
+	public voiceController!:FormVoiceControllHelper;
 	
 	private keyUpHandler!:(e:KeyboardEvent) => void;
 	private keyDownHandler!:(e:KeyboardEvent) => void;
-	private voiceController!:FormVoiceControllHelper;
 
 	public mounted():void {
 		this.keyUpHandler = (e:KeyboardEvent) => this.onKeyUp(e);
@@ -72,13 +72,12 @@ class Confirm extends Vue {
 			await this.$nextTick();
 			const holder = this.$refs.holder as HTMLElement;
 			const dimmer = this.$refs.dimmer as HTMLElement;
-			this.voiceControl = d!.STTOrigin === true;
 			(document.activeElement as HTMLElement).blur();//avoid clicking again on focused button if submitting confirm via SPACE key
 			gsap.killTweensOf([holder, dimmer]);
 			gsap.set(holder, {marginTop:0, opacity:1});
 			gsap.to(dimmer, {duration:.25, opacity:1});
 			gsap.from(holder, {duration:.25, marginTop:100, opacity:0, ease:"back.out"});
-			if(this.voiceControl) {
+			if(VoiceController.instance.started.value) {
 				this.voiceController = new FormVoiceControllHelper(this.$el, this.close, this.submitForm);
 			}
 		}else{

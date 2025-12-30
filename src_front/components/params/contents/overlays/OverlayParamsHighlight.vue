@@ -138,7 +138,7 @@ class OverlayParamsHighlight extends Vue {
 			this.overlayExists = true;
 			clearTimeout(this.subcheckTimeout);
 		};
-		PublicAPI.instance.addEventListener("CHAT_HIGHLIGHT_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 
 		//Regularly check if the overlay exists
 		this.getOverlayPresence(true);
@@ -169,7 +169,7 @@ class OverlayParamsHighlight extends Vue {
 	public beforeUnmount():void {
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
-		PublicAPI.instance.removeEventListener("CHAT_HIGHLIGHT_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 	}
 
 	public async testOverlay():Promise<void> {

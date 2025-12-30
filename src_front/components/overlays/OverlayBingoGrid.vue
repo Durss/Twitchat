@@ -119,9 +119,9 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	private innactivityTimeout:number = -1;
 	private leaderBoardFontSize:string = "";
 	private broadcastPresenceInterval:string = "";
-	private bingoUpdateHandler!:(e:TwitchatEvent<"BINGO_GRID_PARAMETERS">) => void;
-	private bingoViewerHandler!:(e:TwitchatEvent<"BINGO_GRID_OVERLAY_VIEWER_EVENT">) => void;
-	private leaderboardHandler!:(e:TwitchatEvent<"BINGO_GRID_OVERLAY_LEADER_BOARD">) => void;
+	private bingoUpdateHandler!:(e:TwitchatEvent<"ON_BINGO_GRID_CONFIGS">) => void;
+	private bingoViewerHandler!:(e:TwitchatEvent<"ON_BINGO_GRID_VIEWER_EVENT">) => void;
+	private leaderboardHandler!:(e:TwitchatEvent<"ON_BINGO_GRID_LEADER_BOARD">) => void;
 	private prevCheckStates:{[key:string]:boolean} = {};
 	private winSoundVolume!:HTMLAudioElement;
 	private debugScale = 1;//Reduce to add margin around grid for cleaner screen capture
@@ -171,9 +171,9 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		this.bingoUpdateHandler = (e) => this.onBingoUpdate(e);
 		this.bingoViewerHandler = (e) => this.onBingoViewer(e);
 		this.leaderboardHandler = (e) => this.onLeaderboard(e);
-		PublicAPI.instance.addEventListener("BINGO_GRID_PARAMETERS", this.bingoUpdateHandler);
-		PublicAPI.instance.addEventListener("BINGO_GRID_OVERLAY_VIEWER_EVENT", this.bingoViewerHandler);
-		PublicAPI.instance.addEventListener("BINGO_GRID_OVERLAY_LEADER_BOARD", this.leaderboardHandler);
+		PublicAPI.instance.addEventListener("ON_BINGO_GRID_CONFIGS", this.bingoUpdateHandler);
+		PublicAPI.instance.addEventListener("ON_BINGO_GRID_VIEWER_EVENT", this.bingoViewerHandler);
+		PublicAPI.instance.addEventListener("ON_BINGO_GRID_LEADER_BOARD", this.leaderboardHandler);
 
 		this.broadcastPresenceInterval = SetIntervalWorker.instance.create(()=>{
 			this.broadcastPresence();
@@ -184,23 +184,23 @@ export class OverlayBingoGrid extends AbstractOverlay {
 
 	public beforeUnmount(): void {
 		SetIntervalWorker.instance.delete(this.broadcastPresenceInterval);
-		PublicAPI.instance.removeEventListener("BINGO_GRID_PARAMETERS", this.bingoUpdateHandler);
-		PublicAPI.instance.removeEventListener("BINGO_GRID_OVERLAY_VIEWER_EVENT", this.bingoViewerHandler);
-		PublicAPI.instance.removeEventListener("BINGO_GRID_OVERLAY_LEADER_BOARD", this.leaderboardHandler);
+		PublicAPI.instance.removeEventListener("ON_BINGO_GRID_CONFIGS", this.bingoUpdateHandler);
+		PublicAPI.instance.removeEventListener("ON_BINGO_GRID_VIEWER_EVENT", this.bingoViewerHandler);
+		PublicAPI.instance.removeEventListener("ON_BINGO_GRID_LEADER_BOARD", this.leaderboardHandler);
 	}
 
 	/**
 	 * Ask bingo info from Twitchat
 	 */
 	override requestInfo():void {
-		PublicAPI.instance.broadcast("GET_BINGO_GRID_PARAMETERS", {bid:this.id});
+		PublicAPI.instance.broadcast("GET_BINGO_GRID_CONFIGS", {id:this.id});
 	}
 
 	/**
 	 * Tell Twitchat overlay exists
 	 */
 	public broadcastPresence():void {
-		PublicAPI.instance.broadcast("BINGO_GRID_OVERLAY_PRESENCE", {bid:this.id});
+		PublicAPI.instance.broadcast("SET_BINGO_GRID_OVERLAY_PRESENCE", {id:this.id});
 	}
 
 	/**
@@ -214,7 +214,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			}
 			if(element != document.body) {
 				const id = element.dataset["cellid"] || "";
-				PublicAPI.instance.broadcast("BINGO_GRID_HEAT_CLICK", {gridId:this.bingo!.id, entryId:id, click:event});
+				PublicAPI.instance.broadcast("ON_BINGO_GRID_HEAT_CLICK", {id:this.bingo!.id, entryId:id, click:event});
 			}
 		}
 	}
@@ -224,7 +224,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	 */
 	private async onLeaderboard(e:Parameters<typeof this.leaderboardHandler>[0]):Promise<void> {
 		if(!e.data) return;
-		if(e.data.gridId != this.id) return;
+		if(e.data.id != this.id) return;
 
 		await this.openCloseGrid(true);
 
@@ -270,16 +270,16 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	/**
 	 * Called when a user wins a bingo
 	 */
-	private async onBingoViewer(e:TwitchatEvent<"BINGO_GRID_OVERLAY_VIEWER_EVENT">):Promise<void> {
+	private async onBingoViewer(e:TwitchatEvent<"ON_BINGO_GRID_VIEWER_EVENT">):Promise<void> {
 		if(!e.data) return;
-		if(e.data.gridId != this.id) return;
+		if(e.data.id != this.id) return;
 		this.pushEvent({type:"user", userBingo:{...e.data, displayCount:e.data.count}});
 	}
 
 	/**
 	 * Called when bingo data are changed
 	 */
-	private async onBingoUpdate(e:TwitchatEvent<"BINGO_GRID_PARAMETERS">):Promise<void> {
+	private async onBingoUpdate(e:TwitchatEvent<"ON_BINGO_GRID_CONFIGS">):Promise<void> {
 		if(e.data) {
 			const data = e.data;
 			if(data.id != this.id) return;
@@ -324,8 +324,8 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			//@ts-ignore
 			window.fakeUserEvents = ()=>{
 
-				this.onBingoViewer(new TwitchatEvent("BINGO_GRID_OVERLAY_VIEWER_EVENT", {
-						"gridId": this.id,
+				this.onBingoViewer(new TwitchatEvent("ON_BINGO_GRID_VIEWER_EVENT", {
+						"id": this.id,
 						"user": {
 							"name": "DurssBot",
 							"id": "647389082",
@@ -333,8 +333,8 @@ export class OverlayBingoGrid extends AbstractOverlay {
 						},
 						"count": 1
 					}));
-				this.onBingoViewer(new TwitchatEvent("BINGO_GRID_OVERLAY_VIEWER_EVENT", {
-						"gridId": this.id,
+				this.onBingoViewer(new TwitchatEvent("ON_BINGO_GRID_VIEWER_EVENT", {
+						"id": this.id,
 						"user": {
 							"name": "JohanRelpek",
 							"id": "675760285",
@@ -343,8 +343,8 @@ export class OverlayBingoGrid extends AbstractOverlay {
 						"count": 9
 					}));
 
-				this.onBingoViewer(new TwitchatEvent("BINGO_GRID_OVERLAY_VIEWER_EVENT", {
-						"gridId": this.id,
+				this.onBingoViewer(new TwitchatEvent("ON_BINGO_GRID_VIEWER_EVENT", {
+						"id": this.id,
 						"user": {
 							"name": "Durss",
 							"id": "29961813",
@@ -360,8 +360,8 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			// FAKE LEADERBOARD
 			//@ts-ignore
 			window.fakeLeaderboard = ()=>{
-				this.onLeaderboard(new TwitchatEvent("BINGO_GRID_OVERLAY_LEADER_BOARD",{
-						gridId:this.id,
+				this.onLeaderboard(new TwitchatEvent("ON_BINGO_GRID_LEADER_BOARD",{
+						id:this.id,
 						scores:[
 							{pos:0,score:8,user_name:"Cailloute",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/2335a3b2-7816-43ee-9c74-a4cd99a1c897-profile_image-50x50.png"},
 							{pos:1,score:5,user_name:"ChezMarino",user_pic:"https://static-cdn.jtvnw.net/jtv_user_pictures/c707c1e9-242c-4a34-84eb-46653bdbacff-profile_image-50x50.png"},
@@ -862,7 +862,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	}
 }
 
-interface IUserBingoData {gridId:string, user: { name:string,id:string,avatar:string}, count:number, displayCount?:number};
+interface IUserBingoData {id:string, user: { name:string,id:string,avatar:string}, count:number, displayCount?:number};
 interface IBingoUpdateData {id:string, bingo:TwitchatDataTypes.BingoGridConfig, newVerticalBingos:number[], newHorizontalBingos:number[], newDiagonalBingos:number[] }
 export default toNative(OverlayBingoGrid);
 </script>
