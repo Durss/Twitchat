@@ -94,7 +94,7 @@ export default class VoiceController {
 					const finalText = event.results[i]![0]!.transcript.replace(this.lastTriggerKey, "");
 					if(this.remoteControlMode) {
 						this.finalText.value = tempText_loc;
-						PublicAPI.instance.broadcast("STT_REMOTE_FINAL_TEXT_EVENT", {text:finalText})
+						PublicAPI.instance.broadcast("ON_STT_REMOTE_FINAL_TEXT_EVENT", {text:finalText})
 					}else{
 						this.onFinalText( finalText );
 					}
@@ -107,7 +107,7 @@ export default class VoiceController {
 
 			if(this.remoteControlMode) {
 				this.tempText.value = tempText_loc;
-				PublicAPI.instance.broadcast("STT_REMOTE_TEMP_TEXT_EVENT", {text:tempText_loc});
+				PublicAPI.instance.broadcast("ON_STT_REMOTE_TEMP_TEXT_EVENT", {text:tempText_loc});
 			}else{
 				this.onTempText(tempText_loc);
 			}
@@ -163,21 +163,21 @@ export default class VoiceController {
 			}
 		});
 
-		PublicAPI.instance.addEventListener("ENABLE_STT", ()=> {
-			this.start(this.remoteControlMode);
-		})
-
-		PublicAPI.instance.addEventListener("DISABLE_STT", ()=> {
-			this.stop();
+		PublicAPI.instance.addEventListener("SET_VOICE_CONTROL_STATE", (data)=> {
+			if(data.data.enabled === true) {
+				this.start(this.remoteControlMode);
+			}else{
+				this.stop();
+			}
 		})
 		
-		PublicAPI.instance.addEventListener("STT_REMOTE_TEMP_TEXT_EVENT", (e)=> {
+		PublicAPI.instance.addEventListener("ON_STT_REMOTE_TEMP_TEXT_EVENT", (e)=> {
 			this.finalText.value = "";
 			// //@ts-ignore
 			// console.log("REMOTE TEMP", e.data.text);
 			this.onTempText(e.data.text);
 		});
-		PublicAPI.instance.addEventListener("STT_REMOTE_FINAL_TEXT_EVENT", (e)=> {
+		PublicAPI.instance.addEventListener("ON_STT_REMOTE_FINAL_TEXT_EVENT", (e)=> {
 			this.onFinalText(e.data.text);
 		});
 	}
@@ -236,10 +236,12 @@ export default class VoiceController {
 		// console.log("TRIGGER ACTION", action, data);
 		
 		switch(action) {
-			case VoiceAction.CHAT_FEED_SCROLL_UP:	PublicAPI.instance.broadcast("CHAT_FEED_SCROLL_UP", {scrollBy:500, colIndex:0}, true, true); return;
-			case VoiceAction.CHAT_FEED_SCROLL_DOWN:	PublicAPI.instance.broadcast("CHAT_FEED_SCROLL_DOWN", {scrollBy:500, colIndex:0}, true, true); return;
-			case VoiceAction.CHAT_FEED_READ:		PublicAPI.instance.broadcast("CHAT_FEED_READ", {count:10, colIndex:0}, true, true); return;
-			case VoiceAction.GREET_FEED_READ:		PublicAPI.instance.broadcast("GREET_FEED_READ", {count:10}, true, true); return;
+			case VoiceAction.CHAT_FEED_SCROLL_UP:	PublicAPI.instance.broadcast("SET_CHAT_FEED_SCROLL_UP", {scrollBy:500, colIndex:0}, true, true); return;
+			case VoiceAction.CHAT_FEED_SCROLL_DOWN:	PublicAPI.instance.broadcast("SET_CHAT_FEED_SCROLL_DOWN", {scrollBy:500, colIndex:0}, true, true); return;
+			case VoiceAction.CHAT_FEED_READ:		PublicAPI.instance.broadcast("SET_CHAT_FEED_READ", {count:10, colIndex:0}, true, true); return;
+			case VoiceAction.GREET_FEED_READ:		PublicAPI.instance.broadcast("SET_GREET_FEED_READ", {messageCount:10}, true, true); return;
+			case VoiceAction.START_EMERGENCY:		PublicAPI.instance.broadcast("SET_EMERGENCY_MODE", {enabled:true, promptConfirmation:true}, true, true); return;
+			case VoiceAction.STOP_EMERGENCY:		PublicAPI.instance.broadcast("SET_EMERGENCY_MODE", {enabled:false}, true, true); return;
 		}
 		if(action != VoiceAction.TEXT_UPDATE) {
 			this.triggersCountDone ++;
