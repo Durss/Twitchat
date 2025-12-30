@@ -341,7 +341,6 @@ export default toNative(ParamsList);
 					padding: .25em .5em;
 					border-radius: .5em;
 					font-size: .8em;
-					background: red;
 				}
 			}
 

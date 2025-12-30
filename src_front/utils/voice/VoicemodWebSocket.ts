@@ -463,7 +463,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 		StoreProxy.voice.voicemodCurrentVoice = this._currentVoiceEffect;
 		StoreProxy.labels.updateLabelValue("VOICEMOD_EFFECT_TITLE", voice.friendlyName);
 		StoreProxy.labels.updateLabelValue("VOICEMOD_EFFECT_ICON",  "data:image/png;base64,"+voice.image || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==");
-		PublicAPI.instance.broadcast("VOICEMOD_VOICE_CHANGE", {voice:voice.id});
+		PublicAPI.instance.broadcast("ON_VOICEMOD_VOICE_CHANGE", {voiceId:voice.id});
 		this.dispatchEvent(new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, voice.id, voice.friendlyName));
 	}
 

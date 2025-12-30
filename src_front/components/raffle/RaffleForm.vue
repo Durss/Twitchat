@@ -18,7 +18,7 @@
 				<p v-for="l in $tm('raffle.legal.contents')">{{l}}</p>
 			</ToggleBlock>
 
-			<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
+			<VoiceGlobalCommandsHelper v-if="voiceController" class="voiceHelper" />
 
 			<form class="form" v-if="localData.mode=='chat'" @submit.prevent="submitForm()">
 				<div class="card-item info">{{ $t("raffle.chat.description") }}</div>
@@ -341,6 +341,7 @@ import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import FormVoiceControllHelper from '../voice/FormVoiceControllHelper';
 import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
+import VoiceController from '@/utils/voice/VoiceController';
 
 @Component({
 	components:{
@@ -355,9 +356,6 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 	emits:["close"]
 })
 class RaffleForm extends AbstractSidePanel {
-
-	@Prop({type: Boolean, default: false})
-	public voiceControl!:boolean;
 
 	@Prop({type: Boolean, default: false})
 	public triggerMode!:boolean;
@@ -487,9 +485,9 @@ class RaffleForm extends AbstractSidePanel {
 			},
 		},
 	}
+	public voiceController!:FormVoiceControllHelper;
 
 	private subs:TwitchDataTypes.Subscriber[] = [];
-	private voiceController!:FormVoiceControllHelper;
 
 	public get hasRewards():boolean { return TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS]) && this.param_rewardvalue.listValues!.length > -1; }
 	public get isAffiliate():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
@@ -685,8 +683,8 @@ class RaffleForm extends AbstractSidePanel {
 			this.open();
 		}
 
-		watch(()=>this.voiceControl, ()=>{
-			if(this.voiceControl && !this.voiceController) {
+		watch(()=>VoiceController.instance.started.value, ()=>{
+			if(VoiceController.instance.started.value && !this.voiceController) {
 				this.voiceController = new FormVoiceControllHelper(this.$el, this.close, this.submitForm);
 			}
 		});

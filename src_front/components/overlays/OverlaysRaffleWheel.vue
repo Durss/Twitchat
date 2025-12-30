@@ -70,7 +70,7 @@ class OverlaysRaffleWheel extends Vue {
 	private resizeDebounce!:number;
 	private prevBiggestItem!:HTMLDivElement;
 	private resizeHandler!:()=>void;
-	private startWheelHandler!:(e:TwitchatEvent<"WHEEL_OVERLAY_START">)=>void;
+	private startWheelHandler!:(e:TwitchatEvent<"ON_WHEEL_OVERLAY_START">)=>void;
 	private wheelPresenceHandler!:()=>void;
 
 	public get listStyles():{[key:string]:string|number} {
@@ -99,12 +99,12 @@ class OverlaysRaffleWheel extends Vue {
 		this.resizeHandler();
 		window.addEventListener("resize", this.resizeHandler);
 
-		PublicAPI.instance.broadcast("WHEEL_OVERLAY_PRESENCE");
+		PublicAPI.instance.broadcast("ON_WHEEL_OVERLAY_PRESENCE");
 
-		this.startWheelHandler = (e:TwitchatEvent<"WHEEL_OVERLAY_START">)=>this.onStartWheel(e);
-		this.wheelPresenceHandler = ()=>{ PublicAPI.instance.broadcast("WHEEL_OVERLAY_PRESENCE"); }
+		this.startWheelHandler = (e:TwitchatEvent<"ON_WHEEL_OVERLAY_START">)=>this.onStartWheel(e);
+		this.wheelPresenceHandler = ()=>{ PublicAPI.instance.broadcast("ON_WHEEL_OVERLAY_PRESENCE"); }
 
-		PublicAPI.instance.addEventListener("WHEEL_OVERLAY_START", this.startWheelHandler);
+		PublicAPI.instance.addEventListener("ON_WHEEL_OVERLAY_START", this.startWheelHandler);
 		PublicAPI.instance.addEventListener("GET_WHEEL_OVERLAY_PRESENCE", this.wheelPresenceHandler);
 
 		//Populate with fake data
@@ -125,7 +125,7 @@ class OverlaysRaffleWheel extends Vue {
 		this.rafID ++;
 		gsap.killTweensOf(this);
 		window.removeEventListener("resize", this.resizeHandler);
-		PublicAPI.instance.removeEventListener("WHEEL_OVERLAY_START", this.startWheelHandler);
+		PublicAPI.instance.removeEventListener("ON_WHEEL_OVERLAY_START", this.startWheelHandler);
 		PublicAPI.instance.removeEventListener("GET_WHEEL_OVERLAY_PRESENCE", this.wheelPresenceHandler);
 	}
 
@@ -281,7 +281,7 @@ class OverlaysRaffleWheel extends Vue {
 		}
 	}
 
-	public async onStartWheel(e:TwitchatEvent<"WHEEL_OVERLAY_START">):Promise<void> {
+	public async onStartWheel(e:TwitchatEvent<"ON_WHEEL_OVERLAY_START">):Promise<void> {
 		const winner = e.data.items.find(v=>v.id == e.data.winner);
 		if(!winner) {
 			console.log("Invalid winner ID", e.data.winner);
@@ -327,7 +327,7 @@ class OverlaysRaffleWheel extends Vue {
 						}});
 
 		//Tell twitchat animation completed
-		PublicAPI.instance.broadcast("WHEEL_OVERLAY_ANIMATION_COMPLETE", {winner:this.winnerData, sessionId:this.sessionId, delay:5000});
+		PublicAPI.instance.broadcast("ON_WHEEL_OVERLAY_ANIMATION_COMPLETE", {winner:this.winnerData, sessionId:this.sessionId, delay:5000});
 	}
 
 	public burstStars(heart:HTMLDivElement):void {

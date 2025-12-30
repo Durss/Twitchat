@@ -56,9 +56,9 @@ class OverlayPredictions extends AbstractOverlay {
 	};
 
 	private parametersReceived:boolean = false;
-	private pendingData:TwitchatEvent<"PREDICTION_PROGRESS">|null = null;
-	private updatePredictionHandler!:(e:TwitchatEvent<"PREDICTION_PROGRESS">)=>void;
-	private updateParametersHandler!:(e:TwitchatEvent<"PREDICTIONS_OVERLAY_PARAMETERS">)=>void;
+	private pendingData:TwitchatEvent<"ON_PREDICTION_PROGRESS">|null = null;
+	private updatePredictionHandler!:(e:TwitchatEvent<"ON_PREDICTION_PROGRESS">)=>void;
+	private updateParametersHandler!:(e:TwitchatEvent<"ON_PREDICTION_OVERLAY_CONFIGS">)=>void;
 	private requestPresenceHandler!:()=>void;
 
 	public get listMode():boolean {
@@ -76,29 +76,29 @@ class OverlayPredictions extends AbstractOverlay {
 	}
 
 	public async mounted():Promise<void> {
-		PublicAPI.instance.broadcast("PREDICTIONS_OVERLAY_PRESENCE");
+		PublicAPI.instance.broadcast("ON_PREDICTIONS_OVERLAY_PRESENCE");
 
-		this.updateParametersHandler = (e:TwitchatEvent<"PREDICTIONS_OVERLAY_PARAMETERS">)=>this.onUpdateParams(e);
-		this.updatePredictionHandler = (e:TwitchatEvent<"PREDICTION_PROGRESS">)=>this.onUpdatePrediction(e);
-		this.requestPresenceHandler = ()=>{ PublicAPI.instance.broadcast("PREDICTIONS_OVERLAY_PRESENCE"); }
+		this.updateParametersHandler = (e:TwitchatEvent<"ON_PREDICTION_OVERLAY_CONFIGS">)=>this.onUpdateParams(e);
+		this.updatePredictionHandler = (e:TwitchatEvent<"ON_PREDICTION_PROGRESS">)=>this.onUpdatePrediction(e);
+		this.requestPresenceHandler = ()=>{ PublicAPI.instance.broadcast("ON_PREDICTIONS_OVERLAY_PRESENCE"); }
 
-		PublicAPI.instance.addEventListener("PREDICTION_PROGRESS", this.updatePredictionHandler);
-		PublicAPI.instance.addEventListener("PREDICTIONS_OVERLAY_PARAMETERS", this.updateParametersHandler);
+		PublicAPI.instance.addEventListener("ON_PREDICTION_PROGRESS", this.updatePredictionHandler);
+		PublicAPI.instance.addEventListener("ON_PREDICTION_OVERLAY_CONFIGS", this.updateParametersHandler);
 		PublicAPI.instance.addEventListener("GET_PREDICTIONS_OVERLAY_PRESENCE", this.requestPresenceHandler);
 	}
 
 	public beforeUnmount():void {
 		super.beforeUnmount();
-		PublicAPI.instance.removeEventListener("PREDICTION_PROGRESS", this.updatePredictionHandler);
-		PublicAPI.instance.removeEventListener("PREDICTIONS_OVERLAY_PARAMETERS", this.updateParametersHandler);
+		PublicAPI.instance.removeEventListener("ON_PREDICTION_PROGRESS", this.updatePredictionHandler);
+		PublicAPI.instance.removeEventListener("ON_PREDICTION_OVERLAY_CONFIGS", this.updateParametersHandler);
 		PublicAPI.instance.removeEventListener("GET_PREDICTIONS_OVERLAY_PRESENCE", this.requestPresenceHandler);
 	}
 
 	public requestInfo():void {
-		PublicAPI.instance.broadcast("GET_PREDICTIONS_OVERLAY_PARAMETERS");
+		PublicAPI.instance.broadcast("GET_PREDICTIONS_OVERLAY_CONFIGS");
 	}
 
-	public async onUpdatePrediction(e:TwitchatEvent<"PREDICTION_PROGRESS">):Promise<void> {
+	public async onUpdatePrediction(e:TwitchatEvent<"ON_PREDICTION_PROGRESS">):Promise<void> {
 		if(!this.parametersReceived) {
 			// overlay's parameters not received yet, put data aside
 			// onUpdatePrediction() will be called by onUpdateParams() afterwards
@@ -129,7 +129,7 @@ class OverlayPredictions extends AbstractOverlay {
 		}
 	}
 
-	public async onUpdateParams(e:TwitchatEvent<"PREDICTIONS_OVERLAY_PARAMETERS">):Promise<void> {
+	public async onUpdateParams(e:TwitchatEvent<"ON_PREDICTION_OVERLAY_CONFIGS">):Promise<void> {
 		this.parameters = e.data.parameters;
 		this.parametersReceived = true;
 		if(this.pendingData) {

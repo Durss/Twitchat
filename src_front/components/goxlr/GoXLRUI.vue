@@ -107,7 +107,7 @@ class GoXLRUI extends Vue {
 			case GoXLRSocketEvent.BUTTON_RELEASED: {
 				const bt = e.buttonId!;
 				const item = holder.querySelector(".area #"+bt) as HTMLElement|null;
-				console.log("ITEM", item);
+				console.log("ON_ITEM", item);
 				if(!item) return;
 				if(e.type == GoXLRSocketEvent.BUTTON_PRESSED) {
 					item.classList.add("highlight");
@@ -159,7 +159,7 @@ class GoXLRUI extends Vue {
 					this.selectedButtons = this.selectedButtons.filter(v=>v.indexOf("SamplerSelect") || v == id);
 				}
 
-				// const fullID = ids.join("_") as GoXLRTypes.ButtonTypesData;
+				// const fullID = ids.join("ON__") as GoXLRTypes.ButtonTypesData;
 				const index = this.selectedButtons.indexOf(id);
 				if(index == -1) {
 					this.selectedButtons.push(id);

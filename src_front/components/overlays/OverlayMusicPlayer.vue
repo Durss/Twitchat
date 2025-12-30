@@ -87,7 +87,7 @@ class OverlayMusicPlayer extends AbstractOverlay {
 		return false;
 	}
 
-	private onTrackHandler!:(e:TwitchatEvent<"CURRENT_TRACK">) => void;
+	private onTrackHandler!:(e:TwitchatEvent<"ON_CURRENT_TRACK">) => void;
 
 	public get classes():string[] {
 		let res = ["overlaymusicplayer"];
@@ -112,7 +112,7 @@ class OverlayMusicPlayer extends AbstractOverlay {
 	}
 
 	public mounted():void {
-		this.onTrackHandler = async (e:TwitchatEvent<"CURRENT_TRACK">) => {
+		this.onTrackHandler = async (e:TwitchatEvent<"ON_CURRENT_TRACK">) => {
 			if(e.data && e.data.params){
 				this.params = e.data.params;
 			}
@@ -162,7 +162,7 @@ class OverlayMusicPlayer extends AbstractOverlay {
 		};
 
 		if(!this.staticTrackData) {
-			PublicAPI.instance.addEventListener("CURRENT_TRACK", this.onTrackHandler);
+			PublicAPI.instance.addEventListener("ON_CURRENT_TRACK", this.onTrackHandler);
 			//Wait a little to give it time to OBS websocket to establish connexion
 		}else{
 			this.onTrackChangeLocal();
@@ -176,7 +176,7 @@ class OverlayMusicPlayer extends AbstractOverlay {
 	}
 
 	public beforeUnmount():void {
-		PublicAPI.instance.removeEventListener("CURRENT_TRACK", this.onTrackHandler);
+		PublicAPI.instance.removeEventListener("ON_CURRENT_TRACK", this.onTrackHandler);
 	}
 
 	public requestInfo():void {

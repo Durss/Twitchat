@@ -16,13 +16,13 @@ export default class AbstractOverlay extends Vue {
 			if(!this.initDone) this.requestInfo();
 			this.initDone = true;//Avoids potential double init. Once when BroadcastChannel is ready and once when OBS-websocket is ready
 		}
-		PublicAPI.instance.addEventListener("OBS_WEBSOCKET_CONNECTED", this.publicAPIConnectedHandler);
-		PublicAPI.instance.addEventListener("TWITCHAT_READY", this.publicAPIConnectedHandler);
+		PublicAPI.instance.addEventListener("ON_OBS_WEBSOCKET_CONNECTED", this.publicAPIConnectedHandler);
+		PublicAPI.instance.addEventListener("ON_TWITCHAT_READY", this.publicAPIConnectedHandler);
 	}
 
 	public beforeUnmount():void {
-		PublicAPI.instance.removeEventListener("OBS_WEBSOCKET_CONNECTED", this.publicAPIConnectedHandler);
-		PublicAPI.instance.removeEventListener("TWITCHAT_READY", this.publicAPIConnectedHandler);
+		PublicAPI.instance.removeEventListener("ON_OBS_WEBSOCKET_CONNECTED", this.publicAPIConnectedHandler);
+		PublicAPI.instance.removeEventListener("ON_TWITCHAT_READY", this.publicAPIConnectedHandler);
 	}
 
 	/**

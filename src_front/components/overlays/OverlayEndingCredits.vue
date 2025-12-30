@@ -241,9 +241,9 @@ class OverlayEndingCredits extends AbstractOverlay {
 	private styleNode:HTMLStyleElement|null = null;
 
 	private keyupHandler!:(e:KeyboardEvent)=>void;
-	private controlHandler!:(e:TwitchatEvent<"ENDING_CREDITS_CONTROL">) => void;
-	private summaryDataHandler!:(e:TwitchatEvent<"SUMMARY_DATA">) => void;
-	private paramsDataHandler!:(e:TwitchatEvent<"ENDING_CREDITS_CONFIGS">) => void;
+	private controlHandler!:(e:TwitchatEvent<"SET_ENDING_CREDITS_CONTROL">) => void;
+	private summaryDataHandler!:(e:TwitchatEvent<"SET_ENDING_CREDITS_DATA">) => void;
+	private paramsDataHandler!:(e:TwitchatEvent<"ON_ENDING_CREDITS_CONFIGS">) => void;
 	private overlayPresenceHandler!:()=>void;
 
 	public get styles():CSSProperties {
@@ -650,23 +650,23 @@ class OverlayEndingCredits extends AbstractOverlay {
 	}
 
 	public requestInfo():void {
-		PublicAPI.instance.broadcast("GET_SUMMARY_DATA", {includeParams:true});
+		PublicAPI.instance.broadcast("GET_ENDING_CREDITS_DATA", {includeOverlayParams:true});
 	}
 
 	public beforeMount(): void {
-		PublicAPI.instance.broadcast("CREDITS_OVERLAY_PRESENCE");
+		PublicAPI.instance.broadcast("SET_ENDING_CREDITS_PRESENCE");
 
 		this.keyupHandler = (e:KeyboardEvent) => this.onKeyup(e);
-		this.controlHandler = (e:TwitchatEvent<"ENDING_CREDITS_CONTROL">) => this.onControl(e);
-		this.summaryDataHandler = (e:TwitchatEvent<"SUMMARY_DATA">) => this.onSummaryData(e);
-		this.paramsDataHandler = (e:TwitchatEvent<"ENDING_CREDITS_CONFIGS">) => this.onParamsData(e);
-		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast("CREDITS_OVERLAY_PRESENCE"); }
+		this.controlHandler = (e:TwitchatEvent<"SET_ENDING_CREDITS_CONTROL">) => this.onControl(e);
+		this.summaryDataHandler = (e:TwitchatEvent<"SET_ENDING_CREDITS_DATA">) => this.onSummaryData(e);
+		this.paramsDataHandler = (e:TwitchatEvent<"ON_ENDING_CREDITS_CONFIGS">) => this.onParamsData(e);
+		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast("SET_ENDING_CREDITS_PRESENCE"); }
 
 		document.addEventListener("keyup", this.keyupHandler);
-		PublicAPI.instance.addEventListener("SUMMARY_DATA", this.summaryDataHandler);
-		PublicAPI.instance.addEventListener("ENDING_CREDITS_CONTROL", this.controlHandler);
-		PublicAPI.instance.addEventListener("ENDING_CREDITS_CONFIGS", this.paramsDataHandler);
-		PublicAPI.instance.addEventListener("GET_CREDITS_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.addEventListener("SET_ENDING_CREDITS_DATA", this.summaryDataHandler);
+		PublicAPI.instance.addEventListener("SET_ENDING_CREDITS_CONTROL", this.controlHandler);
+		PublicAPI.instance.addEventListener("ON_ENDING_CREDITS_CONFIGS", this.paramsDataHandler);
+		PublicAPI.instance.addEventListener("GET_ENDING_CREDITS_PRESENCE", this.overlayPresenceHandler);
 
 		watch(()=>this.posY, ()=> {
 			// (this.$refs.holder as HTMLDivElement).style.transform = "translateY("+this.posY+"px)";
@@ -674,7 +674,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 		});
 
 		window.setInterval(()=> {
-			PublicAPI.instance.broadcast("CREDITS_OVERLAY_PRESENCE");
+			PublicAPI.instance.broadcast("SET_ENDING_CREDITS_PRESENCE");
 		}, 20000);
 
 		this.styleNode = document.createElement("style");
@@ -684,10 +684,10 @@ class OverlayEndingCredits extends AbstractOverlay {
 	public beforeUnmount(): void {
 		cancelAnimationFrame(this.animFrame);
 		document.removeEventListener("keyup", this.keyupHandler);
-		PublicAPI.instance.removeEventListener("SUMMARY_DATA", this.summaryDataHandler);
-		PublicAPI.instance.removeEventListener("ENDING_CREDITS_CONTROL", this.controlHandler);
-		PublicAPI.instance.removeEventListener("ENDING_CREDITS_CONFIGS", this.paramsDataHandler);
-		PublicAPI.instance.removeEventListener("GET_CREDITS_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("SET_ENDING_CREDITS_DATA", this.summaryDataHandler);
+		PublicAPI.instance.removeEventListener("SET_ENDING_CREDITS_CONTROL", this.controlHandler);
+		PublicAPI.instance.removeEventListener("ON_ENDING_CREDITS_CONFIGS", this.paramsDataHandler);
+		PublicAPI.instance.removeEventListener("GET_ENDING_CREDITS_PRESENCE", this.overlayPresenceHandler);
 	}
 
 	/**
@@ -907,21 +907,21 @@ class OverlayEndingCredits extends AbstractOverlay {
 	 * Called when controlling remotely
 	 * Used to control speed
 	 */
-	private async onControl(e:TwitchatEvent<"ENDING_CREDITS_CONTROL">):Promise<void> {
+	private async onControl(e:TwitchatEvent<"SET_ENDING_CREDITS_CONTROL">):Promise<void> {
 		const data = e.data;
 		if(data.speed != undefined) {
 			this.speedScaleInc = data.speed;
 		}
-		if(data.scrollTo != undefined) {
-			this.interpolating = this.fixedScrollId != data.scrollTo;
+		if(data.scrollToSectionID != undefined) {
+			this.interpolating = this.fixedScrollId != data.scrollToSectionID;
 			if(this.interpolating) {
-				const bounds = document.getElementById("item_"+data.scrollTo)?.getBoundingClientRect();
+				const bounds = document.getElementById("item_"+data.scrollToSectionID)?.getBoundingClientRect();
 				if(!bounds) {
 					//Item not found, cancel interpolation
 					this.interpolating = false;
 					return;
 				}
-				this.fixedScrollId = data.scrollTo;
+				this.fixedScrollId = data.scrollToSectionID;
 				const tween = {y:0};
 				const offset = this.posY;
 				let targetYPos = window.innerHeight * .2;
@@ -977,7 +977,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 	/**
 	 * Called when API sends summary data counter data
 	 */
-	private async onSummaryData(e:TwitchatEvent<"SUMMARY_DATA">):Promise<void> {
+	private async onSummaryData(e:TwitchatEvent<"SET_ENDING_CREDITS_DATA">):Promise<void> {
 		if(e.data) {
 			this.fixedScrollId = "";
 			this.data = e.data;
@@ -989,7 +989,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 	/**
 	 * Called when API sends new credits parameters
 	 */
-	private async onParamsData(e:TwitchatEvent<"ENDING_CREDITS_CONFIGS">):Promise<void> {
+	private async onParamsData(e:TwitchatEvent<"ON_ENDING_CREDITS_CONFIGS">):Promise<void> {
 		if(e.data && this.data) {
 			this.data.params = e.data;
 			let resetScroll = false;
@@ -1175,7 +1175,7 @@ class OverlayEndingCredits extends AbstractOverlay {
 		if(this.posY < -bounds.height) {
 			if(!this.creditsComplete) {
 				this.creditsComplete = true;
-				PublicAPI.instance.broadcast("ENDING_CREDITS_COMPLETE");
+				PublicAPI.instance.broadcast("ON_ENDING_CREDITS_COMPLETE");
 				if(this.data?.params?.loop !== true){
 					const speed = ((this.data?.params?.speed || 2) + this.speedScale) / 1000 * fps;
 					const emotes = this.$refs.powerupEmote as HTMLImageElement[] || null;

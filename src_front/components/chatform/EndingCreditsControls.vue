@@ -67,7 +67,7 @@ class EndingCreditsControls extends Vue {
 				sub_duration:"",
 			}
 		}
-		PublicAPI.instance.broadcast("SUMMARY_DATA", summary);
+		PublicAPI.instance.broadcast("SET_ENDING_CREDITS_DATA", summary);
 	}
 
 	public mounted():void {
@@ -82,22 +82,22 @@ class EndingCreditsControls extends Vue {
 
 	public async start():Promise<void> {
 		const summary = await this.$store.stream.getSummary(undefined, true);
-		PublicAPI.instance.broadcast("SUMMARY_DATA", summary);
+		PublicAPI.instance.broadcast("SET_ENDING_CREDITS_DATA", summary);
 	}
 
 	public prev():void {
-		PublicAPI.instance.broadcast("ENDING_CREDITS_CONTROL", {prev:true});
+		PublicAPI.instance.broadcast("SET_ENDING_CREDITS_CONTROL", {prev:true});
 	}
 
 	public next():void {
-		PublicAPI.instance.broadcast("ENDING_CREDITS_CONTROL", {next:true});
+		PublicAPI.instance.broadcast("SET_ENDING_CREDITS_CONTROL", {next:true});
 	}
 
 	public onSpeed():void {
 		if(this.ignoreSpeedchange) return;
 		const sign = this.speed < 0? -1 : 1;
 		const speed = 100 / (1 + Math.exp(-.1 * (Math.abs(this.speed)*10 - 50))) * sign;
-		PublicAPI.instance.broadcast("ENDING_CREDITS_CONTROL", {speed:this.speed == 0? 0 : speed/5});
+		PublicAPI.instance.broadcast("SET_ENDING_CREDITS_CONTROL", {speed:this.speed == 0? 0 : speed/5});
 	}
 
 	public onStopDragSlider():void {
