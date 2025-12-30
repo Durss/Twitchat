@@ -44,11 +44,11 @@ class ChatAlertMessage extends Vue {
 
 		this.apiCloseHandler = () => this.message = null;
 
-		PublicAPI.instance.addEventListener("HIDE_ALERT", this.apiCloseHandler);
+		PublicAPI.instance.addEventListener("SET_HIDE_CHAT_ALERT", this.apiCloseHandler);
 	}
 
 	public beforeUnmount():void {
-		PublicAPI.instance.removeEventListener("HIDE_ALERT", this.apiCloseHandler);
+		PublicAPI.instance.removeEventListener("SET_HIDE_CHAT_ALERT", this.apiCloseHandler);
 	}
 
 }

@@ -66,6 +66,22 @@ export const storeEmergency = defineStore('emergency', {
 				this.reloadFollowbotList(JSON.parse(emergencyFollows));
 			}
 
+			/**
+			 * Called when emergency mode is started or stoped
+			 */
+			PublicAPI.instance.addEventListener("SET_EMERGENCY_MODE", (e)=> {
+				let enabled = e.data!.enabled;
+				//If no forced state is specified, just toggle the state
+				if(!e.data || enabled === undefined) enabled = !this.emergencyStarted;
+				if(e.data?.promptConfirmation === true) {
+					StoreProxy.main.confirm(StoreProxy.i18n.t("emergency.enable_confirm"), undefined, undefined, undefined, undefined).then(()=>{
+						this.setEmergencyMode(true);
+					}).catch(()=>{});
+				}else{
+					this.setEmergencyMode(enabled)
+				}
+			});
+
 		},
 
 		setEmergencyParams(params:TwitchatDataTypes.EmergencyParamsData) {
@@ -161,7 +177,7 @@ export const storeEmergency = defineStore('emergency', {
 			}
 
 			//Broadcast to any connected peers
-			PublicAPI.instance.broadcast("EMERGENCY_MODE", {enabled:enable});
+			PublicAPI.instance.broadcast("ON_EMERGENCY_MODE_CHANGED", {enabled:enable});
 		},
 
 		ignoreEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData) {

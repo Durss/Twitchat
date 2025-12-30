@@ -5,7 +5,7 @@
 			<h1><Icon name="prediction" class="icon" />{{ $t("prediction.form.title") }}</h1>
 		</div>
 		<div class="content">
-			<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
+			<VoiceGlobalCommandsHelper v-if="voiceController" class="voiceHelper" />
 
 			<div class="presets" v-if="predictionHistory.length > 0">
 				<TTButton @click="selectPreset(item)" v-for="item in predictionHistory" v-tooltip="'•'+item.options.join('\n•')+'\n('+item.duration+'s)'">{{item.title}}</TTButton>
@@ -78,6 +78,7 @@ import FormVoiceControllHelper from '../voice/FormVoiceControllHelper';
 import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 import PlaceholderSelector from '../params/PlaceholderSelector.vue';
 import DataStore from '@/store/DataStore';
+import VoiceController from '@/utils/voice/VoiceController';
 
 @Component({
 	components:{
@@ -90,9 +91,6 @@ import DataStore from '@/store/DataStore';
 	emits:['close']
 })
 class PredictionForm extends AbstractSidePanel {
-
-	@Prop({type: Boolean, default: false})
-	public voiceControl!:boolean;
 
 	@Prop({type: Boolean, default: false})
 	public triggerMode!:boolean;
@@ -113,7 +111,7 @@ class PredictionForm extends AbstractSidePanel {
 	public param_title:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", maxLength:45, labelKey:"prediction.form.question", placeholderKey:"prediction.form.question_placeholder"};
 	public predictionHistory:{title:string, duration:number, options:string[]}[] = [];
 
-	private voiceController!:FormVoiceControllHelper;
+	public voiceController!:FormVoiceControllHelper;
 
 	public get classes():string[] {
 		const res = ["predictionform", "sidePanel"];
@@ -177,8 +175,8 @@ class PredictionForm extends AbstractSidePanel {
 	}
 
 	public async mounted():Promise<void> {
-		watch(()=>this.voiceControl, ()=>{
-			if(this.voiceControl && !this.voiceController) {
+		watch(()=>VoiceController.instance.started.value, ()=>{
+			if(VoiceController.instance.started.value && !this.voiceController) {
 				this.voiceController = new FormVoiceControllHelper(this.$el, this.close, this.submitForm);
 			}
 		});

@@ -183,7 +183,7 @@ class OverlayParamsAdBreak extends Vue {
 			this.overlayExists = true;
 			clearTimeout(this.subcheckTimeout);
 		};
-		PublicAPI.instance.addEventListener("AD_BREAK_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.addEventListener("ON_AD_BREAK_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 
 		//Regularly check if the overlay exists
 		this.checkInterval = window.setInterval(()=>{
@@ -202,7 +202,7 @@ class OverlayParamsAdBreak extends Vue {
 	public beforeUnmount():void {
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
-		PublicAPI.instance.removeEventListener("AD_BREAK_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("ON_AD_BREAK_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 	}
 
 	public grantScopes():void {
@@ -211,7 +211,7 @@ class OverlayParamsAdBreak extends Vue {
 
 	public onChange():void {
 		DataStore.set(DataStore.AD_BREAK_OVERLAY_PARAMS, this.localData);
-		PublicAPI.instance.broadcast("AD_BREAK_OVERLAY_PARAMETERS", this.localData);
+		PublicAPI.instance.broadcast("ON_AD_BREAK_OVERLAY_CONFIGS", this.localData);
 	}
 
 	public testApproaching():void {
@@ -223,7 +223,7 @@ class OverlayParamsAdBreak extends Vue {
 			nextSnooze_at: 0,
 			remainingSnooze: 3,
 		}
-		PublicAPI.instance.broadcast("AD_BREAK_DATA", data);
+		PublicAPI.instance.broadcast("ON_AD_BREAK_OVERLAY_DATA", data);
 		window.setTimeout(()=> {
 			this.testingApproaching = false;
 		}, 250);
@@ -238,7 +238,7 @@ class OverlayParamsAdBreak extends Vue {
 			nextSnooze_at: 0,
 			remainingSnooze: 3,
 		}
-		PublicAPI.instance.broadcast("AD_BREAK_DATA", data);
+		PublicAPI.instance.broadcast("ON_AD_BREAK_OVERLAY_DATA", data);
 		window.setTimeout(()=> {
 			this.testingRunning = false;
 		}, 250);
