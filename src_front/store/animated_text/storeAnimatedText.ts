@@ -49,7 +49,7 @@ export const storeAnimatedText = defineStore('animatedtext', {
 			/**
 			 * Called when animated text overlay completes hide animation
 			 */
-			PublicAPI.instance.addEventListener("ANIMATED_TEXT_HIDE_COMPLETE", (event)=> {
+			PublicAPI.instance.addEventListener("ON_ANIMATED_TEXT_HIDE_COMPLETE", (event)=> {
 				if(event.data?.queryId) {
 					const resolver = queryIdToResolver.get(event.data?.queryId);
 					if(resolver) resolver();
@@ -59,7 +59,7 @@ export const storeAnimatedText = defineStore('animatedtext', {
 			/**
 			 * Called when animated text overlay completes show animation
 			 */
-			PublicAPI.instance.addEventListener("ANIMATED_TEXT_SHOW_COMPLETE", (event)=> {
+			PublicAPI.instance.addEventListener("ON_ANIMATED_TEXT_SHOW_COMPLETE", (event)=> {
 				if(event.data?.queryId) {
 					const resolver = queryIdToResolver.get(event.data?.queryId);
 					if(resolver) resolver();
@@ -70,7 +70,7 @@ export const storeAnimatedText = defineStore('animatedtext', {
 		broadcastStates(id?:string) {
 			for (const entry of this.animatedTextList) {
 				if(id && entry.id !== id || !entry.enabled) continue;
-				PublicAPI.instance.broadcast("ANIMATED_TEXT_CONFIGS", entry);
+				PublicAPI.instance.broadcast("ON_ANIMATED_TEXT_CONFIGS", entry);
 			}
 		},
 
@@ -113,7 +113,7 @@ export const storeAnimatedText = defineStore('animatedtext', {
 			return new Promise<void>((resolve, reject)=> {
 				const queryId:string = Utils.getUUID();
 				queryIdToResolver.set(queryId, resolve);
-				PublicAPI.instance.broadcast("ANIMATED_TEXT_SET", {overlayId, queryId, text, autoHide, bypassAll});
+				PublicAPI.instance.broadcast("SET_ANIMATED_TEXT_CONTENT", {id: overlayId, queryId, text, autoHide, bypassAll});
 			});
 		},
 
@@ -121,7 +121,7 @@ export const storeAnimatedText = defineStore('animatedtext', {
 			return new Promise<void>((resolve, reject)=> {
 				const queryId:string = Utils.getUUID();
 				queryIdToResolver.set(queryId, resolve);
-				PublicAPI.instance.broadcast("ANIMATED_TEXT_CLOSE", {overlayId, queryId});
+				PublicAPI.instance.broadcast("ON_ANIMATED_TEXT_CLOSE", {id: overlayId, queryId});
 		});
 		},
 	} as IAnimatedTextActions

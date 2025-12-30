@@ -159,7 +159,7 @@ class OverlayParamsPoll extends Vue {
 			this.checkingOverlayPresence = false;
 			clearTimeout(this.subcheckTimeout);
 		};
-		PublicAPI.instance.addEventListener("CHAT_POLL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.addEventListener("ON_CHAT_POLL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 
 		//Regularly check if the overlay exists
 		this.checkInterval = window.setInterval(()=>this.getOverlayPresence(), 2000);
@@ -171,7 +171,7 @@ class OverlayParamsPoll extends Vue {
 		clearTimeout(this.simulateEndTimeout);
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
-		PublicAPI.instance.removeEventListener("CHAT_POLL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("ON_CHAT_POLL_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 	}
 
 	/**

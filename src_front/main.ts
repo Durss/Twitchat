@@ -194,9 +194,8 @@ function buildApp() {
 		description?: string,
 		data?: T,
 		yesLabel?:string,
-		noLabel?:string,
-		STTOrigin?:boolean): Promise<T|undefined> => {
-		return StoreProxy.default.main.confirm(title, description, data, yesLabel, noLabel, STTOrigin);
+		noLabel?:string): Promise<T|undefined> => {
+		return StoreProxy.default.main.confirm(title, description, data, yesLabel, noLabel);
 	}
 
 	/**

@@ -97,7 +97,7 @@ class ChatMessageClipPending extends AbstractChatMessage {
 			params:this.$store.chat.chatHighlightOverlayParams,
 			dateLabel:this.$store.i18n.tm("global.date_ago"),
 		}
-		PublicAPI.instance.broadcast("SHOW_CLIP", clipInfo);
+		PublicAPI.instance.broadcast("SET_CHAT_HIGHLIGHT_OVERLAY_CLIP", clipInfo);
 		this.$store.chat.highlightedMessageId = this.messageData.id;
 	}
 
