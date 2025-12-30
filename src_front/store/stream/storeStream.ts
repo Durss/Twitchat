@@ -96,7 +96,7 @@ export const storeStream = defineStore('stream', {
 			/**
 			 * Called when asking to toggle message merging
 			 */
-			PublicAPI.instance.addEventListener("ENDING_CREDITS_COMPLETE", ()=> {
+			PublicAPI.instance.addEventListener("ON_ENDING_CREDITS_COMPLETE", ()=> {
 				const message:TwitchatDataTypes.MessageCreditsCompleteData = {
 					channel_id:StoreProxy.auth.twitch.user.id,
 					date:Date.now(),
@@ -110,10 +110,10 @@ export const storeStream = defineStore('stream', {
 			/**
 			 * Called when requesting stream summary data
 			 */
-			PublicAPI.instance.addEventListener("GET_SUMMARY_DATA", async (e)=> {
+			PublicAPI.instance.addEventListener("GET_ENDING_CREDITS_DATA", async (e)=> {
 				try {
-					const summary = await StoreProxy.stream.getSummary(e.data?.offset, e.data?.includeParams === true);
-					PublicAPI.instance.broadcast("SUMMARY_DATA", summary)
+					const summary = await this.getSummary(e.data?.dateOffset, e.data?.includeOverlayParams === true);
+					PublicAPI.instance.broadcast("SET_ENDING_CREDITS_DATA", summary)
 				}catch(error) {
 					console.error("An error occured when computing summary data");
 					console.error(error);
@@ -296,7 +296,7 @@ export const storeStream = defineStore('stream', {
 
 				window.setTimeout(()=> {
 					//Hide hype train popin
-					StoreProxy.stream.setHypeTrain(undefined);
+					this.setHypeTrain(undefined);
 				}, 5000)
 			}
 		},
@@ -491,7 +491,7 @@ export const storeStream = defineStore('stream', {
 				});
 			}
 
-			PublicAPI.instance.broadcast("AD_BREAK_DATA", data);
+			PublicAPI.instance.broadcast("ON_AD_BREAK_OVERLAY_DATA", data);
 		},
 
 		async startCommercial(channelId:string, duration:number, noConfirm:boolean = false):Promise<void> {
@@ -527,7 +527,7 @@ export const storeStream = defineStore('stream', {
 			}
 		},
 
-		async getSummary(offset:number = 0, includeParams:boolean = false, simulate:boolean = false):Promise<TwitchatDataTypes.StreamSummaryData> {
+		async getSummary(dateOffset:number|undefined = 0, includeParams:boolean = false, simulate:boolean = false):Promise<TwitchatDataTypes.StreamSummaryData> {
 			const channelId = StoreProxy.auth.twitch.user.id;
 			const isPremium = StoreProxy.auth.isPremium;
 			const uid2TikTokShare:{[uid:string]:TwitchatDataTypes.StreamSummaryData["tiktokShares"][number]} = {};
@@ -566,9 +566,8 @@ export const storeStream = defineStore('stream', {
 				}
 			};
 
-			let dateOffset:number|undefined = offset;
 			//No custom offset defined, use the actual start of stream
-			if(!offset) dateOffset  = StoreProxy.stream.currentStreamInfo[channelId]?.started_at;
+			if(!dateOffset) dateOffset  = this.currentStreamInfo[channelId]?.started_at;
 
 			const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
 			let parameters:TwitchatDataTypes.EndingCreditsParams|null = null;
@@ -1088,9 +1087,9 @@ export const storeStream = defineStore('stream', {
 			if(includeParams && parameters!=null) {
 				result.params = parameters;
 
-				const startDateBackup = StoreProxy.stream.currentStreamInfo[channelId]!.started_at;
+				const startDateBackup = this.currentStreamInfo[channelId]!.started_at;
 				if(simulate || !startDateBackup) {
-					StoreProxy.stream.currentStreamInfo[channelId]!.started_at = dateOffset || (Date.now() - 45 * 60000);
+					this.currentStreamInfo[channelId]!.started_at = dateOffset || (Date.now() - 45 * 60000);
 				}
 
 				result.premiumWarningSlots = {};
@@ -1107,7 +1106,7 @@ export const storeStream = defineStore('stream', {
 					slot.text = await TriggerUtils.parseGlobalPlaceholders(slot.text, false);
 				}
 
-				StoreProxy.stream.currentStreamInfo[channelId]!.started_at = startDateBackup;
+				this.currentStreamInfo[channelId]!.started_at = startDateBackup;
 			}
 
 			return result;
@@ -1167,7 +1166,7 @@ export const storeStream = defineStore('stream', {
 				// Get current VOD's URL for trigger's placeholder
 				const vod = await TwitchUtils.getVODInfo(result[0]!.id);
 				if(vod) {
-					StoreProxy.stream.currentVODUrl = vod.url;
+					this.currentVODUrl = vod.url;
 				}
 			}catch(error) {}
 		}

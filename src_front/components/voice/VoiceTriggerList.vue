@@ -58,7 +58,7 @@
 							:calculate-position="$placeDropdown"
 						>
 							<template v-slot:option="option">
-								<Icon v-if="option.icon" :name="option.icon" class="listIcon" theme="dark" :style="{backgroundColor: 'red'}" />
+								<Icon v-if="option.icon" :name="option.icon" class="listIcon" theme="dark" />
 								<span>{{ option.label }}</span>
 							</template>
 						</vue-select>
@@ -131,33 +131,33 @@ class VoiceTriggerList extends Vue {
 		}, {deep:true});
 
 		this.triggerHandler = (e) => this.onTrigger(e as any);
-		PublicAPI.instance.addEventListener("CHAT_FEED_PAUSE", this.triggerHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_UNPAUSE", this.triggerHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_SCROLL_UP", this.triggerHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_SCROLL_DOWN", this.triggerHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_READ", this.triggerHandler);
-		PublicAPI.instance.addEventListener("GREET_FEED_READ", this.triggerHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_READ_ALL", this.triggerHandler);
-		PublicAPI.instance.addEventListener("GREET_FEED_READ_ALL", this.triggerHandler);
-		PublicAPI.instance.addEventListener("VIEWERS_COUNT_TOGGLE", this.triggerHandler);
-		PublicAPI.instance.addEventListener("CENSOR_DELETED_MESSAGES_TOGGLE", this.triggerHandler);
-		PublicAPI.instance.addEventListener("POLL_CREATE", this.triggerHandler);
-		PublicAPI.instance.addEventListener("CREATE_PREDICTION", this.triggerHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_PAUSE", this.triggerHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_UNPAUSE", this.triggerHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SCROLL_UP", this.triggerHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SCROLL_DOWN", this.triggerHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_READ", this.triggerHandler);
+		PublicAPI.instance.addEventListener("SET_GREET_FEED_READ", this.triggerHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_READ_ALL", this.triggerHandler);
+		PublicAPI.instance.addEventListener("SET_GREET_FEED_READ_ALL", this.triggerHandler);
+		PublicAPI.instance.addEventListener("SET_VIEWERS_COUNT_TOGGLE", this.triggerHandler);
+		PublicAPI.instance.addEventListener("SET_CENSOR_DELETED_MESSAGES_TOGGLE", this.triggerHandler);
+		PublicAPI.instance.addEventListener("ON_OPEN_POLL_CREATION_FORM", this.triggerHandler);
+		PublicAPI.instance.addEventListener("SET_OPEN_PREDICTION_CREATION_FORM", this.triggerHandler);
 	}
 
 	public beforeUnmount():void {
-		PublicAPI.instance.removeEventListener("CHAT_FEED_PAUSE", this.triggerHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_UNPAUSE", this.triggerHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_SCROLL_UP", this.triggerHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_SCROLL_DOWN", this.triggerHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_READ", this.triggerHandler);
-		PublicAPI.instance.removeEventListener("GREET_FEED_READ", this.triggerHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_READ_ALL", this.triggerHandler);
-		PublicAPI.instance.removeEventListener("GREET_FEED_READ_ALL", this.triggerHandler);
-		PublicAPI.instance.removeEventListener("VIEWERS_COUNT_TOGGLE", this.triggerHandler);
-		PublicAPI.instance.removeEventListener("CENSOR_DELETED_MESSAGES_TOGGLE", this.triggerHandler);
-		PublicAPI.instance.removeEventListener("POLL_CREATE", this.triggerHandler);
-		PublicAPI.instance.removeEventListener("CREATE_PREDICTION", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_PAUSE", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_UNPAUSE", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SCROLL_UP", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SCROLL_DOWN", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_READ", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("SET_GREET_FEED_READ", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_READ_ALL", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("SET_GREET_FEED_READ_ALL", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("SET_VIEWERS_COUNT_TOGGLE", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("SET_CENSOR_DELETED_MESSAGES_TOGGLE", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("ON_OPEN_POLL_CREATION_FORM", this.triggerHandler);
+		PublicAPI.instance.removeEventListener("SET_OPEN_PREDICTION_CREATION_FORM", this.triggerHandler);
 	}
 
 	public addAction():void {
@@ -292,7 +292,7 @@ export default toNative(VoiceTriggerList);
 			align-self: stretch;
 			.deleteAction {
 				border-radius: 0;
-				margin: -.5em;
+				margin: -.5em 0;
 				align-self: stretch;
 			}
 			.content {

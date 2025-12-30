@@ -201,9 +201,9 @@ class ParamsTriggers extends Vue implements IParameterContent {
 			await this.listOBSSources();
 			await this.listOBSSources();
 		};
-		OBSWebsocket.instance.addEventListener("OBS_INPUT_NAME_CHANGED", this.renameOBSElementHandler);
-		OBSWebsocket.instance.addEventListener("OBS_SCENE_NAME_CHANGED", this.renameOBSElementHandler);
-		OBSWebsocket.instance.addEventListener("OBS_FILTER_NAME_CHANGED", this.renameOBSElementHandler);
+		OBSWebsocket.instance.addEventListener("ON_OBS_INPUT_NAME_CHANGED", this.renameOBSElementHandler);
+		OBSWebsocket.instance.addEventListener("ON_OBS_SCENE_NAME_CHANGED", this.renameOBSElementHandler);
+		OBSWebsocket.instance.addEventListener("ON_OBS_FILTER_NAME_CHANGED", this.renameOBSElementHandler);
 
 
 		let debounceTimeout = -1;
@@ -238,9 +238,9 @@ class ParamsTriggers extends Vue implements IParameterContent {
 	}
 
 	public beforeUnmount():void {
-		OBSWebsocket.instance.removeEventListener("OBS_INPUT_NAME_CHANGED", this.renameOBSElementHandler);
-		OBSWebsocket.instance.removeEventListener("OBS_SCENE_NAME_CHANGED", this.renameOBSElementHandler);
-		OBSWebsocket.instance.removeEventListener("OBS_FILTER_NAME_CHANGED", this.renameOBSElementHandler);
+		OBSWebsocket.instance.removeEventListener("ON_OBS_INPUT_NAME_CHANGED", this.renameOBSElementHandler);
+		OBSWebsocket.instance.removeEventListener("ON_OBS_SCENE_NAME_CHANGED", this.renameOBSElementHandler);
+		OBSWebsocket.instance.removeEventListener("ON_OBS_FILTER_NAME_CHANGED", this.renameOBSElementHandler);
 	}
 
 	/**

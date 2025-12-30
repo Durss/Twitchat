@@ -231,7 +231,6 @@ export default toNative(PlaceholderSelector);
 	display: block;
 	max-width: unset;
 	min-width: unset;
-	outline: 1ps solid red;
 	font-size: .8em;
 }
 .tooltipContent {

@@ -30,16 +30,20 @@
 					<ParamItem :paramData="param_ip" v-model="param_ip.value" @change="onIpChange()" noBackground />
 					<TTButton type="submit" :disabled="connecting" icon="online">{{ $t("global.connect") }}</TTButton>
 	
-					<div v-if="securityWarning" class="card-item secondary security"><icon name="info" />
-						<i18n-t scope="global" keypath="streamdeck.connect_form.info">
-							<template #URL><a :href="`https://${param_ip.value}:30386`" target="_blank">https://{{ param_ip.value }}:30386</a></template>
-						</i18n-t>
-					<ul>
-						<li><img class="logo" src="@/assets/icons/logo-chrome.svg"><img class="logo" src="@/assets/icons/logo-vivaldi.svg"><img class="logo" src="@/assets/icons/logo-edge.svg"><img class="logo" src="@/assets/icons/logo-brave.svg"> — <span v-html="$t('streamdeck.connect_form.chromium', { IP: param_ip.value })"></span></li>
-						<li><img class="logo" src="@/assets/icons/logo-firefox.svg"> — <span v-html="$t('streamdeck.connect_form.firefox', { IP: param_ip.value })"></span></li>
-						<li><img class="logo" src="@/assets/icons/logo-opera.svg"> — <span v-html="$t('streamdeck.connect_form.opera', { IP: param_ip.value })"></span></li>
-						<li><img class="logo" src="@/assets/icons/logo-safari.svg"> — <span v-html="$t('streamdeck.connect_form.safari', { IP: param_ip.value })"></span></li>
-					</ul></div>
+					<div v-if="securityWarning" class="card-item secondary security">
+						<h2>
+							<icon name="info" />
+							<i18n-t scope="global" keypath="streamdeck.connect_form.info">
+								<template #URL><a :href="`https://${param_ip.value}:30386`" target="_blank">https://{{ param_ip.value }}:30386</a></template>
+							</i18n-t>
+						</h2>
+						<ul>
+							<li><img class="logo" src="@/assets/icons/logo-chrome.svg"><img class="logo" src="@/assets/icons/logo-vivaldi.svg"><img class="logo" src="@/assets/icons/logo-edge.svg"><img class="logo" src="@/assets/icons/logo-brave.svg"> — <span v-html="$t('streamdeck.connect_form.chromium', { IP: param_ip.value })"></span></li>
+							<li><img class="logo" src="@/assets/icons/logo-firefox.svg"> — <span v-html="$t('streamdeck.connect_form.firefox', { IP: param_ip.value })"></span></li>
+							<li><img class="logo" src="@/assets/icons/logo-opera.svg"> — <span v-html="$t('streamdeck.connect_form.opera', { IP: param_ip.value })"></span></li>
+							<li><img class="logo" src="@/assets/icons/logo-safari.svg"> — <span v-html="$t('streamdeck.connect_form.safari', { IP: param_ip.value })"></span></li>
+						</ul>
+					</div>
 				</form>
 			</ToggleBlock>
 		</section>
@@ -134,6 +138,10 @@ export default toNative(ConnectStreamdeck);
 			white-space: pre-line;
 			line-height: 1.25em;
 
+			.head {
+				margin-bottom: 1em;
+			}
+
 			.logo {
 				height: 1.5em;
 				margin-right: .25em;
@@ -162,6 +170,7 @@ export default toNative(ConnectStreamdeck);
 		list-style: disc;
 		list-style-position: inside;
 		padding-left: 1em;
+		margin-top: 1em;;
 		li:not(:last-child) {
 			margin-bottom: .5em;
 		}

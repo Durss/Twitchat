@@ -1,3 +1,4 @@
+import type { JsonObject } from 'type-fest';
 import MessengerProxy from "@/messaging/MessengerProxy";
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
@@ -1705,14 +1706,14 @@ export default class TriggerActionHandler {
 									if(step.waitMediaEnd === true && (action == "show" || action == "replay")) {
 										logStep.messages.push({date:Date.now(), value:"🕙 Wait for media \""+sourceName+"\" to complete playing..."});
 										await new Promise<void>((resolve, reject)=> {
-											const handler = (e:TwitchatEvent<"OBS_PLAYBACK_ENDED">) => {
+											const handler = (e:TwitchatEvent<"ON_OBS_PLAYBACK_ENDED">) => {
 												if(e.data.inputName != sourceName) return;
 												logStep.messages.push({date:Date.now(), value:"Media \""+sourceName+"\" playing complete."});
-												OBSWebsocket.instance.removeEventListener("OBS_PLAYBACK_ENDED", handler);
+												OBSWebsocket.instance.removeEventListener("ON_OBS_PLAYBACK_ENDED", handler);
 												resolve();
 											}
 											logStep.messages.push({date:Date.now(), value:"Handler created..."});
-											OBSWebsocket.instance.addEventListener("OBS_PLAYBACK_ENDED", handler);
+											OBSWebsocket.instance.addEventListener("ON_OBS_PLAYBACK_ENDED", handler);
 										})
 									}
 								}catch(error:any) {
@@ -1952,7 +1953,7 @@ export default class TriggerActionHandler {
 								params:StoreProxy.chat.chatHighlightOverlayParams,
 							}
 							logStep.messages.push({date:Date.now(), value:"Highlight clip ID \""+clipId+"\""});
-							PublicAPI.instance.broadcast("SHOW_CLIP", data);
+							PublicAPI.instance.broadcast("SET_CHAT_HIGHLIGHT_OVERLAY_CLIP", data);
 
 						}else{
 							//Highlight user message as text
@@ -3257,7 +3258,7 @@ export default class TriggerActionHandler {
 
 							//A track has been found and added
 							if(trackData) {
-								PublicAPI.instance.broadcast("TRACK_ADDED_TO_QUEUE", trackData);
+								PublicAPI.instance.broadcast("ON_TRACK_ADDED_TO_QUEUE", trackData);
 
 								//The step is requesting to confirm on chat when a track has been added
 								if(step.confirmMessage) {
@@ -3520,12 +3521,7 @@ export default class TriggerActionHandler {
 						alt = step.heatClickData.alt;
 						shift = step.heatClickData.shift;
 					}
-					const clickEventData:{requestType:string, vendorName:string, requestData:{event_name:string, event_data:TwitchatDataTypes.HeatClickData}} = {
-						requestType:"emit_event",
-						vendorName:"obs-browser",
-						requestData:{
-							event_name:"heat-click",
-							event_data: {
+					const event_data:TwitchatDataTypes.HeatClickData = {
 								id:Utils.getUUID(),
 								anonymous:true,
 								x:parseFloat(x)/100,
@@ -3549,7 +3545,13 @@ export default class TriggerActionHandler {
 								rotation:1,
 								scaleX:1,
 								scaleY:1,
-							}
+							};
+					const clickEventData:{requestType:string, vendorName:string, requestData:{event_name:string, event_data:JsonObject}} = {
+						requestType:"emit_event",
+						vendorName:"obs-browser",
+						requestData:{
+							event_name:"heat-click",
+							event_data: (event_data as unknown) as JsonObject
 						}
 					};
 					logStep.messages.push({date:Date.now(), value:`Send click to ${clickEventData.requestData.event_data.twitchatOverlayID}: x=${clickEventData.requestData.event_data.x} y=${clickEventData.requestData.event_data.y}`});
@@ -4014,7 +4016,7 @@ export default class TriggerActionHandler {
 						const data = step.sfxr.presetId === "custom"? step.sfxr.rawConfig! : step.sfxr.presetId;
 						if(step.sfxr.playOnOverlay) {
 							logStep.messages.push({date:Date.now(), value:"Tell the overlay to play the sound effect"});
-							PublicAPI.instance.broadcast("PLAY_SFXR", {params:data, volume})
+							PublicAPI.instance.broadcast("SET_PLAY_SFXR", {params:data, volume})
 							// Mute local playing but still play it so trigger is properly paused while the
 							// sound is playing if user requested it
 							volume = 0;
@@ -4127,7 +4129,7 @@ export default class TriggerActionHandler {
 
 				//Special pointers parsing.
 				//Pointers starting with "__" are parsed here
-				if(placeholder.pointer.indexOf("__")==0) {
+				if(placeholder.pointer.indexOf("ON___")==0) {
 					const pointer = placeholder.pointer.toLowerCase();
 					/**
 					 * If the placeholder requests for the current stream info

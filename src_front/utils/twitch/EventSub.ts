@@ -176,7 +176,7 @@ export default class EventSub {
 		const me = StoreProxy.auth.twitch.user;
 		for (let i = 0; i < 200; i++) {
 			const id = i;//Math.round(Math.random()*1000000);
-			const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("_");
+			const login = lorem.generateWords(Math.round(Math.random()*2)+1).split(" ").join("ON__");
 			this.followEvent(TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, {
 				user_id: id.toString(),
 				user_login: login,

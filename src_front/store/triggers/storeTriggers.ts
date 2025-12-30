@@ -139,8 +139,8 @@ export const storeTriggers = defineStore('triggers', {
 				TriggerActionHandler.instance.executeTrigger(trigger, message, false, undefined, undefined, placeholders);
 			});
 
-			PublicAPI.instance.addEventListener("EXECUTE_TRIGGER", (e) => {
-				const trigger = this.triggerList.find(v=>v.id == e.data.triggerId);
+			PublicAPI.instance.addEventListener("SET_EXECUTE_TRIGGER", (e) => {
+				const trigger = this.triggerList.find(v=>v.id == e.data.id);
 				if(trigger) {
 					const me = StoreProxy.auth.twitch.user;
 					const fakeMessage:TwitchatDataTypes.MessageChatData = {
@@ -160,20 +160,20 @@ export const storeTriggers = defineStore('triggers', {
 					TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, false);
 				}
 			});
-			PublicAPI.instance.addEventListener("TOGGLE_TRIGGER", (e) => {
-				const id = e.data.triggerId;
-				const action = e.data.triggerAction || "enable";
+			PublicAPI.instance.addEventListener("SET_TRIGGER_STATE", (e) => {
+				const id = e.data.id;
+				const action = e.data.forcedState;
 				const trigger = this.triggerList.find(v=>v.id == id);
 				if(trigger) {
-					switch(action.toLowerCase()){
-						case "enable":	trigger.enabled = true; break;
-						case "disable":	trigger.enabled = false; break;
-						case "toggle":	trigger.enabled = !trigger.enabled; break;
+					switch(action){
+						case true:	trigger.enabled = true; break;
+						case false:	trigger.enabled = false; break;
+						default:	trigger.enabled = !trigger.enabled; break;
 					}
 				}
 				this.saveTriggers();
 			});
-			PublicAPI.instance.addEventListener("TRIGGERS_GET_ALL", () => this.broadcastTriggerList());
+			PublicAPI.instance.addEventListener("GET_TRIGGER_LIST", () => this.broadcastTriggerList());
 		},
 
 		openTriggerEdition(data:TriggerData) {
@@ -471,9 +471,10 @@ export const storeTriggers = defineStore('triggers', {
 				return {
 					id:v.id,
 					name:TriggerUtils.getTriggerDisplayInfo(v).label,
+					disabled: v.enabled === false,
 				}
 			});
-			PublicAPI.instance.broadcast("TRIGGER_LIST", {triggers});
+			PublicAPI.instance.broadcast("ON_TRIGGER_LIST", {triggerList: triggers});
 		},
 
 	} as ITriggersActions

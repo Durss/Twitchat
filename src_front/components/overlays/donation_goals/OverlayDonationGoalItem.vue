@@ -439,7 +439,6 @@ export default toNative(OverlayDonationGoalItem);
 				width: 100%;
 				height: 100%;
 				z-index: 3;
-				// background-color: red;
 				background-image: linear-gradient(120deg, transparent 0, transparent 17%, #ffffffA0 20%, #ffffffA0 30%, transparent 100%);
 			}
 		}

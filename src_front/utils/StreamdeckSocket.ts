@@ -2,6 +2,7 @@ import { Event, EventDispatcher } from "@/events/EventDispatcher";
 import type { TwitchatEventMap } from "@/events/TwitchatEvent";
 import DataStore from "@/store/DataStore";
 import { ref } from "vue";
+import Utils from "./Utils";
 
 /**
 * Created : 26/02/2025
@@ -12,6 +13,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 	public connected = ref(false);
 	private _socket!:WebSocket;
 	private _tryAgainTo:number = -1
+	private _isMainApp:boolean = false;
 
 	constructor() {
 		super();
@@ -40,9 +42,10 @@ export default class StreamdeckSocket extends EventDispatcher {
 	/**
 	 * Initialize the socket connection
 	 */
-	public connect(ip?:string):Promise<boolean> {
-		const isManualConnect = !!ip;
+	public connect(ip?:string, isMainApp:boolean = false):Promise<boolean> {
+		let isManualConnect = !!ip;
 		this.connected.value = false;
+		if(isMainApp === true) this._isMainApp = true;
 		if(!ip && this.ip) {
 			ip = this.ip;
 		}
@@ -74,6 +77,8 @@ export default class StreamdeckSocket extends EventDispatcher {
 
 			this._socket.onopen = () => {
 				this.connected.value = true;
+				isManualConnect = false;
+				if(this._isMainApp) this.broadcast("ON_FLAG_MAIN_APP", Utils.getUUID());
 				resolve(true);
 			};
 
@@ -88,7 +93,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 				if(!isManualConnect) {
 					window.clearTimeout(this._tryAgainTo);
 					this._tryAgainTo = window.setTimeout(() => {
-						this.connect();
+						this.connect(ip, this._isMainApp);
 					}, 5000); // Reconnect after 5 seconds
 				}
 				reject()
@@ -120,7 +125,7 @@ export default class StreamdeckSocket extends EventDispatcher {
 	*******************/
 }
 
-export class StreamdeckSocketEvent<Event extends keyof TwitchatEventMap> extends Event {
+export class StreamdeckSocketEvent<Event extends keyof TwitchatEventMap = keyof TwitchatEventMap> extends Event {
 	public static readonly MESSAGE = 'message';
 
 	constructor(type:string, public data?:{action:Event, data?:TwitchatEventMap[Event]}) {
