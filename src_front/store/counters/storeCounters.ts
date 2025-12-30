@@ -35,21 +35,21 @@ export const storeCounters = defineStore('counters', {
 				Utils.mergeRemoteObject(JSON.parse(countersParams), (this.counterList as unknown) as JsonObject);
 			}
 			
-			PublicAPI.instance.addEventListener("COUNTER_ADD", (e) => {
-				const id = e.data.counterId;
-				const action = e.data.counterAction;
-				const value = parseInt(e.data.countAdd);
+			PublicAPI.instance.addEventListener("SET_COUNTER_ADD", (e) => {
+				const id = e.data.id;
+				const action = e.data.action;
+				const value = parseInt(e.data.value);
 				const counter = this.counterList.find(v=>v.id == id);
 				if(counter && !isNaN(value)) {
 					this.increment(id, action || "ADD", value);
 				}
 			});
 
-			PublicAPI.instance.addEventListener("COUNTER_GET", (e) => {
-				this.broadcastCounterValue(e.data.cid);
+			PublicAPI.instance.addEventListener("GET_COUNTER", (e) => {
+				this.broadcastCounterValue(e.data.id);
 			});
 			
-			PublicAPI.instance.addEventListener("COUNTER_GET_ALL", () => {
+			PublicAPI.instance.addEventListener("GET_ALL_COUNTERS", () => {
 				const counters = this.counterList.map(v=> {
 					return {
 						id:v.id,
@@ -58,7 +58,7 @@ export const storeCounters = defineStore('counters', {
 					}
 				});
 				if(counters) {
-					PublicAPI.instance.broadcast("COUNTER_LIST", {counters});
+					PublicAPI.instance.broadcast("ON_COUNTER_LIST", {counterList: counters});
 				}
 			});
 		},
@@ -120,7 +120,7 @@ export const storeCounters = defineStore('counters', {
 					counter.leaderboard = [];
 					if(users.length == 0) {
 						//If there are no user, broadcast right away
-						PublicAPI.instance.broadcast("COUNTER_UPDATE", {counter});
+						PublicAPI.instance.broadcast("ON_COUNTER_UPDATE", {counter});
 					}else{
 						///...otherwise load users details
 						users.forEach(v=> {
@@ -149,7 +149,7 @@ export const storeCounters = defineStore('counters', {
 										if(a.points < b.points) return 1;
 										return 0;
 									})
-									PublicAPI.instance.broadcast("COUNTER_UPDATE", {counter:counter!});
+									PublicAPI.instance.broadcast("ON_COUNTER_UPDATE", {counter:counter!});
 								}
 							}, undefined, undefined, undefined, false);
 						})
@@ -157,7 +157,7 @@ export const storeCounters = defineStore('counters', {
 				}else{
 					//Tell overlays potentially using this value to update
 					StoreProxy.labels.broadcastPlaceholders();
-					PublicAPI.instance.broadcast("COUNTER_UPDATE", {counter});
+					PublicAPI.instance.broadcast("ON_COUNTER_UPDATE", {counter});
 				}
 				StoreProxy.donationGoals.onSourceValueUpdate("counter", id);
 			}, 250);
@@ -315,7 +315,7 @@ export const storeCounters = defineStore('counters', {
 				}
 			});
 			if(counters) {
-				PublicAPI.instance.broadcast("COUNTER_LIST", {counters});
+				PublicAPI.instance.broadcast("ON_COUNTER_LIST", {counterList: counters});
 			}
 		}
 

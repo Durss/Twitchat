@@ -40,10 +40,10 @@ export const storeDonationGoals = defineStore('donationGoals', {
 			/**
 			 * Listen for overlays requesting their parameters
 			 */
-			PublicAPI.instance.addEventListener("GET_DONATION_GOALS_OVERLAY_PARAMS", (event)=>{
+			PublicAPI.instance.addEventListener("GET_DONATION_GOALS_OVERLAY_CONFIGS", (event)=>{
 				if(!event.data) return;
-				if(!event.data.overlayId) return;
-				this.broadcastData(event.data.overlayId);
+				if(!event.data.id) return;
+				this.broadcastData(event.data.id);
 			});
 			this.broadcastData();
 		},
@@ -179,7 +179,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 					donationGoalStatesCache[overlay.id] = currentStepIndex;
 				}
 
-				PublicAPI.instance.broadcast("DONATION_GOALS_OVERLAY_PARAMS", {params:overlay, goal, raisedTotal, raisedPersonnal, skin});
+				PublicAPI.instance.broadcast("ON_DONATION_GOALS_OVERLAY_CONFIGS", {params:overlay, goal, raisedTotal, raisedPersonnal, skin});
 			}
 		},
 
@@ -201,7 +201,7 @@ export const storeDonationGoals = defineStore('donationGoals', {
 			for (const overlay of this.overlayList) {
 				if(overlay.dataSource == platform
 				&& (!campaignId || !overlay.campaignId || overlay.campaignId == campaignId)) {
-					PublicAPI.instance.broadcast("DONATION_EVENT", {username, amount, overlayId:overlay.id});
+					PublicAPI.instance.broadcast("ON_DONATION_EVENT", {username, amount, overlayId:overlay.id});
 				}
 			}
 		},
@@ -216,8 +216,8 @@ export const storeDonationGoals = defineStore('donationGoals', {
 			let raisedTotal = newAmount;
 			let raisedPersonnal = newAmount;
 			let skin = Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default";
-			PublicAPI.instance.broadcast("DONATION_GOALS_OVERLAY_PARAMS", {params:overlay, goal, raisedTotal, raisedPersonnal, skin});
-			PublicAPI.instance.broadcast("DONATION_EVENT", {username:Utils.pickRand(users).displayName, amount:addedAmount.toString(), overlayId:overlay.id});
+			PublicAPI.instance.broadcast("ON_DONATION_GOALS_OVERLAY_CONFIGS", {params:overlay, goal, raisedTotal, raisedPersonnal, skin});
+			PublicAPI.instance.broadcast("ON_DONATION_EVENT", {username:Utils.pickRand(users).displayName, amount:addedAmount.toString(), overlayId:overlay.id});
 		}
 
 

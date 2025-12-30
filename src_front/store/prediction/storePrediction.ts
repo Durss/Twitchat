@@ -59,7 +59,7 @@ export const storePrediction = defineStore('prediction', {
 			/**
 			 * Called when prediction overlay request for its configs
 			 */
-			PublicAPI.instance.addEventListener("GET_PREDICTIONS_OVERLAY_PARAMETERS", ()=> {
+			PublicAPI.instance.addEventListener("GET_PREDICTIONS_OVERLAY_CONFIGS", ()=> {
 				this.broadcastState();
 			});
 		},
@@ -76,9 +76,9 @@ export const storePrediction = defineStore('prediction', {
 					StoreProxy.chat.addMessage(data);
 				}
 
-				PublicAPI.instance.broadcast("PREDICTION_PROGRESS", {prediction: data});
+				PublicAPI.instance.broadcast("ON_PREDICTION_PROGRESS", {prediction: data});
 			}else if(this.data){
-				PublicAPI.instance.broadcast("PREDICTION_PROGRESS", undefined);
+				PublicAPI.instance.broadcast("ON_PREDICTION_PROGRESS", undefined);
 			}
 
 			this.data = data;
@@ -87,14 +87,14 @@ export const storePrediction = defineStore('prediction', {
 		setOverlayParams(params:PredictionOverlayParamStoreData):void {
 			this.populateData(params);
 			DataStore.set(DataStore.PREDICTION_OVERLAY_PARAMS, this.overlayParams);
-			PublicAPI.instance.broadcast("PREDICTIONS_OVERLAY_PARAMETERS", {parameters: this.overlayParams});
+			PublicAPI.instance.broadcast("ON_PREDICTION_OVERLAY_CONFIGS", {parameters: this.overlayParams});
 		},
 
 		broadcastState():void {
 			if(this.data) {
-				PublicAPI.instance.broadcast("PREDICTION_PROGRESS", {prediction: this.data});
+				PublicAPI.instance.broadcast("ON_PREDICTION_PROGRESS", {prediction: this.data});
 			}
-			PublicAPI.instance.broadcast("PREDICTIONS_OVERLAY_PARAMETERS", {parameters: this.overlayParams});
+			PublicAPI.instance.broadcast("ON_PREDICTION_OVERLAY_CONFIGS", {parameters: this.overlayParams});
 		}
 	} as IPredictionActions
 	& ThisType<IPredictionActions
