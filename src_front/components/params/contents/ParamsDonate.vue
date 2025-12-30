@@ -769,7 +769,6 @@ export default toNative(ParamsDonate);
 
 				.mouthBg {
 					background-color: #ffdd67;
-					// background-color: red;
 					border-radius: .5em;
 					position: absolute;
 					top: 2em;

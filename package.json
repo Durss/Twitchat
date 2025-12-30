@@ -24,7 +24,8 @@
 		"lint": "eslint . --ext .vue,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
 		"check-circular-dependencies": "dpdm ./src_front/main.ts",
 		"versionUpgrade": "node scripts/versionSuffix.mjs",
-		"analyse": "esbuild src_front/main.ts --bundle --analyze"
+		"analyse": "esbuild src_front/main.ts --bundle --analyze",
+		"genapi": "node ./scripts/generatePublicApiEvents.mjs"
 	},
 	"dependencies": {
 		"@fastify/cors": "^11.2.0",

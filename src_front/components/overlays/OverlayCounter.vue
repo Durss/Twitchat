@@ -64,7 +64,7 @@ class OverlayCounter extends AbstractOverlay {
 	private id:string = "";
 	private firstRender:boolean = true;
 
-	private counterUpdateHandler!:(e:TwitchatEvent<"COUNTER_UPDATE">) => void;
+	private counterUpdateHandler!:(e:TwitchatEvent<"ON_COUNTER_UPDATE">) => void;
 
 	public getFormattedValue(decimals:number = 0):string {
 		//This fixes the javascript number
@@ -93,7 +93,7 @@ class OverlayCounter extends AbstractOverlay {
 			this.id = this.$route.query.cid as string ?? "";
 			if(this.id) {
 				this.counterUpdateHandler = (e) => this.onCounterUpdate(e);
-				PublicAPI.instance.addEventListener("COUNTER_UPDATE", this.counterUpdateHandler);
+				PublicAPI.instance.addEventListener("ON_COUNTER_UPDATE", this.counterUpdateHandler);
 			}
 		}
 
@@ -103,17 +103,17 @@ class OverlayCounter extends AbstractOverlay {
 	}
 
 	public requestInfo():void {
-		PublicAPI.instance.broadcast("COUNTER_GET", {cid:this.id});
+		PublicAPI.instance.broadcast("GET_COUNTER", {id:this.id});
 	}
 
 	public beforeUnmount(): void {
-		PublicAPI.instance.removeEventListener("COUNTER_UPDATE", this.counterUpdateHandler);
+		PublicAPI.instance.removeEventListener("ON_COUNTER_UPDATE", this.counterUpdateHandler);
 	}
 
 	/**
 	 * Called when API sends fresh counter data
 	 */
-	private async onCounterUpdate(e:TwitchatEvent<"COUNTER_UPDATE">):Promise<void> {
+	private async onCounterUpdate(e:TwitchatEvent<"ON_COUNTER_UPDATE">):Promise<void> {
 		if(e.data) {
 			const c = e.data.counter;
 			if(c.id != this.id) return;
@@ -170,12 +170,12 @@ class OverlayCounter extends AbstractOverlay {
 	}
 
 	// public onEnter(el:Element, done:()=>void):void {
-	// 	console.log("ENTER");
+	// 	console.log("ON_ENTER");
 	// 	gsap.fromTo(el, {opacity:0, x:-200}, {opacity:1, x:0, duration:1, ease:"elastic.out", onComplete:()=>done()});
 	// }
 
 	// public onLeave(el:Element, done:()=>void):void {
-	// 	console.log("LEAVE");
+	// 	console.log("ON_LEAVE");
 	// 	gsap.to(el, {opacity:0, x:-200, duration:1, ease:"back.in", onComplete:()=>done()});
 	// }
 

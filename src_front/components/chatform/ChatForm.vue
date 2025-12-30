@@ -600,8 +600,9 @@ export class ChatForm extends Vue {
 		for (let i = 0; i < actions.length; i++) {
 			const a = actions[i];
 			if(VoiceAction[a+"_IS_GLOBAL" as VAKeys] !== true) continue;
-			const id:string = VoiceAction[a as VAKeys] as string;
+			const id:string = a as string;
 			const action = (this.$store.voice.voiceActions as VoiceAction[]).find(v=> v.id == id);
+			// if(action && !action?.sentences) {
 			if(!action?.sentences) return false;
 		}
 		return true;
@@ -723,7 +724,7 @@ export class ChatForm extends Vue {
 		this.creditsOverlayPresenceHandler = () => this.onCreditsOverlayPresence();
 		EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 		EventBus.instance.addEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
-		PublicAPI.instance.addEventListener("CREDITS_OVERLAY_PRESENCE", this.creditsOverlayPresenceHandler);
+		PublicAPI.instance.addEventListener("SET_ENDING_CREDITS_PRESENCE", this.creditsOverlayPresenceHandler);
 		this.onUpdateTrackedUserList();
 		//Leave some time to open transition to complete before showing announcements
 		window.setTimeout(()=> {
@@ -785,7 +786,7 @@ export class ChatForm extends Vue {
 		clearTimeout(this.announcementInterval);
 		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
-		PublicAPI.instance.addEventListener("CREDITS_OVERLAY_PRESENCE", this.creditsOverlayPresenceHandler);
+		PublicAPI.instance.addEventListener("SET_ENDING_CREDITS_PRESENCE", this.creditsOverlayPresenceHandler);
 	}
 
 	public openNotifications(type:TwitchatDataTypes.NotificationTypes):void { this.$emit('setCurrentNotification', type); }

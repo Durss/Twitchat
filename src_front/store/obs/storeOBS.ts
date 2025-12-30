@@ -75,7 +75,7 @@ export const storeOBS = defineStore('obs', {
 				OBSWebsocket.instance.connect(port || "4455", pass || "", true, ip || "127.0.0.1");
 			}
 
-			OBSWebsocket.instance.addEventListener("OBS_WEBSOCKET_DISCONNECTED", async ()=>{
+			OBSWebsocket.instance.addEventListener("ON_OBS_WEBSOCKET_DISCONNECTED", async ()=>{
 				const m:TwitchatDataTypes.MessageObsWsConnectStateChangeData = {
 					type:"obs_ws_connect_state_change",
 					state: "disconnected",
@@ -87,7 +87,7 @@ export const storeOBS = defineStore('obs', {
 				TriggerActionHandler.instance.execute(m)
 			})
 
-			OBSWebsocket.instance.addEventListener("OBS_WEBSOCKET_CONNECTED", async ()=>{
+			OBSWebsocket.instance.addEventListener("ON_OBS_WEBSOCKET_CONNECTED", async ()=>{
 				const m:TwitchatDataTypes.MessageObsWsConnectStateChangeData = {
 					type:"obs_ws_connect_state_change",
 					state: "connected",
@@ -144,7 +144,7 @@ export const storeOBS = defineStore('obs', {
 			 * Called when switching to another scene
 			 */
 			let changeDebounce:number = -1;
-			OBSWebsocket.instance.addEventListener("OBS_SCENE_CHANGE", async (event):Promise<void> => {
+			OBSWebsocket.instance.addEventListener("ON_OBS_SCENE_CHANGE", async (event):Promise<void> => {
 				clearTimeout(changeDebounce);
 				//Debounce consecutive events changes.
 				//When leaving studio mode, 2 events are triggered in a row, once for the scene we're leaving
@@ -177,7 +177,7 @@ export const storeOBS = defineStore('obs', {
 			/**
 			 * Called when a source visibility is toggled
 			 */
-			OBSWebsocket.instance.addEventListener("OBS_SOURCE_TOGGLE", (event):void => {
+			OBSWebsocket.instance.addEventListener("ON_OBS_SOURCE_TOGGLE", (event):void => {
 				const m:TwitchatDataTypes.MessageOBSSourceToggleData = {
 					id:Utils.getUUID(),
 					date:Date.now(),
@@ -194,7 +194,7 @@ export const storeOBS = defineStore('obs', {
 			/**
 			 * Called when a source is muted or unmuted
 			 */
-			OBSWebsocket.instance.addEventListener("OBS_MUTE_TOGGLE", (event):void => {
+			OBSWebsocket.instance.addEventListener("ON_OBS_MUTE_TOGGLE", (event):void => {
 				const m:TwitchatDataTypes.MessageOBSInputMuteToggleData = {
 					id:Utils.getUUID(),
 					date:Date.now(),
@@ -210,7 +210,7 @@ export const storeOBS = defineStore('obs', {
 			/**
 			 * Called when a filter visibility is toggled
 			 */
-			OBSWebsocket.instance.addEventListener("OBS_FILTER_TOGGLE", (event):void => {
+			OBSWebsocket.instance.addEventListener("ON_OBS_FILTER_TOGGLE", (event):void => {
 				const m:TwitchatDataTypes.MessageOBSFilterToggleData = {
 					id:Utils.getUUID(),
 					date:Date.now(),
@@ -227,7 +227,7 @@ export const storeOBS = defineStore('obs', {
 			/**
 			 * Called when streaming is started/stoped on OBS
 			 */
-			OBSWebsocket.instance.addEventListener("OBS_STREAM_STATE", (event):void => {
+			OBSWebsocket.instance.addEventListener("ON_OBS_STREAM_STATE", (event):void => {
 				let m:TwitchatDataTypes.MessageOBSStartStreamData | TwitchatDataTypes.MessageOBSStopStreamData = {
 					id:Utils.getUUID(),
 					date:Date.now(),
@@ -246,7 +246,7 @@ export const storeOBS = defineStore('obs', {
 			/**
 			 * Called when streaming is started/stoped on OBS
 			 */
-			OBSWebsocket.instance.addEventListener("OBS_RECORD_STATE", (event):void => {
+			OBSWebsocket.instance.addEventListener("ON_OBS_RECORD_STATE", (event):void => {
 				const type = event.data.outputActive? TwitchatDataTypes.TwitchatMessageType.OBS_RECORDING_START : TwitchatDataTypes.TwitchatMessageType.OBS_RECORDING_STOP;
 				TriggerActionHandler.instance.execute({
 					id:Utils.getUUID(),
@@ -262,20 +262,20 @@ export const storeOBS = defineStore('obs', {
 			 * @param event
 			 */
 			function onPlayBackStateChanged(event:
-			{type:"OBS_PLAYBACK_ENDED", data:TwitchatEventMap["OBS_PLAYBACK_ENDED"]}
-			| {type:"OBS_PLAYBACK_STARTED", data:TwitchatEventMap["OBS_PLAYBACK_STARTED"]}
-			| {type:"OBS_PLAYBACK_PAUSED", data:TwitchatEventMap["OBS_PLAYBACK_PAUSED"]}
-			| {type:"OBS_PLAYBACK_NEXT", data:TwitchatEventMap["OBS_PLAYBACK_NEXT"]}
-			| {type:"OBS_PLAYBACK_PREVIOUS", data:TwitchatEventMap["OBS_PLAYBACK_PREVIOUS"]}
-			| {type:"OBS_PLAYBACK_RESTARTED", data:TwitchatEventMap["OBS_PLAYBACK_RESTARTED"]}):void {
+			{type:"ON_OBS_PLAYBACK_ENDED", data:TwitchatEventMap["ON_OBS_PLAYBACK_ENDED"]}
+			| {type:"ON_OBS_PLAYBACK_STARTED", data:TwitchatEventMap["ON_OBS_PLAYBACK_STARTED"]}
+			| {type:"ON_OBS_PLAYBACK_PAUSED", data:TwitchatEventMap["ON_OBS_PLAYBACK_PAUSED"]}
+			| {type:"ON_OBS_PLAYBACK_NEXT", data:TwitchatEventMap["ON_OBS_PLAYBACK_NEXT"]}
+			| {type:"ON_OBS_PLAYBACK_PREVIOUS", data:TwitchatEventMap["ON_OBS_PLAYBACK_PREVIOUS"]}
+			| {type:"ON_OBS_PLAYBACK_RESTARTED", data:TwitchatEventMap["ON_OBS_PLAYBACK_RESTARTED"]}):void {
 				const data = event.data;
 				const typeToState:Partial<{[key in keyof TwitchatEventMap]:TwitchatDataTypes.MessageOBSPlaybackStateValue}> = {};
-				typeToState["OBS_PLAYBACK_ENDED"]		= "complete";
-				typeToState["OBS_PLAYBACK_STARTED"]		= "start";
-				typeToState["OBS_PLAYBACK_PAUSED"]		= "pause";
-				typeToState["OBS_PLAYBACK_NEXT"]		= "next";
-				typeToState["OBS_PLAYBACK_PREVIOUS"]	= "prev";
-				typeToState["OBS_PLAYBACK_RESTARTED"]	= "restart";
+				typeToState["ON_OBS_PLAYBACK_ENDED"]		= "complete";
+				typeToState["ON_OBS_PLAYBACK_STARTED"]		= "start";
+				typeToState["ON_OBS_PLAYBACK_PAUSED"]		= "pause";
+				typeToState["ON_OBS_PLAYBACK_NEXT"]			= "next";
+				typeToState["ON_OBS_PLAYBACK_PREVIOUS"]		= "prev";
+				typeToState["ON_OBS_PLAYBACK_RESTARTED"]	= "restart";
 				const m:TwitchatDataTypes.MessageOBSPlaybackStateUpdateData = {
 					id:Utils.getUUID(),
 					date:Date.now(),
@@ -292,7 +292,7 @@ export const storeOBS = defineStore('obs', {
 			 * Called when an OBS source is renamed.
 			 * Rename it on all triggers
 			 */
-			OBSWebsocket.instance.addEventListener("OBS_INPUT_NAME_CHANGED", (event):void => {
+			OBSWebsocket.instance.addEventListener("ON_OBS_INPUT_NAME_CHANGED", (event):void => {
 				const data = event.data as {oldInputName:string, inputName:string};
 				StoreProxy.triggers.renameOBSSource(data.oldInputName, data.inputName);
 			});
@@ -301,7 +301,7 @@ export const storeOBS = defineStore('obs', {
 			 * Called when an OBS scene is renamed.
 			 * Rename it on all triggers
 			 */
-			OBSWebsocket.instance.addEventListener("OBS_SCENE_NAME_CHANGED", (event):void => {
+			OBSWebsocket.instance.addEventListener("ON_OBS_SCENE_NAME_CHANGED", (event):void => {
 				const data = event.data as {oldSceneName:string, sceneName:string};
 				StoreProxy.triggers.renameOBSScene(data.oldSceneName, data.sceneName);
 			});
@@ -310,18 +310,18 @@ export const storeOBS = defineStore('obs', {
 			 * Called when an OBS Filter is renamed.
 			 * Rename it on all triggers
 			 */
-			OBSWebsocket.instance.addEventListener("OBS_FILTER_NAME_CHANGED", (event):void => {
+			OBSWebsocket.instance.addEventListener("ON_OBS_FILTER_NAME_CHANGED", (event):void => {
 				const data = event.data as {sourceName: string; oldFilterName: string; filterName: string};
 				StoreProxy.triggers.renameOBSFilter(data.sourceName, data.oldFilterName, data.filterName);
 			});
 
 			OBSWebsocket.instance.heatClickTriggerType = TriggerTypes.HEAT_CLICK;//Read "heatClickTriggerType" to understand this line
-			OBSWebsocket.instance.addEventListener("OBS_PLAYBACK_ENDED", (e) => onPlayBackStateChanged(e as any));
-			OBSWebsocket.instance.addEventListener("OBS_PLAYBACK_STARTED", (e) => onPlayBackStateChanged(e as any));
-			OBSWebsocket.instance.addEventListener("OBS_PLAYBACK_PAUSED", (e) => onPlayBackStateChanged(e as any));
-			OBSWebsocket.instance.addEventListener("OBS_PLAYBACK_NEXT", (e) => onPlayBackStateChanged(e as any));
-			OBSWebsocket.instance.addEventListener("OBS_PLAYBACK_PREVIOUS", (e) => onPlayBackStateChanged(e as any));
-			OBSWebsocket.instance.addEventListener("OBS_PLAYBACK_RESTARTED", (e) => onPlayBackStateChanged(e as any));
+			OBSWebsocket.instance.addEventListener("ON_OBS_PLAYBACK_ENDED", (e) => onPlayBackStateChanged(e as any));
+			OBSWebsocket.instance.addEventListener("ON_OBS_PLAYBACK_STARTED", (e) => onPlayBackStateChanged(e as any));
+			OBSWebsocket.instance.addEventListener("ON_OBS_PLAYBACK_PAUSED", (e) => onPlayBackStateChanged(e as any));
+			OBSWebsocket.instance.addEventListener("ON_OBS_PLAYBACK_NEXT", (e) => onPlayBackStateChanged(e as any));
+			OBSWebsocket.instance.addEventListener("ON_OBS_PLAYBACK_PREVIOUS", (e) => onPlayBackStateChanged(e as any));
+			OBSWebsocket.instance.addEventListener("ON_OBS_PLAYBACK_RESTARTED", (e) => onPlayBackStateChanged(e as any));
 		},
 		setOBSSceneCommands(value:TwitchatDataTypes.OBSSceneCommand[]) {
 			this.sceneCommands = value;

@@ -249,36 +249,38 @@ export const storeHeat = defineStore('heat', {
 				}
 			}
 			const chaninfo = user.channelInfo[channelId]!;
-			const clickEventDataTemplate:{requestType:string, vendorName:string, requestData:{event_name:string, event_data:TwitchatDataTypes.HeatClickData}} = {
+			const event_data: TwitchatDataTypes.HeatClickData = {
+					id:Utils.getUUID(),
+					anonymous,
+					x:0,
+					y:0,
+					channelId,
+					uid:user.id,
+					login:user.login,
+					rotation:0,
+					scaleX:0,
+					scaleY:0,
+					isBroadcaster:chaninfo.is_broadcaster,
+					isSub:chaninfo.is_subscriber || false,
+					isBan:chaninfo.is_banned,
+					isMod:chaninfo.is_moderator,
+					isVip:chaninfo.is_vip,
+					isFollower:chaninfo.is_following || false,
+					followDate:chaninfo.following_date_ms,
+					testMode:event.testMode || false,
+					alt:event.alt || false,
+					ctrl:event.ctrl || false,
+					shift:event.shift || false,
+					twitchatOverlayID:"",
+					page:"",
+			};
+
+			const clickEventDataTemplate:{requestType:string, vendorName:string, requestData:{event_name:string, event_data:JsonObject}} = {
 				requestType:"emit_event",
 				vendorName:"obs-browser",
 				requestData:{
 					event_name:"heat-click",
-					event_data: {
-						id:Utils.getUUID(),
-						anonymous,
-						x:0,
-						y:0,
-						channelId,
-						uid:user.id,
-						login:user.login,
-						rotation:0,
-						scaleX:0,
-						scaleY:0,
-						isBroadcaster:chaninfo.is_broadcaster,
-						isSub:chaninfo.is_subscriber || false,
-						isBan:chaninfo.is_banned,
-						isMod:chaninfo.is_moderator,
-						isVip:chaninfo.is_vip,
-						isFollower:chaninfo.is_following || false,
-						followDate:chaninfo.following_date_ms,
-						testMode:event.testMode || false,
-						alt:event.alt || false,
-						ctrl:event.ctrl || false,
-						shift:event.shift || false,
-						twitchatOverlayID:"",
-						page:"",
-					}
+					event_data: (event_data as unknown) as JsonObject,
 				}
 			};
 
@@ -521,7 +523,7 @@ export const storeHeat = defineStore('heat', {
 			DataStore.set(DataStore.OVERLAY_DISTORTIONS, this.distortionList);
 
 			for (let i = 0; i < this.distortionList.length; i++) {
-				PublicAPI.instance.broadcast("DISTORT_OVERLAY_PARAMETERS", {
+				PublicAPI.instance.broadcast("ON_DISTORT_OVERLAY_CONFIGS", {
 					params:this.distortionList[i]!,
 				});
 			}

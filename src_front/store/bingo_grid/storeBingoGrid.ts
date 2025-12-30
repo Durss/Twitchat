@@ -67,22 +67,22 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			/**
 			 * Called when bingo grid overlay request for its configs
 			 */
-			PublicAPI.instance.addEventListener("GET_BINGO_GRID_PARAMETERS", (e)=> {
-				const bingo = StoreProxy.bingoGrid.gridList.find(v=>v.id == e.data!.bid);
+			PublicAPI.instance.addEventListener("GET_BINGO_GRID_CONFIGS", (e)=> {
+				const bingo = StoreProxy.bingoGrid.gridList.find(v=>v.id == e.data!.id);
 				if(bingo) {
 					if(!bingo.enabled) return;
-					PublicAPI.instance.broadcast("BINGO_GRID_PARAMETERS", {id:e.data!.bid, bingo, newVerticalBingos:[], newHorizontalBingos:[],  newDiagonalBingos:[]});
+					PublicAPI.instance.broadcast("ON_BINGO_GRID_CONFIGS", {id:e.data!.id, bingo, newVerticalBingos:[], newHorizontalBingos:[],  newDiagonalBingos:[]});
 				}else{
 					//Tell the overlay requested bingo couldn't be found
-					PublicAPI.instance.broadcast("BINGO_GRID_PARAMETERS", {id:e.data!.bid, bingo:null});
+					PublicAPI.instance.broadcast("ON_BINGO_GRID_CONFIGS", {id:e.data!.id, bingo:null});
 				}
 			});
 
 			/**
 			 * Get notified when a grid overlay exists
 			 */
-			PublicAPI.instance.addEventListener("BINGO_GRID_OVERLAY_PRESENCE", (event)=>{
-				const id = event.data!.bid;
+			PublicAPI.instance.addEventListener("SET_BINGO_GRID_OVERLAY_PRESENCE", (event)=>{
+				const id = event.data!.id;
 				const ref = this.gridList.find(v => v.id == id);
 				//Check if bingo exists
 				if(!ref || !ref.enabled) return;
@@ -104,10 +104,10 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			/**
 			 * Get notified when clicking on a grid via heat
 			 */
-			PublicAPI.instance.addEventListener("BINGO_GRID_HEAT_CLICK", async (event)=>{
+			PublicAPI.instance.addEventListener("ON_BINGO_GRID_HEAT_CLICK", async (event)=>{
 				if(!event.data) return;
 				const data = event.data;
-				const grid = this.gridList.find(g => g.id === (data.gridId || ""));
+				const grid = this.gridList.find(g => g.id === (data.id || ""));
 				//Ignore heat click if grid is disabled or heat interaction is disabled
 				if(!grid || !grid.enabled || !grid.heatClick) return;
 
@@ -182,7 +182,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 						//Tell the overlay someone got a bingo if allowed to be displayed on overlay
 						if(grid.overlayAnnouncement && await Utils.checkPermissions(grid.overlayAnnouncementPermissions, user, channelId)) {
 							const data = {
-								gridId:event.data.gridId,
+								id:event.data.gridId,
 								user:{
 									name:user.displayNameOriginal,
 									id:user.id,
@@ -190,7 +190,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 								},
 								count:entry.count
 							};
-							PublicAPI.instance.broadcast("BINGO_GRID_OVERLAY_VIEWER_EVENT", data);
+							PublicAPI.instance.broadcast("ON_BINGO_GRID_VIEWER_EVENT", data);
 						}
 
 						//Announce bingos on chat
@@ -599,7 +599,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 							message.complete = true;
 							StoreProxy.chat.addMessage(message);
 						}
-						PublicAPI.instance.broadcast("BINGO_GRID_PARAMETERS", {id:gridId, bingo:grid, newVerticalBingos, newHorizontalBingos,  newDiagonalBingos});
+						PublicAPI.instance.broadcast("ON_BINGO_GRID_CONFIGS", {id:gridId, bingo:grid, newVerticalBingos, newHorizontalBingos,  newDiagonalBingos});
 					}
 
 					prevGridStates[grid.id] = newStates;
@@ -732,7 +732,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			// 	});
 			// }
 			const data = {
-				gridId,
+				id:gridId,
 				scores:viewers.sort((a,b)=> {
 					if(b.count == a.count) {
 						return a.user.displayNameOriginal.toLowerCase().localeCompare(b.user.displayNameOriginal.toLowerCase())
@@ -756,12 +756,11 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				s.pos = pos;
 				prevScore = s.score;
 			})
-			PublicAPI.instance.broadcast("BINGO_GRID_OVERLAY_LEADER_BOARD", data);
+			PublicAPI.instance.broadcast("ON_BINGO_GRID_LEADER_BOARD", data);
 		},
 
 		hideLeaderboard(gridId:string):void {
-			const data = {gridId};
-			PublicAPI.instance.broadcast("BINGO_GRID_OVERLAY_LEADER_BOARD", data);
+			PublicAPI.instance.broadcast("ON_BINGO_GRID_LEADER_BOARD", {id:gridId});
 		},
 
 	} as IBingoGridActions

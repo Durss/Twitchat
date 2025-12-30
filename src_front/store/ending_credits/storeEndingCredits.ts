@@ -58,7 +58,7 @@ export const storeEndingCredits = defineStore('EndingCredits', {
 		async saveParams():Promise<void> {
 			clearTimeout(debounce);
 			debounce = window.setTimeout(async() => {
-				console.log("SAVE")
+				console.log("ON_SAVE")
 				this.overlayData.fontTitle = this.overlayData.fontTitle ?? "Inter";
 				this.overlayData.fontEntry = this.overlayData.fontEntry ?? "Inter";
 	
@@ -77,7 +77,7 @@ export const storeEndingCredits = defineStore('EndingCredits', {
 						slot.text = await TriggerUtils.parseGlobalPlaceholders(slot.text, false);
 					}
 				}
-				PublicAPI.instance.broadcast("ENDING_CREDITS_CONFIGS", result);
+				PublicAPI.instance.broadcast("ON_ENDING_CREDITS_CONFIGS", result);
 			}, 50);
 		}
 	} as IEndingCreditsActions

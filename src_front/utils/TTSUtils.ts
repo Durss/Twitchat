@@ -258,7 +258,7 @@ export default class TTSUtils {
 	* PRIVATE METHODS *
 	*******************/
 	private initialize():void {
-		PublicAPI.instance.addEventListener("STOP_TTS", ()=> {
+		PublicAPI.instance.addEventListener("SET_STOP_CURRENT_TTS_AUDIO", ()=> {
 			this.stop();
 		});
 

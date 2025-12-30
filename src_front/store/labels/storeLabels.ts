@@ -98,7 +98,7 @@ export const storeLabels = defineStore('labels', {
 				this.broadcastPlaceholders();
 			});
 
-			PublicAPI.instance.addEventListener("GET_LABEL_OVERLAY_PARAMS", (e)=> {
+			PublicAPI.instance.addEventListener("GET_LABEL_OVERLAY_CONFIGS", (e)=> {
 				if(e.data) this.broadcastLabelParams(e.data.id);
 			});
 
@@ -189,7 +189,7 @@ export const storeLabels = defineStore('labels', {
 			}
 
 			//Load avatar if the one given is empty
-			if(userId && !value && key.indexOf("_AVATAR")) {
+			if(userId && !value && key.indexOf("ON__AVATAR")) {
 				const [user] = await TwitchUtils.getUserInfo([userId]);
 				if(user) value = user.profile_image_url;
 			}
@@ -240,7 +240,7 @@ export const storeLabels = defineStore('labels', {
 						}
 					}
 				}
-				PublicAPI.instance.broadcast("LABEL_OVERLAY_PLACEHOLDERS", list);
+				PublicAPI.instance.broadcast("ON_LABEL_OVERLAY_PLACEHOLDERS", list);
 			}, 100);
 		},
 
@@ -249,9 +249,9 @@ export const storeLabels = defineStore('labels', {
 			const tag = data?.placeholder;
 			const validTag = data?.mode == "placeholder" && tag && this.allPlaceholders[tag];
 			if(data && data.enabled === true) {
-				PublicAPI.instance.broadcast("LABEL_OVERLAY_PARAMS", {id:labelId, data, exists:true, isValid:(!!validTag || data.mode == "html")});
+				PublicAPI.instance.broadcast("ON_LABEL_OVERLAY_CONFIGS", {id:labelId, data, exists:true, isValid:(!!validTag || data.mode == "html")});
 			}else{
-				PublicAPI.instance.broadcast("LABEL_OVERLAY_PARAMS", {id:labelId, data:null, exists:false});
+				PublicAPI.instance.broadcast("ON_LABEL_OVERLAY_CONFIGS", {id:labelId, data:null, exists:false});
 			}
 		},
 

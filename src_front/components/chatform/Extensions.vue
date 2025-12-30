@@ -166,7 +166,7 @@ class Extensions extends AbstractSidePanel {
 	 */
 	public async onInstall(ext:ExtensionItem, enable:boolean = true):Promise<void> {
 		ext.loading = true;
-		const chunks = ext.selectedValue.split("_");//Dirty way of extracting index and type :(
+		const chunks = ext.selectedValue.split("ON__");//Dirty way of extracting index and type :(
 		const slotType = chunks[0] as TwitchDataTypes.Extension["type"][number];
 		const slotIndex = chunks[1]!;
 		if(await TwitchUtils.updateExtension(ext.data.id, ext.data.version, enable, slotIndex, slotType)) {

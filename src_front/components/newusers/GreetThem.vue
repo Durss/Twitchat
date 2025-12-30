@@ -172,8 +172,8 @@ class NewUsers extends Vue {
 		document.addEventListener("touchend", this.mouseUpHandler);
 		document.addEventListener("mousemove", this.mouseMoveHandler);
 		document.addEventListener("touchmove", this.mouseMoveHandler);
-		PublicAPI.instance.addEventListener("GREET_FEED_READ", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("GREET_FEED_READ_ALL", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_GREET_FEED_READ", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_GREET_FEED_READ_ALL", this.publicApiEventHandler);
 		EventBus.instance.addEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 		EventBus.instance.addEventListener(GlobalEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 	}
@@ -185,8 +185,8 @@ class NewUsers extends Vue {
 		document.removeEventListener("touchend", this.mouseUpHandler);
 		document.removeEventListener("mousemove", this.mouseMoveHandler);
 		document.removeEventListener("touchmove", this.mouseMoveHandler);
-		PublicAPI.instance.removeEventListener("GREET_FEED_READ", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("GREET_FEED_READ_ALL", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_GREET_FEED_READ", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_GREET_FEED_READ_ALL", this.publicApiEventHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.DELETE_MESSAGE, this.deleteMessageHandler);
 	}
@@ -230,13 +230,13 @@ class NewUsers extends Vue {
 	/**
 	 * Called when requesting an action from the public API
 	 */
-	private onPublicApiEvent(e: {type:"GREET_FEED_READ", data:TwitchatEventMap["GREET_FEED_READ"]}
-	| {type:"GREET_FEED_READ_ALL", data:TwitchatEventMap["GREET_FEED_READ_ALL"]}):void {
+	private onPublicApiEvent(e: {type:"GREET_FEED_READ", data:TwitchatEventMap["SET_GREET_FEED_READ"]}
+	| {type:"GREET_FEED_READ_ALL", data:TwitchatEventMap["SET_GREET_FEED_READ_ALL"]}):void {
 		let readCount = 0;
 		switch(e.type) {
 			case "GREET_FEED_READ": {
-				if(e.data && !isNaN(e.data.count)) {
-					readCount = e.data.count;
+				if(e.data && !isNaN(e.data.messageCount)) {
+					readCount = e.data.messageCount;
 				}else{
 					readCount = 1;
 				}
