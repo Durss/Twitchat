@@ -1,7 +1,7 @@
 <template>
 	<div class="triggerlistitem"
 	@click="selectMode !== false ? (selected = !selected) : null"
-	:class="{disabled:triggerTypeDef?.disabled === true}"
+	:class="{deprecated:triggerTypeDef?.disabled === true, disabled:entryData.trigger.enabled === false}"
 	@mouseenter="over=true" @mouseleave="over=false"
 	v-newflag="{date:(entryData.trigger.created_at || 0), duration:2 * 60000, id:'trigger_'+entryData.trigger.id}">
 
@@ -132,16 +132,22 @@ export default toNative(TriggerListItem);
 		background-color: var(--background-color-fader);
 	}
 
-	&.disabled {
+	&.deprecated {
 		background-color: var(--color-alert);
 		&:hover {
 			background-color: var(--color-alert-light);
+		}
+	}
+	&.disabled {
+		.button>.icon,.label{
+			opacity: .5;
 		}
 	}
 	.label {
 		display: flex;
 		align-items: flex-start;
 		flex-direction: column;
+		transition: opacity .1s;
 	}
 	.selectCb {
 		margin: auto .25em;
@@ -162,6 +168,7 @@ export default toNative(TriggerListItem);
 			width: 1.5em;
 			padding: .25em;
 			object-fit: fill;
+			transition: opacity .1s;
 		}
 	}
 	.toggle {

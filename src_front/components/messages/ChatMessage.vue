@@ -619,7 +619,7 @@ class ChatMessage extends AbstractChatMessage {
 				clipInfo.clip!.mp4 = clipSrcPath[0]!.landscape_download_url;
 			}
 		}
-		PublicAPI.instance.broadcast("SHOW_CLIP", clipInfo);
+		PublicAPI.instance.broadcast("SET_CHAT_HIGHLIGHT_OVERLAY_CLIP", clipInfo);
 		this.$store.chat.highlightedMessageId = this.messageData.id;
 		await Utils.promisedTimeout(1000);
 		this.clipHighlightLoading = false;

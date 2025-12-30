@@ -73,7 +73,7 @@ export default class SSEHelper extends EventDispatcher {
 			}, Math.random()*5000);
 		}
 		this._sse.onerror = (event) => {
-			console.log("ERROR");
+			console.log("ON_ERROR");
 			console.log(event);
 			if(++this._failCount === 5) {
 				this.dispatchEvent(new SSEEvent(SSEEvent.FAILED_CONNECT));

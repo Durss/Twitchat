@@ -115,7 +115,7 @@ class Overlay extends Vue {
 			px <= bounds.right &&
 			py >= bounds.top &&
 			py <= bounds.bottom) {
-				PublicAPI.instance.broadcast("MUSIC_PLAYER_HEAT_CLICK", event.detail);
+				PublicAPI.instance.broadcast("ON_MUSIC_PLAYER_HEAT_CLICK", event.detail);
 			}
 		}
 

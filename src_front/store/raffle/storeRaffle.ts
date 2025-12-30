@@ -38,7 +38,7 @@ export const storeRaffle = defineStore('raffle', {
 			/**
 			 * Called when a raffle animation (the wheel) completes
 			 */
-			PublicAPI.instance.addEventListener("WHEEL_OVERLAY_ANIMATION_COMPLETE", (e)=> {
+			PublicAPI.instance.addEventListener("ON_WHEEL_OVERLAY_ANIMATION_COMPLETE", (e)=> {
 				if(!e.data) return;
 				let raffleEntry = this.raffleList.find(v=>v.sessionId === e.data.sessionId);
 				if(!raffleEntry) return;
@@ -248,7 +248,7 @@ export const storeRaffle = defineStore('raffle', {
 
 			//Publish the result on the public API
 			if(publish !== false) {
-				PublicAPI.instance.broadcast("WHEEL_OVERLAY_ANIMATION_COMPLETE", {winner, sessionId});
+				PublicAPI.instance.broadcast("ON_WHEEL_OVERLAY_ANIMATION_COMPLETE", {winner, sessionId});
 			}
 
 			if(raffleEntry.resultCallback) raffleEntry.resultCallback(winner);
@@ -644,11 +644,11 @@ export const storeRaffle = defineStore('raffle', {
 			let wheelOverlayExists = false;
 
 			const wheelOverlayPresenceHandler = ()=> { wheelOverlayExists = true; };
-			PublicAPI.instance.addEventListener("WHEEL_OVERLAY_PRESENCE", wheelOverlayPresenceHandler);
+			PublicAPI.instance.addEventListener("ON_WHEEL_OVERLAY_PRESENCE", wheelOverlayPresenceHandler);
 
 			PublicAPI.instance.broadcast("GET_WHEEL_OVERLAY_PRESENCE");
 			await Utils.promisedTimeout(500);//Give the overlay some time to answer
-			PublicAPI.instance.removeEventListener("WHEEL_OVERLAY_PRESENCE", wheelOverlayPresenceHandler);
+			PublicAPI.instance.removeEventListener("ON_WHEEL_OVERLAY_PRESENCE", wheelOverlayPresenceHandler);
 
 			//A wheel overlay exists, send it data and wait for it to complete
 			if(wheelOverlayExists){
@@ -664,7 +664,7 @@ export const storeRaffle = defineStore('raffle', {
 					sessionId:data.sessionId,
 					skin: Config.instance.GET_CURRENT_AUTO_SKIN_CONFIG()?.skin || "default",
 				}
-				PublicAPI.instance.broadcast("WHEEL_OVERLAY_START", apiData);
+				PublicAPI.instance.broadcast("ON_WHEEL_OVERLAY_START", apiData);
 
 			}else{
 

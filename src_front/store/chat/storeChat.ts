@@ -758,8 +758,8 @@ export const storeChat = defineStore('chat', {
 					break;
 				}
 			};
-			PublicAPI.instance.addEventListener("AUTOMOD_ACCEPT", ()=> findAndFlagAutomod(true));
-			PublicAPI.instance.addEventListener("AUTOMOD_REJECT", ()=> findAndFlagAutomod(false));
+			PublicAPI.instance.addEventListener("SET_AUTOMOD_ACCEPT", ()=> findAndFlagAutomod(true));
+			PublicAPI.instance.addEventListener("SET_AUTOMOD_REJECT", ()=> findAndFlagAutomod(false));
 
 			//Listen for moderator event spoiling messages remotely
 			SSEHelper.instance.addEventListener(SSEEvent.SPOIL_MESSAGE, (event)=>{
@@ -1129,7 +1129,7 @@ export const storeChat = defineStore('chat', {
 								login:message.user.login,
 								displayName:message.user.displayNameOriginal,
 							};
-							PublicAPI.instance.broadcast("MESSAGE_WHISPER", {unreadCount:this.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
+							PublicAPI.instance.broadcast("ON_MESSAGE_WHISPER", {unreadCount:this.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
 
 						}else {
 
@@ -1350,24 +1350,24 @@ export const storeChat = defineStore('chat', {
 
 							//If it's a text message and user isn't a follower, broadcast to WS
 							if(message.user.channelInfo[message.channel_id]!.is_following === false) {
-								PublicAPI.instance.broadcast("MESSAGE_NON_FOLLOWER", wsMessage);
+								PublicAPI.instance.broadcast("ON_MESSAGE_FROM_NON_FOLLOWER", wsMessage);
 							}
 
 							//Check if the message contains a mention
 							if(message.hasMention) {
-								PublicAPI.instance.broadcast("MENTION", wsMessage);
+								PublicAPI.instance.broadcast("ON_MENTION", wsMessage);
 							}
 
 							//If it's the first message today for this user
 							if(message.todayFirst === true) {
-								PublicAPI.instance.broadcast("MESSAGE_FIRST", wsMessage);
+								PublicAPI.instance.broadcast("ON_MESSAGE_FIRST_TODAY", wsMessage);
 							}
 
 							//If it's the first message all time of the user
 							if(message.twitch_isFirstMessage) {
 								//Flag user as new chatter
 								message.user.channelInfo[message.channel_id]!.is_new = true;
-								// PublicAPI.instance.broadcast("MESSAGE_FIRST_ALL_TIME", wsMessage);
+								PublicAPI.instance.broadcast("ON_MESSAGE_FIRST_ALL_TIME", wsMessage);
 							}
 
 							//Handle spoiler command
@@ -1499,7 +1499,7 @@ export const storeChat = defineStore('chat', {
 								title:message.reward.title,
 							},
 						} ;
-						PublicAPI.instance.broadcast("REWARD_REDEEM", wsMessage);
+						PublicAPI.instance.broadcast("ON_REWARD_REDEEM", wsMessage);
 						if(!isFromRemoteChan) {
 							StoreProxy.labels.updateLabelValue("REWARD_ID", message.user.id);
 							StoreProxy.labels.updateLabelValue("REWARD_NAME", message.user.displayNameOriginal);
@@ -1695,7 +1695,7 @@ export const storeChat = defineStore('chat', {
 
 					//New sub
 					case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
-						PublicAPI.instance.broadcast("SUBSCRIPTION", {
+						PublicAPI.instance.broadcast("ON_SUBSCRIPTION", {
 							channel:message.channel_id,
 							tier:message.tier,
 							months:message.months,
@@ -1951,7 +1951,7 @@ export const storeChat = defineStore('chat', {
 									displayName: message.user.displayNameOriginal,
 								}
 							}
-							PublicAPI.instance.broadcast("FOLLOW", wsMessage);
+							PublicAPI.instance.broadcast("ON_FOLLOW", wsMessage);
 						}
 						break;
 					}
@@ -2244,7 +2244,7 @@ export const storeChat = defineStore('chat', {
 					pinned:message.pinned,
 					pinLevel:message.pinLevel,
 				};
-				PublicAPI.instance.broadcast("BITS", wsMessage);
+				PublicAPI.instance.broadcast("ON_BITS", wsMessage);
 			}
 
 			TriggerActionHandler.instance.execute(message);
@@ -2293,7 +2293,7 @@ export const storeChat = defineStore('chat', {
 						displayName:message.user.displayNameOriginal,
 					}
 				}
-				PublicAPI.instance.broadcast("MESSAGE_DELETED", wsMessage);
+				PublicAPI.instance.broadcast("ON_MESSAGE_DELETED", wsMessage);
 
 				//Don't keep automod accept/reject message
 				if(message.twitch_automod) {
@@ -2354,7 +2354,7 @@ export const storeChat = defineStore('chat', {
 								displayName:mTyped.user.displayNameOriginal,
 							}
 						}
-						PublicAPI.instance.broadcast("MESSAGE_DELETED", wsMessage);
+						PublicAPI.instance.broadcast("ON_MESSAGE_DELETED", wsMessage);
 					}, Math.floor(i/5)*50)
 
 					mTyped.cleared = true;
@@ -2383,7 +2383,7 @@ export const storeChat = defineStore('chat', {
 								displayName:mTyped.user.displayNameOriginal,
 							}
 						}
-						PublicAPI.instance.broadcast("MESSAGE_DELETED", wsMessage);
+						PublicAPI.instance.broadcast("ON_MESSAGE_DELETED", wsMessage);
 					}, Math.floor(i/5)*50)
 
 					mTyped.cleared = true;

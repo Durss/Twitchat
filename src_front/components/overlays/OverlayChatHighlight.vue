@@ -65,7 +65,7 @@ class OverlayChatHighlight extends Vue {
 
 	private showMessageHandler!:(e:TwitchatEvent<"SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE">)=>void;
 	private overlayPresenceHandler!:(e:TwitchatEvent<"GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE">)=>void;
-	private showClipHandler!:(e:TwitchatEvent<"SHOW_CLIP">)=>void;
+	private showClipHandler!:(e:TwitchatEvent<"SET_CHAT_HIGHLIGHT_OVERLAY_CLIP">)=>void;
 	private dateOffset:number = 0;
 	private clipPercent:number = 0;
 	private dateTimeout:number = -1;
@@ -100,7 +100,7 @@ class OverlayChatHighlight extends Vue {
 		// this.onShowMessage(new TwitchatEvent("SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE", json));
 
 		//Display a debug clip
-		// this.onShowClip(new TwitchatEvent("SHOW_CLIP",{
+		// this.onShowClip(new TwitchatEvent("SET_CHAT_HIGHLIGHT_OVERLAY_CLIP",{
 		// 	params:{position:"bl"},
 		// 	clip:{
 		// 		"id": "c512b3a0-be87-4e4b-87a3-4a9d98608f47",
@@ -124,17 +124,17 @@ class OverlayChatHighlight extends Vue {
 		
 		this.showMessageHandler = (e)=>this.onShowMessage(e);
 		this.showClipHandler = (e)=>this.onShowClip(e);
-		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast("CHAT_HIGHLIGHT_OVERLAY_PRESENCE"); }
+		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast("SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE"); }
 
 		PublicAPI.instance.addEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE", this.showMessageHandler);
 		PublicAPI.instance.addEventListener("GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", this.overlayPresenceHandler);
-		PublicAPI.instance.addEventListener("SHOW_CLIP", this.showClipHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_CLIP", this.showClipHandler);
 	}
 
 	public beforeUnmount():void {
 		PublicAPI.instance.removeEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE", this.showMessageHandler);
 		PublicAPI.instance.removeEventListener("GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", this.overlayPresenceHandler);
-		PublicAPI.instance.removeEventListener("SHOW_CLIP", this.showClipHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_CLIP", this.showClipHandler);
 	}
 
 	private async onShowMessage(e:TwitchatEvent<"SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE">):Promise<void> {
@@ -158,11 +158,9 @@ class OverlayChatHighlight extends Vue {
 			await this.$nextTick();
 			this.showCurrent();
 		}
-
-		PublicAPI.instance.broadcast("CHAT_HIGHLIGHT_OVERLAY_CONFIRM");
 	}
 
-	private async onShowClip(e:TwitchatEvent<"SHOW_CLIP">):Promise<void> {
+	private async onShowClip(e:TwitchatEvent<"SET_CHAT_HIGHLIGHT_OVERLAY_CLIP">):Promise<void> {
 		await this.hideCurrent();
 		this.loadingClip = true;
 
@@ -172,8 +170,6 @@ class OverlayChatHighlight extends Vue {
 		this.message = "";
 		this.user = null;
 		this.clipPercent = 0;
-
-		PublicAPI.instance.broadcast("CHAT_HIGHLIGHT_OVERLAY_CONFIRM");
 	}
 
 	public onIFrameLoaded(e:unknown):void {

@@ -47,7 +47,7 @@ class VoiceGlobalCommands extends Vue {
 			const isGlobal = VoiceAction[a+"_IS_GLOBAL" as VAKeys] === true;
 			if(!isGlobal) continue;
 
-			const id:string = VoiceAction[a as VAKeys] as string;
+			const id:string = a as string;
 			let text = "";
 			const action = (this.$store.voice.voiceActions as VoiceAction[]).find(v=> v.id == id);
 			if(action?.sentences) text = action.sentences;

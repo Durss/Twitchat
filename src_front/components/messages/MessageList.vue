@@ -267,22 +267,22 @@ class MessageList extends Vue {
 		EventBus.instance.addEventListener(GlobalEvent.UNTRACK_USER, this.reloadListHandler);
 		EventBus.instance.addEventListener(GlobalEvent.RELOAD_MESSAGES, this.reloadListHandler);
 
-		PublicAPI.instance.addEventListener("CHAT_FEED_SELECT", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_READ", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_READ_ALL", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_PAUSE", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_UNPAUSE", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_SCROLL", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_SCROLL_BOTTOM", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_SCROLL_UP", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_SCROLL_DOWN", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_SELECT_ACTION_CANCEL", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_SELECT_ACTION_DELETE", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_SELECT_ACTION_BAN", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_SELECT_CHOOSING_ACTION", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_SELECT_ACTION_PIN", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_SELECT_ACTION_HIGHLIGHT", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("CHAT_FEED_SELECT_ACTION_SHOUTOUT", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SELECT", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_READ", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_READ_ALL", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_PAUSE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_UNPAUSE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SCROLL", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SCROLL_BOTTOM", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SCROLL_UP", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SCROLL_DOWN", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SELECT_ACTION_CANCEL", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SELECT_ACTION_DELETE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SELECT_ACTION_BAN", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SELECT_CHOOSING_ACTION", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SELECT_ACTION_SAVE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SELECT_ACTION_HIGHLIGHT", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CHAT_FEED_SELECT_ACTION_SHOUTOUT", this.publicApiEventHandler);
 
 		this.fullListRefresh();
 		this.rebuildChannelIdsHashmap();
@@ -302,22 +302,22 @@ class MessageList extends Vue {
 		EventBus.instance.removeEventListener(GlobalEvent.UNTRACK_USER, this.reloadListHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.RELOAD_MESSAGES, this.reloadListHandler);
 
-		PublicAPI.instance.removeEventListener("CHAT_FEED_SELECT", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_READ", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_READ_ALL", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_PAUSE", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_UNPAUSE", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_SCROLL", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_SCROLL_BOTTOM", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_SCROLL_UP", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_SCROLL_DOWN", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_SELECT_ACTION_CANCEL", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_SELECT_ACTION_DELETE", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_SELECT_ACTION_BAN", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_SELECT_CHOOSING_ACTION", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_SELECT_ACTION_PIN", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_SELECT_ACTION_HIGHLIGHT", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("CHAT_FEED_SELECT_ACTION_SHOUTOUT", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SELECT", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_READ", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_READ_ALL", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_PAUSE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_UNPAUSE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SCROLL", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SCROLL_BOTTOM", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SCROLL_UP", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SCROLL_DOWN", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SELECT_ACTION_CANCEL", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SELECT_ACTION_DELETE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SELECT_ACTION_BAN", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SELECT_CHOOSING_ACTION", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SELECT_ACTION_SAVE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SELECT_ACTION_HIGHLIGHT", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CHAT_FEED_SELECT_ACTION_SHOUTOUT", this.publicApiEventHandler);
 	}
 
 	/**
@@ -894,31 +894,31 @@ class MessageList extends Vue {
 	 * Called when requesting an action from the public API
 	 */
 	private async onPublicApiEvent(e:
-	| {type:"CHAT_FEED_READ", data:TwitchatEventMap["CHAT_FEED_READ"]}
-	| {type:"CHAT_FEED_READ_ALL", data:TwitchatEventMap["CHAT_FEED_READ_ALL"]}
-	| {type:"CHAT_FEED_PAUSE", data:TwitchatEventMap["CHAT_FEED_PAUSE"]}
-	| {type:"CHAT_FEED_UNPAUSE", data:TwitchatEventMap["CHAT_FEED_UNPAUSE"]}
-	| {type:"CHAT_FEED_SCROLL", data:TwitchatEventMap["CHAT_FEED_SCROLL"]}
-	| {type:"CHAT_FEED_SCROLL_UP", data:TwitchatEventMap["CHAT_FEED_SCROLL_UP"]}
-	| {type:"CHAT_FEED_SCROLL_DOWN", data:TwitchatEventMap["CHAT_FEED_SCROLL_DOWN"]}
-	| {type:"CHAT_FEED_SCROLL_BOTTOM", data:TwitchatEventMap["CHAT_FEED_SCROLL_BOTTOM"]}
-	| {type:"CHAT_FEED_SELECT", data:TwitchatEventMap["CHAT_FEED_SELECT"]}
-	| {type:"CHAT_FEED_SELECT_ACTION_CANCEL", data:TwitchatEventMap["CHAT_FEED_SELECT_ACTION_CANCEL"]}
-	| {type:"CHAT_FEED_SELECT_ACTION_DELETE", data:TwitchatEventMap["CHAT_FEED_SELECT_ACTION_DELETE"]}
-	| {type:"CHAT_FEED_SELECT_ACTION_BAN", data:TwitchatEventMap["CHAT_FEED_SELECT_ACTION_BAN"]}
-	| {type:"CHAT_FEED_SELECT_ACTION_PIN", data:TwitchatEventMap["CHAT_FEED_SELECT_ACTION_PIN"]}
-	| {type:"CHAT_FEED_SELECT_ACTION_HIGHLIGHT", data:TwitchatEventMap["CHAT_FEED_SELECT_ACTION_HIGHLIGHT"]}
-	| {type:"CHAT_FEED_SELECT_ACTION_SHOUTOUT", data:TwitchatEventMap["CHAT_FEED_SELECT_ACTION_SHOUTOUT"]}
-	| {type:"CHAT_FEED_SELECT_CHOOSING_ACTION", data:TwitchatEventMap["CHAT_FEED_SELECT_CHOOSING_ACTION"]}
+	| {type:"SET_CHAT_FEED_SELECT", data:TwitchatEventMap["SET_CHAT_FEED_SELECT"]}
+	| {type:"SET_CHAT_FEED_READ", data:TwitchatEventMap["SET_CHAT_FEED_READ"]}
+	| {type:"SET_CHAT_FEED_READ_ALL", data:TwitchatEventMap["SET_CHAT_FEED_READ_ALL"]}
+	| {type:"SET_CHAT_FEED_PAUSE", data:TwitchatEventMap["SET_CHAT_FEED_PAUSE"]}
+	| {type:"SET_CHAT_FEED_UNPAUSE", data:TwitchatEventMap["SET_CHAT_FEED_UNPAUSE"]}
+	| {type:"SET_CHAT_FEED_SCROLL", data:TwitchatEventMap["SET_CHAT_FEED_SCROLL"]}
+	| {type:"SET_CHAT_FEED_SCROLL_BOTTOM", data:TwitchatEventMap["SET_CHAT_FEED_SCROLL_BOTTOM"]}
+	| {type:"SET_CHAT_FEED_SCROLL_UP", data:TwitchatEventMap["SET_CHAT_FEED_SCROLL_UP"]}
+	| {type:"SET_CHAT_FEED_SCROLL_DOWN", data:TwitchatEventMap["SET_CHAT_FEED_SCROLL_DOWN"]}
+	| {type:"SET_CHAT_FEED_SELECT_ACTION_CANCEL", data:TwitchatEventMap["SET_CHAT_FEED_SELECT_ACTION_CANCEL"]}
+	| {type:"SET_CHAT_FEED_SELECT_ACTION_DELETE", data:TwitchatEventMap["SET_CHAT_FEED_SELECT_ACTION_DELETE"]}
+	| {type:"SET_CHAT_FEED_SELECT_ACTION_BAN", data:TwitchatEventMap["SET_CHAT_FEED_SELECT_ACTION_BAN"]}
+	| {type:"SET_CHAT_FEED_SELECT_CHOOSING_ACTION", data:TwitchatEventMap["SET_CHAT_FEED_SELECT_CHOOSING_ACTION"]}
+	| {type:"SET_CHAT_FEED_SELECT_ACTION_SAVE", data:TwitchatEventMap["SET_CHAT_FEED_SELECT_ACTION_SAVE"]}
+	| {type:"SET_CHAT_FEED_SELECT_ACTION_HIGHLIGHT", data:TwitchatEventMap["SET_CHAT_FEED_SELECT_ACTION_HIGHLIGHT"]}
+	| {type:"SET_CHAT_FEED_SELECT_ACTION_SHOUTOUT", data:TwitchatEventMap["SET_CHAT_FEED_SELECT_ACTION_SHOUTOUT"]}
 ): Promise<void> {
-		let count = e.type == "CHAT_FEED_READ" && (e.data.count && !isNaN(e.data.count as number)) ? e.data.count : 0;
-		let scrollBy = (e.type == "CHAT_FEED_SCROLL" || e.type == "CHAT_FEED_SCROLL_UP" || e.type == "CHAT_FEED_SCROLL_DOWN") && (e.data.scrollBy && !isNaN(e.data.scrollBy as number)) ? e.data.scrollBy : 100;
+		let count = e.type == "SET_CHAT_FEED_READ" && (e.data.count && !isNaN(e.data.count as number)) ? e.data.count : 0;
+		let scrollBy = (e.type == "SET_CHAT_FEED_SCROLL" || e.type == "SET_CHAT_FEED_SCROLL_UP" || e.type == "SET_CHAT_FEED_SCROLL_DOWN") && (e.data.scrollBy && !isNaN(e.data.scrollBy as number)) ? e.data.scrollBy : 100;
 		if(typeof scrollBy == "string") scrollBy = parseInt(scrollBy);
 		const col = (e.data?.colIndex || 0);
 		if(col != this.config.order) return;
 
 		switch (e.type) {
-			case "CHAT_FEED_READ": {
+			case "SET_CHAT_FEED_READ": {
 				if (count === 0) count = 1;
 				const messageList = this.$store.chat.messages;
 				let offset = messageList.length-1;
@@ -964,7 +964,7 @@ class MessageList extends Vue {
 				break;
 			}
 
-			case "CHAT_FEED_READ_ALL": {
+			case "SET_CHAT_FEED_READ_ALL": {
 				//Read all case
 				if (count === 0 || count > this.filteredMessages.length - 1) {
 					count = this.filteredMessages.length - 1;
@@ -975,17 +975,17 @@ class MessageList extends Vue {
 				break;
 			}
 
-			case "CHAT_FEED_PAUSE": {
+			case "SET_CHAT_FEED_PAUSE": {
 				this.lockScroll = true;
 				break;
 			}
 
-			case "CHAT_FEED_UNPAUSE": {
+			case "SET_CHAT_FEED_UNPAUSE": {
 				this.unPause();
 				break;
 			}
 
-			case "CHAT_FEED_SCROLL": {
+			case "SET_CHAT_FEED_SCROLL": {
 				this.lockScroll = true;
 				const messagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
 				const maxScroll = (messagesHolder.scrollHeight - messagesHolder.offsetHeight);
@@ -999,14 +999,14 @@ class MessageList extends Vue {
 				break;
 			}
 
-			case "CHAT_FEED_SCROLL_UP": {
+			case "SET_CHAT_FEED_SCROLL_UP": {
 				this.lockScroll = true;
 				const el = this.$refs.chatMessageHolder as HTMLDivElement;
 				gsap.to(el, { scrollTop: el.scrollTop - scrollBy, duration: .5, ease: "power1.inOut" });
 				break;
 			}
 
-			case "CHAT_FEED_SCROLL_DOWN": {
+			case "SET_CHAT_FEED_SCROLL_DOWN": {
 				const messagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
 				const maxScroll = (messagesHolder.scrollHeight - messagesHolder.offsetHeight);
 				const vScroll = messagesHolder.scrollTop + scrollBy;
@@ -1030,13 +1030,13 @@ class MessageList extends Vue {
 				break;
 			}
 
-			case "CHAT_FEED_SCROLL_BOTTOM": {
+			case "SET_CHAT_FEED_SCROLL_BOTTOM": {
 				this.fullListRefresh();
 				this.lockScroll = false;
 				break;
 			}
 
-			case "CHAT_FEED_SELECT": {
+			case "SET_CHAT_FEED_SELECT": {
 				const messageList = this.$store.chat.messages;
 				let offset = messageList.length-1;
 				let currentMessageIndex = -1;
@@ -1086,20 +1086,20 @@ class MessageList extends Vue {
 						this.selectedItem = null;
 						this.selectedMessage = null;
 						this.selectionDate = 0;
-						PublicAPI.instance.broadcast("CHAT_FEED_SELECT_ACTION_CANCEL",{ colIndex: this.config.order });
+						PublicAPI.instance.broadcast("SET_CHAT_FEED_SELECT_ACTION_CANCEL",{ colIndex: this.config.order });
 					}, 5000);
 				}
 				break;
 			}
 
-			case "CHAT_FEED_SELECT_ACTION_CANCEL": {
+			case "SET_CHAT_FEED_SELECT_ACTION_CANCEL": {
 				this.selectedItem = null;
 				this.selectedMessage = null;
 				this.selectionDate = 0;
 				break;
 			}
 
-			case "CHAT_FEED_SELECT_ACTION_DELETE": {
+			case "SET_CHAT_FEED_SELECT_ACTION_DELETE": {
 				if(!this.selectedMessage || this.selectedMessage.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 					this.showSelectionError();
 					return;
@@ -1111,7 +1111,7 @@ class MessageList extends Vue {
 				break;
 			}
 
-			case "CHAT_FEED_SELECT_ACTION_BAN": {
+			case "SET_CHAT_FEED_SELECT_ACTION_BAN": {
 				if(!this.selectedMessage || this.selectedMessage.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 					this.showSelectionError();
 					return;
@@ -1123,7 +1123,7 @@ class MessageList extends Vue {
 				break;
 			}
 
-			case "CHAT_FEED_SELECT_ACTION_PIN": {
+			case "SET_CHAT_FEED_SELECT_ACTION_SAVE": {
 				if(!this.selectedMessage || this.selectedMessage.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 					this.showSelectionError();
 					return;
@@ -1136,7 +1136,7 @@ class MessageList extends Vue {
 				break;
 			}
 
-			case "CHAT_FEED_SELECT_ACTION_HIGHLIGHT": {
+			case "SET_CHAT_FEED_SELECT_ACTION_HIGHLIGHT": {
 				if(!this.selectedMessage || this.selectedMessage.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 					this.showSelectionError();
 					return;
@@ -1145,7 +1145,7 @@ class MessageList extends Vue {
 				break;
 			}
 
-			case "CHAT_FEED_SELECT_ACTION_SHOUTOUT": {
+			case "SET_CHAT_FEED_SELECT_ACTION_SHOUTOUT": {
 				if(!this.selectedMessage || this.selectedMessage.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 					this.showSelectionError();
 					return;
@@ -1154,7 +1154,7 @@ class MessageList extends Vue {
 				break;
 			}
 
-			case "CHAT_FEED_SELECT_CHOOSING_ACTION": {
+			case "SET_CHAT_FEED_SELECT_CHOOSING_ACTION": {
 				clearTimeout(this.selectionTimeout);
 				this.selectionTimeout = window.setTimeout(()=>{
 					this.selectedItem = null;
@@ -1667,7 +1667,7 @@ class MessageList extends Vue {
 
 		if (m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 		|| m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
-			PublicAPI.instance.broadcast("MESSAGE_READ", {
+			PublicAPI.instance.broadcast("ON_MESSAGE_MARKED_AS_READ", {
 				manual: event != null,
 				selected: this.markedAsReadDate == m.date, 
 				channel: m.channel_id,

@@ -25,8 +25,7 @@ declare module '@vue/runtime-core' {
 			description?: string,
 			data?: T,
 			yesLabel?:string,
-			noLabel?:string,
-			STTOrigin?:boolean) => Promise<T|undefined>,
+			noLabel?:string) => Promise<T|undefined>,
 	}
 }
 

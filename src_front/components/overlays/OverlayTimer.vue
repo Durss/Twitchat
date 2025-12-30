@@ -70,19 +70,19 @@ class OverlayTimer extends AbstractOverlay {
 	private timerData:TwitchatDataTypes.TimerData|null = null;
 	private countdownData:TwitchatDataTypes.TimerData|null = null;
 
-	private timerEventHandler!:(e:TwitchatEvent<"TIMER_START" | "TIMER_STOP">)=>void;
-	private countdownEventHandler!:(e:TwitchatEvent<"COUNTDOWN_START" | "COUNTDOWN_COMPLETE">)=>void;
+	private timerEventHandler!:(e:TwitchatEvent<"ON_TIMER_START" | "ON_TIMER_STOP">)=>void;
+	private countdownEventHandler!:(e:TwitchatEvent<"ON_COUNTDOWN_START" | "ON_COUNTDOWN_COMPLETE">)=>void;
 	private timerPresenceHandler!:()=>void;
 
 	public beforeMount():void {
 		this.timerEventHandler = (e)=>this.onTimerEvent(e);
 		this.countdownEventHandler = (e)=>this.onCountdownEvent(e);
-		this.timerPresenceHandler = ()=>{ PublicAPI.instance.broadcast("TIMER_OVERLAY_PRESENCE"); }
+		this.timerPresenceHandler = ()=>{ PublicAPI.instance.broadcast("ON_TIMER_OVERLAY_PRESENCE"); }
 
-		PublicAPI.instance.addEventListener("TIMER_START", this.timerEventHandler);
-		PublicAPI.instance.addEventListener("TIMER_STOP", this.timerEventHandler);
-		PublicAPI.instance.addEventListener("COUNTDOWN_START", this.countdownEventHandler);
-		PublicAPI.instance.addEventListener("COUNTDOWN_COMPLETE", this.countdownEventHandler);
+		PublicAPI.instance.addEventListener("ON_TIMER_START", this.timerEventHandler);
+		PublicAPI.instance.addEventListener("ON_TIMER_STOP", this.timerEventHandler);
+		PublicAPI.instance.addEventListener("ON_COUNTDOWN_START", this.countdownEventHandler);
+		PublicAPI.instance.addEventListener("ON_COUNTDOWN_COMPLETE", this.countdownEventHandler);
 		PublicAPI.instance.addEventListener("GET_TIMER_OVERLAY_PRESENCE", this.timerPresenceHandler);
 
 		this.intervalUpdate = window.setInterval(()=>{ this.computeValues() }, 100);
@@ -95,10 +95,10 @@ class OverlayTimer extends AbstractOverlay {
 
 	public beforeUnmount():void {
 		clearTimeout(this.intervalUpdate);
-		PublicAPI.instance.removeEventListener("TIMER_START", this.timerEventHandler);
-		PublicAPI.instance.removeEventListener("TIMER_STOP", this.timerEventHandler);
-		PublicAPI.instance.removeEventListener("COUNTDOWN_START", this.countdownEventHandler);
-		PublicAPI.instance.removeEventListener("COUNTDOWN_COMPLETE", this.countdownEventHandler);
+		PublicAPI.instance.removeEventListener("ON_TIMER_START", this.timerEventHandler);
+		PublicAPI.instance.removeEventListener("ON_TIMER_STOP", this.timerEventHandler);
+		PublicAPI.instance.removeEventListener("ON_COUNTDOWN_START", this.countdownEventHandler);
+		PublicAPI.instance.removeEventListener("ON_COUNTDOWN_COMPLETE", this.countdownEventHandler);
 		PublicAPI.instance.removeEventListener("GET_TIMER_OVERLAY_PRESENCE", this.timerPresenceHandler);
 		if(this.styleNode) {
 			document.head.removeChild(this.styleNode);
@@ -107,10 +107,10 @@ class OverlayTimer extends AbstractOverlay {
 	}
 
 	public requestInfo():void {
-		PublicAPI.instance.broadcast("GET_CURRENT_TIMERS", {id:this.overlayId});
+		PublicAPI.instance.broadcast("GET_TIMER", {id:this.overlayId});
 	}
 
-	public async onTimerEvent(e:TwitchatEvent<"TIMER_START" | "TIMER_STOP">):Promise<void> {
+	public async onTimerEvent(e:TwitchatEvent<"ON_TIMER_START" | "ON_TIMER_STOP">):Promise<void> {
 		const data = e.data;
 		if(data.id != this.overlayId
 		&& !(data.isDefault && this.overlayId == "")) return;
@@ -146,7 +146,7 @@ class OverlayTimer extends AbstractOverlay {
 		}`;
 	}
 
-	public async onCountdownEvent(e:TwitchatEvent<"COUNTDOWN_START" | "COUNTDOWN_COMPLETE">):Promise<void> {
+	public async onCountdownEvent(e:TwitchatEvent<"ON_COUNTDOWN_START" | "ON_COUNTDOWN_COMPLETE">):Promise<void> {
 		if(e.data.id != this.overlayId
 		&& !(e.data.isDefault && this.overlayId == ""))	return;
 

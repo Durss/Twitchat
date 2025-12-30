@@ -4,6 +4,7 @@ import Utils from '@/utils/Utils';
 import { acceptHMRUpdate, defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { ICommonActions, ICommonGetters, ICommonState } from '../StoreProxy';
+import StreamdeckSocket from '@/utils/StreamdeckSocket';
 
 //Contains things shared between app and overlays
 //Only keep things necessary for the overlays here !
@@ -44,6 +45,7 @@ export const storeCommon = defineStore('common', {
 				// if(sOBS) sOBS.connectionEnabled = true;
 				await OBSWebsocket.instance.connect(port, pass ?? "", true, ip);
 			}
+			StreamdeckSocket.instance.connect(undefined, authenticated);
 		},
 
 		alert(message:string, isCritical:boolean = false, showContact:boolean = false) {

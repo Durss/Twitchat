@@ -814,10 +814,6 @@ export default toNative(BingoGridView);
 		display: none !important;
 	}
 
-	.authBt {
-		background-color: red;
-	}
-
 	.additional {
 		strong {
 			font-size: 1.15em;

@@ -20,110 +20,25 @@ export type TwitchatEventMap = {
 	/**
 	 * Twitchat completed initialization and is ready.
 	 */
-	"TWITCHAT_READY": undefined;
+	ON_TWITCHAT_READY: undefined;
 	/**
 	 * OBS Websocket connection established
 	 */
-	"OBS_WEBSOCKET_CONNECTED": undefined;
+	ON_OBS_WEBSOCKET_CONNECTED: undefined;
 	/**
 	 * OBS Websocket connection lost
 	 */
-	"OBS_WEBSOCKET_DISCONNECTED": undefined;
+	ON_OBS_WEBSOCKET_DISCONNECTED: undefined;
 	/**
-	 * Scene has changed in OBS
+	 * Set voice bot enabled/disabled state
 	 */
-	"OBS_SCENE_CHANGE":  {
-		sceneName: string;
+	SET_VOICE_CONTROL_STATE: {
+		enabled: boolean;
 	};
-	/**
-	 * Source mute state has changed in OBS
-	 */
-	"OBS_MUTE_TOGGLE": {
-		inputName: string;
-		inputMuted: boolean;
-	}
-	/**
-	 * Playback has started in an OBS media source
-	 */
-	"OBS_PLAYBACK_STARTED": {
-		inputName: string;
-	}
-	/**
-	 * Playback has paused in an OBS media source
-	 */ 
-	"OBS_PLAYBACK_PAUSED": {
-		inputName: string;
-	}
-	/**
-	 * Started 
-	 */
-	"OBS_PLAYBACK_NEXT": {
-		inputName: string;
-	}
-	"OBS_PLAYBACK_PREVIOUS": {
-		inputName: string;
-	}
-	"OBS_PLAYBACK_RESTARTED": {
-		inputName: string;
-	}
-	"OBS_PLAYBACK_ENDED": {
-		inputName: string;
-	}
-	"OBS_INPUT_NAME_CHANGED": {
-		inputName: string;
-		oldInputName: string;
-	}
-	"OBS_SCENE_NAME_CHANGED": {
-		sceneName: string;
-		oldSceneName: string;
-	}
-	"OBS_FILTER_NAME_CHANGED": {
-		sourceName: string;
-		filterName: string;
-		oldFilterName: string;
-	}
-	"OBS_SOURCE_TOGGLE":{
-		item: OBSSourceItem;
-		event: {
-			sceneName: string;
-			sceneItemId: number;
-			sceneItemEnabled: boolean;
-		};
-	}
-	"OBS_FILTER_TOGGLE":{
-		sourceName: string;
-		filterName: string;
-		filterEnabled: boolean;
-	}
-	"OBS_STREAM_STATE": {
-		outputActive: boolean;
-		outputState: string;
-	}
-	"OBS_RECORD_STATE": {
-		outputActive: boolean;
-		outputState: string;
-		outputPath: string;
-	}
-	"ENABLE_STT": undefined;
-	"DISABLE_STT": undefined;
-	/**
-	 * Live text when using speech-to-text
-	 */
-	"STT_TEXT_UPDATE": { text:string };
-	"STT_RAW_TEXT_UPDATE": { text:string };
-	"STT_REMOTE_TEMP_TEXT_EVENT": { text:string };
-	"STT_REMOTE_FINAL_TEXT_EVENT": { text:string };
-	"STT_SPEECH_END": { text:string };
-	"STT_ACTION_BATCH": {id:keyof TwitchatEventMap, value?:{text:string}}[];
-	"STT_ERASE": undefined;
-	"STT_NEXT": undefined;
-	"STT_PREVIOUS": undefined;
-	"STT_SUBMIT": undefined;
-	"STT_CANCEL": undefined;
 	/**
 	 * Scroll a chat feed up
 	 */
-	"CHAT_FEED_SCROLL_UP": {
+	SET_CHAT_FEED_SCROLL_UP: {
 		/**
 		 * Number of pixels to scroll by
 		 */
@@ -136,7 +51,7 @@ export type TwitchatEventMap = {
 	/**
 	 * Scroll a chat feed down
 	 */
-	"CHAT_FEED_SCROLL_DOWN": {
+	SET_CHAT_FEED_SCROLL_DOWN: {
 		/**
 		 * Number of pixels to scroll by
 		 */
@@ -146,11 +61,15 @@ export type TwitchatEventMap = {
 		 */
 		colIndex:number
 	};
-	"CHAT_FEED_SCROLL": {
+	/**
+	 * Scroll a chat feed by a specific amount
+	 */
+	SET_CHAT_FEED_SCROLL: {
 		/**
-		 * Number of pixels to scroll by
+		 * Number of pixels to scroll by.
+		 * Default value: 100
 		 */
-		scrollBy:number
+		scrollBy?:number
 		/**
 		 * Column index
 		 */
@@ -159,7 +78,7 @@ export type TwitchatEventMap = {
 	/**
 	 * Move read marker in chat feed
 	 */
-	"CHAT_FEED_READ": {
+	SET_CHAT_FEED_READ: {
 		/**
 		 * Number of messages to read
 		 */
@@ -169,49 +88,50 @@ export type TwitchatEventMap = {
 		 */
 		colIndex:number
 	};
-	"CHAT_FEED_READ_ALL": {
+	SET_CHAT_FEED_READ_ALL: {
 		/**
 		 * Column index
 		 */
 		colIndex:number;
 	};
-	"CHAT_FEED_PAUSE": {
+	SET_CHAT_FEED_PAUSE: {
 		/**
 		 * Column index
 		 */
 		colIndex:number;
 	};
-	"CHAT_FEED_UNPAUSE": {
+	SET_CHAT_FEED_UNPAUSE: {
 		/**
 		 * Column index
 		 */
 		colIndex:number;
 	};
-	"CHAT_FEED_SCROLL_BOTTOM": {
+	SET_CHAT_FEED_SCROLL_BOTTOM: {
 		/**
 		 * Column index
 		 */
 		colIndex:number;
 	};
-	"CHAT_FEED_SELECT": {
+	SET_CHAT_FEED_SELECT: {
 		/**
 		 * Direction to move selection
 		 * -1 = up
 		 * 1 = down
-		*/
+		 * Can be greater than 1 or less than -1 to move multiple steps
+		 */
 		direction:number;
 		/**
 		 * Column index
 		 */
 		colIndex:number;
 	};
-	"CHAT_FEED_SELECT_ACTION_DELETE": {
+	SET_CHAT_FEED_SELECT_ACTION_DELETE: {
 		/**
 		 * Column index
 		 */
 		colIndex:number;
 	};
-	"CHAT_FEED_SELECT_ACTION_BAN": {
+	SET_CHAT_FEED_SELECT_ACTION_BAN: {
 		/**
 		 * Column index
 		 */
@@ -222,56 +142,67 @@ export type TwitchatEventMap = {
 		 */
 		duration?:number;
 	};
-	"CHAT_FEED_SELECT_CHOOSING_ACTION": {
+	SET_CHAT_FEED_SELECT_CHOOSING_ACTION: {
 		/**
 		 * Column index
 		 */
 		colIndex:number;
 	};
-	"CHAT_FEED_SELECT_ACTION_PIN": {
+	SET_CHAT_FEED_SELECT_ACTION_SAVE: {
 		/**
 		 * Column index
 		 */
 		colIndex:number;
 	};
-	"CHAT_FEED_SELECT_ACTION_HIGHLIGHT": {
+	SET_CHAT_FEED_SELECT_ACTION_HIGHLIGHT: {
 		/**
 		 * Column index
 		 */
 		colIndex:number;
 	};
-	"CHAT_FEED_SELECT_ACTION_SHOUTOUT": {
+	SET_CHAT_FEED_SELECT_ACTION_SHOUTOUT: {
 		/**
 		 * Column index
 		 */
 		colIndex:number;
 	};
-	"CHAT_FEED_SELECT_ACTION_CANCEL": {
+	SET_CHAT_FEED_SELECT_ACTION_CANCEL: {
 		/**
 		 * Column index
 		 */
 		colIndex:number;
 	};
-	"GREET_FEED_READ": { count:number };
-	"GREET_FEED_READ_ALL": undefined;
-	"CREDITS_OVERLAY_PRESENCE": undefined;
-	"GET_CREDITS_OVERLAY_PRESENCE": undefined;
-	"GET_SUMMARY_DATA": {
+	SET_GREET_FEED_READ: {
+		/**
+		 * Number of messages to mark as read
+		 */
+		messageCount:number;
+	};
+	SET_GREET_FEED_READ_ALL: undefined;
+	
+	ON_VOICEMOD_VOICE_CHANGE: {
+		/**
+		 * Voice ID that got selected
+		 */
+		voiceId:string;
+	};
+
+	GET_ENDING_CREDITS_PRESENCE: undefined;
+	SET_ENDING_CREDITS_PRESENCE: undefined;
+	GET_ENDING_CREDITS_DATA: {
 		/**
 		 * Date offset to get data from
 		 */
-		offset?:number;
+		dateOffset?:number;
 		/**
-		 * Include overlay parameters to data sent back
+		 * Include overlay parameters to response
 		 */
-		includeParams?:boolean
+		includeOverlayParams?:boolean
 	};
-	"SUMMARY_DATA": TwitchatDataTypes.StreamSummaryData;
-	"VOICEMOD_VOICE_CHANGE": { voice:string};
-	
-	"ENDING_CREDITS_COMPLETE": undefined;
-	"ENDING_CREDITS_CONFIGS": TwitchatDataTypes.EndingCreditsParams;
-	"ENDING_CREDITS_CONTROL": {
+	SET_ENDING_CREDITS_DATA: TwitchatDataTypes.StreamSummaryData;
+	ON_ENDING_CREDITS_COMPLETE: undefined;
+	ON_ENDING_CREDITS_CONFIGS: TwitchatDataTypes.EndingCreditsParams;
+	SET_ENDING_CREDITS_CONTROL: {
 		/**
 		 * Go to previous section
 		 */
@@ -287,24 +218,39 @@ export type TwitchatEventMap = {
 		/**
 		 * Section ID to jump to
 		 */
-		scrollTo?: string
+		scrollToSectionID?: string
 	};
 
-	"GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE": undefined;
-	"SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE": undefined;
-	"CHAT_HIGHLIGHT_OVERLAY_PRESENCE": undefined;
-	"SHOW_CLIP": TwitchatDataTypes.ChatHighlightInfo;
-	"ON_CHAT_HIGHLIGHT_OVERLAY_CLOSE": undefined;
-	"SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE": TwitchatDataTypes.ChatHighlightInfo | undefined
+	GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE: undefined;
+	SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE: undefined;
+	SET_CHAT_HIGHLIGHT_OVERLAY_CLIP: TwitchatDataTypes.ChatHighlightInfo;
+	SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE: TwitchatDataTypes.ChatHighlightInfo | undefined
 	/**
-	 * Sent by highlight overlay after requested message is shown 
+	 * Sent by chat highlight overlay when a clip completes playing to
+	 * request main app to close the highlight
 	 */
-	"CHAT_HIGHLIGHT_OVERLAY_CONFIRM": undefined
-	"MESSAGE_READ": {
+	ON_CHAT_HIGHLIGHT_OVERLAY_CLOSE: undefined;
+	
+	ON_MESSAGE_MARKED_AS_READ: {
+		/**
+		 * Manually marked as read
+		 */
 		manual: boolean;
+		/**
+		 * Message actually selected (marked as read) or unselected (unmarked)
+		 */
 		selected: boolean;
+		/**
+		 * Channel ID of the message
+		 */
 		channel: string;
+		/**
+		 * Message content
+		 */
 		message: string;
+		/**
+		 * User info
+		 */
 		user: {
 			id: string;
 			login: string;
@@ -312,18 +258,18 @@ export type TwitchatEventMap = {
 		};
 	};
 
-	"GET_ANIMATED_TEXT_CONFIGS": {
+	GET_ANIMATED_TEXT_CONFIGS: {
 		/**
 		 * Animated text overlay ID
 		 */
 		id:string
 	};
-	"ANIMATED_TEXT_CONFIGS":TwitchatDataTypes.AnimatedTextData;
-	"ANIMATED_TEXT_SET": {
+	ON_ANIMATED_TEXT_CONFIGS:TwitchatDataTypes.AnimatedTextData;
+	SET_ANIMATED_TEXT_CONTENT: {
 		/**
 		 * Overlay ID to send the text to
 		 */
-		overlayId: string;
+		id: string;
 		/**
 		 * Query ID to identify this text set action
 		 * Returned by the ANIMATED_TEXT_SHOW_COMPLETE, ANIMATED_TEXT_HIDE_COMPLETE and ANIMATED_TEXT_CLOSE events
@@ -344,36 +290,36 @@ export type TwitchatEventMap = {
 		 */
 		bypassAll?: boolean;
 	}
-	"ANIMATED_TEXT_SHOW_COMPLETE":{
+	ON_ANIMATED_TEXT_SHOW_COMPLETE:{
 		/**
 		 * Query ID sent when setting the text from ANIMATED_TEXT_SET
 		 */
 		queryId:string
 	}
-	"ANIMATED_TEXT_HIDE_COMPLETE":{
+	ON_ANIMATED_TEXT_HIDE_COMPLETE:{
 		/**
 		 * Query ID sent when setting the text from ANIMATED_TEXT_SET
 		*/
 		queryId:string
 	}
-	"ANIMATED_TEXT_CLOSE":{
+	ON_ANIMATED_TEXT_CLOSE:{
 		/**
 		 * ID of the overlay that finished closing animation
 		*/
-		overlayId:string;
+		id:string;
 		/**
 		 * Query ID sent when setting the text from ANIMATED_TEXT_SET
 		*/
 		queryId:string
 	}
 
-	"GET_BINGO_GRID_PARAMETERS": {
+	GET_BINGO_GRID_CONFIGS: {
 		/**
 		 * Bingo grid ID to get parameters for
 		 */
-		bid:string
+		id:string
 	}
-	"BINGO_GRID_PARAMETERS": {
+	ON_BINGO_GRID_CONFIGS: {
 		/**
 		 * Bingo grid ID
 		 */
@@ -397,17 +343,17 @@ export type TwitchatEventMap = {
 		 */
 		newDiagonalBingos?:(0|1)[];
 	}
-	"BINGO_GRID_OVERLAY_PRESENCE": {
+	SET_BINGO_GRID_OVERLAY_PRESENCE: {
 		/**
-		 * Bingo grid ID to get parameters for
+		 * Bingo grid ID to advertise presence of
 		 */
-		bid:string
+		id:string
 	}
-	"BINGO_GRID_HEAT_CLICK": {
+	ON_BINGO_GRID_HEAT_CLICK: {
 		/**
 		 * Bingo grid ID to get parameters for
 		 */
-		gridId:string;
+		id:string;
 		/**
 		 * Cell entry ID that was clicked
 		 */
@@ -417,11 +363,11 @@ export type TwitchatEventMap = {
 		 */
 		click:TwitchatDataTypes.HeatClickData
 	}
-	"BINGO_GRID_OVERLAY_VIEWER_EVENT":{
+	ON_BINGO_GRID_VIEWER_EVENT:{
 		/**
 		 * Bingo grid ID
 		 */
-		gridId: string;
+		id: string;
 		/**
 		 * User info
 		 */
@@ -435,11 +381,11 @@ export type TwitchatEventMap = {
 		 */
 		count: number;
 	}
-	"BINGO_GRID_OVERLAY_LEADER_BOARD":{
+	ON_BINGO_GRID_LEADER_BOARD:{
 		/**
 		 * Bingo grid ID
 		 */
-		gridId: string;
+		id: string;
 		/**
 		 * Scoreboard entries
 		 * Set to undefined to hide the leaderboard
@@ -452,67 +398,69 @@ export type TwitchatEventMap = {
 		}[];
 	}
 
-	"COUNTER_GET_ALL": undefined;
-	"COUNTER_GET": {
+	GET_ALL_COUNTERS: undefined;
+	GET_COUNTER: {
 		/**
-		 * Counter ID to get value for
+		 * Counter ID to get value of
 		 */
-		cid:string
+		id:string
 	}
-	"COUNTER_LIST":{
-		counters:{
+	ON_COUNTER_LIST:{
+		counterList:{
 			id: string;
 			name: string;
 			perUser: boolean;
 		}[]
 	}
-	"COUNTER_UPDATE":{
+	ON_COUNTER_UPDATE:{
 		counter:TwitchatDataTypes.CounterData
 	}
-	"COUNTER_ADD":{
-		counterId: string
-		counterAction: TriggerActionCountDataAction
+	SET_COUNTER_ADD:{
+		id: string
+		action: TriggerActionCountDataAction
 		/**
 		 * Value to add to the counter.
 		 * Typed as string cause it can be an arithmetic expression or
 		 * it can contain placeholders
 		 */
-		countAdd: string
+		value: string
 	}
 
-	"GET_CUSTOM_TRAIN_STATE": {
+	GET_CUSTOM_TRAIN_DATA: {
 		/**
 		 * Custom train ID to get state for
 		 * */
 		id:string
 	}
-	"CUSTOM_TRAIN_STATE": {
+	ON_CUSTOM_TRAIN_DATA: {
 		configs:TwitchatDataTypes.CustomTrainData;
 		state:TwitchatDataTypes.CustomTrainState;
 	}
 
-	"DISTORT_OVERLAY_PARAMETERS": {params:TwitchatDataTypes.HeatDistortionData};
-	"GET_DISTORT_OVERLAY_PARAMETERS": {
+	ON_DISTORT_OVERLAY_CONFIGS: {
+		params:TwitchatDataTypes.HeatDistortionData
+	};
+	GET_DISTORT_OVERLAY_CONFIGS: {
 		/**
 		 * Distortion overlay ID to get parameters for
 		 */
-		distortionID:string
+		id:string
 	};
 
-	"GET_DONATION_GOALS_OVERLAY_PARAMS": {
+	GET_DONATION_GOALS_OVERLAY_CONFIGS: {
 		/**
 		 * Overlay ID to get parameters for
 		 */
-		overlayId:string
+		id:string
 	};
-	"DONATION_GOALS_OVERLAY_PARAMS": {
+	ON_DONATION_GOALS_OVERLAY_CONFIGS: {
 		params:TwitchatDataTypes.DonationGoalOverlayConfig;
 		goal:number;
 		raisedTotal:number;
 		raisedPersonnal:number;
 		skin:"default"|string
 	}
-	"DONATION_EVENT":{
+	ON_DONATION_EVENT:{
 		/**
 		 * Overlay ID the donation event should be displayed on
 		 */
@@ -527,8 +475,8 @@ export type TwitchatEventMap = {
 		amount:string;
 	}
 
-	"GET_CURRENT_TRACK": undefined;
-	"CURRENT_TRACK": {
+	GET_CURRENT_TRACK: undefined;
+	ON_CURRENT_TRACK: {
 		params:TwitchatDataTypes.MusicPlayerParamsData;
 		trackName?:string;
 		artistName?:string;
@@ -537,58 +485,73 @@ export type TwitchatEventMap = {
 		cover?:string;
 		skin?:string;
 	};
-	"TRACK_ADDED_TO_QUEUE": TwitchatDataTypes.MusicTrackData;
+	ON_TRACK_ADDED_TO_QUEUE: TwitchatDataTypes.MusicTrackData;
 
-	"MUSIC_PLAYER_HEAT_CLICK": TwitchatDataTypes.HeatClickData;
+	ON_MUSIC_PLAYER_HEAT_CLICK: TwitchatDataTypes.HeatClickData;
 
-	"POLLS_OVERLAY_PRESENCE": undefined;
-	"GET_POLLS_OVERLAY_PRESENCE": undefined;
-	"GET_POLLS_OVERLAY_PARAMETERS": undefined;
-	"POLL_PROGRESS":{poll:TwitchatDataTypes.MessagePollData}|undefined
-	"POLLS_OVERLAY_PARAMETERS": {parameters:PollOverlayParamStoreData};
+	GET_POLLS_OVERLAY_PRESENCE: undefined;
+	ON_POLLS_OVERLAY_PRESENCE: undefined;
+	GET_POLLS_OVERLAY_CONFIGS: undefined;
+	ON_POLL_OVERLAY_CONFIGS: {parameters:PollOverlayParamStoreData};
+	ON_POLL_PROGRESS:{poll:TwitchatDataTypes.MessagePollData}|undefined
 	
-	"PREDICTIONS_OVERLAY_PRESENCE": undefined;
-	"GET_PREDICTIONS_OVERLAY_PRESENCE": undefined;
-	"GET_PREDICTIONS_OVERLAY_PARAMETERS": undefined;
-	"PREDICTION_PROGRESS":{prediction:TwitchatDataTypes.MessagePredictionData}|undefined;
-	"PREDICTIONS_OVERLAY_PARAMETERS": {parameters:PredictionOverlayParamStoreData};
+	GET_PREDICTIONS_OVERLAY_PRESENCE: undefined;
+	ON_PREDICTIONS_OVERLAY_PRESENCE: undefined;
+	GET_PREDICTIONS_OVERLAY_CONFIGS: undefined;
+	ON_PREDICTION_OVERLAY_CONFIGS: {parameters:PredictionOverlayParamStoreData};
+	ON_PREDICTION_PROGRESS:{prediction:TwitchatDataTypes.MessagePredictionData}|undefined;
 
-	"TIMER_OVERLAY_PRESENCE": undefined;
-	"GET_TIMER_OVERLAY_PRESENCE":undefined;
-	"GET_TIMER_LIST":undefined;
-	"GET_CURRENT_TIMERS": {
+	GET_TIMER_OVERLAY_PRESENCE:undefined;
+	ON_TIMER_OVERLAY_PRESENCE: undefined;
+	GET_TIMER_LIST:undefined;
+	ON_TIMER_LIST:{
+		timerList:{
+			id: string;
+			title: string;
+			enabled: boolean;
+			type: "timer" | "countdown";
+		}[]
+	}
+
+	GET_TIMER: {
 		/**
 		 * Timer ID to get configs for
 		 */
 		id:string
 	};
-	"TIMER_START":TwitchatDataTypes.TimerData;
-	"TIMER_ADD":{
+	ON_TIMER_START:TwitchatDataTypes.TimerData;
+	SET_TIMER_ADD:{
+		/**
+		 * Timer ID to add time to
+		 */
+		id?:string;
 		/**
 		 * Value to add to the timer.
 		 * Typed as string cause it can be an arithmetic expression or
 		 * it can contain placeholders
 		 */
-		timeAdd:string;
-		timerId?:string;
+		value:string;
 	};
-	"TIMER_STOP":TwitchatDataTypes.TimerData;
-	"COUNTDOWN_START":TwitchatDataTypes.TimerData;
-	"COUNTDOWN_ADD":{
+	ON_TIMER_STOP:TwitchatDataTypes.TimerData;
+	ON_COUNTDOWN_START:TwitchatDataTypes.TimerData;
+	SET_COUNTDOWN_ADD:{
+		/**
+		 * Countdown ID to add time to
+		 */
+		id?:string;
 		/**
 		 * Value to add to the countdown.
 		 * Typed as string cause it can be an arithmetic expression or
 		 * it can contain placeholders
 		 */
-		timeAdd:string;
-		timerId?:string;
+		value:string;
 	};
-	"COUNTDOWN_COMPLETE":TwitchatDataTypes.TimerData;
+	ON_COUNTDOWN_COMPLETE:TwitchatDataTypes.TimerData;
 
-	"WHEEL_OVERLAY_PRESENCE": undefined;
-	"GET_WHEEL_OVERLAY_PRESENCE": undefined;
-	"WHEEL_OVERLAY_START":TwitchatDataTypes.WheelData;
-	"WHEEL_OVERLAY_ANIMATION_COMPLETE":{
+	GET_WHEEL_OVERLAY_PRESENCE: undefined;
+	ON_WHEEL_OVERLAY_PRESENCE: undefined;
+	ON_WHEEL_OVERLAY_START:TwitchatDataTypes.WheelData;
+	ON_WHEEL_OVERLAY_ANIMATION_COMPLETE:{
 		/**
 		 * Winner info
 		 */
@@ -603,27 +566,27 @@ export type TwitchatEventMap = {
 		delay?:number;
 	};
 	
-	"GET_AD_BREAK_OVERLAY_PRESENCE": undefined;
-	"GET_AD_BREAK_OVERLAY_PARAMETERS": undefined;
-	"AD_BREAK_OVERLAY_PRESENCE": undefined;
-	"AD_BREAK_OVERLAY_PARAMETERS": TwitchatDataTypes.AdBreakOverlayData;
-	"AD_BREAK_DATA": TwitchatDataTypes.CommercialData;
+	GET_AD_BREAK_OVERLAY_PRESENCE: undefined;
+	ON_AD_BREAK_OVERLAY_PRESENCE: undefined;
+	GET_AD_BREAK_OVERLAY_CONFIGS: undefined;
+	ON_AD_BREAK_OVERLAY_CONFIGS: TwitchatDataTypes.AdBreakOverlayData;
+	ON_AD_BREAK_OVERLAY_DATA: TwitchatDataTypes.CommercialData;
 
-	"BITSWALL_OVERLAY_PRESENCE": undefined;
-	"GET_BITSWALL_OVERLAY_PRESENCE": undefined;
-	"GET_BITSWALL_OVERLAY_PARAMETERS": undefined;
-	"BITSWALL_OVERLAY_PARAMETERS": TwitchatDataTypes.BitsWallOverlayData;
+	GET_BITSWALL_OVERLAY_PRESENCE: undefined;
+	ON_BITSWALL_OVERLAY_PRESENCE: undefined;
+	GET_BITSWALL_OVERLAY_CONFIGS: undefined;
+	ON_BITSWALL_OVERLAY_CONFIGS: TwitchatDataTypes.BitsWallOverlayData;
 	
-	"GET_CHAT_POLL_OVERLAY_PRESENCE": undefined;
-	"CHAT_POLL_OVERLAY_PRESENCE": undefined;
-	"GET_CHAT_POLL_OVERLAY_PARAMETERS": undefined
-	"CHAT_POLL_OVERLAY_PARAMETERS": {parameters:PollOverlayParamStoreData};
-	"CHAT_POLL_PROGRESS": {poll:TwitchatDataTypes.ChatPollData} | undefined;
+	GET_CHAT_POLL_OVERLAY_PRESENCE: undefined;
+	ON_CHAT_POLL_OVERLAY_PRESENCE: undefined;
+	GET_CHAT_POLL_OVERLAY_CONFIGS: undefined
+	ON_CHAT_POLL_OVERLAY_CONFIGS: {parameters:PollOverlayParamStoreData};
+	ON_CHAT_POLL_PROGRESS: {poll:TwitchatDataTypes.ChatPollData} | undefined;
 
 	/**
 	 * A chat message has been deleted
 	 */
-	"MESSAGE_DELETED": {
+	ON_MESSAGE_DELETED: {
 		channel: string;
 		message: string;
 		user: {
@@ -632,7 +595,7 @@ export type TwitchatEventMap = {
 			displayName: string;
 		};
 	};
-	"BITS":{
+	ON_BITS:{
 		channel:string,
 		message:string,
 		message_chunks?:TwitchatDataTypes.ParseMessageChunk[]
@@ -645,7 +608,7 @@ export type TwitchatEventMap = {
 		pinned:boolean,
 		pinLevel:number,
 	}
-	"MESSAGE_WHISPER":{
+	ON_MESSAGE_WHISPER:{
 		/**
 		 * Number of unread whispers
 		 */
@@ -663,7 +626,7 @@ export type TwitchatEventMap = {
 			displayName: string;
 		};
 	}
-	"MESSAGE_NON_FOLLOWER":{
+	ON_MESSAGE_FROM_NON_FOLLOWER:{
 		channel: string;
 		message: string;
 		user: {
@@ -672,7 +635,7 @@ export type TwitchatEventMap = {
 			displayName: string;
 		};
 	}
-	"MENTION":{
+	ON_MENTION:{
 		channel: string;
 		message: string;
 		user: {
@@ -681,7 +644,7 @@ export type TwitchatEventMap = {
 			displayName: string;
 		};
 	}
-	"MESSAGE_FIRST":{
+	ON_MESSAGE_FIRST_TODAY:{
 		channel: string;
 		message: string;
 		user: {
@@ -690,7 +653,16 @@ export type TwitchatEventMap = {
 			displayName: string;
 		};
 	}
-	"REWARD_REDEEM":{
+	ON_MESSAGE_FIRST_ALL_TIME:{
+		channel: string;
+		message: string;
+		user: {
+			id: string;
+			login: string;
+			displayName: string;
+		};
+	}
+	ON_REWARD_REDEEM:{
 		channel: string;
 		message?: string;
 		message_chunks?: TwitchatDataTypes.ParseMessageChunk[];
@@ -705,7 +677,7 @@ export type TwitchatEventMap = {
 			title: string;
 		};
 	}
-	"SUBSCRIPTION":{
+	ON_SUBSCRIPTION:{
 		channel: string;
 		message: string;
 		message_chunks: TwitchatDataTypes.ParseMessageChunk[];
@@ -725,7 +697,7 @@ export type TwitchatEventMap = {
 		isGiftUpgrade:boolean,
 		isResub:boolean,
 	}
-	"FOLLOW":{
+	ON_FOLLOW:{
 		channel: string;
 		user: {
 			id: string;
@@ -734,25 +706,40 @@ export type TwitchatEventMap = {
 		};
 	}
 
-	"EMERGENCY_MODE": {
+	/**
+	 * Enable/disable/toggle emergency mode
+	 * Either give an object with "enabled" boolean to force a specific
+	 * state, or don't give any parameter to toggle current state
+	 */
+	SET_EMERGENCY_MODE:{
+		enabled:boolean;
 		/**
-		 * Enabled or disabled emergency mode
+		 * If set to true, a confirmation modal will be shown
+		 * to confirm the action
+		 */
+		promptConfirmation?:boolean;
+	} | undefined;
+	ON_EMERGENCY_MODE_CHANGED: {
+		/**
+		 * New emergency mode state
 		 */
 		enabled:boolean;
 	}
 
-	"LABELS_UPDATE":undefined;
-	"GET_LABEL_OVERLAY_PLACEHOLDERS":undefined;
-	"GET_LABEL_OVERLAY_PARAMS":{
-		id:string;
-	};
-	"LABEL_OVERLAY_PLACEHOLDERS":{
+	GET_LABEL_OVERLAY_PLACEHOLDERS:undefined;
+	ON_LABEL_OVERLAY_PLACEHOLDERS:{
 		[tag: string]: {
 			value: string | number;
 			type: "string" | "number" | "date" | "time" | "datetime" | "day" | "month" | "year" | "hours" | "minutes" | "seconds" | "duration" | "image";
 		};
 	}
-	"LABEL_OVERLAY_PARAMS":{
+	GET_LABEL_OVERLAY_CONFIGS:{
+		/**
+		 * Label ID
+		 */
+		id:string;
+	};
+	ON_LABEL_OVERLAY_CONFIGS:{
 		/**
 		 * Label ID
 		 */
@@ -762,91 +749,139 @@ export type TwitchatEventMap = {
 		isValid?: boolean;
 	}
 
-	"SET_COLS_COUNT":{
+	GET_CHAT_COLUMNS_COUNT:undefined;
+	ON_CHAT_COLUMNS_COUNT:{
 		/**
 		 * Number of chat columns
 		 */
 		count:number
 	}
 
-	"QNA_SESSION_GET_ALL": undefined
-	"QNA_HIGHLIGHT": {
-		qnaId:string;
-	}
-	"QNA_SKIP": {
-		qnaId:string;
-	}
-	"QNA_SESSION_LIST": {
-		qnaSessions:{
+	GET_QNA_SESSION_LIST: undefined
+	ON_QNA_SESSION_LIST: {
+		sessionList:{
 			id: string;
 			command: string;
 			open: boolean;
 		}[]
 	}
-
-	"TIMER_LIST":{
-		timers:{
-			id: string;
-			title: string;
-			enabled: boolean;
-			type: "timer" | "countdown";
-		}[]
+	/**
+	 * Highlights the top most message of given Q&A session
+	 */
+	SET_QNA_HIGHLIGHT: {
+		/**
+		 * Q&A session ID
+		*/
+		id:string;
+	}
+	/**
+	 * Skips the top most message of given Q&A session
+	*/
+	SET_QNA_SKIP: {
+		/**
+		 * Q&A session ID
+		 */
+		id:string;
 	}
 
-	"TRIGGER_LIST":{
-		triggers:{
+	SET_EXECUTE_TRIGGER:{
+		/**
+		 * Trigger ID to execute
+		 */
+		id:string;
+	}
+	GET_TRIGGER_LIST:undefined
+	ON_TRIGGER_LIST:{
+		triggerList:{
 			id: string;
 			name: string;
+			disabled: boolean;
 		}[]
 	}
+	SET_TRIGGER_STATE:{
+		/**
+		 * Trigger ID to change state of
+		 */
+		id:string;
+		/**
+		 * Force trigger state
+		 * true to enable it
+		 * false to disabled
+		 * 
+		 * Don't set this field to just toggle current state
+		 */
+		forcedState?:boolean;
+	};
 
-	"PLAY_SFXR": {
+	SET_PLAY_SFXR: {
+		/**
+		 * SFXR sound parameters as a string
+		 * Generate string at:
+		 * https://tsfxr.jdmnk.dev
+		 */
 		params:string;
+		/**
+		 * Volume from 0 to 1
+		 */
 		volume:number;
 	}
 
-	"AUTOMOD_ACCEPT": undefined
-	"AUTOMOD_REJECT": undefined
-	"MERGE_TOGGLE": undefined
-	"HIDE_ALERT": undefined
-	"POLL_TOGGLE":undefined;
-	"PREDICTION_TOGGLE":undefined;
-	"BINGO_TOGGLE":undefined;
-	"VIEWERS_COUNT_TOGGLE":undefined;
-	"MOD_TOOLS_TOGGLE":undefined;
-	"CENSOR_DELETED_MESSAGES_TOGGLE":undefined;
-	"POLL_CREATE":undefined;
-	"START_EMERGENCY":undefined;
-	"STOP_EMERGENCY":undefined;
-	"SET_EMERGENCY_MODE":{
-		enabled:boolean;
-	} | undefined;
-	"SHOUTOUT":undefined;
-	"GET_COLS_COUNT":undefined;
-	"CLEAR_CHAT_HIGHLIGHT":undefined;
-	"CREATE_POLL":undefined;
-	"CREATE_PREDICTION":undefined;
-	"STOP_POLL":undefined;
-	"STOP_PREDICTION":undefined;
-	"SEND_MESSAGE":{
+	/**
+	 * Accept latest message held by automod
+	 */
+	SET_AUTOMOD_ACCEPT: undefined
+	/**
+	 * Rject latest message held by automod
+	 */
+	SET_AUTOMOD_REJECT: undefined
+	/**
+	 * Toggle merge feature
+	 * See settings => chat features => Merge consecutive messages of a user
+	 */
+	SET_MERGE_TOGGLE: undefined
+	/**
+	 * Hide current chat alert
+	 * See settings => chat features => Enable chat alert
+	 */
+	SET_HIDE_CHAT_ALERT: undefined
+	/**
+	 * Toggle current poll display
+	 */
+	SET_POLL_TOGGLE:undefined;
+	/**
+	 * Toggle current prediction display
+	 */
+	SET_PREDICTION_TOGGLE:undefined;
+	/**
+	 * Toggle current bingo display (NOT bingo GRID!)
+	 */
+	SET_BINGO_TOGGLE:undefined;
+	/**
+	 * Toggle viewers count display
+	 */
+	SET_VIEWERS_COUNT_TOGGLE:undefined;
+	/**
+	 * Toggle moderation tools display
+	 */
+	SET_MOD_TOOLS_TOGGLE:undefined;
+	/**
+	 * Toggle censorship of deleted messages
+	 */
+	SET_CENSOR_DELETED_MESSAGES_TOGGLE:undefined;
+	/**
+	 * Toggle current raffle display
+	 */
+	SET_RAFFLE_TOGGLE:undefined;
+	SET_SHOUTOUT:undefined;
+	SET_CLEAR_CHAT_HIGHLIGHT:undefined;
+	SET_STOP_POLL:undefined;
+	SET_STOP_PREDICTION:undefined;
+	SET_SEND_MESSAGE:{
 		message:string;
 	};
-	"RAFFLE_TOGGLE":undefined;
-	"RAFFLE_START":undefined;
-	"RAFFLE_END":undefined;
-	"CREATE_RAFFLE":undefined;
-	"STOP_RAFFLE":undefined;
-	"RAFFLE_PICK_WINNER":undefined;
-	"STOP_TTS":undefined;
-	"EXECUTE_TRIGGER":{
-		triggerId:string;
-	}
-	"TRIGGERS_GET_ALL":undefined
-	"TOGGLE_TRIGGER":{
-		triggerId:string;
-		triggerAction:"enable" | "disable";
-	};
-	"CUSTOM_CHAT_MESSAGE":{
+	SET_RAFFLE_PICK_WINNER:undefined;
+	SET_STOP_CURRENT_TTS_AUDIO:undefined;
+	SET_SEND_CUSTOM_CHAT_MESSAGE:{
 		//Message to display
 		message?: string;
 		//Defines if the close button should be disaplay
@@ -862,7 +897,7 @@ export type TwitchatEventMap = {
 		//Column index to display the message to
 		col?: number;
 		//Button icon see list of values above
-		icon?: string;
+		icon?: 'ad' | 'add' | 'alert' | 'animate' | 'announcement' | 'anon' | 'api' | 'automod' | 'badge' | 'ban' | 'bingo' | 'bits' | 'block' | 'boost' | 'bot' | 'broadcast' | 'broadcaster' | 'change' | 'channelPoints' | 'chatCommand' | 'chatPoll' | 'checkmark' | 'clearChat' | 'click' | 'clip' | 'coffee' | 'coin' | 'color' | 'commands' | 'conversation' | 'copy' | 'count' | 'countdown' | 'credits' | 'cross' | 'date' | 'debug' | 'delete' | 'dice' | 'discord' | 'donor' | 'download' | 'dragZone' | 'easing' | 'edit' | 'elevated' | 'elgato' | 'emergency' | 'emote' | 'enter' | 'filters' | 'firstTime' | 'fix' | 'follow' | 'follow_outline' | 'font' | 'fontSize' | 'fullscreen' | 'gift' | 'github' | 'goxlr' | 'goxlr_bleep' | 'goxlr_fx' | 'hand' | 'heat' | 'help' | 'hide' | 'highlight' | 'history' | 'hypeChat' | 'idea' | 'info' | 'internet' | 'kofi' | 'leave' | 'list' | 'live' | 'loader' | 'lock' | 'loop' | 'magnet' | 'markRead' | 'max' | 'merge' | 'microphone' | 'microphone_mute' | 'microphone_recording' | 'min' | 'minus' | 'mod' | 'move' | 'music' | 'mute' | 'newtab' | 'next' | 'noMusic' | 'notification' | 'number' | 'obs' | 'offline' | 'online' | 'orderable' | 'overlay' | 'params' | 'partner' | 'patreon' | 'pause' | 'paypal' | 'pin' | 'pipette' | 'placeholder' | 'play' | 'poll' | 'polygon' | 'prediction' | 'premium' | 'presentation' | 'press' | 'prev' | 'prime' | 'pros' | 'qna' | 'raid' | 'read' | 'refresh' | 'reply' | 'returning' | 'reward_highlight' | 'rightClick' | 'rotate' | 'save' | 'scale' | 'scroll' | 'scrollDown' | 'scrollUp' | 'search' | 'shadow' | 'shield' | 'shieldMode' | 'shoutout' | 'show' | 'skip' | 'slow' | 'spotify' | 'stars' | 'stop' | 'sub' | 'test' | 'thickness' | 'ticket' | 'tiktok' | 'timeout' | 'timer' | 'train' | 'train_boost' | 'translate' | 'trash' | 'tts' | 'twitch' | 'twitchat' | 'twitter' | 'ulule' | 'unban' | 'unblock' | 'unfollow' | 'unlock' | 'unmod' | 'unmute' | 'unpin' | 'unvip' | 'update' | 'upload' | 'url' | 'user' | 'vibrate' | 'vip' | 'voice' | 'voicemod' | 'volume' | 'watchStreak' | 'whispers' | 'youtube';
 		//Color of the message for "highlight" style
 		highlightColor?: string;
 		//Message style
@@ -890,4 +925,214 @@ export type TwitchatEventMap = {
 			theme?:"default"|"primary"|"secondary"|"alert";
 		}[];
 	};
+
+	/**
+	 * Requests for global states
+	 * @answer ON_GLOBAL_STATES
+	 */
+	GET_GLOBAL_STATES: undefined
+
+	ON_GLOBAL_STATES: {
+		activeTimers: string[];
+		activeCountowns: string[];
+		counterValues: { [counterId: string]: number };
+		emergencyMode: boolean;
+		ttsSpeaking: boolean;
+		canAutoShoutout: boolean;
+		moderationToolsVisible: boolean;
+		censorshipEnabled: boolean;
+		hasActiveChatAlert: boolean;
+		voiceBotEnabled: boolean;
+	};
+
+	/**
+	 * @private
+	 */
+	ON_FLAG_MAIN_APP:undefined;
+	/**
+	 * Live text when using speech-to-text
+	 * @private
+	 */
+	ON_STT_TEXT_UPDATE: { text:string };
+	/**
+	 * @private
+	 */
+	ON_STT_RAW_TEXT_UPDATE: { text:string };
+	/**
+	 * @private
+	 */
+	ON_STT_REMOTE_TEMP_TEXT_EVENT: { text:string };
+	/**
+	 * @private
+	 */
+	ON_STT_REMOTE_FINAL_TEXT_EVENT: { text:string };
+	/**
+	 * @private
+	 */
+	ON_STT_SPEECH_END: { text:string };
+	/**
+	 * @private
+	 */
+	ON_STT_ACTION_BATCH: {id:keyof TwitchatEventMap, value?:{text:string}}[];
+	/**
+	 * @private
+	 */
+	ON_STT_ERASE: undefined;
+	/**
+	 * @private
+	 */
+	ON_STT_NEXT: undefined;
+	/**
+	 * @private
+	 */
+	ON_STT_PREVIOUS: undefined;
+	/**
+	 * @private
+	 */
+	ON_STT_SUBMIT: undefined;
+	/**
+	 * @private
+	 */
+	ON_STT_CANCEL: undefined;
+	/**
+	 * Internal event for development that tells when Twitchat labels
+	 * have been updated. Labels being the localized text.
+	 * @private
+	 */
+	ON_LABELS_UPDATE:undefined;
+	/**
+	 * Start a new raffle
+	 * @private
+	 */
+	ON_OPEN_RAFFLE_CREATION_FORM:undefined;
+	/**
+	 * Open poll creation form
+	 * @private
+	 */
+	ON_OPEN_POLL_CREATION_FORM:undefined;
+	/**
+	 * Open prediction creation form
+	 * @private
+	 */
+	SET_OPEN_PREDICTION_CREATION_FORM:undefined;
+	/**
+	 * Scene has changed in OBS
+	 * @private
+	 */
+	ON_OBS_SCENE_CHANGE:  {
+		sceneName: string;
+	};
+	/**
+	 * Source mute state has changed in OBS
+	 * @private
+	 */
+	ON_OBS_MUTE_TOGGLE: {
+		inputName: string;
+		inputMuted: boolean;
+	}
+	/**
+	 * Playback has started in an OBS media source
+	 * @private
+	 */
+	ON_OBS_PLAYBACK_STARTED: {
+		inputName: string;
+	}
+	/**
+	 * Playback has paused in an OBS media source
+	 * @private
+	 */ 
+	ON_OBS_PLAYBACK_PAUSED: {
+		inputName: string;
+	}
+	/**
+	 * Started playing next item in an OBS media source
+	 * @private
+	 */
+	ON_OBS_PLAYBACK_NEXT: {
+		inputName: string;
+	}
+	/**
+	 * Started playing previous item in an OBS media source
+	 * @private
+	 */
+	ON_OBS_PLAYBACK_PREVIOUS: {
+		inputName: string;
+	}
+	/**
+	 * Playback has restarted in an OBS media source
+	 * @private
+	 */
+	ON_OBS_PLAYBACK_RESTARTED: {
+		inputName: string;
+	}
+	/**
+	 * Playback has ended in an OBS media source
+	 * @private
+	 */
+	ON_OBS_PLAYBACK_ENDED: {
+		inputName: string;
+	}
+	/**
+	 * An input name has changed in OBS
+	 * @private
+	 */
+	ON_OBS_INPUT_NAME_CHANGED: {
+		inputName: string;
+		oldInputName: string;
+	}
+	/**
+	 * A scene name has changed in OBS
+	 * @private
+	 */
+	ON_OBS_SCENE_NAME_CHANGED: {
+		sceneName: string;
+		oldSceneName: string;
+	}
+	/**
+	 * A source filter name has changed in OBS
+	 * @private
+	 */
+	ON_OBS_FILTER_NAME_CHANGED: {
+		sourceName: string;
+		filterName: string;
+		oldFilterName: string;
+	}
+	/**
+	 * A source has been added to a scene in OBS
+	 * @private
+	 */
+	ON_OBS_SOURCE_TOGGLE:{
+		item: OBSSourceItem;
+		event: {
+			sceneName: string;
+			sceneItemId: number;
+			sceneItemEnabled: boolean;
+		};
+	}
+	/**
+	 * A source filter has been enabled/disabled in OBS
+	 * @private
+	 */
+	ON_OBS_FILTER_TOGGLE:{
+		sourceName: string;
+		filterName: string;
+		filterEnabled: boolean;
+	}
+	/**
+	 * Stream state has changed in OBS
+	 * @private
+	 */
+	ON_OBS_STREAM_STATE: {
+		outputActive: boolean;
+		outputState: string;
+	}
+	/**
+	 * Recording state has changed in OBS
+	 * @private
+	 */
+	ON_OBS_RECORD_STATE: {
+		outputActive: boolean;
+		outputState: string;
+		outputPath: string;
+	}
 }

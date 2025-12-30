@@ -87,8 +87,6 @@ class App extends Vue {
 				window.removeEventListener("keydown", this.keyDownHandler);
 			}
 		})
-
-		StreamdeckSocket.instance.connect();
 	}
 
 	public beforeUnmount():void {

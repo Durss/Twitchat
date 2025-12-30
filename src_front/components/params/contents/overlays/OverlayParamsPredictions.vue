@@ -178,7 +178,7 @@ class OverlayParamsPredictions extends Vue {
 			this.checkingOverlayPresence = false;
 			clearTimeout(this.subcheckTimeout);
 		};
-		PublicAPI.instance.addEventListener("PREDICTIONS_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.addEventListener("ON_PREDICTIONS_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 
 		//Regularly check if the overlay exists
 		this.checkInterval = window.setInterval(()=>this.getOverlayPresence(), 2000);
@@ -190,7 +190,7 @@ class OverlayParamsPredictions extends Vue {
 		SetIntervalWorker.instance.delete(this.simulateInterval);
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
-		PublicAPI.instance.removeEventListener("PREDICTIONS_OVERLAY_PRESENCE", this.overlayPresenceHandler);
+		PublicAPI.instance.removeEventListener("ON_PREDICTIONS_OVERLAY_PRESENCE", this.overlayPresenceHandler);
 	}
 
 	/**

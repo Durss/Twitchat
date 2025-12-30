@@ -655,7 +655,7 @@ export default class Utils {
 				this.mergeRemoteObject(v as JsonObject, local[key] as JsonObject);
 
 			}else{
-				if(log) console.log("REPLACE");
+				if(log) console.log("ON_REPLACE");
 				if(log) console.log(local[key]);
 				if(log) console.log(v);
 				local[key] = v;
@@ -1141,17 +1141,17 @@ export default class Utils {
 	 * @returns 
 	 */
 	public static async getHighlightOverPresence():Promise<boolean> {
-		return new Promise((resolve, reject)=> {
+		return new Promise((resolve, _reject)=> {
 			const timeout = window.setTimeout(() =>{
 				resolve(false);
-				PublicAPI.instance.removeEventListener("GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
+				PublicAPI.instance.removeEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
 			}, 1000)
 			let handler = ()=> {
 				clearTimeout(timeout)
 				resolve(true);
-				PublicAPI.instance.removeEventListener("GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
+				PublicAPI.instance.removeEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
 			}
-			PublicAPI.instance.addEventListener("CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
+			PublicAPI.instance.addEventListener("SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE", handler);
 			PublicAPI.instance.broadcast("GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE");
 		})
 	}

@@ -226,9 +226,8 @@ export interface IMainActions {
 	 * @param data
 	 * @param yesLabel
 	 * @param noLabel
-	 * @param STTOrigin is open from speech recognition ? If so, voice commands are displayed
 	 */
-	confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string, STTOrigin?:boolean): Promise<T|undefined>;
+	confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string): Promise<T|undefined>;
 	/**
 	 * Close confirm window
 	 */

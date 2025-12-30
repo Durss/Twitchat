@@ -455,7 +455,7 @@ export const storeParams = defineStore('params', {
 			}
 			DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig, true);
 
-			PublicAPI.instance.broadcast("SET_COLS_COUNT", {count:this.chatColumnsConfig.length});
+			PublicAPI.instance.broadcast("ON_CHAT_COLUMNS_COUNT", {count:this.chatColumnsConfig.length});
 			return col;
 		},
 
@@ -480,7 +480,7 @@ export const storeParams = defineStore('params', {
 			if(column.showGreetHere) this.chatColumnsConfig[this.chatColumnsConfig.length-1]!.showGreetHere = true;
 
 			this.saveChatColumnConfs();
-			PublicAPI.instance.broadcast("SET_COLS_COUNT", {count:this.chatColumnsConfig.length});
+			PublicAPI.instance.broadcast("ON_CHAT_COLUMNS_COUNT", {count:this.chatColumnsConfig.length});
 		},
 
 		moveChatColumn(column:TwitchatDataTypes.ChatColumnsConfig, direction:-1|1):void {

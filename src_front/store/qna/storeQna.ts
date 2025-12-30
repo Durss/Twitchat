@@ -94,22 +94,22 @@ export const storeQna = defineStore('qna', {
 				}
 			});
 
-			PublicAPI.instance.addEventListener("QNA_HIGHLIGHT", (event) => {
-				const session = this.activeSessions.find(v=>v.id == event.data?.qnaId);
-				console.log("Highlighting", event.data?.qnaId, session);
+			PublicAPI.instance.addEventListener("SET_QNA_HIGHLIGHT", (event) => {
+				const session = this.activeSessions.find(v=>v.id == event.data?.id);
+				console.log("Highlighting", event.data?.id, session);
 				if(session) {
 					this.highlightEntry(session.messages[0]!);
 				}
 			});
 
-			PublicAPI.instance.addEventListener("QNA_SKIP", (event) => {
-				const session = this.activeSessions.find(v=>v.id == event.data?.qnaId);
+			PublicAPI.instance.addEventListener("SET_QNA_SKIP", (event) => {
+				const session = this.activeSessions.find(v=>v.id == event.data?.id);
 				if(session) {
 					this.removeMessageFromSession(session.messages[0]!, session);
 				}
 			});
 
-			PublicAPI.instance.addEventListener("QNA_SESSION_GET_ALL", () => {
+			PublicAPI.instance.addEventListener("GET_QNA_SESSION_LIST", () => {
 				this.broadcastQnaList();
 			});
 		},
@@ -352,7 +352,7 @@ export const storeQna = defineStore('qna', {
 		},
 
 		broadcastQnaList():void {
-			PublicAPI.instance.broadcast("QNA_SESSION_LIST", {qnaSessions:this.activeSessions.map(v=>({id:v.id, command:v.command, open:v.open}))});
+			PublicAPI.instance.broadcast("ON_QNA_SESSION_LIST", {sessionList:this.activeSessions.map(v=>({id:v.id, command:v.command, open:v.open}))});
 		},
 
 

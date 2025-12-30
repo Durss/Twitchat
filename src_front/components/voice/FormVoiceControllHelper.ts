@@ -32,27 +32,27 @@ export default class FormVoiceControllHelper {
 	}
 
 	public dispose():void {
-		PublicAPI.instance.removeEventListener("STT_ERASE", this.voiceActionHandler);
-		PublicAPI.instance.removeEventListener("STT_SUBMIT", this.voiceActionHandler);
-		PublicAPI.instance.removeEventListener("STT_PREVIOUS", this.voiceActionHandler);
-		PublicAPI.instance.removeEventListener("STT_NEXT", this.voiceActionHandler);
-		PublicAPI.instance.removeEventListener("STT_CANCEL", this.voiceActionHandler);
-		PublicAPI.instance.removeEventListener("STT_TEXT_UPDATE", this.voiceActionHandler);
-		PublicAPI.instance.removeEventListener("STT_SPEECH_END", this.voiceActionHandler);
-		PublicAPI.instance.removeEventListener("STT_ACTION_BATCH", this.batchVoiceActionHandler);
+		PublicAPI.instance.removeEventListener("ON_STT_ERASE", this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener("ON_STT_SUBMIT", this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener("ON_STT_PREVIOUS", this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener("ON_STT_NEXT", this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener("ON_STT_CANCEL", this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener("ON_STT_TEXT_UPDATE", this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener("ON_STT_SPEECH_END", this.voiceActionHandler);
+		PublicAPI.instance.removeEventListener("ON_STT_ACTION_BATCH", this.batchVoiceActionHandler);
 	}
 
 	private initialize():void {
 		this.voiceActionHandler = (e) => this.onVoiceAction(e as any);
 		this.batchVoiceActionHandler = (e) => this.onBatchVoiceAction(e as any);
-		PublicAPI.instance.addEventListener("STT_ERASE", this.voiceActionHandler);
-		PublicAPI.instance.addEventListener("STT_SUBMIT", this.voiceActionHandler);
-		PublicAPI.instance.addEventListener("STT_PREVIOUS", this.voiceActionHandler);
-		PublicAPI.instance.addEventListener("STT_NEXT", this.voiceActionHandler);
-		PublicAPI.instance.addEventListener("STT_CANCEL", this.voiceActionHandler);
-		PublicAPI.instance.addEventListener("STT_TEXT_UPDATE", this.voiceActionHandler);
-		PublicAPI.instance.addEventListener("STT_SPEECH_END", this.voiceActionHandler);
-		PublicAPI.instance.addEventListener("STT_ACTION_BATCH", this.batchVoiceActionHandler);
+		PublicAPI.instance.addEventListener("ON_STT_ERASE", this.voiceActionHandler);
+		PublicAPI.instance.addEventListener("ON_STT_SUBMIT", this.voiceActionHandler);
+		PublicAPI.instance.addEventListener("ON_STT_PREVIOUS", this.voiceActionHandler);
+		PublicAPI.instance.addEventListener("ON_STT_NEXT", this.voiceActionHandler);
+		PublicAPI.instance.addEventListener("ON_STT_CANCEL", this.voiceActionHandler);
+		PublicAPI.instance.addEventListener("ON_STT_TEXT_UPDATE", this.voiceActionHandler);
+		PublicAPI.instance.addEventListener("ON_STT_SPEECH_END", this.voiceActionHandler);
+		PublicAPI.instance.addEventListener("ON_STT_ACTION_BATCH", this.batchVoiceActionHandler);
 		
 		this.updateVoiceInputList();
 		this.voiceInputs.forEach(v => {
@@ -84,31 +84,32 @@ export default class FormVoiceControllHelper {
 		this.currentInput.dispatchEvent(new Event("input"));
 	}
 
-	private onVoiceAction(e:{type:"STT_ERASE", data:TwitchatEventMap["STT_ERASE"]}
-	| {type:"STT_SUBMIT", data:TwitchatEventMap["STT_SUBMIT"]}
-	| {type:"STT_PREVIOUS", data:TwitchatEventMap["STT_PREVIOUS"]}
-	| {type:"STT_NEXT", data:TwitchatEventMap["STT_NEXT"]}
-	| {type:"STT_CANCEL", data:TwitchatEventMap["STT_CANCEL"]}
-	| {type:"STT_TEXT_UPDATE", data:TwitchatEventMap["STT_TEXT_UPDATE"]}
-	| {type:"STT_SPEECH_END", data:TwitchatEventMap["STT_SPEECH_END"]}):void {
+	private onVoiceAction(
+	e:{type:"ON_STT_ERASE", data:TwitchatEventMap["ON_STT_ERASE"]}
+	| {type:"ON_STT_SUBMIT", data:TwitchatEventMap["ON_STT_SUBMIT"]}
+	| {type:"ON_STT_PREVIOUS", data:TwitchatEventMap["ON_STT_PREVIOUS"]}
+	| {type:"ON_STT_NEXT", data:TwitchatEventMap["ON_STT_NEXT"]}
+	| {type:"ON_STT_CANCEL", data:TwitchatEventMap["ON_STT_CANCEL"]}
+	| {type:"ON_STT_TEXT_UPDATE", data:TwitchatEventMap["ON_STT_TEXT_UPDATE"]}
+	| {type:"ON_STT_SPEECH_END", data:TwitchatEventMap["ON_STT_SPEECH_END"]}):void {
 		
 		switch(e.type) {
-			case "STT_CANCEL": this.closeCallback(); break;
-			case "STT_SPEECH_END": {
+			case "ON_STT_CANCEL": this.closeCallback(); break;
+			case "ON_STT_SPEECH_END": {
 				this.originalTabIndex = this.tabIndex;
 				break;
 			}
-			case "STT_ERASE": {
+			case "ON_STT_ERASE": {
 				if(this.currentInput) {
 					this.currentInput.value = "";
 					this.currentInput.dispatchEvent(new Event("input"));
 				}
 				break;
 			}
-			case "STT_SUBMIT": this.submitCallback(); break;
-			case "STT_PREVIOUS": this.tabIndex --; break;
-			case "STT_NEXT": this.tabIndex ++; break;
-			case "STT_TEXT_UPDATE": {
+			case "ON_STT_SUBMIT": this.submitCallback(); break;
+			case "ON_STT_PREVIOUS": this.tabIndex --; break;
+			case "ON_STT_NEXT": this.tabIndex ++; break;
+			case "ON_STT_TEXT_UPDATE": {
 				const text = (e.data as {text:string}).text as string;
 				this.onText(text);
 				return;
@@ -135,7 +136,7 @@ export default class FormVoiceControllHelper {
 		}
 	}
 
-	private onBatchVoiceAction(e:TwitchatEvent<"STT_ACTION_BATCH">):void {
+	private onBatchVoiceAction(e:TwitchatEvent<"ON_STT_ACTION_BATCH">):void {
 		const actionList = e.data;
 		this.tabIndex = this.originalTabIndex;
 		this.setFocus();

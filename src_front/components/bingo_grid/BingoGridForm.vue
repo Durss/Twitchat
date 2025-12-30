@@ -583,9 +583,6 @@ export default toNative(BingoGridForm);
 			border-radius: var(--border-radius);
 			position: relative;
 			cursor: text;
-			&.highlight {
-				border: 2px solid red;
-			}
 			.cell {
 				text-align: center;
 				width: 100%;
