@@ -29,11 +29,11 @@
 		<Teleport v-if="panelsColumnTarget && buildIndex >= 1 + $store.params.chatColumnsConfig.length" :to="panelsColumnTarget">
 			<VoiceTranscript class="tts" />
 
-			<PollForm				class="popin" v-if="$store.params.currentModal == 'poll'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
+			<PollForm				class="popin" v-if="$store.params.currentModal == 'poll'" @close="$store.params.closeModal()" />
 			<ChatPollForm			class="popin" v-if="$store.params.currentModal == 'chatPoll'" @close="$store.params.closeModal()" />
-			<ChatSuggestionForm		class="popin" v-if="$store.params.currentModal == 'chatsuggForm'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
-			<RaffleForm				class="popin" v-if="$store.params.currentModal == 'raffle'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
-			<PredictionForm			class="popin" v-if="$store.params.currentModal == 'pred'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
+			<ChatSuggestionForm		class="popin" v-if="$store.params.currentModal == 'chatsuggForm'" @close="$store.params.closeModal()" />
+			<RaffleForm				class="popin" v-if="$store.params.currentModal == 'raffle'" @close="$store.params.closeModal()" />
+			<PredictionForm			class="popin" v-if="$store.params.currentModal == 'pred'" @close="$store.params.closeModal()" />
 			<BingoForm				class="popin" v-if="$store.params.currentModal == 'bingo'" @close="$store.params.closeModal()" />
 			<BingoGridForm			class="popin" v-if="$store.params.currentModal == 'bingo_grid'" @close="$store.params.closeModal()" />
 			<LiveFollowings			class="popin" v-if="$store.params.currentModal == 'liveStreams'" @close="$store.params.closeModal()" />
@@ -292,7 +292,6 @@ class Chat extends Vue {
 	public showRewards = false;
 	public showDevMenu = false;
 	public showCredits = false;
-	public voiceControl = true;
 	public showCommands = false;
 	public showShoutout = false;
 	public showBingoGrid = false;
@@ -434,8 +433,6 @@ class Chat extends Vue {
 
 		//Watch for current modal to be displayed
 		watch(()=>this.$store.params.currentModal, (value)=>{
-			this.voiceControl = false;
-
 			//Make sure the column holding modals is visible
 			if(this.panelsColumnTarget && value) {
 				const col = this.panelsColumnTarget.parentElement as HTMLDivElement;
@@ -496,26 +493,22 @@ class Chat extends Vue {
 		document.addEventListener("mousemove", this.mouseMoveHandler);
 		document.addEventListener("touchmove", this.mouseMoveHandler);
 		window.addEventListener("resize", this.windowResizeHandler)
-		PublicAPI.instance.addEventListener("POLL_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("PREDICTION_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("BINGO_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("RAFFLE_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("VIEWERS_COUNT_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("MOD_TOOLS_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("CENSOR_DELETED_MESSAGES_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("POLL_CREATE", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("RAFFLE_START", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("RAFFLE_END", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("START_EMERGENCY", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("STOP_EMERGENCY", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("SHOUTOUT", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("GET_COLS_COUNT", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("CLEAR_CHAT_HIGHLIGHT", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("CREATE_POLL", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("CREATE_PREDICTION", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("STOP_POLL", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("STOP_PREDICTION", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("SEND_MESSAGE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_POLL_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_PREDICTION_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_BINGO_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_RAFFLE_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_VIEWERS_COUNT_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_MOD_TOOLS_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CENSOR_DELETED_MESSAGES_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("ON_OPEN_POLL_CREATION_FORM", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_OPEN_PREDICTION_CREATION_FORM", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("ON_OPEN_RAFFLE_CREATION_FORM", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_SHOUTOUT", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("GET_CHAT_COLUMNS_COUNT", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_CLEAR_CHAT_HIGHLIGHT", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_STOP_POLL", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_STOP_PREDICTION", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_SEND_MESSAGE", this.publicApiEventHandler);
 		requestWakeLock();
 
 		for (let i = 0; i < this.$store.params.chatColumnsConfig.length + 10; i++) {
@@ -547,25 +540,22 @@ class Chat extends Vue {
 		document.removeEventListener("mousemove", this.mouseMoveHandler);
 		document.removeEventListener("touchmove", this.mouseMoveHandler);
 		window.removeEventListener("resize", this.windowResizeHandler);
-		PublicAPI.instance.removeEventListener("POLL_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("PREDICTION_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("BINGO_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("RAFFLE_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("VIEWERS_COUNT_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("MOD_TOOLS_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("CENSOR_DELETED_MESSAGES_TOGGLE", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("RAFFLE_START", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("RAFFLE_END", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("START_EMERGENCY", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("STOP_EMERGENCY", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("SHOUTOUT", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("GET_COLS_COUNT", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("CLEAR_CHAT_HIGHLIGHT", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("CREATE_POLL", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("CREATE_PREDICTION", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("STOP_POLL", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("STOP_PREDICTION", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("SEND_MESSAGE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_POLL_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_PREDICTION_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_BINGO_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_RAFFLE_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_VIEWERS_COUNT_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_MOD_TOOLS_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CENSOR_DELETED_MESSAGES_TOGGLE", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("ON_OPEN_POLL_CREATION_FORM", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_OPEN_PREDICTION_CREATION_FORM", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("ON_OPEN_RAFFLE_CREATION_FORM", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_SHOUTOUT", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("GET_CHAT_COLUMNS_COUNT", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_CLEAR_CHAT_HIGHLIGHT", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_STOP_POLL", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_STOP_PREDICTION", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_SEND_MESSAGE", this.publicApiEventHandler);
 	}
 
 	public closeDonorCard():void {
@@ -582,59 +572,55 @@ class Chat extends Vue {
 	 * Called when requesting an action from the public API
 	 * //TODO move this store, this has nothing to do here for the most part
 	 */
-	private async onPublicApiEvent(e:{type:"POLL_TOGGLE", data:TwitchatEventMap["POLL_TOGGLE"]}
-| {type:"PREDICTION_TOGGLE", data:TwitchatEventMap["PREDICTION_TOGGLE"]}
-| {type:"BINGO_TOGGLE", data:TwitchatEventMap["BINGO_TOGGLE"]}
-| {type:"RAFFLE_TOGGLE", data:TwitchatEventMap["RAFFLE_TOGGLE"]}
-| {type:"VIEWERS_COUNT_TOGGLE", data:TwitchatEventMap["VIEWERS_COUNT_TOGGLE"]}
-| {type:"MOD_TOOLS_TOGGLE", data:TwitchatEventMap["MOD_TOOLS_TOGGLE"]}
-| {type:"CENSOR_DELETED_MESSAGES_TOGGLE", data:TwitchatEventMap["CENSOR_DELETED_MESSAGES_TOGGLE"]}
-| {type:"POLL_CREATE", data:TwitchatEventMap["POLL_CREATE"]}
-| {type:"RAFFLE_START", data:TwitchatEventMap["RAFFLE_START"]}
-| {type:"RAFFLE_END", data:TwitchatEventMap["RAFFLE_END"]}
-| {type:"START_EMERGENCY", data:TwitchatEventMap["START_EMERGENCY"]}
-| {type:"STOP_EMERGENCY", data:TwitchatEventMap["STOP_EMERGENCY"]}
-| {type:"SHOUTOUT", data:TwitchatEventMap["SHOUTOUT"]}
-| {type:"GET_COLS_COUNT", data:TwitchatEventMap["GET_COLS_COUNT"]}
-| {type:"CLEAR_CHAT_HIGHLIGHT", data:TwitchatEventMap["CLEAR_CHAT_HIGHLIGHT"]}
-| {type:"CREATE_POLL", data:TwitchatEventMap["CREATE_POLL"]}
-| {type:"CREATE_PREDICTION", data:TwitchatEventMap["CREATE_PREDICTION"]}
-| {type:"STOP_POLL", data:TwitchatEventMap["STOP_POLL"]}
-| {type:"STOP_PREDICTION", data:TwitchatEventMap["STOP_PREDICTION"]}
-| {type:"SEND_MESSAGE", data:TwitchatEventMap["SEND_MESSAGE"]}):Promise<void> {
+	private async onPublicApiEvent(
+e:{type:"SET_POLL_TOGGLE", data:TwitchatEventMap["SET_POLL_TOGGLE"]}
+| {type:"SET_PREDICTION_TOGGLE", data:TwitchatEventMap["SET_PREDICTION_TOGGLE"]}
+| {type:"SET_BINGO_TOGGLE", data:TwitchatEventMap["SET_BINGO_TOGGLE"]}
+| {type:"SET_RAFFLE_TOGGLE", data:TwitchatEventMap["SET_RAFFLE_TOGGLE"]}
+| {type:"SET_VIEWERS_COUNT_TOGGLE", data:TwitchatEventMap["SET_VIEWERS_COUNT_TOGGLE"]}
+| {type:"SET_MOD_TOOLS_TOGGLE", data:TwitchatEventMap["SET_MOD_TOOLS_TOGGLE"]}
+| {type:"SET_CENSOR_DELETED_MESSAGES_TOGGLE", data:TwitchatEventMap["SET_CENSOR_DELETED_MESSAGES_TOGGLE"]}
+| {type:"ON_OPEN_POLL_CREATION_FORM", data:TwitchatEventMap["ON_OPEN_POLL_CREATION_FORM"]}
+| {type:"SET_OPEN_PREDICTION_CREATION_FORM", data:TwitchatEventMap["SET_OPEN_PREDICTION_CREATION_FORM"]}
+| {type:"ON_OPEN_RAFFLE_CREATION_FORM", data:TwitchatEventMap["ON_OPEN_RAFFLE_CREATION_FORM"]}
+| {type:"SET_SHOUTOUT", data:TwitchatEventMap["SET_SHOUTOUT"]}
+| {type:"GET_CHAT_COLUMNS_COUNT", data:TwitchatEventMap["GET_CHAT_COLUMNS_COUNT"]}
+| {type:"SET_CLEAR_CHAT_HIGHLIGHT", data:TwitchatEventMap["SET_CLEAR_CHAT_HIGHLIGHT"]}
+| {type:"SET_STOP_POLL", data:TwitchatEventMap["SET_STOP_POLL"]}
+| {type:"SET_STOP_PREDICTION", data:TwitchatEventMap["SET_STOP_PREDICTION"]}
+| {type:"SET_SEND_MESSAGE", data:TwitchatEventMap["SET_SEND_MESSAGE"]}):Promise<void> {
 		let notif:TwitchatDataTypes.NotificationTypes = "";
 		let modal:TwitchatDataTypes.ModalTypes = "";
 
 		switch(e.type) {
-			case "POLL_TOGGLE": notif = 'poll'; break;
-			case "PREDICTION_TOGGLE": notif = 'prediction'; break;
-			case "BINGO_TOGGLE": notif = 'bingo'; break;
-			case "RAFFLE_TOGGLE": notif = 'raffle'; break;
-			case "VIEWERS_COUNT_TOGGLE":
+			case "SET_POLL_TOGGLE": notif = 'poll'; break;
+			case "SET_PREDICTION_TOGGLE": notif = 'prediction'; break;
+			case "SET_BINGO_TOGGLE": notif = 'bingo'; break;
+			case "SET_RAFFLE_TOGGLE": notif = 'raffle'; break;
+			case "SET_VIEWERS_COUNT_TOGGLE":
 				this.$store.params.appearance.showViewersCount.value = !this.$store.params.appearance.showViewersCount.value;
 				this.$store.params.updateParams();
 				break;
 
-			case "MOD_TOOLS_TOGGLE":
+			case "SET_MOD_TOOLS_TOGGLE":
 				this.$store.params.features.showModTools.value = !this.$store.params.features.showModTools.value;
 				this.$store.params.updateParams();
 				break;
 
-			case "GET_COLS_COUNT":
-				PublicAPI.instance.broadcast("SET_COLS_COUNT", {count:this.$store.params.chatColumnsConfig.length});
+			case "GET_CHAT_COLUMNS_COUNT":
+				PublicAPI.instance.broadcast("ON_CHAT_COLUMNS_COUNT", {count:this.$store.params.chatColumnsConfig.length});
 				break;
 
-			case "CENSOR_DELETED_MESSAGES_TOGGLE":
+			case "SET_CENSOR_DELETED_MESSAGES_TOGGLE":
 				this.$store.params.appearance.censorDeletedMessages.value = !this.$store.params.appearance.censorDeletedMessages.value;
 				this.$store.params.updateParams();
 				break;
 
-			case "CREATE_POLL":
+			case "ON_OPEN_POLL_CREATION_FORM":
 				this.$store.params.openModal('poll');
 				await this.$nextTick();
-				this.voiceControl = true;
 				break;
-			case "STOP_POLL":{
+			case "SET_STOP_POLL":{
 				const poll = this.$store.poll.data;
 				if(!poll) return;
 				try {
@@ -645,12 +631,11 @@ class Chat extends Vue {
 				break;
 			}
 
-			case "CREATE_PREDICTION":
+			case "SET_OPEN_PREDICTION_CREATION_FORM":
 				this.$store.params.openModal('pred');
 				await this.$nextTick();
-				this.voiceControl = true;
 				break;
-			case "STOP_PREDICTION":{
+			case "SET_STOP_PREDICTION":{
 				const prediction = this.$store.prediction.data;
 				if(!prediction) return;
 				try {
@@ -661,42 +646,18 @@ class Chat extends Vue {
 				break;
 			}
 
-			case "RAFFLE_START":{
+			case "ON_OPEN_RAFFLE_CREATION_FORM":{
 				this.$store.params.openModal('raffle');
 				await this.$nextTick();
-				this.voiceControl = true;
-				break;
-			}
-			case "RAFFLE_END":{
-				this.$confirm(this.$t("raffle.delete_confirm.title"), this.$t("raffle.delete_confirm.description"), undefined, undefined, undefined, true)
-				.then(async ()=> {
-					//TODO see if i can adapt this to the new system allowing to create
-					//multiple raffles in parallel. This is called when using a voice
-					//command to stop current raffle
-					const list = this.$store.raffle.raffleList;
-					if(list.length == 0) return true;
-					this.$store.raffle.stopRaffle(list[0]!.sessionId || "");
-				}).catch(()=>{});
 				break;
 			}
 
-			case "START_EMERGENCY":{
-				this.$confirm(this.$t("emergency.enable_confirm"), undefined, undefined, undefined, undefined, true).then(()=>{
-					this.$store.emergency.setEmergencyMode(true);
-				}).catch(()=>{});
-				break;
-			}
-			case "STOP_EMERGENCY":{
-				this.$store.emergency.setEmergencyMode(false);
-				break;
-			}
-
-			case "CLEAR_CHAT_HIGHLIGHT": {
+			case "SET_CLEAR_CHAT_HIGHLIGHT": {
 				this.$store.chat.highlightChatMessageOverlay();
 				break;
 			}
 
-			case "SEND_MESSAGE": {
+			case "SET_SEND_MESSAGE": {
 				if(e.data.message && e.data.message.trim().length > 0) {
 					MessengerProxy.instance.sendMessage(e.data.message);
 				}
