@@ -38,7 +38,7 @@ export const storeCustomTrain = defineStore('customTrain', {
 			/**
 			 * Called when animatedtext overlay requests for a animatedtext info
 			 */
-			PublicAPI.instance.addEventListener("GET_CUSTOM_TRAIN_STATE", (event)=> {
+			PublicAPI.instance.addEventListener("GET_CUSTOM_TRAIN_DATA", (event)=> {
 				if(event.data?.id) {
 					this.broadcastStates(event.data.id);
 				}else{
@@ -55,8 +55,8 @@ export const storeCustomTrain = defineStore('customTrain', {
 		broadcastStates(id?:string):void {
 			for (const entry of this.customTrainList) {
 				if(id && entry.id !== id || !entry.enabled) continue;
-				const state = this.customTrainStates[entry.id]!;
-				PublicAPI.instance.broadcast("CUSTOM_TRAIN_STATE", {configs:entry, state});
+				const state = this.customTrainStates[entry.id];
+				PublicAPI.instance.broadcast("ON_CUSTOM_TRAIN_DATA", {configs:entry, state});
 			}
 		},
 

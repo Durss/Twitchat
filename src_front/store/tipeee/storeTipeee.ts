@@ -248,7 +248,7 @@ export const storeTipeee = defineStore('tipeee', {
 				};
 				
 				socket.onerror = (error) => {
-					console.log("ERROR", error);
+					console.log("ON_ERROR", error);
 					resolve(false);
 					this.connected = false;
 					if(!autoReconnect) return;

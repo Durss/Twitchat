@@ -1,6 +1,5 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ContextMenuHelper from '@/utils/ContextMenuHelper';
-import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/gsap-core';
 import { watch } from 'vue';
@@ -49,7 +48,7 @@ export default class AbstractChatMessage extends Vue {
 	}
 
 	// public beforeUpdate() {
-	// 	console.log("UPDATE", this.messageData.type);
+	// 	console.log("ON_UPDATE", this.messageData.type);
 	// }
 
 	public beforeMount() {
