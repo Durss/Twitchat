@@ -1991,8 +1991,6 @@ const UserDataSchema = {
 							currency: {type:"string", maxLength:5},
 							maxEntries: {type:"integer", minimum:1, maximum:1000},
 							layout: {enum: ["col","center","2cols","3cols","left","right","colLeft","colRight"]},
-							customHTML: {type:"boolean"},
-							htmlTemplate: {type:"string", maxLength:5000},
 							text: {type:"string", maxLength:1000},
 							rewardIds: {
 								type:"array",
