@@ -42,7 +42,7 @@ import OverlayParamsMusic from './OverlayParamsMusic.vue';
 })
 class OverlayParamsSpotify extends Vue {
 
-	public currentTrack:TwitchatDataTypes.MusicTrackData = {id:"xxx",title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
+	public currentTrack:TwitchatDataTypes.MusicTrackData = {id:"xxx",title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:18120,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
 
 	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected.value; }
 	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; }

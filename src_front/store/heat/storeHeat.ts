@@ -275,12 +275,12 @@ export const storeHeat = defineStore('heat', {
 					page:"",
 			};
 
-			const clickEventDataTemplate:{requestType:string, vendorName:string, requestData:{event_name:string, event_data:JsonObject}} = {
+			const clickEventDataTemplate:{requestType:string, vendorName:string, requestData:{event_name:string, event_data:TwitchatDataTypes.HeatClickData}} = {
 				requestType:"emit_event",
 				vendorName:"obs-browser",
 				requestData:{
 					event_name:"heat-click",
-					event_data: (event_data as unknown) as JsonObject,
+					event_data: event_data,
 				}
 			};
 
@@ -301,7 +301,11 @@ export const storeHeat = defineStore('heat', {
 				clickClone.requestData.event_data.y = event.coordinates.y;
 				clickClone.requestData.event_data.scaleX = 1;
 				clickClone.requestData.event_data.scaleY = 1;
-				OBSWebsocket.instance.socket.call("CallVendorRequest", clickClone);
+				OBSWebsocket.instance.socket.call("CallVendorRequest", {
+					requestType: clickClone.requestType,
+					vendorName: clickClone.vendorName,
+					requestData: clickClone.requestData as unknown as JsonObject
+				});
 				log.targets.push({distortiontID: d.id, x:event.coordinates.x, y:event.coordinates.y});
 			}
 
@@ -345,8 +349,8 @@ export const storeHeat = defineStore('heat', {
 				clickEventData.requestData.event_data.x = percentX;
 				clickEventData.requestData.event_data.y = percentY;
 				clickEventData.requestData.event_data.rotation = rect.transform.globalRotation!;
-				clickEventData.requestData.event_data.scale = rect.transform.globalScaleX!;
-				clickEventData.requestData.event_data.scale = rect.transform.globalScaleY!;
+				clickEventData.requestData.event_data.scaleX = rect.transform.globalScaleX!;
+				clickEventData.requestData.event_data.scaleY = rect.transform.globalScaleY!;
 
 				log.targets.push({obsSource:rect.source.sourceName || rect.sceneName, x:percentX, y:percentY});
 
@@ -371,7 +375,11 @@ export const storeHeat = defineStore('heat', {
 						const clickClone = JSON.parse(JSON.stringify(clickEventData)) as typeof clickEventData;
 						clickClone.requestData.event_data.twitchatOverlayID = d.id;
 						OBSWebsocket.instance.log("Reroute click from \""+rect.source.sourceName+"\" to overlay ID \""+d.id+"\"");
-						OBSWebsocket.instance.socket.call("CallVendorRequest", clickClone);
+						OBSWebsocket.instance.socket.call("CallVendorRequest", {
+							requestType: clickClone.requestType,
+							vendorName: clickClone.vendorName,
+							requestData: clickClone.requestData as unknown as JsonObject
+						});
 						log.targets.push({distortiontID: d.id, x:percentX, y:percentY});
 					}
 				}
@@ -399,7 +407,11 @@ export const storeHeat = defineStore('heat', {
 					clickClone.requestData.event_data.page = await Utils.sha256(url);
 					clickClone.requestData.event_data.twitchatOverlayID = overlayID;
 					//Send click info to browser source
-					OBSWebsocket.instance.socket.call("CallVendorRequest", clickClone);
+					OBSWebsocket.instance.socket.call("CallVendorRequest", {
+						requestType: clickClone.requestType,
+						vendorName: clickClone.vendorName,
+						requestData: clickClone.requestData as unknown as JsonObject
+					});
 
 					//Spotify overlay
 					if(url && url.indexOf(spotifyRoute) > -1
