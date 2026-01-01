@@ -109,14 +109,46 @@ if(import.meta.hot) {
 }
 
 export interface PollOverlayParamStoreData {
+	/**
+	 * Display choices as a list ?
+	 * Otherwise display them all in a single line
+	 */
 	listMode:boolean;
+	/**
+	 * Display choices as a list only if there is more than 2 choices
+	 */
 	listModeOnlyMore2:boolean;
+	/**
+	 * Show poll's title ?
+	*/
 	showTitle:boolean;
+	/**
+	 * Show entries title ?
+	 */
 	showLabels:boolean;
+	/**
+	 * Show vote counts ?
+	 */
 	showVotes:boolean;
+	/**
+	 * Show vote percentages ?
+	 */
 	showPercent:boolean;
+	/**
+	 * Show remaining time ?
+	 */
 	showTimer:boolean;
+	/**
+	 * Only show results of the poll ?
+	 * Otherwise also show poll while it's running
+	 */
 	showOnlyResult:boolean;
+	/**
+	 * Duration to show results screen (in seconds)
+	 */
 	resultDuration_s:number;
+	/**
+	 * Screen placement of the overlay
+	 */
 	placement:TwitchatDataTypes.ScreenPosition;
 }

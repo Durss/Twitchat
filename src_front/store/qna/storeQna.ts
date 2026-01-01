@@ -96,7 +96,6 @@ export const storeQna = defineStore('qna', {
 
 			PublicAPI.instance.addEventListener("SET_QNA_HIGHLIGHT", (event) => {
 				const session = this.activeSessions.find(v=>v.id == event.data?.id);
-				console.log("Highlighting", event.data?.id, session);
 				if(session) {
 					this.highlightEntry(session.messages[0]!);
 				}
