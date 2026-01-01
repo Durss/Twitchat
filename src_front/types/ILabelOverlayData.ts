@@ -3,19 +3,63 @@
  * "Labels" overlay.
  */
 export interface LabelItemData {
+	/**
+	 * Label ID
+	 */
 	id:string;
+	/**
+	 * Label custom title
+	 */
 	title:string;
+	/**
+	 * Label is enabled ?
+	 */
 	enabled:boolean;
+	/**
+	 * Label placeholder tag to use if mode is "placeholder"
+	 */
 	placeholder:typeof LabelItemPlaceholderList[number]["tag"] | "";
+	/**
+	 * HTML content if mode is "html"
+	 */
 	html:string;
+	/**
+	 * Custom CSS for this label if mode is "html"
+	 */
 	css:string;
+	/**
+	 * Mode of this label.
+	 * "placeholder": use a predefined placeholder
+	 * "html": use custom HTML content
+	 */
 	mode:"placeholder"|"html";
+	/**
+	 * Font size in pixels
+	 */
 	fontSize:number;
+	/**
+	 * Font family
+	 */
 	fontFamily:string;
+	/**
+	 * Font color
+	 */
 	fontColor:string;
+	/**
+	 * Text horizontal alignment
+	 */
 	textAlign:"left"|"center"|"right";
+	/**
+	 * Should scroll content ?
+	 */
 	scrollContent:boolean;
+	/**
+	 * Show background ?
+	 */
 	backgroundEnabled:boolean;
+	/**
+	 * Background color
+	 */
 	backgroundColor:string;
 }
 
