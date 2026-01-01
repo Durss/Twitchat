@@ -334,7 +334,7 @@ export const storeMain = defineStore("main", {
 			/**
 			 * Called when doing a shoutout to the latest raider
 			 */
-			PublicAPI.instance.addEventListener("SET_SHOUTOUT", ()=> {
+			PublicAPI.instance.addEventListener("SET_SHOUTOUT_LAST_RAIDER", ()=> {
 				const raider = sStream.lastRaider;
 				if(raider) {
 					const me = StoreProxy.auth.twitch.user;
