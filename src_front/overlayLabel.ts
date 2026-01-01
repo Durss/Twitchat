@@ -93,7 +93,7 @@ function connectToStreamDeck():void {
 				origin: "twitchat",
 				type: e.data.action,
 				data: e.data.data
-			} as IEnvelope
+			} as IEnvelope;
 			onMessage(event);
 		}
 	});
@@ -227,7 +227,7 @@ function onMessage(message:IEnvelope):void {
 	}else
 
 	if(message.type == "ON_LABEL_OVERLAY_PLACEHOLDERS") {
-		const data = message.data as {[tag:string]:{value:string|number, type:LabelItemPlaceholder["type"]}};
+		const data = message.data;
 		for (const tag in data) {
 			placeholders[tag] = data[tag];
 			if(data[tag].type == "duration"
@@ -248,10 +248,10 @@ function onMessage(message:IEnvelope):void {
 	}else
 
 	if(message.type == "ON_LABEL_OVERLAY_CONFIGS") {
-		const json = message.data as {id:string, data:typeof parameters, disabled?:true, exists:boolean, isValid:boolean};
+		const json = message.data;
 		if(json.id == urlParams.get("twitchat_overlay_id")) {
 			parameters = json.data;
-			labelDisabled = json.disabled === true;
+			labelDisabled = parameters?.enabled !== true;
 
 			document.getElementById("error")!.style.display = "none";
 

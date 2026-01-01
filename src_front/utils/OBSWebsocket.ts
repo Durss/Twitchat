@@ -1529,10 +1529,25 @@ export interface SourceTransform {
 }
 
 export interface OBSItemPath {
+	/**
+	 * Name of the scene containing the item
+	 */
 	sceneName:string;
+	/**
+	 * Name of the group containing the item (if any)
+	 */
 	groupName:string;
+	/**
+	 * Source info
+	 */
 	source:{
+		/**
+		 * Source ID
+		 */
 		id:number;
+		/**
+		 * Source name
+		 */
 		name:string;
 	}
 }
