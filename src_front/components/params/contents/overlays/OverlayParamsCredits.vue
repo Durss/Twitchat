@@ -196,10 +196,6 @@
 									:paramData="param_text[element.id]"
 									v-model="element.text"
 									:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-
-								<!-- <ParamItem class="customHTML" :paramData="param_customHTML[index]" v-model="element.customHTML" premium>
-									<ParamItem class="customHTML" :paramData="param_htmlTemplate[index]" v-model="element.htmlTemplate" premium />
-								</ParamItem> -->
 							</div>
 						</ToggleBlock>
 					</template>
@@ -329,10 +325,8 @@ class OverlayParamsCredits extends Vue {
 	public param_ignoreCustomBots:TwitchatDataTypes.ParameterData<string[]> = {type:"editablelist", value:[], max:50, maxLength:25, labelKey:"overlay.credits.param_ignoreCustomBots", icon:"user"};
 	public param_powerUpEmotes:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.credits.param_powerUpEmotes", icon:"watchStreak", premiumOnly:true};
 	public param_maxItems:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
-	public param_customHTML:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showAmounts:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showSubMonths:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
-	public param_htmlTemplate:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_showBadges:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showSubs:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showResubs:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
@@ -500,8 +494,6 @@ class OverlayParamsCredits extends Vue {
 		this.$confirm( this.$t("overlay.credits.delete_confirm_title") ).then(()=> {
 			const index = this.$store.endingCredits.overlayData.slots.findIndex(v=>v.id == slot.id);
 			this.$store.endingCredits.overlayData.slots.splice(index, 1);
-			delete this.param_customHTML[slot.id];
-			delete this.param_htmlTemplate[slot.id];
 			delete this.param_maxItems[slot.id];
 			delete this.param_showAmounts[slot.id];
 			delete this.param_text[slot.id];
@@ -525,8 +517,6 @@ class OverlayParamsCredits extends Vue {
 		};
 
 		//Create parameters
-		this.param_customHTML[id]	= {type:"boolean", value:false, labelKey:"overlay.credits.param_customHTML"};
-		this.param_htmlTemplate[id]	= {type:"string", value:"", longText:true, maxLength:1000};
 		this.param_maxItems[id]		= {type:'number', icon:"max", min:1, max:1000, value:100, labelKey:'overlay.credits.param_maxItems', premiumOnly:true};
 		if(slotDef.hasAmount) {
 			if(entry.showAmounts === undefined) {

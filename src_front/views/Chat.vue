@@ -503,7 +503,7 @@ class Chat extends Vue {
 		PublicAPI.instance.addEventListener("ON_OPEN_POLL_CREATION_FORM", this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener("SET_OPEN_PREDICTION_CREATION_FORM", this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener("ON_OPEN_RAFFLE_CREATION_FORM", this.publicApiEventHandler);
-		PublicAPI.instance.addEventListener("SET_SHOUTOUT", this.publicApiEventHandler);
+		PublicAPI.instance.addEventListener("SET_SHOUTOUT_LAST_RAIDER", this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener("GET_CHAT_COLUMNS_COUNT", this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener("SET_CLEAR_CHAT_HIGHLIGHT", this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener("SET_STOP_POLL", this.publicApiEventHandler);
@@ -550,7 +550,7 @@ class Chat extends Vue {
 		PublicAPI.instance.removeEventListener("ON_OPEN_POLL_CREATION_FORM", this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener("SET_OPEN_PREDICTION_CREATION_FORM", this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener("ON_OPEN_RAFFLE_CREATION_FORM", this.publicApiEventHandler);
-		PublicAPI.instance.removeEventListener("SET_SHOUTOUT", this.publicApiEventHandler);
+		PublicAPI.instance.removeEventListener("SET_SHOUTOUT_LAST_RAIDER", this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener("GET_CHAT_COLUMNS_COUNT", this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener("SET_CLEAR_CHAT_HIGHLIGHT", this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener("SET_STOP_POLL", this.publicApiEventHandler);
@@ -583,7 +583,7 @@ e:{type:"SET_POLL_TOGGLE", data:TwitchatEventMap["SET_POLL_TOGGLE"]}
 | {type:"ON_OPEN_POLL_CREATION_FORM", data:TwitchatEventMap["ON_OPEN_POLL_CREATION_FORM"]}
 | {type:"SET_OPEN_PREDICTION_CREATION_FORM", data:TwitchatEventMap["SET_OPEN_PREDICTION_CREATION_FORM"]}
 | {type:"ON_OPEN_RAFFLE_CREATION_FORM", data:TwitchatEventMap["ON_OPEN_RAFFLE_CREATION_FORM"]}
-| {type:"SET_SHOUTOUT", data:TwitchatEventMap["SET_SHOUTOUT"]}
+| {type:"SET_SHOUTOUT_LAST_RAIDER", data:TwitchatEventMap["SET_SHOUTOUT_LAST_RAIDER"]}
 | {type:"GET_CHAT_COLUMNS_COUNT", data:TwitchatEventMap["GET_CHAT_COLUMNS_COUNT"]}
 | {type:"SET_CLEAR_CHAT_HIGHLIGHT", data:TwitchatEventMap["SET_CLEAR_CHAT_HIGHLIGHT"]}
 | {type:"SET_STOP_POLL", data:TwitchatEventMap["SET_STOP_POLL"]}

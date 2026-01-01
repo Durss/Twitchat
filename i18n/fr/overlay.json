@@ -166,7 +166,6 @@
 			"param_currency": "Devise",
 			"param_layout": "Disposition des entrées",
 			"param_maxItems": "Maximum d'entrées à afficher",
-			"param_customHTML": "Template HTML personnalisé",
 			"param_showAmounts": "Afficher les quantités",
 			"param_uniqueUsers": "Utilisateur·ices uniques\n(plusieurs évènements d'une même personne seront fusionnés en 1 seul)",
 			"param_filterRewards": "N'afficher que certaines récompenses",

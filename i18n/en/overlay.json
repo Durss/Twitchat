@@ -165,7 +165,6 @@
 			"param_currency": "Currency",
 			"param_layout": "Entries layout",
 			"param_maxItems": "Max entries to show",
-			"param_customHTML": "Custom HTML template",
 			"param_showAmounts": "Show amounts",
 			"param_uniqueUsers": "Unique users\n(multiple events of the same user are merged into 1)",
 			"param_filterRewards": "Only show some rewards",
