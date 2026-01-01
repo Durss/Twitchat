@@ -119,8 +119,17 @@ export namespace TwitchatDataTypes {
 		 * Users values
 		 */
 		users?:{[userId:string]:{
-			platform:ChatPlatform,
+			/**
+			 * User's chat platform
+			 */
+			platform:ChatPlatform;
+			/**
+			 * Value of that user
+			 */
 			value:number;
+			/**
+			 * User name
+			 */
 			login?:string;
 		}};
 		/**
@@ -129,16 +138,25 @@ export namespace TwitchatDataTypes {
 		 * Only contains 10 first users
 		 */
 		leaderboard?:{
-			login:string,
-			avatar:string,
-			points:number
+			/**
+			 * User name
+			 */
+			login:string;
+			/**
+			 * User avatar URL
+			 */
+			avatar:string;
+			/**
+			 * Value of that user
+			 */
+			points:number;
 		}[];
 		/**
 		 * Is the counter disabled ?
 		 * It can be disabled if the user has to disable counters they're not
 		 * premium and have more than the maximum counters allowed
 		 */
-		enabled?:boolean
+		enabled?:boolean;
 	}
 
 	export interface ValueData {
@@ -163,8 +181,17 @@ export namespace TwitchatDataTypes {
 		 * Users values
 		 */
 		users?:{[userId:string]:{
-			platform:ChatPlatform,
+			/**
+			 * User's chat platform
+			 */
+			platform:ChatPlatform;
+			/**
+			 * Value of that user
+			 */
 			value:string;
+			/**
+			 * User name
+			 */
 			login?:string;
 		}};
 		/**
@@ -289,6 +316,9 @@ export namespace TwitchatDataTypes {
 	 * @see ChatMessageChunksParser
 	 */
 	export interface ParseMessageChunk {
+		/**
+		 * Chunk type
+		 */
 		type: "text" | "emote" | "cheermote" | "url" | "highlight" | "user";
 		/**
 		 * Possible values for each chunk types:
@@ -321,7 +351,7 @@ export namespace TwitchatDataTypes {
 
 		/**
 		 * Only declared by the ChatMessageChunkParser component to define if
-		 * the chunk sshould be displayed as spoiler
+		 * the chunk should be displayed as spoiler
 		 */
 		spoiler?: boolean;
 		/**
@@ -834,32 +864,110 @@ export namespace TwitchatDataTypes {
 	 * Config for a bingo grid game
 	 */
 	export interface BingoGridConfig {
+		/**
+		 * Bingo grid ID
+		 */
 		id:string;
+		/**
+		 * Bingo grid title
+		 */
 		title:string;
+		/**
+		 * Is the bingo grid enabled ?
+		 */
 		enabled:boolean;
+		/**
+		 * Show cell borders ?
+		 */
 		showGrid:boolean;
+		/**
+		 * Bingo grid entries
+		 */
 		entries:{
+			/**
+			 * Cell ID
+			 */
 			id:string;
+			/**
+			 * Cell label
+			 */
 			label:string;
+			/**
+			 * Is the cell locked (not movable) ?
+			 */
 			lock:boolean;
+			/**
+			 * Is the cell checked ?
+			 */
 			check:boolean;
 		}[];
-		additionalEntries?:BingoGridConfig["entries"],
+		/**
+		 * Additional entries that can be used to fill the grid when shuffling it
+		 */
+		additionalEntries?:BingoGridConfig["entries"];
+		/**
+		 * Number of columns
+		 */
 		cols:number;
+		/**
+		 * Number of rows
+		 */
 		rows:number;
+		/**
+		 * Text color
+		 */
 		textColor:string;
+		/**
+		 * Background color
+		 */
 		backgroundColor:string;
+		/**
+		 * Background alpha (0-1)
+		 */
 		backgroundAlpha:number;
+		/**
+		 * Text size in pixels
+		 */
 		textSize:number;
+		/**
+		 * Chat command to tick a cell from chat
+		 */
 		chatCmd?:string;
+		/**
+		 * Users allowed to use the chat command
+		 */
 		chatCmdPermissions:PermissionsData;
+		/**
+		 * Volume of the sound played when a user fills a col/row/diagonal
+		 */
 		winSoundVolume:number;
+		/**
+		 * Should the bingo grid auto show/hide after inactivity ?
+		 */
 		autoShowHide:boolean;
+		/**
+		 * Allow to tick cells from heat extension
+		 */
 		heatClick:boolean;
+		/**
+		 * Users allowed to click on the bingo grid from heat extension
+		 */
 		heatClickPermissions:PermissionsData;
+		/**
+		 * Announcement message to send on chat when someone completes a row/col/diagonal
+		 */
 		chatAnnouncement:string;
+		/**
+		 * Is chat announcement enabled ?
+		 */
 		chatAnnouncementEnabled:boolean;
+		/**
+		 * Announce users that completed a row/col/diagonal on overlay
+		 */
 		overlayAnnouncement:boolean;
+		/**
+		 * Which users can be announced on overlay ?
+		 */
 		overlayAnnouncementPermissions:PermissionsData;
 	}
 
@@ -867,8 +975,17 @@ export namespace TwitchatDataTypes {
 	 * Donation goal overlay params
 	 */
 	export interface DonationGoalOverlayConfig {
+		/**
+		 * Donation goal ID
+		 */
 		id:string;
+		/**
+		 * Donation goal title
+		 */
 		title:string;
+		/**
+		 * Is the donation goal enabled ?
+		 */
 		enabled:boolean;
 		/**
 		 * Notify donations on current goal
@@ -920,8 +1037,17 @@ export namespace TwitchatDataTypes {
 		 * List of donation goal entries
 		 */
 		goalList:{
+			/**
+			 * Goal ID
+			 */
 			id:string;
+			/**
+			 * Goal title
+			 */
 			title:string;
+			/**
+			 * Goal amount to reach
+			 */
 			amount:number;
 			/**
 			 * If true, the goal's title will be censored until
@@ -938,15 +1064,36 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Data about donation goal overlay item
+	 * Data about a donation goal overlay item
 	 */
 	export interface DonationGoalOverlayItem {
+		/**
+		 * Contains percent of completion of the goal relative to global progress
+		 */
 		percent:number;
+		/**
+		 * Should hide percent information ?
+		 */
 		hidePercent:number;
+		/**
+		 * Should the goal be displayed on screen ?
+		 */
 		visible:boolean;
+		/**
+		 * Is the goal closing
+		 */
 		closing:boolean;
+		/**
+		 * Distance to current index (0 for current goal, 1 for next goal, etc..)
+		 */
 		distanceToCurrentIndex:number;
+		/**
+		 * Goal completion timestamp
+		 */
 		completed_at:number;
+		/**
+		 * Goal item data
+		 */
 		goalItem:DonationGoalOverlayConfig["goalList"][number];
 	}
 
@@ -954,62 +1101,208 @@ export namespace TwitchatDataTypes {
 	 * Config for a raffle game
 	 */
 	export interface RaffleData {
+		/**
+		 * Raffle ID
+		 */
 		sessionId?:string;
+		/**
+		 * Raffle mode
+		 */
 		mode:"chat"|"sub"|"manual"|"values"|"tips";
+		/**
+		 * Chat command to start the raffle (if mode is "chat")
+		 */
 		command?:string;
+		/**
+		 * Reward ID (if mode is "channelPoints")
+		 */
 		reward_id?:string;
+		/**
+		 * Should kofi tips be considered as entries ?
+		 */
 		tip_kofi?:boolean;
+		/**
+		 * Should streamlabs tips be considered as entries ?
+		 */
 		tip_streamlabs?:boolean;
+		/**
+		 * Should streamlabs charity tips be considered as entries ?
+		 */
 		tip_streamlabsCharity?:boolean;
+		/**
+		 * Should streamelements tips be considered as entries ?
+		 */
 		tip_streamelements?:boolean;
+		/**
+		 * Should tipeee tips be considered as entries ?
+		 */
 		tip_tipeee?:boolean;
+		/**
+		 * Should tiltify tips be considered as entries ?
+		 */
 		tip_tiltify?:boolean;
+		/**
+		 * Should twitch charity tips be considered as entries ?
+		 */
 		tip_twitchCharity?:boolean;
+		/**
+		 * Minimum kofi tip amount to be considered as an entry
+		 */
 		tip_kofi_minAmount?:number;
+		/**
+		 * Minimum streamlabs tip amount to be considered as an entry
+		 */
 		tip_streamlabs_minAmount?:number;
+		/**
+		 * Minimum streamlabs charity tip amount to be considered as an entry
+		 */
 		tip_streamlabsCharity_minAmount?:number;
+		/**
+		 * Minimum streamelements tip amount to be considered as an entry
+		 */
 		tip_streamelements_minAmount?:number;
+		/**
+		 * Minimum tipeee tip amount to be considered as an entry
+		 */
 		tip_tipeee_minAmount?:number;
+		/**
+		 * Minimum tiltify tip amount to be considered as an entry
+		 */
 		tip_tiltify_minAmount?:number;
+		/**
+		 * Minimum twitch charity tip amount to be considered as an entry
+		 */
 		tip_twitchCharity_minAmount?:number;
+		/**
+		 * Ponderate kofi entries based on tip amount
+		 */
 		tip_kofi_ponderate?:number;
+		/**
+		 * Ponderate streamlabs entries based on tip amount
+		 */
 		tip_streamlabs_ponderate?:number;
+		/**
+		 * Ponderate streamlabs charity entries based on tip amount
+		 */
 		tip_streamlabsCharity_ponderate?:number;
+		/**
+		 * Ponderate streamelements entries based on tip amount
+		 */
 		tip_streamelements_ponderate?:number;
+		/**
+		 * Ponderate tipeee entries based on tip amount
+		 */
 		tip_tipeee_ponderate?:number;
+		/**
+		 * Ponderate tiltify entries based on tip amount
+		 */
 		tip_tiltify_ponderate?:number;
+		/**
+		 * Ponderate twitch charity entries based on tip amount
+		 */
 		tip_twitchCharity_ponderate?:number;
+		/**
+		 * Value ID (if mode is "values")
+		 */
 		value_id?:string;
+		/**
+		 * Entries delimiter for the value (if mode is "values")
+		 */
 		value_splitter?:string;
+		/**
+		 * If true, remove winning entry from next draws
+		 */
 		removeWinningEntry?:boolean;
+		/**
+		 * Duration of the raffle in seconds
+		 */
 		duration_s:number;
+		/**
+		 * Maximum number of entries allowed
+		 */
 		maxEntries:number;
+		/**
+		 * Automatically close the raffle after drawing a winner
+		 */
 		autoClose:boolean;
+		/**
+		 * If true, users can join multiple times the raffle
+		 * If they do they get more chances to win
+		 */
 		multipleJoin:boolean;
 		/**
 		 * If true, this raffle woon't appear on the raffle list
 		 * accessible from the footer and won't be saved to server
 		 */
 		ghost?:true;
+		/**
+		 * Raffle creation timestamp
+		 */
 		created_at:number;
+		/**
+		 * Raffle entries
+		 */
 		entries:RaffleEntry[];
+		/**
+		 * If user entering the raffle is a VIP they get this number of
+		 * chances more than a normal user
+		 */
 		vipRatio:number;
+		/**
+		 * If user entering the raffle is a follower they get this number of
+		 * chances more than a normal user
+		 */
 		followRatio:number;
+		/**
+		 * If user entering the raffle is a T1 subscriber they get this number of
+		 * chances more than a normal user
+		 */
 		subRatio:number;
+		/**
+		 * If user entering the raffle is a T2 subscriber they get this number of
+		 * chances more than a normal user
+		 */
 		subT2Ratio:number;
+		/**
+		 * If user entering the raffle is a T3 subscriber they get this number of
+		 * chances more than a normal user
+		 */
 		subT3Ratio:number;
+		/**
+		 * If user entering the raffle is a gifter or gifted subscriber they get this
+		 *  number of chances more than a normal user
+		 */
 		subgiftRatio:number;
+		/**
+		 * Should sub gifters be allowed to join the raffle ?
+		 */
 		subMode_includeGifters:boolean;
+		/**
+		 * Should gifted users be excluded from the raffle ?
+		 */
 		subMode_excludeGifted:boolean;
+		/**
+		 * If set to true, the default countdown will show the remaining duration
+		 * to enter the raffle.
+		 * If the corresponding overlay exists it will show the remaining time
+		 * on stream.
+		 */
 		showCountdownOverlay:boolean;
+		/**
+		 * Custom entries text (used for manual raffles)
+		 * Entries will be splitted by new lines
+		 */
 		customEntries:string;
+		/**
+		 * Raffle past winners
+		 */
 		winners?:RaffleEntry[];
 		/**
 		 * If true, trigger's execution will be halted until a winner is picked
 		 */
 		triggerWaitForWinner?:true;
 		/**
-		 * Messages to send on chat
+		 * Messages to send on chat when raffle events occur
 		 */
 		messages?: {
 			/**
@@ -1045,15 +1338,37 @@ export namespace TwitchatDataTypes {
 		duration?:number;
 	}
 	export interface RaffleEntry extends EntryItem {
+		/**
+		 * Number of points the entry has (used for ponderation)
+		 * The higher the more chances
+		 */
 		score:number;
+		/**
+		 * Number of times the user joined the raffle
+		 */
 		joinCount:number;
+		/**
+		 * Optional tip info (if entry created from a tip)
+		 */
 		tip?:{
 			amount:string;
 			source:"kofi"|"streamlabs"|"streamlabs_charity"|"streamlements"|"tipeee"|"tiltify";
 		};
+		/**
+		 * User info
+		 */
 		user?:{
+			/**
+			 * User ID
+			 */
 			id:string;
+			/**
+			 * Channel ID where the user joined the raffle from
+			 */
 			channel_id:string;
+			/**
+			 * Chat platform
+			 */
 			platform:ChatPlatform;
 		}
 	}
@@ -1134,20 +1449,42 @@ export namespace TwitchatDataTypes {
 	 * Generic permission data
 	 */
 	export interface PermissionsData {
-		broadcaster:boolean;
-		follower:boolean;
-		follower_duration_ms:number;
-		mods:boolean;
-		vips:boolean;
-		subs:boolean;
-		all:boolean;
-		usersAllowed:string[];
-		usersRefused:string[];
-
 		/**
-		 * @deprecated Only here for typings on data migration. Removed in favor of the new "usersAllowed" prop
+		 * Allow broadcaster ?
 		 */
-		users?:string;
+		broadcaster:boolean;
+		/**
+		 * Allow followers ?
+		 */
+		follower:boolean;
+		/**
+		 * Minimum follower duration in ms
+		 */
+		follower_duration_ms:number;
+		/**
+		 * Allow moderators ?
+		 */
+		mods:boolean;
+		/**
+		 * Allow VIPS ?
+		 */
+		vips:boolean;
+		/**
+		 * Allow subscribers ?
+		 */
+		subs:boolean;
+		/**
+		 * Allow everyone
+		 */
+		all:boolean;
+		/**
+		 * Specific users allowed
+		 */
+		usersAllowed:string[];
+		/**
+		 * Specific users refused
+		 */
+		usersRefused:string[];
 	}
 
 	/**
@@ -1611,14 +1948,41 @@ export namespace TwitchatDataTypes {
 	 * Represents music player params for overlay
 	 */
 	export interface MusicPlayerParamsData {
+		/**
+		 * Should the music overlay auto hide when no music is playing ?
+		 */
 		autoHide:boolean;
+		/**
+		 * Should current track info be cleared when no music is playing ?
+		 */
 		erase:boolean;
+		/**
+		 * Show current track cover?
+		 */
 		showCover:boolean;
+		/**
+		 * Show current track artist name?
+		 */
 		showArtist:boolean;
+		/**
+		 * Show current track title?
+		 */
 		showTitle:boolean;
+		/**
+		 * Show progress bar?
+		 */
 		showProgressbar:boolean;
+		/**
+		 * Open the overlay from left side instead of right?
+		 */
 		openFromLeft:boolean;
+		/**
+		 * Disable title and artist name scrolling when too long?
+		 */
 		noScroll:boolean;
+		/**
+		 * Custom rendering HTML template
+		 */
 		customInfoTemplate:string;
 	}
 
@@ -1626,12 +1990,33 @@ export namespace TwitchatDataTypes {
 	 * Represents info about a music track
 	 */
 	export interface MusicTrackData {
+		/**
+		 * Track ID
+		 */
 		id:string;
+		/**
+		 * Track title
+		 */
 		title:string;
+		/**
+		 * Track artist name
+		 */
 		artist:string;
+		/**
+		 * Track album name
+		 */
 		album:string;
+		/**
+		 * Track cover URL
+		 */
 		cover:string;
+		/**
+		 * Track duration in milliseconds
+		 */
 		duration:number;
+		/**
+		 * Track public URL
+		 */
 		url:string;
 	}
 	export type MusicTrackDataKeys = keyof MusicTrackData;
@@ -2104,31 +2489,584 @@ export namespace TwitchatDataTypes {
 	 * Used to communicate that to a remote overlay
 	 */
 	export interface StreamSummaryData {
+		/**
+		 * Stream duration in seconds
+		 */
 		streamDuration:number;
+		/**
+		 * Slots that should show premium warning
+		 * Only set when testing fake credits to let the user know these sections
+		 * won't be shown in actual ending credits because they're not premium
+		 */
 		premiumWarningSlots?:{[slotType:string]:boolean};
+		/**
+		 * Ending credits parameters
+		 */
 		params?:EndingCreditsParams;
-		follows:{uid:string, login:string}[];
-		raids:{uid:string, login:string, raiders:number}[];
-		subs:{uid:string, login:string, tier:1|2|3|"prime", subDuration?:number, fromActiveSubs?:true, platform:ChatPlatform}[];
-		resubs:{uid:string, login:string, tier:1|2|3|"prime", subDuration?:number, fromActiveSubs?:true, platform:ChatPlatform}[];
-		subgifts:{uid:string, login:string, tier:1|2|3|"prime", total:number, fromActiveSubs?:true, platform:ChatPlatform}[];
-		bits:{uid:string, login:string, bits:number, pinned:boolean}[];
-		hypeChats:{uid:string, login:string, amount:number, currency:string}[];
-		rewards:{uid:string, login:string, reward:{name:string, id:string, icon:string}}[];
-		shoutouts:{uid:string, login:string, received:boolean, viewers:number}[];
-		hypeTrains:{level:number, percent:number, conductorBits?:{uid:string, login:string, bits:number}, conductorSubs?:{uid:string, login:string, subs:number}}[];
-		polls:{title:string, votes:number, choices:{title:string, votes:number, win:boolean}[]}[];
-		predictions:{title:string, points:number, outcomes:{title:string, points:number, voters:number, win:boolean}[]}[];
-		chatters:{uid:string, login:string, count:number, vip:boolean, mod:boolean, sub:boolean, bans:number, tos:number, tosDuration:number}[];
-		tips:{login:string, amount:number, currency:string, platform:"kofi" | "streamlabs" | "streamelements" | "tipeee" | "patreon"}[];
-		merch:{login:string, products:string[], total:number, currency:string, platform:"kofi" | "streamlabs"}[];
-		powerups:{login:string, skinID?:TwitchatDataTypes.MessageChatData["twitch_animationId"], emoteUrl?:string, type:"animation" | "gigantifiedemote" | "celebration"}[];
-		superChats:{uid:string, login:string, amount:number, currency:string}[];
-		superStickers:{uid:string, login:string, amount:number, currency:string, stickerUrl:string}[];
-		tiktokGifts:{uid:string, login:string, count:number, amount:number, imageUrl:string}[];
-		tiktokLikes:{uid:string, login:string, count:number}[];
-		tiktokShares:{uid:string, login:string, count:number}[];
-		patreonMembers:{uid:string, login:string, months:number, tier:string, lifetimeAmount:number}[];
+		/**
+		 * Following events
+		 */
+		follows:{
+			/**
+			 * User ID
+			 */
+			uid:string;
+			/**
+			 * User name
+			 */
+			login:string;
+		}[];
+		/**
+		 * Raid events
+		 */
+		raids:{
+			/**
+			 * User ID
+			 */
+			uid:string;
+			/**
+			 * Raider's name
+			 */
+			login:string;
+			/**
+			 * Raiders count
+			 */
+			raiders:number;
+		}[];
+		/**
+		 * Subscription events
+		 */
+		subs:{
+			/**
+			 * User ID
+			 */
+			uid:string;
+			/**
+			 * User name
+			 */
+			login:string;
+			/**
+			 * Subscription tier
+			 */
+			tier:1|2|3|"prime";
+			/**
+			 * Subscription duration in months
+			 */
+			subDuration?:number;
+			/**
+			 * Is sub info from currently active subscribers ?
+			 * Otherwise it's from new subs that happened during the stream
+			 */
+			fromActiveSubs?:true;
+			/**
+			 * Chat platform of the subscription
+			 */
+			platform:ChatPlatform
+		}[];
+		/**
+		 * Resubscription events
+		 */
+		resubs:{
+			/**
+			 * User ID
+			 */
+			uid:string;
+			/**
+			 * User name
+			 */
+			login:string;
+			/**
+			 * Subscription tier
+			 */
+			tier:1|2|3|"prime";
+			/**
+			 * Subscription duration in months
+			 */
+			subDuration?:number;
+			/**
+			 * Is sub info from currently active subscribers ?
+			 * Otherwise it's from new subs that happened during the stream
+			 */
+			fromActiveSubs?:true;
+			/**
+			 * Chat platform of the subscription
+			 */
+			platform:ChatPlatform
+		}[];
+		/**
+		 * Subgift events
+		 */
+		subgifts:{
+			/**
+			 * User ID
+			 */
+			uid:string;
+			/**
+			 * User name
+			 */
+			login:string;
+			/**
+			 * Subscription tier
+			 */
+			tier:1|2|3|"prime";
+			/**
+			 * Number of subgifts
+			 */
+			total:number;
+			/**
+			 * Is subgift info from currently active subscribers ?
+			 */
+			fromActiveSubs?:true;
+			/**
+			 * Chat platform of the subscription
+			 */
+			platform:ChatPlatform
+		}[];
+		/**
+		 * Bits events
+		 */
+		bits:{
+			/**
+			 * User ID
+			 */
+			uid:string;
+			/**
+			 * User name
+			 */
+			login:string;
+			/**
+			 * Number of bits
+			 */
+			bits:number;
+			/**
+			 * Is pinned cheer ?
+			 */
+			pinned:boolean;
+		}[];
+		/**
+		 * Hype chat events
+		 */
+		hypeChats:{
+			/**
+			 * User ID
+			 */
+			uid:string;
+			/**
+			 * User name
+			 */
+			login:string;
+			/**
+			 * Amount paid
+			 */
+			amount:number;
+			/**
+			 * Currency used
+			 */
+			currency:string;
+		}[];
+		/**
+		 * Reward redemption events
+		 */
+		rewards:{
+			/**
+			 * User ID
+			 */
+			uid:string;
+			/**
+			 * User name
+			 */
+			login:string;
+			/**
+			 * Channel point reward info
+			 */
+			reward:{
+				/**
+				 * Reward name
+				 */
+				name:string;
+				/**
+				 * Reward ID
+				 */
+				id:string;
+				/**
+				 * Reward icon URL
+				 */
+				icon:string;
+			};
+		}[];
+		/**
+		 * Shoutout events
+		 */
+		shoutouts:{
+			/**
+			 * User ID
+			 */
+			uid:string;
+			/**
+			 * User name
+			 */
+			login:string;
+			/**
+			 * Was the shoutout received or given ?
+			 */
+			received:boolean;
+			/**
+			 * Viewers count when the shoutout happened
+			 */
+			viewers:number
+		}[];
+		/**
+		 * Hype train events
+		 */
+		hypeTrains:{
+			/**
+			 * Hype train level reached
+			 */
+			level:number;
+			/**
+			 * Percent of the level completed
+			 */
+			percent:number;
+			/**
+			 * Bits conductor info
+			 */
+			conductorBits?:{
+				/**
+				 * User ID
+				 */
+				uid:string;
+				/**
+				 * User name
+				 */
+				login:string;
+				/**
+				 * Number of bits given
+				 */
+				bits:number;
+			};
+			/**
+			 * Sub conductor info
+			 */
+			conductorSubs?:{
+				/**
+				 * User ID
+				 */
+				uid:string;
+				/**
+				 * User name
+				 */
+				login:string;
+				/**
+				 * Number of subs given
+				 */
+				subs:number;
+			}
+		}[];
+		/**
+		 * Poll events
+		 */
+		polls:{
+			/**
+			 * Poll title
+			 */
+			title:string;
+			/**
+			 * Total votes count
+			 */
+			votes:number;
+			/**
+			 * Poll choices
+			 */
+			choices:{
+				/**
+				 * Choice title
+				 */
+				title:string;
+				/**
+				 * Number of votes for this choice
+				 */
+				votes:number;
+				/**
+				 * Is this choice the winning one ?
+				 */
+				win:boolean;
+			}[]
+		}[];
+		/**
+		 * Chat poll events
+		 */
+		predictions:{
+			/**
+			 * Prediction title
+			 */
+			title:string;
+			/**
+			 * Total points used to vote
+			 */
+			points:number;
+			/**
+			 * Prediction outcomes
+			 */
+			outcomes:{
+				/**
+				 * Outcome title
+				 */
+				title:string;
+				/**
+				 * Number of points used to vote for this outcome
+				 */
+				points:number;
+				/**
+				 * Number of voters for this outcome
+				 */
+				voters:number;
+				/**
+				 * Is this outcome the winning one ?
+				 */
+				win:boolean
+			}[]
+		}[];
+		/**
+		 * Chatters info
+		 */
+		chatters:{
+			/**
+			 * User ID
+			 */
+			uid:string;
+			/**
+			 * User name
+			 */
+			login:string;
+			/**
+			 * Number of messages sent
+			 */
+			count:number;
+			/**
+			 * Is user a VIP ?
+			 */
+			vip:boolean;
+			/**
+			 * Is user a moderator ?
+			 */
+			mod:boolean;
+			/**
+			 * Is user a subscriber ?
+			 */
+			sub:boolean;
+			/**
+			 * Number of timeouts
+			 */
+			bans:number;
+			/**
+			 * Number of times this user has been timedout
+			 */
+			tos:number;
+			/**
+			 * Total duration this user has been timedout for (in seconds)
+			 */
+			tosDuration:number;
+		}[];
+		/**
+		 * Tip events
+		 */
+		tips:{
+			/**
+			 * User ID
+			 */
+			login:string;
+			/**
+			 * Tip amount
+			 */
+			amount:number;
+			/**
+			 * Currency used for the tip
+			 */
+			currency:string;
+			/**
+			 * Platform the tip was made on
+			 */
+			platform:"kofi" | "streamlabs" | "streamelements" | "tipeee" | "patreon";
+		}[];
+		/**
+		 * Merch events
+		 */
+		merch:{
+			/**
+			 * User ID
+			 */
+			login:string;
+			/**
+			 * List of products bought
+			 */
+			products:string[];
+			/**
+			 * Total amount spent
+			 */
+			total:number;
+			/**
+			 * Currency used for the merch purchase
+			 */
+			currency:string;
+			/**
+			 * Platform the merch was bought on
+			 */
+			platform:"kofi" | "streamlabs"
+		}[];
+		/**
+		 * Powerup events
+		 */
+		powerups:{
+			/**
+			 * User ID
+			 */
+			login:string;
+			/**
+			 * Skind ID for "animation" type
+			 */
+			skinID?:TwitchatDataTypes.MessageChatData["twitch_animationId"];
+			/**
+			 * Emote URL for "gigantifiedemote" type
+			 */
+			emoteUrl?:string;
+			/**
+			 * Type of powerup
+			 */
+			type:"animation" | "gigantifiedemote" | "celebration"
+		}[];
+		/**
+		 * Super chat events
+		 */
+		superChats:{
+			/**
+			 * User ID
+			 */
+			uid:string;
+			/**
+			 * User name
+			 */
+			login:string;
+			/**
+			 * Amount paid for the super chat
+			 */
+			amount:number;
+			/**
+			 * Currency used for the super chat
+			 */
+			currency:string;
+		}[];
+		/**
+		 * Super stickers events
+		 */
+		superStickers:{
+			/**
+			 * User ID
+			 */
+			uid:string;
+			/**
+			 * User name
+			 */
+			login:string;
+			/**
+			 * Amount paid for the super sticker
+			 */
+			amount:number;
+			/**
+			 * Currency used for the super sticker
+			 */
+			currency:string;
+			/**
+			 * Sticker URL
+			 */
+			stickerUrl:string;
+		}[];
+		/**
+		 * Tiktok gifts events
+		 */
+		tiktokGifts:{
+			/**
+			 * User ID
+			 */
+			uid:string;
+			/**
+			 * User name
+			 */
+			login:string;
+			/**
+			 * Number of gifts offered
+			 */
+			count:number;
+			/**
+			 * Amount paid for the gifts
+			 */
+			amount:number;
+			/**
+			 * Image URL of the gift
+			 */
+			imageUrl:string;
+		}[];
+		/**
+		 * Tiktok likes events
+		 */
+		tiktokLikes:{
+			/**
+			 * User ID
+			 */
+			uid:string;
+			/**
+			 * User name
+			 */
+			login:string;
+			/**
+			 * Number of likes
+			 */
+			count:number;
+		}[];
+		/**
+		 * Tiktok shares events
+		 */
+		tiktokShares:{
+			/**
+			 * User ID
+			 */
+			uid:string;
+			/**
+			 * User name
+			 */
+			login:string;
+			/**
+			 * Number of shares
+			 */
+			count:number;
+		}[];
+		/**
+		 * Patreon members events
+		 */
+		patreonMembers:{
+			/**
+			 * User ID
+			 */
+			uid:string;
+			/**
+			 * User name
+			 */
+			login:string;
+			/**
+			 * Membership duration in months
+			 */
+			months:number;
+			/**
+			 * Membership tier name
+			 */
+			tier:string;
+			/**
+			 * Lifetime amount paid
+			 */
+			lifetimeAmount:number;
+		}[];
+		/**
+		 * i18n labels for the ending credits
+		 */
 		labels:{
 			no_entry:string;
 			train:string;
@@ -2141,15 +3079,45 @@ export namespace TwitchatDataTypes {
 	 * Represents an Heat Distortion overlay parameters
 	 */
 	export interface HeatDistortionData {
+		/**
+		 * Distortion overlay ID
+		 */
 		id:string;
+		/**
+		 * Overlay name
+		 */
 		name:string;
+		/**
+		 * OBS item path where to apply the distortion
+		 */
 		obsItemPath:OBSItemPath;
+		/**
+		 * Users allowed to trigger the distortion
+		 */
 		permissions:PermissionsData;
+		/**
+		 * Refuse anonymous clicks ?
+		 */
 		refuseAnon:boolean;
+		/**
+		 * Distortion effect type
+		 */
 		effect:"liquid"|"expand"|"shrink"|"heart";
+		/**
+		 * Name of the shadertastic filter added to the source to create the distortion 
+		 */
 		filterName:string;
+		/**
+		 * Name of the browser source in OBS
+		 */
 		browserSourceName:string;
+		/**
+		 * Is the distortion enabled ?
+		 */
 		enabled:boolean;
+		/**
+		 * Should the disctortion only be used from the triggers ?
+		 */
 		triggerOnly:boolean;
 	}
 
@@ -2158,29 +3126,99 @@ export namespace TwitchatDataTypes {
 	 * a click occurs on heat
 	 */
 	export interface HeatClickData {
+		/**
+		 * Click ID
+		 */
 		id:string;
+		/**
+		 * Channel ID the click occured on
+		 */
 		channelId:string;
+		/**
+		 * Is the click anonymous ?
+		 */
 		anonymous:boolean;
-		x:number;
-		y:number;
-		rotation:number;
-		scaleX:number;
-		scaleY:number;
+		/**
+		 * ID of the user who clicked
+		 */
 		uid:string;
+		/**
+		 * Login of the user who clicked
+		 */
 		login:string;
+		/**
+		 * Normalized X position (0 to 1) of the click
+		 */
+		x:number;
+		/**
+		 * Normalized Y position (0 to 1) of the click
+		 */
+		y:number;
+		/**
+		 * Is the user a subscriber ?
+		 */
 		isSub:boolean;
+		/**
+		 * Is the user banned ?
+		 */
 		isBan:boolean;
+		/**
+		 * Is the user a moderator ?
+		 */
 		isMod:boolean;
+		/**
+		 * Is the user a VIP ?
+		 */
 		isVip:boolean;
+		/**
+		 * Is the user the broadcaster ?
+		 */
 		isBroadcaster:boolean;
+		/**
+		 * Is the user a follower ?
+		 */
 		isFollower:boolean;
+		/**
+		 * Date at which the user followed the channel (if isFollower is true)
+		 */
 		followDate:number;
+		/**
+		 * Is it a test click ?
+		 * Sent from settings => connections => heat => click on preview
+		 */
 		testMode:boolean;
+		/**
+		 * Was alt keys pressed ?
+		 */
 		alt:boolean;
+		/**
+		 * Was ctrl key pressed ?
+		 */
 		ctrl:boolean;
+		/**
+		 * Was shift key pressed ?
+		 */
 		shift:boolean;
+		/**
+		 * Sha256 of the clicked browser source URL
+		 */
 		page:string;
+		/**
+		 * Optional Twitchat overlay ID sent for some specific overlays
+		 */
 		twitchatOverlayID:string;
+		/**
+		 * X scale of the browser source
+		*/
+		scaleX:number;
+		/**
+		 * Y scale of the browser source
+		*/
+		scaleY:number;
+		/**
+		 * Rotation angle of the browser source in degrees
+		 */
+		rotation:number;
 	}
 
 	export interface QnaSession {
@@ -2306,7 +3344,13 @@ export namespace TwitchatDataTypes {
 	 * Represents a custom train params
 	 */
 	export interface CustomTrainData {
+		/**
+		 * Custom train ID
+		 */
 		id:string;
+		/**
+		 * Is custom train enabled ?
+		 */
 		enabled:boolean;
 		/**
 		 * Is train being tested ?
@@ -2441,7 +3485,13 @@ export namespace TwitchatDataTypes {
 		 * Current all time record info
 		 */
 		allTimeRecord?: {
+			/**
+			 * Date of the record (timestamp)
+			 */
 			date:number;
+			/**
+			 * Record amount
+			 */
 			amount:number;
 		};
 		/**
@@ -2578,111 +3628,379 @@ export namespace TwitchatDataTypes {
 	 * Represents an ending credits section
 	 */
 	export interface EndingCreditsSlotParams {
+		/**
+		 * Section ID
+		 */
 		id:string;
+		/**
+		 * Type of slot to show
+		 */
 		slotType:EndingCreditsSlotStringTypes;
+		/**
+		 * Title for this slot
+		 */
 		label:string;
+		/**
+		 * Maximum entries that section should show
+		 */
 		maxEntries:number;
+		/**
+		 * Is the slot enabled ?
+		 */
 		enabled:boolean,
+		/**
+		 * Layout of the entries
+		 */
 		layout:"colLeft"|"col"|"colRight"|"left"|"center"|"right"|"2cols"|"3cols";
-		customHTML?:boolean;
-		htmlTemplate?:string;
+		/**
+		 * Show entries amounts if any ?
+		 */
 		showAmounts?:boolean;
+		/**
+		 * Show sub months duration for subs slot ?
+		 */
 		showSubMonths?:boolean;
+		/**
+		 * Show mod/sub/vip badges next to chatters names ?
+		 */
 		showBadges?:boolean;
+		/**
+		 * Show moderators on chatters slot ?
+		 */
 		showMods?:boolean;
+		/**
+		 * Show VIPs on chatters slot ?
+		 */
 		showVIPs?:boolean;
+		/**
+		 * Show subscribers on sub slot ?
+		 */
 		showSubs?:boolean;
+		/**
+		 * Show resubs on subs slot ?
+		 */
 		showResubs?:boolean;
+		/**
+		 * Show subgifts on subs slot ?
+		 */
 		showSubgifts?:boolean;
+		/**
+		 * Show prime subs on subs slot ?
+		 */
 		showSubsPrime?:boolean;
+		/**
+		 * Show tier 1 subs on subs slot ?
+		 */
 		showSubsT1?:boolean;
+		/**
+		 * Show tier 2 subs on subs slot ?
+		 */
 		showSubsT2?:boolean;
+		/**
+		 * Show tier 3 subs on subs slot ?
+		 */
 		showSubsT3?:boolean;
+		/**
+		 * Show all subs/subgifters on subs slot ?
+		 * Otherwise it only show subs that occured during the stream
+		 */
 		showAllSubs?:boolean;
+		/**
+		 * Show all subgifters on subs slot ?
+		 * Otherwise it only show subgifters that occured during the stream
+		 */
 		showAllSubgifters?:boolean;
+		/**
+		 * Show subs from Youtube ?
+		 */
 		showSubsYoutube?:boolean;
+		/**
+		 * Show subs from TikTok ?
+		 */
 		showSubsTiktok?:boolean;
+		/**
+		 * Show subgifts from Youtube ?
+		 */
 		showSubgiftsYoutube?:boolean;
+		/**
+		 * Show tips from Kofi on tips slot ?
+		 */
 		showTipsKofi?:boolean;
+		/**
+		 * Show subs from Kofi on tips slot ?
+		 */
 		showSubsKofi?:boolean;
+		/**
+		 * Show tips from Tipeee on tips slot ?
+		*/
 		showTipsTipeee?:boolean;
+		/**
+		 * Show tips from Patreon on tips slot ?
+		 */
 		showTipsPatreon?:boolean;
+		/**
+		 * Show tips from Streamlabs on tips slot ?
+		 */
 		showTipsStreamlabs?:boolean;
+		/**
+		 * Show tips from Streamelements on tips slot ?
+		 */
 		showTipsStreamelements?:boolean;
+		/**
+		 * Show merch from Kofi on merch slot ?
+		 */
 		showMerchKofi?:boolean;
+		/**
+		 * Show merch from Streamlabs on merch slot ?
+		 */
 		showMerchStreamlabs?:boolean;
+		/**
+		 * Sort entries by names ?
+		 */
 		sortByNames?:boolean;
+		/**
+		 * Sort entries by roles ?
+		 */
 		sortByRoles?:boolean;
+		/**
+		 * Sort entries by amounts ?
+		 */
 		sortByAmounts?:boolean;
+		/**
+		 * Sort entries by amounts (if any) ?
+		 */
 		sortByTotalAmounts?:boolean;
+		/**
+		 * Sort entries by sub types ?
+		 */
 		sortBySubTypes?:boolean;
+		/**
+		 * Show all chatters for chatters slot ?
+		 */
 		showChatters?:boolean;
+		/**
+		 * Show train conductors for hypetrain slot ?
+		 */
 		showTrainConductors?:boolean;
+		/**
+		 * Show power up skin events ?
+		 */
 		showPuSkin?:boolean;
+		/**
+		 * Show power up gigantified emote events ?
+		 */
 		showPuEmote?:boolean;
+		/**
+		 * Show power up celebration events ?
+		 */
 		showPuCeleb?:boolean;
+		/**
+		 * Show total amounts for entries that have amounts ?
+		 * ex: membership duration for Patreon members
+		 */
 		showTotalAmounts?:boolean;
+		/**
+		 * Show unique users only ?
+		 * Multiple entries from the same user will be merged
+		 */
 		uniqueUsers?:boolean;
-		text?:string,
-		currency?:string,
-		filterRewards?:boolean,
-		showRewardUsers?:boolean,
-		showNormalCheers?:boolean,
-		showPinnedCheers?:boolean,
-		anonLastNames?:boolean,
-		patreonTiers?:string[],
-		rewardIds?:string[],
+		/**
+		 * Text content for text slot
+		 */
+		text?:string;
+		/**
+		 * Currency to use for amounts display
+		 * ex: for Patreon total amount given
+		 */
+		currency?:string;
+		/**
+		 * Show user list tha tredeemed a reward ?
+		 */
+		showRewardUsers?:boolean;
+		/**
+		 * Show normal cheers ? (not pinned)
+		 */
+		showNormalCheers?:boolean;
+		/**
+		 * Show pinned cheers ?
+		 */
+		showPinnedCheers?:boolean;
+		/**
+		 * Anonymise last names of users ?
+		 * ex: for patreon members show "john D." instead of "john Doe"
+		 */
+		anonLastNames?:boolean;
+		/**
+		 * Filter patreon tiers to show
+		 */
+		patreonTiers?:string[];
+		/**
+		 * Should we filter channel point reward redeems ?
+		 */
+		filterRewards?:boolean;
+		/**
+		 * Reward IDs to show if filterRewards is true
+		 */
+		rewardIds?:string[];
 		/**
 		 * @deprecated only here for data migration typing
 		 */
-		showPremiumWarning?:boolean,
+		showPremiumWarning?:boolean;
 	}
 
 	/**
 	 * Contains ending credits params
 	 */
 	export interface EndingCreditsParams {
+		/**
+		 * Scale at which to render the credits
+		 */
 		scale:number;
+		/**
+		 * Padding around the categories (in pixels)
+		 */
 		padding:number;
+		/**
+		 * Padding bellow the title (in pixels)
+		 */
 		paddingTitle:number;
+		/**
+		 * Should title stick to the top when scrolling ?
+		 */
 		stickyTitle:boolean;
+		/**
+		 * Title color
+		 */
 		colorTitle:string;
+		/**
+		 * Color of the categories entries
+		 */
 		colorEntry:string;
+		/**
+		 * Font for the title
+		 */
 		fontTitle:string;
+		/**
+		 * Font for the entries
+		 */
 		fontEntry:string;
+		/**
+		 * Should bots be ignored ?
+		 */
 		ignoreBots:boolean;
+		/**
+		 * List of user names to ignore
+		 */
 		ignoreCustomBots:string[];
+		/**
+		 * Strength of the text shadow
+		 */
 		textShadow:number;
+		/**
+		 * Should the entries scroll at a specific speed or over a specific duration ?
+		 */
 		timing:"speed" | "duration";
+		/**
+		 * Duration of the credits scroll (in seconds)
+		 */
 		duration:number;
+		/**
+		 * Delay before starting the credits (in seconds)
+		 */
 		startDelay:number;
+		/**
+		 * Should credits loop after ending ?
+		 */
 		loop:boolean;
+		/**
+		 * Show icons on categories titles ? 
+		 */
 		showIcons:boolean;
+		/**
+		 * Show power up emotes in the background ?
+		 */
 		powerUpEmotes:boolean;
+		/**
+		 * Speed of the credits scroll (in pixels per second)
+		 */
 		speed:number;
+		/**
+		 * Size of the fade at the top and bottom of the credits (in pixels)
+		 */
 		fadeSize:number;
+		/**
+		 * Slots to show in the ending credits
+		 */
 		slots:EndingCreditsSlotParams[];
-		hideEmptySlots?:boolean;//Optional because added later
+		/**
+		 * Hide slots that have no entry
+		 */
+		hideEmptySlots?:boolean;
 	}
 
 	/**
 	 * Contains some info about the ad break overlay
 	 */
 	export interface AdBreakOverlayData {
+		/**
+		 * Show approaching state ?
+		 */
 		showApproaching:boolean;
+		/**
+		 * Show running state ?
+		 */
 		showRunning:boolean;
+		/**
+		 * Delay before starting the ad break (in seconds)
+		 */
 		approachingDelay:number;
+		/**
+		 * Style of the approaching state
+		 */
 		approachingStyle:"bar"|"text";
+		/**
+		 * Style of the running state
+		 */
 		runningStyle:"bar"|"text";
+		/**
+		 * Size of the approaching render
+		 */
 		approachingSize:number;
+		/**
+		 * Size of the running render
+		 */
 		runningSize:number;
+		/**
+		 * Thickness of the approaching bar
+		 */
 		approachingThickness:number;
+		/**
+		 * Thickness of the running bar
+		 */
 		runningThickness:number;
+		/**
+		 * Color of the approaching render
+		 */
 		approachingColor:string;
+		/**
+		 * Color of the running render
+		 */
 		runningColor:string;
+		/**
+		 * Position of the approaching render
+		 */
 		approachingPlacement:ScreenPosition;
+		/**
+		 * Position of the running render
+		 */
 		runningPlacement:ScreenPosition;
+		/**
+		 * Label when approaching ad break
+		 */
 		approachingLabel:string;
+		/**
+		 * Label when running ad break
+		 */
 		runningLabel:string;
 	}
 
