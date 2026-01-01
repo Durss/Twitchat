@@ -93,7 +93,7 @@ function connectToStreamDeck():void {
 				origin: "twitchat",
 				type: e.data.action,
 				data: e.data.data
-			} as IEnvelope
+			} as IEnvelope;
 			onMessage(event);
 		}
 	});
@@ -227,9 +227,9 @@ function onMessage(message:IEnvelope):void {
 	}else
 
 	if(message.type == "ON_LABEL_OVERLAY_PLACEHOLDERS") {
-		const data = message.data as {[tag:string]:{value:string|number, type:LabelItemPlaceholder["type"]}};
+		const data = message.data;
 		for (const key in data) {
-			const tag = data[key]!
+			const tag = data[key]!;
 			placeholders[key] = tag;
 			if(tag.type == "duration"
 			|| tag.type == "date"
@@ -241,7 +241,7 @@ function onMessage(message:IEnvelope):void {
 			|| tag.type == "month"
 			|| tag.type == "year"
 			|| tag.type == "datetime") {
-				timerPlaceholder.push({tag: key, params:tag});
+				timerPlaceholder.push({tag: key, params: tag});
 			}
 		}
 
@@ -249,10 +249,10 @@ function onMessage(message:IEnvelope):void {
 	}else
 
 	if(message.type == "ON_LABEL_OVERLAY_CONFIGS") {
-		const json = message.data as {id:string, data:typeof parameters, disabled?:true, exists:boolean, isValid:boolean};
+		const json = message.data;
 		if(json.id == urlParams.get("twitchat_overlay_id")) {
 			parameters = json.data;
-			labelDisabled = json.disabled === true;
+			labelDisabled = parameters?.enabled !== true;
 
 			document.getElementById("error")!.style.display = "none";
 
