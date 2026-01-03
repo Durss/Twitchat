@@ -65,6 +65,17 @@ export const storeAnimatedText = defineStore('animatedtext', {
 					if(resolver) resolver();
 				}
 			});
+
+			/**
+			 * Called when animated text overlay completes show animation
+			 */
+			PublicAPI.instance.addEventListener("SET_ANIMATED_TEXT_CONTENT_FROM_SD", (event)=> {
+				console.log("SET_ANIMATED_TEXT_CONTENT_FROM_SD", event.data);
+				if(event.data?.queryId) {
+					console.log("Transmit to overlays");
+					PublicAPI.instance.broadcast("SET_ANIMATED_TEXT_CONTENT", event.data);
+				}
+			});
 		},
 
 		broadcastStates(id?:string) {
@@ -107,6 +118,7 @@ export const storeAnimatedText = defineStore('animatedtext', {
 				animatedTextList:this.animatedTextList
 			};
 			DataStore.set(DataStore.ANIMATED_TEXT_CONFIGS, data);
+			PublicAPI.instance.broadcastGlobalStates();
 		},
 
 		async animateText(overlayId:string, text:string, autoHide:boolean = false, bypassAll:boolean = false):Promise<void> {
