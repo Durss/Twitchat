@@ -18,33 +18,27 @@ Twitchat offers a websocket API through  [OBS-Websocket](https://github.com/obsp
 # Table of content
 * [Prerequisites](#prerequisites)
 * [Connect example](#connect-example)
-  * [OBS-websocket](#obs-websocket)
-  * [Available events and actions](#available-events-and-actions)
 * [Events you can receive](#events-you-can-receive)
 * [Actions you can perform](#actions-you-can-perform)
 * [Requesting data](#requesting-data)
 
 <br>
-<br>
 
 
 # Prerequisites
 This API needs [OBS-Websocket](https://github.com/obsproject/obs-websocket/releases/tag/5.0.0-beta1) V5 to be installed and running!\
-\
 After installing OBS-Websocket, start OBS, you may want set a password on `Tools -> obs-websocket Settings`.\
-\
 Once done, go on Twitchat, open the parameters and on the OBS panel specify the credentials to connect with OBS.\
-\
 OBS will act as a bridge to transmit Twitchat messages to any connected client.
 
-<br>
 <br>
 
 
 # Connect example
 To connect with OBS-Websocket you can use the [obs-websocket-js](https://github.com/obs-websocket-community-projects/obs-websocket-js) package that already handles everything.\
 \
-Below is a typescript example to use the API via `OBS-Websocket-js`.\
+Below is a typescript example to use the API via `OBS-Websocket-js`.
+
 ```typescript
 import OBSWebSocket from 'obs-websocket-js';
 
@@ -107,19 +101,89 @@ connect(ip, port pass).then(()=> {
 });
 ```
 
+<br>
+
 <!-- INJECT_AFTER -->
 
 # Events you can receive
-<details>
-<summary>Events fired by Twitchat that can be listened to.</summary>
+Events fired by Twitchat that you can listen to.
 
-### **ON_AD_BREAK_OVERLAY_CONFIGS**
+- [ON_AD_BREAK_OVERLAY_CONFIGS](#on_ad_break_overlay_configs)
+- [ON_AD_BREAK_OVERLAY_DATA](#on_ad_break_overlay_data)
+- [ON_AD_BREAK_OVERLAY_PRESENCE](#on_ad_break_overlay_presence)
+- [ON_ANIMATED_TEXT_CLOSE](#on_animated_text_close)
+- [ON_ANIMATED_TEXT_CONFIGS](#on_animated_text_configs)
+- [ON_ANIMATED_TEXT_HIDE_COMPLETE](#on_animated_text_hide_complete)
+- [ON_ANIMATED_TEXT_SHOW_COMPLETE](#on_animated_text_show_complete)
+- [ON_BINGO_GRID_CONFIGS](#on_bingo_grid_configs)
+- [ON_BINGO_GRID_HEAT_CLICK](#on_bingo_grid_heat_click)
+- [ON_BINGO_GRID_LEADER_BOARD](#on_bingo_grid_leader_board)
+- [ON_BINGO_GRID_VIEWER_EVENT](#on_bingo_grid_viewer_event)
+- [ON_BITS](#on_bits)
+- [ON_BITSWALL_OVERLAY_CONFIGS](#on_bitswall_overlay_configs)
+- [ON_BITSWALL_OVERLAY_PRESENCE](#on_bitswall_overlay_presence)
+- [ON_CHAT_COLUMNS_COUNT](#on_chat_columns_count)
+- [ON_CHAT_POLL_OVERLAY_CONFIGS](#on_chat_poll_overlay_configs)
+- [ON_CHAT_POLL_OVERLAY_PRESENCE](#on_chat_poll_overlay_presence)
+- [ON_CHAT_POLL_PROGRESS](#on_chat_poll_progress)
+- [ON_COUNTDOWN_COMPLETE](#on_countdown_complete)
+- [ON_COUNTDOWN_START](#on_countdown_start)
+- [ON_COUNTER_LIST](#on_counter_list)
+- [ON_COUNTER_UPDATE](#on_counter_update)
+- [ON_CURRENT_TRACK](#on_current_track)
+- [ON_CUSTOM_TRAIN_DATA](#on_custom_train_data)
+- [ON_DISTORT_OVERLAY_CONFIGS](#on_distort_overlay_configs)
+- [ON_DONATION_EVENT](#on_donation_event)
+- [ON_DONATION_GOALS_OVERLAY_CONFIGS](#on_donation_goals_overlay_configs)
+- [ON_EMERGENCY_MODE_CHANGED](#on_emergency_mode_changed)
+- [ON_ENDING_CREDITS_COMPLETE](#on_ending_credits_complete)
+- [ON_ENDING_CREDITS_CONFIGS](#on_ending_credits_configs)
+- [ON_FOLLOW](#on_follow)
+- [ON_GLOBAL_STATES](#on_global_states)
+- [ON_LABEL_OVERLAY_CONFIGS](#on_label_overlay_configs)
+- [ON_LABEL_OVERLAY_PLACEHOLDERS](#on_label_overlay_placeholders)
+- [ON_MENTION](#on_mention)
+- [ON_MESSAGE_DELETED](#on_message_deleted)
+- [ON_MESSAGE_FIRST_ALL_TIME](#on_message_first_all_time)
+- [ON_MESSAGE_FIRST_TODAY](#on_message_first_today)
+- [ON_MESSAGE_FROM_NON_FOLLOWER](#on_message_from_non_follower)
+- [ON_MESSAGE_MARKED_AS_READ](#on_message_marked_as_read)
+- [ON_MESSAGE_WHISPER](#on_message_whisper)
+- [ON_MUSIC_PLAYER_HEAT_CLICK](#on_music_player_heat_click)
+- [ON_OBS_WEBSOCKET_CONNECTED](#on_obs_websocket_connected)
+- [ON_OBS_WEBSOCKET_DISCONNECTED](#on_obs_websocket_disconnected)
+- [ON_POLL_OVERLAY_CONFIGS](#on_poll_overlay_configs)
+- [ON_POLL_PROGRESS](#on_poll_progress)
+- [ON_POLLS_OVERLAY_PRESENCE](#on_polls_overlay_presence)
+- [ON_PREDICTION_OVERLAY_CONFIGS](#on_prediction_overlay_configs)
+- [ON_PREDICTION_PROGRESS](#on_prediction_progress)
+- [ON_PREDICTIONS_OVERLAY_PRESENCE](#on_predictions_overlay_presence)
+- [ON_QNA_SESSION_LIST](#on_qna_session_list)
+- [ON_REWARD_REDEEM](#on_reward_redeem)
+- [ON_SUBSCRIPTION](#on_subscription)
+- [ON_TIMER_LIST](#on_timer_list)
+- [ON_TIMER_OVERLAY_PRESENCE](#on_timer_overlay_presence)
+- [ON_TIMER_START](#on_timer_start)
+- [ON_TIMER_STOP](#on_timer_stop)
+- [ON_TRACK_ADDED_TO_QUEUE](#on_track_added_to_queue)
+- [ON_TRIGGER_LIST](#on_trigger_list)
+- [ON_TWITCHAT_READY](#on_twitchat_ready)
+- [ON_VOICE_CONTROL_STATE_CHANGE](#on_voice_control_state_change)
+- [ON_VOICEMOD_VOICE_CHANGE](#on_voicemod_voice_change)
+- [ON_WHEEL_OVERLAY_ANIMATION_COMPLETE](#on_wheel_overlay_animation_complete)
+- [ON_WHEEL_OVERLAY_PRESENCE](#on_wheel_overlay_presence)
+- [ON_WHEEL_OVERLAY_START](#on_wheel_overlay_start)
+
+
+
+
+#### ON_AD_BREAK_OVERLAY_CONFIGS
 Receive ad break overlay configuration  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_AD_BREAK_OVERLAY_CONFIGS = {
 	/**
 	 * Show approaching state ?
 	 */
@@ -185,13 +249,13 @@ Receive ad break overlay configuration
 
 </details>
 
-### **ON_AD_BREAK_OVERLAY_DATA**
+#### ON_AD_BREAK_OVERLAY_DATA
 Triggered when an ad break occurs  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_AD_BREAK_OVERLAY_DATA = {
 	/**
 	 * Date in milliseconds the previous mid-roll started
 	 */
@@ -217,24 +281,17 @@ Triggered when an ad break occurs
 
 </details>
 
-### **ON_AD_BREAK_OVERLAY_PRESENCE**
+#### ON_AD_BREAK_OVERLAY_PRESENCE
 Advertise for ad break overlay presence  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-### **ON_ANIMATED_TEXT_CLOSE**
+#### ON_ANIMATED_TEXT_CLOSE
 Triggered when an animated text overlay close animation completes  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_ANIMATED_TEXT_CLOSE = {
 	/**
 	 * ID of the overlay that finished closing animation
 	 */
@@ -248,13 +305,13 @@ Triggered when an animated text overlay close animation completes
 
 </details>
 
-### **ON_ANIMATED_TEXT_CONFIGS**
+#### ON_ANIMATED_TEXT_CONFIGS
 Receive animated text overlay configuration  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_ANIMATED_TEXT_CONFIGS = {
 	id: string;
 	enabled: boolean;
 	/**
@@ -297,13 +354,13 @@ Receive animated text overlay configuration
 
 </details>
 
-### **ON_ANIMATED_TEXT_HIDE_COMPLETE**
+#### ON_ANIMATED_TEXT_HIDE_COMPLETE
 Triggered when an animated text hide animation completes  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_ANIMATED_TEXT_HIDE_COMPLETE = {
 	/**
 	 * Query ID sent when setting the text from ANIMATED_TEXT_SET
 	 */
@@ -313,13 +370,13 @@ Triggered when an animated text hide animation completes
 
 </details>
 
-### **ON_ANIMATED_TEXT_SHOW_COMPLETE**
+#### ON_ANIMATED_TEXT_SHOW_COMPLETE
 Triggered when an animated text show animation completes  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_ANIMATED_TEXT_SHOW_COMPLETE = {
 	/**
 	 * Query ID sent when setting the text from ANIMATED_TEXT_SET
 	 */
@@ -329,13 +386,13 @@ Triggered when an animated text show animation completes
 
 </details>
 
-### **ON_BINGO_GRID_CONFIGS**
+#### ON_BINGO_GRID_CONFIGS
 Receive a bingo grid configuration  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_BINGO_GRID_CONFIGS = {
 	/**
 	 * Bingo grid ID
 	 */
@@ -597,13 +654,13 @@ Receive a bingo grid configuration
 
 </details>
 
-### **ON_BINGO_GRID_HEAT_CLICK**
+#### ON_BINGO_GRID_HEAT_CLICK
 Triggered when a heat click occurs on a bingo grid cell  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_BINGO_GRID_HEAT_CLICK = {
 	/**
 	 * Bingo grid ID to get parameters for
 	 */
@@ -715,13 +772,13 @@ Triggered when a heat click occurs on a bingo grid cell
 
 </details>
 
-### **ON_BINGO_GRID_LEADER_BOARD**
+#### ON_BINGO_GRID_LEADER_BOARD
 Receive bingo grid leaderboard  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_BINGO_GRID_LEADER_BOARD = {
 	/**
 	 * Bingo grid ID
 	 */
@@ -741,13 +798,13 @@ Receive bingo grid leaderboard
 
 </details>
 
-### **ON_BINGO_GRID_VIEWER_EVENT**
+#### ON_BINGO_GRID_VIEWER_EVENT
 Triggered when a viewer completes a bingo  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_BINGO_GRID_VIEWER_EVENT = {
 	/**
 	 * Bingo grid ID
 	 */
@@ -769,13 +826,13 @@ Triggered when a viewer completes a bingo
 
 </details>
 
-### **ON_BITS**
+#### ON_BITS
 Triggered when a user sends bits (cheers)  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_BITS = {
 	/**
 	 * Channel ID where bits were sent
 	 */
@@ -856,13 +913,13 @@ Triggered when a user sends bits (cheers)
 
 </details>
 
-### **ON_BITSWALL_OVERLAY_CONFIGS**
+#### ON_BITSWALL_OVERLAY_CONFIGS
 Receive bitswall overlay configuration  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_BITSWALL_OVERLAY_CONFIGS = {
 	size: number;
 	break: boolean;
 	opacity: number;
@@ -879,24 +936,17 @@ Receive bitswall overlay configuration
 
 </details>
 
-### **ON_BITSWALL_OVERLAY_PRESENCE**
+#### ON_BITSWALL_OVERLAY_PRESENCE
 Advertise for bitswall overlay presence  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-### **ON_CHAT_COLUMNS_COUNT**
+#### ON_CHAT_COLUMNS_COUNT
 Receive number of chat columns  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_CHAT_COLUMNS_COUNT = {
 	/**
 	 * Number of chat columns
 	 */
@@ -906,13 +956,13 @@ Receive number of chat columns
 
 </details>
 
-### **ON_CHAT_POLL_OVERLAY_CONFIGS**
+#### ON_CHAT_POLL_OVERLAY_CONFIGS
 Receive chat poll overlay configuration  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_CHAT_POLL_OVERLAY_CONFIGS = {
 	parameters: {
 		/**
 		 * Display choices as a list ?
@@ -962,24 +1012,17 @@ Receive chat poll overlay configuration
 
 </details>
 
-### **ON_CHAT_POLL_OVERLAY_PRESENCE**
+#### ON_CHAT_POLL_OVERLAY_PRESENCE
 Advertise for chat poll overlay presence  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-### **ON_CHAT_POLL_PROGRESS**
+#### ON_CHAT_POLL_PROGRESS
 Triggered when chat poll progress updates  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_CHAT_POLL_PROGRESS = {
 	poll: {
 		/**
 		 * Poll title
@@ -1086,13 +1129,13 @@ Triggered when chat poll progress updates
 
 </details>
 
-### **ON_COUNTDOWN_COMPLETE**
+#### ON_COUNTDOWN_COMPLETE
 Triggered when a countdown completes  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_COUNTDOWN_COMPLETE = {
 	id: string;
 	/**
 	 * Is timer/countdown enabled
@@ -1192,13 +1235,13 @@ Triggered when a countdown completes
 
 </details>
 
-### **ON_COUNTDOWN_START**
+#### ON_COUNTDOWN_START
 Triggered when a countdown starts  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_COUNTDOWN_START = {
 	id: string;
 	/**
 	 * Is timer/countdown enabled
@@ -1298,13 +1341,13 @@ Triggered when a countdown starts
 
 </details>
 
-### **ON_COUNTER_LIST**
+#### ON_COUNTER_LIST
 Receive the list of all counters  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_COUNTER_LIST = {
 	counterList: {
 		id: string;
 		name: string;
@@ -1315,13 +1358,13 @@ Receive the list of all counters
 
 </details>
 
-### **ON_COUNTER_UPDATE**
+#### ON_COUNTER_UPDATE
 Receive counter update  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_COUNTER_UPDATE = {
 	/**
 	 * Counter data
 	 */
@@ -1407,13 +1450,13 @@ Receive counter update
 
 </details>
 
-### **ON_CURRENT_TRACK**
+#### ON_CURRENT_TRACK
 Receive current track information  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_CURRENT_TRACK = {
 	/**
 	 * Music player parameters
 	 */
@@ -1485,13 +1528,13 @@ Receive current track information
 
 </details>
 
-### **ON_CUSTOM_TRAIN_DATA**
+#### ON_CUSTOM_TRAIN_DATA
 Receive custom train configuration and state  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_CUSTOM_TRAIN_DATA = {
 	configs: {
 		/**
 		 * Custom train ID
@@ -1702,13 +1745,13 @@ Receive custom train configuration and state
 
 </details>
 
-### **ON_DISTORT_OVERLAY_CONFIGS**
+#### ON_DISTORT_OVERLAY_CONFIGS
 Receive a distortion overlay configuration data  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_DISTORT_OVERLAY_CONFIGS = {
 	params: {
 		/**
 		 * Distortion overlay ID
@@ -1815,13 +1858,13 @@ Receive a distortion overlay configuration data
 
 </details>
 
-### **ON_DONATION_EVENT**
+#### ON_DONATION_EVENT
 Triggered when a donation event occurs  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_DONATION_EVENT = {
 	/**
 	 * Overlay ID the donation event should be displayed on
 	 */
@@ -1839,13 +1882,13 @@ Triggered when a donation event occurs
 
 </details>
 
-### **ON_DONATION_GOALS_OVERLAY_CONFIGS**
+#### ON_DONATION_GOALS_OVERLAY_CONFIGS
 Receive a donation goals overlay configurations  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_DONATION_GOALS_OVERLAY_CONFIGS = {
 	/**
 	 * Overlay parameters
 	 */
@@ -1960,12 +2003,12 @@ Receive a donation goals overlay configurations
 
 </details>
 
-### **ON_EMERGENCY_MODE_CHANGED**
+#### ON_EMERGENCY_MODE_CHANGED
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_EMERGENCY_MODE_CHANGED = {
 	/**
 	 * New emergency mode state
 	 */
@@ -1975,24 +2018,17 @@ Receive a donation goals overlay configurations
 
 </details>
 
-### **ON_ENDING_CREDITS_COMPLETE**
+#### ON_ENDING_CREDITS_COMPLETE
 Triggered when ending credits animation completes  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-### **ON_ENDING_CREDITS_CONFIGS**
+#### ON_ENDING_CREDITS_CONFIGS
 Receive ending credits configuration data  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_ENDING_CREDITS_CONFIGS = {
 	/**
 	 * Scale at which to render the credits
 	 */
@@ -2298,13 +2334,13 @@ Receive ending credits configuration data
 
 </details>
 
-### **ON_FOLLOW**
+#### ON_FOLLOW
 Triggered when a user follows the channel  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_FOLLOW = {
 	/**
 	 * Channel ID where the follow occurred
 	 */
@@ -2322,13 +2358,13 @@ Triggered when a user follows the channel
 
 </details>
 
-### **ON_GLOBAL_STATES**
+#### ON_GLOBAL_STATES
 Response to GET_GLOBAL_STATES  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_GLOBAL_STATES = {
 	/**
 	 * List of active timer and their state
 	 */
@@ -2537,13 +2573,13 @@ Response to GET_GLOBAL_STATES
 
 </details>
 
-### **ON_LABEL_OVERLAY_CONFIGS**
+#### ON_LABEL_OVERLAY_CONFIGS
 Receive label overlay configuration  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_LABEL_OVERLAY_CONFIGS = {
 	/**
 	 * Label ID
 	 */
@@ -2625,13 +2661,13 @@ Receive label overlay configuration
 
 </details>
 
-### **ON_LABEL_OVERLAY_PLACEHOLDERS**
+#### ON_LABEL_OVERLAY_PLACEHOLDERS
 Advertise for label overlay placeholders  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_LABEL_OVERLAY_PLACEHOLDERS = {
 	[key: string]: {
 		/**
 		 * Placeholder value
@@ -2647,13 +2683,13 @@ Advertise for label overlay placeholders
 
 </details>
 
-### **ON_MENTION**
+#### ON_MENTION
 Triggered when the streamer is mentioned in a message  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_MENTION = {
 	/**
 	 * Channel ID where the message was sent
 	 */
@@ -2675,13 +2711,13 @@ Triggered when the streamer is mentioned in a message
 
 </details>
 
-### **ON_MESSAGE_DELETED**
+#### ON_MESSAGE_DELETED
 A chat message has been deleted  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_MESSAGE_DELETED = {
 	/**
 	 * Channel ID the message was deleted from
 	 */
@@ -2703,13 +2739,13 @@ A chat message has been deleted
 
 </details>
 
-### **ON_MESSAGE_FIRST_ALL_TIME**
+#### ON_MESSAGE_FIRST_ALL_TIME
 Triggered when a user sends their first message ever in the channel  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_MESSAGE_FIRST_ALL_TIME = {
 	/**
 	 * Channel ID where the message was sent
 	 */
@@ -2731,13 +2767,13 @@ Triggered when a user sends their first message ever in the channel
 
 </details>
 
-### **ON_MESSAGE_FIRST_TODAY**
+#### ON_MESSAGE_FIRST_TODAY
 Triggered when a user sends their first message of the day  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_MESSAGE_FIRST_TODAY = {
 	/**
 	 * Channel ID where the message was sent
 	 */
@@ -2759,13 +2795,13 @@ Triggered when a user sends their first message of the day
 
 </details>
 
-### **ON_MESSAGE_FROM_NON_FOLLOWER**
+#### ON_MESSAGE_FROM_NON_FOLLOWER
 Triggered when a message is received from a non-follower  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_MESSAGE_FROM_NON_FOLLOWER = {
 	/**
 	 * Channel ID where the message was sent
 	 */
@@ -2787,13 +2823,13 @@ Triggered when a message is received from a non-follower
 
 </details>
 
-### **ON_MESSAGE_MARKED_AS_READ**
+#### ON_MESSAGE_MARKED_AS_READ
 Triggered when a message is marked or unmarked as read  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_MESSAGE_MARKED_AS_READ = {
 	/**
 	 * Manually marked as read
 	 */
@@ -2823,13 +2859,13 @@ Triggered when a message is marked or unmarked as read
 
 </details>
 
-### **ON_MESSAGE_WHISPER**
+#### ON_MESSAGE_WHISPER
 Triggered when a whisper message is received  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_MESSAGE_WHISPER = {
 	/**
 	 * Number of unread whispers
 	 */
@@ -2851,13 +2887,13 @@ Triggered when a whisper message is received
 
 </details>
 
-### **ON_MUSIC_PLAYER_HEAT_CLICK**
+#### ON_MUSIC_PLAYER_HEAT_CLICK
 Triggered when a heat click occurs on the music player  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_MUSIC_PLAYER_HEAT_CLICK = {
 	/**
 	 * Click ID
 	 */
@@ -2956,35 +2992,21 @@ Triggered when a heat click occurs on the music player
 
 </details>
 
-### **ON_OBS_WEBSOCKET_CONNECTED**
+#### ON_OBS_WEBSOCKET_CONNECTED
 OBS Websocket connection established  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-### **ON_OBS_WEBSOCKET_DISCONNECTED**
+#### ON_OBS_WEBSOCKET_DISCONNECTED
 OBS Websocket connection lost  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-### **ON_POLL_OVERLAY_CONFIGS**
+#### ON_POLL_OVERLAY_CONFIGS
 Receive poll overlay configuration  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_POLL_OVERLAY_CONFIGS = {
 	parameters: {
 		/**
 		 * Display choices as a list ?
@@ -3034,14 +3056,14 @@ Receive poll overlay configuration
 
 </details>
 
-### **ON_POLL_PROGRESS**
+#### ON_POLL_PROGRESS
 Triggered when poll progress updates.
 If no active poll, body is undefined  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_POLL_PROGRESS = {
 	/**
 	 * Poll's data
 	 */
@@ -3327,24 +3349,17 @@ If no active poll, body is undefined
 
 </details>
 
-### **ON_POLLS_OVERLAY_PRESENCE**
+#### ON_POLLS_OVERLAY_PRESENCE
 Advertise for polls overlay presence  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-### **ON_PREDICTION_OVERLAY_CONFIGS**
+#### ON_PREDICTION_OVERLAY_CONFIGS
 Receive prediction overlay configuration  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_PREDICTION_OVERLAY_CONFIGS = {
 	/**
 	 * Prediction overlay parameters
 	 */
@@ -3367,14 +3382,14 @@ Receive prediction overlay configuration
 
 </details>
 
-### **ON_PREDICTION_PROGRESS**
+#### ON_PREDICTION_PROGRESS
 Triggered when prediction progress updates
 If no active prediction, body is undefined  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_PREDICTION_PROGRESS = {
 	/**
 	 * Prediction's data
 	 */
@@ -3680,24 +3695,17 @@ If no active prediction, body is undefined
 
 </details>
 
-### **ON_PREDICTIONS_OVERLAY_PRESENCE**
+#### ON_PREDICTIONS_OVERLAY_PRESENCE
 Advertise for predictions overlay presence  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-### **ON_QNA_SESSION_LIST**
+#### ON_QNA_SESSION_LIST
 Receive list of all Q&A sessions  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_QNA_SESSION_LIST = {
 	/**
 	 * Available Q&A sessions
 	 */
@@ -3720,13 +3728,13 @@ Receive list of all Q&A sessions
 
 </details>
 
-### **ON_REWARD_REDEEM**
+#### ON_REWARD_REDEEM
 Triggered when a channel point reward is redeemed  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_REWARD_REDEEM = {
 	/**
 	 * Channel ID where the reward was redeemed
 	 */
@@ -3803,13 +3811,13 @@ Triggered when a channel point reward is redeemed
 
 </details>
 
-### **ON_SUBSCRIPTION**
+#### ON_SUBSCRIPTION
 Triggered when a subscription event occurs (new sub, resub, gift, etc.)  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_SUBSCRIPTION = {
 	/**
 	 * Channel ID where the subscription event occurred
 	 */
@@ -3921,13 +3929,13 @@ Triggered when a subscription event occurs (new sub, resub, gift, etc.)
 
 </details>
 
-### **ON_TIMER_LIST**
+#### ON_TIMER_LIST
 Receive list of all timers and countdowns  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_TIMER_LIST = {
 	/**
 	 * List of timers and countdowns
 	 */
@@ -3989,24 +3997,17 @@ Receive list of all timers and countdowns
 
 </details>
 
-### **ON_TIMER_OVERLAY_PRESENCE**
+#### ON_TIMER_OVERLAY_PRESENCE
 Advertise for timer overlay presence  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-### **ON_TIMER_START**
+#### ON_TIMER_START
 Triggered when a timer starts  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_TIMER_START = {
 	id: string;
 	/**
 	 * Is timer/countdown enabled
@@ -4106,13 +4107,13 @@ Triggered when a timer starts
 
 </details>
 
-### **ON_TIMER_STOP**
+#### ON_TIMER_STOP
 Triggered when a timer stops  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_TIMER_STOP = {
 	id: string;
 	/**
 	 * Is timer/countdown enabled
@@ -4212,13 +4213,13 @@ Triggered when a timer stops
 
 </details>
 
-### **ON_TRACK_ADDED_TO_QUEUE**
+#### ON_TRACK_ADDED_TO_QUEUE
 Triggered when a track is added to the music queue  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_TRACK_ADDED_TO_QUEUE = {
 	/**
 	 * Track ID
 	 */
@@ -4252,13 +4253,13 @@ Triggered when a track is added to the music queue
 
 </details>
 
-### **ON_TRIGGER_LIST**
+#### ON_TRIGGER_LIST
 Receive list of all triggers  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_TRIGGER_LIST = {
 	/**
 	 * Available trigger list
 	 */
@@ -4281,24 +4282,17 @@ Receive list of all triggers
 
 </details>
 
-### **ON_TWITCHAT_READY**
+#### ON_TWITCHAT_READY
 Twitchat completed initialization and is ready.  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-### **ON_VOICE_CONTROL_STATE_CHANGE**
+#### ON_VOICE_CONTROL_STATE_CHANGE
 Triggered when voice control state is updated  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_VOICE_CONTROL_STATE_CHANGE = {
 	/**
 	 * Voice control enabled state
 	 */
@@ -4308,13 +4302,13 @@ Triggered when voice control state is updated
 
 </details>
 
-### **ON_VOICEMOD_VOICE_CHANGE**
+#### ON_VOICEMOD_VOICE_CHANGE
 Triggered when the user changes Voicemod voice  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_VOICEMOD_VOICE_CHANGE = {
 	/**
 	 * Voice ID that got selected
 	 */
@@ -4324,13 +4318,13 @@ Triggered when the user changes Voicemod voice
 
 </details>
 
-### **ON_WHEEL_OVERLAY_ANIMATION_COMPLETE**
+#### ON_WHEEL_OVERLAY_ANIMATION_COMPLETE
 Triggered when wheel overlay animation completes  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_WHEEL_OVERLAY_ANIMATION_COMPLETE = {
 	/**
 	 * Winner info
 	 */
@@ -4351,24 +4345,17 @@ Triggered when wheel overlay animation completes
 
 </details>
 
-### **ON_WHEEL_OVERLAY_PRESENCE**
+#### ON_WHEEL_OVERLAY_PRESENCE
 Advertise for wheel overlay presence  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-### **ON_WHEEL_OVERLAY_START**
+#### ON_WHEEL_OVERLAY_START
 Triggered when wheel overlay animation starts  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type ON_WHEEL_OVERLAY_START = {
 	items: {
 		id: string;
 		label: string;
@@ -4381,19 +4368,77 @@ Triggered when wheel overlay animation starts
 
 </details>
 
-</details>
+
 
 # Actions you can perform
-<details>
-<summary>Actions you can request Twitchat to perform.</summary>
+Actions you can request Twitchat to perform.
 
-## **SET_ANIMATED_TEXT_CONTENT**
+- [SET_ANIMATED_TEXT_CONTENT](#set_animated_text_content)
+- [SET_AUTOMOD_ACCEPT](#set_automod_accept)
+- [SET_AUTOMOD_REJECT](#set_automod_reject)
+- [SET_BINGO_GRID_CONFIGS_VISIBILITY](#set_bingo_grid_configs_visibility)
+- [SET_BINGO_GRID_OVERLAY_PRESENCE](#set_bingo_grid_overlay_presence)
+- [SET_BINGO_TOGGLE](#set_bingo_toggle)
+- [SET_CENSOR_DELETED_MESSAGES_TOGGLE](#set_censor_deleted_messages_toggle)
+- [SET_CHAT_FEED_PAUSE](#set_chat_feed_pause)
+- [SET_CHAT_FEED_READ](#set_chat_feed_read)
+- [SET_CHAT_FEED_READ_ALL](#set_chat_feed_read_all)
+- [SET_CHAT_FEED_SCROLL](#set_chat_feed_scroll)
+- [SET_CHAT_FEED_SCROLL_BOTTOM](#set_chat_feed_scroll_bottom)
+- [SET_CHAT_FEED_SCROLL_DOWN](#set_chat_feed_scroll_down)
+- [SET_CHAT_FEED_SCROLL_UP](#set_chat_feed_scroll_up)
+- [SET_CHAT_FEED_SELECT](#set_chat_feed_select)
+- [SET_CHAT_FEED_SELECT_ACTION_BAN](#set_chat_feed_select_action_ban)
+- [SET_CHAT_FEED_SELECT_ACTION_CANCEL](#set_chat_feed_select_action_cancel)
+- [SET_CHAT_FEED_SELECT_ACTION_DELETE](#set_chat_feed_select_action_delete)
+- [SET_CHAT_FEED_SELECT_ACTION_HIGHLIGHT](#set_chat_feed_select_action_highlight)
+- [SET_CHAT_FEED_SELECT_ACTION_SAVE](#set_chat_feed_select_action_save)
+- [SET_CHAT_FEED_SELECT_ACTION_SHOUTOUT](#set_chat_feed_select_action_shoutout)
+- [SET_CHAT_FEED_SELECT_CHOOSING_ACTION](#set_chat_feed_select_choosing_action)
+- [SET_CHAT_HIGHLIGHT_OVERLAY_CLIP](#set_chat_highlight_overlay_clip)
+- [SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE](#set_chat_highlight_overlay_message)
+- [SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE](#set_chat_highlight_overlay_presence)
+- [SET_CLEAR_CHAT_HIGHLIGHT](#set_clear_chat_highlight)
+- [SET_COUNTDOWN_ADD](#set_countdown_add)
+- [SET_COUNTER_ADD](#set_counter_add)
+- [SET_EMERGENCY_MODE](#set_emergency_mode)
+- [SET_ENDING_CREDITS_CONTROL](#set_ending_credits_control)
+- [SET_ENDING_CREDITS_DATA](#set_ending_credits_data)
+- [SET_ENDING_CREDITS_PRESENCE](#set_ending_credits_presence)
+- [SET_EXECUTE_TRIGGER](#set_execute_trigger)
+- [SET_GREET_FEED_READ](#set_greet_feed_read)
+- [SET_GREET_FEED_READ_ALL](#set_greet_feed_read_all)
+- [SET_HIDE_CHAT_ALERT](#set_hide_chat_alert)
+- [SET_MERGE_TOGGLE](#set_merge_toggle)
+- [SET_MOD_TOOLS_TOGGLE](#set_mod_tools_toggle)
+- [SET_PLAY_SFXR](#set_play_sfxr)
+- [SET_POLL_TOGGLE](#set_poll_toggle)
+- [SET_PREDICTION_TOGGLE](#set_prediction_toggle)
+- [SET_QNA_HIGHLIGHT](#set_qna_highlight)
+- [SET_QNA_SKIP](#set_qna_skip)
+- [SET_RAFFLE_PICK_WINNER](#set_raffle_pick_winner)
+- [SET_RAFFLE_TOGGLE](#set_raffle_toggle)
+- [SET_SEND_CUSTOM_CHAT_MESSAGE](#set_send_custom_chat_message)
+- [SET_SEND_MESSAGE](#set_send_message)
+- [SET_SHOUTOUT_LAST_RAIDER](#set_shoutout_last_raider)
+- [SET_STOP_CURRENT_TTS_AUDIO](#set_stop_current_tts_audio)
+- [SET_STOP_POLL](#set_stop_poll)
+- [SET_STOP_PREDICTION](#set_stop_prediction)
+- [SET_TIMER_ADD](#set_timer_add)
+- [SET_TRIGGER_STATE](#set_trigger_state)
+- [SET_VIEWERS_COUNT_TOGGLE](#set_viewers_count_toggle)
+- [SET_VOICE_CONTROL_STATE](#set_voice_control_state)
+
+
+
+
+#### SET_ANIMATED_TEXT_CONTENT
 Set text content for an animated text overlay  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_ANIMATED_TEXT_CONTENT = {
 	/**
 	 * Overlay ID to send the text to
 	 */
@@ -4422,35 +4467,21 @@ Set text content for an animated text overlay
 
 </details>
 
-## **SET_AUTOMOD_ACCEPT**
+#### SET_AUTOMOD_ACCEPT
 Accept latest message held by automod  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_AUTOMOD_REJECT**
+#### SET_AUTOMOD_REJECT
 Reject latest message held by automod  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_BINGO_GRID_CONFIGS_VISIBILITY**
+#### SET_BINGO_GRID_CONFIGS_VISIBILITY
 Set bingo grid visibility  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_BINGO_GRID_CONFIGS_VISIBILITY = {
 	/**
 	 * Bingo grid ID to change visibility of
 	 */
@@ -4465,13 +4496,13 @@ Set bingo grid visibility
 
 </details>
 
-## **SET_BINGO_GRID_OVERLAY_PRESENCE**
+#### SET_BINGO_GRID_OVERLAY_PRESENCE
 Advertise bingo grid overlay presence  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_BINGO_GRID_OVERLAY_PRESENCE = {
 	/**
 	 * Bingo grid ID to advertise presence of
 	 */
@@ -4481,35 +4512,21 @@ Advertise bingo grid overlay presence
 
 </details>
 
-## **SET_BINGO_TOGGLE**
+#### SET_BINGO_TOGGLE
 Toggle current bingo display (NOT bingo GRID!)  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_CENSOR_DELETED_MESSAGES_TOGGLE**
+#### SET_CENSOR_DELETED_MESSAGES_TOGGLE
 Toggle censorship of deleted messages  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_CHAT_FEED_PAUSE**
+#### SET_CHAT_FEED_PAUSE
 Pause auto-scrolling in a chat feed  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_CHAT_FEED_PAUSE = {
 	/**
 	 * Column index
 	 */
@@ -4519,13 +4536,13 @@ Pause auto-scrolling in a chat feed
 
 </details>
 
-## **SET_CHAT_FEED_READ**
+#### SET_CHAT_FEED_READ
 Move read marker in chat feed  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_CHAT_FEED_READ = {
 	/**
 	 * Number of messages to read
 	 */
@@ -4539,13 +4556,13 @@ Move read marker in chat feed
 
 </details>
 
-## **SET_CHAT_FEED_READ_ALL**
+#### SET_CHAT_FEED_READ_ALL
 Mark all messages as read in a chat feed  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_CHAT_FEED_READ_ALL = {
 	/**
 	 * Column index
 	 */
@@ -4555,13 +4572,13 @@ Mark all messages as read in a chat feed
 
 </details>
 
-## **SET_CHAT_FEED_SCROLL**
+#### SET_CHAT_FEED_SCROLL
 Scroll a chat feed by a specific amount  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_CHAT_FEED_SCROLL = {
 	/**
 	 * Number of pixels to scroll by.
 	 * Default value: 100
@@ -4576,13 +4593,13 @@ Scroll a chat feed by a specific amount
 
 </details>
 
-## **SET_CHAT_FEED_SCROLL_BOTTOM**
+#### SET_CHAT_FEED_SCROLL_BOTTOM
 Scroll a chat feed to the bottom  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_CHAT_FEED_SCROLL_BOTTOM = {
 	/**
 	 * Column index
 	 */
@@ -4592,13 +4609,13 @@ Scroll a chat feed to the bottom
 
 </details>
 
-## **SET_CHAT_FEED_SCROLL_DOWN**
+#### SET_CHAT_FEED_SCROLL_DOWN
 Scroll a chat feed down  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_CHAT_FEED_SCROLL_DOWN = {
 	/**
 	 * Number of pixels to scroll by
 	 */
@@ -4612,13 +4629,13 @@ Scroll a chat feed down
 
 </details>
 
-## **SET_CHAT_FEED_SCROLL_UP**
+#### SET_CHAT_FEED_SCROLL_UP
 Scroll a chat feed up  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_CHAT_FEED_SCROLL_UP = {
 	/**
 	 * Number of pixels to scroll by
 	 */
@@ -4632,13 +4649,13 @@ Scroll a chat feed up
 
 </details>
 
-## **SET_CHAT_FEED_SELECT**
+#### SET_CHAT_FEED_SELECT
 Move message selection in a chat feed  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_CHAT_FEED_SELECT = {
 	/**
 	 * Direction to move selection
 	 * -1 = up
@@ -4655,14 +4672,14 @@ Move message selection in a chat feed
 
 </details>
 
-## **SET_CHAT_FEED_SELECT_ACTION_BAN**
+#### SET_CHAT_FEED_SELECT_ACTION_BAN
 Ban the user of the currently selected message in a chat feed
 First select a message with SET_CHAT_FEED_SELECT  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_CHAT_FEED_SELECT_ACTION_BAN = {
 	/**
 	 * Column index
 	 */
@@ -4677,13 +4694,13 @@ First select a message with SET_CHAT_FEED_SELECT
 
 </details>
 
-## **SET_CHAT_FEED_SELECT_ACTION_CANCEL**
+#### SET_CHAT_FEED_SELECT_ACTION_CANCEL
 Cancel the action selection for the currently selected message in a chat feed  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_CHAT_FEED_SELECT_ACTION_CANCEL = {
 	/**
 	 * Column index
 	 */
@@ -4693,14 +4710,14 @@ Cancel the action selection for the currently selected message in a chat feed
 
 </details>
 
-## **SET_CHAT_FEED_SELECT_ACTION_DELETE**
+#### SET_CHAT_FEED_SELECT_ACTION_DELETE
 Delete the currently selected message in a chat feed
 First select a message with SET_CHAT_FEED_SELECT  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_CHAT_FEED_SELECT_ACTION_DELETE = {
 	/**
 	 * Column index
 	 */
@@ -4710,14 +4727,14 @@ First select a message with SET_CHAT_FEED_SELECT
 
 </details>
 
-## **SET_CHAT_FEED_SELECT_ACTION_HIGHLIGHT**
+#### SET_CHAT_FEED_SELECT_ACTION_HIGHLIGHT
 Highlight the currently selected message in a chat feed
 First select a message with SET_CHAT_FEED_SELECT  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_CHAT_FEED_SELECT_ACTION_HIGHLIGHT = {
 	/**
 	 * Column index
 	 */
@@ -4727,14 +4744,14 @@ First select a message with SET_CHAT_FEED_SELECT
 
 </details>
 
-## **SET_CHAT_FEED_SELECT_ACTION_SAVE**
+#### SET_CHAT_FEED_SELECT_ACTION_SAVE
 Save the currently selected message in a chat feed
 First select a message with SET_CHAT_FEED_SELECT  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_CHAT_FEED_SELECT_ACTION_SAVE = {
 	/**
 	 * Column index
 	 */
@@ -4744,14 +4761,14 @@ First select a message with SET_CHAT_FEED_SELECT
 
 </details>
 
-## **SET_CHAT_FEED_SELECT_ACTION_SHOUTOUT**
+#### SET_CHAT_FEED_SELECT_ACTION_SHOUTOUT
 Shoutout the user of the currently selected message in a chat feed
 First select a message with SET_CHAT_FEED_SELECT  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_CHAT_FEED_SELECT_ACTION_SHOUTOUT = {
 	/**
 	 * Column index
 	 */
@@ -4761,14 +4778,14 @@ First select a message with SET_CHAT_FEED_SELECT
 
 </details>
 
-## **SET_CHAT_FEED_SELECT_CHOOSING_ACTION**
+#### SET_CHAT_FEED_SELECT_CHOOSING_ACTION
 Open action chooser for the currently selected message in a chat feed
 First select a message with SET_CHAT_FEED_SELECT  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_CHAT_FEED_SELECT_CHOOSING_ACTION = {
 	/**
 	 * Column index
 	 */
@@ -4778,13 +4795,13 @@ First select a message with SET_CHAT_FEED_SELECT
 
 </details>
 
-## **SET_CHAT_HIGHLIGHT_OVERLAY_CLIP**
+#### SET_CHAT_HIGHLIGHT_OVERLAY_CLIP
 Send a clip to the chat highlight overlay  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_CHAT_HIGHLIGHT_OVERLAY_CLIP = {
 	date?: number;
 	message?: string;
 	user?: {
@@ -4986,13 +5003,13 @@ Send a clip to the chat highlight overlay
 
 </details>
 
-## **SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE**
+#### SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE
 Send a message to the chat highlight overlay  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE = {
 	date?: number;
 	message?: string;
 	user?: {
@@ -5194,35 +5211,21 @@ Send a message to the chat highlight overlay
 
 </details>
 
-## **SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE**
+#### SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE
 Advertise for highlight overlay presence  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_CLEAR_CHAT_HIGHLIGHT**
+#### SET_CLEAR_CHAT_HIGHLIGHT
 Clear any current message or clip displayed in chat highlight overlay  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_COUNTDOWN_ADD**
+#### SET_COUNTDOWN_ADD
 Add time to a countdown  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_COUNTDOWN_ADD = {
 	/**
 	 * Countdown ID to add time to
 	 */
@@ -5238,13 +5241,13 @@ Add time to a countdown
 
 </details>
 
-## **SET_COUNTER_ADD**
+#### SET_COUNTER_ADD
 Add a value to a counter  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_COUNTER_ADD = {
 	/**
 	 * Counter ID to add value to
 	 */
@@ -5264,15 +5267,15 @@ Add a value to a counter
 
 </details>
 
-## **SET_EMERGENCY_MODE**
+#### SET_EMERGENCY_MODE
 Enable/disable/toggle emergency mode
 Either give an object with "enabled" boolean to force a specific
 state, or don't give any parameter to toggle current state  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_EMERGENCY_MODE = {
 	/**
 	 * New emergency mode state
 	 */
@@ -5287,13 +5290,13 @@ state, or don't give any parameter to toggle current state
 
 </details>
 
-## **SET_ENDING_CREDITS_CONTROL**
+#### SET_ENDING_CREDITS_CONTROL
 Control ending credits playback  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_ENDING_CREDITS_CONTROL = {
 	/**
 	 * Go to previous section
 	 */
@@ -5315,13 +5318,13 @@ Control ending credits playback
 
 </details>
 
-## **SET_ENDING_CREDITS_DATA**
+#### SET_ENDING_CREDITS_DATA
 Response with ending credits data  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_ENDING_CREDITS_DATA = {
 	/**
 	 * Stream duration in seconds
 	 */
@@ -6214,24 +6217,17 @@ Response with ending credits data
 
 </details>
 
-## **SET_ENDING_CREDITS_PRESENCE**
+#### SET_ENDING_CREDITS_PRESENCE
 Response with current ending credits overlay presence  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_EXECUTE_TRIGGER**
+#### SET_EXECUTE_TRIGGER
 Execute a specific trigger manually  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_EXECUTE_TRIGGER = {
 	/**
 	 * Trigger ID to execute
 	 */
@@ -6241,13 +6237,13 @@ Execute a specific trigger manually
 
 </details>
 
-## **SET_GREET_FEED_READ**
+#### SET_GREET_FEED_READ
 Mark messages as read in the greet them feed  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_GREET_FEED_READ = {
 	/**
 	 * Number of messages to mark as read
 	 */
@@ -6257,59 +6253,31 @@ Mark messages as read in the greet them feed
 
 </details>
 
-## **SET_GREET_FEED_READ_ALL**
+#### SET_GREET_FEED_READ_ALL
 Clears the greet them feed  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_HIDE_CHAT_ALERT**
+#### SET_HIDE_CHAT_ALERT
 Hide current chat alert
 See settings => chat features => Enable chat alert  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_MERGE_TOGGLE**
+#### SET_MERGE_TOGGLE
 Toggle merge feature
 See settings => chat features => Merge consecutive messages of a user  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_MOD_TOOLS_TOGGLE**
+#### SET_MOD_TOOLS_TOGGLE
 Toggle moderation tools display  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_PLAY_SFXR**
+#### SET_PLAY_SFXR
 Play an SFXR sound  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_PLAY_SFXR = {
 	/**
 	 * SFXR sound parameters as a string
 	 * Generate string at:
@@ -6325,35 +6293,21 @@ Play an SFXR sound
 
 </details>
 
-## **SET_POLL_TOGGLE**
+#### SET_POLL_TOGGLE
 Toggle current poll display  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_PREDICTION_TOGGLE**
+#### SET_PREDICTION_TOGGLE
 Toggle current prediction display  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_QNA_HIGHLIGHT**
+#### SET_QNA_HIGHLIGHT
 Highlights the top most message of given Q&A session  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_QNA_HIGHLIGHT = {
 	/**
 	 * Q&A session ID
 	 */
@@ -6363,13 +6317,13 @@ Highlights the top most message of given Q&A session
 
 </details>
 
-## **SET_QNA_SKIP**
+#### SET_QNA_SKIP
 Skips the top most message of given Q&A session  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_QNA_SKIP = {
 	/**
 	 * Q&A session ID
 	 */
@@ -6379,36 +6333,22 @@ Skips the top most message of given Q&A session
 
 </details>
 
-## **SET_RAFFLE_PICK_WINNER**
+#### SET_RAFFLE_PICK_WINNER
 Pick a winner for the first active raffle.
 If multiple raffles are active, only the first one started will be considered.  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_RAFFLE_TOGGLE**
+#### SET_RAFFLE_TOGGLE
 Toggle current raffle display  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_SEND_CUSTOM_CHAT_MESSAGE**
+#### SET_SEND_CUSTOM_CHAT_MESSAGE
 Send a custom message to the chat feed with optional styling and actions  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_SEND_CUSTOM_CHAT_MESSAGE = {
 	/**
 	 * Message to display
 	 */
@@ -6492,13 +6432,13 @@ Send a custom message to the chat feed with optional styling and actions
 
 </details>
 
-## **SET_SEND_MESSAGE**
+#### SET_SEND_MESSAGE
 Send a message to chat  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_SEND_MESSAGE = {
 	/**
 	 * Message content to send
 	 */
@@ -6508,57 +6448,29 @@ Send a message to chat
 
 </details>
 
-## **SET_SHOUTOUT_LAST_RAIDER**
+#### SET_SHOUTOUT_LAST_RAIDER
 Shoutout the user that raided the channel the most recently  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_STOP_CURRENT_TTS_AUDIO**
+#### SET_STOP_CURRENT_TTS_AUDIO
 Stop any current text-to-speech audio playback  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_STOP_POLL**
+#### SET_STOP_POLL
 Stop any Twitch poll currently running  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_STOP_PREDICTION**
+#### SET_STOP_PREDICTION
 Stop any Twitch prediction currently running  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_TIMER_ADD**
+#### SET_TIMER_ADD
 Add time to a timer  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_TIMER_ADD = {
 	/**
 	 * Timer ID to add time to
 	 */
@@ -6574,13 +6486,13 @@ Add time to a timer
 
 </details>
 
-## **SET_TRIGGER_STATE**
+#### SET_TRIGGER_STATE
 Enable or disable a specific trigger  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_TRIGGER_STATE = {
 	/**
 	 * Trigger ID to change state of
 	 */
@@ -6598,24 +6510,17 @@ Enable or disable a specific trigger
 
 </details>
 
-## **SET_VIEWERS_COUNT_TOGGLE**
+#### SET_VIEWERS_COUNT_TOGGLE
 Toggle viewers count display  
-<details>
-<summary>JSON params</summary>
 
-```
--none-
-```
 
-</details>
-
-## **SET_VOICE_CONTROL_STATE**
+#### SET_VOICE_CONTROL_STATE
 Set voice bot enabled/disabled state  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type SET_VOICE_CONTROL_STATE = {
 	/**
 	 * Enable or disable voice control
 	 * Omit to toggle current state
@@ -6626,52 +6531,69 @@ Set voice bot enabled/disabled state
 
 </details>
 
-</details>
+
 
 # Requesting data
-<details>
-<summary>Data you can request from Twitchat.</summary>
+Data you can request from Twitchat.
 
-## **GET_AD_BREAK_OVERLAY_CONFIGS**
+- [GET_AD_BREAK_OVERLAY_CONFIGS](#get_ad_break_overlay_configs)
+- [GET_AD_BREAK_OVERLAY_PRESENCE](#get_ad_break_overlay_presence)
+- [GET_ALL_COUNTERS](#get_all_counters)
+- [GET_ANIMATED_TEXT_CONFIGS](#get_animated_text_configs)
+- [GET_BINGO_GRID_CONFIGS](#get_bingo_grid_configs)
+- [GET_BITSWALL_OVERLAY_CONFIGS](#get_bitswall_overlay_configs)
+- [GET_BITSWALL_OVERLAY_PRESENCE](#get_bitswall_overlay_presence)
+- [GET_CHAT_COLUMNS_COUNT](#get_chat_columns_count)
+- [GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE](#get_chat_highlight_overlay_presence)
+- [GET_CHAT_POLL_OVERLAY_CONFIGS](#get_chat_poll_overlay_configs)
+- [GET_CHAT_POLL_OVERLAY_PRESENCE](#get_chat_poll_overlay_presence)
+- [GET_COUNTER](#get_counter)
+- [GET_CURRENT_TRACK](#get_current_track)
+- [GET_CUSTOM_TRAIN_DATA](#get_custom_train_data)
+- [GET_DISTORT_OVERLAY_CONFIGS](#get_distort_overlay_configs)
+- [GET_DONATION_GOALS_OVERLAY_CONFIGS](#get_donation_goals_overlay_configs)
+- [GET_ENDING_CREDITS_DATA](#get_ending_credits_data)
+- [GET_ENDING_CREDITS_PRESENCE](#get_ending_credits_presence)
+- [GET_GLOBAL_STATES](#get_global_states)
+- [GET_LABEL_OVERLAY_CONFIGS](#get_label_overlay_configs)
+- [GET_LABEL_OVERLAY_PLACEHOLDERS](#get_label_overlay_placeholders)
+- [GET_POLLS_OVERLAY_CONFIGS](#get_polls_overlay_configs)
+- [GET_POLLS_OVERLAY_PRESENCE](#get_polls_overlay_presence)
+- [GET_PREDICTIONS_OVERLAY_CONFIGS](#get_predictions_overlay_configs)
+- [GET_PREDICTIONS_OVERLAY_PRESENCE](#get_predictions_overlay_presence)
+- [GET_QNA_SESSION_LIST](#get_qna_session_list)
+- [GET_TIMER](#get_timer)
+- [GET_TIMER_LIST](#get_timer_list)
+- [GET_TIMER_OVERLAY_PRESENCE](#get_timer_overlay_presence)
+- [GET_TRIGGER_LIST](#get_trigger_list)
+- [GET_WHEEL_OVERLAY_PRESENCE](#get_wheel_overlay_presence)
+
+
+
+
+#### GET_AD_BREAK_OVERLAY_CONFIGS
 Request ad break overlay configuration  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_AD_BREAK_OVERLAY_CONFIGS](#on_ad_break_overlay_configs)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_AD_BREAK_OVERLAY_PRESENCE**
+#### GET_AD_BREAK_OVERLAY_PRESENCE
 Request ad break overlay presence  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_AD_BREAK_OVERLAY_PRESENCE](#on_ad_break_overlay_presence)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_ALL_COUNTERS**
+#### GET_ALL_COUNTERS
 Request list of all counters  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_COUNTER_LIST](#on_counter_list)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_ANIMATED_TEXT_CONFIGS**
+#### GET_ANIMATED_TEXT_CONFIGS
 Request animated text overlay configuration  
+Receive answer with: [ON_ANIMATED_TEXT_CONFIGS](#on_animated_text_configs)  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type GET_ANIMATED_TEXT_CONFIGS = {
 	/**
 	 * Animated text overlay ID
 	 */
@@ -6681,13 +6603,14 @@ Request animated text overlay configuration
 
 </details>
 
-## **GET_BINGO_GRID_CONFIGS**
+#### GET_BINGO_GRID_CONFIGS
 Request bingo grid configuration  
+Receive answer with: [ON_BINGO_GRID_CONFIGS](#on_bingo_grid_configs)  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type GET_BINGO_GRID_CONFIGS = {
 	/**
 	 * Bingo grid ID to get parameters for
 	 */
@@ -6697,79 +6620,44 @@ Request bingo grid configuration
 
 </details>
 
-## **GET_BITSWALL_OVERLAY_CONFIGS**
+#### GET_BITSWALL_OVERLAY_CONFIGS
 Request bitswall overlay configuration  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_BITSWALL_OVERLAY_CONFIGS](#on_bitswall_overlay_configs)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_BITSWALL_OVERLAY_PRESENCE**
+#### GET_BITSWALL_OVERLAY_PRESENCE
 Request bitswall overlay presence  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_BITSWALL_OVERLAY_PRESENCE](#on_bitswall_overlay_presence)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_CHAT_COLUMNS_COUNT**
+#### GET_CHAT_COLUMNS_COUNT
 Request number of chat columns  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_CHAT_COLUMNS_COUNT](#on_chat_columns_count)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE**
+#### GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE
 Request current chat highlight overlay presence  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [SET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE](#set_chat_highlight_overlay_presence)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_CHAT_POLL_OVERLAY_CONFIGS**
+#### GET_CHAT_POLL_OVERLAY_CONFIGS
 Request chat poll overlay configuration  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_CHAT_POLL_OVERLAY_CONFIGS](#on_chat_poll_overlay_configs)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_CHAT_POLL_OVERLAY_PRESENCE**
+#### GET_CHAT_POLL_OVERLAY_PRESENCE
 Request chat poll overlay presence  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_CHAT_POLL_OVERLAY_PRESENCE](#on_chat_poll_overlay_presence)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_COUNTER**
+#### GET_COUNTER
 Request a specific counter entity  
+Receive answer with: [ON_COUNTER_UPDATE](#on_counter_update)  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type GET_COUNTER = {
 	/**
 	 * Counter ID to get value of
 	 */
@@ -6779,24 +6667,19 @@ Request a specific counter entity
 
 </details>
 
-## **GET_CURRENT_TRACK**
+#### GET_CURRENT_TRACK
 Request current playing track information  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_CURRENT_TRACK](#on_current_track)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_CUSTOM_TRAIN_DATA**
+#### GET_CUSTOM_TRAIN_DATA
 Request custom train data and state  
+Receive answer with: [ON_CUSTOM_TRAIN_DATA](#on_custom_train_data)  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type GET_CUSTOM_TRAIN_DATA = {
 	/**
 	 * Custom train ID to get state for
 	 */
@@ -6806,13 +6689,14 @@ Request custom train data and state
 
 </details>
 
-## **GET_DISTORT_OVERLAY_CONFIGS**
+#### GET_DISTORT_OVERLAY_CONFIGS
 Request distortion overlay configuration  
+Receive answer with: [ON_DISTORT_OVERLAY_CONFIGS](#on_distort_overlay_configs)  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type GET_DISTORT_OVERLAY_CONFIGS = {
 	/**
 	 * Distortion overlay ID to get parameters for
 	 */
@@ -6822,13 +6706,14 @@ Request distortion overlay configuration
 
 </details>
 
-## **GET_DONATION_GOALS_OVERLAY_CONFIGS**
+#### GET_DONATION_GOALS_OVERLAY_CONFIGS
 Request donation goals overlay configuration  
+Receive answer with: [ON_DONATION_GOALS_OVERLAY_CONFIGS](#on_donation_goals_overlay_configs)  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type GET_DONATION_GOALS_OVERLAY_CONFIGS = {
 	/**
 	 * Overlay ID to get parameters for
 	 */
@@ -6838,13 +6723,14 @@ Request donation goals overlay configuration
 
 </details>
 
-## **GET_ENDING_CREDITS_DATA**
+#### GET_ENDING_CREDITS_DATA
 Request for ending credits data  
+Receive answer with: [SET_ENDING_CREDITS_DATA](#set_ending_credits_data)  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type GET_ENDING_CREDITS_DATA = {
 	/**
 	 * Date offset to get data from
 	 */
@@ -6858,35 +6744,24 @@ Request for ending credits data
 
 </details>
 
-## **GET_ENDING_CREDITS_PRESENCE**
+#### GET_ENDING_CREDITS_PRESENCE
 Request current ending credits overlay presence  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [SET_ENDING_CREDITS_PRESENCE](#set_ending_credits_presence)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_GLOBAL_STATES**
+#### GET_GLOBAL_STATES
 Requests for global states  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_GLOBAL_STATES](#on_global_states)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_LABEL_OVERLAY_CONFIGS**
+#### GET_LABEL_OVERLAY_CONFIGS
 Request label overlay configuration  
+Receive answer with: [ON_LABEL_OVERLAY_CONFIGS](#on_label_overlay_configs)  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type GET_LABEL_OVERLAY_CONFIGS = {
 	/**
 	 * Label ID
 	 */
@@ -6896,79 +6771,44 @@ Request label overlay configuration
 
 </details>
 
-## **GET_LABEL_OVERLAY_PLACEHOLDERS**
+#### GET_LABEL_OVERLAY_PLACEHOLDERS
 Request available label overlay placeholders  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_LABEL_OVERLAY_PLACEHOLDERS](#on_label_overlay_placeholders)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_POLLS_OVERLAY_CONFIGS**
+#### GET_POLLS_OVERLAY_CONFIGS
 Request polls overlay configuration  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_POLL_OVERLAY_CONFIGS](#on_poll_overlay_configs)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_POLLS_OVERLAY_PRESENCE**
+#### GET_POLLS_OVERLAY_PRESENCE
 Request polls overlay presence  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_POLLS_OVERLAY_PRESENCE](#on_polls_overlay_presence)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_PREDICTIONS_OVERLAY_CONFIGS**
+#### GET_PREDICTIONS_OVERLAY_CONFIGS
 Request predictions overlay configuration  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_PREDICTION_OVERLAY_CONFIGS](#on_prediction_overlay_configs)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_PREDICTIONS_OVERLAY_PRESENCE**
+#### GET_PREDICTIONS_OVERLAY_PRESENCE
 Request predictions overlay presence  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_PREDICTIONS_OVERLAY_PRESENCE](#on_predictions_overlay_presence)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_QNA_SESSION_LIST**
+#### GET_QNA_SESSION_LIST
 Request list of all Q&A sessions  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_QNA_SESSION_LIST](#on_qna_session_list)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_TIMER**
+#### GET_TIMER
 Request specific timer configuration  
+Receive answer with: [ON_TIMER_START](#on_timer_start)  
 <details>
-<summary>JSON params</summary>
+<summary>JSON parameters</summary>
 
 ```typescript
-{
+type GET_TIMER = {
 	/**
 	 * Timer ID to get configs for
 	 */
@@ -6978,49 +6818,25 @@ Request specific timer configuration
 
 </details>
 
-## **GET_TIMER_LIST**
+#### GET_TIMER_LIST
 Request list of all timers  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_TIMER_LIST](#on_timer_list)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_TIMER_OVERLAY_PRESENCE**
+#### GET_TIMER_OVERLAY_PRESENCE
 Request timer overlay presence  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_TIMER_OVERLAY_PRESENCE](#on_timer_overlay_presence)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_TRIGGER_LIST**
+#### GET_TRIGGER_LIST
 Request list of all triggers  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_TRIGGER_LIST](#on_trigger_list)  
 
-```
--none-
-```
 
-</details>
-
-## **GET_WHEEL_OVERLAY_PRESENCE**
+#### GET_WHEEL_OVERLAY_PRESENCE
 Request wheel overlay presence  
-<details>
-<summary>JSON params</summary>
+Receive answer with: [ON_WHEEL_OVERLAY_PRESENCE](#on_wheel_overlay_presence)  
 
-```
--none-
-```
 
-</details>
 
-</details>
 
