@@ -173,12 +173,13 @@ class MessageList extends Vue {
 	public selectedItem: HTMLDivElement | null = null;
 	public selectedMessage: TwitchatDataTypes.ChatMessageTypes | null = null;
 	public messageIdToChildren: {[key:string]:TwitchatDataTypes.ChatMessageTypes[]} = {};
-
+	
 	private maxMessages:number = 50;
 	private markedAsReadDate:number = 0;
 	private selectionDate:number = 0;
 	private selectionTimeout:number = -1;
 	private virtualMessageHeight:number = 32;
+	private selectedMessageIsChild: boolean = false;
 	private prevTs = 0;
 	private counter = 0;
 	private disposed = false;
@@ -214,6 +215,7 @@ class MessageList extends Vue {
 
 	public get selectedClasses():string[] {
 		let res = ["selected"];
+		if(this.selectedMessageIsChild) res.push("childSelected");
 		if(this.selectedMessage?.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) res.push("noSelect");
 		return res;
 	}
@@ -227,10 +229,6 @@ class MessageList extends Vue {
 			res.push(element);
 		}
 		return res;
-	}
-
-	public beforeUpdate(): void {
-		// console.log("Update list");
 	}
 
 	public async beforeMount(): Promise<void> {
@@ -1744,6 +1742,11 @@ class MessageList extends Vue {
 	 * Replaces the read marker and selector
 	 */
 	private replaceReadMarkerAndSelector(movingReadMark:boolean = false):void {
+		if(this.selectedMessageIsChild && this.selectedItem) {
+			this.selectedItem.classList.remove("selectedChildMessage");
+			this.selectedMessageIsChild = false;
+		}
+
 		this.markedReadItem = null;
 		this.selectedItem = null;
 		this.selectedMessage = null;
@@ -1774,17 +1777,16 @@ class MessageList extends Vue {
 
 				//Search on merged children if any
 				const children = this.messageIdToChildren[mLoc.id]
-				// const mergeable = mLoc as TwitchatDataTypes.MergeableMessage;
 				if(children) {
-				// if(mergeable.children) {
 					for (const child of children) {
-					// for (let j = 0; j < mergeable.children.length; j++) {
-					// 	const child = mergeable.children[j];
 						if(this.selectionDate > 0 && child.date <= this.selectionDate) {
 							const div = document.getElementById("message_" + child.id + "_" + this.config.order) as HTMLDivElement;
 							// const div = (this.$refs["message_" + mLoc.id] as HTMLDivElement[])[0];
+							this.selectedItem.classList.remove("selectedChildMessage");
 							this.selectedItem = div;
 							this.selectedMessage = child as TwitchatDataTypes.MessageChatData;
+							this.selectedMessageIsChild = true;
+							div.classList.add("selectedChildMessage");
 						}
 					}
 				}
@@ -2084,8 +2086,9 @@ export default toNative(MessageList);
 		.selected {
 			width: 100%;
 			height: 100%;
-			background-color: var(--color-light-fade);
-			outline: 1px solid var(--color-light);
+			background-color: var(--color-secondary-fadest);
+			border: 2px solid var(--color-secondary);
+			border-radius: var(--border-radius);
 			position: absolute;
 			bottom: 0;
 			left: 0;
@@ -2094,8 +2097,18 @@ export default toNative(MessageList);
 
 			&.noSelect {
 				background-color: var(--color-alert-fadest);
-				outline: 1px solid var(--color-alert);
+				border-color: var(--color-alert);
 			}
+
+			&.childSelected {
+				display: none;
+			}
+		}
+
+		::v-deep(.selectedChildMessage) {
+			background-color: var(--color-secondary-fadest);
+			border: 2px solid var(--color-secondary);
+			border-radius: var(--border-radius);
 		}
 
 		.subHolder:last-child {
