@@ -827,7 +827,7 @@ export default class TTSUtils {
 		let fallbackToSystem = false;
 		if(voice?.platform == "elevenlabs") {
 			this._readComplete = false;
-			StoreProxy.tts.speaking = true;
+			StoreProxy.tts.setSpeakingState(true);
 			try {
 				let settings:{
 					similarity_boost?:number
@@ -874,7 +874,7 @@ export default class TTSUtils {
 			}
 			mess.onstart = (ev: SpeechSynthesisEvent) => {
 				this._readComplete = false;
-				StoreProxy.tts.speaking = true;
+				StoreProxy.tts.setSpeakingState(true);
 			}
 			mess.onend = (ev: SpeechSynthesisEvent) => {
 				this.onReadComplete();
@@ -913,7 +913,7 @@ export default class TTSUtils {
 		this._readComplete = true;
 		this._pendingMessages.shift();
 		clearTimeout(this._stopTimeout);
-		StoreProxy.tts.speaking = false;
+		StoreProxy.tts.setSpeakingState(false);
 		this.readNextMessage();
 	}
 

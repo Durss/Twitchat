@@ -61,7 +61,7 @@ export default class VoiceAction {
 	public static CHAT_FEED_PAUSE:keyof TwitchatEventMap = "SET_CHAT_FEED_PAUSE";
 	public static CHAT_FEED_PAUSE_ICON:string = "pause";
 
-	public static CHAT_FEED_UNPAUSE:keyof TwitchatEventMap = "SET_CHAT_FEED_UNPAUSE";
+	public static CHAT_FEED_UNPAUSE:string = "SET_CHAT_FEED_PAUSE";
 	public static CHAT_FEED_UNPAUSE_ICON:string = "pause";
 
 	public static CHAT_FEED_SCROLL_UP:keyof TwitchatEventMap = "SET_CHAT_FEED_SCROLL_UP";

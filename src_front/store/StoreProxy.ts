@@ -1126,6 +1126,15 @@ export interface IParamsState {
 	 */
 	chatColumnsConfig:TwitchatDataTypes.ChatColumnsConfig[];
 	/**
+	 * Live status of each chat column
+	 */
+	chatColumnStates:{
+		/**
+		 * Is chat autoscroll paused?
+		 */
+		paused:boolean
+	}[];
+	/**
 	 * GoXLR configurations
 	 */
 	goxlrConfig: TwitchatDataTypes.GoXLRParams;
@@ -1787,6 +1796,11 @@ export interface ITTSActions {
 	 */
 	populateData():void;
 	/**
+	 * Updates speaking state
+	 * @param speaking 
+	 */
+	setSpeakingState(speaking:boolean):void;
+	/**
 	 * Read a message via TTS
 	 * @param message
 	 */
@@ -2144,6 +2158,7 @@ export interface IVoiceState {
 }
 
 export interface IVoiceGetters {
+	voiceBotConfigured:boolean;
 }
 
 export interface IVoiceActions {

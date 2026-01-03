@@ -117,10 +117,11 @@ export const storeTimer = defineStore('timer', {
 
 			const timerAddHandler = (event:TwitchatEvent<"SET_TIMER_ADD" | "SET_COUNTDOWN_ADD">)=> {
 				const durationStr = event.data?.value ?? "0";
-				const defaultTimer = this.timerList.find(v=>v.type == 'timer' && v.isDefault);
-				const timerId = event.data?.id ?? defaultTimer?.id;
+				const type:TwitchatDataTypes.TimerData["type"] = event.type == "SET_TIMER_ADD" ? "timer" : "countdown";
+				const defaultTimer = this.timerList.find(v=>v.type == type && v.isDefault);
+				const timerId = event.data?.id || defaultTimer?.id;
 				const timer = this.timerList.find(v=>v.id == timerId);
-				const durationMs = isNaN(parseInt(durationStr))? 1000 : parseInt(durationStr) * 1000;
+				const durationMs = isNaN(parseInt(durationStr))? 0 : parseFloat(durationStr) * 1000;
 				if(!timer) return;
 				if(durationMs > 0) {
 					this.timerAdd(timer.id, durationMs);
@@ -425,12 +426,22 @@ export const storeTimer = defineStore('timer', {
 		},
 
 		broadcastTimerList() {
-			PublicAPI.instance.broadcast("ON_TIMER_LIST", {timerList:this.timerList.map(c=> ({
-				id:c.id,
-				title:c.title,
-				enabled:c.enabled,
-				type:c.type,
-			}))});
+			PublicAPI.instance.broadcast("ON_TIMER_LIST", {
+				timerList:this.timerList.map(c=> ({
+					id:c.id,
+					title:c.title,
+					enabled:c.enabled,
+					type:c.type,
+					duration_ms:c.duration_ms,
+					offset_ms:c.offset_ms,
+					paused:c.paused,
+					pauseDuration_ms:c.pauseDuration_ms,
+					startAt_ms:c.startAt_ms,
+					endAt_ms:c.endAt_ms,
+					pausedAt_ms:c.pausedAt_ms,
+					isDefault:c.isDefault,
+				}
+			))});
 		}
 	} as ITimerActions
 	& ThisType<ITimerActions
