@@ -473,6 +473,20 @@ export type TwitchatEventMap = {
 		id: string;
 	};
 	/**
+	 * Set bingo grid visibility
+	 */
+	SET_BINGO_GRID_CONFIGS_VISIBILITY: {
+		/**
+		 * Bingo grid ID to change visibility of
+		 **/
+		id: string;
+		/**
+		 * Show or hide the bingo grid
+		 * Omit to toggle current visibility
+		 */
+		show?: boolean;
+	}
+	/**
 	 * Triggered when a heat click occurs on a bingo grid cell
 	 */
 	ON_BINGO_GRID_HEAT_CLICK: {
@@ -1919,6 +1933,40 @@ export type TwitchatEventMap = {
 		chatColConfs:{
 			paused: boolean;
 		}[]
+		/**
+		 * List of animated texts overlays
+		 */
+		animatedTextList: {
+			/**
+			 * Animated text ID
+			 */
+			id: string;
+			/**
+			 * Animated text name
+			 */
+			name: string;
+			/**
+			 * Is the animated text enabled ?
+			 */
+			enabled: boolean;
+		}[];
+		/**
+		 * List of bingo grids overlays
+		 */
+		bingoGridList: {
+			/**
+			 * Animated text ID
+			 */
+			id: string;
+			/**
+			 * Animated text name
+			 */
+			name: string;
+			/**
+			 * Is the animated text enabled ?
+			 */
+			enabled: boolean;
+		}[];
 	};
 
 	/**
@@ -2111,4 +2159,20 @@ export type TwitchatEventMap = {
 		outputState: string;
 		outputPath: string;
 	};
+	/**
+	 * Alias of SET_ANIMATED_TEXT_CONTENT but that's listend by Twitchat.
+	 * Twitchat will then broadcast SET_ANIMATED_TEXT_CONTENT to the overlay.
+	 * This way SD can send animated text to the overlay even though it's not
+	 * directly connected to it.
+	 * @private
+	 */
+	SET_ANIMATED_TEXT_CONTENT_FROM_SD: TwitchatEventMap["SET_ANIMATED_TEXT_CONTENT"];
+	/**
+	 * Alias of SET_BINGO_GRID_CONFIGS_VISIBILITY but that's listend by Twitchat.
+	 * Twitchat will then broadcast SET_BINGO_GRID_CONFIGS_VISIBILITY to the overlay.
+	 * This way SD can change bingo grid visibility even though it's not
+	 * directly connected to it.
+	 * @private
+	 */
+	SET_BINGO_GRID_CONFIGS_VISIBILITY_FROM_SD: TwitchatEventMap["SET_BINGO_GRID_CONFIGS_VISIBILITY"];
 }
